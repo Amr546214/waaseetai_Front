@@ -209,3 +209,6 @@
 :host-context(.theme-light) .frp-foot {
   border-top-color:#E7EAF1!important;color:#64748B!important
 }
+
+.frp-btn:disabled{opacity:.5;cursor:not-allowed}
+@media print{.frp-actions{display:none}}

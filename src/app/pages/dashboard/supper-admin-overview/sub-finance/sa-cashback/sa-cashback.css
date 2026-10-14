@@ -195,3 +195,5 @@
 :host-context(body.theme-light) .fcb-foot,
 :host-context(.light-theme) .fcb-foot,
 :host-context(.theme-light) .fcb-foot{border-top-color:#E7EAF1}
+
+.fcb-btn:disabled{opacity:.5;cursor:not-allowed}

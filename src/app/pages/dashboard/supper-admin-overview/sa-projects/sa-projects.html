@@ -2,7 +2,7 @@
   <div class="pj-hdr">
     <div>
       <h1 class="pj-ttl">المشاريع</h1>
-      <p class="pj-sub">كل المشاريع الجارية والمكتملة في وسيط AI (عقد + ضمان + تسليم)</p>
+      <p class="pj-sub">كل المشاريع على المنصة (عقد + ضمان + تسليم) من بيانات النظام</p>
     </div>
   </div>
 
@@ -10,21 +10,26 @@
     <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
     <div class="ws-note-body">
       <div class="ws-note-lbl">وسيط — المشاريع</div>
-      <p class="ws-note-txt">تُعرض حالة جميع المشاريع الجارية لمتابعتها يدوياً</p>
+      <p class="ws-note-txt">عرض للقراءة فقط. تنتقل الأموال عند اعتماد العميل للمراحل فقط.</p>
     </div>
   </div>
 
   <div class="pj-kpi-grid">
-    <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع جارية</span><div class="pj-kpi-val txt-blue">{{ stats().active }}</div></div>
-    <div class="pj-kpi"><span class="pj-kpi-lbl">مكتملة</span><div class="pj-kpi-val txt-green">{{ stats().completed }}</div></div>
-    <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع متأخرة</span><div class="pj-kpi-val txt-coral">{{ stats().late }}</div></div>
-    <div class="pj-kpi"><span class="pj-kpi-lbl">قيمة مشاريع جارية</span><div class="pj-kpi-val txt-teal">{{ stats().activeValue | number }}<span class="pj-kpi-unit">$</span></div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع جارية</span><div class="pj-kpi-val txt-blue">{{ data() ? (counts()['IN_PROGRESS'] ?? 0) : '-' }}</div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">مكتملة</span><div class="pj-kpi-val txt-green">{{ data() ? (counts()['COMPLETED'] ?? 0) : '-' }}</div></div>
+    <div class="pj-kpi"><span class="pj-kpi-lbl">متنازع عليها</span><div class="pj-kpi-val txt-coral">{{ data() ? (counts()['DISPUTED'] ?? 0) : '-' }}</div></div>
+    <div class="pj-kpi">
+      <span class="pj-kpi-lbl">إجمالي المبالغ المحتجزة في الضمان</span>
+      <div class="pj-kpi-val txt-teal">
+        @if (data(); as d) { {{ d.kpis.escrowHeldTotal | number }}<span class="pj-kpi-unit">{{ currency() }}</span> } @else { - }
+      </div>
+    </div>
   </div>
 
   <div class="pj-tabs">
     @for (f of filters; track f.key) {
       <button type="button" class="pj-tab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">
-        {{ f.label }}<span class="pj-tab-count">{{ counts()[f.key] }}</span>
+        {{ f.label }}<span class="pj-tab-count">{{ data() ? count(f.key) : '-' }}</span>
       </button>
     }
   </div>
@@ -34,38 +39,58 @@
     <input type="search" placeholder="ابحث بعنوان المشروع أو اسم الطرفين..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
   </div>
 
-  @if (filtered().length === 0) {
+  @if (loading() && !data()) {
+    <div class="pj-empty"><p>جارٍ تحميل المشاريع...</p></div>
+  } @else if (error()) {
+    <div class="pj-empty">
+      <p>تعذّر تحميل المشاريع</p>
+      <button type="button" class="pj-btn pj-btn-ghost" (click)="load()">إعادة المحاولة</button>
+    </div>
+  } @else if (rows().length === 0) {
     <div class="pj-empty"><p>لا توجد مشاريع مطابقة</p></div>
   } @else {
-    <div class="pj-tbl-card">
+    <div class="pj-tbl-card" [style.opacity]="loading() ? 0.6 : 1">
       <div class="pj-tbl-wrap">
         <table class="pj-tbl">
           <thead>
             <tr>
-              <th>#</th><th>المشروع</th><th>الطالب</th><th>المقدم</th><th>قيمة العقد</th><th>التقدم</th><th>الموعد</th><th>الحالة</th>
+              <th>#</th><th>المشروع</th><th>الطالب</th><th>المقدم</th><th>قيمة العقد</th><th>التقدم</th><th>مدة التسليم</th><th>الضمان</th><th>الحالة</th>
             </tr>
           </thead>
           <tbody>
-            @for (p of filtered(); track p.id) {
-              <tr [routerLink]="[p.id]">
-                <td class="pj-muted">{{ p.id }}</td>
+            @for (p of rows(); track p.id) {
+              <tr class="pj-row" [routerLink]="[p.id]">
+                <td class="pj-muted">{{ p.id.slice(0, 8) }}</td>
                 <td class="pj-title">{{ p.title }}</td>
-                <td><div class="pj-u-cell"><div class="pj-u-av" [style.background]="p.cBg">{{ p.cAv }}</div><span>{{ p.client }}</span></div></td>
-                <td><div class="pj-u-cell"><div class="pj-u-av" [style.background]="p.pBg">{{ p.pAv }}</div><span>{{ p.provider }}</span></div></td>
-                <td class="pj-value">{{ p.value }}</td>
+                <td>
+                  @if (p.client; as c) { <div class="pj-u-cell"><div class="pj-u-av">{{ initials(c.name) }}</div><span>{{ c.name }}</span></div> } @else { <span class="pj-muted">-</span> }
+                </td>
+                <td>
+                  @if (p.provider; as c) { <div class="pj-u-cell"><div class="pj-u-av">{{ initials(c.name) }}</div><span>{{ c.name }}</span></div> } @else { <span class="pj-muted">-</span> }
+                </td>
+                <td class="pj-value">@if (p.contract) { {{ p.contract.price | number }} $ } @else { - }</td>
                 <td>
                   <div class="pj-prog-cell">
-                    <div class="pj-prog-track"><div class="pj-prog-fill" [style.width.%]="p.progress"></div></div>
-                    <span>{{ p.progress }}%</span>
+                    <div class="pj-prog-track"><div class="pj-prog-fill" [style.width.%]="p.progress.percent"></div></div>
+                    <span>{{ p.progress.percent }}%</span>
                   </div>
                 </td>
-                <td [class.pj-late-text]="p.status === 'late'">{{ p.deadline }}</td>
-                <td><span class="pj-status" [ngClass]="statusClasses[p.status]">{{ statusLabels[p.status] }}</span></td>
+                <td>{{ p.deliveryDays }} يوم</td>
+                <td>@if (p.escrow?.status === 'HELD') { {{ p.escrow?.heldAmount | number }} $ (محتجز) } @else if (p.escrow?.status === 'RELEASED') { مُفرَج } @else if (p.escrow?.status === 'REFUNDED') { مُسترَد } @else { - }</td>
+                <td><span class="pj-status" [ngClass]="statusClasses[p.status] || 'pj-st-cancelled'">{{ statusLabels[p.status] || p.status }}</span></td>
               </tr>
             }
           </tbody>
         </table>
       </div>
     </div>
+
+    @if (pages() > 1) {
+      <div class="pj-pager">
+        <button type="button" class="pj-btn pj-btn-ghost" [disabled]="page() <= 1 || loading()" (click)="goTo(page() - 1)">السابق</button>
+        <span>صفحة {{ page() }} من {{ pages() }}</span>
+        <button type="button" class="pj-btn pj-btn-ghost" [disabled]="page() >= pages() || loading()" (click)="goTo(page() + 1)">التالي</button>
+      </div>
+    }
   }
 </section>

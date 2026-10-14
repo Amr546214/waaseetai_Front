@@ -2,81 +2,18 @@
   <div class="fcb-hdr">
     <div>
       <h1 class="fcb-ttl">إدارة الكاش باك</h1>
-      <p class="fcb-sub">توزيع الكاش باك على المستخدمين حسب النشاط — تُحسب النسب تلقائياً وفق سياسة ثابتة</p>
+      <p class="fcb-sub">لا يوجد سجل توزيعات كاش باك</p>
     </div>
     <div class="fcb-actions">
-      <button type="button" class="fcb-btn fcb-btn-ghost" (click)="exportList()">تصدير</button>
-      <button type="button" class="fcb-btn fcb-btn-primary" (click)="distributeBatch()">توزيع دفعة</button>
+      <button type="button" class="fcb-btn fcb-btn-ghost" disabled [attr.title]="emptyReason">تصدير</button>
+      <button type="button" class="fcb-btn fcb-btn-ghost" disabled [attr.title]="emptyReason">توزيع دفعة</button>
     </div>
   </div>
 
-  @if (toast()) {
-    <div class="fcb-toast">{{ toast() }}</div>
-  }
-
-  <div class="ws-note ws-note--neutral">
-    <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+  <div class="ws-note ws-note--neutral" role="status" data-testid="sf-empty">
     <div class="ws-note-body">
-      <div class="ws-note-lbl">التوزيع التلقائي</div>
-      <p class="ws-note-txt">تُحسب نسب الكاش باك وفق سياسة ثابتة حسب حجم المعاملات ومستوى الولاء، وتُطبّق بعد اعتماد المشرف <strong>توزيع تلقائي</strong></p>
+      <div class="ws-note-lbl">{{ emptyTitle }}</div>
+      <p class="ws-note-txt" data-testid="sf-empty-reason">{{ emptyReason }}</p>
     </div>
   </div>
-
-  <div class="fcb-kpi-grid">
-    <div class="fcb-kpi-card">
-      <div class="fcb-kpi-top"><div class="fcb-kpi-ic ic-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fcb-kpi-lbl">إجمالي الكاش باك</span></div>
-      <div class="fcb-kpi-val txt-teal">487k</div>
-      <div class="fcb-kpi-unit">دولار — هذا الشهر</div>
-      <div class="fcb-kpi-sub txt-green">+12% عن الشهر الماضي</div>
-    </div>
-    <div class="fcb-kpi-card">
-      <div class="fcb-kpi-top"><div class="fcb-kpi-ic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fcb-kpi-lbl">موزَّع</span></div>
-      <div class="fcb-kpi-val txt-green">412k</div>
-      <div class="fcb-kpi-unit">دولار</div>
-      <div class="fcb-kpi-sub txt-muted">84.6% من الإجمالي</div>
-    </div>
-    <div class="fcb-kpi-card">
-      <div class="fcb-kpi-top"><div class="fcb-kpi-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fcb-kpi-lbl">معلق التوزيع</span></div>
-      <div class="fcb-kpi-val txt-amber">75k</div>
-      <div class="fcb-kpi-unit">دولار</div>
-      <div class="fcb-kpi-sub txt-amber-dk">جاهز للتوزيع</div>
-    </div>
-    <div class="fcb-kpi-card">
-      <div class="fcb-kpi-top"><div class="fcb-kpi-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fcb-kpi-lbl">متوسط كاش باك</span></div>
-      <div class="fcb-kpi-val txt-blue">84</div>
-      <div class="fcb-kpi-unit">دولار/مستخدم</div>
-      <div class="fcb-kpi-sub txt-muted">5,796 مستخدم مؤهل</div>
-    </div>
-  </div>
-
-  <div class="fcb-tabs">
-    @for (t of tabs; track t.key) {
-      <button type="button" class="fcb-tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
-    }
-  </div>
-
-  <div class="fcb-tbl-card">
-    <div class="fcb-tbl-hdr"><span class="fcb-tbl-ttl">توزيعات الكاش باك الأخيرة</span><span class="fcb-tbl-hint">{{ filteredEntries().length }} من {{ entries.length }} إدخال</span></div>
-    <div class="fcb-tbl-wrap">
-      <table class="fcb-data-tbl">
-        <thead><tr><th>المستخدم</th><th>نوع الحساب</th><th>المبلغ</th><th>السبب</th><th>التاريخ</th><th>الحالة</th></tr></thead>
-        <tbody>
-          @for (e of filteredEntries(); track e.user + e.date) {
-            <tr>
-              <td class="fcb-user">{{ e.user }}</td>
-              <td><span class="fcb-bdg" [ngClass]="accountTypeClasses[e.accountType]">{{ accountTypeLabels[e.accountType] }}</span></td>
-              <td [class.fcb-amount-ok]="e.status === 'distributed'" [class.fcb-amount-pending]="e.status === 'pending'">{{ formatAmount(e.amount) }}</td>
-              <td class="fcb-reason">{{ e.reason }}</td>
-              <td class="fcb-date">{{ e.date }}</td>
-              <td><span class="fcb-bdg" [class.tag-green]="e.status === 'distributed'" [class.tag-amber]="e.status === 'pending'">{{ e.status === 'distributed' ? 'موزَّع' : 'معلق' }}</span></td>
-            </tr>
-          } @empty {
-            <tr><td colspan="6" class="fcb-empty">لا توجد إدخالات مطابقة</td></tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="fcb-foot"><span>© 2026 وسيط AI · الكاش باك</span><span>دورة توزيع: أسبوعية</span></div>
 </section>

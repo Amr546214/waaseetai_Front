@@ -4,7 +4,7 @@ import { ApiResponse } from './api.model';
  * Withdrawal status values inferred from domain context.
  * Swagger does not define an enum for this; keep flexible with `| string`.
  */
-export type WithdrawalStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED' | string;
+export type WithdrawalStatus = 'PENDING' | 'APPROVED' | 'PROCESSING' | 'REJECTED' | 'COMPLETED' | 'REVERSED' | string;
 
 /**
  * Single withdrawal record.
@@ -31,6 +31,12 @@ export interface Withdrawal {
   // balance for this withdrawal's ledger (provider earnings or affiliate
   // commissions), computed server-side. Not present on list responses.
   availableBalance?: number;
+  /** Admin detail only: latest PayPal payout attempts (empty while payout automation is off). */
+  payoutAttempts?: { id: string; status: string; createdAt: string; updatedAt: string }[];
+  /** Admin detail only: whether the server can send a PayPal payout (PAYOUT_AUTOMATION_ENABLED). */
+  payoutAutomationEnabled?: boolean;
+  /** Admin list/detail: the owner as the API returns it. */
+  user?: { id: string; firstName?: string; lastName?: string; email?: string; accountType?: string; affiliateProfile?: { id: string } | null } | null;
   [key: string]: unknown;
 }
 
@@ -52,6 +58,8 @@ export interface WithdrawalPagination {
  * The items array and pagination may use different key names on the backend.
  */
 export interface WithdrawalListData {
+  /** Admin list: count + total amount per status over the whole table. */
+  counts?: Record<string, { count: number; amount: number }>;
   withdrawals?: Withdrawal[];
   items?: Withdrawal[];
   pagination?: WithdrawalPagination;
@@ -68,6 +76,8 @@ export interface WithdrawalListData {
  */
 export interface AdminWithdrawalsQuery {
   status?: string;
+  /** provider = provider earnings withdrawals, affiliate = marketer commission withdrawals. */
+  owner?: 'provider' | 'affiliate';
   page?: number;
   limit?: number;
 }

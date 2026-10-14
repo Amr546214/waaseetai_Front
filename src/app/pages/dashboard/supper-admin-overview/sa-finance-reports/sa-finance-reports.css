@@ -199,3 +199,5 @@
   .frp-page { padding: 14px 16px; }
   .frp-kpi-grid { grid-template-columns: 1fr; }
 }
+.frp-btn:disabled{opacity:.5;cursor:not-allowed}
+@media print{.frp-hdr-actions,.frp-tabs{display:none}}

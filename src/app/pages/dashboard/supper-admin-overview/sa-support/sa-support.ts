@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AdminTicketListItem, TicketApiService, TicketStatus } from '../../../../core/services/ticket-api.service';
+import { AdminTicketListData, AdminTicketListItem, TicketApiService, TicketStatus } from '../../../../core/services/ticket-api.service';
 
 type FilterKey = 'all' | TicketStatus;
 
@@ -35,6 +35,8 @@ export class SaSupport implements OnInit {
   loading = signal(true);
   error = signal(false);
   tickets = signal<AdminTicketListItem[]>([]);
+  page = signal(1);
+  pagination = signal<AdminTicketListData['pagination'] | null>(null);
   statusCounts = signal<Partial<Record<TicketStatus, number>>>({});
 
   readonly statusLabels = TICKET_STATUS_LABELS;
@@ -57,12 +59,13 @@ export class SaSupport implements OnInit {
     this.loading.set(true);
     this.error.set(false);
     const f = this.activeFilter();
-    this.api.adminListTickets({ status: f === 'all' ? undefined : f, q: this.searchTerm().trim() || undefined }).subscribe({
+    this.api.adminListTickets({ status: f === 'all' ? undefined : f, q: this.searchTerm().trim() || undefined, page: this.page() }).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res.success && res.data) {
           this.tickets.set(res.data.items);
           this.statusCounts.set(res.data.counts);
+          this.pagination.set(res.data.pagination ?? null);
         } else {
           this.error.set(true);
         }
@@ -77,6 +80,23 @@ export class SaSupport implements OnInit {
 
   setFilter(key: FilterKey) {
     this.activeFilter.set(key);
+    this.page.set(1);
+    this.load();
+  }
+
+  totalPages(): number {
+    const p = this.pagination();
+    return p ? (p.pages || 1) : 1;
+  }
+
+  goToPage(n: number) {
+    if (n < 1 || n > this.totalPages() || n === this.page()) return;
+    this.page.set(n);
+    this.load();
+  }
+
+  search() {
+    this.page.set(1);
     this.load();
   }
 

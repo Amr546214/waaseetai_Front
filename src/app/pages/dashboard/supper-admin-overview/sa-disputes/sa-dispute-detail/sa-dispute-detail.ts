@@ -1,13 +1,16 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
+import { AdminOpsApiService, AdminStaffMember } from '../../../../../core/services/admin-ops-api.service';
 import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, DisputeAiSummary } from '../../../../../core/models/dispute.model';
 
 @Component({
   selector: 'app-sa-dispute-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule, WsSelectComponent],
   templateUrl: './sa-dispute-detail.html',
   styleUrls: ['../sa-disputes.css', './sa-dispute-detail.css'],
 })
@@ -15,6 +18,7 @@ export class SaDisputeDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private disputeApi = inject(DisputeApiService);
+  private opsApi = inject(AdminOpsApiService);
 
   selectedDispute = signal<Dispute | null>(null);
   loading = signal(true);
@@ -28,6 +32,19 @@ export class SaDisputeDetail implements OnInit {
   submittingResolve = signal(false);
   resolveError = signal('');
   resolveSuccess = signal('');
+  // Two-step resolve: the form first, then an explicit warning/confirmation before anything is sent.
+  confirmingResolve = signal(false);
+
+  // Staff operations: assignment, internal notes and the OPEN <-> UNDER_REVIEW switch.
+  staff = signal<AdminStaffMember[]>([]);
+  staffOptions = computed(() => this.staff().map(s => ({ value: s.id, label: s.name })));
+  selectedAssigneeId = signal('');
+  noteDraft = signal('');
+  opBusy = signal(false);
+  opError = signal('');
+  opSuccess = signal('');
+
+  readonly noEscalationBackend = 'يحتاج قرار منتج/جدول بيانات غير متوفر';
 
   // Advisory-only AI summary — entirely separate from the manual
   // resolve/reject state above. Never pre-fills resolutionText/resolutionNote.
@@ -35,15 +52,12 @@ export class SaDisputeDetail implements OnInit {
   aiSummaryLoading = signal(false);
   aiSummaryError = signal('');
 
-  // Interactive escrow-split control. There is no dedicated "apply split"
-  // backend endpoint (see DisputeApiService's documented gaps), so this
-  // slider feeds the one real write endpoint that exists — resolveAdminDispute
-  // — by generating the resolution text/note from the chosen split and
-  // opening the existing manual resolve form pre-filled with it.
+  // Split slider: only pre-fills the decision text/note of the manual resolve form. The decision is a record;
+  // no money moves (refund/release semantics are a pending product decision).
   splitClaimantPct = signal(50);
 
-  // Parties come from the real dispute (openedBy / againstUser). The admin API returns no escrow amount, no
-  // respondent defence and no similar-case data, so none of those is shown (previously mock names/amounts/cases).
+  // Parties come from the real dispute (openedBy / againstUser). The admin API returns no respondent defence
+  // and no similar-case data, so none of those is shown.
 
   readonly resolutionPresets = [
     'REFUND_CLIENT',
@@ -67,7 +81,17 @@ export class SaDisputeDetail implements OnInit {
     REJECTED: 'dp-st-rejected',
   };
 
+  readonly escrowLabels: Record<string, string> = {
+    HELD: 'محتجز',
+    RELEASED: 'مُحرَّر',
+    REFUNDED: 'مُسترد',
+  };
+
   ngOnInit(): void {
+    this.opsApi.listStaff().subscribe({
+      next: (res) => this.staff.set(res.success && Array.isArray(res.data) ? res.data : []),
+      error: () => this.staff.set([]),
+    });
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (!id) {
@@ -88,12 +112,16 @@ export class SaDisputeDetail implements OnInit {
     this.aiSummaryError.set('');
     this.splitClaimantPct.set(50);
     this.resolveSuccess.set('');
+    this.opError.set('');
+    this.opSuccess.set('');
+    this.noteDraft.set('');
     this.cancelResolveForm();
     this.disputeApi.getAdminDispute(id).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res.success && res.data) {
           this.selectedDispute.set(res.data);
+          this.selectedAssigneeId.set(res.data.assignedTo?.id ?? '');
         } else {
           this.notFound.set(true);
         }
@@ -136,11 +164,6 @@ export class SaDisputeDetail implements OnInit {
     };
   }
 
-  /** Evidence is attached by whoever opened the dispute; the API carries no per-file party, so it is all shown under the opener. */
-  evidenceParty(_index: number): 'claimant' | 'respondent' {
-    return 'claimant';
-  }
-
   evidenceFileName(url: string): string {
     try {
       const clean = url.split('?')[0].split('#')[0];
@@ -151,43 +174,78 @@ export class SaDisputeDetail implements OnInit {
     }
   }
 
-  /** Activity log — only the "opened" and "resolved/rejected" entries carry
-   *  real API timestamps (createdAt/resolvedAt). The intermediate entries
-   *  are approximate placeholders (no per-event audit trail exists in the
-   *  API yet) and are explicitly marked "غير مؤرَّخ من الـ API". */
-  activityLog(d: Dispute): { label: string; dateLabel: string; dotColor: string; approx: boolean }[] {
-    const events: { label: string; dateLabel: string; dotColor: string; approx: boolean }[] = [];
-    events.push({
+  /** Dispute log: the opening entry (createdAt) followed by the real audit-log entries returned by the API. */
+  activityLog(d: Dispute): { label: string; detail: string; dateLabel: string; dotColor: string }[] {
+    const events: { label: string; detail: string; dateLabel: string; dotColor: string }[] = [{
       label: `فتح النزاع بواسطة ${this.partyInfo(d, 'claimant').name}`,
+      detail: '',
       dateLabel: this.formatDate(d.createdAt),
       dotColor: '#FFB400',
-      approx: false,
-    });
-    if (d.evidence && d.evidence.length > 0) {
+    }];
+    const entries = [...(d.timeline ?? [])].sort((x, y) => new Date(x.occurredAt).getTime() - new Date(y.occurredAt).getTime());
+    for (const e of entries) {
       events.push({
-        label: `إرفاق ${d.evidence.length} ${d.evidence.length === 1 ? 'دليل' : 'أدلة'} على النزاع`,
-        dateLabel: 'تاريخ الرفع غير مسجَّل لكل ملف على حدة',
+        label: e.title,
+        detail: [e.summary, e.admin?.name ? `بواسطة ${e.admin.name}` : ''].filter(Boolean).join(' — '),
+        dateLabel: this.formatDate(e.occurredAt),
         dotColor: '#5DA0FF',
-        approx: true,
-      });
-    }
-    if (d.status === 'UNDER_REVIEW' || d.status === 'RESOLVED' || d.status === 'REJECTED') {
-      events.push({
-        label: 'انتقل النزاع إلى حالة قيد المراجعة',
-        dateLabel: 'غير مؤرَّخ من الـ API',
-        dotColor: '#FFB400',
-        approx: true,
-      });
-    }
-    if (d.status === 'RESOLVED' || d.status === 'REJECTED') {
-      events.push({
-        label: d.status === 'RESOLVED' ? 'تم حل النزاع' + (d.resolution ? ` — ${d.resolution}` : '') : 'تم رفض النزاع' + (d.resolution ? ` — ${d.resolution}` : ''),
-        dateLabel: this.formatDate(d.resolvedAt),
-        dotColor: d.status === 'RESOLVED' ? '#0FA99A' : '#FF8C69',
-        approx: false,
       });
     }
     return events;
+  }
+
+  private reload(successMsg: string) {
+    const id = this.selectedDispute()?.id;
+    if (!id) return;
+    this.disputeApi.getAdminDispute(id).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.selectedDispute.set(res.data);
+          this.selectedAssigneeId.set(res.data.assignedTo?.id ?? '');
+        }
+        this.opSuccess.set(successMsg);
+      },
+      error: () => this.opSuccess.set(`${successMsg} (تعذر تحديث العرض، أعد تحميل الصفحة)`),
+    });
+  }
+
+  private runOp(call: (id: string) => import('rxjs').Observable<{ success: boolean; message?: string }>, successMsg: string, fail: string, after?: () => void) {
+    const dispute = this.selectedDispute();
+    if (!dispute || this.opBusy()) return;
+    this.opBusy.set(true);
+    this.opError.set('');
+    this.opSuccess.set('');
+    call(dispute.id).subscribe({
+      next: (res) => {
+        this.opBusy.set(false);
+        if (res.success) {
+          after?.();
+          this.reload(successMsg);
+        } else {
+          this.opError.set(res.message || fail);
+        }
+      },
+      error: (err) => {
+        this.opBusy.set(false);
+        this.opError.set(err?.error?.message || fail);
+      },
+    });
+  }
+
+  assign() {
+    const assigneeId = this.selectedAssigneeId();
+    if (!assigneeId) return;
+    this.runOp((id) => this.disputeApi.assignAdminDispute(id, assigneeId), 'تم إسناد النزاع', 'تعذر إسناد النزاع');
+  }
+
+  addNote() {
+    const body = this.noteDraft().trim();
+    if (!body) return;
+    this.runOp((id) => this.disputeApi.addAdminDisputeNote(id, body), 'تمت إضافة الملاحظة الداخلية', 'تعذر إضافة الملاحظة', () => this.noteDraft.set(''));
+  }
+
+  setStatus(status: 'OPEN' | 'UNDER_REVIEW') {
+    this.runOp((id) => this.disputeApi.setAdminDisputeStatus(id, status), status === 'UNDER_REVIEW' ? 'بدأت مراجعة النزاع' : 'أُعيد النزاع إلى المفتوح', 'تعذر تغيير الحالة');
   }
 
   onSplitInput(value: string) {
@@ -239,6 +297,7 @@ export class SaDisputeDetail implements OnInit {
     this.resolutionNote.set('');
     this.resolveError.set('');
     this.resolveSuccess.set('');
+    this.confirmingResolve.set(false);
     this.showResolveForm.set(true);
   }
 
@@ -248,6 +307,17 @@ export class SaDisputeDetail implements OnInit {
     this.resolutionText.set('');
     this.resolutionNote.set('');
     this.resolveError.set('');
+    this.confirmingResolve.set(false);
+  }
+
+  /** Step 1: validates the form and shows the warning; nothing is sent yet. */
+  requestResolveConfirm() {
+    if (!this.resolutionText().trim()) {
+      this.resolveError.set('يرجى كتابة قرار النزاع');
+      return;
+    }
+    this.resolveError.set('');
+    this.confirmingResolve.set(true);
   }
 
   selectPreset(preset: string) {
@@ -258,7 +328,7 @@ export class SaDisputeDetail implements OnInit {
     const dispute = this.selectedDispute();
     const action = this.resolveAction();
     if (!dispute || !action) return;
-    if (this.submittingResolve()) return;
+    if (this.submittingResolve() || !this.confirmingResolve()) return;
 
     const resolution = this.resolutionText().trim();
     if (!resolution) {
@@ -280,32 +350,28 @@ export class SaDisputeDetail implements OnInit {
       next: (res) => {
         this.submittingResolve.set(false);
         if (res.success) {
-          this.resolveSuccess.set('تم تحديث حالة النزاع بنجاح');
+          this.resolveSuccess.set('تم تسجيل القرار وإبلاغ الطرفين');
           this.showResolveForm.set(false);
           this.resolveAction.set(null);
           this.resolutionText.set('');
           this.resolutionNote.set('');
-          if (res.data) {
-            this.selectedDispute.set(res.data);
-          } else {
-            this.disputeApi.getAdminDispute(dispute.id).subscribe({
-              next: (detail) => {
-                if (detail.success && detail.data) {
-                  this.selectedDispute.set(detail.data);
-                }
-              },
-              error: () => {},
-            });
-          }
+          this.confirmingResolve.set(false);
+          this.reload('');
         } else {
           this.resolveError.set(res.message || 'تعذر تحديث حالة النزاع، حاول مرة أخرى');
+          this.confirmingResolve.set(false);
         }
       },
       error: (err) => {
         this.submittingResolve.set(false);
         this.resolveError.set(err?.error?.message || 'تعذر تحديث حالة النزاع، حاول مرة أخرى');
+        this.confirmingResolve.set(false);
       },
     });
+  }
+
+  canChangeStatus(status: DisputeStatus): boolean {
+    return status === 'OPEN' || status === 'UNDER_REVIEW';
   }
 
   canResolve(status: DisputeStatus): boolean {
