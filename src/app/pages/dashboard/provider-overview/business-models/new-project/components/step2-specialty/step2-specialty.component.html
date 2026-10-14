@@ -84,6 +84,23 @@
 		</div>
 	</div>
 
+	<!-- SECTION 3: SKILLS (catalog of the chosen specialty's field) -->
+	<div *ngIf="selectedMainSpecialtyObj" data-testid="model-skills-section">
+		<div class="spec-section-title">
+			<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
+				<polyline points="20 6 9 17 4 12" />
+			</svg>
+			المهارات المستخدمة في هذا النموذج
+			<span style="font-size:11px;font-weight:700;margin-inline-start:4px" class="txt-teal">اختياري</span>
+		</div>
+		@if (skillsLoading) {
+		<p class="spec-hint" data-testid="model-skills-loading">جارٍ تحميل مهارات المجال…</p>
+		} @else {
+		<ws-skills-picker [options]="skillOptions" [selected]="selectedSkills" (selectedChange)="onSkillsChange.emit($event)" emptyMessage="لا توجد مهارات متاحة لهذا المجال حاليًا" />
+		}
+		@if (skillsError) { <p class="field-error" role="alert" data-testid="model-skills-error" style="color:#f87171;font-size:12.5px;margin:6px 0 0">{{ skillsError }}</p> }
+	</div>
+
 	<!-- MANUAL REVIEW NOTE -->
 	<div class="ws-note ws-note--neutral" role="note">
 		<div class="ws-note-ico">

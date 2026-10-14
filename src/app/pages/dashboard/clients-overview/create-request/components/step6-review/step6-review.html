@@ -27,8 +27,16 @@
 		</div>
 		<div class="sc-rows">
 		<div class="sc-row"><span class="sc-row-key">المجال</span><span class="sc-row-val">{{ parent.currentSpec()?.name || 'غير محدد' }}</span></div>
-		<div class="sc-row"><span class="sc-row-key">المهارات</span><span class="sc-row-val">
+		<div class="sc-row"><span class="sc-row-key">التخصصات الفرعية</span><span class="sc-row-val" data-testid="review-subs">
 			@for (sub of parent.selectedSubs(); track sub; let isLast = $last) { {{ sub }}{{ !isLast ? ', ' : '' }} }
+			@empty { لا يوجد }
+		</span></div>
+		<div class="sc-row"><span class="sc-row-key">المهارات المطلوبة</span><span class="sc-row-val" data-testid="review-skills">
+			@for (sk of parent.requiredSkills(); track sk; let isLast = $last) { {{ sk }}{{ !isLast ? ', ' : '' }} }
+			@empty { لا يوجد }
+		</span></div>
+		<div class="sc-row"><span class="sc-row-key">شروط إضافية</span><span class="sc-row-val" data-testid="review-extra-conditions">
+			@for (r of parent.requirements(); track r; let isLast = $last) { {{ r }}{{ !isLast ? '، ' : '' }} }
 			@empty { لا يوجد }
 		</span></div>
 		</div>

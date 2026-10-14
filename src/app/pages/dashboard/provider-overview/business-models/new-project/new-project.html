@@ -108,7 +108,8 @@
 		<ng-container *ngSwitchCase="2">
 			<app-step2-specialty [isLoadingSpecialties]="isLoadingSpecialties()" [passedCategories]="passedCategories()" [registered]="registeredSpecialties()"
 				[selectedSpecialty]="selectedSpecialty()" [selectedMainSpecialtyObj]="selectedMainSpecialtyObj()"
-				[selectedSubSpecialty]="selectedSubSpecialty()" (onSelectMainSpecialty)="selectMainSpecialty($event)"
+				[selectedSubSpecialty]="selectedSubSpecialty()" [skillOptions]="skillOptions()" [selectedSkills]="selectedSkills()" [skillsLoading]="skillsLoading()" [skillsError]="skillsError()" (onSkillsChange)="onSkillsChange($event)"
+				(onSelectMainSpecialty)="selectMainSpecialty($event)"
 				(onSelectSubSpecialty)="selectSubSpecialty($event)">
 			</app-step2-specialty>
 		</ng-container>

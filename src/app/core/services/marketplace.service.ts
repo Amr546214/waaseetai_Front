@@ -48,6 +48,8 @@ export interface MarketplaceModel {
   };
   stages?: any[];
   tags?: string[];
+  /** Skills the provider attached to this service (names from the skills catalog of its field). */
+  skills?: string[];
   aiRecommendationReason?: string;
   aiMatchPercentage?: number;
   reviews?: Array<{ id: string; rating: number; comment?: string; createdAt: string; client?: { name: string; avatar?: string } | null }>;

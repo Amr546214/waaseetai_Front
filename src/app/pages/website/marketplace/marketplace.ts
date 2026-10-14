@@ -153,6 +153,8 @@ export class Marketplace implements OnInit, OnDestroy {
 	searchQuery = signal<string>('');
 	selectedCategory = signal<string>('all');
 	selectedSub = signal<string>('');
+	/** Exact catalog skill name filter (?skill=…): only services whose provider attached that skill. */
+	selectedSkill = signal<string>('');
 	selectedLevels = signal<string[]>([]);
 	selectedRating = signal<number>(0);
 	selectedMaxDays = signal<number>(0);
@@ -285,6 +287,7 @@ export class Marketplace implements OnInit, OnDestroy {
 		else if (this.selectedCategory() !== 'all') chips.push({ key: 'cat', label: this.selectedCategory() });
 		const sub = this.selectedSubData();
 		if (this.selectedSub()) chips.push({ key: 'sub', label: sub?.name || this.selectedSub() });
+		if (this.selectedSkill()) chips.push({ key: 'skill', label: 'مهارة: ' + this.selectedSkill() });
 		if (this.selectedRating()) chips.push({ key: 'minRating', label: this.selectedRating() + ' وأعلى' });
 		if (this.selectedMaxDays()) chips.push({ key: 'maxDays', label: this.deliveryLabel(this.selectedMaxDays()) });
 		if (this.selectedMaxPrice()) chips.push({ key: 'maxPrice', label: 'حتى ' + this.selectedMaxPrice() + ' $' });
@@ -332,6 +335,7 @@ export class Marketplace implements OnInit, OnDestroy {
 				this.selectedCategory.set('all');
 			}
 			this.selectedSub.set(params['sub'] || '');
+			this.selectedSkill.set(params['skill'] || '');
 			this.searchQuery.set(params['q'] || params['search'] || '');
 			this.selectedRating.set(Number(params['minRating'] || 0));
 			this.selectedMaxDays.set(Number(params['maxDays'] || 0));
@@ -339,7 +343,7 @@ export class Marketplace implements OnInit, OnDestroy {
 			this.selectedLevels.set(String(params['level'] || '').split(',').filter(Boolean));
 			this.sortBy.set(params['sort'] || 'relevance');
 			this.currentPage.set(Number(params['page'] || 1));
-			const keys = ['q', 'search', 'cat', 'sub', 'sort', 'level', 'minRating', 'maxDays', 'maxPrice', 'page'];
+			const keys = ['q', 'search', 'cat', 'sub', 'skill', 'sort', 'level', 'minRating', 'maxDays', 'maxPrice', 'page'];
 			this.resultsMode.set(!!pathParams.get('slug') || keys.some(k => params[k] !== undefined && params[k] !== ''));
 			this.loadModels();
 			this.loadAiRecommendations();
@@ -376,6 +380,7 @@ export class Marketplace implements OnInit, OnDestroy {
 		const filters: any = {
 			category: this.selectedCategory() !== 'all' ? this.selectedCategory() : undefined,
 			specialization: this.selectedSub() || undefined,
+			skill: this.selectedSkill() || undefined,
 			search: this.searchQuery() || undefined,
 			minRating: this.selectedRating() || undefined,
 			maxDays: this.selectedMaxDays() || undefined,
@@ -511,6 +516,13 @@ export class Marketplace implements OnInit, OnDestroy {
 		this.updateFilters({ sort: (event.target as HTMLSelectElement).value || null, page: null });
 	}
 
+	/** Filter the listing by one exact catalog skill (clicking a skill chip on a card). */
+	filterBySkill(skill: string, event?: Event) {
+		event?.preventDefault();
+		event?.stopPropagation();
+		this.updateFilters({ skill, page: null });
+	}
+
 	removeFilter(key: string) {
 		const params: Record<string, null> = { [key]: null, page: null };
 		if (key === 'cat') params['sub'] = null;
@@ -518,7 +530,7 @@ export class Marketplace implements OnInit, OnDestroy {
 	}
 
 	resetFilters() {
-		this.updateFilters({ cat: null, sub: null, level: null, minRating: null, maxDays: null, maxPrice: null, sort: null, page: null });
+		this.updateFilters({ cat: null, sub: null, skill: null, level: null, minRating: null, maxDays: null, maxPrice: null, sort: null, page: null });
 	}
 
 	goToPage(page: number) {

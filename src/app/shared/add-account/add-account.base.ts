@@ -1,6 +1,8 @@
 import { Directive, signal, computed, inject, OnInit, ElementRef } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { SkillsCatalogService, SkillsCatalogCategory } from '../../core/services/skills-catalog.service';
 import { AccountService } from '../../core/services/account.service';
 import { AuthStore } from '../../core/store/auth.store';
 import { NotificationEngineService } from '../../core/services/notification-engine.service';
@@ -63,6 +65,7 @@ export abstract class AddAccountBase implements OnInit {
   public authStore = inject(AuthStore);
   private router = inject(Router);
   public notifEngine = inject(NotificationEngineService);
+  private skillsCatalog = inject(SkillsCatalogService);
 
   UserRole = UserRole;
 
@@ -118,8 +121,11 @@ export abstract class AddAccountBase implements OnInit {
   /** Shown when the server fails or says something we cannot place on a field. Details stay in the console. */
   static readonly SUBMIT_FAILED_MESSAGE = 'تعذر إرسال طلب إضافة الحساب. حاول مرة أخرى أو تواصل مع الدعم.';
 
-  skills = signal<string[]>(['Figma', 'Adobe XD']);
-  skillInput = signal('');
+  /** Skills are picked from the backend catalog of the chosen main specialty (no free text, no preset values). */
+  skills = signal<string[]>([]);
+  skillCategories = signal<SkillsCatalogCategory[]>([]);
+  private specMainValue = toSignal(this.spec.controls.specMain.valueChanges, { initialValue: this.spec.controls.specMain.value });
+  skillOptions = computed<string[]>(() => this.skillCategories().find(c => c.nameAr === this.specMainValue())?.skills ?? []);
 
   currentUser = this.authStore.currentUser;
 
@@ -168,6 +174,15 @@ export abstract class AddAccountBase implements OnInit {
   });
 
   ngOnInit() {
+    this.skillsCatalog.getAll().subscribe({
+      next: res => this.skillCategories.set(res?.success ? (res.data?.categories ?? []) : []),
+      error: () => this.skillCategories.set([])
+    });
+    this.spec.controls.specMain.valueChanges.subscribe(() => {
+      // Skills of another field do not belong to the new one.
+      const allowed = new Set(this.skillOptions());
+      this.skills.update(list => list.filter(sk => allowed.has(sk)));
+    });
     this.fetchAccountTypes();
   }
 
@@ -444,25 +459,6 @@ export abstract class AddAccountBase implements OnInit {
         this.errorMessage.set(msg);
       }
     });
-  }
-
-  addSkill() {
-    const val = this.skillInput().trim();
-    if (val && !this.skills().includes(val)) {
-      this.skills.update(s => [...s, val]);
-      this.skillInput.set('');
-    }
-  }
-
-  removeSkill(skill: string) {
-    this.skills.update(s => s.filter(x => x !== skill));
-  }
-
-  handleSkillKey(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      this.addSkill();
-    }
   }
 
   getTypeLabel(type: string | null): string {
