@@ -223,14 +223,18 @@ export class ProjectDetails implements OnInit {
 		return 'ضمن المدة';
 	}
 	// P-SK-015: navigate to the full delivery review page (no modal).
+	/** Dispute freeze reason (Arabic) while approvals / releases are frozen by an open dispute; null otherwise. */
+	freezeReason(data: any): string | null { const f = data?.disputeFreeze; return f?.frozen ? (f.reason || 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع') : null; }
 	openReview(stage: any, decision: 'approve' | 'revision') {
 		this.error.set('');
+		if (decision === 'approve' && this.freezeReason(this.project())) { this.error.set(this.freezeReason(this.project())!); return; }
 		// Both decisions happen on the delivery review page, which calls the real review endpoint (approve, or a recorded revision request).
 		this.router.navigate(['/client-overview/projects', this.projectId, 'delivery-review', stage.id], decision === 'revision' ? { queryParams: { action: 'revision' } } : undefined);
 	}
 	closeReview() { if (!this.saving()) this.inlineReviewStage.set(null); }
 	submitReview() {
 		const stage = this.inlineReviewStage(); if (!stage) return;
+		if (this.reviewDecision() === 'approve' && this.freezeReason(this.project())) { this.error.set(this.freezeReason(this.project())!); return; }
 		this.saving.set(true);
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.projectId}/stages/${stage.id}/review`, { decision: this.reviewDecision(), note: this.reviewNote.trim() }).subscribe({
 			next: () => { this.saving.set(false); this.inlineReviewStage.set(null); this.load(); },

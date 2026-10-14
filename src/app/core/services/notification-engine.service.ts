@@ -481,6 +481,13 @@ export class NotificationEngineService implements OnDestroy {
 					return `/provider-overview/business-models/market/${metadata.serviceId}`;
 				}
 				return this.isSafeInternalUrl(nt?.actionUrl, '/provider-overview') ? nt!.actionUrl! : null;
+			case 'DISPUTE_OPENED':
+			case 'DISPUTE_RESOLVED':
+				// Opens THIS dispute for either party: the provider has a details page; the client app has none, so its list page opens the
+				// dispute through ?dispute=<id>. Older rows without metadata keep their stored (still real) link.
+				if (metadata.disputeId && basePath === '/provider-overview') return `/provider-overview/disputes/${metadata.disputeId}`;
+				if (metadata.disputeId && basePath === '/client-overview') return `/client-overview/disputes?dispute=${encodeURIComponent(metadata.disputeId)}`;
+				return this.isSafeInternalUrl(nt?.actionUrl, basePath) ? nt!.actionUrl! : null;
 			case 'FINANCIAL':
 				// A specific transaction detail page exists and is more exact,
 				// but only new rows (created after this fix) carry
