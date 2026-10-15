@@ -5,7 +5,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { InvoicesComponent } from './provider-overview/finance/invoices/invoices';
-import { AccreditationStatusPage } from './provider-overview/accreditation-status/accreditation-status';
+import { AccountActionsPage } from './provider-overview/account-actions/account-actions';
 import { ProviderApiService } from '../../core/services/provider-api.service';
 import { ProviderAccessService } from '../../core/services/provider-access.service';
 
@@ -47,8 +47,8 @@ describe('list pages on 429 (provider invoices)', () => {
 
 describe('accreditation status page on 429', () => {
 	it('shows the neutral temporary text with a retry button, never the "not approved" wording', () => {
-		TestBed.configureTestingModule({ imports: [AccreditationStatusPage], providers: [provideRouter([]), { provide: ProviderAccessService, useValue: { load: () => throwError(rl), invalidate: vi.fn() } }] });
-		const f = TestBed.createComponent(AccreditationStatusPage);
+		TestBed.configureTestingModule({ imports: [AccountActionsPage], providers: [provideRouter([]), { provide: ProviderAccessService, useValue: { load: () => throwError(rl), invalidate: vi.fn() } }, { provide: ProviderApiService, useValue: { getAccountActions: () => throwError(rl) } }] });
+		const f = TestBed.createComponent(AccountActionsPage);
 		f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
 		expect(el.querySelector('[data-testid="status-rate-limited"]')!.textContent).toContain('تعذّر التحقق مؤقتًا');

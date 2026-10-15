@@ -68,6 +68,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	// Set on a 409 from /auth/google (intent: register) — the email already has
 	// an account, so we point the user at the login page instead of retrying.
 	accountExistsError = false;
+	/** The account was created by a successful register call: going back never creates it (or its OTP request) a second time. */
+	accountCreated = false;
 
 	// Optional single-tier referral attribution (P-LG-012), set by the
 	// app-affiliate-picker below (manual code entry or name search — both
@@ -374,14 +376,14 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	selectAccountType(id: string) {
 		const target = this.accountTypes.find(t => t.id === id);
-		if (target?.disabled) return;
+		if (target?.disabled || this.accountCreated) return; // the type of an account that already exists cannot change here
 		this.selectedAccountType = id;
 	}
 
 	selectAndProceed(id: string) {
 		const target = this.accountTypes.find(t => t.id === id);
 		if (target?.disabled) return;
-		this.selectedAccountType = id;
+		if (!this.accountCreated) this.selectedAccountType = id;
 		this.nextStep();
 	}
 
@@ -390,6 +392,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 		// Validate Step 2 and Submit Registration
 		if (this.currentStep === 2) {
+			// Back from the OTP step shows the saved data again; continuing only returns to the OTP step (no second account, no second request)
+			if (this.accountCreated) { this.currentStep = 3; this.errorMessage = ''; this.cdr.markForCheck(); return; }
 			// a second tap / Enter while the first request is still running must not send a second registration
 			if (this.isSubmitting) return;
 			this.errorMessage = '';
@@ -431,6 +435,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		this.authApi.register(payload).subscribe({
 			next: (res) => {
 				this.isSubmitting = false;
+				this.accountCreated = true;
+				this.basicInfoForm.disable({ emitEvent: false }); // the data is kept and shown, but it is no longer editable: the account exists
 				this.currentStep = 3; // The account exists either way, so the OTP step opens
 				const notice = registerNotice(res);
 				if (notice.sent) {

@@ -42,7 +42,7 @@ describe('providerGateInterceptor', () => {
 		sync.http.get('/b').subscribe({ error: () => {} });
 		sync.ctl.expectOne('/a').flush({ message: PROVIDER_GATE_MESSAGE }, gate);
 		sync.ctl.expectOne('/b').flush({ message: PROVIDER_GATE_MESSAGE }, gate);
-		expect(sync.nav).toHaveBeenCalledWith('/provider-overview/accreditation-status');
+		expect(sync.nav).toHaveBeenCalledWith('/provider-overview/account-actions');
 		expect(sync.load.mock.calls.length).toBeGreaterThanOrEqual(1);
 	});
 	it('other 403 messages, other statuses and non-provider sessions are left alone', () => {

@@ -161,8 +161,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		uiLanguage: ['ar']
 	});
 
-	availableLanguages = ['العربية', 'الإنجليزية', 'الفرنسية', 'الأردية', 'الهندية'];
-	selectedLanguages = signal<string[]>(['العربية']);
 
 	categories = signal<any[]>([]);
 	subSpecialtiesList = signal<any[]>([]);
@@ -264,7 +262,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	ngOnInit() {
 		this.generateParticles();
-		this.setupForm.get('profData.languages')?.setValue(['العربية']);
 
 		this.specialtyService.getCategories().subscribe(res => {
 			if (res.success) {
@@ -312,7 +309,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							city: d.city || '',
 							dob: dobInputValue(d.dob),
 							bio: d.bio || '',
-							languages: d.languages && d.languages.length ? d.languages : ['العربية'],
 							expYears: d.yearsOfExperience ? 
 								(d.yearsOfExperience <= 1 ? 'أقل من سنة' : 
 								 d.yearsOfExperience <= 3 ? '1 الى 3 سنوات' : 
@@ -340,7 +336,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					if (d.certUrlsAccess?.some((a: KycAccess | null) => a?.private)) this.storedCertsAccess.set(d.certUrlsAccess);
 					const legacyCerts = (d.certUrls || []).filter(Boolean);
 					if (legacyCerts.length) this.uploadedCerts.set(legacyCerts);
-					if (d.languages && d.languages.length) this.selectedLanguages.set(d.languages);
 					if (d.subSpecialties && d.subSpecialties.length) this.selectedSpecs.set(d.subSpecialties);
 					if (d.kycStatus === 'VERIFIED' || d.isNafathVerified) this.isNafathVerified.set(true);
 					// Stage 5: the saved portfolio comes back from the server, so a re-save never starts from an empty list.
@@ -514,15 +509,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 		this.currentStep.set(step);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}
-
-	toggleLanguage(lang: string) {
-		const current = [...this.selectedLanguages()];
-		const idx = current.indexOf(lang);
-		if (idx > -1) current.splice(idx, 1);
-		else current.push(lang);
-		this.selectedLanguages.set(current);
-		this.setupForm.get('profData.languages')?.setValue(current);
 	}
 
 	toggleSpec(spec: string) {
@@ -936,7 +922,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 			this.updatePortfolioItem(spec, idx, item => ({ ...item, reviewDisplayName: file.name }));
 
-			this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
+			this.providerProfileService.uploadDocument(file).subscribe({
 				next: (event: any) => {
 					if (event.type === HttpEventType.UploadProgress) {
 						const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
@@ -979,7 +965,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				// placeholder entry until the upload completes
 				this.updatePortfolioItem(spec, idx, item => ({ ...item, proofDisplayNames: [...item.proofDisplayNames, file.name], proofs: [...item.proofs, ''] }));
 
-				this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
+				this.providerProfileService.uploadDocument(file).subscribe({
 					next: (ev: any) => {
 						if (ev.type === HttpEventType.UploadProgress) {
 							const progress = ev.total ? Math.round((ev.loaded / ev.total) * 100) : 0;
@@ -1046,7 +1032,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				city: this.setupForm.get('profData.city')?.value,
 				...(this.setupForm.get('profData.dob')?.value ? { dob: this.setupForm.get('profData.dob')?.value } : {}),
 				bio: this.setupForm.get('profData.bio')?.value,
-				languages: this.setupForm.get('profData.languages')?.value,
 				expYears: this.setupForm.get('profData.expYears')?.value
 			},
 			specialties: {

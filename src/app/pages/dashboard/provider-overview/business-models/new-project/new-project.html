@@ -99,6 +99,7 @@
 
 		<!-- ==================== STEP 2: التخصص ==================== -->
 		<ng-container *ngSwitchCase="2">
+			@if (specialtyError()) { <p role="alert" data-testid="specialty-error" style="color:#ff8c69;font-weight:700;font-size:13px;margin-bottom:12px">{{ specialtyError() }}</p> }
 			<app-step2-specialty [isLoadingSpecialties]="isLoadingSpecialties()" [passedCategories]="passedCategories()" [registered]="registeredSpecialties()"
 				[selectedSpecialty]="selectedSpecialty()" [selectedMainSpecialtyObj]="selectedMainSpecialtyObj()"
 				[selectedSubSpecialty]="selectedSubSpecialty()" [skillOptions]="skillOptions()" [selectedSkills]="selectedSkills()" [skillsLoading]="skillsLoading()" [skillsError]="skillsError()" (onSkillsChange)="onSkillsChange($event)"
@@ -112,10 +113,8 @@
 			<app-step3-model [accreditedCount]="accreditedCount()"
 				[distinctSpecialtiesCount]="distinctSpecialtiesCount()" [totalViewsCount]="totalViewsCount()"
 				[averageAiScore]="averageAiScore()" [isLoadingModels]="isLoadingModels()"
-				[filteredModels]="filteredModels()" [selectedModel]="selectedModel()" [galleryUrls]="galleryUrls()"
-				[isUploadingImage]="isUploadingImage()" (onSelectModel)="selectModel($event)"
-				(onRemoveGalleryImage)="removeGalleryImage($event)"
-				(onGalleryFileSelected)="onGalleryFileSelected($event)">
+				[filteredModels]="filteredModels()" [selectedModel]="selectedModel()"
+				[errorMessage]="modelError()" (onSelectModel)="selectModel($event)">
 			</app-step3-model>
 		</ng-container>
 
@@ -166,7 +165,7 @@
 				{{ currentStep() === 1 && !isValidStep1() ? '⚠️ اكتب اسم ووصف المشروع للمتابعة' : '' }}
 				{{ currentStep() === 2 && !isValidStep2() && !selectedSpecialty() ? '⚠️ اختر تخصصاً رئيسياً' : '' }}
 				{{ currentStep() === 2 && !isValidStep2() && selectedSpecialty() ? '⚠️ اختر تخصصاً فرعياً' : '' }}
-				{{ currentStep() === 3 && !isValidStep3() ? '⚠️ اختر نموذجاً من معرض أعمالك للمتابعة' : '' }}
+				{{ currentStep() === 3 && !isValidStep3() ? '⚠️ اختر نموذج اعتماد معتمدًا من نفس التخصص للمتابعة' : '' }}
 				{{ currentStep() === 4 && !isValidStep4() ? '⚠️ تأكد من إكمال بيانات المراحل وأن مجموع النسب 100%' : ''
 				}}
 				{{ currentStep() < 5 && isCurrentStepValid ? '✓ البيانات مكتملة وجاهز للتالي' : '' }} </span>

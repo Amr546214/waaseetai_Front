@@ -10,10 +10,21 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		data: { title: "لوحة التحكم", allowIncompleteProfile: true }
 	},
 	{
-		// where an individual provider waits for (or finishes) the accreditation review — reads GET /provider/access-state
+		// «إجراءات الحساب»: where an individual provider follows the approval requests (reads GET /provider/account-actions + /provider/access-state)
+		path: 'account-actions',
+		loadComponent: () => import('./account-actions/account-actions').then(m => m.AccountActionsPage),
+		data: { title: "إجراءات الحساب" }
+	},
+	{
+		path: 'account-actions/:id',
+		loadComponent: () => import('./account-actions/account-actions').then(m => m.AccountActionsPage),
+		data: { title: "إجراءات الحساب" }
+	},
+	{
+		// the retired «حالة اعتماد الحساب» page: old links/bookmarks land on the actions log
 		path: 'accreditation-status',
-		loadComponent: () => import('./accreditation-status/accreditation-status').then(m => m.AccreditationStatusPage),
-		data: { title: "حالة اعتماد الحساب" }
+		pathMatch: 'full',
+		redirectTo: 'account-actions'
 	},
 	{
 		path: 'messages',

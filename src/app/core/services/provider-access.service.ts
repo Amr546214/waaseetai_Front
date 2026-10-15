@@ -8,7 +8,7 @@ import { AccountType, UserRole } from '../models/auth.model';
 import { AuthStore } from '../store/auth.store';
 import { isOnboardingAllowedPath } from '../guards/profile-complete.guard';
 
-export type ProviderAccessStateKind = 'SETUP_INCOMPLETE' | 'ASSESSMENT_REQUIRED' | 'SAMPLE_REQUIRED' | 'PENDING_REVIEW' | 'REJECTED' | 'APPROVED' | 'NOT_APPLICABLE';
+export type ProviderAccessStateKind = 'SETUP_INCOMPLETE' | 'ASSESSMENT_REQUIRED' | 'SAMPLE_REQUIRED' | 'PENDING_REVIEW' | 'COMPLETION_REQUIRED' | 'REJECTED' | 'APPROVED' | 'NOT_APPLICABLE';
 
 export interface ProviderAccessSpecialty {
 	providerSpecialtyId: string;
@@ -21,6 +21,9 @@ export interface ProviderAccessSpecialty {
 
 export interface ProviderAccessState {
 	state: ProviderAccessStateKind;
+	/** server-derived entry gate: SETUP (only the completion page) | REVIEW (the actions log, completion, help, account) | OPEN (operating dashboard) */
+	gate?: 'SETUP' | 'REVIEW' | 'OPEN';
+	completionSampleId?: string | null;
 	canAccessDashboard: boolean;
 	message: string;
 	reason: string | null;
@@ -28,7 +31,11 @@ export interface ProviderAccessState {
 	specialties: ProviderAccessSpecialty[];
 }
 
-export const PROVIDER_ACCESS_STATUS_URL = '/provider-overview/accreditation-status';
+/** «إجراءات الحساب»: where an account that is not approved yet waits (replaces the old standalone approval-status page). */
+export const PROVIDER_ACCOUNT_ACTIONS_URL = '/provider-overview/account-actions';
+/** the retired page; its route redirects to the actions log so old links keep working */
+export const PROVIDER_LEGACY_STATUS_URL = '/provider-overview/accreditation-status';
+export const PROVIDER_ACCESS_STATUS_URL = PROVIDER_ACCOUNT_ACTIONS_URL;
 export const PROVIDER_SETUP_URL = '/provider-overview/profile/setup';
 
 /** Where a not-open account goes: the wizard (it resolves the right step; test pending = step 7) while the setup/test is unfinished, else the status page. */

@@ -102,9 +102,11 @@ describe('provider setup wizard: photo, skills catalog, date of birth', () => {
     component.currentStep.set(2); fixture.detectChanges();
     const el: HTMLElement = fixture.nativeElement;
     expect(component.skillOptions()).toEqual(DESIGN);
-    expect([...el.querySelectorAll('[data-testid="skills-options"] [data-skill]')].map(b => b.getAttribute('data-skill'))).toEqual(['Adobe Photoshop', 'تصميم الشعارات']); // Figma is already selected
+    // step 1 («مهاراتي») and step 2 hold the same picker over the same state: read the step-2 one
+    const step2 = el.querySelector('[formgroupname="specialties"]') as HTMLElement;
+    expect([...step2.querySelectorAll('[data-testid="skills-options"] [data-skill]')].map(b => b.getAttribute('data-skill'))).toEqual(['Adobe Photoshop', 'تصميم الشعارات']); // Figma is already selected
     expect(el.querySelector('input.skills-input')).toBeNull(); // the old free-text box is gone
-    (el.querySelector('[data-skill="Adobe Photoshop"]') as HTMLElement).click();
+    (step2.querySelector('[data-skill="Adobe Photoshop"]') as HTMLElement).click();
     expect(component.skillsList()).toEqual(['Figma', 'Adobe Photoshop']);
   });
 
@@ -113,7 +115,10 @@ describe('provider setup wizard: photo, skills catalog, date of birth', () => {
     const panel = fixture.nativeElement.querySelector('[formgroupname="specialties"]') as HTMLElement;
     expect(panel.querySelector('[data-testid="skills-picker"]')).not.toBeNull();
     const step1 = fixture.nativeElement.querySelector('[formgroupname="profData"]') as HTMLElement;
+    // step 1 holds «مهاراتي» (the place that used to be «اللغات»): with no specialty chosen it only says to choose one, with no picker and no languages chips
+    expect(step1.querySelector('[data-testid="my-skills-need-specialty"]')).not.toBeNull();
     expect(step1.querySelector('[data-testid="skills-picker"]')).toBeNull();
+    expect(step1.textContent).not.toContain('اللغات');
     expect(panel.querySelector('#main-spec')!.compareDocumentPosition(panel.querySelector('[data-testid="skills-picker"]')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -144,5 +149,17 @@ describe('provider setup wizard: photo, skills catalog, date of birth', () => {
     completeAndSave();
     http.match(r => r.url.includes('/profiles/paypal-email')).forEach(r => r.flush({ data: {} }));
     expect(save.mock.calls[0][0].details.dob).toBe('1992-02-03');
+  });
+
+  it('«مهاراتي» in step 1: with a main specialty the catalog picker shows the saved skills, and the save sends skills but NEVER languages', async () => {
+    await setup({ mainSpecialty: 'design-creative', skills: [{ name: 'Figma' }] });
+    catalog(DESIGN);
+    fixture.detectChanges();
+    const step1 = fixture.nativeElement.querySelector('[formgroupname="profData"]') as HTMLElement;
+    expect(step1.querySelector('[data-testid="my-skills-step1"]')).not.toBeNull();
+    expect(step1.querySelector('[data-testid="skills-picker"]')).not.toBeNull();
+    expect(component.skillsList()).toEqual(['Figma']);
+    expect(step1.textContent).toContain('مهاراتي');
+    expect(JSON.stringify((component as any).setupForm.value)).not.toContain('العربية');
   });
 });

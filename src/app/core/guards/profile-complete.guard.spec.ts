@@ -8,7 +8,7 @@ import { AuthStore } from '../store/auth.store';
 import { ProviderApiService } from '../services/provider-api.service';
 import { ProviderAccessService, ProviderAccessState } from '../services/provider-access.service';
 
-const STATUS = '/provider-overview/accreditation-status';
+const STATUS = '/provider-overview/account-actions';
 const st = (state: ProviderAccessState['state'], canAccessDashboard = false): ProviderAccessState =>
 	({ state, canAccessDashboard, message: '', reason: null, hasSample: false, specialties: [] });
 

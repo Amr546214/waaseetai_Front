@@ -9,12 +9,12 @@ import { AuthStore } from '../store/auth.store';
 
 @Component({ standalone: true, template: '' }) class Blank {}
 const mk = (state: string, can = false) => ({ success: true, data: { state, canAccessDashboard: can, message: '', reason: null, hasSample: false, specialties: [] } });
-const STATUS = '/provider-overview/accreditation-status';
+const STATUS = '/provider-overview/account-actions';
 const WIZARD = '/provider-overview/profile/setup';
 
 describe('ProviderAccessService state watcher (stale route shell)', () => {
 	function setup(user: any = { id: 'u', accountType: 'PROVIDER_INDIVIDUAL', activeRole: 'PROVIDER' }) {
-		const routes = ['provider-overview/business-models/center', 'provider-overview/accreditation-status', 'provider-overview/profile/setup', 'provider-overview/offers', 'provider-overview/help', 'client-overview'].map(path => ({ path, component: Blank }));
+		const routes = ['provider-overview/business-models/center', 'provider-overview/account-actions', 'provider-overview/profile/setup', 'provider-overview/offers', 'provider-overview/help', 'client-overview'].map(path => ({ path, component: Blank }));
 		TestBed.configureTestingModule({ providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting(), { provide: AuthStore, useValue: { currentUser: signal(user) } }] });
 		const svc = TestBed.inject(ProviderAccessService);
 		const router = TestBed.inject(Router);

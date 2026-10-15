@@ -307,10 +307,9 @@ export class NewProject implements OnInit, OnDestroy {
 			const list = selectedSpecialtyId
 				? this.accreditationModels().filter(model => model.specialtyId === selectedSpecialtyId)
 				: this.accreditationModels();
-		if (filter === 'verified') {
-			return list.filter(m => m.status === 'AI_VERIFIED' || m.status === 'APPROVED');
-		}
-		return list;
+		// Batch B T1 (§5): only an APPROVED model of the chosen specialty can be linked to a service (the server enforces the same rule)
+		void filter;
+		return list.filter(m => m.status === 'AI_VERIFIED' || m.status === 'APPROVED');
 	});
 
 	verifiedModelsCount = computed(() => {
@@ -341,14 +340,19 @@ export class NewProject implements OnInit, OnDestroy {
 		const selectedSpecialtyId = this.selectedMainSpecialtyObj()?.specialtyId;
 		return this.accreditationModels().some(model =>
 			model.id === this.selectedModel() &&
-			model.specialtyId === selectedSpecialtyId
+			model.specialtyId === selectedSpecialtyId &&
+			(model.status === 'AI_VERIFIED' || model.status === 'APPROVED')
 		);
 	});
 
+	/** server field errors (Batch B T1) shown next to the field's step */
+	modelError = signal('');
+	specialtyError = signal('');
 	galleryUrls = signal<string[]>([]);
 	isUploadingImage = signal<boolean>(false);
 
 	selectModel(id: string) {
+		this.modelError.set('');
 		this.selectedModel.set(id);
 	}
 
@@ -791,6 +795,12 @@ export class NewProject implements OnInit, OnDestroy {
 					console.error('Publish failed', err);
 					this.isSubmitting.set(false);
 					const serverMsg: string = err?.error?.message || err?.error?.error || '';
+					// Batch B T1: server field errors go to the step that holds the field (specialty / skills / approval model), shown next to it
+					const fields: Array<{ field?: string; path?: string; message?: string }> = Array.isArray(err?.error?.errors) ? err.error.errors : [];
+					const fieldMsg = (name: string) => fields.find(f => (f.field || f.path) === name)?.message;
+					if (fieldMsg('accreditationSampleId')) { this.modelError.set(fieldMsg('accreditationSampleId')!); this.currentStep.set(3); }
+					else if (fieldMsg('specialtyId')) { this.specialtyError.set(fieldMsg('specialtyId')!); this.currentStep.set(2); }
+					else if (fieldMsg('skills')) { this.skillsError.set(fieldMsg('skills')!); this.currentStep.set(2); }
 					if (err?.status === 400 && /مهار|skill/i.test(serverMsg)) {
 						// The server refused a skill that is not in the catalog of this field: show it next to the skills.
 						this.skillsError.set(serverMsg);
