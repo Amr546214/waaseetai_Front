@@ -15,6 +15,8 @@ export const AMENDMENT_APPLIED_BADGE = 'طُبّق على العقد';
 export const AMENDMENT_APPLIED_NOTE = 'طُبّق التعديل على العقد والضمان والمراحل.';
 export const AMENDMENT_PENDING_NOTE = 'لن يتغيّر العقد أو الضمان أو المحفظة قبل موافقة الطرف الآخر، وعند الموافقة يُطبَّق التعديل فورًا.';
 export const AMENDMENT_NONE_NOTE = 'لم يتغيّر شيء في العقد.';
+/** A still-pending amendment of a closed contract (completed / cancelled, e.g. closed by a dispute settlement): not applicable any more. */
+export const AMENDMENT_CONTRACT_CLOSED_NOTE = 'أُغلق العقد، ولم يعد التعديل قابلًا للتطبيق';
 export const AMENDMENT_PROPOSED_CHANGE_LABEL = 'تغيير مقترح';
 /** Rejecting never changes anything; the approve text is built per amendment (amendmentApproveText). */
 export const AMENDMENT_REJECT_CONFIRM_TEXT = 'سيُرفض الطلب ولن يتغير شيء في العقد أو المحفظة.';
@@ -23,7 +25,7 @@ export const AMENDMENT_DEPOSIT_ROUTE = '/client-overview/finance/wallet';
 export interface AmendmentLike {
 	type?: string; status?: string; requestedByRole?: string;
 	budgetDelta?: number | null; durationDeltaDays?: number | null; description?: string | null;
-	effect?: string | null; effectNote?: string | null;
+	effect?: string | null; effectNote?: string | null; actionable?: boolean | null; actionBlockedReason?: string | null;
 	needsClientPayment?: boolean; fundingAuthorized?: boolean; fundingAuthorizedUntil?: string | null;
 	contractPrice?: number | null; contractDurationDays?: number | null;
 	priceBefore?: number | null; priceAfter?: number | null; durationBefore?: number | null; durationAfter?: number | null;
@@ -46,6 +48,12 @@ export function amendmentEffectNote(a: AmendmentLike | null | undefined): string
 		case 'PENDING': return AMENDMENT_PENDING_NOTE;
 		default: return AMENDMENT_NONE_NOTE;
 	}
+}
+
+/** Why the actions (approve / reject / authorize payment / cancel) are disabled, or null when they are available. Older APIs (no `actionable`) never block. */
+export function amendmentActionBlockedReason(a: AmendmentLike | null | undefined): string | null {
+	if (a?.actionable === false) return a.actionBlockedReason || AMENDMENT_CONTRACT_CLOSED_NOTE;
+	return null;
 }
 
 /** The badge of an answered amendment (APPROVED row): applied vs legacy record-only. */

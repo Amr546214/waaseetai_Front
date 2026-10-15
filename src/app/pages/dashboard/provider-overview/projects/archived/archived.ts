@@ -5,6 +5,8 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
 
+export const SETTLED_LABEL_AR = 'أُغلق بتسوية نزاع';
+
 interface ArchivedProject {
   id: string;
   displayId: string;
@@ -13,6 +15,8 @@ interface ArchivedProject {
   value: string;
   date: string;
   status: 'done' | 'cancel' | 'arch';
+  /** Closed by an admin dispute settlement: a different end state from completed-by-delivery (the server sends settled + statusLabel). */
+  settled?: boolean;
   icon: string;
   providerName?: string;
   providerInitial?: string;
@@ -58,7 +62,8 @@ export class Archived implements OnInit {
       next: (res) => {
         this.isLoading.set(false);
         if (res && res.data) {
-          this.projects.set(res.data);
+          // a settled project is not a delivery-completed one: it sits with the closed/archived ones and carries its own label
+          this.projects.set((res.data as ArchivedProject[]).map(p => (p.settled && p.status === 'done' ? { ...p, status: 'arch' as const, icon: 'doc' } : p)));
         }
       },
       error: (err) => {
@@ -130,6 +135,8 @@ export class Archived implements OnInit {
     const input = event.target as HTMLInputElement;
     this.searchQuery.set(input.value);
   }
+
+  projectStatusLabel(p: ArchivedProject): string { return p.settled ? SETTLED_LABEL_AR : this.statusLabel(p.status); }
 
   statusLabel(status: 'done' | 'cancel' | 'arch'): string {
     if (status === 'done') return 'مكتمل';

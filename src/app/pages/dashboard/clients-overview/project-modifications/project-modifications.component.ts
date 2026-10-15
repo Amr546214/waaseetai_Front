@@ -7,7 +7,7 @@ import { AccountType } from '../../../../core/models/auth.model';
 import { MessageContext } from '../../../../core/services/chat.service';
 import { environment } from '../../../../../environments/environment';
 import { formatMoney } from '../../../../core/utils/money.util';
-import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffect, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment, amendmentBudgetPart } from '../../../../core/constants/amendment-effect';
+import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffect, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment, amendmentBudgetPart, amendmentActionBlockedReason } from '../../../../core/constants/amendment-effect';
 import { AmendmentActionsService } from '../../../../core/services/amendment-actions.service';
 import { AmendmentPaymentOtpComponent } from '../../../../sheards/amendment-payment-otp/amendment-payment-otp.component';
 
@@ -164,7 +164,11 @@ export class ProjectModificationsComponent implements OnInit {
 		return am.requestedByRole === 'PROVIDER' ? 'canc' : 'disp';
 	}
 
+	/** Why every action is disabled (the contract was closed, e.g. by a dispute settlement); null when available. */
+	blockedReason(am: Amendment): string | null { return amendmentActionBlockedReason(am as any); }
+
 	statusLabel(am: Amendment): string {
+		if (this.blockedReason(am) && am.status === 'PENDING_OTHER_PARTY') return 'العقد مُغلق';
 		if (am.status === 'APPROVED') return amendmentApprovedBadge(am);
 		if (am.status === 'REJECTED') return 'مرفوض';
 		if (am.status === 'CANCELLED') return 'مُلغى';
@@ -208,7 +212,7 @@ export class ProjectModificationsComponent implements OnInit {
 	pendingDecision = signal<{ id: string; decision: 'approve' | 'reject' } | null>(null);
 	otpFor = signal<{ id: string; mode: 'respond' | 'authorize' } | null>(null);
 	askDecision(am: Amendment, decision: 'approve' | 'reject'): void {
-		if (this.respondingId()) return;
+		if (this.respondingId() || this.blockedReason(am)) return;
 		this.respondError.set('');
 		this.otpFor.set(null);
 		this.pendingDecision.set({ id: am.id, decision });
@@ -227,10 +231,10 @@ export class ProjectModificationsComponent implements OnInit {
 	canAuthorizeFunding(am: Amendment): boolean {
 		return am.requestedByRole === 'CLIENT' && am.status === 'PENDING_OTHER_PARTY' && this.needsPayment(am) && !am.fundingAuthorized;
 	}
-	startAuthorize(am: Amendment): void { this.respondError.set(''); this.pendingDecision.set(null); this.otpFor.set({ id: am.id, mode: 'authorize' }); }
+	startAuthorize(am: Amendment): void { if (this.blockedReason(am)) return; this.respondError.set(''); this.pendingDecision.set(null); this.otpFor.set({ id: am.id, mode: 'authorize' }); }
 	canCancel(am: Amendment): boolean { return am.requestedByRole === 'CLIENT' && am.status === 'PENDING_OTHER_PARTY'; }
 	cancelRequest(am: Amendment): void {
-		if (this.respondingId()) return;
+		if (this.respondingId() || this.blockedReason(am)) return;
 		this.respondingId.set(am.id);
 		this.respondError.set('');
 		this.actions.cancel('client', am.id).subscribe({

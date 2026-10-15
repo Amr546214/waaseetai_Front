@@ -118,7 +118,7 @@
 							</div>
 						</div>
 						<span class="tk-status" [class.tks-ok]="p.status === 'done'" [class.tks-wait]="p.status === 'cancel'" [class.tks-closed]="p.status === 'arch'">
-							{{ statusLabel(p.status) }}
+							{{ projectStatusLabel(p) }}
 						</span>
 					</a>
 				}
@@ -256,7 +256,7 @@
 							</div>
 						</div>
 						<span class="pc-status" [class.pcs-ok]="p.status==='done'" [class.pcs-wait]="p.status==='cancel'" [class.pcs-closed]="p.status==='arch'">
-							{{ statusLabel(p.status) }}
+							{{ projectStatusLabel(p) }}
 						</span>
 					</a>
 				}

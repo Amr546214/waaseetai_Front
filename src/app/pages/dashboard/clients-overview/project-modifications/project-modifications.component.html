@@ -146,15 +146,19 @@
 								}
 							} @else {
 							<div class="dp-decision">
-								<button type="button" class="dp-appr-btn" [disabled]="respondingId() === am.id" (click)="askDecision(am, 'approve')">
+								<button type="button" class="dp-appr-btn" [disabled]="respondingId() === am.id || !!blockedReason(am)" [attr.title]="blockedReason(am)" (click)="askDecision(am, 'approve')">
 									{{ respondingId() === am.id ? 'جارٍ الحفظ...' : 'موافقة' }}
 								</button>
-								<button type="button" class="dp-rej-btn" [disabled]="respondingId() === am.id" (click)="askDecision(am, 'reject')">رفض</button>
+								<button type="button" class="dp-rej-btn" [disabled]="respondingId() === am.id || !!blockedReason(am)" [attr.title]="blockedReason(am)" (click)="askDecision(am, 'reject')">رفض</button>
 							</div>
 							}
 							@if (respondError()) {
 								<div class="dp-resp-err" role="alert">{{ respondError() }}</div>
 							}
+						}
+
+						@if (blockedReason(am); as why) {
+							@if (am.status === 'PENDING_OTHER_PARTY') { <div class="dp-resp-err" role="note" data-testid="am-closed-reason">{{ why }}</div> }
 						}
 
 						@if (am.requestedByRole === 'CLIENT' && am.status === 'PENDING_OTHER_PARTY') {
@@ -165,10 +169,10 @@
 									<app-amendment-payment-otp [amendmentId]="am.id" mode="authorize" [amount]="approveAmount(am)" (done)="onOtpDone()" (closed)="cancelDecision()" />
 								} @else {
 									<div class="dp-desc" data-testid="am-funding-needed" role="note">لا يستطيع مقدم الخدمة الموافقة قبل أن تعتمد دفع هذه الزيادة برمز تحقق. لا يُخصم شيء الآن.</div>
-									<div class="dp-decision"><button type="button" class="dp-appr-btn" data-testid="am-authorize" [disabled]="respondingId() === am.id" (click)="startAuthorize(am)">اعتماد الدفع</button></div>
+									<div class="dp-decision"><button type="button" class="dp-appr-btn" data-testid="am-authorize" [disabled]="respondingId() === am.id || !!blockedReason(am)" [attr.title]="blockedReason(am)" (click)="startAuthorize(am)">اعتماد الدفع</button></div>
 								}
 							}
-							<div class="dp-decision"><button type="button" class="dp-rej-btn" data-testid="am-cancel" [disabled]="respondingId() === am.id" (click)="cancelRequest(am)">إلغاء الطلب</button></div>
+							<div class="dp-decision"><button type="button" class="dp-rej-btn" data-testid="am-cancel" [disabled]="respondingId() === am.id || !!blockedReason(am)" [attr.title]="blockedReason(am)" (click)="cancelRequest(am)">إلغاء الطلب</button></div>
 							@if (respondError()) {
 								<div class="dp-resp-err" role="alert">{{ respondError() }}</div>
 							}

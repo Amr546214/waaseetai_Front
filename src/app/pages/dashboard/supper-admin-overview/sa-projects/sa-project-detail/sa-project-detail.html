@@ -22,7 +22,7 @@
           <div class="pj-md-id">{{ d.id }}</div>
           <h3>{{ d.title }}</h3>
           <div class="pj-md-tags">
-            <span class="pj-status" [ngClass]="statusClasses[d.status] || 'pj-st-cancelled'">{{ statusLabels[d.status] || d.status }}</span>
+            <span class="pj-status" [ngClass]="statusClasses[d.status] || 'pj-st-cancelled'">{{ d.statusLabel || statusLabels[d.status] || d.status }}</span>
             @if (d.openDisputes > 0) {
               <span class="pj-risk pj-risk-high">نزاعات مفتوحة: {{ d.openDisputes }}</span>
             }
@@ -53,7 +53,7 @@
               <div class="pj-ms-name">{{ s.stepOrder }}. {{ s.title }}</div>
               <div class="pj-ms-track"><div class="pj-ms-fill" [style.width.%]="stageState(s) === 'done' ? 100 : 0"></div></div>
               <div class="pj-deliv-meta">
-                {{ s.amount | number:'1.0-2' }} $ ({{ s.percentage }}%) · {{ label(stageLabels, s.status) }}
+                {{ s.amount | number:'1.0-2' }} $ ({{ s.percentage }}%) · {{ s.displayStatusLabel || label(stageLabels, s.status) }}
                 @if (s.approvedAt) { · اعتُمدت في {{ s.approvedAt | date: 'yyyy-MM-dd' }} }
               </div>
               <div class="pj-deliv-list">

@@ -8,7 +8,9 @@ import { AccountType } from '../../../../../core/models/auth.model';
 import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
 import { formatMoney } from '../../../../../core/utils/money.util';
 
-type ProjectStatus = 'done' | 'cancel' | 'arch';
+/** 'settled' = closed by an admin dispute settlement: a different end state from 'done' (completed by delivery). */
+type ProjectStatus = 'done' | 'cancel' | 'arch' | 'settled';
+export const SETTLED_LABEL_AR = 'أُغلق بتسوية نزاع';
 type FilterStatus = 'all' | ProjectStatus;
 
 interface ArchivedProject {
@@ -70,6 +72,7 @@ export class ArchivedProjects implements OnInit {
 		{ id: 'done' as const, label: 'مكتملة', count: this.projects().filter(p => p.status === 'done').length },
 		{ id: 'cancel' as const, label: 'ملغاة', count: this.projects().filter(p => p.status === 'cancel').length },
 		{ id: 'arch' as const, label: 'مؤرشفة', count: this.projects().filter(p => p.status === 'arch').length },
+		...(this.projects().some(p => p.status === 'settled') ? [{ id: 'settled' as const, label: SETTLED_LABEL_AR, count: this.projects().filter(p => p.status === 'settled').length }] : []),
 	]);
 
 	showRatingModal = signal(false);
@@ -137,6 +140,7 @@ export class ArchivedProjects implements OnInit {
 	}
 
 	statusLabel(status: ProjectStatus): string {
+		if (status === 'settled') return SETTLED_LABEL_AR;
 		if (status === 'done') return 'مكتمل';
 		if (status === 'cancel') return 'ملغى';
 		return 'مؤرشف';
@@ -228,14 +232,15 @@ export class ArchivedProjects implements OnInit {
 	private normaliseProject(p: any): ArchivedProject {
 		const rawStatus = String(p.status || p.projectStatus || '').toUpperCase();
 		let status: ProjectStatus = 'done';
-		if (['CANCELLED', 'CANCELED', 'CANCEL'].includes(rawStatus)) status = 'cancel';
+		if (p.adminSettled) status = 'settled';
+		else if (['CANCELLED', 'CANCELED', 'CANCEL'].includes(rawStatus)) status = 'cancel';
 		else if (['DISPUTED', 'ARCHIVED', 'CLOSED'].includes(rawStatus)) status = 'arch';
 		else status = 'done';
 
 		const icon: ArchivedProject['icon'] =
 			status === 'done' ? 'check' :
 			status === 'cancel' ? 'list' :
-			'doc';
+			'doc'; // 'settled' reads as a document, never the completed check mark
 
 		const numericAmount = p.totalPrice != null ? Number(p.totalPrice) : Number(p.amount) || 0;
 		const amount = numericAmount > 0
@@ -254,7 +259,7 @@ export class ArchivedProjects implements OnInit {
 			}
 		}
 
-		const closedPrefix = status === 'cancel' ? 'أُلغي' : status === 'arch' ? 'أُرشف' : 'أُغلق';
+		const closedPrefix = status === 'settled' ? SETTLED_LABEL_AR : status === 'cancel' ? 'أُلغي' : status === 'arch' ? 'أُرشف' : 'أُغلق';
 		const closedLabel = dateStr && dateStr !== '—' ? `${closedPrefix} ${dateStr}` : closedPrefix;
 
 		// Provider name — defensive: handle string, object, or missing
@@ -280,7 +285,8 @@ export class ArchivedProjects implements OnInit {
 			closedLabel,
 			status,
 			icon,
-			canRate: Boolean(p.canRate),
+			// a settled project never offers a NEW rating (a review saved earlier stays readable on the rating page)
+			canRate: status === 'settled' ? false : Boolean(p.canRate),
 			hasRated: Boolean(p.hasRated),
 		};
 	}

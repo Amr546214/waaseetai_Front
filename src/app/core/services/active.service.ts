@@ -10,6 +10,8 @@ export interface ProviderAmendment {
 	budgetDelta: number | null; durationDeltaDays: number | null; status: AmendmentStatus; requestedByRole: 'CLIENT' | 'PROVIDER';
 	createdAt: string; respondedAt: string | null; conversationId: string | null;
 	effect?: 'APPLIED' | 'RECORD_ONLY' | 'PENDING' | 'NONE'; effectNote?: string;
+	/** false when the amendment's contract is closed (e.g. by a dispute settlement): every action is disabled with actionBlockedReason. */
+	actionable?: boolean; actionBlockedReason?: string | null; contractStatus?: string | null;
 	appliedAt?: string | null; needsClientPayment?: boolean; fundingAuthorized?: boolean; contractPrice?: number | null; contractDurationDays?: number | null;
 }
 export interface CreateAmendmentPayload { type: AmendmentKind; title: string; description?: string; budgetDelta?: number; durationDeltaDays?: number }

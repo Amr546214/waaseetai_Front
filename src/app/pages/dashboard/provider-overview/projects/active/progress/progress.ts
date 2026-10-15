@@ -14,7 +14,7 @@ import { MessageContext } from '../../../../../../core/services/chat.service';
 import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
 import { formatMoney } from '../../../../../../core/utils/money.util';
-import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment } from '../../../../../../core/constants/amendment-effect';
+import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment, amendmentActionBlockedReason } from '../../../../../../core/constants/amendment-effect';
 
 export type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION';
 
@@ -315,7 +315,13 @@ export class Progress implements OnInit {
   }
   // P-PR-013 display helpers (display-only)
   deliveryStageRounds(stage: any): number { return stage?.roundsCount || 0; }
+  /** Unreleased stage of a project closed by a dispute settlement: displayed as such (derived by the server; nothing was approved). */
+  stageClosedBySettlement(stage: any): boolean { return stage?.displayStatus === 'CLOSED_BY_SETTLEMENT'; }
+  stageText(stage: any): string { return this.stageClosedBySettlement(stage) ? (stage.displayStatusLabel || 'أُغلقت بالتسوية') : stage?.statusText; }
+  /** Why the amendment actions are disabled (its contract is closed); null when available. */
+  amendmentClosedReason(a: any): string | null { return amendmentActionBlockedReason(a); }
   deliveryStageStatusText(stage: any): string {
+    if (this.stageClosedBySettlement(stage)) return this.stageText(stage);
     if (stage?.statusText) return stage.statusText;
     if (stage?.status === 'in_progress') return 'جارية';
     if (stage?.status === 'revision') return 'بانتظار إعادة التسليم';
@@ -455,6 +461,8 @@ export class Progress implements OnInit {
 
   canRateClient(data: any): boolean {
     if (this.providerRatingSubmitted() || this.providerRatingSuccess()) return false;
+    // a project closed by a dispute settlement offers no NEW rating (the server says so too: providerClientRating.canRate)
+    if (data?.adminSettled) return false;
     // If backend reports the provider already rated this client, hide the CTA.
     if (data?.providerClientRating?.hasRated === true) return false;
     if (data?.canRate === true) return true;
@@ -522,11 +530,11 @@ export class Progress implements OnInit {
   awaitingClientPayment(a: ProviderAmendment) { return this.isClientPending(a) && amendmentNeedsPayment(a) && !a.fundingAuthorized; }
   isOwnPending(a: ProviderAmendment) { return a.requestedByRole === 'PROVIDER' && a.status === 'PENDING_OTHER_PARTY'; }
   pendingAmendDecision = signal<{ id: string; decision: 'approve' | 'reject' } | null>(null);
-  askAmendDecision(a: ProviderAmendment, decision: 'approve' | 'reject') { if (this.respondingId()) return; if (decision === 'approve' && this.awaitingClientPayment(a)) return; this.respondError.set(''); this.pendingAmendDecision.set({ id: a.id, decision }); }
+  askAmendDecision(a: ProviderAmendment, decision: 'approve' | 'reject') { if (this.respondingId() || this.amendmentClosedReason(a)) return; if (decision === 'approve' && this.awaitingClientPayment(a)) return; this.respondError.set(''); this.pendingAmendDecision.set({ id: a.id, decision }); }
   cancelAmendDecision() { this.pendingAmendDecision.set(null); }
   confirmAmendDecision(a: ProviderAmendment) { const p = this.pendingAmendDecision(); if (!p || p.id !== a.id) return; this.pendingAmendDecision.set(null); this.respondAmendment(a, p.decision); }
   respondAmendment(a: ProviderAmendment, decision: 'approve' | 'reject') {
-    if (this.respondingId() || !this.isClientPending(a) || (decision === 'approve' && this.awaitingClientPayment(a))) return;
+    if (this.respondingId() || this.amendmentClosedReason(a) || !this.isClientPending(a) || (decision === 'approve' && this.awaitingClientPayment(a))) return;
     this.respondingId.set(a.id); this.respondError.set('');
     this.service.respondAmendment(a.id, decision).subscribe({
       next: () => { this.respondingId.set(null); this.loadAmendments(); },
@@ -535,7 +543,7 @@ export class Progress implements OnInit {
   }
   /** Withdraw my own pending request (POST /provider/amendments/:id/cancel). */
   cancelOwnAmendment(a: ProviderAmendment) {
-    if (this.respondingId() || !this.isOwnPending(a)) return;
+    if (this.respondingId() || this.amendmentClosedReason(a) || !this.isOwnPending(a)) return;
     this.respondingId.set(a.id); this.respondError.set('');
     this.service.cancelAmendment(a.id).subscribe({
       next: () => { this.respondingId.set(null); this.loadAmendments(); },

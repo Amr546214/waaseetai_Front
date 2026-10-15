@@ -14,7 +14,7 @@ import { RatingStatus } from '../../../../../core/models/rating.model';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { ClientCompanyTeamService } from '../../../../../core/services/client-company-team.service';
-import { AMENDMENT_PROPOSED_CHANGE_LABEL, amendmentApprovedBadge, amendmentBudgetPart, amendmentEffectNote, amendmentNeedsPayment } from '../../../../../core/constants/amendment-effect';
+import { AMENDMENT_PROPOSED_CHANGE_LABEL, amendmentApprovedBadge, amendmentBudgetPart, amendmentEffectNote, amendmentNeedsPayment, amendmentActionBlockedReason } from '../../../../../core/constants/amendment-effect';
 import { AmendmentActionsService } from '../../../../../core/services/amendment-actions.service';
 import { AmendmentPaymentOtpComponent } from '../../../../../sheards/amendment-payment-otp/amendment-payment-otp.component';
 import { ClientCompanyTeamMember } from '../../../../../core/models/client-company-team.model';
@@ -192,7 +192,13 @@ export class ProjectDetails implements OnInit {
 		if (!value) return '—';
 		return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(new Date(value));
 	}
+	/** Unreleased stage of a project closed by a dispute settlement: shown as such (derived by the server; nothing was approved). */
+	stageClosedBySettlement(stage: any): boolean { return stage?.displayStatus === 'CLOSED_BY_SETTLEMENT'; }
+	/** Header status of the project: the settlement label for a settled project, otherwise the server label. */
+	headerStatusLabel(data: any): string { return data?.adminSettled?.label || data?.statusLabel; }
+	amendmentBlockedReason(a: any): string | null { return amendmentActionBlockedReason(a); }
 	statusHint(stage: any) {
+		if (this.stageClosedBySettlement(stage)) return stage.displayStatusLabel || 'أُغلقت بالتسوية';
 		if (stage.status === 'completed') return `اكتملت واعتمدت${stage.completedDate ? ` · ${this.formatDate(stage.completedDate)}` : ''}`;
 		if (stage.status === 'submitted' && stage.revisionResubmitted) return `أعاد مقدم الخدمة التسليم بعد ملاحظاتك · ${stage.roundsCount} تسليمات، بانتظار قرارك`;
 		if (stage.status === 'submitted') return `قيد المراجعة · ${stage.roundsCount} ${stage.roundsCount === 1 ? 'تسليم' : 'تسليمات'}، بانتظار قرارك`;
@@ -203,6 +209,7 @@ export class ProjectDetails implements OnInit {
 	/** Money label of a stage: released, really held in escrow, or just its value (nothing is held before the escrow is funded). */
 	stageMoneyLabel(stage: any): string {
 		const amount = `${this.formatNumber(stage.amount)} $`;
+		if (this.stageClosedBySettlement(stage)) return `قيمة المرحلة ${amount}`;
 		if (stage.status === 'completed') return `أُفرج ${amount}`;
 		return stage.amountHeld ? `محتجز ${amount}` : `قيمة المرحلة ${amount}`;
 	}
@@ -221,6 +228,7 @@ export class ProjectDetails implements OnInit {
 	/** Deadline status from the contract's own duration; no AI rating and no default "good". */
 	deadlineRating(data: any) {
 		if (!this.isRunning(data)) return 'لم يبدأ';
+		if (data.adminSettled) return data.adminSettled.label;
 		if (data.contractStatus === 'COMPLETED') return 'مكتمل';
 		if (data.daysLeft <= 0 && data.progress < 100) return 'تجاوز المدة';
 		return 'ضمن المدة';
