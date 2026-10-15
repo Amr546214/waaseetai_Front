@@ -1,3 +1,4 @@
+import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { Injectable, inject, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -63,7 +64,7 @@ export class NewProjectService implements OnDestroy {
 			}
 			this.socket = io(environment.socketUrl, {
 				withCredentials: true,
-				reconnection: true,
+				...SOCKET_BACKOFF,
 				auth: { token }
 			});
 			console.log('🔌 Connected to AI Review Stream WebSocket');

@@ -11,6 +11,7 @@ import { SpecialtyService } from '../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../../../../core/utils/socket-backoff';
 import { environment } from '../../../../../environments/environment';
 
 import { Step1Specialty } from './components/step1-specialty/step1-specialty';
@@ -791,7 +792,7 @@ export class CreateRequest implements OnInit, OnDestroy {
           token = document.cookie.match(/(?:^|;\s*)waseet_token=([^;]+)/)?.[1] || null;
         }
       }
-      this.socket = io(environment.socketUrl, { withCredentials: true, auth: { token } });
+      this.socket = io(environment.socketUrl, { withCredentials: true, ...SOCKET_BACKOFF, auth: { token } });
     }
 
     const currentDesc = this.description().trim();

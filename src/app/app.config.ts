@@ -7,6 +7,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { getCacheInterceptor } from './core/interceptors/get-cache.interceptor';
 import { rateLimitInterceptor } from './core/interceptors/rate-limit.interceptor';
 import { errorMessageInterceptor } from './core/interceptors/error-message.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
@@ -22,7 +23,7 @@ export const appConfig: ApplicationConfig = {
 			anchorScrolling: 'enabled'
 		})),
 		provideClientHydration(withEventReplay()),
-		provideHttpClient(withFetch(), withInterceptors([errorMessageInterceptor, loadingInterceptor, providerGateInterceptor, authInterceptor, rateLimitInterceptor])),
+		provideHttpClient(withFetch(), withInterceptors([errorMessageInterceptor, loadingInterceptor, providerGateInterceptor, authInterceptor, getCacheInterceptor, rateLimitInterceptor])),
 		provideTranslateService({ lang: 'ar', fallbackLang: 'ar' }),
 		{
 			provide: SOCIAL_AUTH_CONFIG,

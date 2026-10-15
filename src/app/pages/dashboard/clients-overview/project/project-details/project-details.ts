@@ -1,3 +1,4 @@
+import { isRateLimitError } from '../../../../../core/utils/rate-limit.util';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -102,7 +103,7 @@ export class ProjectDetails implements OnInit {
 							this.finalProviderRatingComment.set(status.review?.comment ?? null);
 							this.finalProviderRatedAt.set(status.review?.createdAt ?? null);
 						},
-						error: () => { this.ratingStatus.set(null); },
+						error: (e) => { if (!isRateLimitError(e)) this.ratingStatus.set(null); },
 					});
 				}
 				this.isLoading.set(false);

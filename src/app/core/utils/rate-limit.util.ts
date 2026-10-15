@@ -60,3 +60,17 @@ export function handleLoadError(err: unknown, h: LoadErrorHandlers): void {
 	if (h.hasData?.()) h.onKeep?.();
 	else h.onRateLimit(err);
 }
+
+/** "30 ثانية" / "دقيقتين" / "5 دقائق" / "ساعة" for the wait shown to the user. */
+export function formatWaitArabic(seconds: number): string {
+	const s = Math.max(1, Math.ceil(seconds));
+	if (s >= 3600) { const h = Math.round(s / 3600); return h === 1 ? 'ساعة' : h === 2 ? 'ساعتين' : `${h} ساعات`; }
+	if (s >= 60) { const m = Math.ceil(s / 60); return m === 1 ? 'دقيقة' : m === 2 ? 'دقيقتين' : `${m} ${m <= 10 ? 'دقائق' : 'دقيقة'}`; }
+	return `${s} ثانية`;
+}
+
+/** The honest toast text: the real wait from Retry-After when the server sent one, else the generic text. */
+export function rateLimitToastMessage(err: unknown): string {
+	const wait = retryAfterSeconds(err);
+	return wait != null && wait > 0 ? `عدد الطلبات كبير، حاول مرة أخرى بعد ${formatWaitArabic(wait)}` : RATE_LIMIT_MESSAGE;
+}

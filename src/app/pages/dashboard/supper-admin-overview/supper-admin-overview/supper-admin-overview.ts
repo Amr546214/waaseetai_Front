@@ -1,3 +1,4 @@
+import { isRateLimitError } from '../../../../core/utils/rate-limit.util';
 import { Component, OnInit, computed, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterLink } from "@angular/router";
@@ -34,11 +35,11 @@ export class SupperAdminOverview implements OnInit {
 			error: (err) => { this.error.set(err?.error?.message || 'تعذر تحميل مؤشرات لوحة التحكم، حاول مرة أخرى'); this.loading.set(false); }
 		});
 		this.loadCharts();
-		this.api.getActivity(12).subscribe({ next: (res) => this.activity.set(res.data.items), error: () => this.activity.set([]) });
+		this.api.getActivity(12).subscribe({ next: (res) => this.activity.set(res.data.items), error: (e) => { if (!isRateLimitError(e)) this.activity.set([]); } });
 	}
 
 	loadCharts() {
-		this.api.getCharts(this.chartDays()).subscribe({ next: (res) => this.charts.set(res.data), error: () => this.charts.set(null) });
+		this.api.getCharts(this.chartDays()).subscribe({ next: (res) => this.charts.set(res.data), error: (e) => { if (!isRateLimitError(e)) this.charts.set(null); } });
 	}
 
 	setDays(days: 7 | 30) { this.chartDays.set(days); this.loadCharts(); }

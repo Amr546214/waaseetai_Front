@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, retry, throwError, timer } from 'rxjs';
 import { UiNotificationService } from '../services/ui-notification.service';
-import { RATE_LIMIT_MESSAGE, isRateLimitError, retryAfterSeconds } from '../utils/rate-limit.util';
+import { isRateLimitError, rateLimitToastMessage, retryAfterSeconds } from '../utils/rate-limit.util';
 import { AUTH_ATTEMPT_URLS } from './auth.interceptor';
 
 export const RATE_LIMIT_TOAST_GAP_MS = 10_000;
@@ -12,7 +12,7 @@ let lastToastAt = 0;
 export function resetRateLimitToastClock(): void { lastToastAt = 0; }
 
 /**
- * Innermost interceptor. A 429 is a TEMPORARY condition: this only (a) retries an idempotent GET once when the wait is short,
+ * Innermost interceptor. A 429 is a TEMPORARY condition: this only (a) retries an idempotent GET once when the wait is short (a POST/PUT/PATCH/DELETE, a payment, a withdrawal or an OTP request is NEVER retried automatically),
  * (b) shows ONE deduplicated warning toast, and (c) passes the original HttpErrorResponse (status 429) on so consumers use isRateLimitError().
  * It never logs out, redirects, or touches any access/role state. Auth attempts (login / OTP ...) keep their own specific messages: no toast, no retry.
  */
@@ -36,7 +36,7 @@ export const rateLimitInterceptor: HttpInterceptorFn = (req, next) => {
 				const now = Date.now();
 				if (now - lastToastAt >= RATE_LIMIT_TOAST_GAP_MS) {
 					lastToastAt = now;
-					ui.warning(RATE_LIMIT_MESSAGE);
+					ui.warning(rateLimitToastMessage(err));
 				}
 			}
 			return throwError(() => err);
