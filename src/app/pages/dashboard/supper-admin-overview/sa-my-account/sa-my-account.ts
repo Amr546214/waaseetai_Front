@@ -1,7 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { BACKEND_CODE_MESSAGES } from '../../../../core/forms/http-error';
+import { FieldProblem } from '../../../../shared/forms/form-error-focus';
+import { handleAdminError, reportAdminProblems, SubmitGuard } from '../shared/admin-form-report';
 import { AdminConsoleApiService, AdminSelfProfile, AdminSession } from '../../../../core/services/admin-console-api.service';
 
 /** The admin's own account: profile (name / phone), password change, active sessions. Every action hits a real endpoint and is audited server-side. */
@@ -33,6 +36,9 @@ import { AdminConsoleApiService, AdminSelfProfile, AdminSession } from '../../..
 })
 export class SaMyAccount implements OnInit {
   private readonly api = inject(AdminConsoleApiService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly profileGuard = new SubmitGuard();
+  private readonly pwGuard = new SubmitGuard();
 
   readonly profile = signal<AdminSelfProfile | null>(null);
   readonly firstName = signal('');
@@ -73,36 +79,62 @@ export class SaMyAccount implements OnInit {
   }
 
   saveProfile(): void {
+    if (this.savingProfile()) return;
     const first = this.firstName().trim(), last = this.lastName().trim(), phone = this.phoneNumber().trim();
-    if (!first || !last) { this.profileMsg.set({ ok: false, text: 'الاسم الأول واسم العائلة مطلوبان' }); return; }
-    if (phone && !/^\d{6,15}$/.test(phone)) { this.profileMsg.set({ ok: false, text: 'رقم الجوال يجب أن يكون أرقامًا فقط (6 إلى 15 رقمًا)' }); return; }
+    const problems: FieldProblem[] = [];
+    if (!first) problems.push({ field: 'ma-first-name', message: 'الاسم الأول مطلوب' });
+    if (!last) problems.push({ field: 'ma-last-name', message: 'اسم العائلة مطلوب' });
+    if (phone && !/^\d{6,15}$/.test(phone)) problems.push({ field: 'ma-phone', message: 'رقم الجوال يجب أن يكون أرقامًا فقط (6 إلى 15 رقمًا)' });
+    this.profileMsg.set(null);
+    if (problems.length) { void reportAdminProblems(this.host.nativeElement, problems); return; }
+    if (!this.profileGuard.enter()) return;
     this.savingProfile.set(true);
     this.api.updateMe({ firstName: first, lastName: last, phoneNumber: phone || null }).subscribe({
-      next: (r) => { this.applyProfile(r.data); this.savingProfile.set(false); this.profileMsg.set({ ok: true, text: 'تم حفظ بيانات الحساب' }); },
-      error: (e) => { this.savingProfile.set(false); this.profileMsg.set({ ok: false, text: this.errText(e, 'تعذّر حفظ البيانات') }); },
+      next: (r) => { this.profileGuard.release(); this.applyProfile(r.data); this.savingProfile.set(false); this.profileMsg.set({ ok: true, text: 'تم حفظ بيانات الحساب' }); },
+      error: (e) => {
+        this.profileGuard.release();
+        this.savingProfile.set(false);
+        handleAdminError(this.host.nativeElement, e, { fallback: 'تعذّر حفظ البيانات', resolve: { firstName: 'ma-first-name', lastName: 'ma-last-name', phoneNumber: 'ma-phone' } }, (m) => this.profileMsg.set({ ok: false, text: m }));
+      },
     });
   }
 
   changePassword(): void {
-    if (!this.currentPassword() || !this.newPassword()) { this.pwMsg.set({ ok: false, text: 'أدخل كلمة المرور الحالية والجديدة' }); return; }
-    if (this.newPassword() !== this.confirmPassword()) { this.pwMsg.set({ ok: false, text: 'تأكيد كلمة المرور غير مطابق' }); return; }
+    if (this.savingPw()) return;
+    const problems: FieldProblem[] = [];
+    if (!this.currentPassword()) problems.push({ field: 'ma-pw-current', message: 'أدخل كلمة المرور الحالية' });
+    if (!this.newPassword()) problems.push({ field: 'ma-pw-new', message: 'أدخل كلمة المرور الجديدة' });
+    else if (this.currentPassword() && this.newPassword() === this.currentPassword()) problems.push({ field: 'ma-pw-new', message: BACKEND_CODE_MESSAGES['PASSWORD_UNCHANGED'] });
+    if (this.newPassword() && this.newPassword() !== this.confirmPassword()) problems.push({ field: 'ma-pw-confirm', message: 'تأكيد كلمة المرور غير مطابق' });
+    this.pwMsg.set(null);
+    if (problems.length) { void reportAdminProblems(this.host.nativeElement, problems); return; }
+    if (!this.pwGuard.enter()) return;
     this.savingPw.set(true);
     this.api.changePassword({ currentPassword: this.currentPassword(), newPassword: this.newPassword() }).subscribe({
       next: () => {
+        this.pwGuard.release();
         this.savingPw.set(false);
         this.currentPassword.set(''); this.newPassword.set(''); this.confirmPassword.set('');
         this.pwMsg.set({ ok: true, text: 'تم تغيير كلمة المرور، وأُنهيت جلسات الأجهزة الأخرى' });
         this.loadSessions();
       },
       error: (e) => {
+        this.pwGuard.release();
         this.savingPw.set(false);
-        const code = e instanceof HttpErrorResponse ? e.error?.message : '';
-        const map: Record<string, string> = {
-          CURRENT_PASSWORD_INCORRECT: 'كلمة المرور الحالية غير صحيحة',
-          WEAK_PASSWORD: 'كلمة المرور الجديدة ضعيفة: 8 أحرف على الأقل وتجمع ثلاثة أنواع (كبيرة، صغيرة، أرقام، رموز)',
-          PASSWORD_UNCHANGED: 'كلمة المرور الجديدة مطابقة للحالية',
+        // The server answers these three cases with a fixed code (wrong current password is a 401 that must NOT read as "session expired").
+        const code = String((e as HttpErrorResponse)?.error?.message ?? '').split(':')[0].trim();
+        const byCode: Record<string, string> = {
+          CURRENT_PASSWORD_INCORRECT: 'ma-pw-current',
+          WEAK_PASSWORD: 'ma-pw-new',
+          PASSWORD_UNCHANGED: 'ma-pw-new',
         };
-        this.pwMsg.set({ ok: false, text: map[code] ?? 'تعذّر تغيير كلمة المرور' });
+        const status = (e as HttpErrorResponse)?.status;
+        if (byCode[code] && (status === 400 || status === 401 || status === 422)) {
+          const text = code === 'WEAK_PASSWORD' ? 'كلمة المرور الجديدة ضعيفة: 8 أحرف على الأقل وتجمع ثلاثة أنواع (كبيرة، صغيرة، أرقام، رموز)' : BACKEND_CODE_MESSAGES[code];
+          void reportAdminProblems(this.host.nativeElement, [{ field: byCode[code], message: text }]);
+          return;
+        }
+        handleAdminError(this.host.nativeElement, e, { fallback: 'تعذّر تغيير كلمة المرور', resolve: { currentPassword: 'ma-pw-current', newPassword: 'ma-pw-new' } }, (m) => this.pwMsg.set({ ok: false, text: m }));
       },
     });
   }
