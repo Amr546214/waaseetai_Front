@@ -126,7 +126,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة</div>
           <div class="text-[12px] text-[var(--txt-3)]">تفضيل لغة حسابك، يُحفظ في ملفك ولا يغيّر لغة الموقع حاليًا</div>
         </div>
-        <ws-select [options]="languageOptions" [(ngModel)]="language" ariaLabel="اللغة" style="min-width:200px;max-width:100%;display:block"></ws-select>
+        <ws-select id="set-lang" [options]="languageOptions" [(ngModel)]="language" ariaLabel="اللغة" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
@@ -134,7 +134,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">المنطقة الزمنية</div>
           <div class="text-[12px] text-[var(--txt-3)]">تُحفظ في ملفك الشخصي</div>
         </div>
-        <ws-select [options]="timezoneOptions" [(ngModel)]="timezone" ariaLabel="المنطقة الزمنية" style="min-width:200px;max-width:100%;display:block"></ws-select>
+        <ws-select id="set-tz" [options]="timezoneOptions" [(ngModel)]="timezone" ariaLabel="المنطقة الزمنية" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">

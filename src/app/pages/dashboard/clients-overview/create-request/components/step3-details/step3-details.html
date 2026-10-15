@@ -191,8 +191,8 @@
 				<div class="field-header mb-2">
 					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-deadline">أيام التسليم المقترحة <span class="field-req text-red-500">*</span></label>
 				</div>
-				<div class="relative">
-					<input type="number" class="field-input w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-deadline" placeholder="14" min="1" max="365" [ngModel]="parent.deliveryDays()" (ngModelChange)="parent.deliveryDays.set($event ? +$event : null)">
+				<div class="relative" data-field-wrap>
+					<input type="number" class="field-input w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-deadline" placeholder="أدخل عدد الأيام" min="1" max="365" [ngModel]="parent.deliveryDays()" (ngModelChange)="parent.deliveryDays.set($event ? +$event : null)">
 					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold text-sm">يوم</span>
 				</div>
 				<div class="mt-2 text-xs text-[var(--txt-3)] font-medium">المدة تقريبية، يمكن التفاوض مع مقدم الخدمة</div>

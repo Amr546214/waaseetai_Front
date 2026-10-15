@@ -34,7 +34,7 @@
 		</div>
 
 		<!-- 4 COLUMNS GRID FOR SPECIALTIES -->
-		<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+		<div id="f-specialty-grid" tabindex="-1" data-field-wrap class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8 outline-none">
 			@for (spec of parent.filteredSpecs(); track spec.id) {
 			<div class="rounded-[20px] p-5 cursor-pointer transition-all duration-300 flex flex-col items-center justify-center text-center gap-3 relative min-h-[160px] border group"
 				[ngClass]="parent.selectedSpec() === spec.id ? 'bg-[var(--bggrid-3)] border-2 border-[var(--teal)] shadow-[0_0_20px_rgba(43,212,199,0.25)]' : 'bg-[var(--crd-bg)] border-[var(--crd-bd)] hover:border-[var(--teal)]/50 hover:bg-[var(--sec-hov)] shadow-lg'"
@@ -65,7 +65,7 @@
 				</svg>
 				اكتب التخصص المقترح
 			</div>
-			<input type="text"
+			<input type="text" id="f-other-spec" name="otherSpecialty"
 				class="w-full py-4 px-5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-2xl text-[var(--txt)] text-[15px] outline-none transition-colors focus:border-[var(--teal)] placeholder-[var(--txt-3)]"
 				placeholder="أدخل اسم التخصص بالتفصيل..."
 				[ngModel]="parent.otherText()" (ngModelChange)="parent.otherText.set($event)">

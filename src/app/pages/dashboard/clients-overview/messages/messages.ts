@@ -1,5 +1,5 @@
 import { chatPreview } from '../../../../core/utils/chat-preview.util';
-import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
+import { reportClientProblems } from '../client-form-report';
 import { ClientOfferCounterService } from '../../../../core/services/client-offer-counter.service';
 
 export interface MessageItem {
@@ -54,6 +55,7 @@ export interface Conversation {
 })
 export class ClientMessages implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private router = inject(Router);
   public chatService = inject(ChatService);
   private authStore = inject(AuthStore);
@@ -352,7 +354,11 @@ export class ClientMessages implements OnInit, OnDestroy {
 
   sendMessage(type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'FILE' = 'TEXT', customData?: any): void {
     let text = this.newMessageText().trim();
-    if (type === 'TEXT' && !text) return;
+    if (type === 'TEXT' && !text) {
+      // An empty send is not silent: the reason is under the message box (red, role=alert) and the box gets focus.
+      if (this.activeConversation()) void reportClientProblems(this.host.nativeElement, [{ field: 'msg-composer', message: 'اكتب رسالة قبل الإرسال' }]);
+      return;
+    }
 
     const currentConv = this.activeConversation();
     if (!currentConv) return;

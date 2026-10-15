@@ -599,11 +599,12 @@
 			@if(negType() === 'price') {
 			<div id="neg-f-price" class="neg-f"><label class="neg-lbl" for="neg-price">السعر المقترح
 					($)</label><input class="neg-inp" id="neg-price" type="text" inputmode="numeric"
-					placeholder="مثال 4,000" [value]="negPrice()" (input)="onNegPriceInput($event)"></div>
+					placeholder="أدخل السعر المقترح بالدولار" [value]="negPrice()" (input)="onNegPriceInput($event)">
+				@if (selectedOffer()?.price; as cur) { <div class="neg-lbl" style="margin-top:5px;font-weight:600">سعر العرض الحالي: {{ cur }}</div> }</div>
 			}
 			@if(negType() === 'dur') {
 			<div id="neg-f-dur" class="neg-f"><label class="neg-lbl" for="neg-dur">المدة المقترحة (أيام)</label><input
-					class="neg-inp" id="neg-dur" type="text" inputmode="numeric" placeholder="مثال 14" [value]="negDuration()" (input)="onNegDurationInput($event)"></div>
+					class="neg-inp" id="neg-dur" type="text" inputmode="numeric" placeholder="أدخل عدد الأيام" [value]="negDuration()" (input)="onNegDurationInput($event)"></div>
 			}
 			<label class="neg-lbl" for="neg-msg">ملاحظاتك لمقدم الخدمة</label>
 			<textarea class="neg-inp neg-ta" id="neg-msg"

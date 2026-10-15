@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, ViewEncapsulation, OnDestroy, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -8,6 +8,9 @@ import { ClientFinanceService } from '../../../../../core/services/client-financ
 import { DepositModal } from '../../../../../sheards/deposit-modal/deposit-modal';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { scrollFocus } from '../../../../../shared/forms/form-error-focus';
+import { reportClientProblems } from '../../client-form-report';
 
 @Component({
 	selector: 'app-escrow-deposit',
@@ -24,6 +27,7 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 	private clientFinanceService = inject(ClientFinanceService);
 	public themeService = inject(ThemeService);
 	private authStore = inject(AuthStore);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
 	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
 	requestId = signal<string>('');
@@ -169,6 +173,12 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 		this.termsAccepted.set(!this.termsAccepted());
 	}
 
+	/** Space on the focused checkbox row toggles it (and must not scroll the page). */
+	toggleTermsKey(e: Event) {
+		e.preventDefault();
+		this.toggleTerms();
+	}
+
 	// Format helpers
 	formatCurrency(val: number): string {
 		return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
@@ -176,7 +186,12 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 
 	handlePrimaryAction() {
 		this.formError.set('');
-		if (!this.termsAccepted()) return;
+		if (this.isSubmitting()) return;
+		if (!this.termsAccepted()) {
+			// The button stays clickable so the user is told WHY nothing happens: the message sits under the terms row, which gets focus.
+			void reportClientProblems(this.host.nativeElement, [{ field: 'ed-terms', message: 'وافق على شروط حساب الضمان للمتابعة' }]);
+			return;
+		}
 		if (!this.hasSufficientBalance()) {
 			this.showWalletDeposit.set(true);
 			return;
@@ -350,6 +365,10 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 		const otpCode = this.otpValues().join('');
 		if (otpCode.length !== 6) {
 			this.otpError.set('أدخل رمز التحقق المكوّن من 6 أرقام بالكامل.');
+			// Focus goes to the first empty box (below the header), the message is announced through aria-describedby.
+			const firstEmpty = this.otpValues().findIndex(v => v.length !== 1);
+			const box = document.getElementById(`otp${firstEmpty < 0 ? 0 : firstEmpty}`);
+			if (box) scrollFocus(box);
 			return;
 		}
 		if (this.isSubmitting()) return;
@@ -389,8 +408,11 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 					this.blockedReason.set(err.error?.message || 'تم توقيع هذا العقد وتمويله مسبقاً.');
 					return;
 				}
-				this.otpError.set(err.error?.message || 'كود التحقق غير صحيح أو منتهي الصلاحية');
-				this.otpValues.set(['', '', '', '', '', '']);
+				// Only a rejected code (400/422/401) says "wrong code"; network, 429 and 5xx stay honest generic messages and keep the digits.
+				const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'كود التحقق غير صحيح أو منتهي الصلاحية' });
+				const rejected = mapped.kind === 'backend-validation' || mapped.kind === 'credentials';
+				this.otpError.set(rejected ? (err.error?.message || 'كود التحقق غير صحيح أو منتهي الصلاحية') : mapped.message);
+				if (rejected) this.otpValues.set(['', '', '', '', '', '']);
 			}
 		});
 	}
