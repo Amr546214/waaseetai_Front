@@ -2,8 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
+import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../../shared/forms/form-spec-utils';
 
 import { SaBrokerDetail } from './sa-broker-detail';
 import { AdminBrokerDetail } from '../../../../../core/models/admin-broker.model';
@@ -97,5 +98,40 @@ describe('SaBrokerDetail', () => {
     expect(patchSpy.mock.calls[0][0]).toContain('/admin/brokers/broker-1/status');
     expect(patchSpy.mock.calls[0][1]).toEqual({ status: 'SUSPENDED', reason: 'نشاط مخالف للسياسة' });
     expect(component.selected()?.status).toBe('SUSPENDED');
+  });
+
+  it('suspend without / with a too-short reason: message under the reason box, focus there, nothing sent', async () => {
+    await setup(() => of({ success: true, data: makeBrokerDetail() }));
+    component.openStatusDialog('SUSPENDED'); harness.detectChanges();
+    component.confirmStatusChange(); await settleForm();
+    const el = harness.routeNativeElement as HTMLElement;
+    const ta = el.querySelector('#bk-status-reason');
+    expectFieldProblem(ta, 'اكتب سبب الإيقاف');
+    expectFocused(ta);
+    component.statusReason.set('abc'); harness.detectChanges();
+    component.confirmStatusChange(); await settleForm();
+    expectFieldProblem(ta, 'قصير');
+    expect(patchSpy).not.toHaveBeenCalled();
+  });
+
+  it('suspend: 400 naming reason under the box; 429 / 500 / 403 / 409 generic alert; reason kept; double click sends one request', async () => {
+    await setup(() => of({ success: true, data: makeBrokerDetail() }));
+    component.openStatusDialog('SUSPENDED'); component.statusReason.set('نشاط مخالف للسياسة'); harness.detectChanges();
+    const el = harness.routeNativeElement as HTMLElement;
+    patchSpy.mockReturnValueOnce(throwError(() => httpFail(400, { errors: [{ field: 'reason', message: 'السبب غير مقبول' }] })));
+    component.confirmStatusChange(); await settleForm(); harness.detectChanges();
+    expectFieldProblem(el.querySelector('#bk-status-reason'), 'غير مقبول');
+    for (const st of [429, 500, 403, 409, 0]) {
+      patchSpy.mockReturnValueOnce(throwError(() => httpFail(st, { message: 'x' })));
+      component.confirmStatusChange(); await settleForm(); harness.detectChanges();
+      expect(component.statusError(), String(st)).toBeTruthy();
+      expectNoFieldProblem(el);
+      expect(el.querySelector('[data-testid="bk-status-error"]')?.getAttribute('role')).toBe('alert');
+    }
+    expect(component.statusReason()).toBe('نشاط مخالف للسياسة');
+    patchSpy.mockClear();
+    patchSpy.mockReturnValue(new Subject());
+    component.confirmStatusChange(); component.confirmStatusChange();
+    expect(patchSpy).toHaveBeenCalledTimes(1);
   });
 });

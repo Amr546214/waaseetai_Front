@@ -5,6 +5,7 @@ import { vi } from 'vitest';
 import { SaBrokerKycRequests } from './sa-broker-kyc-requests';
 import { MarketerKycService } from '../../../../../core/services/marketer-kyc.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../../shared/forms/form-spec-utils';
 import { KycDocumentService } from '../../../../../core/services/kyc-document.service';
 
 // #51 — admin queue of marketer identity documents: view (marketer_kyc_document + userId), approve, reject with a REQUIRED reason.
@@ -61,19 +62,39 @@ describe('admin: marketer KYC requests (#51)', () => {
 		expect(q('kyc-count')!.textContent).toContain('1');
 	});
 
-	it('reject opens a dialog; confirming with an empty / too-short reason is blocked with an Arabic message and sends nothing', () => {
+	it('reject opens a dialog; confirming with an empty / too-short reason is blocked with an Arabic message under the reason box, focus there, and sends nothing', async () => {
 		setup();
 		all('kyc-reject')[0].click();
 		fixture.detectChanges();
 		expect(q('kyc-reject-dialog')).toBeTruthy();
 		q('kyc-reject-confirm')!.click();
-		fixture.detectChanges();
+		await settleForm();
 		expect(api.reject).not.toHaveBeenCalled();
-		expect(q('kyc-reason-error')!.textContent).toContain('سبب الرفض مطلوب');
+		expectFieldProblem(q('kyc-reason'), 'سبب الرفض مطلوب');
+		expectFocused(q('kyc-reason'));
 		typeReason('ab');
 		q('kyc-reject-confirm')!.click();
-		fixture.detectChanges();
+		await settleForm();
 		expect(api.reject).not.toHaveBeenCalled();
+		expectFieldProblem(q('kyc-reason'), 'مطلوب');
+	});
+
+	it('reject: a 400 naming reason lands under the box; 429 / 500 / 403 keep the dialog open with a generic alert and the typed reason', async () => {
+		setup(ROWS, { reject: vi.fn() });
+		all('kyc-reject')[0].click(); fixture.detectChanges();
+		typeReason('سبب واضح');
+		api.reject.mockReturnValueOnce(throwError(() => httpFail(400, { errors: [{ field: 'reason', message: 'السبب غير مقبول' }] })));
+		q('kyc-reject-confirm')!.click(); await settleForm(); fixture.detectChanges();
+		expectFieldProblem(q('kyc-reason'), 'غير مقبول');
+		for (const st of [429, 500, 403]) {
+			api.reject.mockReturnValueOnce(throwError(() => httpFail(st, { message: 'x' })));
+			q('kyc-reject-confirm')!.click(); await settleForm(); fixture.detectChanges();
+			expect(q('kyc-reject-dialog'), String(st)).toBeTruthy();
+			expect(q('kyc-reject-error')!.getAttribute('role')).toBe('alert');
+			expectNoFieldProblem(el());
+		}
+		expect((fixture.componentInstance as any).reason()).toBe('سبب واضح');
+		expect(q('kyc-reject-dialog')).toBeTruthy();
 	});
 
 	it('reject with a reason sends it (trimmed), closes the dialog and removes the request', () => {
