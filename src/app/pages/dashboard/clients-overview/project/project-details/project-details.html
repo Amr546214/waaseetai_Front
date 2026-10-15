@@ -113,6 +113,8 @@
 		} @else if (settledNoRating()) {
 			<div class="rt-rated-note" role="status" data-testid="pd-settled-no-rating"><span class="rt-rated-label">أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه</span></div>
 		}
+		<!-- the saved FINAL ratings of this project (mine + the provider's), read from the server; nothing is drawn when none exists. Stage ratings live in their stages. -->
+		<app-rating-summary side="client" [key]="projectId" data-testid="pd-rating-summary" />
 		<div class="lc-ph">
 			<div class="lc-av-wrap"><div class="lc-av">{{ data.clientInitial }}</div><span class="verified-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 61.8 36.7h33.3L68.6 57.1l10.8 31.7L50 70.3 20.6 88.8l10.8-31.7L4.9 36.7h33.3Z"/></svg></span></div>
 			<div class="lc-ph-main"><h2>{{ data.title }}</h2><div class="lc-meta"><span class="lc-prov"><span class="pi">{{ data.clientInitial }}</span>{{ data.clientName }}</span><span class="lc-dot"></span><span>عقد رقم {{ data.contractRef }}@if (data.contractStatus && data.contractStatus !== 'PENDING_CLIENT_SIGNATURE') { · <a data-testid="pd-contract-link" [routerLink]="['/client-overview/my-requests', data.projectId, 'contract']">عرض العقد</a> }</span><span class="lc-dot"></span><span>قيمة العقد {{ formatNumber(data.price) }} $</span></div></div>

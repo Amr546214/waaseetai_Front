@@ -87,7 +87,7 @@ describe('provider notifications: honest banner/counters/CTA/mark-all', () => {
 		c.onNotificationClick(c.notifications().find(n => n.id === 'b')!);
 		expect(nav).not.toHaveBeenCalled();
 		c.onNotificationClick(c.notifications().find(n => n.id === 'a')!);
-		expect(nav).toHaveBeenCalledWith('/provider-overview/offers/o1/sign-contract');
+		expect(nav).toHaveBeenCalledWith('/provider-overview/offers/o1/sign-contract', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('company mode: "needs action" requires a real target, not just an action label', async () => {

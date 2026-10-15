@@ -46,6 +46,9 @@ export interface SavedReview {
 	/** The reviewer's publish choice (absent on an older server: no label is drawn). */
 	isPublic?: boolean;
 	createdAt: string;
+	/** Present on the counterpart / per-stage reads. */
+	reviewerRole?: 'CLIENT' | 'PROVIDER';
+	stageId?: string | null;
 }
 
 /** What the admin really executed when a dispute closed the project (USD). */
@@ -66,8 +69,12 @@ export interface RatingStatus {
 	requestId: string | null;
 	actor: 'client' | 'provider';
 	canRate: boolean;
-	reason: 'ALREADY_RATED' | 'ADMIN_SETTLED' | 'NOT_COMPLETED' | 'STAGE_NOT_APPROVED' | null;
+	reason: 'ALREADY_RATED' | 'ADMIN_SETTLED' | 'NOT_COMPLETED' | 'STAGE_NOT_APPROVED' | 'NOT_RATER' | null;
 	message: string;
 	adminSettled: { disputeId: string; outcome: string; label: string; distribution: SettlementDistribution | null } | null;
 	review: SavedReview | null;
+	/** What the OTHER party saved about this same target (read-only; shown to both parties even when unpublished). Absent on an older server. */
+	counterpart?: SavedReview | null;
+	/** Project scope only: the client's stage reviews (never mixed into review / counterpart). */
+	stageReviews?: SavedReview[];
 }

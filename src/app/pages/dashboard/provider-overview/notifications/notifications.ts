@@ -5,6 +5,7 @@ import { NotificationEngineService, AppNotification } from '../../../../core/ser
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { NotificationNavigator } from '../../../../core/services/notification-navigator.service';
 
 export type { AppNotification };
 
@@ -143,6 +144,7 @@ export class Notifications implements OnInit {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private notify = inject(UiNotificationService);
+	private navigator = inject(NotificationNavigator);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -365,23 +367,13 @@ export class Notifications implements OnInit {
 	}
 
 	onNotificationClick(nt: AppNotification) {
-		if (nt.isUnread) {
-			this.notificationEngine.markNotificationAsRead(nt.id).subscribe({
-				next: () => {
-					this.notifications.update(list =>
-						list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n)
-					);
-					this.notificationEngine.unreadCount.set(this.unreadCount());
-				}
-			});
-		}
-		if (nt.actionUrl) {
-			// actionUrl is a complete URL string (it may include a query string,
-			// e.g. a chat notification's ?conversationId=...) — navigateByUrl
-			// parses it correctly, unlike navigate([...]) which treats a single
-			// array element as a literal path segment and would mangle the "?".
-			this.router.navigateByUrl(nt.actionUrl);
-		}
+		// read or unread, first or second click: the destination always opens; marking read never blocks it (see NotificationNavigator)
+		void this.navigator.open(nt, {
+			onMarkedRead: () => {
+				this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n));
+				this.notificationEngine.unreadCount.set(this.unreadCount());
+			}
+		});
 	}
 
 	retry() {

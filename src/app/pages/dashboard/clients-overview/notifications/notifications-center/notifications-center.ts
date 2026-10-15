@@ -1,9 +1,11 @@
+
 import { Component, ChangeDetectionStrategy, signal, computed, OnInit, OnDestroy, inject, effect, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { NotificationEngineService, AppNotification } from '../../../../../core/services/notification-engine.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { NotificationNavigator } from '../../../../../core/services/notification-navigator.service';
 import { Subscription } from 'rxjs';
 import { filter, take, switchMap } from 'rxjs/operators';
 import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
@@ -167,6 +169,7 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 	private notificationEngine = inject(NotificationEngineService);
 	private notify = inject(UiNotificationService);
 	private router = inject(Router);
+	private navigator = inject(NotificationNavigator);
 	private authStore = inject(AuthStore);
 	private platformId = inject(PLATFORM_ID);
 
@@ -340,24 +343,13 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 	}
 
 	onNotificationClick(nt: AppNotification) {
-		if (nt.isUnread) {
-			this.notificationEngine.markNotificationAsRead(nt.id).subscribe({
-				next: () => {
-					this.notifications.update(list =>
-						list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n)
-					);
-					this.notificationEngine.unreadCount.set(this.unreadCount());
-				}
-			});
-		}
-		if (nt.actionUrl) {
-			// actionUrl may include a query string (e.g. a CHAT notification's
-			// ?conversationId=...) — navigateByUrl parses it correctly, unlike
-			// navigate([...]) which treats a single array element as a literal
-			// path segment and would mangle the "?". Matches the provider
-			// notifications page's own click handler.
-			this.router.navigateByUrl(nt.actionUrl);
-		}
+		// read or unread, first or second click: the destination always opens; marking read never blocks it (see NotificationNavigator)
+		void this.navigator.open(nt, {
+			onMarkedRead: () => {
+				this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n));
+				this.notificationEngine.unreadCount.set(this.unreadCount());
+			}
+		});
 	}
 
 	retry() {

@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject, ElementRe
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationEngineService, AppNotification, NotificationBasePath } from '../../core/services/notification-engine.service';
+import { NotificationNavigator } from '../../core/services/notification-navigator.service';
 import { AuthStore } from '../../core/store/auth.store';
 import { AccountType, UserRole } from '../../core/models/auth.model';
 import { resolveActiveRole } from '../../core/routing/role-routes';
@@ -18,6 +19,7 @@ export class NotificationBell {
 	private notifEngine = inject(NotificationEngineService);
 	private authStore = inject(AuthStore);
 	private router = inject(Router);
+	private navigator = inject(NotificationNavigator);
 	private el = inject(ElementRef);
 
 	unreadCount = this.notifEngine.unreadCount;
@@ -130,19 +132,11 @@ export class NotificationBell {
 	}
 
 	onItemClick(nt: AppNotification): void {
-		if (nt.isUnread) {
-			this.notifEngine.markNotificationAsRead(nt.id).subscribe({
-				next: () => {
-					this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n));
-				}
-			});
-		}
-
 		this.isOpen.set(false);
-
-		if (nt.actionUrl) {
-			this.router.navigateByUrl(nt.actionUrl);
-		}
+		// read or unread, first or second click: the destination always opens; marking read never blocks it (see NotificationNavigator)
+		void this.navigator.open(nt, {
+			onMarkedRead: () => this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n))
+		});
 	}
 
 	onViewAllClick(): void {

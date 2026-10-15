@@ -53,7 +53,8 @@ describe('provider progress: contract / revision states', () => {
 		const s = await setup(waiting, resub);
 		s.c.setTab('edits'); // re-reads the workspace: the client's reply is decided on the other side
 		s.f.detectChanges();
-		expect(s.get).toHaveBeenCalledTimes(2);
+		// the embedded read-only rating summary also reads rating-status; only the workspace reads are counted here
+		expect(s.get.mock.calls.filter((c: any[]) => !String(c[0]).includes('rating-status')).length).toBe(2);
 		const card = () => s.el.querySelector('.edit-card')!.textContent || '';
 		expect(card()).toContain('أُعيد التسليم، بانتظار مراجعة العميل');
 		expect(card()).not.toContain('بانتظار إعادة التسليم');
