@@ -2,10 +2,9 @@
 // (a removed route, a differently keyed id) must still open something real. Everything here is a plain function: no router, no side effects.
 
 /**
- * Where the old accreditation-status page now lives. ASSUMPTION (track T1 replaces that page by an actions log and will publish its route): the provider's
- * account log page `/provider-overview/profile/logs` (a real route today). If T1 publishes another route, change ONLY this constant.
+ * Where the old accreditation-status page now lives. The approval-requests actions log (account-actions) that replaced it; the old route redirects there. Change ONLY this constant if the log moves.
  */
-export const ACCREDITATION_STATUS_REPLACEMENT_ROUTE = '/provider-overview/profile/logs';
+export const ACCREDITATION_STATUS_REPLACEMENT_ROUTE = '/provider-overview/account-actions';
 
 /**
  * Project messages tab (shape defined by track T4): `?tab=messages` on the project page of each side.
