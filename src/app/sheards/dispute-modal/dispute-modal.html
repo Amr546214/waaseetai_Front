@@ -33,9 +33,12 @@
 				placeholder="مثال: عدم تسليم المتطلبات أو تأخير غير مبرر"
 				maxlength="120"
 				[disabled]="isSubmitting"
+				[class.ws-invalid]="reasonError()"
+				[attr.aria-invalid]="reasonError() ? 'true' : null"
+				[attr.aria-describedby]="reasonError() ? 'dp-reason-err' : null"
 			/>
 			@if (reasonError()) {
-				<div class="dp-field-error" role="alert">{{ reasonError() }}</div>
+				<div class="dp-field-error" id="dp-reason-err" role="alert" data-testid="field-error">{{ reasonError() }}</div>
 			}
 		</div>
 
@@ -51,9 +54,12 @@
 				placeholder="اشرح ما حدث، وما المطلوب لحل المشكلة"
 				maxlength="10000"
 				[disabled]="isSubmitting"
+				[class.ws-invalid]="descriptionError()"
+				[attr.aria-invalid]="descriptionError() ? 'true' : null"
+				[attr.aria-describedby]="descriptionError() ? 'dp-desc-err' : null"
 			></textarea>
 			@if (descriptionError()) {
-				<div class="dp-field-error" role="alert">{{ descriptionError() }}</div>
+				<div class="dp-field-error" id="dp-desc-err" role="alert" data-testid="field-error">{{ descriptionError() }}</div>
 			}
 		</div>
 
@@ -84,8 +90,12 @@
 			@if (evidenceUrls().length < 10) {
 				<div class="dp-evidence-add">
 					<input
+						id="dp-evidence"
 						type="url"
 						class="dp-input"
+						[class.ws-invalid]="evidenceError()"
+						[attr.aria-invalid]="evidenceError() ? 'true' : null"
+						[attr.aria-describedby]="evidenceError() ? 'dp-evidence-err' : null"
 						[value]="newEvidenceUrl()"
 						(input)="onNewEvidenceInput($event)"
 						placeholder="أضف رابط ملف أو صورة أو مستند"
@@ -102,7 +112,7 @@
 			}
 
 			@if (evidenceError()) {
-				<div class="dp-field-error" role="alert">{{ evidenceError() }}</div>
+				<div class="dp-field-error" id="dp-evidence-err" role="alert" data-testid="field-error">{{ evidenceError() }}</div>
 			}
 
 			<div class="dp-hint">الحد الأقصى 10 روابط. أضف روابط مباشرة للملفات أو الصور أو المستندات.</div>

@@ -318,7 +318,10 @@
                 placeholder="أدخل كود الخصم"
                 aria-label="كوبون الخصم"
                 [value]="couponInput()"
-                (input)="couponInput.set($any($event.target).value)"
+                (input)="onCouponInput($any($event.target).value)"
+                [class.ws-invalid]="couponInvalid()"
+                [attr.aria-invalid]="couponInvalid() ? 'true' : null"
+                [attr.aria-describedby]="couponInvalid() ? 'coupon-msg' : null"
                 (keyup.enter)="applyCoupon()"
               />
               <button class="coupon-btn" type="button" [disabled]="isApplyingCoupon()" (click)="applyCoupon()">تطبيق</button>
@@ -328,7 +331,7 @@
             <div class="coupon-msg error" role="alert" data-testid="coupon-notice">{{ couponNotice() }}</div>
           }
           @if (couponMessage()) {
-            <div class="coupon-msg" [class.success]="couponMessage()!.type === 'success'" [class.error]="couponMessage()!.type === 'error'">
+            <div class="coupon-msg" id="coupon-msg" [attr.role]="couponMessage()!.type === 'error' ? 'alert' : 'status'" [class.success]="couponMessage()!.type === 'success'" [class.error]="couponMessage()!.type === 'error'">
               {{ couponMessage()!.text }}
             </div>
           }

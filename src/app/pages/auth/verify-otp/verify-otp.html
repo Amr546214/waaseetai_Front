@@ -73,7 +73,7 @@
         <div class="otp-card-title">رمز التحقق</div>
         <div class="otp-group" id="otp-group" aria-label="خانات رمز التحقق" role="group" dir="ltr" (paste)="onOtpPaste($event)">
           @for (i of otpIndexes; track i) {
-          <input class="otp-box" [class.filled]="!!otpDigit(i)" [class.has-error]="!!errorMsg" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+          <input class="otp-box" [class.filled]="!!otpDigit(i)" [class.has-error]="!!errorMsg" [attr.aria-invalid]="errorMsg ? 'true' : null" [attr.aria-describedby]="errorMsg ? 'banner-error' : null" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
             [id]="'otp-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
           }
         </div>

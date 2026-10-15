@@ -5,6 +5,9 @@ import { LevelsService } from '../../core/levels/levels.service';
 import { paypalDepositBreakdown } from '../../core/levels/deposit-fee';
 import { environment } from '../../../environments/environment';
 import { AuthStore } from '../../core/store/auth.store';
+import { mapHttpError } from '../../core/forms/http-error';
+import { scrollFocus } from '../../shared/forms/form-error-focus';
+import { backendBannerMessage, genericBanner } from '../../shared/forms/submit-feedback';
 import { AccountType } from '../../core/models/auth.model';
 
 declare const paypal: any;
@@ -32,12 +35,34 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 	initialAmount = input<number | null>(null);
 	lockAmount = input(false);
 
-	amount = signal(1000);
+	/** The user types the amount: it starts EMPTY (null), never a suggested number. Real limits are MIN_AMOUNT..MAX_AMOUNT. */
+	amount = signal<number | null>(null);
+	static readonly MIN_AMOUNT = 50;
+	static readonly MAX_AMOUNT = 100000;
+	/** What is literally in the box while typing (so "5" is not rewritten to the minimum under the user's fingers). */
+	private rawText = signal<string | null>(null);
+	readonly amountDisplay = computed(() => this.rawText() ?? (this.amount() ?? ''));
+	/** Becomes true after the first blur / failed attempt, so an untouched empty box is not shouted at. */
+	amountTouched = signal(false);
+	termsError = signal('');
+	/** Message under the amount box: empty, below the minimum or above the maximum. */
+	readonly amountError = computed(() => {
+		if (!this.amountTouched()) return '';
+		const v = this.amount();
+		if (v === null) return 'أدخل مبلغ الإيداع بالدولار';
+		if (v < DepositModal.MIN_AMOUNT) return `الحد الأدنى للإيداع ${DepositModal.MIN_AMOUNT} دولار`;
+		if (v > DepositModal.MAX_AMOUNT) return `الحد الأقصى للإيداع ${DepositModal.MAX_AMOUNT.toLocaleString('en-US')} دولار`;
+		return '';
+	});
+	private creatingOrder = false;
 	/**
 	 * Fee policy: the amount is the NET added to the wallet; PayPal is charged net + the PayPal deposit fee (percent from the backend table).
 	 * null while the table has not answered: no number is shown rather than a typed one.
 	 */
-	readonly breakdown = computed(() => paypalDepositBreakdown(this.amount(), this.levels.payload()?.payments.clientDeposit['paypal']));
+	readonly breakdown = computed(() => {
+		const a = this.amount();
+		return a === null || a < DepositModal.MIN_AMOUNT || a > DepositModal.MAX_AMOUNT ? null : paypalDepositBreakdown(a, this.levels.payload()?.payments.clientDeposit['paypal']);
+	});
 	termsAccepted = signal(false);
 	paymentStatus = signal<'idle' | 'processing' | 'success' | 'error'>('idle');
 	paymentError = signal('');
@@ -114,21 +139,32 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 				// time — and the actual order is created server-side; PayPal
 				// itself never sees a client-trusted amount from this callback.
 				createOrder: () => {
-					if (!this.termsAccepted()) {
-						this.paymentError.set('وافق على شروط الإيداع قبل تأكيد عملية الدفع.');
-						return Promise.reject(new Error('terms not accepted'));
-					}
+					// Each problem is explained next to its own control (amount box / terms row), not only in a banner.
+					if (!this.validateBeforePay()) return Promise.reject(new Error('deposit form invalid'));
+					if (this.creatingOrder) return Promise.reject(new Error('order already being created'));
+					this.creatingOrder = true;
 					this.paymentError.set('');
 					return new Promise<string>((resolve, reject) => {
-						this.paypalDepositService.createOrder(this.amount()).subscribe({
+						this.paypalDepositService.createOrder(this.amount()!).subscribe({
 							next: (response) => {
+								this.creatingOrder = false;
 								if (!response?.success || !response.data?.paypalOrderId) {
 									reject(new Error('تعذر إنشاء طلب الدفع عبر PayPal'));
 									return;
 								}
 								resolve(response.data.paypalOrderId);
 							},
-							error: (error) => reject(new Error(error.error?.message || 'تعذر إنشاء طلب الدفع عبر PayPal'))
+							error: (error) => {
+								this.creatingOrder = false;
+								// 400/422 about the amount -> under the amount box; network / 429 / 5xx stay one honest banner.
+								const mapped = mapHttpError(error, { fallback: 'تعذر إنشاء طلب الدفع عبر PayPal' });
+								const generic = genericBanner(mapped);
+								if (generic !== null) { this.paymentError.set(generic); reject(new Error(mapped.message)); return; }
+								void backendBannerMessage(document, mapped, { resolve: { amount: 'deposit-amount' } }).then(banner => {
+									this.paymentError.set(banner);
+									reject(new Error(mapped.message));
+								});
+							}
 						});
 					});
 				},
@@ -145,11 +181,11 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 								}
 								this.paymentReference.set(data.orderID);
 								this.paymentStatus.set('success');
-								this.deposited.emit({ amount: this.amount(), reference: data.orderID, method: 'paypal' });
+								this.deposited.emit({ amount: this.amount() ?? 0, reference: data.orderID, method: 'paypal' });
 								resolve();
 							},
 							error: (error) => {
-								this.paymentError.set(error.error?.message || 'رفض الخادم التحقق من عملية PayPal. لم تتم إضافة أي رصيد.');
+								this.paymentError.set(mapHttpError(error, { fallback: 'رفض الخادم التحقق من عملية PayPal. لم تتم إضافة أي رصيد.' }).message);
 								this.paymentStatus.set('error');
 								resolve();
 							}
@@ -165,22 +201,52 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 	}
 
 	get balanceAfter() {
-		return this.currentBalance() + this.amount();
+		return this.currentBalance() + (this.amount() ?? 0);
 	}
 
-	canSubmit = computed(() => this.amount() >= 50 && this.amount() <= 100000 && this.termsAccepted());
+	canSubmit = computed(() => { const a = this.amount(); return a !== null && a >= DepositModal.MIN_AMOUNT && a <= DepositModal.MAX_AMOUNT && this.termsAccepted(); });
 
 	setAmount(value: number) {
 		if (this.lockAmount()) return;
+		this.rawText.set(null);
 		this.amount.set(this.normaliseAmount(value));
 	}
 
 	onAmountInput(event: Event) {
 		if (this.lockAmount()) return;
-		const value = Number((event.target as HTMLInputElement).value.replace(/,/g, ''));
-		if (Number.isFinite(value)) {
-			this.amount.set(this.normaliseAmount(value));
-			}
+		const text = (event.target as HTMLInputElement).value;
+		this.rawText.set(text);
+		const trimmed = text.replace(/,/g, '').trim();
+		const value = trimmed === '' ? NaN : Number(trimmed);
+		// empty / not a number = no amount (null), never 0 and never the minimum; out-of-range numbers keep their value so the message can say why.
+		this.amount.set(Number.isFinite(value) && value > 0 ? Math.round(value * 100) / 100 : null);
+	}
+
+	/** Marks + focuses the first problem (amount first, then terms). True when the deposit may go to PayPal. */
+	validateBeforePay(): boolean {
+		this.amountTouched.set(true);
+		if (this.amountError()) {
+			this.focusField('deposit-amount');
+			return false;
+		}
+		if (!this.termsAccepted()) {
+			this.termsError.set('وافق على شروط الإيداع قبل تأكيد عملية الدفع.');
+			this.focusField('deposit-terms');
+			return false;
+		}
+		return true;
+	}
+
+	/** The PayPal buttons are not clickable until the terms are accepted: a click on that area explains what is missing instead of doing nothing. */
+	onPaypalAreaClick() {
+		if (!this.termsAccepted()) this.validateBeforePay();
+	}
+
+	onAmountBlur() { this.amountTouched.set(true); }
+
+	private focusField(id: string) {
+		const el = document.getElementById(id);
+		if (el) scrollFocus(el);
 	}
 
 	private normaliseAmount(value: number) {
@@ -192,6 +258,7 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 	toggleTerms() {
 		this.termsAccepted.update(value => !value);
 		if (this.termsAccepted()) {
+			this.termsError.set('');
 			if (this.paymentError() === 'وافق على شروط الإيداع قبل تأكيد عملية الدفع.') this.paymentError.set('');
 		}
 	}

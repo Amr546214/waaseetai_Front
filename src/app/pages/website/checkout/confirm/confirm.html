@@ -48,7 +48,7 @@
         <div class="otp-sub">أرسلنا رمز التحقق إلى</div>
         <div class="otp-phone">{{ displayPhone() }}</div>
 
-        <div class="otp-inputs" id="otp-inputs" aria-label="رمز التحقق المكون من 6 أرقام" (paste)="onOtpPaste($event)">
+        <div class="otp-inputs" id="otp-inputs" role="group" aria-label="رمز التحقق المكون من 6 أرقام" (paste)="onOtpPaste($event)">
           @for (digit of otpDigits(); track $index) {
             <input
               #otpInput
@@ -63,15 +63,21 @@
               (input)="onOtpInput($index, $event)"
               (keydown)="onOtpKeydown($index, $event)"
               [attr.aria-label]="'الرقم ' + ($index + 1)"
+              [attr.aria-invalid]="otpError() ? 'true' : null"
+              [attr.aria-describedby]="otpError() ? 'otp-error' : null"
             >
           }
         </div>
+
+        @if (otpError()) {
+          <div class="form-msg err" id="otp-error" role="alert" data-testid="field-error"><span>{{ otpError() }}</span></div>
+        }
 
         @if (countdownDisplay()) {
           <div class="otp-timer">ينتهي الرمز خلال <span>{{ countdownDisplay() }}</span></div>
         }
 
-        <button class="btn-verify" id="btn-verify" type="button" (click)="confirmPayment()" [disabled]="!canConfirm()">
+        <button class="btn-verify" id="btn-verify" type="button" (click)="confirmPayment()" [disabled]="isProcessing()">
           @if (isProcessing()) {
             جاري التحقق...
           } @else {

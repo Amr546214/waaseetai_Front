@@ -112,6 +112,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
   }
 
   async verify() {
+    if (this.isLoading) return; // one request at a time (double click / Enter)
     if (this.otpCtrl.invalid) {
       // Never a silent no-op: say what is needed and put the cursor on the first empty box.
       this.otpCtrl.markAsTouched();

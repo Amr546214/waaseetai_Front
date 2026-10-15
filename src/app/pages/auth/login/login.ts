@@ -15,6 +15,7 @@ import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
 import { attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { UiNotificationService } from '../../../core/services/ui-notification.service';
+import { backendBannerMessage, genericBanner } from '../../../shared/forms/submit-feedback';
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
 
 const LOGIN_LABELS = { email: 'البريد الإلكتروني', password: 'كلمة المرور' };
@@ -161,6 +162,7 @@ export class Login {
   }
 
   onSubmit() {
+    if (this.isSubmitting) return; // one request at a time (double click / Enter)
     this.errorMessage = '';
     this.accountNotFoundError = false;
     const attempt = attemptSubmit(this.loginForm, { root: this.host.nativeElement, labels: LOGIN_LABELS });
@@ -196,10 +198,13 @@ export class Login {
           this.goToEmailVerification(res.data);
         }
       },
-      error: (err) => {
-        this.isSubmitting = false;
+      error: async (err) => {
         // 401 here means wrong credentials, never an expired session (and the interceptor must not log out).
-        this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials' }).message;
+        const mapped = mapHttpError(err, { unauthorizedIs: 'credentials' });
+        // 400/422 naming email / password -> under that field; wrong credentials, network, 429, 5xx stay one honest banner.
+        const generic = genericBanner(mapped);
+        this.errorMessage = generic ?? await backendBannerMessage(this.host.nativeElement, mapped, { resolve: { email: 'identifier' } });
+        this.isSubmitting = false;
         this.cdr.markForCheck();
       }
     });

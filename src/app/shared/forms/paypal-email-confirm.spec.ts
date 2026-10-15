@@ -37,15 +37,16 @@ describe('PaypalEmailConfirmComponent', () => {
 		expect(change.el.querySelector('[data-testid="paypal-confirm-target"]')!.textContent).toContain('لتأكيد تغيير بريد PayPal إلى');
 	});
 
-	it('typing six digits fills the boxes, enables the button, and confirm emits the saved email', () => {
+	it('typing six digits fills the boxes and confirm emits the saved email', () => {
 		const api = { confirmPaypalEmailChange: vi.fn(() => of({ paypalPayoutEmail: 'new@paypal.example' })), requestPaypalEmailChange: vi.fn() };
 		const { f, c, confirmed, el } = make(api);
 		const boxes = Array.from(el.querySelectorAll('ws-otp-input .otp-box')) as HTMLInputElement[];
 		const btn = () => el.querySelector('[data-testid="paypal-confirm-btn"]') as HTMLButtonElement;
-		expect(btn().disabled).toBe(true);
+		// Batch B: the button is never dead; pressing it with a short code explains what is missing (see the form spec).
+		expect(btn().disabled).toBe(false);
 		'12345'.split('').forEach((d, i) => { boxes[i].value = d; boxes[i].dispatchEvent(new Event('input')); });
 		f.detectChanges();
-		expect(btn().disabled).toBe(true);
+		expect(api.confirmPaypalEmailChange).not.toHaveBeenCalled();
 		expect(c.code()).toBe('12345');
 		boxes[5].value = '6'; boxes[5].dispatchEvent(new Event('input'));
 		expect(api.confirmPaypalEmailChange).toHaveBeenCalledWith('123456'); // `complete` confirms automatically
