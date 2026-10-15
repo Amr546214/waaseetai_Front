@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { NotificationSoundService } from './notification-sound.service';
@@ -245,7 +246,7 @@ export class NotificationEngineService implements OnDestroy {
 
 		this.socket = io(environment.socketUrl, {
 			withCredentials: true,
-			reconnection: true,
+			...SOCKET_BACKOFF,
 			// Matches the same auth.token handshake pattern already used by
 			// ChatService/AntiCheatService/etc.: the backend's connection
 			// handler (waseetai-backend/src/socket.ts) verifies this JWT and

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, Subject, tap } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { environment } from '../../../environments/environment';
 import { ChatStateService } from './chat-state.service';
 import { NotificationSoundService } from './notification-sound.service';
@@ -88,6 +89,7 @@ export class ChatService {
 
     this.socket = io(environment.socketUrl, {
       withCredentials: true,
+      ...SOCKET_BACKOFF,
       transports: ['websocket', 'polling'],
       auth: token ? { token } : {}
     });
