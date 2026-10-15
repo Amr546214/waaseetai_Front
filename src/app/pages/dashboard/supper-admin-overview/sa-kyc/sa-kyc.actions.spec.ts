@@ -1,14 +1,15 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { SaKyc } from './sa-kyc';
 import { SaKycService } from './sa-kyc.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../shared/forms/form-spec-utils';
 import { KycDocumentService } from '../../../../core/services/kyc-document.service';
 
 // Approve / reject need a confirmation modal; reject needs a written reason (>= 2 chars); BE messages are shown; a 409 refreshes the list.
 describe('sa-kyc decisions', () => {
-	let component: SaKyc; let svc: Record<string, ReturnType<typeof vi.fn>>;
+	let component: SaKyc; let fixture: ComponentFixture<SaKyc>; let svc: Record<string, ReturnType<typeof vi.fn>>;
 	const provider = { userId: 'u-1', kycStatus: 'PENDING', userName: 'م' } as any;
 	beforeEach(() => {
 		svc = {
@@ -18,15 +19,36 @@ describe('sa-kyc decisions', () => {
 			rejectKycProvider: vi.fn(() => of({ success: true })),
 		};
 		TestBed.configureTestingModule({ imports: [SaKyc], providers: [{ provide: SaKycService, useValue: svc }, { provide: KycDocumentService, useValue: { createAccessLink: vi.fn() } }] });
-		const f = TestBed.createComponent(SaKyc); component = f.componentInstance; f.detectChanges();
+		const f = TestBed.createComponent(SaKyc); fixture = f; component = f.componentInstance; f.detectChanges();
 		component.switchTab('providers'); component.viewProviderDetail(provider);
 	});
 
-	it('reject without a reason (or with 1 char) sends nothing', () => {
-		component.openActionModal('reject'); component.actionReason.set(' a ');
-		component.confirmAction();
+	it('reject without a reason (or with 1 char) sends nothing and explains it under the reason box', async () => {
+		fixture.detectChanges();
+		component.openActionModal('reject'); fixture.detectChanges();
+		component.confirmAction(); await settleForm();
+		const ta = fixture.nativeElement.querySelector('#kyc-reject-reason');
+		expectFieldProblem(ta, 'سبب الرفض مطلوب');
+		expectFocused(ta);
+		component.actionReason.set(' a '); fixture.detectChanges();
+		component.confirmAction(); await settleForm();
+		expectFieldProblem(ta, 'قصير');
 		expect(svc['rejectKycProvider']).not.toHaveBeenCalled();
-		expect(component.actionError()).toContain('سبب الرفض');
+	});
+
+	it('a 400 naming rejectionReason goes under the box; 429 / 500 / 403 / network are a generic alert; the typed reason stays', async () => {
+		component.openActionModal('reject'); component.actionReason.set('سبب مكتوب'); fixture.detectChanges();
+		svc['rejectKycProvider'].mockReturnValueOnce(throwError(() => httpFail(400, { errors: [{ field: 'rejectionReason', message: 'السبب غير مقبول' }] })));
+		component.confirmAction(); await settleForm(); fixture.detectChanges();
+		expectFieldProblem(fixture.nativeElement.querySelector('#kyc-reject-reason'), 'غير مقبول');
+		for (const st of [429, 500, 403, 0]) {
+			svc['rejectKycProvider'].mockReturnValueOnce(throwError(() => httpFail(st, { message: 'x' })));
+			component.confirmAction(); await settleForm(); fixture.detectChanges();
+			expect(component.actionError(), String(st)).toBeTruthy();
+			expectNoFieldProblem(fixture.nativeElement);
+			expect(fixture.nativeElement.querySelector('[data-testid="kyc-action-error"]').getAttribute('role')).toBe('alert');
+		}
+		expect(component.actionReason()).toBe('سبب مكتوب');
 	});
 
 	it('reject with a reason calls the API once and refreshes the list with an honest toast', () => {
