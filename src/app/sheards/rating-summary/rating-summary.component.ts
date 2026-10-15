@@ -51,7 +51,8 @@ export class RatingSummary implements OnInit {
 			: this.api.getRatingStatus(this.side(), this.key());
 		read.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
 			next: st => { this.status.set(st); this.state.set('ready'); },
-			error: () => { this.status.set(null); this.state.set('error'); },
+			// 404 on a STAGE read = the server has no such read (an older server for the provider's stage view, or a stage that is gone): nothing to draw, and a retry would never help
+			error: (e) => { this.status.set(null); this.state.set(stage && e?.status === 404 ? 'ready' : 'error'); },
 		});
 	}
 }

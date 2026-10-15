@@ -56,7 +56,9 @@
 	}
 
 	<h2 class="text-sm font-bold mt-6 mb-2">طلبات الاعتماد</h2>
-	@if (logFailed()) {
+	@if (logUnavailable()) {
+		<p class="text-sm rounded-xl border border-white/10 p-3" role="status" data-testid="log-unavailable">سجل الطلبات غير متاح حاليًا. تظهر حالة حسابك أعلاه كما هي.</p>
+	} @else if (logFailed()) {
 		<p class="text-sm rounded-xl border border-red-400/30 p-3" role="alert" data-testid="log-error">تعذّر تحميل سجل الطلبات. <button type="button" class="underline" (click)="refresh()">إعادة المحاولة</button></p>
 	} @else if (!loading() && requests().length === 0) {
 		<p class="text-sm opacity-80" data-testid="log-empty">لا توجد طلبات اعتماد بعد.</p>
