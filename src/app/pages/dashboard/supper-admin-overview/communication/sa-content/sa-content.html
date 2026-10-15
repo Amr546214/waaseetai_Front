@@ -31,7 +31,7 @@
           <button type="button" class="sco-tb-btn">— قائمة</button>
           <button type="button" class="sco-tb-btn">رابط</button>
         </div>
-        <textarea class="sco-textarea" [ngModel]="draftContent()" (ngModelChange)="onContentChange($event)"></textarea>
+        <textarea id="sco-content" aria-label="محتوى الصفحة" class="sco-textarea" [ngModel]="draftContent()" (ngModelChange)="onContentChange($event)"></textarea>
       </div>
       <div class="sco-editor-actions">
         <button type="button" class="sco-btn sco-btn-pri" (click)="saveAndPublish()">حفظ ونشر</button>

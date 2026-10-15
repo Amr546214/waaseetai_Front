@@ -1,6 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { reportAdminProblems } from '../../shared/admin-form-report';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 interface CmsPage {
@@ -45,6 +46,7 @@ export class SaContent {
   draftContent = signal(this.pages[0].content);
   dirty = signal(false);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   selectedPage = computed(() => this.pages.find((p) => p.key === this.selectedKey()) ?? this.pages[0]);
 
@@ -62,6 +64,10 @@ export class SaContent {
   }
 
   saveAndPublish(): void {
+    if (!this.draftContent().trim()) {
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'sco-content', message: 'محتوى الصفحة فارغ، اكتب المحتوى قبل الحفظ' }]);
+      return;
+    }
     const page = this.pages.find((p) => p.key === this.selectedKey());
     if (page) page.content = this.draftContent();
     this.dirty.set(false);
