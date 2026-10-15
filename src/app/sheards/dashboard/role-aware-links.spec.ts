@@ -9,7 +9,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
-vi.mock('socket.io-client', () => ({ default: () => fakeSocket, io: () => fakeSocket }));
+(globalThis as any).__socketIoModule = () => ({ default: () => fakeSocket, io: () => fakeSocket });
 
 import { Sidebar } from './sidebar/sidebar';
 import { NavDashboard } from './nav-dashboard/nav-dashboard';

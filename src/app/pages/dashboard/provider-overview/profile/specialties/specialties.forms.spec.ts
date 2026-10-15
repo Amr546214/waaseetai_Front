@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../../shared/forms/form-spec-utils';
 
 const fakeSocket = { connected: false, on: vi.fn(), once: vi.fn(), off: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
-vi.mock('socket.io-client', () => ({ default: () => fakeSocket, io: () => fakeSocket }));
+(globalThis as any).__socketIoModule = () => ({ default: () => fakeSocket, io: () => fakeSocket });
 
 import { Specialties } from './specialties';
 

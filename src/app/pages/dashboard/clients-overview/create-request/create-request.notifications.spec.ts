@@ -9,7 +9,7 @@ import { CreateRequest, resetCreateRequestPageLoadState } from './create-request
 
 // Feedback on this page goes through the central UiNotificationService (rendered by <app-notification-host>), not a local toast.
 const ioMock = vi.hoisted(() => vi.fn());
-vi.mock('socket.io-client', () => ({ io: ioMock }));
+(globalThis as any).__socketIoModule = () => ({ io: ioMock });
 
 describe('create-request: feedback flows through the central notification service', () => {
 	beforeEach(async () => {
