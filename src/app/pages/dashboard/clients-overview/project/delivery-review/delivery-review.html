@@ -141,7 +141,7 @@
 					}
 					@default {
 						<div class="dr-decision-row">
-							<button type="button" class="dr-btn-pri" data-testid="dr-approve" (click)="approveDelivery()" [disabled]="saving() || !!freezeReason() || !canApprove(stage)" [attr.title]="freezeReason() || blockReason(stage)">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
+							<button type="button" class="dr-btn-pri" data-testid="dr-approve" (click)="approveDelivery()" [disabled]="saving() || !!freezeReason()" [attr.title]="freezeReason() || blockReason(stage)">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
 							@if (canRequestRevision(stage)) {
 								<button type="button" class="dr-btn-secondary" data-testid="dr-revision-toggle" (click)="toggleRevision()" [disabled]="saving()">طلب تعديل على التسليم</button>
 							}
