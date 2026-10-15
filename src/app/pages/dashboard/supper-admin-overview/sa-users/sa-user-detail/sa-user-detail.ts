@@ -1,10 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SaNotifyModal } from '../../sa-notify-modal';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { handleAdminError, reportAdminProblems, SubmitGuard } from '../../shared/admin-form-report';
 import { SaUsersService, AdminUserDetail } from '../sa-users.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
@@ -24,6 +25,8 @@ export class SaUserDetail implements OnInit {
 	private usersService = inject(SaUsersService);
 	private authStore = inject(AuthStore);
 	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private guard = new SubmitGuard();
 
 	readonly isSuperAdmin = computed(() => this.authStore.currentUser()?.accountType === AccountType.SUPER_ADMIN);
 	readonly isSelf = computed(() => this.authStore.currentUser()?.id === this.user()?.id);
@@ -139,14 +142,16 @@ export class SaUserDetail implements OnInit {
 	}
 
 	private done(text: string): void {
+		this.guard.release();
 		this.busy.set(false);
 		this.modal.set(null);
 		this.notify.success(text);
 	}
 
-	private fail(err: any, fallback: string): void {
+	private fail(err: any, fallback: string, resolve: Record<string, string> = {}): void {
+		this.guard.release();
 		this.busy.set(false);
-		this.modalError.set(err?.error?.message || fallback);
+		handleAdminError(this.host.nativeElement, err, { fallback, resolve }, (m) => this.modalError.set(m));
 	}
 
 	confirmStatus(): void {
@@ -154,31 +159,36 @@ export class SaUserDetail implements OnInit {
 		if (!u || this.busy()) return;
 		const suspend = u.statusOriginal === 'ACTIVE';
 		const reason = this.reason().trim();
-		if (suspend && reason.length < 3) { this.modalError.set('سبب الإيقاف مطلوب (3 أحرف على الأقل)'); return; }
+		this.modalError.set('');
+		if (suspend && reason.length < 3) { void reportAdminProblems(this.host.nativeElement, [{ field: 'ud-reason', message: reason ? 'سبب الإيقاف قصير جدًا (3 أحرف على الأقل)' : 'سبب الإيقاف مطلوب (3 أحرف على الأقل)' }]); return; }
+		if (!this.guard.enter()) return;
 		this.busy.set(true);
 		this.usersService.updateUserStatus(u.id, suspend ? 'SUSPENDED' : 'ACTIVE', suspend ? reason : undefined).subscribe({
 			next: () => { this.done(suspend ? 'تم إيقاف الحساب وتسجيل الإجراء' : 'تم تفعيل الحساب وتسجيل الإجراء'); this.retry(); },
-			error: (err) => this.fail(err, 'تعذر تغيير حالة الحساب')
+			error: (err) => this.fail(err, 'تعذر تغيير حالة الحساب', { reason: 'ud-reason' })
 		});
 	}
 
 	confirmRoles(): void {
 		const u = this.user();
 		if (!u || this.busy()) return;
-		if (this.rolePick().length === 0) { this.modalError.set('يجب أن يحتفظ الحساب بدور واحد على الأقل'); return; }
+		this.modalError.set('');
+		if (this.rolePick().length === 0) { void reportAdminProblems(this.host.nativeElement, [{ field: 'ud-roles', message: 'يجب أن يحتفظ الحساب بدور واحد على الأقل' }]); return; }
+		if (!this.guard.enter()) return;
 		this.busy.set(true);
 		this.usersService.updateUserRoles(u.id, this.rolePick(), this.activeRolePick() || undefined).subscribe({
 			next: () => { this.done('تم تحديث أدوار الحساب وتسجيل الإجراء'); this.retry(); },
-			error: (err) => this.fail(err, 'تعذر تحديث الأدوار')
+			error: (err) => this.fail(err, 'تعذر تحديث الأدوار', { roles: 'ud-roles', activeRole: 'ud-active-role' })
 		});
 	}
 
 	confirmDelete(): void {
 		const u = this.user();
-		if (!u || this.busy()) return;
+		if (!u || this.busy() || !this.guard.enter()) return;
+		this.modalError.set('');
 		this.busy.set(true);
 		this.usersService.deleteUser(u.id).subscribe({
-			next: () => { this.busy.set(false); this.modal.set(null); this.router.navigate(['/supper-admin-overview/users']); },
+			next: () => { this.guard.release(); this.busy.set(false); this.modal.set(null); this.router.navigate(['/supper-admin-overview/users']); },
 			error: (err) => this.fail(err, 'تعذر حذف الحساب')
 		});
 	}

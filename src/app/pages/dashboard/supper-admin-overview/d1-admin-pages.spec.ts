@@ -51,8 +51,12 @@ describe('D1 admin pages read the real endpoints', () => {
 		expect(c.isSuperAdmin()).toBe(true);
 		c.toggleStatus(user);
 		expect(c.statusTarget()).toBe(user);
+		f.detectChanges();
 		c.confirmStatus();
-		expect(c.statusError()).toContain('سبب');
+		// the missing reason is explained under the reason box (role=alert), not in a generic banner
+		const msg = (f.nativeElement as HTMLElement).querySelector('#status-reason + [role="alert"]');
+		expect(msg?.textContent).toContain('سبب');
+		expect((f.nativeElement as HTMLElement).querySelector('#status-reason')?.getAttribute('aria-invalid')).toBe('true');
 	});
 
 	it('roles: renders the real roles overview and keeps create/edit disabled with the reason', () => {

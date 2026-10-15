@@ -221,17 +221,19 @@
 		@if (modal() === 'roles') {
 		<h3 class="state-ttl">تعديل أدوار الحساب</h3>
 		<p class="state-txt">الدور الأساسي للحساب لا يمكن إزالته، والدور النشط يبقى دائماً ضمن الأدوار.</p>
+		<div id="ud-roles" tabindex="-1" data-field-wrap role="group" aria-label="الأدوار">
 		@for (r of manageableRoles; track r.key) {
 		<label style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" [checked]="rolePick().includes(r.key)" (change)="toggleRole(r.key)" />{{ r.label }}</label>
 		}
+		</div>
 		<div style="font-size:12px;font-weight:700">الدور النشط</div>
-		<ws-select [options]="activeRoleOptions()" [ngModel]="activeRolePick()" (ngModelChange)="activeRolePick.set($event)" ariaLabel="الدور النشط" style="display:block;width:100%"></ws-select>
+		<ws-select id="ud-active-role" [options]="activeRoleOptions()" [ngModel]="activeRolePick()" (ngModelChange)="activeRolePick.set($event)" ariaLabel="الدور النشط" style="display:block;width:100%"></ws-select>
 		}
 		@if (modal() === 'delete') {
 		<h3 class="state-ttl">تأكيد حذف الحساب نهائياً</h3>
 		<p class="state-txt">سيُحذف الحساب {{ u.name }} وكل بياناته، <strong>ولا يمكن التراجع عن ذلك</strong>. يُسجَّل الإجراء في سجل التدقيق.</p>
 		}
-		@if (modalError()) { <p class="txt-red" style="font-size:12px" role="alert">{{ modalError() }}</p> }
+		@if (modalError()) { <p class="txt-red" style="font-size:12px" role="alert" data-testid="modal-error">{{ modalError() }}</p> }
 		<div style="display:flex;gap:8px;margin-top:14px">
 			<button type="button" class="btn btn-primary" [disabled]="busy()" (click)="modal() === 'status' ? confirmStatus() : modal() === 'roles' ? confirmRoles() : confirmDelete()">{{ busy() ? 'جارٍ التنفيذ...' : 'تأكيد' }}</button>
 			<button type="button" class="btn" [disabled]="busy()" (click)="closeModal()">إلغاء</button>
