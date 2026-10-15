@@ -50,7 +50,7 @@ describe('client project details: project closed by a dispute settlement', () =>
     expect(text).not.toContain('بانتظار قرارك');
     expect(s.el.querySelector('[data-testid="pd-approve-miles"]')).toBeNull();
     expect(s.c.statusHint(DATA.stages[0])).toBe('أُغلقت بالتسوية');
-    expect(s.c.stageMoneyLabel(DATA.stages[0])).toBe('قيمة المرحلة 10 $');
+    expect(s.c.stageMoneyLabel(DATA.stages[0])).toBe('قيمة المرحلة 10 $ (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)');
     expect(s.c.approvedCount(DATA)).toBe(0);
   });
 

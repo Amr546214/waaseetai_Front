@@ -89,13 +89,25 @@
         <div class="pj-md-tags"><span class="ct-escrow" [ngClass]="escrowClasses[e.status]">{{ label(escrowLabels, e.status) }}</span></div>
         <div class="pj-escrow-row">
           <div class="pj-escrow-item"><span>إجمالي الضمان</span><strong>{{ e.amount | number:'1.0-2' }} $</strong></div>
-          <div class="pj-escrow-item"><span>محرَّر حتى الآن</span><strong class="txt-green">{{ e.releasedAmount | number:'1.0-2' }} $</strong></div>
+          <div class="pj-escrow-item"><span>@if (d.financial?.settlement) { إجمالي المحرَّر من الضمان (مراحل + تسوية) } @else { محرَّر حتى الآن }</span><strong class="txt-green">{{ e.releasedAmount | number:'1.0-2' }} $</strong></div>
           <div class="pj-escrow-item"><span>المتبقي محتجزاً</span><strong class="txt-amber">{{ (e.heldAmount ?? 0) | number:'1.0-2' }} $</strong></div>
           @if (showFees()) {
             <div class="pj-escrow-item"><span>عمولة المنصة</span><strong>{{ e.platformCommissionAmount | number:'1.0-2' }} $</strong></div>
             <div class="pj-escrow-item"><span>صافي المقدم المحرَّر</span><strong>{{ e.providerNetReleasedAmount | number:'1.0-2' }} $</strong></div>
           }
         </div>
+        @if (d.financial?.settlement; as st) {
+          <div class="pj-section-ttl" data-testid="pj-settlement-ttl">قرار التسوية المالية (من سجل القرار)</div>
+          <div class="pj-escrow-row" data-testid="pj-settlement">
+            <div class="pj-escrow-item"><span>قيمة العقد (تعاقدية قبل التسوية)</span><strong>{{ d.financial.contractValue | number:'1.0-2' }} $</strong></div>
+            <div class="pj-escrow-item"><span>محرَّر عبر اعتماد المراحل</span><strong class="txt-green">{{ d.financial.releasedByStageApprovals | number:'1.0-2' }} $</strong></div>
+            <div class="pj-escrow-item"><span>استرداد للعميل</span><strong>{{ st.refundToClient | number:'1.0-2' }} $</strong></div>
+            <div class="pj-escrow-item"><span>إفراج لمقدم الخدمة (إجمالي)</span><strong class="txt-green">{{ st.releaseToProvider | number:'1.0-2' }} $</strong></div>
+            <div class="pj-escrow-item"><span>عمولة المنصة على التسوية</span><strong>{{ st.platformCommission | number:'1.0-2' }} $</strong></div>
+            <div class="pj-escrow-item"><span>صافي مقدم الخدمة من التسوية</span><strong>{{ st.providerNet | number:'1.0-2' }} $</strong></div>
+          </div>
+          <p class="pj-disabled-note">{{ d.financial.contractValueNote }}. حالة الضمان «مُفرَج» هنا نتيجة قرار التسوية وليست دفع كامل القيمة لمقدم الخدمة.</p>
+        }
         @if (e.fundedAt) {
           <p class="pj-disabled-note">تاريخ التمويل: {{ e.fundedAt | date: 'yyyy-MM-dd' }}</p>
         }

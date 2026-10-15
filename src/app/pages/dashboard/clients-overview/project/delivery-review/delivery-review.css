@@ -179,3 +179,8 @@
 :host-context(.light-theme) .ac-amt,:host-context(.theme-light) .ac-amt{background:linear-gradient(135deg,rgba(15,169,154,.06),rgba(43,127,255,.04));border-color:rgba(15,169,154,.18)}
 :host-context(.light-theme) .ac-amt b,:host-context(.theme-light) .ac-amt b{color:#0A6F64}
 :host-context(.light-theme) .ac-amt span,:host-context(.theme-light) .ac-amt span{color:#5B6472}
+
+/* delivery files: open link + optional download link, and a legacy (name-only) entry that is not a link */
+.dr-file-wrap { display: inline-flex; align-items: center; gap: 6px; }
+.dr-file-dl { font-size: 12px; font-weight: 700; color: var(--teal, #0fa99a); text-decoration: underline; white-space: nowrap; }
+.dr-file-legacy { opacity: .85; cursor: default; flex-wrap: wrap; }

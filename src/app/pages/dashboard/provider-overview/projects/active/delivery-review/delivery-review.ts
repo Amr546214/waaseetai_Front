@@ -8,6 +8,8 @@ import { AccountType } from '../../../../../../core/models/auth.model';
 import { MessageContext } from '../../../../../../core/services/chat.service';
 import { UiNotificationService } from '../../../../../../core/services/ui-notification.service';
 import { formatMoney } from '../../../../../../core/utils/money.util';
+import { stageHeading } from '../../../../../../core/utils/stage-title.util';
+import { deliveryFileOpenUrl, deliveryFileDownloadUrl, LEGACY_FILE_NOTE } from '../../../../../../core/utils/delivery-file.util';
 
 /**
  * Final delivery & project closure review.
@@ -61,16 +63,56 @@ export class DeliveryReview implements OnInit {
 	});
 	completedStages = computed<any[]>(() => this.stages().filter(s => s.isDone || s.status === 'completed'));
 
-	totalContractValue = computed<number>(() => this.stages().reduce((sum, s) => sum + (Number(s.amount) || 0), 0));
-	releasedValue = computed<number>(() => this.completedStages().reduce((sum, s) => sum + (Number(s.amount) || 0), 0));
-	heldValue = computed<number>(() => Math.max(0, this.totalContractValue() - this.releasedValue()));
+	// === Server lifecycle (single source of truth: state, closure, per-action eligibility, financial summary) ===
+	lifecycle = computed<any>(() => this.projectData()?.lifecycle ?? null);
+	financial = computed<any>(() => this.projectData()?.financial ?? null);
+	/** Closed by a dispute settlement: not completed, not waiting for the client, nothing to deliver. */
+	settled = computed<boolean>(() => this.projectData()?.closedBySettlement === true);
+	/** Completed by delivery approval (all stages approved) as the server reports it; an older backend falls back to the stage list. */
+	completedByDelivery = computed<boolean>(() => {
+		const d = this.projectData();
+		if (d && typeof d.completedByDelivery === 'boolean') return d.completedByDelivery;
+		return this.stages().length > 0 && this.stages().every(s => s.isDone || s.status === 'completed');
+	});
+	canUpload = computed<boolean>(() => { const e = this.projectData()?.eligibility?.upload; return e ? e.allowed === true : !this.settled(); });
+	uploadBlockedReason = computed<string | null>(() => this.projectData()?.eligibility?.upload?.reason ?? this.projectData()?.uploadBlockedReason ?? null);
+	/** The final stage's delivery is really waiting for the client's decision. */
+	finalAwaitingClient = computed<boolean>(() => {
+		const s = this.finalStage();
+		if (!s || this.settled()) return false;
+		return s.lifecycle ? s.lifecycle.awaitingClientReview === true : s.status === 'submitted';
+	});
+	settlement = computed<any>(() => this.financial()?.settlement ?? null);
+	badge = computed<{ text: string; ok: boolean }>(() => {
+		if (this.settled()) return { text: this.projectData()?.statusLabel || 'أُغلق بتسوية نزاع', ok: false };
+		if (this.completedByDelivery()) return { text: 'المشروع مكتمل', ok: true };
+		if (this.isFinalStageDone()) return { text: 'اعتُمد التسليم النهائي', ok: true };
+		if (this.finalAwaitingClient()) return { text: 'بانتظار اعتماد العميل', ok: false };
+		return { text: 'قيد التنفيذ', ok: false };
+	});
+	heading(stage: any): string { return stageHeading(stage?.stageNumber, stage?.title); }
+	openUrl(file: any): string | null { return deliveryFileOpenUrl(file); }
+	downloadUrl(file: any): string | null { return deliveryFileDownloadUrl(file); }
+	readonly legacyFileNote = LEGACY_FILE_NOTE;
+	stageMoney(stage: any): string {
+		const amount = `${formatMoney(stage?.amount || 0)} $`;
+		const st = stage?.lifecycle?.amountState;
+		if (st === 'RELEASED' || stage?.isDone || stage?.status === 'completed') return `أُفرِج ${amount}`;
+		if (st === 'HISTORICAL') return `قيمة المرحلة ${amount} (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)`;
+		if (st === 'NONE') return `قيمة المرحلة ${amount}`;
+		return `محتجز ${amount}`;
+	}
+
+	totalContractValue = computed<number>(() => this.financial() ? Number(this.financial().contractValue || 0) : this.stages().reduce((sum, s) => sum + (Number(s.amount) || 0), 0));
+	releasedValue = computed<number>(() => this.financial() ? Number(this.financial().releasedByStageApprovals || 0) : this.completedStages().reduce((sum, s) => sum + (Number(s.amount) || 0), 0));
+	heldValue = computed<number>(() => this.financial() ? Number(this.financial().heldNow || 0) : Math.max(0, this.totalContractValue() - this.releasedValue()));
 	releasedPct = computed<number>(() => {
 		const total = this.totalContractValue();
 		return total > 0 ? Math.min(100, Math.max(0, (this.releasedValue() / total) * 100)) : 0;
 	});
 
 	isFinalStageDone = computed<boolean>(() => !!this.finalStage()?.isDone || this.finalStage()?.status === 'completed');
-	isProjectClosed = computed<boolean>(() => this.stages().length > 0 && this.stages().every(s => s.isDone || s.status === 'completed'));
+	isProjectClosed = computed<boolean>(() => this.completedByDelivery());
 
 	latestDelivery = computed<any>(() => {
 		const stage = this.finalStage();

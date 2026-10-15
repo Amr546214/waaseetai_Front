@@ -256,3 +256,5 @@
 	.fsm-acts{flex-direction:column}
 	.fsm-btn{width:100%}
 }
+
+.fa-settle-note { margin: 10px 0 0; font-size: 12px; color: var(--muted, #64748b); line-height: 1.7; }
