@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { handleAdminError, reportAdminProblems, SubmitGuard } from '../../shared/admin-form-report';
 import { WithdrawalApiService } from '../../../../../core/services/withdrawal-api.service';
 import { WITHDRAWAL_STATUS_LABELS, WITHDRAWAL_STATUS_CLASSES, withdrawalUserDisplay, withdrawalOwnerLabel } from '../sa-withdrawals';
 import { Withdrawal, LEGACY_WITHDRAWAL_LABEL, isLegacyWithdrawal, ApproveWithdrawalPayload, RejectWithdrawalPayload } from '../../../../../core/models/withdrawal.model';
@@ -17,6 +18,9 @@ export class SaWithdrawalDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private withdrawalApi = inject(WithdrawalApiService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private actionGuard = new SubmitGuard();
+  private payoutGuard = new SubmitGuard();
 
   selectedWithdrawal = signal<Withdrawal | null>(null);
   loading = signal(true);
@@ -120,11 +124,13 @@ export class SaWithdrawalDetail implements OnInit {
     if (action === 'reject') {
       const reason = this.rejectionReason().trim();
       if (!reason) {
-        this.actionError.set('يرجى كتابة سبب الرفض');
+        this.actionError.set('');
+        void reportAdminProblems(this.host.nativeElement, [{ field: 'wd-reject-reason', message: 'يرجى كتابة سبب الرفض' }]);
         return;
       }
     }
 
+    if (!this.actionGuard.enter()) return;
     this.actionError.set('');
     this.submittingAction.set(true);
 
@@ -135,6 +141,7 @@ export class SaWithdrawalDetail implements OnInit {
 
       this.withdrawalApi.approveAdminWithdrawal(w.id, payload).subscribe({
         next: (res) => {
+          this.actionGuard.release();
           this.submittingAction.set(false);
           if (res.success) {
             this.actionSuccess.set('تم تحديث حالة طلب السحب بنجاح');
@@ -150,8 +157,9 @@ export class SaWithdrawalDetail implements OnInit {
           }
         },
         error: (err) => {
+          this.actionGuard.release();
           this.submittingAction.set(false);
-          this.actionError.set(err?.error?.message || 'تعذر تحديث طلب السحب، حاول مرة أخرى');
+          handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تحديث طلب السحب، حاول مرة أخرى', resolve: { rejectionReason: 'wd-reject-reason', adminNote: 'wd-admin-note' } }, (m) => this.actionError.set(m));
         },
       });
     } else {
@@ -161,6 +169,7 @@ export class SaWithdrawalDetail implements OnInit {
 
       this.withdrawalApi.rejectAdminWithdrawal(w.id, payload).subscribe({
         next: (res) => {
+          this.actionGuard.release();
           this.submittingAction.set(false);
           if (res.success) {
             this.actionSuccess.set('تم تحديث حالة طلب السحب بنجاح');
@@ -176,8 +185,9 @@ export class SaWithdrawalDetail implements OnInit {
           }
         },
         error: (err) => {
+          this.actionGuard.release();
           this.submittingAction.set(false);
-          this.actionError.set(err?.error?.message || 'تعذر تحديث طلب السحب، حاول مرة أخرى');
+          handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تحديث طلب السحب، حاول مرة أخرى', resolve: { rejectionReason: 'wd-reject-reason', adminNote: 'wd-admin-note' } }, (m) => this.actionError.set(m));
         },
       });
     }
@@ -202,11 +212,12 @@ export class SaWithdrawalDetail implements OnInit {
 
   confirmPayout() {
     const w = this.selectedWithdrawal();
-    if (!w || w.payoutAutomationEnabled !== true || this.sendingPayout()) return;
+    if (!w || w.payoutAutomationEnabled !== true || this.sendingPayout() || !this.payoutGuard.enter()) return;
     this.sendingPayout.set(true);
     this.payoutError.set('');
     this.withdrawalApi.sendAdminWithdrawalPayout(w.id).subscribe({
       next: (res) => {
+        this.payoutGuard.release();
         this.sendingPayout.set(false);
         if (res.success) {
           this.payoutResult.set(res.data?.message || res.message || '');
@@ -217,8 +228,10 @@ export class SaWithdrawalDetail implements OnInit {
         }
       },
       error: (err) => {
+        this.payoutGuard.release();
         this.sendingPayout.set(false);
-        this.payoutError.set(err?.status === 503 ? this.payoutOffReason : (err?.error?.message || 'تعذر إرسال التحويل'));
+        if (err?.status === 503) { this.payoutError.set(this.payoutOffReason); return; }
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر إرسال التحويل' }, (m) => this.payoutError.set(m));
       },
     });
   }
