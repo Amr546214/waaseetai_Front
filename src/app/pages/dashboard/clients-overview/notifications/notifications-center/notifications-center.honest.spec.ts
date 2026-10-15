@@ -114,7 +114,7 @@ describe('client notifications page: real data only, honest counters/CTA/AI', ()
 		c.onNotificationClick(c.notifications()[0]);
 		expect(String(patch.mock.calls[0][0])).toContain('/notifications/a/read');
 		expect(c.unreadCount()).toBe(0);
-		expect(navigate).toHaveBeenCalledWith('/client-overview/my-requests/r1');
+		expect(navigate).toHaveBeenCalledWith('/client-overview/my-requests/r1', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('the AI filter and AI-styled icon appear only for a real AI notification', async () => {

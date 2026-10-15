@@ -118,7 +118,7 @@ describe('NotificationsCenter', () => {
 		expect(nt.actionUrl).toBe('/client-overview/messages?conversationId=conv-9');
 
 		component.onNotificationClick(nt);
-		expect(navigateByUrlSpy).toHaveBeenCalledWith('/client-overview/messages?conversationId=conv-9');
+		expect(navigateByUrlSpy).toHaveBeenCalledWith('/client-overview/messages?conversationId=conv-9', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('a NEW_PROPOSAL notification with requestId metadata navigates to the exact request details page', async () => {
@@ -133,7 +133,7 @@ describe('NotificationsCenter', () => {
 		expect(nt.actionUrl).toBe('/client-overview/my-requests/proj-1');
 
 		component.onNotificationClick(nt);
-		expect(navigateByUrlSpy).toHaveBeenCalledWith('/client-overview/my-requests/proj-1');
+		expect(navigateByUrlSpy).toHaveBeenCalledWith('/client-overview/my-requests/proj-1', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('an old NEW_PROPOSAL notification with no metadata still navigates via its real stored actionUrl', async () => {
@@ -148,7 +148,7 @@ describe('NotificationsCenter', () => {
 		expect(nt.actionUrl).toBe('/client-overview/my-requests/proj-1');
 
 		component.onNotificationClick(nt);
-		expect(navigateByUrlSpy).toHaveBeenCalledWith('/client-overview/my-requests/proj-1');
+		expect(navigateByUrlSpy).toHaveBeenCalledWith('/client-overview/my-requests/proj-1', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('a STAGE_DELIVERY notification with projectId + stageId metadata navigates to the exact stage delivery-review page', async () => {
@@ -163,7 +163,7 @@ describe('NotificationsCenter', () => {
 		expect(nt.actionUrl).toBe('/client-overview/projects/proj-7/delivery-review/stage-2');
 
 		component.onNotificationClick(nt);
-		expect(navigateByUrlSpy).toHaveBeenCalledWith('/client-overview/projects/proj-7/delivery-review/stage-2');
+		expect(navigateByUrlSpy).toHaveBeenCalledWith('/client-overview/projects/proj-7/delivery-review/stage-2', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('an unknown/unsupported notification type fails safely (no CTA, no crash, no navigation)', async () => {

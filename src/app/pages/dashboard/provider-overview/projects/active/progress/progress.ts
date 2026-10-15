@@ -1,5 +1,6 @@
 import { providerTimeZone } from '../../../../../../core/services/provider-prefs.store';
 import { Component, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
+import { RatingSummary } from '../../../../../../sheards/rating-summary/rating-summary.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -50,7 +51,7 @@ export function isHttpsLink(value: string): boolean {
 
 @Component({
   selector: 'app-progress', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
+  imports: [CommonModule, FormsModule, RouterLink, RatingSummary, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
 })
 export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);

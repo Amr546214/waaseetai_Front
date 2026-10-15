@@ -10,6 +10,7 @@ import { DisputeModal } from '../../../../../sheards/dispute-modal/dispute-modal
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { CreateDisputePayload } from '../../../../../core/models/dispute.model';
 import { MessageContext } from '../../../../../core/services/chat.service';
+import { RatingSummary } from '../../../../../sheards/rating-summary/rating-summary.component';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingStatus } from '../../../../../core/models/rating.model';
 import { AuthStore } from '../../../../../core/store/auth.store';
@@ -31,7 +32,7 @@ export const CLIENT_AMENDMENT_TYPE_LABEL: Record<string, string> = { SCOPE: 'ØªØ
 
 @Component({
 	selector: 'app-project-details', standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat, DisputeModal, AmendmentPaymentOtpComponent],
+	imports: [CommonModule, FormsModule, RouterModule, RatingSummary, ProjectMiniChat, DisputeModal, AmendmentPaymentOtpComponent],
 	templateUrl: './project-details.html', styleUrl: './project-details.css',
 })
 export class ProjectDetails implements OnInit {
@@ -73,7 +74,7 @@ export class ProjectDetails implements OnInit {
 	amendments = signal<any[]>([]); amendmentsLoading = signal(false); amendmentsError = signal('');
 	readonly amendmentSuccessText = CLIENT_AMENDMENT_SUCCESS_TEXT;
 	hasPendingAmendment = () => this.amendments().some(a => a.requestedByRole === 'CLIENT' && a.status === 'PENDING_OTHER_PARTY');
-	private projectId = '';
+	protected projectId = '';
 	showDisputeModal = signal(false);
 	isSubmittingDispute = signal(false);
 	disputeSuccess = signal('');
