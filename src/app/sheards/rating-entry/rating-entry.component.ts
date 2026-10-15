@@ -21,26 +21,6 @@ import { RatingStatus } from '../../core/models/rating.model';
  */
 function reasonOf(st: RatingStatus | null): string { return st ? (st.adminSettled ? 'أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه' : st.message) : ''; }
 
-const TEMPLATE = `
-@if (state() === 'error') {
-	<button type="button" class="re-retry" (click)="load()" data-testid="rating-entry-retry">إعادة المحاولة</button>
-} @else if (state() === 'ready') {
-	@if (status()?.review) {
-		<button type="button" class="re-btn re-btn--view" (click)="open()" data-testid="rating-entry-view">عرض تقييمك</button>
-	} @else if (status()?.canRate) {
-		<button type="button" class="re-btn" (click)="open()" data-testid="rating-entry-rate">{{ rateLabel }}</button>
-	} @else {
-		<span [class.re-sr]="!showReason()" class="re-reason" [attr.title]="reason()" data-testid="rating-entry-reason">{{ reason() }}</span>
-	}
-}`;
-const STYLES = `
-:host{display:inline-block}
-.re-btn{border:0;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;background:#FFB400;color:#1b1b1b}
-.re-btn--view{background:rgba(43,212,199,.14);color:#2BD4C7;border:1px solid rgba(43,212,199,.35)}
-.re-retry{border:1px solid rgba(255,255,255,.2);background:transparent;color:inherit;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer}
-.re-reason{font-size:12px;opacity:.75}
-.re-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-`;
 
 @Directive()
 abstract class RatingEntryBase implements OnInit {
@@ -71,7 +51,7 @@ abstract class RatingEntryBase implements OnInit {
 }
 
 /** Project-level rating entry (client or provider). */
-@Component({ selector: 'app-rating-entry', standalone: true, changeDetection: ChangeDetectionStrategy.OnPush, template: TEMPLATE, styles: [STYLES] })
+@Component({ selector: 'app-rating-entry', standalone: true, changeDetection: ChangeDetectionStrategy.OnPush, templateUrl: './rating-entry.component.html', styleUrl: './rating-entry.component.css' })
 export class RatingEntry extends RatingEntryBase {
 	readonly rateLabel = 'قيّم المشروع';
 	protected read() { return this.api.getRatingStatus(this.side(), this.key()); }
@@ -79,7 +59,7 @@ export class RatingEntry extends RatingEntryBase {
 }
 
 /** Stage-level rating entry (client only): reads the stage rating status and opens the stage rating page. */
-@Component({ selector: 'app-stage-rating-entry', standalone: true, changeDetection: ChangeDetectionStrategy.OnPush, template: TEMPLATE, styles: [STYLES] })
+@Component({ selector: 'app-stage-rating-entry', standalone: true, changeDetection: ChangeDetectionStrategy.OnPush, templateUrl: './rating-entry.component.html', styleUrl: './rating-entry.component.css' })
 export class StageRatingEntry extends RatingEntryBase {
 	readonly stageId = input.required<string>();
 	readonly rateLabel = 'قيّم المرحلة';
