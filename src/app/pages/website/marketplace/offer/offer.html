@@ -148,6 +148,10 @@
   }
 </ng-template>
 
+<ng-template #ownServiceNote>
+  <div data-testid="own-service" role="status" style="margin:0 0 8px;padding:10px 12px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.25);border-radius:10px;font-size:13px;font-weight:800;text-align:center">هذه خدمتك</div>
+</ng-template>
+
 <ng-template #buyBlocked>
   <div data-testid="buy-blocked" style="margin:0 0 8px;padding:10px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:10px;font-size:12.5px;text-align:center">
     <div style="margin-bottom:8px">أنت تتصفح كمقدم خدمة، والشراء متاح من حساب طالب الخدمة فقط.</div>
@@ -268,7 +272,9 @@
                     }
                   </div>
                 }
-                @if (canPurchase()) {
+                @if (isOwnService()) {
+                <ng-container *ngTemplateOutlet="ownServiceNote"></ng-container>
+                } @else if (canPurchase()) {
                 <button class="pkg-order-btn" type="button" [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
                 } @else {
                 <ng-container *ngTemplateOutlet="buyBlocked"></ng-container>
@@ -409,14 +415,17 @@
             <div class="sidebar-card">
               <div class="order-card-body">
                 <ng-container *ngTemplateOutlet="orderIncludes"></ng-container>
-                @if (canPurchase()) {
+                @if (isOwnService()) {
+                <ng-container *ngTemplateOutlet="ownServiceNote"></ng-container>
+                } @else if (canPurchase()) {
                 <button class="btn-order-primary" type="button" id="sidebar-order-btn" [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
                 } @else {
                 <ng-container *ngTemplateOutlet="buyBlocked"></ng-container>
                 }
                 <ng-container *ngTemplateOutlet="cartFeedback"></ng-container>
-                <button class="btn-order-ghost" type="button" (click)="openNegotiation()"><svg aria-hidden="true"><use href="#ws-msg"></use></svg>تواصل مع {{ model()?.provider?.name || 'المقدم' }}</button>
-                <button class="btn-order-ghost" type="button" (click)="openNegotiation()" style="margin-top:0"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-negotiate"></use></svg>طلب تفاوض مع المقدم</button>
+                @if (!isOwnService()) {
+                <button class="btn-order-ghost" type="button" data-testid="negotiation-request" (click)="openNegotiation()"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-negotiate"></use></svg>طلب تفاوض مع المقدم</button>
+                }
                 <div class="order-guarantee"><svg aria-hidden="true"><use href="#ws-shield"></use></svg>ضمان مالي وفق سياسة الإلغاء والاسترداد</div>
               </div>
             </div>
@@ -549,13 +558,17 @@
             <div class="sidebar-card">
               <div class="order-card-body">
                 <ng-container *ngTemplateOutlet="orderIncludes"></ng-container>
-                @if (canPurchase()) {
+                @if (isOwnService()) {
+                <ng-container *ngTemplateOutlet="ownServiceNote"></ng-container>
+                } @else if (canPurchase()) {
                 <button class="btn-order-primary" type="button" [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
                 } @else {
                 <ng-container *ngTemplateOutlet="buyBlocked"></ng-container>
                 }
                 <ng-container *ngTemplateOutlet="cartFeedback"></ng-container>
-                <button class="btn-order-ghost" type="button" (click)="openNegotiation()"><svg aria-hidden="true"><use href="#ws-file"></use></svg>تواصل مع {{ model()?.provider?.name || 'المقدم' }}</button>
+                @if (!isOwnService()) {
+                <button class="btn-order-ghost" type="button" data-testid="negotiation-request" (click)="openNegotiation()"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-negotiate"></use></svg>طلب تفاوض مع المقدم</button>
+                }
                 <div class="order-guarantee"><svg aria-hidden="true"><use href="#ws-shield"></use></svg>ضمان مالي وفق سياسة الإلغاء والاسترداد</div>
               </div>
             </div>
@@ -594,6 +607,7 @@
           <!-- ═══ MAIN COLUMN ═══ -->
           <div>
 
+            @if (!isOwnService()) {
             <!-- ASK BOX -->
             <div class="ask-box">
               <div class="ask-box-title">اسأل سؤالاً عن هذه الخدمة</div>
@@ -607,6 +621,7 @@
                 <button class="ask-btn" type="button" [disabled]="isSubmitting() || !questionMessage().trim()" (click)="askQuestion()">إرسال السؤال</button>
               </div>
             </div>
+            }
 
             <!-- Q&A — no question data source exists yet: empty state -->
             <div class="qa-card">
@@ -648,7 +663,9 @@
 
             <!-- ORDER COMPACT -->
             <div style="padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:14px">
-              @if (canPurchase()) {
+              @if (isOwnService()) {
+                <ng-container *ngTemplateOutlet="ownServiceNote"></ng-container>
+                } @else if (canPurchase()) {
               <button [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()" type="button" style="width:100%;padding:11px;border-radius:999px;background:var(--grad);color:#070D24;font-family:inherit;font-size:13px;font-weight:900;border:none;cursor:pointer;margin-bottom:10px">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
               } @else {
               <ng-container *ngTemplateOutlet="buyBlocked"></ng-container>

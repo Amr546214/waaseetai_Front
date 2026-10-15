@@ -31,6 +31,8 @@ export interface CartItem {
 	packageName?: string;
 	addedAt: string;
 	savedForLater?: boolean;
+	/** BE flag: the item's service belongs to the signed-in user (cannot be bought). */
+	ownService?: boolean;
 }
 
 export interface CouponData {
