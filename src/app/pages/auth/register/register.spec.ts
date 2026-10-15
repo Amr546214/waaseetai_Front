@@ -122,6 +122,45 @@ describe('Register', () => {
 		});
 	});
 
+	describe('going back during registration (Batch B T1)', () => {
+		const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
+
+		it('after the account is created, Back keeps the data, and continuing returns to the OTP step WITHOUT a second register call', () => {
+			const { fixture, component, postSpy } = setup();
+			fixture.detectChanges();
+			component.selectedAccountType = 'service_provider_ind';
+			component.currentStep = 2;
+			component.basicInfoForm.patchValue(valid);
+			postSpy.mockImplementation((url: string) => /register/.test(String(url)) ? of({ success: true, data: { emailSent: true }, message: 'ok' }) : of({ success: true }));
+			component.nextStep();
+			const registerCalls = () => postSpy.mock.calls.filter(c => /\/register/.test(String(c[0]))).length;
+			expect(registerCalls()).toBe(1);
+			expect(component.currentStep).toBe(3);
+			expect(component.accountCreated).toBe(true);
+
+			component.prevStep(); // back to step 2: data is still there, the form is locked
+			fixture.detectChanges();
+			expect(component.currentStep).toBe(2);
+			expect(component.basicInfoForm.get('email')?.value).toBe('sara@example.com');
+			expect(component.basicInfoForm.disabled).toBe(true);
+			expect((fixture.nativeElement as HTMLElement).querySelector('[data-testid="account-created-note"]')).not.toBeNull();
+
+			component.nextStep(); // continue: no new account request, no 409 for the user's own account
+			expect(registerCalls()).toBe(1);
+			expect(component.currentStep).toBe(3);
+			expect(component.accountExistsError).toBe(false);
+		});
+
+		it('the account type cannot be changed once the account exists', () => {
+			const { fixture, component } = setup();
+			fixture.detectChanges();
+			component.selectedAccountType = 'service_provider_ind';
+			component.accountCreated = true;
+			component.selectAccountType('client_ind');
+			expect(component.selectedAccountType).toBe('service_provider_ind');
+		});
+	});
+
 	describe('Affiliate referral attribution (P-LG-012)', () => {
 		it('manual code entry flows through to the /auth/register payload as affiliateIdentifier', () => {
 			const { fixture, component, postSpy } = setup();

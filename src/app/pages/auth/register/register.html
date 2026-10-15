@@ -144,6 +144,9 @@
       </div>
       }
 
+      @if (accountCreated) {
+      <div class="banner-info" role="status" data-testid="account-created-note">تم إنشاء حسابك وهو بانتظار التحقق. بياناتك محفوظة ولا يمكن تعديلها هنا؛ اضغط «متابعة» للعودة إلى خطوة رمز التحقق.</div>
+      }
       <form id="complete-form" novalidate [formGroup]="basicInfoForm" (ngSubmit)="nextStep()" autocomplete="off">
         <div class="form-card">
           <div class="form-card-title">
