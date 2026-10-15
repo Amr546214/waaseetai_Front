@@ -6,6 +6,10 @@ import { formatWait } from './http-error';
  * `emailSent === true`; anything else never says a code was sent, and never starts a resend countdown.
  */
 export const OTP_SENT_MESSAGE = 'تم إرسال رمز التحقق إلى بريدك';
+/** Registration is answered the same way whether the data was new or already in use, so "sent" is conditional wording (never a promise about an account). */
+export const REGISTER_SENT_MESSAGE = 'إذا كانت البيانات صالحة للتسجيل فقد أرسلنا رمز التحقق إلى بريدك. إن لم يصلك فقد يكون لديك حساب بالفعل، جرّب تسجيل الدخول أو استعادة كلمة المرور.';
+/** Resend is unauthenticated and answers the same for every id: conditional wording as well. */
+export const RESEND_SENT_MESSAGE = 'إذا كان الحساب بانتظار التفعيل فقد أرسلنا رمز التحقق إلى بريدك';
 export const OTP_SEND_FAILED_MESSAGE = 'تعذر إرسال رمز التحقق، حاول مرة أخرى بعد قليل أو تواصل مع الدعم';
 export const REGISTER_NOT_SENT_MESSAGE = 'تم إنشاء الحساب، لكن تعذر إرسال رمز التحقق. حاول إعادة الإرسال بعد قليل.';
 export const UNVERIFIED_NEUTRAL_MESSAGE = 'حسابك غير مفعّل بعد. أدخل رمز التحقق المرسل إلى بريدك أو اطلب رمزًا جديدًا.';
@@ -19,7 +23,7 @@ export interface OtpNotice {
 /** POST /auth/register: the account exists either way; the notice says whether the code email went out. */
 export function registerNotice(res: Pick<AuthResponse, 'data'> | null | undefined): OtpNotice {
 	return res?.data?.emailSent === true
-		? { sent: true, message: OTP_SENT_MESSAGE }
+		? { sent: true, message: REGISTER_SENT_MESSAGE }
 		: { sent: false, message: REGISTER_NOT_SENT_MESSAGE };
 }
 
@@ -48,5 +52,5 @@ export function unverifiedLoginNotice(data: AuthResponse['data'] | null | undefi
 /** POST /auth/resend-otp: `success:false` / `emailSent:false` means nothing went out. */
 export function resendNotice(res: Pick<AuthResponse, 'success' | 'data'> & { emailSent?: boolean } | null | undefined): OtpNotice {
 	const sent = res?.success === true && (res?.emailSent ?? res?.data?.emailSent) === true;
-	return sent ? { sent: true, message: OTP_SENT_MESSAGE } : { sent: false, message: OTP_SEND_FAILED_MESSAGE };
+	return sent ? { sent: true, message: RESEND_SENT_MESSAGE } : { sent: false, message: OTP_SEND_FAILED_MESSAGE };
 }

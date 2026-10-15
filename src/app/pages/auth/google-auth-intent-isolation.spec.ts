@@ -73,7 +73,8 @@ function setup() {
 		imports: [Login, Register],
 		providers: [
 			provideRouter([{ path: '**', component: BlankTestComponent }]),
-			{ provide: HttpClient, useValue: { post: (...args: any[]) => postSpy(...args) } },
+			// Only /auth/google calls are the subject of this spec: Register also posts the referral-cookie clear on init, which is unrelated.
+			{ provide: HttpClient, useValue: { post: (...args: any[]) => (/\/google/.test(String(args[0])) ? postSpy(...args) : of({ success: true })) } },
 			{ provide: AuthStore, useValue: fakeAuthStore },
 			{ provide: SocialAuthService, useValue: fakeSocialAuthService },
 		],
