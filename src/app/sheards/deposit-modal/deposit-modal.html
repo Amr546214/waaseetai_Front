@@ -146,6 +146,9 @@
 			<p id="deposit-terms-err" role="alert" data-testid="field-error" class="text-[11px] font-bold text-red-500">{{ termsError() }}</p>
 			}
 
+			@if (rateLimitText()) {
+			<div class="payment-error" role="alert" data-testid="deposit-rate-limit">{{ rateLimitText() }}@if (orderWait.active()) { <span data-testid="deposit-wait"> ({{ orderWait.label() }})</span> }</div>
+			}
 			@if (paymentError()) {
 			<div class="payment-error" role="alert">{{ paymentError() }}</div>
 			}
