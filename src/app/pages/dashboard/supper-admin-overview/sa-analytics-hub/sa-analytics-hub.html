@@ -33,8 +33,8 @@
         <button type="button" class="ah-period-btn" [class.active]="activePeriod() === p.key" (click)="setPeriod(p.key)">{{ p.label }}</button>
       }
     </div>
-    <label class="ah-compare">من <input type="date" data-testid="ah-from" [ngModel]="customFrom()" (ngModelChange)="setCustomRange($event, customTo())"></label>
-    <label class="ah-compare">إلى <input type="date" data-testid="ah-to" [ngModel]="customTo()" (ngModelChange)="setCustomRange(customFrom(), $event)"></label>
+    <label class="ah-compare">من <input id="ah-from" type="date" aria-label="من تاريخ" data-testid="ah-from" [ngModel]="customFrom()" (ngModelChange)="setCustomRange($event, customTo())"></label>
+    <label class="ah-compare">إلى <input id="ah-to" type="date" aria-label="إلى تاريخ" data-testid="ah-to" [ngModel]="customTo()" (ngModelChange)="setCustomRange(customFrom(), $event)"></label>
     <label class="ah-compare">
       <input type="checkbox" [checked]="compareEnabled()" (change)="toggleCompare()">
       مقارنة بالفترة السابقة

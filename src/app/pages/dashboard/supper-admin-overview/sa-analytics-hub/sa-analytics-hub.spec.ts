@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { of } from 'rxjs';
 import { SaAnalyticsHub } from './sa-analytics-hub';
+import { expectFieldProblem, expectFocused, settleForm } from '../../../../shared/forms/form-spec-utils';
 import { AdminAnalyticsService, AnalyticsOverview } from '../../../../core/services/admin-analytics.service';
 
 const overview = (users = 5): AnalyticsOverview => ({
@@ -53,6 +54,17 @@ describe('SaAnalyticsHub', () => {
     getOverview.mockClear();
     f.componentInstance.setCustomRange('2026-01-01', '2026-01-31');
     expect(getOverview.mock.calls[0][0]).toEqual({ from: '2026-01-01', to: '2026-01-31' });
+  });
+
+  it('an inverted custom range is explained under the end date (focus there) and nothing is requested', async () => {
+    const f = make();
+    getOverview.mockClear();
+    f.componentInstance.setCustomRange('2026-02-01', '2026-01-01');
+    await settleForm();
+    const to = (f.nativeElement as HTMLElement).querySelector('#ah-to');
+    expectFieldProblem(to, 'تاريخ النهاية');
+    expectFocused(to);
+    expect(getOverview).not.toHaveBeenCalled();
   });
 
   it('CSV export uses the displayed real data of the active section', async () => {
