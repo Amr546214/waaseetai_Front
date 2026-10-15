@@ -13,7 +13,7 @@ import { RestPassword } from './rest-password/rest-password';
 import { AuthStore } from '../../core/store/auth.store';
 import { OtpHandoffService } from '../../core/services/otp-handoff.service';
 import { mapHttpError } from '../../core/forms/http-error';
-import { registerNotice, resendNotice, unverifiedLoginNotice } from '../../core/forms/otp-delivery';
+import { registerNotice, resendNotice, unverifiedLoginNotice, REGISTER_SENT_MESSAGE, RESEND_SENT_MESSAGE } from '../../core/forms/otp-delivery';
 
 @Component({ selector: 'app-test-blank', template: '' })
 class BlankTestComponent {}
@@ -48,9 +48,17 @@ function providers(postSpy: (...a: any[]) => any, pending: string | null = null)
 	};
 }
 
+describe('OTP delivery: generic wording (no account-existence disclosure)', () => {
+	it('register and resend never promise a code for an account: conditional wording, no "already registered"', () => {
+		expect(REGISTER_SENT_MESSAGE).toContain('إذا كانت البيانات صالحة');
+		expect(RESEND_SENT_MESSAGE).toContain('إذا كان الحساب بانتظار التفعيل');
+		for (const m of [REGISTER_SENT_MESSAGE, RESEND_SENT_MESSAGE]) expect(m).not.toMatch(/مسجل بالفعل|موجود بالفعل|لا يوجد حساب/);
+	});
+});
+
 describe('OTP delivery: pure notices and error mapping', () => {
 	it('register: "sent" only when emailSent is exactly true', () => {
-		expect(registerNotice({ data: { verified: false, emailSent: true } })).toEqual({ sent: true, message: SENT });
+		expect(registerNotice({ data: { verified: false, emailSent: true } })).toEqual({ sent: true, message: REGISTER_SENT_MESSAGE });
 		expect(registerNotice({ data: { verified: false, emailSent: false } })).toEqual({ sent: false, message: REGISTER_FAILED });
 		expect(registerNotice({ data: { verified: false } }).sent).toBe(false); // no claim without the flag
 	});
@@ -67,6 +75,7 @@ describe('OTP delivery: pure notices and error mapping', () => {
 
 	it('resend: success+emailSent is sent; success:false / emailSent:false is a failure', () => {
 		expect(resendNotice({ success: true, emailSent: true, data: { verified: false, emailSent: true } }).sent).toBe(true);
+		expect(resendNotice({ success: true, emailSent: true, data: { verified: false, emailSent: true } }).message).toBe(RESEND_SENT_MESSAGE);
 		expect(resendNotice({ success: false, emailSent: false, data: { verified: false, emailSent: false } })).toEqual({ sent: false, message: FAILED });
 		expect(resendNotice({ success: true, data: { verified: false } }).sent).toBe(false);
 	});
@@ -104,9 +113,9 @@ describe('Register: honest delivery status', () => {
 	it('emailSent=true: says it was sent and starts the countdown', () => {
 		const { c, el } = run(true);
 		expect(c.currentStep).toBe(3);
-		expect(c.otpNotice).toBe(SENT);
+		expect(c.otpNotice).toBe(REGISTER_SENT_MESSAGE);
 		expect(c.countdown).toBe(90);
-		expect(el.querySelector('#otp-notice')!.textContent).toContain(SENT);
+		expect(el.querySelector('#otp-notice')!.textContent).toContain(REGISTER_SENT_MESSAGE);
 		clearInterval(c.countdownTimer);
 	});
 
@@ -288,7 +297,7 @@ describe('Verify page: countdown only after a real send', () => {
 		const post = vi.fn(() => of({ success: true, emailSent: true, message: 'x', data: { emailSent: true } }));
 		const { c } = make(null, post);
 		c.resendOtp();
-		expect(c.successMsg).toBe(SENT);
+		expect(c.successMsg).toBe(RESEND_SENT_MESSAGE);
 		expect(c.countdown).toBe(60);
 		(c as any).clearTimer();
 	});
