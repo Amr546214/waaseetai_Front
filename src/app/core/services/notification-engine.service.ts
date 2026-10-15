@@ -1,4 +1,4 @@
-import { Injectable, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Injectable, InjectionToken, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -10,6 +10,9 @@ import { NotificationSoundService } from './notification-sound.service';
 import { AuthStore } from '../store/auth.store';
 import { UiNotificationService } from './ui-notification.service';
 import { normalizeLegacyNotificationUrl } from '../routing/notification-links';
+
+/** The socket constructor (a seam for tests: a module-level mock of socket.io-client does not survive the shared test bundle). */
+export const NOTIFICATION_SOCKET_FACTORY = new InjectionToken<typeof io>('NOTIFICATION_SOCKET_FACTORY', { providedIn: 'root', factory: () => io });
 import { ACCOUNT_NOT_ACTIVE_CODE, accountBlockedText } from './account-state';
 
 // The real, existing dashboard roots this app has — every notification
@@ -83,6 +86,7 @@ export class NotificationEngineService implements OnDestroy {
 	private authStore = inject(AuthStore);
 	private ui = inject(UiNotificationService);
 	private sanitizer = inject(DomSanitizer);
+	private socketFactory = inject(NOTIFICATION_SOCKET_FACTORY);
 	private iconHtmlCache = new Map<string, SafeHtml>();
 	private socket: Socket | null = null;
 	// The user ID the socket is currently (or should be) joined as. Distinct
@@ -253,7 +257,7 @@ export class NotificationEngineService implements OnDestroy {
 	initSocket(userId: string): void {
 		if (!this.isBrowser || this.socket) return;
 
-		this.socket = io(environment.socketUrl, {
+		this.socket = this.socketFactory(environment.socketUrl, {
 			withCredentials: true,
 			...SOCKET_BACKOFF,
 			// Matches the same auth.token handshake pattern already used by

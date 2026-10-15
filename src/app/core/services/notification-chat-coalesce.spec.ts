@@ -8,9 +8,8 @@ import { vi } from 'vitest';
 // socket.io-client is mocked at the module boundary; every handler the engine registers is captured so the server's pushes can be replayed.
 const handlers: Record<string, (d: any) => void> = {};
 const fakeSocket = { connected: false, on: vi.fn((e: string, h: any) => { handlers[e] = h; }), emit: vi.fn(), disconnect: vi.fn() };
-vi.mock('socket.io-client', () => ({ default: () => fakeSocket, io: () => fakeSocket }));
 
-import { NotificationEngineService } from './notification-engine.service';
+import { NotificationEngineService, NOTIFICATION_SOCKET_FACTORY } from './notification-engine.service';
 import { NotificationSoundService } from './notification-sound.service';
 import { NotificationNavigator } from './notification-navigator.service';
 import { AccountService } from './account.service';
@@ -24,7 +23,7 @@ const generalChat = (over: any = {}) => ({ id: 'g1', type: 'CHAT', title: 'رس�
 const provider = { accountType: 'PROVIDER_INDIVIDUAL', activeRole: 'PROVIDER', roles: ['PROVIDER'] };
 
 function engineSetup() {
-	TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: NotificationSoundService, useValue: { playPopSound: () => undefined } }, { provide: HttpClient, useValue: { get: () => of({ success: true, data: [] }), patch: () => of({ success: true }) } }, { provide: AuthStore, useValue: { currentUser: signal(provider), token: signal('t') } }] });
+	TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: NOTIFICATION_SOCKET_FACTORY, useValue: () => fakeSocket }, { provide: NotificationSoundService, useValue: { playPopSound: () => undefined } }, { provide: HttpClient, useValue: { get: () => of({ success: true, data: [] }), patch: () => of({ success: true }) } }, { provide: AuthStore, useValue: { currentUser: signal(provider), token: signal('t') } }] });
 	const engine = TestBed.inject(NotificationEngineService);
 	engine.initSocket('u1');
 	return engine;
