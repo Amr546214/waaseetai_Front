@@ -378,12 +378,19 @@ export class NotificationEngineService implements OnDestroy {
 		this.http.get<any>(`${environment.url_api}/notifications`, { params }).subscribe({
 			next: res => {
 				if (!res?.success || !Array.isArray(res.data)) return;
-				const ordered = [...res.data].reverse();
+				// An older server (no numeric unreadCount) ignores `since` and answers EVERY unread row: rows this client never held that are older than what it
+				// already holds are not "missed while offline", so they are neither announced nor pushed again; the bell is set from the list itself (exact, the list is complete).
+				const legacy = typeof res.unreadCount !== 'number';
+				const since = params['since'];
+				const rows: any[] = legacy && since
+					? res.data.filter((n: any) => this.seenIds.has(n?.id) || !n?.createdAt || new Date(n.createdAt).toISOString() > since)
+					: res.data;
+				const ordered = [...rows].reverse();
 				const fresh = ordered.filter((n: any) => this.registerArrival(n));
 				for (const n of fresh) this.realtimeNewNotification.set(n);
 				// rows held already but updated while offline (a chat conversation that kept receiving messages): replace them, no new count
 				for (const n of ordered) if (!fresh.includes(n) && this.registerUpdate(n)) this.realtimeUpdatedNotification.set(n);
-				if (typeof res.unreadCount === 'number') this.unreadCount.set(res.unreadCount);
+				this.unreadCount.set(legacy ? res.data.length : res.unreadCount);
 				if (fresh.length) this.triggerToast(fresh[fresh.length - 1]);
 			},
 			error: () => { /* keep what we have */ }

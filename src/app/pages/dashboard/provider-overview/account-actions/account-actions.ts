@@ -53,6 +53,8 @@ export class AccountActionsPage implements OnInit {
 	readonly data = signal<ProviderAccessState | null>(null);
 	readonly requests = signal<ApprovalRequestItem[]>([]);
 	readonly logFailed = signal(false);
+	/** The log read answered 404 (a server without the actions log yet): said as unavailable, a retry would not help. The access banner above still works. */
+	readonly logUnavailable = signal(false);
 	/** the request opened from a link / notification (…/account-actions/:id) */
 	readonly focusId = signal<string | null>(null);
 
@@ -66,6 +68,7 @@ export class AccountActionsPage implements OnInit {
 		this.failed.set(false);
 		this.rateLimited.set(false);
 		this.logFailed.set(false);
+		this.logUnavailable.set(false);
 		this.access.invalidate();
 		this.access.load().subscribe({
 			next: s => { this.data.set(s); this.loading.set(false); },
@@ -74,7 +77,7 @@ export class AccountActionsPage implements OnInit {
 		// refresh always shows the server's latest decision (nothing is cached on the client)
 		this.api.getAccountActions().subscribe({
 			next: res => this.requests.set(Array.isArray(res?.data?.items) ? res.data.items : []),
-			error: () => { this.requests.set([]); this.logFailed.set(true); },
+			error: (e) => { this.requests.set([]); if (e?.status === 404) this.logUnavailable.set(true); else this.logFailed.set(true); },
 		});
 	}
 
