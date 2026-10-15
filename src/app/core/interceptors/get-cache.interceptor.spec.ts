@@ -76,6 +76,6 @@ describe('getCacheInterceptor + rateLimitInterceptor', () => {
 		const { http, ctl } = setup();
 		http.get('/api/client/other').subscribe({ error: () => undefined });
 		ctl.expectOne('/api/client/other').flush({ message: 'm' }, { status: 429, statusText: 'x', headers: { 'Retry-After': '120' } });
-		expect(warning).toHaveBeenCalledWith('عدد الطلبات كبير، حاول مرة أخرى بعد دقيقتين');
+		expect(warning).toHaveBeenCalledWith('طلبات كثيرة، يمكنك إعادة المحاولة بعد دقيقتين');
 	});
 });

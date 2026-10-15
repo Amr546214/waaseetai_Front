@@ -1,3 +1,4 @@
+import { installMemoryStorage } from '../../core/wait/memory-storage.testkit';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -8,6 +9,10 @@ import { insufficientBalanceOf } from '../../core/services/amendment-actions.ser
 import { amendmentApproveText, amendmentEffect, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment } from '../../core/constants/amendment-effect';
 
 const INIT = { success: true, data: { otpSentTo: 'a***@x.com', expiresAt: new Date(Date.now() + 120000).toISOString(), amount: 5 } };
+
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
 
 describe('AmendmentPaymentOtpComponent', () => {
 	async function setup(mode: 'respond' | 'authorize', post: (url: string, body: any) => any) {

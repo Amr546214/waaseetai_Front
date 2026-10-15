@@ -1,3 +1,4 @@
+import { installMemoryStorage } from './memory-storage.testkit';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
@@ -11,6 +12,10 @@ function fresh(): WaitTimerService {
 	TestBed.resetTestingModule();
 	return TestBed.inject(WaitTimerService);
 }
+
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
 
 describe('WaitTimerService', () => {
 	beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z')); localStorage.clear(); });
@@ -132,14 +137,16 @@ describe('WaitTimerService', () => {
 
 	it('storage that throws never breaks the wait (in-memory still counts down)', () => {
 		const svc = fresh();
-		const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('blocked'); });
-		const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('blocked'); });
-		const h = svc.track('s', null);
-		h.start(Date.now() + 2_000);
-		expect(h.active()).toBe(true);
-		vi.advanceTimersByTime(2_000);
-		expect(h.active()).toBe(false);
-		get.mockRestore(); set.mockRestore();
+		const real = Object.getOwnPropertyDescriptor(globalThis, 'localStorage')!;
+		const boom = () => { throw new Error('blocked'); };
+		Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: { getItem: boom, setItem: boom, removeItem: boom, clear: boom } });
+		try {
+			const h = svc.track('s', null);
+			h.start(Date.now() + 2_000);
+			expect(h.active()).toBe(true);
+			vi.advanceTimersByTime(2_000);
+			expect(h.active()).toBe(false);
+		} finally { Object.defineProperty(globalThis, 'localStorage', real); }
 	});
 
 	it('scope helpers: identity is hashed (no e-mail in storage keys); http scope drops origin and query', () => {

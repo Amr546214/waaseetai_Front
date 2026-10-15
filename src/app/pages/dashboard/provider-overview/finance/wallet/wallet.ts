@@ -7,7 +7,7 @@ import { ProviderDepositModal } from './deposit-modal/deposit-modal';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
-import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
+import { handleLoadError, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
 
 export const PROVIDER_ONLY_FINANCE_MESSAGE = 'هذه الصفحة متاحة لحساب مقدم الخدمة فقط. بدّل إلى دورك كمقدم خدمة لعرض المحفظة.';
 
@@ -145,7 +145,7 @@ export class Wallet implements OnInit {
         handleLoadError(err, {
           hasData: () => this.data() != null,
           onKeep: () => this.loading.set(false),
-          onRateLimit: () => { this.error.set(RATE_LIMIT_MESSAGE); this.loading.set(false); },
+          onRateLimit: (e) => { this.error.set(rateLimitToastMessage(e)); this.loading.set(false); },
           onOtherError: () => { this.error.set(err.error?.message || 'تعذر تحميل بيانات المحفظة'); this.loading.set(false); },
         });
       }

@@ -1,3 +1,4 @@
+import { installMemoryStorage } from '../../../core/wait/memory-storage.testkit';
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { provideRouter, Router } from '@angular/router';
@@ -12,6 +13,10 @@ import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.servi
 
 // Login wait: a 429 (Retry-After in seconds or an HTTP-date) disables ONLY the login button with «بعد m:ss», keeps the typed e-mail and password,
 // never logs in again by itself at zero, and a refresh keeps the stored end for the same e-mail only.
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
+
 describe('Login countdown', () => {
 	beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z')); localStorage.clear(); });
 	afterEach(() => { vi.useRealTimers(); localStorage.clear(); TestBed.resetTestingModule(); });

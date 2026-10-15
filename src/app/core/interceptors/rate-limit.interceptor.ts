@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { catchError, retry, throwError, timer } from 'rxjs';
 import { UiNotificationService } from '../services/ui-notification.service';
 import { isRateLimitError, rateLimitEndsAt, rateLimitToastMessage, retryAfterSeconds } from '../utils/rate-limit.util';
-import { WaitTimerService, httpWaitScope } from '../wait/wait-timer.service';
+import { LAST_RATE_LIMIT_SCOPE, WaitTimerService, httpWaitScope } from '../wait/wait-timer.service';
 import { AUTH_ATTEMPT_URLS } from './auth.interceptor';
 
 export const RATE_LIMIT_TOAST_GAP_MS = 10_000;
@@ -37,7 +37,7 @@ export const rateLimitInterceptor: HttpInterceptorFn = (req, next) => {
 			// Every 429 (auth attempts included) records WHEN this endpoint may be tried again, so a retry button can wait for it. Nothing is invented: no stated wait = nothing stored.
 			if (err instanceof HttpErrorResponse && isRateLimitError(err)) {
 				const end = rateLimitEndsAt(err);
-				if (end != null) waits.setEnd(httpWaitScope(req.method, req.url), end);
+				if (end != null) { waits.setEnd(httpWaitScope(req.method, req.url), end); if (req.method === 'GET') waits.setEnd(LAST_RATE_LIMIT_SCOPE, end); }
 			}
 			if (err instanceof HttpErrorResponse && isRateLimitError(err) && !isAuthAttempt) {
 				const now = Date.now();

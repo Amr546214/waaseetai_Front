@@ -1,3 +1,4 @@
+import { installMemoryStorage } from '../../../core/wait/memory-storage.testkit';
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -7,6 +8,10 @@ import { RestPassword } from './rest-password';
 
 // Recovery: the send / resend wait comes from the server (resendAvailableAt, Retry-After); code validity (expiresAt) is a separate timer;
 // a refresh keeps the stored end; nothing is invented; zero never resends by itself.
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
+
 describe('RestPassword countdown', () => {
 	const T0 = new Date('2026-10-15T10:00:00Z');
 	beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(T0); localStorage.clear(); });

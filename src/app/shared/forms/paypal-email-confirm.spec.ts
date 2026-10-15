@@ -1,3 +1,4 @@
+import { installMemoryStorage } from '../../core/wait/memory-storage.testkit';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
@@ -6,6 +7,10 @@ import { PaypalEmailConfirmComponent } from './paypal-email-confirm.component';
 import { ProviderProfileService } from '../../core/services/provider-profile.service';
 
 // The e-mailed code confirms a PayPal email: standard six-box OTP UI, masked ACCOUNT email, inline errors, resend cooldown on 429.
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
+
 describe('PaypalEmailConfirmComponent', () => {
 	const make = (api: any, inputs: Record<string, unknown> = {}) => {
 		TestBed.configureTestingModule({ providers: [{ provide: ProviderProfileService, useValue: api }] });

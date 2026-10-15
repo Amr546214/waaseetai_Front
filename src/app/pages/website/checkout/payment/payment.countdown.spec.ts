@@ -1,3 +1,4 @@
+import { installMemoryStorage } from '../../../../core/wait/memory-storage.testkit';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { Component, signal } from '@angular/core';
@@ -13,6 +14,10 @@ class BlankTestComponent {}
 
 // A 429 on the wallet payment is a wait, never a payment failure: the page stays, keeps the order and consent, shows the countdown on the pay button only,
 // and never pays again by itself at zero.
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
+
 describe('CheckoutPaymentComponent countdown (429)', () => {
 	beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z')); localStorage.clear(); });
 	afterEach(() => { vi.useRealTimers(); localStorage.clear(); TestBed.resetTestingModule(); });

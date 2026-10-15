@@ -7,6 +7,9 @@ import { formatClock, waitLabel } from './wait-format';
 const STORAGE_PREFIX = 'ws:wait:v1:';
 const TICK_MS = 1000;
 
+/** Scope that always holds the end of the most recent rate-limited request (any endpoint); a generic "try again" button uses it when it does not know its URL. */
+export const LAST_RATE_LIMIT_SCOPE = 'http:last-429';
+
 /** Short stable hash so an e-mail / phone never sits in a storage key in clear text. */
 function hash(value: string): string {
 	let h = 5381;

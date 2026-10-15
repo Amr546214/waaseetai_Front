@@ -1,3 +1,4 @@
+import { installMemoryStorage } from '../../../../../core/wait/memory-storage.testkit';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -15,6 +16,10 @@ import { AccountType } from '../../../../../core/models/auth.model';
 // (never a browser alert), a double submit pays once, and the success overlay appears only after the server confirmed the funding.
 const CONTRACT = (o: Record<string, unknown> = {}) => ({ success: true, data: { requestId: 'req-1', title: 'مشروع الهوية', state: 'ready', ready: true, price: 1500, durationDays: 21, otpTtlSeconds: 600, ...o } });
 const SIGNED = { success: true, data: { email: 'client@example.com', expiresInSeconds: 600 } };
+
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
 
 describe('client escrow deposit page', () => {
 	async function setup(o: { contract?: any; contractError?: any; wallet?: number; sign?: any; deposit?: any } = {}) {

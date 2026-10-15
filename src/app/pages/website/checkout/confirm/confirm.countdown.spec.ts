@@ -1,3 +1,4 @@
+import { installMemoryStorage } from '../../../../core/wait/memory-storage.testkit';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
@@ -8,6 +9,10 @@ import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 
 // The payment code has THREE different timers: validity (server expiresAt), resend wait (only a server 429) and confirm wait (only a server 429).
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
+
 describe('CheckoutConfirmComponent countdown', () => {
 	beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z')); localStorage.clear(); });
 	afterEach(() => { vi.useRealTimers(); localStorage.clear(); TestBed.resetTestingModule(); });
