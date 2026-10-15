@@ -19,7 +19,7 @@ describe('client project details: change request', () => {
 		const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: opts.list ?? [] }) : of({ success: true, data: null }));
 		await TestBed.configureTestingModule({ imports: [ProjectDetails], providers: [provideRouter([]),
 			{ provide: HttpClient, useValue: { get, post } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
 		const f = TestBed.createComponent(ProjectDetails); f.detectChanges(); await f.whenStable();
 		const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 		const el = f.nativeElement as HTMLElement;

@@ -14,7 +14,7 @@ describe('provider progress: contract / revision states', () => {
 		const get = vi.fn().mockReturnValueOnce(of({ success: true, data: first })).mockReturnValue(of({ success: true, data: next ?? first }));
 		await TestBed.configureTestingModule({ imports: [Progress], providers: [provideRouter([]),
 			{ provide: HttpClient, useValue: { get, post: vi.fn(() => of({ success: true, data: {} })) } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
 		const f = TestBed.createComponent(Progress); f.detectChanges();
 		return { f, c: f.componentInstance, el: f.nativeElement as HTMLElement, get };
 	}

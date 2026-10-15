@@ -58,6 +58,7 @@ describe('marketplace offer page: own service / single negotiation request', () 
 		const router = (f.componentInstance as any).router; const nav = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 		const svc = (f.componentInstance as any).marketplaceService;
 		vi.spyOn(svc, 'requestService').mockReturnValue(of({ data: { conversationId: 'c1' } }));
+		f.componentInstance.negotiationMessage.set('تفاصيل طلب التفاوض');
 		f.componentInstance.requestService('negotiation');
 		expect(nav).toHaveBeenCalledWith(['/client-overview/messages'], { queryParams: { conversationId: 'c1' } });
 		expect(f.componentInstance.isSubmitting()).toBe(false);

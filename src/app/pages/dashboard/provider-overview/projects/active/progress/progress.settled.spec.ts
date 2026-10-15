@@ -22,7 +22,7 @@ describe('provider progress: project closed by a dispute settlement', () => {
     const post = vi.fn(() => of({ success: true, data: {} }));
     const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: list }) : of({ success: true, data: DATA }));
     await TestBed.configureTestingModule({ imports: [Progress], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post } },
-      { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'contract-1' }) } } }] }).compileComponents();
+      { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'contract-1' }) } } }] }).compileComponents();
     const f = TestBed.createComponent(Progress); f.detectChanges();
     const el = f.nativeElement as HTMLElement;
     return { f, c: f.componentInstance, post, el, qa: (id: string) => Array.from(el.querySelectorAll(`[data-testid="${id}"]`)) as HTMLElement[] };

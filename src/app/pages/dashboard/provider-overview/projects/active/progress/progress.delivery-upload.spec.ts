@@ -24,7 +24,7 @@ describe('provider progress: real delivery file upload', () => {
 		});
 		await TestBed.configureTestingModule({ imports: [Progress], providers: [provideRouter([]),
 			{ provide: HttpClient, useValue: { get: vi.fn(() => of({ success: true, data: PROJECT })), post } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
 		const f = TestBed.createComponent(Progress); f.detectChanges();
 		const c = f.componentInstance; c.openDelivery(STAGE); f.detectChanges();
 		return { f, c, post, el: f.nativeElement as HTMLElement, uploads: () => post.mock.calls.filter(x => String(x[0]).endsWith('/deliveries/files')), submits: () => post.mock.calls.filter(x => String(x[0]).endsWith('/stages/st1/deliveries')) };
