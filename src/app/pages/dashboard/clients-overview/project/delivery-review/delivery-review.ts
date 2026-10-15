@@ -313,8 +313,7 @@ export class DeliveryReview implements OnInit {
 			stageNumber: stage?.stageNumber || undefined,
 			amount: stage?.amount || undefined
 		};
-		this.router.navigate(['/client-overview/messages'],
-			{ queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: { messageContext: ctx } });
+		this.router.navigate(['/client-overview/projects', this.projectId], { queryParams: { tab: 'messages' }, state: { messageContext: ctx } });
 	}
 
 	backToProject() { this.router.navigate(['/client-overview/projects', this.projectId]); }

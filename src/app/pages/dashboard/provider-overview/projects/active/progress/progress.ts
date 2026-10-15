@@ -1,5 +1,6 @@
 import { providerTimeZone } from '../../../../../../core/services/provider-prefs.store';
-import { Component, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,7 +11,8 @@ import { ProjectMiniChat } from '../../../../../../sheards/project-mini-chat/pro
 import { DisputeModal } from '../../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../../core/services/dispute-api.service';
 import { CreateDisputePayload } from '../../../../../../core/models/dispute.model';
-import { MessageContext } from '../../../../../../core/services/chat.service';
+import { ChatService, MessageContext } from '../../../../../../core/services/chat.service';
+import { sortAmendments, upsertAmendment } from '../../../../../../core/utils/amendment-list';
 import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
 import { formatMoney } from '../../../../../../core/utils/money.util';
@@ -56,6 +58,8 @@ export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private chatService = inject(ChatService);
+  private destroyRef = inject(DestroyRef);
   private disputeApi = inject(DisputeApiService);
   private authStore = inject(AuthStore);
 
@@ -138,7 +142,12 @@ export class Progress implements OnInit {
   aiProgress = signal(0);
   private aiTimer: any = null;
 
-  ngOnInit() { this.projectId = this.route.snapshot.paramMap.get('id') || ''; this.load(); }
+  ngOnInit() {
+    this.projectId = this.route.snapshot.paramMap.get('id') || ''; this.load();
+    this.route.queryParamMap.subscribe(q => { if (q.get('tab') === 'messages') this.activeTab.set('msgs'); });
+    // a project event (amendment answered / applied by the client) refreshes the list; rows are keyed by id, never doubled
+    this.chatService.projectEvent$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(e => { if (e?.amendmentId) this.loadAmendments(); });
+  }
   load() {
     if (!this.projectId) return;
     this.loading.set(true); this.error.set('');
@@ -174,8 +183,9 @@ export class Progress implements OnInit {
       stageNumber: stage.stageNumber || undefined,
       amount: stage.amount || undefined
     } : { type: 'PROJECT', projectId: data.projectId || this.projectId, projectTitle: data.title || data.project || undefined };
-    this.router.navigate(['/provider-overview/messages'],
-      { queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: { messageContext: ctx } });
+    // project discussion = the project's own messages tab
+    this.activeTab.set('msgs');
+    this.router.navigate(['/provider-overview/projects/active/progress', this.projectId], { queryParams: { tab: 'messages' }, state: { messageContext: ctx } });
   }
   // Delivery file picker: validates (count / 25MB / type), then uploads each file for real. Nothing is "attached" by name.
   onDeliveryFilesSelected(event: Event) {
@@ -502,7 +512,7 @@ export class Progress implements OnInit {
   loadAmendments() {
     this.amendmentsLoading.set(true); this.amendmentsError.set('');
     this.service.getAmendments(this.amendmentProjectId()).subscribe({
-      next: res => { this.amendments.set(Array.isArray(res?.data) ? res.data : []); this.amendmentsLoading.set(false); },
+      next: res => { this.amendments.set(sortAmendments(Array.isArray(res?.data) ? res.data : [])); this.amendmentsLoading.set(false); },
       error: () => { this.amendmentsLoading.set(false); this.amendmentsError.set('تعذر تحميل طلباتك السابقة'); }
     });
   }
@@ -525,7 +535,7 @@ export class Progress implements OnInit {
     if (this.amendKind === 'DURATION') payload.durationDeltaDays = this.amendDays as number;
     this.amendSaving.set(true); this.amendError.set('');
     this.service.createAmendment(this.amendmentProjectId(), payload).subscribe({
-      next: () => { this.amendSaving.set(false); this.amendSuccess.set(true); this.loadAmendments(); },
+      next: (res: any) => { this.amendSaving.set(false); this.amendSuccess.set(true); this.amendments.update(list => upsertAmendment(list, res?.data)); this.loadAmendments(); },
       error: err => { this.amendSaving.set(false); this.amendError.set(err.error?.message || 'تعذر إرسال طلب التعديل'); }
     });
   }

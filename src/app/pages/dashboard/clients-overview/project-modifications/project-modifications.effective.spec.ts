@@ -138,7 +138,7 @@ describe('ProjectModificationsComponent: effective amendments', () => {
 
   it('an APPLIED row reads «طُبّق على العقد» (never the record-only wording) and a LEGACY approved row keeps the record-only wording', async () => {
     await setup([
-      AM({ id: 'a', status: 'APPROVED', effect: 'APPLIED', effectNote: 'طُبّق التعديل على العقد والضمان والمراحل.', appliedAt: '2026-02-01T00:00:00Z' }),
+      AM({ id: 'a', createdAt: '2026-01-03T00:00:00Z', status: 'APPROVED', effect: 'APPLIED', effectNote: 'طُبّق التعديل على العقد والضمان والمراحل.', appliedAt: '2026-02-01T00:00:00Z' }),
       AM({ id: 'b', status: 'APPROVED', effect: 'RECORD_ONLY', effectNote: 'القرار يُسجَّل للمتابعة فقط ولا يغيّر سعر العقد أو مدته أو الضمان حاليًا.', needsClientPayment: false })
     ]);
     const cards = Array.from(fixture.nativeElement.querySelectorAll('.dp-card')) as HTMLElement[];
