@@ -2,7 +2,8 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, retry, throwError, timer } from 'rxjs';
 import { UiNotificationService } from '../services/ui-notification.service';
-import { isRateLimitError, rateLimitToastMessage, retryAfterSeconds } from '../utils/rate-limit.util';
+import { isRateLimitError, rateLimitEndsAt, rateLimitToastMessage, retryAfterSeconds } from '../utils/rate-limit.util';
+import { WaitTimerService, httpWaitScope } from '../wait/wait-timer.service';
 import { AUTH_ATTEMPT_URLS } from './auth.interceptor';
 
 export const RATE_LIMIT_TOAST_GAP_MS = 10_000;
@@ -14,10 +15,11 @@ export function resetRateLimitToastClock(): void { lastToastAt = 0; }
 /**
  * Innermost interceptor. A 429 is a TEMPORARY condition: this only (a) retries an idempotent GET once when the wait is short (a POST/PUT/PATCH/DELETE, a payment, a withdrawal or an OTP request is NEVER retried automatically),
  * (b) shows ONE deduplicated warning toast, and (c) passes the original HttpErrorResponse (status 429) on so consumers use isRateLimitError().
- * It never logs out, redirects, or touches any access/role state. Auth attempts (login / OTP ...) keep their own specific messages: no toast, no retry.
+ * Every 429 also stores its end timestamp under httpWaitScope(method, url) (WaitTimerService). It never logs out, redirects, or touches any access/role state. Auth attempts (login / OTP ...) keep their own specific messages: no toast, no retry.
  */
 export const rateLimitInterceptor: HttpInterceptorFn = (req, next) => {
 	const ui = inject(UiNotificationService);
+	const waits = inject(WaitTimerService);
 	const isAuthAttempt = AUTH_ATTEMPT_URLS.some(u => req.url.includes(u));
 	let stream$ = next(req);
 	if (req.method === 'GET' && !isAuthAttempt) {
@@ -32,6 +34,11 @@ export const rateLimitInterceptor: HttpInterceptorFn = (req, next) => {
 	}
 	return stream$.pipe(
 		catchError((err: unknown) => {
+			// Every 429 (auth attempts included) records WHEN this endpoint may be tried again, so a retry button can wait for it. Nothing is invented: no stated wait = nothing stored.
+			if (err instanceof HttpErrorResponse && isRateLimitError(err)) {
+				const end = rateLimitEndsAt(err);
+				if (end != null) waits.setEnd(httpWaitScope(req.method, req.url), end);
+			}
 			if (err instanceof HttpErrorResponse && isRateLimitError(err) && !isAuthAttempt) {
 				const now = Date.now();
 				if (now - lastToastAt >= RATE_LIMIT_TOAST_GAP_MS) {
