@@ -31,16 +31,21 @@ describe('accreditation upload: after a successful submit', () => {
 		c.afterSampleSubmitted();
 		expect(invalidate).toHaveBeenCalled();
 		expect(load).toHaveBeenCalled();
-		expect(nav).toHaveBeenCalledWith('/provider-overview/accreditation-status');
+		expect(nav).toHaveBeenCalledWith('/provider-overview/account-actions');
 	});
 	it('a failed re-read also goes to the status page (closed)', () => {
 		const { c, nav } = mount(() => throwError(() => new Error('x')));
 		c.afterSampleSubmitted();
-		expect(nav).toHaveBeenCalledWith('/provider-overview/accreditation-status');
+		expect(nav).toHaveBeenCalledWith('/provider-overview/account-actions');
 	});
 	it('already approved: stays on the page', () => {
 		const { c, nav } = mount(() => st(true));
 		c.afterSampleSubmitted();
 		expect(nav).not.toHaveBeenCalled();
+	});
+	it('after a submission the user goes to the REAL log of the request they just sent', () => {
+		const { c, nav } = mount(() => st(false));
+		c.afterSampleSubmitted('sample-9');
+		expect(nav).toHaveBeenCalledWith('/provider-overview/account-actions/sample-9');
 	});
 });

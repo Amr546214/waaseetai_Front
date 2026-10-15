@@ -32,7 +32,7 @@ function setup(accountType: string, access: any) {
 	return (fixture.componentInstance.navItems() as NavItem[]).flatMap(i => [i, ...(i.children ?? [])]);
 }
 const st = (state: string, can = false) => of({ state, canAccessDashboard: can, message: '', reason: null, hasSample: false, specialties: [] });
-const STATUS = '/provider-overview/accreditation-status';
+const STATUS = '/provider-overview/account-actions';
 
 describe('provider sidebar while the account is not approved', () => {
 	afterEach(() => TestBed.resetTestingModule());

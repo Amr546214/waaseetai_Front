@@ -17,12 +17,12 @@ export class Step3ModelComponent {
 	@Input({ required: true }) isLoadingModels!: boolean;
 	@Input({ required: true }) filteredModels!: any[];
 	@Input({ required: true }) selectedModel!: string;
-	@Input({ required: true }) galleryUrls!: string[];
-	@Input({ required: true }) isUploadingImage!: boolean;
 
+	@Input() errorMessage = '';
 	@Output() onSelectModel = new EventEmitter<string>();
-	@Output() onRemoveGalleryImage = new EventEmitter<number>();
-	@Output() onGalleryFileSelected = new EventEmitter<Event>();
+
+	/** the approved model the service is linked to (the selected card) */
+	get linkedModel() { return (this.filteredModels ?? []).find(m => m.id === this.selectedModel) ?? null; }
 
 	currentSort: 'views' | 'score' | 'newest' = 'views';
 	searchQuery: string = '';
@@ -68,10 +68,6 @@ export class Step3ModelComponent {
 
 	selectModel(id: string) {
 		this.onSelectModel.emit(id);
-	}
-
-	removeGalleryImage(index: number) {
-		this.onRemoveGalleryImage.emit(index);
 	}
 
 	getFirstImage(model: any): string | null {
