@@ -143,9 +143,10 @@
         <div style="font-size:11px;font-weight:600" class="txt-muted">الإجمالي</div>
         <div style="font-size:16px;font-weight:900" class="txt-amber">{{ formatCurrency(totalAmount()) }}</div>
       </div>
-      <button class="btn-primary" data-testid="ed-pay" [disabled]="isSubmitting()" (click)="handlePrimaryAction()">
+      <button class="btn-primary" data-testid="ed-pay" [disabled]="isSubmitting() || sendWait.active()" (click)="handlePrimaryAction()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         {{ isSubmitting() ? 'جاري المعالجة...' : (hasSufficientBalance() ? 'توقيع وحجز ' + formatCurrency(totalAmount()) : 'شحن ' + formatCurrency(shortfall())) }}
+        @if (sendWait.active()) { <span data-testid="ed-send-wait">{{ sendWait.label() }}</span> }
       </button>
     </div>
   </div>
@@ -173,9 +174,10 @@
       </div>
       @if (otpError()) { <div id="ed-otp-err" class="state-banner error" role="alert" data-testid="ed-otp-error" style="margin:10px 0">{{ otpError() }}</div> }
       @if (otpNotice()) { <div class="otp-timer" role="status" data-testid="ed-otp-notice">{{ otpNotice() }}</div> }
-      <div class="otp-timer" data-testid="ed-otp-timer">@if (otpCountdown() > 0) { صلاحية الرمز تنتهي خلال <span>{{ otpCountdownText() }}</span> } @else { انتهت صلاحية الرمز }</div>
-      <button class="modal-btn" data-testid="ed-otp-confirm" [disabled]="isSubmitting()" (click)="confirmDeposit()">{{ isSubmitting() ? 'جاري التحقق والحجز...' : 'تأكيد التوقيع والإيداع' }}</button>
-      <div class="modal-resend">لم تستلم الرمز؟ <a (click)="resetOTP()" style="cursor:pointer">{{ isResending() ? 'جارٍ الإرسال...' : 'إعادة الإرسال' }}</a></div>
+      @if (rateLimitText()) { <div id="ed-otp-rl" class="state-banner error" role="alert" data-testid="ed-rate-limit" style="margin:10px 0">{{ rateLimitText() }}</div> }
+      <div class="otp-timer" data-testid="ed-otp-timer">@if (otpCountdown() > 0) { صلاحية الرمز تنتهي خلال <span>{{ otpCountdownText() }}</span> } @else if (otpExpired()) { انتهت صلاحية الرمز }</div>
+      <button class="modal-btn" data-testid="ed-otp-confirm" [disabled]="isSubmitting() || confirmWait.active()" (click)="confirmDeposit()">{{ isSubmitting() ? 'جاري التحقق والحجز...' : 'تأكيد التوقيع والإيداع' }}@if (confirmWait.active()) { <span data-testid="ed-confirm-wait"> {{ confirmWait.label() }}</span> }</button>
+      <div class="modal-resend">لم تستلم الرمز؟ <a (click)="resetOTP()" [attr.aria-disabled]="sendWait.active() ? 'true' : null" [style.opacity]="sendWait.active() ? 0.5 : 1" style="cursor:pointer">{{ isResending() ? 'جارٍ الإرسال...' : 'إعادة الإرسال' }}</a>@if (sendWait.active()) { <span data-testid="ed-resend-wait"> {{ sendWait.label() }}</span> }</div>
     </div>
   </div>
 }

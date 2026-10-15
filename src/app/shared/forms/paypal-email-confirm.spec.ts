@@ -1,10 +1,16 @@
+import { installMemoryStorage } from '../../core/wait/memory-storage.testkit';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { HttpHeaders } from '@angular/common/http';
 import { vi } from 'vitest';
 import { PaypalEmailConfirmComponent } from './paypal-email-confirm.component';
 import { ProviderProfileService } from '../../core/services/provider-profile.service';
 
 // The e-mailed code confirms a PayPal email: standard six-box OTP UI, masked ACCOUNT email, inline errors, resend cooldown on 429.
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
+
 describe('PaypalEmailConfirmComponent', () => {
 	const make = (api: any, inputs: Record<string, unknown> = {}) => {
 		TestBed.configureTestingModule({ providers: [{ provide: ProviderProfileService, useValue: api }] });
@@ -104,5 +110,70 @@ describe('PaypalEmailConfirmComponent', () => {
 		const { f, c, el } = make({ confirmPaypalEmailChange: vi.fn(), requestPaypalEmailChange: vi.fn(() => throwError(() => err)) });
 		c.resend(); f.detectChanges();
 		expect(el.querySelector('[data-testid="paypal-confirm-error"]')!.textContent).toContain('تعذر إرسال رمز التحقق، حاول مرة أخرى');
+	});
+
+	describe('countdown (end timestamp, central wait service)', () => {
+		beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z')); localStorage.clear(); });
+		afterEach(() => localStorage.clear());
+		const e429 = (headers: Record<string, string>, body: any = { message: 'طلبات كثيرة' }) => ({ status: 429, headers: new HttpHeaders(headers), error: body });
+
+		it('Retry-After as an HTTP-date drives the resend label «بعد m:ss»; the typed code stays; zero re-enables without any automatic send', () => {
+			const at = new Date(Date.now() + 75_000).toUTCString();
+			const api = { confirmPaypalEmailChange: vi.fn(), requestPaypalEmailChange: vi.fn(() => throwError(() => e429({ 'Retry-After': at }))) };
+			const { f, c, el } = make(api);
+			c.code.set('123');
+			c.resend(); f.detectChanges();
+			const btn = () => el.querySelector('[data-testid="paypal-resend-btn"]') as HTMLButtonElement;
+			expect(btn().disabled).toBe(true);
+			expect(el.querySelector('[data-testid="paypal-resend-wait"]')!.textContent).toContain('بعد 1:15');
+			expect(c.code()).toBe('123');
+			// the other action is NOT blocked
+			expect((el.querySelector('[data-testid="paypal-confirm-btn"]') as HTMLButtonElement).disabled).toBe(false);
+			vi.advanceTimersByTime(1000); f.detectChanges();
+			expect(el.querySelector('[data-testid="paypal-resend-wait"]')!.textContent).toContain('بعد 1:14');
+			vi.advanceTimersByTime(80_000); f.detectChanges();
+			expect(btn().disabled).toBe(false);
+			expect(el.querySelector('[data-testid="paypal-resend-wait"]')).toBeNull();
+			expect(api.requestPaypalEmailChange).toHaveBeenCalledTimes(1); // no automatic retry at zero
+			expect(el.querySelector('[data-testid="paypal-confirm-error"]')).toBeNull(); // the stale wait text is gone with the wait
+		});
+
+		it('refresh: a new instance keeps the remaining wait (no fresh duration)', () => {
+			const api = { confirmPaypalEmailChange: vi.fn(), requestPaypalEmailChange: vi.fn(() => throwError(() => e429({ 'Retry-After': '60' }))) };
+			const first = make(api);
+			first.c.resend();
+			vi.advanceTimersByTime(20_000);
+			first.f.destroy(); TestBed.resetTestingModule();
+			const second = make({ confirmPaypalEmailChange: vi.fn(), requestPaypalEmailChange: vi.fn() });
+			second.f.detectChanges();
+			expect(second.c.resendWait.remainingSeconds()).toBe(40);
+			expect((second.el.querySelector('[data-testid="paypal-resend-btn"]') as HTMLButtonElement).disabled).toBe(true);
+		});
+
+		it('a wrong code (400) starts no wait; a 429 without any duration starts none either', () => {
+			const wrong = make({ confirmPaypalEmailChange: vi.fn(() => throwError(() => ({ status: 400, error: { message: 'رمز التحقق غير صحيح' } }))), requestPaypalEmailChange: vi.fn() });
+			wrong.c.code.set('000000'); wrong.c.confirm(); wrong.f.detectChanges();
+			expect(wrong.c.confirmWait.active()).toBe(false);
+			expect((wrong.el.querySelector('[data-testid="paypal-confirm-btn"]') as HTMLButtonElement).disabled).toBe(false);
+			TestBed.resetTestingModule();
+			const none = make({ confirmPaypalEmailChange: vi.fn(() => throwError(() => e429({}, { message: 'تم تجاوز عدد المحاولات المسموح به، يرجى طلب رمز جديد' }))), requestPaypalEmailChange: vi.fn() });
+			none.c.code.set('000000'); none.c.confirm(); none.f.detectChanges();
+			expect(none.c.confirmWait.active()).toBe(false);
+			expect(none.el.querySelector('[data-testid="paypal-confirm-error"]')!.textContent).not.toMatch(/بعد \d/);
+		});
+
+		it('a confirm 429 with a wait disables ONLY confirm; a successful resend carries resendAvailableAt into the resend label', () => {
+			const resendAt = new Date(Date.now() + 60_000).toISOString();
+			const api = {
+				confirmPaypalEmailChange: vi.fn(() => throwError(() => e429({}, { message: 'x', retryAfterSeconds: 30 }))),
+				requestPaypalEmailChange: vi.fn(() => of({ emailSent: true, emailHint: 'a', resendAvailableAt: resendAt })),
+			};
+			const { f, c, el } = make(api);
+			c.code.set('123456'); c.confirm(); f.detectChanges();
+			expect((el.querySelector('[data-testid="paypal-confirm-btn"]') as HTMLButtonElement).disabled).toBe(true);
+			expect((el.querySelector('[data-testid="paypal-resend-btn"]') as HTMLButtonElement).disabled).toBe(false);
+			c.resend(); f.detectChanges();
+			expect(el.querySelector('[data-testid="paypal-resend-wait"]')!.textContent).toContain('بعد 1:00');
+		});
 	});
 });

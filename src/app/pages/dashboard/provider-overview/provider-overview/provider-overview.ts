@@ -6,7 +6,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { resolveLevelDisplay } from '../../../../core/levels/level-display';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
-import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../core/utils/rate-limit.util';
+import { handleLoadError, rateLimitToastMessage } from '../../../../core/utils/rate-limit.util';
 
 @Component({
   selector: 'app-provider-overview',
@@ -86,7 +86,7 @@ export class ProviderOverview implements OnInit {
         handleLoadError(err, {
           hasData: () => this.stats() != null,
           onKeep: () => this.isLoading.set(false),
-          onRateLimit: () => { this.error.set(RATE_LIMIT_MESSAGE); this.isLoading.set(false); },
+          onRateLimit: (e) => { this.error.set(rateLimitToastMessage(e)); this.isLoading.set(false); },
           onOtherError: () => { this.error.set('حدث خطأ أثناء تحميل الإحصائيات'); this.isLoading.set(false); },
         });
       }

@@ -9,6 +9,9 @@ import { mapHttpError } from '../../core/forms/http-error';
 import { scrollFocus } from '../../shared/forms/form-error-focus';
 import { backendBannerMessage, genericBanner } from '../../shared/forms/submit-feedback';
 import { AccountType } from '../../core/models/auth.model';
+import { WaitTimerService, waitScope } from '../../core/wait/wait-timer.service';
+import { isRateLimitError, RATE_LIMIT_MESSAGE } from '../../core/utils/rate-limit.util';
+import { rateLimitSentence } from '../../core/wait/wait-format';
 
 declare const paypal: any;
 
@@ -23,6 +26,11 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 	private paypalDepositService = inject(PaypalDepositService);
 	private authStore = inject(AuthStore);
 	private levels = inject(LevelsService);
+	/** The server's wait after a 429 on creating the PayPal order (end timestamp, survives a refresh). Money-in: nothing is retried at zero; the PayPal button simply works again. */
+	readonly orderWait = inject(WaitTimerService).track(waitScope('paypal-create-order', this.authStore.currentUser()?.id ?? ''));
+	private readonly orderRateLimitedNoTime = signal(false);
+	/** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) or the honest sentence without a number; '' when nothing waits. */
+	readonly rateLimitText = computed(() => this.orderWait.active() ? rateLimitSentence(this.orderWait.remainingSeconds(), true) : this.orderRateLimitedNoTime() ? RATE_LIMIT_MESSAGE : '');
 	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 	private destroyed = false;
 	private paypalSdkPoll?: ReturnType<typeof setInterval>;
@@ -142,6 +150,9 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 					// Each problem is explained next to its own control (amount box / terms row), not only in a banner.
 					if (!this.validateBeforePay()) return Promise.reject(new Error('deposit form invalid'));
 					if (this.creatingOrder) return Promise.reject(new Error('order already being created'));
+					// while the server's wait runs no request is made at all
+					if (this.orderWait.active()) return Promise.reject(new Error('rate limited'));
+					this.orderRateLimitedNoTime.set(false);
 					this.creatingOrder = true;
 					this.paymentError.set('');
 					return new Promise<string>((resolve, reject) => {
@@ -156,6 +167,13 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 							},
 							error: (error) => {
 								this.creatingOrder = false;
+								// 429: a wait from the server (Retry-After / retryAt); the amount and the terms stay, no generic error is added.
+								if (isRateLimitError(error)) {
+									const end = this.orderWait.startFromResponse(error);
+									this.orderRateLimitedNoTime.set(end == null || !this.orderWait.active());
+									reject(new Error('rate limited'));
+									return;
+								}
 								// 400/422 about the amount -> under the amount box; network / 429 / 5xx stay one honest banner.
 								const mapped = mapHttpError(error, { fallback: 'تعذر إنشاء طلب الدفع عبر PayPal' });
 								const generic = genericBanner(mapped);

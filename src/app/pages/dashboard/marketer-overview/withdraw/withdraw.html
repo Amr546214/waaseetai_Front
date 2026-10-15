@@ -62,7 +62,8 @@
         <span style="font-size:12px" class="txt-slate">لا يمكن إرسال طلب سحب الآن: {{ why }}</span>
       </div>
       }
-      <button type="button" class="btn-primary-gradient txt-navy" [disabled]="submitting() || !!blockedReason()" (click)="submitWithdrawal()" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:800;font-family:inherit;transition: opacity 0.2s ease-in-out" [style.opacity]="(submitting() || blockedReason()) ? .6 : 1" [style.cursor]="(submitting() || blockedReason()) ? 'not-allowed' : 'pointer'">{{ submitting() ? 'جارٍ الإرسال...' : 'تأكيد طلب السحب' }}</button>
+      <button type="button" class="btn-primary-gradient txt-navy" [disabled]="submitting() || !!blockedReason() || withdrawWait.active()" (click)="submitWithdrawal()" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:800;font-family:inherit;transition: opacity 0.2s ease-in-out" [style.opacity]="(submitting() || blockedReason()) ? .6 : 1" [style.cursor]="(submitting() || blockedReason()) ? 'not-allowed' : 'pointer'">{{ submitting() ? 'جارٍ الإرسال...' : 'تأكيد طلب السحب' }}@if (withdrawWait.active()) { <span data-testid="withdraw-wait"> {{ withdrawWait.label() }}</span> }</button>
+      @if (rateLimitText()) { <div role="alert" data-testid="withdraw-rate-limit" style="margin-top:10px;font-size:13px;color:#f87171">{{ rateLimitText() }}</div> }
     </div>
   </div>
 

@@ -6,7 +6,7 @@ import { DashboardStore } from '../../../../core/store/dashboard.store';
 import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
-import { isRateLimitError, RATE_LIMIT_MESSAGE } from '../../../../core/utils/rate-limit.util';
+import { isRateLimitError, rateLimitToastMessage } from '../../../../core/utils/rate-limit.util';
 import { formatMoney } from '../../../../core/utils/money.util';
 
 interface FilterTab {
@@ -100,7 +100,7 @@ export class MyRequest implements OnInit {
 		} catch (error: any) {
 			console.error('Failed to load my requests', error);
 			// a 429 keeps what was loaded; it only shows the temporary-error text (the page's existing error state with its retry)
-			this.loadError.set(isRateLimitError(error) ? RATE_LIMIT_MESSAGE : (error?.error?.message || 'تعذر تحميل طلباتك حاليًا، حاول مرة أخرى'));
+			this.loadError.set(isRateLimitError(error) ? rateLimitToastMessage(error) : (error?.error?.message || 'تعذر تحميل طلباتك حاليًا، حاول مرة أخرى'));
 		} finally {
 			this.isLoading.set(false);
 		}

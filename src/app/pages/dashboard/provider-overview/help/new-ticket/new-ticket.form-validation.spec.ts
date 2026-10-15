@@ -93,7 +93,7 @@ describe('provider new ticket: invalid submit, backend errors, double submit', (
 		await validDraft(m);
 		m.submitBtn().click(); await settleForm(); m.f.detectChanges();
 		expect(m.err).toHaveBeenCalledTimes(1);
-		expect(String(m.err.mock.calls[0][0])).toContain('تجاوزت عدد المحاولات');
+		expect(String(m.err.mock.calls[0][0])).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد');
 		expectNoFieldProblem(m.el);
 	});
 

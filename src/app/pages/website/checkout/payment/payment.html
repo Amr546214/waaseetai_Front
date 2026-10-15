@@ -75,6 +75,9 @@
           </div>
         </div>
 
+        @if (rateLimitText()) {
+          <div class="form-error" role="alert" data-testid="rate-limit-msg">{{ rateLimitText() }}</div>
+        }
         @if (errorMessage()) {
           <div class="form-error">
             <svg aria-hidden="true"><use href="#ws-info"></use></svg>
@@ -192,6 +195,7 @@
               } @else {
                 <svg aria-hidden="true"><use href="#ws-lock"></use></svg>
                 ادفع من المحفظة — {{ formatPrice(total()) }} $
+                @if (payWait.active()) { <span data-testid="pay-wait">{{ payWait.label() }}</span> }
               }
             </button>
             <a routerLink="/checkout/review" class="back-link">

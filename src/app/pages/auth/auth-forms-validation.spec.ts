@@ -1,3 +1,4 @@
+import { installMemoryStorage } from '../../core/wait/memory-storage.testkit';
 import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -43,7 +44,13 @@ function baseProviders(opts: { post: (...a: any[]) => any; store?: any; withSoci
 }
 
 // ───────────────────────────────── Login ─────────────────────────────────
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
+
 describe('Login (shared validation)', () => {
+	// a 429 now leaves its end timestamp in storage (a refresh must not bypass the server's wait): every test starts clean
+	beforeEach(() => localStorage.clear());
 	const setup = (post: (...a: any[]) => any) => {
 		const { providers, store } = baseProviders({ post });
 		TestBed.configureTestingModule({ imports: [Login], providers });

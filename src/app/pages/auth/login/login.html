@@ -17,6 +17,15 @@
 			<h1 class="auth-h1" id="auth-title">تسجيل الدخول</h1>
 			<p class="auth-sub">سجل دخولك لحسابك في وسيط AI</p>
 
+			@if (rateLimitText) {
+			<div class="auth-banner banner-error" id="banner-error" role="alert" data-testid="rate-limit-msg">
+				<svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
+					aria-hidden="true">
+					<use href="#ws-warn"></use>
+				</svg>
+				<span id="banner-error-txt">{{ rateLimitText }}</span>
+			</div>
+			}
 			@if (errorMessage) {
 			<div class="auth-banner banner-error" id="banner-error" role="alert">
 				<svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
@@ -109,11 +118,12 @@
 				</div>
 				<ws-form-summary [items]="missingFields" />
 				<button type="submit" class="btn-primary btn-auth" id="btn-login"
-					[disabled]="isSubmitting">
+					[disabled]="isSubmitting || loginWait().active()">
 					@if (isSubmitting) {
 					<span class="spin"></span> <span id="btn-login-txt">جاري التحقق...</span>
 					} @else {
 					<span id="btn-login-txt">دخول</span>
+					@if (loginWait().active()) { <span id="login-wait" data-testid="wait-label"> {{ loginWait().label() }}</span> }
 					}
 				</button>
 			</form>

@@ -1,4 +1,4 @@
-import { Component, ElementRef, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject } from '@angular/core';
+import { Component, ElementRef, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -17,6 +17,10 @@ import { validationMessage } from '../../../core/forms/validation-messages';
 import { UiNotificationService } from '../../../core/services/ui-notification.service';
 import { backendBannerMessage, genericBanner } from '../../../shared/forms/submit-feedback';
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
+import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.service';
+import { isRateLimitError, RATE_LIMIT_MESSAGE } from '../../../core/utils/rate-limit.util';
+import { parseRetryAfter } from '../../../core/wait/retry-after.util';
+import { rateLimitSentence } from '../../../core/wait/wait-format';
 
 const LOGIN_LABELS = { email: 'البريد الإلكتروني', password: 'كلمة المرور' };
 
@@ -42,6 +46,16 @@ export class Login {
   private readonly notify = inject(UiNotificationService);
   private readonly otpHandoff = inject(OtpHandoffService);
   isSubmitting = false;
+  private readonly waits = inject(WaitTimerService);
+  private readonly loginEmail = signal('');
+  /** The server's wait after a 429 on login, per e-mail (end timestamp: a refresh does not bypass it). Disables ONLY the login button; zero never logs in by itself. */
+  readonly loginWait = this.waits.trackKeyed('login', () => this.loginEmail());
+  private readonly loginRateLimitedNoTime = signal(false);
+  /** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) / the honest sentence when the server gave no time; '' otherwise. */
+  get rateLimitText(): string {
+    const w = this.loginWait();
+    return w.active() ? rateLimitSentence(w.remainingSeconds(), true) : this.loginRateLimitedNoTime() ? RATE_LIMIT_MESSAGE : '';
+  }
   // Set on a 404 from /auth/google (intent: 'login') — no Waseet account
   // exists for that Google identity. Per product requirement: a Login
   // attempt must never auto-create an account, only point the user at Sign Up.
@@ -61,6 +75,7 @@ export class Login {
       password: ['', [Validators.required]],
       remember: [false]
     });
+    this.loginForm.get('email')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => this.loginEmail.set(String(v || '')));
   }
 
   ngOnInit() {
@@ -162,8 +177,9 @@ export class Login {
   }
 
   onSubmit() {
-    if (this.isSubmitting) return; // one request at a time (double click / Enter)
+    if (this.isSubmitting || this.loginWait().active()) return; // one request at a time (double click / Enter); blocked while the server's wait runs
     this.errorMessage = '';
+    this.loginRateLimitedNoTime.set(false);
     this.accountNotFoundError = false;
     const attempt = attemptSubmit(this.loginForm, { root: this.host.nativeElement, labels: LOGIN_LABELS });
     this.missingFields = attempt.missing;
@@ -199,6 +215,17 @@ export class Login {
         }
       },
       error: async (err) => {
+        // 429: a wait from the server (Retry-After / retryAt). The typed e-mail and password stay; no stated time = honest sentence, no timer.
+        if (isRateLimitError(err)) {
+          // header / body time first; else the wait the server wrote in its own message (http-error reads Arabic and English wording)
+          let end = this.loginWait().startFromResponse(err);
+          const textual = mapHttpError(err, { unauthorizedIs: 'credentials' }).retryAfterSeconds;
+          if (end == null && textual) { end = Date.now() + textual * 1000; this.loginWait().start(end); }
+          this.loginRateLimitedNoTime.set(end == null || !this.loginWait().active());
+          this.isSubmitting = false;
+          this.cdr.markForCheck();
+          return;
+        }
         // 401 here means wrong credentials, never an expired session (and the interceptor must not log out).
         const mapped = mapHttpError(err, { unauthorizedIs: 'credentials' });
         // 400/422 naming email / password -> under that field; wrong credentials, network, 429, 5xx stay one honest banner.
@@ -210,8 +237,20 @@ export class Login {
     });
   }
 
+  /**
+   * The login answer says when another code may be requested (resendAvailableAt after a send, retryAfterSeconds after a throttled one). Stored under the shared
+   * `otp-resend` scope of this user, so the verify screen shows the same end timestamp. No time from the server = nothing stored.
+   */
+  private handOffResendWait(data?: AuthResponse['data']) {
+    const userId = data?.userId;
+    if (!userId) return;
+    const end = parseRetryAfter({ resendAvailableAt: (data as any)?.resendAvailableAt, retryAfterSeconds: data?.retryAfterSeconds });
+    if (end != null) this.waits.setEnd(waitScope('otp-resend', userId), end);
+  }
+
   /** Active account (password or Google): the mandatory login code was e-mailed, finish at the shared OTP screen. */
   private goToLoginOtp(data?: AuthResponse['data']) {
+    this.handOffResendWait(data);
     const notice = loginOtpNotice(data);
     this.otpHandoff.set(notice);
     this.notify.info(notice.message, { duration: 8000 });
@@ -220,6 +259,7 @@ export class Login {
 
   /** Unverified account: send the user to the email-OTP step with an explanation. */
   private goToEmailVerification(data?: AuthResponse['data']) {
+    this.handOffResendWait(data);
     // Only claim "sent" when the backend says so; a throttled send tells the user the earlier code still works.
     const notice = unverifiedLoginNotice(data);
     this.otpHandoff.set(notice);

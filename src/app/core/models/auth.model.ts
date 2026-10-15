@@ -77,6 +77,9 @@ export interface AuthResponse {
 		accountCreated?: boolean;
 		// Unverified login whose send was throttled: seconds until a new code may be sent (the earlier code stays valid).
 		retryAfterSeconds?: number;
+		/** ISO: when another code may be requested / when the code just sent stops being valid. */
+		resendAvailableAt?: string;
+		expiresAt?: string;
 	};
 	// resend-otp mirrors the delivery result at the top level as well (success is false when nothing was sent).
 	emailSent?: boolean;
@@ -124,4 +127,8 @@ export interface ResetPasswordInput {
 export interface GenericMessageResponse {
 	success: boolean;
 	message: string;
+	/** ISO: when the code just sent stops being valid. */
+	expiresAt?: string;
+	/** ISO: when another code may be requested. */
+	resendAvailableAt?: string;
 }
