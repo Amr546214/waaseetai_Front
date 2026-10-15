@@ -1,10 +1,12 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
-import { MessageContext } from '../../../../core/services/chat.service';
+import { ChatService, MessageContext } from '../../../../core/services/chat.service';
+import { sortAmendments } from '../../../../core/utils/amendment-list';
 import { environment } from '../../../../../environments/environment';
 import { formatMoney } from '../../../../core/utils/money.util';
 import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffect, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment, amendmentBudgetPart, amendmentActionBlockedReason } from '../../../../core/constants/amendment-effect';
@@ -66,6 +68,8 @@ export class ProjectModificationsComponent implements OnInit {
 	private http = inject(HttpClient);
 	private router = inject(Router);
 	private actions = inject(AmendmentActionsService);
+	private chatService = inject(ChatService);
+	private destroyRef = inject(DestroyRef);
 
 	isCompanyMode = computed(() => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY);
 
@@ -85,6 +89,8 @@ export class ProjectModificationsComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.fetchAmendments();
+		// the other party answered / authorised / applied a request: the list is re-read (rows are replaced by id, never doubled)
+		this.chatService.projectEvent$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(e => { if (e?.amendmentId) this.fetchAmendments(); });
 	}
 
 	fetchAmendments(): void {
@@ -97,7 +103,7 @@ export class ProjectModificationsComponent implements OnInit {
 					this.isLoading.set(false);
 					return;
 				}
-				this.amendments.set(response.data as Amendment[]);
+				this.amendments.set(sortAmendments(response.data as Amendment[]));
 				this.isLoading.set(false);
 			},
 			error: () => {

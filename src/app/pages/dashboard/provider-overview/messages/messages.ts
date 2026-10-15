@@ -218,6 +218,8 @@ export class ProviderMessages implements OnInit, OnDestroy {
             });
 
             this.conversations.set(mappedConversations);
+            const requested = this.route.snapshot.queryParams['conversationId'];
+            if (requested && !mappedConversations.some((c) => c.id === requested)) this.redirectIfProjectConversation(requested);
             const pick = resolveInitialConversation(mappedConversations, this.route.snapshot.queryParams['conversationId'], this.messageContext());
             if (pick.id) {
               this.contextConversationMissing.set(false);
@@ -327,6 +329,17 @@ export class ProviderMessages implements OnInit, OnDestroy {
     if (this.audioPlayer) {
       this.audioPlayer.pause();
     }
+  }
+
+  // An old link to a conversation that is not in the general list may be a PROJECT room: it opens in that project's messages tab (nothing is lost, the room is the same).
+  private redirectIfProjectConversation(conversationId: string): void {
+    this.sub.add(this.chatService.getConversationContext(conversationId).subscribe({
+      next: (res) => {
+        const url = res?.data?.context === 'PROJECT' ? res.data.url : null;
+        if (url) this.router.navigateByUrl(url, { replaceUrl: true });
+      },
+      error: () => { /* the server refused (not a member) or the room does not exist: the page keeps its own not-found state */ }
+    }));
   }
 
   selectConversation(id: string): void {

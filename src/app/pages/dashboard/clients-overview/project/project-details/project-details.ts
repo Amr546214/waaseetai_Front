@@ -1,6 +1,7 @@
 import { isRateLimitError } from '../../../../../core/utils/rate-limit.util';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -9,8 +10,9 @@ import { ProjectMiniChat } from '../../../../../sheards/project-mini-chat/projec
 import { DisputeModal } from '../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { CreateDisputePayload } from '../../../../../core/models/dispute.model';
-import { MessageContext } from '../../../../../core/services/chat.service';
+import { ChatService, MessageContext } from '../../../../../core/services/chat.service';
 import { RatingSummary } from '../../../../../sheards/rating-summary/rating-summary.component';
+import { sortAmendments, upsertAmendment } from '../../../../../core/utils/amendment-list';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingStatus } from '../../../../../core/models/rating.model';
 import { AuthStore } from '../../../../../core/store/auth.store';
@@ -39,6 +41,8 @@ export class ProjectDetails implements OnInit {
 	private http = inject(HttpClient);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
+	private chatService = inject(ChatService);
+	private destroyRef = inject(DestroyRef);
 	private disputeApi = inject(DisputeApiService);
 	private ratingApi = inject(RatingApiService);
 	private authStore = inject(AuthStore);
@@ -87,7 +91,13 @@ export class ProjectDetails implements OnInit {
 	finalProviderRatingComment = signal<string | null>(null);
 	finalProviderRatedAt = signal<string | null>(null);
 
-	ngOnInit() { this.route.params.subscribe(params => { this.projectId = params['id']; this.load(); }); }
+	ngOnInit() {
+		this.route.params.subscribe(params => { this.projectId = params['id']; this.load(); });
+		// ?tab=messages (notification links, the project-message buttons) opens the project's own messages tab
+		this.route.queryParamMap.subscribe(q => { if (q.get('tab') === 'messages') this.activeTab.set('msgs'); });
+		// a project event of this project (amendment answered / authorised / applied by the other party) refreshes the list; rows are keyed by id, never doubled
+		this.chatService.projectEvent$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(e => { if (e?.amendmentId && this.amendOpen()) this.loadAmendments(); });
+	}
 	load() {
 		this.isLoading.set(true); this.error.set('');
 		this.http.get<any>(`${environment.url_api}/client/my-requests/${this.projectId}/workspace`).subscribe({
@@ -280,7 +290,7 @@ export class ProjectDetails implements OnInit {
 		this.http.get<any>(`${environment.url_api}/client/projects/amendments`).subscribe({
 			next: res => {
 				const all = Array.isArray(res?.data) ? res.data : [];
-				this.amendments.set(all.filter((a: any) => (a.projectId === this.projectId || a.contractId === this.projectId) && a.requestedByRole === 'CLIENT'));
+				this.amendments.set(sortAmendments(all.filter((a: any) => (a.projectId === this.projectId || a.contractId === this.projectId) && a.requestedByRole === 'CLIENT')));
 				this.amendmentsLoading.set(false);
 			},
 			error: () => { this.amendmentsLoading.set(false); this.amendmentsError.set('تعذر تحميل طلباتك السابقة'); }
@@ -310,7 +320,7 @@ export class ProjectDetails implements OnInit {
 		if ((this.amendKind === 'DURATION' || this.amendKind === 'MIXED') && typeof this.amendDays === 'number' && this.amendDays !== 0) payload.durationDeltaDays = this.amendDays;
 		this.amendSaving.set(true); this.amendError.set('');
 		this.http.post<any>(`${environment.url_api}/client/projects/${this.projectId}/amendments`, payload).subscribe({
-			next: res => { this.amendSaving.set(false); this.amendCreated.set(res?.data ?? null); this.amendSuccess.set(true); this.loadAmendments(); },
+			next: res => { this.amendSaving.set(false); this.amendCreated.set(res?.data ?? null); this.amendSuccess.set(true); this.amendments.update(list => upsertAmendment(list, res?.data)); this.loadAmendments(); },
 			error: err => { this.amendSaving.set(false); this.amendError.set(err.error?.message || 'تعذر إرسال طلب التعديل'); }
 		});
 	}
@@ -376,6 +386,7 @@ export class ProjectDetails implements OnInit {
 	openDisputeLabel(data: any): string | null {
 		return data?.disputeStatus === 'OPEN' ? 'نزاع مفتوح بانتظار مراجعة الإدارة' : data?.disputeStatus === 'UNDER_REVIEW' ? 'نزاع قيد مراجعة الإدارة' : null;
 	}
+	/** Project discussion lives in the project's own messages tab (never a new conversation in the general list). */
 	openConversation(data: any, stage?: any) {
 		if (!data) return;
 		const ctx: MessageContext | undefined = stage ? {
@@ -386,13 +397,9 @@ export class ProjectDetails implements OnInit {
 			stageTitle: stage.title || undefined,
 			stageNumber: stage.stageNumber || undefined,
 			amount: stage.amount || undefined
-		} : data?.conversationId ? {
-			type: 'PROJECT',
-			projectId: this.projectId,
-			projectTitle: data.title || data.project || undefined
 		} : undefined;
-		this.router.navigate(['/client-overview/messages'],
-			{ queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: ctx ? { messageContext: ctx } : undefined });
+		this.activeTab.set('msgs');
+		this.router.navigate(['/client-overview/projects', this.projectId], { queryParams: { tab: 'messages' }, state: ctx ? { messageContext: ctx } : undefined });
 	}
 
 	/** The rating call-to-action exists only when the SERVER says this user may rate (completed by delivery, not rated yet, not settled by a dispute). */

@@ -283,12 +283,24 @@ export class ClientMessages implements OnInit, OnDestroy {
       } else {
         this.conversationNotFound.set(true);
         this.activeConvId.set('');
+        this.redirectIfProjectConversation(requestedId);
       }
       return;
     }
     this.conversationNotFound.set(false);
     this.activeConvId.set(list[0].id);
     this.selectConversation(list[0].id);
+  }
+
+  // An old link to a conversation that is not in the general list may be a PROJECT room: it opens in that project's messages tab (nothing is lost, the room is the same).
+  private redirectIfProjectConversation(conversationId: string): void {
+    this.sub.add(this.chatService.getConversationContext(conversationId).subscribe({
+      next: (res) => {
+        const url = res?.data?.context === 'PROJECT' ? res.data.url : null;
+        if (url) this.router.navigateByUrl(url, { replaceUrl: true });
+      },
+      error: () => { /* stays "not found": the server refused (not a member) or the room does not exist */ }
+    }));
   }
 
   selectConversation(id: string): void {

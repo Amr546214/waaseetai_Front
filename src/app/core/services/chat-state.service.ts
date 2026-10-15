@@ -46,6 +46,19 @@ export class ChatStateService {
     }));
   }
 
+  // Unread counts of the PROJECT context, keyed by contract id (separate from the general messages badge)
+  public projectUnread = signal<Record<string, number>>({});
+
+  public incrementProjectUnread(contractId: string): void {
+    if (!contractId) return;
+    this.projectUnread.update(map => ({ ...map, [contractId]: (map[contractId] || 0) + 1 }));
+  }
+
+  public clearProjectUnread(contractId: string): void {
+    if (!contractId) return;
+    this.projectUnread.update(map => ({ ...map, [contractId]: 0 }));
+  }
+
   /**
    * Set specific unread count for a conversation
    */

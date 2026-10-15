@@ -197,7 +197,7 @@
 		}
 
 		@if (activeTab() === 'msgs') {
-			<div class="lc-panel active"><app-project-mini-chat [conversationId]="data.conversationId" [initialMessages]="data.messages" [partnerName]="data.clientName" fullChatRoute="/client-overview/messages" /></div>
+			<div class="lc-panel active"><app-project-mini-chat [conversationId]="data.conversationId" [initialMessages]="data.messages" [contractId]="data.id" [legacyShared]="data.legacyShared === true" [partnerName]="data.clientName" fullChatRoute="/client-overview/messages" /></div>
 		}
 
 		@if (activeTab() === 'files') {
