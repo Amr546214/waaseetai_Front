@@ -53,7 +53,7 @@ describe('FE-3 USD only / PayPal only', () => {
 			expect(t, f).not.toMatch(/ريال|ر\.س|﷼|\bSAR\b/);
 		}
 		// M2: the limits come from the server wallet and are shown in dollars ("$"), never in riyals
-		expect(read('pages/dashboard/marketer-overview/withdraw/withdraw.html')).toMatch(/الحد الأدنى: \{\{ minimumWithdrawal\(\) \}\} \$/);
+		expect(read('pages/dashboard/marketer-overview/withdraw/withdraw.html')).toMatch(/الحد الأدنى: \{\{ wallet\(\) \? minimumWithdrawal\(\) : '—' \}\} \$/);
 	});
 
 	it('index.html and styles.css no longer load or style Moyasar', () => {

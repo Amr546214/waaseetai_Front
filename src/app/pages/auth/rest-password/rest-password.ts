@@ -8,6 +8,7 @@ import { mapHttpError } from '../../../core/forms/http-error';
 import { attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
+import { backendBannerMessage, genericBanner } from '../../../shared/forms/submit-feedback';
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
 
 const RESET_LABELS: Record<string, string> = {
@@ -101,6 +102,7 @@ export class RestPassword implements OnDestroy {
   }
 
   sendOtp() {
+    if (this.isLoading) return;
     if (this.channel === 'email') {
       const attempt = attemptSubmit(this.recoveryForm, { root: this.host.nativeElement, labels: RESET_LABELS });
       if (!attempt.valid) {
@@ -129,9 +131,11 @@ export class RestPassword implements OnDestroy {
         this.startTimer();
         this.cdr.markForCheck();
       },
-      error: (err) => {
+      error: async (err) => {
+        const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء إرسال رمز التحقق، حاول مرة أخرى' });
+        // 400/422 about the e-mail -> under the field; network / 429 / 5xx stay one honest banner.
+        this.bannerError = genericBanner(mapped) ?? await backendBannerMessage(this.host.nativeElement, mapped, { resolve: { email: 'field-email' } });
         this.isLoading = false;
-        this.bannerError = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء إرسال رمز التحقق، حاول مرة أخرى' }).message;
         this.cdr.markForCheck();
       }
     });
@@ -388,10 +392,11 @@ export class RestPassword implements OnDestroy {
         this.currentStep = 4;
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        this.isLoading = false;
+      error: async (err) => {
         const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء تغيير كلمة المرور، حاول مرة أخرى' });
-        this.bannerError = mapped.message;
+        // 400/422 about the password -> under the field; network / 429 / 5xx stay one honest banner.
+        this.bannerError = genericBanner(mapped) ?? await backendBannerMessage(this.host.nativeElement, mapped, { resolve: { newPassword: 'new-password', password: 'new-password' } });
+        this.isLoading = false;
         this.cdr.markForCheck();
       }
     });

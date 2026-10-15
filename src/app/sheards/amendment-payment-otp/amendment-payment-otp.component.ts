@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AmendmentActionsService, AmendmentInsufficientBalance, insufficientBalanceOf } from '../../core/services/amendment-actions.service';
+import { scrollFocus } from '../../shared/forms/form-error-focus';
 import { AMENDMENT_DEPOSIT_ROUTE } from '../../core/constants/amendment-effect';
 
 /**
@@ -26,16 +27,18 @@ import { AMENDMENT_DEPOSIT_ROUTE } from '../../core/constants/amendment-effect';
 	} @else {
 		<div class="apo-sent" data-testid="amendment-otp-sent">أُرسل الرمز إلى {{ maskedEmail() }} <span data-testid="amendment-otp-timer">@if (secondsLeft() > 0) { · ينتهي خلال {{ timerText() }} } @else { · انتهت صلاحية الرمز }</span></div>
 		<input class="apo-in" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" dir="ltr" placeholder="000000" aria-label="رمز التحقق" data-testid="amendment-otp-input"
+			id="amendment-otp-code" name="otpCode" [attr.aria-invalid]="codeError() || codeRejected() ? 'true' : null" [attr.aria-describedby]="codeError() ? 'amendment-otp-code-err' : (codeRejected() ? 'amendment-otp-err' : null)" [class.ws-invalid]="codeError() || codeRejected()"
 			[value]="code()" (input)="onCode($any($event.target).value)" [disabled]="submitting()">
+		@if (codeError()) { <div class="apo-err" id="amendment-otp-code-err" role="alert" data-testid="amendment-otp-code-error">{{ codeError() }}</div> }
 		<div class="apo-row">
-			<button type="button" class="apo-btn apo-pri" data-testid="amendment-otp-confirm" [disabled]="!canConfirm()" (click)="confirm()">{{ submitting() ? 'جارٍ التأكيد...' : (mode() === 'respond' ? 'تأكيد الدفع والموافقة' : 'اعتماد الدفع') }}</button>
+			<button type="button" class="apo-btn apo-pri" data-testid="amendment-otp-confirm" [disabled]="busy()" (click)="confirm()">{{ submitting() ? 'جارٍ التأكيد...' : (mode() === 'respond' ? 'تأكيد الدفع والموافقة' : 'اعتماد الدفع') }}</button>
 			<button type="button" class="apo-btn apo-gh" data-testid="amendment-otp-resend" [disabled]="busy() || submitting()" (click)="send()">إعادة إرسال الرمز</button>
 		</div>
 	}
 	@if (insufficient(); as short) {
 		<div class="apo-err" role="alert" data-testid="amendment-otp-insufficient">رصيد المحفظة غير كافٍ: المطلوب {{ short.required }} $ والمتاح {{ short.available }} $ (الناقص {{ short.shortfall }} $). <a [routerLink]="depositRoute" data-testid="amendment-otp-deposit">شحن المحفظة</a></div>
 	} @else if (error()) {
-		<div class="apo-err" role="alert" data-testid="amendment-otp-error">{{ error() }}</div>
+		<div class="apo-err" id="amendment-otp-err" role="alert" data-testid="amendment-otp-error">{{ error() }}</div>
 	}
 	<button type="button" class="apo-btn apo-gh" data-testid="amendment-otp-cancel" [disabled]="submitting()" (click)="closed.emit()">رجوع</button>
 </div>`,
@@ -70,6 +73,10 @@ export class AmendmentPaymentOtpComponent {
 	secondsLeft = signal(0);
 	code = signal('');
 	error = signal('');
+	/** Under the code box: shown when confirm is pressed with a short / expired code (the button is never silently dead). */
+	codeError = signal('');
+	/** The server rejected the code itself (400/422): the box is marked too, the server text stays in the banner. */
+	codeRejected = signal(false);
 	insufficient = signal<AmendmentInsufficientBalance | null>(null);
 	busy = computed(() => this.sending() || this.submitting());
 	canConfirm = computed(() => /^\d{6}$/.test(this.code()) && !this.busy() && this.secondsLeft() > 0);
@@ -78,7 +85,7 @@ export class AmendmentPaymentOtpComponent {
 
 	constructor() { this.destroyRef.onDestroy(() => this.stopTimer()); }
 
-	onCode(value: string) { this.code.set((value || '').replace(/\D/g, '').slice(0, 6)); }
+	onCode(value: string) { this.code.set((value || '').replace(/\D/g, '').slice(0, 6)); this.codeError.set(''); this.codeRejected.set(false); }
 
 	send() {
 		if (this.busy()) return;
@@ -99,14 +106,21 @@ export class AmendmentPaymentOtpComponent {
 	}
 
 	confirm() {
-		if (!this.canConfirm()) return;
-		this.submitting.set(true); this.error.set(''); this.insufficient.set(null);
+		if (this.busy()) return;
+		if (!/^\d{6}$/.test(this.code()) || this.secondsLeft() <= 0) {
+			this.codeError.set(this.secondsLeft() <= 0 ? 'انتهت صلاحية الرمز، أعد إرسال رمز جديد' : 'أدخل رمز التحقق المكوّن من 6 أرقام');
+			const el = document.getElementById('amendment-otp-code');
+			if (el) scrollFocus(el);
+			return;
+		}
+		this.submitting.set(true); this.error.set(''); this.insufficient.set(null); this.codeRejected.set(false);
 		const call = this.mode() === 'respond' ? this.api.clientRespond(this.amendmentId(), 'approve', this.code()) : this.api.authorizeFunding(this.amendmentId(), this.code());
 		call.subscribe({
 			next: res => { this.submitting.set(false); this.stopTimer(); this.done.emit(res?.data ?? res); },
 			error: err => {
 				this.submitting.set(false);
 				this.insufficient.set(insufficientBalanceOf(err));
+				this.codeRejected.set(err?.status === 400 || err?.status === 422);
 				this.error.set(err?.error?.message || 'تعذر إتمام العملية');
 			}
 		});

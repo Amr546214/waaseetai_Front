@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, ElementRef } from '@angular/core';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
-import { mapHttpError } from '../../../../../core/forms/http-error';
+import { handleClientError } from '../../client-form-report';
 
 /** The values PUT /profiles/update accepts for a client (same lists as the profile edit page). */
 export const CLIENT_LANGUAGES = ['العربية', 'English'] as const;
@@ -196,6 +196,7 @@ export class Account implements OnInit {
   private profileApi = inject(ProfileApiService);
   private sessionsApi = inject(ProviderProfileService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   isLoading = signal<boolean>(true);
   hasError = signal<boolean>(false);
@@ -251,7 +252,11 @@ export class Account implements OnInit {
       },
       error: (err: unknown) => {
         this.isSaving.set(false);
-        this.saveError.set(mapHttpError(err, { fallback: 'تعذر حفظ التفضيلات، حاول مرة أخرى' }).message);
+        // A 400/422 naming language / timezone lands under that select; every other failure stays one honest message.
+        this.saveError.set(null);
+        handleClientError(this.host.nativeElement, err, {
+          resolve: { interfaceLanguage: 'set-lang', timezone: 'set-tz' }, fallback: 'تعذر حفظ التفضيلات، حاول مرة أخرى',
+        }, (m) => this.saveError.set(m));
       }
     });
   }

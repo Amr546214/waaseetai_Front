@@ -314,8 +314,9 @@
             </button>
           </div>
           <!-- صندوق الكتابة -->
-          <div class="irow">
+          <div class="irow" data-field-wrap>
             <textarea
+              id="msg-composer" name="message"
               class="itxt"
               [(ngModel)]="newMessageText"
               (keydown)="onInputKeyDown($event)"

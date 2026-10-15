@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { attemptSubmit } from '../../../../core/forms/form-helpers';
+import { focusInvalidControls } from '../../../../shared/forms/form-error-focus';
 
 @Component({
 	selector: 'app-track-request',
@@ -10,6 +12,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 	styleUrls: ['./track-request.component.css']
 })
 export class TrackRequestComponent implements OnInit {
+	private readonly host = inject(ElementRef<HTMLElement>);
 	trackForm: FormGroup;
 	searched = false;
 	requestId = '';
@@ -30,11 +33,12 @@ export class TrackRequestComponent implements OnInit {
 	}
 
 	onSubmit() {
-		if (this.trackForm.valid) {
+		const attempt = attemptSubmit(this.trackForm, { labels: { requestId: 'رقم الطلب' } });
+		if (attempt.valid) {
 			this.requestId = String(this.trackForm.value.requestId).trim().toUpperCase();
 			this.searched = true;
 		} else {
-			this.trackForm.markAllAsTouched();
+			void focusInvalidControls(this.host.nativeElement, attempt.missing);
 		}
 	}
 

@@ -1,7 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { reportBackendError, reportProblems, SubmitGuard } from '../../../../../shared/forms/form-error-focus';
+import { genericBanner } from '../../../../../shared/forms/submit-feedback';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import {
   AdminCoupon, AdminCouponDetail, AdminCouponList, AdminCouponsService, AdminSpecialOffer, AdminPage
@@ -22,6 +25,8 @@ const errMsg = (e: any, fallback: string) => e?.error?.message || fallback;
 export class SaCoupons {
   private api = inject(AdminCouponsService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
 
   readonly statusLabel = COUPON_STATUS_LABEL;
   readonly offerTypeLabel = OFFER_TYPE_LABEL;
@@ -128,19 +133,35 @@ export class SaCoupons {
 
   confirmToggle(): void {
     const t = this.confirmTarget();
-    if (!t || !this.canConfirm()) return;
+    if (!t || this.confirmBusy() || this.guard.busy) return;
+    if (t.active && !this.confirmReason().trim()) {
+      // The reason is mandatory: say so under the box (not a silently disabled button).
+      this.confirmError.set('');
+      void reportProblems(this.host.nativeElement, [{ field: 'confirm-reason', message: 'اكتب سبب إيقاف الكوبون (مطلوب)' }]);
+      return;
+    }
+    if (!this.guard.enter()) return;
     this.confirmBusy.set(true);
     this.confirmError.set('');
     const next = !t.active;
     this.api.setActive(t.id, next, next ? undefined : this.confirmReason().trim()).subscribe({
       next: () => {
+        this.guard.release();
         this.confirmBusy.set(false);
         this.confirmTarget.set(null);
         this.notify.success(next ? `تمت إعادة تفعيل الكوبون ${t.code}` : `تم إيقاف الكوبون ${t.code}`);
         this.load();
         if (this.detail()?.id === t.id) this.openDetail(t);
       },
-      error: (e) => { this.confirmBusy.set(false); this.confirmError.set(errMsg(e, 'تعذّر تنفيذ العملية')); },
+      error: async (e) => {
+        this.guard.release();
+        this.confirmBusy.set(false);
+        const mapped = mapHttpError(e, { fallback: 'تعذّر تنفيذ العملية' });
+        const gen = genericBanner(mapped);
+        if (gen !== null) { this.confirmError.set(gen); return; }
+        const res = await reportBackendError(this.host.nativeElement, mapped, { resolve: { reason: 'confirm-reason' } });
+        if (!res.handled) this.confirmError.set(mapped.message);
+      },
     });
   }
 

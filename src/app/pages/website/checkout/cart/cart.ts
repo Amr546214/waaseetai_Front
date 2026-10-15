@@ -1,3 +1,5 @@
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { scrollFocus } from '../../../../shared/forms/form-error-focus';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, inject, signal, effect, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -175,12 +177,25 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** True after an empty / rejected code: red border + aria-invalid on the coupon input, the message sits right under it. */
+  couponInvalid = signal(false);
+
+  onCouponInput(value: string) {
+    this.couponInput.set(value);
+    if (this.couponInvalid()) { this.couponInvalid.set(false); }
+  }
+
   applyCoupon() {
     const code = this.couponInput().trim();
+    if (this.isApplyingCoupon()) return;
     if (!code) {
-      this.couponMessage.set({ type: 'info', text: 'أدخل كود الخصم أولاً' });
+      this.couponMessage.set({ type: 'error', text: 'أدخل كود الخصم أولاً' });
+      this.couponInvalid.set(true);
+      const el = document.getElementById('coupon-inp');
+      if (el) scrollFocus(el);
       return;
     }
+    this.couponInvalid.set(false);
     this.isApplyingCoupon.set(true);
     this.cartService.applyCoupon(code).subscribe({
       next: (result) => {
@@ -189,13 +204,14 @@ export class CartComponent implements OnInit, OnDestroy {
           this.couponInput.set('');
         } else {
           this.couponMessage.set({ type: 'error', text: result.message });
+          this.couponInvalid.set(true);
         }
         this.isApplyingCoupon.set(false);
         setTimeout(() => this.couponMessage.set(null), 3000);
       },
-      error: () => {
+      error: (err: any) => {
         this.isApplyingCoupon.set(false);
-        this.couponMessage.set({ type: 'error', text: 'حدث خطأ، حاول مرة أخرى' });
+        this.couponMessage.set({ type: 'error', text: mapHttpError(err, { fallback: 'حدث خطأ، حاول مرة أخرى' }).message });
         setTimeout(() => this.couponMessage.set(null), 3000);
       },
     });

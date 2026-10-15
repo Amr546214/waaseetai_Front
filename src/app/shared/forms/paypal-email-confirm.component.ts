@@ -25,11 +25,11 @@ import { OtpInputComponent } from './otp-input.component';
 				<span dir="ltr" data-testid="paypal-pending-email">{{ email() }}</span>
 			</p>
 			<p style="font-size:12.5px;margin-bottom:8px;text-align:center;opacity:.85" data-testid="paypal-confirm-freeze">بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.</p>
-			<ws-otp-input idPrefix="pp-code" [(value)]="code" [invalid]="!!error()" [disabled]="busy()" (complete)="confirm()" />
-			@if (error()) { <div role="alert" data-testid="paypal-confirm-error" style="color:#f87171;font-size:13px;margin-top:2px;text-align:center">{{ error() }}</div> }
+			<ws-otp-input idPrefix="pp-code" [(value)]="code" [invalid]="!!error()" describedBy="pp-code-err" [disabled]="busy()" (complete)="confirm()" />
+			@if (error()) { <div id="pp-code-err" role="alert" data-testid="paypal-confirm-error" style="color:#f87171;font-size:13px;margin-top:2px;text-align:center">{{ error() }}</div> }
 			@if (notice()) { <div role="status" data-testid="paypal-confirm-notice" style="font-size:13px;margin-top:2px;text-align:center">{{ notice() }}</div> }
 			<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px">
-				<button type="button" class="btn-primary" data-testid="paypal-confirm-btn" [disabled]="busy() || code().length !== 6" (click)="confirm()">{{ busy() ? 'جارٍ التأكيد...' : 'تأكيد البريد' }}</button>
+				<button type="button" class="btn-primary" data-testid="paypal-confirm-btn" [disabled]="busy()" (click)="confirm()">{{ busy() ? 'جارٍ التأكيد...' : 'تأكيد البريد' }}</button>
 				<button type="button" class="btn-secondary pp-sec" data-testid="paypal-resend-btn" [disabled]="busy() || cooldown() > 0" (click)="resend()">{{ cooldown() > 0 ? 'إعادة إرسال الرمز (' + cooldown() + ' ث)' : 'إعادة إرسال الرمز' }}</button>
 				<button type="button" class="btn-secondary pp-sec" [disabled]="busy()" (click)="dismissed.emit()">إلغاء</button>
 			</div>
@@ -71,7 +71,13 @@ export class PaypalEmailConfirmComponent implements OnDestroy {
 	}
 
 	confirm() {
-		if (this.busy() || this.code().length !== 6) return;
+		if (this.busy()) return;
+		if (this.code().length !== 6) {
+			// Never a dead button: say what is needed (under the boxes, marked invalid) and put the cursor on the first empty box.
+			this.error.set('أدخل رمز التحقق المكوّن من 6 أرقام');
+			document.getElementById(`pp-code-${Math.min(this.code().length, 5)}`)?.focus();
+			return;
+		}
 		this.busy.set(true); this.error.set(''); this.notice.set('');
 		this.api.confirmPaypalEmailChange(this.code()).subscribe({
 			next: (r) => { this.busy.set(false); this.confirmed.emit(r.paypalPayoutEmail); },

@@ -23,7 +23,7 @@
 	<ws-specialty-empty *ngIf="!isLoadingSpecialties && (!passedCategories || passedCategories.length === 0)" [registered]="registered" />
 
 	<!-- SECTION 1: MAIN SPECIALTY SELECTION GRID -->
-	<div *ngIf="!isLoadingSpecialties && passedCategories && passedCategories.length > 0">
+	<div *ngIf="!isLoadingSpecialties && passedCategories && passedCategories.length > 0" id="np-specialty" data-field="specialty" tabindex="-1">
 		@for (cat of passedCategories; track cat.categoryId) {
 		<div class="mb-4">
 			<!-- SPEC SECTION TITLE -->
@@ -70,7 +70,7 @@
 		</div>
 
 		<!-- Sub Specialties Chips / Cards Grid -->
-		<div *ngIf="selectedMain.subSpecialties && selectedMain.subSpecialties.length > 0" class="spec-grid">
+		<div *ngIf="selectedMain.subSpecialties && selectedMain.subSpecialties.length > 0" class="spec-grid" id="np-subspecialty" data-field="subSpecialty" tabindex="-1">
 			@for (sub of selectedMain.subSpecialties; track sub) {
 			<div class="spec-card" [class.selected]="selectedSubSpecialty === sub" (click)="selectSubSpecialty(sub)">
 				<div class="spec-check" aria-hidden="true">

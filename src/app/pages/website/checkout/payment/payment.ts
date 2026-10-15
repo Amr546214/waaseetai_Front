@@ -6,6 +6,7 @@ import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService, InsufficientBalanceInfo } from '../../../../core/services/checkout.service';
 import { CheckoutApiService } from '../../../../core/services/checkout-api.service';
 import { DepositModal } from '../../../../sheards/deposit-modal/deposit-modal';
+import { scrollFocus } from '../../../../shared/forms/form-error-focus';
 import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
@@ -38,6 +39,8 @@ export class CheckoutPaymentComponent implements OnInit {
   isProcessing = signal(false);
   errorMessage = signal<string | null>(null);
   agreedToTerms = signal(false);
+  /** Shown next to the terms checkbox when the user presses pay without agreeing. */
+  termsError = signal<string | null>(null);
 
   // Wallet-only internal purchasing: 'wallet' is the ONLY payment method —
   // there is no selector anymore. This page reads the authoritative wallet
@@ -74,6 +77,9 @@ export class CheckoutPaymentComponent implements OnInit {
     return this.hasSufficientBalance() && !this.isProcessing() && this.itemCount() > 0 && this.agreedToTerms();
   });
 
+  /** The button stays clickable without the terms (so the missing consent is explained at the checkbox); balance / busy / empty cart still block it. */
+  payBlocked = computed(() => !this.hasSufficientBalance() || this.isProcessing() || this.itemCount() === 0);
+
   ngOnInit() {
     this.loadWalletBalance();
   }
@@ -100,6 +106,7 @@ export class CheckoutPaymentComponent implements OnInit {
 
   toggleTerms() {
     this.agreedToTerms.set(!this.agreedToTerms());
+    if (this.agreedToTerms()) this.termsError.set(null);
   }
 
   openAddFunds() {
@@ -120,7 +127,13 @@ export class CheckoutPaymentComponent implements OnInit {
   }
 
   payNow() {
-    if (!this.canPay()) return;
+    if (this.isProcessing() || this.payBlocked()) return;
+    if (!this.agreedToTerms()) {
+      this.termsError.set('يجب الموافقة على الشروط والأحكام وسياسة الخصوصية قبل الدفع');
+      const el = document.getElementById('terms-chk');
+      if (el) scrollFocus(el);
+      return;
+    }
 
     this.isProcessing.set(true);
     this.errorMessage.set(null);

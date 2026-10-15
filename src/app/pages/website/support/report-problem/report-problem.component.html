@@ -38,7 +38,7 @@
           <!-- TYPE SELECTION -->
           <div style="margin-bottom:24px">
             <div style="font-size:13px;font-weight:800;color:var(--txt);margin-bottom:12px">نوع المشكلة <span style="color:var(--red);font-size:10px">*</span></div>
-            <div class="type-grid" role="radiogroup" aria-label="نوع المشكلة">
+            <div class="type-grid" id="rp-category" data-field="category" tabindex="-1" role="radiogroup" aria-label="نوع المشكلة" aria-required="true" [attr.aria-invalid]="invalid('category') ? 'true' : null">
               @for (t of categories; track t.id) {
                 <div class="type-card" role="radio" tabindex="0" [attr.aria-checked]="category === t.id" [class.selected]="category === t.id" (click)="selectType(t.id)" (keydown.enter)="selectType(t.id)" (keydown.space)="$event.preventDefault(); selectType(t.id)">
                   <div class="tc-check"><svg aria-hidden="true"><use href="#ws-check"></use></svg></div>
@@ -49,7 +49,7 @@
               }
             </div>
             @if (invalid('category')) {
-              <div class="field-err">يرجى اختيار نوع المشكلة</div>
+              <div class="field-err" role="alert" data-testid="field-error">يرجى اختيار نوع المشكلة</div>
             }
           </div>
 
@@ -59,13 +59,13 @@
               <div class="form-row">
                 <div>
                   <label class="form-label" for="rp-name">الاسم <span class="req">*</span></label>
-                  <input id="rp-name" type="text" class="form-input" formControlName="name" placeholder="اسمك الكامل" [class.has-error]="invalid('name')">
-                  @if (invalid('name')) { <div class="field-err">يرجى إدخال الاسم</div> }
+                  <input id="rp-name" type="text" class="form-input" formControlName="name" name="name" placeholder="اسمك الكامل" [class.has-error]="invalid('name')">
+                  @if (invalid('name')) { <div class="field-err" role="alert" data-testid="field-error">يرجى إدخال الاسم</div> }
                 </div>
                 <div>
                   <label class="form-label" for="rp-email">البريد الإلكتروني <span class="req">*</span></label>
                   <input id="rp-email" type="email" class="form-input" formControlName="email" placeholder="example@email.com" dir="ltr" [class.has-error]="invalid('email')">
-                  @if (invalid('email')) { <div class="field-err">يرجى إدخال بريد إلكتروني صحيح</div> }
+                  @if (invalid('email')) { <div class="field-err" role="alert" data-testid="field-error">يرجى إدخال بريد إلكتروني صحيح</div> }
                 </div>
               </div>
             </div>
@@ -79,14 +79,14 @@
             <div class="form-section">
               <label class="form-label" for="rp-subject">عنوان المشكلة <span class="req">*</span></label>
               <input id="rp-subject" type="text" class="form-input" formControlName="subject" placeholder="وصف مختصر للمشكلة في سطر واحد" [class.has-error]="invalid('subject')">
-              @if (invalid('subject')) { <div class="field-err">يرجى إدخال عنوان لا يقل عن 5 أحرف</div> }
+              @if (invalid('subject')) { <div class="field-err" role="alert" data-testid="field-error">يرجى إدخال عنوان لا يقل عن 5 أحرف</div> }
             </div>
 
             <div class="form-section">
               <label class="form-label" for="rp-desc">تفاصيل المشكلة <span class="req">*</span></label>
               <div class="form-hint">اشرح ما حدث وما الذي كنت تتوقعه — كلما كان وصفك أدق، كان الحل أسرع</div>
               <textarea id="rp-desc" class="form-input" formControlName="description" placeholder="اكتب هنا..." [class.has-error]="invalid('description')"></textarea>
-              @if (invalid('description')) { <div class="field-err">يرجى إدخال وصف لا يقل عن 20 حرف</div> }
+              @if (invalid('description')) { <div class="field-err" role="alert" data-testid="field-error">يرجى إدخال وصف لا يقل عن 20 حرف</div> }
             </div>
 
             <div class="form-section">
@@ -113,7 +113,7 @@
 
             <div class="submit-row">
               <div class="submit-note">نرد خلال ساعات العمل (9 ص — 6 م)<br>يوم الأحد إلى الخميس</div>
-              <button type="submit" class="btn-primary" [disabled]="isSubmitting">
+              <button type="submit" class="btn-primary" [disabled]="isSubmitting" [attr.aria-busy]="isSubmitting">
                 @if (isSubmitting) { جاري الإرسال... } @else { إرسال البلاغ }
               </button>
             </div>

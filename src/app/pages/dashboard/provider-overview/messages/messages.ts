@@ -1,6 +1,6 @@
 import { chatPreview } from '../../../../core/utils/chat-preview.util';
 import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
-import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -13,6 +13,7 @@ import { VideoCallService } from '../../../../core/services/video-call.service';
 
 import { OffersService, OfferNegotiationState } from '../../../../core/services/offers.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { focusInvalidControls } from '../../../../shared/forms/form-error-focus';
 
 export interface MessageItem {
   id: number | string;
@@ -84,6 +85,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
   private videoCallService = inject(VideoCallService);
   private offersService = inject(OffersService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private sub = new Subscription();
 
   private currentUserId = 'provider_001';
@@ -94,6 +96,10 @@ export class ProviderMessages implements OnInit, OnDestroy {
   activeConvId = signal<string>('');
   showChatOnMobile = signal<boolean>(false);
   newMessageText = signal<string>('');
+  /** Inline message under the composer (empty message). Cleared as soon as the user types. */
+  composerError = signal<string | null>(null);
+  /** True right after a text message was sent: a second click / Enter on the now-empty box sends nothing and says nothing. */
+  private justSent = false;
   messageContext = signal<MessageContext | null>(null);
   // true when the page was opened FOR a project that has no conversation yet: no other conversation is opened, a clear message is shown instead.
   contextConversationMissing = signal<boolean>(false);
@@ -409,7 +415,14 @@ export class ProviderMessages implements OnInit, OnDestroy {
 
   sendMessage(type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'FILE' = 'TEXT', customData?: any): void {
     let text = this.newMessageText().trim();
-    if (type === 'TEXT' && !text) return;
+    if (type === 'TEXT' && !text) {
+      if (this.justSent) return; // double click / double Enter after a successful send: one message only
+      const message = 'اكتب رسالتك قبل الإرسال';
+      this.composerError.set(message);
+      void focusInvalidControls(this.host.nativeElement, [{ path: 'msg-input', message }]);
+      return;
+    }
+    this.composerError.set(null);
 
     const currentConv = this.activeConversation();
     if (!currentConv) return;
@@ -471,6 +484,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
     this.chatService.sendMessage(this.currentUserId, payload);
 
     if (type === 'TEXT') {
+      this.justSent = true;
       this.newMessageText.set('');
       this.showEmojiPicker.set(false);
       this.messageContext.set(null);
@@ -482,7 +496,10 @@ export class ProviderMessages implements OnInit, OnDestroy {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage('TEXT');
+      return;
     }
+    this.justSent = false;
+    if (this.composerError()) this.composerError.set(null);
     this.emitTypingStatus();
   }
 

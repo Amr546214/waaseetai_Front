@@ -328,8 +328,12 @@
           <!-- صندوق الكتابة -->
           <div class="irow">
             <textarea
+              id="msg-input"
+              name="message"
               class="itxt"
               [(ngModel)]="newMessageText"
+              [attr.aria-invalid]="composerError() ? 'true' : null"
+              [attr.aria-describedby]="composerError() ? 'msg-input-err' : null"
               (keydown)="onInputKeyDown($event)"
               placeholder="اكتب رسالتك..."
               rows="1"
@@ -339,6 +343,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           </div>
+          @if (composerError(); as ce) { <div id="msg-input-err" role="alert" data-testid="field-error" class="composer-err">{{ ce }}</div> }
         }
       </div>
     } @else if (contextConversationMissing()) {

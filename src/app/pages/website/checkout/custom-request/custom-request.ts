@@ -1,10 +1,20 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ProjectApiService } from '../../../../core/services/project-api.service';
 import { SpecialtyService } from '../../../../core/services/specialty.service';
 import { ClientRequestPayload } from '../../../../core/models/api.model';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { focusInvalidControls } from '../../../../shared/forms/form-error-focus';
+import { backendBannerMessage, genericBanner } from '../../../../shared/forms/submit-feedback';
+
+/** Server field name -> id of the control in the template. */
+const REQUEST_FIELD_IDS: Record<string, string> = {
+  title: 'req-title', specialtyId: 'req-cat', specialty: 'req-cat', description: 'req-desc',
+  minBudget: 'req-budget', maxBudget: 'req-budget', budget: 'req-budget',
+  expectedDurationDays: 'req-deadline', deliveryDays: 'req-deadline',
+};
 
 interface Category {
   id: string;
@@ -22,6 +32,7 @@ export class CustomRequestComponent implements OnInit {
   private projectApi = inject(ProjectApiService);
   private specialtyService = inject(SpecialtyService);
   private router = inject(Router);
+  private host = inject(ElementRef<HTMLElement>);
 
   categories = signal<Category[]>([]);
   categoriesLoading = signal(false);
@@ -154,8 +165,19 @@ export class CustomRequestComponent implements OnInit {
       title: true, category: true, description: true, budget: true, deliveryDays: true,
     });
 
-    if (!this.isFormValid()) return;
     if (this.isSubmitting()) return;
+    if (!this.isFormValid()) {
+      // Every problem has its message under the field (the *Error signals); here the first one gets focus, below the header.
+      const missing = [
+        { id: 'req-title', msg: this.titleError() },
+        { id: 'req-cat', msg: this.categoryError() },
+        { id: 'req-desc', msg: this.descriptionError() },
+        { id: 'req-budget', msg: this.budgetError() },
+        { id: 'req-deadline', msg: this.deliveryDaysError() },
+      ].filter(x => x.msg).map(x => ({ path: x.id, message: x.msg }));
+      void focusInvalidControls(this.host.nativeElement, missing);
+      return;
+    }
 
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
@@ -200,10 +222,12 @@ export class CustomRequestComponent implements OnInit {
         this.isSubmitting.set(false);
         this.showSuccess.set(true);
       },
-      error: (err) => {
+      error: async (err) => {
+        const mapped = mapHttpError(err, { fallback: 'حدث خطأ أثناء إنشاء الطلب، يرجى المحاولة مرة أخرى' });
+        // 400/422 with field names -> under the field; network / 429 / 5xx / 403 / 409 stay one honest banner.
+        const banner = genericBanner(mapped) ?? await backendBannerMessage(this.host.nativeElement, mapped, { resolve: REQUEST_FIELD_IDS });
         this.isSubmitting.set(false);
-        const msg = err?.error?.message || err?.message || 'حدث خطأ أثناء إنشاء الطلب، يرجى المحاولة مرة أخرى';
-        this.errorMessage.set(msg);
+        this.errorMessage.set(banner || null);
       },
     });
   }

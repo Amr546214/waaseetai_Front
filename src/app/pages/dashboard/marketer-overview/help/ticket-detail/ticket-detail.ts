@@ -1,9 +1,12 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { reportBackendError, reportProblems, SubmitGuard } from '../../../../../shared/forms/form-error-focus';
+import { genericBanner } from '../../../../../shared/forms/submit-feedback';
 import { TicketApiService, SupportTicket, SupportTicketMessage, TicketStatus } from '../../../../../core/services/ticket-api.service';
 
 export const TICKET_STATUS_LABELS: Record<TicketStatus, string> = {
@@ -30,6 +33,8 @@ export class MarketerTicketDetail implements OnInit {
 	private route = inject(ActivatedRoute);
 	private authStore = inject(AuthStore);
 	private api = inject(TicketApiService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private guard = new SubmitGuard();
 
 	loading = signal(true);
 	notFound = signal(false);
@@ -73,11 +78,24 @@ export class MarketerTicketDetail implements OnInit {
 
 	send() {
 		const t = this.ticket(); const body = this.replyText().trim();
-		if (!t || !body || this.sending() || !this.canReply()) return;
+		if (!t || this.sending() || this.guard.busy || !this.canReply()) return;
+		if (!body) {
+			// The explanation sits under the reply box (not in a disabled button): red, aria-invalid, role=alert, focused.
+			void reportProblems(this.host.nativeElement, [{ field: 'mkt-ticket-reply', message: 'اكتب نص الرد قبل الإرسال' }]);
+			return;
+		}
+		if (!this.guard.enter()) return;
 		this.sending.set(true); this.actionError.set(null);
 		this.api.replyToTicket('marketer', t.id, body).subscribe({
-			next: () => { this.sending.set(false); this.replyText.set(''); this.load(t.id); },
-			error: (err) => { this.sending.set(false); this.actionError.set(err?.error?.message || 'تعذر إرسال الرد، حاول مجددًا'); }
+			next: () => { this.guard.release(); this.sending.set(false); this.replyText.set(''); this.load(t.id); },
+			error: async (err) => {
+				this.guard.release(); this.sending.set(false);
+				const mapped = mapHttpError(err, { fallback: 'تعذر إرسال الرد، حاول مجددًا' });
+				const gen = genericBanner(mapped);
+				if (gen !== null) { this.actionError.set(gen); return; }
+				const res = await reportBackendError(this.host.nativeElement, mapped, { resolve: { body: 'mkt-ticket-reply', message: 'mkt-ticket-reply' } });
+				if (!res.handled) this.actionError.set(mapped.message);
+			}
 		});
 	}
 

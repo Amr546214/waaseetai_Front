@@ -9,13 +9,13 @@ import { CommonModule } from '@angular/common';
 	styleUrl: './step4-stages.component.css'
 })
 export class Step4StagesComponent {
-	@Input({ required: true }) totalAmount!: number;
+	@Input({ required: true }) totalAmount!: number | null;
 	@Input({ required: true }) stages!: any[];
 	@Input({ required: true }) isAiSuggestingMilestones!: boolean;
 	@Input({ required: true }) totalPercentage!: number;
 	@Input({ required: true }) totalDays!: number;
 
-	@Output() onTotalAmountChange = new EventEmitter<number>();
+	@Output() onTotalAmountChange = new EventEmitter<number | null>();
 	@Output() onSuggestMilestones = new EventEmitter<void>();
 	@Output() onAddStage = new EventEmitter<void>();
 	@Output() onRemoveStage = new EventEmitter<number>();
@@ -23,15 +23,16 @@ export class Step4StagesComponent {
 
 	updateTotalAmount(event: Event) {
 		const val = (event.target as HTMLInputElement).value;
-		this.onTotalAmountChange.emit(Number(val) || 0);
+		this.onTotalAmountChange.emit(val === '' ? null : Number(val));
 	}
 
 	updateStage(index: number, field: string, event: Event) {
 		const val = (event.target as HTMLInputElement).value;
-		this.onUpdateStage.emit({ index, field, value: val });
+		// Numeric fields stay empty (null) until the user types: an empty box is never turned into 0.
+		this.onUpdateStage.emit({ index, field, value: field === 'days' || field === 'percentage' ? (val === '' ? null : Number(val)) : val });
 	}
 
 	getAmountForStage(percentage: number): number {
-		return (this.totalAmount * (percentage || 0)) / 100;
+		return ((this.totalAmount ?? 0) * (percentage || 0)) / 100;
 	}
 }

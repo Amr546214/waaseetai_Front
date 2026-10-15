@@ -6,6 +6,7 @@ import { AsyncPipe, NgIf } from '@angular/common';
 import { AuthStore } from './core/store/auth.store';
 import { ConfirmModalComponent } from './sheards/confirm-modal/confirm-modal.component';
 import { NotificationHostComponent } from './shared/forms/notification-host.component';
+import { FormA11ySyncService } from './shared/forms/form-a11y-sync.service';
 import { AssistantWidgetComponent } from './sheards/assistant-widget/assistant-widget';
 import { assistantLiftPx, isAssistantHidden } from './sheards/assistant-widget/assistant-visibility';
 
@@ -51,6 +52,8 @@ export class App implements OnInit {
 	readonly assistantLift = signal(0);
 
 	constructor() {
+		// aria-invalid / aria-describedby for every invalid form control, site wide (browser only).
+		if (typeof document !== 'undefined') inject(FormA11ySyncService).start(document);
 		this.router.events
 			.pipe(filter((e) => e instanceof NavigationEnd), takeUntilDestroyed(inject(DestroyRef)))
 			.subscribe(() => this.syncAssistantRoute());

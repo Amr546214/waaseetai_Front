@@ -1,5 +1,5 @@
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarketerOverviewService, RefLinksData, ReferralCustomLink, MarketerSummary } from '../../../../core/services/marketer-overview.service';
@@ -7,6 +7,9 @@ import { UiNotificationService } from '../../../../core/services/ui-notification
 import { copyText } from '../../../../core/utils/marketer-labels.util';
 import { buildReferralUrl } from '../../../../core/utils/referral-link.util';
 import { handleLoadError } from '../../../../core/utils/rate-limit.util';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { FieldProblem, reportBackendError, reportProblems, SubmitGuard } from '../../../../shared/forms/form-error-focus';
+import { genericBanner } from '../../../../shared/forms/submit-feedback';
 import { LoadRetryComponent } from '../../../../sheards/load-retry/load-retry';
 
 @Component({
@@ -19,6 +22,9 @@ import { LoadRetryComponent } from '../../../../sheards/load-retry/load-retry';
 export class RefLinks implements OnInit {
   private service = inject(MarketerOverviewService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
+  savingChannel = signal(false);
 
   data = signal<RefLinksData | null>(null);
   summary = signal<MarketerSummary | null>(null);
@@ -111,12 +117,19 @@ export class RefLinks implements OnInit {
   }
 
   addCustomLink() {
-    const channelName = this.newChannelName();
-    const utmSource = this.newUtmSource();
-    if (!channelName || !utmSource) return;
+    if (this.guard.busy) return;
+    const channelName = this.newChannelName().trim();
+    const utmSource = this.newUtmSource().trim();
+    const problems: FieldProblem[] = [];
+    if (!channelName) problems.push({ field: 'new-channel-name', message: 'أدخل اسم القناة' });
+    if (!utmSource) problems.push({ field: 'new-channel-utm', message: 'أدخل مصدر الرابط (utm_source)' });
+    if (problems.length) { void reportProblems(this.host.nativeElement, problems); return; }
 
+    if (!this.guard.enter()) return;
+    this.savingChannel.set(true);
     this.service.createCustomLink({ channelName, utmSource }).subscribe({
       next: (res) => {
+        this.guard.release(); this.savingChannel.set(false);
         if (res.success) {
           this.data.update(d => {
             if (!d) return d;
@@ -131,7 +144,14 @@ export class RefLinks implements OnInit {
           this.notify.success('تمت إضافة القناة بنجاح');
         }
       },
-      error: (err) => this.notify.error(err?.error?.message || 'تعذر إضافة القناة، تحقق من البيانات وحاول مرة أخرى'),
+      error: async (err) => {
+        this.guard.release(); this.savingChannel.set(false);
+        const mapped = mapHttpError(err, { fallback: 'تعذر إضافة القناة، تحقق من البيانات وحاول مرة أخرى' });
+        const gen = genericBanner(mapped);
+        if (gen !== null) { this.notify.error(gen); return; }
+        const res = await reportBackendError(this.host.nativeElement, mapped, { resolve: { channelName: 'new-channel-name', utmSource: 'new-channel-utm' } });
+        if (!res.handled) this.notify.error(mapped.message);
+      },
     });
   }
 

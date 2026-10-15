@@ -120,10 +120,15 @@ describe('RequestDetails - states and actions come from the server', () => {
 	it('negotiation: a duration request sends the typed days (not the price); invalid input is refused before any call', async () => {
 		const s = await setup(details());
 		s.c.openNegotiation(s.c.offers()[0]);
-		s.c.setNegType('dur');
+		s.c.setNegType('dur'); s.f.detectChanges();
 		s.c.sendNegotiation();
 		expect(s.chat.initiateConversation).not.toHaveBeenCalled();
-		expect(lastToast()).toContain('المدة');
+		// the reason now sits under the duration box (red, aria-invalid, role=alert) instead of a toast only
+		await new Promise(r => setTimeout(r, 60));
+		s.f.detectChanges();
+		const dur = s.el.querySelector('#neg-dur') as HTMLElement;
+		expect(dur.getAttribute('aria-invalid')).toBe('true');
+		expect(s.el.ownerDocument.getElementById(dur.getAttribute('aria-describedby')!)!.textContent).toContain('المدة');
 		s.c.negDuration.set('12');
 		s.c.negMessage.set('نحتاج أسرع');
 		s.c.sendNegotiation();
@@ -148,6 +153,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		const chat = { initiateConversation: vi.fn(() => throwError(() => ({ error: { message: 'لا يمكن التفاوض على هذا العرض: سحب مقدم الخدمة هذا العرض' } }))) };
 		const s = await setup(details(), { chat });
 		s.c.openNegotiation(s.c.offers()[0]);
+		s.c.negPrice.set('4000'); // the price box now starts empty (no ready-made number), so the client types one
 		s.c.sendNegotiation();
 		expect(lastToast()).toContain('لا يمكن التفاوض');
 		expect(s.nav).not.toHaveBeenCalled();

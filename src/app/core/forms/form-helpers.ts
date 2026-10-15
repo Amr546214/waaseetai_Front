@@ -1,6 +1,7 @@
 import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
 import { take } from 'rxjs';
 import { validationMessage } from './validation-messages';
+import { scrollFocus } from '../../shared/forms/form-error-focus';
 
 /** One field that blocks the submit: where it is, what the user calls it, and why it is invalid. */
 export interface InvalidField {
@@ -67,8 +68,8 @@ export function focusFirstInvalid(root: ParentNode | null | undefined): HTMLElem
 		if ((el as HTMLInputElement).disabled || el.getAttribute('aria-hidden') === 'true') continue;
 		if ((el as HTMLInputElement).type === 'hidden') continue;
 		if (typeof el.focus !== 'function') continue;
-		el.focus({ preventScroll: true });
-		if (typeof el.scrollIntoView === 'function') el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+		// Scrolled BELOW the sticky header (a plain scrollIntoView left the field hidden under it).
+		scrollFocus(el);
 		return el;
 	}
 	return null;

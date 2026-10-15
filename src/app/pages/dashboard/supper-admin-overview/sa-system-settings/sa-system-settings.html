@@ -34,15 +34,15 @@
           <div class="ss-card-ttl">الإعدادات العامة</div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">اسم المنصة</div><div class="ss-row-desc">يُقرأ من نقطة الإعدادات العامة ويمكن عرضه في الواجهات</div></div>
-            <input type="text" class="ss-input" maxlength="80" [value]="form().platformName" (input)="setField('platformName', $any($event.target).value)" placeholder="" />
+            <input type="text" class="ss-input" maxlength="80" id="ss-platformName" name="platformName" [value]="form().platformName" (input)="setField('platformName', $any($event.target).value)" placeholder="" />
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">بريد الدعم</div><div class="ss-row-desc">يظهر للمستخدمين كوسيلة تواصل</div></div>
-            <input type="email" class="ss-input" style="direction:ltr" [value]="form().supportEmail" (input)="setField('supportEmail', $any($event.target).value)" placeholder="" />
+            <input type="email" class="ss-input" style="direction:ltr" id="ss-supportEmail" name="supportEmail" [value]="form().supportEmail" (input)="setField('supportEmail', $any($event.target).value)" placeholder="" />
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">هاتف الدعم</div><div class="ss-row-desc">يظهر للمستخدمين كوسيلة تواصل</div></div>
-            <input type="tel" class="ss-input" style="direction:ltr" maxlength="30" [value]="form().supportPhone" (input)="setField('supportPhone', $any($event.target).value)" placeholder="" />
+            <input type="tel" class="ss-input" style="direction:ltr" maxlength="30" id="ss-supportPhone" name="supportPhone" [value]="form().supportPhone" (input)="setField('supportPhone', $any($event.target).value)" placeholder="" />
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">شريط تنبيه الصيانة</div><div class="ss-row-desc">يعرض نص التنبيه أدناه للمستخدمين؛ لا يوقف الوصول إلى المنصة.</div></div>
@@ -50,7 +50,7 @@
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">نص التنبيه</div><div class="ss-row-desc">حتى 300 حرف</div></div>
-            <input type="text" class="ss-input" maxlength="300" style="min-width:260px" [value]="form().maintenanceBannerText" (input)="setField('maintenanceBannerText', $any($event.target).value)" placeholder="" />
+            <input type="text" class="ss-input" maxlength="300" style="min-width:260px" id="ss-maintenanceBannerText" name="maintenanceBannerText" [value]="form().maintenanceBannerText" (input)="setField('maintenanceBannerText', $any($event.target).value)" placeholder="" />
           </div>
         </div>
         <div class="ss-card">
@@ -74,19 +74,19 @@
           <div class="ss-card-ttl">الشروط والأحكام وسياسة الخصوصية</div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">إصدار الشروط</div><div class="ss-row-desc">رقم أو تاريخ الإصدار المعتمد</div></div>
-            <input type="text" class="ss-input" maxlength="40" [value]="form().termsVersion" (input)="setField('termsVersion', $any($event.target).value)" placeholder="" />
+            <input type="text" class="ss-input" maxlength="40" id="ss-termsVersion" name="termsVersion" [value]="form().termsVersion" (input)="setField('termsVersion', $any($event.target).value)" placeholder="" />
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">إصدار سياسة الخصوصية</div><div class="ss-row-desc">رقم أو تاريخ الإصدار المعتمد</div></div>
-            <input type="text" class="ss-input" maxlength="40" [value]="form().privacyVersion" (input)="setField('privacyVersion', $any($event.target).value)" placeholder="" />
+            <input type="text" class="ss-input" maxlength="40" id="ss-privacyVersion" name="privacyVersion" [value]="form().privacyVersion" (input)="setField('privacyVersion', $any($event.target).value)" placeholder="" />
           </div>
           <div class="ss-row" style="flex-direction:column;align-items:stretch">
             <div class="ss-row-left"><div class="ss-row-lbl">نص الشروط والأحكام</div></div>
-            <textarea class="ss-input" rows="8" style="height:auto;padding:10px" maxlength="60000" [value]="form().termsContent" (input)="setField('termsContent', $any($event.target).value)"></textarea>
+            <textarea class="ss-input" rows="8" style="height:auto;padding:10px" maxlength="60000" id="ss-termsContent" name="termsContent" [value]="form().termsContent" (input)="setField('termsContent', $any($event.target).value)"></textarea>
           </div>
           <div class="ss-row" style="flex-direction:column;align-items:stretch">
             <div class="ss-row-left"><div class="ss-row-lbl">نص سياسة الخصوصية</div></div>
-            <textarea class="ss-input" rows="8" style="height:auto;padding:10px" maxlength="60000" [value]="form().privacyContent" (input)="setField('privacyContent', $any($event.target).value)"></textarea>
+            <textarea class="ss-input" rows="8" style="height:auto;padding:10px" maxlength="60000" id="ss-privacyContent" name="privacyContent" [value]="form().privacyContent" (input)="setField('privacyContent', $any($event.target).value)"></textarea>
           </div>
         </div>
         <div class="ss-save-row">
@@ -100,7 +100,7 @@
           <div class="ss-card-ttl">إعدادات الإشعارات</div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">بريد الإشعارات الإدارية</div><div class="ss-row-desc">عنوان يُحفظ كبريد تنبيهات الإدارة</div></div>
-            <input type="email" class="ss-input" style="direction:ltr" [value]="form().adminNotificationEmail" (input)="setField('adminNotificationEmail', $any($event.target).value)" placeholder="" />
+            <input type="email" class="ss-input" style="direction:ltr" id="ss-adminNotificationEmail" name="adminNotificationEmail" [value]="form().adminNotificationEmail" (input)="setField('adminNotificationEmail', $any($event.target).value)" placeholder="" />
           </div>
         </div>
         <div class="ss-card">

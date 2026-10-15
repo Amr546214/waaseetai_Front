@@ -101,7 +101,7 @@
 			اختر التخصص الرئيسي
 		</div>
 
-		<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+		<div id="spec-grid" data-field="spec-grid" role="group" tabindex="-1" aria-label="التخصص الرئيسي" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
 			<div *ngFor="let spec of filteredSpecialties()" class="spec-card"
 				[class.selected]="selectedSpecId() === spec.id" (click)="selectSpec(spec.id)">
 				<div class="spec-ico" [style.background]="spec.bg" [style.color]="spec.color">
@@ -141,7 +141,7 @@
 
 			<div *ngIf="selectedSpecId() !== 'other'" class="text-xs text-[var(--txt-3)] mb-3.5">اختر حتى 5 تخصصات فرعية
 			</div>
-			<div *ngIf="selectedSpecId() !== 'other'" class="flex flex-wrap gap-2">
+			<div *ngIf="selectedSpecId() !== 'other'" id="sub-chips" data-field="sub-chips" role="group" tabindex="-1" aria-label="التخصصات الفرعية" class="flex flex-wrap gap-2">
 				<button type="button" *ngFor="let sub of currentSubs()" class="sub-chip" [class.selected]="hasSub(sub)"
 					(click)="toggleSub(sub)">
 					{{ sub }}
@@ -151,7 +151,7 @@
 			<div *ngIf="selectedSpecId() === 'other'" class="mt-3.5">
 				<label class="block text-xs font-bold text-[var(--txt-3)] mb-2">اكتب التخصص الذي تحتاجه (5-100
 					حرف)</label>
-				<input type="text"
+				<input type="text" id="spec-other-text" name="otherText" data-field="spec-other-text" maxlength="100"
 					class="w-full py-2.5 px-3.5 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.10)] rounded-lg text-white text-sm focus:border-[#2BD4C7] focus:outline-none transition-colors"
 					[ngModel]="otherText()" (ngModelChange)="otherText.set($event)"
 					placeholder="مثال: تصميم عبوات تغليف للمنتجات الغذائية">
@@ -272,13 +272,13 @@
 								<div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
 									<label class="flex flex-col gap-1.5">
 										<span class="text-[11px] font-black sample-card-label">عنوان المشروع</span>
-										<input type="text" [ngModel]="sample.title" (ngModelChange)="sample.title = $event; touchSamples()" maxlength="150"
+										<input type="text" [attr.id]="'sample-title-' + sample.id" name="sampleTitle" [ngModel]="sample.title" (ngModelChange)="sample.title = $event; touchSamples()" maxlength="150"
 											placeholder="مثال: تصميم هوية بصرية لمشروع تقني"
 											class="sample-meta-input" />
 									</label>
 									<label class="flex flex-col gap-1.5">
 										<span class="text-[11px] font-black sample-card-label">التقنيات والأدوات</span>
-										<input type="text" [value]="sample.technologiesInput"
+										<input type="text" [attr.id]="'sample-tech-' + sample.id" name="sampleTechnologies" [value]="sample.technologiesInput"
 											(input)="updateTechnologies(sample.id, $any($event.target).value)"
 											placeholder="After Effects، Illustrator، Figma"
 											class="sample-meta-input" />
@@ -289,12 +289,12 @@
 											<span class="text-[11px] font-black sample-card-label">وصف العمل ودورك فيه</span>
 											<span class="text-[10px] font-mono" [class.text-[#2BD4C7]]="(sample.description?.length || 0) >= 20" [class.text-[#FFB400]]="(sample.description?.length || 0) < 20">{{ sample.description?.length || 0 }}/20 على الأقل</span>
 										</div>
-										<textarea [ngModel]="sample.description" (ngModelChange)="sample.description = $event; touchSamples()" rows="3" maxlength="1200"
+										<textarea [attr.id]="'sample-desc-' + sample.id" name="sampleDescription" [attr.aria-describedby]="descriptionError(sample) ? 'sample-desc-err-' + sample.id : null" [ngModel]="sample.description" (ngModelChange)="sample.description = $event; touchSamples()" rows="3" maxlength="1200"
 											placeholder="اشرح فكرة المشروع، دورك، التحديات التي عالجتها، والنتيجة النهائية..."
 											[attr.aria-invalid]="descriptionError(sample) ? 'true' : null"
 											[class.!border-[#FF6B6B]]="descriptionError(sample)"
 											class="sample-meta-input resize-y min-h-[82px]"></textarea>
-										<span *ngIf="descriptionError(sample) as derr" role="alert" data-testid="sample-description-error" class="text-[12px] font-bold text-[#FF8C69]">{{ derr }}</span>
+										<span *ngIf="descriptionError(sample) as derr" [attr.id]="'sample-desc-err-' + sample.id" role="alert" data-testid="sample-description-error" class="text-[12px] font-bold text-[#FF8C69]">{{ derr }}</span>
 									</label>
 								</div>
 								<div *ngIf="sample.technologies.length" class="flex flex-wrap gap-1.5 mt-3">
@@ -308,6 +308,7 @@
 							<div class="grid grid-cols-1 md:grid-cols-2 min-h-[135px]">
 
 								<div
+									[attr.id]="'sample-public-' + sample.id" role="group" tabindex="-1" aria-label="ملف النموذج العام"
 									class="p-4.5 border-b md:border-b-0 md:border-l border-[rgba(255,255,255,.07)] flex flex-col justify-between">
 									<div>
 										<div class="text-[11px] font-black text-[#2BD4C7] mb-3 flex items-center gap-2">
@@ -362,7 +363,7 @@
 									</label>
 								</div>
 
-								<div class="p-4.5 bg-[rgba(43,127,255,.03)] flex flex-col justify-between">
+								<div [attr.id]="'sample-proof-' + sample.id" role="group" tabindex="-1" aria-label="وثائق إثبات الملكية" class="p-4.5 bg-[rgba(43,127,255,.03)] flex flex-col justify-between">
 									<div>
 										<div
 											class="text-[11px] font-black mb-3 flex items-center justify-between gap-1.5 flex-wrap">
@@ -670,8 +671,8 @@
 		<div *ngIf="currentStep() === 1" class="flex-1"></div>
 
 		<button type="button"
-			[disabled]="(!canProceedToStep2() && currentStep() === 1) || (currentStep() === 3 && !allDeclarationsChecked()) || (currentStep() === 3 && portfolioReviewLoading())"
-			[attr.aria-disabled]="currentStep() === 2 && !canProceedToStep3() ? 'true' : null" data-testid="next-btn"
+			[disabled]="(currentStep() === 3 && !allDeclarationsChecked()) || (currentStep() === 3 && portfolioReviewLoading())"
+			[attr.aria-disabled]="(currentStep() === 1 && !canProceedToStep2()) || (currentStep() === 2 && !canProceedToStep3()) ? 'true' : null" data-testid="next-btn"
 			(click)="nextStep()"
 			class="inline-flex items-center gap-2 px-6 py-2.5 bg-[rgba(30,41,59,0.5)] border border-[rgba(43,212,199,0.3)] hover:bg-[rgba(43,212,199,0.1)] rounded-full text-[#2BD4C7] text-sm font-black disabled:opacity-50 disabled:cursor-not-allowed transition-all ml-auto"
 			[ngClass]="{'bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] !text-[#070D24] !border-none hover:-translate-y-px hover:shadow-[0_8px_24px_rgba(43,127,255,.35)]': (currentStep() === 1 && canProceedToStep2()) || (currentStep() === 2 && canProceedToStep3()) || (currentStep() === 3 && allDeclarationsChecked() && !portfolioReviewLoading()), 'opacity-50 cursor-not-allowed': currentStep() === 2 && !canProceedToStep3()}">

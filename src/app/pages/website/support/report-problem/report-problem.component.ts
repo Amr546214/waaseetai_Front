@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { attemptSubmit } from '../../../../core/forms/form-helpers';
+import { focusInvalidControls } from '../../../../shared/forms/form-error-focus';
+
+const REPORT_LABELS = { category: 'نوع المشكلة', name: 'الاسم', email: 'البريد الإلكتروني', subject: 'عنوان المشكلة', description: 'تفاصيل المشكلة' };
 
 type Priority = 'low' | 'med' | 'high';
 
@@ -14,6 +18,7 @@ interface ProblemType { id: string; label: string; desc: string; icon: string; i
 	styleUrls: ['./report-problem.component.css']
 })
 export class ReportProblemComponent {
+	private readonly host = inject(ElementRef<HTMLElement>);
 	reportForm: FormGroup;
 	isSubmitting = false;
 	submitted = false;
@@ -65,7 +70,10 @@ export class ReportProblemComponent {
 	}
 
 	onSubmit() {
-		if (this.reportForm.valid) {
+		if (this.isSubmitting) return; // one send at a time
+		// Every invalid field shows its message (touched) and the first one, in page order, takes the focus below the header.
+		const attempt = attemptSubmit(this.reportForm, { labels: REPORT_LABELS });
+		if (attempt.valid) {
 			this.isSubmitting = true;
 			// Presentational only — no backend call per constraints
 			setTimeout(() => {
@@ -74,7 +82,7 @@ export class ReportProblemComponent {
 				window.scrollTo({ top: 0, behavior: 'smooth' });
 			}, 800);
 		} else {
-			this.reportForm.markAllAsTouched();
+			void focusInvalidControls(this.host.nativeElement, attempt.missing);
 		}
 	}
 

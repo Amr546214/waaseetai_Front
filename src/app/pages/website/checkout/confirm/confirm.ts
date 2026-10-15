@@ -36,6 +36,8 @@ export class CheckoutConfirmComponent implements OnDestroy {
   isProcessing = signal(false);
   errorMessage = signal<string | null>(null);
   resendMessage = signal<string | null>(null);
+  /** Shown right under the code boxes when the user presses confirm before all 6 digits are in. */
+  otpError = signal<string | null>(null);
   countdown = signal(0);
 
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
@@ -66,6 +68,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
       const lastFilled = Math.min(pasted.length - 1, 5);
       this.focusInput(lastFilled);
       this.errorMessage.set(null);
+      this.otpError.set(null);
       return;
     }
 
@@ -73,6 +76,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
     digits[index] = raw;
     this.otpDigits.set(digits);
     input.value = raw;
+    this.otpError.set(null);
 
     if (raw && index < 5) {
       this.focusInput(index + 1);
@@ -95,9 +99,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
       }
     } else if (event.key === 'Enter') {
       event.preventDefault();
-      if (this.canConfirm()) {
-        this.confirmPayment();
-      }
+      this.confirmPayment();
     }
   }
 
@@ -113,6 +115,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
       const focusIndex = Math.min(pasted.length - 1, 5);
       this.focusInput(focusIndex);
       this.errorMessage.set(null);
+      this.otpError.set(null);
     }
   }
 
@@ -125,7 +128,13 @@ export class CheckoutConfirmComponent implements OnDestroy {
   }
 
   confirmPayment() {
-    if (!this.canConfirm()) return;
+    if (this.isProcessing()) return;
+    if (!this.isOtpComplete()) {
+      // Never a silent no-op: say what is needed, next to the boxes, and put the cursor on the first empty one.
+      this.otpError.set('أدخل رمز التحقق المكوّن من 6 أرقام');
+      this.focusInput(Math.max(0, this.otpDigits().findIndex(d => !d)));
+      return;
+    }
     const otp = this.normalizeDigits(this.otpValue());
     this.isProcessing.set(true);
     this.errorMessage.set(null);

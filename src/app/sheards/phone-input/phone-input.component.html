@@ -10,7 +10,7 @@
 	</div>
 
 	<!-- Phone Number Input Field -->
-	<input type="tel" class="phone-number-input" [placeholder]="dynamicPlaceholder" [value]="phoneNumber"
+	<input #phoneField type="tel" class="phone-number-input" [placeholder]="dynamicPlaceholder" [value]="phoneNumber"
 		[disabled]="isDisabled" (input)="onPhoneInput($event)" (blur)="onBlur()" autocomplete="tel" inputmode="tel" dir="ltr" />
 
 	<!-- Custom High-Contrast Dark Dropdown Panel -->
