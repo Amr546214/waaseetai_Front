@@ -5,7 +5,7 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
-vi.mock('socket.io-client', () => ({ default: () => fakeSocket, io: () => fakeSocket }));
+(globalThis as any).__socketIoModule = () => ({ default: () => fakeSocket, io: () => fakeSocket });
 
 import { NotificationNavigator } from './notification-navigator.service';
 import { NotificationEngineService } from './notification-engine.service';

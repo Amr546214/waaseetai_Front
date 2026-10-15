@@ -14,7 +14,7 @@ const fakeSocket = {
 	removeAllListeners: vi.fn(),
 };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { HELP_SOCKET_IO, HelpAssistantSocketService, HelpStreamEvent } from './help-assistant-socket.service';
 import { AuthStore } from '../store/auth.store';
