@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { SavedReview } from '../../core/models/rating.model';
+import { SavedReview, VISIBILITY_LABEL_AR } from '../../core/models/rating.model';
 
 /**
  * The review the user saved, READ ONLY: stars and text exactly as stored, the chosen tags and the date. No form, no submit, no skip, no edit
@@ -34,6 +34,9 @@ import { SavedReview } from '../../core/models/rating.model';
 			<div class="rsc-comment" data-testid="saved-rating-comment">{{ review().comment }}</div>
 		</div>
 	}
+	@if (review().isPublic !== undefined) {
+		<div class="rsc-vis" [class.rsc-vis--off]="!review().isPublic" data-testid="saved-rating-visibility">{{ review().isPublic ? labels.published : labels.unpublished }}</div>
+	}
 	<div class="rsc-date" data-testid="saved-rating-date">أُرسل في {{ review().createdAt | date: 'yyyy/MM/dd HH:mm' }}</div>
 </div>`,
 	styles: [`
@@ -49,9 +52,12 @@ import { SavedReview } from '../../core/models/rating.model';
 .rsc-tag{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(43,212,199,.12);border:1px solid rgba(43,212,199,.3);color:#2BD4C7}
 .rsc-comment{font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--txt,#fff)}
 .rsc-date{font-size:11px;opacity:.7}
+.rsc-vis{display:inline-block;margin-bottom:10px;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700;background:rgba(43,212,199,.12);color:#2BD4C7}
+.rsc-vis--off{background:rgba(255,180,0,.12);color:#FFB400}
 `]
 })
 export class RatingSavedCard {
+	readonly labels = VISIBILITY_LABEL_AR;
 	readonly review = input.required<SavedReview>();
 	readonly label = input<string>('تقييمك');
 }

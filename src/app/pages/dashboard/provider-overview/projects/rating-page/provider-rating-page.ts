@@ -6,13 +6,14 @@ import { ActiveProjectsService } from '../../../../../core/services/active.servi
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingScore, RatingStatus } from '../../../../../core/models/rating.model';
 import { RatingSavedCard } from '../../../../../sheards/rating-saved-card/rating-saved-card.component';
+import { RatingPublishChoice } from '../../../../../sheards/rating-publish-choice/rating-publish-choice.component';
 import { SettlementSummary } from '../../../../../sheards/settlement-summary/settlement-summary.component';
 import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-provider-rating-page',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RatingSavedCard, SettlementSummary],
+	imports: [CommonModule, FormsModule, RatingSavedCard, SettlementSummary, RatingPublishChoice],
 	templateUrl: './provider-rating-page.html',
 	styleUrl: './provider-rating-page.css',
 })
@@ -41,6 +42,8 @@ export class ProviderRatingPage implements OnInit {
 
 	// What the server says BEFORE any form is shown (eligibility + the saved review). Never assumed from the progress payload.
 	status = signal<RatingStatus | null>(null);
+	/** A read after a save / 409 failed: shown with a retry (the form is never shown on an assumption). */
+	statusError = signal('');
 	view = computed<'form' | 'saved' | 'blocked'>(() => {
 		const st = this.status();
 		if (!st) return 'blocked';
@@ -93,9 +96,11 @@ export class ProviderRatingPage implements OnInit {
 	/** Reads eligibility + the saved review. A failure is an error with a retry, never "not rated yet". */
 	private loadStatus(initial = false) {
 		this.ratingApi.getRatingStatus('provider', this.projectId).subscribe({
-			next: st => { this.status.set(st); if (initial) this.isLoading.set(false); },
+			next: st => { this.status.set(st); this.statusError.set(''); if (initial) this.isLoading.set(false); },
 			error: event => {
-				if (initial) { this.error.set(event?.error?.message || 'تعذر قراءة حالة التقييم'); this.isLoading.set(false); }
+				const msg = event?.error?.message || 'تعذر قراءة حالة التقييم';
+				this.statusError.set(msg);
+				if (initial) { this.error.set(msg); this.isLoading.set(false); }
 			},
 		});
 	}
@@ -140,7 +145,7 @@ export class ProviderRatingPage implements OnInit {
 		if (this.submitting() || !this.status()?.canRate) return;
 		this.submitting.set(true);
 		this.submitError.set('');
-		const payload: { rating: RatingScore; comment?: string; tags?: string[] } = { rating };
+		const payload: { rating: RatingScore; comment?: string; tags?: string[]; publish: boolean } = { rating, publish: this.publish };
 		const note = this.comment.trim();
 		if (note) payload.comment = note;
 		if (this.chips().length) payload.tags = this.chips();

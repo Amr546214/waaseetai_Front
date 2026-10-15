@@ -48,11 +48,19 @@ export class RatingApiService {
 	}
 
 	/**
+	 * Eligibility + the saved review of ONE stage (same RatingStatus shape). Ownership is checked server-side.
+	 * GET /api/client/my-requests/:id/stages/:stageId/rating-status
+	 */
+	getStageRatingStatus(projectId: string, stageId: string): Observable<RatingStatus> {
+		return this.http.get<{ success: boolean; data: RatingStatus }>(`${this.baseUrl}/client/my-requests/${projectId}/stages/${stageId}/rating-status`).pipe(map(r => r.data));
+	}
+
+	/**
 	 * Client rates a specific stage/delivery after approving it.
 	 * POST /api/client/my-requests/:id/stages/:stageId/rating
 	 * Different from rateProvider (which rates the whole project/provider).
 	 */
-	rateStage(projectId: string, stageId: string, payload: { rating: number; comment?: string; tags?: string[] }): Observable<RatingApiResponse> {
+	rateStage(projectId: string, stageId: string, payload: { rating: number; comment?: string; tags?: string[]; publish?: boolean }): Observable<RatingApiResponse> {
 		return this.http.post<RatingApiResponse>(
 			`${this.baseUrl}/client/my-requests/${projectId}/stages/${stageId}/rating`,
 			payload,

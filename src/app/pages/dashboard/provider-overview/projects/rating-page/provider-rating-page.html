@@ -10,6 +10,12 @@
 			<div class="rp-state-code">{{ error() }}</div>
 			<button type="button" class="rp-btn-pri" (click)="retry()">اعادة المحاولة</button>
 		</div>
+	} @else if (statusError()) {
+		<div class="rp-state rp-state-error" role="alert" data-testid="rating-status-error">
+			<div class="rp-state-ttl">تعذر قراءة حالة التقييم</div>
+			<div class="rp-state-code">{{ statusError() }}</div>
+			<button type="button" class="rp-btn-pri" (click)="retry()">اعادة المحاولة</button>
+		</div>
 	} @else if (view() === 'saved' && status(); as st) {
 		<!-- ===== Saved review, READ ONLY (no form, no submit, no skip, no edit) ===== -->
 		<a class="rp-bk" (click)="goToArchived()" role="button" tabindex="0">
@@ -65,7 +71,7 @@
 			</div>
 			<div class="ws-note-body">
 				<div class="ws-note-lbl">أهمية تقييمك</div>
-				<p class="ws-note-txt">تقييمك يظهر في ملف طالب الخدمة ويساعد مقدّمي الخدمة الآخرين</p>
+				<p class="ws-note-txt">تقييمك يظهر في ملف طالب الخدمة عند نشره ويساعد مقدّمي الخدمة الآخرين، ويمكنك إبقاءه خاصًا من الخيار أدناه</p>
 			</div>
 		</div>
 
@@ -124,11 +130,8 @@
 				></textarea>
 			</div>
 
-			<!-- Publish checkbox (Provider → Client) — kept as it was until the owner decides its real behaviour (nothing is stored for this choice) -->
-			<label class="rp-publish-row">
-				<input type="checkbox" [(ngModel)]="publish" />
-				<span>نشر التقييم في ملف العميل العام</span>
-			</label>
+			<!-- Publish choice: REAL (sent as `publish`, stored by the server) and explained before submit -->
+			<app-rating-publish-choice target="client" [(value)]="publish" />
 
 			@if (submitError()) {
 				<div class="rp-err" role="alert">{{ submitError() }}</div>

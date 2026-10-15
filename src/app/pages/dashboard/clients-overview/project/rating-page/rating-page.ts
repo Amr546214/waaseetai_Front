@@ -7,13 +7,14 @@ import { environment } from '../../../../../../environments/environment';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingScore, RatingStatus } from '../../../../../core/models/rating.model';
 import { RatingSavedCard } from '../../../../../sheards/rating-saved-card/rating-saved-card.component';
+import { RatingPublishChoice } from '../../../../../sheards/rating-publish-choice/rating-publish-choice.component';
 import { SettlementSummary } from '../../../../../sheards/settlement-summary/settlement-summary.component';
 import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-rating-page',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RatingSavedCard, SettlementSummary],
+	imports: [CommonModule, FormsModule, RatingSavedCard, SettlementSummary, RatingPublishChoice],
 	templateUrl: './rating-page.html',
 	styleUrl: './rating-page.css',
 })
@@ -46,9 +47,8 @@ export class RatingPage implements OnInit {
 	// Project rating only: what the server says BEFORE any form is shown (eligibility + the saved review). Never assumed.
 	status = signal<RatingStatus | null>(null);
 	statusError = signal('');
-	/** 'form' | 'saved' | 'blocked' for the project rating; the stage rating keeps its own single form. */
+	/** 'form' | 'saved' | 'blocked', for the project rating and (same shape) for the stage rating: always decided by the server status. */
 	view = computed<'form' | 'saved' | 'blocked'>(() => {
-		if (this.isStageRating) return 'form';
 		const st = this.status();
 		if (!st) return 'blocked';
 		if (st.review) return 'saved';
@@ -96,11 +96,11 @@ export class RatingPage implements OnInit {
 					this.stage.set(found);
 					if (!found) {
 						this.error.set('تعذر العثور على المرحلة المطلوبة');
+						this.isLoading.set(false);
+						return;
 					}
-					this.isLoading.set(false);
-				} else {
-					this.loadStatus(true);
 				}
+				this.loadStatus(true);
 			},
 			error: event => {
 				this.error.set(event?.error?.message || 'تعذر تحميل بيانات المشروع');
@@ -111,7 +111,8 @@ export class RatingPage implements OnInit {
 
 	/** Reads eligibility + the saved review. A failure is shown as an error with a retry: it is never read as "not rated yet". */
 	private loadStatus(initial = false) {
-		this.ratingApi.getRatingStatus('client', this.projectId).subscribe({
+		const read = this.isStageRating ? this.ratingApi.getStageRatingStatus(this.projectId, this.stageId) : this.ratingApi.getRatingStatus('client', this.projectId);
+		read.subscribe({
 			next: st => { this.status.set(st); this.statusError.set(''); if (initial) this.isLoading.set(false); },
 			error: event => {
 				this.statusError.set(event?.error?.message || 'تعذر قراءة حالة التقييم');
@@ -157,18 +158,18 @@ export class RatingPage implements OnInit {
 
 	// Dynamic header text based on mode
 	headerTitle(): string {
-		if (this.isStageRating) return 'قيّم هذه المرحلة';
 		const st = this.status();
+		if (this.isStageRating) return st?.review ? 'تقييم المرحلة المحفوظ' : st?.canRate ? 'قيّم هذه المرحلة' : 'التقييم غير متاح الآن';
 		// A project closed by a settlement is never presented as "completed successfully", whatever else is shown below.
 		if (st?.adminSettled) return 'أُغلق بتسوية نزاع';
 		if (st?.review) return 'تقييمك المحفوظ';
 		return st?.canRate ? 'اكتمل المشروع بنجاح' : 'التقييم غير متاح الآن';
 	}
 	headerSub(): string {
-		if (this.isStageRating) {
-			return `${this.projectTitle()} · ${this.stageTitle()} · شارك تقييمك حول جودة تسليم هذه المرحلة`;
-		}
 		const st = this.status();
+		if (this.isStageRating) {
+			return st?.canRate ? `${this.projectTitle()} · ${this.stageTitle()} · شارك تقييمك حول جودة تسليم هذه المرحلة` : `${this.projectTitle()} · ${this.stageTitle()}`;
+		}
 		if (st && !st.canRate) return `${this.projectTitle()} · مع ${this.providerName()}${st.adminSettled ? ' · التوزيع الفعلي أدناه' : ''}`;
 		return `${this.projectTitle()} · مع ${this.providerName()} · أُفرِج كامل المبلغ ${this.releasedAmount()} $`;
 	}
@@ -186,30 +187,31 @@ export class RatingPage implements OnInit {
 			return;
 		}
 		if (this.submitting()) return;
-		// Project rating: the form only exists while the server said the user may rate.
-		if (!this.isStageRating && !this.status()?.canRate) return;
+		// The form only exists while the server said the user may rate (project or stage).
+		if (!this.status()?.canRate) return;
 		this.submitting.set(true);
 		this.submitError.set('');
-		const payload: { rating: RatingScore; comment?: string; tags?: string[] } = { rating };
+		const payload: { rating: RatingScore; comment?: string; tags?: string[]; publish: boolean } = { rating, publish: this.publish };
 		const note = this.comment.trim();
 		if (note) payload.comment = note;
+		if (this.chips().length) payload.tags = this.chips();
 
 		if (this.isStageRating) {
-			// Stage rating: call rateStage API, navigate back to final-approval page.
+			// Stage rating: on success the page switches to the SAVED stage review read from the server (same as the project rating).
 			this.ratingApi.rateStage(this.projectId, this.stageId, payload).subscribe({
 				next: () => {
 					this.submitting.set(false);
 					this.submitSuccess.set(true);
-					setTimeout(() => this.router.navigate(['/client-overview/projects', this.projectId, 'final-approval']), 1200);
+					this.loadStatus();
 				},
 				error: (err: any) => {
 					this.submitting.set(false);
-					if (err?.status === 409) { this.submitError.set(err?.error?.message || 'تم تقييم هذه المرحلة مسبقًا'); return; }
+					// Another window rated first (or the project was settled): reload what the server holds instead of keeping a form with an error.
+					if (err?.status === 409) { this.loadStatus(); return; }
 					this.submitError.set(err?.error?.message || 'تعذر إرسال التقييم، حاول مرة أخرى');
 				},
 			});
 		} else {
-			if (this.chips().length) payload.tags = this.chips();
 			// Project/provider rating. On success the page switches to the SAVED review (read from the server, so a refresh or a direct link shows the same card).
 			this.ratingApi.rateProvider(this.projectId, payload).subscribe({
 				next: () => {

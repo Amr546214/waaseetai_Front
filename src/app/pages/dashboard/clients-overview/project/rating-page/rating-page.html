@@ -25,12 +25,16 @@
 			<div class="rp-hd-sub">{{ headerSub() }}</div>
 		</div>
 
+		@if (statusError()) {
+			<div class="rp-err" role="alert" data-testid="rating-status-error">{{ statusError() }} <button type="button" class="rp-btn-sec" (click)="retry()">اعادة المحاولة</button></div>
+		}
+
 		@if (view() === 'saved' && status(); as st) {
 			<!-- The review the user already saved: READ ONLY (no form, no submit, no skip, no edit) -->
 			@if (st.adminSettled) { <app-settlement-summary [distribution]="st.adminSettled.distribution" /> }
-			<div class="rp-sec-ttl">تقييمك المحفوظ</div>
+			<div class="rp-sec-ttl">{{ isStageRating ? 'تقييم المرحلة المحفوظ' : 'تقييمك المحفوظ' }}</div>
 			@if (submitSuccess()) { <div class="rp-success" role="status">تم إرسال تقييمك، شكرًا لك</div> }
-			<app-rating-saved-card [review]="st.review!" label="تقييمك لمقدّم الخدمة" />
+			<app-rating-saved-card [review]="st.review!" [label]="isStageRating ? 'تقييمك للمرحلة' : 'تقييمك لمقدّم الخدمة'" />
 			@if (st.adminSettled) {
 				<div class="ws-note ws-note--neutral" role="status" data-testid="rating-settled-note"><div class="ws-note-body"><p class="ws-note-txt">أُغلق المشروع بتسوية نزاع. هذا تقييمك السابق محفوظ كما هو، ولا يمكن إنشاء تقييم جديد.</p></div></div>
 			}
@@ -40,7 +44,7 @@
 		} @else if (view() === 'blocked') {
 			@if (status()?.adminSettled; as settled) { <app-settlement-summary [distribution]="settled.distribution" /> }
 			<div class="rp-card" role="status" data-testid="rating-blocked">
-				<div class="rp-rate-lbl">{{ status()?.adminSettled ? 'أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه' : (status()?.message || 'التقييم غير متاح الآن') }}</div>
+				<div class="rp-rate-lbl" data-testid="rating-blocked-reason">{{ status()?.adminSettled ? 'أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه' : (status()?.message || 'التقييم غير متاح الآن') }}</div>
 				<div class="rp-acts"><button type="button" class="rp-btn-pri" (click)="back()">{{ backLabel() }}</button></div>
 			</div>
 		} @else {
@@ -51,7 +55,7 @@
 				</div>
 				<div class="ws-note-body">
 					<div class="ws-note-lbl">أهمية تقييمك</div>
-					<p class="ws-note-txt">تقييمك يظهر في ملف مقدّم الخدمة ويساعد العملاء الآخرين</p>
+					<p class="ws-note-txt">تقييمك يظهر في ملف مقدّم الخدمة عند نشره ويساعد العملاء الآخرين، ويمكنك إبقاءه خاصًا من الخيار أدناه</p>
 				</div>
 			</div>
 	
@@ -82,8 +86,7 @@
 					}
 				</div>
 	
-				<!-- Chips: what stood out (project/provider rating only) -->
-				@if (!isStageRating) {
+				<!-- Chips: what stood out (project and stage reviews both store their tags) -->
 					<div class="rp-rate-row">
 						<div class="rp-rate-lbl">ما الذي تميّز؟</div>
 						<div class="rp-rate-sub">اختر ما ينطبق</div>
@@ -98,7 +101,6 @@
 							}
 						</div>
 					</div>
-				}
 	
 				<!-- Comment -->
 				<div class="rp-rate-row">
@@ -112,13 +114,8 @@
 					></textarea>
 				</div>
 	
-				<!-- Publish checkbox (project/provider rating only) — kept as it was until the owner decides its real behaviour (reviews are currently public immediately; nothing is stored for this choice) -->
-				@if (!isStageRating) {
-					<label class="rp-publish-row">
-						<input type="checkbox" [(ngModel)]="publish" />
-						<span>نشر التقييم في ملف مقدّم الخدمة العام</span>
-					</label>
-				}
+				<!-- Publish choice: REAL (sent as `publish`, stored by the server) and explained before submit -->
+				<app-rating-publish-choice target="provider" [(value)]="publish" />
 
 				@if (submitError()) {
 					<div class="rp-err" role="alert">{{ submitError() }}</div>

@@ -6,7 +6,7 @@ import { vi } from 'vitest';
 import { RatingPage } from './rating-page';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 
-const WORKSPACE = { success: true, data: { title: 'QA Final Service', providerName: 'provider testter', price: 20, stages: [] } };
+const WORKSPACE = { success: true, data: { title: 'QA Final Service', providerName: 'provider testter', price: 20, stages: [{ id: 's1', title: 'المرحلة الأولى' }] } };
 const saved = { id: 'r1', rating: 4, comment: 'عمل جيد جدًا', tags: ['جودة عالية'], createdAt: '2026-10-14T19:58:51.834Z' };
 const status = (over: any = {}) => ({ projectId: 'p1', requestId: null, actor: 'client', canRate: true, reason: null, message: '', adminSettled: null, review: null, ...over });
 
@@ -15,7 +15,8 @@ function setup(statuses: any[], opts: { rate?: () => any; stageId?: string } = {
 	const api = {
 		getRatingStatus: vi.fn(() => { const next = queue.length > 1 ? queue.shift() : queue[0]; return next instanceof Error ? throwError(() => next) : of(next); }),
 		rateProvider: vi.fn(opts.rate ?? (() => of({ success: true }))),
-		rateStage: vi.fn(() => of({ success: true })),
+		getStageRatingStatus: vi.fn(() => { const next = queue.length > 1 ? queue.shift() : queue[0]; return next instanceof Error ? throwError(() => next) : of(next); }),
+		rateStage: vi.fn(opts.rate ?? (() => of({ success: true }))),
 	};
 	TestBed.configureTestingModule({
 		providers: [
@@ -73,7 +74,7 @@ describe('client rating page reads the server state before showing anything', ()
 	it('after a successful submit the page switches to the saved review read from the server', () => {
 		const { f, c, el, api } = setup([status(), status({ canRate: false, reason: 'ALREADY_RATED', review: saved })]);
 		c.selectRating(4); c.toggleChip('جودة عالية'); c.comment = 'عمل جيد جدًا'; c.submit(); f.detectChanges();
-		expect(api.rateProvider).toHaveBeenCalledWith('p1', { rating: 4, comment: 'عمل جيد جدًا', tags: ['جودة عالية'] });
+		expect(api.rateProvider).toHaveBeenCalledWith('p1', { rating: 4, comment: 'عمل جيد جدًا', tags: ['جودة عالية'], publish: true });
 		expect(has(el, '[data-testid="saved-rating-card"]')).toBe(true); expect(has(el, '.rp-stars')).toBe(false);
 	});
 
@@ -95,13 +96,76 @@ describe('client rating page reads the server state before showing anything', ()
 		expect(has(el, '.rp-stars')).toBe(false);
 	});
 
-	it('the publish checkbox is kept as it was (its real behaviour is an owner decision)', () => {
-		const { el } = setup([status()]);
-		expect(has(el, 'input[type="checkbox"]')).toBe(true);
+	it('the publish choice is explained BEFORE submit with both outcomes spelled out, and unchecking it sends publish=false', () => {
+		const { f, c, el, api } = setup([status(), status({ canRate: false, reason: 'ALREADY_RATED', review: { ...saved, isPublic: false } })]);
+		const txt = el.querySelector('[data-testid="publish-explain"]')!.textContent!;
+		expect(txt).toContain('منشور: يظهر تقييمك ونصه ووسومه واسمك في الملف العام لمقدّم الخدمة');
+		expect(txt).toContain('غير منشور: يبقى لك وللطرف الآخر وللإدارة فقط');
+		const cb = el.querySelector('[data-testid="publish-checkbox"]') as HTMLInputElement;
+		expect(cb.checked).toBe(true);
+		cb.checked = false; cb.dispatchEvent(new Event('change')); f.detectChanges();
+		c.selectRating(4); c.submit(); f.detectChanges();
+		expect(api.rateProvider).toHaveBeenCalledWith('p1', { rating: 4, publish: false });
+	});
+
+	it('the default (checkbox untouched) sends publish=true', () => {
+		const { c, api } = setup([status(), status({ canRate: false, reason: 'ALREADY_RATED', review: saved })]);
+		c.selectRating(5); c.submit();
+		expect(api.rateProvider).toHaveBeenCalledWith('p1', { rating: 5, publish: true });
+	});
+
+	it('the saved card shows the visibility state of the review', () => {
+		const pub = setup([status({ canRate: false, reason: 'ALREADY_RATED', review: { ...saved, isPublic: true } })]);
+		expect(pub.el.querySelector('[data-testid="saved-rating-visibility"]')?.textContent).toContain('منشور للعامة');
+		TestBed.resetTestingModule();
+		const hid = setup([status({ canRate: false, reason: 'ALREADY_RATED', review: { ...saved, isPublic: false } })]);
+		expect(hid.el.querySelector('[data-testid="saved-rating-visibility"]')?.textContent).toContain('غير منشور: مرئي لك وللطرف الآخر وللإدارة فقط');
 	});
 
 	it('the publish checkbox is not part of the read-only saved view', () => {
 		const { el } = setup([status({ canRate: false, reason: 'ALREADY_RATED', review: saved })]);
 		expect(has(el, 'input[type="checkbox"]')).toBe(false);
+	});
+});
+
+describe('client rating page in STAGE mode (same component)', () => {
+	afterEach(() => TestBed.resetTestingModule());
+	const stageStatus = (over: any = {}) => status({ scope: 'STAGE', stageId: 's1', ...over });
+
+	it('reads the STAGE status first (not the project one) and shows the form with tags + publish', () => {
+		const { el, api } = setup([stageStatus()], { stageId: 's1' });
+		expect(api.getStageRatingStatus).toHaveBeenCalledWith('p1', 's1');
+		expect(api.getRatingStatus).not.toHaveBeenCalled();
+		expect(has(el, '.rp-stars')).toBe(true); expect(has(el, '.rp-rchip')).toBe(true); expect(has(el, '[data-testid="publish-choice"]')).toBe(true);
+		expect(el.querySelector('.rp-hd-ttl')?.textContent).toContain('قيّم هذه المرحلة');
+	});
+
+	it('saves through rateStage with tags and publish, then switches to the saved stage card (no redirect, no form)', () => {
+		const { f, c, el, api } = setup([stageStatus(), stageStatus({ canRate: false, reason: 'ALREADY_RATED', review: { ...saved, isPublic: false } })], { stageId: 's1' });
+		c.selectRating(4); c.toggleChip('احترافية'); c.publish = false; c.submit(); f.detectChanges();
+		expect(api.rateStage).toHaveBeenCalledWith('p1', 's1', { rating: 4, tags: ['احترافية'], publish: false });
+		expect(has(el, '[data-testid="saved-rating-card"]')).toBe(true); expect(has(el, '.rp-stars')).toBe(false);
+		expect(el.querySelector('[data-testid="saved-rating-visibility"]')?.textContent).toContain('غير منشور');
+		expect(el.textContent).not.toContain('تخطّي');
+	});
+
+	it('a saved stage review opens read-only from the start; a stage not yet approved shows the blocked reason and no form', () => {
+		const a = setup([stageStatus({ canRate: false, reason: 'ALREADY_RATED', review: saved })], { stageId: 's1' });
+		expect(has(a.el, '[data-testid="saved-rating-card"]')).toBe(true); expect(has(a.el, 'textarea')).toBe(false);
+		TestBed.resetTestingModule();
+		const b = setup([stageStatus({ canRate: false, reason: 'STAGE_NOT_APPROVED', message: 'يمكن تقييم المرحلة بعد اعتمادها فقط' })], { stageId: 's1' });
+		expect(b.el.querySelector('[data-testid="rating-blocked-reason"]')?.textContent).toContain('يمكن تقييم المرحلة بعد اعتمادها فقط');
+		expect(has(b.el, '.rp-stars')).toBe(false);
+	});
+
+	it('409 on the stage reloads the stage status; a status read failure is an error with a retry', () => {
+		const first = stageStatus(); const after = stageStatus({ canRate: false, reason: 'ALREADY_RATED', review: saved });
+		const a = setup([first, after], { stageId: 's1', rate: () => throwError(() => ({ status: 409 })) });
+		a.c.selectRating(3); a.c.submit(); a.f.detectChanges();
+		expect(a.api.getStageRatingStatus).toHaveBeenCalledTimes(2);
+		expect(has(a.el, '[data-testid="saved-rating-card"]')).toBe(true);
+		TestBed.resetTestingModule();
+		const b = setup([new Error('x')], { stageId: 's1' });
+		expect(has(b.el, '.rp-state-error')).toBe(true); expect(has(b.el, '.rp-stars')).toBe(false);
 	});
 });

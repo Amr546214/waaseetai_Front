@@ -28,4 +28,13 @@ describe('RatingSavedCard (read-only saved review)', () => {
 		expect(el.querySelector('[data-testid="saved-rating-comment"]')).toBeNull();
 		expect(el.querySelectorAll('[data-testid="saved-rating-stars"] svg.on').length).toBe(2);
 	});
+
+	it('shows the visibility state: published for the public, or private (parties + admin only); nothing is drawn for an older server that sends no flag', () => {
+		const base = { id: 'r3', rating: 5, comment: null, tags: [], createdAt: '2026-10-14T19:58:51.834Z' };
+		expect(render({ ...base, isPublic: true }).querySelector('[data-testid="saved-rating-visibility"]')?.textContent).toContain('منشور للعامة');
+		TestBed.resetTestingModule();
+		expect(render({ ...base, isPublic: false }).querySelector('[data-testid="saved-rating-visibility"]')?.textContent).toContain('غير منشور: مرئي لك وللطرف الآخر وللإدارة فقط');
+		TestBed.resetTestingModule();
+		expect(render(base).querySelector('[data-testid="saved-rating-visibility"]')).toBeNull();
+	});
 });

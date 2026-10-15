@@ -62,7 +62,7 @@ describe('provider rating page reads the server state before showing anything', 
 	it('success sends stars, comment and tags, then shows the saved review', () => {
 		const { f, c, el, api } = setup([status(), status({ canRate: false, reason: 'ALREADY_RATED', review: saved })]);
 		c.selectRating(5); c.toggleChip('تعاون ممتاز'); c.comment = 'عميل متعاون'; c.submit(); f.detectChanges();
-		expect(api.rateClient).toHaveBeenCalledWith('p1', { rating: 5, comment: 'عميل متعاون', tags: ['تعاون ممتاز'] });
+		expect(api.rateClient).toHaveBeenCalledWith('p1', { rating: 5, comment: 'عميل متعاون', tags: ['تعاون ممتاز'], publish: true });
 		expect(has(el, '[data-testid="saved-rating-card"]')).toBe(true);
 	});
 
@@ -84,5 +84,28 @@ describe('provider: settled project that already had a saved review', () => {
 		expect(el.querySelector('.rp-hd-ttl')?.textContent).toContain('أُغلق بتسوية نزاع');
 		expect(has(el, '[data-testid="settlement-summary"]')).toBe(true); expect(has(el, '[data-testid="saved-rating-card"]')).toBe(true);
 		expect(has(el, '.rp-stars')).toBe(false); expect(has(el, 'textarea')).toBe(false);
+	});
+});
+
+describe('provider rating page: publish choice + visibility state', () => {
+	afterEach(() => TestBed.resetTestingModule());
+
+	it('explains the choice before submit (client profile wording) and sends publish=false when unchecked', () => {
+		const { f, c, el, api } = setup([status(), status({ canRate: false, reason: 'ALREADY_RATED', review: { ...saved, isPublic: false } })]);
+		const txt = el.querySelector('[data-testid="publish-explain"]')!.textContent!;
+		expect(txt).toContain('منشور: يظهر تقييمك ونصه ووسومه واسمك في الملف العام للعميل');
+		expect(txt).toContain('غير منشور: يبقى لك وللطرف الآخر وللإدارة فقط');
+		const cb = el.querySelector('[data-testid="publish-checkbox"]') as HTMLInputElement;
+		cb.checked = false; cb.dispatchEvent(new Event('change')); f.detectChanges();
+		c.selectRating(5); c.submit(); f.detectChanges();
+		expect(api.rateClient).toHaveBeenCalledWith('p1', { rating: 5, publish: false });
+		expect(el.querySelector('[data-testid="saved-rating-visibility"]')?.textContent).toContain('غير منشور: مرئي لك وللطرف الآخر وللإدارة فقط');
+	});
+
+	it('default sends publish=true and the saved card says it is public', () => {
+		const { c, api, f, el } = setup([status(), status({ canRate: false, reason: 'ALREADY_RATED', review: { ...saved, isPublic: true } })]);
+		c.selectRating(4); c.submit(); f.detectChanges();
+		expect(api.rateClient).toHaveBeenCalledWith('p1', { rating: 4, publish: true });
+		expect(el.querySelector('[data-testid="saved-rating-visibility"]')?.textContent).toContain('منشور للعامة');
 	});
 });
