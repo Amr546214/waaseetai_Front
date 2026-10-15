@@ -98,10 +98,8 @@ export interface RegisterInput {
 	affiliateIdentifier?: string;
 }
 
-export interface VerifyOtpInput {
-	userId: string;
-	code: string;
-}
+/** Activation code: by account id (login-while-pending path) OR by the e-mail typed at registration (the public register answer has no id). */
+export type VerifyOtpInput = { code: string } & ({ userId: string; email?: never } | { email: string; userId?: never });
 
 export interface LoginInput {
 	email: string;
