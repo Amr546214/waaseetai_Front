@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { StageRatingEntry } from '../../../../../sheards/rating-entry/rating-entry.component';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,7 +17,7 @@ export type ReviewViewState = 'reviewable' | 'frozen' | 'decided' | 'settled' | 
 
 @Component({
 	selector: 'app-delivery-review', standalone: true,
-	imports: [CommonModule, FormsModule, RouterLink],
+	imports: [CommonModule, FormsModule, RouterLink, StageRatingEntry],
 	templateUrl: './delivery-review.html', styleUrl: './delivery-review.css',
 })
 export class DeliveryReview implements OnInit {
@@ -43,6 +44,8 @@ export class DeliveryReview implements OnInit {
 	// endpoint itself doesn't echo them back — see approveDelivery() below)
 	successData = signal<{ amount: number; providerName: string; stageTitle: string; txnId: string; invoiceId: string } | null>(null);
 	private projectId = '';
+	/** The key the rating status endpoints accept (project or contract id): the same one this page loads the workspace with. */
+	rateKey() { return this.projectId; }
 	private stageId = '';
 
 	ngOnInit() {

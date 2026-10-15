@@ -1,3 +1,4 @@
+import { RatingEntry } from '../../../../../../sheards/rating-entry/rating-entry.component';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +31,7 @@ import { deliveryFileOpenUrl, deliveryFileDownloadUrl, LEGACY_FILE_NOTE } from '
 @Component({
 	selector: 'app-delivery-review',
 	standalone: true,
-	imports: [CommonModule, FormsModule],
+	imports: [CommonModule, FormsModule, RatingEntry],
 	templateUrl: './delivery-review.html',
 	styleUrl: './delivery-review.css',
 })

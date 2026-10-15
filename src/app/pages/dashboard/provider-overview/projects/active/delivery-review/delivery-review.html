@@ -180,12 +180,9 @@
 			تم إغلاق المشروع بنجاح
 		</div>
 		<p>اعتمد العميل التسليم النهائي لكل المراحل@if (financial()?.fullyPaidToProvider) { وأُفرِجت قيمة العقد عبر المراحل المعتمدة}. يمكنك الآن تقييم تجربتك مع العميل.</p>
-		<!-- RATING-SLOT (lead): «عرض تقييمك» / project-rating entry for the provider is placed by the lead; the existing «تقييم العميل» entry below is untouched. -->
+		<!-- Rating entry driven by the SERVER status (eligible → «قيّم المشروع», rated → «عرض تقييمك», settled/ineligible → no button) -->
 		<div class="dr-final-acts">
-			<button type="button" class="btn-pri" (click)="goToRating()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-				تقييم العميل
-			</button>
+			<app-rating-entry side="provider" [key]="projectId()" [showReason]="true" />
 			<button type="button" class="btn-gh" (click)="goToWorkspace()">العودة إلى مساحة العمل</button>
 		</div>
 	</div>

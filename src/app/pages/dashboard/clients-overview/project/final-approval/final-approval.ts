@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { RatingEntry, StageRatingEntry } from '../../../../../sheards/rating-entry/rating-entry.component';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -11,7 +12,7 @@ import { deliveryFileOpenUrl, deliveryFileDownloadUrl } from '../../../../../cor
 @Component({
 	selector: 'app-final-approval',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, RatingEntry, StageRatingEntry],
 	templateUrl: './final-approval.html',
 	styleUrl: './final-approval.css',
 })
@@ -24,6 +25,7 @@ export class FinalApproval implements OnInit {
 	isLoading = signal(true);
 	error = signal('');
 	private projectId = '';
+	rateKey() { return this.projectId; }
 
 	ngOnInit() {
 		this.projectId = this.route.snapshot.paramMap.get('id') || '';

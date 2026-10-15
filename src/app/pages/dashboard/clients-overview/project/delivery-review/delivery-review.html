@@ -123,7 +123,7 @@
 							<svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 							<span>اعتمدتَ هذا التسليم@if (decisionDate(stage)) { بتاريخ {{ formatDate(decisionDate(stage)) }} }. أُفرج مبلغ المرحلة من الضمان لمقدم الخدمة.</span>
 						</div>
-						<!-- RATING-SLOT (lead): the stage-rating entry («قيّم المرحلة» / «عرض تقييمك») for this approved stage is placed here. This page only consumes the existing rating-status endpoints. -->
+						<app-stage-rating-entry [key]="rateKey()" [stageId]="stage.id" />
 					}
 					@case ('settled') {
 						<div class="inline-error" role="status" data-testid="dr-settled">

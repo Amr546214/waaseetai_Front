@@ -5,6 +5,7 @@ import { of, throwError, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { DeliveryReview } from './delivery-review';
+import { RatingApiService } from '../../../../../core/services/rating-api.service';
 
 // Shape matches ProjectProgressService.getProjectProgress()'s real "workspace"
 // response (waseetai-backend/src/services/project-progress.service.ts). Note
@@ -56,6 +57,8 @@ describe('DeliveryReview', () => {
     await TestBed.configureTestingModule({
       imports: [DeliveryReview],
       providers: [
+        // the stage-rating entry reads its OWN status (not the workspace HTTP spy this spec counts)
+        { provide: RatingApiService, useValue: { getStageRatingStatus: () => of({ projectId: 'p', requestId: null, actor: 'client', canRate: true, reason: null, message: '', adminSettled: null, review: null }), getRatingStatus: () => of({ projectId: 'p', requestId: null, actor: 'client', canRate: true, reason: null, message: '', adminSettled: null, review: null }) } },
         provideRouter([]),
         { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), post: (...args: any[]) => postSpy(...args) } },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1', stageId: 'stage-1' }) } } }

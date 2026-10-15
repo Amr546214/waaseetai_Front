@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { FinalApproval } from './final-approval';
+import { RatingApiService } from '../../../../../core/services/rating-api.service';
 
 // Achievement summary (final-approval page) on the SERVER lifecycle: a settled project is never «اكتملت كل المراحل» / «قيد التنفيذ», shows no held money, no fake 100%,
 // and the settlement's own figures (kept separate from the money released through stage approvals).
@@ -16,6 +17,7 @@ const SETTLED = { success: true, data: {
 describe('final approval / achievement summary: lifecycle', () => {
 	async function setup(ws: any) {
 		await TestBed.configureTestingModule({ imports: [FinalApproval], providers: [provideRouter([]),
+			{ provide: RatingApiService, useValue: { getRatingStatus: () => of({ projectId: 'p', requestId: null, actor: 'client', canRate: true, reason: null, message: '', adminSettled: null, review: null }), getStageRatingStatus: () => of({ projectId: 'p', requestId: null, actor: 'client', canRate: true, reason: null, message: '', adminSettled: null, review: null }) } },
 			{ provide: HttpClient, useValue: { get: () => of(ws), post: vi.fn() } },
 			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
 		const f = TestBed.createComponent(FinalApproval); f.detectChanges(); await f.whenStable(); f.detectChanges();
@@ -30,7 +32,7 @@ describe('final approval / achievement summary: lifecycle', () => {
 		expect(s.q('fa-badge')!.textContent).toContain('أُغلق بتسوية نزاع');
 		for (const bad of ['اكتملت كل المراحل', 'المشروع قيد التنفيذ', 'محتجز بالضمان', 'أُفرِج كامل']) expect(s.text(), bad).not.toContain(bad);
 		expect(s.text()).not.toMatch(/محتجز\s*[1-9]/); // «محتجز الآن 0» is fine; no positive held amount is shown
-		expect(s.q('fa-continue-rating')).toBeNull();
+		expect(s.el.querySelector('app-rating-entry')).toBeNull();
 		expect(s.q('fa-settled-no-rating')!.textContent).toContain('لا يتاح تقييمه');
 		expect(s.el.querySelectorAll('.fa-rate-btn').length).toBe(0);
 		expect(s.text()).toContain('أُغلقت بالتسوية');
@@ -60,7 +62,8 @@ describe('final approval / achievement summary: lifecycle', () => {
 	it('a normal delivery-completed project is unchanged: all approved, rating action offered', async () => {
 		const s = await setup({ success: true, data: { title: 'م', price: 20, providerName: 'ن', contractStatus: 'COMPLETED', completedByDelivery: true, closedBySettlement: false, financial: { releasedByStageApprovals: 20, heldNow: 0, settlement: null, contractValue: 20 }, stages: [stage({ id: 'a', status: 'completed', amount: 10 }), stage({ id: 'b', stageNumber: 2, status: 'completed', amount: 10 })] } });
 		expect(s.q('fa-badge')!.textContent).toContain('اكتملت كل المراحل');
-		expect(s.q('fa-continue-rating')).not.toBeNull();
+		expect(s.el.querySelector('app-rating-entry')).not.toBeNull(); // status-driven entry («قيّم المشروع» / «عرض تقييمك»)
+		expect(s.el.querySelector('app-rating-entry [data-testid="rating-entry-rate"]')!.textContent).toContain('قيّم المشروع');
 		expect(s.q('fa-settlement')).toBeNull();
 		expect(s.c.releasedAmount()).toBe(20);
 	});
