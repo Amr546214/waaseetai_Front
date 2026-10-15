@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of, BehaviorSubject } from 'rxjs';
+import { of, BehaviorSubject, Subject, throwError } from 'rxjs';
+import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../shared/forms/form-spec-utils';
 import { TicketApiService } from '../../../../core/services/ticket-api.service';
 import { AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { SaSupport } from './sa-support';
@@ -105,5 +106,66 @@ describe('SaSupport (admin tickets, real API)', () => {
 			expect(esc.disabled).toBe(true);
 			expect(el.textContent).toContain('يتطلب جدولاً لقياس زمن الاستجابة');
 		});
+	});
+});
+
+describe('SaSupportDetail form validation UX', () => {
+	afterEach(() => TestBed.resetTestingModule());
+	function setup() {
+		const detail = { success: true, data: { ticket, user, messages: [], assignedTo: null, internalNotes: [] } };
+		const api: any = {
+			adminGetTicket: vi.fn(() => of(detail)),
+			adminListTickets: vi.fn(() => of({ success: true, data: { items: [], counts: {}, pagination: {} } })),
+			adminReply: vi.fn(() => of({ success: true, data: {} })), adminAssign: vi.fn(() => of({ success: true })), adminAddNote: vi.fn(() => of({ success: true })),
+			adminSetPriority: vi.fn(() => of({ success: true })), adminSetStatus: vi.fn(() => of({ success: true })),
+		};
+		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+		const f = TestBed.createComponent(SaSupportDetail);
+		f.detectChanges();
+		const el = f.nativeElement as HTMLElement;
+		return { f, c: f.componentInstance, api, el, byId: (id: string) => el.querySelector('#' + id) as HTMLElement };
+	}
+
+	it('empty reply / note / assignee: a message under each control, focus, no request', async () => {
+		const { f, c, api, byId, el } = setup();
+		c.sendReply(); await settleForm();
+		expectFieldProblem(byId('sup-reply'), 'اكتب نص الرد');
+		expectFocused(byId('sup-reply'));
+		c.addNote(); await settleForm();
+		expectFieldProblem(byId('sup-note'), 'ملاحظة');
+		c.assign(); await settleForm(); f.detectChanges();
+		expectFieldProblem(el.querySelector('ws-select[id="sup-assignee"] button, #sup-assignee-trigger'), 'اختر الموظف');
+		expect(api.adminReply).not.toHaveBeenCalled(); expect(api.adminAddNote).not.toHaveBeenCalled(); expect(api.adminAssign).not.toHaveBeenCalled();
+	});
+
+	it('reply: 400 naming the body goes under the box; 429 / 500 / 409 / 403 stay a generic alert; typed text is kept', async () => {
+		const { f, c, api, byId, el } = setup();
+		c.draftReply.set('نص الرد');
+		api.adminReply.mockReturnValueOnce(throwError(() => httpFail(400, { errors: [{ field: 'body', message: 'الرد طويل جدًا' }] })));
+		c.sendReply(); await settleForm(); f.detectChanges();
+		expectFieldProblem(byId('sup-reply'), 'طويل جدًا');
+		for (const st of [429, 500, 409, 403, 0]) {
+			api.adminReply.mockReturnValueOnce(throwError(() => httpFail(st, { message: 'x' })));
+			c.sendReply(); await settleForm(); f.detectChanges();
+			expect(c.replyError(), String(st)).toBeTruthy();
+			expectNoFieldProblem(el);
+			expect(el.querySelector('[data-testid="reply-error"]')?.getAttribute('role')).toBe('alert');
+		}
+		expect(c.draftReply()).toBe('نص الرد');
+	});
+
+	it('a double click on send sends one reply request', () => {
+		const { c, api } = setup();
+		c.draftReply.set('نص الرد');
+		api.adminReply.mockReturnValue(new Subject());
+		c.sendReply(); c.sendReply();
+		expect(api.adminReply).toHaveBeenCalledTimes(1);
+	});
+
+	it('status change failure shows an honest banner, not a toast only', async () => {
+		const { f, c, api, el } = setup();
+		api.adminSetStatus.mockReturnValueOnce(throwError(() => httpFail(500, null)));
+		c.setStatus('RESOLVED'); await settleForm(); f.detectChanges();
+		expect(el.querySelector('[data-testid="action-error"]')?.textContent).toContain('الخادم');
 	});
 });

@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, throwError, BehaviorSubject } from 'rxjs';
 import { vi } from 'vitest';
+import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../../shared/forms/form-spec-utils';
 
 import { SaDisputeDetail } from './sa-dispute-detail';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
@@ -198,5 +199,79 @@ describe('SaDisputeDetail - financial decision is SUPER_ADMIN only', () => {
     expect((el.querySelector('[data-testid="open-financial"]') as HTMLButtonElement).disabled).toBe(false);
     c.openFinancialForm(); f.detectChanges();
     expect(el.querySelector('[data-testid="financial-form"]')).not.toBeNull();
+  });
+});
+
+describe('SaDisputeDetail - validation UX', () => {
+  afterEach(() => TestBed.resetTestingModule());
+  const byId = (el: HTMLElement, id: string) => el.querySelector('#' + id) as HTMLElement;
+
+  it('financial form: no outcome -> message at the outcome group; wrong sum -> message at the refund field, focus moves, nothing is sent', async () => {
+    const { f, c, api, el } = setup();
+    c.openFinancialForm(); f.detectChanges();
+    c.requestFinancialConfirm(); await settleForm();
+    expectFieldProblem(byId(el, 'dp-fin-outcome'), 'اختر نوع القرار');
+    expectFocused(byId(el, 'dp-fin-outcome'));
+    c.chooseOutcome('SPLIT'); f.detectChanges();
+    expect(el.querySelectorAll('.ws-invalid').length).toBe(0);   // choosing an outcome clears the old mark
+    c.finRefund.set('100'); c.finRelease.set('100'); f.detectChanges();
+    c.requestFinancialConfirm(); await settleForm();
+    expectFieldProblem(byId(el, 'dp-fin-refund'), 'يجب أن يساوي المبلغ المحتجز');
+    expectFocused(byId(el, 'dp-fin-refund'));
+    expect(c.finRelease()).toBe('100');
+    expect(api.resolveAdminDisputeFinancial).not.toHaveBeenCalled();
+    expect(c.finConfirmStep()).toBe(false);
+  });
+
+  it('financial form: a negative release amount is reported at the release field', async () => {
+    const { f, c, el } = setup();
+    c.openFinancialForm(); c.chooseOutcome('SPLIT'); f.detectChanges();
+    c.finRefund.set('700'); c.finRelease.set('-100'); f.detectChanges();
+    c.requestFinancialConfirm(); await settleForm();
+    expectFieldProblem(byId(el, 'dp-fin-release'), 'سالبًا');
+  });
+
+  it('financial submit: a 400 naming refundToClient goes under that field; 429 / 500 / 403 stay a generic alert and no amount is touched', async () => {
+    const calls: number[] = [];
+    const { f, c, api, el } = setup({}, () => { const st = [400, 429, 500, 403][calls.length]; calls.push(st); return throwError(() => httpFail(st, st === 400 ? { errors: [{ field: 'refundToClient', message: 'مبلغ الاسترداد لا يطابق المحتجز' }] } : { message: 'x' })); });
+    c.openFinancialForm(); c.chooseOutcome('REFUND_CLIENT'); f.detectChanges();
+    for (let i = 0; i < 4; i++) {
+      c.requestFinancialConfirm(); c.finConfirmed.set(true); c.submitFinancial();
+      await settleForm(); f.detectChanges();
+      if (i === 0) { expectFieldProblem(byId(el, 'dp-fin-refund'), 'لا يطابق المحتجز'); expect(c.finError()).toBe(''); }
+      else { expect(c.finError(), String(i)).toBeTruthy(); expectNoFieldProblem(el); expect(el.querySelector('[data-testid="fin-error"]')?.getAttribute('role')).toBe('alert'); }
+    }
+    expect(api.resolveAdminDisputeFinancial).toHaveBeenCalledTimes(4);
+    expect(c.finRefund()).toBe('600.00');
+    expect(c.showFinancialForm()).toBe(true);
+  });
+
+  it('text decision: empty resolution -> message under the resolution input with focus; short note -> under the note', async () => {
+    const { f, c, api, el } = setup();
+    c.openResolveForm('resolve'); f.detectChanges();
+    c.resolutionNote.set('x'); f.detectChanges();
+    c.requestResolveConfirm(); await settleForm();
+    expectFieldProblem(byId(el, 'dp-resolution'), 'قرار النزاع');
+    expectFieldProblem(byId(el, 'dp-resolution-note'), 'قصيرة');
+    expectFocused(byId(el, 'dp-resolution'));
+    expect(c.confirmingResolve()).toBe(false);
+    expect(api.resolveAdminDispute).not.toHaveBeenCalled();
+  });
+
+  it('text decision: 500 on submit is a generic alert, not a field error', async () => {
+    const { f, c, api, el } = setup();
+    api.resolveAdminDispute.mockReturnValueOnce(throwError(() => httpFail(500, null)));
+    c.openResolveForm('resolve'); c.resolutionText.set('تم الحل'); f.detectChanges();
+    c.requestResolveConfirm(); c.submitResolve(); await settleForm(); f.detectChanges();
+    expect(el.querySelector('[data-testid="resolve-error"]')?.textContent).toContain('الخادم');
+    expectNoFieldProblem(el);
+  });
+
+  it('assign / note without input explain themselves at the control and send nothing', async () => {
+    const { f, c, el } = setup();
+    c.assign(); await settleForm(); f.detectChanges();
+    expectFieldProblem(el.querySelector('#dp-assignee-trigger'), 'اختر الموظف');
+    c.addNote(); await settleForm();
+    expectFieldProblem(byId(el, 'dp-note'), 'الملاحظة');
   });
 });

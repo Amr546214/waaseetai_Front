@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
@@ -7,6 +7,8 @@ import { DisputeApiService } from '../../../../../core/services/dispute-api.serv
 import { AdminOpsApiService, AdminStaffMember } from '../../../../../core/services/admin-ops-api.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { FieldProblem } from '../../../../../shared/forms/form-error-focus';
+import { clearAllInvalid, handleAdminError, reportAdminProblems } from '../../shared/admin-form-report';
 import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, ResolveFinancialPayload, FinancialOutcomeCode, DisputeAiSummary } from '../../../../../core/models/dispute.model';
 import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionText } from '../../../../../core/utils/dispute-labels.util';
 
@@ -23,6 +25,9 @@ export class SaDisputeDetail implements OnInit {
   private disputeApi = inject(DisputeApiService);
   private opsApi = inject(AdminOpsApiService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** Honest failure of assign / note / status (network, 429, 5xx, 403, 409, non-field 400), next to the controls. */
+  opError = signal('');
   private auth = inject(AuthStore);
 
   selectedDispute = signal<Dispute | null>(null);
@@ -217,9 +222,10 @@ export class SaDisputeDetail implements OnInit {
     });
   }
 
-  private runOp(call: (id: string) => import('rxjs').Observable<{ success: boolean; message?: string }>, successMsg: string, fail: string, after?: () => void) {
+  private runOp(call: (id: string) => import('rxjs').Observable<{ success: boolean; message?: string }>, successMsg: string, fail: string, after?: () => void, resolve: Record<string, string> = {}) {
     const dispute = this.selectedDispute();
     if (!dispute || this.opBusy()) return;
+    this.opError.set('');
     this.opBusy.set(true);
     call(dispute.id).subscribe({
       next: (res) => {
@@ -228,26 +234,26 @@ export class SaDisputeDetail implements OnInit {
           after?.();
           this.reload(successMsg);
         } else {
-          this.notify.error(res.message || fail);
+          this.opError.set(res.message || fail);
         }
       },
       error: (err) => {
         this.opBusy.set(false);
-        this.notify.error(err?.error?.message || fail);
+        handleAdminError(this.host.nativeElement, err, { fallback: fail, resolve }, (m) => this.opError.set(m));
       },
     });
   }
 
   assign() {
     const assigneeId = this.selectedAssigneeId();
-    if (!assigneeId) return;
-    this.runOp((id) => this.disputeApi.assignAdminDispute(id, assigneeId), 'تم إسناد النزاع', 'تعذر إسناد النزاع');
+    if (!assigneeId) { this.opError.set(''); void reportAdminProblems(this.host.nativeElement, [{ field: 'dp-assignee', message: 'اختر الموظف الذي سيُسنَد إليه النزاع' }]); return; }
+    this.runOp((id) => this.disputeApi.assignAdminDispute(id, assigneeId), 'تم إسناد النزاع', 'تعذر إسناد النزاع', undefined, { assigneeId: 'dp-assignee' });
   }
 
   addNote() {
     const body = this.noteDraft().trim();
-    if (!body) return;
-    this.runOp((id) => this.disputeApi.addAdminDisputeNote(id, body), 'تمت إضافة الملاحظة الداخلية', 'تعذر إضافة الملاحظة', () => this.noteDraft.set(''));
+    if (!body) { this.opError.set(''); void reportAdminProblems(this.host.nativeElement, [{ field: 'dp-note', message: 'اكتب نص الملاحظة الداخلية قبل الإضافة' }]); return; }
+    this.runOp((id) => this.disputeApi.addAdminDisputeNote(id, body), 'تمت إضافة الملاحظة الداخلية', 'تعذر إضافة الملاحظة', () => this.noteDraft.set(''), { body: 'dp-note' });
   }
 
   setStatus(status: 'OPEN' | 'UNDER_REVIEW') {
@@ -289,6 +295,7 @@ export class SaDisputeDetail implements OnInit {
   /** Picking an outcome pre-fills explicit amounts that settle the whole held balance; the admin can still edit them before confirming. */
   chooseOutcome(code: FinancialOutcomeCode) {
     const d = this.selectedDispute(); if (!d) return;
+    clearAllInvalid(this.host.nativeElement);
     const held = this.heldAmount(d);
     this.finOutcome.set(code);
     this.finConfirmStep.set(false); this.finConfirmed.set(false); this.finError.set('');
@@ -302,27 +309,39 @@ export class SaDisputeDetail implements OnInit {
   finReleaseNum = computed(() => this.amount(this.finRelease()));
   finSum = computed(() => this.round2((this.finRefundNum() || 0) + (this.finReleaseNum() || 0)));
 
-  /** Client-side mirror of the backend rules (the backend re-checks everything). Returns an Arabic message or ''. */
-  financialValidation(d: Dispute): string {
+  /** Client-side mirror of the backend rules (the backend re-checks everything): every problem with the control it belongs to. */
+  financialProblems(d: Dispute): FieldProblem[] {
     const outcome = this.finOutcome(); const refund = this.finRefundNum(); const release = this.finReleaseNum(); const held = this.heldAmount(d);
-    if (!outcome) return 'اختر نوع القرار المالي';
-    if (Number.isNaN(refund) || Number.isNaN(release)) return 'أدخل مبلغين صحيحين';
-    if (refund < 0 || release < 0) return 'لا يمكن أن يكون المبلغ سالبًا';
-    if (this.round2(refund) !== refund || this.round2(release) !== release) return 'بحد أقصى خانتان عشريتان';
-    if (outcome === 'REFUND_CLIENT' && !(refund > 0 && release === 0)) return 'الاسترداد الكامل: مبلغ العميل أكبر من صفر ومبلغ مقدم الخدمة صفر';
-    if (outcome === 'RELEASE_PROVIDER' && !(release > 0 && refund === 0)) return 'الصرف الكامل: مبلغ مقدم الخدمة أكبر من صفر ومبلغ العميل صفر';
-    if (outcome === 'SPLIT' && !(release > 0 && refund > 0)) return 'التقسيم: يجب أن يكون المبلغان أكبر من صفر';
-    if (this.finSum() !== held) return `مجموع المبلغين (${this.finSum()}) يجب أن يساوي المبلغ المحتجز بالكامل (${held})`;
+    if (!outcome) return [{ field: 'dp-fin-outcome', message: 'اختر نوع القرار المالي' }];
+    const R = 'dp-fin-refund', L = 'dp-fin-release';
+    if (Number.isNaN(refund)) return [{ field: R, message: 'أدخل مبلغين صحيحين (مبلغ العميل ومبلغ مقدم الخدمة)' }, ...(Number.isNaN(release) ? [{ field: L, message: 'أدخل مبلغين صحيحين (مبلغ العميل ومبلغ مقدم الخدمة)' }] : [])];
+    if (Number.isNaN(release)) return [{ field: L, message: 'أدخل مبلغين صحيحين (مبلغ العميل ومبلغ مقدم الخدمة)' }];
+    const out: FieldProblem[] = [];
+    if (refund < 0) out.push({ field: R, message: 'لا يمكن أن يكون المبلغ سالبًا' });
+    if (release < 0) out.push({ field: L, message: 'لا يمكن أن يكون المبلغ سالبًا' });
+    if (out.length) return out;
+    if (this.round2(refund) !== refund) out.push({ field: R, message: 'بحد أقصى خانتان عشريتان' });
+    if (this.round2(release) !== release) out.push({ field: L, message: 'بحد أقصى خانتان عشريتان' });
+    if (out.length) return out;
+    if (outcome === 'REFUND_CLIENT' && !(refund > 0 && release === 0)) return [{ field: !(refund > 0) ? R : L, message: 'الاسترداد الكامل: مبلغ العميل أكبر من صفر ومبلغ مقدم الخدمة صفر' }];
+    if (outcome === 'RELEASE_PROVIDER' && !(release > 0 && refund === 0)) return [{ field: !(release > 0) ? L : R, message: 'الصرف الكامل: مبلغ مقدم الخدمة أكبر من صفر ومبلغ العميل صفر' }];
+    if (outcome === 'SPLIT' && !(release > 0 && refund > 0)) return [{ field: !(refund > 0) ? R : L, message: 'التقسيم: يجب أن يكون المبلغان أكبر من صفر' }];
+    if (this.finSum() !== held) return [{ field: R, message: `مجموع المبلغين (${this.finSum()}) يجب أن يساوي المبلغ المحتجز بالكامل (${held})` }];
     const note = this.finNote().trim();
-    if (note && note.length < 2) return 'الملاحظة قصيرة جدًا: اكتب حرفين على الأقل أو اتركها فارغة';
-    return '';
+    if (note && note.length < 2) return [{ field: 'dp-fin-note', message: 'الملاحظة قصيرة جدًا: اكتب حرفين على الأقل أو اتركها فارغة' }];
+    return [];
+  }
+
+  /** First message of financialProblems, or '' (kept for callers that only need the text). */
+  financialValidation(d: Dispute): string {
+    return this.financialProblems(d)[0]?.message ?? '';
   }
 
   /** Step 1: validate and show the explicit confirmation; nothing is sent. */
   requestFinancialConfirm() {
     const d = this.selectedDispute(); if (!d) return;
-    const problem = this.financialValidation(d);
-    if (problem) { this.finError.set(problem); return; }
+    const problems = this.financialProblems(d);
+    if (problems.length) { this.finError.set(''); void reportAdminProblems(this.host.nativeElement, problems); return; }
     this.finError.set(''); this.finConfirmed.set(false); this.finConfirmStep.set(true);
   }
 
@@ -330,8 +349,8 @@ export class SaDisputeDetail implements OnInit {
   submitFinancial() {
     const d = this.selectedDispute(); const outcome = this.finOutcome();
     if (!d || !outcome || this.finSubmitting() || !this.finConfirmStep() || !this.finConfirmed()) return;
-    const problem = this.financialValidation(d);
-    if (problem) { this.finError.set(problem); this.finConfirmStep.set(false); return; }
+    const problems = this.financialProblems(d);
+    if (problems.length) { this.finError.set(''); this.finConfirmStep.set(false); void reportAdminProblems(this.host.nativeElement, problems); return; }
     const payload: ResolveFinancialPayload = { outcome, refundToClient: this.finRefundNum(), releaseToProvider: this.finReleaseNum(), expectedHeldAmount: this.heldAmount(d), confirm: true };
     const note = this.finNote().trim();
     if (note) payload.resolutionNote = note;
@@ -350,8 +369,8 @@ export class SaDisputeDetail implements OnInit {
       },
       error: (err) => {
         this.finSubmitting.set(false);
-        this.finError.set(err?.error?.message || 'تعذر تنفيذ القرار المالي، لم يتغيّر أي مبلغ');
         this.finConfirmStep.set(false);
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تنفيذ القرار المالي، لم يتغيّر أي مبلغ', resolve: { refundToClient: 'dp-fin-refund', releaseToProvider: 'dp-fin-release', resolutionNote: 'dp-fin-note', outcome: 'dp-fin-outcome' } }, (m) => this.finError.set(m));
       },
     });
   }
@@ -399,16 +418,12 @@ export class SaDisputeDetail implements OnInit {
 
   /** Step 1: validates the form and shows the warning; nothing is sent yet. */
   requestResolveConfirm() {
-    if (!this.resolutionText().trim()) {
-      this.resolveError.set('يرجى كتابة قرار النزاع');
-      return;
-    }
+    const problems: FieldProblem[] = [];
+    if (!this.resolutionText().trim()) problems.push({ field: 'dp-resolution', message: 'يرجى كتابة قرار النزاع' });
     const note = this.resolutionNote().trim();
-    if (note && note.length < 2) {
-      this.resolveError.set('الملاحظة قصيرة جدًا: اكتب حرفين على الأقل أو اتركها فارغة');
-      return;
-    }
+    if (note && note.length < 2) problems.push({ field: 'dp-resolution-note', message: 'الملاحظة قصيرة جدًا: اكتب حرفين على الأقل أو اتركها فارغة' });
     this.resolveError.set('');
+    if (problems.length) { void reportAdminProblems(this.host.nativeElement, problems); return; }
     this.confirmingResolve.set(true);
   }
 
@@ -424,7 +439,8 @@ export class SaDisputeDetail implements OnInit {
 
     const resolution = this.resolutionText().trim();
     if (!resolution) {
-      this.resolveError.set('يرجى كتابة قرار النزاع');
+      this.confirmingResolve.set(false);
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'dp-resolution', message: 'يرجى كتابة قرار النزاع' }]);
       return;
     }
 
@@ -456,8 +472,8 @@ export class SaDisputeDetail implements OnInit {
       },
       error: (err) => {
         this.submittingResolve.set(false);
-        this.resolveError.set(err?.error?.message || 'تعذر تحديث حالة النزاع، حاول مرة أخرى');
         this.confirmingResolve.set(false);
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تحديث حالة النزاع، حاول مرة أخرى', resolve: { resolution: 'dp-resolution', resolutionNote: 'dp-resolution-note' } }, (m) => this.resolveError.set(m));
       },
     });
   }

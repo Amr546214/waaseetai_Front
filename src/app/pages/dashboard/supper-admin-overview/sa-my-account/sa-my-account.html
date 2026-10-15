@@ -5,30 +5,30 @@
   <div class="ma-card" data-testid="profile-card">
     <div class="ma-ttl">البيانات الشخصية</div>
     <div class="ma-row">
-      <label class="ma-f">الاسم الأول<input type="text" maxlength="60" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" data-testid="first-name" /></label>
-      <label class="ma-f">اسم العائلة<input type="text" maxlength="60" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" data-testid="last-name" /></label>
+      <label class="ma-f">الاسم الأول<input type="text" maxlength="60" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" id="ma-first-name" data-testid="first-name" /></label>
+      <label class="ma-f">اسم العائلة<input type="text" maxlength="60" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" id="ma-last-name" data-testid="last-name" /></label>
     </div>
     <div class="ma-row">
       <label class="ma-f">البريد الإلكتروني (للقراءة فقط)<input type="text" [value]="profile()?.email ?? ''" disabled style="direction:ltr" /></label>
-      <label class="ma-f">رقم الجوال ({{ profile()?.phoneCountryCode || '+966' }})<input type="tel" inputmode="numeric" [ngModel]="phoneNumber()" (ngModelChange)="phoneNumber.set($event)" style="direction:ltr" data-testid="phone" /></label>
+      <label class="ma-f">رقم الجوال ({{ profile()?.phoneCountryCode || '+966' }})<input type="tel" inputmode="numeric" [ngModel]="phoneNumber()" (ngModelChange)="phoneNumber.set($event)" style="direction:ltr" id="ma-phone" data-testid="phone" /></label>
     </div>
     <div class="ma-row">
       <label class="ma-f">الصورة الشخصية<input type="text" disabled [title]="avatarReason" [value]="avatarReason" /></label>
     </div>
     <button type="button" class="ma-btn" (click)="saveProfile()" [disabled]="savingProfile()" data-testid="save-profile">{{ savingProfile() ? 'جارٍ الحفظ…' : 'حفظ البيانات' }}</button>
-    @if (profileMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" role="status">{{ m.text }}</div> }
+    @if (profileMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" [attr.role]="m.ok ? 'status' : 'alert'">{{ m.text }}</div> }
   </div>
 
   <div class="ma-card" data-testid="password-card">
     <div class="ma-ttl">تغيير كلمة المرور</div>
     <div class="ma-row">
-      <label class="ma-f">كلمة المرور الحالية<input type="password" autocomplete="current-password" [ngModel]="currentPassword()" (ngModelChange)="currentPassword.set($event)" data-testid="pw-current" /></label>
-      <label class="ma-f">كلمة المرور الجديدة<input type="password" autocomplete="new-password" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)" data-testid="pw-new" /></label>
-      <label class="ma-f">تأكيد كلمة المرور<input type="password" autocomplete="new-password" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" data-testid="pw-confirm" /></label>
+      <label class="ma-f">كلمة المرور الحالية<input type="password" autocomplete="current-password" [ngModel]="currentPassword()" (ngModelChange)="currentPassword.set($event)" id="ma-pw-current" data-testid="pw-current" /></label>
+      <label class="ma-f">كلمة المرور الجديدة<input type="password" autocomplete="new-password" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)" id="ma-pw-new" data-testid="pw-new" /></label>
+      <label class="ma-f">تأكيد كلمة المرور<input type="password" autocomplete="new-password" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" id="ma-pw-confirm" data-testid="pw-confirm" /></label>
     </div>
     <div class="ma-note">8 أحرف على الأقل وتجمع ثلاثة أنواع من (حروف كبيرة، صغيرة، أرقام، رموز). بعد التغيير تُنهى جلسات الأجهزة الأخرى.</div>
     <button type="button" class="ma-btn" style="margin-top:10px" (click)="changePassword()" [disabled]="savingPw()" data-testid="change-password">{{ savingPw() ? 'جارٍ التغيير…' : 'تغيير كلمة المرور' }}</button>
-    @if (pwMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" role="status">{{ m.text }}</div> }
+    @if (pwMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" [attr.role]="m.ok ? 'status' : 'alert'">{{ m.text }}</div> }
   </div>
 
   <div class="ma-card" data-testid="twofa-card">
@@ -55,7 +55,7 @@
       <div class="ma-note">لا توجد جلسات نشطة معروضة.</div>
     }
     <button type="button" class="ma-btn ma-btn-danger" style="margin-top:12px" [disabled]="!hasOthers()" [title]="hasOthers() ? '' : 'لا توجد جلسات أخرى لإنهائها'" (click)="askTerminate('others')" data-testid="terminate-others">إنهاء كل الجلسات الأخرى</button>
-    @if (sessionsMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" role="status">{{ m.text }}</div> }
+    @if (sessionsMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" [attr.role]="m.ok ? 'status' : 'alert'">{{ m.text }}</div> }
   </div>
 </section>
 

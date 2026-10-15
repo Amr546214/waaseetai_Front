@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { handleAdminError, reportAdminProblems } from '../../shared/admin-form-report';
 import { AccreditationApiService } from '../../../../../core/services/accreditation-api.service';
 import { AccreditationSample, AssessmentFlagCode, AssessmentReviewData } from '../../../../../core/models/accreditation.model';
 import { providerProfileLink, sampleStatusClass, sampleStatusLabel } from '../accreditation-status';
@@ -16,6 +17,7 @@ export class SaAccreditationDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private accreditationApi = inject(AccreditationApiService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   selected = signal<AccreditationSample | null>(null);
   loading = signal(true);
@@ -150,7 +152,7 @@ export class SaAccreditationDetail implements OnInit {
       error: (err) => {
         this.submittingAction.set(false);
         this.showApproveConfirm.set(false);
-        this.actionError.set(err?.error?.message || 'تعذر اعتماد النموذج، حاول مرة أخرى');
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر اعتماد النموذج، حاول مرة أخرى' }, (m) => this.actionError.set(m));
       },
     });
   }
@@ -177,7 +179,8 @@ export class SaAccreditationDetail implements OnInit {
     if (!sample || this.submittingAction()) return;
     const reason = this.rejectionReason().trim();
     if (reason.length < 2) {
-      this.actionError.set('يرجى كتابة سبب الرفض (حرفان على الأقل)');
+      this.actionError.set('');
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'acc-reject-reason', message: reason ? 'سبب الرفض قصير جدًا: اكتب حرفين على الأقل' : 'يرجى كتابة سبب الرفض (حرفان على الأقل)' }]);
       return;
     }
     this.actionError.set('');
@@ -196,7 +199,7 @@ export class SaAccreditationDetail implements OnInit {
       },
       error: (err) => {
         this.submittingAction.set(false);
-        this.actionError.set(err?.error?.message || 'تعذر رفض النموذج، حاول مرة أخرى');
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر رفض النموذج، حاول مرة أخرى', resolve: { rejectionReason: 'acc-reject-reason' } }, (m) => this.actionError.set(m));
       },
     });
   }

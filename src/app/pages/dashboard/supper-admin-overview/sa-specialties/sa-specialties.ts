@@ -1,9 +1,11 @@
-import { Component, computed, inject, OnInit, signal, effect } from '@angular/core';
+import { Component, ElementRef, computed, inject, OnInit, signal, effect } from '@angular/core';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { handleAdminError, reportAdminProblems, SubmitGuard } from '../shared/admin-form-report';
+import { FieldProblem } from '../../../../shared/forms/form-error-focus';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaSpecialtyReviewService } from '../sa-specialties-accreditation/sa-specialty-review.service';
 import { SaSpecialtiesService, AdminCategory, AdminSpecialty, AdminSpecialtyStats } from './sa-specialties.service';
@@ -109,6 +111,16 @@ export class SaSpecialties implements OnInit {
   private service = inject(SaSpecialtiesService);
   private reviewService = inject(SaSpecialtyReviewService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private specGuard = new SubmitGuard();
+  private catGuard = new SubmitGuard();
+  private confirmGuard = new SubmitGuard();
+  /** Honest generic banners (network / 429 / 5xx / 403 / 409 / non-field 400) shown inside each dialog. */
+  specError = signal('');
+  categoryError = signal('');
+  confirmError = signal('');
+  specSaving = signal(false);
+  categorySaving = signal(false);
 
   searchQuery = signal('');
   isAddModalOpen = signal(false);
@@ -264,6 +276,7 @@ export class SaSpecialties implements OnInit {
       this.newCategoryName.set('');
       this.newCategorySlug.set('');
     }
+    this.categoryError.set('');
     this.isAddCategoryModalOpen.set(true);
   }
 
@@ -274,26 +287,45 @@ export class SaSpecialties implements OnInit {
     this.newCategorySlug.set('');
   }
 
+  private readonly slugRe = /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/i;
+
+  categoryProblems(): FieldProblem[] {
+    const out: FieldProblem[] = [];
+    const slug = this.newCategorySlug().trim();
+    if (!this.newCategoryName().trim()) out.push({ field: 'sp-cat-name', message: 'اسم القسم مطلوب' });
+    if (!slug) out.push({ field: 'sp-cat-slug', message: 'الرابط (Slug) مطلوب' });
+    else if (!this.slugRe.test(slug)) out.push({ field: 'sp-cat-slug', message: 'الرابط يقبل أحرفًا إنجليزية وأرقامًا وشرطات فقط، مثل: my-category' });
+    return out;
+  }
+
   addCategory() {
+    if (this.categorySaving()) return;
+    this.categoryError.set('');
+    const problems = this.categoryProblems();
+    if (problems.length) { void reportAdminProblems(this.host.nativeElement, problems); return; }
+    if (!this.catGuard.enter()) return;
     const name = this.newCategoryName().trim();
     const slug = this.newCategorySlug().trim();
-    if (!name || !slug) {
-      this.notify.warning('يرجى ادخال اسم القسم والرابط (Slug)');
-      return;
-    }
 
     const request$ = this.editCategoryId()
       ? this.service.updateCategory(this.editCategoryId()!, { nameAr: name, slug })
       : this.service.createCategory({ nameAr: name, slug });
 
+    this.categorySaving.set(true);
     request$.subscribe({
       next: () => {
+        this.catGuard.release();
+        this.categorySaving.set(false);
         this.notify.success(this.editCategoryId() ? 'تم تحديث اسم القسم بنجاح' : 'تم إضافة القسم بنجاح');
         this.closeCategoryModal();
         this.loadTree(this.searchQuery());
         this.loadStats();
       },
-      error: (err) => this.notify.error(err.error?.message || 'حدث خطأ أثناء حفظ القسم')
+      error: (err) => {
+        this.catGuard.release();
+        this.categorySaving.set(false);
+        handleAdminError(this.host.nativeElement, err, { fallback: 'حدث خطأ أثناء حفظ القسم', resolve: { nameAr: 'sp-cat-name', slug: 'sp-cat-slug' } }, (m) => this.categoryError.set(m));
+      }
     });
   }
 
@@ -341,12 +373,14 @@ export class SaSpecialties implements OnInit {
     const action = this.confirmActionType();
     const id = this.confirmTargetId();
     if (!action || !id) return;
-
+    if (!this.confirmGuard.enter()) return;
+    this.confirmError.set('');
     this.isConfirmLoading.set(true);
 
     if (action === 'delete_category') {
       this.service.deleteCategory(id).subscribe({
         next: () => {
+          this.confirmGuard.release();
           this.isConfirmLoading.set(false);
           this.closeConfirmModal();
           this.notify.success('تم حذف القسم بنجاح');
@@ -354,16 +388,20 @@ export class SaSpecialties implements OnInit {
           this.loadStats();
         },
         error: (err) => {
+          this.confirmGuard.release();
           this.isConfirmLoading.set(false);
+          this.confirmError.set(err.error?.message || 'تعذر حذف القسم');
           this.notify.error(err.error?.message || 'تعذر حذف القسم');
         }
       });
     } else if (action === 'import_catalog') {
+      this.confirmGuard.release();
       this.closeConfirmModal();
       void this.importCatalog();
     } else if (action === 'delete_spec') {
       this.service.deleteSpecialty(id).subscribe({
         next: () => {
+          this.confirmGuard.release();
           this.isConfirmLoading.set(false);
           this.closeConfirmModal();
           this.notify.success('تم حذف التخصص بنجاح');
@@ -371,7 +409,9 @@ export class SaSpecialties implements OnInit {
           this.loadStats();
         },
         error: (err) => {
+          this.confirmGuard.release();
           this.isConfirmLoading.set(false);
+          this.confirmError.set(err.error?.message || 'تعذر حذف التخصص');
           this.notify.error(err.error?.message || 'تعذر حذف التخصص');
         }
       });
@@ -386,6 +426,7 @@ export class SaSpecialties implements OnInit {
     this.confirmWarning.set('');
     this.confirmActionType.set(null);
     this.confirmTargetId.set(null);
+    this.confirmError.set('');
     this.isConfirmLoading.set(false);
   }
 
@@ -403,6 +444,7 @@ export class SaSpecialties implements OnInit {
       this.newSpecReq.set('');
       if (catId) this.newSpecCatId.set(catId);
     }
+    this.specError.set('');
     this.isAddModalOpen.set(true);
   }
 
@@ -410,19 +452,26 @@ export class SaSpecialties implements OnInit {
     this.isAddModalOpen.set(false);
   }
 
-  addSpec() {
-    const name = this.newSpecName().trim();
+  specProblems(): FieldProblem[] {
+    const out: FieldProblem[] = [];
     const slug = this.newSpecSlug().trim();
-    const catId = this.newSpecCatId();
-    if (!name || !slug || !catId) {
-      this.notify.warning('الرجاء تعبئة البيانات المطلوبة');
-      return;
-    }
+    if (!this.newSpecName().trim()) out.push({ field: 'sp-spec-name', message: 'اسم التخصص مطلوب' });
+    if (!slug) out.push({ field: 'sp-spec-slug', message: 'الرابط (Slug) مطلوب' });
+    else if (!this.slugRe.test(slug)) out.push({ field: 'sp-spec-slug', message: 'الرابط يقبل أحرفًا إنجليزية وأرقامًا وشرطات فقط، مثل: motion-graphics' });
+    if (!this.newSpecCatId()) out.push({ field: 'sp-spec-cat', message: 'اختر القسم الذي يتبع له التخصص' });
+    return out;
+  }
 
+  addSpec() {
+    if (this.specSaving()) return;
+    this.specError.set('');
+    const problems = this.specProblems();
+    if (problems.length) { void reportAdminProblems(this.host.nativeElement, problems); return; }
+    if (!this.specGuard.enter()) return;
     const data = {
-      categoryId: catId,
-      nameAr: name,
-      slug: slug,
+      categoryId: this.newSpecCatId(),
+      nameAr: this.newSpecName().trim(),
+      slug: this.newSpecSlug().trim(),
       description: this.newSpecReq()
     };
 
@@ -430,14 +479,21 @@ export class SaSpecialties implements OnInit {
       ? this.service.updateSpecialty(this.editSpecId()!, data)
       : this.service.createSpecialty(data);
 
+    this.specSaving.set(true);
     request$.subscribe({
       next: () => {
+        this.specGuard.release();
+        this.specSaving.set(false);
         this.notify.success(this.editSpecId() ? 'تم تعديل التخصص بنجاح' : 'تم إضافة التخصص بنجاح');
         this.closeModal();
         this.loadTree(this.searchQuery());
         this.loadStats();
       },
-      error: (err) => this.notify.error(err.error?.message || 'حدث خطأ أثناء حفظ التخصص')
+      error: (err) => {
+        this.specGuard.release();
+        this.specSaving.set(false);
+        handleAdminError(this.host.nativeElement, err, { fallback: 'حدث خطأ أثناء حفظ التخصص', resolve: { nameAr: 'sp-spec-name', slug: 'sp-spec-slug', categoryId: 'sp-spec-cat', description: 'sp-spec-req' } }, (m) => this.specError.set(m));
+      }
     });
   }
 

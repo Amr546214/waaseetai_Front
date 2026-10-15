@@ -167,16 +167,16 @@
           @if (actionType() === 'approve') {
             <div class="wd-md-field">
               <label>ملاحظات الإدارة (اختياري)</label>
-              <textarea class="wd-af-ta" [value]="adminNote()" (input)="adminNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+              <textarea id="wd-admin-note" aria-label="ملاحظات الإدارة" class="wd-af-ta" [value]="adminNote()" (input)="adminNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
             </div>
           } @else {
             <div class="wd-md-field">
               <label>سبب الرفض <span class="wd-req">*</span></label>
-              <textarea class="wd-af-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض…"></textarea>
+              <textarea id="wd-reject-reason" aria-label="سبب الرفض" class="wd-af-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض…"></textarea>
             </div>
           }
           @if (actionError()) {
-            <p class="wd-af-err">{{ actionError() }}</p>
+            <p class="wd-af-err" role="alert" data-testid="wd-action-error">{{ actionError() }}</p>
           }
           <div class="wd-modal-actions">
             <button type="button" class="wd-btn wd-btn-pri" data-testid="wd-action-confirm" [disabled]="submittingAction()" (click)="submitAction()">
@@ -194,7 +194,7 @@
           <h4 class="wd-af-ttl">تأكيد إرسال التحويل</h4>
           <p class="wd-warn">سيتم تحويل {{ formatAmount(w.amount, w.currency) }} إلى بريد PayPal {{ w.paypalEmail || '—' }} — لا يمكن التراجع</p>
           @if (payoutError()) {
-            <p class="wd-af-err">{{ payoutError() }}</p>
+            <p class="wd-af-err" role="alert" data-testid="wd-payout-error">{{ payoutError() }}</p>
           }
           <div class="wd-modal-actions">
             <button type="button" class="wd-btn wd-btn-pri" data-testid="wd-payout-confirm" [disabled]="sendingPayout()" (click)="confirmPayout()">

@@ -340,9 +340,10 @@
         </div>
       </div>
 
+      @if (deleteError()) { <p class="txt-red" style="font-size:12px" role="alert" data-testid="delete-error">{{ deleteError() }}</p> }
       <div class="modal-actions">
-        <button type="button" class="modal-btn modal-btn-cancel" (click)="closeDeleteModal()">إلغاء</button>
-        <button type="button" class="modal-btn modal-btn-delete" (click)="confirmDelete()">نعم، احذف الحساب</button>
+        <button type="button" class="modal-btn modal-btn-cancel" [disabled]="deleteBusy()" (click)="closeDeleteModal()">إلغاء</button>
+        <button type="button" class="modal-btn modal-btn-delete" [disabled]="deleteBusy()" (click)="confirmDelete()">{{ deleteBusy() ? 'جارٍ الحذف...' : 'نعم، احذف الحساب' }}</button>
       </div>
     </div>
   </div>
@@ -361,10 +362,10 @@
         <label for="status-reason" style="font-size:12px;font-weight:700">سبب الإيقاف (مطلوب)</label>
         <textarea id="status-reason" rows="3" style="width:100%" [value]="statusReason()" (input)="statusReason.set($any($event.target).value)"></textarea>
       }
-      @if (statusError()) { <p class="txt-red" style="font-size:12px" role="alert">{{ statusError() }}</p> }
+      @if (statusError()) { <p class="txt-red" style="font-size:12px" role="alert" data-testid="status-error">{{ statusError() }}</p> }
       <div class="modal-actions">
         <button type="button" class="modal-btn modal-btn-cancel" [disabled]="statusBusy()" (click)="closeStatusModal()">إلغاء</button>
-        <button type="button" class="modal-btn modal-btn-delete" [disabled]="statusBusy() || (statusWillSuspend && statusReason().trim().length < 3)" (click)="confirmStatus()">{{ statusBusy() ? 'جارٍ التنفيذ...' : (statusWillSuspend ? 'نعم، أوقف الحساب' : 'نعم، فعّل الحساب') }}</button>
+        <button type="button" class="modal-btn modal-btn-delete" [disabled]="statusBusy()" (click)="confirmStatus()">{{ statusBusy() ? 'جارٍ التنفيذ...' : (statusWillSuspend ? 'نعم، أوقف الحساب' : 'نعم، فعّل الحساب') }}</button>
       </div>
     </div>
   </div>
