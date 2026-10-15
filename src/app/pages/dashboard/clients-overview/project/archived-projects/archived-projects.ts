@@ -53,17 +53,22 @@ export class ArchivedProjects implements OnInit {
 	errorMessage = signal<string | null>(null);
 
 	projects = signal<ArchivedProject[]>([]);
+	/** The server's total (the screen loads up to 100 rows; the total counter never under-reports when there are more). */
+	total = signal<number | null>(null);
 
 	kpis = computed<ArchivedKpi[]>(() => {
 		const all = this.projects();
 		const done = all.filter(p => p.status === 'done').length;
 		const cancel = all.filter(p => p.status === 'cancel').length;
 		const arch = all.filter(p => p.status === 'arch').length;
+		const settled = all.filter(p => p.status === 'settled').length;
 		return [
 			{ icon: 'check', value: done, label: 'مكتملة', color: 'teal' },
 			{ icon: 'warn', value: cancel, label: 'ملغاة', color: 'amber' },
 			{ icon: 'doc', value: arch, label: 'مؤرشفة', color: 'blue' },
-			{ icon: 'list', value: all.length, label: 'إجمالي المنتهية', color: 'slate' },
+			// closed by a dispute settlement: its own counter, never part of «مكتملة»
+			...(settled > 0 ? [{ icon: 'doc' as const, value: settled, label: 'أُغلقت بتسوية نزاع', color: 'ai' as const }] : []),
+			{ icon: 'list', value: this.total() ?? all.length, label: 'إجمالي المنتهية', color: 'slate' },
 		];
 	});
 
@@ -83,7 +88,7 @@ export class ArchivedProjects implements OnInit {
 	ratingError = signal<string | null>(null);
 
 	private readonly page = 1;
-	private readonly limit = 10;
+	private readonly limit = 100;
 
 	ngOnInit() {
 		this.fetchCompletedProjects();
@@ -107,6 +112,8 @@ export class ArchivedProjects implements OnInit {
 				const rawProjects = response.data?.projects || response.data?.items || [];
 				const mapped: ArchivedProject[] = rawProjects.map((p: any) => this.normaliseProject(p));
 				this.projects.set(mapped);
+				const total = Number(response.data?.pagination?.total);
+				this.total.set(Number.isFinite(total) && total >= mapped.length ? total : null);
 			},
 			error: (err) => {
 				handleLoadError(err, {
@@ -232,7 +239,7 @@ export class ArchivedProjects implements OnInit {
 	private normaliseProject(p: any): ArchivedProject {
 		const rawStatus = String(p.status || p.projectStatus || '').toUpperCase();
 		let status: ProjectStatus = 'done';
-		if (p.adminSettled) status = 'settled';
+		if (p.closedBySettlement === true || p.adminSettled) status = 'settled';
 		else if (['CANCELLED', 'CANCELED', 'CANCEL'].includes(rawStatus)) status = 'cancel';
 		else if (['DISPUTED', 'ARCHIVED', 'CLOSED'].includes(rawStatus)) status = 'arch';
 		else status = 'done';
@@ -243,8 +250,9 @@ export class ArchivedProjects implements OnInit {
 			'doc'; // 'settled' reads as a document, never the completed check mark
 
 		const numericAmount = p.totalPrice != null ? Number(p.totalPrice) : Number(p.amount) || 0;
+		// A settled project's value is the CONTRACTUAL value before the settlement, not money awaiting release: the row says so.
 		const amount = numericAmount > 0
-			? `${formatMoney(numericAmount)} $`
+			? `${formatMoney(numericAmount)} $${status === 'settled' ? ' (قيمة العقد قبل التسوية)' : ''}`
 			: '—';
 
 		let dateStr = '—';

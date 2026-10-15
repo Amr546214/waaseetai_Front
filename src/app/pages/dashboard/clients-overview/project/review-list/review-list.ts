@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { formatMoney } from '../../../../../core/utils/money.util';
+import { deliveryHeading } from '../../../../../core/utils/stage-title.util';
 
 interface PendingDeliveryItem {
 	projectId: string;
@@ -59,6 +60,9 @@ export class ReviewList implements OnInit {
 			}
 		});
 	}
+
+	/** «تسليم المرحلة N: ...» without duplicating a number already inside the stage title. */
+	heading(item: { stageNumber: number; stageTitle: string }): string { return deliveryHeading(item.stageNumber, item.stageTitle); }
 
 	formatNumber(value: number) {
 		return formatMoney(value || 0);

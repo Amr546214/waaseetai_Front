@@ -14,6 +14,8 @@ import { MessageContext } from '../../../../../../core/services/chat.service';
 import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
 import { formatMoney } from '../../../../../../core/utils/money.util';
+import { stageHeading } from '../../../../../../core/utils/stage-title.util';
+import { deliveryFileOpenUrl } from '../../../../../../core/utils/delivery-file.util';
 import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment, amendmentActionBlockedReason } from '../../../../../../core/constants/amendment-effect';
 
 export type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION';
@@ -315,6 +317,20 @@ export class Progress implements OnInit {
   }
   // P-PR-013 display helpers (display-only)
   deliveryStageRounds(stage: any): number { return stage?.roundsCount || 0; }
+  heading(stage: any): string { return stageHeading(stage?.stageNumber, stage?.title); }
+  openUrl(file: any): string | null { return deliveryFileOpenUrl(file); }
+  /** The stage is waiting on someone (open, delivered, or sent back). Never for a stage a settlement closed, whatever its stored status. */
+  stageWaiting(stage: any): boolean {
+    if (this.stageClosedBySettlement(stage)) return false;
+    return !!(stage?.isWait || stage?.status === 'submitted');
+  }
+  /** Money label of a stage from the server's amount state: released / held in the escrow / only its contractual value (historical after a settlement). */
+  stageMoneyLabel(stage: any): string {
+    const amount = `${formatMoney(stage?.amount || 0)} $`;
+    if (this.stageClosedBySettlement(stage)) return `قيمة المرحلة ${amount} (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)`;
+    if (stage?.isDone) return `أُفرج ${amount}`;
+    return stage?.amountHeld ? `محتجز ${amount}` : `قيمة المرحلة ${amount}`;
+  }
   /** Unreleased stage of a project closed by a dispute settlement: displayed as such (derived by the server; nothing was approved). */
   stageClosedBySettlement(stage: any): boolean { return stage?.displayStatus === 'CLOSED_BY_SETTLEMENT'; }
   stageText(stage: any): string { return this.stageClosedBySettlement(stage) ? (stage.displayStatusLabel || 'أُغلقت بالتسوية') : stage?.statusText; }

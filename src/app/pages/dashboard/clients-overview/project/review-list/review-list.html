@@ -29,7 +29,7 @@
 					<div class="rv-top">
 						<div>
 							<div class="rv-ttl">{{ item.projectTitle }}</div>
-							<div class="rv-sub">تسليم المرحلة {{ item.stageNumber }}: {{ item.stageTitle }} · {{ item.contractRef }} · من {{ item.providerName }}</div>
+							<div class="rv-sub">{{ heading(item) }} · {{ item.contractRef }} · من {{ item.providerName }}</div>
 						</div>
 						<span class="rv-badge">{{ item.frozen ? 'الاعتماد موقوف بسبب نزاع' : 'بانتظار اعتمادك' }}</span>
 					</div>

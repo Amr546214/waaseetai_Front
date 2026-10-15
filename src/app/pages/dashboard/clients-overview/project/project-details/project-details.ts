@@ -19,6 +19,7 @@ import { AmendmentActionsService } from '../../../../../core/services/amendment-
 import { AmendmentPaymentOtpComponent } from '../../../../../sheards/amendment-payment-otp/amendment-payment-otp.component';
 import { ClientCompanyTeamMember } from '../../../../../core/models/client-company-team.model';
 import { formatMoney } from '../../../../../core/utils/money.util';
+import { deliveryFileOpenUrl } from '../../../../../core/utils/delivery-file.util';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
 type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION' | 'MIXED';
@@ -192,6 +193,19 @@ export class ProjectDetails implements OnInit {
 		if (!value) return '—';
 		return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(new Date(value));
 	}
+	/** Closed by a dispute settlement (the server's lifecycle flag, or the older adminSettled marker). */
+	isSettled(data: any): boolean { return data?.closedBySettlement === true || !!data?.adminSettled; }
+	openUrl(file: any): string | null { return deliveryFileOpenUrl(file); }
+	/** A delivery is really waiting for the client (server lifecycle; older backend: the stored status). Never true for a settled / undelivered stage. */
+	awaitingReview(stage: any): boolean {
+		if (this.stageClosedBySettlement(stage)) return false;
+		const lc = stage?.lifecycle;
+		return lc ? lc.awaitingClientReview === true && !lc.closedBySettlement : stage?.status === 'submitted';
+	}
+	/** Per-action eligibility straight from the server (with the Arabic reason). */
+	canApprove(stage: any): boolean { const e = stage?.lifecycle?.eligibility?.approve; return e ? e.allowed === true : stage?.status === 'submitted'; }
+	canRevise(stage: any): boolean { const e = stage?.lifecycle?.eligibility?.requestRevision; return e ? e.allowed === true : stage?.status === 'submitted'; }
+	blockReason(stage: any): string | null { return stage?.lifecycle?.eligibility?.approve?.reason ?? null; }
 	/** Unreleased stage of a project closed by a dispute settlement: shown as such (derived by the server; nothing was approved). */
 	stageClosedBySettlement(stage: any): boolean { return stage?.displayStatus === 'CLOSED_BY_SETTLEMENT'; }
 	/** Header status of the project: the settlement label for a settled project, otherwise the server label. */
@@ -209,7 +223,7 @@ export class ProjectDetails implements OnInit {
 	/** Money label of a stage: released, really held in escrow, or just its value (nothing is held before the escrow is funded). */
 	stageMoneyLabel(stage: any): string {
 		const amount = `${this.formatNumber(stage.amount)} $`;
-		if (this.stageClosedBySettlement(stage)) return `قيمة المرحلة ${amount}`;
+		if (this.stageClosedBySettlement(stage)) return `قيمة المرحلة ${amount} (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)`;
 		if (stage.status === 'completed') return `أُفرج ${amount}`;
 		return stage.amountHeld ? `محتجز ${amount}` : `قيمة المرحلة ${amount}`;
 	}
