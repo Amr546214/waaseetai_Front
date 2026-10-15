@@ -148,6 +148,17 @@ describe('SaMyAccount', () => {
 		expectFieldProblem(el.querySelector('#ma-pw-new'), 'ضعيفة');
 	});
 
+	it('the real BE shape (code message + errors[] naming newPassword) lands under the new-password box; a 400 without field names stays a banner', async () => {
+		const { fixture, api, c, el } = setup();
+		api.changePassword.mockReturnValue(throwError(() => httpFail(400, { message: 'PASSWORD_UNCHANGED', errors: [{ field: 'newPassword', path: 'newPassword', message: 'كلمة المرور الجديدة يجب أن تختلف عن الحالية' }] })));
+		c.currentPassword.set('Aa1!aaaa'); c.newPassword.set('Bb2!bbbb'); c.confirmPassword.set('Bb2!bbbb');
+		(el.querySelector('[data-testid="change-password"]') as HTMLButtonElement).click();
+		await settleForm();
+		fixture.detectChanges();
+		expectFieldProblem(el.querySelector('#ma-pw-new'), 'تختلف');
+		expect(el.querySelector('#ma-pw-current')?.getAttribute('aria-invalid')).not.toBe('true');
+	});
+
 	it('429 on password change is a generic message (no field error)', async () => {
 		const { fixture, api, c, el } = setup();
 		api.changePassword.mockReturnValue(throwError(() => httpFail(429, { message: 'Too many requests' })));
