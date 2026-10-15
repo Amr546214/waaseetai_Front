@@ -9,6 +9,10 @@ import { Withdrawal } from '../../../../core/models/withdrawal.model';
 import { mapHttpError } from '../../../../core/forms/http-error';
 import { reportBackendError, reportProblems, FieldProblem, SubmitGuard } from '../../../../shared/forms/form-error-focus';
 import { genericBanner } from '../../../../shared/forms/submit-feedback';
+import { WaitTimerService, waitScope } from '../../../../core/wait/wait-timer.service';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { isRateLimitError, RATE_LIMIT_MESSAGE } from '../../../../core/utils/rate-limit.util';
+import { rateLimitSentence } from '../../../../core/wait/wait-format';
 
 /** The Arabic label and tone of every state a marketer's withdrawal can be in (the server has no separate "failed" state: a failed transfer stays "approved"). */
 export const WITHDRAWAL_STATE: Record<string, { label: string; tone: 'blue' | 'green' | 'coral' | 'amber' }> = {
@@ -33,6 +37,11 @@ export class Withdraw implements OnInit {
   private notify = inject(UiNotificationService);
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private guard = new SubmitGuard();
+  /** The server's wait after a 429 on a withdrawal request (money out). End timestamp, survives a refresh; disables ONLY the confirm button; nothing is re-sent at zero. */
+  readonly withdrawWait = inject(WaitTimerService).track(waitScope('marketer-withdraw', inject(AuthStore).currentUser()?.id ?? ''));
+  private readonly rateLimitedNoTime = signal(false);
+  /** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) or the honest sentence without a number; '' when nothing waits. */
+  readonly rateLimitText = computed(() => this.withdrawWait.active() ? rateLimitSentence(this.withdrawWait.remainingSeconds(), true) : this.rateLimitedNoTime() ? RATE_LIMIT_MESSAGE : '');
 
   summary = signal<MarketerSummary | null>(null);
   /** The server's own figures (available, reserved, paid, minimum, PayPal): nothing is recomputed here. */
@@ -160,7 +169,9 @@ export class Withdraw implements OnInit {
       return;
     }
 
+    if (this.withdrawWait.active()) return;
     if (!this.guard.enter()) return;
+    this.rateLimitedNoTime.set(false);
     this.submitting.set(true);
     this.overviewService.submitWithdrawal(amount).subscribe({
       next: (res) => {
@@ -177,6 +188,12 @@ export class Withdraw implements OnInit {
       error: async (err: any) => {
         this.guard.release();
         this.submitting.set(false);
+        // 429: a wait from the server; the typed amount stays. No generic error is added.
+        if (isRateLimitError(err)) {
+          const end = this.withdrawWait.startFromResponse(err);
+          this.rateLimitedNoTime.set(end == null || !this.withdrawWait.active());
+          return;
+        }
         const mapped = mapHttpError(err, { fallback: 'تعذر تقديم طلب السحب، حاول مرة أخرى' });
         const gen = genericBanner(mapped);
         if (gen !== null) { this.notify.error(gen); return; }
