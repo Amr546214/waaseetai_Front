@@ -292,34 +292,36 @@
 
 		<div class="mb-4">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">اسم التخصص</label>
-			<input type="text" [ngModel]="newSpecName()" (ngModelChange)="newSpecName.set($event)"
+			<input id="sp-spec-name" type="text" [ngModel]="newSpecName()" (ngModelChange)="newSpecName.set($event)"
 				placeholder="مثال: تصميم موشن جرافيك"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl">
 		</div>
 
 		<div class="mb-4">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">الرابط (Slug - بالإنجليزية)</label>
-			<input type="text" [ngModel]="newSpecSlug()" (ngModelChange)="newSpecSlug.set($event)"
+			<input id="sp-spec-slug" type="text" [ngModel]="newSpecSlug()" (ngModelChange)="newSpecSlug.set($event)"
 				placeholder="مثال: motion-graphics"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors ltr text-left font-sans">
 		</div>
 
 		<div class="mb-4">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">القسم</label>
-			<ws-select [options]="categoryOptions()" [ngModel]="newSpecCatId()" (ngModelChange)="newSpecCatId.set($event)" ariaLabel="القسم" placeholder="اختر القسم"></ws-select>
+			<ws-select id="sp-spec-cat" [options]="categoryOptions()" [ngModel]="newSpecCatId()" (ngModelChange)="newSpecCatId.set($event)" ariaLabel="القسم" placeholder="اختر القسم"></ws-select>
 		</div>
 
 		<div class="mb-6">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">متطلبات الاعتماد (اختياري)</label>
-			<input type="text" [ngModel]="newSpecReq()" (ngModelChange)="newSpecReq.set($event)"
+			<input id="sp-spec-req" type="text" [ngModel]="newSpecReq()" (ngModelChange)="newSpecReq.set($event)"
 				placeholder="مثال: محفظة أعمال + 3 مشاريع سابقة"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl">
 		</div>
 
+		<p *ngIf="specError()" role="alert" data-testid="spec-error" class="mb-3 text-xs font-bold text-red-500">{{ specError() }}</p>
+
 		<div class="flex justify-end gap-3 mt-2">
 			<button type="button" (click)="closeModal()"
 				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">إلغاء</button>
-			<button type="button" (click)="addSpec()"
+			<button type="button" (click)="addSpec()" [disabled]="specSaving()"
 				class="px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] hover:opacity-90 text-[#070D24] text-sm font-bold rounded-xl transition-all shadow-lg shadow-[#2B7FFF]/20 cursor-pointer">{{ editSpecId() ? 'حفظ التعديلات' : 'إضافة' }}</button>
 		</div>
 	</div>
@@ -335,22 +337,24 @@
 
 		<div class="mb-4">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">اسم القسم</label>
-			<input type="text" [ngModel]="newCategoryName()" (ngModelChange)="newCategoryName.set($event)"
+			<input id="sp-cat-name" type="text" [ngModel]="newCategoryName()" (ngModelChange)="newCategoryName.set($event)"
 				placeholder="مثال: الخدمات اللوجستية"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl">
 		</div>
 
 		<div class="mb-6">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">الرابط (Slug - بالإنجليزية)</label>
-			<input type="text" [ngModel]="newCategorySlug()" (ngModelChange)="newCategorySlug.set($event)"
+			<input id="sp-cat-slug" type="text" [ngModel]="newCategorySlug()" (ngModelChange)="newCategorySlug.set($event)"
 				placeholder="مثال: logistics-services"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors ltr text-left font-sans">
 		</div>
 
+		<p *ngIf="categoryError()" role="alert" data-testid="category-error" class="mb-3 text-xs font-bold text-red-500">{{ categoryError() }}</p>
+
 		<div class="flex justify-end gap-3 mt-2">
 			<button type="button" (click)="closeCategoryModal()"
 				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">إلغاء</button>
-			<button type="button" (click)="addCategory()"
+			<button type="button" (click)="addCategory()" [disabled]="categorySaving()"
 				class="px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] hover:opacity-90 text-[#070D24] text-sm font-bold rounded-xl transition-all shadow-lg shadow-[#2B7FFF]/20 cursor-pointer">
 				{{ editCategoryId() ? 'حفظ التعديلات' : 'إضافة القسم' }}
 			</button>
@@ -386,6 +390,8 @@
 			<svg class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
 			<span>{{ confirmWarning() }}</span>
 		</div>
+
+		<p *ngIf="confirmError()" role="alert" data-testid="confirm-error" class="mb-3 text-xs font-bold text-red-500">{{ confirmError() }}</p>
 
 		<div class="flex justify-end gap-3 mt-4">
 			<button type="button" (click)="closeConfirmModal()" [disabled]="isConfirmLoading()"
