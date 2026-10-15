@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 import { SaSpecialtiesAccreditation } from './sa-specialties-accreditation';
 import { SaSpecialtyAccreditationDetail } from './sa-specialty-accreditation-detail/sa-specialty-accreditation-detail';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../shared/forms/form-spec-utils';
 import { parseAiFeedback, toTextList } from './sa-specialties-accreditation.data';
 
 const item = (over: any = {}) => ({
@@ -58,10 +59,15 @@ describe('SaSpecialtiesAccreditation (list)', () => {
 		await setup();
 		component.openDecision(component.items()[0], 'APPROVED'); fixture.detectChanges();
 		const confirm = () => fixture.nativeElement.querySelector('[data-testid="decision-confirm"]') as HTMLButtonElement;
-		expect(confirm().disabled).toBe(true);
+		// the button is never silently disabled: an empty / short reason is explained under the box, nothing is posted
+		confirm().click(); await settleForm();
+		expectFieldProblem(fixture.nativeElement.querySelector('#sdm-reason'), 'مطلوب');
+		expectFocused(fixture.nativeElement.querySelector('#sdm-reason'));
 		const ta = fixture.nativeElement.querySelector('[data-testid="decision-reason"]') as HTMLTextAreaElement;
 		ta.value = 'abcd'; ta.dispatchEvent(new Event('input')); fixture.detectChanges();
-		expect(confirm().disabled).toBe(true);
+		confirm().click(); await settleForm();
+		expectFieldProblem(fixture.nativeElement.querySelector('#sdm-reason'), 'قصير');
+		expect(post).not.toHaveBeenCalled();
 		ta.value = 'ملف قوي ومطابق'; ta.dispatchEvent(new Event('input')); fixture.detectChanges();
 		expect(confirm().disabled).toBe(false);
 		confirm().click(); fixture.detectChanges();
@@ -77,6 +83,24 @@ describe('SaSpecialtiesAccreditation (list)', () => {
 		expect(component.decisionError()).toBe('تمت معالجة هذا التخصص مسبقاً');
 		expect(component.decisionTarget()).not.toBeNull();
 		expect(component.deciding()).toBe(false);
+	});
+
+	it('a 400 naming the reason is shown under the reason box; 429 / 500 stay a generic banner', async () => {
+		await setup();
+		component.openDecision(component.items()[0], 'REJECTED'); fixture.detectChanges();
+		post.mockReturnValueOnce(throwError(() => httpFail(400, { errors: [{ field: 'reason', message: 'السبب قصير جدًا' }] })));
+		component.confirmDecision('سبب كافٍ للرفض'); await settleForm(); fixture.detectChanges();
+		expectFieldProblem(fixture.nativeElement.querySelector('#sdm-reason'), 'السبب قصير جدًا');
+		expect(component.decisionError()).toBe('');
+		for (const st of [429, 500, 0]) {
+			post.mockReturnValueOnce(throwError(() => httpFail(st, { message: 'x' })));
+			const ta2 = fixture.nativeElement.querySelector('[data-testid="decision-reason"]') as HTMLTextAreaElement;
+			ta2.value = 'سبب كافٍ للرفض'; ta2.dispatchEvent(new Event('input')); fixture.detectChanges();
+			(fixture.nativeElement.querySelector('[data-testid="decision-confirm"]') as HTMLButtonElement).click(); await settleForm(); fixture.detectChanges();
+			expect(component.decisionError(), String(st)).toBeTruthy();
+			expectNoFieldProblem(fixture.nativeElement);
+			expect(fixture.nativeElement.querySelector('[data-testid="decision-error"]').getAttribute('role')).toBe('alert');
+		}
 	});
 
 	it('decided rows have no quick actions', async () => {

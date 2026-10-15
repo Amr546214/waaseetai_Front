@@ -125,7 +125,7 @@
   }
 
   @if (decisionTarget(); as t) {
-    <app-sa-specialty-decision-modal [decision]="t.decision" [summary]="decisionSummary()" [busy]="deciding()" [error]="decisionError()"
+    <app-sa-specialty-decision-modal [decision]="t.decision" [summary]="decisionSummary()" [busy]="deciding()" [error]="decisionError()" [fieldError]="decisionFieldError()"
       (confirmed)="confirmDecision($event)" (cancelled)="closeDecision()" />
   }
 
