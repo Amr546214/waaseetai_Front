@@ -29,10 +29,10 @@
 			<div class="f-grid f2">
 				<div class="f-g">
 					<label class="f-lbl" for="cp-code">كود الكوبون <span>*</span></label>
-					<input id="cp-code" class="f-inp" type="text" placeholder="مثال: HOWIA25" dir="ltr" maxlength="50"
-						[class.invalid]="errors().code" [disabled]="!!editId()"
+					<input id="cp-code" name="code" class="f-inp" type="text" placeholder="اكتب كود الكوبون بالأحرف الإنجليزية" dir="ltr" maxlength="50"
+						[class.invalid]="errors().code" [attr.aria-invalid]="errors().code ? 'true' : null" [attr.aria-describedby]="errors().code ? 'cp-err-code' : null" [disabled]="!!editId()"
 						[ngModel]="form().code" (ngModelChange)="patch({ code: $event.toUpperCase() })">
-					@if (errors().code) { <div class="f-err">{{ errors().code }}</div> }
+					@if (errors().code) { <div class="f-err" id="cp-err-code" role="alert">{{ errors().code }}</div> }
 					@else { <div class="f-hint">{{ editId() ? 'لا يمكن تغيير كود كوبون قائم' : 'حروف وأرقام إنجليزية بدون مسافات — هذا هو الكود الذي يُدخله العميل' }}</div> }
 				</div>
 				<div class="f-g">
@@ -45,40 +45,40 @@
 				<div class="f-g">
 					<label class="f-lbl" for="cp-val">قيمة الخصم ({{ form().discountType === 'percentage' ? '%' : 'دولار' }}) <span>*</span></label>
 					<div class="f-suffix-wrap">
-						<input id="cp-val" class="f-inp" type="number" min="0" [attr.max]="form().discountType === 'percentage' ? 100 : null" placeholder="مثال: 25"
-							[class.invalid]="errors().discountValue" [ngModel]="form().discountValue" (ngModelChange)="patch({ discountValue: $event })">
+						<input id="cp-val" name="discountValue" class="f-inp" type="number" min="0" [attr.max]="form().discountType === 'percentage' ? 100 : null" placeholder="أدخل قيمة الخصم"
+							[class.invalid]="errors().discountValue" [attr.aria-invalid]="errors().discountValue ? 'true' : null" [attr.aria-describedby]="errors().discountValue ? 'cp-err-discountValue' : null" [ngModel]="form().discountValue" (ngModelChange)="patch({ discountValue: $event })">
 						<span class="f-suffix">{{ form().discountType === 'percentage' ? '%' : 'دولار' }}</span>
 					</div>
-					@if (errors().discountValue) { <div class="f-err">{{ errors().discountValue }}</div> }
+					@if (errors().discountValue) { <div class="f-err" id="cp-err-discountValue" role="alert">{{ errors().discountValue }}</div> }
 					@else { <div class="f-hint">{{ form().discountType === 'percentage' ? 'نسبة من قيمة الطلب، حتى 100%' : 'مبلغ ثابت يُخصم من قيمة الطلب' }}</div> }
 				</div>
 				<div class="f-g">
 					<label class="f-lbl" for="cp-min">الحد الأدنى لقيمة الطلب (اختياري)</label>
-					<input id="cp-min" class="f-inp" type="number" min="0" placeholder="مثال: 500 دولار"
-						[class.invalid]="errors().minimumAmount" [ngModel]="form().minimumAmount" (ngModelChange)="patch({ minimumAmount: $event })">
-					@if (errors().minimumAmount) { <div class="f-err">{{ errors().minimumAmount }}</div> }
+					<input id="cp-min" name="minimumAmount" class="f-inp" type="number" min="0" placeholder="أدخل المبلغ بالدولار"
+						[class.invalid]="errors().minimumAmount" [attr.aria-invalid]="errors().minimumAmount ? 'true' : null" [attr.aria-describedby]="errors().minimumAmount ? 'cp-err-minimumAmount' : null" [ngModel]="form().minimumAmount" (ngModelChange)="patch({ minimumAmount: $event })">
+					@if (errors().minimumAmount) { <div class="f-err" id="cp-err-minimumAmount" role="alert">{{ errors().minimumAmount }}</div> }
 				</div>
 				<div class="f-g">
 					<label class="f-lbl" for="cp-start">تاريخ البداية</label>
-					<input id="cp-start" class="f-inp" type="date" [class.invalid]="errors().startAt" [ngModel]="form().startAt" (ngModelChange)="patch({ startAt: $event })">
-					@if (errors().startAt) { <div class="f-err">{{ errors().startAt }}</div> }
+					<input id="cp-start" name="startAt" class="f-inp" type="date" [class.invalid]="errors().startAt" [attr.aria-invalid]="errors().startAt ? 'true' : null" [attr.aria-describedby]="errors().startAt ? 'cp-err-startAt' : null" [ngModel]="form().startAt" (ngModelChange)="patch({ startAt: $event })">
+					@if (errors().startAt) { <div class="f-err" id="cp-err-startAt" role="alert">{{ errors().startAt }}</div> }
 				</div>
 				<div class="f-g">
 					<label class="f-lbl" for="cp-end">تاريخ الانتهاء</label>
-					<input id="cp-end" class="f-inp" type="date" [class.invalid]="errors().expiresAt" [ngModel]="form().expiresAt" (ngModelChange)="patch({ expiresAt: $event })">
-					@if (errors().expiresAt) { <div class="f-err">{{ errors().expiresAt }}</div> } @else { <div class="f-hint">اتركه فارغاً لكوبون بلا تاريخ انتهاء</div> }
+					<input id="cp-end" name="expiresAt" class="f-inp" type="date" [class.invalid]="errors().expiresAt" [attr.aria-invalid]="errors().expiresAt ? 'true' : null" [attr.aria-describedby]="errors().expiresAt ? 'cp-err-expiresAt' : null" [ngModel]="form().expiresAt" (ngModelChange)="patch({ expiresAt: $event })">
+					@if (errors().expiresAt) { <div class="f-err" id="cp-err-expiresAt" role="alert">{{ errors().expiresAt }}</div> } @else { <div class="f-hint">اتركه فارغاً لكوبون بلا تاريخ انتهاء</div> }
 				</div>
 				<div class="f-g">
 					<label class="f-lbl" for="cp-max">الحد الأقصى لمرات الاستخدام (للجميع)</label>
-					<input id="cp-max" class="f-inp" type="number" min="1" step="1" placeholder="مثال: 50"
-						[class.invalid]="errors().maxUses" [ngModel]="form().maxUses" (ngModelChange)="patch({ maxUses: $event })">
-					@if (errors().maxUses) { <div class="f-err">{{ errors().maxUses }}</div> } @else { <div class="f-hint">اتركه فارغاً لاستخدام غير محدود</div> }
+					<input id="cp-max" name="maxUses" class="f-inp" type="number" min="1" step="1" placeholder="أدخل عدد المرات"
+						[class.invalid]="errors().maxUses" [attr.aria-invalid]="errors().maxUses ? 'true' : null" [attr.aria-describedby]="errors().maxUses ? 'cp-err-maxUses' : null" [ngModel]="form().maxUses" (ngModelChange)="patch({ maxUses: $event })">
+					@if (errors().maxUses) { <div class="f-err" id="cp-err-maxUses" role="alert">{{ errors().maxUses }}</div> } @else { <div class="f-hint">اتركه فارغاً لاستخدام غير محدود</div> }
 				</div>
 				<div class="f-g">
 					<label class="f-lbl" for="cp-per">الحد الأقصى للعميل الواحد</label>
-					<input id="cp-per" class="f-inp" type="number" min="1" step="1"
-						[class.invalid]="errors().maxUsesPerUser" [ngModel]="form().maxUsesPerUser" (ngModelChange)="patch({ maxUsesPerUser: $event })">
-					@if (errors().maxUsesPerUser) { <div class="f-err">{{ errors().maxUsesPerUser }}</div> }
+					<input id="cp-per" name="maxUsesPerUser" class="f-inp" type="number" min="1" step="1" placeholder="أدخل عدد المرات للعميل الواحد"
+						[class.invalid]="errors().maxUsesPerUser" [attr.aria-invalid]="errors().maxUsesPerUser ? 'true' : null" [attr.aria-describedby]="errors().maxUsesPerUser ? 'cp-err-maxUsesPerUser' : null" [ngModel]="form().maxUsesPerUser" (ngModelChange)="patch({ maxUsesPerUser: $event })">
+					@if (errors().maxUsesPerUser) { <div class="f-err" id="cp-err-maxUsesPerUser" role="alert">{{ errors().maxUsesPerUser }}</div> }
 				</div>
 			</div>
 		</div>
@@ -99,7 +99,7 @@
 			</div>
 		}
 
-		<div class="form-card">
+		<div class="form-card" id="cp-scope" data-field="serviceIds" tabindex="-1" [attr.aria-invalid]="errors().serviceIds ? 'true' : null" [attr.aria-describedby]="errors().serviceIds ? 'cp-err-serviceIds' : null">
 			<div class="form-card-title">النماذج المشمولة</div>
 			<div class="form-card-sub">اختر كل {{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجك' }} أو حدّد نماذج معيّنة يُطبَّق عليها الكوبون</div>
 			<div class="seg-row">
@@ -121,7 +121,7 @@
 					}
 				</div>
 			}
-			@if (errors().serviceIds) { <div class="f-err" style="margin-top:6px">{{ errors().serviceIds }}</div> }
+			@if (errors().serviceIds) { <div class="f-err" id="cp-err-serviceIds" role="alert" style="margin-top:6px">{{ errors().serviceIds }}</div> }
 		</div>
 
 		@if (form().scopeMode === 'all' && models().length > 1) {
@@ -139,11 +139,13 @@
 		<div class="form-card">
 			<div class="form-card-title">ملاحظة داخلية (اختياري)</div>
 			<div class="form-card-sub">لا تظهر للعميل — تذكير لك بسبب إنشاء هذا الكوبون</div>
-			<textarea class="f-inp" maxlength="2000" placeholder="مثال: كوبون لحملة عيد الأضحى، أوقفه بعد نهاية الموسم"
+			<textarea id="cp-note" name="internalNote" class="f-inp" maxlength="2000" placeholder="مثال: كوبون لحملة عيد الأضحى، أوقفه بعد نهاية الموسم"
+				[class.invalid]="errors().internalNote" [attr.aria-invalid]="errors().internalNote ? 'true' : null" [attr.aria-describedby]="errors().internalNote ? 'cp-err-internalNote' : null"
 				[ngModel]="form().internalNote" (ngModelChange)="patch({ internalNote: $event })"></textarea>
-			@if (errors().internalNote) { <div class="f-err">{{ errors().internalNote }}</div> }
+			@if (errors().internalNote) { <div class="f-err" id="cp-err-internalNote" role="alert">{{ errors().internalNote }}</div> }
 		</div>
 
+		@if (formError(); as fe) { <div class="state-box err" id="cp-form-error" role="alert" data-testid="form-error">{{ fe }}</div> }
 		<div class="save-bar">
 			<div>
 				@if (needsApproval()) {
@@ -156,7 +158,7 @@
 			</div>
 			<div>
 				<button type="button" class="btn-sec" (click)="step.set(1)">رجوع</button>
-				<button type="button" class="btn-pri" (click)="save()" [disabled]="saving()">{{ saving() ? 'جاري الحفظ...' : 'حفظ الكوبون' }}</button>
+				<button type="button" class="btn-pri" (click)="save()" [disabled]="saving()" [attr.aria-busy]="saving() ? 'true' : null">{{ saving() ? 'جاري الحفظ...' : 'حفظ الكوبون' }}</button>
 			</div>
 		</div>
 	}

@@ -98,7 +98,7 @@
             <div class="relative">
               <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] pricing-input"
                 [class.!border-[rgba(255,80,80,.45)]]="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched)"
-                min="1" placeholder="مثال: 5" [ngModel]="m.days" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {days: $event}})" name="mDays_{{i}}" #mDaysModel="ngModel" required>
+                min="1" placeholder="أدخل عدد الأيام" [ngModel]="m.days" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {days: $event}})" name="mDays_{{i}}" #mDaysModel="ngModel" required>
               <span class="absolute left-[12px] top-1/2 -translate-y-1/2 text-[11px] text-[#6B7699]">يوم</span>
             </div>
             <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched)">
@@ -122,7 +122,7 @@
             <div class="relative">
               <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] pricing-input"
                 [class.!border-[rgba(255,80,80,.45)]]="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched)"
-                min="1" max="100" placeholder="مثال: 40" [ngModel]="m.pct" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {pct: $event}})" name="mPct_{{i}}" #mPctModel="ngModel" required>
+                min="1" max="100" placeholder="أدخل النسبة المئوية" [ngModel]="m.pct" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {pct: $event}})" name="mPct_{{i}}" #mPctModel="ngModel" required>
               <span class="absolute left-[12px] top-1/2 -translate-y-1/2 text-[11px] text-[#6B7699]">%</span>
             </div>
             <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched)">

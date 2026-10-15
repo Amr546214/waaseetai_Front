@@ -230,8 +230,8 @@ export class Data implements OnInit {
       firstName: ['', [requiredTrim, maxTrim(60)]],
       lastName: ['', [requiredTrim, maxTrim(60)]],
       headline: ['', [requiredTrim, maxTrim(100)]],
-      hourlyRate: [0, Validators.min(0)],
-      yearsOfExperience: [0, Validators.min(0)],
+      hourlyRate: [null as number | null, Validators.min(0)],
+      yearsOfExperience: [null as number | null, Validators.min(0)],
       availabilityStatus: ['AVAILABLE', Validators.required],
       specialty: ['', requiredTrim],
       // Date of birth: private to the owner, optional, frozen once the account is verified.
@@ -305,8 +305,8 @@ export class Data implements OnInit {
             specialty: profile.mainSpecialty || '',
             dob: dobInputValue(profile.dob),
             bio: profile.bio || '',
-            hourlyRate: profile.hourlyRate || 0,
-            yearsOfExperience: profile.yearsOfExperience || 0,
+            hourlyRate: profile.hourlyRate ?? null,
+            yearsOfExperience: profile.yearsOfExperience ?? null,
             availabilityStatus: profile.availabilityStatus || 'AVAILABLE',
             country: normalizeCountry(profile.country),
             city: profile.city || '',
@@ -594,6 +594,17 @@ export class Data implements OnInit {
     return true;
   }
 
+  /** A 400/422 that names fields of `form`: puts each message on its control (summary + focus). Returns true when handled. */
+  private applyMappedFieldErrors(form: FormGroup, mapped: ReturnType<typeof mapHttpError>, labels: Record<string, string>, summary: (items: InvalidField[]) => void): boolean {
+    if (mapped.kind !== 'backend-validation') return false;
+    const names = Object.keys(mapped.fieldErrors).filter(k => form.get(k));
+    if (!names.length) return false;
+    applyServerFieldErrors(form, Object.fromEntries(names.map(k => [k, mapped.fieldErrors[k]])));
+    summary(names.map(k => ({ path: k, label: labels[k] ?? k, message: mapped.fieldErrors[k] })));
+    this.focusField(names[0]);
+    return true;
+  }
+
   private notifyHttpError(err: unknown, options: { fallback: string; unauthorizedIs?: 'credentials' | 'session' }) {
     const mapped = mapHttpError(err, options);
     this.ui.toast(mapped.kind === 'pending-review' ? 'warning' : 'error', mapped.message, { title: mapped.title });
@@ -616,8 +627,9 @@ export class Data implements OnInit {
       ...(this.avatarDirty ? { avatarUrl: this.avatarUrl() } : {}),
       headline: val.headline,
       bio: val.bio,
-      hourlyRate: val.hourlyRate,
-      yearsOfExperience: val.yearsOfExperience,
+      // no input for these on this page: never send an invented 0 for a value the user did not give
+      ...(val.hourlyRate != null ? { hourlyRate: val.hourlyRate } : {}),
+      ...(val.yearsOfExperience != null ? { yearsOfExperience: val.yearsOfExperience } : {}),
       availabilityStatus: val.availabilityStatus,
       mainSpecialty: val.specialty,
       ...(val.dob && !this.dobLocked() ? { dob: val.dob } : {}),
@@ -665,7 +677,7 @@ export class Data implements OnInit {
   saveWhatsapp() {
     if (this.savingWhatsapp()) return;
     this.whatsappControl.markAsTouched();
-    if (this.whatsappControl.invalid) return;
+    if (this.whatsappControl.invalid) { this.focusField('alternativePhone'); return; }
     this.savingWhatsapp.set(true);
     this.profileService.updateWhatsapp(this.whatsappControl.value).subscribe({
       next: res => {
@@ -677,7 +689,15 @@ export class Data implements OnInit {
       },
       error: (err: any) => {
         this.savingWhatsapp.set(false);
-        this.whatsappControl.setErrors({ server: mapHttpError(err, { fallback: 'تعذر حفظ رقم WhatsApp، حاول مرة أخرى' }).message });
+        const mapped = mapHttpError(err, { fallback: 'تعذر حفظ رقم WhatsApp، حاول مرة أخرى' });
+        // Only a 400/422 is about the number. Network / 429 / 5xx / 403 / 409 stay a generic message, never marked on the field.
+        if (mapped.kind === 'backend-validation') {
+          this.whatsappControl.setErrors({ server: mapped.message });
+          this.whatsappControl.markAsTouched();
+          this.focusField('alternativePhone');
+          return;
+        }
+        this.ui.toast(mapped.kind === 'pending-review' ? 'warning' : 'error', mapped.message, { title: mapped.title });
       }
     });
   }
@@ -866,6 +886,7 @@ export class Data implements OnInit {
     } as Record<string, string>)[raw.code] : undefined;
     const message = raw ? messageForBackendCode(raw.code) : null;
     if (field && message && this.serverFieldError(form, field, message, setSummary, labels)) return;
+    if (this.applyMappedFieldErrors(form, mapHttpError(err, { fallback: 'تعذر إنشاء طلب التعديل. حاول مرة أخرى' }), labels, setSummary)) return;
     const fallback = 'تعذر إنشاء طلب التعديل. حاول مرة أخرى';
     this.notifyHttpError(err, { fallback });
     // 409: a request is already waiting for the admin - show that state instead of leaving the form looking unsent
@@ -958,6 +979,7 @@ export class Data implements OnInit {
         if (raw?.code === 'CURRENT_PASSWORD_INCORRECT' && this.serverFieldError(this.passwordForm, 'currentPassword', messageForBackendCode(raw.code)!, setSummary, PASSWORD_LABELS)) return;
         if (raw?.code === 'PASSWORD_UNCHANGED' && this.serverFieldError(this.passwordForm, 'newPassword', messageForBackendCode(raw.code)!, setSummary, PASSWORD_LABELS)) return;
         if (raw?.code === 'WEAK_PASSWORD' && this.serverFieldError(this.passwordForm, 'newPassword', WEAK_PASSWORD_MESSAGE, setSummary, PASSWORD_LABELS)) return;
+        if (this.applyMappedFieldErrors(this.passwordForm, mapHttpError(err, { fallback: 'تعذر تغيير كلمة المرور، حاول مجددًا' }), PASSWORD_LABELS, setSummary)) return;
         this.notifyHttpError(err, { fallback: 'تعذر تغيير كلمة المرور، حاول مجددًا', unauthorizedIs: 'credentials' });
       }
     });

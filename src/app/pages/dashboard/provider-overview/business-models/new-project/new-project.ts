@@ -1,5 +1,5 @@
 import type { RegisteredSpecialty } from '../../../../../core/utils/specialty-states';
-import { Component, signal, computed, effect, untracked, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, signal, computed, effect, untracked, OnInit, OnDestroy, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -13,6 +13,8 @@ import { Step4StagesComponent } from './components/step4-stages/step4-stages.com
 import { Step5EvaluationComponent } from './components/step5-evaluation/step5-evaluation.component';
 import { isMeaningfulProjectTitle } from '../../../../../core/utils/title-validator';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { FieldProblem, SubmitGuard, reportBackendError, reportProblems } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 export interface PassedSpecialtySubItem {
 	id: string;
 	specialtyId: string;
@@ -60,6 +62,8 @@ export class NewProject implements OnInit, OnDestroy {
 	private sanitizer = inject(DomSanitizer);
 	private router = inject(Router);
 	private route = inject(ActivatedRoute);
+	private host = inject(ElementRef<HTMLElement>);
+	private submitGuard = new SubmitGuard();
 
 	isSvgIcon(iconStr?: string): boolean {
 		return !!iconStr && iconStr.includes('<');
@@ -456,9 +460,10 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	// Step 4 - Stages & Milestones
-	totalAmount = signal<number>(4500);
+	// Starts empty: the provider types the budget and the durations (no invented amount). A single stage is always 100% of the budget.
+	totalAmount = signal<number | null>(null);
 	stages = signal<any[]>([
-		{ title: '', desc: '', days: 5, percentage: 100 }
+		{ title: '', desc: '', days: null, percentage: 100 }
 	]);
 	isAiSuggestingMilestones = signal<boolean>(false);
 
@@ -470,14 +475,14 @@ export class NewProject implements OnInit, OnDestroy {
 		this.isAiSuggestingMilestones.set(true);
 		this.notify.info('يقوم المستشار الذكي الآن بتحليل مشروعك وهندسة المراحل الأنسب...');
 
-		this.newProjectService.suggestMilestones(this.projectName(), this.projectDesc(), this.totalAmount()).subscribe({
+		this.newProjectService.suggestMilestones(this.projectName(), this.projectDesc(), this.totalAmount() ?? undefined).subscribe({
 			next: (res) => {
 				this.isAiSuggestingMilestones.set(false);
 				if (res?.data?.milestones && Array.isArray(res.data.milestones) && res.data.milestones.length > 0) {
 					const mapped = res.data.milestones.map((m: any) => ({
 						title: m.title || 'مرحلة جديدة',
 						desc: m.description || m.desc || '',
-						days: Number(m.estimatedDays || m.days) || 4,
+						days: Number(m.estimatedDays || m.days) || null,
 						percentage: Number(m.percentage) || 0
 					}));
 					this.stages.set(mapped);
@@ -493,7 +498,7 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	addStage() {
-		this.stages.update(s => [...s, { title: '', desc: '', days: 0, percentage: 0 }]);
+		this.stages.update(s => [...s, { title: '', desc: '', days: null, percentage: null }]);
 	}
 
 	removeStage(index: number) {
@@ -510,10 +515,11 @@ export class NewProject implements OnInit, OnDestroy {
 
 	totalPercentage = computed(() => this.stages().reduce((sum, s) => sum + (Number(s.percentage) || 0), 0));
 	totalDays = computed(() => this.stages().reduce((sum, s) => sum + (Number(s.days) || 0), 0));
-	isValidStep4 = computed(() => this.totalPercentage() === 100 && this.stages().length > 0 && this.stages().every(s => s.title && s.percentage > 0));
+	isValidStep4 = computed(() => (this.totalAmount() ?? 0) > 0 && this.totalPercentage() === 100 && this.stages().length > 0
+		&& this.stages().every(s => String(s.title ?? '').trim() && Number(s.percentage) > 0 && Number(s.days) > 0));
 
 	getAmountForStage(percentage: number): number {
-		return (this.totalAmount() * (percentage || 0)) / 100;
+		return ((this.totalAmount() ?? 0) * (percentage || 0)) / 100;
 	}
 
 	// Step 5 - AI Review & Orchestration
@@ -625,7 +631,7 @@ export class NewProject implements OnInit, OnDestroy {
 					const mappedStages = service.stages.map((stg: any) => ({
 						title: stg.title || '',
 						desc: stg.description || stg.desc || '',
-						days: Number(stg.deliveryDays || stg.days || 1),
+						days: Number(stg.deliveryDays || stg.days) || null,
 						percentage: Number(stg.percentage || 0)
 					}));
 					this.stages.set(mappedStages);
@@ -653,8 +659,42 @@ export class NewProject implements OnInit, OnDestroy {
 		}
 	}
 
-	goNext() {
-		if (this.isCurrentStepValid && this.currentStep() < this.totalSteps) {
+	/** What is missing in the CURRENT step, in page order, each tied to its control (ids in the step components). */
+	stepProblems(step = this.currentStep()): FieldProblem[] {
+		const out: FieldProblem[] = [];
+		if (step === 1) {
+			if (!this.projectName().trim()) out.push({ field: 'np-name', message: 'اكتب اسم المشروع', label: 'اسم المشروع', step });
+			if (!this.projectDesc().trim()) out.push({ field: 'np-desc', message: 'اكتب وصف المشروع', label: 'وصف المشروع', step });
+		} else if (step === 2) {
+			if (!this.selectedSpecialty()) out.push({ field: 'np-specialty', message: 'اختر تخصصاً رئيسياً للمتابعة', label: 'التخصص', step });
+			else if (!this.isValidStep2()) out.push({ field: 'np-subspecialty', message: 'اختر تخصصاً فرعياً للمتابعة', label: 'التخصص الفرعي', step });
+		} else if (step === 3) {
+			if (!this.isValidStep3()) out.push({ field: 'np-model', message: 'اختر نموذجاً من معرض أعمالك للمتابعة', label: 'النموذج', step });
+		} else if (step === 4) {
+			if (!((this.totalAmount() ?? 0) > 0)) out.push({ field: 'np-total-amount', message: 'أدخل الميزانية الإجمالية بالدولار (أكبر من صفر)', label: 'الميزانية', step });
+			this.stages().forEach((s, i) => {
+				if (!String(s.title ?? '').trim()) out.push({ field: `np-stage-title-${i}`, message: 'اكتب عنوان المرحلة', step });
+				if (!(Number(s.days) > 0)) out.push({ field: `np-stage-days-${i}`, message: 'أدخل مدة التسليم بالأيام', step });
+				if (!(Number(s.percentage) > 0)) out.push({ field: `np-stage-percentage-${i}`, message: 'أدخل نسبة المرحلة', step });
+			});
+			if (this.totalPercentage() !== 100 && this.stages().every(s => Number(s.percentage) > 0)) {
+				out.push({ field: 'np-stage-percentage-0', message: `مجموع النسب ${this.totalPercentage()}% ويجب أن يساوي 100%`, step });
+			}
+		}
+		return out;
+	}
+
+	/** Marks every missing field of the current step (red, aria-invalid, role=alert) and focuses the first one. */
+	private async showStepProblems(problems: FieldProblem[]) {
+		const res = await reportProblems(this.host.nativeElement, problems, { openStep: (s) => { this.currentStep.set(Number(s)); } });
+		if (!res.focused) this.notify.warning(problems[0]?.message ?? 'أكمل الحقول المطلوبة');
+	}
+
+	async goNext() {
+		if (this.isSubmitting() || this.isStreamingText() || (this.currentStep() === 5 && this.isAiAnalyzing())) return;
+		const problems = this.stepProblems();
+		if (problems.length) { await this.showStepProblems(problems); return; }
+		if (this.currentStep() < this.totalSteps) {
 			// Upon navigating to Step 5, trigger complete Gemini analysis
 			if (this.currentStep() === 4) {
 				this.triggerAiReviewAnalysis();
@@ -688,7 +728,7 @@ export class NewProject implements OnInit, OnDestroy {
 			subSpecialty: this.selectedSubSpecialty(),
 			modelType: selectedModelObj ? selectedModelObj.title : this.selectedModel(),
 			accreditationSampleId: this.selectedModel(),
-			totalAmount: this.totalAmount(),
+			totalAmount: this.totalAmount() ?? undefined,
 			stages: this.stages().map(s => ({
 				title: s.title,
 				description: s.desc,
@@ -730,7 +770,7 @@ export class NewProject implements OnInit, OnDestroy {
 			return {
 				title: m.title || `المرحلة ${idx + 1}`,
 				desc: m.description || '',
-				days: m.estimatedDays || 3,
+				days: m.estimatedDays || null,
 				percentage: p
 			};
 		});
@@ -758,6 +798,7 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	private submitProject() {
+		if (!this.submitGuard.enter()) return;
 		this.isSubmitting.set(true);
 		const payload = {
 			title: this.projectName(),
@@ -780,6 +821,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 		request$.subscribe({
 			next: (res) => {
+				this.submitGuard.release();
 				this.isSubmitting.set(false);
 					const msg = this.isEditMode() ? 'تم تحديث النموذج ونشره مباشرة' : 'تم نشر مشروعك مباشرة في السوق';
 				this.notify.success(msg);
@@ -789,14 +831,23 @@ export class NewProject implements OnInit, OnDestroy {
 			},
 				error: (err) => {
 					console.error('Publish failed', err);
+					this.submitGuard.release();
 					this.isSubmitting.set(false);
+					const mapped = mapHttpError(err, { fallback: 'تعذر حفظ نموذج العمل. راجع البيانات وحاول مرة أخرى' });
 					const serverMsg: string = err?.error?.message || err?.error?.error || '';
 					if (err?.status === 400 && /مهار|skill/i.test(serverMsg)) {
 						// The server refused a skill that is not in the catalog of this field: show it next to the skills.
 						this.skillsError.set(serverMsg);
 						this.currentStep.set(2);
 					}
-					this.notify.error(serverMsg || 'تعذر حفظ نموذج العمل. راجع البيانات وحاول مرة أخرى');
+					// Only a 400/422 that names fields lands on the field; network / 429 / 5xx / 403 / 409 stay a generic message.
+					void reportBackendError(this.host.nativeElement, mapped, {
+						resolve: { title: 'np-name', description: 'np-desc', specialtyId: 'np-specialty', subSpecialty: 'np-subspecialty', accreditationSampleId: 'np-model', totalAmount: 'np-total-amount' },
+						steps: { title: 1, description: 1, specialtyId: 2, subSpecialty: 2, accreditationSampleId: 3, totalAmount: 4 },
+						openStep: (st) => { this.currentStep.set(Number(st)); },
+					}).then(r => {
+						if (!r.handled) this.notify.error(mapped.kind === 'backend-validation' ? (serverMsg || mapped.message) : mapped.message);
+					});
 				}
 		});
 	}

@@ -58,7 +58,7 @@
   </div>
 
   <!-- Empty State if No Accredited Models -->
-  <div *ngIf="!isLoadingModels && (!displayedModels || displayedModels.length === 0)" style="text-align:center;padding:60px 24px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:24px;">
+  <div *ngIf="!isLoadingModels && (!displayedModels || displayedModels.length === 0)" id="np-model" data-field="model" tabindex="-1" style="text-align:center;padding:60px 24px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:24px;">
     <div style="font-size:15px;font-weight:800;margin-bottom:8px">لا توجد نماذج بعد</div>
     <div style="font-size:13px;margin-bottom:20px" class="txt-muted">ارفع أول نموذج أعمال لتظهر في السوق أو غيّر الفلتر.</div>
     <a routerLink="/provider-overview/business-models/accreditation/new" style="display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none" class="txt-navy">رفع نموذج</a>
@@ -68,7 +68,7 @@
   <div *ngIf="!isLoadingModels && displayedModels && displayedModels.length > 0">
     <div style="margin-bottom:8px;font-size:11px;font-weight:800;letter-spacing:.04em" class="txt-blue">النماذج الخاصة بك <span style="font-weight:600" class="txt-muted">({{ displayedModels.length }} نماذج)</span></div>
     
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:28px">
+    <div id="np-model" data-field="model" tabindex="-1" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:28px">
       @for (model of displayedModels; track model.id) {
       <div (click)="selectModel(model.id)" style="cursor:pointer;display:block">
         <div class="model-card" style="background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01));border-radius:16px;overflow:hidden;position:relative;transition:border-color .2s,transform .15s"

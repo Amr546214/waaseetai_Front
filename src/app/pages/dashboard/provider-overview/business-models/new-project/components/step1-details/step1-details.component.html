@@ -10,7 +10,7 @@
 		<div>
 			<label class="block text-[13px] font-bold text-[var(--txt-2)] mb-2">اسم المشروع <span
 					class="text-[#FF6B6B]">*</span></label>
-			<input type="text" [value]="projectName" (input)="updateName($event)"
+			<input type="text" id="np-name" name="projectName" data-field="projectName" [value]="projectName" (input)="updateName($event)"
 				placeholder="مثال: تصميم هوية بصرية متكاملة أو تطوير تطبيق ذكاء اصطناعي"
 				class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] px-4 py-[13px] text-[14px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors placeholder:text-[var(--txt-3)]">
 		</div>
@@ -49,7 +49,7 @@
 			</div>
 
 			<div class="relative">
-				<textarea [value]="projectDesc" (input)="updateDesc($event)" [readonly]="isStreamingText"
+				<textarea id="np-desc" name="projectDesc" data-field="projectDesc" [value]="projectDesc" (input)="updateDesc($event)" [readonly]="isStreamingText"
 					placeholder="اشرح بدقة ماذا يتضمن المشروع، المخرجات المستهدفة، ومراحل العمل لتعزيز نسبة الفوز..."
 					rows="8" maxlength="1500"
 					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-all resize-y leading-[1.8] placeholder:text-[var(--txt-3)] custom-scrollbar"

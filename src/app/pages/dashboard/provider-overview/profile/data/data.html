@@ -181,7 +181,7 @@
           id="pr-lname" class="inp-field" formControlName="lastName" maxlength="60"><ws-field-error [control]="profileForm.get('lastName')" label="اسم العائلة" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-title">المسمى المهني<span
             class="req">*</span></label><input id="pr-title" class="inp-field" formControlName="headline" maxlength="100"
-          placeholder="مثال: مصمم جرافيك — 8 سنوات خبرة"><ws-field-error [control]="profileForm.get('headline')" label="المسمى المهني" /></div>
+          placeholder="اكتب مسماك المهني"><ws-field-error [control]="profileForm.get('headline')" label="المسمى المهني" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-dob">تاريخ الميلاد</label>
         <input id="pr-dob" type="date" class="inp-field" formControlName="dob" dir="ltr" [max]="todayIso" min="1900-01-01" data-testid="dob-input" autocomplete="bday">
         <span class="field-hint" data-testid="dob-hint">{{ dobLocked() ? 'موثّق ولا يمكن تغييره. تواصل مع الدعم لتعديله.' : 'خاص بك فقط ولا يظهر في ملفك العام.' }}</span>
@@ -588,11 +588,11 @@
         }</div>
       <div class="inp-group"><label class="inp-label" for="ct-whatsapp">رقم WhatsApp (اختياري)</label>
         <div style="display:flex;gap:8px;align-items:stretch">
-          <input type="tel" id="ct-whatsapp" class="inp-field" dir="ltr" inputmode="tel" autocomplete="tel" data-testid="contact-whatsapp-input" placeholder="+20 1XXXXXXXXX" [formControl]="whatsappControl" (keydown.enter)="saveWhatsapp(); $event.preventDefault()" style="flex:1;min-width:0">
+          <input type="tel" id="ct-whatsapp" class="inp-field" dir="ltr" inputmode="tel" autocomplete="tel" data-testid="contact-whatsapp-input" placeholder="+20 1XXXXXXXXX" [formControl]="whatsappControl" (keydown.enter)="saveWhatsapp(); $event.preventDefault()" [attr.aria-invalid]="whatsappControl.invalid && (whatsappControl.touched || whatsappControl.errors?.['server']) ? 'true' : null" aria-describedby="whatsapp-error" style="flex:1;min-width:0">
           <button type="button" class="btn-primary" data-testid="save-whatsapp-btn" [disabled]="savingWhatsapp()" (click)="saveWhatsapp()">{{ savingWhatsapp() ? 'جاري الحفظ...' : 'حفظ رقم WhatsApp' }}</button>
         </div>
-        @if (whatsappControl.touched && whatsappControl.errors?.['whatsapp']) { <span class="field-error" role="alert" data-testid="whatsapp-error">رقم WhatsApp غير صالح: من 8 إلى 15 رقمًا، ويمكن أن يبدأ بـ +</span> }
-        @if (whatsappControl.errors?.['server']) { <span class="field-error" role="alert" data-testid="whatsapp-error">{{ whatsappControl.errors?.['server'] }}</span> }
+        @if (whatsappControl.touched && whatsappControl.errors?.['whatsapp']) { <span class="field-error" role="alert" id="whatsapp-error" data-testid="whatsapp-error">رقم WhatsApp غير صالح: من 8 إلى 15 رقمًا، ويمكن أن يبدأ بـ +</span> }
+        @if (whatsappControl.errors?.['server']) { <span class="field-error" role="alert" id="whatsapp-error" data-testid="whatsapp-error">{{ whatsappControl.errors?.['server'] }}</span> }
         <span class="inp-hint" data-testid="whatsapp-hint">رقم اختياري يُحفظ مباشرة. اتركه فارغًا لحذفه.</span></div>
       <div class="inp-group" style="grid-column:1/-1" data-testid="contact-location-note">
         <span class="inp-label">الدولة والمدينة</span>

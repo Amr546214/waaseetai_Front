@@ -171,7 +171,7 @@
 				}}
 				{{ currentStep() < 5 && isCurrentStepValid ? '✓ البيانات مكتملة وجاهز للتالي' : '' }} </span>
 
-					<button type="button" [disabled]="!isCurrentStepValid || isSubmitting() || isStreamingText()"
+					<button type="button" [disabled]="isSubmitting() || isStreamingText()" [attr.aria-busy]="isSubmitting()"
 						(click)="goNext()"
 						class="inline-flex items-center justify-center gap-2 px-[32px] py-[13px] border-none rounded-full text-[15px] font-extrabold disabled:opacity-40 disabled:cursor-not-allowed hover:-translate-y-px transition-all shadow-lg"
 						[class]="currentStep() === 5 ? 'bg-gradient-to-r from-[#A56BE0] via-[#2B7FFF] to-[#2BD4C7] text-white shadow-[0_4px_20px_rgba(123,47,190,.45)]' : 'bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] shadow-[0_4px_18px_rgba(43,212,199,.35)]'">

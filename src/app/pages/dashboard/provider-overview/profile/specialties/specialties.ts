@@ -1,7 +1,10 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { genericBanner } from '../../../../../shared/forms/submit-feedback';
+import { clearAllInvalid, FieldProblem, reportBackendError, reportProblems, scrollFocus, SubmitGuard } from '../../../../../shared/forms/form-error-focus';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { HttpEventType } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -128,6 +131,9 @@ export class Specialties implements OnInit, OnDestroy {
 	// Hardcoded SVG glyph (no user data). Angular's HTML sanitizer strips <circle>/<path> inside [innerHTML] on an <svg>, which left every category icon blank.
 	private readonly categoryIcon: SafeHtml = this.sanitizer.bypassSecurityTrustHtml('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>');
 	private providerApi = inject(ProviderApiService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	/** One request at a time for step 1 (selectSpecialty); step 2 is guarded by isSubmittingSamples. */
+	private readonly step1Guard = new SubmitGuard();
 	private router = inject(Router);
 	private route = inject(ActivatedRoute, { optional: true });
 	/** Opened from the accreditation page's "إضافة تخصص جديد" (?returnTo=accreditation): after the test the provider goes back there. */
@@ -529,8 +535,49 @@ export class Specialties implements OnInit, OnDestroy {
 		return this.selectedSubs().has(sub);
 	}
 
+	/** Step 1 problems, next to the control that is missing (spec grid / sub chips / the free-text specialty). */
+	private step1Problems(): FieldProblem[] {
+		const id = this.selectedSpecId();
+		if (!id) return [{ field: 'spec-grid', message: 'اختر التخصص الرئيسي أولاً.', label: 'التخصص الرئيسي' }];
+		if (id === 'other') {
+			return this.otherText().trim().length < 5 ? [{ field: 'spec-other-text', message: 'اكتب اسم التخصص الذي تحتاجه (5 أحرف على الأقل).', label: 'التخصص المقترح' }] : [];
+		}
+		return this.selectedSubs().size === 0 ? [{ field: 'sub-chips', message: 'اختر تخصصاً فرعياً واحداً على الأقل.', label: 'التخصصات الفرعية' }] : [];
+	}
+
+	/** Step 2 problems per sample, in page order. The description keeps its own live message (descriptionError); the rest are marked here. */
+	private step2Problems(): { problems: FieldProblem[]; descriptionEl: HTMLElement | null } {
+		const problems: FieldProblem[] = [];
+		let descriptionEl: HTMLElement | null = null;
+		for (const s of this.samples()) {
+			const label = s.subSpecialty || 'النموذج';
+			if (s.title.trim().length < 3) problems.push({ field: `sample-title-${s.id}`, message: `«${label}»: عنوان النموذج 3 أحرف على الأقل.` });
+			if ((s.description || '').trim().length < 20) { const d = this.host.nativeElement.querySelector<HTMLElement>(`#sample-desc-${s.id}`); descriptionEl ??= d; }
+			if (s.technologies.length === 0) problems.push({ field: `sample-tech-${s.id}`, message: `«${label}»: أضف تقنية واحدة على الأقل.` });
+			if (s.publicFile === null) problems.push({ field: `sample-public-${s.id}`, message: `«${label}»: ارفع الملف العام للنموذج.` });
+			if (s.proofFiles.length === 0) problems.push({ field: `sample-proof-${s.id}`, message: `«${label}»: ارفع ملف إثبات واحداً على الأقل.` });
+		}
+		return { problems, descriptionEl };
+	}
+
+	private async reportStep2Problems(): Promise<void> {
+		const { problems, descriptionEl } = this.step2Problems();
+		const res = await reportProblems(this.host.nativeElement, problems, { noFocus: true });
+		const first = [res.focused, descriptionEl].filter((e): e is HTMLElement => !!e)
+			.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))[0];
+		if (first) scrollFocus(first);
+	}
+
 	nextStep() {
+		clearAllInvalid(this.host.nativeElement); // marks from the previous attempt (e.g. a server rejection) do not outlive a new one
+		if (this.currentStep() === 1 && !this.canProceedToStep2()) {
+			this.stepError.set(null);
+			void reportProblems(this.host.nativeElement, this.step1Problems());
+			return;
+		}
+		if (this.currentStep() === 2 && this.isSubmittingSamples()) return; // one upload at a time
 		if (this.currentStep() === 1 && this.canProceedToStep2()) {
+			if (!this.step1Guard.enter()) return;
 			const activeSubs = this.activeSubSpecialties();
 			const currentSamples = this.samples();
 
@@ -567,6 +614,7 @@ export class Specialties implements OnInit, OnDestroy {
 			this.stepError.set(null);
 			this.specialtyService.selectSpecialty(payload).subscribe({
 				next: (res: any) => {
+					this.step1Guard.release();
 					// No server id → no invented one: the user stays on step 1 with a clear message.
 					if (res && res.success && res.data?.id) {
 						this.providerSpecialtyId.set(res.data.id);
@@ -576,8 +624,13 @@ export class Specialties implements OnInit, OnDestroy {
 						this.stepError.set(SPECIALTY_ID_MISSING_MESSAGE);
 					}
 				},
-				error: (err: any) => {
+				error: async (err: any) => {
+					this.step1Guard.release();
 					this.providerSpecialtyId.set(null);
+					// a 400/422 naming the free-text specialty lands on it; anything else stays one honest message
+					if (genericBanner(mapHttpError(err)) !== null) { this.stepError.set(err?.error?.message || SPECIALTY_ID_MISSING_MESSAGE); return; }
+					const res = await reportBackendError(this.host.nativeElement, mapHttpError(err), { resolve: { customName: 'spec-other-text', specialtyId: 'spec-grid', subSpecialties: 'sub-chips' } });
+					if (res.handled && !Object.keys(res.unresolved).length) return;
 					this.stepError.set(err?.error?.message || SPECIALTY_ID_MISSING_MESSAGE);
 				}
 			});
@@ -585,7 +638,7 @@ export class Specialties implements OnInit, OnDestroy {
 			// Not a silent dead end: say what is missing, next to the field when it is the description.
 			this.step2Attempted.set(true);
 			this.stepError.set(this.step2Blocker());
-			setTimeout(() => (document.querySelector('[data-testid="sample-description-error"]') as HTMLElement | null)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 0);
+			void this.reportStep2Problems();
 		} else if (this.currentStep() === 2 && this.canProceedToStep3()) {
 			const specId = this.providerSpecialtyId();
 			if (!specId) {
@@ -621,10 +674,20 @@ export class Specialties implements OnInit, OnDestroy {
 					}
 					if (event.type === HttpEventType.Response) this.finishSamplesUpload();
 				},
-				error: (err: any) => {
+				error: async (err: any) => {
 					// A failed upload must NOT advance to step 3 as if the samples were saved.
 					this.isSubmittingSamples.set(false);
 					this.uploadProgress.set(0);
+					// field-keyed 400/422 (sampleTitle_0 ...) lands on that sample's control; network / 429 / 5xx stay the honest banner
+					if (genericBanner(mapHttpError(err)) !== null) { this.stepError.set(err?.error?.message || 'تعذّر رفع النماذج. تحقق من الاتصال وأعد المحاولة؛ لم يتم حفظ أي نموذج.'); return; }
+					const ids = this.samples();
+					const resolve: Record<string, string> = {};
+					ids.forEach((smp, i) => {
+						resolve[`sampleTitle_${i}`] = `sample-title-${smp.id}`; resolve[`sampleDescription_${i}`] = `sample-desc-${smp.id}`;
+						resolve[`sampleTechnologies_${i}`] = `sample-tech-${smp.id}`; resolve[`publicSample_${i}`] = `sample-public-${smp.id}`; resolve[`proofFiles_${i}`] = `sample-proof-${smp.id}`;
+					});
+					const res = await reportBackendError(this.host.nativeElement, mapHttpError(err), { resolve });
+					if (res.handled && !Object.keys(res.unresolved).length) { this.stepError.set(null); return; }
 					this.stepError.set(err?.error?.message || 'تعذّر رفع النماذج. تحقق من الاتصال وأعد المحاولة؛ لم يتم حفظ أي نموذج.');
 				}
 			});

@@ -99,7 +99,7 @@
 			</div>
 
 			<div class="tkm-composer">
-				<textarea [(ngModel)]="replyText" rows="1" placeholder="اكتب ردّك للفريق" aria-label="ردّك"></textarea>
+				<textarea [(ngModel)]="replyText" id="td-reply" name="reply" data-field="reply" rows="1" placeholder="اكتب ردّك للفريق" aria-label="ردّك"></textarea>
 				<div class="tkm-composer-actions">
 					<button type="button" class="tkm-send" [disabled]="sending()" (click)="sendReply()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>{{ sending() ? 'جارٍ الإرسال...' : 'إرسال الرد' }}</button>
 				</div>

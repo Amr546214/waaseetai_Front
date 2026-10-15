@@ -1,10 +1,13 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CompanyTeamService } from '../../../../../core/services/company-team.service';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { FieldProblem, SubmitGuard, reportBackendError, reportProblems } from '../../../../../shared/forms/form-error-focus';
+import { genericBanner } from '../../../../../shared/forms/submit-feedback';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 import {
 	CompanyTeamMember,
@@ -43,6 +46,8 @@ const SPEC_KEYWORDS: Record<string, string[]> = {
 	content: ['محتوى', 'كاتب', 'تسويق', 'content'],
 };
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function emptyForm(): CreateTeamMemberPayload {
 	return { name: '', email: '', phone: '', jobTitle: '', memberType: 'PROVIDER', status: 'PENDING' };
 }
@@ -58,6 +63,8 @@ export class CompanyTeamManagementComponent implements OnInit {
 	private teamApi = inject(CompanyTeamService);
 	private confirmModal = inject(ConfirmModalService);
 	private destroyRef = inject(DestroyRef);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private guard = new SubmitGuard();
 
 	readonly statusLabels = STATUS_LABELS;
 	readonly typeLabels = TYPE_LABELS;
@@ -168,8 +175,8 @@ export class CompanyTeamManagementComponent implements OnInit {
 		if (!this.showForm()) this.form = emptyForm();
 	}
 
-	submitForm(): void {
-		if (this.saving()) return;
+	async submitForm(): Promise<void> {
+		if (this.saving() || this.guard.busy) return;
 		const payload: CreateTeamMemberPayload = {
 			name: this.form.name.trim(),
 			email: this.form.email.trim(),
@@ -178,22 +185,38 @@ export class CompanyTeamManagementComponent implements OnInit {
 			memberType: this.form.memberType,
 			status: this.form.status,
 		};
-		if (!payload.name || !payload.email || !payload.jobTitle) {
-			this.formError.set('الاسم والبريد الإلكتروني والمسمى الوظيفي حقول مطلوبة');
+		const root = this.host.nativeElement;
+		const problems: FieldProblem[] = [];
+		if (!payload.name) problems.push({ field: 'tm-name', message: 'الاسم مطلوب', label: 'الاسم' });
+		if (!payload.email) problems.push({ field: 'tm-email', message: 'البريد الإلكتروني مطلوب', label: 'البريد الإلكتروني' });
+		else if (!EMAIL_RE.test(payload.email)) problems.push({ field: 'tm-email', message: 'البريد الإلكتروني غير صالح، مثال على الصيغة: name@company.com', label: 'البريد الإلكتروني' });
+		if (!payload.jobTitle) problems.push({ field: 'tm-jobTitle', message: 'المسمى الوظيفي مطلوب', label: 'المسمى الوظيفي' });
+		if (problems.length) {
+			// Each message sits under its field; the banner only summarises and never replaces them.
+			this.formError.set(problems.length > 1 ? 'أكمل الحقول المحددة بالأحمر ثم احفظ' : null);
+			await reportProblems(root, problems);
 			return;
 		}
+		if (!this.guard.enter()) return;
 		this.saving.set(true);
 		this.formError.set(null);
 		this.teamApi.create(payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
 			next: res => {
 				this.members.update(list => [res.data, ...list]);
 				this.saving.set(false);
+				this.guard.release();
 				this.showForm.set(false);
 				this.form = emptyForm();
 			},
-			error: (err: HttpErrorResponse) => {
-				this.formError.set(err.error?.message || 'تعذر إضافة عضو الفريق');
+			error: async (err: HttpErrorResponse) => {
 				this.saving.set(false);
+				this.guard.release();
+				const mapped = mapHttpError(err, { fallback: 'تعذر إضافة عضو الفريق' });
+				const gen = genericBanner(mapped);
+				if (gen !== null) { this.formError.set(gen); return; }
+				const res = await reportBackendError(root, mapped, { resolve: { name: 'tm-name', email: 'tm-email', phone: 'tm-phone', jobTitle: 'tm-jobTitle' } });
+				// Network / 429 / 5xx / 403 / 409 (and a 400 naming no field) stay one honest generic message, never a field mark.
+				this.formError.set(res.handled && Object.keys(res.unresolved).length === 0 ? null : mapped.message);
 			},
 		});
 	}
