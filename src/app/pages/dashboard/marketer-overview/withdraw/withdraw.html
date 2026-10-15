@@ -36,8 +36,8 @@
     <div [formGroup]="withdrawForm" style="max-width:520px">
       <div style="margin-bottom:14px">
         <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px" class="txt-slate">المبلغ ($)</label>
-        <input type="number" formControlName="amount" placeholder="أدخل المبلغ" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-family:inherit;outline:none" class="txt-white">
-        <div style="font-size:11px;margin-top:5px" class="txt-muted" data-testid="withdraw-limits">الحد الأدنى: {{ minimumWithdrawal() }} $ · الحد الأقصى: {{ withdrawableBalance() }} $ <button type="button" class="txt-teal" style="font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit" data-testid="use-max" [disabled]="withdrawableBalance() <= 0" (click)="useMax()">استخدام الحد الأقصى</button></div>
+        <input type="number" formControlName="amount" id="withdraw-amount" name="amount" inputmode="decimal" placeholder="أدخل مبلغ السحب بالدولار" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-family:inherit;outline:none" class="txt-white">
+        <div style="font-size:11px;margin-top:5px" class="txt-muted" data-testid="withdraw-limits">الحد الأدنى: {{ wallet() ? minimumWithdrawal() : '—' }} $ · الحد الأقصى: {{ withdrawableBalance() }} $ <button type="button" class="txt-teal" style="font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit" data-testid="use-max" [disabled]="withdrawableBalance() <= 0" (click)="useMax()">استخدام الحد الأقصى</button></div>
         <div style="font-size:11px;margin-top:3px" class="txt-muted" data-testid="balance-after">الرصيد بعد السحب: {{ balanceAfter() }} $</div>
       </div>
       <div style="margin-bottom:14px">

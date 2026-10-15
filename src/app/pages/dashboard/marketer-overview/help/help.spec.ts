@@ -103,11 +103,12 @@ describe('Help', () => {
       component.submitTicket();
 
       expect(createTicketSpy).not.toHaveBeenCalled();
-      expect(component.ticketCreateError()).toBeTruthy();
+      // the reasons now sit under their own fields (reportProblems) instead of one generic banner
+      expect(component.ticketCreateError()).toBeNull();
     });
 
     it('E) a backend failure does not show success and surfaces the real error', async () => {
-      const createTicketSpy = vi.fn(() => throwError(() => ({ error: { message: 'حدث خطأ في الخادم' } })));
+      const createTicketSpy = vi.fn(() => throwError(() => ({ status: 503, error: { message: 'حدث خطأ في الخادم' } })));
       await setup({ createTicket: createTicketSpy });
       fixture.detectChanges();
 

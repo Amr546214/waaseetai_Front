@@ -1,5 +1,5 @@
 import { chatPreview } from '../../../../core/utils/chat-preview.util';
-import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, computed, ElementRef, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
+import { reportProblems } from '../../../../shared/forms/form-error-focus';
 
 export interface MessageItem {
   id: number | string;
@@ -56,6 +57,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
   private chatStateService = inject(ChatStateService);
   private videoCallService = inject(VideoCallService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private sub = new Subscription();
 
   private currentUserId = 'marketer_001';
@@ -301,7 +303,11 @@ export class MarketerMessages implements OnInit, OnDestroy {
 
   sendMessage(type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'FILE' = 'TEXT', customData?: any): void {
     let text = this.newMessageText().trim();
-    if (type === 'TEXT' && !text) return;
+    if (type === 'TEXT' && !text) {
+      // An empty send explains itself under the message box instead of doing nothing.
+      if (this.activeConversation()) void reportProblems(this.host.nativeElement, [{ field: 'marketer-message-input', message: 'اكتب رسالتك قبل الإرسال' }]);
+      return;
+    }
 
     const currentConv = this.activeConversation();
     if (!currentConv) return;
