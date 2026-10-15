@@ -44,6 +44,8 @@ function baseProviders(opts: { post: (...a: any[]) => any; store?: any; withSoci
 
 // ───────────────────────────────── Login ─────────────────────────────────
 describe('Login (shared validation)', () => {
+	// a 429 now leaves its end timestamp in storage (a refresh must not bypass the server's wait): every test starts clean
+	beforeEach(() => localStorage.clear());
 	const setup = (post: (...a: any[]) => any) => {
 		const { providers, store } = baseProviders({ post });
 		TestBed.configureTestingModule({ imports: [Login], providers });

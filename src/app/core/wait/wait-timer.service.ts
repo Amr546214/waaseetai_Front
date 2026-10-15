@@ -113,6 +113,21 @@ export class WaitTimerService {
 		return handle;
 	}
 
+	/**
+	 * A handle that follows a changing identity (e.g. the e-mail being typed): `current()` returns the handle for the current key, creating it on first use.
+	 * Safe to call while rendering (creating a handle writes no signal). Every handle is released with `destroyRef`.
+	 */
+	trackKeyed(action: string, key: () => string, destroyRef?: DestroyRef | null): () => WaitHandle {
+		const ref = destroyRef ?? this.tryInjectDestroyRef();
+		const cache = new Map<string, WaitHandle>();
+		return () => {
+			const scope = waitScope(action, key());
+			let h = cache.get(scope);
+			if (!h) { h = this.track(scope, ref); cache.set(scope, h); }
+			return h;
+		};
+	}
+
 	/** Sets (or clears, with null / a past time) the end of a scope without needing a handle (used by the HTTP interceptor). */
 	setEnd(scope: string, endsAtMs: number | null): void {
 		const now = Date.now();

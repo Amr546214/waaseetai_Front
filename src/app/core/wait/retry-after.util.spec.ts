@@ -48,6 +48,8 @@ describe('wait formatting', () => {
 	it('clock form under and over an hour', () => {
 		expect(formatClock(83)).toBe('1:23'); expect(formatClock(7)).toBe('0:07'); expect(formatClock(0)).toBe('0:00'); expect(formatClock(3665)).toBe('1:01:05');
 		expect(waitLabel(83)).toBe('بعد 1:23');
+		expect(waitLabel(3600)).toBe('بعد ساعة'); expect(waitLabel(7200)).toBe('بعد ساعتين');
+		expect(rateLimitSentence(3600, true)).toBe('طلبات كثيرة، يمكنك إعادة المحاولة بعد ساعة');
 	});
 	it('words form', () => {
 		expect(formatWaitWords(30)).toBe('30 ثانية'); expect(formatWaitWords(120)).toBe('دقيقتين'); expect(formatWaitWords(300)).toBe('5 دقائق'); expect(formatWaitWords(3600)).toBe('ساعة');

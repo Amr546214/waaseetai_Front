@@ -18,9 +18,9 @@ export function formatWaitWords(totalSeconds: number): string {
 	return `${s} ثانية`;
 }
 
-/** «بعد 1:23» (clock form) for a visible ticking label. */
+/** «بعد 1:23» (clock form, ticks every second) for a visible label; a wait of an hour or more reads in words («بعد ساعة») since seconds mean nothing there. */
 export function waitLabel(totalSeconds: number): string {
-	return `بعد ${formatClock(totalSeconds)}`;
+	return totalSeconds >= 3600 ? `بعد ${formatWaitWords(totalSeconds)}` : `بعد ${formatClock(totalSeconds)}`;
 }
 
 /** The one 429 sentence. With a known wait it names it; with none it is honest and names NO number. */
@@ -28,5 +28,5 @@ export const RATE_LIMIT_PREFIX = 'طلبات كثيرة، يمكنك إعادة 
 export function rateLimitSentence(totalSeconds: number | null | undefined, clock = false): string {
 	if (totalSeconds == null || !Number.isFinite(totalSeconds)) return `${RATE_LIMIT_PREFIX} قليل`;
 	if (totalSeconds <= 0) return 'يمكنك إعادة المحاولة الآن';
-	return `${RATE_LIMIT_PREFIX} ${clock ? formatClock(totalSeconds) : formatWaitWords(totalSeconds)}`;
+	return `${RATE_LIMIT_PREFIX} ${clock && totalSeconds < 3600 ? formatClock(totalSeconds) : formatWaitWords(totalSeconds)}`;
 }
