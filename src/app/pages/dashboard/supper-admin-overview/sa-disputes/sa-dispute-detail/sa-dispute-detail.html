@@ -165,8 +165,8 @@
           <label>الإسناد</label>
           <p>المُسنَد إليه: <strong>{{ d.assignedTo?.name || 'غير مُسنَد' }}</strong></p>
           <div class="dp-ops-row">
-            <ws-select [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للإسناد" style="min-width:180px;max-width:100%;display:block"></ws-select>
-            <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy() || !selectedAssigneeId()" (click)="assign()">إسناد</button>
+            <ws-select id="dp-assignee" [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للإسناد" style="min-width:180px;max-width:100%;display:block"></ws-select>
+            <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="assign()">إسناد</button>
           </div>
         </div>
 
@@ -196,9 +196,10 @@
             }
           </div>
           <div class="dp-ops-row">
-            <input class="dp-rf-input" type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
-            <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy() || !noteDraft().trim()" (click)="addNote()">إضافة</button>
+            <input id="dp-note" aria-label="ملاحظة داخلية" class="dp-rf-input" type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
+            <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="addNote()">إضافة</button>
           </div>
+          @if (opError()) { <p class="dp-rf-err" role="alert" data-testid="op-error">{{ opError() }}</p> }
         </div>
 
 
@@ -266,7 +267,7 @@
 
           <div class="dp-md-field">
             <label>نوع القرار <span class="dp-req">*</span></label>
-            <div class="dp-rf-presets">
+            <div class="dp-rf-presets" id="dp-fin-outcome" tabindex="-1" data-field-wrap>
               @for (o of financialOutcomes; track o.code) {
                 <button type="button" class="dp-rf-preset" [class.active]="finOutcome() === o.code" [attr.data-testid]="'fin-' + o.code" (click)="chooseOutcome(o.code)">{{ o.label }}</button>
               }
@@ -277,20 +278,20 @@
           @if (finOutcome()) {
             <div class="dp-md-field">
               <label>مبلغ يُعاد إلى العميل ($) <span class="dp-req">*</span></label>
-              <input class="dp-rf-input" type="number" min="0" step="0.01" data-testid="fin-refund" [value]="finRefund()" (input)="finRefund.set($any($event.target).value); finConfirmStep.set(false)" />
+              <input id="dp-fin-refund" class="dp-rf-input" type="number" min="0" step="0.01" data-testid="fin-refund" [value]="finRefund()" (input)="finRefund.set($any($event.target).value); finConfirmStep.set(false)" />
             </div>
             <div class="dp-md-field">
               <label>مبلغ يُصرف لمقدم الخدمة ($، قبل خصم عمولة المنصة) <span class="dp-req">*</span></label>
-              <input class="dp-rf-input" type="number" min="0" step="0.01" data-testid="fin-release" [value]="finRelease()" (input)="finRelease.set($any($event.target).value); finConfirmStep.set(false)" />
+              <input id="dp-fin-release" class="dp-rf-input" type="number" min="0" step="0.01" data-testid="fin-release" [value]="finRelease()" (input)="finRelease.set($any($event.target).value); finConfirmStep.set(false)" />
             </div>
             <small class="dp-rf-count" data-testid="fin-sum">المجموع {{ finSum() | number:'1.2-2' }} من أصل {{ heldAmount(d) | number:'1.2-2' }} $ (يجب أن يتطابقا). العمولة تُحسب في الخادم بنسبة العقد المثبّتة.</small>
             <div class="dp-md-field">
               <label>ملاحظات القرار (اختياري)</label>
-              <textarea class="dp-rf-ta" [value]="finNote()" (input)="finNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+              <textarea id="dp-fin-note" aria-label="ملاحظات القرار" class="dp-rf-ta" [value]="finNote()" (input)="finNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
             </div>
           }
 
-          @if (finError()) { <p class="dp-rf-err" data-testid="fin-error">{{ finError() }}</p> }
+          @if (finError()) { <p class="dp-rf-err" role="alert" data-testid="fin-error">{{ finError() }}</p> }
 
           @if (finConfirmStep()) {
             <div class="dp-confirm-box" role="alert" data-testid="fin-confirm-box">
@@ -321,17 +322,17 @@
 
           <div class="dp-md-field">
             <label>القرار <span class="dp-req">*</span></label>
-            <input class="dp-rf-input" type="text" maxlength="120" data-testid="resolution-input" [value]="resolutionText()" (input)="resolutionText.set($any($event.target).value)" placeholder="اكتب القرار أو اختر من القائمة" />
+            <input id="dp-resolution" class="dp-rf-input" type="text" maxlength="120" data-testid="resolution-input" [value]="resolutionText()" (input)="resolutionText.set($any($event.target).value)" placeholder="اكتب القرار أو اختر من القائمة" />
             <small class="dp-rf-count" data-testid="resolution-count">{{ resolutionText().length }} / 120 — القرار عنوان قصير، وضع التفاصيل في خانة الملاحظات</small>
           </div>
 
           <div class="dp-md-field">
             <label>ملاحظات القرار (اختياري)</label>
-            <textarea class="dp-rf-ta" [value]="resolutionNote()" (input)="resolutionNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+            <textarea id="dp-resolution-note" aria-label="ملاحظات القرار" class="dp-rf-ta" [value]="resolutionNote()" (input)="resolutionNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
           </div>
 
           @if (resolveError()) {
-            <p class="dp-rf-err">{{ resolveError() }}</p>
+            <p class="dp-rf-err" role="alert" data-testid="resolve-error">{{ resolveError() }}</p>
           }
 
           @if (confirmingResolve()) {
