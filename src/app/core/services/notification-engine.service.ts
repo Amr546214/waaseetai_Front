@@ -202,12 +202,16 @@ export class NotificationEngineService implements OnDestroy {
 
 	// Real-time event emitters for UI reactivity
 	realtimeNewNotification = signal<any | null>(null);
+	// A notification that already exists was UPDATED server-side (a chat conversation's unread row coalesces its next messages): same id, newer text / count / createdAt. Lists replace the row; the counter never moves.
+	realtimeUpdatedNotification = signal<any | null>(null);
 	realtimeReadNotification = signal<string | null>(null);
 	realtimeReadAll = signal<boolean>(false);
 
 	private toastTimer: any = null;
 	// ids already delivered to the UI (socket push OR recovery read): the same notification arriving twice (a reconnect replay, a recovery that overlaps a push) counts once
 	private seenIds = new Set<string>();
+	// createdAt of each held id as last seen: a same-id arrival with a NEWER createdAt is an update (coalesced chat row), not a duplicate
+	private seenAtById = new Map<string, string>();
 	// createdAt of the newest notification this client holds: the `since` of the recovery read after a reconnect
 	private newestAt: string | null = null;
 
@@ -284,6 +288,16 @@ export class NotificationEngineService implements OnDestroy {
 			this.triggerToast(notif);
 		};
 
+		// Same id, new content: replace the row (never a second row, never +1 on the bell: the server counts one unread row per conversation).
+		this.socket.on('notification_updated', (notif: any) => {
+			if (!notif?.id) return;
+			if (!this.seenIds.has(notif.id)) { handleNewNotification(notif); return; } // never held (missed while offline): it is simply a new unread row
+			if (!this.registerUpdate(notif)) return;
+			this.realtimeUpdatedNotification.set(notif);
+			this.soundService.playPopSound();
+			this.triggerToast(notif);
+		});
+
 		// The server cut this connection because the account is no longer active (admin suspension), or refused it at the handshake.
 		this.socket.on('account_not_active', (payload: { message?: string }) => {
 			this.ui.showBanner('error', accountBlockedText(payload?.message), { title: 'الحساب غير نشط' });
@@ -331,7 +345,20 @@ export class NotificationEngineService implements OnDestroy {
 			this.seenIds.add(id);
 		}
 		const at = notif?.createdAt ? new Date(notif.createdAt).toISOString() : null;
+		if (id && at) this.seenAtById.set(id, at);
 		if (at && (!this.newestAt || at > this.newestAt)) this.newestAt = at;
+		return true;
+	}
+
+	/** True when an already-held id arrives with a NEWER createdAt (the server updated that row); remembers it. Older or equal = a replay, false. */
+	registerUpdate(notif: { id?: string; createdAt?: string | Date } | null | undefined): boolean {
+		const id = notif?.id;
+		const at = notif?.createdAt ? new Date(notif.createdAt).toISOString() : null;
+		if (!id || !at || !this.seenIds.has(id)) return false;
+		const prev = this.seenAtById.get(id);
+		if (prev && at <= prev) return false;
+		this.seenAtById.set(id, at);
+		if (!this.newestAt || at > this.newestAt) this.newestAt = at;
 		return true;
 	}
 
@@ -347,8 +374,11 @@ export class NotificationEngineService implements OnDestroy {
 		this.http.get<any>(`${environment.url_api}/notifications`, { params }).subscribe({
 			next: res => {
 				if (!res?.success || !Array.isArray(res.data)) return;
-				const fresh = [...res.data].reverse().filter((n: any) => this.registerArrival(n));
+				const ordered = [...res.data].reverse();
+				const fresh = ordered.filter((n: any) => this.registerArrival(n));
 				for (const n of fresh) this.realtimeNewNotification.set(n);
+				// rows held already but updated while offline (a chat conversation that kept receiving messages): replace them, no new count
+				for (const n of ordered) if (!fresh.includes(n) && this.registerUpdate(n)) this.realtimeUpdatedNotification.set(n);
 				if (typeof res.unreadCount === 'number') this.unreadCount.set(res.unreadCount);
 				if (fresh.length) this.triggerToast(fresh[fresh.length - 1]);
 			},
@@ -406,6 +436,7 @@ export class NotificationEngineService implements OnDestroy {
 		}
 		// another identity must never inherit the previous account's seen ids
 		this.seenIds.clear();
+		this.seenAtById.clear();
 		this.newestAt = null;
 	}
 
@@ -482,6 +513,8 @@ export class NotificationEngineService implements OnDestroy {
 
 		switch (nt?.type) {
 			case 'CHAT':
+				// A message of a PROJECT room opens that project's messages tab (the stored, stable link); a general one opens the conversation.
+				if (metadata.context === 'PROJECT' && this.isSafeInternalUrl(nt?.actionUrl, basePath) && /[?&]tab=messages(&|$)/.test(nt!.actionUrl!)) return nt!.actionUrl!;
 				return metadata.conversationId
 					? `${basePath}/messages?conversationId=${metadata.conversationId}`
 					: null;

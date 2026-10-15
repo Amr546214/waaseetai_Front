@@ -65,6 +65,15 @@ export class NotificationBell {
 			}
 		});
 
+		// a coalesced chat row (same id, newer text / count): replace it and move it to the top; never a second row
+		effect(() => {
+			const upd = this.notifEngine.realtimeUpdatedNotification();
+			if (upd && upd.id && this.loadedOnce) {
+				const mapped = this.notifEngine.mapToAppNotification(upd, this.dashboardBase());
+				this.notifications.update(list => [mapped, ...list.filter(n => n.id !== upd.id)].slice(0, 5));
+			}
+		});
+
 		effect(() => {
 			const readId = this.notifEngine.realtimeReadNotification();
 			if (readId) {

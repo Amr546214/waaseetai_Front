@@ -218,6 +218,15 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 			}
 		});
 
+		// a coalesced chat row (same id, newer text / count): replace it and move it to the top; never a second row
+		effect(() => {
+			const upd = this.notificationEngine.realtimeUpdatedNotification();
+			if (upd && upd.id) {
+				const mapped = this.toClientNotification(upd);
+				this.notifications.update(list => [mapped, ...list.filter(n => n.id !== upd.id)]);
+			}
+		});
+
 		effect(() => {
 			const readId = this.notificationEngine.realtimeReadNotification();
 			if (readId) {
