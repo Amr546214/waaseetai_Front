@@ -246,6 +246,15 @@ describe('SaDisputeDetail - validation UX', () => {
     expect(c.showFinancialForm()).toBe(true);
   });
 
+  it('financial submit: the BE sum-mismatch 400 (errors[] on releaseToProvider next to heldAmount) goes under the release box', async () => {
+    const { f, c, el } = setup({}, () => throwError(() => httpFail(400, { message: 'مجموع المبلغين (500) يجب أن يساوي المبلغ المحتجز بالكامل (600)', errors: [{ heldAmount: 600 }, { field: 'releaseToProvider', path: 'releaseToProvider', message: 'مجموع المبلغين (500) يجب أن يساوي المبلغ المحتجز بالكامل (600)' }] })));
+    c.openFinancialForm(); c.chooseOutcome('REFUND_CLIENT'); f.detectChanges();
+    c.requestFinancialConfirm(); c.finConfirmed.set(true); c.submitFinancial();
+    await settleForm(); f.detectChanges();
+    expectFieldProblem(byId(el, 'dp-fin-release'), 'يساوي المبلغ المحتجز');
+    expect(c.finError()).toBe('');
+  });
+
   it('text decision: empty resolution -> message under the resolution input with focus; short note -> under the note', async () => {
     const { f, c, api, el } = setup();
     c.openResolveForm('resolve'); f.detectChanges();

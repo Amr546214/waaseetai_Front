@@ -63,7 +63,8 @@ export class SaContent {
     this.dirty.set(true);
   }
 
-  saveAndPublish(): void {
+  /** Local draft only: nothing is sent to the server and nothing is published (real saving/publishing is not connected yet). */
+  saveLocalDraft(): void {
     if (!this.draftContent().trim()) {
       void reportAdminProblems(this.host.nativeElement, [{ field: 'sco-content', message: 'محتوى الصفحة فارغ، اكتب المحتوى قبل الحفظ' }]);
       return;
@@ -71,6 +72,6 @@ export class SaContent {
     const page = this.pages.find((p) => p.key === this.selectedKey());
     if (page) page.content = this.draftContent();
     this.dirty.set(false);
-    this.notify.warning('تم الحفظ محليًا لهذه الجلسة — النشر الفعلي على الموقع غير متاح حاليًا');
+    this.notify.warning('حُفظت كمسودة محلية فقط: لم يُنشر المحتوى ولم يُحفظ على الخادم، فالحفظ والنشر الفعلي غير متصل بعد');
   }
 }
