@@ -13,7 +13,7 @@ import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-
 import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
 import { mapHttpError } from '../../../core/forms/http-error';
-import { registerNotice, registerCreatedAccount, resendNotice, REGISTER_EXISTING_MESSAGE } from '../../../core/forms/otp-delivery';
+import { REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE } from '../../../core/forms/otp-delivery';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
@@ -71,7 +71,10 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	/** The account was created by a successful register call: going back never creates it (or its OTP request) a second time. */
 	accountCreated = false;
 	/** Registration data was already in use: honest generic note with links to login / password recovery (no code was sent, no code step). */
-	existingAccountNotice = '';
+	/** The e-mail the registration request was sent for: the code step's key (the register answer carries no account id). */
+	registeredEmail = '';
+	private submittedSignature = '';
+	private formSignature(): string { return JSON.stringify(this.basicInfoForm.getRawValue()); }
 
 	// Optional single-tier referral attribution (P-LG-012), set by the
 	// app-affiliate-picker below (manual code entry or name search — both
@@ -394,12 +397,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 		// Validate Step 2 and Submit Registration
 		if (this.currentStep === 2) {
-			// Back from the OTP step shows the saved data again; continuing only returns to the OTP step (no second account, no second request)
-			if (this.accountCreated) { this.currentStep = 3; this.errorMessage = ''; this.cdr.markForCheck(); return; }
+			// Back from the OTP step shows the saved data again; continuing with the SAME data only returns to the OTP step (no second request).
+			// Edited data (e.g. a mistyped e-mail) is a new registration request.
+			if (this.accountCreated && this.formSignature() === this.submittedSignature) { this.currentStep = 3; this.errorMessage = ''; this.cdr.markForCheck(); return; }
 			// a second tap / Enter while the first request is still running must not send a second registration
 			if (this.isSubmitting) return;
 			this.errorMessage = '';
-			this.existingAccountNotice = '';
 			this.accountExistsError = false;
 			const attempt = attemptSubmit(this.basicInfoForm, { root: this.host.nativeElement, labels: REGISTER_LABELS });
 			this.missingFields = attempt.missing;
@@ -436,28 +439,17 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		};
 
 		this.authApi.register(payload).subscribe({
-			next: (res) => {
+			next: () => {
 				this.isSubmitting = false;
-				if (!registerCreatedAccount(res)) {
-					// Nothing was created or sent for this request: no code step (it could not be completed). The form stays editable.
-					this.existingAccountNotice = REGISTER_EXISTING_MESSAGE;
-					this.stopCountdown();
-					this.cdr.markForCheck();
-					return;
-				}
+				// One answer for every outcome: the page cannot tell a new address from one already in use, so the code step always opens, keyed by the
+				// typed e-mail, with neutral wording (the links on the step lead existing accounts to login / password recovery). The data is kept and
+				// shown (and editable: a mistyped e-mail is corrected by submitting again); Back + Continue with unchanged data returns here without a second request.
+				this.registeredEmail = String(val.email ?? '').trim().toLowerCase();
 				this.accountCreated = true;
-				this.basicInfoForm.disable({ emitEvent: false }); // the data is kept and shown, but it is no longer editable: the account exists
-				this.currentStep = 3; // The account exists either way, so the OTP step opens
-				const notice = registerNotice(res);
-				if (notice.sent) {
-					this.otpNotice = notice.message;
-					this.startCountdown();
-				} else {
-					// Nothing was sent: say so, no countdown, resend stays available.
-					this.otpNotice = '';
-					this.errorMessage = notice.message;
-					this.stopCountdown();
-				}
+				this.submittedSignature = this.formSignature();
+				this.currentStep = 3;
+				this.otpNotice = REGISTER_CODE_STEP_MESSAGE;
+				this.startCountdown(); // the server applies a cooldown to every address alike
 				this.cdr.markForCheck();
 			},
 			error: (err) => {
@@ -502,8 +494,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			return;
 		}
 		{
-			const pendingUserId = this.authStore.pendingUserId();
-			if (!pendingUserId) {
+			if (!this.registeredEmail) {
 				this.errorMessage = 'فقدت جلسة التفعيل. يرجى التسجيل مرة أخرى.';
 				this.cdr.markForCheck();
 				return;
@@ -516,7 +507,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			const val = this.verificationForm.value;
 			const code = `${val.code1}${val.code2}${val.code3}${val.code4}${val.code5}${val.code6}`;
 
-			this.authApi.verifyOtp({ userId: pendingUserId, code }).subscribe({
+			this.authApi.verifyOtp({ email: this.registeredEmail, code }).subscribe({
 				next: (res) => {
 					this.isSubmitting = false;
 					this.cdr.markForCheck();
@@ -648,9 +639,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	resendOtp() {
 		if (this.countdown > 0 || this.isSubmitting) return;
 
-		const pendingUserId = this.authStore.pendingUserId();
-		if (!pendingUserId) {
-			this.errorMessage = 'فقدت جلسة التفعيل. سجّل الدخول لإكمال تفعيل حسابك.';
+		if (!this.registeredEmail) {
+			this.errorMessage = 'فقدت جلسة التفعيل. يرجى التسجيل مرة أخرى.';
 			this.cdr.markForCheck();
 			return;
 		}
@@ -659,16 +649,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		this.errorMessage = '';
 
 		this.otpNotice = '';
-		this.authApi.resendOtp(pendingUserId).subscribe({
-			next: (res) => {
+		this.authApi.resendOtpByEmail(this.registeredEmail).subscribe({
+			next: () => {
 				this.isSubmitting = false;
-				const notice = resendNotice(res);
-				if (notice.sent) {
-					this.otpNotice = notice.message;
-					this.startCountdown();
-				} else {
-					this.errorMessage = notice.message; // no countdown: nothing was sent
-				}
+				// generic always-200: the page claims only the condition, and the cooldown is the same for every address
+				this.otpNotice = REGISTER_RESEND_MESSAGE;
+				this.startCountdown();
 				this.cdr.markForCheck();
 			},
 			error: (err) => {

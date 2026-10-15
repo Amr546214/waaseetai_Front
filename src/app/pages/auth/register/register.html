@@ -144,16 +144,8 @@
       </div>
       }
 
-      @if (existingAccountNotice) {
-      <div class="banner-info" role="status" data-testid="existing-account-note">
-        <span>{{ existingAccountNotice }}</span>
-        <a routerLink="/auth/login" class="banner-error-link" id="existing-login-link">تسجيل الدخول</a>
-        <a routerLink="/auth/forget-password" class="banner-error-link" id="existing-forgot-link">استعادة كلمة المرور</a>
-      </div>
-      }
-
       @if (accountCreated) {
-      <div class="banner-info" role="status" data-testid="account-created-note">تم إنشاء حسابك وهو بانتظار التحقق. بياناتك محفوظة ولا يمكن تعديلها هنا؛ اضغط «متابعة» للعودة إلى خطوة رمز التحقق.</div>
+      <div class="banner-info" role="status" data-testid="account-created-note">أُرسل طلب التسجيل. بياناتك محفوظة؛ اضغط «متابعة» للعودة إلى خطوة رمز التحقق، أو صحّح بياناتك (مثل البريد) ثم «متابعة» لإرسال الطلب من جديد.</div>
       }
       <form id="complete-form" novalidate [formGroup]="basicInfoForm" (ngSubmit)="nextStep()" autocomplete="off">
         <div class="form-card">
@@ -427,6 +419,12 @@
       <span>{{ otpNotice }}</span>
     </div>
     }
+
+    <div class="banner-info" role="note" data-testid="code-step-help">
+      <span>لم يصلك رمز؟ إن كان لديك حساب مفعّل فلن يصلك رمز هنا.</span>
+      <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
+      <a routerLink="/auth/forget-password" class="banner-error-link" id="code-step-forgot-link">استعادة كلمة المرور</a>
+    </div>
 
     <form [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
       <div class="otp-card">
