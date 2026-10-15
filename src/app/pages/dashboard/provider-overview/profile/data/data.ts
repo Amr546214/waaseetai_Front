@@ -10,6 +10,8 @@ import { AccountType } from '../../../../../core/models/auth.model';
 import { paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { attemptSubmit, applyServerFieldErrors, InvalidField } from '../../../../../core/forms/form-helpers';
 import { mapHttpError, messageForBackendCode } from '../../../../../core/forms/http-error';
+import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
+import { isRateLimitError } from '../../../../../core/utils/rate-limit.util';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { OtpInputComponent } from '../../../../../shared/forms/otp-input.component';
@@ -144,6 +146,8 @@ export class Data implements OnInit {
   private profileService = inject(ProviderProfileService);
   private platformId = inject(PLATFORM_ID);
   private authStore = inject(AuthStore);
+  /** The server's wait before another PayPal-change code may be sent (shared with the confirm step's resend); disables ONLY the send button. */
+  readonly paypalSendWait = inject(WaitTimerService).track(waitScope('paypal-otp-resend', this.authStore.currentUser()?.id ?? ''));
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -703,7 +707,7 @@ export class Data implements OnInit {
   }
 
   savePaypal() {
-    if (this.savingPaypal()) return;
+    if (this.savingPaypal() || this.paypalSendWait.active()) return;
     const attempt = attemptSubmit(this.payoutForm, { root: this.panel('payout'), labels: PAYOUT_LABELS });
     this.missingPayout.set(attempt.missing);
     if (!attempt.valid) return;
@@ -717,6 +721,7 @@ export class Data implements OnInit {
         this.missingPayout.set([]);
         // "أرسلنا رمزًا" is said (and the OTP panel opened) ONLY when the server confirms the mail was accepted.
         if (r.emailSent === true) {
+          this.paypalSendWait.startFromResponse(r);
           this.paypalAccountEmailHint.set(r.emailHint || '');
           this.paypalConfirmMode.set(r.mode ?? (this.paypalHasEmail() ? 'change' : 'add'));
           this.pendingPaypalEmail.set(email);
@@ -731,6 +736,7 @@ export class Data implements OnInit {
         const mapped = mapHttpError(err, { fallback: 'تعذر حفظ بريد PayPal، حاول مرة أخرى' });
         const fieldMsg = mapped.fieldErrors['paypalPayoutEmail'] || (mapped.kind === 'backend-validation' && !Object.keys(mapped.fieldErrors).length ? mapped.message : '');
         this.pendingPaypalEmail.set(null);
+        if (isRateLimitError(err)) this.paypalSendWait.startFromResponse(err);
         if (fieldMsg && this.serverFieldError(this.payoutForm, 'paypalPayoutEmail', fieldMsg, i => this.missingPayout.set(i), PAYOUT_LABELS)) return;
         // mail not sent (503), too many requests (429), anything else: said under the button, the user stays on the input form
         this.paypalRequestError.set(err?.status === 503 ? 'تعذر إرسال رمز التحقق، حاول مرة أخرى' : mapHttpError(err, { fallback: 'تعذر إرسال رمز التحقق، حاول مرة أخرى' }).message);

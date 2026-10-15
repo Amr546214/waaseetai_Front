@@ -18,6 +18,8 @@ import { paypalEmailError, paypalEmailValidators } from '../../../../../core/val
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { attemptSubmit, collectInvalidFields, focusFirstInvalid, InvalidField } from '../../../../../core/forms/form-helpers';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
+import { isRateLimitError, rateLimitEndsAt, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
@@ -77,6 +79,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private access = inject(ProviderAccessService);
 	private uiNotify = inject(UiNotificationService);
 	private authStore = inject(AuthStore);
+	private waitTimers = inject(WaitTimerService);
 	private profileApi = inject(ProfileApiService);
 	private prefsStore = inject(ProviderPrefsStore);
 	private providerProfileService = inject(ProviderProfileService);
@@ -1070,7 +1073,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 								this.pendingPaypalEmail.set(paypalEmail);
 							} else this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.');
 						},
-						error: () => this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.')
+						error: (err) => {
+							// A 429 leaves its end timestamp for the profile page's send button (same scope); nothing is retried here.
+							if (isRateLimitError(err)) this.waitTimers.setEnd(waitScope('paypal-otp-resend', this.authStore.currentUser()?.id ?? ''), rateLimitEndsAt(err));
+							this.paypalSendError.set(isRateLimitError(err) ? rateLimitToastMessage(err) : 'تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.');
+						}
 					});
 				}
 				this.isSubmitting.set(false);
