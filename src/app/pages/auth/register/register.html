@@ -134,6 +134,9 @@
         </div>
       </div>
 
+      @if (rateLimitText) {
+      <div class="banner-error" id="banner-rate-limit-step2" role="alert" data-testid="rate-limit-msg"><span>{{ rateLimitText }}</span></div>
+      }
       @if (errorMessage) {
       <div class="banner-error" id="banner-error" role="alert">
         <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-warn"></use></svg>
@@ -330,7 +333,7 @@
         <ws-form-summary [items]="missingFields" />
 
         <div class="btn-group">
-          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}</button>
+          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting || registerWait().active()">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}@if (registerWait().active()) { <span id="register-wait" data-testid="wait-label"> {{ registerWait().label() }}</span> }</button>
           <button type="button" class="btn-tertiary" id="btn-back" (click)="currentStep = 1">
             <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
             رجوع
@@ -413,6 +416,10 @@
     </div>
     }
 
+    @if (rateLimitText) {
+    <div class="banner-error" id="banner-rate-limit" role="alert" data-testid="rate-limit-msg"><span>{{ rateLimitText }}</span></div>
+    }
+
     @if (otpNotice && !errorMessage) {
     <div class="banner-success" id="otp-notice" role="status">
       <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
@@ -436,19 +443,19 @@
           }
         </div>
 
-        @if (countdown > 0) {
+        @if (resendWait().active()) {
         <div class="timer-block" id="timer-block">
           <span class="timer-label">إعادة الارسال بعد</span>
           <span class="timer-val" id="timer-val" aria-live="polite" dir="ltr">{{ formattedCountdown }}</span>
         </div>
         }
         <div style="text-align:center;margin-top:8px">
-          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="countdown > 0 || isSubmitting" (click)="resendOtp()">اعادة الارسال</button>
+          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="resendWait().active() || isSubmitting" (click)="resendOtp()">اعادة الارسال</button>
         </div>
       </div>
 
       <div class="btn-group" style="margin-top:4px">
-        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isSubmitting" [attr.aria-disabled]="isSubmitting">
+        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isSubmitting || verifyWait().active()" [attr.aria-disabled]="isSubmitting || verifyWait().active()">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-shield"></use></svg>
           {{ isSubmitting ? 'جاري التحقق...' : 'التالي: لوحة التحكم' }}
         </button>

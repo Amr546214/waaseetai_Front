@@ -18,7 +18,7 @@ import { UiNotificationService } from '../../../core/services/ui-notification.se
 import { backendBannerMessage, genericBanner } from '../../../shared/forms/submit-feedback';
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
 import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.service';
-import { isRateLimitError, RATE_LIMIT_MESSAGE } from '../../../core/utils/rate-limit.util';
+import { isRateLimitError, RATE_LIMIT_MESSAGE, startWaitFromError } from '../../../core/utils/rate-limit.util';
 import { parseRetryAfter } from '../../../core/wait/retry-after.util';
 import { rateLimitSentence } from '../../../core/wait/wait-format';
 
@@ -218,9 +218,7 @@ export class Login {
         // 429: a wait from the server (Retry-After / retryAt). The typed e-mail and password stay; no stated time = honest sentence, no timer.
         if (isRateLimitError(err)) {
           // header / body time first; else the wait the server wrote in its own message (http-error reads Arabic and English wording)
-          let end = this.loginWait().startFromResponse(err);
-          const textual = mapHttpError(err, { unauthorizedIs: 'credentials' }).retryAfterSeconds;
-          if (end == null && textual) { end = Date.now() + textual * 1000; this.loginWait().start(end); }
+          const end = startWaitFromError(this.loginWait(), err);
           this.loginRateLimitedNoTime.set(end == null || !this.loginWait().active());
           this.isSubmitting = false;
           this.cdr.markForCheck();
@@ -246,6 +244,9 @@ export class Login {
     if (!userId) return;
     const end = parseRetryAfter({ resendAvailableAt: (data as any)?.resendAvailableAt, retryAfterSeconds: data?.retryAfterSeconds });
     if (end != null) this.waits.setEnd(waitScope('otp-resend', userId), end);
+    // and when that code stops being valid (login answers carry expiresAt)
+    const valid = parseRetryAfter({ resendAvailableAt: (data as any)?.expiresAt });
+    if (valid != null) this.waits.setEnd(waitScope('otp-valid', userId), valid);
   }
 
   /** Active account (password or Google): the mandatory login code was e-mailed, finish at the shared OTP screen. */

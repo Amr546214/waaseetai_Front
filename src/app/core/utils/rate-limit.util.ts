@@ -1,5 +1,7 @@
 import { parseRetryAfter, remainingSeconds } from '../wait/retry-after.util';
 import { formatWaitWords, rateLimitSentence } from '../wait/wait-format';
+import type { WaitHandle } from '../wait/wait-timer.service';
+import { mapHttpError } from '../forms/http-error';
 
 /** The one user-facing text for a rate-limited (HTTP 429) request whose wait the server did not state (honest: no number is invented). */
 export const RATE_LIMIT_MESSAGE = rateLimitSentence(null);
@@ -78,4 +80,17 @@ export function rateLimitEndsAt(err: unknown, now: number = Date.now()): number 
 export function rateLimitToastMessage(err: unknown): string {
 	const wait = retryAfterSeconds(err);
 	return wait != null && wait > 0 ? rateLimitSentence(wait) : RATE_LIMIT_MESSAGE;
+}
+
+/**
+ * Starts `handle` from a 429: the header / body time first, else the wait the server wrote in its own message (Arabic or English, read by mapHttpError).
+ * Returns the end (epoch ms) or null when the server stated none (then nothing is started and no number is invented).
+ */
+export function startWaitFromError(handle: WaitHandle, err: unknown): number | null {
+	let end = handle.startFromResponse(err);
+	if (end == null) {
+		const s = mapHttpError(err).retryAfterSeconds;
+		if (s && s > 0) { end = Date.now() + s * 1000; handle.start(end); }
+	}
+	return end;
 }

@@ -1,3 +1,4 @@
+import { WaitTimerService, waitScope } from '../../core/wait/wait-timer.service';
 import { installMemoryStorage } from '../../core/wait/memory-storage.testkit';
 import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -245,7 +246,7 @@ describe('Register (shared validation)', () => {
 
 // ─────────────────────────────── Verify OTP ──────────────────────────────
 describe('VerifyOtp (shared validation)', () => {
-	const setup = (post: (...a: any[]) => any, storeOverrides: any = {}) => {
+	const setup = (post: (...a: any[]) => any, storeOverrides: any = {}, pre?: (waits: WaitTimerService) => void) => {
 		const store = {
 			currentUser: signal<any>(null),
 			pendingUserId: signal<any>('u1'),
@@ -256,6 +257,7 @@ describe('VerifyOtp (shared validation)', () => {
 		};
 		const { providers } = baseProviders({ post, store, withSocial: false });
 		TestBed.configureTestingModule({ imports: [VerifyOtp], providers });
+		pre?.(TestBed.inject(WaitTimerService));
 		const fixture = TestBed.createComponent(VerifyOtp);
 		render(fixture);
 		return { fixture, component: fixture.componentInstance, el: fixture.nativeElement as HTMLElement };
@@ -287,14 +289,15 @@ describe('VerifyOtp (shared validation)', () => {
 		expect(component.errorMsg).toBe('رمز التحقق غير صحيح');
 		status = 429;
 		component.verify();
-		expect(component.errorMsg).toContain('15 دقيقة');
-		expect(component.errorMsg).not.toMatch(NO_ENGLISH);
+		// the server wrote its wait in the message: it becomes the ticking sentence (a 429 text with no Retry-After still names no invented number)
+		expect(component.rateLimitText).toContain('15:0');
+		expect(component.rateLimitText).not.toMatch(NO_ENGLISH);
 	});
 
-	it('auto-send for a user redirected with a session is NOT repeated within 90 s (saves the shared rate limit)', () => {
-		sessionStore({ waseet_otp_autosend_u1: String(Date.now() - 20_000) });
+	it('auto-send for a user redirected with a session is NOT repeated while the server\'s resend wait runs (saves the shared rate limit)', () => {
+		sessionStore();
 		const post = vi.fn(() => of({ success: true }));
-		const { component } = setup(post, { token: () => 'tok' });
+		const { component } = setup(post, { token: () => 'tok' }, (waits) => waits.setEnd(waitScope('otp-resend', 'u1'), Date.now() + 70_000));
 		expect(post).not.toHaveBeenCalled();
 		expect(component.successMsg).toContain('أرسلنا');
 		expect(component.countdown).toBeGreaterThan(0);
@@ -302,18 +305,18 @@ describe('VerifyOtp (shared validation)', () => {
 	});
 
 	it('auto-send still happens the first time (nothing recent) and is recorded', () => {
-		const data = sessionStore();
-		const post = vi.fn(() => of({ success: true, emailSent: true })); // recorded only when a code really went out
-		setup(post, { token: () => 'tok' });
+		sessionStore();
+		const post = vi.fn(() => of({ success: true, emailSent: true, resendAvailableAt: new Date(Date.now() + 60_000).toISOString() }));
+		const { component } = setup(post, { token: () => 'tok' });
 		expect(post).toHaveBeenCalledTimes(1);
-		expect(data['waseet_otp_autosend_u1']).toBeTruthy();
+		expect(component.countdown).toBeGreaterThan(55); // the wait that now prevents a repeated auto-send on refresh
 	});
 
 	it('a 429 on resend keeps the resend locked for the time the server asked', () => {
 		sessionStore();
 		const { component } = setup(() => httpErr(429, { message: 'Too many requests from this IP, please try again after 15 minutes' }), { token: () => 'tok' });
-		expect(component.errorMsg).toContain('15 دقيقة');
-		expect(component.countdown).toBe(900);
+		expect(component.rateLimitText).toContain('15:0');
+		expect(component.countdown).toBeGreaterThanOrEqual(899);
 	});
 });
 
