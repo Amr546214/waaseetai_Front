@@ -44,20 +44,20 @@
   <div class="ma-overlay" role="dialog" aria-modal="true" aria-label="إضافة مادة تسويقية">
     <div class="ma-modal">
       <h2 class="ma-modal-ttl">إضافة مادة تسويقية</h2>
-      <label class="ma-lbl">العنوان<input class="ma-in" name="title" [(ngModel)]="title" maxlength="150" /></label>
-      <label class="ma-lbl">الوصف (اختياري)<input class="ma-in" name="description" [(ngModel)]="description" maxlength="1000" /></label>
+      <label class="ma-lbl">العنوان<input id="ma-title" class="ma-in" name="title" [(ngModel)]="title" maxlength="150" required /></label>
+      <label class="ma-lbl">الوصف (اختياري)<input id="ma-desc" class="ma-in" name="description" [(ngModel)]="description" maxlength="1000" /></label>
       <label class="ma-lbl">النوع
         <ws-select ariaLabel="النوع" [options]="kindOptions" [(ngModel)]="kind" name="kind" (ngModelChange)="onKindChange()"></ws-select>
       </label>
       @if (needsFile) {
-        <label class="ma-lbl">الملف (حتى 25 ميغابايت)<input class="ma-in" type="file" [accept]="accept" (change)="onFile($event)" /></label>
+        <label class="ma-lbl">الملف (حتى 25 ميغابايت)<input id="ma-file" class="ma-in" type="file" [accept]="accept" (change)="onFile($event)" /></label>
       }
-      @if (kind === 'LINK') { <label class="ma-lbl">الرابط<input class="ma-in" style="direction:ltr" name="linkUrl" [(ngModel)]="linkUrl" placeholder="https://" /></label> }
-      @if (kind === 'TEXT') { <label class="ma-lbl">النص<textarea class="ma-in" rows="5" name="text" [(ngModel)]="text" maxlength="20000"></textarea></label> }
+      @if (kind === 'LINK') { <label class="ma-lbl">الرابط<input id="ma-link" class="ma-in" style="direction:ltr" name="linkUrl" [(ngModel)]="linkUrl" placeholder="https://" /></label> }
+      @if (kind === 'TEXT') { <label class="ma-lbl">النص<textarea id="ma-text" class="ma-in" rows="5" name="text" [(ngModel)]="text" maxlength="20000"></textarea></label> }
       <label class="ma-lbl">الجمهور
         <ws-select ariaLabel="الجمهور" [options]="audienceOptions" [(ngModel)]="audience" name="audience"></ws-select>
       </label>
-      <label class="ma-lbl">الترتيب<input class="ma-in" type="number" min="0" name="sortOrder" [(ngModel)]="sortOrder" /></label>
+      <label class="ma-lbl">الترتيب<input id="ma-sort" class="ma-in" type="number" min="0" name="sortOrder" [(ngModel)]="sortOrder" placeholder="اتركه فارغاً ليأتي بعد باقي المواد" /></label>
       @if (formError()) { <div class="ma-err" role="alert">{{ formError() }}</div> }
       <div class="ma-actions">
         <button type="button" class="ma-btn" (click)="closeForm()" [disabled]="saving()">إلغاء</button>
