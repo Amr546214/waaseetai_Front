@@ -121,7 +121,7 @@ describe('client escrow deposit page', () => {
 		const s = await setup();
 		await openDialog(s);
 		s.post.mockClear();
-		s.c.otpCountdown.set(0);
+		s.c.validityWait.clear();
 		s.c.otpValues.set(['1', '2', '3', '4', '5', '6']);
 		s.c.confirmDeposit(); s.f.detectChanges();
 		expect(s.q('ed-otp-error')!.textContent).toContain('انتهت صلاحية الرمز');
@@ -177,7 +177,9 @@ describe('client escrow deposit page', () => {
 		await openDialog(s);
 		s.post.mockImplementationOnce(() => throwError(() => ({ status: 429, error: { message: 'طلبات رمز التوقيع كثيرة. انتظر دقيقة ثم حاول مجدداً' } })));
 		s.c.resetOTP(); s.f.detectChanges();
-		expect(s.q('ed-otp-error')!.textContent).toContain('انتظر دقيقة');
+		// countdown batch: a 429 that states no duration is an honest «بعد قليل» (no seconds invented), not a timer; resend stays usable
+		expect(s.q('ed-otp-error')!.textContent).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد قليل');
+		expect(s.q('ed-otp-error')!.textContent).not.toMatch(/\d/);
 		s.c.resetOTP(); s.f.detectChanges();
 		expect(s.q('ed-otp-notice')!.textContent).toContain('رمز جديد');
 	});
@@ -189,5 +191,79 @@ describe('client escrow deposit page', () => {
 		expect(html).not.toContain('PayPal');
 		expect(html).not.toContain('ERR-SK-008');
 		expect(html).toContain('<a routerLink="/terms" target="_blank"');
+	});
+
+	describe('countdown (end timestamps from the server)', () => {
+		beforeEach(() => { localStorage.clear(); });
+		afterEach(() => { vi.useRealTimers(); localStorage.clear(); });
+		const e429 = (retryAfter: string | null, body: any = { message: 'x' }) => ({ status: 429, headers: { get: (k: string) => (k === 'Retry-After' ? retryAfter : null) }, error: body });
+
+		it('validity comes from expiresAt: ticks per second, expires, and returns correctly after the tab sleeps', async () => {
+			vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z'));
+			const s = await setup({ sign: of({ success: true, data: { email: 'client@example.com', expiresAt: new Date(Date.now() + 90_000).toISOString() } }) });
+			await openDialog(s);
+			expect(s.q('ed-otp-timer')!.textContent).toContain('1:30');
+			vi.advanceTimersByTime(2000); s.f.detectChanges();
+			expect(s.q('ed-otp-timer')!.textContent).toContain('1:28');
+			vi.setSystemTime(Date.now() + 80_000); window.dispatchEvent(new Event('focus')); s.f.detectChanges();
+			expect(s.q('ed-otp-timer')!.textContent).toContain('0:08');
+			vi.advanceTimersByTime(9000); s.f.detectChanges();
+			expect(s.q('ed-otp-timer')!.textContent).toContain('انتهت صلاحية الرمز');
+		});
+
+		it('the server gave no validity at all: no timer and no guessed 10 minutes; confirm is not blocked by a fake expiry', async () => {
+			const s = await setup({ sign: of({ success: true, data: { email: 'client@example.com' } }) });
+			await openDialog(s);
+			expect(s.q('ed-otp-timer')!.textContent!.trim()).toBe('');
+			s.post.mockClear(); s.c.otpValues.set(['1', '2', '3', '4', '5', '6']); s.c.confirmDeposit();
+			expect(s.post).toHaveBeenCalledTimes(1);
+		});
+
+		it('send 429 (Retry-After seconds) disables the pay button with «بعد m:ss», sends nothing at zero, and a refresh keeps the wait', async () => {
+			vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z'));
+			const s = await setup({ sign: throwError(() => e429('50', { message: 'طلبات رمز التوقيع كثيرة. انتظر دقيقة ثم حاول مجدداً' })) });
+			s.c.toggleTerms(); s.c.handlePrimaryAction(); s.f.detectChanges();
+			expect(s.c.showOtpModal()).toBe(false);
+			expect((s.q('ed-pay') as HTMLButtonElement).disabled).toBe(true);
+			expect(s.q('ed-send-wait')!.textContent).toContain('بعد 0:50');
+			const n = s.post.mock.calls.length;
+			s.c.handlePrimaryAction(); expect(s.post.mock.calls.length).toBe(n);
+			vi.advanceTimersByTime(20_000);
+			TestBed.resetTestingModule();
+			const s2 = await setup();
+			expect(s2.c.sendWait.remainingSeconds()).toBe(30);
+			expect((s2.q('ed-pay') as HTMLButtonElement).disabled).toBe(true);
+			vi.advanceTimersByTime(31_000); s2.f.detectChanges();
+			expect((s2.q('ed-pay') as HTMLButtonElement).disabled).toBe(false);
+			expect(s2.post).not.toHaveBeenCalled();
+		});
+
+		it('deposit 429 with a wait: confirm disabled with the label, digits kept, dialog stays open, nothing re-sent at zero; a 429 is never "wrong code"', async () => {
+			vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z'));
+			const s = await setup({ deposit: throwError(() => e429(null, { message: 'محاولات دفع كثيرة', retryAfterSeconds: 40 })) });
+			await openDialog(s);
+			s.c.otpValues.set(['1', '2', '3', '4', '5', '6']); s.post.mockClear();
+			s.c.confirmDeposit(); s.f.detectChanges();
+			expect(s.post).toHaveBeenCalledTimes(1);
+			expect((s.q('ed-otp-confirm') as HTMLButtonElement).disabled).toBe(true);
+			expect(s.q('ed-confirm-wait')!.textContent).toContain('بعد 0:40');
+			expect(s.q('ed-rate-limit')!.textContent).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد 0:40');
+			expect(s.q('ed-otp-error')).toBeNull();
+			expect(s.c.otpValues().join('')).toBe('123456');
+			expect(s.c.showOtpModal()).toBe(true);
+			vi.advanceTimersByTime(41_000); s.f.detectChanges();
+			expect((s.q('ed-otp-confirm') as HTMLButtonElement).disabled).toBe(false);
+			expect(s.post).toHaveBeenCalledTimes(1);
+		});
+
+		it('timers stop when the page is destroyed (no interval left)', async () => {
+			vi.useFakeTimers();
+			const s = await setup({ sign: of({ success: true, data: { email: 'client@example.com', expiresInSeconds: 600 } }) });
+			await openDialog(s);
+			const svc: any = TestBed.inject((s.c as any).waits.constructor);
+			expect(svc.activeIntervals).toBe(1);
+			s.f.destroy();
+			expect(svc.activeIntervals).toBe(0);
+		});
 	});
 });
