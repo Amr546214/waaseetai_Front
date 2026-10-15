@@ -126,4 +126,8 @@ export interface ResetPasswordInput {
 export interface GenericMessageResponse {
 	success: boolean;
 	message: string;
+	/** ISO: when the code just sent stops being valid. */
+	expiresAt?: string;
+	/** ISO: when another code may be requested. */
+	resendAvailableAt?: string;
 }

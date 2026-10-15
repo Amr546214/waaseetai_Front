@@ -58,12 +58,13 @@ export interface WaitHandle {
 export class WaitTimerService {
 	private readonly doc = inject(DOCUMENT);
 	private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
-	private readonly nowMs = signal(Date.now());
+	/** Bumped once a second (and on re-sync) so computed remaining times re-read the clock; the clock itself is Date.now(), never a counter. */
+	private readonly tick = signal(0);
 	private readonly ends = new Map<string, WritableSignal<number | null>>();
 	private readonly live = new Map<string, number>();
 	private interval: ReturnType<typeof setInterval> | null = null;
 	private listening = false;
-	private readonly resync = () => { this.nowMs.set(Date.now()); this.expireAndRefresh(); };
+	private readonly resync = () => { this.bump(); this.expireAndRefresh(); };
 	private readonly onVisibility = () => { if (!this.doc.hidden) this.resync(); };
 
 	constructor() {
@@ -76,7 +77,6 @@ export class WaitTimerService {
 	track(scope: string, destroyRef?: DestroyRef | null): WaitHandle {
 		const ref = destroyRef ?? this.tryInjectDestroyRef();
 		const endSig = this.endSignal(scope);
-		this.nowMs.set(Date.now());
 		this.live.set(scope, (this.live.get(scope) ?? 0) + 1);
 		this.listen();
 		let destroyed = false;
@@ -89,7 +89,7 @@ export class WaitTimerService {
 		};
 		ref?.onDestroy(release);
 
-		const remainingMs = computed(() => { const e = endSig(); return e == null ? 0 : Math.max(0, e - this.nowMs()); });
+		const remainingMs = computed(() => { this.tick(); const e = endSig(); return e == null ? 0 : Math.max(0, e - Date.now()); });
 		const remainingSeconds = computed(() => Math.ceil(remainingMs() / 1000));
 		const active = computed(() => remainingMs() > 0);
 		const handle: WaitHandle = {
@@ -116,7 +116,6 @@ export class WaitTimerService {
 	/** Sets (or clears, with null / a past time) the end of a scope without needing a handle (used by the HTTP interceptor). */
 	setEnd(scope: string, endsAtMs: number | null): void {
 		const now = Date.now();
-		this.nowMs.set(now);
 		const sig = this.endSignal(scope);
 		if (endsAtMs == null || !Number.isFinite(endsAtMs) || endsAtMs <= now) {
 			sig.set(null);
@@ -162,6 +161,8 @@ export class WaitTimerService {
 		} catch { /* storage blocked: the wait still works in memory */ }
 	}
 
+	private bump(): void { this.tick.update(n => n + 1); }
+
 	private anyLiveRunning(now: number): boolean {
 		for (const scope of this.live.keys()) {
 			const e = this.ends.get(scope)?.();
@@ -183,7 +184,7 @@ export class WaitTimerService {
 	private refreshInterval(): void {
 		const need = this.browser && this.anyLiveRunning(Date.now());
 		if (need && !this.interval) {
-			this.interval = setInterval(() => { this.nowMs.set(Date.now()); this.expireAndRefresh(); }, TICK_MS);
+			this.interval = setInterval(() => { this.bump(); this.expireAndRefresh(); }, TICK_MS);
 		} else if (!need && this.interval) {
 			clearInterval(this.interval);
 			this.interval = null;
