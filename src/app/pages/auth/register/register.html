@@ -144,6 +144,14 @@
       </div>
       }
 
+      @if (existingAccountNotice) {
+      <div class="banner-info" role="status" data-testid="existing-account-note">
+        <span>{{ existingAccountNotice }}</span>
+        <a routerLink="/auth/login" class="banner-error-link" id="existing-login-link">تسجيل الدخول</a>
+        <a routerLink="/auth/forget-password" class="banner-error-link" id="existing-forgot-link">استعادة كلمة المرور</a>
+      </div>
+      }
+
       @if (accountCreated) {
       <div class="banner-info" role="status" data-testid="account-created-note">تم إنشاء حسابك وهو بانتظار التحقق. بياناتك محفوظة ولا يمكن تعديلها هنا؛ اضغط «متابعة» للعودة إلى خطوة رمز التحقق.</div>
       }

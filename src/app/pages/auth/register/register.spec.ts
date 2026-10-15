@@ -131,7 +131,7 @@ describe('Register', () => {
 			component.selectedAccountType = 'service_provider_ind';
 			component.currentStep = 2;
 			component.basicInfoForm.patchValue(valid);
-			postSpy.mockImplementation((url: string) => /register/.test(String(url)) ? of({ success: true, data: { emailSent: true }, message: 'ok' }) : of({ success: true }));
+			postSpy.mockImplementation((url: string) => /register/.test(String(url)) ? of({ success: true, data: { userId: 'u1', emailSent: true, accountCreated: true }, message: 'ok' }) : of({ success: true }));
 			component.nextStep();
 			const registerCalls = () => postSpy.mock.calls.filter(c => /\/register/.test(String(c[0]))).length;
 			expect(registerCalls()).toBe(1);
@@ -149,6 +149,46 @@ describe('Register', () => {
 			expect(registerCalls()).toBe(1);
 			expect(component.currentStep).toBe(3);
 			expect(component.accountExistsError).toBe(false);
+		});
+
+		it('data already in use (no userId, nothing sent): the honest generic note with login / recovery links, NO code step, form stays editable, no pending id stored', () => {
+			const { fixture, component, postSpy } = setup();
+			fixture.detectChanges();
+			component.selectedAccountType = 'service_provider_ind';
+			component.currentStep = 2;
+			component.basicInfoForm.patchValue(valid);
+			postSpy.mockImplementation((url: string) => /register/.test(String(url)) ? of({ success: true, message: 'x', data: { userId: null, emailSent: false, accountCreated: false } }) : of({ success: true }));
+			component.nextStep();
+			fixture.detectChanges();
+			const el = fixture.nativeElement as HTMLElement;
+			expect(component.currentStep).toBe(2);
+			expect(component.accountCreated).toBe(false);
+			expect(component.basicInfoForm.disabled).toBe(false);
+			const note = el.querySelector('[data-testid="existing-account-note"]')!;
+			expect(note.textContent).toContain('إن كان الحساب يحتاج تفعيلًا');
+			expect(note.textContent).not.toMatch(/أرسلنا|تم إرسال|رمز التحقق/);
+			expect(note.querySelector('#existing-login-link')!.getAttribute('href')).toContain('/auth/login');
+			expect(note.querySelector('#existing-forgot-link')!.getAttribute('href')).toContain('/auth/forget-password');
+			expect(el.querySelector('[data-testid="account-created-note"]')).toBeNull();
+			expect(el.querySelector('#otp-notice')).toBeNull();
+		});
+
+		it('a corrected retry after the note submits again and clears the note; a created account then opens the code step', () => {
+			const { fixture, component, postSpy } = setup();
+			fixture.detectChanges();
+			component.selectedAccountType = 'service_provider_ind';
+			component.currentStep = 2;
+			component.basicInfoForm.patchValue(valid);
+			let n = 0;
+			postSpy.mockImplementation((url: string) => /register/.test(String(url))
+				? of(n++ === 0 ? { success: true, data: { userId: null, emailSent: false } } : { success: true, data: { userId: 'u2', emailSent: true, accountCreated: true } })
+				: of({ success: true }));
+			component.nextStep();
+			expect(component.existingAccountNotice).not.toBe('');
+			component.nextStep();
+			expect(component.existingAccountNotice).toBe('');
+			expect(component.accountCreated).toBe(true);
+			expect(component.currentStep).toBe(3);
 		});
 
 		it('the account type cannot be changed once the account exists', () => {

@@ -13,7 +13,7 @@ import { RestPassword } from './rest-password/rest-password';
 import { AuthStore } from '../../core/store/auth.store';
 import { OtpHandoffService } from '../../core/services/otp-handoff.service';
 import { mapHttpError } from '../../core/forms/http-error';
-import { registerNotice, resendNotice, unverifiedLoginNotice, REGISTER_SENT_MESSAGE, RESEND_SENT_MESSAGE } from '../../core/forms/otp-delivery';
+import { registerNotice, registerCreatedAccount, resendNotice, unverifiedLoginNotice, REGISTER_SENT_MESSAGE, REGISTER_EXISTING_MESSAGE, RESEND_SENT_MESSAGE } from '../../core/forms/otp-delivery';
 
 @Component({ selector: 'app-test-blank', template: '' })
 class BlankTestComponent {}
@@ -50,13 +50,21 @@ function providers(postSpy: (...a: any[]) => any, pending: string | null = null)
 
 describe('OTP delivery: generic wording (no account-existence disclosure)', () => {
 	it('register and resend never promise a code for an account: conditional wording, no "already registered"', () => {
-		expect(REGISTER_SENT_MESSAGE).toContain('إذا كانت البيانات صالحة');
+		expect(REGISTER_SENT_MESSAGE).toBe(SENT); // only shown for the caller's OWN created account, whose code really went out
+		expect(REGISTER_EXISTING_MESSAGE).toContain('إن كان الحساب يحتاج تفعيلًا');
+		expect(REGISTER_EXISTING_MESSAGE).not.toMatch(/أرسلنا|تم إرسال|رمز/);
 		expect(RESEND_SENT_MESSAGE).toContain('إذا كان الحساب بانتظار التفعيل');
-		for (const m of [REGISTER_SENT_MESSAGE, RESEND_SENT_MESSAGE]) expect(m).not.toMatch(/مسجل بالفعل|موجود بالفعل|لا يوجد حساب/);
+		for (const m of [REGISTER_EXISTING_MESSAGE, REGISTER_SENT_MESSAGE, RESEND_SENT_MESSAGE]) expect(m).not.toMatch(/مسجل بالفعل|موجود بالفعل|لا يوجد حساب/);
 	});
 });
 
 describe('OTP delivery: pure notices and error mapping', () => {
+	it('registerCreatedAccount: only a non-empty string userId opens the code step', () => {
+		expect(registerCreatedAccount({ data: { verified: false, userId: 'u1' } })).toBe(true);
+		for (const userId of [null, undefined, '']) expect(registerCreatedAccount({ data: { verified: false, userId: userId as any } })).toBe(false);
+		expect(registerCreatedAccount(null)).toBe(false);
+	});
+
 	it('register: "sent" only when emailSent is exactly true', () => {
 		expect(registerNotice({ data: { verified: false, emailSent: true } })).toEqual({ sent: true, message: REGISTER_SENT_MESSAGE });
 		expect(registerNotice({ data: { verified: false, emailSent: false } })).toEqual({ sent: false, message: REGISTER_FAILED });

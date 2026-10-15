@@ -13,7 +13,7 @@ import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-
 import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
 import { mapHttpError } from '../../../core/forms/http-error';
-import { registerNotice, resendNotice } from '../../../core/forms/otp-delivery';
+import { registerNotice, registerCreatedAccount, resendNotice, REGISTER_EXISTING_MESSAGE } from '../../../core/forms/otp-delivery';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
@@ -70,6 +70,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	accountExistsError = false;
 	/** The account was created by a successful register call: going back never creates it (or its OTP request) a second time. */
 	accountCreated = false;
+	/** Registration data was already in use: honest generic note with links to login / password recovery (no code was sent, no code step). */
+	existingAccountNotice = '';
 
 	// Optional single-tier referral attribution (P-LG-012), set by the
 	// app-affiliate-picker below (manual code entry or name search — both
@@ -397,6 +399,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			// a second tap / Enter while the first request is still running must not send a second registration
 			if (this.isSubmitting) return;
 			this.errorMessage = '';
+			this.existingAccountNotice = '';
 			this.accountExistsError = false;
 			const attempt = attemptSubmit(this.basicInfoForm, { root: this.host.nativeElement, labels: REGISTER_LABELS });
 			this.missingFields = attempt.missing;
@@ -435,6 +438,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		this.authApi.register(payload).subscribe({
 			next: (res) => {
 				this.isSubmitting = false;
+				if (!registerCreatedAccount(res)) {
+					// Nothing was created or sent for this request: no code step (it could not be completed). The form stays editable.
+					this.existingAccountNotice = REGISTER_EXISTING_MESSAGE;
+					this.stopCountdown();
+					this.cdr.markForCheck();
+					return;
+				}
 				this.accountCreated = true;
 				this.basicInfoForm.disable({ emitEvent: false }); // the data is kept and shown, but it is no longer editable: the account exists
 				this.currentStep = 3; // The account exists either way, so the OTP step opens

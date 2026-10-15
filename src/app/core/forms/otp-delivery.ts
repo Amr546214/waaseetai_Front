@@ -6,8 +6,13 @@ import { formatWait } from './http-error';
  * `emailSent === true`; anything else never says a code was sent, and never starts a resend countdown.
  */
 export const OTP_SENT_MESSAGE = 'تم إرسال رمز التحقق إلى بريدك';
-/** Registration is answered the same way whether the data was new or already in use, so "sent" is conditional wording (never a promise about an account). */
-export const REGISTER_SENT_MESSAGE = 'إذا كانت البيانات صالحة للتسجيل فقد أرسلنا رمز التحقق إلى بريدك. إن لم يصلك فقد يكون لديك حساب بالفعل، جرّب تسجيل الدخول أو استعادة كلمة المرور.';
+/** Shown after a registration that created the caller's own account and really sent its code (the code step opens). */
+export const REGISTER_SENT_MESSAGE = OTP_SENT_MESSAGE;
+/**
+ * Shown when the registration data was already in use (the backend returns no userId and sent nothing): honest and generic, it claims no code
+ * and says nothing about which of the email / phone matched or whether the account is active. Same words as the backend message.
+ */
+export const REGISTER_EXISTING_MESSAGE = 'إن كان الحساب يحتاج تفعيلًا فستصلك تعليمات، وإن كان مسجلًا يمكنك تسجيل الدخول أو استعادة كلمة المرور';
 /** Resend is unauthenticated and answers the same for every id: conditional wording as well. */
 export const RESEND_SENT_MESSAGE = 'إذا كان الحساب بانتظار التفعيل فقد أرسلنا رمز التحقق إلى بريدك';
 export const OTP_SEND_FAILED_MESSAGE = 'تعذر إرسال رمز التحقق، حاول مرة أخرى بعد قليل أو تواصل مع الدعم';
@@ -20,7 +25,13 @@ export interface OtpNotice {
 	message: string;
 }
 
-/** POST /auth/register: the account exists either way; the notice says whether the code email went out. */
+/** POST /auth/register: true only when this request created the caller's account (a real userId came back), so the code step can open. */
+export function registerCreatedAccount(res: Pick<AuthResponse, 'data'> | null | undefined): boolean {
+	const id = res?.data?.userId;
+	return typeof id === 'string' && id.length > 0;
+}
+
+/** POST /auth/register for a created account: the notice says whether the code email went out. */
 export function registerNotice(res: Pick<AuthResponse, 'data'> | null | undefined): OtpNotice {
 	return res?.data?.emailSent === true
 		? { sent: true, message: REGISTER_SENT_MESSAGE }

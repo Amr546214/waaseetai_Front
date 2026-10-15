@@ -51,7 +51,7 @@ export interface AuthResponse {
 	message: string;
 	data: {
 		verified: boolean;
-		userId?: string; // Present if verified: false
+		userId?: string | null; // Present if verified: false; POST /auth/register: null when nothing was created for this caller (data already in use)
 		token?: string;  // Present if verified: true
 		user?: User;     // Present if verified: true
 		// Present when POST /auth/google is called with intent 'register' for a
@@ -73,6 +73,8 @@ export interface AuthResponse {
 		loginOtpRequired?: boolean;
 		// Activation-code delivery (register, resend-otp, unverified login): true only when the email really went out.
 		emailSent?: boolean;
+		// POST /auth/register only: true when an account was created by THIS request (then userId is real and the code step opens).
+		accountCreated?: boolean;
 		// Unverified login whose send was throttled: seconds until a new code may be sent (the earlier code stays valid).
 		retryAfterSeconds?: number;
 	};
