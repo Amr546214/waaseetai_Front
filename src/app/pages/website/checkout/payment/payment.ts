@@ -8,6 +8,9 @@ import { CheckoutApiService } from '../../../../core/services/checkout-api.servi
 import { DepositModal } from '../../../../sheards/deposit-modal/deposit-modal';
 import { scrollFocus } from '../../../../shared/forms/form-error-focus';
 import { formatMoney } from '../../../../core/utils/money.util';
+import { WaitTimerService, waitScope } from '../../../../core/wait/wait-timer.service';
+import { RATE_LIMIT_MESSAGE } from '../../../../core/utils/rate-limit.util';
+import { rateLimitSentence } from '../../../../core/wait/wait-format';
 
 @Component({
   selector: 'app-checkout-payment',
@@ -24,6 +27,12 @@ export class CheckoutPaymentComponent implements OnInit {
   private checkoutService = inject(CheckoutService);
   private checkoutApi = inject(CheckoutApiService);
   private router = inject(Router);
+  /** The server's wait after a 429 on the wallet payment (end timestamp, survives a refresh). Disables ONLY the pay button; zero never pays by itself. */
+  readonly payWait = inject(WaitTimerService).track(waitScope('checkout-pay', this.authStore.currentUser()?.id ?? ''));
+  /** True after a 429 whose duration the server did not state: an honest sentence without a number, until the next try. */
+  private readonly rateLimitedNoTime = signal(false);
+  /** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) or the honest no-time sentence; null when nothing is waiting. */
+  readonly rateLimitText = computed(() => this.payWait.active() ? rateLimitSentence(this.payWait.remainingSeconds(), true) : this.rateLimitedNoTime() ? RATE_LIMIT_MESSAGE : null);
 
   items = this.cartService.items;
   itemCount = this.cartService.itemCount;
@@ -78,7 +87,7 @@ export class CheckoutPaymentComponent implements OnInit {
   });
 
   /** The button stays clickable without the terms (so the missing consent is explained at the checkbox); balance / busy / empty cart still block it. */
-  payBlocked = computed(() => !this.hasSufficientBalance() || this.isProcessing() || this.itemCount() === 0);
+  payBlocked = computed(() => !this.hasSufficientBalance() || this.isProcessing() || this.itemCount() === 0 || this.payWait.active());
 
   ngOnInit() {
     this.loadWalletBalance();
@@ -137,12 +146,14 @@ export class CheckoutPaymentComponent implements OnInit {
 
     this.isProcessing.set(true);
     this.errorMessage.set(null);
+    this.rateLimitedNoTime.set(false);
     this.raceInsufficientBalance.set(null);
 
     if (!this.currentOrder()) {
       this.checkoutService.createOrder().subscribe({
         next: (orderResult) => {
           if (!orderResult.success) {
+            if (orderResult.errorKind === 'RATE_LIMITED') { this.isProcessing.set(false); this.applyRateLimit(orderResult.retryEndsAt); return; }
             this.errorMessage.set(orderResult.message);
             this.isProcessing.set(false);
             return;
@@ -166,6 +177,11 @@ export class CheckoutPaymentComponent implements OnInit {
     this.proceedToPaymentStep();
   }
 
+  private applyRateLimit(endsAt: number | undefined) {
+    this.errorMessage.set(null);
+    if (endsAt != null) { this.payWait.start(endsAt); this.rateLimitedNoTime.set(!this.payWait.active()); } else this.rateLimitedNoTime.set(true);
+  }
+
   private proceedToPaymentStep() {
     this.checkoutService.initiatePayment('wallet').subscribe({
       next: (result) => {
@@ -183,6 +199,8 @@ export class CheckoutPaymentComponent implements OnInit {
           return;
         }
         this.isProcessing.set(false);
+        // 429: a temporary wait, not a payment failure. Stay here with the cart, the order and the terms consent kept; wait for the server's time.
+        if (result.errorKind === 'RATE_LIMITED') { this.applyRateLimit(result.retryEndsAt); return; }
         // Real backend business errors (a 409 conflict such as "you already
         // have an active request for this service", or a 400 validation
         // error) carry a safe, real message meant to be shown to the user —

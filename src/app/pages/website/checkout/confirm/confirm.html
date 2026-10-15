@@ -27,6 +27,12 @@
         <div class="order-mini-total">{{ formatPrice(total()) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">$</span></div>
       </div>
 
+      @if (rateLimitText()) {
+        <div class="form-msg err" role="alert" data-testid="rate-limit-msg">
+          <svg aria-hidden="true"><use href="#ws-info"></use></svg>
+          <span>{{ rateLimitText() }}</span>
+        </div>
+      }
       @if (errorMessage()) {
         <div class="form-msg err" role="alert">
           <svg aria-hidden="true"><use href="#ws-info"></use></svg>
@@ -74,18 +80,22 @@
         }
 
         @if (countdownDisplay()) {
-          <div class="otp-timer">ينتهي الرمز خلال <span>{{ countdownDisplay() }}</span></div>
+          <div class="otp-timer" data-testid="otp-validity">ينتهي الرمز خلال <span>{{ countdownDisplay() }}</span></div>
+        } @else if (codeExpired()) {
+          <div class="otp-timer" data-testid="otp-expired" role="status">انتهت صلاحية الرمز، أعد إرسال رمز جديد</div>
         }
 
-        <button class="btn-verify" id="btn-verify" type="button" (click)="confirmPayment()" [disabled]="isProcessing()">
+        <button class="btn-verify" id="btn-verify" type="button" (click)="confirmPayment()" [disabled]="isProcessing() || confirmWait.active()">
           @if (isProcessing()) {
             جاري التحقق...
           } @else {
             تأكيد الدفع
+            @if (confirmWait.active()) { <span data-testid="confirm-wait">{{ confirmWait.label() }}</span> }
           }
         </button>
         <button class="btn-resend" id="btn-resend" type="button" (click)="resendOtp()" [disabled]="!canResend() || isProcessing()">
           لم تستلم الرمز؟ إعادة الإرسال
+          @if (resendWait.active()) { <span data-testid="resend-wait">{{ resendWait.label() }}</span> }
         </button>
 
         <div class="security-row">
