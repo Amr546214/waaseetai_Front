@@ -125,6 +125,9 @@
                   </span>
                 }
               </div>
+              @if (item.ownService) {
+                <div class="cart-conflict-alert" data-testid="cart-own-service"><span>هذه خدمتك — لا يمكن شراؤها، احذفها من السلة</span></div>
+              }
               @if (conflictingItems().has(item.modelId)) {
                 <div class="cart-conflict-alert">
                   <span>{{ duplicatePurchaseMessage }}</span>

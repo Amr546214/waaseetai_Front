@@ -47,6 +47,8 @@ export interface MarketplaceModel {
     initials: string;
   };
   stages?: any[];
+  /** true when the signed-in user is the real owner of this service (BE compares user ids). */
+  isOwnService?: boolean;
   tags?: string[];
   /** Skills the provider attached to this service (names from the skills catalog of its field). */
   skills?: string[];

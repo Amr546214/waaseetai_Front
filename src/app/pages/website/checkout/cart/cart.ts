@@ -212,6 +212,12 @@ export class CartComponent implements OnInit, OnDestroy {
     // item still conflicts with an already-running project for that same
     // service — the backend would reject this at createOrder() anyway (409),
     // but surfacing it here avoids a pointless round-trip to the review page.
+    // an old cart row for a service the user owns can never be bought (the server refuses it at every step too): remove it first
+    if (this.activeItems.some(i => i.ownService)) {
+      this.checkoutBlockedMessage.set('في السلة خدمة تملكها أنت، ولا يمكن شراؤها. احذفها من السلة قبل إتمام الشراء');
+      setTimeout(() => this.checkoutBlockedMessage.set(null), 6000);
+      return;
+    }
     if (this.conflictingItems().size > 0) {
       this.checkoutBlockedMessage.set('يرجى إزالة الخدمة/الخدمات التي لديك مشروع نشط لها من السلة، أو متابعة المشروع الحالي، قبل إتمام الشراء');
       setTimeout(() => this.checkoutBlockedMessage.set(null), 6000);

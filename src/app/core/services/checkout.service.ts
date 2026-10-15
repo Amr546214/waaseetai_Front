@@ -73,6 +73,8 @@ function extractInsufficientBalance(err: any): InsufficientBalanceInfo | undefin
 /** Classifies a failed HttpErrorResponse by its real status code only. */
 function classifyCheckoutError(err: any): CheckoutErrorKind {
 	const status = err?.status;
+	// stable BE codes (own service / service no longer available): a real business refusal with its own message, never the generic failure screen
+	if (status === 403 && err?.error?.code === 'SELF_PURCHASE_FORBIDDEN') return 'VALIDATION';
 	if (status === 402) return 'INSUFFICIENT_BALANCE';
 	if (status === 409) return 'CONFLICT';
 	if (status === 400) return 'VALIDATION';

@@ -1,5 +1,5 @@
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
-import { Component, ViewEncapsulation, AfterViewInit, OnInit, OnDestroy, Inject, PLATFORM_ID, inject, signal } from '@angular/core';
+import { Component, ViewEncapsulation, AfterViewInit, OnInit, OnDestroy, Inject, PLATFORM_ID, inject, signal, computed } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -46,6 +46,13 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	readonly canPurchase = this.authStore.canPurchase;
 	readonly hasClientRole = this.authStore.hasClientRole;
 	switching = signal(false);
+
+	/** The signed-in user owns this service: decided by the real owner user id (BE flag, else provider.id vs the user id), never by the acting role. */
+	readonly isOwnService = computed(() => {
+		const m = this.model();
+		const uid = this.authStore.currentUser()?.id;
+		return !!m && this.authStore.isAuthenticated() && (m.isOwnService === true || (!!uid && m.provider?.id === uid));
+	});
 
 	/** "بدّل إلى طالب خدمة للشراء": switches the acting role to CLIENT (same call as the navbar switcher) and stays on this page. */
 	switchToClient(): void {
@@ -202,7 +209,7 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 
 	requestService(mode: 'order' | 'negotiation') {
 		const id = this.model()?.id;
-		if (!id || this.isSubmitting()) return;
+		if (!id || this.isSubmitting() || this.isOwnService()) return;
 		if (!this.authStore.isAuthenticated()) {
 			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
 			return;
@@ -224,14 +231,18 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 				const conversationId = response?.data?.conversationId || response?.conversationId;
 				this.router.navigate(['/client-overview/messages'], { queryParams: conversationId ? { conversationId } : {} });
 			},
-			error: () => this.isSubmitting.set(false)
+			error: (err) => {
+				this.isSubmitting.set(false);
+				this.cartError.set(err?.error?.message || err?.error?.error || 'تعذّر إرسال طلب التفاوض');
+				setTimeout(() => this.cartError.set(null), 5000);
+			}
 		});
 	}
 
 	addToCart(): void {
 		const model = this.model();
 		if (!model || this.isSubmitting()) return;
-		if (this.activePurchase()) return;
+		if (this.activePurchase() || this.isOwnService()) return;
 		if (!this.authStore.isAuthenticated()) {
 			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
 			return;
