@@ -207,7 +207,7 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'profile/logs',
 		loadComponent: async () => (await import('./profile/logs/logs')).Logs,
-		data: { title: "سجل إجراءات الحساب" }
+		data: { title: "سجل النشاط والأمان" }
 	},
 	{
 		path: 'profile/add-account',

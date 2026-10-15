@@ -223,7 +223,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'profile/logs',
 		loadComponent: () => import('./profile/profile-logs/profile-logs').then(m => m.ProfileLogs),
-		data: { title: "سجل إجراءات الحساب" }
+		data: { title: "سجل النشاط والأمان" }
 	},
 	{
 		path: 'profile/level',
