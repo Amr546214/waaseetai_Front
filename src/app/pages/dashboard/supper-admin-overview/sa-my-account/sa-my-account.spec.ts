@@ -167,6 +167,6 @@ describe('SaMyAccount', () => {
 		await settleForm();
 		fixture.detectChanges();
 		expectNoFieldProblem(el);
-		expect(c.pwMsg()?.text).toContain('المحاولات');
+		expect(c.pwMsg()?.text).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد');
 	});
 });

@@ -176,7 +176,7 @@ describe('provider profile-setup: shared validation', () => {
       expect(el().querySelector('[data-testid="portfolio-file-errors"]')?.textContent).toContain('تطوير مواقع');
       component.onPortfolioReviewChange(pickEvent(file('s.pdf', 'application/pdf', 1000)), 'تطوير مواقع', 0);
       http.expectOne(r => r.url.endsWith('/documents/upload')).flush({}, { status: 429, statusText: 'Too Many Requests' });
-      expect(component.fileErrors()['portfolio-تطوير مواقع']).toContain('المحاولات');
+      expect(component.fileErrors()['portfolio-تطوير مواقع']).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد');
     });
   });
 
