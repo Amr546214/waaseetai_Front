@@ -113,9 +113,10 @@
   <div class="od-card">
     @if (contract()) {
     <label style="display:flex;align-items:flex-start;gap:11px;cursor:pointer;margin-bottom:16px" data-testid="contract-ack">
-      <input type="checkbox" aria-required="true" [(ngModel)]="isAgreed" id="ack-ctr" style="width:20px;height:20px;accent-flex-shrink:0;margin-top:1px" class="txt-teal">
+      <input type="checkbox" aria-required="true" [ngModel]="isAgreed" (ngModelChange)="onAckChange($event)" id="ack-ctr" [attr.aria-invalid]="ackError() ? 'true' : null" [attr.aria-describedby]="ackError() ? 'ack-ctr-err' : null" style="width:20px;height:20px;accent-flex-shrink:0;margin-top:1px" class="txt-teal">
       <span style="font-size:13px;line-height:1.6" class="txt-slate"><span class="ws-req" aria-hidden="true">*</span> أقرّ بمراجعة بيانات العقد ومراحله وقيمة الضمان الممولة من العميل، وأوافق على توقيع العقد والبدء وفق البنود المعروضة و<a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="txt-teal">شروط الاستخدام</a>.</span>
     </label>
+    @if (ackError()) { <div class="field-error" id="ack-ctr-err" role="alert" data-testid="ack-error" style="margin:-8px 0 14px">يجب الموافقة على بنود العقد أولًا للمتابعة</div> }
     }
     <div class="actions-row" style="display:flex;gap:12px;flex-wrap:wrap">
       <button type="button" [disabled]="!contract()" (click)="signContract()" class="btn-primary txt-navy" style="flex:1;min-width:180px;padding:13px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center">توقيع العقد</button>

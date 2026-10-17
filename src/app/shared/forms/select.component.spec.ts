@@ -92,3 +92,44 @@ describe('ws-select (site-styled replacement for the native select)', () => {
 		expect(ul.style.top !== '' || ul.style.bottom !== '').toBe(true);
 	});
 });
+
+describe('ws-select forwards its form state to the real combobox button', () => {
+	@Component({
+		standalone: true,
+		imports: [FormsModule, WsSelectComponent],
+		template: `<form><ws-select id="s" [options]="['a','b']" [(ngModel)]="val" name="c" aria-required="true"
+			[attr.aria-invalid]="bad() ? 'true' : null" [attr.aria-describedby]="bad() ? 'e1' : null" [attr.aria-errormessage]="bad() ? 'e1' : null" /><div id="e1">خطأ</div></form>`,
+	})
+	class H { val = ''; bad = signal(false); }
+
+	it('aria-required / aria-invalid / aria-describedby / aria-errormessage reach the button, not just the host', async () => {
+		const f = TestBed.configureTestingModule({ imports: [H] }).createComponent(H);
+		f.detectChanges(); await f.whenStable(); f.detectChanges();
+		const btn = (f.nativeElement as HTMLElement).querySelector('button.ws-sel-trigger') as HTMLButtonElement;
+		expect(btn.getAttribute('aria-required')).toBe('true');
+		expect(btn.hasAttribute('aria-invalid')).toBe(false);
+		f.componentInstance.bad.set(true); f.detectChanges();
+		expect(btn.getAttribute('aria-invalid')).toBe('true');
+		expect(btn.getAttribute('aria-describedby')).toBe('e1');
+		expect(btn.getAttribute('aria-errormessage')).toBe('e1');
+		f.componentInstance.bad.set(false); f.detectChanges();
+		expect(btn.hasAttribute('aria-invalid')).toBe(false);
+		expect(btn.hasAttribute('aria-describedby')).toBe(false);
+		// keyboard behaviour is unchanged
+		btn.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })); f.detectChanges();
+		expect(btn.getAttribute('aria-expanded')).toBe('true');
+	});
+
+	it('an ng-invalid + touched ws-select with no explicit attribute is still announced invalid on the button', async () => {
+		@Component({ standalone: true, imports: [FormsModule, WsSelectComponent], template: `<span>{{ tick() }}</span><form><ws-select [options]="['a']" [(ngModel)]="v" name="c" required /></form>` })
+		class R { v = ''; tick = signal(0); }
+		const f = TestBed.configureTestingModule({ imports: [R] }).createComponent(R);
+		f.detectChanges(); await f.whenStable(); f.detectChanges();
+		const el = f.nativeElement as HTMLElement;
+		const btn = el.querySelector('button.ws-sel-trigger') as HTMLButtonElement;
+		expect(btn.getAttribute('aria-required')).toBe('true');
+		expect(btn.hasAttribute('aria-invalid')).toBe(false);
+		btn.dispatchEvent(new Event('blur')); f.componentInstance.tick.set(1); f.detectChanges(); await f.whenStable(); f.detectChanges(); f.detectChanges();
+		expect(btn.getAttribute('aria-invalid')).toBe('true');
+	});
+});

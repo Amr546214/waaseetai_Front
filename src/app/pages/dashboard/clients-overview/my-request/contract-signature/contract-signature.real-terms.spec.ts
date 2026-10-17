@@ -127,6 +127,18 @@ describe('client contract signature page: real terms only', () => {
 			expect(s.nav).toHaveBeenCalledWith(['/client-overview/my-requests', 'req-1', 'deposit'], { queryParams: { offerId: 'offer-1' } });
 		});
 
+		it('the missing agreement also shows a red alert next to the checkbox with aria-invalid and aria-describedby', async () => {
+			const s = await setup(CONTRACT(2));
+			s.q('cs-sign')!.click(); await s.f.whenStable(); s.f.detectChanges();
+			const box = s.q('cs-ack') as HTMLInputElement;
+			const msg = (s.f.nativeElement as HTMLElement).querySelector('[data-testid=field-error]') as HTMLElement;
+			expect(msg.getAttribute('role')).toBe('alert');
+			expect(msg.textContent).toContain('يجب الموافقة على بنود العقد');
+			expect(msg.className).toContain('text-red');
+			expect(box.getAttribute('aria-invalid')).toBe('true');
+			expect(box.getAttribute('aria-describedby')).toContain(msg.id);
+		});
+
 		it('an insufficient wallet is announced with the exact shortfall (the deposit page then offers the top-up)', async () => {
 			const s = await setup(CONTRACT(2), { wallet: 1000 });
 			(s.q('cs-ack') as HTMLInputElement).click(); s.f.detectChanges();

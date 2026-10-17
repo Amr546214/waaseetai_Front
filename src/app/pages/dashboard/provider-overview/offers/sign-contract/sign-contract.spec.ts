@@ -101,6 +101,23 @@ describe('provider sign-contract: real contract terms only', () => {
 		expect(call[1]).toEqual({ agreedTerms: { accepted: true } });
 	});
 
+	it('signing without the agreement shows a red alert next to the checkbox (aria-invalid + describedby), not only a toast; ticking it clears it', async () => {
+		const s = await setup(OFFER(CONTRACT()));
+		const box = s.el.querySelector('#ack-ctr') as HTMLInputElement;
+		expect(box.hasAttribute('aria-invalid')).toBe(false);
+		s.c.signContract(); s.f.detectChanges();
+		expect(s.post).not.toHaveBeenCalled();
+		const err = s.q('ack-error') as HTMLElement;
+		expect(err.getAttribute('role')).toBe('alert');
+		expect(err.className).toContain('field-error');
+		expect(err.textContent).toContain('يجب الموافقة على بنود العقد');
+		expect(box.getAttribute('aria-invalid')).toBe('true');
+		expect(box.getAttribute('aria-describedby')).toBe(err.id);
+		box.click(); s.f.detectChanges();
+		expect(s.q('ack-error')).toBeNull();
+		expect(box.hasAttribute('aria-invalid')).toBe(false);
+	});
+
 	it('API failure keeps the existing protected error state (signing disabled), no contract shown', async () => {
 		const s = await setup(null, { error: true });
 		expect(s.c.loadError()).toContain('تعذر تحميل');

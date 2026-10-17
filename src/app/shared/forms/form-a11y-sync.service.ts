@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-const CONTROL = 'input, textarea, select, [formcontrolname]';
+const CONTROL = 'input, textarea, select, [formcontrolname], ws-select';
 // Field-level error texts (one per control): the shared component, markInvalid and the older per-page classes.
 const FIELD_TEXT = '.field-error, .field-err, .f-err, .nl-error, .dp-field-error, .dp-rf-err, .acc-rf-err, .wd-field-err, .wd-af-err, .mk-err, .kq-err, .ss-err';
 // Form-level error banners (not tied to one control): they only get role="alert" so they are announced.
