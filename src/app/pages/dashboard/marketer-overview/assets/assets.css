@@ -1,0 +1,25 @@
+/* المواد التسويقية: the card + title + icon rules of the design (same set the sibling marketer pages bind per component). Without them the sprite icons are unsized (300x150) and the cards have no surface. */
+.adm-card { background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, .08); border-radius: 15px; padding: 18px 20px; }
+.adm-card-ttl { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.adm-card-ttl svg { width: 16px; height: 16px; flex-shrink: 0; color: #2BD4C7; }
+
+.asset-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 13px; background: rgba(255, 255, 255, .03); border: 1px solid rgba(255, 255, 255, .07); border-radius: 9px; }
+
+/* ============================================================
+   Light Mode Overrides
+   ============================================================ */
+
+:host-context(body.light-theme) .adm-card,
+:host-context(body.theme-light) .adm-card,
+:host-context(.light-theme) .adm-card,
+:host-context(.theme-light) .adm-card { background: #FFFFFF; border-color: #D8DFEC; }
+
+:host-context(body.light-theme) .adm-card-ttl,
+:host-context(body.theme-light) .adm-card-ttl,
+:host-context(.light-theme) .adm-card-ttl,
+:host-context(.theme-light) .adm-card-ttl { color: #0F172A; }
+
+:host-context(body.light-theme) .asset-row,
+:host-context(body.theme-light) .asset-row,
+:host-context(.light-theme) .asset-row,
+:host-context(.theme-light) .asset-row { background: #F6F8FC; border-color: #D8DFEC; }
