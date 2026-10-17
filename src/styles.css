@@ -164,6 +164,35 @@ body{margin:0;font-family:'Tajawal',system-ui,sans-serif;background:var(--pg);co
 /* Selects that are still native (country/city, admin/website forms): their popup follows the page theme instead of the OS default (white in dark mode). */
 select{color-scheme:dark}
 html.light-theme select,html.theme-light select,body.light-theme select,body.theme-light select{color-scheme:light}
+
+/* ============================================================
+   Unified native <select> (C3): one open-arrow + one themed option list for every select in the site.
+   - Arrow = chevron background at the visual END (right in LTR, left in RTL via :dir()), native arrow hidden (no duplicate).
+   - padding-inline-end keeps the text clear of the arrow. Specificity (0,2,1) beats page-level `.inp-field`/`.f-inp` shorthands.
+   - Opt out with class "ws-select-plain". Multi-selects / listboxes (multiple, size>1) keep the native look and get no arrow.
+   - Option popup: explicit background/colour per theme (Chrome reads these for the popup; color-scheme covers the scrollbar).
+   ============================================================ */
+select:not([multiple]):not([size]):not(.ws-select-plain){
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8B2D1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;background-size:12px 12px !important;background-position:right 12px center !important;
+  padding-inline-end:34px !important;text-overflow:ellipsis;cursor:pointer;
+}
+select:not([multiple]):not([size]):not(.ws-select-plain):dir(rtl){background-position:left 12px center !important}
+select:not([multiple]):not([size]):not(.ws-select-plain):disabled{cursor:not-allowed}
+html.light-theme select:not([multiple]):not([size]):not(.ws-select-plain),
+html.theme-light select:not([multiple]):not([size]):not(.ws-select-plain),
+body.light-theme select:not([multiple]):not([size]):not(.ws-select-plain),
+body.theme-light select:not([multiple]):not([size]):not(.ws-select-plain){
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+}
+select option,select optgroup{background-color:#0B1437;color:#E6ECFF}
+select option:disabled{color:#6B7699}
+select option:checked{background-color:#16307a;color:#fff}
+html.light-theme select option,html.theme-light select option,body.light-theme select option,body.theme-light select option,
+html.light-theme select optgroup,html.theme-light select optgroup,body.light-theme select optgroup,body.theme-light select optgroup{background-color:#fff;color:#0F172A}
+html.light-theme select option:disabled,html.theme-light select option:disabled,body.light-theme select option:disabled,body.theme-light select option:disabled{color:#94A3B8}
+html.light-theme select option:checked,html.theme-light select option:checked,body.light-theme select option:checked,body.theme-light select option:checked{background-color:#DDF5F2;color:#0A6F64}
 .container{max-width:var(--container);margin-inline:auto;padding:0 24px}
 
 /* الأرضية: نفس أرضية اللوحة (تدرّجات + شبكة + جزيئات 25/11) */
