@@ -185,11 +185,19 @@ export class NewProject implements OnInit, OnDestroy {
 		return null;
 	});
 
+	/** True only when the CURRENTLY selected main specialty really has sub-specialties: the star, aria-required and the validator all read this. */
+	mainHasSubSpecialties = computed(() => (this.selectedMainSpecialtyObj()?.subSpecialties?.length ?? 0) > 0);
+	/** The sub-specialty that counts: a value left over from a specialty without (or with other) sub-specialties is never submitted. */
+	effectiveSubSpecialty = computed(() => {
+		const sub = this.selectedSubSpecialty();
+		return sub && (this.selectedMainSpecialtyObj()?.subSpecialties ?? []).includes(sub) ? sub : '';
+	});
+
 	isValidStep2 = computed(() => {
 		if (!this.selectedSpecialty()) return false;
 		const mainObj = this.selectedMainSpecialtyObj();
 		if (mainObj && mainObj.subSpecialties && mainObj.subSpecialties.length > 0) {
-			return this.selectedSubSpecialty() !== '';
+			return this.effectiveSubSpecialty() !== '';
 		}
 		return true;
 	});
@@ -729,7 +737,7 @@ export class NewProject implements OnInit, OnDestroy {
 			description: this.projectDesc(),
 			category: selectedSpecialtyObj ? selectedSpecialtyObj.name : this.selectedSpecialty(),
 			specialtyId: this.selectedSpecialty(),
-			subSpecialty: this.selectedSubSpecialty(),
+			subSpecialty: this.effectiveSubSpecialty(),
 			modelType: selectedModelObj ? selectedModelObj.title : this.selectedModel(),
 			accreditationSampleId: this.selectedModel(),
 			totalAmount: this.totalAmount() ?? undefined,
@@ -808,7 +816,7 @@ export class NewProject implements OnInit, OnDestroy {
 			title: this.projectName(),
 			description: this.projectDesc(),
 			specialtyId: this.selectedSpecialty(),
-			subSpecialty: this.selectedSubSpecialty(),
+			subSpecialty: this.effectiveSubSpecialty(),
 			skills: this.selectedSkills(),
 				accreditationSampleId: this.selectedModel(),
 			gallery: this.galleryUrls(),

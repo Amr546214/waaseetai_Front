@@ -137,7 +137,7 @@ export class New implements OnInit, OnDestroy {
 
 	removeExistingProof(id: string) {
 		this.providerApi.deleteAccreditationProof(id).subscribe({
-			next: () => this.existingProofs.update(list => list.filter(p => p.id !== id)),
+			next: () => { this.existingProofs.update(list => list.filter(p => p.id !== id)); this.syncProofError(true); },
 			error: err => this.fieldErrors.update(e => ({ ...e, files: mapHttpError(err, { fallback: 'تعذّر حذف الملف' }).message }))
 		});
 	}
@@ -248,6 +248,7 @@ export class New implements OnInit, OnDestroy {
 	private processSelectedFiles(files: FileList) {
 		const allowedTypes = new Set(['image/png', 'image/jpeg', 'image/webp', 'application/pdf', 'application/zip', 'application/x-zip-compressed']);
 		const availableSlots = Math.max(0, 10 - this.attachments().length);
+		const before = this.attachments().length;
 			for (let i = 0; i < Math.min(files.length, availableSlots); i++) {
 				const file = files[i];
 				if (!allowedTypes.has(file.type) || file.size > 15 * 1024 * 1024) continue;
@@ -261,12 +262,27 @@ export class New implements OnInit, OnDestroy {
 					};
 					this.attachments.update(att => [...att, attachment]);
 			}
+			// the proof error follows the proof state at once (not only at the next submit); a batch with no accepted file says why
+			if (this.attachments().length > before) this.syncProofError(false);
+			else if (files.length > 0) this.setProofError(availableSlots === 0 ? 'وصلت للحد الأقصى (10 ملفات). احذف ملفًا لإضافة غيره' : 'الملف غير مقبول: ارفع صورة أو PDF أو ZIP حتى 15 ميجابايت');
 		}
 
 	removeAttachment(id: string) {
 		const attachment = this.attachments().find(item => item.id === id);
 		if (attachment?.url.startsWith('blob:')) URL.revokeObjectURL(attachment.url);
 		this.attachments.update(att => att.filter(a => a.id !== id));
+		this.syncProofError(true);
+	}
+
+	private readonly proofMissingMessage = 'ارفع ملف إثبات واحدًا على الأقل (صورة أو PDF أو ZIP حتى 15 ميجابايت)';
+	private setProofError(message: string) { this.fieldErrors.update(e => ({ ...e, files: message })); }
+	/** Re-evaluates ONLY the proof error from the current proof state (staged files + kept proofs); every other field's error is untouched. */
+	private syncProofError(afterRemoval: boolean) {
+		if (this.attachments().length + this.existingProofs().length > 0) {
+			this.fieldErrors.update(e => { if (!('files' in e)) return e; const { files: _f, ...rest } = e; return rest; });
+		} else if (afterRemoval) {
+			this.setProofError(this.proofMissingMessage);
+		}
 	}
 
 	ngOnDestroy(): void {
@@ -319,7 +335,7 @@ export class New implements OnInit, OnDestroy {
 		if (this.title().trim().length < 3) e['title'] = 'عنوان النموذج مطلوب (3 أحرف على الأقل)';
 		if (this.description().trim().length < 10) e['description'] = 'الوصف الفني مطلوب (10 أحرف على الأقل)';
 		if (this.technologiesUsed().length === 0) e['technologiesUsed'] = 'أضف تقنية واحدة على الأقل';
-		if (this.attachments().length + this.existingProofs().length === 0) e['files'] = 'ارفع ملف إثبات واحدًا على الأقل (صورة أو PDF أو ZIP حتى 15 ميجابايت)';
+		if (this.attachments().length + this.existingProofs().length === 0) e['files'] = this.proofMissingMessage;
 		this.fieldErrors.set(e);
 		this.focusInvalidSoon();
 	}

@@ -1,3 +1,4 @@
+import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, signal, OnInit, inject, PLATFORM_ID, computed, DestroyRef, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -57,8 +58,7 @@ const WEAK_PASSWORD_MESSAGE = 'كلمة المرور الجديدة لا تحق�
 const DOC_RULE = { maxBytes: 10 * MB, mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'], extensions: ['.pdf', '.jpg', '.jpeg', '.png'], typesLabel: 'PDF أو JPG أو PNG' };
 const AVATAR_RULE = { maxBytes: 5 * MB, mimeTypes: ['image/png', 'image/jpeg'], extensions: ['.png', '.jpg', '.jpeg'], typesLabel: 'PNG أو JPG' };
 
-const requiredTrim: ValidatorFn = (c: AbstractControl): ValidationErrors | null =>
-  String(c.value ?? '').trim() ? null : { required: true };
+const requiredTrim: ValidatorFn = requiredText;
 const maxTrim = (max: number): ValidatorFn => (c: AbstractControl): ValidationErrors | null => {
   const actualLength = String(c.value ?? '').trim().length;
   return actualLength > max ? { maxlength: { requiredLength: max, actualLength } } : null;

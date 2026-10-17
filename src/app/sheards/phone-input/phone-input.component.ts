@@ -63,6 +63,8 @@ function getFlagEmoji(countryCode: string): string {
 		.join('');
 }
 
+let nextPhoneInputId = 0;
+
 @Component({
 	selector: 'app-phone-input',
 	templateUrl: './phone-input.component.html',
@@ -91,6 +93,10 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 	@Input() defaultCountry: CountryCode = 'SA';
 	/** When true an empty value is valid (the field is optional); a non-empty value must still be a valid number. */
 	@Input() optional = false;
+	/** Id of the real number box, so `<label for="…">` reaches it. Default: unique per instance (`ws-phone-N`). The host itself keeps no id of this value. */
+	@Input() inputId = '';
+	private readonly autoId = `ws-phone-${++nextPhoneInputId}`;
+	get fieldId(): string { return this.inputId || this.autoId; }
 
 	countries: CountryOption[] = ALL_COUNTRIES;
 	selectedCountry: CountryOption = ALL_COUNTRIES.find(c => c.code === 'SA') || ALL_COUNTRIES[0];

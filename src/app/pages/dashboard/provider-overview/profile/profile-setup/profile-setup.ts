@@ -1,3 +1,4 @@
+import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -131,14 +132,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	setupForm: FormGroup = this.fb.group({
 		profData: this.fb.group({
-			jobTitle: ['', Validators.required],
+			jobTitle: ['', requiredText],
 			expYears: ['', Validators.required],
 			country: ['', Validators.required],
 			city: ['', Validators.required],
 			// Date of birth (private, optional): stored on the profile and shown only to its owner; never on the public profile.
 			dob: ['', birthDateValidator],
 			languages: [[]],
-			bio: ['', [Validators.required, Validators.maxLength(500)]],
+			bio: ['', [requiredText, Validators.maxLength(500)]],
 			portfolioUrl: [''],
 			linkedinUrl: [''],
 			websiteUrl: [''],

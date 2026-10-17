@@ -106,7 +106,7 @@ describe('accreditation request form: proof files, field errors, completion', ()
 	});
 
 	it('deleting the only required document restores the missing state', () => {
-		const completion = { id: 'r1', specialty: { providerSpecialtyId: 'ps1', nameAr: 'برمجة' }, model: { title: 'ن', description: 'وصف قديم طويل', technologiesUsed: ['Vue'] }, attachments: [{ id: 'up1', fileName: 'old.pdf', bytes: 5 }], completionFields: [] };
+		const completion = { id: 'r1', specialty: { providerSpecialtyId: 'ps1', nameAr: 'برمجة' }, model: { title: 'نظام المخزون', description: 'وصف قديم طويل', technologiesUsed: ['Vue'] }, attachments: [{ id: 'up1', fileName: 'old.pdf', bytes: 5 }], completionFields: [] };
 		const { c, api } = mount({ resubmit: 'r1', completion });
 		c.removeExistingProof('up1');
 		expect(api.deleteAccreditationProof).toHaveBeenCalledWith('up1');
@@ -119,5 +119,59 @@ describe('accreditation request form: proof files, field errors, completion', ()
 		TestBed.configureTestingModule({ imports: [New], providers: [provideRouter([]), { provide: ProviderApiService, useValue: { getAccountActionCompletion: () => throwError(() => new HttpErrorResponse({ status: 409, error: { message: 'لا يمكن استكمال هذا الطلب في حالته الحالية' } })) } }, { provide: ProviderAccessService, useValue: { invalidate: vi.fn(), load: () => of({}) } }, { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({ resubmit: 'r1' }) } } }] });
 		const f = TestBed.createComponent(New); f.detectChanges();
 		expect((f.nativeElement as HTMLElement).querySelector('[data-testid="load-error"]')!.textContent).toContain('لا يمكن استكمال');
+	});
+
+	describe('the proof error follows the proof state at once (not only at submit)', () => {
+		const pdf = (name = 'p.pdf') => new File(['x'], name, { type: 'application/pdf' });
+		const pick = (c: any, ...files: File[]) => c.processSelectedFiles(Object.assign(files, { item: (i: number) => files[i] }) as any);
+		const errFiles = (el: HTMLElement) => el.querySelector('[data-testid="err-files"]');
+		beforeEach(() => { (URL as any).createObjectURL = (URL as any).createObjectURL ?? (() => 'blob:x'); (URL as any).revokeObjectURL = (URL as any).revokeObjectURL ?? (() => {}); });
+
+		it('attaching a valid file clears the proof error and aria-invalid, but keeps the other fields\' errors', () => {
+			const { f, c, el } = mount();
+			c.selectedSpecialty?.set?.('ps1'); c.selectedSpecialtyId.set('ps1'); c.currentStep.set(2); f.detectChanges();
+			c.goNext(); f.detectChanges();
+			expect(errFiles(el)).not.toBeNull();
+			expect(el.querySelector('#acc-title')!.getAttribute('aria-invalid')).toBe('true');
+			pick(c, pdf()); f.detectChanges();
+			expect(errFiles(el)).toBeNull();
+			expect(el.querySelector('#proof-upload')!.getAttribute('aria-invalid')).toBeNull();
+			expect(el.querySelector('#proof-upload')!.getAttribute('aria-describedby')).toBeNull();
+			expect(el.querySelector('#acc-title')!.getAttribute('aria-invalid')).toBe('true');
+			expect(c.fieldErrors().title).toBeTruthy();
+		});
+
+		it('removing the last proof brings the error back (aria-invalid + describedby); removing one of two does not', () => {
+			const { f, c, el } = mount();
+			c.selectedSpecialtyId.set('ps1'); c.currentStep.set(2); f.detectChanges();
+			pick(c, pdf('a.pdf'), pdf('b.pdf')); f.detectChanges();
+			expect(errFiles(el)).toBeNull();
+			c.removeAttachment(c.attachments()[0].id); f.detectChanges();
+			expect(errFiles(el)).toBeNull();
+			c.removeAttachment(c.attachments()[0].id); f.detectChanges();
+			expect(errFiles(el)!.textContent).toContain('ملف إثبات');
+			expect(el.querySelector('#proof-upload')!.getAttribute('aria-invalid')).toBe('true');
+			expect(el.querySelector('#proof-upload')!.getAttribute('aria-describedby')).toBe('acc-files-err');
+		});
+
+		it('a rejected file (wrong type) says why; a kept saved proof still counts as valid; removing it brings the missing-proof error back', () => {
+			const { f, c, el } = mount({ resubmit: 'r1', completion: { id: 'r1', model: { title: 'نظام المخزون', description: 'وصف طويل كفاية', technologiesUsed: ['x'] }, attachments: [{ id: 'p1', fileName: 'a.pdf', bytes: 5 }], specialty: { providerSpecialtyId: 'ps1', nameAr: 'برمجة' } } });
+			f.detectChanges();
+			pick(c, new File(['x'], 'a.exe', { type: 'application/x-msdownload' })); f.detectChanges();
+			expect(errFiles(el)!.textContent).toContain('الملف غير مقبول'); // the rejected file is explained ...
+			expect(c.isValidStep2).toBe(true); // ... but the saved proof still makes the step valid
+			c.removeExistingProof('p1'); f.detectChanges();
+			expect(errFiles(el)!.textContent).toContain('ملف إثبات');
+			pick(c, new File(['x'], 'a.exe', { type: 'application/x-msdownload' })); f.detectChanges();
+			expect(errFiles(el)!.textContent).toContain('الملف غير مقبول');
+			expect(c.isValidStep2).toBe(false);
+		});
+
+		it('submission stays blocked while the request is being sent (no double submit)', () => {
+			const { f, c, api } = mount();
+			c.selectedSpecialtyId.set('ps1'); c.currentStep.set(2); fill(c); pick(c, pdf()); c.isAnalyzing.set(true); f.detectChanges();
+			c.submitForAiEvaluation();
+			expect(api.submitAccreditationRequest).not.toHaveBeenCalled();
+		});
 	});
 });

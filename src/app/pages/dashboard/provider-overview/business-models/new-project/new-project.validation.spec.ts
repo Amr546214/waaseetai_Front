@@ -154,3 +154,56 @@ describe('NewProject wizard: validation wiring + no ready-made numbers', () => {
 		expect((root().querySelector('button[aria-busy="true"]') as HTMLButtonElement).disabled).toBe(true);
 	});
 });
+
+describe('NewProject step 2: the sub-specialty star follows whether the chosen specialty HAS sub-specialties', () => {
+	const CATS = [{ categoryId: 'c1', categoryName: 'م', specialties: [
+		{ id: 'withsubs', specialtyId: 's1', name: 'برمجة', icon: '', score: 90, subSpecialties: ['ويب', 'موبايل'] },
+		{ id: 'nosubs', specialtyId: 's2', name: 'هوية', icon: '', score: 90, subSpecialties: [] },
+	] }];
+	let fixture: ComponentFixture<NewProject>; let c: any;
+	beforeEach(() => {
+		TestBed.configureTestingModule({ imports: [NewProject], providers: [
+			provideRouter([]),
+			{ provide: NewProjectService, useValue: { initSocket: vi.fn(), onStreamStart: vi.fn(), onStreamChunk: vi.fn(), onStreamEnd: vi.fn(), disconnectSocket: vi.fn(), getServiceById: vi.fn(() => of({})) } },
+			{ provide: ProviderApiService, useValue: { getPassedSpecialties: () => of({ success: true, categories: CATS, registered: [] }), getAccreditationSamples: () => of({ success: true, samples: [] }) } },
+			{ provide: SkillsCatalogService, useValue: { getCatalog: () => of({ success: true, data: { skills: [] } }), getProviderMine: () => of({ success: true, data: { skills: [] } }) } },
+		] });
+		fixture = TestBed.createComponent(NewProject); c = fixture.componentInstance;
+		fixture.detectChanges(); c.currentStep.set(2); fixture.detectChanges();
+	});
+	const pick = (id: string) => { c.selectMainSpecialty({ id, specialtyId: id === 'withsubs' ? 's1' : 's2' }); fixture.detectChanges(); };
+	const el = () => fixture.nativeElement as HTMLElement;
+	const subTitleStar = () => Array.from(el().querySelectorAll('.spec-section-title')).find(t => (t.textContent ?? '').includes('التخصص الفرعي'))?.querySelector('.ws-req') ?? null;
+
+	it('with sub-specialties: star + aria-required + validator require one; switching to one without drops all three and the stale value; switching back requires again', () => {
+		pick('withsubs');
+		expect(subTitleStar()).not.toBeNull();
+		expect(el().querySelector('#np-subspecialty')!.getAttribute('aria-required')).toBe('true');
+		expect(c.isValidStep2()).toBe(false);
+		c.selectSubSpecialty('ويب'); fixture.detectChanges();
+		expect(c.isValidStep2()).toBe(true);
+		expect(c.effectiveSubSpecialty()).toBe('ويب');
+
+		pick('nosubs');
+		expect(subTitleStar()).toBeNull();
+		expect(el().querySelector('#np-subspecialty')).toBeNull();
+		expect(c.isValidStep2()).toBe(true);
+		expect(c.selectedSubSpecialty()).toBe('');
+		expect(c.effectiveSubSpecialty()).toBe('');
+		expect(c.stepProblems(2)).toEqual([]);
+
+		pick('withsubs');
+		expect(subTitleStar()).not.toBeNull();
+		expect(c.isValidStep2()).toBe(false);
+		expect(c.selectedSubSpecialty()).toBe('');
+	});
+
+	it('a leftover sub value that does not belong to the current specialty is never counted or submitted', () => {
+		pick('nosubs');
+		c.selectedSubSpecialty.set('ويب'); // e.g. restored from an old saved description
+		expect(c.effectiveSubSpecialty()).toBe('');
+		pick('withsubs');
+		c.selectedSubSpecialty.set('غير موجود');
+		expect(c.isValidStep2()).toBe(false);
+	});
+});

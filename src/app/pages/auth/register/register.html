@@ -229,7 +229,7 @@
 
           <div class="field-grp">
             <label class="field-lbl" for="mobile">رقم الجوال <span class="ws-req" aria-hidden="true">*</span></label>
-            <app-phone-input formControlName="phone" aria-required="true"></app-phone-input>
+            <app-phone-input formControlName="phone" inputId="mobile" aria-required="true"></app-phone-input>
             @if (fieldError('phone'); as msg_phone) {
             <div class="field-err" id="err-mobile" role="alert">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
