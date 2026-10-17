@@ -84,12 +84,8 @@ export class Login {
   }
 
   ngOnInit() {
-    // The login page always starts empty: no email/password is ever stored by the app, and the browser's
-    // saved-credential autofill / form restoration is switched off in the template. This also wipes anything
-    // a browser still managed to paint into the fields (it can do so after the first render).
-    this.clearCredentialFields();
-    setTimeout(() => this.clearCredentialFields(), 150);
-    setTimeout(() => this.clearCredentialFields(), 600);
+    // The login form starts empty (the app never stores credentials). The browser's password manager is left
+    // alone: standard autocomplete=username/current-password, no readonly trick, no wiping of autofilled values.
 
     // CRITICAL (part 1 — stale subscription leak): SocialAuthService.authState
     // is a single app-wide ReplaySubject(1) singleton, and this subscription
@@ -195,6 +191,7 @@ export class Login {
     this.errorMessage = '';
     this.loginRateLimitedNoTime.set(false);
     this.accountNotFoundError = false;
+    this.syncAutofilledValues();
     const attempt = attemptSubmit(this.loginForm, { root: this.host.nativeElement, labels: LOGIN_LABELS });
     this.missingFields = attempt.missing;
     if (!attempt.valid) {
@@ -294,17 +291,13 @@ export class Login {
     this.cdr.markForCheck();
   }
 
-  /** Password/e-mail fields are read-only until the user focuses them, so browsers do not autofill saved credentials. */
-  unlockField(event: Event) {
-    (event.target as HTMLInputElement).removeAttribute('readonly');
-  }
-
-  private clearCredentialFields() {
+  /** Browser autofill may paint values without firing input events: pull them into the reactive form before validating. */
+  private syncAutofilledValues() {
     const root: HTMLElement | undefined = this.host.nativeElement;
-    if (!this.loginForm.dirty) {
-      this.loginForm.reset({ email: '', password: '', remember: false });
-      root?.querySelectorAll<HTMLInputElement>('#identifier, #password').forEach(i => { if (document.activeElement !== i) i.value = ''; });
-      this.cdr.markForCheck();
+    for (const [id, name] of [['identifier', 'email'], ['password', 'password']] as const) {
+      const el = root?.querySelector<HTMLInputElement>('#' + id);
+      const c = this.loginForm.get(name);
+      if (el && c && el.value && c.value !== el.value) c.setValue(el.value);
     }
   }
 }
