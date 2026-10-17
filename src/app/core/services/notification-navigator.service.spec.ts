@@ -40,6 +40,15 @@ describe('NotificationNavigator (click behaviour)', () => {
 		expect(s.markRead).toHaveBeenCalledWith('n1'); expect(onMarkedRead).toHaveBeenCalled();
 		expect(s.navigate).toHaveBeenCalledWith('/client-overview/projects/p1', { onSameUrlNavigation: 'reload' });
 	});
+	it('navigation refused or failed: the notification is NOT marked read', async () => {
+		const refused = setup(client, { navigate: vi.fn(async () => false) });
+		expect(await refused.nav.open({ id: 'n1', isUnread: true, actionUrl: '/client-overview/projects/p1' })).toBe('blocked');
+		expect(refused.markRead).not.toHaveBeenCalled();
+		TestBed.resetTestingModule();
+		const thrown = setup(client, { navigate: vi.fn(async () => { throw new Error('x'); }) });
+		expect(await thrown.nav.open({ id: 'n1', isUnread: true, actionUrl: '/client-overview/projects/p1' })).toBe('failed');
+		expect(thrown.markRead).not.toHaveBeenCalled();
+	});
 	it('already read: no read call, still opens', async () => {
 		const s = setup(client);
 		expect(await s.nav.open({ id: 'n1', isUnread: false, actionUrl: '/client-overview/projects/p1' })).toBe('navigated');
