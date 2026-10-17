@@ -67,7 +67,7 @@ describe('provider forms: required labels carry the red ws-req star + aria-requi
 
 	it('conditionally required fields are starred only while the condition holds', () => {
 		expect(read('marketing/coupon-form/coupon-form.html')).toMatch(/@if \(!editId\(\)\) \{<span class="ws-req"/);
-		expect(read('profile/data/data.html')).toMatch(/@if \(!identityPending\(\)\) \{<span class="ws-req"/);
+		expect(read('profile/data/data.html')).toMatch(/@if \(!identityPending\(\) && !identityVerified\(\)\) \{<span class="ws-req"/);
 		expect(read('profile/profile-setup/profile-setup.html')).toMatch(/@if \(!kycPending\(\) && !kycVerified\(\)\) \{<span class="ws-req"/);
 		expect(read('projects/active/progress/progress.html')).toMatch(/\[attr\.aria-required\]="amendKind==='SCOPE'/);
 	});

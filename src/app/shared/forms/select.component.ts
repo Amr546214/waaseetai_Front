@@ -104,13 +104,17 @@ export class WsSelectComponent implements ControlValueAccessor, DoCheck, AfterVi
 	 */
 	/** Runs after the page's host bindings (ng-invalid/ng-touched classes) were applied, so the state never lags one cycle behind. */
 	private readonly syncAfterRender = afterEveryRender(() => this.ngDoCheck());
+	private readonly mirrored = new Set<string>();
 	ngAfterViewInit(): void { this.ngDoCheck(); }
 	ngDoCheck(): void {
 		const host = this.host.nativeElement;
 		const btn = host.querySelector('button.ws-sel-trigger') as HTMLElement | null;
 		if (!btn) return;
+		// Only attributes THIS mirror wrote are ever removed again: the form-a11y sync service (and pages) may set the same attributes directly on the button.
 		const set = (name: string, v: string | null) => {
-			if (v === null) { if (btn.hasAttribute(name)) btn.removeAttribute(name); } else if (btn.getAttribute(name) !== v) btn.setAttribute(name, v);
+			if (v === null) { if (this.mirrored.has(name)) { this.mirrored.delete(name); btn.removeAttribute(name); } return; }
+			this.mirrored.add(name);
+			if (btn.getAttribute(name) !== v) btn.setAttribute(name, v);
 		};
 		set('aria-required', host.getAttribute('aria-required') ?? (host.hasAttribute('required') && host.getAttribute('required') !== 'false' ? 'true' : null));
 		const cl = host.classList;
