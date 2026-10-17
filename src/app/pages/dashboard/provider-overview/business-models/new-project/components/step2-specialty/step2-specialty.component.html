@@ -65,12 +65,12 @@
 			<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
 				<polyline points="20 6 9 17 4 12" />
 			</svg>
-			اختر التخصص الفرعي <span class="ws-req" aria-hidden="true">*</span>
+			اختر التخصص الفرعي @if (selectedMain.subSpecialties?.length) { <span class="ws-req" aria-hidden="true">*</span> }
 			<span style="font-size:11px;font-weight:700;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px" class="txt-teal">{{ selectedMain.subSpecialties?.length || 0 }} تخصصات فرعية</span>
 		</div>
 
 		<!-- Sub Specialties Chips / Cards Grid -->
-		<div *ngIf="selectedMain.subSpecialties && selectedMain.subSpecialties.length > 0" class="spec-grid" id="np-subspecialty" data-field="subSpecialty" tabindex="-1">
+		<div *ngIf="selectedMain.subSpecialties && selectedMain.subSpecialties.length > 0" class="spec-grid" id="np-subspecialty" data-field="subSpecialty" tabindex="-1" role="group" aria-required="true">
 			@for (sub of selectedMain.subSpecialties; track sub) {
 			<div class="spec-card" [class.selected]="selectedSubSpecialty === sub" (click)="selectSubSpecialty(sub)">
 				<div class="spec-check" aria-hidden="true">

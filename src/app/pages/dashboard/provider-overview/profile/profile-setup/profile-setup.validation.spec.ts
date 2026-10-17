@@ -282,4 +282,28 @@ describe('provider profile-setup: shared validation', () => {
       expect(component.pendingPaypalEmail()).toBe('me@example.com');
     });
   });
+
+  it('job title and bio made only of spaces / NBSP / zero-width characters are NOT accepted: red error, aria-invalid, aria-describedby; Next stays on step 1', () => {
+    document.body.appendChild(el());
+    for (const blank of ['   ', '\u00A0\u00A0', '\u200B\u200C', ' \uFEFF ']) {
+      component.setupForm.get('profData')!.patchValue({ jobTitle: blank, bio: blank, expYears: '1 الى 3 سنوات', country: 'السعودية', city: 'الرياض' });
+      expect(component.setupForm.get('profData.jobTitle')!.errors, JSON.stringify(blank)).toEqual({ required: true });
+      expect(component.setupForm.get('profData.bio')!.errors, JSON.stringify(blank)).toEqual({ required: true });
+      component.goToStep(2);
+      render();
+      expect(component.currentStep()).toBe(1);
+      const errs = fieldErrors();
+      expect(errs).toContain('المسمى الوظيفي مطلوب');
+      expect(errs).toContain('النبذة المهنية مطلوب');
+    }
+    const job = el().querySelector('#job-title') as HTMLInputElement;
+    expect(job.className).toContain('ng-invalid');
+    el().remove();
+  });
+
+  it('a one-letter job title / bio is still valid (no new length rule)', () => {
+    component.setupForm.get('profData')!.patchValue({ jobTitle: 'م', bio: 'ن' });
+    expect(component.setupForm.get('profData.jobTitle')!.valid).toBe(true);
+    expect(component.setupForm.get('profData.bio')!.valid).toBe(true);
+  });
 });

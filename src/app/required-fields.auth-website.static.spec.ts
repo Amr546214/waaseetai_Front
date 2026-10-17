@@ -41,7 +41,7 @@ describe('auth forms', () => {
 	it('register stars every required field and the two consents', () => {
 		for (const id of ['first-name', 'last-name', 'email', 'mobile', 'password', 'password-confirm']) labelHasStar(reg, id);
 		for (const id of ['first-name', 'last-name', 'email', 'password', 'password-confirm']) controlRequired(reg, id);
-		expect(reg).toContain('<app-phone-input formControlName="phone" aria-required="true">');
+		expect(reg).toContain('<app-phone-input formControlName="phone" inputId="mobile" aria-required="true">');
 		expect(reg).not.toMatch(/field-req/);
 		expect((reg.match(/ws-req/g) ?? []).length).toBeGreaterThanOrEqual(9);
 		for (const id of ['err-first-name', 'err-last-name', 'err-email', 'err-mobile', 'err-password', 'err-confirm', 'err-agree-data', 'err-agree-terms'])
