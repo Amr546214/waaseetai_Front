@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { isOwnModel } from '../../../../core/utils/own-service.util';
 import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../../core/services/marketplace.service';
 
 const MAX_COMPARE = 3;
@@ -19,6 +21,12 @@ export class CompareServicesComponent implements OnInit {
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private marketplaceService = inject(MarketplaceService);
+	private authStore = inject(AuthStore);
+
+	/** The signed-in user (any acting role) owns this service: «هذه خدمتك» instead of the order cue. */
+	isOwn(m: MarketplaceModel): boolean {
+		return this.authStore.isAuthenticated() && isOwnModel(m, this.authStore.currentUser()?.id);
+	}
 
 	models = signal<MarketplaceModel[]>([]);
 	loading = signal<boolean>(true);

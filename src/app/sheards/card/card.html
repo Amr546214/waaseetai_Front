@@ -32,7 +32,9 @@
 
 			<!-- Badges -->
 			<div class="svc-badges" style="z-index: 2;">
-				@if (hasActivePurchase(model)) {
+				@if (isOwn(model)) {
+				<span class="svc-badge-level" data-testid="own-service" style="background:rgba(43,212,199,.9);color:#070D24">{{ ownLabel }}</span>
+				} @else if (hasActivePurchase(model)) {
 				<span class="svc-badge-level" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
 				} @else {
 				<ws-level-badge [title]="model.level" surface="overlay" />
@@ -96,8 +98,10 @@
 			<!-- Card Footer -->
 			<div class="svc-footer">
 				<div>
-					<div style="font-size:11px" class="txt-muted">{{ hasActivePurchase(model) ? 'لديك طلب قائم على هذه الخدمة' : 'سعر الخدمة' }}</div>
-					@if (hasActivePurchase(model)) {
+					<div style="font-size:11px" class="txt-muted">{{ isOwn(model) ? 'خدمة منشورة باسمك' : (hasActivePurchase(model) ? 'لديك طلب قائم على هذه الخدمة' : 'سعر الخدمة') }}</div>
+					@if (isOwn(model)) {
+					<div class="svc-price">{{ ownLabel }}</div>
+					} @else if (hasActivePurchase(model)) {
 					<div class="svc-price">قيد التنفيذ — متابعة المشروع</div>
 					} @else {
 					<div class="svc-price">{{ model.totalAmount ? (model.totalAmount + ' $') : 'نشط وقابل للطلب' }}

@@ -139,10 +139,12 @@
               <div>
                 <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">$</span></div>
               </div>
+@if (!item.ownService) {
               <button class="cart-save-btn" type="button" (click)="toggleSaveForLater(item.id)">
                 <svg aria-hidden="true"><use href="#ws-heart"></use></svg>
                 حفظ
               </button>
+              }
               <button class="cart-remove-btn" type="button" [class.cart-remove-btn-emphasis]="conflictingItems().has(item.modelId)" (click)="removeItem(item.id)">
                 <svg aria-hidden="true"><use href="#ws-trash"></use></svg>
                 حذف
@@ -191,10 +193,14 @@
                 <div>
                   <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">$</span></div>
                 </div>
+                @if (item.ownService) {
+                  <span class="cart-conflict-alert" data-testid="cart-own-service-saved">هذه خدمتك — لا يمكن شراؤها</span>
+                } @else {
                 <button class="cart-save-btn" type="button" (click)="toggleSaveForLater(item.id)">
                   <svg aria-hidden="true"><use href="#ws-cart"></use></svg>
                   إعادة للسلة
                 </button>
+                }
                 <button class="cart-remove-btn" type="button" (click)="removeItem(item.id)">
                   <svg aria-hidden="true"><use href="#ws-trash"></use></svg>
                   حذف
@@ -240,12 +246,16 @@
                   <div class="rec-title-text">{{ rec.title }}</div>
                   <div class="rec-price">{{ formatPrice(rec.totalAmount) }} <span>$</span></div>
                   <div class="rec-prov">{{ rec.provider.name }}@if (rec.level) { · {{ rec.level }}}</div>
-                  @if (recConflictIds().has(rec.id)) {
+                  @if (!isOwnRec(rec) && recConflictIds().has(rec.id)) {
                     <div class="rec-conflict-tag">{{ duplicatePurchaseMessage }}</div>
                   }
-                  <button class="rec-add-btn" type="button" [class.added]="addedRecIds().has(rec.id)" [disabled]="addingRecId() === rec.id || recConflictIds().has(rec.id)" (click)="addRecommendation($event, rec)">
+@if (isOwnRec(rec)) {
+                    <div class="rec-conflict-tag" data-testid="rec-own-service" role="status">هذه خدمتك</div>
+                  } @else {
+                                    <button class="rec-add-btn" type="button" [class.added]="addedRecIds().has(rec.id)" [disabled]="addingRecId() === rec.id || recConflictIds().has(rec.id)" (click)="addRecommendation($event, rec)">
                     {{ addedRecIds().has(rec.id) ? 'تمت الإضافة ✓' : (recConflictIds().has(rec.id) ? 'لديك مشروع نشط' : 'إضافة للسلة') }}
                   </button>
+                  }
                 </div>
               </a>
             }

@@ -7,6 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
 import { MarketplaceService, MarketplaceModel } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { isOwnModel } from '../../../../core/utils/own-service.util';
 import { Subscription, Observable, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { formatMoney } from '../../../../core/utils/money.util';
@@ -243,9 +244,15 @@ export class CartComponent implements OnInit, OnDestroy {
     this.router.navigate(['/checkout/review']);
   }
 
+  /** A suggested service the signed-in user owns (any acting role): no «إضافة للسلة», «هذه خدمتك» instead. */
+  isOwnRec(rec: MarketplaceModel): boolean {
+    return this.authStore.isAuthenticated() && isOwnModel(rec, this.authStore.currentUser()?.id);
+  }
+
   addRecommendation(event: Event, rec: MarketplaceModel) {
     event.preventDefault();
     event.stopPropagation();
+    if (this.isOwnRec(rec)) return;
     if (this.addingRecId() || this.addedRecIds().has(rec.id) || this.recConflictIds().has(rec.id)) return;
     if (!this.authStore.isAuthenticated()) {
       this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });

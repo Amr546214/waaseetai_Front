@@ -6,6 +6,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { isOwnModel } from '../../../../core/utils/own-service.util';
 
 @Component({
 	selector: 'app-favorites',
@@ -66,6 +67,11 @@ export class FavoritesComponent implements OnInit {
 	private readonly collectionDots = ['#2BD4C7', 'var(--blue-txt)', 'var(--kahr)'];
 	collectionDot(i: number): string {
 		return this.collectionDots[i % this.collectionDots.length];
+	}
+
+	/** The signed-in user (any acting role) owns this saved service: «هذه خدمتك» instead of «اطلب الآن». */
+	isOwn(m: MarketplaceModel): boolean {
+		return this.authStore.isAuthenticated() && isOwnModel(m, this.authStore.currentUser()?.id);
 	}
 
 	stars(rating: number): string {

@@ -4,6 +4,7 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { isOwnModel } from '../../../../core/utils/own-service.util';
 import { Subscription } from 'rxjs';
 import { SpecialtiesBar } from '../specialties-bar/specialties-bar';
 
@@ -466,6 +467,11 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 	// marketplace-service.service.ts getMarketplaceModels) ONLY for an
 	// authenticated Client, via the same findActiveServicePurchases() helper
 	// the checkout write-path guard uses. undefined for guests/other roles.
+	/** The signed-in user (any acting role) owns this service: «هذه خدمتك», never a buy cue (real owner user id: BE flag or provider.id). */
+	isOwn(model: MarketplaceModel): boolean {
+		return this.authStore.isAuthenticated() && isOwnModel(model, this.authStore.currentUser()?.id);
+	}
+
 	hasActivePurchase(model: MarketplaceModel): boolean {
 		return Boolean(model.eligibility?.hasActivePurchase);
 	}
