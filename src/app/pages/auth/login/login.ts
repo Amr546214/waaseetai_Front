@@ -52,7 +52,12 @@ export class Login {
   readonly loginWait = this.waits.trackKeyed('login', () => this.loginEmail());
   private readonly loginRateLimitedNoTime = signal(false);
   /** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) / the honest sentence when the server gave no time; '' otherwise. */
+  /** The server's wait after a 429 on Google sign-in (end timestamp, survives a refresh). Gates ONLY the Google button; nothing is retried at zero. */
+  readonly googleWait = this.waits.track(waitScope('google-auth', 'login'));
+  private readonly googleRateLimitedNoTime = signal(false);
   get rateLimitText(): string {
+    if (this.googleWait.active()) return rateLimitSentence(this.googleWait.remainingSeconds(), true);
+    if (this.googleRateLimitedNoTime()) return RATE_LIMIT_MESSAGE;
     const w = this.loginWait();
     return w.active() ? rateLimitSentence(w.remainingSeconds(), true) : this.loginRateLimitedNoTime() ? RATE_LIMIT_MESSAGE : '';
   }
@@ -118,6 +123,7 @@ export class Login {
         this.errorMessage = '';
         this.accountNotFoundError = false;
         this.cdr.markForCheck();
+        if (this.googleWait.active()) return;
         this.authApi.googleAuth(user.idToken, 'login').subscribe({
           next: (res) => {
             this.isSubmitting = false;
@@ -151,6 +157,14 @@ export class Login {
           },
           error: (err) => {
             this.isSubmitting = false;
+            this.googleRateLimitedNoTime.set(false);
+            if (isRateLimitError(err)) {
+              const end = startWaitFromError(this.googleWait, err);
+              this.googleRateLimitedNoTime.set(end == null || !this.googleWait.active());
+              this.errorMessage = '';
+              this.cdr.markForCheck();
+              return;
+            }
             if (err.status === 404) {
               this.accountNotFoundError = true;
               // Server text if it is Arabic, otherwise the fixed "no account" message.

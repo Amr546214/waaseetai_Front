@@ -82,4 +82,64 @@ describe('deposit modal countdown (429 on create order)', () => {
 		second.f.destroy();
 		expect(svc.activeIntervals).toBe(0);
 	});
+
+	describe('capture (confirm) 429', () => {
+		function mountCapture(captureOrder: ReturnType<typeof vi.fn>) {
+			TestBed.configureTestingModule({
+				imports: [DepositModal],
+				providers: [
+					{ provide: LevelsService, useValue: { payload: signal({ payments: { clientDeposit: { paypal: 7 }, marketerWithdrawal: {} } }), ensureLoaded: () => undefined } },
+					{ provide: PaypalDepositService, useValue: { captureOrder, createOrder: vi.fn() } },
+					{ provide: AuthStore, useValue: { currentUser: () => ({ id: 'u1', accountType: 'CLIENT_INDIVIDUAL' }) } },
+				],
+			});
+			const f = TestBed.createComponent(DepositModal);
+			f.detectChanges();
+			const c: any = f.componentInstance; c.amount.set(100); c.termsAccepted.set(true); f.detectChanges(); c.initPaypalButtons();
+			return { f, c, el: f.nativeElement as HTMLElement };
+		}
+		const e429 = (ra: string | null) => throwError(() => ({ status: 429, headers: { get: (k: string) => (k === 'Retry-After' ? ra : null) }, error: { message: 'محاولات دفع كثيرة' } }));
+
+		it('a 429 on the capture keeps the approved order, shows the sentence and a guarded confirm button; NO automatic capture at zero; the user press captures once', async () => {
+			const captureOrder = vi.fn().mockReturnValueOnce(e429('40')).mockReturnValueOnce(of({ success: true }));
+			const { f, c, el } = mountCapture(captureOrder);
+			await cfg.onApprove({ orderID: 'ORD-1' });
+			f.detectChanges();
+			expect(captureOrder).toHaveBeenCalledTimes(1);
+			expect(c.pendingCaptureId()).toBe('ORD-1');
+			expect(el.querySelector('[data-testid="capture-rate-limit"]')!.textContent).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد 0:40');
+			const btn = el.querySelector('[data-testid="capture-retry"]') as HTMLButtonElement;
+			expect(btn.disabled).toBe(true);
+			expect(el.querySelector('[data-testid="capture-wait"]')!.textContent).toContain('بعد 0:40');
+			c.retryCapture(); expect(captureOrder).toHaveBeenCalledTimes(1); // guarded
+			vi.advanceTimersByTime(41_000); f.detectChanges();
+			expect(btn.disabled).toBe(false);
+			expect(captureOrder).toHaveBeenCalledTimes(1); // never automatic
+			const emitted = vi.fn(); c.deposited.subscribe(emitted);
+			btn.click(); f.detectChanges();
+			expect(captureOrder).toHaveBeenCalledTimes(2);
+			expect(captureOrder).toHaveBeenLastCalledWith('ORD-1');
+			expect(c.paymentStatus()).toBe('success'); expect(c.pendingCaptureId()).toBeNull();
+			expect(emitted).toHaveBeenCalledWith({ amount: 100, reference: 'ORD-1', method: 'paypal' });
+		});
+
+		it('a 429 with no stated time: honest sentence, no number, the confirm button usable (the server decides)', async () => {
+			const captureOrder = vi.fn(() => e429(null));
+			const { f, c, el } = mountCapture(captureOrder);
+			await cfg.onApprove({ orderID: 'ORD-2' }); f.detectChanges();
+			const t = el.querySelector('[data-testid="capture-rate-limit"] div')!.textContent!;
+			expect(t).toContain('بعد قليل'); expect(t).not.toMatch(/\d/);
+			expect((el.querySelector('[data-testid="capture-retry"]') as HTMLButtonElement).disabled).toBe(false);
+			expect(c.paymentError()).toBe('');
+		});
+
+		it('a normal capture failure keeps the old behaviour (message, no retry button)', async () => {
+			const captureOrder = vi.fn(() => throwError(() => ({ status: 500, error: {} })));
+			const { f, c, el } = mountCapture(captureOrder);
+			await cfg.onApprove({ orderID: 'ORD-3' }); f.detectChanges();
+			expect(c.pendingCaptureId()).toBeNull();
+			expect(el.querySelector('[data-testid="capture-retry"]')).toBeNull();
+			expect(c.paymentError()).not.toBe('');
+		});
+	});
 });

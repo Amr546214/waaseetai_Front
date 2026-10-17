@@ -1,3 +1,5 @@
+import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
 import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -150,6 +152,20 @@ export class Specialties implements OnInit, OnDestroy {
 	public antiCheatService = inject(AntiCheatService);
 	public confirmModal = inject(ConfirmModalService);
 	private platformId = inject(PLATFORM_ID);
+	/**
+	 * Assessment retake cooldown: ticks from an END timestamp when the server returns one (retryAt / availableAt / retryAfterSeconds); with none the plain refusal
+	 * text stays (no invented time). At zero the screen offers the (user-pressed) retry again; nothing starts by itself and the server still decides.
+	 */
+	readonly assessmentCooldown = inject(WaitTimerService).track(waitScope('assessment-cooldown', inject(AuthStore).currentUser()?.id ?? ''));
+	private readonly cooldownBase = signal<string | null>(null);
+	/** What the assessment error screen shows: the server message plus, during a cooldown, «يمكنك المحاولة بعد …» from the end timestamp. */
+	readonly quizErrorShown = computed(() => {
+		const err = this.quizGenerationError(); const base = this.cooldownBase();
+		if (!err || base === null || !this.assessmentCooldownStarted()) return err;
+		return this.assessmentCooldown.active() ? `${base} يمكنك المحاولة ${this.assessmentCooldown.label()}.` : `${base} يمكنك المحاولة الآن.`;
+	});
+	readonly quizErrorRetryableShown = computed(() => (this.cooldownBase() !== null && this.assessmentCooldownStarted() && !this.assessmentCooldown.active()) ? true : this.quizErrorRetryable());
+	private readonly assessmentCooldownStarted = signal(false);
 	private isBrowser = isPlatformBrowser(this.platformId);
 
 	currentStep = signal<number>(1);
@@ -354,6 +370,7 @@ export class Specialties implements OnInit, OnDestroy {
 
 	/** Shows an error in the assessment error state; `retryable=false` hides the retry button (nothing a retry could change). */
 	private setQuizError(message: string, retryable = true) {
+		this.cooldownBase.set(null); this.assessmentCooldownStarted.set(false);
 		this.generationInProgress.set(false);
 		this.quizErrorRetryable.set(retryable);
 		this.quizGenerationError.set(message);
@@ -372,7 +389,7 @@ export class Specialties implements OnInit, OnDestroy {
 	 * coded refusal/notice handled here. GENERATION_IN_PROGRESS is a notice (no error, no duplicate start); eligibility/cooldown/limit/
 	 * not-found refusals show the server's message with no retry button; anything else stays a retryable error.
 	 */
-	private handleGenerationRefusal(err: { message?: string; code?: string; retryAfterSeconds?: number } | null | undefined): boolean {
+	private handleGenerationRefusal(err: { message?: string; code?: string; retryAfterSeconds?: number; retryAt?: string; availableAt?: string } | null | undefined): boolean {
 		const code = err?.code;
 		this.isStreamingQuestions.set(false);
 		if (code === 'GENERATION_IN_PROGRESS') {
@@ -387,6 +404,10 @@ export class Specialties implements OnInit, OnDestroy {
 			const base = err?.message || 'لا يمكن بدء التقييم لهذا التخصص حالياً.';
 			const wait = code === 'ASSESSMENT_COOLDOWN' ? this.retryAfterText(err?.retryAfterSeconds) : '';
 			this.setQuizError(wait ? `${base} ${wait}` : base, false);
+			if (code === 'ASSESSMENT_COOLDOWN') {
+				const end = this.assessmentCooldown.startFromResponse({ retryAt: err?.retryAt, availableAt: err?.availableAt, retryAfterSeconds: err?.retryAfterSeconds });
+				if (end != null && this.assessmentCooldown.active()) { this.cooldownBase.set(base); this.assessmentCooldownStarted.set(true); }
+			}
 			return true;
 		}
 		this.setQuizError(err?.message || 'حدث خطأ أثناء معالجة التقييم الفني.');

@@ -123,4 +123,28 @@ describe('Login countdown', () => {
 		b.fill('a@b.co'); b.c.onSubmit(); await vi.advanceTimersByTimeAsync(0);
 		expect(TestBed.inject(WaitTimerService).remainingMsOf(waitScope('otp-resend', 'u3'))).toBe(0);
 	});
+
+	describe('Google sign-in 429', () => {
+		it('gates ONLY the Google button (label + the overlay is removed), shows the sentence, email login stays usable, nothing retried at zero', async () => {
+			const authState = new Subject<any>();
+			const post = vi.fn(() => e429('50'));
+			TestBed.resetTestingModule();
+			TestBed.configureTestingModule({ imports: [Login], providers: [provideRouter([]), { provide: HttpClient, useValue: { post } }, { provide: AuthStore, useValue: { currentUser: signal<any>(null), authenticate: vi.fn(), setPendingVerification: vi.fn() } }, { provide: SocialAuthService, useValue: { authState, initState: of(undefined) } }] });
+			const f = TestBed.createComponent(Login); f.detectChanges();
+			const el = f.nativeElement as HTMLElement;
+			authState.next({ idToken: 'tok' }); await vi.advanceTimersByTimeAsync(0); f.detectChanges();
+			expect(post).toHaveBeenCalledTimes(1);
+			expect((el.querySelector('#btn-google') as HTMLButtonElement).disabled).toBe(true);
+			expect(el.querySelector('#google-wait')!.textContent).toContain('بعد 0:50');
+			expect(el.querySelector('asl-google-signin-button')).toBeNull();
+			expect(el.querySelector('[data-testid="rate-limit-msg"]')!.textContent).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد 0:50');
+			expect((el.querySelector('#btn-login') as HTMLButtonElement).disabled).toBe(false);
+			authState.next({ idToken: 'tok2' }); await vi.advanceTimersByTimeAsync(0);
+			expect(post).toHaveBeenCalledTimes(1); // blocked while the wait runs
+			await vi.advanceTimersByTimeAsync(51_000); f.detectChanges();
+			expect((el.querySelector('#btn-google') as HTMLButtonElement).disabled).toBe(false);
+			expect(el.querySelector('asl-google-signin-button')).not.toBeNull();
+			expect(post).toHaveBeenCalledTimes(1);
+		});
+	});
 });

@@ -152,6 +152,13 @@
 			@if (paymentError()) {
 			<div class="payment-error" role="alert">{{ paymentError() }}</div>
 			}
+			@if (pendingCaptureId()) {
+			<div class="payment-error" role="alert" data-testid="capture-rate-limit">
+				<div>{{ captureRateLimitText() }}</div>
+				<div>تمت موافقتك على الدفع لدى PayPal، ولم يكتمل تأكيده بعد. لن يُعاد تأكيده تلقائيًا.</div>
+				<button type="button" data-testid="capture-retry" [disabled]="captureWait.active() || paymentStatus() === 'processing'" (click)="retryCapture()">إعادة محاولة تأكيد الدفع@if (captureWait.active()) { <span data-testid="capture-wait"> {{ captureWait.label() }}</span> }</button>
+			</div>
+			}
 		</div>
 
 		<!-- Footer Actions -->

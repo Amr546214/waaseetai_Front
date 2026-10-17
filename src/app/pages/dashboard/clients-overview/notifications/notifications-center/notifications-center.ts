@@ -1,4 +1,6 @@
 
+import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
+import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
 import { Component, ChangeDetectionStrategy, signal, computed, OnInit, OnDestroy, inject, effect, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
@@ -15,7 +17,7 @@ export type { AppNotification };
 @Component({
 	selector: 'app-notifications-center',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, LoadRetryComponent, RateLimitNoteComponent],
 	templateUrl: './notifications-center.html',
 	styleUrl: './notifications-center.css',
 	styles: [`
@@ -177,6 +179,9 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 	activeFilter = signal<string>('all');
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
+	/** the failed load was a 429 (nothing loaded) / a 429 while notifications are shown (kept) */
+	rateLimited = signal(false);
+	rateLimitKept = signal(false);
 	markingAll = signal<boolean>(false);
 
 	filters = [
@@ -275,8 +280,8 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 				// Honest error state ("تعذر تحميل الإشعارات" + retry) instead of invented notifications.
 				handleLoadError(err, {
 					hasData: () => this.notifications().length > 0,
-					onKeep: () => this.isLoading.set(false),
-					onRateLimit: () => { this.hasError.set(true); this.isLoading.set(false); },
+					onKeep: () => { this.rateLimitKept.set(true); this.isLoading.set(false); },
+					onRateLimit: () => { this.hasError.set(true); this.rateLimited.set(true); this.isLoading.set(false); },
 					onOtherError: () => { this.notifications.set([]); this.hasError.set(true); this.isLoading.set(false); },
 				});
 			}
@@ -364,7 +369,7 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 	retry() {
 		this.dataSub?.unsubscribe();
 		this.isLoading.set(true);
-		this.hasError.set(false);
+		this.hasError.set(false); this.rateLimited.set(false); this.rateLimitKept.set(false);
 		this.dataSub = this.notificationEngine.fetchNotifications().subscribe({
 			next: (res: any) => {
 				this.isLoading.set(false);
@@ -378,8 +383,8 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 			error: (err: any) => {
 				handleLoadError(err, {
 					hasData: () => this.notifications().length > 0,
-					onKeep: () => this.isLoading.set(false),
-					onRateLimit: () => { this.hasError.set(true); this.isLoading.set(false); },
+					onKeep: () => { this.rateLimitKept.set(true); this.isLoading.set(false); },
+					onRateLimit: () => { this.hasError.set(true); this.rateLimited.set(true); this.isLoading.set(false); },
 					onOtherError: () => { this.notifications.set([]); this.hasError.set(true); this.isLoading.set(false); },
 				});
 			}

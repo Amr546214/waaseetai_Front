@@ -10,7 +10,7 @@ import { scrollFocus } from '../../shared/forms/form-error-focus';
 import { backendBannerMessage, genericBanner } from '../../shared/forms/submit-feedback';
 import { AccountType } from '../../core/models/auth.model';
 import { WaitTimerService, waitScope } from '../../core/wait/wait-timer.service';
-import { isRateLimitError, RATE_LIMIT_MESSAGE } from '../../core/utils/rate-limit.util';
+import { isRateLimitError, RATE_LIMIT_MESSAGE, startWaitFromError } from '../../core/utils/rate-limit.util';
 import { rateLimitSentence } from '../../core/wait/wait-format';
 
 declare const paypal: any;
@@ -63,6 +63,12 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 		return '';
 	});
 	private creatingOrder = false;
+	/** The approved order whose confirmation was answered 429 (kept so the user can confirm it again after the wait). */
+	readonly pendingCaptureId = signal<string | null>(null);
+	/** Server wait for the capture/confirm call (end timestamp, survives a refresh); guards ONLY the confirm button. */
+	readonly captureWait = inject(WaitTimerService).track(waitScope('paypal-capture', this.authStore.currentUser()?.id ?? ''));
+	private readonly captureRateLimitedNoTime = signal(false);
+	readonly captureRateLimitText = computed(() => !this.pendingCaptureId() ? '' : this.captureWait.active() ? rateLimitSentence(this.captureWait.remainingSeconds(), true) : this.captureRateLimitedNoTime() ? RATE_LIMIT_MESSAGE : '');
 	/**
 	 * Fee policy: the amount is the NET added to the wallet; PayPal is charged net + the PayPal deposit fee (percent from the backend table).
 	 * null while the table has not answered: no number is shown rather than a typed one.
@@ -187,28 +193,7 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 					});
 				},
 				onApprove: (data: { orderID: string }) => {
-					return new Promise<void>((resolve) => {
-						this.paymentStatus.set('processing');
-						this.paypalDepositService.captureOrder(data.orderID).subscribe({
-							next: (response) => {
-								if (!response?.success) {
-									this.paymentError.set('تعذر التحقق النهائي من الدفع. لم تتم إضافة أي رصيد.');
-									this.paymentStatus.set('error');
-									resolve();
-									return;
-								}
-								this.paymentReference.set(data.orderID);
-								this.paymentStatus.set('success');
-								this.deposited.emit({ amount: this.amount() ?? 0, reference: data.orderID, method: 'paypal' });
-								resolve();
-							},
-							error: (error) => {
-								this.paymentError.set(mapHttpError(error, { fallback: 'رفض الخادم التحقق من عملية PayPal. لم تتم إضافة أي رصيد.' }).message);
-								this.paymentStatus.set('error');
-								resolve();
-							}
-						});
-					});
+					return new Promise<void>((resolve) => { this.capture(data.orderID, resolve); });
 				},
 				onError: () => {
 					this.paymentError.set('فشلت عملية الدفع لدى PayPal. لم تتم إضافة أي رصيد.');
@@ -216,6 +201,50 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 				}
 			})
 			.render(`#${this.paypalElementId}`);
+	}
+
+	/**
+	 * Confirms the approved PayPal order on the server. Money-in: a 429 is a WAIT, never an automatic retry: the order id is kept and the user presses the
+	 * guarded button («إعادة محاولة تأكيد الدفع») after the server's time. The server decides whether it was already captured.
+	 */
+	private capture(orderId: string, done: () => void = () => undefined) {
+		this.paymentStatus.set('processing');
+		this.paymentError.set('');
+		this.captureRateLimitedNoTime.set(false);
+		this.paypalDepositService.captureOrder(orderId).subscribe({
+			next: (response) => {
+				if (!response?.success) {
+					this.paymentError.set('تعذر التحقق النهائي من الدفع. لم تتم إضافة أي رصيد.');
+					this.paymentStatus.set('error');
+					done();
+					return;
+				}
+				this.pendingCaptureId.set(null);
+				this.paymentReference.set(orderId);
+				this.paymentStatus.set('success');
+				this.deposited.emit({ amount: this.amount() ?? 0, reference: orderId, method: 'paypal' });
+				done();
+			},
+			error: (error) => {
+				if (isRateLimitError(error)) {
+					this.pendingCaptureId.set(orderId);
+					const end = startWaitFromError(this.captureWait, error);
+					this.captureRateLimitedNoTime.set(end == null || !this.captureWait.active());
+					this.paymentStatus.set('error');
+				} else {
+					this.paymentError.set(mapHttpError(error, { fallback: 'رفض الخادم التحقق من عملية PayPal. لم تتم إضافة أي رصيد.' }).message);
+					this.paymentStatus.set('error');
+				}
+				done();
+			}
+		});
+	}
+
+	/** User-pressed only; disabled while the server's wait runs. */
+	retryCapture() {
+		const id = this.pendingCaptureId();
+		if (!id || this.captureWait.active() || this.paymentStatus() === 'processing') return;
+		this.capture(id);
 	}
 
 	get balanceAfter() {

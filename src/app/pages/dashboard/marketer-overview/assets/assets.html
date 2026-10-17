@@ -28,8 +28,11 @@
 
   <div class="adm-card" style="margin-top:16px" data-testid="assets-files">
     <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-doc"></use></svg>بنرات وقوالب وملفات</div>
+    @if (rateLimitKept()) { <app-rate-limit-note [showRetry]="true" (retry)="load()" /> }
     @if (loading()) {
     <div style="font-size:12px" class="txt-muted">جارٍ التحميل...</div>
+    } @else if (error() && rateLimited()) {
+    <app-load-retry (retry)="load()" />
     } @else if (error()) {
     <div style="color:#FF8C69;font-size:12px;font-weight:700" role="alert" data-testid="assets-error">تعذر تحميل المواد التسويقية <button type="button" class="txt-teal" style="background:none;border:none;cursor:pointer;font-family:inherit;font-weight:700" (click)="load()">إعادة المحاولة</button></div>
     } @else if (files().length === 0) {

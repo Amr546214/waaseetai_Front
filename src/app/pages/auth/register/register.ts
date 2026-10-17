@@ -13,7 +13,7 @@ import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-
 import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
 import { mapHttpError } from '../../../core/forms/http-error';
-import { WaitTimerService } from '../../../core/wait/wait-timer.service';
+import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.service';
 import { rateLimitSentence } from '../../../core/wait/wait-format';
 import { formatClock } from '../../../core/wait/wait-format';
 import { RATE_LIMIT_MESSAGE, isRateLimitError, startWaitFromError } from '../../../core/utils/rate-limit.util';
@@ -131,7 +131,10 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	readonly verifyWait = this.waits.trackKeyed('otp-verify', () => this.registeredEmail, inject(DestroyRef));
 	/** A 429 whose duration the server did not state: an honest sentence without a number. */
 	rateLimitedNoTime = false;
-	private rateLimitSource: 'register' | 'resend' | 'verify' | null = null;
+	private rateLimitSource: 'register' | 'resend' | 'verify' | 'google' | null = null;
+
+	/** The server's wait after a 429 on Google sign-up (end timestamp, survives a refresh). Gates ONLY the Google button. */
+	readonly googleWait = this.waits.track(waitScope('google-auth', 'register'), inject(DestroyRef));
 
 	/** Seconds until another code may be requested (0 = available). */
 	get countdown(): number { return this.resendWait().remainingSeconds(); }
@@ -314,6 +317,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 					this.errorMessage = 'الرجاء اختيار نوع الحساب أولاً';
 					return;
 				}
+				if (this.googleWait.active()) return;
+				this.rateLimitedNoTime = false;
 				this.isSubmitting = true;
 				this.errorMessage = '';
 				this.accountExistsError = false;
@@ -350,6 +355,14 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 					},
 					error: (err) => {
 						this.isSubmitting = false;
+						if (isRateLimitError(err)) {
+							this.rateLimitSource = 'google';
+							const end = startWaitFromError(this.googleWait, err);
+							this.rateLimitedNoTime = end == null || !this.googleWait.active();
+							this.errorMessage = '';
+							this.cdr.markForCheck();
+							return;
+						}
 						const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء التسجيل بجوجل' });
 						if (err.status === 409) {
 							this.accountExistsError = true;
@@ -662,6 +675,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	/** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) while a server wait for the active action runs; the honest no-time sentence after a 429 without one; '' otherwise. */
 	get rateLimitText(): string {
+		if (this.rateLimitSource === 'google' && this.googleWait.active()) return rateLimitSentence(this.googleWait.remainingSeconds(), true);
 		const w = this.rateLimitSource === 'verify' ? this.verifyWait() : this.rateLimitSource === 'register' ? this.registerWait() : this.rateLimitSource === 'resend' ? this.resendWait() : null;
 		if (w?.active()) return rateLimitSentence(w.remainingSeconds(), true);
 		return this.rateLimitedNoTime ? RATE_LIMIT_MESSAGE : '';

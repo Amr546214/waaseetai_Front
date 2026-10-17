@@ -34,7 +34,7 @@ describe('list pages on 429 (provider invoices)', () => {
 	it('first load rate limited: error state with retry (hasError), never an empty/zero list shown as data', () => {
 		const { c, f } = mount(throwError(rl));
 		expect(c.hasError()).toBe(true);
-		expect((f.nativeElement as HTMLElement).querySelector('.retry-btn')).toBeTruthy();
+		expect((f.nativeElement as HTMLElement).querySelector('[data-testid="load-retry-btn"]')).toBeTruthy() // 429: the shared LoadRetry (ticking, guarded) replaced the plain retry button;
 	});
 	it('other errors keep the previous behaviour (list cleared + error state)', () => {
 		const { c, get } = mount(of(inv));
