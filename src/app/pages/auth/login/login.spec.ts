@@ -203,32 +203,48 @@ describe('Login', () => {
 	});
 
 	describe('always starts empty', () => {
-		it('the form is empty on open, with browser autofill/restoration switched off', () => {
+		it('the form is empty on open, with standard credential semantics and nothing read-only', () => {
 			const { fixture, component } = setup();
 			fixture.detectChanges();
 			const el: HTMLElement = fixture.nativeElement;
 			expect(component.loginForm.value).toEqual({ email: '', password: '', remember: false });
-			expect(el.querySelector('#login-form')!.getAttribute('autocomplete')).toBe('off');
-			expect(el.querySelector('#identifier')!.getAttribute('autocomplete')).toBe('off');
-			expect(el.querySelector('#password')!.getAttribute('autocomplete')).toBe('new-password');
-			// read-only until focused, so a password manager cannot paint saved credentials into it
-			expect(el.querySelector('#identifier')!.hasAttribute('readonly')).toBe(true);
-			(el.querySelector('#password') as HTMLInputElement).dispatchEvent(new Event('focus'));
-			expect(el.querySelector('#password')!.hasAttribute('readonly')).toBe(false);
-		});
-
-		it('wipes credentials a browser painted into the fields after the first render', async () => {
-			const { fixture, component } = setup();
-			fixture.detectChanges();
-			const el: HTMLElement = fixture.nativeElement;
+			const form = el.querySelector('#login-form') as HTMLFormElement;
+			expect(form.tagName).toBe('FORM');
+			expect(form.hasAttribute('autocomplete')).toBe(false);
 			const email = el.querySelector('#identifier') as HTMLInputElement;
 			const pass = el.querySelector('#password') as HTMLInputElement;
-			email.value = 'saved@example.com';
-			pass.value = 'saved-password';
+			expect(email.type).toBe('email');
+			expect(email.getAttribute('autocomplete')).toBe('username');
+			expect(email.getAttribute('inputmode')).toBe('email');
+			expect(email.getAttribute('name')).toBe('email');
+			expect(pass.type).toBe('password');
+			expect(pass.getAttribute('autocomplete')).toBe('current-password');
+			expect(pass.getAttribute('name')).toBe('password');
+			expect(form.contains(email) && form.contains(pass)).toBe(true);
+			expect(form.querySelector('button[type=submit]#btn-login')).not.toBeNull();
+			// e-mail first, password right after it, no other text input in between
+			const fields = Array.from(form.querySelectorAll('input:not([type=checkbox])'));
+			expect(fields.indexOf(pass) - fields.indexOf(email)).toBe(1);
+			for (const i of [email, pass]) {
+				expect(i.hasAttribute('readonly')).toBe(false);
+				i.dispatchEvent(new Event('focus'));
+				expect(i.hasAttribute('readonly')).toBe(false);
+				expect(i.getAttribute('autocomplete')).not.toBe('off');
+			}
+		});
+
+		it('values painted by the browser are kept (not wiped) and reach the form on submit even without input events', async () => {
+			const { fixture, component, postSpy } = setup();
+			fixture.detectChanges();
+			const el: HTMLElement = fixture.nativeElement;
+			(el.querySelector('#identifier') as HTMLInputElement).value = 'saved@example.com';
+			(el.querySelector('#password') as HTMLInputElement).value = 'saved-password';
 			await new Promise(r => setTimeout(r, 700));
-			expect(email.value).toBe('');
-			expect(pass.value).toBe('');
-			expect(component.loginForm.value.email).toBe('');
+			expect((el.querySelector('#identifier') as HTMLInputElement).value).toBe('saved@example.com');
+			postSpy.mockReturnValue(throwError(() => ({ status: 401, error: { message: 'x' } })));
+			component.onSubmit();
+			expect(component.loginForm.value.email).toBe('saved@example.com');
+			expect(component.loginForm.value.password).toBe('saved-password');
 		});
 
 		it('the app never writes the e-mail or password to any storage while typing and submitting', () => {
