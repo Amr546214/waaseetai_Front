@@ -127,7 +127,8 @@ export class FormA11ySyncService {
 		let scope: HTMLElement | null = el.parentElement;
 		for (let depth = 0; scope && depth < 4; depth++, scope = scope.parentElement) {
 			const controls = Array.from(scope.querySelectorAll<HTMLElement>(CONTROL));
-			const next = controls[controls.indexOf(el) + 1] ?? null;
+			// the next control AFTER this one's own box (a composite control such as <app-phone-input> contains its own inner <input>, which is not a neighbour)
+			const next = controls.slice(controls.indexOf(el) + 1).find((c) => !el.contains(c)) ?? null;
 			for (const m of Array.from(scope.querySelectorAll<HTMLElement>(MESSAGE))) {
 				const afterEl = !!(el.compareDocumentPosition(m) & Node.DOCUMENT_POSITION_FOLLOWING);
 				const beforeNext = !next || !!(next.compareDocumentPosition(m) & Node.DOCUMENT_POSITION_PRECEDING);

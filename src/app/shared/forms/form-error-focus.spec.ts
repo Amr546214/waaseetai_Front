@@ -195,6 +195,15 @@ describe('FormA11ySyncService: every error text of every form (C4)', () => {
 		expect(host.querySelector('#p')!.getAttribute('aria-describedby')).toBeNull();
 	});
 
+	it('a composite control (host that contains its own inner <input>, e.g. app-phone-input) is linked to the message that follows the host', () => {
+		const svc = new FormA11ySyncService();
+		host.innerHTML = `<div><app-phone-input formcontrolname="phone" class="ng-invalid ng-touched"><div><input id="inner"></div></app-phone-input><div class="field-err">أدخل رقم الجوال</div></div>`;
+		svc.sync(document);
+		const hostEl = host.querySelector('app-phone-input')!;
+		expect(hostEl.getAttribute('aria-invalid')).toBe('true');
+		expect(hostEl.getAttribute('aria-describedby')).toBe(host.querySelector('.field-err')!.id);
+	});
+
 	it('a form-level banner (.form-error) is announced but never marks an unrelated control', () => {
 		const svc = new FormA11ySyncService();
 		host.innerHTML = `<form><input id="a"><input id="b"><div class="form-error">تعذر الإرسال</div></form>`;

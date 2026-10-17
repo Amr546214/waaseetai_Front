@@ -6,6 +6,7 @@ import {
 	forwardRef,
 	HostListener,
 	Input,
+	OnDestroy,
 	OnInit,
 	ViewChild,
 	ViewEncapsulation,
@@ -82,7 +83,7 @@ function getFlagEmoji(countryCode: string): string {
 		},
 	],
 })
-export class PhoneInputComponent implements ControlValueAccessor, Validator, OnInit, DoCheck, AfterViewInit {
+export class PhoneInputComponent implements ControlValueAccessor, Validator, OnInit, DoCheck, AfterViewInit, OnDestroy {
 	@ViewChild('phoneField') private phoneField?: ElementRef<HTMLInputElement>;
 
 	@Input() placeholder = 'رقم الجوال';
@@ -135,7 +136,19 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 
 	focusField(): void { this.phoneField?.nativeElement.focus(); }
 
-	ngAfterViewInit(): void { this.ngDoCheck(); }
+	private ariaObserver: MutationObserver | null = null;
+
+	ngAfterViewInit(): void {
+		this.ngDoCheck();
+		// The form-level a11y sync writes aria-invalid/aria-describedby on the host from a requestAnimationFrame callback, outside Angular's
+		// change detection: without this the real number box stays one interaction behind (not announced as invalid right after a submit).
+		if (typeof MutationObserver !== 'undefined') {
+			this.ariaObserver = new MutationObserver(() => this.ngDoCheck());
+			this.ariaObserver.observe(this.elementRef.nativeElement as HTMLElement, { attributes: true, attributeFilter: ['aria-invalid', 'aria-describedby', 'aria-errormessage', 'aria-required', 'required'] });
+		}
+	}
+
+	ngOnDestroy(): void { this.ariaObserver?.disconnect(); this.ariaObserver = null; }
 
 	ngDoCheck(): void {
 		const host = this.elementRef.nativeElement as HTMLElement;
