@@ -223,6 +223,8 @@ export class NotificationEngineService implements OnDestroy {
 	// the first recovery after a page load / login only reports the existing unread backlog: those rows are old, not "new", and never pop up
 	private recoveredOnce = false;
 	// a popup that arrived while this tab was in the background: shown (once, if no other tab did) when the tab becomes visible
+	private popupInflight = new Set<string>();
+	private popupRetryTimers = new Set<ReturnType<typeof setTimeout>>();
 	private pendingPopup: { notif: NotificationEvent; key: string; userId: string } | null = null;
 
 	constructor() {
@@ -448,19 +450,49 @@ export class NotificationEngineService implements OnDestroy {
 	 * anything: showing, expiring or closing the popup leaves the notification unread. `isUpdate` = the server changed an already-held row
 	 * (chat coalescing): that newer version is its own event, keyed by id + createdAt, so replaying the same update never repeats it.
 	 */
-	popup(notif: NotificationEvent, isUpdate = false): void {
+	popup(notif: NotificationEvent, isUpdate = false): Promise<void> {
 		const userId = this.joinedUserId;
 		const id = notif?.id;
-		if (!id || !userId) { this.triggerToast(notif); return; }
+		if (!id || !userId) { this.triggerToast(notif); return Promise.resolve(); }
 		const at = notif.createdAt ? new Date(notif.createdAt).toISOString() : '';
 		const key = isUpdate && at ? `${id}@${at}` : id;
-		if (this.ledger.has(userId, key)) return;
+		if (this.ledger.has(userId, key)) return Promise.resolve();
 		if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
 			// a background tab must not use up the single popup the user would never see: a visible tab (or this one on return) shows it
 			this.pendingPopup = { notif, key, userId };
-			return;
+			return Promise.resolve();
 		}
-		if (this.ledger.claim(userId, key)) this.triggerToast(notif);
+		return this.claimAndShow(notif, key, userId);
+	}
+
+	/**
+	 * Cross-tab safe: only the tab that wins the ledger claim shows the popup, then commits it. A tab that lost to a live claim asks again when
+	 * that claim's lease ends, so a claimer that died before showing never swallows the popup; once committed nobody shows it again.
+	 */
+	private async claimAndShow(notif: NotificationEvent, key: string, userId: string): Promise<void> {
+		const inflight = `${userId}|${key}`;
+		if (this.popupInflight.has(inflight)) return;
+		this.popupInflight.add(inflight);
+		try {
+			const r = await this.ledger.claim(userId, key);
+			if (userId !== this.joinedUserId) return; // account switched while waiting
+			if (r.won) {
+				this.triggerToast(notif);
+				await this.ledger.commit(userId, key);
+			} else if (r.retryInMs !== undefined) {
+				this.scheduleRetry(notif, key, userId, r.retryInMs);
+			}
+		} finally { this.popupInflight.delete(inflight); }
+	}
+
+	private scheduleRetry(notif: NotificationEvent, key: string, userId: string, inMs: number): void {
+		const t = setTimeout(() => {
+			this.popupRetryTimers.delete(t);
+			if (userId !== this.joinedUserId || this.ledger.has(userId, key)) return;
+			if (typeof document !== 'undefined' && document.visibilityState === 'hidden') { this.pendingPopup = { notif, key, userId }; return; }
+			void this.claimAndShow(notif, key, userId);
+		}, inMs + 50 + Math.floor(Math.random() * 150));
+		this.popupRetryTimers.add(t);
 	}
 
 	private flushPendingPopup(): void {
@@ -468,7 +500,7 @@ export class NotificationEngineService implements OnDestroy {
 		if (!p || document.visibilityState === 'hidden') return;
 		this.pendingPopup = null;
 		if (p.userId !== this.joinedUserId) return;
-		if (this.ledger.claim(p.userId, p.key)) this.triggerToast(p.notif);
+		void this.claimAndShow(p.notif, p.key, p.userId);
 	}
 
 	/** The popup's own destination click succeeded in opening the page: now (and only now) the row counts as read locally. */
@@ -500,6 +532,8 @@ export class NotificationEngineService implements OnDestroy {
 		this.newestAt = null;
 		this.recoveredOnce = false;
 		this.pendingPopup = null;
+		for (const t of this.popupRetryTimers) clearTimeout(t);
+		this.popupRetryTimers.clear();
 		// ...nor see the previous account's popup
 		this.closeToast();
 		this.latestNotification.set(null);

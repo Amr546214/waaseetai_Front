@@ -3,7 +3,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { signal } from '@angular/core';
 import { vi } from 'vitest';
+import { AuthStore } from '../store/auth.store';
 import { NotificationEngineService, NOTIFICATION_SOCKET_FACTORY } from './notification-engine.service';
 import { RatingSummary } from '../../sheards/rating-summary/rating-summary.component';
 import { RatingApiService } from './rating-api.service';
@@ -20,12 +22,12 @@ const n = (id: string, at: string) => ({ id, title: id, message: 'm', createdAt:
 describe('new FE vs old BE: notification recovery (no since / unreadCount on the server)', () => {
 	let engine: NotificationEngineService; let http: HttpTestingController;
 	beforeEach(() => {
-		TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), { provide: NOTIFICATION_SOCKET_FACTORY, useValue: () => ({ on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() }) }] });
+		TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), { provide: NOTIFICATION_SOCKET_FACTORY, useValue: () => ({ on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() }) }, { provide: AuthStore, useValue: { currentUser: signal({ id: 'u1' }), token: () => 't' } }] });
 		engine = TestBed.inject(NotificationEngineService); http = TestBed.inject(HttpTestingController);
 	});
 	afterEach(() => { http.verify(); TestBed.resetTestingModule(); });
 
-	it('an old server answers EVERY unread row: rows older than what is held are not announced, the bell becomes the exact unread total', () => {
+	it('an old server answers EVERY unread row: rows older than what is held are not announced, the bell becomes the exact unread total', async () => {
 		engine.registerArrival(n('held', '2026-10-15T10:00:00.000Z'));
 		(engine as any).recoveredOnce = true; (engine as any).joinedUserId = 'u1'; // a reconnect inside a page that already did its first (silent) recovery
 		const shown: string[] = []; const toast = vi.spyOn(engine, 'triggerToast');
@@ -37,7 +39,7 @@ describe('new FE vs old BE: notification recovery (no since / unreadCount on the
 		// no unreadCount: an old server. "ancient" was unread long ago and never loaded here; "missed" really arrived while offline.
 		req.flush({ success: true, data: [n('missed', '2026-10-15T10:05:00.000Z'), n('held', '2026-10-15T10:00:00.000Z'), n('ancient', '2026-10-01T08:00:00.000Z')] });
 		expect(shown).toEqual(['missed']);
-		expect(toast).toHaveBeenCalledTimes(1);
+		await vi.waitFor(() => expect(toast).toHaveBeenCalledTimes(1)); // the popup claim is async (cross-tab lock)
 		expect(engine.unreadCount()).toBe(3);
 	});
 	it('first connect against an old server (nothing held): everything unread is shown once and the bell is the list size', () => {
