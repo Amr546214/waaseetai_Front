@@ -206,6 +206,8 @@
           <div class="irow">
             <textarea
               class="itxt"
+              id="marketer-message-input"
+              name="message"
               [(ngModel)]="newMessageText"
               (keydown)="onInputKeyDown($event)"
               placeholder="اكتب رسالتك..."
@@ -227,18 +229,6 @@
     }
   </div>
 </div>
-
-<!-- Toast Notification -->
-@if (toastMessage()) {
-  <div class="toast-box">
-    <div class="toast-inner">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-      <span>{{ toastMessage() }}</span>
-    </div>
-  </div>
-}
 
 <!-- Image Preview Modal -->
 @if (previewImageUrl(); as imgUrl) {

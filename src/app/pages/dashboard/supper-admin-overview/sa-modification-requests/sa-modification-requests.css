@@ -185,16 +185,6 @@
 .mr-btn-primary { background: rgba(43,212,199,.10); border-color: rgba(43,212,199,.24); color: #2BD4C7; }
 .mr-btn-primary:hover { background: rgba(43,212,199,.18); }
 
-/* Toast */
-.mr-toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); z-index: 500; display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: linear-gradient(135deg, rgba(43,212,199,.14), rgba(43,127,255,.10)); border: 1px solid rgba(43,212,199,.30); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.4); backdrop-filter: blur(16px); }
-.mr-toast svg { width: 18px; height: 18px; color: #2BD4C7; flex-shrink: 0; }
-.mr-toast span { font-size: 14px; font-weight: 700; color: #fff; }
-
-:host-context(body.light-theme) .mr-toast span,
-:host-context(body.theme-light) .mr-toast span,
-:host-context(.light-theme) .mr-toast span,
-:host-context(.theme-light) .mr-toast span { color: #1E293B; }
-
 @media (max-width: 767px) {
   .mr-tiers { grid-template-columns: 1fr; }
   .mr-stats { grid-template-columns: 1fr 1fr; }

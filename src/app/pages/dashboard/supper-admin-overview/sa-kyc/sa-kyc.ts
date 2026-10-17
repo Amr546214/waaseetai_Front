@@ -1,6 +1,8 @@
 import { providerDocumentsCount, withOwnerFields } from './kyc-owner';
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { handleAdminError, reportAdminProblems } from '../shared/admin-form-report';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaKycService } from './sa-kyc.service';
 import { KycDocumentLink } from '../../../../sheards/kyc-document-link/kyc-document-link';
 import {
@@ -23,6 +25,8 @@ type Tab = 'clients' | 'providers';
 })
 export class SaKyc implements OnInit {
   private kycService = inject(SaKycService);
+  private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   // ── Tab state ───────────────────────────────────────────────────────
   activeTab = signal<Tab>('clients');
@@ -82,7 +86,6 @@ export class SaKyc implements OnInit {
   actionNote = signal<string>('');
   processing = signal<boolean>(false);
   actionError = signal<string | null>(null);
-  successMessage = signal<string | null>(null);
 
   // ── Computed summary (from loaded items) ────────────────────────────
   onboardingPending = computed(() => this.onboarding().filter(o => o.status === 'PENDING').length);
@@ -137,7 +140,6 @@ export class SaKyc implements OnInit {
   switchTab(tab: Tab) {
     if (this.activeTab() === tab) return;
     this.activeTab.set(tab);
-    this.successMessage.set(null);
     if (tab === 'clients' && this.onboarding().length === 0) {
       this.loadOnboarding();
     } else if (tab === 'providers' && this.providers().length === 0) {
@@ -304,7 +306,6 @@ export class SaKyc implements OnInit {
     this.selectedOnboarding.set(null);
     this.selectedProvider.set(null);
     this.detailError.set(null);
-    this.successMessage.set(null);
   }
 
   openActionModal(action: 'approve' | 'reject') {
@@ -323,8 +324,11 @@ export class SaKyc implements OnInit {
   }
 
   confirmAction() {
-    if (this.actionType() === 'reject' && !this.actionReason().trim()) {
-      this.actionError.set('سبب الرفض مطلوب');
+    if (this.processing()) return;
+    if (this.actionType() === 'reject' && this.actionReason().trim().length < 2) {
+      this.actionError.set(null);
+      const r = this.actionReason().trim();
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'kyc-reject-reason', message: r ? 'سبب الرفض قصير جدًا: اكتب حرفين على الأقل' : 'سبب الرفض مطلوب (حرفان على الأقل)' }]);
       return;
     }
 
@@ -338,24 +342,24 @@ export class SaKyc implements OnInit {
     if (isClient && onboarding) {
       if (this.actionType() === 'approve') {
         this.kycService.approveOnboarding(onboarding.id, this.actionNote().trim() ? { adminNote: this.actionNote().trim() } : undefined).subscribe({
-          next: () => this.onActionSuccess('تمت الموافقة على الطلب بنجاح'),
+          next: () => this.onActionSuccess('تمت الموافقة على الطلب وتم إشعار صاحبه'),
           error: (err) => this.onActionError(err),
         });
       } else {
         this.kycService.rejectOnboarding(onboarding.id, { rejectionReason: this.actionReason().trim() }).subscribe({
-          next: () => this.onActionSuccess('تم رفض الطلب'),
+          next: () => this.onActionSuccess('تم رفض الطلب وإشعار صاحبه بالسبب'),
           error: (err) => this.onActionError(err),
         });
       }
     } else if (!isClient && provider) {
       if (this.actionType() === 'approve') {
         this.kycService.approveKycProvider(provider.userId, this.actionNote().trim() ? { adminNote: this.actionNote().trim() } : undefined).subscribe({
-          next: () => this.onActionSuccess('تم توثيق مقدم الخدمة بنجاح'),
+          next: () => this.onActionSuccess('تم توثيق مقدم الخدمة وتم إشعاره'),
           error: (err) => this.onActionError(err),
         });
       } else {
         this.kycService.rejectKycProvider(provider.userId, { rejectionReason: this.actionReason().trim() }).subscribe({
-          next: () => this.onActionSuccess('تم رفض توثيق مقدم الخدمة'),
+          next: () => this.onActionSuccess('تم رفض التوثيق وإشعار مقدم الخدمة بالسبب'),
           error: (err) => this.onActionError(err),
         });
       }
@@ -365,7 +369,7 @@ export class SaKyc implements OnInit {
   private onActionSuccess(msg: string) {
     this.processing.set(false);
     this.showActionModal.set(false);
-    this.successMessage.set(msg);
+    this.notify.success(msg);
     // Refresh current tab list
     if (this.activeTab() === 'clients') {
       this.loadOnboarding();
@@ -382,7 +386,12 @@ export class SaKyc implements OnInit {
 
   private onActionError(err: any) {
     this.processing.set(false);
-    this.actionError.set(err?.error?.message || err?.message || 'تعذر تنفيذ الإجراء');
+    // A 400/422 naming rejectionReason / adminNote goes under that box; anything else (409, 403, 429, 5xx, network) is the honest banner.
+    handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تنفيذ الإجراء', resolve: { rejectionReason: 'kyc-reject-reason', adminNote: 'kyc-admin-note' } }, (m) => this.actionError.set(m));
+    // 409 = someone already decided this request: refresh the list so the stale row disappears.
+    if (err?.status === 409) {
+      if (this.activeTab() === 'clients') this.loadOnboarding(); else this.loadProviders();
+    }
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────

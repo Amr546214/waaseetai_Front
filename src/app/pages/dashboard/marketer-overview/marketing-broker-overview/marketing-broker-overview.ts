@@ -1,13 +1,17 @@
+import { RateLimitNoteComponent } from '../../../../sheards/load-retry/rate-limit-note';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.component';
+import { RouterLink } from '@angular/router';
+import { channelLabel, commissionTypeLabel, commissionStatusLabel } from '../../../../core/utils/marketer-labels.util';
 import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog, AiInsights }  from '../../../../core/services/marketer-overview.service';
+import { handleLoadError } from '../../../../core/utils/rate-limit.util';
 
 @Component({
 	selector: 'app-marketing-broker-overview',
 	standalone: true,
-	imports: [MarketerLevelTagComponent, CommonModule, AiResultCardComponent],
+	imports: [RateLimitNoteComponent, MarketerLevelTagComponent, CommonModule, AiResultCardComponent, RouterLink],
 	templateUrl: './marketing-broker-overview.html',
 	styleUrl: './marketing-broker-overview.css',
 })
@@ -17,6 +21,13 @@ export class MarketingBrokerOverview implements OnInit {
 	summary = signal<MarketerSummary | null>(null);
 	channels = signal<ChannelPerformance[]>([]);
 	commissions = signal<CommissionLog[]>([]);
+	loadFailed = signal<boolean>(false);
+	/** a 429 hit one of the loads: the ticking sentence replaces the generic "reload" note; a 429 with data shown keeps the data */
+	rateLimited = signal(false);
+	rateLimitKept = signal(false);
+	readonly channelLabel = channelLabel;
+	readonly commissionTypeLabel = commissionTypeLabel;
+	readonly commissionStatusLabel = commissionStatusLabel;
 	insights = signal<AiInsights | null>(null);
 	insightsLoading = signal<boolean>(true);
 	insightsFailed = signal<boolean>(false);
@@ -30,19 +41,19 @@ export class MarketingBrokerOverview implements OnInit {
 		// Summary
 		this.marketerOverviewService.getSummary().subscribe({
 			next: (res) => this.summary.set(res.data),
-			error: (err) => console.error('Failed to load summary', err),
+			error: (err) => handleLoadError(err, { hasData: () => this.summary() != null, onKeep: () => this.rateLimitKept.set(true), onRateLimit: () => { this.loadFailed.set(true); this.rateLimited.set(true); }, onOtherError: () => this.loadFailed.set(true) }),
 		});
 
 		// Channels
 		this.marketerOverviewService.getChannelPerformance().subscribe({
 			next: (res) => this.channels.set(res.data),
-			error: (err) => console.error('Failed to load channels', err),
+			error: (err) => handleLoadError(err, { hasData: () => this.channels().length > 0, onKeep: () => this.rateLimitKept.set(true), onRateLimit: () => { this.loadFailed.set(true); this.rateLimited.set(true); }, onOtherError: () => this.loadFailed.set(true) }),
 		});
 
 		// Commissions
 		this.marketerOverviewService.getRecentCommissions(5).subscribe({
 			next: (res) => this.commissions.set(res.data),
-			error: (err) => console.error('Failed to load commissions', err),
+			error: (err) => handleLoadError(err, { hasData: () => this.commissions().length > 0, onKeep: () => this.rateLimitKept.set(true), onRateLimit: () => { this.loadFailed.set(true); this.rateLimited.set(true); }, onOtherError: () => this.loadFailed.set(true) }),
 		});
 
 		this.loadInsights();

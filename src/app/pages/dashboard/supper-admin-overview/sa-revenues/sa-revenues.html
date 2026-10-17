@@ -2,233 +2,226 @@
   <div class="rev-hdr">
     <div>
       <h1 class="rev-ttl">المالية والإيرادات</h1>
-      <p class="rev-sub">آخر تحديث: قبل 15 دقيقة · يناير 2025</p>
+      <p class="rev-sub">
+        @if (updatedAt(); as u) { آخر تحديث: {{ u | date: 'yyyy-MM-dd HH:mm' }} · } جميع المبالغ بالدولار الأمريكي ($)
+      </p>
     </div>
     <div class="rev-hdr-actions">
-      <button type="button" class="rev-btn rev-btn-ghost" (click)="exportReport('PDF')">تصدير PDF</button>
-      <button type="button" class="rev-btn rev-btn-primary" (click)="exportReport('Excel')">تصدير Excel</button>
+      <button type="button" class="rev-btn rev-btn-ghost" data-testid="rev-print" (click)="print()">طباعة / حفظ PDF</button>
+      <button type="button" class="rev-btn rev-btn-primary" data-testid="rev-export-csv" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : 'تصدير CSV' }}</button>
     </div>
   </div>
+  @if (exportError()) { <p class="rev-table-empty" role="alert">{{ exportError() }}</p> }
 
   <div class="rev-period-bar">
     <div class="rev-period-btns">
       @for (p of periods; track p.key) {
-        <button type="button" class="rev-period-btn" [class.active]="activePeriod() === p.key" (click)="setPeriod(p.key)">{{ p.label }}</button>
+        <button type="button" class="rev-period-btn" [class.active]="months() === p.key" (click)="setPeriod(p.key)">{{ p.label }}</button>
       }
     </div>
-    <label class="rev-compare">
-      <input type="checkbox" [checked]="compareEnabled()" (change)="toggleCompare()">
-      مقارنة بالشهر الماضي
-    </label>
   </div>
 
-  <div class="rev-kpi-grid">
-    <div class="rev-kpi">
-      <div class="rev-kpi-ic ic-teal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
-      </div>
-      <div class="rev-kpi-val">2.84M</div>
-      <div class="rev-kpi-lbl">إجمالي الإيرادات ($)</div>
-      <div class="rev-kpi-change up">+18.4% من الشهر الماضي</div>
-    </div>
-    <div class="rev-kpi">
-      <div class="rev-kpi-ic ic-blue">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      </div>
-      <div class="rev-kpi-val">284K</div>
-      <div class="rev-kpi-lbl">رسوم النظام</div>
-      <div class="rev-kpi-change up">+18.4% من الشهر الماضي</div>
-    </div>
-    <div class="rev-kpi">
-      <div class="rev-kpi-ic ic-green">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
-      </div>
-      <div class="rev-kpi-val">142K</div>
-      <div class="rev-kpi-lbl">عمولات الوسطاء</div>
-      <div class="rev-kpi-change up">+7.2% من الشهر الماضي</div>
-    </div>
-    <div class="rev-kpi">
-      <div class="rev-kpi-ic ic-amber">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      </div>
-      <div class="rev-kpi-val">48.3K</div>
-      <div class="rev-kpi-lbl">تجهيز فوترة مستقبلية</div>
-      <div class="rev-kpi-change up">+18.4% تبعاً للإيرادات</div>
-    </div>
-  </div>
-
-  <div class="rev-zatca">
-    <div class="rev-zatca-head">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span>تجهيز فوترة مستقبلية غير مفعّلة في V1 — يناير 2025</span>
-      <span class="rev-zatca-badge">ملتزم</span>
-    </div>
-    <div class="rev-zatca-items">
-      <div class="rev-zatca-item">
-        <div class="rev-zi-lbl">فواتير B2B رسمية داخلية</div>
-        <div class="rev-zi-val txt-green">1,284 <span>/ 1,284</span></div>
-        <div class="rev-zi-note txt-green">✓ 100% مُسجّلة داخلياً</div>
-      </div>
-      <div class="rev-zatca-item">
-        <div class="rev-zi-lbl">فواتير B2C</div>
-        <div class="rev-zi-val txt-green">8,431 <span>فاتورة</span></div>
-        <div class="rev-zi-note txt-green">✓ مُؤرشفة</div>
-      </div>
-      <div class="rev-zatca-item">
-        <div class="rev-zi-lbl">تقرير مستقبلي</div>
-        <div class="rev-zi-val txt-amber">مُعلّق</div>
-        <div class="rev-zi-note txt-amber">⚠ الموعد: 28 فبراير</div>
-      </div>
-      <div class="rev-zatca-item">
-        <div class="rev-zi-lbl">تجهيز مستقبلي</div>
-        <div class="rev-zi-val txt-muted">غير مفعّل في V1</div>
-        <div class="rev-zi-note txt-coral">بانتظار التحويل</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="rev-charts-row">
+  @if (overviewLoading()) {
+    <div class="rev-card"><div class="rev-table-empty">جاري تحميل الملخص المالي…</div></div>
+  } @else if (overviewError()) {
     <div class="rev-card">
-      <div class="rev-card-head">
-        <div class="rev-card-title">الإيرادات اليومية — يناير 2025</div>
-        <div class="rev-legend">
-          <span class="rev-legend-item txt-teal"><i style="background:#2BD4C7"></i>هذا الشهر</span>
-          @if (compareEnabled()) {
-            <span class="rev-legend-item txt-muted"><i style="background:rgba(43,212,199,.3)"></i>الشهر الماضي</span>
-          }
+      <div class="rev-table-empty" role="alert">{{ overviewError() }}</div>
+      <button type="button" class="rev-btn rev-btn-ghost" (click)="loadOverview()">إعادة المحاولة</button>
+    </div>
+  } @else if (overview(); as o) {
+    <div class="rev-kpi-grid" data-testid="rev-kpis">
+      <div class="rev-kpi">
+        <div class="rev-kpi-ic ic-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+        </div>
+        <div class="rev-kpi-val" data-testid="kpi-commission">{{ usd(o.totals.platformCommission) }}</div>
+        <div class="rev-kpi-lbl">عمولة المنصة (إيراد)</div>
+        <div class="rev-kpi-change">من إجمالي محرَّر {{ usd(o.totals.releasedGross) }}</div>
+      </div>
+      <div class="rev-kpi">
+        <div class="rev-kpi-ic ic-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="rev-kpi-val" data-testid="kpi-escrow">{{ usd(o.totals.escrowHeldAmount) }}</div>
+        <div class="rev-kpi-lbl">محجوز في الضمان</div>
+        <div class="rev-kpi-change">{{ o.totals.escrowHeldCount }} مشروع</div>
+      </div>
+      <div class="rev-kpi">
+        <div class="rev-kpi-ic ic-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div class="rev-kpi-val" data-testid="kpi-deposits">{{ usd(o.totals.depositsAmount) }}</div>
+        <div class="rev-kpi-lbl">الإيداعات</div>
+        <div class="rev-kpi-change">{{ o.totals.depositsCount }} عملية</div>
+      </div>
+      <div class="rev-kpi">
+        <div class="rev-kpi-ic ic-amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="rev-kpi-val" data-testid="kpi-gateway">{{ usd(o.totals.paymentGatewayFees) }}</div>
+        <div class="rev-kpi-lbl">رسوم بوابة الدفع</div>
+        <div class="rev-kpi-change">تكلفة مدفوعات يتحمّلها المودِع — ليست إيرادًا</div>
+      </div>
+      <div class="rev-kpi">
+        <div class="rev-kpi-ic ic-amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+        </div>
+        <div class="rev-kpi-val" data-testid="kpi-pending-wd">{{ usd(pendingWithdrawals().amount) }}</div>
+        <div class="rev-kpi-lbl">سحوبات قيد المراجعة</div>
+        <div class="rev-kpi-change">{{ pendingWithdrawals().count }} طلب</div>
+      </div>
+    </div>
+
+    <div class="rev-charts-row">
+      <div class="rev-card">
+        <div class="rev-card-head">
+          <div class="rev-card-title">الحركة الشهرية — آخر {{ months() }} أشهر</div>
+          <div class="rev-legend">
+            <span class="rev-legend-item txt-teal"><i style="background:#2BD4C7"></i>إيداعات</span>
+            <span class="rev-legend-item"><i style="background:#5DA0FF"></i>محرَّر إجمالي</span>
+            <span class="rev-legend-item txt-muted"><i style="background:#FFB400"></i>سحوبات مدفوعة</span>
+          </div>
+        </div>
+        @if (bars().max > 0) {
+          <div class="rev-bar-chart" data-testid="rev-chart">
+            @for (d of bars().rows; track d.month) {
+              <div class="rev-bar-wrap">
+                <div class="rev-bar-pair">
+                  <div class="rev-bar" style="background:#2BD4C7" [style.height.%]="pct(d.deposits, bars().max)" [title]="usd(d.deposits)"></div>
+                  <div class="rev-bar" style="background:#5DA0FF" [style.height.%]="pct(d.releasedGross, bars().max)" [title]="usd(d.releasedGross)"></div>
+                  <div class="rev-bar" style="background:#FFB400" [style.height.%]="pct(d.withdrawalsPaid, bars().max)" [title]="usd(d.withdrawalsPaid)"></div>
+                </div>
+                <div class="rev-bar-lbl">{{ d.label }}</div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="rev-table-empty">لا توجد حركة مالية في هذه الفترة</div>
+        }
+        <div class="rev-mini-stats">
+          <div class="rev-mini"><div class="rev-mini-val txt-teal">{{ usd(o.totals.releasedGross) }}</div><div class="rev-mini-lbl">إجمالي المحرَّر</div></div>
+          <div class="rev-mini"><div class="rev-mini-val">{{ usd(o.totals.providerNetReleased) }}</div><div class="rev-mini-lbl">صافي مقدمي الخدمة</div></div>
+          <div class="rev-mini">
+            <div class="rev-mini-val txt-green" data-testid="rev-mom">{{ momChange() === null ? '—' : ((momChange()! > 0 ? '+' : '') + (momChange()! | number: '1.0-1') + '%') }}</div>
+            <div class="rev-mini-lbl">تغيّر المحرَّر عن الشهر السابق</div>
+          </div>
         </div>
       </div>
-      <div class="rev-bar-chart">
-        @for (d of dailyRevenue(); track d.day) {
-          <div class="rev-bar-wrap">
-            <div class="rev-bar-pair">
-              @if (compareEnabled()) {
-                <div class="rev-bar rev-bar-prev" [style.height.%]="(d.lastMonth / maxBar()) * 100"></div>
+
+      <div class="rev-card">
+        <div class="rev-card-title">توزيع المبالغ المحرَّرة</div>
+        @if (split().length) {
+          <div class="rev-donut-wrap">
+            <svg class="rev-donut-svg" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12"/>
+              @for (s of split(); track s.label) {
+                <circle cx="50" cy="50" r="38" fill="none" [attr.stroke]="s.color" stroke-width="12"
+                  [attr.stroke-dasharray]="s.dashArray" [attr.stroke-dashoffset]="s.dashOffset" transform="rotate(-90 50 50)"/>
               }
-              <div class="rev-bar rev-bar-cur" [style.height.%]="(d.thisMonth / maxBar()) * 100"></div>
+            </svg>
+            <div class="rev-donut-legend">
+              @for (s of split(); track s.label) {
+                <div class="rev-dl-item">
+                  <div class="rev-dl-dot" [style.background]="s.color"></div>
+                  <span class="rev-dl-lbl">{{ s.label }}</span>
+                  <span class="rev-dl-pct">{{ s.share | number: '1.0-1' }}%</span>
+                  <span class="rev-dl-val">{{ usd(s.value) }}</span>
+                </div>
+              }
             </div>
-            <div class="rev-bar-lbl">{{ d.day }}</div>
           </div>
+        } @else {
+          <div class="rev-table-empty">لا توجد مبالغ محرَّرة بعد</div>
         }
       </div>
-      <div class="rev-mini-stats">
-        <div class="rev-mini"><div class="rev-mini-val txt-teal">2.84M</div><div class="rev-mini-lbl">الإجمالي</div></div>
-        <div class="rev-mini"><div class="rev-mini-val">91.6K</div><div class="rev-mini-lbl">متوسط اليوم</div></div>
-        <div class="rev-mini"><div class="rev-mini-val txt-green">143K</div><div class="rev-mini-lbl">أعلى يوم</div></div>
+    </div>
+
+    <div class="rev-row-2">
+      <div class="rev-pl-card">
+        <div class="rev-pl-title">ملخص الحركة (من السجلات الفعلية)</div>
+        <div class="rev-pl-row"><span>عمولة المنصة</span><span class="income">{{ usd(o.totals.platformCommission) }}</span></div>
+        <div class="rev-pl-sep-lbl">— مدفوعات —</div>
+        <div class="rev-pl-row"><span>صافي محرَّر لمقدمي الخدمة</span><span class="expense">{{ usd(o.totals.providerNetReleased) }}</span></div>
+        @for (st of ['PENDING', 'APPROVED', 'PAID']; track st) {
+          <div class="rev-pl-row"><span>عمولات الوسطاء — {{ st === 'PENDING' ? 'قيد المراجعة' : st === 'APPROVED' ? 'معتمدة' : 'مدفوعة' }} ({{ o.affiliateCommissions[st]?.count ?? 0 }})</span><span class="expense">{{ usd(o.affiliateCommissions[st]?.amount ?? 0) }}</span></div>
+        }
+        <div class="rev-pl-hr"></div>
+        <div class="rev-pl-margin">لا يوجد سجل مصروفات تشغيلية في المنصة؛ لا يُحتسب صافي ربح تقديري.</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">توقعات الإيرادات</div>
+        <div role="status" class="txt-muted" style="font-size:12px">غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
       </div>
     </div>
 
     <div class="rev-card">
-      <div class="rev-card-title">توزيع المصادر</div>
-      <div class="rev-donut-wrap">
-        <svg class="rev-donut-svg" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12"/>
-          @for (s of revenueSources(); track s.label) {
-            <circle cx="50" cy="50" r="38" fill="none" [attr.stroke]="s.color" stroke-width="12"
-              [attr.stroke-dasharray]="s.dashArray"
-              [attr.stroke-dashoffset]="s.dashOffset"
-              transform="rotate(-90 50 50)"/>
-          }
-          <text x="50" y="46" text-anchor="middle" font-size="11" font-weight="900" fill="currentColor">2.84M</text>
-          <text x="50" y="58" text-anchor="middle" font-size="8" fill="#6B7699">$</text>
-        </svg>
-        <div class="rev-donut-legend">
-          @for (s of revenueSources(); track s.label) {
-            <div class="rev-dl-item">
-              <div class="rev-dl-dot" [style.background]="s.color"></div>
-              <span class="rev-dl-lbl">{{ s.label }}</span>
-              <span class="rev-dl-pct">{{ s.pct }}%</span>
-              <span class="rev-dl-val">{{ s.value }}</span>
-            </div>
-          }
+      <div class="rev-card-title">مقارنة الأداء الشهري</div>
+      @if (monthRows().length) {
+        <div class="rev-table-wrap">
+          <table class="rev-table" data-testid="rev-month-table">
+            <thead><tr><th>الشهر</th><th>إيداعات</th><th>محرَّر إجمالي</th><th>سحوبات مدفوعة</th><th>عمولات الوسطاء</th></tr></thead>
+            <tbody>
+              @for (r of monthRows(); track r.month) {
+                <tr>
+                  <td class="strong">{{ monthLabel(r.month) }}</td>
+                  <td>{{ usd(r.deposits) }}</td>
+                  <td>{{ usd(r.releasedGross) }}</td>
+                  <td>{{ usd(r.withdrawalsPaid) }}</td>
+                  <td>{{ usd(r.affiliateCommissions) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
-      </div>
+      } @else {
+        <div class="rev-table-empty">لا توجد بيانات شهرية</div>
+      }
     </div>
-  </div>
-
-  <div class="rev-row-2">
-    <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px;margin-bottom:14px">توقعات الإيرادات: غير متاح حاليًا — لا يوجد مصدر بيانات متصل.</div>
-
-    <div class="rev-pl-card">
-      <div class="rev-pl-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
-        ملخص الربح والخسارة — يناير
-      </div>
-      <div class="rev-pl-row"><span>رسوم المشاريع</span><span class="income">1,647,200</span></div>
-      <div class="rev-pl-row"><span>رسوم الباقات</span><span class="income">624,800</span></div>
-      <div class="rev-pl-row"><span>عمولات الوسطاء</span><span class="income">340,600</span></div>
-      <div class="rev-pl-row"><span>نماذج + Boost</span><span class="income">229,400</span></div>
-      <div class="rev-pl-sep-lbl">— المصاريف —</div>
-      <div class="rev-pl-row"><span>رواتب الفريق</span><span class="expense">- 180,000</span></div>
-      <div class="rev-pl-row"><span>بنية تقنية (IT)</span><span class="expense">- 45,000</span></div>
-      <div class="rev-pl-row"><span>عمولات مدفوعة</span><span class="expense">- 142,000</span></div>
-      <div class="rev-pl-row"><span>تجهيز فوترة مستقبلي</span><span class="txt-muted">—</span></div>
-      <div class="rev-pl-hr"></div>
-      <div class="rev-pl-total"><span>صافي الربح</span><span>2,426,680 $</span></div>
-      <div class="rev-pl-margin">هامش الربح: 85.4%</div>
-    </div>
-  </div>
-
-  <div class="rev-card">
-    <div class="rev-card-title">مقارنة الأداء الشهري</div>
-    <div class="rev-table-wrap">
-      <table class="rev-table">
-        <thead>
-          <tr><th>المؤشر</th><th>يناير 2025</th><th>ديسمبر 2024</th><th>نوفمبر 2024</th><th>أكتوبر 2024</th><th>التغيير</th></tr>
-        </thead>
-        <tbody>
-          @for (row of monthlyComparison(); track row.metric) {
-            <tr>
-              <td>{{ row.metric }}</td>
-              <td class="strong">{{ row.jan }}</td>
-              <td>{{ row.dec }}</td>
-              <td>{{ row.nov }}</td>
-              <td>{{ row.oct }}</td>
-              <td class="up">{{ row.change }} ↑</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
+  }
 
   <div class="rev-card">
     <div class="rev-card-head">
       <div class="rev-card-title">المعاملات المالية</div>
-      <button type="button" class="rev-btn rev-btn-ghost rev-btn-sm" (click)="exportReport('CSV')">تصدير</button>
     </div>
     <div class="rev-tabs">
-      <button type="button" class="rev-tab" [class.active]="activeTxnTab() === 'all'" (click)="setTxnTab('all')">الكل</button>
-      <button type="button" class="rev-tab" [class.active]="activeTxnTab() === 'fees'" (click)="setTxnTab('fees')">رسوم المشاريع</button>
-      <button type="button" class="rev-tab" [class.active]="activeTxnTab() === 'subs'" (click)="setTxnTab('subs')">رسوم الباقات</button>
-      <button type="button" class="rev-tab" [class.active]="activeTxnTab() === 'comm'" (click)="setTxnTab('comm')">عمولات الوسطاء</button>
-      <button type="button" class="rev-tab" [class.active]="activeTxnTab() === 'invoicing'" (click)="setTxnTab('invoicing')">فوترة رسمية</button>
+      @for (t of tabs(); track t.key) {
+        <button type="button" class="rev-tab" [class.active]="txType() === t.key" (click)="setTxnTab(t.key)">{{ t.label }} ({{ t.count }})</button>
+      }
     </div>
-    <div class="rev-table-wrap">
-      <table class="rev-table">
-        <thead>
-          <tr><th>المعاملة</th><th>النوع</th><th>الطرف</th><th>المبلغ</th><th>الفاتورة</th><th>الحالة</th><th>التاريخ</th></tr>
-        </thead>
-        <tbody>
-          @for (t of filteredTransactions(); track t.id) {
-            <tr>
-              <td class="mono">{{ t.id }}</td>
-              <td>{{ t.type }}</td>
-              <td>{{ t.party }}</td>
-              <td class="strong">{{ t.amount }}</td>
-              <td class="mono">{{ t.invoice }}</td>
-              <td><span class="rev-badge" [class]="'rev-badge-' + t.status">{{ txnStatusLabels[t.status] }}</span></td>
-              <td class="ltr">{{ t.date }}</td>
-            </tr>
-          } @empty {
-            <tr><td colspan="7" class="rev-table-empty">لا توجد معاملات لهذا التصنيف</td></tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="rev-foot">
-    <span>المالية والإيرادات — يناير 2025</span>
+    @if (txLoading()) {
+      <div class="rev-table-empty">جاري تحميل المعاملات…</div>
+    } @else if (txError()) {
+      <div class="rev-table-empty" role="alert">{{ txError() }}</div>
+      <button type="button" class="rev-btn rev-btn-ghost rev-btn-sm" (click)="loadTransactions()">إعادة المحاولة</button>
+    } @else {
+      <div class="rev-table-wrap">
+        <table class="rev-table" data-testid="rev-tx-table">
+          <thead><tr><th>المرجع</th><th>النوع</th><th>الطرف</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+          <tbody>
+            @for (t of txItems(); track t.id) {
+              <tr>
+                <td class="mono">{{ t.referenceId || (t.id | slice: 0 : 8) }}</td>
+                <td>{{ txTypeLabel(t.type) }}</td>
+                <td>{{ txParty(t) }}</td>
+                <td class="strong">{{ usd(t.amount) }}</td>
+                <td><span class="rev-badge" [class]="'rev-badge-' + txStatusClass(t.status)">{{ txStatusLabel(t.status) }}</span></td>
+                <td class="ltr">{{ fmtDate(t.createdAt) }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="6" class="rev-table-empty">لا توجد معاملات</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (totalPages() > 1) {
+        <div class="rev-hdr-actions" style="margin-top:12px;justify-content:space-between">
+          <span class="rev-sub">صفحة {{ txPage() }} من {{ totalPages() }}</span>
+          <span>
+            <button type="button" class="rev-btn rev-btn-ghost rev-btn-sm" [disabled]="txPage() <= 1" (click)="prevPage()">السابق</button>
+            <button type="button" class="rev-btn rev-btn-ghost rev-btn-sm" [disabled]="txPage() >= totalPages()" (click)="nextPage()">التالي</button>
+          </span>
+        </div>
+      }
+    }
   </div>
 </section>

@@ -11,10 +11,11 @@ import { vi } from 'vitest';
 // other notification-related spec file in this codebase.
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Sidebar, NavItem } from './sidebar';
 import { NotificationBell } from '../../notification-bell/notification-bell';
+import { ProviderAccessService } from '../../../core/services/provider-access.service';
 import { AuthStore } from '../../../core/store/auth.store';
 
 // A catch-all route target so router.navigateByUrl() can recognize any test
@@ -37,6 +38,8 @@ function setup(accountType: string) {
 			provideRouter([{ path: '**', component: BlankTestComponent }]),
 			{ provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args) } },
 			{ provide: AuthStore, useValue: fakeAuthStore },
+			// the backend says the dashboard is open (otherwise the provider menu is restricted — see sidebar.provider-access.spec.ts)
+			{ provide: ProviderAccessService, useValue: { load: () => of({ state: 'APPROVED', canAccessDashboard: true }), latest: signal(null) } },
 		],
 	});
 
@@ -327,6 +330,8 @@ describe('End-to-end: clicking a real CHAT notification in the bell dropdown act
 				provideRouter([{ path: '**', component: BlankTestComponent }]),
 				{ provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), patch: () => of({ success: true }) } },
 				{ provide: AuthStore, useValue: fakeAuthStore },
+			// the backend says the dashboard is open (otherwise the provider menu is restricted — see sidebar.provider-access.spec.ts)
+			{ provide: ProviderAccessService, useValue: { load: () => of({ state: 'APPROVED', canAccessDashboard: true }), latest: signal(null) } },
 			],
 		});
 

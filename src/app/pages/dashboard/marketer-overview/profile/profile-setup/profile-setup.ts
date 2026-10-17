@@ -41,7 +41,6 @@ export class ProfileSetup implements OnInit {
 	profile = signal<MarketerProfile | null>(null);
 	isLoading = signal(true);
 	isSubmitting = signal(false);
-	toastMsg = signal<string | null>(null);
 	currentStep = signal(1);
 
 	steps = [
@@ -144,7 +143,7 @@ export class ProfileSetup implements OnInit {
 		if (!this.check(this.marketingForm)) return;
 		this.isSubmitting.set(true);
 		this.profileService.updateMarketingInfo(this.marketingForm.value).subscribe({
-			next: () => { this.isSubmitting.set(false); this.showToast('تم حفظ الوصف التسويقي'); this.loadProfile(); this.nextStep(); },
+			next: () => { this.isSubmitting.set(false); this.notify.success('تم حفظ الوصف التسويقي'); this.loadProfile(); this.nextStep(); },
 			error: (err) => this.fail(this.marketingForm, err)
 		});
 	}
@@ -153,7 +152,7 @@ export class ProfileSetup implements OnInit {
 		if (!this.check(this.channelForm)) return;
 		this.isSubmitting.set(true);
 		this.profileService.addChannel(this.channelForm.value).subscribe({
-			next: () => { this.isSubmitting.set(false); this.showToast('تمت إضافة القناة'); this.loadProfile(); this.nextStep(); },
+			next: () => { this.isSubmitting.set(false); this.notify.success('تمت إضافة القناة'); this.loadProfile(); this.nextStep(); },
 			error: (err) => this.fail(this.channelForm, err)
 		});
 	}
@@ -164,7 +163,7 @@ export class ProfileSetup implements OnInit {
 		this.profileService.updatePaypalPayout(String(this.paypalForm.value.paypalPayoutEmail || '').trim()).subscribe({
 			next: () => {
 				this.isSubmitting.set(false);
-				this.showToast('تم حفظ بريد PayPal');
+				this.notify.success('تم حفظ بريد PayPal');
 				this.loadProfile();
 				this.nextStep();
 			},
@@ -179,16 +178,7 @@ export class ProfileSetup implements OnInit {
 	}
 
 	finish(): void {
-		this.showToast('تم استكمال بياناتك بنجاح');
+		this.notify.success('تم استكمال بياناتك بنجاح');
 		setTimeout(() => this.router.navigate(['/marketer-overview']), 1200);
-	}
-
-	private toastTimer: ReturnType<typeof setTimeout> | null = null;
-
-	showToast(msg: string): void {
-		this.toastMsg.set(msg);
-		// A newer toast must not be cleared early by the timer of an older one.
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(() => this.toastMsg.set(null), 3000);
 	}
 }

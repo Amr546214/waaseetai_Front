@@ -4,6 +4,8 @@ import { Component, HostListener, OnDestroy, OnInit, PLATFORM_ID, computed, inje
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { MarketplaceService } from '../../../../core/services/marketplace.service';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { isOwnModel } from '../../../../core/utils/own-service.util';
 
 type ProfileTab = 'profile' | 'services' | 'reviews' | 'portfolio';
 type ServiceSort = 'popular' | 'newest' | 'priceAsc' | 'priceDesc';
@@ -21,15 +23,22 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private route = inject(ActivatedRoute);
   private marketplaceService = inject(MarketplaceService);
+  private authStore = inject(AuthStore);
 
   provider = signal<any>(null);
+
+  /** The signed-in user (any acting role) is this profile's owner, so every service card is «هذه خدمتك» (services' providerId is the owner USER id). */
+  isOwnProfile = computed(() => {
+    const uid = this.authStore.currentUser()?.id;
+    if (!this.authStore.isAuthenticated() || !uid) return false;
+    const p = this.provider();
+    return isOwnModel({ provider: { id: this.route.snapshot.paramMap.get('id') } }, uid) || p?.contactVisibility === 'OWNER_ONLY';
+  });
   loading = signal<boolean>(true);
   notFound = signal<boolean>(false);
   error = signal<string>('');
   activeTab = signal<ProfileTab>('profile');
 
-  /** P-MK-010 fav button: local "saved" state (no provider-favourite API exists). */
-  favSaved = signal(false);
 
   /** P-MK-011 sort bar. */
   serviceSort = signal<ServiceSort>('popular');
@@ -197,10 +206,6 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
     if (days < 365) return months === 1 ? 'منذ شهر' : months === 2 ? 'منذ شهرين' : `منذ ${months} أشهر`;
     const years = Math.floor(days / 365);
     return years === 1 ? 'منذ سنة' : years === 2 ? 'منذ سنتين' : `منذ ${years} سنوات`;
-  }
-
-  toggleFav() {
-    this.favSaved.set(true);
   }
 
   openLightbox(item: any, event?: Event) {

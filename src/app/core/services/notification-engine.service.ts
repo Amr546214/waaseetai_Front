@@ -1,20 +1,26 @@
-import { Injectable, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Injectable, InjectionToken, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { environment } from '../../../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { NotificationSoundService } from './notification-sound.service';
 import { AuthStore } from '../store/auth.store';
 import { UiNotificationService } from './ui-notification.service';
+import { NotificationPopupLedger } from './notification-popup-ledger.service';
+import { normalizeLegacyNotificationUrl } from '../routing/notification-links';
+
+/** The socket constructor (a seam for tests: a module-level mock of socket.io-client does not survive the shared test bundle). */
+export const NOTIFICATION_SOCKET_FACTORY = new InjectionToken<typeof io>('NOTIFICATION_SOCKET_FACTORY', { providedIn: 'root', factory: () => io });
 import { ACCOUNT_NOT_ACTIVE_CODE, accountBlockedText } from './account-state';
 
 // The real, existing dashboard roots this app has — every notification
 // destination must resolve to one of these (see resolveNotificationTarget()/
 // isSafeInternalUrl()). Never invented: each is a real top-level route
 // section already registered for its account type.
-export type NotificationBasePath = '/provider-overview' | '/client-overview' | '/marketer-overview';
+export type NotificationBasePath = '/provider-overview' | '/client-overview' | '/marketer-overview' | '/supper-admin-overview';
 
 export interface NotificationEvent {
 	id?: string;
@@ -79,8 +85,10 @@ export class NotificationEngineService implements OnDestroy {
 	private platformId = inject(PLATFORM_ID);
 	private isBrowser = isPlatformBrowser(this.platformId);
 	private authStore = inject(AuthStore);
+	private ledger = inject(NotificationPopupLedger);
 	private ui = inject(UiNotificationService);
 	private sanitizer = inject(DomSanitizer);
+	private socketFactory = inject(NOTIFICATION_SOCKET_FACTORY);
 	private iconHtmlCache = new Map<string, SafeHtml>();
 	private socket: Socket | null = null;
 	// The user ID the socket is currently (or should be) joined as. Distinct
@@ -147,17 +155,40 @@ export class NotificationEngineService implements OnDestroy {
 		PROJECT_COMPLETION_REWARD: NotificationEngineService.ICON_PROJECT,
 		OFFER_ACCEPTED: NotificationEngineService.ICON_OFFER,
 		NEW_PROPOSAL: NotificationEngineService.ICON_OFFER,
+		OFFER_COUNTER: NotificationEngineService.ICON_OFFER,
+		OFFER_COUNTER_ACCEPTED: NotificationEngineService.ICON_OFFER,
+		OFFER_WITHDRAWN: NotificationEngineService.ICON_OFFER,
+		OFFER_NEGOTIATION_REJECTED: NotificationEngineService.ICON_OFFER,
+		OFFER_NEGOTIATION_REQUESTED: NotificationEngineService.ICON_OFFER,
+		OFFER_SELECTED: NotificationEngineService.ICON_OFFER,
+		STAGE_APPROVED: NotificationEngineService.ICON_PROJECT,
+		PROJECT_COMPLETED: NotificationEngineService.ICON_PROJECT,
+		ESCROW_FUNDED: NotificationEngineService.ICON_FINANCE,
+		ORDER_PAID: NotificationEngineService.ICON_FINANCE,
 		MODEL_APPROVED: NotificationEngineService.ICON_AI,
 		FINANCIAL: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_REQUESTED: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_APPROVED: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_REJECTED: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_PAID: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_FAILED: NotificationEngineService.ICON_FINANCE,
+		WITHDRAWAL_REVERSED: NotificationEngineService.ICON_FINANCE,
+		PAYPAL_EMAIL_CHANGED: NotificationEngineService.ICON_FINANCE,
+		DISPUTE_OPENED: NotificationEngineService.ICON_PROJECT,
+		DISPUTE_RESOLVED: NotificationEngineService.ICON_PROJECT,
+		RATING_RECEIVED: NotificationEngineService.ICON_PROJECT,
+		PROJECT_AMENDMENT: NotificationEngineService.ICON_PROJECT,
 		GENERAL: NotificationEngineService.ICON_GENERAL,
 	};
 
 	// Rows created without a category (the backend defaults it to ALL, e.g. NEW_PROPOSAL, CHAT) would otherwise fall in the catch-all bucket and
 	// never count in the offers/projects/finance filters. The type is the real signal, so it decides the filter bucket when the category is generic.
 	private static readonly CATEGORY_BY_TYPE: Record<string, AppNotification['category']> = {
-		NEW_PROPOSAL: 'offers', OFFER_ACCEPTED: 'offers',
-		PROJECT_MATCH: 'projects', STAGE_REVIEW: 'projects', STAGE_DELIVERY: 'projects', PROJECT_COMPLETION_REWARD: 'projects',
-		FINANCIAL: 'finance',
+		NEW_PROPOSAL: 'offers', OFFER_ACCEPTED: 'offers', OFFER_COUNTER: 'offers', OFFER_COUNTER_ACCEPTED: 'offers', OFFER_WITHDRAWN: 'offers', OFFER_NEGOTIATION_REJECTED: 'offers', OFFER_NEGOTIATION_REQUESTED: 'offers', OFFER_SELECTED: 'offers',
+		PROJECT_MATCH: 'projects', STAGE_REVIEW: 'projects', STAGE_DELIVERY: 'projects', PROJECT_COMPLETION_REWARD: 'projects', STAGE_APPROVED: 'projects', PROJECT_COMPLETED: 'projects',
+		FINANCIAL: 'finance', ESCROW_FUNDED: 'finance', ORDER_PAID: 'finance',
+		WITHDRAWAL_REQUESTED: 'finance', WITHDRAWAL_APPROVED: 'finance', WITHDRAWAL_REJECTED: 'finance', WITHDRAWAL_PAID: 'finance', WITHDRAWAL_FAILED: 'finance', WITHDRAWAL_REVERSED: 'finance', PAYPAL_EMAIL_CHANGED: 'finance',
+		DISPUTE_OPENED: 'projects', DISPUTE_RESOLVED: 'projects', RATING_RECEIVED: 'projects', PROJECT_AMENDMENT: 'projects',
 	};
 
 	private static readonly ICON_BY_CATEGORY: Record<AppNotification['category'], IconStyle> = {
@@ -168,7 +199,7 @@ export class NotificationEngineService implements OnDestroy {
 		security: NotificationEngineService.ICON_GENERAL,
 	};
 
-	private static readonly SAFE_BASE_PATHS: NotificationBasePath[] = ['/provider-overview', '/client-overview', '/marketer-overview'];
+	private static readonly SAFE_BASE_PATHS: NotificationBasePath[] = ['/provider-overview', '/client-overview', '/marketer-overview', '/supper-admin-overview'];
 
 	unreadCount = signal<number>(0);
 	latestNotification = signal<NotificationEvent | null>(null);
@@ -177,10 +208,24 @@ export class NotificationEngineService implements OnDestroy {
 
 	// Real-time event emitters for UI reactivity
 	realtimeNewNotification = signal<any | null>(null);
+	// A notification that already exists was UPDATED server-side (a chat conversation's unread row coalesces its next messages): same id, newer text / count / createdAt. Lists replace the row; the counter never moves.
+	realtimeUpdatedNotification = signal<any | null>(null);
 	realtimeReadNotification = signal<string | null>(null);
 	realtimeReadAll = signal<boolean>(false);
 
 	private toastTimer: any = null;
+	// ids already delivered to the UI (socket push OR recovery read): the same notification arriving twice (a reconnect replay, a recovery that overlaps a push) counts once
+	private seenIds = new Set<string>();
+	// createdAt of each held id as last seen: a same-id arrival with a NEWER createdAt is an update (coalesced chat row), not a duplicate
+	private seenAtById = new Map<string, string>();
+	// createdAt of the newest notification this client holds: the `since` of the recovery read after a reconnect
+	private newestAt: string | null = null;
+	// the first recovery after a page load / login only reports the existing unread backlog: those rows are old, not "new", and never pop up
+	private recoveredOnce = false;
+	// a popup that arrived while this tab was in the background: shown (once, if no other tab did) when the tab becomes visible
+	private popupInflight = new Set<string>();
+	private popupRetryTimers = new Set<ReturnType<typeof setTimeout>>();
+	private pendingPopup: { notif: NotificationEvent; key: string; userId: string } | null = null;
 
 	constructor() {
 		// Socket.IO is browser-only real-time transport: creating it during SSR
@@ -190,6 +235,7 @@ export class NotificationEngineService implements OnDestroy {
 		// on every request), leaking a connection per render with no owner left
 		// to close it.
 		if (this.isBrowser) {
+			document.addEventListener('visibilitychange', () => this.flushPendingPopup());
 			// Follows AuthStore.currentUser() for the socket's entire lifecycle —
 			// not just at startup — so login, logout, and an account switch are
 			// all handled the same way. AuthStore hydrates its signals
@@ -220,16 +266,17 @@ export class NotificationEngineService implements OnDestroy {
 	initSocket(userId: string): void {
 		if (!this.isBrowser || this.socket) return;
 
-		this.socket = io(environment.socketUrl, {
+		this.socket = this.socketFactory(environment.socketUrl, {
 			withCredentials: true,
-			reconnection: true,
+			...SOCKET_BACKOFF,
 			// Matches the same auth.token handshake pattern already used by
 			// ChatService/AntiCheatService/etc.: the backend's connection
 			// handler (waseetai-backend/src/socket.ts) verifies this JWT and
 			// auto-joins `user_<id>`/`project_owner_<id>` on every connect —
 			// including every automatic reconnect, since socket.io-client
 			// resends the current `auth` value on each attempt.
-			auth: { token: this.authStore.token() },
+			// a function: every (re)connection attempt sends the CURRENT token, not the one from the first connect
+			auth: (cb: (data: object) => void) => cb({ token: this.authStore.token() }),
 		});
 
 		console.log('🔌 NotificationEngine connected to WebSocket');
@@ -242,15 +289,27 @@ export class NotificationEngineService implements OnDestroy {
 			if (this.joinedUserId) {
 				this.socket?.emit('join_user_room', this.joinedUserId);
 			}
+			// first connect AND every reconnect: ask the server for what was stored while this client was offline
+			this.recoverMissed();
 		});
 
 		const handleNewNotification = (notif: any) => {
-			console.log('📬 Real-time notification received:', notif);
+			if (!this.registerArrival(notif)) return; // duplicate: already shown / counted
 			this.unreadCount.update(c => c + 1);
 			this.realtimeNewNotification.set(notif);
 			this.soundService.playPopSound();
-			this.triggerToast(notif);
+			this.popup(notif);
 		};
+
+		// Same id, new content: replace the row (never a second row, never +1 on the bell: the server counts one unread row per conversation).
+		this.socket.on('notification_updated', (notif: any) => {
+			if (!notif?.id) return;
+			if (!this.seenIds.has(notif.id)) { handleNewNotification(notif); return; } // never held (missed while offline): it is simply a new unread row
+			if (!this.registerUpdate(notif)) return;
+			this.realtimeUpdatedNotification.set(notif);
+			this.soundService.playPopSound();
+			this.popup(notif, true);
+		});
 
 		// The server cut this connection because the account is no longer active (admin suspension), or refused it at the handshake.
 		this.socket.on('account_not_active', (payload: { message?: string }) => {
@@ -280,7 +339,7 @@ export class NotificationEngineService implements OnDestroy {
 				updateData._notified = true;
 				this.unreadCount.update(c => c + 1);
 				this.soundService.playPopSound();
-				this.triggerToast(updateData.notification);
+				this.popup(updateData.notification);
 			}
 		};
 
@@ -291,12 +350,78 @@ export class NotificationEngineService implements OnDestroy {
 		console.log(`📡 NotificationEngine subscribed to room for user: ${userId}`);
 	}
 
+	/** True when this notification is new to the client (and remembers it); false for an id already seen. Rows without an id cannot be de-duplicated and always count. */
+	registerArrival(notif: { id?: string; createdAt?: string | Date } | null | undefined): boolean {
+		const id = notif?.id;
+		if (id) {
+			if (this.seenIds.has(id)) return false;
+			this.seenIds.add(id);
+		}
+		const at = notif?.createdAt ? new Date(notif.createdAt).toISOString() : null;
+		if (id && at) this.seenAtById.set(id, at);
+		if (at && (!this.newestAt || at > this.newestAt)) this.newestAt = at;
+		return true;
+	}
+
+	/** True when an already-held id arrives with a NEWER createdAt (the server updated that row); remembers it. Older or equal = a replay, false. */
+	registerUpdate(notif: { id?: string; createdAt?: string | Date } | null | undefined): boolean {
+		const id = notif?.id;
+		const at = notif?.createdAt ? new Date(notif.createdAt).toISOString() : null;
+		if (!id || !at || !this.seenIds.has(id)) return false;
+		const prev = this.seenAtById.get(id);
+		if (prev && at <= prev) return false;
+		this.seenAtById.set(id, at);
+		if (!this.newestAt || at > this.newestAt) this.newestAt = at;
+		return true;
+	}
+
+	/**
+	 * Recovery after (re)connecting: GET /notifications?unreadOnly=true[&since=<newest held>]. Whatever the server stored that this client has not seen is
+	 * pushed through the same path as a live notification (de-duplicated by id, so a live push racing the recovery is still counted once), and the bell
+	 * counter is set to the server's exact unread total. A failed read changes nothing (the next reconnect retries).
+	 */
+	recoverMissed(): void {
+		if (!this.isBrowser) return;
+		const params: Record<string, string> = { unreadOnly: 'true' };
+		if (this.newestAt) params['since'] = this.newestAt;
+		this.http.get<any>(`${environment.url_api}/notifications`, { params }).subscribe({
+			next: res => {
+				if (!res?.success || !Array.isArray(res.data)) return;
+				// An older server (no numeric unreadCount) ignores `since` and answers EVERY unread row: rows this client never held that are older than what it
+				// already holds are not "missed while offline", so they are neither announced nor pushed again; the bell is set from the list itself (exact, the list is complete).
+				const legacy = typeof res.unreadCount !== 'number';
+				const since = params['since'];
+				const rows: any[] = legacy && since
+					? res.data.filter((n: any) => this.seenIds.has(n?.id) || !n?.createdAt || new Date(n.createdAt).toISOString() > since)
+					: res.data;
+				const ordered = [...rows].reverse();
+				const fresh = ordered.filter((n: any) => this.registerArrival(n));
+				for (const n of fresh) this.realtimeNewNotification.set(n);
+				// rows held already but updated while offline (a chat conversation that kept receiving messages): replace them, no new count
+				for (const n of ordered) if (!fresh.includes(n) && this.registerUpdate(n)) this.realtimeUpdatedNotification.set(n);
+				this.unreadCount.set(legacy ? res.data.length : res.unreadCount);
+				if (!this.recoveredOnce) {
+					// page load / login: this is the unread backlog, not news. Remember it as handled so no later path can pop it either.
+					this.recoveredOnce = true;
+					if (this.joinedUserId) this.ledger.seed(this.joinedUserId, res.data.map((n: any) => n?.id));
+				} else if (fresh.length) {
+					// a reconnect inside the same page: what arrived while offline is genuinely new
+					this.popup(fresh[fresh.length - 1]);
+				}
+			},
+			error: () => { /* keep what we have */ }
+		});
+	}
+
 	fetchNotifications(category?: string): Observable<any> {
 		const params: any = {};
 		if (category && category !== 'all' && category !== 'ALL') {
 			params.category = category;
 		}
-		return this.http.get<any>(`${environment.url_api}/notifications`, { params });
+		return this.http.get<any>(`${environment.url_api}/notifications`, { params }).pipe(tap(res => {
+			// everything a list read returns is "held": a later push/recovery of the same id is not announced again
+			if (Array.isArray(res?.data)) for (const n of res.data) this.registerArrival(n);
+		}));
 	}
 
 	markNotificationAsRead(id: string): Observable<any> {
@@ -320,6 +445,72 @@ export class NotificationEngineService implements OnDestroy {
 		}, 7000);
 	}
 
+	/**
+	 * Announces a SERVER notification as a popup at most once per user (stable id, see NotificationPopupLedger). It never reads, marks or counts
+	 * anything: showing, expiring or closing the popup leaves the notification unread. `isUpdate` = the server changed an already-held row
+	 * (chat coalescing): that newer version is its own event, keyed by id + createdAt, so replaying the same update never repeats it.
+	 */
+	popup(notif: NotificationEvent, isUpdate = false): Promise<void> {
+		const userId = this.joinedUserId;
+		const id = notif?.id;
+		if (!id || !userId) { this.triggerToast(notif); return Promise.resolve(); }
+		const at = notif.createdAt ? new Date(notif.createdAt).toISOString() : '';
+		const key = isUpdate && at ? `${id}@${at}` : id;
+		if (this.ledger.has(userId, key)) return Promise.resolve();
+		if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+			// a background tab must not use up the single popup the user would never see: a visible tab (or this one on return) shows it
+			this.pendingPopup = { notif, key, userId };
+			return Promise.resolve();
+		}
+		return this.claimAndShow(notif, key, userId);
+	}
+
+	/**
+	 * Cross-tab safe: only the tab that wins the ledger claim shows the popup, then commits it. A tab that lost to a live claim asks again when
+	 * that claim's lease ends, so a claimer that died before showing never swallows the popup; once committed nobody shows it again.
+	 */
+	private async claimAndShow(notif: NotificationEvent, key: string, userId: string): Promise<void> {
+		const inflight = `${userId}|${key}`;
+		if (this.popupInflight.has(inflight)) return;
+		this.popupInflight.add(inflight);
+		try {
+			const r = await this.ledger.claim(userId, key);
+			if (userId !== this.joinedUserId) return; // account switched while waiting
+			// re-verify at the moment of display (a freeze/resume or a slow lock may have outlived the lease, or another tab may have shown+committed it)
+			if (r.won && this.ledger.stillOwns(userId, key)) {
+				this.triggerToast(notif);
+				await this.ledger.commit(userId, key);
+			} else if (!r.won && r.retryInMs !== undefined) {
+				this.scheduleRetry(notif, key, userId, r.retryInMs);
+			}
+		} finally { this.popupInflight.delete(inflight); }
+	}
+
+	private scheduleRetry(notif: NotificationEvent, key: string, userId: string, inMs: number): void {
+		const t = setTimeout(() => {
+			this.popupRetryTimers.delete(t);
+			if (userId !== this.joinedUserId || this.ledger.has(userId, key)) return;
+			if (typeof document !== 'undefined' && document.visibilityState === 'hidden') { this.pendingPopup = { notif, key, userId }; return; }
+			void this.claimAndShow(notif, key, userId);
+		}, inMs + 50 + Math.floor(Math.random() * 150));
+		this.popupRetryTimers.add(t);
+	}
+
+	private flushPendingPopup(): void {
+		const p = this.pendingPopup;
+		if (!p || document.visibilityState === 'hidden') return;
+		this.pendingPopup = null;
+		if (p.userId !== this.joinedUserId) return;
+		void this.claimAndShow(p.notif, p.key, p.userId);
+	}
+
+	/** The popup's own destination click succeeded in opening the page: now (and only now) the row counts as read locally. */
+	onPopupMarkedRead(id: string | undefined): void {
+		if (!id) return;
+		this.unreadCount.update(c => Math.max(0, c - 1));
+		this.realtimeReadNotification.set(id);
+	}
+
 	closeToast(): void {
 		this.showToast.set(false);
 		if (this.toastTimer) {
@@ -336,6 +527,17 @@ export class NotificationEngineService implements OnDestroy {
 			this.socket.disconnect();
 			this.socket = null;
 		}
+		// another identity must never inherit the previous account's seen ids
+		this.seenIds.clear();
+		this.seenAtById.clear();
+		this.newestAt = null;
+		this.recoveredOnce = false;
+		this.pendingPopup = null;
+		for (const t of this.popupRetryTimers) clearTimeout(t);
+		this.popupRetryTimers.clear();
+		// ...nor see the previous account's popup
+		this.closeToast();
+		this.latestNotification.set(null);
 	}
 
 	ngOnDestroy(): void {
@@ -405,16 +607,21 @@ export class NotificationEngineService implements OnDestroy {
 		basePath: NotificationBasePath = '/provider-overview'
 	): string | null {
 		const metadata = nt?.metadata || {};
+		// a SAVED row may hold a link from an earlier release: map it to the current real route before anything reads it
+		const storedUrl = nt?.actionUrl;
+		if (nt?.actionUrl) nt = { ...nt, actionUrl: normalizeLegacyNotificationUrl(nt.actionUrl) };
 
 		switch (nt?.type) {
 			case 'CHAT':
+				// A message of a PROJECT room opens that project's messages tab (the stored, stable link); a general one opens the conversation.
+				if (metadata.context === 'PROJECT' && this.isSafeInternalUrl(nt?.actionUrl, basePath) && /[?&]tab=messages(&|$)/.test(nt!.actionUrl!)) return nt!.actionUrl!;
 				return metadata.conversationId
 					? `${basePath}/messages?conversationId=${metadata.conversationId}`
 					: null;
 			case 'PROJECT_MATCH':
 				// Provider-only. Always resolves into the Marketplace (never
 				// null) — see resolveProjectMatchTarget().
-				return this.resolveProjectMatchTarget(metadata, nt?.actionUrl);
+				return this.resolveProjectMatchTarget(metadata, storedUrl); // parses the historical shape itself
 			case 'OFFER_ACCEPTED':
 				if (metadata.offerId) {
 					return `/provider-overview/offers/${metadata.offerId}/sign-contract`;
@@ -458,6 +665,13 @@ export class NotificationEngineService implements OnDestroy {
 					return `/provider-overview/business-models/market/${metadata.serviceId}`;
 				}
 				return this.isSafeInternalUrl(nt?.actionUrl, '/provider-overview') ? nt!.actionUrl! : null;
+			case 'DISPUTE_OPENED':
+			case 'DISPUTE_RESOLVED':
+				// Opens THIS dispute for either party: the provider has a details page; the client app has none, so its list page opens the
+				// dispute through ?dispute=<id>. Older rows without metadata keep their stored (still real) link.
+				if (metadata.disputeId && basePath === '/provider-overview') return `/provider-overview/disputes/${metadata.disputeId}`;
+				if (metadata.disputeId && basePath === '/client-overview') return `/client-overview/disputes?dispute=${encodeURIComponent(metadata.disputeId)}`;
+				return this.isSafeInternalUrl(nt?.actionUrl, basePath) ? nt!.actionUrl! : null;
 			case 'FINANCIAL':
 				// A specific transaction detail page exists and is more exact,
 				// but only new rows (created after this fix) carry

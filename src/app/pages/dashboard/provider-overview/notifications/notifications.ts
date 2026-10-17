@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { NotificationEngineService, AppNotification } from '../../../../core/services/notification-engine.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { NotificationNavigator } from '../../../../core/services/notification-navigator.service';
 
 export type { AppNotification };
 
@@ -141,6 +143,8 @@ export class Notifications implements OnInit {
 	private notificationEngine = inject(NotificationEngineService);
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
+	private notify = inject(UiNotificationService);
+	private navigator = inject(NotificationNavigator);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -230,7 +234,6 @@ export class Notifications implements OnInit {
 	activeFilter = signal<string>('all');
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
-	toastMessage = signal<string | null>(null);
 	markingAll = signal<boolean>(false);
 
 	filters = [
@@ -254,6 +257,15 @@ export class Notifications implements OnInit {
 					const mapped = this.notificationEngine.mapToAppNotification(newNotif);
 					this.notifications.update(list => [mapped, ...list]);
 				}
+			}
+		});
+
+		// a coalesced chat row (same id, newer text / count): replace it and move it to the top; never a second row
+		effect(() => {
+			const upd = this.notificationEngine.realtimeUpdatedNotification();
+			if (upd && upd.id) {
+				const mapped = this.notificationEngine.mapToAppNotification(upd);
+				this.notifications.update(list => [mapped, ...list.filter(n => n.id !== upd.id)]);
 			}
 		});
 
@@ -353,44 +365,27 @@ export class Notifications implements OnInit {
 				this.markingAll.set(false);
 				this.notifications.update(list => list.map(n => ({ ...n, isUnread: false })));
 				this.notificationEngine.unreadCount.set(0);
-				this.showToast('تم تعليم كل الإشعارات كمقروءة');
+				this.notify.success('تم تعليم كل الإشعارات كمقروءة');
 			},
 			error: () => {
 				// Never fake it: the server did not record it, so the list and the counters stay as they are.
 				this.markingAll.set(false);
-				this.showToast('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
+				this.notify.error('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
 			}
 		});
 	}
 
 	onNotificationClick(nt: AppNotification) {
-		if (nt.isUnread) {
-			this.notificationEngine.markNotificationAsRead(nt.id).subscribe({
-				next: () => {
-					this.notifications.update(list =>
-						list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n)
-					);
-					this.notificationEngine.unreadCount.set(this.unreadCount());
-				}
-			});
-		}
-		if (nt.actionUrl) {
-			// actionUrl is a complete URL string (it may include a query string,
-			// e.g. a chat notification's ?conversationId=...) — navigateByUrl
-			// parses it correctly, unlike navigate([...]) which treats a single
-			// array element as a literal path segment and would mangle the "?".
-			this.router.navigateByUrl(nt.actionUrl);
-		}
+		// read or unread, first or second click: the destination always opens; marking read never blocks it (see NotificationNavigator)
+		void this.navigator.open(nt, {
+			onMarkedRead: () => {
+				this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n));
+				this.notificationEngine.unreadCount.set(this.unreadCount());
+			}
+		});
 	}
 
 	retry() {
 		this.loadNotifications();
-	}
-
-	showToast(msg: string) {
-		this.toastMessage.set(msg);
-		setTimeout(() => {
-			this.toastMessage.set(null);
-		}, 3000);
 	}
 }

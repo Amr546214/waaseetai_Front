@@ -14,7 +14,7 @@ describe('provider withdraw (PayPal only)', () => {
   let component: Withdraw;
   let submit: ReturnType<typeof vi.fn>;
 
-  async function setup(paypalPayoutEmail: string | null, accountType = 'PROVIDER_INDIVIDUAL', withdrawals: any[] = [], opts: { balance?: number; submitImpl?: () => any } = {}) {
+  async function setup(paypalPayoutEmail: string | null, accountType = 'PROVIDER_INDIVIDUAL', withdrawals: any[] = [], opts: { balance?: number; pending?: number; paid?: number; submitImpl?: () => any } = {}) {
     submit = vi.fn(opts.submitImpl ?? (() => of({ success: true })));
     await TestBed.configureTestingModule({
       imports: [Withdraw],
@@ -25,7 +25,7 @@ describe('provider withdraw (PayPal only)', () => {
         {
           provide: WithdrawalApiService,
           useValue: {
-            getProviderWallet: () => of({ data: { summary: { availableBalance: opts.balance ?? 500, totalEarnings: opts.balance ?? 500, escrowBalance: 0, currency: 'USD' } } }),
+            getProviderWallet: () => of({ data: { summary: { availableBalance: opts.balance ?? 500, ...(opts.pending != null || opts.paid != null ? { pendingWithdrawals: opts.pending ?? 0, paidWithdrawals: opts.paid ?? 0, withdrawableBalance: (opts.balance ?? 500) - (opts.pending ?? 0) - (opts.paid ?? 0) } : {}), totalEarnings: opts.balance ?? 500, escrowBalance: 0, currency: 'USD' } } }),
             getProviderWithdrawals: () => of({ data: { withdrawals, pagination: { total: withdrawals.length, totalPages: 1 } } }),
             submitProviderWithdrawal: submit,
           },
@@ -144,4 +144,42 @@ describe('provider withdraw (PayPal only)', () => {
       expect(q('wd-submit-error-hint')!.textContent).toContain('يتاح السحب بعد');
     });
   });
+
+  describe('withdrawable balance (pending and paid withdrawals are subtracted)', () => {
+    const q = (id: string) => (fixture.nativeElement as HTMLElement).querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
+
+    it('the shown balance, the max button and the "balance after request" line all use withdrawableBalance, never the released total', async () => {
+      await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 500, pending: 120, paid: 80 });
+      expect(component.availableBalance()).toBe(300);
+      expect(q('wd-pending-note')!.textContent).toContain('120');
+      (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.wd-quick-max')!.click();
+      expect(component.amount()).toBe(300);
+      expect(component.remainingBalance()).toBe(0);
+      component.setAmount(100);
+      expect(component.remainingBalance()).toBe(200);
+    });
+
+    it('an amount between the withdrawable balance and the released total is rejected with no request', async () => {
+      await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 500, pending: 400 });
+      component.setAmount(150);
+      component.submit();
+      expect(submit).not.toHaveBeenCalled();
+      expect(component.formErrors()['amount']).toContain('الرصيد غير كافٍ');
+    });
+
+    it('an API without the new fields falls back to availableBalance', async () => {
+      await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 500 });
+      expect(component.availableBalance()).toBe(500);
+      expect(q('wd-pending-note')).toBeNull();
+    });
+  });
+});
+
+import { readFileSync } from 'node:fs';
+describe('withdraw page wording is consistent about the reservation', () => {
+	it('never says the amount is not deducted/reserved until approval (it is reserved on request and released if rejected)', () => {
+		const html = readFileSync('src/app/pages/dashboard/provider-overview/finance/withdraw/withdraw.html', 'utf8');
+		expect(html).not.toMatch(/ولا يُخصم من رصيد(ك|\s?الشركة) حتى تعتمده الإدارة/);
+		expect(html).toContain('يُحجز مبلغه من رصيدك المتاح فور إرساله');
+	});
 });

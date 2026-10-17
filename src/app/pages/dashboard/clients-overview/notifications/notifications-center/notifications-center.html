@@ -35,12 +35,14 @@
   </div>
 
   <!-- Error State -->
-  <div *ngIf="hasError()" class="text-center p-10 bg-[var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)))] border border-[rgba(43,127,255,.25)] rounded-2xl">
+  <app-load-retry *ngIf="hasError() && rateLimited()" (retry)="retry()" />
+  <div *ngIf="hasError() && !rateLimited()" class="text-center p-10 bg-[var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)))] border border-[rgba(43,127,255,.25)] rounded-2xl">
     <div class="text-base font-extrabold text-[var(--txt)] mb-1.5">تعذر تحميل الإشعارات</div>
     <div class="text-xs text-[var(--txt-3)] mb-3">ERR-PR-020</div>
     <button type="button" (click)="retry()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[13px] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
   </div>
 
+  @if (rateLimitKept()) { <app-rate-limit-note [showRetry]="true" (retry)="retry()" /> }
   <!-- List -->
   <div *ngIf="!isLoading() && !hasError()">
     <ng-container *ngFor="let group of groupedNotifications(); let first = first">
@@ -66,14 +68,6 @@
       </div>
       <div class="text-sm font-bold text-[var(--txt)]">لا توجد إشعارات</div>
       <div class="text-xs text-[var(--txt-3)] mt-1">لا توجد إشعارات حالياً في هذا القسم.</div>
-    </div>
-  </div>
-
-  <!-- Toast -->
-  <div *ngIf="toastMessage()" class="fixed top-[72px] left-1/2 -translate-x-1/2 z-[500] animate-[ws-fade_0.3s_ease_both]">
-    <div class="flex items-center gap-2.5 px-5 py-3 bg-gradient-to-br from-[rgba(43,212,199,.14)] to-[rgba(43,127,255,.10)] border border-[rgba(43,212,199,.30)] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,.4)] backdrop-blur-md">
-      <svg class="w-[18px] h-[18px] text-[var(--teal-txt,#2BD4C7)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      <span class="text-sm font-bold text-[var(--txt)]">{{ toastMessage() }}</span>
     </div>
   </div>
 

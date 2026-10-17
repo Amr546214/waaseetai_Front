@@ -1,4 +1,5 @@
-import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { chatPreview } from '../../../../core/utils/chat-preview.util';
+import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,7 +7,10 @@ import { Subscription } from 'rxjs';
 import { ChatService, ChatMessagePayload, MessageContext } from '../../../../core/services/chat.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
+import { reportClientProblems } from '../client-form-report';
+import { ClientOfferCounterService } from '../../../../core/services/client-offer-counter.service';
 
 export interface MessageItem {
   id: number | string;
@@ -28,6 +32,8 @@ export interface MessageItem {
 
 export interface Conversation {
   id: string;
+  /** The project (request) behind the conversation; needed to accept a counter-offer. */
+  projectId?: string;
   name: string;
   project: string;
   avatarType: 'sk' | 'pr' | 'co';
@@ -49,11 +55,14 @@ export interface Conversation {
 })
 export class ClientMessages implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private router = inject(Router);
   public chatService = inject(ChatService);
   private authStore = inject(AuthStore);
   private chatStateService = inject(ChatStateService);
   private videoCallService = inject(VideoCallService);
+  private notify = inject(UiNotificationService);
+  private counterService = inject(ClientOfferCounterService);
   private sub = new Subscription();
 
   private currentUserId = 'client_001';
@@ -71,7 +80,6 @@ export class ClientMessages implements OnInit, OnDestroy {
   conversationNotFound = signal<boolean>(false);
   showChatOnMobile = signal<boolean>(false);
   newMessageText = signal<string>('');
-  toastMessage = signal<string>('');
   messageContext = signal<MessageContext | null>(null);
 
   // Rich media UI state signals
@@ -147,14 +155,16 @@ export class ClientMessages implements OnInit, OnDestroy {
 
               return {
                 id: c.id,
+                projectId: c.projectId || c.project?.id || undefined,
                 name: partnerName,
                 project: c.project?.title || c.project || 'مشروع وسيط',
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
-                lastMsg: c.lastMessage?.content || c.lastMsg || '',
+                lastMsg: chatPreview(c.lastMessage?.content || c.lastMsg || ''),
                 time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
-                online: partner.isOnline || c.online || false,
+                // the server has no presence data for this list (its `online` field is a constant), so nothing is claimed unless a real flag arrives
+                online: partner.isOnline === true,
                 messages: c.messages || []
               };
             });
@@ -224,7 +234,7 @@ export class ClientMessages implements OnInit, OnDestroy {
               }
 
               const unread = targetId === this.activeConvId() ? 0 : c.unreadCount + 1;
-              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: formattedMsg.text, time: formattedMsg.time, unreadCount: unread };
+              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: chatPreview(formattedMsg.text), time: formattedMsg.time, unreadCount: unread };
             }
             return c;
           })
@@ -275,12 +285,24 @@ export class ClientMessages implements OnInit, OnDestroy {
       } else {
         this.conversationNotFound.set(true);
         this.activeConvId.set('');
+        this.redirectIfProjectConversation(requestedId);
       }
       return;
     }
     this.conversationNotFound.set(false);
     this.activeConvId.set(list[0].id);
     this.selectConversation(list[0].id);
+  }
+
+  // An old link to a conversation that is not in the general list may be a PROJECT room: it opens in that project's messages tab (nothing is lost, the room is the same).
+  private redirectIfProjectConversation(conversationId: string): void {
+    this.sub.add(this.chatService.getConversationContext(conversationId).subscribe({
+      next: (res) => {
+        const url = res?.data?.context === 'PROJECT' ? res.data.url : null;
+        if (url) this.router.navigateByUrl(url, { replaceUrl: true });
+      },
+      error: () => { /* stays "not found": the server refused (not a member) or the room does not exist */ }
+    }));
   }
 
   selectConversation(id: string): void {
@@ -344,7 +366,11 @@ export class ClientMessages implements OnInit, OnDestroy {
 
   sendMessage(type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'FILE' = 'TEXT', customData?: any): void {
     let text = this.newMessageText().trim();
-    if (type === 'TEXT' && !text) return;
+    if (type === 'TEXT' && !text) {
+      // An empty send is not silent: the reason is under the message box (red, role=alert) and the box gets focus.
+      if (this.activeConversation()) void reportClientProblems(this.host.nativeElement, [{ field: 'msg-composer', message: 'اكتب رسالة قبل الإرسال' }]);
+      return;
+    }
 
     const currentConv = this.activeConversation();
     if (!currentConv) return;
@@ -384,7 +410,7 @@ export class ClientMessages implements OnInit, OnDestroy {
           ? {
               ...c,
               messages: [...c.messages, newMsg],
-              lastMsg: newMsg.text,
+              lastMsg: chatPreview(newMsg.text),
               time: timeString,
             }
           : c
@@ -443,9 +469,9 @@ export class ClientMessages implements OnInit, OnDestroy {
   async startVoiceRecord(): Promise<void> {
     const started = await this.chatService.startAudioRecording();
     if (started) {
-      this.showToast('🎙️ جارٍ تسجيل المقطع الصوتي...');
+      this.notify.info('جارٍ تسجيل المقطع الصوتي...');
     } else {
-      this.showToast('⚠️ تعذر الوصول للميكروفون أو البيئة لا تدعم MediaDevices');
+      this.notify.error('تعذر الوصول للميكروفون أو البيئة لا تدعم MediaDevices');
     }
   }
 
@@ -471,7 +497,7 @@ export class ClientMessages implements OnInit, OnDestroy {
             audioDuration: res.duration || 1,
             text: '🎤 رسالة صوتية'
           });
-          this.showToast('✅ تم إرسال الرسالة الصوتية بنجاح');
+          this.notify.success('تم إرسال الرسالة الصوتية بنجاح');
         },
         error: () => {
           this.sendMessage('AUDIO', {
@@ -479,7 +505,7 @@ export class ClientMessages implements OnInit, OnDestroy {
             audioDuration: res.duration || 1,
             text: '🎤 رسالة صوتية'
           });
-          this.showToast('✅ تم إرسال الرسالة الصوتية بنجاح');
+          this.notify.success('تم إرسال الرسالة الصوتية بنجاح');
         }
       });
     }
@@ -487,7 +513,7 @@ export class ClientMessages implements OnInit, OnDestroy {
 
   cancelVoiceRecord(): void {
     this.chatService.cancelAudioRecording();
-    this.showToast('🗑️ تم إلغاء التسجيل الصوتي');
+    this.notify.success('تم إلغاء التسجيل الصوتي');
   }
 
   // Audio Playback with Waveform
@@ -528,7 +554,7 @@ export class ClientMessages implements OnInit, OnDestroy {
 
       reader.onload = (e: any) => {
         const base64 = e.target.result;
-        this.showToast(`⌛ جارٍ رفع ${file.name}...`);
+        this.notify.info(`جارٍ رفع ${file.name}...`);
         
         this.chatService.uploadAttachment({
           fileData: base64,
@@ -544,7 +570,7 @@ export class ClientMessages implements OnInit, OnDestroy {
               fileSize: fileSizeKB,
               text: type === 'IMAGE' ? 'مرفق صورة للتوضيح' : file.name
             });
-            this.showToast(`✅ تم إرفاق وإرسال الملف بنجاح`);
+            this.notify.success(`تم إرفاق وإرسال الملف بنجاح`);
           },
           error: () => {
             this.sendMessage(type, {
@@ -553,7 +579,7 @@ export class ClientMessages implements OnInit, OnDestroy {
               fileSize: fileSizeKB,
               text: type === 'IMAGE' ? 'مرفق صورة للتوضيح' : file.name
             });
-            this.showToast(`✅ تم إرفاق الملف: ${file.name}`);
+            this.notify.success(`تم إرفاق الملف: ${file.name}`);
           }
         });
       };
@@ -578,9 +604,9 @@ export class ClientMessages implements OnInit, OnDestroy {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      this.showToast(`⌛ جارٍ تنزيل ${msg.fileName}...`);
+      this.notify.info(`جارٍ تنزيل ${msg.fileName}...`);
     } else {
-      this.showToast(`📥 تم البدء بتنزيل الملف: ${msg.fileName || 'مرفق'}`);
+      this.notify.success(`تم البدء بتنزيل الملف: ${msg.fileName || 'مرفق'}`);
     }
   }
 
@@ -600,21 +626,12 @@ export class ClientMessages implements OnInit, OnDestroy {
   startMeeting(): void {
     const convId = this.activeConvId();
     if (!convId) {
-      this.showToast('⚠️ يرجى اختيار محادثة أولاً لبدء اجتماع الفيديو');
+      this.notify.warning('يرجى اختيار محادثة أولاً لبدء اجتماع الفيديو');
       return;
     }
     const myUser = this.authStore.currentUser();
     const myName = myUser ? `${myUser.firstName} ${myUser.lastName}` : 'مستخدم وسيط';
     this.videoCallService.startCall(convId, myName, true);
-  }
-
-  showToast(msg: string): void {
-    this.toastMessage.set(msg);
-    setTimeout(() => {
-      if (this.toastMessage() === msg) {
-        this.toastMessage.set('');
-      }
-    }, 3800);
   }
 
   private scrollToBottom(): void {
@@ -672,12 +689,7 @@ export class ClientMessages implements OnInit, OnDestroy {
       }
     }
 
-    if (data) {
-      if ((msg as any).negStatus) {
-        data.status = (msg as any).negStatus;
-      }
-      return data;
-    }
+    if (data) return data;
 
     const lines = msg.text.split('\n');
     let typeName = 'السعر';
@@ -694,61 +706,153 @@ export class ClientMessages implements OnInit, OnDestroy {
       negTypeName: typeName,
       price: price,
       notes: notes,
-      status: (msg as any).negStatus || 'PENDING'
+      status: 'PENDING'
     };
   }
 
-  getNegStatusText(status?: string): string {
-    if (status === 'ACCEPTED') return 'تم القبول ✓';
-    if (status === 'REJECTED') return 'تم الرفض ✕';
-    return 'قيد الانتظار';
+  // ---- negotiation cards: nothing is decided or "locked" in the browser; the state is read from the structured messages the server stored ----
+  // (the client's own request card, and the provider's structured replies: PROVIDER_REJECT = apologised, PROVIDER_COUNTER = counter offer).
+  /** 'request' = a negotiation request, 'counter' / 'reply' = the PROVIDER's structured entries (only when the provider wrote them), 'other' = anything else. */
+  negKind(msg: MessageItem): 'request' | 'counter' | 'reply' | 'accepted' | 'declined' | 'other' {
+    const data = this.getNegData(msg);
+    if (msg.sender === 'me' && data?.kind === 'CLIENT_ACCEPT_COUNTER') return 'accepted';
+    if (msg.sender === 'me' && data?.kind === 'CLIENT_DECLINE_COUNTER') return 'declined';
+    if (msg.sender === 'other' && data?.kind === 'PROVIDER_COUNTER') return 'counter';
+    if (msg.sender === 'other' && data?.kind === 'PROVIDER_REJECT') return 'reply';
+    return msg.sender === 'me' ? 'request' : 'other';
   }
 
-  respondNegotiation(msg: MessageItem, action: 'ACCEPTED' | 'REJECTED' | 'DISCUSS'): void {
+  /** The state of MY request, from the provider's later structured replies to it. */
+  negRequestState(msg: MessageItem): 'waiting' | 'declined' | 'countered' {
+    const list = this.activeConversation()?.messages || [];
+    const id = String(msg.id);
+    const replies = list.filter((m) => m.sender === 'other' && this.getNegData(m)?.replyToMessageId === id);
+    if (replies.some((m) => this.getNegData(m)?.kind === 'PROVIDER_REJECT')) return 'declined';
+    if (replies.some((m) => this.getNegData(m)?.kind === 'PROVIDER_COUNTER')) return 'countered';
+    // a counter the provider sent after my request (even without the back-reference) also answers it
+    const index = list.findIndex((m) => String(m.id) === id);
+    if (index >= 0 && list.slice(index + 1).some((m) => this.negKind(m) === 'counter')) return 'countered';
+    return 'waiting';
+  }
+
+  negBadgeText(msg: MessageItem): string {
+    switch (this.negKind(msg)) {
+      case 'request': {
+        const s = this.negRequestState(msg);
+        return s === 'declined' ? 'اعتذر مقدم الخدمة' : s === 'countered' ? 'ردّ مقدم الخدمة بعرض مضاد' : 'بانتظار رد مقدم الخدمة';
+      }
+      case 'counter': return 'عرض مضاد من مقدم الخدمة';
+      case 'reply': return 'اعتذر مقدم الخدمة';
+      case 'accepted': return 'تم قبول العرض المضاد';
+      case 'declined': return 'تم رفض العرض المضاد';
+      default: return '';
+    }
+  }
+
+  negCardTitle(msg: MessageItem): string {
+    const kind = this.negKind(msg);
+    return kind === 'counter' ? 'عرض مضاد من مقدم الخدمة' : kind === 'reply' ? 'ردّ مقدم الخدمة على طلبك' : kind === 'request' ? 'طلب التفاوض الخاص بك' : kind === 'accepted' ? 'قبولك للعرض المضاد' : kind === 'declined' ? 'رفضك للعرض المضاد' : 'رسالة تفاوض';
+  }
+
+  // ---- accepting the provider's counter-offer: a REAL server call; the price / duration of the offer change only when the server says so ----
+  counterConfirmId = signal<string>('');
+  counterBusyId = signal<string>('');
+  counterError = signal<string>('');
+  /** Counters accepted in this session (the server's acceptance message is also looked up in the conversation). */
+  counterAcceptedIds = signal<string[]>([]);
+  counterDeclinedIds = signal<string[]>([]);
+  /** The card a decline error belongs to (accept errors use the confirm id). */
+  counterErrorId = signal<string>('');
+
+  /** True once the counter was accepted (this session, or a later acceptance message that points at it). */
+  isCounterAccepted(msg: MessageItem): boolean {
+    const id = String(msg.id);
+    if (this.counterAcceptedIds().includes(id)) return true;
+    return (this.activeConversation()?.messages || []).some((m) => this.negKind(m) === 'accepted' && String(this.getNegData(m)?.replyToMessageId) === id);
+  }
+
+  isCounterDeclined(msg: MessageItem): boolean {
+    const id = String(msg.id);
+    if (this.counterDeclinedIds().includes(id)) return true;
+    return (this.activeConversation()?.messages || []).some((m) => this.negKind(m) === 'declined' && String(this.getNegData(m)?.replyToMessageId) === id);
+  }
+
+  /** Only the NEWEST negotiation message can be accepted, and only when it is a clear counter (price + days) tied to an offer. */
+  canAcceptCounter(msg: MessageItem): boolean {
+    if (this.negKind(msg) !== 'counter' || this.isCounterAccepted(msg) || this.isCounterDeclined(msg)) return false;
+    const conv = this.activeConversation();
+    const neg = this.getNegData(msg);
+    if (!conv?.projectId || !neg?.offerId || !(Number(neg.priceValue ?? neg.price) > 0) || !(Number(neg.deliveryDays) > 0)) return false;
+    const latest = [...conv.messages].reverse().find((m) => this.isNegotiationMsg(m));
+    return !!latest && String(latest.id) === String(msg.id);
+  }
+
+  askAcceptCounter(msg: MessageItem): void {
+    this.counterError.set('');
+    this.counterConfirmId.set(String(msg.id));
+  }
+
+  cancelAcceptCounter(): void {
+    this.counterConfirmId.set('');
+    this.counterError.set('');
+  }
+
+  confirmAcceptCounter(msg: MessageItem): void {
+    const conv = this.activeConversation();
+    const neg = this.getNegData(msg);
+    if (!conv?.projectId || !neg?.offerId || this.counterBusyId()) return;
+    this.counterError.set('');
+    this.counterBusyId.set(String(msg.id));
+    this.sub.add(
+      this.counterService.acceptCounter(conv.projectId, String(neg.offerId), String(msg.id)).subscribe({
+        next: (res) => {
+          this.counterBusyId.set('');
+          this.counterConfirmId.set('');
+          this.counterAcceptedIds.update((ids) => [...ids, String(msg.id)]);
+          this.notify.success(`تم قبول العرض المضاد: ${res.price} دولار خلال ${res.deliveryDays} يوم`);
+        },
+        error: (err) => {
+          this.counterBusyId.set('');
+          this.counterError.set(err?.error?.message || 'تعذر قبول العرض المضاد، حاول مرة أخرى');
+        }
+      })
+    );
+  }
+
+  /** Declining the newest counter is also a real server call; the offer keeps its original terms and the conversation then shows my answer card. */
+  declineCounter(msg: MessageItem): void {
+    const conv = this.activeConversation();
+    const neg = this.getNegData(msg);
+    if (!conv?.projectId || !neg?.offerId || this.counterBusyId()) return;
+    this.counterError.set('');
+    this.counterErrorId.set(String(msg.id));
+    this.counterBusyId.set(String(msg.id));
+    this.sub.add(
+      this.counterService.declineCounter(conv.projectId, String(neg.offerId), String(msg.id)).subscribe({
+        next: () => {
+          this.counterBusyId.set('');
+          this.counterDeclinedIds.update((ids) => [...ids, String(msg.id)]);
+          this.notify.success('تم رفض العرض المضاد، ويبقى العرض بشروطه الأصلية');
+        },
+        error: (err) => {
+          this.counterBusyId.set('');
+          this.counterError.set(err?.error?.message || 'تعذر رفض العرض المضاد، حاول مرة أخرى');
+        }
+      })
+    );
+  }
+
+  /** After accepting: the request page, where the client selects and signs the offer with its new terms. */
+  openRequestAfterAccept(): void {
+    const projectId = this.activeConversation()?.projectId;
+    if (projectId) this.router.navigate(['/client-overview/my-requests', projectId]);
+  }
+
+  discussNegotiation(msg: MessageItem): void {
     const neg = this.getNegData(msg);
     if (!neg) return;
-
-    if (action === 'DISCUSS') {
-      this.newMessageText.set(`مرحباً، بخصوص طلب التفاوض على (${neg.negTypeName || 'السعر'})... `);
-      const textarea = document.querySelector('.itxt') as HTMLTextAreaElement;
-      if (textarea) textarea.focus();
-      return;
-    }
-
-    // Check if decision has already been taken
-    if (neg.status === 'ACCEPTED' || neg.status === 'REJECTED') {
-      this.showToast('⚠️ لقد تم اتخاذ القرار بخصوص هذا التفاوض مسبقاً ولا يمكن تغييره.');
-      return;
-    }
-
-    // Lock the decision locally and update the message payload text
-    (msg as any).negStatus = action;
-    neg.status = action;
-
-    if (msg.text.startsWith('WS_NEGOTIATION::')) {
-      try {
-        const parsed = JSON.parse(msg.text.replace('WS_NEGOTIATION::', ''));
-        parsed.status = action;
-        msg.text = 'WS_NEGOTIATION::' + JSON.stringify(parsed);
-      } catch (e) {}
-    } else if (msg.text.includes('"isNegotiation":true')) {
-      try {
-        const parsed = JSON.parse(msg.text);
-        parsed.status = action;
-        msg.text = JSON.stringify(parsed);
-      } catch (e) {}
-    }
-
-    if (action === 'ACCEPTED') {
-      const text = `✅ **تم قبول طلب التفاوض**\nيُسعدني قبول عرض التفاوض الخاص بك (${neg?.price ? neg.price + ' دولار' : ''}). تم اعتماد الشروط للبدء في تنفيذ المشروع.`;
-      this.newMessageText.set(text);
-      this.sendMessage('TEXT');
-      this.showToast('✅ تم قبول طلب التفاوض بنجاح وتثبيت القرار');
-    } else if (action === 'REJECTED') {
-      const text = `❌ **اعتذار عن طلب التفاوض**\nشكراً لتواصلك، لكن يتعذر عليّ التنازل عن السعر أو المدة المحددة مسبقاً لضمان أفضل جودة للتنفيذ.`;
-      this.newMessageText.set(text);
-      this.sendMessage('TEXT');
-      this.showToast('ℹ️ تم إرسال رد الاعتذار وتثبيت القرار');
-    }
+    this.newMessageText.set(`مرحباً، بخصوص التفاوض على (${neg.negTypeName || 'السعر'})... `);
+    const textarea = document.querySelector('.itxt') as HTMLTextAreaElement;
+    if (textarea) textarea.focus();
   }
 }

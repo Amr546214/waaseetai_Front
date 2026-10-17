@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 interface FinancialEvent {
   id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED';
@@ -16,6 +17,7 @@ interface FinancialEvent {
 export class Transactions implements OnInit {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -23,7 +25,7 @@ export class Transactions implements OnInit {
   });
 
   currentPeriod = signal('month'); currentType = signal('all'); searchQuery = signal('');
-  loading = signal(true); error = signal(''); showToast = signal(false);
+  loading = signal(true); error = signal('');
   summary = signal<any>(null); transactions = signal<FinancialEvent[]>([]);
 
   filteredTransactions = computed(() => {
@@ -59,6 +61,6 @@ export class Transactions implements OnInit {
     const csv = '\ufeff' + rows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = `provider-transactions-${new Date().toISOString().slice(0,10)}.csv`; anchor.click(); URL.revokeObjectURL(url);
-    this.showToast.set(true); setTimeout(() => this.showToast.set(false), 2200);
+    this.notify.success('تم تصدير السجل الظاهر بنجاح');
   }
 }

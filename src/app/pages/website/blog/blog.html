@@ -169,9 +169,9 @@
           </div>
           <div class="nl-desc">مقال مفيد كل أسبوع مباشرة إلى بريدك — لا إزعاج، إلغاء الاشتراك بضغطة</div>
           @if (!newsletterSubscribed()) {
-            <input type="email" class="nl-input" placeholder="بريدك الإلكتروني" aria-label="بريدك الإلكتروني" [(ngModel)]="newsletterEmail" (keyup.enter)="subscribeNewsletter()">
+            <input type="email" id="nl-email" name="newsletter-email" aria-required="true" class="nl-input" placeholder="بريدك الإلكتروني" aria-label="بريدك الإلكتروني" [(ngModel)]="newsletterEmail" (ngModelChange)="newsletterFieldInvalid.set(false)" (keyup.enter)="subscribeNewsletter()" [class.ws-invalid]="newsletterFieldInvalid()" [attr.aria-invalid]="newsletterFieldInvalid() ? 'true' : null" [attr.aria-describedby]="newsletterError() ? 'nl-err' : null">
             @if (newsletterError()) {
-              <div class="nl-error" role="alert">{{ newsletterError() }}</div>
+              <div class="nl-error" id="nl-err" role="alert">{{ newsletterError() }}</div>
             }
             <button type="button" class="nl-btn" [disabled]="newsletterSubmitting()" (click)="subscribeNewsletter()">{{ newsletterSubmitting() ? 'جارٍ الاشتراك...' : 'اشترك مجاناً' }}</button>
             <div class="nl-note">أسبوعي فقط</div>

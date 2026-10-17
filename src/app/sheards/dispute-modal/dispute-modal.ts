@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { scrollFocus } from '../../shared/forms/form-error-focus';
 import { CreateDisputePayload } from '../../core/models/dispute.model';
 
 export type DisputeActor = 'client' | 'provider';
@@ -16,6 +17,8 @@ export class DisputeModal {
 	@Input() open = false;
 	@Input() isSubmitting = false;
 	@Input() actor: DisputeActor = 'client';
+	/** Server rejection message (e.g. 403/400 from the API), shown inside the dialog. */
+	@Input() errorMessage = '';
 
 	@Output() close = new EventEmitter<void>();
 	@Output() submit = new EventEmitter<CreateDisputePayload>();
@@ -81,7 +84,27 @@ export class DisputeModal {
 			}
 		}
 
-		if (hasError) return;
+		// A link typed in the "add" box but never added is not silently dropped: it counts (valid) or is explained (invalid).
+		const pending = this.newEvidenceUrl().trim();
+		if (pending && !hasError) {
+			if (!this.isValidUrl(pending)) {
+				this.evidenceError.set('الرابط المكتوب غير صالح. تأكد من إدخال رابط كامل يبدأ بـ http أو https');
+				hasError = true;
+			} else if (evidence.length >= this.MAX_EVIDENCE) {
+				this.evidenceError.set('الحد الأقصى 10 روابط أدلة');
+				hasError = true;
+			} else {
+				evidence.push(pending);
+			}
+		}
+
+		if (hasError) {
+			// First problem in page order gets the cursor, below the sticky header.
+			const first = this.reasonError() ? 'dp-reason' : this.descriptionError() ? 'dp-desc' : 'dp-evidence';
+			const el = document.getElementById(first);
+			if (el) scrollFocus(el);
+			return;
+		}
 
 		this.submit.emit({
 			reason,

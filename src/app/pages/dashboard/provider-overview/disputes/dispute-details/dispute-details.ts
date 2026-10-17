@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
@@ -6,6 +6,8 @@ import { AccountType } from '../../../../../core/models/auth.model';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { Dispute } from '../disputes.model';
 import { mapDispute } from '../disputes.mapper';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { reportProblems } from '../../../../../shared/forms/form-error-focus';
 
 @Component({
 	selector: 'app-dispute-details',
@@ -18,6 +20,8 @@ export class DisputeDetails implements OnInit {
 	private route = inject(ActivatedRoute);
 	private authStore = inject(AuthStore);
 	private disputeApi = inject(DisputeApiService);
+	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
 	isLoading = signal<boolean>(true);
 	loadError = signal<boolean>(false);
@@ -31,10 +35,9 @@ export class DisputeDetails implements OnInit {
 
 	// Company mode: sends written guidance to the assigned team member. No
 	// backend "dispute guidance" endpoint exists yet — this just confirms via
-	// toast, matching the pattern used on the disputes list page.
+	// notification, matching the pattern used on the disputes list page.
 	guidanceOpen = signal<boolean>(false);
 	guidanceText = signal<string>('');
-	toastMsg = signal<string>('');
 
 	openGuidance() {
 		this.guidanceText.set('');
@@ -45,12 +48,16 @@ export class DisputeDetails implements OnInit {
 		this.guidanceOpen.set(false);
 	}
 
-	sendGuidance() {
+	async sendGuidance() {
 		const name = this.dispute()?.teamMember?.name;
+		// An empty guidance is not "sent": the message sits at the field and focus goes there.
+		if (name && !this.guidanceText().trim()) {
+			await reportProblems(this.host.nativeElement, [{ field: 'dispute-guidance', message: 'اكتب التوجيه قبل الإرسال' }]);
+			return;
+		}
 		this.closeGuidance();
 		if (!name) return;
-		this.toastMsg.set(`تم إرسال التوجيه لـ${name}`);
-		setTimeout(() => this.toastMsg.set(''), 3000);
+		this.notify.success(`تم إرسال التوجيه لـ${name}`);
 	}
 
 	statusLabel = computed(() => {

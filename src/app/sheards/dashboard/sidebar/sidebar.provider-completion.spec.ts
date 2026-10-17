@@ -7,9 +7,10 @@ import { vi } from 'vitest';
 
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Sidebar, NavItem } from './sidebar';
+import { ProviderAccessService } from '../../../core/services/provider-access.service';
 import { AuthStore } from '../../../core/store/auth.store';
 
 // Individual provider sidebar: "استكمال البيانات" stays until the setup form AND the classification test are done.
@@ -19,6 +20,7 @@ function setup(accountType: string, summary: any) {
 		providers: [
 			provideRouter([]),
 			{ provide: HttpClient, useValue: { get: () => of({ success: true, data: { summary } }) } },
+			{ provide: ProviderAccessService, useValue: { load: () => of({ state: 'APPROVED', canAccessDashboard: true }), latest: signal(null) } },
 			{ provide: AuthStore, useValue: { currentUser: signal<any>({ accountType }), token: signal('t') } },
 		],
 	});

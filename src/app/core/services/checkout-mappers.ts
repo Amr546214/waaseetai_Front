@@ -21,6 +21,7 @@ export interface BackendCartItemResponse {
 	packageName?: string;
 	addedAt: string;
 	savedForLater?: boolean;
+	ownService?: boolean;
 }
 
 export interface BackendCartResponse {
@@ -74,6 +75,7 @@ export function mapCartItem(item: BackendCartItemResponse): CartItem {
 		packageName: item.packageName,
 		addedAt: item.addedAt,
 		savedForLater: item.savedForLater,
+		...(item.ownService ? { ownService: true } : {}),
 	};
 }
 

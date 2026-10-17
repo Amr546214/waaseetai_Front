@@ -1,4 +1,6 @@
-import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { chatPreview } from '../../../../core/utils/chat-preview.util';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
+import { Component, ElementRef, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -8,6 +10,10 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
+
+import { OffersService, OfferNegotiationState } from '../../../../core/services/offers.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { focusInvalidControls } from '../../../../shared/forms/form-error-focus';
 
 export interface MessageItem {
   id: number | string;
@@ -31,6 +37,8 @@ export interface Conversation {
   id: string;
   name: string;
   project: string;
+  /** The real project this conversation belongs to (GET /chat/conversations returns it). */
+  projectId?: string;
   avatarType: 'sk' | 'pr' | 'co';
   initials: string;
   lastMsg: string;
@@ -38,6 +46,26 @@ export interface Conversation {
   unreadCount: number;
   online: boolean;
   messages: MessageItem[];
+}
+
+/**
+ * Which conversation the messages page opens on load.
+ *  1. an explicit `conversationId` that exists in the list -> that one;
+ *  2. a message context (an action like "message the client of this project"): ONLY the conversation of that very projectId — never the first one.
+ *     No such conversation (or a context without a project) -> nothing is opened and `missing` is true;
+ *  3. no context at all (plain navigation to /messages) -> the first conversation, as before.
+ */
+export function resolveInitialConversation(
+  list: { id: string; projectId?: string }[],
+  conversationIdParam: string | null | undefined,
+  ctx: { projectId?: string } | null | undefined
+): { id: string | null; missing: boolean } {
+  if (conversationIdParam && list.some((c) => c.id === conversationIdParam)) return { id: conversationIdParam, missing: false };
+  if (ctx) {
+    const match = ctx.projectId ? list.find((c) => c.projectId === ctx.projectId) : undefined;
+    return match ? { id: match.id, missing: false } : { id: null, missing: true };
+  }
+  return list.length ? { id: list[0].id, missing: false } : { id: null, missing: false };
 }
 
 @Component({
@@ -55,6 +83,9 @@ export class ProviderMessages implements OnInit, OnDestroy {
   private authStore = inject(AuthStore);
   private chatStateService = inject(ChatStateService);
   private videoCallService = inject(VideoCallService);
+  private offersService = inject(OffersService);
+  private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private sub = new Subscription();
 
   private currentUserId = 'provider_001';
@@ -65,8 +96,13 @@ export class ProviderMessages implements OnInit, OnDestroy {
   activeConvId = signal<string>('');
   showChatOnMobile = signal<boolean>(false);
   newMessageText = signal<string>('');
-  toastMessage = signal<string>('');
+  /** Inline message under the composer (empty message). Cleared as soon as the user types. */
+  composerError = signal<string | null>(null);
+  /** True right after a text message was sent: a second click / Enter on the now-empty box sends nothing and says nothing. */
+  private justSent = false;
   messageContext = signal<MessageContext | null>(null);
+  // true when the page was opened FOR a project that has no conversation yet: no other conversation is opened, a clear message is shown instead.
+  contextConversationMissing = signal<boolean>(false);
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -128,11 +164,22 @@ export class ProviderMessages implements OnInit, OnDestroy {
 
   activeConversation = computed(() => {
     const activeId = this.activeConvId();
-    return (
-      this.conversations().find((c) => c.id === activeId) ||
-      (this.conversations().length > 0 ? this.conversations()[0] : null)
-    );
+    const found = activeId ? this.conversations().find((c) => c.id === activeId) : undefined;
+    if (found) return found;
+    // opened for a project without a conversation: show the explanation, never conversation[0]
+    if (this.contextConversationMissing()) return null;
+    return this.conversations().length > 0 ? this.conversations()[0] : null;
   });
+
+  /** The pending message context, only while it belongs to the conversation on screen (never attached to another project's chat). */
+  activeContext = computed<MessageContext | null>(() => this.contextFor(this.activeConversation()));
+
+  private contextFor(conv: { projectId?: string } | null): MessageContext | null {
+    const ctx = this.messageContext();
+    if (!ctx || !conv) return null;
+    if (ctx.projectId && ctx.projectId !== conv.projectId) return null;
+    return ctx;
+  }
 
   ngOnInit(): void {
     const authUser = this.authStore.currentUser();
@@ -163,12 +210,13 @@ export class ProviderMessages implements OnInit, OnDestroy {
               
               return {
                 id: c.id,
+                projectId: c.projectId || undefined,
                 name: partnerName,
                 project: c.project?.title || c.project || 'مشروع وسيط',
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
-                lastMsg: c.lastMessage?.content || c.lastMsg || '',
-                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (c.time || ''),
+                lastMsg: chatPreview(c.lastMessage?.content || c.lastMsg || ''),
+                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() }) : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
                 online: partner.isOnline || c.online || false,
                 messages: c.messages || []
@@ -176,11 +224,18 @@ export class ProviderMessages implements OnInit, OnDestroy {
             });
 
             this.conversations.set(mappedConversations);
-            if (mappedConversations.length > 0) {
-              const activeParam = this.route.snapshot.queryParams['conversationId'];
-              const target = mappedConversations.find((c) => c.id === activeParam) ? activeParam : mappedConversations[0].id;
-              this.activeConvId.set(target);
-              this.selectConversation(target);
+            const requested = this.route.snapshot.queryParams['conversationId'];
+            if (requested && !mappedConversations.some((c) => c.id === requested)) this.redirectIfProjectConversation(requested);
+            const pick = resolveInitialConversation(mappedConversations, this.route.snapshot.queryParams['conversationId'], this.messageContext());
+            if (pick.id) {
+              this.contextConversationMissing.set(false);
+              this.activeConvId.set(pick.id);
+              this.selectConversation(pick.id);
+            } else if (pick.missing) {
+              // a project was asked for but it has no conversation: open nothing else
+              this.activeConvId.set('');
+              this.contextConversationMissing.set(true);
+              this.showChatOnMobile.set(true);
             }
           }
         },
@@ -247,11 +302,14 @@ export class ProviderMessages implements OnInit, OnDestroy {
               }
 
               const unread = targetId === this.activeConvId() ? 0 : c.unreadCount + 1;
-              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: formattedMsg.text, time: formattedMsg.time, unreadCount: unread };
+              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: chatPreview(formattedMsg.text), time: formattedMsg.time, unreadCount: unread };
             }
             return c;
           })
         );
+        if (targetId === this.activeConvId() && formattedMsg.sender === 'other' && this.isNegotiationMsg(formattedMsg)) {
+          this.loadNegotiationState(targetId, [formattedMsg]); // a new client request just arrived: ask the server what can be done now
+        }
         if (targetId === this.activeConvId()) {
           this.scrollToBottom();
           this.chatService.markAsRead(targetId, this.currentUserId);
@@ -279,12 +337,24 @@ export class ProviderMessages implements OnInit, OnDestroy {
     }
   }
 
+  // An old link to a conversation that is not in the general list may be a PROJECT room: it opens in that project's messages tab (nothing is lost, the room is the same).
+  private redirectIfProjectConversation(conversationId: string): void {
+    this.sub.add(this.chatService.getConversationContext(conversationId).subscribe({
+      next: (res) => {
+        const url = res?.data?.context === 'PROJECT' ? res.data.url : null;
+        if (url) this.router.navigateByUrl(url, { replaceUrl: true });
+      },
+      error: () => { /* the server refused (not a member) or the room does not exist: the page keeps its own not-found state */ }
+    }));
+  }
+
   selectConversation(id: string): void {
     const oldId = this.activeConvId();
     if (oldId && oldId !== id) {
       this.chatService.leaveRoom(oldId, this.currentUserId);
     }
     this.activeConvId.set(id);
+    this.contextConversationMissing.set(false);
     this.showChatOnMobile.set(true);
     this.chatStateService.activeConversationId.set(id);
     this.chatStateService.markAsRead(id);
@@ -299,6 +369,10 @@ export class ProviderMessages implements OnInit, OnDestroy {
     this.scrollToBottom();
 
     // Fetch paginated message history dynamically
+    this.fetchHistory(id);
+  }
+
+  private fetchHistory(id: string): void {
     this.sub.add(
       this.chatService.getMessages(id).subscribe({
         next: (res) => {
@@ -321,6 +395,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
               list.map((c) => (c.id === id ? { ...c, messages: loadedMsgs, unreadCount: 0 } : c))
             );
             this.scrollToBottom();
+            this.loadNegotiationState(id, loadedMsgs);
           }
         },
         error: (err) => {
@@ -340,13 +415,20 @@ export class ProviderMessages implements OnInit, OnDestroy {
 
   sendMessage(type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'FILE' = 'TEXT', customData?: any): void {
     let text = this.newMessageText().trim();
-    if (type === 'TEXT' && !text) return;
+    if (type === 'TEXT' && !text) {
+      if (this.justSent) return; // double click / double Enter after a successful send: one message only
+      const message = 'اكتب رسالتك قبل الإرسال';
+      this.composerError.set(message);
+      void focusInvalidControls(this.host.nativeElement, [{ path: 'msg-input', message }]);
+      return;
+    }
+    this.composerError.set(null);
 
     const currentConv = this.activeConversation();
     if (!currentConv) return;
 
     const now = new Date();
-    const timeString = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     // Same initials computation used for the conversation partner's name —
@@ -368,7 +450,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
       fileName: customData?.fileName,
       fileSize: customData?.fileSize,
       audioDuration: customData?.audioDuration,
-      context: this.messageContext() || null,
+      context: this.contextFor(currentConv),
       time: timeString,
       dateGroup: 'اليوم',
     };
@@ -380,7 +462,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
           ? {
               ...c,
               messages: [...c.messages, newMsg],
-              lastMsg: newMsg.text,
+              lastMsg: chatPreview(newMsg.text),
               time: timeString,
             }
           : c
@@ -397,11 +479,12 @@ export class ProviderMessages implements OnInit, OnDestroy {
       fileName: newMsg.fileName,
       fileSize: newMsg.fileSize,
       audioDuration: newMsg.audioDuration,
-      context: this.messageContext() || undefined
+      context: this.contextFor(currentConv) || undefined
     };
     this.chatService.sendMessage(this.currentUserId, payload);
 
     if (type === 'TEXT') {
+      this.justSent = true;
       this.newMessageText.set('');
       this.showEmojiPicker.set(false);
       this.messageContext.set(null);
@@ -413,7 +496,10 @@ export class ProviderMessages implements OnInit, OnDestroy {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage('TEXT');
+      return;
     }
+    this.justSent = false;
+    if (this.composerError()) this.composerError.set(null);
     this.emitTypingStatus();
   }
 
@@ -439,9 +525,9 @@ export class ProviderMessages implements OnInit, OnDestroy {
   async startVoiceRecord(): Promise<void> {
     const started = await this.chatService.startAudioRecording();
     if (started) {
-      this.showToast('🎙️ جارٍ تسجيل المقطع الصوتي...');
+      this.notify.info('جارٍ تسجيل المقطع الصوتي...');
     } else {
-      this.showToast('⚠️ تعذر الوصول للميكروفون أو البيئة لا تدعم MediaDevices');
+      this.notify.error('تعذر الوصول للميكروفون أو البيئة لا تدعم MediaDevices');
     }
   }
 
@@ -467,7 +553,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
             audioDuration: res.duration || 1,
             text: '🎤 رسالة صوتية'
           });
-          this.showToast('✅ تم إرسال الرسالة الصوتية بنجاح');
+          this.notify.success('تم إرسال الرسالة الصوتية بنجاح');
         },
         error: () => {
           this.sendMessage('AUDIO', {
@@ -475,7 +561,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
             audioDuration: res.duration || 1,
             text: '🎤 رسالة صوتية'
           });
-          this.showToast('✅ تم إرسال الرسالة الصوتية بنجاح');
+          this.notify.success('تم إرسال الرسالة الصوتية بنجاح');
         }
       });
     }
@@ -483,7 +569,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
 
   cancelVoiceRecord(): void {
     this.chatService.cancelAudioRecording();
-    this.showToast('🗑️ تم إلغاء التسجيل الصوتي');
+    this.notify.info('تم إلغاء التسجيل الصوتي');
   }
 
   // Audio Playback with Waveform
@@ -525,7 +611,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
 
       reader.onload = (e: any) => {
         const base64 = e.target.result;
-        this.showToast(`⌛ جارٍ رفع ${file.name}...`);
+        this.notify.info(`جارٍ رفع ${file.name}...`);
         
         this.chatService.uploadAttachment({
           fileData: base64,
@@ -541,7 +627,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
               fileSize: fileSizeKB,
               text: type === 'IMAGE' ? 'مرفق صورة للتوضيح' : file.name
             });
-            this.showToast(`✅ تم إرفاق وإرسال الملف بنجاح`);
+            this.notify.success(`تم إرفاق وإرسال الملف بنجاح`);
           },
           error: () => {
             this.sendMessage(type, {
@@ -550,7 +636,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
               fileSize: fileSizeKB,
               text: type === 'IMAGE' ? 'مرفق صورة للتوضيح' : file.name
             });
-            this.showToast(`✅ تم إرفاق الملف: ${file.name}`);
+            this.notify.success(`تم إرفاق الملف: ${file.name}`);
           }
         });
       };
@@ -575,9 +661,9 @@ export class ProviderMessages implements OnInit, OnDestroy {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      this.showToast(`⌛ جارٍ تنزيل ${msg.fileName}...`);
+      this.notify.info(`جارٍ تنزيل ${msg.fileName}...`);
     } else {
-      this.showToast(`📥 تم البدء بتنزيل الملف: ${msg.fileName || 'مرفق'}`);
+      this.notify.info(`تم البدء بتنزيل الملف: ${msg.fileName || 'مرفق'}`);
     }
   }
 
@@ -597,21 +683,12 @@ export class ProviderMessages implements OnInit, OnDestroy {
   startMeeting(): void {
     const convId = this.activeConvId();
     if (!convId) {
-      this.showToast('⚠️ يرجى اختيار محادثة أولاً لبدء اجتماع الفيديو');
+      this.notify.warning('يرجى اختيار محادثة أولاً لبدء اجتماع الفيديو');
       return;
     }
     const myUser = this.authStore.currentUser();
     const myName = myUser ? `${myUser.firstName} ${myUser.lastName}` : 'مستخدم وسيط';
     this.videoCallService.startCall(convId, myName, true);
-  }
-
-  showToast(msg: string): void {
-    this.toastMessage.set(msg);
-    setTimeout(() => {
-      if (this.toastMessage() === msg) {
-        this.toastMessage.set('');
-      }
-    }, 3800);
   }
 
   private scrollToBottom(): void {
@@ -625,6 +702,11 @@ export class ProviderMessages implements OnInit, OnDestroy {
 
   clearContext(): void {
     this.messageContext.set(null);
+  }
+
+  /** From the "no conversation for this project" state: go back to the list (mobile); nothing is opened for the user. */
+  showAllConversations(): void {
+    this.showChatOnMobile.set(false);
   }
 
   contextLabel(ctx: MessageContext | null): string {
@@ -669,12 +751,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
       }
     }
 
-    if (data) {
-      if ((msg as any).negStatus) {
-        data.status = (msg as any).negStatus;
-      }
-      return data;
-    }
+    if (data) return data;
 
     const lines = msg.text.split('\n');
     let typeName = 'السعر';
@@ -691,61 +768,98 @@ export class ProviderMessages implements OnInit, OnDestroy {
       negTypeName: typeName,
       price: price,
       notes: notes,
-      status: (msg as any).negStatus || 'PENDING'
+      status: 'PENDING'
     };
   }
 
   getNegStatusText(status?: string): string {
     if (status === 'ACCEPTED') return 'تم القبول ✓';
-    if (status === 'REJECTED') return 'تم الرفض ✕';
+    if (status === 'REJECTED') return 'تم الاعتذار';
+    if (status === 'COUNTER_SENT') return 'بانتظار رد العميل';
     return 'قيد الانتظار';
   }
 
-  respondNegotiation(msg: MessageItem, action: 'ACCEPTED' | 'REJECTED' | 'DISCUSS'): void {
+  // ---- negotiation: every decision below is a REAL server call; nothing is decided or "locked" locally ----
+  /** The server's view of the offer behind the active conversation (null when there is no negotiation or it could not be read). */
+  negState = signal<OfferNegotiationState | null>(null);
+  negConfirmId = signal<string>('');
+  negBusy = signal<boolean>(false);
+  negError = signal<string>('');
+
+  private loadNegotiationState(convId: string, msgs: MessageItem[]): void {
+    const conv = this.conversations().find((c) => c.id === convId);
+    const hasNegotiation = msgs.some((m) => this.isNegotiationMsg(m));
+    this.negConfirmId.set('');
+    this.negError.set('');
+    if (!conv?.projectId || !hasNegotiation) {
+      this.negState.set(null);
+      return;
+    }
+    this.sub.add(
+      this.offersService.getNegotiationByProject(conv.projectId).subscribe({
+        next: (state) => { if (this.activeConvId() === convId) this.negState.set(state); },
+        error: () => { if (this.activeConvId() === convId) this.negState.set(null); }
+      })
+    );
+  }
+
+  /** 'client' = the client's request card, 'counter' / 'reply' = the provider's own structured entries, 'other' = anything else. */
+  negKind(msg: MessageItem): 'client' | 'counter' | 'reply' | 'accepted' {
+    const data = this.getNegData(msg);
+    // the CLIENT's acceptance of my counter (written by the server's accept endpoint): a closing note, never an open request
+    if (msg.sender === 'other' && data?.kind === 'CLIENT_ACCEPT_COUNTER') return 'accepted';
+    // provider entries only count when they are MY messages (a client cannot make a card look like one of mine)
+    if (msg.sender === 'me' && data?.kind === 'PROVIDER_COUNTER') return 'counter';
+    if (msg.sender === 'me' && data?.kind === 'PROVIDER_REJECT') return 'reply';
+    return 'client';
+  }
+
+  /** The client's request that is still waiting for the provider (the server decides which one). */
+  isOpenNegotiationRequest(msg: MessageItem): boolean {
+    const request = this.negState()?.request;
+    return this.negKind(msg) === 'client' && !!request && request.messageId === String(msg.id);
+  }
+
+  discussNegotiation(msg: MessageItem): void {
     const neg = this.getNegData(msg);
     if (!neg) return;
+    this.newMessageText.set(`مرحباً، بخصوص طلب التفاوض على (${neg.negTypeName || 'السعر'})... `);
+    const textarea = document.querySelector('.itxt') as HTMLTextAreaElement;
+    if (textarea) textarea.focus();
+  }
 
-    if (action === 'DISCUSS') {
-      this.newMessageText.set(`مرحباً، بخصوص طلب التفاوض على (${neg.negTypeName || 'السعر'})... `);
-      const textarea = document.querySelector('.itxt') as HTMLTextAreaElement;
-      if (textarea) textarea.focus();
-      return;
-    }
+  askRejectNegotiation(msg: MessageItem): void {
+    this.negError.set('');
+    this.negConfirmId.set(String(msg.id));
+  }
 
-    // Check if decision has already been taken
-    if (neg.status === 'ACCEPTED' || neg.status === 'REJECTED') {
-      this.showToast('⚠️ لقد تم اتخاذ القرار بخصوص هذا التفاوض مسبقاً ولا يمكن تغييره.');
-      return;
-    }
+  cancelRejectNegotiation(): void {
+    this.negConfirmId.set('');
+  }
 
-    // Lock the decision locally and update the message payload text
-    (msg as any).negStatus = action;
-    neg.status = action;
+  confirmRejectNegotiation(msg: MessageItem): void {
+    const state = this.negState();
+    if (this.negBusy() || !state?.canReject || state.request?.messageId !== String(msg.id)) return;
+    this.negBusy.set(true);
+    this.negError.set('');
+    this.offersService.rejectNegotiation(state.offerId, String(msg.id)).subscribe({
+      next: () => {
+        this.negBusy.set(false);
+        this.negConfirmId.set('');
+        this.notify.success('تم الاعتذار عن طلب التفاوض، ويبقى عرضك بشروطه الأصلية');
+        const id = this.activeConvId();
+        if (id) this.fetchHistory(id); // shows the reply entry and refreshes the state
+      },
+      error: (err) => {
+        this.negBusy.set(false);
+        this.negError.set(err?.error?.message || 'تعذر تنفيذ الإجراء. حاول مرة أخرى.');
+      }
+    });
+  }
 
-    if (msg.text.startsWith('WS_NEGOTIATION::')) {
-      try {
-        const parsed = JSON.parse(msg.text.replace('WS_NEGOTIATION::', ''));
-        parsed.status = action;
-        msg.text = 'WS_NEGOTIATION::' + JSON.stringify(parsed);
-      } catch (e) {}
-    } else if (msg.text.includes('"isNegotiation":true')) {
-      try {
-        const parsed = JSON.parse(msg.text);
-        parsed.status = action;
-        msg.text = JSON.stringify(parsed);
-      } catch (e) {}
-    }
-
-    if (action === 'ACCEPTED') {
-      const text = `✅ **تم قبول طلب التفاوض**\nيُسعدني قبول عرض التفاوض الخاص بك (${neg?.price ? neg.price + ' دولار' : ''}). تم اعتماد الشروط للبدء في تنفيذ المشروع.`;
-      this.newMessageText.set(text);
-      this.sendMessage('TEXT');
-      this.showToast('✅ تم قبول طلب التفاوض بنجاح وتثبيت القرار');
-    } else if (action === 'REJECTED') {
-      const text = `❌ **اعتذار عن طلب التفاوض**\nشكراً لتواصلك، لكن يتعذر عليّ التنازل عن السعر أو المدة المحددة مسبقاً لضمان أفضل جودة للتنفيذ.`;
-      this.newMessageText.set(text);
-      this.sendMessage('TEXT');
-      this.showToast('ℹ️ تم إرسال رد الاعتذار وتثبيت القرار');
-    }
+  /** The counter-offer form lives on the negotiation page of the offer. */
+  openOfferNegotiation(): void {
+    const state = this.negState();
+    if (state) this.router.navigate(['/provider-overview/offers', state.offerId, 'negotiate']);
   }
 }

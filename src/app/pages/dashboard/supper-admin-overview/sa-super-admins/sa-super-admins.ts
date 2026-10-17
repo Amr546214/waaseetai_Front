@@ -1,26 +1,17 @@
-import { Component, computed, signal, WritableSignal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
+import { AdminAuditEntry, AdminConsoleApiService, AdminRosterItem } from '../../../../core/services/admin-console-api.service';
+import { AUDIT_SEVERITY_LABELS } from '../sa-audit-trail/sa-audit-trail';
 
-type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'integrations' | 'audit' | 'danger';
+type SpaSection = 'admins' | 'general' | 'fees' | 'security' | 'notifications' | 'integrations' | 'audit' | 'danger';
 
 interface SpaToggle {
   key: string;
   label: string;
   desc?: string;
   on: boolean;
-}
-
-interface SpaAuditRow {
-  n: number;
-  action: string;
-  detail: string;
-  by: string;
-  role: string;
-  ip: string;
-  date: string;
-  sev: 'info' | 'med' | 'high' | 'danger';
 }
 
 interface DangerAction {
@@ -37,8 +28,13 @@ interface DangerAction {
   templateUrl: './sa-super-admins.html',
   styleUrl: './sa-super-admins.css',
 })
-export class SaSuperAdmins {
+export class SaSuperAdmins implements OnInit {
+  auditTypeOptions = computed(() => [{ value: '', label: 'كل الأحداث' }, ...this.auditEventTypes().map((t) => ({ value: t, label: t }))]);
+
+  private readonly api = inject(AdminConsoleApiService);
+
   readonly navItems: { key: SpaSection; label: string; danger?: boolean }[] = [
+    { key: 'admins', label: 'الحسابات الإدارية' },
     { key: 'general', label: 'عام' },
     { key: 'fees', label: 'الرسوم والمالية' },
     { key: 'security', label: 'الأمان' },
@@ -48,40 +44,48 @@ export class SaSuperAdmins {
     { key: 'danger', label: 'المنطقة الحمراء', danger: true },
   ];
 
-  readonly activeSection = signal<SpaSection>('general');
+  readonly activeSection = signal<SpaSection>('admins');
+
+  /** None of the platform settings below has a backend store yet, so every control is shown read-only (never a fake "saved"). */
+  readonly settingsBlockedReason = 'غير متاح حاليًا: لا يوجد تخزين لهذا الإعداد في الخادم، لذلك لا يمكن تغييره أو حفظه من هذه الصفحة';
+  readonly adminActionBlockedReason = 'غير متاح حاليًا: لا يوجد في الخادم إجراء لترقية أو خفض الحسابات الإدارية';
+  readonly twoFaBlockedReason = 'غير متاح: لا يوجد دعم للمصادقة الثنائية (2FA) في الخادم حاليًا';
+
+  readonly admins = signal<AdminRosterItem[]>([]);
+  readonly adminsFailed = signal(false);
 
   readonly registrationToggles = signal<SpaToggle[]>([
-    { key: 'openReg', label: 'فتح التسجيل للعامة', desc: 'السماح بتسجيل حسابات جديدة', on: true },
-    { key: 'emailReg', label: 'التسجيل بالبريد الإلكتروني', desc: 'إنشاء حساب بالبريد', on: true },
-    { key: 'otpReq', label: 'التحقق بالجوال إلزامي', desc: 'OTP عند التسجيل', on: true },
-    { key: 'kyc', label: 'التحقق من الهوية الوطنية', desc: 'KYC إلزامي قبل قبول العروض', on: true },
+    { key: 'openReg', label: 'فتح التسجيل للعامة', desc: 'السماح بتسجيل حسابات جديدة', on: false },
+    { key: 'emailReg', label: 'التسجيل بالبريد الإلكتروني', desc: 'إنشاء حساب بالبريد', on: false },
+    { key: 'otpReq', label: 'التحقق بالجوال إلزامي', desc: 'OTP عند التسجيل', on: false },
+    { key: 'kyc', label: 'التحقق من الهوية الوطنية', desc: 'KYC إلزامي قبل قبول العروض', on: false },
     { key: 'maintenance', label: 'وضع الصيانة', desc: 'تعطيل النظام مؤقتاً للصيانة', on: false },
   ]);
 
   readonly contentToggles = signal<SpaToggle[]>([
     { key: 'reviewProjects', label: 'مراجعة المشاريع قبل النشر', desc: 'يراجعها مشرف قبل الظهور', on: false },
-    { key: 'reviewProfiles', label: 'مراجعة الملفات الشخصية', desc: 'اعتماد مقدمي الخدمة يدوياً', on: true },
-    { key: 'wordFilter', label: 'فلتر الكلمات المسيئة', desc: 'فلترة تلقائية للكلمات المحظورة في الرسائل والمحتوى', on: true },
+    { key: 'reviewProfiles', label: 'مراجعة الملفات الشخصية', desc: 'اعتماد مقدمي الخدمة يدوياً', on: false },
+    { key: 'wordFilter', label: 'فلتر الكلمات المسيئة', desc: 'فلترة تلقائية للكلمات المحظورة في الرسائل والمحتوى', on: false },
   ]);
 
-  readonly securitySession = signal(60);
-  readonly securityAttempts = signal(5);
+  readonly securitySession = signal<number | null>(null);
+  readonly securityAttempts = signal<number | null>(null);
   readonly securityMinPassword = signal(8);
   readonly securityToggles = signal<SpaToggle[]>([
-    { key: '2fa', label: 'مصادقة ثنائية (2FA) إلزامية للإدارة', desc: 'Super Admin & Admins', on: true },
-    { key: 'anomalyLock', label: 'قفل الحساب تلقائياً عند تكرار المحاولات الفاشلة', desc: 'وفق قواعد أمنية ثابتة', on: true },
+    { key: '2fa', label: 'مصادقة ثنائية (2FA) إلزامية للإدارة', desc: 'Super Admin & Admins', on: false },
+    { key: 'anomalyLock', label: 'قفل الحساب تلقائياً عند تكرار المحاولات الفاشلة', desc: 'وفق قواعد أمنية ثابتة', on: false },
   ]);
 
   readonly notifChannels = signal<SpaToggle[]>([
-    { key: 'inApp', label: 'إشعارات داخل النظام', on: true },
-    { key: 'email', label: 'إشعارات البريد الإلكتروني', on: true },
-    { key: 'sms', label: 'إشعارات SMS', on: true },
+    { key: 'inApp', label: 'إشعارات داخل النظام', on: false },
+    { key: 'email', label: 'إشعارات البريد الإلكتروني', on: false },
+    { key: 'sms', label: 'إشعارات SMS', on: false },
     { key: 'whatsapp', label: 'إشعارات WhatsApp Business', on: false },
-    { key: 'push', label: 'إشعارات Push (التطبيق)', on: true },
+    { key: 'push', label: 'إشعارات Push (التطبيق)', on: false },
   ]);
-  readonly smtpHost = signal('smtp.sendgrid.net');
-  readonly smtpPort = signal(587);
-  readonly smtpFrom = signal('noreply@waseet.ai');
+  readonly smtpHost = signal('');
+  readonly smtpPort = signal<number | null>(null);
+  readonly smtpFrom = signal('');
 
 
   readonly apiKeysMasked = [
@@ -89,81 +93,51 @@ export class SaSuperAdmins {
     { label: 'SMS Gateway (Twilio)', desc: 'مفتاح خدمة الرسائل' },
     { label: 'Payment Gateway (HyperPay)', desc: 'مفتاح بوابة الدفع' },
   ];
-  readonly auditRows: SpaAuditRow[] = [
-    { n: 4812, action: 'تغيير إعداد', detail: 'تحديث إعدادات المنصة', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'اليوم 3:12 م', sev: 'high' },
-    { n: 4811, action: 'تسجيل دخول', detail: 'دخول ناجح من الرياض', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'اليوم 2:40 م', sev: 'info' },
-    { n: 4810, action: 'تعليق حساب', detail: 'حساب U-1024 معلّق', by: 'هيثم القرني', role: 'مشرف نزاعات', ip: '10.0.0.42', date: 'اليوم 1:15 م', sev: 'med' },
-    { n: 4809, action: 'حذف تعليق', detail: 'حذف تعليق محتوى مسيء', by: 'هيثم القرني', role: 'مشرف نزاعات', ip: '10.0.0.42', date: 'اليوم 12:02 م', sev: 'med' },
-    { n: 4808, action: 'تغيير إعداد', detail: 'تفعيل فلتر الكلمات المسيئة', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'أمس 11:44 م', sev: 'high' },
-    { n: 4807, action: 'تغيير صلاحية', detail: 'منح صلاحية مشرف لنوف السهلي', by: 'مدير النظام', role: 'Super Admin', ip: '192.168.1.1', date: 'أمس 10:00 م', sev: 'high' },
-    { n: 4805, action: 'تسجيل دخول فاشل', detail: '5 محاولات فاشلة — حساب مؤقت', by: 'غير معروف', role: '—', ip: '41.22.x.x', date: 'أمس 2:11 ص', sev: 'danger' },
-  ];
-
-  readonly sevConfig: Record<SpaAuditRow['sev'], { bg: string; color: string; lbl: string }> = {
-    info: { bg: 'rgba(43,212,199,.10)', color: '#2BD4C7', lbl: 'معلومة' },
-    med: { bg: 'rgba(255,180,0,.10)', color: '#D98A0B', lbl: 'متوسط' },
-    high: { bg: 'rgba(255,140,105,.10)', color: '#FF8C69', lbl: 'عالي' },
-    danger: { bg: 'rgba(255,80,80,.12)', color: '#FF5050', lbl: 'خطر' },
-  };
-
-  // Audit Trail filters + pagination — genuine client-side filtering/paging
-  // over the mock auditRows array above (no backend audit-log API exists
-  // yet; see BACKEND_BLOCKED_ISSUES.md). This mirrors the filter-row +
-  // pagination footer specified in design-reference P-AD-021 (Super Admin
-  // → Audit Trail tab), which the implementation previously lacked entirely.
+  // Audit Trail tab: real AccountAuditLog rows from the server (filters + pagination run server-side).
   readonly auditSearch = signal('');
-  readonly auditTypeFilter = signal('الكل');
-  readonly auditActorFilter = signal('الكل');
+  readonly auditTypeFilter = signal('');
   readonly auditPage = signal(1);
-  readonly auditPageSize = 5;
-
-  readonly auditActionTypes = computed(() => ['الكل', ...Array.from(new Set(this.auditRows.map((r) => r.action)))]);
-  readonly auditActors = computed(() => ['الكل', ...Array.from(new Set(this.auditRows.map((r) => r.by)))]);
-
-  readonly filteredAuditRows = computed(() => {
-    const type = this.auditTypeFilter();
-    const actor = this.auditActorFilter();
-    const query = this.auditSearch().trim().toLowerCase();
-    return this.auditRows.filter((r) => {
-      const matchesType = type === 'الكل' || r.action === type;
-      const matchesActor = actor === 'الكل' || r.by === actor;
-      const matchesQuery =
-        !query ||
-        r.action.toLowerCase().includes(query) ||
-        r.detail.toLowerCase().includes(query) ||
-        r.by.toLowerCase().includes(query);
-      return matchesType && matchesActor && matchesQuery;
-    });
-  });
-
-  readonly totalAuditPages = computed(() => Math.max(1, Math.ceil(this.filteredAuditRows().length / this.auditPageSize)));
-
-  readonly pagedAuditRows = computed(() => {
-    const page = Math.min(this.auditPage(), this.totalAuditPages());
-    const start = (page - 1) * this.auditPageSize;
-    return this.filteredAuditRows().slice(start, start + this.auditPageSize);
-  });
-
+  readonly auditRows = signal<AdminAuditEntry[]>([]);
+  readonly auditTotal = signal(0);
+  readonly totalAuditPages = signal(1);
+  readonly auditEventTypes = signal<string[]>([]);
+  readonly auditLoading = signal(false);
+  readonly auditFailed = signal(false);
+  readonly sevLabels = AUDIT_SEVERITY_LABELS;
   readonly auditPageNumbers = computed(() => Array.from({ length: this.totalAuditPages() }, (_, i) => i + 1));
-
   readonly auditRangeLabel = computed(() => {
-    const total = this.filteredAuditRows().length;
+    const total = this.auditTotal();
     if (!total) return 'لا توجد نتائج';
-    const page = Math.min(this.auditPage(), this.totalAuditPages());
-    const start = (page - 1) * this.auditPageSize + 1;
-    const end = Math.min(page * this.auditPageSize, total);
-    return `عرض ${start}–${end} من ${total}`;
+    const start = (this.auditPage() - 1) * 20 + 1;
+    return `عرض ${start}–${Math.min(this.auditPage() * 20, total)} من ${total}`;
   });
+
+  ngOnInit(): void {
+    this.api.getAdmins().subscribe({ next: (r) => this.admins.set(r.data ?? []), error: () => this.adminsFailed.set(true) });
+    this.loadAudit();
+  }
+
+  loadAudit(): void {
+    this.auditLoading.set(true);
+    this.auditFailed.set(false);
+    this.api.getAuditLog({ page: this.auditPage(), limit: 20, q: this.auditSearch().trim(), eventType: this.auditTypeFilter(), scope: 'admin' }).subscribe({
+      next: (r) => {
+        this.auditRows.set(r.data.items);
+        this.auditTotal.set(r.data.pagination.total);
+        this.totalAuditPages.set(r.data.pagination.pages);
+        this.auditEventTypes.set(r.data.eventTypes);
+        this.auditLoading.set(false);
+      },
+      error: () => { this.auditRows.set([]); this.auditTotal.set(0); this.auditFailed.set(true); this.auditLoading.set(false); },
+    });
+  }
 
   readonly dangerActions: DangerAction[] = [
     { key: 'maintenance', label: 'تفعيل وضع الصيانة الكامل', desc: 'يعطل النظام لجميع المستخدمين', buttonLabel: 'تفعيل' },
     { key: 'wipeTest', label: 'مسح قاعدة بيانات الاختبار', desc: 'حذف بيانات بيئة التطوير', buttonLabel: 'تنفيذ' },
-    { key: 'broadcast', label: 'إرسال إشعار لجميع المستخدمين', desc: 'نشرة إعلانية لـ 12,480 مستخدم', buttonLabel: 'إرسال' },
+    { key: 'broadcast', label: 'إرسال إشعار لجميع المستخدمين', desc: 'نشرة إعلانية لجميع المستخدمين', buttonLabel: 'إرسال' },
     { key: 'backup', label: 'تصدير نسخة احتياطية كاملة', desc: 'DB Snapshot — مشفّرة', buttonLabel: 'تصدير' },
   ];
-
-  readonly toastMessage = signal('');
-  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Batch: none of the 4 danger-zone actions (maintenance mode, test-DB wipe,
   // all-user broadcast, full DB backup export) has a backend endpoint —
@@ -184,55 +158,23 @@ export class SaSuperAdmins {
     list.update((rows) => rows.map((r) => (r.key === key ? { ...r, on: !r.on } : r)));
   }
 
-  save() {
-    this.showToast('تم حفظ التغييرات');
-  }
+  setAuditSearch(value: string) { this.auditSearch.set(value); this.auditPage.set(1); this.loadAudit(); }
+  setAuditType(value: string) { this.auditTypeFilter.set(value); this.auditPage.set(1); this.loadAudit(); }
+  prevAuditPage() { if (this.auditPage() > 1) { this.auditPage.update((p) => p - 1); this.loadAudit(); } }
+  nextAuditPage() { if (this.auditPage() < this.totalAuditPages()) { this.auditPage.update((p) => p + 1); this.loadAudit(); } }
+  goAuditPage(p: number) { this.auditPage.set(p); this.loadAudit(); }
 
-  setAuditSearch(value: string) {
-    this.auditSearch.set(value);
-    this.auditPage.set(1);
-  }
-
-  setAuditType(value: string) {
-    this.auditTypeFilter.set(value);
-    this.auditPage.set(1);
-  }
-
-  setAuditActor(value: string) {
-    this.auditActorFilter.set(value);
-    this.auditPage.set(1);
-  }
-
-  prevAuditPage() {
-    if (this.auditPage() > 1) this.auditPage.update((p) => p - 1);
-  }
-
-  nextAuditPage() {
-    if (this.auditPage() < this.totalAuditPages()) this.auditPage.update((p) => p + 1);
-  }
-
-  goAuditPage(p: number) {
-    this.auditPage.set(p);
-  }
-
+  /** Exports the rows currently on screen (the filtered page). */
   exportAuditCsv() {
-    const rows = ['#,الإجراء,التفاصيل,المنفذ,الدور,IP,التاريخ,الخطورة'];
-    this.filteredAuditRows().forEach((r) =>
-      rows.push(`${r.n},"${r.action}","${r.detail}",${r.by},${r.role},${r.ip},${r.date},${this.sevConfig[r.sev].lbl}`),
-    );
-    const csv = '﻿' + rows.join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const esc = (v: string | null | undefined) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const rows = ['الحدث,العنوان,التفاصيل,الحساب,IP,التاريخ,المستوى'];
+    this.auditRows().forEach((r) => rows.push([esc(r.eventType), esc(r.title), esc(r.summary), esc(r.account.name || r.actorLabel), esc(r.ipAddress), esc(r.occurredAt), esc(this.sevLabels[r.severity] ?? r.severity)].join(',')));
+    const blob = new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `audit-trail-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }
-
-  private showToast(msg: string) {
-    this.toastMessage.set(msg);
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.toastMessage.set(''), 2200);
   }
 }

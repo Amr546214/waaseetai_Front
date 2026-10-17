@@ -12,8 +12,9 @@ import { VerifyOtp } from './verify-otp/verify-otp';
 import { RestPassword } from './rest-password/rest-password';
 import { AuthStore } from '../../core/store/auth.store';
 import { OtpHandoffService } from '../../core/services/otp-handoff.service';
+import { WaitTimerService, waitScope } from '../../core/wait/wait-timer.service';
 import { mapHttpError } from '../../core/forms/http-error';
-import { registerNotice, resendNotice, unverifiedLoginNotice } from '../../core/forms/otp-delivery';
+import { resendNotice, unverifiedLoginNotice, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE, RESEND_SENT_MESSAGE } from '../../core/forms/otp-delivery';
 
 @Component({ selector: 'app-test-blank', template: '' })
 class BlankTestComponent {}
@@ -21,7 +22,6 @@ class BlankTestComponent {}
 const SMS_503 = 'التحقق عبر الرسائل النصية غير متاح حاليًا، يرجى التواصل مع الدعم لإكمال تسجيل الدخول';
 const SENT = 'تم إرسال رمز التحقق إلى بريدك';
 const FAILED = 'تعذر إرسال رمز التحقق، حاول مرة أخرى بعد قليل أو تواصل مع الدعم';
-const REGISTER_FAILED = 'تم إنشاء الحساب، لكن تعذر إرسال رمز التحقق. حاول إعادة الإرسال بعد قليل.';
 const rateLimited = (seconds: number, headers = true) => throwError(() => ({
 	status: 429,
 	headers: headers ? new HttpHeaders({ 'Retry-After': String(seconds) }) : new HttpHeaders(),
@@ -48,13 +48,16 @@ function providers(postSpy: (...a: any[]) => any, pending: string | null = null)
 	};
 }
 
-describe('OTP delivery: pure notices and error mapping', () => {
-	it('register: "sent" only when emailSent is exactly true', () => {
-		expect(registerNotice({ data: { verified: false, emailSent: true } })).toEqual({ sent: true, message: SENT });
-		expect(registerNotice({ data: { verified: false, emailSent: false } })).toEqual({ sent: false, message: REGISTER_FAILED });
-		expect(registerNotice({ data: { verified: false } }).sent).toBe(false); // no claim without the flag
+describe('OTP delivery: generic wording (no account-existence disclosure)', () => {
+	it('register and resend never promise a code for an account: conditional wording, no "already registered"', () => {
+		expect(REGISTER_CODE_STEP_MESSAGE).toContain('إن كان بريدك بحاجة إلى تفعيل');
+		expect(REGISTER_RESEND_MESSAGE).toContain('إن كان هناك حساب بانتظار التفعيل');
+		expect(RESEND_SENT_MESSAGE).toContain('إذا كان الحساب بانتظار التفعيل');
+		for (const m of [REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE, RESEND_SENT_MESSAGE]) expect(m).not.toMatch(/مسجل بالفعل|موجود بالفعل|لا يوجد حساب|تم إنشاء/);
 	});
+});
 
+describe('OTP delivery: pure notices and error mapping', () => {
 	it('unverified login: sent / not sent / throttled / neutral', () => {
 		expect(unverifiedLoginNotice({ verified: false, emailSent: true }).sent).toBe(true);
 		expect(unverifiedLoginNotice({ verified: false, emailSent: true }).message).toContain(SENT);
@@ -67,6 +70,7 @@ describe('OTP delivery: pure notices and error mapping', () => {
 
 	it('resend: success+emailSent is sent; success:false / emailSent:false is a failure', () => {
 		expect(resendNotice({ success: true, emailSent: true, data: { verified: false, emailSent: true } }).sent).toBe(true);
+		expect(resendNotice({ success: true, emailSent: true, data: { verified: false, emailSent: true } }).message).toBe(RESEND_SENT_MESSAGE);
 		expect(resendNotice({ success: false, emailSent: false, data: { verified: false, emailSent: false } })).toEqual({ sent: false, message: FAILED });
 		expect(resendNotice({ success: true, data: { verified: false } }).sent).toBe(false);
 	});
@@ -86,55 +90,110 @@ describe('OTP delivery: pure notices and error mapping', () => {
 	});
 });
 
-describe('Register: honest delivery status', () => {
-	const run = (emailSent: boolean | undefined) => {
-		const post = vi.fn(() => of({ success: true, message: 'x', data: { userId: 'u1', verified: false, ...(emailSent === undefined ? {} : { emailSent }) } }));
+describe('Register: uniform answer, e-mail keyed code step', () => {
+	// `extra` = top-level fields of the answer (the server adds resendAvailableAt to register and resend answers alike)
+	const run = (data: any, extra: any = {}) => {
+		const post = vi.fn((url: string, ...rest: any[]) => /\/auth\/register$/.test(String(url)) ? of({ success: true, message: 'x', data, ...extra }) : of({ success: true, data: {}, ...extra }));
 		const { list } = providers(post);
 		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
 		TestBed.configureTestingModule({ imports: [Register], providers: list });
 		const fixture = TestBed.createComponent(Register);
 		fixture.detectChanges();
 		const c: any = fixture.componentInstance;
+		c.basicInfoForm.patchValue({ email: ' Sara@Example.com ' });
 		c.submitRegistration();
 		fixture.detectChanges();
-		return { c, el: fixture.nativeElement as HTMLElement };
+		return { c, el: fixture.nativeElement as HTMLElement, post };
 	};
 	afterEach(() => { vi.unstubAllGlobals(); TestBed.resetTestingModule(); });
 
-	it('emailSent=true: says it was sent and starts the countdown', () => {
-		const { c, el } = run(true);
+	it('the answer carries no id and no flags: the code step opens with the neutral notice, never claims "sent", keyed by the typed e-mail', () => {
+		const { c, el } = run({}, { resendAvailableAt: new Date(Date.now() + 60_000).toISOString() });
 		expect(c.currentStep).toBe(3);
-		expect(c.otpNotice).toBe(SENT);
-		expect(c.countdown).toBe(90);
-		expect(el.querySelector('#otp-notice')!.textContent).toContain(SENT);
-		clearInterval(c.countdownTimer);
+		expect(c.registeredEmail).toBe('sara@example.com');
+		expect(c.otpNotice).toBe(REGISTER_CODE_STEP_MESSAGE);
+		expect(el.textContent).not.toContain(SENT);
+		// the resend wait is the SERVER's resendAvailableAt (same for every address); no validity timer (register returns no expiresAt)
+		expect(c.countdown).toBeGreaterThan(55);
+		expect(el.querySelector('#validity-block')).toBeNull();
 	});
 
-	it('emailSent=false: still moves to the verify step, never says sent, no countdown, resend stays enabled', () => {
-		const { c, el } = run(false);
-		expect(c.currentStep).toBe(3);
-		expect(c.errorMessage).toBe(REGISTER_FAILED);
-		expect(el.querySelector('#otp-notice')).toBeNull();
-		expect(el.textContent).not.toContain(SENT);
+	it('the server sent no time: no resend wait is invented and the button stays available', () => {
+		const { c, el } = run({});
 		expect(c.countdown).toBe(0);
-		expect(c.countdownTimer).toBeNull();
 		expect((el.querySelector('#btn-resend') as HTMLButtonElement).disabled).toBe(false);
 	});
 
-	it('a resend that fails does not start the countdown; a 429 locks for the Retry-After wait and shows it', () => {
-		const { c } = run(false);
-		const store = TestBed.inject(AuthStore) as any;
-		store.pendingUserId.set('u1');
-		const spy = vi.spyOn(TestBed.inject(HttpClient), 'post' as any);
-		spy.mockReturnValueOnce(of({ success: false, emailSent: false, message: 'x', data: { verified: false, emailSent: false } }) as any);
+	it('page behaviour is identical whatever the answer data holds (nothing in it is read)', () => {
+		const a = run({}); const stateA = [a.c.currentStep, a.c.otpNotice, a.c.errorMessage, a.c.registeredEmail]; TestBed.resetTestingModule();
+		const b = run({ userId: 'u1', emailSent: false, accountCreated: false }); const stateB = [b.c.currentStep, b.c.otpNotice, b.c.errorMessage, b.c.registeredEmail];
+		expect(stateB).toEqual(stateA);
+	});
+
+	it('the code is verified BY E-MAIL (POST /auth/verify-otp {email, code}), not by an id', () => {
+		const { c, post } = run({});
+		for (let i = 0; i < 6; i++) c.verificationForm.get(`code${i + 1}`).setValue(String(i + 1));
+		c.onVerificationSubmit();
+		const call = post.mock.calls.find(x => /\/verify-otp$/.test(String(x[0])))!;
+		expect(call[1]).toEqual({ email: 'sara@example.com', code: '123456' });
+	});
+
+	it('resend is by e-mail, generic, and its wait comes from the server answer; a 429 locks until the Retry-After end', () => {
+		const { c, post } = run({}, { resendAvailableAt: new Date(Date.now() + 60_000).toISOString() });
+		c.resendWait().clear();
 		c.resendOtp();
-		expect(c.errorMessage).toBe(FAILED);
-		expect(c.countdown).toBe(0);
-		spy.mockReturnValueOnce(rateLimited(75) as any);
+		const call = post.mock.calls.find(x => /\/resend-otp$/.test(String(x[0])))!;
+		expect(call[1]).toEqual({ email: 'sara@example.com' });
+		expect(c.otpNotice).toBe(REGISTER_RESEND_MESSAGE);
+		expect(c.countdown).toBeGreaterThan(55);
+		c.resendWait().clear();
+		post.mockReturnValueOnce(rateLimited(75) as any);
 		c.resendOtp();
 		expect(c.countdown).toBe(75);
-		expect(c.errorMessage).toContain('75');
-		clearInterval(c.countdownTimer);
+		expect(c.rateLimitText).toContain('بعد 1:15');
+		expect(c.errorMessage).toBe('');
+		c.resendOtp(); // locked: no further request
+		expect(post.mock.calls.filter(x => /\/resend-otp$/.test(String(x[0]))).length).toBe(2);
+	});
+
+	it('a wrong code starts no UI wait; the attempts lock shows its message and no timer; a 429 with a wait disables only confirm', () => {
+		const { c, post } = run({});
+		for (let i = 0; i < 6; i++) c.verificationForm.get(`code${i + 1}`).setValue(String(i + 1));
+		post.mockReturnValueOnce(throwError(() => ({ status: 400, error: { message: 'رمز التحقق غير صحيح' } })) as any);
+		c.onVerificationSubmit();
+		expect(c.errorMessage).toBe('رمز التحقق غير صحيح'); expect(c.verifyWait().active()).toBe(false);
+		post.mockReturnValueOnce(throwError(() => ({ status: 429, error: { code: 'OTP_ATTEMPTS_LOCKED', message: 'تم تجاوز عدد المحاولات المسموح به، يرجى طلب رمز جديد' } })) as any);
+		c.onVerificationSubmit();
+		expect(c.errorMessage).toContain('طلب رمز جديد'); expect(c.verifyWait().active()).toBe(false); expect(c.rateLimitText).toBe('');
+		post.mockReturnValueOnce(rateLimited(30) as any);
+		c.onVerificationSubmit();
+		expect(c.verifyWait().active()).toBe(true); expect(c.rateLimitText).toContain('بعد 0:30'); expect(c.resendWait().active()).toBe(false);
+		const n = post.mock.calls.length; c.onVerificationSubmit(); expect(post.mock.calls.length).toBe(n);
+	});
+
+	it('Back keeps the data and Continue (unchanged) returns to the code step without a second POST /register; an edited form waits for the server\'s send wait, then is free again', () => {
+		const { c, post } = run({}, { resendAvailableAt: new Date(Date.now() + 60_000).toISOString() });
+		const registers = () => post.mock.calls.filter(x => /\/auth\/register$/.test(String(x[0]))).length;
+		expect(registers()).toBe(1);
+		c.prevStep(); expect(c.currentStep).toBe(2);
+		c.nextStep(); expect(c.currentStep).toBe(3); expect(registers()).toBe(1);
+		// edited data = a new request, but the e-mail's send wait is still running: nothing is sent, the remaining time is said
+		c.prevStep(); c.basicInfoForm.patchValue({ lastName: 'Another' });
+		c.nextStep();
+		expect(registers()).toBe(1);
+		expect(c.rateLimitText).toMatch(/بعد 0:5\d|بعد 1:00/);
+		expect(c.currentStep).toBe(2);
+		// at zero the user may try again; the server still decides
+		c.registerWait().clear();
+		expect(c.registerWait().active()).toBe(false);
+		expect(c.rateLimitText).toBe('');
+	});
+
+	it('the code step shows login / password-recovery links for whoever received no code', () => {
+		const { el } = run({});
+		const help = el.querySelector('[data-testid="code-step-help"]')!;
+		expect(help.querySelector('#code-step-login-link')!.getAttribute('href')).toContain('/auth/login');
+		expect(help.querySelector('#code-step-forgot-link')!.getAttribute('href')).toContain('/auth/forget-password');
 	});
 });
 
@@ -191,19 +250,11 @@ describe('Register: first registration, double submit and failed attempts', () =
 		const { c } = mount(reply429);
 		c.currentStep = 2; c.submitRegistration();
 		expect(c.currentStep).toBe(2);
-		expect(c.errorMessage).toContain('45');
+		// the wait is the server's (Retry-After 45): a ticking sentence for this e-mail, not the static server text; no second error banner
+		expect(c.rateLimitText).toContain('بعد 0:45');
+		expect(c.errorMessage).toBe('');
+		expect(c.registerWait().active()).toBe(true);
 		expect(c.otpNotice).toBe('');
-	});
-
-	it('the cooldown timer starts only after a send the backend confirmed (emailSent === true)', () => {
-		const sent = mount(() => of({ success: true, data: { userId: 'u1', verified: false, emailSent: true } }));
-		sent.c.submitRegistration();
-		expect(sent.c.countdown).toBeGreaterThan(0);
-		clearInterval(sent.c.countdownTimer);
-		TestBed.resetTestingModule();
-		const notSent = mount(() => of({ success: true, data: { userId: 'u1', verified: false, emailSent: false } }));
-		notSent.c.submitRegistration();
-		expect(notSent.c.countdown).toBe(0);
 	});
 });
 
@@ -263,11 +314,22 @@ describe('Verify page: countdown only after a real send', () => {
 	};
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('hand-off "sent": success banner and countdown', () => {
+	it('hand-off "sent": success banner; the resend wait is the end the login page stored from the server answer (no page-local seconds)', () => {
+		const { list } = providers(vi.fn(), 'u1');
+		TestBed.configureTestingModule({ imports: [VerifyOtp], providers: list });
+		TestBed.inject(WaitTimerService).setEnd(waitScope('otp-resend', 'u1'), Date.now() + 45_000);
+		TestBed.inject(OtpHandoffService).set({ sent: true, message: SENT });
+		const f = TestBed.createComponent(VerifyOtp); f.detectChanges();
+		const c: any = f.componentInstance;
+		expect(c.successMsg).toBe(SENT);
+		expect(c.countdown).toBe(45);
+		expect((f.nativeElement.querySelector('#btn-resend') as HTMLButtonElement).disabled).toBe(true);
+	});
+
+	it('hand-off "sent" but the server gave no time: success banner and NO invented countdown', () => {
 		const { c } = make({ sent: true, message: SENT });
 		expect(c.successMsg).toBe(SENT);
-		expect(c.countdown).toBe(60);
-		(c as any).clearTimer();
+		expect(c.countdown).toBe(0);
 	});
 
 	it('hand-off "not sent / throttled": message shown as a warning, NO countdown, resend enabled', () => {
@@ -284,13 +346,22 @@ describe('Verify page: countdown only after a real send', () => {
 		expect(c.countdown).toBe(0);
 	});
 
-	it('resend success starts the countdown', () => {
+	it('resend success: the wait is the answer\'s resendAvailableAt and the validity is its expiresAt (two separate timers)', () => {
+		const post = vi.fn(() => of({ success: true, emailSent: true, message: 'x', resendAvailableAt: new Date(Date.now() + 60_000).toISOString(), expiresAt: new Date(Date.now() + 600_000).toISOString(), data: { emailSent: true } }));
+		const { c, el, fixture } = make(null, post);
+		c.resendOtp(); fixture.detectChanges();
+		expect(c.successMsg).toBe(RESEND_SENT_MESSAGE);
+		expect(c.countdown).toBeGreaterThan(55);
+		expect(el.querySelector('#validity-val')!.textContent).toMatch(/^(9|10):/);
+		expect(el.querySelector('#timer-val')!.textContent).toMatch(/^0?\d?:?/);
+	});
+
+	it('resend success without any time from the server: no countdown, no validity timer', () => {
 		const post = vi.fn(() => of({ success: true, emailSent: true, message: 'x', data: { emailSent: true } }));
-		const { c } = make(null, post);
-		c.resendOtp();
-		expect(c.successMsg).toBe(SENT);
-		expect(c.countdown).toBe(60);
-		(c as any).clearTimer();
+		const { c, el, fixture } = make(null, post);
+		c.resendOtp(); fixture.detectChanges();
+		expect(c.countdown).toBe(0);
+		expect(el.querySelector('#validity-block')).toBeNull();
 	});
 
 	it('resend failure (success:false / emailSent:false) shows the failure, starts no countdown and does not lock the button', () => {
@@ -304,13 +375,32 @@ describe('Verify page: countdown only after a real send', () => {
 		expect((el.querySelector('#btn-resend') as HTMLButtonElement).disabled).toBe(false);
 	});
 
-	it('resend 429 locks for Retry-After and shows the wait', () => {
+	it('resend 429 locks for Retry-After and shows the wait as the one 429 sentence (not combined with a server error)', () => {
 		const post = vi.fn(() => rateLimited(120));
 		const { c } = make(null, post);
 		c.resendOtp();
 		expect(c.countdown).toBe(120);
-		expect(c.errorMsg).toContain('ثانية');
-		(c as any).clearTimer();
+		expect(c.rateLimitText).toBe('طلبات كثيرة، يمكنك إعادة المحاولة بعد 2:00');
+		expect(c.errorMsg).toBe('');
+	});
+
+	it('verify: a wrong code starts no wait; OTP_ATTEMPTS_LOCKED shows its message and no timer; a 429 with a wait disables only confirm', () => {
+		const replies: any[] = [
+			throwError(() => ({ status: 400, error: { message: 'رمز التحقق غير صحيح' } })),
+			throwError(() => ({ status: 429, error: { code: 'OTP_ATTEMPTS_LOCKED', message: 'تم تجاوز عدد المحاولات المسموح به، يرجى طلب رمز جديد' } })),
+			rateLimited(40),
+		];
+		const post = vi.fn(() => replies.shift());
+		const { c, el, fixture } = make(null, post);
+		c.otpCtrl.setValue('123456');
+		c.verify(); expect(c.errorMsg).toBe('رمز التحقق غير صحيح'); expect(c.verifyWait().active()).toBe(false);
+		c.verify(); expect(c.errorMsg).toContain('طلب رمز جديد'); expect(c.verifyWait().active()).toBe(false); expect(c.rateLimitText).toBe('');
+		c.verify(); fixture.detectChanges();
+		expect(c.verifyWait().active()).toBe(true);
+		expect(c.rateLimitText).toContain('بعد 0:40');
+		expect((el.querySelector('#btn-confirm') as HTMLButtonElement).disabled).toBe(true);
+		expect((el.querySelector('#btn-resend') as HTMLButtonElement).disabled).toBe(false);
+		const n = post.mock.calls.length; c.verify(); expect(post.mock.calls.length).toBe(n);
 	});
 });
 

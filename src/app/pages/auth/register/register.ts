@@ -8,11 +8,16 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { AccountType } from '../../../core/models/auth.model';
 import { getWelcomeRoleKey } from '../../../core/guards/auth.guards';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
+import { GoogleBtnStateDirective } from '../../../shared/directives/google-btn-state.directive';
 import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-social-login';
 import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
 import { mapHttpError } from '../../../core/forms/http-error';
-import { registerNotice, resendNotice } from '../../../core/forms/otp-delivery';
+import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.service';
+import { rateLimitSentence } from '../../../core/wait/wait-format';
+import { formatClock } from '../../../core/wait/wait-format';
+import { RATE_LIMIT_MESSAGE, isRateLimitError, startWaitFromError } from '../../../core/utils/rate-limit.util';
+import { REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE } from '../../../core/forms/otp-delivery';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
@@ -33,7 +38,7 @@ const REGISTER_LABELS: Record<string, string> = {
 @Component({
 	selector: 'app-register',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, AffiliatePicker, FormSummaryComponent],
+	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, GoogleBtnStateDirective, AffiliatePicker, FormSummaryComponent],
 	templateUrl: './register.html',
 	styleUrl: './register.css',
 	encapsulation: ViewEncapsulation.None,
@@ -58,7 +63,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	/** What is missing after a failed submit attempt (shown by <ws-form-summary>). */
 	missingFields: InvalidField[] = [];
 	private readonly host = inject(ElementRef<HTMLElement>);
-	appleNotice = '';
 
 	// Set once /auth/google confirms a NEW Google identity (intent: register).
 	// submitRegistration() sends it back as googleIdToken so the backend can
@@ -68,6 +72,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	// Set on a 409 from /auth/google (intent: register) — the email already has
 	// an account, so we point the user at the login page instead of retrying.
 	accountExistsError = false;
+	/** The account was created by a successful register call: going back never creates it (or its OTP request) a second time. */
+	accountCreated = false;
+	/** Registration data was already in use: honest generic note with links to login / password recovery (no code was sent, no code step). */
+	/** The e-mail the registration request was sent for: the code step's key (the register answer carries no account id). */
+	registeredEmail = '';
+	private submittedSignature = '';
+	private formSignature(): string { return JSON.stringify(this.basicInfoForm.getRawValue()); }
 
 	// Optional single-tier referral attribution (P-LG-012), set by the
 	// app-affiliate-picker below (manual code entry or name search — both
@@ -106,8 +117,27 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	/** Legacy key of a removed "restore previous data" draft (it could hold a typed password). Only ever purged now. */
 	private static readonly LEGACY_DRAFT_KEY = 'waseet_register_draft';
 
-	countdown = 0; // no cooldown until a code was really sent (startCountdown is called only after a confirmed send)
-	countdownTimer: any = null;
+	// The code step has THREE different timers, all from the server and keyed by the e-mail (identical for every address: nothing here depends on the account):
+	//  - resend: when another code may be requested (resendAvailableAt of the register / resend answer, or a 429's Retry-After); disables ONLY the resend button,
+	//    and the same wait guards a second POST /register for that e-mail (the server's send gate is shared).
+	//  - validity: shown only if the server ever returns expiresAt (these answers do not, on purpose: the same shape for every address), so no validity timer here.
+	//  - verify: only a 429 WITH a wait on the verification disables the confirm button. A wrong code starts nothing; OTP_ATTEMPTS_LOCKED has no timer.
+	private readonly waits = inject(WaitTimerService);
+	private readonly typedEmailKey = () => String(this.basicInfoForm?.get('email')?.value ?? '').trim().toLowerCase();
+	/** Resend wait for the e-mail of the code step (registeredEmail). */
+	readonly resendWait = this.waits.trackKeyed('otp-resend', () => this.registeredEmail, inject(DestroyRef));
+	/** The same scope for the e-mail currently typed on step 2 (guards a repeated registration request). */
+	readonly registerWait = this.waits.trackKeyed('otp-resend', this.typedEmailKey, inject(DestroyRef));
+	readonly verifyWait = this.waits.trackKeyed('otp-verify', () => this.registeredEmail, inject(DestroyRef));
+	/** A 429 whose duration the server did not state: an honest sentence without a number. */
+	rateLimitedNoTime = false;
+	private rateLimitSource: 'register' | 'resend' | 'verify' | 'google' | null = null;
+
+	/** The server's wait after a 429 on Google sign-up (end timestamp, survives a refresh). Gates ONLY the Google button. */
+	readonly googleWait = this.waits.track(waitScope('google-auth', 'register'), inject(DestroyRef));
+
+	/** Seconds until another code may be requested (0 = available). */
+	get countdown(): number { return this.resendWait().remainingSeconds(); }
 
 	// Maps frontend ID to backend AccountType Enum
 	accountTypeMap: Record<string, AccountType> = {
@@ -287,6 +317,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 					this.errorMessage = 'الرجاء اختيار نوع الحساب أولاً';
 					return;
 				}
+				if (this.googleWait.active()) return;
+				this.rateLimitedNoTime = false;
 				this.isSubmitting = true;
 				this.errorMessage = '';
 				this.accountExistsError = false;
@@ -323,6 +355,14 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 					},
 					error: (err) => {
 						this.isSubmitting = false;
+						if (isRateLimitError(err)) {
+							this.rateLimitSource = 'google';
+							const end = startWaitFromError(this.googleWait, err);
+							this.rateLimitedNoTime = end == null || !this.googleWait.active();
+							this.errorMessage = '';
+							this.cdr.markForCheck();
+							return;
+						}
 						const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء التسجيل بجوجل' });
 						if (err.status === 409) {
 							this.accountExistsError = true;
@@ -347,7 +387,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	}
 
 	ngOnDestroy() {
-		if (this.countdownTimer) clearInterval(this.countdownTimer);
+		// Handles release their share of the central clock with the component's DestroyRef; the stored end timestamps stay for a return visit.
 	}
 
 	/** Switches step 2 into "complete your Google signup" mode: pre-fills the
@@ -374,14 +414,14 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	selectAccountType(id: string) {
 		const target = this.accountTypes.find(t => t.id === id);
-		if (target?.disabled) return;
+		if (target?.disabled || this.accountCreated) return; // the type of an account that already exists cannot change here
 		this.selectedAccountType = id;
 	}
 
 	selectAndProceed(id: string) {
 		const target = this.accountTypes.find(t => t.id === id);
 		if (target?.disabled) return;
-		this.selectedAccountType = id;
+		if (!this.accountCreated) this.selectedAccountType = id;
 		this.nextStep();
 	}
 
@@ -390,8 +430,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 		// Validate Step 2 and Submit Registration
 		if (this.currentStep === 2) {
+			// Back from the OTP step shows the saved data again; continuing with the SAME data only returns to the OTP step (no second request).
+			// Edited data (e.g. a mistyped e-mail) is a new registration request.
+			if (this.accountCreated && this.formSignature() === this.submittedSignature) { this.currentStep = 3; this.errorMessage = ''; this.cdr.markForCheck(); return; }
 			// a second tap / Enter while the first request is still running must not send a second registration
 			if (this.isSubmitting) return;
+			// the server's send wait for this e-mail is still running: no request, the remaining time is said (the server still has the last word afterwards)
+			if (this.registerWait().active()) { this.rateLimitSource = 'register'; this.errorMessage = ''; this.cdr.markForCheck(); return; }
 			this.errorMessage = '';
 			this.accountExistsError = false;
 			const attempt = attemptSubmit(this.basicInfoForm, { root: this.host.nativeElement, labels: REGISTER_LABELS });
@@ -428,24 +473,34 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			affiliateIdentifier: this.referralToSend
 		};
 
+		this.rateLimitedNoTime = false;
+		this.rateLimitSource = null;
 		this.authApi.register(payload).subscribe({
 			next: (res) => {
 				this.isSubmitting = false;
-				this.currentStep = 3; // The account exists either way, so the OTP step opens
-				const notice = registerNotice(res);
-				if (notice.sent) {
-					this.otpNotice = notice.message;
-					this.startCountdown();
-				} else {
-					// Nothing was sent: say so, no countdown, resend stays available.
-					this.otpNotice = '';
-					this.errorMessage = notice.message;
-					this.stopCountdown();
-				}
+				// One answer for every outcome: the page cannot tell a new address from one already in use, so the code step always opens, keyed by the
+				// typed e-mail, with neutral wording (the links on the step lead existing accounts to login / password recovery). The data is kept and
+				// shown (and editable: a mistyped e-mail is corrected by submitting again); Back + Continue with unchanged data returns here without a second request.
+				this.registeredEmail = String(val.email ?? '').trim().toLowerCase();
+				this.accountCreated = true;
+				this.submittedSignature = this.formSignature();
+				this.currentStep = 3;
+				this.otpNotice = REGISTER_CODE_STEP_MESSAGE;
+				// the server applies the same cooldown to every address and says when the next send is allowed
+				this.resendWait().startFromResponse(res);
 				this.cdr.markForCheck();
 			},
 			error: (err) => {
 				this.isSubmitting = false;
+				if (isRateLimitError(err)) {
+					// a wait from the server for this e-mail; the typed data stays, no generic error is added
+					this.rateLimitSource = 'register';
+					const end = startWaitFromError(this.registerWait(), err);
+					this.rateLimitedNoTime = end == null || !this.registerWait().active();
+					this.errorMessage = '';
+					this.cdr.markForCheck();
+					return;
+				}
 				const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ في التسجيل' });
 				// Server field messages (zod) land on the matching inputs; the rest go to the banner.
 				const unmatched = applyServerFieldErrors(this.basicInfoForm, mapped.fieldErrors);
@@ -468,13 +523,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		}
 	}
 
-	appleSignIn() {
-		// Apple Sign-In is not wired to a backend endpoint yet — tell the user
-		// instead of failing silently.
-		this.appleNotice = 'التسجيل عبر آبل غير متاح حاليًا، يمكنك المتابعة بجوجل أو بالبريد';
-		this.cdr.markForCheck();
-	}
-
 	togglePassword() {
 		this.showPassword = !this.showPassword;
 	}
@@ -493,21 +541,22 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			return;
 		}
 		{
-			const pendingUserId = this.authStore.pendingUserId();
-			if (!pendingUserId) {
+			if (!this.registeredEmail) {
 				this.errorMessage = 'فقدت جلسة التفعيل. يرجى التسجيل مرة أخرى.';
 				this.cdr.markForCheck();
 				return;
 			}
 
+			if (this.verifyWait().active()) return;
 			this.isSubmitting = true;
 			this.errorMessage = '';
+			this.rateLimitedNoTime = false;
 			this.cdr.markForCheck();
 
 			const val = this.verificationForm.value;
 			const code = `${val.code1}${val.code2}${val.code3}${val.code4}${val.code5}${val.code6}`;
 
-			this.authApi.verifyOtp({ userId: pendingUserId, code }).subscribe({
+			this.authApi.verifyOtp({ email: this.registeredEmail, code }).subscribe({
 				next: (res) => {
 					this.isSubmitting = false;
 					this.cdr.markForCheck();
@@ -522,7 +571,17 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				},
 				error: (err) => {
 					this.isSubmitting = false;
-					this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح' }).message;
+					if (err?.error?.code === 'OTP_ATTEMPTS_LOCKED') {
+						// too many wrong codes: the message asks for a NEW code; no timer
+						this.errorMessage = err.error.message || 'تم تجاوز عدد المحاولات المسموح به، يرجى طلب رمز جديد';
+					} else if (isRateLimitError(err)) {
+						this.rateLimitSource = 'verify';
+						const end = startWaitFromError(this.verifyWait(), err);
+						this.rateLimitedNoTime = end == null || !this.verifyWait().active();
+					} else {
+						// a wrong / expired code: a message only, never a UI wait
+						this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح' }).message;
+					}
 					this.cdr.markForCheck();
 				}
 			});
@@ -612,36 +671,21 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			.replace(/[^0-9]/g, '');
 	}
 
-	get formattedCountdown() {
-		const m = Math.floor(this.countdown / 60);
-		const s = this.countdown % 60;
-		return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-	}
+	get formattedCountdown() { return formatClock(this.countdown); }
 
-	stopCountdown() {
-		if (this.countdownTimer) clearInterval(this.countdownTimer);
-		this.countdown = 0;
-	}
-
-	startCountdown(seconds = 90) {
-		this.countdown = seconds;
-		if (this.countdownTimer) clearInterval(this.countdownTimer);
-		this.countdownTimer = setInterval(() => {
-			if (this.countdown > 0) {
-				this.countdown--;
-			} else {
-				clearInterval(this.countdownTimer);
-			}
-			this.cdr.markForCheck();
-		}, 1000);
+	/** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) while a server wait for the active action runs; the honest no-time sentence after a 429 without one; '' otherwise. */
+	get rateLimitText(): string {
+		if (this.rateLimitSource === 'google' && this.googleWait.active()) return rateLimitSentence(this.googleWait.remainingSeconds(), true);
+		const w = this.rateLimitSource === 'verify' ? this.verifyWait() : this.rateLimitSource === 'register' ? this.registerWait() : this.rateLimitSource === 'resend' ? this.resendWait() : null;
+		if (w?.active()) return rateLimitSentence(w.remainingSeconds(), true);
+		return this.rateLimitedNoTime ? RATE_LIMIT_MESSAGE : '';
 	}
 
 	resendOtp() {
-		if (this.countdown > 0 || this.isSubmitting) return;
+		if (this.resendWait().active() || this.isSubmitting) return;
 
-		const pendingUserId = this.authStore.pendingUserId();
-		if (!pendingUserId) {
-			this.errorMessage = 'فقدت جلسة التفعيل. سجّل الدخول لإكمال تفعيل حسابك.';
+		if (!this.registeredEmail) {
+			this.errorMessage = 'فقدت جلسة التفعيل. يرجى التسجيل مرة أخرى.';
 			this.cdr.markForCheck();
 			return;
 		}
@@ -650,24 +694,26 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		this.errorMessage = '';
 
 		this.otpNotice = '';
-		this.authApi.resendOtp(pendingUserId).subscribe({
+		this.rateLimitedNoTime = false;
+		this.rateLimitSource = null;
+		this.authApi.resendOtpByEmail(this.registeredEmail).subscribe({
 			next: (res) => {
 				this.isSubmitting = false;
-				const notice = resendNotice(res);
-				if (notice.sent) {
-					this.otpNotice = notice.message;
-					this.startCountdown();
-				} else {
-					this.errorMessage = notice.message; // no countdown: nothing was sent
-				}
+				// generic always-200: the page claims only the condition, and the cooldown (from the server's resendAvailableAt) is the same for every address
+				this.otpNotice = REGISTER_RESEND_MESSAGE;
+				this.resendWait().startFromResponse(res);
 				this.cdr.markForCheck();
 			},
 			error: (err) => {
 				this.isSubmitting = false;
-				const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء الإرسال' });
-				this.errorMessage = mapped.message;
-				// Rate limited: keep resend locked for the wait the server asked for.
-				if (mapped.kind === 'rate-limit' && mapped.retryAfterSeconds) this.startCountdown(mapped.retryAfterSeconds);
+				if (isRateLimitError(err)) {
+					// keep resend locked until the end the server gave; no stated time = honest sentence, button stays usable
+					this.rateLimitSource = 'resend';
+					const end = startWaitFromError(this.resendWait(), err);
+					this.rateLimitedNoTime = end == null || !this.resendWait().active();
+				} else {
+					this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء الإرسال' }).message;
+				}
 				this.cdr.markForCheck();
 			}
 		});

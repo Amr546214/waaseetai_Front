@@ -44,7 +44,6 @@
 .scp-input{width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;color:#fff;font-family:inherit;font-size:12px;margin-bottom:10px}
 .scp-input option{background:#0B1437}
 .scp-uppercase{text-transform:uppercase}
-.scp-created-msg{font-size:12px;color:#0FA99A;font-weight:700;margin:8px 0 0;text-align:center}
 
 .scp-stat-list{display:flex;flex-direction:column;gap:6px;font-size:12px}
 .scp-stat-row{display:flex;justify-content:space-between;color:#A8B2D1}
@@ -151,3 +150,29 @@
 :host-context(.light-theme) .scp-input,
 :host-context(.theme-light) .scp-input{background:#fff;border-color:#CBD5E1;color:#1E293B}
 
+
+/* admin coupons — real data additions */
+.scp-note{font-size:12px;color:#6B7699;margin:0 0 12px}
+.scp-err{color:#FF8C69}
+.scp-empty{font-size:12px;color:#6B7699;text-align:center;padding:16px 0;margin:0}
+.scp-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.scp-tab{padding:8px 14px;border-radius:9px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#A8B2D1;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.scp-tab.on{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.4);color:#2BD4C7}
+.scp-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.scp-chip{padding:5px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#A8B2D1;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer}
+.scp-chip.on{background:rgba(43,212,199,.12);border-color:rgba(43,212,199,.4);color:#2BD4C7}
+.scp-search{max-width:220px;margin:0}
+.scp-why{font-size:10px;color:#6B7699;max-width:150px}
+.scp-pager{display:flex;gap:12px;align-items:center;justify-content:center;font-size:12px;color:#A8B2D1;margin-top:10px}
+.scp-detail-hdr{display:flex;justify-content:space-between;align-items:center}
+.scp-table-wrap{overflow-x:auto}
+.scp-table{width:100%;border-collapse:collapse;font-size:12px;color:#A8B2D1}
+.scp-table th{text-align:right;font-weight:800;color:#6B7699;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.08)}
+.scp-table td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+.scp-fieldset{border:0;padding:0;margin:0;opacity:.5}
+.scp-btn:disabled{opacity:.5;cursor:not-allowed}
+.scp-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.scp-modal{background:#0B1437;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:20px;width:100%;max-width:440px}
+.scp-modal-actions{display:flex;gap:8px;justify-content:flex-start;margin-top:10px}
+:host-context(.light-theme) .scp-modal,:host-context(body.theme-light) .scp-modal{background:#fff;border-color:#E7EAF1}
+:host-context(.light-theme) .scp-table td,:host-context(body.theme-light) .scp-table td{color:#475569}

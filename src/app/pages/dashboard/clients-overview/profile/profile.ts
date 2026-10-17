@@ -130,8 +130,14 @@ export class Profile implements OnInit {
 		return Array.isArray(items) ? items : [];
 	}
 
-	get rating(): number {
-		return this.profileData()?.rating || this.profileData()?.humanRating || 0;
+	/** The average of the provider reviews about this client; null until there is one (never a default). */
+	get humanRating(): number | null {
+		const r = this.profileData()?.humanRating;
+		return typeof r === 'number' && Number.isFinite(r) ? r : null;
+	}
+
+	get roundedRating(): number {
+		return Math.round(this.humanRating ?? 0);
 	}
 
 	/** The shared level display from the backend levelInfo (same badge as the dashboard). */

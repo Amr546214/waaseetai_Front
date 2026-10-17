@@ -114,7 +114,7 @@
               <div class="cat-head-info">
                 <div class="cat-name">{{ cat.name }}</div>
                 <div class="cat-meta">
-                  <span class="cat-cnt">+{{ cat.count | number }} خدمة</span>
+                  <span class="cat-cnt">+{{ cat.count | number:'1.0-2' }} خدمة</span>
                   @if (cat.subSpecialties?.length) {
                   <span>·</span>
                   <span>{{ cat.subSpecialties.length }} تخصص فرعي</span>
@@ -134,7 +134,7 @@
                 @for (sub of cat.subSpecialties; track sub.id) {
                 <a [routerLink]="['/marketplace', cat.slug]" [queryParams]="{ sub: sub.slug }" class="sub-item" [class.trending]="sub.id === topSubId(cat)">
                   <span class="sub-name">{{ sub.name }}</span>
-                  <div class="sub-foot"><span class="sub-cnt">+{{ sub.count | number }} خدمة</span>@if (sub.id === topSubId(cat)) {<span class="sub-hot">الأكثر طلباً</span>}</div>
+                  <div class="sub-foot"><span class="sub-cnt">+{{ sub.count | number:'1.0-2' }} خدمة</span>@if (sub.id === topSubId(cat)) {<span class="sub-hot">الأكثر طلباً</span>}</div>
                 </a>
                 }
               </div>
@@ -152,7 +152,7 @@
             @for (cat of moreCategories(); track cat.id; let i = $index) {
             <a [routerLink]="['/marketplace', cat.slug]" [id]="'cat-' + cat.slug" class="mini-cat">
               <span class="mini-ico" [style.background]="categoryPalette(i + primaryCategories().length).bg" [style.border]="'1px solid ' + categoryPalette(i + primaryCategories().length).border" [style.color]="categoryPalette(i + primaryCategories().length).color"><svg><use [attr.href]="categoryIcon(cat.icon)"></use></svg></span>
-              <div class="mini-info"><div class="mini-name">{{ cat.name }}</div><div class="mini-cnt">+{{ cat.count | number }} خدمة</div></div>
+              <div class="mini-info"><div class="mini-name">{{ cat.name }}</div><div class="mini-cnt">+{{ cat.count | number:'1.0-2' }} خدمة</div></div>
             </a>
             }
           </div>

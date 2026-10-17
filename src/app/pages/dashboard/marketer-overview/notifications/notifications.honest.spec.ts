@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { HttpClient } from '@angular/common/http';
 import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -9,7 +10,7 @@ import { join } from 'node:path';
 
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Notifications } from './notifications';
 
@@ -84,7 +85,7 @@ describe('marketer notifications: honest banner/groups/CTA/mark-all', () => {
 		const el2 = await mount([raw({ id: 'a' }), raw({ id: 'b' })], () => throwError(() => new Error('500')));
 		(el2.querySelector('[data-testid=mark-all-read]') as HTMLButtonElement).click(); fixture.detectChanges();
 		expect(c.unreadCount()).toBe(2);
-		expect(c.toastMessage()).toContain('تعذر');
+		expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: expect.stringContaining('تعذر') });
 	});
 
 	it('CTA only with a real marketer target; foreign or missing URLs neither show a CTA nor navigate', async () => {
@@ -99,7 +100,7 @@ describe('marketer notifications: honest banner/groups/CTA/mark-all', () => {
 		c.onNotificationClick(c.notifications().find(n => n.id === 'c')!);
 		expect(nav).not.toHaveBeenCalled();
 		c.onNotificationClick(c.notifications().find(n => n.id === 'd')!);
-		expect(nav).toHaveBeenCalledWith('/marketer-overview/messages?conversationId=cv1');
+		expect(nav).toHaveBeenCalledWith('/marketer-overview/messages?conversationId=cv1', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('every notification row renders its icon (an <svg> inside the icon box, not an empty box)', async () => {

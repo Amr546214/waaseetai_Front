@@ -1,9 +1,10 @@
 import type { RegisteredSpecialty } from '../../../../../core/utils/specialty-states';
-import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, signal, computed, effect, untracked, OnInit, OnDestroy, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NewProjectService, AiReviewEvaluation } from '../../../../../core/services/new-project.service';
+import { SkillsCatalogService } from '../../../../../core/services/skills-catalog.service';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
 import { Step1DetailsComponent } from './components/step1-details/step1-details.component';
 import { Step2SpecialtyComponent } from './components/step2-specialty/step2-specialty.component';
@@ -11,6 +12,9 @@ import { Step3ModelComponent } from './components/step3-model/step3-model.compon
 import { Step4StagesComponent } from './components/step4-stages/step4-stages.component';
 import { Step5EvaluationComponent } from './components/step5-evaluation/step5-evaluation.component';
 import { isMeaningfulProjectTitle } from '../../../../../core/utils/title-validator';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { FieldProblem, SubmitGuard, reportBackendError, reportProblems } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 export interface PassedSpecialtySubItem {
 	id: string;
 	specialtyId: string;
@@ -53,9 +57,13 @@ export interface AccreditationModelItem {
 export class NewProject implements OnInit, OnDestroy {
 	private newProjectService = inject(NewProjectService);
 	private providerApi = inject(ProviderApiService);
+	private skillsCatalog = inject(SkillsCatalogService);
+	private notify = inject(UiNotificationService);
 	private sanitizer = inject(DomSanitizer);
 	private router = inject(Router);
 	private route = inject(ActivatedRoute);
+	private host = inject(ElementRef<HTMLElement>);
+	private submitGuard = new SubmitGuard();
 
 	isSvgIcon(iconStr?: string): boolean {
 		return !!iconStr && iconStr.includes('<');
@@ -79,7 +87,6 @@ export class NewProject implements OnInit, OnDestroy {
 	currentStep = signal<number>(1);
 	totalSteps = 5;
 	isSubmitting = signal<boolean>(false);
-	toastMessage = signal<string>('');
 
 	// Step 1 - Name & Description
 	projectName = signal('');
@@ -111,14 +118,14 @@ export class NewProject implements OnInit, OnDestroy {
 		if (title) {
 			const titleValidation = isMeaningfulProjectTitle(title);
 			if (!titleValidation.valid) {
-				this.showToast(`⚠️ ${titleValidation.reason}`);
+				this.notify.warning(titleValidation.reason ?? 'يرجى كتابة اسم مشروع واضح');
 				return;
 			}
 		}
 
 		if (mode === 'improve') {
 			if (!desc && !title) {
-				this.showToast('⚠️ يرجى كتابة اسم المشروع أو وصف مبدئي أولاً ليتم تحسينه');
+				this.notify.warning('يرجى كتابة اسم المشروع أو وصف مبدئي أولاً ليتم تحسينه');
 				return;
 			}
 			this.isAiEnhancing.set(true);
@@ -126,16 +133,16 @@ export class NewProject implements OnInit, OnDestroy {
 
 			// Trigger WebSocket real-time word-by-word streaming
 			this.newProjectService.streamEnhanceDescription(this.projectName(), this.projectDesc());
-			this.showToast('✨ بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
+			this.notify.info('بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
 
 		} else if (mode === 'suggest') {
 			if (!title) {
-				this.showToast('⚠️ يرجى كتابة اسم المشروع أولاً ليقوم الذكاء باقتراح وصف متكامل له');
+				this.notify.warning('يرجى كتابة اسم المشروع أولاً ليقوم الذكاء باقتراح وصف متكامل له');
 				return;
 			}
 			const titleValidation = isMeaningfulProjectTitle(title);
 			if (!titleValidation.valid) {
-				this.showToast(`⚠️ ${titleValidation.reason}`);
+				this.notify.warning(titleValidation.reason ?? 'يرجى كتابة اسم مشروع واضح');
 				return;
 			}
 
@@ -144,7 +151,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 			// Trigger WebSocket real-time word-by-word streaming
 			this.newProjectService.streamSuggestText(this.projectName());
-			this.showToast('💡 بدأ البث المباشر لتوليد مقترح احترافي لوصف المشروع...');
+			this.notify.info('بدأ البث المباشر لتوليد مقترح احترافي لوصف المشروع...');
 		}
 
 		// Safety timeout: if streaming doesn't end within 25 seconds, release loading state
@@ -178,17 +185,91 @@ export class NewProject implements OnInit, OnDestroy {
 		return null;
 	});
 
+	/** True only when the CURRENTLY selected main specialty really has sub-specialties: the star, aria-required and the validator all read this. */
+	mainHasSubSpecialties = computed(() => (this.selectedMainSpecialtyObj()?.subSpecialties?.length ?? 0) > 0);
+	/** The sub-specialty that counts: a value left over from a specialty without (or with other) sub-specialties is never submitted. */
+	effectiveSubSpecialty = computed(() => {
+		const sub = this.selectedSubSpecialty();
+		return sub && (this.selectedMainSpecialtyObj()?.subSpecialties ?? []).includes(sub) ? sub : '';
+	});
+
 	isValidStep2 = computed(() => {
 		if (!this.selectedSpecialty()) return false;
 		const mainObj = this.selectedMainSpecialtyObj();
 		if (mainObj && mainObj.subSpecialties && mainObj.subSpecialties.length > 0) {
-			return this.selectedSubSpecialty() !== '';
+			return this.effectiveSubSpecialty() !== '';
 		}
 		return true;
 	});
 
+	// Skills of the chosen specialty (single source: the backend skills catalog of the specialty's category).
+	skillOptions = signal<string[]>([]);
+	selectedSkills = signal<string[]>([]);
+	skillsLoading = signal<boolean>(false);
+	skillsError = signal<string>('');
+	/** The provider's saved profile skills: offered as the starting selection after the specialty is picked. */
+	private providerSkills = signal<string[]>([]);
+	private suggestSkillsOnLoad = false;
+	private skillsCategoryKey = '';
+
+	private selectedCategoryId = computed<string>(() => {
+		const selId = this.selectedSpecialty();
+		if (!selId) return '';
+		for (const cat of this.passedCategories()) {
+			if (cat.specialties.some(s => s.id === selId || s.specialtyId === selId)) return cat.categoryId || cat.categoryName || '';
+		}
+		return '';
+	});
+
+	private readonly skillsOptionsEffect = effect(() => {
+		const key = this.selectedCategoryId();
+		untracked(() => this.loadSkillOptions(key));
+	});
+
+	private loadSkillOptions(key: string) {
+		if (key === this.skillsCategoryKey) return;
+		this.skillsCategoryKey = key;
+		if (!key) { this.skillOptions.set([]); this.skillsLoading.set(false); return; }
+		this.skillsLoading.set(true);
+		this.skillsCatalog.getCatalog(key).subscribe({
+			next: res => {
+				if (key !== this.skillsCategoryKey) return;
+				const options = res?.success ? (res.data?.skills ?? []) : [];
+				this.skillOptions.set(options);
+				this.skillsLoading.set(false);
+				if (this.suggestSkillsOnLoad) {
+					this.suggestSkillsOnLoad = false;
+					this.selectedSkills.set(this.providerSkills().filter(sk => options.includes(sk)).slice(0, 30));
+				}
+			},
+			error: () => {
+				if (key !== this.skillsCategoryKey) return;
+				this.skillOptions.set([]);
+				this.skillsLoading.set(false);
+				this.skillsError.set('تعذر تحميل مهارات هذا المجال، حاول مرة أخرى لاحقًا.');
+			}
+		});
+	}
+
+	onSkillsChange(list: string[]) {
+		this.skillsError.set('');
+		this.selectedSkills.set(list.slice(0, 30));
+	}
+
 	selectMainSpecialty(spec: PassedSpecialtySubItem) {
-		this.selectedSpecialty.set(spec.id || spec.specialtyId);
+		const next = spec.id || spec.specialtyId;
+		const changed = next !== this.selectedSpecialty();
+		this.selectedSpecialty.set(next);
+		if (changed) {
+			this.selectedSkills.set([]);
+			this.skillsError.set('');
+			if (this.selectedCategoryId() === this.skillsCategoryKey && !this.skillsLoading()) {
+				// Same field as before: its catalog is already loaded, so the provider's saved skills are suggested right away.
+				this.selectedSkills.set(this.providerSkills().filter(sk => this.skillOptions().includes(sk)).slice(0, 30));
+			} else {
+				this.suggestSkillsOnLoad = true;
+			}
+		}
 		this.selectedSubSpecialty.set('');
 		this.selectedModel.set('');
 	}
@@ -238,10 +319,9 @@ export class NewProject implements OnInit, OnDestroy {
 			const list = selectedSpecialtyId
 				? this.accreditationModels().filter(model => model.specialtyId === selectedSpecialtyId)
 				: this.accreditationModels();
-		if (filter === 'verified') {
-			return list.filter(m => m.status === 'AI_VERIFIED' || m.status === 'APPROVED');
-		}
-		return list;
+		// Batch B T1 (§5): only an APPROVED model of the chosen specialty can be linked to a service (the server enforces the same rule)
+		void filter;
+		return list.filter(m => m.status === 'AI_VERIFIED' || m.status === 'APPROVED');
 	});
 
 	verifiedModelsCount = computed(() => {
@@ -272,14 +352,19 @@ export class NewProject implements OnInit, OnDestroy {
 		const selectedSpecialtyId = this.selectedMainSpecialtyObj()?.specialtyId;
 		return this.accreditationModels().some(model =>
 			model.id === this.selectedModel() &&
-			model.specialtyId === selectedSpecialtyId
+			model.specialtyId === selectedSpecialtyId &&
+			(model.status === 'AI_VERIFIED' || model.status === 'APPROVED')
 		);
 	});
 
+	/** server field errors (Batch B T1) shown next to the field's step */
+	modelError = signal('');
+	specialtyError = signal('');
 	galleryUrls = signal<string[]>([]);
 	isUploadingImage = signal<boolean>(false);
 
 	selectModel(id: string) {
+		this.modelError.set('');
 		this.selectedModel.set(id);
 	}
 
@@ -297,12 +382,12 @@ export class NewProject implements OnInit, OnDestroy {
 					this.isUploadingImage.set(false);
 					if (res && res.urls && res.urls.length > 0) {
 						this.galleryUrls.update(arr => [...arr, res.urls[0]]);
-						this.showToast('✅ تم رفع الصورة بنجاح');
+						this.notify.success('تم رفع الصورة بنجاح');
 					}
 				},
 				error: (err) => {
 					this.isUploadingImage.set(false);
-					this.showToast('⚠️ حدث خطأ أثناء رفع الصورة');
+					this.notify.warning('حدث خطأ أثناء رفع الصورة');
 					console.error(err);
 				}
 			});
@@ -378,39 +463,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 	private setFallbackAccreditationModels() {
 		const fallbackModels: AccreditationModelItem[] = [
-			// {
-			// 	id: 'acc_1',
-			// 	title: 'نموذج نظام لوحة تحكم سحابية وبث مباشر (NestJS & Angular)',
-			// 	description: 'نموذج اعتماد فني تم فحصه واجتيازه بواسطة الذكاء الاصطناعي بنسبة جدارة عالية 96%',
-			// 	specialtyName: 'تطوير المنصات والأنظمة السحابية',
-			// 	technologies: ['Angular 17', 'NestJS', 'PostgreSQL', 'WebSockets'],
-			// 	status: 'AI_VERIFIED',
-			// 	score: 96,
-			// 	coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop',
-			// 	views: 340
-			// },
-			// {
-			// 	id: 'acc_2',
-			// 	title: 'تطبيق جوال التجارة الإلكترونية الفاخرة (Flutter & AI)',
-			// 	description: 'نموذج اعتماد موثق لمنصة تجارة إلكترونية مع تكامل الخرائط والدفع السريع',
-			// 	specialtyName: 'تطوير تطبيقات الجوال الذكية',
-			// 	technologies: ['Flutter', 'Node.js', 'Stripe API', 'GraphQL'],
-			// 	status: 'AI_VERIFIED',
-			// 	score: 93,
-			// 	coverImage: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=600&auto=format&fit=crop',
-			// 	views: 215
-			// },
-			// {
-			// 	id: 'acc_3',
-			// 	title: 'نظام تصميم أنظمة الشركات الكبرى (Design System & Figma)',
-			// 	description: 'حزمة مكونات زجاجية وتجربة مستخدم متكاملة للمؤسسات والشركات التقنية',
-			// 	specialtyName: 'تصميم تجربة وواجهة المستخدم UI/UX',
-			// 	technologies: ['Figma', 'UI/UX Design', 'Glassmorphism', 'Design Tokens'],
-			// 	status: 'AI_VERIFIED',
-			// 	score: 94,
-			// 	coverImage: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=600&auto=format&fit=crop',
-			// 	views: 180
-			// }
+			// No sample data: when the samples request fails the list is honestly empty.
 		];
 		this.accreditationModels.set(fallbackModels);
 		if (!this.isEditMode() && !this.selectedModel() && fallbackModels.length > 0) {
@@ -419,44 +472,45 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	// Step 4 - Stages & Milestones
-	totalAmount = signal<number>(4500);
+	// Starts empty: the provider types the budget and the durations (no invented amount). A single stage is always 100% of the budget.
+	totalAmount = signal<number | null>(null);
 	stages = signal<any[]>([
-		{ title: '', desc: '', days: 5, percentage: 100 }
+		{ title: '', desc: '', days: null, percentage: 100 }
 	]);
 	isAiSuggestingMilestones = signal<boolean>(false);
 
 	suggestMilestonesWithAi() {
 		if (!this.projectName().trim()) {
-			this.showToast('⚠️ يرجى كتابة اسم المشروع في الخطوة الأولى أولاً ليقوم الذكاء بإنشاء المراحل المناسبة له');
+			this.notify.warning('يرجى كتابة اسم المشروع في الخطوة الأولى أولاً ليقوم الذكاء بإنشاء المراحل المناسبة له');
 			return;
 		}
 		this.isAiSuggestingMilestones.set(true);
-		this.showToast('يقوم المستشار الذكي الآن بتحليل مشروعك وهندسة المراحل الأنسب...');
+		this.notify.info('يقوم المستشار الذكي الآن بتحليل مشروعك وهندسة المراحل الأنسب...');
 
-		this.newProjectService.suggestMilestones(this.projectName(), this.projectDesc(), this.totalAmount()).subscribe({
+		this.newProjectService.suggestMilestones(this.projectName(), this.projectDesc(), this.totalAmount() ?? undefined).subscribe({
 			next: (res) => {
 				this.isAiSuggestingMilestones.set(false);
 				if (res?.data?.milestones && Array.isArray(res.data.milestones) && res.data.milestones.length > 0) {
 					const mapped = res.data.milestones.map((m: any) => ({
 						title: m.title || 'مرحلة جديدة',
 						desc: m.description || m.desc || '',
-						days: Number(m.estimatedDays || m.days) || 4,
+						days: Number(m.estimatedDays || m.days) || null,
 						percentage: Number(m.percentage) || 0
 					}));
 					this.stages.set(mapped);
-					this.showToast('⚡ تم إنشاء هيكل مراحل العمل وتوزيع النسب بذكاء بناءً على وصف مشروعك!');
+					this.notify.success('تم إنشاء هيكل مراحل العمل وتوزيع النسب بذكاء بناءً على وصف مشروعك!');
 				}
 			},
 			error: (err) => {
 				this.isAiSuggestingMilestones.set(false);
 				console.error('AI suggest milestones error', err);
-				this.showToast('⚠️ لم يتم الاتصال بالخادم الذكي، يمكنك إضافة المراحل يدوياً');
+				this.notify.warning('لم يتم الاتصال بالخادم الذكي، يمكنك إضافة المراحل يدوياً');
 			}
 		});
 	}
 
 	addStage() {
-		this.stages.update(s => [...s, { title: '', desc: '', days: 0, percentage: 0 }]);
+		this.stages.update(s => [...s, { title: '', desc: '', days: null, percentage: null }]);
 	}
 
 	removeStage(index: number) {
@@ -473,10 +527,11 @@ export class NewProject implements OnInit, OnDestroy {
 
 	totalPercentage = computed(() => this.stages().reduce((sum, s) => sum + (Number(s.percentage) || 0), 0));
 	totalDays = computed(() => this.stages().reduce((sum, s) => sum + (Number(s.days) || 0), 0));
-	isValidStep4 = computed(() => this.totalPercentage() === 100 && this.stages().length > 0 && this.stages().every(s => s.title && s.percentage > 0));
+	isValidStep4 = computed(() => (this.totalAmount() ?? 0) > 0 && this.totalPercentage() === 100 && this.stages().length > 0
+		&& this.stages().every(s => String(s.title ?? '').trim() && Number(s.percentage) > 0 && Number(s.days) > 0));
 
 	getAmountForStage(percentage: number): number {
-		return (this.totalAmount() * (percentage || 0)) / 100;
+		return ((this.totalAmount() ?? 0) * (percentage || 0)) / 100;
 	}
 
 	// Step 5 - AI Review & Orchestration
@@ -515,7 +570,7 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 			this.aiStreamError.set(null);
 			if (data.message) {
-				this.showToast(data.message);
+				this.notify.info(data.message);
 			}
 		});
 
@@ -526,6 +581,12 @@ export class NewProject implements OnInit, OnDestroy {
 				this.editServiceId.set(editId);
 				this.loadExistingService(editId);
 			}
+		});
+
+		// The provider's saved skills (suggested as the starting selection); an honest empty list when unavailable.
+		this.skillsCatalog.getProviderMine().subscribe({
+			next: res => this.providerSkills.set(res?.success ? (res.data?.skills ?? []) : []),
+			error: () => this.providerSkills.set([])
 		});
 
 		// Fetch Passed Accredited Specialties for Step 2
@@ -569,6 +630,11 @@ export class NewProject implements OnInit, OnDestroy {
 						this.selectedModel.set(service.accreditationSampleId || service.accreditationSample?.id);
 					}
 
+				if (Array.isArray(service.skills)) {
+					this.suggestSkillsOnLoad = false;
+					this.selectedSkills.set(service.skills.filter((x: unknown): x is string => typeof x === 'string'));
+				}
+
 				if (service.gallery && Array.isArray(service.gallery)) {
 					this.galleryUrls.set(service.gallery);
 				}
@@ -577,13 +643,13 @@ export class NewProject implements OnInit, OnDestroy {
 					const mappedStages = service.stages.map((stg: any) => ({
 						title: stg.title || '',
 						desc: stg.description || stg.desc || '',
-						days: Number(stg.deliveryDays || stg.days || 1),
+						days: Number(stg.deliveryDays || stg.days) || null,
 						percentage: Number(stg.percentage || 0)
 					}));
 					this.stages.set(mappedStages);
 				}
 
-				this.showToast('ℹ️ تم تحميل تفاصيل النموذج للتعديل');
+				this.notify.info('تم تحميل تفاصيل النموذج للتعديل');
 			},
 			error: (err) => console.error('Failed to load existing service for editing:', err)
 		});
@@ -605,8 +671,42 @@ export class NewProject implements OnInit, OnDestroy {
 		}
 	}
 
-	goNext() {
-		if (this.isCurrentStepValid && this.currentStep() < this.totalSteps) {
+	/** What is missing in the CURRENT step, in page order, each tied to its control (ids in the step components). */
+	stepProblems(step = this.currentStep()): FieldProblem[] {
+		const out: FieldProblem[] = [];
+		if (step === 1) {
+			if (!this.projectName().trim()) out.push({ field: 'np-name', message: 'اكتب اسم المشروع', label: 'اسم المشروع', step });
+			if (!this.projectDesc().trim()) out.push({ field: 'np-desc', message: 'اكتب وصف المشروع', label: 'وصف المشروع', step });
+		} else if (step === 2) {
+			if (!this.selectedSpecialty()) out.push({ field: 'np-specialty', message: 'اختر تخصصاً رئيسياً للمتابعة', label: 'التخصص', step });
+			else if (!this.isValidStep2()) out.push({ field: 'np-subspecialty', message: 'اختر تخصصاً فرعياً للمتابعة', label: 'التخصص الفرعي', step });
+		} else if (step === 3) {
+			if (!this.isValidStep3()) out.push({ field: 'np-model', message: 'اختر نموذجاً من معرض أعمالك للمتابعة', label: 'النموذج', step });
+		} else if (step === 4) {
+			if (!((this.totalAmount() ?? 0) > 0)) out.push({ field: 'np-total-amount', message: 'أدخل الميزانية الإجمالية بالدولار (أكبر من صفر)', label: 'الميزانية', step });
+			this.stages().forEach((s, i) => {
+				if (!String(s.title ?? '').trim()) out.push({ field: `np-stage-title-${i}`, message: 'اكتب عنوان المرحلة', step });
+				if (!(Number(s.days) > 0)) out.push({ field: `np-stage-days-${i}`, message: 'أدخل مدة التسليم بالأيام', step });
+				if (!(Number(s.percentage) > 0)) out.push({ field: `np-stage-percentage-${i}`, message: 'أدخل نسبة المرحلة', step });
+			});
+			if (this.totalPercentage() !== 100 && this.stages().every(s => Number(s.percentage) > 0)) {
+				out.push({ field: 'np-stage-percentage-0', message: `مجموع النسب ${this.totalPercentage()}% ويجب أن يساوي 100%`, step });
+			}
+		}
+		return out;
+	}
+
+	/** Marks every missing field of the current step (red, aria-invalid, role=alert) and focuses the first one. */
+	private async showStepProblems(problems: FieldProblem[]) {
+		const res = await reportProblems(this.host.nativeElement, problems, { openStep: (s) => { this.currentStep.set(Number(s)); } });
+		if (!res.focused) this.notify.warning(problems[0]?.message ?? 'أكمل الحقول المطلوبة');
+	}
+
+	async goNext() {
+		if (this.isSubmitting() || this.isStreamingText() || (this.currentStep() === 5 && this.isAiAnalyzing())) return;
+		const problems = this.stepProblems();
+		if (problems.length) { await this.showStepProblems(problems); return; }
+		if (this.currentStep() < this.totalSteps) {
 			// Upon navigating to Step 5, trigger complete Gemini analysis
 			if (this.currentStep() === 4) {
 				this.triggerAiReviewAnalysis();
@@ -637,10 +737,10 @@ export class NewProject implements OnInit, OnDestroy {
 			description: this.projectDesc(),
 			category: selectedSpecialtyObj ? selectedSpecialtyObj.name : this.selectedSpecialty(),
 			specialtyId: this.selectedSpecialty(),
-			subSpecialty: this.selectedSubSpecialty(),
+			subSpecialty: this.effectiveSubSpecialty(),
 			modelType: selectedModelObj ? selectedModelObj.title : this.selectedModel(),
 			accreditationSampleId: this.selectedModel(),
-			totalAmount: this.totalAmount(),
+			totalAmount: this.totalAmount() ?? undefined,
 			stages: this.stages().map(s => ({
 				title: s.title,
 				description: s.desc,
@@ -654,13 +754,13 @@ export class NewProject implements OnInit, OnDestroy {
 				this.isAiAnalyzing.set(false);
 				if (res && res.success && res.data) {
 					this.aiEvaluation.set(res.data);
-					this.showToast('✅ اكتمل تحليل مستشار Waseet AI بنجاح!');
+					this.notify.success('اكتمل تحليل مستشار Waseet AI بنجاح!');
 				}
 			},
 			 error: (err) => {
 					this.isAiAnalyzing.set(false);
 					console.error('AI review error', err);
-					this.showToast('⚠️ تعذر التحليل الذكي، ويمكنك نشر النموذج مباشرة');
+					this.notify.warning('تعذر التحليل الذكي، ويمكنك نشر النموذج مباشرة');
 				}
 		});
 	}
@@ -682,13 +782,13 @@ export class NewProject implements OnInit, OnDestroy {
 			return {
 				title: m.title || `المرحلة ${idx + 1}`,
 				desc: m.description || '',
-				days: m.estimatedDays || 3,
+				days: m.estimatedDays || null,
 				percentage: p
 			};
 		});
 
 		this.stages.set(updated);
-		this.showToast('⚡ تم تطبيق المراحل والدفعات المقترحة بنجاح على مشروعك!');
+		this.notify.success('تم تطبيق المراحل والدفعات المقترحة بنجاح على مشروعك!');
 	}
 
 	applySuggestedPricing(): void {
@@ -706,16 +806,18 @@ export class NewProject implements OnInit, OnDestroy {
 				this.totalAmount.set(nums[0]);
 			}
 		}
-		this.showToast('💰 تم تعديل الميزانية الإجمالية وفق نطاق تسعير السوق المقترح!');
+		this.notify.success('تم تعديل الميزانية الإجمالية وفق نطاق تسعير السوق المقترح!');
 	}
 
 	private submitProject() {
+		if (!this.submitGuard.enter()) return;
 		this.isSubmitting.set(true);
 		const payload = {
 			title: this.projectName(),
 			description: this.projectDesc(),
 			specialtyId: this.selectedSpecialty(),
-			subSpecialty: this.selectedSubSpecialty(),
+			subSpecialty: this.effectiveSubSpecialty(),
+			skills: this.selectedSkills(),
 				accreditationSampleId: this.selectedModel(),
 			gallery: this.galleryUrls(),
 			stages: this.stages().map(stage => ({
@@ -731,27 +833,40 @@ export class NewProject implements OnInit, OnDestroy {
 
 		request$.subscribe({
 			next: (res) => {
+				this.submitGuard.release();
 				this.isSubmitting.set(false);
-					const msg = this.isEditMode() ? '✅ تم تحديث النموذج ونشره مباشرة' : '✅ تم نشر مشروعك مباشرة في السوق';
-				this.showToast(msg);
+					const msg = this.isEditMode() ? 'تم تحديث النموذج ونشره مباشرة' : 'تم نشر مشروعك مباشرة في السوق';
+				this.notify.success(msg);
 				setTimeout(() => {
 					this.router.navigate(['/provider-overview/business-models/market']);
 				}, 1200);
 			},
 				error: (err) => {
 					console.error('Publish failed', err);
+					this.submitGuard.release();
 					this.isSubmitting.set(false);
-					this.showToast(err?.error?.error || '⚠️ تعذر حفظ نموذج العمل. راجع البيانات وحاول مرة أخرى');
+					const mapped = mapHttpError(err, { fallback: 'تعذر حفظ نموذج العمل. راجع البيانات وحاول مرة أخرى' });
+					const serverMsg: string = err?.error?.message || err?.error?.error || '';
+					// Batch B T1: server field errors go to the step that holds the field (specialty / skills / approval model), shown next to it
+					const fields: Array<{ field?: string; path?: string; message?: string }> = Array.isArray(err?.error?.errors) ? err.error.errors : [];
+					const fieldMsg = (name: string) => fields.find(f => (f.field || f.path) === name)?.message;
+					if (fieldMsg('accreditationSampleId')) { this.modelError.set(fieldMsg('accreditationSampleId')!); this.currentStep.set(3); }
+					else if (fieldMsg('specialtyId')) { this.specialtyError.set(fieldMsg('specialtyId')!); this.currentStep.set(2); }
+					else if (fieldMsg('skills')) { this.skillsError.set(fieldMsg('skills')!); this.currentStep.set(2); }
+					if (err?.status === 400 && /مهار|skill/i.test(serverMsg)) {
+						// The server refused a skill that is not in the catalog of this field: show it next to the skills.
+						this.skillsError.set(serverMsg);
+						this.currentStep.set(2);
+					}
+					// Only a 400/422 that names fields lands on the field; network / 429 / 5xx / 403 / 409 stay a generic message.
+					void reportBackendError(this.host.nativeElement, mapped, {
+						resolve: { title: 'np-name', description: 'np-desc', specialtyId: 'np-specialty', subSpecialty: 'np-subspecialty', accreditationSampleId: 'np-model', totalAmount: 'np-total-amount' },
+						steps: { title: 1, description: 1, specialtyId: 2, subSpecialty: 2, accreditationSampleId: 3, totalAmount: 4 },
+						openStep: (st) => { this.currentStep.set(Number(st)); },
+					}).then(r => {
+						if (!r.handled) this.notify.error(mapped.kind === 'backend-validation' ? (serverMsg || mapped.message) : mapped.message);
+					});
 				}
 		});
-	}
-
-	showToast(msg: string) {
-		this.toastMessage.set(msg);
-		setTimeout(() => {
-			if (this.toastMessage() === msg) {
-				this.toastMessage.set('');
-			}
-		}, 4000);
 	}
 }

@@ -9,22 +9,3 @@
   background: rgba(246, 248, 252, .96);
 }
 
-.toast-box {
-  position: fixed;
-  top: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 99999;
-  background: rgba(7, 13, 36, 0.95);
-  border: 1px solid #2BD4C7;
-  box-shadow: 0 10px 30px rgba(43, 212, 199, 0.35);
-  padding: 12px 24px;
-  border-radius: 50px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 13px;
-  backdrop-filter: blur(10px);
-}

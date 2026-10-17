@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { HttpClient } from '@angular/common/http';
 import { of, throwError, Subject } from 'rxjs';
 import { vi } from 'vitest';
@@ -34,7 +36,7 @@ describe('ProjectDetails', () => {
       providers: [
         provideRouter([]),
         { provide: HttpClient, useValue: { get: () => of({ success: true, data: null }), post: () => of({ success: true, data: {} }) } },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }
+        { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }
       ]
     })
     .compileComponents();
@@ -117,7 +119,7 @@ describe('ProjectDetails — Batch 8 on-demand project health analysis', () => {
       providers: [
         provideRouter([]),
         { provide: HttpClient, useValue: { get: () => of({ success: true, data: { title: 'مشروع', stages: [], files: [], messages: [] } }), post: vi.fn(postImpl) } },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }
+        { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }
       ]
     }).compileComponents();
     fixture = TestBed.createComponent(ProjectDetails);
@@ -198,7 +200,7 @@ describe('ProjectDetails — real employee assignment (Batch 6)', () => {
             put: opts.putImpl ?? (() => of({ success: true, data: { id: 'proj-1', employee: makeMember() } })),
           }
         },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } },
+        { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } },
         { provide: AuthStore, useValue: { currentUser: () => ({ accountType: isCompany ? AccountType.CLIENT_COMPANY : AccountType.CLIENT_INDIVIDUAL }) } },
         { provide: ClientCompanyTeamService, useValue: { list: opts.listImpl ?? (() => of({ success: true, data: [makeMember()] })) } },
       ],
@@ -259,5 +261,93 @@ describe('ProjectDetails — real employee assignment (Batch 6)', () => {
     const { fixture } = await setup({ isCompany: false, workspaceData: { employee: { id: 'e1', name: 'سارة', jobTitle: 'مديرة' } } });
     const text = (fixture.nativeElement as HTMLElement).textContent || '';
     expect(text).not.toContain('الموظف المسؤول عن المتابعة');
+  });
+});
+
+// Client workspace states: an unfunded contract never looks running, held money is only real escrow, every stage keeps its real state, the review
+// buttons exist only for a delivery that is waiting, and a revision goes to the review page (a recorded decision) instead of the chat.
+describe('ProjectDetails: honest contract / funding / stage states', () => {
+  const STAGE = (o: Record<string, unknown> = {}) => ({ id: 's1', stageNumber: 1, title: 'التصميم', description: 'د', amount: 500, percentage: 50, status: 'pending', roundsCount: 0, threads: [], amountHeld: false, ...o });
+  const WS = (o: Record<string, unknown> = {}) => ({ success: true, data: { id: 'c1', projectId: 'proj-1', title: 'مشروع', clientName: 'نورة', clientInitial: 'ن', contractRef: 'CT-1', price: 1000, durationDays: 20, daysLeft: 20, progress: 0, escrowTotal: 0, escrowHeld: 0, escrowReleased: 0, escrowFunded: false, contractStatus: 'PENDING_CLIENT_SIGNATURE', status: 'PENDING_CLIENT_SIGNATURE', statusLabel: 'بانتظار توقيعك وإيداع الضمان', stages: [STAGE()], messages: [], files: [], deliveries: [], aiInsights: { confidence: null, earlyDays: null, matchPercentage: null, riskLevel: 'غير محسوبة', bullets: [] }, ...o } });
+
+  async function open(ws: any) {
+    const get = vi.fn((url: string) => String(url).includes('/workspace') ? of(ws) : of({ success: true, data: [] }));
+    await TestBed.configureTestingModule({ imports: [ProjectDetails], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post: vi.fn() } }, { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
+    const f = TestBed.createComponent(ProjectDetails); f.detectChanges(); await f.whenStable(); f.detectChanges();
+    const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const el = f.nativeElement as HTMLElement;
+    return { f, c: f.componentInstance, el, nav, text: () => el.textContent!.replace(/\s+/g, ' '), q: (id: string) => el.querySelector(`[data-testid="${id}"]`) as HTMLButtonElement | null };
+  }
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('unfunded, unsigned contract: says it has not started, nothing held, no countdown, dispute and change request disabled with the reason', async () => {
+    const s = await open(WS());
+    expect(s.q('pd-not-started')!.textContent).toContain('لم يُوقَّع ولم يُودَع الضمان');
+    expect(s.q('pd-held')!.textContent!.trim()).toBe('0');
+    expect(s.text()).toContain('لم يبدأ');
+    expect(s.text()).not.toContain('محتجز 500');
+    expect(s.text()).toContain('قيمة المرحلة 500 $');
+    expect(s.q('open-dispute')!.disabled).toBe(true);
+    expect(s.q('open-amendments')!.disabled).toBe(true);
+    expect(s.q('open-dispute')!.getAttribute('title')).toContain('بعد بدء العقد');
+  });
+
+  it('funded but waiting for the provider signature: held money is shown, and the page says the provider has to sign', async () => {
+    const s = await open(WS({ escrowFunded: true, escrowHeld: 1000, escrowTotal: 1000, contractStatus: 'PENDING_PROVIDER_SIGNATURE', stages: [STAGE({ amountHeld: true })] }));
+    expect(s.q('pd-not-started')!.textContent).toContain('بانتظار توقيع مقدم الخدمة');
+    expect(s.q('pd-held')!.textContent!.trim()).toBe('1,000');
+    expect(s.text()).toContain('محتجز 500 $');
+  });
+
+  it('active and funded: running, the actions are enabled, the stage shows held money', async () => {
+    const s = await open(WS({ escrowFunded: true, escrowHeld: 1000, contractStatus: 'ACTIVE', status: 'ACTIVE', daysLeft: 12, stages: [STAGE({ status: 'in_progress', amountHeld: true })] }));
+    expect(s.q('pd-not-started')).toBeNull();
+    expect(s.q('open-dispute')!.disabled).toBe(false);
+    expect(s.q('open-amendments')!.disabled).toBe(false);
+    expect(s.c.deadlineRating(s.c.project())).toBe('ضمن المدة');
+  });
+
+  it('each stage state is told apart: submitted, resubmitted, revision requested, approved', async () => {
+    const s = await open(WS({ escrowFunded: true, contractStatus: 'ACTIVE', stages: [
+      STAGE({ id: 'a', status: 'submitted', roundsCount: 1, amountHeld: true, threads: [{ id: 't', note: 'ن', files: [], date: new Date().toISOString() }] }),
+    ] }));
+    expect(s.c.statusHint({ status: 'submitted', roundsCount: 1 })).toContain('قيد المراجعة');
+    expect(s.c.statusHint({ status: 'submitted', roundsCount: 2, revisionResubmitted: true })).toContain('أعاد مقدم الخدمة التسليم');
+    expect(s.c.statusHint({ status: 'revision' })).toContain('طلبت تعديلًا');
+    expect(s.c.statusHint({ status: 'completed', completedDate: null })).toContain('اكتملت واعتمدت');
+    expect(s.c.stageMoneyLabel({ status: 'completed', amount: 500, amountHeld: false })).toBe('أُفرج 500 $');
+  });
+
+  it('the review buttons exist only for a submitted delivery; revision goes to the review page, not to the chat', async () => {
+    const none = await open(WS({ escrowFunded: true, contractStatus: 'ACTIVE', stages: [STAGE({ status: 'in_progress' })] }));
+    expect(none.text()).not.toContain('اعتماد التسليم');
+    TestBed.resetTestingModule();
+    const s = await open(WS({ escrowFunded: true, contractStatus: 'ACTIVE', stages: [STAGE({ status: 'submitted', roundsCount: 1, amountHeld: true, threads: [{ id: 't', note: 'ن', files: [], date: new Date().toISOString() }] })] }));
+    expect(s.text()).toContain('اعتماد التسليم وإفراج الدفعة');
+    expect(s.text()).toContain('طلب تعديل على التسليم');
+    s.c.openReview({ id: 's1' }, 'revision');
+    expect(s.nav).toHaveBeenCalledWith(['/client-overview/projects', 'proj-1', 'delivery-review', 's1'], { queryParams: { action: 'revision' } });
+    s.c.openReview({ id: 's1' }, 'approve');
+    expect(s.nav).toHaveBeenLastCalledWith(['/client-overview/projects', 'proj-1', 'delivery-review', 's1'], undefined);
+  });
+
+  it('an open dispute is shown as read-only status (only the admin decides) and the open button is disabled', async () => {
+    const s = await open(WS({ escrowFunded: true, contractStatus: 'DISPUTED', disputeStatus: 'UNDER_REVIEW' }));
+    expect(s.q('pd-open-dispute')!.textContent).toContain('قيد مراجعة الإدارة');
+    expect(s.q('open-dispute')!.disabled).toBe(true);
+  });
+
+  it('no invented health / compliance claims and no fake default "good" rating or "6 أيام" deadline', async () => {
+    const html = readFileSync(join(__dirname, 'project-details.html'), 'utf8');
+    const ts = readFileSync(join(__dirname, 'project-details.ts'), 'utf8');
+    for (const gone of ['SAMA', 'PDPL', 'v1.0.0', "|| 'جيد'", '6 أيام', "return 'قبل يوم'", 'تُتابَع المراحل تلقائياً']) { expect(html, gone).not.toContain(gone); expect(ts, gone).not.toContain(gone); }
+  });
+
+  it('a signed contract links to its terms page; an unsigned one does not (the terms page is where it is signed)', async () => {
+    const signed = await open(WS({ contractStatus: 'ACTIVE', escrowFunded: true }));
+    expect(signed.q('pd-contract-link')!.getAttribute('href')).toBe('/client-overview/my-requests/proj-1/contract');
+    TestBed.resetTestingModule();
+    const unsigned = await open(WS());
+    expect(unsigned.q('pd-contract-link')).toBeNull();
   });
 });

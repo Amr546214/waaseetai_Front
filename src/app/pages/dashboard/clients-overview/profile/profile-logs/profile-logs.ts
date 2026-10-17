@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AccountLogsService, AccountAuditLog } from '../../../../../core/services/account-logs.service';
 
 export interface RequestLog {
@@ -20,7 +21,7 @@ export interface RequestLog {
 @Component({
 	selector: 'app-profile-logs',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, RouterLink],
 	templateUrl: './profile-logs.html',
 	styles: [`
     @keyframes ws-fade {
@@ -57,7 +58,6 @@ export class ProfileLogs implements OnInit {
 
 	activeTab = signal<'add' | 'complete' | 'security'>('add');
 	state = signal<'loading' | 'error' | 'default'>('loading');
-	showToast = signal(false);
 
 	addRequests = signal<RequestLog[]>([]);
 	completeRequests = signal<RequestLog[]>([]);
@@ -126,7 +126,7 @@ export class ProfileLogs implements OnInit {
 				statusText: log.statusText || (log.category === 'SECURITY_CHANGE' ? 'مكتمل بنجاح' : (uiStatus === 'review' ? 'قيد المراجعة' : uiStatus)),
 				statusHint: log.canResubmit ? 'يمكنك التعديل وإعادة التقديم' : undefined,
 				actionText: log.canResubmit ? 'إعادة التقديم' : (uiStatus === 'approved' || uiStatus === 'completed' ? 'عرض التفاصيل' : undefined),
-				actionLink: '#',
+				actionLink: log.canResubmit ? '/client-overview/profile/edit' : '/client-overview/profile/requests',
 				iconBg,
 				iconColor,
 				iconSvg
@@ -153,10 +153,5 @@ export class ProfileLogs implements OnInit {
 
 	setTab(tab: 'add' | 'complete' | 'security') {
 		this.activeTab.set(tab);
-	}
-
-	triggerToast() {
-		this.showToast.set(true);
-		setTimeout(() => this.showToast.set(false), 3000);
 	}
 }

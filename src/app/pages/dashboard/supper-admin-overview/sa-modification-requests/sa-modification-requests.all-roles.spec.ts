@@ -3,6 +3,8 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { SaModificationRequests } from './sa-modification-requests';
 import { SaModificationRequestsService } from './sa-modification-requests.service';
+import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../shared/forms/form-spec-utils';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 
 // Admin queue for profile modification requests: marketers (ProfileChangeRequest) + providers/clients (ProfileModificationRequest), with history.
 const aff = (over: any = {}) => ({
@@ -53,25 +55,53 @@ describe('admin modification requests: all roles + history', () => {
 		expect(svc.approve).not.toHaveBeenCalled();
 		c.approve(affRow);
 		expect(svc.approve).toHaveBeenCalledWith('aff-1');
-		vi.spyOn(window, 'prompt').mockReturnValue('  الصورة غير واضحة ');
+		// reject opens the inline reason panel first (no native prompt); the request goes out on confirm
 		c.reject(profileRow);
+		expect(svc.reviewProfileRequest).toHaveBeenCalledTimes(1);   // only the approve above
+		c.rejectReason.set('  الصورة غير واضحة ');
+		c.confirmReject(profileRow);
 		expect(svc.reviewProfileRequest).toHaveBeenLastCalledWith(profileRow.id, false, 'الصورة غير واضحة');
 		c.reject(affRow);
+		c.rejectReason.set('  الصورة غير واضحة ');
+		c.confirmReject(affRow);
 		expect(svc.reject).toHaveBeenCalledWith('aff-1', 'الصورة غير واضحة');
 	});
 
-	it('a rejected decision with no reason is not sent', async () => {
-		const { c } = await mount({ profile: of({ success: true, data: [prof()] }) });
-		vi.spyOn(window, 'prompt').mockReturnValue('   ');
-		c.reject(c.requests()[0]);
+	it('a rejected decision with no reason is not sent; the message is under the reason box with focus', async () => {
+		const { f, c, el } = await mount({ profile: of({ success: true, data: [prof()] }) });
+		c.reject(c.requests()[0]); f.detectChanges();
+		c.rejectReason.set('   ');
+		c.confirmReject(c.requests()[0]); await settleForm();
+		const ta = el.querySelector('#mr-reject-reason');
+		expectFieldProblem(ta, 'سبب الرفض مطلوب');
+		expectFocused(ta);
 		expect(svc.reviewProfileRequest).not.toHaveBeenCalled();
+	});
+
+	it('reject failures: a 400 naming reason goes under the box; 429 / 500 / 403 / 409 keep the panel open with a generic alert', async () => {
+		const { f, c, el } = await mount({ profile: of({ success: true, data: [prof()] }) });
+		const row = c.requests()[0];
+		c.reject(row); f.detectChanges();
+		c.rejectReason.set('سبب مكتوب');
+		svc.reviewProfileRequest.mockReturnValueOnce(throwError(() => httpFail(400, { errors: [{ field: 'reason', message: 'السبب غير مقبول' }] })));
+		c.confirmReject(row); await settleForm(); f.detectChanges();
+		expectFieldProblem(el.querySelector('#mr-reject-reason'), 'غير مقبول');
+		for (const st of [429, 500, 403, 409]) {
+			svc.reviewProfileRequest.mockReturnValueOnce(throwError(() => httpFail(st, { message: 'x' })));
+			c.confirmReject(row); await settleForm(); f.detectChanges();
+			expect(c.rejectError(), String(st)).toBeTruthy();
+			expectNoFieldProblem(el);
+			expect(el.querySelector('[data-testid="reject-error"]')?.getAttribute('role')).toBe('alert');
+		}
+		expect(c.rejectReason()).toBe('سبب مكتوب');
+		expect(c.rejectingId()).toBe(row.id);
 	});
 
 	it('a failed decision shows the server message and no success', async () => {
 		const { c } = await mount({ profile: of({ success: true, data: [prof()] }) });
 		svc.reviewProfileRequest.mockReturnValueOnce(throwError(() => ({ error: { message: 'REQUEST_NOT_PENDING_REVIEW' } })));
 		c.approve(c.requests()[0]);
-		expect(c.toast()).toBe('REQUEST_NOT_PENDING_REVIEW');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => ({ kind: t.kind, message: t.message }))).toContainEqual({ kind: 'error', message: 'REQUEST_NOT_PENDING_REVIEW' });
 	});
 
 	it('one source failing still shows the other, with a visible incomplete-list warning', async () => {

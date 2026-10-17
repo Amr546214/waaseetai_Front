@@ -66,7 +66,12 @@ describe('404 page — public vs inside the dashboard', () => {
 });
 
 describe('every dashboard role renders its own 404 inside the layout, without the assistant', () => {
-	const last = (list: readonly { path?: string; data?: Record<string, unknown> }[]) => list[list.length - 1];
+	type R = { path?: string; data?: Record<string, unknown>; children?: readonly R[] };
+	// the marketer routes sit under one pathless guard wrapper (marketerPrefsGuard): look through it to the real last child
+	const last = (list: readonly R[]): R => {
+		const l = list[list.length - 1];
+		return l.path === '' && l.children?.length ? last(l.children) : l;
+	};
 
 	for (const [role, list] of [['client', CLIENT_OVERVIEW_ROUTES], ['provider', PROVIDER_OVERVIEW_ROUTES], ['marketer', MARKETER_ROUTES], ['admin', SUPPER_ADMIN_ROUTES]] as const) {
 		it(`${role}: the last child route is a ** not-found with embedded + hideAssistant`, () => {

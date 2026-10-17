@@ -4,9 +4,10 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog } from '../../../../../core/services/marketer-overview.service';
+import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog, MarketerSettings } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from '../../../../../core/services/marketer-profile.service';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
+import { MarketerPrefsStore } from '../../../../../core/services/marketer-prefs.store';
+import { PROVIDER_TIMEZONES } from '../../../../../core/services/provider-prefs.store';
 import { canonicalStoredPhone, phoneCountryView } from '../../../../../core/forms/phone-countries';
 import { paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
@@ -57,12 +58,11 @@ const confirmMatchesValidator = (control: AbstractControl): ValidationErrors | n
 
 const hasArabic = (s: unknown): s is string => typeof s === 'string' && /[؀-ۿ]/.test(s);
 
-const DEFAULT_ALERT_PREFERENCES = {
-	marketer_new_referral: true,
-	marketer_new_commission: true,
-	marketer_tier_upgrade: true,
-	marketer_ai_tips: false,
-};
+/** Shown while nothing is saved (the same defaults the server applies): in-app on, e-mail off, both event alerts on, Arabic, the browser's own timezone. */
+const DEFAULT_MARKETER_SETTINGS: MarketerSettings = { inApp: true, email: false, newReferral: true, newCommission: true, communicationLanguage: 'ar', timezone: null };
+
+/** The zones the marketer can pick (the same list the server accepts). */
+export const MARKETER_TIMEZONE_OPTIONS: { value: string; label: string }[] = PROVIDER_TIMEZONES.map(z => ({ value: z, label: ({ 'Asia/Riyadh': 'توقيت الرياض (GMT+3)', 'Asia/Dubai': 'توقيت دبي (GMT+4)', 'Asia/Kuwait': 'توقيت الكويت (GMT+3)', 'Africa/Cairo': 'توقيت القاهرة', 'Asia/Amman': 'توقيت عمّان', GMT: 'توقيت غرينتش (GMT)' } as Record<string, string>)[z] ?? z }));
 
 @Component({
 	selector: 'app-data',
@@ -76,7 +76,7 @@ export class Data implements OnInit {
 	private router = inject(Router);
 	private overviewService = inject(MarketerOverviewService);
 	private profileService = inject(MarketerProfileService);
-	private notificationPreferencesService = inject(NotificationPreferencesService);
+	private prefsStore = inject(MarketerPrefsStore);
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private readonly notify = inject(UiNotificationService);
 
@@ -108,8 +108,6 @@ export class Data implements OnInit {
 	activeTab = signal<string>('profile');
 	copiedField = signal<string>('');
 
-	toastMessage = signal<{ text: string; type: 'success' | 'error' } | null>(null);
-	private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
 	savingProfile = signal<boolean>(false);
 	savingPaypal = signal<boolean>(false);
@@ -120,7 +118,10 @@ export class Data implements OnInit {
 	profileLoadError = signal<boolean>(false);
 	passwordFormVisible = signal<boolean>(false);
 	isChangingPassword = signal<boolean>(false);
-	alertPreferences = { ...DEFAULT_ALERT_PREFERENCES };
+	/** The marketer's saved settings: channels, per-event alerts, communication language, timezone. */
+	alertPreferences: MarketerSettings = { ...DEFAULT_MARKETER_SETTINGS };
+	readonly timezoneOptions = MARKETER_TIMEZONE_OPTIONS;
+	exportingData = signal<boolean>(false);
 	isSavingAlerts = signal<boolean>(false);
 
 	referralLink = computed(() => buildReferralUrl(this.profile()?.referralSlug));
@@ -218,11 +219,11 @@ export class Data implements OnInit {
 
 		this.loadProfile();
 
-		this.notificationPreferencesService.getPreferences().subscribe({
+		this.overviewService.getSettings().subscribe({
 			next: (res) => {
-				if (res.success) {
-					const saved = res.data?.settings || {};
-					this.alertPreferences = { ...DEFAULT_ALERT_PREFERENCES, ...saved } as typeof DEFAULT_ALERT_PREFERENCES;
+				if (res.success && res.data) {
+					this.alertPreferences = { ...DEFAULT_MARKETER_SETTINGS, ...res.data };
+					this.prefsStore.apply(res.data);
 					this.alertsLoadFailed.set(false);
 				}
 			},
@@ -378,7 +379,7 @@ export class Data implements OnInit {
 				if (res.success) {
 					this.loadProfile();
 					this.missing.set([]);
-					this.showToast(email ? 'تم حفظ بريد PayPal' : 'تم إزالة بريد PayPal', 'success');
+					this.notify.success(email ? 'تم حفظ بريد PayPal' : 'تم إزالة بريد PayPal');
 				} else {
 					this.tabNotice.set(this.arabicOr(res.message, 'تعذر حفظ بريد PayPal'));
 					this.notify.error(this.arabicOr(res.message, 'تعذر حفظ بريد PayPal'));
@@ -430,7 +431,7 @@ export class Data implements OnInit {
 					this.identitySentNow.set(true);
 					this.missing.set([]);
 					this.loadProfile();
-					this.showToast('تم إرسال طلب التعديل للمراجعة بنجاح', 'success');
+					this.notify.success('تم إرسال طلب التعديل للمراجعة بنجاح');
 				} else {
 					this.tabNotice.set(this.arabicOr(res.message, 'تعذر إرسال طلب التعديل'));
 					this.notify.error(this.arabicOr(res.message, 'تعذر إرسال طلب التعديل'));
@@ -463,7 +464,7 @@ export class Data implements OnInit {
 				if (res.success) {
 					this.loadProfile();
 					this.missing.set([]);
-					this.showToast(successMessage, 'success');
+					this.notify.success(successMessage);
 				} else {
 					if (revertAvatarUrlOnError !== undefined) this.marketingForm.patchValue({ avatarUrl: revertAvatarUrlOnError });
 					this.notify.error(this.arabicOr(res.message, 'تعذر حفظ التغييرات'));
@@ -534,7 +535,7 @@ export class Data implements OnInit {
 					this.loadProfile();
 					this.channelForm.reset({ platform: '', handle: '' });
 					this.channelMissing.set([]);
-					this.showToast('تمت إضافة القناة بنجاح', 'success');
+					this.notify.success('تمت إضافة القناة بنجاح');
 				} else {
 					this.notify.error(this.arabicOr(res.message, 'تعذر إضافة القناة'));
 				}
@@ -555,7 +556,7 @@ export class Data implements OnInit {
 			next: (res) => {
 				if (res.success) {
 					this.loadProfile();
-					this.showToast('تم حذف القناة بنجاح', 'success');
+					this.notify.success('تم حذف القناة بنجاح');
 				} else {
 					this.notify.error(this.arabicOr(res.message, 'تعذر حذف القناة'));
 				}
@@ -593,7 +594,7 @@ export class Data implements OnInit {
 				this.passwordForm.reset();
 				this.missing.set([]);
 				this.passwordFormVisible.set(false);
-				this.showToast('تم تغيير كلمة المرور بنجاح', 'success');
+				this.notify.success('تم تغيير كلمة المرور بنجاح');
 			},
 			error: (err: any) => {
 				this.isChangingPassword.set(false);
@@ -621,12 +622,13 @@ export class Data implements OnInit {
 	saveAlertPreferences() {
 		if (this.isSavingAlerts()) return;
 		this.isSavingAlerts.set(true);
-		this.notificationPreferencesService.updatePreferences(this.alertPreferences).subscribe({
+		this.overviewService.updateMarketerSettings(this.alertPreferences).subscribe({
 			next: (res) => {
 				this.isSavingAlerts.set(false);
 				if (res.success) {
+					if (res.data) { this.alertPreferences = { ...DEFAULT_MARKETER_SETTINGS, ...res.data }; this.prefsStore.apply(res.data); }
 					this.alertsLoadFailed.set(false);
-					this.showToast('تم حفظ إعدادات التنبيهات بنجاح', 'success');
+					this.notify.success('تم حفظ الإعدادات بنجاح');
 				} else {
 					this.notify.error(this.arabicOr(res.message, 'تعذر حفظ الإعدادات'));
 				}
@@ -638,11 +640,21 @@ export class Data implements OnInit {
 		});
 	}
 
-	private showToast(text: string, type: 'success' | 'error' = 'success') {
-		this.toastMessage.set({ text, type });
-		// A newer toast must not be cleared early by the timer of an older one.
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(() => { this.toastMessage.set(null); this.toastTimer = null; }, type === 'error' ? 5000 : 3000);
+	/** Downloads the marketer's own data as a real JSON file produced by the server. */
+	downloadMyData() {
+		if (this.exportingData()) return;
+		this.exportingData.set(true);
+		this.overviewService.exportData().subscribe({
+			next: (blob) => {
+				this.exportingData.set(false);
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url; a.download = 'waseet-marketer-data.json';
+				document.body.appendChild(a); a.click(); a.remove();
+				setTimeout(() => URL.revokeObjectURL(url), 1000);
+			},
+			error: (err) => { this.exportingData.set(false); this.notify.httpError(err, { fallback: 'تعذر تنزيل بياناتك، حاول مرة أخرى' }); }
+		});
 	}
 
 	copyToClipboard(text: string, field: string) {

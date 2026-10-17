@@ -6,6 +6,11 @@
 		</div>
 	</div>
 
+	<div class="ws-note ws-note--neutral" role="note" data-testid="ra-unavailable">
+		<div class="ws-note-ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
+		<div class="ws-note-body"><div class="ws-note-lbl">غير مفعّل بعد</div><p class="ws-note-txt">لا يوجد سير موافقات مفعّل لحسابك بعد، لذلك لا توجد طلبات اعتماد تُعرض هنا.</p></div>
+	</div>
+
 	<!-- Stats -->
 	<div class="ra-stats">
 		<div class="stat-box">
@@ -23,7 +28,7 @@
 			</div>
 			<div>
 				<div class="stat-val">{{ requests.filter(r => r.status === 'approved').length }}</div>
-				<div class="stat-lbl">معتمد هذا الشهر</div>
+				<div class="stat-lbl">معتمد</div>
 			</div>
 		</div>
 		<div class="stat-box">
@@ -97,6 +102,8 @@
 					</div>
 				}
 			</div>
+		} @empty {
+			<div class="apr-card" data-testid="ra-empty">لا توجد طلبات في هذه الفئة.</div>
 		}
 	</div>
 </div>

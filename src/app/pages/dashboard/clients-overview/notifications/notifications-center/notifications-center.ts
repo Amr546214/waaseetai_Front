@@ -1,17 +1,23 @@
+
+import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
+import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
 import { Component, ChangeDetectionStrategy, signal, computed, OnInit, OnDestroy, inject, effect, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { NotificationEngineService, AppNotification } from '../../../../../core/services/notification-engine.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { NotificationNavigator } from '../../../../../core/services/notification-navigator.service';
 import { Subscription } from 'rxjs';
 import { filter, take, switchMap } from 'rxjs/operators';
+import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
 
 export type { AppNotification };
 
 @Component({
 	selector: 'app-notifications-center',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, LoadRetryComponent, RateLimitNoteComponent],
 	templateUrl: './notifications-center.html',
 	styleUrl: './notifications-center.css',
 	styles: [`
@@ -163,7 +169,9 @@ export type { AppNotification };
 })
 export class NotificationsCenter implements OnInit, OnDestroy {
 	private notificationEngine = inject(NotificationEngineService);
+	private notify = inject(UiNotificationService);
 	private router = inject(Router);
+	private navigator = inject(NotificationNavigator);
 	private authStore = inject(AuthStore);
 	private platformId = inject(PLATFORM_ID);
 
@@ -171,7 +179,9 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 	activeFilter = signal<string>('all');
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
-	toastMessage = signal<string | null>(null);
+	/** the failed load was a 429 (nothing loaded) / a 429 while notifications are shown (kept) */
+	rateLimited = signal(false);
+	rateLimitKept = signal(false);
 	markingAll = signal<boolean>(false);
 
 	filters = [
@@ -210,6 +220,15 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 					const mapped = this.toClientNotification(newNotif);
 					this.notifications.update(list => [mapped, ...list]);
 				}
+			}
+		});
+
+		// a coalesced chat row (same id, newer text / count): replace it and move it to the top; never a second row
+		effect(() => {
+			const upd = this.notificationEngine.realtimeUpdatedNotification();
+			if (upd && upd.id) {
+				const mapped = this.toClientNotification(upd);
+				this.notifications.update(list => [mapped, ...list.filter(n => n.id !== upd.id)]);
 			}
 		});
 
@@ -259,9 +278,12 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 					console.error('Failed to load client notifications:', err);
 				}
 				// Honest error state ("تعذر تحميل الإشعارات" + retry) instead of invented notifications.
-				this.notifications.set([]);
-				this.hasError.set(true);
-				this.isLoading.set(false);
+				handleLoadError(err, {
+					hasData: () => this.notifications().length > 0,
+					onKeep: () => { this.rateLimitKept.set(true); this.isLoading.set(false); },
+					onRateLimit: () => { this.hasError.set(true); this.rateLimited.set(true); this.isLoading.set(false); },
+					onOtherError: () => { this.notifications.set([]); this.hasError.set(true); this.isLoading.set(false); },
+				});
 			}
 		});
 	}
@@ -324,41 +346,30 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 				this.markingAll.set(false);
 				this.notifications.update(list => list.map(n => ({ ...n, isUnread: false })));
 				this.notificationEngine.unreadCount.set(0);
-				this.showToast('تم تعليم كل الإشعارات كمقروءة');
+				this.notify.success('تم تعليم كل الإشعارات كمقروءة');
 			},
 			error: () => {
 				// Never fake it: the server did not record it, so the list and the counters stay as they are.
 				this.markingAll.set(false);
-				this.showToast('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
+				this.notify.error('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
 			}
 		});
 	}
 
 	onNotificationClick(nt: AppNotification) {
-		if (nt.isUnread) {
-			this.notificationEngine.markNotificationAsRead(nt.id).subscribe({
-				next: () => {
-					this.notifications.update(list =>
-						list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n)
-					);
-					this.notificationEngine.unreadCount.set(this.unreadCount());
-				}
-			});
-		}
-		if (nt.actionUrl) {
-			// actionUrl may include a query string (e.g. a CHAT notification's
-			// ?conversationId=...) — navigateByUrl parses it correctly, unlike
-			// navigate([...]) which treats a single array element as a literal
-			// path segment and would mangle the "?". Matches the provider
-			// notifications page's own click handler.
-			this.router.navigateByUrl(nt.actionUrl);
-		}
+		// read or unread, first or second click: the destination always opens; marking read never blocks it (see NotificationNavigator)
+		void this.navigator.open(nt, {
+			onMarkedRead: () => {
+				this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n));
+				this.notificationEngine.unreadCount.set(this.unreadCount());
+			}
+		});
 	}
 
 	retry() {
 		this.dataSub?.unsubscribe();
 		this.isLoading.set(true);
-		this.hasError.set(false);
+		this.hasError.set(false); this.rateLimited.set(false); this.rateLimitKept.set(false);
 		this.dataSub = this.notificationEngine.fetchNotifications().subscribe({
 			next: (res: any) => {
 				this.isLoading.set(false);
@@ -369,19 +380,15 @@ export class NotificationsCenter implements OnInit, OnDestroy {
 					this.notifications.set([]);
 				}
 			},
-			error: () => {
-				this.notifications.set([]);
-				this.hasError.set(true);
-				this.isLoading.set(false);
+			error: (err: any) => {
+				handleLoadError(err, {
+					hasData: () => this.notifications().length > 0,
+					onKeep: () => { this.rateLimitKept.set(true); this.isLoading.set(false); },
+					onRateLimit: () => { this.hasError.set(true); this.rateLimited.set(true); this.isLoading.set(false); },
+					onOtherError: () => { this.notifications.set([]); this.hasError.set(true); this.isLoading.set(false); },
+				});
 			}
 		});
-	}
-
-	showToast(msg: string) {
-		this.toastMessage.set(msg);
-		setTimeout(() => {
-			this.toastMessage.set(null);
-		}, 3000);
 	}
 
 	goToSettings() {

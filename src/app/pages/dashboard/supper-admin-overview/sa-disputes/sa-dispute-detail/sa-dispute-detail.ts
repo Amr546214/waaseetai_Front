@@ -1,13 +1,21 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
-import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, DisputeAiSummary } from '../../../../../core/models/dispute.model';
+import { AdminOpsApiService, AdminStaffMember } from '../../../../../core/services/admin-ops-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
+import { FieldProblem } from '../../../../../shared/forms/form-error-focus';
+import { clearAllInvalid, handleAdminError, reportAdminProblems } from '../../shared/admin-form-report';
+import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, ResolveFinancialPayload, FinancialOutcomeCode, DisputeAiSummary } from '../../../../../core/models/dispute.model';
+import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionText } from '../../../../../core/utils/dispute-labels.util';
 
 @Component({
   selector: 'app-sa-dispute-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule, WsSelectComponent],
   templateUrl: './sa-dispute-detail.html',
   styleUrls: ['../sa-disputes.css', './sa-dispute-detail.css'],
 })
@@ -15,6 +23,12 @@ export class SaDisputeDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private disputeApi = inject(DisputeApiService);
+  private opsApi = inject(AdminOpsApiService);
+  private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** Honest failure of assign / note / status (network, 429, 5xx, 403, 409, non-field 400), next to the controls. */
+  opError = signal('');
+  private auth = inject(AuthStore);
 
   selectedDispute = signal<Dispute | null>(null);
   loading = signal(true);
@@ -27,7 +41,17 @@ export class SaDisputeDetail implements OnInit {
   resolutionNote = signal('');
   submittingResolve = signal(false);
   resolveError = signal('');
-  resolveSuccess = signal('');
+  // Two-step resolve: the form first, then an explicit warning/confirmation before anything is sent.
+  confirmingResolve = signal(false);
+
+  // Staff operations: assignment, internal notes and the OPEN <-> UNDER_REVIEW switch.
+  staff = signal<AdminStaffMember[]>([]);
+  staffOptions = computed(() => this.staff().map(s => ({ value: s.id, label: s.name })));
+  selectedAssigneeId = signal('');
+  noteDraft = signal('');
+  opBusy = signal(false);
+
+  readonly noEscalationBackend = 'يحتاج قرار منتج/جدول بيانات غير متوفر';
 
   // Advisory-only AI summary — entirely separate from the manual
   // resolve/reject state above. Never pre-fills resolutionText/resolutionNote.
@@ -35,23 +59,29 @@ export class SaDisputeDetail implements OnInit {
   aiSummaryLoading = signal(false);
   aiSummaryError = signal('');
 
-  // Interactive escrow-split control. There is no dedicated "apply split"
-  // backend endpoint (see DisputeApiService's documented gaps), so this
-  // slider feeds the one real write endpoint that exists — resolveAdminDispute
-  // — by generating the resolution text/note from the chosen split and
-  // opening the existing manual resolve form pre-filled with it.
-  splitClaimantPct = signal(50);
+  // Two kinds of admin decision (the screen explains both):
+  //  1) TEXT closure/rejection (the "resolve"/"reject" form): recorded + both parties notified, moves NO money.
+  //  2) FINANCIAL decision (the "financial" form): explicit amounts that settle the whole held escrow, explicit confirmation, executed atomically
+  //     by the backend. Typing a code like REFUND_CLIENT in the text form executes nothing (the backend refuses it).
+  readonly resolutionPresets = ['MUTUAL_CLOSE', 'NO_FINANCIAL_CHANGE', 'REJECTED_INSUFFICIENT_EVIDENCE'];
+  presetLabel(code: string): string { return TEXT_CLOSURE_LABELS_AR[code] ?? code; }
+  resolutionDisplay = disputeResolutionText;
 
-  // Parties come from the real dispute (openedBy / againstUser). The admin API returns no escrow amount, no
-  // respondent defence and no similar-case data, so none of those is shown (previously mock names/amounts/cases).
-
-  readonly resolutionPresets = [
-    'REFUND_CLIENT',
-    'RELEASE_TO_PROVIDER',
-    'PARTIAL_REFUND',
-    'MUTUAL_CLOSE',
-    'REJECTED_INSUFFICIENT_EVIDENCE',
+  readonly financialOutcomes: { code: FinancialOutcomeCode; label: string; hint: string }[] = [
+    { code: 'REFUND_CLIENT', label: FINANCIAL_OUTCOME_LABELS_AR.REFUND_CLIENT, hint: 'يعود المبلغ المحتجز كاملًا إلى محفظة العميل ويُلغى العقد. لا عمولة.' },
+    { code: 'RELEASE_PROVIDER', label: FINANCIAL_OUTCOME_LABELS_AR.RELEASE_PROVIDER, hint: 'يُصرف المبلغ المحتجز كاملًا لمقدم الخدمة بعد خصم عمولة المنصة المثبّتة في العقد، ويُغلق العقد.' },
+    { code: 'SPLIT', label: FINANCIAL_OUTCOME_LABELS_AR.SPLIT, hint: 'يُقسَّم المبلغ المحتجز: جزء للعميل وجزء لمقدم الخدمة (العمولة على جزء مقدم الخدمة فقط).' },
   ];
+  outcomeHint(code: FinancialOutcomeCode): string { return this.financialOutcomes.find(o => o.code === code)?.hint ?? ''; }
+  showFinancialForm = signal(false);
+  finOutcome = signal<FinancialOutcomeCode | null>(null);
+  finRefund = signal('');
+  finRelease = signal('');
+  finNote = signal('');
+  finConfirmStep = signal(false);
+  finConfirmed = signal(false);
+  finSubmitting = signal(false);
+  finError = signal('');
 
   readonly statusLabels: Record<DisputeStatus, string> = {
     OPEN: 'مفتوح',
@@ -67,7 +97,17 @@ export class SaDisputeDetail implements OnInit {
     REJECTED: 'dp-st-rejected',
   };
 
+  readonly escrowLabels: Record<string, string> = {
+    HELD: 'محتجز',
+    RELEASED: 'مُحرَّر',
+    REFUNDED: 'مُسترد',
+  };
+
   ngOnInit(): void {
+    this.opsApi.listStaff().subscribe({
+      next: (res) => this.staff.set(res.success && Array.isArray(res.data) ? res.data : []),
+      error: () => this.staff.set([]),
+    });
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (!id) {
@@ -86,14 +126,15 @@ export class SaDisputeDetail implements OnInit {
     this.selectedDispute.set(null);
     this.aiSummary.set(null);
     this.aiSummaryError.set('');
-    this.splitClaimantPct.set(50);
-    this.resolveSuccess.set('');
+    this.cancelFinancialForm();
+    this.noteDraft.set('');
     this.cancelResolveForm();
     this.disputeApi.getAdminDispute(id).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res.success && res.data) {
           this.selectedDispute.set(res.data);
+          this.selectedAssigneeId.set(res.data.assignedTo?.id ?? '');
         } else {
           this.notFound.set(true);
         }
@@ -136,11 +177,6 @@ export class SaDisputeDetail implements OnInit {
     };
   }
 
-  /** Evidence is attached by whoever opened the dispute; the API carries no per-file party, so it is all shown under the opener. */
-  evidenceParty(_index: number): 'claimant' | 'respondent' {
-    return 'claimant';
-  }
-
   evidenceFileName(url: string): string {
     try {
       const clean = url.split('?')[0].split('#')[0];
@@ -151,63 +187,192 @@ export class SaDisputeDetail implements OnInit {
     }
   }
 
-  /** Activity log — only the "opened" and "resolved/rejected" entries carry
-   *  real API timestamps (createdAt/resolvedAt). The intermediate entries
-   *  are approximate placeholders (no per-event audit trail exists in the
-   *  API yet) and are explicitly marked "غير مؤرَّخ من الـ API". */
-  activityLog(d: Dispute): { label: string; dateLabel: string; dotColor: string; approx: boolean }[] {
-    const events: { label: string; dateLabel: string; dotColor: string; approx: boolean }[] = [];
-    events.push({
+  /** Dispute log: the opening entry (createdAt) followed by the real audit-log entries returned by the API. */
+  activityLog(d: Dispute): { label: string; detail: string; dateLabel: string; dotColor: string }[] {
+    const events: { label: string; detail: string; dateLabel: string; dotColor: string }[] = [{
       label: `فتح النزاع بواسطة ${this.partyInfo(d, 'claimant').name}`,
+      detail: '',
       dateLabel: this.formatDate(d.createdAt),
       dotColor: '#FFB400',
-      approx: false,
-    });
-    if (d.evidence && d.evidence.length > 0) {
+    }];
+    const entries = [...(d.timeline ?? [])].sort((x, y) => new Date(x.occurredAt).getTime() - new Date(y.occurredAt).getTime());
+    for (const e of entries) {
       events.push({
-        label: `إرفاق ${d.evidence.length} ${d.evidence.length === 1 ? 'دليل' : 'أدلة'} على النزاع`,
-        dateLabel: 'تاريخ الرفع غير مسجَّل لكل ملف على حدة',
+        label: e.title,
+        detail: [e.summary, e.admin?.name ? `بواسطة ${e.admin.name}` : ''].filter(Boolean).join(' — '),
+        dateLabel: this.formatDate(e.occurredAt),
         dotColor: '#5DA0FF',
-        approx: true,
-      });
-    }
-    if (d.status === 'UNDER_REVIEW' || d.status === 'RESOLVED' || d.status === 'REJECTED') {
-      events.push({
-        label: 'انتقل النزاع إلى حالة قيد المراجعة',
-        dateLabel: 'غير مؤرَّخ من الـ API',
-        dotColor: '#FFB400',
-        approx: true,
-      });
-    }
-    if (d.status === 'RESOLVED' || d.status === 'REJECTED') {
-      events.push({
-        label: d.status === 'RESOLVED' ? 'تم حل النزاع' + (d.resolution ? ` — ${d.resolution}` : '') : 'تم رفض النزاع' + (d.resolution ? ` — ${d.resolution}` : ''),
-        dateLabel: this.formatDate(d.resolvedAt),
-        dotColor: d.status === 'RESOLVED' ? '#0FA99A' : '#FF8C69',
-        approx: false,
       });
     }
     return events;
   }
 
-  onSplitInput(value: string) {
-    const n = Number(value);
-    if (!Number.isNaN(n)) this.splitClaimantPct.set(Math.min(100, Math.max(0, n)));
+  private reload(successMsg: string) {
+    const id = this.selectedDispute()?.id;
+    if (!id) return;
+    this.disputeApi.getAdminDispute(id).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.selectedDispute.set(res.data);
+          this.selectedAssigneeId.set(res.data.assignedTo?.id ?? '');
+        }
+        this.notify.success(successMsg);
+      },
+      error: () => this.notify.warning(`${successMsg} (تعذر تحديث العرض، أعد تحميل الصفحة)`),
+    });
   }
 
-  /** Applies the chosen quick-verdict preset (and, for a partial split, the
-   *  slider's current percentages) by opening the existing manual resolve
-   *  form pre-filled — the actual submission still goes through the real
-   *  resolveAdminDispute() endpoint via the unchanged submitResolve() flow. */
-  applyVerdict(preset: string, d: Dispute) {
-    this.openResolveForm('resolve');
-    if (preset === 'PARTIAL_REFUND') {
-      const pct = this.splitClaimantPct();
-      this.resolutionText.set(`PARTIAL_REFUND`);
-      this.resolutionNote.set(`تقسيم الضمان: ${pct}% لمقدّم النزاع و${100 - pct}% للطرف الآخر`);
-    } else {
-      this.selectPreset(preset);
-    }
+  private runOp(call: (id: string) => import('rxjs').Observable<{ success: boolean; message?: string }>, successMsg: string, fail: string, after?: () => void, resolve: Record<string, string> = {}) {
+    const dispute = this.selectedDispute();
+    if (!dispute || this.opBusy()) return;
+    this.opError.set('');
+    this.opBusy.set(true);
+    call(dispute.id).subscribe({
+      next: (res) => {
+        this.opBusy.set(false);
+        if (res.success) {
+          after?.();
+          this.reload(successMsg);
+        } else {
+          this.opError.set(res.message || fail);
+        }
+      },
+      error: (err) => {
+        this.opBusy.set(false);
+        handleAdminError(this.host.nativeElement, err, { fallback: fail, resolve }, (m) => this.opError.set(m));
+      },
+    });
+  }
+
+  assign() {
+    const assigneeId = this.selectedAssigneeId();
+    if (!assigneeId) { this.opError.set(''); void reportAdminProblems(this.host.nativeElement, [{ field: 'dp-assignee', message: 'اختر الموظف الذي سيُسنَد إليه النزاع' }]); return; }
+    this.runOp((id) => this.disputeApi.assignAdminDispute(id, assigneeId), 'تم إسناد النزاع', 'تعذر إسناد النزاع', undefined, { assigneeId: 'dp-assignee' });
+  }
+
+  addNote() {
+    const body = this.noteDraft().trim();
+    if (!body) { this.opError.set(''); void reportAdminProblems(this.host.nativeElement, [{ field: 'dp-note', message: 'اكتب نص الملاحظة الداخلية قبل الإضافة' }]); return; }
+    this.runOp((id) => this.disputeApi.addAdminDisputeNote(id, body), 'تمت إضافة الملاحظة الداخلية', 'تعذر إضافة الملاحظة', () => this.noteDraft.set(''), { body: 'dp-note' });
+  }
+
+  setStatus(status: 'OPEN' | 'UNDER_REVIEW') {
+    this.runOp((id) => this.disputeApi.setAdminDisputeStatus(id, status), status === 'UNDER_REVIEW' ? 'بدأت مراجعة النزاع' : 'أُعيد النزاع إلى المفتوح', 'تعذر تغيير الحالة');
+  }
+
+  // ── Financial decision ──────────────────────────────────────────────
+  private round2(n: number): number { return Math.round((n + Number.EPSILON) * 100) / 100; }
+
+  /** The unreleased escrow the decision must settle completely (server value; never computed from anything else). */
+  heldAmount(d: Dispute): number { return this.round2(d.heldEscrowAmount ?? 0); }
+
+  /** Why a financial decision is not available, or '' when it is. */
+  financialBlockedReason(d: Dispute): string {
+    if (!this.canResolve(d.status)) return 'النزاع محسوم مسبقًا';
+    // Owner decision: only a SUPER_ADMIN account moves money (the backend refuses anyone else with 403).
+    if (this.auth.currentUser()?.accountType !== 'SUPER_ADMIN') return 'القرار المالي من صلاحية المدير الأعلى (SUPER_ADMIN) فقط. يمكنك إغلاق النزاع نصيًا دون أثر مالي';
+    if (!d.escrow) return 'لا يوجد ضمان مرتبط بهذا النزاع';
+    if (d.escrow.status !== 'HELD' || this.heldAmount(d) <= 0) return 'لا يوجد مبلغ محتجز لتسويته (المبالغ المصروفة سابقًا لا تُسترد بقرار نزاع)';
+    if (d.contractStatus && d.contractStatus !== 'ACTIVE') return 'العقد غير نشط، لا يمكن تنفيذ قرار مالي';
+    return '';
+  }
+
+  openFinancialForm() {
+    const d = this.selectedDispute();
+    if (!d || this.financialBlockedReason(d)) return;
+    this.cancelResolveForm();
+    this.finOutcome.set(null); this.finRefund.set(''); this.finRelease.set(''); this.finNote.set('');
+    this.finConfirmStep.set(false); this.finConfirmed.set(false); this.finError.set('');
+    this.showFinancialForm.set(true);
+  }
+
+  cancelFinancialForm() {
+    this.showFinancialForm.set(false);
+    this.finOutcome.set(null); this.finRefund.set(''); this.finRelease.set(''); this.finNote.set('');
+    this.finConfirmStep.set(false); this.finConfirmed.set(false); this.finError.set('');
+  }
+
+  /** Picking an outcome pre-fills explicit amounts that settle the whole held balance; the admin can still edit them before confirming. */
+  chooseOutcome(code: FinancialOutcomeCode) {
+    const d = this.selectedDispute(); if (!d) return;
+    clearAllInvalid(this.host.nativeElement);
+    const held = this.heldAmount(d);
+    this.finOutcome.set(code);
+    this.finConfirmStep.set(false); this.finConfirmed.set(false); this.finError.set('');
+    if (code === 'REFUND_CLIENT') { this.finRefund.set(held.toFixed(2)); this.finRelease.set('0.00'); }
+    else if (code === 'RELEASE_PROVIDER') { this.finRefund.set('0.00'); this.finRelease.set(held.toFixed(2)); }
+    else { const half = this.round2(held / 2); this.finRefund.set(half.toFixed(2)); this.finRelease.set(this.round2(held - half).toFixed(2)); }
+  }
+
+  private amount(v: string): number { const n = Number(String(v).trim()); return Number.isFinite(n) ? n : NaN; }
+  finRefundNum = computed(() => this.amount(this.finRefund()));
+  finReleaseNum = computed(() => this.amount(this.finRelease()));
+  finSum = computed(() => this.round2((this.finRefundNum() || 0) + (this.finReleaseNum() || 0)));
+
+  /** Client-side mirror of the backend rules (the backend re-checks everything): every problem with the control it belongs to. */
+  financialProblems(d: Dispute): FieldProblem[] {
+    const outcome = this.finOutcome(); const refund = this.finRefundNum(); const release = this.finReleaseNum(); const held = this.heldAmount(d);
+    if (!outcome) return [{ field: 'dp-fin-outcome', message: 'اختر نوع القرار المالي' }];
+    const R = 'dp-fin-refund', L = 'dp-fin-release';
+    if (Number.isNaN(refund)) return [{ field: R, message: 'أدخل مبلغين صحيحين (مبلغ العميل ومبلغ مقدم الخدمة)' }, ...(Number.isNaN(release) ? [{ field: L, message: 'أدخل مبلغين صحيحين (مبلغ العميل ومبلغ مقدم الخدمة)' }] : [])];
+    if (Number.isNaN(release)) return [{ field: L, message: 'أدخل مبلغين صحيحين (مبلغ العميل ومبلغ مقدم الخدمة)' }];
+    const out: FieldProblem[] = [];
+    if (refund < 0) out.push({ field: R, message: 'لا يمكن أن يكون المبلغ سالبًا' });
+    if (release < 0) out.push({ field: L, message: 'لا يمكن أن يكون المبلغ سالبًا' });
+    if (out.length) return out;
+    if (this.round2(refund) !== refund) out.push({ field: R, message: 'بحد أقصى خانتان عشريتان' });
+    if (this.round2(release) !== release) out.push({ field: L, message: 'بحد أقصى خانتان عشريتان' });
+    if (out.length) return out;
+    if (outcome === 'REFUND_CLIENT' && !(refund > 0 && release === 0)) return [{ field: !(refund > 0) ? R : L, message: 'الاسترداد الكامل: مبلغ العميل أكبر من صفر ومبلغ مقدم الخدمة صفر' }];
+    if (outcome === 'RELEASE_PROVIDER' && !(release > 0 && refund === 0)) return [{ field: !(release > 0) ? L : R, message: 'الصرف الكامل: مبلغ مقدم الخدمة أكبر من صفر ومبلغ العميل صفر' }];
+    if (outcome === 'SPLIT' && !(release > 0 && refund > 0)) return [{ field: !(refund > 0) ? R : L, message: 'التقسيم: يجب أن يكون المبلغان أكبر من صفر' }];
+    if (this.finSum() !== held) return [{ field: R, message: `مجموع المبلغين (${this.finSum()}) يجب أن يساوي المبلغ المحتجز بالكامل (${held})` }];
+    const note = this.finNote().trim();
+    if (note && note.length < 2) return [{ field: 'dp-fin-note', message: 'الملاحظة قصيرة جدًا: اكتب حرفين على الأقل أو اتركها فارغة' }];
+    return [];
+  }
+
+  /** First message of financialProblems, or '' (kept for callers that only need the text). */
+  financialValidation(d: Dispute): string {
+    return this.financialProblems(d)[0]?.message ?? '';
+  }
+
+  /** Step 1: validate and show the explicit confirmation; nothing is sent. */
+  requestFinancialConfirm() {
+    const d = this.selectedDispute(); if (!d) return;
+    const problems = this.financialProblems(d);
+    if (problems.length) { this.finError.set(''); void reportAdminProblems(this.host.nativeElement, problems); return; }
+    this.finError.set(''); this.finConfirmed.set(false); this.finConfirmStep.set(true);
+  }
+
+  /** Step 2: send. Only possible after the explicit checkbox; a second click while sending is ignored. */
+  submitFinancial() {
+    const d = this.selectedDispute(); const outcome = this.finOutcome();
+    if (!d || !outcome || this.finSubmitting() || !this.finConfirmStep() || !this.finConfirmed()) return;
+    const problems = this.financialProblems(d);
+    if (problems.length) { this.finError.set(''); this.finConfirmStep.set(false); void reportAdminProblems(this.host.nativeElement, problems); return; }
+    const payload: ResolveFinancialPayload = { outcome, refundToClient: this.finRefundNum(), releaseToProvider: this.finReleaseNum(), expectedHeldAmount: this.heldAmount(d), confirm: true };
+    const note = this.finNote().trim();
+    if (note) payload.resolutionNote = note;
+    this.finSubmitting.set(true); this.finError.set('');
+    this.disputeApi.resolveAdminDisputeFinancial(d.id, payload).subscribe({
+      next: (res) => {
+        this.finSubmitting.set(false);
+        if (res.success) {
+          this.notify.success('نُفِّذ القرار المالي وأُبلغ الطرفان');
+          this.cancelFinancialForm();
+          this.reload('');
+        } else {
+          this.finError.set(res.message || 'تعذر تنفيذ القرار المالي، لم يتغيّر أي مبلغ');
+          this.finConfirmStep.set(false);
+        }
+      },
+      error: (err) => {
+        this.finSubmitting.set(false);
+        this.finConfirmStep.set(false);
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تنفيذ القرار المالي، لم يتغيّر أي مبلغ', resolve: { refundToClient: 'dp-fin-refund', releaseToProvider: 'dp-fin-release', resolutionNote: 'dp-fin-note', outcome: 'dp-fin-outcome' } }, (m) => this.finError.set(m));
+      },
+    });
   }
 
   // Advisory-only — purely additive read. Never touches resolutionText/
@@ -238,7 +403,7 @@ export class SaDisputeDetail implements OnInit {
     this.resolutionText.set('');
     this.resolutionNote.set('');
     this.resolveError.set('');
-    this.resolveSuccess.set('');
+    this.confirmingResolve.set(false);
     this.showResolveForm.set(true);
   }
 
@@ -248,6 +413,18 @@ export class SaDisputeDetail implements OnInit {
     this.resolutionText.set('');
     this.resolutionNote.set('');
     this.resolveError.set('');
+    this.confirmingResolve.set(false);
+  }
+
+  /** Step 1: validates the form and shows the warning; nothing is sent yet. */
+  requestResolveConfirm() {
+    const problems: FieldProblem[] = [];
+    if (!this.resolutionText().trim()) problems.push({ field: 'dp-resolution', message: 'يرجى كتابة قرار النزاع' });
+    const note = this.resolutionNote().trim();
+    if (note && note.length < 2) problems.push({ field: 'dp-resolution-note', message: 'الملاحظة قصيرة جدًا: اكتب حرفين على الأقل أو اتركها فارغة' });
+    this.resolveError.set('');
+    if (problems.length) { void reportAdminProblems(this.host.nativeElement, problems); return; }
+    this.confirmingResolve.set(true);
   }
 
   selectPreset(preset: string) {
@@ -258,11 +435,12 @@ export class SaDisputeDetail implements OnInit {
     const dispute = this.selectedDispute();
     const action = this.resolveAction();
     if (!dispute || !action) return;
-    if (this.submittingResolve()) return;
+    if (this.submittingResolve() || !this.confirmingResolve()) return;
 
     const resolution = this.resolutionText().trim();
     if (!resolution) {
-      this.resolveError.set('يرجى كتابة قرار النزاع');
+      this.confirmingResolve.set(false);
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'dp-resolution', message: 'يرجى كتابة قرار النزاع' }]);
       return;
     }
 
@@ -280,32 +458,28 @@ export class SaDisputeDetail implements OnInit {
       next: (res) => {
         this.submittingResolve.set(false);
         if (res.success) {
-          this.resolveSuccess.set('تم تحديث حالة النزاع بنجاح');
+          this.notify.success('تم تسجيل القرار وإبلاغ الطرفين');
           this.showResolveForm.set(false);
           this.resolveAction.set(null);
           this.resolutionText.set('');
           this.resolutionNote.set('');
-          if (res.data) {
-            this.selectedDispute.set(res.data);
-          } else {
-            this.disputeApi.getAdminDispute(dispute.id).subscribe({
-              next: (detail) => {
-                if (detail.success && detail.data) {
-                  this.selectedDispute.set(detail.data);
-                }
-              },
-              error: () => {},
-            });
-          }
+          this.confirmingResolve.set(false);
+          this.reload('');
         } else {
           this.resolveError.set(res.message || 'تعذر تحديث حالة النزاع، حاول مرة أخرى');
+          this.confirmingResolve.set(false);
         }
       },
       error: (err) => {
         this.submittingResolve.set(false);
-        this.resolveError.set(err?.error?.message || 'تعذر تحديث حالة النزاع، حاول مرة أخرى');
+        this.confirmingResolve.set(false);
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تحديث حالة النزاع، حاول مرة أخرى', resolve: { resolution: 'dp-resolution', resolutionNote: 'dp-resolution-note' } }, (m) => this.resolveError.set(m));
       },
     });
+  }
+
+  canChangeStatus(status: DisputeStatus): boolean {
+    return status === 'OPEN' || status === 'UNDER_REVIEW';
   }
 
   canResolve(status: DisputeStatus): boolean {

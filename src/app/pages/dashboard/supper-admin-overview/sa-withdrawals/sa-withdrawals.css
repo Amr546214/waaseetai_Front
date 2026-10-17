@@ -275,3 +275,19 @@
 :host-context(body.theme-light) .wd-mock-tag,
 :host-context(.light-theme) .wd-mock-tag,
 :host-context(.theme-light) .wd-mock-tag{background:rgba(7,13,36,.05);border-color:rgba(7,13,36,.1);color:#64748B}
+
+/* Statuses added with the PayPal payout flow */
+.wd-st-processing{background:rgba(43,127,255,.12);color:#5B9BFF}
+.wd-st-reversed{background:rgba(255,140,105,.12);color:#FF8C69}
+.wd-ftab-count{margin-inline-start:6px;font-size:10.5px;opacity:.75;direction:ltr;display:inline-block}
+.wd-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.wd-owner{display:flex;gap:6px;flex-wrap:wrap}
+.wd-owner .wd-ftab{border-color:rgba(255,255,255,.08)}
+.wd-warn{padding:10px 12px;border-radius:10px;background:rgba(255,180,0,.10);border:1px solid rgba(255,180,0,.25);color:#FFB400;font-size:12px;line-height:1.7;margin:0 0 10px}
+.wd-reason{font-size:11.5px;color:#6B7699;margin:6px 0 0;line-height:1.6}
+.wd-md-actions-col{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.wd-modal-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.wd-attempts{width:100%;border-collapse:collapse;font-size:12px}
+.wd-attempts th{padding:6px 8px;text-align:right;font-size:10px;color:#6B7699;font-weight:800}
+.wd-attempts td{padding:7px 8px;color:#A8B2D1;border-top:1px solid rgba(255,255,255,.05)}
+.wd-owner-tag{font-size:10.5px;font-weight:700;color:#A8B2D1;background:rgba(255,255,255,.06);border-radius:6px;padding:1px 7px}

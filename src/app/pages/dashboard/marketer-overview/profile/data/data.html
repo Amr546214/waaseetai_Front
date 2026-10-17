@@ -71,7 +71,7 @@
 			<div class="tier-ico"><ws-marketer-level variant="icon" [summary]="summary()" /></div>
 			<div style="flex:1">
 				<div class="tier-title" style="display:flex;align-items:center;gap:6px"><ws-marketer-level [summary]="summary()" /></div>
-				<p class="tier-txt">يرتفع مستواك تلقائيًا بحسب أدائك الفعلي (الإحالات الناجحة والنقاط)، وتظهر نسبة عمولتك الحالية بجانب مستواك.</p>
+				<p class="tier-txt">يُحدَّد مستواك من الإدارة، وتظهر نسبة عمولتك الحالية بجانب مستواك.</p>
 			</div>
 		</div>
 
@@ -163,7 +163,7 @@
 						<div style="display:flex;flex-direction:column">
 						<select formControlName="platform"
 						style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif;cursor:pointer"
-						aria-label="نوع القناة" class="txt-white">
+						aria-label="نوع القناة" aria-required="true" class="txt-white">
 						<option value="">اختر القناة</option>
 						<option value="LINKEDIN">LinkedIn</option>
 						<option value="YOUTUBE">YouTube</option>
@@ -177,7 +177,7 @@
 						<div style="display:flex;flex-direction:column;flex:1;min-width:160px">
 						<input type="text" formControlName="handle"
 						style="flex:1;min-width:160px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif"
-						placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-label="معرف القناة" class="txt-white">
+						placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-label="معرف القناة" aria-required="true" class="txt-white">
 						<ws-field-error [control]="channelForm.get('handle')" [messages]="{ required: 'أدخل معرّف القناة أو رابطها' }" />
 						</div>
 						<button type="button" (click)="addChannel()"
@@ -386,7 +386,7 @@
 				<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:8px 0"
 					[style.border-bottom]="!last ? '1px solid rgba(255,255,255,.05)' : 'none'" class="txt-slate">
 					<span>{{ log.source }}</span>
-					<span style="color:#0FA99A">{{ log.amount }} دولار</span>
+					<span style="color:#0FA99A">{{ log.amount | number:'1.0-2' }} دولار</span>
 				</div>
 				}
 				} @else if (loadingRecentCommissions()) {
@@ -457,24 +457,24 @@
 				<div style="display:flex;align-items:center;justify-content:space-between">
 					<div>
 						<div style="font-size:13px;font-weight:700" class="txt-white">تغيير كلمة المرور</div>
-						<div style="font-size:11px;margin-top:2px" class="txt-muted">ينصح بتغييرها كل 90 يوما</div>
+						<div style="font-size:11px;margin-top:2px" class="txt-muted">اختر كلمة مرور قوية لا تستخدمها في موقع آخر</div>
 					</div><button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px" (click)="passwordFormVisible.set(!passwordFormVisible())">تغيير
 						كلمة المرور</button>
 				</div>
 				@if (passwordFormVisible()) {
 				<div [formGroup]="passwordForm" data-form="password" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
 					<div class="form-grid form-col-2">
-						<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="mkt-pwd-old">كلمة المرور الحالية<span class="req">*</span></label>
-							<input type="password" id="mkt-pwd-old" class="inp-field" formControlName="currentPassword" autocomplete="current-password" dir="ltr">
+						<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="mkt-pwd-old">كلمة المرور الحالية<span class="ws-req" aria-hidden="true">*</span></label>
+							<input aria-required="true" type="password" id="mkt-pwd-old" class="inp-field" formControlName="currentPassword" autocomplete="current-password" dir="ltr">
 								<ws-field-error [control]="passwordForm.get('currentPassword')" label="كلمة المرور الحالية" /></div>
-						<div class="inp-group"><label class="inp-label" for="mkt-pwd-new">كلمة المرور الجديدة<span class="req">*</span></label>
-							<input type="password" id="mkt-pwd-new" class="inp-field" formControlName="newPassword" autocomplete="new-password" dir="ltr">
+						<div class="inp-group"><label class="inp-label" for="mkt-pwd-new">كلمة المرور الجديدة<span class="ws-req" aria-hidden="true">*</span></label>
+							<input aria-required="true" type="password" id="mkt-pwd-new" class="inp-field" formControlName="newPassword" autocomplete="new-password" dir="ltr">
 							<div class="pwd-strength"><div class="pwd-strength-bar" [style.width.%]="passwordStrength().percent" [style.background]="passwordStrength().color"></div></div>
 							<div class="pwd-strength-lbl">{{ passwordStrength().label }} — من 8 إلى 72 حرفًا مع 3 أنواع على الأقل من: أحرف صغيرة، كبيرة، أرقام، رموز</div>
 								<ws-field-error [control]="passwordForm.get('newPassword')" label="كلمة المرور الجديدة" [messages]="{ groups: 'استخدم ثلاثة أنواع على الأقل: أحرف صغيرة وكبيرة وأرقام ورموز' }" />
 						</div>
-						<div class="inp-group"><label class="inp-label" for="mkt-pwd-conf">تأكيد كلمة المرور الجديدة<span class="req">*</span></label>
-							<input type="password" id="mkt-pwd-conf" class="inp-field" formControlName="confirmPassword" autocomplete="new-password" dir="ltr">
+						<div class="inp-group"><label class="inp-label" for="mkt-pwd-conf">تأكيد كلمة المرور الجديدة<span class="ws-req" aria-hidden="true">*</span></label>
+							<input aria-required="true" type="password" id="mkt-pwd-conf" class="inp-field" formControlName="confirmPassword" autocomplete="new-password" dir="ltr">
 							<ws-field-error [control]="passwordForm.get('confirmPassword')" label="تأكيد كلمة المرور الجديدة" [messages]="{ mismatch: 'كلمتا المرور غير متطابقتين' }" />
 						</div>
 					</div>
@@ -483,42 +483,59 @@
 				</div>
 				}
 			</div>
-			<div style="font-size:12px;font-weight:700;margin-bottom:10px" class="txt-slate">تفضيلات التنبيهات</div>
+			<div style="font-size:12px;font-weight:700;margin-bottom:10px" class="txt-slate">قنوات الإشعارات وتنبيهاتها</div>
 				@if (alertsLoadFailed()) {
 				<div class="inp-hint" role="status" data-testid="alerts-load-note" style="margin-bottom:8px">تعذر تحميل تفضيلاتك المحفوظة، تُعرض القيم الافتراضية، وحفظ الإعدادات سيستبدل المحفوظ.</div>
 				}
-			<div style="display:flex;flex-direction:column;gap:8px">
+			<div style="display:flex;flex-direction:column;gap:8px" data-testid="marketer-settings">
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
-					عند احالة جديدة ناجحة<input type="checkbox" [(ngModel)]="alertPreferences.marketer_new_referral"
-						style="accent-color:#2BD4C7" class="txt-teal"></label>
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">الإشعارات داخل التطبيق<input type="checkbox" [(ngModel)]="alertPreferences.inApp"
+						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-inapp"></label>
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
-					عند وصول عمولة جديدة<input type="checkbox" [(ngModel)]="alertPreferences.marketer_new_commission"
-						style="accent-color:#2BD4C7" class="txt-teal"></label>
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">نسخة من الإشعارات على بريدي الإلكتروني<input type="checkbox" [(ngModel)]="alertPreferences.email"
+						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-email"></label>
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه
-					عند الترقية لمستوى جديد<input type="checkbox" [(ngModel)]="alertPreferences.marketer_tier_upgrade"
-						style="accent-color:#2BD4C7" class="txt-teal"></label>
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه عند احالة جديدة ناجحة<input type="checkbox" [(ngModel)]="alertPreferences.newReferral"
+						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-referral"></label>
+				<label
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه عند وصول عمولة جديدة<input type="checkbox" [(ngModel)]="alertPreferences.newCommission"
+						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-commission"></label>
+				<label
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;font-size:13px;opacity:.7" class="txt-slate" data-testid="set-tier-disabled">تنبيه عند الترقية لمستوى جديد<input type="checkbox" disabled title="غير متاح حاليًا: مستواك يُحدَّد من الإدارة ولا يوجد إشعار تلقائي بتغييره"></label>
+				<div class="inp-hint" data-testid="set-tier-note">تنبيه الترقية غير متاح حاليًا لأن المستوى يُحدَّد من الإدارة ولا يصدر إشعار تلقائي بتغييره. تبقى الإشعارات محفوظة دائمًا في صفحة الإشعارات حتى لو أوقفت التنبيه.</div>
+			</div>
+
+			<div style="font-size:12px;font-weight:700;margin:16px 0 10px" class="txt-slate">اللغة والتوقيت</div>
+			<div class="form-grid form-col-2">
+				<div class="inp-group"><label class="inp-label" for="mkt-lang">لغة التواصل</label>
+					<select id="mkt-lang" class="inp-field" [(ngModel)]="alertPreferences.communicationLanguage" data-testid="set-language">
+						<option value="ar">العربية</option>
+						<option value="en">English</option>
+					</select>
+					<span class="inp-hint" data-testid="set-language-note">تحدد لغة رسائل البريد الإلكتروني التي نرسلها لك فقط، ولا تغيّر لغة واجهة المنصة.</span></div>
+				<div class="inp-group"><label class="inp-label" for="mkt-tz">المنطقة الزمنية</label>
+					<select id="mkt-tz" class="inp-field" [(ngModel)]="alertPreferences.timezone" data-testid="set-timezone">
+						<option [ngValue]="null">حسب جهازي</option>
+						@for (z of timezoneOptions; track z.value) { <option [ngValue]="z.value">{{ z.label }}</option> }
+					</select>
+					<span class="inp-hint">تُعرض بها التواريخ والأوقات في صفحات الوسيط.</span></div>
 			</div>
 			<div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSavingAlerts()" (click)="saveAlertPreferences()">{{ isSavingAlerts() ? 'جارٍ الحفظ...' : 'حفظ الإعدادات' }}</button></div>
+
+			<div style="font-size:12px;font-weight:700;margin:20px 0 10px" class="txt-slate">بياناتي وحسابي</div>
+			<div style="display:flex;flex-direction:column;gap:8px" data-testid="marketer-data-controls">
+				<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;flex-wrap:wrap">
+					<div><div style="font-size:13px;font-weight:700" class="txt-white">تنزيل بياناتي</div><div style="font-size:11px;margin-top:2px" class="txt-muted">ملف JSON يضم بيانات حسابك وملفك التسويقي وإحالاتك وعمولاتك وطلبات سحبك وإعداداتك</div></div>
+					<button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px" data-testid="download-data" [disabled]="exportingData()" (click)="downloadMyData()">{{ exportingData() ? 'جارٍ التجهيز...' : 'تنزيل ملف بياناتي' }}</button>
+				</div>
+				<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;flex-wrap:wrap;opacity:.85">
+					<div><div style="font-size:13px;font-weight:700" class="txt-white">حذف الحساب</div><div style="font-size:11px;margin-top:2px" class="txt-muted" data-testid="delete-account-reason">غير متاح من الواجهة حاليًا: لا يُحذف الحساب نهائيًا تلقائيًا. افتح تذكرة دعم لطلب إغلاق حسابك.</div></div>
+					<button type="button" class="btn-secondary" style="min-width:fit-content;padding:9px 16px" data-testid="delete-account" disabled title="غير متاح حاليًا">حذف الحساب</button>
+				</div>
+			</div>
 		</div>
 	</div>
 	}
 </div>
 }
 
-@if (toastMessage(); as toast) {
-<div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both">
-	<div [style]="toast.type === 'error'
-		? 'display:flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(135deg,rgba(255,140,105,.16),rgba(180,35,24,.10));border:1px solid rgba(255,140,105,.35);border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)'
-		: 'display:flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)'">
-		@if (toast.type === 'error') {
-		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF8C69" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-		} @else {
-		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-		}
-		<span style="font-size:14px;font-weight:700" class="txt-white">{{ toast.text }}</span>
-	</div>
-</div>
-}

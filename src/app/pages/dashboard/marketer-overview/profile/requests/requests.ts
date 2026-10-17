@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { MarketerProfileService, ProfileRequestsSummary, ProfileChangeRequest, ChangeRequestStatus } from '../../../../../core/services/marketer-profile.service';
 
 @Component({
@@ -11,6 +12,7 @@ import { MarketerProfileService, ProfileRequestsSummary, ProfileChangeRequest, C
 })
 export class Requests implements OnInit {
   private profileService = inject(MarketerProfileService);
+  private notify = inject(UiNotificationService);
 
   activeFilter = signal<string>('all');
   summary = signal<ProfileRequestsSummary | null>(null);
@@ -68,7 +70,7 @@ export class Requests implements OnInit {
     if (confirm('سحب طلب التعديل ' + id + '؟ لن يتم تطبيق التغيير وتعود البيانات لقيمتها الحالية')) {
       this.profileService.withdrawRequest(id).subscribe(res => {
         if (res.success) {
-          alert('تم سحب طلب التعديل ' + id);
+          this.notify.success('تم سحب طلب التعديل ' + id);
           this.loadRequests();
         }
       });
@@ -76,7 +78,7 @@ export class Requests implements OnInit {
   }
 
   showDetails(msg: string) {
-    alert(msg);
+    this.notify.info(msg);
   }
 
   // Replaces the previous bare alert("عرض تفاصيل الطلب " + requestNumber) —

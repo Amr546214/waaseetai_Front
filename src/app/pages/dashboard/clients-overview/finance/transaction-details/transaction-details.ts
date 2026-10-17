@@ -21,7 +21,12 @@ export class TransactionDetails implements OnInit {
 
   isEscrow = computed(() => this.transaction()?.type === 'ESCROW_LOCK');
   isDeposit = computed(() => this.transaction()?.type === 'DEPOSIT');
-  direction = computed<'in' | 'out'>(() => this.isDeposit() ? 'in' : 'out');
+  // A refund returns money to the wallet, like a deposit.
+  direction = computed<'in' | 'out'>(() => this.isDeposit() || this.transaction()?.type === 'REFUND' ? 'in' : 'out');
+  isFailed = computed(() => this.transaction()?.status === 'FAILED');
+  // payments are stored negative: the sign is shown once, from the direction; a failed attempt moved no money, so it has no sign
+  amountAbs = computed(() => Math.abs(this.transaction()?.amount ?? 0));
+  sign = computed(() => this.isFailed() ? '' : (this.direction() === 'out' ? '-' : '+'));
   isDone = computed(() => this.transaction()?.status === 'COMPLETED');
   isHeld = computed(() => this.transaction()?.status === 'HELD');
 
@@ -37,10 +42,12 @@ export class TransactionDetails implements OnInit {
     if (!tx) return '';
     if (tx.type === 'ESCROW_LOCK') return 'إيداع بحساب الضمان';
     if (tx.type === 'DEPOSIT') return 'إيداع رصيد بالمحفظة';
+    if (tx.type === 'ORDER_PAYMENT') return 'دفع طلب خدمة من المحفظة';
+    if (tx.type === 'REFUND') return 'استرداد إلى المحفظة';
     return tx.type;
   });
 
-  statusLabel = computed(() => this.isHeld() ? 'محجوز في الضمان' : (this.isDone() ? 'مكتمل' : 'قيد المعالجة'));
+  statusLabel = computed(() => this.isFailed() ? 'فشلت' : this.isHeld() ? 'محجوز في الضمان' : (this.isDone() ? 'مكتمل' : 'قيد المعالجة'));
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');

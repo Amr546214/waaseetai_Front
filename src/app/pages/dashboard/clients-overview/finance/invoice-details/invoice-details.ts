@@ -44,7 +44,8 @@ export class InvoiceDetails implements OnInit {
     this.router.navigate(['/client-overview/finance/invoices']);
   }
 
-  downloadPdf() {
+  /** Opens the browser's print dialog (the user can save it as PDF). There is no server-generated PDF. */
+  printInvoice() {
     window.print();
   }
 

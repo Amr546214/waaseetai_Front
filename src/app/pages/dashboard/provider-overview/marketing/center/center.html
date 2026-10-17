@@ -61,9 +61,11 @@
 				@if (editingCap()) {
 					<div class="cap-edit">
 						<div class="f-suffix-wrap">
-							<input class="f-inp" type="number" min="1" [(ngModel)]="capInput" placeholder="مثال: 10000">
+							<input id="cap-input" name="cap" class="f-inp" [class.invalid]="capError()" type="number" min="1" [(ngModel)]="capInput" (ngModelChange)="capError.set(null)" placeholder="أدخل السقف الشهري بالدولار" [attr.aria-invalid]="capError() ? 'true' : null" [attr.aria-describedby]="capError() ? 'cap-err' : null">
 							<span class="f-suffix">دولار</span>
 						</div>
+						@if (capError(); as ce) { <div class="f-err" id="cap-err" role="alert">{{ ce }}</div> }
+						@if (capGeneralError(); as cg) { <div class="f-err" role="alert" data-testid="form-error">{{ cg }}</div> }
 						<div class="cap-edit-actions">
 							<button type="button" class="btn-pri btn-sm" (click)="saveCap()" [disabled]="savingCap()">حفظ</button>
 							@if (co.spendCap.configured) {
@@ -203,8 +205,4 @@
 			</tbody>
 		</table>
 	</div></div>
-}
-
-@if (flash.message(); as m) {
-	<div class="toast" [class.err]="m.error">{{ m.text }}</div>
 }

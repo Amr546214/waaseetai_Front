@@ -27,7 +27,7 @@
         </div>
       </div>
       <div class="dp-md-body">
-        <!-- Claimant / respondent party cards — MOCK identity, real claim text for the claimant (d.reason) -->
+        <!-- Claimant / respondent party cards: real parties from the API; claim text is the real d.reason -->
         <div class="dp-parties">
           @for (role of ['claimant','respondent']; track role) {
             <div class="dp-party-card" [class.dp-party-claimant]="role === 'claimant'" [class.dp-party-respondent]="role === 'respondent'">
@@ -54,11 +54,11 @@
         <div class="dp-md-row">
           <div class="dp-md-field">
             <label>الطلب</label>
-            <p>{{ d.requestId || '—' }}</p>
+            <p>{{ d.request?.title || d.requestId || '—' }}</p>
           </div>
           <div class="dp-md-field">
             <label>المشروع</label>
-            <p>{{ d.projectId || '—' }}</p>
+            <p>{{ d.project?.title || d.projectId || '—' }}</p>
           </div>
         </div>
         <div class="dp-md-row">
@@ -74,7 +74,7 @@
         @if (d.resolution) {
           <div class="dp-md-field">
             <label>القرار</label>
-            <p>{{ d.resolution }}</p>
+            <p data-testid="resolution-label">{{ resolutionDisplay(d) }}</p>
           </div>
         }
         @if (d.resolutionNote) {
@@ -85,48 +85,123 @@
         }
         @if (d.evidence && d.evidence.length > 0) {
           <div class="dp-md-field">
-            <label>الأدلة ({{ d.evidence.length }})</label>
+            <label>أدلة {{ partyInfo(d, 'claimant').name }} ({{ d.evidence.length }})</label>
             <div class="dp-ev-list">
               @for (url of d.evidence; track url) {
-                <a class="dp-ev-link" [href]="url" target="_blank" rel="noopener">{{ url }}</a>
-              }
-            </div>
-          </div>
-
-          <!-- Side-by-side evidence-by-party comparison. Real evidence URLs;
-               the "submitted by" split is an alternating placeholder (see note above). -->
-          <div class="dp-md-field">
-            <label>الأدلة المرفقة</label>
-            <div class="dp-ev-compare">
-              @for (role of ['claimant','respondent']; track role) {
-                <div class="dp-ev-col" [class.dp-ev-col-claimant]="role === 'claimant'" [class.dp-ev-col-respondent]="role === 'respondent'">
-                  <div class="dp-ev-col-hdr">أدلة {{ partyInfo(d, $any(role)).name }}</div>
-                  @for (url of d.evidence; track url; let i = $index) {
-                    @if (evidenceParty(i) === role) {
-                      <a class="dp-ev-mini" [href]="url" target="_blank" rel="noopener">{{ evidenceFileName(url) }}</a>
-                    }
-                  }
-                </div>
+                <a class="dp-ev-link" [href]="url" target="_blank" rel="noopener">{{ evidenceFileName(url) }}</a>
               }
             </div>
           </div>
         }
 
-        <!-- Dispute activity log — real timestamps for open/resolve, approximate placeholders for the rest (see activityLog()) -->
+        <div class="dp-md-field">
+          <label>محادثة النزاع</label>
+          <p class="dp-disabled-note">غير متاحة حالياً: لا توجد خدمة رسائل خاصة بالنزاعات.</p>
+        </div>
+
+        <div class="dp-md-field">
+          <label>التصعيد ومؤشرات SLA</label>
+          <div class="dp-ops-row">
+            <button type="button" class="dp-btn dp-btn-gh" disabled [title]="noEscalationBackend">تصعيد النزاع</button>
+            <button type="button" class="dp-btn dp-btn-gh" disabled [title]="noEscalationBackend">مؤشر SLA</button>
+          </div>
+          <p class="dp-disabled-note">{{ noEscalationBackend }}</p>
+        </div>
+
+        <!-- Dispute log: opening entry + the real admin audit-log timeline from the API -->
         <div class="dp-md-field">
           <label>سجل النزاع</label>
           <div class="dp-act-list">
-            @for (ev of activityLog(d); track ev.label) {
+            @for (ev of activityLog(d); track $index) {
               <div class="dp-act-item">
                 <span class="dp-act-dot" [style.background]="ev.dotColor"></span>
                 <div class="dp-act-body">
                   <div class="dp-act-lbl">{{ ev.label }}</div>
-                  <div class="dp-act-date" [class.dp-act-approx]="ev.approx">{{ ev.dateLabel }}</div>
+                  @if (ev.detail) {
+                    <div class="dp-act-date">{{ ev.detail }}</div>
+                  }
+                  <div class="dp-act-date">{{ ev.dateLabel }}</div>
                 </div>
               </div>
             }
           </div>
         </div>
+
+        <!-- Freeze state of the project: approvals / releases are blocked by the backend while any dispute of it is open -->
+        @if (d.projectFreeze?.frozen) {
+          <div class="dp-confirm-box" role="status" data-testid="freeze-banner">
+            <p><b>المشروع مجمَّد ماليًا:</b> {{ d.projectFreeze?.activeDisputeCount }} نزاع نشط على هذا المشروع. {{ d.projectFreeze?.reason }} لا يُرفع التجميد إلا بعد حسم جميع النزاعات النشطة عليه.</p>
+          </div>
+        }
+        @if (d.financialOutcome; as fo) {
+          <div class="dp-escrow-card" data-testid="financial-outcome">
+            <span class="dp-badge dp-st-resolved">نُفِّذ قرار مالي</span>
+            @if (fo.refundToClient > 0) { <span>أُعيد للعميل: {{ fo.refundToClient | number:'1.2-2' }} $</span> }
+            @if (fo.releaseToProvider > 0) { <span>صُرف لمقدم الخدمة: {{ fo.releaseToProvider | number:'1.2-2' }} $ (عمولة المنصة {{ fo.platformCommission | number:'1.2-2' }} $، الصافي {{ fo.providerNet | number:'1.2-2' }} $)</span> }
+          </div>
+        } @else if (d.status === 'RESOLVED' || d.status === 'REJECTED') {
+          <p class="dp-disabled-note" data-testid="no-financial-outcome">لم يُنفَّذ أي أثر مالي بهذا القرار.</p>
+        }
+
+        <!-- Staff operations: escrow (real), assignment, status, internal notes -->
+        <div class="dp-md-field">
+          <label>الضمان المالي</label>
+          @if (d.escrow; as e) {
+            <div class="dp-escrow-card">
+              <span class="dp-badge dp-st-review">{{ escrowLabels[e.status] || e.status }}</span>
+              <span>المبلغ: {{ e.amount | number:'1.2-2' }}</span>
+              <span>المُحرَّر: {{ e.releasedAmount | number:'1.2-2' }}</span>
+              <span>المحتجز حالياً: {{ (d.heldEscrowAmount ?? (e.status === 'HELD' ? e.amount - e.releasedAmount : 0)) | number:'1.2-2' }}</span>
+              @if (d.contractStatus) {
+                <span>حالة العقد: {{ d.contractStatus }}</span>
+              }
+            </div>
+          } @else {
+            <p class="dp-disabled-note">لا يوجد ضمان مسجّل لهذا النزاع.</p>
+          }
+        </div>
+
+        <div class="dp-md-field">
+          <label>الإسناد</label>
+          <p>المُسنَد إليه: <strong>{{ d.assignedTo?.name || 'غير مُسنَد' }}</strong></p>
+          <div class="dp-ops-row">
+            <ws-select id="dp-assignee" [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للإسناد" style="min-width:180px;max-width:100%;display:block"></ws-select>
+            <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="assign()">إسناد</button>
+          </div>
+        </div>
+
+        @if (canChangeStatus(d.status)) {
+          <div class="dp-md-field">
+            <label>حالة المراجعة</label>
+            <div class="dp-ops-row">
+              @if (d.status === 'OPEN') {
+                <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="setStatus('UNDER_REVIEW')">بدء المراجعة</button>
+              } @else {
+                <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="setStatus('OPEN')">إعادة للمفتوح</button>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="dp-md-field">
+          <label>ملاحظات داخلية — لا تظهر للطرفين</label>
+          <div class="dp-notes-list">
+            @for (n of d.notes ?? []; track n.id) {
+              <div class="dp-note-item">
+                <p>{{ n.body }}</p>
+                <span class="dp-act-date">{{ n.admin?.name || '—' }} · {{ formatDate(n.createdAt) }}</span>
+              </div>
+            } @empty {
+              <p class="dp-disabled-note">لا توجد ملاحظات داخلية بعد.</p>
+            }
+          </div>
+          <div class="dp-ops-row">
+            <input id="dp-note" aria-label="ملاحظة داخلية" class="dp-rf-input" type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
+            <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="addNote()">إضافة</button>
+          </div>
+          @if (opError()) { <p class="dp-rf-err" role="alert" data-testid="op-error">{{ opError() }}</p> }
+        </div>
+
 
         <!-- Advisory-only AI summary — never resolves/rejects, never
              pre-fills the manual decision form below. -->
@@ -167,76 +242,115 @@
           }
         </div>
 
-        <!-- Interactive escrow-split slider. Amount is MOCK (no escrow-amount
-             field in the API yet); the split feeds the real resolveAdminDispute()
-             call via applyVerdict() -> the existing manual resolve form below. -->
+        <!-- The two kinds of decision, explained before any form opens -->
         @if (canResolve(d.status)) {
-          <div class="dp-split-panel">
-            <div class="dp-split-hdr">توزيع الضمان (النسب فقط — مبلغ الضمان غير متاح في هذه الشاشة)</div>
-            <div class="dp-split-row">
-              <span class="dp-split-side dp-split-claimant">مقدّم النزاع: {{ splitClaimantPct() }}%</span>
-              <input
-                type="range"
-                class="dp-split-slider"
-                min="0"
-                max="100"
-                [value]="splitClaimantPct()"
-                (input)="onSplitInput($any($event.target).value)"
-              />
-              <span class="dp-split-side dp-split-respondent">الطرف الآخر: {{ 100 - splitClaimantPct() }}%</span>
-            </div>
-            <div class="dp-verdict-btns">
-              <button type="button" class="dp-vbtn dp-vbtn-client" (click)="applyVerdict('REFUND_CLIENT', d)">لصالح مقدّم النزاع بالكامل</button>
-              <button type="button" class="dp-vbtn dp-vbtn-provider" (click)="applyVerdict('RELEASE_TO_PROVIDER', d)">لصالح الطرف الآخر بالكامل</button>
-              <button type="button" class="dp-vbtn dp-vbtn-split" (click)="applyVerdict('PARTIAL_REFUND', d)">تطبيق التقسيم أعلاه</button>
-              <button type="button" class="dp-vbtn dp-vbtn-mutual" (click)="applyVerdict('MUTUAL_CLOSE', d)">تسوية بالتراضي</button>
-            </div>
+          <div class="dp-split-panel" data-testid="decision-kinds">
+            <div class="dp-split-hdr">نوعا القرار الإداري</div>
+            <p class="dp-disabled-note"><b>قرار نصي (حل / رفض):</b> يُسجَّل القرار ويُبلَّغ به الطرفان ولا ينقل أي مبلغ مالي. مثل: الإغلاق بالتراضي، أو لا تغيير مالي.</p>
+            <p class="dp-disabled-note"><b>قرار مالي:</b> استرداد للعميل أو صرف لمقدم الخدمة أو تقسيم، بمبالغ صريحة تسوّي كامل المبلغ المحتجز، وبتأكيد صريح. يُنفَّذ مرة واحدة فقط ويُسجَّل في سجل التدقيق.</p>
           </div>
         }
 
-        @if (resolveSuccess()) {
-          <div class="dp-md-success">
-            <p>{{ resolveSuccess() }}</p>
-          </div>
-        }
       </div>
 
-      @if (canResolve(d.status) && !showResolveForm()) {
+      @if (canResolve(d.status) && !showResolveForm() && !showFinancialForm()) {
         <div class="dp-md-actions">
-          <button type="button" class="dp-btn dp-btn-pri" (click)="openResolveForm('resolve')">حل النزاع</button>
+          <button type="button" class="dp-btn dp-btn-pri" (click)="openResolveForm('resolve')" data-testid="open-text-resolve">حل النزاع (قرار نصي)</button>
           <button type="button" class="dp-btn dp-btn-reject" (click)="openResolveForm('reject')">رفض النزاع</button>
+          <button type="button" class="dp-btn dp-btn-pri" data-testid="open-financial" (click)="openFinancialForm()" [disabled]="!!financialBlockedReason(d)" [attr.title]="financialBlockedReason(d)">قرار مالي</button>
           <button type="button" class="dp-btn dp-btn-gh" (click)="goBack()">العودة للقائمة</button>
+        </div>
+      } @else if (showFinancialForm()) {
+        <div class="dp-resolve-form" data-testid="financial-form">
+          <h4 class="dp-rf-ttl">قرار مالي في النزاع</h4>
+          <p class="dp-disabled-note" data-testid="financial-held">المبلغ المحتجز الذي سيُسوَّى بالكامل: <b>{{ heldAmount(d) | number:'1.2-2' }} $</b>. المبالغ المصروفة سابقًا لا تُمسّ.</p>
+
+          <div class="dp-md-field">
+            <label>نوع القرار <span class="dp-req">*</span></label>
+            <div class="dp-rf-presets" id="dp-fin-outcome" tabindex="-1" data-field-wrap>
+              @for (o of financialOutcomes; track o.code) {
+                <button type="button" class="dp-rf-preset" [class.active]="finOutcome() === o.code" [attr.data-testid]="'fin-' + o.code" (click)="chooseOutcome(o.code)">{{ o.label }}</button>
+              }
+            </div>
+            @if (finOutcome(); as oc) { <small class="dp-rf-count">{{ outcomeHint(oc) }}</small> }
+          </div>
+
+          @if (finOutcome()) {
+            <div class="dp-md-field">
+              <label>مبلغ يُعاد إلى العميل ($) <span class="dp-req">*</span></label>
+              <input id="dp-fin-refund" class="dp-rf-input" type="number" min="0" step="0.01" data-testid="fin-refund" [value]="finRefund()" (input)="finRefund.set($any($event.target).value); finConfirmStep.set(false)" />
+            </div>
+            <div class="dp-md-field">
+              <label>مبلغ يُصرف لمقدم الخدمة ($، قبل خصم عمولة المنصة) <span class="dp-req">*</span></label>
+              <input id="dp-fin-release" class="dp-rf-input" type="number" min="0" step="0.01" data-testid="fin-release" [value]="finRelease()" (input)="finRelease.set($any($event.target).value); finConfirmStep.set(false)" />
+            </div>
+            <small class="dp-rf-count" data-testid="fin-sum">المجموع {{ finSum() | number:'1.2-2' }} من أصل {{ heldAmount(d) | number:'1.2-2' }} $ (يجب أن يتطابقا). العمولة تُحسب في الخادم بنسبة العقد المثبّتة.</small>
+            <div class="dp-md-field">
+              <label>ملاحظات القرار (اختياري)</label>
+              <textarea id="dp-fin-note" aria-label="ملاحظات القرار" class="dp-rf-ta" [value]="finNote()" (input)="finNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+            </div>
+          }
+
+          @if (finError()) { <p class="dp-rf-err" role="alert" data-testid="fin-error">{{ finError() }}</p> }
+
+          @if (finConfirmStep()) {
+            <div class="dp-confirm-box" role="alert" data-testid="fin-confirm-box">
+              <p><b>تأكيد التنفيذ المالي:</b> سيُنقل {{ finRefundNum() | number:'1.2-2' }} $ إلى محفظة العميل و{{ finReleaseNum() | number:'1.2-2' }} $ لمقدم الخدمة (قبل العمولة). يُغلق العقد، ولا يمكن التراجع عن هذه العملية.</p>
+              <label><input type="checkbox" data-testid="fin-confirm-check" [checked]="finConfirmed()" (change)="finConfirmed.set($any($event.target).checked)" /> أؤكد أنني راجعت المبالغ وأن القرار نهائي</label>
+            </div>
+            <div class="dp-rf-actions">
+              <button type="button" class="dp-btn dp-btn-pri" data-testid="fin-submit" [disabled]="finSubmitting() || !finConfirmed()" (click)="submitFinancial()">{{ finSubmitting() ? 'جارٍ التنفيذ...' : 'تنفيذ القرار المالي' }}</button>
+              <button type="button" class="dp-btn dp-btn-gh" [disabled]="finSubmitting()" (click)="finConfirmStep.set(false)">رجوع للتعديل</button>
+            </div>
+          } @else {
+            <div class="dp-rf-actions">
+              <button type="button" class="dp-btn dp-btn-pri" data-testid="fin-continue" (click)="requestFinancialConfirm()">متابعة</button>
+              <button type="button" class="dp-btn dp-btn-gh" (click)="cancelFinancialForm()">إلغاء</button>
+            </div>
+          }
         </div>
       } @else if (showResolveForm()) {
         <div class="dp-resolve-form">
           <h4 class="dp-rf-ttl">{{ resolveAction() === 'resolve' ? 'حل النزاع' : 'رفض النزاع' }}</h4>
 
+          <p class="dp-disabled-note" data-testid="text-kind-note">قرار نصي: يُسجَّل ويُبلَّغ به الطرفان ولا ينقل أي مبلغ مالي. للاسترداد أو الصرف أو التقسيم استخدم «قرار مالي».</p>
           <div class="dp-rf-presets">
             @for (p of resolutionPresets; track p) {
-              <button type="button" class="dp-rf-preset" [class.active]="resolutionText() === p" (click)="selectPreset(p)">{{ p }}</button>
+              <button type="button" class="dp-rf-preset" [class.active]="resolutionText() === p" (click)="selectPreset(p)">{{ presetLabel(p) }}</button>
             }
           </div>
 
           <div class="dp-md-field">
             <label>القرار <span class="dp-req">*</span></label>
-            <input class="dp-rf-input" type="text" [value]="resolutionText()" (input)="resolutionText.set($any($event.target).value)" placeholder="اكتب القرار أو اختر من القائمة" />
+            <input id="dp-resolution" class="dp-rf-input" type="text" maxlength="120" data-testid="resolution-input" [value]="resolutionText()" (input)="resolutionText.set($any($event.target).value)" placeholder="اكتب القرار أو اختر من القائمة" />
+            <small class="dp-rf-count" data-testid="resolution-count">{{ resolutionText().length }} / 120 — القرار عنوان قصير، وضع التفاصيل في خانة الملاحظات</small>
           </div>
 
           <div class="dp-md-field">
             <label>ملاحظات القرار (اختياري)</label>
-            <textarea class="dp-rf-ta" [value]="resolutionNote()" (input)="resolutionNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+            <textarea id="dp-resolution-note" aria-label="ملاحظات القرار" class="dp-rf-ta" [value]="resolutionNote()" (input)="resolutionNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
           </div>
 
           @if (resolveError()) {
-            <p class="dp-rf-err">{{ resolveError() }}</p>
+            <p class="dp-rf-err" role="alert" data-testid="resolve-error">{{ resolveError() }}</p>
           }
 
-          <div class="dp-rf-actions">
-            <button type="button" class="dp-btn dp-btn-pri" [disabled]="submittingResolve()" (click)="submitResolve()">
-              {{ submittingResolve() ? 'جارٍ الحفظ...' : 'تأكيد' }}
-            </button>
-            <button type="button" class="dp-btn dp-btn-gh" [disabled]="submittingResolve()" (click)="cancelResolveForm()">إلغاء</button>
-          </div>
+          @if (confirmingResolve()) {
+            <div class="dp-confirm-box" role="alert">
+              <p>قرار نصي: هذا القرار يُسجَّل ويُبلَّغ به الطرفان ولا ينفّذ أي تحويل مالي تلقائياً.</p>
+            </div>
+            <div class="dp-rf-actions">
+              <button type="button" class="dp-btn dp-btn-pri" [disabled]="submittingResolve()" (click)="submitResolve()">
+                {{ submittingResolve() ? 'جارٍ الحفظ...' : (resolveAction() === 'resolve' ? 'تأكيد حل النزاع' : 'تأكيد رفض النزاع') }}
+              </button>
+              <button type="button" class="dp-btn dp-btn-gh" [disabled]="submittingResolve()" (click)="confirmingResolve.set(false)">رجوع للتعديل</button>
+            </div>
+          } @else {
+            <div class="dp-rf-actions">
+              <button type="button" class="dp-btn dp-btn-pri" (click)="requestResolveConfirm()">متابعة</button>
+              <button type="button" class="dp-btn dp-btn-gh" (click)="cancelResolveForm()">إلغاء</button>
+            </div>
+          }
         </div>
       } @else {
         <div class="dp-md-actions">

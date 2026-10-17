@@ -2,34 +2,20 @@
   <div class="fe-hdr">
     <div>
       <h1 class="fe-ttl">الباقات والرسوم</h1>
-      <p class="fe-sub">إدارة باقات الاشتراك لكل نوع حساب ورسوم وسيط AI على المعاملات</p>
+      <p class="fe-sub">النسب المالية المعتمدة وعمولات المنصة الفعلية</p>
     </div>
-    <button type="button" class="fe-btn fe-btn-primary" (click)="showToast('فتح نموذج إضافة باقة جديدة')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      إضافة باقة
-    </button>
   </div>
 
-  <div class="fe-kpi-grid">
+  <div class="fe-kpi-grid" data-testid="fees-kpis">
     <div class="fe-kpi">
-      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg></div><span class="fe-kpi-lbl">مشتركون نشطون</span></div>
-      <div class="fe-kpi-val txt-teal">{{ totalSubscribers().toLocaleString() }}</div>
-      <div class="fe-kpi-sub up">+124 هذا الشهر</div>
+      <div class="fe-kpi-top"><span class="fe-kpi-lbl">عمولة المنصة المحصّلة</span></div>
+      <div class="fe-kpi-val txt-teal">{{ commissions() ? usd(commissions()!.totals.platformCommission) : '—' }}</div>
+      <div class="fe-kpi-sub">من إجمالي محرَّر {{ commissions() ? usd(commissions()!.totals.releasedGross) : '—' }}</div>
     </div>
     <div class="fe-kpi">
-      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">إيرادات الاشتراكات</span></div>
-      <div class="fe-kpi-val txt-blue">248k</div>
-      <div class="fe-kpi-sub">دولار أمريكي / شهر</div>
-    </div>
-    <div class="fe-kpi">
-      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">أكثر باقة مشتركة</span></div>
-      <div class="fe-kpi-val txt-amber">{{ topPackage()?.name }}</div>
-      <div class="fe-kpi-sub">{{ topPackage()?.subscribers?.toLocaleString() }} مشترك</div>
-    </div>
-    <div class="fe-kpi">
-      <div class="fe-kpi-top"><div class="fe-kpi-ic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg></div><span class="fe-kpi-lbl">عمولة المنصة (مقدمو الخدمة)</span></div>
+      <div class="fe-kpi-top"><span class="fe-kpi-lbl">عمولة المنصة (مقدمو الخدمة)</span></div>
       <div class="fe-kpi-val txt-green">{{ platformFees()[0]?.value || '—' }}</div>
-      <div class="fe-kpi-sub">عمولة المنصة على مقدم الخدمة حسب المستوى</div>
+      <div class="fe-kpi-sub">حسب المستوى</div>
     </div>
   </div>
 
@@ -49,70 +35,31 @@
     </div>
   </div>
 
-  <div class="fe-tabs">
-    @for (t of tabs; track t.key) {
-      <button type="button" class="fe-tab" [class.active]="activeTab() === t.key" (click)="setTab(t.key)">{{ t.label }}</button>
-    }
-  </div>
-
-  <div class="fe-pkgs-grid">
-    @for (p of currentPackages(); track p.name) {
-      <div class="fe-pkg" [class.featured]="p.featured" [class.inactive]="!p.active">
-        @if (p.featured) {
-          <div class="fe-pkg-ribbon">الأكثر شعبية</div>
-        }
-        <div class="fe-pkg-top">
-          <div class="fe-pkg-name" [style.color]="p.color">{{ p.name }}</div>
-          <div class="fe-pkg-desc">{{ p.desc }}</div>
-          <div class="fe-pkg-price" [style.color]="p.color">{{ p.price === 'تفاوضي' ? 'تفاوضي' : (p.price + ' $') }}</div>
-          @if (p.period) {
-            <div class="fe-pkg-period">{{ p.period }}</div>
-          }
-          <div class="fe-pkg-subs">{{ p.subscribers.toLocaleString() }} مشترك</div>
-        </div>
-        <div class="fe-pkg-body">
-          @for (f of p.features; track f) {
-            <div class="fe-pkg-feat">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              {{ f }}
-            </div>
-          }
-        </div>
-        <div class="fe-pkg-actions">
-          <button type="button" class="fe-pa-btn fe-pa-edit" (click)="showToast('فتح نموذج تعديل باقة ' + p.name)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-            تعديل
-          </button>
-          <button type="button" class="fe-pa-btn fe-pa-toggle" (click)="togglePackage(p)">{{ p.active ? 'تعطيل' : 'تفعيل' }}</button>
-        </div>
+  <div class="fe-acct-rev" data-testid="fees-commissions">
+    <div class="fe-acct-rev-ttl">العمولات الفعلية</div>
+    @if (commLoading()) {
+      <div class="fe-acct-rev-note">جاري التحميل…</div>
+    } @else if (commError()) {
+      <div class="fe-acct-rev-note" role="alert">{{ commError() }}</div>
+      <button type="button" class="fe-btn fe-btn-primary" (click)="loadCommissions()">إعادة المحاولة</button>
+    } @else if (commissions(); as c) {
+      <div class="fe-table-wrap">
+        <table class="fe-table">
+          <tbody>
+            <tr><td>عمولة المنصة (إجمالي)</td><td class="green">{{ usd(c.totals.platformCommission) }}</td></tr>
+            @for (a of affiliateRows(); track a.key) {
+              <tr><td>عمولات الوسطاء — {{ a.label }} ({{ a.count }})</td><td class="strong-white">{{ usd(a.amount) }}</td></tr>
+            }
+          </tbody>
+        </table>
       </div>
     }
   </div>
 
-  <div class="fe-acct-rev">
-    <div class="fe-acct-rev-ttl">المشتركون والإيرادات حسب نوع الحساب</div>
-    <div class="fe-table-wrap">
-      <table class="fe-table">
-        <thead>
-          <tr><th>نوع الحساب</th><th>الباقة</th><th>المشتركون</th><th>إيراد شهري</th><th>Churn</th></tr>
-        </thead>
-        <tbody>
-          @for (row of accountRevenue; track row.type) {
-            <tr>
-              <td class="strong" [style.color]="row.color">{{ row.type }}</td>
-              <td>{{ row.plan }}</td>
-              <td class="strong-white">{{ row.subscribers }}</td>
-              <td class="green">{{ row.revenue }}</td>
-              <td class="amber">{{ row.churn }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-    <div class="fe-acct-rev-note">
-      MRR الإجمالي: <strong>2.33M $</strong> · ARR المتوقع: <strong>27.9M $</strong> · متوسط Churn: <strong>2.15%</strong>
-    </div>
+  <div class="fe-acct-rev" data-testid="fees-no-subscriptions">
+    <div class="fe-acct-rev-ttl">باقات الاشتراك</div>
+    <div class="fe-acct-rev-note" role="status">باقات الاشتراك غير مُهيّأة في المنصة حاليًا — لا توجد أسعار أو مشتركون أو إيرادات اشتراكات لعرضها. تُعرض هنا فقط النسب والعمولات الفعلية أعلاه.</div>
   </div>
 
-  <div class="fe-foot">© 2026 وسيط AI · v2.0.0</div>
+  <div class="fe-foot"><span>الباقات والرسوم</span></div>
 </section>

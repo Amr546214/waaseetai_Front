@@ -1,7 +1,22 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+
+export type AmendmentKind = 'SCOPE' | 'BUDGET' | 'DURATION' | 'MIXED';
+export type AmendmentStatus = 'PENDING_OTHER_PARTY' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+export interface ProviderAmendment {
+	id: string; projectId: string; projectTitle: string; type: AmendmentKind; title: string; description: string | null;
+	budgetDelta: number | null; durationDeltaDays: number | null; status: AmendmentStatus; requestedByRole: 'CLIENT' | 'PROVIDER';
+	createdAt: string; respondedAt: string | null; conversationId: string | null;
+	effect?: 'APPLIED' | 'RECORD_ONLY' | 'PENDING' | 'NONE'; effectNote?: string;
+	/** false when the amendment's contract is closed (e.g. by a dispute settlement): every action is disabled with actionBlockedReason. */
+	actionable?: boolean; actionBlockedReason?: string | null; contractStatus?: string | null;
+	appliedAt?: string | null; needsClientPayment?: boolean; fundingAuthorized?: boolean; contractPrice?: number | null; contractDurationDays?: number | null;
+}
+export interface CreateAmendmentPayload { type: AmendmentKind; title: string; description?: string; budgetDelta?: number; durationDeltaDays?: number }
+
+export interface DeliveryFileDescriptor { name: string; url: string; type: string; size: number }
 
 @Injectable({
 	providedIn: 'root'
@@ -21,8 +36,37 @@ export class ActiveProjectsService {
 		return this.http.get<any>(`${environment.url_api}/provider/projects/${projectId}/progress`);
 	}
 
-	submitDelivery(projectId: string, stageId: string, payload: { note: string; files: string[] }): Observable<any> {
+	/** One REAL upload of a delivery file (multipart field "files"); emits upload progress events, then the stored file descriptor. */
+	uploadDeliveryFile(projectId: string, stageId: string, file: File): Observable<HttpEvent<{ success: boolean; data: { files: DeliveryFileDescriptor[] } }>> {
+		const form = new FormData();
+		form.append('files', file, file.name);
+		return this.http.post<{ success: boolean; data: { files: DeliveryFileDescriptor[] } }>(
+			`${environment.url_api}/provider/projects/${projectId}/stages/${stageId}/deliveries/files`, form, { observe: 'events', reportProgress: true });
+	}
+
+	/** `files` = uploaded-file descriptors returned by uploadDeliveryFile and/or https links. File names alone are refused by the server. */
+	submitDelivery(projectId: string, stageId: string, payload: { note: string; files: Array<DeliveryFileDescriptor | string> }): Observable<any> {
 		return this.http.post<any>(`${environment.url_api}/provider/projects/${projectId}/stages/${stageId}/deliveries`, payload);
+	}
+
+	/** The provider's own change requests for this project, with their status. */
+	getAmendments(projectId: string): Observable<{ success: boolean; data: ProviderAmendment[] }> {
+		return this.http.get<{ success: boolean; data: ProviderAmendment[] }>(`${environment.url_api}/provider/projects/${projectId}/amendments`);
+	}
+
+	/** A formal change request: it waits for the client and changes nothing by itself; the client's approval applies it. */
+	createAmendment(projectId: string, payload: CreateAmendmentPayload): Observable<{ success: boolean; message?: string; data: ProviderAmendment }> {
+		return this.http.post<{ success: boolean; message?: string; data: ProviderAmendment }>(`${environment.url_api}/provider/projects/${projectId}/amendments`, payload);
+	}
+
+	/** The provider answers a change request the CLIENT raised. Approving APPLIES it (a client-raised increase needs the client's payment authorization first); rejecting changes nothing. */
+	/** The provider withdraws a request they raised while it is still pending. */
+	cancelAmendment(amendmentId: string): Observable<{ success: boolean; message?: string; data: ProviderAmendment }> {
+		return this.http.post<{ success: boolean; message?: string; data: ProviderAmendment }>(`${environment.url_api}/provider/amendments/${amendmentId}/cancel`, {});
+	}
+
+	respondAmendment(amendmentId: string, decision: 'approve' | 'reject'): Observable<{ success: boolean; message?: string; data: ProviderAmendment }> {
+		return this.http.post<{ success: boolean; message?: string; data: ProviderAmendment }>(`${environment.url_api}/provider/amendments/${amendmentId}/respond`, { decision });
 	}
 
 	// Batch 8 — advisory-only Gemini project health analysis. On-demand only

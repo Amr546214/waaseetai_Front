@@ -54,7 +54,7 @@
 				<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
 			</svg>
 			ضمان مجمَّد
-			<span class="dd-escrow-val">{{ d.amount }} دولار</span>
+			<span class="dd-escrow-val">{{ d.amount | number:'1.0-2' }} دولار</span>
 			<span class="dd-escrow-lbl">محتجزة حتى صدور القرار النهائي</span>
 		</div>
 		}
@@ -69,7 +69,7 @@
 			<!-- PROPOSED RESOLUTION (administrative, not AI-generated) -->
 			<div class="dd-ai-sec">
 				<div class="dd-recommendation">
-					<strong>مقترح الإدارة:</strong> {{ detail.recommendation }}
+					<strong>قرار الإدارة:</strong> {{ detail.recommendation }}
 					@if (isCompanyMode() && d.teamMember) {
 						<div style="margin-top:8px;font-size:11px;color:var(--txt-3, #6B7699)">موجَّه لعضو الفريق: <strong style="color:var(--txt, #fff)">{{ d.teamMember.name }}</strong></div>
 					}
@@ -211,7 +211,8 @@
 	</div>
 
 	<div class="dd-inner-foot">
-		<span>&#169; 2026 وسيط AI &middot; v1.0.0</span>
+		<span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span>
+		<div class="inner-foot-links"><a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a><a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a></div>
 	</div>
 
 	<!-- GUIDANCE MODAL (company mode) -->
@@ -231,8 +232,8 @@
 					</button>
 				</div>
 				<div style="margin-bottom:12px">
-					<label style="display:block;font-size:12px;font-weight:700;color:var(--txt, #fff);margin-bottom:5px">توجيهاتك لـ{{ tm.name }}</label>
-					<textarea style="width:100%;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.10));border-radius:9px;padding:9px 12px;font-size:12.5px;color:var(--txt, #fff);font-family:inherit;resize:vertical;min-height:80px;line-height:1.6" placeholder="مثال: أرسل سجل الرفع الأصلي بصيغة PDF..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
+					<label for="dispute-guidance" style="display:block;font-size:12px;font-weight:700;color:var(--txt, #fff);margin-bottom:5px">توجيهاتك لـ{{ tm.name }} <span class="ws-req" aria-hidden="true">*</span></label>
+					<textarea id="dispute-guidance" aria-required="true" name="dispute-guidance" data-field="dispute-guidance" style="width:100%;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.10));border-radius:9px;padding:9px 12px;font-size:12.5px;color:var(--txt, #fff);font-family:inherit;resize:vertical;min-height:80px;line-height:1.6" placeholder="مثال: أرسل سجل الرفع الأصلي بصيغة PDF..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
 				</div>
 				<div style="display:flex;gap:9px">
 					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid var(--sec-bd, rgba(255,255,255,.12));background:var(--sec-bg, rgba(255,255,255,.05));color:var(--txt, #fff)" (click)="closeGuidance()">إلغاء</button>
@@ -244,11 +245,3 @@
 	}
 </div>
 
-@if (toastMsg()) {
-<div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500">
-	<div style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
-		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
-		<span style="font-size:14px;font-weight:700;color:#fff">{{ toastMsg() }}</span>
-	</div>
-</div>
-}

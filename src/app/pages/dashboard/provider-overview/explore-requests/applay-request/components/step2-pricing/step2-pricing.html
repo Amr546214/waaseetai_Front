@@ -9,14 +9,12 @@
     -moz-appearance: textfield;
   }
 </style>
-  <!-- AI Disclosure -->
-  <div class="flex items-center gap-[12px] p-[13px_16px] bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-[14px] mb-[16px]" role="note">
-    <div class="w-[30px] h-[30px] rounded-lg bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0">
-      <svg class="w-[15px] h-[15px] text-[#A56BE0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
-    </div>
-    <div class="flex-1">
-      <div class="text-[10px] font-extrabold text-[#A56BE0] tracking-wider mb-[2px]">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-      <div class="text-[12.5px] text-[#A8B2D1]">يحلل الذكاء الاصطناعي مراحلك ويقارن التوزيع بالسوق، والقرار النهائي لك</div>
+  <!-- Neutral note: this step runs no AI (the AI quality review is step 3) -->
+  <div class="ws-note ws-note--neutral" role="note" data-testid="step2-note">
+    <div class="ws-note-ico"><svg aria-hidden="true"><use href="#i-chart"></use></svg></div>
+    <div class="ws-note-body">
+      <div class="ws-note-lbl">توزيع الدفعات</div>
+      <p class="ws-note-txt">وزّع مبلغ عرضك على المراحل بنسب مجموعها 100%، والقرار النهائي لك</p>
     </div>
   </div>
 
@@ -35,11 +33,11 @@
   <!-- Total Proposal Budget & Execution Time Summary Controls -->
   <div class="bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.08)] rounded-xl p-4 mb-5 flex items-center justify-between gap-4 flex-wrap pricing-card">
     <div class="flex-1 min-w-[200px]">
-      <label class="text-[12px] font-bold text-[#A8B2D1] block mb-1.5" for="f-total-price">سعر عرضك الإجمالي ($) <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
+      <label class="text-[12px] font-bold text-[#A8B2D1] block mb-1.5" for="f-total-price">سعر عرضك الإجمالي ($) <span class="ws-req" aria-hidden="true">*</span></label>
       <input type="number" id="f-total-price" class="w-full py-[9px] px-[12px] bg-[rgba(255,255,255,.06)] border border-[rgba(255,255,255,.12)] rounded-[8px] text-white font-extrabold text-sm outline-none focus:border-[rgba(43,212,199,.5)] transition-colors pricing-input"
         [class.!border-[rgba(255,80,80,.45)]]="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched)"
-        [ngModel]="totalBudget" (ngModelChange)="updateTotalBudget.emit($event)" placeholder="أدخل إجمالي قيمة العرض" min="1" name="totalBudget" #totalBudgetModel="ngModel" required>
-      <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched)">
+        [ngModel]="totalBudget" (ngModelChange)="updateTotalBudget.emit($event)" placeholder="أدخل إجمالي قيمة العرض" min="1" name="totalBudget" #totalBudgetModel="ngModel" aria-required="true" [attr.aria-invalid]="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched) ? 'true' : null" [attr.aria-describedby]="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched) ? 'f-total-price-err' : null" required>
+      <div id="f-total-price-err" role="alert" class="flex items-center gap-[5px] text-xs mt-[5px] field-err" *ngIf="totalBudgetModel.invalid && (totalBudgetModel.dirty || totalBudgetModel.touched)">
         <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-warn"></use></svg>
         <span *ngIf="totalBudgetModel.errors?.['required']">يرجى إدخال سعر العرض</span>
         <span *ngIf="totalBudgetModel.errors?.['min']">يجب أن يكون السعر 1 على الأقل</span>
@@ -55,9 +53,16 @@
     </div>
   </div>
 
+  @if (hasMissingPriceOrDuration) {
+    <div id="pricing-missing-err" role="alert" class="flex items-center gap-[6px] text-xs mb-4 p-2.5 rounded-lg form-error">
+      <svg aria-hidden="true" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      يرجى تحديد السعر والمدة المطلوبة لكل مرحلة (السعر الإجمالي، اسم المرحلة، الأيام، والنسبة).
+    </div>
+  }
+
   @if (totalPct !== 100) {
-    <div class="flex items-center gap-[6px] text-xs text-[#FF8080] mb-4 bg-[rgba(255,128,128,.1)] border border-[rgba(255,128,128,.2)] p-2.5 rounded-lg">
-      <svg class="w-4 h-4 shrink-0 text-[#FF8080]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div role="alert" class="flex items-center gap-[6px] text-xs mb-4 p-2.5 rounded-lg form-error">
+      <svg aria-hidden="true" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       تنبيه: إجمالي نسب دفعات المراحل يجب أن يساوي بالضبط 100% لتتمكن من الانتقال للخطوة التالية (المجموع الحالي: {{ totalPct }}%).
     </div>
   }
@@ -82,12 +87,12 @@
         <div class="grid grid-cols-2 gap-[10px] mb-[10px]">
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1] pricing-label">
-              <span>اسم المرحلة <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1" title="إلزامي">*</span></span>
+              <span>اسم المرحلة <span class="ws-req" aria-hidden="true">*</span></span>
             </label>
             <input type="text" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] pricing-input"
               [class.!border-[rgba(255,80,80,.45)]]="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched)"
-              placeholder="مثال: إعداد خطة العمل..." [ngModel]="m.name" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {name: $event}})" name="mName_{{i}}" #mNameModel="ngModel" required minlength="2">
-            <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched)">
+              placeholder="مثال: إعداد خطة العمل..." [ngModel]="m.name" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {name: $event}})" name="mName_{{i}}" #mNameModel="ngModel" aria-required="true" [attr.aria-invalid]="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched) ? 'true' : null" [attr.aria-describedby]="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched) ? 'ms-name-err-' + i : null" required minlength="2">
+            <div [id]="'ms-name-err-' + i" role="alert" class="flex items-center gap-[5px] text-xs mt-[5px] field-err" *ngIf="mNameModel.invalid && (mNameModel.dirty || mNameModel.touched)">
               <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg>
               <span *ngIf="mNameModel.errors?.['required']">مطلوب</span>
               <span *ngIf="mNameModel.errors?.['minlength']">يجب أن يكون حرفين على الأقل</span>
@@ -95,15 +100,15 @@
           </div>
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1] pricing-label">
-              <span>أيام التسليم <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1" title="إلزامي">*</span></span>
+              <span>أيام التسليم <span class="ws-req" aria-hidden="true">*</span></span>
             </label>
             <div class="relative">
               <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] pricing-input"
                 [class.!border-[rgba(255,80,80,.45)]]="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched)"
-                min="1" placeholder="مثال: 5" [ngModel]="m.days" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {days: $event}})" name="mDays_{{i}}" #mDaysModel="ngModel" required>
+                min="1" placeholder="أدخل عدد الأيام" [ngModel]="m.days" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {days: $event}})" name="mDays_{{i}}" #mDaysModel="ngModel" aria-required="true" [attr.aria-invalid]="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched) ? 'true' : null" [attr.aria-describedby]="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched) ? 'ms-days-err-' + i : null" required>
               <span class="absolute left-[12px] top-1/2 -translate-y-1/2 text-[11px] text-[#6B7699]">يوم</span>
             </div>
-            <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched)">
+            <div [id]="'ms-days-err-' + i" role="alert" class="flex items-center gap-[5px] text-xs mt-[5px] field-err" *ngIf="mDaysModel.invalid && (mDaysModel.dirty || mDaysModel.touched)">
               <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg>
               <span *ngIf="mDaysModel.errors?.['required']">مطلوب</span>
               <span *ngIf="mDaysModel.errors?.['min']">يجب أن يكون يوم 1 على الأقل</span>
@@ -119,15 +124,15 @@
           </div>
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#A8B2D1] pricing-label">
-              <span>نسبة % <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1" title="إلزامي">*</span></span>
+              <span>نسبة % <span class="ws-req" aria-hidden="true">*</span></span>
             </label>
             <div class="relative">
               <input type="number" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] pricing-input"
                 [class.!border-[rgba(255,80,80,.45)]]="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched)"
-                min="1" max="100" placeholder="مثال: 40" [ngModel]="m.pct" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {pct: $event}})" name="mPct_{{i}}" #mPctModel="ngModel" required>
+                min="1" max="100" placeholder="أدخل النسبة المئوية" [ngModel]="m.pct" (ngModelChange)="updateMilestone.emit({id: m.id, updates: {pct: $event}})" name="mPct_{{i}}" #mPctModel="ngModel" aria-required="true" [attr.aria-invalid]="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched) ? 'true' : null" [attr.aria-describedby]="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched) ? 'ms-pct-err-' + i : null" required>
               <span class="absolute left-[12px] top-1/2 -translate-y-1/2 text-[11px] text-[#6B7699]">%</span>
             </div>
-            <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px]" *ngIf="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched)">
+            <div [id]="'ms-pct-err-' + i" role="alert" class="flex items-center gap-[5px] text-xs mt-[5px] field-err" *ngIf="mPctModel.invalid && (mPctModel.dirty || mPctModel.touched)">
               <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-warn"></use></svg>
               <span *ngIf="mPctModel.errors?.['required']">مطلوب</span>
               <span *ngIf="mPctModel.errors?.['min']">1% على الأقل</span>
@@ -137,7 +142,7 @@
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#6B7699]">المبلغ عند التسليم</label>
             <div class="h-[38px] flex items-center text-[14px] font-black text-[#2BD4C7] px-3 bg-[rgba(43,212,199,.07)] border border-[rgba(43,212,199,.18)] rounded-[10px]">
-              {{ getAmount(m.pct) | number }} ر
+              {{ getAmount(m.pct) | number:'1.0-2' }} ر
             </div>
           </div>
         </div>
@@ -171,7 +176,7 @@
       @for(m of proposal.milestones; track m.id; let i = $index) {
         <div class="p-[8px_12px] bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.18)] rounded-[9px] text-center min-w-[90px]">
           <div class="text-[10px] text-[#6B7699]">مرحلة {{ i + 1 }}</div>
-          <div class="text-[15px] font-black text-[#2BD4C7]">{{ getAmount(m.pct) | number }} ر</div>
+          <div class="text-[15px] font-black text-[#2BD4C7]">{{ getAmount(m.pct) | number:'1.0-2' }} ر</div>
           <div class="text-[10px] text-[#6B7699]">{{ m.pct || 0 }}%</div>
         </div>
       }
@@ -198,7 +203,7 @@
             </div>
             <div class="text-center text-[12px] text-[#A8B2D1] pricing-label">{{ m.days ? m.days + ' يوم' : '—' }}</div>
             <div class="text-center text-[13px] font-extrabold text-[#2BD4C7]">{{ m.pct ? m.pct + '%' : '—' }}</div>
-            <div class="text-center text-[13px] font-extrabold text-[#A8B2D1] pricing-label">{{ getAmount(m.pct) ? (getAmount(m.pct) | number) + ' ر' : '—' }}</div>
+            <div class="text-center text-[13px] font-extrabold text-[#A8B2D1] pricing-label">{{ getAmount(m.pct) ? (getAmount(m.pct) | number:'1.0-2') + ' ر' : '—' }}</div>
           </div>
         }
         
@@ -210,7 +215,7 @@
           <div class="text-[12px] font-extrabold text-[#A8B2D1] pricing-label">المجموع</div>
           <div class="text-center text-[13px] font-black text-white pricing-title">{{ totalDays > 0 ? totalDays + ' يوم' : '—' }}</div>
           <div class="text-center text-[13px] font-black" [class.text-[#2BD4C7]]="totalPct === 100" [class.text-[#FF8C69]]="totalPct !== 100">{{ totalPct }}%</div>
-          <div class="text-center text-[13px] font-black text-[#2BD4C7]">{{ totalAmount > 0 ? (totalAmount | number) + ' ر' : '—' }}</div>
+          <div class="text-center text-[13px] font-black text-[#2BD4C7]">{{ totalAmount > 0 ? (totalAmount | number:'1.0-2') + ' ر' : '—' }}</div>
         </div>
       </div>
     </div>

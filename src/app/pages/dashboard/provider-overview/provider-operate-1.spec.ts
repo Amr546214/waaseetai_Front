@@ -1,0 +1,110 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, it, expect } from 'vitest';
+import { PROVIDER_OVERVIEW_ROUTES } from './provider.routes';
+
+// "Operate, don't delete" guards (FE package 1): nothing was removed — each fake/incomplete item was wired, redirected, reworded or disabled with a reason.
+const root = __dirname;
+const read = (p: string) => readFileSync(join(root, p), 'utf8');
+const route = (path: string) => PROVIDER_OVERVIEW_ROUTES.find(r => r.path === path);
+
+describe('provider FE package 1 — operate, do not delete', () => {
+	it('the three orphan routes still exist and lead to real screens', () => {
+		const q = (queryParams: Record<string, string>) => ({ queryParams } as any);
+		const neg = route('business-models/negotiation')!.redirectTo as (d: any) => string;
+		expect(neg(q({}))).toBe('offers');
+		expect(neg(q({ offerId: 'abc' }))).toBe('offers/abc/negotiate');
+		const edit = route('business-models/service-edit')!.redirectTo as (d: any) => string;
+		expect(edit(q({ edit: 's1' }))).toBe('business-models/new-project');
+		expect(edit(q({}))).toBe('business-models/center');
+		expect(route('business-models/customer-requests')!.redirectTo).toBe('offers');
+	});
+	it('help/live-support route is kept; it is labelled as tickets, not a live chat', () => {
+		expect(route('help/live-support')).toBeTruthy();
+		expect(read('help/live-support/live-support.html')).not.toContain('الدعم المباشر');
+		expect(read('help/help.html')).toContain('تواصل مع الدعم عبر تذكرة');
+		expect(read('help/help.html')).not.toContain('شات مباشر مع موظف');
+	});
+	it('wallet: the deposit slot is kept — company top-up modal, individual gets the payout-data link', () => {
+		const h = read('finance/wallet/wallet.html');
+		expect(h).toContain('data-testid="wallet-topup"');
+		expect(h).toContain('data-testid="wallet-payout-data"');
+	});
+	it('invoices page reads GET /provider/finance/invoices (no sample rows) and shows client, value, commission, net', () => {
+		const h = read('finance/invoices/invoices.html');
+		const t = read('finance/invoices/invoices.ts');
+		for (const k of ['inv-kpis', 'inv-tabs', 'tx-tbl', 'inv-empty', 'inv.net', 'inv.platformCommission']) expect(h).toContain(k);
+		expect(t).toContain('getProviderInvoices()');
+		expect(t).not.toMatch(/INV-2026|نورة التصميم|رشا الكاتبة/);
+	});
+	it('sales-tracking reads GET /provider/finance/sales', () => {
+		const t = read('business-models/sales-tracking/sales-tracking.component.ts');
+		expect(t).toContain('getProviderSales()');
+		expect(t).toContain('topModels = d.topModels');
+	});
+	it('reports: PDF and CSV buttons are kept and wired to real handlers', () => {
+		const h = read('reports/reports.html');
+		expect(h).toContain('exportCsv()');
+		expect(h).toContain('printReport()');
+		expect(h).toContain('طباعة / حفظ PDF');
+		expect(h).not.toContain('جاري تصدير');
+	});
+	it('sign-contract: "edit terms via chat" is kept and opens the project conversation', () => {
+		const h = read('offers/sign-contract/sign-contract.html');
+		const t = read('offers/sign-contract/sign-contract.ts');
+		expect(h).toContain('تعديل البنود عبر المحادثة');
+		expect(h).toContain('openProjectConversation()');
+		expect(t).toContain("messageContext: { type: 'PROJECT', projectId");
+		expect(t).not.toContain('قاعدة البيانات');
+	});
+	it('profile-setup: preferences are saved for real (PUT /provider/profile/preferences) and loaded back, not disabled', () => {
+		const h = read('profile/profile-setup/profile-setup.html');
+		const t = read('profile/profile-setup/profile-setup.ts');
+		expect(h).toContain('التفضيلات');
+		expect(h).not.toContain('<fieldset disabled');
+		expect(h).toContain('(change)="savePreferences()"');
+		expect(t).toContain('saveProviderPreferences(');
+		expect(t).toContain('prefs.notifChannels');
+		expect(h).not.toContain('30 يوم');
+	});
+	it('footers: neutral wording + terms/privacy links; no SAMA / PDPL compliance claim anywhere in the provider area', () => {
+		for (const f of ['offers/sign-contract/sign-contract.html', 'projects/archived/archived.html', 'disputes/dispute-details/dispute-details.html', 'business-models/market/model-details/model-details.html', 'help/ticket-detail/ticket-detail.html', 'help/new-ticket/new-ticket.html']) {
+			const h = read(f);
+			expect(h, f).toContain('وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة');
+			expect(h, f).toContain('الشروط والأحكام');
+			expect(h, f).toContain('سياسة الخصوصية');
+			expect(h, f).not.toMatch(/SAMA|PDPL|v1\.0\.0/);
+		}
+	});
+	it('level benefits: the invented search-priority benefit is replaced by the real level badge', () => {
+		const h = read('profile/level/level.html');
+		expect(h).not.toContain('أولوية ظهور');
+		expect(h).toContain('شارة المستوى تظهر في ملفك وخدماتك');
+	});
+	it('level roadmap: progress lines follow the real level (no fixed level-4 geometry)', () => {
+		const h = read('profile/level/level.html');
+		expect(h).toContain('level-done-line');
+		expect(h).not.toContain('11/15');
+	});
+
+	it('technical cleanup: the unreachable fake terms-chat modal and the three orphan components are gone', () => {
+		const h = read('offers/sign-contract/sign-contract.html');
+		const t = read('offers/sign-contract/sign-contract.ts');
+		for (const gone of ['isTermsModalOpen', 'chatMessages', 'sendTermMsg', 'termInput']) { expect(h).not.toContain(gone); expect(t).not.toContain(gone); }
+		const fs = require('node:fs');
+		for (const dir of ['service-edit', 'customer-requests', 'negotiation']) expect(fs.existsSync(join(root, 'business-models', dir))).toBe(false);
+	});
+	it('preferences labels do not pretend to switch the interface language', () => {
+		const h = read('profile/profile-setup/profile-setup.html');
+		expect(h).not.toContain('لغة الواجهة');
+		expect(h).toContain('لغة التواصل المفضلة');
+		expect(h).toContain('data-testid="pref-tz-hint"');
+	});
+	it('every provider PDF button says print / save, never "download PDF"', () => {
+		for (const f of ['reports/reports.html', 'finance/invoices/invoices.html', 'finance/transaction-details/transaction-details.html']) {
+			const h = read(f);
+			expect(h, f).not.toMatch(/تنزيل (ال)?(فاتورة|PDF)|تحميل (ال)?(إيصال|PDF)/);
+			expect(h, f).toMatch(/طباعة \/ حفظ/);
+		}
+	});
+});

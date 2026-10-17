@@ -1,16 +1,25 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { AMENDMENT_EFFECT_NOTE, AMENDMENT_RECORDED_BADGE } from '../../../../../core/constants/amendment-effect';
+import { AdminOpsApiService, AdminProjectDetail, AdminStage } from '../../../../../core/services/admin-ops-api.service';
 import {
-  DeliverableFilter,
-  DeliverableStatus,
-  Project,
-  PROJECTS,
-  PROJECT_RISK_CLASSES,
-  PROJECT_RISK_LABELS,
+  AMENDMENT_STATUS_LABELS,
+  DELIVERY_STATUS_CLASSES,
+  DELIVERY_STATUS_LABELS,
+  DISPUTE_STATUS_LABELS,
+  ESCROW_STATUS_CLASSES,
+  ESCROW_STATUS_LABELS,
+  FINANCE_ACTION_DISABLED_REASON,
+  FINANCE_ACTION_NOTE,
   PROJECT_STATUS_CLASSES,
   PROJECT_STATUS_LABELS,
-} from '../sa-projects.data';
+  STAGE_STATUS_LABELS,
+  initials,
+  label,
+} from '../sa-projects.labels';
 
 @Component({
   selector: 'app-sa-project-detail',
@@ -22,60 +31,65 @@ import {
 export class SaProjectDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private api = inject(AdminOpsApiService);
+  private destroyRef = inject(DestroyRef);
 
   readonly statusLabels = PROJECT_STATUS_LABELS;
   readonly statusClasses = PROJECT_STATUS_CLASSES;
-  readonly riskLabels = PROJECT_RISK_LABELS;
-  readonly riskClasses = PROJECT_RISK_CLASSES;
+  readonly escrowLabels = ESCROW_STATUS_LABELS;
+  readonly escrowClasses = ESCROW_STATUS_CLASSES;
+  readonly stageLabels = STAGE_STATUS_LABELS;
+  readonly deliveryLabels = DELIVERY_STATUS_LABELS;
+  readonly deliveryClasses = DELIVERY_STATUS_CLASSES;
+  readonly disputeLabels = DISPUTE_STATUS_LABELS;
+  readonly amendmentLabels = AMENDMENT_STATUS_LABELS;
+  readonly amendmentEffectNote = AMENDMENT_EFFECT_NOTE;
+  readonly amendmentRecordedBadge = AMENDMENT_RECORDED_BADGE;
+  readonly financeReason = FINANCE_ACTION_DISABLED_REASON;
+  readonly financeNote = FINANCE_ACTION_NOTE;
+  readonly initials = initials;
+  readonly label = label;
 
-  readonly deliverableStatusLabels: Record<DeliverableStatus, string> = {
-    accepted: 'مقبول',
-    pending: 'قيد المراجعة',
-    rejected: 'مرفوض',
-  };
-  readonly deliverableStatusClasses: Record<DeliverableStatus, string> = {
-    accepted: 'pj-dstatus-accepted',
-    pending: 'pj-dstatus-pending',
-    rejected: 'pj-dstatus-rejected',
-  };
-
-  readonly deliverableTabs: { key: DeliverableFilter; label: string }[] = [
-    { key: 'all', label: 'الكل' },
-    { key: 'accepted', label: 'مقبولة' },
-    { key: 'pending', label: 'قيد المراجعة' },
-    { key: 'rejected', label: 'مرفوضة' },
-  ];
-
-  selected = signal<Project | null>(null);
+  selected = signal<AdminProjectDetail | null>(null);
+  loading = signal(true);
+  error = signal(false);
   notFound = signal(false);
-  actionMessage = signal('');
-  deliverableFilter = signal<DeliverableFilter>('all');
 
-  filteredDeliverables = computed(() => {
-    const d = this.selected();
-    if (!d) return [];
-    const f = this.deliverableFilter();
-    return f === 'all' ? d.deliverables : d.deliverables.filter((x) => x.status === f);
-  });
+  /** Only a v2 fee policy carries meaningful commission / provider-net figures. */
+  showFees = computed(() => this.selected()?.escrow?.feePolicyVersion === 2);
 
-  deliverableCounts = computed(() => {
-    const d = this.selected();
-    const c: Record<DeliverableFilter, number> = { all: 0, accepted: 0, pending: 0, rejected: 0 };
-    if (!d) return c;
-    c.all = d.deliverables.length;
-    for (const item of d.deliverables) c[item.status]++;
-    return c;
-  });
+  private req?: Subscription;
+  private id = '';
 
   ngOnInit(): void {
+    this.destroyRef.onDestroy(() => this.req?.unsubscribe());
     this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
-      // Mock-only: look the project up in the shared mock array by id.
-      const found = id ? PROJECTS.find((x) => String(x.id) === id) ?? null : null;
-      this.selected.set(found);
-      this.notFound.set(!found);
-      this.actionMessage.set('');
-      this.deliverableFilter.set('all');
+      this.id = params.get('id') ?? '';
+      this.load();
+    });
+  }
+
+  load(): void {
+    this.req?.unsubscribe();
+    this.loading.set(true);
+    this.error.set(false);
+    this.notFound.set(false);
+    if (!this.id) {
+      this.loading.set(false);
+      this.notFound.set(true);
+      return;
+    }
+    this.req = this.api.getProject(this.id).subscribe({
+      next: (res) => {
+        this.selected.set(res.data);
+        this.loading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.selected.set(null);
+        this.loading.set(false);
+        if (err?.status === 404) this.notFound.set(true);
+        else this.error.set(true);
+      },
     });
   }
 
@@ -83,21 +97,9 @@ export class SaProjectDetail implements OnInit {
     this.router.navigate(['/supper-admin-overview/projects']);
   }
 
-  setDeliverableFilter(f: DeliverableFilter) {
-    this.deliverableFilter.set(f);
-  }
-
-  extendDeadline() {
-    this.actionMessage.set('تم تمديد مهلة المشروع بنجاح');
-  }
-
-  messageParties() {
-    this.actionMessage.set('تم إرسال إشعار لطرفي المشروع');
-  }
-
-  escalate() {
-    const item = this.selected();
-    if (!item) return;
-    this.actionMessage.set('تم تصعيد المشروع إلى قسم النزاعات');
+  stageState(s: AdminStage): 'done' | 'active' | 'pending' {
+    if (s.approvedAt || s.status === 'APPROVED') return 'done';
+    if (s.startedAt || s.status === 'IN_PROGRESS' || s.status === 'SUBMITTED') return 'active';
+    return 'pending';
   }
 }

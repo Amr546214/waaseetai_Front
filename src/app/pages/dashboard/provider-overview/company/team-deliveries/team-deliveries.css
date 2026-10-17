@@ -110,10 +110,6 @@
 .tds-act-ghost { background: rgba(255, 255, 255, .04); border-color: rgba(255, 255, 255, .10); color: var(--tds-txt-sec); }
 .tds-act-ghost:hover { border-color: rgba(255, 255, 255, .20); color: var(--tds-txt); }
 
-/* Toast */
-.tds-toast-wrap { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); z-index: 500; }
-.tds-toast { display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: linear-gradient(135deg, rgba(43, 212, 199, .14), rgba(43, 127, 255, .10)); border: 1px solid rgba(43, 212, 199, .30); border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, .4); backdrop-filter: blur(16px); font-size: 13px; font-weight: 700; color: var(--tds-txt); }
-
 /* Light Mode (additional overrides for hardcoded dark-only surfaces) */
 :host-context(body.light-theme) .tds-tbl th,
 :host-context(body.theme-light) .tds-tbl th,

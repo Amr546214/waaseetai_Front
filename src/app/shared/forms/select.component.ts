@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, forwardRef, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, AfterViewInit, afterEveryRender, Component, DoCheck, ElementRef, HostListener, forwardRef, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export interface WsSelectOption { value: string; label: string; disabled?: boolean }
@@ -32,12 +32,18 @@ let nextId = 0;
 		.ws-sel-opt.is-active { background: rgba(43,212,199,.12); }
 		.ws-sel-opt.is-selected { color: #2BD4C7; font-weight: 800; background: rgba(43,212,199,.18); }
 		.ws-sel-opt.is-disabled { opacity: .45; cursor: not-allowed; }
+		.ws-sel-opt:not(.is-disabled):not(.is-active):hover { background: rgba(255,255,255,.06); }
+		.ws-sel-empty { padding: 10px 12px; font-size: 13px; color: #6B7699; text-align: center; }
+		.ws-sel-panel { color-scheme: dark; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent; }
 		.ws-sel-check { width: 14px; height: 14px; flex: none; }
 		:host-context(.light-theme) .ws-sel-trigger, :host-context(.theme-light) .ws-sel-trigger { background: #F8FAFC; border-color: #CBD5E1; color: #0F172A; }
 		:host-context(.light-theme) .ws-sel-trigger[aria-expanded="true"], :host-context(.theme-light) .ws-sel-trigger[aria-expanded="true"],
 		:host-context(.light-theme) .ws-sel-trigger:focus-visible, :host-context(.theme-light) .ws-sel-trigger:focus-visible { border-color: #2BD4C7; }
 		:host-context(.light-theme) .ws-sel-value.is-placeholder, :host-context(.theme-light) .ws-sel-value.is-placeholder { color: #64748B; }
 		:host-context(.light-theme) .ws-sel-panel, :host-context(.theme-light) .ws-sel-panel { background: #fff; border-color: #CBD5E1; box-shadow: 0 14px 32px rgba(15,23,42,.14); }
+		:host-context(.light-theme) .ws-sel-panel, :host-context(.theme-light) .ws-sel-panel { color-scheme: light; scrollbar-color: #CBD5E1 transparent; }
+		:host-context(.light-theme) .ws-sel-opt:not(.is-disabled):not(.is-active):hover, :host-context(.theme-light) .ws-sel-opt:not(.is-disabled):not(.is-active):hover { background: #F8FAFC; }
+		:host-context(.light-theme) .ws-sel-empty, :host-context(.theme-light) .ws-sel-empty { color: #64748B; }
 		:host-context(.light-theme) .ws-sel-opt, :host-context(.theme-light) .ws-sel-opt { color: #0F172A; }
 		:host-context(.light-theme) .ws-sel-opt.is-active, :host-context(.theme-light) .ws-sel-opt.is-active { background: #F1F5F9; }
 		:host-context(.light-theme) .ws-sel-opt.is-selected, :host-context(.theme-light) .ws-sel-opt.is-selected { color: #0A6F64; background: rgba(43,212,199,.18); }
@@ -53,6 +59,7 @@ let nextId = 0;
 			<!-- popover="manual": shown in the browser top layer, so no card/stacking context of the page can paint over or clip the list. -->
 			<ul class="ws-sel-panel" popover="manual" role="listbox" [id]="listId" data-testid="ws-select-panel" [attr.aria-label]="ariaLabel() || placeholder()"
 				[style.top.px]="pos().top" [style.bottom.px]="pos().bottom" [style.left.px]="pos().left" [style.width.px]="pos().width" [style.max-height.px]="pos().maxHeight">
+				@if (normalized().length === 0) { <li class="ws-sel-empty" role="option" aria-disabled="true" aria-selected="false" data-testid="ws-select-empty">لا توجد خيارات</li> }
 				@for (o of normalized(); track o.value; let i = $index) {
 					<li class="ws-sel-opt" role="option" [id]="optId(i)" [class.is-active]="i === active()" [class.is-selected]="o.value === value()" [class.is-disabled]="o.disabled"
 						[attr.aria-selected]="o.value === value()" [attr.aria-disabled]="o.disabled ? true : null" data-testid="ws-select-option"
@@ -65,7 +72,7 @@ let nextId = 0;
 		}
 	`,
 })
-export class WsSelectComponent implements ControlValueAccessor {
+export class WsSelectComponent implements ControlValueAccessor, DoCheck, AfterViewInit {
 	private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 	private readonly cdr = inject(ChangeDetectorRef);
 
@@ -89,6 +96,34 @@ export class WsSelectComponent implements ControlValueAccessor {
 		if (r.bottom < 0 || r.top > window.innerHeight) { this.close(); } else { this.place(); }
 		this.cdr.markForCheck();
 	};
+
+	/**
+	 * The page puts aria-required / aria-invalid / aria-describedby / aria-errormessage (and `required`) on the <ws-select> host; the
+	 * element a screen reader lands on is the inner combobox button, so the state is mirrored there (the host is not focusable).
+	 * Without an explicit aria-invalid, a control that is ng-invalid AND touched/dirty is announced as invalid too.
+	 */
+	/** Runs after the page's host bindings (ng-invalid/ng-touched classes) were applied, so the state never lags one cycle behind. */
+	private readonly syncAfterRender = afterEveryRender(() => this.ngDoCheck());
+	private readonly mirrored = new Set<string>();
+	ngAfterViewInit(): void { this.ngDoCheck(); }
+	ngDoCheck(): void {
+		const host = this.host.nativeElement;
+		const btn = host.querySelector('button.ws-sel-trigger') as HTMLElement | null;
+		if (!btn) return;
+		// Only attributes THIS mirror wrote are ever removed again: the form-a11y sync service (and pages) may set the same attributes directly on the button.
+		const set = (name: string, v: string | null) => {
+			if (v === null) { if (this.mirrored.has(name)) { this.mirrored.delete(name); btn.removeAttribute(name); } return; }
+			this.mirrored.add(name);
+			if (btn.getAttribute(name) !== v) btn.setAttribute(name, v);
+		};
+		set('aria-required', host.getAttribute('aria-required') ?? (host.hasAttribute('required') && host.getAttribute('required') !== 'false' ? 'true' : null));
+		const cl = host.classList;
+		const ngInvalid = cl.contains('ng-invalid') && (cl.contains('ng-touched') || cl.contains('ng-dirty'));
+		const explicit = host.getAttribute('aria-invalid');
+		set('aria-invalid', explicit ?? (ngInvalid ? 'true' : null));
+		set('aria-describedby', host.getAttribute('aria-describedby'));
+		set('aria-errormessage', host.getAttribute('aria-errormessage'));
+	}
 
 	private onChange: (v: string) => void = () => {};
 	private onTouched: () => void = () => {};

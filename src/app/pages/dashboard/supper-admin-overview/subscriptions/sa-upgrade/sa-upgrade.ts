@@ -1,77 +1,13 @@
-import { Component, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { SaUnavailable } from '../../shared/sa-unavailable/sa-unavailable';
 
-type UpgradeStatus = 'completed' | 'pending' | 'ai';
-type UpgradeFilter = 'all' | UpgradeStatus;
-
-interface PlanBadge {
-  name: string;
-  color: string;
-}
-
-interface UpgradeRequest {
-  user: string;
-  from: PlanBadge;
-  to: PlanBadge;
-  diff: string;
-  probability: number;
-  probColor: string;
-  date: string;
-  status: UpgradeStatus;
-}
-
+// Admin sweep (D3): this page used to render hardcoded mock data with no backend source.
+// It now shows an honest "not available" state (see shared/sa-unavailable); the route and
+// component are kept so the page can be wired to real data once a backend exists.
 @Component({
   selector: 'app-sa-upgrade',
   standalone: true,
-  imports: [CommonModule],
+  imports: [SaUnavailable],
   templateUrl: './sa-upgrade.html',
-  styleUrl: './sa-upgrade.css',
 })
-export class SaUpgrade {
-  activeFilter = signal<UpgradeFilter>('all');
-
-  readonly filters: { key: UpgradeFilter; label: string }[] = [
-    { key: 'all', label: 'الكل' },
-    { key: 'completed', label: 'مكتملة' },
-    { key: 'pending', label: 'معلقة' },
-    { key: 'ai', label: 'توصيات مبدئية' },
-  ];
-
-  readonly statusLabels: Record<UpgradeStatus, string> = {
-    completed: 'مكتملة',
-    pending: 'معلقة',
-    ai: 'توصية مبدئية',
-  };
-
-  readonly statusColors: Record<UpgradeStatus, string> = {
-    completed: '#0FA99A',
-    pending: '#FFB400',
-    ai: '#9AA6C4',
-  };
-
-  readonly kpis = [
-    { label: 'طلبات الترقية', value: '247', unit: 'هذا الشهر', sub: '+34% عن الشهر الماضي', color: '#2BD4C7', subColor: '#0FA99A' },
-    { label: 'مكتملة', value: '218', unit: 'ترقية', sub: '88.3% معدل الإتمام', color: '#0FA99A', subColor: '#6B7699' },
-    { label: 'معلقة', value: '29', unit: 'طلب', sub: 'بانتظار الدفع', color: '#FFB400', subColor: '#D98A0B' },
-    { label: 'مرشحون للترقية', value: '482', unit: 'مستخدم مرشح', sub: 'احتمالية ترقية >70%', color: '#59C1F5', subColor: '#6B7699' },
-  ];
-
-  readonly requests: UpgradeRequest[] = [
-    { user: 'هيثم القرني', from: { name: 'أساسي', color: '#5DA0FF' }, to: { name: 'Pro', color: '#2BD4C7' }, diff: '+200 $', probability: 89, probColor: '#0FA99A', date: 'اليوم', status: 'completed' },
-    { user: 'نورة السهلي', from: { name: 'مجاني', color: '#6B7699' }, to: { name: 'أساسي', color: '#5DA0FF' }, diff: '+99 $', probability: 76, probColor: '#2BD4C7', date: 'أمس', status: 'completed' },
-    { user: 'شركة الأفق', from: { name: 'Pro', color: '#2BD4C7' }, to: { name: 'Business', color: '#59C1F5' }, diff: '+400 $', probability: 92, probColor: '#59C1F5', date: '12 يوليو', status: 'pending' },
-    { user: 'خالد المطيري', from: { name: 'مجاني', color: '#6B7699' }, to: { name: 'Pro', color: '#2BD4C7' }, diff: '+299 $', probability: 71, probColor: '#FFB400', date: '11 يوليو', status: 'ai' },
-    { user: 'فاطمة العتيبي', from: { name: 'أساسي', color: '#5DA0FF' }, to: { name: 'Pro', color: '#2BD4C7' }, diff: '+200 $', probability: 84, probColor: '#0FA99A', date: '9 يوليو', status: 'completed' },
-    { user: 'مؤسسة البناء الحديث', from: { name: 'مجاني', color: '#6B7699' }, to: { name: 'أساسي', color: '#5DA0FF' }, diff: '+129 $', probability: 74, probColor: '#2BD4C7', date: '6 يوليو', status: 'ai' },
-  ];
-
-  filteredRequests = computed(() => {
-    const f = this.activeFilter();
-    if (f === 'all') return this.requests;
-    return this.requests.filter((r) => r.status === f);
-  });
-
-  setFilter(f: UpgradeFilter): void {
-    this.activeFilter.set(f);
-  }
-}
+export class SaUpgrade {}

@@ -17,7 +17,7 @@ const fakeSocket = {
 	disconnect: vi.fn(),
 };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 // Loaded fresh in beforeEach: the unit-test runner can share the module registry between spec files, and another spec that imported
 // AntiCheatService first (with its own socket.io-client mock) would otherwise leave this file's `fakeSocket` unused (order-dependent failures).

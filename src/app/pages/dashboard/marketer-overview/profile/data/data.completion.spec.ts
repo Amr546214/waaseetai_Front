@@ -6,7 +6,6 @@ import { vi } from 'vitest';
 import { Data } from './data';
 import { MarketerOverviewService } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService } from '../../../../../core/services/marketer-profile.service';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 // Marketer data page: the percentage and the "what is missing" box come from the backend; the PayPal item opens the PayPal tab; the channel dot no longer says "محقق".
@@ -29,9 +28,8 @@ describe('marketer data page: backend completion + missing items', () => {
       imports: [Data],
       providers: [
         provideRouter([]),
-        { provide: MarketerOverviewService, useValue: { getSummary: () => of({ success: true, data: {} }), getChannelPerformance: () => of({ success: true, data: [] }), getRecentCommissions: () => of({ success: true, data: [] }) } },
+        { provide: MarketerOverviewService, useValue: { getSummary: () => of({ success: true, data: {} }), getChannelPerformance: () => of({ success: true, data: [] }), getRecentCommissions: () => of({ success: true, data: [] }), getSettings: () => of({ success: true, data: { inApp: true, email: false, newReferral: true, newCommission: true, communicationLanguage: 'ar', timezone: null } }), updateMarketerSettings: () => of({ success: true, data: { inApp: true, email: false, newReferral: true, newCommission: true, communicationLanguage: 'ar', timezone: null } }) } },
         { provide: MarketerProfileService, useValue: { getProfile, updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(), removeChannel: vi.fn(), updatePaypalPayout: vi.fn(), createIdentityRequest: vi.fn(), changePassword: vi.fn() } },
-        { provide: NotificationPreferencesService, useValue: { getPreferences: () => of({ success: true, data: {} }), updatePreferences: vi.fn() } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(Data);

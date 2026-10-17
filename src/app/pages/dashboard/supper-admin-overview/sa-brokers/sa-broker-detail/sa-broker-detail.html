@@ -38,11 +38,8 @@
       </div>
 
       <div class="bk-ai-panel">
-        <div class="bk-ai-panel-hdr">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
-          وسيط AI: تحليل الأداء
-        </div>
-        @for (note of aiPerformanceNotes(b); track note) {
+        <div class="bk-ai-panel-hdr">ملخص الأداء</div>
+        @for (note of performanceFacts(b); track note) {
           <p class="bk-ai-note">{{ note }}</p>
         }
       </div>
@@ -50,14 +47,12 @@
       <div class="bk-md-body">
         <div class="bk-md-grid-2">
           <div class="bk-md-field">
-            <label>مستويات العمولة</label>
+            <label>مستوى العمولة</label>
             <div class="bk-tier-list">
-              @for (t of commissionTiers; track t.label) {
-                <div class="bk-tier-item" [class.active]="t.active">
-                  <span>{{ t.label }}</span>
-                  <span class="bk-tier-rate">{{ t.rate }}</span>
-                </div>
-              }
+              <div class="bk-tier-item active">
+                <span>{{ b.level }}@if (b.levelNumber) { (مستوى {{ b.levelNumber }}) }</span>
+                <span class="bk-tier-rate">{{ b.commissionPercent != null ? b.commissionPercent + '%' : '—' }}</span>
+              </div>
             </div>
           </div>
 
@@ -66,10 +61,11 @@
             <div class="bk-withdraw-card">
               <div class="bk-withdraw-amount">{{ b.pendingCommission | number:'1.0-0' }} $</div>
               <div class="bk-withdraw-sub">قابل للسحب</div>
-              <button type="button" class="bk-btn bk-btn-approve" (click)="sendForWithdrawal(b)">
+              <p class="txt-muted" style="font-size:12px;margin:8px 0">السحب يبدأه الوسيط بنفسه من حسابه، وتتم مراجعة الطلب من صفحة السحوبات.</p>
+              <a class="bk-btn bk-btn-approve" routerLink="/supper-admin-overview/withdrawals">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="16" cy="12" r="1.6"/></svg>
-                إرسال للسحب يدوياً
-              </button>
+                مراجعة طلبات السحب
+              </a>
             </div>
           </div>
         </div>
@@ -167,14 +163,16 @@
           </div>
 
           <div class="bk-md-field">
-            <label>سجل المدفوعات الشهري</label>
+            <label>العمولات الشهرية (آخر 6 أشهر)</label>
             <div class="bk-pay-list">
-              @for (p of monthlyPayments; track p.month) {
-                <div class="bk-pay-row" [class.expected]="p.status === 'متوقع'">
-                  <span class="bk-pay-month">{{ p.month }}</span>
-                  <span class="bk-pay-amount">{{ p.amount | number:'1.0-0' }} $</span>
-                  <span class="bk-pay-status">{{ p.status }}</span>
+              @for (p of b.monthlyCommissions ?? []; track p.month) {
+                <div class="bk-pay-row">
+                  <span class="bk-pay-month">{{ monthLabel(p.month) }}</span>
+                  <span class="bk-pay-amount">{{ p.approved | number:'1.0-2' }} $</span>
+                  <span class="bk-pay-status">معلّقة: {{ p.pending | number:'1.0-2' }} $</span>
                 </div>
+              } @empty {
+                <p class="txt-muted" style="font-size:12px">لا توجد بيانات.</p>
               }
             </div>
           </div>
@@ -182,15 +180,33 @@
       </div>
 
       <div class="bk-md-actions">
+        @if (b.status === 'ACTIVE') {
+          <button type="button" class="bk-btn bk-btn-ghost bk-btn-danger" (click)="openStatusDialog('SUSPENDED')">إيقاف الحساب</button>
+        } @else if (b.status === 'SUSPENDED' || b.status === 'SUSPENDED_REVIEW') {
+          <button type="button" class="bk-btn bk-btn-approve" style="width:auto" (click)="openStatusDialog('ACTIVE')">إعادة التفعيل</button>
+        }
         <button type="button" class="bk-btn bk-btn-ghost" (click)="goBack()">العودة للقائمة</button>
       </div>
     </div>
   }
 
-  @if (toast()) {
-    <div class="bk-toast">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      <span>{{ toast() }}</span>
+  @if (statusDialog(); as target) {
+    <div class="bk-dlg-backdrop" (click)="closeStatusDialog()">
+      <div class="bk-dlg" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <h3>{{ target === 'SUSPENDED' ? 'تأكيد إيقاف حساب الوسيط' : 'تأكيد إعادة تفعيل الحساب' }}</h3>
+        @if (target === 'SUSPENDED') {
+          <p>سيُمنع الوسيط من استخدام حسابه فوراً. سجّل سبب الإيقاف (يُحفظ في سجل التدقيق).</p>
+          <textarea id="bk-status-reason" aria-label="سبب الإيقاف" rows="3" [value]="statusReason()" (input)="statusReason.set($any($event.target).value)" placeholder="سبب الإيقاف"></textarea>
+        } @else {
+          <p>ستتم إعادة تفعيل حساب الوسيط وسيُسجَّل ذلك في سجل التدقيق.</p>
+        }
+        @if (statusError()) { <p role="alert" data-testid="bk-status-error" style="color:#ff6b6b;font-size:12px">{{ statusError() }}</p> }
+        <div class="bk-dlg-actions">
+          <button type="button" class="bk-btn bk-btn-ghost" [disabled]="statusBusy()" (click)="closeStatusDialog()">إلغاء</button>
+          <button type="button" class="bk-btn bk-btn-approve" style="width:auto" [disabled]="statusBusy()" (click)="confirmStatusChange()">تأكيد</button>
+        </div>
+      </div>
     </div>
   }
+
 </section>

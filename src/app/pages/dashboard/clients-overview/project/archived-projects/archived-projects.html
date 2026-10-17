@@ -111,8 +111,8 @@
 			<!-- Projects List (compact rows) -->
 			<div class="pl-list">
 				@for (project of filteredProjects(); track project.id) {
-					<a class="pl-row" [class.pl-done]="project.status === 'done'" [class.pl-cancel]="project.status === 'cancel'" [class.pl-arch]="project.status === 'arch'" [routerLink]="['/client-overview/projects', project.id]">
-						<span class="pl-ic-sq" [class.pl-icsq-done]="project.status === 'done'" [class.pl-icsq-cancel]="project.status === 'cancel'" [class.pl-icsq-arch]="project.status === 'arch'" aria-hidden="true">
+					<a class="pl-row" [class.pl-done]="project.status === 'done'" [class.pl-cancel]="project.status === 'cancel'" [class.pl-arch]="project.status === 'arch' || project.status === 'settled'" [routerLink]="['/client-overview/projects', project.id]">
+						<span class="pl-ic-sq" [class.pl-icsq-done]="project.status === 'done'" [class.pl-icsq-cancel]="project.status === 'cancel'" [class.pl-icsq-arch]="project.status === 'arch' || project.status === 'settled'" aria-hidden="true">
 							@switch (project.icon) {
 								@case ('check') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
 								@case ('doc') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
@@ -135,7 +135,7 @@
 							</div>
 						</div>
 
-						<span class="pl-pill" [class.pl-p-done]="project.status === 'done'" [class.pl-p-cancel]="project.status === 'cancel'" [class.pl-p-arch]="project.status === 'arch'">
+						<span class="pl-pill" [class.pl-p-done]="project.status === 'done'" [class.pl-p-cancel]="project.status === 'cancel'" [class.pl-p-arch]="project.status === 'arch' || project.status === 'settled'">
 							{{ statusLabel(project.status) }}
 						</span>
 					</a>
@@ -146,12 +146,8 @@
 
 	<!-- Footer -->
 	<div class="inner-foot">
-		<span>© 2026 وسيط AI · v1.0.0</span>
-		<div class="inner-foot-links">
-			<a routerLink="/privacy">PDPL</a>
-			<a routerLink="/terms">الشروط</a>
-			<span>SAMA</span>
-		</div>
+		<span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span>
+		<div class="inner-foot-links"><a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a><a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a></div>
 	</div>
 </section>
 
@@ -185,8 +181,8 @@
 			}
 
 			<div class="lc-fld">
-				<label>التقييم</label>
-				<div class="rate-stars">
+				<label>التقييم <span class="ws-req" aria-hidden="true">*</span></label>
+				<div class="rate-stars" role="radiogroup" aria-label="التقييم بالنجوم" aria-required="true">
 					@for (star of ratingStarArray(); track star) {
 						<button type="button" class="rate-star-btn" [class.filled]="ratingStars() >= star" (click)="setRatingStar(star)" [attr.aria-label]="star + ' من 5'">
 							<svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">

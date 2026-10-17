@@ -2,6 +2,7 @@ import { Component, inject, computed, OnInit, HostListener } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CheckoutService } from '../../../../core/services/checkout.service';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-checkout-failure',
@@ -25,7 +26,7 @@ export class CheckoutFailureComponent implements OnInit {
 
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return formatMoney(value, 0);
   }
 
   ngOnInit(): void {

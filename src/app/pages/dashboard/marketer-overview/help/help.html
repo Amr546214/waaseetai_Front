@@ -9,7 +9,7 @@
   </div>
 
   <h2 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">الدعم والمساعدة</h2>
-  <p style="font-size:13px;margin-bottom:20px" class="txt-muted">اسأل المساعد الذكي أولاً، وإن لم يُجب يحولك للدعم البشري</p>
+  <p style="font-size:13px;margin-bottom:20px" class="txt-muted">اختر موضوعًا من مركز المساعدة، أو افتح تذكرة دعم وتابع الرد من صفحة التذكرة ومن الإشعارات</p>
 
   <!-- المساعد الذكي -->
   <section class="help-hero" aria-label="المساعد الذكي" id="ai-assistant">
@@ -76,9 +76,9 @@
     <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-doc"></use></svg>أسئلة شائعة للوسطاء</div>
     <div style="display:flex;flex-direction:column;gap:8px">
       @for (item of [
-        { q: 'كيف تحتسب العمولة؟', a: 'العمولة تُحتسب كنسبة من قيمة الخدمة المكتملة التي أحالها العميل، وتُضاف للرصيد بعد إتمام المشروع وتقييمه.' },
+        { q: 'كيف تحتسب العمولة؟', a: 'تُحتسب العمولة كنسبة من قيمة المرحلة التي يحرّرها العميل المُحال عبر رابطك، وتظهر في سجل العمولات بحالتها.' },
         { q: 'كيف يؤثر مستواي على العمولة؟', a: 'لكل مستوى نسبة عمولة ثابتة تُحدَّد حسب جدول المستويات، وتظهر نسبة مستواك الحالي في أعلى لوحتك.' },
-        { q: 'متى يتم إيداع مبلغ السحب؟', a: 'السحوبات المؤكدة قبل الخميس تُودَع الأحد، والمؤكدة بعد الخميس تُودَع الأسبوع التالي.' },
+        { q: 'كيف أتابع طلب السحب؟', a: 'بعد إرسال الطلب تراجعه الإدارة ثم يُحوَّل المبلغ إلى بريد PayPal المحفوظ. تتابع حالة كل طلب (بانتظار المراجعة، معتمد، مدفوع، مرفوض) وتفاصيله من صفحة السحب، ويصلك إشعار عند كل تغيير. لا نحدد موعدًا ثابتًا للتحويل.' },
         { q: 'كيف أتابع طلبات تعديل بياناتي؟', a: 'من صفحة طلبات تعديل الملف يمكنك رؤية حالة كل طلب: قيد المراجعة، بانتظار مراجع بشري، معتمد أو مرفوض.' }
       ]; track item.q; let i = $index) {
         <div class="faq-item" [class.open]="faqState()[i]">
@@ -101,33 +101,33 @@
     <a href="#ai-assistant" class="chan">
       <div class="chan-ico" style="background:rgba(123,47,190,.14);color:#A56BE0"><svg width="22" height="22" aria-hidden="true"><use href="#i-ai"></use></svg></div>
       <div class="chan-ttl">المساعد الذكي</div>
-      <div class="chan-sub">إجابة فورية على أسئلتك</div>
-      <span class="chan-badge">متاح الآن</span>
+      <div class="chan-sub">إجابات جاهزة من مركز المساعدة</div>
+      <span class="chan-badge">أسئلة جاهزة</span>
     </a>
     <button type="button" (click)="toggleNewTicketForm()" class="chan" style="cursor:pointer;width:100%;border:1px solid rgba(255,255,255,.08)">
       <div class="chan-ico" style="background:rgba(43,127,255,.12);color:#5DA0FF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
       <div class="chan-ttl">فتح تذكرة دعم</div>
       <div class="chan-sub">راسل فريق الدعم بمشكلتك</div>
-      <span class="chan-badge">الرد خلال 24 ساعة</span>
+      <span class="chan-badge">يصلك الرد في التذكرة</span>
     </button>
   </div>
 
-  <!-- تذاكر الدعم — نظام التذاكر الحقيقي المشترك (نفس الخدمة المستخدمة لدى العميل ومقدم الخدمة) -->
+  <!-- تذاكر الدعم — نظام التذاكر الحقيقي المشترك، عبر مسار الوسيط الخاص -->
   <div id="marketer-ticket-card" class="adm-card" style="margin-top:16px">
     <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-doc"></use></svg>تذاكري</div>
 
     @if (newTicketFormVisible()) {
       <div style="padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:14px">
         <div style="margin-bottom:10px">
-          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">الموضوع</label>
-          <input type="text" [ngModel]="ticketSubject()" (ngModelChange)="ticketSubject.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px">
+          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">الموضوع<span class="ws-req" aria-hidden="true">*</span></label>
+          <input type="text" id="marketer-ticket-subject" aria-required="true" name="subject" autocomplete="off" [ngModel]="ticketSubject()" (ngModelChange)="ticketSubject.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px">
         </div>
         <div style="margin-bottom:10px">
-          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">وصف المشكلة</label>
-          <textarea rows="4" [ngModel]="ticketDescription()" (ngModelChange)="ticketDescription.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px;resize:vertical"></textarea>
+          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">وصف المشكلة<span class="ws-req" aria-hidden="true">*</span></label>
+          <textarea rows="4" id="marketer-ticket-description" aria-required="true" name="description" [ngModel]="ticketDescription()" (ngModelChange)="ticketDescription.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px;resize:vertical"></textarea>
         </div>
         @if (ticketCreateError()) {
-          <div style="color:#FF8C69;font-size:11.5px;font-weight:700;margin-bottom:10px">{{ ticketCreateError() }}</div>
+          <div class="form-error" role="alert" data-testid="ticket-form-error">{{ ticketCreateError() }}</div>
         }
         <button type="button" class="btn-primary" [disabled]="isCreatingTicket()" (click)="submitTicket()">{{ isCreatingTicket() ? 'جارٍ الإرسال...' : 'إرسال التذكرة' }}</button>
       </div>
@@ -140,27 +140,18 @@
     } @else {
       <div style="display:flex;flex-direction:column;gap:8px">
         @for (t of tickets(); track t.id) {
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px">
+          <a [routerLink]="['/marketer-overview/help/tickets', t.id]" data-testid="ticket-row" style="text-decoration:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px">
             <div style="min-width:0">
               <div style="font-size:13px;font-weight:700" class="txt-white">{{ t.subject }}</div>
               <div style="font-size:11px;margin-top:2px" class="txt-muted">{{ t.ticketNumber }}</div>
             </div>
-            <span style="font-size:10.5px;font-weight:700;padding:4px 10px;white-space:nowrap" class="badge-teal">{{ t.status }}</span>
-          </div>
+            <span data-testid="ticket-row-status" style="font-size:10.5px;font-weight:700;padding:4px 10px;white-space:nowrap" class="badge-teal">{{ statusLabel(t.status) }}</span>
+          </a>
         } @empty {
           <div style="font-size:12px" class="txt-muted">لا توجد تذاكر دعم سابقة</div>
         }
       </div>
     }
   </div>
-
-  @if (toastMessage()) {
-    <div style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both">
-      <div style="display:flex;align-items:center;gap:10px;padding:12px 22px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:50px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-        <span style="font-size:14px;font-weight:700" class="txt-white">{{ toastMessage() }}</span>
-      </div>
-    </div>
-  }
 
 </div>

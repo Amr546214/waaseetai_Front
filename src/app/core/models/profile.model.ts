@@ -11,6 +11,9 @@ export interface ClientProfileInput {
   industry?: string;
   website?: string;
   bio?: string;
+  /** Display preferences saved on the client profile (PUT /profiles/update, client role only). */
+  interfaceLanguage?: string;
+  timezone?: string;
 }
 
 export interface ProviderProfileInput {

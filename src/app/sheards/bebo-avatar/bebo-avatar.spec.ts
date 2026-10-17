@@ -14,7 +14,8 @@ import type { AssistantMovementBounds } from '../assistant-widget/assistant-posi
 
 const observers: Array<{ disconnect: ReturnType<typeof vi.fn> }> = [];
 function loadRealBeboEngine(): void {
-	if (customElements.get('cute-robot')) return;
+	// The browser APIs jsdom lacks are stubbed EVERY time, even when another spec file already registered <cute-robot> in this shared worker
+	// (the builder runs with isolate:false and test-setup unstubs globals between files): the engine needs them each time an element upgrades.
 	if (typeof globalThis.matchMedia !== 'function') {
 		vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener() {}, removeEventListener() {} }));
 	}
@@ -26,6 +27,7 @@ function loadRealBeboEngine(): void {
 	}
 	vi.stubGlobal('IntersectionObserver', FakeObserver);
 	vi.stubGlobal('ResizeObserver', FakeObserver);
+	if (customElements.get('cute-robot')) return;
 	new Function(readFileSync('public/bebo/robot.js', 'utf8'))();
 }
 

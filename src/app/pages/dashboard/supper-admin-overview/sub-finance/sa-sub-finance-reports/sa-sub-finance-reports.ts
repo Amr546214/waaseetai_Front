@@ -1,80 +1,67 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ForecastSummaryComponent } from '../../sa-finance-reports/forecast-summary.component';
+import { AdminFinanceOverview, AdminOpsApiService, saveBlob } from '../../../../../core/services/admin-ops-api.service';
+import { errMsg, usd } from '../finance-ui';
 
-type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit';
-
-interface MonthComparison {
-  label: string;
-  v2026: number;
-  v2025: number;
-}
-
-interface DonutSlice {
-  name: string;
-  percent: number;
-  color: string;
-}
+type ExportName = 'transactions' | 'commissions' | 'invoices' | 'withdrawals';
 
 @Component({
   selector: 'app-sa-sub-finance-reports',
   standalone: true,
-  imports: [CommonModule, ForecastSummaryComponent],
+  imports: [CommonModule, RouterLink, ForecastSummaryComponent],
   templateUrl: './sa-sub-finance-reports.html',
   styleUrl: './sa-sub-finance-reports.css',
 })
-export class SaSubFinanceReports {
-  toast = signal<string | null>(null);
-  activeTab = signal<ReportTab>('overview');
+export class SaSubFinanceReports implements OnInit {
+  private api = inject(AdminOpsApiService);
 
-  readonly tabs: { key: ReportTab; label: string }[] = [
-    { key: 'overview', label: 'نظرة عامة' },
-    { key: 'revenue', label: 'الإيرادات' },
-    { key: 'expenses', label: 'المصروفات' },
-    { key: 'profit', label: 'الأرباح' },
+  readonly usd = usd;
+  readonly exports: { name: ExportName; title: string; desc: string }[] = [
+    { name: 'transactions', title: 'المعاملات المالية', desc: 'كل حركات المحفظة: إيداعات وحجز وتحرير واسترداد' },
+    { name: 'commissions', title: 'العمولات', desc: 'عمولة المنصة لكل مشروع وصافي مقدم الخدمة' },
+    { name: 'invoices', title: 'الفواتير', desc: 'فواتير المراحل المشتقة من التسليمات' },
+    { name: 'withdrawals', title: 'طلبات السحب', desc: 'طلبات السحب بجميع حالاتها' },
   ];
 
-  readonly months: MonthComparison[] = [
-    { label: 'يناير', v2026: 920, v2025: 680 },
-    { label: 'فبراير', v2026: 1100, v2025: 740 },
-    { label: 'مارس', v2026: 980, v2025: 720 },
-    { label: 'أبريل', v2026: 1340, v2025: 880 },
-    { label: 'مايو', v2026: 1520, v2025: 960 },
-    { label: 'يونيو', v2026: 1680, v2025: 1080 },
-    { label: 'يوليو', v2026: 1840, v2025: 1240 },
-  ];
+  overview = signal<AdminFinanceOverview | null>(null);
+  loading = signal(true);
+  error = signal('');
+  busy = signal<ExportName | null>(null);
+  exportError = signal('');
 
-  readonly maxValue = Math.max(...this.months.flatMap((m) => [m.v2026, m.v2025]));
+  kpis = computed(() => {
+    const t = this.overview()?.totals;
+    return t ? [
+      { label: 'عمولة المنصة', value: usd(t.platformCommission) },
+      { label: 'إجمالي المحرَّر', value: usd(t.releasedGross) },
+      { label: 'الإيداعات', value: usd(t.depositsAmount) },
+    ] : [];
+  });
 
-  readonly chartBars = computed(() =>
-    this.months.map((m) => ({
-      label: m.label.slice(0, 3),
-      valueLabel: `${Math.round(m.v2026 / 100) / 10}k`,
-      h2026: Math.round((m.v2026 / this.maxValue) * 100),
-      h2025: Math.round((m.v2025 / this.maxValue) * 100),
-    })),
-  );
+  ngOnInit() { this.load(); }
 
-  readonly donut: DonutSlice[] = [
-    { name: 'رسوم الخدمة', percent: 72, color: '#2BD4C7' },
-    { name: 'اشتراكات', percent: 20, color: '#5DA0FF' },
-    { name: 'خدمات إضافية', percent: 8, color: '#D98A0B' },
-  ];
-
-  setTab(tab: ReportTab) {
-    this.activeTab.set(tab);
+  load() {
+    this.loading.set(true);
+    this.error.set('');
+    this.api.financeOverview(12).subscribe({
+      next: (res) => { this.overview.set(res.data ?? null); this.loading.set(false); },
+      error: (err) => { this.error.set(errMsg(err, 'تعذر تحميل الملخص المالي')); this.loading.set(false); },
+    });
   }
 
-  showToast(message: string) {
-    this.toast.set(message);
-    setTimeout(() => this.toast.set(null), 2500);
+  download(name: ExportName) {
+    if (this.busy()) return;
+    this.busy.set(name);
+    this.exportError.set('');
+    this.api.downloadCsv(name).subscribe({
+      next: (blob) => { saveBlob(blob, `${name}.csv`); this.busy.set(null); },
+      error: (err) => { this.exportError.set(errMsg(err, 'تعذر تنزيل الملف')); this.busy.set(null); },
+    });
   }
 
-  exportExcel() {
-    this.showToast('تم تصدير التقرير بصيغة Excel');
-  }
-
-  exportPdf() {
-    this.showToast('تم تصدير التقرير بصيغة PDF');
+  print() {
+    window.print();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, signal, inject, computed } from '@angular/core';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,9 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { TicketApiService } from '../../../../../core/services/ticket-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, reportProblems } from '../../../../../shared/forms/form-error-focus';
+import { clearTicketField, reportTicketError, ticketProblems } from '../ticket-form';
 
 @Component({
 	selector: 'app-new-ticket',
@@ -19,6 +22,9 @@ export class NewTicketComponent {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private ticketApi = inject(TicketApiService);
+	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private guard = new SubmitGuard();
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -34,7 +40,6 @@ export class NewTicketComponent {
 	relatedMember = signal<string>('');
 	ccEmail = signal<string>('');
 	submitting = signal<boolean>(false);
-	toast = signal<string | null>(null);
 
 	categories = [
 		'العقود والضمان',
@@ -84,16 +89,25 @@ export class NewTicketComponent {
 		if (p) this.priority.set(p.label);
 	}
 
-	submit() {
-		const errs: { [k: string]: string } = {};
-		if (!this.category()) errs['cat'] = 'اختر التصنيف';
-		if (!this.subject().trim()) errs['subj'] = 'أدخل عنوان التذكرة';
-		if (this.subject().trim().length < 5) errs['subj'] = 'العنوان قصير جدًا';
-		if (!this.description().trim()) errs['desc'] = 'صف مشكلتك';
-		if (this.description().trim().length < 20) errs['desc'] = 'الوصف قصير جدًا، أضف تفاصيل أكثر';
+	/** A picked / typed field loses its error mark (a ws-select raises no input event). */
+	edited(name: string) {
+		clearTicketField(this.host.nativeElement, name);
+	}
 
+	async submit() {
+		// A second click / Enter while the request is in flight does nothing.
+		if (this.submitting() || this.guard.busy) return;
+		const root = this.host.nativeElement;
+		const problems = ticketProblems(root, { subject: this.subject(), category: this.category(), description: this.description() }, ['category', 'subject', 'description']);
+		const errs: { [k: string]: string } = {};
+		for (const p of problems) errs[({ category: 'cat', subject: 'subj', description: 'desc' } as Record<string, string>)[p.field!]] = p.message;
 		this.errors.set(errs);
-		if (Object.keys(errs).length > 0) return;
+		if (problems.length > 0) {
+			// Message next to the field + red + aria-invalid, and focus on the first one below the sticky header.
+			await reportProblems(root, problems);
+			return;
+		}
+		if (!this.guard.enter()) return;
 
 		this.submitting.set(true);
 		this.ticketApi.createTicket('provider', {
@@ -108,22 +122,19 @@ export class NewTicketComponent {
 		}).subscribe({
 			next: (res) => {
 				this.submitting.set(false);
+				this.guard.release();
 				if (res.success && res.data) {
-					this.showToast('تم فتح تذكرتك بنجاح');
+					this.notify.success('تم فتح تذكرتك بنجاح');
 					setTimeout(() => this.router.navigate(['/provider-overview/help/tickets', res.data!.id]), 1200);
 				} else {
-					this.showToast(res.message || 'تعذر فتح التذكرة');
+					this.notify.error(res.message || 'تعذر فتح التذكرة');
 				}
 			},
 			error: (err) => {
 				this.submitting.set(false);
-				this.showToast(err?.error?.message || 'تعذر فتح التذكرة، حاول مرة أخرى');
+				this.guard.release();
+				void reportTicketError(root, err, this.notify, 'تعذر فتح التذكرة، حاول مرة أخرى');
 			}
 		});
-	}
-
-	showToast(msg: string) {
-		this.toast.set(msg);
-		setTimeout(() => this.toast.set(null), 3000);
 	}
 }

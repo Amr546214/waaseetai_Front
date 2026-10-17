@@ -12,6 +12,7 @@ import { Step2Pricing } from './components/step2-pricing/step2-pricing';
 import { Step3Review } from './components/step3-review/step3-review';
 import { Step4Success } from './components/step4-success/step4-success';
 import { aiSuggestInputError } from './ai-suggest-input';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 export interface Milestone {
 	id: string;
@@ -76,6 +77,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	private http = inject(HttpClient);
 	private authStore = inject(AuthStore);
 	private providerApi = inject(ProviderApiService);
+	private notify = inject(UiNotificationService);
 	private socket?: Socket;
 
 	reqId = signal<string | null>(null);
@@ -100,7 +102,8 @@ export class ApplayRequest implements OnInit, OnDestroy {
 
 	newReq = signal<string>('');
 	isFetchingAiSuggest = signal<boolean>(false);
-	totalBudget = signal<number>(4500);
+	// no invented default price: it starts empty (0) and is filled from the project's own budget, or by the provider
+	totalBudget = signal<number>(0);
 
 	// Step 3 State
 	isScanning = signal<boolean>(true);
@@ -262,12 +265,12 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		if (this.isFetchingAiSuggest()) return;
 		const current = this.proposal();
 		if (!this.reqId()) {
-			alert('معرّف المشروع غير موجود');
+			this.notify.error('معرّف المشروع غير موجود');
 			return;
 		}
 		const inputError = aiSuggestInputError(current.title, current.message);
 		if (inputError) {
-			alert(inputError);
+			this.notify.warning(inputError);
 			return;
 		}
 		this.isFetchingAiSuggest.set(true);
@@ -298,7 +301,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 				error: (err) => {
 					this.isFetchingAiSuggest.set(false);
 					console.error('AI Suggest API failed:', err);
-					alert(err.error?.message || 'تعذر تشغيل اقتراح AI ولم يتم تغيير عرضك.');
+					this.notify.error(err.error?.message || 'تعذر تشغيل اقتراح AI ولم يتم تغيير عرضك.');
 				}
 			});
 	}
@@ -457,7 +460,9 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		const isValid = this.activeStep() === 1 ? this.isStep1Valid() : (this.activeStep() === 2 ? this.isStep2Valid() : (this.activeStep() === 3 ? this.isStep3Valid() : true));
 		if (!isValid) {
 			if (this.activeStep() === 2 && this.totalPct() !== 100) {
-				alert(`إجمالي نسب دفعات المراحل يجب أن يساوي 100% (المجموع الحالي: ${this.totalPct()}%)`);
+				this.notify.warning(`إجمالي نسب دفعات المراحل يجب أن يساوي 100% (المجموع الحالي: ${this.totalPct()}%)`);
+			} else if (this.activeStep() === 2) {
+				this.notify.warning('يرجى تحديد السعر والمدة المطلوبة لكل مرحلة');
 			}
 			return;
 		}
@@ -613,14 +618,14 @@ export class ApplayRequest implements OnInit, OnDestroy {
 					this.isSubmitting.set(false);
 					this.showSuccess.set(true);
 					if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-						sessionStorage.removeItem(`draft_proposal_${this.reqId()}`);
+						sessionStorage.removeItem(`draft_proposal_v2_${this.reqId()}`);
 					}
 					console.log('✅ Proposal successfully submitted to DB and Client notified via Socket.io!', res);
 				},
 				error: (err) => {
 					this.isSubmitting.set(false);
 					console.error('Proposal submission failed:', err);
-					alert(err.error?.message || 'تعذر إرسال العرض. لم يتم حفظه، يرجى المحاولة مرة أخرى.');
+					this.notify.error(err.error?.message || 'تعذر إرسال العرض. لم يتم حفظه، يرجى المحاولة مرة أخرى.');
 				}
 			});
 	}

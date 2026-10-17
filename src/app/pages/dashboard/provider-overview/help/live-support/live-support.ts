@@ -6,6 +6,10 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { SupportTicket, SupportTicketMessage, TicketApiService, TicketStatus } from '../../../../../core/services/ticket-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, reportProblems } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { clearTicketField, reportTicketError, ticketProblems } from '../ticket-form';
 
 const STATUS_LABELS: Record<TicketStatus, string> = {
 	OPEN: 'مفتوحة',
@@ -31,6 +35,10 @@ export class LiveSupportComponent implements AfterViewChecked {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private api = inject(TicketApiService);
+	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private createGuard = new SubmitGuard();
+	private replyGuard = new SubmitGuard();
 
 	@ViewChild('thread') threadRef?: ElementRef<HTMLDivElement>;
 	private shouldScroll = false;
@@ -55,7 +63,6 @@ export class LiveSupportComponent implements AfterViewChecked {
 
 	inputText = signal('');
 	busy = signal(false);
-	toast = signal<string | null>(null);
 
 	canReply = computed(() => {
 		const t = this.activeTicket();
@@ -104,40 +111,59 @@ export class LiveSupportComponent implements AfterViewChecked {
 		this.creating.set(true);
 	}
 
-	submitNew(event?: Event) {
+	/** A typed / picked field loses its error mark (a ws-select raises no input event). */
+	edited(name: string) {
+		clearTicketField(this.host.nativeElement, name);
+	}
+
+	async submitNew(event?: Event) {
 		event?.preventDefault();
+		if (this.busy() || this.createGuard.busy) return;
+		const root = this.host.nativeElement;
 		const subject = this.newSubject().trim();
 		const category = this.newCategory().trim();
 		const description = this.newDescription().trim();
-		if (subject.length < 5 || !category || description.length < 20) {
-			this.showToast('أدخل عنواناً (5 أحرف على الأقل) وتصنيفاً ووصفاً (20 حرفاً على الأقل)');
+		const problems = ticketProblems(root, { subject, category, description }, ['subject', 'category', 'description']);
+		if (problems.length) {
+			// The explanation sits at each field; focus goes to the first one.
+			await reportProblems(root, problems);
 			return;
 		}
+		if (!this.createGuard.enter()) return;
 		this.busy.set(true);
 		this.api.createTicket('provider', { subject, category, description }).subscribe({
 			next: res => {
 				this.busy.set(false);
+				this.createGuard.release();
 				const t = res?.data;
 				if (t) { this.tickets.update(list => [t, ...list]); this.openTicket(t); }
-				this.showToast('تم فتح التذكرة');
+				this.notify.success('تم فتح التذكرة');
 			},
-			error: err => { this.busy.set(false); this.showToast(err?.error?.message || 'تعذّر فتح التذكرة. حاول مرة أخرى'); }
+			error: err => { this.busy.set(false); this.createGuard.release(); void reportTicketError(root, err, this.notify, 'تعذّر فتح التذكرة. حاول مرة أخرى'); }
 		});
 	}
 
-	send(event?: Event) {
+	async send(event?: Event) {
 		event?.preventDefault();
 		const t = this.activeTicket();
 		const body = this.inputText().trim();
-		if (!t || !body || !this.canReply()) return;
+		if (!t || !this.canReply()) return;
+		if (this.busy() || this.replyGuard.busy) return;
+		const root = this.host.nativeElement;
+		if (!body) {
+			await reportProblems(root, [{ field: 'msg', message: 'اكتب ردك قبل الإرسال' }]);
+			return;
+		}
+		if (!this.replyGuard.enter()) return;
 		this.busy.set(true);
 		this.api.replyToTicket('provider', t.id, body).subscribe({
 			next: res => {
 				this.busy.set(false);
+				this.replyGuard.release();
 				if (res?.data) { this.messages.update(m => [...m, res.data!]); this.shouldScroll = true; }
 				this.inputText.set('');
 			},
-			error: err => { this.busy.set(false); this.showToast(err?.error?.message || 'تعذّر إرسال الرد. حاول مرة أخرى'); }
+			error: err => { this.busy.set(false); this.replyGuard.release(); this.notify.error(mapHttpError(err, { fallback: 'تعذّر إرسال الرد. حاول مرة أخرى' }).message); }
 		});
 	}
 
@@ -151,9 +177,9 @@ export class LiveSupportComponent implements AfterViewChecked {
 				const closed = res?.data ?? { ...t, status: 'CLOSED' as TicketStatus };
 				this.activeTicket.set(closed);
 				this.tickets.update(list => list.map(x => x.id === closed.id ? { ...x, status: closed.status } : x));
-				this.showToast('تم إغلاق التذكرة');
+				this.notify.success('تم إغلاق التذكرة');
 			},
-			error: err => { this.busy.set(false); this.showToast(err?.error?.message || 'تعذّر إغلاق التذكرة') ; }
+			error: err => { this.busy.set(false); this.notify.error(err?.error?.message || 'تعذّر إغلاق التذكرة') ; }
 		});
 	}
 
@@ -168,9 +194,4 @@ export class LiveSupportComponent implements AfterViewChecked {
 	}
 
 	goToHelp() { this.router.navigate(['/provider-overview/help']); }
-
-	showToast(msg: string) {
-		this.toast.set(msg);
-		setTimeout(() => this.toast.set(null), 3000);
-	}
 }

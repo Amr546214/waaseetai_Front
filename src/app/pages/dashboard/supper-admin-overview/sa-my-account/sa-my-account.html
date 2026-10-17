@@ -1,0 +1,73 @@
+<section class="ma">
+  <h1>حسابي وأمان الدخول</h1>
+  <p class="ma-sub">بيانات حسابك الإداري وكلمة المرور وجلسات الدخول النشطة. كل تغيير يُسجَّل في سجل التدقيق.</p>
+
+  <div class="ma-card" data-testid="profile-card">
+    <div class="ma-ttl">البيانات الشخصية</div>
+    <div class="ma-row">
+      <label class="ma-f">الاسم الأول<input type="text" maxlength="60" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)" id="ma-first-name" data-testid="first-name" /></label>
+      <label class="ma-f">اسم العائلة<input type="text" maxlength="60" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)" id="ma-last-name" data-testid="last-name" /></label>
+    </div>
+    <div class="ma-row">
+      <label class="ma-f">البريد الإلكتروني (للقراءة فقط)<input type="text" [value]="profile()?.email ?? ''" disabled style="direction:ltr" /></label>
+      <label class="ma-f">رقم الجوال ({{ profile()?.phoneCountryCode || '+966' }})<input type="tel" inputmode="numeric" [ngModel]="phoneNumber()" (ngModelChange)="phoneNumber.set($event)" style="direction:ltr" id="ma-phone" data-testid="phone" /></label>
+    </div>
+    <div class="ma-row">
+      <label class="ma-f">الصورة الشخصية<input type="text" disabled [title]="avatarReason" [value]="avatarReason" /></label>
+    </div>
+    <button type="button" class="ma-btn" (click)="saveProfile()" [disabled]="savingProfile()" data-testid="save-profile">{{ savingProfile() ? 'جارٍ الحفظ…' : 'حفظ البيانات' }}</button>
+    @if (profileMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" [attr.role]="m.ok ? 'status' : 'alert'">{{ m.text }}</div> }
+  </div>
+
+  <div class="ma-card" data-testid="password-card">
+    <div class="ma-ttl">تغيير كلمة المرور</div>
+    <div class="ma-row">
+      <label class="ma-f">كلمة المرور الحالية<input type="password" autocomplete="current-password" [ngModel]="currentPassword()" (ngModelChange)="currentPassword.set($event)" id="ma-pw-current" data-testid="pw-current" /></label>
+      <label class="ma-f">كلمة المرور الجديدة<input type="password" autocomplete="new-password" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)" id="ma-pw-new" data-testid="pw-new" /></label>
+      <label class="ma-f">تأكيد كلمة المرور<input type="password" autocomplete="new-password" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" id="ma-pw-confirm" data-testid="pw-confirm" /></label>
+    </div>
+    <div class="ma-note">8 أحرف على الأقل وتجمع ثلاثة أنواع من (حروف كبيرة، صغيرة، أرقام، رموز). بعد التغيير تُنهى جلسات الأجهزة الأخرى.</div>
+    <button type="button" class="ma-btn" style="margin-top:10px" (click)="changePassword()" [disabled]="savingPw()" data-testid="change-password">{{ savingPw() ? 'جارٍ التغيير…' : 'تغيير كلمة المرور' }}</button>
+    @if (pwMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" [attr.role]="m.ok ? 'status' : 'alert'">{{ m.text }}</div> }
+  </div>
+
+  <div class="ma-card" data-testid="twofa-card">
+    <div class="ma-ttl">المصادقة الثنائية (2FA)</div>
+    <button type="button" class="ma-btn" disabled [title]="twoFaReason" data-testid="twofa-toggle">تفعيل</button>
+    <div class="ma-note" style="margin-top:8px">{{ twoFaReason }}</div>
+  </div>
+
+  <div class="ma-card" data-testid="sessions-card">
+    <div class="ma-ttl">جلسات الدخول النشطة</div>
+    @for (s of sessions(); track s.id) {
+      <div class="ma-sess" data-testid="session-row">
+        <div>
+          <div>{{ sessionLabel(s) }}@if (s.isCurrent) { <strong> — هذه الجلسة</strong> }</div>
+          <div class="ma-note">@if (s.ipAddress) { IP: {{ s.ipAddress }} · } آخر نشاط: {{ s.lastActiveAt | date:'yyyy-MM-dd HH:mm' }}</div>
+        </div>
+        @if (!s.isCurrent) {
+          <button type="button" class="ma-btn ma-btn-danger" (click)="askTerminate(s.id)" data-testid="terminate-session">إنهاء الجلسة</button>
+        } @else {
+          <button type="button" class="ma-btn" disabled title="الجلسة الحالية تُنهى بتسجيل الخروج">الجلسة الحالية</button>
+        }
+      </div>
+    } @empty {
+      <div class="ma-note">لا توجد جلسات نشطة معروضة.</div>
+    }
+    <button type="button" class="ma-btn ma-btn-danger" style="margin-top:12px" [disabled]="!hasOthers()" [title]="hasOthers() ? '' : 'لا توجد جلسات أخرى لإنهائها'" (click)="askTerminate('others')" data-testid="terminate-others">إنهاء كل الجلسات الأخرى</button>
+    @if (sessionsMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" [attr.role]="m.ok ? 'status' : 'alert'">{{ m.text }}</div> }
+  </div>
+</section>
+
+@if (confirming()) {
+  <div class="ma-ov" (click)="cancelConfirm()" role="dialog" aria-modal="true">
+    <div class="ma-modal" (click)="$event.stopPropagation()" data-testid="confirm-dialog">
+      <div class="ma-ttl">تأكيد إنهاء الجلسة</div>
+      <p class="ma-note">{{ confirming() === 'others' ? 'سيتم إنهاء جميع جلسات الدخول الأخرى، وسيُطلب من تلك الأجهزة تسجيل الدخول من جديد.' : 'سيتم إنهاء هذه الجلسة، وسيُطلب من ذلك الجهاز تسجيل الدخول من جديد.' }}</p>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button type="button" class="ma-btn ma-btn-danger" (click)="confirmTerminate()" [disabled]="busy()" data-testid="confirm-yes">تأكيد الإنهاء</button>
+        <button type="button" class="ma-btn" (click)="cancelConfirm()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,8 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { handleAdminError, reportAdminProblems, SubmitGuard } from '../../shared/admin-form-report';
 import { WithdrawalApiService } from '../../../../../core/services/withdrawal-api.service';
+import { WITHDRAWAL_STATUS_LABELS, WITHDRAWAL_STATUS_CLASSES, withdrawalUserDisplay, withdrawalOwnerLabel } from '../sa-withdrawals';
 import { Withdrawal, LEGACY_WITHDRAWAL_LABEL, isLegacyWithdrawal, ApproveWithdrawalPayload, RejectWithdrawalPayload } from '../../../../../core/models/withdrawal.model';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-sa-withdrawal-detail',
@@ -15,6 +18,9 @@ export class SaWithdrawalDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private withdrawalApi = inject(WithdrawalApiService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private actionGuard = new SubmitGuard();
+  private payoutGuard = new SubmitGuard();
 
   selectedWithdrawal = signal<Withdrawal | null>(null);
   loading = signal(true);
@@ -29,19 +35,14 @@ export class SaWithdrawalDetail implements OnInit {
   actionError = signal('');
   actionSuccess = signal('');
 
-  readonly statusLabels: Record<string, string> = {
-    PENDING: 'قيد المراجعة',
-    APPROVED: 'مقبول',
-    REJECTED: 'مرفوض',
-    COMPLETED: 'مكتمل',
-  };
+  readonly statusLabels = WITHDRAWAL_STATUS_LABELS;
+  readonly statusClasses = WITHDRAWAL_STATUS_CLASSES;
 
-  readonly statusClasses: Record<string, string> = {
-    PENDING: 'wd-st-pending',
-    APPROVED: 'wd-st-approved',
-    REJECTED: 'wd-st-rejected',
-    COMPLETED: 'wd-st-completed',
-  };
+  showPayoutConfirm = signal(false);
+  sendingPayout = signal(false);
+  payoutError = signal('');
+  payoutResult = signal('');
+  readonly payoutOffReason = 'التحويل الآلي عبر PayPal غير مفعّل في هذه البيئة';
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -94,8 +95,7 @@ export class SaWithdrawalDetail implements OnInit {
   }
 
   canAct(status: string | undefined): boolean {
-    const s = status || 'PENDING';
-    return s !== 'APPROVED' && s !== 'REJECTED' && s !== 'COMPLETED';
+    return (status || 'PENDING') === 'PENDING';
   }
 
   openActionForm(action: 'approve' | 'reject') {
@@ -124,11 +124,13 @@ export class SaWithdrawalDetail implements OnInit {
     if (action === 'reject') {
       const reason = this.rejectionReason().trim();
       if (!reason) {
-        this.actionError.set('يرجى كتابة سبب الرفض');
+        this.actionError.set('');
+        void reportAdminProblems(this.host.nativeElement, [{ field: 'wd-reject-reason', message: 'يرجى كتابة سبب الرفض' }]);
         return;
       }
     }
 
+    if (!this.actionGuard.enter()) return;
     this.actionError.set('');
     this.submittingAction.set(true);
 
@@ -139,6 +141,7 @@ export class SaWithdrawalDetail implements OnInit {
 
       this.withdrawalApi.approveAdminWithdrawal(w.id, payload).subscribe({
         next: (res) => {
+          this.actionGuard.release();
           this.submittingAction.set(false);
           if (res.success) {
             this.actionSuccess.set('تم تحديث حالة طلب السحب بنجاح');
@@ -154,8 +157,9 @@ export class SaWithdrawalDetail implements OnInit {
           }
         },
         error: (err) => {
+          this.actionGuard.release();
           this.submittingAction.set(false);
-          this.actionError.set(err?.error?.message || 'تعذر تحديث طلب السحب، حاول مرة أخرى');
+          handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تحديث طلب السحب، حاول مرة أخرى', resolve: { rejectionReason: 'wd-reject-reason', adminNote: 'wd-admin-note' } }, (m) => this.actionError.set(m));
         },
       });
     } else {
@@ -165,6 +169,7 @@ export class SaWithdrawalDetail implements OnInit {
 
       this.withdrawalApi.rejectAdminWithdrawal(w.id, payload).subscribe({
         next: (res) => {
+          this.actionGuard.release();
           this.submittingAction.set(false);
           if (res.success) {
             this.actionSuccess.set('تم تحديث حالة طلب السحب بنجاح');
@@ -180,11 +185,74 @@ export class SaWithdrawalDetail implements OnInit {
           }
         },
         error: (err) => {
+          this.actionGuard.release();
           this.submittingAction.set(false);
-          this.actionError.set(err?.error?.message || 'تعذر تحديث طلب السحب، حاول مرة أخرى');
+          handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تحديث طلب السحب، حاول مرة أخرى', resolve: { rejectionReason: 'wd-reject-reason', adminNote: 'wd-admin-note' } }, (m) => this.actionError.set(m));
         },
       });
     }
+  }
+
+  canSendPayout(w: Withdrawal): boolean {
+    return w.status === 'APPROVED';
+  }
+
+  openPayoutConfirm(w: Withdrawal) {
+    if (w.payoutAutomationEnabled !== true || w.status !== 'APPROVED') return;
+    this.payoutError.set('');
+    this.payoutResult.set('');
+    this.showPayoutConfirm.set(true);
+  }
+
+  cancelPayoutConfirm() {
+    if (this.sendingPayout()) return;
+    this.showPayoutConfirm.set(false);
+    this.payoutError.set('');
+  }
+
+  confirmPayout() {
+    const w = this.selectedWithdrawal();
+    if (!w || w.payoutAutomationEnabled !== true || this.sendingPayout() || !this.payoutGuard.enter()) return;
+    this.sendingPayout.set(true);
+    this.payoutError.set('');
+    this.withdrawalApi.sendAdminWithdrawalPayout(w.id).subscribe({
+      next: (res) => {
+        this.payoutGuard.release();
+        this.sendingPayout.set(false);
+        if (res.success) {
+          this.payoutResult.set(res.data?.message || res.message || '');
+          this.showPayoutConfirm.set(false);
+          this.reloadSilently(w.id);
+        } else {
+          this.payoutError.set(res.message || 'تعذر إرسال التحويل');
+        }
+      },
+      error: (err) => {
+        this.payoutGuard.release();
+        this.sendingPayout.set(false);
+        if (err?.status === 503) { this.payoutError.set(this.payoutOffReason); return; }
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر إرسال التحويل' }, (m) => this.payoutError.set(m));
+      },
+    });
+  }
+
+  private reloadSilently(id: string) {
+    this.withdrawalApi.getAdminWithdrawal(id).subscribe({
+      next: (res) => { if (res.success && res.data) this.selectedWithdrawal.set(res.data); },
+    });
+  }
+
+  reviewerDisplay(w: Withdrawal): string {
+    const r: any = w['reviewedBy'];
+    if (!r) return '';
+    if (typeof r === 'string') return r;
+    const name = `${r.firstName ?? ''} ${r.lastName ?? ''}`.trim();
+    return name || r.email || '';
+  }
+
+  attemptStatusLabel(s: string): string {
+    const m: Record<string, string> = { PENDING: 'قيد الإرسال', PROCESSING: 'قيد التحويل', SUCCESS: 'نجح', COMPLETED: 'نجح', FAILED: 'فشل', UNCLAIMED: 'لم يُستلم', RETURNED: 'أُعيد', REVERSED: 'أُعيد' };
+    return m[s] || s;
   }
 
   shortId(id: string): string {
@@ -204,7 +272,7 @@ export class SaWithdrawalDetail implements OnInit {
 
   formatAmount(amount: number | null | undefined, currency: string | undefined): string {
     if (amount == null) return '—';
-    const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    const formatted = formatMoney(amount, 2);
     return currency ? `${formatted} ${currency === 'USD' ? '$' : currency}` : `${formatted} $`;
   }
 
@@ -215,7 +283,11 @@ export class SaWithdrawalDetail implements OnInit {
   }
 
   userDisplay(w: Withdrawal): string {
-    return w.userName || w.userEmail || (w.userId ? this.shortId(w.userId) : '—');
+    return withdrawalUserDisplay(w);
+  }
+
+  ownerLabel(w: Withdrawal): string {
+    return withdrawalOwnerLabel(w);
   }
 
   // AI Cleanup Batch 3: the former hash-seeded "mock/demo helpers" (AI risk
@@ -242,37 +314,28 @@ export class SaWithdrawalDetail implements OnInit {
     return Math.round(avail - (w.amount ?? 0));
   }
 
-  /** Mostly real (status/dates from API), UI framing (steps/labels) is mock. */
+  /** Timeline built only from real fields: createdAt, reviewedBy, status, processedAt. */
   timelineSteps(w: Withdrawal): { title: string; sub: string; state: 'done' | 'current' | 'pending' | 'rejected' }[] {
     const status = w.status || 'PENDING';
     const steps: { title: string; sub: string; state: 'done' | 'current' | 'pending' | 'rejected' }[] = [];
-
     steps.push({ title: 'إنشاء الطلب', sub: this.formatDate(w.createdAt), state: 'done' });
-
-    if (status === 'REJECTED') {
-      steps.push({ title: 'مراجعة الإدارة', sub: 'تمت المراجعة', state: 'done' });
-      steps.push({ title: 'رفض الطلب', sub: w.processedAt ? this.formatDate(w.processedAt) : 'تم الرفض', state: 'rejected' });
+    if (status === 'PENDING') {
+      steps.push({ title: 'مراجعة الإدارة', sub: 'بانتظار المراجعة', state: 'current' });
       return steps;
     }
-
+    const reviewer = this.reviewerDisplay(w);
+    const reviewSub = reviewer ? `بواسطة ${reviewer}` : 'تمت المراجعة';
+    if (status === 'REJECTED') {
+      steps.push({ title: 'رفض الطلب', sub: `${reviewSub}${w.processedAt ? ' — ' + this.formatDate(w.processedAt) : ''}`, state: 'rejected' });
+      return steps;
+    }
+    steps.push({ title: 'اعتماد الطلب', sub: reviewSub, state: 'done' });
+    const label = this.statusLabels[status] || status;
     steps.push({
-      title: 'مراجعة الإدارة',
-      sub: status === 'PENDING' ? 'الحالة الحالية' : 'تمت المراجعة',
-      state: status === 'PENDING' ? 'current' : 'done',
+      title: label,
+      sub: status === 'COMPLETED' && w.processedAt ? this.formatDate(w.processedAt) : 'الحالة الحالية',
+      state: status === 'COMPLETED' ? 'done' : status === 'REVERSED' ? 'rejected' : 'current',
     });
-
-    steps.push({
-      title: 'طلب سحب',
-      sub: status === 'APPROVED' ? 'الحالة الحالية' : status === 'COMPLETED' ? 'تم التحويل' : 'ينتظر الموافقة',
-      state: status === 'COMPLETED' ? 'done' : status === 'APPROVED' ? 'current' : 'pending',
-    });
-
-    steps.push({
-      title: 'اكتمال السحب',
-      sub: status === 'COMPLETED' ? this.formatDate(w.processedAt) : '—',
-      state: status === 'COMPLETED' ? 'done' : 'pending',
-    });
-
     return steps;
   }
 }

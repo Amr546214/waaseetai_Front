@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -8,8 +8,11 @@ import { AccountType } from '../../../../../core/models/auth.model';
 import { MarketingCenterService } from '../../../../../core/services/marketing-center.service';
 import { MarketingCenterData, MarketingKpi, MarketingToolSummary, MarketingTopTool } from '../../../../../core/models/marketing.model';
 import {
-  Flash, STATUS_LABELS, STATUS_PILL, avatarGradient, formatMoney, formatNumber, httpErrorMessage, initials, monthLabel, relativeTime,
+  STATUS_LABELS, STATUS_PILL, avatarGradient, formatMoney, formatNumber, httpErrorMessage, initials, monthLabel, relativeTime,
 } from '../marketing-utils';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 
 /** P-PR-039 (individual) / P-CO-MK-005 (company) — مركز التسويق. */
 @Component({
@@ -21,8 +24,11 @@ import {
 })
 export class MarketingCenter implements OnInit {
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   private centerApi = inject(MarketingCenterService);
   private destroyRef = inject(DestroyRef);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
 
   isCompanyMode = computed<boolean>(() => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY);
 
@@ -33,7 +39,6 @@ export class MarketingCenter implements OnInit {
   readonly rel = relativeTime;
   readonly initials = initials;
   readonly avatarBg = avatarGradient;
-  readonly flash = new Flash();
 
   data = signal<MarketingCenterData | null>(null);
   loading = signal(true);
@@ -42,6 +47,10 @@ export class MarketingCenter implements OnInit {
   editingCap = signal(false);
   capInput: number | null = null;
   savingCap = signal(false);
+  /** Field message under the cap input (empty / not positive / too large, or a 400/422 from the server). */
+  capError = signal<string | null>(null);
+  /** Honest message for failures that belong to no field (network, 429, 5xx, 403...). */
+  capGeneralError = signal<string | null>(null);
 
   trendBars = computed(() => {
     const trend = this.data()?.monthlyTrend ?? [];
@@ -123,26 +132,44 @@ export class MarketingCenter implements OnInit {
   // --- Spend cap (company) ---------------------------------------------
   startEditCap(): void {
     this.capInput = this.company()?.spendCap.cap ?? null;
+    this.capError.set(null);
+    this.capGeneralError.set(null);
     this.editingCap.set(true);
   }
 
   saveCap(remove = false): void {
     const cap = remove ? null : this.capInput;
     if (!remove && (cap === null || !(Number(cap) > 0) || Number(cap) > 100_000_000)) {
-      this.flash.show('أدخل سقفاً شهرياً صحيحاً أكبر من صفر', true);
+      const message = cap === null || (cap as unknown) === '' ? 'أدخل السقف الشهري بالدولار' : Number(cap) > 100_000_000 ? 'السقف الشهري كبير جدًا' : 'أدخل سقفاً شهرياً صحيحاً أكبر من صفر';
+      this.capError.set(message);
+      this.notify.warning(message);
+      void focusInvalidControls(this.host.nativeElement, [{ path: 'cap-input', message }]);
       return;
     }
+    if (!this.guard.enter()) return;
+    this.capError.set(null);
+    this.capGeneralError.set(null);
     this.savingCap.set(true);
     this.centerApi.updateSpendCap(cap === null ? null : Number(cap)).subscribe({
       next: () => {
         this.savingCap.set(false);
+        this.guard.release();
         this.editingCap.set(false);
-        this.flash.show(remove ? 'تمت إزالة السقف الشهري' : 'تم تحديث السقف الشهري');
+        this.notify.success(remove ? 'تمت إزالة السقف الشهري' : 'تم تحديث السقف الشهري');
         this.load();
       },
       error: err => {
         this.savingCap.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر تحديث السقف الشهري'), true);
+        this.guard.release();
+        const mapped = mapHttpError(err, { fallback: 'تعذر تحديث السقف الشهري' });
+        if (mapped.kind === 'backend-validation' && !remove) {
+          // The cap is the only field of this form: a 400/422 explains itself at the input.
+          this.capError.set(mapped.message);
+          void focusInvalidControls(this.host.nativeElement, [{ path: 'cap-input', message: mapped.message }]);
+        } else {
+          this.capGeneralError.set(mapped.message);
+        }
+        this.notify.error(mapped.message);
       },
     });
   }

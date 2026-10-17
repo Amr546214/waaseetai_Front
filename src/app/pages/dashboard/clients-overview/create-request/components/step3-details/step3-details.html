@@ -1,5 +1,5 @@
 <h1 class="sec-title text-2xl font-black text-[var(--txt)] mb-2">التفاصيل الأساسية</h1>
-		<p class="sec-sub text-[var(--txt-3)] font-medium mb-8">أدخل عنوان الطلب ووصفه التفصيلي والمتطلبات الإلزامية التي تتوقعها.</p>
+		<p class="sec-sub text-[var(--txt-3)] font-medium mb-8">أدخل عنوان الطلب ووصفه التفصيلي والمهارات المطلوبة وأي شروط إضافية تتوقعها.</p>
 
 		<!-- FIELD 1: عنوان الطلب -->
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
@@ -10,16 +10,16 @@
 
 			<div class="field mb-5">
 				<div class="field-header flex items-center justify-between mb-2">
-					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-title">عنوان الطلب <span class="field-req text-red-500">*</span></label>
+					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-title">عنوان الطلب <span class="ws-req" aria-hidden="true">*</span></label>
 					<span id="title-count" dir="ltr" class="field-count text-xs text-[var(--txt-3)]">{{ parent.title().length }} / 80</span>
 				</div>
-					<input type="text" class="field-input w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)]" id="f-title" placeholder="مثال: تطوير متجر إلكتروني لبيع الملابس..." maxlength="80" [ngModel]="parent.title()" (ngModelChange)="parent.setTitle($event)" autocomplete="off">
+					<input type="text" class="field-input w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)]" id="f-title" aria-required="true" placeholder="مثال: تطوير متجر إلكتروني لبيع الملابس..." maxlength="80" [ngModel]="parent.title()" (ngModelChange)="parent.setTitle($event)" autocomplete="off">
 				<p class="mt-2 text-xs text-[var(--txt-3)]">اكتب الخدمة والهدف بوضوح؛ العناوين العامة مثل «تجربة» أو «مشروع جديد» لن تُرسل إلى AI.</p>
 			</div>
 
 			<div class="field">
 				<div class="field-header flex items-center justify-between mb-2">
-					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-desc">وصف تفصيلي <span class="field-req text-red-500">*</span></label>
+					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-desc">وصف تفصيلي <span class="ws-req" aria-hidden="true">*</span></label>
 					<!-- Always visible and clickable: with a short title/description the press shows the "write it first" message and calls nothing. -->
 					<button type="button"
 						class="ai-suggest-btn text-xs font-extrabold px-4 py-2 bg-gradient-to-r from-[var(--ai)]/20 to-[var(--teal)]/20 text-[var(--ai)] rounded-xl border border-[var(--ai)]/30 shadow-[0_0_15px_rgba(123,47,190,0.15)] flex items-center gap-2 transition-all hover:bg-[var(--ai)]/30 hover:scale-[1.02] active:scale-95 cursor-pointer"
@@ -37,7 +37,7 @@
 						}
 					</button>
 				</div>
-					<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[150px] mb-2 font-medium transition-colors" id="f-desc" placeholder="صف مشروعك بالتفصيل، ما تحتاجه، الجمهور المستهدف، المتطلبات التقنية، أي تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" rows="6" [ngModel]="parent.description()" (ngModelChange)="parent.setDescription($event)"></textarea>
+					<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[150px] mb-2 font-medium transition-colors" id="f-desc" aria-required="true" placeholder="صف مشروعك بالتفصيل، ما تحتاجه، الجمهور المستهدف، المتطلبات التقنية، أي تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" rows="6" [ngModel]="parent.description()" (ngModelChange)="parent.setDescription($event)"></textarea>
 				<div class="field-counter flex items-center justify-between">
 					<div class="ai-quality flex items-center gap-1.5 text-xs font-medium" [class]="parent.canRefineWithAi() ? 'text-emerald-600 dark:text-emerald-400' : 'poor text-[var(--txt-3)]'">
 						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
@@ -126,22 +126,37 @@
 			</div>
 		</div>
 
-		<!-- FIELD 3: متطلبات إلزامية -->
+		<!-- FIELD 2b: المهارات المطلوبة (من كتالوج مجال التخصص) -->
+		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6" data-testid="required-skills-card">
+			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">
+				<span>المهارات المطلوبة</span>
+				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
+			</div>
+			@if (parent.skillsLoading()) {
+			<p class="text-xs text-[var(--txt-3)]" data-testid="required-skills-loading">جارٍ تحميل مهارات المجال…</p>
+			} @else {
+			<ws-skills-picker [options]="parent.skillOptions()" [selected]="parent.requiredSkills()" (selectedChange)="parent.setRequiredSkills($event)"
+				[emptyMessage]="parent.skillsCatalogError() || 'اختر تخصصًا من القائمة في الخطوة الأولى لتظهر مهارات مجاله'" />
+			}
+			@if (parent.skillsServerError()) { <p class="field-error text-xs  mt-2" role="alert" data-testid="required-skills-error">{{ parent.skillsServerError() }}</p> }
+		</div>
+
+		<!-- FIELD 3: شروط إضافية (نص حر، ليست مهارات) -->
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">
 				<span class="flex items-center gap-3">
 					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-					المتطلبات الإلزامية
+					شروط إضافية
 				</span>
 				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
 			</div>
 
 			<div class="flex items-center gap-2 p-3 rounded-xl bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] text-xs font-bold mb-4">
 <svg viewBox="0 0 24 24"  width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-							أضف المتطلبات التي يجب أن يلتزم بها مقدم الخدمة، ويمكنك تعديلها أو حذفها
+							أضف الشروط الإضافية التي يجب أن يلتزم بها مقدم الخدمة (نص حر، ليست مهارات)؛ ويمكنك تعديلها أو حذفها
 			</div>
 
-			<div class="req-list flex flex-col gap-3 mb-4" id="req-list" aria-label="قائمة المتطلبات">
+			<div class="req-list flex flex-col gap-3 mb-4" id="req-list" aria-label="قائمة الشروط الإضافية">
 				@for (req of parent.requirements(); track req; let idx = $index) {
 				<div class="flex items-center justify-between p-4 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl">
 					<div class="flex items-center gap-3 text-[var(--txt)]">
@@ -154,7 +169,7 @@
 			</div>
 
 			<div class="req-add-row flex gap-2">
-				<input type="text" class="req-add-input flex-1 p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" id="req-input" placeholder="أضف متطلباً محدداً..." maxlength="150" [ngModel]="parent.newRequirement()" (ngModelChange)="parent.newRequirement.set($event)" (keyup.enter)="parent.addRequirement()">
+				<input type="text" class="req-add-input flex-1 p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" id="req-input" placeholder="أضف شرطاً إضافياً محدداً..." maxlength="150" [ngModel]="parent.newRequirement()" (ngModelChange)="parent.newRequirement.set($event)" (keyup.enter)="parent.addRequirement()">
 				<button type="button" class="req-add-btn flex items-center gap-2 bg-[var(--teal)]/10 text-[var(--teal)] px-6 rounded-xl font-bold border border-[var(--teal)]/20 hover:bg-[var(--teal)]/20 transition-colors" (click)="parent.addRequirement()">
 					<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 					إضافة
@@ -190,10 +205,10 @@
 
 			<div class="field">
 				<div class="field-header mb-2">
-					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-deadline">أيام التسليم المقترحة <span class="field-req text-red-500">*</span></label>
+					<label class="field-label text-sm font-bold text-[var(--txt-2)]" for="f-deadline">أيام التسليم المقترحة <span class="ws-req" aria-hidden="true">*</span></label>
 				</div>
-				<div class="relative">
-					<input type="number" class="field-input w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-deadline" placeholder="14" min="1" max="365" [ngModel]="parent.deliveryDays()" (ngModelChange)="parent.deliveryDays.set($event ? +$event : null)">
+				<div class="relative" data-field-wrap>
+					<input type="number" class="field-input w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-deadline" aria-required="true" placeholder="أدخل عدد الأيام" min="1" max="365" [ngModel]="parent.deliveryDays()" (ngModelChange)="parent.deliveryDays.set($event ? +$event : null)">
 					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold text-sm">يوم</span>
 				</div>
 				<div class="mt-2 text-xs text-[var(--txt-3)] font-medium">المدة تقريبية، يمكن التفاوض مع مقدم الخدمة</div>

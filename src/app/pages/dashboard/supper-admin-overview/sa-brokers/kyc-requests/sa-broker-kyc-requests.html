@@ -7,7 +7,6 @@
 		<span class="kq-count" data-testid="kyc-count">{{ loading() ? '—' : total() }}</span>
 	</div>
 
-	@if (notice()) { <div class="kq-ok" role="status" data-testid="kyc-notice">{{ notice() }}</div> }
 	@if (actionError()) { <div class="kq-err" role="alert" data-testid="kyc-action-error">{{ actionError() }}</div> }
 
 	@if (loadError()) {
@@ -39,9 +38,9 @@
 			<div class="kq-modal">
 				<div class="kq-modal-ttl">رفض مستند {{ r.name || 'الوسيط' }}</div>
 				<label class="kq-label" for="kyc-reason">سبب الرفض <span class="kq-req">*</span></label>
-				<textarea id="kyc-reason" class="kq-ta" rows="4" [maxlength]="reasonMax" [ngModel]="reason()" (ngModelChange)="reason.set($event)" (blur)="reasonTouched.set(true)" data-testid="kyc-reason"
+				<textarea id="kyc-reason" class="kq-ta" rows="4" [maxlength]="reasonMax" [ngModel]="reason()" (ngModelChange)="reason.set($event)" data-testid="kyc-reason"
 					placeholder="مثال: الصورة غير واضحة، أعد رفع المستند"></textarea>
-				@if (reasonTouched() && reasonError()) { <div class="kq-err" role="alert" data-testid="kyc-reason-error">{{ reasonError() }}</div> }
+				@if (rejectError()) { <div class="kq-err" role="alert" data-testid="kyc-reject-error">{{ rejectError() }}</div> }
 				<div class="kq-hint">يصل هذا السبب إلى الوسيط في إشعار.</div>
 				<div class="kq-modal-actions">
 					<button type="button" class="kq-btn" (click)="cancelReject()">إلغاء</button>

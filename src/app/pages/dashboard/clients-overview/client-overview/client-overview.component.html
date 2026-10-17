@@ -235,8 +235,7 @@
 						</div>
 						<div class="co-approval-amt">{{ ap.amount | number:'1.0-0' }} دولار</div>
 						<div class="co-approval-actions">
-							<button type="button" class="co-btn-ghost">رفض</button>
-							<button type="button" class="co-btn-pri">اعتماد</button>
+							<a routerLink="/client-overview/request-approvals" class="co-btn-pri">مراجعة</a>
 						</div>
 					</div>
 					}
@@ -374,8 +373,8 @@
 					stroke-linecap="round" stroke-linejoin="round">
 					<use href="#i-shield"></use>
 				</svg>
-				<span>لديك {{ dashboardStore.dashboardData()!.summary.newOffersCount }} عروض جديدة بانتظار
-					اعتمادك اليوم</span>
+				<span>لديك {{ dashboardStore.dashboardData()!.summary.newOffersCount }} عروض بانتظار
+					مراجعتك</span>
 			</div>
 		</div>
 		<div class="dash-chips">
@@ -384,12 +383,12 @@
 					viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 					stroke-linejoin="round">
 					<use href="#i-warn"></use>
-				</svg>التحقق من الهوية ناقص</a>
+				</svg>بيانات الملف الشخصي ناقصة</a>
 				}
-				<span class="dash-chip chip-loyal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
+				<a routerLink="/client-overview/profile/level" class="dash-chip chip-loyal"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"
 						stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-check"></use>
-					</svg>عميل موثق &middot; كاش باك الولاء حسب مستواك</span>
+					</svg>كاش باك الولاء حسب مستواك</a>
 		</div>
 	</div>
 
@@ -424,7 +423,7 @@
 				<polyline points="15 18 9 12 15 6"></polyline>
 			</svg>
 		</a>
-		<a routerLink="/client-overview/finance/wallet" class="act-card act-teal">
+		<a routerLink="/client-overview/my-requests" class="act-card act-teal">
 			<div class="act-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 					<use href="#i-escrow"></use>
@@ -481,7 +480,7 @@
 					</svg></div>
 			</div>
 			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.activeProjectsCount }}</div>
-			<div class="stat-sub">هذا الشهر</div>
+			<div class="stat-sub">قيد التنفيذ حاليًا</div>
 		</div>
 		<div class="stat-card">
 			<div class="stat-top">
@@ -491,7 +490,7 @@
 					</svg></div>
 			</div>
 			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.newOffersCount }}</div>
-			<div class="stat-sub">بانتظارك اليوم</div>
+			<div class="stat-sub">بانتظار مراجعتك</div>
 		</div>
 		<div class="stat-card">
 			<div class="stat-top">
@@ -500,7 +499,7 @@
 						<use href="#i-wallet"></use>
 					</svg></div>
 			</div>
-			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number }}</div>
+			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number:'1.0-2' }}</div>
 			<div class="stat-sub">$ محجوز</div>
 		</div>
 		<div class="stat-card">
@@ -512,8 +511,13 @@
 							d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 					</svg></div>
 			</div>
-			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.humanRating | number:'1.1-1' }}</div>
-			<div class="stat-sub">من 5 نجوم</div>
+			@if (dashboardStore.dashboardData()!.summary.humanRating !== null && dashboardStore.dashboardData()!.summary.humanRating !== undefined) {
+			<div class="stat-val" data-testid="human-rating-value">{{ dashboardStore.dashboardData()!.summary.humanRating | number:'1.1-1' }}</div>
+			<div class="stat-sub">من 5 نجوم · تقييمات مقدمي الخدمة لك</div>
+			} @else {
+			<div class="stat-val stat-val-empty" data-testid="human-rating-empty">لا يوجد تقييم بعد</div>
+			<div class="stat-sub">يظهر بعد أن يقيّمك مقدم خدمة</div>
+			}
 		</div>
 		<!-- AI rating of the received offers: the average of the real WaseetAI evaluations stored on them (null = none yet -> honest empty state, never a number) -->
 		<div class="stat-card" data-testid="ai-rating-card">
@@ -583,7 +587,7 @@
 					</div>
 					<div class="req-info">
 						<div class="req-name">{{ project.title }}</div>
-						<div class="req-meta">تطوير حلول برمجية &middot; {{ project.createdAt | date:'longDate' }}</div>
+						<div class="req-meta">{{ project.createdAt | date:'longDate' }}</div>
 					</div>
 					<div class="req-right">
 						<span class="req-status"
@@ -591,7 +595,7 @@
 							{{ project.status === 'OPEN' ? 'مفتوح للعروض' : (project.status === 'IN_PROGRESS' ? 'قيد
 							التنفيذ' : (project.status === 'COMPLETED' ? 'مكتمل' : 'متنازع عليه')) }}
 						</span>
-						<span class="req-budget">{{ project.budget | number }} $</span>
+						<span class="req-budget">{{ project.budget | number:'1.0-2' }} $</span>
 					</div>
 				</a>
 				}
@@ -637,7 +641,7 @@
 			<!-- Escrow Balance -->
 			<div class="eb-card">
 				<div class="eb-lbl">رصيد الضمان</div>
-				<div class="eb-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number }} <span
+				<div class="eb-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number:'1.0-2' }} <span
 						style="font-size:14px;font-weight:700">$</span></div>
 				<div class="eb-sub">مبلغ محجوز بأمان عبر منصة وسيط</div>
 			</div>
@@ -647,7 +651,7 @@
 			<div class="ac-card">
 				<div class="ac-lbl">العقد النشط</div>
 				<div class="ac-name">{{ dashboardStore.activeContract()?.title }}</div>
-				<div class="ac-prov">{{ dashboardStore.activeContract()?.provider }} &middot; مقدم خدمة موثق</div>
+				<div class="ac-prov">{{ dashboardStore.activeContract()?.provider }}</div>
 				<div class="ac-prog-bar" role="progressbar"
 					[attr.aria-valuenow]="dashboardStore.activeContract()?.progress" aria-valuemin="0"
 					aria-valuemax="100">
@@ -713,52 +717,14 @@
 			<button type="button" class="offer-card" (click)="goToProposal(offer.projectId)">
 				<div class="offer-top">
 					<div class="offer-prov">
-						<div style="position:relative;flex-shrink:0">
-							<div class="offer-av" [style]="getAvatarStyle(idx)">{{ getInitials(offer.providerName) }}
-							</div>
-							<div
-								style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#2ECC8A;display:flex;align-items:center;justify-content:center;border:1.5px solid #070D24">
-								<svg class="ws-star-svg" width="7" height="7" viewBox="0 0 100 100" fill="#070D24">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-							</div>
-						</div>
+						<div class="offer-av" [style]="getAvatarStyle(idx)">{{ getInitials(offer.providerName) }}</div>
 						<div>
 							<div class="offer-name">{{ offer.providerName }}
 								@if (offer.providerLevel) {
 								<ws-level-badge [title]="offer.providerLevel" />
 								}
 							</div>
-							<div
-								style="display:inline-flex;align-items:center;gap:2px;margin-top:2px;margin-bottom:2px">
-								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									fill="#2ECC8A">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									fill="#2ECC8A">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									fill="#2ECC8A">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									fill="#2ECC8A">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									fill="rgba(46,204,138,.3)">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-							</div>
-							<div class="offer-type">{{ offer.projectTitle || 'مقدم خدمة استشارة' }}</div>
+							<div class="offer-type">{{ offer.projectTitle }}</div>
 						</div>
 					</div>
 					@if (offer.aiMatchScore) {
@@ -769,12 +735,12 @@
 						</svg>تقييم العرض {{ offer.aiMatchScore }}%</div>
 					}
 				</div>
-				<div class="offer-price">{{ offer.price | number }} <span>$</span></div>
+				<div class="offer-price">{{ offer.price | number:'1.0-2' }} <span>$</span></div>
 				<div class="offer-meta"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
 						stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
 						aria-hidden="true">
 						<use href="#i-clock"></use>
-					</svg>تسليم خلال {{ offer.deliveryDays || 7 }} أيام</div>
+					</svg>@if (offer.deliveryDays) {تسليم خلال {{ offer.deliveryDays }} أيام} @else {مدة التسليم غير محددة}</div>
 			</button>
 			}
 

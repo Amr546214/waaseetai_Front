@@ -2,3 +2,12 @@
 .bk-detail-crumb a{color:#A8B2D1;font-size:13px;text-decoration:none}
 .bk-detail-crumb a:hover{color:#2BD4C7}
 .bk-detail-box{max-width:900px;max-height:none;overflow:visible;margin:0 auto}
+
+.bk-btn-danger { color: #E5484D; border-color: rgba(229,72,77,.35); }
+.bk-dlg-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+.bk-dlg { background: var(--bg-card, #fff); color: inherit; border-radius: 14px; padding: 20px; max-width: 420px; width: 100%; display: flex; flex-direction: column; gap: 10px; }
+.bk-dlg textarea { width: 100%; border: 1px solid rgba(128,128,128,.35); border-radius: 8px; padding: 8px; font: inherit; background: transparent; color: inherit; }
+.bk-dlg-actions { display: flex; gap: 8px; justify-content: flex-end; }
+/* the performance summary is plain facts, not AI: neutral styling instead of the purple AI look */
+.bk-ai-panel { background: rgba(43,127,255,.05); border-color: rgba(128,128,128,.25); }
+.bk-ai-panel-hdr { color: inherit; }

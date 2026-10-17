@@ -23,7 +23,7 @@
       <div class="wd-md-hdr">
         <div>
           <h3>تفاصيل طلب السحب #{{ shortId(w.id) }}</h3>
-          <span class="wd-badge {{ statusClasses[w.status || 'PENDING'] }}">{{ statusLabels[w.status || 'PENDING'] }}</span>
+          <span class="wd-badge {{ statusClasses[w.status || 'PENDING'] }}">{{ statusLabels[w.status || 'PENDING'] || w.status }}</span>
         </div>
       </div>
       <div class="wd-md-body">
@@ -51,7 +51,7 @@
         <div class="wd-md-row">
           <div class="wd-md-field">
             <label>المستخدم</label>
-            <p>{{ userDisplay(w) }}</p>
+            <p data-testid="wd-user">{{ userDisplay(w) }} <span class="wd-owner-tag">{{ ownerLabel(w) }}</span></p>
           </div>
           <div class="wd-md-field">
             <label>طريقة السحب</label>
@@ -93,7 +93,21 @@
           </div>
         }
 
-        <!-- Request-status timeline -->
+        @if (w.payoutAttempts?.length) {
+          <div class="wd-md-section" data-testid="wd-attempts">
+            <label>محاولات التحويل عبر PayPal</label>
+            <table class="wd-attempts">
+              <thead><tr><th>الحالة</th><th>بدأت</th><th>آخر تحديث</th></tr></thead>
+              <tbody>
+                @for (a of w.payoutAttempts; track a.id) {
+                  <tr><td>{{ attemptStatusLabel(a.status) }}</td><td>{{ formatDate(a.createdAt) }}</td><td>{{ formatDate(a.updatedAt) }}</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <!-- Request-status timeline (real fields only) -->
         <div class="wd-md-section">
           <label>مسار الطلب</label>
           <div class="wd-timeline">
@@ -116,45 +130,80 @@
           <p>{{ actionSuccess() }}</p>
         </div>
       }
+      @if (payoutResult()) {
+        <div class="wd-md-success" data-testid="wd-payout-result">
+          <p>{{ payoutResult() }}</p>
+        </div>
+      }
 
-      @if (canAct(w.status) && !showActionForm()) {
-        <div class="wd-md-actions">
-          <button type="button" class="wd-btn wd-btn-pri" (click)="openActionForm('approve')">قبول طلب السحب</button>
-          <button type="button" class="wd-btn wd-btn-reject" (click)="openActionForm('reject')">رفض طلب السحب</button>
+      <div class="wd-md-actions-col">
+        <div class="wd-md-actions" style="margin-top:0">
+          @if (canAct(w.status)) {
+            <button type="button" class="wd-btn wd-btn-pri" data-testid="wd-approve" (click)="openActionForm('approve')">اعتماد طلب السحب</button>
+            <button type="button" class="wd-btn wd-btn-reject" data-testid="wd-reject" (click)="openActionForm('reject')">رفض طلب السحب</button>
+          }
           <button type="button" class="wd-btn wd-btn-gh" (click)="goBack()">العودة للقائمة</button>
         </div>
-      } @else if (showActionForm()) {
-        <div class="wd-action-form">
-          <h4 class="wd-af-ttl">{{ actionType() === 'approve' ? 'تأكيد القبول' : 'تأكيد الرفض' }}</h4>
+        @if (canSendPayout(w)) {
+          <div>
+            <button type="button" class="wd-btn wd-btn-pri" data-testid="wd-send-payout"
+              [disabled]="w.payoutAutomationEnabled !== true" (click)="openPayoutConfirm(w)">إرسال التحويل عبر PayPal</button>
+            @if (w.payoutAutomationEnabled !== true) {
+              <p class="wd-reason" data-testid="wd-payout-off">{{ payoutOffReason }}</p>
+            }
+          </div>
+        }
+      </div>
+    </div>
 
+    @if (showActionForm()) {
+      <div class="wd-mov" data-testid="wd-action-modal">
+        <div class="wd-mbox">
+          <h4 class="wd-af-ttl">{{ actionType() === 'approve' ? 'تأكيد اعتماد الطلب' : 'تأكيد رفض الطلب' }}</h4>
+          <p class="wd-warn">
+            @if (actionType() === 'approve') { اعتماد الطلب لا يحوّل المال؛ التحويل خطوة منفصلة. }
+            @else { الرفض نهائي ويُبلَّغ به المستخدم. }
+          </p>
           @if (actionType() === 'approve') {
             <div class="wd-md-field">
               <label>ملاحظات الإدارة (اختياري)</label>
-              <textarea class="wd-af-ta" [value]="adminNote()" (input)="adminNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
+              <textarea id="wd-admin-note" aria-label="ملاحظات الإدارة" class="wd-af-ta" [value]="adminNote()" (input)="adminNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
             </div>
           } @else {
             <div class="wd-md-field">
               <label>سبب الرفض <span class="wd-req">*</span></label>
-              <textarea class="wd-af-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض…"></textarea>
+              <textarea id="wd-reject-reason" aria-label="سبب الرفض" class="wd-af-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض…"></textarea>
             </div>
           }
-
           @if (actionError()) {
-            <p class="wd-af-err">{{ actionError() }}</p>
+            <p class="wd-af-err" role="alert" data-testid="wd-action-error">{{ actionError() }}</p>
           }
-
-          <div class="wd-af-actions">
-            <button type="button" class="wd-btn wd-btn-pri" [disabled]="submittingAction()" (click)="submitAction()">
+          <div class="wd-modal-actions">
+            <button type="button" class="wd-btn wd-btn-pri" data-testid="wd-action-confirm" [disabled]="submittingAction()" (click)="submitAction()">
               {{ submittingAction() ? 'جارٍ الحفظ...' : 'تأكيد' }}
             </button>
             <button type="button" class="wd-btn wd-btn-gh" [disabled]="submittingAction()" (click)="cancelActionForm()">إلغاء</button>
           </div>
         </div>
-      } @else {
-        <div class="wd-md-actions">
-          <button type="button" class="wd-btn wd-btn-gh" (click)="goBack()">العودة للقائمة</button>
+      </div>
+    }
+
+    @if (showPayoutConfirm()) {
+      <div class="wd-mov" data-testid="wd-payout-modal">
+        <div class="wd-mbox">
+          <h4 class="wd-af-ttl">تأكيد إرسال التحويل</h4>
+          <p class="wd-warn">سيتم تحويل {{ formatAmount(w.amount, w.currency) }} إلى بريد PayPal {{ w.paypalEmail || '—' }} — لا يمكن التراجع</p>
+          @if (payoutError()) {
+            <p class="wd-af-err" role="alert" data-testid="wd-payout-error">{{ payoutError() }}</p>
+          }
+          <div class="wd-modal-actions">
+            <button type="button" class="wd-btn wd-btn-pri" data-testid="wd-payout-confirm" [disabled]="sendingPayout()" (click)="confirmPayout()">
+              {{ sendingPayout() ? 'جارٍ الإرسال...' : 'تأكيد وإرسال' }}
+            </button>
+            <button type="button" class="wd-btn wd-btn-gh" [disabled]="sendingPayout()" (click)="cancelPayoutConfirm()">إلغاء</button>
+          </div>
         </div>
-      }
-    </div>
+      </div>
+    }
   }
 </section>

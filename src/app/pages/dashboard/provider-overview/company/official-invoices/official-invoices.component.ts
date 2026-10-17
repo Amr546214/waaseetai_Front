@@ -1,6 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 interface Invoice {
 	id: string;
@@ -20,8 +21,8 @@ interface Invoice {
 	styleUrls: ['./official-invoices.component.css']
 })
 export class OfficialInvoicesComponent {
+	private notify = inject(UiNotificationService);
 	activeFilter = signal<string>('all');
-	toastMsg = signal<string>('');
 
 	filters = [
 		{ id: 'all', label: 'الكل', count: 5 },
@@ -52,9 +53,8 @@ export class OfficialInvoicesComponent {
 		this.activeFilter.set(filter);
 	}
 
-	showToast(msg: string) {
-		this.toastMsg.set(msg);
-		setTimeout(() => this.toastMsg.set(''), 3000);
+	downloadInvoice() {
+		this.notify.info('تنزيل الفاتورة PDF');
 	}
 
 	statusLabel(s: string): string {

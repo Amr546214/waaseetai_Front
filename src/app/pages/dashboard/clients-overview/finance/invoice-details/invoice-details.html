@@ -66,11 +66,10 @@
 							<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>
 						</svg>
 					</div>
-					<span class="text-sm font-bold leading-relaxed">نسبة اكتمال بيانات الفاتورة</span>
+					<span class="text-sm font-bold leading-relaxed">اكتمال بيانات الفاتورة</span>
 				</div>
 				<span
-					class="text-xs font-black px-3 py-1.5 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg shadow-sm">دقة
-					{{ invoice()?.verificationScore || 0 }}%</span>
+					class="text-xs font-black px-3 py-1.5 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg shadow-sm">{{ invoice()?.verificationScore || 0 }}%</span>
 			</div>
 
 			<!-- Info Grid -->
@@ -129,25 +128,20 @@
 				<div
 					class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 flex flex-col gap-4">
 					<div class="flex items-center justify-between text-base">
-						<span class="font-bold text-slate-500 dark:text-slate-400">المبلغ الأساسي</span>
-						<span class="font-black text-slate-900 dark:text-white">{{ invoice()?.subtotal |
-							number }} $</span>
+						<span class="font-bold text-slate-500 dark:text-slate-400">قيمة الخدمة</span>
+						<span class="font-black text-slate-900 dark:text-white">{{ invoice()?.subtotal | number:'1.0-2' }} $</span>
 					</div>
-					@if ((invoice()?.tax || 0) > 0) {
-					<div class="flex items-center justify-between text-base" data-testid="invoice-tax-row">
-						<span class="font-bold text-slate-500 dark:text-slate-400">ضريبة ({{ invoice()?.taxRate }}%)</span>
-						<span class="font-black text-slate-900 dark:text-white">{{ invoice()?.tax | number }}
-							$</span>
+					@if ((invoice()?.discount || 0) > 0) {
+					<div class="flex items-center justify-between text-base" data-testid="invoice-discount-row">
+						<span class="font-bold text-slate-500 dark:text-slate-400">خصم الكوبون@if (invoice()?.couponCode) { ({{ invoice()?.couponCode }}) }</span>
+						<span class="font-black text-emerald-600 dark:text-emerald-400">- {{ invoice()?.discount | number:'1.0-2' }} $</span>
 					</div>
-					} @else {
-					<div class="flex items-center justify-between text-xs" data-testid="invoice-no-tax"><span class="font-bold text-slate-500 dark:text-slate-400">لا تُسجَّل ضريبة في الفواتير حاليًا</span></div>
 					}
-
 					<div class="w-full h-px bg-slate-200 dark:bg-slate-700 my-2"></div>
 
 					<div class="flex items-center justify-between">
-						<span class="text-lg font-black text-slate-900 dark:text-white">الإجمالي المستحق</span>
-						<span class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ invoice()?.total | number
+						<span class="text-lg font-black text-slate-900 dark:text-white">الإجمالي المدفوع</span>
+						<span class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ invoice()?.total | number:'1.0-2'
 							}} $</span>
 					</div>
 				</div>
@@ -162,13 +156,13 @@
 				<span>{{ invoice()?.taxDocumentAvailable ? 'مستند التسجيل الضريبي متوفر لدى مقدم الخدمة' : 'لم يرفق مقدم الخدمة مستند التسجيل الضريبي بعد' }}</span>
 			</div>
 
-			<button (click)="downloadPdf()"
+			<button (click)="printInvoice()" data-testid="invoice-print"
 				class="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 text-sm font-black rounded-xl transition-all shadow-sm flex items-center justify-center gap-3">
 				<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
 					stroke-linecap="round" stroke-linejoin="round">
 					<path d="M12 16V4M7 11l5 5 5-5M5 20h14" />
 				</svg>
-				تنزيل الفاتورة PDF
+				طباعة / حفظ كـ PDF
 			</button>
 		</div>
 

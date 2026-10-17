@@ -3,12 +3,12 @@
   <div class="lv-crumb">
     <button type="button" class="lv-crumb-link" (click)="goToHelp()">مركز المساعدة</button>
     <span class="lv-crumb-sep">/</span>
-    <span>الدعم المباشر</span>
+    <span>الدعم عبر التذاكر</span>
   </div>
 
   <div class="ord-head">
     <div>
-      <div class="ord-title">الدعم المباشر</div>
+      <div class="ord-title">الدعم عبر التذاكر</div>
       <div class="ord-sub">تذاكر الدعم الخاصة بك ومحادثاتها مع فريق وسيط</div>
     </div>
     <button type="button" class="lv-btn lv-btn-sec" (click)="startNew()">فتح تذكرة جديدة</button>
@@ -20,9 +20,9 @@
       <ng-container *ngIf="creating(); else threadTpl">
         <div class="lv-hd"><div class="lv-hd-body"><div class="lv-hd-name">تذكرة دعم جديدة</div></div></div>
         <form class="lv-composer" (ngSubmit)="submitNew($event)">
-          <input type="text" name="subject" placeholder="عنوان التذكرة" [ngModel]="newSubject()" (ngModelChange)="newSubject.set($event)" aria-label="عنوان التذكرة" />
-          <ws-select name="category" [options]="categories" placeholder="اختر التصنيف" ariaLabel="التصنيف" [ngModel]="newCategory()" (ngModelChange)="newCategory.set($event)" />
-          <textarea rows="5" name="description" placeholder="اشرح المشكلة بالتفصيل" [ngModel]="newDescription()" (ngModelChange)="newDescription.set($event)" aria-label="وصف المشكلة"></textarea>
+          <input type="text" id="ls-subject" name="subject" data-field="subject" placeholder="عنوان التذكرة" [ngModel]="newSubject()" (ngModelChange)="newSubject.set($event)" aria-label="عنوان التذكرة" />
+          <ws-select id="ls-category" name="category" data-field-wrap [options]="categories" placeholder="اختر التصنيف" ariaLabel="التصنيف" [ngModel]="newCategory()" (ngModelChange)="newCategory.set($event); edited('category')" />
+          <textarea rows="5" id="ls-description" name="description" data-field="description" placeholder="اشرح المشكلة بالتفصيل" [ngModel]="newDescription()" (ngModelChange)="newDescription.set($event)" aria-label="وصف المشكلة"></textarea>
           <button type="submit" class="lv-btn" [disabled]="busy()">إرسال التذكرة</button>
         </form>
       </ng-container>
@@ -51,7 +51,7 @@
 
           <div class="lv-composer">
             <form *ngIf="canReply(); else closedTpl" class="lv-input-row" (ngSubmit)="send($event)">
-              <textarea rows="1" placeholder="اكتب ردك على التذكرة" [ngModel]="inputText()" (ngModelChange)="inputText.set($event)" name="msg" aria-label="ردك"></textarea>
+              <textarea rows="1" id="ls-msg" data-field="msg" placeholder="اكتب ردك على التذكرة" [ngModel]="inputText()" (ngModelChange)="inputText.set($event)" name="msg" aria-label="ردك"></textarea>
               <button type="submit" class="lv-send" [disabled]="busy()" aria-label="إرسال">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
@@ -80,11 +80,6 @@
       </div>
     </div>
 
-  </div>
-
-  <div *ngIf="toast()" class="lv-toast">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    <span>{{ toast() }}</span>
   </div>
 
 </div>

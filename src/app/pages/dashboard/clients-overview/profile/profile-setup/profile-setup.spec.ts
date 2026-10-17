@@ -64,7 +64,7 @@ describe('client profile-setup: shared validation', () => {
 
 	it('the address field now carries a required marker (it is required by the form)', () => {
 		const labels = Array.from(el().querySelectorAll('label')).filter(l => l.textContent?.includes('العنوان التفصيلي'));
-		expect(labels[0]?.querySelector('.text-amber-500')).toBeTruthy();
+		expect(labels[0]?.querySelector('.ws-req')).toBeTruthy();
 	});
 
 	it('a complete step 1 moves to step 2 and clears the summary; Back clears it too', () => {

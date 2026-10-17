@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -12,9 +12,12 @@ import { NewProjectService } from '../../../../../core/services/new-project.serv
 import { ProviderSpecialOffer, SpecialOfferStats } from '../../../../../core/models/marketing.model';
 import { CompanyTeamMember } from '../../../../../core/models/company-team.model';
 import {
-  Flash, ProviderModelOption, STATUS_LABELS, STATUS_PILL, avatarGradient, describeOffer, formatDay, formatMoney, formatNumber, httpErrorMessage,
+  ProviderModelOption, STATUS_LABELS, STATUS_PILL, avatarGradient, describeOffer, formatDay, formatMoney, formatNumber, httpErrorMessage,
   initials, isToggleable, mapProviderModels, offerStatus, relativeTime, validityLabel,
 } from '../marketing-utils';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 
 /** P-PR-041-تفاصيل / P-CO-MK-007-تفاصيل — special offer stats & details. */
 @Component({
@@ -26,12 +29,19 @@ import {
 })
 export class MarketingOfferDetails implements OnInit {
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   private offerApi = inject(ProviderSpecialOfferService);
   private centerApi = inject(MarketingCenterService);
   private teamApi = inject(CompanyTeamService);
   private modelsApi = inject(NewProjectService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
+  /** Field message under the rejection-reason input. */
+  reasonError = signal<string | null>(null);
+  /** Honest message for failures that belong to no field (network, 429, 5xx, 403, 409...). */
+  decisionError = signal<string | null>(null);
 
   isCompanyMode = computed<boolean>(() => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY);
 
@@ -43,7 +53,6 @@ export class MarketingOfferDetails implements OnInit {
   readonly rel = relativeTime;
   readonly initials = initials;
   readonly avatarBg = avatarGradient;
-  readonly flash = new Flash();
 
   offer = signal<ProviderSpecialOffer | null>(null);
   stats = signal<SpecialOfferStats | null>(null);
@@ -168,12 +177,12 @@ export class MarketingOfferDetails implements OnInit {
       next: res => {
         this.offer.set(res.data);
         this.busy.set(false);
-        this.flash.show(res.data.active ? 'تم تفعيل العرض' : 'تم إيقاف العرض');
+        this.notify.success(res.data.active ? 'تم تفعيل العرض' : 'تم إيقاف العرض');
       },
       error: err => {
         input.checked = !next;
         this.busy.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر تحديث حالة العرض'), true);
+        this.notify.error(httpErrorMessage(err, 'تعذر تحديث حالة العرض'));
       },
     });
   }
@@ -182,21 +191,37 @@ export class MarketingOfferDetails implements OnInit {
     const o = this.offer();
     if (!o) return;
     if (decision === 'REJECTED' && !this.rejectReason.trim()) {
-      this.flash.show('يجب توضيح سبب الرفض', true);
+      const message = 'اكتب سبب الرفض، فهو مطلوب ويظهر لعضو الفريق';
+      this.reasonError.set(message);
+      this.notify.warning('يجب توضيح سبب الرفض');
+      void focusInvalidControls(this.host.nativeElement, [{ path: 'reject-reason', message }]);
       return;
     }
+    if (!this.guard.enter()) return;
+    this.reasonError.set(null);
+    this.decisionError.set(null);
     this.busy.set(true);
     this.offerApi.decideApproval(o.id, { decision, rejectionReason: decision === 'REJECTED' ? this.rejectReason.trim() : null }).subscribe({
       next: res => {
         this.offer.set(res.data);
         this.busy.set(false);
+        this.guard.release();
         this.rejecting.set(false);
         this.centerApi.refreshPendingCount();
-        this.flash.show(decision === 'APPROVED' ? 'تم اعتماد العرض' : 'تم رفض العرض');
+        this.notify.success(decision === 'APPROVED' ? 'تم اعتماد العرض' : 'تم رفض العرض');
       },
       error: err => {
         this.busy.set(false);
-        this.flash.show(httpErrorMessage(err, 'تعذر تسجيل القرار'), true);
+        this.guard.release();
+        const mapped = mapHttpError(err, { fallback: 'تعذر تسجيل القرار' });
+        if (mapped.kind === 'backend-validation' && decision === 'REJECTED') {
+          // The only field is the reason: a 400/422 explains itself at the input.
+          this.reasonError.set(mapped.message);
+          void focusInvalidControls(this.host.nativeElement, [{ path: 'reject-reason', message: mapped.message }]);
+        } else {
+          this.decisionError.set(mapped.message);
+        }
+        this.notify.error(mapped.message);
       },
     });
   }

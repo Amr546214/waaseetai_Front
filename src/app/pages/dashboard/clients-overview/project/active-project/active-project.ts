@@ -5,8 +5,9 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
-type ProjectFilter = 'all' | 'run' | 'wait' | 'late';
+type ProjectFilter = 'all' | 'run' | 'wait' | 'late' | 'pending';
 
 interface ProjectKPI {
 	icon: 'list' | 'lock' | 'clock' | 'ai';
@@ -32,7 +33,10 @@ interface ProjectItem {
 	heldAmount: number;
 	completedStages: number;
 	stagesCount: number;
-	daysLeft: number;
+	/** null while the contract has not started (nothing counts down before it is signed and funded). */
+	daysLeft: number | null;
+	/** Money really held in escrow for this project (false = the client has not funded it). */
+	funded?: boolean;
 	updatedAt?: string;
 	employeeName?: string;
 	employeeJobTitle?: string;
@@ -59,7 +63,8 @@ export class ActiveProject implements OnInit {
 	tabs = computed(() => [
 		{ id: 'all' as const, label: 'الكل', count: this.projects().length },
 		{ id: 'run' as const, label: 'قيد التنفيذ', count: this.projects().filter(project => project.status === 'run').length },
-		{ id: 'wait' as const, label: 'بانتظار التسليم', count: this.projects().filter(project => project.status === 'wait').length },
+		{ id: 'wait' as const, label: 'بانتظار مراجعتك', count: this.projects().filter(project => project.status === 'wait').length },
+		{ id: 'pending' as const, label: 'بانتظار التوقيع', count: this.projects().filter(project => project.status === 'pending').length },
 		{ id: 'late' as const, label: 'متأخر', count: this.projects().filter(project => project.status === 'late').length },
 	]);
 
@@ -104,17 +109,37 @@ export class ActiveProject implements OnInit {
 	}
 
 	formatNumber(value: number | string) {
-		return typeof value === 'number' ? value.toLocaleString('en-US') : value;
+		return typeof value === 'number' ? formatMoney(value) : value;
 	}
 
 	projectMeta(project: ProjectItem) {
-		const stages = `${project.completedStages} من ${project.stagesCount} مراحل`;
+		const stages = project.stagesCount > 0 ? `${project.completedStages} من ${project.stagesCount} مراحل` : 'لا مراحل مسجّلة';
+		// Before the contract is signed and funded there is no schedule to count down.
+		if (project.daysLeft === null) return 'لم يبدأ التنفيذ بعد';
 		if (project.daysLeft < 0) return `${stages} · متأخر ${Math.abs(project.daysLeft)} ${this.dayLabel(Math.abs(project.daysLeft))}`;
 		if (project.daysLeft === 0) return `${stages} · موعد التسليم اليوم`;
 		return `${stages} · ${project.daysLeft} ${this.dayLabel(project.daysLeft)} متبقية`;
 	}
 
-	statusLabel(status: ProjectItem['status']) {
+	// A project still awaiting signature / escrow funding is not running yet and not waiting for a review: say so, and say whose step it is.
+	isAwaitingSignature(project: ProjectItem) {
+		return project.status === 'pending';
+	}
+
+	/** The client still has to sign and fund (as opposed to: signed and funded, waiting for the provider's signature). */
+	needsClientAction(project: ProjectItem) {
+		return this.isAwaitingSignature(project) && !project.funded;
+	}
+
+	projectLink(project: ProjectItem) {
+		// Only the client's own step (sign + fund) happens on the request page; once funded the workspace shows the contract state.
+		return this.needsClientAction(project)
+			? ['/client-overview/my-requests', project.id]
+			: ['/client-overview/projects', project.workspaceId || project.id];
+	}
+
+	statusLabel(status: ProjectItem['status'], project?: ProjectItem) {
+		if (project && this.isAwaitingSignature(project)) return project.funded ? 'بانتظار توقيع مقدم الخدمة' : 'بانتظار التوقيع';
 		if (status === 'wait') return 'بانتظار مراجعتك';
 		if (status === 'late') return 'متأخر';
 		return 'قيد التنفيذ';
@@ -123,11 +148,13 @@ export class ActiveProject implements OnInit {
 	private normaliseProject(project: any): ProjectItem {
 		const rawStatus = String(project.rawStatus || project.status || '').toUpperCase();
 		const displayStatus = String(project.status || '').toLowerCase();
-		const daysLeft = Number.isFinite(Number(project.daysLeft)) ? Number(project.daysLeft) : 0;
+		const daysLeft = project.daysLeft === null || project.daysLeft === undefined || !Number.isFinite(Number(project.daysLeft)) ? null : Number(project.daysLeft);
 		let status: ProjectItem['status'];
-		if (displayStatus === 'wait' || displayStatus === 'run' || displayStatus === 'late') status = displayStatus;
-		else if (['WAIT', 'AWAITING_DELIVERY', 'PENDING_SIGNATURE', 'PENDING_APPROVAL'].includes(rawStatus)) status = 'wait';
-		else if (rawStatus === 'LATE' || daysLeft < 0) status = 'late';
+		// Not signed / not funded yet: its own state, whatever the list calls it (older payloads said "wait" with rawStatus PENDING_SIGNATURE).
+		if (displayStatus === 'pending' || rawStatus === 'PENDING_SIGNATURE') status = 'pending';
+		else if (displayStatus === 'wait' || displayStatus === 'run' || displayStatus === 'late') status = displayStatus;
+		else if (['WAIT', 'AWAITING_DELIVERY', 'PENDING_APPROVAL'].includes(rawStatus)) status = 'wait';
+		else if (rawStatus === 'LATE' || (daysLeft !== null && daysLeft < 0)) status = 'late';
 		else status = 'run';
 
 		return {
@@ -146,8 +173,9 @@ export class ActiveProject implements OnInit {
 			nextStep: project.nextStep || 'متابعة تنفيذ المرحلة الحالية',
 			heldAmount: Math.max(0, Number(project.heldAmount) || 0),
 			completedStages: Math.max(0, Number(project.completedStages) || 0),
-			stagesCount: Math.max(1, Number(project.stagesCount) || 1),
+			stagesCount: Math.max(0, Number(project.stagesCount) || 0),
 			daysLeft,
+			funded: project.funded === undefined ? undefined : Boolean(project.funded),
 			updatedAt: project.updatedAt,
 			// Batch 6 — project.employee is now real data from Project.
 			// assignedEmployeeId (resolved server-side in getActiveProjects,
@@ -179,7 +207,7 @@ export class ActiveProject implements OnInit {
 			{ icon: 'list', value: projects.length, label: 'مشاريع نشطة', color: 'teal' },
 			{ icon: 'lock', value: held, label: 'محتجز بالضمان $', color: 'blue' },
 			{ icon: 'clock', value: waiting, label: 'بانتظار مراجعتك', color: 'amber' },
-			{ icon: 'ai', value: late ? `${late} متأخر` : 'جيد', label: 'الحالة العامة', color: 'teal' },
+			{ icon: 'ai', value: projects.length === 0 ? '—' : (late ? `${late} متأخر` : 'لا يوجد متأخر'), label: 'الحالة العامة', color: 'teal' },
 		];
 	}
 
@@ -193,7 +221,7 @@ export class ActiveProject implements OnInit {
 	}
 
 	private statusPriority(status: ProjectItem['status']) {
-		return status === 'wait' ? 0 : status === 'late' ? 1 : 2;
+		return status === 'wait' ? 0 : status === 'late' ? 1 : status === 'pending' ? 2 : 3;
 	}
 
 	private dayLabel(days: number) {

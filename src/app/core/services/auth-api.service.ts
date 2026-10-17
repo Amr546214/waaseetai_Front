@@ -35,11 +35,9 @@ export class AuthApiService {
 	public register(payload: RegisterInput): Observable<AuthResponse> {
 		return this.http.post<AuthResponse>(`${this.baseUrl}/register`, payload).pipe(
 			tap((res) => {
-				if (res.success && res.data?.userId) {
-					// Route user into pending verification flow
-					this.markLoginOtp(false);
-					this.authStore.setPendingVerification(res.data.userId);
-				}
+				// The register answer is identical for every outcome and carries no account id: the code step is keyed by the typed e-mail
+				// (see verifyOtp / resendOtpByEmail), so no pending id is stored here. Only the activation (not login) endpoints apply.
+				if (res.success) this.markLoginOtp(false);
 			})
 		);
 	}
@@ -65,6 +63,11 @@ export class AuthApiService {
 	 */
 	public resendOtp(userId: string): Observable<AuthResponse> {
 		return this.http.post<AuthResponse>(`${this.baseUrl}${this.isLoginOtp() ? '/login/resend-otp' : '/resend-otp'}`, { userId });
+	}
+
+	/** Registration code step: resend keyed by the e-mail typed at registration. Always the same generic 200 (nothing about the account). */
+	public resendOtpByEmail(email: string): Observable<AuthResponse> {
+		return this.http.post<AuthResponse>(`${this.baseUrl}/resend-otp`, { email });
 	}
 
 	/**

@@ -6,7 +6,6 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { AccountService } from '../../core/services/account.service';
 import { AuthStore } from '../../core/store/auth.store';
-import { NotificationEngineService } from '../../core/services/notification-engine.service';
 import { AddAccount as ClientAddAccount } from '../../pages/dashboard/clients-overview/profile/add-account/add-account';
 import { AddAccount as ProviderAddAccount } from '../../pages/dashboard/provider-overview/profile/add-account/add-account';
 import { AddAccount as MarketerAddAccount } from '../../pages/dashboard/marketer-overview/profile/add-account/add-account';
@@ -31,7 +30,6 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
           provideRouter([]),
           { provide: AccountService, useValue: { getAvailableAccountTypes: getTypes, addAccountType: add, switchActiveRole: vi.fn() } },
           { provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT', roles: ['CLIENT'] }) } },
-          { provide: NotificationEngineService, useValue: { triggerToast: vi.fn() } },
         ],
       });
       fixture = TestBed.createComponent(Cmp) as ComponentFixture<AddAccountBase>;
@@ -45,7 +43,7 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
     const summary = () => el().querySelector('[data-testid="form-summary"]')?.textContent || '';
     const errors = () => Array.from(el().querySelectorAll('[data-testid="field-error"]')).map(e => e.textContent || '');
     const banner = () => el().querySelector('[data-testid="add-account-error"]')?.textContent || '';
-    const fillProvider = () => { c.ctl.specMain.setValue('تصميم جرافيك وبصري'); c.ctl.portfolioBio.setValue('نبذة مهنية'); };
+    const fillProvider = () => { c.ctl.specMain.setValue('تصميم جرافيك وبصري'); c.ctl.specExp.setValue('3-5 سنوات'); c.ctl.portfolioBio.setValue('نبذة مهنية'); };
     const toStep = (type: string, idx: number) => { c.selectType(type); c.stepIdx.set(idx); render(); };
 
     it('Next on an empty specialties step: stays, summary names the field, inline error, focus on it', () => {
@@ -60,7 +58,7 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
     });
 
     it('the bio step blocks an empty / whitespace-only bio and a bio over 1000 characters', () => {
-      c.selectType('provider-ind'); c.ctl.specMain.setValue('x'); c.nextStep(); render();
+      c.selectType('provider-ind'); c.ctl.specMain.setValue('x'); c.ctl.specExp.setValue('3-5 سنوات'); c.nextStep(); render();
       expect(c.stepIdx()).toBe(2);
       c.ctl.portfolioBio.setValue('   '); c.nextStep(); render();
       expect(c.stepIdx()).toBe(2);
@@ -157,7 +155,7 @@ for (const [name, Cmp] of [['client', ClientAddAccount], ['provider', ProviderAd
       c.selectType('provider-ind'); c.stepIdx.set(1); render();
       const disabledSelect = el().querySelector('select[disabled]');
       expect(disabledSelect).toBeTruthy();
-      c.ctl.specMain.setValue('x'); c.nextStep(); render();
+      c.ctl.specMain.setValue('x'); c.ctl.specExp.setValue('3-5 سنوات'); c.nextStep(); render();
       expect(el().querySelector('input[type="url"]')?.hasAttribute('disabled')).toBe(true);
       expect(el().querySelector('input[type="file"]')?.hasAttribute('disabled')).toBe(true);
       expect(el().querySelectorAll('[data-testid="field-unsupported"]').length).toBeGreaterThanOrEqual(2);

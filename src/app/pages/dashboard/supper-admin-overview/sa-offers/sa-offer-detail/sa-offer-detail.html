@@ -3,90 +3,108 @@
     <a routerLink="/supper-admin-overview/offers">&rarr; العودة إلى العروض</a>
   </div>
 
-  @if (notFound()) {
+  @if (loading()) {
+    <div class="of-empty"><p>جارٍ تحميل العرض...</p></div>
+  } @else if (notFound()) {
     <div class="of-empty">
       <p>لم يتم العثور على العرض المطلوب</p>
       <a routerLink="/supper-admin-overview/offers" class="of-btn of-btn-ghost">العودة للقائمة</a>
+    </div>
+  } @else if (error()) {
+    <div class="of-empty">
+      <p>{{ error() }}</p>
+      <button type="button" class="of-btn of-btn-ghost" (click)="load()">إعادة المحاولة</button>
     </div>
   } @else if (selected(); as d) {
     <div class="of-mbox of-detail-box">
       <div class="of-md-hdr">
         <div>
-          <div class="of-md-id">{{ d.id }} · {{ statusLabels[d.status] }}</div>
-          <h3>{{ d.request }}</h3>
+          <div class="of-md-id">{{ d.id }} · {{ statusLabels[d.status] || d.status }}</div>
+          <h3>{{ d.title }}</h3>
         </div>
       </div>
 
       <div class="of-price-row">
-        <div class="of-price-box"><div class="of-price-big">{{ d.price }}</div></div>
-        <div class="of-price-box"><div class="of-price-big">{{ d.days }}</div></div>
+        <div class="of-price-box"><div class="of-price-big">{{ d.price | number:'1.0-2' }} $</div></div>
+        <div class="of-price-box"><div class="of-price-big">{{ d.deliveryDays }} يوم</div></div>
         <div class="of-tags">
-          <span class="of-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
-          <span class="of-spec">{{ d.spec }}</span>
+          <span class="of-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] || d.status }}</span>
         </div>
       </div>
 
       <div class="of-md-grid">
         <div class="of-md-main">
+          @if (d.aiReview; as ai) {
+            <div class="of-ai-panel">
+              <svg viewBox="0 0 24 24"><use href="#i-ai"/></svg>
+              <div>
+                <div class="of-card-ttl">مراجعة WaseetAI للعرض</div>
+                <div class="of-neg-tags">
+                  @if (ai.matchScore !== null) { <span class="of-neg-tag">درجة المطابقة: {{ ai.matchScore }}</span> }
+                  @if (ai.qualityTag) { <span class="of-neg-tag">الجودة: {{ ai.qualityTag }}</span> }
+                  @if (ai.priceTag) { <span class="of-neg-tag">السعر: {{ ai.priceTag }}</span> }
+                </div>
+                @if (aiSummary(d)) { <p>{{ aiSummary(d) }}</p> }
+              </div>
+            </div>
+          }
+
           <div class="of-card">
-            <div class="of-card-ttl">سجل التفاوض الكامل</div>
-            @for (r of d.negotiationRounds; track $index) {
-              <div class="of-neg-item">
-                <div class="of-neg-dot" [ngClass]="negDotClasses[r.kind]">{{ r.dot }}</div>
-                <div class="of-neg-body">
-                  <div class="of-neg-title" [class.of-neg-title-accept]="r.kind === 'accepted'">{{ r.title }}</div>
-                  <p class="of-neg-note-txt">{{ r.note }}</p>
-                  @if (r.tags.length) {
-                    <div class="of-neg-tags">
-                      @for (t of r.tags; track t) {
-                        <span class="of-neg-tag">{{ t }}</span>
-                      }
-                    </div>
+            <div class="of-card-ttl">نص العرض</div>
+            @if (d.message) { <p class="of-text">{{ d.message }}</p> } @else { <p class="of-text of-muted">لا توجد رسالة</p> }
+            @if (toList(d.advantages).length) {
+              <div class="of-card-ttl" style="margin-top:12px">المزايا</div>
+              <ul class="of-list">@for (a of toList(d.advantages); track $index) { <li>{{ a }}</li> }</ul>
+            }
+            @if (toList(d.outputs).length) {
+              <div class="of-card-ttl" style="margin-top:12px">المخرجات</div>
+              <ul class="of-list">@for (a of toList(d.outputs); track $index) { <li>{{ a }}</li> }</ul>
+            }
+          </div>
+
+          <div class="of-card">
+            <div class="of-card-ttl">مراحل التنفيذ</div>
+            @if (d.milestones.length === 0) {
+              <p class="of-text of-muted">لا توجد مراحل محددة</p>
+            } @else {
+              <table class="of-mini-tbl">
+                <thead><tr><th>#</th><th>المرحلة</th><th>المدة</th><th>النسبة</th><th>المبلغ</th></tr></thead>
+                <tbody>
+                  @for (m of d.milestones; track m.id) {
+                    <tr>
+                      <td>{{ m.stepOrder }}</td>
+                      <td>{{ m.title }}@if (m.description) { <div class="of-muted">{{ m.description }}</div> }</td>
+                      <td>@if (m.days !== null) { {{ m.days }} يوم } @else { — }</td>
+                      <td>@if (m.percentage !== null) { {{ m.percentage }}% } @else { — }</td>
+                      <td>@if (m.amount !== null) { {{ m.amount | number:'1.0-2' }} $ } @else { — }</td>
+                    </tr>
                   }
-                  <div class="of-neg-time">{{ r.time }}</div>
-                </div>
-              </div>
+                </tbody>
+              </table>
             }
-            <div class="of-neg-summary">{{ d.negotiationSummary }}</div>
           </div>
 
           <div class="of-card">
-            <div class="of-card-ttl">Reliability Score لمقدم الخدمة</div>
-            <div class="of-reliab-row">
-              <div class="of-reliab-score">
-                <div class="of-reliab-num">{{ d.reliability }}</div>
-                <div class="of-reliab-lbl">Reliability</div>
-              </div>
-              <div class="of-rel-bars">
-                @for (b of d.reliabilityBars; track b.label) {
-                  <div class="of-rel-bar">
-                    <div class="of-rel-bar-lbl"><span>{{ b.label }}</span><strong>{{ b.value }}</strong></div>
-                    <div class="of-rel-track"><div class="of-rel-fill" [style.width.%]="b.width" [style.background]="b.color"></div></div>
+            <div class="of-card-ttl">التفاوض</div>
+            <div class="of-neg-summary">{{ negotiationLabels[d.negotiation.state] || d.negotiation.state }}</div>
+            @if (d.negotiation.entries.length === 0) {
+              <p class="of-text of-muted" style="margin-top:8px">لا توجد جولات تفاوض مسجلة</p>
+            } @else {
+              @for (e of d.negotiation.entries; track $index) {
+                <div class="of-neg-item">
+                  <div class="of-neg-dot of-dot-step">{{ $index + 1 }}</div>
+                  <div class="of-neg-body">
+                    <div class="of-neg-title">{{ entryKind(e.kind) }}</div>
+                    <div class="of-neg-tags">
+                      @if (e.price !== null) { <span class="of-neg-tag">{{ e.price | number:'1.0-2' }} $</span> }
+                      @if (e.deliveryDays !== null) { <span class="of-neg-tag">{{ e.deliveryDays }} يوم</span> }
+                    </div>
+                    @if (e.notes) { <p class="of-neg-note-txt">{{ e.notes }}</p> }
+                    <div class="of-neg-time">{{ e.createdAt | date: 'yyyy-MM-dd HH:mm' }}</div>
                   </div>
-                }
-              </div>
-            </div>
-            <div class="of-rel-stat-grid">
-              <div class="of-rel-stat"><div class="of-rel-stat-val">{{ d.projectsCompleted }}</div><div class="of-rel-stat-lbl">مشروع منجز</div></div>
-              <div class="of-rel-stat"><div class="of-rel-stat-val">{{ d.rating.toFixed(1) }}★</div><div class="of-rel-stat-lbl">متوسط التقييم</div></div>
-              <div class="of-rel-stat"><div class="of-rel-stat-val">{{ d.level }}</div><div class="of-rel-stat-lbl">المستوى</div></div>
-            </div>
-          </div>
-
-          <div class="of-card">
-            <div class="of-card-ttl">مقارنة بعروض مشابهة</div>
-            <div class="of-mkt-banner" [class.warn]="d.marketBannerWarn">{{ d.marketBanner }}</div>
-            @for (s of d.similarOffers; track s.title) {
-              <div class="of-sim-item">
-                <div class="of-sim-av" [style.background]="s.bg">{{ s.initial }}</div>
-                <div class="of-sim-body">
-                  <div class="of-sim-title">{{ s.title }}</div>
-                  <div class="of-sim-meta">{{ s.spec }} · {{ s.days }}</div>
                 </div>
-                <div class="of-sim-price"><strong>{{ s.price }}</strong><span>{{ s.status }}</span></div>
-              </div>
+              }
             }
-            <div class="of-mkt-note">{{ d.marketNote }}</div>
           </div>
         </div>
 
@@ -94,27 +112,20 @@
           <div class="of-card">
             <div class="of-card-ttl">بيانات العرض</div>
             <div class="of-info-row"><span class="of-info-lbl">رقم العرض</span><span class="of-info-val" style="font-family:monospace;font-size:11px">{{ d.id }}</span></div>
-            <div class="of-info-row"><span class="of-info-lbl">المبلغ</span><span class="of-info-val">{{ d.price }}</span></div>
-            <div class="of-info-row"><span class="of-info-lbl">المدة</span><span class="of-info-val">{{ d.days }}</span></div>
-            <div class="of-info-row"><span class="of-info-lbl">مقارنة السوق</span><span class="of-info-val" [ngClass]="priceIntel(d).cls">{{ priceIntel(d).label }}</span></div>
-            <div class="of-info-row"><span class="of-info-lbl">تاريخ العرض</span><span class="of-info-val">{{ d.date }}</span></div>
-            @if (d.acceptedDate) {
-              <div class="of-info-row"><span class="of-info-lbl">تاريخ القبول</span><span class="of-info-val">{{ d.acceptedDate }}</span></div>
-            }
+            <div class="of-info-row"><span class="of-info-lbl">المبلغ</span><span class="of-info-val">{{ d.price | number:'1.0-2' }} $</span></div>
+            <div class="of-info-row"><span class="of-info-lbl">المدة</span><span class="of-info-val">{{ d.deliveryDays }} يوم</span></div>
+            <div class="of-info-row"><span class="of-info-lbl">موافقة الشروط</span><span class="of-info-val">{{ d.agreedToTerms ? 'نعم' : 'لا' }}</span></div>
+            <div class="of-info-row"><span class="of-info-lbl">موافقة الضمان</span><span class="of-info-val">{{ d.agreedToEscrow ? 'نعم' : 'لا' }}</span></div>
+            <div class="of-info-row"><span class="of-info-lbl">تاريخ العرض</span><span class="of-info-val">{{ d.createdAt | date: 'yyyy-MM-dd' }}</span></div>
             <div class="of-info-row">
               <span class="of-info-lbl">الطلب المرتبط</span>
-              <a class="of-info-val of-info-link" [routerLink]="['/supper-admin-overview/requests']">{{ d.linkedRequestId }}</a>
+              <a class="of-info-val of-info-link" [routerLink]="['/supper-admin-overview/requests', d.requestId]">{{ d.requestTitle }}</a>
             </div>
-            @if (d.linkedContractId) {
+            <div class="of-info-row"><span class="of-info-lbl">حالة الطلب</span><span class="of-info-val">{{ requestLabels[d.requestStatus] || d.requestStatus }}</span></div>
+            @if (d.contract; as ct) {
               <div class="of-info-row">
                 <span class="of-info-lbl">العقد</span>
-                <a class="of-info-val of-info-link" [routerLink]="['/supper-admin-overview/contracts']">{{ d.linkedContractId }}</a>
-              </div>
-            }
-            @if (d.linkedProjectId) {
-              <div class="of-info-row">
-                <span class="of-info-lbl">المشروع</span>
-                <a class="of-info-val of-info-link" [routerLink]="['/supper-admin-overview/projects']">{{ d.linkedProjectId }}</a>
+                <a class="of-info-val of-info-link" [routerLink]="['/supper-admin-overview/contracts', ct.id]">{{ contractLabels[ct.status] || ct.status }} · {{ ct.price | number:'1.0-2' }} $</a>
               </div>
             }
           </div>
@@ -122,36 +133,42 @@
           <div class="of-card">
             <div class="of-card-ttl">مقدم الخدمة</div>
             <div class="of-prov-head">
-              <div class="of-prov-av" [style.background]="d.pBg">{{ d.pAv }}</div>
               <div>
-                <div class="of-prov-name">{{ d.provider }}</div>
-                <div class="of-prov-sub">{{ d.level }} · {{ d.rating.toFixed(1) }}★ · {{ d.projectsCompleted }} مشروع</div>
+                <div class="of-prov-name">{{ d.provider.name }}</div>
+                <div class="of-prov-sub">{{ d.provider.email }}</div>
+                <div class="of-prov-sub">@if (d.provider.rating) { {{ d.provider.rating }}★ · } {{ d.provider.completedProjects }} مشروع منجز</div>
               </div>
             </div>
-            <div class="of-info-row"><span class="of-info-lbl">إجمالي إيراداته</span><span class="of-info-val" style="color:#0FA99A">{{ d.providerRevenue }}</span></div>
-            <div class="of-info-row"><span class="of-info-lbl">Reliability</span><span class="of-info-val" style="color:#2BD4C7">{{ d.reliability }}/100</span></div>
-            <div class="of-info-row"><span class="of-info-lbl">نزاعات سابقة</span><span class="of-info-val">{{ d.providerDisputesText }}</span></div>
-            <a class="of-btn of-btn-ghost of-btn-block" [routerLink]="['/supper-admin-overview/users']">عرض الملف الكامل</a>
+            <a class="of-btn of-btn-ghost of-btn-block" [routerLink]="['/supper-admin-overview/users', d.provider.userId]">عرض الملف الكامل</a>
           </div>
 
           <div class="of-card">
-            <div class="of-card-ttl">إجراءات الإدارة</div>
-            @if (actionMessage()) {
-              <div class="of-action-msg">{{ actionMessage() }}</div>
-            }
-            <div class="of-md-actions">
-              <button type="button" class="of-btn of-btn-ghost of-btn-block" (click)="notifyProvider()">إشعار مقدم الخدمة</button>
-              <button type="button" class="of-btn of-btn-warn of-btn-block" (click)="suspendOffer()">تعليق العرض</button>
-              @if (d.linkedContractId) {
-                <button type="button" class="of-btn of-btn-danger of-btn-block" (click)="cancelContract()">إلغاء العقد المرتبط</button>
-              }
-              @if (d.linkedProjectId) {
-                <a class="of-btn of-btn-ghost of-btn-block" [routerLink]="['/supper-admin-overview/projects']">فتح المشروع</a>
-              }
+            <div class="of-card-ttl">صاحب الطلب</div>
+            <div class="of-prov-head">
+              <div>
+                <div class="of-prov-name">{{ d.client.name }}</div>
+                <div class="of-prov-sub">{{ d.client.email }}</div>
+                <div class="of-prov-sub">@if (d.client.rating) { {{ d.client.rating }}★ · } {{ d.client.completedProjects }} مشروع منجز</div>
+              </div>
             </div>
+            <a class="of-btn of-btn-ghost of-btn-block" [routerLink]="['/supper-admin-overview/users', d.client.userId]">عرض الملف الكامل</a>
+          </div>
+
+          <div class="of-actions" style="display:flex;flex-direction:column;gap:8px">
+            <button type="button" class="of-btn of-btn-ghost of-btn-block" (click)="notifyOpen.set(true)">إشعار مقدم الخدمة</button>
+            <button type="button" class="of-btn of-btn-warn of-btn-block" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">تعليق العرض</button>
+            @if (d.contract) {
+              <button type="button" class="of-btn of-btn-danger of-btn-block" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">إلغاء العقد المرتبط</button>
+            }
+            <a class="of-btn of-btn-ghost of-btn-block" [routerLink]="['/supper-admin-overview/projects', d.requestId]">فتح المشروع</a>
+            <div class="of-ro-note">{{ stateChangeReason }}</div>
           </div>
         </div>
       </div>
     </div>
   }
 </section>
+
+@if (notifyOpen() && selected(); as sd) {
+  <sa-notify-modal [userId]="sd.provider!.userId" [userName]="sd.provider!.name || 'مقدم الخدمة'" [context]="{ type: 'OFFER', id: sd.id }" (closed)="notifyOpen.set(false)" (sent)="onNotifySent()"></sa-notify-modal>
+}

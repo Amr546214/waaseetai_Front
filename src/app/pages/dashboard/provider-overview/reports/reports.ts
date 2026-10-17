@@ -1,8 +1,10 @@
+import { isRateLimitError } from '../../../../core/utils/rate-limit.util';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ProviderApiService, ProviderReportRange, ProviderReports } from '../../../../core/services/provider-api.service';
 import { AccountType } from '../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 
 @Component({
   selector: 'app-reports',
@@ -13,6 +15,7 @@ import { AccountType } from '../../../../core/models/auth.model';
 export class Reports implements OnInit {
   private authStore = inject(AuthStore);
   private providerApi = inject(ProviderApiService);
+  private notify = inject(UiNotificationService);
 
   /** Real provider statistics (GET /provider/statistics) — the only source behind this page's KPI cards. */
   stats = signal<{ summary?: { monthlyEarnings?: number; humanRating?: number | null } } | null>(null);
@@ -25,7 +28,7 @@ export class Reports implements OnInit {
   ngOnInit() {
     this.providerApi.getProviderStatistics().subscribe({
       next: (res: any) => this.stats.set(res?.success ? res.data : null),
-      error: () => this.stats.set(null)
+      error: (e) => { if (!isRateLimitError(e)) this.stats.set(null); }
     });
     this.loadReports();
   }
@@ -99,7 +102,6 @@ export class Reports implements OnInit {
   currentTab = signal<string>('orders');
   currentPeriod = signal<string>('month');
   showDatePicker = signal<boolean>(false);
-  showToast = signal<string>('');
   
   // Filters
   orderStatus = signal<string>('all');
@@ -120,8 +122,38 @@ export class Reports implements OnInit {
     this.loadReports();
   }
   
-  openToast(msg: string) {
-    this.showToast.set(msg);
-    setTimeout(() => this.showToast.set(''), 3000);
+  /** CSV of the data currently loaded on the page (GET /provider/reports for the selected range) — no server file involved. */
+  exportCsv() {
+    const r = this.reports();
+    if (!r) { this.notify.warning('لا توجد بيانات محمّلة للتصدير بعد'); return; }
+    const esc = (v: unknown) => { const s = v == null ? '' : String(v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const row = (cells: unknown[]) => cells.map(esc).join(',');
+    const lines: string[] = [
+      row(['الفترة', this.periods.find(p => p.id === r.range)?.label ?? r.range]),
+      '',
+      row(['طلبات العملاء']),
+      row(['العنوان', 'التخصص', 'السعر', 'الحالة', 'التاريخ']),
+      ...r.requests.items.map(i => row([i.title, i.specialty, i.price, this.bucketLabel(i.bucket), i.createdAt?.slice(0, 10)])),
+      '',
+      row(['المعاملات المالية']),
+      row(['الوصف', 'النوع', 'المبلغ', 'العملة', 'الحالة', 'التاريخ']),
+      ...r.payments.transactions.map(t => row([t.description, t.type, t.amount, t.currency, t.status, t.createdAt?.slice(0, 10)])),
+      '',
+      row(['النزاعات']),
+      row(['السبب', 'الحالة', 'التاريخ']),
+      ...r.disputes.items.map(d => row([d.reason, d.status, d.createdAt?.slice(0, 10)])),
+    ];
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `waseet-provider-report-${r.range}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    this.notify.success('تم تنزيل ملف CSV');
+  }
+
+  /** PDF = the browser's print dialog ("Save as PDF"); a server-generated PDF would need a dedicated endpoint. */
+  printReport() {
+    window.print();
   }
 }

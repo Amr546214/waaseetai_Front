@@ -1,9 +1,12 @@
+import { requiredText } from '../../core/forms/required-text.validator';
 import { Directive, signal, computed, inject, OnInit, ElementRef } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { SkillsCatalogService, SkillsCatalogCategory } from '../../core/services/skills-catalog.service';
 import { AccountService } from '../../core/services/account.service';
 import { AuthStore } from '../../core/store/auth.store';
-import { NotificationEngineService } from '../../core/services/notification-engine.service';
+import { UiNotificationService } from '../../core/services/ui-notification.service';
 import { UserRole } from '../../core/models/auth.model';
 import { applyServerFieldErrors, attemptSubmit, focusFirstInvalid, InvalidField } from '../../core/forms/form-helpers';
 import { mapHttpError } from '../../core/forms/http-error';
@@ -62,7 +65,8 @@ export abstract class AddAccountBase implements OnInit {
   private accountService = inject(AccountService);
   public authStore = inject(AuthStore);
   private router = inject(Router);
-  public notifEngine = inject(NotificationEngineService);
+  private notify = inject(UiNotificationService);
+  private skillsCatalog = inject(SkillsCatalogService);
 
   UserRole = UserRole;
 
@@ -79,10 +83,10 @@ export abstract class AddAccountBase implements OnInit {
   createdRole = signal<UserRole | null>(null);
 
   // Form models. One FormGroup per wizard panel so Next validates only the panel the user is on.
-  private readonly requiredTrim = (c: AbstractControl) => (String(c.value ?? '').trim() ? null : { required: true });
+  private readonly requiredTrim = requiredText;
   readonly spec = new FormGroup({
     specMain: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    specExp: new FormControl('3-5 سنوات', { nonNullable: true, validators: [Validators.required] }),
+    specExp: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
   readonly portfolio = new FormGroup({
     portfolioBio: new FormControl('', { nonNullable: true, validators: [this.requiredTrim, Validators.maxLength(1000)] }),
@@ -118,8 +122,11 @@ export abstract class AddAccountBase implements OnInit {
   /** Shown when the server fails or says something we cannot place on a field. Details stay in the console. */
   static readonly SUBMIT_FAILED_MESSAGE = 'تعذر إرسال طلب إضافة الحساب. حاول مرة أخرى أو تواصل مع الدعم.';
 
-  skills = signal<string[]>(['Figma', 'Adobe XD']);
-  skillInput = signal('');
+  /** Skills are picked from the backend catalog of the chosen main specialty (no free text, no preset values). */
+  skills = signal<string[]>([]);
+  skillCategories = signal<SkillsCatalogCategory[]>([]);
+  private specMainValue = toSignal(this.spec.controls.specMain.valueChanges, { initialValue: this.spec.controls.specMain.value });
+  skillOptions = computed<string[]>(() => this.skillCategories().find(c => c.nameAr === this.specMainValue())?.skills ?? []);
 
   currentUser = this.authStore.currentUser;
 
@@ -168,6 +175,15 @@ export abstract class AddAccountBase implements OnInit {
   });
 
   ngOnInit() {
+    this.skillsCatalog.getAll().subscribe({
+      next: res => this.skillCategories.set(res?.success ? (res.data?.categories ?? []) : []),
+      error: () => this.skillCategories.set([])
+    });
+    this.spec.controls.specMain.valueChanges.subscribe(() => {
+      // Skills of another field do not belong to the new one.
+      const allowed = new Set(this.skillOptions());
+      this.skills.update(list => list.filter(sk => allowed.has(sk)));
+    });
     this.fetchAccountTypes();
   }
 
@@ -358,10 +374,7 @@ export abstract class AddAccountBase implements OnInit {
         if (!this.ownedRoles().includes(targetRole)) {
           this.ownedRoles.update(r => [...r, targetRole]);
         }
-        this.notifEngine.triggerToast({
-          title: 'تم تفعيل الحساب بنجاح',
-          message: `تم إضافة وتفعيل حساب ${this.getRoleLabel(targetRole)} لملفك الشخصي بنجاح.`
-        });
+        this.notify.success(`تم إضافة وتفعيل حساب ${this.getRoleLabel(targetRole)} لملفك الشخصي بنجاح.`, { title: 'تم تفعيل الحساب بنجاح' });
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       error: (err) => {
@@ -421,10 +434,7 @@ export abstract class AddAccountBase implements OnInit {
 
     this.accountService.switchActiveRole(roleToSwitch).subscribe({
       next: () => {
-        this.notifEngine.triggerToast({
-          title: 'تم تبديل اللوحة بنجاح',
-          message: `تم التبديل إلى لوحة ${this.getRoleLabel(roleToSwitch)} بنجاح.`
-        });
+        this.notify.success(`تم التبديل إلى لوحة ${this.getRoleLabel(roleToSwitch)} بنجاح.`, { title: 'تم تبديل اللوحة بنجاح' });
         
         let targetUrl = '/client-overview';
         if (roleToSwitch === UserRole.PROVIDER) {
@@ -444,25 +454,6 @@ export abstract class AddAccountBase implements OnInit {
         this.errorMessage.set(msg);
       }
     });
-  }
-
-  addSkill() {
-    const val = this.skillInput().trim();
-    if (val && !this.skills().includes(val)) {
-      this.skills.update(s => [...s, val]);
-      this.skillInput.set('');
-    }
-  }
-
-  removeSkill(skill: string) {
-    this.skills.update(s => s.filter(x => x !== skill));
-  }
-
-  handleSkillKey(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      this.addSkill();
-    }
   }
 
   getTypeLabel(type: string | null): string {

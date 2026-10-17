@@ -15,7 +15,7 @@ const fakeSocket = {
 	disconnect: vi.fn(),
 };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Notifications } from './notifications';
 
@@ -101,7 +101,7 @@ describe('Notifications (provider)', () => {
 		expect(nt.actionUrl).toBe('/provider-overview/business-models/market/svc-4');
 
 		component.onNotificationClick(nt);
-		expect(navigateByUrlSpy).toHaveBeenCalledWith('/provider-overview/business-models/market/svc-4');
+		expect(navigateByUrlSpy).toHaveBeenCalledWith('/provider-overview/business-models/market/svc-4', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('an old MODEL_APPROVED notification with no metadata falls back to the generic center page', () => {
@@ -127,7 +127,7 @@ describe('Notifications (provider)', () => {
 
 		component.onNotificationClick(nt);
 
-		expect(navigateByUrlSpy).toHaveBeenCalledWith('/provider-overview/offers/offer-9/sign-contract');
+		expect(navigateByUrlSpy).toHaveBeenCalledWith('/provider-overview/offers/offer-9/sign-contract', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('a notification with no valid target never navigates on click', () => {

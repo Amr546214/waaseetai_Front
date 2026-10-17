@@ -5,10 +5,10 @@
 		<div>
 			<h1 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">التخصصات المتاحة</h1>
 			<p class="text-sm text-slate-500 dark:text-slate-400 mt-1">التخصصات التي يمكن لمقدمي الخدمة التقدم لاعتمادها
-				في وسيط AI</p>
+				في المنصة</p>
 		</div>
 		<div class="flex gap-2">
-			<button (click)="importCatalog()" [disabled]="isImporting()"
+			<button (click)="promptImportCatalog()" [disabled]="isImporting()"
 				class="inline-flex items-center gap-2 cursor-pointer px-4 py-2 bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
 				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 					stroke-linecap="round" stroke-linejoin="round">
@@ -96,7 +96,7 @@
 				</div>
 				<span class="text-sm font-semibold text-slate-500 dark:text-slate-400">معتمدون نشطون</span>
 			</div>
-			<div class="text-3xl font-black text-[#5DA0FF]">{{ stats().activeProvidersCount | number }}</div>
+			<div class="text-3xl font-black text-[#5DA0FF]">{{ stats().activeProvidersCount | number:'1.0-2' }}</div>
 			<div class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-2">مقدم خدمة</div>
 		</div>
 
@@ -111,12 +111,17 @@
 						<polyline points="20 6 9 17 4 12" />
 					</svg>
 				</div>
-				<span class="text-sm font-semibold text-slate-500 dark:text-slate-400">طلبات اعتماد هذا الشهر</span>
+				<span class="text-sm font-semibold text-slate-500 dark:text-slate-400">طلبات اعتماد بانتظار المراجعة</span>
 			</div>
-			<div class="text-3xl font-black text-[#FFB400]">{{ stats().monthlyAccreditationRequests | number }}</div>
-			<div class="text-xs font-bold text-[#0FA99A] mt-2">طلبات هذا الشهر</div>
+			<div class="text-3xl font-black text-[#FFB400]" data-testid="pending-review-count">{{ pendingReviewCount() === null ? '—' : pendingReviewCount() }}</div>
+			<a routerLink="/supper-admin-overview/specialties-accreditation" class="text-xs font-bold text-[#0FA99A] mt-2 inline-block">مراجعة الطلبات</a>
 		</div>
 	</div>
+
+	@if (statsError()) {
+		<div class="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold" data-testid="stats-error">{{ statsError() }}
+			<button type="button" (click)="loadStats()" class="underline font-bold mr-2 cursor-pointer">إعادة المحاولة</button></div>
+	}
 
 	<!-- Search -->
 	<div class="mb-6 relative">
@@ -132,6 +137,9 @@
 
 	<!-- Categories and Specialties -->
 	<div class="flex-1 overflow-auto pr-1 custom-scrollbar">
+		<div *ngIf="treeError()" class="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold" data-testid="tree-error">{{ treeError() }}
+			<button type="button" (click)="loadTree(searchQuery())" class="underline font-bold mr-2 cursor-pointer">إعادة المحاولة</button></div>
+		<div *ngIf="treeLoading() && filteredCategories().length === 0" class="py-10 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">جاري تحميل الأقسام والتخصصات...</div>
 		<ng-container *ngIf="filteredCategories().length > 0; else noResults">
 			<div *ngFor="let cat of filteredCategories()" class="mb-8 bg-white/40 dark:bg-[#131B36]/40 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800/40">
 				<!-- Category Header -->
@@ -222,7 +230,7 @@
 						<div class="flex gap-4 mb-4">
 							<div class="text-xs text-slate-500 dark:text-slate-400">مقدمون: <span
 									class="font-bold text-slate-700 dark:text-slate-300">{{ s.providersCount }}</span></div>
-							<div class="text-xs text-slate-500 dark:text-slate-400">طلبات/شهر: <span
+							<div class="text-xs text-slate-500 dark:text-slate-400">طلبات اعتماد: <span
 									class="font-bold text-slate-700 dark:text-slate-300">{{ s.monthlyRequests }}</span></div>
 						</div>
 
@@ -262,7 +270,7 @@
 			</div>
 		</ng-container>
 		<ng-template #noResults>
-			<div class="py-16 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
+			<div *ngIf="!treeLoading() && !treeError()" class="py-16 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
 				<svg class="w-12 h-12 mb-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="1.5">
 					<circle cx="11" cy="11" r="8" />
@@ -284,34 +292,36 @@
 
 		<div class="mb-4">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">اسم التخصص</label>
-			<input type="text" [ngModel]="newSpecName()" (ngModelChange)="newSpecName.set($event)"
+			<input id="sp-spec-name" type="text" [ngModel]="newSpecName()" (ngModelChange)="newSpecName.set($event)"
 				placeholder="مثال: تصميم موشن جرافيك"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl">
 		</div>
 
 		<div class="mb-4">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">الرابط (Slug - بالإنجليزية)</label>
-			<input type="text" [ngModel]="newSpecSlug()" (ngModelChange)="newSpecSlug.set($event)"
+			<input id="sp-spec-slug" type="text" [ngModel]="newSpecSlug()" (ngModelChange)="newSpecSlug.set($event)"
 				placeholder="مثال: motion-graphics"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors ltr text-left font-sans">
 		</div>
 
 		<div class="mb-4">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">القسم</label>
-			<ws-select [options]="categoryOptions()" [ngModel]="newSpecCatId()" (ngModelChange)="newSpecCatId.set($event)" ariaLabel="القسم" placeholder="اختر القسم"></ws-select>
+			<ws-select id="sp-spec-cat" [options]="categoryOptions()" [ngModel]="newSpecCatId()" (ngModelChange)="newSpecCatId.set($event)" ariaLabel="القسم" placeholder="اختر القسم"></ws-select>
 		</div>
 
 		<div class="mb-6">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">متطلبات الاعتماد (اختياري)</label>
-			<input type="text" [ngModel]="newSpecReq()" (ngModelChange)="newSpecReq.set($event)"
+			<input id="sp-spec-req" type="text" [ngModel]="newSpecReq()" (ngModelChange)="newSpecReq.set($event)"
 				placeholder="مثال: محفظة أعمال + 3 مشاريع سابقة"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl">
 		</div>
 
+		<p *ngIf="specError()" role="alert" data-testid="spec-error" class="mb-3 text-xs font-bold text-red-500">{{ specError() }}</p>
+
 		<div class="flex justify-end gap-3 mt-2">
 			<button type="button" (click)="closeModal()"
 				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">إلغاء</button>
-			<button type="button" (click)="addSpec()"
+			<button type="button" (click)="addSpec()" [disabled]="specSaving()"
 				class="px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] hover:opacity-90 text-[#070D24] text-sm font-bold rounded-xl transition-all shadow-lg shadow-[#2B7FFF]/20 cursor-pointer">{{ editSpecId() ? 'حفظ التعديلات' : 'إضافة' }}</button>
 		</div>
 	</div>
@@ -327,22 +337,24 @@
 
 		<div class="mb-4">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">اسم القسم</label>
-			<input type="text" [ngModel]="newCategoryName()" (ngModelChange)="newCategoryName.set($event)"
+			<input id="sp-cat-name" type="text" [ngModel]="newCategoryName()" (ngModelChange)="newCategoryName.set($event)"
 				placeholder="مثال: الخدمات اللوجستية"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors rtl">
 		</div>
 
 		<div class="mb-6">
 			<label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">الرابط (Slug - بالإنجليزية)</label>
-			<input type="text" [ngModel]="newCategorySlug()" (ngModelChange)="newCategorySlug.set($event)"
+			<input id="sp-cat-slug" type="text" [ngModel]="newCategorySlug()" (ngModelChange)="newCategorySlug.set($event)"
 				placeholder="مثال: logistics-services"
 				class="w-full h-10 bg-white dark:bg-[#0B1437]/50 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 text-sm text-slate-800 dark:text-white outline-none focus:border-[#2BD4C7] transition-colors ltr text-left font-sans">
 		</div>
 
+		<p *ngIf="categoryError()" role="alert" data-testid="category-error" class="mb-3 text-xs font-bold text-red-500">{{ categoryError() }}</p>
+
 		<div class="flex justify-end gap-3 mt-2">
 			<button type="button" (click)="closeCategoryModal()"
 				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">إلغاء</button>
-			<button type="button" (click)="addCategory()"
+			<button type="button" (click)="addCategory()" [disabled]="categorySaving()"
 				class="px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] hover:opacity-90 text-[#070D24] text-sm font-bold rounded-xl transition-all shadow-lg shadow-[#2B7FFF]/20 cursor-pointer">
 				{{ editCategoryId() ? 'حفظ التعديلات' : 'إضافة القسم' }}
 			</button>
@@ -379,26 +391,19 @@
 			<span>{{ confirmWarning() }}</span>
 		</div>
 
+		<p *ngIf="confirmError()" role="alert" data-testid="confirm-error" class="mb-3 text-xs font-bold text-red-500">{{ confirmError() }}</p>
+
 		<div class="flex justify-end gap-3 mt-4">
 			<button type="button" (click)="closeConfirmModal()" [disabled]="isConfirmLoading()"
 				class="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer">
 				إلغاء
 			</button>
-			<button type="button" (click)="executeConfirmAction()" [disabled]="isConfirmLoading()"
-				class="px-5 py-2 bg-gradient-to-r from-red-500 to-rose-600 hover:opacity-90 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-red-500/25 cursor-pointer flex items-center gap-2">
+			<button type="button" (click)="executeConfirmAction()" [disabled]="isConfirmLoading()" data-testid="confirm-action"
+				class="px-5 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-red-500/25 cursor-pointer flex items-center gap-2 hover:opacity-90"
+				[style.background]="confirmDanger() ? null : 'linear-gradient(90deg,#0FA99A,#2B7FFF)'">
 				<svg *ngIf="isConfirmLoading()" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
-				<span>{{ isConfirmLoading() ? 'جاري الحذف...' : 'تأكيد الحذف' }}</span>
+				<span>{{ isConfirmLoading() ? confirmBusyLabel() : confirmButtonLabel() }}</span>
 			</button>
 		</div>
 	</div>
-</div>
-
-<!-- Floating Toast Notification -->
-<div *ngIf="isToastOpen()"
-	class="fixed bottom-6 left-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-2xl backdrop-blur-md transition-all duration-300"
-	[class.bg-emerald-950\/90]="toastType() === 'success'" [class.border-emerald-500\/30]="toastType() === 'success'" [class.text-emerald-200]="toastType() === 'success'"
-	[class.bg-rose-950\/90]="toastType() === 'error'" [class.border-rose-500\/30]="toastType() === 'error'" [class.text-rose-200]="toastType() === 'error'">
-	<svg *ngIf="toastType() === 'success'" class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-	<svg *ngIf="toastType() === 'error'" class="w-5 h-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-	<span class="text-sm font-bold">{{ toastMessage() }}</span>
 </div>

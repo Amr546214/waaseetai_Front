@@ -37,6 +37,7 @@ function setup() {
 		discount: signal(0),
 		total: signal(4500),
 		coupon: signal(null),
+		couponNotice: signal<string | null>(null),
 	};
 	const fakeCheckoutApi = {
 		getPaymentMethods: () => of({ success: true, data: [{ id: 'wallet', balance: 10000 }] }),

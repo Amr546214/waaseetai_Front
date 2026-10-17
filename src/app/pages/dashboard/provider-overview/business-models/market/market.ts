@@ -6,6 +6,7 @@ import { NewProjectService } from '../../../../../core/services/new-project.serv
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 export interface ModelAiAudit {
 	status: 'PENDING' | 'READY' | 'NOT_ENOUGH_DATA' | 'FAILED';
@@ -77,6 +78,7 @@ export class Market implements OnInit, OnDestroy {
 	private router = inject(Router);
 	public themeService = inject(ThemeService);
 	private authStore = inject(AuthStore);
+	private notify = inject(UiNotificationService);
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -109,8 +111,6 @@ export class Market implements OnInit, OnDestroy {
 	isLoading = signal<boolean>(false);
 	errorMessage = signal<string | null>(null);
 
-	toastMessage = signal<string | null>(null);
-	private toastTimer: any = null;
 	private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
 	modificationRequests = signal<ModificationRequest[]>([
@@ -228,11 +228,11 @@ export class Market implements OnInit, OnDestroy {
 					...group,
 					models: group.models.map(item => item.id === model.id ? { ...item, status: newStatus } : item)
 				})));
-				this.showToast(isHidden ? 'تم إظهار الخدمة في السوق' : 'تم إخفاء الخدمة عن السوق');
+				this.notify.success(isHidden ? 'تم إظهار الخدمة في السوق' : 'تم إخفاء الخدمة عن السوق');
 			},
 			error: (err) => {
 				console.error('Visibility update failed', err);
-				this.showToast(err?.error?.error || 'تعذر تحديث ظهور الخدمة');
+				this.notify.error(err?.error?.error || 'تعذر تحديث ظهور الخدمة');
 			}
 		});
 	}
@@ -250,7 +250,7 @@ export class Market implements OnInit, OnDestroy {
 	// state for a modification request yet, so this only surfaces the confirmation
 	// the design specifies; it does not remove the request from the list.
 	onSkipRequest(req: ModificationRequest) {
-		this.showToast('تم التخطي على مسؤوليتك');
+		this.notify.info('تم التخطي على مسؤوليتك');
 	}
 
 	// No backend endpoint exists yet to approve a modification request (see
@@ -265,18 +265,7 @@ export class Market implements OnInit, OnDestroy {
 		this.router.navigate(['/provider-overview/business-models/new-project'], { queryParams: { edit: req.id } });
 	}
 
-	showToast(msg: string) {
-		this.toastMessage.set(msg);
-		if (this.toastTimer) {
-			clearTimeout(this.toastTimer);
-		}
-		this.toastTimer = setTimeout(() => {
-			this.toastMessage.set(null);
-		}, 2800);
-	}
-
 	ngOnDestroy(): void {
-		if (this.toastTimer) clearTimeout(this.toastTimer);
 		if (this.searchTimer) clearTimeout(this.searchTimer);
 	}
 }

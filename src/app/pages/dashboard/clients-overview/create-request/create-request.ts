@@ -1,4 +1,4 @@
-import { Component, computed, effect, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import { Component, computed, effect, untracked, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation, ElementRef } from '@angular/core';
 import { canRewrite, checkRewriteOutput, REWRITE_INPUT_REQUIRED_MESSAGE } from './description-rewrite-guard';
 import { parseDescriptionRewrite, REWRITE_PREVIEW_MAX_CHARS } from './description-rewrite-options';
 import { assistantMarkdown } from '../../../../core/help/assistant-content';
@@ -7,10 +7,16 @@ import { FormsModule } from '@angular/forms';
 import { NavigationSkipped, NavigationSkippedCode, Router, RouterLink } from '@angular/router';
 import type { Subscription } from 'rxjs';
 import { ProjectApiService } from '../../../../core/services/project-api.service';
+import { SkillsCatalogService } from '../../../../core/services/skills-catalog.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SpecialtyService } from '../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { FieldProblem, scrollFocus, SubmitGuard } from '../../../../shared/forms/form-error-focus';
+import { hasFieldErrors, reportClientBackend, reportClientProblems } from '../client-form-report';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../../../../core/utils/socket-backoff';
 import { environment } from '../../../../../environments/environment';
 
 import { Step1Specialty } from './components/step1-specialty/step1-specialty';
@@ -104,6 +110,7 @@ interface CreateRequestDraftV1 {
     title: string;
     description: string;
     requirements: string[];
+    requiredSkills?: string[];
     outputs: string;
     deliveryDays: number | null;
     aiReview?: { text: string; original: string; sourceTitle: string; selectedId: string | null; edits: Record<string, string>; status: 'completed' | 'partial' | 'error'; appliedId: string | null };
@@ -139,10 +146,15 @@ interface CreateRequestDraftV1 {
 })
 export class CreateRequest implements OnInit, OnDestroy {
   private socket?: Socket;
+  private notify = inject(UiNotificationService);
   private specialtyService = inject(SpecialtyService);
+  private skillsCatalog = inject(SkillsCatalogService);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
   private authStore = inject(AuthStore);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** One publish at a time: a second click / Enter while the first request runs does nothing. */
+  private publishGuard = new SubmitGuard();
 
   /** Company-mode requests are submitted on behalf of the company and need
    *  manager approval before publishing — see P-SK-002-شركة. */
@@ -161,11 +173,49 @@ export class CreateRequest implements OnInit, OnDestroy {
     // updates) schedules exactly one coalesced save via Angular's effect
     // scheduling — no need to scatter sessionStorage calls per field/step.
     effect(() => this.saveDraft());
+    // The skills a client can ask for come from the backend catalog of the chosen field (no local lists).
+    effect(() => {
+      const id = this.selectedSpec();
+      untracked(() => this.loadSkillOptions(id && id !== 'other' ? id : ''));
+    });
+  }
+
+  // Required skills (step 3): picked from the catalog of the chosen field, sent as `requiredSkills`.
+  skillOptions = signal<string[]>([]);
+  requiredSkills = signal<string[]>([]);
+  skillsLoading = signal(false);
+  skillsCatalogError = signal('');
+  skillsServerError = signal('');
+  private skillsKey = '';
+
+  private loadSkillOptions(key: string): void {
+    if (key === this.skillsKey) return;
+    this.skillsKey = key;
+    this.skillsCatalogError.set('');
+    if (!key) { this.skillOptions.set([]); this.skillsLoading.set(false); return; }
+    this.skillsLoading.set(true);
+    this.skillsCatalog.getCatalog(key).subscribe({
+      next: res => {
+        if (key !== this.skillsKey) return;
+        this.skillOptions.set(res?.success ? (res.data?.skills ?? []) : []);
+        this.skillsLoading.set(false);
+      },
+      error: () => {
+        if (key !== this.skillsKey) return;
+        this.skillOptions.set([]);
+        this.skillsLoading.set(false);
+        this.skillsCatalogError.set('تعذر تحميل مهارات هذا المجال حاليًا.');
+      }
+    });
+  }
+
+  setRequiredSkills(list: string[]): void {
+    this.skillsServerError.set('');
+    this.requiredSkills.set(list.slice(0, 30));
   }
 
   // Multi-step State
   currentStep = signal(1);
-  toast = signal<{ msg: string, type: string } | null>(null);
 
   steps = [
     { num: 1, label: 'التخصص' },
@@ -298,8 +348,10 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.title.set('');
     this.description.set('');
     this.requirements.set([]);
+    this.requiredSkills.set([]);
+    this.skillsServerError.set('');
     this.outputs.set('');
-    this.deliveryDays.set(14);
+    this.deliveryDays.set(null);
     this.budgetType.set('range');
     this.budgetMin.set(null);
     this.budgetMax.set(null);
@@ -378,6 +430,7 @@ export class CreateRequest implements OnInit, OnDestroy {
         title: this.title(),
         description: this.description(),
         requirements: this.requirements(),
+        requiredSkills: this.requiredSkills(),
         outputs: this.outputs(),
         deliveryDays: this.deliveryDays(),
         ...(this.aiStreamText() ? { aiReview: {
@@ -515,6 +568,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.title.set(draft.step3.title ?? '');
     this.description.set(draft.step3.description ?? '');
     this.requirements.set(Array.isArray(draft.step3.requirements) ? draft.step3.requirements : []);
+    this.requiredSkills.set(Array.isArray(draft.step3.requiredSkills) ? draft.step3.requiredSkills : []);
     this.outputs.set(draft.step3.outputs ?? '');
     this.deliveryDays.set(typeof draft.step3.deliveryDays === 'number' ? draft.step3.deliveryDays : null);
     const review = draft.step3.aiReview;
@@ -654,6 +708,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   selectSpec(id: string) {
+    if (id !== this.selectedSpec()) { this.requiredSkills.set([]); this.skillsServerError.set(''); }
     this.selectedSpec.set(id);
     this.selectedSubs.set(new Set());
     this.otherText.set('');
@@ -665,7 +720,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       subs.delete(sub);
     } else {
       if (subs.size >= this.MAX_SUBS) {
-        this.showToast('الحد الأقصى 5 تخصصات فرعية', 'toast-warn');
+        this.notify.warning('الحد الأقصى 5 تخصصات فرعية');
         return;
       }
       subs.add(sub);
@@ -704,7 +759,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   requirements = signal<string[]>([]);
   newRequirement = signal('');
   outputs = signal('');
-  deliveryDays = signal<number | null>(14);
+  deliveryDays = signal<number | null>(null);   // starts empty: the client types the duration, no ready-made number
   showAiSuggest = signal(false);
 
   static readonly TITLE_MAX = 80;
@@ -712,6 +767,15 @@ export class CreateRequest implements OnInit, OnDestroy {
   /** The fields stop at their limits even when the text arrives by paste/drop (the counter never reads past the maximum). */
   setTitle(value: string) { this.title.set((value ?? '').slice(0, CreateRequest.TITLE_MAX)); }
   setDescription(value: string) { this.description.set((value ?? '').slice(0, CreateRequest.DESCRIPTION_MAX)); }
+
+  /** The extra conditions («شروط إضافية») are free text (not skills): they travel with the request's own conditions text. */
+  private composeConditions(): string {
+    const base = this.customConditions().trim();
+    const reqs = this.requirements();
+    if (!reqs.length) return this.customConditions();
+    const line = `شروط إضافية: ${reqs.join('، ')}`;
+    return (base ? `${base}\n${line}` : line).slice(0, 2000);
+  }
 
   addRequirement() {
     const req = this.newRequirement().trim();
@@ -728,18 +792,18 @@ export class CreateRequest implements OnInit, OnDestroy {
   useAiSuggest() {
     const text = this.aiSelectedDraft().trim();
     if (!text) {
-      this.showToast('⚠️ لا يوجد نص مقترح لتطبيقه حالياً', 'toast-warn');
+      this.notify.warning('لا يوجد نص مقترح لتطبيقه حالياً');
       return;
     }
     if (!this.canApplyAiDraft()) {
-      this.showToast('راجع الصياغة المختارة وحدّها وتفاصيلها قبل الاستخدام.', 'toast-warn');
+      this.notify.warning('راجع الصياغة المختارة وحدّها وتفاصيلها قبل الاستخدام.');
       return;
     }
     this.setDescription(text);
     this.aiAppliedOptionId.set(this.aiSelectedOptionId());
     // Alternatives and edited drafts remain available after applying, so choosing another one is reversible.
     this.showAiSuggest.set(true);
-    this.showToast('تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!', 'toast-ok');
+    this.notify.success('تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!');
   }
 
   dismissAiSuggest() {
@@ -777,7 +841,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     const projTitle = this.title().trim();
     if (!this.canRefineWithAi()) {
       // No AI call, no socket, nothing written into the form.
-      this.showToast(REWRITE_INPUT_REQUIRED_MESSAGE, 'toast-warn');
+      this.notify.warning(REWRITE_INPUT_REQUIRED_MESSAGE);
       return;
     }
 
@@ -789,7 +853,7 @@ export class CreateRequest implements OnInit, OnDestroy {
           token = document.cookie.match(/(?:^|;\s*)waseet_token=([^;]+)/)?.[1] || null;
         }
       }
-      this.socket = io(environment.socketUrl, { withCredentials: true, auth: { token } });
+      this.socket = io(environment.socketUrl, { withCredentials: true, ...SOCKET_BACKOFF, auth: { token } });
     }
 
     const currentDesc = this.description().trim();
@@ -830,7 +894,7 @@ export class CreateRequest implements OnInit, OnDestroy {
 
     this.socket.on('ai:description_validation_passed', (data: { message?: string }) => {
       this.aiPhase.set('generating');
-      if (data?.message) this.showToast(data.message, 'toast-ok');
+      if (data?.message) this.notify.success(data.message);
     });
 
     this.socket.on('ai:description_start', (data: any) => {
@@ -857,7 +921,7 @@ export class CreateRequest implements OnInit, OnDestroy {
         // An empty reply: nothing to show, the client's text stays.
         this.aiStreamText.set('');
         if (!restorePreviousReview()) this.showAiSuggest.set(false);
-        this.showToast('لم تُرجع خدمة الصياغة نصًا، فبقي وصفك كما كتبته. حاول مرة أخرى.', 'toast-warn');
+        this.notify.warning('لم تُرجع خدمة الصياغة نصًا، فبقي وصفك كما كتبته. حاول مرة أخرى.');
         return;
       }
       this.aiStreamText.set(checked.text);
@@ -865,10 +929,10 @@ export class CreateRequest implements OnInit, OnDestroy {
       this.aiReviewStatus.set(incomplete ? 'partial' : 'completed');
       this.aiSelectedOptionId.set(this.aiPreview().options[0]?.id ?? null);
       if (incomplete) {
-        this.showToast('الرد غير مكتمل؛ المعاينة محفوظة، ولم يتغير وصفك. أعد المحاولة لاستكمال الصياغة.', 'toast-warn');
+        this.notify.warning('الرد غير مكتمل؛ المعاينة محفوظة، ولم يتغير وصفك. أعد المحاولة لاستكمال الصياغة.');
         return;
       }
-      this.showToast(data?.message || 'اكتملت إعادة الصياغة، راجعها قبل اعتمادها', 'toast-ok');
+      this.notify.success(data?.message || 'اكتملت إعادة الصياغة، راجعها قبل اعتمادها');
     });
 
     this.socket.on('ai:description_error', (data: { message?: string; partialText?: string; truncated?: boolean }) => {
@@ -880,7 +944,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       this.aiSelectedOptionId.set(this.aiSelectedOptionId() ?? this.aiPreview().options[0]?.id ?? null);
       this.aiReviewError.set(data?.message || 'تعذرت إعادة الصياغة. وصفك والمقترحات السابقة محفوظة.');
       this.showAiSuggest.set(!!this.aiStreamText());
-      this.showToast(data?.message || 'تعذر الاتصال بخدمة الذكاء الاصطناعي حالياً. حاول مرة أخرى لاحقاً.', 'toast-warn');
+      this.notify.error(data?.message || 'تعذر الاتصال بخدمة الذكاء الاصطناعي حالياً. حاول مرة أخرى لاحقاً.');
     });
 
     this.socket.emit('ai:generate_description', {
@@ -1025,7 +1089,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       const newFiles = Array.from(input.files);
       const invalid = newFiles.find(file => file.size > 10 * 1024 * 1024);
       if (invalid) {
-        this.showToast(`الملف "${invalid.name}" يتجاوز الحد الأقصى 10MB`, 'toast-warn');
+        this.notify.warning(`الملف "${invalid.name}" يتجاوز الحد الأقصى 10MB`);
       }
       const validFiles = newFiles.filter(file => file.size <= 10 * 1024 * 1024);
       this.files.update(f => [...f, ...validFiles].slice(0, 5));
@@ -1038,7 +1102,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     if (!this.requirements().includes(requirement)) {
       this.requirements.update(r => [...r, requirement]);
     }
-    this.showToast(`تمت إضافة "${name}" إلى قائمة المتطلبات الإلزامية`, 'toast-ok');
+    this.notify.success(`تمت إضافة "${name}" إلى قائمة الشروط الإضافية`);
   }
 
   // ==============================
@@ -1057,7 +1121,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       return true; // All fields have defaults
     }
     if (step === 3) {
-      return this.title().trim().length >= 3 && this.description().trim().length >= 10 && !!this.deliveryDays();
+      return this.title().trim().length >= 3 && this.description().trim().length >= 10 && this.deliveryDaysValid();
     }
     if (step === 4) {
       if (this.budgetType() === 'fixed') {
@@ -1081,10 +1145,81 @@ export class CreateRequest implements OnInit, OnDestroy {
     return true; // Step 5 and 6
   });
 
+  /** Whole days between 1 and 365 (the input's own limits); empty or 0 is NOT a value. */
+  deliveryDaysValid(): boolean {
+    const d = this.deliveryDays();
+    return d !== null && Number.isFinite(d) && Number.isInteger(d) && d >= 1 && d <= 365;
+  }
+
+  /** Every problem that blocks Next on one step, in page order, each tied to the control that shows it. */
+  stepProblems(step: number): FieldProblem[] {
+    const out: FieldProblem[] = [];
+    const add = (field: string, message: string) => out.push({ field, message, step });
+    if (step === 1) {
+      const spec = this.currentSpec();
+      if (!spec) add('f-specialty-grid', 'اختر تخصصًا واحدًا للمتابعة');
+      else if (spec.id === 'other' && this.otherText().trim().length < 5) add('f-other-spec', 'اكتب اسم التخصص بخمسة أحرف على الأقل');
+    } else if (step === 3) {
+      if (this.title().trim().length < 3) add('f-title', 'اكتب عنوانًا للطلب (3 أحرف على الأقل)');
+      if (this.description().trim().length < 10) add('f-desc', 'اكتب وصفًا للطلب (10 أحرف على الأقل)');
+      if (this.deliveryDays() === null) add('f-deadline', 'أدخل أيام التسليم المقترحة');
+      else if (!this.deliveryDaysValid()) add('f-deadline', 'أيام التسليم عدد صحيح من 1 إلى 365');
+    } else if (step === 4) {
+      const type = this.budgetType();
+      const positive = (v: number | null) => v !== null && Number.isFinite(v) && v > 0;
+      if (type === 'fixed') {
+        if (!positive(this.budgetFixed())) add('f-budget-fixed', 'أدخل الميزانية بالدولار');
+      } else if (type === 'hourly') {
+        if (!positive(this.budgetHourly())) add('f-budget-hourly', 'أدخل سعر الساعة بالدولار');
+      } else if (type === 'range') {
+        const lo = this.budgetMin(), hi = this.budgetMax();
+        if (!positive(lo)) add('f-budget-from', 'أدخل الحد الأدنى للميزانية بالدولار');
+        if (!positive(hi)) add('f-budget-to', 'أدخل الحد الأعلى للميزانية بالدولار');
+        else if (positive(lo) && lo! > hi!) add('f-budget-to', 'الحد الأعلى يجب أن يكون أكبر من أو يساوي الحد الأدنى');
+      }
+    }
+    return out;
+  }
+
+  /** Index and field of the first invalid milestone input (rows already show their own message once touched). */
+  private firstMilestoneProblem(): { id: string } | null {
+    const ms = this.milestones();
+    for (let i = 0; i < ms.length; i++) {
+      if (this.isMilestoneNameInvalid(ms[i])) return { id: `ms-name-${i}` };
+      if (this.isMilestonePctInvalid(ms[i])) return { id: `ms-pct-${i}` };
+    }
+    return null;
+  }
+
+  /** Shows WHY Next is blocked: message under each field, red mark, focus on the first one below the sticky header. */
+  private async showStepProblems(step: number): Promise<void> {
+    const root = this.host.nativeElement;
+    const problems = this.stepProblems(step);
+    if (step === 4 && this.splitMilestones() && !problems.length) {
+      this.touchAllMilestones();
+      const row = this.firstMilestoneProblem();
+      if (row) {
+        await new Promise<void>(r => setTimeout(r, 0));
+        const el = root.querySelector<HTMLElement>(`[id="${row.id}"]`);
+        if (el) { el.setAttribute('aria-invalid', 'true'); scrollFocus(el); }
+        return;
+      }
+      const total = this.milestoneTotalPct;
+      problems.push({
+        field: 'ms-section', step,
+        message: this.milestones().length < 2 ? 'أضف مرحلتين على الأقل لتقسيم الدفع' : `مجموع نسب المراحل يجب أن يساوي 100% (الآن ${total}%)`,
+      });
+    } else if (step === 4 && this.splitMilestones()) {
+      this.touchAllMilestones();
+    }
+    if (!problems.length) return;
+    await reportClientProblems(root, problems, { openStep: s => this.currentStep.set(Number(s)) });
+  }
+
   goNext() {
     if (!this.canProceed()) {
-      // Step 4 keeps Next clickable while milestones are split: pressing it reveals every invalid field instead of silently doing nothing.
-      if (this.currentStep() === 4 && this.splitMilestones()) this.touchAllMilestones();
+      // Next stays clickable: pressing it says what is missing, next to the field, and focuses the first one.
+      void this.showStepProblems(this.currentStep());
       return;
     }
     const step = this.currentStep();
@@ -1117,7 +1252,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   showSuccessOverlay = signal(false);
 
   async submitRequest() {
-    if (this.isSubmitting()) return;
+    if (this.isSubmitting() || !this.publishGuard.enter()) return;
     this.isSubmitting.set(true);
 
     let uploadedFileUrls: string[] = [];
@@ -1132,7 +1267,8 @@ export class CreateRequest implements OnInit, OnDestroy {
       } catch (uploadErr) {
         console.error('File upload failed:', uploadErr);
         this.isSubmitting.set(false);
-        this.showToast('تعذر رفع الملفات. تحقق من الاتصال وحاول مرة أخرى.', 'toast-warn');
+        this.publishGuard.release();
+        this.notify.error('تعذر رفع الملفات. تحقق من الاتصال وحاول مرة أخرى.');
         return;
       }
     }
@@ -1153,7 +1289,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       title: this.title(),
       description: this.description(),
       subSpecialties: Array.from(this.selectedSubs()),
-      requiredSkills: this.requirements().length > 0 ? this.requirements() : Array.from(this.selectedSubs()),
+      requiredSkills: this.requiredSkills(),
       budgetType: (this.budgetType() || 'FIXED').toUpperCase(),
       minBudget: minB,
       maxBudget: maxB,
@@ -1162,7 +1298,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       requiresNda: this.ndaType() === 'standard' || this.ndaType() === 'custom',
       attachments: uploadedFileUrls,
       outputs: this.outputs(),
-      customConditions: this.customConditions(),
+      customConditions: this.composeConditions(),
       providerPreferences: {
         level: this.provLevel() || null,
         minRating: this.provRating() ? Number(this.provRating()) : null,
@@ -1178,6 +1314,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.projectApi.createProject(payload).subscribe({
       next: (res) => {
         this.isSubmitting.set(false);
+        this.publishGuard.release();
         // Only clear the draft once the backend has actually confirmed the
         // request was published — never on error, never before this point.
         this.clearDraft();
@@ -1190,18 +1327,38 @@ export class CreateRequest implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isSubmitting.set(false);
+        this.publishGuard.release();
         console.error('Project creation failed:', err);
-        const errMsg = err.error?.message || 'حدث خطأ أثناء رفع الطلب، يرجى المحاولة مرة أخرى';
-        this.showToast(errMsg, 'toast-warn');
+        this.handlePublishError(err);
       }
     });
   }
 
-  showToast(msg: string, type: 'toast-ok' | 'toast-warn') {
-    this.toast.set({ msg, type });
-    setTimeout(() => {
-      this.toast.set(null);
-    }, 3500);
+  /** Server field -> the control (and wizard step) that shows it. Only a 400/422 may land on a field. */
+  private publishFieldMap(): { resolve: Record<string, string>; steps: Record<string, number> } {
+    const type = this.budgetType();
+    const lo = type === 'fixed' ? 'f-budget-fixed' : type === 'hourly' ? 'f-budget-hourly' : 'f-budget-from';
+    const hi = type === 'range' ? 'f-budget-to' : lo;
+    return {
+      resolve: { title: 'f-title', description: 'f-desc', expectedDurationDays: 'f-deadline', minBudget: lo, maxBudget: hi, specialty: 'f-specialty-grid', specialtyId: 'f-specialty-grid', milestones: 'ms-section' },
+      steps: { title: 3, description: 3, expectedDurationDays: 3, minBudget: 4, maxBudget: 4, milestones: 4, specialty: 1, specialtyId: 1 },
+    };
+  }
+
+  private handlePublishError(err: any): void {
+    const mapped = mapHttpError(err, { fallback: 'حدث خطأ أثناء رفع الطلب، يرجى المحاولة مرة أخرى' });
+    const errMsg = err?.error?.message || mapped.message;
+    if (err?.status === 400 && /مهار|skill/i.test(String(errMsg))) {
+      this.skillsServerError.set(errMsg);
+      this.currentStep.set(3);
+      this.notify.error(errMsg);
+      return;
+    }
+    // Network / 429 / 5xx / 403 / 409 and any 400 without field names: one honest generic message, no invented field error.
+    if (!hasFieldErrors(err)) { this.notify.error(mapped.message); return; }
+    void reportClientBackend(this.host.nativeElement, err, { ...this.publishFieldMap(), openStep: s => this.currentStep.set(Number(s)) }).then(r => {
+      this.notify.error(r.handled && !r.generic ? 'راجع الحقول المحددة بالأحمر ثم أعد النشر' : (r.generic || mapped.message));
+    });
   }
 
   ngOnDestroy() {

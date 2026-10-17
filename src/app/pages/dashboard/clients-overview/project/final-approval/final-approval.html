@@ -6,7 +6,7 @@
 		</div>
 	} @else if (error()) {
 		<div class="fa-state fa-state-error" role="alert">
-			<div class="fa-state-ttl">تعذر تحميل صفحة الاعتماد النهائي</div>
+			<div class="fa-state-ttl">تعذر تحميل ملخص الإنجاز</div>
 			<div class="fa-state-code">{{ error() }}</div>
 			<button type="button" class="fa-btn-pri" (click)="retry()">اعادة المحاولة</button>
 		</div>
@@ -22,7 +22,7 @@
 				<div class="fa-hd-l">
 					<span class="fa-av">{{ clientInitial() }}</span>
 					<div>
-						<div class="fa-ttl">خلاصة المشروع: {{ projectTitle() }}</div>
+						<div class="fa-ttl">ملخص الإنجاز: {{ projectTitle() }}</div>
 						<div class="fa-sub">
 							<span class="fa-prov">{{ providerName() }}</span>
 							<span class="fa-dot"></span>
@@ -31,12 +31,16 @@
 						</div>
 					</div>
 				</div>
-				<span class="fa-badge">بانتظار اعتمادك النهائي</span>
+				<span class="fa-badge" data-testid="fa-badge">{{ badgeText() }}</span>
 			</div>
 			<div class="fa-meta">
 				<div class="fa-mi"><div class="l">إجمالي العقد</div><div class="v">{{ formatNumber(totalAmount()) }}<small> $</small></div></div>
-				<div class="fa-mi"><div class="l">أُفرِج سابقًا</div><div class="v fa-v-free">{{ formatNumber(releasedAmount()) }}</div></div>
-				<div class="fa-mi"><div class="l">الدفعة الأخيرة</div><div class="v fa-v-held">{{ formatNumber(finalPayment()) }}</div></div>
+				<div class="fa-mi"><div class="l">أُفرِج عبر المراحل المعتمدة</div><div class="v fa-v-free">{{ formatNumber(releasedAmount()) }}</div></div>
+				@if (settled()) {
+					<div class="fa-mi"><div class="l">محتجز الآن</div><div class="v" data-testid="fa-held-now">{{ formatNumber(financial()?.heldNow || 0) }}</div></div>
+				} @else {
+					<div class="fa-mi"><div class="l">قيمة المرحلة الأخيرة</div><div class="v fa-v-held">{{ formatNumber(finalPayment()) }}</div></div>
+				}
 				<div class="fa-mi"><div class="l">المراحل</div><div class="v">{{ completedStagesCount() }}<small>/{{ stagesCount() }}</small></div></div>
 				<div class="fa-mi"><div class="l">جولات التعديل</div><div class="v">{{ revisionRounds() }}</div></div>
 			</div>
@@ -51,28 +55,10 @@
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
 			</div>
 			<div class="ws-note-body">
-				<div class="ws-note-lbl">وسيط، خلاصة وتسليم المشروع</div>
-				<p class="ws-note-txt">تُعرض هنا كل مرحلة وتسليماتها وتقييماتها لمساعدتك على مراجعة اكتمال التسليم النهائي</p>
+				<div class="ws-note-lbl">ملخص الإنجاز</div>
+				<p class="ws-note-txt">تُعرض هنا كل مرحلة وتسليماتها وتقييماتها كما سُجّلت في المشروع. هذه الصفحة ملخص فقط، ولا تنفّذ اعتمادًا ولا تفرج أي مبلغ.</p>
 			</div>
 		</div>
-
-		<!-- Auto-acceptance warning (P-SK-016 fs-warn) -->
-		@if (showAutoAcceptWarn()) {
-			<div class="fa-warn">
-				<span class="fa-warn-ic">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
-				</span>
-				<div class="fa-warn-b">
-					<b>الاستلام التلقائي خلال {{ autoAcceptDaysLeft() }} أيام.</b>
-					<!-- The former claim that AI would verify the delivery against the contract,
-					     approve it on your behalf and release the payment was removed: no such
-					     AI check or auto-release exists in the backend (AI Cleanup Batch 1). -->
-					آخر موعد لاعتماد التسليم النهائي: <span class="fa-warn-d">{{ formatDate(autoAcceptDeadline()) }}</span>.
-					<div class="fa-warn-bar"><i [style.width.%]="autoAcceptProgressPct()"></i></div>
-					<span class="fa-warn-t">مضى {{ autoAcceptDaysPassed() }} · يتبقّى {{ autoAcceptDaysLeft() }} أيام على الاستلام التلقائي</span>
-				</div>
-			</div>
-		}
 
 		<!-- Stages detail -->
 		<div class="fa-sec-ttl">تفصيل المراحل والتسليمات</div>
@@ -88,13 +74,10 @@
 						}
 					</span>
 					<div class="fa-ms-t">
-						<h4>المرحلة {{ stage.stageNumber || (i + 1) }}: {{ stage.title }}</h4>
+						<h4 data-testid="fa-stage-title">{{ heading(stage, i) }}</h4>
 						<div class="fa-ms-d">{{ statusHint(stage) }}{{ revisionCount(stage) > 0 ? ' · تعديل ' + revisionCount(stage) : '' }}</div>
 					</div>
-					<span class="fa-ms-pay" [class.fa-pay-held]="!isStageCompleted(stage)">
-						@if (isStageCompleted(stage)) { أُفرِج {{ formatNumber(stage.amount) }} $ }
-						@else { محتجز {{ formatNumber(stage.amount) }} $ }
-					</span>
+					<span class="fa-ms-pay" [class.fa-pay-held]="!isStageCompleted(stage) && !closedStage(stage)" data-testid="fa-stage-money">{{ stageMoneyText(stage) }}</span>
 				</div>
 				<div class="fa-ms-body">
 					<!-- Delivery note + file chips -->
@@ -109,11 +92,16 @@
 					<!-- File chips for final stage -->
 					@if (isFinalStage(i) && stageFiles(stage).length > 0) {
 						<div class="fa-finalfiles">
-							@for (file of stageFiles(stage); track file.name || file.url) {
-								<span class="fa-file-chip">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>
-									{{ file.name || 'ملف' }}
-								</span>
+							@for (file of stageFiles(stage); track $index) {
+								@if (openUrl(file); as url) {
+									<a class="fa-file-chip" [href]="url" target="_blank" rel="noopener noreferrer" data-testid="fa-file-open">
+										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>
+										{{ file.name || 'ملف' }}
+									</a>
+									@if (downloadUrl(file); as dl) { <a class="fa-file-chip" [href]="dl" download rel="noopener noreferrer" data-testid="fa-file-download">تنزيل</a> }
+								} @else {
+									<span class="fa-file-chip">{{ file.name || 'ملف' }}</span>
+								}
 							}
 						</div>
 					}
@@ -149,11 +137,8 @@
 									</span>
 									{{ clientRating(stage) }}.0
 								</div>
-							} @else if (isStageCompleted(stage)) {
-								<button type="button" class="fa-rate-btn" (click)="openStageRating(stage)">
-									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-									قيّم المرحلة
-								</button>
+							} @else if (isStageCompleted(stage) && !settled()) {
+								<app-stage-rating-entry [key]="rateKey()" [stageId]="stage.id" />
 							} @else {
 								<div class="fa-eval-sc fa-eval-pending">—</div>
 							}
@@ -163,7 +148,24 @@
 			</div>
 		}
 
-		<!-- Financial settlement -->
+		<!-- Financial summary: the same source as the workspace (lifecycle.financial). A settled project shows the settlement's own figures, never "everything released". -->
+		@if (settled() && settlement(); as st) {
+		<div class="fa-settle" data-testid="fa-settlement">
+			<div class="fa-settle-hd">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 14.5h4a2 2 0 0 0 0-4h-3a2 2 0 0 1 0-4h4"/><path d="M12 6.2v1.4M12 16.4v1.4"/></svg>
+				أُغلق بتسوية نزاع: الخلاصة المالية
+			</div>
+			<div class="fa-settle-rows">
+				<div class="fa-srow"><span>قيمة العقد (تعاقدية قبل التسوية)</span><b>{{ formatNumber(financial()?.contractValue) }} $</b></div>
+				<div class="fa-srow"><span>أُفرِج عبر المراحل المعتمدة</span><b class="fa-v-free" data-testid="fa-stage-released">{{ formatNumber(releasedAmount()) }} $</b></div>
+				<div class="fa-srow"><span>استرداد للعميل بقرار التسوية</span><b data-testid="fa-refund">{{ formatNumber(st.refundToClient) }} $</b></div>
+				<div class="fa-srow"><span>أُفرِج لمقدم الخدمة بقرار التسوية (إجمالي)</span><b data-testid="fa-release">{{ formatNumber(st.releaseToProvider) }} $</b></div>
+				<div class="fa-srow"><span>عمولة المنصة على هذا المبلغ</span><b>{{ formatNumber(st.platformCommission) }} $</b></div>
+				<div class="fa-srow fa-srow-tot"><span>صافي مقدم الخدمة من التسوية</span><b>{{ formatNumber(st.providerNet) }} $</b></div>
+			</div>
+			<p class="fa-settle-note" data-testid="fa-settle-note">{{ financial()?.contractValueNote }}. مبلغ التسوية لا يُنسب إلى مراحل بعينها، ولا يُحتجز الآن أي مبلغ.</p>
+		</div>
+		} @else {
 		<div class="fa-settle">
 			<div class="fa-settle-hd">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 14.5h4a2 2 0 0 0 0-4h-3a2 2 0 0 1 0-4h4"/><path d="M12 6.2v1.4M12 16.4v1.4"/></svg>
@@ -171,62 +173,44 @@
 			</div>
 			<div class="fa-settle-rows">
 				<div class="fa-srow"><span>إجمالي قيمة العقد</span><b>{{ formatNumber(totalAmount()) }} $</b></div>
-				<div class="fa-srow"><span>أُفرِج عبر المراحل السابقة</span><b class="fa-v-free">{{ formatNumber(releasedAmount()) }} $</b></div>
-				<div class="fa-srow"><span>الدفعة النهائية (محتجزة بالضمان)</span><b class="fa-v-held">{{ formatNumber(finalPayment()) }} $</b></div>
-				<div class="fa-srow fa-srow-tot"><span>الرصيد المتبقي من قيمة العقد</span><b>{{ formatNumber(finalPayment()) }} $</b></div>
+				<div class="fa-srow"><span>أُفرِج عبر المراحل المعتمدة</span><b class="fa-v-free">{{ formatNumber(releasedAmount()) }} $</b></div>
+				<div class="fa-srow fa-srow-tot"><span>المتبقي من قيمة العقد</span><b>{{ formatNumber(remainingAmount()) }} $</b></div>
 			</div>
 			<div class="fa-settle-bar">
 				@if (totalAmount() > 0) {
 					<i class="free" [style.width.%]="(releasedAmount() / totalAmount()) * 100"></i>
-					<i class="held" [style.width.%]="(finalPayment() / totalAmount()) * 100"></i>
+					<i class="held" [style.width.%]="(remainingAmount() / totalAmount()) * 100"></i>
 				}
 			</div>
 			<div class="fa-settle-lg">
 				<span><span class="sw fa-sw-free"></span>أُفرِج {{ formatNumber(releasedAmount()) }}</span>
-				<span><span class="sw fa-sw-held"></span>متبقٍ {{ formatNumber(finalPayment()) }}</span>
+				<span><span class="sw fa-sw-held"></span>متبقٍ {{ formatNumber(remainingAmount()) }}</span>
 			</div>
 		</div>
+		}
 
-		<!-- Final acceptance. Copy intentionally does NOT claim this click releases
-		     the final payment — no backend endpoint exists to do that (see
-		     confirmAndRate() in final-approval.ts and BACKEND_BLOCKED_ISSUES.md).
-		     Only real, backend-sourced figures (contract total, already-released
-		     amount, final stage amount) are shown. -->
-		<div class="fa-final">
+		<!-- Summary only: the real completion + escrow release happen when the LAST stage's delivery is approved (stage review endpoint), before this page. -->
+		<div class="fa-final" data-testid="fa-final">
+			@if (allStagesCompleted()) {
 			<div class="fa-final-t">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
-				الاستلام النهائي للمشروع
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+				اكتملت مراحل المشروع
 			</div>
-			<p>باعتمادك النهائي: تستلم حزمة المشروع كاملةً دفعةً واحدة، تنتقل ملكية التصاميم إليك بالكامل، ويبدأ سريان ضمان 30 يومًا.</p>
+			<p>يمكنك الآن تقييم تجربتك مع مقدم الخدمة.</p>
+			} @else if (settled()) {
+			<p data-testid="fa-settled-no-rating">أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه.</p>
+			} @else {
+			<p data-testid="fa-not-complete">لم تكتمل كل مراحل المشروع بعد.</p>
+			}
 			<div class="fa-final-acts">
-				<button type="button" class="fa-btn fa-btn-pri" (click)="openConfirm()">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-					استلام واعتماد المشروع النهائي
-				</button>
+				@if (allStagesCompleted()) {
+				<!-- status-driven: «قيّم المشروع» / «عرض تقييمك» / nothing for a settled or ineligible project -->
+				<app-rating-entry side="client" [key]="rateKey()" [showReason]="false" />
+				}
 				<button type="button" class="fa-btn fa-btn-gh" (click)="openConversation()">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-					عندي ملاحظات، فتح نقاش
+					محادثة المشروع
 				</button>
-			</div>
-		</div>
-	}
-
-	<!-- Confirmation modal (P-SK-016 fsm-modal) -->
-	@if (showConfirmModal()) {
-		<div class="fsm-ov show" role="dialog" aria-modal="true" aria-label="الاعتماد النهائي" (click)="closeConfirm()">
-			<div class="fsm-box" (click)="$event.stopPropagation()">
-				<div class="fsm-ring">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-				</div>
-				<h3>استلام واعتماد المشروع</h3>
-				<p>تستلم حزمة المشروع كاملةً، تنتقل الملكية إليك، ويبدأ سريان ضمان 30 يومًا</p>
-				<div class="fsm-amt"><span>الدفعة النهائية</span><b>{{ formatNumber(finalPayment()) }} <small>$</small></b></div>
-				<div class="fsm-acts">
-					<button type="button" class="fsm-btn fsm-gh" (click)="closeConfirm()" [disabled]="confirming()">تراجع</button>
-					<button type="button" class="fsm-btn fsm-pri" (click)="confirmAndRate()" [disabled]="confirming()">
-						{{ confirming() ? 'جارٍ...' : 'تأكيد الاستلام والتقييم' }}
-					</button>
-				</div>
 			</div>
 		</div>
 	}

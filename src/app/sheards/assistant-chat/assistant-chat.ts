@@ -258,7 +258,6 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		.ac__settings { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; color: var(--txt-3, #8892B0); }
 		.ac__settings label { display: inline-flex; align-items: center; gap: 6px; }
 		.ac__settings select { min-width: 0; padding: 3px 6px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.12)); background: transparent; color: var(--txt, #fff); font: inherit; }
-		.ac__settings option { color: #000; }
 		.ac__listening { color: #ffb1c1; }
 		.ac__chips { display: flex; flex-wrap: wrap; gap: 8px; }
 		.ac__chip { padding: 7px 13px; border-radius: 999px; border: 1px solid rgba(165,107,224,.4); background: rgba(123,47,190,.1); color: var(--txt, #fff); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }

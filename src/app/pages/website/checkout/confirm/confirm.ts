@@ -1,8 +1,12 @@
-import { Component, inject, signal, computed, OnDestroy, ViewChildren, QueryList, ElementRef } from '@angular/core';
+import { Component, inject, signal, computed, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
+import { formatMoney } from '../../../../core/utils/money.util';
+import { WaitTimerService, waitScope } from '../../../../core/wait/wait-timer.service';
+import { RATE_LIMIT_MESSAGE } from '../../../../core/utils/rate-limit.util';
+import { rateLimitSentence } from '../../../../core/wait/wait-format';
 
 @Component({
   selector: 'app-checkout-confirm',
@@ -11,7 +15,7 @@ import { CheckoutService } from '../../../../core/services/checkout.service';
   templateUrl: './confirm.html',
   styleUrls: ['../components/checkout-tokens.css', './confirm.css'],
 })
-export class CheckoutConfirmComponent implements OnDestroy {
+export class CheckoutConfirmComponent {
   step = 4;
 
   @ViewChildren('otpInput') otpInputRefs!: QueryList<ElementRef<HTMLInputElement>>;
@@ -35,9 +39,32 @@ export class CheckoutConfirmComponent implements OnDestroy {
   isProcessing = signal(false);
   errorMessage = signal<string | null>(null);
   resendMessage = signal<string | null>(null);
-  countdown = signal(0);
+  /** Shown right under the code boxes when the user presses confirm before all 6 digits are in. */
+  otpError = signal<string | null>(null);
 
-  private countdownInterval: ReturnType<typeof setInterval> | null = null;
+  // Three DIFFERENT timers, each from the server (never a number written here):
+  //  - validity: when the code stops being valid (expiresAt of the payment OTP); informational, it does not block resend.
+  //  - resend: only when the server answered a resend with 429 (there is no fixed resend gate); disables ONLY the resend button.
+  //  - confirm: only when the server answered the confirmation with 429 and a wait; disables ONLY the confirm button.
+  // End timestamps live in WaitTimerService (survive a refresh / background tab); reaching zero never sends or confirms anything.
+  private readonly waits = inject(WaitTimerService);
+  private readonly orderKey = this.checkoutService.currentOrder()?.id ?? '';
+  readonly validityWait = this.waits.track(waitScope('checkout-otp-valid', this.orderKey));
+  readonly resendWait = this.waits.track(waitScope('checkout-otp-resend', this.orderKey));
+  readonly confirmWait = this.waits.track(waitScope('checkout-otp-confirm', this.orderKey));
+  private readonly rateLimitedNoTime = signal(false);
+  /** True once a code with a known expiry ran out. */
+  private readonly validityKnown = signal(false);
+  codeExpired = computed(() => this.validityKnown() && !this.validityWait.active());
+  rateLimitText = computed(() => {
+    const w = this.confirmWait.active() ? this.confirmWait : this.resendWait.active() ? this.resendWait : null;
+    return w ? rateLimitSentence(w.remainingSeconds(), true) : this.rateLimitedNoTime() ? RATE_LIMIT_MESSAGE : null;
+  });
+
+  constructor() {
+    const exp = this.checkoutService.otpExpiresAt();
+    if (exp != null) { this.validityKnown.set(true); this.validityWait.start(exp); }
+  }
 
   otpValue = computed(() => this.otpDigits().join(''));
   isOtpComplete = computed(() => this.otpValue().length === 6);
@@ -65,6 +92,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
       const lastFilled = Math.min(pasted.length - 1, 5);
       this.focusInput(lastFilled);
       this.errorMessage.set(null);
+      this.otpError.set(null);
       return;
     }
 
@@ -72,6 +100,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
     digits[index] = raw;
     this.otpDigits.set(digits);
     input.value = raw;
+    this.otpError.set(null);
 
     if (raw && index < 5) {
       this.focusInput(index + 1);
@@ -94,9 +123,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
       }
     } else if (event.key === 'Enter') {
       event.preventDefault();
-      if (this.canConfirm()) {
-        this.confirmPayment();
-      }
+      this.confirmPayment();
     }
   }
 
@@ -112,6 +139,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
       const focusIndex = Math.min(pasted.length - 1, 5);
       this.focusInput(focusIndex);
       this.errorMessage.set(null);
+      this.otpError.set(null);
     }
   }
 
@@ -124,10 +152,17 @@ export class CheckoutConfirmComponent implements OnDestroy {
   }
 
   confirmPayment() {
-    if (!this.canConfirm()) return;
+    if (this.isProcessing() || this.confirmWait.active()) return;
+    if (!this.isOtpComplete()) {
+      // Never a silent no-op: say what is needed, next to the boxes, and put the cursor on the first empty one.
+      this.otpError.set('أدخل رمز التحقق المكوّن من 6 أرقام');
+      this.focusInput(Math.max(0, this.otpDigits().findIndex(d => !d)));
+      return;
+    }
     const otp = this.normalizeDigits(this.otpValue());
     this.isProcessing.set(true);
     this.errorMessage.set(null);
+    this.rateLimitedNoTime.set(false);
 
     this.checkoutService.confirmPayment(otp).subscribe({
       next: (result) => {
@@ -138,7 +173,7 @@ export class CheckoutConfirmComponent implements OnDestroy {
             queryParams: orderId ? { orderId } : {},
           });
         } else {
-          this.errorMessage.set(result.message);
+          if (result.errorKind === 'RATE_LIMITED') this.applyRateLimit(this.confirmWait, result.retryEndsAt); else this.errorMessage.set(result.message);
           this.isProcessing.set(false);
         }
       },
@@ -149,17 +184,30 @@ export class CheckoutConfirmComponent implements OnDestroy {
     });
   }
 
+  /** A 429 keeps the typed digits and the order; it waits for the server's time (or says honestly that none was given). */
+  private applyRateLimit(handle: typeof this.confirmWait, endsAt: number | undefined) {
+    this.errorMessage.set(null);
+    if (endsAt != null) { handle.start(endsAt); this.rateLimitedNoTime.set(!handle.active()); } else this.rateLimitedNoTime.set(true);
+  }
+
   resendOtp() {
+    if (this.resendWait.active()) return;
     this.resendMessage.set(null);
+    this.rateLimitedNoTime.set(false);
     this.checkoutService.resendOtp().subscribe({
       next: (result) => {
         if (result.success) {
           this.resendMessage.set(result.message);
-          this.startCountdown();
+          // the NEW code's validity, from the server's expiresAt; no expiry from the server = no timer
+          const exp = this.checkoutService.otpExpiresAt();
+          this.validityKnown.set(exp != null);
+          if (exp != null) this.validityWait.start(exp); else this.validityWait.clear();
           this.otpDigits.set(['', '', '', '', '', '']);
           this.errorMessage.set(null);
           this.focusInput(0);
           setTimeout(() => this.resendMessage.set(null), 3000);
+        } else if (result.errorKind === 'RATE_LIMITED') {
+          this.applyRateLimit(this.resendWait, result.retryEndsAt);
         } else {
           this.errorMessage.set(result.message);
         }
@@ -170,35 +218,12 @@ export class CheckoutConfirmComponent implements OnDestroy {
     });
   }
 
-  private startCountdown() {
-    if (this.countdownInterval) clearInterval(this.countdownInterval);
-    this.countdown.set(120);
-    this.countdownInterval = setInterval(() => {
-      const current = this.countdown();
-      if (current <= 1) {
-        this.countdown.set(0);
-        if (this.countdownInterval) {
-          clearInterval(this.countdownInterval);
-          this.countdownInterval = null;
-        }
-      } else {
-        this.countdown.set(current - 1);
-      }
-    }, 1000);
-  }
+  countdownDisplay = computed(() => this.validityWait.clock());
 
-  countdownDisplay = computed(() => {
-    const seconds = this.countdown();
-    if (seconds <= 0) return '';
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  });
-
-  canResend = computed(() => this.countdown() === 0);
+  canResend = computed(() => !this.resendWait.active());
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return formatMoney(value, 0);
   }
 
   private normalizeDigits(value: string): string {
@@ -218,11 +243,5 @@ export class CheckoutConfirmComponent implements OnDestroy {
       })
       .join('')
       .replace(/\D/g, '');
-  }
-
-  ngOnDestroy() {
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
-    }
   }
 }

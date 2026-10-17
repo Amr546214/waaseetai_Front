@@ -12,7 +12,7 @@
   </div>
 
   <!-- Error Alert -->
-  <div *ngIf="errorMessage()" role="alert" data-testid="add-account-error" class="p-4 mb-6 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-400 text-xs font-bold flex items-center justify-between animate-[ws-fade_0.2s_ease]">
+  <div *ngIf="errorMessage()" role="alert" data-testid="add-account-error" class="form-error p-4 mb-6 border rounded-2xl text-xs font-bold flex items-center justify-between animate-[ws-fade_0.2s_ease]">
     <div class="flex items-center gap-2">
       <svg class="w-4 h-4 text-red-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span>{{ errorMessage() }}</span>
@@ -176,18 +176,17 @@
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             <div class="flex flex-col gap-1.5 md:col-span-2">
-              <label class="text-xs font-bold text-[var(--txt-3)]">التخصص الرئيسي<span class="text-[#2BD4C7] ml-1">*</span></label>
-              <select [formControl]="ctl.specMain" class="inp-field bg-[#0B1437]">
+              <label class="text-xs font-bold text-[var(--txt-3)]">التخصص الرئيسي<span class="ws-req" aria-hidden="true">*</span></label>
+              <select [formControl]="ctl.specMain" aria-required="true" class="inp-field bg-[#0B1437]">
                 <option value="">اختر التخصص</option>
-                <option value="تصميم جرافيك وبصري">تصميم جرافيك وبصري</option>
-                <option value="تطوير ويب وتطبيقات">تطوير ويب وتطبيقات</option>
-                <option value="كتابة محتوى وترجمة">كتابة محتوى وترجمة</option>
+                @for (c of skillCategories(); track c.slug) { <option [value]="c.nameAr">{{ c.nameAr }}</option> }
               </select>
 <ws-field-error [control]="ctl.specMain" label="التخصص الرئيسي" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-bold text-[var(--txt-3)]">سنوات الخبرة<span class="text-[#2BD4C7] ml-1">*</span></label>
-              <select [formControl]="ctl.specExp" class="inp-field bg-[#0B1437]">
+              <label class="text-xs font-bold text-[var(--txt-3)]">سنوات الخبرة<span class="ws-req" aria-hidden="true">*</span></label>
+              <select [formControl]="ctl.specExp" aria-required="true" id="specExp" class="inp-field bg-[#0B1437]">
+                <option value="" disabled>اختر سنوات الخبرة</option>
                 <option>أقل من سنة</option>
                 <option>1-2 سنة</option>
                 <option>3-5 سنوات</option>
@@ -218,16 +217,7 @@
             </div>
           </div>
           
-          <div class="flex flex-wrap gap-2 p-2.5 bg-[rgba(255,255,255,.03)] border border-[rgba(255,255,255,.08)] rounded-xl min-h-[46px] mb-2">
-            <div *ngFor="let skill of skills()" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[rgba(43,127,255,.12)] border border-[rgba(43,127,255,.22)] rounded-full text-xs font-bold text-[#5DA0FF]">
-              {{ skill }}
-              <span class="text-sm leading-none cursor-pointer text-white/30 hover:text-red-400 transition-colors" (click)="removeSkill(skill)">×</span>
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <input type="text" [(ngModel)]="skillInput" (keydown)="handleSkillKey($event)" placeholder="اكتب مهارة واضغط Enter" class="inp-field flex-1">
-            <button type="button" (click)="addSkill()" class="px-3.5 py-2 bg-[rgba(43,212,199,.1)] border border-[rgba(43,212,199,.22)] rounded-lg text-[#2BD4C7] text-xs font-bold hover:bg-[rgba(43,212,199,.18)] transition-colors whitespace-nowrap">+ إضافة</button>
-          </div>
+          <ws-skills-picker [options]="skillOptions()" [selected]="skills()" (selectedChange)="skills.set($event)" emptyMessage="اختر التخصص الرئيسي أولًا لتظهر مهارات مجالك" />
         </div>
       </div>
 
@@ -261,8 +251,8 @@
               <span class="text-[11px] text-[var(--txt-3)]">حجم أقصى 10MB — يُفضل عملاً يعكس تخصصك</span>
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-bold text-[var(--txt-3)]">نبذة مهنية مختصرة<span class="text-[#2BD4C7] ml-1">*</span></label>
-              <textarea [appBioField]="1000" [formControl]="ctl.portfolioBio" class="inp-field min-h-[100px] resize-y" placeholder="اكتب 2-3 جمل تعريفية عن خبراتك ومجال عملك"></textarea>
+              <label class="text-xs font-bold text-[var(--txt-3)]">نبذة مهنية مختصرة<span class="ws-req" aria-hidden="true">*</span></label>
+              <textarea [appBioField]="1000" [formControl]="ctl.portfolioBio" aria-required="true" class="inp-field min-h-[100px] resize-y" placeholder="اكتب 2-3 جمل تعريفية عن خبراتك ومجال عملك"></textarea>
 <ws-field-error [control]="ctl.portfolioBio" label="النبذة المهنية" />
             </div>
           </div>
@@ -299,8 +289,8 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-bold text-[var(--txt-3)]">نوع القناة الرئيسية<span class="text-[#2BD4C7] ml-1">*</span></label>
-              <select [formControl]="ctl.chType" class="inp-field bg-[#0B1437]">
+              <label class="text-xs font-bold text-[var(--txt-3)]">نوع القناة الرئيسية<span class="ws-req" aria-hidden="true">*</span></label>
+              <select [formControl]="ctl.chType" aria-required="true" class="inp-field bg-[#0B1437]">
                 <option value="">اختر</option>
                 <option value="موقع ويب / مدونة">موقع ويب / مدونة</option>
                 <option value="YouTube">YouTube</option>
@@ -340,18 +330,18 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             <div class="flex flex-col gap-1.5 md:col-span-2">
-              <label class="text-xs font-bold text-[var(--txt-3)]">اسم الشركة<span class="text-[#2BD4C7] ml-1">*</span></label>
-              <input type="text" [formControl]="ctl.coName" class="inp-field" placeholder="الاسم الرسمي كما في السجل التجاري">
+              <label class="text-xs font-bold text-[var(--txt-3)]">اسم الشركة<span class="ws-req" aria-hidden="true">*</span></label>
+              <input type="text" [formControl]="ctl.coName" aria-required="true" class="inp-field" placeholder="الاسم الرسمي كما في السجل التجاري">
 <ws-field-error [control]="ctl.coName" label="اسم الشركة" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-bold text-[var(--txt-3)]">رقم السجل التجاري<span class="text-[#2BD4C7] ml-1">*</span></label>
-              <input type="text" [formControl]="ctl.coCrn" class="inp-field" placeholder="XXXXXXXXXX" dir="ltr">
+              <label class="text-xs font-bold text-[var(--txt-3)]">رقم السجل التجاري<span class="ws-req" aria-hidden="true">*</span></label>
+              <input type="text" [formControl]="ctl.coCrn" aria-required="true" class="inp-field" placeholder="XXXXXXXXXX" dir="ltr">
 <ws-field-error [control]="ctl.coCrn" label="رقم السجل التجاري" />
             </div>
             <div class="flex flex-col gap-1.5 md:col-span-2">
-              <label class="text-xs font-bold text-[var(--txt-3)]">منصبك في الشركة<span class="text-[#2BD4C7] ml-1">*</span></label>
-              <input type="text" [formControl]="ctl.coRole" class="inp-field" placeholder="مثال: المدير التنفيذي">
+              <label class="text-xs font-bold text-[var(--txt-3)]">منصبك في الشركة<span class="ws-req" aria-hidden="true">*</span></label>
+              <input type="text" [formControl]="ctl.coRole" aria-required="true" class="inp-field" placeholder="مثال: المدير التنفيذي">
 <ws-field-error [control]="ctl.coRole" label="المنصب" />
             </div>
           </div>

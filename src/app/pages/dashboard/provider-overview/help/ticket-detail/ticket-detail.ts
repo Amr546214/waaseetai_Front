@@ -1,10 +1,14 @@
-import { Component, ChangeDetectionStrategy, OnInit, signal, inject, computed } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
+import { Component, ChangeDetectionStrategy, ElementRef, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { TicketApiService, SupportTicket, SupportTicketMessage, TicketStatus } from '../../../../../core/services/ticket-api.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, reportProblems } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 
 interface TimelineStep { label: string; state: 'done' | 'active' | 'idle'; }
 interface ChatMessage { from: 'me' | 'agent'; name: string; time: string; text: string; }
@@ -33,11 +37,11 @@ const STATUS_LABELS: Record<TicketStatus, string> = {
 };
 
 function formatDate(iso: string): string {
-	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', timeZone: providerTimeZone() });
 }
 
 function formatTime(iso: string): string {
-	return new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+	return new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
 }
 
 function buildTimeline(status: TicketStatus): TimelineStep[] {
@@ -67,6 +71,9 @@ export class TicketDetailComponent implements OnInit {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private ticketApi = inject(TicketApiService);
+	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private replyGuard = new SubmitGuard();
 
 	isCompanyMode = computed<boolean>(() => {
 		const user = this.authStore.currentUser();
@@ -77,7 +84,6 @@ export class TicketDetailComponent implements OnInit {
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
 	replyText = signal<string>('');
-	toast = signal<string | null>(null);
 	sending = signal<boolean>(false);
 	closing = signal<boolean>(false);
 
@@ -95,7 +101,7 @@ export class TicketDetailComponent implements OnInit {
 		const currentUserId = this.authStore.currentUser()?.id;
 		return raw.map(m => ({
 			from: m.senderId === currentUserId ? 'me' : 'agent',
-			name: m.senderId === currentUserId ? 'أنت' : (m.sender ? `${m.sender.firstName} ${m.sender.lastName}` : 'فريق الدعم'),
+			name: m.senderId === currentUserId ? 'أنت' : (m.sender && m.sender.accountType !== 'ADMIN' && m.sender.accountType !== 'SUPER_ADMIN' ? `${m.sender.firstName} ${m.sender.lastName}` : 'فريق الدعم'),
 			time: formatTime(m.createdAt),
 			text: m.body,
 		}));
@@ -139,24 +145,36 @@ export class TicketDetailComponent implements OnInit {
 
 	retry() { this.loadTicket(this.ticketId()); }
 
-	sendReply() {
+	async sendReply() {
+		if (this.sending() || this.replyGuard.busy) return;
+		const root = this.host.nativeElement;
 		const text = this.replyText().trim();
-		if (!text || this.sending()) return;
+		if (!text) {
+			await reportProblems(root, [{ field: 'reply', message: 'اكتب ردّك قبل الإرسال' }]);
+			return;
+		}
+		if (!this.replyGuard.enter()) return;
 		this.sending.set(true);
 		this.ticketApi.replyToTicket('provider', this.ticketId(), text).subscribe({
 			next: (res) => {
 				this.sending.set(false);
+				this.replyGuard.release();
 				if (res.success) {
 					this.replyText.set('');
-					this.showToast('تم إرسال ردّك');
+					this.notify.success('تم إرسال ردّك');
 					this.loadTicket(this.ticketId());
 				} else {
-					this.showToast(res.message || 'تعذر إرسال الرد');
+					this.notify.error(res.message || 'تعذر إرسال الرد');
 				}
 			},
 			error: (err) => {
 				this.sending.set(false);
-				this.showToast(err?.error?.message || 'تعذر إرسال الرد، حاول مرة أخرى');
+				this.replyGuard.release();
+				const mapped = mapHttpError(err, { fallback: 'تعذر إرسال الرد، حاول مرة أخرى' });
+				// Only a 400/422 that names the reply text is shown at the field; anything else stays a generic message.
+				const msg = mapped.kind === 'backend-validation' ? (mapped.fieldErrors['body'] ?? mapped.fieldErrors['message'] ?? mapped.fieldErrors['reply']) : undefined;
+				if (msg) void reportProblems(root, [{ field: 'reply', message: msg }]);
+				else this.notify.error(mapped.message);
 			}
 		});
 	}
@@ -168,22 +186,17 @@ export class TicketDetailComponent implements OnInit {
 			next: (res) => {
 				this.closing.set(false);
 				if (res.success) {
-					this.showToast('أُغلقت التذكرة');
+					this.notify.success('أُغلقت التذكرة');
 					this.loadTicket(this.ticketId());
 				} else {
-					this.showToast(res.message || 'تعذر إغلاق التذكرة');
+					this.notify.error(res.message || 'تعذر إغلاق التذكرة');
 				}
 			},
 			error: (err) => {
 				this.closing.set(false);
-				this.showToast(err?.error?.message || 'تعذر إغلاق التذكرة، حاول مرة أخرى');
+				this.notify.error(err?.error?.message || 'تعذر إغلاق التذكرة، حاول مرة أخرى');
 			}
 		});
-	}
-
-	showToast(msg: string) {
-		this.toast.set(msg);
-		setTimeout(() => this.toast.set(null), 3000);
 	}
 
 	goBack() {

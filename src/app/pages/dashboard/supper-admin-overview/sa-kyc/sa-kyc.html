@@ -5,12 +5,6 @@
       <h1 class="sk-title">KYC / التحقق والمراجعة</h1>
       <p class="sk-sub">مراجعة طلبات التحقق ومقدمي الخدمة واعتماد المستندات</p>
     </div>
-    @if (successMessage()) {
-      <div class="sk-success-toast">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-        {{ successMessage() }}
-      </div>
-    }
   </div>
 
   <!-- Tabs -->
@@ -64,7 +58,7 @@
         <input
           type="text"
           class="sk-search-input"
-          placeholder="ابحث بالاسم أو البريد أو المعرف..."
+          placeholder="ابحث في هذه الصفحة بالاسم أو البريد أو المعرف..."
           [value]="onboardingSearchQuery()"
           (input)="onOnboardingSearchInput($any($event.target).value)"
         />
@@ -210,7 +204,7 @@
         <input
           type="text"
           class="sk-search-input"
-          placeholder="ابحث بالاسم أو البريد أو المعرف..."
+          placeholder="ابحث في كل المقدمين بالاسم أو البريد أو الهاتف أو المعرف..."
           [value]="providersSearchQuery()"
           (input)="onProvidersSearchInput($any($event.target).value)"
         />
@@ -601,20 +595,20 @@
         @if (actionType() === 'approve') {
           <div class="sk-form-group">
             <label class="sk-form-lbl">ملاحظات الإدارة (اختياري)</label>
-            <textarea class="sk-form-input" rows="3" [value]="actionNote()" (input)="actionNote.set($any($event.target).value)" placeholder="ملاحظات..."></textarea>
+            <textarea id="kyc-admin-note" aria-label="ملاحظات الإدارة" class="sk-form-input" rows="3" [value]="actionNote()" (input)="actionNote.set($any($event.target).value)" placeholder="ملاحظات..."></textarea>
           </div>
         } @else {
           <div class="sk-form-group">
             <label class="sk-form-lbl">سبب الرفض <span class="sk-req">*</span></label>
-            <textarea class="sk-form-input" rows="3" [value]="actionReason()" (input)="actionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض..."></textarea>
+            <textarea id="kyc-reject-reason" aria-label="سبب الرفض" class="sk-form-input" rows="3" [value]="actionReason()" (input)="actionReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض..."></textarea>
           </div>
         }
         @if (actionError()) {
-          <div class="sk-modal-error">{{ actionError() }}</div>
+          <div class="sk-modal-error" role="alert" data-testid="kyc-action-error">{{ actionError() }}</div>
         }
         <div class="sk-modal-actions">
           <button type="button" class="sk-btn sk-btn-cancel" (click)="closeActionModal()" [disabled]="processing()">إلغاء</button>
-          <button type="button" class="sk-btn" [class.sk-btn-approve]="actionType() === 'approve'" [class.sk-btn-reject]="actionType() === 'reject'" (click)="confirmAction()" [disabled]="processing() || (actionType() === 'reject' && !actionReason().trim())">
+          <button type="button" class="sk-btn" [class.sk-btn-approve]="actionType() === 'approve'" [class.sk-btn-reject]="actionType() === 'reject'" (click)="confirmAction()" [disabled]="processing()">
             {{ processing() ? 'جاري التنفيذ...' : (actionType() === 'approve' ? 'تأكيد الموافقة' : 'تأكيد الرفض') }}
           </button>
         </div>

@@ -19,7 +19,8 @@ describe('finance copy matches what the backend charges', () => {
 	it('contract signature page checks the wallet against the price (no ×1.13)', () => {
 		const ts = read('pages/dashboard/clients-overview/my-request/contract-signature/contract-signature.ts');
 		expect(ts).not.toContain('1.13');
-		expect(ts).toContain('this.requiredAmount.set(Math.round(offerPrice * 100) / 100);');
+		// the amount comes from the frozen contract's price (GET .../contract), not from the offers list
+		expect(ts).toContain('this.requiredAmount.set(Math.round(Number(c.price || 0) * 100) / 100);');
 	});
 	it('provider wallet: the invented "performance rewards 3%" tile (and its literal 186) is gone', () => {
 		const html = read('pages/dashboard/provider-overview/finance/wallet/wallet.html');
@@ -31,10 +32,11 @@ describe('finance copy matches what the backend charges', () => {
 		expect(read('pages/dashboard/provider-overview/finance/wallet/deposit-modal/deposit-modal.html')).not.toContain('مجاناً');
 		expect(read('sheards/deposit-modal/deposit-modal.html')).not.toContain('مجاناً');
 	});
-	it('invoice: no 15% VAT line (no tax is recorded); a row appears only if the backend ever sends a tax', () => {
+	it('invoice: no 15% VAT line and no tax row at all (no tax is recorded; C2 removed the tax rows from the client invoice pages)', () => {
 		const html = read('pages/dashboard/clients-overview/finance/invoice-details/invoice-details.html');
 		expect(html).not.toContain('ضريبة القيمة المضافة (15%)');
-		expect(html).toContain('invoice-no-tax');
+		expect(html).not.toContain('invoice-tax-row');
+		expect(html).not.toContain('invoice-no-tax');
 	});
 	it('legal + terms: no 1% client fee at escrow, no provider minimum of 500; the deposit fee and the commission-at-release are stated', () => {
 		const legal = read('pages/website/legal/legal-page.component.ts');

@@ -134,6 +134,9 @@
         </div>
       </div>
 
+      @if (rateLimitText) {
+      <div class="banner-error" id="banner-rate-limit-step2" role="alert" data-testid="rate-limit-msg"><span>{{ rateLimitText }}</span></div>
+      }
       @if (errorMessage) {
       <div class="banner-error" id="banner-error" role="alert">
         <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-warn"></use></svg>
@@ -144,7 +147,10 @@
       </div>
       }
 
-      <form id="complete-form" novalidate [formGroup]="basicInfoForm" (ngSubmit)="nextStep()" autocomplete="off">
+      @if (accountCreated) {
+      <div class="banner-info" role="status" data-testid="account-created-note">أُرسل طلب التسجيل. بياناتك محفوظة؛ اضغط «متابعة» للعودة إلى خطوة رمز التحقق، أو صحّح بياناتك (مثل البريد) ثم «متابعة» لإرسال الطلب من جديد.</div>
+      }
+      <form id="complete-form" novalidate [formGroup]="basicInfoForm" (ngSubmit)="nextStep()">
         <div class="form-card">
           <div class="form-card-title">
             <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-user"></use></svg>
@@ -159,48 +165,48 @@
           } @else {
           <div class="social-login">
             <div class="google-btn-wrapper">
-              <button type="button" class="btn-social btn-google" id="btn-google" aria-label="المتابعة مع جوجل">
+              <button type="button" class="btn-social btn-google" id="btn-google" aria-label="المتابعة مع جوجل" [disabled]="googleWait.active()">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                   <path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.91C16.36 14.1 17.64 11.85 17.64 9.2z" fill="#4285F4"/>
                   <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/>
                   <path d="M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.33z" fill="#FBBC05"/>
                   <path d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.96L3.96 7.29C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/>
                 </svg>
-                المتابعة مع جوجل
+                المتابعة مع جوجل@if (googleWait.active()) { <span id="google-wait" data-testid="wait-label"> {{ googleWait.label() }}</span> }
               </button>
+              @if (!googleWait.active()) {
               <asl-google-signin-button type="standard" size="large" text="continue_with" [width]="400" theme="filled_black"></asl-google-signin-button>
+              }
             </div>
-            <button type="button" class="btn-social btn-apple" id="btn-apple" aria-label="المتابعة مع آبل" (click)="appleSignIn()">
+            <button type="button" class="btn-social btn-apple" id="btn-apple" aria-label="المتابعة مع آبل" disabled aria-disabled="true" aria-describedby="apple-unavailable-note" title="تسجيل الدخول عبر Apple غير متاح حاليًا">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
               </svg>
               المتابعة مع آبل
             </button>
           </div>
-          @if (appleNotice) {
-          <div class="social-note">{{ appleNotice }}</div>
-          }
+          <div class="apple-unavailable-note" id="apple-unavailable-note">تسجيل الدخول عبر Apple غير متاح حاليًا</div>
           <div class="social-divider"><span>أو أدخل بياناتك يدوياً</span></div>
           }
 
           <div class="field-2col">
             <div class="field-grp">
-              <label class="field-lbl" for="first-name">الاسم الأول <span class="field-req" aria-hidden="true">*</span></label>
-              <input class="field-in" type="text" id="first-name" formControlName="firstName" placeholder="الاسم الأول" autocomplete="given-name" aria-required="true"
+              <label class="field-lbl" for="first-name">الاسم الأول <span class="ws-req" aria-hidden="true">*</span></label>
+              <input class="field-in" type="text" id="first-name" formControlName="firstName" placeholder="الاسم الأول" autocomplete="given-name" aria-required="true" [attr.aria-invalid]="fieldError('firstName') ? 'true' : null" [attr.aria-describedby]="fieldError('firstName') ? 'err-first-name' : null"
                 [class.has-error]="basicInfoForm.get('firstName')?.touched && basicInfoForm.get('firstName')?.invalid">
               @if (fieldError('firstName'); as msg_firstName) {
-              <div class="field-err" id="err-first-name">
+              <div class="field-err" id="err-first-name" role="alert">
                 <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
                 <span>{{ msg_firstName }}</span>
               </div>
               }
             </div>
             <div class="field-grp">
-              <label class="field-lbl" for="last-name">اسم العائلة <span class="field-req" aria-hidden="true">*</span></label>
-              <input class="field-in" type="text" id="last-name" formControlName="lastName" placeholder="اسم العائلة" autocomplete="family-name" aria-required="true"
+              <label class="field-lbl" for="last-name">اسم العائلة <span class="ws-req" aria-hidden="true">*</span></label>
+              <input class="field-in" type="text" id="last-name" formControlName="lastName" placeholder="اسم العائلة" autocomplete="family-name" aria-required="true" [attr.aria-invalid]="fieldError('lastName') ? 'true' : null" [attr.aria-describedby]="fieldError('lastName') ? 'err-last-name' : null"
                 [class.has-error]="basicInfoForm.get('lastName')?.touched && basicInfoForm.get('lastName')?.invalid">
               @if (fieldError('lastName'); as msg_lastName) {
-              <div class="field-err" id="err-last-name">
+              <div class="field-err" id="err-last-name" role="alert">
                 <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
                 <span>{{ msg_lastName }}</span>
               </div>
@@ -209,12 +215,12 @@
           </div>
 
           <div class="field-grp">
-            <label class="field-lbl" for="email">البريد الإلكتروني <span class="field-req" aria-hidden="true">*</span></label>
-            <input class="field-in" type="email" id="email" formControlName="email" placeholder="name@example.com" autocomplete="email" aria-required="true" dir="ltr" style="text-align:right"
+            <label class="field-lbl" for="email">البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></label>
+            <input class="field-in" type="email" id="email" formControlName="email" placeholder="name@example.com" autocomplete="email" aria-required="true" [attr.aria-invalid]="fieldError('email') ? 'true' : null" [attr.aria-describedby]="fieldError('email') ? 'err-email' : null" dir="ltr" style="text-align:right"
               [readonly]="isGoogleFlow"
               [class.has-error]="basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid">
             @if (fieldError('email'); as msg_email) {
-            <div class="field-err" id="err-email">
+            <div class="field-err" id="err-email" role="alert">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
               <span>{{ msg_email }}</span>
             </div>
@@ -222,10 +228,10 @@
           </div>
 
           <div class="field-grp">
-            <label class="field-lbl" for="mobile">رقم الجوال <span class="field-req" aria-hidden="true">*</span></label>
-            <app-phone-input formControlName="phone"></app-phone-input>
+            <label class="field-lbl" for="mobile">رقم الجوال <span class="ws-req" aria-hidden="true">*</span></label>
+            <app-phone-input formControlName="phone" inputId="mobile" aria-required="true"></app-phone-input>
             @if (fieldError('phone'); as msg_phone) {
-            <div class="field-err" id="err-mobile">
+            <div class="field-err" id="err-mobile" role="alert">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
               <span>{{ msg_phone }}</span>
             </div>
@@ -234,9 +240,9 @@
 
           @if (!isGoogleFlow) {
           <div class="field-grp">
-            <label class="field-lbl" for="password">كلمة المرور <span class="field-req" aria-hidden="true">*</span></label>
+            <label class="field-lbl" for="password">كلمة المرور <span class="ws-req" aria-hidden="true">*</span></label>
             <div class="pw-wrap">
-              <input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" placeholder="8 أحرف على الأقل، حرف كبير ورقم" autocomplete="new-password" aria-required="true" aria-describedby="strength-lbl"
+              <input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" placeholder="8 أحرف على الأقل، حرف كبير ورقم" autocomplete="new-password" aria-required="true" [attr.aria-invalid]="fieldError('password') ? 'true' : null" [attr.aria-describedby]="fieldError('password') ? 'strength-lbl password-rules err-password' : 'strength-lbl password-rules'"
                 [class.has-error]="basicInfoForm.get('password')?.touched && basicInfoForm.get('password')?.invalid">
               <button type="button" class="pw-eye" id="pw-toggle-1" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'اخفاء كلمة المرور' : 'اظهار كلمة المرور'">
                 @if (!showPassword) {
@@ -257,7 +263,7 @@
             </div>
             <div class="field-hint" id="password-rules">يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، وحرف إنجليزي كبير، ورقم.</div>
             @if (fieldError('password'); as msg_password) {
-            <div class="field-err" id="err-password">
+            <div class="field-err" id="err-password" role="alert">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
               <span>{{ msg_password }}</span>
             </div>
@@ -265,9 +271,9 @@
           </div>
 
           <div class="field-grp" style="margin-bottom:0">
-            <label class="field-lbl" for="password-confirm">تأكيد كلمة المرور <span class="field-req" aria-hidden="true">*</span></label>
+            <label class="field-lbl" for="password-confirm">تأكيد كلمة المرور <span class="ws-req" aria-hidden="true">*</span></label>
             <div class="pw-wrap">
-              <input class="field-in" [type]="showConfirmPassword ? 'text' : 'password'" id="password-confirm" formControlName="confirmPassword" placeholder="اعد كتابة كلمة المرور" autocomplete="new-password" aria-required="true"
+              <input class="field-in" [type]="showConfirmPassword ? 'text' : 'password'" id="password-confirm" formControlName="confirmPassword" placeholder="اعد كتابة كلمة المرور" autocomplete="new-password" aria-required="true" [attr.aria-invalid]="confirmMismatchError ? 'true' : null" [attr.aria-describedby]="confirmMismatchError ? 'err-confirm' : null"
                 [class.has-error]="(basicInfoForm.get('confirmPassword')?.touched || basicInfoForm.touched) && basicInfoForm.hasError('mismatch')">
               <button type="button" class="pw-eye" id="pw-toggle-2" (click)="toggleConfirmPassword()" [attr.aria-label]="showConfirmPassword ? 'اخفاء تأكيد كلمة المرور' : 'اظهار تأكيد كلمة المرور'">
                 @if (!showConfirmPassword) {
@@ -278,7 +284,7 @@
               </button>
             </div>
             @if (confirmMismatchError; as msg_confirm) {
-            <div class="field-err" id="err-confirm">
+            <div class="field-err" id="err-confirm" role="alert">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
               <span>{{ msg_confirm }}</span>
             </div>
@@ -311,25 +317,25 @@
 
         <div class="terms-card">
           <label class="chk-row" for="chk-accuracy">
-            <input type="checkbox" id="chk-accuracy" formControlName="agreeData" aria-required="true" [attr.aria-invalid]="fieldError('agreeData') ? 'true' : null">
-            <span>أقر بأن جميع البيانات المدخلة صحيحة ودقيقة وتمثلني بشكل حقيقي <span class="field-req" aria-hidden="true">*</span></span>
+            <input type="checkbox" id="chk-accuracy" formControlName="agreeData" aria-required="true" [attr.aria-invalid]="fieldError('agreeData') ? 'true' : null" [attr.aria-describedby]="fieldError('agreeData') ? 'err-agree-data' : null">
+            <span>أقر بأن جميع البيانات المدخلة صحيحة ودقيقة وتمثلني بشكل حقيقي <span class="ws-req" aria-hidden="true">*</span></span>
           </label>
           @if (fieldError('agreeData'); as msg_agreeData) {
-          <div class="field-err" id="err-agree-data"><span>{{ msg_agreeData }}</span></div>
+          <div class="field-err" id="err-agree-data" role="alert"><span>{{ msg_agreeData }}</span></div>
           }
           <label class="chk-row" for="terms-chk">
-            <input type="checkbox" id="terms-chk" formControlName="agreeTerms" aria-required="true" [attr.aria-invalid]="fieldError('agreeTerms') ? 'true' : null">
-            <span>اطلعت على <a routerLink="/terms" target="_blank" rel="noopener noreferrer">شروط الاستخدام</a> و<a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a> وأوافق عليها <span class="field-req" aria-hidden="true">*</span></span>
+            <input type="checkbox" id="terms-chk" formControlName="agreeTerms" aria-required="true" [attr.aria-invalid]="fieldError('agreeTerms') ? 'true' : null" [attr.aria-describedby]="fieldError('agreeTerms') ? 'err-agree-terms' : null">
+            <span>اطلعت على <a routerLink="/terms" target="_blank" rel="noopener noreferrer">شروط الاستخدام</a> و<a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a> وأوافق عليها <span class="ws-req" aria-hidden="true">*</span></span>
           </label>
           @if (fieldError('agreeTerms'); as msg_agreeTerms) {
-          <div class="field-err" id="err-agree-terms"><span>{{ msg_agreeTerms }}</span></div>
+          <div class="field-err" id="err-agree-terms" role="alert"><span>{{ msg_agreeTerms }}</span></div>
           }
         </div>
 
         <ws-form-summary [items]="missingFields" />
 
         <div class="btn-group">
-          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}</button>
+          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting || registerWait().active()">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}@if (registerWait().active()) { <span id="register-wait" data-testid="wait-label"> {{ registerWait().label() }}</span> }</button>
           <button type="button" class="btn-tertiary" id="btn-back" (click)="currentStep = 1">
             <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
             رجوع
@@ -412,6 +418,10 @@
     </div>
     }
 
+    @if (rateLimitText) {
+    <div class="banner-error" id="banner-rate-limit" role="alert" data-testid="rate-limit-msg"><span>{{ rateLimitText }}</span></div>
+    }
+
     @if (otpNotice && !errorMessage) {
     <div class="banner-success" id="otp-notice" role="status">
       <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
@@ -419,29 +429,35 @@
     </div>
     }
 
+    <div class="banner-info" role="note" data-testid="code-step-help">
+      <span>لم يصلك رمز؟ إن كان لديك حساب مفعّل فلن يصلك رمز هنا.</span>
+      <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
+      <a routerLink="/auth/forget-password" class="banner-error-link" id="code-step-forgot-link">استعادة كلمة المرور</a>
+    </div>
+
     <form [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
       <div class="otp-card">
-        <div class="otp-card-title">رمز التحقق</div>
+        <div class="otp-card-title">رمز التحقق <span class="ws-req" aria-hidden="true">*</span></div>
         <div class="otp-group" id="otp-group" aria-label="خانات رمز التحقق" role="group" dir="ltr" (paste)="onOtpPaste($event)">
           @for (i of otpIndexes; track i) {
-          <input class="otp-box" [class.filled]="!!otpDigit(i)" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+          <input class="otp-box" [class.filled]="!!otpDigit(i)" aria-required="true" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
             [id]="'otp-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
           }
         </div>
 
-        @if (countdown > 0) {
+        @if (resendWait().active()) {
         <div class="timer-block" id="timer-block">
           <span class="timer-label">إعادة الارسال بعد</span>
           <span class="timer-val" id="timer-val" aria-live="polite" dir="ltr">{{ formattedCountdown }}</span>
         </div>
         }
         <div style="text-align:center;margin-top:8px">
-          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="countdown > 0 || isSubmitting" (click)="resendOtp()">اعادة الارسال</button>
+          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="resendWait().active() || isSubmitting" (click)="resendOtp()">اعادة الارسال</button>
         </div>
       </div>
 
       <div class="btn-group" style="margin-top:4px">
-        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isSubmitting" [attr.aria-disabled]="isSubmitting">
+        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isSubmitting || verifyWait().active()" [attr.aria-disabled]="isSubmitting || verifyWait().active()">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-shield"></use></svg>
           {{ isSubmitting ? 'جاري التحقق...' : 'التالي: لوحة التحكم' }}
         </button>

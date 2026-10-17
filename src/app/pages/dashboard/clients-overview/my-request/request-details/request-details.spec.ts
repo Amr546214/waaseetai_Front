@@ -1,12 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { RequestDetails } from './request-details';
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { ChatService } from '../../../../../core/services/chat.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+
+const lastToast = () => TestBed.inject(UiNotificationService).toasts().at(-1)?.message ?? '';
 
 function makeOffer(overrides: Partial<any> = {}): any {
 	return {
@@ -461,5 +464,51 @@ describe('RequestDetails — stored suitability and independent comparison field
 		component.selectedForCompare.set(['مقدم أ', 'مقدم ب']); component.showComparisonView.set(true); fixture.detectChanges();
 		const comparison = fixture.nativeElement.querySelector('.cmp-page-table');
 		expect(comparison.textContent).toContain('ملاءمة الملف للطلب'); expect(comparison.textContent).toContain('88/100'); expect(comparison.textContent).toContain('موافقة الميزانية'); expect(comparison.textContent).toContain('موافقة الموعد'); expect(comparison.textContent).toContain('لم يُراجع الملف بعد');
+	});
+});
+
+describe('RequestDetails — negotiation guard', () => {
+	let component: RequestDetails;
+	let chat: { initiateConversation: ReturnType<typeof vi.fn> };
+
+	beforeEach(async () => {
+		chat = { initiateConversation: vi.fn() };
+		await TestBed.configureTestingModule({
+			imports: [RequestDetails],
+			providers: [
+				{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => null } } } },
+				{ provide: Router, useValue: { navigate: vi.fn() } },
+				{ provide: HttpClient, useValue: { get: () => of({ success: false }), post: () => of({ success: false }) } },
+				{ provide: ThemeService, useValue: { theme: () => 'dark' } },
+				{ provide: ChatService, useValue: chat }
+			]
+		}).compileComponents();
+		component = TestBed.createComponent(RequestDetails).componentInstance;
+	});
+
+	it('gives a visible Arabic reason for every non-negotiable status and none for live offers', () => {
+		for (const status of ['CANCELLED', 'REJECTED', 'ACCEPTED', 'PENDING_SIGNATURE', 'DRAFT']) {
+			expect(component.negotiationBlockReason(makeOffer({ status }))).toContain('لا يمكن التفاوض');
+		}
+		expect(component.negotiationBlockReason(makeOffer({ status: 'CANCELLED' }))).toContain('سحبه');
+		for (const status of ['SUBMITTED', 'PENDING', 'UNDER_NEGOTIATION']) {
+			expect(component.negotiationBlockReason(makeOffer({ status }))).toBeNull();
+		}
+	});
+
+	it('opening negotiation on a withdrawn offer shows the reason and does not open the modal', () => {
+		component.openNegotiation(makeOffer({ status: 'CANCELLED' }));
+		expect(component.showNegModal()).toBe(false);
+		expect(lastToast()).toContain('سحبه');
+	});
+
+	it('a server refusal shows the server message and does not navigate to a fake room', () => {
+		const router = TestBed.inject(Router) as any;
+		chat.initiateConversation.mockReturnValue(throwError(() => ({ error: { message: 'لا يمكن التفاوض على هذا العرض لأنه مرفوض' } })));
+		component.openNegotiation(makeOffer({ status: 'PENDING' }));
+		component.negPrice.set('4000'); // the price box starts empty now
+		component.sendNegotiation();
+		expect(lastToast()).toBe('لا يمكن التفاوض على هذا العرض لأنه مرفوض');
+		expect(router.navigate).not.toHaveBeenCalled();
 	});
 });

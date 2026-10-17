@@ -19,6 +19,8 @@ import { mapHttpError } from '../../../../../core/forms/http-error';
 import { matchFieldsValidator, PASSWORD_MIN_LENGTH, strongPasswordValidator } from '../../../../../core/forms/password.validator';
 import { httpUrlValidator } from '../../../../../core/forms/url.validator';
 import { IMAGE_MIMES, MB, validateFile } from '../../../../../core/forms/file-validation';
+import { SkillsCatalogService } from '../../../../../core/services/skills-catalog.service';
+import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 
@@ -37,7 +39,7 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent],
 	templateUrl: './profile-edit.html',
 	styleUrl: './profile-edit.css',
 })
@@ -50,6 +52,7 @@ export class ProfileEdit {
 	authStore = inject(AuthStore);
 	profileApi = inject(ProfileApiService);
 	private prefsApi = inject(NotificationPreferencesService);
+	private skillsCatalog = inject(SkillsCatalogService);
 	fb = inject(FormBuilder);
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private readonly router = inject(Router);
@@ -63,10 +66,25 @@ export class ProfileEdit {
 	/** True once the completion came from the server: the progress card is shown only for a known value below 100 (no 0% flash for a complete profile). */
 	completionLoaded = signal<boolean>(false);
 	skills = signal<string[]>([]);
+	/** Skills come only from the backend catalog of the provider's main specialty (no free text). */
+	skillOptions = signal<string[]>([]);
+	private loadSkillOptions() {
+		this.skillsCatalog.getProviderMine().subscribe({
+			next: res => {
+				const main = res?.success ? res.data?.mainSpecialty : null;
+				if (!main) { this.skillOptions.set([]); return; }
+				this.skillsCatalog.getCatalog(main).subscribe({
+					next: c => this.skillOptions.set(c?.success ? (c.data?.skills ?? []) : []),
+					error: () => this.skillOptions.set([])
+				});
+			},
+			error: () => this.skillOptions.set([])
+		});
+	}
 	interests = signal<string[]>([]);
 
 	// Notification channel toggles
-	notifEmail = signal(true);
+	notifEmail = signal(false);
 	notifSms = signal(false);
 	notifInApp = signal(true);
 	notifTelegram = signal(false);
@@ -349,7 +367,8 @@ export class ProfileEdit {
 						this.loadNotificationPrefs();
 					} else {
 						this.providerForm.patchValue(profile);
-						if (profile.skills) this.skills.set(profile.skills);
+						if (profile.skills) this.skills.set((profile.skills as any[]).map(sk => typeof sk === 'string' ? sk : sk?.name).filter((x): x is string => !!x));
+						this.loadSkillOptions();
 						const pAny = profile as any;
 						if (pAny.interests) this.interests.set(pAny.interests);
 					}
@@ -566,18 +585,6 @@ export class ProfileEdit {
 		}
 	}
 
-	removeSkill(skill: string) {
-		this.skills.update(s => s.filter(x => x !== skill));
-	}
-
-	addSkill(input: HTMLInputElement) {
-		const val = input.value.trim();
-		if (val && !this.skills().includes(val)) {
-			this.skills.update(s => [...s, val]);
-			input.value = '';
-		}
-	}
-
 	removeInterest(tag: string) {
 		this.interests.update(s => s.filter(x => x !== tag));
 	}
@@ -610,7 +617,8 @@ export class ProfileEdit {
 			next: (res) => {
 				const settings = (res?.success && res.data?.settings) ? res.data.settings : null;
 				if (!settings) { this.prefsState.set('error'); return; }
-				this.notifEmail.set(settings['channel_email'] !== false);
+				// e-mail copies are opt-in (nothing saved = no e-mail), exactly what delivery does with an unsaved account
+				this.notifEmail.set(settings['channel_email'] === true);
 				this.notifInApp.set(settings['channel_in_app'] !== false);
 				this.prefsState.set('ready');
 			},

@@ -25,9 +25,9 @@
       <div class="ord-title">{{ isCompany() ? 'سحب أرباح الشركة' : 'سحب الأرباح' }}</div>
       <div class="ord-sub">
         @if (isCompany()) {
-          اسحب أرباح الشركة المتراكمة إلى حساب PayPal المسجل للشركة. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيد الشركة حتى تعتمده الإدارة.
+          اسحب أرباح الشركة المتراكمة إلى حساب PayPal المسجل للشركة. يُنشأ الطلب قيد المراجعة ويُحجز مبلغه من رصيد الشركة المتاح فور إرساله، ويُحرَّر الحجز إن رُفض الطلب، ويُحوَّل المبلغ عبر PayPal بعد اعتماد الإدارة.
         } @else {
-          اسحب أرباحك المتراكمة إلى حساب PayPal الخاص بك. يتم إنشاء الطلب قيد المراجعة ولا يُخصم من رصيدك حتى تعتمده الإدارة.
+          اسحب أرباحك المتراكمة إلى حساب PayPal الخاص بك. يُنشأ الطلب قيد المراجعة ويُحجز مبلغه من رصيدك المتاح فور إرساله، ويُحرَّر الحجز إن رُفض الطلب، ويُحوَّل المبلغ عبر PayPal بعد اعتماد الإدارة.
         }
       </div>
     </div>
@@ -71,7 +71,7 @@
           <span class="wal-main-val">{{ availableBalance() | number:'1.0-2' }}</span>
           <span class="wal-main-cur"> {{ currency() }}</span>
         </div>
-        <div class="wal-main-sub">الحد الأقصى المتاح للسحب في هذه العملية</div>
+        <div class="wal-main-sub">الحد الأقصى المتاح للسحب في هذه العملية@if (pendingWithdrawals() > 0) { <span data-testid="wd-pending-note"> · طلبات سحب قيد المعالجة: {{ pendingWithdrawals() | number:'1.0-2' }} {{ currency() }}</span> }</div>
       </div>
 
       <div class="wal-side">
@@ -114,7 +114,7 @@
       <div class="wd-banner wd-banner-err">
         <div class="wd-banner-body">
           <div class="wd-banner-ttl">تعذر إرسال الطلب</div>
-          <p class="wd-banner-txt" role="alert" data-testid="wd-submit-error">{{ submitError() }}</p>
+          <p class="wd-banner-txt banner-error" role="alert" data-testid="wd-submit-error">{{ submitError() }}</p>
           @if (submitErrorHint()) { <p class="wd-banner-txt" data-testid="wd-submit-error-hint">{{ submitErrorHint() }}</p> }
         </div>
       </div>
@@ -123,24 +123,27 @@
     <div class="wd-form-grid">
       <!-- Amount -->
       <div class="wd-field">
-        <label class="wd-lbl" for="wdAmt">المبلغ ({{ currency() }}) <span class="wd-req">*</span></label>
+        <label class="wd-lbl" for="wdAmt">المبلغ ({{ currency() }}) <span class="ws-req" aria-hidden="true">*</span></label>
         <div class="wd-amt-wrap">
-          <input id="wdAmt" type="text" inputmode="decimal" placeholder="0.00"
+          <input id="wdAmt" aria-required="true" name="amount" data-field="amount" type="text" inputmode="decimal" placeholder="أدخل المبلغ بالدولار"
+            [attr.aria-invalid]="formErrors()['amount'] ? 'true' : null"
+            [attr.aria-describedby]="formErrors()['amount'] ? 'wdAmt-err' : 'wdAmt-hint'"
             [value]="amount() == null ? '' : amount()"
             (input)="setAmountStr($event)" dir="ltr"
             class="wd-input wd-amt-input" [class.wd-input-err]="formErrors()['amount']">
           <span class="wd-amt-cur">{{ currency() }}</span>
         </div>
         @if (formErrors()['amount']; as err) {
-          <div class="wd-field-err" role="alert" data-testid="wd-amount-error">{{ err }}</div>
+          <div class="wd-field-err" id="wdAmt-err" role="alert" data-testid="wd-amount-error">{{ err }}</div>
         } @else {
-          <div class="wd-field-hint">الحد الأقصى المتاح: {{ availableBalance() | number:'1.0-2' }} {{ currency() }}@if (availableBalance() <= 0) { <span data-testid="wd-zero-balance"> · لا يوجد رصيد متاح للسحب حاليًا</span> }</div>
+          <div class="wd-field-hint" id="wdAmt-hint">الحد الأقصى المتاح: {{ availableBalance() | number:'1.0-2' }} {{ currency() }}@if (availableBalance() <= 0) { <span data-testid="wd-zero-balance"> · لا يوجد رصيد متاح للسحب حاليًا</span> }</div>
         }
         <div class="wd-quick-amts">
-          <button type="button" class="wd-quick-btn" (click)="setAmount(500)">500</button>
-          <button type="button" class="wd-quick-btn" (click)="setAmount(1000)">1,000</button>
-          <button type="button" class="wd-quick-btn" (click)="setAmount(2500)">2,500</button>
-          <button type="button" class="wd-quick-btn" (click)="setAmount(5000)">5,000</button>
+          @if (availableBalance() > 0) {
+            @for (share of quickShares; track share) {
+              <button type="button" class="wd-quick-btn" (click)="setAmount(quickAmount(share))">{{ share }}%</button>
+            }
+          }
           <button type="button" class="wd-quick-btn wd-quick-max" (click)="setAmount(availableBalance())">الحد الأقصى</button>
         </div>
       </div>
@@ -164,10 +167,10 @@
           <div class="wd-method-pill" dir="ltr" data-testid="wd-paypal-email"><span>{{ paypalEmail() }}</span></div>
           <div class="wd-field-hint">سنرسل مستحقاتك إلى هذا البريد. يمكنك تغييره من <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">بيانات الملف</a>.</div>
         } @else {
-          <div class="wd-field-err" data-testid="wd-paypal-missing">أضف بريد PayPal لاستلام الأرباح. <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">أضفه من بيانات الملف</a> لتتمكن من طلب السحب.</div>
+          <div class="wd-field-err" id="wdPaypal" tabindex="-1" data-testid="wd-paypal-missing">أضف بريد PayPal لاستلام الأرباح. <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">أضفه من بيانات الملف</a> لتتمكن من طلب السحب.</div>
         }
         @if (formErrors()['paypal']; as err) {
-          <div class="wd-field-err">{{ err }}</div>
+          <div class="wd-field-err" role="alert">{{ err }}</div>
         }
       </div>
     </div>
@@ -175,7 +178,7 @@
     <!-- Summary -->
     <div class="wd-summary">
       <div class="wd-sum-row">
-        <span class="wd-sum-key">الرصيد المتاح</span>
+        <span class="wd-sum-key">الرصيد المتاح للسحب</span>
         <span class="wd-sum-val">{{ availableBalance() | number:'1.0-2' }} {{ currency() }}</span>
       </div>
       <div class="wd-sum-row">
@@ -187,7 +190,7 @@
         <span class="wd-sum-key">الرصيد بعد الطلب</span>
         <span class="wd-sum-val wd-sum-remain">{{ remainingBalance() | number:'1.0-2' }} {{ currency() }}</span>
       </div>
-      <div class="wd-sum-note">ملاحظة: لا يُخصم الرصيد فوراً. يتم الخصم بعد موافقة الإدارة على الطلب.</div>
+      <div class="wd-sum-note">ملاحظة: المبلغ المطلوب يُحجز من رصيدك المتاح للسحب فور إرسال الطلب، ويُحرَّر إن رُفض الطلب.</div>
     </div>
 
     <div class="wd-form-actions">

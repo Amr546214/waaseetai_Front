@@ -42,8 +42,8 @@
     <div id="state-error" role="alert">
       <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)">
         <div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر تحميل المحفظة</div>
-        <div style="font-size:12px;margin-bottom:12px" class="txt-muted">ERR-PR-014</div>
-        <button type="button" (click)="load()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">اعادة المحاولة</button>
+        <div style="font-size:12px;margin-bottom:12px" class="txt-muted" data-testid="wallet-error-text">{{ error() === providerOnlyMessage ? error() : 'ERR-PR-014' }}</div>
+        @if (error() !== providerOnlyMessage) {<button type="button" (click)="load()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">اعادة المحاولة</button>}
       </div>
     </div>
   }
@@ -52,20 +52,23 @@
     <!-- Wallet Balance Grid -->
     <div class="wal-grid">
       <!-- Main Balance Card -->
-      <div class="wal-main" style="padding-left:106px">
-        <svg width="82" height="82" viewBox="0 0 100 100" style="position:absolute;left:14px;top:50%;transform:translateY(-50%)" aria-hidden="true">
+      <div class="wal-main" [style.padding-left.px]="ringTotal() > 0 ? 106 : null">
+        @if (ringTotal() > 0) {
+        <svg width="82" height="82" viewBox="0 0 100 100" style="position:absolute;left:14px;top:50%;transform:translateY(-50%)" aria-hidden="true" data-testid="wallet-ring">
           <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="12"/>
-          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(43,212,199,.72)" stroke-width="12" stroke-dasharray="149 77" stroke-dashoffset="57" stroke-linecap="round"/>
-          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(255,180,0,.72)" stroke-width="12" stroke-dasharray="69 157" stroke-dashoffset="-92" stroke-linecap="round"/>
-          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(15,169,154,.72)" stroke-width="12" stroke-dasharray="8 218" stroke-dashoffset="-161" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="36" fill="none" stroke="rgba(43,212,199,.72)" stroke-width="12" [attr.stroke-dasharray]="ringDash()" stroke-dashoffset="57" stroke-linecap="round"/>
           <text x="50" y="47" text-anchor="middle" font-size="13" font-weight="900" fill="white" font-family="Tajawal,sans-serif">{{ availableRatio() }}%</text>
           <text x="50" y="59" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.45)" font-family="Tajawal,sans-serif">متاح</text>
         </svg>
+        }
         <div class="wal-main-lbl">الرصيد المتاح</div>
         <div>
-          <span class="wal-main-val">{{ wallet.summary.availableBalance | number:'1.0-2' }}</span>
+          <span class="wal-main-val">{{ (wallet.summary.withdrawableBalance ?? wallet.summary.availableBalance) | number:'1.0-2' }}</span>
           <span class="wal-main-cur"> $</span>
         </div>
+        @if ((wallet.summary.pendingWithdrawals ?? 0) > 0) {
+        <div class="wal-main-sub" data-testid="wallet-pending-note">طلبات سحب قيد المعالجة: {{ wallet.summary.pendingWithdrawals | number:'1.0-2' }} $</div>
+        }
         <div class="wal-main-act">
           <a routerLink="/provider-overview/finance/withdraw" class="wal-btn wal-btn-pri">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
@@ -74,13 +77,24 @@
             </svg>
             سحب الأرباح
           </a>
-          <button type="button" class="wal-btn wal-btn-sec" (click)="openDepositModal()">
+          @if (isCompany()) {
+          <button type="button" class="wal-btn wal-btn-sec" (click)="openDepositModal()" data-testid="wallet-topup">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
               <rect x="2" y="5" width="20" height="14" rx="2"/>
               <line x1="2" y1="10" x2="22" y2="10"/>
             </svg>
-            {{ isCompany() ? 'شحن رصيد' : 'إيداع رصيد' }}
+            شحن رصيد
           </button>
+          } @else {
+          <!-- An individual provider earns into the wallet and withdraws; there is nothing to top up. The slot now leads to the payout (PayPal) data. -->
+          <a routerLink="/provider-overview/finance/withdraw" class="wal-btn wal-btn-sec" data-testid="wallet-payout-data">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+            بيانات استلام الأرباح
+          </a>
+          }
         </div>
       </div>
 
@@ -94,7 +108,7 @@
           {{ wallet.summary.escrowBalance | number:'1.0-2' }}
         </div>
         <div class="wal-side-sub">
-          {{ wallet.summary.fundedProjectsCount ? (wallet.summary.fundedProjectsCount + ' مشاريع نشطة') : 'مشروع نشط واحد' }}
+          {{ wallet.summary.fundedProjectsCount ? (wallet.summary.fundedProjectsCount + ' مشاريع ممولة') : 'لا مشاريع ممولة حاليًا' }}
         </div>
       </div>
 
@@ -122,14 +136,14 @@
           <a [routerLink]="['/provider-overview/projects/active/progress', escrow.projectId]" class="wal-side" style="display:block;text-decoration:none;transition:border-color .15s">
             <div class="flex justify-between items-center gap-3">
               <b style="font-size:13px;font-weight:700" class="txt-white">{{ escrow.projectTitle }}</b>
-              <span style="font-size:13px;font-weight:800" class="txt-amber">{{ escrow.held | number }} $ محتجز</span>
+              <span style="font-size:13px;font-weight:800" class="txt-amber">{{ escrow.held | number:'1.0-2' }} $ محتجز</span>
             </div>
             <div style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:10px">
               <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)" [style.width.%]="escrow.total ? (escrow.released / escrow.total * 100) : 0"></div>
             </div>
             <div class="flex justify-between items-center text-[10px] text-[#6B7699] mt-2">
-              <span>مفرج {{ escrow.released | number }} $</span>
-              <span>الإجمالي {{ escrow.total | number }} $</span>
+              <span>مفرج {{ escrow.released | number:'1.0-2' }} $</span>
+              <span>الإجمالي {{ escrow.total | number:'1.0-2' }} $</span>
             </div>
           </a>
         }
@@ -213,12 +227,4 @@
     }
   }
 
-  @if (depositToast()) {
-    <div style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500">
-      <div style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-        <span style="font-size:13px;font-weight:700" class="txt-white">{{ depositToast() }}</span>
-      </div>
-    </div>
-  }
 </div>

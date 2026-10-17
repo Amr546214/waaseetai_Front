@@ -6,7 +6,7 @@ import { vi } from 'vitest';
 
 const fakeSocket = { on: vi.fn(), off: vi.fn(), once: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ io: (...args: any[]) => ioSpy(...args) });
 
 import { CreateRequest } from './create-request';
 

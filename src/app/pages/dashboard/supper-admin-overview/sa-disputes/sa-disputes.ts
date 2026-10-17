@@ -23,6 +23,7 @@ export class SaDisputes implements OnInit {
   currentPage = signal(1);
   pageSize = signal(10);
   pagination = signal<DisputePagination | null>(null);
+  counts = signal<Partial<Record<DisputeStatus, number>>>({});
 
   readonly statusLabels: Record<DisputeStatus, string> = {
     OPEN: 'مفتوح',
@@ -63,6 +64,7 @@ export class SaDisputes implements OnInit {
         if (res.success && res.data) {
           this.disputes.set(res.data.items || []);
           this.pagination.set(res.data.pagination || null);
+          this.counts.set(res.data.counts ?? {});
         } else {
           this.disputes.set([]);
           this.pagination.set(null);
@@ -95,6 +97,23 @@ export class SaDisputes implements OnInit {
       this.currentPage.update((v) => v - 1);
       this.fetchDisputes();
     }
+  }
+
+  countFor(key: StatusFilter): number | null {
+    const c = this.counts();
+    if (key === 'all') {
+      const vals = Object.values(c);
+      return vals.length ? vals.reduce<number>((a, b) => a + (b ?? 0), 0) : null;
+    }
+    return c[key] ?? null;
+  }
+
+  fullName(u?: { firstName?: string; lastName?: string } | null): string {
+    return [u?.firstName, u?.lastName].filter(Boolean).join(' ').trim() || '—';
+  }
+
+  subjectTitle(d: Dispute): string {
+    return d.request?.title ?? d.project?.title ?? (d.requestId ? this.shortId(d.requestId) : '—');
   }
 
   shortId(id: string): string {

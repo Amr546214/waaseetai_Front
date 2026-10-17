@@ -3,6 +3,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarketerOverviewService, MarketerSummary, ReferredUser, ReferralStatus } from '../../../../core/services/marketer-overview.service';
+import { handleLoadError, rateLimitToastMessage } from '../../../../core/utils/rate-limit.util';
 
 @Component({
   selector: 'app-referrals',
@@ -32,10 +33,9 @@ export class Referrals implements OnInit {
 
   totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.limit)));
 
-  // Honest derived count: total() and summary()?.successfulReferrals are both
-  // real whole-dataset aggregates (not page-scoped), so subtracting them
-  // yields a truthful "not yet converted" count — no fabricated number.
-  pendingCount = computed(() => this.total() - (this.summary()?.successfulReferrals ?? 0));
+  // Real server-side whole-dataset counts (not page-scoped).
+  pendingCount = computed(() => this.summary()?.pendingReferrals ?? 0);
+  qualifiedCount = computed(() => this.summary()?.qualifiedReferrals ?? 0);
 
   // Client-side status/name filtering within the currently loaded page —
   // the endpoint only supports page/limit, not server-side search.
@@ -83,12 +83,17 @@ export class Referrals implements OnInit {
           this.total.set(0);
         }
       },
-      error: () => {
-        this.isLoading.set(false);
-        this.referrals.set([]);
-        this.total.set(0);
-        this.errorMessage.set('تعذر تحميل قائمة الإحالات، حاول مرة أخرى');
-      }
+      error: (err) => handleLoadError(err, {
+        hasData: () => this.referrals().length > 0,
+        onKeep: () => this.isLoading.set(false),
+        onRateLimit: (e) => { this.isLoading.set(false); this.errorMessage.set(rateLimitToastMessage(e)); },
+        onOtherError: () => {
+          this.isLoading.set(false);
+          this.referrals.set([]);
+          this.total.set(0);
+          this.errorMessage.set('تعذر تحميل قائمة الإحالات، حاول مرة أخرى');
+        },
+      })
     });
   }
 

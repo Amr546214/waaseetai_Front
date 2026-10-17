@@ -157,16 +157,18 @@ describe('provider profile data tabs: shared validation', () => {
       expect(tg.textContent).toContain('غير متاحة');
     });
 
-    it('a new toast is not cleared by the timer of an older one', () => {
+    it('a new notification is not cleared by the timer of an older one (central service, no local toast state)', () => {
+      expect('showToast' in component).toBe(false);
+      expect('displayToast' in component).toBe(false);
       vi.useFakeTimers();
       try {
-        component.displayToast('الأولى');
+        ui.success('الأولى');
         vi.advanceTimersByTime(3000);
-        component.displayToast('الثانية');
+        ui.success('الثانية');
         vi.advanceTimersByTime(1000);
-        expect(component.showToast()).toBe('الثانية');
+        expect(ui.toasts().map(t => t.message)).toEqual(['الثانية']);
         vi.advanceTimersByTime(3000);
-        expect(component.showToast()).toBe('');
+        expect(ui.toasts()).toEqual([]);
       } finally { vi.useRealTimers(); }
     });
   });
@@ -210,7 +212,7 @@ describe('provider profile data tabs: shared validation', () => {
       component.deletePortfolioItem('p1');
       expect(toasts()).toMatch(ARABIC);
       expect(component.portfolioList().length).toBe(1);
-      expect(component.showToast()).toBe('');
+      expect(ui.toasts().some(t => t.kind === 'success')).toBe(false);
     });
 
     it('portfolio add rejects an empty title and a non-http(s) link before any request', () => {
@@ -270,7 +272,7 @@ describe('provider profile data tabs: shared validation', () => {
       expect(svc['updateWhatsapp']).toHaveBeenCalledWith('+20 102-507 3026');
       expect(svc['initiateSensitiveChange']).not.toHaveBeenCalled();
       expect(component.showOtpModal()).toBe(false);
-      expect(component.showToast()).toContain('رقم WhatsApp');
+      expect(ui.toasts().some(t => t.kind === 'success' && t.message.includes('رقم WhatsApp'))).toBe(true);
       expect(component.contactWhatsapp()).toBe('+20 102-507 3026');
     });
 
@@ -473,7 +475,7 @@ describe('provider profile data tabs: shared validation', () => {
       expect(el().textContent).not.toContain('12 يوليو');
       expect(el().textContent).not.toContain('السجل التجاري.pdf');
       expect(svc['updateBasicInfo']).not.toHaveBeenCalled();
-      expect(component.showToast()).toBe('');
+      expect(ui.toasts().length).toBe(0);
     });
   });
 });

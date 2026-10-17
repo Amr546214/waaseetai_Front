@@ -3,9 +3,14 @@ import { OffersService } from '../../../../core/services/offers.service';
 import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
+import { handleLoadError } from '../../../../core/utils/rate-limit.util';
+import { LoadRetryComponent } from '../../../../sheards/load-retry/load-retry';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 export interface Offer {
 	id: string;
+	/** The real project id (an offer id is not one): needed to open this project's conversation. */
+	projectId?: string;
 	ref: string;
 	title: string;
 	price: string;
@@ -14,12 +19,14 @@ export interface Offer {
 	clientName: string;
 	clientType: 'company' | 'individual';
 	actionText: string;
+	/** The provider may withdraw this offer right now (server re-checks). */
+	canWithdraw?: boolean;
 }
 
 @Component({
 	selector: 'app-offers',
 	standalone: true,
-	imports: [RouterLink],
+	imports: [RouterLink, LoadRetryComponent],
 	templateUrl: './offers.html',
 	styleUrl: './offers.css',
 })
@@ -89,6 +96,8 @@ export class Offers implements OnInit {
 	// silently doing nothing or fabricating negotiation content that never
 	// happened (see OfferNegotiate, which assumes an active back-and-forth).
 	selectedPendingOffer = signal<Offer | null>(null);
+	/** The list could not be read because of a 429 and nothing was loaded yet: retry state, not the empty state. */
+	loadTemporaryError = signal(false);
 
 	filteredOffers = computed(() => {
 		return this.offers().filter(o => {
@@ -106,6 +115,7 @@ export class Offers implements OnInit {
 	}
 
 	fetchOffers() {
+		this.loadTemporaryError.set(false);
 		const params: any = {};
 		if (this.activeStatus() !== 'all') params.status = this.activeStatus();
 		if (this.activeClientType() !== 'all') params.clientType = this.activeClientType();
@@ -126,14 +136,16 @@ export class Offers implements OnInit {
 					}
 					const mapped = res.data.map((item: any) => ({
 						id: item.offerId || item.id,
+						projectId: item.projectId || undefined,
 						ref: item.projectRef || item.ref,
 						title: item.projectTitle || item.title,
-						price: typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} $` : (item.price || '0 $'),
+						price: typeof item.offeredPrice === 'number' ? `${formatMoney(item.offeredPrice)} $` : (item.price || '0 $'),
 						status: item.statusKey || (item.status === 'UNDER_NEGOTIATION' ? 'nego' : item.status === 'ACCEPTED' ? 'accepted' : item.status === 'PENDING_RESPONSE' ? 'pending_response' : 'pending'),
 						statusText: item.statusText || 'بانتظار الرد',
 						clientName: item.clientName || 'عميل وسيط',
 						clientType: (item.clientType && item.clientType.toUpperCase() === 'COMPANY') ? 'company' : 'individual',
-						actionText: item.actionText || 'فتح العرض'
+						actionText: item.actionText || 'فتح العرض',
+						canWithdraw: item.canWithdraw === true
 					}));
 					this.offers.set(mapped);
 					if (!res.counts && this.activeStatus() === 'all') {
@@ -147,7 +159,11 @@ export class Offers implements OnInit {
 			},
 			error: (err) => {
 				console.error('Could not load provider offers from API.', err);
-				this.offers.set([]);
+				handleLoadError(err, {
+					hasData: () => this.offers().length > 0,
+					onRateLimit: () => this.loadTemporaryError.set(true),
+					onOtherError: () => this.offers.set([]),
+				});
 			}
 		});
 	}
@@ -236,8 +252,66 @@ export class Offers implements OnInit {
 		}
 	}
 
+	/** What the details dialog says about this offer; only an offer that is really waiting on the client says so. */
+	offerNote(offer: Offer): string {
+		const text = offer.statusText || '';
+		switch ((offer.status || '').toLowerCase()) {
+			case 'rejected':
+				return text === 'ملغي'
+					? 'هذا العرض ملغي ولم يعد بانتظار أي رد من طالب الخدمة.'
+					: 'رفض طالب الخدمة هذا العرض، ولم يعد بانتظار أي رد.';
+			case 'accepted':
+				return 'تم التعاقد على هذا العرض.';
+			case 'pending_signature':
+				return 'قُبل عرضك وتوقيعك على العقد مطلوب.';
+			case 'nego':
+			case 'under_negotiation':
+				return 'العرض قيد التفاوض مع طالب الخدمة.';
+			case 'pending':
+			case 'pending_response':
+				return text.startsWith('اختارك العميل')
+					? 'اختارك طالب الخدمة، وهو يستكمل التوقيع وإيداع الضمان قبل أن يصلك العقد للتوقيع.'
+					: 'تم إرسال عرضك وهو الآن بانتظار مراجعة طالب الخدمة والرد عليه. سيتم تحديث حالة العرض هنا فور استلام أي رد.';
+			default:
+				return text || 'تفاصيل العرض كما هي مسجلة حالياً.';
+		}
+	}
+
 	closePendingOfferModal() {
 		this.selectedPendingOffer.set(null);
+		this.withdrawConfirming.set(false);
+		this.withdrawError.set('');
+	}
+
+	// Withdraw (two steps: the button, then an explicit confirmation). Nothing is shown as done unless the server confirmed it.
+	withdrawConfirming = signal<boolean>(false);
+	withdrawing = signal<boolean>(false);
+	withdrawError = signal<string>('');
+
+	askWithdraw() {
+		this.withdrawError.set('');
+		this.withdrawConfirming.set(true);
+	}
+
+	cancelWithdraw() {
+		this.withdrawConfirming.set(false);
+	}
+
+	confirmWithdraw(offer: Offer) {
+		if (this.withdrawing() || !offer.canWithdraw) return;
+		this.withdrawing.set(true);
+		this.withdrawError.set('');
+		this.offersService.withdrawOffer(offer.id).subscribe({
+			next: () => {
+				this.withdrawing.set(false);
+				this.closePendingOfferModal();
+				this.fetchOffers();
+			},
+			error: (err) => {
+				this.withdrawing.set(false);
+				this.withdrawError.set(err?.error?.message || 'تعذر سحب العرض. حاول مرة أخرى.');
+			}
+		});
 	}
 
 	messageOfferClient(offer: Offer) {
@@ -246,7 +320,8 @@ export class Offers implements OnInit {
 			state: {
 				messageContext: {
 					type: 'PROJECT',
-					projectId: offer.id,
+					// the project's own id (never the offer id): the messages page opens only this project's conversation
+					projectId: offer.projectId,
 					projectTitle: offer.title,
 				}
 			}

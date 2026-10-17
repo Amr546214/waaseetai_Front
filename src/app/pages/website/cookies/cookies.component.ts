@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, HostListener, ElementRef, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Inject, PLATFORM_ID, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { UiNotificationService } from '../../../core/services/ui-notification.service';
 
 @Component({
   selector: 'app-cookies',
@@ -21,10 +22,7 @@ export class CookiesComponent implements OnInit, OnDestroy {
   draftMarketing = false;
   @ViewChild('modalClose') private modalCloseBtn?: ElementRef<HTMLButtonElement>;
 
-  // Toasts (design P-AU-016 #toast-wrap)
-  toasts: { id: number; type: 'success' | 'error'; msg: string }[] = [];
-  private toastSeq = 0;
-  private timers: ReturnType<typeof setTimeout>[] = [];
+  private notify = inject(UiNotificationService);
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
@@ -59,7 +57,7 @@ export class CookiesComponent implements OnInit, OnDestroy {
     this.analyticsEnabled = true;
     this.marketingEnabled = true;
     this.savePreferences();
-    this.showToast('success', 'تم قبول جميع ملفات تعريف الارتباط');
+    this.notify.success('تم قبول جميع ملفات تعريف الارتباط');
   }
 
   rejectOptional() {
@@ -67,7 +65,7 @@ export class CookiesComponent implements OnInit, OnDestroy {
     this.analyticsEnabled = false;
     this.marketingEnabled = false;
     this.savePreferences();
-    this.showToast('success', 'تم الاحتفاظ بالضروري فقط');
+    this.notify.success('تم الاحتفاظ بالضروري فقط');
   }
 
   savePreferences() {
@@ -102,7 +100,7 @@ export class CookiesComponent implements OnInit, OnDestroy {
     this.marketingEnabled = this.draftMarketing;
     this.savePreferences();
     this.closeModal();
-    this.showToast('success', 'تم حفظ تفضيلاتك بنجاح');
+    this.notify.success('تم حفظ تفضيلاتك بنجاح');
   }
 
   acceptAllFromModal() {
@@ -117,17 +115,7 @@ export class CookiesComponent implements OnInit, OnDestroy {
     this.closeModal();
   }
 
-  private showToast(type: 'success' | 'error', msg: string) {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const id = ++this.toastSeq;
-    this.toasts = [...this.toasts, { id, type, msg }];
-    this.timers.push(setTimeout(() => {
-      this.toasts = this.toasts.filter(t => t.id !== id);
-    }, 3300));
-  }
-
   ngOnDestroy() {
-    this.timers.forEach(t => clearTimeout(t));
     if (this.modalOpen && isPlatformBrowser(this.platformId)) document.body.style.overflow = '';
   }
 }

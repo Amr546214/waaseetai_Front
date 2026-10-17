@@ -5,18 +5,20 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthStore } from '../../core/store/auth.store';
 import { AccountService } from '../../core/services/account.service';
+import { UiNotificationService } from '../../core/services/ui-notification.service';
 import { NotificationEngineService } from '../../core/services/notification-engine.service';
 import { ChatStateService } from '../../core/services/chat-state.service';
 import { CartService } from '../../core/services/cart.service';
 import { UserRole, AccountType } from '../../core/models/auth.model';
 import { getDefaultDashboard } from '../../core/guards/auth.guards';
+import { NotificationPopupComponent } from '../notification-popup/notification-popup';
 import { NotificationBell } from '../notification-bell/notification-bell';
 import { AssistantStore } from '../../core/store/assistant.store';
 
 @Component({
 	selector: 'app-navbar',
 	standalone: true,
-	imports: [RouterModule, CommonModule, NotificationBell],
+	imports: [RouterModule, CommonModule, NotificationBell, NotificationPopupComponent],
 	templateUrl: './navbar.html',
 	styleUrl: './navbar.css',
 	host: {
@@ -30,6 +32,7 @@ export class Navbar {
 	public accountService = inject(AccountService);
 	public router = inject(Router);
 	public notifEngine = inject(NotificationEngineService);
+	private notify = inject(UiNotificationService);
 	public chatState = inject(ChatStateService);
 	public cartService = inject(CartService);
 	public assistantStore = inject(AssistantStore, { optional: true });
@@ -190,10 +193,7 @@ export class Navbar {
 			next: () => {
 				this.isUserDropdownOpen.set(false);
 				this.isDashSubMenuOpen.set(false);
-				this.notifEngine.triggerToast({
-					title: 'تم تبديل الحساب بنجاح',
-					message: `أنت الآن في لوحة ${this.getRoleLabel(role)}`
-				});
+				this.notify.success(`أنت الآن في لوحة ${this.getRoleLabel(role)}`, { title: 'تم تبديل الحساب بنجاح' });
 
 				const targetUrl = this.getRoleDashboardUrl(role);
 				if (typeof window !== 'undefined') {
@@ -204,10 +204,7 @@ export class Navbar {
 			},
 			error: (err: any) => {
 				const msg = err?.error?.message || 'تعذر تبديل الحساب';
-				this.notifEngine.triggerToast({
-					title: 'خطأ في تبديل الحساب',
-					message: msg
-				});
+				this.notify.error(msg, { title: 'خطأ في تبديل الحساب' });
 			}
 		});
 	}
@@ -228,20 +225,6 @@ export class Navbar {
 		this.authStore.logout('/auth/login');
 	}
 
-	onToastActionClick() {
-		// [routerLink] wraps a single string command in a one-element array
-		// and only ever splits it on "/", never "?" — so an actionUrl like
-		// "/client-overview/messages?conversationId=..." would have its query
-		// string glued onto the last path segment as literal text instead of
-		// being parsed. navigateByUrl parses the whole string correctly via
-		// the router's UrlSerializer, matching the notification bell's own
-		// (working) click handler.
-		const url = this.notifEngine.latestNotification()?.actionUrl;
-		this.notifEngine.closeToast();
-		if (url) {
-			this.router.navigateByUrl(url);
-		}
-	}
 
 	private updateBodyScroll() {
 		if (isPlatformBrowser(this.platformId)) {

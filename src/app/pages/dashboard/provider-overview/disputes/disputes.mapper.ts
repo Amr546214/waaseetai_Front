@@ -1,8 +1,10 @@
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { Dispute as ApiDispute } from '../../../../core/models/dispute.model';
+import { disputeResolutionText } from '../../../../core/utils/dispute-labels.util';
 import { Dispute, DisputeDetail, DisputeEvidenceItem, DisputeHistoryEntry, DisputeParty, DisputeStatusStep, DisputeTimelineStep } from './disputes.model';
 
 const dateLabel = (iso?: string | null): string =>
-	iso ? new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+	iso ? new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: providerTimeZone() }) : '—';
 
 export function buildTimeline(status: ApiDispute['status']): DisputeTimelineStep[] {
 	return [
@@ -26,6 +28,16 @@ const initials = (name: string) => (name.trim().slice(0, 2) || '—');
 const personName = (p?: { firstName?: string; lastName?: string } | null) => `${p?.firstName || ''} ${p?.lastName || ''}`.trim();
 
 /** Real detail built only from the fields a Dispute row carries (reason, description, evidence, status, dates, parties, resolution). */
+/** What the decision did to money, in plain Arabic (only what the server reports as executed). */
+function financialSummary(d: ApiDispute): string {
+	const fo = d.financialOutcome;
+	if (!fo) return 'لم يتغيّر أي مبلغ مالي بهذا القرار';
+	const parts: string[] = [];
+	if (fo.releaseToProvider > 0) parts.push(`صُرف لرصيدك ${fo.providerNet} $${fo.platformCommission > 0 ? ` بعد خصم عمولة المنصة ${fo.platformCommission} $` : ''}`);
+	if (fo.refundToClient > 0) parts.push(`أُعيد ${fo.refundToClient} $ إلى العميل`);
+	return parts.join('، ');
+}
+
 function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 	const closed = d.status === 'RESOLVED' || d.status === 'REJECTED';
 	const history: DisputeHistoryEntry[] = [
@@ -34,7 +46,7 @@ function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 	if (closed) {
 		history.push({
 			title: d.status === 'REJECTED' ? 'تم رفض النزاع' : 'تم حل النزاع',
-			sub: d.resolutionNote || d.resolution || '—',
+			sub: [disputeResolutionText(d), d.resolutionNote].filter(Boolean).join(' — ') || '—',
 			time: dateLabel(d.resolvedAt),
 			iconType: 'doc',
 		});
@@ -62,7 +74,7 @@ function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 
 	return {
 		// `recommendation` is only the admin's real resolution text once a dispute is resolved.
-		recommendation: closed ? (d.resolutionNote || d.resolution || undefined) : undefined,
+		recommendation: closed ? ([disputeResolutionText(d), d.resolutionNote].filter(Boolean).join(' — ') || undefined) : undefined,
 		history,
 		evidence,
 		parties: [me, other],
@@ -70,11 +82,13 @@ function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 		info: [
 			{ label: 'السبب', value: d.reason },
 			{ label: 'تاريخ الفتح', value: dateLabel(d.createdAt) },
-			{ label: 'المشروع', value: d.request?.title || '—' },
+			{ label: 'المشروع', value: d.request?.title || d.project?.title || '—' },
 			...(d.resolvedAt ? [{ label: 'تاريخ القرار', value: dateLabel(d.resolvedAt) }] : []),
 			// heldEscrowAmount: null/absent -> 'غير متاح'; 0 is a real value and is shown as '0'.
 			{ label: 'المتبقي من مستحقاتك في الضمان', value: d.heldEscrowAmount === null || d.heldEscrowAmount === undefined ? 'غير متاح' : String(d.heldEscrowAmount) },
 			{ label: 'الرسائل', value: 'التفاصيل الكاملة غير متاحة' },
+			...(!closed && d.projectFreeze?.frozen && d.projectFreeze.reason ? [{ label: 'أثر النزاع على المشروع', value: d.projectFreeze.reason, valueClass: 'amber' as const }] : []),
+			...(closed ? [{ label: 'الأثر المالي', value: financialSummary(d) }] : []),
 		],
 	};
 }
@@ -92,7 +106,8 @@ export function mapDispute(d: ApiDispute, currentUserId: string | undefined): Di
 	return {
 		id: d.id,
 		title: d.reason,
-		project: d.request?.title || '—',
+		project: d.request?.title || d.project?.title || '—',
+		projectId: d.projectId || d.requestId || d.request?.id || null,
 		status: closed ? 'closed' : 'open',
 		who,
 		extra: d.status === 'UNDER_REVIEW' ? 'review' : '',
@@ -102,13 +117,10 @@ export function mapDispute(d: ApiDispute, currentUserId: string | undefined): Di
 		badgeClass: closed ? 'bg-[#0FA99A]/15 text-[#0FA99A] border-[#0FA99A]/30' : 'bg-[#FFB400]/15 text-[#D98A0B] border-[#FFB400]/30',
 		activeBorder: d.status === 'OPEN',
 		timeline: buildTimeline(d.status),
-		aiText: closed ? (d.resolutionNote || d.resolution || 'تم إغلاق النزاع') : d.description,
+		aiText: closed ? ([disputeResolutionText(d), d.resolutionNote].filter(Boolean).join(' — ') || 'تم إغلاق النزاع') : d.description,
 		aiDone: closed,
 		// No escrow-amount field exists on a Dispute row — omit rather than fabricate.
 		amount: '',
-		// No escalate / messaging endpoint exists yet.
-		showEscalate: false,
-		messages: 0,
 		date: dateLabel(d.createdAt),
 		detail: buildDetail(d, mine),
 		// No backend concept of a company team-member assignment on a dispute.

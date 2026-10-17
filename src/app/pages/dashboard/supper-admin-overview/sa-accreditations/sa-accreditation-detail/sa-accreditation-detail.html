@@ -23,7 +23,7 @@
       <div class="acc-md-hdr">
         <div>
           <h3>{{ d.title }}</h3>
-          <span class="acc-ai-pill" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
+          <span class="acc-ai-pill" [ngClass]="statusClass(d)">{{ statusLabel(d) }}</span>
         </div>
                 </div>
 
@@ -52,54 +52,60 @@
         </div>
       }
 
-      <div class="acc-score-row">
-        <div class="acc-score-ring">
-          <div class="acc-score-num">{{ d.aiScore != null ? d.aiScore : '—' }}</div>
-        </div>
-        <div class="acc-score-bars">
-          <div class="acc-md-field">
-            <label>تصنيف الجودة</label>
-            <p>{{ d.aiQualityRating || 'غير متاح' }}</p>
+      @if (d.aiScore != null || d.aiFeedbackAr || (d.aiStrengths && d.aiStrengths.length) || (d.aiRecommendations && d.aiRecommendations.length)) {
+        <div class="acc-ai-block" data-testid="stored-ai">
+          <div class="acc-ai-hdr"><svg viewBox="0 0 24 24" width="14" height="14"><use href="#i-ai"/></svg> تقييم AI المخزّن لهذا النموذج — استرشادي، والقرار النهائي للإدارة</div>
+          <div class="acc-score-row">
+            <div class="acc-score-ring">
+              <div class="acc-score-num">{{ d.aiScore != null ? d.aiScore : '—' }}</div>
+            </div>
+            <div class="acc-score-bars">
+              <div class="acc-md-field">
+                <label>تصنيف الجودة</label>
+                <p>{{ d.aiQualityRating || 'غير متاح' }}</p>
+              </div>
+              <div class="acc-md-field">
+                <label>تاريخ التدقيق</label>
+                <p>{{ formatDate(d.aiAuditedAt) }}</p>
+              </div>
+            </div>
           </div>
-          <div class="acc-md-field">
-            <label>تاريخ التدقيق</label>
-            <p>{{ formatDate(d.aiAuditedAt) }}</p>
-          </div>
-        </div>
-      </div>
 
-      @if (d.aiFeedbackAr) {
-        <div class="acc-ai-note">{{ d.aiFeedbackAr }}</div>
-      }
+          @if (d.aiFeedbackAr) {
+            <div class="acc-ai-note">{{ d.aiFeedbackAr }}</div>
+          }
 
-      @if (d.aiStrengths && d.aiStrengths.length) {
-        <div class="acc-md-field" style="margin-bottom:12px">
-          <label>نقاط القوة (AI)</label>
-          <ul class="acc-list">
-            @for (s of d.aiStrengths; track s) { <li>{{ s }}</li> }
-          </ul>
-        </div>
-      }
+          @if (d.aiStrengths && d.aiStrengths.length) {
+            <div class="acc-md-field" style="margin-bottom:12px">
+              <label>نقاط القوة (AI)</label>
+              <ul class="acc-list">
+                @for (s of d.aiStrengths; track s) { <li>{{ s }}</li> }
+              </ul>
+            </div>
+          }
 
-      @if (d.aiRecommendations && d.aiRecommendations.length) {
-        <div class="acc-md-field" style="margin-bottom:12px">
-          <label>توصيات AI</label>
-          <ul class="acc-list">
-            @for (r of d.aiRecommendations; track r) { <li>{{ r }}</li> }
-          </ul>
+          @if (d.aiRecommendations && d.aiRecommendations.length) {
+            <div class="acc-md-field" style="margin-bottom:12px">
+              <label>توصيات AI</label>
+              <ul class="acc-list">
+                @for (r of d.aiRecommendations; track r) { <li>{{ r }}</li> }
+              </ul>
+            </div>
+          }
         </div>
+      } @else {
+        <p class="acc-section-note" data-testid="no-ai">لا يوجد تقييم AI مخزّن لهذا النموذج؛ الفحص الذكي للنماذج متوقف ويُراجع النموذج يدويًا.</p>
       }
 
       <div class="acc-md-field-row">
-        <div class="acc-md-field"><label>مقدم الخدمة</label><p>{{ providerName(d) }}</p></div>
+        <div class="acc-md-field"><label>مقدم الخدمة</label><p>@if (profileLink(d); as link) { <a class="acc-lnk acc-lnk-plain" data-testid="provider-link" [routerLink]="link">{{ providerName(d) }} ←</a> } @else { {{ providerName(d) }} }</p></div>
         <div class="acc-md-field"><label>البريد الإلكتروني</label><p>{{ d.providerProfile?.user?.email || '—' }}</p></div>
         <div class="acc-md-field"><label>التخصص</label><p>{{ specialtyName(d) }}</p></div>
       </div>
 
       <div class="acc-md-field-row">
-        <div class="acc-md-field"><label>الجنسية</label><p>{{ providerNationality(d) }}</p></div>
-        <div class="acc-md-field"><label>المدينة</label><p>{{ providerCity(d) }}</p></div>
-        <div class="acc-md-field"><label>مهلة المراجعة (SLA)</label><p [class]="slaClass(d)">{{ slaLabel(d) }}</p></div>
+        <div class="acc-md-field"><label>تاريخ الرفع</label><p>{{ formatDate(d.createdAt) }}</p></div>
+        <div class="acc-md-field"><label>رقم النموذج</label><p dir="ltr">{{ shortId(d.id) }}</p></div>
       </div>
 
       <div class="acc-md-field" style="margin-bottom:12px">
@@ -117,33 +123,25 @@
       }
 
       <div class="acc-md-field-row">
-        @if (d.projectUrl) {
+        @if (isWebUrl(d.projectUrl)) {
           <div class="acc-md-field"><label>رابط المشروع</label><a class="acc-lnk" [href]="d.projectUrl" target="_blank" rel="noopener">{{ d.projectUrl }}</a></div>
         }
-        @if (d.githubUrl) {
+        @if (isWebUrl(d.githubUrl)) {
           <div class="acc-md-field"><label>GitHub</label><a class="acc-lnk" [href]="d.githubUrl" target="_blank" rel="noopener">{{ d.githubUrl }}</a></div>
         }
       </div>
 
       @if (d.attachments && d.attachments.length) {
         <div class="acc-section" style="margin-bottom:14px">
-          <h4 class="acc-section-ttl">المستندات المرفوعة ({{ d.attachments.length }})</h4>
-          <p class="acc-section-note">الملفات والروابط حقيقية من النموذج المرفوع؛ شارات التحقق والحقول المطابقة أدناه تقديرية لأغراض العرض إلى حين توفر خدمة تحقق مستندات فعلية</p>
+          <h4 class="acc-section-ttl">المرفقات المرفوعة ({{ d.attachments.length }})</h4>
           @for (url of d.attachments; track url; let i = $index) {
             <div class="acc-doc">
               <div class="acc-doc-head">
                 <div class="acc-doc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                <a class="acc-doc-name" [href]="url" target="_blank" rel="noopener">{{ documentName(url, i) }}</a>
-                <span class="acc-doc-badge" [ngClass]="'acc-doc-badge-' + documentMeta(i).badge">{{ documentMeta(i).badgeText }}</span>
-              </div>
-              <div class="acc-doc-body">
-                @if (documentMeta(i).badge === 'verified') {
-                  <div class="acc-doc-fields">
-                    <div><span class="acc-doc-flbl">{{ documentMeta(i).matchLabel }}</span><span class="acc-doc-fval acc-ok">✓ {{ documentMeta(i).matchValue }}</span></div>
-                    <div><span class="acc-doc-flbl">رقم مرجعي</span><span class="acc-doc-fval">DOC-{{ shortId(d.id) }}-{{ i + 1 }}</span></div>
-                  </div>
+                @if (isWebUrl(url)) {
+                  <a class="acc-doc-name" [href]="url" target="_blank" rel="noopener">{{ attachmentName(url, i) }}</a>
                 } @else {
-                  <p class="acc-doc-note" [class.acc-warn]="documentMeta(i).badge === 'warn'">{{ documentMeta(i).note }}</p>
+                  <span class="acc-doc-name">{{ attachmentName(url, i) }}</span>
                 }
               </div>
             </div>
@@ -152,45 +150,13 @@
       }
 
       <div class="acc-section" style="margin-bottom:14px">
-        <h4 class="acc-section-ttl">قائمة التحقق الإلزامية</h4>
-        <p class="acc-section-note">مشتقة من بيانات الحساب الفعلية حيث توفرت (الجوال/البريد/المرفقات)؛ فحص الهوية تقديري لعدم توفر خدمة تحقق مستندات فعلية بعد</p>
-        @for (item of checklistItems(d); track item.key) {
-          <div class="acc-check" [ngClass]="'acc-check-' + item.state" (click)="toggleChecklistItem(item.key, item.state)">
-            <div class="acc-check-box" [ngClass]="'acc-check-box-' + item.state">
-              @if (item.state === 'done') {
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              } @else if (item.state === 'warn') {
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              }
-            </div>
-            <div>
-              <div class="acc-check-lbl">{{ item.label }}</div>
-              <div class="acc-check-sub">{{ item.sub }}</div>
-            </div>
-          </div>
-        }
-        @if (checklistPendingCount(d) > 0) {
-          <div class="acc-check-warn-note">⚠ {{ checklistPendingCount(d) }} نقاط لم تكتمل — الاعتماد متاح لكن يُنصح بإتمام كل النقاط أولاً</div>
-        }
-      </div>
-
-      <div class="acc-section" style="margin-bottom:14px">
-        <h4 class="acc-section-ttl">فحص المخاطر</h4>
-        <p class="acc-section-note">تقديري بالكامل لعدم توفر خدمة فحص احتيال/تكرار حسابات فعلية على الخادم بعد</p>
+        <h4 class="acc-section-ttl">ملخص ما قدّمه المزود</h4>
+        <p class="acc-section-note">حقائق مقروءة من النموذج وحساب المزود؛ لا توجد فحوص هوية أو مخاطر آلية في هذه الصفحة، ومراجعة الهوية في صفحة KYC.</p>
         <div class="acc-risk-grid">
-          @for (r of riskChecks(d); track r.label) {
-            <div class="acc-risk-row">
-              <span class="acc-risk-lbl">{{ r.label }}</span>
-              <span class="acc-risk-val" [class.acc-ok]="r.ok" [class.acc-warn]="!r.ok">{{ r.text }}</span>
-            </div>
-          }
-        </div>
-        <div class="acc-risk-summary" [ngClass]="'acc-risk-summary-' + riskLevel(d)">
-          @switch (riskLevel(d)) {
-            @case ('low') { مستوى المخاطر: منخفض — لا توجد مؤشرات تستدعي القلق }
-            @case ('medium') { مستوى المخاطر: متوسط — يُنصح بمراجعة النقاط المُعلَّمة أعلاه قبل الاعتماد }
-            @default { مستوى المخاطر: مرتفع — يُنصح بعدم الاعتماد قبل التحقق اليدوي الكامل }
-          }
+          <div class="acc-risk-row"><span class="acc-risk-lbl">الجوال المسجل</span><span class="acc-risk-val" dir="ltr">{{ d.providerProfile?.user?.phoneNumber || '—' }}</span></div>
+          <div class="acc-risk-row"><span class="acc-risk-lbl">البريد المسجل</span><span class="acc-risk-val" dir="ltr">{{ d.providerProfile?.user?.email || '—' }}</span></div>
+          <div class="acc-risk-row"><span class="acc-risk-lbl">عدد المرفقات</span><span class="acc-risk-val">{{ d.attachments?.length || 0 }}</span></div>
+          <div class="acc-risk-row"><span class="acc-risk-lbl">عدد التقنيات المذكورة</span><span class="acc-risk-val">{{ d.technologiesUsed?.length || 0 }}</span></div>
         </div>
       </div>
 
@@ -201,17 +167,17 @@
       @if (!showRejectForm()) {
         <div class="acc-md-actions">
           @if (canApprove(d)) {
-            <button type="button" class="acc-btn acc-btn-accept" [disabled]="submittingAction()" (click)="submitApprove()">
-              {{ submittingAction() ? 'جارٍ الاعتماد...' : 'اعتماد النموذج' }}
+            <button type="button" class="acc-btn acc-btn-accept" data-testid="approve-btn" [disabled]="submittingAction()" (click)="openApproveConfirm()">
+              اعتماد النموذج
             </button>
           }
-          @if (canReject(d.status)) {
+          @if (canReject(d)) {
             <button type="button" class="acc-btn acc-btn-reject" [disabled]="submittingAction()" (click)="openRejectForm()">رفض النموذج</button>
           }
           <button type="button" class="acc-btn acc-btn-ghost" (click)="goBack()">العودة للقائمة</button>
         </div>
         @if (actionError()) {
-          <p class="acc-rf-err">{{ actionError() }}</p>
+          <p class="acc-rf-err" role="alert" data-testid="acc-action-error">{{ actionError() }}</p>
         }
       } @else {
         <div class="acc-resolve-form">
@@ -226,10 +192,10 @@
           </div>
           <div class="acc-md-field">
             <label>سبب الرفض <span class="acc-req">*</span></label>
-            <textarea class="acc-rf-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اختر قالباً أعلاه أو اكتب سبب الرفض (سيُضاف إلى ملاحظات التقييم)…"></textarea>
+            <textarea id="acc-reject-reason" aria-label="سبب الرفض" class="acc-rf-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اختر قالباً أعلاه أو اكتب سبب الرفض (سيصل إلى مقدم الخدمة)…"></textarea>
           </div>
           @if (actionError()) {
-            <p class="acc-rf-err">{{ actionError() }}</p>
+            <p class="acc-rf-err" role="alert" data-testid="acc-action-error">{{ actionError() }}</p>
           }
           <div class="acc-rf-actions">
             <button type="button" class="acc-btn acc-btn-reject" [disabled]="submittingAction()" (click)="submitReject()">
@@ -240,5 +206,18 @@
         </div>
       }
     </div>
+
+    @if (showApproveConfirm()) {
+      <div class="acc-mov" data-testid="approve-confirm" (click)="cancelApproveConfirm()">
+        <div class="acc-mbox acc-confirm-box" (click)="$event.stopPropagation()">
+          <h3>تأكيد اعتماد النموذج</h3>
+          <p class="acc-section-note">سيُعتمد هذا النموذج ويحصل مقدم الخدمة على شارة اعتماد التخصص «{{ specialtyName(d) }}». الاعتماد قرار إداري نهائي ولا يعتمد على درجة AI.</p>
+          <div class="acc-md-actions">
+            <button type="button" class="acc-btn acc-btn-ghost" [disabled]="submittingAction()" (click)="cancelApproveConfirm()">إلغاء</button>
+            <button type="button" class="acc-btn acc-btn-accept" data-testid="approve-confirm-btn" [disabled]="submittingAction()" (click)="submitApprove()">{{ submittingAction() ? 'جارٍ الاعتماد...' : 'تأكيد الاعتماد' }}</button>
+          </div>
+        </div>
+      </div>
+    }
   }
 </section>

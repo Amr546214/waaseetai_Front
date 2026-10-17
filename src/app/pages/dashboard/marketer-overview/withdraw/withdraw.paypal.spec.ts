@@ -4,8 +4,8 @@ import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { Withdraw } from './withdraw';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { MarketerOverviewService } from '../../../../core/services/marketer-overview.service';
-import { MarketerProfileService } from '../../../../core/services/marketer-profile.service';
 
 // Withdraw page: PayPal is the only destination. No PayPal email saved = a clear message, never a bank / IBAN field.
 describe('marketer withdraw: PayPal only', () => {
@@ -13,12 +13,12 @@ describe('marketer withdraw: PayPal only', () => {
   let c: Withdraw;
 
   const setup = async (profile: any) => {
+    const wallet = { currency: 'USD', approvedEarnings: 1000, pendingEarnings: 0, reservedWithdrawals: 0, paidWithdrawals: 0, withdrawableBalance: 1000, minimumWithdrawal: 300, paypalEmail: profile.paypalPayoutEmail, hasPaypal: !!profile.paypalPayoutEmail, withdrawBlockedReason: profile.paypalPayoutEmail ? null : 'أضف بريد PayPal لاستلام الأرباح' };
     await TestBed.configureTestingModule({
       imports: [Withdraw],
       providers: [
         provideRouter([]),
-        { provide: MarketerOverviewService, useValue: { getSummary: () => of({ success: true, data: { totalCommissions: 1000 } }), getWithdrawals: () => of({ success: true, data: { items: [] } }), createWithdrawal: vi.fn(() => of({ success: true })) } },
-        { provide: MarketerProfileService, useValue: { getProfile: () => of({ success: true, data: profile }) } },
+        { provide: MarketerOverviewService, useValue: { getSummary: () => of({ success: true, data: { totalCommissions: 1000 } }), getWallet: () => of({ success: true, data: wallet }), getWithdrawals: () => of({ success: true, data: { items: [] } }), createWithdrawal: vi.fn(() => of({ success: true })) } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(Withdraw);
@@ -50,7 +50,6 @@ describe('marketer withdraw: PayPal only', () => {
     await setup({ paypalPayoutEmail: null });
     c.withdrawForm.patchValue({ amount: 400 });
     c.submitWithdrawal();
-    expect(c.toastMessage()?.text).toBe('أضف بريد PayPal لاستلام الأرباح');
-    expect(c.toastMessage()?.type).toBe('error');
+    expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: 'أضف بريد PayPal لاستلام الأرباح' });
   });
 });

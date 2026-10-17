@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError, Subject } from 'rxjs';
 import { MarketingBrokerOverview } from './marketing-broker-overview';
@@ -8,7 +9,7 @@ const res = (o: any) => ({ status: 'READY', source: 'GEMINI', score: null, confi
 describe('marketer dashboard — AI insights card', () => {
 	function setup(insights: () => any) {
 		let n = 0;
-		TestBed.configureTestingModule({ imports: [MarketingBrokerOverview], providers: [{ provide: MarketerOverviewService, useValue: {
+		TestBed.configureTestingModule({ imports: [MarketingBrokerOverview], providers: [provideRouter([]), { provide: MarketerOverviewService, useValue: {
 			getSummary: () => of({ success: true, data: { tier: 'مساعد', successfulReferrals: 1, totalCommissions: 1, overallConversionRate: 1 } }),
 			getChannelPerformance: () => of({ success: true, data: [] }),
 			getRecentCommissions: () => of({ success: true, data: [] }),

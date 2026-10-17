@@ -34,7 +34,6 @@ export class Invoices implements OnInit {
   totalInvoices = computed(() => this.invoices().length);
   paidInvoices = computed(() => this.invoices().filter(i => i.status === 'paid').length);
   dueInvoices = computed(() => this.invoices().filter(i => i.status === 'due').length);
-  totalTax = computed(() => Number(this.invoices().reduce((sum, invoice) => sum + invoice.tax, 0).toFixed(2)));
   verificationScore = computed(() => this.invoices().length
     ? Math.round(this.invoices().reduce((sum, invoice) => sum + invoice.verificationScore, 0) / this.invoices().length)
     : 0);
@@ -68,7 +67,8 @@ export class Invoices implements OnInit {
     this.router.navigate(['/client-overview/finance/invoices', inv.sourceId]);
   }
 
-  downloadInvoice(inv: ClientInvoice, event: Event): void {
+  /** Opens the invoice with the print dialog (print / save as PDF from the browser). */
+  printInvoice(inv: ClientInvoice, event: Event): void {
     event.stopPropagation();
     this.router.navigate(['/client-overview/finance/invoices', inv.sourceId], { queryParams: { print: 1 } });
   }

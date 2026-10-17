@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { provideRouter } from '@angular/router';
 import { describe, it, expect } from 'vitest';
 import { SaRiskCenter } from './sa-risk-center';
 import { AdminSecurityApiService } from '../../../../core/services/admin-security-api.service';
@@ -17,7 +18,7 @@ describe('SaRiskCenter', () => {
 		};
 		TestBed.configureTestingModule({
 			imports: [SaRiskCenter],
-			providers: [{ provide: AdminSecurityApiService, useValue: apiStub }],
+			providers: [provideRouter([]), { provide: AdminSecurityApiService, useValue: apiStub }],
 		});
 		const fixture = TestBed.createComponent(SaRiskCenter);
 		fixture.detectChanges();
@@ -54,5 +55,17 @@ describe('SaRiskCenter', () => {
 		const fixture = setup([]);
 		const text = (fixture.nativeElement as HTMLElement).textContent || '';
 		expect(text).toContain('لا توجد حسابات موقوفة حالياً');
+	});
+
+	it('shows an error state (not the empty state) when the request fails', () => {
+		TestBed.configureTestingModule({
+			imports: [SaRiskCenter],
+			providers: [provideRouter([]), { provide: AdminSecurityApiService, useValue: { getFlaggedAccounts: () => throwError(() => new Error('x')) } }],
+		});
+		const fixture = TestBed.createComponent(SaRiskCenter);
+		fixture.detectChanges();
+		const text = (fixture.nativeElement as HTMLElement).textContent || '';
+		expect(text).toContain('تعذر تحميل');
+		expect(text).not.toContain('لا توجد حسابات موقوفة حالياً');
 	});
 });

@@ -1,10 +1,12 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { DisputeApiService } from '../../../../core/services/dispute-api.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { Dispute } from '../../../../core/models/dispute.model';
+import { disputeResolutionText } from '../../../../core/utils/dispute-labels.util';
 
 interface DisputeTimelineStep {
   label: string;
@@ -15,11 +17,15 @@ interface DisputeTimelineStep {
 
 interface DisputeItem {
   id: string;
+  /** The server's status; the card, tabs and KPIs all read from it. */
+  raw: Dispute['status'];
+  /** Project (or request) the dispute is about, for the link to it. */
+  targetId: string | null;
   title: string;
   project: string;
   status: 'open' | 'closed';
   who: 'mine' | 'against';
-  extra: 'review' | 'pending' | '';
+  extra: 'review' | 'rejected' | '';
   icon: 'shield' | 'hands' | 'check';
   iconClass: string;
   badgeText: string;
@@ -60,13 +66,14 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
 
   return {
     id: d.id,
+    raw: d.status,
+    targetId: d.projectId || d.requestId || null,
     title: d.reason,
-    project: d.request?.title || '—',
+    project: d.request?.title || d.project?.title || '—',
     status: closed ? 'closed' : 'open',
     who,
-    // No messaging/reply endpoint exists yet, so "awaiting my reply" can't
-    // be determined from real data — never fabricate a match for it.
-    extra: d.status === 'UNDER_REVIEW' ? 'review' : '',
+    // No messaging/reply endpoint exists, so there is no "awaiting my reply" state — only what the server reports.
+    extra: d.status === 'UNDER_REVIEW' ? 'review' : d.status === 'REJECTED' ? 'rejected' : '',
     icon: closed ? 'check' : 'shield',
     iconClass: '',
     badgeText,
@@ -75,7 +82,7 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
     timeline: buildTimeline(d.status),
     // Real backend text (description/resolution), not an AI-generated claim
     // — the banner's icon is decorative chrome from the existing template.
-    aiText: closed ? (d.resolutionNote || d.resolution || 'تم إغلاق النزاع') : d.description,
+    aiText: closed ? ([disputeResolutionText(d), d.resolutionNote].filter(Boolean).join(' — ') || 'تم إغلاق النزاع') : d.description,
     aiDone: closed,
     // No escrow-amount field exists on a Dispute row — omit rather than
     // fabricate a number; the template hides this line when amount is falsy.
@@ -98,11 +105,12 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
 export class Disputes implements OnInit {
   private authStore = inject(AuthStore);
   private disputeApi = inject(DisputeApiService);
+  private route = inject(ActivatedRoute);
+  private notify = inject(UiNotificationService);
 
   readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
   currentTab = signal<string>('all');
-  showToast = signal<string>('');
 
   isLoading = signal<boolean>(true);
   // True only on a real fetch failure — an empty-but-successful response
@@ -124,6 +132,7 @@ export class Disputes implements OnInit {
         if (res.success) {
           this.listUnavailable.set(false);
           this.disputes.set((res.data?.items || []).map(d => mapDispute(d, currentUserId)));
+          this.openFocusedDispute();
         } else {
           this.listUnavailable.set(true);
         }
@@ -135,13 +144,26 @@ export class Disputes implements OnInit {
     });
   }
 
+  /**
+   * The client app has no dispute-details route: a notification links to /client-overview/disputes?dispute=<id>, and the list opens that
+   * dispute's details (and brings its card into view) instead of leaving the client to hunt for it.
+   */
+  private openFocusedDispute() {
+    const id = this.route.snapshot?.queryParamMap?.get('dispute');
+    if (!id || !this.disputes().some(d => d.id === id) || this.detailsId() === id) return;
+    this.toggleDetails(id);
+    queueMicrotask(() => (document.getElementById('dispute-' + id) as HTMLElement | null)?.scrollIntoView?.({ block: 'center' }));
+  }
+
+  /** Text of the admin decision (Arabic label for a code, the admin's own text verbatim) for the details panel. */
+  resolutionText = disputeResolutionText;
+
   setTab(t: string) {
     this.currentTab.set(t);
   }
 
-  openToast(msg: string) {
-    this.showToast.set(msg);
-    setTimeout(() => this.showToast.set(''), 3000);
+  escalate() {
+    this.notify.success('تم تصعيد النزاع للإدارة، سيتدخّل فريق الدعم خلال 24 ساعة');
   }
 
   filteredDisputes = computed(() => {
@@ -151,19 +173,43 @@ export class Disputes implements OnInit {
     return all.filter(d => d.status === f || d.who === f || d.extra === f);
   });
 
+  // Counts of the server's own statuses only (open / under review / resolved / rejected); no mutual-cancel notion exists.
   readonly kpis = computed(() => {
     const all = this.disputes();
-    const activeDisputes = all.filter(d => d.status === 'open' && d.icon === 'shield').length;
-    const mutualCancelPending = all.filter(d => d.status === 'open' && d.icon === 'hands').length;
-    const closedMutual = all.filter(d => d.status === 'closed').length;
-    const hasOpen = all.some(d => d.status === 'open');
     return {
-      activeDisputes,
-      mutualCancelPending,
-      closedMutual,
-      overallStatus: all.length === 0 ? '—' : (hasOpen ? 'جارٍ' : 'مكتمل'),
+      activeDisputes: all.filter(d => d.raw === 'OPEN' || d.raw === 'UNDER_REVIEW').length,
+      underReview: all.filter(d => d.raw === 'UNDER_REVIEW').length,
+      resolved: all.filter(d => d.raw === 'RESOLVED').length,
+      rejected: all.filter(d => d.raw === 'REJECTED').length,
     };
   });
+
+  // Read-only details of one dispute (GET /client/disputes/:id). Resolving is the admin's alone; the client only reads the status.
+  detailsId = signal<string | null>(null);
+  detail = signal<Dispute | null>(null);
+  detailLoading = signal(false);
+  detailError = signal('');
+
+  toggleDetails(id: string) {
+    if (this.detailsId() === id) { this.detailsId.set(null); return; }
+    this.detailsId.set(id);
+    this.detail.set(null);
+    this.detailError.set('');
+    this.detailLoading.set(true);
+    this.disputeApi.getClientDispute(id).subscribe({
+      next: (res) => {
+        if (this.detailsId() !== id) return;
+        this.detailLoading.set(false);
+        if (res.success && res.data) this.detail.set(res.data);
+        else this.detailError.set('تعذر تحميل تفاصيل النزاع.');
+      },
+      error: (err) => {
+        if (this.detailsId() !== id) return;
+        this.detailLoading.set(false);
+        this.detailError.set(err?.error?.message || 'تعذر تحميل تفاصيل النزاع.');
+      }
+    });
+  }
 
   readonly tabsList = computed(() => {
     const all = this.disputes();
@@ -173,8 +219,8 @@ export class Disputes implements OnInit {
       { id: 'closed', label: 'مُغلقة', count: all.filter(d => d.status === 'closed').length },
       { id: 'mine', label: 'رفعتها أنا', count: all.filter(d => d.who === 'mine').length },
       { id: 'against', label: 'مرفوعة ضدي', count: all.filter(d => d.who === 'against').length },
-      { id: 'pending', label: 'بانتظار ردي', count: all.filter(d => d.extra === 'pending').length },
       { id: 'review', label: 'قيد المراجعة', count: all.filter(d => d.extra === 'review').length },
+      { id: 'rejected', label: 'مرفوضة', count: all.filter(d => d.extra === 'rejected').length },
     ];
   });
 }

@@ -89,11 +89,10 @@ describe('client reports — AI summary card', () => {
 		expect(el.textContent).toContain('جديد');
 		expect(el.textContent).not.toContain('قديم');
 	});
-	it('custom range: no AI card, no call', () => {
-		const { f, el, calls } = setup(() => of(ai({})));
-		f.componentInstance.dpApply();
+	it('all-periods range reloads the report and the AI summary with that range', () => {
+		const { f, calls } = setup(() => of(ai({})));
+		f.componentInstance.setDate('all');
 		f.detectChanges();
-		expect(calls).toEqual(['month']);
-		expect(el.querySelector('ws-ai-result-card section')).toBeNull();
+		expect(calls).toEqual(['month', 'all']);
 	});
 });

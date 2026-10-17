@@ -1,20 +1,38 @@
-import { Component, OnInit, Signal, WritableSignal, computed, inject, signal, HostListener } from '@angular/core';
+import { Component, ElementRef, OnInit, Signal, WritableSignal, computed, inject, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { AccountType } from '../../../../core/models/auth.model';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { handleAdminError, reportAdminProblems, SubmitGuard } from '../shared/admin-form-report';
+import { SaNotifyModal } from '../sa-notify-modal';
 import { SaUsersService, AdminUser, AdminUsersStats, AdminUsersQueryParams } from './sa-users.service';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-sa-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SaNotifyModal],
   templateUrl: './sa-users.html',
   styleUrl: './sa-users.css'
 })
 export class SaUsers implements OnInit {
   private usersService = inject(SaUsersService);
+  private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private statusGuard = new SubmitGuard();
+  private deleteGuard = new SubmitGuard();
+  deleteBusy = signal(false);
+  deleteError = signal('');
+
+  /** Permanent delete is a SUPER_ADMIN-only action on the server; the control is hidden for other admins. */
+  readonly isSuperAdmin = computed(() => this.authStore.currentUser()?.accountType === AccountType.SUPER_ADMIN);
+  loadError = signal('');
+  notifyTarget = signal<AdminUser | null>(null);
 
   // Reactive State Signals
   selectedAccountType = signal<string>('all');
@@ -54,7 +72,7 @@ export class SaUsers implements OnInit {
     'pr-ind':    ['المستخدم','الحالة','آخر نشاط','القيمة المالية','التقييم','المستوى','التخصص','المشاريع الجارية','إجمالي الإيرادات','إجراءات'],
     'pr-co':     ['الشركة','الحالة','آخر نشاط','القيمة المالية','عدد المقدمين','التخصصات','المشاريع الجارية','إجمالي الإيرادات','إجراءات'],
     'affiliate': ['المستخدم','الحالة','آخر نشاط','القيمة المالية (عمولات)','المستوى','إجمالي الإحالات','هذا الشهر','نسبة التحويل','إجراءات'],
-    'admin':     ['المستخدم','الحالة','آخر دخول','الدور','الصلاحيات','مهام جارية','مهام مكتملة','آخر إجراء','إجراءات']
+    'admin':     ['المستخدم','الحالة','آخر دخول','الدور','الدور النشط','مهام جارية','مهام مكتملة','آخر إجراء','إجراءات']
   };
 
   get currentCols() {
@@ -65,7 +83,7 @@ export class SaUsers implements OnInit {
     const stats = this.usersStats();
     const tab = this.selectedAccountType();
 
-    const formatNumber = (num?: number) => (num !== undefined ? num.toLocaleString('en-US') : '0');
+    const formatNumber = (num?: number) => (num !== undefined ? formatMoney(num) : '0');
     // No fabricated numbers: when getStats() genuinely doesn't return a field
     // (e.g. per-account-type spend/orders/commissions/ratings), show an honest
     // placeholder instead — matching the "غير متاح" convention used elsewhere
@@ -165,6 +183,7 @@ export class SaUsers implements OnInit {
 
   fetchUsers() {
     this.loading.set(true);
+    this.loadError.set('');
     const params: AdminUsersQueryParams = {
       page: this.currentPage(),
       limit: this.limit(),
@@ -187,7 +206,7 @@ export class SaUsers implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Failed to fetch users:', err);
+        this.loadError.set(err?.error?.message || 'تعذر تحميل المستخدمين، حاول مرة أخرى');
         this.loading.set(false);
       }
     });
@@ -236,17 +255,52 @@ export class SaUsers implements OnInit {
     }
   }
 
+  // ── status change: always through a confirmation; suspending needs a written reason (the server refuses without one)
+  statusTarget = signal<AdminUser | null>(null);
+  statusReason = signal('');
+  statusBusy = signal(false);
+  statusError = signal('');
+
   toggleStatus(user: AdminUser) {
-    const newStatus = user.status === 'active' ? 'SUSPENDED' : 'ACTIVE';
-    this.usersService.updateUserStatus(user.id, newStatus).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.fetchUsers();
-          this.fetchStats();
-        }
+    this.closeDropdowns();
+    this.statusTarget.set(user);
+    this.statusReason.set('');
+    this.statusError.set('');
+  }
+
+  closeStatusModal() { if (!this.statusBusy()) this.statusTarget.set(null); }
+
+  get statusWillSuspend(): boolean { return this.statusTarget()?.status === 'active'; }
+
+  confirmStatus() {
+    const user = this.statusTarget();
+    if (!user || this.statusBusy()) return;
+    const suspend = user.status === 'active';
+    const reason = this.statusReason().trim();
+    this.statusError.set('');
+    if (suspend && reason.length < 3) { void reportAdminProblems(this.host.nativeElement, [{ field: 'status-reason', message: reason ? 'سبب الإيقاف قصير جدًا (3 أحرف على الأقل)' : 'سبب الإيقاف مطلوب (3 أحرف على الأقل)' }]); return; }
+    if (!this.statusGuard.enter()) return;
+    this.statusBusy.set(true);
+    this.usersService.updateUserStatus(user.id, suspend ? 'SUSPENDED' : 'ACTIVE', suspend ? reason : undefined).subscribe({
+      next: () => {
+        this.statusGuard.release();
+        this.statusBusy.set(false);
+        this.statusTarget.set(null);
+        this.notify.success(suspend ? 'تم إيقاف الحساب وتسجيل الإجراء في سجل التدقيق' : 'تم تفعيل الحساب وتسجيل الإجراء في سجل التدقيق');
+        this.fetchUsers();
+        this.fetchStats();
       },
-      error: (err) => console.error('Failed to update status:', err)
+      error: (err) => {
+        this.statusGuard.release();
+        this.statusBusy.set(false);
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تغيير حالة الحساب', resolve: { reason: 'status-reason' } }, (m) => this.statusError.set(m));
+      }
     });
+  }
+
+  onNotifySent() {
+    this.notifyTarget.set(null);
+    this.notify.success('تم إرسال الرسالة وتسجيلها في سجل التدقيق');
   }
 
   isDeleteModalOpen = signal<boolean>(false);
@@ -254,6 +308,7 @@ export class SaUsers implements OnInit {
 
   openDeleteModal(user: AdminUser) {
     this.userToDelete.set(user);
+    this.deleteError.set('');
     this.isDeleteModalOpen.set(true);
     this.closeDropdowns();
   }
@@ -265,20 +320,25 @@ export class SaUsers implements OnInit {
 
   confirmDelete() {
     const user = this.userToDelete();
-    if (!user) return;
-    
+    if (!user || !this.deleteGuard.enter()) return;
+    this.deleteError.set('');
+    this.deleteBusy.set(true);
     this.usersService.deleteUser(user.id).subscribe({
       next: (res) => {
+        this.deleteGuard.release();
+        this.deleteBusy.set(false);
         if (res.success) {
+          this.notify.success('تم حذف الحساب');
           this.fetchUsers();
           this.fetchStats();
           this.closeDeleteModal();
         }
       },
       error: (err) => {
-        console.error('Failed to delete user:', err);
-        alert('حدث خطأ أثناء محاولة حذف الحساب. قد لا تملك الصلاحية الكافية.');
-        this.closeDeleteModal();
+        this.deleteGuard.release();
+        this.deleteBusy.set(false);
+        // The dialog stays open with the honest reason (403 / 409 / 429 / 5xx / network); no field is involved.
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر حذف الحساب. قد لا تملك الصلاحية الكافية.' }, (m) => this.deleteError.set(m));
       }
     });
   }
@@ -308,6 +368,17 @@ export class SaUsers implements OnInit {
       joinedDate: this.selectedJoinedDate(),
       lastActive: this.selectedLastActive()
     };
-    this.usersService.downloadCsv(params);
+    this.usersService.downloadCsv(params).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'users-export.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.notify.success('تم تنزيل ملف المستخدمين');
+      },
+      error: (err) => this.notify.error(err?.error?.message || 'تعذر تصدير الملف')
+    });
   }
 }

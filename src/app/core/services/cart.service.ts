@@ -17,11 +17,9 @@ export interface CouponResult {
 	coupon?: CouponData;
 }
 
-// Guest-only fallback coupons. Used ONLY when user is NOT authenticated.
-// Authenticated users always validate via POST /api/checkout/coupon/validate.
-const GUEST_MOCK_COUPONS: Record<string, { discountType: 'percentage' | 'fixed'; discountValue: number }> = {
-	WASEET10: { discountType: 'percentage', discountValue: 10 },
-};
+// Coupons are validated by the backend ONLY (POST /api/checkout/coupon/validate, which needs a login). There is no local/guest coupon: a guest gets no
+// discount and is asked to sign in. The discount shown is the server's `discountAmount`, never a local computation.
+export const GUEST_COUPON_MESSAGE = 'سجّل الدخول لتطبيق الكوبون';
 
 @Injectable({
 	providedIn: 'root'
@@ -48,15 +46,20 @@ export class CartService {
 			.filter(i => !i.savedForLater)
 			.reduce((sum, i) => sum + i.totalAmount, 0)
 	);
+	/** Why a stored coupon was dropped (shown to the user); null when nothing was dropped. */
+	readonly couponNotice = signal<string | null>(null);
+	/** The server's own discount for the validated coupon (never recomputed locally); 0 for a guest or when no coupon is validated. */
 	readonly discount = computed(() => {
 		const c = this._coupon();
-		if (!c) return 0;
-		const sub = this.subtotal();
-		if (c.discountType === 'percentage') {
-			return Math.round((sub * c.discountValue) / 100 * 100) / 100;
-		}
-		return Math.min(c.discountValue, sub);
+		if (!c || !this.authStore.isAuthenticated()) return 0;
+		const amount = Number(c.discountAmount);
+		return Number.isFinite(amount) && amount > 0 ? Math.min(amount, this.subtotal()) : 0;
 	});
+	private readonly cartKey = computed(() =>
+		this._items().filter(i => !i.savedForLater).map(i => `${i.modelId}:${i.totalAmount}`).sort().join('|'));
+	private couponCheckSeq = 0;
+	/** true once the cart (server or local) has been read, so an empty-but-still-loading cart is never mistaken for an empty one. */
+	private readonly cartReady = signal(false);
 	readonly total = computed(() => Math.max(0, this.subtotal() - this.discount()));
 
 	constructor() {
@@ -65,9 +68,25 @@ export class CartService {
 		if (this.isBrowser) {
 			effect(() => {
 				const authed = this.authStore.isAuthenticated();
-				if (authed) {
-					untracked(() => this.onLoginSync());
+				const canBuy = this.authStore.canPurchase(); // re-runs when the acting role is switched to CLIENT
+				if (authed && canBuy) {
+					untracked(() => { this.loadCart(); this.onLoginSync(); });
 				}
+			});
+
+			// A stored coupon is never trusted: after a login or any change of the cart it is validated again by the backend, and dropped (with a clear
+			// message) when it is no longer valid. A guest keeps no coupon at all.
+			effect(() => {
+				const authed = this.authStore.isAuthenticated();
+				this.cartKey();
+				if (!this.cartReady()) return;
+				untracked(() => {
+					if (!authed) {
+						if (this._coupon()) { this._coupon.set(null); this.persistCoupon(); }
+						return;
+					}
+					this.revalidateCoupon();
+				});
 			});
 		}
 	}
@@ -201,6 +220,13 @@ export class CartService {
 		if (!this.isBrowser) return;
 		if (this.isLoadingServerCart) return;
 
+		// A user acting as a provider has no purchase cart (the server answers 403): nothing is requested, the cart is simply empty until the CLIENT role is active.
+		if (this.authStore.isAuthenticated() && !this.authStore.canPurchase()) {
+			this._items.set([]);
+			this.cartReady.set(true);
+			return;
+		}
+
 		if (this.authStore.isAuthenticated()) {
 			this.isLoadingServerCart = true;
 			this.cartApi.getCart().subscribe({
@@ -209,6 +235,7 @@ export class CartService {
 					const items = mapCartResponse(data as BackendCartResponse);
 					this._items.set(items);
 					this.isLoadingServerCart = false;
+					this.cartReady.set(true);
 				},
 				error: (err: any) => {
 					console.error('[CartService] loadCart backend failed:', err);
@@ -241,6 +268,7 @@ export class CartService {
 			this._items.set([]);
 			this._coupon.set(null);
 		}
+		this.cartReady.set(true);
 	}
 
 	applyCoupon(code: string): Observable<CouponResult> {
@@ -271,6 +299,7 @@ export class CartService {
 						discountAmount: data.discountAmount,
 					};
 					this._coupon.set(coupon);
+					this.couponNotice.set(null);
 					this.persistCoupon();
 					return { success: true, message: 'تم تطبيق الكوبون', coupon } as CouponResult;
 				}),
@@ -285,30 +314,43 @@ export class CartService {
 			);
 		}
 
-		// Guest: use local fallback coupons (backend requires bearerAuth).
-		const mock = GUEST_MOCK_COUPONS[upper];
-		if (!mock) {
-			this._coupon.set(null);
-			this.persistCoupon();
-			return of({ success: false, message: 'كوبون غير صالح' });
-		}
-		const sub = this.subtotal();
-		const discountAmount =
-			mock.discountType === 'percentage'
-				? Math.round((sub * mock.discountValue) / 100 * 100) / 100
-				: Math.min(mock.discountValue, sub);
-		const coupon: CouponData = {
-			code: upper,
-			discountType: mock.discountType,
-			discountValue: mock.discountValue,
-			discountAmount,
-		};
-		this._coupon.set(coupon);
+		// Guest: no local coupon exists — the backend needs a login to validate one.
+		return of({ success: false, message: GUEST_COUPON_MESSAGE });
+	}
+
+	private revalidateCoupon(): void {
+		const stored = this._coupon();
+		if (!stored || !this.authStore.isAuthenticated() || !this.authStore.canPurchase()) return;
+		const items = this._items().filter(i => !i.savedForLater).map(i => ({ modelId: i.modelId, totalAmount: i.totalAmount }));
+		if (items.length === 0) { this.dropCoupon(`أُزيل الكوبون ${stored.code} لأن السلة فارغة`); return; }
+		const seq = ++this.couponCheckSeq;
+		this.checkoutApi.validateCoupon({ code: stored.code, items }).subscribe({
+			next: (res: any) => {
+				if (seq !== this.couponCheckSeq) return;
+				const data = res?.data ?? res;
+				this._coupon.set({ code: data.code || stored.code, discountType: data.discountType, discountValue: data.discountValue, discountAmount: data.discountAmount });
+				this.persistCoupon();
+			},
+			error: (err: any) => {
+				if (seq !== this.couponCheckSeq) return;
+				const status = Number(err?.status);
+				// only a definite refusal (4xx) drops the coupon; a network/server hiccup keeps it (the backend re-checks it when the order is created)
+				if (status >= 400 && status < 500) {
+					const reason = err?.error?.message || 'كوبون غير صالح';
+					this.dropCoupon(`أُزيل الكوبون ${stored.code}: ${reason}`);
+				}
+			},
+		});
+	}
+
+	private dropCoupon(notice: string): void {
+		this._coupon.set(null);
+		this.couponNotice.set(notice);
 		this.persistCoupon();
-		return of({ success: true, message: 'تم تطبيق الكوبون', coupon });
 	}
 
 	removeCoupon(): void {
+		this.couponNotice.set(null);
 		this._coupon.set(null);
 		this.persistCoupon();
 	}
@@ -316,6 +358,7 @@ export class CartService {
 	private onLoginSync(): void {
 		if (!this.isBrowser) return;
 		if (this.hasSyncedThisSession) return;
+		if (!this.authStore.canPurchase()) return; // acting as a provider: no purchase cart to merge into
 
 		const localItems = this._items().filter(i => !i.savedForLater);
 		if (localItems.length === 0) {

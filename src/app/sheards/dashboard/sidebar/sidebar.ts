@@ -12,6 +12,8 @@ import { ProviderApiService } from '../../../core/services/provider-api.service'
 import { MarketingCenterService } from '../../../core/services/marketing-center.service';
 import { MarketerProfileService } from '../../../core/services/marketer-profile.service';
 import { resolveMarketerSetup } from '../../../pages/dashboard/marketer-overview/profile/profile-setup/marketer-setup-state';
+import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../core/services/provider-access.service';
+import { isOnboardingAllowedPath } from '../../../core/guards/profile-complete.guard';
 
 export interface NavItem {
 	type: 'header' | 'link' | 'accordion' | 'button' | 'divider';
@@ -24,6 +26,8 @@ export interface NavItem {
 	children?: NavItem[];
 	action?: string;
 	disabled?: boolean;
+	/** shown as a tooltip when the item is disabled */
+	disabledReason?: string;
 }
 
 @Component({
@@ -39,12 +43,15 @@ export class Sidebar implements OnInit {
 	public chatStateService = inject(ChatStateService);
 	private cdRef = inject(ChangeDetectorRef);
 	private providerApiService = inject(ProviderApiService);
+	private providerAccess = inject(ProviderAccessService);
 	private marketingCenterService = inject(MarketingCenterService);
 	private marketerProfileService = inject(MarketerProfileService);
 
 	isProviderProfileIncomplete = signal<boolean>(false);
 	/** Individual provider: the setup form AND the classification test are done -> the "استكمال البيانات" link goes away. */
 	providerSetupDone = signal<boolean>(false);
+	/** Individual provider: the backend said the dashboard is not open yet (or could not be asked) -> only the onboarding items stay enabled. */
+	providerRestricted = signal<boolean>(false);
 	/** Marketer: is there still something the "استكمال البيانات" wizard can collect? Unknown (profile not read yet) counts as yes. */
 	marketerSetupNeeded = computed<boolean>(() => {
 		const p = this.marketerProfileService.profileSnapshot();
@@ -80,7 +87,7 @@ export class Sidebar implements OnInit {
 		}
 		// Fetch provider stats if role is provider to check profile completeness
 		if (this.effectiveRole() === UserRole.PROVIDER) {
-			this.providerApiService.getOverviewStats().subscribe({
+			const loadStats = () => this.providerApiService.getOverviewStats().subscribe({
 				next: (res) => {
 					if (res.success && res.data?.summary) {
 						this.isProviderProfileIncomplete.set(!res.data.summary.profileSetupCompleted);
@@ -89,6 +96,20 @@ export class Sidebar implements OnInit {
 				},
 				error: (err) => console.error('Failed to load provider stats for sidebar', err)
 			});
+			if (this.authStore.currentUser()?.accountType !== AccountType.PROVIDER_COMPANY) {
+				// unknown/failed = closed: the backend must say the dashboard is open before the full menu shows.
+				// /provider/statistics is a gated endpoint (403 until approved), so it is only read once the backend said APPROVED.
+				this.providerRestricted.set(true);
+				this.providerAccess.load().subscribe({
+					next: a => {
+						this.providerRestricted.set(a.canAccessDashboard !== true);
+						if (a.canAccessDashboard === true) loadStats();
+					},
+					error: () => this.providerRestricted.set(true),
+				});
+			} else {
+				loadStats();
+			}
 			// Company accounts: seed the "طلبات الموافقة" pending badge.
 			if (this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY) {
 				this.marketingCenterService.refreshPendingCount();
@@ -294,7 +315,9 @@ export class Sidebar implements OnInit {
 				type: 'accordion', id: 'sa-system', label: 'إدارة النظام', icon: icons.settings,
 				children: [
 					{ type: 'link', label: 'إعدادات النظام', route: '/supper-admin-overview/system-settings', icon: icons.settings },
-					{ type: 'link', label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield }
+					{ type: 'link', label: 'المواد التسويقية', route: '/supper-admin-overview/marketing-assets', icon: icons.list },
+					{ type: 'link', label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield },
+					{ type: 'link', label: 'حسابي وأمان الدخول', route: '/supper-admin-overview/my-account', icon: icons.person }
 				]
 			},
 
@@ -403,6 +426,12 @@ export class Sidebar implements OnInit {
 				label: 'روابط الإحالة',
 				route: '/marketer-overview/ref-links',
 				icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1'
+			},
+			{
+				type: 'link',
+				label: 'المواد التسويقية',
+				route: '/marketer-overview/assets',
+				icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
 			},
 			{ type: 'header', label: 'العمولات' },
 			{
@@ -564,7 +593,7 @@ export class Sidebar implements OnInit {
 						{ type: 'link', label: 'طلبات تعديل الملف', route: '/provider-overview/profile/requests', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
 						{ type: 'link', label: 'إدارة التخصصات', route: '/provider-overview/profile/specialties', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
 						{ type: 'link', label: 'مستوى التصنيف', route: '/provider-overview/profile/level', icon: 'M5 13l4 4L19 7' },
-						{ type: 'link', label: 'سجل إجراءات الحساب', route: '/provider-overview/profile/logs', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
+						{ type: 'link', label: 'سجل النشاط والأمان', route: '/provider-overview/profile/logs', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
 						{ type: 'link', label: 'إضافة حساب', route: '/provider-overview/profile/add-account', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' }
 					]
 				},
@@ -601,6 +630,25 @@ export class Sidebar implements OnInit {
 					action: 'logout'
 				}
 			];
+
+		if (this.providerRestricted()) {
+			const reason = 'تفتح بعد اعتماد نموذج الاعتماد';
+			const statusLink: NavItem = { type: 'link', label: 'إجراءات الحساب', route: PROVIDER_ACCESS_STATUS_URL, icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' };
+			const off = (i: NavItem): NavItem => ({ ...i, disabled: true, disabledReason: reason, children: i.children?.map(c => ({ ...c, disabled: true, disabledReason: reason })) });
+			const out: NavItem[] = [];
+			items.forEach((item, idx) => {
+				if (idx === 1) out.push(statusLink);
+				if (item.type === 'header' || item.action === 'logout') { out.push(item); return; }
+				if (item.children) {
+					const open = (c: NavItem) => !!c.route && isOnboardingAllowedPath(c.route);
+					if (!item.children.some(open)) { out.push(off(item)); return; }
+					out.push({ ...item, children: item.children.map(c => open(c) ? c : { ...c, disabled: true, disabledReason: reason }) });
+					return;
+				}
+				out.push(item.route && isOnboardingAllowedPath(item.route) ? item : off(item));
+			});
+			return out;
+		}
 
 		if (incomplete) {
 			return items.map(item => {
@@ -746,7 +794,7 @@ export class Sidebar implements OnInit {
 					{ type: 'link', label: 'تعديل الملف الشخصي', route: '/client-overview/profile/edit', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
 					...(clientProfileComplete ? [] : [{ type: 'link', label: 'استكمال البيانات', route: '/client-overview/profile-setup', icon: 'M5 13l4 4L19 7' } as NavItem]),
 					{ type: 'link', label: 'طلبات تعديل الملف', route: '/client-overview/profile/requests', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-					{ type: 'link', label: 'سجل إجراءات الحساب', route: '/client-overview/profile/logs', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
+					{ type: 'link', label: 'سجل النشاط والأمان', route: '/client-overview/profile/logs', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
 					{ type: 'link', label: 'إضافة حساب', route: '/client-overview/profile/add-account', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' },
 					{ type: 'link', label: 'مستوى التصنيف', route: '/client-overview/profile/level', icon: 'M5 13l4 4L19 7' }
 				] as NavItem[]

@@ -130,3 +130,6 @@
 :host-context(.light-theme) .sap-select,
 :host-context(.theme-light) .sap-select{background:#fff;border-color:#CBD5E1;color:#1E293B}
 
+
+.sap-btn:disabled { opacity: .5; cursor: not-allowed; }
+@media print { .sap-hdr ws-select, .sap-hdr .sap-btn { display: none !important; } }

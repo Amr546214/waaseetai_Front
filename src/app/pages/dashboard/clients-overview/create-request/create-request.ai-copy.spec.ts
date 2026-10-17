@@ -63,7 +63,7 @@ describe('create request: AI copy is truthful', () => {
 		expect(t).toContain('طول الوصف مناسب');
 		expect(t).toContain('أضف وصفًا أوضح لطلبك');
 		expect(t).toContain('مسودة قابلة للتعديل قبل الإرسال');
-		expect(t).toContain('أضف المتطلبات التي يجب أن يلتزم بها مقدم الخدمة');
+		expect(t).toContain('أضف الشروط الإضافية التي يجب أن يلتزم بها مقدم الخدمة');
 		// the real streaming labels stay
 		expect(t).toContain('جاري صياغة الوصف بواسطة الذكاء الاصطناعي');
 		expect(t).toContain('تحسين وصياغة AI');
@@ -95,7 +95,7 @@ describe('create request: AI copy is truthful', () => {
 		const step3 = read('components/step3-details/step3-details.html');
 		const quality = step3.slice(step3.indexOf('class="ai-quality'), step3.indexOf('id="desc-count"'));
 		expect(quality).not.toContain('#i-ai');
-		const reqNote = step3.slice(step3.indexOf('أضف المتطلبات') - 600, step3.indexOf('أضف المتطلبات'));
+		const reqNote = step3.slice(step3.indexOf('أضف الشروط الإضافية') - 600, step3.indexOf('أضف الشروط الإضافية'));
 		expect(reqNote).not.toContain('#i-ai');
 		// the AI "node graph" glyph (circle cx=12 cy=12 r=2 + satellites) lives only on the refine button
 		for (const f of ['components/step1-specialty/step1-specialty.html', 'components/step2-conditions/step2-conditions.html', 'components/step4-budget/step4-budget.html', 'components/step5-files/step5-files.html', 'components/step6-review/step6-review.html']) {

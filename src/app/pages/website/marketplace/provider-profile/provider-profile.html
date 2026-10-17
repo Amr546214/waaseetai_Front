@@ -64,7 +64,6 @@
           } @else {
             <div class="profile-av">{{ provider()?.header?.fullName?.substring(0, 2) || 'م.خ' }}</div>
           }
-          <div class="profile-online" title="متاحة الآن"></div>
         </div>
         <div class="identity-info">
           <div class="identity-name-row">
@@ -76,34 +75,19 @@
                 موثّق
               </span>
             }
-            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#0FA99A;font-weight:700">
-              <span style="width:7px;height:7px;border-radius:50%;background:#0FA99A"></span>
-              متاحة الآن · ترد خلال 3 ساعات
-            </span>
           </div>
           <div class="identity-title">{{ provider()?.basicInfo?.headline || 'مزود خدمة محترف' }} — {{ provider()?.basicInfo?.yearsOfExperience || 'بدون خبرة مسجلة' }}</div>
         </div>
         <div class="identity-actions">
           <button class="btn-primary-sm" type="button" (click)="goToServices()">اطلب خدمة</button>
-          <button class="btn-ghost-sm" type="button">
-            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-msg"></use></svg>
-            إرسال رسالة
-          </button>
-          <button class="btn-ghost-sm" id="fav-btn" type="button" (click)="toggleFav()"
-                  [style.color]="favSaved() ? 'var(--red)' : null"
-                  [style.border-color]="favSaved() ? 'rgba(255,140,105,.3)' : null">
-            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-heart"></use></svg>
-            @if (favSaved()) { محفوظ }
-          </button>
-          <button class="btn-ghost-sm" type="button">
-            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-share"></use></svg>
-          </button>
         </div>
       </div>
       <!-- SKILL TAGS -->
       <div class="skill-tags-row">
         @for (skill of provider()?.skills; track skill) {
           <span class="skill-tag">{{ skill }}</span>
+        } @empty {
+          <span style="font-size:11px;color:var(--txt-3)" data-testid="skills-empty">لا توجد مهارات مضافة بعد</span>
         }
       </div>
     </div>
@@ -115,7 +99,7 @@
         <div class="stat-sub">{{ (provider()?.header?.stats?.reviewsCount || 0) > 0 ? 'من ' + provider()?.header?.stats?.reviewsCount + ' تقييم' : 'لا توجد تقييمات بعد' }}</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-n">{{ (provider()?.header?.stats?.completedProjects || 0) | number }}</div>
+        <div class="stat-n">{{ (provider()?.header?.stats?.completedProjects || 0) | number:'1.0-2' }}</div>
         <div class="stat-sub">مشروع مكتمل</div>
       </div>
       @if (activeTab() === 'portfolio') {
@@ -286,7 +270,7 @@
 
           @if (provider()?.skills?.length) {
           <div>
-            <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.07em;margin-bottom:7px">مهارات إضافية</div>
+            <div style="font-size:10px;font-weight:800;color:var(--txt-3);letter-spacing:.07em;margin-bottom:7px">المهارات</div>
             <div>
               @for (skill of provider()?.skills; track skill) {
                 <span class="tag-teal">{{ skill }}</span>
@@ -393,8 +377,11 @@
           </div>
           <div class="svc-body">
             <div class="svc-title">{{ srv.title }}</div>
+            @if (isOwnProfile()) {
+            <div data-testid="own-service" role="status" style="font-size:12px;font-weight:800;margin-bottom:4px">هذه خدمتك</div>
+            }
             <div class="svc-footer">
-              <div class="svc-price"><span>يبدأ من </span>{{ (srv.totalAmount || 0) | number }} ر</div>
+              <div class="svc-price"><span>يبدأ من </span>{{ (srv.totalAmount || 0) | number:'1.0-2' }} ر</div>
               @if (srv.totalDays) {
               <div class="svc-delivery">
                 <svg aria-hidden="true" style="width:10px;height:10px"><use href="#ws-clock"></use></svg>
@@ -525,14 +512,10 @@
       <div style="margin-top:48px;padding:28px 32px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.15);border-radius:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
         <div style="flex:1;min-width:260px">
           <div style="font-size:18px;font-weight:900;color:var(--txt);margin-bottom:6px">أعجبك عمل {{ provider()?.header?.fullName || 'مزود الخدمة' }}؟</div>
-          <div style="font-size:13px;color:var(--txt-3)">احجز خدمة مخصصة أو تواصل مباشرة لمناقشة مشروعك</div>
+          <div style="font-size:13px;color:var(--txt-3)">اطلب خدمة مشابهة لمشروعك</div>
         </div>
         <div style="display:flex;gap:10px;flex-shrink:0">
           <button class="btn-primary-sm" type="button" (click)="goToServices()">اطلب خدمة مشابهة</button>
-          <button class="btn-ghost-sm" type="button">
-            <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-msg"></use></svg>
-            تواصل مع المزود
-          </button>
         </div>
       </div>
 

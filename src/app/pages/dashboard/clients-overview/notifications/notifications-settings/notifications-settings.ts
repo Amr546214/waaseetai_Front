@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 
 const DEFAULT_PREFERENCES = {
 	newOffer: true, requestStatus: true, newMessage: true, reviewDeadline: true,
 	walletActivity: true, cashback: true, financialSecurity: true,
 	providerRecommendations: true, promotions: false, newsletter: false,
-	inApp: true, email: true, sms: true, push: false,
+	channel_in_app: true, channel_email: false,
 };
 
 @Component({
@@ -18,13 +19,12 @@ const DEFAULT_PREFERENCES = {
 })
 export class NotificationsSettings implements OnInit {
 	private preferencesService = inject(NotificationPreferencesService);
+	private notify = inject(UiNotificationService);
 
 	preferences = { ...DEFAULT_PREFERENCES };
 	readonly isLoading = signal(false);
 	readonly hasError = signal(false);
-	readonly toastMessage = signal('');
 	readonly isSaving = signal(false);
-	private toastTimer?: ReturnType<typeof setTimeout>;
 
 	ngOnInit(): void {
 		this.loadPreferences();
@@ -59,25 +59,19 @@ export class NotificationsSettings implements OnInit {
 			next: (res) => {
 				this.isSaving.set(false);
 				if (res.success) {
-					this.showToast('تم حفظ تفضيلات الإشعارات بنجاح');
+					this.notify.success('تم حفظ تفضيلات الإشعارات بنجاح');
 				} else {
-					this.showToast(res.message || 'تعذر حفظ التفضيلات');
+					this.notify.error(res.message || 'تعذر حفظ التفضيلات');
 				}
 			},
 			error: () => {
 				this.isSaving.set(false);
-				this.showToast('تعذر حفظ التفضيلات، حاول مرة أخرى');
+				this.notify.error('تعذر حفظ التفضيلات، حاول مرة أخرى');
 			}
 		});
 	}
 
 	retry(): void {
 		this.loadPreferences();
-	}
-
-	private showToast(message: string): void {
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastMessage.set(message);
-		this.toastTimer = setTimeout(() => this.toastMessage.set(''), 3000);
 	}
 }

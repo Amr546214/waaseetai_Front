@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, Subject, tap } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { environment } from '../../../environments/environment';
 import { ChatStateService } from './chat-state.service';
 import { NotificationSoundService } from './notification-sound.service';
@@ -50,6 +51,7 @@ export class ChatService {
   public newMessage$ = new Subject<any>();
   public typingIndicator$ = new Subject<{ conversationId: string; userId: string; userName: string; isTyping: boolean }>();
   public conversationUpdated$ = new Subject<any>();
+  public projectEvent$ = new Subject<any>();
   public socketConnected$ = new Subject<Socket>();
   public chatError$ = new Subject<{ message: string }>();
 
@@ -88,6 +90,7 @@ export class ChatService {
 
     this.socket = io(environment.socketUrl, {
       withCredentials: true,
+      ...SOCKET_BACKOFF,
       transports: ['websocket', 'polling'],
       auth: token ? { token } : {}
     });
@@ -115,7 +118,9 @@ export class ChatService {
 
           // Increment global unread badges if conversation not open right now
           if (msg.conversationId && (msg.senderId !== userId && msg.sender !== 'me') && !isCurrentActive) {
-            this.chatStateService.incrementUnread(msg.conversationId);
+            // a PROJECT-context message counts on its project's own badge, never on the general messages badge
+            if (msg.conversationContext === 'PROJECT' && msg.contractId) this.chatStateService.incrementProjectUnread(msg.contractId);
+            else this.chatStateService.incrementUnread(msg.conversationId);
           }
         }
         this.newMessage$.next(msg);
@@ -126,6 +131,12 @@ export class ChatService {
       this.ngZone.run(() => {
         this.typingIndicator$.next(data);
       });
+    });
+
+    // A truthful project event (amendment created / accepted / rejected / cancelled / funding authorised / applied); the same payload also arrives as
+    // new_message in an open project tab, so listeners de-duplicate by id.
+    this.socket.on('project_event', (event: any) => {
+      this.ngZone.run(() => { if (event) this.projectEvent$.next(event); });
     });
 
     this.socket.on('conversation_list_update', (data: any) => {
@@ -211,11 +222,21 @@ export class ChatService {
     );
   }
 
+  /** Which context a conversation id belongs to (an old general-list link to a project room redirects to the project's messages tab). */
+  public getConversationContext(conversationId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/conversations/${conversationId}/context`);
+  }
+
+  /** The project's own room (idempotent get-or-create on the server). */
+  public getProjectRoom(contractId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/project-rooms/${contractId}`, {});
+  }
+
   public getMessages(conversationId: string, page: number = 1, limit: number = 20): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/conversations/${conversationId}/messages?page=${page}&limit=${limit}`);
   }
 
-  public uploadAttachment(payload: { fileData: string; fileName: string; fileType: 'IMAGE' | 'FILE' | 'AUDIO'; fileSize?: number; audioDuration?: number }): Observable<any> {
+  public uploadAttachment(payload: { conversationId?: string; fileData: string; fileName: string; fileType: 'IMAGE' | 'FILE' | 'AUDIO'; fileSize?: number; audioDuration?: number }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/upload`, payload);
   }
 

@@ -1,9 +1,12 @@
-import { Component, ChangeDetectionStrategy, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
 import type { SafeHtml } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { NotificationEngineService } from '../../../../core/services/notification-engine.service';
+import { NotificationNavigator } from '../../../../core/services/notification-navigator.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { MarketerOverviewService, MarketerSummary } from '../../../../core/services/marketer-overview.service';
 
 interface RawNotification {
@@ -46,17 +49,17 @@ interface DisplayNotification extends RawNotification {
 	styleUrl: './notifications.css',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Notifications implements OnInit, OnDestroy {
+export class Notifications implements OnInit {
 	private notificationEngine = inject(NotificationEngineService);
 	private overviewService = inject(MarketerOverviewService);
 	private router = inject(Router);
+	private navigator = inject(NotificationNavigator);
+	private notify = inject(UiNotificationService);
 
 	summary = signal<MarketerSummary | null>(null);
 
 	isLoading = signal(true);
 	hasError = signal(false);
-	toastMessage = signal<string | null>(null);
-	private toastTimer: any = null;
 
 	notifications = signal<DisplayNotification[]>([]);
 	activeFilter = signal<FilterId>('all');
@@ -111,6 +114,15 @@ export class Notifications implements OnInit, OnDestroy {
 			}
 		});
 
+		// a coalesced chat row (same id, newer text / count): replace it and move it to the top; never a second row
+		effect(() => {
+			const upd = this.notificationEngine.realtimeUpdatedNotification();
+			if (upd && upd.id) {
+				const mapped = this.toDisplay(upd);
+				this.notifications.update(list => [mapped, ...list.filter(n => n.id !== upd.id)]);
+			}
+		});
+
 		effect(() => {
 			const readId = this.notificationEngine.realtimeReadNotification();
 			if (readId) {
@@ -130,10 +142,6 @@ export class Notifications implements OnInit, OnDestroy {
 		this.overviewService.getSummary().subscribe(res => {
 			if (res.success) this.summary.set(res.data);
 		});
-	}
-
-	ngOnDestroy(): void {
-		if (this.toastTimer) clearTimeout(this.toastTimer);
 	}
 
 	loadNotifications(): void {
@@ -171,32 +179,24 @@ export class Notifications implements OnInit, OnDestroy {
 				this.markingAll.set(false);
 				this.notifications.update(list => list.map(n => ({ ...n, isUnread: false, isRead: true })));
 				this.notificationEngine.unreadCount.set(0);
-				this.showToast('تم تعليم كل الإشعارات كمقروءة');
+				this.notify.success('تم تعليم كل الإشعارات كمقروءة');
 			},
 			error: () => {
 				// Never fake it: the server did not record it, so the list and the counters stay as they are.
 				this.markingAll.set(false);
-				this.showToast('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
+				this.notify.error('تعذر تعليم الإشعارات كمقروءة، حاول مرة أخرى');
 			}
 		});
 	}
 
 	onNotificationClick(nt: DisplayNotification): void {
-		if (nt.isUnread) {
-			this.notificationEngine.markNotificationAsRead(nt.id).subscribe({
-				next: () => {
-					this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false, isRead: true } : n));
-					this.notificationEngine.unreadCount.set(this.unreadCount());
-				}
-			});
-		}
-		if (nt.target) this.router.navigateByUrl(nt.target);
-	}
-
-	private showToast(msg: string): void {
-		this.toastMessage.set(msg);
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(() => this.toastMessage.set(null), 3000);
+		// read or unread, first or second click: the destination always opens; marking read never blocks it (see NotificationNavigator)
+		void this.navigator.open({ id: nt.id, isUnread: !!nt.isUnread, actionUrl: nt.target }, {
+			onMarkedRead: () => {
+				this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false, isRead: true } : n));
+				this.notificationEngine.unreadCount.set(this.unreadCount());
+			}
+		});
 	}
 
 	/** Display group from the real category/type (never "everything else is offers", never PROJECTS-as-AI). */
@@ -279,8 +279,8 @@ export class Notifications implements OnInit, OnDestroy {
 		const diffHr = Math.floor(diffMin / 60);
 		if (diffHr < 24) return `قبل ${diffHr} ساعة`;
 		const diffDays = Math.floor(diffHr / 24);
-		if (diffDays === 1) return `أمس ${d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+		if (diffDays === 1) return `أمس ${d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() })}`;
 		if (diffDays < 7) return `قبل ${diffDays} أيام`;
-		return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+		return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', timeZone: providerTimeZone() });
 	}
 }

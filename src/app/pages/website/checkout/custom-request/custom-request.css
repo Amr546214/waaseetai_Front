@@ -80,7 +80,7 @@ textarea.form-input{resize:vertical;min-height:100px;line-height:1.6}
 
 /* ── App states the design does not draw ── */
 /* non-AI helper note in the AI-banner slot: teal, not AI purple */
-.form-input.invalid,.form-select.invalid{border-color:rgba(255,140,105,.5)}
+.form-input.invalid,.form-select.invalid{border-color:var(--red)}
 .form-select:disabled{opacity:.6;cursor:wait}
 .field-error{font-size:10px;font-weight:700;color:var(--red)}
 .form-error{display:flex;align-items:center;gap:8px;padding:12px 14px;margin-bottom:14px;border-radius:12px;background:rgba(255,140,105,.06);border:1px solid rgba(255,140,105,.25);font-size:12px;font-weight:700;color:var(--red)}

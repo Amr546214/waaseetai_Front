@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { CreateRequest, resetCreateRequestPageLoadState } from './create-request';
 
 // "تحسين وصياغة AI" rewrites the client's draft, preserves the title and original until explicit apply,
 // and keeps selectable previews readable, editable and separate from incomplete provider output.
 const sockets: any[] = [];
 const ioMock = vi.hoisted(() => vi.fn());
-vi.mock('socket.io-client', () => ({ io: ioMock }));
+(globalThis as any).__socketIoModule = () => ({ io: ioMock });
 
 const TITLE = 'تطوير متجر إلكتروني متكامل';
 const DRAFT = 'أحتاج متجرًا إلكترونيًا لبيع الملابس يدعم الدفع عبر الإنترنت وإدارة المخزون ولوحة تحكم للطلبات';
@@ -42,7 +43,7 @@ describe('create-request: AI refine is rewriting only', () => {
 	});
 	afterEach(() => { TestBed.resetTestingModule(); vi.unstubAllGlobals(); });
 
-	const toast = () => c.toast()?.msg ?? '';
+	const toast = () => TestBed.inject(UiNotificationService).toasts().at(-1)?.message ?? '';
 	let fixtureRef: any;
 	const render = () => { c.currentStep.set(3); fixtureRef.detectChanges(); return fixtureRef.nativeElement as HTMLElement; };
 

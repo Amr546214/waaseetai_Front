@@ -5,7 +5,11 @@ import { RouterLink } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
 import { ProviderDepositModal } from './deposit-modal/deposit-modal';
 import { AuthStore } from '../../../../../core/store/auth.store';
-import { AccountType } from '../../../../../core/models/auth.model';
+import { AccountType, UserRole } from '../../../../../core/models/auth.model';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { handleLoadError, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
+
+export const PROVIDER_ONLY_FINANCE_MESSAGE = 'هذه الصفحة متاحة لحساب مقدم الخدمة فقط. بدّل إلى دورك كمقدم خدمة لعرض المحفظة.';
 
 export interface WalletTransaction {
   id: string;
@@ -41,6 +45,8 @@ export interface ProviderWalletProviderSpend {
 export interface WalletData {
   summary: {
     availableBalance: number;
+    pendingWithdrawals?: number;
+    withdrawableBalance?: number;
     totalEarnings: number;
     escrowBalance: number;
     releasedThisMonth: number;
@@ -65,7 +71,9 @@ export interface WalletData {
 export class Wallet implements OnInit {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
+  private notify = inject(UiNotificationService);
   data = signal<WalletData | null>(null);
+  readonly providerOnlyMessage = PROVIDER_ONLY_FINANCE_MESSAGE;
   loading = signal(true);
   error = signal('');
 
@@ -81,10 +89,8 @@ export class Wallet implements OnInit {
   // Gap 3: deposit is UI-only — there is no provider deposit/top-up
   // endpoint in provider-api.service.ts (unlike withdraw, which is wired
   // to a real backend). The modal never issues an HTTP call; it only
-  // emits the chosen amount so we can acknowledge it with a toast.
+  // emits the chosen amount so we can acknowledge it with a notification.
   showDepositModal = signal(false);
-  depositToast = signal('');
-  private depositToastTimer: ReturnType<typeof setTimeout> | null = null;
 
   openDepositModal() {
     this.showDepositModal.set(true);
@@ -96,10 +102,20 @@ export class Wallet implements OnInit {
 
   onDepositConfirmed(event: { amount: number; method: 'card' | 'bank' | 'paypal' }) {
     this.showDepositModal.set(false);
-    this.depositToast.set(`لم يُنفَّذ أي إيداع — الدفع الإلكتروني غير متاح حاليًا`);
-    if (this.depositToastTimer) clearTimeout(this.depositToastTimer);
-    this.depositToastTimer = setTimeout(() => this.depositToast.set(''), 4000);
+    this.notify.warning('لم يُنفَّذ أي إيداع — الدفع الإلكتروني غير متاح حاليًا');
   }
+
+  /** available + held in escrow: the ring is drawn only when there is something to show */
+  ringTotal = computed(() => {
+    const d = this.data();
+    return (d?.summary?.availableBalance || 0) + (d?.summary?.escrowBalance || 0);
+  });
+  /** the available share of the ring: arc length / remainder, out of the circumference of r=36 */
+  ringDash = computed(() => {
+    const circumference = 2 * Math.PI * 36;
+    const arc = (this.availableRatio() / 100) * circumference;
+    return `${arc.toFixed(1)} ${(circumference - arc).toFixed(1)}`;
+  });
 
   availableRatio = computed(() => {
     const d = this.data();
@@ -115,6 +131,8 @@ export class Wallet implements OnInit {
   }
 
   load() {
+    // The provider wallet is provider-only (the server answers 403 to any other role): never ask for it while acting as a client.
+    if (this.authStore.actingRole?.() === UserRole.CLIENT) { this.error.set(PROVIDER_ONLY_FINANCE_MESSAGE); this.loading.set(false); return; }
     this.loading.set(true);
     this.error.set('');
     this.http.get<{ success: boolean; data: WalletData }>(`${environment.url_api}/provider/finance/wallet`).subscribe({
@@ -123,8 +141,13 @@ export class Wallet implements OnInit {
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(err.error?.message || 'تعذر تحميل بيانات المحفظة');
-        this.loading.set(false);
+        if (err?.status === 403) { this.error.set(PROVIDER_ONLY_FINANCE_MESSAGE); this.loading.set(false); return; }
+        handleLoadError(err, {
+          hasData: () => this.data() != null,
+          onKeep: () => this.loading.set(false),
+          onRateLimit: (e) => { this.error.set(rateLimitToastMessage(e)); this.loading.set(false); },
+          onOtherError: () => { this.error.set(err.error?.message || 'تعذر تحميل بيانات المحفظة'); this.loading.set(false); },
+        });
       }
     });
   }

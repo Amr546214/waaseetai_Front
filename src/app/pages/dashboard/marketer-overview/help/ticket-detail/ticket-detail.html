@@ -1,0 +1,47 @@
+<div class="main-inner">
+  <a routerLink="/marketer-overview/help" class="txt-teal" style="font-size:12px;font-weight:700;display:inline-block;margin-bottom:12px">العودة إلى المساعدة</a>
+
+  @if (loading()) {
+  <div style="font-size:12px" class="txt-muted" data-testid="ticket-loading">جارٍ تحميل التذكرة...</div>
+  } @else if (notFound()) {
+  <div class="adm-card" data-testid="ticket-not-found"><div style="font-size:14px;font-weight:800" class="txt-white">التذكرة غير موجودة</div><div style="font-size:12px;margin-top:4px" class="txt-muted">قد يكون الرابط غير صحيح أو أن التذكرة ليست من تذاكرك.</div></div>
+  } @else if (failed()) {
+  <div class="adm-card" role="alert" data-testid="ticket-error"><div style="color:#FF8C69;font-size:13px;font-weight:700">تعذر تحميل التذكرة</div><button type="button" class="btn-primary" style="margin-top:10px" (click)="load(ticket()?.id || '')">إعادة المحاولة</button></div>
+  } @else if (ticket(); as t) {
+  <div class="adm-card" data-testid="ticket-head">
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">
+      <div>
+        <div style="font-size:16px;font-weight:900" class="txt-white">{{ t.subject }}</div>
+        <div style="font-size:11px;margin-top:3px" class="txt-muted"><span dir="ltr">{{ t.ticketNumber }}</span> · {{ t.category }} · فُتحت {{ createdLabel(t.createdAt) }}</div>
+      </div>
+      <span data-testid="ticket-status" style="font-size:11px;font-weight:700;padding:4px 12px;white-space:nowrap" class="badge-teal">{{ statusLabel(t.status) }}</span>
+    </div>
+  </div>
+
+  <div class="adm-card" style="margin-top:14px" data-testid="ticket-thread">
+    <div class="adm-card-ttl">المحادثة</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      @for (m of messages(); track m.id) {
+      <div data-testid="ticket-message" [attr.data-mine]="m.mine" style="padding:10px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.07)" [style.background]="m.mine ? 'rgba(43,212,199,.06)' : 'rgba(255,255,255,.03)'">
+        <div style="font-size:11px;margin-bottom:4px" class="txt-muted"><b class="txt-slate">{{ m.name }}</b> · {{ m.time }}</div>
+        <div style="font-size:13px;white-space:pre-wrap" class="txt-white">{{ m.text }}</div>
+      </div>
+      }
+    </div>
+
+    @if (canReply()) {
+    <div style="margin-top:14px">
+      <label for="mkt-ticket-reply" class="txt-muted" style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px">ردّك</label>
+      <textarea id="mkt-ticket-reply" name="body" rows="3" [ngModel]="replyText()" (ngModelChange)="replyText.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px;resize:vertical"></textarea>
+      @if (actionError()) { <div class="form-error" style="margin-top:6px" role="alert" data-testid="ticket-action-error">{{ actionError() }}</div> }
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <button type="button" class="btn-primary" data-testid="ticket-send" [disabled]="sending()" (click)="send()">{{ sending() ? 'جارٍ الإرسال...' : 'إرسال الرد' }}</button>
+        <button type="button" class="btn-secondary" data-testid="ticket-close" [disabled]="closing()" (click)="close()">{{ closing() ? 'جارٍ الإغلاق...' : 'إغلاق التذكرة' }}</button>
+      </div>
+    </div>
+    } @else {
+    <div style="font-size:12px;margin-top:12px" class="txt-muted" data-testid="ticket-closed-note">هذه التذكرة مغلقة ولا تقبل ردودًا جديدة. يمكنك فتح تذكرة جديدة من صفحة المساعدة.</div>
+    }
+  </div>
+  }
+</div>

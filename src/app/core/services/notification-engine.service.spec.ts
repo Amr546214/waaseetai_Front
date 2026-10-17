@@ -12,7 +12,7 @@ const fakeSocket = {
 	disconnect: vi.fn(),
 };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { NotificationEngineService } from './notification-engine.service';
 
@@ -303,5 +303,74 @@ describe('NotificationEngineService — PROJECT_MATCH / OFFER_ACCEPTED deep link
 			type: 'OFFER_ACCEPTED',
 			actionUrl: '/provider-overview/projects/req-1/contract'
 		})).toBe('/provider-overview/offers');
+	});
+});
+
+describe('NotificationEngineService — provider event notifications (dispute / rating / withdrawal / PayPal)', () => {
+	let service: NotificationEngineService;
+
+	beforeEach(() => {
+		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, clear: () => {} });
+		TestBed.configureTestingModule({});
+		service = TestBed.inject(NotificationEngineService);
+	});
+
+	const cases: [string, string, string][] = [
+		['DISPUTE_OPENED', '/provider-overview/disputes/d1', 'projects'],
+		['DISPUTE_RESOLVED', '/provider-overview/disputes/d1', 'projects'],
+		['RATING_RECEIVED', '/provider-overview/profile/public', 'projects'],
+		['WITHDRAWAL_REQUESTED', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_APPROVED', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_REJECTED', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_PAID', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_FAILED', '/provider-overview/finance/withdraw', 'finance'],
+		['WITHDRAWAL_REVERSED', '/provider-overview/finance/withdraw', 'finance'],
+		['PAYPAL_EMAIL_CHANGED', '/provider-overview/profile/data', 'finance'],
+		['PROJECT_AMENDMENT', '/provider-overview/projects/active/progress/p1', 'projects'],
+	];
+
+	for (const [type, actionUrl, bucket] of cases) {
+		it(`${type}: keeps its provider link, files under "${bucket}" even with a generic category, and shows a type icon`, () => {
+			const mapped = service.mapToAppNotification({ id: 'n1', type, category: 'ALL', title: 't', message: 'm', actionText: 'فتح', actionUrl, isRead: false });
+			expect(mapped.actionUrl).toBe(actionUrl);
+			expect(mapped.category).toBe(bucket);
+			expect(mapped.iconBgClass).not.toBe('bg-[rgba(160,178,209,.12)]');
+		});
+	}
+});
+
+describe('NotificationEngineService — client events (W4)', () => {
+	let service: NotificationEngineService;
+	beforeEach(() => {
+		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, clear: () => {} });
+		TestBed.configureTestingModule({});
+		service = TestBed.inject(NotificationEngineService);
+	});
+
+	const cases: Array<[string, string, string]> = [
+		['NEW_PROPOSAL', '/client-overview/my-requests/r1', 'offers'],
+		['OFFER_COUNTER', '/client-overview/my-requests/r1', 'offers'],
+		['OFFER_WITHDRAWN', '/client-overview/my-requests/r1', 'offers'],
+		['OFFER_NEGOTIATION_REJECTED', '/client-overview/my-requests/r1', 'offers'],
+		['PROJECT_AMENDMENT', '/client-overview/projects/amendments', 'projects'],
+		['STAGE_APPROVED', '/client-overview/projects/p1', 'projects'],
+		['PROJECT_COMPLETED', '/client-overview/projects/p1/rating', 'projects'],
+		['DISPUTE_OPENED', '/client-overview/disputes', 'projects'],
+		['DISPUTE_RESOLVED', '/client-overview/disputes', 'projects'],
+		['ESCROW_FUNDED', '/client-overview/projects/active', 'finance'],
+		['ORDER_PAID', '/client-overview/projects/p1', 'finance'],
+	];
+	for (const [type, actionUrl, bucket] of cases) {
+		it(`${type}: opens ${actionUrl} in the client dashboard, files under "${bucket}" even with a generic category, with a type icon`, () => {
+			const mapped = service.mapToAppNotification({ id: 'n1', type, category: 'ALL', title: 't', message: 'm', actionText: 'فتح', actionUrl, isRead: false }, '/client-overview');
+			expect(mapped.actionUrl).toBe(actionUrl);
+			expect(mapped.category).toBe(bucket);
+			expect(mapped.iconBgClass).not.toBe('bg-[rgba(160,178,209,.12)]');
+		});
+	}
+
+	it('STAGE_DELIVERY with stage metadata opens the exact delivery-review route', () => {
+		const mapped = service.mapToAppNotification({ id: 'n1', type: 'STAGE_DELIVERY', category: 'PROJECTS', title: 't', message: 'm', actionUrl: '/client-overview/projects/p1/delivery-review/s1', metadata: { projectId: 'p1', stageId: 's1' }, isRead: false }, '/client-overview');
+		expect(mapped.actionUrl).toBe('/client-overview/projects/p1/delivery-review/s1');
 	});
 });

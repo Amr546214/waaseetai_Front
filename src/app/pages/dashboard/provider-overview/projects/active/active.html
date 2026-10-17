@@ -17,7 +17,7 @@
   <div class="pl-kpi"><div class="ic pl-ic-teal"><svg><use href="#pa-list"></use></svg></div><div class="v">{{counts().all}}</div><div class="l">مشاريع نشطة</div></div>
   <div class="pl-kpi"><div class="ic pl-ic-blue"><svg><use href="#pa-lock"></use></svg></div><div class="v">{{counts().totalEscrowFormatted}}</div><div class="l">محتجز بالضمان $</div></div>
   <div class="pl-kpi"><div class="ic pl-ic-amber"><svg><use href="#pa-clock"></use></svg></div><div class="v">{{counts().wait}}</div><div class="l">بانتظار رد العميل</div></div>
-  <div class="pl-kpi"><div class="ic pl-ic-teal"><svg><use href="#i-shield"></use></svg></div><div class="v">{{counts().healthStatus}}</div><div class="l">الحالة العامة</div></div>
+  <div class="pl-kpi"><div class="ic pl-ic-teal"><svg><use href="#i-shield"></use></svg></div><div class="v">{{counts().needsAction}}</div><div class="l">تحتاج إجراءً منك</div></div>
 </div>
 
 @if (isCompanyMode()) {
@@ -52,6 +52,7 @@
     <button type="button" class="ord-tab" [class.active]="activeFilter()==='run'" (click)="setFilter('run')">قيد التنفيذ <span>{{counts().run}}</span></button>
     <button type="button" class="ord-tab" [class.active]="activeFilter()==='wait'" (click)="setFilter('wait')">بانتظار رد العميل <span>{{counts().wait}}</span></button>
     <button type="button" class="ord-tab" [class.active]="activeFilter()==='review'" (click)="setFilter('review')">بانتظار مراجعة <span>{{counts().review}}</span></button>
+    <button type="button" class="ord-tab" [class.active]="activeFilter()==='pending'" (click)="setFilter('pending')">لم يبدأ بعد <span>{{counts().pending}}</span></button>
     <button type="button" class="ord-tab" [class.active]="activeFilter()==='late'" (click)="setFilter('late')">متأخر <span style="background:rgba(248,113,113,.14)" class="txt-red">{{counts().late}}</span></button>
   </div>
 
@@ -60,7 +61,8 @@
   <div class="pl-tabs" role="tablist">
     <button type="button" class="pl-tab" [class.active]="activeFilter()==='all'" (click)="setFilter('all')">الكل<span class="c">{{counts().all}}</span></button>
     <button type="button" class="pl-tab" [class.active]="activeFilter()==='run'" (click)="setFilter('run')">قيد التنفيذ<span class="c">{{counts().run}}</span></button>
-    <button type="button" class="pl-tab" [class.active]="activeFilter()==='wait'" (click)="setFilter('wait')">بانتظار التسليم<span class="c">{{counts().wait}}</span></button>
+    <button type="button" class="pl-tab" [class.active]="activeFilter()==='wait'" (click)="setFilter('wait')">بانتظار رد العميل<span class="c">{{counts().wait}}</span></button>
+    <button type="button" class="pl-tab" [class.active]="activeFilter()==='pending'" (click)="setFilter('pending')">لم يبدأ بعد<span class="c">{{counts().pending}}</span></button>
     <button type="button" class="pl-tab" [class.active]="activeFilter()==='late'" (click)="setFilter('late')">متأخر<span class="c txt-red" style="background:rgba(248,113,113,.14)">{{counts().late}}</span></button>
   </div>
 
@@ -77,7 +79,7 @@
       <a class="pl-card" [class.pl-attn]="p.status==='wait'" [class.pl-late]="p.status==='late'" [routerLink]="['progress',p.id]">
         <div class="pl-ring" [style.--p]="p.progress"><span>{{p.progress}}<small>٪</small></span></div>
         <div class="pl-body">
-          <div class="pl-top"><div class="pl-ttl">{{p.title}}</div><span class="pl-badge" [class.pl-b-wait]="p.status==='wait'" [class.pl-b-run]="p.status==='run'" [class.pl-b-late]="p.status==='late'">{{p.statusLabel}}</span></div>
+          <div class="pl-top"><div class="pl-ttl">{{p.title}}</div><span class="pl-badge" [class.pl-b-wait]="p.status==='wait'||p.status==='pending'" [class.pl-b-run]="p.status==='run'" [class.pl-b-late]="p.status==='late'">{{p.statusLabel}}</span>@if(p.disputeStatus){<span class="pl-badge pl-b-late" data-testid="dispute-badge">نزاع مفتوح</span>}</div>
           @if (isCompanyMode()) {
             <div class="pl-member">
               <div class="pl-av" [style.background]="p.providerAvatarColor">{{p.providerInitial}}</div>
@@ -92,7 +94,8 @@
             <div class="pl-prov"><span class="pl-av-wrap" [style.--avatar-color]="p.providerAvatarColor"><span class="pl-av">{{p.providerInitial}}</span><span class="pl-av-star"><svg viewBox="0 0 100 100"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></span></span>{{p.providerName}}<span class="pl-dot"></span>عقد {{p.contractRef || p.id}}</div>
           }
           <div class="pl-next"><svg><use href="#pa-flag"></use></svg><b>المرحلة الحالية:</b> {{p.currentStage}}</div>
-          <div class="pl-foot"><span class="pl-esc"><svg><use href="#pa-lock"></use></svg>{{p.escrowLabel}} {{p.escrowAmount}}</span><span class="pl-meta">{{p.meta}}</span></div>
+          @if(p.canUploadDelivery === false && p.uploadBlockedReason){<div class="pl-next" data-testid="upload-blocked-reason"><b>التسليم:</b> {{p.uploadBlockedReason}}</div>}
+          <div class="pl-foot"><span class="pl-esc">@if(p.escrowFunded){<svg><use href="#pa-lock"></use></svg>}{{p.escrowLabel}} {{p.escrowAmount}}</span><span class="pl-meta">{{p.meta}}</span></div>
         </div>
         <div class="pl-act"><span class="pl-cta">{{ isCompanyMode() ? 'متابعة' : 'متابعة المشروع' }}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg></span></div>
       </a>

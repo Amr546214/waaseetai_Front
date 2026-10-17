@@ -2,56 +2,44 @@
   <div class="fio-hdr">
     <div>
       <h1 class="fio-ttl">الفواتير الصادرة</h1>
-      <p class="fio-sub">فواتير وسيط AI الصادرة للعملاء — B2B و B2C — تجهيز مستقبلي غير مفعّل في V1</p>
+      <p class="fio-sub">فواتير مراحل المشاريع المفوترة للعملاء — مشتقة من تسليمات المراحل الفعلية — بالدولار الأمريكي ($)</p>
     </div>
     <div class="fio-actions">
-      <button type="button" class="fio-btn fio-btn-ghost" (click)="exportCsv()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        تصدير CSV
-      </button>
-      <button type="button" class="fio-btn fio-btn-primary" (click)="newInvoice()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        فاتورة جديدة
-      </button>
+      <button type="button" class="fio-btn fio-btn-ghost" data-testid="inv-export" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : 'تصدير CSV' }}</button>
+      <button type="button" class="fio-btn fio-btn-primary" data-testid="inv-new" disabled [attr.title]="newInvoiceReason">فاتورة جديدة</button>
     </div>
   </div>
+  <p class="fio-sub" data-testid="inv-new-reason">{{ newInvoiceReason }}</p>
+  @if (exportError()) { <p class="fio-sub" role="alert">{{ exportError() }}</p> }
 
-  @if (toast()) {
-    <div class="fio-toast">{{ toast() }}</div>
-  }
-
-  <div class="ws-note ws-note--neutral">
-    <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-    <div class="ws-note-body">
-      <div class="ws-note-lbl">فواتير رسمية</div>
-      <p class="ws-note-txt">تجهيز مستقبلي غير مفعّل في V1 — فواتير رسمية داخلية</p>
+  @if (loading()) {
+    <div class="fio-tbl-card"><p class="fio-sub">جاري تحميل الفواتير…</p></div>
+  } @else if (error()) {
+    <div class="fio-tbl-card">
+      <p class="fio-sub" role="alert">{{ error() }}</p>
+      <button type="button" class="fio-btn fio-btn-ghost" (click)="load()">إعادة المحاولة</button>
     </div>
-  </div>
-
-  <div class="fio-kpi-grid">
+  } @else if (data(); as d) {
+  <div class="fio-kpi-grid" data-testid="inv-kpis">
     <div class="fio-kpi-card">
-      <div class="fio-kpi-top"><div class="fio-kpi-ic ic-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="fio-kpi-lbl">إجمالي الفواتير</span></div>
-      <div class="fio-kpi-val txt-teal">8,247</div>
-      <div class="fio-kpi-unit">فاتورة هذا الشهر</div>
-      <div class="fio-kpi-sub txt-green">+340 عن الشهر الماضي</div>
-    </div>
-    <div class="fio-kpi-card">
-      <div class="fio-kpi-top"><div class="fio-kpi-ic ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="fio-kpi-lbl">فواتير رسمية داخلية</span></div>
-      <div class="fio-kpi-val txt-green">8,201</div>
+      <div class="fio-kpi-top"><span class="fio-kpi-lbl">إجمالي الفواتير</span></div>
+      <div class="fio-kpi-val txt-teal">{{ d.summary.totalCount }}</div>
       <div class="fio-kpi-unit">فاتورة</div>
-      <div class="fio-kpi-sub txt-muted">تجهيز مستقبلي غير مفعّل في V1</div>
     </div>
     <div class="fio-kpi-card">
-      <div class="fio-kpi-top"><div class="fio-kpi-ic ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="fio-kpi-lbl">معلقة الإرسال</span></div>
-      <div class="fio-kpi-val txt-amber">46</div>
-      <div class="fio-kpi-unit">فاتورة</div>
-      <div class="fio-kpi-sub txt-amber-dk">تحتاج مراجعة</div>
+      <div class="fio-kpi-top"><span class="fio-kpi-lbl">مدفوعة</span></div>
+      <div class="fio-kpi-val txt-green">{{ usd(d.summary.paidTotal) }}</div>
+      <div class="fio-kpi-unit">{{ d.summary.paidCount }} فاتورة</div>
     </div>
     <div class="fio-kpi-card">
-      <div class="fio-kpi-top"><div class="fio-kpi-ic ic-coral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="fio-kpi-lbl">مرفوضة</span></div>
-      <div class="fio-kpi-val txt-coral">3</div>
-      <div class="fio-kpi-unit">فاتورة</div>
-      <div class="fio-kpi-sub txt-coral">تحتاج تصحيح</div>
+      <div class="fio-kpi-top"><span class="fio-kpi-lbl">مستحقة</span></div>
+      <div class="fio-kpi-val txt-amber">{{ usd(d.summary.dueTotal) }}</div>
+      <div class="fio-kpi-unit">{{ d.summary.dueCount }} فاتورة</div>
+    </div>
+    <div class="fio-kpi-card">
+      <div class="fio-kpi-top"><span class="fio-kpi-lbl">عمولة المنصة</span></div>
+      <div class="fio-kpi-val txt-blue">{{ usd(d.summary.platformCommission) }}</div>
+      <div class="fio-kpi-unit">دولار أمريكي</div>
     </div>
   </div>
 
@@ -64,41 +52,40 @@
   <div class="fio-filter-row">
     <div class="fio-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" placeholder="ابحث برقم الفاتورة أو الطرف..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
+      <input type="search" placeholder="ابحث في الصفحة الحالية: المشروع أو المرحلة أو الطرف..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
     </div>
   </div>
 
   <div class="fio-tbl-card">
-    <div class="fio-tbl-hdr"><span class="fio-tbl-ttl">قائمة الفواتير الصادرة</span><span class="fio-tbl-count">{{ filteredInvoices().length }} من {{ invoices.length }} فاتورة</span></div>
+    <div class="fio-tbl-hdr"><span class="fio-tbl-ttl">قائمة الفواتير الصادرة</span><span class="fio-tbl-count">{{ filtered().length }} من {{ d.pagination.total }} فاتورة</span></div>
     <div class="fio-tbl-wrap">
-      <table class="fio-data-tbl">
-        <thead><tr><th>رقم الفاتورة</th><th>النوع</th><th>الطرف</th><th>المبلغ</th><th>التاريخ</th><th>الحالة</th><th></th></tr></thead>
+      <table class="fio-data-tbl" data-testid="inv-table">
+        <thead><tr><th>المشروع</th><th>المرحلة</th><th>العميل</th><th>قيمة المرحلة</th><th>التاريخ</th><th>الحالة</th></tr></thead>
         <tbody>
-          @for (inv of filteredInvoices(); track inv.id) {
+          @for (inv of filtered(); track inv.id) {
             <tr>
-              <td class="fio-mono">{{ inv.id }}</td>
-              <td><span class="fio-bdg" [class.tag-teal]="inv.kind === 'B2B'" [class.tag-blue]="inv.kind === 'B2C'">{{ inv.kind }}</span></td>
-              <td class="fio-party">{{ inv.party }}</td>
-              <td class="fio-amount" [class.st-rejected]="inv.status === 'rejected'">{{ formatAmount(inv.amount) }}</td>
-              <td class="fio-date">{{ inv.date }}</td>
+              <td class="fio-party">{{ inv.projectTitle }}</td>
+              <td>{{ inv.stageTitle }}</td>
+              <td class="fio-party">{{ inv.clientName }}</td>
+              <td class="fio-amount">{{ usd(inv.stageValue) }}</td>
+              <td class="fio-date">{{ fmtDate(inv.paymentDate || inv.date) }}</td>
               <td><span class="fio-status" [ngClass]="statusClasses[inv.status]">{{ statusLabels[inv.status] }}</span></td>
-              <td>
-                @if (inv.status === 'rejected') {
-                  <a href="javascript:void(0)" class="fio-link fio-link-danger">تصحيح</a>
-                } @else if (inv.status === 'processing') {
-                  <a href="javascript:void(0)" class="fio-link">مراجعة</a>
-                } @else {
-                  <a href="javascript:void(0)" class="fio-link">عرض</a>
-                }
-              </td>
             </tr>
           } @empty {
-            <tr><td colspan="7" class="fio-empty">لا توجد فواتير مطابقة</td></tr>
+            <tr><td colspan="8" class="fio-empty">لا توجد فواتير مطابقة</td></tr>
           }
         </tbody>
       </table>
     </div>
+    @if (totalPages() > 1) {
+      <div class="fio-actions" style="margin-top:12px;justify-content:space-between">
+        <span class="fio-sub">صفحة {{ page() }} من {{ totalPages() }}</span>
+        <span>
+          <button type="button" class="fio-btn fio-btn-ghost" [disabled]="page() <= 1" (click)="prevPage()">السابق</button>
+          <button type="button" class="fio-btn fio-btn-ghost" [disabled]="page() >= totalPages()" (click)="nextPage()">التالي</button>
+        </span>
+      </div>
+    }
   </div>
-
-  <div class="fio-foot"><span>© 2026 وسيط AI · نظام الفواتير الصادرة</span><span>آخر تحديث: منذ لحظات</span></div>
+  }
 </section>

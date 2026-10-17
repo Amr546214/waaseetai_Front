@@ -3,6 +3,7 @@ import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { KycAccess } from '../models/kyc-document.model';
+import { SkillsCatalogService } from './skills-catalog.service';
 
 export interface ProfileSuggestionInput {
   jobTitle?: string;
@@ -76,11 +77,12 @@ export interface ProviderProfile {
 }
 
 /** Answer of the first step: emailSent is true only when the mail service accepted the message; emailHint is the masked ACCOUNT email. */
-export interface PaypalChangeRequestResult { emailSent: boolean; emailHint: string; expiresInSeconds?: number; mode?: 'add' | 'change' }
+export interface PaypalChangeRequestResult { emailSent: boolean; emailHint: string; expiresInSeconds?: number; expiresAt?: string; resendAvailableAt?: string; mode?: 'add' | 'change' }
 
 @Injectable({ providedIn: 'root' })
 export class ProviderProfileService {
   private http = inject(HttpClient);
+  private skillsCatalog = inject(SkillsCatalogService);
   private apiUrl = `${environment.url_api}/provider/profile`;
 
   suggestSkills(input: ProfileSuggestionInput): Observable<{ success: boolean; data: { suggestedSkills: string[] } }> {
@@ -187,9 +189,9 @@ export class ProviderProfileService {
     return this.http.get<any>(`${environment.url_api}/specialties/categories`);
   }
 
-  /** The skills offered for a main specialty (the marketplace Category slug): the only skills a provider can pick. */
+  /** The skills offered for a main specialty (the marketplace Category slug): the only skills a provider can pick. Reads the shared catalog service (cached). */
   getSkillsCatalog(category: string): Observable<{ success: boolean; data: { category: string | null; skills: string[] } }> {
-    return this.http.get<{ success: boolean; data: { category: string | null; skills: string[] } }>(`${this.apiUrl}/skills/catalog`, { params: { category } });
+    return this.skillsCatalog.getCatalog(category);
   }
 
   updateSkills(skills: string[]): Observable<ProviderProfile> {

@@ -176,7 +176,7 @@ describe('Referrals — KPI cards (real/derived data, no fabricated fallbacks)',
     const fakeService = buildFakeService({
       getSummary: () => of({
         success: true,
-        data: { tier: 'مساعد', successfulReferrals: 3, totalCommissions: 150, overallConversionRate: 0.375 }
+        data: { tier: 'مساعد', successfulReferrals: 3, totalCommissions: 150, overallConversionRate: 0.375, pendingReferrals: 5 }
       }),
       getReferrals: jasmineLikeFn((_page: number, _limit: number) => of({
         success: true,

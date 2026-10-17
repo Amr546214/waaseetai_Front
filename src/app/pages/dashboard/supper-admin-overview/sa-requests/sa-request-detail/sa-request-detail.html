@@ -3,10 +3,17 @@
     <a routerLink="/supper-admin-overview/requests">&rarr; العودة إلى الطلبات</a>
   </div>
 
-  @if (notFound()) {
+  @if (loading()) {
+    <div class="rq-empty"><p>جارٍ تحميل الطلب...</p></div>
+  } @else if (notFound()) {
     <div class="rq-empty">
       <p>لم يتم العثور على الطلب المطلوب</p>
       <a routerLink="/supper-admin-overview/requests" class="rq-btn rq-btn-ghost">العودة للقائمة</a>
+    </div>
+  } @else if (error()) {
+    <div class="rq-empty">
+      <p>{{ error() }}</p>
+      <button type="button" class="rq-btn rq-btn-ghost" (click)="load()">إعادة المحاولة</button>
     </div>
   } @else if (selected(); as d) {
     <div class="rq-mbox rq-detail-box">
@@ -15,128 +22,164 @@
           <div class="rq-md-id">{{ d.id }}</div>
           <h3>{{ d.title }}</h3>
           <div class="rq-md-tags">
-            <span class="rq-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] }}</span>
-            <span class="rq-spec">{{ d.spec }}</span>
-            
+            <span class="rq-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] || d.status }}</span>
+            @if (d.specialty) { <span class="rq-spec">{{ d.specialty }}</span> }
+            @for (s of d.subSpecialties ?? []; track s) { <span class="rq-spec">{{ s }}</span> }
           </div>
         </div>
       </div>
 
       <div class="rq-md-meta-row">
-        <div class="rq-md-meta"><span>الميزانية</span><strong class="txt-teal">{{ d.budget }}</strong></div>
-        <div class="rq-md-meta"><span>العروض</span><strong>{{ d.offers }} عروض</strong></div>
-        <div class="rq-md-meta"><span>المدة المطلوبة</span><strong>{{ d.durationRange }}</strong></div>
-        @if (d.linkedContract) { <div class="rq-md-meta"><span>العقد</span><strong class="txt-green">{{ d.linkedContract }}</strong></div> }
+        <div class="rq-md-meta"><span>الميزانية</span><strong class="txt-teal">{{ budget(d) }}</strong></div>
+        <div class="rq-md-meta"><span>العروض</span><strong>{{ d.offers.length }}</strong></div>
+        <div class="rq-md-meta"><span>المدة المطلوبة</span><strong>@if (d.durationDays) { {{ d.durationDays }} يوم } @else { — }</strong></div>
+        <div class="rq-md-meta"><span>المرفقات</span><strong>{{ d.attachmentsCount }}</strong></div>
+        <div class="rq-md-meta"><span>تاريخ النشر</span><strong>{{ d.createdAt | date: 'yyyy-MM-dd' }}</strong></div>
       </div>
-
-      <div class="rq-section-ttl">مسار الطلب</div>
-      <div class="rq-timeline">
-        @for (step of timeline(d); track step.label) {
-          <div class="rq-tl-step" [class.done]="step.done">
-            <div class="rq-tl-dot">@if (step.done) { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> }</div>
-            <div>
-              <div class="rq-tl-name">{{ step.label }}</div>
-              <div class="rq-tl-note">{{ step.note }}</div>
-            </div>
-          </div>
-        }
-      </div>
-
-      <div class="rq-section-ttl">مقارنة العروض الواردة</div>
-      @if (d.offersList.length === 0) {
-        <div class="rq-offers-empty">لا توجد عروض على هذا الطلب بعد</div>
-      } @else {
-        <div class="rq-offers-note">
-          @if (acceptedOffer(d); as best) {
-            ✓ العرض المقبول موسوم بحد أخضر — {{ d.offersList.length }} عروض وردت، العرض المقبول: {{ best.provider }}
-          } @else {
-            {{ d.offersList.length }} عروض وردت — لم يُقبل عرض بعد
-          }
-        </div>
-        <div class="rq-offers-grid">
-          @for (o of d.offersList; track o.id) {
-            <div class="rq-offer-card" [class.best]="o.accepted || o.aiTop">
-              @if (o.accepted) {
-                <div class="rq-offer-badge rq-offer-badge-accepted">✓ المقبول</div>
-              }
-              <div class="rq-oc-head">
-                <div class="rq-oc-av" [style.background]="o.providerBg">{{ o.providerAv }}</div>
-                <div>
-                  <div class="rq-oc-name">{{ o.provider }}</div>
-                  <div class="rq-oc-level">{{ o.level }}</div>
-                </div>
-              </div>
-              <div class="rq-oc-price">{{ o.price }}</div>
-              <div class="rq-oc-dur">{{ o.duration }}</div>
-              <div class="rq-oc-stats">
-                <div class="rq-oc-stat"><div class="rq-oc-sv">{{ o.projectsCount }}</div><div class="rq-oc-sl">مشروع</div></div>
-                <div class="rq-oc-stat"><div class="rq-oc-sv txt-teal">{{ o.disputeRate }}</div><div class="rq-oc-sl">نزاعات</div></div>
-                <div class="rq-oc-stat"><div class="rq-oc-sv">{{ o.completionRate }}</div><div class="rq-oc-sl">إتمام</div></div>
-              </div>
-            </div>
-          }
-        </div>
-      }
 
       <div class="rq-section-ttl">وصف الطلب والمتطلبات</div>
-      <p class="rq-desc">{{ d.description }}</p>
-      <ul class="rq-req-list">
-        @for (req of d.requirements; track req) { <li>{{ req }}</li> }
-      </ul>
-
-      <div class="rq-section-ttl">المسار المالي المتوقع</div>
-      @if (d.status === 'flagged') {
-        <div class="rq-fin-blocked">الطلب موقوف قبل استقبال أي عروض أو بدء أي تدفق مالي فعلي</div>
+      @if (d.description) { <p class="rq-desc">{{ d.description }}</p> } @else { <p class="rq-desc rq-muted">لا يوجد وصف</p> }
+      @if (d.requiredSkills?.length) {
+        <div class="rq-md-tags">
+          @for (s of d.requiredSkills ?? []; track s) { <span class="rq-spec">{{ s }}</span> }
+        </div>
       } @else {
-        @if (financials(d); as fin) {
-          <div class="rq-fin-note">{{ fin.sourceLabel }}</div>
-          <div class="rq-fin-row"><span>قيمة العقد {{ fin.isEstimate ? '(تقديرية)' : 'الإجمالية' }}</span><strong>{{ fin.base }}</strong></div>
-          <div class="rq-fin-row rq-fin-escrow"><span>ضمان محتجز (Escrow)</span><strong class="txt-teal">{{ fin.escrow }}</strong></div>
-          <div class="rq-fin-row"><span>رسوم النظام ({{ fin.feePercent }}%)</span><strong class="txt-blue">- {{ fin.fee }}</strong></div>
-          <div class="rq-fin-row rq-fin-total"><span>صافي المقدم عند الإتمام</span><strong class="txt-green">{{ fin.net }}</strong></div>
+        <p class="rq-desc rq-muted" data-testid="rq-no-requirements">لم يحدد العميل متطلبات بعد</p>
+      }
+
+      @if (d.conditions; as c) {
+        <div class="rq-section-ttl">شروط الطلب</div>
+        <div class="rq-md-meta-row">
+          <div class="rq-md-meta"><span>نوع المقدم المفضل</span><strong>{{ c.preferredProviderType || '—' }}</strong></div>
+          <div class="rq-md-meta"><span>اتفاقية سرية (NDA)</span><strong>{{ yesNo(c.requiresNda) }}</strong></div>
+          <div class="rq-md-meta"><span>حقوق الملكية</span><strong>{{ c.ipRights || '—' }}</strong></div>
+          <div class="rq-md-meta"><span>يسمح بالتفاوض</span><strong>{{ yesNo(c.allowNegotiation) }}</strong></div>
+          <div class="rq-md-meta"><span>تقسيم إلى مراحل</span><strong>{{ yesNo(c.splitMilestones) }}</strong></div>
+        </div>
+        @if (outputs(d).length) {
+          <ul class="rq-req-list">
+            @for (o of outputs(d); track o) { <li>{{ o }}</li> }
+          </ul>
+        } @else {
+          <p class="rq-desc rq-muted" data-testid="rq-no-outputs">لم تُحدَّد المخرجات</p>
+        }
+        @if (c.customConditions) { <p class="rq-desc">{{ c.customConditions }}</p> }
+      }
+
+      @if (d.aiAnalysis; as ai) {
+        <div class="rq-ai-panel">
+          <svg viewBox="0 0 24 24"><use href="#i-ai"/></svg>
+          <div>
+            <div class="rq-ai-lbl">تحليل WaseetAI</div>
+            <p>{{ ai.summary }}</p>
+            @if (ai.complexity) { <p class="rq-muted">درجة التعقيد: {{ ai.complexity }}</p> }
+          </div>
+        </div>
+      }
+
+      <div class="rq-section-ttl">مسار الطلب</div>
+      @if (d.timeline.length === 0) {
+        <div class="rq-offers-empty">لا توجد أحداث مسجلة</div>
+      } @else {
+        <div class="rq-timeline">
+          @for (step of d.timeline; track $index) {
+            <div class="rq-tl-step done">
+              <div class="rq-tl-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div>
+                <div class="rq-tl-name">{{ step.text }}</div>
+                <div class="rq-tl-note">{{ step.at | date: 'yyyy-MM-dd HH:mm' }}</div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="rq-section-ttl">العروض الواردة</div>
+      @if (d.offers.length === 0) {
+        <div class="rq-offers-empty">لا توجد عروض على هذا الطلب بعد</div>
+      } @else {
+        <div class="rq-tbl-wrap">
+          <table class="rq-mini-tbl">
+            <thead><tr><th>مقدم الخدمة</th><th>السعر</th><th>المدة</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead>
+            <tbody>
+              @for (o of d.offers; track o.id) {
+                <tr [class.accepted]="o.accepted">
+                  <td>
+                    <a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/users', o.provider.userId]">{{ o.provider.name }}</a>
+                    @if (o.accepted) { <span class="rq-offer-badge rq-offer-badge-accepted">✓ المقبول</span> }
+                  </td>
+                  <td>{{ o.price | number:'1.0-2' }} $</td>
+                  <td>{{ o.deliveryDays }} يوم</td>
+                  <td>{{ offerLabels[o.status] || o.status }}</td>
+                  <td>{{ o.createdAt | date: 'yyyy-MM-dd' }}</td>
+                  <td><a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/offers', o.id]">عرض العرض</a></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (d.contract || d.escrow) {
+        <div class="rq-section-ttl">العقد والضمان</div>
+        @if (d.contract; as ct) {
+          <div class="rq-fin-row"><span>حالة العقد</span><strong>{{ contractLabels[ct.status] || ct.status }}</strong></div>
+          <div class="rq-fin-row"><span>قيمة العقد</span><strong class="txt-teal">{{ ct.price | number:'1.0-2' }} $</strong></div>
+          <div class="rq-fin-row"><span>العقد</span><a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/contracts', ct.id]">فتح العقد</a></div>
+        }
+        @if (d.escrow; as es) {
+          <div class="rq-fin-row rq-fin-escrow"><span>الضمان ({{ es.status }})</span><strong class="txt-teal">{{ es.amount | number:'1.0-2' }} $</strong></div>
         }
       }
 
-      <div class="rq-section-ttl">سجل النشاط</div>
-      <div class="rq-act-list">
-        @for (a of d.activityLog; track a.text) {
-          <div class="rq-act-item">
-            <div class="rq-act-dot" [style.background]="a.dotColor"></div>
-            <div class="rq-act-body">
-              <div>{{ a.text }}</div>
-              <div class="rq-act-time">{{ a.date }}</div>
+      @if (d.disputes.length) {
+        <div class="rq-section-ttl">النزاعات</div>
+        <div class="rq-act-list">
+          @for (x of d.disputes; track x.id) {
+            <div class="rq-act-item">
+              <div class="rq-act-dot" style="background:#FF8C69"></div>
+              <div class="rq-act-body">
+                <a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/disputes', x.id]">{{ x.reason }}</a>
+                <div class="rq-act-time">{{ x.status }} · {{ x.createdAt | date: 'yyyy-MM-dd' }}</div>
+              </div>
             </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      }
 
       <div class="rq-section-ttl">صاحب الطلب</div>
-      <div class="rq-client-card">
-        <div class="rq-client-head">
-          <div class="rq-u-av rq-client-av" [style.background]="d.clientBg">{{ d.clientAv }}</div>
-          <div>
-            <div class="rq-client-name">{{ d.client }}</div>
-            <div class="rq-client-sub">{{ d.clientStats.type }} · مخاطر: <span [style.color]="riskColors[d.clientStats.risk]">{{ riskLabels[d.clientStats.risk] }}</span></div>
+      @if (d.client; as cl) {
+        <div class="rq-client-card">
+          <div class="rq-client-head">
+            <div>
+              <div class="rq-client-name">{{ cl.name }}</div>
+              <div class="rq-client-sub">{{ cl.email }}</div>
+            </div>
           </div>
+          <div class="rq-md-meta-row rq-client-stats">
+            <div class="rq-md-meta"><span>مشاريع منجزة</span><strong>{{ cl.completedProjects }}</strong></div>
+            <div class="rq-md-meta"><span>التقييم</span><strong>@if (cl.rating) { {{ cl.rating }}★ } @else { — }</strong></div>
+            <div class="rq-md-meta"><span>عضو منذ</span><strong>{{ cl.memberSince | date: 'yyyy-MM-dd' }}</strong></div>
+          </div>
+          <a [routerLink]="['/supper-admin-overview/users', cl.userId]" class="rq-btn rq-btn-ghost rq-client-link">عرض الملف الكامل</a>
         </div>
-        <div class="rq-md-meta-row rq-client-stats">
-          <div class="rq-md-meta"><span>مشاريع سابقة</span><strong>{{ d.clientStats.pastProjects }}</strong></div>
-          <div class="rq-md-meta"><span>معدل التقييم</span><strong>@if (d.clientStats.rating > 0) { {{ d.clientStats.rating }}★ } @else { — }</strong></div>
-          <div class="rq-md-meta"><span>إجمالي الإنفاق</span><strong class="txt-green">{{ d.clientStats.totalSpend }}</strong></div>
-          <div class="rq-md-meta"><span>عضو منذ</span><strong>{{ d.clientStats.memberSince }}</strong></div>
-        </div>
-        <a [routerLink]="['/supper-admin-overview/users', d.clientStats.id]" class="rq-btn rq-btn-ghost rq-client-link">عرض الملف الكامل</a>
-      </div>
-
-      @if (actionMessage()) {
-        <div class="rq-action-msg">{{ actionMessage() }}</div>
+      } @else {
+        <div class="rq-offers-empty">بيانات صاحب الطلب غير متوفرة</div>
       }
 
-      <div class="rq-md-actions">
-        <button type="button" class="rq-btn rq-btn-ghost" (click)="notifyOwner()">إشعار صاحب الطلب</button>
-        <button type="button" class="rq-btn rq-btn-warn" (click)="suspend()">تعليق الطلب مؤقتاً</button>
-        <button type="button" class="rq-btn rq-btn-danger" (click)="cancelRequest()">إلغاء الطلب</button>
+      <div class="rq-actions" style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+        @if (selected()?.client; as cl) {
+          <button type="button" class="rq-btn rq-btn-ghost" (click)="notifyOpen.set(true)">إشعار صاحب الطلب</button>
+        }
+        <a class="rq-btn rq-btn-ghost" [routerLink]="['/supper-admin-overview/projects', d.id]">فتح المشروع</a>
+        <button type="button" class="rq-btn rq-btn-warn" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">تعليق الطلب مؤقتاً</button>
+        <button type="button" class="rq-btn rq-btn-danger" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">إلغاء الطلب</button>
+        <div class="rq-ro-note">{{ stateChangeReason }}</div>
       </div>
     </div>
   }
 </section>
+
+@if (notifyOpen() && selected()?.client; as cl) {
+  <sa-notify-modal [userId]="cl.userId" [userName]="cl.name || 'صاحب الطلب'" [context]="{ type: 'REQUEST', id: selected()!.id }" (closed)="notifyOpen.set(false)" (sent)="onNotifySent()"></sa-notify-modal>
+}

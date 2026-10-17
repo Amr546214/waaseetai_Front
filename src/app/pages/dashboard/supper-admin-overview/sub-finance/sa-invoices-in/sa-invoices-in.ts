@@ -1,18 +1,10 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AdminInvoice, AdminInvoicesData, AdminOpsApiService, saveBlob } from '../../../../../core/services/admin-ops-api.service';
+import { errMsg, fmtDate, usd } from '../finance-ui';
 
-type InStatus = 'paid' | 'pending' | 'overdue';
-type TabKey = 'all' | 'pending' | 'paid' | 'overdue';
-
-interface InInvoice {
-  id: string;
-  supplier: string;
-  service: string;
-  amount: number;
-  dueDate: string;
-  status: InStatus;
-}
+type TabKey = 'all' | 'paid' | 'due';
 
 @Component({
   selector: 'app-sa-invoices-in',
@@ -21,74 +13,70 @@ interface InInvoice {
   templateUrl: './sa-invoices-in.html',
   styleUrl: './sa-invoices-in.css',
 })
-export class SaInvoicesIn {
-  toast = signal<string | null>(null);
+export class SaInvoicesIn implements OnInit {
+  private api = inject(AdminOpsApiService);
+
+  readonly usd = usd;
+  readonly fmtDate = fmtDate;
+  readonly newInvoiceReason = 'الفواتير الواردة تُشتق من تسليمات المراحل ولا تُرفع يدويًا';
+
   activeTab = signal<TabKey>('all');
   searchTerm = signal('');
+  page = signal(1);
+  data = signal<AdminInvoicesData | null>(null);
+  loading = signal(true);
+  error = signal('');
+  exporting = signal(false);
+  exportError = signal('');
 
   readonly tabs: { key: TabKey; label: string }[] = [
     { key: 'all', label: 'الكل' },
-    { key: 'pending', label: 'معلقة' },
     { key: 'paid', label: 'مدفوعة' },
-    { key: 'overdue', label: 'متأخرة' },
+    { key: 'due', label: 'مستحقة' },
   ];
+  readonly statusLabels: Record<string, string> = { paid: 'مدفوعة', due: 'مستحقة' };
+  readonly statusClasses: Record<string, string> = { paid: 'st-paid', due: 'st-pending' };
 
-  readonly statusLabels: Record<InStatus, string> = {
-    paid: 'مدفوعة',
-    pending: 'معلقة',
-    overdue: 'متأخرة',
-  };
-
-  readonly invoices: InInvoice[] = [
-    { id: 'EXT-2026-0312', supplier: 'Amazon Web Services', service: 'Cloud Hosting', amount: 48200, dueDate: '31 يوليو', status: 'pending' },
-    { id: 'EXT-2026-0311', supplier: 'Twilio', service: 'SMS & WhatsApp', amount: 8400, dueDate: '25 يوليو', status: 'paid' },
-    { id: 'EXT-2026-0308', supplier: 'Stripe', service: 'Payment Processing', amount: 12800, dueDate: '20 يوليو', status: 'paid' },
-    { id: 'EXT-2026-0299', supplier: 'Firebase', service: 'Database & Auth', amount: 3200, dueDate: '10 يوليو', status: 'overdue' },
-    { id: 'EXT-2026-0290', supplier: 'SendGrid', service: 'Email Service', amount: 1840, dueDate: '5 يوليو', status: 'paid' },
-    { id: 'EXT-2026-0281', supplier: 'DigitalOcean', service: 'Backup Servers', amount: 2650, dueDate: '2 يوليو', status: 'paid' },
-    { id: 'EXT-2026-0270', supplier: 'Google Maps API', service: 'Geolocation Services', amount: 940, dueDate: '28 يونيو', status: 'overdue' },
-  ];
-
-  readonly kpis = {
-    total: this.invoices.length,
-    paid: this.invoices.filter((i) => i.status === 'paid').length,
-    pending: this.invoices.filter((i) => i.status === 'pending').length,
-    overdue: this.invoices.filter((i) => i.status === 'overdue').length,
-  };
-
-  readonly filteredInvoices = computed(() => {
-    const tab = this.activeTab();
+  filtered = computed<AdminInvoice[]>(() => {
     const term = this.searchTerm().trim().toLowerCase();
-    return this.invoices.filter((inv) => {
-      const matchesTab = tab === 'all' || inv.status === tab;
-      const matchesTerm =
-        !term || inv.id.toLowerCase().includes(term) || inv.supplier.toLowerCase().includes(term);
-      return matchesTab && matchesTerm;
-    });
+    const items = this.data()?.items ?? [];
+    if (!term) return items;
+    return items.filter((i) => [i.projectTitle, i.stageTitle, i.clientName, i.providerName, i.sourceId].some((v) => (v ?? '').toLowerCase().includes(term)));
   });
 
-  setTab(tab: TabKey) {
-    this.activeTab.set(tab);
+  ngOnInit() { this.load(); }
+
+  load() {
+    this.loading.set(true);
+    this.error.set('');
+    const tab = this.activeTab();
+    this.api.financeInvoices({ status: tab === 'all' ? undefined : tab, page: this.page(), limit: 20 }).subscribe({
+      next: (res) => { this.data.set(res.data ?? null); this.loading.set(false); },
+      error: (err) => { this.error.set(errMsg(err, 'تعذر تحميل الفواتير')); this.loading.set(false); },
+    });
   }
 
-  formatAmount(v: number): string {
-    return v.toLocaleString('ar-SA') + ' $';
+  setTab(t: TabKey) {
+    this.activeTab.set(t);
+    this.page.set(1);
+    this.load();
   }
 
-  showToast(message: string) {
-    this.toast.set(message);
-    setTimeout(() => this.toast.set(null), 2500);
+  totalPages(): number {
+    const p = this.data()?.pagination;
+    return p?.totalPages ?? p?.pages ?? 1;
   }
+  prevPage() { if (this.page() > 1) { this.page.update((v) => v - 1); this.load(); } }
+  nextPage() { if (this.page() < this.totalPages()) { this.page.update((v) => v + 1); this.load(); } }
 
-  exportList() {
-    this.showToast('تم تصدير القائمة بنجاح');
-  }
-
-  uploadInvoice() {
-    this.showToast('رفع فاتورة جديدة — سيتم استخراج البيانات تلقائياً عبر OCR');
-  }
-
-  payInvoice(inv: InInvoice) {
-    this.showToast(`إجراء دفع ${inv.id} — تجهيز مستقبلي غير مفعّل في V1`);
+  exportCsv() {
+    if (this.exporting()) return;
+    this.exporting.set(true);
+    this.exportError.set('');
+    const tab = this.activeTab();
+    this.api.downloadCsv('invoices', { status: tab === 'all' ? undefined : tab }).subscribe({
+      next: (blob) => { saveBlob(blob, 'invoices.csv'); this.exporting.set(false); },
+      error: (err) => { this.exportError.set(errMsg(err, 'تعذر تصدير الملف')); this.exporting.set(false); },
+    });
   }
 }

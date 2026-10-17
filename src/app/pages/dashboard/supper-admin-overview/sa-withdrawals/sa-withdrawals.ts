@@ -2,9 +2,43 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WithdrawalApiService } from '../../../../core/services/withdrawal-api.service';
+import { saveBlob, AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { Withdrawal, LEGACY_WITHDRAWAL_LABEL, isLegacyWithdrawal, WithdrawalPagination } from '../../../../core/models/withdrawal.model';
+import { formatMoney } from '../../../../core/utils/money.util';
 
-type StatusFilter = 'all' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
+export type WdStatusFilter = 'all' | 'PENDING' | 'APPROVED' | 'PROCESSING' | 'COMPLETED' | 'REJECTED' | 'REVERSED';
+export type WdOwnerFilter = 'all' | 'provider' | 'affiliate';
+
+/** Exact server statuses with their Arabic labels (shared by the list and the detail page). */
+export const WITHDRAWAL_STATUS_LABELS: Record<string, string> = {
+  PENDING: 'قيد المراجعة',
+  APPROVED: 'معتمد (بانتظار التحويل)',
+  PROCESSING: 'قيد التحويل',
+  COMPLETED: 'تم التحويل',
+  REJECTED: 'مرفوض',
+  REVERSED: 'أُعيد من PayPal',
+};
+export const WITHDRAWAL_STATUS_CLASSES: Record<string, string> = {
+  PENDING: 'wd-st-pending',
+  APPROVED: 'wd-st-approved',
+  PROCESSING: 'wd-st-processing',
+  COMPLETED: 'wd-st-completed',
+  REJECTED: 'wd-st-rejected',
+  REVERSED: 'wd-st-reversed',
+};
+
+/** Owner display from the API `user` object: first + last name, else email. */
+export function withdrawalUserDisplay(w: Withdrawal): string {
+  const u = w.user;
+  if (!u) return '—';
+  const name = `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim();
+  return name || u.email || '—';
+}
+export function withdrawalOwnerLabel(w: Withdrawal): string {
+  const u = w.user;
+  if (!u) return '—';
+  return u.affiliateProfile || u.accountType === 'AFFILIATE' || u.accountType === 'MARKETER' ? 'وسيط تسويقي' : 'مقدم خدمة';
+}
 
 @Component({
   selector: 'app-sa-withdrawals',
@@ -15,36 +49,37 @@ type StatusFilter = 'all' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
 })
 export class SaWithdrawals implements OnInit {
   private withdrawalApi = inject(WithdrawalApiService);
+  private adminOps = inject(AdminOpsApiService);
 
   withdrawals = signal<Withdrawal[]>([]);
+  counts = signal<Record<string, { count: number; amount: number }>>({});
   loading = signal(false);
   error = signal('');
-  activeFilter = signal<StatusFilter>('all');
+  activeFilter = signal<WdStatusFilter>('all');
+  ownerFilter = signal<WdOwnerFilter>('all');
   currentPage = signal(1);
   pageSize = signal(10);
   pagination = signal<WithdrawalPagination | null>(null);
+  exporting = signal(false);
+  exportError = signal('');
 
-  readonly filters: { key: StatusFilter; label: string }[] = [
+  readonly filters: { key: WdStatusFilter; label: string }[] = [
     { key: 'all', label: 'الكل' },
-    { key: 'PENDING', label: 'قيد المراجعة' },
-    { key: 'APPROVED', label: 'مقبول' },
-    { key: 'REJECTED', label: 'مرفوض' },
-    { key: 'COMPLETED', label: 'مكتمل' },
+    { key: 'PENDING', label: WITHDRAWAL_STATUS_LABELS['PENDING'] },
+    { key: 'APPROVED', label: WITHDRAWAL_STATUS_LABELS['APPROVED'] },
+    { key: 'PROCESSING', label: WITHDRAWAL_STATUS_LABELS['PROCESSING'] },
+    { key: 'COMPLETED', label: WITHDRAWAL_STATUS_LABELS['COMPLETED'] },
+    { key: 'REJECTED', label: WITHDRAWAL_STATUS_LABELS['REJECTED'] },
+    { key: 'REVERSED', label: WITHDRAWAL_STATUS_LABELS['REVERSED'] },
+  ];
+  readonly owners: { key: WdOwnerFilter; label: string }[] = [
+    { key: 'all', label: 'الكل' },
+    { key: 'provider', label: 'مقدمو الخدمة' },
+    { key: 'affiliate', label: 'الوسطاء التسويقيون' },
   ];
 
-  readonly statusLabels: Record<string, string> = {
-    PENDING: 'قيد المراجعة',
-    APPROVED: 'مقبول',
-    REJECTED: 'مرفوض',
-    COMPLETED: 'مكتمل',
-  };
-
-  readonly statusClasses: Record<string, string> = {
-    PENDING: 'wd-st-pending',
-    APPROVED: 'wd-st-approved',
-    REJECTED: 'wd-st-rejected',
-    COMPLETED: 'wd-st-completed',
-  };
+  readonly statusLabels = WITHDRAWAL_STATUS_LABELS;
+  readonly statusClasses = WITHDRAWAL_STATUS_CLASSES;
 
   ngOnInit() {
     this.fetchWithdrawals();
@@ -54,8 +89,10 @@ export class SaWithdrawals implements OnInit {
     this.loading.set(true);
     this.error.set('');
     const filter = this.activeFilter();
+    const owner = this.ownerFilter();
     this.withdrawalApi.getAdminWithdrawals({
       status: filter === 'all' ? undefined : filter,
+      owner: owner === 'all' ? undefined : owner,
       page: this.currentPage(),
       limit: this.pageSize(),
     }).subscribe({
@@ -64,6 +101,7 @@ export class SaWithdrawals implements OnInit {
           const d = res.data;
           const list = d.withdrawals || d.items || [];
           this.withdrawals.set(list as Withdrawal[]);
+          this.counts.set(d.counts ?? {});
           if (d.pagination) {
             this.pagination.set(d.pagination);
           } else {
@@ -71,7 +109,7 @@ export class SaWithdrawals implements OnInit {
               page: d.page ?? this.currentPage(),
               limit: d.limit ?? this.pageSize(),
               total: d.total ?? list.length,
-              totalPages: d.pages ?? d.totalPages ?? 1,
+              totalPages: d.totalPages ?? d.pages ?? 1,
             });
           }
         } else {
@@ -87,17 +125,37 @@ export class SaWithdrawals implements OnInit {
     });
   }
 
-  setFilter(filter: StatusFilter) {
+  setFilter(filter: WdStatusFilter) {
     this.activeFilter.set(filter);
     this.currentPage.set(1);
     this.fetchWithdrawals();
   }
 
-  nextPage() {
+  setOwner(owner: WdOwnerFilter) {
+    this.ownerFilter.set(owner);
+    this.currentPage.set(1);
+    this.fetchWithdrawals();
+  }
+
+  /** Real count for a tab from `counts` (all = sum of every status). */
+  tabCount(key: WdStatusFilter): number {
+    const c = this.counts();
+    if (key === 'all') return Object.values(c).reduce((s, b) => s + (b?.count ?? 0), 0);
+    return c[key]?.count ?? 0;
+  }
+  tabAmount(key: WdStatusFilter): number {
+    const c = this.counts();
+    if (key === 'all') return Object.values(c).reduce((s, b) => s + (b?.amount ?? 0), 0);
+    return c[key]?.amount ?? 0;
+  }
+
+  totalPages(): number {
     const p = this.pagination();
-    if (!p) return;
-    const totalPages = p.totalPages ?? p.pages ?? 1;
-    if (this.currentPage() < totalPages) {
+    return p?.totalPages ?? p?.pages ?? 1;
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
       this.currentPage.update((v) => v + 1);
       this.fetchWithdrawals();
     }
@@ -108,6 +166,23 @@ export class SaWithdrawals implements OnInit {
       this.currentPage.update((v) => v - 1);
       this.fetchWithdrawals();
     }
+  }
+
+  exportCsv() {
+    if (this.exporting()) return;
+    this.exporting.set(true);
+    this.exportError.set('');
+    const filter = this.activeFilter();
+    this.adminOps.downloadCsv('withdrawals', { status: filter === 'all' ? undefined : filter }).subscribe({
+      next: (blob) => {
+        saveBlob(blob, 'withdrawals.csv');
+        this.exporting.set(false);
+      },
+      error: (err) => {
+        this.exportError.set(err?.error?.message || 'تعذر تصدير الملف');
+        this.exporting.set(false);
+      },
+    });
   }
 
   shortId(id: string): string {
@@ -127,7 +202,7 @@ export class SaWithdrawals implements OnInit {
 
   formatAmount(amount: number | undefined, currency: string | undefined): string {
     if (amount == null) return '—';
-    const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    const formatted = formatMoney(amount, 2);
     return currency ? `${formatted} ${currency === 'USD' ? '$' : currency}` : `${formatted} $`;
   }
 
@@ -138,6 +213,10 @@ export class SaWithdrawals implements OnInit {
   }
 
   userDisplay(w: Withdrawal): string {
-    return w.userName || w.userEmail || (w.userId ? this.shortId(w.userId) : '—');
+    return withdrawalUserDisplay(w);
+  }
+
+  ownerLabel(w: Withdrawal): string {
+    return withdrawalOwnerLabel(w);
   }
 }

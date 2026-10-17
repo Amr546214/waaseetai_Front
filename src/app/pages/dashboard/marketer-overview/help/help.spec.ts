@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { join } from 'node:path';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -88,7 +89,7 @@ describe('Help', () => {
       component.submitTicket();
 
       expect(createTicketSpy).toHaveBeenCalledTimes(1);
-      expect(createTicketSpy).toHaveBeenCalledWith('client', expect.objectContaining({
+      expect(createTicketSpy).toHaveBeenCalledWith('marketer', expect.objectContaining({
         subject: 'مشكلة في رابط الإحالة',
         description: 'الرابط الخاص بي لا يعمل بشكل صحيح منذ يومين ولا يسجل أي زيارات جديدة.',
       }));
@@ -102,11 +103,12 @@ describe('Help', () => {
       component.submitTicket();
 
       expect(createTicketSpy).not.toHaveBeenCalled();
-      expect(component.ticketCreateError()).toBeTruthy();
+      // the reasons now sit under their own fields (reportProblems) instead of one generic banner
+      expect(component.ticketCreateError()).toBeNull();
     });
 
     it('E) a backend failure does not show success and surfaces the real error', async () => {
-      const createTicketSpy = vi.fn(() => throwError(() => ({ error: { message: 'حدث خطأ في الخادم' } })));
+      const createTicketSpy = vi.fn(() => throwError(() => ({ status: 503, error: { message: 'حدث خطأ في الخادم' } })));
       await setup({ createTicket: createTicketSpy });
       fixture.detectChanges();
 
@@ -116,7 +118,7 @@ describe('Help', () => {
 
       expect(component.isCreatingTicket()).toBe(false);
       expect(component.ticketCreateError()).toBe('حدث خطأ في الخادم');
-      expect(component.toastMessage()).not.toBe('تم فتح تذكرتك بنجاح');
+      expect(TestBed.inject(UiNotificationService).toasts().some(t => t.kind === 'success')).toBe(false);
       // Not cleared on failure — user shouldn't have to retype everything.
       expect(component.ticketSubject()).toBe('مشكلة في رابط الإحالة');
     });
@@ -130,7 +132,7 @@ describe('Help', () => {
       component.ticketDescription.set('الرابط الخاص بي لا يعمل بشكل صحيح منذ يومين ولا يسجل أي زيارات جديدة.');
       component.submitTicket();
 
-      expect(component.toastMessage()).toBe('تم فتح تذكرتك بنجاح');
+      expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: 'تم فتح تذكرتك بنجاح' });
       expect(component.tickets()[0].ticketNumber).toBe('TCK-0001');
       expect(component.newTicketFormVisible()).toBe(false);
     });
@@ -154,7 +156,7 @@ describe('Help', () => {
       await setup({ listTickets: listTicketsSpy });
       fixture.detectChanges();
 
-      expect(listTicketsSpy).toHaveBeenCalledWith('client');
+      expect(listTicketsSpy).toHaveBeenCalledWith('marketer');
       expect(component.tickets().length).toBe(1);
       expect(component.tickets()[0].ticketNumber).toBe('TCK-0001');
     });

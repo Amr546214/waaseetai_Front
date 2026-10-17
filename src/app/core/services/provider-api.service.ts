@@ -33,6 +33,22 @@ export interface ProviderReports {
 	disputes: { items: Array<{ id: string; status: string; reason: string; createdAt: string; resolvedAt: string | null }>; counts: { all: number; open: number; resolved: number; rejected: number }; ratioPercent: number | null };
 }
 
+export interface ProviderInvoice {
+	id: string; sourceId: string; projectId: string; clientName: string; projectTitle: string; stageTitle: string; project: string; date: string;
+	stageValue: number; platformCommission: number; commissionRatePercent: number; commissionEstimated: boolean; net: number; total: number; tax: number;
+	status: 'paid' | 'due'; paymentDate: string | null; currency: string;
+}
+export interface ProviderInvoicesResponse {
+	summary: { totalCount: number; paidCount: number; dueCount: number; paidNetTotal: number; dueNetTotal: number; platformCommissionTotal: number; currency: string };
+	invoices: ProviderInvoice[];
+}
+export interface ProviderSale { id: string; orderNumber: string; model: string; client: string; amount: number; date: string; status: 'completed' | 'pending' | 'refunded' }
+export interface ProviderSalesResponse {
+	summary: { totalRevenue: number; monthRevenue: number; salesCount: number; averageOrderValue: number; currency: string };
+	topModels: Array<{ name: string; sales: number; revenue: number; pct: number }>;
+	sales: ProviderSale[];
+}
+
 export interface ProviderActivityItem {
 	id: string;
 	title?: string;
@@ -146,6 +162,16 @@ export class ProviderApiService {
 		return this.http.get<{ success: boolean; data?: ProviderReports }>(`${this.apiUrl}/reports`, { params: { range } });
 	}
 
+	/** GET /provider/finance/invoices — one invoice per delivered stage (client, stage value, platform commission, net, paid/due). */
+	getProviderInvoices(): Observable<{ success: boolean; data: ProviderInvoicesResponse }> {
+		return this.http.get<{ success: boolean; data: ProviderInvoicesResponse }>(`${this.apiUrl}/finance/invoices`);
+	}
+
+	/** GET /provider/finance/sales — paid marketplace sales of the provider's services (net of the coupon share). */
+	getProviderSales(): Observable<{ success: boolean; data: ProviderSalesResponse }> {
+		return this.http.get<{ success: boolean; data: ProviderSalesResponse }>(`${this.apiUrl}/finance/sales`);
+	}
+
 	getOverviewStats(): Observable<ProviderStatsResponse> {
 		return this.getProviderStatistics();
 	}
@@ -239,6 +265,16 @@ export class ProviderApiService {
 			})
 		);
 	}
+
+	/** «إجراءات الحساب»: the provider's own approval requests (real status, admin notes addressed to the user, history). */
+	getAccountActions(): Observable<any> { return this.http.get<any>(`${this.apiUrl}/account-actions`); }
+	getAccountAction(id: string): Observable<any> { return this.http.get<any>(`${this.apiUrl}/account-actions/${encodeURIComponent(id)}`); }
+	/** the previous content of a request that waits for the provider (409 when it does not) */
+	getAccountActionCompletion(id: string): Observable<any> { return this.http.get<any>(`${this.apiUrl}/account-actions/${encodeURIComponent(id)}/completion`); }
+	deleteAccreditationProof(id: string): Observable<any> { return this.http.delete<any>(`${this.apiUrl}/accreditation/proofs/${encodeURIComponent(id)}`); }
+	getProofRequirements(): Observable<any> { return this.http.get<any>(`${this.apiUrl}/accreditation/proof-requirements`); }
+	/** Like submitAccreditationSample but the HTTP error is kept: field errors (files, title...) must reach the form. */
+	submitAccreditationRequest(payload: FormData): Observable<any> { return this.http.post<any>(`${this.apiUrl}/accreditation/submit`, payload); }
 
 	getAccreditationSamples(): Observable<any> {
 		return this.http.get<any>(`${this.apiUrl}/accreditation/samples`).pipe(

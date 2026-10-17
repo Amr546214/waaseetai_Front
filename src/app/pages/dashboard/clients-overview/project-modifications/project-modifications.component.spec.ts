@@ -130,7 +130,8 @@ describe('ProjectModificationsComponent', () => {
     expect(component.tabs()).toEqual([
       { id: 'all', label: 'الكل', count: 3 },
       { id: 'open', label: 'نشطة', count: 2 },
-      { id: 'closed', label: 'مُعتمدة', count: 1 }
+      { id: 'closed', label: 'مُعتمدة', count: 1 },
+      { id: 'rejected', label: 'مرفوضة', count: 0 }
     ]);
     const stats = component.stats();
     expect(stats.find(s => s.label === 'بانتظار رد المقدّم')?.value).toBe('1');
@@ -156,14 +157,14 @@ describe('ProjectModificationsComponent', () => {
     expect(component.filteredAmendments().map(a => a.id)).toEqual(['a2']);
   });
 
-  it('formats a positive budget delta as +N دولار, from the real numeric field', async () => {
+  it('formats a positive budget delta as +N $, from the real numeric field', async () => {
     await setup(() => of({ success: true, data: [] }));
-    expect(component.formatBudgetDelta(1500)).toBe('+1,500 دولار');
+    expect(component.formatBudgetDelta(1500)).toBe('+1,500 $');
   });
 
-  it('formats a negative budget delta as -N دولار', async () => {
+  it('formats a negative budget delta as -N $', async () => {
     await setup(() => of({ success: true, data: [] }));
-    expect(component.formatBudgetDelta(-500)).toBe('-500 دولار');
+    expect(component.formatBudgetDelta(-500)).toBe('-500 $');
   });
 
   it('formats a null/zero budget delta as "بلا تغيير"', async () => {
@@ -191,7 +192,7 @@ describe('ProjectModificationsComponent', () => {
 
     const clientRaised = amendmentFixture({ requestedByRole: 'CLIENT', status: 'APPROVED' }) as any;
     const decidedSteps = component.timelineSteps(clientRaised);
-    expect(decidedSteps.map(s => s.label)).toEqual(['رفع الطلب', 'بانتظار رد المقدّم', 'معتمد']);
+    expect(decidedSteps.map(s => s.label)).toEqual(['رفع الطلب', 'بانتظار رد المقدّم', 'موافقة مُسجَّلة']);
   });
 
   it('never renders a fake AI accuracy badge or percentage', async () => {
@@ -245,8 +246,10 @@ describe('ProjectModificationsComponent', () => {
 
   it('a client-created pending amendment does NOT show approve/reject actions', async () => {
     await setup(() => of({ success: true, data: [amendmentFixture({ requestedByRole: 'CLIENT', status: 'PENDING_OTHER_PARTY' })] }));
+    // the client's own pending request has no approve/reject of its own; it offers cancel (and, for an increase, the payment authorization)
     expect(fixture.nativeElement.querySelector('.dp-appr-btn')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.dp-rej-btn')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="am-confirm"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="am-cancel"]')).toBeTruthy();
   });
 
   it('an already-decided amendment does NOT show approve/reject actions regardless of role', async () => {
@@ -267,6 +270,11 @@ describe('ProjectModificationsComponent', () => {
     );
 
     (fixture.nativeElement.querySelector('.dp-appr-btn') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="am-confirm"]')!.textContent).toContain('يُطبَّق التعديل فورًا');
+    expect(fixture.nativeElement.querySelector('[data-testid="am-effect-lines"]')!.textContent).toContain('مدة العقد'); // the effect is shown before confirming
+    expect(postSpy).not.toHaveBeenCalled(); // asking for confirmation sends nothing
+    (fixture.nativeElement.querySelector('[data-testid="am-confirm-yes"]') as HTMLButtonElement).click();
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -284,10 +292,11 @@ describe('ProjectModificationsComponent', () => {
       () => subject.asObservable()
     );
 
-    const apprBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.dp-appr-btn');
-    apprBtn.click();
+    (fixture.nativeElement.querySelector('.dp-appr-btn') as HTMLButtonElement).click();
     fixture.detectChanges();
-    expect(apprBtn.disabled).toBe(true);
+    (fixture.nativeElement.querySelector('[data-testid="am-confirm-yes"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect((fixture.nativeElement.querySelector('.dp-appr-btn') as HTMLButtonElement).disabled).toBe(true);
 
     component.respond(component.amendments()[0], 'approve');
     expect(postSpy).toHaveBeenCalledTimes(1);
@@ -304,11 +313,32 @@ describe('ProjectModificationsComponent', () => {
     );
 
     (fixture.nativeElement.querySelector('.dp-appr-btn') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="am-confirm"]')!.textContent).toContain('يُطبَّق التعديل فورًا');
+    expect(postSpy).not.toHaveBeenCalled(); // asking for confirmation sends nothing
+    (fixture.nativeElement.querySelector('[data-testid="am-confirm-yes"]') as HTMLButtonElement).click();
     await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('تعذر حفظ القرار');
     expect(component.amendments()[0].status).toBe('PENDING_OTHER_PARTY');
     expect(getSpy).toHaveBeenCalledTimes(1); // no reload attempted after a failure
+  });
+
+  it('a LEGACY approved row (no appliedAt) keeps «مُسجَّل — لا يغيّر العقد», and EVERY card shows the effect note', async () => {
+    await setup(() => of({ success: true, data: [amendmentFixture({ requestedByRole: 'CLIENT', status: 'APPROVED' })] }));
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain('مُسجَّل — لا يغيّر العقد');
+    expect(text).toContain('تغيير مقترح');
+    expect(text).not.toMatch(/مُحدَّث|تم التنفيذ|نافذ/);
+    expect(fixture.nativeElement.querySelector('[data-testid="am-effect-note"]')!.textContent).toContain('القرار يُسجَّل للمتابعة فقط ولا يغيّر سعر العقد أو مدته أو الضمان حاليًا.');
+    expect(fixture.nativeElement.querySelector('[data-testid="am-record-note"]')!.textContent).toContain('لا يتغير السعر أو المدة أو الضمان أو المحفظة بمجرد رفع الطلب');
+  });
+
+  it('a rejected request has its own tab', async () => {
+    await setup(() => of({ success: true, data: [amendmentFixture({ id: 'r1', requestedByRole: 'CLIENT', status: 'REJECTED' }), amendmentFixture({ id: 'p1', requestedByRole: 'CLIENT', status: 'PENDING_OTHER_PARTY' })] }));
+    component.setFilter('rejected');
+    expect(component.filteredAmendments().map(a => a.id)).toEqual(['r1']);
+    expect(component.tabs().find(t => t.id === 'rejected')!.count).toBe(1);
   });
 });

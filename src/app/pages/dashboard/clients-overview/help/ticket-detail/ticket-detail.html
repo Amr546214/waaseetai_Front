@@ -1,5 +1,5 @@
 <section class="tkd-page" dir="rtl">
-	<a routerLink="/client-overview/help" class="bk-link">
+	<a routerLink="/client-overview/help/tickets" class="bk-link">
 		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
 		العودة لتذاكر الدعم
 	</a>
@@ -16,7 +16,7 @@
 	<!-- Error -->
 	@if (hasError()) {
 		<div class="state-card err-card">
-			<div class="err-ttl">تعذّر تحميل التذكرة</div>
+			<div class="err-ttl">{{ errorMessage() }}</div>
 			<div class="err-code">ERR-SK-024-TKD</div>
 			<button type="button" class="retry-btn" (click)="retry()">اعادة المحاولة</button>
 		</div>
@@ -30,7 +30,8 @@
 					<div class="tkd-ttl">{{ t.title }}</div>
 					<div class="tkd-id">{{ t.code }} · فُتحت {{ t.createdAt }}</div>
 				</div>
-				<span class="tk-status tks-human">{{ t.statusLabel }}</span>
+				<span class="tk-status tks-human" data-testid="ticket-status">{{ t.statusLabel }}</span>
+				<button type="button" class="retry-btn" style="padding:6px 14px;font-size:12px" [disabled]="isLoading()" (click)="retry()" data-testid="ticket-refresh">تحديث</button>
 			</div>
 			<div class="tkd-meta">
 				<div class="tkd-meta-item"><div class="tkd-meta-lbl">التصنيف</div><div class="tkd-meta-val">{{ t.category }}</div></div>
@@ -98,12 +99,16 @@
 				}
 			</div>
 
+			@if (t.status === 'CLOSED') {
+			<div class="tkm-closed" data-testid="ticket-closed-note">هذه التذكرة مغلقة. لفتح موضوع جديد افتح تذكرة جديدة من مركز المساعدة</div>
+			} @else {
 			<div class="tkm-composer">
-				<textarea [(ngModel)]="replyText" rows="1" placeholder="اكتب ردّك للفريق" aria-label="ردّك"></textarea>
+				<textarea id="tk-reply" name="reply" [(ngModel)]="replyText" rows="1" placeholder="اكتب ردّك للفريق" aria-label="ردّك"></textarea>
 				<div class="tkm-composer-actions">
 					<button type="button" class="tkm-send" [disabled]="sending()" (click)="sendReply()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>{{ sending() ? 'جارٍ الإرسال...' : 'إرسال الرد' }}</button>
 				</div>
 			</div>
+			}
 		</div>
 
 		<!-- Actions -->
@@ -114,22 +119,8 @@
 		}
 	}
 
-	<!-- Toast -->
-	@if (toast()) {
-		<div class="toast-wrap">
-			<div class="toast-box">
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-				<span>{{ toast() }}</span>
-			</div>
-		</div>
-	}
-
 	<div class="inner-foot">
-		<span>&#169; 2026 وسيط AI · v1.0.0</span>
-		<div class="inner-foot-links">
-			<a routerLink="/privacy">PDPL</a>
-			<a routerLink="/terms">الشروط</a>
-			<span>SAMA</span>
-		</div>
+		<span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span>
+		<div class="inner-foot-links"><a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a><a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a></div>
 	</div>
 </section>

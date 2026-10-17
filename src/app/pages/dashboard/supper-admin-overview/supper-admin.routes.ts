@@ -207,9 +207,19 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         data: { title: 'أداء الفريق' }
     },
     {
+        path: 'marketing-assets',
+        loadComponent: () => import('./sa-marketing-assets/sa-marketing-assets').then(m => m.SaMarketingAssets),
+        data: { title: 'المواد التسويقية' }
+    },
+    {
         path: 'system-settings',
         loadComponent: () => import('./sa-system-settings/sa-system-settings').then(m => m.SaSystemSettings),
         data: { title: 'إعدادات النظام' }
+    },
+    {
+        path: 'my-account',
+        loadComponent: () => import('./sa-my-account/sa-my-account').then(m => m.SaMyAccount),
+        data: { title: 'حسابي وأمان الدخول' }
     },
     {
         path: 'super-admins',

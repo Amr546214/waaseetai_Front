@@ -6,10 +6,11 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Notifications } from './notifications';
 
@@ -74,7 +75,7 @@ describe('provider notifications: honest banner/counters/CTA/mark-all', () => {
 		(el2.querySelector('[data-testid=mark-all-read]') as HTMLButtonElement).click(); fixture.detectChanges();
 		expect(c.unreadCount()).toBe(2);
 		expect(c.notifications().every(n => n.isUnread)).toBe(true);
-		expect(c.toastMessage()).toContain('تعذر');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => ({ kind: t.kind, message: t.message }))).toEqual([{ kind: 'error', message: expect.stringContaining('تعذر') }]);
 	});
 
 	it('a CTA shows only with a resolved target; a notification without one does not navigate', async () => {
@@ -86,7 +87,7 @@ describe('provider notifications: honest banner/counters/CTA/mark-all', () => {
 		c.onNotificationClick(c.notifications().find(n => n.id === 'b')!);
 		expect(nav).not.toHaveBeenCalled();
 		c.onNotificationClick(c.notifications().find(n => n.id === 'a')!);
-		expect(nav).toHaveBeenCalledWith('/provider-overview/offers/o1/sign-contract');
+		expect(nav).toHaveBeenCalledWith('/provider-overview/offers/o1/sign-contract', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('company mode: "needs action" requires a real target, not just an action label', async () => {

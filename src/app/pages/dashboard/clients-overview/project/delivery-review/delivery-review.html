@@ -19,7 +19,7 @@
 			<div class="dr-hd">
 				<div class="dr-hd-top">
 					<div>
-						<div class="dr-hd-ttl">تسليم المرحلة {{ stage.stageNumber }}: {{ stage.title }}</div>
+						<div class="dr-hd-ttl" data-testid="dr-title">{{ heading(stage) }}</div>
 						<div class="dr-hd-id">#{{ data.contractRef }} · من {{ data.clientName }}@if (isCompany() && data.companyContext?.ownerName) { · المسؤول: {{ data.companyContext.ownerName }} }</div>
 					</div>
 					<span class="dr-pill" [class]="statusBadgeClass(stage)">{{ statusBadgeText(stage) }}</span>
@@ -37,6 +37,7 @@
 
 			<!-- AI ADVISORY REVIEW (Batch 5, real & on-demand) — advisory only, never
 			     approves/rejects and never pre-fills/enables the decision controls below. -->
+			@if (canDecide(stage)) {
 			<div class="dr-ai-banner" role="region" aria-label="مراجعة التسليم بالذكاء الاصطناعي">
 				<div class="dr-ai-ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></div>
 				<div class="dr-ai-body">
@@ -86,44 +87,94 @@
 					}
 				</div>
 			</div>
+			}
 
-			<!-- DELIVERY FILES -->
+			<!-- DELIVERY FILES: open = the stored URL in a new tab; download = the same Cloudinary file with the attachment flag (see core/utils/delivery-file.util.ts) -->
 			<div class="dr-sec-ttl">ملفات التسليم</div>
 			<div class="dr-card">
 				@if (latestThread(stage)?.files?.length) {
 					<div class="dr-files">
-						@for (file of latestThread(stage).files; track file.url) {
-							<a class="dr-file" [href]="file.url" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg><span>{{ file.name }}</span>@if (file.size) {<span class="dr-file-size">{{ formatFileSize(file.size) }}</span>}</a>
+						@for (file of latestThread(stage).files; track $index) {
+							@if (openUrl(file); as url) {
+								<span class="dr-file-wrap">
+									<a class="dr-file" data-testid="dr-file-open" [href]="url" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg><span>{{ file.name || 'ملف' }}</span>@if (file.size) {<span class="dr-file-size">{{ formatFileSize(file.size) }}</span>}</a>
+									@if (downloadUrl(file); as dl) { <a class="dr-file-dl" data-testid="dr-file-download" [href]="dl" download rel="noopener noreferrer">تنزيل</a> }
+								</span>
+							} @else {
+								<span class="dr-file dr-file-legacy" data-testid="dr-file-legacy" [attr.title]="legacyFileNote"><span>{{ file.name || 'ملف' }}</span><span class="dr-file-size">{{ legacyFileNote }}</span></span>
+							}
 						}
 					</div>
 				} @else {
-					<div class="dr-files-empty">لا توجد ملفات مرفقة</div>
+					<div class="dr-files-empty">@if (hasDelivery(stage)) { لا توجد ملفات مرفقة } @else { لم يُسلَّم شيء لهذه المرحلة بعد }</div>
 				}
 			</div>
 
-			<!-- DECISION SECTION -->
+			<!-- DECISION SECTION: every branch comes from the server's eligibility (viewState), so nothing is offered that the server would refuse -->
 			<div class="dr-sec-ttl">قرارك</div>
-			<div class="dr-card">
+			<div class="dr-card" [attr.data-state]="viewState(stage)">
 				@if (error()) { <div class="inline-error" role="alert">{{ error() }}</div> }
-				<div class="dr-decision-row">
-					@if (canDecide(stage)) {
-						<button type="button" class="dr-btn-pri" (click)="approveDelivery()" [disabled]="saving()">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
+				@if (freezeReason(); as fr) {
+					<div class="inline-error" role="status" data-testid="dr-freeze-banner"><b>الاعتماد موقوف مؤقتًا:</b> {{ fr }} <a routerLink="/client-overview/disputes">متابعة النزاع</a></div>
+				}
+				@switch (viewState(stage)) {
+					@case ('decided') {
+						<div class="dr-approved-inline" role="status" data-testid="dr-decided">
+							<svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+							<span>اعتمدتَ هذا التسليم@if (decisionDate(stage)) { بتاريخ {{ formatDate(decisionDate(stage)) }} }. أُفرج مبلغ المرحلة من الضمان لمقدم الخدمة.</span>
+						</div>
+						<app-stage-rating-entry [key]="rateKey()" [stageId]="stage.id" />
 					}
-					<button type="button" class="dr-btn-secondary" (click)="openConversation(data)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>عندي ملاحظات، فتح نقاش</button>
-				</div>
-				@if (canDecide(stage)) {
-					<div class="dr-decision-help">عند الاعتماد، يُفرج المبلغ من الضمان فوراً. إذا كانت لديك ملاحظات على التسليم، افتح نقاشاً مع مقدم الخدمة لمناقشتها والاتفاق على التعديل قبل الاعتماد.</div>
-				} @else {
-					<div class="dr-approved-inline">
-						<svg viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-						<span>{{ statusBadgeText(stage) }}</span>
+					@case ('settled') {
+						<div class="inline-error" role="status" data-testid="dr-settled">
+							<b>{{ data.statusLabel || 'أُغلق بتسوية نزاع' }}.</b> {{ blockReason(stage) || 'انتهت مراجعة هذه المرحلة لأن المشروع أُغلق بتسوية نزاع. التسليم متاح للاطلاع فقط.' }}
+						</div>
+					}
+					@case ('undelivered') {
+						<div class="dr-approved-inline" role="status" data-testid="dr-undelivered"><span>{{ blockReason(stage) || 'لم يسلّم مقدم الخدمة هذه المرحلة بعد' }}. لا يوجد ما تعتمده الآن.</span></div>
+					}
+					@case ('closed') {
+						<div class="dr-approved-inline" role="status" data-testid="dr-closed"><span>{{ blockReason(stage) || statusBadgeText(stage) }}</span></div>
+					}
+					@case ('blocked') {
+						<div class="dr-approved-inline" role="status" data-testid="dr-blocked"><span>{{ blockReason(stage) || statusBadgeText(stage) }}</span></div>
+					}
+					@default {
+						<div class="dr-decision-row">
+							<button type="button" class="dr-btn-pri" data-testid="dr-approve" (click)="approveDelivery()" [disabled]="saving() || !!freezeReason()" [attr.title]="freezeReason() || blockReason(stage)">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
+							@if (canRequestRevision(stage)) {
+								<button type="button" class="dr-btn-secondary" data-testid="dr-revision-toggle" (click)="toggleRevision()" [disabled]="saving()">طلب تعديل على التسليم</button>
+							}
+						</div>
+					}
+				}
+				@if (viewState(stage) !== 'decided') {
+					<div class="dr-decision-row" style="margin-top:8px">
+						<button type="button" class="dr-btn-secondary" (click)="openConversation(data)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>فتح نقاش مع مقدم الخدمة</button>
 					</div>
+				}
+				@if (revisionSent()) {
+					<div class="dr-approved-inline" role="status" data-testid="dr-revision-sent"><span>أُرسل طلب التعديل إلى مقدم الخدمة وسُجّل على التسليم. لم يُفرج أي مبلغ، وتبقى المرحلة بانتظار تسليم جديد.</span></div>
+				}
+				@if (canDecide(stage) && revisionOpen()) {
+					<div class="dr-card" data-testid="dr-revision-form" style="margin-top:12px">
+						<label for="dr-rev-note" class="dr-decision-help" style="display:block;margin-bottom:6px">ما الذي تريد تعديله؟ (يُسجَّل على التسليم ويصل مقدم الخدمة) <span class="ws-req" aria-hidden="true">*</span></label>
+						<textarea id="dr-rev-note" aria-required="true" data-testid="dr-revision-note" rows="4" style="width:100%" [(ngModel)]="revisionNote" (ngModelChange)="revisionFieldInvalid.set(false)" name="revisionNote" placeholder="اشرح التعديل المطلوب بوضوح" [class.ws-invalid]="revisionFieldInvalid()" [attr.aria-invalid]="revisionFieldInvalid() ? 'true' : null" [attr.aria-describedby]="revisionFieldInvalid() ? 'dr-rev-err' : null"></textarea>
+						@if (revisionError()) { <div class="inline-error" id="dr-rev-err" role="alert" data-testid="dr-revision-error">{{ revisionError() }}</div> }
+						<div class="dr-decision-row" style="margin-top:8px">
+							<button type="button" class="dr-btn-pri" data-testid="dr-revision-send" (click)="requestRevision()" [disabled]="saving()">{{ saving() ? 'جارٍ الإرسال...' : 'إرسال طلب التعديل' }}</button>
+							<button type="button" class="dr-btn-secondary" (click)="toggleRevision()" [disabled]="saving()">إلغاء</button>
+						</div>
+					</div>
+				}
+				@if (canDecide(stage)) {
+					<div class="dr-decision-help">عند الاعتماد، يُفرج مبلغ المرحلة من الضمان. وإذا كانت لديك ملاحظات فاطلب تعديلًا ليُسجَّل على التسليم ويعيد مقدم الخدمة تسليمه، ولا يُفرج المبلغ حتى تعتمد.</div>
 				}
 			</div>
 		}
 	}
 
-	<div class="dr-foot"><span>© 2026 وسيط AI · v1.0.0</span><div class="dr-foot-links"><a routerLink="/privacy">PDPL</a><a routerLink="/terms">الشروط</a><span>SAMA</span></div></div>
+	<div class="dr-foot"><span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span><div class="dr-foot-links"><a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a><a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a></div></div>
 </section>
 
 <!-- P-SK-015 SUCCESS MODAL (overlay, shown only after approve API success) -->
@@ -132,8 +183,8 @@
 	<div class="ac-box">
 		<div class="ac-ring"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0FA99A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
 		<h3>تم اعتماد التسليم بنجاح</h3>
-		<p>أُفرِج مبلغ المرحلة من الضمان وتمّ ترحيله إلى محفظة مقدم الخدمة</p>
-		<div class="ac-amt"><span>المبلغ المُرحّل</span><b>{{ formatNumber(sd.amount) }} <small>$</small></b></div>
+		<p>أُفرِج مبلغ المرحلة من الضمان لصالح مقدم الخدمة</p>
+		<div class="ac-amt"><span>قيمة المرحلة</span><b>{{ formatNumber(sd.amount) }} <small>$</small></b></div>
 		<div class="ac-row"><span class="ac-k">إلى</span><span class="ac-v">{{ sd.providerName }}</span></div>
 		<div class="ac-row"><span class="ac-k">المرحلة</span><span class="ac-v">{{ sd.stageTitle }}</span></div>
 		@if (sd.txnId) { <div class="ac-row"><span class="ac-k">رقم العملية</span><span class="ac-v">{{ sd.txnId }}</span></div> }

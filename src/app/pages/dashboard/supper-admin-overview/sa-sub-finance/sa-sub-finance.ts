@@ -1,28 +1,8 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-
-interface RevenueMonth {
-  label: string;
-  value: number;
-}
-
-interface RevenueBreakdown {
-  name: string;
-  amount: string;
-  percent: number;
-  color: string;
-}
-
-interface FinanceTransaction {
-  type: string;
-  typeClass: string;
-  amount: string;
-  positive: boolean;
-  party: string;
-  date: string;
-  status: 'sent' | 'pending';
-}
+import { AdminFinanceOverview, AdminOpsApiService, AdminTransaction, saveBlob } from '../../../../core/services/admin-ops-api.service';
+import { bucket, errMsg, fmtDate, pct, seriesBars, txParty, txStatusLabel, txTypeLabel, usd } from '../sub-finance/finance-ui';
 
 @Component({
   selector: 'app-sa-sub-finance',
@@ -31,53 +11,69 @@ interface FinanceTransaction {
   templateUrl: './sa-sub-finance.html',
   styleUrl: './sa-sub-finance.css',
 })
-export class SaSubFinance {
-  toast = signal<string | null>(null);
+export class SaSubFinance implements OnInit {
+  private api = inject(AdminOpsApiService);
 
-  readonly months: RevenueMonth[] = [
-    { label: 'يناير', value: 920 },
-    { label: 'فبراير', value: 1100 },
-    { label: 'مارس', value: 980 },
-    { label: 'أبريل', value: 1340 },
-    { label: 'مايو', value: 1520 },
-    { label: 'يونيو', value: 1680 },
-    { label: 'يوليو', value: 1840 },
-  ];
+  readonly usd = usd;
+  readonly fmtDate = fmtDate;
+  readonly pct = pct;
+  readonly txTypeLabel = txTypeLabel;
+  readonly txStatusLabel = txStatusLabel;
+  readonly txParty = txParty;
 
-  readonly maxMonthValue = Math.max(...this.months.map((m) => m.value));
+  overview = signal<AdminFinanceOverview | null>(null);
+  loading = signal(true);
+  error = signal('');
+  transactions = signal<AdminTransaction[]>([]);
+  txLoading = signal(true);
+  txError = signal('');
+  updatedAt = signal<Date | null>(null);
+  downloading = signal(false);
+  downloadError = signal('');
 
-  readonly barHeights = computed(() =>
-    this.months.map((m) => ({
-      label: m.label.slice(0, 3),
-      valueLabel: `${Math.round(m.value / 100) / 10}k`,
-      heightPct: Math.round((m.value / this.maxMonthValue) * 100),
-    })),
-  );
+  bars = computed(() => seriesBars(this.overview()));
+  pendingWithdrawals = computed(() => bucket(this.overview()?.withdrawals, 'PENDING'));
+  breakdown = computed(() => {
+    const t = this.overview()?.totals;
+    if (!t) return [];
+    const share = (v: number) => (t.releasedGross > 0 ? Math.round((v / t.releasedGross) * 1000) / 10 : 0);
+    return [
+      { name: 'عمولة المنصة', amount: usd(t.platformCommission), percent: share(t.platformCommission), showPct: t.releasedGross > 0, color: 'linear-gradient(90deg,#2BD4C7,#2B7FFF)' },
+      { name: 'صافي مقدمي الخدمة', amount: usd(t.providerNetReleased), percent: share(t.providerNetReleased), showPct: t.releasedGross > 0, color: '#5DA0FF' },
+      { name: 'رسوم بوابة الدفع (تكلفة مدفوعات — ليست إيرادًا)', amount: usd(t.paymentGatewayFees), percent: 0, showPct: false, color: '#D98A0B' },
+    ];
+  });
 
-  readonly breakdown: RevenueBreakdown[] = [
-    { name: 'رسوم إتمام الصفقات (72%)', amount: '10.7M $', percent: 72, color: 'linear-gradient(90deg,#2BD4C7,#2B7FFF)' },
-    { name: 'اشتراكات الباقات (20%)', amount: '2.96M $', percent: 20, color: '#5DA0FF' },
-    { name: 'خدمات إضافية (8%)', amount: '1.18M $', percent: 8, color: '#D98A0B' },
-  ];
-
-  readonly transactions: FinanceTransaction[] = [
-    { type: 'رسوم خدمة', typeClass: 'tag-teal', amount: '+3,200 $', positive: true, party: 'مشروع PR-4521', date: 'اليوم', status: 'sent' },
-    { type: 'اشتراك Pro', typeClass: 'tag-blue', amount: '+299 $', positive: true, party: 'هيثم القرني', date: 'اليوم', status: 'sent' },
-    { type: 'عمولة وسيط', typeClass: 'tag-green', amount: '+840 $', positive: true, party: 'وسيط #112', date: 'أمس', status: 'pending' },
-    { type: 'سحب', typeClass: 'tag-orange', amount: '-12,000 $', positive: false, party: 'سارة القحطاني', date: 'أمس', status: 'sent' },
-    { type: 'رسوم خدمة', typeClass: 'tag-teal', amount: '+5,800 $', positive: true, party: 'مشروع PR-4498', date: '12 يوليو', status: 'sent' },
-  ];
-
-  showToast(message: string) {
-    this.toast.set(message);
-    setTimeout(() => this.toast.set(null), 2500);
+  ngOnInit() {
+    this.load();
   }
 
-  exportPdf() {
-    this.showToast('تم إنشاء ملف PDF بنجاح');
+  load() {
+    this.loading.set(true);
+    this.error.set('');
+    this.txLoading.set(true);
+    this.txError.set('');
+    this.api.financeOverview(6).subscribe({
+      next: (res) => { this.overview.set(res.data ?? null); this.updatedAt.set(new Date()); this.loading.set(false); },
+      error: (err) => { this.error.set(errMsg(err, 'تعذر تحميل الملخص المالي')); this.loading.set(false); },
+    });
+    this.api.financeTransactions({ limit: 5 }).subscribe({
+      next: (res) => { this.transactions.set(res.data?.items ?? []); this.txLoading.set(false); },
+      error: (err) => { this.txError.set(errMsg(err, 'تعذر تحميل آخر الحركات')); this.txLoading.set(false); },
+    });
   }
 
-  generateMonthlyReport() {
-    this.showToast('جاري تجهيز التقرير الشهري…');
+  print() {
+    window.print();
+  }
+
+  downloadCsv() {
+    if (this.downloading()) return;
+    this.downloading.set(true);
+    this.downloadError.set('');
+    this.api.downloadCsv('transactions').subscribe({
+      next: (blob) => { saveBlob(blob, 'transactions.csv'); this.downloading.set(false); },
+      error: (err) => { this.downloadError.set(errMsg(err, 'تعذر تنزيل الملف')); this.downloading.set(false); },
+    });
   }
 }

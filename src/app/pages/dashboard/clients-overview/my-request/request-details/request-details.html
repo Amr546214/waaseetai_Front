@@ -1,21 +1,4 @@
 <div class="req-details-page" dir="rtl">
-	<!-- Toast Notification -->
-	@if (showToastSignal()) {
-	<div id="state-success-toast" role="status">
-		<div
-			style="position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both">
-			<div
-				style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.30);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)">
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5"
-					stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<polyline points="20 6 9 17 4 12" />
-				</svg>
-				<span style="font-size:14px;font-weight:700" class="txt-white">{{ toastMessage() }}</span>
-			</div>
-		</div>
-	</div>
-	}
-
 	<!-- Back Link -->
 	<button (click)="goBack()" class="bk-link">
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
@@ -321,38 +304,80 @@
 					</span>
 					}
 				</div>
+				@if (!isOfferSelectionClosed() && hasPendingCounter(offer)) {
+					<div class="ws-note ws-note--neutral" role="region" aria-label="عرض مضاد من مقدم الخدمة" data-testid="counter-box" style="margin-top:14px" (click)="$event.stopPropagation()">
+						<div class="ws-note-body">
+							<div class="ws-note-lbl">عرض مضاد من مقدم الخدمة بانتظار ردك</div>
+							<p class="ws-note-txt">
+								@if (offer.negotiation!.counter!.price !== null) { السعر: {{ offer.negotiation!.counter!.price | number:'1.0-2' }} $ }
+								@if (offer.negotiation!.counter!.deliveryDays !== null) { — المدة: {{ offer.negotiation!.counter!.deliveryDays }} يوم }
+								@if (offer.negotiation!.counter!.notes) { — {{ offer.negotiation!.counter!.notes }} }
+							</p>
+							<p class="ws-note-txt">لا يتغير سعر العرض ولا مدته إلا بعد قبولك لهذا العرض المضاد، والدردشة وحدها لا تغيّر العقد.</p>
+							<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+								<button type="button" data-testid="accept-counter" class="py-2 px-4 rounded-lg text-[13px] font-bold txt-navy" style="background: linear-gradient(135deg, #2BD4C7, #2B7FFF)"
+									[disabled]="answeringOfferId() !== null" (click)="acceptCounter(offer)">قبول العرض المضاد</button>
+								<button type="button" data-testid="decline-counter" class="py-2 px-4 rounded-lg text-[13px] font-semibold txt-slate" style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12)"
+									[disabled]="answeringOfferId() !== null" (click)="declineCounter(offer)">رفض العرض المضاد</button>
+							</div>
+						</div>
+					</div>
+				}
+				@if (!isOfferSelectionClosed() && !hasPendingCounter(offer) && offer.negotiation?.state === 'REQUEST_SENT') {
+					<div class="ws-note ws-note--neutral" role="status" data-testid="request-sent-note" style="margin-top:14px">
+						<div class="ws-note-body"><p class="ws-note-txt">أرسلت طلب تفاوض وبانتظار رد مقدم الخدمة، ولا يتغير العرض إلا إذا أرسل عرضًا مضادًا وقبلته.</p></div>
+					</div>
+				}
 				<div class="grid grid-cols-3 gap-3 mt-4 w-full" dir="rtl" (click)="$event.stopPropagation()">
 					@if (isOfferSelectionClosed()) {
-						<button type="button" [disabled]="request().statusCode !== 'IN_PROGRESS'" (click)="goToActiveProject()"
-							[style.cursor]="request().statusCode === 'IN_PROGRESS' ? 'pointer' : 'not-allowed'"
-							[style.color]="request().statusCode === 'IN_PROGRESS' ? '#2BD4C7' : '#64748b'"
-							style="background: rgba(18, 25, 44, 0.7); border: 1px solid rgba(48, 64, 94, 0.8);"
-							class="w-full col-span-3 py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center">
-							<span>{{ requestStateMessage() }}{{ request().statusCode === 'IN_PROGRESS' ? ' — متابعة المشروع' : '' }}</span>
-						</button>
+						@if (closedStateAction(); as act) {
+							<button type="button" (click)="act.run()" data-testid="closed-state-action"
+								style="background: rgba(18, 25, 44, 0.7); border: 1px solid rgba(48, 64, 94, 0.8); color:#2BD4C7; cursor:pointer"
+								class="w-full col-span-3 py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center">
+								<span>{{ requestStateMessage() }} — {{ act.label }}</span>
+							</button>
+						} @else {
+							<div data-testid="closed-state-note"
+								style="background: rgba(18, 25, 44, 0.7); border: 1px solid rgba(48, 64, 94, 0.8); color:#64748b"
+								class="w-full col-span-3 py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center">
+								<span>{{ requestStateMessage() }}</span>
+							</div>
+						}
 					} @else {
-						<button type="button"
+						<button type="button" data-testid="accept-offer"
 							style="background: linear-gradient(135deg, #2BD4C7, #2B7FFF)"
-							class="w-full py-2.5 px-3 rounded-lg text-[13px] font-bold shadow-sm flex items-center justify-center text-center leading-none hover:brightness-110 active:scale-[0.98] transition-all txt-navy"
+							class="w-full py-2.5 px-3 rounded-lg text-[13px] font-bold shadow-sm flex items-center justify-center text-center leading-none hover:brightness-110 active:scale-[0.98] transition-all txt-navy disabled:opacity-50 disabled:cursor-not-allowed"
+							[disabled]="!canSelectOffer(offer) || isSelectingOffer()" [attr.title]="canSelectOffer(offer) ? null : offerBlockedReason(offer)"
 							(click)="acceptOffer(offer)">
 							<span>قبول العرض</span>
 						</button>
 
-						<button type="button"
+						<button type="button" data-testid="negotiate-offer"
 							style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12)"
-							class="w-full py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center leading-none hover:border-slate-500 hover:text-white active:scale-[0.98] transition-all txt-slate"
+							class="w-full py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center leading-none hover:border-slate-500 hover:text-white active:scale-[0.98] transition-all txt-slate disabled:opacity-50 disabled:cursor-not-allowed"
+							[disabled]="!!negotiateDisabledReason(offer)" [attr.title]="negotiateDisabledReason(offer)"
 							(click)="openNegotiation(offer)">
 							<span>تفاوض</span>
 						</button>
 
-						<button type="button"
+						<button type="button" data-testid="chat-offer"
 							style="background: rgba(43,127,255,.10); border: 1px solid rgba(43,127,255,.24)"
-							class="w-full py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center leading-none hover:brightness-125 active:scale-[0.98] transition-all txt-blue"
+							class="w-full py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center leading-none hover:brightness-125 active:scale-[0.98] transition-all txt-blue disabled:opacity-50 disabled:cursor-not-allowed"
+							[disabled]="!canChatOffer(offer)" [attr.title]="canChatOffer(offer) ? null : offer.actions?.chatBlockedReason"
 							(click)="startChat(offer)">
 							<span>محادثة</span>
 						</button>
+						@if (negotiationBlockReason(offer); as blockReason) {
+							<p class="col-span-3 text-[12px] txt-slate text-center" role="note">{{ blockReason }}</p>
+						}
 					}
 				</div>
+				@if (!isOfferSelectionClosed() && (!canSelectOffer(offer) || !canNegotiateOffer(offer)) && offerBlockedReason(offer)) {
+					<p class="ws-note-txt" data-testid="blocked-reason" style="margin:8px 0 0;text-align:center">{{ offerBlockedReason(offer) }}</p>
+				}
+				@if (!isOfferSelectionClosed()) {
+					<p class="ws-note-txt" style="margin:8px 0 0;text-align:center;font-size:11px">المحادثة لا تغيّر العقد؛ لا يتغير السعر أو المدة إلا بقبولك رسميًا لعرض أو عرض مضاد.</p>
+				}
 			</div>
 			<div class="v1-ai">
 				<div class="cmp2">
@@ -560,6 +585,7 @@
 				@for (offer of comparisonOffers(); track offer.id) {
 				<div class="cmp-row-cell">
 					<button type="button" class="cmp-pick-btn" [class.best]="offer.isBestMatch"
+						[disabled]="!canSelectOffer(offer) || isOfferSelectionClosed()" [attr.title]="canSelectOffer(offer) ? null : offerBlockedReason(offer)"
 						(click)="acceptOffer(offer)">اختيار</button>
 				</div>
 				}
@@ -578,9 +604,9 @@
 					<path d="M7 8h10M7 12h6M3 20l1.5-4A8 8 0 1 1 9 19l-6 1z" />
 				</svg></div>
 			<div class="modal-t" id="neg-t">طلب تفاوض مع <span id="neg-name">{{ negProvider() }}</span></div>
-			<p class="modal-d">حدد ما تريد التفاوض عليه واكتب ملاحظتك، تصل لمقدم الخدمة فإما يقبلها مباشرة أو يحولها
-				للنقاش في الدردشة</p>
-			<label class="neg-lbl">على ماذا تتفاوض</label>
+			<p class="modal-d">حدد ما تريد التفاوض عليه واكتب ملاحظتك، تصل لمقدم الخدمة فيرد بعرض مضاد أو يعتذر. لا يتغير
+				سعر العرض ولا مدته ولا العقد إلا إذا أرسل عرضًا مضادًا وقبلته رسميًا، والدردشة وحدها لا تغيّر شيئًا</p>
+			<label class="neg-lbl">على ماذا تتفاوض <span class="ws-req" aria-hidden="true">*</span></label>
 			<div id="neg-chips" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px">
 				<button type="button" class="neg-chip" [class.on]="negType() === 'price'"
 					(click)="setNegType('price')">السعر</button>
@@ -593,15 +619,16 @@
 			</div>
 			@if(negType() === 'price') {
 			<div id="neg-f-price" class="neg-f"><label class="neg-lbl" for="neg-price">السعر المقترح
-					($)</label><input class="neg-inp" id="neg-price" type="text" inputmode="numeric"
-					placeholder="مثال 4,000" [value]="negPrice()" (input)="onNegPriceInput($event)"></div>
+					($) <span class="ws-req" aria-hidden="true">*</span></label><input class="neg-inp" id="neg-price" aria-required="true" type="text" inputmode="numeric"
+					placeholder="أدخل السعر المقترح بالدولار" [value]="negPrice()" (input)="onNegPriceInput($event)">
+				@if (selectedOffer()?.price; as cur) { <div class="neg-lbl" style="margin-top:5px;font-weight:600">سعر العرض الحالي: {{ cur }}</div> }</div>
 			}
 			@if(negType() === 'dur') {
-			<div id="neg-f-dur" class="neg-f"><label class="neg-lbl" for="neg-dur">المدة المقترحة (أيام)</label><input
-					class="neg-inp" id="neg-dur" type="text" inputmode="numeric" placeholder="مثال 14"></div>
+			<div id="neg-f-dur" class="neg-f"><label class="neg-lbl" for="neg-dur">المدة المقترحة (أيام) <span class="ws-req" aria-hidden="true">*</span></label><input
+					class="neg-inp" id="neg-dur" aria-required="true" type="text" inputmode="numeric" placeholder="أدخل عدد الأيام" [value]="negDuration()" (input)="onNegDurationInput($event)"></div>
 			}
-			<label class="neg-lbl" for="neg-msg">ملاحظاتك لمقدم الخدمة</label>
-			<textarea class="neg-inp neg-ta" id="neg-msg"
+			<label class="neg-lbl" for="neg-msg">ملاحظاتك لمقدم الخدمة@if (negType() === 'plan' || negType() === 'other') { <span class="ws-req" aria-hidden="true">*</span> }</label>
+			<textarea class="neg-inp neg-ta" id="neg-msg" [attr.aria-required]="negType() === 'plan' || negType() === 'other' ? 'true' : null"
 				placeholder="اكتب تفاصيل طلبك، سعرا أو مدة أو تعديلا على الخطة أو أي استفسار" [value]="negMessage()"
 				(input)="onNegMessageInput($event)"></textarea>
 			<div
@@ -616,12 +643,12 @@
 						طلبك للمقدم</span>
 					<span style="margin:0 8px" class="txt-muted">←</span>
 					<span style="display:inline-flex;align-items:center;gap:5px"><span
-							style="width:18px;height:18px;border-radius:6px;background:rgba(43,212,199,.16);display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:10px" class="txt-teal">2</span>يقبل
-						مباشرة أو يحوله للدردشة</span>
+							style="width:18px;height:18px;border-radius:6px;background:rgba(43,212,199,.16);display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:10px" class="txt-teal">2</span>يرد
+						بعرض مضاد أو يعتذر</span>
 					<span style="margin:0 8px" class="txt-muted">←</span>
 					<span style="display:inline-flex;align-items:center;gap:5px"><span
 							style="width:18px;height:18px;border-radius:6px;background:rgba(43,212,199,.16);display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:10px" class="txt-teal">3</span>تقبل
-						الحوار أو تعلقه أو ترفضه</span>
+						العرض المضاد أو ترفضه</span>
 				</div>
 			</div>
 			<div class="grid grid-cols-2 gap-3 mt-4 w-full" dir="rtl" (click)="$event.stopPropagation()">
@@ -637,8 +664,8 @@
 				<button type="button"
 					style="background: linear-gradient(135deg, #2BD4C7, #2B7FFF)"
 					class="w-full py-2.5 px-4 rounded-xl text-[13px] font-bold shadow-sm flex items-center justify-center text-center leading-none hover:brightness-110 active:scale-[0.98] transition-all txt-navy"
-					(click)="sendNegotiation()">
-					<span>إرسال طلب التفاوض</span>
+					[disabled]="isSendingNegotiation()" (click)="sendNegotiation()">
+					<span>{{ isSendingNegotiation() ? 'جارٍ الإرسال...' : 'إرسال طلب التفاوض' }}</span>
 				</button>
 			</div>
 		</div>

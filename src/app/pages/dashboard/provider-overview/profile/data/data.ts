@@ -1,4 +1,6 @@
-import { Component, signal, OnInit, OnDestroy, inject, PLATFORM_ID, computed, DestroyRef, ElementRef } from '@angular/core';
+import { requiredText } from '../../../../../core/forms/required-text.validator';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
+import { Component, signal, OnInit, inject, PLATFORM_ID, computed, DestroyRef, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
@@ -9,6 +11,8 @@ import { AccountType } from '../../../../../core/models/auth.model';
 import { paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { attemptSubmit, applyServerFieldErrors, InvalidField } from '../../../../../core/forms/form-helpers';
 import { mapHttpError, messageForBackendCode } from '../../../../../core/forms/http-error';
+import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
+import { isRateLimitError } from '../../../../../core/utils/rate-limit.util';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { OtpInputComponent } from '../../../../../shared/forms/otp-input.component';
@@ -54,8 +58,7 @@ const WEAK_PASSWORD_MESSAGE = 'كلمة المرور الجديدة لا تحق�
 const DOC_RULE = { maxBytes: 10 * MB, mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'], extensions: ['.pdf', '.jpg', '.jpeg', '.png'], typesLabel: 'PDF أو JPG أو PNG' };
 const AVATAR_RULE = { maxBytes: 5 * MB, mimeTypes: ['image/png', 'image/jpeg'], extensions: ['.png', '.jpg', '.jpeg'], typesLabel: 'PNG أو JPG' };
 
-const requiredTrim: ValidatorFn = (c: AbstractControl): ValidationErrors | null =>
-  String(c.value ?? '').trim() ? null : { required: true };
+const requiredTrim: ValidatorFn = requiredText;
 const maxTrim = (max: number): ValidatorFn => (c: AbstractControl): ValidationErrors | null => {
   const actualLength = String(c.value ?? '').trim().length;
   return actualLength > max ? { maxlength: { requiredLength: max, actualLength } } : null;
@@ -108,9 +111,8 @@ interface ActiveSession {
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
-export class Data implements OnInit, OnDestroy {
+export class Data implements OnInit {
   currentTab = signal<string>('profile');
-  showToast = signal<string>('');
   avatarUrl = signal<string | null>(null);
   /** True only after the user picked a new image or explicitly removed it; an untouched avatar is never sent (never as null). */
   private avatarDirty = false;
@@ -134,7 +136,6 @@ export class Data implements OnInit, OnDestroy {
 
   private host = inject(ElementRef<HTMLElement>);
   private ui = inject(UiNotificationService);
-  private toastTimer: ReturnType<typeof setTimeout> | null = null;
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
@@ -145,6 +146,8 @@ export class Data implements OnInit, OnDestroy {
   private profileService = inject(ProviderProfileService);
   private platformId = inject(PLATFORM_ID);
   private authStore = inject(AuthStore);
+  /** The server's wait before another PayPal-change code may be sent (shared with the confirm step's resend); disables ONLY the send button. */
+  readonly paypalSendWait = inject(WaitTimerService).track(waitScope('paypal-otp-resend', this.authStore.currentUser()?.id ?? ''));
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -181,7 +184,7 @@ export class Data implements OnInit, OnDestroy {
   identityRejected = computed(() => this.identityVerification()?.status === 'REJECTED');
   identityVerified = computed(() => this.identityVerification()?.status === 'VERIFIED');
   identityRejectionReason = computed(() => this.identityVerification()?.rejectionReason ?? null);
-  /** True right after the code was confirmed in this visit: the confirmation is shown prominently (a toast alone is easy to miss). */
+  /** True right after the code was confirmed in this visit: the confirmation is shown prominently (a transient notification alone is easy to miss). */
   identityJustSubmitted = signal(false);
   otpEmailHint = signal('');
   pendingRequestId = signal('');
@@ -231,8 +234,8 @@ export class Data implements OnInit, OnDestroy {
       firstName: ['', [requiredTrim, maxTrim(60)]],
       lastName: ['', [requiredTrim, maxTrim(60)]],
       headline: ['', [requiredTrim, maxTrim(100)]],
-      hourlyRate: [0, Validators.min(0)],
-      yearsOfExperience: [0, Validators.min(0)],
+      hourlyRate: [null as number | null, Validators.min(0)],
+      yearsOfExperience: [null as number | null, Validators.min(0)],
       availabilityStatus: ['AVAILABLE', Validators.required],
       specialty: ['', requiredTrim],
       // Date of birth: private to the owner, optional, frozen once the account is verified.
@@ -306,8 +309,8 @@ export class Data implements OnInit, OnDestroy {
             specialty: profile.mainSpecialty || '',
             dob: dobInputValue(profile.dob),
             bio: profile.bio || '',
-            hourlyRate: profile.hourlyRate || 0,
-            yearsOfExperience: profile.yearsOfExperience || 0,
+            hourlyRate: profile.hourlyRate ?? null,
+            yearsOfExperience: profile.yearsOfExperience ?? null,
             availabilityStatus: profile.availabilityStatus || 'AVAILABLE',
             country: normalizeCountry(profile.country),
             city: profile.city || '',
@@ -418,7 +421,7 @@ export class Data implements OnInit, OnDestroy {
     reader.onload = () => {
       this.avatarUrl.set(reader.result as string);
       this.avatarDirty = true;
-      this.displayToast('تم اختيار الصورة، سيتم حفظها عند النقر على حفظ');
+      this.ui.info('تم اختيار الصورة، سيتم حفظها عند النقر على حفظ');
     };
     reader.readAsDataURL(file);
     input.value = '';
@@ -428,7 +431,7 @@ export class Data implements OnInit, OnDestroy {
     this.avatarError.set('');
     this.avatarUrl.set(null);
     this.avatarDirty = true;
-    this.displayToast('تم إزالة الصورة محلياً، احفظ التغييرات للتأكيد');
+    this.ui.info('تم إزالة الصورة محلياً، احفظ التغييرات للتأكيد');
   }
 
   getInitials() {
@@ -446,7 +449,7 @@ export class Data implements OnInit, OnDestroy {
         this.skillsList.set(updatedProfile.skills);
         this.skillsArray.clear();
         (updatedProfile.skills || []).forEach((sk: any) => this.skillsArray.push(this.fb.control(sk.name)));
-        this.displayToast('تم تحديث المهارات');
+        this.ui.success('تم تحديث المهارات');
         this.loadProfile();
       },
       error: (err) => this.skillError.set(mapHttpError(err, { fallback: 'تعذر تحديث المهارات، حاول مرة أخرى' }).message)
@@ -536,7 +539,7 @@ export class Data implements OnInit, OnDestroy {
       next: (res) => {
         const current = this.portfolioList();
         this.portfolioList.set([...current, res]);
-        this.displayToast('تم إضافة المشروع بنجاح');
+        this.ui.success('تم إضافة المشروع بنجاح');
       },
       error: (err) => this.ui.httpError(err, { fallback: 'تعذر إضافة المشروع، حاول مرة أخرى' })
     });
@@ -546,7 +549,7 @@ export class Data implements OnInit, OnDestroy {
     this.profileService.deletePortfolioItem(id).subscribe({
       next: () => {
         this.portfolioList.set(this.portfolioList().filter(p => p.id !== id));
-        this.displayToast('تم حذف المشروع بنجاح');
+        this.ui.success('تم حذف المشروع بنجاح');
       },
       error: (err) => this.ui.httpError(err, { fallback: 'تعذر حذف المشروع، حاول مرة أخرى' })
     });
@@ -595,14 +598,21 @@ export class Data implements OnInit, OnDestroy {
     return true;
   }
 
+  /** A 400/422 that names fields of `form`: puts each message on its control (summary + focus). Returns true when handled. */
+  private applyMappedFieldErrors(form: FormGroup, mapped: ReturnType<typeof mapHttpError>, labels: Record<string, string>, summary: (items: InvalidField[]) => void): boolean {
+    if (mapped.kind !== 'backend-validation') return false;
+    const names = Object.keys(mapped.fieldErrors).filter(k => form.get(k));
+    if (!names.length) return false;
+    applyServerFieldErrors(form, Object.fromEntries(names.map(k => [k, mapped.fieldErrors[k]])));
+    summary(names.map(k => ({ path: k, label: labels[k] ?? k, message: mapped.fieldErrors[k] })));
+    this.focusField(names[0]);
+    return true;
+  }
+
   private notifyHttpError(err: unknown, options: { fallback: string; unauthorizedIs?: 'credentials' | 'session' }) {
     const mapped = mapHttpError(err, options);
     this.ui.toast(mapped.kind === 'pending-review' ? 'warning' : 'error', mapped.message, { title: mapped.title });
     return mapped;
-  }
-
-  ngOnDestroy() {
-    if (this.toastTimer) clearTimeout(this.toastTimer);
   }
 
   saveProfile() {
@@ -621,8 +631,9 @@ export class Data implements OnInit, OnDestroy {
       ...(this.avatarDirty ? { avatarUrl: this.avatarUrl() } : {}),
       headline: val.headline,
       bio: val.bio,
-      hourlyRate: val.hourlyRate,
-      yearsOfExperience: val.yearsOfExperience,
+      // no input for these on this page: never send an invented 0 for a value the user did not give
+      ...(val.hourlyRate != null ? { hourlyRate: val.hourlyRate } : {}),
+      ...(val.yearsOfExperience != null ? { yearsOfExperience: val.yearsOfExperience } : {}),
       availabilityStatus: val.availabilityStatus,
       mainSpecialty: val.specialty,
       ...(val.dob && !this.dobLocked() ? { dob: val.dob } : {}),
@@ -647,7 +658,7 @@ export class Data implements OnInit, OnDestroy {
       next: () => {
         this.isSavingProfile.set(false);
         this.missingProfile.set([]);
-        this.displayToast('تم حفظ التغييرات بنجاح');
+        this.ui.success('تم حفظ التغييرات بنجاح');
         this.loadProfile();
       },
       error: (err: any) => {
@@ -670,7 +681,7 @@ export class Data implements OnInit, OnDestroy {
   saveWhatsapp() {
     if (this.savingWhatsapp()) return;
     this.whatsappControl.markAsTouched();
-    if (this.whatsappControl.invalid) return;
+    if (this.whatsappControl.invalid) { this.focusField('alternativePhone'); return; }
     this.savingWhatsapp.set(true);
     this.profileService.updateWhatsapp(this.whatsappControl.value).subscribe({
       next: res => {
@@ -678,17 +689,25 @@ export class Data implements OnInit, OnDestroy {
         this.contactWhatsapp.set(res.data.alternativePhone || '');
         this.whatsappControl.setValue(res.data.alternativePhone || '', { emitEvent: false });
         this.whatsappControl.markAsPristine();
-        this.displayToast(res.message || 'تم حفظ رقم WhatsApp');
+        this.ui.success(res.message || 'تم حفظ رقم WhatsApp');
       },
       error: (err: any) => {
         this.savingWhatsapp.set(false);
-        this.whatsappControl.setErrors({ server: mapHttpError(err, { fallback: 'تعذر حفظ رقم WhatsApp، حاول مرة أخرى' }).message });
+        const mapped = mapHttpError(err, { fallback: 'تعذر حفظ رقم WhatsApp، حاول مرة أخرى' });
+        // Only a 400/422 is about the number. Network / 429 / 5xx / 403 / 409 stay a generic message, never marked on the field.
+        if (mapped.kind === 'backend-validation') {
+          this.whatsappControl.setErrors({ server: mapped.message });
+          this.whatsappControl.markAsTouched();
+          this.focusField('alternativePhone');
+          return;
+        }
+        this.ui.toast(mapped.kind === 'pending-review' ? 'warning' : 'error', mapped.message, { title: mapped.title });
       }
     });
   }
 
   savePaypal() {
-    if (this.savingPaypal()) return;
+    if (this.savingPaypal() || this.paypalSendWait.active()) return;
     const attempt = attemptSubmit(this.payoutForm, { root: this.panel('payout'), labels: PAYOUT_LABELS });
     this.missingPayout.set(attempt.missing);
     if (!attempt.valid) return;
@@ -702,10 +721,11 @@ export class Data implements OnInit, OnDestroy {
         this.missingPayout.set([]);
         // "أرسلنا رمزًا" is said (and the OTP panel opened) ONLY when the server confirms the mail was accepted.
         if (r.emailSent === true) {
+          this.paypalSendWait.startFromResponse(r);
           this.paypalAccountEmailHint.set(r.emailHint || '');
           this.paypalConfirmMode.set(r.mode ?? (this.paypalHasEmail() ? 'change' : 'add'));
           this.pendingPaypalEmail.set(email);
-          this.displayToast(`أرسلنا رمز التحقق إلى بريد حسابك${r.emailHint ? ': ' + r.emailHint : ''}`);
+          this.ui.info(`أرسلنا رمز التحقق إلى بريد حسابك${r.emailHint ? ': ' + r.emailHint : ''}`);
         } else {
           this.pendingPaypalEmail.set(null);
           this.paypalRequestError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى');
@@ -716,6 +736,7 @@ export class Data implements OnInit, OnDestroy {
         const mapped = mapHttpError(err, { fallback: 'تعذر حفظ بريد PayPal، حاول مرة أخرى' });
         const fieldMsg = mapped.fieldErrors['paypalPayoutEmail'] || (mapped.kind === 'backend-validation' && !Object.keys(mapped.fieldErrors).length ? mapped.message : '');
         this.pendingPaypalEmail.set(null);
+        if (isRateLimitError(err)) this.paypalSendWait.startFromResponse(err);
         if (fieldMsg && this.serverFieldError(this.payoutForm, 'paypalPayoutEmail', fieldMsg, i => this.missingPayout.set(i), PAYOUT_LABELS)) return;
         // mail not sent (503), too many requests (429), anything else: said under the button, the user stays on the input form
         this.paypalRequestError.set(err?.status === 503 ? 'تعذر إرسال رمز التحقق، حاول مرة أخرى' : mapHttpError(err, { fallback: 'تعذر إرسال رمز التحقق، حاول مرة أخرى' }).message);
@@ -728,7 +749,7 @@ export class Data implements OnInit, OnDestroy {
     const wasAdd = !this.paypalHasEmail();
     this.payoutForm.patchValue({ paypalPayoutEmail: email });
     this.storedPaypalEmail.set(email);
-    this.displayToast(wasAdd ? 'تمت إضافة بريد PayPal. السحب عبر PayPal متوقف لمدة 24 ساعة' : 'تم تغيير بريد PayPal. السحب عبر PayPal متوقف لمدة 24 ساعة');
+    this.ui.success(wasAdd ? 'تمت إضافة بريد PayPal. السحب عبر PayPal متوقف لمدة 24 ساعة' : 'تم تغيير بريد PayPal. السحب عبر PayPal متوقف لمدة 24 ساعة');
     this.refreshCompletion();
   }
 
@@ -767,7 +788,7 @@ export class Data implements OnInit, OnDestroy {
         if (ev.type === HttpEventType.Response) {
           this.docsForm.get(controlName)?.setValue(ev.body.data.url);
           this.setDocumentState(controlName, { name: ev.body.data.name || file.name, progress: 100, status: 'uploaded', previewUrl, mimeType: file.type });
-          this.displayToast('تم رفع الملف بأمان، أكد الطلب لحفظ التغيير');
+          this.ui.success('تم رفع الملف بأمان، أكد الطلب لحفظ التغيير');
         }
       },
       error: (err: any) => {
@@ -795,7 +816,7 @@ export class Data implements OnInit, OnDestroy {
     const next = { ...this.documentUploads() };
     delete next[controlName];
     this.documentUploads.set(next);
-    this.displayToast('تم حذف المستند من التعديلات الحالية. اضغط حفظ لتأكيد التغيير');
+    this.ui.info('تم حذف المستند من التعديلات الحالية. اضغط حفظ لتأكيد التغيير');
   }
 
   isImageDocument(file: DocumentUploadState): boolean {
@@ -818,9 +839,16 @@ export class Data implements OnInit, OnDestroy {
   }
 
   saveDocs() {
-    if (this.isSaving() || this.docsUploading()) return;
+    if (this.isSaving()) return;
+    // The proof is mandatory and must be FULLY uploaded: a file still uploading or a failed upload is not a document (nothing is sent).
+    if (this.docsUploading()) { this.ui.toast('warning', 'انتظر اكتمال رفع الملف قبل إرسال الطلب'); return; }
+    if (Object.values(this.documentUploads()).some(d => d.status === 'error')) {
+      this.setDocFileError('idDocumentUrl', 'فشل رفع المستند؛ أعد رفعه ثم أرسل الطلب');
+      this.focusField('idDocumentUrl');
+      return;
+    }
     // one request waiting for the admin is enough: no second one is created
-    if (this.identityPending()) { this.displayToast('طلب التحقق من الهوية قيد مراجعة الإدارة بالفعل'); return; }
+    if (this.identityPending()) { this.ui.info('طلب التحقق من الهوية قيد مراجعة الإدارة بالفعل'); return; }
     const attempt = attemptSubmit(this.docsForm, { root: this.panel('docs'), labels: DOCS_LABELS });
     this.missingDocs.set(attempt.missing);
     if (!attempt.valid) {
@@ -832,7 +860,7 @@ export class Data implements OnInit, OnDestroy {
     const changes: Record<string, unknown> = { ...this.docsForm.value };
     for (const key of Object.keys(changes)) if (this.documentState(key)?.stored) delete changes[key];
     if (Object.keys(changes).length === 0) {
-      this.displayToast('لا توجد تغييرات للحفظ');
+      this.ui.info('لا توجد تغييرات للحفظ');
       return;
     }
     this.startSensitiveChange('DOCUMENTS', changes);
@@ -871,6 +899,7 @@ export class Data implements OnInit, OnDestroy {
     } as Record<string, string>)[raw.code] : undefined;
     const message = raw ? messageForBackendCode(raw.code) : null;
     if (field && message && this.serverFieldError(form, field, message, setSummary, labels)) return;
+    if (this.applyMappedFieldErrors(form, mapHttpError(err, { fallback: 'تعذر إنشاء طلب التعديل. حاول مرة أخرى' }), labels, setSummary)) return;
     const fallback = 'تعذر إنشاء طلب التعديل. حاول مرة أخرى';
     this.notifyHttpError(err, { fallback });
     // 409: a request is already waiting for the admin - show that state instead of leaving the form looking unsent
@@ -906,9 +935,9 @@ export class Data implements OnInit, OnDestroy {
           this.docsForm.get('idDocumentUrl')?.setErrors(null);
           this.setTab('docs');
           setTimeout(() => (this.panel('docs') as HTMLElement | null)?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }), 30);
-          this.displayToast('تم استلام طلب التحقق من الهوية وهو قيد مراجعة الإدارة');
+          this.ui.success('تم استلام طلب التحقق من الهوية وهو قيد مراجعة الإدارة');
         } else {
-          this.displayToast(underReview ? 'تم تأكيد البريد وإرسال الطلب للمراجعة' : 'تم تأكيد البريد وتطبيق التغيير بنجاح');
+          this.ui.success(underReview ? 'تم تأكيد البريد وإرسال الطلب للمراجعة' : 'تم تأكيد البريد وتطبيق التغيير بنجاح');
         }
         this.loadProfile();
       },
@@ -954,7 +983,7 @@ export class Data implements OnInit, OnDestroy {
         this.passwordForm.reset();
         this.missingPassword.set([]);
         this.passwordFormVisible.set(false);
-        this.displayToast('تم تغيير كلمة المرور بنجاح');
+        this.ui.success('تم تغيير كلمة المرور بنجاح');
       },
       error: (err: any) => {
         this.isChangingPassword.set(false);
@@ -963,6 +992,7 @@ export class Data implements OnInit, OnDestroy {
         if (raw?.code === 'CURRENT_PASSWORD_INCORRECT' && this.serverFieldError(this.passwordForm, 'currentPassword', messageForBackendCode(raw.code)!, setSummary, PASSWORD_LABELS)) return;
         if (raw?.code === 'PASSWORD_UNCHANGED' && this.serverFieldError(this.passwordForm, 'newPassword', messageForBackendCode(raw.code)!, setSummary, PASSWORD_LABELS)) return;
         if (raw?.code === 'WEAK_PASSWORD' && this.serverFieldError(this.passwordForm, 'newPassword', WEAK_PASSWORD_MESSAGE, setSummary, PASSWORD_LABELS)) return;
+        if (this.applyMappedFieldErrors(this.passwordForm, mapHttpError(err, { fallback: 'تعذر تغيير كلمة المرور، حاول مجددًا' }), PASSWORD_LABELS, setSummary)) return;
         this.notifyHttpError(err, { fallback: 'تعذر تغيير كلمة المرور، حاول مجددًا', unauthorizedIs: 'credentials' });
       }
     });
@@ -983,7 +1013,7 @@ export class Data implements OnInit, OnDestroy {
       next: () => {
         this.revokingSessionId.set(null);
         this.activeSessions.update(items => items.filter(item => item.id !== session.id));
-        this.displayToast('تم إنهاء الجلسة بنجاح');
+        this.ui.success('تم إنهاء الجلسة بنجاح');
       },
       error: (err) => { this.revokingSessionId.set(null); this.notifyHttpError(err, { fallback: 'تعذر إنهاء الجلسة' }); }
     });
@@ -995,7 +1025,7 @@ export class Data implements OnInit, OnDestroy {
     if (diffMinutes < 1) return 'نشطة الآن';
     if (diffMinutes < 60) return `منذ ${diffMinutes} دقيقة`;
     if (diffMinutes < 1440) return `منذ ${Math.floor(diffMinutes / 60)} ساعة`;
-    return new Intl.DateTimeFormat('ar', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+    return new Intl.DateTimeFormat('ar', { dateStyle: 'medium', timeStyle: 'short', timeZone: providerTimeZone() }).format(date);
   }
 
   openRequestsModal() {
@@ -1034,12 +1064,5 @@ export class Data implements OnInit, OnDestroy {
       const panel = this.panel(item.tab);
       panel?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
     }, 30);
-  }
-
-  displayToast(msg: string) {
-    this.showToast.set(msg);
-    // Keep the handle: an older timer must never clear a newer toast.
-    if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => { this.showToast.set(''); this.toastTimer = null; }, 3500);
   }
 }

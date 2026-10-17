@@ -4,10 +4,10 @@
     <div class="text-[12px] font-semibold text-[var(--txt-3)] mt-1">{{ isCompanyMode() ? 'نظرة شاملة على أداء الشركة · الفريق · المشاريع · المالية · السوق' : 'ملخص شامل لنشاطك كمقدم خدمة' }}</div>
   </div>
   <div class="flex items-center gap-2">
-    <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[12px] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="openToast('جاري تصدير PDF')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF
+    <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[12px] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="printReport()" data-testid="reports-pdf" title="يفتح نافذة الطباعة — اختر «حفظ كـ PDF»">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>طباعة / حفظ PDF
     </button>
-    <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[12px] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="openToast('جاري تصدير CSV')">
+    <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[12px] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="exportCsv()" data-testid="reports-csv" title="تنزيل بيانات الصفحة الحالية">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>CSV
     </button>
   </div>
@@ -71,7 +71,7 @@
 <!-- GLOBAL FILTER RAIL -->
 <div class="flex items-stretch bg-[var(--sec-bg)]/60 backdrop-blur-[16px] border border-[var(--sec-bd)] rounded-[14px] mb-5 overflow-hidden shadow-sm flex-wrap lg:flex-nowrap">
   <div class="flex items-center px-4 text-[10.5px] font-black tracking-wider text-[#5DA0FF] bg-[#2B7FFF]/10 border-e border-[#2B7FFF]/20 shrink-0 whitespace-nowrap">الفترة</div>
-  <div class="flex items-center gap-1.5 px-3 py-2 shrink-0 flex-wrap">
+  <div class="flex items-center gap-1.5 px-3 py-2 min-w-0 max-w-full flex-wrap">
     @for(p of periods; track p.id) {
       <button class="px-3 py-1.5 rounded-lg text-[11.5px] font-bold transition-all border"
               [class]="currentPeriod() === p.id ? 'bg-gradient-to-br from-[#2BD4C7]/20 to-[#2B7FFF]/15 border-[#2BD4C7]/50 text-[var(--txt)] shadow-[0_2px_8px_rgba(43,212,199,0.15)]' : 'bg-transparent border-transparent text-[var(--txt-3)] hover:bg-[var(--sec-bd)] hover:text-[var(--txt-2)]'"
@@ -245,7 +245,7 @@
                 <td class="py-3 px-4 text-[13px] font-black text-[#FFB400]">{{ member.rating }} ★</td>
                 <td class="py-3 px-4 text-[13px] font-black"
                     [ngClass]="member.onTime >= 90 ? 'text-[#0FA99A]' : member.onTime >= 75 ? 'text-[#FFB400]' : 'text-[#FF8C69]'">{{ member.onTime }}%</td>
-                <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ member.revenue }} $</td>
+                <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ member.revenue | number:'1.0-2' }} $</td>
                 <td class="py-3 px-4">
                   @if(member.status === 'active') {
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0FA99A]/10 border border-[#0FA99A]/30 text-[#0FA99A] text-[10px] font-black whitespace-nowrap">
@@ -341,11 +341,3 @@
   </div>
 }
 
-@if (showToast()) {
-<div class="fixed top-[72px] left-1/2 -translate-x-1/2 z-[500] animate-bounce">
-  <div class="flex items-center gap-2.5 px-5 py-3 bg-gradient-to-br from-[#2BD4C7]/15 to-[#2B7FFF]/10 border border-[#2BD4C7]/30 rounded-[12px] shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-[16px]">
-    <svg class="w-4.5 h-4.5 text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    <span class="text-[14px] font-bold text-[var(--txt)]">{{ showToast() }}</span>
-  </div>
-</div>
-}

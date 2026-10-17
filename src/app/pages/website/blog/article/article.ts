@@ -1,3 +1,5 @@
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { scrollFocus } from '../../../../shared/forms/form-error-focus';
 import { Component, computed, inject, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
@@ -76,6 +78,8 @@ export class BlogArticle {
   newsletterEmail = '';
   newsletterSubscribed = signal(false);
   newsletterError = signal('');
+  /** True only when the problem is the e-mail itself (typed wrong / rejected by the server as invalid), never for network / 429 / 5xx. */
+  newsletterFieldInvalid = signal(false);
   newsletterSubmitting = signal(false);
 
   categoryColorClass(color: BlogPost['categoryColor']): string {
@@ -130,12 +134,17 @@ export class BlogArticle {
   }
 
   subscribeNewsletter(): void {
+    if (this.newsletterSubmitting()) return;
     const email = this.newsletterEmail.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      this.newsletterError.set('من فضلك أدخل بريداً إلكترونياً صحيحاً');
+      this.newsletterError.set(email ? 'من فضلك أدخل بريداً إلكترونياً صحيحاً' : 'أدخل بريدك الإلكتروني للاشتراك');
+      this.newsletterFieldInvalid.set(true);
+      const el = document.getElementById('nl-email');
+      if (el) scrollFocus(el);
       return;
     }
     this.newsletterError.set('');
+    this.newsletterFieldInvalid.set(false);
     this.newsletterSubmitting.set(true);
     this.newsletterService.subscribe(email, 'blog-article').subscribe({
       next: () => {
@@ -144,7 +153,10 @@ export class BlogArticle {
       },
       error: (err) => {
         this.newsletterSubmitting.set(false);
-        this.newsletterError.set(err.error?.message || 'حدث خطأ، حاول مرة أخرى');
+        const mapped = mapHttpError(err, { fallback: 'حدث خطأ، حاول مرة أخرى' });
+        // Only a 400/422 about the e-mail marks the field; network / 429 / 5xx stay one honest message.
+        this.newsletterFieldInvalid.set(mapped.kind === 'backend-validation');
+        this.newsletterError.set(mapped.message);
       }
     });
   }

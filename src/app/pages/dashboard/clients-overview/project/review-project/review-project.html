@@ -72,7 +72,7 @@
 				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 backdrop-blur-xl shadow-sm dark:shadow-none transition-colors duration-300">
 				<div class="flex flex-wrap gap-3 mb-4">
 					@for (file of files; track file.name) {
-					<a href="#"
+					<span
 						class="inline-flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
 							class="w-4 h-4 text-slate-400">
@@ -80,7 +80,7 @@
 							<polyline points="14 2 14 8 20 8" />
 						</svg>
 						{{file.name}}
-					</a>
+					</span>
 					}
 				</div>
 				<div class="ai-surface flex items-center gap-2 p-3 border rounded-xl text-sm font-medium transition-colors duration-300">

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -122,7 +122,7 @@ describe('ProfileSetup (marketer): shared validation', () => {
       svc.getProfile.mockReturnValue(of({ success: true, data: { marketingChannels: [], completionPercentage: 70, user: {}, paypalPayoutEmail: 'm@example.com', missingItems: [] } }));
       component.savePaypal();
       expect(svc.updatePaypalPayout).toHaveBeenCalledWith('m@example.com');
-      expect(component.toastMsg()).toBe('تم حفظ بريد PayPal');
+      expect(TestBed.inject(UiNotificationService).toasts().some(t => t.kind === 'success' && t.message === 'تم حفظ بريد PayPal')).toBe(true);
       expect(component.currentStep()).toBe(5);
       render();
       expect(el().querySelector('[data-testid="paypal-state"]')!.textContent).toContain('مكتمل');
@@ -171,15 +171,14 @@ describe('ProfileSetup (marketer): shared validation', () => {
     expect(component.missing()).toEqual([]);
   });
 
-  it('a newer toast is not cleared early by the timer of an older one', () => {
+  it('finishing the setup reports success centrally, then returns to the overview', () => {
     vi.useFakeTimers();
-    component.showToast('الأول');
-    vi.advanceTimersByTime(2500);
-    component.showToast('الثاني');
-    vi.advanceTimersByTime(1000); // the first toast's 3 s would have elapsed here
-    expect(component.toastMsg()).toBe('الثاني');
-    vi.advanceTimersByTime(2100);
-    expect(component.toastMsg()).toBeNull();
-    vi.useRealTimers();
+    try {
+      const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+      component.finish();
+      expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: 'تم استكمال بياناتك بنجاح' });
+      vi.advanceTimersByTime(1200);
+      expect(nav).toHaveBeenCalledWith(['/marketer-overview']);
+    } finally { vi.useRealTimers(); }
   });
 });

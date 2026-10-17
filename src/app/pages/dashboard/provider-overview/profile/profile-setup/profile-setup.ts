@@ -1,3 +1,4 @@
+import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -6,6 +7,7 @@ import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { ProviderPrefsStore } from '../../../../../core/services/provider-prefs.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
@@ -17,6 +19,8 @@ import { paypalEmailError, paypalEmailValidators } from '../../../../../core/val
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { attemptSubmit, collectInvalidFields, focusFirstInvalid, InvalidField } from '../../../../../core/forms/form-helpers';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
+import { isRateLimitError, rateLimitEndsAt, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
@@ -26,6 +30,7 @@ import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
 import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSetup } from './provider-setup-state';
+import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../core/services/provider-access.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 const SETUP_LABELS: Record<string, string> = {
@@ -72,9 +77,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private fb = inject(FormBuilder);
 	private destroyRef = inject(DestroyRef);
 	private router = inject(Router);
+	private access = inject(ProviderAccessService);
 	private uiNotify = inject(UiNotificationService);
 	private authStore = inject(AuthStore);
+	private waitTimers = inject(WaitTimerService);
 	private profileApi = inject(ProfileApiService);
+	private prefsStore = inject(ProviderPrefsStore);
 	private providerProfileService = inject(ProviderProfileService);
 	private specialtyService = inject(SpecialtyService);
 	public setupTestService = inject(SetupTestService);
@@ -124,14 +132,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	setupForm: FormGroup = this.fb.group({
 		profData: this.fb.group({
-			jobTitle: ['', Validators.required],
+			jobTitle: ['', requiredText],
 			expYears: ['', Validators.required],
 			country: ['', Validators.required],
 			city: ['', Validators.required],
 			// Date of birth (private, optional): stored on the profile and shown only to its owner; never on the public profile.
 			dob: ['', birthDateValidator],
 			languages: [[]],
-			bio: ['', [Validators.required, Validators.maxLength(500)]],
+			bio: ['', [requiredText, Validators.maxLength(500)]],
 			portfolioUrl: [''],
 			linkedinUrl: [''],
 			websiteUrl: [''],
@@ -157,8 +165,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		uiLanguage: ['ar']
 	});
 
-	availableLanguages = ['العربية', 'الإنجليزية', 'الفرنسية', 'الأردية', 'الهندية'];
-	selectedLanguages = signal<string[]>(['العربية']);
 
 	categories = signal<any[]>([]);
 	subSpecialtiesList = signal<any[]>([]);
@@ -260,7 +266,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	ngOnInit() {
 		this.generateParticles();
-		this.setupForm.get('profData.languages')?.setValue(['العربية']);
 
 		this.specialtyService.getCategories().subscribe(res => {
 			if (res.success) {
@@ -297,6 +302,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					this.skillsList.set((d.skills || []).map((s: { name: string }) => s.name));
 					this.storedAvatarUrl = typeof d.avatarUrl === 'string' ? d.avatarUrl : '';
 					if (this.storedAvatarUrl) { this.avatarUrl.set(this.storedAvatarUrl); this.avatarPreview.set(this.storedAvatarUrl); }
+					const prefs = d.preferences && typeof d.preferences === 'object' ? d.preferences : {};
+					if (prefs.preferredCommunicationLanguage === 'ar' || prefs.preferredCommunicationLanguage === 'en') this.setupForm.get('uiLanguage')?.setValue(prefs.preferredCommunicationLanguage);
+					if (typeof prefs.timezone === 'string' && prefs.timezone) this.setupForm.get('profData.timezone')?.setValue(prefs.timezone);
+					if (Array.isArray(prefs.notifChannels)) this.notifChannels.set(prefs.notifChannels.filter((c: unknown) => c === 'push' || c === 'email'));
 					this.setupForm.patchValue({
 						profData: {
 							jobTitle: d.headline || d.industry || '',
@@ -304,7 +313,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							city: d.city || '',
 							dob: dobInputValue(d.dob),
 							bio: d.bio || '',
-							languages: d.languages && d.languages.length ? d.languages : ['العربية'],
 							expYears: d.yearsOfExperience ? 
 								(d.yearsOfExperience <= 1 ? 'أقل من سنة' : 
 								 d.yearsOfExperience <= 3 ? '1 الى 3 سنوات' : 
@@ -332,7 +340,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					if (d.certUrlsAccess?.some((a: KycAccess | null) => a?.private)) this.storedCertsAccess.set(d.certUrlsAccess);
 					const legacyCerts = (d.certUrls || []).filter(Boolean);
 					if (legacyCerts.length) this.uploadedCerts.set(legacyCerts);
-					if (d.languages && d.languages.length) this.selectedLanguages.set(d.languages);
 					if (d.subSpecialties && d.subSpecialties.length) this.selectedSpecs.set(d.subSpecialties);
 					if (d.kycStatus === 'VERIFIED' || d.isNafathVerified) this.isNafathVerified.set(true);
 					// Stage 5: the saved portfolio comes back from the server, so a re-save never starts from an empty list.
@@ -506,15 +513,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 		this.currentStep.set(step);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}
-
-	toggleLanguage(lang: string) {
-		const current = [...this.selectedLanguages()];
-		const idx = current.indexOf(lang);
-		if (idx > -1) current.splice(idx, 1);
-		else current.push(lang);
-		this.selectedLanguages.set(current);
-		this.setupForm.get('profData.languages')?.setValue(current);
 	}
 
 	toggleSpec(spec: string) {
@@ -695,6 +693,24 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	setUiLanguage(lang: string) {
 		this.setupForm.get('uiLanguage')?.setValue(lang);
+		this.savePreferences();
+	}
+
+	/** '' | 'saving' | 'saved' | 'error' — status of the last preferences save (PUT /provider/profile/preferences). */
+	prefsStatus = signal<'' | 'saving' | 'saved' | 'error'>('');
+
+	/** Saves language / timezone / notification channels right when they change (they are stored in provider_profiles.preferences). */
+	savePreferences() {
+		this.prefsStatus.set('saving');
+		const lang = this.setupForm.get('uiLanguage')?.value === 'en' ? 'en' : 'ar';
+		this.profileApi.saveProviderPreferences({
+			preferredCommunicationLanguage: lang,
+			timezone: this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh',
+			notifChannels: this.notifChannels()
+		}).subscribe({
+			next: () => { this.prefsStatus.set('saved'); this.prefsStore.setTimezone(this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh'); },
+			error: () => this.prefsStatus.set('error')
+		});
 	}
 
 	// Profile completion percentage (P-AU-011 progress ring)
@@ -717,6 +733,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.notifChannels.update(list =>
 			list.includes(channel) ? list.filter(c => c !== channel) : [...list, channel]
 		);
+		this.savePreferences();
 	}
 
 	private uploadSingleDoc(file: File, type: string) {
@@ -909,7 +926,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 			this.updatePortfolioItem(spec, idx, item => ({ ...item, reviewDisplayName: file.name }));
 
-			this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
+			this.providerProfileService.uploadDocument(file).subscribe({
 				next: (event: any) => {
 					if (event.type === HttpEventType.UploadProgress) {
 						const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
@@ -952,7 +969,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				// placeholder entry until the upload completes
 				this.updatePortfolioItem(spec, idx, item => ({ ...item, proofDisplayNames: [...item.proofDisplayNames, file.name], proofs: [...item.proofs, ''] }));
 
-				this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
+				this.providerProfileService.uploadDocument(file).subscribe({
 					next: (ev: any) => {
 						if (ev.type === HttpEventType.UploadProgress) {
 							const progress = ev.total ? Math.round((ev.loaded / ev.total) * 100) : 0;
@@ -1019,7 +1036,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				city: this.setupForm.get('profData.city')?.value,
 				...(this.setupForm.get('profData.dob')?.value ? { dob: this.setupForm.get('profData.dob')?.value } : {}),
 				bio: this.setupForm.get('profData.bio')?.value,
-				languages: this.setupForm.get('profData.languages')?.value,
 				expYears: this.setupForm.get('profData.expYears')?.value
 			},
 			specialties: {
@@ -1058,7 +1074,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 								this.pendingPaypalEmail.set(paypalEmail);
 							} else this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.');
 						},
-						error: () => this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.')
+						error: (err) => {
+							// A 429 leaves its end timestamp for the profile page's send button (same scope); nothing is retried here.
+							if (isRateLimitError(err)) this.waitTimers.setEnd(waitScope('paypal-otp-resend', this.authStore.currentUser()?.id ?? ''), rateLimitEndsAt(err));
+							this.paypalSendError.set(isRateLimitError(err) ? rateLimitToastMessage(err) : 'تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.');
+						}
 					});
 				}
 				this.isSubmitting.set(false);
@@ -1142,10 +1162,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					type: 'info',
 					title: 'انتهى الوقت المحدد',
 					message: 'انتهى وقت الاختبار تلقائياً.',
-					confirmText: 'العودة للوحة التحكم',
+					confirmText: 'متابعة حالة الاعتماد',
 					onConfirm: () => {
 						this.closeAlertModal();
-						this.router.navigate(['/provider-overview']);
+						this.access.invalidate();
+						this.router.navigateByUrl(PROVIDER_ACCESS_STATUS_URL);
 					}
 				});
 			}
@@ -1242,7 +1263,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			subline: `${summary} بناءً على درجتك، يظهر مستواك كمقدم خدمة ${level}، ولا يعني هذا اعتماد التخصص، فالاعتماد بقرار الإدارة بعد مراجعة نماذجك.`,
 			pill: { label: `مستوى حسب الدرجة: ${level}`, tone: level.includes('احترافي') ? 'expert' : (level.includes('تطبيقي') || level.includes('بارع')) ? 'mid' : 'beginner' },
 			stats,
-			primaryLabel: 'إكمال الملف الشخصي',
+			primaryLabel: 'متابعة حالة الاعتماد',
 		};
 	});
 
@@ -1251,7 +1272,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.isTestStarted.set(false);
 	}
 
+	/** The test being done never opens the dashboard: the status page shows what the backend says (sample required / under review / approved). */
 	finishTestProcess() {
-		this.router.navigate(['/provider-overview']);
+		this.access.invalidate();
+		this.router.navigateByUrl(PROVIDER_ACCESS_STATUS_URL);
 	}
 }

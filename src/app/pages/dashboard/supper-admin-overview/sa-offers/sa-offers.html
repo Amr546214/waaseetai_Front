@@ -10,14 +10,14 @@
     <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
     <div class="ws-note-body">
       <div class="ws-note-lbl">وسيط — العروض</div>
-      <p class="ws-note-txt">تُعرض جميع العروض المقدَّمة لمراجعتها يدوياً</p>
+      <p class="ws-note-txt">عرض للقراءة فقط: تُعرض جميع العروض المقدَّمة لمراجعتها يدوياً</p>
     </div>
   </div>
 
   <div class="of-kpi-grid">
     <div class="of-kpi"><span class="of-kpi-lbl">إجمالي العروض</span><div class="of-kpi-val txt-teal">{{ stats().total }}</div></div>
     <div class="of-kpi"><span class="of-kpi-lbl">عروض مقبولة</span><div class="of-kpi-val txt-green">{{ stats().accepted }}</div></div>
-    <div class="of-kpi"><span class="of-kpi-lbl">متوسط تقييم العروض</span><div class="of-kpi-val txt-amber">{{ stats().avgRating }}</div></div>
+    <div class="of-kpi"><span class="of-kpi-lbl">قيد التفاوض</span><div class="of-kpi-val txt-amber">{{ stats().negotiating }}</div></div>
   </div>
 
   <div class="of-tabs">
@@ -30,10 +30,17 @@
 
   <div class="of-search">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="search" placeholder="ابحث باسم المقدم أو عنوان الطلب..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
+    <input type="search" placeholder="ابحث باسم المقدم أو عنوان الطلب أو العرض..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
   </div>
 
-  @if (filtered().length === 0) {
+  @if (loading()) {
+    <div class="of-empty"><p>جارٍ تحميل العروض...</p></div>
+  } @else if (error()) {
+    <div class="of-empty">
+      <p>{{ error() }}</p>
+      <button type="button" class="of-btn of-btn-ghost" (click)="load()">إعادة المحاولة</button>
+    </div>
+  } @else if (items().length === 0) {
     <div class="of-empty"><p>لا توجد عروض مطابقة</p></div>
   } @else {
     <div class="of-tbl-card">
@@ -41,29 +48,44 @@
         <table class="of-tbl">
           <thead>
             <tr>
-              <th>#</th><th>مقدم الخدمة</th><th>على طلب</th><th>السعر</th><th>مقارنة السوق</th><th>التقييم</th><th>الحالة</th>
+              <th>#</th><th>العرض</th><th>مقدم الخدمة</th><th>على طلب</th><th>السعر</th><th>المدة</th><th>تحليل AI</th><th>الحالة</th><th>التاريخ</th>
             </tr>
           </thead>
           <tbody>
-            @for (o of filtered(); track o.id) {
+            @for (o of items(); track o.id) {
               <tr [routerLink]="[o.id]">
-                <td class="of-muted">{{ o.id }}</td>
+                <td class="of-muted" [title]="o.id">{{ o.id.slice(0, 8) }}</td>
+                <td class="of-req-title">{{ o.title }}</td>
                 <td>
-                  <div class="of-u-cell">
-                    <div class="of-u-av" [style.background]="o.pBg">{{ o.pAv }}</div>
-                    <span class="of-u-name">{{ o.provider }}</span>
-                  </div>
+                  <div class="of-u-cell"><span class="of-u-name">{{ o.provider.name }}</span></div>
                 </td>
-                <td class="of-req-title">{{ o.request }}</td>
-                <td class="of-price">{{ o.price }}</td>
-                <td><span class="of-intel" [ngClass]="priceIntel(o).cls">{{ priceIntel(o).label }}</span></td>
-                <td class="of-stars">★ {{ o.rating.toFixed(1) }}</td>
-                <td><span class="of-status" [ngClass]="statusClasses[o.status]">{{ statusLabels[o.status] }}</span></td>
+                <td class="of-req-title">
+                  <a class="of-info-link" [routerLink]="['/supper-admin-overview/requests', o.requestId]" (click)="$event.stopPropagation()">{{ o.requestTitle }}</a>
+                </td>
+                <td class="of-price">{{ o.price | number:'1.0-2' }} $</td>
+                <td class="of-muted">{{ o.deliveryDays }} يوم</td>
+                <td>
+                  @if (o.aiMatchScore !== null || o.aiQualityTag || o.aiPriceTag) {
+                    <svg viewBox="0 0 24 24" width="13" height="13"><use href="#i-ai"/></svg>
+                    @if (o.aiMatchScore !== null) { <span class="of-intel of-intel-low">{{ o.aiMatchScore }}</span> }
+                    @if (o.aiQualityTag) { <span class="of-intel of-intel-mid">{{ o.aiQualityTag }}</span> }
+                    @if (o.aiPriceTag) { <span class="of-intel of-intel-mid">{{ o.aiPriceTag }}</span> }
+                  } @else { <span class="of-muted">—</span> }
+                </td>
+                <td><span class="of-status" [ngClass]="statusClasses[o.status]">{{ statusLabels[o.status] || o.status }}</span></td>
+                <td class="of-muted">{{ o.createdAt | date: 'yyyy-MM-dd' }}</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
     </div>
+    @if (pagination().totalPages > 1) {
+      <div class="of-pager">
+        <button type="button" class="of-btn of-btn-ghost" [disabled]="page() <= 1" (click)="goPage(page() - 1)">السابق</button>
+        <span>صفحة {{ pagination().page }} من {{ pagination().totalPages }} · {{ pagination().total }} عرض</span>
+        <button type="button" class="of-btn of-btn-ghost" [disabled]="page() >= pagination().totalPages" (click)="goPage(page() + 1)">التالي</button>
+      </div>
+    }
   }
 </section>

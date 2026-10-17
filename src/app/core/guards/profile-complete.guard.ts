@@ -1,6 +1,8 @@
 import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CanActivateChildFn, Router } from '@angular/router';
+import { AccountType } from '../models/auth.model';
+import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService, accessRedirectUrl } from '../services/provider-access.service';
 import { filter, map, switchMap, take, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthStore } from '../store/auth.store';
@@ -21,11 +23,35 @@ import { ProviderApiService } from '../services/provider-api.service';
  * and 'profile/setup' routes opt out via route.data.allowIncompleteProfile
  * — the same two routes the sidebar itself always leaves enabled.
  */
-export const providerProfileCompleteGuard: CanActivateChildFn = (childRoute) => {
-  if (childRoute.data?.['allowIncompleteProfile']) return true;
 
+/**
+ * INDIVIDUAL providers: every page under /provider-overview (the dashboard home included) opens only when the backend says the account is APPROVED
+ * (GET /provider/access-state -> canAccessDashboard). These paths (relative to /provider-overview) stay open meanwhile because they are how
+ * onboarding gets finished or how the provider gets help; everything else goes to the status page.
+ */
+export const ONBOARDING_ALLOWED_PATHS: readonly string[] = [
+  'account-actions',
+  'accreditation-status',
+  'profile/setup',
+  'profile/data',
+  'profile/specialties',
+  'business-models/accreditation',
+  'business-models/center/accreditation-details',
+  'help',
+  'notifications',
+  'settings/account',
+];
+
+/** Path under /provider-overview (no query/hash/leading slash) -> may a not-yet-approved individual provider open it? */
+export function isOnboardingAllowedPath(url: string): boolean {
+  const path = (url || '').split(/[?#]/)[0].replace(/^\/?provider-overview\/?/, '').replace(/^\/+|\/+$/g, '');
+  return ONBOARDING_ALLOWED_PATHS.some(p => path === p || path.startsWith(p + '/'));
+}
+
+export const providerProfileCompleteGuard: CanActivateChildFn = (childRoute, state) => {
   const authStore = inject(AuthStore);
   const providerApiService = inject(ProviderApiService);
+  const providerAccess = inject(ProviderAccessService);
   const router = inject(Router);
   const platformId = inject(PLATFORM_ID);
 
@@ -34,6 +60,24 @@ export const providerProfileCompleteGuard: CanActivateChildFn = (childRoute) => 
     take(1),
     switchMap(() => {
       if (!isPlatformBrowser(platformId)) return of(true);
+
+      // Any non-company provider (individual): the backend decides, every navigation (a typed URL and a refresh included). Unknown/failed = closed.
+      if (authStore.currentUser()?.accountType !== AccountType.PROVIDER_COMPANY) {
+        const url = state?.url ?? '';
+        // onboarding pages never need the answer to open (the status page reads it itself and shows an honest error with retry)
+        if (isOnboardingAllowedPath(url)) return of(true);
+        const toStatus = () => router.parseUrl(PROVIDER_ACCESS_STATUS_URL);
+        return providerAccess.load().pipe(
+          map(a => {
+            if (a.canAccessDashboard === true && (a.state === 'APPROVED' || a.state === 'NOT_APPLICABLE')) return true;
+            return router.parseUrl(accessRedirectUrl(a));
+          }),
+          catchError(() => of(toStatus()))
+        );
+      }
+
+      // Company accounts: unchanged behaviour (profile-completeness nudge only).
+      if (childRoute.data?.['allowIncompleteProfile']) return of(true);
       return providerApiService.getOverviewStats().pipe(
         map(res => {
           // Same reading as the sidebar: only an explicit `false` locks the

@@ -9,11 +9,11 @@ import { LEGACY_WITHDRAWAL_LABEL } from '../../../../core/models/withdrawal.mode
 
 // PayPal is the only money method: an old row (bank_transfer + bank data) must never show its destination.
 const LEGACY_ROW: any = {
-	id: 'wd-legacy-0001', userName: 'مقدم قديم', amount: 100, currency: 'USD', status: 'PENDING', method: 'bank_transfer',
+	id: 'wd-legacy-0001', user: { firstName: 'مقدم', lastName: 'قديم' }, amount: 100, currency: 'USD', status: 'PENDING', method: 'bank_transfer',
 	bankInfo: { bankName: 'بنك الاختبار', accountHolderName: 'صاحب حساب', iban: 'SA0380000000608010167519', swiftCode: 'TESTSWFT' },
 	iban: 'SA0380000000608010167519', accountName: 'صاحب حساب',
 };
-const PAYPAL_ROW: any = { id: 'wd-paypal-0002', userName: 'مقدم جديد', amount: 50, currency: 'USD', status: 'PENDING', method: 'paypal', paypalEmail: 'seller@example.com' };
+const PAYPAL_ROW: any = { id: 'wd-paypal-0002', user: { firstName: 'مقدم', lastName: 'جديد' }, amount: 50, currency: 'USD', status: 'PENDING', method: 'paypal', paypalEmail: 'seller@example.com' };
 
 function expectNoBank(text: string) {
 	expect(text).not.toContain('SA0380000000608010167519');

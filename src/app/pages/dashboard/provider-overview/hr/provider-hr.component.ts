@@ -1,13 +1,19 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ConfirmModalService } from '../../../../core/services/confirm-modal.service';
 import { CompanyTeamService } from '../../../../core/services/company-team.service';
 import { CompanyTeamMember, TeamMemberStatus, TeamMemberType } from '../../../../core/models/company-team.model';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { FieldProblem, SubmitGuard, reportBackendError, reportProblems } from '../../../../shared/forms/form-error-focus';
+import { genericBanner } from '../../../../shared/forms/submit-feedback';
 
 type MainTab = 'emp' | 'prov' | 'specs' | 'tasks' | 'assign' | 'log';
 type ModalId = 'member-form' | null;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** Sections whose backend model does not exist yet: shown with an honest empty state, never with static data. */
 const UNBACKED_TABS: Partial<Record<MainTab, { title: string; hint: string }>> = {
@@ -27,6 +33,9 @@ const UNBACKED_TABS: Partial<Record<MainTab, { title: string; hint: string }>> =
 export class ProviderHrComponent {
 	private confirmModal = inject(ConfirmModalService);
 	private teamApi = inject(CompanyTeamService);
+	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private saveGuard = new SubmitGuard();
 
 	/* ---------------- tabs ---------------- */
 	activeTab = signal<MainTab>('emp');
@@ -41,14 +50,6 @@ export class ProviderHrComponent {
 	setTab(tab: MainTab) { this.activeTab.set(tab); }
 	unbacked = computed(() => UNBACKED_TABS[this.activeTab()] ?? null);
 
-	/* ---------------- toast ---------------- */
-	toastMessage = signal<string>('');
-	private toastTimer: ReturnType<typeof setTimeout> | null = null;
-	toast(msg: string) {
-		this.toastMessage.set(msg);
-		if (this.toastTimer) clearTimeout(this.toastTimer);
-		this.toastTimer = setTimeout(() => this.toastMessage.set(''), 3500);
-	}
 
 	/* ---------------- roster (GET /provider/company/team) ---------------- */
 	members = signal<CompanyTeamMember[]>([]);
@@ -127,11 +128,23 @@ export class ProviderHrComponent {
 
 	private errMsg(err: any, fallback: string): string { return err?.error?.message || fallback; }
 
-	saveForm() {
+	async saveForm() {
+		if (this.busy() || this.saveGuard.busy) return;
 		const name = this.formName().trim();
 		const email = this.formEmail().trim();
 		const jobTitle = this.formJob().trim();
-		if (!name || !email || !jobTitle) { this.toast('يرجى تعبئة الاسم والبريد الإلكتروني والمسمى الوظيفي'); return; }
+		const root = this.host.nativeElement;
+		const problems: FieldProblem[] = [];
+		if (!name) problems.push({ field: 'hr-name', message: 'الاسم الكامل مطلوب', label: 'الاسم الكامل' });
+		if (!jobTitle) problems.push({ field: 'hr-job', message: 'المسمى الوظيفي مطلوب', label: 'المسمى الوظيفي' });
+		if (!email) problems.push({ field: 'hr-email', message: 'البريد الإلكتروني مطلوب', label: 'البريد الإلكتروني' });
+		else if (!EMAIL_RE.test(email)) problems.push({ field: 'hr-email', message: 'البريد الإلكتروني غير صالح، مثال على الصيغة: name@company.com', label: 'البريد الإلكتروني' });
+		if (problems.length) {
+			// The explanation sits at each field (the modal stays open with what was typed); no toast-only warning.
+			await reportProblems(root, problems);
+			return;
+		}
+		if (!this.saveGuard.enter()) return;
 		const phone = this.formPhone().trim() || null;
 		const target = this.editing();
 		this.busy.set(true);
@@ -141,12 +154,22 @@ export class ProviderHrComponent {
 		req$.subscribe({
 			next: res => {
 				this.busy.set(false);
+				this.saveGuard.release();
 				const saved = res?.data;
 				if (saved) this.members.update(list => target ? list.map(m => m.id === saved.id ? saved : m) : [...list, saved]);
 				this.closeModal();
-				this.toast(target ? 'تم حفظ التعديلات' : 'تمت إضافة العضو إلى الفريق');
+				this.notify.success(target ? 'تم حفظ التعديلات' : 'تمت إضافة العضو إلى الفريق');
 			},
-			error: err => { this.busy.set(false); this.toast(this.errMsg(err, 'تعذّر حفظ البيانات. حاول مرة أخرى')); }
+			error: async err => {
+				this.busy.set(false);
+				this.saveGuard.release();
+				const mapped = mapHttpError(err, { fallback: 'تعذّر حفظ البيانات. حاول مرة أخرى' });
+				const gen = genericBanner(mapped);
+				if (gen !== null) { this.notify.error(gen); return; }
+				const res = await reportBackendError(root, mapped, { resolve: { name: 'hr-name', email: 'hr-email', phone: 'hr-phone', jobTitle: 'hr-job' } });
+				// Network / 429 / 5xx / 403 / 409 (and a 400 naming no field) stay one honest generic message, never a field mark.
+				if (!res.handled || Object.keys(res.unresolved).length) this.notify.error(mapped.message);
+			}
 		});
 	}
 
@@ -157,9 +180,9 @@ export class ProviderHrComponent {
 				this.busy.set(false);
 				const saved = res?.data;
 				if (saved) this.members.update(list => list.map(x => x.id === saved.id ? saved : x));
-				this.toast(okMsg);
+				this.notify.success(okMsg);
 			},
-			error: err => { this.busy.set(false); this.toast(this.errMsg(err, 'تعذّر تحديث الحالة. حاول مرة أخرى')); }
+			error: err => { this.busy.set(false); this.notify.error(this.errMsg(err, 'تعذّر تحديث الحالة. حاول مرة أخرى')); }
 		});
 	}
 
@@ -174,8 +197,8 @@ export class ProviderHrComponent {
 		if (!ok) return;
 		this.busy.set(true);
 		this.teamApi.remove(m.id).subscribe({
-			next: () => { this.busy.set(false); this.members.update(list => list.filter(x => x.id !== m.id)); this.toast(`تم حذف ${m.name}`); },
-			error: err => { this.busy.set(false); this.toast(this.errMsg(err, 'تعذّر الحذف. حاول مرة أخرى')); }
+			next: () => { this.busy.set(false); this.members.update(list => list.filter(x => x.id !== m.id)); this.notify.success(`تم حذف ${m.name}`); },
+			error: err => { this.busy.set(false); this.notify.error(this.errMsg(err, 'تعذّر الحذف. حاول مرة أخرى')); }
 		});
 	}
 	cancelInvite(m: CompanyTeamMember) { return this.remove(m, 'إلغاء دعوة'); }

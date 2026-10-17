@@ -22,7 +22,7 @@
 	<!-- KPIs -->
 	<div class="cml-kpi-row">
 		<div class="cml-kpi-c"><div class="v">{{ stats().totalModels }}</div><div class="l">نماذج الشركة</div></div>
-		<div class="cml-kpi-c"><div class="v">{{ stats().viewsThisMonth | number }}</div><div class="l">مشاهدة هذا الشهر</div></div>
+		<div class="cml-kpi-c"><div class="v">{{ stats().viewsThisMonth | number:'1.0-2' }}</div><div class="l">مشاهدة هذا الشهر</div></div>
 		<div class="cml-kpi-c"><div class="v">{{ stats().avgAiScore > 0 ? stats().avgAiScore : '—' }}@if (stats().avgAiScore > 0) {<span class="unit">/100</span>}</div><div class="l">متوسط تقييم AI</div></div>
 		<div class="cml-kpi-c"><div class="v">{{ stats().offersGenerated }}</div><div class="l">عروض مولَّدة</div><div class="s">{{ stats().offersAccepted }} قُبلت</div></div>
 	</div>
@@ -104,7 +104,7 @@
 				}
 				<div class="cml-card-foot">
 					<span class="cml-card-link">تفاصيل &rsaquo;</span>
-					<span class="cml-card-meta">&#9733;{{ m.rating || '—' }} &middot; {{ m.viewsCount | number }} مشاهدة</span>
+					<span class="cml-card-meta">&#9733;{{ m.rating || '—' }} &middot; {{ m.viewsCount | number:'1.0-2' }} مشاهدة</span>
 				</div>
 			</div>
 		</a>

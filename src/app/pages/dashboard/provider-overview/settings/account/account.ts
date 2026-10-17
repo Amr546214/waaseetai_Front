@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, OnInit, signal, computed, inject } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
+import { Component, ChangeDetectionStrategy, ElementRef, OnInit, signal, computed, inject } from '@angular/core';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +7,9 @@ import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 
 export interface ProviderSession {
   id: string;
@@ -304,6 +308,9 @@ export interface ProviderSession {
 export class Account implements OnInit {
   private authStore = inject(AuthStore);
   private providerProfileService = inject(ProviderProfileService);
+  private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private pwGuard = new SubmitGuard();
 
   ngOnInit() {
     // Company mode shows the sessions list unconditionally (no expand
@@ -337,7 +344,7 @@ export class Account implements OnInit {
   toggleCoReduceMotion() { this.coReduceMotion.update(v => !v); }
 
   coSaveSettings() {
-    this.showToast('تم حفظ إعدادات الشركة');
+    this.notify.success('تم حفظ إعدادات الشركة');
   }
 
   coResetDefaults() {
@@ -352,12 +359,11 @@ export class Account implements OnInit {
     this.coNumberFormat.set('1234 — عربية غربية');
     this.coLandingPage.set('لوحة التحكم');
     this.coIdleTimeout.set('30 دقيقة');
-    this.showToast('تمت استعادة الإعدادات الافتراضية');
+    this.notify.success('تمت استعادة الإعدادات الافتراضية');
   }
 
   isLoading = signal<boolean>(false);
   hasError = signal<boolean>(false);
-  toastMessage = signal<string | null>(null);
 
   // 2FA and "new login alert" were previously interactive toggles backed by
   // nothing at all (no MFA/2FA capability and no acted-upon login-alert
@@ -383,6 +389,24 @@ export class Account implements OnInit {
   newPasswordValue = signal('');
   confirmPasswordValue = signal('');
   passwordError = signal<string | null>(null);
+  /** The same problem, attached to the field it belongs to (message under that input). `passwordError` is the summary. */
+  pwFieldErrors = signal<{ current?: string; next?: string; confirm?: string }>({});
+  private static readonly PW_IDS = { current: 'pw-current', next: 'pw-new', confirm: 'pw-confirm' } as const;
+
+  /** Edits to a field clear only that field's message. */
+  clearPwFieldError(field: 'current' | 'next' | 'confirm') {
+    if (!this.pwFieldErrors()[field]) return;
+    this.pwFieldErrors.update(e => ({ ...e, [field]: undefined }));
+    if (!Object.values(this.pwFieldErrors()).some(Boolean)) this.passwordError.set(null);
+  }
+
+  private failPassword(errors: { current?: string; next?: string; confirm?: string }, focus = true) {
+    this.pwFieldErrors.set(errors);
+    const order = ['current', 'next', 'confirm'] as const;
+    const missing = order.filter(k => errors[k]).map(k => ({ path: Account.PW_IDS[k], message: errors[k]! }));
+    this.passwordError.set(missing[0]?.message ?? null);
+    if (focus && missing.length) void focusInvalidControls(this.host.nativeElement, missing);
+  }
 
   togglePasswordForm() {
     this.passwordFormVisible.update(v => !v);
@@ -394,6 +418,7 @@ export class Account implements OnInit {
     this.newPasswordValue.set('');
     this.confirmPasswordValue.set('');
     this.passwordError.set(null);
+    this.pwFieldErrors.set({});
   }
 
   changePassword() {
@@ -407,42 +432,58 @@ export class Account implements OnInit {
     // exactly (provider-profile.service.ts changePassword()) — an invalid
     // attempt never reaches the network at all.
     if (!current || !next || !confirm) {
+      this.failPassword({
+        ...(!current ? { current: 'أدخل كلمة المرور الحالية' } : {}),
+        ...(!next ? { next: 'أدخل كلمة المرور الجديدة' } : {}),
+        ...(!confirm ? { confirm: 'أعد كتابة كلمة المرور الجديدة للتأكيد' } : {}),
+      });
       this.passwordError.set('يرجى تعبئة جميع الحقول');
       return;
     }
     if (next.length < 8 || next.length > 72) {
-      this.passwordError.set('كلمة المرور الجديدة يجب أن تتكون من 8 إلى 72 حرفًا');
+      this.failPassword({ next: 'كلمة المرور الجديدة يجب أن تتكون من 8 إلى 72 حرفًا' });
       return;
     }
     const characterGroups = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter(re => re.test(next)).length;
     if (characterGroups < 3) {
-      this.passwordError.set('استخدم ثلاثة أنواع على الأقل: أحرف صغيرة وكبيرة وأرقام ورموز');
+      this.failPassword({ next: 'استخدم ثلاثة أنواع على الأقل: أحرف صغيرة وكبيرة وأرقام ورموز' });
       return;
     }
     if (next !== confirm) {
-      this.passwordError.set('تأكيد كلمة المرور غير مطابق');
+      this.failPassword({ confirm: 'تأكيد كلمة المرور غير مطابق' });
       return;
     }
+    if (!this.pwGuard.enter()) return; // a second click / Enter while the request runs does nothing
 
     this.passwordError.set(null);
+    this.pwFieldErrors.set({});
     this.isChangingPassword.set(true);
     this.providerProfileService.changePassword(current, next).subscribe({
       next: () => {
         this.isChangingPassword.set(false);
+        this.pwGuard.release();
         this.resetPasswordForm();
         this.passwordFormVisible.set(false);
-        this.showToast('تم تغيير كلمة المرور بنجاح');
+        this.notify.success('تم تغيير كلمة المرور بنجاح');
       },
       error: (err: any) => {
         this.isChangingPassword.set(false);
+        this.pwGuard.release();
         const reason = err?.error?.message;
-        this.passwordError.set(
-          reason === 'CURRENT_PASSWORD_INCORRECT' ? 'كلمة المرور الحالية غير صحيحة'
-          : reason === 'PASSWORD_UNCHANGED' ? 'كلمة المرور الجديدة مطابقة للحالية'
-          : reason === 'WEAK_PASSWORD' ? 'كلمة المرور الجديدة لا تحقق متطلبات الأمان'
-          : reason === 'PASSWORD_FIELDS_REQUIRED' ? 'يرجى تعبئة جميع الحقول'
-          : 'تعذر تغيير كلمة المرور، حاول مجددًا'
-        );
+        // Server codes that belong to a field go on that field; everything else (network, 429, 5xx, 403...) is a generic message.
+        if (reason === 'CURRENT_PASSWORD_INCORRECT') this.failPassword({ current: 'كلمة المرور الحالية غير صحيحة' });
+        else if (reason === 'PASSWORD_UNCHANGED') this.failPassword({ next: 'كلمة المرور الجديدة مطابقة للحالية' });
+        else if (reason === 'WEAK_PASSWORD') this.failPassword({ next: 'كلمة المرور الجديدة لا تحقق متطلبات الأمان' });
+        else if (reason === 'PASSWORD_FIELDS_REQUIRED') this.passwordError.set('يرجى تعبئة جميع الحقول');
+        else {
+          const mapped = mapHttpError(err, { fallback: 'تعذر تغيير كلمة المرور، حاول مجددًا' });
+          const fe = mapped.fieldErrors;
+          if (mapped.kind === 'backend-validation' && (fe['currentPassword'] || fe['newPassword'])) {
+            this.failPassword({ current: fe['currentPassword'], next: fe['newPassword'] });
+          } else {
+            this.passwordError.set(mapped.kind === 'unknown' || mapped.kind === 'backend-validation' ? 'تعذر تغيير كلمة المرور، حاول مجددًا' : mapped.message);
+          }
+        }
         // Deliberately NOT clearing fields on error — the user shouldn't
         // have to retype everything to fix one mistake. Never logged: only
         // the server error *code* is read here, never the password values.
@@ -486,12 +527,12 @@ export class Account implements OnInit {
       next: () => {
         this.sessions.update(list => list.filter(s => s.id !== sessionId));
         this.revokingSessionId.set(null);
-        this.showToast('تم إنهاء الجلسة بنجاح');
+        this.notify.success('تم إنهاء الجلسة بنجاح');
       },
       error: (err: any) => {
         this.revokingSessionId.set(null);
         const reason = err?.error?.message;
-        this.showToast(reason === 'CANNOT_REVOKE_CURRENT_SESSION' ? 'لا يمكن إنهاء الجلسة الحالية' : 'تعذر إنهاء الجلسة');
+        this.notify.error(reason === 'CANNOT_REVOKE_CURRENT_SESSION' ? 'لا يمكن إنهاء الجلسة الحالية' : 'تعذر إنهاء الجلسة');
       },
     });
   }
@@ -504,12 +545,12 @@ export class Account implements OnInit {
   sessionActivityLabel(s: ProviderSession): string {
     if (s.isCurrent) return 'الجلسة الحالية · نشطة الآن';
     const date = new Date(s.lastActiveAt);
-    return 'آخر نشاط: ' + date.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return 'آخر نشاط: ' + date.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
   }
 
   // --- Data export: no backend endpoint exists anywhere (confirmed by a
   // full-text search of the backend source) — truthfully unavailable rather
-  // than a fake "your download link is on its way" toast. ---
+  // than a fake "your download link is on its way" message. ---
   dataExportAvailable = false;
 
   // --- Account deletion: only an ADMIN-ONLY hard-delete endpoint exists
@@ -527,12 +568,5 @@ export class Account implements OnInit {
     setTimeout(() => {
       this.isLoading.set(false);
     }, 1000);
-  }
-
-  showToast(msg: string) {
-    this.toastMessage.set(msg);
-    setTimeout(() => {
-      this.toastMessage.set(null);
-    }, 3000);
   }
 }

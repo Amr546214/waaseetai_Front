@@ -18,7 +18,7 @@ describe('provider progress: delivery AI review', () => {
 		const postSpy = vi.fn(post);
 		await TestBed.configureTestingModule({ imports: [Progress], providers: [provideRouter([]),
 			{ provide: HttpClient, useValue: { get: vi.fn(() => of({ success: true, data: PROJECT })), post: postSpy } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
 		const f = TestBed.createComponent(Progress); f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
 		const q = (id: string) => el.querySelector(`[data-testid="${id}"]`);

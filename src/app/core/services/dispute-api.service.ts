@@ -2,15 +2,19 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ApiResponse } from '../models/api.model';
 import {
   AdminDisputesQuery,
   CreateDisputeApiResponse,
   CreateDisputePayload,
   DisputeAiSummaryApiResponse,
   DisputeApiResponse,
+  Dispute,
   DisputeListApiResponse,
   ResolveDisputeApiResponse,
   ResolveDisputePayload,
+  ResolveFinancialPayload,
+  ResolveFinancialApiResponse,
 } from '../models/dispute.model';
 
 @Injectable({
@@ -144,6 +148,26 @@ export class DisputeApiService {
       `${this.baseUrl}/admin/disputes/${id}/resolve`,
       payload,
     );
+  }
+
+  /** POST /api/admin/disputes/:id/assign — assigns the dispute to a staff member (audit-logged). */
+  /** Financial decision (explicit amounts + confirm). POST /api/admin/disputes/:id/resolve-financial */
+  resolveAdminDisputeFinancial(id: string, payload: ResolveFinancialPayload): Observable<ResolveFinancialApiResponse> {
+    return this.http.post<ResolveFinancialApiResponse>(`${this.baseUrl}/admin/disputes/${id}/resolve-financial`, payload);
+  }
+
+  assignAdminDispute(id: string, assigneeId: string): Observable<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>> {
+    return this.http.post<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>>(`${this.baseUrl}/admin/disputes/${id}/assign`, { assigneeId });
+  }
+
+  /** POST /api/admin/disputes/:id/notes — internal note, never shown to the parties. */
+  addAdminDisputeNote(id: string, body: string): Observable<ApiResponse<{ id: string; body: string; createdAt: string }>> {
+    return this.http.post<ApiResponse<{ id: string; body: string; createdAt: string }>>(`${this.baseUrl}/admin/disputes/${id}/notes`, { body });
+  }
+
+  /** PATCH /api/admin/disputes/:id/status — OPEN <-> UNDER_REVIEW only (resolve / reject go through resolveAdminDispute). */
+  setAdminDisputeStatus(id: string, status: 'OPEN' | 'UNDER_REVIEW'): Observable<ApiResponse<Dispute>> {
+    return this.http.patch<ApiResponse<Dispute>>(`${this.baseUrl}/admin/disputes/${id}/status`, { status });
   }
 
   /**

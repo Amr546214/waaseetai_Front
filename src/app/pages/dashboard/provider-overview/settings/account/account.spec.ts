@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { Account } from './account';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 // Regression coverage for Batch 2 — Provider Settings→Account trust/security
 // fixes: real authenticated password change + real device/session
@@ -107,7 +108,7 @@ describe('Account (provider settings) — real password change', () => {
 
 		expect(component.isChangingPassword()).toBe(false);
 		expect(component.passwordError()).toBe('كلمة المرور الحالية غير صحيحة');
-		expect(component.toastMessage()).not.toBe('تم تغيير كلمة المرور بنجاح');
+		expect(TestBed.inject(UiNotificationService).toasts().some(t => t.message === 'تم تغيير كلمة المرور بنجاح')).toBe(false);
 		// Fields are NOT cleared on failure — the user shouldn't have to retype everything.
 		expect(component.newPasswordValue()).toBe('NewPass456!');
 	});
@@ -119,7 +120,7 @@ describe('Account (provider settings) — real password change', () => {
 
 		component.changePassword();
 
-		expect(component.toastMessage()).toBe('تم تغيير كلمة المرور بنجاح');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => ({ kind: t.kind, message: t.message }))).toEqual([{ kind: 'success', message: 'تم تغيير كلمة المرور بنجاح' }]);
 	});
 
 	it('6) password fields (and the form) clear after a real success, never persisted/logged', () => {
@@ -193,7 +194,7 @@ describe('Account (provider settings) — real device/session management', () =>
 		component.endSession('s1');
 
 		expect(component.sessions().length).toBe(1);
-		expect(component.toastMessage()).toBe('لا يمكن إنهاء الجلسة الحالية');
+		expect(TestBed.inject(UiNotificationService).toasts().map(t => ({ kind: t.kind, message: t.message }))).toEqual([{ kind: 'error', message: 'لا يمكن إنهاء الجلسة الحالية' }]);
 	});
 
 	it('double-ending the same session is blocked while a revoke is already in flight', () => {

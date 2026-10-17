@@ -262,3 +262,8 @@ app-marketplace .mk-results .svc-empty h4{font-size:15px;font-weight:800;color:v
 app-marketplace .mk-results .svc-empty p{font-size:13px;color:var(--txt-2);line-height:1.6;margin:0 0 16px}
 app-marketplace .mk-results .svc-empty button{display:inline-flex;align-items:center;justify-content:center;padding:9px 20px;border-radius:999px;background:var(--grad);color:#070D24;font-size:13px;font-weight:800}
 app-marketplace .mk-home .mk-empty{grid-column:1/-1;padding:32px 16px;text-align:center;font-size:13px;color:var(--txt-3);background:var(--surface);border:1px solid var(--border);border-radius:14px}
+
+.svc-skills{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}
+.svc-skill{padding:2px 9px;border-radius:999px;border:1px solid rgba(43,127,255,.25);background:rgba(43,127,255,.08);color:var(--txt-2);font-size:11px;font-family:inherit;cursor:pointer}
+.svc-skill:hover{border-color:#2B7FFF}
+.svc-skill-more{cursor:default;border-style:dashed}

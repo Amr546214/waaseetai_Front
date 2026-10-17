@@ -49,9 +49,6 @@ select.inp-field{cursor:pointer;appearance:none;background-image:url("data:image
 .spinner{width:15px;height:15px;border:2px solid rgba(7,13,36,.3);border-top-color:#070D24;border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.toast-wrap{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:500;animation:ws-fade .3s ease both}
-.toast-box{display:flex;align-items:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,rgba(43,212,199,.14),rgba(43,127,255,.10));border:1px solid rgba(43,212,199,.3);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(16px)}
-.toast-box span{font-size:14px;font-weight:700;color:#fff}
 
 .inner-foot{display:flex;justify-content:space-between;align-items:center;padding:14px 0 0;border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:#6B7699;flex-wrap:wrap;gap:8px}
 .inner-foot-links{display:flex;align-items:center;gap:12px}
@@ -134,3 +131,5 @@ select.inp-field{cursor:pointer;appearance:none;background-image:url("data:image
 :host-context(body.theme-light) .inp-hint,
 :host-context(.light-theme) .inp-hint,
 :host-context(.theme-light) .inp-hint{color:#475569}
+.upload-area--off{cursor:not-allowed;opacity:.6}
+.upload-area--off:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.03)}

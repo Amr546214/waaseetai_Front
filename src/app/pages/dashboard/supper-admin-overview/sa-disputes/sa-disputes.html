@@ -8,7 +8,7 @@
 
   <div class="dp-filters">
     @for (f of filters; track f.key) {
-      <button type="button" class="dp-ftab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">{{ f.label }}</button>
+      <button type="button" class="dp-ftab" [class.active]="activeFilter() === f.key" (click)="setFilter(f.key)">{{ f.label }}@if (countFor(f.key) !== null) { <span class="dp-ftab-count">{{ countFor(f.key) }}</span> }</button>
     }
   </div>
 
@@ -40,7 +40,13 @@
           <div class="dp-card-body">
             <p class="dp-reason">{{ d.reason }}</p>
             <div class="dp-meta">
-              <span>طلب: {{ d.requestId ? shortId(d.requestId) : '—' }}</span>
+              <span>{{ d.project && !d.request ? 'مشروع' : 'طلب' }}: {{ subjectTitle(d) }}</span>
+              <span>·</span>
+              <span>مقدّم النزاع: {{ fullName(d.openedBy) }}</span>
+              <span>·</span>
+              <span>الطرف الآخر: {{ fullName(d.againstUser) }}</span>
+              <span>·</span>
+              <span>المُسنَد إليه: {{ d.assignedTo?.name || 'غير مُسنَد' }}</span>
               <span>·</span>
               <span>{{ formatDate(d.createdAt) }}</span>
               <span>·</span>
