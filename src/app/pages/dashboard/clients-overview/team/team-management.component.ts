@@ -6,6 +6,7 @@ import { ClientCompanyTeamService } from '../../../../core/services/client-compa
 import { ClientCompanyTeamMember } from '../../../../core/models/client-company-team.model';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
+import { fieldErrorsFromBody } from '../../../../core/forms/http-error';
 
 // Batch 6 — this page used to render 4 fully hardcoded arrays (employees,
 // roles, groups, tasks) with zero backend behind any of them (not even a
@@ -55,7 +56,10 @@ export class TeamManagementComponent implements OnInit {
 	invitePhone = '';
 	inviteJobTitle = '';
 	isSubmittingInvite = signal<boolean>(false);
+	/** General (form-level) message: shown as a red banner, never tied to a single field. */
 	inviteError = signal<string>('');
+	/** Field-specific messages (local empty checks, or the field the server named). Only these mark a field invalid. */
+	inviteFieldErrors = signal<Partial<Record<'name' | 'email' | 'phone' | 'jobTitle', string>>>({});
 
 	// Per-row busy state so a slow status/edit request can't be double-fired
 	busyMemberId = signal<string | null>(null);
@@ -97,6 +101,7 @@ export class TeamManagementComponent implements OnInit {
 		this.invitePhone = '';
 		this.inviteJobTitle = '';
 		this.inviteError.set('');
+		this.inviteFieldErrors.set({});
 		this.showInviteForm.set(true);
 	}
 
@@ -106,11 +111,17 @@ export class TeamManagementComponent implements OnInit {
 
 	submitInvite(): void {
 		if (!this.inviteName.trim() || !this.inviteEmail.trim() || !this.inviteJobTitle.trim()) {
-			this.inviteError.set('الاسم والبريد الإلكتروني والمسمى الوظيفي مطلوبة');
+			const fe: Partial<Record<'name' | 'email' | 'jobTitle', string>> = {};
+			if (!this.inviteName.trim()) fe.name = 'الاسم الكامل مطلوب';
+			if (!this.inviteEmail.trim()) fe.email = 'البريد الإلكتروني مطلوب';
+			if (!this.inviteJobTitle.trim()) fe.jobTitle = 'المسمى الوظيفي مطلوب';
+			this.inviteFieldErrors.set(fe);
+			this.inviteError.set('');
 			return;
 		}
 		this.isSubmittingInvite.set(true);
 		this.inviteError.set('');
+		this.inviteFieldErrors.set({});
 		this.teamService.create({
 			name: this.inviteName.trim(),
 			email: this.inviteEmail.trim(),
@@ -130,7 +141,13 @@ export class TeamManagementComponent implements OnInit {
 			},
 			error: (err) => {
 				this.isSubmittingInvite.set(false);
-				this.inviteError.set(err?.error?.message || 'تعذر دعوة الموظف. حاول مرة أخرى.');
+				const named = fieldErrorsFromBody(err?.error);
+				const known = ['name', 'email', 'phone', 'jobTitle'] as const;
+				const mine: Partial<Record<'name' | 'email' | 'phone' | 'jobTitle', string>> = {};
+				for (const k of known) if (named[k]) mine[k] = named[k];
+				this.inviteFieldErrors.set(mine);
+				// a general error (nothing field-specific) only shows the banner; it does not mark the three fields invalid
+				this.inviteError.set(Object.keys(mine).length ? '' : (err?.error?.message || 'تعذر دعوة الموظف. حاول مرة أخرى.'));
 			}
 		});
 	}

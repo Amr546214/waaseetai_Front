@@ -1,5 +1,6 @@
 import {
 	Component,
+	AfterViewInit,
 	DoCheck,
 	ElementRef,
 	forwardRef,
@@ -81,7 +82,7 @@ function getFlagEmoji(countryCode: string): string {
 		},
 	],
 })
-export class PhoneInputComponent implements ControlValueAccessor, Validator, OnInit, DoCheck {
+export class PhoneInputComponent implements ControlValueAccessor, Validator, OnInit, DoCheck, AfterViewInit {
 	@ViewChild('phoneField') private phoneField?: ElementRef<HTMLInputElement>;
 
 	@Input() placeholder = 'رقم الجوال';
@@ -134,6 +135,8 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 
 	focusField(): void { this.phoneField?.nativeElement.focus(); }
 
+	ngAfterViewInit(): void { this.ngDoCheck(); }
+
 	ngDoCheck(): void {
 		const host = this.elementRef.nativeElement as HTMLElement;
 		const inner = this.phoneField?.nativeElement;
@@ -143,6 +146,10 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 		if (invalid) inner.setAttribute('aria-invalid', invalid); else inner.removeAttribute('aria-invalid');
 		const desc = host.getAttribute('aria-describedby');
 		if (desc) inner.setAttribute('aria-describedby', desc); else inner.removeAttribute('aria-describedby');
+		const err = host.getAttribute('aria-errormessage');
+		if (err) inner.setAttribute('aria-errormessage', err); else inner.removeAttribute('aria-errormessage');
+		const req = host.getAttribute('aria-required') ?? (host.hasAttribute('required') && host.getAttribute('required') !== 'false' ? 'true' : null);
+		if (req) inner.setAttribute('aria-required', req); else inner.removeAttribute('aria-required');
 	}
 
 	ngOnInit(): void {

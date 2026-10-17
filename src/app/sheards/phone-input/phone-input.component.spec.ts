@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { PhoneInputComponent, type PhoneValue } from './phone-input.component';
@@ -63,5 +63,29 @@ describe('PhoneInputComponent: the country and the local number always belong to
     const f = make({ countryCode: 'EG', dialCode: '+20', number: '1025073026', e164Number: '' });
     expect([flag(f), dial(f)]).toEqual(['🇪🇬', '+20']);
     expect((f.nativeElement.querySelector('input.phone-number-input') as HTMLInputElement).value).toBe('1025073026');
+  });
+});
+
+describe('PhoneInputComponent forwards its form state to the real number box', () => {
+  @Component({
+    standalone: true, imports: [PhoneInputComponent, ReactiveFormsModule],
+    template: `<app-phone-input [formControl]="ctrl" aria-required="true" [attr.aria-invalid]="bad ? 'true' : null"
+      [attr.aria-describedby]="bad ? 'ph-err' : null" [attr.aria-errormessage]="bad ? 'ph-err' : null" /><div id="ph-err">خطأ</div>`,
+  })
+  class H { ctrl = new FormControl<PhoneValue | null>(null); badS = signal(false); get bad() { return this.badS(); } }
+
+  it('aria-required, aria-invalid, aria-describedby and aria-errormessage land on the <input type=tel>', () => {
+    const f = TestBed.createComponent(H);
+    f.detectChanges();
+    const inner = f.nativeElement.querySelector('input.phone-number-input') as HTMLInputElement;
+    expect(inner.getAttribute('aria-required')).toBe('true');
+    expect(inner.hasAttribute('aria-invalid')).toBe(false);
+    f.componentInstance.badS.set(true); f.detectChanges();
+    expect(inner.getAttribute('aria-invalid')).toBe('true');
+    expect(inner.getAttribute('aria-describedby')).toBe('ph-err');
+    expect(inner.getAttribute('aria-errormessage')).toBe('ph-err');
+    f.componentInstance.badS.set(false); f.detectChanges();
+    expect(inner.hasAttribute('aria-invalid')).toBe(false);
+    expect(inner.hasAttribute('aria-errormessage')).toBe(false);
   });
 });

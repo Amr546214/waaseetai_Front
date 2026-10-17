@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, forwardRef, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, AfterViewInit, afterEveryRender, Component, DoCheck, ElementRef, HostListener, forwardRef, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export interface WsSelectOption { value: string; label: string; disabled?: boolean }
@@ -72,7 +72,7 @@ let nextId = 0;
 		}
 	`,
 })
-export class WsSelectComponent implements ControlValueAccessor {
+export class WsSelectComponent implements ControlValueAccessor, DoCheck, AfterViewInit {
 	private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 	private readonly cdr = inject(ChangeDetectorRef);
 
@@ -96,6 +96,30 @@ export class WsSelectComponent implements ControlValueAccessor {
 		if (r.bottom < 0 || r.top > window.innerHeight) { this.close(); } else { this.place(); }
 		this.cdr.markForCheck();
 	};
+
+	/**
+	 * The page puts aria-required / aria-invalid / aria-describedby / aria-errormessage (and `required`) on the <ws-select> host; the
+	 * element a screen reader lands on is the inner combobox button, so the state is mirrored there (the host is not focusable).
+	 * Without an explicit aria-invalid, a control that is ng-invalid AND touched/dirty is announced as invalid too.
+	 */
+	/** Runs after the page's host bindings (ng-invalid/ng-touched classes) were applied, so the state never lags one cycle behind. */
+	private readonly syncAfterRender = afterEveryRender(() => this.ngDoCheck());
+	ngAfterViewInit(): void { this.ngDoCheck(); }
+	ngDoCheck(): void {
+		const host = this.host.nativeElement;
+		const btn = host.querySelector('button.ws-sel-trigger') as HTMLElement | null;
+		if (!btn) return;
+		const set = (name: string, v: string | null) => {
+			if (v === null) { if (btn.hasAttribute(name)) btn.removeAttribute(name); } else if (btn.getAttribute(name) !== v) btn.setAttribute(name, v);
+		};
+		set('aria-required', host.getAttribute('aria-required') ?? (host.hasAttribute('required') && host.getAttribute('required') !== 'false' ? 'true' : null));
+		const cl = host.classList;
+		const ngInvalid = cl.contains('ng-invalid') && (cl.contains('ng-touched') || cl.contains('ng-dirty'));
+		const explicit = host.getAttribute('aria-invalid');
+		set('aria-invalid', explicit ?? (ngInvalid ? 'true' : null));
+		set('aria-describedby', host.getAttribute('aria-describedby'));
+		set('aria-errormessage', host.getAttribute('aria-errormessage'));
+	}
 
 	private onChange: (v: string) => void = () => {};
 	private onTouched: () => void = () => {};
