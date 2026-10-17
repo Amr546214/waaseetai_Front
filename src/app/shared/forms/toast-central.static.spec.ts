@@ -10,8 +10,7 @@ const ALLOW: Record<string, string> = {
 	'src/app/core/services/ui-notification.service.ts': 'the central service itself',
 	// Exceptions (server-pushed notification popup with an action link, NOT action feedback; fed only by NotificationEngineService):
 	'src/app/core/services/notification-engine.service.ts': 'server-pushed notification engine (separate system)',
-	'src/app/sheards/navbar/navbar.html': 'renders the engine popup for server-pushed notifications (action link)',
-	'src/app/sheards/dashboard/nav-dashboard/nav-dashboard.html': 'renders the engine popup for server-pushed notifications (action link)',
+	'src/app/sheards/notification-popup/notification-popup.ts': 'the single renderer of the engine popup for server-pushed notifications (action link); used by the navbar and the dashboard top bar',
 };
 
 const read = (p: string) => readFileSync(p, 'utf8');

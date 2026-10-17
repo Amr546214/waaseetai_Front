@@ -9,6 +9,7 @@ import { Observable, tap } from 'rxjs';
 import { NotificationSoundService } from './notification-sound.service';
 import { AuthStore } from '../store/auth.store';
 import { UiNotificationService } from './ui-notification.service';
+import { NotificationPopupLedger } from './notification-popup-ledger.service';
 import { normalizeLegacyNotificationUrl } from '../routing/notification-links';
 
 /** The socket constructor (a seam for tests: a module-level mock of socket.io-client does not survive the shared test bundle). */
@@ -84,6 +85,7 @@ export class NotificationEngineService implements OnDestroy {
 	private platformId = inject(PLATFORM_ID);
 	private isBrowser = isPlatformBrowser(this.platformId);
 	private authStore = inject(AuthStore);
+	private ledger = inject(NotificationPopupLedger);
 	private ui = inject(UiNotificationService);
 	private sanitizer = inject(DomSanitizer);
 	private socketFactory = inject(NOTIFICATION_SOCKET_FACTORY);
@@ -218,6 +220,10 @@ export class NotificationEngineService implements OnDestroy {
 	private seenAtById = new Map<string, string>();
 	// createdAt of the newest notification this client holds: the `since` of the recovery read after a reconnect
 	private newestAt: string | null = null;
+	// the first recovery after a page load / login only reports the existing unread backlog: those rows are old, not "new", and never pop up
+	private recoveredOnce = false;
+	// a popup that arrived while this tab was in the background: shown (once, if no other tab did) when the tab becomes visible
+	private pendingPopup: { notif: NotificationEvent; key: string; userId: string } | null = null;
 
 	constructor() {
 		// Socket.IO is browser-only real-time transport: creating it during SSR
@@ -227,6 +233,7 @@ export class NotificationEngineService implements OnDestroy {
 		// on every request), leaking a connection per render with no owner left
 		// to close it.
 		if (this.isBrowser) {
+			document.addEventListener('visibilitychange', () => this.flushPendingPopup());
 			// Follows AuthStore.currentUser() for the socket's entire lifecycle —
 			// not just at startup — so login, logout, and an account switch are
 			// all handled the same way. AuthStore hydrates its signals
@@ -289,7 +296,7 @@ export class NotificationEngineService implements OnDestroy {
 			this.unreadCount.update(c => c + 1);
 			this.realtimeNewNotification.set(notif);
 			this.soundService.playPopSound();
-			this.triggerToast(notif);
+			this.popup(notif);
 		};
 
 		// Same id, new content: replace the row (never a second row, never +1 on the bell: the server counts one unread row per conversation).
@@ -299,7 +306,7 @@ export class NotificationEngineService implements OnDestroy {
 			if (!this.registerUpdate(notif)) return;
 			this.realtimeUpdatedNotification.set(notif);
 			this.soundService.playPopSound();
-			this.triggerToast(notif);
+			this.popup(notif, true);
 		});
 
 		// The server cut this connection because the account is no longer active (admin suspension), or refused it at the handshake.
@@ -330,7 +337,7 @@ export class NotificationEngineService implements OnDestroy {
 				updateData._notified = true;
 				this.unreadCount.update(c => c + 1);
 				this.soundService.playPopSound();
-				this.triggerToast(updateData.notification);
+				this.popup(updateData.notification);
 			}
 		};
 
@@ -391,7 +398,14 @@ export class NotificationEngineService implements OnDestroy {
 				// rows held already but updated while offline (a chat conversation that kept receiving messages): replace them, no new count
 				for (const n of ordered) if (!fresh.includes(n) && this.registerUpdate(n)) this.realtimeUpdatedNotification.set(n);
 				this.unreadCount.set(legacy ? res.data.length : res.unreadCount);
-				if (fresh.length) this.triggerToast(fresh[fresh.length - 1]);
+				if (!this.recoveredOnce) {
+					// page load / login: this is the unread backlog, not news. Remember it as handled so no later path can pop it either.
+					this.recoveredOnce = true;
+					if (this.joinedUserId) this.ledger.seed(this.joinedUserId, res.data.map((n: any) => n?.id));
+				} else if (fresh.length) {
+					// a reconnect inside the same page: what arrived while offline is genuinely new
+					this.popup(fresh[fresh.length - 1]);
+				}
 			},
 			error: () => { /* keep what we have */ }
 		});
@@ -429,6 +443,41 @@ export class NotificationEngineService implements OnDestroy {
 		}, 7000);
 	}
 
+	/**
+	 * Announces a SERVER notification as a popup at most once per user (stable id, see NotificationPopupLedger). It never reads, marks or counts
+	 * anything: showing, expiring or closing the popup leaves the notification unread. `isUpdate` = the server changed an already-held row
+	 * (chat coalescing): that newer version is its own event, keyed by id + createdAt, so replaying the same update never repeats it.
+	 */
+	popup(notif: NotificationEvent, isUpdate = false): void {
+		const userId = this.joinedUserId;
+		const id = notif?.id;
+		if (!id || !userId) { this.triggerToast(notif); return; }
+		const at = notif.createdAt ? new Date(notif.createdAt).toISOString() : '';
+		const key = isUpdate && at ? `${id}@${at}` : id;
+		if (this.ledger.has(userId, key)) return;
+		if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+			// a background tab must not use up the single popup the user would never see: a visible tab (or this one on return) shows it
+			this.pendingPopup = { notif, key, userId };
+			return;
+		}
+		if (this.ledger.claim(userId, key)) this.triggerToast(notif);
+	}
+
+	private flushPendingPopup(): void {
+		const p = this.pendingPopup;
+		if (!p || document.visibilityState === 'hidden') return;
+		this.pendingPopup = null;
+		if (p.userId !== this.joinedUserId) return;
+		if (this.ledger.claim(p.userId, p.key)) this.triggerToast(p.notif);
+	}
+
+	/** The popup's own destination click succeeded in opening the page: now (and only now) the row counts as read locally. */
+	onPopupMarkedRead(id: string | undefined): void {
+		if (!id) return;
+		this.unreadCount.update(c => Math.max(0, c - 1));
+		this.realtimeReadNotification.set(id);
+	}
+
 	closeToast(): void {
 		this.showToast.set(false);
 		if (this.toastTimer) {
@@ -449,6 +498,11 @@ export class NotificationEngineService implements OnDestroy {
 		this.seenIds.clear();
 		this.seenAtById.clear();
 		this.newestAt = null;
+		this.recoveredOnce = false;
+		this.pendingPopup = null;
+		// ...nor see the previous account's popup
+		this.closeToast();
+		this.latestNotification.set(null);
 	}
 
 	ngOnDestroy(): void {

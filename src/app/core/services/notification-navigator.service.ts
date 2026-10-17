@@ -22,7 +22,7 @@ const areaOf = (url: string) => AREAS.find(a => url === a.prefix || url.startsWi
 /**
  * The ONE click behaviour of every notification surface (bell, toast, provider / client / marketer pages):
  *  - the destination opens EVERY time, read or unread, and the second click on the same notification opens it again;
- *  - marking it read is fire-and-forget: its failure (or slowness) never blocks or delays navigation;
+ *  - marking it read happens only once the navigation succeeded, and is fire-and-forget: its failure (or slowness) never blocks or delays navigation;
  *  - clicking while already on that route re-runs the navigation (onSameUrlNavigation: 'reload') so the intended item / tab / query is applied; it only reads;
  *  - a destination in another role's area opens only if THIS account owns that role (the real switch API is called, no guard is bypassed); otherwise an honest reason;
  *  - a destination the router refuses (guard) or cannot open shows the reason instead of doing nothing.
@@ -36,11 +36,14 @@ export class NotificationNavigator {
 	private ui = inject(UiNotificationService);
 
 	async open(nt: Openable, hooks: { onMarkedRead?: () => void } = {}): Promise<NotificationOpenResult> {
-		if (nt.isUnread && nt.id) {
-			this.engine.markNotificationAsRead(nt.id).subscribe({ next: () => hooks.onMarkedRead?.(), error: () => { /* the destination still opens; the row stays unread */ } });
-		}
+		// Read only AFTER the destination really opened: a refused / failed / abandoned navigation leaves the row unread. Fire-and-forget (never delays the page).
+		const markRead = () => {
+			if (nt.isUnread && nt.id) {
+				this.engine.markNotificationAsRead(nt.id).subscribe({ next: () => hooks.onMarkedRead?.(), error: () => { /* the destination is already open; the row stays unread */ } });
+			}
+		};
 		const url = nt.actionUrl;
-		if (!url) { this.ui.info('هذا الإشعار للاطلاع فقط ولا توجد صفحة مرتبطة به'); return 'no-destination'; }
+		if (!url) { this.ui.info('هذا الإشعار للاطلاع فقط ولا توجد صفحة مرتبطة به'); markRead(); return 'no-destination'; }
 
 		const user = this.auth.currentUser();
 		const target = areaOf(url);
@@ -56,12 +59,18 @@ export class NotificationNavigator {
 			this.ui.info(`سيتم التبديل إلى حساب ${target.label} لفتح هذا الإشعار`);
 			return new Promise<NotificationOpenResult>(resolve => {
 				this.account.switchActiveRole(target.role).subscribe({
-					next: async () => resolve(await this.go(url) === 'navigated' ? 'role-switched' : 'blocked'),
+					next: async () => {
+						const ok = await this.go(url) === 'navigated';
+						if (ok) markRead();
+						resolve(ok ? 'role-switched' : 'blocked');
+					},
 					error: (err: any) => { this.ui.error(err?.error?.message || 'تعذر تبديل الحساب لفتح الإشعار'); resolve('failed'); }
 				});
 			});
 		}
-		return this.go(url);
+		const result = await this.go(url);
+		if (result === 'navigated') markRead();
+		return result;
 	}
 
 	private async go(url: string): Promise<NotificationOpenResult> {
