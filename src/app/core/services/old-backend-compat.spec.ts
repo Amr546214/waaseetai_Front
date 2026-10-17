@@ -27,6 +27,7 @@ describe('new FE vs old BE: notification recovery (no since / unreadCount on the
 
 	it('an old server answers EVERY unread row: rows older than what is held are not announced, the bell becomes the exact unread total', () => {
 		engine.registerArrival(n('held', '2026-10-15T10:00:00.000Z'));
+		(engine as any).recoveredOnce = true; (engine as any).joinedUserId = 'u1'; // a reconnect inside a page that already did its first (silent) recovery
 		const shown: string[] = []; const toast = vi.spyOn(engine, 'triggerToast');
 		const orig = engine.realtimeNewNotification.set.bind(engine.realtimeNewNotification);
 		engine.realtimeNewNotification.set = (v: any) => { shown.push(v.id); orig(v); };
