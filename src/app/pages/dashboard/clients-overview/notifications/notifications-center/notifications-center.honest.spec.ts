@@ -112,9 +112,11 @@ describe('client notifications page: real data only, honest counters/CTA/AI', ()
 	it('clicking an unread notification marks it read through the API and then navigates to its real route', async () => {
 		await mount([raw({ id: 'a', type: 'NEW_PROPOSAL', metadata: { requestId: 'r1' } })]);
 		c.onNotificationClick(c.notifications()[0]);
+		// the row is marked read only AFTER the navigation succeeded (popup/click contract of the notification navigator), so wait for it to settle
+		await vi.waitFor(() => expect(patch).toHaveBeenCalled());
+		expect(navigate).toHaveBeenCalledWith('/client-overview/my-requests/r1', { onSameUrlNavigation: 'reload' });
 		expect(String(patch.mock.calls[0][0])).toContain('/notifications/a/read');
 		expect(c.unreadCount()).toBe(0);
-		expect(navigate).toHaveBeenCalledWith('/client-overview/my-requests/r1', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('the AI filter and AI-styled icon appear only for a real AI notification', async () => {

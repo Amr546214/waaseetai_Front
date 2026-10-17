@@ -181,8 +181,8 @@
 			}
 
 			<div class="lc-fld">
-				<label>التقييم</label>
-				<div class="rate-stars">
+				<label>التقييم <span class="ws-req" aria-hidden="true">*</span></label>
+				<div class="rate-stars" role="radiogroup" aria-label="التقييم بالنجوم" aria-required="true">
 					@for (star of ratingStarArray(); track star) {
 						<button type="button" class="rate-star-btn" [class.filled]="ratingStars() >= star" (click)="setRatingStar(star)" [attr.aria-label]="star + ' من 5'">
 							<svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">

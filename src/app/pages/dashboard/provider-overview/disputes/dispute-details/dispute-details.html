@@ -232,8 +232,8 @@
 					</button>
 				</div>
 				<div style="margin-bottom:12px">
-					<label style="display:block;font-size:12px;font-weight:700;color:var(--txt, #fff);margin-bottom:5px">توجيهاتك لـ{{ tm.name }}</label>
-					<textarea id="dispute-guidance" name="dispute-guidance" data-field="dispute-guidance" style="width:100%;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.10));border-radius:9px;padding:9px 12px;font-size:12.5px;color:var(--txt, #fff);font-family:inherit;resize:vertical;min-height:80px;line-height:1.6" placeholder="مثال: أرسل سجل الرفع الأصلي بصيغة PDF..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
+					<label for="dispute-guidance" style="display:block;font-size:12px;font-weight:700;color:var(--txt, #fff);margin-bottom:5px">توجيهاتك لـ{{ tm.name }} <span class="ws-req" aria-hidden="true">*</span></label>
+					<textarea id="dispute-guidance" aria-required="true" name="dispute-guidance" data-field="dispute-guidance" style="width:100%;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.10));border-radius:9px;padding:9px 12px;font-size:12.5px;color:var(--txt, #fff);font-family:inherit;resize:vertical;min-height:80px;line-height:1.6" placeholder="مثال: أرسل سجل الرفع الأصلي بصيغة PDF..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
 				</div>
 				<div style="display:flex;gap:9px">
 					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid var(--sec-bd, rgba(255,255,255,.12));background:var(--sec-bg, rgba(255,255,255,.05));color:var(--txt, #fff)" (click)="closeGuidance()">إلغاء</button>

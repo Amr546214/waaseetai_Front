@@ -585,7 +585,7 @@
 			<div class="modal-t" id="neg-t">طلب تفاوض مع <span id="neg-name">{{ negProvider() }}</span></div>
 			<p class="modal-d">حدد ما تريد التفاوض عليه واكتب ملاحظتك، تصل لمقدم الخدمة فيرد بعرض مضاد أو يعتذر. لا يتغير
 				سعر العرض ولا مدته ولا العقد إلا إذا أرسل عرضًا مضادًا وقبلته رسميًا، والدردشة وحدها لا تغيّر شيئًا</p>
-			<label class="neg-lbl">على ماذا تتفاوض</label>
+			<label class="neg-lbl">على ماذا تتفاوض <span class="ws-req" aria-hidden="true">*</span></label>
 			<div id="neg-chips" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px">
 				<button type="button" class="neg-chip" [class.on]="negType() === 'price'"
 					(click)="setNegType('price')">السعر</button>
@@ -598,16 +598,16 @@
 			</div>
 			@if(negType() === 'price') {
 			<div id="neg-f-price" class="neg-f"><label class="neg-lbl" for="neg-price">السعر المقترح
-					($)</label><input class="neg-inp" id="neg-price" type="text" inputmode="numeric"
+					($) <span class="ws-req" aria-hidden="true">*</span></label><input class="neg-inp" id="neg-price" aria-required="true" type="text" inputmode="numeric"
 					placeholder="أدخل السعر المقترح بالدولار" [value]="negPrice()" (input)="onNegPriceInput($event)">
 				@if (selectedOffer()?.price; as cur) { <div class="neg-lbl" style="margin-top:5px;font-weight:600">سعر العرض الحالي: {{ cur }}</div> }</div>
 			}
 			@if(negType() === 'dur') {
-			<div id="neg-f-dur" class="neg-f"><label class="neg-lbl" for="neg-dur">المدة المقترحة (أيام)</label><input
-					class="neg-inp" id="neg-dur" type="text" inputmode="numeric" placeholder="أدخل عدد الأيام" [value]="negDuration()" (input)="onNegDurationInput($event)"></div>
+			<div id="neg-f-dur" class="neg-f"><label class="neg-lbl" for="neg-dur">المدة المقترحة (أيام) <span class="ws-req" aria-hidden="true">*</span></label><input
+					class="neg-inp" id="neg-dur" aria-required="true" type="text" inputmode="numeric" placeholder="أدخل عدد الأيام" [value]="negDuration()" (input)="onNegDurationInput($event)"></div>
 			}
-			<label class="neg-lbl" for="neg-msg">ملاحظاتك لمقدم الخدمة</label>
-			<textarea class="neg-inp neg-ta" id="neg-msg"
+			<label class="neg-lbl" for="neg-msg">ملاحظاتك لمقدم الخدمة@if (negType() === 'plan' || negType() === 'other') { <span class="ws-req" aria-hidden="true">*</span> }</label>
+			<textarea class="neg-inp neg-ta" id="neg-msg" [attr.aria-required]="negType() === 'plan' || negType() === 'other' ? 'true' : null"
 				placeholder="اكتب تفاصيل طلبك، سعرا أو مدة أو تعديلا على الخطة أو أي استفسار" [value]="negMessage()"
 				(input)="onNegMessageInput($event)"></textarea>
 			<div

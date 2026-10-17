@@ -8,17 +8,17 @@
 
 	<div class="flex flex-col gap-5">
 		<div>
-			<label class="block text-[13px] font-bold text-[var(--txt-2)] mb-2">اسم المشروع <span
-					class="text-[#FF6B6B]">*</span></label>
-			<input type="text" id="np-name" name="projectName" data-field="projectName" [value]="projectName" (input)="updateName($event)"
+			<label for="np-name" class="block text-[13px] font-bold text-[var(--txt-2)] mb-2">اسم المشروع <span
+					class="ws-req" aria-hidden="true">*</span></label>
+			<input type="text" id="np-name" aria-required="true" name="projectName" data-field="projectName" [value]="projectName" (input)="updateName($event)"
 				placeholder="مثال: تصميم هوية بصرية متكاملة أو تطوير تطبيق ذكاء اصطناعي"
 				class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] px-4 py-[13px] text-[14px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors placeholder:text-[var(--txt-3)]">
 		</div>
 
 		<div>
 			<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2.5">
-				<label class="text-[13px] font-bold text-[var(--txt-2)] flex items-center gap-2">
-					<span>وصف المشروع</span> <span class="text-[#FF6B6B]">*</span>
+				<label for="np-desc" class="text-[13px] font-bold text-[var(--txt-2)] flex items-center gap-2">
+					<span>وصف المشروع</span> <span class="ws-req" aria-hidden="true">*</span>
 					@if (isStreamingText) {
 					<span
 						class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[rgba(43,212,199,.15)] border border-[#2BD4C7] text-[#2BD4C7] text-[11px] font-black shadow-sm">
@@ -49,7 +49,7 @@
 			</div>
 
 			<div class="relative">
-				<textarea id="np-desc" name="projectDesc" data-field="projectDesc" [value]="projectDesc" (input)="updateDesc($event)" [readonly]="isStreamingText"
+				<textarea id="np-desc" aria-required="true" name="projectDesc" data-field="projectDesc" [value]="projectDesc" (input)="updateDesc($event)" [readonly]="isStreamingText"
 					placeholder="اشرح بدقة ماذا يتضمن المشروع، المخرجات المستهدفة، ومراحل العمل لتعزيز نسبة الفوز..."
 					rows="8" maxlength="1500"
 					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-all resize-y leading-[1.8] placeholder:text-[var(--txt-3)] custom-scrollbar"

@@ -91,6 +91,9 @@ export class SignContract {
 	loadError = signal<string | null>(null);
 
 	isAgreed = false;
+	/** The agreement was required but not ticked: a red message next to the checkbox (a toast alone is not enough). */
+	ackError = signal(false);
+	onAckChange(v: boolean) { this.isAgreed = v; if (v) this.ackError.set(false); }
 
 
 	constructor() {
@@ -147,6 +150,8 @@ export class SignContract {
 			return;
 		}
 		if (!this.isAgreed) {
+			this.ackError.set(true);
+			setTimeout(() => (document.getElementById('ack-ctr') as HTMLElement | null)?.focus());
 			this.notify.warning('يجب الموافقة على بنود العقد أولا');
 			return;
 		}

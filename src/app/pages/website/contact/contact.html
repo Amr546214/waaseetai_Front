@@ -41,11 +41,11 @@
           <form id="contact-form" novalidate (submit)="submitForm($event)">
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label" for="f-name">الاسم</label>
+                <label class="form-label" for="f-name">الاسم <span class="ws-req" aria-hidden="true">*</span></label>
                 <input id="f-name" class="form-input" type="text" placeholder="اسمك الكريم" [(ngModel)]="form.name" name="name" required aria-required="true">
               </div>
               <div class="form-group">
-                <label class="form-label" for="f-email">البريد الإلكتروني</label>
+                <label class="form-label" for="f-email">البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></label>
                 <input id="f-email" class="form-input" type="email" placeholder="email@example.com" [(ngModel)]="form.email" name="email" required aria-required="true">
               </div>
             </div>
@@ -61,7 +61,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="f-msg">رسالتك</label>
+              <label class="form-label" for="f-msg">رسالتك <span class="ws-req" aria-hidden="true">*</span></label>
               <textarea id="f-msg" class="form-textarea" placeholder="اكتب رسالتك هنا..." [(ngModel)]="form.message" name="message" required aria-required="true"></textarea>
             </div>
             <button type="submit" class="form-submit" [disabled]="sending()">إرسال الرسالة</button>

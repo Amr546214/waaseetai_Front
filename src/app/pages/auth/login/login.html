@@ -67,13 +67,13 @@
 			<div class="social-divider"><span>أو بالبريد وكلمة المرور</span></div>
 			<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" id="login-form" name="login" novalidate>
 				<div class="field-grp">
-					<label class="field-lbl" for="identifier">البريد الإلكتروني <span class="req" aria-hidden="true">*</span></label>
+					<label class="field-lbl" for="identifier">البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></label>
 					<input class="field-in" type="email" id="identifier" name="email" formControlName="email" inputmode="email"
-						placeholder="example@email.com" autocomplete="username" autocapitalize="off" spellcheck="false" dir="ltr"
+						placeholder="example@email.com" autocomplete="username" aria-required="true" [attr.aria-invalid]="fieldError('email') ? 'true' : null" [attr.aria-describedby]="fieldError('email') ? 'err-identifier' : null" autocapitalize="off" spellcheck="false" dir="ltr"
 						style="text-align:right"
 						[class.has-error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
 					@if (fieldError('email'); as msg) {
-					<div class="field-err" id="err-identifier">
+					<div class="field-err" id="err-identifier" role="alert">
 						<svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
 							aria-hidden="true">
 							<use href="#ws-warn"></use>
@@ -83,10 +83,11 @@
 					}
 				</div>
 				<div class="field-grp">
-					<label class="field-lbl" for="password">كلمة المرور <span class="req" aria-hidden="true">*</span></label>
+					<label class="field-lbl" for="password">كلمة المرور <span class="ws-req" aria-hidden="true">*</span></label>
 					<div class="pw-wrap">
 						<input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password"
-							name="password" formControlName="password" placeholder="كلمة المرور" autocomplete="current-password"
+							name="password" formControlName="password" placeholder="كلمة المرور" autocomplete="current-password" aria-required="true"
+							[attr.aria-invalid]="fieldError('password') ? 'true' : null" [attr.aria-describedby]="fieldError('password') ? 'err-password' : null"
 							[class.has-error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
 						<button type="button" class="pw-eye" id="pw-toggle" (click)="togglePassword()"
 							[attr.aria-label]="showPassword ? 'اخفاء كلمة المرور' : 'اظهار كلمة المرور'">
@@ -103,7 +104,7 @@
 						</button>
 					</div>
 					@if (fieldError('password'); as pmsg) {
-					<div class="field-err" id="err-password">
+					<div class="field-err" id="err-password" role="alert">
 						<svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"
 							aria-hidden="true">
 							<use href="#ws-warn"></use>

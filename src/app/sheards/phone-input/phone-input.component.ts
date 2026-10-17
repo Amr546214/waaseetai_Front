@@ -1,10 +1,12 @@
 import {
 	Component,
+	AfterViewInit,
 	DoCheck,
 	ElementRef,
 	forwardRef,
 	HostListener,
 	Input,
+	OnDestroy,
 	OnInit,
 	ViewChild,
 	ViewEncapsulation,
@@ -61,6 +63,8 @@ function getFlagEmoji(countryCode: string): string {
 		.join('');
 }
 
+let nextPhoneInputId = 0;
+
 @Component({
 	selector: 'app-phone-input',
 	templateUrl: './phone-input.component.html',
@@ -81,7 +85,7 @@ function getFlagEmoji(countryCode: string): string {
 		},
 	],
 })
-export class PhoneInputComponent implements ControlValueAccessor, Validator, OnInit, DoCheck {
+export class PhoneInputComponent implements ControlValueAccessor, Validator, OnInit, DoCheck, AfterViewInit, OnDestroy {
 	@ViewChild('phoneField') private phoneField?: ElementRef<HTMLInputElement>;
 
 	@Input() placeholder = 'رقم الجوال';
@@ -89,6 +93,10 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 	@Input() defaultCountry: CountryCode = 'SA';
 	/** When true an empty value is valid (the field is optional); a non-empty value must still be a valid number. */
 	@Input() optional = false;
+	/** Id of the real number box, so `<label for="…">` reaches it. Default: unique per instance (`ws-phone-N`). The host itself keeps no id of this value. */
+	@Input() inputId = '';
+	private readonly autoId = `ws-phone-${++nextPhoneInputId}`;
+	get fieldId(): string { return this.inputId || this.autoId; }
 
 	countries: CountryOption[] = ALL_COUNTRIES;
 	selectedCountry: CountryOption = ALL_COUNTRIES.find(c => c.code === 'SA') || ALL_COUNTRIES[0];
@@ -134,6 +142,20 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 
 	focusField(): void { this.phoneField?.nativeElement.focus(); }
 
+	private ariaObserver: MutationObserver | null = null;
+
+	ngAfterViewInit(): void {
+		this.ngDoCheck();
+		// The form-level a11y sync writes aria-invalid/aria-describedby on the host from a requestAnimationFrame callback, outside Angular's
+		// change detection: without this the real number box stays one interaction behind (not announced as invalid right after a submit).
+		if (typeof MutationObserver !== 'undefined') {
+			this.ariaObserver = new MutationObserver(() => this.ngDoCheck());
+			this.ariaObserver.observe(this.elementRef.nativeElement as HTMLElement, { attributes: true, attributeFilter: ['aria-invalid', 'aria-describedby', 'aria-errormessage', 'aria-required', 'required'] });
+		}
+	}
+
+	ngOnDestroy(): void { this.ariaObserver?.disconnect(); this.ariaObserver = null; }
+
 	ngDoCheck(): void {
 		const host = this.elementRef.nativeElement as HTMLElement;
 		const inner = this.phoneField?.nativeElement;
@@ -143,6 +165,10 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 		if (invalid) inner.setAttribute('aria-invalid', invalid); else inner.removeAttribute('aria-invalid');
 		const desc = host.getAttribute('aria-describedby');
 		if (desc) inner.setAttribute('aria-describedby', desc); else inner.removeAttribute('aria-describedby');
+		const err = host.getAttribute('aria-errormessage');
+		if (err) inner.setAttribute('aria-errormessage', err); else inner.removeAttribute('aria-errormessage');
+		const req = host.getAttribute('aria-required') ?? (host.hasAttribute('required') && host.getAttribute('required') !== 'false' ? 'true' : null);
+		if (req) inner.setAttribute('aria-required', req); else inner.removeAttribute('aria-required');
 	}
 
 	ngOnInit(): void {

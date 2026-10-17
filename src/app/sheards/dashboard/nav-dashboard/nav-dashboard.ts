@@ -11,13 +11,14 @@ import { normalizeLegacyNotificationUrl } from '../../../core/routing/notificati
 import { ThemeService } from '../../../core/services/theme.service';
 import { ChatStateService } from '../../../core/services/chat-state.service';
 import { UserRole } from '../../../core/models/auth.model';
+import { NotificationPopupComponent } from '../../notification-popup/notification-popup';
 import { NotificationBell } from '../../notification-bell/notification-bell';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 
 @Component({
 	selector: 'app-nav-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, NotificationBell],
+	imports: [CommonModule, RouterModule, NotificationBell, NotificationPopupComponent],
 	templateUrl: './nav-dashboard.html',
 	styleUrl: './nav-dashboard.css',
 	host: {
@@ -179,19 +180,4 @@ export class NavDashboard {
 		this.authStore.logout('/auth/login');
 	}
 
-	onToastActionClick() {
-		// [routerLink] wraps a single string command in a one-element array
-		// and only ever splits it on "/", never "?" — so an actionUrl like
-		// "/client-overview/messages?conversationId=..." would have its query
-		// string glued onto the last path segment as literal text instead of
-		// being parsed. navigateByUrl parses the whole string correctly via
-		// the router's UrlSerializer, matching the notification bell's own
-		// (working) click handler.
-		const latest = this.notifEngine.latestNotification();
-		this.notifEngine.closeToast();
-		if (latest) {
-			// same click behaviour as the bell and the pages (role-aware, honest reason, never blocked by the read update)
-			void this.notificationNavigator.open({ id: latest.id ?? '', isUnread: !!latest.id, actionUrl: normalizeLegacyNotificationUrl(latest.actionUrl) }, {});
-		}
-	}
 }

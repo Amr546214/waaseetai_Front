@@ -22,7 +22,7 @@
     <h1>تتبع طلبك</h1>
     <p>أدخل رقم الطلب لمعرفة حالته الحالية</p>
     <form class="search-box" [formGroup]="trackForm" (ngSubmit)="onSubmit()" novalidate>
-      <input type="text" class="search-input" id="tr-request-id" name="requestId" formControlName="requestId" [attr.aria-describedby]="trackForm.get('requestId')?.touched && trackForm.get('requestId')?.invalid ? 'tr-request-err' : null" placeholder="مثال: ORD-2025-00412" dir="ltr" maxlength="20" aria-label="رقم الطلب">
+      <input type="text" class="search-input" id="tr-request-id" name="requestId" formControlName="requestId" aria-required="true" [attr.aria-invalid]="trackForm.get('requestId')?.touched && trackForm.get('requestId')?.invalid ? 'true' : null" [attr.aria-describedby]="trackForm.get('requestId')?.touched && trackForm.get('requestId')?.invalid ? 'tr-request-err' : null" placeholder="مثال: ORD-2025-00412" dir="ltr" maxlength="20" aria-label="رقم الطلب">
       <button type="submit" class="search-btn">تتبع</button>
     </form>
     @if (trackForm.get('requestId')?.touched && trackForm.get('requestId')?.invalid) {

@@ -28,8 +28,8 @@
 		<div class="form-card">
 			<div class="f-grid f2">
 				<div class="f-g">
-					<label class="f-lbl" for="cp-code">كود الكوبون <span>*</span></label>
-					<input id="cp-code" name="code" class="f-inp" type="text" placeholder="اكتب كود الكوبون بالأحرف الإنجليزية" dir="ltr" maxlength="50"
+					<label class="f-lbl" for="cp-code">كود الكوبون @if (!editId()) {<span class="ws-req" aria-hidden="true">*</span>}</label>
+					<input id="cp-code" aria-required="true" name="code" class="f-inp" type="text" placeholder="اكتب كود الكوبون بالأحرف الإنجليزية" dir="ltr" maxlength="50"
 						[class.invalid]="errors().code" [attr.aria-invalid]="errors().code ? 'true' : null" [attr.aria-describedby]="errors().code ? 'cp-err-code' : null" [disabled]="!!editId()"
 						[ngModel]="form().code" (ngModelChange)="patch({ code: $event.toUpperCase() })">
 					@if (errors().code) { <div class="f-err" id="cp-err-code" role="alert">{{ errors().code }}</div> }
@@ -43,9 +43,9 @@
 					</div>
 				</div>
 				<div class="f-g">
-					<label class="f-lbl" for="cp-val">قيمة الخصم ({{ form().discountType === 'percentage' ? '%' : 'دولار' }}) <span>*</span></label>
+					<label class="f-lbl" for="cp-val">قيمة الخصم ({{ form().discountType === 'percentage' ? '%' : 'دولار' }}) <span class="ws-req" aria-hidden="true">*</span></label>
 					<div class="f-suffix-wrap">
-						<input id="cp-val" name="discountValue" class="f-inp" type="number" min="0" [attr.max]="form().discountType === 'percentage' ? 100 : null" placeholder="أدخل قيمة الخصم"
+						<input id="cp-val" aria-required="true" name="discountValue" class="f-inp" type="number" min="0" [attr.max]="form().discountType === 'percentage' ? 100 : null" placeholder="أدخل قيمة الخصم"
 							[class.invalid]="errors().discountValue" [attr.aria-invalid]="errors().discountValue ? 'true' : null" [attr.aria-describedby]="errors().discountValue ? 'cp-err-discountValue' : null" [ngModel]="form().discountValue" (ngModelChange)="patch({ discountValue: $event })">
 						<span class="f-suffix">{{ form().discountType === 'percentage' ? '%' : 'دولار' }}</span>
 					</div>
@@ -59,8 +59,8 @@
 					@if (errors().minimumAmount) { <div class="f-err" id="cp-err-minimumAmount" role="alert">{{ errors().minimumAmount }}</div> }
 				</div>
 				<div class="f-g">
-					<label class="f-lbl" for="cp-start">تاريخ البداية</label>
-					<input id="cp-start" name="startAt" class="f-inp" type="date" [class.invalid]="errors().startAt" [attr.aria-invalid]="errors().startAt ? 'true' : null" [attr.aria-describedby]="errors().startAt ? 'cp-err-startAt' : null" [ngModel]="form().startAt" (ngModelChange)="patch({ startAt: $event })">
+					<label class="f-lbl" for="cp-start">تاريخ البداية <span class="ws-req" aria-hidden="true">*</span></label>
+					<input id="cp-start" aria-required="true" name="startAt" class="f-inp" type="date" [class.invalid]="errors().startAt" [attr.aria-invalid]="errors().startAt ? 'true' : null" [attr.aria-describedby]="errors().startAt ? 'cp-err-startAt' : null" [ngModel]="form().startAt" (ngModelChange)="patch({ startAt: $event })">
 					@if (errors().startAt) { <div class="f-err" id="cp-err-startAt" role="alert">{{ errors().startAt }}</div> }
 				</div>
 				<div class="f-g">
@@ -75,8 +75,8 @@
 					@if (errors().maxUses) { <div class="f-err" id="cp-err-maxUses" role="alert">{{ errors().maxUses }}</div> } @else { <div class="f-hint">اتركه فارغاً لاستخدام غير محدود</div> }
 				</div>
 				<div class="f-g">
-					<label class="f-lbl" for="cp-per">الحد الأقصى للعميل الواحد</label>
-					<input id="cp-per" name="maxUsesPerUser" class="f-inp" type="number" min="1" step="1" placeholder="أدخل عدد المرات للعميل الواحد"
+					<label class="f-lbl" for="cp-per">الحد الأقصى للعميل الواحد <span class="ws-req" aria-hidden="true">*</span></label>
+					<input id="cp-per" aria-required="true" name="maxUsesPerUser" class="f-inp" type="number" min="1" step="1" placeholder="أدخل عدد المرات للعميل الواحد"
 						[class.invalid]="errors().maxUsesPerUser" [attr.aria-invalid]="errors().maxUsesPerUser ? 'true' : null" [attr.aria-describedby]="errors().maxUsesPerUser ? 'cp-err-maxUsesPerUser' : null" [ngModel]="form().maxUsesPerUser" (ngModelChange)="patch({ maxUsesPerUser: $event })">
 					@if (errors().maxUsesPerUser) { <div class="f-err" id="cp-err-maxUsesPerUser" role="alert">{{ errors().maxUsesPerUser }}</div> }
 				</div>
@@ -100,7 +100,7 @@
 		}
 
 		<div class="form-card" id="cp-scope" data-field="serviceIds" tabindex="-1" [attr.aria-invalid]="errors().serviceIds ? 'true' : null" [attr.aria-describedby]="errors().serviceIds ? 'cp-err-serviceIds' : null">
-			<div class="form-card-title">النماذج المشمولة</div>
+			<div class="form-card-title">النماذج المشمولة <span class="ws-req" aria-hidden="true">*</span></div>
 			<div class="form-card-sub">اختر كل {{ isCompanyMode() ? 'نماذج الشركة' : 'نماذجك' }} أو حدّد نماذج معيّنة يُطبَّق عليها الكوبون</div>
 			<div class="seg-row">
 				<button type="button" class="seg-btn" [class.sel]="form().scopeMode === 'all'" (click)="setScopeMode('all')">{{ isCompanyMode() ? 'كل نماذج الشركة' : 'كل نماذجي' }}</button>
@@ -145,7 +145,7 @@
 			@if (errors().internalNote) { <div class="f-err" id="cp-err-internalNote" role="alert">{{ errors().internalNote }}</div> }
 		</div>
 
-		@if (formError(); as fe) { <div class="state-box err" id="cp-form-error" role="alert" data-testid="form-error">{{ fe }}</div> }
+		@if (formError(); as fe) { <div class="state-box err form-error" id="cp-form-error" role="alert" data-testid="form-error">{{ fe }}</div> }
 		<div class="save-bar">
 			<div>
 				@if (needsApproval()) {

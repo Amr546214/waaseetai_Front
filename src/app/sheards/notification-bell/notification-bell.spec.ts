@@ -180,7 +180,7 @@ describe('NotificationBell', () => {
 		expect(component.viewAllLink()).toBe('/marketer-overview/notifications');
 	});
 
-	it('resolves an admin notification against the super-admin dashboard, marks it read on click and hides the non-existent "view all" page', () => {
+	it('resolves an admin notification against the super-admin dashboard, marks it read on click and hides the non-existent "view all" page', async () => {
 		const { fixture, component, getSpy, navSpy } = setup('SUPER_ADMIN', 'CLIENT');
 		getSpy.mockReturnValue(of({
 			success: true,
@@ -192,6 +192,7 @@ describe('NotificationBell', () => {
 		expect(component.notifications()[0].actionUrl).toBe('/supper-admin-overview/disputes/d1');
 		expect(component.viewAllLink()).toBeNull();
 		component.onItemClick(component.notifications()[0]);
+		await new Promise(r => setTimeout(r, 0)); // the read is applied only after the navigation succeeded
 		expect(navSpy).toHaveBeenCalledWith('/supper-admin-overview/disputes/d1', { onSameUrlNavigation: 'reload' });
 		expect(component.notifications()[0].isUnread).toBe(false);
 	});

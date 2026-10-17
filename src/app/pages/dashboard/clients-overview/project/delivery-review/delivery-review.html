@@ -158,8 +158,8 @@
 				}
 				@if (canDecide(stage) && revisionOpen()) {
 					<div class="dr-card" data-testid="dr-revision-form" style="margin-top:12px">
-						<label for="dr-rev-note" class="dr-decision-help" style="display:block;margin-bottom:6px">ما الذي تريد تعديله؟ (يُسجَّل على التسليم ويصل مقدم الخدمة)</label>
-						<textarea id="dr-rev-note" data-testid="dr-revision-note" rows="4" style="width:100%" [(ngModel)]="revisionNote" (ngModelChange)="revisionFieldInvalid.set(false)" name="revisionNote" placeholder="اشرح التعديل المطلوب بوضوح" [class.ws-invalid]="revisionFieldInvalid()" [attr.aria-invalid]="revisionFieldInvalid() ? 'true' : null" [attr.aria-describedby]="revisionFieldInvalid() ? 'dr-rev-err' : null"></textarea>
+						<label for="dr-rev-note" class="dr-decision-help" style="display:block;margin-bottom:6px">ما الذي تريد تعديله؟ (يُسجَّل على التسليم ويصل مقدم الخدمة) <span class="ws-req" aria-hidden="true">*</span></label>
+						<textarea id="dr-rev-note" aria-required="true" data-testid="dr-revision-note" rows="4" style="width:100%" [(ngModel)]="revisionNote" (ngModelChange)="revisionFieldInvalid.set(false)" name="revisionNote" placeholder="اشرح التعديل المطلوب بوضوح" [class.ws-invalid]="revisionFieldInvalid()" [attr.aria-invalid]="revisionFieldInvalid() ? 'true' : null" [attr.aria-describedby]="revisionFieldInvalid() ? 'dr-rev-err' : null"></textarea>
 						@if (revisionError()) { <div class="inline-error" id="dr-rev-err" role="alert" data-testid="dr-revision-error">{{ revisionError() }}</div> }
 						<div class="dr-decision-row" style="margin-top:8px">
 							<button type="button" class="dr-btn-pri" data-testid="dr-revision-send" (click)="requestRevision()" [disabled]="saving()">{{ saving() ? 'جارٍ الإرسال...' : 'إرسال طلب التعديل' }}</button>

@@ -351,7 +351,7 @@
         </div>
         <div class="checkout-wrap">
           @if (checkoutBlockedMessage()) {
-            <div class="checkout-blocked-msg">{{ checkoutBlockedMessage() }}</div>
+            <div class="checkout-blocked-msg" role="alert">{{ checkoutBlockedMessage() }}</div>
           }
           <button class="btn-checkout" type="button" [disabled]="itemCount() === 0" (click)="proceedToCheckout()">
             <svg aria-hidden="true"><use href="#ws-lock"></use></svg>
