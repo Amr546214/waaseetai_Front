@@ -24,10 +24,16 @@
       <div class="text-[14px] font-black text-white pricing-title">مراحل تنفيذ عرضك</div>
       <div class="text-[11px] text-[#6B7699] mt-[2px]">حد أدنى مرحلة واحدة · مجموع النسب = 100%</div>
     </div>
-    <button type="button" (click)="addMilestone.emit()" class="ms-auto inline-flex items-center gap-[6px] px-4 py-2 bg-[rgba(43,212,199,.10)] border border-[rgba(43,212,199,.25)] rounded-[9px] text-[#2BD4C7] text-[12px] font-extrabold cursor-pointer transition-all duration-150 hover:bg-[rgba(43,212,199,.15)]">
-      <svg class="w-[14px] h-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      إضافة مرحلة
-    </button>
+    <div class="ms-auto flex items-center gap-2">
+      <button type="button" [disabled]="isFetchingAiSuggest" (click)="useAISuggest.emit()" class="inline-flex items-center gap-[6px] px-3.5 py-2 bg-[rgba(123,47,190,.12)] border border-[rgba(123,47,190,.28)] rounded-[9px] text-[#A56BE0] text-[12px] font-extrabold cursor-pointer transition-all duration-150 hover:bg-[rgba(123,47,190,.20)] disabled:opacity-50 disabled:cursor-not-allowed">
+        <svg class="w-[14px] h-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg>
+        <span>{{ isFetchingAiSuggest ? 'جاري التوزيع...' : 'توزيع المراحل بـ AI' }}</span>
+      </button>
+      <button type="button" (click)="addMilestone.emit()" class="inline-flex items-center gap-[6px] px-4 py-2 bg-[rgba(43,212,199,.10)] border border-[rgba(43,212,199,.25)] rounded-[9px] text-[#2BD4C7] text-[12px] font-extrabold cursor-pointer transition-all duration-150 hover:bg-[rgba(43,212,199,.15)]">
+        <svg class="w-[14px] h-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        إضافة مرحلة
+      </button>
+    </div>
   </div>
 
   <!-- Total Proposal Budget & Execution Time Summary Controls -->
@@ -142,7 +148,7 @@
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#6B7699]">المبلغ عند التسليم</label>
             <div class="h-[38px] flex items-center text-[14px] font-black text-[#2BD4C7] px-3 bg-[rgba(43,212,199,.07)] border border-[rgba(43,212,199,.18)] rounded-[10px]">
-              {{ getAmount(m.pct) | number:'1.0-2' }} ر
+              {{ getAmount(m.pct) | number:'1.0-2' }} $
             </div>
           </div>
         </div>
@@ -176,7 +182,7 @@
       @for(m of proposal.milestones; track m.id; let i = $index) {
         <div class="p-[8px_12px] bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.18)] rounded-[9px] text-center min-w-[90px]">
           <div class="text-[10px] text-[#6B7699]">مرحلة {{ i + 1 }}</div>
-          <div class="text-[15px] font-black text-[#2BD4C7]">{{ getAmount(m.pct) | number:'1.0-2' }} ر</div>
+          <div class="text-[15px] font-black text-[#2BD4C7]">{{ getAmount(m.pct) | number:'1.0-2' }} $</div>
           <div class="text-[10px] text-[#6B7699]">{{ m.pct || 0 }}%</div>
         </div>
       }
@@ -203,7 +209,7 @@
             </div>
             <div class="text-center text-[12px] text-[#A8B2D1] pricing-label">{{ m.days ? m.days + ' يوم' : '—' }}</div>
             <div class="text-center text-[13px] font-extrabold text-[#2BD4C7]">{{ m.pct ? m.pct + '%' : '—' }}</div>
-            <div class="text-center text-[13px] font-extrabold text-[#A8B2D1] pricing-label">{{ getAmount(m.pct) ? (getAmount(m.pct) | number:'1.0-2') + ' ر' : '—' }}</div>
+            <div class="text-center text-[13px] font-extrabold text-[#A8B2D1] pricing-label">{{ getAmount(m.pct) ? (getAmount(m.pct) | number:'1.0-2') + ' $' : '—' }}</div>
           </div>
         }
         
@@ -215,7 +221,7 @@
           <div class="text-[12px] font-extrabold text-[#A8B2D1] pricing-label">المجموع</div>
           <div class="text-center text-[13px] font-black text-white pricing-title">{{ totalDays > 0 ? totalDays + ' يوم' : '—' }}</div>
           <div class="text-center text-[13px] font-black" [class.text-[#2BD4C7]]="totalPct === 100" [class.text-[#FF8C69]]="totalPct !== 100">{{ totalPct }}%</div>
-          <div class="text-center text-[13px] font-black text-[#2BD4C7]">{{ totalAmount > 0 ? (totalAmount | number:'1.0-2') + ' ر' : '—' }}</div>
+          <div class="text-center text-[13px] font-black text-[#2BD4C7]">{{ totalAmount > 0 ? (totalAmount | number:'1.0-2') + ' $' : '—' }}</div>
         </div>
       </div>
     </div>

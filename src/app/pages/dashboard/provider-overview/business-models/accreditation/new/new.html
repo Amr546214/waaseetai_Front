@@ -82,7 +82,8 @@
 				(githubUrlChange)="githubUrl.set($event)" [attachments]="attachments()"
 				(onFileSelected)="onFileSelected($event)" (onHandleDrop)="handleDrop($event)"
 				(onRemoveAttachment)="removeAttachment($event)" [fieldErrors]="fieldErrors()" [existingProofs]="existingProofs()"
-				[highlightFields]="highlightFields()" (onRemoveExistingProof)="removeExistingProof($event)">
+				[highlightFields]="highlightFields()" (onRemoveExistingProof)="removeExistingProof($event)"
+				[isAiSuggesting]="isAiSuggesting()" [aiSuggestError]="aiSuggestError()" (onAiSuggest)="suggestSampleWithAi()">
 			</app-step2-upload>
 		</ng-container>
 

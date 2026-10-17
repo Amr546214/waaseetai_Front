@@ -23,7 +23,14 @@ export const SKILLS_PICKER_MAX = 30;
 			@if (!options().length) {
 			<p class="skp-empty" data-testid="skills-need-field" role="status">{{ emptyMessage() }}</p>
 			} @else {
-			<input type="search" class="skp-search" data-testid="skills-search" [value]="query()" (input)="query.set($any($event.target).value)" placeholder="ابحث في مهارات مجالك…" autocomplete="off" [disabled]="full()" />
+			<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+				<input type="search" class="skp-search" style="flex:1;min-width:200px" data-testid="skills-search" [value]="query()" (input)="query.set($any($event.target).value)" placeholder="ابحث في مهارات مجالك…" autocomplete="off" [disabled]="full()" />
+				@if (!full() && batchCandidates().length > 1) {
+				<button type="button" class="skp-batch-btn" data-testid="skills-add-batch" (click)="addBatch()">
+					⚡ {{ query().trim() ? 'إضافة نتائج البحث دفعة واحدة' : 'إضافة مجموعة سريعة' }} (+{{ batchCandidates().length }})
+				</button>
+				}
+			</div>
 			<div class="skp-list" role="listbox" aria-label="مهارات المجال" data-testid="skills-options">
 				@for (opt of visible(); track opt) {
 				<button type="button" class="skp-opt" role="option" [attr.data-skill]="opt" (click)="add(opt)">+ {{ opt }}</button>
@@ -42,6 +49,8 @@ export const SKILLS_PICKER_MAX = 30;
 		.skp-x{border:0;background:transparent;color:inherit;cursor:pointer;font-size:16px;line-height:1;padding:0 4px;border-radius:50%}
 		.skp-x:hover{background:rgba(255,255,255,.14)}
 		.skp-search{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--border,rgba(255,255,255,.14));background:var(--surface,rgba(255,255,255,.04));color:var(--txt,#fff);font-family:inherit}
+		.skp-batch-btn{padding:9px 14px;border-radius:10px;border:1px solid rgba(43,127,255,.45);background:rgba(43,127,255,.15);color:var(--txt,#fff);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+		.skp-batch-btn:hover{background:rgba(43,127,255,.26)}
 		.skp-list{display:flex;flex-wrap:wrap;gap:8px;max-height:210px;overflow:auto;padding:2px}
 		.skp-opt{padding:6px 12px;border-radius:999px;border:1px dashed var(--border,rgba(255,255,255,.25));background:transparent;color:var(--txt,#fff);font-size:12.5px;cursor:pointer;font-family:inherit}
 		.skp-opt:hover,.skp-opt:focus-visible{border-style:solid;border-color:#2B7FFF;background:rgba(43,127,255,.12);outline:none}
@@ -62,10 +71,21 @@ export class SkillsPickerComponent {
 		const taken = new Set(this.selected());
 		return this.options().filter(o => !taken.has(o) && (!q || o.toLowerCase().includes(q)));
 	});
+	protected readonly batchCandidates = computed(() => {
+		const remaining = Math.max(0, SKILLS_PICKER_MAX - this.selected().length);
+		const limit = this.query().trim() ? remaining : Math.min(8, remaining);
+		return this.visible().slice(0, limit);
+	});
 
 	protected add(skill: string): void {
 		if (this.full() || this.selected().includes(skill) || !this.options().includes(skill)) return;
 		this.selectedChange.emit([...this.selected(), skill]);
+	}
+
+	protected addBatch(): void {
+		const batch = this.batchCandidates();
+		if (!batch.length) return;
+		this.selectedChange.emit([...this.selected(), ...batch]);
 	}
 
 	protected remove(skill: string): void {

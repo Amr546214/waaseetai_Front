@@ -521,3 +521,21 @@ select option{background:#0B1437;color:#fff}select optgroup{background:#0B1437;c
 :host-context(body.light-theme) .miss-badge.is-pending,:host-context(body.theme-light) .miss-badge.is-pending,:host-context(.light-theme) .miss-badge.is-pending,:host-context(.theme-light) .miss-badge.is-pending{color:#1D4ED8;background:rgba(43,127,255,.16)}
 :host-context(body.light-theme) .miss-badge.is-rejected,:host-context(body.theme-light) .miss-badge.is-rejected,:host-context(.light-theme) .miss-badge.is-rejected,:host-context(.theme-light) .miss-badge.is-rejected{color:#B91C1C;background:rgba(248,113,113,.18)}
 @media (max-width:640px){.miss-box{padding:12px}.miss-link{padding:10px 12px;min-height:68px}}
+
+/* ===== Per-field draft badge, original value & revert button ===== */
+.draft-pill{display:inline-flex;align-items:center;gap:4px;margin-inline-start:6px;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:800;background:rgba(245,158,11,.16);border:1px solid rgba(245,158,11,.38);color:#FBBF24;vertical-align:middle}
+.inp-field.inp-draft,.skills-chips.inp-draft,.avatar-circle.inp-draft{border-color:rgba(245,158,11,.55)!important;box-shadow:0 0 0 2px rgba(245,158,11,.10)}
+.field-draft-box{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:5px;padding:7px 11px;border-radius:9px;background:rgba(245,158,11,.08);border:1px dashed rgba(245,158,11,.35);font-size:11.5px;line-height:1.5}
+.field-draft-badge{font-weight:800;color:#FBBF24;white-space:nowrap}
+.field-draft-orig{flex:1;min-width:140px;color:#CBD5E1;overflow-wrap:anywhere}
+.field-draft-orig strong{color:#fff;font-weight:700}
+.field-draft-revert{padding:4px 10px;border-radius:7px;border:1px solid rgba(43,212,199,.35);background:rgba(43,212,199,.12);color:#2BD4C7;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+.field-draft-revert:hover{background:rgba(43,212,199,.22);border-color:rgba(43,212,199,.55)}
+
+:host-context(body.light-theme) .draft-pill,:host-context(body.theme-light) .draft-pill,:host-context(.light-theme) .draft-pill,:host-context(.theme-light) .draft-pill{background:rgba(245,158,11,.18);border-color:rgba(245,158,11,.42);color:#92400E}
+:host-context(body.light-theme) .field-draft-box,:host-context(body.theme-light) .field-draft-box,:host-context(.light-theme) .field-draft-box,:host-context(.theme-light) .field-draft-box{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.38)}
+:host-context(body.light-theme) .field-draft-badge,:host-context(body.theme-light) .field-draft-badge,:host-context(.light-theme) .field-draft-badge,:host-context(.theme-light) .field-draft-badge{color:#92400E}
+:host-context(body.light-theme) .field-draft-orig,:host-context(body.theme-light) .field-draft-orig,:host-context(.light-theme) .field-draft-orig,:host-context(.theme-light) .field-draft-orig{color:#475569}
+:host-context(body.light-theme) .field-draft-orig strong,:host-context(body.theme-light) .field-draft-orig strong,:host-context(.light-theme) .field-draft-orig strong,:host-context(.theme-light) .field-draft-orig strong{color:#0F172A}
+:host-context(body.light-theme) .field-draft-revert,:host-context(body.theme-light) .field-draft-revert,:host-context(.light-theme) .field-draft-revert,:host-context(.theme-light) .field-draft-revert{background:rgba(15,169,154,.14);border-color:rgba(15,169,154,.38);color:#0A6F64}
+

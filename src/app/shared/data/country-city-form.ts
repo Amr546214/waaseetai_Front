@@ -15,11 +15,12 @@ import { isCityOf, normalizeCountry } from './countries-cities';
 export function linkCountryCity(
 	group: AbstractControl | null,
 	destroyRef: DestroyRef,
-	keys: { country: string; city: string } = { country: 'country', city: 'city' },
+	keys: { country: string; city: string; requireCity?: boolean } = { country: 'country', city: 'city', requireCity: true },
 ): void {
 	const country = group?.get(keys.country);
 	const city = group?.get(keys.city);
 	if (!country || !city) return;
+	const requireCity = keys.requireCity !== false;
 
 	// Saved spellings like 'المملكة العربية السعودية' / 'غير ذلك' become the canonical option value.
 	const canonical = normalizeCountry(country.value);
@@ -27,8 +28,8 @@ export function linkCountryCity(
 	let previous = canonical;
 	const syncRequired = () => {
 		const hasCountry = !!normalizeCountry(country.value);
-		if (hasCountry && !city.hasValidator(Validators.required)) city.addValidators(Validators.required);
-		if (!hasCountry && city.hasValidator(Validators.required)) city.removeValidators(Validators.required);
+		if (requireCity && hasCountry && !city.hasValidator(Validators.required)) city.addValidators(Validators.required);
+		if ((!requireCity || !hasCountry) && city.hasValidator(Validators.required)) city.removeValidators(Validators.required);
 		// No country yet => the city select is disabled (its placeholder says to pick the country first).
 		if (hasCountry && city.disabled) city.enable({ emitEvent: false });
 		if (!hasCountry && city.enabled) city.disable({ emitEvent: false });

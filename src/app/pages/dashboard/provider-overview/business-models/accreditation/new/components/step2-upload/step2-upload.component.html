@@ -1,10 +1,28 @@
 			<div class="max-w-full mx-auto text-right">
-				<div class="mb-6">
-					<h2 class="text-xl font-black text-[var(--txt)]">بيانات نموذج الاعتماد والمرفقات الفنية</h2>
-					<p class="text-xs text-[var(--txt-3)] mt-1">
-						أدخل التفاصيل المعمارية والروابط والمرفقات ليراجعه فريق وسيط يدوياً قبل الاعتماد.
-					</p>
+				<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+					<div>
+						<h2 class="text-xl font-black text-[var(--txt)]">بيانات نموذج الاعتماد والمرفقات الفنية</h2>
+						<p class="text-xs text-[var(--txt-3)] mt-1">
+							أدخل التفاصيل المعمارية والروابط والمرفقات ليراجعه فريق وسيط يدوياً قبل الاعتماد.
+						</p>
+					</div>
+					<button type="button" (click)="onAiSuggest.emit()" [disabled]="isAiSuggesting"
+						class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold border border-[rgba(43,212,199,.35)] bg-gradient-to-l from-[rgba(43,212,199,.18)] to-[rgba(43,127,255,.15)] text-[#2BD4C7] hover:from-[rgba(43,212,199,.28)] hover:to-[rgba(43,127,255,.25)] disabled:opacity-50 transition-all cursor-pointer shrink-0">
+						<span *ngIf="!isAiSuggesting">✨ {{ (title.trim() || description.trim()) ? 'تحسين بيانات النموذج بالـ AI' : 'كتابة بيانات النموذج بالـ AI' }}</span>
+						<span *ngIf="isAiSuggesting" class="inline-flex items-center gap-2">
+							<svg class="animate-spin w-4 h-4 text-[#2BD4C7]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+							</svg>
+							جارٍ توليد وصياغة البيانات...
+						</span>
+					</button>
 				</div>
+				@if (aiSuggestError) {
+					<div class="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-400/30 text-xs font-bold text-red-400" role="alert">
+						{{ aiSuggestError }}
+					</div>
+				}
 
 				<div class="bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-2xl p-6 mb-6 space-y-5">
 					<!-- Title -->
@@ -23,27 +41,24 @@
 						<label class="block text-xs font-extrabold text-[var(--txt)] mb-2">
 							الوصف الفني والمعماري للمشروع <span class="ws-req" aria-hidden="true">*</span>
 						</label>
-						<textarea id="acc-description" aria-required="true" rows="4" [ngModel]="description" (ngModelChange)="descriptionChange.emit($event)" [attr.aria-invalid]="err('description') ? 'true' : null" [attr.aria-describedby]="err('description') ? 'acc-description-err' : null" [style.border-color]="flagged('description') ? '#FF6B6B' : null"
+						<textarea id="acc-description" aria-required="true" rows="9" [ngModel]="description" (ngModelChange)="descriptionChange.emit($event)" [attr.aria-invalid]="err('description') ? 'true' : null" [attr.aria-describedby]="err('description') ? 'acc-description-err' : null" [style.border-color]="flagged('description') ? '#FF6B6B' : null"
 							placeholder="اشرح البنية الفنية، أنماط التصميم (Design Patterns)، خوارزميات الأمان والتحكم، وقواعد البيانات المستعملة..."
-							class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl p-4 text-sm text-[var(--txt)] placeholder-[var(--txt-3)] focus:outline-none focus:border-[#2BD4C7] transition-all dir-rtl leading-relaxed"></textarea>
+							class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl p-4 text-sm text-[var(--txt)] placeholder-[var(--txt-3)] focus:outline-none focus:border-[#2BD4C7] transition-all dir-rtl leading-7 whitespace-pre-wrap"></textarea>
 						@if (err('description')) { <p id="acc-description-err" role="alert" class="mt-1 text-[11px] font-bold field-err" data-testid="err-description">{{ err('description') }}</p> }
 					</div>
 
 					<!-- Tech Stack Tags -->
 					<div>
-						<label for="acc-tech" class="block text-xs font-extrabold text-[var(--txt)] mb-2">
-							التقنيات والمكتبات المستخدمة (Tech Stack) <span class="ws-req" aria-hidden="true">*</span>
+						<label for="acc-tech" class="flex items-center justify-between text-xs font-extrabold text-[var(--txt)] mb-2">
+							<span>التقنيات والمكتبات المستخدمة (Tech Stack) <span class="ws-req" aria-hidden="true">*</span></span>
+							@if (technologiesUsed.length > 0) {
+								<span class="px-2.5 py-0.5 rounded-full bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.25)] text-[#2BD4C7] text-[11px] font-bold">
+									✓ تمت إضافة {{ technologiesUsed.length }} تقنيات
+								</span>
+							}
 						</label>
-						<div class="flex items-center gap-2 mb-3">
-							<input type="text" id="acc-tech" aria-required="true" [ngModel]="techInput" (ngModelChange)="techInputChange.emit($event)"
-								(keyup.enter)="addTechTag()" placeholder="أدخل اسم التقنية (مثال: NestJS) واضغط Enter"
-								class="flex-1 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-4 py-2.5 text-xs text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] dir-rtl" />
-							<button type="button" (click)="addTechTag()"
-								class="px-4 py-2.5 bg-[rgba(43,212,199,.15)] border border-[rgba(43,212,199,.3)] text-[#2BD4C7] text-xs font-bold rounded-xl hover:bg-[rgba(43,212,199,.25)] transition-all cursor-pointer">
-								+ إضافة
-							</button>
-						</div>
-						<div class="flex flex-wrap gap-2">
+						@if (technologiesUsed.length > 0) {
+						<div class="flex flex-wrap gap-2 mb-3 p-3 rounded-xl bg-[var(--sec-bg)] border border-[var(--sec-bd)]">
 							@for (tag of technologiesUsed; track tag) {
 							<span
 								class="inline-flex items-center gap-1.5 px-3 py-1 bg-[rgba(43,212,199,.1)] border border-[rgba(43,212,199,.25)] text-[#2BD4C7] rounded-lg text-xs font-extrabold">
@@ -52,6 +67,16 @@
 									class="hover:text-[#FF6B6B] text-xs font-bold cursor-pointer">×</button>
 							</span>
 							}
+						</div>
+						}
+						<div class="flex items-center gap-2">
+							<input type="text" id="acc-tech" [attr.aria-required]="technologiesUsed.length === 0 ? 'true' : null" [ngModel]="techInput" (ngModelChange)="techInputChange.emit($event)"
+								(keyup.enter)="addTechTag()" [placeholder]="technologiesUsed.length > 0 ? 'أضف تقنية أخرى اختيارياً واضغط Enter...' : 'أدخل اسم التقنية (مثال: Angular) واضغط Enter'"
+								class="flex-1 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-4 py-2.5 text-xs text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] dir-rtl" />
+							<button type="button" (click)="addTechTag()"
+								class="px-4 py-2.5 bg-[rgba(43,212,199,.15)] border border-[rgba(43,212,199,.3)] text-[#2BD4C7] text-xs font-bold rounded-xl hover:bg-[rgba(43,212,199,.25)] transition-all cursor-pointer">
+								+ إضافة
+							</button>
 						</div>
 					</div>
 

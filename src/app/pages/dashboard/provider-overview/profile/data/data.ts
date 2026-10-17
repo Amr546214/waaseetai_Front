@@ -17,6 +17,7 @@ import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { OtpInputComponent } from '../../../../../shared/forms/otp-input.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { birthDateValidator, dobInputValue } from '../../../../../core/forms/birth-date';
 import { canonicalStoredPhone, phoneCountryView, type PhoneCountryView } from '../../../../../core/forms/phone-countries';
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
@@ -223,6 +224,239 @@ export class Data implements OnInit {
   specialtyWarning = signal('');
   private storedMainSpecialty = '';
   private storedSubSpecialties: string[] = [];
+  private isPatchingProfile = false;
+  hasDraft = signal(false);
+  draftSavedAt = signal<string | null>(null);
+  savedSnapshot = signal<Record<string, any>>({});
+  formTick = signal(0);
+
+  readonly trackedDraftFields = [
+    'avatarUrl', 'firstName', 'lastName', 'headline', 'dob', 'specialty',
+    'subSpecialties', 'country', 'city', 'bio', 'websiteUrl', 'linkedinUrl',
+    'githubUrl', 'uiLanguage', 'timezone'
+  ];
+
+  draftFieldsCount = computed(() => {
+    this.formTick();
+    return this.trackedDraftFields.filter(f => this.isFieldDraft(f)).length;
+  });
+
+  private draftStorageKey(): string {
+    const uid = this.currentProfileData?.userId || this.authStore.currentUser()?.id || 'current';
+    return `waseet_provider_profile_draft_${uid}`;
+  }
+
+  isFieldDraft(field: string): boolean {
+    this.formTick();
+    const snap = this.savedSnapshot();
+    if (!this.currentProfileData || !snap || !Object.keys(snap).length) return false;
+    if (field === 'avatarUrl') {
+      return this.avatarDirty && (this.avatarUrl() ?? null) !== (snap['avatarUrl'] ?? null);
+    }
+    if (field === 'subSpecialties') {
+      const curr = [...this.selectedSubSpecs()].map(s => s.trim()).filter(Boolean).sort();
+      const orig = [...(snap['subSpecialties'] || [])].map((s: string) => s.trim()).filter(Boolean).sort();
+      return JSON.stringify(curr) !== JSON.stringify(orig);
+    }
+    if (field === 'specialty') {
+      const currRaw = String(this.profileForm?.get('specialty')?.value ?? '').trim();
+      const origRaw = String(snap['specialty'] ?? '').trim();
+      const currNorm = this.categoryOf(currRaw)?.slug || currRaw;
+      const origNorm = this.categoryOf(origRaw)?.slug || origRaw;
+      return currNorm !== origNorm;
+    }
+    if (field === 'country') {
+      const curr = normalizeCountry(this.profileForm?.get('country')?.value) || '';
+      const orig = normalizeCountry(snap['country']) || '';
+      return curr !== orig;
+    }
+    const curr = String(this.profileForm?.get(field)?.value ?? '').trim();
+    const orig = String(snap[field] ?? '').trim();
+    return curr !== orig;
+  }
+
+  originalFieldDisplay(field: string): string {
+    this.formTick();
+    const snap = this.savedSnapshot();
+    if (!snap || !Object.keys(snap).length) return 'فارغ (غير محدد)';
+    if (field === 'avatarUrl') {
+      return snap['avatarUrl'] ? 'صورة محفوظة على الحساب' : 'بدون صورة محفوظة';
+    }
+    if (field === 'subSpecialties') {
+      const list: string[] = Array.isArray(snap['subSpecialties']) ? snap['subSpecialties'] : [];
+      return list.length ? list.join('، ') : 'فارغ (غير محدد)';
+    }
+    if (field === 'specialty') {
+      const raw = String(snap['specialty'] ?? '').trim();
+      if (!raw) return 'فارغ (غير محدد)';
+      return this.categoryOf(raw)?.nameAr || raw;
+    }
+    if (field === 'uiLanguage') {
+      const v = String(snap['uiLanguage'] ?? 'ar').trim();
+      return v === 'en' ? 'English' : 'العربية';
+    }
+    if (field === 'timezone') {
+      const v = String(snap['timezone'] ?? 'Asia/Riyadh').trim();
+      if (v === 'Asia/Riyadh') return 'توقيت الرياض (GMT+3)';
+      return v || 'فارغ (غير محدد)';
+    }
+    const val = String(snap[field] ?? '').trim();
+    return val ? val : 'فارغ (غير محدد)';
+  }
+
+  revertField(field: string) {
+    const snap = this.savedSnapshot();
+    if (!snap || !this.profileForm) return;
+    this.isPatchingProfile = true;
+    try {
+      if (field === 'avatarUrl') {
+        this.avatarUrl.set(snap['avatarUrl'] ?? null);
+        this.avatarDirty = false;
+        this.avatarError.set('');
+      } else if (field === 'subSpecialties') {
+        this.selectedSubSpecs.set([...(snap['subSpecialties'] || [])]);
+      } else if (field === 'specialty') {
+        const origSpec = String(snap['specialty'] ?? '');
+        this.storedMainSpecialty = origSpec;
+        this.specialtyWarning.set('');
+        this.applyTaxonomy();
+      } else if (field === 'country') {
+        const origCountry = normalizeCountry(snap['country']) || '';
+        this.profileForm.get('country')?.setValue(origCountry);
+        const origCity = String(snap['city'] ?? '');
+        if (origCountry) {
+          this.profileForm.get('city')?.enable({ emitEvent: false });
+          if (!this.profileForm.get('city')?.value && origCity) {
+            this.profileForm.get('city')?.setValue(origCity, { emitEvent: false });
+          }
+        } else {
+          this.profileForm.get('city')?.setValue('', { emitEvent: false });
+          this.profileForm.get('city')?.disable({ emitEvent: false });
+        }
+      } else {
+        const ctrl = this.profileForm.get(field);
+        if (ctrl) {
+          ctrl.setValue(snap[field] ?? '', { emitEvent: false });
+          ctrl.markAsPristine();
+          ctrl.markAsUntouched();
+          ctrl.updateValueAndValidity({ emitEvent: false });
+        }
+      }
+    } finally {
+      this.isPatchingProfile = false;
+    }
+    this.formTick.update(n => n + 1);
+    if (this.trackedDraftFields.some(f => this.isFieldDraft(f))) {
+      this.saveDraft(false);
+    } else {
+      this.clearDraftStorage();
+    }
+    this.ui.info('تم إرجاع الخانة إلى الأصل المحفوظ');
+  }
+
+  saveDraft(notify = true) {
+    if (!isPlatformBrowser(this.platformId) || !this.profileForm) return;
+    this.formTick.update(n => n + 1);
+    if (!notify && Object.keys(this.savedSnapshot()).length && !this.trackedDraftFields.some(f => this.isFieldDraft(f))) {
+      this.clearDraftStorage();
+      return;
+    }
+    try {
+      const raw = this.profileForm.getRawValue();
+      const now = new Date();
+      const label = new Intl.DateTimeFormat('ar', { hour: '2-digit', minute: '2-digit' }).format(now);
+      const payload = {
+        values: {
+          firstName: raw.firstName,
+          lastName: raw.lastName,
+          headline: raw.headline,
+          specialty: raw.specialty,
+          dob: raw.dob,
+          country: raw.country,
+          city: raw.city,
+          address: raw.address,
+          bio: raw.bio,
+          websiteUrl: raw.websiteUrl,
+          linkedinUrl: raw.linkedinUrl,
+          twitterUrl: raw.twitterUrl,
+          githubUrl: raw.githubUrl,
+          uiLanguage: raw.uiLanguage,
+          timezone: raw.timezone,
+          notifyEmail: raw.notifyEmail,
+          notifySms: raw.notifySms,
+          notifyInApp: raw.notifyInApp,
+          notifyWhatsapp: raw.notifyWhatsapp,
+        },
+        selectedSubSpecs: this.selectedSubSpecs(),
+        avatarDirty: this.avatarDirty,
+        avatarUrl: this.avatarDirty ? this.avatarUrl() : undefined,
+        savedAt: now.toISOString(),
+        savedAtLabel: label,
+      };
+      localStorage.setItem(this.draftStorageKey(), JSON.stringify(payload));
+      this.hasDraft.set(true);
+      this.draftSavedAt.set(label);
+      if (notify) {
+        this.ui.success('تم حفظ التعديلات في المسودة — لن تضيع عند إعادة التحميل');
+      }
+    } catch {
+      if (notify) this.ui.warning('تعذر حفظ المسودة محلياً');
+    }
+  }
+
+  clearDraftStorage() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      localStorage.removeItem(this.draftStorageKey());
+      localStorage.removeItem('waseet_provider_profile_draft_current');
+    } catch { /* ignore */ }
+    this.hasDraft.set(false);
+    this.draftSavedAt.set(null);
+    this.formTick.update(n => n + 1);
+  }
+
+  discardDraft() {
+    this.clearDraftStorage();
+    this.loadProfile(true);
+    this.ui.info('تم مسح المسودة واستعادة البيانات المحفوظة');
+  }
+
+  private restoreDraftIfPresent() {
+    if (!isPlatformBrowser(this.platformId) || !this.profileForm) return;
+    try {
+      const rawJson = localStorage.getItem(this.draftStorageKey()) || localStorage.getItem('waseet_provider_profile_draft_current');
+      if (!rawJson) return;
+      const draft = JSON.parse(rawJson);
+      if (!draft || typeof draft !== 'object' || !draft.values) return;
+      this.isPatchingProfile = true;
+      this.profileForm.patchValue(draft.values, { emitEvent: false });
+      const countryVal = normalizeCountry(draft.values.country);
+      if (countryVal) {
+        this.profileForm.get('country')?.setValue(countryVal, { emitEvent: false });
+        this.profileForm.get('city')?.enable({ emitEvent: false });
+        if (draft.values.city) {
+          this.profileForm.get('city')?.setValue(draft.values.city, { emitEvent: false });
+        }
+      }
+      if (Array.isArray(draft.selectedSubSpecs)) {
+        this.selectedSubSpecs.set(draft.selectedSubSpecs);
+      }
+      if (draft.values.specialty) {
+        this.storedMainSpecialty = String(draft.values.specialty);
+      }
+      if (draft.avatarDirty) {
+        this.avatarUrl.set(draft.avatarUrl ?? null);
+        this.avatarDirty = true;
+      }
+      this.hasDraft.set(true);
+      this.draftSavedAt.set(draft.savedAtLabel || null);
+    } catch {
+      // ignore malformed draft
+    } finally {
+      this.isPatchingProfile = false;
+      this.formTick.update(n => n + 1);
+    }
+  }
 
   ngOnInit() {
     // e.g. the withdraw page links to ?tab=payout to add the PayPal email.
@@ -231,17 +465,17 @@ export class Data implements OnInit {
     if (tab === 'payout' || tab === 'docs' || tab === 'contact') this.currentTab.set(tab);
 
     this.profileForm = this.fb.group({
-      firstName: ['', [requiredTrim, maxTrim(60)]],
-      lastName: ['', [requiredTrim, maxTrim(60)]],
-      headline: ['', [requiredTrim, maxTrim(100)]],
+      firstName: ['', [maxTrim(60)]],
+      lastName: ['', [maxTrim(60)]],
+      headline: ['', [maxTrim(100)]],
       hourlyRate: [null as number | null, Validators.min(0)],
       yearsOfExperience: [null as number | null, Validators.min(0)],
-      availabilityStatus: ['AVAILABLE', Validators.required],
-      specialty: ['', requiredTrim],
+      availabilityStatus: ['AVAILABLE'],
+      specialty: [''],
       // Date of birth: private to the owner, optional, frozen once the account is verified.
       dob: ['', birthDateValidator],
-      country: ['', Validators.required],
-      city: ['', Validators.required],
+      country: [''],
+      city: [''],
       address: [''],
       bio: ['', Validators.maxLength(500)],
       websiteUrl: ['', httpUrl],
@@ -258,7 +492,13 @@ export class Data implements OnInit {
       notifyWhatsapp: [false]
     });
 
-    linkCountryCity(this.profileForm, this.destroyRef);
+    linkCountryCity(this.profileForm, this.destroyRef, { country: 'country', city: 'city', requireCity: false });
+
+    this.profileForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (!this.isPatchingProfile && this.currentProfileData) {
+        this.saveDraft(false);
+      }
+    });
 
     this.payoutForm = this.fb.group({
       paypalPayoutEmail: ['', paypalEmailValidators]
@@ -295,16 +535,17 @@ export class Data implements OnInit {
     return this.profileForm.get('languagesArray') as FormArray;
   }
 
-  loadProfile() {
+  loadProfile(skipDraftRestore = false) {
     this.profileService.getProfile().subscribe({
       next: (profile: any) => {
         if (profile) {
           this.currentProfileData = profile;
+          this.isPatchingProfile = true;
           this.dobLocked.set(profile.kycStatus === 'VERIFIED' && !!profile.dob);
           if (this.dobLocked()) this.profileForm.get('dob')?.disable({ emitEvent: false }); else this.profileForm.get('dob')?.enable({ emitEvent: false });
           this.profileForm.patchValue({
-            firstName: profile.user?.firstName || '',
-            lastName: profile.user?.lastName || '',
+            firstName: profile.firstName || profile.user?.firstName || '',
+            lastName: profile.lastName || profile.user?.lastName || '',
             headline: profile.headline || '',
             specialty: profile.mainSpecialty || '',
             dob: dobInputValue(profile.dob),
@@ -325,7 +566,7 @@ export class Data implements OnInit {
             notifySms: profile.preferences?.notifySms ?? true,
             notifyInApp: profile.preferences?.notifyInApp ?? true,
             notifyWhatsapp: profile.preferences?.notifyWhatsapp ?? false,
-          });
+          }, { emitEvent: false });
 
           // The avatar the provider edits lives on the provider profile (the legacy user column is only a fallback).
           this.avatarUrl.set(profile.avatarUrl || profile.user?.avatarUrl || null);
@@ -380,7 +621,31 @@ export class Data implements OnInit {
           this.storedMainSpecialty = String(profile.mainSpecialty || '');
           this.storedSubSpecialties = Array.isArray(profile.subSpecialties) ? profile.subSpecialties : [];
           this.selectedSubSpecs.set([...this.storedSubSpecialties]);
+
+          this.savedSnapshot.set({
+            avatarUrl: profile.avatarUrl || profile.user?.avatarUrl || null,
+            firstName: String(profile.firstName || profile.user?.firstName || '').trim(),
+            lastName: String(profile.lastName || profile.user?.lastName || '').trim(),
+            headline: String(profile.headline || '').trim(),
+            specialty: String(profile.mainSpecialty || '').trim(),
+            subSpecialties: [...this.storedSubSpecialties],
+            dob: dobInputValue(profile.dob) || '',
+            country: normalizeCountry(profile.country) || '',
+            city: String(profile.city || '').trim(),
+            bio: String(profile.bio || '').trim(),
+            websiteUrl: String(profile.websiteUrl || '').trim(),
+            linkedinUrl: String(profile.linkedinUrl || '').trim(),
+            githubUrl: String(profile.githubUrl || '').trim(),
+            uiLanguage: profile.preferences?.uiLanguage || 'ar',
+            timezone: profile.preferences?.timezone || 'Asia/Riyadh',
+          });
+
+          if (!skipDraftRestore) {
+            this.restoreDraftIfPresent();
+          }
+          this.isPatchingProfile = false;
           this.applyTaxonomy();
+          this.formTick.update(n => n + 1);
 
           // Sync relations
           this.skillsList.set(profile.skills || []);
@@ -400,6 +665,7 @@ export class Data implements OnInit {
         }
       },
       error: (err) => {
+        this.isPatchingProfile = false;
         console.error('Error loading profile', err);
         this.ui.httpError(err, { fallback: 'تعذر تحميل بيانات الملف المهني. أعد تحميل الصفحة قبل الحفظ' });
       }
@@ -421,7 +687,8 @@ export class Data implements OnInit {
     reader.onload = () => {
       this.avatarUrl.set(reader.result as string);
       this.avatarDirty = true;
-      this.ui.info('تم اختيار الصورة، سيتم حفظها عند النقر على حفظ');
+      this.saveDraft(false);
+      this.ui.info('تم اختيار الصورة وحفظها في المسودة، اضغط حفظ التعديلات لاعتمادها');
     };
     reader.readAsDataURL(file);
     input.value = '';
@@ -431,6 +698,7 @@ export class Data implements OnInit {
     this.avatarError.set('');
     this.avatarUrl.set(null);
     this.avatarDirty = true;
+    this.saveDraft(false);
     this.ui.info('تم إزالة الصورة محلياً، احفظ التغييرات للتأكيد');
   }
 
@@ -441,16 +709,100 @@ export class Data implements OnInit {
     return 'مخ';
   }
 
-  /** The skills picker (catalog of the chosen field): every add/remove is saved at once, exactly like the old chip editor. */
+  isSuggestingBio = signal(false);
+  isSuggestingSkills = signal(false);
+  aiSuggestedSkills = signal<string[]>([]);
+
+  private suggestionInput() {
+    return {
+      jobTitle: String(this.profileForm?.get('headline')?.value || '').trim() || undefined,
+      mainSpecialty: String(this.profileForm?.get('specialty')?.value || '').trim() || undefined,
+      existingSkills: this.skillNames(),
+    };
+  }
+
+  suggestBio() {
+    if (this.isSuggestingBio()) return;
+    this.isSuggestingBio.set(true);
+    this.profileService.suggestBio(this.suggestionInput()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.isSuggestingBio.set(false))
+    ).subscribe({
+      next: (res) => {
+        const bio = res?.data?.suggestedBio?.trim();
+        if (bio) {
+          this.profileForm.get('bio')?.setValue(bio);
+          this.profileForm.get('bio')?.markAsDirty();
+          this.saveDraft(false);
+          this.ui.success('تم اقتراح الوصف المهني وحفظه في المسودة — اضغط حفظ التعديلات لاعتماده');
+        } else {
+          this.ui.warning('تعذر إنشاء وصف مهني حالياً');
+        }
+      },
+      error: (err) => this.ui.httpError(err, { fallback: 'تعذر اقتراح الوصف المهني بالذكاء الاصطناعي حالياً' })
+    });
+  }
+
+  suggestSkills() {
+    if (this.isSuggestingSkills()) return;
+    this.isSuggestingSkills.set(true);
+    this.skillError.set('');
+    this.profileService.suggestSkills(this.suggestionInput()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.isSuggestingSkills.set(false))
+    ).subscribe({
+      next: (res) => {
+        const list = Array.isArray(res?.data?.suggestedSkills) ? res.data.suggestedSkills : [];
+        const existing = new Set(this.skillNames().map(s => s.trim().normalize('NFKC').toLowerCase()));
+        const allowed = this.skillOptions();
+        const filtered = list.filter(s => {
+          const key = s.trim().normalize('NFKC').toLowerCase();
+          if (!key || existing.has(key)) return false;
+          if (allowed.length && !allowed.includes(s)) return false;
+          existing.add(key);
+          return true;
+        });
+        this.aiSuggestedSkills.set(filtered);
+        if (!filtered.length) {
+          this.ui.info('لا توجد اقتراحات مهارات إضافية جديدة حالياً');
+        }
+      },
+      error: (err) => this.skillError.set(mapHttpError(err, { fallback: 'تعذر اقتراح المهارات بالذكاء الاصطناعي حالياً' }).message)
+    });
+  }
+
+  addAiSkill(skill: string) {
+    if (!this.aiSuggestedSkills().includes(skill)) return;
+    const current = this.skillNames();
+    if (current.length >= 30 || current.includes(skill)) return;
+    this.aiSuggestedSkills.update(list => list.filter(s => s !== skill));
+    this.onSkillsChange([...current, skill]);
+  }
+
+  addAllAiSkills() {
+    const suggested = this.aiSuggestedSkills();
+    if (!suggested.length) return;
+    const current = this.skillNames();
+    const remainingSlots = Math.max(0, 30 - current.length);
+    if (!remainingSlots) return;
+    const toAdd = suggested.filter(s => !current.includes(s)).slice(0, remainingSlots);
+    if (!toAdd.length) return;
+    this.aiSuggestedSkills.update(list => list.filter(s => !toAdd.includes(s)));
+    this.onSkillsChange([...current, ...toAdd]);
+  }
+
+  /** The skills picker (catalog of the chosen field): every add/remove is saved at once, without resetting unsaved form fields. */
   onSkillsChange(next: string[]) {
     this.skillError.set('');
+    const nextSet = new Set(next.map(s => s.trim().toLowerCase()));
+    this.aiSuggestedSkills.update(list => list.filter(s => !nextSet.has(s.trim().toLowerCase())));
     this.profileService.updateSkills(next).subscribe({
       next: (updatedProfile: any) => {
-        this.skillsList.set(updatedProfile.skills);
+        this.skillsList.set(updatedProfile.skills || []);
         this.skillsArray.clear();
         (updatedProfile.skills || []).forEach((sk: any) => this.skillsArray.push(this.fb.control(sk.name)));
+        this.applyCompletion(updatedProfile);
         this.ui.success('تم تحديث المهارات');
-        this.loadProfile();
       },
       error: (err) => this.skillError.set(mapHttpError(err, { fallback: 'تعذر تحديث المهارات، حاول مرة أخرى' }).message)
     });
@@ -483,6 +835,10 @@ export class Data implements OnInit {
       this.profileForm.get('specialty')?.setValue('', { emitEvent: false });
       this.subSpecOptions.set([]);
       this.skillOptions.set([]);
+    }
+    this.formTick.update(n => n + 1);
+    if (this.hasDraft() && !this.trackedDraftFields.some(f => this.isFieldDraft(f))) {
+      this.clearDraftStorage();
     }
   }
 
@@ -519,6 +875,7 @@ export class Data implements OnInit {
 
   toggleSubSpec(name: string) {
     this.selectedSubSpecs.update(list => list.includes(name) ? list.filter(n => n !== name) : (list.length >= 30 ? list : [...list, name]));
+    this.saveDraft(false);
   }
 
   addLanguage() {
@@ -621,25 +978,26 @@ export class Data implements OnInit {
     this.missingProfile.set(attempt.missing);
     if (!attempt.valid) return;
 
-    const val = this.profileForm.value;
+    const val = this.profileForm.getRawValue();
+    const stored = this.currentProfileData || {};
     this.isSavingProfile.set(true);
 
     this.profileService.updateBasicInfo({
-      firstName: val.firstName,
-      lastName: val.lastName,
+      firstName: (val.firstName || stored.firstName || stored.user?.firstName || '').trim(),
+      lastName: (val.lastName || stored.lastName || stored.user?.lastName || '').trim(),
       // sent only when the user changed it: a new image, or null for an explicit removal
       ...(this.avatarDirty ? { avatarUrl: this.avatarUrl() } : {}),
-      headline: val.headline,
-      bio: val.bio,
+      headline: (val.headline ?? stored.headline ?? '').trim(),
+      bio: val.bio ?? '',
       // no input for these on this page: never send an invented 0 for a value the user did not give
       ...(val.hourlyRate != null ? { hourlyRate: val.hourlyRate } : {}),
       ...(val.yearsOfExperience != null ? { yearsOfExperience: val.yearsOfExperience } : {}),
-      availabilityStatus: val.availabilityStatus,
-      mainSpecialty: val.specialty,
+      availabilityStatus: val.availabilityStatus || 'AVAILABLE',
+      mainSpecialty: (val.specialty || this.storedMainSpecialty || stored.mainSpecialty || '').trim(),
       ...(val.dob && !this.dobLocked() ? { dob: val.dob } : {}),
       subSpecialties: this.selectedSubSpecs(),
-      country: val.country,
-      city: val.city,
+      country: val.country ?? '',
+      city: val.city ?? '',
       location: val.address,
       websiteUrl: val.websiteUrl,
       linkedinUrl: val.linkedinUrl,
@@ -658,8 +1016,9 @@ export class Data implements OnInit {
       next: () => {
         this.isSavingProfile.set(false);
         this.missingProfile.set([]);
+        this.clearDraftStorage();
         this.ui.success('تم حفظ التغييرات بنجاح');
-        this.loadProfile();
+        this.loadProfile(true);
       },
       error: (err: any) => {
         this.isSavingProfile.set(false);

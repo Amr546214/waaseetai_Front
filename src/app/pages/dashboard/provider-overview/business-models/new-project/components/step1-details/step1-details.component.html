@@ -28,11 +28,23 @@
 					</span>
 					}
 				</label>
-				<div class="flex items-center gap-2 shrink-0">
-						@if (projectDesc.trim().length >= 50 || isStreamingText || isAiEnhancing) {
+				<div class="flex flex-wrap items-center gap-2 shrink-0">
+					<button type="button" (click)="aiAssist('suggest')"
+						[disabled]="isStreamingText || isAiEnhancing || isAiSuggesting"
+						class="flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-[rgba(43,212,199,.15)] to-[rgba(43,127,255,.15)] border border-[rgba(43,212,199,.4)] rounded-xl text-[12px] font-extrabold text-[#2BD4C7] hover:border-[#2BD4C7] transition-all disabled:opacity-50 shadow-[0_2px_8px_rgba(43,212,199,0.15)] cursor-pointer">
+						@if (isAiSuggesting) {
+						<span
+							class="w-3.5 h-3.5 border-2 border-[#2BD4C7] border-t-transparent rounded-full animate-spin"></span>
+						<span>جارٍ توليد الوصف...</span>
+						} @else {
+						<span>✨ اقتراح وصف بالـ AI</span>
+						}
+					</button>
+
+					@if (projectDesc.trim().length >= 10 || isStreamingText || isAiEnhancing) {
 					<button type="button" (click)="aiAssist('improve')"
 						[disabled]="isStreamingText || isAiEnhancing || isAiSuggesting"
-						class="flex items-center gap-1.5 px-3.5 py-1.5 bg-[rgba(123,47,190,.15)] border border-[rgba(123,47,190,.35)] rounded-xl text-[12px] font-extrabold text-[#A56BE0] hover:bg-[rgba(123,47,190,.25)] transition-all disabled:opacity-50 shadow-[0_2px_8px_rgba(123,47,190,0.2)] animate-in fade-in zoom-in-95 duration-200">
+						class="flex items-center gap-1.5 px-3.5 py-1.5 bg-[rgba(123,47,190,.15)] border border-[rgba(123,47,190,.35)] rounded-xl text-[12px] font-extrabold text-[#A56BE0] hover:bg-[rgba(123,47,190,.25)] transition-all disabled:opacity-50 shadow-[0_2px_8px_rgba(123,47,190,0.2)] animate-in fade-in zoom-in-95 duration-200 cursor-pointer">
 						@if (isAiEnhancing) {
 						<span
 							class="w-3.5 h-3.5 border-2 border-[#A56BE0] border-t-transparent rounded-full animate-spin"></span>

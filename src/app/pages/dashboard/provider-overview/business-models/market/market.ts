@@ -112,50 +112,20 @@ export class Market implements OnInit, OnDestroy {
 	errorMessage = signal<string | null>(null);
 
 	private searchTimer: ReturnType<typeof setTimeout> | null = null;
+	private auditRefreshTimer: ReturnType<typeof setTimeout> | null = null;
+	private auditRefreshAttempts = 0;
 
-	modificationRequests = signal<ModificationRequest[]>([
-		// {
-		//   id: 'REQ-5021',
-		//   title: 'هوية بصرية متكاملة – مطعم راقي',
-		//   subtitle: 'تعديل السعر والوصف · طلب REQ-5021',
-		//   date: '30 مايو · 11:42 ص',
-		//   matchRate: 94,
-		//   statusLabel: 'قيد المراجعة',
-		//   isExpanded: false,
-		//   checks: [
-		//     { text: '✓ توافق السعر مع تخصصك المعتمد', status: 'سليم', type: 'success' },
-		//     { text: '✓ وضوح الوصف الجديد', status: 'سليم', type: 'success' },
-		//     { text: '△ السعر أعلى من متوسط السوق بـ 8%', status: 'توصية', type: 'warning' }
-		//   ],
-		//   recommendation: 'التعديل جيد بنسبة 94% لكن السعر أعلى قليلاً من المعدل. يمكنك اعتماده أو مراجعة السعر.',
-		//   canApprove: true
-		// },
-		// {
-		//   id: 'REQ-5019',
-		//   title: 'تصميم واجهة مستخدم – تطبيق صحة',
-		//   subtitle: 'تعديل الوصف والكلمات المفتاحية · طلب REQ-5019',
-		//   date: '28 مايو · 09:15 ص',
-		//   matchRate: 87,
-		//   statusLabel: 'قيد المراجعة',
-		//   isExpanded: false,
-		//   checks: [
-		//     { text: '✓ توافق التخصص مع ملفك المهني', status: 'سليم', type: 'success' },
-		//     { text: '△ الوصف الجديد أطول من المعتاد', status: 'توصية', type: 'warning' },
-		//     { text: '✕ كلمات مفتاحية لا تتوافق مع تخصصك المعتمد', status: 'يحتاج تعديل', type: 'error' }
-		//   ],
-		//   recommendation: 'تم رصد كلمات مفتاحية لا تتوافق مع تخصصك المعتمد. يجب تعديلها قبل الاعتماد.',
-		//   isError: true,
-		//   canApprove: false
-		// }
-	]);
+	modificationRequests = signal<ModificationRequest[]>([]);
 
 	ngOnInit() {
 		this.fetchMarketModels();
 	}
 
-	fetchMarketModels() {
-		this.isLoading.set(true);
-		this.errorMessage.set(null);
+	fetchMarketModels(silent = false) {
+		if (!silent) {
+			this.isLoading.set(true);
+			this.errorMessage.set(null);
+		}
 		const params: any = {};
 		if (this.activeCategory() && this.activeCategory() !== 'all' && this.activeCategory() !== 'undefined') {
 			params.category = this.activeCategory();
@@ -168,11 +138,12 @@ export class Market implements OnInit, OnDestroy {
 		}
 		params._t = Date.now(); // Cache-busting timestamp to guarantee fresh database responses
 
-		this.newProjectService.getMyMarketModels(params).subscribe({
+		this.newProjectService.getMyMarketModels(params, silent).subscribe({
 			next: (res: any) => {
-				this.isLoading.set(false);
+				if (!silent) this.isLoading.set(false);
 				if (res && res.success && res.data) {
-					this.models.set(res.data.models || []);
+					const loadedModels: MarketModel[] = res.data.models || [];
+					this.models.set(loadedModels);
 					this.groups.set(res.data.groups || []);
 					this.modificationRequests.set(res.data.modificationRequests || []);
 					if (res.data.filterTabs) {
@@ -184,11 +155,18 @@ export class Market implements OnInit, OnDestroy {
 							pendingModifications: this.modificationRequests().length
 						});
 					}
+					if (loadedModels.some(m => m.aiScore == null) && this.auditRefreshAttempts < 2) {
+						this.auditRefreshAttempts++;
+						if (this.auditRefreshTimer) clearTimeout(this.auditRefreshTimer);
+						this.auditRefreshTimer = setTimeout(() => this.fetchMarketModels(true), 8000);
+					}
 				}
 			},
 			error: (err) => {
-				this.isLoading.set(false);
-				this.errorMessage.set('ERR-PR-026-MKT-02: خطأ في استدعاء بيانات السوق');
+				if (!silent) {
+					this.isLoading.set(false);
+					this.errorMessage.set('ERR-PR-026-MKT-02: خطأ في استدعاء بيانات السوق');
+				}
 				console.error('Error fetching market models:', err);
 			}
 		});
@@ -267,5 +245,6 @@ export class Market implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		if (this.searchTimer) clearTimeout(this.searchTimer);
+		if (this.auditRefreshTimer) clearTimeout(this.auditRefreshTimer);
 	}
 }

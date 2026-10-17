@@ -42,6 +42,13 @@ export class ProjectApiService {
 	}
 
 	/**
+	 * Generate/improve full client request draft (title, description, skills, requirements, outputs, duration, budget, milestones) via WaseetAI
+	 */
+	getAiDraftSuggestion(payload: Record<string, unknown>): Observable<ApiResponse<any>> {
+		return this.http.post<ApiResponse<any>>(`${this.apiUrl}/ai-suggest`, payload);
+	}
+
+	/**
 	 * Upload files/attachments via multipart FormData
 	 */
 	uploadAttachments(files: File[]): Observable<ApiResponse<UploadedAttachment[]>> {

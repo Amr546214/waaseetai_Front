@@ -111,8 +111,15 @@ export class NewProject implements OnInit, OnDestroy {
 	aiAssist(mode: 'improve' | 'suggest') {
 		this.lastAiMode = mode;
 		this.aiStreamError.set(null);
-		const title = this.projectName().trim();
+		let title = this.projectName().trim();
 		const desc = this.projectDesc().trim();
+
+		if (mode === 'suggest' && !title) {
+			const specName = this.selectedMainSpecialtyObj()?.name || this.specialties()[0]?.name;
+			const sampleTitle = this.accreditationModels()[0]?.title;
+			title = sampleTitle || (specName ? `تصميم وتطوير مشروع احترافي في ${specName}` : 'تصميم وتطوير منصة ويب تفاعلية متكاملة');
+			this.projectName.set(title);
+		}
 
 		// Validate title meaningfulness
 		if (title) {
@@ -130,27 +137,19 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 			this.isAiEnhancing.set(true);
 			this.isStreamingText.set(true);
+			this.autoPopulateWizardSelections();
 
 			// Trigger WebSocket real-time word-by-word streaming
-			this.newProjectService.streamEnhanceDescription(this.projectName(), this.projectDesc());
+			this.newProjectService.streamEnhanceDescription(title, this.projectDesc());
 			this.notify.info('بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
 
 		} else if (mode === 'suggest') {
-			if (!title) {
-				this.notify.warning('يرجى كتابة اسم المشروع أولاً ليقوم الذكاء باقتراح وصف متكامل له');
-				return;
-			}
-			const titleValidation = isMeaningfulProjectTitle(title);
-			if (!titleValidation.valid) {
-				this.notify.warning(titleValidation.reason ?? 'يرجى كتابة اسم مشروع واضح');
-				return;
-			}
-
 			this.isAiSuggesting.set(true);
 			this.isStreamingText.set(true);
+			this.autoPopulateWizardSelections();
 
 			// Trigger WebSocket real-time word-by-word streaming
-			this.newProjectService.streamSuggestText(this.projectName());
+			this.newProjectService.streamSuggestText(title);
 			this.notify.info('بدأ البث المباشر لتوليد مقترح احترافي لوصف المشروع...');
 		}
 
@@ -162,6 +161,84 @@ export class NewProject implements OnInit, OnDestroy {
 				this.isAiSuggesting.set(false);
 			}
 		}, 25000);
+	}
+
+	private computeRecommendedSkills(options: string[]): string[] {
+		if (!options.length) return [];
+		const picked = new Set<string>();
+		for (const sk of this.providerSkills()) {
+			if (options.includes(sk)) picked.add(sk);
+		}
+		const modelTechs = this.accreditationModels().flatMap(m => m.technologies || []);
+		const combinedText = `${this.projectName()} ${this.projectDesc()} ${modelTechs.join(' ')}`.toLowerCase();
+		const aliases: Record<string, string[]> = {
+			'React': ['react', 'react.js', 'reactjs'],
+			'Next.js': ['next', 'next.js', 'nextjs'],
+			'TypeScript': ['typescript', 'ts'],
+			'JavaScript': ['javascript', 'js', 'es6'],
+			'HTML': ['html', 'html5', 'واجهة', 'واجهات'],
+			'CSS': ['css', 'tailwind', 'sass', 'تجاوب', 'متجاوب'],
+			'REST API': ['rest', 'api', 'apis', 'ربط'],
+			'Git': ['git', 'github'],
+			'اختبار البرمجيات': ['jest', 'test', 'اختبار', 'جودة'],
+			'تصميم البنية التقنية': ['معمارية', 'بنية', 'architecture', 'state', 'redux'],
+		};
+		for (const opt of options) {
+			const lowerOpt = opt.toLowerCase();
+			if (combinedText.includes(lowerOpt)) {
+				picked.add(opt);
+				continue;
+			}
+			const keys = aliases[opt];
+			if (keys && keys.some(k => combinedText.includes(k))) {
+				picked.add(opt);
+			}
+		}
+		if (picked.size < 5) {
+			const defaults = ['HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'REST API', 'Git', 'اختبار البرمجيات', 'تصميم البنية التقنية'];
+			for (const d of defaults) {
+				if (options.includes(d)) picked.add(d);
+				if (picked.size >= 8) break;
+			}
+		}
+		if (picked.size === 0) {
+			options.slice(0, 6).forEach(o => picked.add(o));
+		}
+		return [...picked].slice(0, 12);
+	}
+
+	private autoPopulateWizardSelections() {
+		const allSpecs = this.specialties();
+		if (!this.selectedSpecialty() && allSpecs.length > 0) {
+			const first = allSpecs[0];
+			this.selectedSpecialty.set(first.id || first.specialtyId);
+		}
+		const mainObj = this.selectedMainSpecialtyObj();
+		if (mainObj && mainObj.subSpecialties?.length > 0 && !this.selectedSubSpecialty()) {
+			this.selectedSubSpecialty.set(mainObj.subSpecialties[0]);
+		}
+		if (this.skillOptions().length > 0 && this.selectedSkills().length === 0) {
+			this.selectedSkills.set(this.computeRecommendedSkills(this.skillOptions()));
+		} else if (this.selectedSkills().length === 0) {
+			this.suggestSkillsOnLoad = true;
+		}
+		if (!this.selectedModel()) {
+			const validModels = this.filteredModels();
+			const fallbackApproved = this.accreditationModels().filter(m => m.status === 'AI_VERIFIED' || m.status === 'APPROVED');
+			const chosen = validModels[0] || fallbackApproved[0];
+			if (chosen) this.selectedModel.set(chosen.id);
+		}
+	}
+
+	private autoPopulateMilestonesIfBlank() {
+		const currentStages = this.stages();
+		const isBlankStages = currentStages.length === 1 && !String(currentStages[0]?.title ?? '').trim();
+		if (!isBlankStages || this.isAiSuggestingMilestones()) return;
+		if (!this.projectName().trim() || !this.projectDesc().trim()) return;
+		if (!this.totalAmount() || (this.totalAmount() ?? 0) <= 0) {
+			this.totalAmount.set(1000);
+		}
+		this.suggestMilestonesWithAi(true);
 	}
 
 	// Step 2 - Specialization (Accredited Main & Sub Specialties)
@@ -237,9 +314,9 @@ export class NewProject implements OnInit, OnDestroy {
 				const options = res?.success ? (res.data?.skills ?? []) : [];
 				this.skillOptions.set(options);
 				this.skillsLoading.set(false);
-				if (this.suggestSkillsOnLoad) {
+				if (this.suggestSkillsOnLoad || (this.selectedSkills().length === 0 && this.projectDesc().trim().length > 0)) {
 					this.suggestSkillsOnLoad = false;
-					this.selectedSkills.set(this.providerSkills().filter(sk => options.includes(sk)).slice(0, 30));
+					this.selectedSkills.set(this.computeRecommendedSkills(options));
 				}
 			},
 			error: () => {
@@ -264,14 +341,16 @@ export class NewProject implements OnInit, OnDestroy {
 			this.selectedSkills.set([]);
 			this.skillsError.set('');
 			if (this.selectedCategoryId() === this.skillsCategoryKey && !this.skillsLoading()) {
-				// Same field as before: its catalog is already loaded, so the provider's saved skills are suggested right away.
-				this.selectedSkills.set(this.providerSkills().filter(sk => this.skillOptions().includes(sk)).slice(0, 30));
+				this.selectedSkills.set(this.computeRecommendedSkills(this.skillOptions()));
 			} else {
 				this.suggestSkillsOnLoad = true;
 			}
 		}
-		this.selectedSubSpecialty.set('');
-		this.selectedModel.set('');
+		this.selectedSubSpecialty.set(spec.subSpecialties?.[0] ?? '');
+		const matchingModel = this.accreditationModels().find(
+			m => m.specialtyId === spec.specialtyId && (m.status === 'AI_VERIFIED' || m.status === 'APPROVED')
+		);
+		this.selectedModel.set(matchingModel?.id ?? '');
 	}
 
 	selectSubSpecialty(sub: string) {
@@ -287,10 +366,8 @@ export class NewProject implements OnInit, OnDestroy {
 				if (res && res.success && Array.isArray(res.categories) && res.categories.length > 0) {
 					this.passedCategories.set(res.categories);
 					this.hasAccreditedSpecialties.set(true);
-
-					// Removed auto-selection logic based on user request.
-					if (this.selectedSpecialty() && !this.selectedSubSpecialty()) {
-						// Keeping this empty so user has to manually select sub-specialty even in edit mode if it was not saved.
+					if (this.projectDesc().trim().length > 0 || !this.selectedSpecialty()) {
+						this.autoPopulateWizardSelections();
 					}
 				} else {
 					this.passedCategories.set([]);
@@ -448,6 +525,10 @@ export class NewProject implements OnInit, OnDestroy {
 						views: Number(s.views || s.viewsCount || s.viewCount || 0)
 					}));
 					this.accreditationModels.set(mapped);
+					this.autoPopulateWizardSelections();
+					if (this.projectDesc().trim().length > 0) {
+						this.autoPopulateMilestonesIfBlank();
+					}
 
 				} else {
 					this.setFallbackAccreditationModels();
@@ -479,13 +560,21 @@ export class NewProject implements OnInit, OnDestroy {
 	]);
 	isAiSuggestingMilestones = signal<boolean>(false);
 
-	suggestMilestonesWithAi() {
+	suggestMilestonesWithAi(silent = false) {
 		if (!this.projectName().trim()) {
-			this.notify.warning('يرجى كتابة اسم المشروع في الخطوة الأولى أولاً ليقوم الذكاء بإنشاء المراحل المناسبة له');
+			if (!silent) this.notify.warning('يرجى كتابة اسم المشروع في الخطوة الأولى أولاً ليقوم الذكاء بإنشاء المراحل المناسبة له');
+			return;
+		}
+		if (!this.totalAmount() || (this.totalAmount() ?? 0) <= 0) {
+			if (!silent) {
+				this.notify.warning('يرجى تحديد القيمة الإجمالية للمشروع ($) أولاً ليتمكن الذكاء الاصطناعي من توزيع نسب ومبالغ المراحل بدقة');
+				const el = this.host.nativeElement.querySelector('#np-total-amount') as HTMLElement | null;
+				el?.focus();
+			}
 			return;
 		}
 		this.isAiSuggestingMilestones.set(true);
-		this.notify.info('يقوم المستشار الذكي الآن بتحليل مشروعك وهندسة المراحل الأنسب...');
+		if (!silent) this.notify.info('يقوم المستشار الذكي الآن بتحليل مشروعك وهندسة المراحل الأنسب...');
 
 		this.newProjectService.suggestMilestones(this.projectName(), this.projectDesc(), this.totalAmount() ?? undefined).subscribe({
 			next: (res) => {
@@ -498,13 +587,13 @@ export class NewProject implements OnInit, OnDestroy {
 						percentage: Number(m.percentage) || 0
 					}));
 					this.stages.set(mapped);
-					this.notify.success('تم إنشاء هيكل مراحل العمل وتوزيع النسب بذكاء بناءً على وصف مشروعك!');
+					if (!silent) this.notify.success('تم إنشاء هيكل مراحل العمل وتوزيع النسب بذكاء بناءً على وصف مشروعك!');
 				}
 			},
 			error: (err) => {
 				this.isAiSuggestingMilestones.set(false);
 				console.error('AI suggest milestones error', err);
-				this.notify.warning('لم يتم الاتصال بالخادم الذكي، يمكنك إضافة المراحل يدوياً');
+				if (!silent) this.notify.warning(err?.error?.message || 'لم يتم الاتصال بالخادم الذكي، يمكنك إضافة المراحل يدوياً');
 			}
 		});
 	}
@@ -538,6 +627,62 @@ export class NewProject implements OnInit, OnDestroy {
 	isValidStep5 = computed(() => !this.isAiAnalyzing());
 	isAiAnalyzing = signal<boolean>(false);
 	aiEvaluation = signal<AiReviewEvaluation | null>(null);
+	private readonly draftStorageKey = 'waseet_new_project_draft_v1';
+	private isHydrated = false;
+
+	private readonly persistDraftEffect = effect(() => {
+		const draft = {
+			step: this.currentStep(),
+			projectName: this.projectName(),
+			projectDesc: this.projectDesc(),
+			selectedSpecialty: this.selectedSpecialty(),
+			selectedSubSpecialty: this.selectedSubSpecialty(),
+			selectedSkills: this.selectedSkills(),
+			selectedModel: this.selectedModel(),
+			totalAmount: this.totalAmount(),
+			stages: this.stages(),
+			galleryUrls: this.galleryUrls(),
+			aiEvaluation: this.aiEvaluation(),
+		};
+		if (!this.isHydrated || this.isEditMode()) return;
+		try {
+			sessionStorage.setItem(this.draftStorageKey, JSON.stringify(draft));
+		} catch { /* ignore storage errors */ }
+	});
+
+	private syncStepInUrl(step: number) {
+		this.router.navigate([], {
+			relativeTo: this.route,
+			queryParams: { step },
+			queryParamsHandling: 'merge',
+			replaceUrl: true,
+		});
+	}
+
+	private restoreDraft(): number | null {
+		try {
+			const raw = sessionStorage.getItem(this.draftStorageKey);
+			if (!raw) return null;
+			const parsed = JSON.parse(raw);
+			if (typeof parsed.projectName === 'string') this.projectName.set(parsed.projectName);
+			if (typeof parsed.projectDesc === 'string') this.projectDesc.set(parsed.projectDesc);
+			if (typeof parsed.selectedSpecialty === 'string') this.selectedSpecialty.set(parsed.selectedSpecialty);
+			if (typeof parsed.selectedSubSpecialty === 'string') this.selectedSubSpecialty.set(parsed.selectedSubSpecialty);
+			if (Array.isArray(parsed.selectedSkills)) this.selectedSkills.set(parsed.selectedSkills);
+			if (typeof parsed.selectedModel === 'string') this.selectedModel.set(parsed.selectedModel);
+			if (typeof parsed.totalAmount === 'number') this.totalAmount.set(parsed.totalAmount);
+			if (Array.isArray(parsed.stages) && parsed.stages.length > 0) this.stages.set(parsed.stages);
+			if (Array.isArray(parsed.galleryUrls)) this.galleryUrls.set(parsed.galleryUrls);
+			if (parsed.aiEvaluation && typeof parsed.aiEvaluation === 'object') this.aiEvaluation.set(parsed.aiEvaluation);
+			return typeof parsed.step === 'number' && parsed.step >= 1 && parsed.step <= 5 ? parsed.step : null;
+		} catch {
+			return null;
+		}
+	}
+
+	private clearDraft() {
+		try { sessionStorage.removeItem(this.draftStorageKey); } catch { /* ignore */ }
+	}
 
 	ngOnInit() {
 		// Initialize Socket listeners for Real-time word-by-word streaming
@@ -555,7 +700,8 @@ export class NewProject implements OnInit, OnDestroy {
 		});
 
 		this.newProjectService.onStreamChunk((data) => {
-			this.projectDesc.update(current => current + data.chunk);
+			const cleanChunk = (data.chunk || '').replace(/\*\*/g, '');
+			this.projectDesc.update(current => current + cleanChunk);
 		});
 
 		this.newProjectService.onStreamEnd((data) => {
@@ -568,18 +714,40 @@ export class NewProject implements OnInit, OnDestroy {
 				this.aiStreamError.set(data.message || 'تعذّر إكمال الاقتراح. يمكنك إعادة المحاولة.');
 				return;
 			}
+			this.projectDesc.update(text =>
+				text
+					.replace(/\*\*/g, '')
+					.replace(/^#{1,6}\s*/gm, '')
+					.replace(/^\s*[-*]\s+/gm, '• ')
+					.trim()
+			);
+			this.autoPopulateWizardSelections();
+			this.autoPopulateMilestonesIfBlank();
 			this.aiStreamError.set(null);
 			if (data.message) {
 				this.notify.info(data.message);
 			}
 		});
 
+		const editId = this.route.snapshot.queryParamMap.get('edit') || this.route.snapshot.queryParamMap.get('id');
+		if (!editId) {
+			const savedStep = this.restoreDraft();
+			const urlStep = Number(this.route.snapshot.queryParamMap.get('step'));
+			const initialStep = (urlStep >= 1 && urlStep <= 5) ? urlStep : (savedStep ?? 1);
+			this.currentStep.set(initialStep);
+			this.syncStepInUrl(initialStep);
+			if (initialStep === 5 && !this.aiEvaluation() && this.isValidStep1() && this.isValidStep4()) {
+				this.triggerAiReviewAnalysis();
+			}
+		}
+		this.isHydrated = true;
+
 		// Check query parameters for edit mode
 		this.route.queryParams.subscribe(params => {
-			const editId = params['edit'] || params['id'];
-			if (editId) {
-				this.editServiceId.set(editId);
-				this.loadExistingService(editId);
+			const eid = params['edit'] || params['id'];
+			if (eid && eid !== this.editServiceId()) {
+				this.editServiceId.set(eid);
+				this.loadExistingService(eid);
 			}
 		});
 
@@ -711,7 +879,9 @@ export class NewProject implements OnInit, OnDestroy {
 			if (this.currentStep() === 4) {
 				this.triggerAiReviewAnalysis();
 			}
-			this.currentStep.update(s => s + 1);
+			const nextStep = this.currentStep() + 1;
+			this.currentStep.set(nextStep);
+			this.syncStepInUrl(nextStep);
 			window.scrollTo(0, 0);
 		} else if (this.currentStep() === this.totalSteps) {
 			this.submitProject();
@@ -720,9 +890,15 @@ export class NewProject implements OnInit, OnDestroy {
 
 	goPrev() {
 		if (this.currentStep() > 1) {
-			this.currentStep.update(s => s - 1);
+			const prevStep = this.currentStep() - 1;
+			this.currentStep.set(prevStep);
+			this.syncStepInUrl(prevStep);
 			window.scrollTo(0, 0);
 		}
+	}
+
+	retryAiEvaluation() {
+		this.triggerAiReviewAnalysis();
 	}
 
 	private triggerAiReviewAnalysis() {
@@ -824,7 +1000,7 @@ export class NewProject implements OnInit, OnDestroy {
 				...stage,
 				computedAmount: this.getAmountForStage(stage.percentage)
 			})),
-				aiScore: this.aiEvaluation() ? Math.round((this.aiEvaluation()!.clarityScore + this.aiEvaluation()!.feasibilityScore) / 2) : undefined
+				aiScore: this.aiEvaluation() ? (this.aiEvaluation()!.feasibilityScore != null ? Math.round((this.aiEvaluation()!.clarityScore + this.aiEvaluation()!.feasibilityScore!) / 2) : Math.round(this.aiEvaluation()!.clarityScore)) : undefined
 		};
 
 		const request$ = this.isEditMode() && this.editServiceId()
@@ -835,6 +1011,7 @@ export class NewProject implements OnInit, OnDestroy {
 			next: (res) => {
 				this.submitGuard.release();
 				this.isSubmitting.set(false);
+				this.clearDraft();
 					const msg = this.isEditMode() ? 'تم تحديث النموذج ونشره مباشرة' : 'تم نشر مشروعك مباشرة في السوق';
 				this.notify.success(msg);
 				setTimeout(() => {

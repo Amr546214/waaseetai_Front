@@ -1,15 +1,11 @@
-// Client-side mirror of the backend rule for POST /api/proposals/ai-suggest:
-// WaseetAI needs BOTH a title and a message. Same three messages as the backend.
-export const AI_SUGGEST_MISSING_BOTH = 'اكتب عنوان العرض ونصه معًا ليتمكن الذكاء الاصطناعي من تحسينهما';
-export const AI_SUGGEST_MISSING_TITLE = 'اكتب عنوان العرض أولاً، فالاقتراح يحتاج العنوان والنص معًا';
+// Client-side validation for POST /api/proposals/ai-suggest:
+// WaseetAI can draft a full proposal from the title + project details, or refine an existing draft.
+export const AI_SUGGEST_MISSING_BOTH = 'اكتب عنوان العرض أولاً ليتمكن الذكاء الاصطناعي من صياغة العرض بناءً على العنوان والمشروع';
+export const AI_SUGGEST_MISSING_TITLE = 'اكتب عنوان العرض أولاً ليتمكن الذكاء الاصطناعي من صياغة العرض بناءً على العنوان والمشروع';
 export const AI_SUGGEST_MISSING_MESSAGE = 'اكتب نص العرض أولاً، فالاقتراح يحتاج العنوان والنص معًا';
 
-/** Returns the message to show when the draft cannot be sent, or null when both fields are filled. */
-export function aiSuggestInputError(title: string | null | undefined, message: string | null | undefined): string | null {
-	const hasTitle = !!title?.trim();
-	const hasMessage = !!message?.trim();
-	if (!hasTitle && !hasMessage) return AI_SUGGEST_MISSING_BOTH;
-	if (!hasTitle) return AI_SUGGEST_MISSING_TITLE;
-	if (!hasMessage) return AI_SUGGEST_MISSING_MESSAGE;
+/** Returns null because WaseetAI can draft both title and message directly from the project details when fields are empty, or refine existing input. */
+export function aiSuggestInputError(_title: string | null | undefined, _message: string | null | undefined): string | null {
 	return null;
 }
+

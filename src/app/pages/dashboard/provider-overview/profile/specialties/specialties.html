@@ -160,10 +160,16 @@
 	</ng-container>
 
 	<ng-container *ngIf="currentStep() === 2">
-		<div class="mb-5">
-			<div class="text-2xl font-black text-white tracking-tight">رفع نماذج الأعمال للتخصصات الفرعية</div>
-			<div class="text-xs text-[var(--txt-3)] mt-1 font-medium">أضف نماذج أعمالك لكل تخصص فرعي اخترته مع وثائق
-				إثبات الملكية السرية للمراجعة من قبل الإدارة</div>
+		<div class="mb-5 flex items-start justify-between gap-4 flex-wrap">
+			<div>
+				<div class="text-2xl font-black text-white tracking-tight">رفع نماذج الأعمال للتخصصات الفرعية</div>
+				<div class="text-xs text-[var(--txt-3)] mt-1 font-medium">أضف نماذج أعمالك لكل تخصص فرعي اخترته مع وثائق
+					إثبات الملكية السرية للمراجعة من قبل الإدارة</div>
+			</div>
+			<button type="button" (click)="autoFillAllSamples()"
+				class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-xs font-black shadow-lg hover:opacity-95 transition-all cursor-pointer shrink-0">
+				✨ ملء ذكي للنماذج وإرفاق ملفات تجريبية
+			</button>
 		</div>
 
 		<div class="ws-note ws-note--info" style="margin-bottom:24px">
@@ -262,12 +268,18 @@
 							class="sample-card border hover:border-[rgba(43,212,199,.3)] rounded-2xl overflow-hidden transition-all shadow-lg group/sample">
 
 							<div class="p-4.5 border-b border-[rgba(255,255,255,.08)] bg-gradient-to-l from-[rgba(43,212,199,.035)] to-[rgba(43,127,255,.035)]">
-								<div class="flex items-center justify-between gap-3 mb-4">
+								<div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
 									<div>
 										<div class="text-sm font-black sample-card-text">بيانات نموذج العمل</div>
 										<div class="text-[11px] text-[var(--txt-3)] mt-1">كلما كانت المعلومات دقيقة، كانت مراجعة الإدارة أسرع</div>
 									</div>
-									<span class="px-2.5 py-1 rounded-full bg-[rgba(43,127,255,.12)] border border-[rgba(43,127,255,.28)] text-[10px] font-black text-[#5DA0FF]">معلومات مطلوبة</span>
+									<div class="flex items-center gap-2">
+										<button type="button" (click)="autoFillSample(sample.id)"
+											class="px-3 py-1 rounded-full bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.35)] text-[11px] font-black text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors cursor-pointer">
+											✨ ملء ذكي لهذا النموذج
+										</button>
+										<span class="px-2.5 py-1 rounded-full bg-[rgba(43,127,255,.12)] border border-[rgba(43,127,255,.28)] text-[10px] font-black text-[#5DA0FF]">معلومات مطلوبة</span>
+									</div>
 								</div>
 								<div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
 									<label class="flex flex-col gap-1.5">
@@ -505,14 +517,20 @@
 		<div data-testid="step3-declarations" class="mt-6">
 			<div class="state-card !p-0 overflow-hidden border-[rgba(255,255,255,.09)] bg-[rgba(13,20,44,0.7)]">
 				<div
-					class="p-4 border-b border-[rgba(255,255,255,.07)] flex items-center gap-2 bg-[rgba(255,255,255,.02)]">
-					<svg class="w-4 h-4 text-[#5DA0FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-						stroke-width="2">
-						<path d="M9 11l3 3L22 4" />
-						<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-					</svg>
-					<span class="text-sm font-black text-white">إقرارات الموافقة والتعهد قبل بدء الاختبار
-						التمهيدي</span>
+					class="p-4 border-b border-[rgba(255,255,255,.07)] flex items-center justify-between gap-2 bg-[rgba(255,255,255,.02)] flex-wrap">
+					<div class="flex items-center gap-2">
+						<svg class="w-4 h-4 text-[#5DA0FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2">
+							<path d="M9 11l3 3L22 4" />
+							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+						</svg>
+						<span class="text-sm font-black text-white">إقرارات الموافقة والتعهد قبل بدء الاختبار
+							التمهيدي</span>
+					</div>
+					<button *ngIf="!allDeclarationsChecked()" type="button" (click)="checkAllDeclarations()"
+						class="px-3 py-1 rounded-full bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.35)] text-[11px] font-black text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors cursor-pointer">
+						✓ تحديد جميع الإقرارات
+					</button>
 				</div>
 				<div class="p-5 flex flex-col gap-3.5">
 					<div role="alert"
@@ -556,6 +574,14 @@
 	<!-- STEP 4: ASSESSMENT DASHBOARD -->
 	<!-- ========================================================= -->
 	<ng-container *ngIf="currentStep() === 4">
+		<div *ngIf="testPhase() === 'active' && !isStreamingQuestions()"
+			class="mb-4 p-3.5 rounded-xl bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.25)] flex items-center justify-between gap-3 flex-wrap">
+			<span class="text-xs font-bold text-[var(--txt-2)]">⚡ أداة الاختبار السريع: يمكنك الإجابة سؤالاً بسؤال أو ملء الإجابات دفعة واحدة لتجربة التصحيح الذكي فوراً</span>
+			<button type="button" (click)="quickAnswerAllQuestions()"
+				class="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-xs font-black shadow hover:opacity-95 transition-all cursor-pointer">
+				⚡ إجابة تجريبية سريعة على كل الأسئلة ({{ quizQuestions().length }})
+			</button>
+		</div>
 
 		<!-- The test screen is the SAME component as the setup test (shared/specialty-test): one UI for every specialty test -->
 		<ws-specialty-test *ngIf="testPhase() as phase"

@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpEvent } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpEvent } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { KycAccess } from '../models/kyc-document.model';
 import { SkillsCatalogService } from './skills-catalog.service';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 
 export interface ProfileSuggestionInput {
   jobTitle?: string;
@@ -85,8 +86,20 @@ export class ProviderProfileService {
   private skillsCatalog = inject(SkillsCatalogService);
   private apiUrl = `${environment.url_api}/provider/profile`;
 
+  suggestBio(input: ProfileSuggestionInput): Observable<{ success: boolean; data: { suggestedBio: string } }> {
+    return this.http.post<{ success: boolean; data: { suggestedBio: string } }>(
+      `${this.apiUrl}/suggest-bio`,
+      input,
+      { context: new HttpContext().set(SKIP_LOADING, true) }
+    );
+  }
+
   suggestSkills(input: ProfileSuggestionInput): Observable<{ success: boolean; data: { suggestedSkills: string[] } }> {
-    return this.http.post<{ success: boolean; data: { suggestedSkills: string[] } }>(`${this.apiUrl}/suggest-skills`, input);
+    return this.http.post<{ success: boolean; data: { suggestedSkills: string[] } }>(
+      `${this.apiUrl}/suggest-skills`,
+      input,
+      { context: new HttpContext().set(SKIP_LOADING, true) }
+    );
   }
 
   /**
@@ -195,7 +208,7 @@ export class ProviderProfileService {
   }
 
   updateSkills(skills: string[]): Observable<ProviderProfile> {
-    return this.http.put<ProviderProfile>(`${this.apiUrl}/skills`, { skills });
+    return this.http.put<ProviderProfile>(`${this.apiUrl}/skills`, { skills }, { context: new HttpContext().set(SKIP_LOADING, true) });
   }
 
   addPortfolioItem(data: any): Observable<any> {

@@ -319,7 +319,17 @@
 					class="py-2.5 px-6 rounded-xl font-bold text-xs text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-colors">
 					إغلاق
 				</button>
+				@if (selectedProject()?.isApplied) {
+				<div
+					class="flex-1 max-w-[300px] flex items-center justify-center gap-2 py-2.5 px-6 bg-[#2BD4C7]/15 border border-[#2BD4C7]/40 rounded-xl text-xs font-black text-[#2BD4C7]">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-3.5 h-3.5">
+						<polyline points="20 6 9 17 4 12" />
+					</svg>
+					تم التقدم على هذا الطلب
+				</div>
+				} @else {
 				<button [routerLink]="['/provider-overview/explore-requests', selectedProject()?.id, 'apply']"
+					(click)="closeAiModal()"
 					type="button"
 					class="flex-1 max-w-[300px] flex items-center justify-center gap-2 py-2.5 px-6 bg-gradient-to-r from-[#00d2ff] to-[#3b82f6] hover:from-[#2bd4c7] hover:to-[#2563eb] rounded-xl text-xs font-black text-[#070d24] shadow-[0_4px_15px_rgba(0,210,255,0.25)] hover:shadow-[0_6px_22px_rgba(0,210,255,0.45)] transition-all">
 					التقدم للعرض الآن
@@ -327,6 +337,7 @@
 						<path d="M5 12h14M12 5l7 7-7 7" />
 					</svg>
 				</button>
+				}
 			</div>
 		</div>
 	</div>

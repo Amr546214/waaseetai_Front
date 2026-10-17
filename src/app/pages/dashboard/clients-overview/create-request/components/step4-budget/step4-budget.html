@@ -3,9 +3,17 @@
 
 		<!-- BUDGET TYPE -->
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
-			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
-				<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
-				نوع الميزانية
+			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between gap-3 mb-6 flex-wrap">
+				<span class="flex items-center gap-3">
+					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+					نوع الميزانية
+				</span>
+				<button type="button"
+					class="text-xs font-extrabold px-4 py-2 bg-gradient-to-r from-[var(--ai)]/20 to-[var(--teal)]/20 text-[var(--ai)] rounded-xl border border-[var(--ai)]/30 flex items-center gap-2 transition-all hover:bg-[var(--ai)]/30 cursor-pointer"
+					[disabled]="parent.isFetchingAiDraft()"
+					(click)="parent.triggerAiFullSuggest()">
+					<span>✨ {{ parent.isFetchingAiDraft() ? 'جارٍ اقتراح الميزانية والمراحل...' : 'اقتراح الميزانية والمراحل بـ AI' }}</span>
+				</button>
 			</div>
 
 			<div class="budget-type-grid grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" role="radiogroup" aria-label="اختر نوع الميزانية">

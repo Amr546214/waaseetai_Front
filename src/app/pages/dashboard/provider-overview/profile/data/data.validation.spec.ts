@@ -76,16 +76,32 @@ describe('provider profile data tabs: shared validation', () => {
     beforeEach(() => { setup(); document.body.appendChild(el()); });
     afterEach(() => el().remove());
 
-    it('empty save: no request, summary, inline errors, focus on the first field, button stays enabled', () => {
+    it('partial save: allows saving edits without requiring country or city, falling back to stored fields when blank', () => {
       fill(component.profileForm, { firstName: '', lastName: '  ', headline: '', specialty: '', country: '' });
       button('profile', 'حفظ التعديلات').click();
       render();
-      expect(svc['updateBasicInfo']).not.toHaveBeenCalled();
-      for (const label of ['الاسم الأول', 'اسم العائلة', 'المسمى المهني', 'التخصص الرئيسي', 'الدولة']) expect(summary('profile'), label).toContain(label);
-      expect(fieldErrors('profile').length).toBeGreaterThanOrEqual(5);
-      expect(document.activeElement?.id).toBe('pr-fname');
+      expect(svc['updateBasicInfo']).toHaveBeenCalledTimes(1);
       expect(button('profile', 'حفظ التعديلات').disabled).toBe(false);
       expect(component.currentTab()).toBe('profile');
+    });
+
+    it('shows per-field draft badge, original saved value, and reverts a single field back to original on click', () => {
+      expect(component.isFieldDraft('headline')).toBe(false);
+      expect(el().querySelector('[data-testid="draft-box-headline"]')).toBeNull();
+      fill(component.profileForm, { headline: 'مطور واجهات أول' });
+      expect(component.isFieldDraft('headline')).toBe(true);
+      expect(component.originalFieldDisplay('headline')).toBe('مصمم');
+      const box = el().querySelector('[data-testid="draft-box-headline"]') as HTMLElement;
+      expect(box).toBeTruthy();
+      expect(box.textContent).toContain('الأصل المحفوظ:');
+      expect(box.textContent).toContain('مصمم');
+      const revertBtn = box.querySelector('button.field-draft-revert') as HTMLButtonElement;
+      expect(revertBtn).toBeTruthy();
+      revertBtn.click();
+      render();
+      expect(component.profileForm.get('headline')?.value).toBe('مصمم');
+      expect(component.isFieldDraft('headline')).toBe(false);
+      expect(el().querySelector('[data-testid="draft-box-headline"]')).toBeNull();
     });
 
     it('applies the backend limits: name 60, headline 100, bio 500, http(s) URLs only', () => {

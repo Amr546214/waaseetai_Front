@@ -1,7 +1,8 @@
 import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { Injectable, inject, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import io, { Socket } from 'socket.io-client';
@@ -17,7 +18,7 @@ export interface ProviderPreData {
 // — otherwise these are honestly null/empty and the UI hides them.
 export interface AiReviewEvaluation {
 	clarityScore: number;
-	feasibilityScore: number;
+	feasibilityScore: number | null;
 	marketFitRating: 'High' | 'Medium' | 'Low' | null;
 	executiveSummary: string;
 	strengths: string[];
@@ -137,16 +138,27 @@ export class NewProjectService implements OnDestroy {
 		return this.http.patch<any>(`${this.API_URL}/${id}/visibility`, { visible });
 	}
 
-	getMyMarketModels(params?: any): Observable<any> {
-		return this.http.get<any>(`${environment.url_api}/business-models/my-market-models`, { params });
+	getMyMarketModels(params?: any, silent = false): Observable<any> {
+		return this.http.get<any>(`${environment.url_api}/business-models/my-market-models`, {
+			params,
+			...(silent ? { context: new HttpContext().set(SKIP_LOADING, true) } : {})
+		});
 	}
 
 	suggestMilestones(title: string, description?: string, totalAmount?: number): Observable<{ success: boolean; data: { milestones: any[] } }> {
-		return this.http.post<any>(`${this.AI_REVIEW_URL}/suggest-milestones`, { title, description, totalAmount });
+		return this.http.post<any>(
+			`${this.AI_REVIEW_URL}/suggest-milestones`,
+			{ title, description, totalAmount },
+			{ context: new HttpContext().set(SKIP_LOADING, true) }
+		);
 	}
 
 	analyzeProjectModel(payload: any): Observable<{ success: boolean; data: AiReviewEvaluation }> {
-		return this.http.post<any>(`${this.AI_REVIEW_URL}/analyze`, payload);
+		return this.http.post<any>(
+			`${this.AI_REVIEW_URL}/analyze`,
+			payload,
+			{ context: new HttpContext().set(SKIP_LOADING, true) }
+		);
 	}
 
 	uploadGalleryImage(file: File): Observable<any> {

@@ -454,28 +454,39 @@ export class CreateRequest implements OnInit, OnDestroy {
   private saveDraft(): void {
     if (!this.isBrowser) return;
     const snapshot = this.buildDraftSnapshot();
+    const serialized = JSON.stringify(snapshot);
     try {
-      sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(snapshot));
-    } catch {
-      // Quota exceeded / private-browsing storage denial — draft persistence
-      // is a convenience, never allowed to break the wizard itself.
-    }
+      sessionStorage.setItem(DRAFT_STORAGE_KEY, serialized);
+    } catch {}
+    try {
+      localStorage.setItem(DRAFT_STORAGE_KEY, serialized);
+    } catch {}
+    try {
+      if (typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === CREATE_REQUEST_PATH) {
+        const url = new URL(window.location.href);
+        if (url.searchParams.get('step') !== String(snapshot.currentStep)) {
+          url.searchParams.set('step', String(snapshot.currentStep));
+          window.history.replaceState(window.history.state, '', url.pathname + url.search);
+        }
+      }
+    } catch {}
   }
 
   private clearDraft(): void {
     if (!this.isBrowser) return;
     try {
       sessionStorage.removeItem(DRAFT_STORAGE_KEY);
-    } catch {
-      // Ignore — nothing to clean up if storage isn't accessible.
-    }
+    } catch {}
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {}
   }
 
   private restoreDraft(): void {
     if (!this.isBrowser) return;
     let raw: string | null = null;
     try {
-      raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      raw = sessionStorage.getItem(DRAFT_STORAGE_KEY) || localStorage.getItem(DRAFT_STORAGE_KEY);
     } catch {
       return;
     }
@@ -486,6 +497,12 @@ export class CreateRequest implements OnInit, OnDestroy {
       if (!this.isValidDraft(parsed)) {
         this.clearDraft();
         return;
+      }
+      if (typeof window !== 'undefined') {
+        const urlStep = Number(new URLSearchParams(window.location.search).get('step'));
+        if (Number.isInteger(urlStep) && urlStep >= 1 && urlStep <= 6) {
+          parsed.currentStep = urlStep;
+        }
       }
       this.applyDraft(parsed);
     } catch {
@@ -835,6 +852,138 @@ export class CreateRequest implements OnInit, OnDestroy {
 
   /** Rewriting only: the AI restates a title + description the client already wrote, it never writes them. */
   canRefineWithAi = computed(() => canRewrite(this.title(), this.description()));
+  isFetchingAiDraft = signal(false);
+
+  private formatClientDraftText(text: string | null | undefined, isSingleLine = false): string {
+    if (!text) return '';
+    if (isSingleLine) {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/__(.*?)__/g, '$1')
+        .replace(/^#{1,6}\s+/gm, '')
+        .replace(/^\s*[-*•▸]\s+/gm, '')
+        .replace(/`/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+    let cleaned = text
+      .replace(/\r\n/g, '\n')
+      .replace(/(?:^|\s+)#{1,6}\s*([^\n]+)/g, '\n\n▸ $1\n')
+      .replace(/\*\*([^*]+?:)\*\*/g, '\n\n▸ $1\n')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/__(.*?)__/g, '$1')
+      .replace(/`/g, '');
+    cleaned = cleaned.replace(/:\s*(?=1\.\s*)/g, ':\n\n');
+    cleaned = cleaned.replace(/([.؛!؟])\s*(?=[1-9]\.\s*)/g, '$1\n');
+    cleaned = cleaned.replace(/\s+(?=[1-9]\.\s+)/g, '\n');
+    cleaned = cleaned.replace(/^([1-9]\.)\s+/gm, '$1 ');
+    cleaned = cleaned.replace(/([.:؛،])\s*-\s+/g, '$1\n• ');
+    cleaned = cleaned.replace(/^\s*[-*]\s+/gm, '• ');
+    cleaned = cleaned.replace(/\.([أإآابتثجحخدذرزسشصضطظعغفقكلمنهوي])/g, '. $1');
+    return cleaned.replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  /**
+   * Comprehensive AI Request Generator & Improver for the Client:
+   * Works from a brief title, idea, or selected specialty and populates/improves:
+   * Title, Multi-line Description, Required Skills (from catalog), Additional Requirements,
+   * Expected Outputs, Delivery Days, Recommended Budget Range, and 100% Payment Milestones.
+   */
+  triggerAiFullSuggest() {
+    if (this.isFetchingAiDraft() || this.isAiStreaming()) return;
+    const rawTitle = this.title().trim();
+    const rawDesc = this.description().trim();
+    const specName = this.selectedSpec() === 'other' ? this.otherText().trim() : (this.currentSpec()?.name || '');
+
+    if (rawTitle.length < 3 && rawDesc.length < 5 && !specName) {
+      this.notify.warning('اكتب فكرة أو عنوانًا مبدئيًا للطلب (أو اختر التخصص في الخطوة الأولى) ليقوم الذكاء الاصطناعي بصياغة الطلب بالكامل.');
+      return;
+    }
+
+    this.isFetchingAiDraft.set(true);
+    if (rawDesc) {
+      this.aiOriginalDescription.set(rawDesc);
+    }
+
+    this.projectApi.getAiDraftSuggestion({
+      fullDraft: true,
+      title: rawTitle || undefined,
+      description: rawDesc || undefined,
+      specialtyId: this.selectedSpec() || undefined,
+      specialtyName: specName || 'عام',
+      subSpecialties: Array.from(this.selectedSubs()),
+      availableSkills: this.skillOptions(),
+      deliveryDays: this.deliveryDays()
+    }).subscribe({
+      next: (res: any) => {
+        this.isFetchingAiDraft.set(false);
+        const d = res?.data || res;
+        if (!d || (!d.suggestedTitle && !d.suggestedDescription)) {
+          this.notify.warning('تعذر توليد المقترح الذكي حالياً، حاول مرة أخرى.');
+          return;
+        }
+
+        if (d.suggestedTitle) {
+          this.setTitle(this.formatClientDraftText(d.suggestedTitle, true));
+        }
+        if (d.suggestedDescription) {
+          this.setDescription(this.formatClientDraftText(d.suggestedDescription, false));
+        }
+
+        // Match requiredSkills against loaded catalog (skillOptions) so backend validation always passes
+        const catalog = this.skillOptions();
+        if (catalog.length > 0) {
+          const aiSkills: string[] = Array.isArray(d.suggestedRequiredSkills) ? d.suggestedRequiredSkills : [];
+          const matched = catalog.filter(catSkill =>
+            aiSkills.some(s => s.toLowerCase() === catSkill.toLowerCase() || catSkill.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(catSkill.toLowerCase()))
+          );
+          const finalSkills = matched.length > 0 ? matched.slice(0, 6) : catalog.slice(0, Math.min(4, catalog.length));
+          this.setRequiredSkills(Array.from(new Set([...this.requiredSkills(), ...finalSkills])));
+        }
+
+        if (Array.isArray(d.suggestedRequirements) && d.suggestedRequirements.length > 0) {
+          const cleanReqs = d.suggestedRequirements
+            .map((r: string) => this.formatClientDraftText(r, true))
+            .filter(Boolean);
+          this.requirements.update(existing => Array.from(new Set([...existing, ...cleanReqs])).slice(0, 10));
+        }
+
+        if (d.suggestedOutputs) {
+          this.outputs.set(this.formatClientDraftText(d.suggestedOutputs, false).slice(0, 1000));
+        }
+
+        if (typeof d.suggestedDurationDays === 'number' && d.suggestedDurationDays >= 1) {
+          this.deliveryDays.set(Math.min(365, Math.round(d.suggestedDurationDays)));
+        } else if (!this.deliveryDays()) {
+          this.deliveryDays.set(7);
+        }
+
+        if (typeof d.recommendedMinBudget === 'number' && d.recommendedMinBudget > 0) {
+          const minB = Math.max(100, Math.round(d.recommendedMinBudget));
+          const maxB = Math.max(minB, Math.round(d.recommendedMaxBudget || minB * 2));
+          this.budgetMin.set(minB);
+          this.budgetMax.set(maxB);
+          this.budgetFixed.set(Math.round((minB + maxB) / 2));
+        }
+
+        if (Array.isArray(d.suggestedMilestones) && d.suggestedMilestones.length >= 2) {
+          this.splitMilestones.set(true);
+          this.milestones.set(
+            d.suggestedMilestones.map((m: any) => ({
+              name: this.formatClientDraftText(m.name, true).slice(0, 120) || 'مرحلة تنفيذ',
+              pct: Math.max(1, Math.round(Number(m.pct) || 0))
+            }))
+          );
+        }
+
+        this.notify.success('تم تحسين العنوان وكتابة الوصف والمخرجات والمهارات والميزانية والمراحل بالذكاء الاصطناعي بنجاح!');
+      },
+      error: (err: any) => {
+        this.isFetchingAiDraft.set(false);
+        this.notify.error(err?.error?.message || 'تعذر توليد المقترح بالذكاء الاصطناعي حالياً. حاول مرة أخرى.');
+      }
+    });
+  }
 
   triggerAiDescription() {
     if (this.isAiStreaming()) return;
