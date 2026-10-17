@@ -233,7 +233,49 @@ describe('Login', () => {
 			}
 		});
 
-		it('values painted by the browser are kept (not wiped) and reach the form on submit even without input events', async () => {
+		it('a fill that arrives before any user gesture (Chrome autofill on load) is dropped once', () => {
+			const { fixture, component } = setup();
+			fixture.detectChanges();
+			const el: HTMLElement = fixture.nativeElement;
+			const email = el.querySelector('#identifier') as HTMLInputElement;
+			const pass = el.querySelector('#password') as HTMLInputElement;
+			email.value = 'saved@example.com'; email.dispatchEvent(new Event('input'));
+			pass.value = 'saved-password'; pass.dispatchEvent(new Event('input'));
+			expect(email.value).toBe('');
+			expect(pass.value).toBe('');
+			expect(component.loginForm.value).toEqual({ email: '', password: '', remember: false });
+		});
+
+		it('after a user gesture, typed or picked values are never cleared', async () => {
+			const { fixture, component } = setup();
+			fixture.detectChanges();
+			const el: HTMLElement = fixture.nativeElement;
+			const email = el.querySelector('#identifier') as HTMLInputElement;
+			const pass = el.querySelector('#password') as HTMLInputElement;
+			document.dispatchEvent(new Event('pointerdown'));
+			email.value = 'picked@example.com'; email.dispatchEvent(new Event('input')); email.dispatchEvent(new Event('change'));
+			pass.value = 'picked-pass'; pass.dispatchEvent(new Event('input')); pass.dispatchEvent(new Event('change'));
+			window.dispatchEvent(new Event('pageshow'));
+			await new Promise(r => setTimeout(r, 700));
+			expect(email.value).toBe('picked@example.com');
+			expect(pass.value).toBe('picked-pass');
+			expect(component.loginForm.value.email).toBe('picked@example.com');
+			expect(component.loginForm.value.password).toBe('picked-pass');
+		});
+
+		it('a bfcache restore (pageshow persisted) starts empty again', () => {
+			const { fixture, component } = setup();
+			fixture.detectChanges();
+			const el: HTMLElement = fixture.nativeElement;
+			document.dispatchEvent(new Event('keydown'));
+			component.loginForm.patchValue({ email: 'a@b.co', password: 'x' });
+			const ev = new Event('pageshow') as any; ev.persisted = true;
+			window.dispatchEvent(ev);
+			expect((el.querySelector('#identifier') as HTMLInputElement).value).toBe('');
+			expect(component.loginForm.value.email).toBe('');
+		});
+
+		it('values painted by the browser (no input event) are kept and reach the form on submit even without input events', async () => {
 			const { fixture, component, postSpy } = setup();
 			fixture.detectChanges();
 			const el: HTMLElement = fixture.nativeElement;
