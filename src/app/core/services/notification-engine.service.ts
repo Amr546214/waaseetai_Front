@@ -476,10 +476,11 @@ export class NotificationEngineService implements OnDestroy {
 		try {
 			const r = await this.ledger.claim(userId, key);
 			if (userId !== this.joinedUserId) return; // account switched while waiting
-			if (r.won) {
+			// re-verify at the moment of display (a freeze/resume or a slow lock may have outlived the lease, or another tab may have shown+committed it)
+			if (r.won && this.ledger.stillOwns(userId, key)) {
 				this.triggerToast(notif);
 				await this.ledger.commit(userId, key);
-			} else if (r.retryInMs !== undefined) {
+			} else if (!r.won && r.retryInMs !== undefined) {
 				this.scheduleRetry(notif, key, userId, r.retryInMs);
 			}
 		} finally { this.popupInflight.delete(inflight); }

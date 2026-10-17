@@ -11,6 +11,8 @@ export const POPUP_CLAIM_LEASE_MS = 3000;
 /** Fallback (no Web Locks) only: how long every contender waits for the others' claim writes to land before deciding the winner. */
 export const POPUP_SETTLE_MS = 60;
 const LOCK_TIMEOUT_MS = 2000;
+const ABANDONED = Symbol('lock-abandoned');
+interface ClaimRec { exp: number; ts: number; tok: string }
 
 export interface PopupClaimResult {
 	/** true only for the single tab that may show the popup now */
@@ -41,7 +43,8 @@ export interface PopupClaimResult {
 export class NotificationPopupLedger {
 	private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 	private memory = new Map<string, string[]>();
-	private memoryClaims = new Map<string, number>();
+	private memoryClaims = new Map<string, ClaimRec>();
+	private ownTokens = new Map<string, string>();
 	/** unique per page load: a refreshed tab is a new tab to the others */
 	readonly tabId = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 	/** overridable in tests */
@@ -55,19 +58,38 @@ export class NotificationPopupLedger {
 		return !!userId && !!key && this.read(userId).includes(key);
 	}
 
-	/** Cross-tab safe claim. Resolves won=true for exactly one tab per (user, key) as long as that tab commits or its lease runs out. */
+	/**
+	 * Cross-tab safe claim. Both paths run the SAME protocol on the SAME claim records (`ws.notif.claim.v1.<user>.<id>.<tab>` = {exp, ts, tok}):
+	 * write own claim, settle, then the lowest (ts, tabId) among live claims wins. The Web Lock only serializes the critical section, so a tab on
+	 * the lock path and a tab that fell back (lock timeout / no Web Locks) agree on one winner. Call {@link stillOwns} right before displaying.
+	 */
 	async claim(userId: string, key: string): Promise<PopupClaimResult> {
 		if (!userId || !key) return { won: false };
 		const locks = this.locks();
 		if (locks) {
 			try {
-				const r = await this.withLock(locks, userId, () => this.decideLocked(userId, key));
-				this.lastPath = 'locks';
-				return r;
-			} catch { /* lock unusable or timed out: use the fallback below */ }
+				const r = await this.withLock(locks, userId, () => this.decide(userId, key));
+				if (r !== ABANDONED) { this.lastPath = 'locks'; return r; }
+			} catch { /* lock unusable or timed out (request aborted): use the shared protocol without the lock */ }
 		}
 		this.lastPath = 'fallback';
-		return this.decideFallback(userId, key);
+		return this.decide(userId, key);
+	}
+
+	/**
+	 * Synchronous last check, to be called in the same task as the display (after any await / lock wait / resume from a freeze):
+	 * this tab still holds its own unexpired claim token, nobody holds an earlier-ordered live claim, and the id is not already shown.
+	 * False means: drop silently.
+	 */
+	stillOwns(userId: string, key: string): boolean {
+		if (!userId || !key) return false;
+		if (this.read(userId).includes(key)) return false;
+		const mine = this.ownTokens.get(this.claimKey(userId, key, this.tabId));
+		if (!mine) return false;
+		const live = this.liveClaims(userId, key);
+		const me = live.find(c => c.tab === this.tabId);
+		if (!me || me.tok !== mine || me.exp <= Date.now()) return false;
+		return !live.some(c => c.tab !== this.tabId && this.before(c, me));
 	}
 
 	/** The winner calls this right after showing: the id is now permanently "shown" and the lease is released. */
@@ -75,7 +97,7 @@ export class NotificationPopupLedger {
 		if (!userId || !key) return;
 		const run = () => { this.addShown(userId, [key]); this.dropClaim(userId, key, this.tabId); };
 		const locks = this.locks();
-		if (locks) { try { await this.withLock(locks, userId, async () => run()); return; } catch { /* fall through */ } }
+		if (locks) { try { if ((await this.withLock(locks, userId, async () => run())) !== ABANDONED) return; } catch { /* fall through */ } }
 		run();
 	}
 
@@ -87,43 +109,39 @@ export class NotificationPopupLedger {
 		if (add.length) this.addShown(userId, add);
 	}
 
-	// ---- decision paths ----
+	// ---- decision (shared by both paths) ----
 
-	private decideLocked(userId: string, key: string): PopupClaimResult {
-		if (this.read(userId).includes(key)) return { won: false };
-		if (this.liveClaims(userId, key).some(c => c.tab === this.tabId)) return { won: false }; // this tab already holds it
-		const foreign = this.liveForeignClaim(userId, key);
-		if (foreign !== null) return { won: false, retryInMs: Math.max(0, foreign - Date.now()) };
-		this.writeClaim(userId, key);
-		return { won: true };
+	private before(a: { ts: number; tab: string }, b: { ts: number; tab: string }): boolean {
+		return a.ts !== b.ts ? a.ts < b.ts : a.tab < b.tab;
 	}
 
-	private async decideFallback(userId: string, key: string): Promise<PopupClaimResult> {
+	private async decide(userId: string, key: string): Promise<PopupClaimResult> {
 		if (this.read(userId).includes(key)) return { won: false };
-		if (this.liveClaims(userId, key).some(c => c.tab === this.tabId)) return { won: false }; // this tab already holds it
+		if (this.liveClaims(userId, key).some(c => c.tab === this.tabId)) return { won: false }; // this tab already holds/contends for it
 		const foreign = this.liveForeignClaim(userId, key);
-		if (foreign !== null) {
-			// someone is already ahead of us: unless they die, they show it. Still write nothing and look again at their lease end.
-			return { won: false, retryInMs: Math.max(0, foreign - Date.now()) };
-		}
+		if (foreign !== null) return { won: false, retryInMs: Math.max(0, foreign - Date.now()) }; // someone is ahead: only if it dies do we take over
 		this.writeClaim(userId, key);
 		if (this.settleMs > 0) await new Promise<void>(r => setTimeout(r, this.settleMs));
 		if (this.read(userId).includes(key)) { this.dropClaim(userId, key, this.tabId); return { won: false }; }
-		const contenders = this.liveClaims(userId, key); // [{tab, exp}] including ours
-		const winner = contenders.map(c => c.tab).sort()[0];
-		if (winner === this.tabId || winner === undefined) return { won: true };
+		const live = this.liveClaims(userId, key);
+		const me = live.find(c => c.tab === this.tabId);
+		if (!me) return { won: false }; // our record expired/vanished during the wait (frozen tab): not ours any more
+		const best = live.reduce((x, y) => (this.before(y, x) ? y : x));
+		if (best.tab === this.tabId) return { won: true };
 		this.dropClaim(userId, key, this.tabId);
-		const exp = contenders.find(c => c.tab === winner)!.exp;
-		return { won: false, retryInMs: Math.max(0, exp - Date.now()) };
+		return { won: false, retryInMs: Math.max(0, best.exp - Date.now()) };
 	}
 
-	private withLock<T>(locks: any, userId: string, fn: () => T | Promise<T>): Promise<T> {
+	private withLock<T>(locks: any, userId: string, fn: () => T | Promise<T>): Promise<T | typeof ABANDONED> {
+		let state: 'pending' | 'running' | 'abandoned' = 'pending';
 		const ac = typeof AbortController !== 'undefined' ? new AbortController() : null;
-		const timer = ac ? setTimeout(() => ac.abort(), LOCK_TIMEOUT_MS) : null;
+		const timer = setTimeout(() => { if (state === 'pending') { state = 'abandoned'; ac?.abort(); } }, LOCK_TIMEOUT_MS);
 		return locks.request(LOCK_PREFIX + userId, ac ? { mode: 'exclusive', signal: ac.signal } : { mode: 'exclusive' }, async () => {
-			if (timer) clearTimeout(timer);
+			// a grant that arrives after we gave up must not decide anything: the fallback already may have claimed/committed
+			if (state === 'abandoned') return ABANDONED;
+			state = 'running'; clearTimeout(timer);
 			return fn();
-		}).finally(() => { if (timer) clearTimeout(timer); });
+		}).finally(() => clearTimeout(timer));
 	}
 
 	private locks(): any | null {
@@ -139,36 +157,49 @@ export class NotificationPopupLedger {
 	private claimKey(userId: string, key: string, tab: string): string { return `${CLAIM_PREFIX}${userId}.${key}.${tab}`; }
 
 	private writeClaim(userId: string, key: string): void {
-		const exp = Date.now() + this.leaseMs;
-		this.memoryClaims.set(this.claimKey(userId, key, this.tabId), exp);
+		const k = this.claimKey(userId, key, this.tabId);
+		const tok = Math.random().toString(36).slice(2) + Date.now().toString(36);
+		this.ownTokens.set(k, tok);
+		const rec: ClaimRec = { exp: Date.now() + this.leaseMs, ts: Date.now(), tok };
+		this.memoryClaims.set(k, rec);
 		if (!this.isBrowser) return;
-		try { localStorage.setItem(this.claimKey(userId, key, this.tabId), String(exp)); } catch { /* memory copy holds */ }
+		try { localStorage.setItem(k, JSON.stringify(rec)); } catch { /* memory copy holds */ }
 	}
 
 	private dropClaim(userId: string, key: string, tab: string): void {
 		const k = this.claimKey(userId, key, tab);
-		this.memoryClaims.delete(k);
+		this.memoryClaims.delete(k); this.ownTokens.delete(k);
 		if (!this.isBrowser) return;
 		try { localStorage.removeItem(k); } catch { /* ignore */ }
 	}
 
+	private parseClaim(raw: string | null): ClaimRec | null {
+		if (!raw) return null;
+		try {
+			const v = JSON.parse(raw);
+			if (typeof v === 'number') return { exp: v, ts: v, tok: '' };
+			if (v && Number.isFinite(v.exp) && Number.isFinite(v.ts)) return { exp: v.exp, ts: v.ts, tok: String(v.tok ?? '') };
+		} catch { /* corrupt */ }
+		return null;
+	}
+
 	/** all live (unexpired) claims for the id, ours included; expired ones are swept */
-	private liveClaims(userId: string, key: string): { tab: string; exp: number }[] {
+	private liveClaims(userId: string, key: string): { tab: string; exp: number; ts: number; tok: string }[] {
 		const prefix = `${CLAIM_PREFIX}${userId}.${key}.`;
 		const now = Date.now();
-		const found = new Map<string, number>();
-		for (const [k, exp] of this.memoryClaims) if (k.startsWith(prefix)) found.set(k, exp);
+		const found = new Map<string, ClaimRec>();
+		for (const [k, rec] of this.memoryClaims) if (k.startsWith(prefix)) found.set(k, rec);
 		if (this.isBrowser) {
 			try {
 				const keys: string[] = [];
 				for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(prefix)) keys.push(k); }
-				for (const k of keys) { const exp = Number(localStorage.getItem(k)); if (Number.isFinite(exp)) found.set(k, exp); else localStorage.removeItem(k); }
+				for (const k of keys) { const rec = this.parseClaim(localStorage.getItem(k)); if (rec) found.set(k, rec); else localStorage.removeItem(k); }
 			} catch { /* memory only */ }
 		}
-		const out: { tab: string; exp: number }[] = [];
-		for (const [k, exp] of found) {
-			if (exp <= now) { this.memoryClaims.delete(k); try { if (this.isBrowser) localStorage.removeItem(k); } catch { /* ignore */ } continue; }
-			out.push({ tab: k.slice(prefix.length), exp });
+		const out: { tab: string; exp: number; ts: number; tok: string }[] = [];
+		for (const [k, rec] of found) {
+			if (rec.exp <= now) { this.memoryClaims.delete(k); this.ownTokens.delete(k); try { if (this.isBrowser) localStorage.removeItem(k); } catch { /* ignore */ } continue; }
+			out.push({ tab: k.slice(prefix.length), ...rec });
 		}
 		return out;
 	}
