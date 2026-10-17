@@ -1,3 +1,5 @@
+import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
+import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -8,7 +10,7 @@ import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
 @Component({
 	selector: 'app-provider-invoices',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, LoadRetryComponent, RateLimitNoteComponent],
 	templateUrl: './invoices.html',
 	styleUrls: ['./invoices.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,6 +20,9 @@ export class InvoicesComponent implements OnInit {
 	summary = signal<ProviderInvoicesResponse['summary'] | null>(null);
 	isLoading = signal<boolean>(true);
 	hasError = signal<boolean>(false);
+	/** the failed load was a 429 (nothing loaded) / a 429 while invoices are shown */
+	rateLimited = signal(false);
+	rateLimitKept = signal(false);
 
 	activeTab = signal<'all' | 'paid' | 'due'>('all');
 
@@ -39,14 +44,14 @@ export class InvoicesComponent implements OnInit {
 
 	loadInvoices(): void {
 		this.isLoading.set(true);
-		this.hasError.set(false);
+		this.hasError.set(false); this.rateLimited.set(false); this.rateLimitKept.set(false);
 		// GET /provider/finance/invoices: one invoice per delivered stage, with the platform commission and the provider's net
 		this.providerApi.getProviderInvoices().subscribe({
 			next: res => { this.invoices.set(res?.data?.invoices ?? []); this.summary.set(res?.data?.summary ?? null); this.isLoading.set(false); },
 			error: (err) => handleLoadError(err, {
 				hasData: () => this.invoices().length > 0,
-				onKeep: () => this.isLoading.set(false),
-				onRateLimit: () => { this.hasError.set(true); this.isLoading.set(false); },
+				onKeep: () => { this.rateLimitKept.set(true); this.isLoading.set(false); },
+				onRateLimit: () => { this.hasError.set(true); this.rateLimited.set(true); this.isLoading.set(false); },
 				onOtherError: () => { this.invoices.set([]); this.hasError.set(true); this.isLoading.set(false); },
 			})
 		});

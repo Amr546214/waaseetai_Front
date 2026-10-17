@@ -56,11 +56,12 @@ describe('SaSystemSettings', () => {
 
 	it('a failed save shows the server error and keeps the draft', async () => {
 		const { c, http } = setup();
-		c.setField('supportEmail', 'bad');
-		await c.save(['supportEmail']);
-		http.expectOne((r) => r.method === 'PUT').flush({ message: 'البريد غير صالح' }, { status: 400, statusText: 'Bad Request' });
-		expect(c.error()).toBe('البريد غير صالح');
-		expect(c.form().supportEmail).toBe('bad');
+		c.setField('platformName', 'اسم مرفوض');
+		await c.save(['platformName']);
+		http.expectOne((r) => r.method === 'PUT').flush({ message: 'اسم المنصة غير مسموح' }, { status: 400, statusText: 'Bad Request' });
+		await new Promise<void>((r) => setTimeout(r, 0));
+		expect(c.error()).toBe('اسم المنصة غير مسموح');
+		expect(c.form().platformName).toBe('اسم مرفوض');
 	});
 
 	it('unwired controls are disabled with a visible reason', () => {

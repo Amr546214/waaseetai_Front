@@ -58,6 +58,7 @@
 		</div>
 	</div>
 
+	@if (loadError()) { <p role="alert" class="text-sm rounded-xl border border-red-400/30 p-3 mb-4" data-testid="load-error">{{ loadError() }}</p> }
 	<ng-container [ngSwitch]="currentStep()">
 
 		<!-- ==================== STEP 1: SELECT SPECIALTY ==================== -->
@@ -71,6 +72,8 @@
 
 		<!-- ==================== STEP 2: UPLOAD WORK SAMPLE & PROOFS ==================== -->
 		<ng-container *ngSwitchCase="2">
+			@if (adminNote()) { <div class="rounded-xl bg-yellow-500/10 p-3 mb-4 text-sm" role="status" data-testid="admin-note"><span class="font-bold">ملاحظة الإدارة: </span>{{ adminNote() }}</div> }
+			@if (lockedSpecialtyName()) { <div class="text-xs mb-3" data-testid="locked-specialty">التخصص: {{ lockedSpecialtyName() }}</div> }
 			<app-step2-upload [title]="title()" (titleChange)="title.set($event)" [description]="description()"
 				(descriptionChange)="description.set($event)" [techInput]="techInput()"
 				(techInputChange)="techInput.set($event)" [technologiesUsed]="technologiesUsed()"
@@ -78,7 +81,8 @@
 				(projectUrlChange)="projectUrl.set($event)" [githubUrl]="githubUrl()"
 				(githubUrlChange)="githubUrl.set($event)" [attachments]="attachments()"
 				(onFileSelected)="onFileSelected($event)" (onHandleDrop)="handleDrop($event)"
-				(onRemoveAttachment)="removeAttachment($event)">
+				(onRemoveAttachment)="removeAttachment($event)" [fieldErrors]="fieldErrors()" [existingProofs]="existingProofs()"
+				[highlightFields]="highlightFields()" (onRemoveExistingProof)="removeExistingProof($event)">
 			</app-step2-upload>
 		</ng-container>
 
@@ -97,7 +101,7 @@
 <div class="sticky-bar" *ngIf="currentStep() < 3" role="navigation" aria-label="إجراءات الصفحة" dir="rtl">
 	<div class="sticky-bar-inner">
 		<!-- Previous/Cancel Button -->
-		<button type="button" *ngIf="currentStep() > 1" (click)="goPrev()" class="btn-cancel">
+		<button type="button" *ngIf="currentStep() > 1 && !resubmitId()" (click)="goPrev()" class="btn-cancel">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:16px;height:16px"><polyline points="15 18 9 12 15 6"/></svg>
 			السابق
 		</button>
@@ -110,7 +114,7 @@
 			<span *ngIf="currentStep() === 1 && !isCurrentStepValid" style="font-size:12px" class="txt-muted">اختر تخصصاً
 				واحداً على الأقل</span>
 
-			<button type="button" class="btn-next" [disabled]="!isCurrentStepValid" (click)="goNext()">
+			<button type="button" class="btn-next" [disabled]="currentStep() === 1 && !isCurrentStepValid" (click)="goNext()">
 				<span>{{ currentStep() === 1 ? 'التالي: بيانات المرفقات الفنية' : 'إرسال للمراجعة اليدوية من فريق وسيط' }}</span>
 				<svg *ngIf="currentStep() === 1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"

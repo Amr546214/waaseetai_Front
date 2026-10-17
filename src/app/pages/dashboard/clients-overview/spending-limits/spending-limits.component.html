@@ -36,8 +36,8 @@
 								[class.danger]="percentSpent(lim) >= 95"></div>
 						</div>
 						<div class="limit-meta">
-							<span class="limit-spent">{{ lim.spent.toLocaleString() }} دولار</span>
-							<span class="limit-total">من {{ lim.limit.toLocaleString() }} دولار</span>
+							<span class="limit-spent">{{ lim.spent | number:'1.0-2' }} دولار</span>
+							<span class="limit-total">من {{ lim.limit | number:'1.0-2' }} دولار</span>
 						</div>
 					</div>
 					<div class="limit-pct" [class.warn]="percentSpent(lim) >= 80" [class.danger]="percentSpent(lim) >= 95">

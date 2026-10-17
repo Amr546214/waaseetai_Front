@@ -62,7 +62,7 @@
                 <td class="of-req-title">
                   <a class="of-info-link" [routerLink]="['/supper-admin-overview/requests', o.requestId]" (click)="$event.stopPropagation()">{{ o.requestTitle }}</a>
                 </td>
-                <td class="of-price">{{ o.price | number }} $</td>
+                <td class="of-price">{{ o.price | number:'1.0-2' }} $</td>
                 <td class="of-muted">{{ o.deliveryDays }} يوم</td>
                 <td>
                   @if (o.aiMatchScore !== null || o.aiQualityTag || o.aiPriceTag) {

@@ -21,6 +21,10 @@ export interface AdminProgress { totalStages: number; approvedStages: number; pe
 
 export interface AdminProjectRow {
   id: string; title: string; status: string; createdAt: string; deliveryDays: number;
+  /** Closed by an admin dispute settlement (derived by the server): shown with its own label, never as «مكتمل». */
+  adminSettled?: { disputeId: string; outcome: string; label: string } | null; statusLabel?: string | null;
+  /** The shared server lifecycle (state, closure, per-action eligibility) and its financial summary; list rows carry the light version. */
+  lifecycle?: any; financial?: any;
   client: AdminParty | null; provider: AdminParty | null;
   contract: { id: string; price: number; status: string } | null;
   escrow: AdminEscrow | null; progress: AdminProgress;
@@ -32,13 +36,16 @@ export interface AdminProjectListData {
   pagination: AdminPagination;
 }
 export interface AdminStageDelivery { id: string; status: string; note: string; files: string[]; reviewNote: string | null; submittedAt: string; reviewedAt: string | null }
-export interface AdminStage { id: string; stepOrder: number; title: string; amount: number; percentage: number; days: number; status: string; startedAt: string | null; approvedAt: string | null; deliveries: AdminStageDelivery[] }
+export interface AdminStage { id: string; stepOrder: number; title: string; amount: number; percentage: number; days: number; status: string; displayStatus?: string | null; displayStatusLabel?: string | null; startedAt: string | null; approvedAt: string | null; deliveries: AdminStageDelivery[] }
 export interface AdminProjectDetail {
+  adminSettled?: { disputeId: string; outcome: string; label: string } | null; statusLabel?: string | null;
+  /** The shared server lifecycle (state, closure, per-action eligibility) and its financial summary; list rows carry the light version. */
+  lifecycle?: any; financial?: any;
   id: string; title: string; description: string; status: string; createdAt: string; deliveryDays: number; specialty: string;
   client: AdminParty | null; provider: AdminParty | null;
   contract: { id: string; price: number; status: string; durationDays: number; signedAt: string | null; clientSignedAt: string | null; providerSignedAt: string | null } | null;
   escrow: AdminEscrow | null; stages: AdminStage[];
-  amendments: { id: string; title: string; type: string; status: string; budgetDelta: number | null; durationDeltaDays: number | null; createdAt: string }[];
+  amendments: { id: string; title: string; type: string; status: string; budgetDelta: number | null; durationDeltaDays: number | null; createdAt: string; effect?: 'RECORD_ONLY'; effectNote?: string }[];
   progress: AdminProgress;
   disputes: { id: string; status: string; reason: string; createdAt: string; resolvedAt: string | null }[];
   openDisputes: number; currency: string;

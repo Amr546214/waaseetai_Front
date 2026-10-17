@@ -2,11 +2,13 @@ import type { RegisteredSpecialty } from '../../../../../../core/utils/specialty
 import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
+import { mapHttpError } from '../../../../../../core/forms/http-error';
+import { focusFirstInvalid } from '../../../../../../core/forms/form-helpers';
 import { Step1SpecialtyComponent } from './components/step1-specialty/step1-specialty.component';
 import { Step2UploadComponent } from './components/step2-upload/step2-upload.component';
 import { Step3EvaluationComponent } from './components/step3-evaluation/step3-evaluation.component';
-import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../../core/services/provider-access.service';
+import { PROVIDER_ACCOUNT_ACTIONS_URL, ProviderAccessService } from '../../../../../../core/services/provider-access.service';
 import { ProviderApiService } from '../../../../../../core/services/provider-api.service';
 
 export interface Specialty {
@@ -57,6 +59,7 @@ export class New implements OnInit, OnDestroy {
 	private providerApi = inject(ProviderApiService);
 	private router = inject(Router);
 	private access = inject(ProviderAccessService);
+	private route = inject(ActivatedRoute);
 
 	currentStep = signal<number>(1);
 	isLoading = signal<boolean>(true);
@@ -88,9 +91,57 @@ export class New implements OnInit, OnDestroy {
 	declaredAccuracy = signal<boolean>(true);
 	agreedToTerms = signal<boolean>(true);
 
+	// Batch B T1: completing / re-submitting an existing request («استكمال البيانات»): the SAME request opens with its previous data
+	resubmitId = signal<string | null>(null);
+	existingProofs = signal<{ id: string; fileName: string; bytes: number }[]>([]);
+	highlightFields = signal<string[]>([]);
+	adminNote = signal<string | null>(null);
+	fieldErrors = signal<Record<string, string>>({});
+	loadError = signal<string | null>(null);
+
 	ngOnInit() {
+		const resubmit = this.route.snapshot.queryParamMap.get('resubmit');
+		if (resubmit) { this.loadCompletion(resubmit); return; }
 		this.fetchSpecialties();
 	}
+
+	private loadCompletion(id: string) {
+		this.isLoading.set(true);
+		this.providerApi.getAccountActionCompletion(id).subscribe({
+			next: res => {
+				const d = res?.data;
+				if (!d) { this.loadError.set('تعذّر تحميل بيانات الطلب'); this.isLoading.set(false); return; }
+				this.resubmitId.set(d.id);
+				this.title.set(d.model?.title ?? '');
+				this.description.set(d.model?.description ?? '');
+				this.technologiesUsed.set(Array.isArray(d.model?.technologiesUsed) ? d.model.technologiesUsed : []);
+				this.projectUrl.set(d.model?.projectUrl ?? '');
+				this.githubUrl.set(d.model?.githubUrl ?? '');
+				this.existingProofs.set(Array.isArray(d.attachments) ? d.attachments : []);
+				this.highlightFields.set(Array.isArray(d.completionFields) ? d.completionFields : []);
+				this.adminNote.set(d.adminNote ?? null);
+				// the request is tied to its specialty: no free choice, the step 1 selection is the request's own
+				this.selectedSpecialtyId.set(d.specialty?.providerSpecialtyId ?? null);
+				this.lockedSpecialtyName.set(d.specialty?.nameAr ?? null);
+				this.currentStep.set(2);
+				this.isLoading.set(false);
+			},
+			error: err => {
+				const m = mapHttpError(err, { fallback: 'تعذّر فتح الطلب للاستكمال' });
+				this.loadError.set(m.message);
+				this.isLoading.set(false);
+			}
+		});
+	}
+	lockedSpecialtyName = signal<string | null>(null);
+
+	removeExistingProof(id: string) {
+		this.providerApi.deleteAccreditationProof(id).subscribe({
+			next: () => { this.existingProofs.update(list => list.filter(p => p.id !== id)); this.syncProofError(true); },
+			error: err => this.fieldErrors.update(e => ({ ...e, files: mapHttpError(err, { fallback: 'تعذّر حذف الملف' }).message }))
+		});
+	}
+
 
 	fetchSpecialties() {
 		this.isLoading.set(true);
@@ -197,6 +248,7 @@ export class New implements OnInit, OnDestroy {
 	private processSelectedFiles(files: FileList) {
 		const allowedTypes = new Set(['image/png', 'image/jpeg', 'image/webp', 'application/pdf', 'application/zip', 'application/x-zip-compressed']);
 		const availableSlots = Math.max(0, 10 - this.attachments().length);
+		const before = this.attachments().length;
 			for (let i = 0; i < Math.min(files.length, availableSlots); i++) {
 				const file = files[i];
 				if (!allowedTypes.has(file.type) || file.size > 15 * 1024 * 1024) continue;
@@ -210,12 +262,27 @@ export class New implements OnInit, OnDestroy {
 					};
 					this.attachments.update(att => [...att, attachment]);
 			}
+			// the proof error follows the proof state at once (not only at the next submit); a batch with no accepted file says why
+			if (this.attachments().length > before) this.syncProofError(false);
+			else if (files.length > 0) this.setProofError(availableSlots === 0 ? 'وصلت للحد الأقصى (10 ملفات). احذف ملفًا لإضافة غيره' : 'الملف غير مقبول: ارفع صورة أو PDF أو ZIP حتى 15 ميجابايت');
 		}
 
 	removeAttachment(id: string) {
 		const attachment = this.attachments().find(item => item.id === id);
 		if (attachment?.url.startsWith('blob:')) URL.revokeObjectURL(attachment.url);
 		this.attachments.update(att => att.filter(a => a.id !== id));
+		this.syncProofError(true);
+	}
+
+	private readonly proofMissingMessage = 'ارفع ملف إثبات واحدًا على الأقل (صورة أو PDF أو ZIP حتى 15 ميجابايت)';
+	private setProofError(message: string) { this.fieldErrors.update(e => ({ ...e, files: message })); }
+	/** Re-evaluates ONLY the proof error from the current proof state (staged files + kept proofs); every other field's error is untouched. */
+	private syncProofError(afterRemoval: boolean) {
+		if (this.attachments().length + this.existingProofs().length > 0) {
+			this.fieldErrors.update(e => { if (!('files' in e)) return e; const { files: _f, ...rest } = e; return rest; });
+		} else if (afterRemoval) {
+			this.setProofError(this.proofMissingMessage);
+		}
 	}
 
 	ngOnDestroy(): void {
@@ -233,7 +300,8 @@ export class New implements OnInit, OnDestroy {
 			return this.title().trim().length >= 3 &&
 				this.description().trim().length >= 10 &&
 				this.technologiesUsed().length > 0 &&
-				(this.attachments().length > 0 || this.isValidHttpUrl(this.projectUrl()) || this.isValidHttpUrl(this.githubUrl()));
+				// Batch B T1 (§3): a proof FILE is mandatory (a link alone is not a document)
+				(this.attachments().length + this.existingProofs().length > 0);
 		}
 
 	private isValidHttpUrl(value: string): boolean {
@@ -255,9 +323,25 @@ export class New implements OnInit, OnDestroy {
 		if (this.currentStep() === 1 && this.isValidStep1) {
 			this.currentStep.set(2);
 			window.scrollTo(0, 0);
-		} else if (this.currentStep() === 2 && this.isValidStep2) {
+		} else if (this.currentStep() === 2) {
+			// an invalid step never silently does nothing: each missing field is named at its input and the first one is focused
+			if (!this.isValidStep2) { this.showStep2Errors(); return; }
 			this.submitForAiEvaluation();
 		}
+	}
+
+	private showStep2Errors() {
+		const e: Record<string, string> = {};
+		if (this.title().trim().length < 3) e['title'] = 'عنوان النموذج مطلوب (3 أحرف على الأقل)';
+		if (this.description().trim().length < 10) e['description'] = 'الوصف الفني مطلوب (10 أحرف على الأقل)';
+		if (this.technologiesUsed().length === 0) e['technologiesUsed'] = 'أضف تقنية واحدة على الأقل';
+		if (this.attachments().length + this.existingProofs().length === 0) e['files'] = this.proofMissingMessage;
+		this.fieldErrors.set(e);
+		this.focusInvalidSoon();
+	}
+
+	private focusInvalidSoon() {
+		setTimeout(() => focusFirstInvalid(document.querySelector('app-step2-upload')), 0);
 	}
 
 	goPrev() {
@@ -271,7 +355,8 @@ export class New implements OnInit, OnDestroy {
 	 * Submits Accreditation Work Sample to backend & runs Gemini Evaluation
 	 */
 	submitForAiEvaluation() {
-		if (!this.isValidStep2) return;
+		if (!this.isValidStep2 || this.isAnalyzing()) return; // one request at a time (no double click)
+		this.fieldErrors.set({});
 
 		this.isAnalyzing.set(true);
 		this.hasError.set(null);
@@ -283,6 +368,8 @@ export class New implements OnInit, OnDestroy {
 
 			const payload = new FormData();
 			payload.append('providerSpecialtyId', spec?.id || this.selectedSpecialtyId()!);
+			if (this.resubmitId()) payload.append('resubmitSampleId', this.resubmitId()!);
+			if (this.existingProofs().length) payload.append('proofIds', JSON.stringify(this.existingProofs().map(p => p.id)));
 			payload.append('title', this.title().trim());
 			payload.append('description', this.description().trim());
 			payload.append('technologiesUsed', JSON.stringify(this.technologiesUsed()));
@@ -292,11 +379,11 @@ export class New implements OnInit, OnDestroy {
 				if (attachment.file) payload.append('files', attachment.file, attachment.name);
 			});
 
-		this.providerApi.submitAccreditationSample(payload).subscribe({
+		this.providerApi.submitAccreditationRequest(payload).subscribe({
 			next: (res) => {
 				this.isAnalyzing.set(false);
 				if (res && res.success && res.data) {
-					this.afterSampleSubmitted();
+					this.afterSampleSubmitted(res.data?.sample?.id);
 					if (res.data.evaluation) {
 						this.evaluationResult.set(res.data.evaluation);
 					} else {
@@ -309,9 +396,19 @@ export class New implements OnInit, OnDestroy {
 				}
 			},
 			error: (err) => {
-				console.error('AI Evaluation error:', err);
 				this.isAnalyzing.set(false);
-				this.hasError.set('حدث خطأ أثناء إرسال النموذج. يرجى المحاولة لاحقاً.');
+				const m = mapHttpError(err, { fallback: 'حدث خطأ أثناء إرسال النموذج. يرجى المحاولة لاحقاً.' });
+				// the server names the field (files, title, description...): back to the form, shown at the input, everything the user entered is kept
+				const fields = Object.fromEntries(Object.entries(m.fieldErrors ?? {}).filter(([k]) => ['title', 'description', 'files', 'projectUrl', 'githubUrl', 'technologiesUsed', 'providerSpecialtyId'].includes(k)));
+				if (Object.keys(fields).length) {
+					this.fieldErrors.set(fields);
+					this.hasError.set(null);
+					this.currentStep.set(2);
+					this.focusInvalidSoon();
+					return;
+				}
+				// a duplicate / state conflict (409), 429 or a network error stay honest generic messages, never invented field errors
+				this.hasError.set(m.message);
 			}
 		});
 	}
@@ -320,11 +417,13 @@ export class New implements OnInit, OnDestroy {
 	 * The sample is in: forget the last access answer and re-read it from the backend. A provider who is not approved yet continues on the status page
 	 * (what happens next is the backend's say); an approved one stays on this page. A failed read counts as "not approved" (closed).
 	 */
-	private afterSampleSubmitted() {
+	private afterSampleSubmitted(sampleId?: string) {
+		// after submitting, the user goes to the REAL log of this request
+		const target = sampleId ? `${PROVIDER_ACCOUNT_ACTIONS_URL}/${sampleId}` : PROVIDER_ACCOUNT_ACTIONS_URL;
 		this.access.invalidate();
 		this.access.load().subscribe({
-			next: s => { if (!s.canAccessDashboard) this.router.navigateByUrl(PROVIDER_ACCESS_STATUS_URL); },
-			error: () => { this.router.navigateByUrl(PROVIDER_ACCESS_STATUS_URL); },
+			next: s => { if (!s.canAccessDashboard) this.router.navigateByUrl(target); },
+			error: () => { this.router.navigateByUrl(target); },
 		});
 	}
 

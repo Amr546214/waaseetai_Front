@@ -29,15 +29,16 @@
 					<div class="rv-top">
 						<div>
 							<div class="rv-ttl">{{ item.projectTitle }}</div>
-							<div class="rv-sub">تسليم المرحلة {{ item.stageNumber }}: {{ item.stageTitle }} · {{ item.contractRef }} · من {{ item.providerName }}</div>
+							<div class="rv-sub">{{ heading(item) }} · {{ item.contractRef }} · من {{ item.providerName }}</div>
 						</div>
-						<span class="rv-badge">بانتظار اعتمادك</span>
+						<span class="rv-badge">{{ item.frozen ? 'الاعتماد موقوف بسبب نزاع' : 'بانتظار اعتمادك' }}</span>
 					</div>
 					<div class="rv-meta">
 						<div class="rv-meta-item"><div class="rv-meta-lbl">قيمة المرحلة</div><div class="rv-meta-val">{{ formatNumber(item.amount) }} $</div></div>
 						<div class="rv-meta-item"><div class="rv-meta-lbl">سُلّمت</div><div class="rv-meta-val">{{ submittedTimeAgo(item) }}</div></div>
 						<div class="rv-meta-item"><div class="rv-meta-lbl">الملفات</div><div class="rv-meta-val">{{ item.filesCount }} ملفات</div></div>
 					</div>
+					@if (item.frozen) { <div class="rv-meta-lbl" data-testid="rv-frozen-note">{{ item.approvalBlockedReason }}</div> }
 					<a class="rv-cta" [routerLink]="['/client-overview/projects', item.projectId, 'delivery-review', item.stageId]">
 						مراجعة التسليم
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>

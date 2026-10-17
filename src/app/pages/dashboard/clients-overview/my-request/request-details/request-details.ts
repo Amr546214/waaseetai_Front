@@ -1,5 +1,5 @@
 import { LevelBadgeComponent } from '../../../../../shared/levels/level-badge.component';
-import { Component, signal, computed, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -8,6 +8,8 @@ import { ThemeService } from '../../../../../core/services/theme.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ChatService } from '../../../../../core/services/chat.service';
 import { resolveProviderLevelBadgeStyle } from '../../../../../core/utils/provider-level-style.util';
+import { formatMoney } from '../../../../../core/utils/money.util';
+import { hasFieldErrors, reportClientBackend, reportClientProblems } from '../../client-form-report';
 
 interface Offer {
 	id: string;
@@ -91,6 +93,7 @@ export class RequestDetails implements OnInit {
 	public themeService = inject(ThemeService);
 	private chatService = inject(ChatService);
 	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
 	requestId = signal<string>('');
 	isLoading = signal<boolean>(true);
@@ -157,9 +160,9 @@ export class RequestDetails implements OnInit {
 					let formattedBudget = '';
 					if (data.budget) {
 						if (data.budget.type === 'RANGE' && data.budget.min && data.budget.max) {
-							formattedBudget = `${data.budget.min.toLocaleString()} - ${data.budget.max.toLocaleString()} $`;
+							formattedBudget = `${formatMoney(data.budget.min)} - ${formatMoney(data.budget.max)} $`;
 						} else if (data.budget.type === 'FIXED' && data.budget.min) {
-							formattedBudget = `${data.budget.min.toLocaleString()} $`;
+							formattedBudget = `${formatMoney(data.budget.min)} $`;
 						} else {
 							formattedBudget = 'غير محدد';
 						}
@@ -384,7 +387,8 @@ export class RequestDetails implements OnInit {
 		}
 		this.selectedOffer.set(offer);
 		this.negProvider.set(offer.providerName);
-		this.negPrice.set((offer.price || '').replace(' $', '').trim());
+		// Starts empty: the client types the price they propose (the offer's current price is shown beside the field as information).
+		this.negPrice.set('');
 		this.negDuration.set('');
 		this.negType.set('price');
 		this.negMessage.set('');
@@ -414,6 +418,14 @@ export class RequestDetails implements OnInit {
 	}
 
 	/** What the request form allows: a clear number for price / duration, a note for plan / other. Returns the Arabic reason when it is not valid, null when it is. */
+	/** The same rule as negValidationError(), tied to the control that shows it. */
+	negValidationProblem(): { field: string; message: string } | null {
+		const message = this.negValidationError();
+		if (!message) return null;
+		const field = this.negType() === 'price' ? 'neg-price' : this.negType() === 'dur' ? 'neg-dur' : 'neg-msg';
+		return { field, message };
+	}
+
 	negValidationError(): string | null {
 		const plain = (v: string) => v.replace(/[\s,$]/g, '');
 		if (this.negType() === 'price') {
@@ -435,9 +447,10 @@ export class RequestDetails implements OnInit {
 			return;
 		}
 		if (this.isSendingNegotiation()) return;
-		const invalid = this.negValidationError();
+		const invalid = this.negValidationProblem();
 		if (invalid) {
-			this.notify.warning(invalid);
+			// The message sits under the field that is wrong (red, role=alert) and the field gets focus; no toast-only validation.
+			void reportClientProblems(this.host.nativeElement, [invalid]);
 			return;
 		}
 
@@ -475,6 +488,15 @@ export class RequestDetails implements OnInit {
 			},
 			error: (err) => {
 				this.isSendingNegotiation.set(false);
+				// A 400/422 that names price / duration / notes stays open with the message under that field.
+				if (hasFieldErrors(err)) {
+					void reportClientBackend(this.host.nativeElement, err, { resolve: { price: 'neg-price', duration: 'neg-dur', notes: 'neg-msg' } }).then((r) => {
+						if (r.handled && !r.generic) return;
+						this.closeNegotiation();
+						this.notify.error(r.generic || this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
+					});
+					return;
+				}
 				this.closeNegotiation();
 				this.notify.error(this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
 				// the reason may be a state change (offer withdrawn / chosen): reload so the buttons match the server

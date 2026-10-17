@@ -109,7 +109,7 @@ describe('marketer withdraw: server balance, states and details', () => {
   });
 
   it('the server\'s own refusal is shown as is', async () => {
-    await setup({}, ROWS, throwError(() => ({ error: { message: 'المبلغ المطلوب يتجاوز رصيدك الصافي بعد طلبات السحب المعلقة (10 $)' } })));
+    await setup({}, ROWS, throwError(() => ({ status: 409, error: { message: 'المبلغ المطلوب يتجاوز رصيدك الصافي بعد طلبات السحب المعلقة (10 $)' } })));
     c.withdrawForm.patchValue({ amount: 500 }); c.submitWithdrawal();
     expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'error', message: expect.stringContaining('بعد طلبات السحب المعلقة') });
   });

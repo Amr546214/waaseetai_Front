@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 export type RequestStatusKey =
   | 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'DRAFT' | 'PENDING_SIGNATURE' | 'DISPUTED';
@@ -163,7 +164,7 @@ export function buildListParams(q: AdminListQuery): HttpParams {
 /** Budget text, USD only: range, fixed, or hourly. */
 export function formatBudget(b: AdminBudget | null | undefined): string {
   if (!b) return '—';
-  const f = (n: number | null) => (n === null || n === undefined ? null : Number(n).toLocaleString('en-US'));
+  const f = (n: number | null) => (n === null || n === undefined ? null : formatMoney(n));
   const min = f(b.min);
   const max = f(b.max);
   if (b.type === 'RANGE' && min && max) return `${min}–${max} $`;

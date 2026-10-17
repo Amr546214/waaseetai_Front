@@ -10,7 +10,7 @@ import { CreateRequest, resetCreateRequestPageLoadState } from './create-request
 // and never puts a bad reply (assistant chatter, markdown, invented numbers) into the form.
 const sockets: any[] = [];
 const ioMock = vi.hoisted(() => vi.fn());
-vi.mock('socket.io-client', () => ({ io: ioMock }));
+(globalThis as any).__socketIoModule = () => ({ io: ioMock });
 
 const TITLE = 'تطوير متجر إلكتروني متكامل';
 const DRAFT = 'أحتاج متجرًا إلكترونيًا لبيع الملابس يدعم الدفع عبر الإنترنت وإدارة المخزون ولوحة تحكم للطلبات';

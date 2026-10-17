@@ -267,7 +267,7 @@
 							<use href="#i-wallet"></use>
 						</svg></div>
 				</div>
-				<div class="stat-val">{{ data.summary.availableEarnings | number }}</div>
+				<div class="stat-val">{{ data.summary.availableEarnings | number:'1.0-2' }}</div>
 				<div class="stat-sub">$ في المحفظة</div>
 			</div>
 			<div class="stat-card">
@@ -346,7 +346,7 @@
 							<span class="req-status" [ngClass]="getStatusTextClass(p.status)">
 								{{ getStatusLabel(p.status, p.type) }}
 							</span>
-							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number }}
+							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number:'1.0-2' }}
 								$</span>
 						</div>
 					</a>
@@ -418,7 +418,7 @@
 				<!-- Escrow Balance -->
 				<div class="eb-card">
 					<div class="eb-lbl">أرباحي المتاحة</div>
-					<div class="eb-val">{{ data.summary.availableEarnings | number }} $</div>
+					<div class="eb-val">{{ data.summary.availableEarnings | number:'1.0-2' }} $</div>
 					<div class="eb-sub">قابلة للسحب الآن</div>
 				</div>
 
@@ -495,7 +495,7 @@
 						style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
 						<span style="font-size:11px" *ngIf="m.deliveryDays" class="txt-muted">المدة: {{ m.deliveryDays }}
 							أيام</span>
-						<div *ngIf="m.budget">{{ m.budget | number }} <span style="font-size:11px;">$</span></div>
+						<div *ngIf="m.budget">{{ m.budget | number:'1.0-2' }} <span style="font-size:11px;">$</span></div>
 					</div>
 				</button>
 
@@ -663,7 +663,7 @@
 					<span class="stat-lbl">إيرادات هذا الشهر</span>
 					<div class="stat-ico amber" aria-hidden="true"><svg><use href="#i-wallet"></use></svg></div>
 				</div>
-				<div class="stat-val">{{ data.summary?.monthlyEarnings | number }}</div>
+				<div class="stat-val">{{ data.summary?.monthlyEarnings | number:'1.0-2' }}</div>
 				<div class="stat-sub">$ صافي للشركة</div>
 			</div>
 			<div class="stat-card">
@@ -748,7 +748,7 @@
 							<span class="req-status" [ngClass]="getStatusTextClass(p.status)">
 								{{ getStatusLabel(p.status, p.type) }}
 							</span>
-							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number }} $</span>
+							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number:'1.0-2' }} $</span>
 						</div>
 					</a>
 
@@ -805,7 +805,7 @@
 				<!-- Company Wallet -->
 				<div class="eb-card">
 					<div class="eb-lbl">أرباح الشركة المتاحة</div>
-					<div class="eb-val">{{ data.summary.availableEarnings | number }} $</div>
+					<div class="eb-val">{{ data.summary.availableEarnings | number:'1.0-2' }} $</div>
 					<div class="eb-sub">قابلة للسحب · محفظة مركزية</div>
 				</div>
 
@@ -816,7 +816,7 @@
 						<div class="ac-prog-item" *ngFor="let p of (data.latestProjects || []).slice(0, 3)">
 							<div class="ac-prog-head">
 								<span class="ac-prog-name">{{ p.title || p.projectTitle || 'مقدم خدمة' }}</span>
-								<span class="ac-prog-val">{{ (p.budget !== undefined ? p.budget : p.price) | number }}</span>
+								<span class="ac-prog-val">{{ (p.budget !== undefined ? p.budget : p.price) | number:'1.0-2' }}</span>
 							</div>
 							<div class="ac-prog-bar"><div class="ac-prog-fill" [style.width.%]="((p.budget || p.price || 0) / 24000) * 100"></div></div>
 						</div>

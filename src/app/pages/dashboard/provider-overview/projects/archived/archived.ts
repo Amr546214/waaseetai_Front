@@ -3,7 +3,9 @@ import { RouterLink } from '@angular/router';
 import { ActiveProjectsService } from '../../../../../core/services/active.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
-import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
+import { handleLoadError, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
+
+export const SETTLED_LABEL_AR = 'أُغلق بتسوية نزاع';
 
 interface ArchivedProject {
   id: string;
@@ -12,7 +14,9 @@ interface ArchivedProject {
   clientName: string;
   value: string;
   date: string;
-  status: 'done' | 'cancel' | 'arch';
+  status: 'done' | 'cancel' | 'arch' | 'settled';
+  /** Closed by an admin dispute settlement: a different end state from completed-by-delivery (the server sends settled + statusLabel). */
+  settled?: boolean;
   icon: string;
   providerName?: string;
   providerInitial?: string;
@@ -32,7 +36,7 @@ export class Archived implements OnInit {
   private authStore = inject(AuthStore);
 
   searchQuery = signal('');
-  activeFilter = signal<'all' | 'done' | 'cancel' | 'arch'>('all');
+  activeFilter = signal<'all' | 'done' | 'cancel' | 'arch' | 'settled'>('all');
   memberFilter = signal<string>('all');
   periodFilter = signal<string>('all');
   isLoading = signal(true);
@@ -58,14 +62,15 @@ export class Archived implements OnInit {
       next: (res) => {
         this.isLoading.set(false);
         if (res && res.data) {
-          this.projects.set(res.data);
+          // a settled project is not a delivery-completed one: it has its OWN end state («أُغلق بتسوية نزاع»), its own counter and filter, and never the completed check icon
+          this.projects.set((res.data as ArchivedProject[]).map(p => ((p.settled || p.status === 'settled' || (p as any).closedBySettlement) ? { ...p, status: 'settled' as const, settled: true, icon: 'doc' } : p)));
         }
       },
       error: (err) => {
         handleLoadError(err, {
           hasData: () => this.projects().length > 0,
           onKeep: () => this.isLoading.set(false),
-          onRateLimit: () => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(RATE_LIMIT_MESSAGE); },
+          onRateLimit: (e) => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(rateLimitToastMessage(e)); },
           onOtherError: () => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(err?.message || 'ERR-PR-025'); },
         });
         console.error('Error fetching archived projects:', err);
@@ -95,6 +100,7 @@ export class Archived implements OnInit {
       done: all.filter(p => p.status === 'done').length,
       cancel: all.filter(p => p.status === 'cancel').length,
       arch: all.filter(p => p.status === 'arch').length,
+      settled: all.filter(p => p.status === 'settled').length,
       total: all.length
     };
   });
@@ -114,7 +120,7 @@ export class Archived implements OnInit {
     return Array.from(members.values());
   });
 
-  setFilter(filter: 'all' | 'done' | 'cancel' | 'arch') {
+  setFilter(filter: 'all' | 'done' | 'cancel' | 'arch' | 'settled') {
     this.activeFilter.set(filter);
   }
 
@@ -131,7 +137,10 @@ export class Archived implements OnInit {
     this.searchQuery.set(input.value);
   }
 
-  statusLabel(status: 'done' | 'cancel' | 'arch'): string {
+  projectStatusLabel(p: ArchivedProject): string { return p.settled ? SETTLED_LABEL_AR : this.statusLabel(p.status); }
+
+  statusLabel(status: 'done' | 'cancel' | 'arch' | 'settled'): string {
+    if (status === 'settled') return SETTLED_LABEL_AR;
     if (status === 'done') return 'مكتمل';
     if (status === 'cancel') return 'ملغى';
     return 'مؤرشف';

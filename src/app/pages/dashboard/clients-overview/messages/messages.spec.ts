@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 import { signal } from '@angular/core';
 
@@ -12,9 +13,10 @@ import { VideoCallService } from '../../../../core/services/video-call.service';
 const conversationA = { id: 'conv-a', name: 'مقدم الخدمة أ', project: 'مشروع أ' };
 const conversationB = { id: 'conv-b', name: 'مقدم الخدمة ب', project: 'مشروع ب' };
 
-function makeFakeChatService(conversations: any[]) {
+function makeFakeChatService(conversations: any[], context: any = { success: false }) {
   return {
     connect: () => {},
+    getConversationContext: () => of(context),
     getConversations: () => of({ success: true, data: conversations }),
     getMessages: () => of({ success: false }),
     joinRoom: () => {},
@@ -33,12 +35,12 @@ function makeFakeActivatedRoute(initialConversationId: string | null) {
   return { snapshot: { queryParams: initial }, queryParams: subject.asObservable() };
 }
 
-async function setup(conversations: any[], requestedConversationId: string | null) {
+async function setup(conversations: any[], requestedConversationId: string | null, context?: any) {
   await TestBed.configureTestingModule({
     imports: [ClientMessages],
     providers: [
       provideRouter([]),
-      { provide: ChatService, useValue: makeFakeChatService(conversations) },
+      { provide: ChatService, useValue: makeFakeChatService(conversations, context) },
       { provide: AuthStore, useValue: { currentUser: () => null, token: () => null } },
       { provide: ChatStateService, useValue: { activeConversationId: { set: () => {} }, markAsRead: () => {} } },
       { provide: VideoCallService, useValue: { startCall: () => {} } },
@@ -46,17 +48,29 @@ async function setup(conversations: any[], requestedConversationId: string | nul
     ]
   }).compileComponents();
 
+  const navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
   const fixture: ComponentFixture<ClientMessages> = TestBed.createComponent(ClientMessages);
   const component = fixture.componentInstance;
   await fixture.whenStable();
   fixture.detectChanges();
-  return { fixture, component };
+  return { fixture, component, navigateByUrl };
 }
 
 describe('Messages', () => {
   it('should create', async () => {
     const { component } = await setup([conversationA, conversationB], null);
     expect(component).toBeTruthy();
+  });
+
+  it('an old link to a PROJECT room (not in the general list) redirects to the project messages tab, nothing else', async () => {
+    const { navigateByUrl } = await setup([conversationA], 'room-1', { success: true, data: { context: 'PROJECT', url: '/client-overview/projects/c-1?tab=messages' } });
+    expect(navigateByUrl).toHaveBeenCalledWith('/client-overview/projects/c-1?tab=messages', { replaceUrl: true });
+  });
+
+  it('a link the server does not know as a project room is never redirected', async () => {
+    const { navigateByUrl, component } = await setup([conversationA], 'room-x', { success: true, data: { context: 'GENERAL', url: null } });
+    expect(navigateByUrl).not.toHaveBeenCalled();
+    expect(component.conversationNotFound()).toBe(true);
   });
 
   describe('conversationId resolution — never land the client in an unrelated chat', () => {

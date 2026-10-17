@@ -6,6 +6,7 @@ import { OffersService } from '../../../../../core/services/offers.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 export interface ProviderContractMilestone { order: number; title: string; description: string | null; days: number | null; percentage: number | null; amount: number | null }
 export interface ProviderContract {
@@ -18,11 +19,11 @@ export function milestoneMeta(m: ProviderContractMilestone): string {
 	const parts: string[] = [];
 	if (m.days !== null) parts.push(`${m.days} يوم`);
 	if (m.percentage !== null) parts.push(`${m.percentage}%`);
-	if (m.amount !== null) parts.push(`${m.amount.toLocaleString('en-US')} $`);
+	if (m.amount !== null) parts.push(`${formatMoney(m.amount)} $`);
 	return parts.join(' · ');
 }
 
-const formatUsd = (v: number) => `${v.toLocaleString('en-US')} $`;
+const formatUsd = (v: number) => `${formatMoney(v)} $`;
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
 /** Reads `contract` from an offers-API item defensively: anything unusable means "no contract" (the page then shows nothing invented). */
@@ -90,6 +91,9 @@ export class SignContract {
 	loadError = signal<string | null>(null);
 
 	isAgreed = false;
+	/** The agreement was required but not ticked: a red message next to the checkbox (a toast alone is not enough). */
+	ackError = signal(false);
+	onAckChange(v: boolean) { this.isAgreed = v; if (v) this.ackError.set(false); }
 
 
 	constructor() {
@@ -122,7 +126,7 @@ export class SignContract {
 				this.offerTitle.set(item.projectTitle || item.title || this.offerTitle());
 				this.offerRef.set(item.projectRef || item.ref || this.offerRef());
 				this.providerName.set(item.providerName || item.clientName || this.providerName());
-				this.price.set(typeof item.offeredPrice === 'number' ? `${item.offeredPrice.toLocaleString('en-US')} $` : (item.price || this.price()));
+				this.price.set(typeof item.offeredPrice === 'number' ? `${formatMoney(item.offeredPrice)} $` : (item.price || this.price()));
 				this.contract.set(readProviderContract(item.contract));
 				if (item.projectId) this.projectId.set(String(item.projectId));
 			},
@@ -146,6 +150,8 @@ export class SignContract {
 			return;
 		}
 		if (!this.isAgreed) {
+			this.ackError.set(true);
+			setTimeout(() => (document.getElementById('ack-ctr') as HTMLElement | null)?.focus());
 			this.notify.warning('يجب الموافقة على بنود العقد أولا');
 			return;
 		}

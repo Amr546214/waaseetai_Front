@@ -1,3 +1,5 @@
+import { isRateLimitError } from '../utils/rate-limit.util';
+import { parseRetryAfter } from '../wait/retry-after.util';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -37,7 +39,7 @@ export interface InsufficientBalanceInfo {
  *   shape) — the only case that may fall back to the neutral
  *   /checkout/failure screen.
  */
-export type CheckoutErrorKind = 'INSUFFICIENT_BALANCE' | 'CONFLICT' | 'VALIDATION' | 'UNEXPECTED';
+export type CheckoutErrorKind = 'INSUFFICIENT_BALANCE' | 'CONFLICT' | 'VALIDATION' | 'RATE_LIMITED' | 'UNEXPECTED';
 
 export interface CheckoutResult {
 	success: boolean;
@@ -47,6 +49,15 @@ export interface CheckoutResult {
 	insufficientBalance?: InsufficientBalanceInfo;
 	/** Present ONLY when success is false — see CheckoutErrorKind. */
 	errorKind?: CheckoutErrorKind;
+	/** Present ONLY for errorKind RATE_LIMITED: the absolute end (epoch ms) of the wait when the server stated one (Retry-After / retryAt / retryAfterSeconds), else absent. */
+	retryEndsAt?: number;
+}
+
+/** A 429 never becomes a payment failure: it carries the server's own end time (when it sent one) so the page can wait honestly. */
+function rateLimitFields(err: any): { retryEndsAt?: number } {
+	if (!isRateLimitError(err)) return {};
+	const end = parseRetryAfter(err);
+	return end != null ? { retryEndsAt: end } : {};
 }
 
 /**
@@ -71,8 +82,16 @@ function extractInsufficientBalance(err: any): InsufficientBalanceInfo | undefin
 }
 
 /** Classifies a failed HttpErrorResponse by its real status code only. */
+function parseExpiry(v: unknown): number | null {
+	const t = typeof v === 'string' ? Date.parse(v) : NaN;
+	return Number.isFinite(t) ? t : null;
+}
+
 function classifyCheckoutError(err: any): CheckoutErrorKind {
 	const status = err?.status;
+	// stable BE codes (own service / service no longer available): a real business refusal with its own message, never the generic failure screen
+	if (status === 403 && err?.error?.code === 'SELF_PURCHASE_FORBIDDEN') return 'VALIDATION';
+	if (status === 429) return 'RATE_LIMITED';
 	if (status === 402) return 'INSUFFICIENT_BALANCE';
 	if (status === 409) return 'CONFLICT';
 	if (status === 400) return 'VALIDATION';
@@ -90,6 +109,8 @@ export class CheckoutService {
 	private readonly _paymentMethod = signal<PaymentMethod | null>(null);
 	private readonly _paymentReference = signal<string | null>(null);
 	private readonly _otpSentTo = signal<string | null>(null);
+	/** When the payment code stops being valid (epoch ms) - the server's expiresAt; null = unknown (no timer is shown). */
+	private readonly _otpExpiresAt = signal<number | null>(null);
 	private readonly _isProcessing = signal(false);
 	private readonly _error = signal<string | null>(null);
 
@@ -98,6 +119,7 @@ export class CheckoutService {
 	readonly paymentReference = this._paymentReference.asReadonly();
 	readonly otpSentTo = this._otpSentTo.asReadonly();
 	readonly maskedPhone = this._otpSentTo.asReadonly();
+	readonly otpExpiresAt = this._otpExpiresAt.asReadonly();
 	readonly isProcessing = this._isProcessing.asReadonly();
 	readonly error = this._error.asReadonly();
 
@@ -130,7 +152,7 @@ export class CheckoutService {
 				const errBody = err?.error;
 				const msg = errBody?.message || errBody?.error || err?.message || 'فشل إنشاء الطلب';
 				this._error.set(msg);
-				return of({ success: false, message: msg, errorKind: classifyCheckoutError(err) } as CheckoutResult);
+				return of({ success: false, message: msg, errorKind: classifyCheckoutError(err), ...rateLimitFields(err) } as CheckoutResult);
 			})
 		);
 	}
@@ -156,6 +178,7 @@ export class CheckoutService {
 				const data = res?.data ?? res;
 				this._paymentReference.set(data.paymentReference);
 				this._otpSentTo.set(data.otpSentTo);
+				this._otpExpiresAt.set(parseExpiry(data.expiresAt));
 				this._isProcessing.set(false);
 				return {
 					success: true,
@@ -178,6 +201,7 @@ export class CheckoutService {
 					success: false,
 					message: msg,
 					errorKind: classifyCheckoutError(err),
+					...rateLimitFields(err),
 					...(insufficientBalance && { insufficientBalance }),
 				} as CheckoutResult);
 			})
@@ -234,6 +258,7 @@ export class CheckoutService {
 					success: false,
 					message: msg,
 					errorKind: classifyCheckoutError(err),
+					...rateLimitFields(err),
 					...(insufficientBalance && { insufficientBalance }),
 				} as CheckoutResult);
 			})
@@ -263,14 +288,15 @@ export class CheckoutService {
 				if (data.otpSentTo) {
 					this._otpSentTo.set(data.otpSentTo);
 				}
-				return { success: true, message: 'تم إعادة إرسال رمز التحقق' } as CheckoutResult;
+				this._otpExpiresAt.set(parseExpiry(data.expiresAt));
+				return { success: true, message: 'تم إعادة إرسال رمز التحقق', data: { expiresAt: data.expiresAt } } as CheckoutResult;
 			}),
 			catchError((err: any) => {
 				console.error('[CheckoutService] resendOtp failed:', err);
 				const errBody = err?.error;
 				const msg = errBody?.message || errBody?.error || err?.message || 'فشل إعادة إرسال الرمز';
 				this._error.set(msg);
-				return of({ success: false, message: msg } as CheckoutResult);
+				return of({ success: false, message: msg, errorKind: classifyCheckoutError(err), ...rateLimitFields(err) } as CheckoutResult);
 			})
 		);
 	}
@@ -284,6 +310,7 @@ export class CheckoutService {
 		this._paymentMethod.set(null);
 		this._paymentReference.set(null);
 		this._otpSentTo.set(null);
+		this._otpExpiresAt.set(null);
 		this._isProcessing.set(false);
 		this._error.set(null);
 	}

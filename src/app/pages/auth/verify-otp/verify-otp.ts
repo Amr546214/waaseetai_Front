@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, ViewEncapsulation, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -8,6 +8,13 @@ import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
 import { resendNotice } from '../../../core/forms/otp-delivery';
 import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
+import { WaitTimerService } from '../../../core/wait/wait-timer.service';
+import { parseRetryAfter } from '../../../core/wait/retry-after.util';
+import { formatClock, rateLimitSentence } from '../../../core/wait/wait-format';
+import { RATE_LIMIT_MESSAGE, isRateLimitError, startWaitFromError } from '../../../core/utils/rate-limit.util';
+
+/** The server's "too many wrong codes" lock (429 without a duration): the answer is a NEW code, not a timer. */
+const ATTEMPTS_LOCKED_CODE = 'OTP_ATTEMPTS_LOCKED';
 
 @Component({
   selector: 'app-verify-otp',
@@ -17,7 +24,7 @@ import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
   styleUrls: ['./verify-otp.css'],
   encapsulation: ViewEncapsulation.None,
 })
-export class VerifyOtp implements OnInit, OnDestroy {
+export class VerifyOtp implements OnInit {
   private authStore = inject(AuthStore);
   private authApi = inject(AuthApiService);
   private router = inject(Router);
@@ -31,9 +38,26 @@ export class VerifyOtp implements OnInit, OnDestroy {
   errorMsg = '';
   successMsg = '';
 
-  // 0 until a code is really sent: the countdown means "a code was just sent, wait before asking for another".
-  countdown = 0;
-  private timer: any;
+  // Three different timers, all from the server and keyed by the pending user (the login page stores the same scopes before navigating here):
+  //  - resend: when another code may be requested (resendAvailableAt / Retry-After / retryAfterSeconds); disables ONLY the resend button.
+  //  - validity: when the code stops being valid (expiresAt); informational.
+  //  - verify: only when the server answered the verification with a 429 AND a wait; disables ONLY the confirm button.
+  // End timestamps live in WaitTimerService (survive a refresh / background tab). A wrong code starts nothing; the attempts lock has no timer.
+  private readonly waits = inject(WaitTimerService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly pendingKey = () => this.authStore.pendingUserId() ?? '';
+  readonly resendWait = this.waits.trackKeyed('otp-resend', this.pendingKey, this.destroyRef);
+  readonly validWait = this.waits.trackKeyed('otp-valid', this.pendingKey, this.destroyRef);
+  readonly verifyWait = this.waits.trackKeyed('otp-verify', this.pendingKey, this.destroyRef);
+  /** True once the server told us when the current code expires (so "expired" can be said honestly). */
+  codeExpiryKnown = false;
+  /** A 429 whose duration the server did not state: an honest sentence without a number. */
+  private rateLimitedNoTime = false;
+  /** The last 429 came from the resend (not the verification). */
+  private resendLimited = false;
+
+  /** Seconds until another code may be requested (0 = available). */
+  get countdown(): number { return this.resendWait().remainingSeconds(); }
 
   /** Read once on entry (the flag is cleared when the login succeeds): true = mandatory LOGIN code, false = account activation. */
   loginMode = false;
@@ -46,72 +70,29 @@ export class VerifyOtp implements OnInit, OnDestroy {
       return;
     }
     
-    // If they arrived with an active token, they were redirected from a 403.
-    // They need a fresh OTP sent automatically.
+    // If they arrived with an active token, they were redirected from a 403 and need a fresh OTP. A refresh / back-forward visit must not fire a
+    // new code each time: the server's resend wait (stored end timestamp) decides, so send only when no wait is running.
     if (this.authStore.token()) {
-      // Every send counts against the shared auth rate limit (10/hour per IP), so a refresh or a back/forward
-      // visit must not fire a new code each time: send only if none was sent for this user in the last 90 s.
-      const recent = this.recentAutoSendSeconds(this.authStore.pendingUserId());
-      if (recent === null) {
-        this.countdown = 0; // Bypass the guard
-        this.resendOtp();
-      } else {
+      if (this.resendWait().active()) {
         this.successMsg = 'أرسلنا لك رمز تحقق قبل قليل، استخدمه أو انتظر قبل طلب رمز جديد.';
-        this.startCountdown(Math.max(1, 90 - recent));
+      } else {
+        this.resendOtp();
       }
     } else {
-      // Arrived from an unverified login: show what really happened. The resend countdown starts only when a
-      // code was actually sent; otherwise (not sent / throttled / reload) resend stays available.
+      // Arrived from an unverified login: show what really happened. The resend wait was stored by the login page from the server's answer
+      // (nothing is started here, and a reload keeps the stored end).
       const notice = this.otpHandoff.consume();
       if (notice?.sent) {
         this.successMsg = notice.message;
-        this.startCountdown();
       } else if (notice) {
         this.errorMsg = notice.message;
       }
     }
-  }
-
-  ngOnDestroy() {
-    this.clearTimer();
-  }
-
-  private static readonly AUTO_SEND_WINDOW_S = 90;
-
-  /** Seconds since the last automatic send for this user in this tab, or null when none/expired. */
-  private recentAutoSendSeconds(userId: string | null): number | null {
-    if (!userId) return null;
-    try {
-      const at = Number(sessionStorage.getItem(`waseet_otp_autosend_${userId}`));
-      const elapsed = at ? Math.floor((Date.now() - at) / 1000) : null;
-      return elapsed !== null && elapsed >= 0 && elapsed < VerifyOtp.AUTO_SEND_WINDOW_S ? elapsed : null;
-    } catch { return null; }
-  }
-
-  private markAutoSend(userId: string) {
-    try { sessionStorage.setItem(`waseet_otp_autosend_${userId}`, String(Date.now())); } catch { /* storage unavailable */ }
-  }
-
-  private startCountdown(seconds = 60) {
-    this.countdown = seconds;
-    this.clearTimer();
-    this.timer = setInterval(() => {
-      if (this.countdown > 0) {
-        this.countdown--;
-      } else {
-        this.clearTimer();
-      }
-      this.cdr.markForCheck();
-    }, 1000);
-  }
-
-  private clearTimer() {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
+    this.codeExpiryKnown = this.validWait().active();
   }
 
   async verify() {
+    if (this.isLoading || this.verifyWait().active()) return; // one request at a time; blocked while the server's wait runs
     if (this.otpCtrl.invalid) {
       // Never a silent no-op: say what is needed and put the cursor on the first empty box.
       this.otpCtrl.markAsTouched();
@@ -146,21 +127,39 @@ export class VerifyOtp implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMsg = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'فشل التحقق، يرجى المحاولة مرة أخرى' }).message;
+        this.rateLimitedNoTime = false;
+        if (err?.error?.code === ATTEMPTS_LOCKED_CODE) {
+          // Too many wrong codes: the server's own message already asks for a NEW code; there is no timer to show.
+          this.errorMsg = err.error.message || 'تم تجاوز عدد المحاولات المسموح به، يرجى طلب رمز جديد';
+        } else if (isRateLimitError(err)) {
+          // A wait from the server (Retry-After / retryAt): only confirm waits, the typed code stays. No stated time = honest sentence, no timer.
+          this.resendLimited = false;
+          this.errorMsg = '';
+          const end = startWaitFromError(this.verifyWait(), err);
+          this.rateLimitedNoTime = end == null || !this.verifyWait().active();
+        } else {
+          // Wrong / expired code (400): a message only, never a UI wait.
+          this.errorMsg = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'فشل التحقق، يرجى المحاولة مرة أخرى' }).message;
+        }
         this.cdr.markForCheck();
       }
     });
   }
 
+  /** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) while the server's wait runs; the honest no-time sentence after a 429 without one; '' otherwise. */
+  get rateLimitText(): string {
+    const w = this.verifyWait().active() ? this.verifyWait() : this.resendLimited && this.resendWait().active() ? this.resendWait() : null;
+    return w ? rateLimitSentence(w.remainingSeconds(), true) : this.rateLimitedNoTime ? RATE_LIMIT_MESSAGE : '';
+  }
+
+  /** The code just sent ran out (only said when the server stated an expiry). */
+  get codeExpired(): boolean { return this.codeExpiryKnown && !this.validWait().active(); }
+
   // Six design OTP boxes (P-AU-009) feeding the single otpCtrl: digits only,
   // Arabic/Persian digits normalized, full-code paste, Backspace walks back, Enter submits.
   readonly otpIndexes = [0, 1, 2, 3, 4, 5];
 
-  get formattedCountdown(): string {
-    const m = Math.floor(this.countdown / 60);
-    const s = this.countdown % 60;
-    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-  }
+  get formattedCountdown(): string { return formatClock(this.countdown); }
 
   otpDigit(index: number): string {
     return this.otpDigitsBuf[index] ?? '';
@@ -238,7 +237,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
   }
 
   resendOtp() {
-    if (this.countdown > 0) return;
+    if (this.resendWait().active()) return;
 
     const userId = this.authStore.pendingUserId();
     if (!userId) {
@@ -249,28 +248,36 @@ export class VerifyOtp implements OnInit, OnDestroy {
 
     this.errorMsg = '';
     this.successMsg = '';
+    this.rateLimitedNoTime = false;
     this.isLoading = true;
 
     this.authApi.resendOtp(userId).subscribe({
       next: (res) => {
         this.isLoading = false;
         const notice = resendNotice(res);
+        // The answer says when the next send is allowed (resendAvailableAt after a send, retryAfterSeconds after a throttled one) and when the new code expires.
+        this.resendWait().startFromResponse(res);
+        const exp = parseRetryAfter({ resendAvailableAt: (res as any)?.expiresAt ?? res?.data?.expiresAt });
+        if (notice.sent && exp != null) { this.codeExpiryKnown = true; this.validWait().start(exp); }
         if (notice.sent) {
           this.successMsg = notice.message;
-          this.markAutoSend(userId);
-          this.startCountdown();
         } else {
-          // Nothing went out: say so, no countdown, the button stays usable.
+          // Nothing went out: say so; the button stays usable unless the server stated a wait.
           this.errorMsg = notice.message;
         }
         this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
-        const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'فشل إعادة الإرسال، يرجى المحاولة مرة أخرى' });
-        this.errorMsg = mapped.message;
-        // Rate limited: keep resend locked for the time the server asked, instead of letting the user hammer it.
-        if (mapped.kind === 'rate-limit' && mapped.retryAfterSeconds) this.startCountdown(mapped.retryAfterSeconds);
+        if (isRateLimitError(err)) {
+          // Keep resend locked until the end the server gave; no stated time = honest sentence, button stays usable.
+          this.resendLimited = true;
+          this.errorMsg = '';
+          const end = startWaitFromError(this.resendWait(), err);
+          this.rateLimitedNoTime = end == null || !this.resendWait().active();
+        } else {
+          this.errorMsg = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'فشل إعادة الإرسال، يرجى المحاولة مرة أخرى' }).message;
+        }
         this.cdr.markForCheck();
       }
     });

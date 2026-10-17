@@ -1,5 +1,5 @@
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WithdrawalApiService } from '../../../../../core/services/withdrawal-api.service';
@@ -9,8 +9,12 @@ import {
   WithdrawalStatus,
 } from '../../../../../core/models/withdrawal.model';
 import { AuthStore } from '../../../../../core/store/auth.store';
-import { AccountType } from '../../../../../core/models/auth.model';
+import { AccountType, UserRole } from '../../../../../core/models/auth.model';
+import { PROVIDER_ONLY_FINANCE_MESSAGE } from '../wallet/wallet';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { formatMoney } from '../../../../../core/utils/money.util';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { SubmitGuard, resolveField, scrollFocus } from '../../../../../shared/forms/form-error-focus';
 
 
 @Component({
@@ -24,6 +28,8 @@ export class Withdraw implements OnInit {
   private withdrawalApi = inject(WithdrawalApiService);
   private authStore = inject(AuthStore);
   private providerProfileService = inject(ProviderProfileService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
 
   readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY;
 
@@ -101,6 +107,8 @@ export class Withdraw implements OnInit {
   }
 
   loadWallet() {
+    // Provider-only endpoint (403 for any other role): do not call it while acting as a client.
+    if (this.authStore.actingRole?.() === UserRole.CLIENT) { this.walletError.set(PROVIDER_ONLY_FINANCE_MESSAGE); this.walletLoading.set(false); return; }
     this.walletLoading.set(true);
     this.walletError.set('');
     this.withdrawalApi.getProviderWallet().subscribe({
@@ -109,6 +117,7 @@ export class Withdraw implements OnInit {
         this.walletLoading.set(false);
       },
       error: err => {
+        if (err?.status === 403) { this.walletError.set(PROVIDER_ONLY_FINANCE_MESSAGE); this.walletLoading.set(false); return; }
         this.walletError.set(err?.error?.message || err?.message || 'تعذر تحميل بيانات المحفظة');
         this.walletLoading.set(false);
       },
@@ -153,6 +162,12 @@ export class Withdraw implements OnInit {
     });
   }
 
+  /** Quick picks are shares of the REAL withdrawable balance (never fixed amounts); the max button always follows the balance. */
+  readonly quickShares = [25, 50, 75];
+  quickAmount(percent: number): number {
+    return Math.floor(this.availableBalance() * percent) / 100;
+  }
+
   // ── Form input handlers ─────────────────────────────────────────────
   setAmount(val: number) {
     this.amount.set(val);
@@ -179,7 +194,7 @@ export class Withdraw implements OnInit {
     const avail = this.availableBalance();
     return avail <= 0
       ? 'الرصيد غير كافٍ: لا يوجد رصيد متاح للسحب حاليًا'
-      : `الرصيد غير كافٍ: لا يمكنك طلب سحب أكبر من الرصيد المتاح للسحب (${avail.toLocaleString('en-US')} ${this.currency()})`;
+      : `الرصيد غير كافٍ: لا يمكنك طلب سحب أكبر من الرصيد المتاح للسحب (${formatMoney(avail)} ${this.currency()})`;
   }
 
   private clearFieldError(field: string) {
@@ -212,12 +227,24 @@ export class Withdraw implements OnInit {
     this.formErrors.set(errors);
     const ok = Object.keys(errors).length === 0;
     // A rejected click is never silent: the first problem is also shown in the banner above the form.
-    if (!ok) this.submitError.set(errors['amount'] ?? errors['paypal'] ?? 'تحقق من بيانات الطلب');
+    if (!ok) {
+      this.submitError.set(errors['amount'] ?? errors['paypal'] ?? 'تحقق من بيانات الطلب');
+      this.focusFirstProblem(errors['amount'] ? 'wdAmt' : 'wdPaypal');
+    }
     return ok;
+  }
+
+  /** Scrolls the first invalid field below the sticky header and focuses it (the message is already rendered at the field). */
+  private focusFirstProblem(id: string) {
+    setTimeout(() => {
+      const el = resolveField(this.host.nativeElement, id);
+      if (el) scrollFocus(el);
+    }, 0);
   }
 
   // ── Submit ──────────────────────────────────────────────────────────
   submit() {
+    if (this.submitting() || this.guard.busy) return;
     this.submitError.set('');
     this.submitErrorHint.set('');
     this.submitSuccess.set('');
@@ -228,6 +255,7 @@ export class Withdraw implements OnInit {
   }
 
   private performSubmit() {
+    if (!this.guard.enter()) return;
     const amt = this.amount()!;
     this.submitting.set(true);
 
@@ -237,6 +265,7 @@ export class Withdraw implements OnInit {
     this.withdrawalApi.submitProviderWithdrawal(payload).subscribe({
       next: () => {
         this.submitting.set(false);
+        this.guard.release();
         this.submitSuccess.set('تم إرسال طلب السحب بنجاح. الطلب الآن قيد المراجعة من قبل الإدارة.');
         this.resetForm();
         // Refresh history + wallet. Wallet balance is NOT reduced on submit per backend.
@@ -244,7 +273,15 @@ export class Withdraw implements OnInit {
       },
       error: err => {
         this.submitting.set(false);
-        this.submitError.set(err?.error?.message || err?.message || 'تعذر إرسال طلب السحب');
+        this.guard.release();
+        const mapped = mapHttpError(err, { fallback: 'تعذر إرسال طلب السحب' });
+        // Only a 400/422 that names the amount is shown at the field; network / 429 / 5xx / 403 / 409 stay the generic banner.
+        const amountMsg = mapped.kind === 'backend-validation' ? mapped.fieldErrors['amount'] : undefined;
+        if (amountMsg) {
+          this.formErrors.set({ ...this.formErrors(), amount: amountMsg });
+          this.focusFirstProblem('wdAmt');
+        }
+        this.submitError.set(mapped.message);
         // PayPal email changed in the last 24 hours: the server says when withdrawing opens again.
         const availableAt = err?.error?.availableAt;
         if (err?.error?.code === 'PAYPAL_EMAIL_FROZEN' && availableAt) {
@@ -309,7 +346,7 @@ export class Withdraw implements OnInit {
 
   formatAmount(amount?: number, currency?: string): string {
     if (amount == null) return '—';
-    const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    const formatted = formatMoney(amount, 2);
     // currency here is the withdrawal record's OWN stored currency code
     // (a row shows its own stored currency code) —
     // never relabeled, only rendered as the app's symbol.

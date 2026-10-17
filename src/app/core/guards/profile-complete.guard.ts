@@ -30,6 +30,7 @@ import { ProviderApiService } from '../services/provider-api.service';
  * onboarding gets finished or how the provider gets help; everything else goes to the status page.
  */
 export const ONBOARDING_ALLOWED_PATHS: readonly string[] = [
+  'account-actions',
   'accreditation-status',
   'profile/setup',
   'profile/data',

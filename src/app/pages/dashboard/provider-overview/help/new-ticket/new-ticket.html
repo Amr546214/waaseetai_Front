@@ -18,9 +18,8 @@
 	<form (ngSubmit)="submit()" class="form-card" novalidate>
 		<!-- Category -->
 		<div class="fld-row">
-			<label class="inp-label" for="tk-cat">{{ isCompanyMode() ? 'نوع الطلب' : 'التصنيف' }}<span class="req">*</span></label>
-			<ws-select id="tk-cat" [options]="activeCategories" [placeholder]="'اختر ' + (isCompanyMode() ? 'نوع الطلب' : 'التصنيف')" [ariaLabel]="isCompanyMode() ? 'نوع الطلب' : 'التصنيف'" [(ngModel)]="category" name="category" required />
-			@if (errors()['cat']) { <div class="fld-err">{{ errors()['cat'] }}</div> }
+			<label class="inp-label" for="tk-cat">{{ isCompanyMode() ? 'نوع الطلب' : 'التصنيف' }}<span class="ws-req" aria-hidden="true">*</span></label>
+			<ws-select id="tk-cat" aria-required="true" [options]="activeCategories" [placeholder]="'اختر ' + (isCompanyMode() ? 'نوع الطلب' : 'التصنيف')" [ariaLabel]="isCompanyMode() ? 'نوع الطلب' : 'التصنيف'" [ngModel]="category()" (ngModelChange)="category.set($event); edited('category')" name="category" data-field-wrap required />
 		</div>
 
 		@if (isCompanyMode()) {
@@ -67,17 +66,15 @@
 
 		<!-- Subject -->
 		<div class="fld-row">
-			<label class="inp-label" for="tk-subj">عنوان التذكرة<span class="req">*</span></label>
-			<input id="tk-subj" type="text" class="inp-field" [(ngModel)]="subject" name="subject" placeholder="عنوان موجز يصف المشكلة" required />
-			@if (errors()['subj']) { <div class="fld-err">{{ errors()['subj'] }}</div> }
+			<label class="inp-label" for="tk-subj">عنوان التذكرة<span class="ws-req" aria-hidden="true">*</span></label>
+			<input id="tk-subj" aria-required="true" type="text" class="inp-field" [ngModel]="subject()" (ngModelChange)="subject.set($event)" name="subject" data-field="subject" placeholder="عنوان موجز يصف المشكلة" required />
 		</div>
 
 		<!-- Description -->
 		<div class="fld-row">
-			<label class="inp-label" for="tk-desc">وصف المشكلة<span class="req">*</span></label>
-			<textarea id="tk-desc" class="inp-field" [(ngModel)]="description" name="description" rows="5" placeholder="اشرح المشكلة بالتفصيل: ما الذي حدث، متى، وما الذي توقعه؟" required></textarea>
+			<label class="inp-label" for="tk-desc">وصف المشكلة<span class="ws-req" aria-hidden="true">*</span></label>
+			<textarea id="tk-desc" aria-required="true" class="inp-field" [ngModel]="description()" (ngModelChange)="description.set($event)" name="description" data-field="description" rows="5" placeholder="اشرح المشكلة بالتفصيل: ما الذي حدث، متى، وما الذي توقعه؟" required></textarea>
 			<div class="fld-hint">{{ description().length }} حرف · الحد الأدنى 20</div>
-			@if (errors()['desc']) { <div class="fld-err">{{ errors()['desc'] }}</div> }
 		</div>
 
 		<!-- Attach -->

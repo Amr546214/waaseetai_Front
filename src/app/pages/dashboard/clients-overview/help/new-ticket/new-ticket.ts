@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -7,6 +7,8 @@ import { AccountType } from '../../../../../core/models/auth.model';
 import { WsSelectComponent, WsSelectOption } from '../../../../../shared/forms/select.component';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { TicketApiService } from '../../../../../core/services/ticket-api.service';
+import { SubmitGuard } from '../../../../../shared/forms/form-error-focus';
+import { handleClientError, reportClientProblems } from '../../client-form-report';
 
 @Component({
 	selector: 'app-new-ticket',
@@ -21,6 +23,8 @@ export class NewTicketComponent {
 	private authStore = inject(AuthStore);
 	private ticketApi = inject(TicketApiService);
 	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private guard = new SubmitGuard();
 
 	isCompanyMode = computed(() => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY);
 
@@ -78,8 +82,14 @@ export class NewTicketComponent {
 		if (this.description().trim().length < 20) errs['desc'] = 'الوصف قصير جدًا، أضف تفاصيل أكثر';
 
 		this.errors.set(errs);
-		if (Object.keys(errs).length > 0) return;
+		if (Object.keys(errs).length > 0) {
+			// The message goes under each field (red, aria-invalid, role=alert) and focus lands on the first one below the header.
+			const ids: Record<string, string> = { cat: 'tk-cat', subj: 'tk-subj', desc: 'tk-desc' };
+			void reportClientProblems(this.host.nativeElement, Object.entries(errs).map(([k, message]) => ({ field: ids[k], message })));
+			return;
+		}
 
+		if (!this.guard.enter()) return;
 		this.submitting.set(true);
 		this.ticketApi.createTicket('client', {
 			subject: this.subject().trim(),
@@ -92,6 +102,7 @@ export class NewTicketComponent {
 		}).subscribe({
 			next: (res) => {
 				this.submitting.set(false);
+				this.guard.release();
 				if (res.success && res.data) {
 					this.notify.success('تم فتح تذكرتك بنجاح');
 					setTimeout(() => this.router.navigate(['/client-overview/help/tickets', res.data!.id]), 1200);
@@ -101,7 +112,12 @@ export class NewTicketComponent {
 			},
 			error: (err) => {
 				this.submitting.set(false);
-				this.notify.error(err?.error?.message || 'تعذر فتح التذكرة، حاول مرة أخرى');
+				this.guard.release();
+				// Field errors are under their fields; any other failure (network, 429, 5xx, 403, 409) stays an honest generic message.
+				handleClientError(this.host.nativeElement, err, {
+					resolve: { subject: 'tk-subj', description: 'tk-desc', category: 'tk-cat' },
+					fallback: 'تعذر فتح التذكرة، حاول مرة أخرى',
+				}, (m) => this.notify.error(m));
 			}
 		});
 	}

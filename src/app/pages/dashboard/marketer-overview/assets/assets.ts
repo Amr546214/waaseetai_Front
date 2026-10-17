@@ -1,3 +1,5 @@
+import { LoadRetryComponent } from '../../../../sheards/load-retry/load-retry';
+import { RateLimitNoteComponent } from '../../../../sheards/load-retry/rate-limit-note';
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -14,8 +16,9 @@ const KIND_LABEL: Record<MarketerAssetFile['kind'], string> = { BANNER: 'بنر'
 @Component({
 	selector: 'app-marketer-assets',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [CommonModule, RouterLink, LoadRetryComponent, RateLimitNoteComponent],
 	templateUrl: './assets.html',
+	styleUrl: './assets.css',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MarketerAssets implements OnInit {
@@ -25,6 +28,10 @@ export class MarketerAssets implements OnInit {
 	links = signal<RefLinksData | null>(null);
 	loading = signal(true);
 	error = signal(false);
+	/** the failed load was a 429 (nothing loaded): shows the ticking wait + a retry that stays disabled until the stored end */
+	rateLimited = signal(false);
+	/** a 429 while files are already shown: they stay, with a ticking note */
+	rateLimitKept = signal(false);
 	copied = signal<string>('');
 
 	primaryLink = computed(() => buildReferralUrl(this.links()?.primarySlug));
@@ -39,13 +46,13 @@ export class MarketerAssets implements OnInit {
 
 	load() {
 		this.loading.set(true);
-		this.error.set(false);
+		this.error.set(false); this.rateLimited.set(false); this.rateLimitKept.set(false);
 		this.service.getAssets().subscribe({
 			next: (res) => { this.files.set(res.data?.items ?? []); this.loading.set(false); },
 			error: (err) => handleLoadError(err, {
 				hasData: () => this.files().length > 0,
-				onKeep: () => this.loading.set(false),
-				onRateLimit: () => { this.error.set(true); this.loading.set(false); },
+				onKeep: () => { this.rateLimitKept.set(true); this.loading.set(false); },
+				onRateLimit: () => { this.error.set(true); this.rateLimited.set(true); this.loading.set(false); },
 				onOtherError: () => { this.error.set(true); this.loading.set(false); },
 			})
 		});

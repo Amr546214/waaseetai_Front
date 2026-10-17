@@ -9,6 +9,10 @@ export interface ProviderAmendment {
 	id: string; projectId: string; projectTitle: string; type: AmendmentKind; title: string; description: string | null;
 	budgetDelta: number | null; durationDeltaDays: number | null; status: AmendmentStatus; requestedByRole: 'CLIENT' | 'PROVIDER';
 	createdAt: string; respondedAt: string | null; conversationId: string | null;
+	effect?: 'APPLIED' | 'RECORD_ONLY' | 'PENDING' | 'NONE'; effectNote?: string;
+	/** false when the amendment's contract is closed (e.g. by a dispute settlement): every action is disabled with actionBlockedReason. */
+	actionable?: boolean; actionBlockedReason?: string | null; contractStatus?: string | null;
+	appliedAt?: string | null; needsClientPayment?: boolean; fundingAuthorized?: boolean; contractPrice?: number | null; contractDurationDays?: number | null;
 }
 export interface CreateAmendmentPayload { type: AmendmentKind; title: string; description?: string; budgetDelta?: number; durationDeltaDays?: number }
 
@@ -50,12 +54,17 @@ export class ActiveProjectsService {
 		return this.http.get<{ success: boolean; data: ProviderAmendment[] }>(`${environment.url_api}/provider/projects/${projectId}/amendments`);
 	}
 
-	/** A formal change request: it is only recorded and waits for the client; it never changes price / duration / escrow by itself. */
+	/** A formal change request: it waits for the client and changes nothing by itself; the client's approval applies it. */
 	createAmendment(projectId: string, payload: CreateAmendmentPayload): Observable<{ success: boolean; message?: string; data: ProviderAmendment }> {
 		return this.http.post<{ success: boolean; message?: string; data: ProviderAmendment }>(`${environment.url_api}/provider/projects/${projectId}/amendments`, payload);
 	}
 
-	/** The provider answers a change request the CLIENT raised. The decision is only recorded; price / duration / escrow / stages never change. */
+	/** The provider answers a change request the CLIENT raised. Approving APPLIES it (a client-raised increase needs the client's payment authorization first); rejecting changes nothing. */
+	/** The provider withdraws a request they raised while it is still pending. */
+	cancelAmendment(amendmentId: string): Observable<{ success: boolean; message?: string; data: ProviderAmendment }> {
+		return this.http.post<{ success: boolean; message?: string; data: ProviderAmendment }>(`${environment.url_api}/provider/amendments/${amendmentId}/cancel`, {});
+	}
+
 	respondAmendment(amendmentId: string, decision: 'approve' | 'reject'): Observable<{ success: boolean; message?: string; data: ProviderAmendment }> {
 		return this.http.post<{ success: boolean; message?: string; data: ProviderAmendment }>(`${environment.url_api}/provider/amendments/${amendmentId}/respond`, { decision });
 	}

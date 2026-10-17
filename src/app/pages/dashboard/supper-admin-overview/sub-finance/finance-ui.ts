@@ -1,4 +1,5 @@
 import { AdminFinanceOverview, AdminTransaction } from '../../../../core/services/admin-ops-api.service';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 /** Shared, data-free helpers for the admin finance pages (all figures come from the API). */
 
@@ -6,7 +7,7 @@ const AR_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'ما
 
 export function usd(n: number | null | undefined): string {
   if (n == null || !isFinite(n)) return '—';
-  return `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)} $`;
+  return `${formatMoney(n, 2)} $`;
 }
 
 /** 'YYYY-MM' -> month name + year. */

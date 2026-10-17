@@ -28,18 +28,16 @@
 				<h1 class="dr-ttl">{{ isCompanyMode() ? 'مراجعة التسليم — الإدارة' : 'التسليم النهائي وإغلاق المشروع' }}</h1>
 				<div class="dr-sub">{{ projectData().title || projectData().project }}</div>
 			</div>
-			@if (isProjectClosed()) {
-			<span class="dr-badge dr-badge-ok">المشروع مكتمل</span>
-			} @else if (isFinalStageDone()) {
-			<span class="dr-badge dr-badge-ok">اعتُمد التسليم النهائي</span>
-			} @else {
-			<span class="dr-badge dr-badge-wait">بانتظار اعتماد العميل</span>
-			}
+			<span class="dr-badge" [class.dr-badge-ok]="badge().ok" [class.dr-badge-wait]="!badge().ok" data-testid="pdr-badge">{{ badge().text }}</span>
 		</div>
 		<div class="dr-meta">
 			<div class="dr-meta-item"><div class="l">إجمالي العقد</div><div class="v">{{ formatMoney(totalContractValue()) }} <small>$</small></div></div>
-			<div class="dr-meta-item"><div class="l">أُفرِج سابقًا</div><div class="v ok">{{ formatMoney(releasedValue()) }}</div></div>
+			<div class="dr-meta-item"><div class="l">أُفرِج عبر المراحل المعتمدة</div><div class="v ok">{{ formatMoney(releasedValue()) }}</div></div>
+			@if (settled()) {
+			<div class="dr-meta-item"><div class="l">محتجز الآن</div><div class="v" data-testid="pdr-held-now">{{ formatMoney(heldValue()) }}</div></div>
+			} @else {
 			<div class="dr-meta-item"><div class="l">الدفعة الأخيرة</div><div class="v wait">{{ formatMoney(finalStage().amount) }}</div></div>
+			}
 			<div class="dr-meta-item"><div class="l">المراحل</div><div class="v">{{ completedStages().length }}<small>/{{ stages().length }}</small></div></div>
 		</div>
 	</div>
@@ -70,8 +68,8 @@
 	<div class="sec-ttl">ملفات التسليم</div>
 	<div class="dr-card">
 		<div class="dr-files">
-			@for (file of deliveryFiles(); track file.url) {
-			<a class="dr-file" [href]="file.url" target="_blank">
+			@for (file of deliveryFiles(); track $index) {
+			<a class="dr-file" [attr.href]="openUrl(file)" target="_blank" rel="noopener noreferrer" [attr.title]="openUrl(file) ? null : legacyFileNote">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 				{{ file.name }}
 			</a>
@@ -121,19 +119,17 @@
 					{{ (stage.isDone || stage.status === 'completed') ? '✓' : (stage.stageNumber || '•') }}
 				</span>
 				<div class="dr-stage-t">
-					<h4>{{ stage.title }}</h4>
+					<h4 data-testid="pdr-stage-title">{{ heading(stage) }}</h4>
 					<div class="dr-stage-d">{{ stage.statusText || (stage.isDone ? 'مكتملة ومعتمدة' : 'قيد التنفيذ') }}</div>
 				</div>
-				<span class="dr-stage-pay" [class.pay-held]="!(stage.isDone || stage.status === 'completed')">
-					{{ (stage.isDone || stage.status === 'completed') ? 'أُفرِج' : 'محتجز' }} {{ formatMoney(stage.amount) }} $
-				</span>
+				<span class="dr-stage-pay" [class.pay-held]="!(stage.isDone || stage.status === 'completed') && stage.lifecycle?.amountState !== 'HISTORICAL' && stage.lifecycle?.amountState !== 'NONE'" data-testid="pdr-stage-money">{{ stageMoney(stage) }}</span>
 			</div>
 			@if (stage === finalStage()) {
 			<div class="dr-stage-body">
 				@if (latestDelivery()?.note) {<div class="dr-deliv">{{ latestDelivery().note }}</div>}
 				<div class="dr-finalfiles">
-					@for (file of deliveryFiles(); track file.url) {
-					<a class="dr-file" [href]="file.url" target="_blank">
+					@for (file of deliveryFiles(); track $index) {
+					<a class="dr-file" [attr.href]="openUrl(file)" target="_blank" rel="noopener noreferrer" [attr.title]="openUrl(file) ? null : legacyFileNote">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 						{{ file.name }}
 					</a>
@@ -148,25 +144,45 @@
 	</div>
 
 	<div class="sec-ttl">الخلاصة المالية للمشروع</div>
+	@if (settled() && settlement(); as st) {
+	<div class="dr-settle" data-testid="pdr-settlement">
+		<div class="settle-row"><span>قيمة العقد (تعاقدية قبل التسوية)</span><b>{{ formatMoney(totalContractValue()) }} $</b></div>
+		<div class="settle-row"><span>أُفرِج عبر المراحل المعتمدة</span><b class="ok">{{ formatMoney(releasedValue()) }} $</b></div>
+		<div class="settle-row"><span>استرداد للعميل بقرار التسوية</span><b>{{ formatMoney(st.refundToClient) }} $</b></div>
+		<div class="settle-row"><span>أُفرِج لك بقرار التسوية (إجمالي)</span><b class="ok" data-testid="pdr-settle-release">{{ formatMoney(st.releaseToProvider) }} $</b></div>
+		<div class="settle-row"><span>عمولة المنصة</span><b>{{ formatMoney(st.platformCommission) }} $</b></div>
+		<div class="settle-row"><span>صافي ما تلقيته من التسوية</span><b class="ok">{{ formatMoney(st.providerNet) }} $</b></div>
+		<div class="settle-row"><span>محتجز الآن</span><b>{{ formatMoney(heldValue()) }} $</b></div>
+		<div class="decision-note" data-testid="pdr-settle-note">{{ financial()?.contractValueNote }}. مبلغ التسوية لا يُنسب إلى مراحل بعينها.</div>
+	</div>
+	} @else {
 	<div class="dr-settle">
 		<div class="settle-row"><span>إجمالي قيمة العقد</span><b>{{ formatMoney(totalContractValue()) }} $</b></div>
-		<div class="settle-row"><span>أُفرِج عبر المراحل المكتملة</span><b class="ok">{{ formatMoney(releasedValue()) }} $</b></div>
-		<div class="settle-row"><span>الدفعة النهائية (محتجزة بالضمان)</span><b class="wait">{{ formatMoney(heldValue()) }} $</b></div>
+		<div class="settle-row"><span>أُفرِج عبر المراحل المعتمدة</span><b class="ok">{{ formatMoney(releasedValue()) }} $</b></div>
+		@if (heldValue() > 0) { <div class="settle-row"><span>المحتجز بالضمان</span><b class="wait">{{ formatMoney(heldValue()) }} $</b></div> }
 		<div class="settle-bar"><i class="free" [style.width.%]="releasedPct()"></i><i class="held" [style.width.%]="100 - releasedPct()"></i></div>
 	</div>
+	}
 
-	@if (isProjectClosed()) {
+	@if (settled()) {
+	<div class="dr-final" data-testid="pdr-settled-final">
+		<div class="dr-final-t">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+			{{ projectData()?.statusLabel || 'أُغلق بتسوية نزاع' }}
+		</div>
+		<p>لا اعتماد ولا تسليم جديد ولا تعديل على العقد بعد التسوية. تبقى التسليمات السابقة للاطلاع فقط، ولا يتاح تقييم هذا المشروع.</p>
+		<div class="dr-final-acts"><button type="button" class="btn-gh" (click)="goToWorkspace()">العودة إلى مساحة العمل</button></div>
+	</div>
+	} @else if (isProjectClosed()) {
 	<div class="dr-final dr-final-done">
 		<div class="dr-final-t">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
 			تم إغلاق المشروع بنجاح
 		</div>
-		<p>اعتمد العميل التسليم النهائي وأُفرِج كامل المبلغ. يمكنك الآن تقييم تجربتك مع العميل.</p>
+		<p>اعتمد العميل التسليم النهائي لكل المراحل@if (financial()?.fullyPaidToProvider) { وأُفرِجت قيمة العقد عبر المراحل المعتمدة}. يمكنك الآن تقييم تجربتك مع العميل.</p>
+		<!-- Rating entry driven by the SERVER status (eligible → «قيّم المشروع», rated → «عرض تقييمك», settled/ineligible → no button) -->
 		<div class="dr-final-acts">
-			<button type="button" class="btn-pri" (click)="goToRating()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-				تقييم العميل
-			</button>
+			<app-rating-entry side="provider" [key]="projectId()" [showReason]="true" />
 			<button type="button" class="btn-gh" (click)="goToWorkspace()">العودة إلى مساحة العمل</button>
 		</div>
 	</div>
@@ -176,16 +192,22 @@
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
 			الاستلام النهائي للمشروع
 		</div>
-		<p>التسليم النهائي بانتظار مراجعة العميل واعتماده. عند الاعتماد يُفرَج المبلغ المتبقي بالكامل ويُغلق المشروع.</p>
+		@if (finalAwaitingClient()) {
+		<p>التسليم النهائي بانتظار مراجعة العميل واعتماده. عند الاعتماد يُفرَج مبلغ المرحلة ويُغلق المشروع.</p>
+		} @else {
+		<p data-testid="pdr-not-delivered">{{ uploadBlockedReason() || 'لم يُسلَّم التسليم النهائي بعد.' }}</p>
+		}
 		<div class="dr-final-acts">
 			<button type="button" class="btn-gh" (click)="openConversation()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
 				مراسلة العميل
 			</button>
-			<button type="button" class="btn-gh" (click)="goToWorkspace()">
+			@if (canUpload()) {
+			<button type="button" class="btn-gh" data-testid="pdr-upload" (click)="goToWorkspace()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14" /></svg>
 				رفع تسليم جديد / تعديل
 			</button>
+			}
 		</div>
 	</div>
 	}
@@ -202,10 +224,10 @@
 				</button>
 			</div>
 			<div class="inp-group">
-				<label class="inp-label">ملاحظاتك<span class="req">مطلوبة</span></label>
-				<textarea class="inp-field" rows="4" [ngModel]="returnNote()" (ngModelChange)="returnNote.set($event)" placeholder="اشرح ما يحتاج تعديله بوضوح..."></textarea>
+				<label class="inp-label" for="dr-return-note">ملاحظاتك <span class="ws-req" aria-hidden="true">*</span></label>
+				<textarea id="dr-return-note" aria-required="true" [attr.aria-invalid]="returnError() ? 'true' : null" [attr.aria-describedby]="returnError() ? 'dr-return-err' : null" class="inp-field" rows="4" [ngModel]="returnNote()" (ngModelChange)="returnNote.set($event)" placeholder="اشرح ما يحتاج تعديله بوضوح..."></textarea>
 			</div>
-			@if (returnError()) {<div class="form-error">{{ returnError() }}</div>}
+			@if (returnError()) {<div class="form-error" id="dr-return-err" role="alert">{{ returnError() }}</div>}
 			<div class="inp-group">
 				<label class="inp-label">أولوية الإصلاح</label>
 				<select class="inp-field" [ngModel]="returnPriority()" (ngModelChange)="returnPriority.set($event)">

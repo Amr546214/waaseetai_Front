@@ -143,4 +143,20 @@ describe('SaProjects (real data)', () => {
     harness.detectChanges();
     expect(harness.routeNativeElement!.textContent).toContain('إعادة المحاولة');
   });
+
+  it('a project closed by a dispute settlement shows «أُغلق بتسوية نزاع» (list and detail, stages «أُغلقت بالتسوية»), never «مكتمل»', async () => {
+    const row = { ...listData().items[0], status: 'COMPLETED', statusLabel: 'أُغلق بتسوية نزاع', adminSettled: { disputeId: 'd1', outcome: 'SPLIT', label: 'أُغلق بتسوية نزاع' } };
+    const harness = await setup(() => of({ success: true, data: listData({ items: [row as any] }) }),
+      () => of({ success: true, data: detailData({ status: 'COMPLETED', statusLabel: 'أُغلق بتسوية نزاع', adminSettled: { disputeId: 'd1', outcome: 'SPLIT', label: 'أُغلق بتسوية نزاع' },
+        stages: [{ id: 's1', stepOrder: 1, title: 'مرحلة', amount: 100, percentage: 100, days: 3, status: 'SUBMITTED', displayStatus: 'CLOSED_BY_SETTLEMENT', displayStatusLabel: 'أُغلقت بالتسوية', startedAt: null, approvedAt: null, deliveries: [] }] }) }));
+    await harness.navigateByUrl('/projects', SaProjects);
+    harness.detectChanges();
+    const badge = harness.routeNativeElement!.querySelector('.pj-status')!.textContent!.trim();
+    expect(badge).toBe('أُغلق بتسوية نزاع');
+    await harness.navigateByUrl('/projects/p-1', SaProjectDetail);
+    harness.detectChanges();
+    const text: string = harness.routeNativeElement!.textContent ?? '';
+    expect(text).toContain('أُغلق بتسوية نزاع');
+    expect(text).toContain('أُغلقت بالتسوية');
+  });
 });

@@ -99,6 +99,7 @@
 
 		<!-- ==================== STEP 2: التخصص ==================== -->
 		<ng-container *ngSwitchCase="2">
+			@if (specialtyError()) { <p role="alert" data-testid="specialty-error" class="inline-error" style="margin-bottom:12px">{{ specialtyError() }}</p> }
 			<app-step2-specialty [isLoadingSpecialties]="isLoadingSpecialties()" [passedCategories]="passedCategories()" [registered]="registeredSpecialties()"
 				[selectedSpecialty]="selectedSpecialty()" [selectedMainSpecialtyObj]="selectedMainSpecialtyObj()"
 				[selectedSubSpecialty]="selectedSubSpecialty()" [skillOptions]="skillOptions()" [selectedSkills]="selectedSkills()" [skillsLoading]="skillsLoading()" [skillsError]="skillsError()" (onSkillsChange)="onSkillsChange($event)"
@@ -112,10 +113,8 @@
 			<app-step3-model [accreditedCount]="accreditedCount()"
 				[distinctSpecialtiesCount]="distinctSpecialtiesCount()" [totalViewsCount]="totalViewsCount()"
 				[averageAiScore]="averageAiScore()" [isLoadingModels]="isLoadingModels()"
-				[filteredModels]="filteredModels()" [selectedModel]="selectedModel()" [galleryUrls]="galleryUrls()"
-				[isUploadingImage]="isUploadingImage()" (onSelectModel)="selectModel($event)"
-				(onRemoveGalleryImage)="removeGalleryImage($event)"
-				(onGalleryFileSelected)="onGalleryFileSelected($event)">
+				[filteredModels]="filteredModels()" [selectedModel]="selectedModel()"
+				[errorMessage]="modelError()" (onSelectModel)="selectModel($event)">
 			</app-step3-model>
 		</ng-container>
 
@@ -166,12 +165,12 @@
 				{{ currentStep() === 1 && !isValidStep1() ? '⚠️ اكتب اسم ووصف المشروع للمتابعة' : '' }}
 				{{ currentStep() === 2 && !isValidStep2() && !selectedSpecialty() ? '⚠️ اختر تخصصاً رئيسياً' : '' }}
 				{{ currentStep() === 2 && !isValidStep2() && selectedSpecialty() ? '⚠️ اختر تخصصاً فرعياً' : '' }}
-				{{ currentStep() === 3 && !isValidStep3() ? '⚠️ اختر نموذجاً من معرض أعمالك للمتابعة' : '' }}
+				{{ currentStep() === 3 && !isValidStep3() ? '⚠️ اختر نموذج اعتماد معتمدًا من نفس التخصص للمتابعة' : '' }}
 				{{ currentStep() === 4 && !isValidStep4() ? '⚠️ تأكد من إكمال بيانات المراحل وأن مجموع النسب 100%' : ''
 				}}
 				{{ currentStep() < 5 && isCurrentStepValid ? '✓ البيانات مكتملة وجاهز للتالي' : '' }} </span>
 
-					<button type="button" [disabled]="!isCurrentStepValid || isSubmitting() || isStreamingText()"
+					<button type="button" [disabled]="isSubmitting() || isStreamingText()" [attr.aria-busy]="isSubmitting()"
 						(click)="goNext()"
 						class="inline-flex items-center justify-center gap-2 px-[32px] py-[13px] border-none rounded-full text-[15px] font-extrabold disabled:opacity-40 disabled:cursor-not-allowed hover:-translate-y-px transition-all shadow-lg"
 						[class]="currentStep() === 5 ? 'bg-gradient-to-r from-[#A56BE0] via-[#2B7FFF] to-[#2BD4C7] text-white shadow-[0_4px_20px_rgba(123,47,190,.45)]' : 'bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] shadow-[0_4px_18px_rgba(43,212,199,.35)]'">

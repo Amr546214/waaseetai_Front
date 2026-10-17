@@ -1,3 +1,4 @@
+import { isRateLimitError } from '../../../../../core/utils/rate-limit.util';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -98,16 +99,16 @@ export class MarketingOffers implements OnInit {
     this.load();
     this.offerApi.getSummary().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: res => this.bundleRevenue.set(res.data?.bundleExtraRevenue ?? null),
-      error: () => this.bundleRevenue.set(null),
+      error: (e) => { if (!isRateLimitError(e)) this.bundleRevenue.set(null); },
     });
     this.modelsApi.getMyMarketModels().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: res => this.models.set(mapProviderModels(res)),
-      error: () => this.models.set([]),
+      error: (e) => { if (!isRateLimitError(e)) this.models.set([]); },
     });
     if (this.isCompanyMode()) {
       this.teamApi.list().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: res => this.team.set(res.data ?? []),
-        error: () => this.team.set([]),
+        error: (e) => { if (!isRateLimitError(e)) this.team.set([]); },
       });
     }
   }

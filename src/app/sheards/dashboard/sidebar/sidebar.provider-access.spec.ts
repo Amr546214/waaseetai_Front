@@ -7,7 +7,7 @@ import { vi } from 'vitest';
 
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Sidebar, NavItem } from './sidebar';
 import { AuthStore } from '../../../core/store/auth.store';
@@ -32,7 +32,7 @@ function setup(accountType: string, access: any) {
 	return (fixture.componentInstance.navItems() as NavItem[]).flatMap(i => [i, ...(i.children ?? [])]);
 }
 const st = (state: string, can = false) => of({ state, canAccessDashboard: can, message: '', reason: null, hasSample: false, specialties: [] });
-const STATUS = '/provider-overview/accreditation-status';
+const STATUS = '/provider-overview/account-actions';
 
 describe('provider sidebar while the account is not approved', () => {
 	afterEach(() => TestBed.resetTestingModule());

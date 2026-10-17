@@ -175,19 +175,19 @@
       </div>
     </div>
     <div class="form-grid form-col-2">
-      <div class="inp-group"><label class="inp-label" for="pr-fname">الاسم الأول<span class="req">*</span></label><input
-          id="pr-fname" class="inp-field" formControlName="firstName" maxlength="60"><ws-field-error [control]="profileForm.get('firstName')" label="الاسم الأول" /></div>
-      <div class="inp-group"><label class="inp-label" for="pr-lname">اسم العائلة<span class="req">*</span></label><input
-          id="pr-lname" class="inp-field" formControlName="lastName" maxlength="60"><ws-field-error [control]="profileForm.get('lastName')" label="اسم العائلة" /></div>
+      <div class="inp-group"><label class="inp-label" for="pr-fname">الاسم الأول<span class="ws-req" aria-hidden="true">*</span></label><input
+          id="pr-fname" aria-required="true" class="inp-field" formControlName="firstName" maxlength="60"><ws-field-error [control]="profileForm.get('firstName')" label="الاسم الأول" /></div>
+      <div class="inp-group"><label class="inp-label" for="pr-lname">اسم العائلة<span class="ws-req" aria-hidden="true">*</span></label><input
+          id="pr-lname" aria-required="true" class="inp-field" formControlName="lastName" maxlength="60"><ws-field-error [control]="profileForm.get('lastName')" label="اسم العائلة" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-title">المسمى المهني<span
-            class="req">*</span></label><input id="pr-title" class="inp-field" formControlName="headline" maxlength="100"
-          placeholder="مثال: مصمم جرافيك — 8 سنوات خبرة"><ws-field-error [control]="profileForm.get('headline')" label="المسمى المهني" /></div>
+            class="ws-req" aria-hidden="true">*</span></label><input id="pr-title" aria-required="true" class="inp-field" formControlName="headline" maxlength="100"
+          placeholder="اكتب مسماك المهني"><ws-field-error [control]="profileForm.get('headline')" label="المسمى المهني" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-dob">تاريخ الميلاد</label>
         <input id="pr-dob" type="date" class="inp-field" formControlName="dob" dir="ltr" [max]="todayIso" min="1900-01-01" data-testid="dob-input" autocomplete="bday">
         <span class="field-hint" data-testid="dob-hint">{{ dobLocked() ? 'موثّق ولا يمكن تغييره. تواصل مع الدعم لتعديله.' : 'خاص بك فقط ولا يظهر في ملفك العام.' }}</span>
         @if (profileForm.get('dob')?.invalid) { <span class="field-error" role="alert">تاريخ الميلاد غير صالح</span> }</div>
-      <div class="inp-group"><label class="inp-label" for="pr-spec">التخصص الرئيسي<span class="req">*</span></label>
-        <select id="pr-spec" class="inp-field" formControlName="specialty" (change)="onSpecialtyChanged()" data-testid="specialty-select">
+      <div class="inp-group"><label class="inp-label" for="pr-spec">التخصص الرئيسي<span class="ws-req" aria-hidden="true">*</span></label>
+        <select id="pr-spec" aria-required="true" class="inp-field" formControlName="specialty" (change)="onSpecialtyChanged()" data-testid="specialty-select">
           <option value="" disabled>اختر تخصصك الرئيسي</option>
           @for (cat of categories(); track cat.id) { <option [value]="cat.slug">{{ cat.nameAr }}</option> }
         </select>
@@ -203,13 +203,13 @@
         </div>
       </div>
       }
-      <div class="inp-group"><label class="inp-label" for="pr-country">الدولة<span class="req">*</span></label><select
-          id="pr-country" class="inp-field" formControlName="country">
+      <div class="inp-group"><label class="inp-label" for="pr-country">الدولة<span class="ws-req" aria-hidden="true">*</span></label><select
+          id="pr-country" aria-required="true" class="inp-field" formControlName="country">
           <option value="" disabled>اختر الدولة</option>
           @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
         </select><ws-field-error [control]="profileForm.get('country')" label="الدولة" /></div>
-      <div class="inp-group"><label class="inp-label" for="pr-city">المدينة<span class="req">*</span></label><select
-          id="pr-city" class="inp-field" formControlName="city">
+      <div class="inp-group"><label class="inp-label" for="pr-city">المدينة<span class="ws-req" aria-hidden="true">*</span></label><select
+          id="pr-city" aria-required="true" class="inp-field" formControlName="city">
           <option value="" disabled>{{ cityPlaceholder(profileForm.get('country')?.value) }}</option>
           @for (cityName of citiesOf(profileForm.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
         </select><ws-field-error [control]="profileForm.get('city')" label="المدينة" /></div>
@@ -374,8 +374,8 @@
     </div>
     <div class="form-grid form-col-2">
       <div class="inp-group">
-        <label class="inp-label" for="doc-front">الهوية الوطنية<span class="req">*</span></label>
-        <input #frontInput type="file" id="doc-front" hidden (change)="onDocSelected($event, 'idDocumentUrl')"
+        <label class="inp-label" for="doc-front">الهوية الوطنية@if (!identityPending() && !identityVerified()) {<span class="ws-req" aria-hidden="true">*</span>}</label>
+        <input #frontInput type="file" id="doc-front" aria-required="true" hidden (change)="onDocSelected($event, 'idDocumentUrl')"
           accept=".jpg,.jpeg,.png,.pdf">
         <div class="upload-card" id="doc-card-idDocumentUrl" tabindex="0" [class.has-file]="documentState('idDocumentUrl')"
           (click)="!documentState('idDocumentUrl') && !identityPending() && !identityVerified() && frontInput.click()">
@@ -480,16 +480,16 @@
       </div>
     </div>
     <div class="form-grid form-col-2" id="pp-fields">
-      <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pp-email">بريد PayPal<span class="req">*</span></label><input
-          type="email" id="pp-email" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com"
+      <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pp-email">بريد PayPal<span class="ws-req" aria-hidden="true">*</span></label><input
+          type="email" id="pp-email" aria-required="true" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com"
           dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
           [attr.aria-invalid]="payoutForm.get('paypalPayoutEmail')?.invalid && payoutForm.get('paypalPayoutEmail')?.touched ? 'true' : null"><span class="inp-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal. @if (paypalHasEmail()) { تغييره يتطلب رمزًا يُرسل إلى بريد حسابك، ويتوقف السحب عبر PayPal 24 ساعة بعده. } @else { إضافته تتطلب رمزًا يُرسل إلى بريد حسابك، ويتوقف السحب عبر PayPal 24 ساعة بعده. }</span><ws-field-error [control]="payoutForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
       </div>
     </div>
     <ws-form-summary [items]="missingPayout()" (select)="onSummarySelect($event)" />
-    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()" (click)="savePaypal()">{{ savingPaypal() ? 'جاري الإرسال...' : (paypalHasEmail() ? 'تغيير بريد PayPal' : 'إضافة بريد PayPal') }}</button>
+    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal() || paypalSendWait.active()" (click)="savePaypal()">{{ savingPaypal() ? 'جاري الإرسال...' : (paypalHasEmail() ? 'تغيير بريد PayPal' : 'إضافة بريد PayPal') }}@if (paypalSendWait.active()) { <span data-testid="paypal-send-wait"> {{ paypalSendWait.label() }}</span> }</button>
     </div>
-    @if (paypalRequestError()) { <div role="alert" data-testid="paypal-request-error" class="inp-hint" style="color:#f87171;margin-top:8px">{{ paypalRequestError() }}</div> }
+    @if (paypalRequestError()) { <div role="alert" data-testid="paypal-request-error" class="inp-hint inline-error" style="margin-top:8px">{{ paypalRequestError() }}</div> }
     @if (pendingPaypalEmail(); as pending) {
       <ws-paypal-email-confirm [email]="pending" [mode]="paypalConfirmMode()" [accountEmailHint]="paypalAccountEmailHint()" (confirmed)="onPaypalConfirmed($event)" (dismissed)="pendingPaypalEmail.set(null)" />
     }
@@ -528,10 +528,10 @@
         style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)">
         <div class="form-grid form-col-2">
           <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="pwd-old">كلمة المرور
-              الحالية<span class="req">*</span></label><input type="password" id="pwd-old" class="inp-field"
+              الحالية<span class="ws-req" aria-hidden="true">*</span></label><input type="password" id="pwd-old" aria-required="true" class="inp-field"
               placeholder="ادخل كلمة المرور الحالية" formControlName="currentPassword" autocomplete="current-password" dir="ltr"><ws-field-error [control]="passwordForm.get('currentPassword')" label="كلمة المرور الحالية" /></div>
           <div class="inp-group"><label class="inp-label" for="pwd-new">كلمة المرور الجديدة<span
-                class="req">*</span></label><input type="password" id="pwd-new" class="inp-field"
+                class="ws-req" aria-hidden="true">*</span></label><input type="password" id="pwd-new" aria-required="true" class="inp-field"
               placeholder="8 أحرف على الأقل" formControlName="newPassword" autocomplete="new-password" dir="ltr">
             <div class="pwd-strength">
               <div class="pwd-strength-bar" id="pwd-bar" [style.width.%]="passwordStrength().percent" [style.background]="passwordStrength().color"></div>
@@ -540,7 +540,7 @@
             <ws-field-error [control]="passwordForm.get('newPassword')" label="كلمة المرور الجديدة" [messages]="{ pattern: 'استخدم 3 أنواع على الأقل من: أحرف صغيرة، أحرف كبيرة، أرقام، رموز', sameAsCurrent: 'كلمة المرور الجديدة يجب أن تختلف عن الحالية' }" />
           </div>
           <div class="inp-group"><label class="inp-label" for="pwd-conf">تأكيد كلمة المرور الجديدة<span
-                class="req">*</span></label><input type="password" id="pwd-conf" class="inp-field"
+                class="ws-req" aria-hidden="true">*</span></label><input type="password" id="pwd-conf" aria-required="true" class="inp-field"
               placeholder="أعد إدخال كلمة المرور" formControlName="confirmPassword" autocomplete="new-password" dir="ltr"><ws-field-error [control]="passwordForm.get('confirmPassword')" label="تأكيد كلمة المرور" [messages]="{ mismatch: 'تأكيد كلمة المرور غير مطابق' }" /></div>
         </div>
         <ws-form-summary [items]="missingPassword()" (select)="onSummarySelect($event)" />
@@ -588,11 +588,11 @@
         }</div>
       <div class="inp-group"><label class="inp-label" for="ct-whatsapp">رقم WhatsApp (اختياري)</label>
         <div style="display:flex;gap:8px;align-items:stretch">
-          <input type="tel" id="ct-whatsapp" class="inp-field" dir="ltr" inputmode="tel" autocomplete="tel" data-testid="contact-whatsapp-input" placeholder="+20 1XXXXXXXXX" [formControl]="whatsappControl" (keydown.enter)="saveWhatsapp(); $event.preventDefault()" style="flex:1;min-width:0">
+          <input type="tel" id="ct-whatsapp" class="inp-field" dir="ltr" inputmode="tel" autocomplete="tel" data-testid="contact-whatsapp-input" placeholder="+20 1XXXXXXXXX" [formControl]="whatsappControl" (keydown.enter)="saveWhatsapp(); $event.preventDefault()" [attr.aria-invalid]="whatsappControl.invalid && (whatsappControl.touched || whatsappControl.errors?.['server']) ? 'true' : null" aria-describedby="whatsapp-error" style="flex:1;min-width:0">
           <button type="button" class="btn-primary" data-testid="save-whatsapp-btn" [disabled]="savingWhatsapp()" (click)="saveWhatsapp()">{{ savingWhatsapp() ? 'جاري الحفظ...' : 'حفظ رقم WhatsApp' }}</button>
         </div>
-        @if (whatsappControl.touched && whatsappControl.errors?.['whatsapp']) { <span class="field-error" role="alert" data-testid="whatsapp-error">رقم WhatsApp غير صالح: من 8 إلى 15 رقمًا، ويمكن أن يبدأ بـ +</span> }
-        @if (whatsappControl.errors?.['server']) { <span class="field-error" role="alert" data-testid="whatsapp-error">{{ whatsappControl.errors?.['server'] }}</span> }
+        @if (whatsappControl.touched && whatsappControl.errors?.['whatsapp']) { <span class="field-error" role="alert" id="whatsapp-error" data-testid="whatsapp-error">رقم WhatsApp غير صالح: من 8 إلى 15 رقمًا، ويمكن أن يبدأ بـ +</span> }
+        @if (whatsappControl.errors?.['server']) { <span class="field-error" role="alert" id="whatsapp-error" data-testid="whatsapp-error">{{ whatsappControl.errors?.['server'] }}</span> }
         <span class="inp-hint" data-testid="whatsapp-hint">رقم اختياري يُحفظ مباشرة. اتركه فارغًا لحذفه.</span></div>
       <div class="inp-group" style="grid-column:1/-1" data-testid="contact-location-note">
         <span class="inp-label">الدولة والمدينة</span>

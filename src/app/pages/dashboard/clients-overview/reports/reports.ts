@@ -5,6 +5,7 @@ import { ThemeService } from '../../../../core/services/theme.service';
 import { AiResult, MetricSummaryDetails } from '../../../../core/models/ai-result.model';
 import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.component';
 import { ClientReportsService, ClientReportsData, ClientReportDateRange, ClientReportOrderItem, ClientReportTransaction } from '../../../../core/services/client-reports.service';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
 	selector: 'app-reports',
@@ -156,7 +157,7 @@ export class Reports implements OnInit {
 
 	// Project budgets / escrow have no stored currency and are USD-canonical.
 	formatBudget(n: number): string {
-		return n ? `${n.toLocaleString('en-US')} $` : '—';
+		return n ? `${formatMoney(n)} $` : '—';
 	}
 
 	orderRef(id: string): string {
@@ -220,7 +221,7 @@ export class Reports implements OnInit {
 	formatAmount(n: number, currency?: string): string {
 		const abs = Math.abs(n);
 		const label = !currency || currency === 'USD' ? '$' : currency;
-		return `${n < 0 ? '−' : ''}${abs.toLocaleString('en-US')} ${label}`;
+		return `${n < 0 ? '−' : ''}${formatMoney(abs)} ${label}`;
 	}
 
 	txStatusClass(status: string): string {

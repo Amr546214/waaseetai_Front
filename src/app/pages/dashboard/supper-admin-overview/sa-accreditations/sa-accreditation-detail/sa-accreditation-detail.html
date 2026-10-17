@@ -177,7 +177,7 @@
           <button type="button" class="acc-btn acc-btn-ghost" (click)="goBack()">العودة للقائمة</button>
         </div>
         @if (actionError()) {
-          <p class="acc-rf-err">{{ actionError() }}</p>
+          <p class="acc-rf-err" role="alert" data-testid="acc-action-error">{{ actionError() }}</p>
         }
       } @else {
         <div class="acc-resolve-form">
@@ -192,13 +192,13 @@
           </div>
           <div class="acc-md-field">
             <label>سبب الرفض <span class="acc-req">*</span></label>
-            <textarea class="acc-rf-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اختر قالباً أعلاه أو اكتب سبب الرفض (سيصل إلى مقدم الخدمة)…"></textarea>
+            <textarea id="acc-reject-reason" aria-label="سبب الرفض" class="acc-rf-ta" [value]="rejectionReason()" (input)="rejectionReason.set($any($event.target).value)" placeholder="اختر قالباً أعلاه أو اكتب سبب الرفض (سيصل إلى مقدم الخدمة)…"></textarea>
           </div>
           @if (actionError()) {
-            <p class="acc-rf-err">{{ actionError() }}</p>
+            <p class="acc-rf-err" role="alert" data-testid="acc-action-error">{{ actionError() }}</p>
           }
           <div class="acc-rf-actions">
-            <button type="button" class="acc-btn acc-btn-reject" [disabled]="submittingAction() || rejectionReason().trim().length < 2" (click)="submitReject()">
+            <button type="button" class="acc-btn acc-btn-reject" [disabled]="submittingAction()" (click)="submitReject()">
               {{ submittingAction() ? 'جارٍ الرفض...' : 'تأكيد الرفض' }}
             </button>
             <button type="button" class="acc-btn acc-btn-ghost" [disabled]="submittingAction()" (click)="cancelRejectForm()">إلغاء</button>

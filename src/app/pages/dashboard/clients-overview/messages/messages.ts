@@ -1,4 +1,5 @@
-import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { chatPreview } from '../../../../core/utils/chat-preview.util';
+import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,6 +9,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
+import { reportClientProblems } from '../client-form-report';
 import { ClientOfferCounterService } from '../../../../core/services/client-offer-counter.service';
 
 export interface MessageItem {
@@ -53,6 +55,7 @@ export interface Conversation {
 })
 export class ClientMessages implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private router = inject(Router);
   public chatService = inject(ChatService);
   private authStore = inject(AuthStore);
@@ -157,7 +160,7 @@ export class ClientMessages implements OnInit, OnDestroy {
                 project: c.project?.title || c.project || 'مشروع وسيط',
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
-                lastMsg: c.lastMessage?.content || c.lastMsg || '',
+                lastMsg: chatPreview(c.lastMessage?.content || c.lastMsg || ''),
                 time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
                 // the server has no presence data for this list (its `online` field is a constant), so nothing is claimed unless a real flag arrives
@@ -231,7 +234,7 @@ export class ClientMessages implements OnInit, OnDestroy {
               }
 
               const unread = targetId === this.activeConvId() ? 0 : c.unreadCount + 1;
-              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: formattedMsg.text, time: formattedMsg.time, unreadCount: unread };
+              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: chatPreview(formattedMsg.text), time: formattedMsg.time, unreadCount: unread };
             }
             return c;
           })
@@ -282,12 +285,24 @@ export class ClientMessages implements OnInit, OnDestroy {
       } else {
         this.conversationNotFound.set(true);
         this.activeConvId.set('');
+        this.redirectIfProjectConversation(requestedId);
       }
       return;
     }
     this.conversationNotFound.set(false);
     this.activeConvId.set(list[0].id);
     this.selectConversation(list[0].id);
+  }
+
+  // An old link to a conversation that is not in the general list may be a PROJECT room: it opens in that project's messages tab (nothing is lost, the room is the same).
+  private redirectIfProjectConversation(conversationId: string): void {
+    this.sub.add(this.chatService.getConversationContext(conversationId).subscribe({
+      next: (res) => {
+        const url = res?.data?.context === 'PROJECT' ? res.data.url : null;
+        if (url) this.router.navigateByUrl(url, { replaceUrl: true });
+      },
+      error: () => { /* stays "not found": the server refused (not a member) or the room does not exist */ }
+    }));
   }
 
   selectConversation(id: string): void {
@@ -351,7 +366,11 @@ export class ClientMessages implements OnInit, OnDestroy {
 
   sendMessage(type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'FILE' = 'TEXT', customData?: any): void {
     let text = this.newMessageText().trim();
-    if (type === 'TEXT' && !text) return;
+    if (type === 'TEXT' && !text) {
+      // An empty send is not silent: the reason is under the message box (red, role=alert) and the box gets focus.
+      if (this.activeConversation()) void reportClientProblems(this.host.nativeElement, [{ field: 'msg-composer', message: 'اكتب رسالة قبل الإرسال' }]);
+      return;
+    }
 
     const currentConv = this.activeConversation();
     if (!currentConv) return;
@@ -391,7 +410,7 @@ export class ClientMessages implements OnInit, OnDestroy {
           ? {
               ...c,
               messages: [...c.messages, newMsg],
-              lastMsg: newMsg.text,
+              lastMsg: chatPreview(newMsg.text),
               time: timeString,
             }
           : c

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -17,6 +17,8 @@ import {
   offerNeedsApproval, todayInput,
 } from '../marketing-utils';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, focusInvalidControls, reportBackendError } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 
 interface OfferForm {
   type: SpecialOfferType;
@@ -35,6 +37,12 @@ interface OfferForm {
 }
 
 type Errors = Partial<Record<keyof OfferForm, string>>;
+
+/** Control id of each validated field. */
+const OFFER_FIELD_IDS: Partial<Record<keyof OfferForm, string>> = {
+  name: 'of-name', discountValue: 'of-disc', primaryServiceId: 'of-x', beneficiaryServiceId: 'of-y', validityDays: 'of-days',
+  targetServiceId: 'of-t', startAt: 'of-start', expiresAt: 'of-end', badgeText: 'of-badge', customerMessage: 'of-msg', internalNote: 'of-note',
+};
 
 const SHAPE_KEYS: (keyof CreateSpecialOfferPayload)[] = ['type', 'primaryServiceId', 'beneficiaryServiceId', 'validityDays', 'targetServiceId'];
 
@@ -56,6 +64,8 @@ export class MarketingOfferForm implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
 
   isCompanyMode = computed<boolean>(() => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY);
   readonly threshold = COMPANY_APPROVAL_THRESHOLD;
@@ -66,6 +76,8 @@ export class MarketingOfferForm implements OnInit {
   loadError = signal<string | null>(null);
   saving = signal(false);
   submitted = signal(false);
+  /** Honest message for failures that belong to no field (network, 429, 5xx, 403, 409...). Never marked on a field. */
+  formError = signal<string | null>(null);
 
   models = signal<ProviderModelOption[]>([]);
   modelsLoading = signal(true);
@@ -119,7 +131,7 @@ export class MarketingOfferForm implements OnInit {
 
   private emptyForm(): OfferForm {
     return {
-      type: 'BUNDLE', name: '', discountValue: null, primaryServiceId: '', beneficiaryServiceId: '', validityDays: 14,
+      type: 'BUNDLE', name: '', discountValue: null, primaryServiceId: '', beneficiaryServiceId: '', validityDays: null,
       targetServiceId: '', startAt: todayInput(), expiresAt: '', badgeText: 'عرض باقة', customerMessage: '', internalNote: '',
       assignedToTeamMemberId: null,
     };
@@ -226,8 +238,13 @@ export class MarketingOfferForm implements OnInit {
     this.errors.set(e);
     if (Object.keys(e).length) {
       this.notify.warning('راجع الحقول المطلوبة');
+      const order: (keyof OfferForm)[] = ['name', 'discountValue', 'primaryServiceId', 'beneficiaryServiceId', 'validityDays', 'targetServiceId', 'startAt', 'expiresAt', 'badgeText', 'customerMessage', 'internalNote'];
+      void focusInvalidControls(this.host.nativeElement, order.filter(k => e[k]).map(k => ({ path: OFFER_FIELD_IDS[k]!, message: e[k]! })));
       return;
     }
+    // A second click / Enter while the request is in flight does nothing (one request only).
+    if (!this.guard.enter()) return;
+    this.formError.set(null);
     const payload = this.buildPayload();
     const id = this.editId();
     this.saving.set(true);
@@ -240,8 +257,19 @@ export class MarketingOfferForm implements OnInit {
       },
       error: err => {
         this.saving.set(false);
-        this.notify.error(httpErrorMessage(err, 'تعذر حفظ العرض'));
+        this.guard.release();
+        void this.onSaveError(err);
       },
     });
+  }
+
+  /** 400/422 with field names -> at the field; everything else stays a generic honest message. */
+  private async onSaveError(err: unknown): Promise<void> {
+    const mapped = mapHttpError(err, { fallback: 'تعذر حفظ العرض' });
+    const res = await reportBackendError(this.host.nativeElement, mapped, { resolve: OFFER_FIELD_IDS as Record<string, string> });
+    if (res.handled && !Object.keys(res.unresolved).length) return;
+    const unresolved = Object.values(res.unresolved);
+    this.formError.set(unresolved.length ? `${mapped.message}: ${unresolved.join('، ')}` : mapped.message);
+    this.notify.error(mapped.message);
   }
 }

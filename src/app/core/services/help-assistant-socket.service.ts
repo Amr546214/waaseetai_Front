@@ -1,3 +1,4 @@
+import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { Injectable, InjectionToken, NgZone, OnDestroy, PLATFORM_ID, effect, inject, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, Subject } from 'rxjs';
@@ -142,7 +143,7 @@ export class HelpAssistantSocketService implements OnDestroy {
 		this.socketToken = token;
 		const s = this.connectSocket(environment.socketUrl, {
 			withCredentials: true,
-			reconnection: true,
+			...SOCKET_BACKOFF,
 			auth: { token },
 		});
 		this.socket = s;

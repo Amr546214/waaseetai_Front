@@ -1,5 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ProfileApiService } from './profile-api.service';
+import { AuthStore } from '../store/auth.store';
+import { UserRole } from '../models/auth.model';
 
 /** The IANA zones the provider can pick (same list as PUT /provider/profile/preferences). */
 export const PROVIDER_TIMEZONES = ['Asia/Riyadh', 'Asia/Dubai', 'Asia/Kuwait', 'Africa/Cairo', 'Asia/Amman', 'GMT'] as const;
@@ -21,6 +23,7 @@ export const providerTimeZone = (): string | undefined => activeZone;
 @Injectable({ providedIn: 'root' })
 export class ProviderPrefsStore {
 	private api = inject(ProfileApiService);
+	private auth = inject(AuthStore);
 	timezone = signal<string | null>(null);
 
 	/** Sets the zone for both DatePipe (via the signal) and hand-formatted dates (via providerTimeZone()). */
@@ -38,6 +41,9 @@ export class ProviderPrefsStore {
 
 	ensureLoaded() {
 		if (this.loaded) return;
+		// The route's environment initializer runs when /provider-overview is entered, BEFORE any guard: a client (or marketer / admin) opening that URL would call
+		// the provider-only endpoint and get a 403. Only a user ACTING as a provider reads the provider preferences.
+		if (this.auth.actingRole() !== UserRole.PROVIDER) return;
 		this.loaded = true;
 		this.api.getProviderProfileSetup().subscribe({
 			next: (res: any) => { const tz = res?.data?.preferences?.timezone; if (typeof tz === 'string' && tz) this.setTimezone(tz); },

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { ConfirmModalService } from '../../../../core/services/confirm-modal.service';
 import { environment } from '../../../../../environments/environment';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { FieldProblem, reportBackendError, reportProblems, SubmitGuard } from '../../../../shared/forms/form-error-focus';
+import { genericBanner } from '../../../../shared/forms/submit-feedback';
 import { PlatformSettings, SaSystemSettingsService, SettingsHistoryRow } from './sa-system-settings.service';
 
 type SettingsSection = 'general' | 'legal' | 'notifications' | 'security' | 'finance' | 'localization' | 'health';
@@ -37,6 +40,8 @@ export class SaSystemSettings implements OnInit {
   private api = inject(SaSystemSettingsService);
   private confirmModal = inject(ConfirmModalService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
 
   readonly notWiredReason = NOT_WIRED_REASON;
   readonly appVersion = environment.appVersion;
@@ -150,28 +155,64 @@ export class SaSystemSettings implements OnInit {
     return Object.keys(this.changed(keys)).length > 0;
   }
 
-  /** Confirm, then PUT only the changed keys of the visible section. */
+  /** Field id on the page for each stored setting (the server names fields the same as the keys). */
+  private static readonly FIELD_ID: Partial<Record<keyof PlatformSettings, string>> = {
+    platformName: 'ss-platformName', supportEmail: 'ss-supportEmail', supportPhone: 'ss-supportPhone', maintenanceBannerText: 'ss-maintenanceBannerText',
+    termsVersion: 'ss-termsVersion', privacyVersion: 'ss-privacyVersion', termsContent: 'ss-termsContent', privacyContent: 'ss-privacyContent',
+    adminNotificationEmail: 'ss-adminNotificationEmail',
+  };
+  private static readonly EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  /** Problems among the keys being saved, in form order (the same rules the server applies: well-formed e-mail when one is typed). */
+  private problems(keys: (keyof PlatformSettings)[], patch: Partial<PlatformSettings>): FieldProblem[] {
+    const out: FieldProblem[] = [];
+    for (const k of ['supportEmail', 'adminNotificationEmail'] as const) {
+      const v = String(patch[k] ?? '').trim();
+      if (keys.includes(k) && k in patch && v && !SaSystemSettings.EMAIL.test(v)) out.push({ field: SaSystemSettings.FIELD_ID[k], message: 'اكتب بريدًا إلكترونيًا صحيحًا، مثل name@domain.com' });
+    }
+    return out;
+  }
+
+  /** Validate (message under the field), confirm, then PUT only the changed keys of the visible section. */
   async save(keys: (keyof PlatformSettings)[]) {
     const patch = this.changed(keys);
-    if (!Object.keys(patch).length || this.saving()) return;
+    if (!Object.keys(patch).length || this.saving() || this.guard.busy) return;
+    const problems = this.problems(keys, patch);
+    if (problems.length) {
+      this.error.set('');
+      await reportProblems(this.host.nativeElement, problems);
+      return;
+    }
     const ok = await this.confirmModal.confirm({
       title: 'حفظ الإعدادات',
       message: 'سيتم تطبيق هذه التغييرات على المنصة وتسجيلها في سجل التدقيق. هل تريد المتابعة؟',
       type: 'warning',
       confirmText: 'حفظ التغييرات',
     });
-    if (!ok) return;
+    if (!ok || !this.guard.enter()) return;
     this.saving.set(true);
     this.error.set('');
     this.api.save(patch).subscribe({
       next: (r) => {
+        this.guard.release();
         this.saved.set(r.data);
         this.form.set({ ...r.data });
         this.saving.set(false);
         this.notify.success('تم حفظ الإعدادات');
         this.loadHistory();
       },
-      error: (e) => { this.saving.set(false); this.error.set(this.errMsg(e, 'تعذر حفظ الإعدادات.')); },
+      error: async (e) => {
+        this.guard.release();
+        this.saving.set(false);
+        const mapped = mapHttpError(e, { fallback: 'تعذر حفظ الإعدادات.' });
+        const resolve: Record<string, string> = {};
+        for (const [k, id] of Object.entries(SaSystemSettings.FIELD_ID)) resolve[k] = id!;
+        const gen = genericBanner(mapped);
+        if (gen !== null) { this.error.set(gen || this.errMsg(e, 'تعذر حفظ الإعدادات.')); return; }
+        const res = await reportBackendError(this.host.nativeElement, mapped, { resolve });
+        // Only a 400/422 that names a stored setting lands on its field; everything else is one honest message in the banner.
+        if (!res.handled) this.error.set(mapped.message || this.errMsg(e, 'تعذر حفظ الإعدادات.'));
+      },
     });
   }
 }

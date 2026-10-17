@@ -1,0 +1,11 @@
+@if (state() === 'error') {
+	<button type="button" class="re-retry" (click)="load()" data-testid="rating-entry-retry">إعادة المحاولة</button>
+} @else if (state() === 'ready') {
+	@if (status()?.review) {
+		<button type="button" class="re-btn re-btn--view" (click)="open()" data-testid="rating-entry-view">عرض تقييمك</button>
+	} @else if (status()?.canRate) {
+		<button type="button" class="re-btn" (click)="open()" data-testid="rating-entry-rate">{{ rateLabel }}</button>
+	} @else {
+		<span [class.re-sr]="!showReason()" class="re-reason" [attr.title]="reason()" data-testid="rating-entry-reason">{{ reason() }}</span>
+	}
+}

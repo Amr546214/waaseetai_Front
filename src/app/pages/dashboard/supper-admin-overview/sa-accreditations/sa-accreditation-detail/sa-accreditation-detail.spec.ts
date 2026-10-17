@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
+import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../../shared/forms/form-spec-utils';
 
 import { SaAccreditationDetail } from './sa-accreditation-detail';
 import { AccreditationSample } from '../../../../../core/models/accreditation.model';
@@ -124,10 +125,33 @@ describe('SaAccreditationDetail', () => {
     await setup();
     postSpy.mockClear();
     component.openRejectForm();
+    harness.detectChanges();
     component.rejectionReason.set('a');
     component.submitReject();
+    await settleForm();
     expect(postSpy).not.toHaveBeenCalled();
-    expect(component.actionError()).toContain('سبب الرفض');
+    // explained under the reason box (not in a generic banner), and the box has focus
+    const ta = (harness.routeNativeElement as HTMLElement).querySelector('#acc-reject-reason');
+    expectFieldProblem(ta, 'سبب الرفض');
+    expectFocused(ta);
+  });
+
+  it('reject: a 400 naming rejectionReason goes under the box; 429 / 500 / 403 / network are a generic alert; the reason is kept', async () => {
+    await setup();
+    component.openRejectForm(); harness.detectChanges();
+    component.rejectionReason.set('سبب مكتوب'); harness.detectChanges();
+    postSpy.mockReturnValueOnce(throwError(() => httpFail(400, { errors: [{ field: 'rejectionReason', message: 'السبب غير مقبول' }] })));
+    component.submitReject(); await settleForm(); harness.detectChanges();
+    const el = harness.routeNativeElement as HTMLElement;
+    expectFieldProblem(el.querySelector('#acc-reject-reason'), 'غير مقبول');
+    for (const st of [429, 500, 403, 0]) {
+      postSpy.mockReturnValueOnce(throwError(() => httpFail(st, { message: 'x' })));
+      component.submitReject(); await settleForm(); harness.detectChanges();
+      expect(component.actionError(), String(st)).toBeTruthy();
+      expectNoFieldProblem(el);
+      expect(el.querySelector('[data-testid="acc-action-error"]')?.getAttribute('role')).toBe('alert');
+    }
+    expect(component.rejectionReason()).toBe('سبب مكتوب');
   });
 });
 
@@ -258,12 +282,13 @@ describe('SaAccreditationDetail — honesty and confirmation', () => {
 		expect(el.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe('معتمد');
 	});
 
-	it('the reject confirm button stays disabled until a reason of 2+ chars exists', async () => {
-		const { harness, component, el } = await render();
+	it('the reject confirm button is never silently disabled: a missing reason is explained under the box instead', async () => {
+		const { harness, component, el, post } = await render();
 		component.openRejectForm(); harness.detectChanges();
 		const btn = () => Array.from(el.querySelectorAll('.acc-rf-actions button')).find(b => b.textContent!.includes('تأكيد الرفض')) as HTMLButtonElement;
-		expect(btn().disabled).toBe(true);
-		component.rejectionReason.set('سبب'); harness.detectChanges();
 		expect(btn().disabled).toBe(false);
+		btn().click(); await settleForm(); harness.detectChanges();
+		expectFieldProblem(el.querySelector('#acc-reject-reason'), 'سبب الرفض');
+		expect(post).not.toHaveBeenCalled();
 	});
 });

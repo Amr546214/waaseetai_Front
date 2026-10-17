@@ -77,7 +77,7 @@ export interface ProviderProfile {
 }
 
 /** Answer of the first step: emailSent is true only when the mail service accepted the message; emailHint is the masked ACCOUNT email. */
-export interface PaypalChangeRequestResult { emailSent: boolean; emailHint: string; expiresInSeconds?: number; mode?: 'add' | 'change' }
+export interface PaypalChangeRequestResult { emailSent: boolean; emailHint: string; expiresInSeconds?: number; expiresAt?: string; resendAvailableAt?: string; mode?: 'add' | 'change' }
 
 @Injectable({ providedIn: 'root' })
 export class ProviderProfileService {

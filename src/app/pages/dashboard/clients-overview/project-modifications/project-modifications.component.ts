@@ -1,11 +1,17 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
-import { MessageContext } from '../../../../core/services/chat.service';
+import { ChatService, MessageContext } from '../../../../core/services/chat.service';
+import { sortAmendments } from '../../../../core/utils/amendment-list';
 import { environment } from '../../../../../environments/environment';
+import { formatMoney } from '../../../../core/utils/money.util';
+import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffect, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment, amendmentBudgetPart, amendmentActionBlockedReason } from '../../../../core/constants/amendment-effect';
+import { AmendmentActionsService } from '../../../../core/services/amendment-actions.service';
+import { AmendmentPaymentOtpComponent } from '../../../../sheards/amendment-payment-otp/amendment-payment-otp.component';
 
 // Matches the real GET /client/projects/amendments response shape exactly
 // (see waseetai-backend ProjectAmendmentService#listAmendments) — no field
@@ -29,6 +35,14 @@ interface Amendment {
 	updatedAt: string;
 	respondedAt: string | null;
 	conversationId: string | null;
+	effect?: 'APPLIED' | 'RECORD_ONLY' | 'PENDING' | 'NONE';
+	effectNote?: string;
+	appliedAt?: string | null;
+	needsClientPayment?: boolean;
+	fundingAuthorized?: boolean;
+	fundingAuthorizedUntil?: string | null;
+	contractPrice?: number | null;
+	contractDurationDays?: number | null;
 }
 
 interface FilterTab {
@@ -45,7 +59,7 @@ interface TimelineStep {
 @Component({
 	selector: 'app-project-modifications',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, AmendmentPaymentOtpComponent],
 	templateUrl: './project-modifications.component.html',
 	styleUrl: './project-modifications.component.css'
 })
@@ -53,6 +67,9 @@ export class ProjectModificationsComponent implements OnInit {
 	private authStore = inject(AuthStore);
 	private http = inject(HttpClient);
 	private router = inject(Router);
+	private actions = inject(AmendmentActionsService);
+	private chatService = inject(ChatService);
+	private destroyRef = inject(DestroyRef);
 
 	isCompanyMode = computed(() => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY);
 
@@ -72,6 +89,8 @@ export class ProjectModificationsComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.fetchAmendments();
+		// the other party answered / authorised / applied a request: the list is re-read (rows are replaced by id, never doubled)
+		this.chatService.projectEvent$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(e => { if (e?.amendmentId) this.fetchAmendments(); });
 	}
 
 	fetchAmendments(): void {
@@ -84,7 +103,7 @@ export class ProjectModificationsComponent implements OnInit {
 					this.isLoading.set(false);
 					return;
 				}
-				this.amendments.set(response.data as Amendment[]);
+				this.amendments.set(sortAmendments(response.data as Amendment[]));
 				this.isLoading.set(false);
 			},
 			error: () => {
@@ -137,7 +156,7 @@ export class ProjectModificationsComponent implements OnInit {
 		const raisedLabel = am.requestedByRole === 'CLIENT' ? 'رفع الطلب' : 'رفع المقدّم';
 		const waitingLabel = am.requestedByRole === 'CLIENT' ? 'بانتظار رد المقدّم' : 'بانتظار موافقتك';
 		const isPending = am.status === 'PENDING_OTHER_PARTY';
-		const outcomeLabel = am.status === 'APPROVED' ? 'معتمد' : am.status === 'REJECTED' ? 'مرفوض' : am.status === 'CANCELLED' ? 'ملغى' : 'القرار النهائي';
+		const outcomeLabel = am.status === 'APPROVED' ? (amendmentEffect(am) === 'APPLIED' ? 'طُبّق على العقد' : 'موافقة مُسجَّلة') : am.status === 'REJECTED' ? 'مرفوض' : am.status === 'CANCELLED' ? 'ملغى' : 'القرار النهائي';
 		return [
 			{ label: raisedLabel, state: 'done' },
 			{ label: waitingLabel, state: isPending ? 'active' : 'done' },
@@ -151,8 +170,12 @@ export class ProjectModificationsComponent implements OnInit {
 		return am.requestedByRole === 'PROVIDER' ? 'canc' : 'disp';
 	}
 
+	/** Why every action is disabled (the contract was closed, e.g. by a dispute settlement); null when available. */
+	blockedReason(am: Amendment): string | null { return amendmentActionBlockedReason(am as any); }
+
 	statusLabel(am: Amendment): string {
-		if (am.status === 'APPROVED') return 'تمت الموافقة';
+		if (this.blockedReason(am) && am.status === 'PENDING_OTHER_PARTY') return 'العقد مُغلق';
+		if (am.status === 'APPROVED') return amendmentApprovedBadge(am);
 		if (am.status === 'REJECTED') return 'مرفوض';
 		if (am.status === 'CANCELLED') return 'مُلغى';
 		return am.requestedByRole === 'CLIENT' ? 'بانتظار رد المقدّم' : 'بانتظار موافقتك';
@@ -168,7 +191,7 @@ export class ProjectModificationsComponent implements OnInit {
 	formatBudgetDelta(value: number | null): string {
 		if (value === null || value === 0) return 'بلا تغيير';
 		const sign = value > 0 ? '+' : '-';
-		return `${sign}${Math.abs(value).toLocaleString('en-US')} $`;
+		return `${sign}${formatMoney(Math.abs(value))} $`;
 	}
 
 	formatDurationDelta(value: number | null): string {
@@ -183,11 +206,54 @@ export class ProjectModificationsComponent implements OnInit {
 		return am.requestedByRole === 'PROVIDER' && am.status === 'PENDING_OTHER_PARTY';
 	}
 
+	readonly proposedChangeLabel = AMENDMENT_PROPOSED_CHANGE_LABEL;
+	effectNote(am: Amendment): string { return amendmentEffectNote(am); }
+	effectLines(am: Amendment) { return amendmentEffectLines(am); }
+	needsPayment(am: Amendment): boolean { return amendmentNeedsPayment(am); }
+	confirmText(am: Amendment, decision: 'approve' | 'reject'): string { return decision === 'approve' ? amendmentApproveText(am, 'client') : AMENDMENT_REJECT_CONFIRM_TEXT; }
+	approveAmount(am: Amendment): number { return amendmentBudgetPart(am); }
+
+	// Approving APPLIES the amendment (contract / escrow / stages / wallet) in one step, so the confirmation shows the financial effect first.
+	// A budget increase additionally needs the client's payment code (the OTP step); nothing is shown as done before the API answered.
+	pendingDecision = signal<{ id: string; decision: 'approve' | 'reject' } | null>(null);
+	otpFor = signal<{ id: string; mode: 'respond' | 'authorize' } | null>(null);
+	askDecision(am: Amendment, decision: 'approve' | 'reject'): void {
+		if (this.respondingId() || this.blockedReason(am)) return;
+		this.respondError.set('');
+		this.otpFor.set(null);
+		this.pendingDecision.set({ id: am.id, decision });
+	}
+	cancelDecision(): void { this.pendingDecision.set(null); this.otpFor.set(null); }
+	confirmDecision(am: Amendment): void {
+		const p = this.pendingDecision();
+		if (!p || p.id !== am.id) return;
+		if (p.decision === 'approve' && this.needsPayment(am)) { this.otpFor.set({ id: am.id, mode: 'respond' }); return; }
+		this.pendingDecision.set(null);
+		this.respond(am, p.decision);
+	}
+	onOtpDone(): void { this.pendingDecision.set(null); this.otpFor.set(null); this.respondError.set(''); this.fetchAmendments(); }
+
+	// A client-raised budget increase: the client authorizes the payment (OTP) first; the provider's approval then applies it and debits the wallet.
+	canAuthorizeFunding(am: Amendment): boolean {
+		return am.requestedByRole === 'CLIENT' && am.status === 'PENDING_OTHER_PARTY' && this.needsPayment(am) && !am.fundingAuthorized;
+	}
+	startAuthorize(am: Amendment): void { if (this.blockedReason(am)) return; this.respondError.set(''); this.pendingDecision.set(null); this.otpFor.set({ id: am.id, mode: 'authorize' }); }
+	canCancel(am: Amendment): boolean { return am.requestedByRole === 'CLIENT' && am.status === 'PENDING_OTHER_PARTY'; }
+	cancelRequest(am: Amendment): void {
+		if (this.respondingId() || this.blockedReason(am)) return;
+		this.respondingId.set(am.id);
+		this.respondError.set('');
+		this.actions.cancel('client', am.id).subscribe({
+			next: () => { this.respondingId.set(null); this.fetchAmendments(); },
+			error: event => { this.respondingId.set(null); this.respondError.set(event.error?.message || 'تعذر إلغاء الطلب'); }
+		});
+	}
+
 	respond(am: Amendment, decision: 'approve' | 'reject'): void {
 		if (this.respondingId()) return;
 		this.respondingId.set(am.id);
 		this.respondError.set('');
-		this.http.post<any>(`${environment.url_api}/client/projects/amendments/${am.id}/respond`, { decision }).subscribe({
+		this.actions.clientRespond(am.id, decision).subscribe({
 			next: () => {
 				this.respondingId.set(null);
 				// Reload real data rather than faking the new status locally.

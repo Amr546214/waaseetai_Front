@@ -1,6 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { reportAdminProblems } from '../../shared/admin-form-report';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 interface CmsPage {
@@ -45,6 +46,7 @@ export class SaContent {
   draftContent = signal(this.pages[0].content);
   dirty = signal(false);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   selectedPage = computed(() => this.pages.find((p) => p.key === this.selectedKey()) ?? this.pages[0]);
 
@@ -61,10 +63,15 @@ export class SaContent {
     this.dirty.set(true);
   }
 
-  saveAndPublish(): void {
+  /** Local draft only: nothing is sent to the server and nothing is published (real saving/publishing is not connected yet). */
+  saveLocalDraft(): void {
+    if (!this.draftContent().trim()) {
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'sco-content', message: 'محتوى الصفحة فارغ، اكتب المحتوى قبل الحفظ' }]);
+      return;
+    }
     const page = this.pages.find((p) => p.key === this.selectedKey());
     if (page) page.content = this.draftContent();
     this.dirty.set(false);
-    this.notify.warning('تم الحفظ محليًا لهذه الجلسة — النشر الفعلي على الموقع غير متاح حاليًا');
+    this.notify.warning('حُفظت كمسودة محلية فقط: لم يُنشر المحتوى ولم يُحفظ على الخادم، فالحفظ والنشر الفعلي غير متصل بعد');
   }
 }

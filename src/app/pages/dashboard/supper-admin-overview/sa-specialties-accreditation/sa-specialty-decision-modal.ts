@@ -1,5 +1,17 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, ElementRef, effect, inject, input, output, signal } from '@angular/core';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { clearAllInvalid, reportAdminProblems } from '../shared/admin-form-report';
 import { MIN_DECISION_REASON, SpecialtyDecision } from './sa-specialties-accreditation.data';
+
+/**
+ * Splits a failed decision request into what goes under the reason box (a 400/422 naming `reason`) and the honest generic
+ * banner (everything else: network, 429, 5xx, 403, 409, a 400 without field names).
+ */
+export function decisionFailure(err: unknown): { banner: string; field: string } {
+  const m = mapHttpError(err, { fallback: 'تعذر تنفيذ القرار' });
+  const field = m.kind === 'backend-validation' ? (m.fieldErrors['reason'] ?? '') : '';
+  return { banner: field ? '' : m.message, field };
+}
 
 /** Confirmation modal shared by the list quick actions and the detail page: a decision (either way) needs a written reason. */
 @Component({
@@ -14,11 +26,11 @@ import { MIN_DECISION_REASON, SpecialtyDecision } from './sa-specialties-accredi
         <label class="sdm-lbl" for="sdm-reason">سبب القرار <span class="sdm-req">*</span> ({{ min }} أحرف على الأقل)</label>
         <textarea id="sdm-reason" class="sdm-ta" rows="4" data-testid="decision-reason" [value]="reason()" [disabled]="busy()"
           (input)="reason.set($any($event.target).value)" placeholder="اكتب سبب القبول أو الرفض..."></textarea>
-        @if (error()) { <p class="sdm-err" data-testid="decision-error">{{ error() }}</p> }
+        @if (error()) { <p class="sdm-err" role="alert" data-testid="decision-error">{{ error() }}</p> }
         <div class="sdm-act">
           <button type="button" class="sdm-btn sdm-ghost" [disabled]="busy()" (click)="cancel()">إلغاء</button>
           <button type="button" class="sdm-btn" data-testid="decision-confirm" [class.sdm-ok]="decision() === 'APPROVED'" [class.sdm-no]="decision() === 'REJECTED'"
-            [disabled]="busy() || reason().trim().length < min" (click)="confirm()">
+            [disabled]="busy()" (click)="confirm()">
             {{ busy() ? 'جارٍ الإرسال...' : (decision() === 'APPROVED' ? 'تأكيد القبول' : 'تأكيد الرفض') }}
           </button>
         </div>
@@ -53,15 +65,31 @@ export class SaSpecialtyDecisionModal {
   summary = input<string>('');
   busy = input<boolean>(false);
   error = input<string>('');
+  /** Server message about the reason itself (400/422 naming `reason`): shown under the box. */
+  fieldError = input<string>('');
   confirmed = output<string>();
   cancelled = output<void>();
 
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
   readonly min = MIN_DECISION_REASON;
   reason = signal('');
 
+  constructor() {
+    effect(() => {
+      const msg = this.fieldError();
+      if (msg) void reportAdminProblems(this.host.nativeElement, [{ field: 'sdm-reason', message: msg }]);
+    });
+  }
+
   confirm() {
     const r = this.reason().trim();
-    if (this.busy() || r.length < this.min) return;
+    if (this.busy()) return;
+    if (r.length < this.min) {
+      // Not a silently disabled button: say what is missing, under the reason box, and focus it.
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'sdm-reason', message: r ? `سبب القرار قصير جدًا: اكتب ${this.min} أحرف على الأقل` : 'سبب القرار مطلوب' }]);
+      return;
+    }
+    clearAllInvalid(this.host.nativeElement);
     this.confirmed.emit(r);
   }
 

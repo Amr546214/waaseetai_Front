@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { Component, signal } from '@angular/core';
-import { Subject, of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
 
@@ -106,5 +106,26 @@ describe('Register social buttons (DOM, step 2)', () => {
 		wrap.classList.remove('is-hover');
 		move(200, 120);
 		expect(wrap.classList.contains('is-hover')).toBe(false);
+	});
+});
+
+describe('Register Google sign-up 429', () => {
+	afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
+	it('gates only the Google button with the ticking label and the sentence; nothing is retried at zero; Apple and the form are untouched', async () => {
+		vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z'));
+		const { fixture, el, postSpy, authState } = setup();
+		postSpy.mockReturnValue(throwError(() => ({ status: 429, headers: { get: (k: string) => (k === 'Retry-After' ? '35' : null) }, error: { message: 'x' } })));
+		authState.next({ idToken: 'tok', provider: 'GOOGLE' });
+		await vi.advanceTimersByTimeAsync(0); fixture.detectChanges();
+		expect(postSpy).toHaveBeenCalledTimes(1);
+		expect((el.querySelector('#btn-google') as HTMLButtonElement).disabled).toBe(true);
+		expect(el.querySelector('#google-wait')!.textContent).toContain('بعد 0:35');
+		expect(el.querySelector('.google-btn-wrapper asl-google-signin-button')).toBeNull();
+		expect(el.querySelector('[data-testid="rate-limit-msg"]')!.textContent).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد 0:35');
+		authState.next({ idToken: 'tok2', provider: 'GOOGLE' });
+		expect(postSpy).toHaveBeenCalledTimes(1);
+		await vi.advanceTimersByTimeAsync(36_000); fixture.detectChanges();
+		expect((el.querySelector('#btn-google') as HTMLButtonElement).disabled).toBe(false);
+		expect(postSpy).toHaveBeenCalledTimes(1);
 	});
 });

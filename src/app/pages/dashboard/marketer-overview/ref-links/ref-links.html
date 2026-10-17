@@ -35,9 +35,9 @@
 
         @if (showNewChannelForm()) {
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,.02);padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.05)">
-            <input type="text" [(ngModel)]="newChannelName" placeholder="اسم القناة (مثل: لينكد إن)" style="flex:1;min-width:120px;padding:9px 12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:12px;outline:none" class="txt-white">
-            <input type="text" [(ngModel)]="newUtmSource" placeholder="utm_source (مثل: linkedin)" style="flex:1;min-width:120px;padding:9px 12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:12px;outline:none" class="txt-white">
-            <button (click)="addCustomLink()" style="padding:9px 16px;background:rgba(43,127,255,.15);border:1px solid rgba(43,127,255,.3);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" class="txt-blue">حفظ</button>
+            <input type="text" id="new-channel-name" aria-required="true" name="channelName" aria-label="اسم القناة" [(ngModel)]="newChannelName" placeholder="اسم القناة (مثل: لينكد إن)" style="flex:1;min-width:120px;padding:9px 12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:12px;outline:none" class="txt-white">
+            <input type="text" id="new-channel-utm" aria-required="true" name="utmSource" dir="ltr" aria-label="مصدر الرابط utm_source" [(ngModel)]="newUtmSource" placeholder="utm_source (مثل: linkedin)" style="flex:1;min-width:120px;padding:9px 12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:12px;outline:none" class="txt-white">
+            <button type="button" [disabled]="savingChannel()" (click)="addCustomLink()" style="padding:9px 16px;background:rgba(43,127,255,.15);border:1px solid rgba(43,127,255,.3);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" class="txt-blue">حفظ</button>
             <button (click)="toggleNewChannelForm()" style="padding:9px 12px;background:transparent;border:none;font-size:12px;cursor:pointer;font-family:inherit" class="txt-muted">إلغاء</button>
           </div>
         } @else {

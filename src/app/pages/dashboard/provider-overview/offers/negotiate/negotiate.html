@@ -68,7 +68,7 @@
 				</div>
 				@if (round.timestamp) {<span class="round-time">{{ round.timestamp | date:'MMM d, HH:mm' }}</span>}
 			</div>
-			<div class="round-price">{{ round.price | number }} $ @if (round.duration) {<span class="round-dur"> · {{ round.duration }}</span>}</div>
+			<div class="round-price">{{ round.price | number:'1.0-2' }} $ @if (round.duration) {<span class="round-dur"> · {{ round.duration }}</span>}</div>
 			@if (round.message) {<div class="round-msg">{{ round.message }}</div>}
 		</div>
 		}
@@ -99,7 +99,7 @@
 		@if (n.hint) {
 		<div class="decision-note" data-testid="neg-hint" role="note">{{ n.hint }}</div>
 		} @else {
-		<div class="decision-note">طلب العميل: {{ n.request.price !== null ? (n.request.price | number) + ' $' : '' }} {{ n.request.deliveryDays !== null ? '· ' + n.request.deliveryDays + ' يوم' : '' }}. اتفقوا في المحادثة ثم أرسل عرضًا مضادًا واضحًا، أو اعتذر عن الطلب ليبقى عرضك بشروطه.</div>
+		<div class="decision-note">طلب العميل: {{ n.request.price !== null ? (n.request.price | number:'1.0-2') + ' $' : '' }} {{ n.request.deliveryDays !== null ? '· ' + n.request.deliveryDays + ' يوم' : '' }}. اتفقوا في المحادثة ثم أرسل عرضًا مضادًا واضحًا، أو اعتذر عن الطلب ليبقى عرضك بشروطه.</div>
 		}
 		@if (n.canReject) {
 		<div class="composer-actions">
@@ -124,18 +124,19 @@
 		<div class="decision-note" data-testid="neg-counter-note">العرض المضاد يُسجَّل في المحادثة وينتظر رد العميل. لا يتغير السعر ولا المدة الرسمية لعرضك (ولا أي شيء في العقد) إلا بعد رد العميل لاحقًا.</div>
 		<div class="composer-grid">
 			<div class="inp-group">
-				<label class="inp-label" for="counter-price">السعر المقترح ($)</label>
-				<input id="counter-price" class="inp-field" type="text" inputmode="decimal" autocomplete="off" [value]="counterPrice()" (input)="onCounterInput('price', $event)" placeholder="مثال 900" />
+				<label class="inp-label" for="counter-price">السعر المقترح ($) <span class="ws-req" aria-hidden="true">*</span></label>
+				<input id="counter-price" aria-required="true" [attr.aria-invalid]="counterTouched() && counterPriceValue() === null ? 'true' : null" [attr.aria-describedby]="counterFieldsMissing() ? 'counter-missing-err' : null" (blur)="counterTouched.set(true)" class="inp-field" type="text" inputmode="decimal" autocomplete="off" [value]="counterPrice()" (input)="onCounterInput('price', $event)" placeholder="أدخل السعر المقترح بالدولار" />
 			</div>
 			<div class="inp-group">
-				<label class="inp-label" for="counter-days">مدة التنفيذ (أيام)</label>
-				<input id="counter-days" class="inp-field" type="text" inputmode="numeric" autocomplete="off" [value]="counterDays()" (input)="onCounterInput('days', $event)" placeholder="مثال 14" />
+				<label class="inp-label" for="counter-days">مدة التنفيذ (أيام) <span class="ws-req" aria-hidden="true">*</span></label>
+				<input id="counter-days" aria-required="true" [attr.aria-invalid]="counterTouched() && counterDaysValue() === null ? 'true' : null" [attr.aria-describedby]="counterFieldsMissing() ? 'counter-missing-err' : null" (blur)="counterTouched.set(true)" class="inp-field" type="text" inputmode="numeric" autocomplete="off" [value]="counterDays()" (input)="onCounterInput('days', $event)" placeholder="أدخل عدد الأيام" />
 			</div>
 		</div>
 		<div class="inp-group">
 			<label class="inp-label" for="counter-note">ملاحظة (اختياري)</label>
 			<textarea id="counter-note" class="inp-field" rows="3" maxlength="500" [value]="counterNote()" (input)="onCounterInput('note', $event)"></textarea>
 		</div>
+		@if (counterFieldsMissing()) {<div class="form-error" id="counter-missing-err" data-testid="neg-counter-missing" role="alert">يرجى تحديد السعر والمدة المطلوبة</div>}
 		@if (counterError()) {<div class="form-error" data-testid="neg-counter-error" role="alert">{{ counterError() }}</div>}
 		@if (counterSuccess()) {<div class="ws-note ws-note--success" data-testid="neg-counter-success" role="status"><div class="ws-note-txt">{{ COUNTER_SUCCESS_TEXT }}</div></div>}
 		<div class="composer-actions">

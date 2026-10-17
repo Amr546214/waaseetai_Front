@@ -14,7 +14,7 @@ const walk = (dir: string, out: string[] = []): string[] => {
 };
 const P = 'pages/dashboard/provider-overview/';
 const files = [
-	...['profile/profile-setup', 'profile/data', 'profile/specialties', 'business-models/accreditation', 'business-models/center/accreditation-details', 'help', 'notifications', 'settings', 'accreditation-status']
+	...['profile/profile-setup', 'profile/data', 'profile/specialties', 'business-models/accreditation', 'business-models/center/accreditation-details', 'help', 'notifications', 'settings', 'account-actions']
 		.flatMap(d => walk(join(root, P + d))),
 	...['provider-profile', 'profile-api', 'provider-prefs.store', 'notification-engine', 'notification-preferences', 'account', 'chat', 'setup-test', 'specialty', 'ticket-api', 'provider-access']
 		.map(n => join(root, `core/services/${n}${n.endsWith('.store') ? '' : '.service'}.ts`)),

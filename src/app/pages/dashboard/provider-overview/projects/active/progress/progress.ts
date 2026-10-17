@@ -1,5 +1,7 @@
 import { providerTimeZone } from '../../../../../../core/services/provider-prefs.store';
-import { Component, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RatingSummary } from '../../../../../../sheards/rating-summary/rating-summary.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,13 +12,18 @@ import { ProjectMiniChat } from '../../../../../../sheards/project-mini-chat/pro
 import { DisputeModal } from '../../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../../core/services/dispute-api.service';
 import { CreateDisputePayload } from '../../../../../../core/models/dispute.model';
-import { MessageContext } from '../../../../../../core/services/chat.service';
+import { ChatService, MessageContext } from '../../../../../../core/services/chat.service';
+import { sortAmendments, upsertAmendment } from '../../../../../../core/utils/amendment-list';
 import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
+import { formatMoney } from '../../../../../../core/utils/money.util';
+import { stageHeading } from '../../../../../../core/utils/stage-title.util';
+import { deliveryFileOpenUrl } from '../../../../../../core/utils/delivery-file.util';
+import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment, amendmentActionBlockedReason } from '../../../../../../core/constants/amendment-effect';
 
 export type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION';
 
-export const AMENDMENT_SUCCESS_TEXT = 'تم تسجيل طلب التعديل وهو بانتظار رد العميل. لن يتغير السعر أو المدة أو الضمان تلقائيًا.';
+export const AMENDMENT_SUCCESS_TEXT = 'تم إرسال طلب التعديل وهو بانتظار رد العميل. لا يتغير السعر أو المدة أو الضمان قبل موافقته، وعند موافقته يُطبَّق التعديل فورًا.';
 export const AMENDMENT_STATUS_LABEL: Record<string, string> = { PENDING_OTHER_PARTY: 'بانتظار رد العميل', APPROVED: 'وافق العميل', REJECTED: 'رفضه العميل', CANCELLED: 'أُلغي' };
 /** Status wording depends on WHO raised the request: my own (waiting for the client) or the client's (waiting for me). */
 export const CLIENT_REQUEST_STATUS_LABEL: Record<string, string> = { PENDING_OTHER_PARTY: 'بانتظار ردك', APPROVED: 'وافقت عليه', REJECTED: 'رفضته', CANCELLED: 'أُلغي' };
@@ -46,12 +53,14 @@ export function isHttpsLink(value: string): boolean {
 
 @Component({
   selector: 'app-progress', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
+  imports: [CommonModule, FormsModule, RouterLink, RatingSummary, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
 })
 export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private chatService = inject(ChatService);
+  private destroyRef = inject(DestroyRef);
   private disputeApi = inject(DisputeApiService);
   private authStore = inject(AuthStore);
 
@@ -134,7 +143,12 @@ export class Progress implements OnInit {
   aiProgress = signal(0);
   private aiTimer: any = null;
 
-  ngOnInit() { this.projectId = this.route.snapshot.paramMap.get('id') || ''; this.load(); }
+  ngOnInit() {
+    this.projectId = this.route.snapshot.paramMap.get('id') || ''; this.load();
+    this.route.queryParamMap.subscribe(q => { if (q.get('tab') === 'messages') this.activeTab.set('msgs'); });
+    // a project event (amendment answered / applied by the client) refreshes the list; rows are keyed by id, never doubled
+    this.chatService.projectEvent$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(e => { if (e?.amendmentId) this.loadAmendments(); });
+  }
   load() {
     if (!this.projectId) return;
     this.loading.set(true); this.error.set('');
@@ -170,8 +184,9 @@ export class Progress implements OnInit {
       stageNumber: stage.stageNumber || undefined,
       amount: stage.amount || undefined
     } : { type: 'PROJECT', projectId: data.projectId || this.projectId, projectTitle: data.title || data.project || undefined };
-    this.router.navigate(['/provider-overview/messages'],
-      { queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: { messageContext: ctx } });
+    // project discussion = the project's own messages tab
+    this.activeTab.set('msgs');
+    this.router.navigate(['/provider-overview/projects/active/progress', this.projectId], { queryParams: { tab: 'messages' }, state: { messageContext: ctx } });
   }
   // Delivery file picker: validates (count / 25MB / type), then uploads each file for real. Nothing is "attached" by name.
   onDeliveryFilesSelected(event: Event) {
@@ -239,6 +254,13 @@ export class Progress implements OnInit {
     if ((this.deliveryNote || '').trim().length < 10) return 'اكتب وصفاً واضحاً للتسليم (10 أحرف على الأقل)';
     return null;
   }
+  /** The blocker text, once the provider started filling the form (not while a file is still uploading). */
+  showDeliveryBlocker(): string | null {
+    const b = this.deliveryBlocker();
+    if (!b || this.deliveryArtifacts().uploading) return null;
+    const touched = (this.deliveryNote || '').length > 0 || (this.deliveryLinks || '').trim().length > 0 || this.deliveryUploads().length > 0;
+    return touched ? b : null;
+  }
   deliveryReady() { return this.deliveryBlocker() === null; }
   private formatFileSize(bytes: number): string {
     if (!bytes) return '0 KB';
@@ -299,6 +321,8 @@ export class Progress implements OnInit {
   submitDelivery() {
     const stage = this.deliveryStage();
     if (!stage) return;
+    // The server decides whether this stage can be submitted now (canSubmitDelivery + uploadBlockedReason): never recompute it here.
+    if (stage.canSubmitDelivery === false) { this.error.set(stage.uploadBlockedReason || 'هذه المرحلة غير متاحة لإرسال التسليم حالياً'); return; }
     const blocker = this.deliveryBlocker();
     if (blocker) { this.error.set(blocker); return; }
     const a = this.deliveryArtifacts();
@@ -311,7 +335,27 @@ export class Progress implements OnInit {
   }
   // P-PR-013 display helpers (display-only)
   deliveryStageRounds(stage: any): number { return stage?.roundsCount || 0; }
+  heading(stage: any): string { return stageHeading(stage?.stageNumber, stage?.title); }
+  openUrl(file: any): string | null { return deliveryFileOpenUrl(file); }
+  /** The stage is waiting on someone (open, delivered, or sent back). Never for a stage a settlement closed, whatever its stored status. */
+  stageWaiting(stage: any): boolean {
+    if (this.stageClosedBySettlement(stage)) return false;
+    return !!(stage?.isWait || stage?.status === 'submitted');
+  }
+  /** Money label of a stage from the server's amount state: released / held in the escrow / only its contractual value (historical after a settlement). */
+  stageMoneyLabel(stage: any): string {
+    const amount = `${formatMoney(stage?.amount || 0)} $`;
+    if (this.stageClosedBySettlement(stage)) return `قيمة المرحلة ${amount} (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)`;
+    if (stage?.isDone) return `أُفرج ${amount}`;
+    return stage?.amountHeld ? `محتجز ${amount}` : `قيمة المرحلة ${amount}`;
+  }
+  /** Unreleased stage of a project closed by a dispute settlement: displayed as such (derived by the server; nothing was approved). */
+  stageClosedBySettlement(stage: any): boolean { return stage?.displayStatus === 'CLOSED_BY_SETTLEMENT'; }
+  stageText(stage: any): string { return this.stageClosedBySettlement(stage) ? (stage.displayStatusLabel || 'أُغلقت بالتسوية') : stage?.statusText; }
+  /** Why the amendment actions are disabled (its contract is closed); null when available. */
+  amendmentClosedReason(a: any): string | null { return amendmentActionBlockedReason(a); }
   deliveryStageStatusText(stage: any): string {
+    if (this.stageClosedBySettlement(stage)) return this.stageText(stage);
     if (stage?.statusText) return stage.statusText;
     if (stage?.status === 'in_progress') return 'جارية';
     if (stage?.status === 'revision') return 'بانتظار إعادة التسليم';
@@ -389,7 +433,7 @@ export class Progress implements OnInit {
     } catch { return d.date; }
   }
   // Escrow amount formatted "2,500 $" (active contract/escrow pricing is USD-canonical)
-  escrowAmountLabel(stage: any): string { return stage?.amount ? (stage.amount | 0).toLocaleString('en-US') + ' $' : '—'; }
+  escrowAmountLabel(stage: any): string { return stage?.amount ? formatMoney(stage.amount) + ' $' : '—'; }
 
   // === Batch 8 — real, on-demand Gemini project health analysis ===
   // Replaces the previously-permanent aiInsights placeholder. Not fetched
@@ -451,6 +495,8 @@ export class Progress implements OnInit {
 
   canRateClient(data: any): boolean {
     if (this.providerRatingSubmitted() || this.providerRatingSuccess()) return false;
+    // a project closed by a dispute settlement offers no NEW rating (the server says so too: providerClientRating.canRate)
+    if (data?.adminSettled) return false;
     // If backend reports the provider already rated this client, hide the CTA.
     if (data?.providerClientRating?.hasRated === true) return false;
     if (data?.canRate === true) return true;
@@ -474,7 +520,7 @@ export class Progress implements OnInit {
   loadAmendments() {
     this.amendmentsLoading.set(true); this.amendmentsError.set('');
     this.service.getAmendments(this.amendmentProjectId()).subscribe({
-      next: res => { this.amendments.set(Array.isArray(res?.data) ? res.data : []); this.amendmentsLoading.set(false); },
+      next: res => { this.amendments.set(sortAmendments(Array.isArray(res?.data) ? res.data : [])); this.amendmentsLoading.set(false); },
       error: () => { this.amendmentsLoading.set(false); this.amendmentsError.set('تعذر تحميل طلباتك السابقة'); }
     });
   }
@@ -497,7 +543,7 @@ export class Progress implements OnInit {
     if (this.amendKind === 'DURATION') payload.durationDeltaDays = this.amendDays as number;
     this.amendSaving.set(true); this.amendError.set('');
     this.service.createAmendment(this.amendmentProjectId(), payload).subscribe({
-      next: () => { this.amendSaving.set(false); this.amendSuccess.set(true); this.loadAmendments(); },
+      next: (res: any) => { this.amendSaving.set(false); this.amendSuccess.set(true); this.amendments.update(list => upsertAmendment(list, res?.data)); this.loadAmendments(); },
       error: err => { this.amendSaving.set(false); this.amendError.set(err.error?.message || 'تعذر إرسال طلب التعديل'); }
     });
   }
@@ -505,20 +551,43 @@ export class Progress implements OnInit {
   amendmentStatusText(a: ProviderAmendment) { return a.requestedByRole === 'CLIENT' ? (CLIENT_REQUEST_STATUS_LABEL[a.status] || a.status) : this.amendmentStatusLabel(a.status); }
   isClientPending(a: ProviderAmendment) { return a.requestedByRole === 'CLIENT' && a.status === 'PENDING_OTHER_PARTY'; }
 
-  // Answering a request the CLIENT raised: a real call (POST /provider/amendments/:id/respond); the decision is only recorded, nothing else changes.
+  // Answering a request the CLIENT raised: a real call (POST /provider/amendments/:id/respond). Approving APPLIES it to the contract in one step
+  // (a client-raised increase needs the client's payment authorization first); rejecting changes nothing.
   respondingId = signal<string | null>(null); respondError = signal('');
+  readonly amendmentProposedLabel = AMENDMENT_PROPOSED_CHANGE_LABEL;
+  amendmentEffectNote(a: ProviderAmendment) { return amendmentEffectNote(a); }
+  /** Badge of an approved row: "applied to the contract" for an effective one, the legacy wording only for a record-only row. Empty otherwise. */
+  amendmentBadge(a: ProviderAmendment): string { return a.status === 'APPROVED' ? amendmentApprovedBadge(a) : ''; }
+  amendmentConfirmText(a: ProviderAmendment, decision: 'approve' | 'reject') { return decision === 'approve' ? amendmentApproveText(a, 'provider') : AMENDMENT_REJECT_CONFIRM_TEXT; }
+  amendmentEffectLines(a: ProviderAmendment) { return amendmentEffectLines(a); }
+  /** A client-raised increase cannot be approved before the client authorized the payment: the button stays visible but disabled, with the reason. */
+  awaitingClientPayment(a: ProviderAmendment) { return this.isClientPending(a) && amendmentNeedsPayment(a) && !a.fundingAuthorized; }
+  isOwnPending(a: ProviderAmendment) { return a.requestedByRole === 'PROVIDER' && a.status === 'PENDING_OTHER_PARTY'; }
+  pendingAmendDecision = signal<{ id: string; decision: 'approve' | 'reject' } | null>(null);
+  askAmendDecision(a: ProviderAmendment, decision: 'approve' | 'reject') { if (this.respondingId() || this.amendmentClosedReason(a)) return; if (decision === 'approve' && this.awaitingClientPayment(a)) return; this.respondError.set(''); this.pendingAmendDecision.set({ id: a.id, decision }); }
+  cancelAmendDecision() { this.pendingAmendDecision.set(null); }
+  confirmAmendDecision(a: ProviderAmendment) { const p = this.pendingAmendDecision(); if (!p || p.id !== a.id) return; this.pendingAmendDecision.set(null); this.respondAmendment(a, p.decision); }
   respondAmendment(a: ProviderAmendment, decision: 'approve' | 'reject') {
-    if (this.respondingId() || !this.isClientPending(a)) return;
+    if (this.respondingId() || this.amendmentClosedReason(a) || !this.isClientPending(a) || (decision === 'approve' && this.awaitingClientPayment(a))) return;
     this.respondingId.set(a.id); this.respondError.set('');
     this.service.respondAmendment(a.id, decision).subscribe({
       next: () => { this.respondingId.set(null); this.loadAmendments(); },
       error: err => { this.respondingId.set(null); this.respondError.set(err.error?.message || 'تعذر حفظ قرارك'); }
     });
   }
+  /** Withdraw my own pending request (POST /provider/amendments/:id/cancel). */
+  cancelOwnAmendment(a: ProviderAmendment) {
+    if (this.respondingId() || this.amendmentClosedReason(a) || !this.isOwnPending(a)) return;
+    this.respondingId.set(a.id); this.respondError.set('');
+    this.service.cancelAmendment(a.id).subscribe({
+      next: () => { this.respondingId.set(null); this.loadAmendments(); },
+      error: err => { this.respondingId.set(null); this.respondError.set(err.error?.message || 'تعذر إلغاء الطلب'); }
+    });
+  }
   amendmentTypeLabel(t: string) { return AMENDMENT_TYPE_LABEL[t] || t; }
   amendmentDeltas(a: ProviderAmendment): string {
     const parts: string[] = [];
-    if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${a.budgetDelta.toLocaleString('en-US')} $`);
+    if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${formatMoney(a.budgetDelta)} $`);
     if (a.durationDeltaDays !== null && a.durationDeltaDays !== undefined) parts.push(`${a.durationDeltaDays > 0 ? '+' : ''}${a.durationDeltaDays} يوم`);
     return parts.join(' · ');
   }

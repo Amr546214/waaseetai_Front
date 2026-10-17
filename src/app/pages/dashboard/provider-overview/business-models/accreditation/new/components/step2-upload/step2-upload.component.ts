@@ -34,6 +34,18 @@ export class Step2UploadComponent {
   @Output() onHandleDrop = new EventEmitter<DragEvent>();
   @Output() onRemoveAttachment = new EventEmitter<string>();
 
+  /** server / validation messages per field (title, description, files, projectUrl, githubUrl, technologiesUsed): shown at the field */
+  @Input() fieldErrors: Record<string, string> = {};
+  /** documents already attached to the request being completed (uploaded earlier, kept) */
+  @Input() existingProofs: { id: string; fileName: string; bytes: number }[] = [];
+  /** fields the admin asked to fix (highlighted) */
+  @Input() highlightFields: string[] = [];
+  @Input() requirementsText = 'صور PNG/JPG/WebP أو PDF أو ملف ZIP، حتى 15 ميجابايت للملف الواحد، وبحد أقصى 10 ملفات. ملف إثبات واحد على الأقل مطلوب.';
+  @Output() onRemoveExistingProof = new EventEmitter<string>();
+
+  err(field: string): string { return this.fieldErrors?.[field] || ''; }
+  flagged(field: string): boolean { return !!this.err(field) || this.highlightFields.includes(field); }
+
   addTechTag() {
     this.onAddTechTag.emit();
   }

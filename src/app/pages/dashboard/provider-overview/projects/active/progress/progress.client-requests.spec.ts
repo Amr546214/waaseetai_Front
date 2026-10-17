@@ -9,12 +9,14 @@ import { Progress } from './progress';
 const DATA = { projectId: 'project-9', conversationId: 'conv-9', title: 'مشروع', stages: [], edits: [], messages: [], files: [], deliveries: [] };
 const AM = (o: Record<string, unknown> = {}) => ({ id: 'c1', projectId: 'project-9', projectTitle: 'مشروع', type: 'BUDGET', title: 'تخفيض', description: 'سبب', budgetDelta: -100, durationDeltaDays: null, status: 'PENDING_OTHER_PARTY', requestedByRole: 'CLIENT', createdAt: '2026-10-01T00:00:00Z', respondedAt: null, conversationId: null, ...o });
 
+// the list is newest-first by createdAt (tie: id desc); the fixtures keep their written order as the display order
+const NEWEST_FIRST = (l: any[]) => l.map((a, i) => ({ ...a, createdAt: new Date(Date.UTC(2026, 9, 10) - i * 60000).toISOString() }));
 describe('provider progress: answering a client change request', () => {
 	async function setup(list: any[], postError?: any) {
 		const post = vi.fn(() => (postError ? throwError(() => postError) : of({ success: true, data: {} })));
-		const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: list }) : of({ success: true, data: DATA }));
+		const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: NEWEST_FIRST(list) }) : of({ success: true, data: DATA }));
 		await TestBed.configureTestingModule({ imports: [Progress], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'contract-1' }) } } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'contract-1' }) } } }] }).compileComponents();
 		const f = TestBed.createComponent(Progress); f.detectChanges();
 		const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 		const el = f.nativeElement as HTMLElement;
@@ -22,13 +24,18 @@ describe('provider progress: answering a client change request', () => {
 	}
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('a pending CLIENT request shows who raised it, «بانتظار ردك», approve/reject buttons and the record-only note', async () => {
+	it('a pending CLIENT request shows who raised it, «بانتظار ردك», approve/reject buttons and the pending note (nothing changes before the answer)', async () => {
 		const s = await setup([AM()]);
 		s.c.openAmendments(); s.f.detectChanges();
 		expect(s.qa('amend-from-client')).toHaveLength(1);
 		expect(s.qa('amend-status')[0].textContent).toContain('بانتظار ردك');
 		expect(s.qa('amend-respond-approve')).toHaveLength(1); expect(s.qa('amend-respond-reject')).toHaveLength(1);
-		expect(s.el.textContent).toContain('قرارك يُسجَّل فقط، ولا يتغير السعر أو المدة أو الضمان تلقائيًا');
+		expect(s.qa('amend-effect-note')[0].textContent).toContain('لن يتغيّر العقد أو الضمان أو المحفظة قبل موافقة الطرف الآخر');
+		expect(s.qa('amend-effect-note')[0].textContent).not.toContain('للمتابعة فقط');
+		(s.qa('amend-respond-approve')[0] as HTMLButtonElement).click(); s.f.detectChanges();
+		expect(s.qa('amend-confirm-text')[0].textContent).toContain('يُطبَّق التعديل فورًا على العقد');
+		expect(s.qa('amend-effect-lines')).toHaveLength(1); // the financial effect is shown BEFORE confirming
+		expect(s.post).not.toHaveBeenCalled();
 		expect(s.c.hasPendingAmendment()).toBe(false); // that flag is about MY own requests only
 	});
 
@@ -36,6 +43,7 @@ describe('provider progress: answering a client change request', () => {
 		const s = await setup([AM()]);
 		s.c.openAmendments(); s.f.detectChanges();
 		(s.qa('amend-respond-approve')[0] as HTMLButtonElement).click(); s.f.detectChanges();
+		(s.qa('amend-confirm-yes')[0] as HTMLButtonElement).click(); s.f.detectChanges();
 		expect(s.post).toHaveBeenCalledTimes(1);
 		const [url, body] = s.post.mock.calls[0] as unknown as [string, any];
 		expect(url).toContain('/provider/amendments/c1/respond'); expect(body).toEqual({ decision: 'approve' });
@@ -59,6 +67,7 @@ describe('provider progress: answering a client change request', () => {
 		const s = await setup([AM()], { error: { message: 'تم الرد على طلب التعديل هذا مسبقًا' } });
 		s.c.openAmendments(); s.f.detectChanges();
 		(s.qa('amend-respond-reject')[0] as HTMLButtonElement).click(); s.f.detectChanges();
+		(s.qa('amend-confirm-yes')[0] as HTMLButtonElement).click(); s.f.detectChanges();
 		expect(s.qa('amend-respond-error')[0].textContent).toContain('مسبقًا');
 	});
 });

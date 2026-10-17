@@ -1,14 +1,18 @@
 import { CommonModule } from '@angular/common';
+import { RatingEntry, StageRatingEntry } from '../../../../../sheards/rating-entry/rating-entry.component';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { MessageContext } from '../../../../../core/services/chat.service';
+import { formatMoney } from '../../../../../core/utils/money.util';
+import { stageHeading } from '../../../../../core/utils/stage-title.util';
+import { deliveryFileOpenUrl, deliveryFileDownloadUrl } from '../../../../../core/utils/delivery-file.util';
 
 @Component({
 	selector: 'app-final-approval',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, RatingEntry, StageRatingEntry],
 	templateUrl: './final-approval.html',
 	styleUrl: './final-approval.css',
 })
@@ -21,6 +25,7 @@ export class FinalApproval implements OnInit {
 	isLoading = signal(true);
 	error = signal('');
 	private projectId = '';
+	rateKey() { return this.projectId; }
 
 	ngOnInit() {
 		this.projectId = this.route.snapshot.paramMap.get('id') || '';
@@ -79,12 +84,37 @@ export class FinalApproval implements OnInit {
 		const data = this.project();
 		return Number(data?.price ?? data?.amount ?? data?.totalAmount ?? 0);
 	}
+	/** Money released through STAGE APPROVALS only (the server's financial summary); never the settlement's own release. */
 	releasedAmount(): number {
 		const data = this.project();
+		const fin = this.financial();
+		if (fin) return Number(fin.releasedByStageApprovals || 0);
 		if (!data?.stages) return 0;
 		return data.stages
 			.filter((s: any) => s.status === 'completed' || s.status === 'APPROVED')
 			.reduce((sum: number, s: any) => sum + Number(s.amount || 0), 0);
+	}
+	// === Server lifecycle (single source of truth) ===
+	financial(): any { return this.project()?.financial ?? null; }
+	settlement(): any { return this.financial()?.settlement ?? null; }
+	/** Closed by an admin financial dispute decision: never "completed", never a fake 100%. */
+	settled(): boolean { return this.project()?.closedBySettlement === true; }
+	heading(stage: any, index: number): string { return stageHeading(stage?.stageNumber || index + 1, stage?.title); }
+	openUrl(file: any): string | null { return deliveryFileOpenUrl(file); }
+	downloadUrl(file: any): string | null { return deliveryFileDownloadUrl(file); }
+	closedStage(stage: any): boolean { return stage?.displayStatus === 'CLOSED_BY_SETTLEMENT'; }
+	badgeText(): string {
+		const data = this.project();
+		if (this.settled()) return data?.statusLabel || 'أُغلق بتسوية نزاع';
+		if (this.allStagesCompleted()) return 'اكتملت كل المراحل';
+		if (data?.contractStatus === 'CANCELLED') return 'العقد ملغى';
+		return 'المشروع قيد التنفيذ';
+	}
+	stageMoneyText(stage: any): string {
+		const amount = `${this.formatNumber(stage?.amount)} $`;
+		if (this.isStageCompleted(stage)) return `أُفرِج ${amount}`;
+		if (this.closedStage(stage)) return `قيمة المرحلة ${amount} (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)`;
+		return stage?.amountHeld === false ? `قيمة المرحلة ${amount}` : `محتجز ${amount}`;
 	}
 	finalPayment(): number {
 		const data = this.project();
@@ -104,7 +134,7 @@ export class FinalApproval implements OnInit {
 			return sum + (rounds > 1 ? rounds - 1 : 0);
 		}, 0);
 	}
-	formatNumber(value: number) { return Number(value || 0).toLocaleString('en-US'); }
+	formatNumber(value: number) { return formatMoney(value || 0); }
 	formatDate(value: string | Date | null) {
 		if (!value) return '—';
 		return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(new Date(value));
@@ -128,6 +158,7 @@ export class FinalApproval implements OnInit {
 		return 'لا توجد ملاحظة جودة لهذا التسليم بعد';
 	}
 	statusHint(stage: any) {
+		if (this.closedStage(stage)) return stage.displayStatusLabel || 'أُغلقت بالتسوية';
 		if (stage.status === 'completed' || stage.status === 'APPROVED') return `اعتُمدت${stage.completedDate ? ` · ${this.formatDate(stage.completedDate)}` : ''}`;
 		if (stage.status === 'submitted' || stage.status === 'SUBMITTED') return `سُلّم${stage.submittedDate ? ` · ${this.formatDate(stage.submittedDate)}` : ''} · بانتظار اعتمادك النهائي`;
 		if (stage.status === 'revision' || stage.status === 'REVISION_REQUESTED') return 'بانتظار إعادة التسليم';
@@ -167,6 +198,7 @@ export class FinalApproval implements OnInit {
 	// The real completion (contract COMPLETED, escrow released) happens in POST .../stages/:stageId/review when the LAST stage is approved.
 	// This page only summarises; the single action is moving on to the rating.
 	allStagesCompleted(): boolean {
+		if (this.settled()) return false; // a settled project is never «all stages complete»
 		const total = this.stagesCount();
 		return total > 0 && this.completedStagesCount() === total;
 	}
@@ -185,8 +217,7 @@ export class FinalApproval implements OnInit {
 			projectId: this.projectId,
 			projectTitle: data.title || data.project || undefined,
 		};
-		this.router.navigate(['/client-overview/messages'],
-			{ queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: { messageContext: ctx } });
+		this.router.navigate(['/client-overview/projects', this.projectId], { queryParams: { tab: 'messages' }, state: { messageContext: ctx } });
 	}
 
 	back() { this.router.navigate(['/client-overview/projects', this.projectId]); }

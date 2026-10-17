@@ -126,7 +126,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة</div>
           <div class="text-[12px] text-[var(--txt-3)]">تفضيل لغة حسابك، يُحفظ في ملفك ولا يغيّر لغة الموقع حاليًا</div>
         </div>
-        <ws-select [options]="languageOptions" [(ngModel)]="language" ariaLabel="اللغة" style="min-width:200px;max-width:100%;display:block"></ws-select>
+        <ws-select id="set-lang" [options]="languageOptions" [(ngModel)]="language" ariaLabel="اللغة" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
@@ -134,7 +134,7 @@
           <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">المنطقة الزمنية</div>
           <div class="text-[12px] text-[var(--txt-3)]">تُحفظ في ملفك الشخصي</div>
         </div>
-        <ws-select [options]="timezoneOptions" [(ngModel)]="timezone" ariaLabel="المنطقة الزمنية" style="min-width:200px;max-width:100%;display:block"></ws-select>
+        <ws-select id="set-tz" [options]="timezoneOptions" [(ngModel)]="timezone" ariaLabel="المنطقة الزمنية" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
@@ -157,7 +157,7 @@
 
     <div class="flex items-center gap-3 flex-wrap mb-5">
       <button type="button" data-testid="save-prefs" [disabled]="!isDirty() || isSaving()" (click)="savePreferences()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[13px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">{{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التفضيلات' }}</button>
-      @if (saveError()) { <span class="text-[12px] font-bold text-[#FF8C69]" role="alert" data-testid="save-error">{{ saveError() }}</span> }
+      @if (saveError()) { <span class="field-error text-[12px] font-bold" role="alert" data-testid="save-error">{{ saveError() }}</span> }
     </div>
 
     <!-- Privacy Section -->

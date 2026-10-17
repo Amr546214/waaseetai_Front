@@ -32,6 +32,7 @@
   </div>
   }
 
+  @if (rateLimitKept()) { <app-rate-limit-note [showRetry]="true" (retry)="retryLoading()" /> }
   @if (!isLoading() && !hasError()) {
     <div class="wal-grid animate-in">
       <div class="wal-main">
@@ -44,7 +45,7 @@
           <text x="50" y="59" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.45)">متاح</text>
         </svg>
         <div class="wal-main-lbl">الرصيد المتاح</div>
-        <div><span class="wal-main-val">{{ balance().toLocaleString('en-US') }}</span> <span class="wal-main-cur">$</span></div>
+        <div><span class="wal-main-val">{{ balance() | number:'1.0-2' }}</span> <span class="wal-main-cur">$</span></div>
         <div class="wal-main-act">
           <button type="button" class="wal-btn wal-btn-pri" (click)="openDepositModal()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -58,7 +59,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="17" r="1.5" fill="currentColor"/></svg>
           محجوز بالضمان
         </div>
-        <div class="wal-side-val escrow-color">{{ escrowBalance().toLocaleString('en-US') }}</div>
+        <div class="wal-side-val escrow-color">{{ escrowBalance() | number:'1.0-2' }}</div>
         <div class="wal-side-sub">{{ activeProjectsCount() ? (activeProjectsCount() + ' مشاريع نشطة') : 'لا توجد مشاريع نشطة' }}</div>
       </div>
 
@@ -68,8 +69,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
           إنفاق الربع
         </div>
-        <div class="wal-side-val">{{ quarterSpend().toLocaleString('en-US') }}</div>
-        <div class="wal-side-sub">من ميزانية {{ quarterBudget().toLocaleString('en-US') }}</div>
+        <div class="wal-side-val">{{ quarterSpend() | number:'1.0-2' }}</div>
+        <div class="wal-side-sub">من ميزانية {{ quarterBudget() | number:'1.0-2' }}</div>
       </div>
       } @else {
       <div class="wal-side">
@@ -88,7 +89,7 @@
     <div class="wal-emp-panel">
       @for (e of employeeSpending(); track e.employeeName) {
       <div class="wal-emp-row">
-        <div class="wal-emp-top"><span>{{ e.employeeName }}@if (e.department) { <span class="wal-emp-dept">· {{ e.department }}</span> }</span><span>{{ e.amount.toLocaleString('en-US') }}</span></div>
+        <div class="wal-emp-top"><span>{{ e.employeeName }}@if (e.department) { <span class="wal-emp-dept">· {{ e.department }}</span> }</span><span>{{ e.amount | number:'1.0-2' }}</span></div>
         <div class="wal-emp-track"><div class="wal-emp-fill" [style.width.%]="employeeSpendBarWidth(e.amount)"></div></div>
       </div>
       }
@@ -136,7 +137,9 @@
     </div>
   }
 
-  @if (hasError()) {
+  @if (hasError() && rateLimited()) {
+    <app-load-retry (retry)="retryLoading()" />
+  } @else if (hasError()) {
     <div class="state-card error-card" role="alert">
       <div class="error-title">تعذر تحميل المحفظة</div>
       <div class="error-code">ERR-SK-018</div>

@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, settleForm } from '../../../../shared/forms/form-spec-utils';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { SaWithdrawals } from './sa-withdrawals';
 import { SaWithdrawalDetail } from './sa-withdrawal-detail/sa-withdrawal-detail';
@@ -134,5 +135,42 @@ describe('SaWithdrawalDetail actions', () => {
 	it('send-payout button is not offered for a PENDING request', () => {
 		const { el } = setup(ROW('wd-14', 'PENDING', { payoutAutomationEnabled: true }));
 		expect(q(el, 'wd-send-payout')).toBeNull();
+	});
+
+	it('reject without a reason: message under the reason box, focus there, nothing sent', async () => {
+		const { f, api, el } = setup(ROW('wd-21', 'PENDING'));
+		q(el, 'wd-reject')!.click(); f.detectChanges();
+		q(el, 'wd-action-confirm')!.click(); await settleForm();
+		const ta = el.querySelector('#wd-reject-reason');
+		expectFieldProblem(ta, 'سبب الرفض');
+		expectFocused(ta);
+		expect(api.rejectAdminWithdrawal).not.toHaveBeenCalled();
+	});
+
+	it('reject: a 400 naming rejectionReason goes under the box; 429 / 500 / 409 / 403 / network stay a generic alert (reason kept)', async () => {
+		const { f, api, el } = setup(ROW('wd-22', 'PENDING'));
+		q(el, 'wd-reject')!.click(); f.detectChanges();
+		const ta = el.querySelector('#wd-reject-reason') as HTMLTextAreaElement;
+		ta.value = 'بيانات ناقصة'; ta.dispatchEvent(new Event('input'));
+		api.rejectAdminWithdrawal.mockReturnValueOnce(throwError(() => httpFail(400, { errors: [{ field: 'rejectionReason', message: 'السبب قصير جدًا' }] })));
+		q(el, 'wd-action-confirm')!.click(); await settleForm(); f.detectChanges();
+		expectFieldProblem(ta, 'قصير جدًا');
+		for (const st of [429, 500, 409, 403, 0]) {
+			api.rejectAdminWithdrawal.mockReturnValueOnce(throwError(() => httpFail(st, { message: 'x' })));
+			q(el, 'wd-action-confirm')!.click(); await settleForm(); f.detectChanges();
+			expectNoFieldProblem(el);
+			expect(q(el, 'wd-action-error')?.getAttribute('role'), String(st)).toBe('alert');
+		}
+		expect(ta.value).toBe('بيانات ناقصة');
+		expect(el.querySelector('[data-testid="wd-action-modal"]')).toBeTruthy();
+	});
+
+	it('double click on confirm sends one approve request', () => {
+		const { f, api, el } = setup(ROW('wd-23', 'PENDING'));
+		api.approveAdminWithdrawal.mockReturnValue(new Subject() as any);
+		q(el, 'wd-approve')!.click(); f.detectChanges();
+		const b = q(el, 'wd-action-confirm')!;
+		b.click(); b.click();
+		expect(api.approveAdminWithdrawal).toHaveBeenCalledTimes(1);
 	});
 });

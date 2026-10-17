@@ -19,7 +19,7 @@ describe('client project details: change request', () => {
 		const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: opts.list ?? [] }) : of({ success: true, data: null }));
 		await TestBed.configureTestingModule({ imports: [ProjectDetails], providers: [provideRouter([]),
 			{ provide: HttpClient, useValue: { get, post } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
 		const f = TestBed.createComponent(ProjectDetails); f.detectChanges(); await f.whenStable();
 		const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 		const el = f.nativeElement as HTMLElement;
@@ -42,7 +42,7 @@ describe('client project details: change request', () => {
 		const items = Array.from(s.el.querySelectorAll('[data-testid="amend-item"]')).map(e => e.textContent!.replace(/\s+/g, ' '));
 		expect(items).toHaveLength(2);
 		expect(items[0]).toContain('بانتظار رد مقدم الخدمة'); expect(items[1]).toContain('وافق مقدم الخدمة');
-		expect(CLIENT_AMENDMENT_SUCCESS_TEXT).toBe('يُسجّل الطلب وينتظر رد مقدم الخدمة، ولا يتغير السعر أو المدة أو الضمان تلقائيًا.');
+		expect(CLIENT_AMENDMENT_SUCCESS_TEXT).toBe('يصل الطلب إلى مقدم الخدمة، ولا يتغير السعر أو المدة أو الضمان أو محفظتك قبل موافقته؛ وعند موافقته يُطبَّق التعديل فورًا.');
 	});
 
 	it('empty state is clear', async () => {
@@ -61,7 +61,7 @@ describe('client project details: change request', () => {
 		expect(body).toEqual({ type: 'BUDGET', title: 'زيادة الميزانية', description: 'توسيع النطاق', budgetDelta: 200 });
 		expect(s.nav).not.toHaveBeenCalled();
 		expect(s.q('amend-success')!.textContent).toContain('بانتظار رد مقدم الخدمة');
-		expect(s.q('amend-success')!.textContent).toContain('لن يتغير السعر أو المدة أو الضمان تلقائيًا');
+		expect(s.q('amend-success')!.textContent).toContain('لا يتغير السعر أو المدة أو الضمان أو محفظتك قبل موافقته');
 	});
 
 	it('payload per type: DURATION, SCOPE, MIXED; nothing extra', async () => {

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import type { SafeHtml } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { NotificationEngineService } from '../../../../core/services/notification-engine.service';
+import { NotificationNavigator } from '../../../../core/services/notification-navigator.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { MarketerOverviewService, MarketerSummary } from '../../../../core/services/marketer-overview.service';
@@ -52,6 +53,7 @@ export class Notifications implements OnInit {
 	private notificationEngine = inject(NotificationEngineService);
 	private overviewService = inject(MarketerOverviewService);
 	private router = inject(Router);
+	private navigator = inject(NotificationNavigator);
 	private notify = inject(UiNotificationService);
 
 	summary = signal<MarketerSummary | null>(null);
@@ -109,6 +111,15 @@ export class Notifications implements OnInit {
 			const newNotif = this.notificationEngine.realtimeNewNotification();
 			if (newNotif && newNotif.id && !this.notifications().some(n => n.id === newNotif.id)) {
 				this.notifications.update(list => [this.toDisplay(newNotif), ...list]);
+			}
+		});
+
+		// a coalesced chat row (same id, newer text / count): replace it and move it to the top; never a second row
+		effect(() => {
+			const upd = this.notificationEngine.realtimeUpdatedNotification();
+			if (upd && upd.id) {
+				const mapped = this.toDisplay(upd);
+				this.notifications.update(list => [mapped, ...list.filter(n => n.id !== upd.id)]);
 			}
 		});
 
@@ -179,15 +190,13 @@ export class Notifications implements OnInit {
 	}
 
 	onNotificationClick(nt: DisplayNotification): void {
-		if (nt.isUnread) {
-			this.notificationEngine.markNotificationAsRead(nt.id).subscribe({
-				next: () => {
-					this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false, isRead: true } : n));
-					this.notificationEngine.unreadCount.set(this.unreadCount());
-				}
-			});
-		}
-		if (nt.target) this.router.navigateByUrl(nt.target);
+		// read or unread, first or second click: the destination always opens; marking read never blocks it (see NotificationNavigator)
+		void this.navigator.open({ id: nt.id, isUnread: !!nt.isUnread, actionUrl: nt.target }, {
+			onMarkedRead: () => {
+				this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false, isRead: true } : n));
+				this.notificationEngine.unreadCount.set(this.unreadCount());
+			}
+		});
 	}
 
 	/** Display group from the real category/type (never "everything else is offers", never PROJECTS-as-AI). */

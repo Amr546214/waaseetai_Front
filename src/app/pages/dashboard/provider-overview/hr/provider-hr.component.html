@@ -204,22 +204,22 @@
 			</div>
 			<div class="modal-row">
 				<div class="modal-group">
-					<label class="modal-label">الاسم الكامل <span class="req-star">*</span></label>
-					<input type="text" class="modal-inp" [ngModel]="formName()" (ngModelChange)="formName.set($event)" />
+					<label class="modal-label" for="hr-name">الاسم الكامل <span class="ws-req" aria-hidden="true">*</span></label>
+					<input type="text" id="hr-name" aria-required="true" name="hr-name" data-field="hr-name" class="modal-inp" [ngModel]="formName()" (ngModelChange)="formName.set($event)" />
 				</div>
 				<div class="modal-group">
-					<label class="modal-label">المسمى الوظيفي <span class="req-star">*</span></label>
-					<input type="text" class="modal-inp" [ngModel]="formJob()" (ngModelChange)="formJob.set($event)" />
+					<label class="modal-label" for="hr-job">المسمى الوظيفي <span class="ws-req" aria-hidden="true">*</span></label>
+					<input type="text" id="hr-job" aria-required="true" name="hr-job" data-field="hr-job" class="modal-inp" [ngModel]="formJob()" (ngModelChange)="formJob.set($event)" />
 				</div>
 			</div>
 			<div class="modal-row">
 				<div class="modal-group">
-					<label class="modal-label">البريد الإلكتروني <span class="req-star">*</span></label>
-					<input type="email" class="modal-inp" [ngModel]="formEmail()" (ngModelChange)="formEmail.set($event)" />
+					<label class="modal-label" for="hr-email">البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></label>
+					<input type="email" id="hr-email" aria-required="true" name="hr-email" data-field="hr-email" class="modal-inp" [ngModel]="formEmail()" (ngModelChange)="formEmail.set($event)" />
 				</div>
 				<div class="modal-group">
 					<label class="modal-label">الجوال</label>
-					<input type="text" class="modal-inp" [ngModel]="formPhone()" (ngModelChange)="formPhone.set($event)" />
+					<input type="text" id="hr-phone" name="hr-phone" data-field="hr-phone" class="modal-inp" [ngModel]="formPhone()" (ngModelChange)="formPhone.set($event)" />
 				</div>
 			</div>
 			<div class="modal-foot">

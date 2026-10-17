@@ -163,7 +163,7 @@
 						<div style="display:flex;flex-direction:column">
 						<select formControlName="platform"
 						style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif;cursor:pointer"
-						aria-label="نوع القناة" class="txt-white">
+						aria-label="نوع القناة" aria-required="true" class="txt-white">
 						<option value="">اختر القناة</option>
 						<option value="LINKEDIN">LinkedIn</option>
 						<option value="YOUTUBE">YouTube</option>
@@ -177,7 +177,7 @@
 						<div style="display:flex;flex-direction:column;flex:1;min-width:160px">
 						<input type="text" formControlName="handle"
 						style="flex:1;min-width:160px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif"
-						placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-label="معرف القناة" class="txt-white">
+						placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-label="معرف القناة" aria-required="true" class="txt-white">
 						<ws-field-error [control]="channelForm.get('handle')" [messages]="{ required: 'أدخل معرّف القناة أو رابطها' }" />
 						</div>
 						<button type="button" (click)="addChannel()"
@@ -386,7 +386,7 @@
 				<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:8px 0"
 					[style.border-bottom]="!last ? '1px solid rgba(255,255,255,.05)' : 'none'" class="txt-slate">
 					<span>{{ log.source }}</span>
-					<span style="color:#0FA99A">{{ log.amount }} دولار</span>
+					<span style="color:#0FA99A">{{ log.amount | number:'1.0-2' }} دولار</span>
 				</div>
 				}
 				} @else if (loadingRecentCommissions()) {
@@ -464,17 +464,17 @@
 				@if (passwordFormVisible()) {
 				<div [formGroup]="passwordForm" data-form="password" style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
 					<div class="form-grid form-col-2">
-						<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="mkt-pwd-old">كلمة المرور الحالية<span class="req">*</span></label>
-							<input type="password" id="mkt-pwd-old" class="inp-field" formControlName="currentPassword" autocomplete="current-password" dir="ltr">
+						<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="mkt-pwd-old">كلمة المرور الحالية<span class="ws-req" aria-hidden="true">*</span></label>
+							<input aria-required="true" type="password" id="mkt-pwd-old" class="inp-field" formControlName="currentPassword" autocomplete="current-password" dir="ltr">
 								<ws-field-error [control]="passwordForm.get('currentPassword')" label="كلمة المرور الحالية" /></div>
-						<div class="inp-group"><label class="inp-label" for="mkt-pwd-new">كلمة المرور الجديدة<span class="req">*</span></label>
-							<input type="password" id="mkt-pwd-new" class="inp-field" formControlName="newPassword" autocomplete="new-password" dir="ltr">
+						<div class="inp-group"><label class="inp-label" for="mkt-pwd-new">كلمة المرور الجديدة<span class="ws-req" aria-hidden="true">*</span></label>
+							<input aria-required="true" type="password" id="mkt-pwd-new" class="inp-field" formControlName="newPassword" autocomplete="new-password" dir="ltr">
 							<div class="pwd-strength"><div class="pwd-strength-bar" [style.width.%]="passwordStrength().percent" [style.background]="passwordStrength().color"></div></div>
 							<div class="pwd-strength-lbl">{{ passwordStrength().label }} — من 8 إلى 72 حرفًا مع 3 أنواع على الأقل من: أحرف صغيرة، كبيرة، أرقام، رموز</div>
 								<ws-field-error [control]="passwordForm.get('newPassword')" label="كلمة المرور الجديدة" [messages]="{ groups: 'استخدم ثلاثة أنواع على الأقل: أحرف صغيرة وكبيرة وأرقام ورموز' }" />
 						</div>
-						<div class="inp-group"><label class="inp-label" for="mkt-pwd-conf">تأكيد كلمة المرور الجديدة<span class="req">*</span></label>
-							<input type="password" id="mkt-pwd-conf" class="inp-field" formControlName="confirmPassword" autocomplete="new-password" dir="ltr">
+						<div class="inp-group"><label class="inp-label" for="mkt-pwd-conf">تأكيد كلمة المرور الجديدة<span class="ws-req" aria-hidden="true">*</span></label>
+							<input aria-required="true" type="password" id="mkt-pwd-conf" class="inp-field" formControlName="confirmPassword" autocomplete="new-password" dir="ltr">
 							<ws-field-error [control]="passwordForm.get('confirmPassword')" label="تأكيد كلمة المرور الجديدة" [messages]="{ mismatch: 'كلمتا المرور غير متطابقتين' }" />
 						</div>
 					</div>

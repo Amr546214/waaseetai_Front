@@ -165,7 +165,7 @@
   }
 
   @if (pendingDecision(); as dec) {
-    <app-sa-specialty-decision-modal [decision]="dec" [summary]="decisionSummary()" [busy]="deciding()" [error]="decisionError()"
+    <app-sa-specialty-decision-modal [decision]="dec" [summary]="decisionSummary()" [busy]="deciding()" [error]="decisionError()" [fieldError]="decisionFieldError()"
       (confirmed)="confirmDecision($event)" (cancelled)="closeDecision()" />
   }
 

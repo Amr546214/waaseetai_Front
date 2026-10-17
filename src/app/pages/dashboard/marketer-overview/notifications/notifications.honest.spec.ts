@@ -10,7 +10,7 @@ import { join } from 'node:path';
 
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Notifications } from './notifications';
 
@@ -100,7 +100,7 @@ describe('marketer notifications: honest banner/groups/CTA/mark-all', () => {
 		c.onNotificationClick(c.notifications().find(n => n.id === 'c')!);
 		expect(nav).not.toHaveBeenCalled();
 		c.onNotificationClick(c.notifications().find(n => n.id === 'd')!);
-		expect(nav).toHaveBeenCalledWith('/marketer-overview/messages?conversationId=cv1');
+		expect(nav).toHaveBeenCalledWith('/marketer-overview/messages?conversationId=cv1', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('every notification row renders its icon (an <svg> inside the icon box, not an empty box)', async () => {

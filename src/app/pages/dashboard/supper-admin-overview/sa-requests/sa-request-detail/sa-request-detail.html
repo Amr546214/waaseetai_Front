@@ -43,6 +43,8 @@
         <div class="rq-md-tags">
           @for (s of d.requiredSkills ?? []; track s) { <span class="rq-spec">{{ s }}</span> }
         </div>
+      } @else {
+        <p class="rq-desc rq-muted" data-testid="rq-no-requirements">لم يحدد العميل متطلبات بعد</p>
       }
 
       @if (d.conditions; as c) {
@@ -58,6 +60,8 @@
           <ul class="rq-req-list">
             @for (o of outputs(d); track o) { <li>{{ o }}</li> }
           </ul>
+        } @else {
+          <p class="rq-desc rq-muted" data-testid="rq-no-outputs">لم تُحدَّد المخرجات</p>
         }
         @if (c.customConditions) { <p class="rq-desc">{{ c.customConditions }}</p> }
       }
@@ -104,7 +108,7 @@
                     <a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/users', o.provider.userId]">{{ o.provider.name }}</a>
                     @if (o.accepted) { <span class="rq-offer-badge rq-offer-badge-accepted">✓ المقبول</span> }
                   </td>
-                  <td>{{ o.price | number }} $</td>
+                  <td>{{ o.price | number:'1.0-2' }} $</td>
                   <td>{{ o.deliveryDays }} يوم</td>
                   <td>{{ offerLabels[o.status] || o.status }}</td>
                   <td>{{ o.createdAt | date: 'yyyy-MM-dd' }}</td>
@@ -120,11 +124,11 @@
         <div class="rq-section-ttl">العقد والضمان</div>
         @if (d.contract; as ct) {
           <div class="rq-fin-row"><span>حالة العقد</span><strong>{{ contractLabels[ct.status] || ct.status }}</strong></div>
-          <div class="rq-fin-row"><span>قيمة العقد</span><strong class="txt-teal">{{ ct.price | number }} $</strong></div>
+          <div class="rq-fin-row"><span>قيمة العقد</span><strong class="txt-teal">{{ ct.price | number:'1.0-2' }} $</strong></div>
           <div class="rq-fin-row"><span>العقد</span><a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/contracts', ct.id]">فتح العقد</a></div>
         }
         @if (d.escrow; as es) {
-          <div class="rq-fin-row rq-fin-escrow"><span>الضمان ({{ es.status }})</span><strong class="txt-teal">{{ es.amount | number }} $</strong></div>
+          <div class="rq-fin-row rq-fin-escrow"><span>الضمان ({{ es.status }})</span><strong class="txt-teal">{{ es.amount | number:'1.0-2' }} $</strong></div>
         }
       }
 

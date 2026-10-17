@@ -32,7 +32,7 @@ describe('setup wizard: after the step-7 test', () => {
 		const f = TestBed.createComponent(ProfileSetupDashboard);
 		f.detectChanges();
 		f.componentInstance.finishTestProcess();
-		expect(nav).toHaveBeenCalledWith('/provider-overview/accreditation-status');
+		expect(nav).toHaveBeenCalledWith('/provider-overview/account-actions');
 		expect(navigate).not.toHaveBeenCalledWith(['/provider-overview']);
 		expect(invalidate).toHaveBeenCalled();
 	});

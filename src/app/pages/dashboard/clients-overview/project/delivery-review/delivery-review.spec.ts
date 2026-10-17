@@ -5,6 +5,7 @@ import { of, throwError, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { DeliveryReview } from './delivery-review';
+import { RatingApiService } from '../../../../../core/services/rating-api.service';
 
 // Shape matches ProjectProgressService.getProjectProgress()'s real "workspace"
 // response (waseetai-backend/src/services/project-progress.service.ts). Note
@@ -56,6 +57,8 @@ describe('DeliveryReview', () => {
     await TestBed.configureTestingModule({
       imports: [DeliveryReview],
       providers: [
+        // the stage-rating entry reads its OWN status (not the workspace HTTP spy this spec counts)
+        { provide: RatingApiService, useValue: { getStageRatingStatus: () => of({ projectId: 'p', requestId: null, actor: 'client', canRate: true, reason: null, message: '', adminSettled: null, review: null }), getRatingStatus: () => of({ projectId: 'p', requestId: null, actor: 'client', canRate: true, reason: null, message: '', adminSettled: null, review: null }) } },
         provideRouter([]),
         { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), post: (...args: any[]) => postSpy(...args) } },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1', stageId: 'stage-1' }) } } }
@@ -293,16 +296,16 @@ describe('DeliveryReview', () => {
     expect(fixture.nativeElement.textContent).toContain('تم اعتماد هذا التسليم');
   });
 
-  it('"فتح نقاش" navigates to Messages with the real conversationId and a DELIVERY context — never a fabricated decision:"revision"', async () => {
+  it('"فتح نقاش" opens the project messages tab with a DELIVERY context — never a fabricated decision:"revision"', async () => {
     await setup(() => of(makeWorkspace()));
     const btn = (Array.from(fixture.nativeElement.querySelectorAll('.dr-btn-secondary')) as HTMLButtonElement[]).find(b => b.textContent!.includes('فتح نقاش'))!;
     btn.click();
     fixture.detectChanges();
 
     expect(navigateSpy).toHaveBeenCalledWith(
-      ['/client-overview/messages'],
+      ['/client-overview/projects', 'proj-1'],
       expect.objectContaining({
-        queryParams: { conversationId: 'conv-1' },
+        queryParams: { tab: 'messages' },
         state: expect.objectContaining({ messageContext: expect.objectContaining({ type: 'DELIVERY', projectId: 'proj-1', stageId: 'stage-1' }) })
       })
     );

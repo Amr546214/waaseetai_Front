@@ -1,4 +1,4 @@
-import { Component, computed, effect, untracked, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import { Component, computed, effect, untracked, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation, ElementRef } from '@angular/core';
 import { canRewrite, checkRewriteOutput, REWRITE_INPUT_REQUIRED_MESSAGE } from './description-rewrite-guard';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,11 @@ import { UiNotificationService } from '../../../../core/services/ui-notification
 import { SpecialtyService } from '../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { FieldProblem, scrollFocus, SubmitGuard } from '../../../../shared/forms/form-error-focus';
+import { hasFieldErrors, reportClientBackend, reportClientProblems } from '../client-form-report';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../../../../core/utils/socket-backoff';
 import { environment } from '../../../../../environments/environment';
 
 import { Step1Specialty } from './components/step1-specialty/step1-specialty';
@@ -145,6 +149,9 @@ export class CreateRequest implements OnInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
   private authStore = inject(AuthStore);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** One publish at a time: a second click / Enter while the first request runs does nothing. */
+  private publishGuard = new SubmitGuard();
 
   /** Company-mode requests are submitted on behalf of the company and need
    *  manager approval before publishing — see P-SK-002-شركة. */
@@ -339,7 +346,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.requiredSkills.set([]);
     this.skillsServerError.set('');
     this.outputs.set('');
-    this.deliveryDays.set(14);
+    this.deliveryDays.set(null);
     this.budgetType.set('range');
     this.budgetMin.set(null);
     this.budgetMax.set(null);
@@ -719,7 +726,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   requirements = signal<string[]>([]);
   newRequirement = signal('');
   outputs = signal('');
-  deliveryDays = signal<number | null>(14);
+  deliveryDays = signal<number | null>(null);   // starts empty: the client types the duration, no ready-made number
   showAiSuggest = signal(false);
 
   static readonly TITLE_MAX = 80;
@@ -791,7 +798,7 @@ export class CreateRequest implements OnInit, OnDestroy {
           token = document.cookie.match(/(?:^|;\s*)waseet_token=([^;]+)/)?.[1] || null;
         }
       }
-      this.socket = io(environment.socketUrl, { withCredentials: true, auth: { token } });
+      this.socket = io(environment.socketUrl, { withCredentials: true, ...SOCKET_BACKOFF, auth: { token } });
     }
 
     const currentDesc = this.description().trim();
@@ -1029,7 +1036,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       return true; // All fields have defaults
     }
     if (step === 3) {
-      return this.title().trim().length >= 3 && this.description().trim().length >= 10 && !!this.deliveryDays();
+      return this.title().trim().length >= 3 && this.description().trim().length >= 10 && this.deliveryDaysValid();
     }
     if (step === 4) {
       if (this.budgetType() === 'fixed') {
@@ -1053,10 +1060,81 @@ export class CreateRequest implements OnInit, OnDestroy {
     return true; // Step 5 and 6
   });
 
+  /** Whole days between 1 and 365 (the input's own limits); empty or 0 is NOT a value. */
+  deliveryDaysValid(): boolean {
+    const d = this.deliveryDays();
+    return d !== null && Number.isFinite(d) && Number.isInteger(d) && d >= 1 && d <= 365;
+  }
+
+  /** Every problem that blocks Next on one step, in page order, each tied to the control that shows it. */
+  stepProblems(step: number): FieldProblem[] {
+    const out: FieldProblem[] = [];
+    const add = (field: string, message: string) => out.push({ field, message, step });
+    if (step === 1) {
+      const spec = this.currentSpec();
+      if (!spec) add('f-specialty-grid', 'اختر تخصصًا واحدًا للمتابعة');
+      else if (spec.id === 'other' && this.otherText().trim().length < 5) add('f-other-spec', 'اكتب اسم التخصص بخمسة أحرف على الأقل');
+    } else if (step === 3) {
+      if (this.title().trim().length < 3) add('f-title', 'اكتب عنوانًا للطلب (3 أحرف على الأقل)');
+      if (this.description().trim().length < 10) add('f-desc', 'اكتب وصفًا للطلب (10 أحرف على الأقل)');
+      if (this.deliveryDays() === null) add('f-deadline', 'أدخل أيام التسليم المقترحة');
+      else if (!this.deliveryDaysValid()) add('f-deadline', 'أيام التسليم عدد صحيح من 1 إلى 365');
+    } else if (step === 4) {
+      const type = this.budgetType();
+      const positive = (v: number | null) => v !== null && Number.isFinite(v) && v > 0;
+      if (type === 'fixed') {
+        if (!positive(this.budgetFixed())) add('f-budget-fixed', 'أدخل الميزانية بالدولار');
+      } else if (type === 'hourly') {
+        if (!positive(this.budgetHourly())) add('f-budget-hourly', 'أدخل سعر الساعة بالدولار');
+      } else if (type === 'range') {
+        const lo = this.budgetMin(), hi = this.budgetMax();
+        if (!positive(lo)) add('f-budget-from', 'أدخل الحد الأدنى للميزانية بالدولار');
+        if (!positive(hi)) add('f-budget-to', 'أدخل الحد الأعلى للميزانية بالدولار');
+        else if (positive(lo) && lo! > hi!) add('f-budget-to', 'الحد الأعلى يجب أن يكون أكبر من أو يساوي الحد الأدنى');
+      }
+    }
+    return out;
+  }
+
+  /** Index and field of the first invalid milestone input (rows already show their own message once touched). */
+  private firstMilestoneProblem(): { id: string } | null {
+    const ms = this.milestones();
+    for (let i = 0; i < ms.length; i++) {
+      if (this.isMilestoneNameInvalid(ms[i])) return { id: `ms-name-${i}` };
+      if (this.isMilestonePctInvalid(ms[i])) return { id: `ms-pct-${i}` };
+    }
+    return null;
+  }
+
+  /** Shows WHY Next is blocked: message under each field, red mark, focus on the first one below the sticky header. */
+  private async showStepProblems(step: number): Promise<void> {
+    const root = this.host.nativeElement;
+    const problems = this.stepProblems(step);
+    if (step === 4 && this.splitMilestones() && !problems.length) {
+      this.touchAllMilestones();
+      const row = this.firstMilestoneProblem();
+      if (row) {
+        await new Promise<void>(r => setTimeout(r, 0));
+        const el = root.querySelector<HTMLElement>(`[id="${row.id}"]`);
+        if (el) { el.setAttribute('aria-invalid', 'true'); scrollFocus(el); }
+        return;
+      }
+      const total = this.milestoneTotalPct;
+      problems.push({
+        field: 'ms-section', step,
+        message: this.milestones().length < 2 ? 'أضف مرحلتين على الأقل لتقسيم الدفع' : `مجموع نسب المراحل يجب أن يساوي 100% (الآن ${total}%)`,
+      });
+    } else if (step === 4 && this.splitMilestones()) {
+      this.touchAllMilestones();
+    }
+    if (!problems.length) return;
+    await reportClientProblems(root, problems, { openStep: s => this.currentStep.set(Number(s)) });
+  }
+
   goNext() {
     if (!this.canProceed()) {
-      // Step 4 keeps Next clickable while milestones are split: pressing it reveals every invalid field instead of silently doing nothing.
-      if (this.currentStep() === 4 && this.splitMilestones()) this.touchAllMilestones();
+      // Next stays clickable: pressing it says what is missing, next to the field, and focuses the first one.
+      void this.showStepProblems(this.currentStep());
       return;
     }
     const step = this.currentStep();
@@ -1089,7 +1167,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   showSuccessOverlay = signal(false);
 
   async submitRequest() {
-    if (this.isSubmitting()) return;
+    if (this.isSubmitting() || !this.publishGuard.enter()) return;
     this.isSubmitting.set(true);
 
     let uploadedFileUrls: string[] = [];
@@ -1104,6 +1182,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       } catch (uploadErr) {
         console.error('File upload failed:', uploadErr);
         this.isSubmitting.set(false);
+        this.publishGuard.release();
         this.notify.error('تعذر رفع الملفات. تحقق من الاتصال وحاول مرة أخرى.');
         return;
       }
@@ -1150,6 +1229,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.projectApi.createProject(payload).subscribe({
       next: (res) => {
         this.isSubmitting.set(false);
+        this.publishGuard.release();
         // Only clear the draft once the backend has actually confirmed the
         // request was published — never on error, never before this point.
         this.clearDraft();
@@ -1162,11 +1242,37 @@ export class CreateRequest implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isSubmitting.set(false);
+        this.publishGuard.release();
         console.error('Project creation failed:', err);
-        const errMsg = err.error?.message || 'حدث خطأ أثناء رفع الطلب، يرجى المحاولة مرة أخرى';
-        if (err?.status === 400 && /مهار|skill/i.test(errMsg)) { this.skillsServerError.set(errMsg); this.currentStep.set(3); }
-        this.notify.error(errMsg);
+        this.handlePublishError(err);
       }
+    });
+  }
+
+  /** Server field -> the control (and wizard step) that shows it. Only a 400/422 may land on a field. */
+  private publishFieldMap(): { resolve: Record<string, string>; steps: Record<string, number> } {
+    const type = this.budgetType();
+    const lo = type === 'fixed' ? 'f-budget-fixed' : type === 'hourly' ? 'f-budget-hourly' : 'f-budget-from';
+    const hi = type === 'range' ? 'f-budget-to' : lo;
+    return {
+      resolve: { title: 'f-title', description: 'f-desc', expectedDurationDays: 'f-deadline', minBudget: lo, maxBudget: hi, specialty: 'f-specialty-grid', specialtyId: 'f-specialty-grid', milestones: 'ms-section' },
+      steps: { title: 3, description: 3, expectedDurationDays: 3, minBudget: 4, maxBudget: 4, milestones: 4, specialty: 1, specialtyId: 1 },
+    };
+  }
+
+  private handlePublishError(err: any): void {
+    const mapped = mapHttpError(err, { fallback: 'حدث خطأ أثناء رفع الطلب، يرجى المحاولة مرة أخرى' });
+    const errMsg = err?.error?.message || mapped.message;
+    if (err?.status === 400 && /مهار|skill/i.test(String(errMsg))) {
+      this.skillsServerError.set(errMsg);
+      this.currentStep.set(3);
+      this.notify.error(errMsg);
+      return;
+    }
+    // Network / 429 / 5xx / 403 / 409 and any 400 without field names: one honest generic message, no invented field error.
+    if (!hasFieldErrors(err)) { this.notify.error(mapped.message); return; }
+    void reportClientBackend(this.host.nativeElement, err, { ...this.publishFieldMap(), openStep: s => this.currentStep.set(Number(s)) }).then(r => {
+      this.notify.error(r.handled && !r.generic ? 'راجع الحقول المحددة بالأحمر ثم أعد النشر' : (r.generic || mapped.message));
     });
   }
 

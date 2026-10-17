@@ -117,6 +117,55 @@ describe('TeamManagementComponent — real employee data (Batch 6)', () => {
 		expect(component.inviteError()).toBe('فشل الإرسال');
 	});
 
+	it('7b) a general server error shows a red alert banner and does NOT mark any of the three fields invalid', () => {
+		const { fixture, component } = setup({
+			teamServiceOverrides: { create: (() => throwError(() => ({ error: { message: 'فشل الإرسال' } }))) as any },
+		});
+		fixture.detectChanges();
+		component.openInviteForm(); fixture.detectChanges();
+		component.inviteName = 'موظف'; component.inviteEmail = 'e@x.sa'; component.inviteJobTitle = 'منصب';
+		component.submitInvite(); fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		const banner = el.querySelector('[data-testid=invite-general-error]') as HTMLElement;
+		expect(banner.getAttribute('role')).toBe('alert');
+		expect(banner.className).toContain('form-error');
+		for (const id of ['invite-name', 'invite-email', 'invite-job']) {
+			const inp = el.querySelector('#' + id) as HTMLElement;
+			expect(inp.hasAttribute('aria-invalid')).toBe(false);
+			expect(inp.hasAttribute('aria-describedby')).toBe(false);
+		}
+	});
+
+	it('7c) a field-specific server error is tied to that field only (aria-invalid + describedby); no general banner', () => {
+		const { fixture, component } = setup({
+			teamServiceOverrides: { create: (() => throwError(() => ({ status: 400, error: { message: 'بيانات الموظف غير صحيحة', errors: [{ path: ['email'], message: 'البريد الإلكتروني غير صالح' }] } }))) as any },
+		});
+		fixture.detectChanges();
+		component.openInviteForm(); fixture.detectChanges();
+		component.inviteName = 'موظف'; component.inviteEmail = 'bad'; component.inviteJobTitle = 'منصب';
+		component.submitInvite(); fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		const email = el.querySelector('#invite-email') as HTMLElement;
+		expect(email.getAttribute('aria-invalid')).toBe('true');
+		expect(email.getAttribute('aria-describedby')).toBe('invite-email-err');
+		expect(el.querySelector('#invite-email-err')?.textContent).toContain('البريد الإلكتروني غير صالح');
+		expect((el.querySelector('#invite-name') as HTMLElement).hasAttribute('aria-invalid')).toBe(false);
+		expect((el.querySelector('#invite-job') as HTMLElement).hasAttribute('aria-invalid')).toBe(false);
+		expect(el.querySelector('[data-testid=invite-general-error]')).toBeNull();
+	});
+
+	it('7d) empty required fields are flagged one by one, only the empty ones', () => {
+		const { fixture, component } = setup({});
+		fixture.detectChanges();
+		component.openInviteForm(); fixture.detectChanges();
+		component.inviteName = 'موظف';
+		component.submitInvite(); fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		expect((el.querySelector('#invite-name') as HTMLElement).hasAttribute('aria-invalid')).toBe(false);
+		expect((el.querySelector('#invite-email') as HTMLElement).getAttribute('aria-invalid')).toBe('true');
+		expect((el.querySelector('#invite-job') as HTMLElement).getAttribute('describedby') ?? (el.querySelector('#invite-job') as HTMLElement).getAttribute('aria-describedby')).toBe('invite-job-err');
+	});
+
 	it('8) toggleStatus calls the real update API with the opposite status', () => {
 		let updateArgs: any;
 		const { component } = setup({

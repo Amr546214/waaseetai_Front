@@ -38,64 +38,64 @@
 		<div class="form-card-title">تفاصيل العرض</div>
 		<div class="f-grid f2">
 			<div class="f-g">
-				<label class="f-lbl" for="of-name">اسم العرض <span>*</span></label>
-				<input id="of-name" class="f-inp" type="text" maxlength="100" placeholder="مثال: باقة الهوية + الموقع"
-					[class.invalid]="errors().name" [ngModel]="form().name" (ngModelChange)="patch({ name: $event })">
-				@if (errors().name) { <div class="f-err">{{ errors().name }}</div> }
+				<label class="f-lbl" for="of-name">اسم العرض <span class="ws-req" aria-hidden="true">*</span></label>
+				<input id="of-name" aria-required="true" name="name" class="f-inp" type="text" maxlength="100" placeholder="مثال: باقة الهوية + الموقع"
+					[class.invalid]="errors().name" [attr.aria-invalid]="errors().name ? 'true' : null" [attr.aria-describedby]="errors().name ? 'of-err-name' : null" [ngModel]="form().name" (ngModelChange)="patch({ name: $event })">
+				@if (errors().name) { <div class="f-err" id="of-err-name" role="alert">{{ errors().name }}</div> }
 			</div>
 			<div class="f-g">
-				<label class="f-lbl" for="of-disc">نسبة الخصم <span>*</span></label>
+				<label class="f-lbl" for="of-disc">نسبة الخصم <span class="ws-req" aria-hidden="true">*</span></label>
 				<div class="f-suffix-wrap">
-					<input id="of-disc" class="f-inp" type="number" min="1" max="100" placeholder="مثال: 20"
-						[class.invalid]="errors().discountValue" [ngModel]="form().discountValue" (ngModelChange)="patch({ discountValue: $event })">
+					<input id="of-disc" aria-required="true" name="discountValue" class="f-inp" type="number" min="1" max="100" placeholder="أدخل نسبة الخصم"
+						[class.invalid]="errors().discountValue" [attr.aria-invalid]="errors().discountValue ? 'true' : null" [attr.aria-describedby]="errors().discountValue ? 'of-err-discountValue' : null" [ngModel]="form().discountValue" (ngModelChange)="patch({ discountValue: $event })">
 					<span class="f-suffix">%</span>
 				</div>
-				@if (errors().discountValue) { <div class="f-err">{{ errors().discountValue }}</div> }
+				@if (errors().discountValue) { <div class="f-err" id="of-err-discountValue" role="alert">{{ errors().discountValue }}</div> }
 			</div>
 
 			@if (form().type === 'BUNDLE') {
 				<div class="f-g">
-					<label class="f-lbl" for="of-x">النموذج الأساسي (X) <span>*</span></label>
-					<select id="of-x" class="f-inp" [class.invalid]="errors().primaryServiceId" [ngModel]="form().primaryServiceId" (ngModelChange)="patch({ primaryServiceId: $event })">
+					<label class="f-lbl" for="of-x">النموذج الأساسي (X) <span class="ws-req" aria-hidden="true">*</span></label>
+					<select id="of-x" aria-required="true" name="primaryServiceId" class="f-inp" [class.invalid]="errors().primaryServiceId" [attr.aria-invalid]="errors().primaryServiceId ? 'true' : null" [attr.aria-describedby]="errors().primaryServiceId ? 'of-err-primaryServiceId' : null" [ngModel]="form().primaryServiceId" (ngModelChange)="patch({ primaryServiceId: $event })">
 						<option value="">اختر النموذج...</option>
 						@for (m of models(); track m.id) { <option [value]="m.id">{{ m.title }}</option> }
 					</select>
-					@if (errors().primaryServiceId) { <div class="f-err">{{ errors().primaryServiceId }}</div> }
+					@if (errors().primaryServiceId) { <div class="f-err" id="of-err-primaryServiceId" role="alert">{{ errors().primaryServiceId }}</div> }
 				</div>
 				<div class="f-g">
-					<label class="f-lbl" for="of-y">النموذج المستفيد (Y) — يحصل على الخصم <span>*</span></label>
-					<select id="of-y" class="f-inp" [class.invalid]="errors().beneficiaryServiceId" [ngModel]="form().beneficiaryServiceId" (ngModelChange)="patch({ beneficiaryServiceId: $event })">
+					<label class="f-lbl" for="of-y">النموذج المستفيد (Y) — يحصل على الخصم <span class="ws-req" aria-hidden="true">*</span></label>
+					<select id="of-y" aria-required="true" name="beneficiaryServiceId" class="f-inp" [class.invalid]="errors().beneficiaryServiceId" [attr.aria-invalid]="errors().beneficiaryServiceId ? 'true' : null" [attr.aria-describedby]="errors().beneficiaryServiceId ? 'of-err-beneficiaryServiceId' : null" [ngModel]="form().beneficiaryServiceId" (ngModelChange)="patch({ beneficiaryServiceId: $event })">
 						<option value="">اختر النموذج...</option>
 						@for (m of models(); track m.id) { <option [value]="m.id" [disabled]="m.id === form().primaryServiceId">{{ m.title }}</option> }
 					</select>
-					@if (errors().beneficiaryServiceId) { <div class="f-err">{{ errors().beneficiaryServiceId }}</div> }
+					@if (errors().beneficiaryServiceId) { <div class="f-err" id="of-err-beneficiaryServiceId" role="alert">{{ errors().beneficiaryServiceId }}</div> }
 				</div>
 				<div class="f-g">
-					<label class="f-lbl" for="of-days">صالح خلال (أيام من الطلب الأول) <span>*</span></label>
-					<input id="of-days" class="f-inp" type="number" min="1" max="365" step="1" placeholder="مثال: 14"
-						[class.invalid]="errors().validityDays" [ngModel]="form().validityDays" (ngModelChange)="patch({ validityDays: $event })">
-					@if (errors().validityDays) { <div class="f-err">{{ errors().validityDays }}</div> }
+					<label class="f-lbl" for="of-days">صالح خلال (أيام من الطلب الأول) <span class="ws-req" aria-hidden="true">*</span></label>
+					<input id="of-days" aria-required="true" name="validityDays" class="f-inp" type="number" min="1" max="365" step="1" placeholder="أدخل عدد الأيام"
+						[class.invalid]="errors().validityDays" [attr.aria-invalid]="errors().validityDays ? 'true' : null" [attr.aria-describedby]="errors().validityDays ? 'of-err-validityDays' : null" [ngModel]="form().validityDays" (ngModelChange)="patch({ validityDays: $event })">
+					@if (errors().validityDays) { <div class="f-err" id="of-err-validityDays" role="alert">{{ errors().validityDays }}</div> }
 				</div>
 			} @else {
 				<div class="f-g">
-					<label class="f-lbl" for="of-t">النموذج المستهدف بالخصم المباشر <span>*</span></label>
-					<select id="of-t" class="f-inp" [class.invalid]="errors().targetServiceId" [ngModel]="form().targetServiceId" (ngModelChange)="patch({ targetServiceId: $event })">
+					<label class="f-lbl" for="of-t">النموذج المستهدف بالخصم المباشر <span class="ws-req" aria-hidden="true">*</span></label>
+					<select id="of-t" aria-required="true" name="targetServiceId" class="f-inp" [class.invalid]="errors().targetServiceId" [attr.aria-invalid]="errors().targetServiceId ? 'true' : null" [attr.aria-describedby]="errors().targetServiceId ? 'of-err-targetServiceId' : null" [ngModel]="form().targetServiceId" (ngModelChange)="patch({ targetServiceId: $event })">
 						<option value="">اختر النموذج...</option>
 						@for (m of models(); track m.id) { <option [value]="m.id">{{ m.title }}</option> }
 					</select>
-					@if (errors().targetServiceId) { <div class="f-err">{{ errors().targetServiceId }}</div> }
+					@if (errors().targetServiceId) { <div class="f-err" id="of-err-targetServiceId" role="alert">{{ errors().targetServiceId }}</div> }
 				</div>
 			}
 
 			<div class="f-g">
-				<label class="f-lbl" for="of-start">تاريخ البداية</label>
-				<input id="of-start" class="f-inp" type="date" [class.invalid]="errors().startAt" [ngModel]="form().startAt" (ngModelChange)="patch({ startAt: $event })">
-				@if (errors().startAt) { <div class="f-err">{{ errors().startAt }}</div> }
+				<label class="f-lbl" for="of-start">تاريخ البداية <span class="ws-req" aria-hidden="true">*</span></label>
+				<input id="of-start" aria-required="true" name="startAt" class="f-inp" type="date" [class.invalid]="errors().startAt" [attr.aria-invalid]="errors().startAt ? 'true' : null" [attr.aria-describedby]="errors().startAt ? 'of-err-startAt' : null" [ngModel]="form().startAt" (ngModelChange)="patch({ startAt: $event })">
+				@if (errors().startAt) { <div class="f-err" id="of-err-startAt" role="alert">{{ errors().startAt }}</div> }
 			</div>
 			<div class="f-g">
 				<label class="f-lbl" for="of-end">تاريخ الانتهاء</label>
-				<input id="of-end" class="f-inp" type="date" [class.invalid]="errors().expiresAt" [ngModel]="form().expiresAt" (ngModelChange)="patch({ expiresAt: $event })">
-				@if (errors().expiresAt) { <div class="f-err">{{ errors().expiresAt }}</div> } @else { <div class="f-hint">اتركه فارغاً لعرض بلا تاريخ انتهاء</div> }
+				<input id="of-end" name="expiresAt" class="f-inp" type="date" [class.invalid]="errors().expiresAt" [attr.aria-invalid]="errors().expiresAt ? 'true' : null" [attr.aria-describedby]="errors().expiresAt ? 'of-err-expiresAt' : null" [ngModel]="form().expiresAt" (ngModelChange)="patch({ expiresAt: $event })">
+				@if (errors().expiresAt) { <div class="f-err" id="of-err-expiresAt" role="alert">{{ errors().expiresAt }}</div> } @else { <div class="f-hint">اتركه فارغاً لعرض بلا تاريخ انتهاء</div> }
 			</div>
 		</div>
 	</div>
@@ -108,27 +108,29 @@
 		<div class="form-card-title">شارة العرض في السوق</div>
 		<div class="form-card-sub">النص القصير الذي يظهر على بطاقة النموذج في نتائج البحث</div>
 		<div class="f-g">
-			<label class="f-lbl" for="of-badge">نص الشارة <span>*</span></label>
-			<input id="of-badge" class="f-inp" type="text" maxlength="50" placeholder="مثال: خصم 20%"
-				[class.invalid]="errors().badgeText" [ngModel]="form().badgeText" (ngModelChange)="onBadgeInput($event)">
-			@if (errors().badgeText) { <div class="f-err">{{ errors().badgeText }}</div> }
+			<label class="f-lbl" for="of-badge">نص الشارة <span class="ws-req" aria-hidden="true">*</span></label>
+			<input id="of-badge" aria-required="true" name="badgeText" class="f-inp" type="text" maxlength="50" placeholder="اكتب نص الشارة الظاهر على البطاقة"
+				[class.invalid]="errors().badgeText" [attr.aria-invalid]="errors().badgeText ? 'true' : null" [attr.aria-describedby]="errors().badgeText ? 'of-err-badgeText' : null" [ngModel]="form().badgeText" (ngModelChange)="onBadgeInput($event)">
+			@if (errors().badgeText) { <div class="f-err" id="of-err-badgeText" role="alert">{{ errors().badgeText }}</div> }
 		</div>
 		<div class="badge-preview">معاينة: <span class="offer-badge-prev">{{ form().badgeText || '—' }}</span></div>
 	</div>
 
 	<div class="form-card">
 		<div class="form-card-title">رسالة العرض في صفحة النموذج</div>
-		<textarea class="f-inp" maxlength="2000" placeholder="مثال: اطلب هوية بصرية متكاملة واحصل على خصم 20% على موقعك الإلكتروني خلال 14 يوماً"
+		<textarea id="of-msg" name="customerMessage" class="f-inp" maxlength="2000" placeholder="اكتب رسالة تشرح العرض للعميل"
+			[class.invalid]="errors().customerMessage" [attr.aria-invalid]="errors().customerMessage ? 'true' : null" [attr.aria-describedby]="errors().customerMessage ? 'of-err-customerMessage' : null"
 			[ngModel]="form().customerMessage" (ngModelChange)="patch({ customerMessage: $event })"></textarea>
-		@if (errors().customerMessage) { <div class="f-err">{{ errors().customerMessage }}</div> }
+		@if (errors().customerMessage) { <div class="f-err" id="of-err-customerMessage" role="alert">{{ errors().customerMessage }}</div> }
 	</div>
 
 	<div class="form-card">
 		<div class="form-card-title">ملاحظة داخلية (اختياري)</div>
 		<div class="form-card-sub">لا تظهر للعميل — تذكير لك بسبب إنشاء هذا العرض</div>
-		<textarea class="f-inp" maxlength="2000" placeholder="مثال: عرض لتنشيط نماذج الموبايل بعد ضعف الطلب هذا الشهر"
+		<textarea id="of-note" name="internalNote" class="f-inp" maxlength="2000" placeholder="مثال: عرض لتنشيط نماذج الموبايل بعد ضعف الطلب هذا الشهر"
+			[class.invalid]="errors().internalNote" [attr.aria-invalid]="errors().internalNote ? 'true' : null" [attr.aria-describedby]="errors().internalNote ? 'of-err-internalNote' : null"
 			[ngModel]="form().internalNote" (ngModelChange)="patch({ internalNote: $event })"></textarea>
-		@if (errors().internalNote) { <div class="f-err">{{ errors().internalNote }}</div> }
+		@if (errors().internalNote) { <div class="f-err" id="of-err-internalNote" role="alert">{{ errors().internalNote }}</div> }
 	</div>
 
 	@if (isCompanyMode()) {
@@ -139,6 +141,7 @@
 		</div>
 	}
 
+	@if (formError(); as fe) { <div class="state-box err form-error" id="of-form-error" role="alert" data-testid="form-error">{{ fe }}</div> }
 	<div class="save-bar">
 		<div>
 			@if (needsApproval()) {
@@ -151,7 +154,7 @@
 		</div>
 		<div>
 			<a class="btn-sec" routerLink="/provider-overview/marketing/offers">إلغاء</a>
-			<button type="button" class="btn-pri" (click)="save()" [disabled]="saving()">{{ saving() ? 'جاري الحفظ...' : 'حفظ العرض' }}</button>
+			<button type="button" class="btn-pri" (click)="save()" [disabled]="saving()" [attr.aria-busy]="saving() ? 'true' : null">{{ saving() ? 'جاري الحفظ...' : 'حفظ العرض' }}</button>
 		</div>
 	</div>
 }

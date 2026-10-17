@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const fakeSocket = { connected: false, on: vi.fn(), once: vi.fn(), off: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
-vi.mock('socket.io-client', () => ({ default: () => fakeSocket, io: () => fakeSocket }));
+(globalThis as any).__socketIoModule = () => ({ default: () => fakeSocket, io: () => fakeSocket });
 
 import { Specialties } from './specialties';
 

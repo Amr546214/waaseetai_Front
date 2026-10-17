@@ -6,7 +6,7 @@ import {
 } from '../sa-specialties-accreditation.data';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SaSpecialtyReviewService } from '../sa-specialty-review.service';
-import { SaSpecialtyDecisionModal } from '../sa-specialty-decision-modal';
+import { SaSpecialtyDecisionModal, decisionFailure } from '../sa-specialty-decision-modal';
 
 @Component({
   selector: 'app-sa-specialty-accreditation-detail',
@@ -29,6 +29,7 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
   pendingDecision = signal<SpecialtyDecision | null>(null);
   deciding = signal(false);
   decisionError = signal('');
+  decisionFieldError = signal('');
 
   readonly statusText = STATUS_TEXT;
   readonly statusClass = STATUS_CLASS;
@@ -86,6 +87,7 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
   openDecision(decision: SpecialtyDecision) {
     if (!this.isPending()) return;
     this.decisionError.set('');
+    this.decisionFieldError.set('');
     this.pendingDecision.set(decision);
   }
 
@@ -93,6 +95,7 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
     if (this.deciding()) return;
     this.pendingDecision.set(null);
     this.decisionError.set('');
+    this.decisionFieldError.set('');
   }
 
   decisionSummary(): string {
@@ -106,6 +109,7 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
     if (!d || !decision || this.deciding()) return;
     this.deciding.set(true);
     this.decisionError.set('');
+    this.decisionFieldError.set('');
     this.api.decide(d.id, decision, reason).subscribe({
       next: () => {
         this.deciding.set(false);
@@ -115,7 +119,7 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
       },
       error: (err) => {
         this.deciding.set(false);
-        this.decisionError.set(err?.error?.message || 'تعذر تنفيذ القرار');
+        { const f = decisionFailure(err); this.decisionError.set(f.banner); this.decisionFieldError.set(f.field); }
         if (err?.status === 409) this.fetch(d.id);
       },
     });

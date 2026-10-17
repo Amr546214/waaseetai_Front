@@ -18,6 +18,7 @@
     </div>
   </div>
 
+  @if (rateLimitKept()) { <app-rate-limit-note [showRetry]="true" (retry)="retry()" /> }
   <ng-container *ngIf="!isLoading() && !hasError()">
 
     <!-- KPIs -->
@@ -89,7 +90,8 @@
   </div>
 
   <!-- Error state -->
-  <div *ngIf="!isLoading() && hasError()" class="state-card error-card">
+  <app-load-retry *ngIf="!isLoading() && hasError() && rateLimited()" (retry)="retry()" />
+  <div *ngIf="!isLoading() && hasError() && !rateLimited()" class="state-card error-card">
     <div class="error-title">تعذّر تحميل الفواتير</div>
     <div class="error-code">ERR-PR-025</div>
     <button type="button" class="retry-btn" (click)="retry()">إعادة المحاولة</button>

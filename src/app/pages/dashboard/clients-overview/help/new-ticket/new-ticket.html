@@ -18,9 +18,8 @@
 	<form (ngSubmit)="submit()" class="form-card" novalidate>
 		<!-- Category -->
 		<div class="fld-row">
-			<label class="inp-label" for="tk-cat">التصنيف<span class="req">*</span></label>
-			<ws-select id="tk-cat" [options]="categories()" placeholder="اختر التصنيف" ariaLabel="التصنيف" [(ngModel)]="category" name="category" required />
-			@if (errors()['cat']) { <div class="fld-err">{{ errors()['cat'] }}</div> }
+			<label class="inp-label" for="tk-cat">التصنيف<span class="ws-req" aria-hidden="true">*</span></label>
+			<ws-select id="tk-cat" [options]="categories()" placeholder="اختر التصنيف" ariaLabel="التصنيف" [(ngModel)]="category" name="category" required aria-required="true" />
 		</div>
 
 		<!-- Priority -->
@@ -52,17 +51,15 @@
 
 		<!-- Subject -->
 		<div class="fld-row">
-			<label class="inp-label" for="tk-subj">عنوان التذكرة<span class="req">*</span></label>
-			<input id="tk-subj" type="text" class="inp-field" [(ngModel)]="subject" name="subject" placeholder="عنوان موجز يصف المشكلة" required />
-			@if (errors()['subj']) { <div class="fld-err">{{ errors()['subj'] }}</div> }
+			<label class="inp-label" for="tk-subj">عنوان التذكرة<span class="ws-req" aria-hidden="true">*</span></label>
+			<input id="tk-subj" type="text" class="inp-field" [(ngModel)]="subject" name="subject" placeholder="عنوان موجز يصف المشكلة" required aria-required="true" />
 		</div>
 
 		<!-- Description -->
 		<div class="fld-row">
-			<label class="inp-label" for="tk-desc">وصف المشكلة<span class="req">*</span></label>
-			<textarea id="tk-desc" class="inp-field" [(ngModel)]="description" name="description" rows="5" placeholder="اشرح المشكلة بالتفصيل: ما الذي حدث، متى، وما الذي توقعه؟" required></textarea>
+			<label class="inp-label" for="tk-desc">وصف المشكلة<span class="ws-req" aria-hidden="true">*</span></label>
+			<textarea id="tk-desc" class="inp-field" [(ngModel)]="description" name="description" rows="5" placeholder="اشرح المشكلة بالتفصيل: ما الذي حدث، متى، وما الذي توقعه؟" required aria-required="true"></textarea>
 			<div class="fld-hint">{{ description().length }} حرف · الحد الأدنى 20</div>
-			@if (errors()['desc']) { <div class="fld-err">{{ errors()['desc'] }}</div> }
 		</div>
 
 		<!-- Attach -->

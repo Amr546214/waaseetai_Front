@@ -36,7 +36,7 @@ describe('ProjectDetails', () => {
       providers: [
         provideRouter([]),
         { provide: HttpClient, useValue: { get: () => of({ success: true, data: null }), post: () => of({ success: true, data: {} }) } },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }
+        { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }
       ]
     })
     .compileComponents();
@@ -119,7 +119,7 @@ describe('ProjectDetails — Batch 8 on-demand project health analysis', () => {
       providers: [
         provideRouter([]),
         { provide: HttpClient, useValue: { get: () => of({ success: true, data: { title: 'مشروع', stages: [], files: [], messages: [] } }), post: vi.fn(postImpl) } },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }
+        { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }
       ]
     }).compileComponents();
     fixture = TestBed.createComponent(ProjectDetails);
@@ -200,7 +200,7 @@ describe('ProjectDetails — real employee assignment (Batch 6)', () => {
             put: opts.putImpl ?? (() => of({ success: true, data: { id: 'proj-1', employee: makeMember() } })),
           }
         },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } },
+        { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } },
         { provide: AuthStore, useValue: { currentUser: () => ({ accountType: isCompany ? AccountType.CLIENT_COMPANY : AccountType.CLIENT_INDIVIDUAL }) } },
         { provide: ClientCompanyTeamService, useValue: { list: opts.listImpl ?? (() => of({ success: true, data: [makeMember()] })) } },
       ],
@@ -272,7 +272,7 @@ describe('ProjectDetails: honest contract / funding / stage states', () => {
 
   async function open(ws: any) {
     const get = vi.fn((url: string) => String(url).includes('/workspace') ? of(ws) : of({ success: true, data: [] }));
-    await TestBed.configureTestingModule({ imports: [ProjectDetails], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post: vi.fn() } }, { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [ProjectDetails], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post: vi.fn() } }, { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
     const f = TestBed.createComponent(ProjectDetails); f.detectChanges(); await f.whenStable(); f.detectChanges();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const el = f.nativeElement as HTMLElement;

@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
@@ -7,6 +7,7 @@ import { DisputeApiService } from '../../../../core/services/dispute-api.service
 import { Dispute } from './disputes.model';
 import { mapDispute } from './disputes.mapper';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { reportProblems } from '../../../../shared/forms/form-error-focus';
 
 @Component({
   selector: 'app-disputes',
@@ -19,6 +20,7 @@ export class Disputes implements OnInit {
   private router = inject(Router);
   private disputeApi = inject(DisputeApiService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   isCompanyMode = computed<boolean>(() => {
     const user = this.authStore.currentUser();
@@ -124,9 +126,14 @@ export class Disputes implements OnInit {
     this.guidanceTarget.set(null);
   }
 
-  sendGuidance() {
+  async sendGuidance() {
     const target = this.guidanceTarget();
     if (!target?.teamMember) return;
+    // An empty guidance is not "sent": the message sits at the field and focus goes there.
+    if (!this.guidanceText().trim()) {
+      await reportProblems(this.host.nativeElement, [{ field: 'dispute-guidance', message: 'اكتب التوجيه قبل الإرسال' }]);
+      return;
+    }
     this.closeGuidance();
     this.notify.success(`تم إرسال التوجيه لـ${target.teamMember.name}`);
   }

@@ -1,4 +1,5 @@
-import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { chatPreview } from '../../../../core/utils/chat-preview.util';
+import { Component, computed, ElementRef, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,6 +9,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { ChatStateService } from '../../../../core/services/chat-state.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { VideoCallService } from '../../../../core/services/video-call.service';
+import { reportProblems } from '../../../../shared/forms/form-error-focus';
 
 export interface MessageItem {
   id: number | string;
@@ -55,6 +57,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
   private chatStateService = inject(ChatStateService);
   private videoCallService = inject(VideoCallService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private sub = new Subscription();
 
   private currentUserId = 'marketer_001';
@@ -131,7 +134,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
                 project: c.project?.title || c.project || 'مشروع وسيط',
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
-                lastMsg: c.lastMessage?.content || c.lastMsg || '',
+                lastMsg: chatPreview(c.lastMessage?.content || c.lastMsg || ''),
                 time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
                 online: partner.isOnline || c.online || false,
@@ -208,7 +211,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
               }
 
               const unread = targetId === this.activeConvId() ? 0 : c.unreadCount + 1;
-              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: formattedMsg.text, time: formattedMsg.time, unreadCount: unread };
+              return { ...c, messages: [...c.messages, formattedMsg], lastMsg: chatPreview(formattedMsg.text), time: formattedMsg.time, unreadCount: unread };
             }
             return c;
           })
@@ -300,7 +303,11 @@ export class MarketerMessages implements OnInit, OnDestroy {
 
   sendMessage(type: 'TEXT' | 'IMAGE' | 'AUDIO' | 'FILE' = 'TEXT', customData?: any): void {
     let text = this.newMessageText().trim();
-    if (type === 'TEXT' && !text) return;
+    if (type === 'TEXT' && !text) {
+      // An empty send explains itself under the message box instead of doing nothing.
+      if (this.activeConversation()) void reportProblems(this.host.nativeElement, [{ field: 'marketer-message-input', message: 'اكتب رسالتك قبل الإرسال' }]);
+      return;
+    }
 
     const currentConv = this.activeConversation();
     if (!currentConv) return;
@@ -339,7 +346,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
           ? {
               ...c,
               messages: [...c.messages, newMsg],
-              lastMsg: newMsg.text,
+              lastMsg: chatPreview(newMsg.text),
               time: timeString,
             }
           : c

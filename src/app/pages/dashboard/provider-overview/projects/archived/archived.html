@@ -58,6 +58,7 @@
 			<div class="stat-box"><div class="stat-num teal">{{ stats().done }}</div><div class="stat-lbl">مكتملة</div></div>
 			<div class="stat-box"><div class="stat-num amber">{{ stats().cancel }}</div><div class="stat-lbl">ملغاة</div></div>
 			<div class="stat-box"><div class="stat-num muted">{{ stats().arch }}</div><div class="stat-lbl">مؤرشفة</div></div>
+			@if (stats().settled > 0) { <div class="stat-box" data-testid="arch-settled-count"><div class="stat-num muted">{{ stats().settled }}</div><div class="stat-lbl">أُغلقت بتسوية نزاع</div></div> }
 			<div class="stat-box"><div class="stat-num txt">{{ stats().total }}</div><div class="stat-lbl">إجمالي المنتهية</div></div>
 		</div>
 
@@ -75,6 +76,11 @@
 			<button type="button" role="tab" class="filter-chip" [class.active]="activeFilter() === 'arch'" [attr.aria-selected]="activeFilter() === 'arch'" (click)="setFilter('arch')">
 				مؤرشفة<span class="fc-count">{{ stats().arch }}</span>
 			</button>
+			@if (stats().settled > 0) {
+			<button type="button" role="tab" class="filter-chip" data-testid="arch-settled-chip" [class.active]="activeFilter() === 'settled'" [attr.aria-selected]="activeFilter() === 'settled'" (click)="setFilter('settled')">
+				أُغلقت بتسوية نزاع<span class="fc-count">{{ stats().settled }}</span>
+			</button>
+			}
 		</div>
 
 		@if (filteredProjects().length === 0) {
@@ -96,7 +102,7 @@
 			<div class="tk-list">
 				@for (p of filteredProjects(); track p.id) {
 					<a class="tk-card" [routerLink]="['../progress', p.id]">
-						<div class="tk-ico" [class.ico-done]="p.status === 'done'" [class.ico-cancel]="p.status === 'cancel'" [class.ico-arch]="p.status === 'arch'" aria-hidden="true">
+						<div class="tk-ico" [class.ico-done]="p.status === 'done'" [class.ico-cancel]="p.status === 'cancel'" [class.ico-arch]="p.status === 'arch' || p.status === 'settled'" aria-hidden="true">
 							@switch (p.icon) {
 								@case ('check') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
 								@case ('doc') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
@@ -117,8 +123,8 @@
 								<span>{{ p.date }}</span>
 							</div>
 						</div>
-						<span class="tk-status" [class.tks-ok]="p.status === 'done'" [class.tks-wait]="p.status === 'cancel'" [class.tks-closed]="p.status === 'arch'">
-							{{ statusLabel(p.status) }}
+						<span class="tk-status" [class.tks-ok]="p.status === 'done'" [class.tks-wait]="p.status === 'cancel'" [class.tks-closed]="p.status === 'arch' || p.status === 'settled'">
+							{{ projectStatusLabel(p) }}
 						</span>
 					</a>
 				}
@@ -177,7 +183,7 @@
 			<div class="kpi-c"><div class="v txt-amber-dk">{{ stats().cancel }}</div><div class="l">ملغاة</div></div>
 			<div class="kpi-c"><div class="v txt-slate">{{ stats().arch }}</div><div class="l">مؤرشفة</div></div>
 			<div class="kpi-c"><div class="v">{{ stats().total }}</div><div class="l">إجمالي الإيرادات دولار</div></div>
-			<div class="kpi-c"><div class="v txt-amber">4.8</div><div class="l">متوسط تقييم الفريق</div></div>
+			<div class="kpi-c"><div class="v txt-amber">—</div><div class="l">متوسط تقييم الفريق (يُحسب من التقييمات المحفوظة فقط)</div></div>
 		</div>
 
 		<!-- Filter Rail -->
@@ -211,6 +217,7 @@
 			<button class="co-st-tab" [class.active]="activeFilter()==='done'" (click)="setFilter('done')">مكتملة <span>{{ stats().done }}</span></button>
 			<button class="co-st-tab" [class.active]="activeFilter()==='cancel'" (click)="setFilter('cancel')">ملغاة <span>{{ stats().cancel }}</span></button>
 			<button class="co-st-tab" [class.active]="activeFilter()==='arch'" (click)="setFilter('arch')">مؤرشفة <span>{{ stats().arch }}</span></button>
+			@if (stats().settled > 0) { <button class="co-st-tab" data-testid="arch-settled-tab" [class.active]="activeFilter()==='settled'" (click)="setFilter('settled')">أُغلقت بتسوية نزاع <span>{{ stats().settled }}</span></button> }
 		</div>
 
 		@if (filteredProjects().length === 0) {
@@ -229,7 +236,7 @@
 			<div class="proj-list">
 				@for (p of filteredProjects(); track p.id) {
 					<a class="proj-card" [routerLink]="['../progress', p.id]">
-						<div class="pc-ico" [class.pc-ico-ok]="p.status==='done'" [class.pc-ico-wait]="p.status==='cancel'" [class.pc-ico-closed]="p.status==='arch'" aria-hidden="true">
+						<div class="pc-ico" [class.pc-ico-ok]="p.status==='done'" [class.pc-ico-wait]="p.status==='cancel'" [class.pc-ico-closed]="p.status==='arch' || p.status==='settled'" aria-hidden="true">
 							@switch (p.icon) {
 								@case ('check') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
 								@case ('doc') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
@@ -255,8 +262,8 @@
 								<span>{{ p.date }}</span>
 							</div>
 						</div>
-						<span class="pc-status" [class.pcs-ok]="p.status==='done'" [class.pcs-wait]="p.status==='cancel'" [class.pcs-closed]="p.status==='arch'">
-							{{ statusLabel(p.status) }}
+						<span class="pc-status" [class.pcs-ok]="p.status==='done'" [class.pcs-wait]="p.status==='cancel'" [class.pcs-closed]="p.status==='arch' || p.status==='settled'">
+							{{ projectStatusLabel(p) }}
 						</span>
 					</a>
 				}

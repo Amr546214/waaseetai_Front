@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, signal, inject, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -6,6 +6,8 @@ import { ThemeService } from '../../../../../core/services/theme.service';
 import { environment } from '../../../../../../environments/environment';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ClientFinanceService } from '../../../../../core/services/client-finance.service';
+import { formatMoney } from '../../../../../core/utils/money.util';
+import { reportClientProblems } from '../../client-form-report';
 
 /** What the page can show: only 'ready' may offer the sign/pay action; 'readonly' shows the contract's terms of an already signed / running contract. */
 type ContractView = 'loading' | 'ready' | 'readonly' | 'blocked' | 'error';
@@ -24,6 +26,7 @@ export class ContractSignature implements OnInit {
 	private http = inject(HttpClient);
 	private clientFinanceService = inject(ClientFinanceService);
 	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
 	public themeService = inject(ThemeService);
 
 	requestId = signal<string>('');
@@ -118,6 +121,8 @@ export class ContractSignature implements OnInit {
 		event.preventDefault();
 		if (this.view() !== 'ready') return;
 		if (!this.acknowledged()) {
+			// The reason is next to the checkbox (red, role=alert) and the checkbox gets focus; the toast is not the only explanation.
+			void reportClientProblems(this.host.nativeElement, [{ field: 'ack-ctr', message: 'يجب الموافقة على بنود العقد أولًا للمتابعة' }]);
 			this.notify.warning('يجب الموافقة على بنود العقد أولا');
 			return;
 		}
@@ -131,7 +136,7 @@ export class ContractSignature implements OnInit {
 				const balance = Number(response.data?.summary?.availableBalance || 0);
 				const shortfall = Math.max(0, Math.round((this.requiredAmount() - balance) * 100) / 100);
 				if (shortfall > 0) {
-					this.notify.warning(`رصيد المحفظة غير كافٍ. يلزم شحن ${shortfall.toLocaleString('en-US')} $.`);
+					this.notify.warning(`رصيد المحفظة غير كافٍ. يلزم شحن ${formatMoney(shortfall)} $.`);
 				}
 				this.router.navigate(['/client-overview/my-requests', this.requestId(), 'deposit'], {
 					queryParams: { offerId: this.offerId() }

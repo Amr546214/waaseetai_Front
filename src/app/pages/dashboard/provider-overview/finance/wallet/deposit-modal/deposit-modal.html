@@ -24,17 +24,16 @@
 
 		<!-- AMOUNT -->
 		<div class="dpm-field">
-			<label class="dpm-label" for="dpmAmt">المبلغ ($)</label>
+			<label class="dpm-label" for="dpmAmt">المبلغ ($) <span class="ws-req" aria-hidden="true">*</span></label>
 			<div class="dpm-amt-wrap">
-				<input id="dpmAmt" class="dpm-amt-input" type="text" inputmode="numeric" [value]="amount() | number" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع بالدولار" />
+				<input id="dpmAmt" aria-required="true" name="amount" data-field="amount" class="dpm-amt-input" type="text" inputmode="numeric" placeholder="أدخل المبلغ بالدولار" [value]="amount() == null ? '' : (amount() | number:'1.0-2')" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع بالدولار"
+					[attr.aria-invalid]="amountError() ? 'true' : null" [attr.aria-describedby]="amountError() ? 'dpmAmt-err' : 'dpmAmt-hint'" />
 				<span class="dpm-amt-cur">$</span>
 			</div>
-			<div class="dpm-hint">حدود مبلغ الإيداع تُحدَّد عند تفعيل الإيداع للمزوّدين</div>
-		</div>
-
-		<div class="dpm-chips">
-			@for (chip of quickAmounts; track chip) {
-			<button type="button" class="dpm-chip" [class.on]="amount() === chip" (click)="setAmount(chip)">{{ chip | number }}</button>
+			@if (amountError(); as err) {
+			<div class="dpm-hint field-err" id="dpmAmt-err" role="alert" data-testid="dpm-amount-error">{{ err }}</div>
+			} @else {
+			<div class="dpm-hint" id="dpmAmt-hint">حدود مبلغ الإيداع تُحدَّد عند تفعيل الإيداع للمزوّدين</div>
 			}
 		</div>
 
@@ -53,7 +52,7 @@
 		<!-- SUMMARY -->
 		<div class="dpm-summary">
 			<div class="dpm-summary-row"><span>رصيد المحفظة الحالي</span><span>{{ currentBalance | number:'1.0-2' }} $</span></div>
-			<div class="dpm-summary-row"><span>مبلغ الإيداع</span><span>{{ amount() | number:'1.0-2' }} $</span></div>
+			<div class="dpm-summary-row"><span>مبلغ الإيداع</span><span>{{ amount() == null ? '—' : (amount() | number:'1.0-2') + ' $' }}</span></div>
 			<div class="dpm-summary-row"><span>رسوم PayPal</span><span>تُحدَّد عند تفعيل الإيداع</span></div>
 			<div class="dpm-summary-divider"></div>
 			<div class="dpm-summary-total"><span>الرصيد المتوقع بعد الإيداع</span><span>{{ balanceAfter() | number:'1.0-2' }} $</span></div>

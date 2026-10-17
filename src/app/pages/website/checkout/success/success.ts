@@ -5,6 +5,7 @@ import { CheckoutService } from '../../../../core/services/checkout.service';
 import { CheckoutApiService } from '../../../../core/services/checkout-api.service';
 import { mapOrder, BackendOrderResponse } from '../../../../core/services/checkout-mappers';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { formatMoney } from '../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-checkout-success',
@@ -51,7 +52,7 @@ export class CheckoutSuccessComponent implements OnInit {
   ];
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return formatMoney(value, 0);
   }
 
   ngOnInit(): void {

@@ -14,16 +14,18 @@ describe('provider project progress: message context', () => {
 	async function setup(data: any) {
 		await TestBed.configureTestingModule({ imports: [Progress], providers: [provideRouter([]),
 			{ provide: HttpClient, useValue: { get: vi.fn(() => of({ success: true, data })), post: vi.fn() } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'contract-id-from-the-route' }) } } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'contract-id-from-the-route' }) }, queryParamMap: of(convertToParamMap({})) } }] }).compileComponents();
 		const f = TestBed.createComponent(Progress); f.detectChanges();
 		return { c: f.componentInstance, nav: vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true) };
 	}
-	it('uses the real projectId from the response (not the route param) and the explicit conversationId', async () => {
+	it('uses the real projectId from the response (not the route param) and opens the project messages tab', async () => {
 		const { c, nav } = await setup(DATA);
 		c.openConversation();
 		const [cmd, extras] = nav.mock.calls[0] as any[];
-		expect(cmd).toEqual(['/provider-overview/messages']);
-		expect(extras.queryParams).toEqual({ conversationId: 'conv-9' });
+		// project discussion = the project's own messages tab (never the general messages page)
+		expect(cmd).toEqual(['/provider-overview/projects/active/progress', 'contract-id-from-the-route']);
+		expect(extras.queryParams).toEqual({ tab: 'messages' });
+		expect(c.activeTab()).toBe('msgs');
 		expect(extras.state.messageContext.projectId).toBe('project-9');
 		c.openConversation({ id: 's1', title: 'مرحلة', status: 'in_progress' });
 		expect((nav.mock.calls[1] as any[])[1].state.messageContext).toMatchObject({ type: 'STAGE', projectId: 'project-9', stageId: 's1' });

@@ -174,7 +174,7 @@ describe('providerProfileCompleteGuard on a 429 with no prior state', () => {
 		});
 		const out = TestBed.runInInjectionContext(() => providerProfileCompleteGuard({ data: {} } as any, { url: '/provider-overview/offers' } as any));
 		const r = await firstValueFrom(out as Observable<boolean | UrlTree>);
-		expect(r instanceof UrlTree ? TestBed.inject(Router).serializeUrl(r) : r).toBe('/provider-overview/accreditation-status');
+		expect(r instanceof UrlTree ? TestBed.inject(Router).serializeUrl(r) : r).toBe('/provider-overview/account-actions');
 		TestBed.resetTestingModule();
 	});
 });

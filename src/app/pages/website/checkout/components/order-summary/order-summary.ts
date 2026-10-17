@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../../../../core/services/cart.service';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 @Component({
   selector: 'app-order-summary',
@@ -22,6 +23,6 @@ export class OrderSummary {
   total = this.cartService.total;
 
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('ar-SA', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    return formatMoney(value, 0);
   }
 }

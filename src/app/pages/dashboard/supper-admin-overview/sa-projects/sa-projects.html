@@ -21,9 +21,10 @@
     <div class="pj-kpi">
       <span class="pj-kpi-lbl">إجمالي المبالغ المحتجزة في الضمان</span>
       <div class="pj-kpi-val txt-teal">
-        @if (data(); as d) { {{ d.kpis.escrowHeldTotal | number }}<span class="pj-kpi-unit">{{ currency() }}</span> } @else { - }
+        @if (data(); as d) { {{ d.kpis.escrowHeldTotal | number:'1.0-2' }}<span class="pj-kpi-unit">{{ currency() }}</span> } @else { - }
       </div>
     </div>
+    <div class="pj-kpi" data-testid="pj-kpi-settled"><span class="pj-kpi-lbl">أُغلقت بتسوية نزاع</span><div class="pj-kpi-val txt-coral">{{ data() ? (counts()['CLOSED_BY_SETTLEMENT'] ?? 0) : '-' }}</div></div>
   </div>
 
   <div class="pj-tabs">
@@ -68,7 +69,7 @@
                 <td>
                   @if (p.provider; as c) { <div class="pj-u-cell"><div class="pj-u-av">{{ initials(c.name) }}</div><span>{{ c.name }}</span></div> } @else { <span class="pj-muted">-</span> }
                 </td>
-                <td class="pj-value">@if (p.contract) { {{ p.contract.price | number }} $ } @else { - }</td>
+                <td class="pj-value">@if (p.contract) { {{ p.contract.price | number:'1.0-2' }} $ } @else { - }</td>
                 <td>
                   <div class="pj-prog-cell">
                     <div class="pj-prog-track"><div class="pj-prog-fill" [style.width.%]="p.progress.percent"></div></div>
@@ -76,8 +77,8 @@
                   </div>
                 </td>
                 <td>{{ p.deliveryDays }} يوم</td>
-                <td>@if (p.escrow?.status === 'HELD') { {{ p.escrow?.heldAmount | number }} $ (محتجز) } @else if (p.escrow?.status === 'RELEASED') { مُفرَج } @else if (p.escrow?.status === 'REFUNDED') { مُسترَد } @else { - }</td>
-                <td><span class="pj-status" [ngClass]="statusClasses[p.status] || 'pj-st-cancelled'">{{ statusLabels[p.status] || p.status }}</span></td>
+                <td>@if (p.escrow?.status === 'HELD') { {{ p.escrow?.heldAmount | number:'1.0-2' }} $ (محتجز) } @else if (p.escrow?.status === 'RELEASED' && (p.lifecycle?.closedBySettlement || p.adminSettled)) { <span data-testid="pj-escrow-settled">أُفرج جزء بقرار تسوية نزاع</span> } @else if (p.escrow?.status === 'RELEASED') { مُفرَج } @else if (p.escrow?.status === 'REFUNDED') { مُسترَد } @else { - }</td>
+                <td><span class="pj-status" [ngClass]="statusClasses[p.status] || 'pj-st-cancelled'">{{ p.statusLabel || statusLabels[p.status] || p.status }}</span></td>
               </tr>
             }
           </tbody>

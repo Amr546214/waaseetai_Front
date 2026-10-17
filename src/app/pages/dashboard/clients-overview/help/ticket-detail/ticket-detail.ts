@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, signal, computed, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -6,6 +6,8 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { TicketApiService, SupportTicket, SupportTicketMessage, TicketStatus } from '../../../../../core/services/ticket-api.service';
+import { SubmitGuard } from '../../../../../shared/forms/form-error-focus';
+import { handleClientError, reportClientProblems } from '../../client-form-report';
 
 interface TimelineStep { label: string; state: 'done' | 'active' | 'idle'; }
 interface ChatMessage { from: 'me' | 'agent'; name: string; time: string; text: string; }
@@ -69,6 +71,8 @@ export class TicketDetailComponent implements OnInit {
 	private authStore = inject(AuthStore);
 	private ticketApi = inject(TicketApiService);
 	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private replyGuard = new SubmitGuard();
 
 	isCompanyMode = computed(() => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY);
 
@@ -144,11 +148,16 @@ export class TicketDetailComponent implements OnInit {
 
 	sendReply() {
 		const text = this.replyText().trim();
-		if (!text || this.sending()) return;
+		if (!text) {
+			void reportClientProblems(this.host.nativeElement, [{ field: 'tk-reply', message: 'اكتب ردّك قبل الإرسال' }]);
+			return;
+		}
+		if (this.sending() || !this.replyGuard.enter()) return;
 		this.sending.set(true);
 		this.ticketApi.replyToTicket('client', this.ticketId(), text).subscribe({
 			next: (res) => {
 				this.sending.set(false);
+				this.replyGuard.release();
 				if (res.success) {
 					this.replyText.set('');
 					this.notify.success('تم إرسال ردّك');
@@ -159,7 +168,8 @@ export class TicketDetailComponent implements OnInit {
 			},
 			error: (err) => {
 				this.sending.set(false);
-				this.notify.error(err?.error?.message || 'تعذر إرسال الرد، حاول مرة أخرى');
+				this.replyGuard.release();
+				handleClientError(this.host.nativeElement, err, { resolve: { message: 'tk-reply', content: 'tk-reply', text: 'tk-reply' }, fallback: 'تعذر إرسال الرد، حاول مرة أخرى' }, (m) => this.notify.error(m));
 			}
 		});
 	}

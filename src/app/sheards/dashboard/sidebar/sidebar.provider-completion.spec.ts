@@ -7,7 +7,7 @@ import { vi } from 'vitest';
 
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Sidebar, NavItem } from './sidebar';
 import { ProviderAccessService } from '../../../core/services/provider-access.service';

@@ -7,7 +7,7 @@ import { join } from 'node:path';
 
 // Step 3 of the specialty wizard: an ADVISORY AI review of the portfolio samples (GET latest / POST ai-evaluate), or an honest state.
 const fakeSocket = { connected: false, on: vi.fn(), once: vi.fn(), off: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
-vi.mock('socket.io-client', () => ({ default: () => fakeSocket, io: () => fakeSocket }));
+(globalThis as any).__socketIoModule = () => ({ default: () => fakeSocket, io: () => fakeSocket });
 
 import { Specialties } from './specialties';
 

@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { FinalApproval } from './final-approval';
+import { RatingApiService } from '../../../../../core/services/rating-api.service';
 
 // The page is a SUMMARY: it never finalizes, never claims to release money, never promises ownership / warranty / one-shot payment.
 const WS = (statuses: string[]) => ({ success: true, data: { title: 'مشروع', price: 1000, providerName: 'نورة', stages: statuses.map((s, i) => ({ id: `s${i}`, title: `مرحلة ${i + 1}`, status: s, amount: 250, threads: [] })) } });
@@ -14,6 +15,7 @@ describe('final approval page is now an achievement summary', () => {
 	async function setup(ws: any) {
 		const post = vi.fn(() => of({ success: true }));
 		await TestBed.configureTestingModule({ imports: [FinalApproval], providers: [provideRouter([]),
+			{ provide: RatingApiService, useValue: { getRatingStatus: () => of({ projectId: 'p', requestId: null, actor: 'client', canRate: true, reason: null, message: '', adminSettled: null, review: null }), getStageRatingStatus: () => of({ projectId: 'p', requestId: null, actor: 'client', canRate: true, reason: null, message: '', adminSettled: null, review: null }) } },
 			{ provide: HttpClient, useValue: { get: () => of(ws), post } },
 			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
 		const f = TestBed.createComponent(FinalApproval); f.detectChanges(); await f.whenStable(); f.detectChanges();
@@ -23,12 +25,13 @@ describe('final approval page is now an achievement summary', () => {
 	}
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('all stages completed: «ملخص الإنجاز», a single «متابعة للتقييم» action that only navigates (no request at all)', async () => {
+	it('all stages completed: «ملخص الإنجاز», a single status-driven rating entry that only navigates (no request at all)', async () => {
 		const s = await setup(WS(['completed', 'completed', 'completed', 'completed']));
 		expect(s.text()).toContain('ملخص الإنجاز');
 		expect(s.q('fa-badge')!.textContent).toContain('اكتملت كل المراحل');
-		expect(s.q('fa-continue-rating')!.textContent).toContain('متابعة للتقييم');
-		s.q('fa-continue-rating')!.click();
+		const entry = s.el.querySelector('app-rating-entry [data-testid="rating-entry-rate"]') as HTMLButtonElement;
+		expect(entry.textContent).toContain('قيّم المشروع'); // the entry is driven by the server rating status
+		entry.click();
 		expect(s.nav).toHaveBeenCalledWith(['/client-overview/projects', 'proj-1', 'rating']);
 		expect(s.post).not.toHaveBeenCalled();
 	});
@@ -51,7 +54,7 @@ describe('final approval page is now an achievement summary', () => {
 	it('not all stages done: says so and offers no rating action', async () => {
 		const s = await setup(WS(['completed', 'submitted']));
 		expect(s.q('fa-not-complete')).not.toBeNull();
-		expect(s.q('fa-continue-rating')).toBeNull();
+		expect(s.el.querySelector('app-rating-entry')).toBeNull();
 		expect(s.q('fa-badge')!.textContent).toContain('قيد التنفيذ');
 	});
 });

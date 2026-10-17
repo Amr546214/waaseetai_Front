@@ -5,9 +5,11 @@ import { RouterLink } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
 import { ProviderDepositModal } from './deposit-modal/deposit-modal';
 import { AuthStore } from '../../../../../core/store/auth.store';
-import { AccountType } from '../../../../../core/models/auth.model';
+import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
-import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
+import { handleLoadError, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
+
+export const PROVIDER_ONLY_FINANCE_MESSAGE = 'هذه الصفحة متاحة لحساب مقدم الخدمة فقط. بدّل إلى دورك كمقدم خدمة لعرض المحفظة.';
 
 export interface WalletTransaction {
   id: string;
@@ -71,6 +73,7 @@ export class Wallet implements OnInit {
   private authStore = inject(AuthStore);
   private notify = inject(UiNotificationService);
   data = signal<WalletData | null>(null);
+  readonly providerOnlyMessage = PROVIDER_ONLY_FINANCE_MESSAGE;
   loading = signal(true);
   error = signal('');
 
@@ -128,6 +131,8 @@ export class Wallet implements OnInit {
   }
 
   load() {
+    // The provider wallet is provider-only (the server answers 403 to any other role): never ask for it while acting as a client.
+    if (this.authStore.actingRole?.() === UserRole.CLIENT) { this.error.set(PROVIDER_ONLY_FINANCE_MESSAGE); this.loading.set(false); return; }
     this.loading.set(true);
     this.error.set('');
     this.http.get<{ success: boolean; data: WalletData }>(`${environment.url_api}/provider/finance/wallet`).subscribe({
@@ -136,10 +141,11 @@ export class Wallet implements OnInit {
         this.loading.set(false);
       },
       error: err => {
+        if (err?.status === 403) { this.error.set(PROVIDER_ONLY_FINANCE_MESSAGE); this.loading.set(false); return; }
         handleLoadError(err, {
           hasData: () => this.data() != null,
           onKeep: () => this.loading.set(false),
-          onRateLimit: () => { this.error.set(RATE_LIMIT_MESSAGE); this.loading.set(false); },
+          onRateLimit: (e) => { this.error.set(rateLimitToastMessage(e)); this.loading.set(false); },
           onOtherError: () => { this.error.set(err.error?.message || 'تعذر تحميل بيانات المحفظة'); this.loading.set(false); },
         });
       }

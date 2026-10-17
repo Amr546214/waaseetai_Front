@@ -164,6 +164,35 @@ body{margin:0;font-family:'Tajawal',system-ui,sans-serif;background:var(--pg);co
 /* Selects that are still native (country/city, admin/website forms): their popup follows the page theme instead of the OS default (white in dark mode). */
 select{color-scheme:dark}
 html.light-theme select,html.theme-light select,body.light-theme select,body.theme-light select{color-scheme:light}
+
+/* ============================================================
+   Unified native <select> (C3): one open-arrow + one themed option list for every select in the site.
+   - Arrow = chevron background at the visual END (right in LTR, left in RTL via :dir()), native arrow hidden (no duplicate).
+   - padding-inline-end keeps the text clear of the arrow. Specificity (0,2,1) beats page-level `.inp-field`/`.f-inp` shorthands.
+   - Opt out with class "ws-select-plain". Multi-selects / listboxes (multiple, size>1) keep the native look and get no arrow.
+   - Option popup: explicit background/colour per theme (Chrome reads these for the popup; color-scheme covers the scrollbar).
+   ============================================================ */
+select:not([multiple]):not([size]):not(.ws-select-plain){
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8B2D1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;background-size:12px 12px !important;background-position:right 12px center !important;
+  padding-inline-end:34px !important;text-overflow:ellipsis;cursor:pointer;
+}
+select:not([multiple]):not([size]):not(.ws-select-plain):dir(rtl){background-position:left 12px center !important}
+select:not([multiple]):not([size]):not(.ws-select-plain):disabled{cursor:not-allowed}
+html.light-theme select:not([multiple]):not([size]):not(.ws-select-plain),
+html.theme-light select:not([multiple]):not([size]):not(.ws-select-plain),
+body.light-theme select:not([multiple]):not([size]):not(.ws-select-plain),
+body.theme-light select:not([multiple]):not([size]):not(.ws-select-plain){
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+}
+select option,select optgroup{background-color:#0B1437;color:#E6ECFF}
+select option:disabled{color:#6B7699}
+select option:checked{background-color:#16307a;color:#fff}
+html.light-theme select option,html.theme-light select option,body.light-theme select option,body.theme-light select option,
+html.light-theme select optgroup,html.theme-light select optgroup,body.light-theme select optgroup,body.theme-light select optgroup{background-color:#fff;color:#0F172A}
+html.light-theme select option:disabled,html.theme-light select option:disabled,body.light-theme select option:disabled,body.theme-light select option:disabled{color:#94A3B8}
+html.light-theme select option:checked,html.theme-light select option:checked,body.light-theme select option:checked,body.theme-light select option:checked{background-color:#DDF5F2;color:#0A6F64}
 .container{max-width:var(--container);margin-inline:auto;padding:0 24px}
 
 /* الأرضية: نفس أرضية اللوحة (تدرّجات + شبكة + جزيئات 25/11) */
@@ -1082,3 +1111,39 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light,
 
 /* Toast / banner offset: one place that knows the fixed header height (dashboard topbar 56px, website header 64px) + the device safe area. */
 :root{--ws-header-h:56px;--ws-toast-top:calc(var(--ws-header-h) + 12px + env(safe-area-inset-top,0px));--ws-toast-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+
+/* ── Validation errors: ONE contract for every form (identity tokens: --red = #FF8C69 dark / #B42318 light) ────────
+   Field  -> red border + red ring (Angular touched/dirty+invalid, hand-validated .ws-invalid, and aria-invalid="true").
+   Text   -> red message with a leading "!" mark, so colour is never the only cue (hand-validated forms get role="alert"
+             + aria-describedby from form-a11y-sync.service.ts / form-error-focus.ts).
+   Banner -> red text on a light red surface with a red border (+ the same mark when it carries no icon of its own).
+   Plain guidance (.ws-note, hints) and success states keep their own colours: they are NOT in these lists. */
+input.ng-invalid.ng-touched:not([type="checkbox"]):not([type="radio"]),
+textarea.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+input.ng-invalid.ng-dirty:not([type="checkbox"]):not([type="radio"]),
+textarea.ng-invalid.ng-dirty,
+select.ng-invalid.ng-dirty,
+.ws-invalid,
+.has-error:not(.otp-box),
+[aria-invalid="true"]:not([type="checkbox"]):not([type="radio"]) {
+  border-color: var(--red) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--red) 40%, transparent);
+}
+.otp-box.has-error { border-color: var(--red) !important; background: color-mix(in srgb, var(--red) 6%, transparent); }
+:is([role="alert"][data-testid="field-error"], .ws-field-msg, .field-error, .field-err, .f-err, .nl-error, .dp-field-error, .dp-rf-err, .acc-rf-err, .wd-field-err, .wd-af-err, .mk-err, .kq-err, .ss-err) {
+  color: var(--red) !important;
+}
+:is(.form-error, .up-err, .inline-error, .rp-err, .banner-error, .payment-error, .dp-resp-err, .form-msg.err, .coupon-msg.error) {
+  color: var(--red) !important;
+  background: color-mix(in srgb, var(--red) 9%, transparent) !important;
+  border-color: color-mix(in srgb, var(--red) 32%, transparent) !important;
+}
+:is([role="alert"][data-testid="field-error"], .ws-field-msg, .field-error, .field-err, .f-err, .nl-error, .dp-field-error, .dp-rf-err, .acc-rf-err, .wd-field-err, .wd-af-err, .mk-err, .kq-err, .ss-err, .form-error, .up-err, .inline-error, .rp-err, .banner-error, .payment-error, .dp-resp-err, .form-msg.err, .coupon-msg.error):not(:has(svg, .ws-err-ico))::before {
+  content: "!";
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 14px; height: 14px; margin-inline-end: 5px;
+  border-radius: 50%; background: var(--red); color: var(--pg);
+  font-size: 10px; font-weight: 900; line-height: 1; vertical-align: middle;
+}
+:is(.ws-req, .field-req) { color: var(--red); margin-inline-start: 3px; font-weight: 900; }

@@ -1,3 +1,4 @@
+import { requiredText } from '../../core/forms/required-text.validator';
 import { Directive, signal, computed, inject, OnInit, ElementRef } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -82,10 +83,10 @@ export abstract class AddAccountBase implements OnInit {
   createdRole = signal<UserRole | null>(null);
 
   // Form models. One FormGroup per wizard panel so Next validates only the panel the user is on.
-  private readonly requiredTrim = (c: AbstractControl) => (String(c.value ?? '').trim() ? null : { required: true });
+  private readonly requiredTrim = requiredText;
   readonly spec = new FormGroup({
     specMain: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    specExp: new FormControl('3-5 سنوات', { nonNullable: true, validators: [Validators.required] }),
+    specExp: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
   readonly portfolio = new FormGroup({
     portfolioBio: new FormControl('', { nonNullable: true, validators: [this.requiredTrim, Validators.maxLength(1000)] }),

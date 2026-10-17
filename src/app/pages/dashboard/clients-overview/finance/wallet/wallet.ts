@@ -1,3 +1,5 @@
+import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
+import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DepositModal } from '../../../../../sheards/deposit-modal/deposit-modal';
@@ -6,6 +8,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
+import { formatMoney } from '../../../../../core/utils/money.util';
 
 export interface DisplayTransaction {
   id: string;
@@ -24,7 +27,7 @@ export interface DisplayTransaction {
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [CommonModule, RouterLink, DepositModal],
+  imports: [CommonModule, RouterLink, DepositModal, LoadRetryComponent, RateLimitNoteComponent],
   templateUrl: './wallet.html',
   styleUrl: './wallet.css',
 })
@@ -74,9 +77,13 @@ export class Wallet implements OnInit {
     this.loadWalletData();
   }
 
+  /** a 429 with nothing loaded / a 429 while the wallet is shown (data kept) */
+  rateLimited = signal(false);
+  rateLimitKept = signal(false);
+
   loadWalletData(onLoaded?: () => void) {
     this.isLoading.set(true);
-    this.hasError.set(false);
+    this.hasError.set(false); this.rateLimited.set(false); this.rateLimitKept.set(false);
 
     this.clientFinanceService.getWallet().subscribe({
       next: (res) => {
@@ -92,8 +99,8 @@ export class Wallet implements OnInit {
         console.error('Failed to load client wallet:', err);
         handleLoadError(err, {
           hasData: () => this.walletLoaded,
-          onKeep: () => this.isLoading.set(false),
-          onRateLimit: () => { this.hasError.set(true); this.isLoading.set(false); },
+          onKeep: () => { this.rateLimitKept.set(true); this.isLoading.set(false); },
+          onRateLimit: () => { this.hasError.set(true); this.rateLimited.set(true); this.isLoading.set(false); },
           onOtherError: () => { this.hasError.set(true); this.isLoading.set(false); },
         });
       }
@@ -143,7 +150,7 @@ export class Wallet implements OnInit {
           title: tx.description || (isDeposit ? 'إيداع رصيد بالمحفظة' : 'معاملة مالية'),
           description: tx.referenceId ? `رقم العملية ${tx.referenceId}` : (tx.paymentMethod || 'محفظة وسيط AI'),
           date: formattedDate,
-          amount: `${sign}${Math.abs(tx.amount).toLocaleString('en-US')}${currencyLabel ? ' ' + currencyLabel : ''}`,
+          amount: `${sign}${formatMoney(Math.abs(tx.amount))}${currencyLabel ? ' ' + currencyLabel : ''}`,
           direction,
           status: statusText,
           statusType,

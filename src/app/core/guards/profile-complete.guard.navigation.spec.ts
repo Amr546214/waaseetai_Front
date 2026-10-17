@@ -11,7 +11,7 @@ import { ProviderAccessService } from '../services/provider-access.service';
 @Component({ standalone: true, template: '' }) class Blank {}
 
 const WIZARD = '/provider-overview/profile/setup';
-const STATUS = '/provider-overview/accreditation-status';
+const STATUS = '/provider-overview/account-actions';
 const AREAS = ['', '/business-models/center', '/business-models/new-project', '/services', '/projects/active', '/offers', '/finance/wallet', '/marketing/center'];
 
 describe('provider area: client-side navigation goes through the guard too', () => {
@@ -22,7 +22,7 @@ describe('provider area: client-side navigation goes through the guard too', () 
 				provideRouter([{
 					path: 'provider-overview', canActivateChild: [providerProfileCompleteGuard], runGuardsAndResolvers: 'always',
 					children: [
-						{ path: '', component: Blank }, { path: 'accreditation-status', component: Blank }, { path: 'profile/setup', component: Blank },
+						{ path: '', component: Blank }, { path: 'account-actions', component: Blank }, { path: 'profile/setup', component: Blank },
 						{ path: 'business-models/center', component: Blank }, { path: 'business-models/new-project', component: Blank }, { path: 'services', component: Blank },
 						{ path: 'projects/active', component: Blank }, { path: 'offers', component: Blank }, { path: 'finance/wallet', component: Blank }, { path: 'marketing/center', component: Blank },
 					],
