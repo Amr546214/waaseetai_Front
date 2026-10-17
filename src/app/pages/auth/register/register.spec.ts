@@ -75,6 +75,27 @@ describe('Register', () => {
 	});
 
 	describe('Google sign-in (intent: register)', () => {
+		it('credential semantics: one real form, e-mail then new-password fields, nothing read-only, no autocomplete=off', () => {
+			const { fixture, component } = setup();
+			fixture.detectChanges();
+			component.currentStep = 2;
+			component.selectedAccountType = 'service_provider_ind';
+			fixture.componentRef.injector.get(ChangeDetectorRef).detectChanges();
+			fixture.detectChanges();
+			const el: HTMLElement = fixture.nativeElement;
+			const form = el.querySelector('#complete-form') as HTMLFormElement;
+			expect(form.tagName).toBe('FORM');
+			expect(form.hasAttribute('autocomplete')).toBe(false);
+			const email = el.querySelector('#email') as HTMLInputElement;
+			const pw = el.querySelector('#password') as HTMLInputElement;
+			const pc = el.querySelector('#password-confirm') as HTMLInputElement;
+			expect(email.type).toBe('email');
+			expect(email.getAttribute('autocomplete')).toBe('email');
+			expect(pw.getAttribute('autocomplete')).toBe('new-password');
+			expect(pc.getAttribute('autocomplete')).toBe('new-password');
+			for (const i of [email, pw, pc]) { expect(form.contains(i)).toBe(true); expect(i.hasAttribute('readonly')).toBe(false); }
+		});
+
 		it('a brand-new Google identity sends intent "register" and switches step 2 into "complete your profile" mode, without logging in', async () => {
 			const { fixture, component, postSpy, authState } = setup();
 			fixture.detectChanges();
