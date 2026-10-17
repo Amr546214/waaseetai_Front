@@ -8,14 +8,14 @@
 				</svg>
 			</span>
 			<div>
-				<h3>قيّم مقدم الخدمة</h3>
+				<h3>قيّم مقدم الخدمة <span class="ws-req" aria-hidden="true">*</span></h3>
 				<p>شارك تجربتك لمساعدة مقدمي الخدمات والعملاء الآخرين</p>
 				@if (providerName) { <span class="rt-prov-name">{{ providerName }}</span> }
 			</div>
 			<button type="button" class="lc-mclose" (click)="closeModal()" aria-label="إغلاق">×</button>
 		</div>
 
-		<div class="rt-stars-row">
+		<div class="rt-stars-row" role="radiogroup" aria-label="التقييم بالنجوم" aria-required="true" [attr.aria-invalid]="error() ? 'true' : null" [attr.aria-describedby]="error() ? 'rt-star-err' : null">
 			@for (star of stars; track star) {
 				<button
 					type="button"
@@ -38,7 +38,7 @@
 		}
 
 		@if (error()) {
-			<div class="rt-error" role="alert">{{ error() }}</div>
+			<div class="form-error" id="rt-star-err" role="alert" style="margin-bottom:12px">{{ error() }}</div>
 		}
 
 		<div class="lc-fld">

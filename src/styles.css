@@ -1083,9 +1083,12 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light,
 /* Toast / banner offset: one place that knows the fixed header height (dashboard topbar 56px, website header 64px) + the device safe area. */
 :root{--ws-header-h:56px;--ws-toast-top:calc(var(--ws-header-h) + 12px + env(safe-area-inset-top,0px));--ws-toast-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 
-/* ── Invalid fields (one rule for every form): red border + a clear mark on the message ──────────────────────────
-   Angular controls turn red once touched/dirty (a failed submit marks everything touched); hand-validated forms get
-   .ws-invalid / aria-invalid from form-error-focus.ts. Messages carry a leading "!" mark so colour is not the only cue. */
+/* ── Validation errors: ONE contract for every form (identity tokens: --red = #FF8C69 dark / #B42318 light) ────────
+   Field  -> red border + red ring (Angular touched/dirty+invalid, hand-validated .ws-invalid, and aria-invalid="true").
+   Text   -> red message with a leading "!" mark, so colour is never the only cue (hand-validated forms get role="alert"
+             + aria-describedby from form-a11y-sync.service.ts / form-error-focus.ts).
+   Banner -> red text on a light red surface with a red border (+ the same mark when it carries no icon of its own).
+   Plain guidance (.ws-note, hints) and success states keep their own colours: they are NOT in these lists. */
 input.ng-invalid.ng-touched:not([type="checkbox"]):not([type="radio"]),
 textarea.ng-invalid.ng-touched,
 select.ng-invalid.ng-touched,
@@ -1093,15 +1096,25 @@ input.ng-invalid.ng-dirty:not([type="checkbox"]):not([type="radio"]),
 textarea.ng-invalid.ng-dirty,
 select.ng-invalid.ng-dirty,
 .ws-invalid,
+.has-error:not(.otp-box),
 [aria-invalid="true"]:not([type="checkbox"]):not([type="radio"]) {
-  border-color: #ef4444 !important;
-  box-shadow: 0 0 0 1px rgba(239, 68, 68, .35);
+  border-color: var(--red) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--red) 40%, transparent);
 }
-[role="alert"][data-testid="field-error"]::before,
-.ws-field-msg::before {
+.otp-box.has-error { border-color: var(--red) !important; background: color-mix(in srgb, var(--red) 6%, transparent); }
+:is([role="alert"][data-testid="field-error"], .ws-field-msg, .field-error, .field-err, .f-err, .nl-error, .dp-field-error, .dp-rf-err, .acc-rf-err, .wd-field-err, .wd-af-err, .mk-err, .kq-err, .ss-err) {
+  color: var(--red) !important;
+}
+:is(.form-error, .up-err, .inline-error, .rp-err, .banner-error, .payment-error, .dp-resp-err, .form-msg.err, .coupon-msg.error) {
+  color: var(--red) !important;
+  background: color-mix(in srgb, var(--red) 9%, transparent) !important;
+  border-color: color-mix(in srgb, var(--red) 32%, transparent) !important;
+}
+:is([role="alert"][data-testid="field-error"], .ws-field-msg, .field-error, .field-err, .f-err, .nl-error, .dp-field-error, .dp-rf-err, .acc-rf-err, .wd-field-err, .wd-af-err, .mk-err, .kq-err, .ss-err, .form-error, .up-err, .inline-error, .rp-err, .banner-error, .payment-error, .dp-resp-err, .form-msg.err, .coupon-msg.error):not(:has(svg, .ws-err-ico))::before {
   content: "!";
-  display: inline-flex; align-items: center; justify-content: center;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
   width: 14px; height: 14px; margin-inline-end: 5px;
-  border-radius: 50%; background: #ef4444; color: #fff;
+  border-radius: 50%; background: var(--red); color: var(--pg);
   font-size: 10px; font-weight: 900; line-height: 1; vertical-align: middle;
 }
+:is(.ws-req, .field-req) { color: var(--red); margin-inline-start: 3px; font-weight: 900; }

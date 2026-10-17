@@ -29,7 +29,7 @@ import { isRateLimitError } from '../../core/utils/rate-limit.util';
 			</p>
 			<p style="font-size:12.5px;margin-bottom:8px;text-align:center;opacity:.85" data-testid="paypal-confirm-freeze">بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.</p>
 			<ws-otp-input idPrefix="pp-code" [(value)]="code" [invalid]="!!error()" describedBy="pp-code-err" [disabled]="busy()" (complete)="confirm()" />
-			@if (error()) { <div id="pp-code-err" role="alert" data-testid="paypal-confirm-error" style="color:#f87171;font-size:13px;margin-top:2px;text-align:center">{{ error() }}</div> }
+			@if (error()) { <div id="pp-code-err" role="alert" data-testid="paypal-confirm-error" class="form-error" style="font-size:13px;margin-top:2px;text-align:center">{{ error() }}</div> }
 			@if (notice()) { <div role="status" data-testid="paypal-confirm-notice" style="font-size:13px;margin-top:2px;text-align:center">{{ notice() }}</div> }
 			<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px">
 				<button type="button" class="btn-primary" data-testid="paypal-confirm-btn" [disabled]="busy() || confirmWait.active()" (click)="confirm()">{{ busy() ? 'جارٍ التأكيد...' : 'تأكيد البريد' }} @if (confirmWait.active()) { <span data-testid="paypal-confirm-wait">{{ confirmWait.label() }}</span> }</button>

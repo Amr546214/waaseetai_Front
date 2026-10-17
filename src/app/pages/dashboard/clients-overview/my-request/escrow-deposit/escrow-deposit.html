@@ -107,7 +107,7 @@
           } @else {
             <div class="state-banner error" style="margin-top:14px">الرصيد غير كافٍ. اشحن فقط المبلغ الناقص {{ formatCurrency(shortfall()) }} لإتمام الحجز.</div>
           }
-          @if (formError()) { <div class="state-banner error" role="alert" style="margin-top:10px">{{ formError() }}</div> }
+          @if (formError()) { <div class="form-error" role="alert" style="margin-top:10px">{{ formError() }}</div> }
         </div>
 
         <!-- TERMS -->
@@ -172,9 +172,9 @@
         <input class="otp-box" type="text" inputmode="numeric" maxlength="1" [attr.aria-invalid]="otpError() ? 'true' : null" [attr.aria-describedby]="otpError() ? 'ed-otp-err' : null" id="otp4" [value]="otpValues()[4]" (input)="onOtpInput(4, $event)" (keydown)="onOtpKeydown(4, $event)" (paste)="onOtpPaste($event)">
         <input class="otp-box" type="text" inputmode="numeric" maxlength="1" [attr.aria-invalid]="otpError() ? 'true' : null" [attr.aria-describedby]="otpError() ? 'ed-otp-err' : null" id="otp5" [value]="otpValues()[5]" (input)="onOtpInput(5, $event)" (keydown)="onOtpKeydown(5, $event)" (paste)="onOtpPaste($event)">
       </div>
-      @if (otpError()) { <div id="ed-otp-err" class="state-banner error" role="alert" data-testid="ed-otp-error" style="margin:10px 0">{{ otpError() }}</div> }
+      @if (otpError()) { <div id="ed-otp-err" class="form-error" role="alert" data-testid="ed-otp-error" style="margin:10px 0">{{ otpError() }}</div> }
       @if (otpNotice()) { <div class="otp-timer" role="status" data-testid="ed-otp-notice">{{ otpNotice() }}</div> }
-      @if (rateLimitText()) { <div id="ed-otp-rl" class="state-banner error" role="alert" data-testid="ed-rate-limit" style="margin:10px 0">{{ rateLimitText() }}</div> }
+      @if (rateLimitText()) { <div id="ed-otp-rl" class="form-error" role="alert" data-testid="ed-rate-limit" style="margin:10px 0">{{ rateLimitText() }}</div> }
       <div class="otp-timer" data-testid="ed-otp-timer">@if (otpCountdown() > 0) { صلاحية الرمز تنتهي خلال <span>{{ otpCountdownText() }}</span> } @else if (otpExpired()) { انتهت صلاحية الرمز }</div>
       <button class="modal-btn" data-testid="ed-otp-confirm" [disabled]="isSubmitting() || confirmWait.active()" (click)="confirmDeposit()">{{ isSubmitting() ? 'جاري التحقق والحجز...' : 'تأكيد التوقيع والإيداع' }}@if (confirmWait.active()) { <span data-testid="ed-confirm-wait"> {{ confirmWait.label() }}</span> }</button>
       <div class="modal-resend">لم تستلم الرمز؟ <a (click)="resetOTP()" [attr.aria-disabled]="sendWait.active() ? 'true' : null" [style.opacity]="sendWait.active() ? 0.5 : 1" style="cursor:pointer">{{ isResending() ? 'جارٍ الإرسال...' : 'إعادة الإرسال' }}</a>@if (sendWait.active()) { <span data-testid="ed-resend-wait"> {{ sendWait.label() }}</span> }</div>

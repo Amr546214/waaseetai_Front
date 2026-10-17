@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 
 const CONTROL = 'input, textarea, select, [formcontrolname]';
-const MESSAGE = '[role="alert"][data-testid="field-error"], .ws-field-msg';
+// Field-level error texts (one per control): the shared component, markInvalid and the older per-page classes.
+const FIELD_TEXT = '.field-error, .field-err, .f-err, .nl-error, .dp-field-error, .dp-rf-err, .acc-rf-err, .wd-field-err, .wd-af-err, .mk-err, .kq-err, .ss-err';
+// Form-level error banners (not tied to one control): they only get role="alert" so they are announced.
+const BANNER = '.form-error, .up-err, .inline-error, .rp-err, .banner-error, .payment-error, .dp-resp-err, .form-msg.err, .coupon-msg.error';
+const MESSAGE = `[role="alert"][data-testid="field-error"], .ws-field-msg, ${FIELD_TEXT}`;
 let seq = 0;
 
 /**
@@ -31,11 +35,41 @@ export class FormA11ySyncService {
 
 	/** Runs a full pass now (tests, and after programmatic changes). */
 	sync(doc: Document = document): void {
+		this.announceMessages(doc);
 		const invalid = new Set(Array.from(doc.querySelectorAll<HTMLElement>(CONTROL)).filter((el) => this.isInvalid(el)));
+		// hand-validated forms (signals, no ng-invalid class): the control the visible error text sits under is invalid too
+		for (const m of Array.from(doc.querySelectorAll<HTMLElement>(FIELD_TEXT))) {
+			if (m.hidden || !m.textContent?.trim()) continue;
+			const el = this.controlOf(m);
+			if (el && !(el as HTMLInputElement).disabled && !el.classList.contains('ws-invalid') && !el.classList.contains('ng-valid')) invalid.add(el);
+		}
 		for (const el of invalid) this.apply(el);
 		for (const el of Array.from(doc.querySelectorAll<HTMLElement>('[data-ws-a11y]'))) {
 			if (!invalid.has(el)) this.release(el);
 		}
+	}
+
+	/** Every shown error text / banner is announced (role="alert") even when its template forgot the role. */
+	private announceMessages(doc: Document): void {
+		for (const m of Array.from(doc.querySelectorAll<HTMLElement>(`${FIELD_TEXT}, ${BANNER}`))) {
+			if (!m.hasAttribute('role') && !m.hasAttribute('aria-live') && !m.hidden) m.setAttribute('role', 'alert');
+		}
+	}
+
+	/** The control an error text belongs to: the nearest control before it (a label or hint may sit in between), without crossing another control. */
+	private controlOf(m: HTMLElement): HTMLElement | null {
+		let node: HTMLElement | null = m;
+		for (let depth = 0; node && depth < 3; depth++, node = node.parentElement) {
+			let sib = node.previousElementSibling as HTMLElement | null;
+			for (let hops = 0; sib && hops < 3; hops++, sib = sib.previousElementSibling as HTMLElement | null) {
+				if (sib.matches(CONTROL)) return (sib as HTMLInputElement).type === 'hidden' ? null : sib;
+				const inner = sib.querySelectorAll<HTMLElement>(CONTROL);
+				if (inner.length === 1) return (inner[0] as HTMLInputElement).type === 'hidden' ? null : inner[0];
+				if (inner.length > 1) return null;
+			}
+			if (node.previousElementSibling && depth > 0) return null;
+		}
+		return null;
 	}
 
 	private relevant(r: MutationRecord): boolean {
@@ -43,7 +77,7 @@ export class FormA11ySyncService {
 			const t = r.target as HTMLElement;
 			return t.matches?.(CONTROL) ?? false;
 		}
-		return Array.from(r.addedNodes).some((n) => n.nodeType === 1 && ((n as Element).matches?.(MESSAGE) || (n as Element).querySelector?.(MESSAGE)))
+		return Array.from(r.addedNodes).some((n) => n.nodeType === 1 && ((n as Element).matches?.(`${MESSAGE}, ${BANNER}`) || (n as Element).querySelector?.(`${MESSAGE}, ${BANNER}`)))
 			|| Array.from(r.removedNodes).some((n) => n.nodeType === 1);
 	}
 

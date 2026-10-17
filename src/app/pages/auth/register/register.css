@@ -109,12 +109,12 @@ app-register .rg-s2 .affiliate-invalid{font-size:12px;color:var(--txt-3);margin:
 app-register .rg-s2 .affiliate-locked-note{font-size:12px;color:var(--txt-3)}
 app-register .rg-s2 .field-grp{margin-bottom:14px}
 app-register .rg-s2 .field-lbl{display:block;font-size:13px;font-weight:700;color:var(--txt-2);margin-bottom:6px}
-app-register .rg-s2 .field-req{color:var(--teal);font-size:11px;margin-inline-start:3px}
+app-register .rg-s2 .field-req{color:var(--red);font-size:11px;margin-inline-start:3px}
 app-register .rg-s2 .field-in{width:100%;padding:12px 14px;background:var(--out-bg);border:1px solid var(--out-bd);border-radius:var(--radius-sm);color:var(--txt);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box}
 app-register .rg-s2 .field-in:focus{border-color:rgba(43,212,199,.35);box-shadow:0 0 0 3px rgba(43,212,199,.08)}
 app-register .rg-s2 .field-in::placeholder{color:var(--txt-3)}
-app-register .rg-s2 .field-in.has-error{border-color:rgba(43,127,255,.45)}
-app-register .rg-s2 .field-err{font-size:12px;color:var(--blue);margin-top:5px;display:flex;align-items:center;gap:5px}
+app-register .rg-s2 .field-in.has-error{border-color:color-mix(in srgb,var(--red) 70%,transparent)}
+app-register .rg-s2 .field-err{font-size:12px;color:var(--red);margin-top:5px;display:flex;align-items:center;gap:5px}
 app-register .rg-s2 .field-err[hidden]{display:none}
 app-register .rg-s2 .field-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 app-register .rg-s2 .pw-wrap{position:relative}
@@ -139,9 +139,9 @@ app-register .rg-s2 .chk-row{display:flex;align-items:flex-start;gap:10px;font-s
 app-register .rg-s2 .chk-row input[type="checkbox"]{width:16px;height:16px;accent-color:#2BD4C7;flex-shrink:0;margin-top:2px}
 app-register .rg-s2 .chk-row a{color:var(--teal);font-weight:600}
 app-register .rg-s2 .btn-group{display:flex;flex-direction:column;gap:10px}
-app-register .rg-s2 .banner-error{background:rgba(43,127,255,.09);border:1px solid rgba(43,127,255,.22);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;flex-wrap:wrap;font-size:13px;color:var(--blue)}
+app-register .rg-s2 .banner-error{background:color-mix(in srgb,var(--red) 9%,transparent);border:1px solid color-mix(in srgb,var(--red) 30%,transparent);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;flex-wrap:wrap;font-size:13px;color:var(--red)}
 app-register .rg-s2 .banner-error[hidden]{display:none}
-app-register .rg-s2 .banner-error-link{margin-inline-start:auto;font-weight:700;text-decoration:underline;white-space:nowrap;color:var(--blue)}
+app-register .rg-s2 .banner-error-link{margin-inline-start:auto;font-weight:700;text-decoration:underline;white-space:nowrap;color:var(--red)}
 app-register .rg-s2 .banner-info .banner-error-link{margin-inline-start:12px}
 @media(max-width:767px){app-register .rg-s2 .auth-section{padding:76px 14px 40px}app-register .rg-s2 .auth-inner{max-width:100%}app-register .rg-s2 .form-card{padding:18px 16px}app-register .rg-s2 .field-2col{grid-template-columns:1fr}app-register .rg-s2 .stepper .step-label{display:none}app-register .rg-s2 .step-connector{margin-top:14px}app-register .rg-s2 .btn-group{gap:8px}}
 
@@ -190,7 +190,7 @@ app-register .rg-s3 .otp-box{width:52px;height:60px;border-radius:12px;border:1.
 app-register .rg-s3 .otp-box::-webkit-outer-spin-button,app-register .rg-s3 .otp-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 app-register .rg-s3 .otp-box:focus{border-color:rgba(43,212,199,.45);box-shadow:0 0 0 3px rgba(43,212,199,.10);background:rgba(43,212,199,.04)}
 app-register .rg-s3 .otp-box.filled{border-color:rgba(43,212,199,.35);background:rgba(43,212,199,.06)}
-app-register .rg-s3 .otp-box.has-error{border-color:rgba(43,127,255,.45);background:rgba(43,127,255,.05)}
+app-register .rg-s3 .otp-box.has-error{border-color:color-mix(in srgb,var(--red) 70%,transparent);background:color-mix(in srgb,var(--red) 6%,transparent)}
 app-register .rg-s3 .timer-block{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:4px}
 app-register .rg-s3 .timer-label{font-size:12px;color:var(--txt-3)}
 app-register .rg-s3 .timer-val{font-size:16px;font-weight:800;color:var(--teal);font-variant-numeric:tabular-nums;min-width:44px;text-align:center;display:inline-block}
@@ -199,7 +199,7 @@ app-register .rg-s3 .btn-resend:hover:not(:disabled){background:rgba(43,212,199,
 app-register .rg-s3 .btn-resend:disabled{opacity:.35;cursor:default}
 app-register .rg-s3 .banner-info{background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--teal)}
 app-register .rg-s3 .banner-info[hidden]{display:none}
-app-register .rg-s3 .banner-error{background:rgba(43,127,255,.09);border:1px solid rgba(43,127,255,.22);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--blue)}
+app-register .rg-s3 .banner-error{background:color-mix(in srgb,var(--red) 9%,transparent);border:1px solid color-mix(in srgb,var(--red) 30%,transparent);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--red)}
 app-register .rg-s3 .banner-error[hidden]{display:none}
 app-register .rg-s3 .banner-lock{background:rgba(43,127,255,.09);border:1px solid rgba(43,127,255,.22);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--blue)}
 app-register .rg-s3 .banner-lock[hidden]{display:none}

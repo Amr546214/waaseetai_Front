@@ -254,6 +254,13 @@ export class Progress implements OnInit {
     if ((this.deliveryNote || '').trim().length < 10) return 'اكتب وصفاً واضحاً للتسليم (10 أحرف على الأقل)';
     return null;
   }
+  /** The blocker text, once the provider started filling the form (not while a file is still uploading). */
+  showDeliveryBlocker(): string | null {
+    const b = this.deliveryBlocker();
+    if (!b || this.deliveryArtifacts().uploading) return null;
+    const touched = (this.deliveryNote || '').length > 0 || (this.deliveryLinks || '').trim().length > 0 || this.deliveryUploads().length > 0;
+    return touched ? b : null;
+  }
   deliveryReady() { return this.deliveryBlocker() === null; }
   private formatFileSize(bytes: number): string {
     if (!bytes) return '0 KB';

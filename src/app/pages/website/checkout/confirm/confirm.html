@@ -50,7 +50,7 @@
         <div class="otp-icon-wrap">
           <svg aria-hidden="true"><use href="#ws-phone"></use></svg>
         </div>
-        <div class="otp-title">تحقق من هويتك</div>
+        <div class="otp-title">تحقق من هويتك <span class="ws-req" aria-hidden="true">*</span></div>
         <div class="otp-sub">أرسلنا رمز التحقق إلى</div>
         <div class="otp-phone">{{ displayPhone() }}</div>
 
@@ -58,6 +58,7 @@
           @for (digit of otpDigits(); track $index) {
             <input
               #otpInput
+              aria-required="true"
               class="otp-input"
               type="text"
               maxlength="1"

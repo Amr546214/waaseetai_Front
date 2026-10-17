@@ -31,7 +31,7 @@
 				<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
 					<polyline points="20 6 9 17 4 12" />
 				</svg>
-				{{ cat.categoryName }}
+				{{ cat.categoryName }}@if ($first) { <span class="ws-req" aria-hidden="true">*</span> }
 				<span style="font-size:11px;font-weight:700;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px" class="txt-teal">{{ cat.specialties.length }} تخصص</span>
 			</div>
 
@@ -65,7 +65,7 @@
 			<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
 				<polyline points="20 6 9 17 4 12" />
 			</svg>
-			اختر التخصص الفرعي
+			اختر التخصص الفرعي <span class="ws-req" aria-hidden="true">*</span>
 			<span style="font-size:11px;font-weight:700;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:20px;padding:2px 8px;margin-inline-start:4px" class="txt-teal">{{ selectedMain.subSpecialties?.length || 0 }} تخصصات فرعية</span>
 		</div>
 
@@ -98,7 +98,7 @@
 		} @else {
 		<ws-skills-picker [options]="skillOptions" [selected]="selectedSkills" (selectedChange)="onSkillsChange.emit($event)" emptyMessage="لا توجد مهارات متاحة لهذا المجال حاليًا" />
 		}
-		@if (skillsError) { <p class="field-error" role="alert" data-testid="model-skills-error" style="color:#f87171;font-size:12.5px;margin:6px 0 0">{{ skillsError }}</p> }
+		@if (skillsError) { <p class="field-error" role="alert" data-testid="model-skills-error" style="font-size:12.5px;margin:6px 0 0">{{ skillsError }}</p> }
 	</div>
 
 	<!-- MANUAL REVIEW NOTE -->
