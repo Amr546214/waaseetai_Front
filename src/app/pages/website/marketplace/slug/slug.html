@@ -242,7 +242,11 @@
                 <svg><use [attr.href]="categoryIcon(categoryData()?.icon)"></use></svg>
               </div>
               }
-              @if (hasActivePurchase(model)) {
+              @if (isOwn(model)) {
+              <div class="svc-badges">
+                <span data-testid="own-service" class="svc-level" style="background:rgba(43,212,199,.9);color:#070D24">هذه خدمتك</span>
+              </div>
+              } @else if (hasActivePurchase(model)) {
               <div class="svc-badges">
                 <span class="svc-level" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
               </div>
@@ -280,7 +284,10 @@
             </div>
             <div class="svc-foot">
               <div class="svc-price">
-                @if (hasActivePurchase(model)) {
+                @if (isOwn(model)) {
+                <span data-testid="own-service" class="svc-price-lbl">خدمة منشورة باسمك</span>
+                <span data-testid="own-service" class="svc-price-val" style="font-size:12px">هذه خدمتك</span>
+                } @else if (hasActivePurchase(model)) {
                 <span class="svc-price-lbl">لديك طلب قائم</span>
                 <span class="svc-price-val" style="font-size:12px">قيد التنفيذ</span>
                 } @else if (model.totalAmount) {

@@ -36,6 +36,8 @@ export class CheckoutReviewComponent {
   user = this.authStore.currentUser;
 
   activeItems = computed(() => this.items().filter(i => !i.savedForLater));
+  /** An old cart row for a service the user owns: never submitted (the server refuses it too); the cart page removes it. */
+  hasOwnService = computed(() => this.activeItems().some(i => i.ownService));
 
   get fullName(): string {
     const u = this.user();
@@ -110,6 +112,10 @@ export class CheckoutReviewComponent {
 
   proceedToPayment() {
     if (this.itemCount() === 0 || this.isProcessing()) return;
+    if (this.hasOwnService()) {
+      this.errorMessage.set('في السلة خدمة تملكها أنت، ولا يمكن شراؤها. ارجع إلى السلة واحذفها قبل إتمام الشراء');
+      return;
+    }
     this.isProcessing.set(true);
     this.errorMessage.set(null);
 

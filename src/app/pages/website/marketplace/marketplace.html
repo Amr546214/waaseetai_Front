@@ -53,7 +53,9 @@
       } @else {
       <ng-container *ngTemplateOutlet="thumbArt; context: { $implicit: i }"></ng-container>
       }
-      @if (hasActivePurchase(model)) {
+      @if (isOwn(model)) {
+      <span data-testid="own-service" class="svc-lvl" style="background:rgba(43,212,199,.9);color:#070D24">هذه خدمتك</span>
+      } @else if (hasActivePurchase(model)) {
       <span class="svc-lvl" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
       } @else if (model.level) {
       <ws-level-badge [title]="model.level" surface="overlay" />
@@ -72,7 +74,9 @@
       <h3 class="svc-title">{{ model.title }}</h3>
       <div class="svc-prov"><div class="svc-av" [style.background]="avatarGradient(i)">{{ model.provider?.initials || 'م' }}</div><span class="svc-pname">{{ model.provider?.name }}</span>@if (model.isVerified) {<span class="svc-ok"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</span>}</div>
       <div class="svc-rating"><span class="svc-stars">★★★★★</span><span class="svc-score">{{ model.rating ?? 0 }}</span><span class="svc-cnt">({{ model.reviewsCount || 0 }})</span></div>
-      @if (hasActivePurchase(model)) {
+      @if (isOwn(model)) {
+      <div class="svc-foot"><div><div class="svc-price-lbl">خدمة منشورة باسمك</div><div class="svc-price">هذه خدمتك</div></div></div>
+      } @else if (hasActivePurchase(model)) {
       <div class="svc-foot"><div><div class="svc-price-lbl">لديك طلب قائم</div><div class="svc-price">قيد التنفيذ — متابعة</div></div></div>
       } @else if (mode === 'flash') {
       <div class="svc-foot"><div><div class="svc-price-lbl">بعد الخصم</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $ <span style="font-size:10px;text-decoration:line-through;color:var(--txt-3);font-weight:400">{{ originalPrice(model) | number:'1.0-0' }}</span></div></div></div>
@@ -547,7 +551,11 @@
                 <svg><use [attr.href]="categoryIcon(selectedCategoryData()?.icon)"></use></svg>
               </div>
               }
-              @if (hasActivePurchase(model)) {
+              @if (isOwn(model)) {
+              <div class="svc-badges">
+                <span data-testid="own-service" class="svc-level" style="background:rgba(43,212,199,.9);color:#070D24">هذه خدمتك</span>
+              </div>
+              } @else if (hasActivePurchase(model)) {
               <div class="svc-badges">
                 <span class="svc-level" style="background:rgba(255,180,0,.9);color:#070D24">لديك طلب نشط</span>
               </div>
@@ -593,7 +601,12 @@
               </div>
             </div>
             <div class="svc-foot">
-              @if (hasActivePurchase(model)) {
+              @if (isOwn(model)) {
+              <div class="svc-price">
+                <span data-testid="own-service" class="svc-price-lbl">خدمة منشورة باسمك</span>
+                <span data-testid="own-service" class="svc-price-val">هذه خدمتك</span>
+              </div>
+              } @else if (hasActivePurchase(model)) {
               <div class="svc-price">
                 <span class="svc-price-lbl">لديك طلب قائم</span>
                 <span class="svc-price-val">قيد التنفيذ</span>

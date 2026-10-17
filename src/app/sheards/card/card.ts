@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MarketplaceModel, MarketplaceService } from '../../core/services/marketplace.service';
 import { AuthStore } from '../../core/store/auth.store';
+import { OWN_SERVICE_LABEL, isOwnModel } from '../../core/utils/own-service.util';
 
 @Component({
 	selector: 'app-card',
@@ -109,6 +110,12 @@ export class Card {
 	// authenticated Client, via the same findActiveServicePurchases() helper
 	// the checkout write-path guard uses. undefined for guests/other roles,
 	// so these simply fall through to the normal card behavior for them.
+	readonly ownLabel = OWN_SERVICE_LABEL;
+	/** The signed-in user (any acting role) is the owner of this service: no buy/order cue, a «هذه خدمتك» badge instead. */
+	isOwn(model: MarketplaceModel): boolean {
+		return this.authStore.isAuthenticated() && isOwnModel(model, this.authStore.currentUser()?.id);
+	}
+
 	hasActivePurchase(model: MarketplaceModel): boolean {
 		return Boolean(model.eligibility?.hasActivePurchase);
 	}
