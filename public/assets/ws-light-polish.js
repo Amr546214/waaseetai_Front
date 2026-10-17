@@ -305,8 +305,7 @@
       var st=document.createElement('style'); st.id='ws-toggle-base';
       st.textContent='.t-toggle .seg,.theme-toggle .seg{display:inline-flex !important;align-items:center;justify-content:center;gap:5px}'
         +'.t-toggle .seg svg,.theme-toggle .seg svg{width:12px;height:12px;flex-shrink:0}'
-        +'.t-toggle .seg.is-selected::before,.theme-toggle .seg.is-selected::before{display:none !important}'
-        +'select option,select optgroup{color:#1E293B !important;background:#FFFFFF !important}';
+        +'.t-toggle .seg.is-selected::before,.theme-toggle .seg.is-selected::before{display:none !important}';
       (document.head||document.documentElement).appendChild(st);
     }
     var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"></path></svg>';

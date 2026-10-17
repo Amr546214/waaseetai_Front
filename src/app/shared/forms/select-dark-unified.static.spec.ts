@@ -24,6 +24,10 @@ describe('unified select styling (native + ws-select)', () => {
 		expect(css).toMatch(/body\.theme-light select option\{background-color:#fff;color:#0F172A\}|body\.theme-light select optgroup\{background-color:#fff;color:#0F172A\}/);
 		expect(css).toContain('select option:checked');
 	});
+	it('no legacy script forces white native options in every theme (it overrode the themed option list)', () => {
+		const js = readFileSync(join(SRC, '..', 'public', 'assets', 'ws-light-polish.js'), 'utf8');
+		expect(js).not.toMatch(/select option[^']*\{[^}]*!important/);
+	});
 	it('assistant-chat no longer forces black option text on the dark popup', () => {
 		const ts = readFileSync(join(SRC, 'app/sheards/assistant-chat/assistant-chat.ts'), 'utf8');
 		expect(ts).not.toContain('.ac__settings option { color: #000; }');
