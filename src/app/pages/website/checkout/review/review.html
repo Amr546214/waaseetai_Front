@@ -231,7 +231,7 @@
             </div>
           </div>
           <div class="checkout-wrap">
-            <button class="btn-checkout" type="button" [disabled]="itemCount() === 0 || isProcessing()" (click)="proceedToPayment()">
+            <button class="btn-checkout" type="button" [disabled]="itemCount() === 0 || isProcessing() || hasOwnService()" (click)="proceedToPayment()">
               @if (isProcessing()) {
                 جاري المعالجة...
               } @else {

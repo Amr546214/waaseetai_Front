@@ -38,7 +38,7 @@ function setup() {
 		providers: [
 			provideRouter([]),
 			{ provide: MarketplaceService, useValue: { getFavorites: () => of({ success: true, data: [] }), setFavorite: () => of({ success: true }) } },
-			{ provide: AuthStore, useValue: { isAuthenticated: signal(false) } },
+			{ provide: AuthStore, useValue: { isAuthenticated: signal(false), currentUser: signal(null) } },
 		],
 	});
 	const fixture: ComponentFixture<Card> = TestBed.createComponent(Card);
@@ -105,7 +105,7 @@ describe('Card (shared marketplace card) — active-purchase eligibility', () =>
 			providers: [
 				provideRouter([]),
 				{ provide: MarketplaceService, useValue: { getFavorites: getFavoritesSpy, setFavorite: () => of({ success: true }), getMyPurchaseStatus: vi.fn() } },
-				{ provide: AuthStore, useValue: { isAuthenticated: signal(true) } },
+				{ provide: AuthStore, useValue: { isAuthenticated: signal(true), currentUser: signal({ id: 'viewer' }) } },
 			],
 		});
 		const fixture: ComponentFixture<Card> = TestBed.createComponent(Card);

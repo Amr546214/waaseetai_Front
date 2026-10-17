@@ -65,11 +65,11 @@
 			</div>
 			<div class="apple-unavailable-note" id="apple-unavailable-note">تسجيل الدخول عبر Apple غير متاح حاليًا</div>
 			<div class="social-divider"><span>أو بالبريد وكلمة المرور</span></div>
-			<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" id="login-form" novalidate autocomplete="off">
+			<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" id="login-form" name="login" novalidate>
 				<div class="field-grp">
 					<label class="field-lbl" for="identifier">البريد الإلكتروني <span class="req" aria-hidden="true">*</span></label>
-					<input class="field-in" type="text" id="identifier" formControlName="email"
-						placeholder="example@email.com" autocomplete="off" autocapitalize="off" spellcheck="false" readonly (focus)="unlockField($event)" dir="ltr"
+					<input class="field-in" type="email" id="identifier" name="email" formControlName="email" inputmode="email"
+						placeholder="example@email.com" autocomplete="username" autocapitalize="off" spellcheck="false" dir="ltr"
 						style="text-align:right"
 						[class.has-error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
 					@if (fieldError('email'); as msg) {
@@ -86,7 +86,7 @@
 					<label class="field-lbl" for="password">كلمة المرور <span class="req" aria-hidden="true">*</span></label>
 					<div class="pw-wrap">
 						<input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password"
-							formControlName="password" placeholder="كلمة المرور" autocomplete="new-password" readonly (focus)="unlockField($event)"
+							name="password" formControlName="password" placeholder="كلمة المرور" autocomplete="current-password"
 							[class.has-error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
 						<button type="button" class="pw-eye" id="pw-toggle" (click)="togglePassword()"
 							[attr.aria-label]="showPassword ? 'اخفاء كلمة المرور' : 'اظهار كلمة المرور'">
