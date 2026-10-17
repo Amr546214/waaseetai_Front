@@ -43,7 +43,7 @@ app-verify-otp .otp-box{width:52px;height:60px;border-radius:12px;border:1.5px s
 app-verify-otp .otp-box::-webkit-outer-spin-button,app-verify-otp .otp-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 app-verify-otp .otp-box:focus{border-color:rgba(43,212,199,.45);box-shadow:0 0 0 3px rgba(43,212,199,.10);background:rgba(43,212,199,.04)}
 app-verify-otp .otp-box.filled{border-color:rgba(43,212,199,.35);background:rgba(43,212,199,.06)}
-app-verify-otp .otp-box.has-error{border-color:rgba(43,127,255,.45);background:rgba(43,127,255,.05)}
+app-verify-otp .otp-box.has-error{border-color:color-mix(in srgb,var(--red) 70%,transparent);background:color-mix(in srgb,var(--red) 6%,transparent)}
 app-verify-otp .timer-block{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:4px}
 app-verify-otp .timer-label{font-size:12px;color:var(--txt-3)}
 app-verify-otp .timer-val{font-size:16px;font-weight:800;color:var(--teal);font-variant-numeric:tabular-nums;min-width:44px;text-align:center;display:inline-block}
@@ -52,7 +52,7 @@ app-verify-otp .btn-resend:hover:not(:disabled){background:rgba(43,212,199,.08);
 app-verify-otp .btn-resend:disabled{opacity:.35;cursor:default}
 app-verify-otp .banner-info{background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--teal)}
 app-verify-otp .banner-info[hidden]{display:none}
-app-verify-otp .banner-error{background:rgba(43,127,255,.09);border:1px solid rgba(43,127,255,.22);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--blue)}
+app-verify-otp .banner-error{background:color-mix(in srgb,var(--red) 9%,transparent);border:1px solid color-mix(in srgb,var(--red) 30%,transparent);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--red)}
 app-verify-otp .banner-error[hidden]{display:none}
 app-verify-otp .banner-lock{background:rgba(43,127,255,.09);border:1px solid rgba(43,127,255,.22);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--blue)}
 app-verify-otp .banner-lock[hidden]{display:none}

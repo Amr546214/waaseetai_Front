@@ -19,10 +19,10 @@
 	@if (showForm()) {
 	<form class="add-form" (ngSubmit)="submitForm()" novalidate>
 		<div class="add-grid">
-			<label class="fld" data-field-wrap><span>الاسم *</span><input type="text" id="tm-name" name="name" data-field="tm-name" [(ngModel)]="form.name" required maxlength="120" /></label>
-			<label class="fld" data-field-wrap><span>البريد الإلكتروني *</span><input type="email" id="tm-email" name="email" data-field="tm-email" [(ngModel)]="form.email" required maxlength="254" dir="ltr" /></label>
+			<label class="fld" data-field-wrap><span>الاسم <span class="ws-req" aria-hidden="true">*</span></span><input type="text" id="tm-name" aria-required="true" name="name" data-field="tm-name" [(ngModel)]="form.name" required maxlength="120" /></label>
+			<label class="fld" data-field-wrap><span>البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></span><input type="email" id="tm-email" aria-required="true" name="email" data-field="tm-email" [(ngModel)]="form.email" required maxlength="254" dir="ltr" /></label>
 			<label class="fld" data-field-wrap><span>رقم الجوال</span><input type="tel" id="tm-phone" name="phone" data-field="tm-phone" [(ngModel)]="form.phone" maxlength="30" dir="ltr" /></label>
-			<label class="fld" data-field-wrap><span>المسمى الوظيفي *</span><input type="text" id="tm-jobTitle" name="jobTitle" data-field="tm-jobTitle" [(ngModel)]="form.jobTitle" required maxlength="120" /></label>
+			<label class="fld" data-field-wrap><span>المسمى الوظيفي <span class="ws-req" aria-hidden="true">*</span></span><input type="text" id="tm-jobTitle" aria-required="true" name="jobTitle" data-field="tm-jobTitle" [(ngModel)]="form.jobTitle" required maxlength="120" /></label>
 			<label class="fld"><span>النوع</span>
 				<select name="memberType" [(ngModel)]="form.memberType">
 					<option value="PROVIDER">مقدم خدمة</option>

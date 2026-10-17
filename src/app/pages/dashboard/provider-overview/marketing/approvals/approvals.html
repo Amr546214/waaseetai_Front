@@ -33,7 +33,7 @@
 	} @else if (error()) {
 		<div class="state-box err">{{ error() }}<br><button type="button" class="btn-sec" (click)="load()">إعادة المحاولة</button></div>
 	} @else {
-		@if (decisionError(); as de) { <div class="state-box err" role="alert" data-testid="form-error">{{ de }}</div> }
+		@if (decisionError(); as de) { <div class="state-box err form-error" role="alert" data-testid="form-error">{{ de }}</div> }
 		@for (i of byTab(); track key(i)) {
 			<div class="offer-card">
 				<div class="offer-top">
@@ -66,7 +66,7 @@
 					<div class="offer-body">{{ i.body }}</div>
 					@if (rejectingKey() === key(i)) {
 						<div class="approval-actions" style="margin-top:10px">
-							<input id="reject-reason" name="rejectionReason" class="f-inp" [class.invalid]="reasonError()" type="text" maxlength="1000" placeholder="سبب الرفض (مطلوب — يظهر لعضو الفريق)" [(ngModel)]="rejectReason" (ngModelChange)="reasonError.set(null)" [attr.aria-invalid]="reasonError() ? 'true' : null" [attr.aria-describedby]="reasonError() ? 'reject-reason-err' : null">
+							<input id="reject-reason" aria-required="true" aria-label="سبب الرفض" [attr.aria-invalid]="reasonError() ? 'true' : null" [attr.aria-describedby]="reasonError() ? 'reject-reason-err' : null" name="rejectionReason" class="f-inp" [class.invalid]="reasonError()" type="text" maxlength="1000" placeholder="سبب الرفض (مطلوب — يظهر لعضو الفريق)" [(ngModel)]="rejectReason" (ngModelChange)="reasonError.set(null)" [attr.aria-invalid]="reasonError() ? 'true' : null" [attr.aria-describedby]="reasonError() ? 'reject-reason-err' : null">
 							<button type="button" class="btn-sec btn-sm btn-danger" (click)="decide(i, 'REJECTED')" [disabled]="busyKey() === key(i)">تأكيد الرفض</button>
 							<button type="button" class="btn-sec btn-sm" (click)="rejectingKey.set(null)">إلغاء</button>
 						</div>

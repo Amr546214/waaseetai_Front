@@ -115,8 +115,8 @@
   @if (view() === 'ready') {
   <div class="od-card">
     <label data-field-wrap style="display:flex;align-items:flex-start;gap:11px;cursor:pointer;margin-bottom:16px">
-      <input type="checkbox" id="ack-ctr" data-testid="cs-ack" [checked]="acknowledged()" (change)="toggleAck($event)" style="width:20px;height:20px;accent-flex-shrink:0;margin-top:1px" class="txt-teal">
-      <span style="font-size:13px;line-height:1.6" class="txt-muted">أقر بأنني قرأت بنود العقد وأوافق عليها، وأفوض حجز المبلغ في الضمان وفق <a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="txt-teal">شروط الاستخدام</a></span>
+      <input type="checkbox" id="ack-ctr" aria-required="true" data-testid="cs-ack" [checked]="acknowledged()" (change)="toggleAck($event)" style="width:20px;height:20px;accent-flex-shrink:0;margin-top:1px" class="txt-teal">
+      <span style="font-size:13px;line-height:1.6" class="txt-muted">أقر بأنني قرأت بنود العقد وأوافق عليها، وأفوض حجز المبلغ في الضمان وفق <a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="txt-teal">شروط الاستخدام</a> <span class="ws-req" aria-hidden="true">*</span></span>
     </label>
     
     <div class="actions-row" style="display:flex;gap:12px;flex-wrap:wrap">

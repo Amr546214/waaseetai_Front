@@ -43,16 +43,16 @@
 			<div id="budget-range-inputs">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
 					<div>
-						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-from">من <span class="text-red-500">*</span></label>
+						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-from">من <span class="ws-req" aria-hidden="true">*</span></label>
 						<div class="relative" data-field-wrap>
-						<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-from" placeholder="أدخل الحد الأدنى بالدولار" min="100" [ngModel]="parent.budgetMin()" (ngModelChange)="parent.budgetMin.set($event ? +$event : null)">
+						<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-from" aria-required="true" placeholder="أدخل الحد الأدنى بالدولار" min="100" [ngModel]="parent.budgetMin()" (ngModelChange)="parent.budgetMin.set($event ? +$event : null)">
 							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$</span>
 						</div>
 					</div>
 					<div>
-						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-to">إلى <span class="text-red-500">*</span></label>
+						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-to">إلى <span class="ws-req" aria-hidden="true">*</span></label>
 						<div class="relative" data-field-wrap>
-						<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-to" placeholder="أدخل الحد الأعلى بالدولار" min="100" [ngModel]="parent.budgetMax()" (ngModelChange)="parent.budgetMax.set($event ? +$event : null)">
+						<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-to" aria-required="true" placeholder="أدخل الحد الأعلى بالدولار" min="100" [ngModel]="parent.budgetMax()" (ngModelChange)="parent.budgetMax.set($event ? +$event : null)">
 							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$</span>
 						</div>
 					</div>
@@ -63,9 +63,9 @@
 			<!-- FIXED INPUT -->
 			@if (parent.budgetType() === 'fixed') {
 			<div id="budget-fixed-input">
-				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-fixed">المبلغ الثابت <span class="text-red-500">*</span></label>
+				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-fixed">المبلغ الثابت <span class="ws-req" aria-hidden="true">*</span></label>
 				<div class="relative max-w-md" data-field-wrap>
-					<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-fixed" placeholder="أدخل الميزانية بالدولار" min="100" [ngModel]="parent.budgetFixed()" (ngModelChange)="parent.budgetFixed.set($event ? +$event : null)">
+					<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-fixed" aria-required="true" placeholder="أدخل الميزانية بالدولار" min="100" [ngModel]="parent.budgetFixed()" (ngModelChange)="parent.budgetFixed.set($event ? +$event : null)">
 					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$</span>
 				</div>
 			</div>
@@ -74,9 +74,9 @@
 			<!-- HOURLY INPUT -->
 			@if (parent.budgetType() === 'hourly') {
 			<div id="budget-hourly-input">
-				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-hourly">معدل الساعة <span class="text-red-500">*</span></label>
+				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-hourly">معدل الساعة <span class="ws-req" aria-hidden="true">*</span></label>
 				<div class="relative max-w-md" data-field-wrap>
-					<input type="number" class="w-full p-4 pl-[70px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-hourly" placeholder="أدخل سعر الساعة بالدولار" min="50" [ngModel]="parent.budgetHourly()" (ngModelChange)="parent.budgetHourly.set($event ? +$event : null)">
+					<input type="number" class="w-full p-4 pl-[70px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-hourly" aria-required="true" placeholder="أدخل سعر الساعة بالدولار" min="50" [ngModel]="parent.budgetHourly()" (ngModelChange)="parent.budgetHourly.set($event ? +$event : null)">
 					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$/س</span>
 				</div>
 			</div>
@@ -136,8 +136,8 @@
 							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 						</button>
 					</div>
-					@if (parent.milestoneFieldError(idx, 'name'); as err) { <span class="text-[11px] font-bold text-red-500 pr-11" role="alert" data-testid="ms-name-error">{{ err }}</span> }
-					@if (parent.milestoneFieldError(idx, 'pct'); as err) { <span class="text-[11px] font-bold text-red-500 pr-11" role="alert" data-testid="ms-pct-error">{{ err }}</span> }
+					@if (parent.milestoneFieldError(idx, 'name'); as err) { <span class="field-error text-[11px] font-bold  pr-11" role="alert" data-testid="ms-name-error">{{ err }}</span> }
+					@if (parent.milestoneFieldError(idx, 'pct'); as err) { <span class="field-error text-[11px] font-bold  pr-11" role="alert" data-testid="ms-pct-error">{{ err }}</span> }
 					</div>
 					}
 				</div>
@@ -151,10 +151,10 @@
 				</div>
 
 				@if (parent.milestoneCapMessage(); as cap) {
-				<div class="mt-3 p-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold rounded-lg" role="alert" data-testid="ms-cap-message">{{ cap }}</div>
+				<div class="form-error mt-3 p-2.5 border text-xs font-bold rounded-lg" role="alert" data-testid="ms-cap-message">{{ cap }}</div>
 				}
 				@if (parent.milestoneAddBlockedMessage(); as blocked) {
-				<div class="mt-3 p-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold rounded-lg" role="alert" data-testid="ms-add-blocked">{{ blocked }}</div>
+				<div class="form-error mt-3 p-2.5 border text-xs font-bold rounded-lg" role="alert" data-testid="ms-add-blocked">{{ blocked }}</div>
 				}
 				@if (parent.milestoneTotalPct !== 100) {
 				<div class="mt-3 p-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold rounded-lg">

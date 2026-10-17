@@ -113,8 +113,8 @@
   <div class="od-card">
     @if (contract()) {
     <label style="display:flex;align-items:flex-start;gap:11px;cursor:pointer;margin-bottom:16px" data-testid="contract-ack">
-      <input type="checkbox" [(ngModel)]="isAgreed" id="ack-ctr" style="width:20px;height:20px;accent-flex-shrink:0;margin-top:1px" class="txt-teal">
-      <span style="font-size:13px;line-height:1.6" class="txt-slate">أقرّ بمراجعة بيانات العقد ومراحله وقيمة الضمان الممولة من العميل، وأوافق على توقيع العقد والبدء وفق البنود المعروضة و<a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="txt-teal">شروط الاستخدام</a>.</span>
+      <input type="checkbox" aria-required="true" [(ngModel)]="isAgreed" id="ack-ctr" style="width:20px;height:20px;accent-flex-shrink:0;margin-top:1px" class="txt-teal">
+      <span style="font-size:13px;line-height:1.6" class="txt-slate"><span class="ws-req" aria-hidden="true">*</span> أقرّ بمراجعة بيانات العقد ومراحله وقيمة الضمان الممولة من العميل، وأوافق على توقيع العقد والبدء وفق البنود المعروضة و<a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="txt-teal">شروط الاستخدام</a>.</span>
     </label>
     }
     <div class="actions-row" style="display:flex;gap:12px;flex-wrap:wrap">

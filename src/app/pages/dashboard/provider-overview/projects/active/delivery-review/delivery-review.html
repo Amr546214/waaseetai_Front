@@ -224,10 +224,10 @@
 				</button>
 			</div>
 			<div class="inp-group">
-				<label class="inp-label">ملاحظاتك<span class="req">مطلوبة</span></label>
-				<textarea class="inp-field" rows="4" [ngModel]="returnNote()" (ngModelChange)="returnNote.set($event)" placeholder="اشرح ما يحتاج تعديله بوضوح..."></textarea>
+				<label class="inp-label" for="dr-return-note">ملاحظاتك <span class="ws-req" aria-hidden="true">*</span></label>
+				<textarea id="dr-return-note" aria-required="true" [attr.aria-invalid]="returnError() ? 'true' : null" [attr.aria-describedby]="returnError() ? 'dr-return-err' : null" class="inp-field" rows="4" [ngModel]="returnNote()" (ngModelChange)="returnNote.set($event)" placeholder="اشرح ما يحتاج تعديله بوضوح..."></textarea>
 			</div>
-			@if (returnError()) {<div class="form-error">{{ returnError() }}</div>}
+			@if (returnError()) {<div class="form-error" id="dr-return-err" role="alert">{{ returnError() }}</div>}
 			<div class="inp-group">
 				<label class="inp-label">أولوية الإصلاح</label>
 				<select class="inp-field" [ngModel]="returnPriority()" (ngModelChange)="returnPriority.set($event)">

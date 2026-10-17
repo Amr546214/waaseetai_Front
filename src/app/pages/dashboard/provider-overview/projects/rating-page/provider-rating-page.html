@@ -96,8 +96,8 @@
 		<div class="rp-card">
 			<!-- Star rating -->
 			<div class="rp-rate-row">
-				<div class="rp-rate-lbl">التقييم العام</div>
-				<div class="rp-stars" role="radiogroup" aria-label="التقييم بالنجوم">
+				<div class="rp-rate-lbl" id="rp-rate-lbl">التقييم العام <span class="ws-req" aria-hidden="true">*</span></div>
+				<div class="rp-stars" role="radiogroup" aria-required="true" aria-labelledby="rp-rate-lbl" [attr.aria-invalid]="submitError() && selectedRating() === 0 ? 'true' : null" [attr.aria-describedby]="submitError() ? 'rp-submit-err' : null">
 					@for (star of stars; track star) {
 						<button
 							type="button"
@@ -149,7 +149,7 @@
 			<app-rating-publish-choice target="client" [(value)]="publish" />
 
 			@if (submitError()) {
-				<div class="rp-err" role="alert">{{ submitError() }}</div>
+				<div class="rp-err" id="rp-submit-err" role="alert">{{ submitError() }}</div>
 			}
 
 			@if (submitSuccess()) {

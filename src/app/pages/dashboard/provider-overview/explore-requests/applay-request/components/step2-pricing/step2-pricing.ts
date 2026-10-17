@@ -22,6 +22,11 @@ export class Step2Pricing {
   @Output() removeMilestone = new EventEmitter<string>();
   @Output() updateMilestone = new EventEmitter<{id: string, updates: Partial<Milestone>}>();
 
+  get hasMissingPriceOrDuration(): boolean {
+    const ms: Milestone[] = this.proposal?.milestones ?? [];
+    return !(Number(this.totalBudget) > 0) || ms.length === 0 || ms.some(m => !(Number(m.days) > 0) || !(Number(m.pct) > 0) || !String(m.name ?? '').trim());
+  }
+
   getAmount(pct: number | null): number {
     if (!pct) return 0;
     return Math.round((this.totalBudget * pct) / 100);

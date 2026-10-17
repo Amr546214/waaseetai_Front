@@ -191,22 +191,22 @@
 
           <div class="field-2col">
             <div class="field-grp">
-              <label class="field-lbl" for="first-name">الاسم الأول <span class="field-req" aria-hidden="true">*</span></label>
-              <input class="field-in" type="text" id="first-name" formControlName="firstName" placeholder="الاسم الأول" autocomplete="given-name" aria-required="true"
+              <label class="field-lbl" for="first-name">الاسم الأول <span class="ws-req" aria-hidden="true">*</span></label>
+              <input class="field-in" type="text" id="first-name" formControlName="firstName" placeholder="الاسم الأول" autocomplete="given-name" aria-required="true" [attr.aria-invalid]="fieldError('firstName') ? 'true' : null" [attr.aria-describedby]="fieldError('firstName') ? 'err-first-name' : null"
                 [class.has-error]="basicInfoForm.get('firstName')?.touched && basicInfoForm.get('firstName')?.invalid">
               @if (fieldError('firstName'); as msg_firstName) {
-              <div class="field-err" id="err-first-name">
+              <div class="field-err" id="err-first-name" role="alert">
                 <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
                 <span>{{ msg_firstName }}</span>
               </div>
               }
             </div>
             <div class="field-grp">
-              <label class="field-lbl" for="last-name">اسم العائلة <span class="field-req" aria-hidden="true">*</span></label>
-              <input class="field-in" type="text" id="last-name" formControlName="lastName" placeholder="اسم العائلة" autocomplete="family-name" aria-required="true"
+              <label class="field-lbl" for="last-name">اسم العائلة <span class="ws-req" aria-hidden="true">*</span></label>
+              <input class="field-in" type="text" id="last-name" formControlName="lastName" placeholder="اسم العائلة" autocomplete="family-name" aria-required="true" [attr.aria-invalid]="fieldError('lastName') ? 'true' : null" [attr.aria-describedby]="fieldError('lastName') ? 'err-last-name' : null"
                 [class.has-error]="basicInfoForm.get('lastName')?.touched && basicInfoForm.get('lastName')?.invalid">
               @if (fieldError('lastName'); as msg_lastName) {
-              <div class="field-err" id="err-last-name">
+              <div class="field-err" id="err-last-name" role="alert">
                 <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
                 <span>{{ msg_lastName }}</span>
               </div>
@@ -215,12 +215,12 @@
           </div>
 
           <div class="field-grp">
-            <label class="field-lbl" for="email">البريد الإلكتروني <span class="field-req" aria-hidden="true">*</span></label>
-            <input class="field-in" type="email" id="email" formControlName="email" placeholder="name@example.com" autocomplete="email" aria-required="true" dir="ltr" style="text-align:right"
+            <label class="field-lbl" for="email">البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></label>
+            <input class="field-in" type="email" id="email" formControlName="email" placeholder="name@example.com" autocomplete="email" aria-required="true" [attr.aria-invalid]="fieldError('email') ? 'true' : null" [attr.aria-describedby]="fieldError('email') ? 'err-email' : null" dir="ltr" style="text-align:right"
               [readonly]="isGoogleFlow"
               [class.has-error]="basicInfoForm.get('email')?.touched && basicInfoForm.get('email')?.invalid">
             @if (fieldError('email'); as msg_email) {
-            <div class="field-err" id="err-email">
+            <div class="field-err" id="err-email" role="alert">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
               <span>{{ msg_email }}</span>
             </div>
@@ -228,10 +228,10 @@
           </div>
 
           <div class="field-grp">
-            <label class="field-lbl" for="mobile">رقم الجوال <span class="field-req" aria-hidden="true">*</span></label>
-            <app-phone-input formControlName="phone"></app-phone-input>
+            <label class="field-lbl" for="mobile">رقم الجوال <span class="ws-req" aria-hidden="true">*</span></label>
+            <app-phone-input formControlName="phone" aria-required="true"></app-phone-input>
             @if (fieldError('phone'); as msg_phone) {
-            <div class="field-err" id="err-mobile">
+            <div class="field-err" id="err-mobile" role="alert">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
               <span>{{ msg_phone }}</span>
             </div>
@@ -240,9 +240,9 @@
 
           @if (!isGoogleFlow) {
           <div class="field-grp">
-            <label class="field-lbl" for="password">كلمة المرور <span class="field-req" aria-hidden="true">*</span></label>
+            <label class="field-lbl" for="password">كلمة المرور <span class="ws-req" aria-hidden="true">*</span></label>
             <div class="pw-wrap">
-              <input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" placeholder="8 أحرف على الأقل، حرف كبير ورقم" autocomplete="new-password" aria-required="true" aria-describedby="strength-lbl"
+              <input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" placeholder="8 أحرف على الأقل، حرف كبير ورقم" autocomplete="new-password" aria-required="true" [attr.aria-invalid]="fieldError('password') ? 'true' : null" [attr.aria-describedby]="fieldError('password') ? 'strength-lbl password-rules err-password' : 'strength-lbl password-rules'"
                 [class.has-error]="basicInfoForm.get('password')?.touched && basicInfoForm.get('password')?.invalid">
               <button type="button" class="pw-eye" id="pw-toggle-1" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'اخفاء كلمة المرور' : 'اظهار كلمة المرور'">
                 @if (!showPassword) {
@@ -263,7 +263,7 @@
             </div>
             <div class="field-hint" id="password-rules">يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، وحرف إنجليزي كبير، ورقم.</div>
             @if (fieldError('password'); as msg_password) {
-            <div class="field-err" id="err-password">
+            <div class="field-err" id="err-password" role="alert">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
               <span>{{ msg_password }}</span>
             </div>
@@ -271,9 +271,9 @@
           </div>
 
           <div class="field-grp" style="margin-bottom:0">
-            <label class="field-lbl" for="password-confirm">تأكيد كلمة المرور <span class="field-req" aria-hidden="true">*</span></label>
+            <label class="field-lbl" for="password-confirm">تأكيد كلمة المرور <span class="ws-req" aria-hidden="true">*</span></label>
             <div class="pw-wrap">
-              <input class="field-in" [type]="showConfirmPassword ? 'text' : 'password'" id="password-confirm" formControlName="confirmPassword" placeholder="اعد كتابة كلمة المرور" autocomplete="new-password" aria-required="true"
+              <input class="field-in" [type]="showConfirmPassword ? 'text' : 'password'" id="password-confirm" formControlName="confirmPassword" placeholder="اعد كتابة كلمة المرور" autocomplete="new-password" aria-required="true" [attr.aria-invalid]="confirmMismatchError ? 'true' : null" [attr.aria-describedby]="confirmMismatchError ? 'err-confirm' : null"
                 [class.has-error]="(basicInfoForm.get('confirmPassword')?.touched || basicInfoForm.touched) && basicInfoForm.hasError('mismatch')">
               <button type="button" class="pw-eye" id="pw-toggle-2" (click)="toggleConfirmPassword()" [attr.aria-label]="showConfirmPassword ? 'اخفاء تأكيد كلمة المرور' : 'اظهار تأكيد كلمة المرور'">
                 @if (!showConfirmPassword) {
@@ -284,7 +284,7 @@
               </button>
             </div>
             @if (confirmMismatchError; as msg_confirm) {
-            <div class="field-err" id="err-confirm">
+            <div class="field-err" id="err-confirm" role="alert">
               <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
               <span>{{ msg_confirm }}</span>
             </div>
@@ -317,18 +317,18 @@
 
         <div class="terms-card">
           <label class="chk-row" for="chk-accuracy">
-            <input type="checkbox" id="chk-accuracy" formControlName="agreeData" aria-required="true" [attr.aria-invalid]="fieldError('agreeData') ? 'true' : null">
-            <span>أقر بأن جميع البيانات المدخلة صحيحة ودقيقة وتمثلني بشكل حقيقي <span class="field-req" aria-hidden="true">*</span></span>
+            <input type="checkbox" id="chk-accuracy" formControlName="agreeData" aria-required="true" [attr.aria-invalid]="fieldError('agreeData') ? 'true' : null" [attr.aria-describedby]="fieldError('agreeData') ? 'err-agree-data' : null">
+            <span>أقر بأن جميع البيانات المدخلة صحيحة ودقيقة وتمثلني بشكل حقيقي <span class="ws-req" aria-hidden="true">*</span></span>
           </label>
           @if (fieldError('agreeData'); as msg_agreeData) {
-          <div class="field-err" id="err-agree-data"><span>{{ msg_agreeData }}</span></div>
+          <div class="field-err" id="err-agree-data" role="alert"><span>{{ msg_agreeData }}</span></div>
           }
           <label class="chk-row" for="terms-chk">
-            <input type="checkbox" id="terms-chk" formControlName="agreeTerms" aria-required="true" [attr.aria-invalid]="fieldError('agreeTerms') ? 'true' : null">
-            <span>اطلعت على <a routerLink="/terms" target="_blank" rel="noopener noreferrer">شروط الاستخدام</a> و<a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a> وأوافق عليها <span class="field-req" aria-hidden="true">*</span></span>
+            <input type="checkbox" id="terms-chk" formControlName="agreeTerms" aria-required="true" [attr.aria-invalid]="fieldError('agreeTerms') ? 'true' : null" [attr.aria-describedby]="fieldError('agreeTerms') ? 'err-agree-terms' : null">
+            <span>اطلعت على <a routerLink="/terms" target="_blank" rel="noopener noreferrer">شروط الاستخدام</a> و<a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a> وأوافق عليها <span class="ws-req" aria-hidden="true">*</span></span>
           </label>
           @if (fieldError('agreeTerms'); as msg_agreeTerms) {
-          <div class="field-err" id="err-agree-terms"><span>{{ msg_agreeTerms }}</span></div>
+          <div class="field-err" id="err-agree-terms" role="alert"><span>{{ msg_agreeTerms }}</span></div>
           }
         </div>
 
@@ -437,10 +437,10 @@
 
     <form [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
       <div class="otp-card">
-        <div class="otp-card-title">رمز التحقق</div>
+        <div class="otp-card-title">رمز التحقق <span class="ws-req" aria-hidden="true">*</span></div>
         <div class="otp-group" id="otp-group" aria-label="خانات رمز التحقق" role="group" dir="ltr" (paste)="onOtpPaste($event)">
           @for (i of otpIndexes; track i) {
-          <input class="otp-box" [class.filled]="!!otpDigit(i)" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+          <input class="otp-box" [class.filled]="!!otpDigit(i)" aria-required="true" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
             [id]="'otp-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
           }
         </div>

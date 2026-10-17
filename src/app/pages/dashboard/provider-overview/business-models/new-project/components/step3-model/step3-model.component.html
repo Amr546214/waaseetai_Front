@@ -2,7 +2,7 @@
   <!-- رأس -->
   <div class="ord-head">
     <div>
-      <div class="ord-title">اختر نموذجك</div>
+      <div class="ord-title">اختر نموذجك <span class="ws-req" aria-hidden="true">*</span></div>
       <div class="ord-sub">اختر نموذجاً واحداً من أعمالك الخاصة بالتخصص المختار</div>
     </div>
     <div class="ord-head-actions">
@@ -121,7 +121,7 @@
 
   <!-- Batch B T1 (§5): the standalone «معرض الأعمال» upload section is gone from this path. The service is linked to ONE approved approval model;
        images never replace the approval proof, and a model already approved is shown here instead of asking to upload proof again. -->
-  @if (errorMessage) { <p role="alert" class="text-[13px] mt-4" style="color:#ff8c69;font-weight:700" data-testid="model-error">{{ errorMessage }}</p> }
+  @if (errorMessage) { <p role="alert" class="text-[13px] mt-4 inline-error" data-testid="model-error">{{ errorMessage }}</p> }
   <div class="mt-8 bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[20px] p-6" data-testid="linked-model">
     <h3 class="text-[16px] font-black text-white mb-2">نموذج الاعتماد المرتبط بالخدمة</h3>
     @if (linkedModel; as m) {

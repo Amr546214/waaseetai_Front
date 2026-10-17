@@ -79,7 +79,7 @@
           <div class="form-error" role="alert" data-testid="rate-limit-msg">{{ rateLimitText() }}</div>
         }
         @if (errorMessage()) {
-          <div class="form-error">
+          <div class="form-error" role="alert">
             <svg aria-hidden="true"><use href="#ws-info"></use></svg>
             {{ errorMessage() }}
           </div>
@@ -132,13 +132,13 @@
 
         <!-- TERMS NOTE -->
         <div class="terms-note">
-          <input type="checkbox" id="terms-chk" style="margin-top:3px;accent-color:var(--teal);width:16px;height:16px;flex-shrink:0" [checked]="agreedToTerms()" (change)="toggleTerms()" [attr.aria-invalid]="termsError() ? 'true' : null" [attr.aria-describedby]="termsError() ? 'terms-error' : null">
+          <input type="checkbox" id="terms-chk" aria-required="true" style="margin-top:3px;accent-color:var(--teal);width:16px;height:16px;flex-shrink:0" [checked]="agreedToTerms()" (change)="toggleTerms()" [attr.aria-invalid]="termsError() ? 'true' : null" [attr.aria-describedby]="termsError() ? 'terms-error' : null">
           <label for="terms-chk" style="font-size:12px;color:var(--txt-2);line-height:1.7;cursor:pointer">
-            أوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="terms-link" style="color:var(--teal);font-weight:700">الشروط والأحكام</a> و<a routerLink="/privacy" target="_blank" rel="noopener noreferrer" class="terms-link" style="color:var(--teal);font-weight:700">سياسة الخصوصية</a> وأقر بأن المعلومات المُدخلة صحيحة وكاملة
+            أوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="terms-link" style="color:var(--teal);font-weight:700">الشروط والأحكام</a> و<a routerLink="/privacy" target="_blank" rel="noopener noreferrer" class="terms-link" style="color:var(--teal);font-weight:700">سياسة الخصوصية</a> وأقر بأن المعلومات المُدخلة صحيحة وكاملة <span class="ws-req" aria-hidden="true">*</span>
           </label>
         </div>
         @if (termsError()) {
-          <div class="field-error" id="terms-error" role="alert" data-testid="field-error" style="color:#ef4444;font-size:12px;font-weight:700;margin-top:6px">{{ termsError() }}</div>
+          <div class="field-error" id="terms-error" role="alert" data-testid="field-error" style="margin-top:6px">{{ termsError() }}</div>
         }
       </div>
 
