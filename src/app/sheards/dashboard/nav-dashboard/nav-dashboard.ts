@@ -10,6 +10,7 @@ import { ChatStateService } from '../../../core/services/chat-state.service';
 import { UserRole } from '../../../core/models/auth.model';
 import { NotificationBell } from '../../notification-bell/notification-bell';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
+import { AssistantStore } from '../../../core/store/assistant.store';
 
 @Component({
 	selector: 'app-nav-dashboard',
@@ -31,8 +32,26 @@ export class NavDashboard {
 	public notifEngine = inject(NotificationEngineService);
 	public themeService = inject(ThemeService);
 	public chatState = inject(ChatStateService);
+	public assistantStore = inject(AssistantStore, { optional: true });
 	private cdRef = inject(ChangeDetectorRef);
 	private el = inject(ElementRef);
+
+	characterName = computed(() => this.assistantStore?.characterName() || 'نديم');
+
+	toggleAssistant(): void {
+		if (this.assistantStore) {
+			if (this.assistantStore.dismissed()) {
+				this.assistantStore.restore();
+				this.assistantStore.open();
+			} else if (this.assistantStore.panelOpen()) {
+				this.assistantStore.close();
+			} else {
+				this.assistantStore.open();
+			}
+		} else if (typeof window !== 'undefined') {
+			window.dispatchEvent(new CustomEvent('waseet-toggle-assistant'));
+		}
+	}
 
 	@HostListener('document:click', ['$event'])
 	onDocumentClick(event: Event) {

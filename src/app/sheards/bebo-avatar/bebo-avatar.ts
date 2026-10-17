@@ -16,15 +16,16 @@ import {
 	viewChild,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import type { AvatarState, BeboCommand } from '../../core/store/assistant.store';
-import { BeboPose, CuteRobotElement, loadBebo, preloadBeboAtlases } from './bebo-loader';
+import type { AvatarState, BeboCommand, BeboSkin } from '../../core/store/assistant.store';
+import { BEBO_EXTRA_POSES, BeboPose, CuteRobotElement, loadBebo, preloadBeboAtlases } from './bebo-loader';
 import type { BeboAction } from './bebo-commands';
+import type { AssistantMovementBounds } from '../assistant-widget/assistant-position';
 
 /**
  * Bebo v4 pixel avatar — presentation/interaction layer only.
  *
- * Hosts the handoff's own `<cute-robot>` web component (public/bebo/robot.js,
- * unmodified): sprite atlases, pose timings, blink, drag + gravity + landing,
+ * Hosts the `<cute-robot>` web component (public/bebo/robot.js), including
+ * the guide skin: sprite atlases, pose timings, blink, drag + gravity + landing,
  * walk, hover/ArrowUp jump, click wave, keyboard walking, reduced-motion,
  * off-screen (IntersectionObserver) and hidden-tab pauses all come from the
  * handoff engine itself, not from a re-implementation.
@@ -54,6 +55,7 @@ const LOOPING_ACTIONS: readonly BeboAction[] = ['typing', 'sleep', 'rest', 'idle
 		class: 'bebo-avatar',
 		'[attr.data-state]': 'state()',
 		'[attr.data-ready]': 'ready() ? "" : null',
+		'[attr.data-skin]': 'skin()',
 	},
 	template: `
 		<cute-robot
@@ -64,8 +66,13 @@ const LOOPING_ACTIONS: readonly BeboAction[] = ['typing', 'sleep', 'rest', 'idle
 			[attr.floor-offset]="floorOffset()"
 			[attr.home-x]="homeX()"
 			[attr.label]="label()"
+			[attr.skin]="skin()"
+			[attr.paused]="paused() ? '' : null"
 			(click)="onRobotClick()"
-			(robotdrop)="onRobotDrop()"
+			(robotdragstart)="onRobotDragStart($event)"
+			(robotmove)="onRobotMove($event)"
+			(robotdrop)="onRobotDrop($event)"
+			(robotland)="onRobotLand($event)"
 			(robotwalkend)="reapplyAssistantPose()"
 		></cute-robot>
 		@if (loadFailed()) {
@@ -88,12 +95,18 @@ export class BeboAvatarComponent implements OnDestroy {
 	readonly floating = input(true);
 	readonly floorOffset = input(0);
 	readonly homeX = input<number | null>(null);
+	readonly movementBounds = input<AssistantMovementBounds | null>(null);
 	readonly label = input('بيبو — المساعد الذكي');
 	/** Local motion command (AssistantStore.beboCommand); each new seq runs once. */
 	readonly command = input<BeboCommand | null>(null);
+	readonly skin = input<BeboSkin>('classic');
+	readonly paused = input(false);
 
-	/** Click on Bebo (not the end of a drag). */
 	readonly activate = output<void>();
+	readonly robotDragStart = output<{ x: number; y: number }>();
+	readonly robotMove = output<{ x: number; y: number }>();
+	readonly robotDrop = output<{ x: number; y: number }>();
+	readonly robotLand = output<{ x: number; y: number }>();
 
 	readonly ready = signal(false);
 	readonly loadFailed = signal(false);
@@ -123,6 +136,12 @@ export class BeboAvatarComponent implements OnDestroy {
 		});
 
 		effect(() => {
+			const bounds = this.movementBounds();
+			const robot = this.robot();
+			if (robot) untracked(() => robot.setMovementBounds?.(bounds));
+		});
+
+		effect(() => {
 			const state = this.state();
 			const celebrate = this.celebrate();
 			const robot = this.robot();
@@ -142,6 +161,17 @@ export class BeboAvatarComponent implements OnDestroy {
 			this.lastCommandSeq = command.seq;
 			untracked(() => this.execute(robot, command.action));
 		});
+
+		effect(() => {
+			const skin = this.skin();
+			const robot = this.robot();
+			if (robot && robot.getAttribute('skin') !== skin) {
+				robot.setAttribute('skin', skin);
+			}
+			if (robot && skin === 'classic' && (BEBO_EXTRA_POSES as readonly string[]).includes(robot.state)) {
+				robot.play('idle');
+			}
+		});
 	}
 
 	/**
@@ -149,13 +179,13 @@ export class BeboAvatarComponent implements OnDestroy {
 	 * bebo-chat.js `execute()` mapping. Roaming is never toggled here
 	 * (autonomous roaming stays disabled pending browser QA).
 	 */
-	private execute(robot: CuteRobotElement, action: BeboAction): void {
+	private execute(robot: CuteRobotElement, action: BeboAction | BeboPose): void {
 		if (action === 'roam_on' || action === 'roam_off') return;
-		robot.paused = false;
+		if (this.paused()) return;
 		if (action === 'reset') robot.resetPosition();
 		else if (action === 'stop') {
 			if (ASSISTANT_POSES.includes(robot.state)) robot.play('idle');
-		} else robot.play(action as BeboPose, { loop: LOOPING_ACTIONS.includes(action) });
+		} else robot.play(action as BeboPose, { loop: LOOPING_ACTIONS.includes(action as BeboAction) });
 	}
 
 	/** Mouth animation input: 0–1 loudness of the playing answer audio, or null. */
@@ -182,15 +212,35 @@ export class BeboAvatarComponent implements OnDestroy {
 		// home x = clamp(home-x || minX, minX, maxX).
 		const pad = 12;
 		const size = robot.getBoundingClientRect().width || this.size();
-		const maxX = Math.max(pad, this.doc.documentElement.clientWidth - size - pad);
-		const home = Math.min(Math.max(this.homeX() || pad, pad), maxX);
+		const bounds = this.movementBounds();
+		const viewportMax = Math.max(0, this.doc.documentElement.clientWidth - size);
+		const minX = bounds ? Math.min(Math.max(0, bounds.minX), viewportMax) : pad;
+		const maxX = bounds ? Math.min(Math.max(minX, bounds.maxX), Math.max(minX, viewportMax)) : Math.max(pad, viewportMax - pad);
+		const home = Math.min(Math.max(this.homeX() || minX, minX), maxX);
 		if (Math.abs(robot.position.x - home) < 1) return;
 		robot.resetPosition();
 		this.reapplyAssistantPose();
 	}
 
-	onRobotDrop(): void {
+	onRobotDragStart(e: Event): void {
+		const detail = (e as CustomEvent<{ x: number; y: number }>).detail;
+		if (detail) this.robotDragStart.emit(detail);
+	}
+
+	onRobotMove(e: Event): void {
+		const detail = (e as CustomEvent<{ x: number; y: number }>).detail;
+		if (detail) this.robotMove.emit(detail);
+	}
+
+	onRobotDrop(e?: Event): void {
 		this.lastDropAt = performance.now();
+		const detail = (e as CustomEvent<{ x: number; y: number }> | undefined)?.detail;
+		if (detail) this.robotDrop.emit(detail);
+	}
+
+	onRobotLand(e: Event): void {
+		const detail = (e as CustomEvent<{ x: number; y: number }>).detail;
+		if (detail) this.robotLand.emit(detail);
 	}
 
 	onRobotClick(): void {

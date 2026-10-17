@@ -39,74 +39,90 @@
 				</div>
 					<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[150px] mb-2 font-medium transition-colors" id="f-desc" placeholder="صف مشروعك بالتفصيل، ما تحتاجه، الجمهور المستهدف، المتطلبات التقنية، أي تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" rows="6" [ngModel]="parent.description()" (ngModelChange)="parent.setDescription($event)"></textarea>
 				<div class="field-counter flex items-center justify-between">
-					<div class="ai-quality poor flex items-center gap-1.5 text-xs text-[var(--txt-3)] font-medium">
+					<div class="ai-quality flex items-center gap-1.5 text-xs font-medium" [class]="parent.canRefineWithAi() ? 'text-emerald-600 dark:text-emerald-400' : 'poor text-[var(--txt-3)]'">
 						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-						<span id="ai-quality-text">{{ parent.description().trim().length > 50 ? ' طول الوصف مناسب' : 'أضف وصفًا أوضح لطلبك' }}</span>
+						<span id="ai-quality-text">{{ parent.canRefineWithAi() ? ' جاهز لتحسين الصياغة بالذكاء الاصطناعي' : parent.description().trim().length >= 30 ? 'اكتب عنوانًا واضحًا و4 كلمات بالوصف لتفعيل التحسين' : 'أضف وصفًا أوضح لطلبك (30 حرفًا و4 كلمات على الأقل)' }}</span>
 					</div>
 					<span id="desc-count" dir="ltr" class="field-count text-xs text-[var(--txt-3)]">{{ parent.description().length }} / 2000</span>
 				</div>
 				<p class="mt-2 text-xs text-[var(--txt-3)]" data-testid="ai-refine-hint">اكتب العنوان والوصف التفصيلي أولًا؛ زر «تحسين وصياغة AI» يعيد صياغة ما كتبته فقط ولا يكتب الطلب بدلًا عنك.</p>
 
-				<!-- REAL-TIME AI STREAMING TOOLTIP & PREVIEW -->
-				@if (parent.showAiSuggest()) {
-				<div class="ai-tooltip mt-5 p-6 rounded-[24px] bg-gradient-to-br from-[#120D26]/95 via-[#0A102A]/95 to-[#070E22]/95 border border-[var(--ai)]/30 shadow-[0_10px_35px_rgba(123,47,190,0.25)] backdrop-blur-xl animate-ws-fade relative overflow-hidden" role="region" aria-label="اقتراح AI للوصف">
-					<!-- Glow Accent -->
-					<div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[var(--ai)] to-transparent opacity-80"></div>
-					<div class="absolute -right-12 -top-12 w-36 h-36 bg-[var(--ai)]/10 rounded-full blur-2xl pointer-events-none"></div>
+				<!-- AI rewriting: independent choices, explicit apply, and the original draft remains available. -->
+@if (!parent.showAiSuggest() && (parent.aiStreamText() || parent.isAiStreaming())) {
+  <button type="button" class="ai-reopen-btn" (click)="parent.showAiSuggest.set(true)">{{ parent.isAiStreaming() ? 'عرض إعادة الصياغة الجارية' : 'عرض الصياغات المحفوظة' }} <span>{{ parent.aiPreview().options.length || '' }}</span></button>
+}
+@if (parent.showAiSuggest()) {
+  <section class="ai-rewrite-panel" aria-labelledby="rewrite-panel-title" [attr.aria-busy]="parent.isAiStreaming()">
+    <header class="ai-rewrite-header">
+      <div>
+        <span class="ai-rewrite-eyebrow">مساعد الصياغة</span>
+        <h2 id="rewrite-panel-title">اختر الوصف الأنسب لطلبك</h2>
+        <p>قارن الصياغات، عدّل اختيارك، ثم استخدمه في حقل الوصف.</p>
+      </div>
+      <button type="button" class="ai-collapse-btn" aria-label="طي معاينة الصياغات" (click)="parent.dismissAiSuggest()">طي المعاينة</button>
+    </header>
 
-					<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-						<div class="ai-tooltip-ttl font-black text-lg text-white flex items-center gap-2.5">
-							<div class="w-8 h-8 rounded-lg bg-[var(--ai)]/20 border border-[var(--ai)]/40 flex items-center justify-center text-[var(--ai)]">
-<svg viewBox="0 0 24 24"  width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-			<use href="#i-ai"></use></svg>							</div>
-							<span>تحسين وصياغة وصفك بالذكاء الاصطناعي</span>
-						</div>
+    <div class="ai-rewrite-state" role="status" aria-live="polite">
+      @if (parent.isAiStreaming()) {
+        <span class="ai-state-dot is-loading"></span>
+        <span>{{ parent.aiPhase() === 'validating' ? 'جاري الاتصال بخدمة الصياغة...' : 'جاري صياغة الوصف بواسطة الذكاء الاصطناعي...' }}</span>
+      } @else if (parent.aiReviewStatus() === 'completed') {
+        <span class="ai-state-dot is-complete"></span>
+        <span>الصياغات جاهزة للمراجعة · {{ parent.aiPreview().options.length }} {{ parent.aiPreview().options.length === 1 ? 'صياغة' : 'خيارات' }}</span>
+      } @else {
+        <span class="ai-state-dot is-warning"></span>
+        <span>الرد غير مكتمل. المعاينة محفوظة ووصفك لم يتغير؛ أعد المحاولة قبل الاستخدام.</span>
+      }
+    </div>
 
-						@if (parent.isAiStreaming()) {
-							<div class="ai-tooltip-badge inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--ai)]/20 border border-[var(--ai)]/40 text-[#D8B4FE] text-xs font-extrabold shadow-[0_0_12px_rgba(168,85,247,0.3)] animate-pulse w-fit">
-								<span class="w-2 h-2 rounded-full bg-[#D8B4FE]"></span>
-								{{ parent.aiPhase() === 'validating' ? 'جاري الاتصال بخدمة الصياغة...' : 'جاري صياغة الوصف بواسطة الذكاء الاصطناعي...' }}
-							</div>
-						} @else {
-							<div class="ai-tooltip-done-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold w-fit">
-								<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-								اكتمل البث · جاهز للاستخدام
-							</div>
-						}
-					</div>
+    @if (parent.aiReviewError()) { <p class="ai-editor-warning" role="alert">{{ parent.aiReviewError() }}</p> }
 
-					<!-- Streamed Text Preview Box -->
-					<div class="ai-tooltip-body p-5 rounded-2xl bg-black/40 border border-white/10 text-slate-100 text-sm mb-5 font-medium leading-relaxed whitespace-pre-line max-h-[360px] overflow-y-auto" id="ai-tooltip-body">
-						@if (parent.aiStreamText()) {
-							{{ parent.aiStreamText() }}@if (parent.isAiStreaming()) {<span class="inline-block w-2 h-4 bg-[#D8B4FE] animate-pulse ml-1 align-middle"></span>}
-						} @else {
-							<div class="ai-tooltip-loading flex items-center justify-center gap-3 py-8 text-slate-400 italic">
-								<svg class="w-5 h-5 animate-spin text-[var(--ai)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-								<span>{{ parent.aiPhase() === 'validating' ? 'جاري الاتصال بخدمة الصياغة...' : 'جاري إعادة صياغة وصفك...' }}</span>
-							</div>
-						}
-					</div>
+    @if (parent.isAiStreaming()) {
+      <div class="ai-stream-preview ai-rewrite-markdown" [innerHTML]="parent.formatAiPreview(parent.aiStreamText())"></div>
+      @if (!parent.aiStreamText()) {
+        <div class="ai-rewrite-loading"><span class="ai-loading-line"></span><span class="ai-loading-line"></span><span class="ai-loading-line"></span></div>
+      }
+    } @else {
+      @if (parent.aiPreview().introduction) {
+        <div class="ai-rewrite-introduction ai-rewrite-markdown" [innerHTML]="parent.formatAiPreview(parent.aiPreview().introduction)"></div>
+      }
+      <div class="ai-rewrite-options" aria-label="الصياغات المقترحة">
+        @for (option of parent.aiPreview().options; track option.id; let i = $index) {
+          <article class="ai-rewrite-option" [class.is-selected]="parent.aiSelectedOptionId() === option.id" [attr.data-option-id]="option.id">
+            <header class="ai-option-header">
+              <span class="ai-option-number" aria-hidden="true">{{ i + 1 }}</span>
+              <h3>{{ option.title }}</h3>
+              @if (parent.aiAppliedOptionId() === option.id) { <span class="ai-applied-label">مستخدم حاليًا</span> }
+            </header>
+            <div class="ai-option-content ai-rewrite-markdown" [innerHTML]="parent.formatAiPreview(option.markdown)"></div>
+            <footer class="ai-option-footer">
+              <span>{{ option.text.length }} حرف</span>
+              <button type="button" [attr.aria-pressed]="parent.aiSelectedOptionId() === option.id" (click)="parent.selectAiOption(option.id)">{{ parent.aiSelectedOptionId() === option.id ? 'مختارة للمراجعة' : 'اختيار هذه الصياغة' }}</button>
+            </footer>
+          </article>
+        }
+      </div>
 
-					<div class="ai-tooltip-footer flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-4">
-						<div class="ai-tooltip-caption text-xs text-slate-400 font-bold flex items-center gap-2">
-							<span>📝 مسودة قابلة للتعديل قبل الإرسال، راجع التفاصيل قبل الإرسال. وصفك الأصلي لا يتغيّر إلا إذا ضغطت «استخدم هذا الوصف».</span>
-						</div>
-						<div class="ai-tooltip-actions flex items-center gap-3 w-full sm:w-auto justify-end">
-							<button type="button"
-								class="ai-use-btn flex-1 sm:flex-initial px-5 py-2.5 bg-gradient-to-r from-[var(--ai)] to-[#581C87] text-white font-extrabold text-sm rounded-xl shadow-lg shadow-purple-900/40 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
-								[disabled]="!parent.aiStreamText() || parent.isAiStreaming()"
-								(click)="parent.useAiSuggest()">
-								استخدم هذا الوصف
-							</button>
-							<button type="button"
-								class="ai-dismiss-btn px-4 py-2.5 border border-white/15 hover:bg-white/5 text-slate-300 font-bold text-sm rounded-xl transition-colors cursor-pointer"
-								(click)="parent.dismissAiSuggest()">
-								تجاهل
-							</button>
-						</div>
-					</div>
-				</div>
-				}
+      @if (parent.aiSelectedOption()) {
+        <div class="ai-draft-editor">
+          <div class="ai-editor-header"><label for="ai-selected-description">راجع وعدّل الصياغة المختارة</label><span dir="ltr" [class.is-over-limit]="parent.aiSelectedDraft().length > 2000">{{ parent.aiSelectedDraft().length }} / 2000</span></div>
+          <textarea id="ai-selected-description" rows="7" [ngModel]="parent.aiSelectedDraft()" (ngModelChange)="parent.editAiDraft($event)" aria-describedby="ai-editor-help"></textarea>
+          <p id="ai-editor-help">مسودة قابلة للتعديل قبل الإرسال. التعديل هنا لا يغيّر حقل الوصف حتى تستخدم الصياغة.</p>
+          @if (parent.aiSelectedDraft().length > 2000) { <p class="ai-editor-warning" role="alert">اختصر الصياغة إلى 2000 حرف قبل استخدامها؛ لم نحذف أي جزء منها.</p> }
+          <div class="ai-rewrite-actions">
+            <button type="button" class="ai-use-btn" [disabled]="!parent.canApplyAiDraft()" (click)="parent.useAiSuggest()">استخدم هذا الوصف</button>
+            <button type="button" class="ai-original-btn" [disabled]="parent.description() === parent.aiOriginalDescription()" (click)="parent.restoreOriginalDescription()">استعادة وصفي الأصلي</button>
+          </div>
+        </div>
+      }
+      @if (parent.aiPreview().advice) {
+        <details class="ai-rewrite-advice"><summary>ملاحظات المساعد</summary><div class="ai-rewrite-markdown" [innerHTML]="parent.formatAiPreview(parent.aiPreview().advice)"></div></details>
+      }
+    }
+    <p class="ai-rewrite-footnote">وصفك الأصلي لا يتغيّر إلا إذا ضغطت «استخدم هذا الوصف». تبقى كل الصياغات محفوظة لتبديل اختيارك لاحقًا. راجع التفاصيل والمتطلبات قبل الإرسال.</p>
+  </section>
+}
+
 			</div>
 		</div>
 

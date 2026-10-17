@@ -5,8 +5,8 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { CreateRequest, resetCreateRequestPageLoadState } from './create-request';
 
-// "تحسين وصياغة AI" rewrites what the client wrote: it never writes the title/description, never calls the AI without enough input,
-// and never puts a bad reply (assistant chatter, markdown, invented numbers) into the form.
+// "تحسين وصياغة AI" rewrites the client's draft, preserves the title and original until explicit apply,
+// and keeps selectable previews readable, editable and separate from incomplete provider output.
 const sockets: any[] = [];
 const ioMock = vi.hoisted(() => vi.fn());
 vi.mock('socket.io-client', () => ({ io: ioMock }));
@@ -86,13 +86,13 @@ describe('create-request: AI refine is rewriting only', () => {
 		expect(c.title()).toBe(TITLE); // the title is never rewritten by AI
 	});
 
-	for (const [label, reply] of [
-		['"يبدو أنك"', 'يبدو أنك قمت بنسخ نص يحتوي على خيارات سابقة. أحتاج متجرًا إلكترونيًا لبيع الملابس.'],
-		['"إليك" and "أنصحك"', 'إليك صياغة محسنة، أنصحك بها: أحتاج إلى متجر إلكتروني لبيع الملابس.'],
-		['markdown "***"', '***أحتاج إلى متجر إلكتروني لبيع الملابس*** يدعم الدفع وإدارة المخزون.'],
-		['markdown headings and bullets', '## الوصف\n- متجر ملابس\n- دفع إلكتروني'],
+	for (const [label, reply, applied] of [
+		['"يبدو أنك"', 'يبدو أنك قمت بنسخ نص يحتوي على خيارات سابقة. أحتاج متجرًا إلكترونيًا لبيع الملابس.', 'يبدو أنك قمت بنسخ نص يحتوي على خيارات سابقة. أحتاج متجرًا إلكترونيًا لبيع الملابس.'],
+		['"إليك" and "أنصحك"', 'إليك صياغة محسنة، أنصحك بها: أحتاج إلى متجر إلكتروني لبيع الملابس.', 'إليك صياغة محسنة، أنصحك بها: أحتاج إلى متجر إلكتروني لبيع الملابس.'],
+		['markdown "***"', '***أحتاج إلى متجر إلكتروني لبيع الملابس*** يدعم الدفع وإدارة المخزون.', 'أحتاج إلى متجر إلكتروني لبيع الملابس يدعم الدفع وإدارة المخزون.'],
+		['markdown headings and bullets', '## الوصف\n- متجر ملابس\n- دفع إلكتروني', '- متجر ملابس\n- دفع إلكتروني'],
 	] as const) {
-		it(`a reply with ${label} is shown as written and goes into the description once accepted; the title never changes`, () => {
+		it(`a reply with ${label} remains visible and applies only its plain draft; the title never changes`, () => {
 			c.title.set(TITLE); c.description.set(DRAFT);
 			c.triggerAiDescription();
 			fire('ai:description_chunk', { chunk: reply }); fire('ai:description_complete', { fullText: reply });
@@ -100,19 +100,108 @@ describe('create-request: AI refine is rewriting only', () => {
 			expect(c.aiStreamText()).toBe(reply);
 			expect(c.description()).toBe(DRAFT); // still the client's until they accept the preview
 			c.useAiSuggest();
-			expect(c.description()).toBe(reply);
+			expect(c.description()).toBe(applied);
 			expect(c.title()).toBe(TITLE);
 		});
 	}
 
-	it('a reply longer than 2000 never takes the description past 2000', () => {
+	it('keeps a reply longer than 2000 intact and requires shortening the selected draft before applying', () => {
 		c.title.set(TITLE); c.description.set(DRAFT);
 		c.triggerAiDescription();
 		const long = 'ا'.repeat(2600);
 		fire('ai:description_chunk', { chunk: long }); fire('ai:description_complete', { fullText: long });
-		expect(c.aiStreamText().length).toBe(2000);
+		expect(c.aiStreamText().length).toBe(2600);
+		c.useAiSuggest();
+		expect(c.description()).toBe(DRAFT);
+		c.editAiDraft(long.slice(0, 2000));
 		c.useAiSuggest();
 		expect(c.description().length).toBe(2000);
+	});
+
+	it('renders and chooses each complete option independently, retaining alternatives and per-option edits after use', () => {
+		const reply = 'إليك ثلاث صياغات:\n\n### الخيار الأول: موجز\n**أحتاج متجرًا** لبيع الملابس.\n\n### الخيار الثاني: تفصيلي\nأحتاج متجرًا يدعم الدفع وإدارة المخزون.\n\n### الخيار الثالث: منظم\n- متجر ملابس\n- لوحة تحكم للطلبات\n\n### نصائح\nراجع التفاصيل قبل النشر.';
+		c.title.set(TITLE); c.description.set(DRAFT); c.triggerAiDescription();
+		fire('ai:description_chunk', { chunk: reply.slice(0, 80) });
+		fire('ai:description_complete', { fullText: reply, status: 'success', truncated: false });
+		expect(c.aiStreamText()).toBe(reply);
+		expect(c.aiPreview().options).toHaveLength(3);
+		let el = render();
+		expect(el.querySelectorAll('.ai-rewrite-option')).toHaveLength(3);
+		expect(el.querySelector('.ai-option-content strong')?.textContent).toBe('أحتاج متجرًا');
+		expect(el.querySelector('.ai-option-content')?.textContent).not.toContain('**');
+		(el.querySelector('[data-option-id="option-2"] button') as HTMLButtonElement).click();
+		expect(c.description()).toBe(DRAFT);
+		c.editAiDraft('نسخة ثانية عدلتها بنفسي للمتجر والدفع.'); c.useAiSuggest();
+		expect(c.description()).toBe('نسخة ثانية عدلتها بنفسي للمتجر والدفع.');
+		expect(c.showAiSuggest()).toBe(true);
+		expect(c.aiPreview().options).toHaveLength(3);
+		c.selectAiOption('option-3'); c.useAiSuggest();
+		expect(c.description()).toBe('- متجر ملابس\n- لوحة تحكم للطلبات');
+		c.selectAiOption('option-2');
+		expect(c.aiSelectedDraft()).toBe('نسخة ثانية عدلتها بنفسي للمتجر والدفع.');
+		c.restoreOriginalDescription(); expect(c.description()).toBe(DRAFT);
+	});
+
+	it('partial/error provider output stays visible and never becomes a completed applicable draft', () => {
+		c.title.set(TITLE); c.description.set(DRAFT); c.triggerAiDescription();
+		fire('ai:description_error', { message: 'انقطع الرد', partialText: '### الخيار الأول: موجز\nوصف لم يكتمل', truncated: true });
+		expect(c.showAiSuggest()).toBe(true);
+		expect(c.aiReviewStatus()).toBe('error');
+		expect(c.canApplyAiDraft()).toBe(false);
+		c.useAiSuggest(); expect(c.description()).toBe(DRAFT);
+		const el = render();
+		expect(el.textContent).toContain('الرد غير مكتمل');
+		expect(el.textContent).not.toContain('الصياغات جاهزة للمراجعة');
+	});
+
+	for (const incompleteFlag of ['truncated', 'partial']) {
+		it(`an explicit ${incompleteFlag} completion cannot masquerade as finished`, () => {
+			c.title.set(TITLE); c.description.set(DRAFT); c.triggerAiDescription();
+			fire('ai:description_complete', { fullText: REWRITE, [incompleteFlag]: true, status: 'success' });
+			expect(c.aiReviewStatus()).toBe('partial'); expect(c.canApplyAiDraft()).toBe(false);
+			expect(c.description()).toBe(DRAFT);
+		});
+	}
+
+	it('a preview that exceeds its transport bound without authoritative fullText stays incomplete', () => {
+		c.title.set(TITLE); c.description.set(DRAFT); c.triggerAiDescription();
+		fire('ai:description_chunk', { chunk: 'ا'.repeat(30001) });
+		fire('ai:description_complete', {});
+		expect(c.aiStreamText().length).toBe(30000);
+		expect(c.aiReviewStatus()).toBe('partial'); expect(c.canApplyAiDraft()).toBe(false);
+	});
+
+	it('failed regeneration preserves the previous completed choices and original description', () => {
+		c.title.set(TITLE); c.description.set(DRAFT); c.triggerAiDescription();
+		fire('ai:description_complete', { fullText: REWRITE });
+		c.editAiDraft('تعديل سابق محفوظ.');
+		c.triggerAiDescription(); fire('ai:description_error', { message: 'الخدمة غير متاحة' });
+		expect(c.aiStreamText()).toBe(REWRITE); expect(c.aiSelectedDraft()).toBe('تعديل سابق محفوظ.');
+		expect(c.description()).toBe(DRAFT); expect(c.aiReviewError()).toBe('الخدمة غير متاحة');
+	});
+
+	it('completed choices, original text and edited selection survive wizard draft restoration', async () => {
+		c.title.set(TITLE); c.description.set(DRAFT); c.triggerAiDescription();
+		fire('ai:description_complete', { fullText: '### الخيار الأول: موجز\nوصف أول\n### الخيار الثاني: مفصل\nوصف ثان' });
+		c.selectAiOption('option-2'); c.editAiDraft('وصف ثان معدّل.'); c.useAiSuggest();
+		fixtureRef.detectChanges(); await fixtureRef.whenStable();
+		resetCreateRequestPageLoadState();
+		const restoredFixture = TestBed.createComponent(CreateRequest); await restoredFixture.whenStable();
+		const restored = restoredFixture.componentInstance;
+		expect(restored.description()).toBe('وصف ثان معدّل.');
+		expect(restored.aiPreview().options).toHaveLength(2);
+		expect(restored.aiSelectedDraft()).toBe('وصف ثان معدّل.');
+		expect(restored.aiOriginalDescription()).toBe(DRAFT);
+		expect(restored.canApplyAiDraft()).toBe(true);
+	});
+
+	it('renders raw HTML and executable link schemes as harmless content', () => {
+		c.title.set(TITLE); c.description.set(DRAFT); c.triggerAiDescription();
+		fire('ai:description_complete', { fullText: '### الخيار الأول: آمن\n**متجر**\n<img src=x onerror=alert(1)>\n[خطر](javascript:alert(1))' });
+		const el = render();
+		expect(el.querySelector('.ai-option-content img')).toBeNull();
+		expect(el.querySelector('.ai-option-content a[href^="javascript:"]')).toBeNull();
+		expect(el.querySelector('.ai-option-content strong')?.textContent).toBe('متجر');
 	});
 
 	it('an empty reply changes nothing and shows an error', () => {

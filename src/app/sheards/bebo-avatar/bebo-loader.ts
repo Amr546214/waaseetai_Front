@@ -6,13 +6,21 @@
 // tag (a dynamic import() has no currentScript and would fall back to the
 // page URL). The atlases therefore live next to it in /bebo/.
 
-/** Every pose the Bebo v4 engine supports (robot.js `poses`). */
+/** Core 24 poses the original Bebo v4 engine supports. */
 export const BEBO_POSES = [
 	'idle', 'blink', 'wave', 'happy', 'thinking', 'listening', 'speaking', 'sleep',
 	'walk', 'typing', 'jump', 'land', 'drag', 'rest', 'scratch', 'dance',
 	'fly', 'catch', 'chew', 'laugh', 'cry', 'plead', 'chase', 'catrest',
 ] as const;
-export type BeboPose = (typeof BEBO_POSES)[number];
+
+/** Additional poses supported by the multi-skin engine (Scout / Platform Guide). */
+export const BEBO_EXTRA_POSES = [
+	'drive', 'crash', 'seatbelt', 'traffic', 'crosswalk', 'map', 'report', 'chart',
+	'amazed', 'whisper', 'shout', 'idea',
+] as const;
+
+export const BEBO_ALL_POSES = [...BEBO_POSES, ...BEBO_EXTRA_POSES] as const;
+export type BeboPose = (typeof BEBO_ALL_POSES)[number];
 
 export interface BeboPlayOptions {
 	loop?: boolean;
@@ -32,6 +40,7 @@ export interface CuteRobotElement extends HTMLElement {
 	jump(): CuteRobotElement;
 	walkTo(x: number): CuteRobotElement;
 	resetPosition(): CuteRobotElement;
+	setMovementBounds(bounds: { minX: number; minY: number; maxX: number; maxY: number } | null): CuteRobotElement;
 }
 
 export const BEBO_TAG = 'cute-robot';
@@ -84,7 +93,14 @@ export function loadBebo(doc: Document): Promise<void> {
  * (`robot-sprites.png`) is fetched by robot.js itself; the antics/emotions atlases only serve
  * rare scripted commands and stay on-demand.
  */
-export const BEBO_PRELOAD_ATLASES = ['bebo/robot-actions.png', 'bebo/robot-speaking.png'] as const;
+export const BEBO_PRELOAD_ATLASES = [
+	'bebo/robot-sprites.png',
+	'bebo/robot-actions.png',
+	'bebo/robot-speaking.png',
+	'bebo/scout/guide-sprites.png',
+	'bebo/scout/guide-actions.png',
+	'bebo/scout/guide-speaking.png',
+] as const;
 
 const preloaded = new Set<string>();
 /** Held so the decoded bitmaps stay alive until robot.js first paints them. */

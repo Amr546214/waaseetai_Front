@@ -18,13 +18,18 @@ vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args)
 
 import { HELP_SOCKET_IO, HelpAssistantSocketService, HelpStreamEvent } from './help-assistant-socket.service';
 import { AuthStore } from '../store/auth.store';
+import { HELP_ASSISTANT_UNAVAILABLE_MESSAGE } from '../help/assistant-errors';
+import { environment } from '../../../environments/environment';
 
 describe('HelpAssistantSocketService (authenticated help transport)', () => {
 	const token = signal<string | null>('jwt-A');
+	const socketEnvironment = environment as typeof environment & { assistantSocketUrl?: string };
+	const originalAssistantSocketUrl = socketEnvironment.assistantSocketUrl;
 	let service: HelpAssistantSocketService;
 	let events: HelpStreamEvent[];
 
 	beforeEach(() => {
+		delete socketEnvironment.assistantSocketUrl;
 		ioSpy.mockClear();
 		fakeSocket.emit.mockClear();
 		fakeSocket.disconnect.mockClear();
@@ -34,6 +39,10 @@ describe('HelpAssistantSocketService (authenticated help transport)', () => {
 		service = TestBed.inject(HelpAssistantSocketService);
 		events = [];
 		service.events$.subscribe((e) => events.push(e));
+	});
+	afterEach(() => {
+		if (originalAssistantSocketUrl === undefined) delete socketEnvironment.assistantSocketUrl;
+		else socketEnvironment.assistantSocketUrl = originalAssistantSocketUrl;
 	});
 
 	it('without a session token it opens NO socket (no guest path) and reports AUTH_REQUIRED', () => {
@@ -47,12 +56,21 @@ describe('HelpAssistantSocketService (authenticated help transport)', () => {
 	it('authenticates the socket handshake with the app JWT and emits help:ask with a correlation id', () => {
 		const id = service.ask('كيف يعمل الضمان؟', [{ question: 'q', answer: 'a' }]);
 		expect(ioSpy).toHaveBeenCalledTimes(1);
+		expect(ioSpy.mock.calls[0][0]).toBe(environment.socketUrl);
 		expect(ioSpy.mock.calls[0][1]).toMatchObject({ auth: { token: 'jwt-A' } });
 		expect(fakeSocket.emit).toHaveBeenCalledWith('help:ask', {
 			question: 'كيف يعمل الضمان؟',
 			history: [{ question: 'q', answer: 'a' }],
 			clientRequestId: id,
 		});
+	});
+	it('uses a configured assistant-only socket without changing the platform socket URL', () => {
+		const platformUrl = environment.socketUrl;
+		socketEnvironment.assistantSocketUrl = 'http://127.0.0.1:5011';
+		service.ask('سؤال عام');
+		expect(ioSpy.mock.calls[0][0]).toBe('http://127.0.0.1:5011');
+		expect(environment.socketUrl).toBe(platformUrl);
+		expect(ioSpy.mock.calls[0][1]).toMatchObject({ auth: { token: 'jwt-A' } });
 	});
 
 	it('maps backend events to tagged stream events for every consumer', () => {
@@ -67,6 +85,42 @@ describe('HelpAssistantSocketService (authenticated help transport)', () => {
 		expect(handlers['help:audio']).toBeUndefined();
 		expect(handlers['help:audio_unavailable']).toBeUndefined();
 		expect(events.every((e) => !('clientRequestId' in e) || e.clientRequestId === id)).toBe(true);
+	});
+	it('passes bounded Google attribution to the UI and drops oversized or non-string HTML', () => {
+		const id=service.ask('بحث',[],{webSearch:true})!;
+		expect(fakeSocket.emit).toHaveBeenCalledWith('help:ask',expect.objectContaining({webSearch:true}));
+		handlers['help:citations']({clientRequestId:id,citations:[{docId:'web',title:'مصدر',url:'https://example.com'}],searchSuggestionsHtml:'<div>Google</div>'});
+		expect(events.at(-1)).toMatchObject({type:'citations',searchSuggestionsHtml:'<div>Google</div>'});
+		handlers['help:citations']({clientRequestId:id,citations:[],searchSuggestionsHtml:'x'.repeat(64001)});expect(events.at(-1)).not.toHaveProperty('searchSuggestionsHtml');
+		handlers['help:citations']({clientRequestId:id,citations:[],searchSuggestionsHtml:{html:'invalid'}});expect(events.at(-1)).not.toHaveProperty('searchSuggestionsHtml');
+	});
+	it('normalizes the obsolete server error and removes its misleading support fallback', () => {
+		const id = service.ask('عامل إيه؟')!;
+		handlers['help:error']({ clientRequestId: id, code: 'NO_ANSWER', message: 'لم يجد المساعد الذكي إجابة معتمدة لهذا السؤال في قاعدة المعرفة.', humanSupportFallback: true });
+		expect(events.at(-1)).toEqual({ type: 'error', clientRequestId: id, code: 'UNAVAILABLE', message: HELP_ASSISTANT_UNAVAILABLE_MESSAGE, humanSupportFallback: false });
+		handlers['help:error']({ clientRequestId: id, code: 'RATE_LIMITED', message: 'انتظر دقيقة.', humanSupportFallback: false });
+		expect(events.at(-1)).toMatchObject({ code: 'RATE_LIMITED', message: 'انتظر دقيقة.' });
+	});
+	it('turns a refusal split across answer chunks into an error rather than a completed assistant answer', () => {
+		const id = service.ask('سؤال عام')!;
+		handlers['help:answer_start']({ clientRequestId: id });
+		handlers['help:answer_chunk']({ clientRequestId: id, chunk: 'لم يجد المساعد الذكي ' });
+		handlers['help:answer_chunk']({ clientRequestId: id, chunk: 'إجابة معتمدة لهذا السؤال في قاعدة المعرفة.' });
+		handlers['help:answer_chunk']({ clientRequestId: id, chunk: ' يمكنك إعادة صياغة سؤالك.' });
+		handlers['help:answer_complete']({ clientRequestId: id });
+		expect(events.map(event => event.type)).toEqual(['start', 'chunk', 'error']);
+		expect(events.at(-1)).toMatchObject({ type: 'error', code: 'UNAVAILABLE', message: HELP_ASSISTANT_UNAVAILABLE_MESSAGE, humanSupportFallback: false });
+		expect(JSON.stringify(events)).not.toContain('لم يجد المساعد الذكي إجابة معتمدة');
+		const nextId = service.ask('سؤال تاني')!;
+		handlers['help:answer_start']({ clientRequestId: nextId });
+		handlers['help:answer_chunk']({ clientRequestId: nextId, chunk: 'أنا نديم، أقدر أساعدك.' });
+		handlers['help:answer_complete']({ clientRequestId: nextId });
+		expect(events.at(-1)).toEqual({ type: 'complete', clientRequestId: nextId });
+	});
+	it('does not rewrite or suppress a user question quoting the obsolete refusal', () => {
+		const question = 'ليه بيجي "لم يجد المساعد الذكي إجابة معتمدة لهذا السؤال في قاعدة المعرفة"؟';
+		service.ask(question);
+		expect(fakeSocket.emit).toHaveBeenCalledWith('help:ask', expect.objectContaining({ question }));
 	});
 
 	it('reuses one socket per token and reconnects with the new token after a login change', () => {

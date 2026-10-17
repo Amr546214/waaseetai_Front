@@ -1,5 +1,7 @@
 import { Component, computed, effect, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
 import { canRewrite, checkRewriteOutput, REWRITE_INPUT_REQUIRED_MESSAGE } from './description-rewrite-guard';
+import { parseDescriptionRewrite, REWRITE_PREVIEW_MAX_CHARS } from './description-rewrite-options';
+import { assistantMarkdown } from '../../../../core/help/assistant-content';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavigationSkipped, NavigationSkippedCode, Router, RouterLink } from '@angular/router';
@@ -104,6 +106,7 @@ interface CreateRequestDraftV1 {
     requirements: string[];
     outputs: string;
     deliveryDays: number | null;
+    aiReview?: { text: string; original: string; sourceTitle: string; selectedId: string | null; edits: Record<string, string>; status: 'completed' | 'partial' | 'error'; appliedId: string | null };
   };
   step4: {
     budgetType: string;
@@ -275,6 +278,8 @@ export class CreateRequest implements OnInit, OnDestroy {
 
   /** Back to a pristine wizard (step 1, every field empty / at its initial default, no success screen, no stored draft). */
   resetWizard(): void {
+    this.socket?.disconnect();
+    this.socket = undefined;
     this.clearDraft();
     this.clearSubmittedMarker();
     this.showSuccessOverlay.set(false);
@@ -304,6 +309,19 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.splitMilestones.set(false);
     this.milestones.set([]);
     this.files.set([]);
+    this.aiStreamText.set('');
+    this.aiOriginalDescription.set('');
+    this.aiDraftEdits.set({});
+    this.aiSelectedOptionId.set(null);
+    this.aiAppliedOptionId.set(null);
+    this.aiReviewStatus.set('idle');
+    this.showAiSuggest.set(false);
+    this.aiSourceTitle.set('');
+    this.aiReviewError.set('');
+    this.aiPreviewOverflow.set(false);
+    this.isAiStreaming.set(false);
+    this.aiPhase.set('idle');
+    this.aiMode.set(null);
   }
 
   private shouldResumeDraft(): boolean {
@@ -361,7 +379,11 @@ export class CreateRequest implements OnInit, OnDestroy {
         description: this.description(),
         requirements: this.requirements(),
         outputs: this.outputs(),
-        deliveryDays: this.deliveryDays()
+        deliveryDays: this.deliveryDays(),
+        ...(this.aiStreamText() ? { aiReview: {
+          text: this.aiStreamText(), original: this.aiOriginalDescription(), sourceTitle: this.aiSourceTitle(), selectedId: this.aiSelectedOptionId(), edits: this.aiDraftEdits(),
+          status: this.aiReviewStatus() === 'completed' ? 'completed' as const : this.aiReviewStatus() === 'error' ? 'error' as const : 'partial' as const, appliedId: this.aiAppliedOptionId()
+        } } : {})
       },
       step4: {
         budgetType: this.budgetType(),
@@ -495,6 +517,17 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.requirements.set(Array.isArray(draft.step3.requirements) ? draft.step3.requirements : []);
     this.outputs.set(draft.step3.outputs ?? '');
     this.deliveryDays.set(typeof draft.step3.deliveryDays === 'number' ? draft.step3.deliveryDays : null);
+    const review = draft.step3.aiReview;
+    if (review && typeof review.text === 'string' && typeof review.original === 'string') {
+      this.aiStreamText.set(review.text.slice(0, REWRITE_PREVIEW_MAX_CHARS));
+      this.aiOriginalDescription.set(review.original.slice(0, CreateRequest.DESCRIPTION_MAX));
+      this.aiSourceTitle.set(typeof review.sourceTitle === 'string' ? review.sourceTitle.slice(0, CreateRequest.TITLE_MAX) : this.title());
+      this.aiReviewStatus.set(review.status === 'completed' && review.text.length <= REWRITE_PREVIEW_MAX_CHARS ? 'completed' : review.status === 'error' ? 'error' : 'partial');
+      this.aiDraftEdits.set(Object.fromEntries(Object.entries(review.edits ?? {}).filter(([id, text]) => /^option-\d+$/.test(id) && typeof text === 'string').slice(0, 20).map(([id, text]) => [id, String(text).slice(0, REWRITE_PREVIEW_MAX_CHARS)])));
+      this.aiSelectedOptionId.set(this.aiPreview().options.some(option => option.id === review.selectedId) ? review.selectedId : this.aiPreview().options[0]?.id ?? null);
+      this.aiAppliedOptionId.set(typeof review.appliedId === 'string' ? review.appliedId : null);
+      this.showAiSuggest.set(true);
+    }
 
     const asNumberOrNull = (v: unknown): number | null => typeof v === 'number' ? v : null;
     this.budgetType.set(draft.step4.budgetType ?? 'range');
@@ -693,20 +726,24 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   useAiSuggest() {
-    const text = this.aiStreamText().trim();
+    const text = this.aiSelectedDraft().trim();
     if (!text) {
       this.showToast('⚠️ لا يوجد نص مقترح لتطبيقه حالياً', 'toast-warn');
       return;
     }
-    this.setDescription(text); // the reply is used as WaseetAI wrote it, cut to the 2000 limit
-    this.showAiSuggest.set(false);
-    this.isAiStreaming.set(false);
+    if (!this.canApplyAiDraft()) {
+      this.showToast('راجع الصياغة المختارة وحدّها وتفاصيلها قبل الاستخدام.', 'toast-warn');
+      return;
+    }
+    this.setDescription(text);
+    this.aiAppliedOptionId.set(this.aiSelectedOptionId());
+    // Alternatives and edited drafts remain available after applying, so choosing another one is reversible.
+    this.showAiSuggest.set(true);
     this.showToast('تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!', 'toast-ok');
   }
 
   dismissAiSuggest() {
     this.showAiSuggest.set(false);
-    this.isAiStreaming.set(false);
   }
 
   // Real-Time AI Description Generator & Refiner (Socket.IO Token Streaming)
@@ -714,11 +751,29 @@ export class CreateRequest implements OnInit, OnDestroy {
   aiStreamText = signal('');
   aiMode = signal<'refine' | null>(null);
   aiPhase = signal<'idle' | 'validating' | 'generating'>('idle');
+  aiReviewStatus = signal<'idle' | 'completed' | 'partial' | 'error'>('idle');
+  aiOriginalDescription = signal('');
+  aiSourceTitle = signal('');
+  aiSelectedOptionId = signal<string | null>(null);
+  aiAppliedOptionId = signal<string | null>(null);
+  aiDraftEdits = signal<Record<string, string>>({});
+  aiPreviewOverflow = signal(false);
+  aiReviewError = signal('');
+  aiPreview = computed(() => parseDescriptionRewrite(this.aiStreamText()));
+  aiSelectedOption = computed(() => this.aiPreview().options.find(option => option.id === this.aiSelectedOptionId()) ?? null);
+  aiSelectedDraft = computed(() => { const option = this.aiSelectedOption(); return option ? this.aiDraftEdits()[option.id] ?? option.text : ''; });
+  canApplyAiDraft = computed(() => this.aiReviewStatus() === 'completed' && !this.isAiStreaming() && !!this.aiSelectedDraft().trim() && this.aiSelectedDraft().length <= CreateRequest.DESCRIPTION_MAX);
+
+  formatAiPreview(text: string): string { return assistantMarkdown(text.replace(/^\s*(?:---|\*\*\*)\s*$/gm, '')); }
+  selectAiOption(id: string): void { if (this.aiPreview().options.some(option => option.id === id)) this.aiSelectedOptionId.set(id); }
+  editAiDraft(text: string): void { const id = this.aiSelectedOptionId(); if (id) this.aiDraftEdits.update(edits => ({ ...edits, [id]: String(text ?? '').slice(0, REWRITE_PREVIEW_MAX_CHARS) })); }
+  restoreOriginalDescription(): void { this.setDescription(this.aiOriginalDescription()); this.aiAppliedOptionId.set(null); }
 
   /** Rewriting only: the AI restates a title + description the client already wrote, it never writes them. */
   canRefineWithAi = computed(() => canRewrite(this.title(), this.description()));
 
   triggerAiDescription() {
+    if (this.isAiStreaming()) return;
     const projTitle = this.title().trim();
     if (!this.canRefineWithAi()) {
       // No AI call, no socket, nothing written into the form.
@@ -738,6 +793,23 @@ export class CreateRequest implements OnInit, OnDestroy {
     }
 
     const currentDesc = this.description().trim();
+    const previousReview = this.aiStreamText() ? {
+      text: this.aiStreamText(), original: this.aiOriginalDescription(), title: this.aiSourceTitle(), selected: this.aiSelectedOptionId(), applied: this.aiAppliedOptionId(), edits: this.aiDraftEdits(), status: this.aiReviewStatus()
+    } : null;
+    const restorePreviousReview = () => {
+      if (!previousReview) return false;
+      this.aiStreamText.set(previousReview.text); this.aiOriginalDescription.set(previousReview.original); this.aiSourceTitle.set(previousReview.title);
+      this.aiSelectedOptionId.set(previousReview.selected); this.aiAppliedOptionId.set(previousReview.applied); this.aiDraftEdits.set(previousReview.edits); this.aiReviewStatus.set(previousReview.status);
+      this.showAiSuggest.set(true); return true;
+    };
+    this.aiOriginalDescription.set(currentDesc);
+    this.aiSourceTitle.set(projTitle);
+    this.aiDraftEdits.set({});
+    this.aiSelectedOptionId.set(null);
+    this.aiAppliedOptionId.set(null);
+    this.aiReviewStatus.set('idle');
+    this.aiReviewError.set('');
+    this.aiPreviewOverflow.set(false);
     this.aiMode.set('refine');
     this.aiStreamText.set('');
     this.isAiStreaming.set(true);
@@ -768,33 +840,46 @@ export class CreateRequest implements OnInit, OnDestroy {
 
     this.socket.on('ai:description_chunk', (data: { chunk: string; mode: string }) => {
       if (data?.chunk) {
-        this.aiStreamText.update(text => text + data.chunk);
+        this.aiStreamText.update(text => { const next = text + data.chunk; if (next.length > REWRITE_PREVIEW_MAX_CHARS) this.aiPreviewOverflow.set(true); return next.slice(0, REWRITE_PREVIEW_MAX_CHARS); });
+        this.aiReviewStatus.set('partial');
       }
     });
 
-    this.socket.on('ai:description_complete', (data: { fullText?: string; message?: string; mode: string }) => {
+    this.socket.on('ai:description_complete', (data: { fullText?: string; message?: string; mode: string; error?: boolean; truncated?: boolean; partial?: boolean; status?: string; completed?: boolean; finishReason?: string }) => {
       this.isAiStreaming.set(false);
       this.aiPhase.set('idle');
-      if (data?.fullText && !this.aiStreamText()) {
-        this.aiStreamText.set(data.fullText);
+      if (typeof data?.fullText === 'string') {
+        this.aiPreviewOverflow.set(data.fullText.length > REWRITE_PREVIEW_MAX_CHARS);
+        this.aiStreamText.set(data.fullText.slice(0, REWRITE_PREVIEW_MAX_CHARS));
       }
       const checked = checkRewriteOutput(currentDesc, this.aiStreamText());
       if (!checked.ok) {
         // An empty reply: nothing to show, the client's text stays.
         this.aiStreamText.set('');
-        this.showAiSuggest.set(false);
+        if (!restorePreviousReview()) this.showAiSuggest.set(false);
         this.showToast('لم تُرجع خدمة الصياغة نصًا، فبقي وصفك كما كتبته. حاول مرة أخرى.', 'toast-warn');
         return;
       }
-      this.aiStreamText.set(checked.text); // never longer than the description limit
+      this.aiStreamText.set(checked.text);
+      const incomplete = this.aiPreviewOverflow() || data?.error === true || data?.truncated === true || data?.partial === true || data?.completed === false || (data?.status && !['completed', 'success'].includes(data.status)) || (data?.finishReason && data.finishReason !== 'STOP');
+      this.aiReviewStatus.set(incomplete ? 'partial' : 'completed');
+      this.aiSelectedOptionId.set(this.aiPreview().options[0]?.id ?? null);
+      if (incomplete) {
+        this.showToast('الرد غير مكتمل؛ المعاينة محفوظة، ولم يتغير وصفك. أعد المحاولة لاستكمال الصياغة.', 'toast-warn');
+        return;
+      }
       this.showToast(data?.message || 'اكتملت إعادة الصياغة، راجعها قبل اعتمادها', 'toast-ok');
     });
 
-    this.socket.on('ai:description_error', (data: { message?: string }) => {
+    this.socket.on('ai:description_error', (data: { message?: string; partialText?: string; truncated?: boolean }) => {
       this.isAiStreaming.set(false);
       this.aiPhase.set('idle');
-      this.showAiSuggest.set(false);
-      this.aiStreamText.set('');
+      this.aiReviewStatus.set('error');
+      if (typeof data?.partialText === 'string' && data.partialText.trim()) this.aiStreamText.set(data.partialText.slice(0, REWRITE_PREVIEW_MAX_CHARS));
+      if (!this.aiStreamText()) restorePreviousReview();
+      this.aiSelectedOptionId.set(this.aiSelectedOptionId() ?? this.aiPreview().options[0]?.id ?? null);
+      this.aiReviewError.set(data?.message || 'تعذرت إعادة الصياغة. وصفك والمقترحات السابقة محفوظة.');
+      this.showAiSuggest.set(!!this.aiStreamText());
       this.showToast(data?.message || 'تعذر الاتصال بخدمة الذكاء الاصطناعي حالياً. حاول مرة أخرى لاحقاً.', 'toast-warn');
     });
 

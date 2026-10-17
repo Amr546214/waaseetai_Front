@@ -8,6 +8,7 @@ import express from 'express';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const publicFolder = join(process.cwd(), 'public');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
@@ -25,13 +26,31 @@ const angularApp = new AngularNodeAppEngine();
  */
 
 /**
- * Serve static files from /browser
+ * Serve static files from /browser and /public
  */
+app.use((req, _res, next) => {
+  const normalized = decodeURIComponent(req.url).replace(/\\/g, '/');
+  const marker = '/public/';
+  const idx = normalized.lastIndexOf(marker);
+  if (idx !== -1) {
+    req.url = normalized.slice(idx + marker.length - 1);
+    req.originalUrl = req.url;
+  }
+  next();
+});
 app.use(
   express.static(browserDistFolder, {
     maxAge: '1y',
     index: false,
     redirect: false,
+    dotfiles: 'allow',
+  }),
+);
+app.use(
+  express.static(publicFolder, {
+    index: false,
+    redirect: false,
+    dotfiles: 'allow',
   }),
 );
 

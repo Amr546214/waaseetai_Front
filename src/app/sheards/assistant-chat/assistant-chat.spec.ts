@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { AssistantChatComponent } from './assistant-chat';
 import { AssistantStore } from '../../core/store/assistant.store';
+import { HELP_ASSISTANT_UNAVAILABLE_MESSAGE } from '../../core/help/assistant-errors';
 import { AuthStore } from '../../core/store/auth.store';
 import { HelpAssistantSocketService, HelpStreamEvent } from '../../core/services/help-assistant-socket.service';
 import { AssistantTtsService } from '../../core/services/assistant-tts.service';
@@ -102,11 +103,62 @@ describe('AssistantChatComponent', () => {
 		expect((el().querySelector('.ac__btn') as HTMLButtonElement).disabled).toBe(true);
 	});
 
+	it('compact chat puts all persistent reply settings outside the conversation', () => {
+		fixture.componentRef.setInput('compact', true);
+		store.capabilityNotice.set('تعذر تحميل الخيارات');
+		fixture.detectChanges();
+		expect(el().querySelector('.ac__toolbar')).toBeNull();
+		expect(el().querySelector('.ac__settings-panel')).toBeNull();
+		expect(el().querySelector('.ac__voice,input[type=range],select')).toBeNull();
+		expect(el().textContent).not.toContain('تعذر تحميل الخيارات');
+		expect(el().querySelector('.ac__counter')).toBeNull();
+	});
+
+	it('shows a small counter only while drafting and labels web search truthfully', async () => {
+		const web=el().querySelector('.ac__web') as HTMLButtonElement;expect(web.disabled).toBe(true);expect(web.title).toContain('غير متاح');
+		store.capabilities.set({models:[],voices:[],webSearch:{available:true,provider:'google'}});fixture.detectChanges();expect(web.disabled).toBe(false);web.click();expect(store.webSearchEnabled()).toBe(true);
+		await type('سؤال');expect(el().querySelector('.ac__counter')?.textContent).toBe('4/500');
+		(el().querySelector('.ac__btn') as HTMLButtonElement).click();fixture.detectChanges();expect(el().querySelector('.ac__counter')).toBeNull();
+	});
+
+	it.each([false, true])('keeps the reading position during streaming and jumps to the newest message on demand (workspace=%s)', async (workspace) => {
+		fixture.componentRef.setInput('workspace',workspace);fixture.componentRef.setInput('compact',true);store.messages.set([{role:'assistant',text:'رد سابق'}]);fixture.detectChanges();await fixture.whenStable();
+		const log=el().querySelector('.ac__log') as HTMLElement;
+		expect(log.getAttribute('tabindex')).toBe('0');expect(log.getAttribute('aria-label')).toBe('سجل المحادثة');
+		Object.defineProperty(log,'scrollHeight',{configurable:true,value:1200});Object.defineProperty(log,'clientHeight',{configurable:true,value:300});log.scrollTop=200;log.dispatchEvent(new Event('scroll'));fixture.detectChanges();
+		store.messages.set([{role:'assistant',text:'رد جديد'}]);fixture.detectChanges();await fixture.whenStable();
+		expect(log.scrollTop).toBe(200);expect(el().querySelector('.ac__jump')).toBeTruthy();
+		(el().querySelector('.ac__jump') as HTMLButtonElement).click();fixture.detectChanges();expect(log.scrollTop).toBe(1200);expect(el().querySelector('.ac__jump')).toBeNull();
+		log.scrollTop=850;log.dispatchEvent(new Event('scroll'));store.messages.update(list=>[...list,{role:'assistant',text:'تكملة'}]);fixture.detectChanges();await fixture.whenStable();expect(log.scrollTop).toBe(1200);
+	});
+
+	it('follows a new question sent through another input while reading older widget messages', async () => {
+		fixture.componentRef.setInput('compact', true);
+		store.messages.set([{ role: 'assistant', text: 'رد سابق' }]);
+		fixture.detectChanges();await fixture.whenStable();
+		const log = el().querySelector('.ac__log') as HTMLElement;
+		Object.defineProperty(log, 'scrollHeight', { configurable: true, value: 1200 });
+		Object.defineProperty(log, 'clientHeight', { configurable: true, value: 300 });
+		log.scrollTop = 0;log.dispatchEvent(new Event('scroll'));
+		fixture.detectChanges();
+		expect(el().querySelector('.ac__jump')).toBeTruthy();
+		store.ask('سؤال من المدخل السريع');
+		fixture.detectChanges();await fixture.whenStable();fixture.detectChanges();
+		expect(log.scrollTop).toBe(1200);
+		expect(el().querySelector('.ac__jump')).toBeNull();
+	});
+
+	it('renders provider attribution with Angular sanitization, retaining a safe Google link', () => {
+		store.messages.set([{role:'assistant',text:'رد',searchSuggestionsHtml:'<div><a href="https://google.com/search?q=test">Google</a><script>window.hacked=true</script><img src="x" onerror="alert(1)"><a href="javascript:alert(2)">bad</a></div>'}]);fixture.detectChanges();
+		const attribution=el().querySelector('.ac__search-attribution')!;
+		expect(attribution.querySelector('script')).toBeNull();expect(attribution.querySelector('[onerror]')).toBeNull();expect(attribution.querySelector('iframe')).toBeNull();expect(attribution.querySelector('a')?.getAttribute('href')).toBe('https://google.com/search?q=test');expect(attribution.innerHTML).not.toContain('href="javascript:');
+	});
+
 	it('sends on Enter, clears the draft, shows typing, then renders the streamed answer', async () => {
 		await type('كيف يعمل الضمان؟');
 		textarea().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
 		fixture.detectChanges();
-		expect(socket.ask).toHaveBeenCalledWith('كيف يعمل الضمان؟', []);
+		expect(socket.ask).toHaveBeenCalledWith('كيف يعمل الضمان؟', [],expect.objectContaining({dialect:'msa',profile:'auto',pageContext:{path:'/'}}));
 		expect(el().querySelector('.ac__typing')).toBeTruthy();
 		await fixture.whenStable();
 		fixture.detectChanges();
@@ -134,12 +186,14 @@ describe('AssistantChatComponent', () => {
 		expect(store.state()).toBe('idle');
 	});
 
-	it('shows the truthful no-answer error with retry (no invented answer)', async () => {
+	it('replaces a legacy refusal with an honest retry notice without an irrelevant human-support link', async () => {
 		await type('سؤال');
 		(el().querySelector('.ac__btn') as HTMLButtonElement).click();
 		events.next({ type: 'error', clientRequestId: 'c-1', code: 'NO_ANSWER', message: 'لم يجد المساعد الذكي إجابة معتمدة', humanSupportFallback: true });
 		fixture.detectChanges();
-		expect(el().querySelector('.ac__error')!.textContent).toContain('إجابة معتمدة');
+		expect(el().querySelector('.ac__error')!.textContent).toContain(HELP_ASSISTANT_UNAVAILABLE_MESSAGE);
+		expect(el().querySelector('.ac__error')!.textContent).not.toContain('إجابة معتمدة');
+		expect(el().querySelector('.ac__error a')).toBeNull();
 		expect(el().querySelectorAll('.ac__bubble--ai').length).toBe(0);
 		(el().querySelector('.ac__error button') as HTMLButtonElement).click();
 		expect(socket.ask).toHaveBeenCalledTimes(2);
@@ -184,7 +238,7 @@ describe('AssistantChatComponent', () => {
 		FakeRecognition.instances[0].say('كيف أسحب أرباحي');
 		mic().click();
 		fixture.detectChanges();
-		expect(socket.ask).toHaveBeenCalledWith('كيف أسحب أرباحي', []);
+		expect(socket.ask).toHaveBeenCalledWith('كيف أسحب أرباحي', [],expect.objectContaining({dialect:'msa',language:'ar-SA',profile:'auto'}));
 		expect(el().querySelector('.ac__bubble--user')!.textContent).toContain('كيف أسحب أرباحي');
 		expect(mic().getAttribute('aria-pressed')).toBe('false');
 	});
@@ -318,7 +372,7 @@ describe('AssistantChatComponent', () => {
 	it('a platform question containing a command word still goes to the assistant', async () => {
 		await type('ازاي أعمل مشروع؟');
 		(el().querySelector('.ac__btn') as HTMLButtonElement).click();
-		expect(socket.ask).toHaveBeenCalledWith('ازاي أعمل مشروع؟', []);
+		expect(socket.ask).toHaveBeenCalledWith('ازاي أعمل مشروع؟', [],expect.objectContaining({dialect:'egyptian',language:'ar-EG',profile:'auto'}));
 	});
 });
 

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
+import { vi } from 'vitest';
 
 import { RequestDetails } from './request-details';
 import { ThemeService } from '../../../../../core/services/theme.service';
@@ -198,7 +199,7 @@ describe('RequestDetails — Compare Offers', () => {
 		expect(html).not.toContain('85%');
 		expect(html).not.toContain('95%');
 	});
-	it('shows "تقييم جودة العرض" with the WaseetAI summary and a caveat that it does not measure project fit or price fairness', async () => {
+	it('shows stored text-quality review separately from profile fit and constraints', async () => {
 		const offer = makeOffer({
 			aiAnalysis: { ...makeOffer().aiAnalysis, qualityTag: 'قوي', qualitySummary: 'عرض قوي بخطة واضحة على ثلاث مراحل.' }
 		});
@@ -208,7 +209,7 @@ describe('RequestDetails — Compare Offers', () => {
 		const html: string = fixture.nativeElement.innerHTML;
 		expect(html).toContain('تقييم جودة العرض');
 		expect(html).toContain('عرض قوي بخطة واضحة على ثلاث مراحل.');
-		expect(html).toContain('ولا يقيس توافقه مع مشروعك ولا عدالة السعر');
+		expect(html).toContain('تقييم جودة النص مستقل عن ملاءمة الملف للطلب');
 		// No fabricated fairness rows for a proposal that carries no such judgement.
 		expect(html).not.toContain('السعر العادل');
 		expect(html).not.toContain('المدة العادلة');
@@ -390,8 +391,75 @@ describe('RequestDetails — offer ordering & score labels (AI Cleanup Batch 5)'
 	it('renders the real score as "تقييم العرض" and no percentage when there is none', async () => {
 		const fixture = await setup([scoredProposal('a', 73, '2026-01-01T00:00:00Z'), scoredProposal('b', null, '2026-01-01T00:00:00Z')]);
 		const text = (fixture.nativeElement as HTMLElement).textContent || '';
-		expect(text).toContain('تقييم العرض 73%');
-		expect(text).toContain('تقييم العرض غير متاح');
+		expect(text).toContain('تقييم سابق 73%');
+		expect(text).toContain('جودة النص غير متاحة');
 		expect(text).not.toContain('null%');
+	});
+});
+
+describe('RequestDetails — stored suitability and independent comparison fields', () => {
+	const fit = { source: 'LLM', overallFit: 'HIGH', summary: 'خبرة المقدم والعرض يغطيان متجر الملابس المطلوب.', matchPoints: [{ text: 'خبرة موثقة في تطوير المتاجر.', basedOn: ['provider.specialties', 'project.description'] }], gaps: [{ text: 'لم يوضح طريقة اختبار الدفع.', basedOn: ['proposal.message'] }] };
+	async function setup(proposals: any[], description = '### المتطلبات\n**متجر ملابس**\n- إدارة المخزون') {
+		const get = vi.fn(() => of({ success: true, data: { status: 'OPEN', description, proposals } }));
+		const post = vi.fn(() => of({ success: false }));
+		await TestBed.configureTestingModule({ imports: [RequestDetails], providers: [
+			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => null } } } },
+			{ provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
+			{ provide: HttpClient, useValue: { get, post } },
+			{ provide: ThemeService, useValue: { theme: () => 'dark' } },
+			{ provide: ChatService, useValue: {} },
+		] }).compileComponents();
+		const fixture = TestBed.createComponent(RequestDetails), component = fixture.componentInstance;
+		component.fetchRequestDetails('req-1'); fixture.detectChanges(); await fixture.whenStable();
+		return { fixture, component, get, post };
+	}
+
+	it('maps profile fit, pure quality and constraints independently; never promotes a high legacy blended score', async () => {
+		const { fixture, component } = await setup([{ ...proposalFixture(), aiProviderFit: fit, aiQualityScore: 78, aiMatchScore: 96, aiRecommendationRank: 1,
+			budgetSuitability: { status: 'BELOW_RANGE', summary: 'أقل من الحد المذكور؛ راجع شمول المتطلبات.' }, deadlineSuitability: { status: 'EXCEEDS_DEADLINE', summary: 'أطول من الموعد المطلوب.' }, aiRecommendationBasis: ['خبرة ملائمة للطلب', 'راجع الموعد قبل الاتفاق'] }]);
+		const offer = component.offers()[0];
+		expect(offer.qualityScore).toBe(78); expect(offer.providerFit?.overallFit).toBe('HIGH'); expect(offer.recommendationRank).toBe(1);
+		const text = fixture.nativeElement.textContent;
+		expect(text).toContain('جودة النص 78/100'); expect(text).toContain('ملاءمة مرتفعة'); expect(text).toContain('خبرة موثقة في تطوير المتاجر.'); expect(text).toContain('لم يوضح طريقة اختبار الدفع.');
+		expect(text).toContain('أقل من الميزانية'); expect(text).toContain('يتجاوز المدة المطلوبة'); expect(text).toContain('ترتيب استرشادي #1');
+		expect(text).toContain('بناءً على: تخصصات المقدم المعتمدة، وصف الطلب'); expect(text).not.toContain('provider.specialties'); expect(text).not.toContain('project.description');
+		expect(text).not.toContain('ضمان 14 يوما'); expect(text).not.toContain('90% فأكثر');
+	});
+
+	it('preserves newest order by default and only sorts after the user selects most suitable', async () => {
+		const { fixture, component, get, post } = await setup([
+			{ ...proposalFixture({ id: 'new', providerName: 'الأحدث' }), aiProviderFit: { ...fit, overallFit: 'MEDIUM' }, aiRecommendationRank: 2 },
+			{ ...proposalFixture({ id: 'old', providerName: 'الأقدم' }), aiProviderFit: fit, aiRecommendationRank: 1 },
+			{ ...proposalFixture({ id: 'unreviewed' }), aiQualityScore: null, aiProviderFit: null, aiRecommendationRank: null },
+		]);
+		expect(component.displayedOffers().map(offer => offer.id)).toEqual(['new', 'old', 'unreviewed']);
+		const select = fixture.nativeElement.querySelector('select[aria-label="ترتيب العروض"]') as HTMLSelectElement;
+		select.value = 'suitability'; select.dispatchEvent(new Event('change')); fixture.detectChanges();
+		expect(component.displayedOffers().map(offer => offer.id)).toEqual(['old', 'new', 'unreviewed']);
+		expect(component.offers().map(offer => offer.id)).toEqual(['new', 'old', 'unreviewed']);
+		expect(get).toHaveBeenCalledTimes(1); expect(post).not.toHaveBeenCalled();
+	});
+
+	it('shows zero offers clearly, without ranking controls or an invented recommendation', async () => {
+		const { fixture, component, post } = await setup([]);
+		expect(component.hasRecommendations()).toBe(false);
+		expect(fixture.nativeElement.textContent).toContain('لم تصلك عروض بعد');
+		expect(fixture.nativeElement.querySelector('select[aria-label="ترتيب العروض"]')).toBeNull();
+		expect(fixture.nativeElement.querySelector('.fit-recommendation-basis')).toBeNull(); expect(post).not.toHaveBeenCalled();
+	});
+
+	it('unknown quality and missing fit stay unknown, and unsafe stored Markdown remains escaped', async () => {
+		const { fixture, component } = await setup([{ ...proposalFixture(), aiQualityScore: null, aiMatchScore: null, aiProviderFit: { source: 'UNVERIFIED', overallFit: 'HIGH', summary: 'invented' }, aiRecommendationRank: 1 }], '### وصف المشروع\n**متجر**\n<img src=x onerror=alert(1)>\n[خطر](javascript:alert(1))');
+		expect(component.offers()[0].providerFit).toBeNull(); expect(component.offers()[0].recommendationRank).toBeNull();
+		expect(fixture.nativeElement.textContent).toContain('جودة النص غير متاحة'); expect(fixture.nativeElement.textContent).not.toContain('0/100');
+		expect(fixture.nativeElement.querySelector('.req-description-markdown strong')?.textContent).toBe('متجر');
+		expect(fixture.nativeElement.querySelector('.req-description-markdown img')).toBeNull(); expect(fixture.nativeElement.querySelector('a[href^="javascript:"]')).toBeNull();
+	});
+
+	it('comparison includes stored project-fit evidence, quality, budget and deadline separately', async () => {
+		const { fixture, component } = await setup([{ ...proposalFixture({ id: 'a', providerName: 'مقدم أ' }), aiProviderFit: fit, aiQualityScore: 88, aiRecommendationRank: 1 }, { ...proposalFixture({ id: 'b', providerName: 'مقدم ب' }), aiProviderFit: null, aiQualityScore: null }]);
+		component.selectedForCompare.set(['مقدم أ', 'مقدم ب']); component.showComparisonView.set(true); fixture.detectChanges();
+		const comparison = fixture.nativeElement.querySelector('.cmp-page-table');
+		expect(comparison.textContent).toContain('ملاءمة الملف للطلب'); expect(comparison.textContent).toContain('88/100'); expect(comparison.textContent).toContain('موافقة الميزانية'); expect(comparison.textContent).toContain('موافقة الموعد'); expect(comparison.textContent).toContain('لم يُراجع الملف بعد');
 	});
 });

@@ -4,6 +4,7 @@ import { Observable, Subject } from 'rxjs';
 import io, { Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthStore } from '../store/auth.store';
+import { isObsoleteKnowledgeRefusal, normalizeAssistantError } from '../help/assistant-errors';
 
 // Transport for the ONE real Help AI engine (backend
 // sockets/help-assistant-chat.gateway.ts → WaseetAI AI-21 help stream).
@@ -32,6 +33,20 @@ export interface HelpChatHistoryTurn {
 export interface HelpCitation {
 	docId: string;
 	title: string;
+	url?: string;
+	section?: string;
+	line?: number;
+}
+
+export interface AssistantAskOptions {
+	skin?: string;
+	dialect?: string;
+	language?: string;
+	effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+	profile?: 'fast' | 'balanced' | 'deep' | 'auto';
+	model?: string;
+	webSearch?: boolean;
+	pageContext?: { path: string; projectId?: string };
 }
 
 export type HelpErrorCode =
@@ -46,9 +61,10 @@ export type HelpErrorCode =
 	| 'CONNECTION_LOST';
 
 export type HelpStreamEvent =
+	| { type: 'progress'; clientRequestId: string; runId?: string; stage: string; message: string; status?: string }
 	| { type: 'start'; clientRequestId: string }
 	| { type: 'chunk'; clientRequestId: string; chunk: string }
-	| { type: 'citations'; clientRequestId: string; citations: HelpCitation[] }
+	| { type: 'citations'; clientRequestId: string; citations: HelpCitation[]; searchSuggestionsHtml?: string }
 	| { type: 'complete'; clientRequestId: string }
 	| { type: 'error'; clientRequestId: string | null; code: HelpErrorCode; message: string; humanSupportFallback: boolean }
 	/** Transport-level: the socket dropped or could not connect. */
@@ -77,6 +93,9 @@ export class HelpAssistantSocketService implements OnDestroy {
 	private socket: Socket | null = null;
 	private socketToken: string | null = null;
 	private readonly eventsSubject = new Subject<HelpStreamEvent>();
+	/** A small tail catches a legacy refusal even when the gateway splits it between chunks. */
+	private readonly answerTails = new Map<string, string>();
+	private readonly suppressedAnswers = new Set<string>();
 
 	readonly events$: Observable<HelpStreamEvent> = this.eventsSubject.asObservable();
 
@@ -98,7 +117,7 @@ export class HelpAssistantSocketService implements OnDestroy {
 	 * sent (SSR, or no authenticated session — an `error` event with
 	 * AUTH_REQUIRED is published in that case).
 	 */
-	ask(question: string, history: HelpChatHistoryTurn[] = []): string | null {
+	ask(question: string, history: HelpChatHistoryTurn[] = [], options: AssistantAskOptions = {}): string | null {
 		if (!this.isBrowser) return null;
 		const clientRequestId = newRequestId();
 		const s = this.ensureSocket();
@@ -106,7 +125,7 @@ export class HelpAssistantSocketService implements OnDestroy {
 			this.publish({ type: 'error', clientRequestId, code: 'AUTH_REQUIRED', message: HELP_AUTH_REQUIRED_MESSAGE, humanSupportFallback: false });
 			return null;
 		}
-		s.emit('help:ask', { question, history, clientRequestId });
+		s.emit('help:ask', { question, history, clientRequestId, ...options });
 		return clientRequestId;
 	}
 
@@ -114,9 +133,13 @@ export class HelpAssistantSocketService implements OnDestroy {
 	cancel(clientRequestId: string | null): void {
 		if (!clientRequestId || !this.socket) return;
 		this.socket.emit('help:cancel', { clientRequestId });
+		this.answerTails.delete(clientRequestId);
+		this.suppressedAnswers.delete(clientRequestId);
 	}
 
 	disconnect(): void {
+		this.answerTails.clear();
+		this.suppressedAnswers.clear();
 		if (this.socket) {
 			this.socket.removeAllListeners();
 			this.socket.disconnect();
@@ -140,33 +163,59 @@ export class HelpAssistantSocketService implements OnDestroy {
 
 		this.disconnect();
 		this.socketToken = token;
-		const s = this.connectSocket(environment.socketUrl, {
+		const s = this.connectSocket((environment as { assistantSocketUrl?: string }).assistantSocketUrl ?? environment.socketUrl, {
 			withCredentials: true,
 			reconnection: true,
 			auth: { token },
 		});
 		this.socket = s;
 
-		s.on('help:answer_start', (d: any) => this.publish({ type: 'start', clientRequestId: str(d?.clientRequestId) }));
+		s.on('help:answer_start', (d: any) => {
+			const clientRequestId = str(d?.clientRequestId);
+			this.answerTails.delete(clientRequestId);
+			this.suppressedAnswers.delete(clientRequestId);
+			this.publish({ type: 'start', clientRequestId });
+		});
+		s.on('help:progress', (d: any) => this.publish({ type: 'progress', clientRequestId: str(d?.clientRequestId), runId: str(d?.runId) || undefined, stage: str(d?.stage), message: str(d?.message), status: str(d?.status) || undefined }));
 		s.on('help:answer_chunk', (d: any) => {
-			if (typeof d?.chunk === 'string') this.publish({ type: 'chunk', clientRequestId: str(d?.clientRequestId), chunk: d.chunk });
+			if (typeof d?.chunk !== 'string') return;
+			const clientRequestId = str(d?.clientRequestId);
+			if (this.suppressedAnswers.has(clientRequestId)) return;
+			const tail = (this.answerTails.get(clientRequestId) ?? '') + d.chunk;
+			if (isObsoleteKnowledgeRefusal(tail)) {
+				this.answerTails.delete(clientRequestId);
+				if (this.suppressedAnswers.size >= 16) this.suppressedAnswers.delete(this.suppressedAnswers.values().next().value!);
+				this.suppressedAnswers.add(clientRequestId);
+				this.publish({ type: 'error', clientRequestId, ...normalizeAssistantError({ code: 'NO_ANSWER' }), code: 'UNAVAILABLE' });
+				return;
+			}
+			// Only a bounded suffix is retained; normal answers continue to stream immediately.
+			if (this.answerTails.size >= 16 && !this.answerTails.has(clientRequestId)) this.answerTails.delete(this.answerTails.keys().next().value!);
+			this.answerTails.set(clientRequestId, tail.slice(-256));
+			this.publish({ type: 'chunk', clientRequestId, chunk: d.chunk });
 		});
 		s.on('help:citations', (d: any) => {
 			const citations = Array.isArray(d?.citations)
-				? d.citations.map((c: any) => ({ docId: str(c?.docId), title: str(c?.title) })).filter((c: HelpCitation) => c.title)
+				? d.citations.map((c: any) => ({ docId: str(c?.docId), title: str(c?.title), ...(typeof c?.url === 'string' ? { url: c.url } : {}), ...(typeof c?.section === 'string' ? { section: c.section } : {}), ...(Number.isInteger(c?.line) && c.line > 0 ? { line: c.line } : {}) })).filter((c: HelpCitation) => c.title)
 				: [];
-			this.publish({ type: 'citations', clientRequestId: str(d?.clientRequestId), citations });
+			this.publish({ type: 'citations', clientRequestId: str(d?.clientRequestId), citations, ...(typeof d?.searchSuggestionsHtml === 'string' && d.searchSuggestionsHtml.length <= 64_000 ? { searchSuggestionsHtml: d.searchSuggestionsHtml } : {}) });
 		});
-		s.on('help:answer_complete', (d: any) => this.publish({ type: 'complete', clientRequestId: str(d?.clientRequestId) }));
-		s.on('help:error', (d: any) =>
+		s.on('help:answer_complete', (d: any) => {
+			const clientRequestId = str(d?.clientRequestId);
+			this.answerTails.delete(clientRequestId);
+			if (this.suppressedAnswers.delete(clientRequestId)) return;
+			this.publish({ type: 'complete', clientRequestId });
+		});
+		s.on('help:error', (d: any) => {
+			const normalized = normalizeAssistantError({ code: str(d?.code), message: str(d?.message), humanSupportFallback: d?.humanSupportFallback === true });
+			if (typeof d?.clientRequestId === 'string') this.answerTails.delete(d.clientRequestId);
 			this.publish({
 				type: 'error',
 				clientRequestId: typeof d?.clientRequestId === 'string' ? d.clientRequestId : null,
-				code: (str(d?.code) || 'UNAVAILABLE') as HelpErrorCode,
-				message: str(d?.message) || 'تعذر الحصول على رد من المساعد الذكي حالياً.',
-				humanSupportFallback: d?.humanSupportFallback === true,
-			}),
-		);
+				...normalized,
+				code: normalized.code as HelpErrorCode,
+			});
+		});
 		s.on('disconnect', () => this.publish({ type: 'connection_lost' }));
 		s.on('connect_error', () => this.publish({ type: 'connection_lost' }));
 		return s;

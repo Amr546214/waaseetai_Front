@@ -7,6 +7,10 @@ import { environment } from '../../../../../../environments/environment';
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { ChatService } from '../../../../../core/services/chat.service';
 import { resolveProviderLevelBadgeStyle } from '../../../../../core/utils/provider-level-style.util';
+import { assistantMarkdown } from '../../../../../core/help/assistant-content';
+
+interface OfferProviderFit { overallFit: 'HIGH' | 'MEDIUM' | 'LOW'; summary: string; matchPoints: { text: string; basedOn: string[] }[]; gaps: { text: string; basedOn: string[] }[]; }
+interface OfferSuitability { status: string; summary: string; }
 
 interface Offer {
 	id: string;
@@ -27,6 +31,12 @@ interface Offer {
 	// default. Templates must show "غير متاح" rather than a fake value.
 	rating: number | null;
 	matchScore: number | null;
+	qualityScore?: number | null;
+	providerFit?: OfferProviderFit | null;
+	budgetSuitability?: OfferSuitability | null;
+	deadlineSuitability?: OfferSuitability | null;
+	recommendationRank?: number | null;
+	recommendationBasis?: string[];
 	price: string;
 	duration: string;
 	description: string;
@@ -103,6 +113,37 @@ export class RequestDetails implements OnInit {
 	});
 
 	offers = signal<Offer[]>([]);
+	offerSort = signal<'newest' | 'suitability'>('newest');
+	hasRecommendations = computed(() => this.offers().some(offer => offer.recommendationRank != null));
+	displayedOffers = computed(() => this.offerSort() === 'newest' ? this.offers() : [...this.offers()].sort((a, b) => (a.recommendationRank ?? Number.MAX_SAFE_INTEGER) - (b.recommendationRank ?? Number.MAX_SAFE_INTEGER)));
+	formatProjectDescription(text: string): string { return assistantMarkdown(text); }
+	setOfferSort(value: string): void { this.offerSort.set(value === 'suitability' ? 'suitability' : 'newest'); }
+	fitLabel(fit: OfferProviderFit | null | undefined): string { return fit ? ({ HIGH: 'ملاءمة مرتفعة', MEDIUM: 'ملاءمة متوسطة', LOW: 'ملاءمة محدودة' }[fit.overallFit]) : 'لم يُراجع الملف بعد'; }
+	fitEvidenceLabel(paths: string[]): string {
+		const labels: Record<string, string> = {
+			'project.title': 'عنوان الطلب', 'project.description': 'وصف الطلب', 'project.requirements': 'متطلبات الطلب',
+			'project.requiredSkills': 'المهارات المطلوبة', 'project.category': 'تخصص الطلب', 'project.subSpecialties': 'تخصصات الطلب', 'project.outputs': 'المخرجات المطلوبة',
+			'project.budgetMin': 'الميزانية المطلوبة', 'project.budgetMax': 'الميزانية المطلوبة', 'project.budgetFixed': 'الميزانية المطلوبة', 'project.deliveryDays': 'مدة الطلب',
+			'provider.skills': 'مهارات المقدم', 'provider.specialties': 'تخصصات المقدم المعتمدة', 'provider.declaredSpecialties': 'تخصصات ملف المقدم',
+			'provider.headline': 'عنوان ملف المقدم', 'provider.bio': 'نبذة المقدم', 'provider.portfolioItems': 'الأعمال المسجلة في الملف',
+			'provider.yearsOfExperience': 'الخبرة المسجلة في الملف', 'provider.level': 'مستوى المقدم',
+			'proposal.title': 'عنوان العرض', 'proposal.message': 'نص العرض', 'proposal.outputs': 'مخرجات العرض', 'proposal.advantages': 'تفاصيل العرض', 'proposal.milestones': 'خطة العرض'
+		};
+		return [...new Set(paths.map(path => {
+			const normalized = path.replace(/\[\d*\]/g, '');
+			const field = Object.keys(labels).find(key => normalized === key || normalized.startsWith(`${key}.`));
+			return field ? labels[field] : 'البيانات المسجلة';
+		}))].join('، ');
+	}
+	suitabilityLabel(value: OfferSuitability | null | undefined): string {
+		return value ? ({ WITHIN_RANGE: 'ضمن الميزانية', BELOW_RANGE: 'أقل من الميزانية', ABOVE_RANGE: 'يتجاوز الميزانية', WITHIN_DEADLINE: 'ضمن المدة المطلوبة', EXCEEDS_DEADLINE: 'يتجاوز المدة المطلوبة', UNKNOWN: 'بيانات غير كافية' } as Record<string, string>)[value.status] ?? 'غير متاح' : 'غير متاح';
+	}
+	private readProviderFit(value: any): OfferProviderFit | null {
+		if (!value || value.source !== 'LLM' || !['HIGH', 'MEDIUM', 'LOW'].includes(value.overallFit) || typeof value.summary !== 'string' || !value.summary.trim()) return null;
+		const points = (rows: unknown) => Array.isArray(rows) ? rows.filter(row => row && typeof row.text === 'string' && Array.isArray(row.basedOn)).slice(0, 6).map(row => ({ text: row.text.slice(0, 300), basedOn: row.basedOn.filter((item: unknown) => typeof item === 'string' && item.trim()).slice(0, 6).map((item: string) => item.slice(0, 120)) })) : [];
+		return { overallFit: value.overallFit, summary: value.summary.slice(0, 700), matchPoints: points(value.matchPoints), gaps: points(value.gaps) };
+	}
+	private readSuitability(value: any): OfferSuitability | null { return value && typeof value.status === 'string' && typeof value.summary === 'string' ? { status: value.status, summary: value.summary.slice(0, 700) } : null; }
 
 	// Compare mode state
 	isCompareMode = signal<boolean>(false);
@@ -193,7 +234,9 @@ export class RequestDetails implements OnInit {
 						const mappedOffers = visibleProposals.map((prop: any) => {
 							const providerName = prop.provider?.name || (prop.provider?.firstName ? `${prop.provider.firstName} ${prop.provider.lastName}` : 'مقدم خدمة');
 							const initials = providerName.split(' ').map((n: string) => n[0] || '').join('').substring(0, 2);
-							const isBest = prop.aiBadge !== null && (prop.aiMatchPercent >= 90 || prop.aiMatchScore >= 90);
+							const providerFit = this.readProviderFit(prop.aiProviderFit);
+							const recommendationRank = providerFit && Number.isInteger(prop.aiRecommendationRank) && prop.aiRecommendationRank > 0 ? prop.aiRecommendationRank : null;
+							const qualityScore = typeof prop.aiQualityScore === 'number' && Number.isFinite(prop.aiQualityScore) && prop.aiQualityScore >= 0 && prop.aiQualityScore <= 100 ? prop.aiQualityScore : null;
 							return {
 								id: prop.id,
 								status: String(prop.status || 'SUBMITTED'),
@@ -210,7 +253,11 @@ export class RequestDetails implements OnInit {
 								// show "غير متاح" instead of a confident-looking fake figure.
 								rating: prop.provider?.rating ?? null,
 								matchScore: prop.aiMatchPercent ?? prop.aiMatchScore ?? null,
-								isBestMatch: isBest,
+								isBestMatch: recommendationRank === 1,
+								qualityScore, providerFit, recommendationRank,
+								budgetSuitability: this.readSuitability(prop.budgetSuitability),
+								deadlineSuitability: this.readSuitability(prop.deadlineSuitability),
+								recommendationBasis: Array.isArray(prop.aiRecommendationBasis) ? prop.aiRecommendationBasis.filter((item: unknown) => typeof item === 'string').slice(0, 6) : [],
 								price: prop.totalPrice ? `${prop.totalPrice} $` : (prop.bidAmount ? `${prop.bidAmount} $` : ''),
 								duration: prop.deliveryDays ? `${prop.deliveryDays} أيام` : (prop.durationText || ''),
 								description: prop.coverLetter || prop.message || prop.description || '',
