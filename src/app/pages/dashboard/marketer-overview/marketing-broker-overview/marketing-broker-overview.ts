@@ -1,3 +1,4 @@
+import { RateLimitNoteComponent } from '../../../../sheards/load-retry/rate-limit-note';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -10,7 +11,7 @@ import { handleLoadError } from '../../../../core/utils/rate-limit.util';
 @Component({
 	selector: 'app-marketing-broker-overview',
 	standalone: true,
-	imports: [MarketerLevelTagComponent, CommonModule, AiResultCardComponent, RouterLink],
+	imports: [RateLimitNoteComponent, MarketerLevelTagComponent, CommonModule, AiResultCardComponent, RouterLink],
 	templateUrl: './marketing-broker-overview.html',
 	styleUrl: './marketing-broker-overview.css',
 })
@@ -21,6 +22,9 @@ export class MarketingBrokerOverview implements OnInit {
 	channels = signal<ChannelPerformance[]>([]);
 	commissions = signal<CommissionLog[]>([]);
 	loadFailed = signal<boolean>(false);
+	/** a 429 hit one of the loads: the ticking sentence replaces the generic "reload" note; a 429 with data shown keeps the data */
+	rateLimited = signal(false);
+	rateLimitKept = signal(false);
 	readonly channelLabel = channelLabel;
 	readonly commissionTypeLabel = commissionTypeLabel;
 	readonly commissionStatusLabel = commissionStatusLabel;
@@ -37,19 +41,19 @@ export class MarketingBrokerOverview implements OnInit {
 		// Summary
 		this.marketerOverviewService.getSummary().subscribe({
 			next: (res) => this.summary.set(res.data),
-			error: (err) => handleLoadError(err, { hasData: () => this.summary() != null, onRateLimit: () => this.loadFailed.set(true), onOtherError: () => this.loadFailed.set(true) }),
+			error: (err) => handleLoadError(err, { hasData: () => this.summary() != null, onKeep: () => this.rateLimitKept.set(true), onRateLimit: () => { this.loadFailed.set(true); this.rateLimited.set(true); }, onOtherError: () => this.loadFailed.set(true) }),
 		});
 
 		// Channels
 		this.marketerOverviewService.getChannelPerformance().subscribe({
 			next: (res) => this.channels.set(res.data),
-			error: (err) => handleLoadError(err, { hasData: () => this.channels().length > 0, onRateLimit: () => this.loadFailed.set(true), onOtherError: () => this.loadFailed.set(true) }),
+			error: (err) => handleLoadError(err, { hasData: () => this.channels().length > 0, onKeep: () => this.rateLimitKept.set(true), onRateLimit: () => { this.loadFailed.set(true); this.rateLimited.set(true); }, onOtherError: () => this.loadFailed.set(true) }),
 		});
 
 		// Commissions
 		this.marketerOverviewService.getRecentCommissions(5).subscribe({
 			next: (res) => this.commissions.set(res.data),
-			error: (err) => handleLoadError(err, { hasData: () => this.commissions().length > 0, onRateLimit: () => this.loadFailed.set(true), onOtherError: () => this.loadFailed.set(true) }),
+			error: (err) => handleLoadError(err, { hasData: () => this.commissions().length > 0, onKeep: () => this.rateLimitKept.set(true), onRateLimit: () => { this.loadFailed.set(true); this.rateLimited.set(true); }, onOtherError: () => this.loadFailed.set(true) }),
 		});
 
 		this.loadInsights();

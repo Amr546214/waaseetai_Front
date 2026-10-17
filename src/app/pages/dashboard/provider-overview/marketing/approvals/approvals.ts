@@ -1,5 +1,5 @@
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -19,6 +19,8 @@ import {
   mapProviderModels, offerNeedsApproval, relativeTime,
 } from '../marketing-utils';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 
 type ApprovalTab = 'pending' | 'approved' | 'rejected';
 
@@ -61,6 +63,12 @@ export class MarketingApprovals implements OnInit {
   private teamApi = inject(CompanyTeamService);
   private modelsApi = inject(NewProjectService);
   private destroyRef = inject(DestroyRef);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
+  /** Field message under the rejection-reason input. */
+  reasonError = signal<string | null>(null);
+  /** Honest message for failures that belong to no field (network, 429, 5xx, 403, 409...). */
+  decisionError = signal<string | null>(null);
 
   isCompanyMode = computed<boolean>(() => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY);
   readonly threshold = COMPANY_APPROVAL_THRESHOLD;
@@ -192,22 +200,39 @@ export class MarketingApprovals implements OnInit {
 
   startReject(i: ApprovalItem): void {
     this.rejectReason = '';
+    this.reasonError.set(null);
+    this.decisionError.set(null);
     this.rejectingKey.set(this.key(i));
   }
 
   decide(i: ApprovalItem, decision: 'APPROVED' | 'REJECTED'): void {
     if (decision === 'REJECTED' && !this.rejectReason.trim()) {
+      const message = 'اكتب سبب الرفض، فهو مطلوب ويظهر لعضو الفريق';
+      this.reasonError.set(message);
       this.notify.warning('يجب توضيح سبب الرفض');
+      void focusInvalidControls(this.host.nativeElement, [{ path: 'reject-reason', message }]);
       return;
     }
+    if (!this.guard.enter()) return;
+    this.reasonError.set(null);
+    this.decisionError.set(null);
     const payload = { decision, rejectionReason: decision === 'REJECTED' ? this.rejectReason.trim() : null };
     this.busyKey.set(this.key(i));
     const onError = (err: unknown) => {
       this.busyKey.set(null);
-      this.notify.error(httpErrorMessage(err, 'تعذر تسجيل القرار'));
+      this.guard.release();
+      const mapped = mapHttpError(err, { fallback: 'تعذر تسجيل القرار' });
+      if (mapped.kind === 'backend-validation' && decision === 'REJECTED') {
+        this.reasonError.set(mapped.message);
+        void focusInvalidControls(this.host.nativeElement, [{ path: 'reject-reason', message: mapped.message }]);
+      } else {
+        this.decisionError.set(mapped.message);
+      }
+      this.notify.error(mapped.message);
     };
     const done = () => {
       this.busyKey.set(null);
+      this.guard.release();
       this.rejectingKey.set(null);
       this.centerApi.refreshPendingCount();
       this.notify.success(decision === 'APPROVED' ? `تم اعتماد ${i.title}` : `تم رفض ${i.title}`);

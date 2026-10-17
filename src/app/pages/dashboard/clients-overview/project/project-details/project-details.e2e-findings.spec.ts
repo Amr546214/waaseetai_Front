@@ -16,7 +16,7 @@ async function setup(ws: any, amendments: any[] = []) {
 	const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: amendments }) : of({ success: true, data: ws }));
 	await TestBed.configureTestingModule({ imports: [ProjectDetails], providers: [provideRouter([]),
 		{ provide: HttpClient, useValue: { get, post: () => of({ success: true, data: {} }) } },
-		{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
+		{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
 	const f = TestBed.createComponent(ProjectDetails); f.detectChanges(); await f.whenStable(); f.detectChanges();
 	return { f, c: f.componentInstance, el: f.nativeElement as HTMLElement };
 }

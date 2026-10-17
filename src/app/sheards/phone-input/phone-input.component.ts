@@ -1,10 +1,12 @@
 import {
 	Component,
+	DoCheck,
 	ElementRef,
 	forwardRef,
 	HostListener,
 	Input,
 	OnInit,
+	ViewChild,
 	ViewEncapsulation,
 } from '@angular/core';
 import {
@@ -79,7 +81,9 @@ function getFlagEmoji(countryCode: string): string {
 		},
 	],
 })
-export class PhoneInputComponent implements ControlValueAccessor, Validator, OnInit {
+export class PhoneInputComponent implements ControlValueAccessor, Validator, OnInit, DoCheck {
+	@ViewChild('phoneField') private phoneField?: ElementRef<HTMLInputElement>;
+
 	@Input() placeholder = 'رقم الجوال';
 	@Input() preferredCountries: CountryCode[] = ['SA', 'AE', 'KW', 'QA', 'BH', 'OM'];
 	@Input() defaultCountry: CountryCode = 'SA';
@@ -120,6 +124,26 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 	private onTouched: () => void = () => { };
 
 	constructor(private elementRef: ElementRef) { }
+
+	/**
+	 * The form-level helpers (focus first invalid, aria-invalid sync) address the <app-phone-input formControlName> host:
+	 * the host is programmatically focusable and hands the focus to the real number box, and the invalid state the form
+	 * puts on the host is mirrored on that box so a screen reader announces it where the cursor is.
+	 */
+	@HostListener('focus') onHostFocus(): void { this.focusField(); }
+
+	focusField(): void { this.phoneField?.nativeElement.focus(); }
+
+	ngDoCheck(): void {
+		const host = this.elementRef.nativeElement as HTMLElement;
+		const inner = this.phoneField?.nativeElement;
+		if (!host || !inner) return;
+		if (host.getAttribute('tabindex') === null) host.setAttribute('tabindex', '-1');
+		const invalid = host.getAttribute('aria-invalid');
+		if (invalid) inner.setAttribute('aria-invalid', invalid); else inner.removeAttribute('aria-invalid');
+		const desc = host.getAttribute('aria-describedby');
+		if (desc) inner.setAttribute('aria-describedby', desc); else inner.removeAttribute('aria-describedby');
+	}
 
 	ngOnInit(): void {
 		const preferred = this.preferredCountries

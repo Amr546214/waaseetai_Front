@@ -6,6 +6,8 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { AccountService } from '../../../core/services/account.service';
 import { UiNotificationService } from '../../../core/services/ui-notification.service';
 import { NotificationEngineService } from '../../../core/services/notification-engine.service';
+import { NotificationNavigator } from '../../../core/services/notification-navigator.service';
+import { normalizeLegacyNotificationUrl } from '../../../core/routing/notification-links';
 import { ThemeService } from '../../../core/services/theme.service';
 import { ChatStateService } from '../../../core/services/chat-state.service';
 import { UserRole } from '../../../core/models/auth.model';
@@ -30,6 +32,7 @@ export class NavDashboard {
 	public accountService = inject(AccountService);
 	public router = inject(Router);
 	public notifEngine = inject(NotificationEngineService);
+	private notificationNavigator = inject(NotificationNavigator);
 	private notify = inject(UiNotificationService);
 	public themeService = inject(ThemeService);
 	public chatState = inject(ChatStateService);
@@ -184,10 +187,11 @@ export class NavDashboard {
 		// being parsed. navigateByUrl parses the whole string correctly via
 		// the router's UrlSerializer, matching the notification bell's own
 		// (working) click handler.
-		const url = this.notifEngine.latestNotification()?.actionUrl;
+		const latest = this.notifEngine.latestNotification();
 		this.notifEngine.closeToast();
-		if (url) {
-			this.router.navigateByUrl(url);
+		if (latest) {
+			// same click behaviour as the bell and the pages (role-aware, honest reason, never blocked by the read update)
+			void this.notificationNavigator.open({ id: latest.id ?? '', isUnread: !!latest.id, actionUrl: normalizeLegacyNotificationUrl(latest.actionUrl) }, {});
 		}
 	}
 }

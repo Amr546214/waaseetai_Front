@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { environment } from '../../../environments/environment';
 import { Subject } from 'rxjs';
 
@@ -94,6 +95,7 @@ export class AntiCheatService implements OnDestroy {
 
     this.socket = io(environment.socketUrl, {
       withCredentials: true,
+      ...SOCKET_BACKOFF,
       transports: ['websocket', 'polling'],
       auth: { token }
     });

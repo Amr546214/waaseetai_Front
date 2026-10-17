@@ -47,11 +47,11 @@
     </div>
     <div class="at-filter-group">
       <div class="at-filter-lbl">من تاريخ</div>
-      <input type="date" aria-label="من تاريخ" [value]="fromDate()" (change)="setFilter(fromDate, $any($event.target).value)" />
+      <input id="au-from" type="date" aria-label="من تاريخ" [value]="fromDate()" (change)="setFilter(fromDate, $any($event.target).value)" />
     </div>
     <div class="at-filter-group">
       <div class="at-filter-lbl">إلى تاريخ</div>
-      <input type="date" aria-label="إلى تاريخ" [value]="toDate()" (change)="setFilter(toDate, $any($event.target).value)" />
+      <input id="au-to" type="date" aria-label="إلى تاريخ" [value]="toDate()" (change)="setFilter(toDate, $any($event.target).value)" />
     </div>
     <div class="at-filter-group">
       <div class="at-filter-lbl">بحث</div>

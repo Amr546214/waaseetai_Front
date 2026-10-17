@@ -1,5 +1,6 @@
 <div class="main-inner">
-    @if (loadFailed()) {
+    @if (rateLimited() || rateLimitKept()) { <app-rate-limit-note /> }
+    @if (loadFailed() && !rateLimited()) {
       <div class="ws-note ws-note--neutral" role="alert"><div class="ws-note-body"><p class="ws-note-txt">تعذر تحميل بعض بيانات اللوحة، أعد تحديث الصفحة. الأرقام الظاهرة قد تكون غير مكتملة.</p></div></div>
     }
     <div class="ws-note ws-note--neutral" role="region" aria-label="ملخص الأداء">

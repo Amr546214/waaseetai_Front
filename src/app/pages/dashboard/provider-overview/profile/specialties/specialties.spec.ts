@@ -32,7 +32,7 @@ const fakeSocket = {
 	}),
 };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Specialties } from './specialties';
 import { AntiCheatService } from '../../../../../core/services/anti-cheat.service';

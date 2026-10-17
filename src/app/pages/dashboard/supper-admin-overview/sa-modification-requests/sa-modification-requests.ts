@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
 import { ProfileAiReview } from '../../../../core/models/ai-result.model';
 import { ProfileAiReviewComponent } from '../../../../shared/ai/profile-ai-review.component';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { handleAdminError, reportAdminProblems } from '../shared/admin-form-report';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaModificationRequestsService, AffiliateChangeRequest, ProfileModificationRequestRow } from './sa-modification-requests.service';
 
@@ -49,6 +51,12 @@ interface ModificationRequest {
 export class SaModificationRequests implements OnInit {
   private service = inject(SaModificationRequestsService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** The request whose inline reject panel is open (replaces the old native window.prompt, which could not show a field error). */
+  rejectingId = signal<string | null>(null);
+  rejectReason = signal('');
+  rejectError = signal('');
+  actionError = signal('');
 
   activeFilter = signal<FilterKey>('all');
   isLoading = signal(false);
@@ -129,6 +137,7 @@ export class SaModificationRequests implements OnInit {
 
   approve(req: ModificationRequest) {
     if (this.processingId()) return;
+    this.actionError.set('');
 
     this.processingId.set(req.id);
     const call$: Observable<{ success: boolean; message?: string }> = req.source === 'profile' ? this.service.reviewProfileRequest(req.id, true) : this.service.approve(req.id);
@@ -143,30 +152,50 @@ export class SaModificationRequests implements OnInit {
           this.notify.error(res.message || 'تعذر اعتماد الطلب');
         }
       },
-      error: (err) => this.notify.error(err?.error?.message || 'تعذر اعتماد الطلب، حاول مرة أخرى')
+      error: (err) => { this.actionError.set(mapHttpError(err, { fallback: 'تعذر اعتماد الطلب، حاول مرة أخرى' }).message); this.notify.error(err?.error?.message || 'تعذر اعتماد الطلب، حاول مرة أخرى'); }
     });
   }
 
+  /** Opens the inline reason panel under the request (nothing is sent yet). */
   reject(req: ModificationRequest) {
     if (this.processingId()) return;
+    this.actionError.set('');
+    this.rejectError.set('');
+    this.rejectReason.set('');
+    this.rejectingId.set(req.id);
+  }
 
-    const reason = window.prompt('سبب رفض الطلب:');
-    if (!reason || !reason.trim()) return;
+  cancelReject() {
+    if (this.processingId()) return;
+    this.rejectingId.set(null);
+    this.rejectError.set('');
+  }
+
+  confirmReject(req: ModificationRequest) {
+    if (this.processingId()) return;
+    const reason = this.rejectReason().trim();
+    this.rejectError.set('');
+    if (reason.length < 2) {
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'mr-reject-reason', message: reason ? 'سبب الرفض قصير جدًا: اكتب حرفين على الأقل' : 'سبب الرفض مطلوب' }]);
+      return;
+    }
 
     this.processingId.set(req.id);
-    const call$: Observable<{ success: boolean; message?: string }> = req.source === 'profile' ? this.service.reviewProfileRequest(req.id, false, reason.trim()) : this.service.reject(req.id, reason.trim());
+    const call$: Observable<{ success: boolean; message?: string }> = req.source === 'profile' ? this.service.reviewProfileRequest(req.id, false, reason) : this.service.reject(req.id, reason);
     call$.pipe(
       finalize(() => this.processingId.set(null))
     ).subscribe({
       next: (res) => {
         if (res.success) {
+          this.rejectingId.set(null);
           this.notify.success(`تم رفض الطلب ${req.requestNumber}`);
           this.loadRequests();
         } else {
-          this.notify.error(res.message || 'تعذر رفض الطلب');
+          this.rejectError.set(res.message || 'تعذر رفض الطلب');
         }
       },
-      error: (err) => this.notify.error(err?.error?.message || 'تعذر رفض الطلب، حاول مرة أخرى')
+      // The panel (and the typed reason) stays open: a field-named 400 goes under the box, anything else is the honest alert.
+      error: (err) => handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر رفض الطلب، حاول مرة أخرى', resolve: { reason: 'mr-reject-reason', rejectionReason: 'mr-reject-reason' } }, (m) => this.rejectError.set(m))
     });
   }
 

@@ -19,6 +19,7 @@ interface MiniChatMessage {
   fileUrl?: string;
   fileName?: string;
   status?: 'PENDING' | 'SENT' | 'READ';
+  isEvent?: boolean;
 }
 
 @Component({
@@ -33,6 +34,10 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
   @Input() initialMessages: any[] = [];
   @Input({ required: true }) fullChatRoute = '';
   @Input() partnerName = 'الطرف الآخر';
+  /** The project's contract id: its own unread badge is cleared when the tab is open. */
+  @Input() contractId: string | null = null;
+  /** True while the project still uses its old shared room (before the approved backfill); only then is the general-messages link shown. */
+  @Input() legacyShared = false;
   @ViewChild('messagesViewport') private messagesViewport?: ElementRef<HTMLElement>;
 
   private chatService = inject(ChatService);
@@ -58,6 +63,7 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
     this.chatService.joinRoom(this.conversationId, this.currentUserId);
     this.chatService.markAsRead(this.conversationId, this.currentUserId);
     this.chatState.activeConversationId.set(this.conversationId);
+    if (this.contractId) this.chatState.clearProjectUnread(this.contractId);
     this.loadHistory();
 
     this.subscriptions.add(this.chatService.socketConnected$.subscribe(() => {
@@ -69,6 +75,12 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
       this.mergeMessage(this.normalizeMessage(message));
       this.sending.set(false);
       this.chatService.markAsRead(this.conversationId!, this.currentUserId);
+      this.scrollToBottom();
+    }));
+    // project events (amendment lifecycle) reach the tab even before the room join is acknowledged; merged by id, never twice
+    this.subscriptions.add(this.chatService.projectEvent$.subscribe(event => {
+      if (!event || event.conversationId !== this.conversationId) return;
+      this.mergeMessage(this.normalizeMessage(event));
       this.scrollToBottom();
     }));
     this.subscriptions.add(this.chatService.typingIndicator$.subscribe(event => {
@@ -111,6 +123,36 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
     this.scrollToBottom();
   }
 
+  /** Attach a file/image to the project conversation: uploaded for THIS conversation (the server checks membership), then sent as a message. */
+  attachError = signal('');
+  uploading = signal(false);
+  onFilePicked(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file || !this.conversationId || !this.currentUserId || this.uploading()) return;
+    this.attachError.set('');
+    if (file.size > 25 * 1024 * 1024) { this.attachError.set('حجم الملف يتجاوز الحد الأقصى 25 ميغابايت'); return; }
+    this.uploading.set(true);
+    const reader = new FileReader();
+    reader.onerror = () => { this.uploading.set(false); this.attachError.set('تعذر قراءة الملف'); };
+    reader.onload = () => {
+      const isImage = file.type.startsWith('image/');
+      this.subscriptions.add(this.chatService.uploadAttachment({ conversationId: this.conversationId!, fileData: String(reader.result), fileName: file.name, fileType: isImage ? 'IMAGE' : 'FILE', fileSize: file.size }).subscribe({
+        next: res => {
+          this.uploading.set(false);
+          const data = res?.data;
+          if (!data?.fileUrl) { this.attachError.set('تعذر رفع الملف'); return; }
+          const tempId = `mini_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+          this.sending.set(true);
+          this.chatService.sendMessage(this.currentUserId, { conversationId: this.conversationId!, tempId, type: isImage ? 'IMAGE' : 'FILE', fileUrl: data.fileUrl, fileName: data.fileName || file.name, fileSize: data.fileSize });
+        },
+        error: err => { this.uploading.set(false); this.attachError.set(err?.error?.message || 'تعذر رفع الملف'); }
+      }));
+    };
+    reader.readAsDataURL(file);
+  }
+
   onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -151,6 +193,7 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
     return {
       id: String(message.id || message.tempId || Date.now()), tempId: message.tempId, senderId,
       senderName, senderInitial: message.senderInitial || message.senderInitials || senderName.charAt(0) || 'م', isMe,
+      isEvent: message.type === 'SYSTEM' || message.isEvent === true,
       content: message.content ?? message.text ?? '', time: message.createdAt || message.time || new Date(),
       fileUrl: message.fileUrl, fileName: message.fileName, status: message.status || 'SENT'
     };

@@ -6,21 +6,22 @@ import { formatWait } from './http-error';
  * `emailSent === true`; anything else never says a code was sent, and never starts a resend countdown.
  */
 export const OTP_SENT_MESSAGE = 'تم إرسال رمز التحقق إلى بريدك';
+/**
+ * Shown on the code step after EVERY registration request (the answer is identical for a new and an in-use address, so the page cannot know
+ * which one it was): it claims no code and no account state. The code step is for whoever received a code; the links are for the rest.
+ */
+export const REGISTER_CODE_STEP_MESSAGE = 'إن كان بريدك بحاجة إلى تفعيل فقد أرسلنا إليه رمز التحقق. أدخله هنا، أو اطلب رمزًا جديدًا إن لم يصلك.';
+/** Resend from the registration code step is a generic always-200 answer: it claims only a condition. */
+export const REGISTER_RESEND_MESSAGE = 'إن كان هناك حساب بانتظار التفعيل لهذا البريد فقد أرسلنا إليه رمزًا جديدًا';
+/** Resend is unauthenticated and answers the same for every id: conditional wording as well. */
+export const RESEND_SENT_MESSAGE = 'إذا كان الحساب بانتظار التفعيل فقد أرسلنا رمز التحقق إلى بريدك';
 export const OTP_SEND_FAILED_MESSAGE = 'تعذر إرسال رمز التحقق، حاول مرة أخرى بعد قليل أو تواصل مع الدعم';
-export const REGISTER_NOT_SENT_MESSAGE = 'تم إنشاء الحساب، لكن تعذر إرسال رمز التحقق. حاول إعادة الإرسال بعد قليل.';
 export const UNVERIFIED_NEUTRAL_MESSAGE = 'حسابك غير مفعّل بعد. أدخل رمز التحقق المرسل إلى بريدك أو اطلب رمزًا جديدًا.';
 
 export interface OtpNotice {
 	/** True only when the backend confirmed the email went out. Gates the "sent" wording AND the resend countdown. */
 	sent: boolean;
 	message: string;
-}
-
-/** POST /auth/register: the account exists either way; the notice says whether the code email went out. */
-export function registerNotice(res: Pick<AuthResponse, 'data'> | null | undefined): OtpNotice {
-	return res?.data?.emailSent === true
-		? { sent: true, message: OTP_SENT_MESSAGE }
-		: { sent: false, message: REGISTER_NOT_SENT_MESSAGE };
 }
 
 /** POST /auth/login for an ACTIVE account: the mandatory login code goes to the account email (never SMS). */
@@ -48,5 +49,5 @@ export function unverifiedLoginNotice(data: AuthResponse['data'] | null | undefi
 /** POST /auth/resend-otp: `success:false` / `emailSent:false` means nothing went out. */
 export function resendNotice(res: Pick<AuthResponse, 'success' | 'data'> & { emailSent?: boolean } | null | undefined): OtpNotice {
 	const sent = res?.success === true && (res?.emailSent ?? res?.data?.emailSent) === true;
-	return sent ? { sent: true, message: OTP_SENT_MESSAGE } : { sent: false, message: OTP_SEND_FAILED_MESSAGE };
+	return sent ? { sent: true, message: RESEND_SENT_MESSAGE } : { sent: false, message: OTP_SEND_FAILED_MESSAGE };
 }

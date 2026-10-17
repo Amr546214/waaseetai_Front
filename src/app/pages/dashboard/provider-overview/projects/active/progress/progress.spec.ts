@@ -23,7 +23,7 @@ describe('Progress (provider delivery review) — honest AI-insights fallback', 
       providers: [
         provideRouter([]),
         { provide: HttpClient, useValue: { get: vi.fn(() => of({ success: true, data: null })), post: vi.fn(() => of({ success: true, data: {} })) } },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }
+        { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }
       ]
     }).compileComponents();
     fixture = TestBed.createComponent(Progress);
@@ -99,7 +99,7 @@ describe('Progress — Batch 8 on-demand project health analysis', () => {
       providers: [
         provideRouter([]),
         { provide: HttpClient, useValue: { get: vi.fn(() => of({ success: true, data: { title: 'مشروع تجريبي', stages: [], deliveries: [], edits: [], messages: [], files: [] } })), post: postSpy } },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }
+        { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }
       ]
     }).compileComponents();
     fixture = TestBed.createComponent(Progress);

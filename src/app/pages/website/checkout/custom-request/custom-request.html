@@ -56,7 +56,7 @@
       <!-- FORM -->
       <div>
         @if (errorMessage()) {
-          <div class="form-error" role="alert">
+          <div class="form-error" role="alert" id="req-form-error">
             <svg aria-hidden="true"><use href="#ws-info"></use></svg>
             {{ errorMessage() }}
           </div>
@@ -73,16 +73,16 @@
               <div class="form-field full">
                 <label class="form-label" for="req-title">عنوان الطلب <span class="req">*</span></label>
                 <input class="form-input" id="req-title" type="text" placeholder="مثال: أحتاج مصمم جرافيك لتصميم هوية بصرية كاملة"
-                  [class.invalid]="titleError()"
+                  [class.invalid]="titleError()" [attr.aria-invalid]="titleError() ? 'true' : null" [attr.aria-describedby]="titleError() ? 'req-title-err' : null"
                   [value]="title()"
                   (input)="title.set($any($event.target).value)"
                   (blur)="markTouched('title')">
-                @if (titleError()) { <span class="field-error">{{ titleError() }}</span> }
+                @if (titleError()) { <span class="field-error" id="req-title-err" role="alert">{{ titleError() }}</span> }
               </div>
               <div class="form-field full">
                 <label class="form-label" for="req-cat">التخصص المطلوب <span class="req">*</span></label>
                 <select class="form-select" id="req-cat"
-                  [class.invalid]="categoryError()"
+                  [class.invalid]="categoryError()" [attr.aria-invalid]="categoryError() ? 'true' : null" [attr.aria-describedby]="categoryError() ? 'req-cat-err' : null"
                   [disabled]="categoriesLoading()"
                   [value]="selectedCategoryId()"
                   (change)="selectedCategoryId.set($any($event.target).value)"
@@ -92,16 +92,16 @@
                     <option [value]="cat.id">{{ cat.name }}</option>
                   }
                 </select>
-                @if (categoryError()) { <span class="field-error">{{ categoryError() }}</span> }
+                @if (categoryError()) { <span class="field-error" id="req-cat-err" role="alert">{{ categoryError() }}</span> }
               </div>
               <div class="form-field full">
                 <label class="form-label" for="req-desc">وصف تفصيلي للطلب <span class="req">*</span></label>
                 <textarea class="form-input" id="req-desc" placeholder="اشرح ما تحتاجه بالتفصيل: الهدف من الخدمة، الجمهور المستهدف، أي مواصفات خاصة، أمثلة مرجعية..."
-                  [class.invalid]="descriptionError()"
+                  [class.invalid]="descriptionError()" [attr.aria-invalid]="descriptionError() ? 'true' : null" [attr.aria-describedby]="descriptionError() ? 'req-desc-err' : null"
                   [value]="description()"
                   (input)="description.set($any($event.target).value)"
                   (blur)="markTouched('description')"></textarea>
-                @if (descriptionError()) { <span class="field-error">{{ descriptionError() }}</span> }
+                @if (descriptionError()) { <span class="field-error" id="req-desc-err" role="alert">{{ descriptionError() }}</span> }
               </div>
             </div>
           </div>
@@ -115,21 +115,21 @@
             <div class="form-grid">
               <div class="form-field">
                 <label class="form-label" for="req-budget">الميزانية ($) <span class="req">*</span></label>
-                <input class="form-input" id="req-budget" type="number" min="1" placeholder="مثال: 2000" dir="ltr" style="text-align:right"
-                  [class.invalid]="budgetError()"
+                <input class="form-input" id="req-budget" type="number" min="1" placeholder="أدخل الميزانية بالدولار" dir="ltr" style="text-align:right"
+                  [class.invalid]="budgetError()" [attr.aria-invalid]="budgetError() ? 'true' : null" [attr.aria-describedby]="budgetError() ? 'req-budget-err' : null"
                   [value]="budget()"
                   (input)="budget.set($any($event.target).valueAsNumber || null)"
                   (blur)="markTouched('budget')">
-                @if (budgetError()) { <span class="field-error">{{ budgetError() }}</span> }
+                @if (budgetError()) { <span class="field-error" id="req-budget-err" role="alert">{{ budgetError() }}</span> }
               </div>
               <div class="form-field">
                 <label class="form-label" for="req-deadline">المدة المطلوبة (أيام) <span class="req">*</span></label>
-                <input class="form-input" id="req-deadline" type="number" min="1" placeholder="مثال: 7" dir="ltr" style="text-align:right"
-                  [class.invalid]="deliveryDaysError()"
+                <input class="form-input" id="req-deadline" type="number" min="1" placeholder="أدخل عدد الأيام" dir="ltr" style="text-align:right"
+                  [class.invalid]="deliveryDaysError()" [attr.aria-invalid]="deliveryDaysError() ? 'true' : null" [attr.aria-describedby]="deliveryDaysError() ? 'req-deadline-err' : null"
                   [value]="deliveryDays()"
                   (input)="deliveryDays.set($any($event.target).valueAsNumber || null)"
                   (blur)="markTouched('deliveryDays')">
-                @if (deliveryDaysError()) { <span class="field-error">{{ deliveryDaysError() }}</span> }
+                @if (deliveryDaysError()) { <span class="field-error" id="req-deadline-err" role="alert">{{ deliveryDaysError() }}</span> }
               </div>
             </div>
           </div>
@@ -179,7 +179,7 @@
           </div>
 
           <div class="submit-wrap">
-            <button class="btn-submit" type="button" [disabled]="!canSubmit()" (click)="submitRequest()">
+            <button class="btn-submit" type="button" [disabled]="isSubmitting()" [attr.aria-busy]="isSubmitting()" (click)="submitRequest()">
               @if (isSubmitting()) {
                 <span class="spinner"></span>
                 جارٍ الإرسال...

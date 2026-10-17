@@ -30,7 +30,7 @@ import { SavedReview, VISIBILITY_LABEL_AR } from '../../core/models/rating.model
 	}
 	@if (review().comment) {
 		<div class="rsc-row">
-			<div class="rsc-lbl">تعليقك</div>
+			<div class="rsc-lbl">{{ commentLabel() }}</div>
 			<div class="rsc-comment" data-testid="saved-rating-comment">{{ review().comment }}</div>
 		</div>
 	}
@@ -60,4 +60,5 @@ export class RatingSavedCard {
 	readonly labels = VISIBILITY_LABEL_AR;
 	readonly review = input.required<SavedReview>();
 	readonly label = input<string>('تقييمك');
+	readonly commentLabel = input<string>('تعليقك');
 }

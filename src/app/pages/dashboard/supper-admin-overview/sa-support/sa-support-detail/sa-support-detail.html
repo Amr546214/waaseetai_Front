@@ -46,15 +46,17 @@
             <button type="button" class="sup-ca-btn sup-ca-escalate" disabled [title]="noEscalation">تصعيد</button>
             <button type="button" class="sup-ca-btn" disabled [title]="noAttachments">إرفاق ملف</button>
           </div>
+          @if (actionError()) { <div class="sup-notes-empty" role="alert" data-testid="action-error" style="color:#ff6b6b">{{ actionError() }}</div> }
           <div class="sup-notes-empty">التصعيد: {{ noEscalation }} · {{ noAttachments }}</div>
           @if (d.ticket.status !== 'CLOSED') {
             <div class="sup-notes-empty">ردك يظهر لصاحب التذكرة ويصله كإشعار.</div>
             <div class="sup-chat-input-area">
-              <textarea class="sup-chat-input" rows="1" placeholder="اكتب ردك هنا..." [value]="draftReply()" (input)="draftReply.set($any($event.target).value)"></textarea>
+              <textarea id="sup-reply" aria-label="نص الرد" class="sup-chat-input" rows="1" placeholder="اكتب ردك هنا..." [value]="draftReply()" (input)="draftReply.set($any($event.target).value)"></textarea>
               <button type="button" class="sup-chat-send" [disabled]="busy()" aria-label="إرسال الرد" (click)="sendReply()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
             </div>
+            @if (replyError()) { <div class="sup-notes-empty" role="alert" data-testid="reply-error" style="color:#ff6b6b">{{ replyError() }}</div> }
           } @else {
             <div class="sup-chat-resolved-note">التذكرة مغلقة. أعد فتحها من أزرار الحالة أعلاه للرد عليها.</div>
           }
@@ -81,8 +83,9 @@
         <div class="sup-side-card">
           <div class="sup-side-ttl">التكليف</div>
           <div class="sup-assign-current">مُكلَّف: <strong>{{ d.assignedTo?.name || 'غير مُكلَّف' }}</strong></div>
-          <ws-select [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للتكليف" style="min-width:160px;max-width:100%;display:block"></ws-select>
-          <button type="button" class="sup-side-btn" [disabled]="busy() || !selectedAssigneeId()" (click)="assign()">تكليف</button>
+          <ws-select id="sup-assignee" [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للتكليف" style="min-width:160px;max-width:100%;display:block"></ws-select>
+          <button type="button" class="sup-side-btn" [disabled]="busy()" (click)="assign()">تكليف</button>
+          @if (assignError()) { <div class="sup-notes-empty" role="alert" data-testid="assign-error" style="color:#ff6b6b">{{ assignError() }}</div> }
         </div>
 
         <div class="sup-side-card">
@@ -110,9 +113,10 @@
           }
         </div>
         <div class="sup-note-input-row">
-          <input type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
-          <button type="button" [disabled]="busy() || !noteDraft().trim()" (click)="addNote()">إضافة</button>
+          <input id="sup-note" aria-label="ملاحظة داخلية" type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
+          <button type="button" [disabled]="busy()" (click)="addNote()">إضافة</button>
         </div>
+        @if (noteError()) { <div class="sup-notes-empty" role="alert" data-testid="note-error" style="color:#ff6b6b">{{ noteError() }}</div> }
       </div>
       <div class="sup-extra-card">
         <div class="sup-extra-ttl">تذاكر ذات صلة (نفس المستخدم)</div>

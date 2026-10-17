@@ -5,7 +5,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 
 const fakeSocket = { on: vi.fn(), off: vi.fn(), once: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
-vi.mock('socket.io-client', () => ({ io: () => fakeSocket }));
+(globalThis as any).__socketIoModule = () => ({ io: () => fakeSocket });
 
 import { CreateRequest } from './create-request';
 

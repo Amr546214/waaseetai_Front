@@ -1,3 +1,4 @@
+import { isRateLimitError } from '../../../../core/utils/rate-limit.util';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../../core/store/auth.store';
@@ -27,7 +28,7 @@ export class Reports implements OnInit {
   ngOnInit() {
     this.providerApi.getProviderStatistics().subscribe({
       next: (res: any) => this.stats.set(res?.success ? res.data : null),
-      error: () => this.stats.set(null)
+      error: (e) => { if (!isRateLimitError(e)) this.stats.set(null); }
     });
     this.loadReports();
   }

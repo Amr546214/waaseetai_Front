@@ -113,6 +113,8 @@
 		} @else if (settledNoRating()) {
 			<div class="rt-rated-note" role="status" data-testid="pd-settled-no-rating"><span class="rt-rated-label">أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه</span></div>
 		}
+		<!-- the saved FINAL ratings of this project (mine + the provider's), read from the server; nothing is drawn when none exists. Stage ratings live in their stages. -->
+		<app-rating-summary side="client" [key]="projectId" data-testid="pd-rating-summary" />
 		<div class="lc-ph">
 			<div class="lc-av-wrap"><div class="lc-av">{{ data.clientInitial }}</div><span class="verified-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 61.8 36.7h33.3L68.6 57.1l10.8 31.7L50 70.3 20.6 88.8l10.8-31.7L4.9 36.7h33.3Z"/></svg></span></div>
 			<div class="lc-ph-main"><h2>{{ data.title }}</h2><div class="lc-meta"><span class="lc-prov"><span class="pi">{{ data.clientInitial }}</span>{{ data.clientName }}</span><span class="lc-dot"></span><span>عقد رقم {{ data.contractRef }}@if (data.contractStatus && data.contractStatus !== 'PENDING_CLIENT_SIGNATURE') { · <a data-testid="pd-contract-link" [routerLink]="['/client-overview/my-requests', data.projectId, 'contract']">عرض العقد</a> }</span><span class="lc-dot"></span><span>قيمة العقد {{ formatNumber(data.price) }} $</span></div></div>
@@ -195,7 +197,7 @@
 		}
 
 		@if (activeTab() === 'msgs') {
-			<div class="lc-panel active"><app-project-mini-chat [conversationId]="data.conversationId" [initialMessages]="data.messages" [partnerName]="data.clientName" fullChatRoute="/client-overview/messages" /></div>
+			<div class="lc-panel active"><app-project-mini-chat [conversationId]="data.conversationId" [initialMessages]="data.messages" [contractId]="data.id" [legacyShared]="data.legacyShared === true" [partnerName]="data.clientName" fullChatRoute="/client-overview/messages" /></div>
 		}
 
 		@if (activeTab() === 'files') {
@@ -214,11 +216,11 @@
 @if(hasPendingAmendment()){<div class="lc-flow-note" role="status" data-testid="amend-pending-note">لديك طلب تعديل معلّق بانتظار رد مقدم الخدمة، ولا يمكن إرسال طلب آخر قبل رده.</div>}
 <div class="lc-fld"><label for="amend-kind">نوع التعديل<span class="rq">مطلوب</span></label><select id="amend-kind" class="lc-sel" [(ngModel)]="amendKind" name="amendKind"><option value="SCOPE">تغيير النطاق (إضافة أو تقليص)</option><option value="BUDGET">تعديل الميزانية</option><option value="DURATION">تمديد أو تقصير المدة</option><option value="MIXED">تعديل متعدد (أكثر من بُعد)</option></select></div>
 <div class="lc-fld"><label for="amend-title-in">عنوان الطلب<span class="rq">مطلوب</span></label><input id="amend-title-in" class="lc-sel" type="text" maxlength="200" [(ngModel)]="amendTitle" name="amendTitle" placeholder="مثال: إضافة صفحة جديدة"></div>
-@if(amendKind==='BUDGET'||amendKind==='MIXED'){<div class="lc-fld"><label for="amend-budget">فرق الميزانية بالدولار@if(amendKind==='BUDGET'){<span class="rq">مطلوب</span>}</label><input id="amend-budget" class="lc-sel" type="number" step="any" [(ngModel)]="amendBudget" name="amendBudget" placeholder="موجب للزيادة، سالب للتخفيض" data-testid="amend-budget"></div>}
-@if(amendKind==='DURATION'||amendKind==='MIXED'){<div class="lc-fld"><label for="amend-days">فرق المدة بالأيام@if(amendKind==='DURATION'){<span class="rq">مطلوب</span>}</label><input id="amend-days" class="lc-sel" type="number" step="1" [(ngModel)]="amendDays" name="amendDays" placeholder="موجب للتمديد، سالب للتقصير" data-testid="amend-days"></div>}
+@if(amendKind==='BUDGET'||amendKind==='MIXED'){<div class="lc-fld"><label for="amend-budget">فرق الميزانية بالدولار@if(amendKind==='BUDGET'){<span class="rq">مطلوب</span>}</label><input id="amend-budget" class="lc-sel" type="number" step="any" [(ngModel)]="amendBudget" name="amendBudget" placeholder="أدخل الفرق بالدولار، موجب للزيادة وسالب للتخفيض" data-testid="amend-budget"></div>}
+@if(amendKind==='DURATION'||amendKind==='MIXED'){<div class="lc-fld"><label for="amend-days">فرق المدة بالأيام@if(amendKind==='DURATION'){<span class="rq">مطلوب</span>}</label><input id="amend-days" class="lc-sel" type="number" step="1" [(ngModel)]="amendDays" name="amendDays" placeholder="أدخل الفرق بالأيام، موجب للتمديد وسالب للتقصير" data-testid="amend-days"></div>}
 <div class="lc-fld"><label for="amend-desc">تفاصيل التعديل@if(amendKind==='SCOPE'){<span class="rq">مطلوب</span>}</label><textarea id="amend-desc" class="lc-ta" [(ngModel)]="amendDescription" name="amendDescription" placeholder="اشرح التعديل المطلوب وسببه وأثره"></textarea></div>
 @if(amendError()){<div class="up-err" role="alert" data-testid="amend-error">{{amendError()}}</div>}
-<div class="lc-mact"><button type="button" class="lc-btn lc-btn-gh" (click)="closeAmendments()">إلغاء</button><button type="button" class="lc-btn lc-btn-pri" [disabled]="!amendReady()" (click)="submitAmendment()" data-testid="amend-submit">{{amendSaving()?'جارٍ الإرسال...':'إرسال الطلب'}}</button></div>
+<div class="lc-mact"><button type="button" class="lc-btn lc-btn-gh" (click)="closeAmendments()">إلغاء</button><button type="button" class="lc-btn lc-btn-pri" [disabled]="amendSaving() || hasPendingAmendment()" (click)="submitAmendment()" data-testid="amend-submit">{{amendSaving()?'جارٍ الإرسال...':'إرسال الطلب'}}</button></div>
 }
 <div class="lc-fld" data-testid="amend-list"><label>طلباتك السابقة</label>
 @if(amendmentsLoading()){<div class="lc-flow-note" data-testid="amend-list-loading">جارٍ التحميل...</div>}

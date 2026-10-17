@@ -26,7 +26,8 @@
 			@if (isCompanyMode()) {
 				<div class="approval-actions">
 					@if (rejecting()) {
-						<input class="f-inp" type="text" maxlength="1000" placeholder="سبب الرفض (مطلوب)" [(ngModel)]="rejectReason">
+						<input id="reject-reason" name="rejectionReason" class="f-inp" [class.invalid]="reasonError()" type="text" maxlength="1000" placeholder="سبب الرفض (مطلوب)" [(ngModel)]="rejectReason" (ngModelChange)="reasonError.set(null)" [attr.aria-invalid]="reasonError() ? 'true' : null" [attr.aria-describedby]="reasonError() ? 'reject-reason-err' : null">
+						@if (reasonError(); as re) { <div class="f-err" id="reject-reason-err" role="alert">{{ re }}</div> }
 						<button type="button" class="btn-sec btn-sm btn-danger" (click)="decide('REJECTED')" [disabled]="busy()">تأكيد الرفض</button>
 						<button type="button" class="btn-sec btn-sm" (click)="rejecting.set(false)">إلغاء</button>
 					} @else {
@@ -35,6 +36,7 @@
 					}
 				</div>
 			}
+			@if (decisionError(); as de) { <div class="f-err" role="alert" data-testid="form-error">{{ de }}</div> }
 		</div>
 	}
 	@if (o.approvalStatus === 'REJECTED') {

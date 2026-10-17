@@ -1,5 +1,5 @@
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
-import { Component, ViewEncapsulation, AfterViewInit, OnInit, OnDestroy, Inject, PLATFORM_ID, inject, signal } from '@angular/core';
+import { Component, ViewEncapsulation, AfterViewInit, OnInit, OnDestroy, Inject, PLATFORM_ID, inject, signal, computed } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -8,6 +8,9 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { CartService } from '../../../../core/services/cart.service';
 import { AccountService } from '../../../../core/services/account.service';
 import { UserRole } from '../../../../core/models/auth.model';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { scrollFocus } from '../../../../shared/forms/form-error-focus';
+import { backendBannerMessage, genericBanner } from '../../../../shared/forms/submit-feedback';
 import { CartItem } from '../../../../core/models/checkout.model';
 
 @Component({
@@ -35,6 +38,11 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	activePurchase = signal<{ projectId: string | null; contractStatus: string | null } | null>(null);
 	negotiationMessage = signal<string>('');
 	questionMessage = signal<string>('');
+	/** Field-level messages (shown right under the textarea) and the honest generic banner of a failed request. */
+	negotiationError = signal<string | null>(null);
+	questionError = signal<string | null>(null);
+	requestError = signal<string | null>(null);
+	private requestSource: 'ask' | 'modal' = 'modal';
 	reviewFilter = signal<number | null>(null);
 	private routeSub!: Subscription;
 	private paramSub!: Subscription;
@@ -46,6 +54,13 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 	readonly canPurchase = this.authStore.canPurchase;
 	readonly hasClientRole = this.authStore.hasClientRole;
 	switching = signal(false);
+
+	/** The signed-in user owns this service: decided by the real owner user id (BE flag, else provider.id vs the user id), never by the acting role. */
+	readonly isOwnService = computed(() => {
+		const m = this.model();
+		const uid = this.authStore.currentUser()?.id;
+		return !!m && this.authStore.isAuthenticated() && (m.isOwnService === true || (!!uid && m.provider?.id === uid));
+	});
 
 	/** "بدّل إلى طالب خدمة للشراء": switches the acting role to CLIENT (same call as the navbar switcher) and stays on this page. */
 	switchToClient(): void {
@@ -187,22 +202,36 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 
 	openNegotiation() { this.showNegotiation.set(true); }
 	closeNegotiation() { this.showNegotiation.set(false); }
-	updateNegotiationMessage(event: Event) { this.negotiationMessage.set((event.target as HTMLTextAreaElement).value); }
-	updateQuestionMessage(event: Event) { this.questionMessage.set((event.target as HTMLTextAreaElement).value); }
+	updateNegotiationMessage(event: Event) { this.negotiationMessage.set((event.target as HTMLTextAreaElement).value); this.negotiationError.set(null); }
+	updateQuestionMessage(event: Event) { this.questionMessage.set((event.target as HTMLTextAreaElement).value); this.questionError.set(null); }
 	toggleNegTag(event: Event) { (event.currentTarget as HTMLElement).classList.toggle('active'); }
 
 	/** Q&A tab ask box: the question reaches the provider through the same
 	 *  real request/conversation flow the negotiation modal uses. */
 	askQuestion() {
+		if (this.isSubmitting()) return;
 		const question = this.questionMessage().trim();
-		if (!question) return;
+		if (!question) {
+			this.questionError.set('اكتب سؤالك قبل الإرسال');
+			const el = document.getElementById('ask-message');
+			if (el) scrollFocus(el);
+			return;
+		}
 		this.negotiationMessage.set(question);
+		this.requestSource = 'ask';
+		this.requestService('negotiation');
+	}
+
+	/** Negotiation modal send button. */
+	sendNegotiation() {
+		if (this.isSubmitting()) return;
+		this.requestSource = 'modal';
 		this.requestService('negotiation');
 	}
 
 	requestService(mode: 'order' | 'negotiation') {
 		const id = this.model()?.id;
-		if (!id || this.isSubmitting()) return;
+		if (!id || this.isSubmitting() || this.isOwnService()) return;
 		if (!this.authStore.isAuthenticated()) {
 			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
 			return;
@@ -213,6 +242,13 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 			setTimeout(() => this.cartError.set(null), 5000);
 			return;
 		}
+		if (mode === 'negotiation' && !this.negotiationMessage().trim()) {
+			this.negotiationError.set('اكتب تفاصيل طلب التفاوض قبل الإرسال');
+			const el = document.getElementById('neg-message');
+			if (el) scrollFocus(el);
+			return;
+		}
+		this.requestError.set(null);
 		this.isSubmitting.set(true);
 		this.marketplaceService.requestService(id, {
 			mode,
@@ -224,14 +260,21 @@ export class Offer implements AfterViewInit, OnInit, OnDestroy {
 				const conversationId = response?.data?.conversationId || response?.conversationId;
 				this.router.navigate(['/client-overview/messages'], { queryParams: conversationId ? { conversationId } : {} });
 			},
-			error: () => this.isSubmitting.set(false)
+			error: async (err) => {
+				const mapped = mapHttpError(err, { fallback: 'تعذر إرسال طلبك، حاول مرة أخرى' });
+				const field = this.requestSource === 'ask' ? 'ask-message' : 'neg-message';
+				// 400/422 about the message -> under the textarea; network / 429 / 5xx / 403 / 409 -> one honest banner.
+				const banner = genericBanner(mapped) ?? await backendBannerMessage(document, mapped, { resolve: { message: field, notes: field } });
+				this.isSubmitting.set(false);
+				this.requestError.set(banner || null);
+			}
 		});
 	}
 
 	addToCart(): void {
 		const model = this.model();
 		if (!model || this.isSubmitting()) return;
-		if (this.activePurchase()) return;
+		if (this.activePurchase() || this.isOwnService()) return;
 		if (!this.authStore.isAuthenticated()) {
 			this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
 			return;

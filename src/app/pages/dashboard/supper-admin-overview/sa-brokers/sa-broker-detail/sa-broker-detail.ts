@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { handleAdminError, reportAdminProblems, SubmitGuard } from '../../shared/admin-form-report';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { AdminBrokerApiService } from '../../../../../core/services/admin-broker-api.service';
 import {
@@ -37,6 +38,9 @@ export class SaBrokerDetail implements OnInit {
   private router = inject(Router);
   private brokerApi = inject(AdminBrokerApiService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private statusGuard = new SubmitGuard();
+  statusError = signal('');
 
   selected = signal<AdminBrokerDetail | null>(null);
   loading = signal(true);
@@ -148,6 +152,7 @@ export class SaBrokerDetail implements OnInit {
 
   openStatusDialog(target: 'SUSPENDED' | 'ACTIVE') {
     this.statusReason.set('');
+    this.statusError.set('');
     this.statusDialog.set(target);
   }
 
@@ -160,21 +165,25 @@ export class SaBrokerDetail implements OnInit {
     const target = this.statusDialog();
     if (!b || !target) return;
     const reason = this.statusReason().trim();
+    this.statusError.set('');
     if (target === 'SUSPENDED' && reason.length < 5) {
-      this.notify.warning('اكتب سبب الإيقاف (5 أحرف على الأقل)');
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'bk-status-reason', message: reason ? 'سبب الإيقاف قصير جدًا (5 أحرف على الأقل)' : 'اكتب سبب الإيقاف (5 أحرف على الأقل)' }]);
       return;
     }
+    if (!this.statusGuard.enter()) return;
     this.statusBusy.set(true);
     this.brokerApi.setBrokerStatus(b.id, target, reason || undefined).subscribe({
       next: () => {
+        this.statusGuard.release();
         this.statusBusy.set(false);
         this.statusDialog.set(null);
         this.selected.set({ ...b, status: target });
         this.notify.success(target === 'SUSPENDED' ? 'تم إيقاف حساب الوسيط' : 'تمت إعادة تفعيل حساب الوسيط');
       },
       error: (err) => {
+        this.statusGuard.release();
         this.statusBusy.set(false);
-        this.notify.error(err?.error?.message || 'تعذر تحديث حالة الوسيط');
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تحديث حالة الوسيط', resolve: { reason: 'bk-status-reason' } }, (m) => this.statusError.set(m));
       },
     });
   }

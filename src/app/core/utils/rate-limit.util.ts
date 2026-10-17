@@ -1,9 +1,14 @@
-/** The one user-facing text for a rate-limited (HTTP 429) request. */
-export const RATE_LIMIT_MESSAGE = 'عدد الطلبات كبير، حاول مرة أخرى بعد قليل';
+import { parseRetryAfter, remainingSeconds } from '../wait/retry-after.util';
+import { formatWaitWords, rateLimitSentence } from '../wait/wait-format';
+import type { WaitHandle } from '../wait/wait-timer.service';
+import { mapHttpError } from '../forms/http-error';
+
+/** The one user-facing text for a rate-limited (HTTP 429) request whose wait the server did not state (honest: no number is invented). */
+export const RATE_LIMIT_MESSAGE = rateLimitSentence(null);
 /** Neutral text for a check (access state) that could not be completed because of a 429: it never claims "not approved". */
 export const RATE_LIMIT_CHECK_MESSAGE = 'تعذّر التحقق مؤقتًا — أعد المحاولة';
 
-const RATE_LIMIT_TEXT = /طلبات كثيرة|عدد الطلبات كبير|محاولات كثيرة/;
+const RATE_LIMIT_TEXT = /طلبات كثيرة|عدد الطلبات كبير|محاولات كثيرة|طلبات رمز/;
 
 function bodyMessage(err: any): string {
 	const b = err?.error;
@@ -26,9 +31,8 @@ export function isRateLimitError(err: unknown): boolean {
 export function retryAfterSeconds(err: unknown): number | null {
 	const e: any = err;
 	if (!e) return null;
-	const h = e.headers?.get?.('Retry-After');
-	const n = h != null ? Number(h) : NaN;
-	if (Number.isFinite(n) && n >= 0) return Math.ceil(n);
+	const end = parseRetryAfter(e);
+	if (end != null) return remainingSeconds(end);
 	const details = e.error?.errors ?? e.error?.details;
 	if (Array.isArray(details)) {
 		const d = details.find((x: any) => Number.isFinite(Number(x?.retryAfterSeconds)));
@@ -59,4 +63,34 @@ export function handleLoadError(err: unknown, h: LoadErrorHandlers): void {
 	if (!isRateLimitError(err)) { h.onOtherError(err); return; }
 	if (h.hasData?.()) h.onKeep?.();
 	else h.onRateLimit(err);
+}
+
+/** "30 ثانية" / "دقيقتين" / "5 دقائق" / "ساعة" for the wait shown to the user. */
+export function formatWaitArabic(seconds: number): string { return formatWaitWords(seconds); }
+
+/** Absolute end (epoch ms) of the wait a 429 asked for: Retry-After (seconds or HTTP-date) / body time / body seconds, else the wait written in the Arabic text. null = the server stated none. */
+export function rateLimitEndsAt(err: unknown, now: number = Date.now()): number | null {
+	const direct = parseRetryAfter(err, now);
+	if (direct != null) return direct;
+	const s = retryAfterSeconds(err);
+	return s != null ? now + s * 1000 : null;
+}
+
+/** The honest toast text: the real wait from Retry-After when the server sent one, else the generic text. */
+export function rateLimitToastMessage(err: unknown): string {
+	const wait = retryAfterSeconds(err);
+	return wait != null && wait > 0 ? rateLimitSentence(wait) : RATE_LIMIT_MESSAGE;
+}
+
+/**
+ * Starts `handle` from a 429: the header / body time first, else the wait the server wrote in its own message (Arabic or English, read by mapHttpError).
+ * Returns the end (epoch ms) or null when the server stated none (then nothing is started and no number is invented).
+ */
+export function startWaitFromError(handle: WaitHandle, err: unknown): number | null {
+	let end = handle.startFromResponse(err);
+	if (end == null) {
+		const s = mapHttpError(err).retryAfterSeconds;
+		if (s && s > 0) { end = Date.now() + s * 1000; handle.start(end); }
+	}
+	return end;
 }

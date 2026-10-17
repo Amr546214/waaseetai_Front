@@ -18,6 +18,8 @@ import { paypalEmailError, paypalEmailValidators } from '../../../../../core/val
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { attemptSubmit, collectInvalidFields, focusFirstInvalid, InvalidField } from '../../../../../core/forms/form-helpers';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
+import { isRateLimitError, rateLimitEndsAt, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
 import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
@@ -77,6 +79,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private access = inject(ProviderAccessService);
 	private uiNotify = inject(UiNotificationService);
 	private authStore = inject(AuthStore);
+	private waitTimers = inject(WaitTimerService);
 	private profileApi = inject(ProfileApiService);
 	private prefsStore = inject(ProviderPrefsStore);
 	private providerProfileService = inject(ProviderProfileService);
@@ -161,8 +164,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		uiLanguage: ['ar']
 	});
 
-	availableLanguages = ['العربية', 'الإنجليزية', 'الفرنسية', 'الأردية', 'الهندية'];
-	selectedLanguages = signal<string[]>(['العربية']);
 
 	categories = signal<any[]>([]);
 	subSpecialtiesList = signal<any[]>([]);
@@ -264,7 +265,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	ngOnInit() {
 		this.generateParticles();
-		this.setupForm.get('profData.languages')?.setValue(['العربية']);
 
 		this.specialtyService.getCategories().subscribe(res => {
 			if (res.success) {
@@ -312,7 +312,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							city: d.city || '',
 							dob: dobInputValue(d.dob),
 							bio: d.bio || '',
-							languages: d.languages && d.languages.length ? d.languages : ['العربية'],
 							expYears: d.yearsOfExperience ? 
 								(d.yearsOfExperience <= 1 ? 'أقل من سنة' : 
 								 d.yearsOfExperience <= 3 ? '1 الى 3 سنوات' : 
@@ -340,7 +339,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					if (d.certUrlsAccess?.some((a: KycAccess | null) => a?.private)) this.storedCertsAccess.set(d.certUrlsAccess);
 					const legacyCerts = (d.certUrls || []).filter(Boolean);
 					if (legacyCerts.length) this.uploadedCerts.set(legacyCerts);
-					if (d.languages && d.languages.length) this.selectedLanguages.set(d.languages);
 					if (d.subSpecialties && d.subSpecialties.length) this.selectedSpecs.set(d.subSpecialties);
 					if (d.kycStatus === 'VERIFIED' || d.isNafathVerified) this.isNafathVerified.set(true);
 					// Stage 5: the saved portfolio comes back from the server, so a re-save never starts from an empty list.
@@ -514,15 +512,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 		this.currentStep.set(step);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}
-
-	toggleLanguage(lang: string) {
-		const current = [...this.selectedLanguages()];
-		const idx = current.indexOf(lang);
-		if (idx > -1) current.splice(idx, 1);
-		else current.push(lang);
-		this.selectedLanguages.set(current);
-		this.setupForm.get('profData.languages')?.setValue(current);
 	}
 
 	toggleSpec(spec: string) {
@@ -936,7 +925,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 			this.updatePortfolioItem(spec, idx, item => ({ ...item, reviewDisplayName: file.name }));
 
-			this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
+			this.providerProfileService.uploadDocument(file).subscribe({
 				next: (event: any) => {
 					if (event.type === HttpEventType.UploadProgress) {
 						const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
@@ -979,7 +968,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				// placeholder entry until the upload completes
 				this.updatePortfolioItem(spec, idx, item => ({ ...item, proofDisplayNames: [...item.proofDisplayNames, file.name], proofs: [...item.proofs, ''] }));
 
-				this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
+				this.providerProfileService.uploadDocument(file).subscribe({
 					next: (ev: any) => {
 						if (ev.type === HttpEventType.UploadProgress) {
 							const progress = ev.total ? Math.round((ev.loaded / ev.total) * 100) : 0;
@@ -1046,7 +1035,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				city: this.setupForm.get('profData.city')?.value,
 				...(this.setupForm.get('profData.dob')?.value ? { dob: this.setupForm.get('profData.dob')?.value } : {}),
 				bio: this.setupForm.get('profData.bio')?.value,
-				languages: this.setupForm.get('profData.languages')?.value,
 				expYears: this.setupForm.get('profData.expYears')?.value
 			},
 			specialties: {
@@ -1085,7 +1073,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 								this.pendingPaypalEmail.set(paypalEmail);
 							} else this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.');
 						},
-						error: () => this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.')
+						error: (err) => {
+							// A 429 leaves its end timestamp for the profile page's send button (same scope); nothing is retried here.
+							if (isRateLimitError(err)) this.waitTimers.setEnd(waitScope('paypal-otp-resend', this.authStore.currentUser()?.id ?? ''), rateLimitEndsAt(err));
+							this.paypalSendError.set(isRateLimitError(err) ? rateLimitToastMessage(err) : 'تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.');
+						}
 					});
 				}
 				this.isSubmitting.set(false);

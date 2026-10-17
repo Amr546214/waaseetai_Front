@@ -125,11 +125,11 @@
 		<div class="composer-grid">
 			<div class="inp-group">
 				<label class="inp-label" for="counter-price">السعر المقترح ($)</label>
-				<input id="counter-price" class="inp-field" type="text" inputmode="decimal" autocomplete="off" [value]="counterPrice()" (input)="onCounterInput('price', $event)" placeholder="مثال 900" />
+				<input id="counter-price" class="inp-field" type="text" inputmode="decimal" autocomplete="off" [value]="counterPrice()" (input)="onCounterInput('price', $event)" placeholder="أدخل السعر المقترح بالدولار" />
 			</div>
 			<div class="inp-group">
 				<label class="inp-label" for="counter-days">مدة التنفيذ (أيام)</label>
-				<input id="counter-days" class="inp-field" type="text" inputmode="numeric" autocomplete="off" [value]="counterDays()" (input)="onCounterInput('days', $event)" placeholder="مثال 14" />
+				<input id="counter-days" class="inp-field" type="text" inputmode="numeric" autocomplete="off" [value]="counterDays()" (input)="onCounterInput('days', $event)" placeholder="أدخل عدد الأيام" />
 			</div>
 		</div>
 		<div class="inp-group">

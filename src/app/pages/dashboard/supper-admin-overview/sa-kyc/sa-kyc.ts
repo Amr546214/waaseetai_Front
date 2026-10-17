@@ -1,6 +1,7 @@
 import { providerDocumentsCount, withOwnerFields } from './kyc-owner';
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { handleAdminError, reportAdminProblems } from '../shared/admin-form-report';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaKycService } from './sa-kyc.service';
 import { KycDocumentLink } from '../../../../sheards/kyc-document-link/kyc-document-link';
@@ -25,6 +26,7 @@ type Tab = 'clients' | 'providers';
 export class SaKyc implements OnInit {
   private kycService = inject(SaKycService);
   private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   // ── Tab state ───────────────────────────────────────────────────────
   activeTab = signal<Tab>('clients');
@@ -324,7 +326,9 @@ export class SaKyc implements OnInit {
   confirmAction() {
     if (this.processing()) return;
     if (this.actionType() === 'reject' && this.actionReason().trim().length < 2) {
-      this.actionError.set('سبب الرفض مطلوب (حرفان على الأقل)');
+      this.actionError.set(null);
+      const r = this.actionReason().trim();
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'kyc-reject-reason', message: r ? 'سبب الرفض قصير جدًا: اكتب حرفين على الأقل' : 'سبب الرفض مطلوب (حرفان على الأقل)' }]);
       return;
     }
 
@@ -382,7 +386,8 @@ export class SaKyc implements OnInit {
 
   private onActionError(err: any) {
     this.processing.set(false);
-    this.actionError.set(err?.error?.message || err?.message || 'تعذر تنفيذ الإجراء');
+    // A 400/422 naming rejectionReason / adminNote goes under that box; anything else (409, 403, 429, 5xx, network) is the honest banner.
+    handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تنفيذ الإجراء', resolve: { rejectionReason: 'kyc-reject-reason', adminNote: 'kyc-admin-note' } }, (m) => this.actionError.set(m));
     // 409 = someone already decided this request: refresh the list so the stale row disappears.
     if (err?.status === 409) {
       if (this.activeTab() === 'clients') this.loadOnboarding(); else this.loadProviders();

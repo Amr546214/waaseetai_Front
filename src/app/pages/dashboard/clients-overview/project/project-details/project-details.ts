@@ -1,5 +1,7 @@
+import { isRateLimitError } from '../../../../../core/utils/rate-limit.util';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, ElementRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -8,7 +10,9 @@ import { ProjectMiniChat } from '../../../../../sheards/project-mini-chat/projec
 import { DisputeModal } from '../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { CreateDisputePayload } from '../../../../../core/models/dispute.model';
-import { MessageContext } from '../../../../../core/services/chat.service';
+import { ChatService, MessageContext } from '../../../../../core/services/chat.service';
+import { RatingSummary } from '../../../../../sheards/rating-summary/rating-summary.component';
+import { sortAmendments, upsertAmendment } from '../../../../../core/utils/amendment-list';
 import { RatingApiService } from '../../../../../core/services/rating-api.service';
 import { RatingStatus } from '../../../../../core/models/rating.model';
 import { AuthStore } from '../../../../../core/store/auth.store';
@@ -19,6 +23,8 @@ import { AmendmentActionsService } from '../../../../../core/services/amendment-
 import { AmendmentPaymentOtpComponent } from '../../../../../sheards/amendment-payment-otp/amendment-payment-otp.component';
 import { ClientCompanyTeamMember } from '../../../../../core/models/client-company-team.model';
 import { formatMoney } from '../../../../../core/utils/money.util';
+import { FieldProblem } from '../../../../../shared/forms/form-error-focus';
+import { handleClientError, reportClientProblems } from '../../client-form-report';
 import { deliveryFileOpenUrl } from '../../../../../core/utils/delivery-file.util';
 
 type WorkspaceTab = 'overview' | 'miles' | 'msgs' | 'files';
@@ -30,13 +36,16 @@ export const CLIENT_AMENDMENT_TYPE_LABEL: Record<string, string> = { SCOPE: 'ت�
 
 @Component({
 	selector: 'app-project-details', standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule, ProjectMiniChat, DisputeModal, AmendmentPaymentOtpComponent],
+	imports: [CommonModule, FormsModule, RouterModule, RatingSummary, ProjectMiniChat, DisputeModal, AmendmentPaymentOtpComponent],
 	templateUrl: './project-details.html', styleUrl: './project-details.css',
 })
 export class ProjectDetails implements OnInit {
 	private http = inject(HttpClient);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
+	private chatService = inject(ChatService);
+	private destroyRef = inject(DestroyRef);
 	private disputeApi = inject(DisputeApiService);
 	private ratingApi = inject(RatingApiService);
 	private authStore = inject(AuthStore);
@@ -72,7 +81,7 @@ export class ProjectDetails implements OnInit {
 	amendments = signal<any[]>([]); amendmentsLoading = signal(false); amendmentsError = signal('');
 	readonly amendmentSuccessText = CLIENT_AMENDMENT_SUCCESS_TEXT;
 	hasPendingAmendment = () => this.amendments().some(a => a.requestedByRole === 'CLIENT' && a.status === 'PENDING_OTHER_PARTY');
-	private projectId = '';
+	protected projectId = '';
 	showDisputeModal = signal(false);
 	isSubmittingDispute = signal(false);
 	disputeSuccess = signal('');
@@ -85,7 +94,13 @@ export class ProjectDetails implements OnInit {
 	finalProviderRatingComment = signal<string | null>(null);
 	finalProviderRatedAt = signal<string | null>(null);
 
-	ngOnInit() { this.route.params.subscribe(params => { this.projectId = params['id']; this.load(); }); }
+	ngOnInit() {
+		this.route.params.subscribe(params => { this.projectId = params['id']; this.load(); });
+		// ?tab=messages (notification links, the project-message buttons) opens the project's own messages tab
+		this.route.queryParamMap.subscribe(q => { if (q.get('tab') === 'messages') this.activeTab.set('msgs'); });
+		// a project event of this project (amendment answered / authorised / applied by the other party) refreshes the list; rows are keyed by id, never doubled
+		this.chatService.projectEvent$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(e => { if (e?.amendmentId && this.amendOpen()) this.loadAmendments(); });
+	}
 	load() {
 		this.isLoading.set(true); this.error.set('');
 		this.http.get<any>(`${environment.url_api}/client/my-requests/${this.projectId}/workspace`).subscribe({
@@ -102,7 +117,7 @@ export class ProjectDetails implements OnInit {
 							this.finalProviderRatingComment.set(status.review?.comment ?? null);
 							this.finalProviderRatedAt.set(status.review?.createdAt ?? null);
 						},
-						error: () => { this.ratingStatus.set(null); },
+						error: (e) => { if (!isRateLimitError(e)) this.ratingStatus.set(null); },
 					});
 				}
 				this.isLoading.set(false);
@@ -278,7 +293,7 @@ export class ProjectDetails implements OnInit {
 		this.http.get<any>(`${environment.url_api}/client/projects/amendments`).subscribe({
 			next: res => {
 				const all = Array.isArray(res?.data) ? res.data : [];
-				this.amendments.set(all.filter((a: any) => (a.projectId === this.projectId || a.contractId === this.projectId) && a.requestedByRole === 'CLIENT'));
+				this.amendments.set(sortAmendments(all.filter((a: any) => (a.projectId === this.projectId || a.contractId === this.projectId) && a.requestedByRole === 'CLIENT')));
 				this.amendmentsLoading.set(false);
 			},
 			error: () => { this.amendmentsLoading.set(false); this.amendmentsError.set('تعذر تحميل طلباتك السابقة'); }
@@ -298,9 +313,27 @@ export class ProjectDetails implements OnInit {
 		return null;
 	}
 	amendReady() { return this.amendBlocker() === null && !this.amendSaving(); }
+	/** The same rules as amendBlocker(), one entry per control so each message sits under the field that is wrong. */
+	amendProblems(): FieldProblem[] {
+		if (this.hasPendingAmendment()) return [];
+		const out: FieldProblem[] = [];
+		const budgetOk = typeof this.amendBudget === 'number' && Number.isFinite(this.amendBudget) && this.amendBudget !== 0;
+		const daysOk = typeof this.amendDays === 'number' && Number.isInteger(this.amendDays) && this.amendDays !== 0;
+		if (!this.amendTitle.trim()) out.push({ field: 'amend-title-in', message: 'أضف عنوانًا لطلب التعديل' });
+		if (this.amendKind === 'SCOPE' && !this.amendDescription.trim()) out.push({ field: 'amend-desc', message: 'اشرح التغيير المطلوب في النطاق' });
+		if (this.amendKind === 'BUDGET' && !budgetOk) out.push({ field: 'amend-budget', message: 'أدخل فرق الميزانية (قيمة غير صفرية، سالبة للتخفيض)' });
+		if (this.amendKind === 'DURATION' && !daysOk) out.push({ field: 'amend-days', message: 'أدخل عدد الأيام (عدد صحيح غير صفري، سالب للتقصير)' });
+		if (this.amendKind === 'MIXED' && [!!this.amendDescription.trim(), budgetOk, daysOk].filter(Boolean).length < 2) out.push({ field: 'amend-kind', message: 'التعديل المتعدد يتطلب بُعدين على الأقل: نطاق أو ميزانية أو مدة' });
+		return out;
+	}
 	submitAmendment() {
 		const blocker = this.amendBlocker();
-		if (blocker) { this.amendError.set(blocker); return; }
+		if (blocker) {
+			// Summary line stays; the reason is also under each wrong field, and focus goes to the first one.
+			this.amendError.set(blocker);
+			void reportClientProblems(this.host.nativeElement, this.amendProblems());
+			return;
+		}
 		if (this.amendSaving()) return;
 		const payload: any = { type: this.amendKind, title: this.amendTitle.trim() };
 		if (this.amendDescription.trim()) payload.description = this.amendDescription.trim();
@@ -308,8 +341,15 @@ export class ProjectDetails implements OnInit {
 		if ((this.amendKind === 'DURATION' || this.amendKind === 'MIXED') && typeof this.amendDays === 'number' && this.amendDays !== 0) payload.durationDeltaDays = this.amendDays;
 		this.amendSaving.set(true); this.amendError.set('');
 		this.http.post<any>(`${environment.url_api}/client/projects/${this.projectId}/amendments`, payload).subscribe({
-			next: res => { this.amendSaving.set(false); this.amendCreated.set(res?.data ?? null); this.amendSuccess.set(true); this.loadAmendments(); },
-			error: err => { this.amendSaving.set(false); this.amendError.set(err.error?.message || 'تعذر إرسال طلب التعديل'); }
+			next: res => { this.amendSaving.set(false); this.amendCreated.set(res?.data ?? null); this.amendSuccess.set(true); this.amendments.update(list => upsertAmendment(list, res?.data)); this.loadAmendments(); },
+			error: err => {
+				this.amendSaving.set(false);
+				this.amendError.set('');
+				handleClientError(this.host.nativeElement, err, {
+					resolve: { title: 'amend-title-in', description: 'amend-desc', budgetDelta: 'amend-budget', durationDeltaDays: 'amend-days', type: 'amend-kind' },
+					fallback: 'تعذر إرسال طلب التعديل',
+				}, m => this.amendError.set(m));
+			}
 		});
 	}
 	// The request just created: a budget INCREASE needs the client's payment authorization (OTP) before the provider can approve it. Nothing is charged here.
@@ -374,6 +414,7 @@ export class ProjectDetails implements OnInit {
 	openDisputeLabel(data: any): string | null {
 		return data?.disputeStatus === 'OPEN' ? 'نزاع مفتوح بانتظار مراجعة الإدارة' : data?.disputeStatus === 'UNDER_REVIEW' ? 'نزاع قيد مراجعة الإدارة' : null;
 	}
+	/** Project discussion lives in the project's own messages tab (never a new conversation in the general list). */
 	openConversation(data: any, stage?: any) {
 		if (!data) return;
 		const ctx: MessageContext | undefined = stage ? {
@@ -384,13 +425,9 @@ export class ProjectDetails implements OnInit {
 			stageTitle: stage.title || undefined,
 			stageNumber: stage.stageNumber || undefined,
 			amount: stage.amount || undefined
-		} : data?.conversationId ? {
-			type: 'PROJECT',
-			projectId: this.projectId,
-			projectTitle: data.title || data.project || undefined
 		} : undefined;
-		this.router.navigate(['/client-overview/messages'],
-			{ queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: ctx ? { messageContext: ctx } : undefined });
+		this.activeTab.set('msgs');
+		this.router.navigate(['/client-overview/projects', this.projectId], { queryParams: { tab: 'messages' }, state: ctx ? { messageContext: ctx } : undefined });
 	}
 
 	/** The rating call-to-action exists only when the SERVER says this user may rate (completed by delivery, not rated yet, not settled by a dispute). */

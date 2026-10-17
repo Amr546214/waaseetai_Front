@@ -148,6 +148,10 @@
   }
 </ng-template>
 
+<ng-template #ownServiceNote>
+  <div data-testid="own-service" role="status" style="margin:0 0 8px;padding:10px 12px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.25);border-radius:10px;font-size:13px;font-weight:800;text-align:center">هذه خدمتك</div>
+</ng-template>
+
 <ng-template #buyBlocked>
   <div data-testid="buy-blocked" style="margin:0 0 8px;padding:10px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:10px;font-size:12.5px;text-align:center">
     <div style="margin-bottom:8px">أنت تتصفح كمقدم خدمة، والشراء متاح من حساب طالب الخدمة فقط.</div>
@@ -268,7 +272,9 @@
                     }
                   </div>
                 }
-                @if (canPurchase()) {
+                @if (isOwnService()) {
+                <ng-container *ngTemplateOutlet="ownServiceNote"></ng-container>
+                } @else if (canPurchase()) {
                 <button class="pkg-order-btn" type="button" [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
                 } @else {
                 <ng-container *ngTemplateOutlet="buyBlocked"></ng-container>
@@ -409,14 +415,17 @@
             <div class="sidebar-card">
               <div class="order-card-body">
                 <ng-container *ngTemplateOutlet="orderIncludes"></ng-container>
-                @if (canPurchase()) {
+                @if (isOwnService()) {
+                <ng-container *ngTemplateOutlet="ownServiceNote"></ng-container>
+                } @else if (canPurchase()) {
                 <button class="btn-order-primary" type="button" id="sidebar-order-btn" [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
                 } @else {
                 <ng-container *ngTemplateOutlet="buyBlocked"></ng-container>
                 }
                 <ng-container *ngTemplateOutlet="cartFeedback"></ng-container>
-                <button class="btn-order-ghost" type="button" (click)="openNegotiation()"><svg aria-hidden="true"><use href="#ws-msg"></use></svg>تواصل مع {{ model()?.provider?.name || 'المقدم' }}</button>
-                <button class="btn-order-ghost" type="button" (click)="openNegotiation()" style="margin-top:0"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-negotiate"></use></svg>طلب تفاوض مع المقدم</button>
+                @if (!isOwnService()) {
+                <button class="btn-order-ghost" type="button" data-testid="negotiation-request" (click)="openNegotiation()"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-negotiate"></use></svg>طلب تفاوض مع المقدم</button>
+                }
                 <div class="order-guarantee"><svg aria-hidden="true"><use href="#ws-shield"></use></svg>ضمان مالي وفق سياسة الإلغاء والاسترداد</div>
               </div>
             </div>
@@ -549,13 +558,17 @@
             <div class="sidebar-card">
               <div class="order-card-body">
                 <ng-container *ngTemplateOutlet="orderIncludes"></ng-container>
-                @if (canPurchase()) {
+                @if (isOwnService()) {
+                <ng-container *ngTemplateOutlet="ownServiceNote"></ng-container>
+                } @else if (canPurchase()) {
                 <button class="btn-order-primary" type="button" [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
                 } @else {
                 <ng-container *ngTemplateOutlet="buyBlocked"></ng-container>
                 }
                 <ng-container *ngTemplateOutlet="cartFeedback"></ng-container>
-                <button class="btn-order-ghost" type="button" (click)="openNegotiation()"><svg aria-hidden="true"><use href="#ws-file"></use></svg>تواصل مع {{ model()?.provider?.name || 'المقدم' }}</button>
+                @if (!isOwnService()) {
+                <button class="btn-order-ghost" type="button" data-testid="negotiation-request" (click)="openNegotiation()"><svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-negotiate"></use></svg>طلب تفاوض مع المقدم</button>
+                }
                 <div class="order-guarantee"><svg aria-hidden="true"><use href="#ws-shield"></use></svg>ضمان مالي وفق سياسة الإلغاء والاسترداد</div>
               </div>
             </div>
@@ -594,19 +607,23 @@
           <!-- ═══ MAIN COLUMN ═══ -->
           <div>
 
+            @if (!isOwnService()) {
             <!-- ASK BOX -->
             <div class="ask-box">
               <div class="ask-box-title">اسأل سؤالاً عن هذه الخدمة</div>
               <div class="ask-box-sub">يصل سؤالك إلى مقدم الخدمة مباشرة في المحادثة</div>
-              <textarea class="ask-textarea" [value]="questionMessage()" (input)="updateQuestionMessage($event)" placeholder="مثال: هل تدعم تصاميم ثنائية اللغة؟ هل يمكن تعديل الألوان بعد التسليم؟"></textarea>
+              <textarea class="ask-textarea" id="ask-message" name="ask-message" [class.ws-invalid]="questionError()" [attr.aria-invalid]="questionError() ? 'true' : null" [attr.aria-describedby]="questionError() ? 'ask-message-err' : null" [value]="questionMessage()" (input)="updateQuestionMessage($event)" placeholder="مثال: هل تدعم تصاميم ثنائية اللغة؟ هل يمكن تعديل الألوان بعد التسليم؟"></textarea>
+              @if (questionError()) { <p class="ws-field-msg" id="ask-message-err" role="alert" data-testid="field-error" style="color:#ef4444;font-size:11px;font-weight:700;margin:4px 0">{{ questionError() }}</p> }
+              @if (requestError() && !showNegotiation()) { <p id="ask-request-err" role="alert" style="color:#ef4444;font-size:12px;font-weight:700;margin:4px 0">{{ requestError() }}</p> }
               <div class="ask-footer">
                 <span class="ask-hint">
                   <svg aria-hidden="true" style="width:11px;height:11px;color:var(--teal);vertical-align:middle"><use href="#ws-shield"></use></svg>
                   يتطلب إرسال السؤال تسجيل الدخول
                 </span>
-                <button class="ask-btn" type="button" [disabled]="isSubmitting() || !questionMessage().trim()" (click)="askQuestion()">إرسال السؤال</button>
+                <button class="ask-btn" type="button" [disabled]="isSubmitting()" (click)="askQuestion()">إرسال السؤال</button>
               </div>
             </div>
+            }
 
             <!-- Q&A — no question data source exists yet: empty state -->
             <div class="qa-card">
@@ -648,7 +665,9 @@
 
             <!-- ORDER COMPACT -->
             <div style="padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:14px">
-              @if (canPurchase()) {
+              @if (isOwnService()) {
+                <ng-container *ngTemplateOutlet="ownServiceNote"></ng-container>
+                } @else if (canPurchase()) {
               <button [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()" type="button" style="width:100%;padding:11px;border-radius:999px;background:var(--grad);color:#070D24;font-family:inherit;font-size:13px;font-weight:900;border:none;cursor:pointer;margin-bottom:10px">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
               } @else {
               <ng-container *ngTemplateOutlet="buyBlocked"></ng-container>
@@ -687,7 +706,9 @@
     </div>
     <div style="margin-bottom:16px">
       <div style="font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:8px;text-align:right">ملاحظاتك لمقدم الخدمة</div>
-      <textarea [value]="negotiationMessage()" (input)="updateNegotiationMessage($event)" placeholder="اكتب تفاصيل طلبك، سعراً أو مدة أو تعديلاً على الخطة أو أي استفسار" style="width:100%;min-height:100px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;color:#fff;font-family:Tajawal,sans-serif;font-size:13px;resize:vertical;outline:none;box-sizing:border-box;text-align:right" dir="rtl"></textarea>
+      <textarea id="neg-message" name="neg-message" [class.ws-invalid]="negotiationError()" [attr.aria-invalid]="negotiationError() ? 'true' : null" [attr.aria-describedby]="negotiationError() ? 'neg-message-err' : null" [value]="negotiationMessage()" (input)="updateNegotiationMessage($event)" placeholder="اكتب تفاصيل طلبك، سعراً أو مدة أو تعديلاً على الخطة أو أي استفسار" style="width:100%;min-height:100px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;color:#fff;font-family:Tajawal,sans-serif;font-size:13px;resize:vertical;outline:none;box-sizing:border-box;text-align:right" dir="rtl"></textarea>
+      @if (negotiationError()) { <p class="ws-field-msg" id="neg-message-err" role="alert" data-testid="field-error" style="color:#ef4444;font-size:11px;font-weight:700;margin:4px 0;text-align:right">{{ negotiationError() }}</p> }
+      @if (requestError() && showNegotiation()) { <p id="neg-request-err" role="alert" style="color:#ef4444;font-size:12px;font-weight:700;margin:4px 0;text-align:right">{{ requestError() }}</p> }
     </div>
     <div style="background:rgba(43,127,255,.06);border:1px solid rgba(43,127,255,.15);border-radius:12px;padding:14px 16px;margin-bottom:20px">
       <div style="font-size:11px;font-weight:800;color:#5DA0FF;margin-bottom:8px;display:flex;align-items:center;gap:6px;justify-content:flex-end"><svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-ai-spark"></use></svg>ماذا يحدث بعد الإرسال</div>
@@ -699,7 +720,7 @@
     </div>
     <div style="display:flex;gap:10px">
       <button (click)="closeNegotiation()" type="button" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#A8B2D1;font-family:Tajawal,sans-serif;font-size:14px;font-weight:600;cursor:pointer">إلغاء</button>
-      <button [disabled]="isSubmitting()" (click)="requestService('negotiation')" type="button" style="flex:2;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer">إرسال طلب التفاوض</button>
+      <button [disabled]="isSubmitting()" (click)="sendNegotiation()" type="button" style="flex:2;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer">إرسال طلب التفاوض</button>
     </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -16,6 +16,8 @@ import {
   httpErrorMessage, initials, isToggleable, mapProviderModels, relativeTime, validityLabel,
 } from '../marketing-utils';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 
 /** P-PR-040-تفاصيل / P-CO-MK-006-تفاصيل — coupon stats & details. */
 @Component({
@@ -34,6 +36,12 @@ export class MarketingCouponDetails implements OnInit {
   private modelsApi = inject(NewProjectService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
+  /** Field message under the rejection-reason input. */
+  reasonError = signal<string | null>(null);
+  /** Honest message for failures that belong to no field (network, 429, 5xx, 403, 409...). */
+  decisionError = signal<string | null>(null);
 
   isCompanyMode = computed<boolean>(() => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY);
 
@@ -202,21 +210,37 @@ export class MarketingCouponDetails implements OnInit {
     const c = this.coupon();
     if (!c) return;
     if (decision === 'REJECTED' && !this.rejectReason.trim()) {
+      const message = 'اكتب سبب الرفض، فهو مطلوب ويظهر لعضو الفريق';
+      this.reasonError.set(message);
       this.notify.warning('يجب توضيح سبب الرفض');
+      void focusInvalidControls(this.host.nativeElement, [{ path: 'reject-reason', message }]);
       return;
     }
+    if (!this.guard.enter()) return;
+    this.reasonError.set(null);
+    this.decisionError.set(null);
     this.busy.set(true);
     this.couponApi.decideApproval(c.id, { decision, rejectionReason: decision === 'REJECTED' ? this.rejectReason.trim() : null }).subscribe({
       next: res => {
         this.coupon.set(res.data);
         this.busy.set(false);
+        this.guard.release();
         this.rejecting.set(false);
         this.centerApi.refreshPendingCount();
         this.notify.success(decision === 'APPROVED' ? 'تم اعتماد الكوبون' : 'تم رفض الكوبون');
       },
       error: err => {
         this.busy.set(false);
-        this.notify.error(httpErrorMessage(err, 'تعذر تسجيل القرار'));
+        this.guard.release();
+        const mapped = mapHttpError(err, { fallback: 'تعذر تسجيل القرار' });
+        if (mapped.kind === 'backend-validation' && decision === 'REJECTED') {
+          // The only field is the reason: a 400/422 explains itself at the input.
+          this.reasonError.set(mapped.message);
+          void focusInvalidControls(this.host.nativeElement, [{ path: 'reject-reason', message: mapped.message }]);
+        } else {
+          this.decisionError.set(mapped.message);
+        }
+        this.notify.error(mapped.message);
       },
     });
   }

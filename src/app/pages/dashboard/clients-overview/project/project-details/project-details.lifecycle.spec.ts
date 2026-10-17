@@ -22,7 +22,7 @@ const DATA = (o: Record<string, unknown> = {}) => ({
 async function setup(data: any) {
 	const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: [] }) : String(url).includes('rating') ? of({ canRate: false, review: null }) : (data instanceof Subject ? data : of({ success: true, data })));
 	await TestBed.configureTestingModule({ imports: [ProjectDetails], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post: vi.fn() } },
-		{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
+		{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
 	const f = TestBed.createComponent(ProjectDetails); f.detectChanges(); await f.whenStable(); f.detectChanges();
 	f.componentInstance.setTab('miles'); f.detectChanges();
 	const el = f.nativeElement as HTMLElement;

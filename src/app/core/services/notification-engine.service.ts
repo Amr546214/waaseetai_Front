@@ -1,13 +1,18 @@
-import { Injectable, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Injectable, InjectionToken, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { environment } from '../../../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { NotificationSoundService } from './notification-sound.service';
 import { AuthStore } from '../store/auth.store';
 import { UiNotificationService } from './ui-notification.service';
+import { normalizeLegacyNotificationUrl } from '../routing/notification-links';
+
+/** The socket constructor (a seam for tests: a module-level mock of socket.io-client does not survive the shared test bundle). */
+export const NOTIFICATION_SOCKET_FACTORY = new InjectionToken<typeof io>('NOTIFICATION_SOCKET_FACTORY', { providedIn: 'root', factory: () => io });
 import { ACCOUNT_NOT_ACTIVE_CODE, accountBlockedText } from './account-state';
 
 // The real, existing dashboard roots this app has — every notification
@@ -81,6 +86,7 @@ export class NotificationEngineService implements OnDestroy {
 	private authStore = inject(AuthStore);
 	private ui = inject(UiNotificationService);
 	private sanitizer = inject(DomSanitizer);
+	private socketFactory = inject(NOTIFICATION_SOCKET_FACTORY);
 	private iconHtmlCache = new Map<string, SafeHtml>();
 	private socket: Socket | null = null;
 	// The user ID the socket is currently (or should be) joined as. Distinct
@@ -200,10 +206,18 @@ export class NotificationEngineService implements OnDestroy {
 
 	// Real-time event emitters for UI reactivity
 	realtimeNewNotification = signal<any | null>(null);
+	// A notification that already exists was UPDATED server-side (a chat conversation's unread row coalesces its next messages): same id, newer text / count / createdAt. Lists replace the row; the counter never moves.
+	realtimeUpdatedNotification = signal<any | null>(null);
 	realtimeReadNotification = signal<string | null>(null);
 	realtimeReadAll = signal<boolean>(false);
 
 	private toastTimer: any = null;
+	// ids already delivered to the UI (socket push OR recovery read): the same notification arriving twice (a reconnect replay, a recovery that overlaps a push) counts once
+	private seenIds = new Set<string>();
+	// createdAt of each held id as last seen: a same-id arrival with a NEWER createdAt is an update (coalesced chat row), not a duplicate
+	private seenAtById = new Map<string, string>();
+	// createdAt of the newest notification this client holds: the `since` of the recovery read after a reconnect
+	private newestAt: string | null = null;
 
 	constructor() {
 		// Socket.IO is browser-only real-time transport: creating it during SSR
@@ -243,16 +257,17 @@ export class NotificationEngineService implements OnDestroy {
 	initSocket(userId: string): void {
 		if (!this.isBrowser || this.socket) return;
 
-		this.socket = io(environment.socketUrl, {
+		this.socket = this.socketFactory(environment.socketUrl, {
 			withCredentials: true,
-			reconnection: true,
+			...SOCKET_BACKOFF,
 			// Matches the same auth.token handshake pattern already used by
 			// ChatService/AntiCheatService/etc.: the backend's connection
 			// handler (waseetai-backend/src/socket.ts) verifies this JWT and
 			// auto-joins `user_<id>`/`project_owner_<id>` on every connect —
 			// including every automatic reconnect, since socket.io-client
 			// resends the current `auth` value on each attempt.
-			auth: { token: this.authStore.token() },
+			// a function: every (re)connection attempt sends the CURRENT token, not the one from the first connect
+			auth: (cb: (data: object) => void) => cb({ token: this.authStore.token() }),
 		});
 
 		console.log('🔌 NotificationEngine connected to WebSocket');
@@ -265,15 +280,27 @@ export class NotificationEngineService implements OnDestroy {
 			if (this.joinedUserId) {
 				this.socket?.emit('join_user_room', this.joinedUserId);
 			}
+			// first connect AND every reconnect: ask the server for what was stored while this client was offline
+			this.recoverMissed();
 		});
 
 		const handleNewNotification = (notif: any) => {
-			console.log('📬 Real-time notification received:', notif);
+			if (!this.registerArrival(notif)) return; // duplicate: already shown / counted
 			this.unreadCount.update(c => c + 1);
 			this.realtimeNewNotification.set(notif);
 			this.soundService.playPopSound();
 			this.triggerToast(notif);
 		};
+
+		// Same id, new content: replace the row (never a second row, never +1 on the bell: the server counts one unread row per conversation).
+		this.socket.on('notification_updated', (notif: any) => {
+			if (!notif?.id) return;
+			if (!this.seenIds.has(notif.id)) { handleNewNotification(notif); return; } // never held (missed while offline): it is simply a new unread row
+			if (!this.registerUpdate(notif)) return;
+			this.realtimeUpdatedNotification.set(notif);
+			this.soundService.playPopSound();
+			this.triggerToast(notif);
+		});
 
 		// The server cut this connection because the account is no longer active (admin suspension), or refused it at the handshake.
 		this.socket.on('account_not_active', (payload: { message?: string }) => {
@@ -314,12 +341,71 @@ export class NotificationEngineService implements OnDestroy {
 		console.log(`📡 NotificationEngine subscribed to room for user: ${userId}`);
 	}
 
+	/** True when this notification is new to the client (and remembers it); false for an id already seen. Rows without an id cannot be de-duplicated and always count. */
+	registerArrival(notif: { id?: string; createdAt?: string | Date } | null | undefined): boolean {
+		const id = notif?.id;
+		if (id) {
+			if (this.seenIds.has(id)) return false;
+			this.seenIds.add(id);
+		}
+		const at = notif?.createdAt ? new Date(notif.createdAt).toISOString() : null;
+		if (id && at) this.seenAtById.set(id, at);
+		if (at && (!this.newestAt || at > this.newestAt)) this.newestAt = at;
+		return true;
+	}
+
+	/** True when an already-held id arrives with a NEWER createdAt (the server updated that row); remembers it. Older or equal = a replay, false. */
+	registerUpdate(notif: { id?: string; createdAt?: string | Date } | null | undefined): boolean {
+		const id = notif?.id;
+		const at = notif?.createdAt ? new Date(notif.createdAt).toISOString() : null;
+		if (!id || !at || !this.seenIds.has(id)) return false;
+		const prev = this.seenAtById.get(id);
+		if (prev && at <= prev) return false;
+		this.seenAtById.set(id, at);
+		if (!this.newestAt || at > this.newestAt) this.newestAt = at;
+		return true;
+	}
+
+	/**
+	 * Recovery after (re)connecting: GET /notifications?unreadOnly=true[&since=<newest held>]. Whatever the server stored that this client has not seen is
+	 * pushed through the same path as a live notification (de-duplicated by id, so a live push racing the recovery is still counted once), and the bell
+	 * counter is set to the server's exact unread total. A failed read changes nothing (the next reconnect retries).
+	 */
+	recoverMissed(): void {
+		if (!this.isBrowser) return;
+		const params: Record<string, string> = { unreadOnly: 'true' };
+		if (this.newestAt) params['since'] = this.newestAt;
+		this.http.get<any>(`${environment.url_api}/notifications`, { params }).subscribe({
+			next: res => {
+				if (!res?.success || !Array.isArray(res.data)) return;
+				// An older server (no numeric unreadCount) ignores `since` and answers EVERY unread row: rows this client never held that are older than what it
+				// already holds are not "missed while offline", so they are neither announced nor pushed again; the bell is set from the list itself (exact, the list is complete).
+				const legacy = typeof res.unreadCount !== 'number';
+				const since = params['since'];
+				const rows: any[] = legacy && since
+					? res.data.filter((n: any) => this.seenIds.has(n?.id) || !n?.createdAt || new Date(n.createdAt).toISOString() > since)
+					: res.data;
+				const ordered = [...rows].reverse();
+				const fresh = ordered.filter((n: any) => this.registerArrival(n));
+				for (const n of fresh) this.realtimeNewNotification.set(n);
+				// rows held already but updated while offline (a chat conversation that kept receiving messages): replace them, no new count
+				for (const n of ordered) if (!fresh.includes(n) && this.registerUpdate(n)) this.realtimeUpdatedNotification.set(n);
+				this.unreadCount.set(legacy ? res.data.length : res.unreadCount);
+				if (fresh.length) this.triggerToast(fresh[fresh.length - 1]);
+			},
+			error: () => { /* keep what we have */ }
+		});
+	}
+
 	fetchNotifications(category?: string): Observable<any> {
 		const params: any = {};
 		if (category && category !== 'all' && category !== 'ALL') {
 			params.category = category;
 		}
-		return this.http.get<any>(`${environment.url_api}/notifications`, { params });
+		return this.http.get<any>(`${environment.url_api}/notifications`, { params }).pipe(tap(res => {
+			// everything a list read returns is "held": a later push/recovery of the same id is not announced again
+			if (Array.isArray(res?.data)) for (const n of res.data) this.registerArrival(n);
+		}));
 	}
 
 	markNotificationAsRead(id: string): Observable<any> {
@@ -359,6 +445,10 @@ export class NotificationEngineService implements OnDestroy {
 			this.socket.disconnect();
 			this.socket = null;
 		}
+		// another identity must never inherit the previous account's seen ids
+		this.seenIds.clear();
+		this.seenAtById.clear();
+		this.newestAt = null;
 	}
 
 	ngOnDestroy(): void {
@@ -428,16 +518,21 @@ export class NotificationEngineService implements OnDestroy {
 		basePath: NotificationBasePath = '/provider-overview'
 	): string | null {
 		const metadata = nt?.metadata || {};
+		// a SAVED row may hold a link from an earlier release: map it to the current real route before anything reads it
+		const storedUrl = nt?.actionUrl;
+		if (nt?.actionUrl) nt = { ...nt, actionUrl: normalizeLegacyNotificationUrl(nt.actionUrl) };
 
 		switch (nt?.type) {
 			case 'CHAT':
+				// A message of a PROJECT room opens that project's messages tab (the stored, stable link); a general one opens the conversation.
+				if (metadata.context === 'PROJECT' && this.isSafeInternalUrl(nt?.actionUrl, basePath) && /[?&]tab=messages(&|$)/.test(nt!.actionUrl!)) return nt!.actionUrl!;
 				return metadata.conversationId
 					? `${basePath}/messages?conversationId=${metadata.conversationId}`
 					: null;
 			case 'PROJECT_MATCH':
 				// Provider-only. Always resolves into the Marketplace (never
 				// null) — see resolveProjectMatchTarget().
-				return this.resolveProjectMatchTarget(metadata, nt?.actionUrl);
+				return this.resolveProjectMatchTarget(metadata, storedUrl); // parses the historical shape itself
 			case 'OFFER_ACCEPTED':
 				if (metadata.offerId) {
 					return `/provider-overview/offers/${metadata.offerId}/sign-contract`;

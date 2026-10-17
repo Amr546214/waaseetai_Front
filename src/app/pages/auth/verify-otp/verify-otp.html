@@ -73,26 +73,35 @@
         <div class="otp-card-title">رمز التحقق</div>
         <div class="otp-group" id="otp-group" aria-label="خانات رمز التحقق" role="group" dir="ltr" (paste)="onOtpPaste($event)">
           @for (i of otpIndexes; track i) {
-          <input class="otp-box" [class.filled]="!!otpDigit(i)" [class.has-error]="!!errorMsg" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+          <input class="otp-box" [class.filled]="!!otpDigit(i)" [class.has-error]="!!errorMsg" [attr.aria-invalid]="errorMsg ? 'true' : null" [attr.aria-describedby]="errorMsg ? 'banner-error' : null" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
             [id]="'otp-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
           }
         </div>
 
-        @if (countdown > 0) {
+        @if (validWait().active()) {
+        <div class="timer-block" id="validity-block">
+          <span class="timer-label">ينتهي الرمز خلال</span>
+          <span class="timer-val" id="validity-val" dir="ltr">{{ validWait().clock() }}</span>
+        </div>
+        } @else if (codeExpired) {
+        <div class="timer-block" id="code-expired" role="status">انتهت صلاحية الرمز، اطلب رمزًا جديدًا</div>
+        }
+        @if (resendWait().active()) {
         <div class="timer-block" id="timer-block">
           <span class="timer-label">إعادة الارسال بعد</span>
           <span class="timer-val" id="timer-val" aria-live="polite" dir="ltr">{{ formattedCountdown }}</span>
         </div>
         }
+        @if (rateLimitText) { <div class="timer-block" id="rate-limit-msg" role="alert" data-testid="rate-limit-msg">{{ rateLimitText }}</div> }
         <div style="text-align:center;margin-top:8px">
-          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="countdown > 0 || isLoading" (click)="resendOtp()">اعادة الارسال</button>
+          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="resendWait().active() || isLoading" (click)="resendOtp()">اعادة الارسال</button>
         </div>
       </div>
 
       <div class="btn-group" style="margin-top:4px">
-        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isLoading" [attr.aria-disabled]="isLoading">
+        <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isLoading || verifyWait().active()" [attr.aria-disabled]="isLoading || verifyWait().active()">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-shield"></use></svg>
-          {{ isLoading ? 'جاري التحقق...' : (loginMode ? 'الدخول إلى لوحة التحكم' : 'التالي: لوحة التحكم') }}
+          {{ isLoading ? 'جاري التحقق...' : (loginMode ? 'الدخول إلى لوحة التحكم' : 'التالي: لوحة التحكم') }}@if (verifyWait().active()) { <span id="verify-wait" data-testid="wait-label"> {{ verifyWait().label() }}</span> }
         </button>
         <a routerLink="/auth/login" class="btn-tertiary">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>

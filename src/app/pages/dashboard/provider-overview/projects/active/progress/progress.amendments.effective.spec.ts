@@ -11,12 +11,14 @@ import { Progress } from './progress';
 const DATA = { projectId: 'project-9', conversationId: 'conv-9', title: 'مشروع', stages: [], edits: [], messages: [], files: [], deliveries: [] };
 const AM = (o: Record<string, unknown> = {}) => ({ id: 'c1', projectId: 'project-9', projectTitle: 'مشروع', type: 'BUDGET', title: 'زيادة', description: 'سبب', budgetDelta: 5, durationDeltaDays: null, status: 'PENDING_OTHER_PARTY', requestedByRole: 'CLIENT', createdAt: '2026-10-01T00:00:00Z', respondedAt: null, conversationId: null, effect: 'PENDING', needsClientPayment: true, fundingAuthorized: false, contractPrice: 20, contractDurationDays: 14, ...o });
 
+// the list is newest-first by createdAt (tie: id desc); the fixtures keep their written order as the display order
+const NEWEST_FIRST = (l: any[]) => l.map((a, i) => ({ ...a, createdAt: new Date(Date.UTC(2026, 9, 10) - i * 60000).toISOString() }));
 describe('provider progress: effective amendments', () => {
 	async function setup(list: any[]) {
 		const post = vi.fn(() => of({ success: true, data: {} }));
-		const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: list }) : of({ success: true, data: DATA }));
+		const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: NEWEST_FIRST(list) }) : of({ success: true, data: DATA }));
 		await TestBed.configureTestingModule({ imports: [Progress], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'contract-1' }) } } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'contract-1' }) } } }] }).compileComponents();
 		const f = TestBed.createComponent(Progress); f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
 		const qa = (id: string) => Array.from(el.querySelectorAll(`[data-testid="${id}"]`)) as HTMLElement[];

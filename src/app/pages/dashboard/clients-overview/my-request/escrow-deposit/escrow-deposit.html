@@ -111,7 +111,7 @@
         </div>
 
         <!-- TERMS -->
-        <div class="terms-row" (click)="toggleTerms()" role="checkbox" [attr.aria-checked]="termsAccepted()" tabindex="0">
+        <div id="ed-terms" data-field-wrap class="terms-row" (click)="toggleTerms()" (keydown.space)="$event.target === $event.currentTarget && toggleTermsKey($event)" (keydown.enter)="$event.target === $event.currentTarget && toggleTerms()" role="checkbox" [attr.aria-checked]="termsAccepted()" tabindex="0">
           <div class="terms-check" [class.checked]="termsAccepted()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
@@ -143,9 +143,10 @@
         <div style="font-size:11px;font-weight:600" class="txt-muted">الإجمالي</div>
         <div style="font-size:16px;font-weight:900" class="txt-amber">{{ formatCurrency(totalAmount()) }}</div>
       </div>
-      <button class="btn-primary" data-testid="ed-pay" [disabled]="!termsAccepted() || isSubmitting()" (click)="handlePrimaryAction()">
+      <button class="btn-primary" data-testid="ed-pay" [disabled]="isSubmitting() || sendWait.active()" (click)="handlePrimaryAction()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         {{ isSubmitting() ? 'جاري المعالجة...' : (hasSufficientBalance() ? 'توقيع وحجز ' + formatCurrency(totalAmount()) : 'شحن ' + formatCurrency(shortfall())) }}
+        @if (sendWait.active()) { <span data-testid="ed-send-wait">{{ sendWait.label() }}</span> }
       </button>
     </div>
   </div>
@@ -164,18 +165,19 @@
       <h2 class="modal-title">تأكيد بكود OTP</h2>
       <p class="modal-sub">تم إرسال رمز التحقق إلى بريدك الإلكتروني<br><strong dir="ltr" class="txt-white">{{ clientEmail() }}</strong></p>
       <div class="otp-boxes" dir="ltr" role="group" aria-label="خانات رمز التحقق">
-        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp0" [value]="otpValues()[0]" (input)="onOtpInput(0, $event)" (keydown)="onOtpKeydown(0, $event)" (paste)="onOtpPaste($event)">
-        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp1" [value]="otpValues()[1]" (input)="onOtpInput(1, $event)" (keydown)="onOtpKeydown(1, $event)" (paste)="onOtpPaste($event)">
-        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp2" [value]="otpValues()[2]" (input)="onOtpInput(2, $event)" (keydown)="onOtpKeydown(2, $event)" (paste)="onOtpPaste($event)">
-        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp3" [value]="otpValues()[3]" (input)="onOtpInput(3, $event)" (keydown)="onOtpKeydown(3, $event)" (paste)="onOtpPaste($event)">
-        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp4" [value]="otpValues()[4]" (input)="onOtpInput(4, $event)" (keydown)="onOtpKeydown(4, $event)" (paste)="onOtpPaste($event)">
-        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" id="otp5" [value]="otpValues()[5]" (input)="onOtpInput(5, $event)" (keydown)="onOtpKeydown(5, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" [attr.aria-invalid]="otpError() ? 'true' : null" [attr.aria-describedby]="otpError() ? 'ed-otp-err' : null" id="otp0" [value]="otpValues()[0]" (input)="onOtpInput(0, $event)" (keydown)="onOtpKeydown(0, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" [attr.aria-invalid]="otpError() ? 'true' : null" [attr.aria-describedby]="otpError() ? 'ed-otp-err' : null" id="otp1" [value]="otpValues()[1]" (input)="onOtpInput(1, $event)" (keydown)="onOtpKeydown(1, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" [attr.aria-invalid]="otpError() ? 'true' : null" [attr.aria-describedby]="otpError() ? 'ed-otp-err' : null" id="otp2" [value]="otpValues()[2]" (input)="onOtpInput(2, $event)" (keydown)="onOtpKeydown(2, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" [attr.aria-invalid]="otpError() ? 'true' : null" [attr.aria-describedby]="otpError() ? 'ed-otp-err' : null" id="otp3" [value]="otpValues()[3]" (input)="onOtpInput(3, $event)" (keydown)="onOtpKeydown(3, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" [attr.aria-invalid]="otpError() ? 'true' : null" [attr.aria-describedby]="otpError() ? 'ed-otp-err' : null" id="otp4" [value]="otpValues()[4]" (input)="onOtpInput(4, $event)" (keydown)="onOtpKeydown(4, $event)" (paste)="onOtpPaste($event)">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" [attr.aria-invalid]="otpError() ? 'true' : null" [attr.aria-describedby]="otpError() ? 'ed-otp-err' : null" id="otp5" [value]="otpValues()[5]" (input)="onOtpInput(5, $event)" (keydown)="onOtpKeydown(5, $event)" (paste)="onOtpPaste($event)">
       </div>
-      @if (otpError()) { <div class="state-banner error" role="alert" data-testid="ed-otp-error" style="margin:10px 0">{{ otpError() }}</div> }
+      @if (otpError()) { <div id="ed-otp-err" class="state-banner error" role="alert" data-testid="ed-otp-error" style="margin:10px 0">{{ otpError() }}</div> }
       @if (otpNotice()) { <div class="otp-timer" role="status" data-testid="ed-otp-notice">{{ otpNotice() }}</div> }
-      <div class="otp-timer" data-testid="ed-otp-timer">@if (otpCountdown() > 0) { صلاحية الرمز تنتهي خلال <span>{{ otpCountdownText() }}</span> } @else { انتهت صلاحية الرمز }</div>
-      <button class="modal-btn" data-testid="ed-otp-confirm" [disabled]="isSubmitting()" (click)="confirmDeposit()">{{ isSubmitting() ? 'جاري التحقق والحجز...' : 'تأكيد التوقيع والإيداع' }}</button>
-      <div class="modal-resend">لم تستلم الرمز؟ <a (click)="resetOTP()" style="cursor:pointer">{{ isResending() ? 'جارٍ الإرسال...' : 'إعادة الإرسال' }}</a></div>
+      @if (rateLimitText()) { <div id="ed-otp-rl" class="state-banner error" role="alert" data-testid="ed-rate-limit" style="margin:10px 0">{{ rateLimitText() }}</div> }
+      <div class="otp-timer" data-testid="ed-otp-timer">@if (otpCountdown() > 0) { صلاحية الرمز تنتهي خلال <span>{{ otpCountdownText() }}</span> } @else if (otpExpired()) { انتهت صلاحية الرمز }</div>
+      <button class="modal-btn" data-testid="ed-otp-confirm" [disabled]="isSubmitting() || confirmWait.active()" (click)="confirmDeposit()">{{ isSubmitting() ? 'جاري التحقق والحجز...' : 'تأكيد التوقيع والإيداع' }}@if (confirmWait.active()) { <span data-testid="ed-confirm-wait"> {{ confirmWait.label() }}</span> }</button>
+      <div class="modal-resend">لم تستلم الرمز؟ <a (click)="resetOTP()" [attr.aria-disabled]="sendWait.active() ? 'true' : null" [style.opacity]="sendWait.active() ? 0.5 : 1" style="cursor:pointer">{{ isResending() ? 'جارٍ الإرسال...' : 'إعادة الإرسال' }}</a>@if (sendWait.active()) { <span data-testid="ed-resend-wait"> {{ sendWait.label() }}</span> }</div>
     </div>
   </div>
 }

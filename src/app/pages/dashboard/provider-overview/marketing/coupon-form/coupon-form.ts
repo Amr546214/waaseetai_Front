@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -17,6 +17,8 @@ import {
   mapProviderModels, todayInput,
 } from '../marketing-utils';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SubmitGuard, focusInvalidControls, reportBackendError } from '../../../../../shared/forms/form-error-focus';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 
 const CODE_RE = /^[A-Za-z0-9_-]{3,50}$/;
 const MAX_SCOPE = 50;
@@ -57,6 +59,8 @@ export class MarketingCouponForm implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private guard = new SubmitGuard();
 
   isCompanyMode = computed<boolean>(() => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY);
   readonly threshold = COMPANY_APPROVAL_THRESHOLD;
@@ -76,6 +80,8 @@ export class MarketingCouponForm implements OnInit {
   errors = signal<Errors>({});
   submitted1 = signal(false);
   submitted2 = signal(false);
+  /** Honest message for failures that belong to no field (network, 429, 5xx, 403, 409...). Never marked on a field. */
+  formError = signal<string | null>(null);
 
   needsApproval = computed(() => {
     const f = this.form();
@@ -135,7 +141,7 @@ export class MarketingCouponForm implements OnInit {
   private emptyForm(): CouponForm {
     return {
       code: '', discountType: 'percentage', discountValue: null, minimumAmount: null,
-      startAt: todayInput(), expiresAt: '', maxUses: null, maxUsesPerUser: 1,
+      startAt: todayInput(), expiresAt: '', maxUses: null, maxUsesPerUser: null,
       scopeMode: 'all', serviceIds: [], excludedServiceIds: [], internalNote: '', assignedToTeamMemberId: null,
     };
   }
@@ -190,7 +196,8 @@ export class MarketingCouponForm implements OnInit {
     else if (f.discountType === 'percentage' && Number(f.discountValue) > 100) e.discountValue = 'النسبة يجب أن تكون بين 1 و100';
     if (f.minimumAmount !== null && f.minimumAmount !== undefined && Number(f.minimumAmount) < 0) e.minimumAmount = 'الحد الأدنى لا يمكن أن يكون سالباً';
     if (f.maxUses !== null && f.maxUses !== undefined && (!Number.isInteger(Number(f.maxUses)) || Number(f.maxUses) <= 0)) e.maxUses = 'عدد صحيح أكبر من صفر';
-    if (f.maxUsesPerUser === null || f.maxUsesPerUser === undefined || !Number.isInteger(Number(f.maxUsesPerUser)) || Number(f.maxUsesPerUser) <= 0) e.maxUsesPerUser = 'عدد صحيح أكبر من صفر';
+    if (f.maxUsesPerUser === null || f.maxUsesPerUser === undefined || (f.maxUsesPerUser as unknown) === '') e.maxUsesPerUser = 'أدخل عدد المرات المسموحة للعميل الواحد';
+    else if (!Number.isInteger(Number(f.maxUsesPerUser)) || Number(f.maxUsesPerUser) <= 0) e.maxUsesPerUser = 'عدد صحيح أكبر من صفر';
     else if (f.maxUses && Number(f.maxUsesPerUser) > Number(f.maxUses)) e.maxUsesPerUser = 'لا يتجاوز الحد الأقصى الكلي';
     if (!f.startAt) e.startAt = 'تاريخ البداية مطلوب';
     if (f.expiresAt) {
@@ -204,13 +211,30 @@ export class MarketingCouponForm implements OnInit {
     return e;
   }
 
-  private step1Keys: (keyof CouponForm)[] = ['code', 'discountValue', 'minimumAmount', 'maxUses', 'maxUsesPerUser', 'startAt', 'expiresAt'];
+  private step1Keys: (keyof CouponForm)[] = ['code', 'discountValue', 'minimumAmount', 'startAt', 'expiresAt', 'maxUses', 'maxUsesPerUser'];
+
+  /** Control id of each validated field (the DOM order of the form). */
+  private static readonly FIELD_IDS: Partial<Record<keyof CouponForm, string>> = {
+    code: 'cp-code', discountValue: 'cp-val', minimumAmount: 'cp-min', startAt: 'cp-start', expiresAt: 'cp-end',
+    maxUses: 'cp-max', maxUsesPerUser: 'cp-per', serviceIds: 'cp-scope', internalNote: 'cp-note',
+  };
+
+  /** Opens the step that holds the first problem, then focuses the first invalid control below the sticky header. */
+  private focusProblems(e: Errors): Promise<unknown> {
+    const order: (keyof CouponForm)[] = [...this.step1Keys, 'serviceIds', 'internalNote'];
+    const missing = order.filter(k => e[k]).map(k => ({ path: MarketingCouponForm.FIELD_IDS[k]!, message: e[k]!, key: k }));
+    const stepOf = (path: string) => (path === 'cp-scope' || path === 'cp-note' ? 2 : 1);
+    return focusInvalidControls(this.host.nativeElement, missing, { openStep: s => this.step.set(Number(s) as 1 | 2), stepOf });
+  }
 
   goStep2(): void {
     this.submitted1.set(true);
     const e = this.validate();
     this.errors.set(e);
-    if (this.step1Keys.some(k => e[k])) return;
+    if (this.step1Keys.some(k => e[k])) {
+      void this.focusProblems(Object.fromEntries(this.step1Keys.filter(k => e[k]).map(k => [k, e[k]])) as Errors);
+      return;
+    }
     this.step.set(2);
   }
 
@@ -245,9 +269,13 @@ export class MarketingCouponForm implements OnInit {
     const e = this.validate();
     this.errors.set(e);
     if (Object.keys(e).length) {
-      if (this.step1Keys.some(k => e[k])) this.step.set(1);
+      this.notify.warning('راجع الحقول المطلوبة');
+      void this.focusProblems(e);
       return;
     }
+    // A second click / Enter while the request is in flight does nothing (one request only).
+    if (!this.guard.enter()) return;
+    this.formError.set(null);
     const payload = this.buildPayload();
     const id = this.editId();
     this.saving.set(true);
@@ -261,9 +289,24 @@ export class MarketingCouponForm implements OnInit {
       },
       error: err => {
         this.saving.set(false);
-        this.notify.error(httpErrorMessage(err, 'تعذر حفظ الكوبون'));
+        this.guard.release();
+        void this.onSaveError(err);
       },
     });
+  }
+
+  /** 400/422 with field names -> at the field (opening its step); everything else stays a generic honest message. */
+  private async onSaveError(err: unknown): Promise<void> {
+    const mapped = mapHttpError(err, { fallback: 'تعذر حفظ الكوبون' });
+    const steps: Record<string, number> = { serviceIds: 2, internalNote: 2 };
+    for (const k of this.step1Keys) steps[k] = 1;
+    const res = await reportBackendError(this.host.nativeElement, mapped, {
+      resolve: { serviceIds: 'cp-scope', internalNote: 'cp-note' }, steps, openStep: s => this.step.set(Number(s) as 1 | 2),
+    });
+    if (res.handled && !Object.keys(res.unresolved).length) return;
+    const unresolved = Object.values(res.unresolved);
+    this.formError.set(unresolved.length ? `${mapped.message}: ${unresolved.join('، ')}` : mapped.message);
+    this.notify.error(mapped.message);
   }
 
   /**

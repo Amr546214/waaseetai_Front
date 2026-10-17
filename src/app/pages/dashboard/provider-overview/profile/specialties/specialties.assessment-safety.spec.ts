@@ -14,7 +14,7 @@ const fakeSocket = {
 	disconnect: vi.fn(() => { fakeSocket.connected = false; handlers['disconnect']?.('io client disconnect'); }),
 };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { Specialties } from './specialties';
 import { AntiCheatService } from '../../../../../core/services/anti-cheat.service';
@@ -124,6 +124,28 @@ describe('Specialties — assessment result and errors never claim an approval',
 		const el = emitError({ message: 'يجب الانتظار', code: 'ASSESSMENT_COOLDOWN', retryAfterSeconds: 7000 });
 		expect(component.quizGenerationError()).toContain('يمكنك المحاولة بعد ساعتين');
 		expect(retryButton(el)).toBeUndefined();
+	});
+
+	it('cooldown ticks from an END timestamp: the screen shows «بعد m:ss» under an hour, then offers the (user-pressed) retry at zero', () => {
+		vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z'));
+		component.currentStep.set(4);
+		emitError({ message: 'يجب الانتظار', code: 'ASSESSMENT_COOLDOWN', retryAfterSeconds: 90 });
+		expect(component.quizErrorShown()).toContain('يمكنك المحاولة بعد 1:30');
+		expect(component.quizErrorRetryableShown()).toBe(false);
+		vi.advanceTimersByTime(30_000);
+		expect(component.quizErrorShown()).toContain('بعد 1:00');
+		vi.advanceTimersByTime(61_000);
+		expect(component.quizErrorShown()).toContain('يمكنك المحاولة الآن');
+		expect(component.quizErrorRetryableShown()).toBe(true);
+		expect(postSpy).not.toHaveBeenCalled(); // nothing starts by itself
+	});
+
+	it('a cooldown refusal with NO time from the server keeps the honest text (no timer, no invented seconds)', () => {
+		component.currentStep.set(4);
+		emitError({ message: 'يجب الانتظار قبل إعادة التقييم', code: 'ASSESSMENT_COOLDOWN' });
+		expect(component.quizErrorShown()).toBe('يجب الانتظار قبل إعادة التقييم');
+		expect(component.quizErrorShown()).not.toMatch(/\d/);
+		expect(component.quizErrorRetryableShown()).toBe(false);
 	});
 
 	it('cooldown under an hour is shown in minutes', () => {

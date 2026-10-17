@@ -1,13 +1,17 @@
-import { Component, ElementRef, OnDestroy, ChangeDetectorRef, ViewEncapsulation, inject } from '@angular/core';
+import { Component, DestroyRef, signal, ElementRef, OnDestroy, ChangeDetectorRef, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PhoneInputComponent } from '../../../sheards/phone-input/phone-input.component';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { mapHttpError } from '../../../core/forms/http-error';
+import { WaitHandle, WaitTimerService, waitScope } from '../../../core/wait/wait-timer.service';
+import { isRateLimitError } from '../../../core/utils/rate-limit.util';
 import { attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
+import { backendBannerMessage, genericBanner } from '../../../shared/forms/submit-feedback';
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
 
 const RESET_LABELS: Record<string, string> = {
@@ -42,8 +46,11 @@ export class RestPassword implements OnDestroy {
   showNewPassword = false;
   showConfirmPassword = false;
 
-  otpSeconds = 90;
-  otpTimerInterval: any;
+  private readonly waits = inject(WaitTimerService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly handles = new Map<string, WaitHandle>();
+  /** True once the server told us when the current code stops being valid (no validity timer is shown otherwise). */
+  private validityKnown = false;
   showOtpError = false;
 
   bannerError = '';
@@ -74,10 +81,37 @@ export class RestPassword implements OnDestroy {
       newPassword: ['', [Validators.required, strongPasswordValidator]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: matchFieldsValidator('newPassword', 'confirmPassword') });
+    // Typing the e-mail on step 1 re-binds the send button to THAT e-mail's stored wait (a refresh must not bypass the server's block).
+    this.recoveryForm.get('email')!.valueChanges.pipe(takeUntilDestroyed()).subscribe(v => { if (this.currentStep === 1) this.waitEmail.set(String(v || '')); });
   }
 
   ngOnDestroy() {
-    this.clearTimer();
+    // Handles release their share of the central clock with the component's DestroyRef; the stored end timestamps stay for a return visit.
+  }
+
+  private handle(action: string, email: string): WaitHandle {
+    const scope = waitScope(action, email);
+    let h = this.handles.get(scope);
+    if (!h) { h = this.waits.track(scope, this.destroyRef); this.handles.set(scope, h); }
+    return h;
+  }
+
+  /** Next code may be requested (server: resendAvailableAt / Retry-After) for the typed (step 1) or verified (step 2) e-mail. Disables only the send / resend button. */
+  get sendWait(): WaitHandle { return this.handle('reset-otp-send', this.waitEmail()); }
+
+  /** The reset code's validity (server: expiresAt). A different thing from the resend wait. */
+  get validityWait(): WaitHandle { return this.handle('reset-otp-valid', this.verifiedEmail); }
+
+  /** The e-mail the send / resend wait is keyed by (typed on step 1, verified on step 2). A signal so the buttons re-render when it changes. */
+  private readonly waitEmail = signal('');
+
+  get codeExpired(): boolean { return this.validityKnown && !this.validityWait.active(); }
+
+  /** Starts the resend wait and the validity timer from what the server answered; nothing is started when it gave no time. */
+  private applySendResponse(res: any) {
+    this.sendWait.startFromResponse({ resendAvailableAt: res?.resendAvailableAt });
+    const exp = res?.expiresAt ? Date.parse(res.expiresAt) : NaN;
+    if (Number.isFinite(exp)) { this.validityKnown = true; this.validityWait.start(exp); } else this.validityKnown = false;
   }
 
   /** Design step pill (P-AU-013 showStep): "الخطوة n من 3", then "تم" on success. */
@@ -101,6 +135,7 @@ export class RestPassword implements OnDestroy {
   }
 
   sendOtp() {
+    if (this.isLoading || (this.channel === 'email' && this.sendWait.active())) return;
     if (this.channel === 'email') {
       const attempt = attemptSubmit(this.recoveryForm, { root: this.host.nativeElement, labels: RESET_LABELS });
       if (!attempt.valid) {
@@ -122,16 +157,20 @@ export class RestPassword implements OnDestroy {
     this.cdr.markForCheck();
 
     this.authApi.forgotPassword({ email }).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isLoading = false;
         this.verifiedEmail = email;
+        this.waitEmail.set(email);
         this.currentStep = 2;
-        this.startTimer();
+        this.applySendResponse(res);
         this.cdr.markForCheck();
       },
-      error: (err) => {
+      error: async (err) => {
+        const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء إرسال رمز التحقق، حاول مرة أخرى' });
+        // 400/422 about the e-mail -> under the field; network / 429 / 5xx stay one honest banner.
+        if (isRateLimitError(err)) this.handle('reset-otp-send', email).startFromResponse(err);
+        this.bannerError = genericBanner(mapped) ?? await backendBannerMessage(this.host.nativeElement, mapped, { resolve: { email: 'field-email' } });
         this.isLoading = false;
-        this.bannerError = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء إرسال رمز التحقق، حاول مرة أخرى' }).message;
         this.cdr.markForCheck();
       }
     });
@@ -237,32 +276,8 @@ export class RestPassword implements OnDestroy {
       .replace(/[^0-9]/g, '');
   }
 
-  startTimer(seconds = 90) {
-    this.clearTimer();
-    this.otpSeconds = seconds;
-    this.otpTimerInterval = setInterval(() => {
-      this.otpSeconds--;
-      if (this.otpSeconds <= 0) {
-        this.clearTimer();
-      }
-      this.cdr.markForCheck();
-    }, 1000);
-  }
-
-  clearTimer() {
-    if (this.otpTimerInterval) {
-      clearInterval(this.otpTimerInterval);
-    }
-  }
-
-  get formattedTimer() {
-    const m = Math.floor(this.otpSeconds / 60);
-    const s = this.otpSeconds % 60;
-    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-  }
-
   resendOtp() {
-    if (!this.verifiedEmail || this.isLoading) return;
+    if (!this.verifiedEmail || this.isLoading || this.sendWait.active()) return;
 
     this.showOtpError = false;
     this.bannerError = '';
@@ -270,18 +285,18 @@ export class RestPassword implements OnDestroy {
     this.cdr.markForCheck();
 
     this.authApi.forgotPassword({ email: this.verifiedEmail }).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isLoading = false;
         this.verificationForm.reset();
-        this.startTimer();
+        this.applySendResponse(res);
         this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء إعادة إرسال الرمز، حاول مرة أخرى' });
         this.bannerError = mapped.message;
-        // Rate limited: keep resend locked for the time the server asked.
-        if (mapped.kind === 'rate-limit' && mapped.retryAfterSeconds) this.startTimer(mapped.retryAfterSeconds);
+        // Rate limited: keep resend locked until the end the server gave (Retry-After / retryAt); no stated wait = no timer.
+        if (mapped.kind === 'rate-limit') this.sendWait.startFromResponse(err);
         this.cdr.markForCheck();
       }
     });
@@ -309,7 +324,6 @@ export class RestPassword implements OnDestroy {
       next: () => {
         this.isLoading = false;
         this.currentStep = 3;
-        this.clearTimer();
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -328,11 +342,7 @@ export class RestPassword implements OnDestroy {
 
   backToStep(step: number) {
     this.currentStep = step;
-    if (step === 2) {
-      this.startTimer();
-    } else {
-      this.clearTimer();
-    }
+    this.waitEmail.set(step === 1 ? String(this.recoveryForm.value.email || '') : this.verifiedEmail);
   }
 
   toggleNewPassword() {
@@ -388,10 +398,11 @@ export class RestPassword implements OnDestroy {
         this.currentStep = 4;
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        this.isLoading = false;
+      error: async (err) => {
         const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ أثناء تغيير كلمة المرور، حاول مرة أخرى' });
-        this.bannerError = mapped.message;
+        // 400/422 about the password -> under the field; network / 429 / 5xx stay one honest banner.
+        this.bannerError = genericBanner(mapped) ?? await backendBannerMessage(this.host.nativeElement, mapped, { resolve: { newPassword: 'new-password', password: 'new-password' } });
+        this.isLoading = false;
         this.cdr.markForCheck();
       }
     });

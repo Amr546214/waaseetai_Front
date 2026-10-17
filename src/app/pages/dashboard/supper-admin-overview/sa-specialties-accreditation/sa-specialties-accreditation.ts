@@ -6,7 +6,7 @@ import {
 } from './sa-specialties-accreditation.data';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaSpecialtyReviewService } from './sa-specialty-review.service';
-import { SaSpecialtyDecisionModal } from './sa-specialty-decision-modal';
+import { SaSpecialtyDecisionModal, decisionFailure } from './sa-specialty-decision-modal';
 
 @Component({
   selector: 'app-sa-specialties-accreditation',
@@ -35,6 +35,7 @@ export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
   decisionTarget = signal<{ item: SpecialtyReviewItem; decision: SpecialtyDecision } | null>(null);
   deciding = signal(false);
   decisionError = signal('');
+  decisionFieldError = signal('');
 
   readonly filters: { key: FilterKey; label: string }[] = [
     { key: 'pending', label: 'بانتظار المراجعة' },
@@ -115,6 +116,7 @@ export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
   openDecision(item: SpecialtyReviewItem, decision: SpecialtyDecision) {
     if (!this.isPending(item)) return;
     this.decisionError.set('');
+    this.decisionFieldError.set('');
     this.decisionTarget.set({ item, decision });
   }
 
@@ -122,6 +124,7 @@ export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
     if (this.deciding()) return;
     this.decisionTarget.set(null);
     this.decisionError.set('');
+    this.decisionFieldError.set('');
   }
 
   decisionSummary(): string {
@@ -134,6 +137,7 @@ export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
     if (!t || this.deciding()) return;
     this.deciding.set(true);
     this.decisionError.set('');
+    this.decisionFieldError.set('');
     this.api.decide(t.item.id, t.decision, reason).subscribe({
       next: () => {
         this.deciding.set(false);
@@ -143,7 +147,7 @@ export class SaSpecialtiesAccreditation implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.deciding.set(false);
-        this.decisionError.set(err?.error?.message || 'تعذر تنفيذ القرار');
+        { const f = decisionFailure(err); this.decisionError.set(f.banner); this.decisionFieldError.set(f.field); }
         // 409 = already decided elsewhere: refresh so the stale row leaves the queue.
         if (err?.status === 409) this.load();
       },

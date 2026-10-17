@@ -1,7 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core';
 import { ProviderProfileService } from '../../core/services/provider-profile.service';
 import { mapHttpError } from '../../core/forms/http-error';
 import { OtpInputComponent } from './otp-input.component';
+import { AuthStore } from '../../core/store/auth.store';
+import { WaitTimerService, waitScope } from '../../core/wait/wait-timer.service';
+import { isRateLimitError } from '../../core/utils/rate-limit.util';
 
 /**
  * Second step of adding / changing the PayPal payout email: the code was e-mailed to the ACCOUNT email (shown masked, so nobody thinks it went
@@ -25,12 +28,12 @@ import { OtpInputComponent } from './otp-input.component';
 				<span dir="ltr" data-testid="paypal-pending-email">{{ email() }}</span>
 			</p>
 			<p style="font-size:12.5px;margin-bottom:8px;text-align:center;opacity:.85" data-testid="paypal-confirm-freeze">بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.</p>
-			<ws-otp-input idPrefix="pp-code" [(value)]="code" [invalid]="!!error()" [disabled]="busy()" (complete)="confirm()" />
-			@if (error()) { <div role="alert" data-testid="paypal-confirm-error" style="color:#f87171;font-size:13px;margin-top:2px;text-align:center">{{ error() }}</div> }
+			<ws-otp-input idPrefix="pp-code" [(value)]="code" [invalid]="!!error()" describedBy="pp-code-err" [disabled]="busy()" (complete)="confirm()" />
+			@if (error()) { <div id="pp-code-err" role="alert" data-testid="paypal-confirm-error" style="color:#f87171;font-size:13px;margin-top:2px;text-align:center">{{ error() }}</div> }
 			@if (notice()) { <div role="status" data-testid="paypal-confirm-notice" style="font-size:13px;margin-top:2px;text-align:center">{{ notice() }}</div> }
 			<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px">
-				<button type="button" class="btn-primary" data-testid="paypal-confirm-btn" [disabled]="busy() || code().length !== 6" (click)="confirm()">{{ busy() ? 'جارٍ التأكيد...' : 'تأكيد البريد' }}</button>
-				<button type="button" class="btn-secondary pp-sec" data-testid="paypal-resend-btn" [disabled]="busy() || cooldown() > 0" (click)="resend()">{{ cooldown() > 0 ? 'إعادة إرسال الرمز (' + cooldown() + ' ث)' : 'إعادة إرسال الرمز' }}</button>
+				<button type="button" class="btn-primary" data-testid="paypal-confirm-btn" [disabled]="busy() || confirmWait.active()" (click)="confirm()">{{ busy() ? 'جارٍ التأكيد...' : 'تأكيد البريد' }} @if (confirmWait.active()) { <span data-testid="paypal-confirm-wait">{{ confirmWait.label() }}</span> }</button>
+				<button type="button" class="btn-secondary pp-sec" data-testid="paypal-resend-btn" [disabled]="busy() || resendWait.active()" (click)="resend()">إعادة إرسال الرمز @if (resendWait.active()) { <span data-testid="paypal-resend-wait">{{ resendWait.label() }}</span> }</button>
 				<button type="button" class="btn-secondary pp-sec" [disabled]="busy()" (click)="dismissed.emit()">إلغاء</button>
 			</div>
 		</div>
@@ -41,8 +44,15 @@ import { OtpInputComponent } from './otp-input.component';
 		.pp-sec:disabled{opacity:.4;cursor:default}
 	`]
 })
-export class PaypalEmailConfirmComponent implements OnDestroy {
+export class PaypalEmailConfirmComponent {
 	private readonly api = inject(ProviderProfileService);
+	private readonly waits = inject(WaitTimerService);
+	private readonly identity = inject(AuthStore).currentUser()?.id ?? '';
+	/** Next code may be requested (the server's resendAvailableAt / Retry-After); disables ONLY the resend button. */
+	readonly resendWait = this.waits.track(waitScope('paypal-otp-resend', this.identity));
+	/** The confirm step was throttled by the server (429 with a wait); disables ONLY the confirm button. A wrong code starts nothing. */
+	readonly confirmWait = this.waits.track(waitScope('paypal-otp-confirm', this.identity));
+	private waitMessageShown = false;
 	readonly email = input.required<string>();
 	/** 'add' when the account had no PayPal email before, 'change' otherwise. */
 	readonly mode = input<'add' | 'change'>('change');
@@ -54,40 +64,44 @@ export class PaypalEmailConfirmComponent implements OnDestroy {
 	readonly busy = signal(false);
 	readonly error = signal('');
 	readonly notice = signal('');
-	/** Seconds until another code may be requested (set from a 429 answer). */
-	readonly cooldown = signal(0);
-	private timer: ReturnType<typeof setInterval> | null = null;
+	/** Seconds until another code may be requested (kept for callers/tests; the end timestamp lives in the wait service). */
+	readonly cooldown = this.resendWait.remainingSeconds;
 
-	ngOnDestroy(): void { if (this.timer) clearInterval(this.timer); }
-
-	private startCooldown(seconds: number): void {
-		if (this.timer) clearInterval(this.timer);
-		this.cooldown.set(Math.max(0, Math.ceil(seconds)));
-		if (this.cooldown() <= 0) return;
-		this.timer = setInterval(() => {
-			this.cooldown.update(s => s - 1);
-			if (this.cooldown() <= 0 && this.timer) { clearInterval(this.timer); this.timer = null; }
-		}, 1000);
+	constructor() {
+		// A wait message ("try again after ...") must not outlive its wait.
+		effect(() => {
+			if (!this.resendWait.active() && !this.confirmWait.active() && this.waitMessageShown) { this.waitMessageShown = false; this.error.set(''); }
+		});
 	}
 
 	confirm() {
-		if (this.busy() || this.code().length !== 6) return;
+		if (this.busy()) return;
+		if (this.code().length !== 6) {
+			// Never a dead button: say what is needed (under the boxes, marked invalid) and put the cursor on the first empty box.
+			this.error.set('أدخل رمز التحقق المكوّن من 6 أرقام');
+			document.getElementById(`pp-code-${Math.min(this.code().length, 5)}`)?.focus();
+			return;
+		}
 		this.busy.set(true); this.error.set(''); this.notice.set('');
 		this.api.confirmPaypalEmailChange(this.code()).subscribe({
 			next: (r) => { this.busy.set(false); this.confirmed.emit(r.paypalPayoutEmail); },
-			error: (err) => { this.busy.set(false); this.error.set(mapHttpError(err, { fallback: 'تعذر تأكيد البريد، حاول مرة أخرى' }).message); }
+			error: (err) => {
+				this.busy.set(false);
+				if (isRateLimitError(err) && this.confirmWait.startFromResponse(err) != null) this.waitMessageShown = true;
+				this.error.set(mapHttpError(err, { fallback: 'تعذر تأكيد البريد، حاول مرة أخرى' }).message);
+			}
 		});
 	}
 
 	resend() {
-		if (this.busy() || this.cooldown() > 0) return;
+		if (this.busy() || this.resendWait.active()) return;
 		this.busy.set(true); this.error.set(''); this.notice.set('');
 		this.api.requestPaypalEmailChange(this.email()).subscribe({
-			next: (r) => { this.busy.set(false); if (r.emailSent) { this.code.set(''); this.notice.set('أرسلنا رمزًا جديدًا إلى بريد حسابك'); } else this.error.set('تعذر إرسال رمز التحقق، حاول مرة أخرى'); },
+			next: (r) => { this.busy.set(false); if (r.emailSent) { this.resendWait.startFromResponse(r); this.code.set(''); this.notice.set('أرسلنا رمزًا جديدًا إلى بريد حسابك'); } else this.error.set('تعذر إرسال رمز التحقق، حاول مرة أخرى'); },
 			error: (err) => {
 				this.busy.set(false);
-				const wait = Number(err?.error?.retryAfterSeconds);
-				if (err?.status === 429 && Number.isFinite(wait) && wait > 0) this.startCooldown(wait);
+				// Only a 429 starts a wait, and only with the duration the server gave (Retry-After / retryAfterSeconds / retryAt).
+				if (isRateLimitError(err) && this.resendWait.startFromResponse(err) != null) this.waitMessageShown = true;
 				this.error.set(mapHttpError(err, { fallback: 'تعذر إرسال رمز التحقق، حاول مرة أخرى' }).message);
 			}
 		});

@@ -13,7 +13,7 @@ describe('provider progress: delivery buttons follow the server flags (e2e findi
 		const post = vi.fn(() => of({ success: true, data: {} }));
 		const get = vi.fn((url: string) => String(url).includes('/amendments') ? of({ success: true, data: [] }) : of({ success: true, data: data(stages) }));
 		await TestBed.configureTestingModule({ imports: [Progress], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) } } }] }).compileComponents();
 		const f = TestBed.createComponent(Progress); f.detectChanges();
 		return { f, c: f.componentInstance, el: f.nativeElement as HTMLElement, post };
 	}

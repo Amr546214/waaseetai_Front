@@ -9,7 +9,7 @@ import { join } from 'node:path';
 
 const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: vi.fn() };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { NotificationsCenter } from './notifications-center';
@@ -114,7 +114,7 @@ describe('client notifications page: real data only, honest counters/CTA/AI', ()
 		c.onNotificationClick(c.notifications()[0]);
 		expect(String(patch.mock.calls[0][0])).toContain('/notifications/a/read');
 		expect(c.unreadCount()).toBe(0);
-		expect(navigate).toHaveBeenCalledWith('/client-overview/my-requests/r1');
+		expect(navigate).toHaveBeenCalledWith('/client-overview/my-requests/r1', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('the AI filter and AI-styled icon appear only for a real AI notification', async () => {

@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
-import { handleLoadError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
+import { handleLoadError, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
 import { formatMoney } from '../../../../../core/utils/money.util';
 
 /** 'settled' = closed by an admin dispute settlement: a different end state from 'done' (completed by delivery). */
@@ -119,7 +119,7 @@ export class ArchivedProjects implements OnInit {
 				handleLoadError(err, {
 					hasData: () => this.projects().length > 0,
 					onKeep: () => this.isLoading.set(false),
-					onRateLimit: () => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(RATE_LIMIT_MESSAGE); },
+					onRateLimit: (e) => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(rateLimitToastMessage(e)); },
 					onOtherError: () => { this.isLoading.set(false); this.hasError.set(true); this.errorMessage.set(err?.error?.message || err?.message || 'تعذر تحميل المشاريع المنتهية'); },
 				});
 			}

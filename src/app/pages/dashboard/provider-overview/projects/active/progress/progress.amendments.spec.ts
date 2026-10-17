@@ -12,13 +12,15 @@ import { Progress, AMENDMENT_SUCCESS_TEXT } from './progress';
 const DATA = { projectId: 'project-9', conversationId: 'conv-9', title: 'مشروع', stages: [], edits: [], messages: [], files: [], deliveries: [] };
 const AM = (o: Record<string, unknown> = {}) => ({ id: 'a1', projectId: 'project-9', projectTitle: 'مشروع', type: 'BUDGET', title: 'زيادة الميزانية', description: null, budgetDelta: 200, durationDeltaDays: null, status: 'PENDING_OTHER_PARTY', requestedByRole: 'PROVIDER', createdAt: '2026-10-01T00:00:00Z', respondedAt: null, conversationId: null, ...o });
 
+// the list is newest-first by createdAt (tie: id desc); the fixtures keep their written order as the display order
+const NEWEST_FIRST = (l: any[]) => l.map((a, i) => ({ ...a, createdAt: new Date(Date.UTC(2026, 9, 10) - i * 60000).toISOString() }));
 describe('provider project progress: change request', () => {
 	async function setup(opts: { list?: any[]; listError?: boolean; postError?: any } = {}) {
 		const post = vi.fn((url: string, body: any) => (opts.postError ? throwError(() => opts.postError) : of({ success: true, data: AM({ ...body, id: 'a-new' }) })));
-		const get = vi.fn((url: string) => String(url).includes('/amendments') ? (opts.listError ? throwError(() => ({ status: 500 })) : of({ success: true, data: opts.list ?? [] })) : of({ success: true, data: DATA }));
+		const get = vi.fn((url: string) => String(url).includes('/amendments') ? (opts.listError ? throwError(() => ({ status: 500 })) : of({ success: true, data: NEWEST_FIRST(opts.list ?? []) })) : of({ success: true, data: DATA }));
 		await TestBed.configureTestingModule({ imports: [Progress], providers: [provideRouter([]),
 			{ provide: HttpClient, useValue: { get, post } },
-			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'contract-id-from-the-route' }) } } }] }).compileComponents();
+			{ provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'contract-id-from-the-route' }) } } }] }).compileComponents();
 		const f = TestBed.createComponent(Progress); f.detectChanges();
 		const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 		const el = f.nativeElement as HTMLElement;

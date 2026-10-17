@@ -85,7 +85,7 @@ export abstract class AddAccountBase implements OnInit {
   private readonly requiredTrim = (c: AbstractControl) => (String(c.value ?? '').trim() ? null : { required: true });
   readonly spec = new FormGroup({
     specMain: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    specExp: new FormControl('3-5 سنوات', { nonNullable: true, validators: [Validators.required] }),
+    specExp: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
   readonly portfolio = new FormGroup({
     portfolioBio: new FormControl('', { nonNullable: true, validators: [this.requiredTrim, Validators.maxLength(1000)] }),

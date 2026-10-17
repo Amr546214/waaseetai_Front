@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
+import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { environment } from '../../../environments/environment';
 
 /** Single frontend source for the calibration test's limits. Mirrors the backend constants SETUP_TEST_QUESTION_COUNT and
@@ -79,6 +80,7 @@ export class SetupTestService {
 
     const token = this.getToken();
     this.socket = io(socketUrl, {
+      ...SOCKET_BACKOFF,
       transports: ['websocket'],
       auth: { token }
     });

@@ -58,9 +58,9 @@
   </div>
 
   <!-- Empty State if No Accredited Models -->
-  <div *ngIf="!isLoadingModels && (!displayedModels || displayedModels.length === 0)" style="text-align:center;padding:60px 24px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:24px;">
+  <div *ngIf="!isLoadingModels && (!displayedModels || displayedModels.length === 0)" id="np-model" data-field="model" tabindex="-1" style="text-align:center;padding:60px 24px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:24px;">
     <div style="font-size:15px;font-weight:800;margin-bottom:8px">لا توجد نماذج بعد</div>
-    <div style="font-size:13px;margin-bottom:20px" class="txt-muted">ارفع أول نموذج أعمال لتظهر في السوق أو غيّر الفلتر.</div>
+    <div style="font-size:13px;margin-bottom:20px" class="txt-muted">لا يوجد نموذج معتمد لهذا التخصص بعد. أرسل نموذج اعتماد وتابع حالته من «إجراءات الحساب».</div>
     <a routerLink="/provider-overview/business-models/accreditation/new" style="display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none" class="txt-navy">رفع نموذج</a>
   </div>
 
@@ -68,7 +68,7 @@
   <div *ngIf="!isLoadingModels && displayedModels && displayedModels.length > 0">
     <div style="margin-bottom:8px;font-size:11px;font-weight:800;letter-spacing:.04em" class="txt-blue">النماذج الخاصة بك <span style="font-weight:600" class="txt-muted">({{ displayedModels.length }} نماذج)</span></div>
     
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:28px">
+    <div id="np-model" data-field="model" tabindex="-1" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:28px">
       @for (model of displayedModels; track model.id) {
       <div (click)="selectModel(model.id)" style="cursor:pointer;display:block">
         <div class="model-card" style="background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.01));border-radius:16px;overflow:hidden;position:relative;transition:border-color .2s,transform .15s"
@@ -119,44 +119,16 @@
     </div>
   </div>
 
-  <!-- Custom Gallery / Attachments for this Service -->
-  <div class="mt-8 bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[20px] p-6 shadow-sm">
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-2">
-        <span class="w-8 h-8 rounded-lg bg-[rgba(43,212,199,.1)] text-[#2BD4C7] flex items-center justify-center text-lg">🖼️</span>
-        <h3 class="text-[16px] font-black text-white">معرض أعمال المشروع (اختياري)</h3>
-      </div>
-      <span class="text-[11px] text-[var(--txt-3)] font-bold">يمكنك إضافة صور مخصصة لتعرض في صفحة الخدمة</span>
-    </div>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-      @for (img of galleryUrls; track img; let i = $index) {
-      <div class="relative group rounded-xl overflow-hidden aspect-[4/3] border border-[var(--sec-bd)]">
-        <img [src]="img" class="w-full h-full object-cover" />
-        <button (click)="removeGalleryImage(i)" class="absolute top-2 left-2 w-6 h-6 rounded-full bg-red-500/80 text-white flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500">✕</button>
-      </div>
-      }
-
-      <!-- Upload Button -->
-      <label class="relative flex flex-col items-center justify-center gap-2 rounded-xl aspect-[4/3] border-2 border-dashed border-[var(--sec-bd)] hover:border-[#2BD4C7]/60 hover:bg-[rgba(43,212,199,.05)] transition-colors cursor-pointer group"
-        [class.opacity-50]="isUploadingImage" [class.pointer-events-none]="isUploadingImage">
-        <input type="file" accept="image/*" class="hidden" (change)="onGalleryFileSelected.emit($event)">
-        @if (isUploadingImage) {
-        <span class="w-6 h-6 border-2 border-[#2BD4C7] border-t-transparent rounded-full animate-spin"></span>
-        <span class="text-[11px] font-bold text-[#2BD4C7]">جاري الرفع...</span>
-        } @else {
-        <div class="w-10 h-10 rounded-full bg-[var(--sec-bg)] flex items-center justify-center text-[var(--txt-3)] group-hover:text-[#2BD4C7] group-hover:scale-110 transition-all">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </div>
-        <span class="text-[11px] font-bold text-[var(--txt-3)] group-hover:text-white transition-colors">إضافة صورة جديدة</span>
-        }
-      </label>
-    </div>
-    <p class="text-[11px] text-[var(--txt-3)] leading-relaxed">
-      ملاحظة: سيتم دمج هذه الصور مع المرفقات الخاصة بنموذج الاعتماد الذي اخترته لعرضها معاً كمعرض متكامل للعميل.
-    </p>
+  <!-- Batch B T1 (§5): the standalone «معرض الأعمال» upload section is gone from this path. The service is linked to ONE approved approval model;
+       images never replace the approval proof, and a model already approved is shown here instead of asking to upload proof again. -->
+  @if (errorMessage) { <p role="alert" class="text-[13px] mt-4" style="color:#ff8c69;font-weight:700" data-testid="model-error">{{ errorMessage }}</p> }
+  <div class="mt-8 bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[20px] p-6" data-testid="linked-model">
+    <h3 class="text-[16px] font-black text-white mb-2">نموذج الاعتماد المرتبط بالخدمة</h3>
+    @if (linkedModel; as m) {
+      <p class="text-[13px] txt-white" data-testid="linked-model-title">{{ m.title }} <span class="txt-muted">· {{ m.specialtyName }}</span></p>
+      <p class="text-[11px] txt-teal mt-1">✓ معتمد من فريق وسيط، ولا حاجة لرفع إثبات جديد.</p>
+    } @else {
+      <p class="text-[13px] txt-muted" data-testid="linked-model-missing">اختر نموذجًا معتمدًا من القائمة أعلاه لربطه بالخدمة. لا يمكن النشر دون نموذج معتمد من نفس تخصصك.</p>
+    }
   </div>
 </div>

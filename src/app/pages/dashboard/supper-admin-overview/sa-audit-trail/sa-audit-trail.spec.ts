@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { describe, it, expect, vi } from 'vitest';
 import { SaAuditTrail } from './sa-audit-trail';
 import { AdminConsoleApiService } from '../../../../core/services/admin-console-api.service';
+import { expectFieldProblem, expectFocused, settleForm } from '../../../../shared/forms/form-spec-utils';
 import { AdminAiService } from '../../../../core/services/admin-ai.service';
 
 function setup(items: any[]) {
@@ -43,5 +44,17 @@ describe('SaAuditTrail', () => {
 		expect(last).toMatchObject({ page: 1, eventType: 'LOGIN_REJECTED' });
 		c.setFilter(c.actorFilter, 'a1');
 		expect((api.getAuditLog.mock.calls.at(-1) as any[])[0]).toMatchObject({ actorId: 'a1', eventType: 'LOGIN_REJECTED' });
+	});
+
+	it('an inverted date range is explained under the end date (focus there) and the log is not reloaded', async () => {
+		const { c, api, el } = setup([]);
+		api.getAuditLog.mockClear();
+		c.setFilter(c.fromDate, '2026-02-01');
+		c.setFilter(c.toDate, '2026-01-01');
+		await settleForm();
+		const to = el.querySelector('#au-to');
+		expectFieldProblem(to, 'تاريخ النهاية');
+		expectFocused(to);
+		expect(api.getAuditLog).toHaveBeenCalledTimes(1);   // only the valid first date change reloaded
 	});
 });

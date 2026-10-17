@@ -217,8 +217,7 @@ export class FinalApproval implements OnInit {
 			projectId: this.projectId,
 			projectTitle: data.title || data.project || undefined,
 		};
-		this.router.navigate(['/client-overview/messages'],
-			{ queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: { messageContext: ctx } });
+		this.router.navigate(['/client-overview/projects', this.projectId], { queryParams: { tab: 'messages' }, state: { messageContext: ctx } });
 	}
 
 	back() { this.router.navigate(['/client-overview/projects', this.projectId]); }

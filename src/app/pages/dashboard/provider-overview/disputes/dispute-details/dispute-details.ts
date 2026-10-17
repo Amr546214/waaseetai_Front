@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
@@ -7,6 +7,7 @@ import { DisputeApiService } from '../../../../../core/services/dispute-api.serv
 import { Dispute } from '../disputes.model';
 import { mapDispute } from '../disputes.mapper';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { reportProblems } from '../../../../../shared/forms/form-error-focus';
 
 @Component({
 	selector: 'app-dispute-details',
@@ -20,6 +21,7 @@ export class DisputeDetails implements OnInit {
 	private authStore = inject(AuthStore);
 	private disputeApi = inject(DisputeApiService);
 	private notify = inject(UiNotificationService);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
 	isLoading = signal<boolean>(true);
 	loadError = signal<boolean>(false);
@@ -46,8 +48,13 @@ export class DisputeDetails implements OnInit {
 		this.guidanceOpen.set(false);
 	}
 
-	sendGuidance() {
+	async sendGuidance() {
 		const name = this.dispute()?.teamMember?.name;
+		// An empty guidance is not "sent": the message sits at the field and focus goes there.
+		if (name && !this.guidanceText().trim()) {
+			await reportProblems(this.host.nativeElement, [{ field: 'dispute-guidance', message: 'اكتب التوجيه قبل الإرسال' }]);
+			return;
+		}
 		this.closeGuidance();
 		if (!name) return;
 		this.notify.success(`تم إرسال التوجيه لـ${name}`);

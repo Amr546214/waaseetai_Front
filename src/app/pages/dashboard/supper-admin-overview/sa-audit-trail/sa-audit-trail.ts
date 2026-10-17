@@ -1,8 +1,9 @@
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { reportAdminProblems } from '../shared/admin-form-report';
 import { AnomalySummaryComponent } from './anomaly-summary.component';
 import { AdminAuditEntry, AdminConsoleApiService, AdminRosterItem } from '../../../../core/services/admin-console-api.service';
 
@@ -29,6 +30,7 @@ export class SaAuditTrail implements OnInit {
   get severityWsOptions() { return this.severityOptions.map((o) => ({ value: o.v, label: o.l })); }
 
   private readonly api = inject(AdminConsoleApiService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly severityOptions = [{ v: '', l: 'كل المستويات' }, ...Object.entries(AUDIT_SEVERITY_LABELS).map(([v, l]) => ({ v, l }))];
   readonly sourceLabels = AUDIT_SOURCE_LABELS;
@@ -75,7 +77,17 @@ export class SaAuditTrail implements OnInit {
   }
 
   /** Any filter change returns to page 1 and reloads from the server. */
-  setFilter(sig: { set(v: string): void }, value: string): void { sig.set(value); this.page.set(1); this.load(); }
+  setFilter(sig: { set(v: string): void }, value: string): void {
+    sig.set(value);
+    const from = this.fromDate(), to = this.toDate();
+    if (from && to && from > to) {
+      // An inverted date range is explained next to the end date instead of silently returning nothing.
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'au-to', message: 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية أو مساويًا له' }]);
+      return;
+    }
+    this.page.set(1);
+    this.load();
+  }
   setScope(v: 'admin' | 'all'): void { this.scope.set(v); this.page.set(1); this.load(); }
   goPage(p: number): void { if (p < 1 || p > this.pages() || p === this.page()) return; this.page.set(p); this.load(); }
 

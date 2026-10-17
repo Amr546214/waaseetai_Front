@@ -32,10 +32,10 @@
     @if (canReply()) {
     <div style="margin-top:14px">
       <label for="mkt-ticket-reply" class="txt-muted" style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px">ردّك</label>
-      <textarea id="mkt-ticket-reply" rows="3" [ngModel]="replyText()" (ngModelChange)="replyText.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px;resize:vertical"></textarea>
+      <textarea id="mkt-ticket-reply" name="body" rows="3" [ngModel]="replyText()" (ngModelChange)="replyText.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px;resize:vertical"></textarea>
       @if (actionError()) { <div style="color:#FF8C69;font-size:11.5px;font-weight:700;margin-top:6px" role="alert" data-testid="ticket-action-error">{{ actionError() }}</div> }
       <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-        <button type="button" class="btn-primary" data-testid="ticket-send" [disabled]="sending() || !replyText().trim()" (click)="send()">{{ sending() ? 'جارٍ الإرسال...' : 'إرسال الرد' }}</button>
+        <button type="button" class="btn-primary" data-testid="ticket-send" [disabled]="sending()" (click)="send()">{{ sending() ? 'جارٍ الإرسال...' : 'إرسال الرد' }}</button>
         <button type="button" class="btn-secondary" data-testid="ticket-close" [disabled]="closing()" (click)="close()">{{ closing() ? 'جارٍ الإغلاق...' : 'إغلاق التذكرة' }}</button>
       </div>
     </div>

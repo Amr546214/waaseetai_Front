@@ -26,7 +26,7 @@ describe('ProjectDetails - dispute freeze', () => {
       providers: [
         provideRouter([]),
         { provide: HttpClient, useValue: { get: () => of({ success: true, data: null }), post: (...a: any[]) => post(...a) } },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }), queryParamMap: of(convertToParamMap({})) } },
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(ProjectDetails);

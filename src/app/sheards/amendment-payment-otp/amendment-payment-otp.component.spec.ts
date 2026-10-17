@@ -1,3 +1,4 @@
+import { installMemoryStorage } from '../../core/wait/memory-storage.testkit';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -8,6 +9,10 @@ import { insufficientBalanceOf } from '../../core/services/amendment-actions.ser
 import { amendmentApproveText, amendmentEffect, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment } from '../../core/constants/amendment-effect';
 
 const INIT = { success: true, data: { otpSentTo: 'a***@x.com', expiresAt: new Date(Date.now() + 120000).toISOString(), amount: 5 } };
+
+let restoreStorage: () => void = () => undefined;
+beforeEach(() => { restoreStorage = installMemoryStorage(); });
+afterEach(() => restoreStorage());
 
 describe('AmendmentPaymentOtpComponent', () => {
 	async function setup(mode: 'respond' | 'authorize', post: (url: string, body: any) => any) {
@@ -117,5 +122,93 @@ describe('amendment-effect helpers', () => {
 	it('insufficientBalanceOf reads the structured 409 detail and nothing else', () => {
 		expect(insufficientBalanceOf({ error: { errors: [{ required: 5, available: 1, shortfall: 4 }] } })).toEqual({ required: 5, available: 1, shortfall: 4 });
 		expect(insufficientBalanceOf({ error: { message: 'x' } })).toBeNull();
+	});
+});
+
+// Countdown: validity from expiresAt, send / confirm waits only from a server 429, end timestamps, no automatic retry of a money write.
+describe('AmendmentPaymentOtpComponent countdown', () => {
+	beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z')); localStorage.clear(); });
+	afterEach(() => { vi.useRealTimers(); localStorage.clear(); TestBed.resetTestingModule(); });
+	async function mount(post: (url: string, body: any) => any) {
+		TestBed.resetTestingModule();
+		const http = { post: vi.fn(post), get: vi.fn() };
+		await TestBed.configureTestingModule({ imports: [AmendmentPaymentOtpComponent], providers: [provideRouter([]), { provide: HttpClient, useValue: http }] }).compileComponents();
+		const f = TestBed.createComponent(AmendmentPaymentOtpComponent);
+		f.componentRef.setInput('amendmentId', 'am-1'); f.componentRef.setInput('mode', 'respond'); f.componentRef.setInput('amount', 5);
+		f.detectChanges();
+		const q = (id: string) => f.nativeElement.querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
+		const click = (id: string) => { (q(id) as HTMLButtonElement).click(); f.detectChanges(); };
+		const type = (v: string) => { const i = q('amendment-otp-input') as HTMLInputElement; i.value = v; i.dispatchEvent(new Event('input')); f.detectChanges(); };
+		return { f, http, q, click, type };
+	}
+	const init = (ms: number | null) => of({ success: true, data: { otpSentTo: 'a***@x.com', ...(ms != null ? { expiresAt: new Date(Date.now() + ms).toISOString() } : {}), amount: 5 } });
+	const e429 = (headers: Record<string, string>, body: any = { message: 'محاولات كثيرة' }) => throwError(() => ({ status: 429, headers: { get: (k: string) => headers[k] ?? null }, error: body }));
+
+	it('validity ticks from the server expiresAt (m:ss) and reaches expired; returning after a throttled background tab shows the real remaining time', async () => {
+		const s = await mount(() => init(120_000));
+		s.click('amendment-otp-send');
+		expect(s.q('amendment-otp-timer')!.textContent).toContain('2:00');
+		vi.advanceTimersByTime(1000); s.f.detectChanges();
+		expect(s.q('amendment-otp-timer')!.textContent).toContain('1:59');
+		// frozen background tab: the clock moves 100 s without ticks
+		vi.setSystemTime(Date.now() + 100_000);
+		window.dispatchEvent(new Event('focus')); s.f.detectChanges();
+		expect(s.q('amendment-otp-timer')!.textContent).toContain('0:19');
+		vi.advanceTimersByTime(20_000); s.f.detectChanges();
+		expect(s.q('amendment-otp-timer')!.textContent).toContain('انتهت صلاحية الرمز');
+	});
+
+	it('the server sent no expiresAt: no timer and no invented 2 minutes (confirm is not blocked by a fake expiry)', async () => {
+		const s = await mount(() => init(null));
+		s.click('amendment-otp-send');
+		expect(s.q('amendment-otp-timer')!.textContent!.trim()).toBe('');
+		s.type('123456');
+		expect(s.f.componentInstance.canConfirm()).toBe(true);
+	});
+
+	it('confirm 429 (Retry-After seconds): only confirm is disabled with «بعد m:ss», the typed code stays, zero does not call the API again', async () => {
+		const s = await mount((url) => (url.includes('payment-otp') ? init(300_000) : e429({ 'Retry-After': '75' })));
+		s.click('amendment-otp-send'); s.type('654321'); s.click('amendment-otp-confirm');
+		expect((s.q('amendment-otp-confirm') as HTMLButtonElement).disabled).toBe(true);
+		expect(s.q('amendment-otp-confirm-wait')!.textContent).toContain('بعد 1:15');
+		expect(s.q('amendment-otp-rate-limit')!.textContent).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:15');
+		expect(s.q('amendment-otp-error')).toBeNull();
+		expect((s.q('amendment-otp-resend') as HTMLButtonElement).disabled).toBe(false);
+		expect((s.q('amendment-otp-input') as HTMLInputElement).value).toBe('654321');
+		const calls = s.http.post.mock.calls.length;
+		vi.advanceTimersByTime(80_000); s.f.detectChanges();
+		expect((s.q('amendment-otp-confirm') as HTMLButtonElement).disabled).toBe(false);
+		expect(s.http.post.mock.calls.length).toBe(calls);
+	});
+
+	it('send 429 as an HTTP-date: send/resend wait; a garbage Retry-After gives an honest message with no seconds', async () => {
+		const at = new Date(Date.now() + 61_000).toUTCString();
+		const a = await mount(() => e429({ 'Retry-After': at }));
+		a.click('amendment-otp-send');
+		expect((a.q('amendment-otp-send') as HTMLButtonElement).disabled).toBe(true);
+		expect(a.q('amendment-otp-send-wait')!.textContent).toContain('بعد 1:01');
+		localStorage.clear();
+		const b = await mount(() => e429({ 'Retry-After': 'soon' }));
+		b.click('amendment-otp-send');
+		const t = b.q('amendment-otp-rate-limit')!.textContent!;
+		expect(t).toContain('بعد قليل'); expect(t).not.toMatch(/\d/);
+		expect((b.q('amendment-otp-send') as HTMLButtonElement).disabled).toBe(false);
+	});
+
+	it('a wrong code (400) starts no wait', async () => {
+		const s = await mount((url) => (url.includes('payment-otp') ? init(300_000) : throwError(() => ({ status: 400, error: { message: 'رمز التحقق غير صحيح' } }))));
+		s.click('amendment-otp-send'); s.type('111111'); s.click('amendment-otp-confirm');
+		expect(s.q('amendment-otp-confirm-wait')).toBeNull();
+		expect((s.q('amendment-otp-confirm') as HTMLButtonElement).disabled).toBe(false);
+		expect(s.q('amendment-otp-error')!.textContent).toContain('رمز التحقق غير صحيح');
+	});
+
+	it('timers stop with the component (no interval left) and double-clicking send does not stack intervals', async () => {
+		const s = await mount(() => init(120_000));
+		const svc: any = TestBed.inject((s.f.componentInstance as any).waits.constructor);
+		s.click('amendment-otp-send'); s.click('amendment-otp-resend');
+		expect(svc.activeIntervals).toBe(1);
+		s.f.destroy();
+		expect(svc.activeIntervals).toBe(0);
 	});
 });

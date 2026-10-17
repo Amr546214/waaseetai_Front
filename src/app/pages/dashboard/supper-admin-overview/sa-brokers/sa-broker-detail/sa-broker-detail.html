@@ -196,10 +196,11 @@
         <h3>{{ target === 'SUSPENDED' ? 'تأكيد إيقاف حساب الوسيط' : 'تأكيد إعادة تفعيل الحساب' }}</h3>
         @if (target === 'SUSPENDED') {
           <p>سيُمنع الوسيط من استخدام حسابه فوراً. سجّل سبب الإيقاف (يُحفظ في سجل التدقيق).</p>
-          <textarea rows="3" [value]="statusReason()" (input)="statusReason.set($any($event.target).value)" placeholder="سبب الإيقاف"></textarea>
+          <textarea id="bk-status-reason" aria-label="سبب الإيقاف" rows="3" [value]="statusReason()" (input)="statusReason.set($any($event.target).value)" placeholder="سبب الإيقاف"></textarea>
         } @else {
           <p>ستتم إعادة تفعيل حساب الوسيط وسيُسجَّل ذلك في سجل التدقيق.</p>
         }
+        @if (statusError()) { <p role="alert" data-testid="bk-status-error" style="color:#ff6b6b;font-size:12px">{{ statusError() }}</p> }
         <div class="bk-dlg-actions">
           <button type="button" class="bk-btn bk-btn-ghost" [disabled]="statusBusy()" (click)="closeStatusDialog()">إلغاء</button>
           <button type="button" class="bk-btn bk-btn-approve" style="width:auto" [disabled]="statusBusy()" (click)="confirmStatusChange()">تأكيد</button>

@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { StageRatingEntry } from '../../../../../sheards/rating-entry/rating-entry.component';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { scrollFocus } from '../../../../../shared/forms/form-error-focus';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -37,6 +39,8 @@ export class DeliveryReview implements OnInit {
 	revisionOpen = signal(false);
 	revisionNote = '';
 	revisionError = signal('');
+	/** True when revisionError explains the note field itself (too short / rejected by the server as invalid); network, 409, 5xx stay a plain message. */
+	revisionFieldInvalid = signal(false);
 	revisionSent = signal(false);
 	/** Same floor the server enforces, so the client sees the reason before sending. */
 	readonly REVISION_MIN_CHARS = 10;
@@ -251,7 +255,7 @@ export class DeliveryReview implements OnInit {
 
 	toggleRevision() {
 		if (this.saving()) return;
-		this.revisionError.set('');
+		this.revisionError.set(''); this.revisionFieldInvalid.set(false);
 		this.revisionOpen.update(v => !v);
 	}
 
@@ -259,8 +263,13 @@ export class DeliveryReview implements OnInit {
 		const stage = this.stage();
 		if (!stage || this.saving() || !this.canRequestRevision(stage) || !this.canDecide(stage)) return;
 		const note = this.revisionNote.trim();
-		if (note.length < this.REVISION_MIN_CHARS) { this.revisionError.set(`اكتب ملاحظات التعديل بوضوح (${this.REVISION_MIN_CHARS} أحرف على الأقل)`); return; }
-		this.saving.set(true); this.revisionError.set('');
+		if (note.length < this.REVISION_MIN_CHARS) {
+			this.revisionError.set(`اكتب ملاحظات التعديل بوضوح (${this.REVISION_MIN_CHARS} أحرف على الأقل)`);
+			this.revisionFieldInvalid.set(true);
+			setTimeout(() => { const el = document.getElementById('dr-rev-note'); if (el) scrollFocus(el); }, 0);
+			return;
+		}
+		this.saving.set(true); this.revisionError.set(''); this.revisionFieldInvalid.set(false);
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.projectId}/stages/${stage.id}/review`, { decision: 'revision', note }).subscribe({
 			next: () => {
 				this.saving.set(false);
@@ -270,7 +279,13 @@ export class DeliveryReview implements OnInit {
 				// Reload the real state: the stage is now "revision requested" and waits for the provider.
 				this.load();
 			},
-			error: event => { this.saving.set(false); this.revisionError.set(event.error?.message || 'تعذر إرسال طلب التعديل'); this.refreshIfStateChanged(event); }
+			error: event => {
+				this.saving.set(false);
+				this.revisionError.set(event.error?.message || 'تعذر إرسال طلب التعديل');
+				// Only a 400/422 is about the note itself; everything else is a generic failure and must not paint the field red.
+				this.revisionFieldInvalid.set(mapHttpError(event).kind === 'backend-validation');
+				this.refreshIfStateChanged(event);
+			}
 		});
 	}
 
@@ -313,8 +328,7 @@ export class DeliveryReview implements OnInit {
 			stageNumber: stage?.stageNumber || undefined,
 			amount: stage?.amount || undefined
 		};
-		this.router.navigate(['/client-overview/messages'],
-			{ queryParams: data.conversationId ? { conversationId: data.conversationId } : undefined, state: { messageContext: ctx } });
+		this.router.navigate(['/client-overview/projects', this.projectId], { queryParams: { tab: 'messages' }, state: { messageContext: ctx } });
 	}
 
 	backToProject() { this.router.navigate(['/client-overview/projects', this.projectId]); }

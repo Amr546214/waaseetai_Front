@@ -15,7 +15,7 @@ const fakeSocket = {
 	disconnect: vi.fn(),
 };
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
-vi.mock('socket.io-client', () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) }));
+(globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
 import { NotificationBell } from './notification-bell';
 import { AuthStore } from '../../core/store/auth.store';
@@ -159,7 +159,7 @@ describe('NotificationBell', () => {
 		component.onItemClick(nt);
 
 		expect(component.isOpen()).toBe(false);
-		expect(navSpy).toHaveBeenCalledWith('/provider-overview/offers/off-1/sign-contract');
+		expect(navSpy).toHaveBeenCalledWith('/provider-overview/offers/off-1/sign-contract', { onSameUrlNavigation: 'reload' });
 	});
 
 	it('viewAllLink points at the current dashboard\'s real notifications route', () => {
@@ -192,7 +192,7 @@ describe('NotificationBell', () => {
 		expect(component.notifications()[0].actionUrl).toBe('/supper-admin-overview/disputes/d1');
 		expect(component.viewAllLink()).toBeNull();
 		component.onItemClick(component.notifications()[0]);
-		expect(navSpy).toHaveBeenCalledWith('/supper-admin-overview/disputes/d1');
+		expect(navSpy).toHaveBeenCalledWith('/supper-admin-overview/disputes/d1', { onSameUrlNavigation: 'reload' });
 		expect(component.notifications()[0].isUnread).toBe(false);
 	});
 });

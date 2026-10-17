@@ -56,6 +56,14 @@ export class RatingApiService {
 	}
 
 	/**
+	 * The provider's READ of one stage's rating (the client's review of that stage, read-only; the provider never rates a stage).
+	 * GET /api/provider/requests/:id/stages/:stageId/rating-status
+	 */
+	getProviderStageRatingStatus(projectId: string, stageId: string): Observable<RatingStatus> {
+		return this.http.get<{ success: boolean; data: RatingStatus }>(`${this.baseUrl}/provider/requests/${projectId}/stages/${stageId}/rating-status`).pipe(map(r => r.data));
+	}
+
+	/**
 	 * Client rates a specific stage/delivery after approving it.
 	 * POST /api/client/my-requests/:id/stages/:stageId/rating
 	 * Different from rateProvider (which rates the whole project/provider).

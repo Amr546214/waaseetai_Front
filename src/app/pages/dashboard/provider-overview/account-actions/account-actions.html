@@ -1,0 +1,102 @@
+<section class="max-w-3xl mx-auto p-4 sm:p-6" dir="rtl" data-testid="account-actions">
+	<h1 class="text-xl font-bold mb-1">إجراءات الحساب</h1>
+	<p class="text-sm opacity-70 mb-4" data-testid="account-actions-subtitle">طلبات الاعتماد والاستكمال ومراجعتها. لسجل التعديلات والأمان والجلسات افتح «سجل النشاط والأمان».</p>
+
+	@if (loading()) {
+		<div class="rounded-2xl border border-white/10 p-6 text-sm opacity-80" data-testid="status-loading">جارٍ التحقق من حالة حسابك...</div>
+	} @else if (failed()) {
+		<div class="rounded-2xl border border-red-400/30 bg-red-500/5 p-6" role="alert" data-testid="status-error">
+			@if (rateLimited()) {
+				<p class="text-sm mb-4" data-testid="status-rate-limited">{{ rateLimitText }}</p>
+			} @else {
+				<p class="text-sm mb-4">تعذّر التحقق من حالة اعتماد حسابك الآن. لا تُفتح لوحة مقدم الخدمة قبل التحقق، يمكنك إعادة المحاولة.</p>
+			}
+			<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-slate-900 text-sm font-medium" (click)="refresh()" data-testid="status-retry">إعادة المحاولة</button>
+		</div>
+	} @else if (data(); as d) {
+		<div class="rounded-2xl border border-white/10 p-6" [attr.data-state]="d.state" [attr.data-gate]="d.gate">
+			@switch (d.state) {
+				@case ('SETUP_INCOMPLETE') {
+					<p class="text-sm mb-4" data-testid="status-message">{{ message(d) }}</p>
+					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-slate-900 text-sm font-medium" (click)="goSetup()" data-testid="status-action-setup">إكمال بيانات الحساب</button>
+				}
+				@case ('ASSESSMENT_REQUIRED') {
+					<p class="text-sm mb-4" data-testid="status-message">{{ message(d) }}</p>
+					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-slate-900 text-sm font-medium" (click)="goSetup()" data-testid="status-action-setup">إكمال الاختبار</button>
+				}
+				@case ('SAMPLE_REQUIRED') {
+					<p class="text-sm mb-4" data-testid="status-message">{{ message(d) }}</p>
+					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-slate-900 text-sm font-medium" (click)="goUploadSample()" data-testid="status-action-upload">رفع نموذج الاعتماد</button>
+				}
+				@case ('PENDING_REVIEW') {
+					<p class="text-sm" data-testid="status-message">{{ message(d) }}</p>
+				}
+				@case ('COMPLETION_REQUIRED') {
+					<p class="text-sm" data-testid="status-message">{{ message(d) }}</p>
+				}
+				@case ('REJECTED') {
+					<p class="text-sm mb-2" data-testid="status-message">{{ message(d) }}</p>
+					@if (d.reason) {
+						<p class="text-sm mb-2 rounded-xl bg-red-500/10 p-3" data-testid="status-reason"><span class="font-medium">سبب الرفض: </span>{{ d.reason }}</p>
+					}
+					@if (requests().length === 0) {
+						<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-slate-900 text-sm font-medium" (click)="goUploadSample()" data-testid="status-action-upload">رفع نموذج جديد</button>
+					}
+				}
+				@case ('APPROVED') {
+					<p class="text-sm mb-4" data-testid="status-message">{{ message(d) }}</p>
+					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-slate-900 text-sm font-medium" (click)="goDashboard()" data-testid="status-action-dashboard">فتح لوحة التحكم</button>
+				}
+				@default {
+					<p class="text-sm mb-4" data-testid="status-message">{{ message(d) }}</p>
+					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-slate-900 text-sm font-medium" (click)="goDashboard()" data-testid="status-action-dashboard">فتح لوحة التحكم</button>
+				}
+			}
+		</div>
+	}
+
+	<h2 class="text-sm font-bold mt-6 mb-2">طلبات الاعتماد</h2>
+	@if (logUnavailable()) {
+		<p class="text-sm rounded-xl border border-white/10 p-3" role="status" data-testid="log-unavailable">سجل الطلبات غير متاح حاليًا. تظهر حالة حسابك أعلاه كما هي.</p>
+	} @else if (logFailed()) {
+		<p class="text-sm rounded-xl border border-red-400/30 p-3" role="alert" data-testid="log-error">تعذّر تحميل سجل الطلبات. <button type="button" class="underline" (click)="refresh()">إعادة المحاولة</button></p>
+	} @else if (!loading() && requests().length === 0) {
+		<p class="text-sm opacity-80" data-testid="log-empty">لا توجد طلبات اعتماد بعد.</p>
+	}
+	<ul class="flex flex-col gap-3" data-testid="request-log">
+		@for (r of requests(); track r.id) {
+			<li class="rounded-2xl border p-4 text-sm" [class.border-white/10]="focusId() !== r.id" [class.border-[#2BD4C7]]="focusId() === r.id" [attr.data-request-id]="r.id" [attr.data-status]="r.status">
+				<div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+					<div class="font-medium"><span data-testid="request-no" dir="ltr">{{ r.requestNo }}</span> · {{ r.specialty.nameAr }}</div>
+					<span class="px-2 py-1 rounded-lg bg-white/10 text-xs" data-testid="request-status">{{ r.statusLabel }}</span>
+				</div>
+				<div class="opacity-90" data-testid="request-model">النموذج: {{ r.model.title }}</div>
+				<div class="opacity-80 text-xs mt-1" data-testid="request-dates">أُرسل: {{ r.submittedAt | date:'medium' }} · آخر تحديث: {{ r.updatedAt | date:'medium' }}@if (r.decidedAt) { · القرار: {{ r.decidedAt | date:'medium' }} }</div>
+				<div class="opacity-80 text-xs mt-1" data-testid="request-attachments">
+					المرفقات: {{ r.attachments.length }} ملف@if (r.attachments.length) { ({{ r.attachments.map(a => a.fileName).join('، ') }}) }
+					· المسموح: {{ r.allowedAttachments.allowedExtensions.join('، ') }} حتى {{ r.allowedAttachments.maxMegabytes }} ميجابايت
+				</div>
+				@if (r.adminNote) {
+					<p class="mt-2 rounded-xl bg-yellow-500/10 p-3" data-testid="request-admin-note"><span class="font-medium">ملاحظة الإدارة: </span>{{ r.adminNote }}</p>
+				}
+				@if (r.status === 'COMPLETION_REQUIRED' && r.completionFields.length) {
+					<p class="mt-1 text-xs" data-testid="request-fields">المطلوب استكماله: {{ fieldLabelsOf(r) }}</p>
+				}
+				@if (r.history.length) {
+					<ol class="mt-3 text-xs opacity-80 list-disc ps-5" data-testid="request-history">
+						@for (h of r.history; track h.id) { <li>{{ h.label }} · {{ h.at | date:'short' }}@if (h.note) { — {{ h.note }} }</li> }
+					</ol>
+				}
+				@if (r.status === 'COMPLETION_REQUIRED') {
+					<button type="button" class="mt-3 px-4 py-2 rounded-xl bg-[#2BD4C7] text-slate-900 text-sm font-medium" (click)="complete(r)" data-testid="request-complete">استكمال البيانات</button>
+				} @else if (r.status === 'REJECTED') {
+					<button type="button" class="mt-3 px-4 py-2 rounded-xl bg-[#2BD4C7] text-slate-900 text-sm font-medium" (click)="complete(r)" data-testid="request-resubmit">تعديل وإعادة الإرسال</button>
+				}
+			</li>
+		}
+	</ul>
+
+	<div class="mt-6">
+		<button type="button" class="px-4 py-2 rounded-xl border border-white/20 text-sm" (click)="refresh()" data-testid="status-refresh">تحديث الحالة</button>
+	</div>
+</section>

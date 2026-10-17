@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, ViewEncapsulation, ElementRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -8,6 +8,13 @@ import { ClientFinanceService } from '../../../../../core/services/client-financ
 import { DepositModal } from '../../../../../sheards/deposit-modal/deposit-modal';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { mapHttpError } from '../../../../../core/forms/http-error';
+import { scrollFocus } from '../../../../../shared/forms/form-error-focus';
+import { reportClientProblems } from '../../client-form-report';
+import { WaitHandle, WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
+import { isRateLimitError, RATE_LIMIT_MESSAGE } from '../../../../../core/utils/rate-limit.util';
+import { rateLimitSentence } from '../../../../../core/wait/wait-format';
+import { formatClock } from '../../../../../core/wait/wait-format';
 
 @Component({
 	selector: 'app-escrow-deposit',
@@ -17,13 +24,28 @@ import { AccountType } from '../../../../../core/models/auth.model';
 	styleUrl: './escrow-deposit.css',
 	encapsulation: ViewEncapsulation.None
 })
-export class EscrowDeposit implements OnInit, OnDestroy {
+export class EscrowDeposit implements OnInit {
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 	private http = inject(HttpClient);
 	private clientFinanceService = inject(ClientFinanceService);
 	public themeService = inject(ThemeService);
 	private authStore = inject(AuthStore);
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+	private waits = inject(WaitTimerService);
+	private destroyRef = inject(DestroyRef);
+	// Three different timers, all from the server: the code VALIDITY (expiresAt / expiresInSeconds of the signing OTP), the SEND wait (429 on contract/sign)
+	// and the CONFIRM wait (429 on escrow/deposit). Money-in: nothing is ever retried at zero. Created in ngOnInit (they are keyed by the request + offer).
+	validityWait!: WaitHandle;
+	sendWait!: WaitHandle;
+	confirmWait!: WaitHandle;
+	private expiryKnown = signal(false);
+	private rateLimitedNoTime = signal(false);
+	otpExpired = computed(() => this.expiryKnown() && !this.validityWait?.active());
+	rateLimitText = computed(() => {
+		const w = this.confirmWait?.active() ? this.confirmWait : this.sendWait?.active() ? this.sendWait : null;
+		return w ? rateLimitSentence(w.remainingSeconds(), true) : this.rateLimitedNoTime() ? RATE_LIMIT_MESSAGE : null;
+	});
 	readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 
 	requestId = signal<string>('');
@@ -53,14 +75,12 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 	termsAccepted = signal<boolean>(false);
 
 	showOtpModal = signal<boolean>(false);
-	/** Seconds left on the e-mailed code; starts from the server's real validity, never a guessed timer. */
-	otpCountdown = signal<number>(0);
-	otpTimer: any;
+	/** Seconds left on the e-mailed code; from the server's real validity (expiresAt), never a guessed timer. */
+	otpCountdown = computed(() => (this.validityWait ? this.validityWait.remainingSeconds() : 0));
 	/** Wrong / expired code (and resend problems) are shown inside the code dialog, never in a browser alert. */
 	otpError = signal('');
 	otpNotice = signal('');
 	isResending = signal(false);
-	private otpTtlSeconds = 600;
 
 	otpValues = signal<string[]>(['', '', '', '', '', '']);
 	showSuccessOverlay = signal<boolean>(false);
@@ -68,6 +88,10 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 	ngOnInit() {
 		const id = this.route.snapshot.paramMap.get('id');
 		const offerId = this.route.snapshot.queryParamMap.get('offerId');
+		const key = `${id ?? ''}:${offerId ?? ''}`;
+		this.validityWait = this.waits.track(waitScope('contract-otp-valid', key), this.destroyRef);
+		this.sendWait = this.waits.track(waitScope('contract-otp-send', key), this.destroyRef);
+		this.confirmWait = this.waits.track(waitScope('contract-otp-confirm', key), this.destroyRef);
 		const email = this.route.snapshot.queryParamMap.get('email');
 
 		if (email) {
@@ -81,10 +105,6 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 			}
 			this.fetchDetails(id, offerId);
 		}
-	}
-
-	ngOnDestroy() {
-		clearInterval(this.otpTimer);
 	}
 
 	fetchDetails(reqId: string, offerId: string | null) {
@@ -107,7 +127,6 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 					this.isLoading.set(false);
 					return;
 				}
-				this.otpTtlSeconds = Number(c.otpTtlSeconds) > 0 ? Number(c.otpTtlSeconds) : 600;
 				this.duration.set(c.durationDays ? `${c.durationDays} يوم` : 'غير محدد');
 				const priceNum = Number(c.price || 0);
 				this.basePrice.set(priceNum);
@@ -169,6 +188,12 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 		this.termsAccepted.set(!this.termsAccepted());
 	}
 
+	/** Space on the focused checkbox row toggles it (and must not scroll the page). */
+	toggleTermsKey(e: Event) {
+		e.preventDefault();
+		this.toggleTerms();
+	}
+
 	// Format helpers
 	formatCurrency(val: number): string {
 		return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
@@ -176,7 +201,12 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 
 	handlePrimaryAction() {
 		this.formError.set('');
-		if (!this.termsAccepted()) return;
+		if (this.isSubmitting()) return;
+		if (!this.termsAccepted()) {
+			// The button stays clickable so the user is told WHY nothing happens: the message sits under the terms row, which gets focus.
+			void reportClientProblems(this.host.nativeElement, [{ field: 'ed-terms', message: 'وافق على شروط حساب الضمان للمتابعة' }]);
+			return;
+		}
 		if (!this.hasSufficientBalance()) {
 			this.showWalletDeposit.set(true);
 			return;
@@ -192,25 +222,32 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 
 	// OTP Logic
 	private requestOtp(onSent: (res: any) => void, onFail: (message: string) => void) {
+		if (this.sendWait.active()) return onFail(rateLimitSentence(this.sendWait.remainingSeconds(), true));
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/contract/sign`, {
 			offerId: this.offerId()
 		}).subscribe({
 			next: (res) => onSent(res),
-			error: (err) => onFail(err.error?.message || 'تعذر إرسال رمز التوقيع. حاول مرة أخرى.')
+			error: (err) => {
+				// 429: a wait from the server (Retry-After / retryAt); no stated time = an honest sentence with no number.
+				if (isRateLimitError(err)) {
+					const end = this.sendWait.startFromResponse(err);
+					this.rateLimitedNoTime.set(end == null || !this.sendWait.active());
+					return onFail(end != null && this.sendWait.active() ? rateLimitSentence(this.sendWait.remainingSeconds(), true) : RATE_LIMIT_MESSAGE);
+				}
+				onFail(err.error?.message || 'تعذر إرسال رمز التوقيع. حاول مرة أخرى.');
+			}
 		});
 	}
 
 	private applyOtpSent(res: any) {
 		const email = res?.data?.email;
 		if (email) this.clientEmail.set(this.maskEmail(email));
-		const ttl = Number(res?.data?.expiresInSeconds);
-		if (ttl > 0) this.otpTtlSeconds = ttl;
-		this.startOTPTimer();
+		this.startOTPTimer(res?.data);
 	}
 
 	// Sends the code first; the dialog opens only once the e-mail was really sent.
 	openOTP() {
-		if (!this.termsAccepted() || !this.hasSufficientBalance() || this.isSubmitting()) return;
+		if (!this.termsAccepted() || !this.hasSufficientBalance() || this.isSubmitting() || this.sendWait.active()) return;
 		this.isSubmitting.set(true);
 		this.otpError.set(''); this.otpNotice.set('');
 		this.requestOtp(
@@ -229,28 +266,25 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 
 	closeOTP() {
 		this.showOtpModal.set(false);
-		clearInterval(this.otpTimer);
+		this.validityWait.clear();
+		this.expiryKnown.set(false);
 	}
 
-	startOTPTimer() {
-		this.otpCountdown.set(this.otpTtlSeconds);
-		clearInterval(this.otpTimer);
-		this.otpTimer = setInterval(() => {
-			if (this.otpCountdown() > 0) {
-				this.otpCountdown.update(v => v - 1);
-			} else {
-				clearInterval(this.otpTimer);
-			}
-		}, 1000);
+	/** Validity of the code just sent: the server's `expiresAt`, else its `expiresInSeconds`; neither = no timer and no guessed duration. */
+	startOTPTimer(data?: { expiresAt?: string; expiresInSeconds?: number }) {
+		const end = data?.expiresAt ? Date.parse(data.expiresAt) : NaN;
+		const ttl = Number(data?.expiresInSeconds);
+		if (Number.isFinite(end)) { this.expiryKnown.set(true); this.validityWait.start(end); }
+		else if (ttl > 0) { this.expiryKnown.set(true); this.validityWait.startIn(ttl); }
+		else { this.expiryKnown.set(false); this.validityWait.clear(); }
 	}
 
 	otpCountdownText(): string {
-		const total = Math.max(0, this.otpCountdown());
-		return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+		return formatClock(this.otpCountdown());
 	}
 
 	resetOTP() {
-		if (this.isResending() || this.isSubmitting()) return;
+		if (this.isResending() || this.isSubmitting() || this.sendWait.active()) return;
 		this.isResending.set(true);
 		this.otpError.set(''); this.otpNotice.set('');
 		this.requestOtp(
@@ -350,16 +384,20 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 		const otpCode = this.otpValues().join('');
 		if (otpCode.length !== 6) {
 			this.otpError.set('أدخل رمز التحقق المكوّن من 6 أرقام بالكامل.');
+			// Focus goes to the first empty box (below the header), the message is announced through aria-describedby.
+			const firstEmpty = this.otpValues().findIndex(v => v.length !== 1);
+			const box = document.getElementById(`otp${firstEmpty < 0 ? 0 : firstEmpty}`);
+			if (box) scrollFocus(box);
 			return;
 		}
-		if (this.isSubmitting()) return;
-		if (this.otpCountdown() <= 0) {
+		if (this.isSubmitting() || this.confirmWait.active()) return;
+		if (this.otpExpired()) {
 			this.otpError.set('انتهت صلاحية الرمز. اضغط «إعادة الإرسال» للحصول على رمز جديد.');
 			return;
 		}
 
 		this.isSubmitting.set(true);
-		this.otpError.set(''); this.otpNotice.set('');
+		this.otpError.set(''); this.otpNotice.set(''); this.rateLimitedNoTime.set(false);
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/escrow/deposit`, {
 			offerId: this.offerId(),
 			otpCode: otpCode,
@@ -389,8 +427,18 @@ export class EscrowDeposit implements OnInit, OnDestroy {
 					this.blockedReason.set(err.error?.message || 'تم توقيع هذا العقد وتمويله مسبقاً.');
 					return;
 				}
-				this.otpError.set(err.error?.message || 'كود التحقق غير صحيح أو منتهي الصلاحية');
-				this.otpValues.set(['', '', '', '', '', '']);
+				// A 429 is a wait, never "wrong code": the digits stay and only confirm waits (the server's time; nothing is retried at zero).
+				if (isRateLimitError(err)) {
+					const end = this.confirmWait.startFromResponse(err);
+					this.rateLimitedNoTime.set(end == null || !this.confirmWait.active());
+					this.otpError.set('');
+					return;
+				}
+				// Only a rejected code (400/422/401) says "wrong code"; network, 429 and 5xx stay honest generic messages and keep the digits.
+				const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'كود التحقق غير صحيح أو منتهي الصلاحية' });
+				const rejected = mapped.kind === 'backend-validation' || mapped.kind === 'credentials';
+				this.otpError.set(rejected ? (err.error?.message || 'كود التحقق غير صحيح أو منتهي الصلاحية') : mapped.message);
+				if (rejected) this.otpValues.set(['', '', '', '', '', '']);
 			}
 		});
 	}

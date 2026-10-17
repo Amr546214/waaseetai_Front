@@ -137,13 +137,18 @@
               <p class="f-hint">خاص بك فقط، لا يظهر في ملفك العام.</p>
               @if (setupForm.get('profData.dob')?.invalid) { <p class="f-hint" role="alert" style="color:#ff8c69">تاريخ الميلاد غير صالح</p> }
             </div>
-            <div class="f-wrap">
-              <label class="f-lbl">اللغات</label>
-              <div class="f-chips">
-                @for (lang of availableLanguages; track lang) {
-                  <span class="f-chip" [class.selected]="selectedLanguages().includes(lang)" (click)="toggleLanguage(lang)">{{ lang }}</span>
-                }
-              </div>
+            <div class="f-wrap f-full" data-testid="my-skills-step1">
+              <label class="f-lbl" id="my-skills-lbl-1">مهاراتي <span class="card-optional">اختياري</span></label>
+              @if (skillOptions().length) {
+                <ws-skills-picker [options]="skillOptions()" [selected]="skillsList()" (selectedChange)="onSkillsChange($event)" />
+                <p class="f-hint">مهارات من قائمة تخصصك الرئيسي فقط. اختيار مهارة لا يمنحك اعتماد أي تخصص.</p>
+              } @else {
+                <p class="f-hint" role="status" data-testid="my-skills-need-specialty">
+                  تظهر قائمة مهاراتك بعد اختيار تخصصك الرئيسي في خطوة «التخصصات والمهارات».
+                  @if (skillsList().length) { المهارات المحفوظة لديك: {{ skillsList().join('، ') }}. }
+                </p>
+              }
+              @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-hint" style="color:#ff8c69;font-weight:700">{{ skillsErr }}</p> }
             </div>
             <div class="f-wrap f-full">
               <label class="f-lbl" for="bio">النبذة المهنية <span class="f-req">*</span></label>
@@ -302,7 +307,7 @@
         <div class="form-card">
           <div class="card-title">
             <div class="card-title-ico badge-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-tag"></use></svg></div>
-            المهارات والاهتمامات
+            مهاراتي
             <span class="card-optional">اختياري</span>
           </div>
           <div class="skills-ai">

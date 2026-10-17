@@ -27,6 +27,11 @@
 			<div class="rp-hd-ttl">{{ st.adminSettled ? 'أُغلق بتسوية نزاع' : 'تقييمك المحفوظ' }}</div>
 			<div class="rp-hd-sub">{{ projectTitle() }} · مع {{ clientName() }}</div>
 		</div>
+		@if (status()?.counterpart; as other) {
+			<!-- what the client saved about this project: read-only, from the server, shown to both parties even when unpublished -->
+			<div class="rp-sec-ttl">تقييم العميل لك</div>
+			<app-rating-saved-card [review]="other" label="تقييم العميل لك" commentLabel="تعليق العميل" data-testid="counterpart-card" />
+		}
 		@if (st.adminSettled) { <app-settlement-summary [distribution]="st.adminSettled.distribution" /> }
 		@if (submitSuccess()) { <div class="rp-success" role="status">تم إرسال تقييمك، شكرًا لك</div> }
 		<app-rating-saved-card [review]="st.review!" label="تقييمك للعميل" />
@@ -43,6 +48,11 @@
 			العودة إلى المشروع
 		</a>
 		<div class="rp-hd"><div class="rp-hd-ttl">{{ status()?.adminSettled ? 'أُغلق بتسوية نزاع' : 'التقييم غير متاح الآن' }}</div><div class="rp-hd-sub">{{ projectTitle() }} · مع {{ clientName() }}</div></div>
+		@if (status()?.counterpart; as other) {
+			<!-- what the client saved about this project: read-only, from the server, shown to both parties even when unpublished -->
+			<div class="rp-sec-ttl">تقييم العميل لك</div>
+			<app-rating-saved-card [review]="other" label="تقييم العميل لك" commentLabel="تعليق العميل" data-testid="counterpart-card" />
+		}
 		@if (status()?.adminSettled; as settled) { <app-settlement-summary [distribution]="settled.distribution" /> }
 		<div class="rp-card" role="status" data-testid="rating-blocked">
 			<div class="rp-rate-lbl">{{ status()?.adminSettled ? 'أُغلق المشروع بتسوية نزاع، ولا يتاح تقييمه' : (status()?.message || 'التقييم غير متاح الآن') }}</div>
@@ -55,6 +65,11 @@
 			العودة إلى المشروع
 		</a>
 
+		@if (status()?.counterpart; as other) {
+			<!-- what the client saved about this project: read-only, from the server, shown to both parties even when unpublished -->
+			<div class="rp-sec-ttl">تقييم العميل لك</div>
+			<app-rating-saved-card [review]="other" label="تقييم العميل لك" commentLabel="تعليق العميل" data-testid="counterpart-card" />
+		}
 		<!-- Success header (P-PR-013) -->
 		<div class="rp-hd">
 			<div class="rp-hd-ico">

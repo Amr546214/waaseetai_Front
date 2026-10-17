@@ -32,6 +32,7 @@
   </div>
   }
 
+  @if (rateLimitKept()) { <app-rate-limit-note [showRetry]="true" (retry)="retryLoading()" /> }
   @if (!isLoading() && !hasError()) {
     <div class="wal-grid animate-in">
       <div class="wal-main">
@@ -136,7 +137,9 @@
     </div>
   }
 
-  @if (hasError()) {
+  @if (hasError() && rateLimited()) {
+    <app-load-retry (retry)="retryLoading()" />
+  } @else if (hasError()) {
     <div class="state-card error-card" role="alert">
       <div class="error-title">تعذر تحميل المحفظة</div>
       <div class="error-code">ERR-SK-018</div>

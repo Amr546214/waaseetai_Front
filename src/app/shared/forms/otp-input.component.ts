@@ -13,7 +13,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model, o
 		<div class="otp-group" dir="ltr" role="group" aria-label="خانات رمز التحقق" data-testid="otp-group" (paste)="onPaste($event)">
 			@for (i of indexes; track i) {
 				<input class="otp-box" [class.filled]="!!digit(i)" [class.has-error]="invalid()" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
-					autocomplete="one-time-code" [id]="idPrefix() + '-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" [attr.aria-invalid]="invalid() ? 'true' : null"
+					autocomplete="one-time-code" [id]="idPrefix() + '-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" [attr.aria-invalid]="invalid() ? 'true' : null" [attr.aria-describedby]="invalid() && describedBy() ? describedBy() : null"
 					[value]="digit(i)" [disabled]="disabled()" (input)="onInput(i, $event)" (keydown)="onKeydown(i, $event)" (focus)="$any($event.target).select()">
 			}
 		</div>
@@ -35,6 +35,8 @@ export class OtpInputComponent {
 	readonly invalid = input(false);
 	readonly disabled = input(false);
 	readonly idPrefix = input('otp');
+	/** id of the role=alert message that explains the problem (wired to every box while `invalid`). */
+	readonly describedBy = input('');
 	readonly complete = output<string>();
 	readonly indexes = [0, 1, 2, 3, 4, 5];
 

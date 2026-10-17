@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, computed, inject, ElementRe
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { NotificationEngineService, AppNotification, NotificationBasePath } from '../../core/services/notification-engine.service';
+import { NotificationNavigator } from '../../core/services/notification-navigator.service';
 import { AuthStore } from '../../core/store/auth.store';
 import { AccountType, UserRole } from '../../core/models/auth.model';
 import { resolveActiveRole } from '../../core/routing/role-routes';
@@ -18,6 +19,7 @@ export class NotificationBell {
 	private notifEngine = inject(NotificationEngineService);
 	private authStore = inject(AuthStore);
 	private router = inject(Router);
+	private navigator = inject(NotificationNavigator);
 	private el = inject(ElementRef);
 
 	unreadCount = this.notifEngine.unreadCount;
@@ -60,6 +62,15 @@ export class NotificationBell {
 					const mapped = this.notifEngine.mapToAppNotification(newNotif, this.dashboardBase());
 					this.notifications.update(list => [mapped, ...list].slice(0, 5));
 				}
+			}
+		});
+
+		// a coalesced chat row (same id, newer text / count): replace it and move it to the top; never a second row
+		effect(() => {
+			const upd = this.notifEngine.realtimeUpdatedNotification();
+			if (upd && upd.id && this.loadedOnce) {
+				const mapped = this.notifEngine.mapToAppNotification(upd, this.dashboardBase());
+				this.notifications.update(list => [mapped, ...list.filter(n => n.id !== upd.id)].slice(0, 5));
 			}
 		});
 
@@ -130,19 +141,11 @@ export class NotificationBell {
 	}
 
 	onItemClick(nt: AppNotification): void {
-		if (nt.isUnread) {
-			this.notifEngine.markNotificationAsRead(nt.id).subscribe({
-				next: () => {
-					this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n));
-				}
-			});
-		}
-
 		this.isOpen.set(false);
-
-		if (nt.actionUrl) {
-			this.router.navigateByUrl(nt.actionUrl);
-		}
+		// read or unread, first or second click: the destination always opens; marking read never blocks it (see NotificationNavigator)
+		void this.navigator.open(nt, {
+			onMarkedRead: () => this.notifications.update(list => list.map(n => n.id === nt.id ? { ...n, isUnread: false } : n))
+		});
 	}
 
 	onViewAllClick(): void {

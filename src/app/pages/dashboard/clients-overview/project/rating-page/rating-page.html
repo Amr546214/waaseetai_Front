@@ -25,6 +25,12 @@
 			<div class="rp-hd-sub">{{ headerSub() }}</div>
 		</div>
 
+
+		@if (status()?.counterpart; as other) {
+			<!-- what the OTHER party saved about this project: read-only, from the server, shown to both parties even when unpublished -->
+			<div class="rp-sec-ttl">تقييم مقدّم الخدمة لك</div>
+			<app-rating-saved-card [review]="other" label="تقييم مقدّم الخدمة لك" commentLabel="تعليق مقدّم الخدمة" data-testid="counterpart-card" />
+		}
 		@if (statusError()) {
 			<div class="rp-err" role="alert" data-testid="rating-status-error">{{ statusError() }} <button type="button" class="rp-btn-sec" (click)="retry()">اعادة المحاولة</button></div>
 		}

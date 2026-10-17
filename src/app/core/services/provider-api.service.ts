@@ -266,6 +266,16 @@ export class ProviderApiService {
 		);
 	}
 
+	/** «إجراءات الحساب»: the provider's own approval requests (real status, admin notes addressed to the user, history). */
+	getAccountActions(): Observable<any> { return this.http.get<any>(`${this.apiUrl}/account-actions`); }
+	getAccountAction(id: string): Observable<any> { return this.http.get<any>(`${this.apiUrl}/account-actions/${encodeURIComponent(id)}`); }
+	/** the previous content of a request that waits for the provider (409 when it does not) */
+	getAccountActionCompletion(id: string): Observable<any> { return this.http.get<any>(`${this.apiUrl}/account-actions/${encodeURIComponent(id)}/completion`); }
+	deleteAccreditationProof(id: string): Observable<any> { return this.http.delete<any>(`${this.apiUrl}/accreditation/proofs/${encodeURIComponent(id)}`); }
+	getProofRequirements(): Observable<any> { return this.http.get<any>(`${this.apiUrl}/accreditation/proof-requirements`); }
+	/** Like submitAccreditationSample but the HTTP error is kept: field errors (files, title...) must reach the form. */
+	submitAccreditationRequest(payload: FormData): Observable<any> { return this.http.post<any>(`${this.apiUrl}/accreditation/submit`, payload); }
+
 	getAccreditationSamples(): Observable<any> {
 		return this.http.get<any>(`${this.apiUrl}/accreditation/samples`).pipe(
 			catchError((error) => {

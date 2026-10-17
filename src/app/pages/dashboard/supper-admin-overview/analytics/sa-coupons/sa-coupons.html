@@ -106,9 +106,9 @@
       <p class="scp-note" data-testid="create-disabled-reason">غير متاح من الإدارة: الكوبونات تُنشأ من لوحة مقدم الخدمة (وهو من يحدد الخدمات المشمولة وحدود الاستخدام).</p>
       <fieldset disabled class="scp-fieldset">
         <div class="scp-field-lbl">رمز الكوبون</div>
-        <input type="text" class="scp-input scp-uppercase" placeholder="MYCODE2025">
+        <input type="text" class="scp-input scp-uppercase" placeholder="اكتب رمز الكوبون">
         <div class="scp-field-lbl">قيمة الخصم</div>
-        <input type="number" class="scp-input" placeholder="20">
+        <input type="number" class="scp-input" placeholder="أدخل قيمة الخصم">
         <button type="button" class="scp-btn scp-btn-pri" style="width:100%">إنشاء الكوبون</button>
       </fieldset>
     </div>
@@ -154,14 +154,14 @@
         @if (t.active) {
           <p class="scp-note">لن يتمكن العملاء من استخدام هذا الكوبون بعد الإيقاف. سيُسجَّل الإجراء مع السبب في سجل التدقيق.</p>
           <div class="scp-field-lbl">سبب الإيقاف (مطلوب)</div>
-          <textarea class="scp-input" rows="3" maxlength="1000" data-testid="confirm-reason" [ngModel]="confirmReason()" (ngModelChange)="confirmReason.set($event)"></textarea>
+          <textarea class="scp-input" rows="3" maxlength="1000" id="confirm-reason" name="reason" data-testid="confirm-reason" [ngModel]="confirmReason()" (ngModelChange)="confirmReason.set($event)"></textarea>
         } @else {
           <p class="scp-note">سيصبح الكوبون متاحاً للاستخدام مجدداً ضمن شروطه الحالية. سيُسجَّل الإجراء في سجل التدقيق.</p>
         }
-        @if (confirmError()) { <p class="scp-err">{{ confirmError() }}</p> }
+        @if (confirmError()) { <p class="scp-err" role="alert">{{ confirmError() }}</p> }
         <div class="scp-modal-actions">
           <button type="button" class="scp-btn scp-btn-gh" [disabled]="confirmBusy()" (click)="cancelConfirm()">إلغاء</button>
-          <button type="button" class="scp-btn scp-btn-pri" data-testid="confirm-ok" [disabled]="!canConfirm()" (click)="confirmToggle()">{{ confirmBusy() ? 'جاري التنفيذ...' : (t.active ? 'تأكيد الإيقاف' : 'تأكيد التفعيل') }}</button>
+          <button type="button" class="scp-btn scp-btn-pri" data-testid="confirm-ok" [disabled]="confirmBusy()" (click)="confirmToggle()">{{ confirmBusy() ? 'جاري التنفيذ...' : (t.active ? 'تأكيد الإيقاف' : 'تأكيد التفعيل') }}</button>
         </div>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { scrollFocus } from '../../../../shared/forms/form-error-focus';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, inject, signal, effect, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -175,12 +177,25 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** True after an empty / rejected code: red border + aria-invalid on the coupon input, the message sits right under it. */
+  couponInvalid = signal(false);
+
+  onCouponInput(value: string) {
+    this.couponInput.set(value);
+    if (this.couponInvalid()) { this.couponInvalid.set(false); }
+  }
+
   applyCoupon() {
     const code = this.couponInput().trim();
+    if (this.isApplyingCoupon()) return;
     if (!code) {
-      this.couponMessage.set({ type: 'info', text: 'أدخل كود الخصم أولاً' });
+      this.couponMessage.set({ type: 'error', text: 'أدخل كود الخصم أولاً' });
+      this.couponInvalid.set(true);
+      const el = document.getElementById('coupon-inp');
+      if (el) scrollFocus(el);
       return;
     }
+    this.couponInvalid.set(false);
     this.isApplyingCoupon.set(true);
     this.cartService.applyCoupon(code).subscribe({
       next: (result) => {
@@ -189,13 +204,14 @@ export class CartComponent implements OnInit, OnDestroy {
           this.couponInput.set('');
         } else {
           this.couponMessage.set({ type: 'error', text: result.message });
+          this.couponInvalid.set(true);
         }
         this.isApplyingCoupon.set(false);
         setTimeout(() => this.couponMessage.set(null), 3000);
       },
-      error: () => {
+      error: (err: any) => {
         this.isApplyingCoupon.set(false);
-        this.couponMessage.set({ type: 'error', text: 'حدث خطأ، حاول مرة أخرى' });
+        this.couponMessage.set({ type: 'error', text: mapHttpError(err, { fallback: 'حدث خطأ، حاول مرة أخرى' }).message });
         setTimeout(() => this.couponMessage.set(null), 3000);
       },
     });
@@ -212,6 +228,12 @@ export class CartComponent implements OnInit, OnDestroy {
     // item still conflicts with an already-running project for that same
     // service — the backend would reject this at createOrder() anyway (409),
     // but surfacing it here avoids a pointless round-trip to the review page.
+    // an old cart row for a service the user owns can never be bought (the server refuses it at every step too): remove it first
+    if (this.activeItems.some(i => i.ownService)) {
+      this.checkoutBlockedMessage.set('في السلة خدمة تملكها أنت، ولا يمكن شراؤها. احذفها من السلة قبل إتمام الشراء');
+      setTimeout(() => this.checkoutBlockedMessage.set(null), 6000);
+      return;
+    }
     if (this.conflictingItems().size > 0) {
       this.checkoutBlockedMessage.set('يرجى إزالة الخدمة/الخدمات التي لديك مشروع نشط لها من السلة، أو متابعة المشروع الحالي، قبل إتمام الشراء');
       setTimeout(() => this.checkoutBlockedMessage.set(null), 6000);

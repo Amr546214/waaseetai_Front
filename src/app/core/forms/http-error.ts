@@ -17,6 +17,9 @@
  * The result message is always Arabic: server text is used only when it already is Arabic, otherwise a fixed Arabic
  * message is used (the backend still answers with English for zod failures, rate limits and 500s).
  */
+import { parseRetryAfter, remainingSeconds } from '../wait/retry-after.util';
+import { rateLimitSentence } from '../wait/wait-format';
+
 export type HttpErrorKind =
 	| 'backend-validation' | 'pending-review' | 'credentials' | 'session' | 'forbidden' | 'conflict'
 	| 'payload' | 'rate-limit' | 'network' | 'server' | 'not-found' | 'unknown';
@@ -32,6 +35,8 @@ export interface MappedHttpError {
 	fieldErrors: Record<string, string>;
 	/** Seconds the user should wait (429 only), when known. */
 	retryAfterSeconds: number | null;
+	/** Absolute end (epoch ms) of the 429 wait when the server stated one (Retry-After / retryAt / resendAvailableAt). */
+	retryEndsAt?: number | null;
 	/** True when trying again unchanged can reasonably succeed (network, 5xx, 429 later). */
 	retryable: boolean;
 }
@@ -120,16 +125,9 @@ export function fieldErrorsFromBody(body: any): Record<string, string> {
 }
 
 function waitSecondsFrom(err: any, serverMessage: string | null): number | null {
-	const fromBody = (Array.isArray(err?.error?.errors) ? err.error.errors : [])
-		.map((x: any) => Number(x?.retryAfterSeconds)).find((n: number) => Number.isFinite(n) && n > 0);
-	const header = err?.headers?.get?.('Retry-After');
-	if (header) {
-		const n = Number(header);
-		if (Number.isFinite(n) && n >= 0) return Math.ceil(n);
-		const t = Date.parse(header);
-		if (!Number.isNaN(t)) return Math.max(0, Math.ceil((t - Date.now()) / 1000));
-	}
-	if (fromBody) return Math.ceil(fromBody);
+	// Retry-After (seconds or HTTP-date), body retryAt / resendAvailableAt / retryAfterSeconds (top level, data, errors[]).
+	const end = parseRetryAfter(err);
+	if (end != null) { const s = remainingSeconds(end); return s > 0 ? s : null; }
 	// The backend limiter says "...try again after 15 minutes" / "after an hour".
 	if (serverMessage) {
 		const m = /(\d+)\s*minute/i.exec(serverMessage);
@@ -215,8 +213,8 @@ export function mapHttpError(err: unknown, options: MapHttpErrorOptions = {}): M
 		const wait = waitSecondsFrom(e, serverMessage);
 		// The Arabic server text already carries the wait; when it does not, the known wait is appended.
 		const message = (arabicServer && wait && !/\d|ثانية|دقيقة|دقيقتين|ساعة|ساعتين/.test(arabicServer) ? `${arabicServer} (${formatWait(wait)})` : arabicServer)
-			|| (wait ? `تجاوزت عدد المحاولات المسموح بها. حاول مرة أخرى بعد ${formatWait(wait)}.` : 'تجاوزت عدد المحاولات المسموح بها. انتظر قليلًا ثم حاول مجددًا.');
-		return make('rate-limit', 'محاولات كثيرة', message, { retryAfterSeconds: wait, retryable: true });
+			|| rateLimitSentence(wait);
+		return make('rate-limit', 'محاولات كثيرة', message, { retryAfterSeconds: wait, retryEndsAt: parseRetryAfter(e), retryable: true });
 	}
 
 	// A deliberate 503 from the backend (e.g. SMS verification not available) carries its own Arabic explanation.

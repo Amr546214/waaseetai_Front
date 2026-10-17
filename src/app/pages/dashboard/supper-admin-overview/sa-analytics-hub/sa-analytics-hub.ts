@@ -1,6 +1,7 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { reportAdminProblems } from '../shared/admin-form-report';
 import { AdminAnalyticsService, AnalyticsOverview, ACCOUNT_TYPE_LABELS, STATUS_LABELS } from '../../../../core/services/admin-analytics.service';
 import { CsvColumn, exportCsv, printPage } from '../../../../core/utils/export.util';
 
@@ -24,6 +25,7 @@ const DAY = 86400000;
 })
 export class SaAnalyticsHub implements OnInit {
   private readonly api = inject(AdminAnalyticsService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   activeSection = signal<SectionKey>('overview');
   activePeriod = signal<PeriodKey>('30d');
@@ -80,6 +82,11 @@ export class SaAnalyticsHub implements OnInit {
   setCustomRange(from: string, to: string) {
     this.customFrom.set(from);
     this.customTo.set(to);
+    if (from && to && from > to) {
+      // An inverted range is explained next to the end date instead of silently loading nothing.
+      void reportAdminProblems(this.host.nativeElement, [{ field: 'ah-to', message: 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية أو مساويًا له' }]);
+      return;
+    }
     this.activePeriod.set('custom');
     this.reload();
   }
