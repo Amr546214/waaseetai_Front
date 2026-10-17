@@ -132,7 +132,7 @@
                 <span class="pcard-price-val" [style.color]="isWinner ? 'var(--teal)' : null">{{ m.totalAmount }}</span><span class="pcard-price-cur">$</span>
                 <div class="pcard-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ m.totalDays }} أيام</div>
               </div>
-              <button class="pcard-btn" type="button" [class.primary]="isWinner" [class.ghost]="!isWinner" [routerLink]="['/marketplace/offer', m.id]">{{ isWinner ? 'اطلب الآن' : 'عرض الخدمة' }}</button>
+              <button class="pcard-btn" type="button" [attr.data-testid]="isOwn(m) ? 'own-service' : null" [class.primary]="isWinner" [class.ghost]="!isWinner" [routerLink]="['/marketplace/offer', m.id]">{{ isOwn(m) ? 'هذه خدمتك' : (isWinner ? 'اطلب الآن' : 'عرض الخدمة') }}</button>
             </div>
           </div>
         }

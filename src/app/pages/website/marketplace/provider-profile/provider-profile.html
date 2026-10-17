@@ -377,6 +377,9 @@
           </div>
           <div class="svc-body">
             <div class="svc-title">{{ srv.title }}</div>
+            @if (isOwnProfile()) {
+            <div data-testid="own-service" role="status" style="font-size:12px;font-weight:800;margin-bottom:4px">هذه خدمتك</div>
+            }
             <div class="svc-footer">
               <div class="svc-price"><span>يبدأ من </span>{{ (srv.totalAmount || 0) | number:'1.0-2' }} ر</div>
               @if (srv.totalDays) {

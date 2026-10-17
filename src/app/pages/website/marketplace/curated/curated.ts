@@ -4,6 +4,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MarketplaceModel, MarketplaceService, byAiScoreDesc, hasAiScore } from '../../../../core/services/marketplace.service';
 import { AuthStore } from '../../../../core/store/auth.store';
+import { isOwnModel } from '../../../../core/utils/own-service.util';
 
 export type CuratedMode = 'top-rated' | 'most-ordered' | 'featured' | 'exclusive' | 'newest';
 
@@ -403,6 +404,11 @@ export class CuratedComponent implements OnInit {
 	// same findActiveServicePurchases() helper the checkout write-path guard
 	// uses. Kept here too since this page renders its own card markup rather
 	// than reusing <app-card> (out of scope to unify in this batch).
+	/** The signed-in user (any acting role) owns this service: «هذه خدمتك», never a buy cue (real owner user id: BE flag or provider.id). */
+	isOwn(m: MarketplaceModel): boolean {
+		return this.authStore.isAuthenticated() && isOwnModel(m, this.authStore.currentUser()?.id);
+	}
+
 	hasActivePurchase(m: MarketplaceModel): boolean {
 		return Boolean(m.eligibility?.hasActivePurchase);
 	}
