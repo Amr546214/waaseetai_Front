@@ -18,6 +18,7 @@ const KIND_LABEL: Record<MarketerAssetFile['kind'], string> = { BANNER: 'بنر'
 	standalone: true,
 	imports: [CommonModule, RouterLink, LoadRetryComponent, RateLimitNoteComponent],
 	templateUrl: './assets.html',
+	styleUrl: './assets.css',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MarketerAssets implements OnInit {
