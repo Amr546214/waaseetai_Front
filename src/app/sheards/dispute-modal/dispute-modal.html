@@ -15,17 +15,18 @@
 		</div>
 
 		@if (formError()) {
-			<div class="dp-error" role="alert">{{ formError() }}</div>
+			<div class="form-error" style="margin-bottom:12px" role="alert">{{ formError() }}</div>
 		}
 		@if (errorMessage) {
-			<div class="dp-error" role="alert" data-testid="dispute-server-error">{{ errorMessage }}</div>
+			<div class="form-error" style="margin-bottom:12px" role="alert" data-testid="dispute-server-error">{{ errorMessage }}</div>
 		}
 
 		<!-- سبب النزاع -->
 		<div class="lc-fld">
-			<label for="dp-reason">سبب النزاع</label>
+			<label for="dp-reason">سبب النزاع <span class="ws-req" aria-hidden="true">*</span></label>
 			<input
 				id="dp-reason"
+				aria-required="true"
 				type="text"
 				class="dp-input"
 				[value]="reason()"
@@ -44,9 +45,10 @@
 
 		<!-- تفاصيل النزاع -->
 		<div class="lc-fld">
-			<label for="dp-desc">تفاصيل النزاع</label>
+			<label for="dp-desc">تفاصيل النزاع <span class="ws-req" aria-hidden="true">*</span></label>
 			<textarea
 				id="dp-desc"
+				aria-required="true"
 				class="lc-ta"
 				[value]="description()"
 				(input)="onDescriptionInput($event)"

@@ -99,13 +99,13 @@
           <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-brief"></use></svg>البيانات المهنية</div>
           <div class="f-grid">
             <div class="f-wrap">
-              <label class="f-lbl" for="job-title">المسمى الوظيفي <span class="f-req">*</span></label>
-              <input class="f-inp" id="job-title" formControlName="jobTitle" type="text" placeholder="مثال: مطور ويب كامل المكدس" required>
+              <label class="f-lbl" for="job-title">المسمى الوظيفي <span class="ws-req" aria-hidden="true">*</span></label>
+              <input class="f-inp" id="job-title" formControlName="jobTitle" type="text" placeholder="مثال: مطور ويب كامل المكدس" required aria-required="true">
               <ws-field-error [control]="setupForm.get('profData.jobTitle')" label="المسمى الوظيفي" />
             </div>
             <div class="f-wrap">
-              <label class="f-lbl" for="exp-years">سنوات الخبرة <span class="f-req">*</span></label>
-              <select class="f-inp" id="exp-years" formControlName="expYears" required>
+              <label class="f-lbl" for="exp-years">سنوات الخبرة <span class="ws-req" aria-hidden="true">*</span></label>
+              <select class="f-inp" id="exp-years" formControlName="expYears" required aria-required="true">
                 <option value="" disabled selected>اختر</option>
                 <option value="أقل من سنة">أقل من سنة</option>
                 <option value="1 الى 3 سنوات">1 الى 3 سنوات</option>
@@ -116,16 +116,16 @@
               <ws-field-error [control]="setupForm.get('profData.expYears')" label="سنوات الخبرة" />
             </div>
             <div class="f-wrap">
-              <label class="f-lbl">الدولة <span class="f-req">*</span></label>
-              <select class="f-inp" formControlName="country">
+              <label class="f-lbl" for="pr-country">الدولة <span class="ws-req" aria-hidden="true">*</span></label>
+              <select class="f-inp" id="pr-country" formControlName="country" aria-required="true">
                 <option value="" disabled>اختر الدولة</option>
                 @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
                </select>
               <ws-field-error [control]="setupForm.get('profData.country')" label="الدولة" />
             </div>
             <div class="f-wrap">
-              <label class="f-lbl" for="pr-city">المدينة <span class="f-req">*</span></label>
-              <select class="f-inp" id="pr-city" formControlName="city" required>
+              <label class="f-lbl" for="pr-city">المدينة <span class="ws-req" aria-hidden="true">*</span></label>
+              <select class="f-inp" id="pr-city" formControlName="city" required aria-required="true">
                 <option value="" disabled>{{ cityPlaceholder(setupForm.get('profData')?.get('country')?.value) }}</option>
                 @for (cityName of citiesOf(setupForm.get('profData')?.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
                </select>
@@ -135,7 +135,7 @@
               <label class="f-lbl" for="pr-dob">تاريخ الميلاد <span class="card-optional">اختياري</span></label>
               <input type="date" class="f-inp" id="pr-dob" formControlName="dob" dir="ltr" [max]="todayIso" min="1900-01-01" data-testid="setup-dob" autocomplete="bday">
               <p class="f-hint">خاص بك فقط، لا يظهر في ملفك العام.</p>
-              @if (setupForm.get('profData.dob')?.invalid) { <p class="f-hint" role="alert" style="color:#ff8c69">تاريخ الميلاد غير صالح</p> }
+              @if (setupForm.get('profData.dob')?.invalid) { <p class="f-err" role="alert">تاريخ الميلاد غير صالح</p> }
             </div>
             <div class="f-wrap f-full" data-testid="my-skills-step1">
               <label class="f-lbl" id="my-skills-lbl-1">مهاراتي <span class="card-optional">اختياري</span></label>
@@ -148,11 +148,11 @@
                   @if (skillsList().length) { المهارات المحفوظة لديك: {{ skillsList().join('، ') }}. }
                 </p>
               }
-              @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-hint" style="color:#ff8c69;font-weight:700">{{ skillsErr }}</p> }
+              @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-err">{{ skillsErr }}</p> }
             </div>
             <div class="f-wrap f-full">
-              <label class="f-lbl" for="bio">النبذة المهنية <span class="f-req">*</span></label>
-              <textarea class="f-inp f-ta" id="bio" maxlength="500" [appBioField]="500" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required></textarea>
+              <label class="f-lbl" for="bio">النبذة المهنية <span class="ws-req" aria-hidden="true">*</span></label>
+              <textarea class="f-inp f-ta" id="bio" maxlength="500" [appBioField]="500" formControlName="bio" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك وما يميزك..." required aria-required="true"></textarea>
               <ws-field-error [control]="setupForm.get('profData.bio')" label="النبذة المهنية" />
               <div class="bio-actions">
                 <button type="button" class="ai-suggest-btn" disabled aria-disabled="true" data-testid="bio-suggest-disabled" title="اقتراح النبذة غير متاح حاليًا">
@@ -185,7 +185,7 @@
             <div class="avatar-actions">
               @if (uploadStates()['avatar']?.status === 'uploading') { <div class="avatar-status" data-testid="avatar-status" role="status">جارٍ رفع الصورة…</div> }
               @else if (uploadStates()['avatar']?.status === 'uploaded') { <div class="avatar-status" data-testid="avatar-status" role="status">تم رفع الصورة. تُحفظ مع بياناتك عند إكمال التسجيل.</div> }
-              @if (avatarError()) { <div class="avatar-status" data-testid="avatar-error" role="alert" style="color:#ff8c69;font-weight:700">{{ avatarError() }}</div> }
+              @if (avatarError()) { <div class="avatar-status form-error" data-testid="avatar-error" role="alert">{{ avatarError() }}</div> }
               <button type="button" class="avatar-btn upload" aria-label="رفع صورة من الجهاز">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-upload"></use></svg>
                 رفع صورة
@@ -272,8 +272,8 @@
           <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-brief"></use></svg>التخصص الرئيسي والتخصصات الفرعية</div>
           <div class="f-grid">
             <div class="f-wrap f-full">
-              <label class="f-lbl" for="main-spec">التخصص الرئيسي <span class="f-req">*</span></label>
-              <select class="f-inp" id="main-spec" formControlName="mainSpec" required (change)="onMainSpecUserChange()">
+              <label class="f-lbl" for="main-spec">التخصص الرئيسي <span class="ws-req" aria-hidden="true">*</span></label>
+              <select class="f-inp" id="main-spec" formControlName="mainSpec" required aria-required="true" (change)="onMainSpecUserChange()">
                 <option value="" disabled selected>اختر تخصصك الرئيسي</option>
                 @for (cat of categories(); track cat.id) {
                   <option [value]="cat.slug">{{ cat.nameAr }}</option>
@@ -282,8 +282,8 @@
               <ws-field-error [control]="setupForm.get('specialties.mainSpec')" label="التخصص الرئيسي" />
             </div>
             <div class="f-wrap f-full">
-              <label class="f-lbl">التخصصات الفرعية <span class="f-req">*</span></label>
-              <div class="f-chips-wrap" [class.has-error]="subSpecError()" id="sub-specs-area" [attr.aria-invalid]="subSpecError() ? 'true' : null">
+              <label class="f-lbl" id="sub-specs-lbl">التخصصات الفرعية <span class="ws-req" aria-hidden="true">*</span></label>
+              <div class="f-chips-wrap" role="group" aria-labelledby="sub-specs-lbl" aria-required="true" [attr.aria-describedby]="subSpecError() ? 'sub-specs-error' : null" [class.has-error]="subSpecError()" id="sub-specs-area" [attr.aria-invalid]="subSpecError() ? 'true' : null">
                 <p class="f-chips-hint">يمكنك اختيار تخصص واحد أو أكثر. سيطلب منك رفع نماذج أعمال لكل تخصص فرعي تختاره</p>
                 <div class="f-chips">
                   @for (spec of subSpecialtiesList(); track spec) {
@@ -292,7 +292,7 @@
                 </div>
               </div>
               @if (subSpecError()) {
-                <p class="f-hint" id="sub-specs-error" role="alert" style="margin-top:8px;color:#ff8c69;font-weight:700">اختر تخصصًا فرعيًا واحدًا على الأقل قبل المتابعة.</p>
+                <p class="f-err" id="sub-specs-error" role="alert" style="margin-top:8px">اختر تخصصًا فرعيًا واحدًا على الأقل قبل المتابعة.</p>
               }
               <p class="f-hint" style="margin-top:8px">
                 @if (selectedSpecs().length === 0) {
@@ -315,7 +315,7 @@
               {{ isSuggestingSkills() ? 'جاري إنشاء الاقتراح...' : 'اقتراح مهارات بالذكاء الاصطناعي' }}
             </button>
             @if (skillsSuggestionError()) { <p role="alert" class="f-hint">{{ skillsSuggestionError() }}</p> }
-            @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-hint" id="skills-server-error" style="color:#ff8c69;font-weight:700">{{ skillsErr }}</p> }
+            @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-err" id="skills-server-error">{{ skillsErr }}</p> }
             @if (skillsSuggestionReady() && !aiSuggestedSkills().length) { <p class="f-hint" role="status">لا توجد اقتراحات مهارات جديدة حالياً.</p> }
             @if (aiSuggestedSkills().length || isSuggestingSkills()) {
             <div class="skills-ai-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-ai"></use></svg>اقتراحات بالذكاء الاصطناعي، اختر المهارات التي تتقنها</div>
@@ -347,12 +347,12 @@
           <div class="form-sec-ttl"><svg aria-hidden="true"><use href="#i-wallet"></use></svg>حساب PayPal لاستلام المدفوعات</div>
           <div class="f-grid">
             <div class="f-wrap f-full">
-              <label class="f-lbl" for="pr-paypal">بريد PayPal <span class="f-req">*</span></label>
+              <label class="f-lbl" for="pr-paypal">بريد PayPal <span class="ws-req" aria-hidden="true">*</span></label>
               <input class="f-inp" id="pr-paypal" formControlName="paypalEmail" type="email" inputmode="email" autocomplete="email"
-                placeholder="name@example.com" style="direction:ltr;text-align:left" required
+                placeholder="name@example.com" style="direction:ltr;text-align:left" required aria-required="true"
                 [attr.aria-invalid]="paypalEmailMsg() ? 'true' : null" aria-describedby="pr-paypal-hint">
               @if (paypalEmailMsg(); as msg) {
-                <span class="f-hint" id="pr-paypal-hint" role="alert" style="color:#ff8c69">{{ msg }}</span>
+                <span class="f-err" id="pr-paypal-hint" role="alert">{{ msg }}</span>
               } @else {
                 <span class="f-hint" id="pr-paypal-hint">سنستخدم هذا البريد لإرسال مستحقاتك عبر PayPal.</span>
               }
@@ -400,7 +400,7 @@
           <div class="doc-header">
             <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-id-card"></use></svg></div>
             <div class="doc-info">
-              <div class="doc-name">هوية وطنية، الوجه <span class="doc-required">إلزامي</span></div>
+              <div class="doc-name">هوية وطنية، الوجه @if (!kycPending() && !kycVerified()) {<span class="ws-req" aria-hidden="true">*</span>} <span class="doc-required">إلزامي</span></div>
               <div class="doc-desc">الوجه الأمامي للهوية الوطنية أو الإقامة، JPG/PNG/PDF حد أقصى 10MB</div>
             </div>
             <span class="ai-status-badge" [class.pending]="!getUploadState('frontId')" [class.scanning]="getUploadState('frontId')?.status === 'uploading'" [class.verified]="getUploadState('frontId')?.status === 'uploaded'" [class.rejected]="getUploadState('frontId')?.status === 'error'" aria-live="polite">
@@ -658,7 +658,7 @@
         </div>
 
         @if (docFileErrors().length) {
-        <div role="alert" data-testid="doc-file-errors" class="f-hint" style="color:#ff8c69;font-weight:700;margin-bottom:10px">
+        <div role="alert" data-testid="doc-file-errors" class="form-error" style="margin-bottom:10px">
           @for (m of docFileErrors(); track m) { <div>{{ m }}</div> }
         </div>
         }
@@ -706,7 +706,7 @@
                       <div class="pw-col pw-col-review">
                         <div class="pw-col-hd">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
-                          <span class="pw-col-ttl">نموذج العمل · للسوق العام</span>
+                          <span class="pw-col-ttl">نموذج العمل · للسوق العام <span class="ws-req" aria-hidden="true">*</span></span>
                         </div>
 
                         @if (item.review) {
@@ -780,7 +780,7 @@
         </div>
 
         @if (portfolioFileErrors().length) {
-        <div role="alert" data-testid="portfolio-file-errors" class="f-hint" style="color:#ff8c69;font-weight:700;margin-bottom:10px">
+        <div role="alert" data-testid="portfolio-file-errors" class="form-error" style="margin-bottom:10px">
           @for (m of portfolioFileErrors(); track m) { <div>{{ m }}</div> }
         </div>
         }
@@ -805,7 +805,7 @@
         </div>
         <div class="ack-row">
           <input type="checkbox" class="ack-chk" id="ack-final" formControlName="ackFinal" aria-required="true">
-          <label class="ack-txt" for="ack-final">أقر بصحة جميع البيانات والنماذج المرفوعة وأوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="ack-lnk">شروط الاستخدام</a></label>
+          <label class="ack-txt" for="ack-final"><span class="ws-req" aria-hidden="true">*</span> أقر بصحة جميع البيانات والنماذج المرفوعة وأوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="ack-lnk">شروط الاستخدام</a></label>
         
           <ws-field-error [control]="setupForm.get('agreements.ackFinal')" [messages]="{ required: 'يجب الموافقة على الإقرار والشروط لإرسال بياناتك' }" /></div>
         <div style="padding:14px 16px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.22);border-radius:12px;margin-bottom:16px">
@@ -830,7 +830,7 @@
           <ws-paypal-email-confirm [email]="pending" [mode]="paypalConfirmMode()" [accountEmailHint]="paypalAccountEmailHint()" (confirmed)="pendingPaypalEmail.set(null)" (dismissed)="pendingPaypalEmail.set(null)" />
         }
 
-        @if (paypalSendError()) { <div role="alert" data-testid="paypal-send-error" class="f-hint" style="color:#f87171">{{ paypalSendError() }}</div> }
+        @if (paypalSendError()) { <div role="alert" data-testid="paypal-send-error" class="inline-error">{{ paypalSendError() }}</div> }
 
         @if (!isTestStarted()) {
           <div class="test-intro">

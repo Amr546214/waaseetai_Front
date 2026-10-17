@@ -22,7 +22,7 @@ app-login .auth-sub{font-size:13px;color:var(--txt-2);text-align:center;margin-b
 app-login .ai-auth-badge{display:flex;align-items:center;gap:7px;padding:7px 14px;background:rgba(123,47,190,.07);border:1px solid rgba(123,47,190,.22);border-radius:50px;font-size:12px;font-weight:700;color:#7B2FBE;margin-bottom:18px;width:fit-content;margin-inline:auto}
 app-login .auth-banner{border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.65}
 app-login .auth-banner[hidden]{display:none}
-app-login .banner-error{background:rgba(43,127,255,.09);border:1px solid rgba(43,127,255,.22);color:var(--blue)}
+app-login .banner-error{background:color-mix(in srgb,var(--red) 9%,transparent);border:1px solid color-mix(in srgb,var(--red) 30%,transparent);color:var(--red)}
 app-login .banner-success{background:rgba(15,179,163,.10);border:1px solid rgba(15,179,163,.24);color:#0FA99A}
 app-login .banner-info{background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.18);color:var(--blue)}
 app-login .field-grp{margin-bottom:15px}
@@ -30,12 +30,12 @@ app-login .field-lbl{display:block;font-size:13px;font-weight:700;color:var(--tx
 app-login .field-in{width:100%;padding:12px 14px;background:var(--out-bg);border:1px solid var(--out-bd);border-radius:var(--radius-sm);color:var(--txt);font-family:inherit;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box}
 app-login .field-in:focus{border-color:rgba(43,212,199,.35);box-shadow:0 0 0 3px rgba(43,212,199,.08)}
 app-login .field-in::placeholder{color:var(--txt-3)}
-app-login .field-in.has-error{border-color:rgba(43,127,255,.45)}
+app-login .field-in.has-error{border-color:color-mix(in srgb,var(--red) 70%,transparent)}
 app-login .pw-wrap{position:relative}
 app-login .pw-wrap .field-in{padding-inline-start:42px}
 app-login .pw-eye{position:absolute;inset-inline-start:12px;top:50%;transform:translateY(-50%);color:var(--txt-3);cursor:pointer;background:none;border:none;padding:4px;display:flex;align-items:center;line-height:0;transition:color .2s}
 app-login .pw-eye:hover{color:var(--teal)}
-app-login .field-err{font-size:12px;color:var(--blue);margin-top:5px;display:flex;align-items:center;gap:5px}
+app-login .field-err{font-size:12px;color:var(--red);margin-top:5px;display:flex;align-items:center;gap:5px}
 app-login .field-err[hidden]{display:none}
 app-login .remember-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
 app-login .chk-lbl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-2);cursor:pointer;line-height:1.4}
@@ -86,4 +86,4 @@ app-login .social-note{margin:-12px 0 14px;padding:9px 12px;border-radius:10px;b
 app-login .google-btn-wrapper{position:relative;width:100%;overflow:hidden}
 app-login .google-btn-wrapper asl-google-signin-button{position:absolute !important;top:0;left:0;width:100% !important;height:100% !important;opacity:0 !important;cursor:pointer !important;z-index:10 !important}
 app-login .google-btn-wrapper asl-google-signin-button > div[role="button"]{width:100% !important;height:100% !important}
-app-login .req{color:#f59e0b;margin-inline-start:2px}
+app-login .req{color:var(--red);margin-inline-start:2px}

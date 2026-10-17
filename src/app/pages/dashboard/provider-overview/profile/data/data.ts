@@ -839,7 +839,14 @@ export class Data implements OnInit {
   }
 
   saveDocs() {
-    if (this.isSaving() || this.docsUploading()) return;
+    if (this.isSaving()) return;
+    // The proof is mandatory and must be FULLY uploaded: a file still uploading or a failed upload is not a document (nothing is sent).
+    if (this.docsUploading()) { this.ui.toast('warning', 'انتظر اكتمال رفع الملف قبل إرسال الطلب'); return; }
+    if (Object.values(this.documentUploads()).some(d => d.status === 'error')) {
+      this.setDocFileError('idDocumentUrl', 'فشل رفع المستند؛ أعد رفعه ثم أرسل الطلب');
+      this.focusField('idDocumentUrl');
+      return;
+    }
     // one request waiting for the admin is enough: no second one is created
     if (this.identityPending()) { this.ui.info('طلب التحقق من الهوية قيد مراجعة الإدارة بالفعل'); return; }
     const attempt = attemptSubmit(this.docsForm, { root: this.panel('docs'), labels: DOCS_LABELS });

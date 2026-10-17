@@ -119,15 +119,15 @@
     @if (newTicketFormVisible()) {
       <div style="padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:14px">
         <div style="margin-bottom:10px">
-          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">الموضوع</label>
-          <input type="text" id="marketer-ticket-subject" name="subject" autocomplete="off" [ngModel]="ticketSubject()" (ngModelChange)="ticketSubject.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px">
+          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">الموضوع<span class="ws-req" aria-hidden="true">*</span></label>
+          <input type="text" id="marketer-ticket-subject" aria-required="true" name="subject" autocomplete="off" [ngModel]="ticketSubject()" (ngModelChange)="ticketSubject.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px">
         </div>
         <div style="margin-bottom:10px">
-          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">وصف المشكلة</label>
-          <textarea rows="4" id="marketer-ticket-description" name="description" [ngModel]="ticketDescription()" (ngModelChange)="ticketDescription.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px;resize:vertical"></textarea>
+          <label style="display:block;font-size:11.5px;font-weight:700;margin-bottom:4px" class="txt-muted">وصف المشكلة<span class="ws-req" aria-hidden="true">*</span></label>
+          <textarea rows="4" id="marketer-ticket-description" aria-required="true" name="description" [ngModel]="ticketDescription()" (ngModelChange)="ticketDescription.set($event)" style="width:100%;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:13px;resize:vertical"></textarea>
         </div>
         @if (ticketCreateError()) {
-          <div style="color:#FF8C69;font-size:11.5px;font-weight:700;margin-bottom:10px" role="alert" data-testid="ticket-form-error">{{ ticketCreateError() }}</div>
+          <div class="form-error" role="alert" data-testid="ticket-form-error">{{ ticketCreateError() }}</div>
         }
         <button type="button" class="btn-primary" [disabled]="isCreatingTicket()" (click)="submitTicket()">{{ isCreatingTicket() ? 'جارٍ الإرسال...' : 'إرسال التذكرة' }}</button>
       </div>

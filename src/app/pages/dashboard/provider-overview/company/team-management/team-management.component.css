@@ -72,7 +72,7 @@ img.mem-av { object-fit: cover; }
 .mem-contact { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 6px; font-size: 11.5px; color: var(--txt-2, #A8B2D1); min-width: 0; }
 .mem-contact span[dir="ltr"] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mem-btn:disabled { opacity: .5; cursor: not-allowed; }
-.mem-btn-danger { background: rgba(224, 91, 107, .08); border-color: rgba(224, 91, 107, .28); color: #E05B6B; }
+.mem-btn-danger { background: rgba(224, 91, 107, .08); border-color: rgba(224, 91, 107, .28); color: var(--red); }
 .mem-btn-danger:hover { background: rgba(224, 91, 107, .16); }
 .retry-btn { flex: none; margin-top: 10px; }
 
@@ -82,7 +82,7 @@ img.mem-av { object-fit: cover; }
 .fld { display: flex; flex-direction: column; gap: 5px; font-size: 11.5px; font-weight: 700; color: var(--txt-2, #A8B2D1); }
 .fld input, .fld select { padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .12); background: rgba(255, 255, 255, .04); color: #fff; font-family: inherit; font-size: 13px; }
 .fld select option { color: #0F172A; }
-.form-err { margin-top: 10px; font-size: 12px; color: #E05B6B; }
+.form-err { margin-top: 10px; font-size: 12px; color: var(--red); }
 .add-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
 .add-actions .mem-btn { flex: none; padding: 8px 22px; }
 

@@ -165,8 +165,8 @@ describe('Register (shared validation)', () => {
 
 	it('the consent checkboxes carry a required marker', () => {
 		const { el } = setup(vi.fn());
-		expect(el.querySelector('#terms-chk')!.closest('label')!.querySelector('.field-req')).toBeTruthy();
-		expect(el.querySelector('#chk-accuracy')!.closest('label')!.querySelector('.field-req')).toBeTruthy();
+		expect(el.querySelector('#terms-chk')!.closest('label')!.querySelector('.ws-req')).toBeTruthy();
+		expect(el.querySelector('#chk-accuracy')!.closest('label')!.querySelector('.ws-req')).toBeTruthy();
 	});
 
 	it('password rules match the backend (8+, uppercase, digit) and the message names the missing rule', () => {

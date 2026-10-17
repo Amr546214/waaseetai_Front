@@ -177,8 +177,8 @@
         </button>
       </div>
       <div class="mb-3.5">
-        <label class="block text-[12px] font-bold text-[var(--txt)] mb-1.5">توجيهاتك لـ{{ gt.teamMember?.name }}</label>
-        <textarea id="dispute-guidance" name="dispute-guidance" data-field="dispute-guidance" class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] px-3 py-2.5 text-[12.5px] text-[var(--txt)] resize-y min-h-[80px] leading-relaxed" placeholder="مثال: زوّد الدعم بسجل التسليم الأصلي كدليل إضافي..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
+        <label for="dispute-guidance" class="block text-[12px] font-bold text-[var(--txt)] mb-1.5">توجيهاتك لـ{{ gt.teamMember?.name }} <span class="ws-req" aria-hidden="true">*</span></label>
+        <textarea id="dispute-guidance" aria-required="true" name="dispute-guidance" data-field="dispute-guidance" class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] px-3 py-2.5 text-[12.5px] text-[var(--txt)] resize-y min-h-[80px] leading-relaxed" placeholder="مثال: زوّد الدعم بسجل التسليم الأصلي كدليل إضافي..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
       </div>
       <div class="flex gap-2.5">
         <button type="button" class="flex-1 py-2.5 rounded-[8px] text-[12.5px] font-black bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt)]" (click)="closeGuidance()">إلغاء</button>

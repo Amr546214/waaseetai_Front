@@ -188,7 +188,7 @@
             </div>
             @if (!newsletterSubscribed()) {
               <div class="nl-desc">مقال مفيد كل أسبوع</div>
-              <input type="email" id="nl-email" name="newsletter-email" class="nl-input" placeholder="بريدك الإلكتروني" aria-label="بريدك الإلكتروني" [(ngModel)]="newsletterEmail" (ngModelChange)="newsletterFieldInvalid.set(false)" (keyup.enter)="subscribeNewsletter()" [class.ws-invalid]="newsletterFieldInvalid()" [attr.aria-invalid]="newsletterFieldInvalid() ? 'true' : null" [attr.aria-describedby]="newsletterError() ? 'nl-err' : null">
+              <input type="email" id="nl-email" name="newsletter-email" aria-required="true" class="nl-input" placeholder="بريدك الإلكتروني" aria-label="بريدك الإلكتروني" [(ngModel)]="newsletterEmail" (ngModelChange)="newsletterFieldInvalid.set(false)" (keyup.enter)="subscribeNewsletter()" [class.ws-invalid]="newsletterFieldInvalid()" [attr.aria-invalid]="newsletterFieldInvalid() ? 'true' : null" [attr.aria-describedby]="newsletterError() ? 'nl-err' : null">
               @if (newsletterError()) {
                 <div class="nl-error" id="nl-err" role="alert">{{ newsletterError() }}</div>
               }

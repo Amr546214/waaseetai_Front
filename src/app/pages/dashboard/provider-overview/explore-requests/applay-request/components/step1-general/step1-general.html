@@ -23,15 +23,15 @@
 
     <div class="mb-[18px] last:mb-0 field">
       <div class="flex items-center justify-between gap-2 mb-[7px] field-header">
-        <label class="text-[12.5px] font-bold text-[#A8B2D1] field-label" for="f-title">عنوان عرضك <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
+        <label class="text-[12.5px] font-bold text-[#A8B2D1] field-label" for="f-title">عنوان عرضك <span class="ws-req" aria-hidden="true">*</span></label>
         <span id="title-count" class="text-[11px] text-[#6B7699] field-count">{{ titleLength }} / 80</span>
       </div>
       <input type="text" class="w-full py-[11px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] field-input"
         [class.!border-[rgba(255,80,80,.45)]]="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
         id="f-title" placeholder="مثال: خبرة 5 سنوات في تصميم الهوية مع تسليم في أقل من الوقت المحدد..." maxlength="80" minlength="3" autocomplete="off"
-        [ngModel]="proposal.title" (ngModelChange)="updateTitle.emit($event)" name="title" #titleModel="ngModel" required>
+        [ngModel]="proposal.title" (ngModelChange)="updateTitle.emit($event)" name="title" #titleModel="ngModel" required aria-required="true" [attr.aria-invalid]="titleModel.invalid && (titleModel.dirty || titleModel.touched) ? 'true' : null" [attr.aria-describedby]="titleModel.invalid && (titleModel.dirty || titleModel.touched) ? 'f-title-err' : null">
 
-      <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px] field-err-msg" *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)">
+      <div id="f-title-err" role="alert" class="flex items-center gap-[5px] text-xs mt-[5px] field-err-msg field-err" *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)">
         <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-warn"></use></svg>
         <span *ngIf="titleModel.errors?.['required']">هذا الحقل مطلوب، يرجى كتابة عنوان لعرضك</span>
         <span *ngIf="titleModel.errors?.['minlength']">العنوان يجب أن يكون 3 أحرف على الأقل</span>
@@ -40,7 +40,7 @@
 
     <div class="mb-[18px] last:mb-0 field">
       <div class="flex items-center  justify-between gap-2 mb-[7px] field-header">
-        <label class="text-[12.5px] font-bold text-[#A8B2D1] field-label" for="f-desc">رسالة عرضك <span class="text-[#2BD4C7] text-[10px] font-extrabold ms-1 field-req" title="إلزامي">*</span></label>
+        <label class="text-[12.5px] font-bold text-[#A8B2D1] field-label" for="f-desc">رسالة عرضك <span class="ws-req" aria-hidden="true">*</span></label>
         <button type="button" [disabled]="isFetchingAiSuggest" title="يعيد صياغة عنوان العرض ورسالته من النص الذي كتبته فقط؛ لا يستخدم ميزانية المشروع ولا يحدد سعرًا عادلًا" class="inline-flex items-center justify-center gap-[5px] py-[5px] px-[11px] whitespace-nowrap bg-[rgba(123,47,190,.10)] border border-[rgba(123,47,190,.22)] rounded-lg text-xs font-bold text-[#A56BE0] cursor-pointer transition-all duration-150 hover:bg-[rgba(123,47,190,.18)] ai-suggest-btn disabled:opacity-50 disabled:cursor-not-allowed" (click)="useAISuggest.emit()">
           <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg>
           <span>{{ isFetchingAiSuggest ? 'جاري الصياغة...' : 'اقتراح AI' }}</span>
@@ -49,7 +49,7 @@
       <textarea class="w-full py-[12px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 resize-y leading-relaxed min-h-[120px] focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] field-textarea"
         [class.!border-[rgba(255,80,80,.45)]]="messageModel.invalid && (messageModel.dirty || messageModel.touched)"
         id="f-desc" placeholder="صف خبرتك في هذا المجال، لماذا أنت الأنسب، أسلوب عملك، وأي معلومات تريد طالب الخدمة معرفتها... تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" minlength="30" rows="6"
-        [ngModel]="proposal.message" (ngModelChange)="updateMessage.emit($event)" name="message" #messageModel="ngModel" required></textarea>
+        [ngModel]="proposal.message" (ngModelChange)="updateMessage.emit($event)" name="message" #messageModel="ngModel" required aria-required="true" [attr.aria-invalid]="messageModel.invalid && (messageModel.dirty || messageModel.touched) ? 'true' : null" [attr.aria-describedby]="messageModel.invalid && (messageModel.dirty || messageModel.touched) ? 'f-desc-err' : null"></textarea>
 
       <div class="flex justify-between items-center mt-[6px] field-counter">
         <span id="desc-count" class="text-[11px] text-[#6B7699] field-count" [class.!text-\[\#D98A0B\]]="messageLength > 1800">{{ messageLength }} / 2000</span>
@@ -59,7 +59,7 @@
       </div>
 
 
-      <div class="flex items-center gap-[5px] text-xs text-[#FF8080] mt-[5px] field-err-msg" *ngIf="messageModel.invalid && (messageModel.dirty || messageModel.touched)">
+      <div id="f-desc-err" role="alert" class="flex items-center gap-[5px] text-xs mt-[5px] field-err-msg field-err" *ngIf="messageModel.invalid && (messageModel.dirty || messageModel.touched)">
         <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-warn"></use></svg>
         <span *ngIf="messageModel.errors?.['required']">هذا الحقل مطلوب، يرجى كتابة تفاصيل عرضك</span>
         <span *ngIf="messageModel.errors?.['minlength']">الوصف يجب أن يكون 30 حرف على الأقل</span>

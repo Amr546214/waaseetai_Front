@@ -115,7 +115,7 @@
           <div><div class="form-card-title">بريد PayPal</div><div class="form-card-sub">يُستخدم PayPal فقط للمدفوعات على المنصة، وإليه تُحوَّل أرباحك عند السحب</div></div>
         </div>
         <div class="form-grid form-col2">
-          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="ps-paypal">بريد PayPal<span class="req">*</span></label><input type="email" id="ps-paypal" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com" dir="ltr" inputmode="email" autocomplete="email" spellcheck="false" aria-required="true">
+          <div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="ps-paypal">بريد PayPal<span class="ws-req" aria-hidden="true">*</span></label><input type="email" id="ps-paypal" class="inp-field" formControlName="paypalPayoutEmail" placeholder="name@example.com" dir="ltr" inputmode="email" autocomplete="email" spellcheck="false" aria-required="true">
             <ws-field-error [control]="paypalForm.get('paypalPayoutEmail')" label="بريد PayPal" [messages]="{ required: 'بريد PayPal مطلوب', email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" /></div>
         </div>
       </div>

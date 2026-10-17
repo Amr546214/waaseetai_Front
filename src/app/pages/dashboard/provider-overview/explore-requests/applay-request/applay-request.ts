@@ -461,6 +461,8 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		if (!isValid) {
 			if (this.activeStep() === 2 && this.totalPct() !== 100) {
 				this.notify.warning(`إجمالي نسب دفعات المراحل يجب أن يساوي 100% (المجموع الحالي: ${this.totalPct()}%)`);
+			} else if (this.activeStep() === 2) {
+				this.notify.warning('يرجى تحديد السعر والمدة المطلوبة لكل مرحلة');
 			}
 			return;
 		}

@@ -173,6 +173,38 @@ describe('FormA11ySyncService', () => {
 	});
 });
 
+describe('FormA11ySyncService: every error text of every form (C4)', () => {
+	it('a hand-validated field (no ng-invalid class) with a visible .field-error / .f-err / .field-err gets aria-invalid + aria-describedby, and the text gets role=alert', () => {
+		const svc = new FormA11ySyncService();
+		host.innerHTML = `<div><label for="p">السعر</label><input id="p"><div class="field-error">أدخل السعر</div></div>
+			<div><input id="d"><span class="f-err">أدخل المدة</span></div>
+			<div><input id="ok"></div>`;
+		svc.sync(document);
+		for (const [id, cls] of [['p', '.field-error'], ['d', '.f-err']] as const) {
+			const input = host.querySelector<HTMLInputElement>('#' + id)!;
+			const msg = host.querySelector<HTMLElement>(cls)!;
+			expect(msg.getAttribute('role')).toBe('alert');
+			expect(input.getAttribute('aria-invalid')).toBe('true');
+			expect(input.getAttribute('aria-describedby')).toBe(msg.id);
+		}
+		expect(host.querySelector('#ok')!.getAttribute('aria-invalid')).toBeNull();
+		// the error goes away -> the control is released
+		host.querySelector('.field-error')!.remove();
+		svc.sync(document);
+		expect(host.querySelector('#p')!.getAttribute('aria-invalid')).toBeNull();
+		expect(host.querySelector('#p')!.getAttribute('aria-describedby')).toBeNull();
+	});
+
+	it('a form-level banner (.form-error) is announced but never marks an unrelated control', () => {
+		const svc = new FormA11ySyncService();
+		host.innerHTML = `<form><input id="a"><input id="b"><div class="form-error">تعذر الإرسال</div></form>`;
+		svc.sync(document);
+		expect(host.querySelector('.form-error')!.getAttribute('role')).toBe('alert');
+		expect(host.querySelector('#a')!.getAttribute('aria-invalid')).toBeNull();
+		expect(host.querySelector('#b')!.getAttribute('aria-invalid')).toBeNull();
+	});
+});
+
 describe('markInvalid', () => {
 	it('is idempotent (re-marking replaces the message)', () => {
 		const el = host.querySelector<HTMLElement>('#name')!;

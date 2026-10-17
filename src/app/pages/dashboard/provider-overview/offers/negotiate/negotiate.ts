@@ -67,6 +67,7 @@ export class OfferNegotiate implements OnInit {
 	counterNote = signal<string>('');
 	counterSaving = signal<boolean>(false);
 	counterError = signal<string>('');
+	counterTouched = signal<boolean>(false);
 	counterSuccess = signal<boolean>(false);
 
 	// reject / withdraw (two steps: the button, then an explicit confirmation)
@@ -193,13 +194,13 @@ export class OfferNegotiate implements OnInit {
 	}
 
 	// ---- counter offer ----
-	private counterPriceValue(): number | null {
+	counterPriceValue(): number | null {
 		const raw = this.counterPrice().trim();
 		if (!/^\d+(\.\d{1,2})?$/.test(raw)) return null;
 		const n = Number(raw);
 		return n > 0 && n <= 10_000_000 ? n : null;
 	}
-	private counterDaysValue(): number | null {
+	counterDaysValue(): number | null {
 		const raw = this.counterDays().trim();
 		if (!/^\d+$/.test(raw)) return null;
 		const n = Number(raw);
@@ -213,6 +214,11 @@ export class OfferNegotiate implements OnInit {
 		if (this.counterDaysValue() === null) return 'أدخل مدة تنفيذ صحيحة بالأيام';
 		if (this.counterNote().length > 500) return 'الملاحظة طويلة جدًا (الحد الأقصى 500 حرف)';
 		return null;
+	}
+
+	/** Shown once the provider has left a counter field: price and duration are both required. */
+	counterFieldsMissing(): boolean {
+		return this.counterTouched() && (this.counterPriceValue() === null || this.counterDaysValue() === null);
 	}
 
 	onCounterInput(field: 'price' | 'days' | 'note', event: Event) {

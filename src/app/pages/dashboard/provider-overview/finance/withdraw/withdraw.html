@@ -114,7 +114,7 @@
       <div class="wd-banner wd-banner-err">
         <div class="wd-banner-body">
           <div class="wd-banner-ttl">تعذر إرسال الطلب</div>
-          <p class="wd-banner-txt" role="alert" data-testid="wd-submit-error">{{ submitError() }}</p>
+          <p class="wd-banner-txt banner-error" role="alert" data-testid="wd-submit-error">{{ submitError() }}</p>
           @if (submitErrorHint()) { <p class="wd-banner-txt" data-testid="wd-submit-error-hint">{{ submitErrorHint() }}</p> }
         </div>
       </div>
@@ -123,9 +123,9 @@
     <div class="wd-form-grid">
       <!-- Amount -->
       <div class="wd-field">
-        <label class="wd-lbl" for="wdAmt">المبلغ ({{ currency() }}) <span class="wd-req">*</span></label>
+        <label class="wd-lbl" for="wdAmt">المبلغ ({{ currency() }}) <span class="ws-req" aria-hidden="true">*</span></label>
         <div class="wd-amt-wrap">
-          <input id="wdAmt" name="amount" data-field="amount" type="text" inputmode="decimal" placeholder="أدخل المبلغ بالدولار"
+          <input id="wdAmt" aria-required="true" name="amount" data-field="amount" type="text" inputmode="decimal" placeholder="أدخل المبلغ بالدولار"
             [attr.aria-invalid]="formErrors()['amount'] ? 'true' : null"
             [attr.aria-describedby]="formErrors()['amount'] ? 'wdAmt-err' : 'wdAmt-hint'"
             [value]="amount() == null ? '' : amount()"

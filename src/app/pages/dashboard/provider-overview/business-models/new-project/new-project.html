@@ -99,7 +99,7 @@
 
 		<!-- ==================== STEP 2: التخصص ==================== -->
 		<ng-container *ngSwitchCase="2">
-			@if (specialtyError()) { <p role="alert" data-testid="specialty-error" style="color:#ff8c69;font-weight:700;font-size:13px;margin-bottom:12px">{{ specialtyError() }}</p> }
+			@if (specialtyError()) { <p role="alert" data-testid="specialty-error" class="inline-error" style="margin-bottom:12px">{{ specialtyError() }}</p> }
 			<app-step2-specialty [isLoadingSpecialties]="isLoadingSpecialties()" [passedCategories]="passedCategories()" [registered]="registeredSpecialties()"
 				[selectedSpecialty]="selectedSpecialty()" [selectedMainSpecialtyObj]="selectedMainSpecialtyObj()"
 				[selectedSubSpecialty]="selectedSubSpecialty()" [skillOptions]="skillOptions()" [selectedSkills]="selectedSkills()" [skillsLoading]="skillsLoading()" [skillsError]="skillsError()" (onSkillsChange)="onSkillsChange($event)"

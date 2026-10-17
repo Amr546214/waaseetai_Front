@@ -9,13 +9,13 @@
 			</span>
 			<div>
 				<h3>قيّم العميل</h3>
-				<p>شارك تجربتك في التعامل مع العميل</p>
+				<p>شارك تجربتك في التعامل مع العميل — التقييم بالنجوم مطلوب <span class="ws-req" aria-hidden="true">*</span></p>
 				@if (clientName) { <span class="pr-client-name">{{ clientName }}</span> }
 			</div>
 			<button type="button" class="pr-close" (click)="closeModal()" aria-label="إغلاق">×</button>
 		</div>
 
-		<div class="pr-stars-row">
+		<div class="pr-stars-row" role="radiogroup" aria-required="true" aria-label="التقييم بالنجوم" [attr.aria-invalid]="error() ? 'true' : null" [attr.aria-describedby]="error() ? 'pr-error' : null">
 			@for (star of stars; track star) {
 				<button
 					type="button"
@@ -38,7 +38,7 @@
 		}
 
 		@if (error()) {
-			<div class="pr-error" role="alert">{{ error() }}</div>
+			<div id="pr-error" class="inline-error" style="margin-bottom:12px" role="alert">{{ error() }}</div>
 		}
 
 		<div class="pr-fld">
