@@ -1,6 +1,6 @@
 import { ApiResponse } from './api.model';
 
-export type AccreditationStatus = 'PENDING_AI_AUDIT' | 'AI_VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW';
+export type AccreditationStatus = 'PENDING_AI_AUDIT' | 'AI_VERIFIED' | 'REJECTED' | 'MANUAL_REVIEW' | 'NEEDS_COMPLETION';
 
 export interface AccreditationProviderUser {
   id: string;
@@ -57,6 +57,28 @@ export interface AssessmentReviewInfo {
   review: AssessmentReviewData | null;
 }
 
+/**
+ * One proof of an accreditation sample as the ADMIN detail returns it (`proofs`), covering both storage shapes:
+ *  - UPLOAD          a proof upload row (private file): open it through POST /kyc-documents/access-link {document:'accreditation_upload', id}
+ *  - LEGACY_PRIVATE  a private reference kept in the sample's own `attachments`: access-link {document:'accreditation_sample_attachment', id: sampleId, index}
+ *  - LEGACY_URL      an old public http(s) link (`url`)
+ *  - LEGACY_INLINE   anything else found in `attachments` (inline data, bare file name): named only, cannot be opened
+ * `available` is the backend's storage check: true = exists, false = the file is MISSING from storage, null = unknown / not applicable.
+ */
+export type AdminProofSource = 'UPLOAD' | 'LEGACY_PRIVATE' | 'LEGACY_URL' | 'LEGACY_INLINE';
+export interface AdminProofItem {
+  key: string;
+  source: AdminProofSource;
+  id: string | null;
+  fileName: string;
+  mimeType: string | null;
+  bytes: number | null;
+  createdAt: string | null;
+  url: string | null;
+  access: { document: 'accreditation_upload'; id: string } | { document: 'accreditation_sample_attachment'; id: string; index: number } | null;
+  available: boolean | null;
+}
+
 export interface AccreditationSample {
   id: string;
   providerProfileId: string;
@@ -66,7 +88,15 @@ export interface AccreditationSample {
   projectUrl?: string | null;
   githubUrl?: string | null;
   technologiesUsed: string[];
-  attachments: string[];
+  /** Legacy public links only (admin detail). Older responses may still carry null entries: never rely on it directly, use `proofs` / normalizeProofs(). */
+  attachments: (string | null)[];
+  /** Admin detail: the documented proof list (both shapes). */
+  proofs?: AdminProofItem[];
+  /** Admin detail: completed proof upload rows (public shape: no private reference). */
+  proofUploads?: { id: string; fileName: string; mimeType?: string | null; bytes?: number | null; createdAt?: string | null }[];
+  /** The admin note addressed to the provider (the rejection reason / completion note). */
+  userNote?: string | null;
+  decidedAt?: string | null;
   status: AccreditationStatus;
   // Real AI fields returned by the backend (accreditation-ai.service.ts).
   // Do not add overallAiScore/aiDecisionSummary/aiAuthenticityScore/

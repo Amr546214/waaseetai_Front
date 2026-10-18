@@ -1,15 +1,16 @@
-import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { handleAdminError, reportAdminProblems } from '../../shared/admin-form-report';
 import { AccreditationApiService } from '../../../../../core/services/accreditation-api.service';
-import { AccreditationSample, AssessmentFlagCode, AssessmentReviewData } from '../../../../../core/models/accreditation.model';
-import { providerProfileLink, sampleStatusClass, sampleStatusLabel } from '../accreditation-status';
+import { AccreditationSample, AdminProofItem, AssessmentFlagCode, AssessmentReviewData } from '../../../../../core/models/accreditation.model';
+import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
+import { normalizeProofs, proofFileName, providerProfileLink, sampleStatusClass, sampleStatusLabel, splitAdminDecision } from '../accreditation-status';
 
 @Component({
   selector: 'app-sa-accreditation-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, KycDocumentLink],
   templateUrl: './sa-accreditation-detail.html',
   styleUrls: ['../sa-accreditations.css', './sa-accreditation-detail.css'],
 })
@@ -30,6 +31,12 @@ export class SaAccreditationDetail implements OnInit {
   actionError = signal('');
   actionSuccess = signal('');
 
+  /**
+   * A decision (approve / reject) went through. From then on the decision buttons stay gone/disabled until the page is loaded again, so the same
+   * request can never be decided twice from this screen.
+   */
+  decisionDone = signal(false);
+
   /** Confirmation step before the approval is sent (approve is irreversible: it grants the specialty badge). */
   showApproveConfirm = signal(false);
 
@@ -47,6 +54,13 @@ export class SaAccreditationDetail implements OnInit {
   readonly statusLabel = sampleStatusLabel;
   readonly statusClass = sampleStatusClass;
   readonly profileLink = providerProfileLink;
+
+  /** The proofs to show (both shapes, never a null entry). */
+  readonly proofs = computed<AdminProofItem[]>(() => normalizeProofs(this.selected()));
+  /** The AI evaluation text WITHOUT the admin rejection reason, and that reason on its own. */
+  readonly decisionParts = computed(() => { const d = this.selected(); return d ? splitAdminDecision(d) : { aiText: '', reason: '' }; });
+  /** Shown as the proof's open access marker for the shared document-link component (the backend already decided it is private). */
+  readonly privateAccess = { private: true, legacy: false };
 
   /** Plain Arabic text for each advisory mark. The thresholds shown come from the review itself (they are configurable on the server). */
   flagText(code: AssessmentFlagCode, review: AssessmentReviewData): string {
@@ -81,6 +95,7 @@ export class SaAccreditationDetail implements OnInit {
     this.actionSuccess.set('');
     this.showRejectForm.set(false);
     this.showApproveConfirm.set(false);
+    this.decisionDone.set(false);
     this.accreditationApi.getAdminSample(id).subscribe({
       next: (res) => {
         this.loading.set(false);
@@ -115,11 +130,45 @@ export class SaAccreditationDetail implements OnInit {
   // condition is whether the linked ProviderSpecialty has actually been
   // approved (by a prior explicit admin action), not the sample's own label.
   canApprove(sample: AccreditationSample): boolean {
-    return sample.providerSpecialty?.status !== 'APPROVED';
+    return !this.decisionDone() && sample.providerSpecialty?.status !== 'APPROVED';
   }
 
   canReject(sample: AccreditationSample): boolean {
-    return sample.status !== 'REJECTED';
+    return !this.decisionDone() && sample.status !== 'REJECTED';
+  }
+
+  /**
+   * After a successful decision the page must show the SERVER state (pill, banner, available actions). The decision response is the bare sample row
+   * (no specialty, no history), so it is applied only for the fields it really carries, the linked specialty is moved the way the backend moved it, and
+   * the full record is then re-read in the background (the banner stays). A failed re-read keeps what was applied.
+   */
+  private applyDecision(kind: 'APPROVED' | 'REJECTED', data: Partial<AccreditationSample> | null | undefined): void {
+    this.decisionDone.set(true);
+    this.selected.update((cur) => {
+      if (!cur) return cur;
+      const next: AccreditationSample = { ...cur };
+      if (data) {
+        if (data.status) next.status = data.status;
+        if (data.decidedAt !== undefined) next.decidedAt = data.decidedAt;
+        if (data.userNote !== undefined) next.userNote = data.userNote;
+        if (data.aiFeedbackAr !== undefined) next.aiFeedbackAr = data.aiFeedbackAr;
+        if (data.aiAuditedAt !== undefined) next.aiAuditedAt = data.aiAuditedAt;
+      }
+      if (kind === 'APPROVED') {
+        next.status = 'AI_VERIFIED';
+        next.providerSpecialty = { ...(cur.providerSpecialty ?? { id: cur.providerSpecialtyId }), status: 'APPROVED', isPassed: true };
+      } else {
+        next.status = 'REJECTED';
+        if (cur.providerSpecialty && cur.providerSpecialty.status !== 'APPROVED') next.providerSpecialty = { ...cur.providerSpecialty, status: 'REJECTED' };
+      }
+      return next;
+    });
+    const id = this.selected()?.id;
+    if (!id) return;
+    this.accreditationApi.getAdminSample(id).subscribe({
+      next: (res) => { if (res.success && res.data) this.selected.set(res.data); },
+      error: () => { /* keep the state applied above */ },
+    });
   }
 
   openApproveConfirm() {
@@ -135,7 +184,7 @@ export class SaAccreditationDetail implements OnInit {
 
   submitApprove() {
     const sample = this.selected();
-    if (!sample || this.submittingAction()) return;
+    if (!sample || this.submittingAction() || this.decisionDone()) return;
     this.actionError.set('');
     this.submittingAction.set(true);
     this.accreditationApi.approveSample(sample.id).subscribe({
@@ -144,7 +193,7 @@ export class SaAccreditationDetail implements OnInit {
         this.showApproveConfirm.set(false);
         if (res.success) {
           this.actionSuccess.set('تم اعتماد نموذج الاعتماد بنجاح');
-          if (res.data) this.selected.update((cur) => (cur ? { ...cur, ...res.data } : cur));
+          this.applyDecision('APPROVED', res.data);
         } else {
           this.actionError.set(res.message || 'تعذر اعتماد النموذج، حاول مرة أخرى');
         }
@@ -176,7 +225,7 @@ export class SaAccreditationDetail implements OnInit {
 
   submitReject() {
     const sample = this.selected();
-    if (!sample || this.submittingAction()) return;
+    if (!sample || this.submittingAction() || this.decisionDone()) return;
     const reason = this.rejectionReason().trim();
     if (reason.length < 2) {
       this.actionError.set('');
@@ -192,7 +241,7 @@ export class SaAccreditationDetail implements OnInit {
           this.actionSuccess.set('تم رفض نموذج الاعتماد وإشعار مقدم الخدمة بالسبب');
           this.showRejectForm.set(false);
           this.rejectionReason.set('');
-          if (res.data) this.selected.update((cur) => (cur ? { ...cur, ...res.data } : cur));
+          this.applyDecision('REJECTED', res.data);
         } else {
           this.actionError.set(res.message || 'تعذر رفض النموذج، حاول مرة أخرى');
         }
@@ -230,10 +279,15 @@ export class SaAccreditationDetail implements OnInit {
     return id.length > 8 ? id.slice(0, 8) + '…' : id;
   }
 
-  /** Presence facts read straight from the sample (nothing is checked or simulated here). */
-  attachmentName(url: string, index: number): string {
-    const raw = url.split('/').pop() || `مرفق-${index + 1}`;
-    try { return decodeURIComponent(raw.split('?')[0]); } catch { return raw.split('?')[0]; }
+  /** Display name of a stored attachment value. Null-safe: a bad value gives a generic name instead of an exception. */
+  attachmentName(value: unknown, index: number): string {
+    return proofFileName(value, index);
+  }
+
+  /** Short Arabic file-size text, '' when unknown. */
+  sizeText(bytes: number | null | undefined): string {
+    if (typeof bytes !== 'number' || !(bytes > 0)) return '';
+    return bytes >= 1048576 ? `${(bytes / 1048576).toFixed(1)} م.ب` : `${Math.max(1, Math.round(bytes / 1024))} ك.ب`;
   }
 
   /** Only http(s) links are rendered as clickable links. */

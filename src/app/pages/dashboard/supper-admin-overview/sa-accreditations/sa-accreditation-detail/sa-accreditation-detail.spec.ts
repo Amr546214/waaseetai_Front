@@ -292,3 +292,192 @@ describe('SaAccreditationDetail — honesty and confirmation', () => {
 		expect(post).not.toHaveBeenCalled();
 	});
 });
+
+// J1 (D-B1..D-B4): proofs of both shapes, labels that never go blank, the page following the server state after a decision, the admin reason in its own section.
+describe('SaAccreditationDetail — J1 admin review', () => {
+	const upload = { key: 'u:up-1', source: 'UPLOAD', id: 'up-1', fileName: 'design.png', mimeType: 'image/png', bytes: 2048, createdAt: '2026-10-17T10:00:00.000Z', url: null, access: { document: 'accreditation_upload', id: 'up-1' }, available: true };
+	const legacyUrl = { key: 'a:1', source: 'LEGACY_URL', id: null, fileName: 'old.png', mimeType: 'image/png', bytes: null, createdAt: null, url: 'https://res.cloudinary.com/x/old.png', access: null, available: null };
+	const legacyPrivate = { key: 'a:2', source: 'LEGACY_PRIVATE', id: null, fileName: 'p.jpg', mimeType: 'image/jpeg', bytes: null, createdAt: null, url: null, access: { document: 'accreditation_sample_attachment', id: 'sample-1', index: 2 }, available: true };
+	const inline = { key: 'a:3', source: 'LEGACY_INLINE', id: null, fileName: 'مرفق-4', mimeType: null, bytes: null, createdAt: null, url: null, access: null, available: null };
+	const missing = { ...upload, key: 'u:up-2', id: 'up-2', fileName: 'gone.pdf', access: { document: 'accreditation_upload', id: 'up-2' }, available: false };
+
+	/** A fake server: GET returns its current record; approve / reject change it and answer with the bare sample row (like the real backend). */
+	async function boot(initial: Partial<AccreditationSample> = {}, opts: { failDecision?: boolean; failRefetch?: boolean } = {}) {
+		const server: any = makeSample({ providerSpecialty: { id: 'ps-1', status: 'UNDER_AI_REVIEW', specialty: { id: 'sp-1', nameAr: 'برمجة' } } as any, ...initial });
+		let gets = 0;
+		const posts: { url: string; body: any }[] = [];
+		const http = {
+			get: vi.fn(() => { gets++; return gets > 1 && opts.failRefetch ? throwError(() => ({ status: 500 })) : of({ success: true, data: structuredClone(server) }); }),
+			post: vi.fn((url: string, body: any) => {
+				posts.push({ url, body });
+				if (url.includes('/kyc-documents/access-link')) return of({ success: true, data: { url: 'https://signed.example/f', private: true, legacy: false } });
+				if (opts.failDecision) return throwError(() => httpFail(500, { message: 'تعذر التنفيذ' }));
+				if (url.endsWith('/approve')) { server.status = 'AI_VERIFIED'; server.providerSpecialty.status = 'APPROVED'; server.decidedAt = '2026-10-18T10:00:00.000Z'; }
+				if (url.endsWith('/reject')) { server.status = 'REJECTED'; server.userNote = body.rejectionReason; server.decidedAt = '2026-10-18T10:00:00.000Z'; server.aiFeedbackAr = `${server.aiFeedbackAr || ''}\n[مراجعة الإدارة] سبب الرفض: ${body.rejectionReason}`; }
+				const { providerSpecialty: _ps, ...bare } = server;
+				return of({ success: true, data: bare });
+			}),
+		};
+		TestBed.configureTestingModule({ providers: [provideRouter([{ path: 'accreditations/:id', component: SaAccreditationDetail }]), { provide: HttpClient, useValue: http }] });
+		const harness = await RouterTestingHarness.create();
+		const component = await harness.navigateByUrl('/accreditations/sample-1', SaAccreditationDetail);
+		harness.detectChanges();
+		return { harness, component, el: harness.routeNativeElement as HTMLElement, http, posts, server };
+	}
+	const q = (el: HTMLElement, id: string) => el.querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
+	const qa = (el: HTMLElement, id: string) => Array.from(el.querySelectorAll(`[data-testid="${id}"]`)) as HTMLElement[];
+	afterEach(() => { TestBed.resetTestingModule(); vi.restoreAllMocks(); });
+
+	it('D-B1: renders proofs of every shape from the documented `proofs` list, with a real open control per openable proof', async () => {
+		const { el } = await boot({ attachments: ['https://res.cloudinary.com/x/old.png'], proofs: [upload, legacyUrl, legacyPrivate, inline] as any });
+		expect(qa(el, 'proof-row').length).toBe(4);
+		expect(qa(el, 'proof-name').map(n => n.textContent!.trim())).toEqual(['design.png', 'old.png', 'p.jpg', 'مرفق-4']);
+		expect(qa(el, 'proof-open').length).toBe(2);
+		expect(q(el, 'proof-link')!.getAttribute('href')).toBe('https://res.cloudinary.com/x/old.png');
+		expect(q(el, 'proof-noopen')!.textContent).toContain('لا يمكن فتحه');
+		expect(q(el, 'proofs')!.textContent).toContain('(4)');
+		expect(q(el, 'no-proofs')).toBeNull();
+	});
+
+	it('D-B1: the open control asks for a fresh short-lived link (upload and legacy-private keys) and opens it in a new tab', async () => {
+		const { el, harness, posts } = await boot({ proofs: [upload, legacyPrivate] as any });
+		const tab: any = { closed: false, document: { title: '' }, location: { href: '' }, close() {} };
+		const open = vi.spyOn(window, 'open').mockReturnValue(tab);
+		for (const host of qa(el, 'proof-open')) (host.querySelector('button') as HTMLButtonElement).click();
+		harness.detectChanges();
+		const calls = posts.filter(p => p.url.includes('/kyc-documents/access-link')).map(p => p.body);
+		expect(calls).toEqual([{ document: 'accreditation_upload', id: 'up-1' }, { document: 'accreditation_sample_attachment', id: 'sample-1', index: 2 }]);
+		expect(open).toHaveBeenCalledTimes(2);
+		expect(tab.location.href).toBe('https://signed.example/f');
+	});
+
+	it('D-B1: a failed link request shows a clear failure next to the proof, not "no proof"', async () => {
+		const { el, harness, http } = await boot({ proofs: [upload] as any });
+		http.post.mockReturnValueOnce(throwError(() => ({ status: 404 })));
+		vi.spyOn(window, 'open').mockReturnValue({ closed: false, document: {}, location: {}, close() {} } as any);
+		(qa(el, 'proof-open')[0].querySelector('button') as HTMLButtonElement).click();
+		harness.detectChanges();
+		expect(qa(el, 'proof-open')[0].textContent).toContain('لا توجد وثيقة');
+		expect(q(el, 'no-proofs')).toBeNull();
+		expect(qa(el, 'proof-row').length).toBe(1);
+	});
+
+	it('D-B1: a file the storage no longer has shows «الملف غير متاح» (and no open button), still listed as a proof', async () => {
+		const { el } = await boot({ proofs: [missing, upload] as any });
+		const rows = qa(el, 'proof-row');
+		expect(rows.length).toBe(2);
+		expect(rows[0].querySelector('[data-testid="proof-unavailable"]')!.textContent).toContain('الملف غير متاح');
+		expect(rows[0].querySelector('[data-testid="proof-open"]')).toBeNull();
+		expect(rows[1].querySelector('[data-testid="proof-open"]')).not.toBeNull();
+		expect(q(el, 'no-proofs')).toBeNull();
+	});
+
+	it('D-B1: an older server (no `proofs`, attachments:[null] + proofUploads) still renders and can open the upload', async () => {
+		const { el } = await boot({ attachments: [null] as any, proofUploads: [{ id: 'up-1', fileName: 'design.png', mimeType: 'image/png', bytes: 2048 }] } as any);
+		expect(qa(el, 'proof-name').map(n => n.textContent!.trim())).toEqual(['design.png']);
+		expect(qa(el, 'proof-open').length).toBe(1);
+	});
+
+	it('D-B1: null-safety (secondary defence): null / empty / number / data-URI / bare-name attachments never throw and a null is never listed', async () => {
+		const { el, component } = await boot({ attachments: [null, '', 7, 'data:image/png;base64,AAAA', 'bare.pdf', 'https://x.com/a%20b.png'] as any });
+		expect(() => component.attachmentName(null, 0)).not.toThrow();
+		expect(component.attachmentName(null, 0)).toBe('مرفق-1');
+		expect(component.attachmentName('data:image/png;base64,AAAA', 1)).toBe('مرفق-2');
+		expect(qa(el, 'proof-name').map(n => n.textContent!.trim())).toEqual(['مرفق-4', 'bare.pdf', 'a b.png']);
+		expect(el.textContent).not.toContain('base64');
+	});
+
+	it('D-B1: a sample without any proof says so plainly', async () => {
+		const { el } = await boot({ attachments: [], proofs: [] });
+		expect(q(el, 'no-proofs')!.textContent).toContain('لا توجد ملفات إثبات');
+	});
+
+	it('D-B2: with a bad attachment present the decision buttons, templates and success banner still have text (cause was the aborted render)', async () => {
+		const { harness, component, el } = await boot({ attachments: [null] as any });
+		component.openRejectForm(); component.actionSuccess.set('رسالة'); harness.detectChanges();
+		const labels = Array.from(el.querySelectorAll('button')).map(b => b.textContent!.trim());
+		expect(labels.every(Boolean)).toBe(true);
+		expect(labels).toContain('تأكيد الرفض');
+		expect(el.querySelectorAll('.acc-rej-tmpl').length).toBe(5);
+		expect(q(el, 'acc-action-success')!.textContent!.trim()).toBe('رسالة');
+		component.cancelRejectForm(); component.openApproveConfirm(); harness.detectChanges();
+		expect(q(el, 'approve-confirm-btn')!.textContent!.trim()).toBe('تأكيد الاعتماد');
+	});
+
+	it('D-B3: after approve the pill, banner and actions follow the server state, and no second decision is possible', async () => {
+		const { harness, component, el, posts } = await boot();
+		expect(el.querySelector('.acc-ai-pill')!.textContent).toContain('بانتظار المراجعة اليدوية');
+		component.openApproveConfirm(); harness.detectChanges();
+		(q(el, 'approve-confirm-btn') as HTMLButtonElement).click(); harness.detectChanges();
+		expect(el.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe('معتمد');
+		expect(q(el, 'acc-action-success')!.textContent).toContain('تم اعتماد');
+		expect(q(el, 'approve-btn')).toBeNull();
+		expect(q(el, 'reject-btn')).toBeNull();
+		expect(q(el, 'admin-decision')!.textContent).toContain('تم الاعتماد');
+		component.submitApprove(); component.openRejectForm(); component.submitReject();
+		expect(posts.filter(p => /\/(approve|reject)$/.test(p.url)).length).toBe(1);
+	});
+
+	it('D-B3: after reject the pill is «مرفوض», the banner is shown, the reject button is gone, and the form is closed', async () => {
+		const { harness, component, el, posts } = await boot();
+		component.openRejectForm(); harness.detectChanges();
+		component.rejectionReason.set('الملفات غير واضحة'); harness.detectChanges();
+		(q(el, 'reject-confirm-btn') as HTMLButtonElement).click(); harness.detectChanges();
+		expect(el.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe('مرفوض');
+		expect(q(el, 'acc-action-success')!.textContent).toContain('تم رفض');
+		expect(q(el, 'reject-btn')).toBeNull();
+		expect(q(el, 'approve-btn')).toBeNull();
+		expect(el.querySelector('.acc-resolve-form')).toBeNull();
+		component.submitReject();
+		expect(posts.filter(p => p.url.endsWith('/reject')).length).toBe(1);
+	});
+
+	it('D-B3: if the re-read after the decision fails, the applied state stays (no stale pill)', async () => {
+		const { harness, component, el } = await boot({}, { failRefetch: true });
+		component.submitApprove(); harness.detectChanges();
+		expect(el.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe('معتمد');
+		expect(q(el, 'acc-action-success')).not.toBeNull();
+	});
+
+	it('D-B3: a failed decision shows the error, NO success state, keeps the actions and the pill', async () => {
+		const { harness, component, el } = await boot({}, { failDecision: true });
+		component.openRejectForm(); component.rejectionReason.set('سبب كافٍ'); harness.detectChanges();
+		component.submitReject(); harness.detectChanges();
+		expect(component.actionSuccess()).toBe('');
+		expect(q(el, 'acc-action-success')).toBeNull();
+		expect(component.decisionDone()).toBe(false);
+		expect(q(el, 'acc-action-error')!.textContent!.trim().length).toBeGreaterThan(3);
+		expect(el.querySelector('.acc-ai-pill')!.textContent).toContain('بانتظار المراجعة اليدوية');
+		expect(q(el, 'reject-confirm-btn')).not.toBeNull();
+	});
+
+	it('D-B3: actions are disabled while a decision is in flight', async () => {
+		const { harness, component, el } = await boot();
+		component.openRejectForm(); component.rejectionReason.set('سبب كافٍ'); component.submittingAction.set(true); harness.detectChanges();
+		expect((q(el, 'reject-confirm-btn') as HTMLButtonElement).disabled).toBe(true);
+	});
+
+	it('D-B4: the admin rejection reason has its own section and is not part of the AI evaluation card', async () => {
+		const { el } = await boot({ status: 'REJECTED', decidedAt: '2026-10-18T10:00:00.000Z', userNote: 'الملفات غير واضحة', aiFeedbackAr: 'تحليل تقني\n[مراجعة الإدارة] سبب الرفض: الملفات غير واضحة' });
+		const section = q(el, 'admin-decision')!;
+		expect(section.textContent).toContain('قرار الإدارة / سبب الرفض');
+		expect(q(el, 'admin-decision-reason')!.textContent!.trim()).toBe('الملفات غير واضحة');
+		const ai = q(el, 'stored-ai')!;
+		expect(ai.textContent).toContain('تحليل تقني');
+		expect(ai.textContent).not.toContain('سبب الرفض');
+		expect(ai.textContent).not.toContain('الملفات غير واضحة');
+		expect(ai.contains(section)).toBe(false);
+	});
+
+	it('D-B4: an old rejection without userNote still gets the reason from the marked text, and an AI card that held only the reason disappears', async () => {
+		const { el } = await boot({ status: 'REJECTED', userNote: null, aiScore: null, aiStrengths: [], aiRecommendations: [], aiFeedbackAr: '\n[مراجعة الإدارة] سبب الرفض: قصير' });
+		expect(q(el, 'admin-decision-reason')!.textContent!.trim()).toBe('قصير');
+		expect(q(el, 'stored-ai')).toBeNull();
+	});
+
+	it('D-B6: NEEDS_COMPLETION has a Arabic label (never the raw enum name)', async () => {
+		const { el } = await boot({ status: 'NEEDS_COMPLETION' as any, userNote: 'أكمل الوصف' });
+		expect(el.querySelector('.acc-ai-pill')!.textContent).toContain('بانتظار استكمال');
+		expect(q(el, 'admin-decision')!.textContent).toContain('طلب استكمال');
+	});
+});
