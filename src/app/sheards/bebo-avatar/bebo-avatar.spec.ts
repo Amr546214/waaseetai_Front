@@ -5,10 +5,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { BeboAvatarComponent } from './bebo-avatar';
 import { BEBO_POSES, BeboPose, CuteRobotElement } from './bebo-loader';
-import type { AvatarState, BeboCommand } from '../../core/store/assistant.store';
+import type { AvatarState, BeboCommand, BeboSkin } from '../../core/store/assistant.store';
+import type { AssistantMovementBounds } from '../assistant-widget/assistant-position';
 
-// Runs against the REAL Bebo v4 engine (public/bebo/robot.js, byte-identical
-// to the handoff), evaluated in jsdom. Only the browser APIs jsdom lacks
+// Runs against the shipped multi-skin engine (public/bebo/robot.js),
+// evaluated in jsdom. Only the browser APIs jsdom lacks
 // (matchMedia, IntersectionObserver, ResizeObserver) are stubbed.
 
 const observers: Array<{ disconnect: ReturnType<typeof vi.fn> }> = [];
@@ -33,13 +34,16 @@ function loadRealBeboEngine(): void {
 @Component({
 	standalone: true,
 	imports: [BeboAvatarComponent],
-	template: `@if (show()) {<app-bebo-avatar [state]="state()" [celebrate]="celebrate()" [command]="command()" [floating]="floating" (activate)="activations = activations + 1" />}`,
+	template: `@if (show()) {<app-bebo-avatar [state]="state()" [celebrate]="celebrate()" [command]="command()" [skin]="skin()" [paused]="paused()" [movementBounds]="bounds()" [floating]="floating" (activate)="activations = activations + 1" />}`,
 })
 class HostComponent {
 	show = signal(true);
 	state = signal<AvatarState>('idle');
 	celebrate = signal(0);
 	command = signal<BeboCommand | null>(null);
+	skin = signal<BeboSkin>('classic');
+	paused = signal(false);
+	bounds = signal<AssistantMovementBounds | null>(null);
 	floating = true;
 	activations = 0;
 }
@@ -64,6 +68,25 @@ describe('BeboAvatarComponent (Bebo v4 renderer)', () => {
 	const robot = () => el().querySelector('cute-robot') as CuteRobotElement;
 	const setState = (s: AvatarState) => { host.state.set(s); fixture.detectChanges(); };
 
+	it('constrains dragging to configured edges and clamps them again when the viewport narrows', async () => {
+		const width = vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(800);
+		try {
+			host.bounds.set({ minX: 40, maxX: 500, minY: 30, maxY: 400 });
+			fixture.detectChanges();await fixture.whenStable();
+			const r = robot();r.resetPosition();
+			expect(r.position).toEqual({ x: 40, y: 400 });
+			const button = r.shadowRoot!.querySelector('button')!;
+			const PE: typeof MouseEvent = (globalThis as any).PointerEvent ?? MouseEvent;
+			button.dispatchEvent(new PE('pointerdown', { button: 0, clientX: 40, clientY: 400, pointerId: 1, isPrimary: true, bubbles: true } as any));
+			button.dispatchEvent(new PE('pointermove', { clientX: 1000, clientY: -1000, pointerId: 1, bubbles: true } as any));
+			expect(r.position).toEqual({ x: 500, y: 30 });
+			button.dispatchEvent(new PE('pointercancel', { pointerId: 1, bubbles: true } as any));
+			width.mockReturnValue(160);window.dispatchEvent(new Event('resize'));
+			expect(r.position.x).toBeLessThanOrEqual(64);
+			expect(r.position.x).toBeGreaterThanOrEqual(40);
+		} finally { width.mockRestore(); }
+	});
+
 	it('renders the real <cute-robot> (shadow DOM sprite, floating + interactive, handoff atlases)', () => {
 		const r = robot();
 		expect(r).toBeTruthy();
@@ -83,6 +106,40 @@ describe('BeboAvatarComponent (Bebo v4 renderer)', () => {
 	it('idle: Bebo stands idle on the base atlas', () => {
 		expect(robot().state).toBe('idle');
 		expect((robot().shadowRoot!.querySelector('.sprite') as HTMLElement).dataset['atlas']).toBe('base');
+	});
+
+	it('switches sprites immediately on the same robot, including an unchanged frame', () => {
+		const first = robot();
+		const sprite = first.shadowRoot!.querySelector('.sprite') as HTMLElement;
+		const position = first.position;
+		host.skin.set('scout');
+		fixture.detectChanges();
+		expect(robot()).toBe(first);
+		expect(sprite.style.backgroundImage).toContain('scout/guide-sprites.png');
+		expect(first.position).toEqual(position);
+		host.skin.set('classic');
+		fixture.detectChanges();
+		expect(sprite.style.backgroundImage).toContain('robot-sprites.png');
+	});
+
+	it('switching to Bebo ends a Nadeem-only pose instead of retaining Nadeem imagery', () => {
+		host.skin.set('scout');
+		fixture.detectChanges();
+		robot().play('drive');
+		host.skin.set('classic');
+		fixture.detectChanges();
+		expect(robot().state).toBe('idle');
+		expect((robot().shadowRoot!.querySelector('.sprite') as HTMLElement).style.backgroundImage).toContain('robot-sprites.png');
+	});
+
+	it('pausing a dismissed avatar stops its animation loop and restoration resumes it', () => {
+		host.paused.set(true);
+		fixture.detectChanges();
+		expect(robot().paused).toBe(true);
+		expect((robot() as any)._raf).toBe(0);
+		host.paused.set(false);
+		fixture.detectChanges();
+		expect(robot().paused).toBe(false);
 	});
 
 	it('thinking: plays the looping thinking pose', () => {

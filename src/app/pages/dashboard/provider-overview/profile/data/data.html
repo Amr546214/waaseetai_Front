@@ -131,11 +131,28 @@
 </div>
 <div class="prof-tab-panel" [class.active]="currentTab() === 'profile'" id="prof-panel-profile" role="tabpanel"
   [formGroup]="profileForm">
-  <div class="free-bar">
-    <div class="free-bar-ico"><svg aria-hidden="true">
-        <use href="#ws-bolt"></use>
-      </svg></div>
-    <div class="free-bar-txt">بيانات هذا القسم (الصورة والاسم والوصف والتخصصات والروابط) تحفظ فورًا دون مراجعة</div>
+  <div class="free-bar" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="free-bar-ico"><svg aria-hidden="true">
+          <use href="#ws-bolt"></use>
+        </svg></div>
+      <div class="free-bar-txt">
+        بيانات هذا القسم تحفظ فورًا دون مراجعة، كما تُحفظ تعديلاتك غير المحفوظة في المسودة تلقائيًا
+        @if (draftFieldsCount() > 0) {
+          <span class="draft-pill" style="margin-inline-start:6px">📝 {{ draftFieldsCount() }} خانة معدّلة في المسودة</span>
+        }
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <button type="button" class="ai-banner-btn" (click)="saveDraft(true)" data-testid="save-draft-top-btn">
+        💾 حفظ كمسودة @if (draftSavedAt()) { ({{ draftSavedAt() }}) }
+      </button>
+      @if (hasDraft() || draftFieldsCount() > 0) {
+        <button type="button" class="ai-banner-btn" (click)="discardDraft()" data-testid="discard-draft-btn">
+          🗑️ مسح المسودة والرجوع للأصل الكامل
+        </button>
+      }
+    </div>
   </div>
   <!-- Card 1: Avatar -->
   <div class="form-card">
@@ -144,12 +161,12 @@
           <use href="#ws-camera"></use>
         </svg></div>
       <div>
-        <div class="form-card-title">صورة الملف الشخصي</div>
+        <div class="form-card-title">صورة الملف الشخصي @if (isFieldDraft('avatarUrl')) { <span class="draft-pill">📝 مسودة</span> }</div>
         <div class="form-card-sub">PNG أو JPG، 400×400 بكسل، تظهر في ملفك العام وبجانب عروضك</div>
       </div>
     </div>
     <div class="avatar-section">
-      <div class="avatar-circle" aria-label="الصورة الشخصية الحالية">@if(avatarUrl()){<img [src]="avatarUrl()"
+      <div class="avatar-circle" [class.inp-draft]="isFieldDraft('avatarUrl')" aria-label="الصورة الشخصية الحالية">@if(avatarUrl()){<img [src]="avatarUrl()"
           alt="الصورة الشخصية">}@else{ {{ getInitials() }} }</div>
       <div>
         <div class="avatar-btns">
@@ -160,6 +177,13 @@
         </div>
         <div class="av-hint">JPG او PNG، حجم اقصى 5MB، يفضل 400x400 بكسل</div>
         @if (avatarError()) { <span class="field-error" role="alert" data-testid="avatar-error">{{ avatarError() }}</span> }
+        @if (isFieldDraft('avatarUrl')) {
+          <div class="field-draft-box" data-testid="draft-box-avatarUrl">
+            <span class="field-draft-badge">📝 مسودة غير محفوظة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('avatarUrl') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('avatarUrl')">↩ الرجوع للأصل</button>
+          </div>
+        }
       </div>
     </div>
   </div>
@@ -175,78 +199,175 @@
       </div>
     </div>
     <div class="form-grid form-col-2">
-      <div class="inp-group"><label class="inp-label" for="pr-fname">الاسم الأول<span class="ws-req" aria-hidden="true">*</span></label><input
-          id="pr-fname" aria-required="true" class="inp-field" formControlName="firstName" maxlength="60"><ws-field-error [control]="profileForm.get('firstName')" label="الاسم الأول" /></div>
-      <div class="inp-group"><label class="inp-label" for="pr-lname">اسم العائلة<span class="ws-req" aria-hidden="true">*</span></label><input
-          id="pr-lname" aria-required="true" class="inp-field" formControlName="lastName" maxlength="60"><ws-field-error [control]="profileForm.get('lastName')" label="اسم العائلة" /></div>
+      <div class="inp-group"><label class="inp-label" for="pr-fname">الاسم الأول<span class="ws-req" aria-hidden="true">*</span>@if (isFieldDraft('firstName')) { <span class="draft-pill">📝 مسودة</span> }</label><input
+          id="pr-fname" aria-required="true" class="inp-field" [class.inp-draft]="isFieldDraft('firstName')" formControlName="firstName" maxlength="60"><ws-field-error [control]="profileForm.get('firstName')" label="الاسم الأول" />
+        @if (isFieldDraft('firstName')) {
+          <div class="field-draft-box" data-testid="draft-box-firstName">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('firstName') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('firstName')">↩ الرجوع للأصل</button>
+          </div>
+        }
+      </div>
+      <div class="inp-group"><label class="inp-label" for="pr-lname">اسم العائلة<span class="ws-req" aria-hidden="true">*</span>@if (isFieldDraft('lastName')) { <span class="draft-pill">📝 مسودة</span> }</label><input
+          id="pr-lname" aria-required="true" class="inp-field" [class.inp-draft]="isFieldDraft('lastName')" formControlName="lastName" maxlength="60"><ws-field-error [control]="profileForm.get('lastName')" label="اسم العائلة" />
+        @if (isFieldDraft('lastName')) {
+          <div class="field-draft-box" data-testid="draft-box-lastName">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('lastName') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('lastName')">↩ الرجوع للأصل</button>
+          </div>
+        }
+      </div>
       <div class="inp-group"><label class="inp-label" for="pr-title">المسمى المهني<span
-            class="ws-req" aria-hidden="true">*</span></label><input id="pr-title" aria-required="true" class="inp-field" formControlName="headline" maxlength="100"
-          placeholder="اكتب مسماك المهني"><ws-field-error [control]="profileForm.get('headline')" label="المسمى المهني" /></div>
-      <div class="inp-group"><label class="inp-label" for="pr-dob">تاريخ الميلاد</label>
-        <input id="pr-dob" type="date" class="inp-field" formControlName="dob" dir="ltr" [max]="todayIso" min="1900-01-01" data-testid="dob-input" autocomplete="bday">
+            class="ws-req" aria-hidden="true">*</span>@if (isFieldDraft('headline')) { <span class="draft-pill">📝 مسودة</span> }</label><input id="pr-title" aria-required="true" class="inp-field" [class.inp-draft]="isFieldDraft('headline')" formControlName="headline" maxlength="100"
+          placeholder="اكتب مسماك المهني"><ws-field-error [control]="profileForm.get('headline')" label="المسمى المهني" />
+        @if (isFieldDraft('headline')) {
+          <div class="field-draft-box" data-testid="draft-box-headline">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('headline') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('headline')">↩ الرجوع للأصل</button>
+          </div>
+        }
+      </div>
+      <div class="inp-group"><label class="inp-label" for="pr-dob">تاريخ الميلاد@if (isFieldDraft('dob')) { <span class="draft-pill">📝 مسودة</span> }</label>
+        <input id="pr-dob" type="date" class="inp-field" [class.inp-draft]="isFieldDraft('dob')" formControlName="dob" dir="ltr" [max]="todayIso" min="1900-01-01" data-testid="dob-input" autocomplete="bday">
         <span class="field-hint" data-testid="dob-hint">{{ dobLocked() ? 'موثّق ولا يمكن تغييره. تواصل مع الدعم لتعديله.' : 'خاص بك فقط ولا يظهر في ملفك العام.' }}</span>
-        @if (profileForm.get('dob')?.invalid) { <span class="field-error" role="alert">تاريخ الميلاد غير صالح</span> }</div>
-      <div class="inp-group"><label class="inp-label" for="pr-spec">التخصص الرئيسي<span class="ws-req" aria-hidden="true">*</span></label>
-        <select id="pr-spec" aria-required="true" class="inp-field" formControlName="specialty" (change)="onSpecialtyChanged()" data-testid="specialty-select">
+        @if (profileForm.get('dob')?.invalid) { <span class="field-error" role="alert">تاريخ الميلاد غير صالح</span> }
+        @if (isFieldDraft('dob')) {
+          <div class="field-draft-box" data-testid="draft-box-dob">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('dob') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('dob')">↩ الرجوع للأصل</button>
+          </div>
+        }
+      </div>
+      <div class="inp-group"><label class="inp-label" for="pr-spec">التخصص الرئيسي<span class="ws-req" aria-hidden="true">*</span>@if (isFieldDraft('specialty')) { <span class="draft-pill">📝 مسودة</span> }</label>
+        <select id="pr-spec" aria-required="true" class="inp-field" [class.inp-draft]="isFieldDraft('specialty')" formControlName="specialty" (change)="onSpecialtyChanged()" data-testid="specialty-select">
           <option value="" disabled>اختر تخصصك الرئيسي</option>
           @for (cat of categories(); track cat.id) { <option [value]="cat.slug">{{ cat.nameAr }}</option> }
         </select>
         @if (legacySpecialty()) { <span class="field-hint" data-testid="specialty-legacy" role="status">التخصص المحفوظ سابقًا («{{ legacySpecialty() }}») ليس من قائمة التخصصات. اختر تخصصًا من القائمة.</span> }
         @if (specialtyWarning()) { <span class="field-error" data-testid="specialty-warning" role="status">{{ specialtyWarning() }}</span> }
-        <ws-field-error [control]="profileForm.get('specialty')" label="التخصص الرئيسي" /></div>
+        <ws-field-error [control]="profileForm.get('specialty')" label="التخصص الرئيسي" />
+        @if (isFieldDraft('specialty')) {
+          <div class="field-draft-box" data-testid="draft-box-specialty">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('specialty') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('specialty')">↩ الرجوع للأصل</button>
+          </div>
+        }
+      </div>
       @if (subSpecOptions().length) {
-      <div class="inp-group" style="grid-column:1/-1"><span class="inp-label">التخصصات الفرعية</span>
-        <div class="skills-chips" data-testid="subspec-chips" role="group" aria-label="التخصصات الفرعية">
+      <div class="inp-group" style="grid-column:1/-1"><span class="inp-label">التخصصات الفرعية @if (isFieldDraft('subSpecialties')) { <span class="draft-pill">📝 مسودة</span> }</span>
+        <div class="skills-chips" [class.inp-draft]="isFieldDraft('subSpecialties')" data-testid="subspec-chips" role="group" aria-label="التخصصات الفرعية">
           @for (name of subSpecOptions(); track name) {
           <button type="button" class="chip-added" [style.opacity]="selectedSubSpecs().includes(name) ? 1 : .55" [attr.aria-pressed]="selectedSubSpecs().includes(name)" (click)="toggleSubSpec(name)">{{ selectedSubSpecs().includes(name) ? '✓ ' : '' }}{{ name }}</button>
           }
         </div>
+        @if (isFieldDraft('subSpecialties')) {
+          <div class="field-draft-box" data-testid="draft-box-subSpecialties">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('subSpecialties') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('subSpecialties')">↩ الرجوع للأصل</button>
+          </div>
+        }
       </div>
       }
-      <div class="inp-group"><label class="inp-label" for="pr-country">الدولة<span class="ws-req" aria-hidden="true">*</span></label><select
-          id="pr-country" aria-required="true" class="inp-field" formControlName="country">
+      <div class="inp-group"><label class="inp-label" for="pr-country">الدولة<span class="ws-req" aria-hidden="true">*</span>@if (isFieldDraft('country')) { <span class="draft-pill">📝 مسودة</span> }</label><select
+          id="pr-country" aria-required="true" class="inp-field" [class.inp-draft]="isFieldDraft('country')" formControlName="country">
           <option value="" disabled>اختر الدولة</option>
           @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
-        </select><ws-field-error [control]="profileForm.get('country')" label="الدولة" /></div>
-      <div class="inp-group"><label class="inp-label" for="pr-city">المدينة<span class="ws-req" aria-hidden="true">*</span></label><select
-          id="pr-city" aria-required="true" class="inp-field" formControlName="city">
+        </select><ws-field-error [control]="profileForm.get('country')" label="الدولة" />
+        @if (isFieldDraft('country')) {
+          <div class="field-draft-box" data-testid="draft-box-country">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('country') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('country')">↩ الرجوع للأصل</button>
+          </div>
+        }
+      </div>
+      <div class="inp-group"><label class="inp-label" for="pr-city">المدينة<span class="ws-req" aria-hidden="true">*</span>@if (isFieldDraft('city')) { <span class="draft-pill">📝 مسودة</span> }</label><select
+          id="pr-city" aria-required="true" class="inp-field" [class.inp-draft]="isFieldDraft('city')" formControlName="city">
           <option value="" disabled>{{ cityPlaceholder(profileForm.get('country')?.value) }}</option>
           @for (cityName of citiesOf(profileForm.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
-        </select><ws-field-error [control]="profileForm.get('city')" label="المدينة" /></div>
+        </select><ws-field-error [control]="profileForm.get('city')" label="المدينة" />
+        @if (isFieldDraft('city')) {
+          <div class="field-draft-box" data-testid="draft-box-city">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('city') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('city')">↩ الرجوع للأصل</button>
+          </div>
+        }
+      </div>
     </div>
   </div>
 
   <!-- Card 2: Bio -->
   <div class="form-card">
-    <div class="form-card-hdr">
-      <div class="form-card-ico"><svg aria-hidden="true">
-          <use href="#i-person"></use>
-        </svg></div>
-      <div>
-        <div class="form-card-title">الوصف المهني</div>
-        <div class="form-card-sub">عرّف العملاء بخبرتك وما تقدمه من خدمات</div>
+    <div class="form-card-hdr" style="justify-content:space-between;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="form-card-ico"><svg aria-hidden="true">
+            <use href="#i-person"></use>
+          </svg></div>
+        <div>
+          <div class="form-card-title">الوصف المهني</div>
+          <div class="form-card-sub">عرّف العملاء بخبرتك وما تقدمه من خدمات</div>
+        </div>
       </div>
+      <button type="button" class="ai-banner-btn" (click)="suggestBio()" [disabled]="isSuggestingBio()" data-testid="suggest-bio-btn">
+        {{ isSuggestingBio() ? '⏳ جاري صياغة الوصف...' : '✨ اقتراح وصف بالذكاء الاصطناعي' }}
+      </button>
     </div>
     <div class="inp-group">
-      <label class="inp-label" for="bio">الوصف المهني</label>
-      <textarea id="bio" class="inp-field" [appBioField]="500" formControlName="bio"
+      <label class="inp-label" for="bio">الوصف المهني @if (isFieldDraft('bio')) { <span class="draft-pill">📝 مسودة</span> }</label>
+      <textarea id="bio" class="inp-field" [class.inp-draft]="isFieldDraft('bio')" [appBioField]="500" formControlName="bio"
         placeholder="اكتب وصفًا موجزًا عن خبرتك وما تقدمه من خدمات..." maxlength="500"
         aria-label="الوصف المهني"></textarea>
       <ws-field-error [control]="profileForm.get('bio')" label="الوصف المهني" />
+      @if (isFieldDraft('bio')) {
+        <div class="field-draft-box" data-testid="draft-box-bio">
+          <span class="field-draft-badge">📝 مسودة</span>
+          <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('bio') }}</strong></span>
+          <button type="button" class="field-draft-revert" (click)="revertField('bio')">↩ الرجوع للأصل</button>
+        </div>
+      }
     </div>
   </div>
 
   <!-- Card 3: Skills / Interests -->
   <div class="form-card">
-    <div class="form-card-hdr">
-      <div class="form-card-ico"><svg aria-hidden="true">
-          <use href="#i-check"></use>
-        </svg></div>
-      <div>
-        <div class="form-card-title">المهارات والتخصصات</div>
-        <div class="form-card-sub">تساعد العملاء ومحرك المطابقة على اكتشاف خبراتك</div>
+    <div class="form-card-hdr" style="justify-content:space-between;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="form-card-ico"><svg aria-hidden="true">
+            <use href="#i-check"></use>
+          </svg></div>
+        <div>
+          <div class="form-card-title">المهارات والتخصصات</div>
+          <div class="form-card-sub">تساعد العملاء ومحرك المطابقة على اكتشاف خبراتك</div>
+        </div>
       </div>
+      <button type="button" class="ai-banner-btn" (click)="suggestSkills()" [disabled]="isSuggestingSkills()" data-testid="suggest-skills-btn">
+        {{ isSuggestingSkills() ? '⏳ جاري اقتراح المهارات...' : '✨ اقتراح مهارات بالذكاء الاصطناعي' }}
+      </button>
     </div>
+    @if (aiSuggestedSkills().length) {
+      <div class="ai-banner" style="flex-direction:column;align-items:stretch;gap:10px;margin-bottom:12px" data-testid="ai-suggested-skills">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div class="ai-banner-txt" style="font-weight:700">✨ مهارات مقترحة بالذكاء الاصطناعي لمجالك (اضغط لإضافتها فوراً):</div>
+          @if (aiSuggestedSkills().length > 1) {
+            <button type="button" class="ai-banner-btn" style="font-weight:800" (click)="addAllAiSkills()" data-testid="add-all-ai-skills-btn">
+              ✨ إضافة كل المقترحات دفعة واحدة ({{ aiSuggestedSkills().length }})
+            </button>
+          }
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          @for (skill of aiSuggestedSkills(); track skill) {
+            <button type="button" class="ai-banner-btn" (click)="addAiSkill(skill)">+ {{ skill }}</button>
+          }
+        </div>
+      </div>
+    }
     <ws-skills-picker [options]="skillOptions()" [selected]="skillNames()" (selectedChange)="onSkillsChange($event)" />
     @if (skillError()) { <span class="field-error" role="alert" data-testid="skill-error">{{ skillError() }}</span> }
   </div>
@@ -264,23 +385,44 @@
     </div>
     <div class="form-grid form-col-2">
       <div class="inp-group">
-        <label class="inp-label" for="portfolio-url">رابط معرض الأعمال</label>
-        <input type="url" id="portfolio-url" class="inp-field" formControlName="websiteUrl"
+        <label class="inp-label" for="portfolio-url">رابط معرض الأعمال @if (isFieldDraft('websiteUrl')) { <span class="draft-pill">📝 مسودة</span> }</label>
+        <input type="url" id="portfolio-url" class="inp-field" [class.inp-draft]="isFieldDraft('websiteUrl')" formControlName="websiteUrl"
           placeholder="https://www.behance.net/yourname" dir="ltr" data-testid="portfolio-url-input">
         <span class="inp-hint" data-testid="portfolio-url-hint">رابط Behance أو GitHub أو موقعك الشخصي</span>
         <ws-field-error [control]="profileForm.get('websiteUrl')" label="الرابط" />
+        @if (isFieldDraft('websiteUrl')) {
+          <div class="field-draft-box" data-testid="draft-box-websiteUrl">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong dir="ltr">{{ originalFieldDisplay('websiteUrl') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('websiteUrl')">↩ الرجوع للأصل</button>
+          </div>
+        }
       </div>
       <div class="inp-group">
-        <label class="inp-label" for="linkedin-url">LinkedIn (اختياري)</label>
-        <input type="url" id="linkedin-url" class="inp-field" formControlName="linkedinUrl"
+        <label class="inp-label" for="linkedin-url">LinkedIn (اختياري) @if (isFieldDraft('linkedinUrl')) { <span class="draft-pill">📝 مسودة</span> }</label>
+        <input type="url" id="linkedin-url" class="inp-field" [class.inp-draft]="isFieldDraft('linkedinUrl')" formControlName="linkedinUrl"
           placeholder="https://linkedin.com/in/..." dir="ltr">
         <ws-field-error [control]="profileForm.get('linkedinUrl')" label="الرابط" />
+        @if (isFieldDraft('linkedinUrl')) {
+          <div class="field-draft-box" data-testid="draft-box-linkedinUrl">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong dir="ltr">{{ originalFieldDisplay('linkedinUrl') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('linkedinUrl')">↩ الرجوع للأصل</button>
+          </div>
+        }
       </div>
       <div class="inp-group">
-        <label class="inp-label" for="website-url">GitHub</label>
-        <input type="url" id="website-url" class="inp-field" formControlName="githubUrl"
+        <label class="inp-label" for="website-url">GitHub @if (isFieldDraft('githubUrl')) { <span class="draft-pill">📝 مسودة</span> }</label>
+        <input type="url" id="website-url" class="inp-field" [class.inp-draft]="isFieldDraft('githubUrl')" formControlName="githubUrl"
           placeholder="https://github.com/..." dir="ltr">
         <ws-field-error [control]="profileForm.get('githubUrl')" label="الرابط" />
+        @if (isFieldDraft('githubUrl')) {
+          <div class="field-draft-box" data-testid="draft-box-githubUrl">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong dir="ltr">{{ originalFieldDisplay('githubUrl') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('githubUrl')">↩ الرجوع للأصل</button>
+          </div>
+        }
       </div>
     </div>
   </div>
@@ -298,19 +440,33 @@
     </div>
     <div class="pref-grid">
       <div class="pref-item">
-        <div class="pref-label">لغة الواجهة</div>
-        <select class="pref-val inp-field" formControlName="uiLanguage" aria-label="لغة الواجهة">
+        <div class="pref-label">لغة الواجهة @if (isFieldDraft('uiLanguage')) { <span class="draft-pill">📝 مسودة</span> }</div>
+        <select class="pref-val inp-field" [class.inp-draft]="isFieldDraft('uiLanguage')" formControlName="uiLanguage" aria-label="لغة الواجهة">
           <option value="ar" selected>العربية</option>
           <option value="en">English</option>
         </select>
+        @if (isFieldDraft('uiLanguage')) {
+          <div class="field-draft-box" data-testid="draft-box-uiLanguage">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('uiLanguage') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('uiLanguage')">↩ الرجوع للأصل</button>
+          </div>
+        }
       </div>
       <div class="pref-item">
-        <div class="pref-label">المنطقة الزمنية</div>
-        <select class="pref-val inp-field" formControlName="timezone" aria-label="المنطقة الزمنية">
+        <div class="pref-label">المنطقة الزمنية @if (isFieldDraft('timezone')) { <span class="draft-pill">📝 مسودة</span> }</div>
+        <select class="pref-val inp-field" [class.inp-draft]="isFieldDraft('timezone')" formControlName="timezone" aria-label="المنطقة الزمنية">
           <option value="Asia/Riyadh">توقيت الرياض (GMT+3)</option>
           <option value="UTC">UTC</option>
           <option value="GMT+1">GMT+1</option>
         </select>
+        @if (isFieldDraft('timezone')) {
+          <div class="field-draft-box" data-testid="draft-box-timezone">
+            <span class="field-draft-badge">📝 مسودة</span>
+            <span class="field-draft-orig">الأصل المحفوظ: <strong>{{ originalFieldDisplay('timezone') }}</strong></span>
+            <button type="button" class="field-draft-revert" (click)="revertField('timezone')">↩ الرجوع للأصل</button>
+          </div>
+        }
       </div>
     </div>
     <div style="margin-top:14px">
@@ -325,8 +481,12 @@
   </div>
 
   <ws-form-summary [items]="missingProfile()" (select)="onSummarySelect($event)" />
-  <div class="actions-row">
+  <div class="actions-row" style="gap:10px;flex-wrap:wrap">
     <button type="button" class="btn-primary" [disabled]="isSavingProfile()" (click)="saveProfile()">{{ isSavingProfile() ? 'جاري الحفظ...' : 'حفظ التعديلات' }}</button>
+    <button type="button" class="btn-secondary" (click)="saveDraft(true)" data-testid="save-draft-btn">💾 حفظ كمسودة</button>
+    @if (hasDraft() || draftFieldsCount() > 0) {
+      <button type="button" class="btn-secondary" (click)="discardDraft()" data-testid="clear-draft-bottom-btn">🗑️ مسح المسودة والرجوع للأصل الكامل</button>
+    }
     <a routerLink="../../" class="btn-secondary">إلغاء والعودة</a>
   </div>
 

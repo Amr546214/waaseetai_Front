@@ -12,6 +12,7 @@ import { MARKETER_ROUTES } from './pages/dashboard/marketer-overview/marketer.ro
 import { SUPPER_ADMIN_ROUTES } from './pages/dashboard/supper-admin-overview/supper-admin.routes';
 
 export const routes: Routes = [
+	{ path: 'assistant', canActivate: [authGuard], data: { hideAssistant: true }, loadComponent: () => import('./pages/assistant/assistant-page').then(m => m.AssistantPageComponent) },
 	{
 		path: '',
 		loadComponent: () => import('./layouts/website-layout/website-layout.component').then(m => m.WebsiteLayoutComponent),

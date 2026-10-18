@@ -1,5 +1,5 @@
 import { BEBO_ACTIONS, BEBO_DIALECTS, BEBO_VOICES, acknowledge, chooseDialect, commandFor, normalize } from './bebo-commands';
-import { BEBO_POSES } from './bebo-loader';
+import { BEBO_ALL_POSES } from './bebo-loader';
 
 // Local Bebo command routing (port of the Bebo v4 handoff bebo-core.mjs).
 
@@ -29,6 +29,10 @@ describe('Bebo local commands (handoff commandFor)', () => {
 		expect(commandFor('please dance')).toBe('dance');
 		expect(commandFor('اضحك!!')).toBe('laugh');
 		expect(commandFor('إرقص')).toBe('dance'); // hamza normalized
+		expect(commandFor('يا نديم افرد الخريطة')).toBe('map');
+		expect(commandFor('لو سمحت يا نديم انط')).toBe('jump');
+		expect(commandFor('Nadeem please dance')).toBe('dance');
+		expect(commandFor('يا نديم كيف أنشئ مشروع؟')).toBeNull();
 	});
 
 	it('platform questions and non-exact phrases are NOT commands (never hijacked)', () => {
@@ -59,7 +63,7 @@ describe('Bebo local commands (handoff commandFor)', () => {
 	it('every command action except reset/stop/roam is a real Bebo pose', () => {
 		for (const a of BEBO_ACTIONS) {
 			if (['reset', 'stop', 'roam_on', 'roam_off'].includes(a)) continue;
-			expect(BEBO_POSES as readonly string[]).toContain(a);
+			expect(BEBO_ALL_POSES as readonly string[]).toContain(a);
 		}
 	});
 

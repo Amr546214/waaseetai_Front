@@ -175,6 +175,47 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		const id = this.route.snapshot.paramMap.get('id');
 		this.reqId.set(id);
 
+		if (typeof window !== 'undefined') {
+			const storageKey = `draft_proposal_v2_${this.reqId()}`;
+			const draft = localStorage.getItem(storageKey) || sessionStorage.getItem(storageKey);
+			if (draft) {
+				try {
+					const parsed = JSON.parse(draft);
+					const current = this.proposal();
+					const cleaned = {
+						...current,
+						...parsed,
+						title: this.formatProposalText(parsed.title ?? current.title, true),
+						message: this.formatProposalText(parsed.message ?? current.message, false),
+						advantages: (parsed.advantages || parsed.reqs || current.advantages || []).map((a: string) => this.formatProposalText(a, true)),
+						milestones: parsed.milestones || current.milestones
+					};
+					this.proposal.set(cleaned);
+					if (typeof parsed.totalBudget === 'number' && parsed.totalBudget > 0) {
+						this.totalBudget.set(parsed.totalBudget);
+					}
+					if (parsed.auditResult) {
+						this.auditResult.set(parsed.auditResult);
+						this.isScanning.set(false);
+					}
+					if (typeof parsed.ack1 === 'boolean') this.ack1.set(parsed.ack1);
+					if (typeof parsed.ack2 === 'boolean') this.ack2.set(parsed.ack2);
+					if (typeof parsed.ack3 === 'boolean') this.ack3.set(parsed.ack3);
+
+					const urlStep = Number(this.route.snapshot.queryParamMap.get('step'));
+					const savedStep = Number(parsed.activeStep);
+					const targetStep = (urlStep >= 1 && urlStep <= 4) ? urlStep : ((savedStep >= 1 && savedStep <= 4) ? savedStep : 1);
+					this.activeStep.set(targetStep);
+					this.syncStepQueryParam(targetStep);
+				} catch (e) { }
+			} else {
+				const urlStep = Number(this.route.snapshot.queryParamMap.get('step'));
+				if (urlStep >= 1 && urlStep <= 4) {
+					this.activeStep.set(urlStep);
+				}
+			}
+		}
+
 		if (id) {
 			this.fetchProjectDetails(id);
 		} else {
@@ -182,21 +223,140 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		}
 
 		this.loadAccreditationSamples();
+	}
 
-		if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-			const draft = sessionStorage.getItem(`draft_proposal_v2_${this.reqId()}`);
-			if (draft) {
-				try {
-					const parsed = JSON.parse(draft);
-					const current = this.proposal();
-					this.proposal.set({
-						...current,
-						...parsed,
-						advantages: parsed.advantages || parsed.reqs || current.advantages,
-						milestones: parsed.milestones || current.milestones
-					});
-				} catch (e) { }
+	private syncStepQueryParam(step: number) {
+		this.router.navigate([], {
+			relativeTo: this.route,
+			queryParams: { step },
+			queryParamsHandling: 'merge',
+			replaceUrl: true
+		});
+	}
+
+	private formatProposalText(text: string | null | undefined, isSingleLine = false): string {
+		if (!text) return '';
+		if (isSingleLine) {
+			return text
+				.replace(/\*\*(.*?)\*\*/g, '$1')
+				.replace(/__(.*?)__/g, '$1')
+				.replace(/^#{1,6}\s+/gm, '')
+				.replace(/^\s*[-*•▸]\s+/gm, '')
+				.replace(/`/g, '')
+				.replace(/\s+/g, ' ')
+				.trim();
+		}
+
+		let cleaned = text
+			.replace(/\r\n/g, '\n')
+			// Turn Markdown headers into section titles on their own line
+			.replace(/(?:^|\s+)#{1,6}\s*([^\n]+)/g, '\n\n▸ $1\n')
+			// Turn bold headers like **عنوان:** into a section line
+			.replace(/\*\*([^*]+?:)\*\*/g, '\n\n▸ $1\n')
+			// Strip remaining **bold** and __bold__
+			.replace(/\*\*(.*?)\*\*/g, '$1')
+			.replace(/__(.*?)__/g, '$1')
+			.replace(/`/g, '');
+
+		// 1. Ensure greeting is followed by a blank line (even if attached without space like "تحية طيبة،لقد")
+		cleaned = cleaned.replace(/^(تحية طيبة(?:\s+وبعد)?[،,:]?|السلام عليكم(?:\s+ورحمة الله وبركاته)?[،,:]?|مرحباً[،,:]?)\s*/u, '$1\n\n');
+
+		// 2. Break before numbered items even when attached to : or . (e.g. ":1. " or ".2. ")
+		cleaned = cleaned.replace(/:\s*(?=1\.\s*)/g, ':\n\n');
+		cleaned = cleaned.replace(/([.؛!؟])\s*(?=[1-9]\.\s*)/g, '$1\n');
+		cleaned = cleaned.replace(/\s+(?=[1-9]\.\s+)/g, '\n');
+		cleaned = cleaned.replace(/^([1-9]\.)\s+/gm, '$1 ');
+
+		// 3. Put inline dash bullets (. - or : - or ؛ - ) on their own lines
+		cleaned = cleaned.replace(/([.:؛،])\s*-\s+/g, '$1\n• ');
+		cleaned = cleaned.replace(/^\s*[-*]\s+/gm, '• ');
+
+		// 4. Break before transition / intro-to-list / closing sentences even when attached directly after a period
+		cleaned = cleaned.replace(/\.\s*(?=(?:نقترح|أقترح|سأعمل|سنعمل|تتضمن خطة|خطة العمل|أنا على ثقة|يسعدني|أتطلع|أتشرف|بانتظار)\s)/g, '.\n\n');
+
+		// 5. Fix any remaining period immediately followed by an Arabic letter without space
+		cleaned = cleaned.replace(/\.([أإآابتثجحخدذرزسشصضطظعغفقكلمنهوي])/g, '. $1');
+
+		return cleaned.replace(/\n{3,}/g, '\n\n').trim();
+	}
+
+	private buildSynchronizedMilestones(message: string, targetDaysInput?: number | null): Milestone[] {
+		const targetDays = Math.max(1, Math.round(Number(targetDaysInput || this.projectDetails()?.deliveryDays) || 5));
+		const lines = (message || '').split('\n').map(l => l.trim()).filter(Boolean);
+		const parsedSteps: Array<{ name: string; desc: string }> = [];
+
+		for (const line of lines) {
+			const match = line.match(/^[1-9]\.\s*([^:：]+?)(?:\s*\(\d+\s*(?:يوم|أيام)\))?\s*[:：]\s*(.+)$/);
+			if (match) {
+				parsedSteps.push({
+					name: this.formatProposalText(match[1], true).slice(0, 80),
+					desc: this.formatProposalText(match[2], true).slice(0, 200)
+				});
 			}
+		}
+
+		if (parsedSteps.length === 0) {
+			const advs = this.proposal().advantages || [];
+			for (const adv of advs.slice(0, 4)) {
+				const cleanAdv = this.formatProposalText(adv, true);
+				if (cleanAdv) {
+					parsedSteps.push({
+						name: cleanAdv.split(/[،,:]/)[0].trim().slice(0, 60) || 'مرحلة تنفيذ',
+						desc: cleanAdv
+					});
+				}
+			}
+		}
+
+		if (parsedSteps.length === 0) {
+			parsedSteps.push(
+				{ name: 'تحليل المتطلبات وتصميم الواجهة الأمامية (UI/UX)', desc: 'تصميم واجهات المستخدم المتجاوبة وتجربة التصفح' },
+				{ name: 'تطوير الواجهة الخلفية وقاعدة البيانات', desc: 'برمجة لوحة التحكم وإدارة المنتجات والمخزون والطلبات' },
+				{ name: 'ربط سلة التسوق والدفع والاختبار النهائي', desc: 'تكامل الدفع واختبار الأداء والسرعة والتسليم النهائي' }
+			);
+		}
+
+		const maxCount = Math.min(parsedSteps.length, targetDays, 5);
+		const selected = parsedSteps.slice(0, maxCount);
+		const n = selected.length;
+		const baseDays = Math.floor(targetDays / n);
+		let remDays = targetDays - baseDays * n;
+		const basePct = Math.floor(100 / n);
+		let remPct = 100 - basePct * n;
+
+		const milestones: Milestone[] = selected.map((st, idx) => {
+			const d = baseDays + (remDays > 0 ? 1 : 0);
+			if (remDays > 0) remDays--;
+			const p = basePct + (remPct >= 5 ? 5 : remPct);
+			if (remPct > 0) remPct = Math.max(0, remPct - 5);
+			return {
+				id: String(idx + 1),
+				name: st.name,
+				desc: st.desc,
+				days: Math.max(1, d),
+				pct: p
+			};
+		});
+
+		const pctSum = milestones.reduce((sum, m) => sum + (Number(m.pct) || 0), 0);
+		if (milestones.length > 0 && pctSum !== 100) {
+			milestones[0].pct = (Number(milestones[0].pct) || 0) + (100 - pctSum);
+		}
+
+		return milestones;
+	}
+
+	private syncIncompleteMilestones(targetDaysInput?: number | null) {
+		const current = this.proposal();
+		const hasIncomplete = !current.milestones?.length || current.milestones.some(m => !m.name?.trim() || !(Number(m.days) > 0) || !(Number(m.pct) > 0));
+		if (hasIncomplete && (current.message?.trim() || current.advantages?.length)) {
+			const synced = this.buildSynchronizedMilestones(current.message, targetDaysInput);
+			this.proposal.update(p => ({
+				...p,
+				outputs: p.outputs?.trim() ? p.outputs : synced.map((m, i) => `${i + 1}. ${m.name}`).join(' — '),
+				milestones: synced
+			}));
+			this.saveDraft();
 		}
 	}
 
@@ -210,10 +370,16 @@ export class ApplayRequest implements OnInit, OnDestroy {
 					const proj = res.data || res;
 					if (proj && proj.title) {
 						this.projectDetails.set(proj);
-						if (proj.budgetFixed) {
-							this.totalBudget.set(Number(proj.budgetFixed));
-						} else if (proj.budgetMin && proj.budgetMax) {
-							this.totalBudget.set(Math.round((Number(proj.budgetMin) + Number(proj.budgetMax)) / 2));
+						if (!(this.totalBudget() > 0)) {
+							if (proj.budgetFixed) {
+								this.totalBudget.set(Number(proj.budgetFixed));
+							} else if (proj.budgetMin && proj.budgetMax) {
+								this.totalBudget.set(Math.round((Number(proj.budgetMin) + Number(proj.budgetMax)) / 2));
+							}
+						}
+						this.syncIncompleteMilestones(proj.deliveryDays);
+						if (this.activeStep() === 3 && !this.auditResult()) {
+							this.triggerAiAudit();
 						}
 					} else {
 						this.projectLoadError.set('تعذر التحقق من بيانات المشروع');
@@ -229,8 +395,19 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	}
 
 	saveDraft() {
-		if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-			sessionStorage.setItem(`draft_proposal_v2_${this.reqId()}`, JSON.stringify(this.proposal()));
+		if (typeof window !== 'undefined' && this.reqId()) {
+			const storageKey = `draft_proposal_v2_${this.reqId()}`;
+			const snapshot = JSON.stringify({
+				...this.proposal(),
+				activeStep: this.activeStep(),
+				totalBudget: this.totalBudget(),
+				auditResult: this.auditResult(),
+				ack1: this.ack1(),
+				ack2: this.ack2(),
+				ack3: this.ack3()
+			});
+			try { sessionStorage.setItem(storageKey, snapshot); } catch {}
+			try { localStorage.setItem(storageKey, snapshot); } catch {}
 		}
 	}
 
@@ -286,14 +463,30 @@ export class ApplayRequest implements OnInit, OnDestroy {
 				next: (res) => {
 					this.isFetchingAiSuggest.set(false);
 					if (res.data) {
-						const refinedTitle = res.data.suggestedTitle || this.proposal().title;
-						const refinedMsg = res.data.suggestedMessage || this.proposal().message;
-						const suggestedAdvs = res.data.suggestedAdvantages || [];
+						const refinedTitle = this.formatProposalText(res.data.suggestedTitle || this.proposal().title, true);
+						const refinedMsg = this.formatProposalText(res.data.suggestedMessage || this.proposal().message, false);
+						const suggestedAdvs = (res.data.suggestedAdvantages || []).map((a: string) => this.formatProposalText(a, true));
+						const suggestedOutputs = res.data.suggestedOutputs ? this.formatProposalText(res.data.suggestedOutputs, true) : '';
+						if (typeof res.data.suggestedTotalPrice === 'number' && res.data.suggestedTotalPrice > 0 && !(this.totalBudget() > 0)) {
+							this.totalBudget.set(res.data.suggestedTotalPrice);
+						}
+						const aiMilestones: Milestone[] = Array.isArray(res.data.suggestedMilestones) && res.data.suggestedMilestones.length > 0
+							? res.data.suggestedMilestones.map((m: any, idx: number) => ({
+								id: String(idx + 1),
+								name: this.formatProposalText(m.name, true),
+								desc: this.formatProposalText(m.desc, true),
+								days: Math.max(1, Number(m.days) || 1),
+								pct: Math.max(1, Number(m.pct) || 100)
+							}))
+							: this.buildSynchronizedMilestones(refinedMsg, this.projectDetails()?.deliveryDays);
+
 						this.proposal.update(p => ({
 							...p,
 							title: refinedTitle,
 							message: refinedMsg,
-							advantages: Array.from(new Set([...p.advantages, ...suggestedAdvs]))
+							outputs: suggestedOutputs || p.outputs || aiMilestones.map((m, i) => `${i + 1}. ${m.name}`).join(' — '),
+							advantages: Array.from(new Set([...p.advantages, ...suggestedAdvs])),
+							milestones: aiMilestones
 						}));
 						this.saveDraft();
 					}
@@ -449,6 +642,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		if (n === 1) this.ack1.update(v => !v);
 		if (n === 2) this.ack2.update(v => !v);
 		if (n === 3) this.ack3.update(v => !v);
+		this.saveDraft();
 	}
 
 	isStep3Valid = computed(() => {
@@ -466,9 +660,10 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			}
 			return;
 		}
-		this.saveDraft();
 		const next = this.activeStep() + 1;
 		this.activeStep.set(next);
+		this.syncStepQueryParam(next);
+		this.saveDraft();
 
 		if (typeof window !== 'undefined') {
 			window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -546,6 +741,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		this.socket.once('ai_audit_result', (result: AiAuditResult) => {
 			this.auditResult.set(result);
 			this.isScanning.set(false);
+			this.saveDraft();
 		});
 
 		this.socket.emit('trigger_ai_audit', payload);
@@ -558,7 +754,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 					this.auditResult.set(this.getUnavailableAudit());
 				}
 			}
-		}, 4500);
+		}, 25000);
 	}
 
 	getUnavailableAudit(): AiAuditResult {
@@ -576,7 +772,10 @@ export class ApplayRequest implements OnInit, OnDestroy {
 
 	prevStep() {
 		if (this.activeStep() > 1) {
-			this.activeStep.update(s => s - 1);
+			const prev = this.activeStep() - 1;
+			this.activeStep.set(prev);
+			this.syncStepQueryParam(prev);
+			this.saveDraft();
 			if (typeof window !== 'undefined') {
 				window.scrollTo({ top: 0, behavior: 'smooth' });
 			}
@@ -617,8 +816,10 @@ export class ApplayRequest implements OnInit, OnDestroy {
 				next: (res) => {
 					this.isSubmitting.set(false);
 					this.showSuccess.set(true);
-					if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-						sessionStorage.removeItem(`draft_proposal_v2_${this.reqId()}`);
+					if (typeof window !== 'undefined') {
+						const storageKey = `draft_proposal_v2_${this.reqId()}`;
+						try { sessionStorage.removeItem(storageKey); } catch {}
+						try { localStorage.removeItem(storageKey); } catch {}
 					}
 					console.log('✅ Proposal successfully submitted to DB and Client notified via Socket.io!', res);
 				},

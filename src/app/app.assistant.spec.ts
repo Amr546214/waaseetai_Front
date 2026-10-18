@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, DeferBlockState, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
@@ -97,7 +97,7 @@ describe('App-level assistant (single floating Bebo)', () => {
 			expect(el().querySelectorAll('cute-robot').length).toBe(1);
 			clickRobot();
 			const prompt = el().querySelector('[data-testid="assistant-guest-prompt"]') as HTMLElement;
-			expect(prompt.textContent).toContain('سجّل الدخول لتتحدث مع بيبو');
+			expect(prompt.textContent).toContain('سجّل الدخول لتتحدث مع نديم');
 			expect((el().querySelector('.aw__login') as HTMLAnchorElement).getAttribute('href')).toBe('/auth/login');
 			expect(el().querySelector('app-assistant-chat')).toBeNull();
 			expect(el().querySelector('textarea, input')).toBeNull();
@@ -167,7 +167,7 @@ describe('single-instance guard (static)', () => {
 
 	it('<app-assistant-widget> is mounted only in the app root template', () => {
 		const files = walk(join(process.cwd(), 'src/app')).filter((f) => /\.(ts|html)$/.test(f) && !f.endsWith('.spec.ts'));
-		const mounts = files.filter((f) => readFileSync(f, 'utf8').includes('<app-assistant-widget')).map((f) => f.slice(f.indexOf('src/app/') + 8));
+		const mounts = files.filter((f) => readFileSync(f, 'utf8').includes('<app-assistant-widget')).map((f) => relative(join(process.cwd(),'src/app'),f).replaceAll('\\','/'));
 		expect(mounts).toEqual(['app.ts']);
 	});
 

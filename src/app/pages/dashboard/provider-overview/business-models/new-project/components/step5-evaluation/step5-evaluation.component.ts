@@ -14,4 +14,5 @@ export class Step5EvaluationComponent {
 
 	@Output() onApplySuggestedPricing = new EventEmitter<void>();
 	@Output() onApplySuggestedMilestones = new EventEmitter<void>();
+	@Output() onRetryAnalysis = new EventEmitter<void>();
 }

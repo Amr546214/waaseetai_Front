@@ -40,7 +40,7 @@ describe('AiAssistantComponent (client page → shared real assistant)', () => {
 		textarea.dispatchEvent(new Event('input'));
 		fixture.detectChanges();
 		(root.querySelector('.ac__btn') as HTMLButtonElement).click();
-		expect(socket.ask).toHaveBeenCalledWith('كيف يعمل حساب الضمان؟', []);
+		expect(socket.ask).toHaveBeenCalledWith('كيف يعمل حساب الضمان؟', [],expect.objectContaining({profile:'auto',dialect:'msa',pageContext:{path:'/'}}));
 
 		events.next({ type: 'chunk', clientRequestId: 'p-1', chunk: 'إجابة حقيقية' });
 		events.next({ type: 'complete', clientRequestId: 'p-1' });

@@ -169,6 +169,8 @@
         [totalDays]="totalDays()"
         [totalPct]="totalPct()"
         [totalAmount]="totalAmount"
+        [isFetchingAiSuggest]="isFetchingAiSuggest()"
+        (useAISuggest)="useAISuggest()"
         (addMilestone)="addMilestone()"
         (removeMilestone)="removeMilestone($event)"
         (updateMilestone)="updateMilestone($event.id, $event.updates)">

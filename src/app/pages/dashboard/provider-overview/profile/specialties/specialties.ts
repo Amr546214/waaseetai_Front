@@ -845,6 +845,95 @@ export class Specialties implements OnInit, OnDestroy {
 		this.samples.update(s => s.filter(x => x.id !== id));
 	}
 
+	private async createSyntheticPngFile(fileName: string, titleText: string, subtitleText: string): Promise<{ file: File; dataUrl: string }> {
+		const canvas = document.createElement('canvas');
+		canvas.width = 960;
+		canvas.height = 540;
+		const ctx = canvas.getContext('2d');
+		if (!ctx) throw new Error('Canvas unavailable');
+		const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+		grad.addColorStop(0, '#070D24');
+		grad.addColorStop(0.55, '#0F1E45');
+		grad.addColorStop(1, '#123B52');
+		ctx.fillStyle = grad;
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.strokeStyle = 'rgba(43,212,199,0.45)';
+		ctx.lineWidth = 4;
+		ctx.strokeRect(24, 24, canvas.width - 48, canvas.height - 48);
+		ctx.fillStyle = '#2BD4C7';
+		ctx.font = '800 32px Arial';
+		ctx.textAlign = 'center';
+		ctx.fillText(titleText.slice(0, 48), canvas.width / 2, canvas.height / 2 - 20);
+		ctx.fillStyle = '#E8ECFF';
+		ctx.font = '600 22px Arial';
+		ctx.fillText(subtitleText.slice(0, 64), canvas.width / 2, canvas.height / 2 + 28);
+		ctx.fillStyle = 'rgba(255,255,255,0.22)';
+		ctx.font = '800 24px Arial';
+		ctx.fillText('وسيط AI · نموذج عمل موثق', canvas.width / 2, canvas.height - 56);
+		const dataUrl = canvas.toDataURL('image/png');
+		const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('Blob failed')), 'image/png'));
+		const file = new File([blob], fileName, { type: 'image/png', lastModified: Date.now() });
+		return { file, dataUrl };
+	}
+
+	async autoFillSample(sampleId: string) {
+		const sample = this.samples().find(s => s.id === sampleId);
+		if (!sample) return;
+		const sub = sample.subSpecialty || 'التخصص المختار';
+		const techs = ['TypeScript', 'Angular', 'Node.js', 'PostgreSQL', 'Docker', 'REST API'];
+		const title = `تطوير منظومة رقمية متكاملة في ${sub}`;
+		const description = `قمت بتصميم وتطوير بنية معمارية متكاملة لمشروع في مجال (${sub}) شملت بناء واجهات تفاعلية سريعة الاستجابة، وربط خدمات الواجهة الخلفية وقواعد البيانات مع تطبيق أعلى معايير الأمان وتحسين الأداء بنسبة 45% وتوثيق الكود المصدري بالكامل.`;
+		try {
+			const pub = await this.createSyntheticPngFile(`work-sample-${sampleId.slice(-4)}.png`, title, `التقنيات: ${techs.slice(0, 4).join(' · ')}`);
+			const proof = await this.createSyntheticPngFile(`ownership-proof-${sampleId.slice(-4)}.png`, `وثيقة إثبات الملكية والكود المصدري`, `التخصص: ${sub} — ملكية حصرية لمقدم الخدمة`);
+			this.patchSample(sampleId, {
+				title,
+				description,
+				technologies: techs,
+				technologiesInput: techs.join(', '),
+				publicFile: pub.file,
+				publicFileName: pub.file.name,
+				publicFileType: 'image/png',
+				previewUrl: pub.dataUrl,
+				proofFiles: [proof.file],
+				proofFileNames: [proof.file.name],
+				isUploading: false,
+				isProcessingProofs: false
+			});
+			this.stepError.set(null);
+		} catch {
+			this.stepError.set('تعذّر تجهيز الملفات التجريبية تلقائياً.');
+		}
+	}
+
+	async autoFillAllSamples() {
+		const list = this.samples();
+		for (const s of list) {
+			await this.autoFillSample(s.id);
+		}
+	}
+
+	checkAllDeclarations() {
+		this.declarations.update(decs => decs.map(d => ({ ...d, checked: true })));
+	}
+
+	quickAnswerAllQuestions() {
+		const questions = this.quizQuestions();
+		if (!questions.length) return;
+		const nextAnswers: Record<string, string> = { ...this.userAnswers() };
+		for (const q of questions) {
+			const opts = this.getNormalizedOptions(q);
+			if (opts.length > 0 && !nextAnswers[String(q.id)]) {
+				const chosen = opts[0].id;
+				const sessionId = this.quizSessionId();
+				if (sessionId) this.antiCheatService.recordAnswer(sessionId, String(q.id), String(chosen));
+				nextAnswers[String(q.id)] = String(chosen);
+			}
+		}
+		this.userAnswers.set(nextAnswers);
+		this.currentQuestionIdx.set(questions.length - 1);
+	}
+
 	async onPublicFileSelected(event: Event, sampleId: string) {
 		const input = event.target as HTMLInputElement;
 		if (input.files && input.files.length > 0) {
@@ -1167,7 +1256,7 @@ export class Specialties implements OnInit, OnDestroy {
 					}
 				});
 			}
-		}, 3500);
+		}, 15000);
 
 		this.currentStep.set(4);
 	}

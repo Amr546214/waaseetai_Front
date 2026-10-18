@@ -1,5 +1,5 @@
 import type { RegisteredSpecialty } from '../../../../../../core/utils/specialty-states';
-import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, signal, computed, effect, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
@@ -60,11 +60,15 @@ export class New implements OnInit, OnDestroy {
 	private router = inject(Router);
 	private access = inject(ProviderAccessService);
 	private route = inject(ActivatedRoute);
+	private readonly draftStorageKey = 'waseet_accreditation_new_draft_v1';
+	private isHydrated = false;
 
 	currentStep = signal<number>(1);
 	isLoading = signal<boolean>(true);
 	isAnalyzing = signal<boolean>(false);
 	hasError = signal<string | null>(null);
+	isAiSuggesting = signal<boolean>(false);
+	aiSuggestError = signal<string | null>(null);
 
 	categories = signal<SpecialtyCategory[]>([]);
 	hasAccreditedSpecialties = signal<boolean>(false);
@@ -99,10 +103,78 @@ export class New implements OnInit, OnDestroy {
 	fieldErrors = signal<Record<string, string>>({});
 	loadError = signal<string | null>(null);
 
+	constructor() {
+		effect(() => {
+			const step = this.currentStep();
+			const draft = {
+				step,
+				selectedSpecialtyId: this.selectedSpecialtyId(),
+				selectedSubSpecialties: this.selectedSubSpecialties(),
+				title: this.title(),
+				description: this.description(),
+				technologiesUsed: this.technologiesUsed(),
+				projectUrl: this.projectUrl(),
+				githubUrl: this.githubUrl(),
+			};
+			if (!this.isHydrated || this.resubmitId()) return;
+			try {
+				sessionStorage.setItem(this.draftStorageKey, JSON.stringify(draft));
+			} catch { /* ignore storage errors */ }
+		});
+	}
+
+	private syncStepInUrl(step: number) {
+		this.router.navigate([], {
+			relativeTo: this.route,
+			queryParams: { step },
+			queryParamsHandling: 'merge',
+			replaceUrl: true,
+		});
+	}
+
+	private formatDescriptionText(text: string): string {
+		const cleaned = text.replace(/\*\*/g, '').replace(/^#+\s*/gm, '').trim();
+		if (!cleaned || cleaned.includes('\n')) return cleaned;
+		const sentences = cleaned
+			.split(/(?<=[.۔!؟])\s+/)
+			.map(s => s.trim())
+			.filter(Boolean);
+		if (sentences.length <= 1) return cleaned;
+		return [
+			'نظرة عامة وتفاصيل معمارية:',
+			...sentences.map(s => `• ${s}`),
+		].join('\n');
+	}
+
+	private restoreDraft(): number | null {
+		try {
+			const raw = sessionStorage.getItem(this.draftStorageKey);
+			if (!raw) return null;
+			const parsed = JSON.parse(raw);
+			if (typeof parsed.selectedSpecialtyId === 'string') this.selectedSpecialtyId.set(parsed.selectedSpecialtyId);
+			if (Array.isArray(parsed.selectedSubSpecialties)) this.selectedSubSpecialties.set(parsed.selectedSubSpecialties);
+			if (typeof parsed.title === 'string') this.title.set(parsed.title);
+			if (typeof parsed.description === 'string') this.description.set(this.formatDescriptionText(parsed.description));
+			if (Array.isArray(parsed.technologiesUsed)) this.technologiesUsed.set(parsed.technologiesUsed);
+			if (typeof parsed.projectUrl === 'string') this.projectUrl.set(parsed.projectUrl);
+			if (typeof parsed.githubUrl === 'string') this.githubUrl.set(parsed.githubUrl);
+			return typeof parsed.step === 'number' ? parsed.step : null;
+		} catch {
+			return null;
+		}
+	}
+
+	private clearDraft() {
+		try { sessionStorage.removeItem(this.draftStorageKey); } catch { /* ignore */ }
+	}
+
 	ngOnInit() {
 		const resubmit = this.route.snapshot.queryParamMap.get('resubmit');
 		if (resubmit) { this.loadCompletion(resubmit); return; }
-		this.fetchSpecialties();
+		const savedStep = this.restoreDraft();
+		const urlStep = Number(this.route.snapshot.queryParamMap.get('step'));
+		const targetStep = (urlStep === 1 || urlStep === 2) ? urlStep : (savedStep === 2 ? 2 : 1);
+		this.fetchSpecialties(targetStep);
 	}
 
 	private loadCompletion(id: string) {
@@ -143,7 +215,7 @@ export class New implements OnInit, OnDestroy {
 	}
 
 
-	fetchSpecialties() {
+	fetchSpecialties(initialStep = 1) {
 		this.isLoading.set(true);
 		this.providerApi.getPassedSpecialties().subscribe({
 			next: (res) => {
@@ -151,15 +223,31 @@ export class New implements OnInit, OnDestroy {
 				if (res && res.success) {
 					this.hasAccreditedSpecialties.set(!!res.hasAccreditedSpecialties && res.categories?.length > 0);
 					this.categories.set(res.categories || []);
-					// Do not auto-select any specialty by default, let the user choose
-					this.selectedSpecialtyId.set(null);
-					this.selectedSubSpecialties.set([]);
+					const allSpecs = (res.categories || []).flatMap((c: SpecialtyCategory) => c.specialties || []);
+					const savedSpecId = this.selectedSpecialtyId();
+					const validSaved = savedSpecId && allSpecs.some((s: Specialty) => s.id === savedSpecId || s.specialtyId === savedSpecId);
+					if (validSaved) {
+						this.selectedSpecialtyId.set(savedSpecId);
+					} else if (initialStep === 2 && allSpecs.length === 1) {
+						this.selectedSpecialtyId.set(allSpecs[0].id);
+					} else {
+						this.selectedSpecialtyId.set(null);
+						this.selectedSubSpecialties.set([]);
+					}
+					if (initialStep === 2 && this.selectedSpecialtyId()) {
+						this.currentStep.set(2);
+						this.syncStepInUrl(2);
+					} else {
+						this.currentStep.set(1);
+						this.syncStepInUrl(1);
+					}
 				} else {
 					this.hasAccreditedSpecialties.set(false);
 					this.categories.set([]);
 					this.selectedSpecialtyId.set(null);
 					this.selectedSubSpecialties.set([]);
 				}
+				this.isHydrated = true;
 				this.isLoading.set(false);
 			},
 			error: (err) => {
@@ -168,6 +256,7 @@ export class New implements OnInit, OnDestroy {
 				this.categories.set([]);
 				this.selectedSpecialtyId.set(null);
 				this.selectedSubSpecialties.set([]);
+				this.isHydrated = true;
 				this.isLoading.set(false);
 			}
 		});
@@ -322,12 +411,55 @@ export class New implements OnInit, OnDestroy {
 	goNext() {
 		if (this.currentStep() === 1 && this.isValidStep1) {
 			this.currentStep.set(2);
+			this.syncStepInUrl(2);
 			window.scrollTo(0, 0);
 		} else if (this.currentStep() === 2) {
 			// an invalid step never silently does nothing: each missing field is named at its input and the first one is focused
 			if (!this.isValidStep2) { this.showStep2Errors(); return; }
 			this.submitForAiEvaluation();
 		}
+	}
+
+	suggestSampleWithAi() {
+		if (this.isAiSuggesting()) return;
+		this.isAiSuggesting.set(true);
+		this.aiSuggestError.set(null);
+
+		const spec = this.getSelectedSpecialty();
+		const specialtyName = spec?.name || this.lockedSpecialtyName() || 'تطوير البرمجيات';
+
+		this.providerApi.suggestAccreditationSampleDraft({
+			specialtyName,
+			subSpecialties: this.selectedSubSpecialties(),
+			title: this.title().trim(),
+			description: this.description().trim(),
+			technologiesUsed: this.technologiesUsed(),
+		}).subscribe({
+			next: (res) => {
+				this.isAiSuggesting.set(false);
+				const data = res?.data;
+				if (data) {
+					if (typeof data.title === 'string' && data.title.trim()) {
+						this.title.set(data.title.trim());
+					}
+					if (typeof data.description === 'string' && data.description.trim()) {
+						this.description.set(this.formatDescriptionText(data.description.trim()));
+					}
+					if (Array.isArray(data.technologiesUsed) && data.technologiesUsed.length > 0) {
+						this.technologiesUsed.set(data.technologiesUsed.map((t: any) => String(t).trim()).filter(Boolean));
+					}
+					this.fieldErrors.update(e => {
+						const { title: _t, description: _d, technologiesUsed: _u, ...rest } = e;
+						return rest;
+					});
+				}
+			},
+			error: (err) => {
+				this.isAiSuggesting.set(false);
+				const m = mapHttpError(err, { fallback: 'تعذّر توليد بيانات النموذج بالذكاء الاصطناعي حالياً. يرجى المحاولة مرة أخرى.' });
+				this.aiSuggestError.set(m.message);
+			}
+		});
 	}
 
 	private showStep2Errors() {
@@ -346,7 +478,9 @@ export class New implements OnInit, OnDestroy {
 
 	goPrev() {
 		if (this.currentStep() > 1 && !this.isAnalyzing()) {
-			this.currentStep.update(v => v - 1);
+			const prev = this.currentStep() - 1;
+			this.currentStep.set(prev);
+			this.syncStepInUrl(prev);
 			window.scrollTo(0, 0);
 		}
 	}
@@ -362,6 +496,7 @@ export class New implements OnInit, OnDestroy {
 		this.hasError.set(null);
 		this.manualReviewNotice.set(null);
 		this.currentStep.set(3);
+		this.syncStepInUrl(3);
 		window.scrollTo(0, 0);
 
 		const spec = this.getSelectedSpecialty();
@@ -383,6 +518,7 @@ export class New implements OnInit, OnDestroy {
 			next: (res) => {
 				this.isAnalyzing.set(false);
 				if (res && res.success && res.data) {
+					this.clearDraft();
 					this.afterSampleSubmitted(res.data?.sample?.id);
 					if (res.data.evaluation) {
 						this.evaluationResult.set(res.data.evaluation);
@@ -404,6 +540,7 @@ export class New implements OnInit, OnDestroy {
 					this.fieldErrors.set(fields);
 					this.hasError.set(null);
 					this.currentStep.set(2);
+					this.syncStepInUrl(2);
 					this.focusInvalidSoon();
 					return;
 				}

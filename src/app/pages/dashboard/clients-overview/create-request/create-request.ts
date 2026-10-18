@@ -1,5 +1,7 @@
 import { Component, computed, effect, untracked, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation, ElementRef } from '@angular/core';
 import { canRewrite, checkRewriteOutput, REWRITE_INPUT_REQUIRED_MESSAGE } from './description-rewrite-guard';
+import { parseDescriptionRewrite, REWRITE_PREVIEW_MAX_CHARS } from './description-rewrite-options';
+import { assistantMarkdown } from '../../../../core/help/assistant-content';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavigationSkipped, NavigationSkippedCode, Router, RouterLink } from '@angular/router';
@@ -111,6 +113,7 @@ interface CreateRequestDraftV1 {
     requiredSkills?: string[];
     outputs: string;
     deliveryDays: number | null;
+    aiReview?: { text: string; original: string; sourceTitle: string; selectedId: string | null; edits: Record<string, string>; status: 'completed' | 'partial' | 'error'; appliedId: string | null };
   };
   step4: {
     budgetType: string;
@@ -325,6 +328,8 @@ export class CreateRequest implements OnInit, OnDestroy {
 
   /** Back to a pristine wizard (step 1, every field empty / at its initial default, no success screen, no stored draft). */
   resetWizard(): void {
+    this.socket?.disconnect();
+    this.socket = undefined;
     this.clearDraft();
     this.clearSubmittedMarker();
     this.showSuccessOverlay.set(false);
@@ -356,6 +361,19 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.splitMilestones.set(false);
     this.milestones.set([]);
     this.files.set([]);
+    this.aiStreamText.set('');
+    this.aiOriginalDescription.set('');
+    this.aiDraftEdits.set({});
+    this.aiSelectedOptionId.set(null);
+    this.aiAppliedOptionId.set(null);
+    this.aiReviewStatus.set('idle');
+    this.showAiSuggest.set(false);
+    this.aiSourceTitle.set('');
+    this.aiReviewError.set('');
+    this.aiPreviewOverflow.set(false);
+    this.isAiStreaming.set(false);
+    this.aiPhase.set('idle');
+    this.aiMode.set(null);
   }
 
   private shouldResumeDraft(): boolean {
@@ -414,7 +432,11 @@ export class CreateRequest implements OnInit, OnDestroy {
         requirements: this.requirements(),
         requiredSkills: this.requiredSkills(),
         outputs: this.outputs(),
-        deliveryDays: this.deliveryDays()
+        deliveryDays: this.deliveryDays(),
+        ...(this.aiStreamText() ? { aiReview: {
+          text: this.aiStreamText(), original: this.aiOriginalDescription(), sourceTitle: this.aiSourceTitle(), selectedId: this.aiSelectedOptionId(), edits: this.aiDraftEdits(),
+          status: this.aiReviewStatus() === 'completed' ? 'completed' as const : this.aiReviewStatus() === 'error' ? 'error' as const : 'partial' as const, appliedId: this.aiAppliedOptionId()
+        } } : {})
       },
       step4: {
         budgetType: this.budgetType(),
@@ -432,28 +454,39 @@ export class CreateRequest implements OnInit, OnDestroy {
   private saveDraft(): void {
     if (!this.isBrowser) return;
     const snapshot = this.buildDraftSnapshot();
+    const serialized = JSON.stringify(snapshot);
     try {
-      sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(snapshot));
-    } catch {
-      // Quota exceeded / private-browsing storage denial — draft persistence
-      // is a convenience, never allowed to break the wizard itself.
-    }
+      sessionStorage.setItem(DRAFT_STORAGE_KEY, serialized);
+    } catch {}
+    try {
+      localStorage.setItem(DRAFT_STORAGE_KEY, serialized);
+    } catch {}
+    try {
+      if (typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === CREATE_REQUEST_PATH) {
+        const url = new URL(window.location.href);
+        if (url.searchParams.get('step') !== String(snapshot.currentStep)) {
+          url.searchParams.set('step', String(snapshot.currentStep));
+          window.history.replaceState(window.history.state, '', url.pathname + url.search);
+        }
+      }
+    } catch {}
   }
 
   private clearDraft(): void {
     if (!this.isBrowser) return;
     try {
       sessionStorage.removeItem(DRAFT_STORAGE_KEY);
-    } catch {
-      // Ignore — nothing to clean up if storage isn't accessible.
-    }
+    } catch {}
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {}
   }
 
   private restoreDraft(): void {
     if (!this.isBrowser) return;
     let raw: string | null = null;
     try {
-      raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      raw = sessionStorage.getItem(DRAFT_STORAGE_KEY) || localStorage.getItem(DRAFT_STORAGE_KEY);
     } catch {
       return;
     }
@@ -464,6 +497,12 @@ export class CreateRequest implements OnInit, OnDestroy {
       if (!this.isValidDraft(parsed)) {
         this.clearDraft();
         return;
+      }
+      if (typeof window !== 'undefined') {
+        const urlStep = Number(new URLSearchParams(window.location.search).get('step'));
+        if (Number.isInteger(urlStep) && urlStep >= 1 && urlStep <= 6) {
+          parsed.currentStep = urlStep;
+        }
       }
       this.applyDraft(parsed);
     } catch {
@@ -549,6 +588,17 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.requiredSkills.set(Array.isArray(draft.step3.requiredSkills) ? draft.step3.requiredSkills : []);
     this.outputs.set(draft.step3.outputs ?? '');
     this.deliveryDays.set(typeof draft.step3.deliveryDays === 'number' ? draft.step3.deliveryDays : null);
+    const review = draft.step3.aiReview;
+    if (review && typeof review.text === 'string' && typeof review.original === 'string') {
+      this.aiStreamText.set(review.text.slice(0, REWRITE_PREVIEW_MAX_CHARS));
+      this.aiOriginalDescription.set(review.original.slice(0, CreateRequest.DESCRIPTION_MAX));
+      this.aiSourceTitle.set(typeof review.sourceTitle === 'string' ? review.sourceTitle.slice(0, CreateRequest.TITLE_MAX) : this.title());
+      this.aiReviewStatus.set(review.status === 'completed' && review.text.length <= REWRITE_PREVIEW_MAX_CHARS ? 'completed' : review.status === 'error' ? 'error' : 'partial');
+      this.aiDraftEdits.set(Object.fromEntries(Object.entries(review.edits ?? {}).filter(([id, text]) => /^option-\d+$/.test(id) && typeof text === 'string').slice(0, 20).map(([id, text]) => [id, String(text).slice(0, REWRITE_PREVIEW_MAX_CHARS)])));
+      this.aiSelectedOptionId.set(this.aiPreview().options.some(option => option.id === review.selectedId) ? review.selectedId : this.aiPreview().options[0]?.id ?? null);
+      this.aiAppliedOptionId.set(typeof review.appliedId === 'string' ? review.appliedId : null);
+      this.showAiSuggest.set(true);
+    }
 
     const asNumberOrNull = (v: unknown): number | null => typeof v === 'number' ? v : null;
     this.budgetType.set(draft.step4.budgetType ?? 'range');
@@ -757,20 +807,24 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   useAiSuggest() {
-    const text = this.aiStreamText().trim();
+    const text = this.aiSelectedDraft().trim();
     if (!text) {
       this.notify.warning('لا يوجد نص مقترح لتطبيقه حالياً');
       return;
     }
-    this.setDescription(text); // the reply is used as WaseetAI wrote it, cut to the 2000 limit
-    this.showAiSuggest.set(false);
-    this.isAiStreaming.set(false);
+    if (!this.canApplyAiDraft()) {
+      this.notify.warning('راجع الصياغة المختارة وحدّها وتفاصيلها قبل الاستخدام.');
+      return;
+    }
+    this.setDescription(text);
+    this.aiAppliedOptionId.set(this.aiSelectedOptionId());
+    // Alternatives and edited drafts remain available after applying, so choosing another one is reversible.
+    this.showAiSuggest.set(true);
     this.notify.success('تم اعتماد الوصف المعاد صياغته في حقل التفاصيل بنجاح!');
   }
 
   dismissAiSuggest() {
     this.showAiSuggest.set(false);
-    this.isAiStreaming.set(false);
   }
 
   // Real-Time AI Description Generator & Refiner (Socket.IO Token Streaming)
@@ -778,11 +832,161 @@ export class CreateRequest implements OnInit, OnDestroy {
   aiStreamText = signal('');
   aiMode = signal<'refine' | null>(null);
   aiPhase = signal<'idle' | 'validating' | 'generating'>('idle');
+  aiReviewStatus = signal<'idle' | 'completed' | 'partial' | 'error'>('idle');
+  aiOriginalDescription = signal('');
+  aiSourceTitle = signal('');
+  aiSelectedOptionId = signal<string | null>(null);
+  aiAppliedOptionId = signal<string | null>(null);
+  aiDraftEdits = signal<Record<string, string>>({});
+  aiPreviewOverflow = signal(false);
+  aiReviewError = signal('');
+  aiPreview = computed(() => parseDescriptionRewrite(this.aiStreamText()));
+  aiSelectedOption = computed(() => this.aiPreview().options.find(option => option.id === this.aiSelectedOptionId()) ?? null);
+  aiSelectedDraft = computed(() => { const option = this.aiSelectedOption(); return option ? this.aiDraftEdits()[option.id] ?? option.text : ''; });
+  canApplyAiDraft = computed(() => this.aiReviewStatus() === 'completed' && !this.isAiStreaming() && !!this.aiSelectedDraft().trim() && this.aiSelectedDraft().length <= CreateRequest.DESCRIPTION_MAX);
+
+  formatAiPreview(text: string): string { return assistantMarkdown(text.replace(/^\s*(?:---|\*\*\*)\s*$/gm, '')); }
+  selectAiOption(id: string): void { if (this.aiPreview().options.some(option => option.id === id)) this.aiSelectedOptionId.set(id); }
+  editAiDraft(text: string): void { const id = this.aiSelectedOptionId(); if (id) this.aiDraftEdits.update(edits => ({ ...edits, [id]: String(text ?? '').slice(0, REWRITE_PREVIEW_MAX_CHARS) })); }
+  restoreOriginalDescription(): void { this.setDescription(this.aiOriginalDescription()); this.aiAppliedOptionId.set(null); }
 
   /** Rewriting only: the AI restates a title + description the client already wrote, it never writes them. */
   canRefineWithAi = computed(() => canRewrite(this.title(), this.description()));
+  isFetchingAiDraft = signal(false);
+
+  private formatClientDraftText(text: string | null | undefined, isSingleLine = false): string {
+    if (!text) return '';
+    if (isSingleLine) {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/__(.*?)__/g, '$1')
+        .replace(/^#{1,6}\s+/gm, '')
+        .replace(/^\s*[-*•▸]\s+/gm, '')
+        .replace(/`/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+    let cleaned = text
+      .replace(/\r\n/g, '\n')
+      .replace(/(?:^|\s+)#{1,6}\s*([^\n]+)/g, '\n\n▸ $1\n')
+      .replace(/\*\*([^*]+?:)\*\*/g, '\n\n▸ $1\n')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/__(.*?)__/g, '$1')
+      .replace(/`/g, '');
+    cleaned = cleaned.replace(/:\s*(?=1\.\s*)/g, ':\n\n');
+    cleaned = cleaned.replace(/([.؛!؟])\s*(?=[1-9]\.\s*)/g, '$1\n');
+    cleaned = cleaned.replace(/\s+(?=[1-9]\.\s+)/g, '\n');
+    cleaned = cleaned.replace(/^([1-9]\.)\s+/gm, '$1 ');
+    cleaned = cleaned.replace(/([.:؛،])\s*-\s+/g, '$1\n• ');
+    cleaned = cleaned.replace(/^\s*[-*]\s+/gm, '• ');
+    cleaned = cleaned.replace(/\.([أإآابتثجحخدذرزسشصضطظعغفقكلمنهوي])/g, '. $1');
+    return cleaned.replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  /**
+   * Comprehensive AI Request Generator & Improver for the Client:
+   * Works from a brief title, idea, or selected specialty and populates/improves:
+   * Title, Multi-line Description, Required Skills (from catalog), Additional Requirements,
+   * Expected Outputs, Delivery Days, Recommended Budget Range, and 100% Payment Milestones.
+   */
+  triggerAiFullSuggest() {
+    if (this.isFetchingAiDraft() || this.isAiStreaming()) return;
+    const rawTitle = this.title().trim();
+    const rawDesc = this.description().trim();
+    const specName = this.selectedSpec() === 'other' ? this.otherText().trim() : (this.currentSpec()?.name || '');
+
+    if (rawTitle.length < 3 && rawDesc.length < 5 && !specName) {
+      this.notify.warning('اكتب فكرة أو عنوانًا مبدئيًا للطلب (أو اختر التخصص في الخطوة الأولى) ليقوم الذكاء الاصطناعي بصياغة الطلب بالكامل.');
+      return;
+    }
+
+    this.isFetchingAiDraft.set(true);
+    if (rawDesc) {
+      this.aiOriginalDescription.set(rawDesc);
+    }
+
+    this.projectApi.getAiDraftSuggestion({
+      fullDraft: true,
+      title: rawTitle || undefined,
+      description: rawDesc || undefined,
+      specialtyId: this.selectedSpec() || undefined,
+      specialtyName: specName || 'عام',
+      subSpecialties: Array.from(this.selectedSubs()),
+      availableSkills: this.skillOptions(),
+      deliveryDays: this.deliveryDays()
+    }).subscribe({
+      next: (res: any) => {
+        this.isFetchingAiDraft.set(false);
+        const d = res?.data || res;
+        if (!d || (!d.suggestedTitle && !d.suggestedDescription)) {
+          this.notify.warning('تعذر توليد المقترح الذكي حالياً، حاول مرة أخرى.');
+          return;
+        }
+
+        if (d.suggestedTitle) {
+          this.setTitle(this.formatClientDraftText(d.suggestedTitle, true));
+        }
+        if (d.suggestedDescription) {
+          this.setDescription(this.formatClientDraftText(d.suggestedDescription, false));
+        }
+
+        // Match requiredSkills against loaded catalog (skillOptions) so backend validation always passes
+        const catalog = this.skillOptions();
+        if (catalog.length > 0) {
+          const aiSkills: string[] = Array.isArray(d.suggestedRequiredSkills) ? d.suggestedRequiredSkills : [];
+          const matched = catalog.filter(catSkill =>
+            aiSkills.some(s => s.toLowerCase() === catSkill.toLowerCase() || catSkill.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(catSkill.toLowerCase()))
+          );
+          const finalSkills = matched.length > 0 ? matched.slice(0, 6) : catalog.slice(0, Math.min(4, catalog.length));
+          this.setRequiredSkills(Array.from(new Set([...this.requiredSkills(), ...finalSkills])));
+        }
+
+        if (Array.isArray(d.suggestedRequirements) && d.suggestedRequirements.length > 0) {
+          const cleanReqs = d.suggestedRequirements
+            .map((r: string) => this.formatClientDraftText(r, true))
+            .filter(Boolean);
+          this.requirements.update(existing => Array.from(new Set([...existing, ...cleanReqs])).slice(0, 10));
+        }
+
+        if (d.suggestedOutputs) {
+          this.outputs.set(this.formatClientDraftText(d.suggestedOutputs, false).slice(0, 1000));
+        }
+
+        if (typeof d.suggestedDurationDays === 'number' && d.suggestedDurationDays >= 1) {
+          this.deliveryDays.set(Math.min(365, Math.round(d.suggestedDurationDays)));
+        } else if (!this.deliveryDays()) {
+          this.deliveryDays.set(7);
+        }
+
+        if (typeof d.recommendedMinBudget === 'number' && d.recommendedMinBudget > 0) {
+          const minB = Math.max(100, Math.round(d.recommendedMinBudget));
+          const maxB = Math.max(minB, Math.round(d.recommendedMaxBudget || minB * 2));
+          this.budgetMin.set(minB);
+          this.budgetMax.set(maxB);
+          this.budgetFixed.set(Math.round((minB + maxB) / 2));
+        }
+
+        if (Array.isArray(d.suggestedMilestones) && d.suggestedMilestones.length >= 2) {
+          this.splitMilestones.set(true);
+          this.milestones.set(
+            d.suggestedMilestones.map((m: any) => ({
+              name: this.formatClientDraftText(m.name, true).slice(0, 120) || 'مرحلة تنفيذ',
+              pct: Math.max(1, Math.round(Number(m.pct) || 0))
+            }))
+          );
+        }
+
+        this.notify.success('تم تحسين العنوان وكتابة الوصف والمخرجات والمهارات والميزانية والمراحل بالذكاء الاصطناعي بنجاح!');
+      },
+      error: (err: any) => {
+        this.isFetchingAiDraft.set(false);
+        this.notify.error(err?.error?.message || 'تعذر توليد المقترح بالذكاء الاصطناعي حالياً. حاول مرة أخرى.');
+      }
+    });
+  }
 
   triggerAiDescription() {
+    if (this.isAiStreaming()) return;
     const projTitle = this.title().trim();
     if (!this.canRefineWithAi()) {
       // No AI call, no socket, nothing written into the form.
@@ -802,6 +1006,23 @@ export class CreateRequest implements OnInit, OnDestroy {
     }
 
     const currentDesc = this.description().trim();
+    const previousReview = this.aiStreamText() ? {
+      text: this.aiStreamText(), original: this.aiOriginalDescription(), title: this.aiSourceTitle(), selected: this.aiSelectedOptionId(), applied: this.aiAppliedOptionId(), edits: this.aiDraftEdits(), status: this.aiReviewStatus()
+    } : null;
+    const restorePreviousReview = () => {
+      if (!previousReview) return false;
+      this.aiStreamText.set(previousReview.text); this.aiOriginalDescription.set(previousReview.original); this.aiSourceTitle.set(previousReview.title);
+      this.aiSelectedOptionId.set(previousReview.selected); this.aiAppliedOptionId.set(previousReview.applied); this.aiDraftEdits.set(previousReview.edits); this.aiReviewStatus.set(previousReview.status);
+      this.showAiSuggest.set(true); return true;
+    };
+    this.aiOriginalDescription.set(currentDesc);
+    this.aiSourceTitle.set(projTitle);
+    this.aiDraftEdits.set({});
+    this.aiSelectedOptionId.set(null);
+    this.aiAppliedOptionId.set(null);
+    this.aiReviewStatus.set('idle');
+    this.aiReviewError.set('');
+    this.aiPreviewOverflow.set(false);
     this.aiMode.set('refine');
     this.aiStreamText.set('');
     this.isAiStreaming.set(true);
@@ -832,33 +1053,46 @@ export class CreateRequest implements OnInit, OnDestroy {
 
     this.socket.on('ai:description_chunk', (data: { chunk: string; mode: string }) => {
       if (data?.chunk) {
-        this.aiStreamText.update(text => text + data.chunk);
+        this.aiStreamText.update(text => { const next = text + data.chunk; if (next.length > REWRITE_PREVIEW_MAX_CHARS) this.aiPreviewOverflow.set(true); return next.slice(0, REWRITE_PREVIEW_MAX_CHARS); });
+        this.aiReviewStatus.set('partial');
       }
     });
 
-    this.socket.on('ai:description_complete', (data: { fullText?: string; message?: string; mode: string }) => {
+    this.socket.on('ai:description_complete', (data: { fullText?: string; message?: string; mode: string; error?: boolean; truncated?: boolean; partial?: boolean; status?: string; completed?: boolean; finishReason?: string }) => {
       this.isAiStreaming.set(false);
       this.aiPhase.set('idle');
-      if (data?.fullText && !this.aiStreamText()) {
-        this.aiStreamText.set(data.fullText);
+      if (typeof data?.fullText === 'string') {
+        this.aiPreviewOverflow.set(data.fullText.length > REWRITE_PREVIEW_MAX_CHARS);
+        this.aiStreamText.set(data.fullText.slice(0, REWRITE_PREVIEW_MAX_CHARS));
       }
       const checked = checkRewriteOutput(currentDesc, this.aiStreamText());
       if (!checked.ok) {
         // An empty reply: nothing to show, the client's text stays.
         this.aiStreamText.set('');
-        this.showAiSuggest.set(false);
+        if (!restorePreviousReview()) this.showAiSuggest.set(false);
         this.notify.warning('لم تُرجع خدمة الصياغة نصًا، فبقي وصفك كما كتبته. حاول مرة أخرى.');
         return;
       }
-      this.aiStreamText.set(checked.text); // never longer than the description limit
+      this.aiStreamText.set(checked.text);
+      const incomplete = this.aiPreviewOverflow() || data?.error === true || data?.truncated === true || data?.partial === true || data?.completed === false || (data?.status && !['completed', 'success'].includes(data.status)) || (data?.finishReason && data.finishReason !== 'STOP');
+      this.aiReviewStatus.set(incomplete ? 'partial' : 'completed');
+      this.aiSelectedOptionId.set(this.aiPreview().options[0]?.id ?? null);
+      if (incomplete) {
+        this.notify.warning('الرد غير مكتمل؛ المعاينة محفوظة، ولم يتغير وصفك. أعد المحاولة لاستكمال الصياغة.');
+        return;
+      }
       this.notify.success(data?.message || 'اكتملت إعادة الصياغة، راجعها قبل اعتمادها');
     });
 
-    this.socket.on('ai:description_error', (data: { message?: string }) => {
+    this.socket.on('ai:description_error', (data: { message?: string; partialText?: string; truncated?: boolean }) => {
       this.isAiStreaming.set(false);
       this.aiPhase.set('idle');
-      this.showAiSuggest.set(false);
-      this.aiStreamText.set('');
+      this.aiReviewStatus.set('error');
+      if (typeof data?.partialText === 'string' && data.partialText.trim()) this.aiStreamText.set(data.partialText.slice(0, REWRITE_PREVIEW_MAX_CHARS));
+      if (!this.aiStreamText()) restorePreviousReview();
+      this.aiSelectedOptionId.set(this.aiSelectedOptionId() ?? this.aiPreview().options[0]?.id ?? null);
+      this.aiReviewError.set(data?.message || 'تعذرت إعادة الصياغة. وصفك والمقترحات السابقة محفوظة.');
+      this.showAiSuggest.set(!!this.aiStreamText());
       this.notify.error(data?.message || 'تعذر الاتصال بخدمة الذكاء الاصطناعي حالياً. حاول مرة أخرى لاحقاً.');
     });
 

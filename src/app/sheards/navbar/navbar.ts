@@ -13,6 +13,7 @@ import { UserRole, AccountType } from '../../core/models/auth.model';
 import { getDefaultDashboard } from '../../core/guards/auth.guards';
 import { NotificationPopupComponent } from '../notification-popup/notification-popup';
 import { NotificationBell } from '../notification-bell/notification-bell';
+import { AssistantStore } from '../../core/store/assistant.store';
 
 @Component({
 	selector: 'app-navbar',
@@ -34,9 +35,27 @@ export class Navbar {
 	private notify = inject(UiNotificationService);
 	public chatState = inject(ChatStateService);
 	public cartService = inject(CartService);
+	public assistantStore = inject(AssistantStore, { optional: true });
 	private cdRef = inject(ChangeDetectorRef);
 	private el = inject(ElementRef);
 	private platformId = inject(PLATFORM_ID);
+	
+	characterName = computed(() => this.assistantStore?.characterName() || 'نديم');
+
+	toggleAssistant(): void {
+		if (this.assistantStore) {
+			if (this.assistantStore.dismissed()) {
+				this.assistantStore.restore();
+				this.assistantStore.open();
+			} else if (this.assistantStore.panelOpen()) {
+				this.assistantStore.close();
+			} else {
+				this.assistantStore.open();
+			}
+		} else if (typeof window !== 'undefined') {
+			window.dispatchEvent(new CustomEvent('waseet-toggle-assistant'));
+		}
+	}
 	
 	isMobileMenuOpen = false;
 	exactMatchOptions = { exact: true };

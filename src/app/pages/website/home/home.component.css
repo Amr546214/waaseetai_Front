@@ -109,7 +109,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 /* CTA */
 
 /* COOKIE */
-.cookie-bar{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:300;width:min(calc(100% - 32px),820px)}
+.cookie-bar{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:1000;width:min(calc(100% - 32px),820px)}
 .cookie-bar.visible{display:block}
 .cookie-inner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 18px;background:rgba(11,20,55,.95);border:1px solid rgba(43,212,199,.2);border-radius:14px;backdrop-filter:blur(20px)}
 .cookie-txt{flex:1;font-size:12px;color:var(--txt-3);min-width:200px}

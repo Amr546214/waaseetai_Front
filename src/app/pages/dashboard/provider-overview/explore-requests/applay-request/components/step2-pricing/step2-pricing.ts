@@ -16,8 +16,10 @@ export class Step2Pricing {
   @Input() totalDays = 0;
   @Input() totalPct = 0;
   @Input() totalAmount = 0;
+  @Input() isFetchingAiSuggest = false;
 
   @Output() updateTotalBudget = new EventEmitter<number>();
+  @Output() useAISuggest = new EventEmitter<void>();
   @Output() addMilestone = new EventEmitter<void>();
   @Output() removeMilestone = new EventEmitter<string>();
   @Output() updateMilestone = new EventEmitter<{id: string, updates: Partial<Milestone>}>();

@@ -1,15 +1,27 @@
 /* Bebo v4 — pixel companion. No dependencies. */
 (() => {
   'use strict';
-  if (customElements.get('cute-robot')) return;
+  if (customElements.get('cute-robot') && customElements.get('khaled-guide-robot')) return;
   const base = document.currentScript?.src || document.baseURI;
-  const assets = {
+    const classicAssets = {
     base: new URL('robot-sprites.png', base).href,
     action: new URL('robot-actions.png', base).href,
     speech: new URL('robot-speaking.png', base).href,
     antics: new URL('robot-antics.png', base).href,
     emotions: new URL('robot-emotions.png', base).href,
-    cat: new URL('kitten-sprites.png', base).href
+    cat: new URL('kitten-sprites.png', base).href,
+    traffic: new URL('scout/guide-traffic.png', base).href,
+    expressions: new URL('scout/guide-expressions.png', base).href
+  };
+  const scoutAssets = {
+    base: new URL('scout/guide-sprites.png', base).href,
+    action: new URL('scout/guide-actions.png', base).href,
+    speech: new URL('scout/guide-speaking.png', base).href,
+    antics: new URL('scout/guide-antics.png', base).href,
+    emotions: new URL('scout/guide-emotions.png', base).href,
+    cat: new URL('scout/kitten-sprites.png', base).href,
+    traffic: new URL('scout/guide-traffic.png', base).href,
+    expressions: new URL('scout/guide-expressions.png', base).href
   };
   const poses = {
     idle: { frames: [0], label: 'مستني معاك' },
@@ -29,6 +41,18 @@
     plead: {atlas:'emotions',frames:[4,5],label:'بيعمل عيون قطط وصعبانيات',step:1400,duration:5600},
     chase: {atlas:'emotions',frames:[6,7],label:'بيجري ورا القطة',step:240,duration:10500},
     catrest: {frames:[2,3],label:'بيسلّم على القطة',step:800,duration:2800},
+    drive: {atlas:'traffic',frames:[0,1],label:'بيسوق عربيته بالحزام',step:750,duration:6000},
+    crash: {atlas:'traffic',frames:[2,3,3,3],label:'بيمثل خبطة كرتونية بسيطة',step:850,duration:3400},
+    seatbelt: {atlas:'traffic',frames:[4,4,5,5],label:'بيربط حزام الأمان',step:900,duration:3600},
+    traffic: {atlas:'traffic',frames:[6,7],label:'بينظم المرور عند الإشارة',step:2400,duration:4800},
+    crosswalk: {atlas:'action',frames:[0,1],label:'بيعبر عند خطوط المشاة',step:340,duration:5000},
+    map: {atlas:'speech',frames:[3,4,3,3],label:'بيفرد خريطة وبيشير للمسار',step:1050,duration:4200},
+    report: {atlas:'speech',frames:[2,3,2,2],label:'بيراجع تقرير وبيعلّم عليه',step:1150,duration:4600},
+    chart: {atlas:'speech',frames:[3,4,4,3],label:'بيشرح رسم بياني صغير',step:1100,duration:4400},
+    amazed: {atlas:'expressions',frames:[0,1],label:'مندهش ومتحمس',step:1000,duration:4400},
+    whisper: {atlas:'expressions',frames:[2,3],label:'بيهمس بهدوء',step:1100,duration:4600},
+    shout: {atlas:'expressions',frames:[4,5],label:'بينادي بصوت عالي',step:950,duration:4200},
+    idea: {atlas:'expressions',frames:[6,7],label:'عنده فكرة وبيشرحها',step:1050,duration:4500},
     sleep: { frames: [7], label: 'نعسان' },
     walk: { atlas: 'action', frames: [0,1], label: 'بيمشي', step: 140 },
     typing: { atlas: 'action', frames: [2,3], label: 'بيكتب على اللابتوب', step: 170 },
@@ -47,7 +71,28 @@
 
   const clamp = (n, min, max) => Math.max(min, Math.min(n, max));
   class CuteRobot extends HTMLElement {
-    static observedAttributes = ['state','size','sprite','actions','paused','interactive','movable','floating','roam','floor-offset','speaking-sprite','home-x','antics-sprite','emotions-sprite','cat-sprite'];
+    static observedAttributes = ['state','size','sprite','actions','paused','interactive','movable','floating','roam','floor-offset','speaking-sprite','home-x','antics-sprite','emotions-sprite','cat-sprite','traffic-sprite','expressions-sprite','brand-logo','skin','label'];
+    get skin() {
+      return this.getAttribute('skin') || 'classic';
+    }
+    _activeAssets() {
+      return (this.skin === 'scout' || this.skin === 'safety') ? scoutAssets : classicAssets;
+    }
+    _advanceRoadScene() {
+      if(!this.movable || this._motion.matches)return;
+      const lim=this._limits();
+      if(!this._roadScene){
+        const direction=this._x<(lim.minX+lim.maxX)/2?1:-1;
+        const distance=Math.min(this.state==='drive'?190:130,(lim.maxX-lim.minX)*.65);
+        this._roadScene={start:this._x,target:clamp(this._x+direction*distance,lim.minX,lim.maxX),direction};
+        this._face(direction);
+      }
+      const scene=this._roadScene;
+      const progress=clamp(this._elapsed/Math.max(1,this._duration||5000),0,1);
+      const smooth=progress*progress*(3-2*progress);
+      this._x=clamp(scene.start+(scene.target-scene.start)*smooth,lim.minX,lim.maxX);
+      this._y=lim.maxY;this._place();
+    }
     constructor() {
       super();
       this._x = 0; this._y = 0; this._elapsed = 0; this._idleTime = 0;
@@ -117,6 +162,13 @@
     }
     attributeChangedCallback(name, oldValue, newValue) {
       if (oldValue === newValue) return;
+      if (name === 'skin') {
+        this._image = null;
+        this._frameKey = null;
+        this._paint();
+        this._refresh();
+        return;
+      }
       if (name === 'state') {
         if(this.state!=='catrest')this._chase=null;
         this._elapsed = 0; this._idleTime = 0; this._duration = poses[this.state].duration || 0;
@@ -152,7 +204,7 @@
         return this.walkTo(this._x < (lim.minX + lim.maxX) / 2 ? lim.maxX : lim.minX);
       }
       if (state === 'jump') return this.jump();
-      this._walkTarget = null; this._falling = false;
+      this._walkTarget = null; this._falling = false; this._roadScene = null;
       if (this.movable) { this._y = this._limits().maxY; this._place(); }
       this._setPose(state, options);
       return this;
@@ -184,13 +236,31 @@
       this._walkTarget = null; this._falling = false; this._positioned = false;
       this._layout(); this._setPose('idle'); return this;
     }
+    setMovementBounds(bounds = null) {
+      if (bounds && !['minX','minY','maxX','maxY'].every(key => Number.isFinite(bounds[key]))) {
+        throw new TypeError('Movement bounds require finite coordinates');
+      }
+      const next = bounds ? { ...bounds } : null;
+      const previous = this._movementBounds;
+      if ((!next && !previous) || (next && previous && ['minX','minY','maxX','maxY'].every(key => next[key] === previous[key]))) return this;
+      this._movementBounds = next;
+      if (this.isConnected) this._layout();
+      return this;
+    }
     _limits() {
       const floating = this.hasAttribute('floating');
       const parent = this.offsetParent || this.parentElement;
       const width = floating ? document.documentElement.clientWidth : (parent?.clientWidth || 320);
       const height = floating ? window.innerHeight : (parent?.clientHeight || 320);
       const pad = floating ? 12 : 0;
-      return { minX:pad,minY:pad,maxX:Math.max(pad,width-this._size-pad),maxY:Math.max(pad,height-this._size-pad-(floating?Math.max(0,Number(this.getAttribute('floor-offset'))||0):0)) };
+      const dockOffset = floating ? 54 : 0;
+      if (floating && this._movementBounds) {
+        const bounds = this._movementBounds;
+        const minX = clamp(bounds.minX,0,Math.max(0,width-this._size));
+        const minY = clamp(bounds.minY,0,Math.max(0,height-this._size));
+        return { minX,minY,maxX:clamp(bounds.maxX,minX,Math.max(minX,width-this._size)),maxY:clamp(bounds.maxY,minY,Math.max(minY,height-this._size)) };
+      }
+      return { minX:pad,minY:pad,maxX:Math.max(pad,width-this._size-pad),maxY:Math.max(pad,height-this._size-pad-dockOffset-(floating?Math.max(0,Number(this.getAttribute('floor-offset'))||0):0)) };
     }
     _layout() {
       const requested = Number(this.getAttribute('size')) || 128;
@@ -335,7 +405,7 @@
       this.style.setProperty('--cat-x',(c.x-(this.movable?this._x:0))+'px');
       this.style.setProperty('--cat-y',(this._size*.91-b.size*.89)+'px');
       this.style.setProperty('--cat-facing',String(c.direction));
-      const src=this.getAttribute('cat-sprite')||assets.cat;
+      const src=this.getAttribute('cat-sprite')||this._activeAssets().cat;
       if(this._catImage!==src){this._catImage=src;this._catSprite.style.backgroundImage='url('+JSON.stringify(src)+')';}
       const frame=this._motion.matches?6:this.state==='catrest'?6+Math.floor(this._elapsed/900)%2:Math.floor(this._elapsed/145)%6;
       this._catSprite.style.backgroundPosition=(frame%4*100/3)+'% '+(Math.floor(frame/4)*100)+'%';
@@ -347,7 +417,14 @@
       this._paintKitten();
       const pose = poses[this.state];
       const atlas = pose.atlas || 'base';
-      const image = atlas === 'emotions' ? this.getAttribute('emotions-sprite') || assets.emotions : atlas === 'antics' ? this.getAttribute('antics-sprite') || assets.antics : atlas === 'speech' ? this.getAttribute('speaking-sprite') || assets.speech : atlas === 'base' ? this.getAttribute('sprite') || assets.base : this.getAttribute('actions') || assets.action;
+      const cur = this._activeAssets();
+      const image = atlas === 'emotions' ? this.getAttribute('emotions-sprite') || cur.emotions :
+                    atlas === 'antics' ? this.getAttribute('antics-sprite') || cur.antics :
+                    atlas === 'speech' ? this.getAttribute('speaking-sprite') || cur.speech :
+                    atlas === 'traffic' ? this.getAttribute('traffic-sprite') || cur.traffic :
+                    atlas === 'expressions' ? this.getAttribute('expressions-sprite') || cur.expressions :
+                    atlas === 'base' ? this.getAttribute('sprite') || cur.base :
+                    this.getAttribute('actions') || cur.action;
       if (this._image !== image) {
         this._image = image; this._sprite.style.backgroundImage = 'url(' + JSON.stringify(image) + ')';
       }
@@ -376,6 +453,7 @@
       this._lastTime = time; this._elapsed += dt;
       if(this.state==='speaking'&&typeof this._speechLevel==='number'){const mix=1-Math.exp(-dt/160);this._speechFiltered=(this._speechFiltered||0)+(this._speechLevel-(this._speechFiltered||0))*mix;}
       if(this.state==='chase')this._advanceChase(dt);
+      else if(['drive','crosswalk'].includes(this.state))this._advanceRoadScene();
       else if (this._falling) {
         this._velocityY += 1900*dt/1000;
         this._y = Math.min(this._limits().maxY,this._y+this._velocityY*dt/1000);
@@ -417,5 +495,9 @@
       else this._raf = 0;
     }
   }
-  customElements.define('cute-robot',CuteRobot);
+  if (!customElements.get('cute-robot')) customElements.define('cute-robot', CuteRobot);
+  if (!customElements.get('khaled-guide-robot')) {
+    class KhaledGuideRobot extends CuteRobot {}
+    customElements.define('khaled-guide-robot', KhaledGuideRobot);
+  }
 })();

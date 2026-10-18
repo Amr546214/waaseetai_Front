@@ -133,7 +133,8 @@
 		<ng-container *ngSwitchCase="5">
 			<app-step5-evaluation [isAiAnalyzing]="isAiAnalyzing()" [aiEvaluation]="aiEvaluation()"
 				(onApplySuggestedPricing)="applySuggestedPricing()"
-				(onApplySuggestedMilestones)="applySuggestedMilestones()">
+				(onApplySuggestedMilestones)="applySuggestedMilestones()"
+				(onRetryAnalysis)="retryAiEvaluation()">
 			</app-step5-evaluation>
 		</ng-container>
 

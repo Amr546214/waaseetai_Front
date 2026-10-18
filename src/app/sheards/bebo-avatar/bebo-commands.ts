@@ -28,11 +28,56 @@ export const BEBO_VOICES = ['Puck', 'Kore', 'Fenrir', 'Aoede', 'Zephyr', 'Sulafa
 export type BeboVoice = (typeof BEBO_VOICES)[number];
 export const DEFAULT_VOICE: BeboVoice = 'Puck';
 
+import { BEBO_EXTRA_POSES, type BeboPose } from './bebo-loader';
+
 export const BEBO_ACTIONS = [
 	'jump', 'walk', 'wave', 'happy', 'typing', 'rest', 'sleep', 'idle', 'reset', 'stop',
 	'roam_on', 'roam_off', 'scratch', 'dance', 'fly', 'laugh', 'cry', 'plead', 'chase',
+	'speaking', ...BEBO_EXTRA_POSES,
 ] as const;
 export type BeboAction = (typeof BEBO_ACTIONS)[number];
+
+export interface BeboMotionItem {
+	action: BeboAction | BeboPose;
+	label: string;
+	icon: string;
+}
+
+/** Core playful cartoon motions for Bebo (classic assistant). */
+export const BEBO_CORE_MOTIONS: readonly BeboMotionItem[] = [
+	{ action: 'wave', label: 'يسلّم', icon: '👋' },
+	{ action: 'laugh', label: 'يضحك', icon: '😄' },
+	{ action: 'plead', label: 'عيون قطط', icon: '🥺' },
+	{ action: 'chase', label: 'يلعب مع القطة', icon: '🐈' },
+	{ action: 'cry', label: 'يعيط', icon: '😭' },
+	{ action: 'dance', label: 'يرقص', icon: '🎵' },
+	{ action: 'scratch', label: 'يهرش', icon: '🤔' },
+	{ action: 'fly', label: 'يمسك دبّانة', icon: '🪰' },
+	{ action: 'jump', label: 'ينط', icon: '✨' },
+	{ action: 'walk', label: 'يمشي', icon: '🚶' },
+	{ action: 'typing', label: 'يكتب باللاب', icon: '💻' },
+	{ action: 'sleep', label: 'ينام', icon: '💤' },
+];
+
+/** Full guide & safety motions for Nadeem (Scout - Platform Guide). */
+export const NADEEM_GUIDE_MOTIONS: readonly BeboMotionItem[] = [
+	{ action: 'map', label: 'يفرد الخريطة', icon: '🗺️' },
+	{ action: 'report', label: 'يراجع تقرير', icon: '📋' },
+	{ action: 'chart', label: 'يشرح رسم بياني', icon: '📊' },
+	{ action: 'speaking', label: 'حركة الكلام', icon: '🗣️' },
+	{ action: 'amazed', label: 'ينبهر', icon: '🤩' },
+	{ action: 'idea', label: 'جت له فكرة', icon: '💡' },
+	{ action: 'whisper', label: 'حركة الهمس', icon: '🤫' },
+	{ action: 'shout', label: 'زعيق كرتوني', icon: '😤' },
+	{ action: 'drive', label: 'يسوق عربية', icon: '🚗' },
+	{ action: 'crash', label: 'خبطة كرتونية', icon: '💥' },
+	{ action: 'seatbelt', label: 'يربط الحزام', icon: '🛡️' },
+	{ action: 'traffic', label: 'إشارة المرور', icon: '🚦' },
+	{ action: 'crosswalk', label: 'يعبر بأمان', icon: '🚶' },
+	...BEBO_CORE_MOTIONS,
+];
+
+export const BEBO_ALL_MOTIONS = NADEEM_GUIDE_MOTIONS;
 
 export const isBeboDialect = (v: unknown): v is BeboDialect => typeof v === 'string' && Object.hasOwn(BEBO_DIALECTS, v);
 export const isBeboVoice = (v: unknown): v is BeboVoice => typeof v === 'string' && (BEBO_VOICES as readonly string[]).includes(v);
@@ -75,7 +120,7 @@ const COMMAND_GROUPS: Record<BeboAction, string[]> = {
 	roam_on: ['اتحرك لوحدك', 'اتحرك من نفسك', 'تحرك من نفسك', 'wander', 'roam'],
 	roam_off: ['بطل تتحرك لوحدك', 'وقف التجول', 'stop roaming'],
 	jump: ['انط', 'نط', 'اقفز', 'انط كده', 'يلا انط', 'jump', 'hop'],
-	walk: ['امشي', 'اتمشي', 'تمشي', 'تحرك', 'امش', 'امشي شوية', 'walk', 'take a walk'],
+	walk: ['امشي', 'اتمشي', 'تمشي', 'تحرك', 'امش', 'امشي شوية', 'اجري', 'اجري شوية', 'walk', 'take a walk', 'run'],
 	wave: ['سلم', 'سلم عليا', 'سلم علي', 'لوح', 'قول هاي', 'wave', 'wave hello'],
 	happy: ['افرح', 'احتفل', 'celebrate', 'be happy'],
 	dance: ['ارقص', 'ارقصلي', 'ارقص لي', 'يلا ارقص', 'dance', 'dance for me'],
@@ -89,14 +134,26 @@ const COMMAND_GROUPS: Record<BeboAction, string[]> = {
 	rest: ['اقعد', 'ارتاح', 'استريح', 'sit', 'rest'],
 	sleep: ['نام', 'روح نام', 'sleep'],
 	idle: ['استني', 'قف', 'وقف الحركة', 'توقف', 'wait', 'stand still'],
-	// Handoff object order matters for iteration only when phrases overlap;
-	// they do not, so a record keyed by action is equivalent.
-} as Record<BeboAction, string[]>;
+	map: ['افرد الخريطة', 'هات الخريطة', 'الخريطة', 'map', 'unfold map'],
+	report: ['راجع التقرير', 'تقرير', 'هات التقرير', 'report', 'review report'],
+	chart: ['اشرح الرسم', 'رسم بياني', 'chart', 'explain chart'],
+	speaking: ['اتكلم', 'حركة الكلام', 'speak', 'talking'],
+	amazed: ['انبهر', 'واو', 'يا سلام', 'amazed', 'wow'],
+	idea: ['فكرة', 'جت لي فكرة', 'عندي فكرة', 'idea'],
+	whisper: ['اهمس', 'همس', 'whisper'],
+	shout: ['زعق', 'نادي', 'shout'],
+	drive: ['سوق', 'سوق العربية', 'drive', 'drive car'],
+	crash: ['خبطة', 'اصطدام', 'crash'],
+	seatbelt: ['اربط الحزام', 'حزام الأمان', 'seatbelt'],
+	traffic: ['اشارة المرور', 'المرور', 'traffic'],
+	crosswalk: ['اعبر', 'خط المشاة', 'crosswalk'],
+};
 
 /** Exact-phrase command match (handoff `commandFor`), or null. */
 export function commandFor(text: string): BeboAction | null {
 	const t = normalize(text)
-		.replace(/^(يا\s+)?(بيبو|bebo)\s+/, '')
+		.replace(/^(من فضلك|لو سمحت|ممكن|please)\s+/, '')
+		.replace(/^(يا\s+)?(بيبو|bebo|نديم|nadeem)\s+/, '')
 		.replace(/^(من فضلك|لو سمحت|ممكن|please)\s+/, '')
 		.trim();
 	if (t.length > 100 || /^(لا|مت|ما|dont|do not|don't)\b/.test(t)) return null;
@@ -104,14 +161,74 @@ export function commandFor(text: string): BeboAction | null {
 	return null;
 }
 
-const ACKNOWLEDGEMENTS: Record<BeboDialect, Record<BeboAction, string>> = {
-	egyptian: { laugh: 'هاهاها! مش قادر أمسك نفسي!', cry: 'دموعي بقت شلّال! هاتوا المناديل!', plead: 'طب علشاني أنا؟ بصّ للعيون دي!', chase: 'يا بسبس، استنيني! نلعب استغماية؟', scratch: 'ثانية، فيه حاجة بتقرّصني!', dance: 'على واحدة ونص! شوف الرقصة دي.', fly: 'إيه ده؟ دبّانة! تعالي هنا…', jump: 'حاضر، نطّة حلوة ليك!', walk: 'حاضر، هتمشّى شوية.', wave: 'أهلًا بيك! نورتني.', happy: 'يا سلام! خلّينا نفرح سوا.', typing: 'فتحت اللابتوب، جاهز أشتغل معاك.', rest: 'حاضر، استراحة صغيرة.', sleep: 'تصبح على خير، هنام شوية.', idle: 'حاضر، مستني معاك.', reset: 'رجعت لمكاني.', stop: 'حاضر، وقّفت الصوت.', roam_on: 'تمام، هتحرّك من نفسي شوية.', roam_off: 'تمام، وقّفت التجوّل.' },
-	saudi: { laugh: 'هههه! ما قدرت أمسك ضحكتي!', cry: 'دموعي صارت شلّال! وين المناديل؟', plead: 'تكفى، شوف هالعيون!', chase: 'يا بسبس، انتظريني! خلّنا نلعب.', scratch: 'لحظة، أحكّ راسي شوي!', dance: 'أبشر، هذي رقصة لك!', fly: 'وش هذي؟ ذبابة! خلّني أمسكها.', jump: 'أبشر، هذي نطّة لك!', walk: 'أبشر، بتمشّى شوي.', wave: 'يا هلا والله! حيّاك.', happy: 'يا سلام، خلّنا نحتفل!', typing: 'أبشر، فتحت اللابتوب وجاهز أشتغل معك.', rest: 'تمام، باخذ لي راحة.', sleep: 'تصبح على خير.', idle: 'أبشر، أنا بانتظارك.', reset: 'رجعت مكاني.', stop: 'أبشر، وقّفت الصوت.', roam_on: 'أبشر، بتحرّك من نفسي شوي.', roam_off: 'تمام، وقّفت التجوّل.' },
-	gulf: { laugh: 'هههه! وايد تضحّك!', cry: 'دموعي صارت شلّال! وين المناديل؟', plead: 'عشاني أنا، شوف هالعيون!', chase: 'يا بسبس، نطريني! خلّنا نلعب.', scratch: 'لحظة، بحكّ راسي شوي!', dance: 'يلا، خلّنا نرقص شوي!', fly: 'شنو هذي؟ ذبابة! بمسكها.', jump: 'حاضر، نطّة حلوة لك!', walk: 'حاضر، بتمشّى شوي.', wave: 'هلا والله! شلونك؟', happy: 'وايد حلو، خلّنا نفرح!', typing: 'فتحت اللابتوب، جاهز أشتغل وياك.', rest: 'حاضر، باخذ راحة شوي.', sleep: 'تصبح على خير.', idle: 'حاضر، أنا موجود.', reset: 'ردّيت مكاني.', stop: 'حاضر، وقّفت الصوت.', roam_on: 'زين، بتحرّك من نفسي شوي.', roam_off: 'حاضر، وقّفت التجوّل.' },
-	msa: { laugh: 'هاهاها! لا أستطيع التوقف عن الضحك!', cry: 'يا لها من دموع! أحتاج منديلًا!', plead: 'من أجلي، رجاءً! انظر إلى عينيّ!', chase: 'انتظريني أيتها القطة! لنلعب معًا.', scratch: 'لحظة، سأحكّ رأسي قليلًا.', dance: 'حسنًا، إليك رقصة صغيرة!', fly: 'هناك ذبابة! سأحاول الإمساك بها.', jump: 'حسنًا، سأقفز الآن.', walk: 'حسنًا، سأمشي قليلًا.', wave: 'مرحبًا بك! يسعدني لقاؤك.', happy: 'رائع، لنحتفل معًا!', typing: 'فتحت الحاسوب، وأنا جاهز للعمل معك.', rest: 'حسنًا، سأستريح قليلًا.', sleep: 'تصبح على خير.', idle: 'حسنًا، أنا بانتظارك.', reset: 'عدت إلى مكاني.', stop: 'حسنًا، أوقفت الصوت.', roam_on: 'حسنًا، سأتحرك تلقائيًا.', roam_off: 'أوقفت التجوّل التلقائي.' },
-	english: { laugh: 'Hahaha! I cannot stop giggling!', cry: 'Oh no, cartoon waterfalls! Tissues, please!', plead: 'Pretty please? Look at these kitten eyes!', chase: 'Wait for me, kitty! Let us play.', scratch: 'One second, a little head scratch!', dance: 'Here comes my little dance!', fly: 'A fly! Let me catch it.', jump: 'Sure! Here comes a little jump.', walk: 'Sure, I will take a short walk.', wave: 'Hello there! Good to see you.', happy: 'Wonderful! Let us celebrate.', typing: 'Laptop open. Ready to work with you!', rest: 'Time for a little break.', sleep: 'Good night!', idle: 'Sure, I am here when you need me.', reset: 'Back in my spot.', stop: 'Okay, audio stopped.', roam_on: 'Sure, I will wander around a little.', roam_off: 'Automatic wandering is off.' },
+const ACKNOWLEDGEMENTS: Record<BeboDialect, Partial<Record<BeboAction | BeboPose, string>>> = {
+	egyptian: {
+		laugh: 'هاهاها! مش قادر أمسك نفسي!', cry: 'دموعي بقت شلّال! هاتوا المناديل!', plead: 'طب علشاني أنا؟ بصّ للعيون دي!',
+		chase: 'يا بسبس، استنيني! نلعب استغماية؟', scratch: 'ثانية، فيه حاجة بتقرّصني!', dance: 'على واحدة ونص! شوف الرقصة دي.',
+		fly: 'إيه ده؟ دبّانة! تعالي هنا…', jump: 'حاضر، نطّة حلوة ليك!', walk: 'حاضر، هتمشّى شوية.', wave: 'أهلًا بيك! نورتني.',
+		happy: 'يا سلام! خلّينا نفرح سوا.', typing: 'فتحت اللابتوب، جاهز أشتغل معاك.', rest: 'حاضر، استراحة صغيرة.',
+		sleep: 'تصبح على خير، هنام شوية.', idle: 'حاضر، مستني معاك.', reset: 'رجعت لمكاني.', stop: 'حاضر، وقّفت الصوت.',
+		roam_on: 'تمام، هتحرّك من نفسي شوية.', roam_off: 'تمام، وقّفت التجوّل.',
+		map: 'فردت الخريطة! نحدد المسار مع بعض.', report: 'فتحت التقرير وبراجعه سطر سطر.', chart: 'بشرح لك الرسم البياني بكل وضوح.',
+		speaking: 'أنا بتكلم وأشرح لك كل حاجة.', amazed: 'واو! منبهر جدًا باللي شايفه!', idea: 'وجدت الفكرة المناسبة ليك!',
+		whisper: 'سرك في بير.. هقولك على فكرة ذكية.', shout: 'حماااس كبير! يلا ننجز سوا!', drive: 'سقت بهدوء وربطت الحزام.',
+		crash: 'خبطة كرتونية بسيطة! كله تمام.', seatbelt: 'الأمان أولًا دايماً.', traffic: 'إشارة خضرا، نقدر نتحرك بأمان.',
+		crosswalk: 'عبرت بأمان عند خط المشاة.',
+	},
+	saudi: {
+		laugh: 'هههه! ما قدرت أمسك ضحكتي!', cry: 'دموعي صارت شلّال! وين المناديل؟', plead: 'تكفى، شوف هالعيون!',
+		chase: 'يا بسبس، انتظريني! خلّنا نلعب.', scratch: 'لحظة، أحكّ راسي شوي!', dance: 'أبشر، هذي رقصة لك!',
+		fly: 'وش هذي؟ ذبابة! خلّني أمسكها.', jump: 'أبشر، هذي نطّة لك!', walk: 'أبشر، بتمشّى شوي.', wave: 'يا هلا والله! حيّاك.',
+		happy: 'يا سلام، خلّنا نحتفل!', typing: 'أبشر، فتحت اللابتوب وجاهز أشتغل معك.', rest: 'تمام، باخذ لي راحة.',
+		sleep: 'تصبح على خير.', idle: 'أبشر، أنا بانتظارك.', reset: 'رجعت مكاني.', stop: 'أبشر، وقّفت الصوت.',
+		roam_on: 'أبشر، بتحرّك من نفسي شوي.', roam_off: 'تمام، وقّفت التجوّل.',
+		map: 'أبشر، فتحت الخريطة نحدد المسار.', report: 'أبشر، أراجع لك التقرير كامل.', chart: 'هذا الرسم البياني يوضّح لك كل شيء.',
+		speaking: 'أتكلّم وأشرح لك كل التفاصيل.', amazed: 'ما شاء الله! شيء مبهر.', idea: 'جاتني فكرة ممتازة!',
+		whisper: 'سر بيني وبينك.. بعلمك فكرة حلوة.', shout: 'يا هلا بالحماس! يلا نبدأ!', drive: 'نسوق برواق وسلامة.',
+		crash: 'خبطة بسيطة، الحمد لله على السلامة.', seatbelt: 'حزام الأمان أولاً.', traffic: 'الإشارة خضراء والمسار سالك.',
+		crosswalk: 'عبرت بأمان تام.',
+	},
+	gulf: {
+		laugh: 'هههه! وايد تضحّك!', cry: 'دموعي صارت شلّال! وين المناديل؟', plead: 'عشاني أنا، شوف هالعيون!',
+		chase: 'يا بسبس، نطريني! خلّنا نلعب.', scratch: 'لحظة، بحكّ راسي شوي!', dance: 'يلا، خلّنا نرقص شوي!',
+		fly: 'شنو هذي؟ ذبابة! بمسكها.', jump: 'حاضر، نطّة حلوة لك!', walk: 'حاضر، بتمشّى شوي.', wave: 'هلا والله! شلونك؟',
+		happy: 'وايد حلو، خلّنا نفرح!', typing: 'فتحت اللابتوب، جاهز أشتغل وياك.', rest: 'حاضر، باخذ راحة شوي.',
+		sleep: 'تصبح على خير.', idle: 'حاضر، أنا موجود.', reset: 'ردّيت مكاني.', stop: 'حاضر، وقّفت الصوت.',
+		roam_on: 'زين، بتحرّك من نفسي شوي.', roam_off: 'حاضر، وقّفت التجوّل.',
+		map: 'فتحت الخريطة، خلنا نشوف الدرب.', report: 'قاعد أراجع التقرير بدقة.', chart: 'أشرح لك الرسم والبيانات.',
+		speaking: 'أتكلم وأشرح لك الحين.', amazed: 'وايد مذهل!', idea: 'طلعت لي فكرة ذكية.',
+		whisper: 'بقولك سر صغير..', shout: 'يلا بحماس وقوة!', drive: 'نسوق بهدوء وسلام.',
+		crash: 'خبطة بسيطة والحمد لله سليم.', seatbelt: 'ربطت الحزام عدل.', traffic: 'الإشارة خضرا والأمور طيبة.',
+		crosswalk: 'عبرنا بسلامة وأمان.',
+	},
+	msa: {
+		laugh: 'هاهاها! لا أستطيع التوقف عن الضحك!', cry: 'يا لها من دموع! أحتاج منديلًا!', plead: 'من أجلي، رجاءً! انظر إلى عينيّ!',
+		chase: 'انتظريني أيتها القطة! لنلعب معًا.', scratch: 'لحظة، سأحكّ رأسي قليلًا.', dance: 'حسنًا، إليك رقصة صغيرة!',
+		fly: 'هناك ذبابة! سأحاول الإمساك بها.', jump: 'حسنًا، سأقفز الآن.', walk: 'حسنًا، سأمشي قليلًا.', wave: 'مرحبًا بك! يسعدني لقاؤك.',
+		happy: 'رائع، لنحتفل معًا!', typing: 'فتحت الحاسوب، وأنا جاهز للعمل معك.', rest: 'حسنًا، سأستريح قليلًا.',
+		sleep: 'تصبح على خير.', idle: 'حسنًا، أنا بانتظارك.', reset: 'عدت إلى مكاني.', stop: 'حسنًا، أوقفت الصوت.',
+		roam_on: 'حسنًا، سأتحرك تلقائيًا.', roam_off: 'أوقفت التجوّل التلقائي.',
+		map: 'فردت الخريطة لتحديد المسار بدقة.', report: 'أراجع التقرير وأتحقق من تفاصيله.', chart: 'أشرح الرسم البياني ومؤشراته.',
+		speaking: 'أشرح وأتحدث إليك الآن.', amazed: 'مدهش للغاية! يا لروعة الأمر.', idea: 'خطرت لي فكرة رائعة!',
+		whisper: 'سأخبرك بسر صغير بهدوء.', shout: 'نداء مليء بالحماس والنشاط!', drive: 'نقود بهدوء وأمان مع ربط الحزام.',
+		crash: 'اصطدام كرتوني لطيف، الجميع بخير.', seatbelt: 'ربطت حزام الأمان قبل التحرك.', traffic: 'تنظيم حركة المرور عند الإشارة.',
+		crosswalk: 'العبور الآمن عند خطوط المشاة.',
+	},
+	english: {
+		laugh: 'Hahaha! I cannot stop giggling!', cry: 'Oh no, cartoon waterfalls! Tissues, please!', plead: 'Pretty please? Look at these kitten eyes!',
+		chase: 'Wait for me, kitty! Let us play.', scratch: 'One second, a little head scratch!', dance: 'Here comes my little dance!',
+		fly: 'A fly! Let me catch it.', jump: 'Sure! Here comes a little jump.', walk: 'Sure, I will take a short walk.', wave: 'Hello there! Good to see you.',
+		happy: 'Wonderful! Let us celebrate.', typing: 'Laptop open. Ready to work with you!', rest: 'Time for a little break.',
+		sleep: 'Good night!', idle: 'Sure, I am here when you need me.', reset: 'Back in my spot.', stop: 'Okay, audio stopped.',
+		roam_on: 'Sure, I will wander around a little.', roam_off: 'Automatic wandering is off.',
+		map: 'Unfolding the map to find our way!', report: 'Reviewing the report carefully.', chart: 'Pointing to the chart and data.',
+		speaking: 'Speaking and explaining everything to you.', amazed: 'Wow, look at those sparkling eyes!', idea: 'Aha! I have a great idea.',
+		whisper: 'Let me whisper a little secret.', shout: 'Full enthusiasm! Let us go!', drive: 'Driving safely with seatbelt on.',
+		crash: 'A harmless cartoon bump! All is well.', seatbelt: 'Safety first! Buckling up.', traffic: 'Green light means safe to go.',
+		crosswalk: 'Crossing safely at the pedestrian lane.',
+	},
 };
 
-export function acknowledge(action: BeboAction, dialect: BeboDialect): string {
+export function acknowledge(action: BeboAction | BeboPose, dialect: BeboDialect): string {
 	return ACKNOWLEDGEMENTS[dialect]?.[action] || ACKNOWLEDGEMENTS.egyptian[action] || '';
 }

@@ -62,7 +62,7 @@ describe('ProviderAiAssistantComponent (provider page → shared real assistant)
 		textarea.dispatchEvent(new Event('input'));
 		fixture.detectChanges();
 		(root().querySelector('.ac__btn') as HTMLButtonElement).click();
-		expect(socket.ask).toHaveBeenCalledWith('كيف أقدّم عرضاً؟', []);
+		expect(socket.ask).toHaveBeenCalledWith('كيف أقدّم عرضاً؟', [],expect.objectContaining({profile:'auto',dialect:'msa'}));
 		events.next({ type: 'chunk', clientRequestId: 'pv-1', chunk: 'إجابة حقيقية' });
 		events.next({ type: 'complete', clientRequestId: 'pv-1' });
 		fixture.detectChanges();
@@ -74,7 +74,7 @@ describe('ProviderAiAssistantComponent (provider page → shared real assistant)
 		expect(TestBed.inject(AssistantStore).state()).toBe('listening');
 		FakeRecognition.last!.onresult({ resultIndex: 0, results: [Object.assign([{ transcript: 'متى أستلم أرباحي' }], { isFinal: true })] });
 		(root().querySelector('.ac__mic') as HTMLButtonElement).click();
-		expect(socket.ask).toHaveBeenCalledWith('متى أستلم أرباحي', []);
+		expect(socket.ask).toHaveBeenCalledWith('متى أستلم أرباحي', [],expect.objectContaining({profile:'auto',dialect:'egyptian'}));
 	});
 
 	it('leaving the page while listening stops the microphone', () => {

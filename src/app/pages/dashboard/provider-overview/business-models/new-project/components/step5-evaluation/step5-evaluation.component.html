@@ -15,7 +15,7 @@
 		</div>
 	</div>
 
-	@if (isAiAnalyzing || !aiEvaluation) {
+	@if (isAiAnalyzing) {
 	<!-- STATE: SCANNING -->
 	<div id="state-scanning" style="display:block">
 		<div class="scan-wrap" style="margin-bottom:14px">
@@ -26,6 +26,17 @@
 			<div class="scan-txt">AI يراجع تفاصيل المشروع...</div>
 			<div style="font-size:11px;margin-top:4px" class="txt-muted">فحص وضوح الوصف وجدوى المراحل</div>
 		</div>
+	</div>
+	}
+
+	@if (!isAiAnalyzing && !aiEvaluation) {
+	<div class="form-card" style="text-align:center;padding:32px 20px;margin-bottom:14px">
+		<div style="font-size:14px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر إتمام الفحص الذكي في المحاولة السابقة</div>
+		<div style="font-size:12px;margin-bottom:16px" class="txt-muted">يمكنك إعادة تشغيل الفحص الذكي الآن أو نشر النموذج مباشرة في السوق.</div>
+		<button type="button" (click)="onRetryAnalysis.emit()"
+			style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;border-radius:999px;font-size:13px;font-weight:800;cursor:pointer;border:none">
+			🔄 إعادة الفحص الذكي بالـ AI
+		</button>
 	</div>
 	}
 
@@ -255,6 +266,7 @@
 						</div>
 						<span class="metric-val txt-teal">{{ eval.clarityScore }}%</span>
 					</div>
+					@if (eval.feasibilityScore !== null && eval.feasibilityScore !== undefined) {
 					<div class="metric-row">
 						<span class="metric-label">جدوى المدد والتنفيذ</span>
 						<div class="metric-bar-wrap">
@@ -264,6 +276,7 @@
 						<span class="metric-val txt-teal">{{ eval.feasibilityScore
 							}}%</span>
 					</div>
+					}
 				</div>
 			</div>
 

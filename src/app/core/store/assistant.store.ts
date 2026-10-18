@@ -5,6 +5,11 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { HelpAssistantSocketService, HelpChatHistoryTurn, HelpCitation, HelpStreamEvent } from '../services/help-assistant-socket.service';
 import { AssistantTtsError, AssistantTtsService } from '../services/assistant-tts.service';
+import { AssistantCapabilities, AssistantCapabilitiesService } from '../services/assistant-capabilities.service';
+import { AssistantLiveSession } from '../services/assistant-live-session';
+import { AssistantAskOptions } from '../services/help-assistant-socket.service';
+import { speechChunks, speakableText } from '../help/assistant-content';
+import { HELP_ASSISTANT_UNAVAILABLE_MESSAGE, isObsoleteKnowledgeRefusal, normalizeAssistantError } from '../help/assistant-errors';
 import {
 	SECURE_CONTEXT,
 	SPEECH_ERROR_MESSAGES,
@@ -15,6 +20,7 @@ import {
 	SPEECH_UNSUPPORTED,
 	SpeechRecognitionLike,
 } from '../services/speech-recognition';
+import { BEBO_EXTRA_POSES, BeboPose } from '../../sheards/bebo-avatar/bebo-loader';
 import {
 	BEBO_DIALECTS,
 	BeboAction,
@@ -31,6 +37,7 @@ import {
 } from '../../sheards/bebo-avatar/bebo-commands';
 import { HelpRole, helpRoleOfUrl } from '../help/help-guided';
 import { AuthStore } from './auth.store';
+import { AssistantConversation, AssistantHistory, cleanMessages, conversationTitle, emptyHistory, mergeHistory, newConversationId, readHistory } from '../help/assistant-history';
 
 // Single source of truth for the dashboard Help Assistant + Avatar. The
 // floating Avatar widget and the help pages render this same conversation,
@@ -52,9 +59,9 @@ import { AuthStore } from './auth.store';
 // transcript goes through ask() exactly like typed text — same socket, same
 // history, same command routing. No audio is sent to a Waseet STT service.
 //
-// Voice (WaseetAI TTS): only after a COMPLETE text answer, the answer text is
-// sent to the authenticated backend endpoint (AssistantTtsService) with the
-// chosen voice/dialect; the WAV comes back as a Blob and plays here. Any TTS
+// Voice (WaseetAI TTS): a COMPLETE text answer stays silent. Only an explicit
+// playback action sends text to the authenticated backend endpoint with the
+// chosen voice/dialect. Any TTS
 // or playback failure leaves the text answer untouched (voiceNotice only).
 // The last reply's audio is kept for replay until a new question, a voice /
 // dialect change, or an identity change releases it. While audio plays, a
@@ -73,17 +80,23 @@ import { AuthStore } from './auth.store';
 // the assistant socket itself.
 
 export type AvatarState = 'idle' | 'thinking' | 'listening' | 'speaking' | 'error';
+export type BeboSkin = 'classic' | 'scout';
 
 export interface AssistantMessage {
 	role: 'user' | 'assistant';
 	text: string;
 	streaming?: boolean;
 	citations?: HelpCitation[];
+	/** Provider attribution is rendered with Angular sanitization and never persisted. */
+	searchSuggestionsHtml?: string;
+	createdAt?: number;
 }
+
+export type BeboCommandAction = BeboAction | BeboPose;
 
 /** A local Bebo animation request; `seq` makes repeats distinct. */
 export interface BeboCommand {
-	action: BeboAction;
+	action: BeboCommandAction;
 	seq: number;
 }
 
@@ -95,6 +108,7 @@ export const MAX_TTS_CHARS = 1500;
 export const ANSWER_WATCHDOG_MS = 75_000;
 const VOICE_PREF_KEY = 'waseet_assistant_voice';
 const TTS_PREF_KEY = 'waseet_assistant_tts';
+const SKIN_PREF_KEY = 'waseet_assistant_skin';
 
 const CONNECTION_LOST_MESSAGE = 'انقطع الاتصال بالخادم أثناء انتظار الرد. يرجى المحاولة مرة أخرى.';
 const WATCHDOG_MESSAGE = 'انتهت مهلة انتظار رد المساعد الذكي. يرجى المحاولة مرة أخرى.';
@@ -104,7 +118,7 @@ const VOICE_RATE_LIMITED = 'طلبات صوت كثيرة في وقت قصير. �
 const VOICE_PLAY_FAILED = 'تعذر تشغيل الصوت، والإجابة النصية كاملة أعلاه.';
 const VOICE_BLOCKED = 'منع المتصفح تشغيل الصوت تلقائياً. اضغط «إعادة الاستماع» لتشغيله.';
 /** Roaming stays disabled until browser QA (the handoff's roam_on/off). */
-export const ROAMING_DISABLED_NOTICE = 'التجوّل التلقائي لبيبو غير مفعّل حالياً.';
+export const ROAMING_DISABLED_NOTICE = 'التجوّل التلقائي للشخصية غير مفعّل حالياً.';
 
 export type SpeechLevelListener = (level: number | null) => void;
 
@@ -135,6 +149,11 @@ export class AssistantStore {
 	/** Incremented on every successfully completed answer (Bebo 'happy'). */
 	readonly successTick = signal(0);
 	readonly messages = signal<AssistantMessage[]>([]);
+	readonly conversations = signal<AssistantConversation[]>([]);
+	readonly activeConversationId = signal<string | null>(null);
+	readonly storageNotice = signal('');
+	readonly activeConversation = computed(() => this.conversations().find(c => c.id === this.activeConversationId()) ?? null);
+	readonly webSearchEnabled = signal(false);
 	/** True while answer text is arriving (state stays 'thinking'). */
 	readonly streaming = signal(false);
 	readonly errorMessage = signal('');
@@ -143,7 +162,45 @@ export class AssistantStore {
 	readonly voiceNotice = signal('');
 	readonly lastQuestion = signal('');
 	readonly panelOpen = signal(false);
+	readonly dismissed = signal(false);
+	readonly skin = signal<BeboSkin>(this.loadSkinPref());
+	readonly characterName = computed(() => (this.skin() === 'scout' ? 'نديم' : 'بيبو'));
+	readonly characterRole = computed(() => (this.skin() === 'scout' ? 'دليل وسيط' : 'المساعد الذكي'));
+	readonly characterFullName = computed(() => (this.skin() === 'scout' ? 'نديم — دليل وسيط' : 'بيبو — مساعد وسيط الذكي'));
 	readonly voiceEnabled = signal(this.readVoicePref());
+	readonly profile = signal<NonNullable<AssistantAskOptions['profile']>>('auto');
+	readonly effort = signal<NonNullable<AssistantAskOptions['effort']>>('medium');
+	readonly textModel = signal('');
+	readonly ttsModel = signal('');
+	readonly capabilities = signal<AssistantCapabilities | null>(null);
+	readonly capabilityNotice = signal('');
+	readonly progress = signal<Array<{ stage: string; message: string; status?: string; runId?: string }>>([]);
+	readonly lastAssistant = computed(() => this.messages().filter(m => m.role === 'assistant' && m.text).at(-1) ?? null);
+	readonly preview = computed(() => {
+		const latest = this.messages().at(-1);
+		return latest?.role === 'assistant' && !latest.streaming && !this.busy() && !this.errorMessage()
+			? speakableText(latest.text ?? '').slice(0, 220)
+			: '';
+	});
+	readonly voiceVolume = signal(1);
+	readonly recording = signal(false);
+	readonly sttLoading = signal(false);
+	readonly liveActive = signal(false);
+	readonly liveConnecting = signal(false);
+	readonly liveTranscript = signal('');
+	readonly liveNotice = signal('');
+	private liveSession: AssistantLiveSession | null = null;
+	private liveTokenSub: Subscription | null = null;
+	private liveSeq = 0;
+	private mediaRecorder: MediaRecorder | null = null;
+	private mediaStream: MediaStream | null = null;
+	private recordingSeq = 0;
+	private speechParts: string[] = [];
+	private speechPart = 0;
+	private readonly speechCache = new Map<number, Blob>();
+	private capabilitiesSub: Subscription | null = null;
+	private sttSub: Subscription | null = null;
+	private storageKey = '';
 
 	// ── voice / dialect (Bebo v4 handoff option lists) ──
 	readonly ttsVoice = signal<BeboVoice>(DEFAULT_VOICE);
@@ -181,6 +238,7 @@ export class AssistantStore {
 	private currentRequestId: string | null = null;
 	private watchdog: ReturnType<typeof setTimeout> | null = null;
 	private audio: HTMLAudioElement | null = null;
+	private manualAudio: HTMLAudioElement | null = null;
 	private audioUrl: string | null = null;
 	private audioContext: AudioContext | null = null;
 	private meterGraph: MeterGraph | null = null;
@@ -210,6 +268,13 @@ export class AssistantStore {
 		const sub = this.socket.events$.subscribe((e) => this.onEvent(e));
 		const nav = this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => this.updateSupportRoute());
 		this.updateSupportRoute();
+		this.restoreConversation();
+		effect(() => { this.messages(); untracked(() => this.persistConversation()); });
+		if (this.isBrowser) {
+			const hidden = () => { if (document.hidden) { this.cancelListening(); this.cancelRecording(); this.stopLive(); this.stopAudio(); } };
+			document.addEventListener('visibilitychange', hidden);
+			inject(DestroyRef).onDestroy(() => document.removeEventListener('visibilitychange', hidden));
+		}
 		// Clears the previous identity's conversation as soon as auth changes
 		// (logout / other user / role switch). ask(), retry(), replay() and the
 		// microphone also check synchronously, so nothing can be sent or played
@@ -223,6 +288,9 @@ export class AssistantStore {
 			nav.unsubscribe();
 			this.clearWatchdog();
 			this.cancelListening();
+			this.cancelRecording();
+			this.stopLive();
+			this.capabilitiesSub?.unsubscribe();
 			this.releaseAudio();
 			this.speechLevelListeners.clear();
 			this.audioContext?.close().catch(() => {});
@@ -231,9 +299,143 @@ export class AssistantStore {
 	}
 
 	// ── panel ──────────────────────────────────────────────────────────
-	open(): void { this.panelOpen.set(true); }
-	close(): void { this.panelOpen.set(false); }
-	toggle(): void { this.panelOpen.update((v) => !v); }
+	open(): void { this.dismissed.set(false); this.panelOpen.set(true); this.loadCapabilities(); }
+	close(): void { this.cancel(); this.cancelListening(); this.cancelRecording(); this.stopLive(); this.stopAudio(); this.panelOpen.set(false); }
+	toggle(): void { this.panelOpen() ? this.close() : this.open(); }
+	dismiss(): void { this.close(); this.dismissed.set(true); }
+	restore(): void { this.dismissed.set(false); }
+	toggleDismissed(): void { this.dismissed() ? this.restore() : this.dismiss(); }
+
+	setProfile(profile: string): void {
+		if (!['auto', 'fast', 'balanced', 'deep'].includes(profile)) return;
+		this.profile.set(profile as NonNullable<AssistantAskOptions['profile']>);
+		if (profile !== 'auto') this.effort.set(profile === 'fast' ? 'low' : profile === 'deep' ? 'high' : 'medium');
+	}
+	setVolume(value: number): void { this.voiceVolume.set(Math.max(0, Math.min(1, value))); if (this.audio) this.audio.volume = this.voiceVolume(); }
+	newConversation(): void {
+		this.ensureSessionIdentity();
+		this.cancel(); this.cancelListening(); this.cancelRecording(); this.stopLive(); this.releaseAudio();
+		this.persistConversation();
+		this.messages.set([]); this.lastReply.set(null); this.lastQuestion.set(''); this.progress.set([]); this.errorMessage.set(''); this.voiceNotice.set(''); this.commandReply.set(''); this.state.set('idle');
+		this.activeConversationId.set(newConversationId());
+		this.persistConversation();
+	}
+	selectConversation(id: string): boolean {
+		this.ensureSessionIdentity();
+		const conversation = this.conversations().find(c => c.id === id);
+		if (!conversation) return false;
+		if (id === this.activeConversationId() && this.messages().length) return true;
+		this.cancel(); this.cancelListening(); this.cancelRecording(); this.stopLive(); this.releaseAudio();
+		this.persistConversation();
+		this.activeConversationId.set(id);
+		this.messages.set(cleanMessages(conversation.messages));
+		this.restoreReplyState();
+		this.persistConversation();
+		return true;
+	}
+	renameConversation(id: string, title: string): void {
+		this.ensureSessionIdentity();
+		if (!title.trim()) return;
+		this.conversations.update(list => list.map(c => c.id === id ? { ...c, title: title.trim().slice(0, 70) } : c));
+		this.persistConversation();
+	}
+	pinConversation(id: string): void {
+		this.ensureSessionIdentity();
+		this.conversations.update(list => list.map(c => c.id === id ? { ...c, pinned: !c.pinned } : c));
+		this.persistConversation();
+	}
+	deleteConversation(id: string): void {
+		this.ensureSessionIdentity();
+		if (!this.conversations().some(c => c.id === id)) return;
+		if (id === this.activeConversationId()) {
+			this.cancel(); this.cancelListening(); this.cancelRecording(); this.stopLive(); this.releaseAudio();
+			this.activeConversationId.set(null); this.messages.set([]); this.restoreReplyState();
+		}
+		this.conversations.update(list => list.filter(c => c.id !== id));
+		const next = this.conversations()[0];
+		if (!this.activeConversationId() && next) { this.activeConversationId.set(next.id); this.messages.set(cleanMessages(next.messages)); this.restoreReplyState(); }
+		this.persistConversation();
+	}
+	exportHistory(): AssistantHistory { this.ensureSessionIdentity(); this.persistConversation(); return { version: 2, activeId: this.activeConversationId(), conversations: this.conversations() }; }
+	importHistory(value: unknown): boolean {
+		this.ensureSessionIdentity();
+		if (!this.authStore.token() || !readHistory(JSON.stringify(value)).conversations.length) return false;
+		const merged = mergeHistory(this.exportHistory(), value);
+		this.conversations.set(merged.conversations);
+		if (!this.activeConversationId() && merged.activeId) { this.activeConversationId.set(merged.activeId); this.messages.set(merged.conversations.find(c => c.id === merged.activeId)?.messages ?? []); this.restoreReplyState(); }
+		this.persistConversation(); return true;
+	}
+	editMessage(index: number, text: string): boolean {
+		this.ensureSessionIdentity();
+		if (this.guided() || this.busy() || this.messages()[index]?.role !== 'user' || !text.trim() || text.trim().length > MAX_QUESTION_LENGTH) return false;
+		this.releaseAudio(); this.messages.update(list => list.slice(0, index)); return this.ask(text);
+	}
+	regenerate(): boolean {
+		this.ensureSessionIdentity();
+		const index = this.messages().map(m => m.role).lastIndexOf('user');
+		return index >= 0 ? this.editMessage(index, this.messages()[index].text) : false;
+	}
+	runMotion(action: BeboCommandAction): void { if (!this.busy()) this.runCommand(action, ''); }
+	loadCapabilities(): void {
+		if (!this.isBrowser || !this.authStore.token() || this.capabilities() || this.capabilitiesSub) return;
+		try {
+			this.capabilitiesSub = this.injector.get(AssistantCapabilitiesService).get().subscribe({
+				next: (data) => { if (data && Array.isArray(data.models) && Array.isArray(data.voices)) { this.capabilities.set(data); this.capabilityNotice.set(''); const preferred = data.voices.find(v => v.id === this.ttsVoice()) ?? data.voices[0]; if (preferred) this.ttsVoice.set(preferred.id as BeboVoice); if (data.defaultTtsModel) this.ttsModel.set(data.defaultTtsModel); } },
+				error: () => { this.capabilitiesSub = null; this.capabilityNotice.set('تعذر تحميل خيارات النماذج؛ سيستخدم الخادم الإعداد الافتراضي.'); },
+				complete: () => { this.capabilitiesSub = null; },
+			});
+		} catch { this.capabilitiesSub = null; }
+	}
+	/** Live is hidden unless the authenticated server advertises the capability. */
+	toggleLive(): void {
+		this.ensureSessionIdentity();
+		if (this.liveActive() || this.liveConnecting()) { this.stopLive(); return; }
+		if (!this.isBrowser || !this.authStore.token() || !this.capabilities()?.live?.available || this.busy() || this.guided()) return;
+		if (!this.isSecureContext() || !navigator.mediaDevices?.getUserMedia) { this.liveNotice.set('الصوت المباشر يحتاج اتصالًا آمنًا وإذن الميكروفون.'); return; }
+		this.cancelListening(); this.cancelRecording(); this.releaseAudio();
+		const seq = ++this.liveSeq, identity = this.sessionIdentity;
+		const current = () => seq === this.liveSeq && identity === untracked(() => this.identity());
+		this.liveConnecting.set(true); this.liveNotice.set('جاري فتح المحادثة الصوتية…');
+		this.liveTokenSub = this.injector.get(AssistantCapabilitiesService).liveToken({ voice: this.ttsVoice(), language: BEBO_DIALECTS[this.effectiveDialect()].language }).subscribe({
+			next: token => {
+				if (!current()) return;
+				this.liveTokenSub = null;
+				this.liveSession = new AssistantLiveSession({
+					state: value => { if (!current()) return; this.zone.run(() => { this.liveConnecting.set(value === 'connecting'); this.liveActive.set(value === 'listening' || value === 'speaking'); this.state.set(value === 'speaking' ? 'speaking' : value === 'listening' ? 'listening' : 'idle'); if (value === 'listening') this.liveNotice.set('المحادثة الصوتية تعمل؛ يمكنك مقاطعة بيبو بالكلام.'); if (value === 'ended') this.liveTranscript.set(''); }); },
+					transcript: (role, text, complete) => { if (!current()) return; this.zone.run(() => { if (complete) { this.messages.update(messages => [...messages, { role, text: text.slice(0, 30_000), createdAt: Date.now() }].slice(-100)); this.liveTranscript.set(''); } else this.liveTranscript.set(`${role === 'user' ? 'أنت' : 'بيبو'}: ${text.slice(-500)}`); }); },
+					level: level => { if (current()) this.emitSpeechLevel(level); },
+					error: message => { if (current()) this.zone.run(() => this.liveNotice.set(message)); },
+				});
+				void this.liveSession.start(token, this.capabilities()?.live?.tokenMaxSeconds);
+			},
+			error: () => { if (current()) { this.liveConnecting.set(false); this.liveNotice.set('الصوت المباشر غير متاح حاليًا. استخدم الإملاء أو الرسالة المسجلة.'); } },
+		});
+	}
+	stopLive(): void { this.liveTokenSub?.unsubscribe(); this.liveTokenSub = null; this.liveSession?.stop(); this.liveSession = null; this.liveSeq++; this.liveActive.set(false); this.liveConnecting.set(false); this.liveTranscript.set(''); if (this.state() === 'listening' || this.state() === 'speaking') this.state.set('idle'); }
+	async toggleRecording(): Promise<void> {
+		this.ensureSessionIdentity();
+		if (this.mediaRecorder) { this.mediaRecorder.stop(); return; }
+		if (!this.authStore.token() || !this.capabilities()?.stt?.available || this.busy() || this.sttLoading() || this.guided()) return;
+		this.stopLive(); this.cancelListening(); this.stopAudio(); const seq = ++this.recordingSeq;
+		try {
+			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			if (seq !== this.recordingSeq || !this.panelOpen()) { stream.getTracks().forEach(t => t.stop()); return; }
+			this.mediaStream = stream; const recorder = new MediaRecorder(stream); const parts: Blob[] = []; this.mediaRecorder = recorder;
+			let bytes = 0;
+			recorder.ondataavailable = e => { if (e.data.size) { bytes += e.data.size; if (bytes > (this.capabilities()?.stt?.maxBytes ?? 5_000_000)) { this.cancelRecording(); this.micNotice.set('التسجيل تجاوز الحجم المسموح.'); } else parts.push(e.data); } };
+			recorder.onstop = () => {
+				stream.getTracks().forEach(t => t.stop()); this.mediaRecorder = null; this.mediaStream = null; this.recording.set(false); this.stopListening();
+				if (seq !== this.recordingSeq || !parts.length) return;
+				const blob = new Blob(parts, { type: recorder.mimeType }); const reader = new FileReader(); this.sttLoading.set(true);
+				reader.onload = () => { if (seq !== this.recordingSeq) return; const audioBase64 = String(reader.result).split(',')[1]; this.sttSub = this.injector.get(AssistantCapabilitiesService).transcribe(audioBase64, blob.type, BEBO_DIALECTS[this.effectiveDialect()].language).subscribe({ next: result => { if (seq !== this.recordingSeq) return; const text = result.text ?? result.transcript ?? result.data?.text ?? result.data?.transcript ?? ''; this.sttLoading.set(false); if (text) this.ask(text.slice(0, MAX_QUESTION_LENGTH)); else this.micNotice.set('لم يظهر كلام واضح في التسجيل.'); }, error: () => { if (seq === this.recordingSeq) { this.sttLoading.set(false); this.micNotice.set('تعذر تفريغ التسجيل. يمكنك استخدام الإملاء أو الكتابة.'); } } }); };
+				reader.onerror = () => { this.sttLoading.set(false); this.micNotice.set('تعذر قراءة التسجيل.'); };
+				reader.readAsDataURL(blob);
+			};
+			this.recording.set(true); this.startListening(); recorder.start(1000);
+			setTimeout(() => { if (this.mediaRecorder === recorder && seq === this.recordingSeq) recorder.stop(); }, 60_000);
+		} catch { this.cancelRecording(); this.micNotice.set('تعذر فتح الميكروفون. تحقق من إذن المتصفح.'); }
+	}
+	cancelRecording(): void { this.recordingSeq++; this.sttSub?.unsubscribe(); this.sttSub = null; if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') { this.mediaRecorder.onstop = null; this.mediaRecorder.stop(); } this.mediaRecorder = null; this.mediaStream?.getTracks().forEach(t => t.stop()); this.mediaStream = null; this.recording.set(false); this.sttLoading.set(false); this.stopListening(); }
 
 	/** Help page chips / the "اسأل المساعد" button: opens Bebo on a ready question (or on the list when no id). */
 	openGuided(id: string | null = null): void {
@@ -257,8 +459,9 @@ export class AssistantStore {
 
 	/** Only voices from the handoff list are accepted. Releases cached audio. */
 	setVoice(voice: string): void {
-		if (!isBeboVoice(voice) || voice === this.ttsVoice()) return;
-		this.ttsVoice.set(voice);
+		if (!(this.capabilities()?.voices.some(v => v.id === voice) ?? isBeboVoice(voice)) || voice === this.ttsVoice()) return;
+		this.ttsVoice.set(voice as BeboVoice);
+		this.stopLive();
 		this.releaseAudio();
 		this.saveTtsPrefs();
 	}
@@ -268,11 +471,18 @@ export class AssistantStore {
 		if (dialect !== 'auto' && !isBeboDialect(dialect)) return;
 		if (dialect === this.ttsDialect()) return;
 		this.ttsDialect.set(dialect as BeboDialectChoice);
+		this.stopLive();
 		if (isBeboDialect(dialect)) this.detectedDialect.set(dialect);
 		const reply = this.lastReply();
 		if (reply && isBeboDialect(dialect)) this.lastReply.set({ ...reply, dialect });
 		this.releaseAudio();
 		this.saveTtsPrefs();
+	}
+	setTtsModel(model: string): void {
+		if (model === this.ttsModel()) return;
+		const allowed = this.capabilities()?.models.some(candidate => candidate.id === model && candidate.available !== false && candidate.modalities?.some(mode => ['tts','speech'].includes(mode.toLowerCase())));
+		if (!allowed) return;
+		this.releaseAudio(); this.ttsModel.set(model);
 	}
 
 	/** The dialect actually used for the mic language / speech. */
@@ -288,19 +498,21 @@ export class AssistantStore {
 		if (this.guided()) return false;
 		const question = rawQuestion.trim();
 		if (!question || this.busy()) return false;
+		this.stopLive(); this.cancelRecording();
 		// Exact local Bebo command → animate locally; never sent upstream.
 		const action = commandFor(question);
 		if (action) {
 			this.runCommand(action, question);
 			return true;
 		}
-		if (question.length > MAX_QUESTION_LENGTH) return false;
-		// Called from a user gesture (send / Enter / mic): unlock Web Audio now
-		// so the later answer audio can be metered for Bebo's mouth.
-		if (this.voiceEnabled()) this.warmAudio();
+		if (question.length > MAX_QUESTION_LENGTH) {
+			this.errorMessage.set(`اكتب سؤالًا لا يتجاوز ${MAX_QUESTION_LENGTH} حرفًا.`);
+			this.state.set('error');
+			return false;
+		}
 		this.cancelListening();
 		this.detectedDialect.set(chooseDialect(question, this.ttsDialect(), this.detectedDialect()));
-		this.messages.update((list) => [...list, { role: 'user', text: question }]);
+		this.messages.update((list) => [...(list.at(-1)?.role === 'user' ? list.slice(0, -1) : list), { role: 'user' as const, text: question, createdAt: Date.now() }].slice(-100));
 		this.lastQuestion.set(question);
 		this.send(question);
 		return true;
@@ -334,6 +546,7 @@ export class AssistantStore {
 	toggleListening(): void {
 		this.ensureSessionIdentity();
 		if (this.guided()) return;
+		this.stopLive(); this.cancelRecording();
 		if (this.recognizer) {
 			try { this.recognizer.stop(); } catch { this.cancelListening(); }
 			return;
@@ -431,9 +644,12 @@ export class AssistantStore {
 		this.socket.disconnect();
 		this.clearWatchdog();
 		this.cancelListening();
+		this.stopLive(); this.liveNotice.set('');
+		this.cancelRecording(); this.capabilitiesSub?.unsubscribe(); this.capabilitiesSub = null; this.capabilities.set(null); this.progress.set([]); this.textModel.set(''); this.ttsModel.set('');
 		this.releaseAudio();
 		this.lastReply.set(null);
 		this.messages.set([]);
+		this.conversations.set([]); this.activeConversationId.set(null); this.webSearchEnabled.set(false); this.storageNotice.set('');
 		this.lastQuestion.set('');
 		this.streaming.set(false);
 		this.errorMessage.set('');
@@ -469,8 +685,39 @@ export class AssistantStore {
 	 * received audio stays available for replay().
 	 */
 	stopAudio(): void {
+		this.stopManualAudio();
 		this.cancelPendingTts();
 		this.stopPlayback();
+	}
+
+	/** Native reply players call this only when playback starts after a user action. */
+	beginManualAudio(audio: HTMLAudioElement): void {
+		this.ensureSessionIdentity();
+		if (!this.isBrowser || !this.authStore.token() || this.busy() || this.state() === 'listening') {
+			try { audio.pause(); } catch { /* detached player */ }
+			return;
+		}
+		if (this.manualAudio === audio) return;
+		this.stopAudio();
+		this.manualAudio = audio;
+		this.state.set('speaking');
+		// Native players retain their own audio routing across pauses and old-reply replays.
+		this.emitSpeechLevel(null);
+	}
+
+	/** Preserve the native player's position and cached clip after pause or end. */
+	endManualAudio(audio: HTMLAudioElement): void {
+		if (this.manualAudio !== audio) return;
+		this.manualAudio = null;
+		this.stopMeter();
+		if (this.state() === 'speaking') this.state.set('idle');
+	}
+
+	private stopManualAudio(): void {
+		const audio = this.manualAudio;
+		if (!audio) return;
+		this.endManualAudio(audio);
+		try { audio.pause(); } catch { /* detached player */ }
 	}
 
 	/** Plays the last assistant reply again (re-synthesizes if needed). */
@@ -479,7 +726,9 @@ export class AssistantStore {
 		if (!this.canReplay()) return false;
 		this.warmAudio();
 		this.voiceNotice.set('');
-		if (this.audio) {
+		if (this.speechParts.length > 1) {
+			this.stopPlayback(); this.speechPart = 0; this.synthesizePart(this.audioSeq, this.sessionIdentity);
+		} else if (this.audio) {
 			this.stopPlayback();
 			this.playAudio(this.audio);
 		} else {
@@ -494,21 +743,27 @@ export class AssistantStore {
 		const turns: HelpChatHistoryTurn[] = [];
 		for (let i = 0; i < msgs.length - 1; i++) {
 			const a = msgs[i + 1];
-			if (msgs[i].role === 'user' && a.role === 'assistant' && !a.streaming && a.text) turns.push({ question: msgs[i].text, answer: a.text });
+			if (msgs[i].role === 'user' && a.role === 'assistant' && !a.streaming && a.text && a.text !== HELP_ASSISTANT_UNAVAILABLE_MESSAGE) {
+				turns.push({ question: msgs[i].text.slice(0, 500), answer: a.text.slice(0, 1000) });
+			}
 		}
 		return turns.slice(-3);
 	}
 
-	private runCommand(action: BeboAction, text: string): void {
+	private runCommand(action: BeboCommandAction, text: string): void {
 		const dialect = chooseDialect(text, this.ttsDialect(), this.detectedDialect());
 		this.detectedDialect.set(dialect);
 		this.cancelListening();
+		if (this.skin() === 'classic' && (BEBO_EXTRA_POSES as readonly string[]).includes(action)) {
+			this.commandReply.set('هذه الحركة متاحة لنديم — دليل وسيط. يمكنك تغيير الشخصية من الإعدادات.');
+			return;
+		}
 		if (action === 'stop') this.stopAudio();
 		if (action === 'roam_on' || action === 'roam_off') {
 			this.commandReply.set(ROAMING_DISABLED_NOTICE);
 			return;
 		}
-		this.commandReply.set(acknowledge(action, dialect));
+		this.commandReply.set(acknowledge(action as BeboAction, dialect));
 		this.beboCommand.set({ action, seq: ++this.commandSeq });
 	}
 
@@ -520,13 +775,17 @@ export class AssistantStore {
 		this.commandReply.set('');
 		this.humanSupportFallback.set(false);
 		this.streaming.set(false);
+		this.progress.set([]);
 		this.currentRequestId = null;
 		// historyTail() only contains completed pairs, so the question being
 		// asked now (the trailing user message) is never duplicated into it.
 		const history = this.historyTail();
 		this.state.set('thinking');
 		// Speech now comes from WaseetAI TTS (speak()), never the socket.
-		const id = this.socket.ask(question, history);
+		const dialect = this.effectiveDialect();
+		const path = (this.router.url || '/').split(/[?#]/)[0];
+		let projectId: string | undefined; for (let route = this.router.routerState?.snapshot.root; route; route = route.firstChild!) { projectId ||= route.paramMap.get('projectId') ?? undefined; }
+		const id = this.socket.ask(question, history, { skin: this.skin(), dialect, language: BEBO_DIALECTS[dialect].language, ...(this.profile() === 'auto' ? {} : { effort: this.effort() }), profile: this.profile(), ...(this.textModel() ? { model: this.textModel() } : {}), ...(this.webSearchEnabled() && this.capabilities()?.webSearch?.available ? { webSearch: true } : {}), pageContext: { path, ...(projectId ? { projectId } : {}) } });
 		this.currentRequestId = id;
 		if (id) this.armWatchdog();
 	}
@@ -542,17 +801,25 @@ export class AssistantStore {
 			// when ask() itself reports AUTH_REQUIRED synchronously.
 			if (!this.busy()) return;
 			if (e.clientRequestId && this.currentRequestId && e.clientRequestId !== this.currentRequestId) return;
-			this.fail(e.message, e.humanSupportFallback);
+			const error = normalizeAssistantError(e);
+			this.fail(error.message, error.humanSupportFallback);
 			return;
 		}
 		if (!this.currentRequestId || e.clientRequestId !== this.currentRequestId) return;
 
 		switch (e.type) {
+			case 'progress':
+				this.progress.update(items => [...items.slice(-19), { stage: e.stage, message: e.message, status: e.status, runId: e.runId }]); this.armWatchdog(); break;
 			case 'start':
 				this.ensureAssistantBubble();
 				this.armWatchdog();
 				break;
 			case 'chunk':
+				if (isObsoleteKnowledgeRefusal((this.messages().at(-1)?.role === 'assistant' ? this.messages().at(-1)!.text : '') + e.chunk)) {
+					const error = normalizeAssistantError({ code: 'NO_ANSWER' });
+					this.fail(error.message, error.humanSupportFallback);
+					return;
+				}
 				this.ensureAssistantBubble();
 				this.streaming.set(true);
 				this.armWatchdog();
@@ -560,7 +827,7 @@ export class AssistantStore {
 				break;
 			case 'citations':
 				this.ensureAssistantBubble();
-				this.updateLastAssistant((m) => ({ ...m, citations: e.citations }));
+				this.updateLastAssistant((m) => ({ ...m, citations: e.citations, ...(e.searchSuggestionsHtml ? { searchSuggestionsHtml: e.searchSuggestionsHtml } : {}) }));
 				break;
 			case 'complete': {
 				this.clearWatchdog();
@@ -568,11 +835,11 @@ export class AssistantStore {
 				this.updateLastAssistant((m) => ({ ...m, streaming: false }));
 				this.currentRequestId = null;
 				this.state.set('idle');
-				this.successTick.update((n) => n + 1);
+				// A successful network answer is not a successful dispute or payment.
+				if (!/نزاع|شكوى|احتيال|تحكيم|ضمان|سحب|استرداد|غرامة|عقوبة|dispute|fraud|complaint|escrow|withdraw|refund|penalty/i.test(this.lastQuestion())) this.successTick.update((n) => n + 1);
 				const last = this.messages().at(-1);
 				if (last?.role === 'assistant' && last.text.trim()) {
 					this.lastReply.set({ text: last.text.trim(), dialect: this.effectiveDialect() });
-					if (this.voiceEnabled()) this.speak();
 				}
 				break;
 			}
@@ -584,28 +851,30 @@ export class AssistantStore {
 		const reply = this.lastReply();
 		if (!reply || !this.isBrowser) return;
 		this.releaseAudio();
-		if (reply.text.length > MAX_TTS_CHARS) return void this.voiceNotice.set(VOICE_TOO_LONG);
-		const seq = this.audioSeq;
-		const identity = this.sessionIdentity;
+		this.speechParts = speechChunks(reply.text, MAX_TTS_CHARS - 100); this.speechPart = 0;
+		if (!this.speechParts.length) return;
+		this.synthesizePart(this.audioSeq, this.sessionIdentity);
+	}
+	private synthesizePart(seq: number, identity: string): void {
+		const reply = this.lastReply(); if (!reply) return;
 		const stale = () => seq !== this.audioSeq || identity !== untracked(() => this.identity());
+		const prepare = (blob: Blob) => {
+			if (stale()) return;
+			this.audioLoading.set(false);
+			if (this.state() !== 'idle') return;
+			this.speechCache.set(this.speechPart, blob);
+			if (this.audioUrl) URL.revokeObjectURL(this.audioUrl);
+			try { this.audioUrl = URL.createObjectURL(blob); this.audio = new Audio(this.audioUrl); this.audio.volume = this.voiceVolume(); this.playAudio(this.audio); } catch { this.voiceNotice.set(VOICE_PLAY_FAILED); }
+		};
+		const cached = this.speechCache.get(this.speechPart); if (cached) { prepare(cached); return; }
 		this.tts ??= this.injector.get(AssistantTtsService);
 		this.audioLoading.set(true);
-		this.ttsSub = this.tts.synthesize({ text: reply.text, voice: this.ttsVoice(), dialect: reply.dialect }).subscribe({
+		this.ttsSub = this.tts.synthesize({ text: this.speechParts[this.speechPart], voice: this.ttsVoice(), dialect: reply.dialect, ...(this.ttsModel() ? { model: this.ttsModel() } : {}) }).subscribe({
 			next: (blob) => {
 				if (stale()) return;
 				this.ttsSub = null;
 				this.audioLoading.set(false);
-				// Only play into an idle assistant (not while a new question
-				// is being asked or the mic is listening).
-				if (this.state() !== 'idle') return;
-				try {
-					this.audioUrl = URL.createObjectURL(blob);
-					this.audio = new Audio(this.audioUrl);
-					this.playAudio(this.audio);
-				} catch {
-					this.releaseAudio();
-					this.voiceNotice.set(VOICE_PLAY_FAILED);
-				}
+				prepare(blob);
 			},
 			error: (err: unknown) => {
 				if (stale()) return;
@@ -623,7 +892,7 @@ export class AssistantStore {
 			this.state.set('speaking');
 			this.startMeter(audio);
 		};
-		audio.onended = () => { if (this.audio === audio) this.stopPlayback(); };
+		audio.onended = () => { if (this.audio !== audio) return; this.stopPlayback(); if (this.speechPart + 1 < this.speechParts.length) { this.speechPart++; this.synthesizePart(this.audioSeq, this.sessionIdentity); } };
 		audio.onerror = () => {
 			if (this.audio !== audio) return;
 			this.releaseAudio();
@@ -657,6 +926,8 @@ export class AssistantStore {
 
 	/** Stops everything audio-related and frees it: no replay remains. */
 	private releaseAudio(): void {
+		this.stopManualAudio();
+		this.speechParts = []; this.speechPart = 0; this.speechCache.clear();
 		this.audioSeq++;
 		this.cancelPendingTts();
 		this.stopPlayback();
@@ -682,8 +953,62 @@ export class AssistantStore {
 	private ensureSessionIdentity(): void {
 		const identity = untracked(() => this.identity());
 		if (identity === this.sessionIdentity) return;
+		this.persistConversation();
 		this.sessionIdentity = identity;
 		this.resetSession();
+		this.restoreConversation();
+	}
+
+	private restoreConversation(): void {
+		const user = this.authStore.currentUser();
+		this.storageKey = this.authStore.token() && user?.id ? `waseet.bebo.session.${encodeURIComponent(String(user.id))}.${encodeURIComponent(String(user.activeRole ?? user.accountType))}` : '';
+		let saved = emptyHistory();
+		if (this.isBrowser && this.storageKey) {
+			try {
+				const raw = localStorage.getItem(this.storageKey);
+				saved = readHistory(raw);
+				// Keep the source intact before the first v2 write. It is per-user and per-role.
+				if (raw && JSON.parse(raw)?.version === 1 && saved.conversations.length) {
+					try { const backupKey = `${this.storageKey}.legacy-v1`; if (!localStorage.getItem(backupKey)) localStorage.setItem(backupKey, raw); }
+					catch { this.storageNotice.set('تعذر حفظ النسخة الاحتياطية للسجل القديم.'); }
+				}
+			}
+			catch { this.storageNotice.set('تعذر فتح السجل المحلي في هذا المتصفح.'); }
+		}
+		this.conversations.set(saved.conversations); this.activeConversationId.set(saved.activeId);
+		this.messages.set(saved.conversations.find(c => c.id === saved.activeId)?.messages ?? []);
+		this.restoreReplyState();
+	}
+	private persistConversation(): void {
+		if (!this.isBrowser || !this.storageKey) return;
+		const messages = cleanMessages(this.messages());
+		let id = this.activeConversationId();
+		if (!id && messages.length) { id = newConversationId(); this.activeConversationId.set(id); }
+		const list = [...this.conversations()];
+		if (id) {
+			const index = list.findIndex(c => c.id === id), previous = list[index];
+			// Navigation/hydration may temporarily clear a view; preserve its saved history.
+			// Explicit new/delete operations change the active id before saving emptiness.
+			if (!messages.length && previous?.messages.length) {
+				try { localStorage.setItem(this.storageKey, JSON.stringify({ version: 2, activeId: id, conversations: list })); }
+				catch { this.storageNotice.set('تعذر حفظ السجل محليًا. صدّر محادثاتك للاحتفاظ بها.'); }
+				return;
+			}
+			const changed = !previous || JSON.stringify(previous.messages) !== JSON.stringify(messages);
+			const title = previous && previous.title !== 'محادثة جديدة' ? previous.title : conversationTitle(messages);
+			const conversation = { id, title, messages, updatedAt: changed ? Date.now() : previous.updatedAt, pinned: previous?.pinned ?? false };
+			if (index >= 0) list[index] = conversation; else list.unshift(conversation);
+		}
+		const saved = readHistory(JSON.stringify({ version: 2, activeId: id, conversations: list }));
+		this.conversations.set(saved.conversations);
+		try { localStorage.setItem(this.storageKey, JSON.stringify(saved)); this.storageNotice.set(''); }
+		catch { this.storageNotice.set('تعذر حفظ السجل محليًا. صدّر محادثاتك للاحتفاظ بها.'); }
+	}
+	private restoreReplyState(): void {
+		this.lastQuestion.set([...this.messages()].reverse().find(m => m.role === 'user')?.text ?? '');
+		const last = this.messages().at(-1);
+		this.lastReply.set(last?.role === 'assistant' && last.text ? { text: last.text, dialect: this.effectiveDialect() } : null);
+		this.progress.set([]); this.errorMessage.set(''); this.humanSupportFallback.set(false); this.voiceNotice.set(''); this.micNotice.set(''); this.commandReply.set(''); this.streaming.set(false); this.state.set('idle');
 	}
 
 	// ── speech meter (ported from Bebo v4 bebo-chat.js warmAudio/startMeter) ──
@@ -751,14 +1076,15 @@ export class AssistantStore {
 	}
 
 	private fail(message: string, humanSupportFallback: boolean): void {
+		const error = normalizeAssistantError({ message, humanSupportFallback });
 		this.clearWatchdog();
 		if (this.currentRequestId) this.socket.cancel(this.currentRequestId);
 		this.currentRequestId = null;
 		this.streaming.set(false);
 		// Never leave a half-written answer that looks like a real reply.
 		this.dropStreamingBubble();
-		this.errorMessage.set(message);
-		this.humanSupportFallback.set(humanSupportFallback);
+		this.errorMessage.set(error.message);
+		this.humanSupportFallback.set(error.humanSupportFallback);
 		this.state.set('error');
 	}
 
@@ -803,6 +1129,22 @@ export class AssistantStore {
 		else if (url.startsWith('/provider-overview')) this.supportRoute.set('/provider-overview/help/live-support');
 		else if (url.startsWith('/marketer-overview')) this.supportRoute.set('/marketer-overview/help');
 		else this.supportRoute.set(null);
+	}
+
+	setSkin(skin: BeboSkin): void {
+		if (skin !== 'scout' && skin !== 'classic') return;
+		this.skin.set(skin);
+		try {
+			if (typeof localStorage !== 'undefined') localStorage.setItem(SKIN_PREF_KEY, skin);
+		} catch {}
+	}
+
+	private loadSkinPref(): BeboSkin {
+		try {
+			const s = typeof localStorage !== 'undefined' ? localStorage.getItem(SKIN_PREF_KEY) : null;
+			if (s === 'scout' || s === 'classic') return s;
+		} catch {}
+		return 'scout';
 	}
 
 	private readVoicePref(): boolean {

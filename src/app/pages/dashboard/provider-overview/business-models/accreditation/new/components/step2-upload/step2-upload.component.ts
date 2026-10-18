@@ -43,6 +43,10 @@ export class Step2UploadComponent {
   @Input() requirementsText = 'صور PNG/JPG/WebP أو PDF أو ملف ZIP، حتى 15 ميجابايت للملف الواحد، وبحد أقصى 10 ملفات. ملف إثبات واحد على الأقل مطلوب.';
   @Output() onRemoveExistingProof = new EventEmitter<string>();
 
+  @Input() isAiSuggesting = false;
+  @Input() aiSuggestError: string | null = null;
+  @Output() onAiSuggest = new EventEmitter<void>();
+
   err(field: string): string { return this.fieldErrors?.[field] || ''; }
   flagged(field: string): boolean { return !!this.err(field) || this.highlightFields.includes(field); }
 

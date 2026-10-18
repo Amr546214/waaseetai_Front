@@ -29,6 +29,7 @@ export interface TtsRequest {
 	text: string;
 	voice: BeboVoice;
 	dialect: BeboDialect;
+	model?: string;
 }
 
 export const ASSISTANT_TTS_PATH = '/help-assistant/tts';
@@ -52,7 +53,7 @@ export class AssistantTtsService {
 		const token = this.authStore.token();
 		if (!token) return throwError(() => new AssistantTtsError('AUTH_REQUIRED'));
 		return this.http
-			.post(`${environment.url_api}${ASSISTANT_TTS_PATH}`, { text: req.text, voice: req.voice, dialect: req.dialect }, {
+			.post(`${environment.url_api}${ASSISTANT_TTS_PATH}`, { text: req.text, voice: req.voice, dialect: req.dialect, ...(req.model ? { model: req.model } : {}) }, {
 				responseType: 'blob',
 				headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
 				context: new HttpContext().set(SKIP_LOADING, true),

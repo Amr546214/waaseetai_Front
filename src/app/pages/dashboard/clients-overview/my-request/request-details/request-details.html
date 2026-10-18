@@ -54,13 +54,7 @@
 		</div>
 		<div class="ai-disc-body">
 			<div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-			<!-- AI Cleanup Batch 5: offers are NOT AI-ranked — the backend returns
-			     them createdAt desc (client-requests.service.ts getRequestDetails)
-			     and this page does not re-sort. "تقييم العرض" is the stored
-			     proposal score: Gemini's proposal-quality score blended 60/40 with
-			     price closeness to the request budget (proposal.service.ts). -->
-			<p class="ai-disc-txt">العروض معروضة من الأحدث إلى الأقدم. «تقييم العرض» يجمع تقييم AI لجودة نص العرض مع قرب
-				السعر من ميزانيتك، وهو مؤشر استرشادي — القرار النهائي لك</p>
+			<p class="ai-disc-txt">العروض معروضة من الأحدث إلى الأقدم. عند توفر مراجعة الملف، يمكنك ترتيبها حسب الملاءمة للطلب، مع عرض أسباب الترشيح وجودة النص والميزانية والمدة كلٌ على حدة. القرار النهائي لك.</p>
 		</div>
 	</div>
 
@@ -70,7 +64,7 @@
 			<span class="req-tag">طلبك</span>
 			<span class="req-ttl">{{ request().title }}</span>
 		</div>
-		<div class="req-desc">{{ request().description }}</div>
+		<div class="req-desc req-description-markdown" [innerHTML]="formatProjectDescription(request().description)"></div>
 		<div class="req-files">
 			@for(file of request().files; track file.name || file) {
 			<a [href]="file.url || '#'" target="_blank" class="v1-file">
@@ -88,7 +82,10 @@
 	@if (!showComparisonView()) {
 	<!-- Section Title & Compare Toggle -->
 	<div class="sec-ttl">
-		العروض المقدمة للمشروع <span class="cnt">· {{ offers().length }} عروض، مرتبة من الأحدث</span>
+		العروض المقدمة للمشروع <span class="cnt">· {{ offers().length }} عروض{{ offerSort() === 'newest' ? '، مرتبة من الأحدث' : '، مرتبة حسب الملاءمة' }}</span>
+		@if (offers().length > 1 && hasRecommendations()) {
+		<label class="offer-sort-label">ترتيب العروض <select aria-label="ترتيب العروض" [value]="offerSort()" (change)="setOfferSort($any($event.target).value)"><option value="newest">الأحدث أولًا</option><option value="suitability">الأكثر ملاءمة</option></select></label>
+		}
 		@if (offers().length >= 2) {
 		<button type="button" (click)="toggleCompare()"
 			style="margin-inline-start:auto;font-size:12px;font-weight:700;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.20);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px"
@@ -105,6 +102,7 @@
 		}
 	</div>
 
+	@if (offers().length) {
 	<!-- Offers AI Disclosure -->
 	<div class="ai-disclosure" role="region" aria-label="رأي الذكاء" style="margin-bottom:14px">
 		<div class="ai-disc-ico">
@@ -122,15 +120,16 @@
 			</svg>
 		</div>
 		<div class="ai-disc-body">
-			<div class="ai-disc-lbl">وسيط AI، تقييم جودة العروض</div>
-			<p class="ai-disc-txt">يعرض كل عرض تفاصيل المقدم وسعره ومدته، ويضيف تقييم AI لجودة نص العرض متى توفّر.
-				القرار النهائي لك</p>
+			<div class="ai-disc-lbl">وسيط AI، مراجعة ملاءمة العروض</div>
+			<p class="ai-disc-txt">ملاءمة الملف تقارن المعلومات المتاحة عن المقدم والعرض بمتطلبات طلبك. الميزانية والمدة مقارنة بالشروط المسجلة، وجودة النص تقييم مستقل. المراجعات استرشادية والبيانات الناقصة تظهر بوضوح.</p>
 		</div>
 	</div>
+	}
+	@if (!isLoading() && !offers().length) { <div class="offers-empty" role="status"><h3>لم تصلك عروض بعد</h3><p>ستظهر عروض مقدمي الخدمة هنا لتراجعها وتقارنها. لا يوجد ترشيح قبل وصول العروض ومراجعتها.</p></div> }
 
 	<!-- Offers List -->
 	<div [class.cmp-mode]="isCompareMode()">
-		@for(offer of offers(); track offer.id) {
+		@for(offer of displayedOffers(); track offer.id) {
 		<div class="v1" [class.best]="offer.isBestMatch" [class.sel]="isSelected(offer.providerName)"
 			(click)="toggleSelectOffer(offer.providerName)">
 			<div class="cmp-check" [class.on]="isSelected(offer.providerName)"
@@ -155,7 +154,7 @@
 						<path
 							d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
 					</svg>
-					تقييم عرض مرتفع (90% فأكثر)
+					ضمن الأكثر ملاءمة للطلب · ترشيح استرشادي
 				</div>
 				}
 				<div class="v1-top">
@@ -215,7 +214,6 @@
 								</svg>
 								{{ offer.rating !== null ? offer.rating : 'غير متاح' }}
 							</span>
-							· مدة الضمان غير متاحة
 						</div>
 					</div>
 					<span class="v1-match">
@@ -231,10 +229,27 @@
 							<path
 								d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
 						</svg>
-						{{ offer.matchScore !== null ? 'تقييم العرض ' + offer.matchScore + '%' : 'تقييم العرض غير متاح' }}
+						{{ offer.qualityScore != null ? 'جودة النص ' + offer.qualityScore + '/100' : offer.matchScore !== null ? 'تقييم سابق ' + offer.matchScore + '%' : 'جودة النص غير متاحة' }}
 					</span>
 				</div>
 				<div class="v1-desc"><strong>وصف العرض: </strong>{{ offer.description }}</div>
+				<section class="offer-suitability-review" [attr.aria-label]="'ملاءمة عرض ' + offer.providerName">
+					<div class="fit-review-head"><h3>ملاءمة المقدم والعرض لطلبك</h3><span class="fit-level" [attr.data-fit]="offer.providerFit?.overallFit || 'UNKNOWN'">{{ fitLabel(offer.providerFit) }}</span></div>
+					@if (offer.providerFit) {
+						<p class="fit-review-summary">{{ offer.providerFit.summary }}</p>
+						<div class="fit-evidence-grid">
+							@if (offer.providerFit.matchPoints.length) { <div><h4>نقاط توافق مع طلبك</h4><ul>@for (point of offer.providerFit.matchPoints; track $index) { <li>{{ point.text }}<small>بناءً على: {{ fitEvidenceLabel(point.basedOn) }}</small></li> }</ul></div> }
+							@if (offer.providerFit.gaps.length) { <div><h4>نقاط تحتاج مراجعة</h4><ul>@for (gap of offer.providerFit.gaps; track $index) { <li>{{ gap.text }}<small>بناءً على: {{ fitEvidenceLabel(gap.basedOn) }}</small></li> }</ul></div> }
+						</div>
+					} @else { <p class="fit-review-summary is-unknown">لا توجد مراجعة محفوظة لملاءمة الملف مع هذا الطلب حتى الآن. راجع خبرة المقدم وعرضه مباشرة.</p> }
+					<div class="fit-constraints">
+						<div><span>الميزانية</span><strong [attr.data-status]="offer.budgetSuitability?.status || 'UNKNOWN'">{{ suitabilityLabel(offer.budgetSuitability) }}</strong><p>{{ offer.budgetSuitability?.summary || 'بيانات غير متوفرة للمقارنة.' }}</p></div>
+						<div><span>مدة التنفيذ</span><strong [attr.data-status]="offer.deadlineSuitability?.status || 'UNKNOWN'">{{ suitabilityLabel(offer.deadlineSuitability) }}</strong><p>{{ offer.deadlineSuitability?.summary || 'بيانات غير متوفرة للمقارنة.' }}</p></div>
+					</div>
+					@if (offer.recommendationRank != null) {
+						<details class="fit-recommendation-basis" (click)="$event.stopPropagation()"><summary>ترتيب استرشادي #{{ offer.recommendationRank }} · لماذا رُشّح هذا العرض؟</summary><ul>@for (basis of offer.recommendationBasis || []; track $index) { <li>{{ basis }}</li> }</ul></details>
+					}
+				</section>
 				<div class="v1-plan">
 					<div style="margin-bottom: 12px;"><strong>خطة العمل: </strong> @if (!offer.milestones ||
 						offer.milestones.length === 0) { {{ offer.plan }} }</div>
@@ -399,7 +414,7 @@
 								<circle cx="12" cy="21" r="1.5" />
 								<path
 									d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
-							</svg>تقييم العرض · {{ offer.matchScore !== null ? offer.matchScore + '%' : 'غير متاح' }}
+							</svg>جودة نص العرض · {{ offer.qualityScore != null ? offer.qualityScore + '/100' : 'غير متاح' }}
 						</div>
 						<!-- Price/duration fairness rows exist only for older proposals that stored
 						     them; proposals evaluated by WaseetAI carry no such judgement, so the
@@ -425,7 +440,7 @@
 							<div class="cmp2-k">تقييم جودة العرض</div>
 							<div class="cmp2-v">{{ offer.aiAnalysis.qualityTag || '' }}</div>
 							<div class="cmp2-note">{{ offer.aiAnalysis.qualitySummary }}</div>
-							<div class="cmp2-note" style="opacity:.75;font-size:11px">يقيّم هذا التقييم نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع مشروعك ولا عدالة السعر مقارنة بميزانيتك.</div>
+							<div class="cmp2-note" style="opacity:.75;font-size:11px">تقييم جودة النص مستقل عن ملاءمة الملف للطلب وعن مقارنة السعر والمدة.</div>
 						</div>
 						}
 					</div>
@@ -489,8 +504,7 @@
 			</div>
 			<div class="ai-disc-body">
 				<div class="ai-disc-lbl">وسيط AI، إفصاح الذكاء الاصطناعي</div>
-				<p class="ai-disc-txt">قارن العروض المختارة جنباً إلى جنب. «تقييم العرض» مؤشر استرشادي يجمع تقييم AI لجودة
-					نص العرض مع قرب السعر من ميزانيتك — القرار النهائي لك</p>
+				<p class="ai-disc-txt">قارن ملاءمة الملف وأسباب الترشيح وجودة النص والميزانية والمدة جنبًا إلى جنب. المعلومات غير المتوفرة لا تتحول إلى تقييم صفر. القرار النهائي لك.</p>
 			</div>
 		</div>
 
@@ -514,8 +528,15 @@
 		</div>
 
 		<div class="cmp-page-table" [style.grid-template-columns]="'190px repeat(' + comparisonOffers().length + ', 1fr)'">
+			<div class="cmp-row"><div class="cmp-row-lbl">ملاءمة الملف للطلب</div>@for (offer of comparisonOffers(); track offer.id) { <div class="cmp-row-cell"><strong>{{ fitLabel(offer.providerFit) }}</strong><p class="compare-fit-summary">{{ offer.providerFit?.summary || 'لا توجد مراجعة محفوظة.' }}</p></div> }</div>
+			<div class="cmp-row"><div class="cmp-row-lbl">نقاط التوافق</div>@for (offer of comparisonOffers(); track offer.id) { <div class="cmp-row-cell"><ul class="compare-fit-points">@for (point of offer.providerFit?.matchPoints || []; track $index) { <li>{{ point.text }}</li> } @empty { <li>غير متاح</li> }</ul></div> }</div>
+			<div class="cmp-row"><div class="cmp-row-lbl">نقاط تحتاج مراجعة</div>@for (offer of comparisonOffers(); track offer.id) { <div class="cmp-row-cell"><ul class="compare-fit-points">@for (gap of offer.providerFit?.gaps || []; track $index) { <li>{{ gap.text }}</li> } @empty { <li>{{ offer.providerFit ? 'لم تُسجل نقاط إضافية.' : 'غير متاح' }}</li> }</ul></div> }</div>
+			<div class="cmp-row"><div class="cmp-row-lbl">جودة نص العرض</div>@for (offer of comparisonOffers(); track offer.id) { <div class="cmp-row-cell">{{ offer.qualityScore != null ? offer.qualityScore + '/100' : 'غير متاح' }}</div> }</div>
+			<div class="cmp-row"><div class="cmp-row-lbl">الترتيب الاسترشادي</div>@for (offer of comparisonOffers(); track offer.id) { <div class="cmp-row-cell">{{ offer.recommendationRank != null ? '#' + offer.recommendationRank : 'لا يوجد ترشيح محفوظ' }}</div> }</div>
+			<div class="cmp-row"><div class="cmp-row-lbl">موافقة الميزانية</div>@for (offer of comparisonOffers(); track offer.id) { <div class="cmp-row-cell"><strong>{{ suitabilityLabel(offer.budgetSuitability) }}</strong><p class="compare-fit-summary">{{ offer.budgetSuitability?.summary || 'غير متاح' }}</p></div> }</div>
+			<div class="cmp-row"><div class="cmp-row-lbl">موافقة الموعد</div>@for (offer of comparisonOffers(); track offer.id) { <div class="cmp-row-cell"><strong>{{ suitabilityLabel(offer.deadlineSuitability) }}</strong><p class="compare-fit-summary">{{ offer.deadlineSuitability?.summary || 'غير متاح' }}</p></div> }</div>
 			<div class="cmp-row">
-				<div class="cmp-row-lbl">تقييم العرض</div>
+				<div class="cmp-row-lbl">تقييم سابق</div>
 				@for (offer of comparisonOffers(); track offer.id) {
 				<div class="cmp-row-cell">{{ offer.matchScore !== null ? offer.matchScore + '%' : 'غير متاح' }}</div>
 				}

@@ -276,6 +276,10 @@ export class ProviderApiService {
 	/** Like submitAccreditationSample but the HTTP error is kept: field errors (files, title...) must reach the form. */
 	submitAccreditationRequest(payload: FormData): Observable<any> { return this.http.post<any>(`${this.apiUrl}/accreditation/submit`, payload); }
 
+	suggestAccreditationSampleDraft(payload: { specialtyName?: string; subSpecialties?: string[]; title?: string; description?: string; technologiesUsed?: string[] }): Observable<any> {
+		return this.http.post<any>(`${this.apiUrl}/accreditation/ai-suggest`, payload);
+	}
+
 	getAccreditationSamples(): Observable<any> {
 		return this.http.get<any>(`${this.apiUrl}/accreditation/samples`).pipe(
 			catchError((error) => {

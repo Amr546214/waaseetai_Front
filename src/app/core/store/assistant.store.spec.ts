@@ -8,6 +8,7 @@ import { HelpAssistantSocketService, HelpStreamEvent } from '../services/help-as
 import { AssistantTtsError, AssistantTtsService, TtsRequest } from '../services/assistant-tts.service';
 import { SECURE_CONTEXT, SPEECH_ERROR_MESSAGES, SPEECH_INSECURE, SPEECH_RECOGNITION, SPEECH_UNSUPPORTED } from '../services/speech-recognition';
 import { AuthStore } from './auth.store';
+import { HELP_ASSISTANT_UNAVAILABLE_MESSAGE } from '../help/assistant-errors';
 
 // Avatar/assistant state machine. Every external dependency is faked: the
 // socket transport (same `events$` stream), the WaseetAI TTS HTTP service
@@ -147,11 +148,22 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 		expect(store.messages()).toEqual([]);
 	});
 
+	it('rejects an oversized question explicitly and hides the previous reply preview', () => {
+		store.messages.set([{ role: 'assistant', text: 'أهلًا!' }]);
+		expect(store.preview()).toBe('أهلًا!');
+		expect(store.ask('س'.repeat(501))).toBe(false);
+		expect(socket.ask).not.toHaveBeenCalled();
+		expect(store.errorMessage()).toContain('500');
+		expect(store.preview()).toBe('');
+	});
+
 	it('idle → thinking on ask, renders chunks progressively, → idle on complete (no audio)', () => {
 		expect(store.ask('كيف يعمل الضمان؟')).toBe(true);
 		expect(store.state()).toBe('thinking');
 		expect(socket.asks[0].question).toBe('كيف يعمل الضمان؟');
-		expect(socket.ask.mock.calls[0].length).toBe(2); // question + history only — no socket voice flag
+		expect(socket.asks[0].options).toMatchObject({dialect:'msa',language:'ar-SA',profile:'auto',pageContext:{path:'/'}});
+		expect(socket.asks[0].options).not.toHaveProperty('effort');
+		expect(socket.asks[0].options).not.toHaveProperty('voice');
 
 		socket.emit({ type: 'start', clientRequestId: 'req-1' });
 		socket.emit({ type: 'chunk', clientRequestId: 'req-1', chunk: 'الضمان ' });
@@ -175,9 +187,9 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 		socket.emit({ type: 'error', clientRequestId: 'req-1', code: 'NO_ANSWER', message: 'لم يجد المساعد الذكي إجابة معتمدة', humanSupportFallback: true });
 
 		expect(store.state()).toBe('error');
-		expect(store.errorMessage()).toContain('إجابة معتمدة');
-		expect(store.humanSupportFallback()).toBe(true);
-		expect(store.messages()).toEqual([{ role: 'user', text: 'سؤال' }]);
+		expect(store.errorMessage()).toBe(HELP_ASSISTANT_UNAVAILABLE_MESSAGE);
+		expect(store.humanSupportFallback()).toBe(false);
+		expect(store.messages()).toEqual([{ role: 'user', text: 'سؤال', createdAt:expect.any(Number) }]);
 
 		socket.nextId = 'req-2';
 		store.retry();
@@ -316,11 +328,16 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 			expect(store.canReplay()).toBe(true);
 		});
 
-		it('an answer longer than the TTS bound is not sent to TTS', () => {
+		it('reads a long answer in bounded chunks and preserves the full text', () => {
 			store.ask('سؤال');
 			answer('req-1', ['x'.repeat(MAX_TTS_CHARS + 1)]);
-			expect(tts.synthesize).not.toHaveBeenCalled();
-			expect(store.voiceNotice()).toContain('أطول');
+			expect(tts.requests[0].req.text.length).toBeLessThanOrEqual(MAX_TTS_CHARS);
+			tts.resolveLast();
+			FakeAudio.instances[0].onplaying!();
+			FakeAudio.instances[0].onended!();
+			expect(tts.requests).toHaveLength(2);
+			expect(tts.requests.map(part => part.req.text).join('')).toHaveLength(MAX_TTS_CHARS + 1);
+			expect(store.messages().at(-1)?.text.length).toBe(MAX_TTS_CHARS + 1);
 		});
 
 		it('stopAudio() stops playback (speaking → idle) and keeps the clip for replay; replay() plays the SAME clip without a new TTS call', () => {
@@ -433,7 +450,7 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 			expect(store.micActive()).toBe(false);
 			expect(store.state()).toBe('thinking');
 			expect(socket.asks[0].question).toBe('كيف يعمل الضمان');
-			expect(store.messages()).toEqual([{ role: 'user', text: 'كيف يعمل الضمان' }]);
+			expect(store.messages()).toEqual([{ role: 'user', text: 'كيف يعمل الضمان', createdAt:expect.any(Number) }]);
 		});
 
 		it('clicking again while listening finishes recognition (stop, not abort) so the transcript is sent', () => {
@@ -546,6 +563,21 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 	// ── Local Bebo commands ───────────────────────────────────────────────
 
 	describe('local Bebo commands', () => {
+		it('recognises Nadeem commands locally and keeps guide poses exclusive to Nadeem', () => {
+			store.ask('يا نديم افرد الخريطة');
+			expect(store.beboCommand()?.action).toBe('map');
+			expect(socket.ask).not.toHaveBeenCalled();
+			const command = store.beboCommand();
+			store.setSkin('classic');
+			store.runMotion('map');
+			expect(store.beboCommand()).toBe(command);
+			expect(store.commandReply()).toContain('متاحة لنديم');
+		});
+
+		it('keeps invalid skin values out of state and persisted preferences', () => {
+			store.setSkin('unknown' as any);
+			expect(store.skin()).toBe('scout');
+		});
 		it('Arabic command → local action + handoff acknowledgement; not sent upstream, not added to history', () => {
 			expect(store.ask('ارقص')).toBe(true);
 			expect(socket.ask).not.toHaveBeenCalled();
@@ -833,7 +865,7 @@ describe('AssistantStore session isolation, listening/happy and speech meter', (
 		expect(sent.question).toBe('سؤال المستخدم ب');
 		expect(sent.history).toEqual([]);
 		expect(JSON.stringify(sent)).not.toContain('المستخدم أ');
-		expect(store.messages()).toEqual([{ role: 'user', text: 'سؤال المستخدم ب' }]);
+		expect(store.messages()).toEqual([{ role: 'user', text: 'سؤال المستخدم ب', createdAt:expect.any(Number) }]);
 	});
 
 	it("8b. user B's TTS request never carries user A's answer text", () => {
@@ -915,6 +947,31 @@ describe('AssistantStore session isolation, listening/happy and speech meter', (
 		expect(store.state()).toBe('thinking');
 	});
 
+	it('bounds context from long valid replies and excludes saved failure notices', () => {
+		store.messages.set([
+			{ role: 'user', text: 'x'.repeat(700) },
+			{ role: 'assistant', text: 'a'.repeat(8000) },
+			{ role: 'user', text: 'سؤال قديم' },
+			{ role: 'assistant', text: HELP_ASSISTANT_UNAVAILABLE_MESSAGE },
+		]);
+		expect(store.historyTail()).toEqual([{ question: 'x'.repeat(500), answer: 'a'.repeat(1000) }]);
+		expect(store.messages()[1].text.length).toBe(8000);
+	});
+
+	it('rejects a legacy refusal arriving as successful chunks without saving or speaking it', () => {
+		store.ask('عامل إيه');
+		socket.emit({ type: 'start', clientRequestId: 'req-1' });
+		socket.emit({ type: 'chunk', clientRequestId: 'req-1', chunk: 'لم يجد المساعد الذكي ' });
+		socket.emit({ type: 'chunk', clientRequestId: 'req-1', chunk: 'إجابة معتمدة لهذا السؤال في قاعدة المعرفة.' });
+		socket.emit({ type: 'complete', clientRequestId: 'req-1' });
+		expect(store.errorMessage()).toBe(HELP_ASSISTANT_UNAVAILABLE_MESSAGE);
+		expect(store.humanSupportFallback()).toBe(false);
+		expect(store.messages().filter(message => message.role === 'assistant')).toEqual([]);
+		expect(store.successTick()).toBe(0);
+		expect(tts.synthesize).not.toHaveBeenCalled();
+		expect(socket.cancel).toHaveBeenCalledWith('req-1');
+	});
+
 	it('successTick (Bebo happy) increments on a completed answer only, never on an error', () => {
 		socket.nextId = 's-1';
 		store.ask('سؤال');
@@ -924,6 +981,10 @@ describe('AssistantStore session isolation, listening/happy and speech meter', (
 		store.ask('سؤال');
 		answer('s-2', 'إجابة');
 		expect(store.successTick()).toBe(1);
+	});
+	it('keeps a neutral expression for completed dispute and payment answers', () => {
+		socket.nextId='neutral-1';store.ask('إزاي أحل نزاع حساب الضمان؟');answer('neutral-1','يمكنك مراجعة خطوات الدعم.');
+		expect(store.successTick()).toBe(0);
 	});
 
 	it('speech meter: real audio loudness is published while speaking; the graph is reused on replay and released with the clip', () => {

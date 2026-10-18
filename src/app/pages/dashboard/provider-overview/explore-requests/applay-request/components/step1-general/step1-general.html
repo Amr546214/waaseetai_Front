@@ -46,10 +46,10 @@
           <span>{{ isFetchingAiSuggest ? 'جاري الصياغة...' : 'اقتراح AI' }}</span>
         </button>
       </div>
-      <textarea class="w-full py-[12px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 resize-y leading-relaxed min-h-[120px] focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] field-textarea"
+      <textarea class="w-full py-[12px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 resize-y leading-relaxed min-h-[180px] whitespace-pre-wrap focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] field-textarea"
         [class.!border-[rgba(255,80,80,.45)]]="messageModel.invalid && (messageModel.dirty || messageModel.touched)"
-        id="f-desc" placeholder="صف خبرتك في هذا المجال، لماذا أنت الأنسب، أسلوب عملك، وأي معلومات تريد طالب الخدمة معرفتها... تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" minlength="30" rows="6"
-        [ngModel]="proposal.message" (ngModelChange)="updateMessage.emit($event)" name="message" #messageModel="ngModel" required aria-required="true" [attr.aria-invalid]="messageModel.invalid && (messageModel.dirty || messageModel.touched) ? 'true' : null" [attr.aria-describedby]="messageModel.invalid && (messageModel.dirty || messageModel.touched) ? 'f-desc-err' : null"></textarea>
+        id="f-desc" placeholder="صف خبرتك في هذا المجال، لماذا أنت الأنسب، أسلوب عملك، وأي معلومات تريد طالب الخدمة معرفتها... تفاصيل تساعد المقدمين على فهم طلبك..." maxlength="2000" minlength="30" rows="10"
+        [ngModel]="proposal.message" (ngModelChange)="updateMessage.emit($event)" name="message" #messageModel="ngModel" required aria-required="true" [attr.aria-invalid]="messageModel.invalid && (titleModel.dirty || messageModel.touched) ? 'true' : null" [attr.aria-describedby]="messageModel.invalid && (messageModel.dirty || messageModel.touched) ? 'f-desc-err' : null"></textarea>
 
       <div class="flex justify-between items-center mt-[6px] field-counter">
         <span id="desc-count" class="text-[11px] text-[#6B7699] field-count" [class.!text-\[\#D98A0B\]]="messageLength > 1800">{{ messageLength }} / 2000</span>
