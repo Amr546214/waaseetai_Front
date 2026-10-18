@@ -175,17 +175,17 @@ export class Navbar {
 
 	switchRole(role: UserRole) {
 		if (role === this.activeRole()) {
-			// Clicking the row for the account that's already active must not
-			// be a no-op — it's a legitimate "take me to my dashboard"
-			// shortcut, usable from any page. No role switch is needed (and
-			// no switchActiveRole API call is made) since nothing is
-			// changing — just a plain in-app navigation via the same
-			// canonical role→dashboard resolver used app-wide
-			// (getDefaultDashboard), not the local, incomplete
-			// getRoleDashboardUrl() below (which has no SUPER_ADMIN case).
-			this.isUserDropdownOpen.set(false);
-			this.isDashSubMenuOpen.set(false);
-			this.router.navigateByUrl(getDefaultDashboard(this.currentUser()?.accountType, role));
+			// The row for the account that looks active is still a "take me to my dashboard" shortcut. But "looks active" is only this tab's belief: another tab / device
+			// may have switched the account since. So the (idempotent) switch is ALWAYS sent first — the server answers with the authoritative role + a fresh token, which
+			// AccountService stores — and only then the SPA navigates. If the call fails the menu says so and nothing moves.
+			this.accountService.switchActiveRole(role).subscribe({
+				next: () => {
+					this.isUserDropdownOpen.set(false);
+					this.isDashSubMenuOpen.set(false);
+					this.router.navigateByUrl(getDefaultDashboard(this.currentUser()?.accountType, role));
+				},
+				error: (err: any) => this.notify.error(err?.error?.message || 'تعذر تبديل الحساب', { title: 'خطأ في تبديل الحساب' })
+			});
 			return;
 		}
 

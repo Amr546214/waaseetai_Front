@@ -6,6 +6,7 @@ import { AccountType, User, UserRole, UserStatus } from '../models/auth.model';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { SocialAuthService } from '@abacritt/angularx-social-login';
+import { redirectTargetAfterRoleChange } from '../routing/role-routes';
 
 // Helper functions to read cookies synchronously before signals initialize
 function getCookieSync(name: string): string | null {
@@ -100,10 +101,49 @@ export class AuthStore {
       if (pending) this._pendingUserId.set(pending);
 
       this.isInitialized$.next(true);
+
+      // Another tab of this browser switched role / logged in again: follow it (storage events fire only in the OTHER tabs, so this can never loop).
+      if (typeof window !== 'undefined' && window.addEventListener) {
+        window.addEventListener('storage', (e: StorageEvent) => this.onStorageEvent(e));
+      }
     } else {
       // On server, we assume unauthenticated but mark as initialized to resolve SSR
       this.isInitialized$.next(true);
     }
+  }
+
+  private onStorageEvent(e: StorageEvent): void {
+    if (e.key !== 'waseet_user' && e.key !== 'waseet_token') return;
+    const token = localStorage.getItem('waseet_token');
+    const raw = localStorage.getItem('waseet_user');
+    if (!token || !raw) return; // a logout elsewhere is left to the next 401; never half-clear here
+    let user: User;
+    try { user = JSON.parse(raw) as User; } catch { return; }
+    if (token !== this._token()) this._token.set(token);
+    const before = this._currentUser();
+    if (JSON.stringify(before) === raw) return;
+    const roleBefore = this.actingRole();
+    this._currentUser.set(user);
+    if (this.actingRole() !== roleBefore) this.followRoleChange();
+  }
+
+  /** Moves off a role area the (new) acting role does not own — only then; never from a public page, and never to the area it is already in. */
+  private followRoleChange(): void {
+    const role = this.actingRole();
+    if (!role) return;
+    const target = redirectTargetAfterRoleChange(this.router.url, role);
+    if (target) this.router.navigateByUrl(target);
+  }
+
+  /**
+   * The server told us (ROLE_MISMATCH 403) which role it accepts for this account. Adopt it in the session (signal + cookie + localStorage, so the menu and
+   * the guards follow) and leave a page that belongs to the other role. Returns false (and does nothing) when it is already the local role or there is no session.
+   */
+  public reconcileActiveRole(serverRole: UserRole): boolean {
+    if (!this._currentUser() || this.actingRole() === serverRole) return false;
+    this.updateUser({ activeRole: serverRole });
+    this.followRoleChange();
+    return true;
   }
 
   // --- Cookie Utility Methods ---
