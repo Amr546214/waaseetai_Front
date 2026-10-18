@@ -36,6 +36,12 @@ export interface AiReviewEvaluation {
 	} | null;
 }
 
+export interface AiTextCandidate { id: string; text: string; length?: number; trimmed?: boolean; label?: string; unmentioned?: string[] }
+export interface AiTextStreamEnd {
+	mode: string; message: string; error?: boolean; code?: string; requestId?: string;
+	candidates?: AiTextCandidate[]; limit?: number;
+}
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -73,34 +79,44 @@ export class NewProjectService implements OnDestroy {
 		return this.socket;
 	}
 
-	streamSuggestText(title: string): void {
+	/** `requestId` correlates every event of this request; the page ignores events carrying any other id. */
+	streamSuggestText(title: string, requestId?: string): void {
 		const s = this.initSocket();
 		if (!s) return;
-		s.emit('stream_ai_suggest_text', { title });
+		s.emit('stream_ai_suggest_text', { title, ...(requestId ? { requestId } : {}) });
 	}
 
-	streamEnhanceDescription(title: string, description: string): void {
+	/** `seeded`: `description` is a context seed (empty-field generation), not the user's text; the backend then checks the reply against the seed's facts. */
+	streamEnhanceDescription(title: string, description: string, requestId?: string, seeded?: boolean): void {
 		const s = this.initSocket();
 		if (!s) return;
-		s.emit('stream_ai_enhance_description', { title, description });
+		s.emit('stream_ai_enhance_description', { title, description, ...(requestId ? { requestId } : {}), ...(seeded ? { seeded: true } : {}) });
 	}
 
-	onStreamStart(callback: (data: { mode: string }) => void): void {
+	/** Stops the running stream server-side (retry / navigation); the server then emits nothing more for it. */
+	cancelStream(requestId?: string): void {
+		this.socket?.emit('ai_text_stream_cancel', requestId ? { requestId } : {});
+	}
+
+	onStreamStart(callback: (data: { mode: string; requestId?: string }) => void): void {
 		const s = this.initSocket();
 		if (!s) return;
 		s.off('ai_text_stream_start');
 		s.on('ai_text_stream_start', callback);
 	}
 
-	onStreamChunk(callback: (data: { chunk: string; mode: string }) => void): void {
+	onStreamChunk(callback: (data: { chunk: string; mode: string; requestId?: string }) => void): void {
 		const s = this.initSocket();
 		if (!s) return;
 		s.off('ai_text_stream_chunk');
 		s.on('ai_text_stream_chunk', callback);
 	}
 
-	/** `error`/`code` are set by the backend only when the stream FAILED (absent on success and on older backends). */
-	onStreamEnd(callback: (data: { mode: string; message: string; error?: boolean; code?: string }) => void): void {
+	/**
+	 * `error`/`code` are set by the backend only when the stream FAILED (absent on success and on older backends).
+	 * A successful end of a current backend carries `candidates` (each already within `limit`); an older backend sends none.
+	 */
+	onStreamEnd(callback: (data: AiTextStreamEnd) => void): void {
 		const s = this.initSocket();
 		if (!s) return;
 		s.off('ai_text_stream_end');

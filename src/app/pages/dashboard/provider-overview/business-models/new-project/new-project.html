@@ -92,8 +92,10 @@
 		<ng-container *ngSwitchCase="1">
 			<app-step1-details [projectName]="projectName()" [projectDesc]="projectDesc()" [descCount]="descCount()"
 				[isStreamingText]="isStreamingText()" [isAiEnhancing]="isAiEnhancing()"
-				[isAiSuggesting]="isAiSuggesting()" [aiStreamError]="aiStreamError()" (onRetryAi)="retryAiAssist()" (projectNameChange)="projectName.set($event)"
-				(projectDescChange)="projectDesc.set($event)" (onAiAssist)="aiAssist($event)">
+				[isAiSuggesting]="isAiSuggesting()" [aiStreamError]="aiStreamError()" [aiStreamPreview]="aiStreamPreview()" [aiSuggestions]="aiSuggestions()"
+				[aiAppliedId]="aiAppliedId()" [aiFromContext]="aiFromContext()" [aiOriginalPreserved]="aiOriginalPreserved()" [descMax]="descMax"
+				(onUseSuggestion)="useAiSuggestion($event)" (onDismissSuggestions)="dismissAiSuggestions()" (onRetryAi)="retryAiAssist()" (projectNameChange)="projectName.set($event)"
+				(projectDescChange)="projectDesc.set($event)" (onAiAssist)="aiAssist()">
 			</app-step1-details>
 		</ng-container>
 
@@ -122,7 +124,7 @@
 		<ng-container *ngSwitchCase="4">
 			<app-step4-stages [totalAmount]="totalAmount()" [stages]="stages()"
 				[isAiSuggestingMilestones]="isAiSuggestingMilestones()" [totalPercentage]="totalPercentage()"
-				[totalDays]="totalDays()" (onTotalAmountChange)="totalAmount.set($event)"
+				[totalDays]="totalDays()" (onTotalAmountChange)="setTotalAmountByUser($event)"
 				(onSuggestMilestones)="suggestMilestonesWithAi()" (onAddStage)="addStage()"
 				(onRemoveStage)="removeStage($event)"
 				(onUpdateStage)="updateStage($event.index, $event.field, $event.value)">

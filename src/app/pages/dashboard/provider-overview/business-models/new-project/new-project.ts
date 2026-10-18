@@ -6,6 +6,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NewProjectService, AiReviewEvaluation } from '../../../../../core/services/new-project.service';
 import { SkillsCatalogService } from '../../../../../core/services/skills-catalog.service';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
+import { SEED_CLARIFICATION_MESSAGE, buildDescriptionSeed, AI_EMPTY_OUTPUT_MESSAGE, AI_OUTPUT_TOO_LONG_MESSAGE, AI_WATCHDOG_MESSAGE, AI_WATCHDOG_MS, AiSuggestion, PROJECT_DESC_MAX, checkAiSuggestions } from './ai-description';
 import { Step1DetailsComponent } from './components/step1-details/step1-details.component';
 import { Step2SpecialtyComponent } from './components/step2-specialty/step2-specialty.component';
 import { Step3ModelComponent } from './components/step3-model/step3-model.component';
@@ -98,28 +99,37 @@ export class NewProject implements OnInit, OnDestroy {
 	isAiEnhancing = signal<boolean>(false);
 	isAiSuggesting = signal<boolean>(false);
 	isStreamingText = signal<boolean>(false);
-	/** Set when a stream ends with `error:true` (backend BE-1): the user's draft was restored and a retry is offered. */
+	/** Set when a stream ends with `error:true` or an unusable result: the field was never touched, a retry is offered. */
 	aiStreamError = signal<string | null>(null);
-	private draftBeforeStream = '';
-	private lastAiMode: 'improve' | 'suggest' = 'improve';
+	/** Live text of the running request. Shown ONLY in the suggestions area, never in the description field. */
+	aiStreamPreview = signal('');
+	/** The complete, validated (<= PROJECT_DESC_MAX) candidates the user can approve, one card each. */
+	aiSuggestions = signal<AiSuggestion[]>([]);
+	aiAppliedId = signal<string | null>(null);
+	readonly descMax = PROJECT_DESC_MAX;
+	/** Id of the one request whose events are accepted; any other id (or none active) is a stale event and is ignored. */
+	private aiRequestId: string | null = null;
+	private aiWatchdog: ReturnType<typeof setTimeout> | null = null;
+	/** «نصّك الأصلي محفوظ» is shown only when the field still holds exactly the text it had when the request started. */
+	aiOriginalPreserved = computed(() => this.draftBeforeStreamSignal().trim().length > 0 && this.projectDesc() === this.draftBeforeStreamSignal());
+	private draftBeforeStreamSignal = signal('');
 
 	updateName(event: Event) { this.projectName.set((event.target as HTMLInputElement).value); }
 	updateDesc(event: Event) { this.projectDesc.set((event.target as HTMLTextAreaElement).value); }
 
-	retryAiAssist() { this.aiAssist(this.lastAiMode); }
+	retryAiAssist() { this.aiAssist(); }
 
-	aiAssist(mode: 'improve' | 'suggest') {
-		this.lastAiMode = mode;
+	/** True while the shown/running suggestions were generated from the title/form data only (empty field), for the honesty note. */
+	aiFromContext = signal(false);
+
+	/** ONE action: a field with text is improved; an EMPTY field is generated through the same enhance path from a seed of what the user provided. */
+	aiAssist(_legacyMode?: string) {
+		// One request at a time: the button is disabled while one runs, and a stray second call is refused here too.
+		if (this.isStreamingText()) return;
 		this.aiStreamError.set(null);
-		let title = this.projectName().trim();
+		const title = this.projectName().trim();
 		const desc = this.projectDesc().trim();
-
-		if (mode === 'suggest' && !title) {
-			const specName = this.selectedMainSpecialtyObj()?.name || this.specialties()[0]?.name;
-			const sampleTitle = this.accreditationModels()[0]?.title;
-			title = sampleTitle || (specName ? `تصميم وتطوير مشروع احترافي في ${specName}` : 'تصميم وتطوير منصة ويب تفاعلية متكاملة');
-			this.projectName.set(title);
-		}
+		const improve = desc.length >= 10;
 
 		// Validate title meaningfulness
 		if (title) {
@@ -130,37 +140,104 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 		}
 
-		if (mode === 'improve') {
-			if (!desc && !title) {
-				this.notify.warning('يرجى كتابة اسم المشروع أو وصف مبدئي أولاً ليتم تحسينه');
+		// The seed is built ONLY from what the user provided (before any auto-population) and goes to the service only, never into the field.
+		let payloadText = this.projectDesc();
+		if (!improve) {
+			// Only what the user explicitly provided/chose (see userProvided): auto-populated, recommended or defaulted values are NOT facts.
+			const u = this.userProvided;
+			const spec = u.specialty ? this.selectedMainSpecialtyObj() : null;
+			const model = u.model ? this.accreditationModels().find(m => m.id === this.selectedModel()) : undefined;
+			const days = u.days ? this.stages().reduce((sum, st) => sum + (Number(st?.days) > 0 ? Number(st.days) : 0), 0) : 0;
+			const seed = buildDescriptionSeed({
+				title, specialty: spec?.name, subSpecialty: u.subSpecialty ? this.selectedSubSpecialty() : '', model: model?.title,
+				skills: u.skills ? this.selectedSkills() : [], budgetUsd: u.budget ? this.totalAmount() : null, days,
+			});
+			if (seed === null) {
+				this.notify.warning(SEED_CLARIFICATION_MESSAGE);
 				return;
 			}
-			this.isAiEnhancing.set(true);
-			this.isStreamingText.set(true);
-			this.autoPopulateWizardSelections();
-
-			// Trigger WebSocket real-time word-by-word streaming
-			this.newProjectService.streamEnhanceDescription(title, this.projectDesc());
-			this.notify.info('بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
-
-		} else if (mode === 'suggest') {
-			this.isAiSuggesting.set(true);
-			this.isStreamingText.set(true);
-			this.autoPopulateWizardSelections();
-
-			// Trigger WebSocket real-time word-by-word streaming
-			this.newProjectService.streamSuggestText(title);
-			this.notify.info('بدأ البث المباشر لتوليد مقترح احترافي لوصف المشروع...');
+			payloadText = seed;
 		}
 
-		// Safety timeout: if streaming doesn't end within 25 seconds, release loading state
-		setTimeout(() => {
-			if (this.isStreamingText()) {
-				this.isStreamingText.set(false);
-				this.isAiEnhancing.set(false);
-				this.isAiSuggesting.set(false);
-			}
-		}, 25000);
+		// A new request replaces whatever was shown before: no leftovers, so a retry never duplicates text.
+		this.cancelRunningAi();
+		this.draftBeforeStreamSignal.set(this.projectDesc());
+		this.aiSuggestions.set([]);
+		this.aiStreamPreview.set('');
+		this.aiAppliedId.set(null);
+		this.aiFromContext.set(!improve);
+		const requestId = `ai-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+		this.aiRequestId = requestId;
+		this.isStreamingText.set(true);
+		this.armAiWatchdog();
+
+		if (improve) {
+			this.isAiEnhancing.set(true);
+			this.newProjectService.streamEnhanceDescription(title, payloadText, requestId);
+			this.notify.info('بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
+		} else {
+			this.isAiSuggesting.set(true);
+			this.newProjectService.streamEnhanceDescription(title, payloadText, requestId, true);
+			this.notify.info('بدأ البث المباشر لاقتراح وصف مبني على بيانات مشروعك...');
+		}
+	}
+
+	/** Applies ONE suggestion: the description becomes exactly that text (no introduction, no other alternatives). */
+	useAiSuggestion(id: string) {
+		const picked = this.aiSuggestions().find(s => s.id === id);
+		if (!picked || this.isStreamingText()) return;
+		if (!picked.text.trim() || picked.text.length > PROJECT_DESC_MAX) {
+			this.notify.warning(`الاقتراح يتجاوز ${PROJECT_DESC_MAX} حرفاً ولا يمكن استخدامه.`);
+			return;
+		}
+		this.projectDesc.set(picked.text);
+		this.aiAppliedId.set(id);
+		this.aiStreamError.set(null);
+		this.autoPopulateWizardSelections();
+		this.autoPopulateMilestonesIfBlank();
+		this.notify.success('تم استخدام الاقتراح في حقل الوصف');
+	}
+
+	dismissAiSuggestions() {
+		if (this.isStreamingText()) return;
+		this.aiSuggestions.set([]);
+		this.aiStreamPreview.set('');
+		this.aiAppliedId.set(null);
+	}
+
+	private armAiWatchdog() {
+		this.clearAiWatchdog();
+		this.aiWatchdog = setTimeout(() => {
+			if (!this.aiRequestId) return;
+			this.newProjectService.cancelStream?.(this.aiRequestId);
+			this.finishAiRequest();
+			this.aiStreamPreview.set('');
+			this.aiStreamError.set(AI_WATCHDOG_MESSAGE);
+		}, AI_WATCHDOG_MS);
+	}
+
+	private clearAiWatchdog() {
+		if (this.aiWatchdog) { clearTimeout(this.aiWatchdog); this.aiWatchdog = null; }
+	}
+
+	/** Stops tracking the running request (later events with its id are ignored) and releases the busy state. */
+	private finishAiRequest() {
+		this.clearAiWatchdog();
+		this.aiRequestId = null;
+		this.isStreamingText.set(false);
+		this.isAiEnhancing.set(false);
+		this.isAiSuggesting.set(false);
+	}
+
+	/** Cancels the running request server-side (retry/navigation) and ignores anything it still sends. */
+	private cancelRunningAi() {
+		if (!this.aiRequestId) return;
+		this.newProjectService.cancelStream?.(this.aiRequestId);
+		this.finishAiRequest();
+	}
+
+	private acceptsAiEvent(requestId: string | undefined): boolean {
+		return this.aiRequestId !== null && (requestId === undefined || requestId === this.aiRequestId);
 	}
 
 	private computeRecommendedSkills(options: string[]): string[] {
@@ -328,7 +405,14 @@ export class NewProject implements OnInit, OnDestroy {
 		});
 	}
 
+	/**
+	 * Provenance of the wizard values: true ONLY when the user explicitly typed/chose that value. Anything auto-populated, defaulted, recommended,
+	 * prefilled or restored from a draft stays false, and is therefore never presented as a fact in the AI seed.
+	 */
+	private userProvided = { specialty: false, subSpecialty: false, model: false, skills: false, budget: false, days: false };
+
 	onSkillsChange(list: string[]) {
+		this.userProvided.skills = list.length > 0;
 		this.skillsError.set('');
 		this.selectedSkills.set(list.slice(0, 30));
 	}
@@ -337,7 +421,9 @@ export class NewProject implements OnInit, OnDestroy {
 		const next = spec.id || spec.specialtyId;
 		const changed = next !== this.selectedSpecialty();
 		this.selectedSpecialty.set(next);
+		this.userProvided.specialty = true;
 		if (changed) {
+			this.userProvided.skills = false; // the list is reset/recommended below: not the user's choice
 			this.selectedSkills.set([]);
 			this.skillsError.set('');
 			if (this.selectedCategoryId() === this.skillsCategoryKey && !this.skillsLoading()) {
@@ -347,6 +433,8 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 		}
 		this.selectedSubSpecialty.set(spec.subSpecialties?.[0] ?? '');
+		this.userProvided.subSpecialty = false; // the first sub-specialty is a default until the user picks one
+		this.userProvided.model = false; // the matching model is linked automatically
 		const matchingModel = this.accreditationModels().find(
 			m => m.specialtyId === spec.specialtyId && (m.status === 'AI_VERIFIED' || m.status === 'APPROVED')
 		);
@@ -354,6 +442,7 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	selectSubSpecialty(sub: string) {
+		this.userProvided.subSpecialty = true;
 		this.selectedSubSpecialty.set(sub);
 	}
 
@@ -442,6 +531,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 	selectModel(id: string) {
 		this.modelError.set('');
+		this.userProvided.model = true;
 		this.selectedModel.set(id);
 	}
 
@@ -606,7 +696,13 @@ export class NewProject implements OnInit, OnDestroy {
 		this.stages.update(s => s.filter((_, i) => i !== index));
 	}
 
+	setTotalAmountByUser(value: number | null) {
+		this.userProvided.budget = (value ?? 0) > 0;
+		this.totalAmount.set(value);
+	}
+
 	updateStage(index: number, field: string, value: any) {
+		if (field === 'days') this.userProvided.days = Number(value) > 0;
 		this.stages.update(s => {
 			const newStages = [...s];
 			newStages[index] = { ...newStages[index], [field]: value };
@@ -689,44 +785,41 @@ export class NewProject implements OnInit, OnDestroy {
 		this.newProjectService.initSocket();
 
 		this.newProjectService.onStreamStart((data) => {
+			if (!this.acceptsAiEvent(data?.requestId)) return;
 			this.isStreamingText.set(true);
-			// Remember the user's text: the stream replaces it as it arrives, but a failed stream must give it back.
-			this.draftBeforeStream = this.projectDesc();
-			if (data.mode === 'suggest') {
-				this.projectDesc.set('');
-			} else if (data.mode === 'improve') {
-				this.projectDesc.set('');
-			}
+			this.armAiWatchdog();
 		});
 
 		this.newProjectService.onStreamChunk((data) => {
+			if (!this.acceptsAiEvent(data?.requestId)) return;
+			this.armAiWatchdog();
+			// The live text goes to the suggestions area only: the user's own description is untouched until a complete valid suggestion is approved.
 			const cleanChunk = (data.chunk || '').replace(/\*\*/g, '');
-			this.projectDesc.update(current => current + cleanChunk);
+			this.aiStreamPreview.update(current => current + cleanChunk);
 		});
 
 		this.newProjectService.onStreamEnd((data) => {
-			this.isStreamingText.set(false);
-			this.isAiEnhancing.set(false);
-			this.isAiSuggesting.set(false);
+			if (!this.acceptsAiEvent(data?.requestId)) return;
+			const preview = this.aiStreamPreview();
+			this.finishAiRequest();
+			this.aiStreamPreview.set('');
 			if (data.error === true) {
-				// Failed stream: never keep partial chunks / an emptied textarea — restore the user's own draft and offer a retry.
-				this.projectDesc.set(this.draftBeforeStream);
+				// Failed stream: the field was never touched; the live text is dropped and a retry is offered.
+				this.aiSuggestions.set([]);
 				this.aiStreamError.set(data.message || 'تعذّر إكمال الاقتراح. يمكنك إعادة المحاولة.');
 				return;
 			}
-			this.projectDesc.update(text =>
-				text
-					.replace(/\*\*/g, '')
-					.replace(/^#{1,6}\s*/gm, '')
-					.replace(/^\s*[-*]\s+/gm, '• ')
-					.trim()
-			);
-			this.autoPopulateWizardSelections();
-			this.autoPopulateMilestonesIfBlank();
-			this.aiStreamError.set(null);
-			if (data.message) {
-				this.notify.info(data.message);
+			// Client-side gate: only complete, non-empty candidates within the limit can ever be approved.
+			const checked = checkAiSuggestions(data.candidates, preview, PROJECT_DESC_MAX);
+			if (!checked.suggestions.length) {
+				this.aiSuggestions.set([]);
+				this.aiStreamError.set(checked.rejectedTooLong > 0 ? AI_OUTPUT_TOO_LONG_MESSAGE : AI_EMPTY_OUTPUT_MESSAGE);
+				return;
 			}
+			this.aiStreamError.set(null);
+			this.aiSuggestions.set(checked.suggestions);
+			// Neutral: nothing is applied yet, so no success wording (the backend's «تم تحسين...» is not shown).
+			this.notify.info(checked.suggestions.length === 1 ? 'اقتراح جاهز للمراجعة' : 'اقتراحات جاهزة للمراجعة');
 		});
 
 		const editId = this.route.snapshot.queryParamMap.get('edit') || this.route.snapshot.queryParamMap.get('id');
@@ -824,6 +917,8 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.cancelRunningAi();
+		this.clearAiWatchdog();
 		this.newProjectService.disconnectSocket();
 	}
 

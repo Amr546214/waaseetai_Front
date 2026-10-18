@@ -51,11 +51,11 @@ describe('provider new business model: feedback flows through the central notifi
 		expect((page.nativeElement as HTMLElement).querySelector('.toast-box')).toBeNull();
 	});
 
-	it('asking the AI to suggest a description without a project name warns in the central host', () => {
+	it('asking the AI for a description with no title and no other data asks for clarification in the central host (no request is sent)', () => {
 		const { page, host, service } = mount();
-		page.componentInstance.aiAssist('suggest');
+		page.componentInstance.aiAssist();
 		page.detectChanges(); host.detectChanges();
-		const message = 'يرجى كتابة اسم المشروع أولاً ليقوم الذكاء باقتراح وصف متكامل له';
+		const message = 'أضف عنوانًا أوضح للمشروع (كلمتان على الأقل) أو بعض التفاصيل مثل التخصص والمهارات ليتمكن الذكاء الاصطناعي من اقتراح وصف. لم يُرسل أي طلب.';
 		expect(service.toasts().map(t => [t.kind, t.message])).toEqual([['warning', message]]);
 		expect((host.nativeElement as HTMLElement).querySelector('[data-testid=ui-toast]')?.textContent).toContain(message);
 	});
