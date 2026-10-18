@@ -22,9 +22,23 @@ describe('provider FE package 1 — operate, do not delete', () => {
 	it('J2 D-A1: the bare /business-models/accreditation redirects to the requests list (no 404); new and list stay real pages', () => {
 		const bare = PROVIDER_OVERVIEW_ROUTES.find(r => r.path === 'business-models/accreditation')!;
 		expect(bare.pathMatch).toBe('full');
-		expect(bare.redirectTo).toBe('/provider-overview/business-models/accreditation/list');
+		const f = bare.redirectTo as (d: any) => string;
+		expect(f({ queryParams: {} })).toBe('/provider-overview/business-models/accreditation/list');
+		expect(f({ queryParams: { a: '1', b: ['x', 'y'] } })).toBe('/provider-overview/business-models/accreditation/list?a=1&b=x&b=y');
 		expect(route('business-models/accreditation/list')!.loadComponent).toBeTruthy();
 		expect(route('business-models/accreditation/new')!.loadComponent).toBeTruthy();
+	});
+	it('J2 follow-up: bare parent URLs redirect (full match, absolute) to the first sidebar child of the group', () => {
+		const want: Record<string, string> = { 'business-models': 'business-models/center', projects: 'projects/active', finance: 'finance/wallet', profile: 'profile/public', settings: 'settings/account' };
+		for (const [bare, to] of Object.entries(want)) {
+			const r = PROVIDER_OVERVIEW_ROUTES.filter(x => x.path === bare);
+			expect(r.length, bare).toBe(1);
+			expect(r[0].pathMatch).toBe('full');
+			expect((r[0].redirectTo as (d: any) => string)({ queryParams: {} })).toBe('/provider-overview/' + to);
+			expect((r[0].redirectTo as (d: any) => string)({ queryParams: { tab: 'x' } })).toBe('/provider-overview/' + to + '?tab=x');
+			expect(PROVIDER_OVERVIEW_ROUTES.some(x => x.path === to && (x.loadComponent || x.redirectTo))).toBe(true);
+			expect(read('../../../sheards/dashboard/sidebar/sidebar.ts')).toContain('/provider-overview/' + to);
+		}
 	});
 	it('help/live-support route is kept; it is labelled as tickets, not a live chat', () => {
 		expect(route('help/live-support')).toBeTruthy();
