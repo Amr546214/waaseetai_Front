@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthStore } from '../store/auth.store';
 import { UiNotificationService } from '../services/ui-notification.service';
+import { serverRoleFromMismatch } from '../routing/role-routes';
 import { isAccountBlockedResponse, accountBlockedText } from '../services/account-state';
 
 function getCookieSync(name: string): string | null {
@@ -102,6 +103,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         if (user) {
           authStore.setPendingVerification(user.id);
           router.navigate(['/auth/verify-otp']);
+        }
+      }
+
+      // The server accepts a different ACTIVE role than this tab believes (it was switched in another tab / device): adopt the server's role, never switch it.
+      // Only the specific ROLE_MISMATCH 403 counts; any other 403 (no such role, gates, permissions) is left alone.
+      if (isBrowser) {
+        const serverRole = serverRoleFromMismatch(error.status, error.error);
+        if (serverRole && authStore.reconcileActiveRole(serverRole)) {
+          ui.info('تم تبديل حسابك من جلسة أخرى، فتحنا لك لوحة الدور الحالي. اختر الدور من قائمة الحساب للتبديل.', { title: 'تم تحديث الدور' });
         }
       }
 
