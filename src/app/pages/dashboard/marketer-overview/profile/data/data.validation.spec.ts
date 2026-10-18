@@ -165,7 +165,7 @@ describe('Data (marketer profile): shared validation', () => {
       expect(el().querySelector('[data-testid="email-readonly-hint"]')?.textContent).toContain('لا يمكن');
       expect(el().querySelector('[data-testid="phone-readonly-hint"]')?.textContent).toContain('لا يمكن تغيير رقم الجوال');
       const ph = el().querySelector('[data-testid="phone-readonly"]')!.textContent!.replace(/\s+/g, ' ');
-      expect(ph).toContain('🇸🇦'); expect(ph).toContain('+966'); expect(ph).toContain('501234567');
+      expect(/[\u{1F1E6}-\u{1F1FF}]/u.test(ph)).toBe(false); expect(el().querySelector('[data-testid="phone-readonly"] img')?.getAttribute('src')).toBe('assets/flags/SA.svg'); expect(ph).toContain('+966'); expect(ph).toContain('501234567');
       expect(c.basicsForm.get('phoneNumber')).toBeNull();
     });
 

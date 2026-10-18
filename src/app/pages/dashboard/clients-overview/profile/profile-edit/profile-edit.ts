@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router, RouterLink } from '@angular/router';
 import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
+import { phoneToE164, parseStoredPhone } from '../../../../../core/forms/phone-countries';
+import type { CountryCode } from 'libphonenumber-js/mobile';
 import { PhoneInputComponent } from '../../../../../sheards/phone-input/phone-input.component';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ExperienceLevel } from '../../../../../core/models/profile.model';
@@ -150,6 +152,8 @@ export class ProfileEdit {
 	basicsForm!: FormGroup;
 	identityForm!: FormGroup;
 	contactForm!: FormGroup;
+	/** Region of the account phone: the default country of an empty WhatsApp box (never a silent Saudi for an account with data). */
+	accountPhoneIso = signal<CountryCode | null>(null);
 	bankingForm!: FormGroup;
 
 	isClient = false;
@@ -378,6 +382,12 @@ export class ProfileEdit {
 					if (this.isClient) this.loadPendingNameRequest();
 					this.identityForm.patchValue(profile);
 					this.contactForm.patchValue(profile);
+					// The account phone is stored as a national number + a separate calling code: show it as ONE number with its own country (never empty / Saudi).
+					const stored = parseStoredPhone((profile as any).phoneNumber, (profile as any).phoneCountryCode);
+					const storedPhone = stored.dialCode ? `${stored.dialCode}${stored.national}` : stored.national;
+					this.basicsForm.patchValue({ phoneNumber: storedPhone });
+					this.contactForm.patchValue({ phoneNumber: storedPhone });
+					this.accountPhoneIso.set(stored.iso);
 					// GET returns the saved address as paypalPayoutEmail; the form control is paypalEmail.
 					this.bankingForm.patchValue({ paypalEmail: (profile as any).paypalPayoutEmail || '' });
 
@@ -683,6 +693,27 @@ export class ProfileEdit {
 		this.refreshCompletion();
 	}
 
+	/**
+	 * PUT /profiles/update/contact takes alternativePhone as ONE STRING (E.164) and the city. The phone-input emits an object, so it is converted here
+	 * (phoneToE164); a stored value the user did not touch is sent exactly as stored, an emptied one as null (remove). A field that is invalid is left out of
+	 * the request and keeps its own inline error; a valid change in the other field is still saved. Null = nothing valid to send.
+	 */
+	private buildContactPayload(): { payload: Record<string, unknown>; note: string } | null {
+		const form = this.contactForm;
+		const alt = form.get('alternativePhone')!;
+		const city = form.get('city')!;
+		const altOk = alt.valid;
+		const cityOk = city.valid;
+		if (!cityOk && !(altOk && alt.dirty)) return null;
+		const payload: Record<string, unknown> = {};
+		if (cityOk) payload['city'] = form.getRawValue().city;
+		if (altOk) payload['alternativePhone'] = phoneToE164(alt.value);
+		let note = '';
+		if (cityOk && !altOk && alt.dirty) note = 'تم حفظ المدينة. رقم WhatsApp لم يُحفظ، صحّحه ثم أعد المحاولة';
+		else if (!cityOk) note = 'تم حفظ رقم WhatsApp. اختر مدينة الإقامة لحفظها';
+		return { payload, note };
+	}
+
 	saveTab(tabName: string) {
 		this.errorMsg.set('');
 		this.successMsg.set('');
@@ -736,6 +767,7 @@ export class ProfileEdit {
 		}
 
 		let clearingPaypal = false;
+		let contactNote = '';
 		if (tabName === 'banking') {
 			// PayPal email only; legacy bank/wallet values are never sent (no empty overwrite).
 			form.markAllAsTouched();
@@ -750,11 +782,18 @@ export class ProfileEdit {
 		} else {
 			const attempt = attemptSubmit(form, { root: this.root(), labels: PROFILE_LABELS });
 			this.missing.set(attempt.missing);
-			if (!attempt.valid) return;
-			// Send only what the backend stores for the tab (everything else is ignored there).
-			if (tabName === 'basics') payload = { firstName: form.getRawValue().firstName, lastName: form.getRawValue().lastName };
-			else if (tabName === 'contact') payload = { alternativePhone: form.getRawValue().alternativePhone, city: form.getRawValue().city };
-			else payload = form.value;
+			if (tabName === 'contact') {
+				// One invalid field is shown on its own input and never blocks (or swallows) the other valid change.
+				const built = this.buildContactPayload();
+				if (!built) return;
+				payload = built.payload;
+				contactNote = built.note;
+			} else {
+				if (!attempt.valid) return;
+				// Send only what the backend stores for the tab (everything else is ignored there).
+				if (tabName === 'basics') payload = { firstName: form.getRawValue().firstName, lastName: form.getRawValue().lastName };
+				else payload = form.value;
+			}
 		}
 
 		if (tabName === 'basics' && this.pendingNameRequest()) {
@@ -782,7 +821,7 @@ export class ProfileEdit {
 					}
 					setTimeout(() => this.successMsg.set(''), 6000);
 				} else if (res.success) {
-					this.successMsg.set(tabName === 'banking' && clearingPaypal ? 'تم إزالة بريد PayPal' : (doneMessage[tabName] || res.message || 'تم إرسال الطلب بنجاح'));
+					this.successMsg.set(tabName === 'banking' && clearingPaypal ? 'تم إزالة بريد PayPal' : (contactNote || doneMessage[tabName] || res.message || 'تم إرسال الطلب بنجاح'));
 					setTimeout(() => this.successMsg.set(''), 5000);
 					this.refreshCompletion();
 				} else {
