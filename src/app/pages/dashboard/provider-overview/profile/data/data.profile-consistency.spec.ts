@@ -117,24 +117,24 @@ describe('provider data page: stored values come back consistently', () => {
   });
 
   const phoneView = () => ({
-    flag: q('[data-testid="contact-phone-flag"]')?.textContent?.trim(), country: q('[data-testid="contact-phone-country"]')?.textContent?.trim(),
+    flag: q('[data-testid="contact-phone-flag"] img')?.getAttribute('src'), emoji: q('[data-testid="contact-phone-flag"]')?.textContent?.trim(), country: q('[data-testid="contact-phone-country"]')?.textContent?.trim(),
     code: q('[data-testid="contact-phone-code"]')?.textContent?.trim(), number: q('[data-testid="contact-phone-number"]')?.textContent?.trim(),
   });
 
-  it('phone (read-only): the stored pair is shown as flag + country + code + LOCAL number, after a refresh: مصر / +20 / 1025073026', () => {
+  it('phone (read-only): the stored pair is shown as SVG flag (never an emoji) + country + code + LOCAL number, after a refresh: مصر / +20 / 1025073026', () => {
     setup({}, { phoneCountryCode: '+20', phoneNumber: '1025073026' });
-    expect(phoneView()).toEqual({ flag: '🇪🇬', country: 'مصر', code: '+20', number: '1025073026' });
+    expect(phoneView()).toEqual({ flag: 'assets/flags/EG.svg', emoji: '', country: 'مصر', code: '+20', number: '1025073026' });
   });
 
   it('phone (read-only): Saudi Arabia is shown with +966', () => {
     setup({}, { phoneCountryCode: '+966', phoneNumber: '501234567' });
-    expect(phoneView()).toEqual({ flag: '🇸🇦', country: 'المملكة العربية السعودية', code: '+966', number: '501234567' });
+    expect(phoneView()).toEqual({ flag: 'assets/flags/SA.svg', emoji: '', country: 'المملكة العربية السعودية', code: '+966', number: '501234567' });
   });
 
   it('phone (read-only): an Egyptian number saved next to +966 (with or without a +) is shown as Egypt +20, never as a Saudi number', () => {
     for (const stored of ['201025073026', '+201025073026']) {
       setup({}, { phoneCountryCode: '+966', phoneNumber: stored });
-      expect(phoneView()).toMatchObject({ flag: '🇪🇬', code: '+20', number: '1025073026' });
+      expect(phoneView()).toMatchObject({ flag: 'assets/flags/EG.svg', code: '+20', number: '1025073026' });
       TestBed.resetTestingModule(); fixture.destroy();
     }
   });
@@ -145,6 +145,25 @@ describe('provider data page: stored values come back consistently', () => {
     TestBed.resetTestingModule(); fixture.destroy();
     setup({}, { phoneCountryCode: '+966', phoneNumber: '+966501234567' });
     expect(phoneView()).toMatchObject({ code: '+966', number: '501234567' });
+  });
+
+  it('D4: the contact part has no emoji flag anywhere; the primary phone and the WhatsApp number use the local SVG flags with a visible LTR dial code', () => {
+    setup({}, { phoneCountryCode: '+20', phoneNumber: '1025073026', alternativePhone: '+971501234567' });
+    const contact = q('[data-testid="contact-readonly"]')!;
+    expect(/[\u{1F1E6}-\u{1F1FF}]/u.test(contact.textContent || '')).toBe(false);
+    expect(q('[data-testid="contact-phone-flag"] img')?.getAttribute('src')).toBe('assets/flags/EG.svg');
+    expect(q('[data-testid="contact-whatsapp-flag"] img')?.getAttribute('src')).toBe('assets/flags/AE.svg');
+    const code = q('[data-testid="contact-whatsapp-code"]') as HTMLElement;
+    expect(code.textContent!.trim()).toBe('+971');
+    expect(code.closest('[dir="ltr"]')).not.toBeNull();
+  });
+
+  it('D4: a shared dial code (+1) with no deciding digits is not given a guessed flag: globe + the dial code', () => {
+    setup({}, { phoneCountryCode: '+1', phoneNumber: '999999', alternativePhone: '+1999999' });
+    expect(q('[data-testid="contact-phone-flag"] img')).toBeNull();
+    expect(q('[data-testid="contact-phone-flag"] [data-testid="flag-globe"]')).not.toBeNull();
+    expect(q('[data-testid="contact-whatsapp-flag"] img')).toBeNull();
+    expect(q('[data-testid="contact-whatsapp-code"]')!.textContent!.trim()).toBe('+1');
   });
 
   it('phone (read-only): no phone saved says "غير مضاف"; the e-mail is shown as stored', () => {

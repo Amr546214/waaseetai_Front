@@ -1147,3 +1147,30 @@ select.ng-invalid.ng-dirty,
   font-size: 10px; font-weight: 900; line-height: 1; vertical-align: middle;
 }
 :is(.ws-req, .field-req) { color: var(--red); margin-inline-start: 3px; font-weight: 900; }
+
+/* ============================================================
+   Gradient call-to-action buttons (Tailwind "bg-gradient-to-r from-cyan-500 to-blue-600 text-white"), e.g. «إرسال طلب تعديل»
+   in both themes. White text on cyan-500 is only ~2.4:1, so the stops are darkened until the white label reaches WCAG AA (>= 4.5:1)
+   in every state; the light-theme polish script no longer repaints these buttons white (it used to read the oklch gradient as "no
+   background" and treat the full-width button as a neutral card: white text on white). Buttons that bring their own dark: colours are left alone.
+   ============================================================ */
+:is(button, a, [role="button"]).bg-gradient-to-r.from-cyan-500.to-blue-600:not([class*="dark:from-"]) {
+  --tw-gradient-from: #0E7490;   /* cyan-700: white 5.4:1 */
+  --tw-gradient-to: #1D4ED8;     /* blue-700: white 6.7:1 */
+  color: #fff;
+}
+:is(button, a, [role="button"]).bg-gradient-to-r.from-cyan-500.to-blue-600:not([class*="dark:from-"]):hover:not(:disabled) {
+  --tw-gradient-from: #155E75;   /* cyan-800: white 7.4:1 */
+  --tw-gradient-to: #1E40AF;     /* blue-800: white 8.7:1 */
+}
+:is(button, a, [role="button"]).bg-gradient-to-r.from-cyan-500.to-blue-600:not([class*="dark:from-"]):focus-visible {
+  outline: 3px solid #0E7490;
+  outline-offset: 3px;
+}
+:is(.dark, .dark *) :is(button, a, [role="button"]).bg-gradient-to-r.from-cyan-500.to-blue-600:not([class*="dark:from-"]):focus-visible,
+.dark :is(button, a, [role="button"]).bg-gradient-to-r.from-cyan-500.to-blue-600:not([class*="dark:from-"]):focus-visible {
+  outline-color: #2BD4C7;
+}
+:is(button, a, [role="button"]).bg-gradient-to-r.from-cyan-500.to-blue-600:not([class*="dark:from-"]):disabled {
+  cursor: not-allowed;
+}
