@@ -19,6 +19,13 @@ describe('provider FE package 1 — operate, do not delete', () => {
 		expect(edit(q({}))).toBe('business-models/center');
 		expect(route('business-models/customer-requests')!.redirectTo).toBe('offers');
 	});
+	it('J2 D-A1: the bare /business-models/accreditation redirects to the requests list (no 404); new and list stay real pages', () => {
+		const bare = PROVIDER_OVERVIEW_ROUTES.find(r => r.path === 'business-models/accreditation')!;
+		expect(bare.pathMatch).toBe('full');
+		expect(bare.redirectTo).toBe('/provider-overview/business-models/accreditation/list');
+		expect(route('business-models/accreditation/list')!.loadComponent).toBeTruthy();
+		expect(route('business-models/accreditation/new')!.loadComponent).toBeTruthy();
+	});
 	it('help/live-support route is kept; it is labelled as tickets, not a live chat', () => {
 		expect(route('help/live-support')).toBeTruthy();
 		expect(read('help/live-support/live-support.html')).not.toContain('الدعم المباشر');

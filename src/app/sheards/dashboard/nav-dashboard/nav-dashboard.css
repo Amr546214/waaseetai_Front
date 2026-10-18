@@ -227,9 +227,15 @@
   .t-page,.t-ai-badge{display:none}
   .topbar{padding:0 14px;gap:8px}
 }
+/* phone-only theme switcher inside the account dropdown (the top-bar one is hidden below 430px) */
+.udrop-theme,.udrop-theme-sep{display:none}
+.udrop-theme-lbl{font-size:12px;font-weight:700;color:var(--txt-2,#9AA6C8)}
 @media(max-width:430px){
   .topbar{padding:0 10px;gap:6px}
-  .t-toggle{display:none}
+  .topbar>.t-toggle{display:none}
+  .udrop-theme{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px}
+  .udrop-theme-sep{display:block}
+  .t-toggle-menu .seg{min-width:64px;min-height:44px;height:44px;font-size:13px}
   .t-uname{display:none}
   .t-user>svg{display:none}
   .t-user{padding:0 6px}
