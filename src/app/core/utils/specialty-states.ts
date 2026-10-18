@@ -99,8 +99,17 @@ export function approvalView(info: SpecialtyApprovalInfo | null | undefined): Ap
 }
 
 /** Short tag for the selectors (a passed specialty listed to pick): approved / under review / what is missing. */
+/** Percent for display: at most 1 decimal (same rule as the specialty test result, `number:'1.0-1'`), Latin digits like the rest of the UI; '' for null / NaN / non-finite. */
+export function formatPercent(value: number | string | null | undefined): string {
+	if (value === null || value === undefined || value === '') return '';
+	const n = Number(value);
+	if (!Number.isFinite(n)) return '';
+	return `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 1 }).format(n)}%`;
+}
+
 export function approvalTag(info: SpecialtyApprovalInfo | null | undefined, score?: number | null): string {
-	const s = score ? ` ${score}%` : '';
+	const p = score ? formatPercent(score) : '';
+	const s = p ? ` ${p}` : '';
 	switch (info?.approvalState) {
 		case 'APPROVED': return `✓ معتمد${s}`;
 		case 'SAMPLES_UNDER_REVIEW': return `⏳ نماذجك قيد مراجعة الإدارة${s}`;
