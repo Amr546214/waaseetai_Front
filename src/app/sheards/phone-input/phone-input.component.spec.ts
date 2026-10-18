@@ -190,3 +190,62 @@ describe('PhoneInputComponent: the numeric dial code is always visible text, ind
     expect(f.nativeElement.querySelector('.country-selector-btn .dial-code').textContent.trim()).toBe('+971');
   });
 });
+
+// D3: a STORED number (string) opens with its own country; a number whose country is unclear keeps its dial code and digits; never a silent Saudi default.
+@Component({ standalone: true, imports: [PhoneInputComponent, ReactiveFormsModule], template: `<app-phone-input [formControl]="ctrl" [defaultCountry]="def" />` })
+class StoredHost { ctrl = new FormControl<PhoneValue | string | null>(null); def: any = 'SA'; }
+
+describe('PhoneInputComponent: showing a stored number', () => {
+  const open = (stored: string | null, def: any = 'SA') => {
+    const f = TestBed.createComponent(StoredHost);
+    f.componentInstance.def = def;
+    f.componentInstance.ctrl.setValue(stored);
+    f.detectChanges();
+    return f;
+  };
+  const q = (f: any, sel: string) => f.nativeElement.querySelector(sel) as HTMLElement;
+  const val = (f: any) => (q(f, 'input.phone-number-input') as HTMLInputElement).value;
+
+  it('+201025073026 opens as Egypt (SVG flag, +20) with the local number 1025073026, not Saudi/empty', () => {
+    const f = open('+201025073026');
+    expect(q(f, '.dial-code').textContent!.trim()).toBe('+20');
+    expect(q(f, '.country-selector-btn img.flag-img').getAttribute('src')).toBe('assets/flags/EG.svg');
+    expect(val(f).replace(/\s/g, '')).toBe('1025073026');
+    expect(f.componentInstance.ctrl.value).toBe('+201025073026'); // reading never rewrites the stored value
+  });
+
+  it('a stored number with spaces and no plus is read the same way', () => {
+    expect(q(open('+20 102 507 3026'), '.dial-code').textContent!.trim()).toBe('+20');
+    expect(q(open('201025073026'), '.dial-code').textContent!.trim()).toBe('+20');
+  });
+
+  it('an ambiguous number keeps its dial code and digits visible, shows the globe (no guessed flag) and is not rewritten', () => {
+    const f = open('+1999999');
+    expect(q(f, '.dial-code').textContent!.trim()).toBe('+1');
+    expect(q(f, '.country-selector-btn img.flag-img')).toBeNull();
+    expect(q(f, '.country-selector-btn .flag-globe')).not.toBeNull();
+    expect(val(f).replace(/\s/g, '')).toBe('999999');
+    expect(f.componentInstance.ctrl.value).toBe('+1999999');
+  });
+
+  it('a stored legacy number with no country at all stays visible as typed (no Saudi code in front of it)', () => {
+    const f = open('0123456');
+    expect(val(f).replace(/\s/g, '')).toBe('0123456');
+    expect(q(f, '.dial-code').textContent!.trim()).not.toBe('+966');
+  });
+
+  it('picking a country on an ambiguous number resolves it and emits the full E.164 value', () => {
+    const f = open('+1999999');
+    q(f, '.country-selector-btn').click(); f.detectChanges();
+    const us = (Array.from(f.nativeElement.querySelectorAll('.dropdown-item')) as HTMLElement[]).find(r => r.getAttribute('aria-label')!.startsWith('الولايات المتحدة'))!;
+    us.click(); f.detectChanges();
+    const v = f.componentInstance.ctrl.value as PhoneValue;
+    expect([v.dialCode, v.number.replace(/\D/g, '')]).toEqual(['+1', '999999']);
+    expect(q(f, '.country-selector-btn img.flag-img')).not.toBeNull();
+  });
+
+  it('an empty value uses the given defaultCountry (the account country), Saudi only when nothing else is known', () => {
+    expect(q(open(null, 'AE'), '.dial-code').textContent!.trim()).toBe('+971');
+    expect(q(open(null), '.dial-code').textContent!.trim()).toBe('+966');
+  });
+});

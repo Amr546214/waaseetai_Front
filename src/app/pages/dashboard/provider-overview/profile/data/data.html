@@ -738,7 +738,7 @@
       <div class="inp-group"><span class="inp-label">رقم الجوال</span>
         @if (contactPhone(); as ph) {
         <div class="inp-field" data-testid="contact-phone" style="display:flex;align-items:center;gap:10px;opacity:.95">
-          @if (ph.iso) {<img [src]="'assets/flags/' + ph.iso + '.svg'" width="24" height="16" alt="" aria-hidden="true" loading="lazy" decoding="async" style="display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(128,128,128,.35)" />}<span data-testid="contact-phone-flag" aria-hidden="true" [style.display]="ph.iso ? 'none' : null">{{ ph.flag }}</span>
+          <span data-testid="contact-phone-flag" aria-hidden="true" style="display:inline-flex">@if (ph.iso) {<img [src]="'assets/flags/' + ph.iso + '.svg'" width="24" height="16" alt="" aria-hidden="true" loading="lazy" decoding="async" style="display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(128,128,128,.35)" />} @else {<svg width="24" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" data-testid="flag-globe"><circle cx="12" cy="8" r="6.5"/><path d="M5.5 8h13M12 1.5c-2.5 2-2.5 11 0 13M12 1.5c2.5 2 2.5 11 0 13"/></svg>}</span>
           <span data-testid="contact-phone-country">{{ ph.countryName }}</span>
           <span dir="ltr" data-testid="contact-phone-code" style="unicode-bidi:isolate">{{ ph.dialCode }}</span>
           <span dir="ltr" data-testid="contact-phone-number" style="unicode-bidi:isolate">{{ ph.nationalNumber }}</span>
@@ -747,8 +747,9 @@
         <div class="inp-field" data-testid="contact-phone" style="opacity:.95">غير مضاف</div>
         }</div>
       <div class="inp-group"><label class="inp-label" for="ct-whatsapp">رقم WhatsApp (اختياري)</label>
-        <div style="display:flex;gap:8px;align-items:stretch">
-          <input type="tel" id="ct-whatsapp" class="inp-field" dir="ltr" inputmode="tel" autocomplete="tel" data-testid="contact-whatsapp-input" placeholder="+20 1XXXXXXXXX" [formControl]="whatsappControl" (keydown.enter)="saveWhatsapp(); $event.preventDefault()" [attr.aria-invalid]="whatsappControl.invalid && (whatsappControl.touched || whatsappControl.errors?.['server']) ? 'true' : null" aria-describedby="whatsapp-error" style="flex:1;min-width:0">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:stretch">
+          @if (whatsappPhone(); as wp) {<span class="inp-field" data-testid="contact-whatsapp-country" dir="ltr" style="display:flex;align-items:center;gap:6px;flex:0 0 auto;width:auto;unicode-bidi:isolate"><span data-testid="contact-whatsapp-flag" aria-hidden="true" style="display:inline-flex">@if (wp.iso) {<img [src]="'assets/flags/' + wp.iso + '.svg'" width="24" height="16" alt="" aria-hidden="true" loading="lazy" decoding="async" style="display:inline-block;border-radius:2px;box-shadow:0 0 0 1px rgba(128,128,128,.35)" />} @else {<svg width="24" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true" data-testid="flag-globe"><circle cx="12" cy="8" r="6.5"/><path d="M5.5 8h13M12 1.5c-2.5 2-2.5 11 0 13M12 1.5c2.5 2 2.5 11 0 13"/></svg>}</span><span data-testid="contact-whatsapp-code">{{ wp.dialCode || '+' }}</span></span>}
+          <input type="tel" id="ct-whatsapp" class="inp-field" dir="ltr" inputmode="tel" autocomplete="tel" data-testid="contact-whatsapp-input" placeholder="+20 1XXXXXXXXX" [formControl]="whatsappControl" (keydown.enter)="saveWhatsapp(); $event.preventDefault()" [attr.aria-invalid]="whatsappControl.invalid && (whatsappControl.touched || whatsappControl.errors?.['server']) ? 'true' : null" aria-describedby="whatsapp-error" style="flex:1 1 160px;min-width:160px">
           <button type="button" class="btn-primary" data-testid="save-whatsapp-btn" [disabled]="savingWhatsapp()" (click)="saveWhatsapp()">{{ savingWhatsapp() ? 'جاري الحفظ...' : 'حفظ رقم WhatsApp' }}</button>
         </div>
         @if (whatsappControl.touched && whatsappControl.errors?.['whatsapp']) { <span class="field-error" role="alert" id="whatsapp-error" data-testid="whatsapp-error">رقم WhatsApp غير صالح: من 8 إلى 15 رقمًا، ويمكن أن يبدأ بـ +</span> }
