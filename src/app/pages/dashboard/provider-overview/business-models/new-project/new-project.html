@@ -124,7 +124,7 @@
 		<ng-container *ngSwitchCase="4">
 			<app-step4-stages [totalAmount]="totalAmount()" [stages]="stages()"
 				[isAiSuggestingMilestones]="isAiSuggestingMilestones()" [totalPercentage]="totalPercentage()"
-				[totalDays]="totalDays()" (onTotalAmountChange)="totalAmount.set($event)"
+				[totalDays]="totalDays()" (onTotalAmountChange)="setTotalAmountByUser($event)"
 				(onSuggestMilestones)="suggestMilestonesWithAi()" (onAddStage)="addStage()"
 				(onRemoveStage)="removeStage($event)"
 				(onUpdateStage)="updateStage($event.index, $event.field, $event.value)">

@@ -72,7 +72,7 @@ describe('provider new project: description AI (single action, cards, limit, fai
 	it('empty-field seed states only what the user provided + the no-invention rule; it is never written into the field, not even transiently', () => {
 		const page = mount(); const c = page.componentInstance;
 		c.projectName.set(TITLE);
-		c.selectedSkills.set(['React', 'Node.js']); c.totalAmount.set(800);
+		c.onSkillsChange(['React', 'Node.js']); c.setTotalAmountByUser(800); // explicit user input
 		const seen: string[] = [];
 		const ta = (page.nativeElement as HTMLElement).querySelector('#np-desc') as HTMLTextAreaElement;
 		page.detectChanges();
@@ -104,7 +104,7 @@ describe('provider new project: description AI (single action, cards, limit, fai
 		c.projectName.set(''); aiButtons(page)[0].click();
 		expect(svc.streamEnhanceDescription).not.toHaveBeenCalled();
 		// a thin title WITH other provided data is enough
-		c.projectName.set('متجر'); c.selectedSkills.set(['React']); aiButtons(page)[0].click();
+		c.projectName.set('متجر'); c.onSkillsChange(['React']); aiButtons(page)[0].click();
 		expect(svc.streamEnhanceDescription).toHaveBeenCalledTimes(1);
 	});
 
@@ -296,5 +296,84 @@ describe('provider new project: description AI (single action, cards, limit, fai
 		expect(c.projectDesc()).toBe(USER_TEXT);
 		c.useAiSuggestion('option-1');
 		expect(ui.toasts().some(t => t.kind === 'success')).toBe(true);
+	});
+
+	const TITLE_ONLY_SEED = [
+		'صُغ وصفًا احترافيًا لمشروع يقدّمه مقدّم الخدمة اعتمادًا على البيانات المقدمة أدناه فقط.',
+		'قواعد صارمة: لا تضف خبرات أو تقنيات أو أدوات أو مخرجات أو أسعارًا أو مواعيد أو التزامات غير مذكورة في البيانات. اكتب أي بند غير محدد كنقطة مفتوحة يتم الاتفاق عليها مع العميل. لا تخترع أرقامًا أو أسماء. لا يتجاوز كل وصف 1500 حرف.',
+		'البيانات المقدمة:',
+		`عنوان المشروع: ${TITLE}`,
+	].join('\n');
+
+	function autoFill(c: any) {
+		// what the wizard/account puts there on its own: never typed or chosen by the user
+		c.passedCategories.set([{ id: 'c1', name: 'برمجة', specialties: [{ id: 'sp1', specialtyId: 'sp1', name: 'تطوير الواجهات الخلفية', subSpecialties: ['API'] }] }]);
+		c.selectedSpecialty.set('sp1'); c.selectedSubSpecialty.set('API');
+		c.selectedSkills.set(['CSS', 'HTML', 'JavaScript', 'React', 'TypeScript']);
+		c.accreditationModels.set([{ id: 'm1', title: 'نموذج أعمال - تطوير الواجهات الخلفية', specialtyId: 'sp1', status: 'APPROVED' }]);
+		c.selectedModel.set('m1'); c.totalAmount.set(1000);
+	}
+
+	it('auto-populated/default values (specialty, skills, model, budget) are NOT in the seed: a good title alone gives the exact title-only seed', () => {
+		const page = mount(); const c = page.componentInstance;
+		autoFill(c); c.projectName.set(TITLE); page.detectChanges();
+		aiButtons(page)[0].click();
+		expect(svc.streamEnhanceDescription.mock.calls[0][1]).toBe(TITLE_ONLY_SEED);
+		expect(svc.streamEnhanceDescription.mock.calls[0][1]).not.toMatch(/React|التصنيف|النموذج المرتبط|المهارات|الميزانية/);
+	});
+
+	it('thin title with only auto-populated values: clarification, NO request', () => {
+		const page = mount(); const c = page.componentInstance;
+		const ui = TestBed.inject(UiNotificationService);
+		autoFill(c); c.projectName.set('متجر'); page.detectChanges();
+		aiButtons(page)[0].click();
+		expect(svc.streamEnhanceDescription).not.toHaveBeenCalled();
+		expect(ui.toasts().some(t => t.kind === 'warning' && t.message.includes('أضف عنوانًا أوضح'))).toBe(true);
+	});
+
+	it('values the user explicitly chose (specialty, sub-specialty, model, skills, budget, days) ARE included; an auto-reset after changing specialty is not', () => {
+		const page = mount(); const c = page.componentInstance;
+		autoFill(c); c.projectName.set(TITLE);
+		const spec = c.specialties()[0];
+		c.selectMainSpecialty(spec);
+		c.selectSubSpecialty('API'); c.selectModel('m1');
+		c.onSkillsChange(['Angular']); c.setTotalAmountByUser(900); c.updateStage(0, 'days', 14);
+		page.detectChanges();
+		aiButtons(page)[0].click();
+		const seed: string = svc.streamEnhanceDescription.mock.calls[0][1];
+		expect(seed).toContain('التصنيف: تطوير الواجهات الخلفية');
+		expect(seed).toContain('التخصص الفرعي: API');
+		expect(seed).toContain('النموذج المرتبط: نموذج أعمال - تطوير الواجهات الخلفية');
+		expect(seed).toContain('المهارات: Angular');
+		expect(seed).toContain('الميزانية الإجمالية: 900 دولار');
+		expect(seed).toContain('المدة الإجمالية: 14 يومًا');
+		expect(seed).not.toContain('React');
+	});
+
+	it('choosing a specialty alone does not turn the auto sub-specialty, linked model or recommended skills into facts', () => {
+		const page = mount(); const c = page.componentInstance;
+		autoFill(c); c.projectName.set(TITLE);
+		c.onSkillsChange(['Angular']);
+		c.selectedSpecialty.set(''); // so that choosing it is a change -> skills reset to recommended
+		c.selectMainSpecialty(c.specialties()[0]);
+		page.detectChanges();
+		aiButtons(page)[0].click();
+		const seed: string = svc.streamEnhanceDescription.mock.calls[0][1];
+		expect(seed).toContain('التصنيف:');
+		expect(seed).not.toMatch(/التخصص الفرعي|النموذج المرتبط|المهارات/);
+	});
+
+	it('failure of an enhance (improve) stream shows the error + retry and leaves the field untouched', () => {
+		const page = mount(); const c = page.componentInstance;
+		c.projectName.set(TITLE); c.projectDesc.set(USER_TEXT); page.detectChanges();
+		aiButtons(page)[0].click();
+		cb.chunk!({ chunk: 'جزء', requestId: rid() });
+		cb.end!({ mode: 'improve', message: 'تعذر تحسين النص عبر الذكاء الاصطناعي حالياً', error: true, code: 'FAILED', requestId: rid() });
+		page.detectChanges();
+		const root = page.nativeElement as HTMLElement;
+		expect(c.projectDesc()).toBe(USER_TEXT);
+		expect(root.querySelector('[data-testid=ai-error]')).not.toBeNull();
+		expect(root.querySelector('[data-testid=ai-error] button')).not.toBeNull();
+		expect(c.isStreamingText()).toBe(false);
 	});
 });

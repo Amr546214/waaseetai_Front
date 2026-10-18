@@ -143,12 +143,14 @@ export class NewProject implements OnInit, OnDestroy {
 		// The seed is built ONLY from what the user provided (before any auto-population) and goes to the service only, never into the field.
 		let payloadText = this.projectDesc();
 		if (!improve) {
-			const spec = this.selectedMainSpecialtyObj();
-			const model = this.accreditationModels().find(m => m.id === this.selectedModel());
-			const days = this.stages().reduce((sum, st) => sum + (Number(st?.days) > 0 ? Number(st.days) : 0), 0);
+			// Only what the user explicitly provided/chose (see userProvided): auto-populated, recommended or defaulted values are NOT facts.
+			const u = this.userProvided;
+			const spec = u.specialty ? this.selectedMainSpecialtyObj() : null;
+			const model = u.model ? this.accreditationModels().find(m => m.id === this.selectedModel()) : undefined;
+			const days = u.days ? this.stages().reduce((sum, st) => sum + (Number(st?.days) > 0 ? Number(st.days) : 0), 0) : 0;
 			const seed = buildDescriptionSeed({
-				title, specialty: spec?.name, subSpecialty: this.selectedSubSpecialty(), model: model?.title,
-				skills: this.selectedSkills(), budgetUsd: this.totalAmount(), days,
+				title, specialty: spec?.name, subSpecialty: u.subSpecialty ? this.selectedSubSpecialty() : '', model: model?.title,
+				skills: u.skills ? this.selectedSkills() : [], budgetUsd: u.budget ? this.totalAmount() : null, days,
 			});
 			if (seed === null) {
 				this.notify.warning(SEED_CLARIFICATION_MESSAGE);
@@ -403,7 +405,14 @@ export class NewProject implements OnInit, OnDestroy {
 		});
 	}
 
+	/**
+	 * Provenance of the wizard values: true ONLY when the user explicitly typed/chose that value. Anything auto-populated, defaulted, recommended,
+	 * prefilled or restored from a draft stays false, and is therefore never presented as a fact in the AI seed.
+	 */
+	private userProvided = { specialty: false, subSpecialty: false, model: false, skills: false, budget: false, days: false };
+
 	onSkillsChange(list: string[]) {
+		this.userProvided.skills = list.length > 0;
 		this.skillsError.set('');
 		this.selectedSkills.set(list.slice(0, 30));
 	}
@@ -412,7 +421,9 @@ export class NewProject implements OnInit, OnDestroy {
 		const next = spec.id || spec.specialtyId;
 		const changed = next !== this.selectedSpecialty();
 		this.selectedSpecialty.set(next);
+		this.userProvided.specialty = true;
 		if (changed) {
+			this.userProvided.skills = false; // the list is reset/recommended below: not the user's choice
 			this.selectedSkills.set([]);
 			this.skillsError.set('');
 			if (this.selectedCategoryId() === this.skillsCategoryKey && !this.skillsLoading()) {
@@ -422,6 +433,8 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 		}
 		this.selectedSubSpecialty.set(spec.subSpecialties?.[0] ?? '');
+		this.userProvided.subSpecialty = false; // the first sub-specialty is a default until the user picks one
+		this.userProvided.model = false; // the matching model is linked automatically
 		const matchingModel = this.accreditationModels().find(
 			m => m.specialtyId === spec.specialtyId && (m.status === 'AI_VERIFIED' || m.status === 'APPROVED')
 		);
@@ -429,6 +442,7 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	selectSubSpecialty(sub: string) {
+		this.userProvided.subSpecialty = true;
 		this.selectedSubSpecialty.set(sub);
 	}
 
@@ -517,6 +531,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 	selectModel(id: string) {
 		this.modelError.set('');
+		this.userProvided.model = true;
 		this.selectedModel.set(id);
 	}
 
@@ -681,7 +696,13 @@ export class NewProject implements OnInit, OnDestroy {
 		this.stages.update(s => s.filter((_, i) => i !== index));
 	}
 
+	setTotalAmountByUser(value: number | null) {
+		this.userProvided.budget = (value ?? 0) > 0;
+		this.totalAmount.set(value);
+	}
+
 	updateStage(index: number, field: string, value: any) {
+		if (field === 'days') this.userProvided.days = Number(value) > 0;
 		this.stages.update(s => {
 			const newStages = [...s];
 			newStages[index] = { ...newStages[index], [field]: value };
