@@ -50,7 +50,6 @@
 		flex-shrink: 0;
 		min-width: 26px;
 		text-align: center;
-		font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
 	}
 
 	// The numeric code is its own always-LTR text node: never part of the flag, never clipped or shrunk.
@@ -261,22 +260,19 @@
 	}
 }
 
-// ISO-code chip shown when the platform has no flag glyphs (same box as the emoji flag: no layout shift)
-.flag-iso {
-	display: inline-block;
-	min-width: 26px;
-	padding: 2px 0;
-	border-radius: 4px;
-	background: rgba(43, 212, 199, 0.14);
-	color: #2BD4C7;
-	font-family: system-ui, sans-serif;
-	font-size: 11px;
-	font-weight: 800;
-	line-height: 1.2;
-	letter-spacing: .02em;
-	direction: ltr;
-	unicode-bidi: isolate;
-	text-align: center;
+// Bundled SVG flag in a fixed 24x16 box (no layout shift, same on every OS)
+.flag-img, .flag-globe {
+	display: block;
+	width: 24px;
+	height: 16px;
+	border-radius: 2px;
+	object-fit: cover;
+	box-shadow: 0 0 0 1px rgba(128, 128, 128, 0.35);
+}
+
+.flag-globe {
+	box-shadow: none;
+	color: #6B7699;
 }
 
 .no-results {
@@ -327,9 +323,6 @@ body.theme-light {
 			color: #0F172A;
 		}
 
-		.flag-iso {
-			color: #0F8A7F;
-		}
 
 		.arrow-icon {
 			color: #94A3B8;

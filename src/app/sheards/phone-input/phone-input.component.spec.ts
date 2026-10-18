@@ -19,14 +19,14 @@ describe('PhoneInputComponent: the country and the local number always belong to
     input.value = text; input.dispatchEvent(new Event('input')); f.detectChanges();
   };
   const digits = (v: string | undefined) => String(v ?? '').replace(/\D/g, '');
-  const flag = (f: any) => f.nativeElement.querySelector('.flag').textContent.trim();
+  const flag = (f: any) => (f.nativeElement.querySelector('.country-selector-btn img.flag-img') as HTMLImageElement).getAttribute('src');
   const dial = (f: any) => f.nativeElement.querySelector('.dial-code').textContent.trim();
 
-  it('pasting "+201025073026" while Saudi Arabia is selected switches to Egypt (🇪🇬 +20) and keeps the local number 1025073026', () => {
+  it('pasting "+201025073026" while Saudi Arabia is selected switches to Egypt (EG flag +20) and keeps the local number 1025073026', () => {
     const f = make();
-    expect([flag(f), dial(f)]).toEqual(['🇸🇦', '+966']);
+    expect([flag(f), dial(f)]).toEqual(['assets/flags/SA.svg', '+966']);
     type(f, '+201025073026');
-    expect([flag(f), dial(f)]).toEqual(['🇪🇬', '+20']);
+    expect([flag(f), dial(f)]).toEqual(['assets/flags/EG.svg', '+20']);
     const v = f.componentInstance.ctrl.value!;
     expect([v.countryCode, v.dialCode, digits(v.number)]).toEqual(['EG', '+20', '1025073026']);
     expect(f.componentInstance.ctrl.valid).toBe(true);
@@ -62,7 +62,7 @@ describe('PhoneInputComponent: the country and the local number always belong to
 
   it('a saved pair (Egypt, 1025073026) is shown with its flag and the local number only', () => {
     const f = make({ countryCode: 'EG', dialCode: '+20', number: '1025073026', e164Number: '' });
-    expect([flag(f), dial(f)]).toEqual(['🇪🇬', '+20']);
+    expect([flag(f), dial(f)]).toEqual(['assets/flags/EG.svg', '+20']);
     expect((f.nativeElement.querySelector('input.phone-number-input') as HTMLInputElement).value).toBe('1025073026');
   });
 });
@@ -135,22 +135,24 @@ describe('PhoneInputComponent: the numeric dial code is always visible text, ind
     expect(dial.textContent!.trim()).toBe('+20');
     expect(dial.getAttribute('dir')).toBe('ltr');
     expect(dial.closest('.flag')).toBeNull();
-    expect(dial.parentElement!.querySelector('.flag')!.textContent).not.toContain('+20');
+    expect(dial.parentElement!.querySelector('.flag')!.textContent!.trim()).toBe('');
     const btn = f.nativeElement.querySelector('.country-selector-btn') as HTMLElement;
     expect(btn.getAttribute('aria-label')).toContain('+20');
     expect(btn.getAttribute('aria-haspopup')).toBe('listbox');
   });
 
-  it('flag fallback: with no flag glyphs the ISO code chip replaces the emoji and the dial code stays', () => {
-    const f = TestBed.createComponent(Host);
-    f.componentInstance.ctrl.setValue({ countryCode: 'EG', dialCode: '+20', number: '', e164Number: '' });
-    f.componentRef.changeDetectorRef.detectChanges();
-    f.debugElement.query(By.directive(PhoneInputComponent)).componentInstance.emojiFlags = false;
-    f.componentRef.changeDetectorRef.markForCheck();
-    f.detectChanges(false);
-    const chip = f.nativeElement.querySelector('.country-selector-btn .flag .flag-iso') as HTMLElement;
-    expect(chip.textContent!.trim()).toBe('EG');
-    expect(f.nativeElement.querySelector('.country-selector-btn .dial-code').textContent.trim()).toBe('+20');
+  it('flag is a bundled SVG <img> with fixed size (no emoji, no letters): trigger and every list row; a missing file shows a globe, never letters', () => {
+    const f = make({ countryCode: 'EG', dialCode: '+20', number: '', e164Number: '' });
+    const img = f.nativeElement.querySelector('.country-selector-btn img.flag-img') as HTMLImageElement;
+    expect([img.getAttribute('src'), img.getAttribute('width'), img.getAttribute('height'), img.getAttribute('alt'), img.getAttribute('loading')]).toEqual(['assets/flags/EG.svg', '24', '16', '', 'lazy']);
+    expect(f.nativeElement.querySelector('.country-selector-btn .flag').textContent.trim()).toBe('');
+    open(f);
+    const imgs = Array.from(f.nativeElement.querySelectorAll('.dropdown-item img.flag-img')) as HTMLImageElement[];
+    expect(imgs.length).toBe(f.nativeElement.querySelectorAll('.dropdown-item').length);
+    expect(imgs.some(i => i.getAttribute('src') === 'assets/flags/SA.svg')).toBe(true);
+    img.dispatchEvent(new Event('error')); f.detectChanges();
+    expect(f.nativeElement.querySelector('.country-selector-btn svg.flag-globe')).not.toBeNull();
+    expect(f.nativeElement.querySelector('.country-selector-btn .flag').textContent.trim()).toBe('');
   });
 
   it('every list row shows the dial code as LTR text and an aria-label with the code; search by code and by name still work', () => {
