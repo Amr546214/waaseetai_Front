@@ -185,6 +185,7 @@ export class NewProject implements OnInit, OnDestroy {
 		this.aiStreamError.set(null);
 		this.autoPopulateWizardSelections();
 		this.autoPopulateMilestonesIfBlank();
+		this.notify.success('تم استخدام الاقتراح في حقل الوصف');
 	}
 
 	dismissAiSuggestions() {
@@ -788,9 +789,8 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 			this.aiStreamError.set(null);
 			this.aiSuggestions.set(checked.suggestions);
-			if (data.message) {
-				this.notify.info(data.message);
-			}
+			// Neutral: nothing is applied yet, so no success wording (the backend's «تم تحسين...» is not shown).
+			this.notify.info(checked.suggestions.length === 1 ? 'اقتراح جاهز للمراجعة' : 'اقتراحات جاهزة للمراجعة');
 		});
 
 		const editId = this.route.snapshot.queryParamMap.get('edit') || this.route.snapshot.queryParamMap.get('id');

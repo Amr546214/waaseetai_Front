@@ -12,6 +12,18 @@ export interface AiSuggestion {
 	length: number;
 	/** True when the backend cut a longer text at a complete sentence boundary. */
 	trimmed: boolean;
+	/** Style label («مباشر وواضح»…): the card title only, never part of `text`. */
+	label?: string;
+}
+
+/** Defensive twin of the backend's extractStyleLabel: a short unpunctuated first line + blank line is a label, not description text. */
+export function splitStyleLabel(text: string): { label?: string; body: string } {
+	const m = /^([^\n]+)\n\s*\n([\s\S]+)$/.exec(text.trim());
+	if (m) {
+		const t = m[1].replace(/^#{1,6}\s*/, '').replace(/\*\*|__/g, '').replace(/[:：]\s*$/, '').trim();
+		if (t && t.length <= 40 && t.split(/\s+/).length <= 5 && !/[.!?؟۔…。]$/.test(t) && !/^[•\-*\d]/.test(t)) return { label: t, body: m[2].trim() };
+	}
+	return { body: text.trim() };
 }
 
 /** Plain text for the field: presentation markdown never reaches it. */
@@ -35,11 +47,13 @@ export function checkAiSuggestions(candidates: AiTextCandidate[] | undefined, ra
 	let rejectedTooLong = 0;
 	for (const c of source) {
 		if (!c || typeof c.text !== 'string') continue;
-		const text = plainAiText(c.text);
+		const split = Array.isArray(candidates) ? splitStyleLabel(plainAiText(c.text)) : { body: plainAiText(c.text) };
+		const text = split.body;
+		const label = (typeof c.label === 'string' && c.label.trim()) ? c.label.trim() : split.label;
 		if (!text || seen.has(text)) continue;
 		seen.add(text);
 		if (text.length > max) { rejectedTooLong++; continue; }
-		suggestions.push({ id: typeof c.id === 'string' && c.id ? c.id : `option-${suggestions.length + 1}`, text, length: text.length, trimmed: c.trimmed === true });
+		suggestions.push({ id: typeof c.id === 'string' && c.id ? c.id : `option-${suggestions.length + 1}`, text, length: text.length, trimmed: c.trimmed === true, ...(label ? { label } : {}) });
 	}
 	return { suggestions, rejectedTooLong };
 }

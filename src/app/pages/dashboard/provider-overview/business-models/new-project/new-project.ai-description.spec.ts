@@ -6,6 +6,7 @@ import { NewProject } from './new-project';
 import { NewProjectService } from '../../../../../core/services/new-project.service';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
 import { SkillsCatalogService } from '../../../../../core/services/skills-catalog.service';
+import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { checkAiSuggestions, PROJECT_DESC_MAX } from './ai-description';
 
 // G1: one AI button, results as separate cards (never in the field), limit enforced on the approvable result,
@@ -202,5 +203,38 @@ describe('provider new project: description AI (single action, cards, limit, fai
 		const id = rid();
 		page.destroy();
 		expect(svc.cancelStream).toHaveBeenCalledWith(id);
+	});
+
+	it('style label is a card badge only: counter, limit and the applied text are label-free (server label and defensive FE parse)', () => {
+		const page = mount(); const c = page.componentInstance;
+		c.projectName.set(TITLE); c.projectDesc.set(USER_TEXT); page.detectChanges();
+		aiButtons(page)[0].click();
+		const id = rid();
+		const body1 = 'نص الوصف الأول الكامل والواضح.', body2 = 'نص الوصف الثاني الاحترافي.';
+		cb.end!({ mode: 'improve', message: 'x', requestId: id, candidates: [
+			{ id: 'option-1', label: 'مباشر وواضح', text: body1 },
+			{ id: 'option-2', text: `احترافي\n\n${body2}` }, // an unparsed label that slipped through
+		] });
+		page.detectChanges();
+		const root = page.nativeElement as HTMLElement;
+		expect(Array.from(root.querySelectorAll('[data-testid=ai-suggestion-label]')).map(e => e.textContent!.trim())).toEqual(['مباشر وواضح', 'احترافي']);
+		expect(Array.from(root.querySelectorAll('[data-testid=ai-suggestion-text]')).map(e => e.textContent!.trim())).toEqual([body1, body2]);
+		expect(root.querySelectorAll('[data-testid=ai-suggestion-count]')[1].textContent!.trim()).toBe(`${body2.length} / 1500`);
+		(root.querySelectorAll('[data-testid=ai-use-suggestion]')[1] as HTMLButtonElement).click();
+		expect(c.projectDesc()).toBe(body2);
+	});
+
+	it('no success toast when the cards appear (neutral message only); success wording only after a card is applied', () => {
+		const page = mount(); const c = page.componentInstance;
+		const ui = TestBed.inject(UiNotificationService);
+		c.projectName.set(TITLE); c.projectDesc.set(USER_TEXT); page.detectChanges();
+		aiButtons(page)[0].click();
+		cb.end!({ mode: 'improve', message: '🚀 تم تحسين الوصف باحترافية فائقة', requestId: rid(), candidates: [{ id: 'option-1', text: 'اقتراح كامل.' }] });
+		const msgs = ui.toasts().map(t => [t.kind, t.message]);
+		expect(msgs.some(m => String(m[1]).includes('تم تحسين الوصف'))).toBe(false);
+		expect(msgs.some(m => m[0] === 'success')).toBe(false);
+		expect(c.projectDesc()).toBe(USER_TEXT);
+		c.useAiSuggestion('option-1');
+		expect(ui.toasts().some(t => t.kind === 'success')).toBe(true);
 	});
 });

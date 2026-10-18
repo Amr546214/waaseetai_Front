@@ -75,7 +75,7 @@
 				@for (s of aiSuggestions; track s.id; let i = $index) {
 				<article class="p-3 rounded-[12px] border bg-[var(--sec-bg)]" [ngClass]="aiAppliedId === s.id ? 'border-[#2BD4C7]' : 'border-[var(--sec-bd)]'" [attr.data-suggestion-id]="s.id">
 					<div class="flex items-center justify-between mb-1.5 text-[11px] font-bold">
-						<span class="text-[#A56BE0]">اقتراح {{ i + 1 }}</span>
+						<span class="text-[#A56BE0]">اقتراح {{ i + 1 }}@if (s.label) { <span data-testid="ai-suggestion-label" class="mx-1 px-2 py-0.5 rounded-full bg-[rgba(123,47,190,.15)] text-[#A56BE0]">{{ s.label }}</span> }</span>
 						<span dir="ltr" data-testid="ai-suggestion-count" [ngClass]="s.length > descMax ? 'text-[#FF6B6B]' : 'text-[var(--txt-3)]'">{{ s.length }} / {{ descMax }}</span>
 					</div>
 					<div class="text-[13px] text-[var(--txt)] leading-[1.8] whitespace-pre-wrap max-h-[200px] overflow-auto" data-testid="ai-suggestion-text">{{ s.text }}</div>

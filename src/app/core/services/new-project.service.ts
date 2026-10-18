@@ -36,7 +36,7 @@ export interface AiReviewEvaluation {
 	} | null;
 }
 
-export interface AiTextCandidate { id: string; text: string; length?: number; trimmed?: boolean }
+export interface AiTextCandidate { id: string; text: string; length?: number; trimmed?: boolean; label?: string }
 export interface AiTextStreamEnd {
 	mode: string; message: string; error?: boolean; code?: string; requestId?: string;
 	candidates?: AiTextCandidate[]; limit?: number;
