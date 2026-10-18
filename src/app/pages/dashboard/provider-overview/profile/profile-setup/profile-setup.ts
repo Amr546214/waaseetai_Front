@@ -1029,7 +1029,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.isSubmitting.set(true);
 		const payload = {
 			skills: this.skillsList(),
-			...(this.avatarUrl() ? { avatarUrl: this.avatarUrl() } : {}),
+			// Only a photo that was uploaded in this session is sent; the stored one (own storage URL or the Google sign-in picture) is kept by the server and never re-posted as a "new link".
+			...(this.avatarUrl() && this.avatarUrl() !== this.storedAvatarUrl ? { avatarUrl: this.avatarUrl() } : {}),
 			details: {
 				occupation: this.setupForm.get('profData.jobTitle')?.value,
 				country: this.setupForm.get('profData.country')?.value,

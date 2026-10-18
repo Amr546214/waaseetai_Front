@@ -88,6 +88,32 @@ describe('provider setup wizard: photo, skills catalog, date of birth', () => {
     expect(save.mock.calls[0][0]).not.toHaveProperty('avatarUrl');
   });
 
+  it('G4: saving WITHOUT changing the photo does not re-send the stored URL (Google sign-in picture / own storage) as a new link', async () => {
+    const GOOGLE = 'https://lh3.googleusercontent.com/a/ACg8ocLabcDEF=s96-c';
+    for (const stored of [GOOGLE, STORED]) {
+      TestBed.resetTestingModule();
+      await setup({ avatarUrl: stored, skills: [] });
+      expect(component.avatarUrl()).toBe(stored);
+      completeAndSave();
+      http.match(r => r.url.includes('/profiles/paypal-email')).forEach(r => r.flush({ data: {} }));
+      expect(save.mock.calls[0][0]).not.toHaveProperty('avatarUrl');
+      fixture.destroy();
+    }
+  });
+
+  it('G4: replacing a stored Google photo with a new upload sends ONLY the new uploaded URL; a failed then retried upload sends the retried one', async () => {
+    const GOOGLE = 'https://lh3.googleusercontent.com/a/ACg8ocLabcDEF=s96-c';
+    await setup({ avatarUrl: GOOGLE, skills: [] });
+    pick(png());
+    http.expectOne(r => r.url.endsWith('/provider/profile/documents/upload')).flush({}, { status: 500, statusText: 'err' });
+    expect(component.avatarUrl()).toBe(GOOGLE);
+    pick(png());
+    http.expectOne(r => r.url.endsWith('/provider/profile/documents/upload')).flush({ data: { url: STORED } });
+    completeAndSave();
+    http.match(r => r.url.includes('/profiles/paypal-email')).forEach(r => r.flush({ data: {} }));
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ avatarUrl: STORED }));
+  });
+
   it('a failed re-upload restores the previously stored photo instead of the failed one', async () => {
     await setup({ avatarUrl: STORED, skills: [] });
     pick(png());
