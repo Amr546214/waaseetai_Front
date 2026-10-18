@@ -147,6 +147,12 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		data: { title: "تفاصيل النموذج" }
 	},
 	{
+		// the bare parent URL has no page of its own (a typed/bookmarked/breadcrumb-trimmed link): it lands on the accreditation requests list
+		path: 'business-models/accreditation',
+		pathMatch: 'full',
+		redirectTo: '/provider-overview/business-models/accreditation/list'
+	},
+	{
 		path: 'business-models/accreditation/new',
 		loadComponent: () => import('./business-models/accreditation/new/new').then(m => m.New),
 		data: { title: "رفع نموذج للاعتماد", assistantLift: true }

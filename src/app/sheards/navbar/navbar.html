@@ -285,6 +285,18 @@
 			<a [routerLink]="dashboardLink" class="drawer-link" (click)="closeMobileMenu()">لوحة التحكم</a>
 			<a [routerLink]="profileLink" class="drawer-link" (click)="closeMobileMenu()">إعدادات الحساب</a>
 			<div class="drawer-sep"></div>
+			<div class="drawer-theme" data-testid="drawer-theme">
+				<span class="drawer-theme-lbl">المظهر</span>
+				<div class="theme-toggle drawer-theme-toggle" role="group" aria-label="تبديل الثيم">
+					<button class="seg" [class.is-selected]="themeService.theme() === 'dark'"
+						(click)="themeService.setTheme('dark')" type="button" data-testid="drawer-theme-dark"
+						[attr.aria-pressed]="themeService.theme() === 'dark'">داكن</button>
+					<button class="seg" [class.is-selected]="themeService.theme() === 'light'"
+						(click)="themeService.setTheme('light')" type="button" data-testid="drawer-theme-light"
+						[attr.aria-pressed]="themeService.theme() === 'light'">فاتح</button>
+				</div>
+			</div>
+			<div class="drawer-sep"></div>
 			<button class="drawer-link txt-coral"
 				style="width:100%;text-align:right;border:none;background:none;font-family:inherit;cursor:pointer"
 				(click)="logout()">تسجيل الخروج</button>
