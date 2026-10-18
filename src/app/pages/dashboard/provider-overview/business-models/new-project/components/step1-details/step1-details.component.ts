@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import type { AiSuggestion } from '../../ai-description';
+import { SEED_HONESTY_NOTE, type AiSuggestion } from '../../ai-description';
 
 @Component({
 	selector: 'app-step1-details',
@@ -22,6 +22,9 @@ export class Step1DetailsComponent {
 	@Input() aiStreamPreview = '';
 	@Input() aiSuggestions: AiSuggestion[] = [];
 	@Input() aiAppliedId: string | null = null;
+	/** Suggestions were generated from the title/form data only (empty field): shows the honesty note. */
+	@Input() aiFromContext = false;
+	readonly honestyNote = SEED_HONESTY_NOTE;
 	/** True only while the field still holds the text it had when the request started (drives «نصّك الأصلي محفوظ»). */
 	@Input() aiOriginalPreserved = false;
 	@Input() descMax = 1500;

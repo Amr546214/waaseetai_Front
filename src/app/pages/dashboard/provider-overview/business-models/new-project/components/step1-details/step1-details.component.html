@@ -79,6 +79,8 @@
 						<span dir="ltr" data-testid="ai-suggestion-count" [ngClass]="s.length > descMax ? 'text-[#FF6B6B]' : 'text-[var(--txt-3)]'">{{ s.length }} / {{ descMax }}</span>
 					</div>
 					<div class="text-[13px] text-[var(--txt)] leading-[1.8] whitespace-pre-wrap max-h-[200px] overflow-auto" data-testid="ai-suggestion-text">{{ s.text }}</div>
+					@if (aiFromContext) { <p class="mt-1 text-[11px] text-[var(--txt-3)]" data-testid="ai-honesty-note">{{ honestyNote }}</p> }
+					@if (s.unmentioned?.length) { <p class="mt-1 text-[11px] font-bold text-[#E8A33D]" data-testid="ai-unmentioned">يتضمن تفاصيل غير مذكورة في بياناتك ({{ s.unmentioned!.join('، ') }}) — تأكد منها أو احذفها قبل الاعتماد.</p> }
 					@if (s.trimmed) { <p class="mt-1 text-[11px] text-[var(--txt-3)]">اختُصر الاقتراح عند آخر جملة كاملة ليلائم الحد.</p> }
 					<div class="mt-2 flex items-center gap-2">
 						<button type="button" (click)="onUseSuggestion.emit(s.id)" [disabled]="s.length > descMax || !s.text.trim()" data-testid="ai-use-suggestion"

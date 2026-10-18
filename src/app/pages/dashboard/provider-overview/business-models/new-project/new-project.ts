@@ -6,7 +6,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NewProjectService, AiReviewEvaluation } from '../../../../../core/services/new-project.service';
 import { SkillsCatalogService } from '../../../../../core/services/skills-catalog.service';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
-import { AI_EMPTY_OUTPUT_MESSAGE, AI_OUTPUT_TOO_LONG_MESSAGE, AI_WATCHDOG_MESSAGE, AI_WATCHDOG_MS, AiSuggestion, PROJECT_DESC_MAX, checkAiSuggestions } from './ai-description';
+import { SEED_CLARIFICATION_MESSAGE, buildDescriptionSeed, AI_EMPTY_OUTPUT_MESSAGE, AI_OUTPUT_TOO_LONG_MESSAGE, AI_WATCHDOG_MESSAGE, AI_WATCHDOG_MS, AiSuggestion, PROJECT_DESC_MAX, checkAiSuggestions } from './ai-description';
 import { Step1DetailsComponent } from './components/step1-details/step1-details.component';
 import { Step2SpecialtyComponent } from './components/step2-specialty/step2-specialty.component';
 import { Step3ModelComponent } from './components/step3-model/step3-model.component';
@@ -119,21 +119,17 @@ export class NewProject implements OnInit, OnDestroy {
 
 	retryAiAssist() { this.aiAssist(); }
 
-	/** ONE action: an empty/short field generates from the title, a field with text improves it. */
-	aiAssist(requested?: 'improve' | 'suggest') {
+	/** True while the shown/running suggestions were generated from the title/form data only (empty field), for the honesty note. */
+	aiFromContext = signal(false);
+
+	/** ONE action: a field with text is improved; an EMPTY field is generated through the same enhance path from a seed of what the user provided. */
+	aiAssist(_legacyMode?: string) {
 		// One request at a time: the button is disabled while one runs, and a stray second call is refused here too.
 		if (this.isStreamingText()) return;
-		const mode: 'improve' | 'suggest' = requested ?? (this.projectDesc().trim().length >= 10 ? 'improve' : 'suggest');
 		this.aiStreamError.set(null);
-		let title = this.projectName().trim();
+		const title = this.projectName().trim();
 		const desc = this.projectDesc().trim();
-
-		if (mode === 'suggest' && !title) {
-			const specName = this.selectedMainSpecialtyObj()?.name || this.specialties()[0]?.name;
-			const sampleTitle = this.accreditationModels()[0]?.title;
-			title = sampleTitle || (specName ? `تصميم وتطوير مشروع احترافي في ${specName}` : 'تصميم وتطوير منصة ويب تفاعلية متكاملة');
-			this.projectName.set(title);
-		}
+		const improve = desc.length >= 10;
 
 		// Validate title meaningfulness
 		if (title) {
@@ -144,9 +140,21 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 		}
 
-		if (mode === 'improve' && !desc && !title) {
-			this.notify.warning('يرجى كتابة اسم المشروع أو وصف مبدئي أولاً ليتم تحسينه');
-			return;
+		// The seed is built ONLY from what the user provided (before any auto-population) and goes to the service only, never into the field.
+		let payloadText = this.projectDesc();
+		if (!improve) {
+			const spec = this.selectedMainSpecialtyObj();
+			const model = this.accreditationModels().find(m => m.id === this.selectedModel());
+			const days = this.stages().reduce((sum, st) => sum + (Number(st?.days) > 0 ? Number(st.days) : 0), 0);
+			const seed = buildDescriptionSeed({
+				title, specialty: spec?.name, subSpecialty: this.selectedSubSpecialty(), model: model?.title,
+				skills: this.selectedSkills(), budgetUsd: this.totalAmount(), days,
+			});
+			if (seed === null) {
+				this.notify.warning(SEED_CLARIFICATION_MESSAGE);
+				return;
+			}
+			payloadText = seed;
 		}
 
 		// A new request replaces whatever was shown before: no leftovers, so a retry never duplicates text.
@@ -155,20 +163,20 @@ export class NewProject implements OnInit, OnDestroy {
 		this.aiSuggestions.set([]);
 		this.aiStreamPreview.set('');
 		this.aiAppliedId.set(null);
+		this.aiFromContext.set(!improve);
 		const requestId = `ai-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 		this.aiRequestId = requestId;
 		this.isStreamingText.set(true);
 		this.armAiWatchdog();
-		this.autoPopulateWizardSelections();
 
-		if (mode === 'improve') {
+		if (improve) {
 			this.isAiEnhancing.set(true);
-			this.newProjectService.streamEnhanceDescription(title, this.projectDesc(), requestId);
+			this.newProjectService.streamEnhanceDescription(title, payloadText, requestId);
 			this.notify.info('بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
 		} else {
 			this.isAiSuggesting.set(true);
-			this.newProjectService.streamSuggestText(title, requestId);
-			this.notify.info('بدأ البث المباشر لتوليد مقترح احترافي لوصف المشروع...');
+			this.newProjectService.streamEnhanceDescription(title, payloadText, requestId, true);
+			this.notify.info('بدأ البث المباشر لاقتراح وصف مبني على بيانات مشروعك...');
 		}
 	}
 

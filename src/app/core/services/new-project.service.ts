@@ -36,7 +36,7 @@ export interface AiReviewEvaluation {
 	} | null;
 }
 
-export interface AiTextCandidate { id: string; text: string; length?: number; trimmed?: boolean; label?: string }
+export interface AiTextCandidate { id: string; text: string; length?: number; trimmed?: boolean; label?: string; unmentioned?: string[] }
 export interface AiTextStreamEnd {
 	mode: string; message: string; error?: boolean; code?: string; requestId?: string;
 	candidates?: AiTextCandidate[]; limit?: number;
@@ -86,10 +86,11 @@ export class NewProjectService implements OnDestroy {
 		s.emit('stream_ai_suggest_text', { title, ...(requestId ? { requestId } : {}) });
 	}
 
-	streamEnhanceDescription(title: string, description: string, requestId?: string): void {
+	/** `seeded`: `description` is a context seed (empty-field generation), not the user's text; the backend then checks the reply against the seed's facts. */
+	streamEnhanceDescription(title: string, description: string, requestId?: string, seeded?: boolean): void {
 		const s = this.initSocket();
 		if (!s) return;
-		s.emit('stream_ai_enhance_description', { title, description, ...(requestId ? { requestId } : {}) });
+		s.emit('stream_ai_enhance_description', { title, description, ...(requestId ? { requestId } : {}), ...(seeded ? { seeded: true } : {}) });
 	}
 
 	/** Stops the running stream server-side (retry / navigation); the server then emits nothing more for it. */

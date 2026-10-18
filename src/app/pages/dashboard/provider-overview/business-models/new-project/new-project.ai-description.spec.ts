@@ -50,9 +50,13 @@ describe('provider new project: description AI (single action, cards, limit, fai
 		expect(aiButtons(page).length).toBe(1);
 		expect(aiButtons(page)[0].textContent).toContain('اقتراح وصف بالـ AI');
 		aiButtons(page)[0].click(); page.detectChanges();
-		expect(svc.streamSuggestText).toHaveBeenCalledTimes(1);
-		expect(svc.streamSuggestText.mock.calls[0][0]).toBe(TITLE);
-		expect(svc.streamEnhanceDescription).not.toHaveBeenCalled();
+		// Empty field -> the SAME enhance path, with a seed built from the title (never the suggest path Cloud Run aborts).
+		expect(svc.streamSuggestText).not.toHaveBeenCalled();
+		expect(svc.streamEnhanceDescription).toHaveBeenCalledTimes(1);
+		const [t0, seed0, , seeded0] = svc.streamEnhanceDescription.mock.calls[0];
+		expect(t0).toBe(TITLE);
+		expect(seed0).toContain(`عنوان المشروع: ${TITLE}`);
+		expect(seeded0).toBe(true);
 
 		const page2 = (TestBed.resetTestingModule(), mount()); const c2 = page2.componentInstance;
 		c2.projectName.set(TITLE); c2.projectDesc.set(USER_TEXT); page2.detectChanges();
@@ -61,7 +65,63 @@ describe('provider new project: description AI (single action, cards, limit, fai
 		aiButtons(page2)[0].click();
 		expect(svc.streamEnhanceDescription).toHaveBeenCalledTimes(1);
 		expect(svc.streamEnhanceDescription.mock.calls[0][1]).toBe(USER_TEXT);
+		expect(svc.streamEnhanceDescription.mock.calls[0][3]).toBeUndefined();
 		expect(svc.streamSuggestText).not.toHaveBeenCalled();
+	});
+
+	it('empty-field seed states only what the user provided + the no-invention rule; it is never written into the field, not even transiently', () => {
+		const page = mount(); const c = page.componentInstance;
+		c.projectName.set(TITLE);
+		c.selectedSkills.set(['React', 'Node.js']); c.totalAmount.set(800);
+		const seen: string[] = [];
+		const ta = (page.nativeElement as HTMLElement).querySelector('#np-desc') as HTMLTextAreaElement;
+		page.detectChanges();
+		aiButtons(page)[0].click();
+		seen.push(c.projectDesc(), ta?.value ?? '');
+		const seed: string = svc.streamEnhanceDescription.mock.calls[0][1];
+		expect(seed).toContain('البيانات المقدمة:');
+		expect(seed).toContain('المهارات: React، Node.js');
+		expect(seed).toContain('الميزانية الإجمالية: 800 دولار');
+		expect(seed).not.toContain('المدة الإجمالية'); // not provided -> not stated
+		expect(seed).not.toContain('التصنيف'); // no specialty chosen -> not stated
+		expect(seed).toMatch(/لا تضف خبرات أو تقنيات أو أدوات أو مخرجات أو أسعارًا أو مواعيد أو التزامات غير مذكورة/);
+		expect(seed).toMatch(/نقطة مفتوحة/);
+		cb.chunk!({ chunk: 'نص متدفق', requestId: rid() }); page.detectChanges();
+		seen.push(c.projectDesc(), ta?.value ?? '');
+		expect(seen.every(v => v === '')).toBe(true);
+	});
+
+	it('insufficient context (title under 2 meaningful words, nothing else): clarification, NO request, no text', () => {
+		const page = mount(); const c = page.componentInstance;
+		const ui = TestBed.inject(UiNotificationService);
+		c.projectName.set('متجر'); page.detectChanges();
+		aiButtons(page)[0].click();
+		expect(svc.streamEnhanceDescription).not.toHaveBeenCalled();
+		expect(svc.streamSuggestText).not.toHaveBeenCalled();
+		expect(c.isStreamingText()).toBe(false);
+		expect(c.projectDesc()).toBe('');
+		expect(ui.toasts().some(t => t.kind === 'warning' && t.message.includes('أضف عنوانًا أوضح'))).toBe(true);
+		c.projectName.set(''); aiButtons(page)[0].click();
+		expect(svc.streamEnhanceDescription).not.toHaveBeenCalled();
+		// a thin title WITH other provided data is enough
+		c.projectName.set('متجر'); c.selectedSkills.set(['React']); aiButtons(page)[0].click();
+		expect(svc.streamEnhanceDescription).toHaveBeenCalledTimes(1);
+	});
+
+	it('cards generated from context show the honesty note and unmentioned-specifics warning; improved cards do not', () => {
+		const page = mount(); const c = page.componentInstance;
+		c.projectName.set(TITLE); page.detectChanges();
+		aiButtons(page)[0].click();
+		cb.end!({ mode: 'improve', message: 'x', requestId: rid(), candidates: [{ id: 'option-1', text: 'نطوّر متجراً خلال 30 يوماً.', unmentioned: ['30'] }] });
+		page.detectChanges();
+		const root = page.nativeElement as HTMLElement;
+		expect(root.querySelector('[data-testid=ai-honesty-note]')?.textContent).toContain('مقترح مبني على العنوان وبيانات النموذج فقط');
+		expect(root.querySelector('[data-testid=ai-unmentioned]')?.textContent).toContain('30');
+		c.projectDesc.set(USER_TEXT); page.detectChanges();
+		aiButtons(page)[0].click();
+		cb.end!({ mode: 'improve', message: 'x', requestId: rid(), candidates: [{ id: 'option-1', text: 'صياغة محسنة.' }] });
+		page.detectChanges();
+		expect(root.querySelector('[data-testid=ai-honesty-note]')).toBeNull();
 	});
 
 	it('streaming text is shown in the suggestions area and NEVER written into the field; the button blocks a second concurrent request', () => {

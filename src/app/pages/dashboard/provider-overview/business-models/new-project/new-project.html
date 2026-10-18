@@ -93,7 +93,7 @@
 			<app-step1-details [projectName]="projectName()" [projectDesc]="projectDesc()" [descCount]="descCount()"
 				[isStreamingText]="isStreamingText()" [isAiEnhancing]="isAiEnhancing()"
 				[isAiSuggesting]="isAiSuggesting()" [aiStreamError]="aiStreamError()" [aiStreamPreview]="aiStreamPreview()" [aiSuggestions]="aiSuggestions()"
-				[aiAppliedId]="aiAppliedId()" [aiOriginalPreserved]="aiOriginalPreserved()" [descMax]="descMax"
+				[aiAppliedId]="aiAppliedId()" [aiFromContext]="aiFromContext()" [aiOriginalPreserved]="aiOriginalPreserved()" [descMax]="descMax"
 				(onUseSuggestion)="useAiSuggestion($event)" (onDismissSuggestions)="dismissAiSuggestions()" (onRetryAi)="retryAiAssist()" (projectNameChange)="projectName.set($event)"
 				(projectDescChange)="projectDesc.set($event)" (onAiAssist)="aiAssist()">
 			</app-step1-details>
