@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { PhoneInputComponent, type PhoneValue } from './phone-input.component';
 
@@ -116,5 +117,74 @@ describe('PhoneInputComponent: the label reaches the real number box', () => {
     (f.nativeElement.querySelector('#l1') as HTMLLabelElement).click();
     expect(clicked).toBe(1);
     f.nativeElement.remove();
+  });
+});
+
+describe('PhoneInputComponent: the numeric dial code is always visible text, independent of the flag', () => {
+  const make = (initial?: PhoneValue) => {
+    const f = TestBed.createComponent(Host);
+    if (initial) f.componentInstance.ctrl.setValue(initial);
+    f.detectChanges();
+    return f;
+  };
+  const open = (f: any) => { (f.nativeElement.querySelector('.country-selector-btn') as HTMLElement).click(); f.detectChanges(); };
+
+  it('closed state: the dial code is its own LTR text node outside the flag, and the trigger label names the country and the code', () => {
+    const f = make({ countryCode: 'EG', dialCode: '+20', number: '', e164Number: '' });
+    const dial = f.nativeElement.querySelector('.country-selector-btn .dial-code') as HTMLElement;
+    expect(dial.textContent!.trim()).toBe('+20');
+    expect(dial.getAttribute('dir')).toBe('ltr');
+    expect(dial.closest('.flag')).toBeNull();
+    expect(dial.parentElement!.querySelector('.flag')!.textContent).not.toContain('+20');
+    const btn = f.nativeElement.querySelector('.country-selector-btn') as HTMLElement;
+    expect(btn.getAttribute('aria-label')).toContain('+20');
+    expect(btn.getAttribute('aria-haspopup')).toBe('listbox');
+  });
+
+  it('flag fallback: with no flag glyphs the ISO code chip replaces the emoji and the dial code stays', () => {
+    const f = TestBed.createComponent(Host);
+    f.componentInstance.ctrl.setValue({ countryCode: 'EG', dialCode: '+20', number: '', e164Number: '' });
+    f.componentRef.changeDetectorRef.detectChanges();
+    f.debugElement.query(By.directive(PhoneInputComponent)).componentInstance.emojiFlags = false;
+    f.componentRef.changeDetectorRef.markForCheck();
+    f.detectChanges(false);
+    const chip = f.nativeElement.querySelector('.country-selector-btn .flag .flag-iso') as HTMLElement;
+    expect(chip.textContent!.trim()).toBe('EG');
+    expect(f.nativeElement.querySelector('.country-selector-btn .dial-code').textContent.trim()).toBe('+20');
+  });
+
+  it('every list row shows the dial code as LTR text and an aria-label with the code; search by code and by name still work', () => {
+    const f = make();
+    open(f);
+    const rows = Array.from(f.nativeElement.querySelectorAll('.dropdown-item')) as HTMLElement[];
+    expect(rows.length).toBeGreaterThan(100);
+    expect(rows.every(r => /^\+\d+$/.test(r.querySelector('.dial-badge')!.textContent!.trim()) && r.querySelector('.dial-badge')!.getAttribute('dir') === 'ltr')).toBe(true);
+    expect(rows.every(r => /\+\d+$/.test(r.getAttribute('aria-label')!))).toBe(true);
+    const cmp = f.debugElement.query(By.directive(PhoneInputComponent)).componentInstance;
+    cmp.searchTerm = '+20';
+    expect(cmp.filteredCountries.some((c: any) => c.code === 'EG')).toBe(true);
+    cmp.searchTerm = 'EG'; expect(cmp.filteredCountries.some((c: any) => c.code === 'EG')).toBe(true);
+  });
+
+  it('composition is unchanged: picking Egypt from the list and typing 1025073026 gives +201025073026, with the dial code shown', () => {
+    const f = make();
+    open(f);
+    const eg = (Array.from(f.nativeElement.querySelectorAll('.dropdown-item')) as HTMLElement[]).find(r => r.getAttribute('aria-label')!.endsWith('+20'))!;
+    eg.click(); f.detectChanges();
+    const input = f.nativeElement.querySelector('input.phone-number-input') as HTMLInputElement;
+    input.value = '1025073026'; input.dispatchEvent(new Event('input')); f.detectChanges();
+    const v = f.componentInstance.ctrl.value!;
+    expect([v.countryCode, v.dialCode, v.e164Number]).toEqual(['EG', '+20', '+201025073026']);
+    expect(f.nativeElement.querySelector('.country-selector-btn .dial-code').textContent.trim()).toBe('+20');
+  });
+
+  it('keyboard: Enter on the trigger opens the list, Enter on a row selects it', () => {
+    const f = make();
+    const btn = f.nativeElement.querySelector('.country-selector-btn') as HTMLElement;
+    btn.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' })); f.detectChanges();
+    expect(btn.getAttribute('aria-expanded')).toBe('true');
+    const row = (Array.from(f.nativeElement.querySelectorAll('.dropdown-item')) as HTMLElement[]).find(r => r.getAttribute('aria-label')!.endsWith('+971'))!;
+    row.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' })); f.detectChanges();
+    expect(f.nativeElement.querySelector('.country-selector-btn .dial-code').textContent.trim()).toBe('+971');
   });
 });

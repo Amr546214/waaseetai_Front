@@ -63,6 +63,33 @@ function getFlagEmoji(countryCode: string): string {
 		.join('');
 }
 
+/**
+ * True when this browser/OS draws regional-indicator pairs as real flags. Windows Chrome/Edge draw them as two plain letters
+ * (or blank): then the component shows the ISO code in a chip instead. Measured once by painting a flag and looking for colour.
+ * Without a canvas (SSR, jsdom) the emoji is kept.
+ */
+let emojiFlagsCache: boolean | null = null;
+export function supportsEmojiFlags(): boolean {
+	if (emojiFlagsCache !== null) return emojiFlagsCache;
+	try {
+		const canvas = document.createElement('canvas');
+		canvas.width = 32; canvas.height = 32;
+		const ctx = canvas.getContext('2d', { willReadFrequently: true });
+		if (!ctx) return (emojiFlagsCache = true);
+		ctx.textBaseline = 'top';
+		ctx.font = '24px sans-serif';
+		ctx.fillStyle = '#000';
+		ctx.fillText(getFlagEmoji('SA'), 0, 0);
+		const data = ctx.getImageData(0, 0, 32, 32).data;
+		let drawn = false, colour = false;
+		for (let i = 0; i < data.length; i += 4) {
+			if (data[i + 3] > 40) { drawn = true; if (data[i] !== data[i + 1] || data[i + 1] !== data[i + 2]) { colour = true; break; } }
+		}
+		emojiFlagsCache = drawn ? colour : false;
+	} catch { emojiFlagsCache = true; }
+	return emojiFlagsCache;
+}
+
 let nextPhoneInputId = 0;
 
 @Component({
@@ -105,6 +132,14 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 
 	isOpen = false;
 	searchTerm = '';
+	/** False when flags would render as letters/blank: the ISO code chip is shown instead (the dial code itself never depends on this). */
+	emojiFlags = supportsEmojiFlags();
+
+	get triggerLabel(): string {
+		return `اختيار الدولة: ${this.selectedCountry?.name ?? ''} ${this.selectedCountry?.dialCode ?? ''}`.trim();
+	}
+
+	onTriggerKey(event: Event): void { event.preventDefault(); this.toggleDropdown(event); }
 
 	get filteredCountries(): CountryOption[] {
 		if (!this.searchTerm.trim()) return this.countries;

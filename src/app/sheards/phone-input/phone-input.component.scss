@@ -42,17 +42,29 @@
 		background: rgba(255, 255, 255, 0.04);
 	}
 
+	flex-shrink: 0;
+
 	.flag {
 		font-size: 1.25rem;
 		line-height: 1;
 		flex-shrink: 0;
+		min-width: 26px;
+		text-align: center;
+		font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
 	}
 
+	// The numeric code is its own always-LTR text node: never part of the flag, never clipped or shrunk.
 	.dial-code {
 		font-size: 13px;
 		font-weight: 700;
 		color: #FFFFFF;
 		direction: ltr;
+		unicode-bidi: isolate;
+		white-space: nowrap;
+		flex-shrink: 0;
+		min-width: 3ch;
+		text-align: left;
+		font-variant-numeric: tabular-nums;
 	}
 
 	.arrow-icon {
@@ -220,6 +232,8 @@
 		font-size: 1.3rem;
 		line-height: 1;
 		flex-shrink: 0;
+		min-width: 26px;
+		text-align: center;
 	}
 
 	.country-name {
@@ -242,7 +256,27 @@
 		border-radius: 12px;
 		flex-shrink: 0;
 		direction: ltr;
+		unicode-bidi: isolate;
+		white-space: nowrap;
 	}
+}
+
+// ISO-code chip shown when the platform has no flag glyphs (same box as the emoji flag: no layout shift)
+.flag-iso {
+	display: inline-block;
+	min-width: 26px;
+	padding: 2px 0;
+	border-radius: 4px;
+	background: rgba(43, 212, 199, 0.14);
+	color: #2BD4C7;
+	font-family: system-ui, sans-serif;
+	font-size: 11px;
+	font-weight: 800;
+	line-height: 1.2;
+	letter-spacing: .02em;
+	direction: ltr;
+	unicode-bidi: isolate;
+	text-align: center;
 }
 
 .no-results {
@@ -291,6 +325,10 @@ body.theme-light {
 
 		.dial-code {
 			color: #0F172A;
+		}
+
+		.flag-iso {
+			color: #0F8A7F;
 		}
 
 		.arrow-icon {
