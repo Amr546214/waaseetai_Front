@@ -203,7 +203,7 @@ describe('Login', () => {
 	});
 
 	describe('always starts empty', () => {
-		it('the form is empty on open, with standard credential semantics and nothing read-only', () => {
+		it('the form is empty on open, with standard credential semantics', () => {
 			const { fixture, component } = setup();
 			fixture.detectChanges();
 			const el: HTMLElement = fixture.nativeElement;
@@ -225,34 +225,32 @@ describe('Login', () => {
 			// e-mail first, password right after it, no other text input in between
 			const fields = Array.from(form.querySelectorAll('input:not([type=checkbox])'));
 			expect(fields.indexOf(pass) - fields.indexOf(email)).toBe(1);
-			for (const i of [email, pass]) {
-				expect(i.hasAttribute('readonly')).toBe(false);
-				i.dispatchEvent(new Event('focus'));
-				expect(i.hasAttribute('readonly')).toBe(false);
-				expect(i.getAttribute('autocomplete')).not.toBe('off');
-			}
+			for (const i of [email, pass]) expect(i.getAttribute('autocomplete')).not.toBe('off');
 		});
 
-		it('a fill that arrives before any user gesture (Chrome autofill on load) is dropped once', () => {
+		// DOM/attribute behaviour only: real Chrome autofill / dropdown behaviour was checked by hand in real Chrome, not here.
+		for (const ev of ['pointerdown', 'mousedown', 'touchstart', 'keydown', 'focus']) {
+			it(`both credential inputs open read-only (no Chrome autofill on load); ${ev} lifts it for both`, () => {
+				const { fixture } = setup();
+				fixture.detectChanges();
+				const el: HTMLElement = fixture.nativeElement;
+				const email = el.querySelector('#identifier') as HTMLInputElement;
+				const pass = el.querySelector('#password') as HTMLInputElement;
+				expect(email.hasAttribute('readonly')).toBe(true);
+				expect(pass.hasAttribute('readonly')).toBe(true);
+				pass.dispatchEvent(new Event(ev));
+				expect(email.hasAttribute('readonly')).toBe(false);
+				expect(pass.hasAttribute('readonly')).toBe(false);
+			});
+		}
+
+		it('typed or picked values are never cleared, not by events and not by time', async () => {
 			const { fixture, component } = setup();
 			fixture.detectChanges();
 			const el: HTMLElement = fixture.nativeElement;
 			const email = el.querySelector('#identifier') as HTMLInputElement;
 			const pass = el.querySelector('#password') as HTMLInputElement;
-			email.value = 'saved@example.com'; email.dispatchEvent(new Event('input'));
-			pass.value = 'saved-password'; pass.dispatchEvent(new Event('input'));
-			expect(email.value).toBe('');
-			expect(pass.value).toBe('');
-			expect(component.loginForm.value).toEqual({ email: '', password: '', remember: false });
-		});
-
-		it('after a user gesture, typed or picked values are never cleared', async () => {
-			const { fixture, component } = setup();
-			fixture.detectChanges();
-			const el: HTMLElement = fixture.nativeElement;
-			const email = el.querySelector('#identifier') as HTMLInputElement;
-			const pass = el.querySelector('#password') as HTMLInputElement;
-			document.dispatchEvent(new Event('pointerdown'));
+			email.dispatchEvent(new Event('pointerdown'));
 			email.value = 'picked@example.com'; email.dispatchEvent(new Event('input')); email.dispatchEvent(new Event('change'));
 			pass.value = 'picked-pass'; pass.dispatchEvent(new Event('input')); pass.dispatchEvent(new Event('change'));
 			window.dispatchEvent(new Event('pageshow'));
@@ -261,18 +259,6 @@ describe('Login', () => {
 			expect(pass.value).toBe('picked-pass');
 			expect(component.loginForm.value.email).toBe('picked@example.com');
 			expect(component.loginForm.value.password).toBe('picked-pass');
-		});
-
-		it('a bfcache restore (pageshow persisted) starts empty again', () => {
-			const { fixture, component } = setup();
-			fixture.detectChanges();
-			const el: HTMLElement = fixture.nativeElement;
-			document.dispatchEvent(new Event('keydown'));
-			component.loginForm.patchValue({ email: 'a@b.co', password: 'x' });
-			const ev = new Event('pageshow') as any; ev.persisted = true;
-			window.dispatchEvent(ev);
-			expect((el.querySelector('#identifier') as HTMLInputElement).value).toBe('');
-			expect(component.loginForm.value.email).toBe('');
 		});
 
 		it('values painted by the browser (no input event) are kept and reach the form on submit even without input events', async () => {

@@ -21,7 +21,6 @@ describe('Login countdown', () => {
 	beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-15T10:00:00Z')); localStorage.clear(); });
 	afterEach(() => { vi.useRealTimers(); localStorage.clear(); TestBed.resetTestingModule(); });
 
-	// the page wipes browser-autofilled fields at 150 ms and 600 ms after it opens; a user types after that
 	function mount(post: (...a: any[]) => any) {
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule({
