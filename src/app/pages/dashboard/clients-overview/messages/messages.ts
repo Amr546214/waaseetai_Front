@@ -549,6 +549,7 @@ export class ClientMessages implements OnInit, OnDestroy {
     if (files && files.length > 0) {
       const file = files[0];
       if (!file) return;
+      event.target.value = ''; // so the same file can be picked again
       const fileSizeKB = Math.round(file.size / 1024);
       const reader = new FileReader();
 

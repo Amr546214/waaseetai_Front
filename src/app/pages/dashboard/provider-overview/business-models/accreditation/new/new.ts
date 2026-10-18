@@ -320,8 +320,12 @@ export class New implements OnInit, OnDestroy {
 
 	// File Handling
 	onFileSelected(event: any) {
-		const files: FileList = event.target.files;
-		if (files && files.length > 0) {
+		const input = event.target as HTMLInputElement | null;
+		// copy first: clearing the input empties the live FileList
+		const files: File[] = input?.files ? Array.from(input.files) : [];
+		// reset so picking the SAME file again (after removing it or after a rejection) fires a change event
+		if (input) input.value = '';
+		if (files.length > 0) {
 			this.processSelectedFiles(files);
 		}
 	}
@@ -334,7 +338,7 @@ export class New implements OnInit, OnDestroy {
 		}
 	}
 
-	private processSelectedFiles(files: FileList) {
+	private processSelectedFiles(files: ArrayLike<File>) {
 		const allowedTypes = new Set(['image/png', 'image/jpeg', 'image/webp', 'application/pdf', 'application/zip', 'application/x-zip-compressed']);
 		const availableSlots = Math.max(0, 10 - this.attachments().length);
 		const before = this.attachments().length;
