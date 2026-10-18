@@ -56,3 +56,31 @@ export function roleLinks(role: UserRole): RoleLinks {
 
 /** The dashboard of a role. */
 export const roleHome = (role: UserRole): string => roleLinks(role).home;
+
+// ---- Role sync (H1) ---------------------------------------------------------------------------------------------------------------------------------------
+// Machine-readable code the backend sends with a 403 when the request's ACTIVE role (kept server-side) is not the one the page needs.
+export const ROLE_MISMATCH_CODE = 'ROLE_MISMATCH';
+
+const ROLE_AREAS: Array<[UserRole, string]> = [[UserRole.PROVIDER, '/provider-overview'], [UserRole.CLIENT, '/client-overview'], [UserRole.AFFILIATE, '/marketer-overview']];
+
+/** The role whose dashboard area the URL is inside (provider / client / marketer), or null for any other page. */
+export function roleAreaOfUrl(url: string): UserRole | null {
+	const path = (url || '').split(/[?#]/)[0];
+	for (const [role, prefix] of ROLE_AREAS) if (path === prefix || path.startsWith(prefix + '/')) return role;
+	return null;
+}
+
+/** After the acting role changed to `role`: the dashboard to go to when the current URL sits in ANOTHER role's area, else null (stay where you are). */
+export function redirectTargetAfterRoleChange(url: string, role: UserRole): string | null {
+	const area = roleAreaOfUrl(url);
+	if (!area || area === role) return null;
+	return roleHome(role);
+}
+
+/** The server's active role out of a ROLE_MISMATCH 403 body (null when the body is anything else, so a plain 403 never triggers a reconcile). */
+export function serverRoleFromMismatch(status: number, body: unknown): UserRole | null {
+	if (status !== 403 || !body || typeof body !== 'object') return null;
+	const b = body as { code?: unknown; activeRole?: unknown };
+	if (b.code !== ROLE_MISMATCH_CODE || typeof b.activeRole !== 'string') return null;
+	return (Object.values(UserRole) as string[]).includes(b.activeRole) ? (b.activeRole as UserRole) : null;
+}
