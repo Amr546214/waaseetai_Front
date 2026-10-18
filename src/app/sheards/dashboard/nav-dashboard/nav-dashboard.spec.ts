@@ -61,28 +61,32 @@ describe('NavDashboard — account-dropdown active-row click', () => {
 		expect(fixture.componentInstance).toBeTruthy();
 	});
 
-	it('clicking the CURRENTLY ACTIVE client row navigates to the client dashboard and never calls the role-switch API', () => {
+	it('clicking the CURRENTLY ACTIVE client row re-syncs with the server (idempotent role-switch API) and then navigates to the client dashboard', () => {
 		const { fixture, component, switchActiveRoleSpy, navigateByUrlSpy } = setup({
 			firstName: 'Amr', lastName: 'Okasha', accountType: 'CLIENT_INDIVIDUAL', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT, UserRole.PROVIDER]
 		});
 		fixture.detectChanges();
 
+		switchActiveRoleSpy.mockReturnValue(of({ success: true }));
 		component.switchRole(UserRole.CLIENT);
 
+		expect(switchActiveRoleSpy).toHaveBeenCalledWith(UserRole.CLIENT);
 		expect(navigateByUrlSpy).toHaveBeenCalledWith('/client-overview');
-		expect(switchActiveRoleSpy).not.toHaveBeenCalled();
+
 	});
 
-	it('clicking the CURRENTLY ACTIVE provider row navigates to the provider dashboard and never calls the role-switch API (role-driven, not CLIENT-hardcoded)', () => {
+	it('clicking the CURRENTLY ACTIVE provider row re-syncs with the server (idempotent role-switch API) and then navigates to the provider dashboard (role-driven, not CLIENT-hardcoded)', () => {
 		const { fixture, component, switchActiveRoleSpy, navigateByUrlSpy } = setup({
 			firstName: 'Amr', lastName: 'Okasha', accountType: 'PROVIDER_INDIVIDUAL', activeRole: UserRole.PROVIDER, roles: [UserRole.CLIENT, UserRole.PROVIDER]
 		});
 		fixture.detectChanges();
 
+		switchActiveRoleSpy.mockReturnValue(of({ success: true }));
 		component.switchRole(UserRole.PROVIDER);
 
+		expect(switchActiveRoleSpy).toHaveBeenCalledWith(UserRole.PROVIDER);
 		expect(navigateByUrlSpy).toHaveBeenCalledWith('/provider-overview');
-		expect(switchActiveRoleSpy).not.toHaveBeenCalled();
+
 	});
 
 	it('clicking a DIFFERENT (non-active) role row still triggers the existing switch-role API call, unchanged', () => {

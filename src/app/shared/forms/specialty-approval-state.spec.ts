@@ -108,3 +108,22 @@ describe('the pages use the approval state, not the test result, for what they c
 		expect(read(P + 'business-models/accreditation/new/components/step1-specialty/step1-specialty.component.html')).not.toContain('تخصصاتك المعتمدة فقط');
 	});
 });
+
+// H3 D7: a specialty pass score is shown with at most one decimal, never as a raw float.
+import { formatPercent } from '../../core/utils/specialty-states';
+describe('pass-score percent formatting', () => {
+	it('formats with at most 1 decimal, no trailing zero', () => {
+		expect(formatPercent(93.33333333333333)).toBe('93.3%');
+		expect(formatPercent(80)).toBe('80%');
+		expect(formatPercent(66.66666)).toBe('66.7%');
+		expect(formatPercent('72.5')).toBe('72.5%');
+	});
+	it('guards null / undefined / NaN / non-finite', () => {
+		for (const v of [null, undefined, NaN, Infinity, 'abc', '']) expect(formatPercent(v as any)).toBe('');
+	});
+	it('the selector tag never prints a long float and drops a missing score', () => {
+		expect(approvalTag({ approvalState: 'APPROVED' }, 93.33333333333333)).toBe('✓ معتمد 93.3%');
+		expect(approvalTag({ approvalState: 'PASSED_NO_SAMPLES' }, NaN)).not.toContain('NaN');
+		expect(approvalTag({ approvalState: 'PASSED_NO_SAMPLES' }, null)).not.toContain('%');
+	});
+});

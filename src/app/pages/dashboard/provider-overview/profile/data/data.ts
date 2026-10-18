@@ -19,7 +19,7 @@ import { OtpInputComponent } from '../../../../../shared/forms/otp-input.compone
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { birthDateValidator, dobInputValue } from '../../../../../core/forms/birth-date';
-import { canonicalStoredPhone, phoneCountryView, type PhoneCountryView } from '../../../../../core/forms/phone-countries';
+import { canonicalStoredPhone, parseStoredPhone, phoneCountryView, type PhoneCountryView } from '../../../../../core/forms/phone-countries';
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
@@ -212,6 +212,13 @@ export class Data implements OnInit {
   /** WhatsApp (optional) is the only editable contact number: saved directly, no code, no review. */
   whatsappControl = new FormControl<string>('', { nonNullable: true, validators: [(c: AbstractControl): ValidationErrors | null => { const v = String(c.value ?? '').replace(/[\s()-]/g, ''); return !v || /^\+?\d{8,15}$/.test(v) ? null : { whatsapp: true }; }] });
   savingWhatsapp = signal(false);
+  /** The country (local SVG flag) and visible dial code of the WhatsApp number as it is typed or stored; null when the box is empty. */
+  whatsappPhone(): { iso: string | null; dialCode: string | null } | null {
+    const v = String(this.whatsappControl.value ?? '').trim();
+    if (!v) return null;
+    const p = parseStoredPhone(v);
+    return { iso: p.iso, dialCode: p.dialCode };
+  }
   skillNames = computed(() => (this.skillsList() || []).map((sk: any) => sk.name as string));
 
   // ── taxonomy: main specialty (the marketplace Category, stored as its slug), sub-specialties and the skills catalog of that field ──

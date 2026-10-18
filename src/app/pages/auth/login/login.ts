@@ -83,17 +83,10 @@ export class Login implements AfterViewInit {
     this.loginForm.get('email')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => this.loginEmail.set(String(v || '')));
   }
 
-  /**
-   * Becomes true on the first real user gesture (key / pointer / touch / paste). Until then any value that shows up
-   * in the credential fields was NOT chosen by the user (Chrome fills a saved account on page load), so it is dropped
-   * once. After the first gesture nothing is ever cleared: typing, the suggestion dropdown and a deliberately
-   * picked account all work normally.
-   */
-  private userGesture = false;
-
   ngOnInit() {
-    // The login form starts empty (the app never stores credentials). The browser's password manager stays usable:
-    // standard autocomplete=username/current-password, no readonly trick, no timers.
+    // The login form starts empty (the app never stores credentials). The two credential inputs carry a static
+    // `readonly` in the template (Chrome does not autofill read-only fields on page load) and ngAfterViewInit lifts it on
+    // the first pointer / touch / key / focus, so the saved-account dropdown still opens on the click. No timers, no clearing.
 
     // CRITICAL (part 1 — stale subscription leak): SocialAuthService.authState
     // is a single app-wide ReplaySubject(1) singleton, and this subscription
@@ -301,39 +294,17 @@ export class Login implements AfterViewInit {
 
   ngAfterViewInit() {
     const root: HTMLElement | undefined = this.host.nativeElement;
-    if (!root || typeof document === 'undefined') return;
-    const gesture = () => { this.userGesture = true; };
-    const gestureEvents = ['keydown', 'pointerdown', 'mousedown', 'touchstart', 'paste', 'focusin'];
-    for (const ev of gestureEvents) document.addEventListener(ev, gesture, { capture: true, passive: true });
-    // Chrome announces an on-load fill with input/change events on the field (no gesture happened before it).
-    const onFieldEvent = () => this.dropUnrequestedFill();
+    if (!root) return;
     const fields = Array.from(root.querySelectorAll<HTMLInputElement>('#identifier, #password'));
-    for (const f of fields) { f.addEventListener('input', onFieldEvent); f.addEventListener('change', onFieldEvent); }
-    // Coming back through the back/forward cache (pageshow) repaints the page as it was; start empty again.
-    const onPageShow = (e: PageTransitionEvent) => { if (e.persisted) this.dropUnrequestedFill(true); };
-    window.addEventListener('pageshow', onPageShow);
-    this.dropUnrequestedFill(); // a fill that already happened before the view was ready
-    this.destroyRef.onDestroy(() => {
-      for (const ev of gestureEvents) document.removeEventListener(ev, gesture, { capture: true });
-      for (const f of fields) { f.removeEventListener('input', onFieldEvent); f.removeEventListener('change', onFieldEvent); }
-      window.removeEventListener('pageshow', onPageShow);
-    });
-  }
-
-  /** Empty the credential fields if (and only if) the user has not interacted yet. Never runs after a gesture. */
-  private dropUnrequestedFill(force = false) {
-    if (this.userGesture && !force) return;
-    if (this.userGesture && force) this.userGesture = false;
-    const root: HTMLElement | undefined = this.host.nativeElement;
-    let cleared = false;
-    for (const id of ['identifier', 'password']) {
-      const el = root?.querySelector<HTMLInputElement>('#' + id);
-      if (el && el.value) { el.value = ''; cleared = true; }
-    }
-    if (cleared || this.loginForm.value.email || this.loginForm.value.password) {
-      this.loginForm.reset({ email: '', password: '', remember: false });
-      this.cdr.markForCheck();
-    }
+    // The first real interaction (mouse, touch, keyboard incl. Tab focus) makes both fields editable at once, before the
+    // browser decides about its saved-account dropdown. Nothing is ever cleared; this only runs once.
+    const events = ['pointerdown', 'mousedown', 'touchstart', 'keydown', 'focus'];
+    const unlock = () => {
+      for (const f of fields) f.removeAttribute('readonly');
+      for (const f of fields) for (const ev of events) f.removeEventListener(ev, unlock);
+    };
+    for (const f of fields) for (const ev of events) f.addEventListener(ev, unlock);
+    this.destroyRef.onDestroy(() => { for (const f of fields) for (const ev of events) f.removeEventListener(ev, unlock); });
   }
 
   /** Browser autofill may paint values without firing input events: pull them into the reactive form before validating. */

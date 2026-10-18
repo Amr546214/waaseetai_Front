@@ -9,9 +9,13 @@
   var GLASS = 'rgba(255,255,255,.72)';
   var applied = [];                  // [el, prop, origVal, origPrio]
 
-  function pc(s){ if(!s) return null; var m=s.match(/rgba?\(([^)]+)\)/); if(!m) return null; var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }
+  /* Modern CSS colors (oklch/oklab/lab/lch/color()) are what Tailwind v4 gradients compute to: rgb()-only parsing made such a gradient "invisible",
+     so a big rounded button with one looked like an empty white card and was forced to a white background (white label on white). Convert them through a canvas. */
+  var MODERN=/(?:oklch|oklab|lab|lch|color)\((?:[^()]|\([^)]*\))*\)/g, cvx=null;
+  function modernRgb(tok){ try{ if(!cvx){ var cv=document.createElement('canvas'); cv.width=cv.height=1; cvx=cv.getContext('2d',{willReadFrequently:true}); } cvx.clearRect(0,0,1,1); cvx.fillStyle='#000'; cvx.fillStyle=tok; cvx.fillRect(0,0,1,1); var d=cvx.getImageData(0,0,1,1).data; return {r:d[0],g:d[1],b:d[2],a:d[3]/255}; }catch(e){ return null; } }
+  function pc(s){ if(!s) return null; var m=s.match(/rgba?\(([^)]+)\)/); if(!m){ var mm=s.match(MODERN); return mm?modernRgb(mm[0]):null; } var p=m[1].split(',').map(parseFloat); return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}; }
   function hexC(h){ var m=/^#([0-9a-f]{6})$/i.exec(h); if(!m) return null; var n=parseInt(m[1],16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255,a:1}; }
-  function allCols(s){ var o=[],re=/rgba?\(([^)]+)\)/g,m; while((m=re.exec(s))){var p=m[1].split(',').map(parseFloat);o.push({r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1});} return o; }
+  function allCols(s){ var o=[],re=/rgba?\(([^)]+)\)/g,m; while((m=re.exec(s))){var p=m[1].split(',').map(parseFloat);o.push({r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1});} var mo2=s.match(MODERN); if(mo2) for(var q2=0;q2<mo2.length;q2++){ var c2=modernRgb(mo2[q2]); if(c2) o.push(c2); } return o; }
   function over(s,b){ var a=s.a+b.a*(1-s.a); if(a===0) return {r:0,g:0,b:0,a:0}; return {r:(s.r*s.a+b.r*b.a*(1-s.a))/a,g:(s.g*s.a+b.g*b.a*(1-s.a))/a,b:(s.b*s.a+b.b*b.a*(1-s.a))/a,a:a}; }
   function lum(c){ var f=function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}; return .2126*f(c.r)+.7152*f(c.g)+.0722*f(c.b); }
   function ratio(a,b){ var L1=lum(a),L2=lum(b),hi=Math.max(L1,L2)+.05,lo=Math.min(L1,L2)+.05; return hi/lo; }
@@ -258,7 +262,9 @@
       // --- light card surface+depth: force neutral cards to white #fff so they pop on the tinted page ---
       if(light){ var rad=parseFloat(cs.borderTopLeftRadius)||0; var rcc=el.getBoundingClientRect();
         var colored=/ai-|sc-rec|verdict|sens|escrow|free-bar|teal|tier|banner|disclosure/.test(cls);
-        if(rad>=10 && rcc.width>=200 && rcc.height>=56 && !colored){ var eb=effBg(el,1,base); var sat=Math.max(eb.r,eb.g,eb.b)-Math.min(eb.r,eb.g,eb.b);
+        // buttons / links / form controls are never "cards": their own background (a gradient call-to-action) must stay
+        var interactive=/^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(el.tagName)||el.getAttribute('role')==='button';
+        if(rad>=10 && rcc.width>=200 && rcc.height>=56 && !colored && !interactive){ var eb=effBg(el,1,base); var sat=Math.max(eb.r,eb.g,eb.b)-Math.min(eb.r,eb.g,eb.b);
           if(lum(eb)>0.8 && sat<16){ setP(el,'background','#FFFFFF'); setP(el,'box-shadow','0 2px 10px rgba(15,23,42,.08),0 1px 3px rgba(15,23,42,.05)'); } } }
       if(!visible(el)) continue;
       var rc=el.getBoundingClientRect();

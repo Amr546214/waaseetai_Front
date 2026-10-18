@@ -69,7 +69,7 @@
 				<div class="field-grp">
 					<label class="field-lbl" for="identifier">البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></label>
 					<input class="field-in" type="email" id="identifier" name="email" formControlName="email" inputmode="email"
-						placeholder="example@email.com" autocomplete="username" aria-required="true" [attr.aria-invalid]="fieldError('email') ? 'true' : null" [attr.aria-describedby]="fieldError('email') ? 'err-identifier' : null" autocapitalize="off" spellcheck="false" dir="ltr"
+						placeholder="example@email.com" autocomplete="username" readonly aria-required="true" [attr.aria-invalid]="fieldError('email') ? 'true' : null" [attr.aria-describedby]="fieldError('email') ? 'err-identifier' : null" autocapitalize="off" spellcheck="false" dir="ltr"
 						style="text-align:right"
 						[class.has-error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
 					@if (fieldError('email'); as msg) {
@@ -86,7 +86,7 @@
 					<label class="field-lbl" for="password">كلمة المرور <span class="ws-req" aria-hidden="true">*</span></label>
 					<div class="pw-wrap">
 						<input class="field-in" [type]="showPassword ? 'text' : 'password'" id="password"
-							name="password" formControlName="password" placeholder="كلمة المرور" autocomplete="current-password" aria-required="true"
+							name="password" formControlName="password" placeholder="كلمة المرور" autocomplete="current-password" readonly aria-required="true"
 							[attr.aria-invalid]="fieldError('password') ? 'true' : null" [attr.aria-describedby]="fieldError('password') ? 'err-password' : null"
 							[class.has-error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
 						<button type="button" class="pw-eye" id="pw-toggle" (click)="togglePassword()"

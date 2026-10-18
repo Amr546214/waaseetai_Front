@@ -7,7 +7,9 @@ import {
 	HostListener,
 	Input,
 	OnDestroy,
+	OnChanges,
 	OnInit,
+	SimpleChanges,
 	ViewChild,
 	ViewEncapsulation,
 } from '@angular/core';
@@ -22,7 +24,7 @@ import {
 	FormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { splitPhoneInput } from '../../core/forms/phone-countries';
+import { splitPhoneInput, parseStoredPhone } from '../../core/forms/phone-countries';
 import {
 	getCountries,
 	getCountryCallingCode,
@@ -42,7 +44,6 @@ interface CountryOption {
 	code: CountryCode;
 	name: string;
 	dialCode: string;
-	flag: string;
 }
 
 // Build a sorted country list once at module level (performance)
@@ -51,17 +52,8 @@ const ALL_COUNTRIES: CountryOption[] = getCountries()
 		code,
 		name: new Intl.DisplayNames(['ar', 'en'], { type: 'region' }).of(code) ?? code,
 		dialCode: '+' + getCountryCallingCode(code),
-		flag: getFlagEmoji(code),
 	}))
 	.sort((a, b) => a.name.localeCompare(b.name));
-
-function getFlagEmoji(countryCode: string): string {
-	return countryCode
-		.toUpperCase()
-		.split('')
-		.map((c) => String.fromCodePoint(127397 + c.charCodeAt(0)))
-		.join('');
-}
 
 let nextPhoneInputId = 0;
 
@@ -85,7 +77,7 @@ let nextPhoneInputId = 0;
 		},
 	],
 })
-export class PhoneInputComponent implements ControlValueAccessor, Validator, OnInit, DoCheck, AfterViewInit, OnDestroy {
+export class PhoneInputComponent implements ControlValueAccessor, Validator, OnChanges, OnInit, DoCheck, AfterViewInit, OnDestroy {
 	@ViewChild('phoneField') private phoneField?: ElementRef<HTMLInputElement>;
 
 	@Input() placeholder = 'رقم الجوال';
@@ -102,9 +94,29 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 	selectedCountry: CountryOption = ALL_COUNTRIES.find(c => c.code === 'SA') || ALL_COUNTRIES[0];
 	phoneNumber = '';
 	isDisabled = false;
+	/**
+	 * A stored number whose country cannot be told (shared code with no deciding digits, or a legacy number with no code): its digits stay visible with the dial
+	 * code it has (or none), a neutral globe instead of a guessed flag, and nothing is rewritten until the user picks a country or edits the number.
+	 */
+	unresolved = false;
+	unresolvedDial: string | null = null;
+	/** A stored value (or the user) already decided the country: the default country must not override it. */
+	private countryDecided = false;
+	get dialLabel(): string { return this.unresolved ? (this.unresolvedDial ?? '+') : (this.selectedCountry?.dialCode ?? ''); }
 
 	isOpen = false;
 	searchTerm = '';
+	/** Flags are bundled SVG files (public/assets/flags/XX.svg), never emoji: they look the same on every OS/font. A file that fails to load shows a neutral globe. */
+	private brokenFlags = new Set<string>();
+	flagSrc(code: string): string { return `assets/flags/${code}.svg`; }
+	flagBroken(code: string | undefined): boolean { return !code || this.brokenFlags.has(code); }
+	onFlagError(code: string): void { this.brokenFlags.add(code); }
+
+	get triggerLabel(): string {
+		return `اختيار الدولة: ${this.unresolved ? '' : (this.selectedCountry?.name ?? '')} ${this.dialLabel}`.trim();
+	}
+
+	onTriggerKey(event: Event): void { event.preventDefault(); this.toggleDropdown(event); }
 
 	get filteredCountries(): CountryOption[] {
 		if (!this.searchTerm.trim()) return this.countries;
@@ -182,11 +194,18 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 
 		this.countries = [...preferred, ...rest];
 		
-		if (this.selectedCountry) {
+		if (this.countryDecided) {
 			const found = this.countries.find(c => c.code === this.selectedCountry.code);
 			if (found) this.selectedCountry = found;
 		} else {
 			this.selectedCountry = this.countries.find((c) => c.code === this.defaultCountry) ?? this.countries[0];
+		}
+	}
+
+	ngOnChanges(changes: SimpleChanges): void {
+		// the account country can arrive after the field was created: it only replaces the built-in default, never a country a value or the user chose
+		if (changes['defaultCountry'] && !changes['defaultCountry'].firstChange && !this.countryDecided) {
+			this.selectedCountry = this.countries.find((c) => c.code === this.defaultCountry) ?? this.selectedCountry;
 		}
 	}
 
@@ -210,27 +229,39 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 	selectCountry(country: CountryOption, event?: Event): void {
 		if (event) event.stopPropagation();
 		this.selectedCountry = country;
+		this.countryDecided = true;
+		this.unresolved = false;
+		this.unresolvedDial = null;
 		this.isOpen = false;
 		this.emitValue();
 	}
 
 	// ─── ControlValueAccessor ───────────────────────────────────
 	writeValue(val: PhoneValue | string | null): void {
+		this.unresolved = false;
+		this.unresolvedDial = null;
 		if (!val) {
 			this.phoneNumber = '';
 			return;
 		}
 		if (typeof val === 'string') {
-			const parsed = parsePhoneNumberFromString(val);
-			if (parsed && parsed.country) {
-				const country = this.countries.find((c) => c.code === parsed.country);
+			// A stored number (E.164, spaced, without "+", legacy local): shown with ITS country, never the default one.
+			const stored = parseStoredPhone(val);
+			if (!stored.national) { this.phoneNumber = ''; return; }
+			this.countryDecided = true;
+			if (stored.iso) {
+				const country = this.countries.find((c) => c.code === stored.iso);
 				if (country) this.selectedCountry = country;
-				this.phoneNumber = parsed.nationalNumber as string;
+				this.phoneNumber = new AsYouType(stored.iso).input(stored.national);
+			} else {
+				this.unresolved = true;
+				this.unresolvedDial = stored.dialCode;
+				this.phoneNumber = stored.national;
 			}
 		} else {
 			if (val.countryCode) {
 				const country = this.countries.find((c) => c.code === val.countryCode);
-				if (country) this.selectedCountry = country;
+				if (country) { this.selectedCountry = country; this.countryDecided = true; }
 			}
 			this.phoneNumber = val.number || '';
 		}
@@ -251,6 +282,10 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 	// ─── Validator ──────────────────────────────────────────────
 	validate(_control: AbstractControl): ValidationErrors | null {
 		if (!this.phoneNumber) return this.optional ? null : { required: true };
+		if (this.unresolved) {
+			const p = this.unresolvedDial ? parsePhoneNumberFromString(`${this.unresolvedDial}${this.phoneNumber.replace(/\D/g, '')}`) : undefined;
+			return p && p.isValid() ? null : { invalidPhone: true };
+		}
 		const parsed = parsePhoneNumberFromString(
 			this.phoneNumber,
 			this.selectedCountry.code
@@ -271,9 +306,16 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 			if (split) {
 				const target = this.countries.find((c) => c.dialCode === split.countryCode && c.code === this.selectedCountry.code)
 					?? this.countries.find((c) => c.dialCode === split.countryCode);
-				if (target) this.selectedCountry = target;
+				if (target) { this.selectedCountry = target; this.countryDecided = true; this.unresolved = false; this.unresolvedDial = null; }
 				val = split.nationalNumber;
 			}
+		}
+		if (this.unresolved) {
+			// the country of this number is still unknown: keep what is typed, resolve it only when the digits decide the country
+			this.phoneNumber = val;
+			input.value = val;
+			this.emitValue();
+			return;
 		}
 		if (val.startsWith('0')) {
 			val = val.substring(1);
@@ -293,6 +335,22 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnI
 	private emitValue(): void {
 		if (!this.phoneNumber) {
 			this.onChange(null);
+			return;
+		}
+		if (this.unresolved) {
+			const digits = this.phoneNumber.replace(/\D/g, '');
+			const full = this.unresolvedDial ? parsePhoneNumberFromString(`${this.unresolvedDial}${digits}`) : undefined;
+			if (full?.country) {
+				const country = this.countries.find((c) => c.code === full.country);
+				if (country) { this.selectedCountry = country; this.countryDecided = true; this.unresolved = false; this.unresolvedDial = null; }
+			}
+			const dialCode = this.unresolved ? (this.unresolvedDial ?? '') : this.selectedCountry.dialCode;
+			this.onChange({
+				countryCode: this.selectedCountry.code,
+				dialCode,
+				number: this.phoneNumber,
+				e164Number: dialCode && digits ? `${dialCode}${digits}` : '',
+			});
 			return;
 		}
 		const parsed = parsePhoneNumberFromString(
