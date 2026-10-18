@@ -6,6 +6,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NewProjectService, AiReviewEvaluation } from '../../../../../core/services/new-project.service';
 import { SkillsCatalogService } from '../../../../../core/services/skills-catalog.service';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
+import { AI_EMPTY_OUTPUT_MESSAGE, AI_OUTPUT_TOO_LONG_MESSAGE, AI_WATCHDOG_MESSAGE, AI_WATCHDOG_MS, AiSuggestion, PROJECT_DESC_MAX, checkAiSuggestions } from './ai-description';
 import { Step1DetailsComponent } from './components/step1-details/step1-details.component';
 import { Step2SpecialtyComponent } from './components/step2-specialty/step2-specialty.component';
 import { Step3ModelComponent } from './components/step3-model/step3-model.component';
@@ -98,18 +99,31 @@ export class NewProject implements OnInit, OnDestroy {
 	isAiEnhancing = signal<boolean>(false);
 	isAiSuggesting = signal<boolean>(false);
 	isStreamingText = signal<boolean>(false);
-	/** Set when a stream ends with `error:true` (backend BE-1): the user's draft was restored and a retry is offered. */
+	/** Set when a stream ends with `error:true` or an unusable result: the field was never touched, a retry is offered. */
 	aiStreamError = signal<string | null>(null);
-	private draftBeforeStream = '';
-	private lastAiMode: 'improve' | 'suggest' = 'improve';
+	/** Live text of the running request. Shown ONLY in the suggestions area, never in the description field. */
+	aiStreamPreview = signal('');
+	/** The complete, validated (<= PROJECT_DESC_MAX) candidates the user can approve, one card each. */
+	aiSuggestions = signal<AiSuggestion[]>([]);
+	aiAppliedId = signal<string | null>(null);
+	readonly descMax = PROJECT_DESC_MAX;
+	/** Id of the one request whose events are accepted; any other id (or none active) is a stale event and is ignored. */
+	private aiRequestId: string | null = null;
+	private aiWatchdog: ReturnType<typeof setTimeout> | null = null;
+	/** «نصّك الأصلي محفوظ» is shown only when the field still holds exactly the text it had when the request started. */
+	aiOriginalPreserved = computed(() => this.draftBeforeStreamSignal().trim().length > 0 && this.projectDesc() === this.draftBeforeStreamSignal());
+	private draftBeforeStreamSignal = signal('');
 
 	updateName(event: Event) { this.projectName.set((event.target as HTMLInputElement).value); }
 	updateDesc(event: Event) { this.projectDesc.set((event.target as HTMLTextAreaElement).value); }
 
-	retryAiAssist() { this.aiAssist(this.lastAiMode); }
+	retryAiAssist() { this.aiAssist(); }
 
-	aiAssist(mode: 'improve' | 'suggest') {
-		this.lastAiMode = mode;
+	/** ONE action: an empty/short field generates from the title, a field with text improves it. */
+	aiAssist(requested?: 'improve' | 'suggest') {
+		// One request at a time: the button is disabled while one runs, and a stray second call is refused here too.
+		if (this.isStreamingText()) return;
+		const mode: 'improve' | 'suggest' = requested ?? (this.projectDesc().trim().length >= 10 ? 'improve' : 'suggest');
 		this.aiStreamError.set(null);
 		let title = this.projectName().trim();
 		const desc = this.projectDesc().trim();
@@ -130,37 +144,89 @@ export class NewProject implements OnInit, OnDestroy {
 			}
 		}
 
-		if (mode === 'improve') {
-			if (!desc && !title) {
-				this.notify.warning('يرجى كتابة اسم المشروع أو وصف مبدئي أولاً ليتم تحسينه');
-				return;
-			}
-			this.isAiEnhancing.set(true);
-			this.isStreamingText.set(true);
-			this.autoPopulateWizardSelections();
-
-			// Trigger WebSocket real-time word-by-word streaming
-			this.newProjectService.streamEnhanceDescription(title, this.projectDesc());
-			this.notify.info('بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
-
-		} else if (mode === 'suggest') {
-			this.isAiSuggesting.set(true);
-			this.isStreamingText.set(true);
-			this.autoPopulateWizardSelections();
-
-			// Trigger WebSocket real-time word-by-word streaming
-			this.newProjectService.streamSuggestText(title);
-			this.notify.info('بدأ البث المباشر لتوليد مقترح احترافي لوصف المشروع...');
+		if (mode === 'improve' && !desc && !title) {
+			this.notify.warning('يرجى كتابة اسم المشروع أو وصف مبدئي أولاً ليتم تحسينه');
+			return;
 		}
 
-		// Safety timeout: if streaming doesn't end within 25 seconds, release loading state
-		setTimeout(() => {
-			if (this.isStreamingText()) {
-				this.isStreamingText.set(false);
-				this.isAiEnhancing.set(false);
-				this.isAiSuggesting.set(false);
-			}
-		}, 25000);
+		// A new request replaces whatever was shown before: no leftovers, so a retry never duplicates text.
+		this.cancelRunningAi();
+		this.draftBeforeStreamSignal.set(this.projectDesc());
+		this.aiSuggestions.set([]);
+		this.aiStreamPreview.set('');
+		this.aiAppliedId.set(null);
+		const requestId = `ai-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+		this.aiRequestId = requestId;
+		this.isStreamingText.set(true);
+		this.armAiWatchdog();
+		this.autoPopulateWizardSelections();
+
+		if (mode === 'improve') {
+			this.isAiEnhancing.set(true);
+			this.newProjectService.streamEnhanceDescription(title, this.projectDesc(), requestId);
+			this.notify.info('بدأ الاتصال المباشر لبث تحسين النص باحترافية...');
+		} else {
+			this.isAiSuggesting.set(true);
+			this.newProjectService.streamSuggestText(title, requestId);
+			this.notify.info('بدأ البث المباشر لتوليد مقترح احترافي لوصف المشروع...');
+		}
+	}
+
+	/** Applies ONE suggestion: the description becomes exactly that text (no introduction, no other alternatives). */
+	useAiSuggestion(id: string) {
+		const picked = this.aiSuggestions().find(s => s.id === id);
+		if (!picked || this.isStreamingText()) return;
+		if (!picked.text.trim() || picked.text.length > PROJECT_DESC_MAX) {
+			this.notify.warning(`الاقتراح يتجاوز ${PROJECT_DESC_MAX} حرفاً ولا يمكن استخدامه.`);
+			return;
+		}
+		this.projectDesc.set(picked.text);
+		this.aiAppliedId.set(id);
+		this.aiStreamError.set(null);
+		this.autoPopulateWizardSelections();
+		this.autoPopulateMilestonesIfBlank();
+	}
+
+	dismissAiSuggestions() {
+		if (this.isStreamingText()) return;
+		this.aiSuggestions.set([]);
+		this.aiStreamPreview.set('');
+		this.aiAppliedId.set(null);
+	}
+
+	private armAiWatchdog() {
+		this.clearAiWatchdog();
+		this.aiWatchdog = setTimeout(() => {
+			if (!this.aiRequestId) return;
+			this.newProjectService.cancelStream?.(this.aiRequestId);
+			this.finishAiRequest();
+			this.aiStreamPreview.set('');
+			this.aiStreamError.set(AI_WATCHDOG_MESSAGE);
+		}, AI_WATCHDOG_MS);
+	}
+
+	private clearAiWatchdog() {
+		if (this.aiWatchdog) { clearTimeout(this.aiWatchdog); this.aiWatchdog = null; }
+	}
+
+	/** Stops tracking the running request (later events with its id are ignored) and releases the busy state. */
+	private finishAiRequest() {
+		this.clearAiWatchdog();
+		this.aiRequestId = null;
+		this.isStreamingText.set(false);
+		this.isAiEnhancing.set(false);
+		this.isAiSuggesting.set(false);
+	}
+
+	/** Cancels the running request server-side (retry/navigation) and ignores anything it still sends. */
+	private cancelRunningAi() {
+		if (!this.aiRequestId) return;
+		this.newProjectService.cancelStream?.(this.aiRequestId);
+		this.finishAiRequest();
+	}
+
+	private acceptsAiEvent(requestId: string | undefined): boolean {
+		return this.aiRequestId !== null && (requestId === undefined || requestId === this.aiRequestId);
 	}
 
 	private computeRecommendedSkills(options: string[]): string[] {
@@ -689,41 +755,39 @@ export class NewProject implements OnInit, OnDestroy {
 		this.newProjectService.initSocket();
 
 		this.newProjectService.onStreamStart((data) => {
+			if (!this.acceptsAiEvent(data?.requestId)) return;
 			this.isStreamingText.set(true);
-			// Remember the user's text: the stream replaces it as it arrives, but a failed stream must give it back.
-			this.draftBeforeStream = this.projectDesc();
-			if (data.mode === 'suggest') {
-				this.projectDesc.set('');
-			} else if (data.mode === 'improve') {
-				this.projectDesc.set('');
-			}
+			this.armAiWatchdog();
 		});
 
 		this.newProjectService.onStreamChunk((data) => {
+			if (!this.acceptsAiEvent(data?.requestId)) return;
+			this.armAiWatchdog();
+			// The live text goes to the suggestions area only: the user's own description is untouched until a complete valid suggestion is approved.
 			const cleanChunk = (data.chunk || '').replace(/\*\*/g, '');
-			this.projectDesc.update(current => current + cleanChunk);
+			this.aiStreamPreview.update(current => current + cleanChunk);
 		});
 
 		this.newProjectService.onStreamEnd((data) => {
-			this.isStreamingText.set(false);
-			this.isAiEnhancing.set(false);
-			this.isAiSuggesting.set(false);
+			if (!this.acceptsAiEvent(data?.requestId)) return;
+			const preview = this.aiStreamPreview();
+			this.finishAiRequest();
+			this.aiStreamPreview.set('');
 			if (data.error === true) {
-				// Failed stream: never keep partial chunks / an emptied textarea — restore the user's own draft and offer a retry.
-				this.projectDesc.set(this.draftBeforeStream);
+				// Failed stream: the field was never touched; the live text is dropped and a retry is offered.
+				this.aiSuggestions.set([]);
 				this.aiStreamError.set(data.message || 'تعذّر إكمال الاقتراح. يمكنك إعادة المحاولة.');
 				return;
 			}
-			this.projectDesc.update(text =>
-				text
-					.replace(/\*\*/g, '')
-					.replace(/^#{1,6}\s*/gm, '')
-					.replace(/^\s*[-*]\s+/gm, '• ')
-					.trim()
-			);
-			this.autoPopulateWizardSelections();
-			this.autoPopulateMilestonesIfBlank();
+			// Client-side gate: only complete, non-empty candidates within the limit can ever be approved.
+			const checked = checkAiSuggestions(data.candidates, preview, PROJECT_DESC_MAX);
+			if (!checked.suggestions.length) {
+				this.aiSuggestions.set([]);
+				this.aiStreamError.set(checked.rejectedTooLong > 0 ? AI_OUTPUT_TOO_LONG_MESSAGE : AI_EMPTY_OUTPUT_MESSAGE);
+				return;
+			}
 			this.aiStreamError.set(null);
+			this.aiSuggestions.set(checked.suggestions);
 			if (data.message) {
 				this.notify.info(data.message);
 			}
@@ -824,6 +888,8 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.cancelRunningAi();
+		this.clearAiWatchdog();
 		this.newProjectService.disconnectSocket();
 	}
 
