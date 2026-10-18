@@ -5,7 +5,7 @@ import { handleAdminError, reportAdminProblems } from '../../shared/admin-form-r
 import { AccreditationApiService } from '../../../../../core/services/accreditation-api.service';
 import { AccreditationSample, AdminProofItem, AssessmentFlagCode, AssessmentReviewData } from '../../../../../core/models/accreditation.model';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
-import { normalizeProofs, proofFileName, providerProfileLink, sampleStatusClass, sampleStatusLabel, splitAdminDecision } from '../accreditation-status';
+import { normalizeProofs, proofFileName, providerProfileLink, sampleActions, sampleStatusClass, sampleStatusLabel, splitAdminDecision } from '../accreditation-status';
 
 @Component({
   selector: 'app-sa-accreditation-detail',
@@ -130,11 +130,11 @@ export class SaAccreditationDetail implements OnInit {
   // condition is whether the linked ProviderSpecialty has actually been
   // approved (by a prior explicit admin action), not the sample's own label.
   canApprove(sample: AccreditationSample): boolean {
-    return !this.decisionDone() && sample.providerSpecialty?.status !== 'APPROVED';
+    return !this.decisionDone() && sampleActions(sample).approve;
   }
 
   canReject(sample: AccreditationSample): boolean {
-    return !this.decisionDone() && sample.status !== 'REJECTED';
+    return !this.decisionDone() && sampleActions(sample).reject;
   }
 
   /**

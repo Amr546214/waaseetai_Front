@@ -27,5 +27,7 @@ export function kycAccessErrorMessage(err: unknown): string {
 	if (status === 401) return 'انتهت الجلسة، سجّل الدخول مجددًا';
 	if (status === 403) return 'لا تملك صلاحية لفتح هذه الوثيقة';
 	if (status === 404) return 'لا توجد وثيقة مرفوعة';
+	if (status === 0) return 'تعذر فتح الوثيقة: تعذر الاتصال بالشبكة، تحقق من الاتصال وحاول مجددًا';
+	if (typeof status === 'number' && status >= 500) return 'تعذر فتح الوثيقة: خطأ مؤقت في الخادم، حاول لاحقًا';
 	return 'تعذر فتح الوثيقة';
 }

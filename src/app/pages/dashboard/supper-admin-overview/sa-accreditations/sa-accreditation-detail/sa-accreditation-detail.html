@@ -231,7 +231,11 @@
       <div class="acc-mov" data-testid="approve-confirm" (click)="cancelApproveConfirm()">
         <div class="acc-mbox acc-confirm-box" (click)="$event.stopPropagation()">
           <h3>تأكيد اعتماد النموذج</h3>
-          <p class="acc-section-note">سيُعتمد هذا النموذج ويحصل مقدم الخدمة على شارة اعتماد التخصص «{{ specialtyName(d) }}». الاعتماد قرار إداري نهائي ولا يعتمد على درجة AI.</p>
+          @if (d.providerSpecialty?.status === 'APPROVED') {
+            <p class="acc-section-note" data-testid="approve-extra-note">التخصص «{{ specialtyName(d) }}» معتمد بالفعل ولن يتغيّر؛ سيُعتمد هذا النموذج الإضافي فقط. الاعتماد قرار إداري نهائي ولا يعتمد على درجة AI.</p>
+          } @else {
+            <p class="acc-section-note">سيُعتمد هذا النموذج ويحصل مقدم الخدمة على شارة اعتماد التخصص «{{ specialtyName(d) }}». الاعتماد قرار إداري نهائي ولا يعتمد على درجة AI.</p>
+          }
           <div class="acc-md-actions">
             <button type="button" class="acc-btn acc-btn-ghost" [disabled]="submittingAction()" (click)="cancelApproveConfirm()">إلغاء</button>
             <button type="button" class="acc-btn acc-btn-accept" data-testid="approve-confirm-btn" [disabled]="submittingAction() || decisionDone()" (click)="submitApprove()">{{ submittingAction() ? 'جارٍ الاعتماد...' : 'تأكيد الاعتماد' }}</button>

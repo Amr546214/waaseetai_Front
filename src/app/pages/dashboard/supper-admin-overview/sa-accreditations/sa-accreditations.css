@@ -559,3 +559,30 @@
 .acc-ai-block{border:1px solid rgba(123,47,190,.22);background:linear-gradient(135deg,rgba(123,47,190,.07),rgba(43,127,255,.04));border-radius:12px;padding:12px 14px;margin-bottom:14px}
 .acc-ai-hdr{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:#A56BE0;margin-bottom:10px}
 .acc-confirm-box{max-width:440px}
+
+/* DEF2 (J1): small text must reach 4.5:1 in both themes. Dark: the muted captions were #6B7699 (about 3.8:1). Light: pill and caption colours darkened on the same tints. */
+.acc-md-field label,.acc-section-note{color:#98A3C7}
+:host-context(body.light-theme) .acc-md-field label,
+:host-context(body.theme-light) .acc-md-field label,
+:host-context(.light-theme) .acc-md-field label,
+:host-context(.theme-light) .acc-md-field label,
+:host-context(body.light-theme) .acc-section-note,
+:host-context(body.theme-light) .acc-section-note,
+:host-context(.light-theme) .acc-section-note,
+:host-context(.theme-light) .acc-section-note {color:#515C7A;}
+:host-context(body.light-theme) .acc-st-rejected,
+:host-context(body.theme-light) .acc-st-rejected,
+:host-context(.light-theme) .acc-st-rejected,
+:host-context(.theme-light) .acc-st-rejected {color:#A3300C;}
+:host-context(body.light-theme) .acc-st-verified,
+:host-context(body.theme-light) .acc-st-verified,
+:host-context(.light-theme) .acc-st-verified,
+:host-context(.theme-light) .acc-st-verified {color:#0B6B62;}
+:host-context(body.light-theme) .acc-st-pending,
+:host-context(body.theme-light) .acc-st-pending,
+:host-context(.light-theme) .acc-st-pending,
+:host-context(.theme-light) .acc-st-pending {color:#1D4ED8;}
+:host-context(body.light-theme) .acc-st-manual,
+:host-context(body.theme-light) .acc-st-manual,
+:host-context(.light-theme) .acc-st-manual,
+:host-context(.theme-light) .acc-st-manual {color:#8A5A00;}
