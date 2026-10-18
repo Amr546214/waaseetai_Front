@@ -42,17 +42,28 @@
 		background: rgba(255, 255, 255, 0.04);
 	}
 
+	flex-shrink: 0;
+
 	.flag {
 		font-size: 1.25rem;
 		line-height: 1;
 		flex-shrink: 0;
+		min-width: 26px;
+		text-align: center;
 	}
 
+	// The numeric code is its own always-LTR text node: never part of the flag, never clipped or shrunk.
 	.dial-code {
 		font-size: 13px;
 		font-weight: 700;
 		color: #FFFFFF;
 		direction: ltr;
+		unicode-bidi: isolate;
+		white-space: nowrap;
+		flex-shrink: 0;
+		min-width: 3ch;
+		text-align: left;
+		font-variant-numeric: tabular-nums;
 	}
 
 	.arrow-icon {
@@ -220,6 +231,8 @@
 		font-size: 1.3rem;
 		line-height: 1;
 		flex-shrink: 0;
+		min-width: 26px;
+		text-align: center;
 	}
 
 	.country-name {
@@ -242,7 +255,24 @@
 		border-radius: 12px;
 		flex-shrink: 0;
 		direction: ltr;
+		unicode-bidi: isolate;
+		white-space: nowrap;
 	}
+}
+
+// Bundled SVG flag in a fixed 24x16 box (no layout shift, same on every OS)
+.flag-img, .flag-globe {
+	display: block;
+	width: 24px;
+	height: 16px;
+	border-radius: 2px;
+	object-fit: cover;
+	box-shadow: 0 0 0 1px rgba(128, 128, 128, 0.35);
+}
+
+.flag-globe {
+	box-shadow: none;
+	color: #6B7699;
 }
 
 .no-results {
@@ -292,6 +322,7 @@ body.theme-light {
 		.dial-code {
 			color: #0F172A;
 		}
+
 
 		.arrow-icon {
 			color: #94A3B8;

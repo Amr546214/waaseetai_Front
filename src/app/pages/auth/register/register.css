@@ -241,11 +241,11 @@ app-register .google-btn-wrapper asl-google-signin-button > div[role="button"]{w
 app-register .rg-s2 app-phone-input .phone-input-container{height:auto;border:1px solid var(--out-bd);border-radius:var(--radius-sm);background:transparent;transition:box-shadow .2s}
 app-register .rg-s2 app-phone-input .phone-input-container:focus-within{border-color:rgba(43,212,199,.35);box-shadow:0 0 0 3px rgba(43,212,199,.08)}
 app-register .rg-s2 app-phone-input .country-selector-btn{padding:12px 12px;background:rgba(255,255,255,.03);color:var(--txt-2);font-size:13px;font-weight:700;white-space:nowrap}
-app-register .rg-s2 app-phone-input .country-selector-btn .dial-code{color:var(--txt-2);font-size:13px;font-weight:700}
+app-register .rg-s2 app-phone-input .country-selector-btn .dial-code{color:var(--txt);font-size:13px;font-weight:700}
 app-register .rg-s2 app-phone-input .phone-number-input{padding:12px 12px;background:transparent;color:var(--txt);font-family:inherit;font-size:14px}
 app-register .rg-s2 app-phone-input .phone-number-input::placeholder{color:var(--txt-3)}
 :is(.light-theme,.theme-light) app-register .rg-s2 app-phone-input .phone-input-container{background:transparent;border-color:var(--out-bd)}
-:is(.light-theme,.theme-light) app-register .rg-s2 app-phone-input .country-selector-btn .dial-code{color:var(--txt-2)}
+:is(.light-theme,.theme-light) app-register .rg-s2 app-phone-input .country-selector-btn .dial-code{color:var(--txt)}
 /* Company account types are not open yet: card content is blurred behind a "قريباً" badge. */
 app-register .rg-s1 .role-card.disabled{cursor:not-allowed;pointer-events:none}
 app-register .rg-s1 .role-card.disabled > :not(.role-soon-overlay){filter:blur(5px);opacity:.4;user-select:none}
