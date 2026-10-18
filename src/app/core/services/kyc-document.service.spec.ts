@@ -41,7 +41,8 @@ describe('KycDocumentService', () => {
 		expect(kycAccessErrorMessage({ status: 401 })).toBe('انتهت الجلسة، سجّل الدخول مجددًا');
 		expect(kycAccessErrorMessage({ status: 403 })).toBe('لا تملك صلاحية لفتح هذه الوثيقة');
 		expect(kycAccessErrorMessage({ status: 404 })).toBe('لا توجد وثيقة مرفوعة');
-		expect(kycAccessErrorMessage({ status: 500 })).toBe('تعذر فتح الوثيقة');
+		expect(kycAccessErrorMessage({ status: 500 })).toContain('خطأ مؤقت في الخادم');
+		expect(kycAccessErrorMessage({ status: 0 })).toContain('الشبكة');
 		expect(kycAccessErrorMessage(null)).toBe('تعذر فتح الوثيقة');
 	});
 });

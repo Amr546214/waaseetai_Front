@@ -480,4 +480,68 @@ describe('SaAccreditationDetail — J1 admin review', () => {
 		expect(el.querySelector('.acc-ai-pill')!.textContent).toContain('بانتظار استكمال');
 		expect(q(el, 'admin-decision')!.textContent).toContain('طلب استكمال');
 	});
+
+	// ---- DEF1: action matrix (sample state x specialty state) ----
+	const matrix: [string, string, boolean, boolean][] = [];
+	for (const sp of ['APPROVED', 'UNDER_AI_REVIEW', 'REJECTED', 'PENDING_TEST']) {
+		for (const st of ['MANUAL_REVIEW', 'PENDING_AI_AUDIT', 'NEEDS_COMPLETION']) matrix.push([st, sp, true, true]);
+		matrix.push(['AI_VERIFIED', sp, sp !== 'APPROVED', sp !== 'APPROVED']);
+		matrix.push(['REJECTED', sp, false, false]);
+	}
+	for (const [st, sp, approve, reject] of matrix) {
+		it(`DEF1 matrix: sample ${st} + specialty ${sp} -> approve ${approve ? 'yes' : 'no'}, reject ${reject ? 'yes' : 'no'}`, async () => {
+			const { el } = await boot({ status: st as any, providerSpecialty: { id: 'ps-1', status: sp, specialty: { id: 'sp-1', nameAr: 'برمجة' } } as any });
+			expect(!!q(el, 'approve-btn')).toBe(approve);
+			expect(!!q(el, 'reject-btn')).toBe(reject);
+		});
+	}
+
+	it('DEF1: an EXTRA sample of an approved specialty is approvable; the confirm says the specialty is unchanged; after approve: pill, banner, no actions, specialty stays approved', async () => {
+		const { harness, component, el, posts } = await boot({ status: 'MANUAL_REVIEW', providerSpecialty: { id: 'ps-1', status: 'APPROVED', specialty: { id: 'sp-1', nameAr: 'برمجة' } } as any });
+		(q(el, 'approve-btn') as HTMLButtonElement).click(); harness.detectChanges();
+		expect(q(el, 'approve-extra-note')!.textContent).toContain('معتمد بالفعل');
+		expect((q(el, 'approve-confirm-btn') as HTMLButtonElement).textContent!.trim()).toBe('تأكيد الاعتماد');
+		(q(el, 'approve-confirm-btn') as HTMLButtonElement).click(); harness.detectChanges();
+		expect(posts.filter(p => p.url.endsWith('/approve')).length).toBe(1);
+		expect(el.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe('معتمد');
+		expect(q(el, 'acc-action-success')!.textContent).toContain('تم اعتماد');
+		expect(q(el, 'approve-btn')).toBeNull(); expect(q(el, 'reject-btn')).toBeNull();
+		expect(component.selected()!.providerSpecialty!.status).toBe('APPROVED');
+		component.submitApprove();
+		expect(posts.filter(p => p.url.endsWith('/approve')).length).toBe(1);
+	});
+
+	it('DEF1: a 409 from a stale page (already decided) shows the error and no success state', async () => {
+		const { harness, component, el, http } = await boot({ status: 'MANUAL_REVIEW' });
+		http.post.mockReturnValueOnce(throwError(() => httpFail(409, { message: 'تمت معالجة هذا النموذج مسبقاً' })));
+		component.submitApprove(); harness.detectChanges();
+		expect(component.actionSuccess()).toBe('');
+		expect(q(el, 'acc-action-success')).toBeNull();
+		expect(q(el, 'acc-action-error')!.textContent).toContain('مسبقاً');
+	});
+
+	// ---- proof-open failure: no blank tab left behind, clear message ----
+	it('proof open: on a failed link request (500) the pre-opened tab is closed and a clear reason is shown next to the proof', async () => {
+		const { el, harness, http } = await boot({ proofs: [upload] as any });
+		const tab: any = { closed: false, document: { title: '' }, location: { href: 'about:blank' }, close: vi.fn(function (this: any) { tab.closed = true; }) };
+		vi.spyOn(window, 'open').mockReturnValue(tab);
+		http.post.mockReturnValueOnce(throwError(() => ({ status: 500 })));
+		(qa(el, 'proof-open')[0].querySelector('button') as HTMLButtonElement).click(); harness.detectChanges();
+		expect(tab.close).toHaveBeenCalled();
+		expect(tab.location.href).toBe('about:blank');
+		expect(qa(el, 'proof-open')[0].textContent).toContain('تعذر فتح الوثيقة');
+		expect(qa(el, 'proof-open')[0].textContent).toContain('الخادم');
+	});
+
+	it('proof open: a blocked popup says so (and network failure says network)', async () => {
+		const { el, harness, http } = await boot({ proofs: [upload] as any });
+		vi.spyOn(window, 'open').mockReturnValue(null);
+		(qa(el, 'proof-open')[0].querySelector('button') as HTMLButtonElement).click(); harness.detectChanges();
+		expect(qa(el, 'proof-open')[0].textContent).toContain('النوافذ المنبثقة');
+		const tab: any = { closed: false, document: {}, location: {}, close: vi.fn() };
+		(window.open as any).mockReturnValue(tab);
+		http.post.mockReturnValueOnce(throwError(() => ({ status: 0 })));
+		(qa(el, 'proof-open')[0].querySelector('button') as HTMLButtonElement).click(); harness.detectChanges();
+		expect(qa(el, 'proof-open')[0].textContent).toContain('الشبكة');
+	});
 });

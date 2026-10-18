@@ -92,3 +92,23 @@ export function proofFileName(value: unknown, index: number): string {
   try { name = decodeURIComponent(raw); } catch { /* keep the raw text */ }
   return name.trim().slice(0, 120) || fallback;
 }
+
+/**
+ * ACTION MATRIX: what the admin can do with THIS sample, from the sample's own state (never from the specialty status alone, so an EXTRA sample of an
+ * already-approved specialty can still be approved). It mirrors the backend rule (accreditation-ai.service.ts, claimForDecision):
+ *
+ *   sample status            specialty APPROVED      specialty not approved
+ *   MANUAL_REVIEW            approve + reject        approve + reject
+ *   PENDING_AI_AUDIT         approve + reject        approve + reject
+ *   NEEDS_COMPLETION         approve + reject        approve + reject
+ *   AI_VERIFIED              none (decided: approved) approve + reject (old stored AI result, no decision yet)
+ *   REJECTED                 none (decided: rejected) none (decided: rejected)
+ *
+ * A resubmitted revision goes back to MANUAL_REVIEW on the same sample, so the current revision is simply the current status.
+ * The backend stays the authority: a second decision is refused with 409 even if a stale page still shows the buttons.
+ */
+export function sampleActions(s: Pick<AccreditationSample, 'status' | 'providerSpecialty'>): { approve: boolean; reject: boolean; decided: 'APPROVED' | 'REJECTED' | null } {
+  if (s.status === 'REJECTED') return { approve: false, reject: false, decided: 'REJECTED' };
+  if (s.status === 'AI_VERIFIED' && s.providerSpecialty?.status === 'APPROVED') return { approve: false, reject: false, decided: 'APPROVED' };
+  return { approve: true, reject: true, decided: null };
+}
