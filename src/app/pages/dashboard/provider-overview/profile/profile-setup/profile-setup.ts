@@ -560,6 +560,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	onAvatarSelected(event: any) {
 		const file = event.target.files?.[0];
 		if (!file) return;
+		event.target.value = ''; // so the same photo can be picked again
 		if (file.size > 5 * 1024 * 1024) {
 			this.alertModal.set({
 				type: 'warning', title: 'حجم ملف كبير', message: 'حجم الصورة يجب أن لا يتجاوز 5 ميجابايت.',
