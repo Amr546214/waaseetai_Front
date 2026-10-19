@@ -64,3 +64,8 @@
   0% { transform: scale(0.98); opacity: 0.8; }
   100% { transform: scale(1.02); opacity: 1; }
 }
+/* Slim indeterminate bar for in-app navigations that wait for a lazy chunk (the first load uses the full loader above). */
+.nav-progress { position: fixed; top: 0; inset-inline: 0; height: 3px; z-index: 2147482000; overflow: hidden; pointer-events: none; background: rgba(43, 212, 199, .18); }
+.nav-progress span { position: absolute; top: 0; bottom: 0; width: 40%; background: linear-gradient(90deg, #2BD4C7, #2B7FFF); border-radius: 3px; animation: nav-progress-run 1.1s ease-in-out infinite; }
+@keyframes nav-progress-run { from { inset-inline-start: -40%; } to { inset-inline-start: 100%; } }
+@media (prefers-reduced-motion: reduce) { .nav-progress span { animation: none; width: 100%; opacity: .7; } }
