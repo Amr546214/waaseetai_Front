@@ -250,6 +250,25 @@
 				}
 				<div class="actions-row"><button type="button" class="btn-primary" [disabled]="submittingBasics() || identityPending()" (click)="submitBasicsChangeRequest()" data-testid="basics-submit">{{ submittingBasics() ? 'جارٍ الإرسال...' : (identityPending() ? 'طلب قيد المراجعة' : 'إرسال طلب تعديل') }}</button></div>
 		</div>
+		<div class="form-card" [formGroup]="contactForm" data-form="whatsapp" data-testid="whatsapp-card">
+			<div class="form-card-hdr">
+				<div class="form-card-ico"><svg aria-hidden="true">
+						<use href="#i-person"></use>
+					</svg></div>
+				<div>
+					<div class="form-card-title">رقم WhatsApp</div>
+					<div class="form-card-sub">اختياري. يُحفظ مباشرة دون مراجعة، ولا يغيّر رقم جوال الحساب</div>
+				</div>
+			</div>
+			<div class="form-grid form-col-2">
+				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="af-whatsapp">رقم WhatsApp (اختياري)</label>
+					<app-phone-input inputId="af-whatsapp" formControlName="alternativePhone" [optional]="true" [defaultCountry]="accountPhoneIso() ?? 'SA'"></app-phone-input>
+					<span class="inp-hint">اتركه فارغًا لإزالته</span>
+					<ws-field-error [control]="contactForm.get('alternativePhone')" label="رقم WhatsApp" />
+				</div>
+			</div>
+			<div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingWhatsapp()" (click)="saveWhatsapp()" data-testid="whatsapp-save">{{ savingWhatsapp() ? 'جارٍ الحفظ...' : 'حفظ رقم WhatsApp' }}</button></div>
+		</div>
 	</div>
 	}
 

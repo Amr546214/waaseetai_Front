@@ -8,7 +8,7 @@ import { MarketerOverviewService, MarketerSummary, ChannelPerformance, Commissio
 import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from '../../../../../core/services/marketer-profile.service';
 import { MarketerPrefsStore } from '../../../../../core/services/marketer-prefs.store';
 import { PROVIDER_TIMEZONES } from '../../../../../core/services/provider-prefs.store';
-import { canonicalStoredPhone, phoneCountryView } from '../../../../../core/forms/phone-countries';
+import { canonicalStoredPhone, parseStoredPhone, phoneCountryView, phoneToE164 } from '../../../../../core/forms/phone-countries';
 import { paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
@@ -17,6 +17,8 @@ import { validateFile, MB } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { PhoneInputComponent } from '../../../../../sheards/phone-input/phone-input.component';
+import type { CountryCode } from 'libphonenumber-js/mobile';
 import { MarketerKycCard } from '../kyc-document/marketer-kyc-card';
 import { CompletionBoxComponent, CompletionBoxItem } from '../../../../../shared/forms/completion-box.component';
 
@@ -25,6 +27,7 @@ const LABELS: Record<string, string> = {
 	platform: 'نوع القناة',
 	handle: 'معرّف القناة أو رابطها',
 	paypalPayoutEmail: 'بريد PayPal',
+	alternativePhone: 'رقم WhatsApp',
 	firstName: 'الاسم الأول',
 	lastName: 'اسم العائلة',
 	nationalId: 'رقم الهوية الوطنية',
@@ -67,7 +70,7 @@ export const MARKETER_TIMEZONE_OPTIONS: { value: string; label: string }[] = PRO
 @Component({
 	selector: 'app-data',
 	standalone: true,
-	imports: [MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent, MarketerKycCard],
+	imports: [MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent, MarketerKycCard, PhoneInputComponent],
 	templateUrl: './data.html',
 	styleUrl: './data.css',
 })
@@ -111,6 +114,9 @@ export class Data implements OnInit {
 
 	savingProfile = signal<boolean>(false);
 	savingPaypal = signal<boolean>(false);
+	savingWhatsapp = signal<boolean>(false);
+	/** Region of the account phone: the default country of an empty WhatsApp box. */
+	accountPhoneIso = signal<CountryCode | null>(null);
 	addingChannel = signal<boolean>(false);
 	removingChannelId = signal<string | null>(null);
 	submittingBasics = signal<boolean>(false);
@@ -163,6 +169,7 @@ export class Data implements OnInit {
 	paypalForm!: FormGroup;
 	channelForm!: FormGroup;
 	basicsForm!: FormGroup;
+	contactForm!: FormGroup;
 	passwordForm!: FormGroup;
 
 	ngOnInit() {
@@ -190,6 +197,9 @@ export class Data implements OnInit {
 			lastName: ['', [Validators.maxLength(50)]],
 			nationalId: ['', [Validators.maxLength(20)]]
 		});
+
+		// WhatsApp (optional): the only contact number a marketer edits, a direct save through PUT /profiles/update/contact. The account phone stays read-only.
+		this.contactForm = this.fb.group({ alternativePhone: [''] });
 
 		this.channelForm = this.fb.group({
 			platform: ['', Validators.required],
@@ -274,6 +284,11 @@ export class Data implements OnInit {
 					});
 
 					this.paypalForm.patchValue({ paypalPayoutEmail: res.data.paypalPayoutEmail || '' });
+
+					const u = res.data.user;
+					this.accountPhoneIso.set(parseStoredPhone(u?.phoneNumber, u?.phoneCountryCode).iso);
+					// a refresh keeps what the user is typing in the WhatsApp box; only an untouched box follows the stored value
+					if (!this.contactForm.get('alternativePhone')!.dirty) this.contactForm.patchValue({ alternativePhone: u?.alternativePhone || '' });
 
 					this.basicsForm.patchValue({
 						firstName: res.data.user?.firstName || '',
@@ -386,6 +401,33 @@ export class Data implements OnInit {
 				}
 			},
 			error: (err) => this.fail(err, this.paypalForm, 'تعذر حفظ بريد PayPal، حاول مرة أخرى', items => this.missing.set(items))
+		});
+	}
+
+	// ---------- WhatsApp (optional contact number, saved at once) ----------
+
+	saveWhatsapp() {
+		if (this.savingWhatsapp()) return;
+		this.tabNotice.set(null);
+		const attempt = attemptSubmit(this.contactForm, { root: this.scoped('[data-form="whatsapp"]'), labels: LABELS });
+		this.missing.set(attempt.missing);
+		if (!attempt.valid) return;
+
+		const value = phoneToE164(this.contactForm.get('alternativePhone')!.value);
+		this.savingWhatsapp.set(true);
+		this.profileService.updateContact({ alternativePhone: value }).pipe(
+			finalize(() => this.savingWhatsapp.set(false))
+		).subscribe({
+			next: (res) => {
+				if (res.success === false) { this.notify.error(this.arabicOr(res.message, 'تعذر حفظ رقم WhatsApp')); return; }
+				this.missing.set([]);
+				this.contactForm.get('alternativePhone')!.markAsPristine();
+				// keep the page in step with what is stored, without reloading (a reload would reset the other forms)
+				const current = this.profile();
+				if (current) this.profile.set({ ...current, user: { ...current.user, alternativePhone: value } });
+				this.notify.success(value ? 'تم حفظ رقم WhatsApp' : 'تم حذف رقم WhatsApp');
+			},
+			error: (err) => this.fail(err, this.contactForm, 'تعذر حفظ رقم WhatsApp، حاول مرة أخرى', items => this.missing.set(items), '[data-form="whatsapp"]')
 		});
 	}
 

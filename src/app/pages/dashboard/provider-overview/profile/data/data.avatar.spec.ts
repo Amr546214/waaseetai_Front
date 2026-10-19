@@ -62,4 +62,13 @@ describe('provider profile data — avatar (#14)', () => {
 		component.saveProfile();
 		expect(updateBasicInfo.mock.calls.at(-1)![0].avatarUrl).toBe('data:image/png;base64,AAAA');
 	});
+
+	it('D-CM5: picking an avatar is draft-only: no save request until the explicit save', async () => {
+		setup(PROFILE);
+		const input = document.createElement('input');
+		Object.defineProperty(input, 'files', { value: [new File([new Uint8Array(10)], 'a.png', { type: 'image/png' })] });
+		component.onAvatarSelected({ target: input } as unknown as Event);
+		await vi.waitFor(() => expect((component as any).avatarDirty).toBe(true));
+		expect(updateBasicInfo).not.toHaveBeenCalled();
+	});
 });
