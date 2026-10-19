@@ -54,6 +54,31 @@ export function detectBottomBarHeight(doc: Document, win: Window, ignore: (el: E
 	return Math.min(best, MAX_DETECTED_LIFT_PX);
 }
 
+/** Width (px) of the persistent dashboard sidebar on each side; 0 when it is off-canvas, hidden, or open as a modal overlay. */
+export interface SidebarInset { left: number; right: number }
+
+/**
+ * The dashboard sidebar (z 90) sits above the widget (z 80), so an avatar dragged under it would vanish behind it.
+ * Instead of lifting the widget above overlays, the drag region is cut to the content area: the persistent sidebar's
+ * footprint is excluded from the viewport the widget moves in. Off-canvas (mobile) or overlay-open (.sb-ov.show) -> no inset.
+ */
+export function detectSidebarInset(doc: Document, win: Window): SidebarInset {
+	const none: SidebarInset = { left: 0, right: 0 };
+	if (doc.querySelector('.sb-ov.show')) return none;
+	const el = doc.querySelector('.sidebar-wrapper');
+	if (!el) return none;
+	const style = win.getComputedStyle(el);
+	if (style.display === 'none' || style.visibility === 'hidden') return none;
+	const rect = el.getBoundingClientRect();
+	const width = win.innerWidth;
+	if (rect.width <= 0 || rect.right <= 0 || rect.left >= width) return none;
+	// fully inside the viewport only: a half-slid drawer is a transition, not a persistent sidebar
+	if (rect.left < 0 || rect.right > width) return none;
+	return rect.left + rect.width / 2 > width / 2
+		? { left: 0, right: Math.round(width - rect.left) }
+		: { left: Math.round(rect.right), right: 0 };
+}
+
 /** True for form controls where the on-screen keyboard appears. */
 export function isTextEntryElement(el: Element | null | undefined): boolean {
 	if (!el || !(el instanceof HTMLElement)) return false;
