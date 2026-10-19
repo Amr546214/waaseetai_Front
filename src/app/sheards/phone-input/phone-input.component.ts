@@ -93,6 +93,8 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnC
 	countries: CountryOption[] = ALL_COUNTRIES;
 	selectedCountry: CountryOption = ALL_COUNTRIES.find(c => c.code === 'SA') || ALL_COUNTRIES[0];
 	phoneNumber = '';
+	/** What the user typed was NOT empty but had no digits to keep (letters/symbols only): that is invalid input, never an empty (= delete) value. */
+	private rejectedInput = false;
 	isDisabled = false;
 	/**
 	 * A stored number whose country cannot be told (shared code with no deciding digits, or a legacy number with no code): its digits stay visible with the dial
@@ -240,6 +242,7 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnC
 	writeValue(val: PhoneValue | string | null): void {
 		this.unresolved = false;
 		this.unresolvedDial = null;
+		this.rejectedInput = false;
 		if (!val) {
 			this.phoneNumber = '';
 			return;
@@ -281,7 +284,7 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnC
 
 	// ─── Validator ──────────────────────────────────────────────
 	validate(_control: AbstractControl): ValidationErrors | null {
-		if (!this.phoneNumber) return this.optional ? null : { required: true };
+		if (!this.phoneNumber) return this.rejectedInput ? { invalidPhone: true } : (this.optional ? null : { required: true });
 		if (this.unresolved) {
 			const p = this.unresolvedDial ? parsePhoneNumberFromString(`${this.unresolvedDial}${this.phoneNumber.replace(/\D/g, '')}`) : undefined;
 			return p && p.isValid() ? null : { invalidPhone: true };
@@ -298,6 +301,7 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnC
 	onPhoneInput(event: Event): void {
 		const input = event.target as HTMLInputElement;
 		let val = input.value;
+		const typedRaw = val;
 
 		// A full number typed or pasted with its country code ("+201025073026", "201025073026"): split it, pick the matching country and keep the LOCAL number only.
 		const typed = val.replace(/[\s()-]/g, '');
@@ -314,6 +318,7 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnC
 			// the country of this number is still unknown: keep what is typed, resolve it only when the digits decide the country
 			this.phoneNumber = val;
 			input.value = val;
+			this.rejectedInput = !val && typedRaw.trim() !== '';
 			this.emitValue();
 			return;
 		}
@@ -325,6 +330,7 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnC
 		const formatted = formatter.input(val);
 		this.phoneNumber = formatted;
 		input.value = formatted;
+		this.rejectedInput = !formatted && typedRaw.trim() !== '';
 		this.emitValue();
 	}
 
