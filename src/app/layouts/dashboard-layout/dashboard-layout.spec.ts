@@ -5,6 +5,7 @@ import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { DashboardLayoutComponent } from './dashboard-layout';
+import { AuthStore } from '../../core/store/auth.store';
 import { ChatService } from '../../core/services/chat.service';
 import { environment } from '../../../environments/environment';
 import { HelpAssistantSocketService, HelpStreamEvent } from '../../core/services/help-assistant-socket.service';
@@ -54,6 +55,21 @@ describe('DashboardLayout', () => {
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
+	});
+
+	it('N2: while a stale-role redirect is loading the routed (wrong-role) page is hidden and a status note says the right dashboard is opening', () => {
+		const el = fixture.nativeElement as HTMLElement;
+		expect(el.querySelector('[data-testid="role-redirect-note"]')).toBeNull();
+		expect(el.querySelector('.main-inner[hidden]')).toBeNull();
+		(TestBed.inject(AuthStore) as any)._roleRedirect.set('CLIENT');
+		fixture.detectChanges();
+		expect(el.querySelector('.main-inner[hidden]')).not.toBeNull();
+		const note = el.querySelector('[data-testid="role-redirect-note"]')!;
+		expect(note.getAttribute('role')).toBe('status');
+		expect(note.textContent).toContain('طالب الخدمة');
+		(TestBed.inject(AuthStore) as any)._roleRedirect.set(null);
+		fixture.detectChanges();
+		expect(el.querySelector('[data-testid="role-redirect-note"]')).toBeNull();
 	});
 
 	it('footer shows the build version from the environment, with no SAMA/PDPL/ZATCA claims', () => {
