@@ -1284,12 +1284,14 @@ export class CreateRequest implements OnInit, OnDestroy {
       return this.title().trim().length >= 3 && this.description().trim().length >= 10 && this.deliveryDaysValid();
     }
     if (step === 4) {
+      // Same predicate as stepProblems(4): a value counts only when it is a finite number above 0.
+      const pos = (v: number | null) => v !== null && Number.isFinite(v) && v > 0;
       if (this.budgetType() === 'fixed') {
-        if (!this.budgetFixed() || this.budgetFixed()! <= 0) return false;
+        if (!pos(this.budgetFixed())) return false;
       } else if (this.budgetType() === 'hourly') {
-        if (!this.budgetHourly() || this.budgetHourly()! <= 0) return false;
+        if (!pos(this.budgetHourly())) return false;
       } else if (this.budgetType() === 'range') {
-        if (!this.budgetMin() || !this.budgetMax() || (this.budgetMin()! > this.budgetMax()!)) return false;
+        if (!pos(this.budgetMin()) || !pos(this.budgetMax()) || this.budgetMin()! > this.budgetMax()!) return false;
       }
 
       if (this.splitMilestones()) {
