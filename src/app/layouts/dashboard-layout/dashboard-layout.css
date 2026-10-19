@@ -54,7 +54,8 @@
   position: relative; /* no z-index: a stacking context here traps every toast/modal under the fixed header (z 100) */
   margin-top: 56px;
   margin-right: 260px;
-  padding: 22px 24px;
+  /* --ws-assistant-reserve is set by the floating assistant while it is visible: the end of every page can scroll clear of it */
+  padding: 22px 24px calc(22px + var(--ws-assistant-reserve, 0px));
   min-height: calc(100vh - 56px);
   transition: margin-right 0.2s ease;
   display: flex;
@@ -164,7 +165,7 @@
 }
 @media (max-width: 767px) {
   .main {
-    padding: 14px 16px;
+    padding: 14px 16px calc(14px + var(--ws-assistant-reserve, 0px));
   }
   .inner-foot {
     flex-direction: column;
