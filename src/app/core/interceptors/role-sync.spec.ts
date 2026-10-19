@@ -89,6 +89,13 @@ describe('role sync — stale PROVIDER tab vs server CLIENT (H1)', () => {
 		expect(nav).not.toHaveBeenCalled();
 	});
 
+	it('K-5: the local role was already adopted earlier but the tab is still in the other role area -> a mismatch still moves it (no toast, no repeat)', () => {
+		store.updateUser({ activeRole: UserRole.CLIENT });
+		fail('/api/provider/finance/wallet', mismatch('CLIENT'));
+		expect(nav).toHaveBeenCalledWith('/client-overview');
+		expect(info).not.toHaveBeenCalled();
+	});
+
 	it('a plain 403 (no such role / permissions / gate) is NOT a role mismatch: nothing is switched', () => {
 		fail('/api/y', { success: false, message: 'ليس لديك صلاحية' });
 		fail('/api/z', { success: false, message: 'x', code: 'SOMETHING_ELSE', activeRole: 'CLIENT' });

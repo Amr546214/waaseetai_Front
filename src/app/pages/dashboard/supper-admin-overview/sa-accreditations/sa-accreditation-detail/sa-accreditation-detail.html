@@ -218,12 +218,16 @@
             <p class="acc-rf-err" role="alert" data-testid="acc-action-error">{{ actionError() }}</p>
           }
           <div class="acc-rf-actions">
-            <button type="button" class="acc-btn acc-btn-reject" data-testid="reject-confirm-btn" [disabled]="submittingAction() || decisionDone()" (click)="submitReject()">
+            <button type="button" class="acc-btn acc-btn-reject" data-testid="reject-confirm-btn" [disabled]="submittingAction() || decisionDone() || staleAfterConflict()" (click)="submitReject()">
               {{ submittingAction() ? 'جارٍ الرفض...' : 'تأكيد الرفض' }}
             </button>
             <button type="button" class="acc-btn acc-btn-ghost" [disabled]="submittingAction()" (click)="cancelRejectForm()">إلغاء</button>
           </div>
         </div>
+      }
+      @if (staleAfterConflict()) {
+        <p class="acc-section-note" data-testid="acc-refresh-note">تعذر تحديث حالة النموذج من الخادم؛ لا يمكن اتخاذ قرار قبل التحديث.</p>
+        <button type="button" class="acc-btn acc-btn-ghost" data-testid="acc-refresh-retry" (click)="retryRefresh()">إعادة تحديث الحالة</button>
       }
     </div>
 
