@@ -267,6 +267,7 @@
 					<ws-field-error [control]="contactForm.get('alternativePhone')" label="رقم WhatsApp" />
 				</div>
 			</div>
+			<ws-form-summary [items]="whatsappMissing()" />
 			<div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingWhatsapp()" (click)="saveWhatsapp()" data-testid="whatsapp-save">{{ savingWhatsapp() ? 'جارٍ الحفظ...' : 'حفظ رقم WhatsApp' }}</button></div>
 		</div>
 	</div>
