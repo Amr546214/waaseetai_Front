@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser, NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { AssistantStore, MAX_QUESTION_LENGTH } from '../../core/store/assistant.store';
 import { BeboAvatarComponent } from '../bebo-avatar/bebo-avatar';
 import { AuthStore } from '../../core/store/auth.store';
@@ -33,6 +33,7 @@ import { AssistantViewport, dockPlacement, popupPlacement } from './assistant-pl
 import { AssistantPositionSettingsComponent } from '../assistant-chat/assistant-position-settings';
 import { AssistantPositionService } from './assistant-position.service';
 import { avatarMovementBounds } from './assistant-position';
+import { BAR_CLEARANCE_PX, SidebarInset, assistantReservePx, detectBottomBarHeight, detectSidebarInset, isTextEntryElement } from './assistant-avoidance';
 
 const STATE_LABELS = {
 	idle: 'جاهز أساعدك',
@@ -97,6 +98,11 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 		'[style.--bebo-size.px]': 'beboSize()',
 		'[style.--assistant-lift.px]': 'lift()',
 		'[style.inset-block-end.px]': '12 + lift()',
+		'[class.is-kbd-hidden]': 'keyboardHidden()',
+		'(document:pointerdown)': 'onDocumentPointerDown($event)',
+		'(document:focusin)': 'onFocusChange($event)',
+		'(document:focusout)': 'onFocusChange($event)',
+		'(window:scroll)': 'scheduleBarProbe()',
 	},
 	template: `
 	<div class="aw" [attr.data-state]="store.state()" [class.is-dismissed]="dismissed()">
@@ -499,7 +505,16 @@ export class AssistantWidgetComponent {
 		return Math.max(0, this.viewport().height - this.beboSize() - prefs.top - prefs.bottom - 54);
 	});
 	private readonly quickComposerLift = computed(() => this.expanded() && !this.store.panelOpen() ? Math.min(64, this.floorSpace()) : 0);
-	readonly positionLift = computed(() => Math.min(Math.max(0, this.floorSpace() - this.quickComposerLift()), Math.max(0, this.lift() + this.positionSettings.preferences().verticalOffset)));
+	/** Height of a fixed bottom action bar/banner found on the current page (see detectBottomBarHeight). */
+	private readonly detectedBar = signal(0);
+	/** Persistent dashboard sidebar footprint: the avatar is dragged in the content area only (the sidebar is above the widget). */
+	private readonly sidebarInset = signal<SidebarInset>({ left: 0, right: 0 });
+	/** env(safe-area-inset-bottom) in px (home indicator / gesture bar). */
+	private readonly safeBottom = signal(0);
+	/** True while an on-screen keyboard is likely open over a page input: the widget steps aside. */
+	readonly keyboardHidden = signal(false);
+	private readonly baseLift = computed(() => Math.max(this.lift(), this.detectedBar() > 0 ? this.detectedBar() + BAR_CLEARANCE_PX : 0) + this.safeBottom());
+	readonly positionLift = computed(() => Math.min(Math.max(0, this.floorSpace() - this.quickComposerLift()), Math.max(0, this.baseLift() + this.positionSettings.preferences().verticalOffset)));
 	readonly avatarFloorOffset = computed(() => this.positionLift() + this.quickComposerLift());
 	readonly beboHomeX: number | null = this.isBrowser && getComputedStyle(document.documentElement).direction === 'ltr' ? 100_000 : null;
 
@@ -524,9 +539,13 @@ export class AssistantWidgetComponent {
 	constructor() {
 		const destroyRef = inject(DestroyRef);
 		if (this.isBrowser) {
-			try { this.toolbarCollapsed.set(localStorage.getItem(TOOLBAR_COLLAPSED_PREF_KEY) === '1'); } catch { /* storage unavailable */ }
+			// No saved choice: small screens start with the compact pill so the toolbar never covers the page's bottom actions.
+			let saved: string | null = null;
+			try { saved = localStorage.getItem(TOOLBAR_COLLAPSED_PREF_KEY); } catch { /* storage unavailable */ }
+			this.toolbarCollapsed.set(saved === null ? typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 640px)').matches : saved === '1');
 		}
 		this.updateViewport();
+		if (this.isBrowser) this.initAvoidance(destroyRef);
 		let positionResetTick = this.positionSettings.resetTick();
 		effect(() => {
 			const tick = this.positionSettings.resetTick();
@@ -577,14 +596,100 @@ export class AssistantWidgetComponent {
 		}
 	}
 
+	private barProbeFrame = 0;
+	private readonly routerEvents = inject(Router).events;
+
+	private initAvoidance(destroyRef: DestroyRef): void {
+		const probe = document.createElement('div');
+		probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;height:0;padding-bottom:env(safe-area-inset-bottom,0px)';
+		this.hostElement.nativeElement.appendChild(probe);
+		const readSafe = () => this.safeBottom.set(Math.round(parseFloat(getComputedStyle(probe).paddingBottom) || 0));
+		readSafe();
+		const timers: ReturnType<typeof setTimeout>[] = [];
+		const sub = this.routerEvents.subscribe(event => {
+			if (!(event instanceof NavigationEnd)) return;
+			// pages render their action bar after navigation: probe again a little later
+			for (const delay of [0, 300, 1200, 3000, 6000]) timers.push(setTimeout(() => this.probeBars(), delay));
+		});
+		const onResize = () => { readSafe(); this.scheduleBarProbe(); };
+		window.addEventListener('resize', onResize);
+		window.addEventListener('orientationchange', onResize);
+		timers.push(setTimeout(() => this.probeBars(), 400));
+		const reserve = effect(() => {
+			const px = this.dismissed() ? 0 : assistantReservePx(this.beboSize()) + this.safeBottom();
+			document.documentElement.style.setProperty('--ws-assistant-reserve', `${px}px`);
+		});
+		destroyRef.onDestroy(() => {
+			sub.unsubscribe();
+			window.removeEventListener('resize', onResize);
+			window.removeEventListener('orientationchange', onResize);
+			timers.forEach(clearTimeout);
+			if (this.barProbeFrame) cancelAnimationFrame(this.barProbeFrame);
+			reserve.destroy();
+			probe.remove();
+			document.documentElement.style.removeProperty('--ws-assistant-reserve');
+		});
+	}
+
+	scheduleBarProbe(): void {
+		if (!this.isBrowser || this.barProbeFrame) return;
+		this.barProbeFrame = requestAnimationFrame(() => { this.barProbeFrame = 0; this.probeBars(); });
+	}
+
+	private probeBars(): void {
+		if (this.dismissed()) return;
+		const host = this.hostElement.nativeElement;
+		const height = detectBottomBarHeight(document, window, el => host.contains(el) || el === host || el.tagName === 'CUTE-ROBOT');
+		if (height !== this.detectedBar()) this.detectedBar.set(height);
+		this.refreshSidebarInset();
+	}
+
+	/** Keeps the drag region out of the persistent dashboard sidebar (re-read on every probe and right before a pointer press). */
+	private refreshSidebarInset(): void {
+		if (!this.isBrowser) return;
+		const inset = detectSidebarInset(document, window);
+		const was = this.sidebarInset();
+		if (inset.left !== was.left || inset.right !== was.right) { this.sidebarInset.set(inset); this.updateViewport(); }
+	}
+
+	/** Collapse the open toolbar on small screens when the user taps the page (never persisted). */
+	onDocumentPointerDown(event: Event): void {
+		this.refreshSidebarInset();
+		if (!this.compact() || this.toolbarCollapsed() || this.store.panelOpen() || this.expanded()) return;
+		const target = event.target as Node | null;
+		if (target && this.hostElement.nativeElement.contains(target)) return;
+		if (target instanceof Element && target.closest('cute-robot, .pg-dock')) return;
+		this.toolbarCollapsed.set(true);
+	}
+
+	/** Step aside while a page input has focus and the on-screen keyboard is (probably) open. */
+	onFocusChange(event: Event): void {
+		const host = this.hostElement.nativeElement;
+		const target = event.target as Element | null;
+		if (event.type === 'focusin' && target && !host.contains(target) && isTextEntryElement(target)) {
+			const visible = window.visualViewport;
+			const keyboardOpen = !!visible && visible.height < window.innerHeight - 120;
+			this.keyboardHidden.set(this.compact() || keyboardOpen);
+			return;
+		}
+		if (event.type === 'focusout') {
+			setTimeout(() => {
+				const active = document.activeElement;
+				if (!active || host.contains(active) || !isTextEntryElement(active)) this.keyboardHidden.set(false);
+			}, 120);
+		}
+	}
+
 	@HostListener('window:resize')
 	updateViewport(): void {
 		if (!this.isBrowser) return;
 		const visible = window.visualViewport;
+		const inset = this.sidebarInset();
+		const width = visible?.width || document.documentElement.clientWidth || window.innerWidth;
 		this.viewport.set({
-			width: visible?.width || document.documentElement.clientWidth || window.innerWidth,
+			width: Math.max(0, width - inset.left - inset.right),
 			height: visible?.height || window.innerHeight,
-			left: visible?.offsetLeft || 0,
+			left: (visible?.offsetLeft || 0) + inset.left,
 			top: visible?.offsetTop || 0,
 		});
 	}

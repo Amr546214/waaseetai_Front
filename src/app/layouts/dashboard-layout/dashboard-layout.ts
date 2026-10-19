@@ -41,6 +41,13 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
 
   // User details
   currentUser = this.authStore.currentUser;
+
+  /** A stale-role redirect is loading: the routed page belongs to the other role, so it is hidden and a status note replaces it (never its 403 cards). */
+  roleRedirectLabel = computed(() => {
+    const r = this.authStore.roleRedirect();
+    if (!r) return null;
+    return r === 'PROVIDER' ? 'مقدم الخدمة' : r === 'AFFILIATE' ? 'الوسيط التسويقي' : r === 'CLIENT' ? 'طالب الخدمة' : 'الدور الحالي';
+  });
   
   userFullName = computed(() => {
     const user = this.currentUser();

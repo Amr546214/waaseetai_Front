@@ -1,7 +1,9 @@
-import { Component, Input, signal, computed } from '@angular/core';
+import { Component, ElementRef, Input, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { clearInvalid, FieldProblem } from '../../../../../../shared/forms/form-error-focus';
+import { reportClientProblems } from '../../../client-form-report';
 import type { CreateRequest } from '../../create-request';
 
 @Component({
@@ -25,8 +27,27 @@ export class Step6Review {
 		return this.acks.data() && this.acks.terms() && this.acks.privacy() && this.acks.publish();
 	});
 
+	private host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+	private static readonly ACK_MESSAGES: Record<string, string> = {
+		data: 'أكّد صحة البيانات المدخلة للمتابعة',
+		terms: 'وافق على شروط الاستخدام للمتابعة',
+		privacy: 'أكّد اطلاعك على سياسة الخصوصية للمتابعة',
+		publish: 'وافق على نشر الطلب للمزودين المؤهلين للمتابعة',
+	};
+
 	toggleAck(key: keyof typeof this.acks) {
 		this.acks[key].set(!this.acks[key]());
+		// checking an acknowledgement answers its own message only; the others keep theirs
+		const row = this.host.nativeElement.querySelector<HTMLElement>(`#ack-${key}`);
+		if (row && this.acks[key]()) clearInvalid(row);
+	}
+
+	/** Every unchecked acknowledgement, in page order, each tied to its own row. */
+	ackProblems(): FieldProblem[] {
+		return (Object.keys(this.acks) as (keyof typeof this.acks)[])
+			.filter(k => !this.acks[k]())
+			.map(k => ({ field: `ack-${k}`, message: Step6Review.ACK_MESSAGES[k] }));
 	}
 
 	toggleAckFromKeyboard(event: KeyboardEvent, key: keyof typeof this.acks) {
@@ -42,7 +63,10 @@ export class Step6Review {
 	openModal() {
 		if (this.allAcksChecked()) {
 			this.showConfirmModal.set(true);
+			return;
 		}
+		// the button stays clickable: say which acknowledgement is missing, under it, and focus the first
+		void reportClientProblems(this.host.nativeElement, this.ackProblems());
 	}
 
 	closeModal() {

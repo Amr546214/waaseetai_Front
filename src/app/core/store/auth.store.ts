@@ -1,7 +1,7 @@
-import { computed, inject, Injectable, signal, PLATFORM_ID, Optional } from '@angular/core';
+import { computed, effect, inject, Injectable, signal, PLATFORM_ID, Optional, untracked } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { AccountType, User, UserRole, UserStatus } from '../models/auth.model';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -56,6 +56,9 @@ export class AuthStore {
   private readonly _currentUser = signal<User | null>(null);
   private readonly _token = signal<string | null>(null);
   private readonly _pendingUserId = signal<string | null>(null);
+  /** The role whose dashboard a stale-role redirect is on its way to (set while the tab still shows the other role's page, cleared once it is in the right area). */
+  private readonly _roleRedirect = signal<UserRole | null>(null);
+  readonly roleRedirect = this._roleRedirect.asReadonly();
 
   // Initialization State
   public isInitialized$ = new BehaviorSubject<boolean>(false);
@@ -101,6 +104,7 @@ export class AuthStore {
       if (pending) this._pendingUserId.set(pending);
 
       this.isInitialized$.next(true);
+      this.watchRoleAreas();
 
       // Another tab of this browser switched role / logged in again: follow it (storage events fire only in the OTHER tabs, so this can never loop).
       if (typeof window !== 'undefined' && window.addEventListener) {
@@ -127,23 +131,61 @@ export class AuthStore {
     if (this.actingRole() !== roleBefore) this.followRoleChange();
   }
 
-  /** Moves off a role area the (new) acting role does not own — only then; never from a public page, and never to the area it is already in. */
+  /**
+   * The ACTIVE role decides which role area a tab may sit in (never role possession: an account that holds AFFILIATE + CLIENT is still only "in" its active one).
+   * When the tab is inside ANOTHER role's area, it moves to the dashboard of the active role (replaceUrl) and VERIFIES the move: a redirect can be lost
+   * (superseded by a click, refused, failed), and then the stale page (e.g. the affiliate withdraw component) would stay on screen. So the check repeats after the
+   * navigation settles; in-app attempts are capped, then ONE hard redirect (a full page load, which always lands right) is requested. Nothing happens when the URL
+   * is already in the right area or in no role area at all (public pages, admin), so it can never loop.
+   */
   private followRoleChange(): void {
     const role = this.actingRole();
-    if (!role) return;
+    if (!role || !this._currentUser()) return;
     const target = redirectTargetAfterRoleChange(this.router.url, role);
-    if (target) this.router.navigateByUrl(target);
+    if (!target) { this.followTries = 0; this._roleRedirect.set(null); return; }
+    const now = Date.now();
+    if (this.followingTo === target && now - this.followingSince < 1500) return; // the same redirect is already on its way (parallel 403s): do not repeat it
+    if (now - this.followWindowStart > 8000) { this.followTries = 0; this.followWindowStart = now; }
+    this.followTries++;
+    if (this.followTries > 3) { this._roleRedirect.set(null); return; }
+    this._roleRedirect.set(role);
+    if (this.followTries === 3) { this.hardRedirect(target); return; }
+    this.followingTo = target; this.followingSince = now;
+    const settled = () => {
+      if (this.followingTo === target) this.followingTo = null;
+      setTimeout(() => this.followRoleChange(), 400); // still in the wrong area? try again (capped)
+    };
+    this.router.navigateByUrl(target, { replaceUrl: true }).then(settled, settled);
+  }
+
+  private followingTo: string | null = null;
+  private followingSince = 0;
+  private followTries = 0;
+  private followWindowStart = 0;
+
+  /** Last resort when in-app redirects keep failing: a full page load of the corrected dashboard (overridable in tests). */
+  protected hardRedirect(target: string): void {
+    if (typeof window !== 'undefined' && window.location) window.location.replace(target);
+  }
+
+  /** Browser only: re-check the area after every navigation and whenever the acting role changes (a stale page must not outlive a role change). */
+  private watchRoleAreas(): void {
+    this.router.events?.subscribe((e) => { if (e instanceof NavigationEnd) this.followRoleChange(); });
+    effect(() => { this.actingRole(); untracked(() => setTimeout(() => this.followRoleChange(), 0)); });
   }
 
   /**
    * The server told us (ROLE_MISMATCH 403) which role it accepts for this account. Adopt it in the session (signal + cookie + localStorage, so the menu and
-   * the guards follow) and leave a page that belongs to the other role. Returns false (and does nothing) when it is already the local role or there is no session.
+   * the guards follow) and leave a page that belongs to the other role. Returns true only when the local role CHANGED (so the caller tells the user once);
+   * when the role was already adopted earlier but the tab is still inside the other role's area (the earlier redirect was superseded by a click), the tab is
+   * still moved out - that is a no-op whenever the URL is already in the right area, so it can never loop. No session: nothing happens.
    */
   public reconcileActiveRole(serverRole: UserRole): boolean {
-    if (!this._currentUser() || this.actingRole() === serverRole) return false;
-    this.updateUser({ activeRole: serverRole });
+    if (!this._currentUser()) return false;
+    const changed = this.actingRole() !== serverRole;
+    if (changed) this.updateUser({ activeRole: serverRole });
     this.followRoleChange();
-    return true;
+    return changed;
   }
 
   // --- Cookie Utility Methods ---

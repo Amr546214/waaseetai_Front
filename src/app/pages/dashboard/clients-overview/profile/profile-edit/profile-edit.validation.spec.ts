@@ -224,20 +224,23 @@ describe('client profile-edit: shared validation', () => {
       component.addInterest(input);
       expect(component.interests()).toContain('تسويق');
       component.removeInterest('تسويق');
+      component.clientForm.patchValue({ bio: 'تغيير' }); // an unchanged form is no longer sent (K-1)
       component.saveProfile();
       expect(updateProfile.mock.calls[0][0].interests).not.toContain('تسويق');
     });
 
     it('success is shown only after the profile AND the notification preferences are stored', () => {
-      component.notifEmail.set(false);
+      component.notifEmail.set(true); // a changed toggle is what gets written (K-1)
       component.saveProfile();
-      expect(updatePrefs).toHaveBeenCalledWith({ channel_email: false, channel_in_app: true });
+      expect(updatePrefs).toHaveBeenCalledWith({ channel_email: true, channel_in_app: true });
       expect(component.successMsg()).toContain('تم تحديث');
       expect(component.errorMsg()).toBe('');
     });
 
     it('a failed profile save is an error and never a success (the preferences are not even sent)', () => {
       updateProfile.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 500, error: { message: 'x' } })));
+      component.clientForm.patchValue({ bio: 'تغيير' });
+      component.notifEmail.set(true);
       component.saveProfile();
       expect(component.successMsg()).toBe('');
       expect(component.errorMsg()).not.toBe('');
@@ -246,6 +249,7 @@ describe('client profile-edit: shared validation', () => {
 
     it('profile saved but preferences failed: an explicit error that says what was and was not saved, no success', () => {
       updatePrefs.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 500 })));
+      component.notifEmail.set(true);
       component.saveProfile();
       expect(component.successMsg()).toBe('');
       expect(component.errorMsg()).toContain('تم حفظ بيانات الملف');

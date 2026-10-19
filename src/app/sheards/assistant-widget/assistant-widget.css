@@ -12,7 +12,8 @@
 	position: fixed;
 	inset-block-end: 12px;
 	inset-inline-end: 12px;
-	z-index: 950;
+	/* ASSISTANT_Z_INDEX (assistant-avoidance.ts): above page content, below every modal/overlay/dropdown */
+	z-index: var(--ws-assistant-z, 80);
 	pointer-events: none;
 	font-family: inherit;
 	direction: rtl;
@@ -25,6 +26,15 @@
 button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible {
 	outline: 2px solid var(--pg-accent);
 	outline-offset: 2px;
+}
+
+/* On-screen keyboard over a page input: step aside (never cover the focused field or the submit button) */
+:host(.is-kbd-hidden) {
+	visibility: hidden;
+}
+:host(.is-kbd-hidden) .aw__bebo,
+:host(.is-kbd-hidden) cute-robot {
+	pointer-events: none !important;
 }
 
 /* Main wrapper */

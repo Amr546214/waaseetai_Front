@@ -37,6 +37,12 @@ export class SaAccreditationDetail implements OnInit {
    */
   decisionDone = signal(false);
 
+  /**
+   * A decision was refused with 409 (somebody else, or another tab, decided first) and the page could not re-read the sample yet: what is on screen is
+   * known to be stale, so the decision actions are withheld until a re-read succeeds (retryRefresh).
+   */
+  staleAfterConflict = signal(false);
+
   /** Confirmation step before the approval is sent (approve is irreversible: it grants the specialty badge). */
   showApproveConfirm = signal(false);
 
@@ -130,11 +136,38 @@ export class SaAccreditationDetail implements OnInit {
   // condition is whether the linked ProviderSpecialty has actually been
   // approved (by a prior explicit admin action), not the sample's own label.
   canApprove(sample: AccreditationSample): boolean {
-    return !this.decisionDone() && sampleActions(sample).approve;
+    return !this.decisionDone() && !this.staleAfterConflict() && sampleActions(sample).approve;
   }
 
   canReject(sample: AccreditationSample): boolean {
-    return !this.decisionDone() && sampleActions(sample).reject;
+    return !this.decisionDone() && !this.staleAfterConflict() && sampleActions(sample).reject;
+  }
+
+  /**
+   * 409 = the sample was already decided elsewhere. The page shows the refusal (no success state) and re-reads the sample so the pill, the decision section
+   * and the available actions follow the SERVER; if the sample is decided, the actions are gone. A failed re-read keeps the error, withholds the actions
+   * (the state is unknown) and offers a retry.
+   */
+  private resyncAfterConflict(): void {
+    const id = this.selected()?.id;
+    if (!id) return;
+    this.staleAfterConflict.set(true);
+    this.accreditationApi.getAdminSample(id).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.selected.set(res.data);
+          this.staleAfterConflict.set(false);
+          const decided = sampleActions(res.data).decided !== null;
+          this.decisionDone.set(decided);
+          if (decided) { this.showRejectForm.set(false); this.showApproveConfirm.set(false); this.rejectionReason.set(''); }
+        }
+      },
+      error: () => { this.showApproveConfirm.set(false); },
+    });
+  }
+
+  retryRefresh(): void {
+    this.resyncAfterConflict();
   }
 
   /**
@@ -202,6 +235,7 @@ export class SaAccreditationDetail implements OnInit {
         this.submittingAction.set(false);
         this.showApproveConfirm.set(false);
         handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر اعتماد النموذج، حاول مرة أخرى' }, (m) => this.actionError.set(m));
+        if (err?.status === 409) this.resyncAfterConflict();
       },
     });
   }
@@ -249,6 +283,7 @@ export class SaAccreditationDetail implements OnInit {
       error: (err) => {
         this.submittingAction.set(false);
         handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر رفض النموذج، حاول مرة أخرى', resolve: { rejectionReason: 'acc-reject-reason' } }, (m) => this.actionError.set(m));
+        if (err?.status === 409) this.resyncAfterConflict();
       },
     });
   }

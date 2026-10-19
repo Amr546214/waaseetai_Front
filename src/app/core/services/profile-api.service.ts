@@ -37,7 +37,7 @@ export class ProfileApiService {
   /**
    * Update profile dynamically (Client or Provider)
    */
-  public updateProfile(payload: ClientProfileInput | ProviderProfileInput): Observable<ProfileResponse> {
+  public updateProfile(payload: ClientProfileInput | ProviderProfileInput | { avatarUrl: string }): Observable<ProfileResponse> {
     return this.http.put<ProfileResponse>(`${this.baseUrl}/update`, payload).pipe(
       tap((res) => {
         if (res.success && res.data?.status === UserStatus.ACTIVE) {

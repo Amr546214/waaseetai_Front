@@ -208,6 +208,9 @@ export async function reportBackendError(
 		const field = opts.resolve?.[name] ?? name;
 		return { field, message, step: opts.steps?.[name] ?? opts.steps?.[field] ?? null, label: opts.labels?.[name] };
 	});
+	// Numeric wizard steps: the earliest step is reported (and opened) first, whatever order the server listed the errors in (stable for equal steps).
+	const stepNo = (p: FieldProblem) => (typeof p.step === 'number' ? p.step : Number.POSITIVE_INFINITY);
+	problems.sort((a, b) => stepNo(a) - stepNo(b));
 	const res = await reportProblems(root, problems, opts);
 	const unresolved: Record<string, string> = {};
 	for (const p of res.unresolved) unresolved[p.field ?? ''] = p.message;

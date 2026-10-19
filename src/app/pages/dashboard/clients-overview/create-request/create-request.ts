@@ -13,7 +13,7 @@ import { SpecialtyService } from '../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { mapHttpError } from '../../../../core/forms/http-error';
-import { FieldProblem, scrollFocus, SubmitGuard } from '../../../../shared/forms/form-error-focus';
+import { clearInvalid, FieldProblem, scrollFocus, SubmitGuard } from '../../../../shared/forms/form-error-focus';
 import { hasFieldErrors, reportClientBackend, reportClientProblems } from '../client-form-report';
 import { io, Socket } from 'socket.io-client';
 import { SOCKET_BACKOFF } from '../../../../core/utils/socket-backoff';
@@ -729,6 +729,17 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.selectedSpec.set(id);
     this.selectedSubs.set(new Set());
     this.otherText.set('');
+    // A chosen specialty answers «اختر تخصصًا» (the grid is not an input, so it fires no input/change event): clear only that mark.
+    const grid = this.host.nativeElement.querySelector<HTMLElement>('#f-specialty-grid');
+    if (grid) clearInvalid(grid);
+  }
+
+  /** Enter inside a single-line required field behaves like pressing «التالي» (same messages, same focus). Textareas, search boxes and buttons are left alone. */
+  onEnterKey(event: Event): void {
+    const t = event.target as HTMLElement | null;
+    if (!t || t.tagName !== 'INPUT' || !/^(f|ms)-/.test(t.id) || this.isSubmitting()) return;
+    event.preventDefault();
+    this.goNext();
   }
 
   toggleSub(sub: string) {
@@ -1273,12 +1284,14 @@ export class CreateRequest implements OnInit, OnDestroy {
       return this.title().trim().length >= 3 && this.description().trim().length >= 10 && this.deliveryDaysValid();
     }
     if (step === 4) {
+      // Same predicate as stepProblems(4): a value counts only when it is a finite number above 0.
+      const pos = (v: number | null) => v !== null && Number.isFinite(v) && v > 0;
       if (this.budgetType() === 'fixed') {
-        if (!this.budgetFixed() || this.budgetFixed()! <= 0) return false;
+        if (!pos(this.budgetFixed())) return false;
       } else if (this.budgetType() === 'hourly') {
-        if (!this.budgetHourly() || this.budgetHourly()! <= 0) return false;
+        if (!pos(this.budgetHourly())) return false;
       } else if (this.budgetType() === 'range') {
-        if (!this.budgetMin() || !this.budgetMax() || (this.budgetMin()! > this.budgetMax()!)) return false;
+        if (!pos(this.budgetMin()) || !pos(this.budgetMax()) || this.budgetMin()! > this.budgetMax()!) return false;
       }
 
       if (this.splitMilestones()) {

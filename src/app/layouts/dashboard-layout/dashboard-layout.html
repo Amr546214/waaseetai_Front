@@ -206,9 +206,14 @@
 
 	<!-- MAIN CONTENT -->
 	<main class="main">
-		<div class="main-inner">
+		<div class="main-inner" [hidden]="!!roleRedirectLabel()">
 			<router-outlet></router-outlet>
 		</div>
+		@if (roleRedirectLabel(); as label) {
+			<div class="main-inner ws-role-redirect" role="status" aria-live="polite" data-testid="role-redirect-note">
+				تم تبديل حسابك من جلسة أخرى. جارٍ فتح لوحة {{ label }}…
+			</div>
+		}
 
 		<!-- FOOTER -->
 		<div class="inner-foot">
