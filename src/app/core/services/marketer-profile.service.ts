@@ -79,6 +79,8 @@ export interface MarketerProfile {
 		email: string;
 		phoneNumber: string;
 		phoneCountryCode: string;
+		/** The optional WhatsApp number (E.164 string), edited through PUT /profiles/update/contact. */
+		alternativePhone?: string | null;
 		idNumber: string;
 		avatarUrl: string;
 	};
@@ -151,6 +153,11 @@ export class MarketerProfileService {
 
 	withdrawRequest(requestId: string): Observable<ApiResponse<any>> {
 		return this.http.post<ApiResponse<any>>(`${this.apiUrl}/requests/${requestId}/withdraw`, {});
+	}
+
+	/** PUT /profiles/update/contact: the WhatsApp number is ONE E.164 string (null removes it); a direct save, no review. */
+	updateContact(payload: { alternativePhone: string | null }): Observable<ApiResponse<unknown>> {
+		return this.http.put<ApiResponse<unknown>>(`${environment.url_api}/profiles/update/contact`, payload);
 	}
 
 	// Role-agnostic endpoint (see backend routes/provider-profile.routes.ts) —

@@ -563,25 +563,55 @@ export class ProfileEdit {
 				(event.target as HTMLInputElement).value = '';
 				return;
 			}
+			const previous = this.getCurrentAvatarUrl() || '';
 			const reader = new FileReader();
 			reader.onload = () => {
 				const base64 = reader.result as string;
 				if (this.isClient) this.clientForm.patchValue({ avatarUrl: base64 });
 				if (this.isProvider) this.providerForm.patchValue({ avatarUrl: base64 });
 
-				// Auto-save the new avatar
-				this.saveProfile();
+				// Auto-save ONLY the avatar (never the whole form, never the notification preferences)
+				this.saveAvatar(previous);
 			};
 			reader.readAsDataURL(file);
 		}
 	}
 
 	removeAvatar() {
+		const previous = this.getCurrentAvatarUrl() || '';
 		if (this.isClient) this.clientForm.patchValue({ avatarUrl: '' });
 		if (this.isProvider) this.providerForm.patchValue({ avatarUrl: '' });
 
-		// Auto-save the removal
-		this.saveProfile();
+		// Auto-save ONLY the removal
+		this.saveAvatar(previous);
+	}
+
+	/**
+	 * Picture-only save: PUT /profiles/update { avatarUrl }. It is deliberately NOT saveProfile(): that sends the whole form and (for a client) also PATCHes
+	 * /notifications/preferences, which created an implicit preferences row (channel_email=false) from a mere avatar pick. A failed save restores the old picture.
+	 */
+	private saveAvatar(previous: string) {
+		this.errorMsg.set('');
+		this.successMsg.set('');
+		const form = this.isClient ? this.clientForm : this.providerForm;
+		const avatarUrl = (form.get('avatarUrl')?.value as string) || '';
+		this.isSaving.set(true);
+		this.profileApi.updateProfile({ avatarUrl }).subscribe({
+			next: (res) => {
+				this.isSaving.set(false);
+				if (!res.success) {
+					form.patchValue({ avatarUrl: previous });
+					this.errorMsg.set(res.message || 'تعذر حفظ الصورة الشخصية');
+					return;
+				}
+				this.finishSave();
+			},
+			error: (err) => {
+				this.isSaving.set(false);
+				form.patchValue({ avatarUrl: previous });
+				this.errorMsg.set(mapHttpError(err, { fallback: 'تعذر حفظ الصورة الشخصية، يرجى المحاولة مرة أخرى' }).message);
+			}
+		});
 	}
 
 	onIdUpload(event: Event, side: 'front' | 'back') {
