@@ -33,7 +33,7 @@ import { AssistantViewport, dockPlacement, popupPlacement } from './assistant-pl
 import { AssistantPositionSettingsComponent } from '../assistant-chat/assistant-position-settings';
 import { AssistantPositionService } from './assistant-position.service';
 import { avatarMovementBounds } from './assistant-position';
-import { BAR_CLEARANCE_PX, assistantReservePx, detectBottomBarHeight, isTextEntryElement } from './assistant-avoidance';
+import { BAR_CLEARANCE_PX, SidebarInset, assistantReservePx, detectBottomBarHeight, detectSidebarInset, isTextEntryElement } from './assistant-avoidance';
 
 const STATE_LABELS = {
 	idle: 'جاهز أساعدك',
@@ -507,6 +507,8 @@ export class AssistantWidgetComponent {
 	private readonly quickComposerLift = computed(() => this.expanded() && !this.store.panelOpen() ? Math.min(64, this.floorSpace()) : 0);
 	/** Height of a fixed bottom action bar/banner found on the current page (see detectBottomBarHeight). */
 	private readonly detectedBar = signal(0);
+	/** Persistent dashboard sidebar footprint: the avatar is dragged in the content area only (the sidebar is above the widget). */
+	private readonly sidebarInset = signal<SidebarInset>({ left: 0, right: 0 });
 	/** env(safe-area-inset-bottom) in px (home indicator / gesture bar). */
 	private readonly safeBottom = signal(0);
 	/** True while an on-screen keyboard is likely open over a page input: the widget steps aside. */
@@ -607,7 +609,7 @@ export class AssistantWidgetComponent {
 		const sub = this.routerEvents.subscribe(event => {
 			if (!(event instanceof NavigationEnd)) return;
 			// pages render their action bar after navigation: probe again a little later
-			for (const delay of [0, 300, 1200]) timers.push(setTimeout(() => this.probeBars(), delay));
+			for (const delay of [0, 300, 1200, 3000, 6000]) timers.push(setTimeout(() => this.probeBars(), delay));
 		});
 		const onResize = () => { readSafe(); this.scheduleBarProbe(); };
 		window.addEventListener('resize', onResize);
@@ -639,10 +641,20 @@ export class AssistantWidgetComponent {
 		const host = this.hostElement.nativeElement;
 		const height = detectBottomBarHeight(document, window, el => host.contains(el) || el === host || el.tagName === 'CUTE-ROBOT');
 		if (height !== this.detectedBar()) this.detectedBar.set(height);
+		this.refreshSidebarInset();
+	}
+
+	/** Keeps the drag region out of the persistent dashboard sidebar (re-read on every probe and right before a pointer press). */
+	private refreshSidebarInset(): void {
+		if (!this.isBrowser) return;
+		const inset = detectSidebarInset(document, window);
+		const was = this.sidebarInset();
+		if (inset.left !== was.left || inset.right !== was.right) { this.sidebarInset.set(inset); this.updateViewport(); }
 	}
 
 	/** Collapse the open toolbar on small screens when the user taps the page (never persisted). */
 	onDocumentPointerDown(event: Event): void {
+		this.refreshSidebarInset();
 		if (!this.compact() || this.toolbarCollapsed() || this.store.panelOpen() || this.expanded()) return;
 		const target = event.target as Node | null;
 		if (target && this.hostElement.nativeElement.contains(target)) return;
@@ -672,10 +684,12 @@ export class AssistantWidgetComponent {
 	updateViewport(): void {
 		if (!this.isBrowser) return;
 		const visible = window.visualViewport;
+		const inset = this.sidebarInset();
+		const width = visible?.width || document.documentElement.clientWidth || window.innerWidth;
 		this.viewport.set({
-			width: visible?.width || document.documentElement.clientWidth || window.innerWidth,
+			width: Math.max(0, width - inset.left - inset.right),
 			height: visible?.height || window.innerHeight,
-			left: visible?.offsetLeft || 0,
+			left: (visible?.offsetLeft || 0) + inset.left,
 			top: visible?.offsetTop || 0,
 		});
 	}
