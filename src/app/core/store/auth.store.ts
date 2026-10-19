@@ -56,6 +56,9 @@ export class AuthStore {
   private readonly _currentUser = signal<User | null>(null);
   private readonly _token = signal<string | null>(null);
   private readonly _pendingUserId = signal<string | null>(null);
+  /** The role whose dashboard a stale-role redirect is on its way to (set while the tab still shows the other role's page, cleared once it is in the right area). */
+  private readonly _roleRedirect = signal<UserRole | null>(null);
+  readonly roleRedirect = this._roleRedirect.asReadonly();
 
   // Initialization State
   public isInitialized$ = new BehaviorSubject<boolean>(false);
@@ -139,12 +142,13 @@ export class AuthStore {
     const role = this.actingRole();
     if (!role || !this._currentUser()) return;
     const target = redirectTargetAfterRoleChange(this.router.url, role);
-    if (!target) { this.followTries = 0; return; }
+    if (!target) { this.followTries = 0; this._roleRedirect.set(null); return; }
     const now = Date.now();
     if (this.followingTo === target && now - this.followingSince < 1500) return; // the same redirect is already on its way (parallel 403s): do not repeat it
     if (now - this.followWindowStart > 8000) { this.followTries = 0; this.followWindowStart = now; }
     this.followTries++;
-    if (this.followTries > 3) return;
+    if (this.followTries > 3) { this._roleRedirect.set(null); return; }
+    this._roleRedirect.set(role);
     if (this.followTries === 3) { this.hardRedirect(target); return; }
     this.followingTo = target; this.followingSince = now;
     const settled = () => {

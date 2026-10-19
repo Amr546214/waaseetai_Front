@@ -173,3 +173,6 @@
     text-align: center;
   }
 }
+
+.main-inner[hidden] { display: none !important; }
+.ws-role-redirect { padding: 48px 16px; text-align: center; color: var(--text-secondary, #64748b); font-weight: 600; }

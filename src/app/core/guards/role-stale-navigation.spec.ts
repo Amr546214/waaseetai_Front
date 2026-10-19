@@ -82,6 +82,29 @@ describe('stale role tab ends on the corrected role dashboard (N1)', () => {
 		expect(hard).toHaveBeenCalledWith('/client-overview');
 	});
 
+	it('(i) while the redirect is still loading (slow lazy chunks) the store says which dashboard is coming, and clears it once the tab is in the right area', async () => {
+		await boot(UserRole.AFFILIATE, AccountType.MARKETING_BROKER, [UserRole.AFFILIATE, UserRole.CLIENT], '/marketer-overview/summary');
+		await h.navigateByUrl('/marketer-overview/withdraw');
+		const real = router.navigateByUrl.bind(router);
+		let release!: () => void;
+		vi.spyOn(router, 'navigateByUrl').mockImplementation(((url: any, extras: any) => new Promise(res => { release = () => res(real(url, extras)); })) as any);
+		answer('/api/marketer-overview/wallet', mismatch('AFFILIATE', 'CLIENT'));
+		expect(router.url).toBe('/marketer-overview/withdraw');
+		expect(store.roleRedirect()).toBe(UserRole.CLIENT);
+		release(); await wait(150);
+		expect(router.url).toBe('/client-overview');
+		expect(store.roleRedirect()).toBeNull();
+	});
+
+	it('(i2) the marker never sticks: when every redirect attempt is lost it is cleared after the cap', async () => {
+		await boot(UserRole.AFFILIATE, AccountType.MARKETING_BROKER, [UserRole.AFFILIATE, UserRole.CLIENT], '/marketer-overview/withdraw');
+		vi.spyOn(router, 'navigateByUrl').mockImplementation((() => Promise.resolve(false)) as any);
+		vi.spyOn(store as any, 'hardRedirect').mockImplementation(() => {});
+		answer('/api/marketer-overview/wallet', mismatch('AFFILIATE', 'CLIENT'));
+		await wait(3500);
+		expect(store.roleRedirect()).toBeNull();
+	});
+
 	it('(h) the acting role changes while the tab sits on the other role page (no 403 needed) -> it leaves that page', async () => {
 		await boot(UserRole.AFFILIATE, AccountType.MARKETING_BROKER, [UserRole.AFFILIATE, UserRole.CLIENT], '/marketer-overview/withdraw');
 		store.updateUser({ activeRole: UserRole.CLIENT });
