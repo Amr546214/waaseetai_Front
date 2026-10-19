@@ -5,6 +5,7 @@ import { ProviderPrefsStore } from './core/services/provider-prefs.store';
 import { AUTH_ROUTES } from './pages/auth/auth.routes';
 import { authGuard, clientGuard, providerGuard, marketerGuard, superAdminGuard } from './core/guards/auth.guards';
 import { providerProfileCompleteGuard } from './core/guards/profile-complete.guard';
+import { serverActiveRoleGuard } from './core/guards/server-active-role.guard';
 import { WEBSITE_ROUTES } from './pages/website/website.routes';
 import { CLIENT_OVERVIEW_ROUTES } from './pages/dashboard/clients-overview/client.routes';
 import { PROVIDER_OVERVIEW_ROUTES } from './pages/dashboard/provider-overview/provider.routes';
@@ -28,7 +29,7 @@ export const routes: Routes = [
 
 	{
 		path: 'client-overview',
-		canActivate: [authGuard, clientGuard],
+		canActivate: [authGuard, clientGuard, serverActiveRoleGuard],
 		// K-5: re-check the acting role on every in-app navigation under the area (a tab whose role changed must not keep opening this area's pages)
 		runGuardsAndResolvers: 'always',
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),
@@ -36,7 +37,7 @@ export const routes: Routes = [
 	},
 	{
 		path: 'provider-overview',
-		canActivate: [authGuard, providerGuard],
+		canActivate: [authGuard, providerGuard, serverActiveRoleGuard],
 		canActivateChild: [providerProfileCompleteGuard],
 		// re-ask the backend on every navigation under the provider area, in-app ones (after login/logout/role switch) included
 		runGuardsAndResolvers: 'always',
@@ -54,7 +55,7 @@ export const routes: Routes = [
 	},
 	{
 		path: 'marketer-overview',
-		canActivate: [authGuard, marketerGuard],
+		canActivate: [authGuard, marketerGuard, serverActiveRoleGuard],
 		// K-5: same as the client area
 		runGuardsAndResolvers: 'always',
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),
