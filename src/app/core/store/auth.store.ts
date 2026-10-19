@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable, signal, PLATFORM_ID, Optional, untracked } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationCancel, NavigationEnd, NavigationError, Router } from '@angular/router';
 import { AccountType, User, UserRole, UserStatus } from '../models/auth.model';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -142,6 +142,9 @@ export class AuthStore {
     const role = this.actingRole();
     if (!role || !this._currentUser()) return;
     const target = redirectTargetAfterRoleChange(this.router.url, role);
+    // A navigation is already in flight (e.g. the pre-activation role guard's own redirect): it will land and the NavigationEnd / Cancel / Error check below
+    // re-evaluates, so do not start a parallel one that would supersede it.
+    if (target && this.router.getCurrentNavigation?.()) return;
     if (!target) { this.followTries = 0; this._roleRedirect.set(null); return; }
     const now = Date.now();
     if (this.followingTo === target && now - this.followingSince < 1500) return; // the same redirect is already on its way (parallel 403s): do not repeat it
@@ -170,7 +173,7 @@ export class AuthStore {
 
   /** Browser only: re-check the area after every navigation and whenever the acting role changes (a stale page must not outlive a role change). */
   private watchRoleAreas(): void {
-    this.router.events?.subscribe((e) => { if (e instanceof NavigationEnd) this.followRoleChange(); });
+    this.router.events?.subscribe((e) => { if (e instanceof NavigationEnd) this.followRoleChange(); else if (e instanceof NavigationError || (e instanceof NavigationCancel && e.code !== 0)) setTimeout(() => this.followRoleChange(), 0); });
     effect(() => { this.actingRole(); untracked(() => setTimeout(() => this.followRoleChange(), 0)); });
   }
 
