@@ -109,6 +109,21 @@
 
 			<div class="udrop-sep"></div>
 
+			<!-- Theme switcher for phones: the top-bar .t-toggle is hidden below 430px, so the same ThemeService control lives here (hidden again above 430px, never both visible). -->
+			<div class="udrop-theme" data-testid="udrop-theme">
+				<span class="udrop-theme-lbl">المظهر</span>
+				<div class="t-toggle t-toggle-menu" role="group" aria-label="تبديل الثيم">
+					<button class="seg" [class.is-selected]="themeService.theme() === 'dark'"
+						(click)="themeService.setTheme('dark')" type="button" data-testid="udrop-theme-dark"
+						[attr.aria-pressed]="themeService.theme() === 'dark'">داكن</button>
+					<button class="seg" [class.is-selected]="themeService.theme() === 'light'"
+						(click)="themeService.setTheme('light')" type="button" data-testid="udrop-theme-light"
+						[attr.aria-pressed]="themeService.theme() === 'light'">فاتح</button>
+				</div>
+			</div>
+
+			<div class="udrop-sep udrop-theme-sep"></div>
+
 			<!-- Main Menu Links -->
 			<a [routerLink]="links().profile" data-testid="topnav-profile"
 				(click)="isUserDropdownOpen.set(false)" class="udrop-item" role="menuitem">

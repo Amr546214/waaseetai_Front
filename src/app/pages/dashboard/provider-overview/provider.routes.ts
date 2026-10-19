@@ -3,6 +3,14 @@ import { quizLockGuard } from "../../../core/guards/quiz-lock.guard";
 import { companyAccountGuard } from "../../../core/guards/company-account.guard";
 import { providerSetupGuard } from './profile/profile-setup/profile-setup.guard';
 
+/** Absolute redirect target that keeps the incoming query string (a deep link such as ?tab=… must survive the landing redirect). */
+const bareTo = (target: string) => ({ queryParams }: { queryParams: Record<string, string | string[]> }): string => {
+	const qs = new URLSearchParams();
+	for (const [k, v] of Object.entries(queryParams || {})) for (const x of ([] as string[]).concat(v)) qs.append(k, x);
+	const q = qs.toString();
+	return q ? `${target}?${q}` : target;
+};
+
 export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: '',
@@ -145,6 +153,19 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 		path: 'business-models/market/:id',
 		loadComponent: () => import('./business-models/market/model-details/model-details').then(m => m.ModelDetails),
 		data: { title: "تفاصيل النموذج" }
+	},
+	// Bare parent URLs that have no page of their own land on the first sidebar child of that group (query params are kept by the router; the
+	// profile-complete / access guards still run on the target page, so an unapproved provider is sent to account-actions exactly as before).
+	{ path: 'business-models', pathMatch: 'full', redirectTo: bareTo('/provider-overview/business-models/center') },
+	{ path: 'projects', pathMatch: 'full', redirectTo: bareTo('/provider-overview/projects/active') },
+	{ path: 'finance', pathMatch: 'full', redirectTo: bareTo('/provider-overview/finance/wallet') },
+	{ path: 'profile', pathMatch: 'full', redirectTo: bareTo('/provider-overview/profile/public') },
+	{ path: 'settings', pathMatch: 'full', redirectTo: bareTo('/provider-overview/settings/account') },
+	{
+		// the bare parent URL has no page of its own (a typed/bookmarked/breadcrumb-trimmed link): it lands on the accreditation requests list
+		path: 'business-models/accreditation',
+		pathMatch: 'full',
+		redirectTo: bareTo('/provider-overview/business-models/accreditation/list')
 	},
 	{
 		path: 'business-models/accreditation/new',

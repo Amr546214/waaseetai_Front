@@ -22,6 +22,7 @@ const PROVIDER_PROJECT_RESERVED = new Set(['active', 'archived', 'phases', 'prog
  *  - /dashboard/clients-overview/... , /dashboard/client-overview/...  -> /client-overview/...   (the historical prefix)
  *  - /dashboard/provider-overview/... , /dashboard/marketer-overview/... -> same without /dashboard
  *  - /provider-overview/accreditation-status -> ACCREDITATION_STATUS_REPLACEMENT_ROUTE
+ *  - /provider-overview/business-models/accreditation (no page of its own) -> .../accreditation/list
  *  - /provider-overview/projects/<id>/contract  -> the offers list (the contract is signed from the offer)
  *  - /provider-overview/projects/<id>           -> /provider-overview/projects/active/progress/<id> (that bare route never existed)
  *  - /provider-overview/projects/progress/<id>  -> /provider-overview/projects/active/progress/<id>
@@ -34,6 +35,7 @@ export function normalizeLegacyNotificationUrl(url: string | null | undefined): 
 	u = u.replace(/^\/dashboard\/clients-overview(?=\/|$)/, '/client-overview').replace(/^\/dashboard\/(client|provider|marketer)-overview(?=\/|$)/, '/$1-overview');
 	const [path, rest] = splitQuery(u);
 	if (path === '/provider-overview/accreditation-status') return ACCREDITATION_STATUS_REPLACEMENT_ROUTE;
+	if (path === '/provider-overview/business-models/accreditation' || path === '/provider-overview/business-models/accreditation/') return `/provider-overview/business-models/accreditation/list${rest}`;
 	let m = /^\/provider-overview\/projects\/([^/]+)\/contract$/.exec(path);
 	if (m) return '/provider-overview/offers';
 	m = /^\/provider-overview\/projects\/progress\/([^/]+)$/.exec(path);

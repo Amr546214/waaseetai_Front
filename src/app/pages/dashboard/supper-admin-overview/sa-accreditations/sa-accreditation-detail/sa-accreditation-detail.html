@@ -52,7 +52,21 @@
         </div>
       }
 
-      @if (d.aiScore != null || d.aiFeedbackAr || (d.aiStrengths && d.aiStrengths.length) || (d.aiRecommendations && d.aiRecommendations.length)) {
+      @if (d.status === 'REJECTED' || d.status === 'NEEDS_COMPLETION' || (d.status === 'AI_VERIFIED' && d.providerSpecialty?.status === 'APPROVED')) {
+        <div class="acc-decision" [class.acc-decision-rejected]="d.status === 'REJECTED'" [class.acc-decision-approved]="d.status === 'AI_VERIFIED'" data-testid="admin-decision">
+          <div class="acc-decision-hdr">
+            <strong>{{ d.status === 'REJECTED' ? 'قرار الإدارة / سبب الرفض' : d.status === 'NEEDS_COMPLETION' ? 'قرار الإدارة / طلب استكمال' : 'قرار الإدارة / تم الاعتماد' }}</strong>
+            @if (d.decidedAt) { <span class="acc-decision-date" data-testid="admin-decision-date">{{ formatDate(d.decidedAt) }}</span> }
+          </div>
+          @if (decisionParts().reason) {
+            <p class="acc-decision-reason" data-testid="admin-decision-reason">{{ decisionParts().reason }}</p>
+          } @else if (d.status === 'REJECTED') {
+            <p class="acc-section-note" data-testid="admin-decision-noreason">لم يُسجَّل سبب نصي لهذا الرفض.</p>
+          }
+        </div>
+      }
+
+      @if (d.aiScore != null || decisionParts().aiText || (d.aiStrengths && d.aiStrengths.length) || (d.aiRecommendations && d.aiRecommendations.length)) {
         <div class="acc-ai-block" data-testid="stored-ai">
           <div class="acc-ai-hdr"><svg viewBox="0 0 24 24" width="14" height="14"><use href="#i-ai"/></svg> تقييم AI المخزّن لهذا النموذج — استرشادي، والقرار النهائي للإدارة</div>
           <div class="acc-score-row">
@@ -71,8 +85,8 @@
             </div>
           </div>
 
-          @if (d.aiFeedbackAr) {
-            <div class="acc-ai-note">{{ d.aiFeedbackAr }}</div>
+          @if (decisionParts().aiText) {
+            <div class="acc-ai-note">{{ decisionParts().aiText }}</div>
           }
 
           @if (d.aiStrengths && d.aiStrengths.length) {
@@ -131,23 +145,29 @@
         }
       </div>
 
-      @if (d.attachments && d.attachments.length) {
-        <div class="acc-section" style="margin-bottom:14px">
-          <h4 class="acc-section-ttl">المرفقات المرفوعة ({{ d.attachments.length }})</h4>
-          @for (url of d.attachments; track url; let i = $index) {
-            <div class="acc-doc">
-              <div class="acc-doc-head">
-                <div class="acc-doc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                @if (isWebUrl(url)) {
-                  <a class="acc-doc-name" [href]="url" target="_blank" rel="noopener">{{ attachmentName(url, i) }}</a>
-                } @else {
-                  <span class="acc-doc-name">{{ attachmentName(url, i) }}</span>
-                }
-              </div>
+      <div class="acc-section" style="margin-bottom:14px" data-testid="proofs">
+        <h4 class="acc-section-ttl">المرفقات المرفوعة ({{ proofs().length }})</h4>
+        @for (p of proofs(); track p.key; let i = $index) {
+          <div class="acc-doc" data-testid="proof-row" [attr.data-source]="p.source">
+            <div class="acc-doc-head">
+              <div class="acc-doc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <span class="acc-doc-name" data-testid="proof-name">{{ p.fileName }}</span>
+              @if (sizeText(p.bytes)) { <span class="acc-doc-meta" dir="ltr">{{ sizeText(p.bytes) }}</span> }
+              @if (p.available === false) {
+                <span class="acc-doc-bad" role="alert" data-testid="proof-unavailable">الملف غير متاح: لم يعد موجودًا في التخزين، اطلب من مقدم الخدمة إعادة رفعه</span>
+              } @else if (p.access) {
+                <app-kyc-document-link data-testid="proof-open" [document]="p.access.document" [docId]="p.access.id" [index]="p.access.document === 'accreditation_sample_attachment' ? p.access.index : null" [access]="privateAccess" label="فتح الملف" linkClass="acc-doc-open" />
+              } @else if (isWebUrl(p.url)) {
+                <a class="acc-doc-open" data-testid="proof-link" [href]="p.url" target="_blank" rel="noopener noreferrer">فتح الملف ↗</a>
+              } @else {
+                <span class="acc-doc-meta" data-testid="proof-noopen">مرفق قديم لا يمكن فتحه من هنا</span>
+              }
             </div>
-          }
-        </div>
-      }
+          </div>
+        } @empty {
+          <p class="acc-section-note" data-testid="no-proofs">لا توجد ملفات إثبات مرفوعة لهذا الطلب.</p>
+        }
+      </div>
 
       <div class="acc-section" style="margin-bottom:14px">
         <h4 class="acc-section-ttl">ملخص ما قدّمه المزود</h4>
@@ -155,13 +175,13 @@
         <div class="acc-risk-grid">
           <div class="acc-risk-row"><span class="acc-risk-lbl">الجوال المسجل</span><span class="acc-risk-val" dir="ltr">{{ d.providerProfile?.user?.phoneNumber || '—' }}</span></div>
           <div class="acc-risk-row"><span class="acc-risk-lbl">البريد المسجل</span><span class="acc-risk-val" dir="ltr">{{ d.providerProfile?.user?.email || '—' }}</span></div>
-          <div class="acc-risk-row"><span class="acc-risk-lbl">عدد المرفقات</span><span class="acc-risk-val">{{ d.attachments?.length || 0 }}</span></div>
+          <div class="acc-risk-row"><span class="acc-risk-lbl">عدد المرفقات</span><span class="acc-risk-val">{{ proofs().length }}</span></div>
           <div class="acc-risk-row"><span class="acc-risk-lbl">عدد التقنيات المذكورة</span><span class="acc-risk-val">{{ d.technologiesUsed?.length || 0 }}</span></div>
         </div>
       </div>
 
       @if (actionSuccess()) {
-        <div class="acc-action-msg">{{ actionSuccess() }}</div>
+        <div class="acc-action-msg" role="status" data-testid="acc-action-success">{{ actionSuccess() }}</div>
       }
 
       @if (!showRejectForm()) {
@@ -172,7 +192,7 @@
             </button>
           }
           @if (canReject(d)) {
-            <button type="button" class="acc-btn acc-btn-reject" [disabled]="submittingAction()" (click)="openRejectForm()">رفض النموذج</button>
+            <button type="button" class="acc-btn acc-btn-reject" data-testid="reject-btn" [disabled]="submittingAction()" (click)="openRejectForm()">رفض النموذج</button>
           }
           <button type="button" class="acc-btn acc-btn-ghost" (click)="goBack()">العودة للقائمة</button>
         </div>
@@ -198,7 +218,7 @@
             <p class="acc-rf-err" role="alert" data-testid="acc-action-error">{{ actionError() }}</p>
           }
           <div class="acc-rf-actions">
-            <button type="button" class="acc-btn acc-btn-reject" [disabled]="submittingAction()" (click)="submitReject()">
+            <button type="button" class="acc-btn acc-btn-reject" data-testid="reject-confirm-btn" [disabled]="submittingAction() || decisionDone()" (click)="submitReject()">
               {{ submittingAction() ? 'جارٍ الرفض...' : 'تأكيد الرفض' }}
             </button>
             <button type="button" class="acc-btn acc-btn-ghost" [disabled]="submittingAction()" (click)="cancelRejectForm()">إلغاء</button>
@@ -211,10 +231,14 @@
       <div class="acc-mov" data-testid="approve-confirm" (click)="cancelApproveConfirm()">
         <div class="acc-mbox acc-confirm-box" (click)="$event.stopPropagation()">
           <h3>تأكيد اعتماد النموذج</h3>
-          <p class="acc-section-note">سيُعتمد هذا النموذج ويحصل مقدم الخدمة على شارة اعتماد التخصص «{{ specialtyName(d) }}». الاعتماد قرار إداري نهائي ولا يعتمد على درجة AI.</p>
+          @if (d.providerSpecialty?.status === 'APPROVED') {
+            <p class="acc-section-note" data-testid="approve-extra-note">التخصص «{{ specialtyName(d) }}» معتمد بالفعل ولن يتغيّر؛ سيُعتمد هذا النموذج الإضافي فقط. الاعتماد قرار إداري نهائي ولا يعتمد على درجة AI.</p>
+          } @else {
+            <p class="acc-section-note">سيُعتمد هذا النموذج ويحصل مقدم الخدمة على شارة اعتماد التخصص «{{ specialtyName(d) }}». الاعتماد قرار إداري نهائي ولا يعتمد على درجة AI.</p>
+          }
           <div class="acc-md-actions">
             <button type="button" class="acc-btn acc-btn-ghost" [disabled]="submittingAction()" (click)="cancelApproveConfirm()">إلغاء</button>
-            <button type="button" class="acc-btn acc-btn-accept" data-testid="approve-confirm-btn" [disabled]="submittingAction()" (click)="submitApprove()">{{ submittingAction() ? 'جارٍ الاعتماد...' : 'تأكيد الاعتماد' }}</button>
+            <button type="button" class="acc-btn acc-btn-accept" data-testid="approve-confirm-btn" [disabled]="submittingAction() || decisionDone()" (click)="submitApprove()">{{ submittingAction() ? 'جارٍ الاعتماد...' : 'تأكيد الاعتماد' }}</button>
           </div>
         </div>
       </div>

@@ -11,3 +11,33 @@
 .acc-review-list { margin: 6px 0; padding-inline-start: 18px; font-size: 13px; line-height: 1.8; }
 .acc-review-meta { font-size: 12px; opacity: .85; margin-top: 4px; }
 .acc-review-note { font-size: 12px; opacity: .75; margin: 8px 0 0; }
+
+.acc-decision { margin: 12px 0; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,140,105,.35); background: rgba(255,140,105,.08); }
+.acc-decision-approved { border-color: rgba(15,169,154,.4); background: rgba(15,169,154,.08); }
+.acc-decision-hdr { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.acc-decision-date { font-size: 11.5px; opacity: .8; }
+.acc-decision-reason { margin: 4px 0 0; font-size: 13.5px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+.acc-doc-meta { font-size: 11.5px; opacity: .75; }
+.acc-doc-open { font-size: 12px; font-weight: 800; color: #2BD4C7; cursor: pointer; }
+.acc-doc-bad { font-size: 12px; font-weight: 700; color: #d9534f; flex-basis: 100%; }
+
+/* proof rows: name wraps by words, the open control / state sits beside it (and below on a narrow screen) */
+.acc-doc-head { flex-wrap: wrap; }
+.acc-doc-name { min-width: 0; flex: 1 1 140px; overflow-wrap: anywhere; word-break: normal; }
+:host ::ng-deep button.kdl-btn.acc-doc-open, :host ::ng-deep a.acc-doc-open { font-size: 12px; font-weight: 800; color: #2BD4C7; text-decoration: none; cursor: pointer; }
+:host ::ng-deep button.kdl-btn.acc-doc-open:hover, :host ::ng-deep a.acc-doc-open:hover { text-decoration: underline; }
+:host ::ng-deep .kdl-error { font-size: 12px; }
+
+/* Light theme: the dark-theme tints (#A8B2D1 text, #FF8C69 / #2BD4C7 on pale fills) fall below readable contrast on white, which made the
+   reason chips, the reject confirm button and the success banner look empty. Darker text on the same fills (>= 4.5:1). */
+:host-context(.light-theme) .acc-rej-tmpl,
+:host-context(.theme-light) .acc-rej-tmpl { color: #334155; }
+:host-context(.light-theme) .acc-rej-tmpl:hover, :host-context(.light-theme) .acc-rej-tmpl.active,
+:host-context(.theme-light) .acc-rej-tmpl:hover, :host-context(.theme-light) .acc-rej-tmpl.active { color: #9A3412; border-color: rgba(194,65,12,.5); }
+:host-context(.light-theme) .acc-btn-reject,
+:host-context(.theme-light) .acc-btn-reject { color: #9A3412; background: rgba(255,140,105,.16); border-color: rgba(194,65,12,.4); }
+:host-context(.light-theme) .acc-action-msg,
+:host-context(.theme-light) .acc-action-msg { color: #0B6B62; background: rgba(15,169,154,.12); }
+:host-context(.light-theme) button.kdl-btn.acc-doc-open, :host-context(.light-theme) a.acc-doc-open, :host-context(.theme-light) button.kdl-btn.acc-doc-open, :host-context(.theme-light) a.acc-doc-open { color: #0B6B62; }
+:host-context(.light-theme) .acc-decision-hdr strong, :host-context(.theme-light) .acc-decision-hdr strong { color: #1E293B; }
+:host-context(.light-theme) .acc-detail-crumb a, :host-context(.theme-light) .acc-detail-crumb a { color: #475569; }

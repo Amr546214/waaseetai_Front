@@ -42,6 +42,7 @@ export class SaAccreditations implements OnInit {
     AI_VERIFIED: 0,
     REJECTED: 0,
     MANUAL_REVIEW: 0,
+    NEEDS_COMPLETION: 0,
   });
   countsLoading = signal(false);
 
@@ -125,6 +126,7 @@ export class SaAccreditations implements OnInit {
         MANUAL_REVIEW: totals[1],
         AI_VERIFIED: totals[2],
         REJECTED: totals[3],
+        NEEDS_COMPLETION: 0, // no filter / count for it on this list (D-B6 note): the 'all' total below sums the four listed statuses
       };
       counts.all = totals.reduce((a, b) => a + b, 0);
       this.statusCounts.set(counts);
