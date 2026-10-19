@@ -520,6 +520,77 @@ describe('SaAccreditationDetail — J1 admin review', () => {
 		expect(q(el, 'acc-action-error')!.textContent).toContain('مسبقاً');
 	});
 
+	// ---- K-5b: a refused decision (409) means the page is stale: re-read the server state, never leave the old buttons / pill ----
+	const decidedOnServer = (server: any, kind: 'APPROVED' | 'REJECTED') => {
+		if (kind === 'APPROVED') { server.status = 'AI_VERIFIED'; server.providerSpecialty.status = 'APPROVED'; }
+		else { server.status = 'REJECTED'; server.userNote = 'سبب سابق'; server.aiFeedbackAr = '\n[مراجعة الإدارة] سبب الرفض: سبب سابق'; }
+		server.decidedAt = '2026-10-18T10:00:00.000Z';
+	};
+	const conflict = (message: string) => throwError(() => httpFail(409, { message }));
+
+	it('K-5b: 409 on approve (a second admin approved first) -> error shown, NO success banner, pill + actions refreshed from the server', async () => {
+		const { harness, component, el, http, server } = await boot({ status: 'MANUAL_REVIEW' });
+		expect(q(el, 'approve-btn')).not.toBeNull();
+		decidedOnServer(server, 'APPROVED');
+		http.post.mockReturnValueOnce(conflict('تم اعتماد هذا النموذج مسبقاً'));
+		component.submitApprove(); harness.detectChanges();
+		expect(q(el, 'acc-action-error')!.textContent).toContain('تم اعتماد هذا النموذج مسبقاً');
+		expect(q(el, 'acc-action-success')).toBeNull();
+		expect(component.actionSuccess()).toBe('');
+		expect(el.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe('معتمد');
+		expect(q(el, 'approve-btn')).toBeNull(); expect(q(el, 'reject-btn')).toBeNull();
+		expect(q(el, 'admin-decision')).not.toBeNull();
+		expect(q(el, 'approve-confirm-btn')).toBeNull();
+	});
+
+	it('K-5b: 409 on reject (already rejected elsewhere) -> reject form closes, error stays, pill shows the rejection with its reason, no actions, no success banner', async () => {
+		const { harness, component, el, http, server } = await boot({ status: 'MANUAL_REVIEW' });
+		component.openRejectForm(); component.rejectionReason.set('المستندات غير كافية'); harness.detectChanges();
+		decidedOnServer(server, 'REJECTED');
+		http.post.mockReturnValueOnce(conflict('تم رفض هذا النموذج مسبقاً'));
+		component.submitReject(); harness.detectChanges();
+		expect(component.showRejectForm()).toBe(false);
+		expect(q(el, 'acc-action-error')!.textContent).toContain('تم رفض هذا النموذج مسبقاً');
+		expect(q(el, 'acc-action-success')).toBeNull();
+		expect(el.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe('مرفوض');
+		expect(q(el, 'admin-decision-reason')!.textContent).toContain('سبب سابق');
+		expect(q(el, 'approve-btn')).toBeNull(); expect(q(el, 'reject-btn')).toBeNull();
+	});
+
+	it('K-5b: 409 but the server says it is STILL undecided -> the actions stay available (nothing is hidden by guesswork)', async () => {
+		const { harness, component, el, http } = await boot({ status: 'MANUAL_REVIEW' });
+		http.post.mockReturnValueOnce(conflict('العملية قيد المعالجة'));
+		component.submitApprove(); harness.detectChanges();
+		expect(q(el, 'acc-action-error')).not.toBeNull();
+		expect(q(el, 'approve-btn')).not.toBeNull();
+	});
+
+	it('K-5b: 409 and the re-read fails -> the error stays, the decision actions are withheld (state unknown) and a retry control re-reads; retry success refreshes everything', async () => {
+		const { harness, component, el, http, server } = await boot({ status: 'MANUAL_REVIEW' });
+		decidedOnServer(server, 'APPROVED');
+		http.get.mockReturnValueOnce(throwError(() => ({ status: 500 })));
+		http.post.mockReturnValueOnce(conflict('تم اعتماد هذا النموذج مسبقاً'));
+		component.submitApprove(); harness.detectChanges();
+		expect(q(el, 'acc-action-error')!.textContent).toContain('تم اعتماد هذا النموذج مسبقاً');
+		expect(q(el, 'acc-action-success')).toBeNull();
+		expect(q(el, 'approve-btn')).toBeNull(); expect(q(el, 'reject-btn')).toBeNull();
+		const retry = q(el, 'acc-refresh-retry') as HTMLButtonElement;
+		expect(retry).not.toBeNull();
+		retry.click(); harness.detectChanges();
+		expect(q(el, 'acc-refresh-retry')).toBeNull();
+		expect(el.querySelector('.acc-ai-pill')!.textContent!.trim()).toBe('معتمد');
+		expect(q(el, 'approve-btn')).toBeNull();
+	});
+
+	it('K-5b: a non-409 failure (500) does not re-read or hide anything', async () => {
+		const { harness, component, el, http } = await boot({ status: 'MANUAL_REVIEW' });
+		const getsBefore = http.get.mock.calls.length;
+		http.post.mockReturnValueOnce(throwError(() => httpFail(500, { message: 'تعذر التنفيذ' })));
+		component.submitApprove(); harness.detectChanges();
+		expect(http.get.mock.calls.length).toBe(getsBefore);
+		expect(q(el, 'approve-btn')).not.toBeNull();
+	});
+
 	// ---- proof-open failure: no blank tab left behind, clear message ----
 	it('proof open: on a failed link request (500) the pre-opened tab is closed and a clear reason is shown next to the proof', async () => {
 		const { el, harness, http } = await boot({ proofs: [upload] as any });
