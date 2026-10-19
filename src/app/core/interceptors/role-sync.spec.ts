@@ -70,7 +70,7 @@ describe('role sync — stale PROVIDER tab vs server CLIENT (H1)', () => {
 		fail('/api/provider/access-state', mismatch('CLIENT'));
 		expect(store.actingRole()).toBe(UserRole.CLIENT);
 		expect(JSON.parse(localStorage.getItem('waseet_user')!).activeRole).toBe('CLIENT');
-		expect(nav).toHaveBeenCalledWith('/client-overview');
+		expect(nav).toHaveBeenCalledWith('/client-overview', { replaceUrl: true });
 		expect(info).toHaveBeenCalledTimes(1);
 	});
 
@@ -92,7 +92,7 @@ describe('role sync — stale PROVIDER tab vs server CLIENT (H1)', () => {
 	it('K-5: the local role was already adopted earlier but the tab is still in the other role area -> a mismatch still moves it (no toast, no repeat)', () => {
 		store.updateUser({ activeRole: UserRole.CLIENT });
 		fail('/api/provider/finance/wallet', mismatch('CLIENT'));
-		expect(nav).toHaveBeenCalledWith('/client-overview');
+		expect(nav).toHaveBeenCalledWith('/client-overview', { replaceUrl: true });
 		expect(info).not.toHaveBeenCalled();
 	});
 
@@ -114,7 +114,7 @@ describe('role sync — stale PROVIDER tab vs server CLIENT (H1)', () => {
 		localStorage.setItem('waseet_user', JSON.stringify(next));
 		window.dispatchEvent(new StorageEvent('storage', { key: 'waseet_user', newValue: JSON.stringify(next) }));
 		expect(store.actingRole()).toBe(UserRole.CLIENT);
-		expect(nav).toHaveBeenCalledWith('/client-overview');
+		expect(nav).toHaveBeenCalledWith('/client-overview', { replaceUrl: true });
 		nav.mockClear();
 		window.dispatchEvent(new StorageEvent('storage', { key: 'waseet_user', newValue: JSON.stringify(next) }));
 		window.dispatchEvent(new StorageEvent('storage', { key: 'unrelated', newValue: 'x' }));
