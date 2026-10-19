@@ -119,4 +119,30 @@ describe('marketer profile data: WhatsApp number', () => {
     component.saveWhatsapp();
     expect(getProfile).not.toHaveBeenCalled();
   });
+
+  // K-3: a non-empty value that is only stripped to empty (letters) is INVALID input, never a delete.
+  it('K-3: letters only on a stored number -> rejected, inline error + summary INSIDE the WhatsApp card, no request, stored number untouched', async () => {
+    await configure('+971501234567');
+    type('abc'); expect(nationalValue()).toBe('');
+    component.saveWhatsapp(); render();
+    expect(updateContact).not.toHaveBeenCalled();
+    expect(component.contactForm.get('alternativePhone')!.errors?.['invalidPhone']).toBe(true);
+    expect((component.profile() as any).user.alternativePhone).toBe('+971501234567');
+    const card = el().querySelector('[data-testid="whatsapp-card"]') as HTMLElement;
+    expect(card.querySelector('[role="alert"]')).toBeTruthy();
+    expect(card.querySelector('ws-form-summary')?.textContent).toContain('رقم WhatsApp');
+    const identity = Array.from(el().querySelectorAll('.form-card')).find(c => c !== card && c.querySelector('[data-testid="basics-submit"]')) as HTMLElement;
+    expect(identity.querySelector('ws-form-summary')?.textContent ?? '').not.toContain('رقم WhatsApp');
+  });
+
+  it('K-3: letters then a real clear is an explicit delete (null sent); letters then a valid number sends that number', async () => {
+    await configure('+971501234567');
+    type('abc'); type('');
+    component.saveWhatsapp();
+    expect(updateContact).toHaveBeenCalledWith({ alternativePhone: null });
+    updateContact.mockClear();
+    type('abc'); pickCountry('+971'); type('050 123 4567');
+    component.saveWhatsapp();
+    expect(updateContact).toHaveBeenCalledWith({ alternativePhone: '+971501234567' });
+  });
 });

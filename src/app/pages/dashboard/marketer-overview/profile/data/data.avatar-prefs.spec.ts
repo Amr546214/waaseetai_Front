@@ -53,3 +53,45 @@ describe('marketer profile data: avatar actions never write notification setting
     expect(updatePreferences).not.toHaveBeenCalled();
   });
 });
+
+// K-2 (marketer): an avatar action sends ONLY avatarUrl, so the stored bio (or an unsaved edit of it) is never overwritten.
+describe('marketer profile data: avatar actions send only the avatar field', () => {
+  let updateMarketingInfo: ReturnType<typeof vi.fn>;
+  let component: Data;
+  beforeEach(async () => {
+    updateMarketingInfo = vi.fn(() => of({ success: true }));
+    await TestBed.configureTestingModule({
+      imports: [Data],
+      providers: [
+        provideRouter([]),
+        { provide: MarketerOverviewService, useValue: { getSummary: () => of({ success: true, data: {} }), getChannelPerformance: () => of({ success: true, data: [] }), getRecentCommissions: () => of({ success: true, data: [] }), getSettings: () => of({ success: true, data: {} }), updateMarketerSettings: vi.fn() } },
+        { provide: MarketerProfileService, useValue: { getProfile: () => of({ success: true, data: { avatarUrl: 'https://x/old.png', bio: 'نبذة محفوظة عن المسوق', user: {} } }), updateMarketingInfo } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(Data);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('removing the avatar sends {avatarUrl:""} only, never bio', () => {
+    component.marketingForm.patchValue({ bio: '' }); // even with an empty / unsaved bio in the form
+    component.removeAvatar();
+    expect(updateMarketingInfo).toHaveBeenCalledTimes(1);
+    expect(updateMarketingInfo.mock.calls[0][0]).toEqual({ avatarUrl: '' });
+  });
+
+  it('picking an avatar sends only avatarUrl', async () => {
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: [new File([new Uint8Array(10)], 'a.png', { type: 'image/png' })] });
+    component.onAvatarChange({ target: input } as unknown as Event);
+    await vi.waitFor(() => expect(updateMarketingInfo).toHaveBeenCalledTimes(1));
+    expect(Object.keys(updateMarketingInfo.mock.calls[0][0])).toEqual(['avatarUrl']);
+  });
+
+  it('the explicit bio save still sends both fields', () => {
+    component.marketingForm.patchValue({ bio: 'نبذة جديدة' });
+    component.saveMarketingProfile();
+    expect(updateMarketingInfo.mock.calls[0][0]).toEqual({ avatarUrl: 'https://x/old.png', bio: 'نبذة جديدة' });
+  });
+});

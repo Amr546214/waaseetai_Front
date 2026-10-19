@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, inject, signal, computed } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, ElementRef, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -54,6 +54,7 @@ export class ProfileEdit {
 	authStore = inject(AuthStore);
 	profileApi = inject(ProfileApiService);
 	private prefsApi = inject(NotificationPreferencesService);
+	private cdr = inject(ChangeDetectorRef);
 	private skillsCatalog = inject(SkillsCatalogService);
 	fb = inject(FormBuilder);
 	private readonly host = inject(ElementRef<HTMLElement>);
@@ -93,6 +94,9 @@ export class ProfileEdit {
 	notifWhatsapp = signal(false);
 	/** The shared notification-preferences map (email / in-app channel keys): loaded before the toggles are editable, saved with the profile. */
 	prefsState = signal<'loading' | 'ready' | 'error'>('loading');
+	/** Last-known stored values: a save sends the profile / the channel preferences only when they differ from these (updated after each successful write). */
+	private profileRef: string | null = null;
+	private prefsRef: { email: boolean; inApp: boolean } | null = null;
 
 	/** What the backend still needs for 100% (GET /profiles/me -> missingItems). Same source as the percentage above. */
 	missingItems = signal<CompletionMissingItem[]>([]);
@@ -377,6 +381,7 @@ export class ProfileEdit {
 						if (pAny.interests) this.interests.set(pAny.interests);
 					}
 
+					this.profileRef = JSON.stringify(this.buildProfilePayload());
 					this.basicsForm.patchValue(profile);
 					this.appliedNames = { firstName: String((profile as any).firstName ?? ''), lastName: String((profile as any).lastName ?? '') };
 					if (this.isClient) this.loadPendingNameRequest();
@@ -554,6 +559,10 @@ export class ProfileEdit {
 		return null;
 	}
 
+	/**
+	 * The avatar is part of the FORM: a pick / removal only changes the draft (the picture is previewed from the local file, nothing is uploaded or attached
+	 * to the account) and is sent by «حفظ التحديثات» together with the rest. «إلغاء والعودة» drops the draft, so the saved picture stays.
+	 */
 	onAvatarUpload(event: Event) {
 		const file = (event.target as HTMLInputElement).files?.[0];
 		if (file) {
@@ -563,55 +572,25 @@ export class ProfileEdit {
 				(event.target as HTMLInputElement).value = '';
 				return;
 			}
-			const previous = this.getCurrentAvatarUrl() || '';
+			this.errorMsg.set('');
+			this.successMsg.set('');
 			const reader = new FileReader();
 			reader.onload = () => {
 				const base64 = reader.result as string;
 				if (this.isClient) this.clientForm.patchValue({ avatarUrl: base64 });
 				if (this.isProvider) this.providerForm.patchValue({ avatarUrl: base64 });
-
-				// Auto-save ONLY the avatar (never the whole form, never the notification preferences)
-				this.saveAvatar(previous);
+				// the file is read outside a template event: repaint the preview (the app runs without zone.js)
+				this.cdr.markForCheck();
 			};
 			reader.readAsDataURL(file);
 		}
 	}
 
 	removeAvatar() {
-		const previous = this.getCurrentAvatarUrl() || '';
-		if (this.isClient) this.clientForm.patchValue({ avatarUrl: '' });
-		if (this.isProvider) this.providerForm.patchValue({ avatarUrl: '' });
-
-		// Auto-save ONLY the removal
-		this.saveAvatar(previous);
-	}
-
-	/**
-	 * Picture-only save: PUT /profiles/update { avatarUrl }. It is deliberately NOT saveProfile(): that sends the whole form and (for a client) also PATCHes
-	 * /notifications/preferences, which created an implicit preferences row (channel_email=false) from a mere avatar pick. A failed save restores the old picture.
-	 */
-	private saveAvatar(previous: string) {
 		this.errorMsg.set('');
 		this.successMsg.set('');
-		const form = this.isClient ? this.clientForm : this.providerForm;
-		const avatarUrl = (form.get('avatarUrl')?.value as string) || '';
-		this.isSaving.set(true);
-		this.profileApi.updateProfile({ avatarUrl }).subscribe({
-			next: (res) => {
-				this.isSaving.set(false);
-				if (!res.success) {
-					form.patchValue({ avatarUrl: previous });
-					this.errorMsg.set(res.message || 'تعذر حفظ الصورة الشخصية');
-					return;
-				}
-				this.finishSave();
-			},
-			error: (err) => {
-				this.isSaving.set(false);
-				form.patchValue({ avatarUrl: previous });
-				this.errorMsg.set(mapHttpError(err, { fallback: 'تعذر حفظ الصورة الشخصية، يرجى المحاولة مرة أخرى' }).message);
-			}
-		});
+		if (this.isClient) this.clientForm.patchValue({ avatarUrl: '' });
+		if (this.isProvider) this.providerForm.patchValue({ avatarUrl: '' });
 	}
 
 	onIdUpload(event: Event, side: 'front' | 'back') {
@@ -660,28 +639,37 @@ export class ProfileEdit {
 				// e-mail copies are opt-in (nothing saved = no e-mail), exactly what delivery does with an unsaved account
 				this.notifEmail.set(settings['channel_email'] === true);
 				this.notifInApp.set(settings['channel_in_app'] !== false);
+				this.prefsRef = { email: this.notifEmail(), inApp: this.notifInApp() };
 				this.prefsState.set('ready');
 			},
 			error: () => this.prefsState.set('error')
 		});
 	}
 
+	/** The body of PUT /profiles/update for the main form (also the shape compared with the last-known stored value). */
+	private buildProfilePayload(): any {
+		if (this.isClient) return { ...this.clientForm.value, interests: this.interests() };
+		const payload: any = { ...this.providerForm.value, skills: this.skills(), interests: this.interests() };
+		// Ensure numeric rate
+		if (payload.hourlyRate) payload.hourlyRate = Number(payload.hourlyRate);
+		return payload;
+	}
+
 	saveProfile() {
 		this.errorMsg.set('');
 		this.successMsg.set('');
 
-		let payload: any = {};
 		const form = this.isClient ? this.clientForm : this.providerForm;
 		const attempt = attemptSubmit(form, { root: this.root(), labels: PROFILE_LABELS });
 		this.missing.set(attempt.missing);
 		if (!attempt.valid) return;
 
-		if (this.isClient) {
-			payload = { ...this.clientForm.value, interests: this.interests() };
-		} else {
-			payload = { ...this.providerForm.value, skills: this.skills(), interests: this.interests() };
-			// Ensure numeric rate
-			if (payload.hourlyRate) payload.hourlyRate = Number(payload.hourlyRate);
+		const payload = this.buildProfilePayload();
+		const snapshot = JSON.stringify(payload);
+		// Nothing changed in the profile since it was loaded / last stored: no PUT (the success message and the preferences step stay as they were).
+		if (this.profileRef !== null && snapshot === this.profileRef) {
+			this.savePreferencesThenFinish();
+			return;
 		}
 
 		this.isSaving.set(true);
@@ -692,29 +680,41 @@ export class ProfileEdit {
 					this.errorMsg.set(res.message || 'حدث خطأ أثناء الحفظ');
 					return;
 				}
-				// Client: the channel toggles are part of this save. Success is shown only when BOTH the profile and the preferences are stored.
-				if (this.isClient && this.prefsState() === 'ready') {
-					this.prefsApi.updatePreferences({ channel_email: this.notifEmail(), channel_in_app: this.notifInApp() }).subscribe({
-						next: (pr) => {
-							this.isSaving.set(false);
-							if (pr?.success) this.finishSave();
-							else this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
-						},
-						error: () => {
-							this.isSaving.set(false);
-							this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
-						}
-					});
-				} else {
-					this.isSaving.set(false);
-					this.finishSave();
-				}
+				this.profileRef = snapshot;
+				this.savePreferencesThenFinish();
 			},
 			error: (err) => {
 				this.isSaving.set(false);
 				this.showSaveError(form, err, 'فشل الحفظ، يرجى المحاولة مرة أخرى');
 			}
 		});
+	}
+
+	/**
+	 * Client: the channel toggles are part of this save, but PATCH /notifications/preferences is sent ONLY when they differ from the last-known stored values
+	 * (no change = no write, no updatedAt bump). Success is shown only when everything that had to be stored was stored.
+	 */
+	private savePreferencesThenFinish() {
+		if (this.isClient && this.prefsState() === 'ready') {
+			const next = { email: this.notifEmail(), inApp: this.notifInApp() };
+			if (!this.prefsRef || next.email !== this.prefsRef.email || next.inApp !== this.prefsRef.inApp) {
+				this.isSaving.set(true);
+				this.prefsApi.updatePreferences({ channel_email: next.email, channel_in_app: next.inApp }).subscribe({
+					next: (pr) => {
+						this.isSaving.set(false);
+						if (pr?.success) { this.prefsRef = next; this.finishSave(); }
+						else this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
+					},
+					error: () => {
+						this.isSaving.set(false);
+						this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
+					}
+				});
+				return;
+			}
+		}
+		this.isSaving.set(false);
+		this.finishSave();
 	}
 
 	private finishSave() {

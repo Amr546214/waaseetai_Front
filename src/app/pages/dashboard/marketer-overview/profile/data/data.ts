@@ -87,6 +87,8 @@ export class Data implements OnInit {
 	missing = signal<InvalidField[]>([]);
 	/** Same, for the "add channel" mini-form on the profile tab. */
 	channelMissing = signal<InvalidField[]>([]);
+	/** The WhatsApp card's own error summary (rendered inside that card, not in the identity card). */
+	whatsappMissing = signal<InvalidField[]>([]);
 	/** Inline Arabic message near the active tab's button (nothing changed / pending request exists / server answer). */
 	tabNotice = signal<string | null>(null);
 	/** Avatar file rejected on the client (type/size/read), shown under the picture. */
@@ -326,6 +328,7 @@ export class Data implements OnInit {
 		this.activeTab.set(tab);
 		this.missing.set([]);
 		this.channelMissing.set([]);
+		this.whatsappMissing.set([]);
 		this.tabNotice.set(null);
 	}
 
@@ -410,7 +413,7 @@ export class Data implements OnInit {
 		if (this.savingWhatsapp()) return;
 		this.tabNotice.set(null);
 		const attempt = attemptSubmit(this.contactForm, { root: this.scoped('[data-form="whatsapp"]'), labels: LABELS });
-		this.missing.set(attempt.missing);
+		this.whatsappMissing.set(attempt.missing);
 		if (!attempt.valid) return;
 
 		const value = phoneToE164(this.contactForm.get('alternativePhone')!.value);
@@ -420,14 +423,14 @@ export class Data implements OnInit {
 		).subscribe({
 			next: (res) => {
 				if (res.success === false) { this.notify.error(this.arabicOr(res.message, 'تعذر حفظ رقم WhatsApp')); return; }
-				this.missing.set([]);
+				this.whatsappMissing.set([]);
 				this.contactForm.get('alternativePhone')!.markAsPristine();
 				// keep the page in step with what is stored, without reloading (a reload would reset the other forms)
 				const current = this.profile();
 				if (current) this.profile.set({ ...current, user: { ...current.user, alternativePhone: value } });
 				this.notify.success(value ? 'تم حفظ رقم WhatsApp' : 'تم حذف رقم WhatsApp');
 			},
-			error: (err) => this.fail(err, this.contactForm, 'تعذر حفظ رقم WhatsApp، حاول مرة أخرى', items => this.missing.set(items), '[data-form="whatsapp"]')
+			error: (err) => this.fail(err, this.contactForm, 'تعذر حفظ رقم WhatsApp، حاول مرة أخرى', items => this.whatsappMissing.set(items), '[data-form="whatsapp"]')
 		});
 	}
 
@@ -495,11 +498,12 @@ export class Data implements OnInit {
 		this.saveMarketingProfile();
 	}
 
-	saveMarketingProfile(successMessage: string = 'تم حفظ الملف التسويقي بنجاح', revertAvatarUrlOnError?: string) {
+	/** `onlyAvatar`: an avatar pick/remove sends ONLY avatarUrl, so an empty or unsaved bio in the form never overwrites the stored one. */
+	saveMarketingProfile(successMessage: string = 'تم حفظ الملف التسويقي بنجاح', revertAvatarUrlOnError?: string, onlyAvatar = false) {
 		if (this.savingProfile()) return;
 
 		this.savingProfile.set(true);
-		this.profileService.updateMarketingInfo(this.marketingForm.value).pipe(
+		this.profileService.updateMarketingInfo(onlyAvatar ? { avatarUrl: this.marketingForm.value.avatarUrl } : this.marketingForm.value).pipe(
 			finalize(() => this.savingProfile.set(false))
 		).subscribe({
 			next: (res) => {
@@ -538,7 +542,7 @@ export class Data implements OnInit {
 			reader.onload = (e: any) => {
 				const base64Str = e.target.result;
 				this.marketingForm.patchValue({ avatarUrl: base64Str });
-				this.saveMarketingProfile('تم تحديث الصورة الشخصية بنجاح', previousAvatarUrl);
+				this.saveMarketingProfile('تم تحديث الصورة الشخصية بنجاح', previousAvatarUrl, true);
 			};
 			reader.onerror = () => {
 				this.avatarError.set('تعذرت قراءة ملف الصورة، حاول مرة أخرى');
@@ -557,7 +561,7 @@ export class Data implements OnInit {
 			return;
 		}
 		this.marketingForm.patchValue({ avatarUrl: '' });
-		this.saveMarketingProfile('تم حذف الصورة الشخصية بنجاح', previousAvatarUrl);
+		this.saveMarketingProfile('تم حذف الصورة الشخصية بنجاح', previousAvatarUrl, true);
 	}
 
 	// ---------- channels ----------
