@@ -29,6 +29,8 @@ export const routes: Routes = [
 	{
 		path: 'client-overview',
 		canActivate: [authGuard, clientGuard],
+		// K-5: re-check the acting role on every in-app navigation under the area (a tab whose role changed must not keep opening this area's pages)
+		runGuardsAndResolvers: 'always',
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),
 		children: CLIENT_OVERVIEW_ROUTES
 	},
@@ -53,6 +55,8 @@ export const routes: Routes = [
 	{
 		path: 'marketer-overview',
 		canActivate: [authGuard, marketerGuard],
+		// K-5: same as the client area
+		runGuardsAndResolvers: 'always',
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),
 		children: MARKETER_ROUTES
 	},

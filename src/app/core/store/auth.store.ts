@@ -132,18 +132,26 @@ export class AuthStore {
     const role = this.actingRole();
     if (!role) return;
     const target = redirectTargetAfterRoleChange(this.router.url, role);
-    if (target) this.router.navigateByUrl(target);
+    if (!target || this.followingTo === target) return; // the same redirect is already on its way (parallel 403s): do not repeat it
+    this.followingTo = target;
+    const done = () => { if (this.followingTo === target) this.followingTo = null; };
+    this.router.navigateByUrl(target).then(done, done);
   }
+
+  private followingTo: string | null = null;
 
   /**
    * The server told us (ROLE_MISMATCH 403) which role it accepts for this account. Adopt it in the session (signal + cookie + localStorage, so the menu and
-   * the guards follow) and leave a page that belongs to the other role. Returns false (and does nothing) when it is already the local role or there is no session.
+   * the guards follow) and leave a page that belongs to the other role. Returns true only when the local role CHANGED (so the caller tells the user once);
+   * when the role was already adopted earlier but the tab is still inside the other role's area (the earlier redirect was superseded by a click), the tab is
+   * still moved out - that is a no-op whenever the URL is already in the right area, so it can never loop. No session: nothing happens.
    */
   public reconcileActiveRole(serverRole: UserRole): boolean {
-    if (!this._currentUser() || this.actingRole() === serverRole) return false;
-    this.updateUser({ activeRole: serverRole });
+    if (!this._currentUser()) return false;
+    const changed = this.actingRole() !== serverRole;
+    if (changed) this.updateUser({ activeRole: serverRole });
     this.followRoleChange();
-    return true;
+    return changed;
   }
 
   // --- Cookie Utility Methods ---
