@@ -668,3 +668,32 @@ describe('Register: the server refuses the request because of the send interval 
 		expect(el.querySelector('#otp-notice')).toBeNull();
 	});
 });
+
+describe('Register: the code step after the (uniform) answer', () => {
+	const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
+	afterEach(() => vi.unstubAllGlobals());
+
+	it('is a neutral notice (not a success banner), claims no send, conditions completion on valid data, and offers edit / login / recovery', () => {
+		const { fixture, component, postSpy } = setup();
+		fixture.detectChanges();
+		component.selectedAccountType = 'service_provider_ind';
+		component.currentStep = 2;
+		component.basicInfoForm.patchValue(valid);
+		postSpy.mockImplementation((url: string) => /register/.test(String(url)) ? of({ success: true, data: {}, message: 'ok' }) : of({ success: true }));
+		component.nextStep();
+		fixture.detectChanges(false);
+		const el = fixture.nativeElement as HTMLElement;
+		const notice = el.querySelector('[data-testid="otp-notice"]')!;
+		expect(notice.classList.contains('banner-info')).toBe(true);
+		expect(el.querySelector('.banner-success')).toBeNull();
+		expect(notice.textContent).toContain('مشروط بصحة البيانات');
+		expect(notice.textContent).not.toMatch(/أرسلنا|تم إرسال|تم الإرسال/);
+		expect(el.querySelector('[data-testid="code-step-spam-hint"]')!.textContent).not.toContain('لا نضمن');
+		expect(el.textContent).toContain('تعديل البريد أو الجوال');
+		expect(el.querySelector('#code-step-login-link')).not.toBeNull();
+		expect(el.querySelector('#code-step-forgot-link')).not.toBeNull();
+		component.prevStep(); fixture.detectChanges(false);
+		expect(component.currentStep).toBe(2);
+		expect(component.basicInfoForm.value.email).toBe('sara@example.com');
+	});
+});

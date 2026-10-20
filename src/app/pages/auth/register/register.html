@@ -423,14 +423,13 @@
     }
 
     @if (otpNotice && !errorMessage) {
-    <div class="banner-success" id="otp-notice" role="status">
-      <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
+    <div class="banner-info" id="otp-notice" role="status" data-testid="otp-notice">
       <span>{{ otpNotice }}</span>
     </div>
     }
 
     <div class="banner-info" role="note" data-testid="code-step-help">
-      <span>لم يصلك رمز؟ إن كان لديك حساب مفعّل فلن يصلك رمز هنا.</span>
+      <span>لم يصلك رمز؟ قد تكون بياناتك بحاجة إلى تعديل، أو يكون لديك حساب مفعّل بالفعل فلن يصلك رمز هنا.</span>
       <span data-testid="code-step-spam-hint">{{ deliveryHint }}</span>
       <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
       <a routerLink="/auth/forget-password" class="banner-error-link" id="code-step-forgot-link">استعادة كلمة المرور</a>
@@ -464,7 +463,7 @@
         </button>
         <button type="button" class="btn-tertiary" (click)="prevStep()">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
-          رجوع
+          تعديل البريد أو الجوال
         </button>
       </div>
     </form>

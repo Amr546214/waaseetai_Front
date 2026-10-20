@@ -20,13 +20,14 @@ describe('verify-otp: target address and delivery hint', () => {
 	}
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('arriving from the login page: masked target + Spam hint, and the hint makes no delivery promise', () => {
+	it('arriving from the login page: masked target + Spam hint, and the hint is extra guidance only (no promise, no disclaimer)', () => {
 		const el = mount({ sent: true, message: 'أرسلنا رمز تسجيل الدخول إلى بريدك الإلكتروني، أدخله لإكمال الدخول.', to: maskEmailAddress('amr250010+provider-test2@gmail.com') });
 		expect(el.querySelector('[data-testid="otp-target"]')?.textContent).toContain('a***2@gm***.com');
 		const hint = el.querySelector('[data-testid="otp-delivery-hint"]')?.textContent ?? '';
 		expect(hint).toBe(OTP_DELIVERY_HINT);
 		expect(hint).toContain('Spam');
-		expect(hint).toContain('لا نضمن');
+		expect(hint).not.toContain('لا نضمن');
+		expect(hint).toContain('إرشاد إضافي');
 	});
 	it('after a reload (no hand-off): no invented address, the hint stays', () => {
 		const el = mount();

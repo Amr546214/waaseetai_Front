@@ -10,7 +10,7 @@ export const OTP_SENT_MESSAGE = 'تم إرسال رمز التحقق إلى بر
  * Shown on the code step after EVERY registration request (the answer is identical for a new and an in-use address, so the page cannot know
  * which one it was): it claims no code and no account state. The code step is for whoever received a code; the links are for the rest.
  */
-export const REGISTER_CODE_STEP_MESSAGE = 'إن كان بريدك بحاجة إلى تفعيل فقد أرسلنا إليه رمز التحقق. أدخله هنا، أو اطلب رمزًا جديدًا إن لم يصلك.';
+export const REGISTER_CODE_STEP_MESSAGE = 'أدخل الرمز إن وصلك. إكمال التسجيل مشروط بصحة البيانات المُدخلة، فإن لم يصلك رمز فراجع بريدك وجوالك وعدّلهما عند الحاجة، أو عُد إلى تسجيل الدخول أو استعادة كلمة المرور.';
 /** Resend from the registration code step is a generic always-200 answer: it claims only a condition. */
 export const REGISTER_RESEND_MESSAGE = 'إن كان هناك حساب بانتظار التفعيل لهذا البريد فقد أرسلنا إليه رمزًا جديدًا';
 /** Resend is unauthenticated and answers the same for every id: conditional wording as well. */
@@ -18,8 +18,8 @@ export const RESEND_SENT_MESSAGE = 'إذا كان الحساب بانتظار ا
 export const OTP_SEND_FAILED_MESSAGE = 'تعذر إرسال رمز التحقق، حاول مرة أخرى بعد قليل أو تواصل مع الدعم';
 export const UNVERIFIED_NEUTRAL_MESSAGE = 'حسابك غير مفعّل بعد. أدخل رمز التحقق المرسل إلى بريدك أو اطلب رمزًا جديدًا.';
 
-/** Said next to every code step. It promises nothing: the mail is accepted by our server, then delivered (or not) by the mail provider. */
-export const OTP_DELIVERY_HINT = 'قد يتأخر وصول الرسالة دقيقة أو أكثر. راجع مجلد Spam أو الرسائل غير المرغوب فيها (وقسم الترويجات). لا نضمن وصولها.';
+/** Extra guidance next to a code step (never a promise, never a claim that something was sent). */
+export const OTP_DELIVERY_HINT = 'إرشاد إضافي: قد يتأخر وصول الرسائل دقيقة أو أكثر، فراجع أيضًا مجلد Spam أو الرسائل غير المرغوب فيها (وقسم الترويجات).';
 
 /** «a***b@gm***.com»: the address a code was addressed to, shown without exposing it in full. */
 export function maskEmailAddress(raw: string | null | undefined): string {
