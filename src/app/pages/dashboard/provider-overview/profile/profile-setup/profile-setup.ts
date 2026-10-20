@@ -369,6 +369,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						return;
 					}
 					this.currentStep.set(start.step);
+					if (start.step === 5) this.initPortfolioCards();
 				}
 			}
 		});
@@ -529,8 +530,26 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			const host = this.host.nativeElement as HTMLElement;
 			const panel = host.querySelector<HTMLElement>('.step-panel.active') ?? host;
 			// Upload slots are not form controls: when nothing invalid is focusable, focus the first upload input.
-			if (!focusFirstInvalid(panel)) panel.querySelector<HTMLElement>('.upload-file-inp, .upload-area')?.focus();
+			if (focusFirstInvalid(panel)) return;
+			// Upload slots are not form controls: focus and scroll to the first slot that carries an error (below the sticky header: see scroll-margin-top in the css).
+			const slot = panel.querySelector<HTMLElement>('.pw-col.has-error, .doc-card.has-error');
+			const target = slot?.querySelector<HTMLElement>('.upload-area, label[tabindex="0"], button') ?? panel.querySelector<HTMLElement>('.upload-file-inp, .upload-area');
+			target?.focus({ preventScroll: true });
+			(slot ?? target)?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
 		});
+	}
+
+	/** Every chosen sub-specialty shows at least one (empty) model card, so the upload slots exist when the step is reached by the step bar OR by resuming the wizard on it. */
+	private initPortfolioCards() {
+		const current = { ...this.portfolioItems() };
+		let changed = false;
+		this.chosenSubSpecs().forEach(spec => {
+			if (!current[spec] || current[spec].length === 0) {
+				current[spec] = [this.emptyPortfolioItem()];
+				changed = true;
+			}
+		});
+		if (changed) this.portfolioItems.set(current);
 	}
 
 	goToStep(step: number) {
@@ -550,17 +569,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.missing.set([]);
 
 		// Auto-init portfolio when reaching step 5
-		if (step === 5) {
-			const current = { ...this.portfolioItems() };
-			let changed = false;
-			this.selectedSpecs().forEach(s => {
-				if (!current[s] || current[s].length === 0) {
-					current[s] = [this.emptyPortfolioItem()];
-					changed = true;
-				}
-			});
-			if (changed) this.portfolioItems.set(current);
-		}
+		if (step === 5) this.initPortfolioCards();
 
 		this.currentStep.set(step);
 		window.scrollTo({ top: 0, behavior: 'smooth' });

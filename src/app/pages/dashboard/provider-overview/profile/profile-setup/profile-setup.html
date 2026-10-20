@@ -698,7 +698,7 @@
                   <span class="pw-spec-name">{{ spec }}</span>
                   <span class="pw-spec-count">{{ getPortfolioCount(spec) }}</span>
                 </div>
-                @if (fileErr('pf-spec-' + spec); as e) { <div class="f-err" id="err-pf-spec-{{ $index }}" data-testid="pf-spec-error" role="alert">{{ e }}</div> }
+                @if (fileErr('pf-spec-' + spec); as e) { <div class="f-err" id="err-pf-spec-{{ specIdx }}" data-testid="pf-spec-error" role="alert">{{ e }}</div> }
 
                 @for (item of getPortfolioItems(spec); track $index; let itemIdx = $index) {
                   <div class="pw-item">
@@ -722,18 +722,18 @@
                           } @else if (getUploadState('portfolio-review-' + spec + '-' + itemIdx)?.status === 'error') {
                             <span class="f-hint txt-red">تعذر رفع الملف، حاول مرة أخرى</span>
                           }
-                          <label class="pw-replace-btn" style="cursor:pointer">
-                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" aria-required="true" [attr.aria-invalid]="fileErr('pf-review-' + spec + '-' + itemIdx) ? 'true' : null" aria-label="رفع ملف نموذج العمل" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
+                          <label class="pw-replace-btn" style="cursor:pointer" tabindex="0" role="button" (keydown.enter)="$any($event.currentTarget).click()" (keydown.space)="$any($event.currentTarget).click(); $event.preventDefault()" aria-label="رفع ملف نموذج العمل" aria-required="true" [attr.aria-invalid]="fileErr('pf-review-' + spec + '-' + itemIdx) ? 'true' : null" [attr.aria-describedby]="fileErr('pf-review-' + spec + '-' + itemIdx) ? 'err-pf-review-' + specIdx + '-' + itemIdx : null">
+                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-upload"></use></svg>استبدال الملف
                           </label>
                         } @else {
-                          <label class="pw-upload-empty" style="cursor:pointer">
-                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" aria-required="true" [attr.aria-invalid]="fileErr('pf-review-' + spec + '-' + itemIdx) ? 'true' : null" aria-label="رفع ملف نموذج العمل" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
+                          <label class="pw-upload-empty" style="cursor:pointer" tabindex="0" role="button" (keydown.enter)="$any($event.currentTarget).click()" (keydown.space)="$any($event.currentTarget).click(); $event.preventDefault()" aria-label="رفع ملف نموذج العمل" aria-required="true" [attr.aria-invalid]="fileErr('pf-review-' + spec + '-' + itemIdx) ? 'true' : null" [attr.aria-describedby]="fileErr('pf-review-' + spec + '-' + itemIdx) ? 'err-pf-review-' + specIdx + '-' + itemIdx : null">
+                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-upload"></use></svg>
                             <span>ارفع نموذج العمل</span>
                           </label>
                         }
-                        @if (fileErr('pf-review-' + spec + '-' + itemIdx); as e) { <div class="f-err" data-testid="pf-review-error" role="alert">{{ e }}</div> }
+                        @if (fileErr('pf-review-' + spec + '-' + itemIdx); as e) { <div class="f-err" id="err-pf-review-{{ specIdx }}-{{ itemIdx }}" data-testid="pf-review-error" role="alert">{{ e }}</div> }
                       </div>
 
                       <div class="pw-col pw-col-proof" [class.has-error]="!!fileErr('pf-proof-' + spec + '-' + itemIdx)">
@@ -758,11 +758,11 @@
                             </div>
                           }
                         </div>
-                        <label class="pw-add-proof" style="cursor:pointer">
-                          <input type="file" accept="image/*,.pdf,.zip" multiple style="display:none" aria-required="true" [attr.aria-invalid]="fileErr('pf-proof-' + spec + '-' + itemIdx) ? 'true' : null" aria-label="رفع وثيقة إثبات الملكية" (change)="onPortfolioProofsChange($event, spec, itemIdx)">
+                        <label class="pw-add-proof" style="cursor:pointer" tabindex="0" role="button" (keydown.enter)="$any($event.currentTarget).click()" (keydown.space)="$any($event.currentTarget).click(); $event.preventDefault()" aria-label="إضافة وثيقة إثبات ملكية" aria-required="true" [attr.aria-invalid]="fileErr('pf-proof-' + spec + '-' + itemIdx) ? 'true' : null" [attr.aria-describedby]="fileErr('pf-proof-' + spec + '-' + itemIdx) ? 'err-pf-proof-' + specIdx + '-' + itemIdx : null">
+                          <input type="file" accept="image/*,.pdf,.zip" multiple style="display:none" (change)="onPortfolioProofsChange($event, spec, itemIdx)">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة وثيقة أخرى
                         </label>
-                        @if (fileErr('pf-proof-' + spec + '-' + itemIdx); as e) { <div class="f-err" data-testid="pf-proof-error" role="alert">{{ e }}</div> }
+                        @if (fileErr('pf-proof-' + spec + '-' + itemIdx); as e) { <div class="f-err" id="err-pf-proof-{{ specIdx }}-{{ itemIdx }}" data-testid="pf-proof-error" role="alert">{{ e }}</div> }
                       </div>
                     </div>
                     @if (getPortfolioItems(spec).length > 1) {

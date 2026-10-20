@@ -127,6 +127,14 @@ describe('provider setup wizard component: resume from saved data', () => {
 		expect(resolveProviderSetup({ ...SAVED, portfolioItems: [{ title: 'نموذج أعمال - React', description: null, descriptionAccess: { private: true }, tags: [null], tagsAccess: [{ private: true }] }] })).toEqual({ kind: 'step', step: 6 });
 		expect(resolveProviderSetup({ ...SAVED, portfolioItems: [{ title: 'نموذج أعمال - React', description: null, descriptionAccess: { private: true }, tags: [], tagsAccess: [] }] })).toEqual({ kind: 'step', step: 5 });
 	});
+	it('resuming ON step 5 shows an upload card (model file + proof slots) for every chosen sub-specialty, not an empty list', () => {
+		const { c, el } = mount({ ...SAVED, portfolioItems: [] });
+		expect(c.currentStep()).toBe(5);
+		const subs = SAVED.subSpecialties.length;
+		expect(el.querySelectorAll('.pw-item').length).toBe(subs);
+		expect(el.querySelectorAll('.pw-col-review input[type="file"]').length).toBe(subs);
+		expect(el.querySelectorAll('.pw-col-proof input[type="file"]').length).toBe(subs);
+	});
 	it('form submitted, test pending: opens on step 7', () => {
 		expect(mount({ ...SAVED, isProfileSetupComplete: true }).c.currentStep()).toBe(7);
 	});

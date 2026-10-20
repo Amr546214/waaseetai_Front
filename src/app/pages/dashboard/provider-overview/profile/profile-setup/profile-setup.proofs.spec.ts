@@ -59,9 +59,46 @@ describe('provider setup step 5: proof of ownership is required', () => {
     expect(c.currentStep()).toBe(5);
     expect(text('pf-proof-error')).toContain('أرفق وثيقة إثبات ملكية واحدة على الأقل');
     expect(el().querySelector('.pw-col-proof')!.classList.contains('has-error')).toBe(true);
-    expect(el().querySelector('.pw-col-proof input[type="file"]')!.getAttribute('aria-invalid')).toBe('true');
-    expect(el().querySelector('.pw-col-proof input[type="file"]')!.getAttribute('aria-required')).toBe('true');
+    // aria goes to the REAL interactive control of the slot (the keyboard-operable label that opens the chooser), pointing at its message
+    const control = el().querySelector('.pw-col-proof label.pw-add-proof')!;
+    expect(control.getAttribute('aria-invalid')).toBe('true');
+    expect(control.getAttribute('aria-required')).toBe('true');
+    expect(el().querySelector('#' + control.getAttribute('aria-describedby'))?.textContent).toContain('أرفق وثيقة إثبات ملكية');
     expect(el().querySelector('[data-testid="portfolio-file-errors"]')).toBeNull();
+  });
+
+  it('the first attachment with an error gets the focus (its real, keyboard-operable control) and is scrolled into view', async () => {
+    document.body.appendChild(el());
+    const scrolled = vi.fn();
+    (Element.prototype as any).scrollIntoView = scrolled;
+    c.portfolioItems.set({ [SPEC]: [{ review: 'r-url', reviewDisplayName: 'r', proofs: [], proofDisplayNames: [] }] });
+    c.goToStep(6); render();
+    await new Promise(r => setTimeout(r, 30));
+    const active = document.activeElement as HTMLElement;
+    expect(active.closest('.pw-col-proof')).not.toBeNull();
+    expect(active.getAttribute('tabindex')).toBe('0');
+    expect(active.getAttribute('role')).toBe('button');
+    expect(scrolled).toHaveBeenCalled();
+    // keyboard: Enter on the focused control opens the file chooser (clicks the hidden input through the label)
+    const input = active.querySelector('input[type="file"]') as HTMLInputElement;
+    const clicked = vi.fn(); input.addEventListener('click', clicked);
+    active.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(clicked).toHaveBeenCalled();
+    el().remove();
+  });
+
+  it('a REAL in-flight proof upload (not a hand-set state) blocks the step with the "wait" message until it completes, then the message clears', () => {
+    set({ review: 'r-url', reviewDisplayName: 'r.pdf' });
+    const file = new File([new Uint8Array(10)], 'proof.pdf', { type: 'application/pdf' });
+    c.onPortfolioProofsChange({ target: { files: [file], value: 'x' } }, SPEC, 0);
+    const req = http.expectOne(r => r.url.endsWith('/documents/upload'));
+    next();
+    expect(c.currentStep()).toBe(5);
+    expect(text('pf-proof-error')).toContain('انتظر اكتمال رفع وثيقة الإثبات');
+    req.flush({ data: { url: 'p-url', name: 'proof.pdf' } });
+    next();
+    expect(c.currentStep()).toBe(6);
+    expect(c.fileErr(`pf-proof-${SPEC}-0`)).toBe('');
   });
 
   it('a proof that is still uploading, or whose upload failed, is not a proof: each says so under the slot', () => {
