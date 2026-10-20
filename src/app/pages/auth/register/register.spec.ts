@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { ChangeDetectorRef, Component, signal } from '@angular/core';
@@ -641,5 +641,30 @@ describe('Register', () => {
 			expect(fixture.debugElement.query(By.css('#affiliate-locked-display'))).toBeNull();
 			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeNull();
 		});
+	});
+});
+
+
+describe('Register: the server refuses the request because of the send interval (429)', () => {
+	const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
+	afterEach(() => vi.unstubAllGlobals());
+
+	it('says how long to wait (ticking text under the stepper), locks the submit button, stays on step 2 and never claims a send', () => {
+		const { fixture, component, postSpy } = setup();
+		fixture.detectChanges();
+		component.selectedAccountType = 'service_provider_ind';
+		component.currentStep = 2;
+		component.basicInfoForm.patchValue(valid);
+		postSpy.mockImplementation((url: string) => /register/.test(String(url))
+			? throwError(() => new HttpErrorResponse({ status: 429, headers: new HttpHeaders({ 'Retry-After': '60' }), error: { success: false, message: 'أرسلنا الرمز بالفعل.', retryAfterSeconds: 60, errors: [{ code: 'OTP_RATE_LIMITED', reason: 'interval', retryAfterSeconds: 60 }] } }))
+			: of({ success: true }));
+		component.nextStep();
+		fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		expect(component.currentStep).toBe(2);
+		expect(component.accountCreated).toBe(false);
+		expect(el.querySelector('[data-testid="rate-limit-msg"]')?.textContent).toMatch(/\d/);
+		expect((el.querySelector('#btn-next') as HTMLButtonElement).disabled).toBe(true);
+		expect(el.querySelector('#otp-notice')).toBeNull();
 	});
 });
