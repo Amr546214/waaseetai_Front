@@ -53,7 +53,12 @@ export class App implements OnInit {
 
 	constructor() {
 		// aria-invalid / aria-describedby for every invalid form control, site wide (browser only).
-		if (typeof document !== 'undefined') inject(FormA11ySyncService).start(document);
+		if (typeof document !== 'undefined') {
+			const a11ySync = inject(FormA11ySyncService);
+			a11ySync.start(document);
+			// the observer lives as long as the app does: when the root component is destroyed (a test tearing down) it stops, so it cannot leak onto the shared document of later specs
+			inject(DestroyRef).onDestroy(() => a11ySync.stop());
+		}
 		this.router.events
 			.pipe(filter((e) => e instanceof NavigationEnd), takeUntilDestroyed(inject(DestroyRef)))
 			.subscribe(() => this.syncAssistantRoute());
