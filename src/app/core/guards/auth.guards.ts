@@ -1,3 +1,4 @@
+import { rememberReturnUrl } from '../routing/return-url';
 import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CanActivateFn, Router } from '@angular/router';
@@ -42,7 +43,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 
       // 3. Route Memory Preservation
       // Save target URL in localStorage so login page can redirect back after success
-      localStorage.setItem('returnUrl', state.url);
+      rememberReturnUrl(state.url);
 
       // Not authenticated, redirect to login
       return router.createUrlTree(['/auth/login'], {
