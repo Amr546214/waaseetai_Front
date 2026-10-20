@@ -263,9 +263,9 @@ export abstract class AddAccountBase implements OnInit {
   }
 
   selectType(type: string) {
-    if (this.isRoleActive(type) || this.isRoleUnavailable(type)) {
-      return;
-    }
+    // A card that cannot be chosen says why instead of ignoring the click.
+    if (this.isRoleActive(type)) { this.notify.info('هذا هو حسابك النشط حاليًا. اختر نوع حساب آخر لإضافته.'); return; }
+    if (this.isRoleUnavailable(type)) { this.notify.info('هذا النوع من الحسابات غير متاح حاليًا.'); return; }
 
     if (this.isRoleOwned(type)) {
       const role = this.mapTypeToRole(type);

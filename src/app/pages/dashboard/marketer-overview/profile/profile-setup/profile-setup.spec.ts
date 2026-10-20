@@ -35,7 +35,8 @@ describe('ProfileSetup (marketer): shared validation', () => {
   const el = () => fixture.nativeElement as HTMLElement;
   const summary = () => el().querySelector('[data-testid="form-summary"]')?.textContent || '';
   const errors = () => Array.from(el().querySelectorAll('[data-testid="field-error"]')).map(e => e.textContent || '');
-  const goTo = (step: number) => { component.setStep(step); render(); };
+  // navigation by the bar is gated by the required items (tested in profile-setup.required.spec.ts); these specs test what each step does, so they place the wizard on it
+  const goTo = (step: number) => { component.currentStep.set(step); render(); };
   const fillPaypal = () => component.paypalForm.patchValue({ paypalPayoutEmail: 'm@example.com' });
 
   it('should create', () => {
@@ -58,10 +59,10 @@ describe('ProfileSetup (marketer): shared validation', () => {
       el().remove();
     });
 
-    it('the step explains that it can be completed, or passed with "التالي"', () => {
+    it('the step says one valid channel is required (any platform), and how to add it', () => {
       goTo(3);
       expect(el().textContent).not.toContain('تخطي');
-      expect(el().textContent).toContain('اضغط "التالي" للمتابعة بدونها');
+      expect(el().textContent).toContain('قناة واحدة صالحة تكفي');
       expect(el().textContent).toContain('اضغط "إضافة ومتابعة"');
     });
 
@@ -69,7 +70,7 @@ describe('ProfileSetup (marketer): shared validation', () => {
       goTo(3);
       component.channelForm.patchValue({ platform: 'LINKEDIN', handle: 'https://linkedin.com/in/x' });
       component.addChannel();
-      expect(svc.addChannel).toHaveBeenCalledWith({ platform: 'LINKEDIN', handle: 'https://linkedin.com/in/x' });
+      expect(svc.addChannel).toHaveBeenCalledWith({ platform: 'LINKEDIN', handle: 'https://linkedin.com/in/x', setup: true });
       expect(component.currentStep()).toBe(4);
       expect(component.missing()).toEqual([]);
     });
@@ -147,7 +148,7 @@ describe('ProfileSetup (marketer): shared validation', () => {
   });
 
   describe('bio step', () => {
-    it('is optional, but a bio over the 500-character limit is explained and not sent', () => {
+    it('a bio over the 500-character limit is explained and not sent', () => {
       goTo(2);
       component.marketingForm.get('bio')!.setValue('x'.repeat(501));
       component.saveBio(); render();
@@ -156,10 +157,11 @@ describe('ProfileSetup (marketer): shared validation', () => {
       expect(summary()).toContain('الوصف التسويقي');
     });
 
-    it('an empty bio is valid and saved', () => {
+    it('an empty bio is NOT valid any more: nothing is sent and the message is under the bio', () => {
       goTo(2);
-      component.saveBio();
-      expect(svc.updateMarketingInfo).toHaveBeenCalledTimes(1);
+      component.saveBio(); render();
+      expect(svc.updateMarketingInfo).not.toHaveBeenCalled();
+      expect(errors().some(t => t.includes('الوصف التسويقي مطلوب'))).toBe(true);
     });
   });
 
@@ -175,6 +177,8 @@ describe('ProfileSetup (marketer): shared validation', () => {
     vi.useFakeTimers();
     try {
       const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+      // the two required items are in place (a saved bio and one channel)
+      component.profile.set({ bio: 'وصف تسويقي', marketingChannels: [{ id: 'c1', platform: 'TIKTOK', handle: 'x' }] } as any);
       component.finish();
       expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: 'تم استكمال بياناتك بنجاح' });
       vi.advanceTimersByTime(1200);

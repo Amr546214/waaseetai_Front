@@ -101,7 +101,7 @@ describe('marketer setup wizard component: resume from saved data', () => {
 	it('re-reading the profile after a saved step never moves the user back (only the first read decides the step)', () => {
 		const { c } = mount(profile({ missingItems: [item('bio'), item('channel'), item('payout')], completionPercentage: 0 }));
 		expect(c.currentStep()).toBe(2);
-		c.setStep(4);
+		c.currentStep.set(4); // placed on the step (the bar is gated by the required items: see profile-setup.required.spec.ts)
 		c.loadProfile();                      // what saveBio/addChannel do after each save
 		expect(c.currentStep()).toBe(4);
 	});
