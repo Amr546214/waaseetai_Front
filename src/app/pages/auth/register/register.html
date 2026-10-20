@@ -274,7 +274,7 @@
             <label class="field-lbl" for="password-confirm">تأكيد كلمة المرور <span class="ws-req" aria-hidden="true">*</span></label>
             <div class="pw-wrap">
               <input class="field-in" [type]="showConfirmPassword ? 'text' : 'password'" id="password-confirm" formControlName="confirmPassword" placeholder="اعد كتابة كلمة المرور" autocomplete="new-password" aria-required="true" [attr.aria-invalid]="confirmMismatchError ? 'true' : null" [attr.aria-describedby]="confirmMismatchError ? 'err-confirm' : null"
-                [class.has-error]="(basicInfoForm.get('confirmPassword')?.touched || basicInfoForm.touched) && basicInfoForm.hasError('mismatch')">
+                [class.has-error]="!!confirmMismatchError" [attr.aria-invalid]="confirmMismatchError ? 'true' : null" [attr.aria-describedby]="confirmMismatchError ? 'err-confirm' : null">
               <button type="button" class="pw-eye" id="pw-toggle-2" (click)="toggleConfirmPassword()" [attr.aria-label]="showConfirmPassword ? 'اخفاء تأكيد كلمة المرور' : 'اظهار تأكيد كلمة المرور'">
                 @if (!showConfirmPassword) {
                 <svg id="pw-show-2" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-eye-on"></use></svg>

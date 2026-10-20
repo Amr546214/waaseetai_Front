@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 
-const CONTROL = 'input, textarea, select, [formcontrolname], ws-select';
+// Upload drop zones are the real interactive element of a file field (the <input type=file> is hidden): they get the same aria state as an input.
+const UPLOAD_ZONE = '.upload-card[tabindex], .upload-area[tabindex], .file-upload[tabindex], .up-drop-zone[tabindex]';
+const CONTROL = `input, textarea, select, [formcontrolname], ws-select, ${UPLOAD_ZONE}`;
 // Field-level error texts (one per control): the shared component, markInvalid and the older per-page classes.
 const FIELD_TEXT = '.field-error, .field-err, .f-err, .nl-error, .dp-field-error, .dp-rf-err, .acc-rf-err, .wd-field-err, .wd-af-err, .mk-err, .kq-err, .ss-err';
 // Form-level error banners (not tied to one control): they only get role="alert" so they are announced.
@@ -38,7 +40,8 @@ export class FormA11ySyncService {
 		this.announceMessages(doc);
 		const invalid = new Set(Array.from(doc.querySelectorAll<HTMLElement>(CONTROL)).filter((el) => this.isInvalid(el)));
 		// hand-validated forms (signals, no ng-invalid class): the control the visible error text sits under is invalid too
-		for (const m of Array.from(doc.querySelectorAll<HTMLElement>(FIELD_TEXT))) {
+		// (ws-field-error renders [role=alert][data-testid=field-error]: under a control that is not an ng control, such as an upload zone, it is the only signal)
+		for (const m of Array.from(doc.querySelectorAll<HTMLElement>(`${FIELD_TEXT}, [role="alert"][data-testid="field-error"]`))) {
 			if (m.hidden || !m.textContent?.trim()) continue;
 			const el = this.controlOf(m);
 			if (el && !(el as HTMLInputElement).disabled && !el.classList.contains('ws-invalid') && !el.classList.contains('ng-valid')) invalid.add(el);
@@ -113,7 +116,9 @@ export class FormA11ySyncService {
 		const prev = el.getAttribute('data-ws-a11y-desc');
 		if (prev) this.dropDesc(el, prev);
 		el.removeAttribute('data-ws-a11y');
-		el.removeAttribute('aria-invalid');
+		// A control that markInvalid has since taken over (class ws-invalid + its own message) keeps aria-invalid: removing it here left a red field with a
+		// visible message that assistive technology still called valid (typed then cleared, then submitted).
+		if (!el.classList.contains('ws-invalid')) el.removeAttribute('aria-invalid');
 	}
 
 	private dropDesc(el: HTMLElement, id: string): void {

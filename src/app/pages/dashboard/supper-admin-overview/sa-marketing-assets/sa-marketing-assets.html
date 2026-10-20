@@ -44,16 +44,16 @@
   <div class="ma-overlay" role="dialog" aria-modal="true" aria-label="إضافة مادة تسويقية">
     <div class="ma-modal">
       <h2 class="ma-modal-ttl">إضافة مادة تسويقية</h2>
-      <label class="ma-lbl">العنوان<input id="ma-title" class="ma-in" name="title" [(ngModel)]="title" maxlength="150" required /></label>
+      <label class="ma-lbl">العنوان <span class="ws-req" aria-hidden="true">*</span><input id="ma-title" class="ma-in" name="title" [(ngModel)]="title" maxlength="150" required aria-required="true" /></label>
       <label class="ma-lbl">الوصف (اختياري)<input id="ma-desc" class="ma-in" name="description" [(ngModel)]="description" maxlength="1000" /></label>
       <label class="ma-lbl">النوع
         <ws-select ariaLabel="النوع" [options]="kindOptions" [(ngModel)]="kind" name="kind" (ngModelChange)="onKindChange()"></ws-select>
       </label>
       @if (needsFile) {
-        <label class="ma-lbl">الملف (حتى 25 ميغابايت)<input id="ma-file" class="ma-in" type="file" [accept]="accept" (change)="onFile($event)" /></label>
+        <label class="ma-lbl">الملف (حتى 25 ميغابايت) <span class="ws-req" aria-hidden="true">*</span><input id="ma-file" aria-required="true" class="ma-in" type="file" [accept]="accept" (change)="onFile($event)" /></label>
       }
-      @if (kind === 'LINK') { <label class="ma-lbl">الرابط<input id="ma-link" class="ma-in" style="direction:ltr" name="linkUrl" [(ngModel)]="linkUrl" placeholder="https://" /></label> }
-      @if (kind === 'TEXT') { <label class="ma-lbl">النص<textarea id="ma-text" class="ma-in" rows="5" name="text" [(ngModel)]="text" maxlength="20000"></textarea></label> }
+      @if (kind === 'LINK') { <label class="ma-lbl">الرابط <span class="ws-req" aria-hidden="true">*</span><input id="ma-link" aria-required="true" class="ma-in" style="direction:ltr" name="linkUrl" [(ngModel)]="linkUrl" placeholder="https://" /></label> }
+      @if (kind === 'TEXT') { <label class="ma-lbl">النص <span class="ws-req" aria-hidden="true">*</span><textarea id="ma-text" aria-required="true" class="ma-in" rows="5" name="text" [(ngModel)]="text" maxlength="20000"></textarea></label> }
       <label class="ma-lbl">الجمهور
         <ws-select ariaLabel="الجمهور" [options]="audienceOptions" [(ngModel)]="audience" name="audience"></ws-select>
       </label>

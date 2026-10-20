@@ -35,6 +35,8 @@ const REGISTER_LABELS: Record<string, string> = {
 	agreeTerms: 'الموافقة على شروط الاستخدام وسياسة الخصوصية',
 };
 
+const REGISTER_CONFIRM_REQUIRED = 'تأكيد كلمة المرور مطلوب';
+
 @Component({
 	selector: 'app-register',
 	standalone: true,
@@ -744,8 +746,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	/** Cross-field message (password confirmation). */
 	get confirmMismatchError(): string | null {
-		const touched = this.basicInfoForm.get('confirmPassword')?.touched || this.basicInfoForm.touched;
-		return touched && this.basicInfoForm.hasError('mismatch') ? 'كلمة المرور وتأكيدها غير متطابقتين' : null;
+		const control = this.basicInfoForm.get('confirmPassword');
+		const touched = control?.touched || this.basicInfoForm.touched;
+		if (!touched) return null;
+		// an empty confirmation has its own message under the field (it used to show nothing: only a mismatch was worded)
+		if (control?.enabled && !control.value) return REGISTER_CONFIRM_REQUIRED;
+		return this.basicInfoForm.hasError('mismatch') ? 'كلمة المرور وتأكيدها غير متطابقتين' : null;
 	}
 
 	passwordMatchValidator(g: FormGroup) {

@@ -29,22 +29,27 @@ describe('NotificationHostComponent', () => {
 });
 
 describe('FormSummaryComponent', () => {
-	it('is empty with no items; lists label + reason and emits the clicked item', () => {
+	// CONTRACT CHANGE (owner decision): there is no visible aggregate box any more. Every invalid field shows its own red message under it; this component only
+	// keeps a visually hidden polite live region (count + list) for screen readers. Previously this test asserted a visible role=alert box with a clickable list.
+	it('is empty with no items; with items it is a visually hidden polite live region (count + reasons), never a visible box, and has nothing clickable', () => {
 		const f = TestBed.configureTestingModule({ imports: [FormSummaryComponent] }).createComponent(FormSummaryComponent);
 		f.detectChanges();
 		expect(f.nativeElement.querySelector('[data-testid="form-summary"]')).toBeNull();
 
-		const picked = vi.fn();
-		f.componentInstance.select.subscribe(picked);
 		const item = { path: 'a', label: 'الاسم', message: 'الاسم مطلوب' };
 		f.componentRef.setInput('items', [item]);
 		f.detectChanges();
 		const box = f.nativeElement.querySelector('[data-testid="form-summary"]') as HTMLElement;
-		expect(box.getAttribute('role')).toBe('alert');
-		expect(box.textContent).toContain('أكمل الحقول التالية');
+		expect(box.getAttribute('role')).toBe('status');
+		expect(box.getAttribute('aria-live')).toBe('polite');
+		expect(box.classList.contains('sr-only')).toBe(true);
+		expect(box.className).not.toMatch(/border|bg-red|p-4/);
+		expect(box.textContent).toContain('يوجد حقل واحد يحتاج إلى تصحيح');
 		expect(box.textContent).toContain('الاسم مطلوب');
-		(box.querySelector('li button') as HTMLButtonElement).click();
-		expect(picked).toHaveBeenCalledWith(item);
+		expect(box.querySelector('button')).toBeNull();
+		f.componentRef.setInput('items', [item, { ...item, path: 'b' }, { ...item, path: 'c' }]);
+		f.detectChanges();
+		expect(box.textContent).toContain('يوجد 3 حقول تحتاج إلى تصحيح');
 	});
 });
 
