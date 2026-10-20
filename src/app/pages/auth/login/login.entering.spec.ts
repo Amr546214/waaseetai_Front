@@ -41,11 +41,17 @@ describe('login: locked while the dashboard opens', () => {
 		expect(post).toHaveBeenCalledTimes(1);
 		nav.next(true); await Promise.resolve(); await Promise.resolve();
 	});
-	it('a navigation that does not happen unlocks the form with a message', async () => {
-		const { f, c, nav } = mount();
+	it('a navigation that does not happen shows «إعادة فتح لوحتي» (navigation only; no second login request)', async () => {
+		const { f, c, post, nav } = mount();
+		const el = f.nativeElement as HTMLElement;
 		c.onSubmit(); f.detectChanges();
 		nav.next(false); await Promise.resolve(); await Promise.resolve(); f.detectChanges();
-		expect(c.isSubmitting).toBe(false);
+		expect(el.querySelector('#login-form')).toBeNull();
 		expect(c.errorMessage).toContain('تعذر فتح لوحتك');
+		const navigate = TestBed.inject(Router).navigateByUrl as any;
+		const before = navigate.mock.calls.length;
+		(el.querySelector('[data-testid="reopen-dashboard"]') as HTMLButtonElement).click(); f.detectChanges();
+		expect(navigate.mock.calls.length).toBe(before + 1);
+		expect(post).toHaveBeenCalledTimes(1);
 	});
 });

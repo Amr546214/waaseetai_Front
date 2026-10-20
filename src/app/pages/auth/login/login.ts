@@ -185,10 +185,23 @@ export class Login implements AfterViewInit {
     allowProcessing = true;
   }
 
-  /** Navigate to the dashboard keeping the form locked until the navigation ends; if it does not happen, unlock and say so. */
+  /** Set when the sign-in succeeded but the navigation failed: the form is replaced by a single «إعادة فتح لوحتي» button that only retries the navigation (submitting again would start another login and another code). */
+  entryFailedUrl: string | null = null;
+
+  /** Navigate to the dashboard keeping the form locked until the navigation ends; if it does not happen, offer a navigation-only retry. */
   private openDashboard(url: string) {
-    const unlock = () => { this.isSubmitting = false; this.errorMessage = 'تم تسجيل الدخول لكن تعذر فتح لوحتك الآن، حاول مرة أخرى'; this.cdr.markForCheck(); };
-    this.router.navigateByUrl(url).then((ok) => { if (!ok) unlock(); }, unlock);
+    const failed = () => { this.entryFailedUrl = url; this.isSubmitting = false; this.errorMessage = 'تم تسجيل الدخول لكن تعذر فتح لوحتك. اضغط «إعادة فتح لوحتي».'; this.cdr.markForCheck(); };
+    this.router.navigateByUrl(url).then((ok) => { if (!ok) failed(); }, failed);
+  }
+
+  /** Retries ONLY the navigation: no login request is sent. */
+  reopenDashboard() {
+    const url = this.entryFailedUrl;
+    if (!url || this.isSubmitting) return;
+    this.errorMessage = '';
+    this.isSubmitting = true;
+    this.cdr.markForCheck();
+    this.openDashboard(url);
   }
 
   togglePassword() {

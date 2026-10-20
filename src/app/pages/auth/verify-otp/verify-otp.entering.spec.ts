@@ -42,12 +42,24 @@ describe('verify-otp: locked while the dashboard opens', () => {
 		nav.next(true); await Promise.resolve(); await Promise.resolve();
 	});
 
-	it('if the navigation does not happen the form unlocks with a message (no dead screen)', async () => {
-		const { f, c, el, nav, btn } = mount(vi.fn(() => of({ success: true, data: { user: { accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT' } } })));
+	it('if the navigation does not happen the code form is replaced by «إعادة فتح لوحتي», which retries ONLY the navigation (the used code is never sent again)', async () => {
+		const verifyOtp = vi.fn(() => of({ success: true, data: { user: { accountType: 'CLIENT_INDIVIDUAL', activeRole: 'CLIENT' } } }));
+		const { f, c, el, nav } = mount(verifyOtp);
+		const navigate = TestBed.inject(Router).navigateByUrl as any;
 		c.verify(); f.detectChanges();
 		nav.next(false); await Promise.resolve(); await Promise.resolve(); f.detectChanges();
-		expect(btn().disabled).toBe(false);
+		expect(el.querySelector('#btn-confirm')).toBeNull();
+		expect(el.querySelector('.otp-box')).toBeNull();
 		expect(el.querySelector('#banner-error-txt')?.textContent).toContain('تعذر فتح لوحتك');
+		const reopen = el.querySelector('[data-testid="reopen-dashboard"]') as HTMLButtonElement;
+		expect(reopen.textContent).toContain('إعادة فتح لوحتي');
+		const callsBefore = navigate.mock.calls.length;
+		c.verify(); c.resendOtp();
+		reopen.click(); f.detectChanges();
+		expect(navigate.mock.calls.length).toBe(callsBefore + 1);
+		expect(navigate.mock.calls[callsBefore][0]).toBe(navigate.mock.calls[0][0]);
+		expect(verifyOtp).toHaveBeenCalledTimes(1);
+		expect((el.querySelector('[data-testid="reopen-dashboard"]') as HTMLButtonElement).disabled).toBe(true);
 	});
 
 	it('a wrong code unlocks at once, keeps the typed digits and says the code is wrong (nothing is sent again by itself)', () => {

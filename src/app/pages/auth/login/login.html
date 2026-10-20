@@ -65,6 +65,9 @@
 			</div>
 			<div class="apple-unavailable-note" id="apple-unavailable-note">تسجيل الدخول عبر Apple غير متاح حاليًا</div>
 			<div class="social-divider"><span>أو بالبريد وكلمة المرور</span></div>
+			@if (entryFailedUrl) {
+			<button type="button" class="btn-primary" id="btn-reopen" data-testid="reopen-dashboard" [disabled]="isSubmitting" (click)="reopenDashboard()">{{ isSubmitting ? 'جارٍ فتح لوحتك...' : 'إعادة فتح لوحتي' }}</button>
+			} @else {
 			<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" id="login-form" name="login" novalidate>
 				<div class="field-grp">
 					<label class="field-lbl" for="identifier">البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></label>
@@ -130,6 +133,7 @@
 					}
 				</button>
 			</form>
+			}
 			<div class="auth-lnk-row"><a routerLink="/auth/forget-password" class="auth-lnk">نسيت كلمة المرور</a></div>
 			<div class="auth-switch">ليس لديك حساب؟<a routerLink="/auth/register">انشاء حساب جديد</a></div>
 			<div class="trust-row" aria-label="شهادات الامان">

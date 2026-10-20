@@ -68,6 +68,11 @@
     </div>
     }
 
+    @if (entryFailedUrl) {
+    <div class="btn-group" style="margin-top:4px">
+      <button type="button" class="btn-primary" id="btn-reopen" data-testid="reopen-dashboard" [disabled]="isEntering" (click)="reopenDashboard()">{{ isEntering ? 'جارٍ فتح لوحتك...' : 'إعادة فتح لوحتي' }}</button>
+    </div>
+    } @else {
     <form (ngSubmit)="verify()">
       <div class="otp-card">
         <div class="otp-card-title">رمز التحقق <span class="ws-req" aria-hidden="true">*</span></div>
@@ -109,6 +114,7 @@
         </a>
       </div>
     </form>
+    }
 
   </div>
 </section>

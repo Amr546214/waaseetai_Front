@@ -37,6 +37,8 @@ export class VerifyOtp implements OnInit {
   isLoading = false;
   /** The code was accepted and the dashboard is opening: its lazy chunk can take seconds on a cold start, and until then the form stays locked (never shown ready for a second, useless submit). */
   isEntering = false;
+  /** Set when the code was ACCEPTED but the navigation failed: the form is replaced by a single «إعادة فتح لوحتي» button that only retries the navigation (a second submit would re-send a consumed code). */
+  entryFailedUrl: string | null = null;
   errorMsg = '';
   successMsg = '';
 
@@ -94,6 +96,7 @@ export class VerifyOtp implements OnInit {
   }
 
   async verify() {
+    if (this.entryFailedUrl) return; // the code is already used: only «إعادة فتح لوحتي» is possible
     if (this.isLoading || this.verifyWait().active()) return; // one request at a time; blocked while the server's wait runs
     if (this.otpCtrl.invalid) {
       // Never a silent no-op: say what is needed and put the cursor on the first empty box.
@@ -124,10 +127,7 @@ export class VerifyOtp implements OnInit {
           this.errorMsg = '';
           this.successMsg = 'تم التحقق من الرمز. جارٍ فتح لوحتك...';
           this.cdr.markForCheck();
-          this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole)).then(
-            (ok) => { if (!ok) this.leaveEntering('تعذر فتح لوحتك الآن، حاول مرة أخرى'); },
-            () => this.leaveEntering('تعذر فتح لوحتك الآن، حاول مرة أخرى')
-          );
+          this.openDashboard(getDefaultDashboard(user?.accountType, user?.activeRole));
         } else {
           this.isLoading = false;
           this.errorMsg = res.message || 'حدث خطأ أثناء التحقق';
@@ -155,13 +155,27 @@ export class VerifyOtp implements OnInit {
     });
   }
 
-  /** The navigation after a good code did not happen: unlock the form and say so (the session exists; a retry of the navigation is the sign-in page or a reload). */
-  private leaveEntering(message: string) {
-    this.isEntering = false;
-    this.isLoading = false;
-    this.successMsg = '';
-    this.errorMsg = message;
+  /** Navigate to the dashboard; the form stays locked until it ends. If it does not happen the code is already used: offer a navigation-only retry. */
+  private openDashboard(url: string) {
+    const failed = () => {
+      this.entryFailedUrl = url;
+      this.isEntering = false;
+      this.isLoading = false;
+      this.successMsg = '';
+      this.errorMsg = 'تم التحقق من الرمز لكن تعذر فتح لوحتك. اضغط «إعادة فتح لوحتي» (لا حاجة إلى رمز جديد).';
+      this.cdr.markForCheck();
+    };
+    this.router.navigateByUrl(url).then((ok) => { if (!ok) failed(); }, failed);
+  }
+
+  /** Retries ONLY the navigation: no code is sent or verified. */
+  reopenDashboard() {
+    const url = this.entryFailedUrl;
+    if (!url || this.isEntering) return;
+    this.errorMsg = '';
+    this.isEntering = true;
     this.cdr.markForCheck();
+    this.openDashboard(url);
   }
 
   /** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) while the server's wait runs; the honest no-time sentence after a 429 without one; '' otherwise. */
@@ -255,6 +269,7 @@ export class VerifyOtp implements OnInit {
   }
 
   resendOtp() {
+    if (this.entryFailedUrl) return;
     if (this.resendWait().active()) return;
 
     const userId = this.authStore.pendingUserId();
