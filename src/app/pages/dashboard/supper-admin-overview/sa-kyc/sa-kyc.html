@@ -562,8 +562,11 @@
           </div>
 
           @if (selectedProvider()!.kycStatus === 'PENDING' || selectedProvider()!.kycStatus === 'UNVERIFIED') {
+            @if (providerApproveBlockedReason(); as why) {
+              <p class="sk-detail-note" role="note" data-testid="kyc-approve-blocked">{{ why }}</p>
+            }
             <div class="sk-modal-actions">
-              <button type="button" class="sk-btn sk-btn-approve" (click)="openActionModal('approve')">
+              <button type="button" class="sk-btn sk-btn-approve" data-testid="kyc-provider-approve" [disabled]="!!providerApproveBlockedReason()" [attr.title]="providerApproveBlockedReason() || null" (click)="openActionModal('approve')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
                 موافقة وتوثيق
               </button>

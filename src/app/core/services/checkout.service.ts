@@ -87,6 +87,9 @@ function parseExpiry(v: unknown): number | null {
 	return Number.isFinite(t) ? t : null;
 }
 
+/** The mail server did not take the code (backend answer `emailSent: false`): never "sent". The page keeps the order and says the code did not go out. */
+export const OTP_MAIL_FAILED_MESSAGE = 'تعذر إرسال رمز التحقق إلى بريدك الآن. حاول مرة أخرى بعد قليل.';
+
 function classifyCheckoutError(err: any): CheckoutErrorKind {
 	const status = err?.status;
 	// stable BE codes (own service / service no longer available): a real business refusal with its own message, never the generic failure screen
@@ -180,6 +183,7 @@ export class CheckoutService {
 				this._otpSentTo.set(data.otpSentTo);
 				this._otpExpiresAt.set(parseExpiry(data.expiresAt));
 				this._isProcessing.set(false);
+				if (data.emailSent === false) return { success: false, message: OTP_MAIL_FAILED_MESSAGE, errorKind: 'VALIDATION' } as CheckoutResult;
 				return {
 					success: true,
 					message: 'تم إرسال رمز التحقق',
@@ -289,6 +293,7 @@ export class CheckoutService {
 					this._otpSentTo.set(data.otpSentTo);
 				}
 				this._otpExpiresAt.set(parseExpiry(data.expiresAt));
+				if (data.emailSent === false) return { success: false, message: OTP_MAIL_FAILED_MESSAGE, errorKind: 'VALIDATION' } as CheckoutResult;
 				return { success: true, message: 'تم إعادة إرسال رمز التحقق', data: { expiresAt: data.expiresAt } } as CheckoutResult;
 			}),
 			catchError((err: any) => {

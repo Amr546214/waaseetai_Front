@@ -274,7 +274,7 @@
             <label class="field-lbl" for="password-confirm">تأكيد كلمة المرور <span class="ws-req" aria-hidden="true">*</span></label>
             <div class="pw-wrap">
               <input class="field-in" [type]="showConfirmPassword ? 'text' : 'password'" id="password-confirm" formControlName="confirmPassword" placeholder="اعد كتابة كلمة المرور" autocomplete="new-password" aria-required="true" [attr.aria-invalid]="confirmMismatchError ? 'true' : null" [attr.aria-describedby]="confirmMismatchError ? 'err-confirm' : null"
-                [class.has-error]="(basicInfoForm.get('confirmPassword')?.touched || basicInfoForm.touched) && basicInfoForm.hasError('mismatch')">
+                [class.has-error]="!!confirmMismatchError" [attr.aria-invalid]="confirmMismatchError ? 'true' : null" [attr.aria-describedby]="confirmMismatchError ? 'err-confirm' : null">
               <button type="button" class="pw-eye" id="pw-toggle-2" (click)="toggleConfirmPassword()" [attr.aria-label]="showConfirmPassword ? 'اخفاء تأكيد كلمة المرور' : 'اظهار تأكيد كلمة المرور'">
                 @if (!showConfirmPassword) {
                 <svg id="pw-show-2" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-eye-on"></use></svg>
@@ -423,16 +423,18 @@
     }
 
     @if (otpNotice && !errorMessage) {
-    <div class="banner-success" id="otp-notice" role="status">
-      <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
+    <div class="banner-info" id="otp-notice" role="status" data-testid="otp-notice">
       <span>{{ otpNotice }}</span>
     </div>
     }
 
-    <div class="banner-info" role="note" data-testid="code-step-help">
-      <span>لم يصلك رمز؟ إن كان لديك حساب مفعّل فلن يصلك رمز هنا.</span>
-      <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
-      <a routerLink="/auth/forget-password" class="banner-error-link" id="code-step-forgot-link">استعادة كلمة المرور</a>
+    <div class="banner-info" role="note" data-testid="code-step-help" style="flex-direction:column;align-items:stretch;gap:8px">
+      <span>لم يصلك رمز؟ قد تكون بياناتك بحاجة إلى تعديل، أو يكون لديك حساب مفعّل بالفعل فلن يصلك رمز هنا.</span>
+      <span data-testid="code-step-spam-hint">{{ deliveryHint }}</span>
+      <span style="display:flex;gap:16px;flex-wrap:wrap">
+        <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
+        <a routerLink="/auth/forget-password" class="banner-error-link" id="code-step-forgot-link">استعادة كلمة المرور</a>
+      </span>
     </div>
 
     <form [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
@@ -463,7 +465,7 @@
         </button>
         <button type="button" class="btn-tertiary" (click)="prevStep()">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
-          رجوع
+          تعديل البريد أو الجوال
         </button>
       </div>
     </form>

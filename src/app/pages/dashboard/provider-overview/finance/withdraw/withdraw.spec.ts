@@ -102,7 +102,7 @@ describe('provider withdraw (PayPal only)', () => {
     const q = (id: string) => (fixture.nativeElement as HTMLElement).querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
     const type = (value: string) => { const input = (fixture.nativeElement as HTMLElement).querySelector('#wdAmt') as HTMLInputElement; input.value = value; input.dispatchEvent(new Event('input')); fixture.detectChanges(); };
 
-    it('balance 0 + amount 1: the error shows as soon as it is typed, a click sends no request, and the banner repeats it', async () => {
+    it('balance 0 + amount 1: the error shows as soon as it is typed, a click sends no request, and NO banner repeats the field message (contract change: field errors live under their field only)', async () => {
       await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 0 });
       expect(q('wd-zero-balance')!.textContent).toContain('لا يوجد رصيد متاح للسحب حاليًا');
       type('1');
@@ -110,7 +110,8 @@ describe('provider withdraw (PayPal only)', () => {
       ((fixture.nativeElement as HTMLElement).querySelector('.wd-btn-pri') as HTMLButtonElement).click();
       fixture.detectChanges();
       expect(submit).not.toHaveBeenCalled();
-      expect(q('wd-submit-error')!.textContent).toContain('الرصيد غير كافٍ');
+      expect(q('wd-submit-error')).toBeNull();
+      expect(q('wd-amount-error')!.textContent).toContain('الرصيد غير كافٍ');
     });
 
     it('amount above a positive balance: "لا يمكنك طلب سحب أكبر من الرصيد المتاح", no request', async () => {
@@ -119,7 +120,8 @@ describe('provider withdraw (PayPal only)', () => {
       expect(q('wd-amount-error')!.textContent).toContain('لا يمكنك طلب سحب أكبر من الرصيد المتاح');
       component.submit(); fixture.detectChanges();
       expect(submit).not.toHaveBeenCalled();
-      expect(q('wd-submit-error')).toBeTruthy();
+      expect(q('wd-submit-error')).toBeNull();
+      expect(q('wd-amount-error')).toBeTruthy();
     });
 
     it('a valid amount clears the error and sends one request', async () => {

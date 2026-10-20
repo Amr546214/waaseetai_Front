@@ -2,9 +2,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { InvalidField } from '../../core/forms/form-helpers';
 
 /**
- * "What is missing" list shown near the submit button after a failed attempt. Each row names the field and the reason;
- * clicking a row asks the parent to focus that field (the parent decides how, e.g. jump to the wizard step first).
- * Renders nothing when `items` is empty.
+ * What is missing after a failed attempt, for SCREEN READERS ONLY. There is no visible aggregate box any more: every invalid field shows its own
+ * specific Arabic red message right under it (ws-field-error / file error / markInvalid) with a red border, and the first one is focused and
+ * scrolled below the sticky header. This component only keeps a visually hidden polite live region ("يوجد N حقول تحتاج إلى تصحيح" + the list), so
+ * assistive technology still hears the count. Renders nothing when `items` is empty.
+ * (`select` is kept for the parents that still wire it; nothing visible emits it.)
  */
 @Component({
 	selector: 'ws-form-summary',
@@ -12,17 +14,11 @@ import { InvalidField } from '../../core/forms/form-helpers';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		@if (items().length) {
-			<div role="alert" data-testid="form-summary"
-				class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900 dark:border-red-500/30 dark:bg-red-950 dark:text-red-100">
-				<div class="mb-2 font-bold">{{ title() }}</div>
-				<ul class="list-disc space-y-1 ps-5 leading-relaxed">
+			<div role="status" aria-live="polite" data-testid="form-summary" class="sr-only">
+				<p>{{ countText() }}</p>
+				<ul>
 					@for (it of items(); track it.path) {
-						<li>
-							<button type="button" class="text-start underline-offset-2 hover:underline" (click)="select.emit(it)">
-								@if (it.label) { <span class="me-1 font-semibold">{{ it.label }}:</span> }
-								<span>{{ it.message }}</span>
-							</button>
-						</li>
+						<li>@if (it.label) { <span>{{ it.label }}: </span> }<span>{{ it.message }}</span></li>
 					}
 				</ul>
 			</div>
@@ -31,6 +27,11 @@ import { InvalidField } from '../../core/forms/form-helpers';
 })
 export class FormSummaryComponent {
 	readonly items = input<InvalidField[]>([]);
+	/** Kept for API compatibility with the old visible box; not rendered. */
 	readonly title = input('أكمل الحقول التالية للمتابعة');
 	readonly select = output<InvalidField>();
+	protected countText(): string {
+		const n = this.items().length;
+		return n === 1 ? 'يوجد حقل واحد يحتاج إلى تصحيح' : n === 2 ? 'يوجد حقلان يحتاجان إلى تصحيح' : `يوجد ${n} حقول تحتاج إلى تصحيح`;
+	}
 }

@@ -157,6 +157,7 @@
 
     <div class="flex items-center gap-3 flex-wrap mb-5">
       <button type="button" data-testid="save-prefs" [disabled]="!isDirty() || isSaving()" (click)="savePreferences()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[13px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">{{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التفضيلات' }}</button>
+      @if (!isDirty() && !isSaving()) { <span class="text-[12px] font-bold text-slate-500" role="status" data-testid="no-changes">لا توجد تغييرات للحفظ</span> }
       @if (saveError()) { <span class="field-error text-[12px] font-bold" role="alert" data-testid="save-error">{{ saveError() }}</span> }
     </div>
 

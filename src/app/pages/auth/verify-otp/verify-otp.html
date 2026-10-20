@@ -30,6 +30,11 @@
       }
     </div>
 
+    @if (targetEmail) {
+    <p class="auth-sub" data-testid="otp-target" style="margin-top:-6px">أرسلنا الرمز إلى <bdi dir="ltr">{{ targetEmail }}</bdi></p>
+    }
+    <p class="inp-hint" data-testid="otp-delivery-hint" style="text-align:center;margin:0 0 10px">{{ deliveryHint }}</p>
+
     @if (!loginMode) {
     <div class="stepper" role="list" aria-label="خطوات التسجيل">
       <div class="step-row">
@@ -55,12 +60,6 @@
     </div>
     }
 
-    @if (errorMsg) {
-    <div class="banner-error" id="banner-error" role="alert">
-      <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-warn"></use></svg>
-      <span id="banner-error-txt">{{ errorMsg }}</span>
-    </div>
-    }
     @if (successMsg) {
     <div class="banner-success" role="status">
       <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-check"></use></svg>
@@ -68,6 +67,12 @@
     </div>
     }
 
+    @if (entryFailedUrl) {
+    @if (errorMsg) { <div class="banner-error" id="banner-error" role="alert"><span id="banner-error-txt">{{ errorMsg }}</span></div> }
+    <div class="btn-group" style="margin-top:4px">
+      <button type="button" class="btn-primary" id="btn-reopen" data-testid="reopen-dashboard" [disabled]="isEntering" (click)="reopenDashboard()">{{ isEntering ? 'جارٍ فتح لوحتك...' : 'إعادة فتح لوحتي' }}</button>
+    </div>
+    } @else {
     <form (ngSubmit)="verify()">
       <div class="otp-card">
         <div class="otp-card-title">رمز التحقق <span class="ws-req" aria-hidden="true">*</span></div>
@@ -77,6 +82,12 @@
             [id]="'otp-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
           }
         </div>
+        @if (errorMsg) {
+    <div class="banner-error" id="banner-error" role="alert">
+      <svg style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-warn"></use></svg>
+      <span id="banner-error-txt">{{ errorMsg }}</span>
+    </div>
+    }
 
         @if (validWait().active()) {
         <div class="timer-block" id="validity-block">
@@ -94,14 +105,14 @@
         }
         @if (rateLimitText) { <div class="timer-block" id="rate-limit-msg" role="alert" data-testid="rate-limit-msg">{{ rateLimitText }}</div> }
         <div style="text-align:center;margin-top:8px">
-          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="resendWait().active() || isLoading" (click)="resendOtp()">اعادة الارسال</button>
+          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="resendWait().active() || isLoading || isEntering" (click)="resendOtp()">اعادة الارسال</button>
         </div>
       </div>
 
       <div class="btn-group" style="margin-top:4px">
         <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isLoading || verifyWait().active()" [attr.aria-disabled]="isLoading || verifyWait().active()">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-shield"></use></svg>
-          {{ isLoading ? 'جاري التحقق...' : (loginMode ? 'الدخول إلى لوحة التحكم' : 'التالي: لوحة التحكم') }}@if (verifyWait().active()) { <span id="verify-wait" data-testid="wait-label"> {{ verifyWait().label() }}</span> }
+          {{ isEntering ? 'جارٍ فتح لوحتك...' : isLoading ? 'جاري التحقق...' : (loginMode ? 'الدخول إلى لوحة التحكم' : 'التالي: لوحة التحكم') }}@if (verifyWait().active()) { <span id="verify-wait" data-testid="wait-label"> {{ verifyWait().label() }}</span> }
         </button>
         <a routerLink="/auth/login" class="btn-tertiary">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
@@ -109,6 +120,7 @@
         </a>
       </div>
     </form>
+    }
 
   </div>
 </section>

@@ -48,7 +48,7 @@ describe('provider setup wizard: photo, skills catalog, date of birth', () => {
   const completeAndSave = () => {
     component.setupForm.patchValue({ profData: { jobTitle: 'مصمم', expYears: '1 الى 3 سنوات', country: 'السعودية', city: 'الرياض', bio: 'x'.repeat(60) }, specialties: { mainSpec: 'design-creative', subSpecs: ['تصميم جرافيك'] }, payout: { paypalEmail: 'me@example.com' }, agreements: { ackFinal: true } });
     component.uploadedFrontId.set('existing-document');
-    component.portfolioItems.set({ 'تصميم جرافيك': [{ review: 'sample-url', reviewDisplayName: 's.pdf', proofs: [], proofDisplayNames: [] }] });
+    component.portfolioItems.set({ 'تصميم جرافيك': [{ review: 'sample-url', reviewDisplayName: 's.pdf', proofs: ['proof-url'], proofDisplayNames: ['p.pdf'] }] });
     vi.spyOn(component, 'goToStep').mockImplementation(() => {});
     component.saveAndGoToTest();
   };

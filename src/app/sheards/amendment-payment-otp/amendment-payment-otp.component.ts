@@ -117,6 +117,8 @@ export class AmendmentPaymentOtpComponent implements OnInit {
 		this.api.initPaymentOtp(this.amendmentId()).subscribe({
 			next: res => {
 				this.sending.set(false);
+				// The backend says whether the mail server took the code: after a known failure nothing is "sent" and the user may ask again.
+				if (res?.data?.emailSent === false) { this.error.set('تعذر إرسال رمز التحقق إلى بريدك الآن. حاول مرة أخرى بعد قليل.'); return; }
 				this.sent.set(true); this.code.set('');
 				this.maskedEmail.set(res?.data?.otpSentTo || '');
 				this.startValidity(res?.data?.expiresAt);

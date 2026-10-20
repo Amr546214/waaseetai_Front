@@ -398,3 +398,43 @@ describe('RestPassword (shared validation)', () => {
 		expect((el.querySelector('#btn-verify') as HTMLButtonElement).disabled).toBe(false);
 	});
 });
+
+// ───────── The aggregate error box is gone: every field carries its own message (owner decision) ─────────
+describe('Register: no visible summary box, every missing field has its own message', () => {
+	const setup = () => {
+		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
+		const { providers } = baseProviders({ post: vi.fn() });
+		providers.push({ provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({ ref: '1' }) } } });
+		TestBed.configureTestingModule({ imports: [Register], providers });
+		const fixture = TestBed.createComponent(Register);
+		render(fixture);
+		fixture.componentInstance.selectedAccountType = 'service_requester_ind';
+		fixture.componentInstance.currentStep = 2;
+		render(fixture);
+		return { fixture, component: fixture.componentInstance, el: fixture.nativeElement as HTMLElement };
+	};
+	afterEach(() => vi.unstubAllGlobals());
+
+	it('after an empty submit the summary is visually hidden (sr-only) and the empty confirmation has its own red message + aria-invalid', () => {
+		const { fixture, component, el } = setup();
+		component.nextStep();
+		render(fixture);
+		const box = el.querySelector('[data-testid="form-summary"]') as HTMLElement;
+		expect(box.classList.contains('sr-only')).toBe(true);
+		expect(el.querySelector('#err-confirm')?.textContent).toContain('تأكيد كلمة المرور مطلوب');
+		expect(el.querySelector('#password-confirm')!.getAttribute('aria-invalid')).toBe('true');
+		expect(el.querySelector('#password-confirm')!.getAttribute('aria-describedby')).toBe('err-confirm');
+	});
+
+	it('a typed password with an empty or different confirmation says which one it is, and a matching one clears it', () => {
+		const { fixture, component, el } = setup();
+		component.basicInfoForm.get('password')!.setValue('Abcdefg1');
+		component.nextStep(); render(fixture);
+		expect(el.querySelector('#err-confirm')?.textContent).toContain('مطلوب');
+		component.basicInfoForm.get('confirmPassword')!.setValue('Different1'); render(fixture);
+		expect(el.querySelector('#err-confirm')?.textContent).toContain('غير متطابقتين');
+		component.basicInfoForm.get('confirmPassword')!.setValue('Abcdefg1'); render(fixture);
+		expect(el.querySelector('#err-confirm')).toBeNull();
+		expect(el.querySelector('#password-confirm')!.getAttribute('aria-invalid')).toBeNull();
+	});
+});

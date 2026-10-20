@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { ChangeDetectorRef, Component, signal } from '@angular/core';
@@ -641,5 +641,59 @@ describe('Register', () => {
 			expect(fixture.debugElement.query(By.css('#affiliate-locked-display'))).toBeNull();
 			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeNull();
 		});
+	});
+});
+
+
+describe('Register: the server refuses the request because of the send interval (429)', () => {
+	const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
+	afterEach(() => vi.unstubAllGlobals());
+
+	it('says how long to wait (ticking text under the stepper), locks the submit button, stays on step 2 and never claims a send', () => {
+		const { fixture, component, postSpy } = setup();
+		fixture.detectChanges();
+		component.selectedAccountType = 'service_provider_ind';
+		component.currentStep = 2;
+		component.basicInfoForm.patchValue(valid);
+		postSpy.mockImplementation((url: string) => /register/.test(String(url))
+			? throwError(() => new HttpErrorResponse({ status: 429, headers: new HttpHeaders({ 'Retry-After': '60' }), error: { success: false, message: 'أرسلنا الرمز بالفعل.', retryAfterSeconds: 60, errors: [{ code: 'OTP_RATE_LIMITED', reason: 'interval', retryAfterSeconds: 60 }] } }))
+			: of({ success: true }));
+		component.nextStep();
+		fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		expect(component.currentStep).toBe(2);
+		expect(component.accountCreated).toBe(false);
+		expect(el.querySelector('[data-testid="rate-limit-msg"]')?.textContent).toMatch(/\d/);
+		expect((el.querySelector('#btn-next') as HTMLButtonElement).disabled).toBe(true);
+		expect(el.querySelector('#otp-notice')).toBeNull();
+	});
+});
+
+describe('Register: the code step after the (uniform) answer', () => {
+	const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
+	afterEach(() => vi.unstubAllGlobals());
+
+	it('is a neutral notice (not a success banner), claims no send, conditions completion on valid data, and offers edit / login / recovery', () => {
+		const { fixture, component, postSpy } = setup();
+		fixture.detectChanges();
+		component.selectedAccountType = 'service_provider_ind';
+		component.currentStep = 2;
+		component.basicInfoForm.patchValue(valid);
+		postSpy.mockImplementation((url: string) => /register/.test(String(url)) ? of({ success: true, data: {}, message: 'ok' }) : of({ success: true }));
+		component.nextStep();
+		fixture.detectChanges(false);
+		const el = fixture.nativeElement as HTMLElement;
+		const notice = el.querySelector('[data-testid="otp-notice"]')!;
+		expect(notice.classList.contains('banner-info')).toBe(true);
+		expect(el.querySelector('.banner-success')).toBeNull();
+		expect(notice.textContent).toContain('مشروط بصحة البيانات');
+		expect(notice.textContent).not.toMatch(/أرسلنا|تم إرسال|تم الإرسال/);
+		expect(el.querySelector('[data-testid="code-step-spam-hint"]')!.textContent).not.toContain('لا نضمن');
+		expect(el.textContent).toContain('تعديل البريد أو الجوال');
+		expect(el.querySelector('#code-step-login-link')).not.toBeNull();
+		expect(el.querySelector('#code-step-forgot-link')).not.toBeNull();
+		component.prevStep(); fixture.detectChanges(false);
+		expect(component.currentStep).toBe(2);
+		expect(component.basicInfoForm.value.email).toBe('sara@example.com');
 	});
 });

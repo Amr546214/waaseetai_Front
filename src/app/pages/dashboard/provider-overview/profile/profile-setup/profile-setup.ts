@@ -45,7 +45,16 @@ const SETUP_LABELS: Record<string, string> = {
 	ackFinal: 'الإقرار والموافقة النهائية',
 };
 
-export interface PortfolioItem { review: string; reviewDisplayName: string; proofs: string[]; proofDisplayNames: string[] }
+export interface PortfolioItem { id?: string; review: string; reviewDisplayName: string; proofs: string[]; proofDisplayNames: string[] }
+/** A file the provider already has stored (private, never returned by the API): kept through the stored row, never re-sent as a link. */
+export const KEPT_REVIEW = 'kept:review';
+export const keptProofMarker = (index: number) => `kept:proof:${index}`;
+const KEPT_PROOF = /^kept:proof:(\d+)$/;
+export const isKeptMarker = (value: string) => value === KEPT_REVIEW || KEPT_PROOF.test(value);
+/** Inline error slots of the business-model step: the model file, the proof of ownership, and the sub-specialty as a whole. */
+export const pfReviewKey = (spec: string, idx: number) => `pf-review-${spec}-${idx}`;
+export const pfProofKey = (spec: string, idx: number) => `pf-proof-${spec}-${idx}`;
+export const pfSpecKey = (spec: string) => `pf-spec-${spec}`;
 
 /** Documents and portfolio files: PDF / JPG / PNG, 10 MB (the backend upload limit). */
 const DOC_RULE = { maxBytes: 10 * MB, mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'], typesLabel: 'PDF أو JPG أو PNG' };
@@ -103,6 +112,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	paypalSendError = signal('');
 	currentStep = signal<number>(1);
 	/** ID documents were sent and wait for review (kycStatus PENDING): shown as pending, never as a missing step. */
+	/** A real identity document is on file besides the stored front: the ID document of a DOCUMENTS request waiting for the admin, or the approved account document. */
+	identityDocOnFile = signal<boolean>(false);
 	kycPending = signal<boolean>(false);
 	/** The identity review was approved (an approved KYC or an approved document): nothing to send. */
 	kycVerified = signal<boolean>(false);
@@ -115,8 +126,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	fileErrors = signal<Record<string, string>>({});
 	/** The backend rejected a skill (it must exist in the skills directory); shown next to the skills. */
 	skillsServerError = signal('');
-	docFileErrors = computed(() => Object.entries(this.fileErrors()).filter(([k]) => DOC_FILE_KEYS.includes(k)).map(([, m]) => m));
-	portfolioFileErrors = computed(() => Object.entries(this.fileErrors()).filter(([k]) => k.startsWith('portfolio')).map(([, m]) => m));
 
 	particles: { style: string }[] = [];
 
@@ -347,7 +356,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					if (Object.keys(saved).length) this.portfolioItems.set(saved);
 					// ONE state for the identity review (NOT_SUBMITTED / PENDING_REVIEW / VERIFIED / REJECTED), the same the profile page and the dashboard show;
 					// the older kycStatus is only the fallback when the backend did not send it.
-					const iv = d.identityVerification as { status?: string; rejectionReason?: string | null } | null | undefined;
+					const iv = d.identityVerification as { status?: string; category?: string | null; rejectionReason?: string | null } | null | undefined;
+					// a DOCUMENTS request waiting for the admin (or an approved account document) IS a document on file; a KYC status alone is not
+					this.identityDocOnFile.set(!!iv && iv.category === 'DOCUMENTS' && (iv.status === 'PENDING_REVIEW' || iv.status === 'VERIFIED'));
 					this.kycPending.set(iv ? iv.status === 'PENDING_REVIEW' : d.kycStatus === 'PENDING');
 					this.kycVerified.set(iv ? iv.status === 'VERIFIED' : d.kycStatus === 'VERIFIED');
 					this.kycRejectedReason.set(iv
@@ -362,6 +373,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						return;
 					}
 					this.currentStep.set(start.step);
+					if (start.step === 5) this.initPortfolioCards();
 				}
 			}
 		});
@@ -396,6 +408,15 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	private setFileError(key: string, message: string) {
 		this.fileErrors.update(e => ({ ...e, [key]: message }));
+	}
+
+	private clearFileErrorsWithPrefix(prefix: string) {
+		this.fileErrors.update(e => Object.fromEntries(Object.entries(e).filter(([k]) => !k.startsWith(prefix))));
+	}
+
+	/** The inline error of one upload slot ('' when none). */
+	fileErr(key: string): string {
+		return this.fileErrors()[key] ?? '';
 	}
 
 	private clearFileError(...keys: string[]) {
@@ -434,11 +455,21 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				return this.checkGroup('payout');
 			case 4: {
 				const items: InvalidField[] = [];
-				if (this.isUploading()) {
-					items.push({ path: 'docs.upload', label: 'رفع الملفات', message: 'يرجى انتظار اكتمال رفع الملفات' });
-				} else if (!this.uploadedFrontId() && !this.storedFrontAccess()?.private && !this.kycPending() && !this.kycVerified()) {
+				const labels: Record<string, string> = { frontId: 'صورة الهوية (الوجه الأمامي)', backId: 'صورة الهوية (الوجه الخلفي)', selfie: 'الصورة الشخصية مع الهوية', certs: 'الشهادات المهنية' };
+				for (const key of ['frontId', 'backId', 'selfie', 'certs']) {
+					const state = this.getUploadState(key)?.status;
+					if (state === 'uploading') {
+						const message = 'انتظر اكتمال رفع الملف';
+						this.setFileError(key, message); items.push({ path: `docs.${key}`, label: labels[key], message });
+					} else if (state === 'error' && key === 'frontId') {
+						const message = 'فشل رفع صورة الهوية (الوجه الأمامي): أعد رفع الملف';
+						this.setFileError(key, message); items.push({ path: `docs.${key}`, label: labels[key], message });
+					}
+				}
+				// the review STATUS (pending / verified) is never evidence: an account can be PENDING with no document, so only a stored or newly uploaded document counts
+				if (items.length === 0 && !this.uploadedFrontId() && !this.storedFrontAccess()?.private && !this.identityDocOnFile()) {
 					const message = 'صورة الهوية (الوجه الأمامي) مطلوبة، ارفع ملف PDF أو JPG أو PNG';
-					items.push({ path: 'docs.frontId', label: 'صورة الهوية (الوجه الأمامي)', message });
+					items.push({ path: 'docs.frontId', label: labels['frontId'], message });
 					this.setFileError('frontId', message);
 				}
 				this.missing.set(items);
@@ -446,17 +477,43 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			}
 			case 5: {
 				const items: InvalidField[] = [];
-				if (this.isUploading()) {
-					items.push({ path: 'portfolio.upload', label: 'رفع الملفات', message: 'يرجى انتظار اكتمال رفع الملفات' });
-				} else if (this.chosenSubSpecs().length === 0) {
+				this.clearFileErrorsWithPrefix('pf-');
+				const specs = this.chosenSubSpecs();
+				if (specs.length === 0) {
 					items.push({ path: 'specialties.subSpecs', label: 'التخصصات الفرعية', message: 'اختر تخصصًا فرعيًا واحدًا على الأقل في الخطوة 2' });
 				} else {
-					for (const spec of this.chosenSubSpecs()) {
-						const missingReview = (this.portfolioItems()[spec] || [{ review: '' }]).some(item => !item.review);
-						if (missingReview) {
-							const message = 'ارفع نموذج عمل واحدًا على الأقل لهذا التخصص الفرعي';
+					// Every chosen sub-specialty needs a model FILE and, for that model, at least one COMPLETED proof of ownership that is a different file. Nothing is
+					// created from the model file, and an upload that is running or failed is never a proof.
+					for (const spec of specs) {
+						const list = this.portfolioItems()[spec] || [this.emptyPortfolioItem()];
+						let complete = false; let problemShown = false;
+						list.forEach((item, idx) => {
+							const started = !!item.review || item.proofs.length > 0 || item.proofDisplayNames.length > 0;
+							if (idx > 0 && !started) return; // an empty extra card is ignored
+							const reviewState = this.getUploadState(`portfolio-review-${spec}-${idx}`)?.status;
+							let reviewMsg = '';
+							if (reviewState === 'uploading') reviewMsg = 'انتظر اكتمال رفع ملف النموذج';
+							else if (reviewState === 'error') reviewMsg = 'فشل رفع ملف النموذج، أعد رفعه';
+							else if (!item.review) reviewMsg = 'ارفع ملف نموذج العمل';
+							let proofMsg = '';
+							const states = item.proofs.map((_, i) => this.getUploadState(`portfolio-proof-${spec}-${idx}-${i}`)?.status);
+							const doneProofs = item.proofs.filter(v => !!v && v !== item.review);
+							if (states.includes('uploading')) proofMsg = 'انتظر اكتمال رفع وثيقة الإثبات';
+							else if (states.includes('error') || item.proofs.some(v => !v)) {
+								const failedAt = states.findIndex(st => st === 'error');
+								const name = item.proofDisplayNames[failedAt >= 0 ? failedAt : item.proofs.findIndex(v => !v)] || '';
+								proofMsg = `فشل رفع وثيقة الإثبات${name ? ` «${name}»` : ''}: احذفها وأعد إرفاقها`;
+							} else if (doneProofs.length === 0) {
+								proofMsg = item.proofs.some(v => !!v && v === item.review) ? 'وثيقة الإثبات يجب أن تكون ملفًا مختلفًا عن ملف النموذج' : 'أرفق وثيقة إثبات ملكية واحدة على الأقل لهذا النموذج';
+							}
+							if (reviewMsg) { this.setFileError(pfReviewKey(spec, idx), reviewMsg); items.push({ path: `portfolio.${spec}.${idx}.review`, label: `ملف النموذج: ${spec}`, message: reviewMsg }); problemShown = true; }
+							if (proofMsg) { this.setFileError(pfProofKey(spec, idx), proofMsg); items.push({ path: `portfolio.${spec}.${idx}.proof`, label: `وثيقة الإثبات: ${spec}`, message: proofMsg }); problemShown = true; }
+							if (!reviewMsg && !proofMsg) complete = true;
+						});
+						if (!complete && !problemShown) {
+							const message = 'ارفع نموذج عمل واحدًا على الأقل مع وثيقة إثبات الملكية لهذا التخصص';
+							this.setFileError(pfSpecKey(spec), message);
 							items.push({ path: `portfolio.${spec}`, label: `نموذج عمل: ${spec}`, message });
-							this.setFileError(`portfolio-${spec}`, `${spec}: ${message}`);
 						}
 					}
 				}
@@ -478,8 +535,26 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			const host = this.host.nativeElement as HTMLElement;
 			const panel = host.querySelector<HTMLElement>('.step-panel.active') ?? host;
 			// Upload slots are not form controls: when nothing invalid is focusable, focus the first upload input.
-			if (!focusFirstInvalid(panel)) panel.querySelector<HTMLElement>('.upload-file-inp, .upload-area')?.focus();
+			if (focusFirstInvalid(panel)) return;
+			// Upload slots are not form controls: focus and scroll to the first slot that carries an error (below the sticky header: see scroll-margin-top in the css).
+			const slot = panel.querySelector<HTMLElement>('.pw-col.has-error, .doc-card.has-error');
+			const target = slot?.querySelector<HTMLElement>('.upload-area, label[tabindex="0"], button') ?? panel.querySelector<HTMLElement>('.upload-file-inp, .upload-area');
+			target?.focus({ preventScroll: true });
+			(slot ?? target)?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
 		});
+	}
+
+	/** Every chosen sub-specialty shows at least one (empty) model card, so the upload slots exist when the step is reached by the step bar OR by resuming the wizard on it. */
+	private initPortfolioCards() {
+		const current = { ...this.portfolioItems() };
+		let changed = false;
+		this.chosenSubSpecs().forEach(spec => {
+			if (!current[spec] || current[spec].length === 0) {
+				current[spec] = [this.emptyPortfolioItem()];
+				changed = true;
+			}
+		});
+		if (changed) this.portfolioItems.set(current);
 	}
 
 	goToStep(step: number) {
@@ -499,17 +574,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.missing.set([]);
 
 		// Auto-init portfolio when reaching step 5
-		if (step === 5) {
-			const current = { ...this.portfolioItems() };
-			let changed = false;
-			this.selectedSpecs().forEach(s => {
-				if (!current[s] || current[s].length === 0) {
-					current[s] = [this.emptyPortfolioItem()];
-					changed = true;
-				}
-			});
-			if (changed) this.portfolioItems.set(current);
-		}
+		if (step === 5) this.initPortfolioCards();
 
 		this.currentStep.set(step);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -881,17 +946,26 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.portfolioItems.set(current);
 	}
 
-	/** Rebuilds the wizard's per-specialty list from the rows GET /provider/profile/setup returns (title "نموذج أعمال - <spec>", description = work file, tags = proof files). */
+	/**
+	 * Rebuilds the wizard's per-specialty list from the rows GET /provider/profile/setup returns (title "نموذج أعمال - <spec>", description = model file, tags = proof files).
+	 * The API never returns a private file, only that it exists (`descriptionAccess` / `tagsAccess`): such a file becomes a KEPT marker, so a resumed wizard shows it as
+	 * already uploaded and the save keeps it through the stored row (id + keep flags) instead of asking for it again.
+	 */
 	portfolioFromServer(rows: unknown): Record<string, PortfolioItem[]> {
 		const out: Record<string, PortfolioItem[]> = {};
 		if (!Array.isArray(rows)) return out;
 		const nameOf = (url: string) => decodeURIComponent((url.split('?')[0].split('/').pop() || url));
-		for (const row of rows as Array<{ title?: string; description?: string | null; coverImage?: string | null; tags?: string[] | null }>) {
+		for (const row of rows as Array<{ id?: string; title?: string; description?: string | null; tags?: Array<string | null> | null; coverImage?: string | null; descriptionAccess?: { private?: boolean } | null; tagsAccess?: Array<{ private?: boolean } | null> | null }>) {
 			const spec = String(row?.title || '').replace(/^نموذج أعمال\s*-\s*/, '').trim();
 			if (!spec) continue;
-			const proofs = (row.tags && row.tags.length ? row.tags : row.coverImage ? [row.coverImage] : []).filter(Boolean);
-			const review = row.description || '';
-			(out[spec] ||= []).push({ review, reviewDisplayName: review ? nameOf(review) : '', proofs, proofDisplayNames: proofs.map(nameOf) });
+			const hasReview = !!row.description || !!row.descriptionAccess?.private;
+			const tagCount = Math.max(row.tags?.length ?? 0, row.tagsAccess?.length ?? 0);
+			const proofs: string[] = [];
+			for (let i = 0; i < tagCount; i++) if (row.tags?.[i] || row.tagsAccess?.[i]) proofs.push(keptProofMarker(i));
+			if (!tagCount && row.coverImage) proofs.push(keptProofMarker(0));
+			const proofNames = proofs.map((_, n) => { const tag = row.tags?.[Number(KEPT_PROOF.exec(proofs[n])![1])] ?? (tagCount ? null : row.coverImage); return tag ? nameOf(tag) : 'وثيقة إثبات مرفوعة سابقًا'; });
+			out[spec] ||= [];
+			out[spec].push({ id: row.id, review: hasReview ? KEPT_REVIEW : '', reviewDisplayName: !hasReview ? '' : row.description ? nameOf(row.description) : 'ملف النموذج المرفوع سابقًا', proofs, proofDisplayNames: proofNames });
 		}
 		return out;
 	}
@@ -914,10 +988,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	onPortfolioReviewChange(event: any, spec: string, idx: number) {
 		if (event.target.files && event.target.files[0]) {
 			const file = event.target.files[0] as File;
-			const errKey = `portfolio-${spec}`;
+			const errKey = pfReviewKey(spec, idx);
 			const problem = validateFile(file, PORTFOLIO_RULE);
 			if (problem) {
-				this.setFileError(errKey, `${spec}: ${problem}`);
+				this.setFileError(errKey, problem);
 				event.target.value = '';
 				return;
 			}
@@ -926,7 +1000,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			this.setUploadState(key, { status: 'uploading', progress: 0, name: file.name });
 
 			this.updatePortfolioItem(spec, idx, item => ({ ...item, reviewDisplayName: file.name }));
+			this.clearFileError(pfSpecKey(spec));
 
+			(event.target as HTMLInputElement).value = ''; // the same file can be attached again after removing it
 			this.providerProfileService.uploadDocument(file).subscribe({
 				next: (event: any) => {
 					if (event.type === HttpEventType.UploadProgress) {
@@ -937,6 +1013,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						const url = event.body?.data?.url || '';
 						const name = event.body?.data?.name || file.name;
 						this.updatePortfolioItem(spec, idx, item => ({ ...item, review: url, reviewDisplayName: name }));
+						this.clearFileError(errKey);
 						this.setUploadState(key, { status: 'uploaded', progress: 100, name });
 					}
 				},
@@ -951,17 +1028,19 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	onPortfolioProofsChange(event: any, spec: string, idx: number) {
 		if (event.target.files && event.target.files.length > 0) {
 			const files = Array.from(event.target.files) as File[];
-			const errKey = `portfolio-${spec}`;
+			const errKey = pfProofKey(spec, idx);
 
 			for (const f of files) {
 				const problem = validateFile(f, PORTFOLIO_RULE);
 				if (problem) {
-					this.setFileError(errKey, `${spec} («${f.name}»): ${problem}`);
+					this.setFileError(errKey, `«${f.name}»: ${problem}`);
 					event.target.value = '';
 					return;
 				}
 			}
 
+			this.clearFileError(errKey, pfSpecKey(spec));
+			(event.target as HTMLInputElement).value = ''; // the same file can be attached again after removing it
 			files.forEach((file, proofIdx) => {
 				const baseProofIdx = this.portfolioItems()[spec][idx].proofs.length;
 			const key = `portfolio-proof-${spec}-${idx}-${baseProofIdx}`;
@@ -985,6 +1064,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 								proofDisplayNames: item.proofDisplayNames.map((n, i) => (i === baseProofIdx ? name : n))
 							}));
 							this.setUploadState(key, { status: 'uploaded', progress: 100, name });
+							this.clearFileError(errKey);
 						}
 					},
 					error: (err) => {
@@ -997,26 +1077,48 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	removePortfolioProof(spec: string, itemIdx: number, proofIdx: number) {
-		this.updatePortfolioItem(spec, itemIdx, item => ({
-			...item,
-			proofs: item.proofs.filter((_, i) => i !== proofIdx),
-			proofDisplayNames: item.proofDisplayNames.filter((_, i) => i !== proofIdx)
+		const item = this.portfolioItems()[spec]?.[itemIdx];
+		if (!item) return;
+		// the upload states of the later proofs move down with them (their keys carry the position), and the removed one's state goes away
+		const prefix = `portfolio-proof-${spec}-${itemIdx}-`;
+		this.uploadStates.update(states => {
+			const next = { ...states };
+			for (let i = proofIdx; i < item.proofs.length; i++) {
+				const following = states[`${prefix}${i + 1}`];
+				if (following) next[`${prefix}${i}`] = following; else delete next[`${prefix}${i}`];
+			}
+			return next;
+		});
+		this.updatePortfolioItem(spec, itemIdx, it => ({
+			...it,
+			proofs: it.proofs.filter((_, i) => i !== proofIdx),
+			proofDisplayNames: it.proofDisplayNames.filter((_, i) => i !== proofIdx)
 		}));
+		this.clearFileError(pfProofKey(spec, itemIdx));
 	}
 
-	private sanitizePortfolioForPayload(items: Record<string, { review: string; reviewDisplayName: string; proofs: string[]; proofDisplayNames: string[] }[]>): Record<string, { review: string; proofs: string[] }[]> {
-		const sanitized: Record<string, { review: string; proofs: string[] }[]> = {};
+	/**
+	 * The payload of step 5. A KEPT marker is never sent as a value: the stored row is named by `id` and the stored files are kept by flag / index, which the server
+	 * resolves from ITS row. An upload that failed leaves an empty placeholder: never sent.
+	 */
+	private sanitizePortfolioForPayload(items: Record<string, PortfolioItem[]>): Record<string, Array<{ id?: string; review?: string; keepReview?: boolean; proofs: string[]; keepProofs: number[] }>> {
+		const out: Record<string, Array<{ id?: string; review?: string; keepReview?: boolean; proofs: string[]; keepProofs: number[] }>> = {};
 		for (const key of Object.keys(items)) {
-			sanitized[key] = items[key].map(item => ({
-				review: item.review,
-				// A proof whose upload failed leaves an empty placeholder: never send it.
-				proofs: item.proofs.filter(Boolean)
-			}));
+			out[key] = items[key].map(item => {
+				const keepProofs = item.proofs.map(p => KEPT_PROOF.exec(p)).filter((m): m is RegExpExecArray => !!m).map(m => Number(m[1]));
+				return {
+					...(item.id ? { id: item.id } : {}),
+					...(item.review === KEPT_REVIEW ? { keepReview: true } : { review: item.review }),
+					proofs: item.proofs.filter(p => !!p && !isKeptMarker(p)),
+					keepProofs
+				};
+			});
 		}
-		return sanitized;
+		return out;
 	}
 
 	saveAndGoToTest() {
+		if (this.isSubmitting()) return; // one submission at a time (double click / Enter)
 		// Everything is validated here, in step order: stop at the first incomplete step and say what is missing.
 		for (let step = 1; step <= 6; step++) {
 			if (!this.validateStep(step)) {
@@ -1096,6 +1198,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				const mapped = mapHttpError(error, { fallback: 'تعذر حفظ البيانات. يرجى المحاولة مجدداً.' });
 				// Server field messages (zod-style `errors[]`, names as the backend calls them) go to the matching inputs;
 				// the wizard returns to the step that holds the first one and focuses it.
+				// The backend names a model with a missing / invalid proof (portfolio.<sub-specialty>) or the missing identity front: show it under that attachment.
+				if (this.applyServerDocumentErrors(error?.error?.errors)) return;
 				if (this.applyServerFieldErrors(mapped.fieldErrors)) return;
 				// The backend rejects a skill that is not in the skills directory (400, Arabic): show it where the skills are.
 				if (mapped.kind === 'backend-validation' && /المهارات/.test(mapped.message)) {
@@ -1118,6 +1222,29 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		mainSpec: { control: 'specialties.mainSpec', step: 2 }, subSpecs: { control: 'specialties.subSpecs', step: 2 },
 		paypalPayoutEmail: { control: 'payout.paypalEmail', step: 3 }, paypalEmail: { control: 'payout.paypalEmail', step: 3 },
 	};
+
+	/** Backend document errors -> the inline slot of the attachment, on the step that holds it. Returns true when at least one was placed. */
+	private applyServerDocumentErrors(errors: unknown): boolean {
+		if (!Array.isArray(errors)) return false;
+		let step = 0;
+		for (const e of errors as Array<{ field?: unknown; path?: unknown; message?: unknown }>) {
+			const name = typeof (e?.field ?? e?.path) === 'string' ? String(e.field ?? e.path) : '';
+			const message = typeof e?.message === 'string' ? e.message : '';
+			if (!name || !message) continue;
+			if (name === 'identity.frontId') { this.setFileError('frontId', message); step = step || 4; }
+			else if (name.startsWith('portfolio.') && name.length > 'portfolio.'.length) {
+				const spec = name.slice('portfolio.'.length);
+				const list = this.portfolioItems()[spec] || [];
+				const idx = Math.max(0, list.findIndex(i => !!i.review && !i.proofs.some(Boolean)));
+				this.setFileError(/وثيقة|إثبات|الإثبات/.test(message) ? pfProofKey(spec, idx) : pfSpecKey(spec), message);
+				step = step && step < 5 ? step : 5;
+			}
+		}
+		if (!step) return false;
+		this.currentStep.set(step);
+		this.focusSoon();
+		return true;
+	}
 
 	/** Puts server field errors on the right controls; returns true when at least one matched (and the step was changed). */
 	private applyServerFieldErrors(fieldErrors: Record<string, string>): boolean {

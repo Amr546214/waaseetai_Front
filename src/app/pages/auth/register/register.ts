@@ -17,7 +17,7 @@ import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.servi
 import { rateLimitSentence } from '../../../core/wait/wait-format';
 import { formatClock } from '../../../core/wait/wait-format';
 import { RATE_LIMIT_MESSAGE, isRateLimitError, startWaitFromError } from '../../../core/utils/rate-limit.util';
-import { REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE } from '../../../core/forms/otp-delivery';
+import { OTP_DELIVERY_HINT, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE } from '../../../core/forms/otp-delivery';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
@@ -34,6 +34,8 @@ const REGISTER_LABELS: Record<string, string> = {
 	agreeData: 'الإقرار بصحة البيانات',
 	agreeTerms: 'الموافقة على شروط الاستخدام وسياسة الخصوصية',
 };
+
+const REGISTER_CONFIRM_REQUIRED = 'تأكيد كلمة المرور مطلوب';
 
 @Component({
 	selector: 'app-register',
@@ -720,6 +722,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	}
 
 	/** Masked email for the verification step, same format as the design (P-AU-009 maskEmail). */
+	readonly deliveryHint = OTP_DELIVERY_HINT;
+
 	get maskedEmail(): string {
 		const e: string = this.basicInfoForm.get('email')?.value || '';
 		if (!e || e.indexOf('@') < 0) return '';
@@ -744,8 +748,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	/** Cross-field message (password confirmation). */
 	get confirmMismatchError(): string | null {
-		const touched = this.basicInfoForm.get('confirmPassword')?.touched || this.basicInfoForm.touched;
-		return touched && this.basicInfoForm.hasError('mismatch') ? 'كلمة المرور وتأكيدها غير متطابقتين' : null;
+		const control = this.basicInfoForm.get('confirmPassword');
+		const touched = control?.touched || this.basicInfoForm.touched;
+		if (!touched) return null;
+		// an empty confirmation has its own message under the field (it used to show nothing: only a mismatch was worded)
+		if (control?.enabled && !control.value) return REGISTER_CONFIRM_REQUIRED;
+		return this.basicInfoForm.hasError('mismatch') ? 'كلمة المرور وتأكيدها غير متطابقتين' : null;
 	}
 
 	passwordMatchValidator(g: FormGroup) {

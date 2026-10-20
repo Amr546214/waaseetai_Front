@@ -46,7 +46,7 @@ describe('provider profile-setup: shared validation', () => {
   const step2 = () => { component.selectedSpecs.set(['تطوير مواقع']); component.setupForm.get('specialties')!.patchValue({ mainSpec: 'web', subSpecs: ['تطوير مواقع'] }); };
   const step3 = () => component.setupForm.get('payout')!.patchValue({ paypalEmail: 'me@example.com' });
   const step4 = () => component.uploadedFrontId.set('front-url');
-  const step5 = () => component.portfolioItems.set({ 'تطوير مواقع': [{ review: 'r-url', reviewDisplayName: 'r.pdf', proofs: [], proofDisplayNames: [] }] });
+  const step5 = () => component.portfolioItems.set({ 'تطوير مواقع': [{ review: 'r-url', reviewDisplayName: 'r.pdf', proofs: ['p-url'], proofDisplayNames: ['p.pdf'] }] });
   const file = (name: string, type: string, bytes: number) => new File([new Uint8Array(bytes)], name, { type });
   const pickEvent = (...files: File[]) => ({ target: { files, value: 'x' } }) as any;
 
@@ -116,7 +116,7 @@ describe('provider profile-setup: shared validation', () => {
     expect(component.currentStep()).toBe(4);
     expect(component.alertModal()).toBeNull();
     expect(summary()).toContain('صورة الهوية (الوجه الأمامي)');
-    expect(el().querySelector('[data-testid="doc-file-errors"]')?.textContent).toContain('مطلوبة');
+    expect(el().querySelector('[data-testid="doc-file-error-frontId"]')?.textContent).toContain('مطلوبة');
   });
 
   it('the back-ID and selfie slots are labelled optional (only the front ID is enforced)', () => {
@@ -137,7 +137,7 @@ describe('provider profile-setup: shared validation', () => {
       expect(component.fileErrors()['frontId']).toContain('حجم الملف كبير جدًا');
       expect(component.fileErrors()['frontId']).toContain('10 ميغابايت');
       http.expectNone(r => r.url.endsWith('/documents/upload'));
-      expect(el().querySelector('[data-testid="doc-file-errors"]')?.textContent).toContain('10 ميغابايت');
+      expect(el().querySelector('[data-testid="doc-file-error-frontId"]')?.textContent).toContain('10 ميغابايت');
     });
 
     it('a wrong type is rejected naming PDF/JPG/PNG; a multi-file certificate batch names the bad file', () => {
@@ -168,26 +168,33 @@ describe('provider profile-setup: shared validation', () => {
     });
 
     it('portfolio sample: wrong type / oversize / failed upload are shown inline on step 5 for that specialty', () => {
+      component.selectedSpecs.set(['تطوير مواقع']);
       component.portfolioItems.set({ 'تطوير مواقع': [{ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] }] });
       component.currentStep.set(5); render();
       component.onPortfolioReviewChange(pickEvent(file('s.exe', 'application/x-msdownload', 10)), 'تطوير مواقع', 0);
       render();
-      expect(component.fileErrors()['portfolio-تطوير مواقع']).toContain('نوع الملف غير مسموح');
-      expect(el().querySelector('[data-testid="portfolio-file-errors"]')?.textContent).toContain('تطوير مواقع');
+      // the error sits under the model file it belongs to (no aggregate box)
+      expect(component.fileErrors()['pf-review-تطوير مواقع-0']).toContain('نوع الملف غير مسموح');
+      expect(el().querySelector('[data-testid="pf-review-error"]')?.textContent).toContain('نوع الملف غير مسموح');
+      expect(el().querySelector('[data-testid="portfolio-file-errors"]')).toBeNull();
       component.onPortfolioReviewChange(pickEvent(file('s.pdf', 'application/pdf', 1000)), 'تطوير مواقع', 0);
       http.expectOne(r => r.url.endsWith('/documents/upload')).flush({}, { status: 429, statusText: 'Too Many Requests' });
-      expect(component.fileErrors()['portfolio-تطوير مواقع']).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد');
+      expect(component.fileErrors()['pf-review-تطوير مواقع-0']).toContain('طلبات كثيرة، يمكنك إعادة المحاولة بعد');
     });
   });
 
   it('step 5 without a work sample: summary names the specialty and the reason', () => {
     step1(); step2(); step3(); step4();
     component.currentStep.set(5);
+    component.selectedSpecs.set(['تطوير مواقع']);
     component.portfolioItems.set({ 'تطوير مواقع': [{ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] }] });
     component.goToStep(6);
     render();
     expect(component.currentStep()).toBe(5);
-    expect(summary()).toContain('نموذج عمل: تطوير مواقع');
+    expect(summary()).toContain('ملف النموذج: تطوير مواقع');
+    expect(component.fileErr('pf-review-تطوير مواقع-0')).toContain('ارفع ملف نموذج العمل');
+    render();
+    expect(el().querySelector('[data-testid="pf-review-error"]')?.textContent).toContain('ارفع ملف نموذج العمل');
   });
 
   it('step 6: the final acknowledgement is a visible requirement with an Arabic message', () => {
@@ -217,13 +224,18 @@ describe('provider profile-setup: shared validation', () => {
     // Finance #33: the PayPal email is no longer saved by the wizard; after a successful setup a code request goes out (none on a failed save).
     const passPaypal = () => http.match(r => r.method === 'POST' && r.url.endsWith('/profiles/paypal-email/change/request')).forEach(r => r.flush({ data: { emailSent: true, emailHint: 'ow***@example.com' } }));
 
-    it('a failed proof upload leaves an empty placeholder: it is never sent to the backend', () => {
+    it('a failed proof upload leaves an empty placeholder: the save is refused under that proof, and a placeholder is never put in a payload', () => {
       allValid();
-      component.portfolioItems.set({ 'تطوير مواقع': [{ review: 'r-url', reviewDisplayName: 'r', proofs: ['', 'p-url'], proofDisplayNames: ['x', 'p'] }] });
-      vi.spyOn(component, 'goToStep').mockImplementation(() => {});
+      component.selectedSpecs.set(['تطوير مواقع']);
+      const items = { 'تطوير مواقع': [{ review: 'r-url', reviewDisplayName: 'r', proofs: ['', 'p-url'], proofDisplayNames: ['x', 'p'] }] };
+      component.portfolioItems.set(items);
       component.saveAndGoToTest();
-      passPaypal();
-      expect(save.mock.calls[0][0].portfolio['تطوير مواقع'][0].proofs).toEqual(['p-url']);
+      render();
+      expect(save).not.toHaveBeenCalled();
+      expect(component.currentStep()).toBe(5);
+      expect(component.fileErr('pf-proof-تطوير مواقع-0')).toContain('فشل رفع وثيقة الإثبات');
+      expect(el().querySelector('[data-testid="pf-proof-error"]')?.textContent).toContain('«x»');
+      expect((component as any).sanitizePortfolioForPayload(items)['تطوير مواقع'][0].proofs).toEqual(['p-url']);
     });
 
     it('the backend 400 about a skill (Arabic) is shown next to the skills (step 1) and listed in the summary', () => {

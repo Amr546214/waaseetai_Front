@@ -50,7 +50,8 @@ function providers(postSpy: (...a: any[]) => any, pending: string | null = null)
 
 describe('OTP delivery: generic wording (no account-existence disclosure)', () => {
 	it('register and resend never promise a code for an account: conditional wording, no "already registered"', () => {
-		expect(REGISTER_CODE_STEP_MESSAGE).toContain('إن كان بريدك بحاجة إلى تفعيل');
+		expect(REGISTER_CODE_STEP_MESSAGE).toContain('مشروط بصحة البيانات');
+		expect(REGISTER_CODE_STEP_MESSAGE).not.toMatch(/أرسلنا|تم إرسال|تم الإرسال/);
 		expect(REGISTER_RESEND_MESSAGE).toContain('إن كان هناك حساب بانتظار التفعيل');
 		expect(RESEND_SENT_MESSAGE).toContain('إذا كان الحساب بانتظار التفعيل');
 		for (const m of [REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE, RESEND_SENT_MESSAGE]) expect(m).not.toMatch(/مسجل بالفعل|موجود بالفعل|لا يوجد حساب|تم إنشاء/);
@@ -282,11 +283,11 @@ describe('Login: unverified account hand-off', () => {
 	it('throttled (emailSent=false + retryAfterSeconds): still opens verify, says to use the previous code, not "sent"', () => {
 		const { nav, handoff } = run({ emailSent: false, retryAfterSeconds: 30 });
 		expect(nav).toHaveBeenCalledWith(['/auth/verify-otp']);
-		expect(handoff).toEqual({ sent: false, message: 'يمكنك استخدام الرمز السابق أو إعادة المحاولة بعد 30 ثانية.' });
+		expect(handoff).toMatchObject({ sent: false, message: 'يمكنك استخدام الرمز السابق أو إعادة المحاولة بعد 30 ثانية.' });
 	});
 
 	it('emailSent=false without a wait: failure notice', () => {
-		expect(run({ emailSent: false }).handoff).toEqual({ sent: false, message: FAILED });
+		expect(run({ emailSent: false }).handoff).toMatchObject({ sent: false, message: FAILED });
 	});
 
 	it('SMS login with no provider (503) shows the Arabic message, never "sent to your phone"', () => {

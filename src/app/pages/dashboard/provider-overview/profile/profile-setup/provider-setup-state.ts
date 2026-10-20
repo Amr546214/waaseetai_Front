@@ -23,7 +23,8 @@ export interface ProviderSetupData {
 	kycStatus?: string | null;
 	/** the admin's reason when kycStatus is REJECTED */
 	kycRejectionReason?: string | null;
-	portfolioItems?: Array<{ title?: string | null; description?: string | null }> | null;
+	/** the API never returns a private file, only `…Access` flags saying it exists */
+	portfolioItems?: Array<{ title?: string | null; description?: string | null; tags?: Array<string | null> | null; descriptionAccess?: { private?: boolean } | null; tagsAccess?: Array<{ private?: boolean } | null> | null }> | null;
 	isProfileSetupComplete?: boolean | null;
 	setupTestStatus?: string | null;
 }
@@ -48,7 +49,10 @@ export function resolveProviderSetup(data: ProviderSetupData | null | undefined)
 	if (!filled(d.paypalPayoutEmail)) return { kind: 'step', step: 3 };
 	// an ID document that was sent counts (a private one is not visible here, only marked); "under review" is not "missing"
 	if (!filled(d.frontIdUrl) && !d.frontIdUrlAccess?.private) return { kind: 'step', step: 4 };
-	const withSample = new Set((d.portfolioItems ?? []).filter(i => filled(i?.description)).map(i => specOf(i?.title)));
+	// a model counts only with its file AND at least one proof of ownership (a private file shows up as an Access flag)
+	const hasFile = (i: { description?: string | null; descriptionAccess?: { private?: boolean } | null } | undefined) => filled(i?.description) || !!i?.descriptionAccess?.private;
+	const hasProof = (i: { tags?: Array<string | null> | null; tagsAccess?: Array<{ private?: boolean } | null> | null } | undefined) => (i?.tags ?? []).some(t => filled(t)) || (i?.tagsAccess ?? []).some(a => !!a);
+	const withSample = new Set((d.portfolioItems ?? []).filter(i => hasFile(i) && hasProof(i)).map(i => specOf(i?.title)));
 	if (!subs.every(s => withSample.has(s))) return { kind: 'step', step: 5 };
 	return { kind: 'step', step: 6 };
 }

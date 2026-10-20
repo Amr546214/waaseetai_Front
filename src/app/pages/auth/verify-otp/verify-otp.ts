@@ -6,7 +6,7 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
-import { resendNotice } from '../../../core/forms/otp-delivery';
+import { OTP_DELIVERY_HINT, resendNotice } from '../../../core/forms/otp-delivery';
 import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
 import { WaitTimerService } from '../../../core/wait/wait-timer.service';
 import { parseRetryAfter } from '../../../core/wait/retry-after.util';
@@ -35,6 +35,10 @@ export class VerifyOtp implements OnInit {
   otpCtrl = new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(6), Validators.pattern('^[0-9]*$')]);
   
   isLoading = false;
+  /** The code was accepted and the dashboard is opening: its lazy chunk can take seconds on a cold start, and until then the form stays locked (never shown ready for a second, useless submit). */
+  isEntering = false;
+  /** Set when the code was ACCEPTED but the navigation failed: the form is replaced by a single «إعادة فتح لوحتي» button that only retries the navigation (a second submit would re-send a consumed code). */
+  entryFailedUrl: string | null = null;
   errorMsg = '';
   successMsg = '';
 
@@ -61,6 +65,9 @@ export class VerifyOtp implements OnInit {
 
   /** Read once on entry (the flag is cleared when the login succeeds): true = mandatory LOGIN code, false = account activation. */
   loginMode = false;
+  /** The masked address the last code was addressed to (known only when we arrive from the login page). */
+  targetEmail = '';
+  readonly deliveryHint = OTP_DELIVERY_HINT;
 
   ngOnInit() {
     this.loginMode = this.authApi.isLoginOtpPending();
@@ -82,6 +89,7 @@ export class VerifyOtp implements OnInit {
       // Arrived from an unverified login: show what really happened. The resend wait was stored by the login page from the server's answer
       // (nothing is started here, and a reload keeps the stored end).
       const notice = this.otpHandoff.consume();
+      this.targetEmail = notice?.to ?? '';
       if (notice?.sent) {
         this.successMsg = notice.message;
       } else if (notice) {
@@ -92,6 +100,7 @@ export class VerifyOtp implements OnInit {
   }
 
   async verify() {
+    if (this.entryFailedUrl) return; // the code is already used: only «إعادة فتح لوحتي» is possible
     if (this.isLoading || this.verifyWait().active()) return; // one request at a time; blocked while the server's wait runs
     if (this.otpCtrl.invalid) {
       // Never a silent no-op: say what is needed and put the cursor on the first empty box.
@@ -114,16 +123,20 @@ export class VerifyOtp implements OnInit {
 
     this.authApi.verifyOtp({ userId, code: this.otpCtrl.value! }).subscribe({
       next: (res) => {
-        this.isLoading = false;
         if (res.success) {
           // AuthStore takes care of authentication and state updates via its API service tap().
-          // Continue to the user's own dashboard.
+          // Continue to the user's own dashboard; the form stays locked (isLoading stays true) until that navigation ends.
           const user = res.data?.user || this.authStore.currentUser();
-          this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
+          this.isEntering = true;
+          this.errorMsg = '';
+          this.successMsg = 'تم التحقق من الرمز. جارٍ فتح لوحتك...';
+          this.cdr.markForCheck();
+          this.openDashboard(getDefaultDashboard(user?.accountType, user?.activeRole));
         } else {
+          this.isLoading = false;
           this.errorMsg = res.message || 'حدث خطأ أثناء التحقق';
+          this.cdr.markForCheck();
         }
-        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
@@ -144,6 +157,29 @@ export class VerifyOtp implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  /** Navigate to the dashboard; the form stays locked until it ends. If it does not happen the code is already used: offer a navigation-only retry. */
+  private openDashboard(url: string) {
+    const failed = () => {
+      this.entryFailedUrl = url;
+      this.isEntering = false;
+      this.isLoading = false;
+      this.successMsg = '';
+      this.errorMsg = 'تم التحقق من الرمز لكن تعذر فتح لوحتك. اضغط «إعادة فتح لوحتي» (لا حاجة إلى رمز جديد).';
+      this.cdr.markForCheck();
+    };
+    this.router.navigateByUrl(url).then((ok) => { if (!ok) failed(); }, failed);
+  }
+
+  /** Retries ONLY the navigation: no code is sent or verified. */
+  reopenDashboard() {
+    const url = this.entryFailedUrl;
+    if (!url || this.isEntering) return;
+    this.errorMsg = '';
+    this.isEntering = true;
+    this.cdr.markForCheck();
+    this.openDashboard(url);
   }
 
   /** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) while the server's wait runs; the honest no-time sentence after a 429 without one; '' otherwise. */
@@ -237,6 +273,7 @@ export class VerifyOtp implements OnInit {
   }
 
   resendOtp() {
+    if (this.entryFailedUrl) return;
     if (this.resendWait().active()) return;
 
     const userId = this.authStore.pendingUserId();

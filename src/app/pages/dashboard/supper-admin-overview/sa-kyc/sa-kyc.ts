@@ -308,6 +308,18 @@ export class SaKyc implements OnInit {
     this.detailError.set(null);
   }
 
+  /**
+   * Why a provider's identity cannot be approved right now ('' = it can). The backend refuses an approval when no identity document is on file
+   * (400 «لا توجد مستندات هوية لدى المزود لاعتمادها»), so the admin is told BEFORE trying; rejecting with a reason stays possible.
+   */
+  providerApproveBlockedReason = computed(() => {
+    const p = this.selectedProvider();
+    if (!p || this.activeTab() !== 'providers') return '';
+    return this.docsCount(p) === 0
+      ? 'لا يمكن الموافقة الآن: لم يرفع هذا المزود أي مستند هوية (الهوية الأمامية/الخلفية أو مستند داعم). اطلب منه رفع المستندات من صفحة التوثيق، أو ارفض الطلب مع ذكر السبب.'
+      : '';
+  });
+
   openActionModal(action: 'approve' | 'reject') {
     this.actionType.set(action);
     this.actionReason.set('');

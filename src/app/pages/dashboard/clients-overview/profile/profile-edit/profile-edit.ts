@@ -149,6 +149,8 @@ export class ProfileEdit {
 	isSaving = signal(false);
 	successMsg = signal('');
 	errorMsg = signal('');
+	/** «لا توجد تغييرات للحفظ»: a save with nothing changed says so (neutral note, no request, never a success). */
+	noChangeMsg = signal('');
 
 	// Forms
 	clientForm!: FormGroup;
@@ -177,6 +179,8 @@ export class ProfileEdit {
 	pendingNameRequest = signal<{ id: string; requestedValue: string } | null>(null);
 	/** The name currently applied on the account (what the form shows again after a request is sent). */
 	private appliedNames = { firstName: '', lastName: '' };
+	/** The raw value of each sensitive tab form as loaded / last saved: a save that matches it sends nothing. */
+	private tabRef: Record<string, string | undefined> = {};
 	showRequestsModal = signal(false);
 
 	constructor() {
@@ -418,6 +422,7 @@ export class ProfileEdit {
 							}
 						});
 					}
+					this.tabRef = { identity: JSON.stringify(this.identityForm.getRawValue()), banking: JSON.stringify(this.bankingForm.getRawValue()) };
 				}
 			},
 			error: (err) => {
@@ -658,6 +663,7 @@ export class ProfileEdit {
 	saveProfile() {
 		this.errorMsg.set('');
 		this.successMsg.set('');
+		this.noChangeMsg.set('');
 
 		const form = this.isClient ? this.clientForm : this.providerForm;
 		const attempt = attemptSubmit(form, { root: this.root(), labels: PROFILE_LABELS });
@@ -668,6 +674,11 @@ export class ProfileEdit {
 		const snapshot = JSON.stringify(payload);
 		// Nothing changed in the profile since it was loaded / last stored: no PUT (the success message and the preferences step stay as they were).
 		if (this.profileRef !== null && snapshot === this.profileRef) {
+			// the notification toggles are part of this save: when they did not change either, nothing at all is written and the user is told so (not «updated successfully»)
+			if (!this.isClient || this.prefsState() !== 'ready' || (this.prefsRef && this.notifEmail() === this.prefsRef.email && this.notifInApp() === this.prefsRef.inApp)) {
+				this.noChangeMsg.set('لا توجد تغييرات للحفظ');
+				return;
+			}
 			this.savePreferencesThenFinish();
 			return;
 		}
@@ -744,9 +755,20 @@ export class ProfileEdit {
 		return { payload, note };
 	}
 
+	/**
+	 * Identity and PayPal tabs: nothing differs from what was loaded / last saved = no request, a clear «لا توجد تغييرات للحفظ» note. (The name tab already answers
+	 * «لا توجد تغييرات على الاسم» from the server's own no-change answer; the contact tab builds its payload from the stored value by design.)
+	 */
+	private unchangedTab(tabName: 'identity' | 'banking', form: FormGroup): boolean {
+		if (this.tabRef[tabName] === undefined || JSON.stringify(form.getRawValue()) !== this.tabRef[tabName]) return false;
+		this.noChangeMsg.set('لا توجد تغييرات للحفظ');
+		return true;
+	}
+
 	saveTab(tabName: string) {
 		this.errorMsg.set('');
 		this.successMsg.set('');
+		this.noChangeMsg.set('');
 
 		let payload: any = {};
 		let form: FormGroup | undefined;
@@ -762,6 +784,7 @@ export class ProfileEdit {
 
 		if (tabName === 'identity') {
 			if (this.identityReviewPending()) { this.errorMsg.set('لديك طلب تعديل لرقم الهوية قيد المراجعة بالفعل'); return; }
+			if (this.unchangedTab('identity', form)) return;
 			// country / city save at once; the national id becomes a modification request for an admin (the server decides which).
 			form.markAllAsTouched();
 			const raw = this.identityForm.getRawValue();
@@ -776,6 +799,7 @@ export class ProfileEdit {
 				next: (res) => {
 					this.isSaving.set(false);
 					if (res.success) {
+						this.tabRef[tabName] = JSON.stringify(form!.getRawValue()); // saved: the next click with nothing new is a «no changes» answer, not another request
 						const d: any = (res as any).data;
 						if (d?.isPendingRequest) {
 							// the ID number is an admin-reviewed change: say it, keep saying it (refresh re-reads it), and block a second send
@@ -799,6 +823,7 @@ export class ProfileEdit {
 		let clearingPaypal = false;
 		let contactNote = '';
 		if (tabName === 'banking') {
+			if (this.unchangedTab('banking', form)) return;
 			// PayPal email only; legacy bank/wallet values are never sent (no empty overwrite).
 			form.markAllAsTouched();
 			if (this.bankingForm.get('paypalEmail')?.invalid) {
@@ -838,6 +863,7 @@ export class ProfileEdit {
 		this.profileApi.updateTab(tabName, payload).subscribe({
 			next: (res) => {
 				this.isSaving.set(false);
+				if (res.success && tabName === 'banking') this.tabRef[tabName] = JSON.stringify(form!.getRawValue()); // saved: the next click with nothing new is a «no changes» answer, not another request
 				if (res.success && tabName === 'basics') {
 					// The name is a governed field: the server only recorded a request (or nothing changed). Never "saved".
 					const d: any = (res as any).data;

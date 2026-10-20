@@ -10,7 +10,7 @@ import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-
 import { GoogleBtnStateDirective } from '../../../shared/directives/google-btn-state.directive';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
-import { loginOtpNotice, unverifiedLoginNotice } from '../../../core/forms/otp-delivery';
+import { loginOtpNotice, maskEmailAddress, unverifiedLoginNotice } from '../../../core/forms/otp-delivery';
 import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
 import { attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
@@ -150,7 +150,9 @@ export class Login implements AfterViewInit {
             // below) — never a first-time signup, so this always goes
             // straight to the dashboard, never the profile-completion splash.
             const authedUser = res.data?.user || this.authStore.currentUser();
-            this.router.navigateByUrl(getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole));
+            this.isSubmitting = true;
+            this.cdr.markForCheck();
+            this.openDashboard(getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole));
           },
           error: (err) => {
             this.isSubmitting = false;
@@ -183,6 +185,25 @@ export class Login implements AfterViewInit {
     allowProcessing = true;
   }
 
+  /** Set when the sign-in succeeded but the navigation failed: the form is replaced by a single «إعادة فتح لوحتي» button that only retries the navigation (submitting again would start another login and another code). */
+  entryFailedUrl: string | null = null;
+
+  /** Navigate to the dashboard keeping the form locked until the navigation ends; if it does not happen, offer a navigation-only retry. */
+  private openDashboard(url: string) {
+    const failed = () => { this.entryFailedUrl = url; this.isSubmitting = false; this.errorMessage = 'تم تسجيل الدخول لكن تعذر فتح لوحتك. اضغط «إعادة فتح لوحتي».'; this.cdr.markForCheck(); };
+    this.router.navigateByUrl(url).then((ok) => { if (!ok) failed(); }, failed);
+  }
+
+  /** Retries ONLY the navigation: no login request is sent. */
+  reopenDashboard() {
+    const url = this.entryFailedUrl;
+    if (!url || this.isSubmitting) return;
+    this.errorMessage = '';
+    this.isSubmitting = true;
+    this.cdr.markForCheck();
+    this.openDashboard(url);
+  }
+
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
@@ -210,12 +231,15 @@ export class Login implements AfterViewInit {
 
     this.authApi.login(payload).subscribe({
       next: (res) => {
+        if (res.data?.verified) {
+          // Signed in: the form stays locked (isSubmitting) until the dashboard navigation ends (its lazy chunk can take seconds on a cold start).
+          const user = res.data.user || this.authStore.currentUser();
+          this.openDashboard(getDefaultDashboard(user?.accountType, user?.activeRole));
+          return;
+        }
         this.isSubmitting = false;
         this.cdr.markForCheck();
-        if (res.data?.verified) {
-          const user = res.data.user || this.authStore.currentUser();
-          this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
-        } else if (res.data?.phoneOtpRequired) {
+        if (res.data?.phoneOtpRequired) {
           this.showSmsUnavailable();
         } else if (res.data?.loginOtpRequired) {
           // Correct password: the login code was e-mailed (never SMS). The shared OTP screen finishes the login.
@@ -264,7 +288,7 @@ export class Login implements AfterViewInit {
   /** Active account (password or Google): the mandatory login code was e-mailed, finish at the shared OTP screen. */
   private goToLoginOtp(data?: AuthResponse['data']) {
     this.handOffResendWait(data);
-    const notice = loginOtpNotice(data);
+    const notice = { ...loginOtpNotice(data), to: maskEmailAddress(this.loginForm.value.email) };
     this.otpHandoff.set(notice);
     this.notify.info(notice.message, { duration: 8000 });
     this.router.navigate(['/auth/verify-otp']);
@@ -274,7 +298,7 @@ export class Login implements AfterViewInit {
   private goToEmailVerification(data?: AuthResponse['data']) {
     this.handOffResendWait(data);
     // Only claim "sent" when the backend says so; a throttled send tells the user the earlier code still works.
-    const notice = unverifiedLoginNotice(data);
+    const notice = { ...unverifiedLoginNotice(data), to: maskEmailAddress(this.loginForm.value.email) };
     this.otpHandoff.set(notice);
     this.notify.info(notice.message, { duration: 8000 });
     this.router.navigate(['/auth/verify-otp']);

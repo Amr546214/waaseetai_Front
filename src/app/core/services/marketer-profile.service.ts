@@ -126,11 +126,13 @@ export class MarketerProfileService {
 		);
 	}
 
-	updateMarketingInfo(data: { avatarUrl?: string; bio?: string }): Observable<ApiResponse<MarketerProfile>> {
+	/** `setup: true` (the setup wizard) makes the server require a non-blank bio; never stored. */
+	updateMarketingInfo(data: { avatarUrl?: string; bio?: string; setup?: boolean }): Observable<ApiResponse<MarketerProfile>> {
 		return this.http.patch<ApiResponse<MarketerProfile>>(`${this.apiUrl}/marketing-info`, data);
 	}
 
-	addChannel(data: { platform: string; handle: string; url?: string }): Observable<ApiResponse<AffiliateChannelHandle>> {
+	/** `setup: true` (the setup wizard) makes the server validate the channel for its platform; never stored. */
+	addChannel(data: { platform: string; handle: string; url?: string; setup?: boolean }): Observable<ApiResponse<AffiliateChannelHandle>> {
 		return this.http.post<ApiResponse<AffiliateChannelHandle>>(`${this.apiUrl}/channels`, data);
 	}
 

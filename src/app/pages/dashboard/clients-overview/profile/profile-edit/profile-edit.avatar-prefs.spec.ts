@@ -104,11 +104,12 @@ describe('client profile-edit: avatar actions never write notification preferenc
   });
 
   // K-1: preferences are written only when they changed
-  it('K-1: Save with nothing changed sends no preferences PATCH and no empty profile PUT, success message kept', () => {
+  it('K-1: Save with nothing changed sends no preferences PATCH and no empty profile PUT, and says «لا توجد تغييرات للحفظ» (no «updated successfully» for a save that wrote nothing)', () => {
     component.saveProfile();
     expect(updatePreferences).not.toHaveBeenCalled();
     expect(updateProfile).not.toHaveBeenCalled();
-    expect(component.successMsg()).toContain('تم تحديث');
+    expect(component.noChangeMsg()).toBe('لا توجد تغييرات للحفظ');
+    expect(component.successMsg()).toBe('');
   });
 
   it('K-1: a changed toggle sends the preferences once; the next Save with no change sends nothing', () => {

@@ -17,7 +17,7 @@ import { UiNotificationService } from '../../../../../core/services/ui-notificat
 const SAVED = {
 	headline: 'مطور واجهات', yearsOfExperience: 4, country: 'السعودية', city: 'الرياض', bio: 'خبرة طويلة في تطوير الواجهات الحديثة',
 	mainSpecialty: 'برمجة', subSpecialties: ['React'], paypalPayoutEmail: 'p@x.co', frontIdUrlAccess: { private: true },
-	portfolioItems: [{ title: 'نموذج أعمال - React', description: 'https://res.cloudinary.com/x/sample.pdf' }],
+	portfolioItems: [{ title: 'نموذج أعمال - React', description: 'https://res.cloudinary.com/x/sample.pdf', tags: ['https://res.cloudinary.com/x/proof.pdf'] }],
 	isProfileSetupComplete: false, setupTestStatus: 'PENDING',
 };
 
@@ -120,6 +120,20 @@ describe('provider setup wizard component: resume from saved data', () => {
 		const again = mount(data);
 		expect(again.c.currentStep()).toBe(3);
 		expect(again.c.setupForm.get('profData.jobTitle')!.value).toBe('مطور واجهات');
+	});
+	it('a model with its file but WITHOUT a proof of ownership is still step 5; a private file + private proof (Access flags only) counts', () => {
+		const withoutProof = { ...SAVED, portfolioItems: [{ title: 'نموذج أعمال - React', description: 'https://res.cloudinary.com/x/sample.pdf', tags: [] }] };
+		expect(resolveProviderSetup(withoutProof)).toEqual({ kind: 'step', step: 5 });
+		expect(resolveProviderSetup({ ...SAVED, portfolioItems: [{ title: 'نموذج أعمال - React', description: null, descriptionAccess: { private: true }, tags: [null], tagsAccess: [{ private: true }] }] })).toEqual({ kind: 'step', step: 6 });
+		expect(resolveProviderSetup({ ...SAVED, portfolioItems: [{ title: 'نموذج أعمال - React', description: null, descriptionAccess: { private: true }, tags: [], tagsAccess: [] }] })).toEqual({ kind: 'step', step: 5 });
+	});
+	it('resuming ON step 5 shows an upload card (model file + proof slots) for every chosen sub-specialty, not an empty list', () => {
+		const { c, el } = mount({ ...SAVED, portfolioItems: [] });
+		expect(c.currentStep()).toBe(5);
+		const subs = SAVED.subSpecialties.length;
+		expect(el.querySelectorAll('.pw-item').length).toBe(subs);
+		expect(el.querySelectorAll('.pw-col-review input[type="file"]').length).toBe(subs);
+		expect(el.querySelectorAll('.pw-col-proof input[type="file"]').length).toBe(subs);
 	});
 	it('form submitted, test pending: opens on step 7', () => {
 		expect(mount({ ...SAVED, isProfileSetupComplete: true }).c.currentStep()).toBe(7);
