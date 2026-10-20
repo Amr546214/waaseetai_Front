@@ -150,7 +150,9 @@ export class Login implements AfterViewInit {
             // below) — never a first-time signup, so this always goes
             // straight to the dashboard, never the profile-completion splash.
             const authedUser = res.data?.user || this.authStore.currentUser();
-            this.router.navigateByUrl(getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole));
+            this.isSubmitting = true;
+            this.cdr.markForCheck();
+            this.openDashboard(getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole));
           },
           error: (err) => {
             this.isSubmitting = false;
@@ -183,6 +185,12 @@ export class Login implements AfterViewInit {
     allowProcessing = true;
   }
 
+  /** Navigate to the dashboard keeping the form locked until the navigation ends; if it does not happen, unlock and say so. */
+  private openDashboard(url: string) {
+    const unlock = () => { this.isSubmitting = false; this.errorMessage = 'تم تسجيل الدخول لكن تعذر فتح لوحتك الآن، حاول مرة أخرى'; this.cdr.markForCheck(); };
+    this.router.navigateByUrl(url).then((ok) => { if (!ok) unlock(); }, unlock);
+  }
+
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
@@ -210,12 +218,15 @@ export class Login implements AfterViewInit {
 
     this.authApi.login(payload).subscribe({
       next: (res) => {
+        if (res.data?.verified) {
+          // Signed in: the form stays locked (isSubmitting) until the dashboard navigation ends (its lazy chunk can take seconds on a cold start).
+          const user = res.data.user || this.authStore.currentUser();
+          this.openDashboard(getDefaultDashboard(user?.accountType, user?.activeRole));
+          return;
+        }
         this.isSubmitting = false;
         this.cdr.markForCheck();
-        if (res.data?.verified) {
-          const user = res.data.user || this.authStore.currentUser();
-          this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
-        } else if (res.data?.phoneOtpRequired) {
+        if (res.data?.phoneOtpRequired) {
           this.showSmsUnavailable();
         } else if (res.data?.loginOtpRequired) {
           // Correct password: the login code was e-mailed (never SMS). The shared OTP screen finishes the login.

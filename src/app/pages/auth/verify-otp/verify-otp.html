@@ -94,14 +94,14 @@
         }
         @if (rateLimitText) { <div class="timer-block" id="rate-limit-msg" role="alert" data-testid="rate-limit-msg">{{ rateLimitText }}</div> }
         <div style="text-align:center;margin-top:8px">
-          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="resendWait().active() || isLoading" (click)="resendOtp()">اعادة الارسال</button>
+          <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="resendWait().active() || isLoading || isEntering" (click)="resendOtp()">اعادة الارسال</button>
         </div>
       </div>
 
       <div class="btn-group" style="margin-top:4px">
         <button type="submit" class="btn-primary" id="btn-confirm" [disabled]="isLoading || verifyWait().active()" [attr.aria-disabled]="isLoading || verifyWait().active()">
           <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-shield"></use></svg>
-          {{ isLoading ? 'جاري التحقق...' : (loginMode ? 'الدخول إلى لوحة التحكم' : 'التالي: لوحة التحكم') }}@if (verifyWait().active()) { <span id="verify-wait" data-testid="wait-label"> {{ verifyWait().label() }}</span> }
+          {{ isEntering ? 'جارٍ فتح لوحتك...' : isLoading ? 'جاري التحقق...' : (loginMode ? 'الدخول إلى لوحة التحكم' : 'التالي: لوحة التحكم') }}@if (verifyWait().active()) { <span id="verify-wait" data-testid="wait-label"> {{ verifyWait().label() }}</span> }
         </button>
         <a routerLink="/auth/login" class="btn-tertiary">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>

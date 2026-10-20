@@ -35,6 +35,8 @@ export class VerifyOtp implements OnInit {
   otpCtrl = new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(6), Validators.pattern('^[0-9]*$')]);
   
   isLoading = false;
+  /** The code was accepted and the dashboard is opening: its lazy chunk can take seconds on a cold start, and until then the form stays locked (never shown ready for a second, useless submit). */
+  isEntering = false;
   errorMsg = '';
   successMsg = '';
 
@@ -114,16 +116,23 @@ export class VerifyOtp implements OnInit {
 
     this.authApi.verifyOtp({ userId, code: this.otpCtrl.value! }).subscribe({
       next: (res) => {
-        this.isLoading = false;
         if (res.success) {
           // AuthStore takes care of authentication and state updates via its API service tap().
-          // Continue to the user's own dashboard.
+          // Continue to the user's own dashboard; the form stays locked (isLoading stays true) until that navigation ends.
           const user = res.data?.user || this.authStore.currentUser();
-          this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole));
+          this.isEntering = true;
+          this.errorMsg = '';
+          this.successMsg = 'تم التحقق من الرمز. جارٍ فتح لوحتك...';
+          this.cdr.markForCheck();
+          this.router.navigateByUrl(getDefaultDashboard(user?.accountType, user?.activeRole)).then(
+            (ok) => { if (!ok) this.leaveEntering('تعذر فتح لوحتك الآن، حاول مرة أخرى'); },
+            () => this.leaveEntering('تعذر فتح لوحتك الآن، حاول مرة أخرى')
+          );
         } else {
+          this.isLoading = false;
           this.errorMsg = res.message || 'حدث خطأ أثناء التحقق';
+          this.cdr.markForCheck();
         }
-        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
@@ -144,6 +153,15 @@ export class VerifyOtp implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  /** The navigation after a good code did not happen: unlock the form and say so (the session exists; a retry of the navigation is the sign-in page or a reload). */
+  private leaveEntering(message: string) {
+    this.isEntering = false;
+    this.isLoading = false;
+    this.successMsg = '';
+    this.errorMsg = message;
+    this.cdr.markForCheck();
   }
 
   /** «طلبات كثيرة، يمكنك إعادة المحاولة بعد 1:23» (ticking) while the server's wait runs; the honest no-time sentence after a 429 without one; '' otherwise. */

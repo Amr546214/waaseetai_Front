@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export interface AmendmentPaymentOtpInit { otpSentTo: string; expiresAt: string; amount: number }
+export interface AmendmentPaymentOtpInit { otpSentTo: string; expiresAt: string; amount: number; /** false = the mail server did not take the code (additive field of the backend answer) */ emailSent?: boolean }
 export interface AmendmentInsufficientBalance { required: number; available: number; shortfall: number }
 
 /** The calls of the effective-amendment flow that are shared by the client and provider screens. */
