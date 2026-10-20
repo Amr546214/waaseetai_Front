@@ -102,7 +102,7 @@
         </div>
 
         <!-- مقدم خدمة شركة -->
-        <div class="role-card" [ngClass]="{'role-disabled': isRoleActive('provider-co') || isRoleUnavailable('provider-co')}">
+        <div class="role-card" [ngClass]="{'role-disabled': isRoleActive('provider-co') || isRoleUnavailable('provider-co')}" (click)="selectType('provider-co')">
           <span *ngIf="isRoleActive('provider-co')" class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-[rgba(43,212,199,.14)] text-[#2BD4C7] border border-[rgba(43,212,199,.24)] rounded-full">الحساب الحالي النشط</span>
           <span *ngIf="!isRoleActive('provider-co') && isRoleUnavailable('provider-co')" class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-slate-500/10 text-slate-400 border border-slate-500/20 rounded-full">غير متاح حاليًا</span>
 
@@ -118,7 +118,7 @@
         </div>
 
         <!-- طالب خدمة شركة -->
-        <div class="role-card" [ngClass]="{'role-disabled': isRoleActive('seeker-co') || isRoleUnavailable('seeker-co')}">
+        <div class="role-card" [ngClass]="{'role-disabled': isRoleActive('seeker-co') || isRoleUnavailable('seeker-co')}" (click)="selectType('seeker-co')">
           <span *ngIf="isRoleActive('seeker-co')" class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-[rgba(43,212,199,.14)] text-[#2BD4C7] border border-[rgba(43,212,199,.24)] rounded-full">الحساب الحالي النشط</span>
           <span *ngIf="!isRoleActive('seeker-co') && isRoleUnavailable('seeker-co')" class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-slate-500/10 text-slate-400 border border-slate-500/20 rounded-full">غير متاح حاليًا</span>
 
