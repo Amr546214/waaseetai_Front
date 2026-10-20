@@ -9,7 +9,7 @@
   </div>
 
   <h2 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">استكمال بياناتك</h2>
-  <p style="font-size:13px;margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — يمكنك المتابعة دون إكمال أي خطوة والعودة لاحقاً من صفحة ملفي التسويقي</p>
+  <p style="font-size:13px;margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — الوصف التسويقي وقناة تسويق واحدة مطلوبان لإتمام الإعداد، أما بريد PayPal فيمكن إضافته لاحقًا من صفحة ملفي التسويقي</p>
 
   @if (isLoading()) {
     <div class="adm-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
@@ -58,15 +58,15 @@
           <div><div class="form-card-title">الوصف التسويقي</div><div class="form-card-sub">يظهر في ملفك العام، يصف تخصصك وجمهورك</div></div>
         </div>
         <div class="inp-group">
-          <label class="inp-label" for="ps-bio">وصف تسويقي مختصر</label>
-          <textarea id="ps-bio" class="inp-field" [appBioField]="500" formControlName="bio" rows="3" placeholder="اكتب وصفاً مختصراً عن تخصصك التسويقي وجمهورك المستهدف..."></textarea>
-          <ws-field-error [control]="marketingForm.get('bio')" label="الوصف التسويقي" />
+          <label class="inp-label" for="ps-bio">وصف تسويقي مختصر<span class="ws-req" aria-hidden="true">*</span></label>
+          <textarea id="ps-bio" class="inp-field" [appBioField]="500" formControlName="bio" rows="3" aria-required="true" placeholder="اكتب وصفاً مختصراً عن تخصصك التسويقي وجمهورك المستهدف..."></textarea>
+          <ws-field-error [control]="marketingForm.get('bio')" label="الوصف التسويقي" [messages]="{ required: 'الوصف التسويقي مطلوب', unsaved: 'اضغط «حفظ ومتابعة» لحفظ الوصف قبل المتابعة' }" />
         </div>
       </div>
       <ws-form-summary [items]="missing()" />
       <div class="actions-row">
         <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="saveBio()">{{ isSubmitting() ? 'جارٍ الحفظ...' : 'حفظ ومتابعة' }}</button>
-        <button type="button" class="btn-secondary" (click)="nextStep()">التالي</button>
+        <button type="button" class="btn-secondary" (click)="skipNext()">التالي</button>
       </div>
     }
 
@@ -75,7 +75,7 @@
       <div class="form-card">
         <div class="form-card-hdr">
           <div class="form-card-ico" style="background:rgba(43,127,255,.10);color:#5DA0FF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
-          <div><div class="form-card-title">أضف قناة تسويق واحدة على الأقل</div><div class="form-card-sub">تزيد ثقة العملاء بملفك العام</div></div>
+          <div><div class="form-card-title">أضف قناة تسويق واحدة على الأقل <span class="ws-req" aria-hidden="true">*</span></div><div class="form-card-sub">تزيد ثقة العملاء بملفك العام</div></div>
         </div>
         @if (hasChannel()) {
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
@@ -84,8 +84,8 @@
             }
           </div>
         }
-        <div [formGroup]="channelForm" style="display:flex;gap:8px;flex-wrap:wrap">
-          <div style="display:flex;flex-direction:column;max-width:200px"><select formControlName="platform" class="inp-field" style="max-width:200px" aria-label="نوع القناة" aria-required="true">
+        <div [formGroup]="channelForm" id="ps-channels" class="ps-channels" [class.has-error]="channelRequired()" style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;max-width:200px"><select formControlName="platform" class="inp-field" style="max-width:200px" aria-label="نوع القناة" aria-required="true" [attr.aria-describedby]="channelRequired() ? 'ps-channel-required' : null">
             <option value="">اختر القناة</option>
             <option value="LINKEDIN">LinkedIn</option>
             <option value="YOUTUBE">YouTube</option>
@@ -95,15 +95,16 @@
             <option value="INSTAGRAM">Instagram</option>
           </select>
           <ws-field-error [control]="channelForm.get('platform')" [messages]="{ required: 'اختر نوع القناة' }" /></div>
-          <div style="display:flex;flex-direction:column;flex:1;min-width:160px"><input type="text" formControlName="handle" class="inp-field" placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-required="true">
-          <ws-field-error [control]="channelForm.get('handle')" [messages]="{ required: 'أدخل معرّف القناة أو رابطها' }" /></div>
+          <div style="display:flex;flex-direction:column;flex:1;min-width:160px"><input type="text" formControlName="handle" class="inp-field" placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-required="true" [attr.aria-describedby]="channelRequired() ? 'ps-channel-required' : null">
+          <ws-field-error [control]="channelForm.get('handle')" [messages]="{ required: 'أدخل معرّف القناة أو رابطها', channel: channelForm.get('handle')?.errors?.['channel'] || '' }" /></div>
         </div>
-        <div class="inp-hint" style="margin-top:8px">اختر القناة وأدخل معرّفها ثم اضغط "إضافة ومتابعة"، أو اضغط "التالي" للمتابعة بدونها.</div>
+        @if (channelRequired()) { <div class="f-err" id="ps-channel-required" data-testid="channel-required" role="alert" style="margin-top:8px">أضف قناة تسويق واحدة صالحة على الأقل للمتابعة</div> }
+        <div class="inp-hint" style="margin-top:8px">اختر القناة وأدخل معرّفها (أو رابطها) ثم اضغط "إضافة ومتابعة". قناة واحدة صالحة تكفي، وأي منصة تناسبك.</div>
       </div>
       <ws-form-summary [items]="missing()" />
       <div class="actions-row">
         <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="addChannel()">{{ isSubmitting() ? 'جارٍ الإضافة...' : 'إضافة ومتابعة' }}</button>
-        <button type="button" class="btn-secondary" (click)="nextStep()">التالي</button>
+        <button type="button" class="btn-secondary" (click)="skipNext()">التالي</button>
       </div>
     }
 

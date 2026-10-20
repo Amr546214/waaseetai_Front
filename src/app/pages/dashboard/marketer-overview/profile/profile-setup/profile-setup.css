@@ -384,3 +384,7 @@ select optgroup { background: #0B1437; color: #A8B2D1; font-weight: 800; }
 :host-context(body.theme-light) .skeleton-row,
 :host-context(.light-theme) .skeleton-row,
 :host-context(.theme-light) .skeleton-row { background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%); background-size: 200% 100%; }
+
+/* the channel control is the red-bordered unit when it is required and empty */
+.ps-channels.has-error { outline: 1px solid var(--red, #B42318); outline-offset: 6px; border-radius: 10px; }
+.ps-channels, #ps-bio { scroll-margin-top: 110px; }

@@ -226,11 +226,9 @@ export class Withdraw implements OnInit {
 
     this.formErrors.set(errors);
     const ok = Object.keys(errors).length === 0;
-    // A rejected click is never silent: the first problem is also shown in the banner above the form.
-    if (!ok) {
-      this.submitError.set(errors['amount'] ?? errors['paypal'] ?? 'تحقق من بيانات الطلب');
-      this.focusFirstProblem(errors['amount'] ? 'wdAmt' : 'wdPaypal');
-    }
+    // A rejected click is never silent: every problem has its own red message under its field and the first one is focused. The banner above the form is
+    // NOT used for field problems any more (it repeated the first field message): it stays for server / network / limit answers only.
+    if (!ok) this.focusFirstProblem(errors['amount'] ? 'wdAmt' : 'wdPaypal');
     return ok;
   }
 

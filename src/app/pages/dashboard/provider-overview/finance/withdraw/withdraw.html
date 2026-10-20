@@ -167,10 +167,11 @@
           <div class="wd-method-pill" dir="ltr" data-testid="wd-paypal-email"><span>{{ paypalEmail() }}</span></div>
           <div class="wd-field-hint">سنرسل مستحقاتك إلى هذا البريد. يمكنك تغييره من <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">بيانات الملف</a>.</div>
         } @else {
-          <div class="wd-field-err" id="wdPaypal" tabindex="-1" data-testid="wd-paypal-missing">أضف بريد PayPal لاستلام الأرباح. <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">أضفه من بيانات الملف</a> لتتمكن من طلب السحب.</div>
+          <div class="wd-field-err" id="wdPaypal" tabindex="-1" role="alert" data-testid="wd-paypal-missing">أضف بريد PayPal لاستلام الأرباح. <a routerLink="/provider-overview/profile/data" [queryParams]="{ tab: 'payout' }">أضفه من بيانات الملف</a> لتتمكن من طلب السحب.</div>
         }
+        <!-- With no PayPal email the persistent red notice above IS the field message (it was repeated here a second time after a rejected click). -->
         @if (formErrors()['paypal']; as err) {
-          <div class="wd-field-err" role="alert">{{ err }}</div>
+          @if (paypalEmail()) { <div class="wd-field-err" role="alert">{{ err }}</div> }
         }
       </div>
     </div>
