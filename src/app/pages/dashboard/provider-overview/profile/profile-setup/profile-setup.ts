@@ -112,6 +112,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	paypalSendError = signal('');
 	currentStep = signal<number>(1);
 	/** ID documents were sent and wait for review (kycStatus PENDING): shown as pending, never as a missing step. */
+	/** A real identity document is on file besides the stored front: the ID document of a DOCUMENTS request waiting for the admin, or the approved account document. */
+	identityDocOnFile = signal<boolean>(false);
 	kycPending = signal<boolean>(false);
 	/** The identity review was approved (an approved KYC or an approved document): nothing to send. */
 	kycVerified = signal<boolean>(false);
@@ -354,7 +356,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					if (Object.keys(saved).length) this.portfolioItems.set(saved);
 					// ONE state for the identity review (NOT_SUBMITTED / PENDING_REVIEW / VERIFIED / REJECTED), the same the profile page and the dashboard show;
 					// the older kycStatus is only the fallback when the backend did not send it.
-					const iv = d.identityVerification as { status?: string; rejectionReason?: string | null } | null | undefined;
+					const iv = d.identityVerification as { status?: string; category?: string | null; rejectionReason?: string | null } | null | undefined;
+					// a DOCUMENTS request waiting for the admin (or an approved account document) IS a document on file; a KYC status alone is not
+					this.identityDocOnFile.set(!!iv && iv.category === 'DOCUMENTS' && (iv.status === 'PENDING_REVIEW' || iv.status === 'VERIFIED'));
 					this.kycPending.set(iv ? iv.status === 'PENDING_REVIEW' : d.kycStatus === 'PENDING');
 					this.kycVerified.set(iv ? iv.status === 'VERIFIED' : d.kycStatus === 'VERIFIED');
 					this.kycRejectedReason.set(iv
@@ -462,7 +466,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						this.setFileError(key, message); items.push({ path: `docs.${key}`, label: labels[key], message });
 					}
 				}
-				if (items.length === 0 && !this.uploadedFrontId() && !this.storedFrontAccess()?.private && !this.kycPending() && !this.kycVerified()) {
+				// the review STATUS (pending / verified) is never evidence: an account can be PENDING with no document, so only a stored or newly uploaded document counts
+				if (items.length === 0 && !this.uploadedFrontId() && !this.storedFrontAccess()?.private && !this.identityDocOnFile()) {
 					const message = 'صورة الهوية (الوجه الأمامي) مطلوبة، ارفع ملف PDF أو JPG أو PNG';
 					items.push({ path: 'docs.frontId', label: labels['frontId'], message });
 					this.setFileError('frontId', message);

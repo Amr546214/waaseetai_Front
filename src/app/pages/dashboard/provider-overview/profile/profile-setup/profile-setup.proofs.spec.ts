@@ -101,6 +101,19 @@ describe('provider setup step 5: proof of ownership is required', () => {
     expect(c.fileErr(`pf-proof-${SPEC}-0`)).toBe('');
   });
 
+  it('a PENDING account with NO stored or uploaded identity document is stopped on step 4 with the message under the front-ID card (status is not evidence)', () => {
+    c.uploadedFrontId.set('');
+    c.kycPending.set(true);
+    c.currentStep.set(4);
+    c.goToStep(5); render();
+    expect(c.currentStep()).toBe(4);
+    expect(text('doc-file-error-frontId')).toContain('صورة الهوية (الوجه الأمامي) مطلوبة');
+    // with a stored private document the same account passes
+    c.storedFrontAccess.set({ private: true } as any);
+    c.goToStep(5); render();
+    expect(c.currentStep()).toBe(5);
+  });
+
   it('a proof that is still uploading, or whose upload failed, is not a proof: each says so under the slot', () => {
     set({ review: 'r-url', reviewDisplayName: 'r.pdf', proofs: [''], proofDisplayNames: ['p.pdf'] });
     setState(`portfolio-proof-${SPEC}-0-0`, 'uploading');
