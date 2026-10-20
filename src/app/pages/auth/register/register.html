@@ -428,11 +428,13 @@
     </div>
     }
 
-    <div class="banner-info" role="note" data-testid="code-step-help">
+    <div class="banner-info" role="note" data-testid="code-step-help" style="flex-direction:column;align-items:stretch;gap:8px">
       <span>لم يصلك رمز؟ قد تكون بياناتك بحاجة إلى تعديل، أو يكون لديك حساب مفعّل بالفعل فلن يصلك رمز هنا.</span>
       <span data-testid="code-step-spam-hint">{{ deliveryHint }}</span>
-      <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
-      <a routerLink="/auth/forget-password" class="banner-error-link" id="code-step-forgot-link">استعادة كلمة المرور</a>
+      <span style="display:flex;gap:16px;flex-wrap:wrap">
+        <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
+        <a routerLink="/auth/forget-password" class="banner-error-link" id="code-step-forgot-link">استعادة كلمة المرور</a>
+      </span>
     </div>
 
     <form [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
