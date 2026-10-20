@@ -2165,3 +2165,8 @@ button.btn-outline-sm {
 
 /* Step 2: no sub-specialty chosen when trying to continue */
 .f-chips-wrap.has-error{border:1px solid #ff8c69;border-radius:12px;padding:10px;background:rgba(255,140,105,.06)}
+
+/* Inline attachment errors (under the file slot they belong to), with a clear red border on the slot */
+.pw-col.has-error, .doc-card.has-error { border-color: var(--red, #B42318) !important; box-shadow: 0 0 0 1px var(--red, #B42318); }
+.doc-inline-err { margin: 8px 16px 0; }
+.pw-col .f-err, .pw-spec-card > .f-err { margin-top: 8px; }

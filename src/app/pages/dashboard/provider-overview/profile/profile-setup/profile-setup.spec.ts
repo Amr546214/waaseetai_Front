@@ -140,7 +140,7 @@ describe('provider setup AI suggestions', () => {
     component.addAiSkill('CSS');
     component.setupForm.patchValue({ profData: { expYears: '1 الى 3 سنوات', country: 'السعودية', city: 'الرياض' }, specialties: { mainSpec: 'web', subSpecs: ['تطوير مواقع'] }, payout: { paypalEmail: 'me@example.com' }, agreements: { ackFinal: true } });
     component.uploadedFrontId.set('existing-document');
-    component.portfolioItems.set({ 'تطوير مواقع': [{ review: 'sample-url', reviewDisplayName: 'sample.pdf', proofs: [], proofDisplayNames: [] }] });
+    component.portfolioItems.set({ 'تطوير مواقع': [{ review: 'sample-url', reviewDisplayName: 'sample.pdf', proofs: ['proof-url'], proofDisplayNames: ['p.pdf'] }] });
     vi.spyOn(component, 'goToStep').mockImplementation(() => {});
     component.saveAndGoToTest();
     // The PayPal email is no longer saved here (finance #33): no PUT /profiles/update; a code is requested after the setup is saved.

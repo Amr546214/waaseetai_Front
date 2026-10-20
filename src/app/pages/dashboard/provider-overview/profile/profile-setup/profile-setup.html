@@ -396,7 +396,7 @@
         </div>
 
         <!-- Card 1: هوية وطنية وجه -->
-        <div class="doc-card" [class.verified]="getUploadState('frontId')?.status === 'uploaded'">
+        <div class="doc-card" [class.verified]="getUploadState('frontId')?.status === 'uploaded'" [class.has-error]="!!fileErr('frontId')">
           <div class="doc-header">
             <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-id-card"></use></svg></div>
             <div class="doc-info">
@@ -450,11 +450,12 @@
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('frontId')" aria-label="حذف الملف">&#x2715;</button>
             </div>
           }
+          @if (fileErr('frontId'); as e) { <div class="f-err doc-inline-err" id="err-doc-frontId" data-testid="doc-file-error-frontId" role="alert">{{ e }}</div> }
           <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، لا يشارك مع أطراف خارجية</div>
         </div>
 
         <!-- Card 2: هوية وطنية ظهر -->
-        <div class="doc-card" [class.verified]="getUploadState('backId')?.status === 'uploaded'">
+        <div class="doc-card" [class.verified]="getUploadState('backId')?.status === 'uploaded'" [class.has-error]="!!fileErr('backId')">
           <div class="doc-header">
             <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-id-card"></use></svg></div>
             <div class="doc-info">
@@ -508,11 +509,12 @@
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('backId')" aria-label="حذف الملف">&#x2715;</button>
             </div>
           }
+          @if (fileErr('backId'); as e) { <div class="f-err doc-inline-err" id="err-doc-backId" data-testid="doc-file-error-backId" role="alert">{{ e }}</div> }
           <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، لا يشارك مع أطراف خارجية</div>
         </div>
 
         <!-- Card 3: Selfie -->
-        <div class="doc-card" [class.verified]="getUploadState('selfie')?.status === 'uploaded'">
+        <div class="doc-card" [class.verified]="getUploadState('selfie')?.status === 'uploaded'" [class.has-error]="!!fileErr('selfie')">
           <div class="doc-header">
             <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-selfie"></use></svg></div>
             <div class="doc-info">
@@ -571,11 +573,12 @@
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('selfie')" aria-label="حذف الملف">&#x2715;</button>
             </div>
           }
+          @if (fileErr('selfie'); as e) { <div class="f-err doc-inline-err" id="err-doc-selfie" data-testid="doc-file-error-selfie" role="alert">{{ e }}</div> }
           <div class="enc-note" style="margin-top:10px"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفرة، وتُستخدم للتحقق من هويتك فقط</div>
         </div>
 
         <!-- Card 4: شهادات مهنية (optional) -->
-        <div class="doc-card">
+        <div class="doc-card" [class.has-error]="!!fileErr('certs')">
           <div class="doc-header">
             <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-doc"></use></svg></div>
             <div class="doc-info">
@@ -631,6 +634,7 @@
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('certs')" aria-label="حذف الملفات">&#x2715;</button>
             </div>
           }
+          @if (fileErr('certs'); as e) { <div class="f-err doc-inline-err" id="err-doc-certs" data-testid="doc-file-error-certs" role="alert">{{ e }}</div> }
           <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، يبقى في ملفك المهني</div>
         </div>
 
@@ -657,11 +661,6 @@
           </div>
         </div>
 
-        @if (docFileErrors().length) {
-        <div role="alert" data-testid="doc-file-errors" class="form-error" style="margin-bottom:10px">
-          @for (m of docFileErrors(); track m) { <div>{{ m }}</div> }
-        </div>
-        }
         <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(3)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
@@ -699,11 +698,12 @@
                   <span class="pw-spec-name">{{ spec }}</span>
                   <span class="pw-spec-count">{{ getPortfolioCount(spec) }}</span>
                 </div>
+                @if (fileErr('pf-spec-' + spec); as e) { <div class="f-err" id="err-pf-spec-{{ $index }}" data-testid="pf-spec-error" role="alert">{{ e }}</div> }
 
                 @for (item of getPortfolioItems(spec); track $index; let itemIdx = $index) {
                   <div class="pw-item">
                     <div class="pw-item-cols">
-                      <div class="pw-col pw-col-review">
+                      <div class="pw-col pw-col-review" [class.has-error]="!!fileErr('pf-review-' + spec + '-' + itemIdx)">
                         <div class="pw-col-hd">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" aria-hidden="true"><use href="#i-doc"></use></svg>
                           <span class="pw-col-ttl">نموذج العمل · للسوق العام <span class="ws-req" aria-hidden="true">*</span></span>
@@ -723,22 +723,23 @@
                             <span class="f-hint txt-red">تعذر رفع الملف، حاول مرة أخرى</span>
                           }
                           <label class="pw-replace-btn" style="cursor:pointer">
-                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
+                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" aria-required="true" [attr.aria-invalid]="fileErr('pf-review-' + spec + '-' + itemIdx) ? 'true' : null" aria-label="رفع ملف نموذج العمل" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-upload"></use></svg>استبدال الملف
                           </label>
                         } @else {
                           <label class="pw-upload-empty" style="cursor:pointer">
-                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
+                            <input type="file" accept="image/*,.pdf,.zip,.mp4" style="display:none" aria-required="true" [attr.aria-invalid]="fileErr('pf-review-' + spec + '-' + itemIdx) ? 'true' : null" aria-label="رفع ملف نموذج العمل" (change)="onPortfolioReviewChange($event, spec, itemIdx)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-upload"></use></svg>
                             <span>ارفع نموذج العمل</span>
                           </label>
                         }
+                        @if (fileErr('pf-review-' + spec + '-' + itemIdx); as e) { <div class="f-err" data-testid="pf-review-error" role="alert">{{ e }}</div> }
                       </div>
 
-                      <div class="pw-col pw-col-proof">
+                      <div class="pw-col pw-col-proof" [class.has-error]="!!fileErr('pf-proof-' + spec + '-' + itemIdx)">
                         <div class="pw-col-hd">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="1.8" aria-hidden="true"><use href="#i-shield"></use></svg>
-                          <span class="pw-col-ttl">وثائق الإثبات · للمراجعة فقط</span>
+                          <span class="pw-col-ttl">وثائق الإثبات · للمراجعة فقط <span class="ws-req" aria-hidden="true">*</span></span>
                           <span class="pw-col-badge-req"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-warn"></use></svg>شرط</span>
                         </div>
                         <div class="pw-proof-list">
@@ -758,9 +759,10 @@
                           }
                         </div>
                         <label class="pw-add-proof" style="cursor:pointer">
-                          <input type="file" accept="image/*,.pdf,.zip" multiple style="display:none" (change)="onPortfolioProofsChange($event, spec, itemIdx)">
+                          <input type="file" accept="image/*,.pdf,.zip" multiple style="display:none" aria-required="true" [attr.aria-invalid]="fileErr('pf-proof-' + spec + '-' + itemIdx) ? 'true' : null" aria-label="رفع وثيقة إثبات الملكية" (change)="onPortfolioProofsChange($event, spec, itemIdx)">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة وثيقة أخرى
                         </label>
+                        @if (fileErr('pf-proof-' + spec + '-' + itemIdx); as e) { <div class="f-err" data-testid="pf-proof-error" role="alert">{{ e }}</div> }
                       </div>
                     </div>
                     @if (getPortfolioItems(spec).length > 1) {
@@ -779,11 +781,6 @@
           }
         </div>
 
-        @if (portfolioFileErrors().length) {
-        <div role="alert" data-testid="portfolio-file-errors" class="form-error" style="margin-bottom:10px">
-          @for (m of portfolioFileErrors(); track m) { <div>{{ m }}</div> }
-        </div>
-        }
         <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(4)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>

@@ -45,17 +45,20 @@ describe('provider setup wizard — stage 5 portfolio (#15)', () => {
 		setup({ mainSpecialty: 'design', subSpecialties: ['تصميم شعارات'], portfolioItems: ROWS });
 		const items = component.portfolioItems()['تصميم شعارات'];
 		expect(items.length).toBe(2);
-		expect(items[0].review).toBe(ROWS[0].description);
+		// the stored files are KEPT through their stored row (never re-sent as links): markers, with the real names for display
+		expect(items[0].id).toBe('i1');
+		expect(items[0].review).toBe('kept:review');
 		expect(items[0].reviewDisplayName).toBe('work 1.png');
-		expect(items[0].proofs).toEqual(ROWS[0].tags);
+		expect(items[0].proofs).toEqual(['kept:proof:0', 'kept:proof:1']);
 		expect(items[0].proofDisplayNames).toEqual(['proof-a.pdf', 'proof-b.pdf']);
-		expect(items[1].review).toBe(ROWS[1].description);
+		expect(items[1].review).toBe('kept:review');
 		expect(items[1].proofs).toEqual([]);
 	});
 
 	it('a row with only a coverImage (no tags) still yields its proof; rows with an empty title are ignored; non-array input is safe', () => {
 		setup({ subSpecialties: ['تصميم شعارات'], portfolioItems: [{ title: 'نموذج أعمال - تصميم شعارات', description: 'https://x/y/w.png', coverImage: 'https://x/y/p.png', tags: [] }, { title: '', description: 'x' }] });
-		expect(component.portfolioItems()['تصميم شعارات'][0].proofs).toEqual(['https://x/y/p.png']);
+		expect(component.portfolioItems()['تصميم شعارات'][0].proofs).toEqual(['kept:proof:0']);
+		expect(component.portfolioItems()['تصميم شعارات'][0].proofDisplayNames).toEqual(['p.png']);
 		expect(Object.keys(component.portfolioItems()).length).toBe(1);
 		expect(component.portfolioFromServer(undefined)).toEqual({});
 	});
@@ -63,8 +66,11 @@ describe('provider setup wizard — stage 5 portfolio (#15)', () => {
 	it('re-saving without touching stage 5 sends the saved portfolio back (so the server-side replace does not wipe it)', () => {
 		setup({ mainSpecialty: 'design', subSpecialties: ['تصميم شعارات'], portfolioItems: ROWS });
 		const sent = (component as any).sanitizePortfolioForPayload(component.portfolioItems());
-		expect(sent['تصميم شعارات'].map((i: any) => i.review)).toEqual([ROWS[0].description, ROWS[1].description]);
-		expect(sent['تصميم شعارات'][0].proofs).toEqual(ROWS[0].tags);
+		// the stored rows are named by id and their files kept by flag / index: nothing is re-sent as a link, nothing is wiped
+		expect(sent['تصميم شعارات']).toEqual([
+			{ id: 'i1', keepReview: true, proofs: [], keepProofs: [0, 1] },
+			{ id: 'i2', keepReview: true, proofs: [], keepProofs: [] },
+		]);
 	});
 
 	it('"إضافة نموذج" adds a card on ONE click and gives the template a new array each time', () => {
@@ -90,7 +96,7 @@ describe('provider setup wizard — stage 5 portfolio (#15)', () => {
 		const first = component.getPortfolioItems('تصميم شعارات');
 		component.removePortfolioProof('تصميم شعارات', 0, 0);
 		expect(component.getPortfolioItems('تصميم شعارات')).not.toBe(first);
-		expect(component.getPortfolioItems('تصميم شعارات')[0].proofs).toEqual([ROWS[0].tags[1]]);
+		expect(component.getPortfolioItems('تصميم شعارات')[0].proofs).toEqual(['kept:proof:1']);
 		component.removePortfolioItem('تصميم شعارات', 0);
 		expect(component.getPortfolioItems('تصميم شعارات').length).toBe(1);
 		expect(component.getPortfolioItems('تصميم شعارات')[0].review).toBe('');
