@@ -1,3 +1,4 @@
+import { OTP_DELIVERY_HINT } from '../../../core/forms/otp-delivery';
 import { Component, DestroyRef, signal, ElementRef, OnDestroy, ChangeDetectorRef, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -29,6 +30,7 @@ const RESET_LABELS: Record<string, string> = {
   encapsulation: ViewEncapsulation.None,
 })
 export class RestPassword implements OnDestroy {
+  readonly deliveryHint = OTP_DELIVERY_HINT;
   private authApi = inject(AuthApiService);
   private readonly host = inject(ElementRef<HTMLElement>);
   /** What is missing after a failed submit attempt (shown by <ws-form-summary>). */

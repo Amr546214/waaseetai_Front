@@ -18,7 +18,23 @@ export const RESEND_SENT_MESSAGE = 'إذا كان الحساب بانتظار ا
 export const OTP_SEND_FAILED_MESSAGE = 'تعذر إرسال رمز التحقق، حاول مرة أخرى بعد قليل أو تواصل مع الدعم';
 export const UNVERIFIED_NEUTRAL_MESSAGE = 'حسابك غير مفعّل بعد. أدخل رمز التحقق المرسل إلى بريدك أو اطلب رمزًا جديدًا.';
 
+/** Said next to every code step. It promises nothing: the mail is accepted by our server, then delivered (or not) by the mail provider. */
+export const OTP_DELIVERY_HINT = 'قد يتأخر وصول الرسالة دقيقة أو أكثر. راجع مجلد Spam أو الرسائل غير المرغوب فيها (وقسم الترويجات). لا نضمن وصولها.';
+
+/** «a***b@gm***.com»: the address a code was addressed to, shown without exposing it in full. */
+export function maskEmailAddress(raw: string | null | undefined): string {
+	const e = String(raw ?? '').trim();
+	const at = e.indexOf('@');
+	if (at < 1) return '';
+	const name = e.slice(0, at), domain = e.slice(at + 1), parts = domain.split('.');
+	const mn = name.length > 2 ? name[0] + '***' + name.slice(-1) : name[0] + '*';
+	const md = parts[0].length > 2 ? parts[0].slice(0, 2) + '***' : parts[0][0] + '*';
+	return `${mn}@${md}${parts.length > 1 ? '.' + parts.slice(1).join('.') : ''}`;
+}
+
 export interface OtpNotice {
+	/** The masked address the code went to (only set by the page that knows it). */
+	to?: string;
 	/** True only when the backend confirmed the email went out. Gates the "sent" wording AND the resend countdown. */
 	sent: boolean;
 	message: string;

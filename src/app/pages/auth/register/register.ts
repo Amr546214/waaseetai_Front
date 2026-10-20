@@ -17,7 +17,7 @@ import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.servi
 import { rateLimitSentence } from '../../../core/wait/wait-format';
 import { formatClock } from '../../../core/wait/wait-format';
 import { RATE_LIMIT_MESSAGE, isRateLimitError, startWaitFromError } from '../../../core/utils/rate-limit.util';
-import { REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE } from '../../../core/forms/otp-delivery';
+import { OTP_DELIVERY_HINT, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE } from '../../../core/forms/otp-delivery';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
@@ -722,6 +722,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	}
 
 	/** Masked email for the verification step, same format as the design (P-AU-009 maskEmail). */
+	readonly deliveryHint = OTP_DELIVERY_HINT;
+
 	get maskedEmail(): string {
 		const e: string = this.basicInfoForm.get('email')?.value || '';
 		if (!e || e.indexOf('@') < 0) return '';

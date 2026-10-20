@@ -6,7 +6,7 @@ import { AuthStore } from '../../../core/store/auth.store';
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
-import { resendNotice } from '../../../core/forms/otp-delivery';
+import { OTP_DELIVERY_HINT, resendNotice } from '../../../core/forms/otp-delivery';
 import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
 import { WaitTimerService } from '../../../core/wait/wait-timer.service';
 import { parseRetryAfter } from '../../../core/wait/retry-after.util';
@@ -65,6 +65,9 @@ export class VerifyOtp implements OnInit {
 
   /** Read once on entry (the flag is cleared when the login succeeds): true = mandatory LOGIN code, false = account activation. */
   loginMode = false;
+  /** The masked address the last code was addressed to (known only when we arrive from the login page). */
+  targetEmail = '';
+  readonly deliveryHint = OTP_DELIVERY_HINT;
 
   ngOnInit() {
     this.loginMode = this.authApi.isLoginOtpPending();
@@ -86,6 +89,7 @@ export class VerifyOtp implements OnInit {
       // Arrived from an unverified login: show what really happened. The resend wait was stored by the login page from the server's answer
       // (nothing is started here, and a reload keeps the stored end).
       const notice = this.otpHandoff.consume();
+      this.targetEmail = notice?.to ?? '';
       if (notice?.sent) {
         this.successMsg = notice.message;
       } else if (notice) {

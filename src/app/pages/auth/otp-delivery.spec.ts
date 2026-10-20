@@ -282,11 +282,11 @@ describe('Login: unverified account hand-off', () => {
 	it('throttled (emailSent=false + retryAfterSeconds): still opens verify, says to use the previous code, not "sent"', () => {
 		const { nav, handoff } = run({ emailSent: false, retryAfterSeconds: 30 });
 		expect(nav).toHaveBeenCalledWith(['/auth/verify-otp']);
-		expect(handoff).toEqual({ sent: false, message: 'يمكنك استخدام الرمز السابق أو إعادة المحاولة بعد 30 ثانية.' });
+		expect(handoff).toMatchObject({ sent: false, message: 'يمكنك استخدام الرمز السابق أو إعادة المحاولة بعد 30 ثانية.' });
 	});
 
 	it('emailSent=false without a wait: failure notice', () => {
-		expect(run({ emailSent: false }).handoff).toEqual({ sent: false, message: FAILED });
+		expect(run({ emailSent: false }).handoff).toMatchObject({ sent: false, message: FAILED });
 	});
 
 	it('SMS login with no provider (503) shows the Arabic message, never "sent to your phone"', () => {

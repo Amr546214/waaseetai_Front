@@ -10,7 +10,7 @@ import { SocialAuthService, GoogleSigninButtonModule } from '@abacritt/angularx-
 import { GoogleBtnStateDirective } from '../../../shared/directives/google-btn-state.directive';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { mapHttpError } from '../../../core/forms/http-error';
-import { loginOtpNotice, unverifiedLoginNotice } from '../../../core/forms/otp-delivery';
+import { loginOtpNotice, maskEmailAddress, unverifiedLoginNotice } from '../../../core/forms/otp-delivery';
 import { OtpHandoffService } from '../../../core/services/otp-handoff.service';
 import { attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
@@ -288,7 +288,7 @@ export class Login implements AfterViewInit {
   /** Active account (password or Google): the mandatory login code was e-mailed, finish at the shared OTP screen. */
   private goToLoginOtp(data?: AuthResponse['data']) {
     this.handOffResendWait(data);
-    const notice = loginOtpNotice(data);
+    const notice = { ...loginOtpNotice(data), to: maskEmailAddress(this.loginForm.value.email) };
     this.otpHandoff.set(notice);
     this.notify.info(notice.message, { duration: 8000 });
     this.router.navigate(['/auth/verify-otp']);
@@ -298,7 +298,7 @@ export class Login implements AfterViewInit {
   private goToEmailVerification(data?: AuthResponse['data']) {
     this.handOffResendWait(data);
     // Only claim "sent" when the backend says so; a throttled send tells the user the earlier code still works.
-    const notice = unverifiedLoginNotice(data);
+    const notice = { ...unverifiedLoginNotice(data), to: maskEmailAddress(this.loginForm.value.email) };
     this.otpHandoff.set(notice);
     this.notify.info(notice.message, { duration: 8000 });
     this.router.navigate(['/auth/verify-otp']);

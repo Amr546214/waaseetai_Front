@@ -30,6 +30,11 @@
       }
     </div>
 
+    @if (targetEmail) {
+    <p class="auth-sub" data-testid="otp-target" style="margin-top:-6px">أرسلنا الرمز إلى <bdi dir="ltr">{{ targetEmail }}</bdi></p>
+    }
+    <p class="inp-hint" data-testid="otp-delivery-hint" style="text-align:center;margin:0 0 10px">{{ deliveryHint }}</p>
+
     @if (!loginMode) {
     <div class="stepper" role="list" aria-label="خطوات التسجيل">
       <div class="step-row">
