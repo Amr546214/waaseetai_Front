@@ -46,8 +46,16 @@ export function unverifiedLoginNotice(data: AuthResponse['data'] | null | undefi
 	return { sent: false, message: UNVERIFIED_NEUTRAL_MESSAGE };
 }
 
-/** POST /auth/resend-otp: `success:false` / `emailSent:false` means nothing went out. */
-export function resendNotice(res: Pick<AuthResponse, 'success' | 'data'> & { emailSent?: boolean } | null | undefined): OtpNotice {
+/**
+ * POST /auth/resend-otp (or /auth/login/resend-otp): `success:false` / `emailSent:false` means nothing went out. Two different reasons are told apart:
+ * a WAIT (the backend gave retryAfterSeconds: the earlier code still works) and a real send failure (no wait: the mail server did not take it).
+ */
+export function resendNotice(res: (Pick<AuthResponse, 'success' | 'data'> & { emailSent?: boolean; retryAfterSeconds?: number }) | null | undefined): OtpNotice {
 	const sent = res?.success === true && (res?.emailSent ?? res?.data?.emailSent) === true;
-	return sent ? { sent: true, message: RESEND_SENT_MESSAGE } : { sent: false, message: OTP_SEND_FAILED_MESSAGE };
+	if (sent) return { sent: true, message: RESEND_SENT_MESSAGE };
+	const wait = res?.retryAfterSeconds ?? res?.data?.retryAfterSeconds;
+	if ((res?.emailSent ?? res?.data?.emailSent) === false && typeof wait === 'number' && wait > 0) {
+		return { sent: false, message: `يمكنك استخدام الرمز السابق أو إعادة المحاولة بعد ${formatWait(wait)}.` };
+	}
+	return { sent: false, message: OTP_SEND_FAILED_MESSAGE };
 }
