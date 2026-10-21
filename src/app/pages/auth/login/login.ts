@@ -1,3 +1,4 @@
+import { consumeReturnUrl } from '../../../core/routing/return-url';
 import { Component, ElementRef, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -152,7 +153,7 @@ export class Login implements AfterViewInit {
             const authedUser = res.data?.user || this.authStore.currentUser();
             this.isSubmitting = true;
             this.cdr.markForCheck();
-            this.openDashboard(getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole));
+            this.openDashboard(consumeReturnUrl(authedUser) ?? getDefaultDashboard(authedUser?.accountType, authedUser?.activeRole));
           },
           error: (err) => {
             this.isSubmitting = false;
@@ -234,7 +235,7 @@ export class Login implements AfterViewInit {
         if (res.data?.verified) {
           // Signed in: the form stays locked (isSubmitting) until the dashboard navigation ends (its lazy chunk can take seconds on a cold start).
           const user = res.data.user || this.authStore.currentUser();
-          this.openDashboard(getDefaultDashboard(user?.accountType, user?.activeRole));
+          this.openDashboard(consumeReturnUrl(user) ?? getDefaultDashboard(user?.accountType, user?.activeRole));
           return;
         }
         this.isSubmitting = false;

@@ -1,3 +1,4 @@
+import { consumeReturnUrl } from '../../../core/routing/return-url';
 import { Component, inject, OnInit, ViewEncapsulation, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
@@ -131,7 +132,7 @@ export class VerifyOtp implements OnInit {
           this.errorMsg = '';
           this.successMsg = 'تم التحقق من الرمز. جارٍ فتح لوحتك...';
           this.cdr.markForCheck();
-          this.openDashboard(getDefaultDashboard(user?.accountType, user?.activeRole));
+          this.openDashboard(consumeReturnUrl(user) ?? getDefaultDashboard(user?.accountType, user?.activeRole));
         } else {
           this.isLoading = false;
           this.errorMsg = res.message || 'حدث خطأ أثناء التحقق';
