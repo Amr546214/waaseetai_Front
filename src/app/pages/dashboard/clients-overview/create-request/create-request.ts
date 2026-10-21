@@ -1413,6 +1413,8 @@ export class CreateRequest implements OnInit, OnDestroy {
   isSubmitting = signal(false);
   /** Why publishing failed, shown next to the publish button (the wizard entries stay as they are). */
   publishError = signal<string>('');
+  /** Set when the server answered with the request that already existed (same request sent again): its id, so the success screen says it was already saved and links to it. */
+  alreadyPublishedId = signal<string | null>(null);
   showSuccessOverlay = signal(false);
 
   async submitRequest() {
@@ -1480,6 +1482,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       next: (res) => {
         this.isSubmitting.set(false);
         this.publishGuard.release();
+        this.alreadyPublishedId.set((res as { deduplicated?: boolean })?.deduplicated ? ((res as { data?: { id?: string } }).data?.id ?? null) : null);
         // Only clear the draft once the backend has actually confirmed the
         // request was published — never on error, never before this point.
         this.clearDraft();

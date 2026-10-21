@@ -38,4 +38,20 @@ describe('create-request: publish outcome messages', () => {
     expect(box.textContent).not.toContain('بأمان');
     expect(box.textContent!.length).toBeGreaterThan(5);
   });
+
+  it('the server answered with the request that already existed: the success screen says it was already saved and links to it', () => {
+    (c as any).alreadyPublishedId.set('req-123');
+    c.showSuccessOverlay.set(true); render();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('[data-testid="already-published"]')!.textContent).toContain('بالفعل');
+    expect(el.textContent).toContain('لم ننشئ نسخة ثانية');
+    expect(el.querySelector('[data-testid="open-existing"]')!.getAttribute('href')).toContain('/client-overview/my-requests/req-123');
+  });
+
+  it('a normal first publish keeps the normal success screen', () => {
+    c.showSuccessOverlay.set(true); render();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('[data-testid="already-published"]')).toBeNull();
+    expect(el.textContent).toContain('تم نشر الطلب بنجاح');
+  });
 });

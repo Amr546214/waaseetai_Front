@@ -214,6 +214,12 @@
   <div class="success-ring">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
+  @if (alreadyPublishedId()) {
+  <h2 class="success-title" data-testid="already-published">طلبك محفوظ ومنشور بالفعل</h2>
+  <div class="success-id">لم ننشئ نسخة ثانية</div>
+  <p class="success-sub">وصلنا الطلب نفسه قبل قليل (ربما ضغطت مرتين أو انقطع الاتصال بعد الحفظ). تجده في «طلباتي»، ويمكنك فتحه مباشرة.</p>
+  <div class="success-btns"><a [routerLink]="['/client-overview/my-requests', alreadyPublishedId()]" class="btn-primary" data-testid="open-existing">فتح الطلب</a><a routerLink="/client-overview/my-requests" class="btn-secondary">عرض طلباتي</a></div>
+  } @else {
   <h2 class="success-title">تم نشر الطلب بنجاح</h2>
   <div class="success-id">طلب جديد</div>
   <p class="success-sub">سيتمكن مقدمو الخدمة المؤهلون من رؤية طلبك الآن، توقع استلام 8-12 عرضا خلال 48 ساعة</p>
@@ -224,5 +230,6 @@
     </button>
     <a routerLink="/client-overview" class="btn-secondary">لوحة التحكم</a>
   </div>
+  }
 </div>
 }
