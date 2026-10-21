@@ -241,7 +241,7 @@ export class OfferNegotiate implements OnInit {
 		// a lost answer: re-read what the server really holds and SAY what it found (the form, with its error box, disappears when the counter was in fact saved)
 		if (mapped.outcomeUnknown) this.loadNegotiation(state => { if (state?.counterPending) this.lostAnswerNotice.set('تم حفظ عرضك المضاد رغم انقطاع الاتصال، وهو الآن بانتظار رد العميل. لا حاجة لإرساله مرة أخرى.'); });
 		else if (err?.status === 409) this.loadNegotiation();
-		return mapped.outcomeUnknown ? `${mapped.message} حدّثنا الصفحة لتعرض آخر حالة محفوظة، فتحقق منها قبل إعادة المحاولة.` : mapped.message;
+		return mapped.outcomeUnknown ? 'انقطع الاتصال قبل أن نعرف إن كان طلبك وصل. حدّثنا الصفحة لتعرض آخر حالة محفوظة، فتحقق منها قبل إعادة المحاولة.' : mapped.message;
 	}
 
 	submitCounter() {

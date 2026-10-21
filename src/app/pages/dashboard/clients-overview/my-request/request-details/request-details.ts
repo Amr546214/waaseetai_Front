@@ -629,7 +629,7 @@ export class RequestDetails implements OnInit {
 					this.answeringOfferId.set(null);
 					// the server's reason is kept visible on the card (a toast alone vanishes); a lost answer says the action may have been recorded and the page shows what really was
 					const mapped = mapHttpError(err, { fallback: 'تعذر تنفيذ الإجراء، حاول مرة أخرى' });
-					const text = mapped.outcomeUnknown ? `${mapped.message} حدّثنا الصفحة لتعرض آخر حالة محفوظة، فتحقق منها قبل إعادة المحاولة.` : mapped.message;
+					const text = mapped.outcomeUnknown ? 'انقطع الاتصال قبل أن نعرف إن كان ردّك وصل. حدّثنا الصفحة لتعرض آخر حالة محفوظة، فتحقق منها قبل إعادة المحاولة.' : mapped.message;
 					this.counterNotice.set({ offerId: offer.id, text });
 					this.notify.error(text);
 					this.fetchRequestDetails(this.requestId());
