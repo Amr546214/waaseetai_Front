@@ -181,9 +181,9 @@
 
 <!-- STICKY BOTTOM -->
 <div class="sticky-bottom" style="right:0;">
+  @if (parent.publishError()) { <p role="alert" class="text-[13px] leading-[1.7] text-[#ff8a8a] m-0 px-4 py-2 text-center" data-testid="publish-error">{{ parent.publishError() }}</p> }
   <div class="sticky-inner max-w-6xl mx-auto px-4 lg:px-6 flex items-center justify-between gap-4 flex-row-reverse" style="margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-direction:row-reverse;">
 	<div class="flex items-center gap-4">
-		@if (parent.publishError()) { <p role="alert" class="text-[13px] leading-[1.7] text-[#ff8a8a] max-w-[420px] m-0" data-testid="publish-error">{{ parent.publishError() }}</p> }
 		<button type="button"
 			class="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[#070d24] text-[15px] font-black cursor-pointer transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not(:disabled):-translate-y-0.5 shadow-[0_4px_18px_rgba(43,212,199,0.35)] hover:not(:disabled):shadow-[0_6px_22px_rgba(43,212,199,0.5)]"
 			style="background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%);"
