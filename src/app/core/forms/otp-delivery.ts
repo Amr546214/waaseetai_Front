@@ -12,9 +12,9 @@ export const OTP_SENT_MESSAGE = 'تم إرسال رمز التحقق إلى بر
  */
 export const REGISTER_CODE_STEP_MESSAGE = 'أدخل الرمز إن وصلك. إكمال التسجيل مشروط بصحة البيانات المُدخلة، فإن لم يصلك رمز فراجع بريدك وجوالك وعدّلهما عند الحاجة، أو عُد إلى تسجيل الدخول أو استعادة كلمة المرور.';
 /** Resend from the registration code step is a generic always-200 answer: it claims only a condition. */
-export const REGISTER_RESEND_MESSAGE = 'إن كان هناك حساب بانتظار التفعيل لهذا البريد فقد أرسلنا إليه رمزًا جديدًا';
+export const REGISTER_RESEND_MESSAGE = 'إن كان هناك حساب بانتظار التفعيل لهذا البريد فسيصله رمز جديد. قد يتأخر وصوله دقيقة أو أكثر.';
 /** Resend is unauthenticated and answers the same for every id: conditional wording as well. */
-export const RESEND_SENT_MESSAGE = 'إذا كان الحساب بانتظار التفعيل فقد أرسلنا رمز التحقق إلى بريدك';
+export const RESEND_SENT_MESSAGE = 'إذا كان الحساب بانتظار التفعيل فسيصل رمز التحقق إلى بريدك. قد يتأخر وصوله دقيقة أو أكثر.';
 export const OTP_SEND_FAILED_MESSAGE = 'تعذر إرسال رمز التحقق، حاول مرة أخرى بعد قليل أو تواصل مع الدعم';
 export const UNVERIFIED_NEUTRAL_MESSAGE = 'حسابك غير مفعّل بعد. أدخل رمز التحقق المرسل إلى بريدك أو اطلب رمزًا جديدًا.';
 
