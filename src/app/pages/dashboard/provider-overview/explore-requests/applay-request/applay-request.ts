@@ -860,7 +860,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			this.submitError.set({ message: mapped.message, code, link: { text: 'استكشاف طلبات أخرى', url: ['/provider-overview/explore-requests'] } });
 			return;
 		}
-		this.submitError.set({ message: mapped.message, code, outcomeUnknown: mapped.outcomeUnknown });
+		this.submitError.set({ message: mapped.outcomeUnknown ? 'انقطع الاتصال قبل أن نعرف إن كان عرضك وصل.' : mapped.message, code, outcomeUnknown: mapped.outcomeUnknown });
 	}
 
 	goBackToStep(step: number) {

@@ -242,7 +242,7 @@
 @if(submitError(); as se) {
   <div role="alert" data-testid="submit-error" class="mx-auto max-w-[760px] mt-[12px] rounded-[12px] border border-[rgba(255,90,90,.45)] bg-[rgba(255,90,90,.08)] p-[12px_16px] text-[13px] leading-[1.8] text-[#ffb3b3]" [class.border-[rgba(43,212,199,.5)]]="se.code === 'PROPOSAL_ALREADY_SUBMITTED'">
     <p class="m-0">{{ se.message }}</p>
-    @if(se.outcomeUnknown) { <p class="m-0 mt-[4px] opacity-90" data-testid="submit-error-safe-retry">لن يُرسل عرض ثانٍ: إن كان عرضك قد وصل فسنخبرك عند الإرسال مرة أخرى.</p> }
+    @if(se.outcomeUnknown) { <p class="m-0 mt-[4px] opacity-90" data-testid="submit-error-safe-retry">اضغط «إرسال العرض» مرة أخرى بأمان: إن كان عرضك قد وصل فسنخبرك بذلك ولن يُرسل عرض ثانٍ.</p> }
     @if(se.link) { <a [routerLink]="se.link.url" class="inline-block mt-[6px] font-bold underline" data-testid="submit-error-link">{{ se.link.text }}</a> }
     @if(se.backToStep) { <button type="button" class="block mt-[6px] font-bold underline bg-transparent border-0 cursor-pointer p-0 text-inherit" (click)="goBackToStep(se.backToStep)" data-testid="submit-error-back">العودة لتعديل المراحل</button> }
   </div>
