@@ -41,6 +41,8 @@ export class VerifyOtp implements OnInit {
   /** Set when the code was ACCEPTED but the navigation failed: the form is replaced by a single «إعادة فتح لوحتي» button that only retries the navigation (a second submit would re-send a consumed code). */
   entryFailedUrl: string | null = null;
   errorMsg = '';
+  /** True only when the message is about the CODE itself (wrong / expired / not six digits / locked): only then are the code boxes marked invalid. A server, network or limit failure never marks a code that may be right. */
+  errorIsAboutCode = false;
   successMsg = '';
 
   // Three different timers, all from the server and keyed by the pending user (the login page stores the same scopes before navigating here):
@@ -94,7 +96,7 @@ export class VerifyOtp implements OnInit {
       if (notice?.sent) {
         this.successMsg = notice.message;
       } else if (notice) {
-        this.errorMsg = notice.message;
+        this.errorMsg = notice.message; this.errorIsAboutCode = false;
       }
     }
     this.codeExpiryKnown = this.validWait().active();
@@ -107,6 +109,7 @@ export class VerifyOtp implements OnInit {
       // Never a silent no-op: say what is needed and put the cursor on the first empty box.
       this.otpCtrl.markAsTouched();
       this.errorMsg = 'الرجاء إدخال رمز التحقق المكون من 6 أرقام';
+      this.errorIsAboutCode = true;
       this.focusOtpInput(this.otpIndexes.find(i => !this.otpDigit(i)) ?? 0);
       this.cdr.markForCheck();
       return;
@@ -114,13 +117,14 @@ export class VerifyOtp implements OnInit {
 
     const userId = this.authStore.pendingUserId();
     if (!userId) {
-      this.errorMsg = 'انتهت جلسة التفعيل. سجّل الدخول مرة أخرى لإكمال تفعيل حسابك.';
+      this.errorMsg = 'انتهت جلسة التفعيل. سجّل الدخول مرة أخرى لإكمال تفعيل حسابك.'; this.errorIsAboutCode = false;
       this.cdr.markForCheck();
       return;
     }
 
     this.isLoading = true;
     this.errorMsg = '';
+    this.errorIsAboutCode = false;
 
     this.authApi.verifyOtp({ userId, code: this.otpCtrl.value! }).subscribe({
       next: (res) => {
@@ -130,12 +134,15 @@ export class VerifyOtp implements OnInit {
           const user = res.data?.user || this.authStore.currentUser();
           this.isEntering = true;
           this.errorMsg = '';
+          this.errorIsAboutCode = false;
+    this.errorIsAboutCode = false;
           this.successMsg = 'تم التحقق من الرمز. جارٍ فتح لوحتك...';
           this.cdr.markForCheck();
           this.openDashboard(consumeReturnUrl(user) ?? getDefaultDashboard(user?.accountType, user?.activeRole));
         } else {
           this.isLoading = false;
-          this.errorMsg = res.message || 'حدث خطأ أثناء التحقق';
+          this.errorMsg = res.message || 'لم يتم قبول الرمز. تحقق منه وحاول مرة أخرى، أو اطلب رمزًا جديدًا.';
+          this.errorIsAboutCode = true;
           this.cdr.markForCheck();
         }
       },
@@ -145,15 +152,21 @@ export class VerifyOtp implements OnInit {
         if (err?.error?.code === ATTEMPTS_LOCKED_CODE) {
           // Too many wrong codes: the server's own message already asks for a NEW code; there is no timer to show.
           this.errorMsg = err.error.message || 'تم تجاوز عدد المحاولات المسموح به، يرجى طلب رمز جديد';
+          this.errorIsAboutCode = true;
         } else if (isRateLimitError(err)) {
           // A wait from the server (Retry-After / retryAt): only confirm waits, the typed code stays. No stated time = honest sentence, no timer.
           this.resendLimited = false;
           this.errorMsg = '';
+          this.errorIsAboutCode = false;
+    this.errorIsAboutCode = false;
           const end = startWaitFromError(this.verifyWait(), err);
           this.rateLimitedNoTime = end == null || !this.verifyWait().active();
         } else {
           // Wrong / expired code (400): a message only, never a UI wait.
-          this.errorMsg = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'فشل التحقق، يرجى المحاولة مرة أخرى' }).message;
+          const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'فشل التحقق، يرجى المحاولة مرة أخرى' });
+          this.errorMsg = mapped.message;
+          // a wrong / expired code is a problem OF the code; a server, network, gateway or limit failure is not
+          this.errorIsAboutCode = mapped.kind === 'backend-validation' || mapped.kind === 'credentials';
         }
         this.cdr.markForCheck();
       }
@@ -167,7 +180,7 @@ export class VerifyOtp implements OnInit {
       this.isEntering = false;
       this.isLoading = false;
       this.successMsg = '';
-      this.errorMsg = 'تم التحقق من الرمز لكن تعذر فتح لوحتك. اضغط «إعادة فتح لوحتي» (لا حاجة إلى رمز جديد).';
+      this.errorMsg = 'تم التحقق من الرمز لكن تعذر فتح لوحتك. اضغط «إعادة فتح لوحتي» (لا حاجة إلى رمز جديد).'; this.errorIsAboutCode = false;
       this.cdr.markForCheck();
     };
     this.router.navigateByUrl(url).then((ok) => { if (!ok) failed(); }, failed);
@@ -178,6 +191,7 @@ export class VerifyOtp implements OnInit {
     const url = this.entryFailedUrl;
     if (!url || this.isEntering) return;
     this.errorMsg = '';
+    this.errorIsAboutCode = false;
     this.isEntering = true;
     this.cdr.markForCheck();
     this.openDashboard(url);
@@ -219,6 +233,7 @@ export class VerifyOtp implements OnInit {
     input.value = raw;
     this.setDigits(digits);
     this.errorMsg = '';
+    this.errorIsAboutCode = false;
     if (raw && index < 5) this.focusOtpInput(index + 1);
   }
 
@@ -253,6 +268,7 @@ export class VerifyOtp implements OnInit {
     const digits = value.slice(0, 6).split('');
     this.setDigits(this.otpIndexes.map(i => digits[i] ?? ''));
     this.errorMsg = '';
+    this.errorIsAboutCode = false;
     this.focusOtpInput(Math.min(digits.length, 6) - 1);
   }
 
@@ -279,12 +295,13 @@ export class VerifyOtp implements OnInit {
 
     const userId = this.authStore.pendingUserId();
     if (!userId) {
-      this.errorMsg = 'انتهت جلسة التفعيل. سجّل الدخول مرة أخرى لإكمال تفعيل حسابك.';
+      this.errorMsg = 'انتهت جلسة التفعيل. سجّل الدخول مرة أخرى لإكمال تفعيل حسابك.'; this.errorIsAboutCode = false;
       this.cdr.markForCheck();
       return;
     }
 
     this.errorMsg = '';
+    this.errorIsAboutCode = false;
     this.successMsg = '';
     this.rateLimitedNoTime = false;
     this.isLoading = true;
@@ -301,7 +318,7 @@ export class VerifyOtp implements OnInit {
           this.successMsg = notice.message;
         } else {
           // Nothing went out: say so; the button stays usable unless the server stated a wait.
-          this.errorMsg = notice.message;
+          this.errorMsg = notice.message; this.errorIsAboutCode = false;
         }
         this.cdr.markForCheck();
       },
@@ -311,10 +328,13 @@ export class VerifyOtp implements OnInit {
           // Keep resend locked until the end the server gave; no stated time = honest sentence, button stays usable.
           this.resendLimited = true;
           this.errorMsg = '';
+          this.errorIsAboutCode = false;
+    this.errorIsAboutCode = false;
           const end = startWaitFromError(this.resendWait(), err);
           this.rateLimitedNoTime = end == null || !this.resendWait().active();
         } else {
           this.errorMsg = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'فشل إعادة الإرسال، يرجى المحاولة مرة أخرى' }).message;
+          this.errorIsAboutCode = false;
         }
         this.cdr.markForCheck();
       }

@@ -115,10 +115,11 @@ function findControlsByName(form: AbstractControl, name: string): AbstractContro
  * touched, and clears the error as soon as the user edits that field. Returns the field names that matched no control,
  * so the caller can show them in the banner instead of dropping them.
  */
-export function applyServerFieldErrors(form: AbstractControl, fieldErrors: Record<string, string>): string[] {
+export function applyServerFieldErrors(form: AbstractControl, fieldErrors: Record<string, string>, aliases: Record<string, string> = {}): string[] {
 	const unmatched: string[] = [];
 	for (const [name, message] of Object.entries(fieldErrors)) {
-		const controls = findControlsByName(form, name);
+		// the server names the field of ITS payload (phoneNumber); the form may own it under another control name (phone): `aliases` maps one to the other
+		const controls = findControlsByName(form, aliases[name] ?? name);
 		if (!controls.length) { unmatched.push(name); continue; }
 		for (const c of controls) {
 			c.setErrors({ ...(c.errors ?? {}), server: message });
