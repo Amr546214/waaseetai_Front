@@ -1,0 +1,354 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--pg);
+  color: var(--txt);
+  font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+  direction: rtl;
+}
+.tpl-wrap { max-width: 1240px; margin: 0 auto; padding: 24px; }
+.panel-header h1 { margin: 0 0 4px; font-size: 22px; font-weight: 900; }
+.panel-header .sub { margin: 0 0 20px; color: var(--txt-2); font-size: 13px; }
+
+.cat-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.cat-tab {
+  background: var(--surface); border: 1px solid var(--border); color: var(--txt-2);
+  border-radius: 10px; padding: 9px 18px; font-size: 12.5px; font-weight: 800; cursor: pointer;
+  font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+}
+.cat-tab.active { background: rgba(var(--teal-rgb),.12); border-color: var(--teal, #2BD4C7); color: var(--teal, #2BD4C7); }
+
+.tpl-body { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; align-items: start; }
+@media (max-width: 900px) { .tpl-body { grid-template-columns: 1fr; } }
+
+.controls-col, .preview-col {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); padding: 18px 20px;
+}
+.controls-col h2, .preview-col h2 { font-size: 14px; font-weight: 900; margin: 0 0 14px; }
+
+.ctrl-row { display: grid; grid-template-columns: 1fr auto 90px 40px; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.ctrl-row:last-child { border-bottom: none; }
+.ctrl-row label { font-size: 12.5px; color: var(--txt-2); }
+.var-name { font-size: 10.5px; color: var(--txt-3); font-family: monospace; direction: ltr; }
+.ctrl-num { width: 70px; background: var(--pg); border: 1px solid var(--border); color: var(--txt-2); border-radius: 8px; padding: 5px 7px; font-size: 12px; direction: ltr; }
+.ctrl-range { width: 90px; }
+.ctrl-text { width: 130px; background: var(--pg); border: 1px solid var(--border); color: var(--txt-2); border-radius: 8px; padding: 5px 7px; font-size: 10.5px; font-family: monospace; direction: ltr; }
+.unit { font-size: 10.5px; color: var(--txt-3); }
+
+.sample-row { display: flex; gap: 12px; align-items: center; }
+.sample-row.wrap { flex-wrap: wrap; }
+.sample-col { display: flex; flex-direction: column; gap: 10px; }
+
+.btn-sample { border: none; background: var(--grad); color: #070D24; font-weight: 900; font-size: 12.5px; padding: 10px 20px; cursor: pointer; font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif; }
+.btn-sample:disabled { cursor: default; }
+
+.card-sample { background: rgba(255,255,255,.03); border: 1px solid var(--border); padding: 14px 16px; flex: 1; min-width: 180px; }
+.card-sample h3 { margin: 0 0 6px; font-size: 13px; }
+.card-sample p { margin: 0; font-size: 11.5px; color: var(--txt-2); }
+.hover-demo { border-color: rgba(var(--teal-rgb),var(--card-hover-border-opacity)); }
+.gap-demo-label { font-size: 11px; color: var(--txt-3); margin: 12px 0 6px; }
+.mini-card { width: 48px; height: 48px; background: rgba(var(--teal-rgb),.15); flex-shrink: 0; }
+
+.badge-sample.pill { display: inline-block; background: rgba(var(--teal-rgb),.12); color: var(--teal, #2BD4C7); font-size: 11px; font-weight: 800; padding: 6px 16px; }
+.badge-sample.full { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: rgba(var(--teal-rgb),.12); color: var(--teal, #2BD4C7); font-size: 10px; }
+
+.field-sample { background: var(--pg); border: 1px solid var(--border); color: var(--txt); padding: 9px 12px; font-size: 12.5px; font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif; }
+.focus-demo { border-color: rgba(var(--teal-rgb),var(--field-focus-border-opacity)); }
+
+.icons-row { gap: 20px; }
+.icon-demo { background: rgba(var(--teal-rgb),.1); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+.icon-demo span { font-size: 9px; color: var(--txt-3); }
+
+.spacing-col { gap: 6px; }
+.space-row { display: flex; align-items: center; gap: 10px; }
+.space-row code { font-size: 10.5px; color: var(--txt-3); width: 80px; direction: ltr; }
+.space-bar { height: 14px; background: var(--teal, #2BD4C7); border-radius: 3px; }
+
+.shadow-demo {
+  width: 100px; height: 60px; background: var(--surface); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--txt-2); border-radius: 8px;
+}
+
+.layout-col { gap: 10px; }
+.layout-row { display: flex; align-items: center; gap: 10px; }
+.layout-row code { font-size: 10.5px; color: var(--txt-3); width: 130px; direction: ltr; }
+.layout-bar { height: 14px; background: rgba(var(--teal-rgb),.3); border: 1px solid var(--teal, #2BD4C7); border-radius: 3px; max-width: 100%; }
+.layout-bar.dash { height: 32px; background: rgba(var(--teal-rgb),.15); }
+.layout-val { font-size: 11px; color: var(--txt-2); }
+
+/* ==================================================================
+   قوالب الصفحات المتكررة — بند 7 بملف الهوية (20 قالبًا)
+   أُضيفت 2026-08-20: كل قالب من العشرين له معاينة حية حقيقية، معروضة
+   بنفس أسلوب عرض ملف الهوية نفسه (اسم ← وصف ← "يُستخدم في:" ← فاصل ←
+   معاينة). القوالب بلا أيقونة مطلوبة بنفس درجة القوالب ذات الأيقونة.
+   كل لون هنا من var(--...) — بلا أي قيمة لون مكتوبة يدويًا.
+   ================================================================== */
+
+.view-tabs { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+.view-tab { background:var(--surface); border:1px solid var(--border); color:var(--txt-2);
+  border-radius:var(--radius-pill,999px); padding:9px 22px; font-size:12.5px; font-weight:900;
+  cursor:pointer; font-family:var(--font-family,'Tajawal'),system-ui,sans-serif; }
+.view-tab.active { border-color:var(--teal); color:var(--teal); }
+
+.pt-section { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg,16px); padding:18px 20px; }
+.pt-lead { margin:0 0 14px; font-size:11.5px; color:var(--txt-3); line-height:1.8; }
+.pt-list { display:flex; flex-direction:column; gap:var(--card-gap,8px); }
+.pt-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg,12px); padding:12px 16px; }
+.pt-name { font-weight:900; font-size:12.5px; margin-bottom:3px; color:var(--txt); }
+.pt-desc { font-size:11.5px; color:var(--txt-2); margin-bottom:4px; line-height:1.8; }
+.pt-usage { font-size:10.5px; color:var(--txt-3); margin-bottom:10px; line-height:1.8; }
+.pt-demo { border-top:1px solid var(--border); padding-top:10px; }
+.pt-hint { margin:8px 0 0; font-size:10px; color:var(--txt-3); line-height:1.9; }
+.pt-hint code { direction:ltr; display:inline-block; font-family:monospace; color:var(--txt-2); }
+.st5-ico svg, .aid-ico svg, .es-ico svg, .tr-star svg, .ts-ico svg, .est-ico svg, .er-ico svg { width:100%; height:100%; display:block; }
+
+/* 1) قالب لوحة (Dashboard Shell) — بلا أيقونة */
+.dm-shell { border:1px solid var(--border); border-radius:var(--radius-md,10px); overflow:hidden; max-width:520px; }
+.dm-topbar { height:var(--topbar-h,56px); display:flex; align-items:center; justify-content:space-between; padding:0 12px; background:var(--navy); border-bottom:1px solid var(--border); }
+.dm-brand { font-size:11.5px; font-weight:900; color:var(--teal); }
+.dm-avatar { width:22px; height:22px; border-radius:var(--radius-full,50%); background:var(--grad); }
+.dm-body { display:flex; height:126px; }
+.dm-side { width:var(--sidebar-w,220px); max-width:45%; background:var(--navy); border-left:1px solid var(--border); padding:10px 8px; display:flex; flex-direction:column; gap:7px; }
+.dm-nav { height:9px; border-radius:var(--radius-sm,6px); background:var(--border); }
+.dm-nav.on { background:var(--teal); }
+.dm-main { position:relative; flex:1; padding:10px; display:flex; flex-direction:column; gap:8px; background:var(--pg); overflow:hidden; }
+.dm-main::before { content:''; position:absolute; inset:0; background-image:radial-gradient(var(--txt-3) 1px, transparent 1px); background-size:var(--bg-grid-spacing,32px) var(--bg-grid-spacing,32px); opacity:var(--bg-grid-dot-opacity,.35); pointer-events:none; }
+.dm-block { position:relative; height:28px; border-radius:var(--radius-sm,6px); background:var(--surface); border:1px solid var(--border); }
+.dm-p { position:absolute; width:4px; height:4px; border-radius:var(--radius-full,50%); background:var(--teal); opacity:.55; }
+.dm-p.a { top:14px; inset-inline-start:26px; }
+.dm-p.b { top:74px; inset-inline-start:70px; }
+.dm-p.c { top:46px; inset-inline-start:128px; }
+
+/* 2) قالب الموقع العام (Site Shell) — بلا أيقونة */
+.sm-shell { border:1px solid var(--border); border-radius:var(--radius-md,10px); overflow:hidden; max-width:520px; background:var(--pg); }
+.sm-header { display:flex; align-items:center; gap:10px; padding:0 12px; height:44px; background:var(--surface); border-bottom:1px solid var(--border); backdrop-filter:blur(var(--glass-blur,12px)); }
+.sm-logo { font-size:11.5px; font-weight:900; color:var(--teal); }
+.sm-link { width:38px; height:7px; border-radius:var(--radius-sm,4px); background:var(--border); }
+.sm-cta { margin-inline-start:auto; width:58px; height:20px; border-radius:var(--radius-pill,999px); background:var(--grad); }
+.sm-container { margin:10px auto; max-width:min(100%, calc(var(--container-w,1240px) / 3)); border:1px dashed var(--border-strong); border-radius:var(--radius-sm,6px); padding:18px 10px; text-align:center; font-size:10.5px; color:var(--txt-3); }
+.sm-footer { display:flex; align-items:center; gap:8px; padding:10px 12px; background:var(--navy); border-top:1px solid var(--border); }
+.sm-social { width:16px; height:16px; border-radius:var(--radius-full,50%); background:var(--border); }
+.sm-legal { margin-inline-start:auto; font-size:10px; color:var(--txt-3); }
+
+/* 3) بطاقة الحالات الخمس — الأيقونة تختلف حسب الحالة */
+.st5-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; }
+.st5-card { background:var(--pg); border:1px solid var(--border); border-radius:var(--radius-md,10px); padding:10px; display:flex; flex-direction:column; gap:6px; min-height:88px; }
+.st5-tag { font-size:9.5px; font-weight:900; color:var(--txt-3); letter-spacing:.4px; direction:ltr; text-align:start; }
+.st5-line { height:8px; border-radius:var(--radius-sm,4px); background:var(--surface); border:1px solid var(--border); }
+.st5-line.short { width:60%; }
+.st5-skel { height:8px; border-radius:var(--radius-sm,4px); background:var(--border); animation:st5pulse 1.2s ease-in-out infinite; }
+.st5-skel.short { width:60%; }
+@keyframes st5pulse { 0%,100% { opacity:.35 } 50% { opacity:.9 } }
+.st5-ico { width:18px; height:18px; }
+.st5-msg { font-size:10.5px; line-height:1.7; }
+.st5-card.empty .st5-ico, .st5-card.empty .st5-msg { color:var(--txt-3); }
+.st5-card.err { border-color:var(--warn-border); background:var(--warn-bg); }
+.st5-card.err .st5-ico, .st5-card.err .st5-msg { color:var(--warn-text); }
+.st5-card.ok { border-color:var(--teal); }
+.st5-card.ok .st5-ico, .st5-card.ok .st5-msg { color:var(--teal); }
+/* 4) بانر إفصاح الذكاء (ai-disclosure) — بأيقونة AI */
+.aid-banner { display:flex; align-items:center; gap:10px; background:var(--ai-card-bg); border:1px solid var(--ai-border); border-radius:var(--radius-lg,12px); padding:12px 14px; flex-wrap:wrap; }
+.aid-ico { width:22px; height:22px; color:var(--ai-txt); flex:none; }
+.aid-body { flex:1; min-width:180px; }
+.aid-tag { display:inline-block; background:var(--ai-bg); color:var(--ai-txt); border:1px solid var(--ai-border); border-radius:var(--radius-pill,999px); font-size:9.5px; font-weight:900; padding:3px 10px; margin-bottom:5px; }
+.aid-txt { margin:0; font-size:11px; color:var(--txt-2); line-height:1.8; }
+.aid-acc { font-size:10.5px; font-weight:900; color:var(--ai-txt); background:var(--ai-bg); border-radius:var(--radius-pill,999px); padding:5px 12px; }
+
+/* 5) معالج متعدد الخطوات (Wizard) — بلا أيقونة، دوائر مرقّمة */
+.wz-row { display:flex; align-items:center; gap:6px; max-width:340px; }
+.wz-step { width:26px; height:26px; border-radius:var(--radius-full,50%); display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; background:var(--surface); border:1px solid var(--border); color:var(--txt-3); flex:none; }
+.wz-step.now { background:var(--grad); border-color:transparent; color:var(--pg); }
+.wz-step.done { background:var(--surface); border-color:var(--teal); color:var(--teal); opacity:.75; }
+.wz-line { flex:1; height:2px; background:var(--border); }
+.wz-line.done { background:var(--teal); opacity:.55; }
+.wz-labels { display:flex; justify-content:space-between; max-width:340px; margin-top:6px; font-size:10px; color:var(--txt-3); }
+
+/* 6) تبويبات قسم (Tabs) — بلا أيقونة */
+.tb-row { display:flex; gap:16px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.tb-item { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:var(--txt-3); padding:0 0 8px; border-bottom:2px solid transparent; margin-bottom:-1px; }
+.tb-item.active { color:var(--teal); border-bottom-color:var(--teal); }
+.tb-badge { font-size:9px; font-weight:900; border-radius:var(--radius-pill,999px); padding:2px 8px; }
+.tb-badge.inst { background:var(--badge-active-bg); color:var(--badge-active-text); }
+.tb-badge.rev { background:var(--badge-draft-bg); color:var(--badge-draft-text); }
+
+/* 7) شبكة مؤشرات KPI — بأيقونة */
+.kp-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--card-gap,10px); }
+@media (max-width:640px) { .kp-grid { grid-template-columns:repeat(2,1fr); } }
+.kp-card { background:var(--pg); border:1px solid var(--border); border-radius:var(--radius-lg,12px); padding:12px; display:flex; flex-direction:column; gap:6px; }
+.kp-ico { width:24px; height:24px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--icon-border); background:var(--icon-bg); }
+.kp-ico svg { width:12px; height:12px; display:block; }
+.kp-ico.teal { color:var(--teal); }
+.kp-ico.blue { color:var(--blue-txt); }
+.kp-ico.kahr { color:var(--kahr); }
+.kp-ico.ai { color:var(--ai-txt); background:var(--ai-bg); border-color:var(--ai-border); }
+.kp-num { font-size:17px; font-weight:900; color:var(--txt); }
+.kp-lbl { font-size:9.5px; color:var(--txt-3); }
+
+/* 8) جدول بيانات (ord-tbl/rep-tbl) — بلا أيقونة */
+.dt-tbl { width:100%; border-collapse:collapse; font-size:11.5px; }
+.dt-tbl th { text-align:start; font-size:10.5px; font-weight:800; color:var(--txt-2); padding:8px 6px; border-bottom:1px solid var(--border); }
+.dt-tbl td { padding:9px 6px; color:var(--txt); border-bottom:1px solid var(--divider); }
+.dt-tbl tbody tr:hover td { background:var(--surface); }
+.dt-tbl tbody tr:last-child td { border-bottom:none; }
+.dt-badge { display:inline-block; font-size:9.5px; font-weight:900; border-radius:var(--radius-pill,999px); padding:3px 10px; }
+.dt-badge.active { background:var(--badge-active-bg); color:var(--badge-active-text); }
+.dt-badge.done { background:var(--badge-done-bg); color:var(--badge-done-text); }
+.dt-badge.dispute { background:var(--badge-dispute-bg); color:var(--badge-dispute-text); }
+
+/* 9) خانة فارغة (empty slot) — بأيقونة خافتة */
+.es-slot { border:1.5px dashed var(--border-strong); border-radius:var(--radius-md,10px); padding:16px; text-align:center; max-width:220px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.es-ico { width:18px; height:18px; color:var(--txt-3); }
+.es-txt { font-size:10.5px; color:var(--txt-3); }
+
+/* 10) نافذة منبثقة (modal-box) — خلفية زجاجية داكنة دومًا */
+.mb-scrim { background:var(--pg); border:1px solid var(--border); border-radius:var(--radius-md,10px); padding:16px; display:flex; justify-content:center; }
+.mb-box { background:#0B1437; border:1px solid var(--border-strong); border-radius:var(--radius-lg,12px); padding:14px 16px; max-width:270px; width:100%; backdrop-filter:blur(var(--card-blur,14px)); box-shadow:var(--shadow-4); }
+.mb-title { font-size:12.5px; font-weight:900; color:#fff; margin-bottom:6px; }
+.mb-txt { margin:0 0 10px; font-size:10.5px; color:var(--txt-2); line-height:1.8; }
+.mb-field { width:100%; background:var(--pg); border:1px solid var(--border); color:var(--txt); border-radius:var(--radius-sm,8px); padding:7px 10px; font-size:11px; font-family:var(--font-family,'Tajawal'),system-ui,sans-serif; margin-bottom:10px; }
+.mb-actions { display:flex; gap:8px; }
+.mb-btn { border:none; border-radius:var(--radius-sm,8px); padding:7px 16px; font-size:11px; font-weight:900; cursor:pointer; font-family:var(--font-family,'Tajawal'),system-ui,sans-serif; }
+.mb-btn.primary { background:var(--grad); color:var(--pg); }
+.mb-btn.ghost { background:transparent; border:1px solid var(--border-strong); color:#A8B2D1; }
+
+/* 11) بطاقة تدرّج المستوى (tier-banner) — بأيقونة نجمة */
+.tr-banner { max-width:270px; }
+.tr-head { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.tr-star { width:16px; height:16px; color:var(--kahr); }
+.tr-name { font-size:12px; font-weight:900; color:var(--kahr); }
+.tr-dots { display:flex; gap:5px; margin-bottom:8px; }
+.tr-dots i { flex:1; height:5px; border-radius:var(--radius-pill,999px); background:var(--border); }
+.tr-dots i.on { background:var(--kahr); }
+.tr-note { margin:0; font-size:10px; color:var(--txt-3); line-height:1.8; }
+
+/* 12) مسار التنقل (breadcrumb) — بلا أيقونة عادةً */
+.bc-row { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--txt-3); flex-wrap:wrap; }
+.bc-link { color:var(--teal); text-decoration:none; }
+.bc-cur { color:var(--txt-2); }
+
+/* 13) ترقيم الصفحات (pagination) — بأسهم فقط */
+.pg-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.pg-btn, .pg-num { min-width:26px; height:26px; padding:0 9px; border-radius:var(--radius-sm,7px); background:var(--pg); border:1px solid var(--border); color:var(--txt-2); font-size:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; }
+.pg-num.cur { background:var(--grad); border-color:transparent; color:var(--pg); }
+
+/* 14) إشعار عابر (toast) — قد يحمل أيقونة حالة */
+.ts-bar { display:inline-flex; align-items:center; gap:8px; background:var(--navy); border:1px solid var(--border-strong); border-radius:var(--radius-md,10px); padding:9px 14px; font-size:11px; color:var(--txt); box-shadow:var(--shadow-3); }
+.ts-ico { width:15px; height:15px; color:var(--teal); }
+
+/* 15) تلميح (tooltip-ico) — بأيقونة علامة استفهام */
+.tt-row { display:inline-flex; align-items:center; gap:5px; }
+.tt-lbl { font-size:11.5px; color:var(--txt-2); }
+.tt-ico { width:16px; height:16px; border-radius:var(--radius-full,50%); border:1px solid var(--border-strong); color:var(--txt-3); font-size:9.5px; font-weight:900; display:inline-flex; align-items:center; justify-content:center; cursor:help; }
+
+/* 16) حالة فارغة عامة (empty-state) — بأيقونة خافتة */
+.est-box { text-align:center; padding:10px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.est-ico { width:22px; height:22px; color:var(--txt-3); }
+.est-title { font-size:11.5px; font-weight:800; color:var(--txt-2); }
+
+/* 17) صفحات النظام والأخطاء (err-card) — أيقونة ولون حسب نوع الخطأ */
+.er-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:8px; }
+.er-card { text-align:center; background:var(--pg); border:1px solid var(--border); border-radius:var(--radius-lg,12px); padding:14px 12px; display:flex; flex-direction:column; align-items:center; gap:5px; }
+.er-ico { width:34px; height:34px; border-radius:9px; background:var(--warn-bg); display:inline-flex; align-items:center; justify-content:center; }
+.er-ico svg { width:17px; height:17px; }
+.er-code { font-size:9.5px; font-weight:800; }
+.er-title { font-size:11.5px; font-weight:900; color:var(--txt); }
+.er-desc { margin:0; font-size:10px; color:var(--txt-3); line-height:1.7; }
+.er-acts { display:flex; gap:6px; margin-top:4px; }
+.er-btn { font-size:9.5px; font-weight:900; border-radius:var(--radius-sm,7px); padding:5px 12px; }
+.er-btn.primary { background:var(--grad); color:var(--pg); }
+.er-btn.ghost { border:1px solid var(--border-strong); color:var(--txt-2); }
+.er-card.red { border-color:var(--warn-border); }
+.er-card.red .er-ico, .er-card.red .er-code { color:var(--red); }
+.er-card.kahr { border-color:var(--kahr); }
+.er-card.kahr .er-ico, .er-card.kahr .er-code { color:var(--kahr); }
+.er-card.blue { border-color:var(--blue); }
+.er-card.blue .er-ico, .er-card.blue .er-code { color:var(--blue-txt); }
+
+/* 18) صف إعداد بمفتاح تبديل (pref-row + toggle) — بلا أيقونة */
+.pf-card { background:var(--pg); border:1px solid var(--border); border-radius:var(--radius-lg,12px); overflow:hidden; max-width:420px; }
+.pf-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 14px; border-bottom:1px solid var(--divider); }
+.pf-row:last-child { border-bottom:none; }
+.pf-txt { display:flex; flex-direction:column; gap:3px; }
+.pf-title { font-size:11.5px; font-weight:800; color:var(--txt); }
+.pf-sub { font-size:10px; color:var(--txt-3); line-height:1.7; }
+.pf-sw { width:38px; height:21px; border-radius:var(--radius-pill,999px); background:var(--toggle-track); position:relative; flex:none; }
+.pf-sw i { content:''; position:absolute; top:3px; inset-inline-end:3px; width:15px; height:15px; border-radius:var(--radius-full,50%); background:var(--txt-3); }
+.pf-sw.on { background:var(--grad); }
+.pf-sw.on i { inset-inline-end:auto; inset-inline-start:3px; background:#fff; }
+
+/* 19) زر اختيار (radio-opt) — دائرة + نقطة داخل بطاقة كاملة قابلة للنقر */
+.rd-col { display:flex; flex-direction:column; gap:8px; max-width:320px; }
+.rd-card { display:flex; align-items:flex-start; gap:10px; background:var(--pg); border:1px solid var(--border); border-radius:var(--radius-lg,12px); padding:11px 13px; cursor:pointer; }
+.rd-card.sel { border-color:var(--teal); }
+.rd-dot { width:16px; height:16px; border-radius:var(--radius-full,50%); border:1.5px solid var(--border-strong); flex:none; margin-top:2px; display:inline-flex; align-items:center; justify-content:center; }
+.rd-card.sel .rd-dot { border-color:var(--teal); }
+.rd-dot i { width:8px; height:8px; border-radius:var(--radius-full,50%); background:var(--teal); display:block; }
+.rd-body { display:flex; flex-direction:column; gap:3px; }
+.rd-title { font-size:11.5px; font-weight:800; color:var(--txt); }
+.rd-sub { font-size:10px; color:var(--txt-3); line-height:1.7; }
+
+/* 20) شريط الفلترة (filter-rail) — شريط زجاجي أفقي موحّد */
+.fr-rail { display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--navy); border:1px solid rgba(43,212,199,.35); border-radius:var(--radius-lg,12px); padding:10px 12px; backdrop-filter:blur(var(--glass-blur,12px)); }
+.fr-lbl { font-size:10px; font-weight:900; color:var(--txt-3); }
+.fr-pill { display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:800; color:var(--txt-2); background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-pill,999px); padding:4px 12px; }
+.fr-pill.on { color:var(--teal); border-color:var(--teal); }
+.fr-div { width:1px; align-self:stretch; background:var(--divider); }
+.fr-spacer { flex:1 1 12px; }
+.fr-search { display:inline-flex; align-items:center; gap:6px; font-size:10.5px; color:var(--txt-3); background:var(--pg); border:1px solid var(--border); border-radius:var(--radius-pill,999px); padding:5px 12px; }
+.fr-sico { width:12px; height:12px; display:inline-flex; flex:none; }
+.fr-sico svg { width:100%; height:100%; display:block; }
+.fr-count { font-size:10px; font-weight:900; color:var(--teal); }
+.fr-clear { font-size:10px; font-weight:800; color:var(--txt-3); text-decoration:underline; }
+.fr-adv { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:900; color:var(--pg); background:var(--grad); border-radius:var(--radius-pill,999px); padding:5px 12px; }
+
+.pt-group-heading { font-size: 12px; font-weight: 800; color: var(--txt-2); margin: 18px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.pt-group-heading:first-of-type { margin-top: 0; }
+.bc-sep { display: inline-flex; align-items: center; margin: 0 2px; }
+.bc-ico { color: var(--txt-3); vertical-align: middle; }
+.pg-ico { vertical-align: middle; margin: 0 2px; }
+.pg-ico.prev { transform: scaleX(-1); }
+
+/* ==================================================================
+   محرر خانات القالب (أيقونة/حجم/عدد لكل عنصر) — أُضيف 2026-08-20 وفق
+   طلب المالك: كل خانة معروضة بالمعاينة يجب أن تكون قابلة للتحكم فعليًا،
+   لا مجرّد "مشهد" بلا تحكم.
+   ================================================================== */
+.pt-edit-toggle {
+  margin-top: 10px; width: 100%; text-align: center; background: transparent;
+  border: 1px dashed var(--border-strong); color: var(--teal); border-radius: var(--radius-sm,8px);
+  padding: 7px 10px; font-size: 10.5px; font-weight: 800; cursor: pointer;
+  font-family: var(--font-family,'Tajawal'),system-ui,sans-serif;
+}
+.pt-edit-toggle:hover { background: rgba(var(--teal-rgb),.08); }
+.pt-editor {
+  margin-top: 8px; padding: 10px 12px; background: var(--pg); border: 1px solid var(--border);
+  border-radius: var(--radius-md,10px); display: flex; flex-direction: column; gap: 2px;
+}
+.pt-editor-row {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid var(--divider);
+}
+.pt-editor-row:last-child { border-bottom: none; }
+.pt-editor-row label { font-size: 10.5px; color: var(--txt-2); }
+.pt-editor-select {
+  background: var(--surface); border: 1px solid var(--border); color: var(--txt);
+  border-radius: 6px; padding: 4px 8px; font-size: 10.5px; max-width: 160px;
+  font-family: var(--font-family,'Tajawal'),system-ui,sans-serif;
+}
+.pt-editor-num {
+  width: 60px; background: var(--surface); border: 1px solid var(--border); color: var(--txt);
+  border-radius: 6px; padding: 4px 6px; font-size: 10.5px; direction: ltr; text-align: center;
+}
+.pt-editor-color {
+  width: 34px; height: 26px; padding: 2px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); cursor: pointer;
+}
+.pt-editor-unit { font-size: 9.5px; color: var(--txt-3); direction: ltr; }
+
+/* Mobile only (<= 640px): see color-tokens.css. Desktop is untouched. */
+@media (max-width: 640px) {
+  .tpl-wrap { padding: 12px; }
+  .ctrl-row { grid-template-columns: 1fr auto; }
+  .ctrl-text { width: 100%; max-width: 100%; }
+  .layout-row code { width: auto; }
+}

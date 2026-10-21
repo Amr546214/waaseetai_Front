@@ -1,0 +1,415 @@
+<div class="tpl-wrap">
+  <header class="panel-header">
+    <h1>لوحة تحكم الهوية — القوالب</h1>
+    <p class="sub">تحكّم بقواعد الحجم والزوايا والهالات والمسافات من ملف الهوية، مع عيّنة حية لكل قالب تعكس الإخراج النهائي فورًا</p>
+  </header>
+
+  <div class="view-tabs">
+    <button type="button" class="view-tab" [class.active]="view() === 'tokens'" (click)="setView('tokens')">قواعد التوكنات</button>
+    <button type="button" class="view-tab" [class.active]="view() === 'templates'" (click)="setView('templates')">قوالب الصفحات المتكررة (20)</button>
+  </div>
+
+  @if (view() === 'tokens') {
+
+  <div class="cat-tabs">
+    @for (cat of categories; track cat.id) {
+      <button type="button" class="cat-tab" [class.active]="activeCategory().id === cat.id" (click)="selectCategory(cat.id)">
+        {{ cat.label }}
+      </button>
+    }
+  </div>
+
+  <div class="tpl-body">
+    <div class="controls-col">
+      <h2>القيم القابلة للتعديل</h2>
+      @for (token of activeTokens(); track token.var) {
+        <div class="ctrl-row">
+          <label>{{ token.label }}</label>
+          <span class="var-name">{{ token.var }}</span>
+          @if (token.type === 'size') {
+            <input type="number" class="ctrl-num" step="0.5" [value]="sizeAsNumber(token.value)" (change)="onSizeChange(token.var, $event)" />
+            <span class="unit">px</span>
+          }
+          @if (token.type === 'opacity') {
+            <input type="range" min="0" max="1" step="0.01" class="ctrl-range" [value]="token.value" (input)="onOpacityChange(token.var, $event)" />
+            <span class="unit">{{ token.value }}</span>
+          }
+          @if (token.type === 'shadow' || token.type === 'color') {
+            <input type="text" class="ctrl-text" [value]="token.value" (change)="onTextChange(token.var, $event)" />
+          }
+        </div>
+      }
+    </div>
+
+    <div class="preview-col">
+      <h2>عيّنة حية — الإخراج النهائي</h2>
+
+      @if (activeCategory().id === 'buttons') {
+        <div class="sample-row">
+          <button class="btn-sample" style="border-radius:var(--radius-md); box-shadow:var(--shadow-2)">زر عادي</button>
+          <button class="btn-sample" style="border-radius:var(--radius-md); box-shadow:var(--shadow-3); opacity:var(--btn-hover-opacity)">حالة تحويم</button>
+          <button class="btn-sample" style="border-radius:var(--radius-md); box-shadow:var(--shadow-2); opacity:var(--btn-active-opacity)">حالة ضغط</button>
+          <button class="btn-sample" style="border-radius:var(--radius-md); opacity:var(--btn-disabled-opacity)" disabled>معطّل</button>
+        </div>
+      }
+
+      @if (activeCategory().id === 'cards') {
+        <div class="sample-row wrap">
+          <div class="card-sample" style="border-radius:var(--radius-lg); box-shadow:var(--shadow-1)">
+            <h3>بطاقة تجريبية</h3>
+            <p>نص وصفي لمعاينة الزاوية والهالة سويًا.</p>
+          </div>
+          <div class="card-sample hover-demo" style="border-radius:var(--radius-lg); box-shadow:var(--shadow-1)">
+            <h3>حالة تحويم (محاكاة)</h3>
+            <p>الحدود بشفافية var(--card-hover-border-opacity).</p>
+          </div>
+        </div>
+        <div class="gap-demo-label">الفجوة بين البطاقات: <code>var(--card-gap)</code></div>
+        <div class="sample-row" [style.gap]="'var(--card-gap)'">
+          <div class="mini-card" style="border-radius:var(--radius-lg)"></div>
+          <div class="mini-card" style="border-radius:var(--radius-lg)"></div>
+          <div class="mini-card" style="border-radius:var(--radius-lg)"></div>
+        </div>
+      }
+
+      @if (activeCategory().id === 'badges') {
+        <div class="sample-row">
+          <span class="badge-sample pill" style="border-radius:var(--radius-pill)">شارة Pill</span>
+          <span class="badge-sample full" style="border-radius:var(--radius-full)">●</span>
+        </div>
+      }
+
+      @if (activeCategory().id === 'fields') {
+        <div class="sample-col">
+          <input type="text" class="field-sample" style="border-radius:var(--radius-sm)" placeholder="حقل عادي" />
+          <select class="field-sample" style="border-radius:var(--radius-sm); background:var(--select-bg); border-color:var(--select-border)">
+            <option>قائمة منسدلة</option>
+          </select>
+          <input type="text" class="field-sample" style="border-radius:var(--radius-sm); opacity:var(--field-disabled-opacity)" placeholder="حقل معطّل" disabled />
+          <input type="text" class="field-sample focus-demo" style="border-radius:var(--radius-sm)" placeholder="حالة تركيز (محاكاة)" />
+        </div>
+      }
+
+      @if (activeCategory().id === 'icons') {
+        <div class="sample-row icons-row">
+          <div class="icon-demo" style="width:var(--icon-sm); height:var(--icon-sm)"><span>sm</span></div>
+          <div class="icon-demo" style="width:var(--icon-md); height:var(--icon-md)"><span>md</span></div>
+          <div class="icon-demo" style="width:var(--icon-lg); height:var(--icon-lg)"><span>lg</span></div>
+          <div class="icon-demo" style="width:var(--icon-xl); height:var(--icon-xl)"><span>xl</span></div>
+        </div>
+      }
+
+      @if (activeCategory().id === 'spacing') {
+        <div class="sample-col spacing-col">
+          @for (n of [1,2,3,4,5,6,7,8]; track n) {
+            <div class="space-row">
+              <code>--space-{{ n }}</code>
+              <div class="space-bar" [style.width]="'var(--space-' + n + ')'"></div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeCategory().id === 'shadows') {
+        <div class="sample-row wrap">
+          @for (n of [1,2,3,4,5]; track n) {
+            <div class="shadow-demo" [style.boxShadow]="'var(--shadow-' + n + ')'">shadow-{{ n }}</div>
+          }
+        </div>
+      }
+
+      @if (activeCategory().id === 'layout') {
+        <div class="sample-col layout-col">
+          <div class="layout-row"><code>--container-w</code><div class="layout-bar" style="width:min(100%, calc(var(--container-w) / 4))"></div></div>
+          <div class="layout-row"><code>--sidebar-w</code><div class="layout-bar" style="width:min(100%, var(--sidebar-w))"></div></div>
+          <div class="layout-row"><code>--topbar-h</code><div class="layout-bar" style="height:var(--topbar-h); width:100%"></div></div>
+          <div class="layout-row"><code>--breakpoint-mobile</code><span class="layout-val">{{ tokenValue('--breakpoint-mobile') }}</span></div>
+          <div class="layout-row"><code>--radius-dashboard</code><div class="layout-bar dash" style="border-radius:var(--radius-dashboard); width:80px; height:32px"></div></div>
+        </div>
+      }
+    </div>
+  </div>
+  }
+
+  @if (view() === 'templates') {
+  <section class="pt-section">
+    <p class="pt-lead">أنماط هيكلية تتكرر عبر عشرات الصفحات — أي صفحة جديدة تُبنى من أحد هذه القوالب لا من الصفر. كل خانة أيقونة/حجم/عدد أدناه قابلة للتحكم فعليًا — زر "تحكّم بالعناصر" أسفل كل قالب.</p>
+
+    <div class="pt-list">
+      @for (tpl of pageTemplates; track tpl.id; let i = $index) {
+            @if (i === 0 || tpl.hasIcon !== pageTemplates[i - 1].hasIcon) {
+            <div class="pt-group-heading">{{ tpl.hasIcon ? 'قوالب بأيقونة' : 'قوالب بدون أيقونة' }}</div>
+            }
+            <article class="pt-card"><div class="pt-name">{{ tpl.name }}</div>
+        <div class="pt-desc">{{ tpl.desc }}</div>
+        <div class="pt-usage">يُستخدم في: {{ tpl.usage }}</div>
+
+        <div class="pt-demo">
+          @switch (tpl.id) {
+
+          @case ('dash') {
+            <div class="dm-shell">
+              <div class="dm-topbar"><span class="dm-brand" [style.color]="ov(tpl.id,'brandColor')" [style.fontWeight]="ovNum(tpl.id,'brandWeight')">وسيط AI</span><span class="dm-avatar" [style.width.px]="ovNum(tpl.id,'avatarSize')" [style.height.px]="ovNum(tpl.id,'avatarSize')"></span></div>
+              <div class="dm-body">
+                <aside class="dm-side">
+                  @for (n of range(ovNum(tpl.id,'navCount')); track n) {
+                    <span class="dm-nav" [class.on]="n === 0"></span>
+                  }
+                </aside>
+                <div class="dm-main">
+                  <span class="dm-block"></span>
+                  <span class="dm-block"></span>
+                  <span class="dm-p a"></span><span class="dm-p b"></span><span class="dm-p c"></span>
+                </div>
+              </div>
+            </div>
+            <p class="pt-hint">الارتفاع من <code>--topbar-h</code> والعرض من <code>--sidebar-w</code>، وخلفية main شبكة <code>--bg-grid-spacing</code> بشفافية <code>--bg-grid-dot-opacity</code> فوقها جزيئات.</p>
+          }
+
+          @case ('site') {
+            <div class="sm-shell">
+              <div class="sm-header">
+                <span class="sm-logo" [style.color]="ov(tpl.id,'logoColor')" [style.fontWeight]="ovNum(tpl.id,'logoWeight')">وسيط AI</span>
+                @for (n of range(ovNum(tpl.id,'navLinkCount')); track n) { <span class="sm-link"></span> }
+                <span class="sm-cta"></span>
+              </div>
+              <div class="sm-container">حاوية المحتوى بعرض <code>--container-w</code></div>
+              <div class="sm-footer">
+                @for (n of range(ovNum(tpl.id,'socialCount')); track n) { <span class="sm-social"></span> }
+                <span class="sm-legal">الشروط · الخصوصية</span>
+              </div>
+            </div>
+          }
+
+          @case ('states5') {
+            <div class="st5-grid">
+              <div class="st5-card"><span class="st5-tag">Default</span><span class="st5-msg">12 طلباً نشطاً</span></div>
+              <div class="st5-card"><span class="st5-tag">Loading</span><span class="st5-skel"></span><span class="st5-skel short"></span></div>
+              <div class="st5-card empty"><span class="st5-tag">Empty</span>@if (slotIconSvg(tpl.id,'emptyIcon'); as svg) { <span class="st5-ico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span class="st5-msg">لا توجد بيانات</span></div>
+              <div class="st5-card err"><span class="st5-tag">Error</span>@if (slotIconSvg(tpl.id,'errorIcon'); as svg) { <span class="st5-ico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span class="st5-msg">تعذّر تحميل البيانات</span></div>
+              <div class="st5-card ok"><span class="st5-tag">Success</span>@if (slotIconSvg(tpl.id,'successIcon'); as svg) { <span class="st5-ico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span class="st5-msg">تم الحفظ بنجاح</span></div>
+            </div>
+          }
+
+          @case ('aidisc') {
+            <div class="aid-banner">
+              @if (slotIconSvg(tpl.id,'icon'); as svg) { <span class="aid-ico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }
+              <div class="aid-body">
+                <span class="aid-tag" [style.color]="ov(tpl.id,'tagColor')" [style.fontWeight]="ovNum(tpl.id,'tagWeight')">مدعوم بالذكاء الاصطناعي</span>
+                <p class="aid-txt">هذا الاقتراح وُلِّد آليًا من بيانات الطلب — القرار النهائي يبقى لك.</p>
+              </div>
+              <span class="aid-acc">دقة 92%</span>
+            </div>
+          }
+
+          @case ('wizard') {
+            <div class="wz-row">
+              @for (n of range(ovNum(tpl.id,'stepCount')); track n) {
+                <span class="wz-step" [class.done]="n === 0" [class.now]="n === 1" [style.width.px]="ovNum(tpl.id,'stepSize')" [style.height.px]="ovNum(tpl.id,'stepSize')" [style.fontWeight]="ovNum(tpl.id,'stepWeight')">{{ n + 1 }}</span>
+                @if (n < ovNum(tpl.id,'stepCount') - 1) { <span class="wz-line" [class.done]="n === 0"></span> }
+              }
+            </div>
+            <div class="wz-labels">
+              @for (lbl of ['البيانات','التوثيق','المراجعة']; track lbl; let li = $index) {
+                @if (li < ovNum(tpl.id,'stepCount')) { <span>{{ lbl }}</span> }
+              }
+            </div>
+          }
+
+          @case ('tabs') {
+            <div class="tb-row">
+              @if (ovNum(tpl.id,'tabCount') > 0) { <span class="tb-item active">البيانات الأساسية<span class="tb-badge inst">فوري</span></span> }
+              @if (ovNum(tpl.id,'tabCount') > 1) { <span class="tb-item">الإعدادات<span class="tb-badge rev">بمراجعة</span></span> }
+              @if (ovNum(tpl.id,'tabCount') > 2) { <span class="tb-item">الأمان</span> }
+            </div>
+          }
+
+          @case ('kpi') {
+            <div class="kp-grid">
+              @for (n of range(ovNum(tpl.id,'cardCount')); track n) {
+                <div class="kp-card">
+                  @if (slotIconSvg(tpl.id,'icon'+(n%6)); as svg) { <span class="kp-ico" [style.color]="ov(tpl.id,'color'+(n%6))" [style.background]="isAiColor(ov(tpl.id,'color'+(n%6))) ? 'var(--ai-bg)' : null" [style.borderColor]="isAiColor(ov(tpl.id,'color'+(n%6))) ? 'var(--ai-border)' : null" [style.width.px]="ovNum(tpl.id,'iconBoxSize')" [style.height.px]="ovNum(tpl.id,'iconBoxSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')" [innerHTML]="svg"></svg></span> }
+                  @switch (n % 4) {
+                    @case (0) { <span class="kp-num" [style.fontWeight]="ovNum(tpl.id,'numWeight')">128</span><span class="kp-lbl" [style.fontWeight]="ovNum(tpl.id,'lblWeight')">طلب مكتمل</span> }
+                    @case (1) { <span class="kp-num" [style.fontWeight]="ovNum(tpl.id,'numWeight')">4.8</span><span class="kp-lbl" [style.fontWeight]="ovNum(tpl.id,'lblWeight')">التقييم</span> }
+                    @case (2) { <span class="kp-num" [style.fontWeight]="ovNum(tpl.id,'numWeight')">12</span><span class="kp-lbl" [style.fontWeight]="ovNum(tpl.id,'lblWeight')">قيد التنفيذ</span> }
+                    @case (3) { <span class="kp-num" [style.fontWeight]="ovNum(tpl.id,'numWeight')">92%</span><span class="kp-lbl" [style.fontWeight]="ovNum(tpl.id,'lblWeight')">دقة التوصية</span> }
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @case ('table') {
+            <table class="dt-tbl">
+              <thead><tr><th>الطلب</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+              <tbody>
+                @if (ovNum(tpl.id,'rowCount') > 0) { <tr><td>تصميم واجهة تطبيق</td><td><span class="dt-badge active">نشط</span></td><td>3,200 ر.س</td></tr> }
+                @if (ovNum(tpl.id,'rowCount') > 1) { <tr><td>استشارة عقارية</td><td><span class="dt-badge done">مكتمل</span></td><td>850 ر.س</td></tr> }
+                @if (ovNum(tpl.id,'rowCount') > 2) { <tr><td>نزاع على التسليم</td><td><span class="dt-badge dispute">نزاع</span></td><td>1,400 ر.س</td></tr> }
+              </tbody>
+            </table>
+          }
+
+          @case ('slot') {
+            <div class="es-slot">
+              @if (slotIconSvg(tpl.id,'icon'); as svg) { <span class="es-ico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }
+              <span class="es-txt">أضف خدمة للمقارنة</span>
+            </div>
+          }
+
+          @case ('modal') {
+            <div class="mb-scrim">
+              <div class="mb-box">
+                <div class="mb-title">تأكيد إرسال العرض</div>
+                <p class="mb-txt">سيُرسل عرضك لطالب الخدمة، ولا يمكن تعديله بعد القبول.</p>
+                <input type="text" class="mb-field" placeholder="ملاحظة اختيارية" />
+                <div class="mb-actions">
+                  @if (ovNum(tpl.id,'buttonCount') > 0) { <button type="button" class="mb-btn primary">تأكيد</button> }
+                  @if (ovNum(tpl.id,'buttonCount') > 1) { <button type="button" class="mb-btn ghost">إلغاء</button> }
+                </div>
+              </div>
+            </div>
+            <p class="pt-hint">الخلفية زجاجية داكنة دومًا (<code>--navy</code>) حتى بالوضع الفاتح — قاعدة ملزمة بالهوية.</p>
+          }
+
+          @case ('tier') {
+            <div class="tr-banner">
+              <div class="tr-head">@if (slotIconSvg(tpl.id,'icon'); as svg) { <span class="tr-star" [style.color]="ov(tpl.id,'nameColor')" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span class="tr-name" [style.color]="ov(tpl.id,'nameColor')" [style.fontWeight]="ovNum(tpl.id,'nameWeight')">المستوى الذهبي</span></div>
+              <div class="tr-dots">
+                @for (n of range(ovNum(tpl.id,'dotCount')); track n) { <i [class.on]="n < ovNum(tpl.id,'dotsOnCount')" [style.height.px]="ovNum(tpl.id,'dotSize')"></i> }
+              </div>
+              <p class="tr-note">تبقّى خطوتان للترقية: إكمال 5 طلبات + رفع التقييم إلى 4.8</p>
+            </div>
+          }
+
+          @case ('breadcrumb') {
+            <nav class="bc-row">
+              @if (ovNum(tpl.id,'linkCount') > 0) { <a class="bc-link">الرئيسية</a><span class="bc-sep">@if (slotIconSvg(tpl.id,'separatorIcon'); as svg) { <svg class="bc-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')" [innerHTML]="svg"></svg> }</span> }
+              @if (ovNum(tpl.id,'linkCount') > 1) { <a class="bc-link">السوق</a><span class="bc-sep">@if (slotIconSvg(tpl.id,'separatorIcon'); as svg) { <svg class="bc-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')" [innerHTML]="svg"></svg> }</span> }
+              <span class="bc-cur">تفاصيل الخدمة</span>
+            </nav>
+            <p class="pt-hint">آخر عنصر نص عادي غير قابل للنقر.</p>
+          }
+
+          @case ('pagination') {
+            <div class="pg-row">
+              <span class="pg-btn">@if (slotIconSvg(tpl.id,'arrowIcon'); as svg) { <svg class="pg-ico prev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')" [innerHTML]="svg"></svg> }السابق</span>
+              @for (n of range(ovNum(tpl.id,'pageCount')); track n) {
+                <span class="pg-num" [class.cur]="n === 0">{{ n + 1 }}</span>
+              }
+              <span class="pg-btn">التالي@if (slotIconSvg(tpl.id,'arrowIcon'); as svg) { <svg class="pg-ico next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')" [innerHTML]="svg"></svg> }</span>
+            </div>
+          }
+
+          @case ('toast') {
+            <div class="ts-bar">@if (slotIconSvg(tpl.id,'icon'); as svg) { <span class="ts-ico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span>تم حفظ التغييرات بنجاح</span></div>
+          }
+
+          @case ('tooltip') {
+            <span class="tt-row"><span class="tt-lbl">نسبة العمولة</span><span class="tt-ico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')" title="نسبة تُخصم من قيمة الطلب لصالح المنصة عند إتمام الصفقة">؟</span></span>
+            <p class="pt-hint">الشرح عبر سمة <code>title</code> فقط — بلا مكوّن JS معقّد.</p>
+          }
+
+          @case ('emptystate') {
+            <div class="est-box">
+              @if (slotIconSvg(tpl.id,'icon'); as svg) { <span class="est-ico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }
+              <span class="est-title">لا توجد نتائج مطابقة لبحثك</span>
+            </div>
+          }
+
+          @case ('err') {
+            <div class="er-grid">
+              <div class="er-card" [style.borderColor]="ov(tpl.id,'color0')">@if (slotIconSvg(tpl.id,'icon0'); as svg) { <span class="er-ico" [style.color]="ov(tpl.id,'color0')" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span class="er-code" [style.color]="ov(tpl.id,'color0')" [style.fontWeight]="ovNum(tpl.id,'codeWeight')">404</span><span class="er-title" [style.fontWeight]="ovNum(tpl.id,'titleWeight')">الصفحة غير موجودة</span><p class="er-desc">الرابط غير صحيح أو حُذف المحتوى.</p><div class="er-acts"><span class="er-btn primary">الرئيسية</span><span class="er-btn ghost">رجوع</span></div></div>
+              <div class="er-card" [style.borderColor]="ov(tpl.id,'color1')">@if (slotIconSvg(tpl.id,'icon1'); as svg) { <span class="er-ico" [style.color]="ov(tpl.id,'color1')" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span class="er-code" [style.color]="ov(tpl.id,'color1')" [style.fontWeight]="ovNum(tpl.id,'codeWeight')">500</span><span class="er-title" [style.fontWeight]="ovNum(tpl.id,'titleWeight')">خطأ بالخادم</span><p class="er-desc">حدث خلل غير متوقع، جارٍ العمل على إصلاحه.</p><div class="er-acts"><span class="er-btn primary">الرئيسية</span><span class="er-btn ghost">رجوع</span></div></div>
+              <div class="er-card" [style.borderColor]="ov(tpl.id,'color2')">@if (slotIconSvg(tpl.id,'icon2'); as svg) { <span class="er-ico" [style.color]="ov(tpl.id,'color2')" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span class="er-code" [style.color]="ov(tpl.id,'color2')" [style.fontWeight]="ovNum(tpl.id,'codeWeight')">503</span><span class="er-title" [style.fontWeight]="ovNum(tpl.id,'titleWeight')">صيانة مجدولة</span><p class="er-desc">المنصة تحت صيانة مؤقتة، عد بعد قليل.</p><div class="er-acts"><span class="er-btn primary">الرئيسية</span><span class="er-btn ghost">رجوع</span></div></div>
+              <div class="er-card" [style.borderColor]="ov(tpl.id,'color3')">@if (slotIconSvg(tpl.id,'icon3'); as svg) { <span class="er-ico" [style.color]="ov(tpl.id,'color3')" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span class="er-code" [style.color]="ov(tpl.id,'color3')" [style.fontWeight]="ovNum(tpl.id,'codeWeight')">401</span><span class="er-title" [style.fontWeight]="ovNum(tpl.id,'titleWeight')">انتهت الجلسة</span><p class="er-desc">سجّل الدخول من جديد لمتابعة العمل.</p><div class="er-acts"><span class="er-btn primary">الرئيسية</span><span class="er-btn ghost">رجوع</span></div></div>
+              <div class="er-card" [style.borderColor]="ov(tpl.id,'color4')">@if (slotIconSvg(tpl.id,'icon4'); as svg) { <span class="er-ico" [style.color]="ov(tpl.id,'color4')" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span class="er-code" [style.color]="ov(tpl.id,'color4')" [style.fontWeight]="ovNum(tpl.id,'codeWeight')">403</span><span class="er-title" [style.fontWeight]="ovNum(tpl.id,'titleWeight')">ممنوع الوصول</span><p class="er-desc">لا تملك صلاحية فتح هذه الصفحة.</p><div class="er-acts"><span class="er-btn primary">الرئيسية</span><span class="er-btn ghost">رجوع</span></div></div>
+            </div>
+            <p class="pt-hint">الألوان المعتمدة بالهوية: 404=أحمر · 500=أحمر · صيانة/503=كهرماني · جلسة منتهية/401=أزرق · 403 ممنوع=أحمر.</p>
+          }
+
+          @case ('pref') {
+            <div class="pf-card">
+              @if (ovNum(tpl.id,'rowCount') > 0) { <div class="pf-row"><div class="pf-txt"><span class="pf-title">إشعارات الطلبات الجديدة</span><span class="pf-sub">تنبيه فوري عند وصول طلب مطابق لتخصصك</span></div><span class="pf-sw on"><i></i></span></div> }
+              @if (ovNum(tpl.id,'rowCount') > 1) { <div class="pf-row"><div class="pf-txt"><span class="pf-title">مشاركة بيانات الأداء</span><span class="pf-sub">استخدام بياناتك لتحسين توصيات الذكاء الاصطناعي</span></div><span class="pf-sw"><i></i></span></div> }
+            </div>
+          }
+
+          @case ('radioref') {
+          }
+
+          @case ('filterrail') {
+            <div class="fr-rail">
+              <span class="fr-lbl">تخصصات</span>
+              @if (ovNum(tpl.id,'specialtyPillCount') > 0) { <span class="fr-pill on">الكل</span> }
+              @if (ovNum(tpl.id,'specialtyPillCount') > 1) { <span class="fr-pill">تصميم</span> }
+              @if (ovNum(tpl.id,'specialtyPillCount') > 2) { <span class="fr-pill">برمجة</span> }
+              <span class="fr-div"></span>
+              <span class="fr-lbl">ترتيب</span>
+              @if (ovNum(tpl.id,'sortPillCount') > 0) { <span class="fr-pill on">الأحدث</span> }
+              @if (ovNum(tpl.id,'sortPillCount') > 1) { <span class="fr-pill">الأعلى تقييمًا</span> }
+              <span class="fr-spacer"></span>
+              <span class="fr-search">@if (slotIconSvg(tpl.id,'searchIcon'); as svg) { <span class="fr-sico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }<span>بحث بالكلمات المفتاحية</span></span>
+              <span class="fr-count">فلتران نشطان</span>
+              <span class="fr-clear">مسح</span>
+              <span class="fr-adv">@if (slotIconSvg(tpl.id,'advIcon'); as svg) { <span class="fr-sico" [style.width.px]="ovNum(tpl.id,'iconSize')" [style.height.px]="ovNum(tpl.id,'iconSize')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="svg"></svg></span> }فلترة متقدمة</span>
+            </div>
+          }
+          }
+          @if (tpl.note) {
+          <p class="pt-hint">ملاحظة الهوية: {{ tpl.note }}</p>
+          }
+        </div>
+
+        @if (slotsFor(tpl.id).length > 0) {
+        <button type="button" class="pt-edit-toggle" (click)="toggleEditor(tpl.id)">
+          {{ isEditorOpen(tpl.id) ? '▲ إخفاء التحكم' : '▼ تحكّم بالعناصر (' + slotsFor(tpl.id).length + ')' }}
+        </button>
+        @if (isEditorOpen(tpl.id)) {
+        <div class="pt-editor">
+          @for (slot of slotsFor(tpl.id); track slot.key) {
+            <div class="pt-editor-row">
+              <label>{{ slot.label }}</label>
+              @switch (slot.kind) {
+                @case ('icon') {
+                  <select class="pt-editor-select" [value]="ov(tpl.id, slot.key)" (change)="onSlotInput(tpl.id, slot, $event)">
+                    @for (grp of iconPickerGroups(); track grp.libId) {
+                      <optgroup [label]="grp.libLabel">
+                        @for (item of grp.items; track item.value) {
+                          <option [value]="item.value">{{ item.label }}</option>
+                        }
+                      </optgroup>
+                    }
+                  </select>
+                }
+                @case ('color') {
+                  <input type="color" class="pt-editor-color" [value]="ov(tpl.id, slot.key)" (input)="onSlotInput(tpl.id, slot, $event)" />
+                  <span class="pt-editor-unit">{{ ov(tpl.id, slot.key) }}</span>
+                }
+                @case ('weight') {
+                  <select class="pt-editor-select" [value]="ov(tpl.id, slot.key)" (change)="onSlotInput(tpl.id, slot, $event)">
+                    @for (w of weightOptions; track w) {
+                      <option [value]="w">{{ w }}</option>
+                    }
+                  </select>
+                }
+                @case ('size') {
+                  <input type="number" class="pt-editor-num" [attr.min]="slot.min" [attr.max]="slot.max" [value]="ov(tpl.id, slot.key)" (change)="onSlotInput(tpl.id, slot, $event)" />
+                  <span class="pt-editor-unit">{{ slot.unit }}</span>
+                }
+                @case ('count') {
+                  <input type="number" class="pt-editor-num" [attr.min]="slot.min" [attr.max]="slot.max" [value]="ov(tpl.id, slot.key)" (change)="onSlotInput(tpl.id, slot, $event)" />
+                }
+              }
+            </div>
+          }
+        </div>
+        }
+        }
+      </article>
+      }
+    </div>
+  </section>
+  }
+</div>

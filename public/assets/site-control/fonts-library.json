@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-19T00:00:00.000Z",
+  "note": "مكتبة خطوط منسّقة — أُضيفت 2026-08-19 (تنفيذ مباشر بطلب المالك: 'أبي مجموعة خطوط كبيرة، ماتطلع لي خطين أو ثلاثة'). كل عنصر هنا اختيار مهني مني (توصية Claude، وليس مستخرَجًا من وثيقة الهوية — الهوية توثّق Tajawal فقط كخط معتمد نهائي حاليًا). كل خط هنا خط Google Fonts حقيقي يدعم العربية فعليًا، مع خط لاتيني مرافق مُختار يدويًا (latinPartner) لضمان عرض جيد للنصوص المختلطة/الإنجليزية لاحقًا. لا يُحمَّل أي خط فعليًا إلا عند اختياره من تبويب الخطوط (تحميل ديناميكي — راجع TypographyService.loadGoogleFont).",
+  "fonts": [
+    {
+      "id": "tajawal",
+      "label": "Tajawal — المعتمد حاليًا بالهوية",
+      "googleFamily": "Tajawal",
+      "weights": [200, 300, 400, 500, 700, 800, 900],
+      "latinPartner": "Inter",
+      "latinPartnerWeights": [400, 500, 600, 700, 800, 900],
+      "category": "geometric",
+      "isCurrentIdentityDefault": true
+    },
+    {
+      "id": "cairo",
+      "label": "Cairo",
+      "googleFamily": "Cairo",
+      "weights": [300, 400, 500, 600, 700, 800, 900],
+      "latinPartner": "Inter",
+      "latinPartnerWeights": [400, 500, 600, 700, 800, 900],
+      "category": "geometric",
+      "isCurrentIdentityDefault": false
+    },
+    {
+      "id": "ibm-plex-sans-arabic",
+      "label": "IBM Plex Sans Arabic",
+      "googleFamily": "IBM Plex Sans Arabic",
+      "weights": [100, 200, 300, 400, 500, 600, 700],
+      "latinPartner": "IBM Plex Sans",
+      "latinPartnerWeights": [100, 200, 300, 400, 500, 600, 700],
+      "category": "grotesque",
+      "isCurrentIdentityDefault": false,
+      "notePairing": "عائلة IBM Plex مصمَّمة أصلاً كأزواج عربي/لاتيني متجانسة من نفس المُصمِّم — أدق توافق شكلي متاح بالقائمة."
+    },
+    {
+      "id": "almarai",
+      "label": "Almarai",
+      "googleFamily": "Almarai",
+      "weights": [300, 400, 700, 800],
+      "latinPartner": "Poppins",
+      "latinPartnerWeights": [400, 500, 600, 700, 800],
+      "category": "rounded",
+      "isCurrentIdentityDefault": false
+    },
+    {
+      "id": "noto-kufi-arabic",
+      "label": "Noto Kufi Arabic",
+      "googleFamily": "Noto Kufi Arabic",
+      "weights": [300, 400, 500, 600, 700, 800, 900],
+      "latinPartner": "Noto Sans",
+      "latinPartnerWeights": [400, 500, 600, 700, 800, 900],
+      "category": "kufi",
+      "isCurrentIdentityDefault": false
+    },
+    {
+      "id": "rubik",
+      "label": "Rubik",
+      "googleFamily": "Rubik",
+      "weights": [300, 400, 500, 600, 700, 800, 900],
+      "latinPartner": "Rubik",
+      "latinPartnerWeights": [400, 500, 600, 700, 800, 900],
+      "category": "rounded",
+      "isCurrentIdentityDefault": false,
+      "notePairing": "عائلة Rubik تغطي العربية واللاتينية بنفس ملف الخط — لا حاجة لخط شريك منفصل فعليًا."
+    },
+    {
+      "id": "el-messiri",
+      "label": "El Messiri",
+      "googleFamily": "El Messiri",
+      "weights": [400, 500, 600, 700],
+      "latinPartner": "El Messiri",
+      "latinPartnerWeights": [400, 500, 600, 700],
+      "category": "elegant",
+      "isCurrentIdentityDefault": false
+    },
+    {
+      "id": "changa",
+      "label": "Changa",
+      "googleFamily": "Changa",
+      "weights": [200, 300, 400, 500, 600, 700, 800],
+      "latinPartner": "Changa",
+      "latinPartnerWeights": [400, 500, 600, 700, 800],
+      "category": "geometric",
+      "isCurrentIdentityDefault": false
+    },
+    {
+      "id": "readex-pro",
+      "label": "Readex Pro",
+      "googleFamily": "Readex Pro",
+      "weights": [200, 300, 400, 500, 600, 700],
+      "latinPartner": "Readex Pro",
+      "latinPartnerWeights": [400, 500, 600, 700],
+      "category": "modern",
+      "isCurrentIdentityDefault": false,
+      "notePairing": "خط مصمَّم أصلاً لدعم مزدوج (عربي/لاتيني) بنفس ملف الخط — خيار قوي لو قُرِّر دعم إنجليزي مستقبلًا."
+    },
+    {
+      "id": "alexandria",
+      "label": "Alexandria",
+      "googleFamily": "Alexandria",
+      "weights": [100, 200, 300, 400, 500, 600, 700, 800, 900],
+      "latinPartner": "Alexandria",
+      "latinPartnerWeights": [400, 500, 600, 700, 800, 900],
+      "category": "modern",
+      "isCurrentIdentityDefault": false
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+<div class="lp-wrap">
+  <header class="lp-toolbar">
+    <h1>معاينة حية شاملة</h1>
+    <div class="theme-toggle">
+      <button type="button" class="toggle-seg" [class.active]="themeMode.mode() === 'dark'" (click)="setMode('dark')">داكن</button>
+      <button type="button" class="toggle-seg" [class.active]="themeMode.mode() === 'light'" (click)="setMode('light')">فاتح</button>
+    </div>
+  </header>
+
+  <div class="mock-dashboard">
+    <aside class="mock-sidebar">
+      <div class="mock-logo" [style.background]="ov('dash','brandColor','#2BD4C7')" [style.fontWeight]="ovNum('dash','brandWeight',900)">وسيط AI</div>
+      @for (n of range(ovNum('dash','navCount',4)); track n) {
+        @if (navItems[n % navItems.length]; as item) {
+          <a class="mock-nav-link" [class.active]="activeSection() === item.id" (click)="setSection(item.id)">{{ item.label }}</a>
+        }
+      }
+    </aside>
+
+    <div class="mock-topbar"></div>
+
+    <main class="mock-main">
+      @switch (activeSection()) {
+        @case ('dashboard') {
+          <h2 class="page-title-sample">نظرة عامة على الحساب</h2>
+
+          <div class="kpi-row">
+            @for (n of range(ovNum('kpi','cardCount',4)); track n) {
+              @if (kpiSamples[n % kpiSamples.length]; as s) {
+                <div class="kpi-card" [class.ai-card]="s.ai">
+                  @if (slotIconSvg('kpi','icon'+(n%6), kpiIconDefaults[n%6]); as svg) {
+                    <span class="kpi-ico" [style.color]="ov('kpi','color'+(n%6), kpiColorDefaults[n%6])" [style.background]="isAiColor(ov('kpi','color'+(n%6), kpiColorDefaults[n%6])) ? 'var(--ai-bg)' : null" [style.borderColor]="isAiColor(ov('kpi','color'+(n%6), kpiColorDefaults[n%6])) ? 'var(--ai-border)' : null" [style.width.px]="ovNum('kpi','iconBoxSize',30)" [style.height.px]="ovNum('kpi','iconBoxSize',30)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [style.width.px]="ovNum('kpi','iconSize',16)" [style.height.px]="ovNum('kpi','iconSize',16)" [innerHTML]="svg"></svg>
+                    </span>
+                  }
+                  <span class="kpi-number-sample" [style.fontWeight]="ovNum('kpi','numWeight',900)">{{ s.number }}</span>
+                  <span class="kpi-label" [style.fontWeight]="ovNum('kpi','lblWeight',400)">{{ s.label }}</span>
+                </div>
+              }
+            }
+          </div>
+          <section class="mock-section">
+            <h3 class="section-title-sample">آخر الطلبات</h3>
+            <table class="mock-table">
+              <thead>
+                <tr><th>الطلب</th><th>الحالة</th><th>القيمة</th></tr>
+              </thead>
+              <tbody>
+                @for (n of range(ovNum('table','rowCount',3)); track n) {
+                  @if (dashboardRows[n % dashboardRows.length]; as r) {
+                    <tr>
+                      <td>{{ r.name }}</td>
+                      <td><span class="badge" [class]="'badge ' + r.statusCls">{{ r.statusLabel }}</span></td>
+                      <td>{{ r.value }}</td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </section>
+
+          <section class="mock-section form-section">
+            <h3 class="section-title-sample">نموذج سريع</h3>
+            <div class="mock-form-row">
+              <label>اسم الخدمة</label>
+              <input type="text" class="mock-input" placeholder="مثال: تصميم شعار" />
+            </div>
+            <div class="mock-form-row">
+              <label>الفئة</label>
+              <select class="mock-input">
+                <option>تصميم</option>
+                <option>برمجة</option>
+                <option>استشارات</option>
+              </select>
+            </div>
+            <div class="mock-actions">
+              <button type="button" class="mock-btn-primary">إرسال الطلب</button>
+              <button type="button" class="mock-btn-secondary">حفظ كمسودة</button>
+            </div>
+          </section>
+
+          <div class="ai-chip-sample" [style.color]="ov('aidisc','tagColor','#A56BE0')">
+            @if (slotIconSvg('aidisc','icon','ai:ws-ai-spark'); as svg) {
+              <span class="ai-chip-icon" [style.width.px]="ovNum('aidisc','iconSize',22)" [style.height.px]="ovNum('aidisc','iconSize',22)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" [innerHTML]="svg"></svg>
+              </span>
+            }
+            <span [style.fontWeight]="ovNum('aidisc','tagWeight',900)">ميزة مدعومة بالذكاء الاصطناعي — اقتراح أفضل مقدّم خدمة تلقائيًا</span>
+          </div>
+        }
+
+        @case ('requests') {
+          <h2 class="page-title-sample">الطلبات</h2>
+          <section class="mock-section">
+            <h3 class="section-title-sample">كل الطلبات (6)</h3>
+            <table class="mock-table">
+              <thead>
+                <tr><th>الطلب</th><th>الحالة</th><th>القيمة</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>تصميم واجهة تطبيق</td><td><span class="badge badge-active">نشط</span></td><td>3,200 ر.س</td></tr>
+                <tr><td>استشارة عقارية</td><td><span class="badge badge-done">مكتمل</span></td><td>850 ر.س</td></tr>
+                <tr><td>نزاع على التسليم</td><td><span class="badge badge-dispute">نزاع</span></td><td>1,400 ر.س</td></tr>
+                <tr><td>ترجمة عقد تجاري</td><td><span class="badge badge-done">مكتمل</span></td><td>600 ر.س</td></tr>
+                <tr><td>تصميم شعار متجر</td><td><span class="badge badge-active">نشط</span></td><td>950 ر.س</td></tr>
+                <tr><td>استشارة تسويقية</td><td><span class="badge badge-done">مكتمل</span></td><td>1,100 ر.س</td></tr>
+              </tbody>
+            </table>
+          </section>
+        }
+
+        @case ('wallet') {
+          <h2 class="page-title-sample">المحفظة</h2>
+          <div class="kpi-row">
+            <div class="kpi-card">
+              @if (slotIconSvg('kpi','icon4', kpiIconDefaults[4]); as svg) {
+                <span class="kpi-ico" [style.color]="ov('kpi','color4', kpiColorDefaults[4])" [style.background]="isAiColor(ov('kpi','color4', kpiColorDefaults[4])) ? 'var(--ai-bg)' : null" [style.borderColor]="isAiColor(ov('kpi','color4', kpiColorDefaults[4])) ? 'var(--ai-border)' : null" [style.width.px]="ovNum('kpi','iconBoxSize',30)" [style.height.px]="ovNum('kpi','iconBoxSize',30)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [style.width.px]="ovNum('kpi','iconSize',16)" [style.height.px]="ovNum('kpi','iconSize',16)" [innerHTML]="svg"></svg>
+                </span>
+              }
+              <span class="kpi-number-sample">12,450 ر.س</span>
+              <span class="kpi-label">الرصيد المتاح</span>
+            </div>
+            <div class="kpi-card">
+              @if (slotIconSvg('kpi','icon5', kpiIconDefaults[5]); as svg) {
+                <span class="kpi-ico" [style.color]="ov('kpi','color5', kpiColorDefaults[5])" [style.background]="isAiColor(ov('kpi','color5', kpiColorDefaults[5])) ? 'var(--ai-bg)' : null" [style.borderColor]="isAiColor(ov('kpi','color5', kpiColorDefaults[5])) ? 'var(--ai-border)' : null" [style.width.px]="ovNum('kpi','iconBoxSize',30)" [style.height.px]="ovNum('kpi','iconBoxSize',30)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [style.width.px]="ovNum('kpi','iconSize',16)" [style.height.px]="ovNum('kpi','iconSize',16)" [innerHTML]="svg"></svg>
+                </span>
+              }
+              <span class="kpi-number-sample">1,400 ر.س</span>
+              <span class="kpi-label">قيد التسوية</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-number-sample">38,900 ر.س</span>
+              <span class="kpi-label">إجمالي المسحوبات</span>
+            </div>
+          </div>
+          <section class="mock-section">
+            <h3 class="section-title-sample">آخر الحركات المالية</h3>
+            <table class="mock-table">
+              <thead>
+                <tr><th>الحركة</th><th>الحالة</th><th>المبلغ</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>سحب لحساب بنكي</td><td><span class="badge badge-done">مكتمل</span></td><td>5,000 ر.س</td></tr>
+                <tr><td>دفعة طلب #1042</td><td><span class="badge badge-active">نشط</span></td><td>3,200 ر.س</td></tr>
+                <tr><td>عمولة منصة</td><td><span class="badge badge-dispute">خصم</span></td><td>-160 ر.س</td></tr>
+              </tbody>
+            </table>
+          </section>
+        }
+
+        @case ('settings') {
+          <h2 class="page-title-sample">الإعدادات</h2>
+          <section class="mock-section form-section">
+            <h3 class="section-title-sample">إعدادات الحساب</h3>
+            <div class="mock-form-row">
+              <label>الاسم الظاهر للعملاء</label>
+              <input type="text" class="mock-input" value="مقدّم الخدمة" />
+            </div>
+            <div class="mock-form-row">
+              <label>اللغة الافتراضية</label>
+              <select class="mock-input">
+                <option>العربية</option>
+                <option>English</option>
+              </select>
+            </div>
+            <div class="mock-form-row">
+              <label>إشعارات الذكاء الاصطناعي (اقتراحات تلقائية)</label>
+              <select class="mock-input">
+                <option>مفعّلة</option>
+                <option>معطّلة</option>
+              </select>
+            </div>
+            <div class="mock-actions">
+              <button type="button" class="mock-btn-primary">حفظ التغييرات</button>
+            </div>
+          </section>
+        }
+      }
+    </main>
+  </div>
+</div>
