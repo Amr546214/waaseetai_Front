@@ -160,12 +160,14 @@ describe('RequestDetails - states and actions come from the server', () => {
 	});
 
 	it('negotiation on a closed offer: the server\'s refusal is shown, NO fake conversation is opened', async () => {
-		const chat = { initiateConversation: vi.fn(() => throwError(() => ({ error: { message: 'لا يمكن التفاوض على هذا العرض: سحب مقدم الخدمة هذا العرض' } }))) };
+		const chat = { initiateConversation: vi.fn(() => throwError(() => ({ status: 409, error: { success: false, message: 'لا يمكن التفاوض على هذا العرض: سحب مقدم الخدمة هذا العرض' } }))) };
 		const s = await setup(details(), { chat });
 		s.c.openNegotiation(s.c.offers()[0]);
 		s.c.negPrice.set('4000'); // the price box now starts empty (no ready-made number), so the client types one
 		s.c.sendNegotiation();
-		expect(lastToast()).toContain('لا يمكن التفاوض');
+		expect(s.c.negError()).toContain('لا يمكن التفاوض');
+		expect(s.c.showNegModal()).toBe(true); // the dialog stays open, the typed price stays
+		expect(s.c.negPrice()).toBe('4000');
 		expect(s.nav).not.toHaveBeenCalled();
 		expect(s.get).toHaveBeenCalledTimes(2);
 	});
@@ -183,7 +185,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		expect((s.chat.initiateConversation as any).mock.calls[0][0]).toEqual({ projectId: 'req-1', providerId: 'prov-1', offerId: 'legacy-1' });
 		expect(s.nav).toHaveBeenCalledWith(['/client-overview/messages'], { queryParams: { conversationId: 'conv-9' } });
 		TestBed.resetTestingModule();
-		const chat = { initiateConversation: vi.fn(() => throwError(() => ({ error: { message: 'تم إلغاء هذا الطلب' } }))) };
+		const chat = { initiateConversation: vi.fn(() => throwError(() => ({ status: 409, error: { success: false, message: 'تم إلغاء هذا الطلب' } }))) };
 		const f = await setup(details(), { chat });
 		f.q('chat-offer')!.click();
 		expect(lastToast()).toBe('تم إلغاء هذا الطلب');
@@ -194,5 +196,17 @@ describe('RequestDetails - states and actions come from the server', () => {
 		const { readFileSync } = await import('node:fs');
 		const { join } = await import('node:path');
 		expect(readFileSync(join(__dirname, 'request-details.ts'), 'utf8')).not.toContain("'c1'");
+	});
+
+	it('negotiation request sent but the answer was lost (network): dialog stays open, entries kept, one sentence says pressing send again is safe', async () => {
+		const chat = { initiateConversation: vi.fn(() => throwError(() => ({ status: 0, error: null }))) };
+		const s = await setup(details(), { chat });
+		s.c.openNegotiation(s.c.offers()[0]);
+		s.c.negPrice.set('4000'); s.c.negMessage.set('خصم؟');
+		s.c.sendNegotiation(); s.f.detectChanges();
+		expect(s.c.showNegModal()).toBe(true);
+		expect(s.c.negPrice()).toBe('4000'); expect(s.c.negMessage()).toBe('خصم؟');
+		expect(s.q('neg-error')!.textContent).toContain('بأمان');
+		expect(s.nav).not.toHaveBeenCalled();
 	});
 });

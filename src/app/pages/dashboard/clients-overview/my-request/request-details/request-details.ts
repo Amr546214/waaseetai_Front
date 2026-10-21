@@ -382,6 +382,8 @@ export class RequestDetails implements OnInit {
 	selectedOffer = signal<Offer | null>(null);
 	isSelectingOffer = signal<boolean>(false);
 	isSendingNegotiation = signal<boolean>(false);
+	/** Why sending the negotiation request failed - inside the open dialog, next to the send button (entries stay as typed). */
+	negError = signal<string>('');
 	/** The offer whose counter offer is being answered right now (blocks double clicks). */
 	answeringOfferId = signal<string | null>(null);
 	/** Why the last accept/decline of a counter offer failed - kept on the offer card (the counter box itself may disappear once the page re-reads the server state). */
@@ -442,6 +444,7 @@ export class RequestDetails implements OnInit {
 		this.negDuration.set('');
 		this.negType.set('price');
 		this.negMessage.set('');
+		this.negError.set('');
 		this.showNegModal.set(true);
 	}
 
@@ -497,6 +500,7 @@ export class RequestDetails implements OnInit {
 			return;
 		}
 		if (this.isSendingNegotiation()) return;
+		this.negError.set('');
 		const invalid = this.negValidationProblem();
 		if (invalid) {
 			// The message sits under the field that is wrong (red, role=alert) and the field gets focus; no toast-only validation.
@@ -542,14 +546,15 @@ export class RequestDetails implements OnInit {
 				if (hasFieldErrors(err)) {
 					void reportClientBackend(this.host.nativeElement, err, { resolve: { price: 'neg-price', duration: 'neg-dur', notes: 'neg-msg' } }).then((r) => {
 						if (r.handled && !r.generic) return;
-						this.closeNegotiation();
-						this.notify.error(r.generic || this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
+						this.negError.set(r.generic || this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
 					});
 					return;
 				}
-				this.closeNegotiation();
-				this.notify.error(this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
-				// the reason may be a state change (offer withdrawn / chosen): reload so the buttons match the server
+				// Every other failure keeps the dialog OPEN with the reason beside the send button and the typed entries untouched.
+				// A lost answer: the server never stores the identical request twice, so pressing send again is safe.
+				const mapped = mapHttpError(err, { fallback: 'تعذر إرسال طلب التفاوض، حاول مرة أخرى' });
+				this.negError.set(mapped.outcomeUnknown ? 'انقطع الاتصال قبل أن نعرف إن كان طلبك وصل. اضغط «إرسال طلب التفاوض» مرة أخرى بأمان: إن كان قد وصل فلن نرسله مرتين.' : mapped.message);
+				// the reason may be a state change (offer withdrawn / chosen): re-read so the buttons behind the dialog match the server
 				this.fetchRequestDetails(this.requestId());
 			}
 		});

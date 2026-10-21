@@ -652,6 +652,7 @@
 						العرض المضاد أو ترفضه</span>
 				</div>
 			</div>
+			@if (negError()) { <div role="alert" data-testid="neg-error" class="field-error" style="margin-top:10px" (click)="$event.stopPropagation()">{{ negError() }}</div> }
 			<div class="grid grid-cols-2 gap-3 mt-4 w-full" dir="rtl" (click)="$event.stopPropagation()">
 				<!-- إلغاء (يمين) -->
 				<button type="button"
