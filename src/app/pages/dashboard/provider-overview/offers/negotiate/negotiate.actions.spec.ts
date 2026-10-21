@@ -177,4 +177,14 @@ describe('provider offer negotiation page', () => {
 		expect(s.c.counterPrice()).toBe('700');
 		expect(s.c.counterSaving()).toBe(false);
 	});
+
+	it('counter answer lost but the server DID save it: the page re-reads, says so outside the form, and no second send is offered', async () => {
+		const saved = STATE({ counterPending: true, canCounter: false });
+		let reads = 0;
+		const s = await setup(STATE(), { counterOffer: vi.fn(() => throwError(() => ({ status: 0, error: null }))), getNegotiation: vi.fn(() => of(++reads > 1 ? saved : STATE())) });
+		s.c.counterPrice.set('700'); s.c.counterDays.set('5');
+		s.c.submitCounter(); s.f.detectChanges();
+		expect(s.q('neg-lost-resolved')!.textContent).toContain('تم حفظ عرضك المضاد');
+		expect(s.api.counterOffer).toHaveBeenCalledTimes(1);
+	});
 });

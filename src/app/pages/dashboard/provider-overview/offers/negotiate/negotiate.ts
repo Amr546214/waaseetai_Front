@@ -69,6 +69,7 @@ export class OfferNegotiate implements OnInit {
 	counterSaving = signal<boolean>(false);
 	counterError = signal<string>('');
 	counterTouched = signal<boolean>(false);
+	lostAnswerNotice = signal<string>('');
 	counterSuccess = signal<boolean>(false);
 
 	// reject / withdraw (two steps: the button, then an explicit confirmation)
@@ -131,7 +132,7 @@ export class OfferNegotiate implements OnInit {
 		});
 	}
 
-	loadNegotiation() {
+	loadNegotiation(after?: (state: any) => void) {
 		const id = this.offerId();
 		if (!id) return;
 		this.negLoading.set(true);
@@ -141,6 +142,7 @@ export class OfferNegotiate implements OnInit {
 				this.neg.set(state);
 				this.negLoading.set(false);
 				this.rebuildRounds();
+				after?.(state);
 			},
 			error: (err) => {
 				this.negLoading.set(false);
@@ -236,7 +238,9 @@ export class OfferNegotiate implements OnInit {
 	 */
 	private failureText(err: any, fallback: string): string {
 		const mapped = mapHttpError(err, { fallback });
-		if (err?.status === 409 || mapped.outcomeUnknown) this.loadNegotiation();
+		// a lost answer: re-read what the server really holds and SAY what it found (the form, with its error box, disappears when the counter was in fact saved)
+		if (mapped.outcomeUnknown) this.loadNegotiation(state => { if (state?.counterPending) this.lostAnswerNotice.set('تم حفظ عرضك المضاد رغم انقطاع الاتصال، وهو الآن بانتظار رد العميل. لا حاجة لإرساله مرة أخرى.'); });
+		else if (err?.status === 409) this.loadNegotiation();
 		return mapped.outcomeUnknown ? `${mapped.message} حدّثنا الصفحة لتعرض آخر حالة محفوظة، فتحقق منها قبل إعادة المحاولة.` : mapped.message;
 	}
 
@@ -246,6 +250,7 @@ export class OfferNegotiate implements OnInit {
 		if (this.counterSaving() || this.counterBlocker() || price === null || days === null) return;
 		this.counterSaving.set(true);
 		this.counterError.set('');
+		this.lostAnswerNotice.set('');
 		this.counterSuccess.set(false);
 		const note = this.counterNote().trim();
 		this.offersService.counterOffer(this.offerId(), { price, deliveryDays: days, ...(note ? { note } : {}) }).subscribe({

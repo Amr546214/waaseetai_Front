@@ -83,6 +83,9 @@
 	</div>
 	} @else if (neg(); as n) {
 
+	@if (lostAnswerNotice()) {
+	<div class="ws-note ws-note--success" data-testid="neg-lost-resolved" role="status"><div class="ws-note-txt">{{ lostAnswerNotice() }}</div></div>
+	}
 	@if (actionDone()) {
 	<div class="ws-note ws-note--success" data-testid="neg-done" role="status"><div class="ws-note-txt">{{ actionDone() }}</div></div>
 	}
