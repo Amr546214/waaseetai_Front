@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
 import { ProfileAiReview } from '../../../../core/models/ai-result.model';
 import { ProfileAiReviewComponent } from '../../../../shared/ai/profile-ai-review.component';
+import { KycDocumentLink } from '../../../../sheards/kyc-document-link/kyc-document-link';
 import { mapHttpError } from '../../../../core/forms/http-error';
 import { handleAdminError, reportAdminProblems } from '../shared/admin-form-report';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
@@ -18,6 +19,8 @@ interface TimelineStep {
 
 interface ModificationRequest {
   id: string;
+  /** a DOCUMENTS request carrying a new identity document the reviewer can open */
+  identityDocAccess?: boolean;
   /** which backend model it belongs to: marketer requests (affiliate) or provider/client requests (profile) */
   source: 'affiliate' | 'profile';
   requestNumber: string;
@@ -44,7 +47,7 @@ interface ModificationRequest {
 @Component({
   selector: 'app-sa-modification-requests',
   standalone: true,
-  imports: [CommonModule, ProfileAiReviewComponent],
+  imports: [CommonModule, ProfileAiReviewComponent, KycDocumentLink],
   templateUrl: './sa-modification-requests.html',
   styleUrl: './sa-modification-requests.css',
 })
@@ -272,6 +275,7 @@ export class SaModificationRequests implements OnInit {
       aiReview: r.aiReview ?? null,
       rawStatus: r.status,
       category: r.category,
+      identityDocAccess: r.documentsAccess?.idDocumentUrl === true,
       oldValue: r.currentValue || 'لا يوجد',
       newValue: r.requestedValue,
       timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),

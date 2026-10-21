@@ -38,6 +38,8 @@ export interface ProfileModificationRequestRow {
 	aiReview?: ProfileAiReview | null;
 	rejectionReason?: string | null;
 	appliedAt?: string | null;
+	/** Which documents of a DOCUMENTS request exist (the private reference itself never reaches the page); opened through the access link by request id. */
+	documentsAccess?: { idDocumentUrl?: boolean } | null;
 	createdAt: string;
 	provider: { firstName: string; lastName: string; email: string; accountType: string };
 }

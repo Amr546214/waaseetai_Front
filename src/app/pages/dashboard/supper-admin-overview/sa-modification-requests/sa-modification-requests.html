@@ -122,6 +122,12 @@
             </div>
           </div>
 
+          @if (r.source === 'profile' && r.identityDocAccess) {
+            <div class="mr-doc" data-testid="mr-identity-doc">
+              <app-kyc-document-link document="profile_request_document" [docId]="r.id" [access]="{ private: true, legacy: false }" label="عرض مستند الهوية الجديد ↗" />
+            </div>
+          }
+
           @if (r.source === 'profile') {
             <ws-profile-ai-review [review]="r.aiReview" [status]="r.rawStatus" [category]="r.category" />
           }

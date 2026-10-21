@@ -158,3 +158,23 @@ describe('admin modification requests: AI pre-review block', () => {
 		expect(el.textContent).not.toContain('ثقة');
 	});
 });
+
+describe('admin modification requests: the new identity document can be opened', () => {
+	afterEach(() => { TestBed.resetTestingModule(); vi.restoreAllMocks(); });
+	it('a DOCUMENTS request with an identity document shows «عرض مستند الهوية الجديد» (access link by request id); other requests show none', async () => {
+		const createAccessLink = vi.fn(() => of({ url: 'https://signed.example/x', expiresAt: null, expiresInSeconds: 120, private: true, legacy: false }));
+		const { KycDocumentService } = await import('../../../../core/services/kyc-document.service');
+		const svc = { list: vi.fn(() => of({ success: true, data: [] })), listProfileRequests: vi.fn(() => of({ success: true, data: [
+			prof({ id: 'doc-req-1', category: 'DOCUMENTS', fieldName: 'DOCUMENTS', fieldLabel: 'المستندات الرسمية', requestedValue: '{"idDocumentUrl":"مستند محفوظ بشكل خاص"}', documentsAccess: { idDocumentUrl: true } }),
+			prof({ id: 'other-req-2', category: 'CLIENT_IDENTITY' }),
+		] })), approve: vi.fn(), reject: vi.fn(), reviewProfileRequest: vi.fn() };
+		await TestBed.configureTestingModule({ imports: [SaModificationRequests], providers: [{ provide: SaModificationRequestsService, useValue: svc }, { provide: KycDocumentService, useValue: { createAccessLink } }] }).compileComponents();
+		const f = TestBed.createComponent(SaModificationRequests); f.detectChanges(); await f.whenStable(); f.detectChanges();
+		const el = f.nativeElement as HTMLElement;
+		const links = el.querySelectorAll('[data-testid="mr-identity-doc"]');
+		expect(links.length).toBe(1);
+		expect(el.textContent).not.toContain('private:');
+		(links[0].querySelector('a, button') as HTMLElement).click();
+		expect(createAccessLink).toHaveBeenCalledWith(expect.objectContaining({ document: 'profile_request_document', id: 'doc-req-1' }));
+	});
+});

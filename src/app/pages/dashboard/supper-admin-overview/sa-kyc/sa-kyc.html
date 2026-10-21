@@ -513,6 +513,12 @@
                 <span class="sk-detail-val"><app-kyc-document-link document="provider_front_id" [userId]="selectedProvider()!.userId" [url]="selectedProvider()!.frontIdUrl" [access]="selectedProvider()!.frontIdUrlAccess" linkClass="sk-doc-link" /></span>
               </div>
             }
+            @if (providerPendingIdentityRequestId(); as reqId) {
+              <div class="sk-detail-row" data-testid="kyc-new-identity-doc">
+                <span class="sk-detail-key">مستند الهوية الجديد</span>
+                <span class="sk-detail-val"><app-kyc-document-link document="profile_request_document" [docId]="reqId" [access]="{ private: true, legacy: false }" linkClass="sk-doc-link" label="عرض المستند الجديد ↗" /> <small>بانتظار القرار في «طلبات تعديل الملف»</small></span>
+              </div>
+            }
             @if (selectedProvider()!.backIdUrl || selectedProvider()!.backIdUrlAccess?.private) {
               <div class="sk-detail-row">
                 <span class="sk-detail-key">ظهر الهوية</span>
@@ -570,7 +576,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg>
                 موافقة وتوثيق
               </button>
-              <button type="button" class="sk-btn sk-btn-reject" (click)="openActionModal('reject')">
+              <button type="button" class="sk-btn sk-btn-reject" data-testid="kyc-provider-reject" [disabled]="!!providerPendingIdentityRequestId()" (click)="openActionModal('reject')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                 رفض
               </button>
