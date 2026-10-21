@@ -1411,6 +1411,8 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   isSubmitting = signal(false);
+  /** Why publishing failed, shown next to the publish button (the wizard entries stay as they are). */
+  publishError = signal<string>('');
   showSuccessOverlay = signal(false);
 
   async submitRequest() {
@@ -1473,6 +1475,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       milestones: this.splitMilestones() ? this.milestones().map(m => ({ name: m.name, pct: m.pct as number })) : [] // validated: every pct is a number here
     };
 
+    this.publishError.set('');
     this.projectApi.createProject(payload).subscribe({
       next: (res) => {
         this.isSubmitting.set(false);
@@ -1516,8 +1519,14 @@ export class CreateRequest implements OnInit, OnDestroy {
       this.notify.error(errMsg);
       return;
     }
-    // Network / 429 / 5xx / 403 / 409 and any 400 without field names: one honest generic message, no invented field error.
-    if (!hasFieldErrors(err)) { this.notify.error(mapped.message); return; }
+    // Network / 429 / 5xx / 403 / 409 and any 400 without field names: one honest generic message next to the button (and as a toast), no invented field error.
+    if (!hasFieldErrors(err)) {
+      // a lost answer: the server never creates a second copy of the same request (it answers with the existing one), so repeating is safe - say so
+      const text = mapped.outcomeUnknown ? `${mapped.message} يمكنك الضغط على «نشر الطلب» مرة أخرى بأمان: إن كان طلبك قد وصل فلن ننشئ منه نسخة ثانية.` : mapped.message;
+      this.publishError.set(text);
+      this.notify.error(mapped.message);
+      return;
+    }
     void reportClientBackend(this.host.nativeElement, err, { ...this.publishFieldMap(), openStep: s => this.currentStep.set(Number(s)) }).then(r => {
       this.notify.error(r.handled && !r.generic ? 'راجع الحقول المحددة بالأحمر ثم أعد النشر' : (r.generic || mapped.message));
     });
