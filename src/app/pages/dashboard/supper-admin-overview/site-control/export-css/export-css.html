@@ -1,0 +1,31 @@
+<div class="export-wrap">
+  <header class="panel-header">
+    <h1>لوحة تحكم الهوية — تصدير CSS</h1>
+    <p class="sub">
+      يولّد ملف CSS مستقل واحد يغطي <strong>الوضعين الداكن والفاتح معًا</strong> (Custom Properties) من القيم
+      الحية الحالية باللوحة — يعمل بأي موقع/تقنية بدون الحاجة لوصول كود مصدر الموقع الحي. أي تعديل تسويه
+      بصفحة "القيم" (بأي من الوضعين) ينعكس هنا فورًا عند الضغط تحديث.
+    </p>
+  </header>
+
+  <div class="toolbar">
+    <button class="btn-primary" (click)="refresh()">تحديث من الحالة الحية</button>
+    <button class="btn-secondary" (click)="copy()">{{ copied() ? 'تم النسخ ✓' : 'نسخ الكود' }}</button>
+    <button class="btn-secondary" (click)="download()">تنزيل ملف .css</button>
+  </div>
+
+  <pre class="css-preview"><code>{{ cssText() }}</code></pre>
+
+  <div class="how-to">
+    <h2>طريقة الدمج بالموقع الحي</h2>
+    <ol>
+      <li>نزّل الملف أو انسخ الكود.</li>
+      <li>أضِفه كملف CSS منفصل بمشروع الموقع (مثال: <code>styles/waseetai-tokens.css</code>).</li>
+      <li>تأكد إنه يُحمَّل <strong>بعد</strong> ملفات CSS الأساسية (يُلغي القيم الافتراضية بنفس الأسماء).</li>
+      <li>الفاتح افتراضي (<code>:root</code>) بلا أي إضافة صنف على <code>&lt;html&gt;</code>؛ الداكن يُفعَّل
+        بإضافة <code>class="dark"</code> على <code>&lt;html&gt;</code> — مطابق تمامًا لآلية الموقع الحي
+        الفعلية المؤكَّدة بالفحص المباشر.</li>
+      <li>لا حاجة لأي تعديل ببنية Angular الحي.</li>
+    </ol>
+  </div>
+</div>

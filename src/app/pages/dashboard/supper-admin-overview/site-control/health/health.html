@@ -1,0 +1,72 @@
+<div class="health-wrap">
+  <header class="panel-header">
+    <h1>صحة النظام</h1>
+    <p class="sub">نظرة عامة فورية على حالة كل توكنات التصميم — أخطاء وتحذيرات فقط، بلا حاجة لفتح كل تبويب لحاله</p>
+  </header>
+
+  <div class="stat-cards">
+    <div class="stat-card">
+      <span class="stat-num">{{ tokenCount() }}</span>
+      <span class="stat-label">توكن لون/قيمة (الوضع النشط)</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ iconCount() }}</span>
+      <span class="stat-label">أيقونة بالمكتبة</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ typographyService.roles().length }}</span>
+      <span class="stat-label">دور نصي (خطوط)</span>
+    </div>
+    <div class="stat-card" [class.error]="errorCount() > 0">
+      <span class="stat-num">{{ errorCount() }}</span>
+      <span class="stat-label">خطأ يحتاج معالجة</span>
+    </div>
+    <div class="stat-card" [class.warn]="warningCount() > 0">
+      <span class="stat-num">{{ warningCount() }}</span>
+      <span class="stat-label">تحذير</span>
+    </div>
+  </div>
+
+  <section class="issues-section">
+    <h2>المشاكل المكتشفة</h2>
+    @if (issues().length === 0) {
+      <p class="ok-msg">لا مشاكل مكتشفة حاليًا بالفحوصات الآلية أعلاه.</p>
+    } @else {
+      <div class="issues-list">
+        @for (issue of issues(); track $index) {
+          <div class="issue-row" [class.error]="issue.severity === 'error'">
+            <span class="issue-severity">{{ issue.severity === 'error' ? '✕' : '⚠' }}</span>
+            <span class="issue-area">{{ issue.area }}</span>
+            <span class="issue-msg">{{ issue.message }}</span>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="persistence-section">
+    <h2>حالة الحفظ المحلي</h2>
+    <div class="persist-grid">
+      <div class="persist-row">
+        <span>توكنات الألوان (داكن)</span>
+        <span [class.saved]="hasSaved('tokens-dark')">{{ hasSaved('tokens-dark') ? 'محفوظ — ' + lastSavedFor('tokens-dark') : 'غير محفوظ محليًا (يعرض الملف الأصلي)' }}</span>
+      </div>
+      <div class="persist-row">
+        <span>توكنات الألوان (فاتح)</span>
+        <span [class.saved]="hasSaved('tokens-light')">{{ hasSaved('tokens-light') ? 'محفوظ — ' + lastSavedFor('tokens-light') : 'غير محفوظ محليًا (يعرض الملف الأصلي)' }}</span>
+      </div>
+      <div class="persist-row">
+        <span>الأيقونات</span>
+        <span [class.saved]="hasSaved('icons')">{{ hasSaved('icons') ? 'محفوظ — ' + lastSavedFor('icons') : 'غير محفوظ محليًا' }}</span>
+      </div>
+      <div class="persist-row">
+        <span>بيانات الحسابات</span>
+        <span [class.saved]="hasSaved('account-levels')">{{ hasSaved('account-levels') ? 'محفوظ — ' + lastSavedFor('account-levels') : 'غير محفوظ محليًا' }}</span>
+      </div>
+      <div class="persist-row">
+        <span>الخطوط</span>
+        <span [class.saved]="hasSaved('typography')">{{ hasSaved('typography') ? 'محفوظ — ' + lastSavedFor('typography') : 'غير محفوظ محليًا' }}</span>
+      </div>
+    </div>
+  </section>
+</div>

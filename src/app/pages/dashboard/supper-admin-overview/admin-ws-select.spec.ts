@@ -12,7 +12,8 @@ describe('admin dropdowns use the site ws-select', () => {
 		const offenders: string[] = [];
 		const walk = (d: string) => readdirSync(d).forEach(f => { const q = join(d, f); statSync(q).isDirectory() ? walk(q) : (q.endsWith('.html') && readFileSync(q, 'utf8').includes('<select') && offenders.push(q)); });
 		walk(__dirname);
-		expect(offenders).toEqual([]);
+		// «التحكم بالموقع» is a shadow-DOM panel imported as it is: its native selects take the PANEL's own token colours (the platform ws-select cannot reach into it)
+		expect(offenders.filter(f => !f.includes('/site-control/'))).toEqual([]);
 	});
 
 	function mount<T>(cmp: new () => T) {

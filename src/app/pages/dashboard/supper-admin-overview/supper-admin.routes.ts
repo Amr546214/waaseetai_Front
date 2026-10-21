@@ -436,7 +436,25 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
     },
         ]
     },
-	{
+    {
+        // «التحكم بالموقع»: the design-identity control panel (source: pmo, imported and kept as it is). Same admin guard as the rest of the area (no extra grant), no API of its own yet.
+        path: 'site-control',
+        loadComponent: () => import('./site-control/shell/site-control-shell').then(m => m.SiteControlShell),
+        data: { title: 'التحكم بالموقع' },
+        children: [
+            { path: '', pathMatch: 'full', redirectTo: 'health' },
+            { path: 'health', loadComponent: () => import('./site-control/health/health').then(m => m.Health), data: { title: 'صحة الهوية' } },
+            { path: 'tokens', loadComponent: () => import('./site-control/color-tokens/color-tokens').then(m => m.ColorTokens), data: { title: 'القيم والألوان' } },
+            { path: 'icons', loadComponent: () => import('./site-control/icon-tokens/icon-tokens').then(m => m.IconTokens), data: { title: 'الأيقونات' } },
+            { path: 'accounts', loadComponent: () => import('./site-control/accounts/accounts').then(m => m.Accounts), data: { title: 'المستويات والنقاط' } },
+            { path: 'templates', loadComponent: () => import('./site-control/templates/templates').then(m => m.Templates), data: { title: 'القوالب' } },
+            { path: 'typography', loadComponent: () => import('./site-control/typography/typography').then(m => m.Typography), data: { title: 'الخطوط' } },
+            { path: 'style-guide', loadComponent: () => import('./site-control/style-guide/style-guide').then(m => m.StyleGuide), data: { title: 'دليل الأنماط' } },
+            { path: 'live-preview', loadComponent: () => import('./site-control/live-preview/live-preview').then(m => m.LivePreview), data: { title: 'المعاينة الشاملة' } },
+            { path: 'export', loadComponent: () => import('./site-control/export-css/export-css').then(m => m.ExportCss), data: { title: 'تصدير CSS' } }
+        ]
+    },
+		{
 		path: '**',
 		loadComponent: () => import('../../../sheards/not-found/not-found').then(m => m.NotFoundComponent),
 		data: { title: "الصفحة غير موجودة", hideAssistant: true, embedded: true }

@@ -1,0 +1,202 @@
+<div class="acc-wrap">
+  <header class="panel-header">
+    <h1>لوحة تحكم الهوية — الحسابات (المستويات، النقاط، الأرباح، الولاء)</h1>
+    <p class="sub">كل نوع حساب بتبويبه الخاص — كل الأرقام والأيقونات قابلة للتعديل، مصدرها ملف نظام النقاط والولاء</p>
+    <div class="actions">
+      <button type="button" class="btn-save" (click)="save()">حفظ التغييرات</button>
+      <button type="button" class="btn-secondary" (click)="exportJson()">تصدير JSON</button>
+      <label class="btn-secondary import-label">
+        استيراد JSON
+        <input type="file" accept="application/json" hidden (change)="onImportFile($event)" />
+      </label>
+      <button type="button" class="btn-secondary" (click)="resetToSource()">استعادة القيم المصدرية</button>
+      @if (savedMsg()) {
+        <span class="saved-msg">{{ savedMsg() }}</span>
+      }
+    </div>
+  </header>
+
+  @if (service.loadError()) {
+    <div class="err-box">{{ service.loadError() }}</div>
+  }
+
+  @if (service.data(); as data) {
+    <div class="account-tabs">
+      @for (acc of data.accounts; track acc.id) {
+        <button type="button" class="account-tab" [class.active]="activeAccountId() === acc.id" (click)="selectAccount(acc.id)">
+          {{ acc.label }}
+        </button>
+      }
+    </div>
+
+    @if (currentAccount(); as account) {
+      @if (account.needsReview) {
+        <div class="review-banner">
+          ⚠ {{ account.reviewNote || 'بيانات هذا الفرع بحاجة مراجعة — نسخة مبدئية غير معتمدة للإنتاج.' }}
+        </div>
+      }
+      <div class="group-icon-row">
+        <div class="group-icon-preview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="iconSvg(account.id, -1)"></svg>
+        </div>
+        <div class="group-icon-actions">
+          <label class="upload-btn">
+            رفع أيقونة المجموعة
+            <input type="file" accept=".svg,image/svg+xml" (change)="onUploadGroupIcon(account.id, $event)" hidden />
+          </label>
+          <button type="button" class="reset-btn" (click)="resetGroupIcon(account.id)">استعادة الافتراضي</button>
+        </div>
+      </div>
+      @if (uploadError()) {
+        <div class="err-box small">{{ uploadError() }}</div>
+      }
+
+      <div class="section-tabs">
+        @for (s of sections; track s.id) {
+          <button type="button" class="section-tab" [class.active]="activeSection() === s.id" (click)="selectSection(s.id)">
+            {{ s.label }}
+          </button>
+        }
+      </div>
+
+      @if (activeSection() === 'levels') {
+        <div class="levels-grid">
+          @for (level of account.levels; track level.level) {
+            <div class="level-card" [style.borderColor]="currentHex(level)">
+              <div class="level-icon-row">
+                <div class="level-icon" [style.color]="currentHex(level)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="iconSvg(account.id, level.level)"></svg>
+                </div>
+                <label class="upload-mini">
+                  رفع
+                  <input type="file" accept=".svg,image/svg+xml" (change)="onUploadLevelIcon(account.id, level.level, $event)" hidden />
+                </label>
+                <button type="button" class="reset-mini" (click)="resetLevelIcon(account.id, level.level)">↺</button>
+                <span class="color-swatch" [style.background]="currentHex(level)"></span>
+                <input type="color" class="color-picker" [value]="currentHex(level)" (input)="onHexChange(account.id, level.level, $event)" />
+              </div>
+              <code class="level-n">مستوى {{ level.level }}</code>
+              <input type="text" class="name-input" [value]="level.name" (change)="onNameChange(account.id, level.level, $event)" />
+              @for (key of reqKeys(level.requirements); track key) {
+                <div class="field-row">
+                  <label>{{ reqLabel(key) }}</label>
+                  <input type="number" class="num-input" [value]="level.requirements[key]" (change)="onReqChange(account.id, level.level, key, $event)" />
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeSection() === 'points') {
+        <div class="rules-two-col">
+          <div class="rules-box earn">
+            <h3>اكتساب النقاط</h3>
+            @for (rule of account.pointsEarn; track $index; let i = $index) {
+              <div class="rule-row">
+                <input type="text" class="rule-text" [value]="rule.activity" (change)="onPointsRuleChange(account.id, 'pointsEarn', i, 'activity', $event)" />
+                <input type="number" class="rule-points" [value]="rule.points" (change)="onPointsRuleChange(account.id, 'pointsEarn', i, 'points', $event)" />
+                <input type="text" class="rule-cond" [value]="rule.condition" (change)="onPointsRuleChange(account.id, 'pointsEarn', i, 'condition', $event)" />
+                <input type="text" class="rule-freq" [value]="rule.frequency" (change)="onPointsRuleChange(account.id, 'pointsEarn', i, 'frequency', $event)" />
+              </div>
+            }
+          </div>
+          <div class="rules-box lose">
+            <h3>فقدان النقاط</h3>
+            @for (rule of account.pointsLose; track $index; let i = $index) {
+              <div class="rule-row">
+                <input type="text" class="rule-text" [value]="rule.violation" (change)="onPointsRuleChange(account.id, 'pointsLose', i, 'violation', $event)" />
+                <input type="number" class="rule-points" [value]="rule.points" (change)="onPointsRuleChange(account.id, 'pointsLose', i, 'points', $event)" />
+                <input type="text" class="rule-cond" [value]="rule.condition" (change)="onPointsRuleChange(account.id, 'pointsLose', i, 'condition', $event)" />
+                <input type="text" class="rule-freq" [value]="rule.frequency" (change)="onPointsRuleChange(account.id, 'pointsLose', i, 'frequency', $event)" />
+              </div>
+            }
+          </div>
+          @if (data.generalViolations?.length) {
+            <div class="rules-box general">
+              <h3>مخالفات عامة (كل الأنواع)</h3>
+              @for (rule of data.generalViolations; track $index) {
+                <div class="rule-row readonly">
+                  <span class="rule-text">{{ rule.violation }}</span>
+                  <span class="rule-points">-{{ rule.points }}</span>
+                  <span class="rule-cond">{{ rule.condition }}</span>
+                  <span class="rule-freq">{{ rule.frequency }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeSection() === 'profits') {
+        <div class="profits-table">
+          @for (level of account.levels; track level.level) {
+            <div class="profit-row">
+              <span class="p-level">{{ level.level }}. {{ level.name }}</span>
+              @if (level.commission !== undefined) {
+                <span class="p-field">عمولة: <input type="number" step="0.001" class="p-input" [value]="level.commission" (change)="onNumField(account.id, level.level, 'commission', $event)" /></span>
+              }
+              @if (level.cashback !== undefined) {
+                <span class="p-field">كاش باك: <input type="number" step="0.001" class="p-input" [value]="level.cashback" (change)="onNumField(account.id, level.level, 'cashback', $event)" /></span>
+              }
+              @if (level.monthlySalary !== undefined) {
+                <span class="p-field">راتب شهري $: <input type="number" class="p-input" [value]="level.monthlySalary" (change)="onNumField(account.id, level.level, 'monthlySalary', $event)" /></span>
+              }
+              @if (level.baseSalary !== undefined) {
+                <span class="p-field">راتب أساسي $: <input type="number" class="p-input" [value]="level.baseSalary" (change)="onNumField(account.id, level.level, 'baseSalary', $event)" /></span>
+              }
+              @if (level.bonusUSD !== undefined) {
+                <span class="p-field">مكافآت $: <input type="number" class="p-input" [value]="level.bonusUSD" (change)="onNumField(account.id, level.level, 'bonusUSD', $event)" /></span>
+              }
+              @if (level.profitShare !== undefined) {
+                <span class="p-field">حصة الأرباح: <input type="number" step="0.0001" class="p-input" [value]="level.profitShare" (change)="onNumField(account.id, level.level, 'profitShare', $event)" /></span>
+              }
+            </div>
+          }
+          @if (account.commissionAdjustmentFactors?.length) {
+            <div class="factors-box">
+              <h3>عوامل تعديل العمولة</h3>
+              @for (f of account.commissionAdjustmentFactors; track $index) {
+                <div class="factor-row">{{ f.factor }} — {{ f.effect }}</div>
+              }
+            </div>
+          }
+          @if (account.cashbackAdjustmentFactors?.length) {
+            <div class="factors-box">
+              <h3>عوامل تعديل الكاش باك</h3>
+              @for (f of account.cashbackAdjustmentFactors; track $index) {
+                <div class="factor-row">{{ f.factor }} — ×{{ f.multiplier }}</div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeSection() === 'loyalty') {
+        <div class="loyalty-grid">
+          @for (level of account.levels; track level.level) {
+            <div class="loyalty-card">
+              <span class="l-name">{{ level.level }}. {{ level.name }}</span>
+              <div class="field-row">
+                <label>القيمة الشهرية $</label>
+                <input type="number" class="num-input" [value]="level.loyaltyMonthlyValue" (change)="onNumField(account.id, level.level, 'loyaltyMonthlyValue', $event)" />
+              </div>
+            </div>
+          }
+          <div class="programs-box">
+            <h3>برامج التميز الخاصة بـ{{ account.label }}</h3>
+            <div class="program-row"><span>برنامج السفراء</span><span>{{ account.ambassadorProgram.condition }}</span></div>
+            <div class="program-row"><span>الجائزة الشهرية</span><span>{{ account.monthlyAward.condition }}</span></div>
+            <div class="program-row"><span>الجائزة السنوية</span><span>{{ account.annualAward.condition }}</span></div>
+          </div>
+          <div class="programs-box shared">
+            <h3>{{ data.partnersProgram.label }}</h3>
+            @for (c of data.partnersProgram.conditions; track $index) {
+              <div class="program-row"><span>{{ c.item }}</span><span>{{ c.value }}</span></div>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

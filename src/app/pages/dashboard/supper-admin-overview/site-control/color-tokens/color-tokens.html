@@ -1,0 +1,153 @@
+<div class="panel-wrap">
+  <header class="panel-header">
+    <h1>لوحة تحكم الهوية</h1>
+    <p class="sub">تعديل أي قيمة ينعكس فورًا بالمعاينة يمين الصفحة — كل وضع (داكن/فاتح) يُحرَّر بمعزل عن الآخر</p>
+    <div class="actions">
+      <div class="theme-toggle" role="tablist" aria-label="اختيار الوضع للتحرير">
+        <button type="button" class="toggle-seg" [class.active]="themeModeService.mode() === 'dark'" (click)="setMode('dark')">
+          داكن
+        </button>
+        <button type="button" class="toggle-seg" [class.active]="themeModeService.mode() === 'light'" (click)="setMode('light')">
+          فاتح
+        </button>
+      </div>
+      <button class="btn-save" (click)="save()" [disabled]="saving">
+        {{ saving ? 'جارٍ الحفظ...' : 'حفظ التغييرات' }}
+      </button>
+      <button type="button" class="btn-secondary" (click)="exportJson()">تصدير JSON</button>
+      <label class="btn-secondary import-label">
+        استيراد JSON (الوضع الحالي)
+        <input type="file" accept="application/json" hidden
+          (change)="onImportFile(themeModeService.mode(), $event)" />
+      </label>
+      <button type="button" class="btn-secondary" (click)="resetToSource()">استعادة القيم المصدرية</button>
+      @if (savedMsg) {
+        <span class="saved-msg">{{ savedMsg }}</span>
+      }
+    </div>
+  </header>
+
+  <div class="group-tabs">
+    @for (group of tokensService.groups(); track group.id) {
+      <button type="button" class="group-tab" [class.active]="activeGroup()?.id === group.id" (click)="selectGroup(group.id)">
+        {{ group.label }}
+      </button>
+    }
+  </div>
+
+  <div class="panel-body">
+    <div class="form-col">
+      @if (activeGroup(); as group) {
+        <section class="token-group">
+          <h2>{{ group.label }}</h2>
+          @for (token of group.tokens; track token.var) {
+            <div class="token-row">
+              <label>{{ token.label }}</label>
+              <span class="var-name">{{ token.var }}</span>
+
+              @if (token.type === 'color' || token.type === 'gradient') {
+                @if (isSolidColor(token.value)) {
+                  <input type="color" [value]="toHex(token.value)" (input)="onColorPick(token.var, $event)" />
+                }
+                @if (hasAlphaChannel(token.value)) {
+                  <input type="range" class="alpha-range" min="0" max="1" step="0.01"
+                    [value]="alphaOf(token.value)" (input)="onAlphaChange(token.var, $event)"
+                    title="الشفافية (alpha) — منفصلة عن اللون حتى لا تُفقد عند اختيار لون جديد" />
+                  <span class="unit">{{ alphaOf(token.value) }}</span>
+                }
+                <input type="text" class="value-text" [value]="token.value" (change)="onValueChange(token.var, $event)" />
+                @if (errorFor(token.var); as err) {
+                  <span class="field-error">{{ err }}</span>
+                }
+                <span class="mini-sample" [style.background]="token.value" title="عيّنة حية"></span>
+                @if (contrastAgainstBg(token.value).ratio; as ratio) {
+                  <span class="contrast-badge" [class.pass]="contrastAgainstBg(token.value).level !== 'fail'"
+                    [title]="'تباين مقابل خلفية اللوحة (--pg): ' + ratio.toFixed(2) + ':1'">
+                    {{ contrastAgainstBg(token.value).level === 'fail' ? '⚠ تباين ضعيف' : contrastAgainstBg(token.value).level }}
+                    {{ ratio.toFixed(1) }}:1
+                  </span>
+                }
+                <div class="palette-row">
+                  @for (sw of commonPalette(); track sw.value) {
+                    <button type="button" class="palette-swatch" [style.background]="sw.value" [title]="sw.label"
+                      (click)="pickPaletteColor(token.var, sw.value)"></button>
+                  }
+                  @for (alt of alternatesFor(token.var); track alt.value) {
+                    <button type="button" class="palette-swatch alt-swatch" [style.background]="alt.value" [title]="alt.label"
+                      (click)="pickPaletteColor(token.var, alt.value)"></button>
+                  }
+                </div>
+              }
+
+              @if (token.type === 'size') {
+                <input type="number" class="value-num" step="0.5" [value]="sizeAsNumber(token.value)" (change)="onSizeChange(token.var, $event)" />
+                <span class="unit">px</span>
+                <span class="mini-sample size-sample" [style.width.px]="sizeAsNumber(token.value)" [style.height.px]="sizeAsNumber(token.value)" title="عيّنة حية"></span>
+              }
+
+              @if (token.type === 'weight') {
+                <select class="value-select" [value]="token.value" (change)="onWeightChange(token.var, $event)">
+                  @for (w of weightOptions; track w) {
+                    <option [value]="w">{{ w }}</option>
+                  }
+                </select>
+                <span class="mini-sample text-sample" [style.fontWeight]="token.value">Aa نص</span>
+              }
+
+              @if (token.type === 'font') {
+                <span class="locked-value">{{ token.value }} (مقفل — خط واحد معتمد)</span>
+                <span class="mini-sample text-sample" [style.fontFamily]="token.value">Aa نص</span>
+              }
+
+              @if (token.type === 'shadow') {
+                <input type="text" class="value-text" [value]="token.value" (change)="onValueChange(token.var, $event)" />
+                <span class="mini-sample shadow-sample" [style.boxShadow]="token.value" title="عيّنة حية"></span>
+              }
+
+              @if (token.type === 'opacity') {
+                <input type="range" min="0" max="1" step="0.01" class="value-range" [value]="token.value" (input)="onValueChange(token.var, $event)" />
+                <span class="unit">{{ token.value }}</span>
+                <span class="mini-sample" [style.opacity]="token.value" title="عيّنة حية"></span>
+              }
+
+              @if (token.type === 'text') {
+                <input type="text" class="value-text" [value]="token.value" (change)="onValueChange(token.var, $event)" />
+              }
+            </div>
+          }
+        </section>
+      }
+    </div>
+
+    <div class="preview-col">
+      <div class="preview-card" style="border-radius:var(--radius-lg); box-shadow:var(--shadow-3)">
+        <div class="preview-header">
+          <span class="dot" style="background:var(--red)"></span>
+          <span class="dot" style="background:var(--kahr)"></span>
+          <span class="dot" style="background:var(--green)"></span>
+        </div>
+        <h3 style="color:var(--txt); font-family:var(--font-family); font-size:var(--fs-h3); font-weight:var(--fw-h3)">عنوان تجريبي H3</h3>
+        <p style="color:var(--txt-2); font-family:var(--font-family); font-size:var(--fs-body-md); font-weight:var(--fw-body-md)">نص أساسي لمعاينة تأثير الخطوط والألوان معًا على المحتوى.</p>
+        <p style="color:var(--txt-3); font-family:var(--font-family); font-size:var(--fs-caption); font-weight:var(--fw-caption)">نص شرح مصغّر (تفاصيل إضافية).</p>
+        <button class="preview-btn" style="background:var(--grad); font-family:var(--font-family)">زر إجراء رئيسي</button>
+        <div class="ai-chip" style="background:var(--ai-bg); border-color:var(--ai-border); color:var(--ai-txt); font-family:var(--font-family)">
+          ميزة مدعومة بالذكاء الاصطناعي
+        </div>
+        <div class="status-row">
+          <span class="status" style="color:var(--green)">نجاح</span>
+          <span class="status" style="color:var(--kahr)">تنبيه</span>
+          <span class="status" style="color:var(--red)">خطأ</span>
+        </div>
+        <div style="display:flex;gap:var(--space-3);margin-top:12px">
+          <div style="width:var(--space-6);height:var(--space-6);background:var(--teal);border-radius:var(--radius-sm)"></div>
+          <div style="width:var(--space-6);height:var(--space-6);background:var(--blue);border-radius:var(--radius-sm)"></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+          <span style="background:var(--badge-active-bg);color:var(--badge-active-text);font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px">نشط</span>
+          <span style="background:var(--badge-done-bg);color:var(--badge-done-text);font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px">مكتمل</span>
+          <span style="background:var(--badge-dispute-bg);color:var(--badge-dispute-text);font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px">نزاع</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
