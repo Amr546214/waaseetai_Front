@@ -59,12 +59,12 @@
             <h3>بطاقة تجريبية</h3>
             <p>نص وصفي لمعاينة الزاوية والهالة سويًا.</p>
           </div>
-          <div class="card-sample hover-demo" style="border-radius:var(--radius-lg); box-shadow:var(--shadow-1)">
+          <div class="card-sample hover-preview" style="border-radius:var(--radius-lg); box-shadow:var(--shadow-1)">
             <h3>حالة تحويم (محاكاة)</h3>
             <p>الحدود بشفافية var(--card-hover-border-opacity).</p>
           </div>
         </div>
-        <div class="gap-demo-label">الفجوة بين البطاقات: <code>var(--card-gap)</code></div>
+        <div class="gap-preview-label">الفجوة بين البطاقات: <code>var(--card-gap)</code></div>
         <div class="sample-row" [style.gap]="'var(--card-gap)'">
           <div class="mini-card" style="border-radius:var(--radius-lg)"></div>
           <div class="mini-card" style="border-radius:var(--radius-lg)"></div>
@@ -86,16 +86,16 @@
             <option>قائمة منسدلة</option>
           </select>
           <input type="text" class="field-sample" style="border-radius:var(--radius-sm); opacity:var(--field-disabled-opacity)" placeholder="حقل معطّل" disabled />
-          <input type="text" class="field-sample focus-demo" style="border-radius:var(--radius-sm)" placeholder="حالة تركيز (محاكاة)" />
+          <input type="text" class="field-sample focus-preview" style="border-radius:var(--radius-sm)" placeholder="حالة تركيز (محاكاة)" />
         </div>
       }
 
       @if (activeCategory().id === 'icons') {
         <div class="sample-row icons-row">
-          <div class="icon-demo" style="width:var(--icon-sm); height:var(--icon-sm)"><span>sm</span></div>
-          <div class="icon-demo" style="width:var(--icon-md); height:var(--icon-md)"><span>md</span></div>
-          <div class="icon-demo" style="width:var(--icon-lg); height:var(--icon-lg)"><span>lg</span></div>
-          <div class="icon-demo" style="width:var(--icon-xl); height:var(--icon-xl)"><span>xl</span></div>
+          <div class="icon-preview" style="width:var(--icon-sm); height:var(--icon-sm)"><span>sm</span></div>
+          <div class="icon-preview" style="width:var(--icon-md); height:var(--icon-md)"><span>md</span></div>
+          <div class="icon-preview" style="width:var(--icon-lg); height:var(--icon-lg)"><span>lg</span></div>
+          <div class="icon-preview" style="width:var(--icon-xl); height:var(--icon-xl)"><span>xl</span></div>
         </div>
       }
 
@@ -113,7 +113,7 @@
       @if (activeCategory().id === 'shadows') {
         <div class="sample-row wrap">
           @for (n of [1,2,3,4,5]; track n) {
-            <div class="shadow-demo" [style.boxShadow]="'var(--shadow-' + n + ')'">shadow-{{ n }}</div>
+            <div class="shadow-preview" [style.boxShadow]="'var(--shadow-' + n + ')'">shadow-{{ n }}</div>
           }
         </div>
       }
@@ -144,7 +144,7 @@
         <div class="pt-desc">{{ tpl.desc }}</div>
         <div class="pt-usage">يُستخدم في: {{ tpl.usage }}</div>
 
-        <div class="pt-demo">
+        <div class="pt-preview">
           @switch (tpl.id) {
 
           @case ('dash') {
@@ -244,9 +244,9 @@
             <table class="dt-tbl">
               <thead><tr><th>الطلب</th><th>الحالة</th><th>التاريخ</th></tr></thead>
               <tbody>
-                @if (ovNum(tpl.id,'rowCount') > 0) { <tr><td>تصميم واجهة تطبيق</td><td><span class="dt-badge active">نشط</span></td><td>3,200 ر.س</td></tr> }
-                @if (ovNum(tpl.id,'rowCount') > 1) { <tr><td>استشارة عقارية</td><td><span class="dt-badge done">مكتمل</span></td><td>850 ر.س</td></tr> }
-                @if (ovNum(tpl.id,'rowCount') > 2) { <tr><td>نزاع على التسليم</td><td><span class="dt-badge dispute">نزاع</span></td><td>1,400 ر.س</td></tr> }
+                @if (ovNum(tpl.id,'rowCount') > 0) { <tr><td>تصميم واجهة تطبيق</td><td><span class="dt-badge active">نشط</span></td><td>3,200 $</td></tr> }
+                @if (ovNum(tpl.id,'rowCount') > 1) { <tr><td>استشارة عقارية</td><td><span class="dt-badge done">مكتمل</span></td><td>850 $</td></tr> }
+                @if (ovNum(tpl.id,'rowCount') > 2) { <tr><td>نزاع على التسليم</td><td><span class="dt-badge dispute">نزاع</span></td><td>1,400 $</td></tr> }
               </tbody>
             </table>
           }

@@ -7,7 +7,7 @@ import { ThemeModeService } from '../core/theme-mode.service';
 import { TemplateOverridesService } from '../core/template-overrides.service';
 
 /**
- * معاينة حية شاملة — إضافة 2026-08-18 (اختيار المالك). لوحة تجريبية (mock dashboard)
+ * معاينة حية شاملة — إضافة 2026-08-18 (اختيار المالك). لوحة تجريبية (preview dashboard)
  * كاملة تستخدم كل التوكنات سوية بنفس الوقت — على عكس معاينات كل تبويب المنفصلة، هذي
  * الصفحة تكشف تعارضات لا تظهر إلا لما تشوف كل العناصر مع بعض بسياق واقعي.
  *
@@ -88,9 +88,9 @@ export class LivePreview implements OnInit {
 
   /** إصلاح: ربط عدد صفوف جدول "آخر الطلبات" (لوحة التحكم) بـovNum('table','rowCount') — جدولا الطلبات/المحفظة يبقيان كما هما (محتوى تطبيقي مختلف) */
   readonly dashboardRows: { name: string; statusCls: string; statusLabel: string; value: string }[] = [
-    { name: 'تصميم واجهة تطبيق', statusCls: 'badge-active', statusLabel: 'نشط', value: '3,200 ر.س' },
-    { name: 'استشارة عقارية', statusCls: 'badge-done', statusLabel: 'مكتمل', value: '850 ر.س' },
-    { name: 'نزاع على التسليم', statusCls: 'badge-dispute', statusLabel: 'نزاع', value: '1,400 ر.س' },
+    { name: 'تصميم واجهة تطبيق', statusCls: 'badge-active', statusLabel: 'نشط', value: '3,200 $' },
+    { name: 'استشارة عقارية', statusCls: 'badge-done', statusLabel: 'مكتمل', value: '850 $' },
+    { name: 'نزاع على التسليم', statusCls: 'badge-dispute', statusLabel: 'نزاع', value: '1,400 $' },
   ];
 
 

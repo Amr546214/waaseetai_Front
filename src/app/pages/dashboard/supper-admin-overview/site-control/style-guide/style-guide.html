@@ -111,12 +111,12 @@
         </div>
       </div>
 
-      <div class="field-demo">
+      <div class="field-preview">
         <h4>حالات الحقول</h4>
-        <input placeholder="Default" class="field-demo-input" disabled />
-        <input placeholder="Focus" class="field-demo-input field-demo-focus" disabled />
-        <input placeholder="Error" class="field-demo-input field-demo-error" disabled />
-        <input placeholder="Disabled" class="field-demo-input" disabled />
+        <input placeholder="Default" class="field-preview-input" disabled />
+        <input placeholder="Focus" class="field-preview-input field-preview-focus" disabled />
+        <input placeholder="Error" class="field-preview-input field-preview-error" disabled />
+        <input placeholder="Disabled" class="field-preview-input" disabled />
         <div class="state-list">
           @for (fs of fieldStates; track fs.state) {
             <div class="state-row"><span class="st-name">{{ fs.state }}</span><span class="st-desc">{{ fs.desc }}</span></div>
@@ -126,9 +126,9 @@
     </div>
 
     <p class="comp-note">مبدّل الوضع الداكن/الفاتح (t-toggle) — كبسولة مقسومة لقطعتين، القطعة النشطة بيضاء</p>
-    <div class="toggle-demo">
-      <span class="toggle-demo-seg on"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"></circle></svg>داكن</span>
-      <span class="toggle-demo-seg">فاتح</span>
+    <div class="toggle-preview">
+      <span class="toggle-preview-seg on"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"></circle></svg>داكن</span>
+      <span class="toggle-preview-seg">فاتح</span>
     </div>
 
     <p class="comp-note">شارات حالة الطلب/العرض (op-*)</p>
@@ -144,17 +144,17 @@
     </div>
 
     <p class="comp-note">القائمة المنسدلة (select) — بلا سهم افتراضي، مظهر موحّد</p>
-    <select class="select-demo" disabled>
+    <select class="select-preview" disabled>
       <option>ترتيب حسب الأحدث</option>
     </select>
 
     <p class="comp-note">زر الاختيار (radio-opt) — بطاقة قابلة للنقر كاملة، دائرة+نقطة عند الاختيار</p>
-    <div class="radio-demo-row">
-      <div class="radio-opt-demo checked">
+    <div class="radio-preview-row">
+      <div class="radio-opt-preview checked">
         <span class="radio-dot"><span class="radio-dot-inner"></span></span>
         <span class="radio-opt-label">شهرياً</span>
       </div>
-      <div class="radio-opt-demo">
+      <div class="radio-opt-preview">
         <span class="radio-dot"></span>
         <span class="radio-opt-label">سنوياً</span>
       </div>
