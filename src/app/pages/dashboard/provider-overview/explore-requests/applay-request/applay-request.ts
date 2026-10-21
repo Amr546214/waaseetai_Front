@@ -836,6 +836,11 @@ export class ApplayRequest implements OnInit, OnDestroy {
 
 	/** Every refusal names its reason and what to do next; a lost answer is never treated as "not sent": the server refuses a second copy (409 PROPOSAL_ALREADY_SUBMITTED), so pressing send again is safe. */
 	private handleSubmitError(err: any) {
+		this.mapSubmitError(err);
+		this.revealSubmitError();
+	}
+
+	private mapSubmitError(err: any) {
 		const mapped = mapHttpError(err, { fallback: 'تعذر إرسال العرض. لم يتم حفظه، يرجى المحاولة مرة أخرى.' });
 		const code = mapped.code ?? null;
 		if (code === 'PROPOSAL_ALREADY_SUBMITTED') {
@@ -861,6 +866,12 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			return;
 		}
 		this.submitError.set({ message: mapped.outcomeUnknown ? 'انقطع الاتصال قبل أن نعرف إن كان عرضك وصل.' : mapped.message, code, outcomeUnknown: mapped.outcomeUnknown });
+	}
+
+	/** The failure box sits at the end of the page while the send button is in the fixed bottom bar: bring the box into view so the reason is never off-screen. */
+	private revealSubmitError() {
+		if (typeof document === 'undefined') return;
+		setTimeout(() => document.querySelector<HTMLElement>('[data-testid="submit-error"]')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
 	}
 
 	goBackToStep(step: number) {
