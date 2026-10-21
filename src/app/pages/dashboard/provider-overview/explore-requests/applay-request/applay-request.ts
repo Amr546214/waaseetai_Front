@@ -2,6 +2,7 @@ import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { io, Socket } from 'socket.io-client';
@@ -117,6 +118,8 @@ export class ApplayRequest implements OnInit, OnDestroy {
 
 	// Step 4 State
 	isSubmitting = signal<boolean>(false);
+	/** Why the last send failed, shown NEXT TO the send button (the entries, milestones and acknowledgements stay as they are). */
+	submitError = signal<{ message: string; code: string | null; link?: { text: string; url: string[] }; backToStep?: number; outcomeUnknown?: boolean } | null>(null);
 	showSuccess = signal<boolean>(false);
 
 	// Dynamic Portfolio / Accreditations state
@@ -788,6 +791,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		}
 
 		this.isSubmitting.set(true);
+		this.submitError.set(null);
 
 		const payload: any = {
 			title: this.proposal().title || 'عرض تنفيذ المشروع',
@@ -825,10 +829,44 @@ export class ApplayRequest implements OnInit, OnDestroy {
 				},
 				error: (err) => {
 					this.isSubmitting.set(false);
-					console.error('Proposal submission failed:', err);
-					this.notify.error(err.error?.message || 'تعذر إرسال العرض. لم يتم حفظه، يرجى المحاولة مرة أخرى.');
+					this.handleSubmitError(err);
 				}
 			});
+	}
+
+	/** Every refusal names its reason and what to do next; a lost answer is never treated as "not sent": the server refuses a second copy (409 PROPOSAL_ALREADY_SUBMITTED), so pressing send again is safe. */
+	private handleSubmitError(err: any) {
+		const mapped = mapHttpError(err, { fallback: 'تعذر إرسال العرض. لم يتم حفظه، يرجى المحاولة مرة أخرى.' });
+		const code = mapped.code ?? null;
+		if (code === 'PROPOSAL_ALREADY_SUBMITTED') {
+			// the offer IS saved (earlier tap / lost answer): say so, point to it, and drop the draft so it cannot be sent again
+			if (typeof window !== 'undefined') {
+				const storageKey = `draft_proposal_v2_${this.reqId()}`;
+				try { sessionStorage.removeItem(storageKey); } catch {}
+				try { localStorage.removeItem(storageKey); } catch {}
+			}
+			this.submitError.set({ message: mapped.message, code, link: { text: 'فتح عروضي', url: ['/provider-overview/offers'] } });
+			return;
+		}
+		if (code === 'PROVIDER_DASHBOARD_LOCKED') {
+			this.submitError.set({ message: mapped.message, code, link: { text: 'إكمال البيانات المطلوبة', url: ['/provider-overview/profile/data'] } });
+			return;
+		}
+		if (code === 'MILESTONES_PERCENT_SUM') {
+			this.submitError.set({ message: mapped.message, code, backToStep: 2 });
+			return;
+		}
+		if (code === 'PROJECT_NOT_OPEN') {
+			this.submitError.set({ message: mapped.message, code, link: { text: 'استكشاف طلبات أخرى', url: ['/provider-overview/explore-requests'] } });
+			return;
+		}
+		this.submitError.set({ message: mapped.message, code, outcomeUnknown: mapped.outcomeUnknown });
+	}
+
+	goBackToStep(step: number) {
+		this.submitError.set(null);
+		this.activeStep.set(step);
+		if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
 
 	ngOnDestroy() {
