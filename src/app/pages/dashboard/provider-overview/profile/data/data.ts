@@ -948,9 +948,13 @@ export class Data implements OnInit {
   private rawCode(err: any): { code: string; arg: string } | null {
     // the error-message interceptor replaces `message` with Arabic and keeps the original code (and its ':arg') in rawMessage
     const raw = err?.error?.rawMessage ?? err?.error?.message;
-    if (typeof raw !== 'string') return null;
-    const [code, ...rest] = raw.trim().split(':');
-    return /^[A-Z_]+$/.test(code) ? { code, arg: rest.join(':').trim() } : null;
+    if (typeof raw === 'string') {
+      const [code, ...rest] = raw.trim().split(':');
+      if (/^[A-Z_]+$/.test(code)) return { code, arg: rest.join(':').trim() };
+    }
+    // the BE contract: a fixed `code` next to an Arabic message
+    const marker = err?.error?.code;
+    return typeof marker === 'string' && /^[A-Z][A-Z0-9_]{2,63}$/.test(marker) ? { code: marker, arg: '' } : null;
   }
 
   /**
