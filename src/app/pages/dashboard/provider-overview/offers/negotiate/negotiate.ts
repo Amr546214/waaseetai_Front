@@ -1,3 +1,4 @@
+import { mapHttpError } from '../../../../../core/forms/http-error';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -68,6 +69,7 @@ export class OfferNegotiate implements OnInit {
 	counterSaving = signal<boolean>(false);
 	counterError = signal<string>('');
 	counterTouched = signal<boolean>(false);
+	lostAnswerNotice = signal<string>('');
 	counterSuccess = signal<boolean>(false);
 
 	// reject / withdraw (two steps: the button, then an explicit confirmation)
@@ -130,7 +132,7 @@ export class OfferNegotiate implements OnInit {
 		});
 	}
 
-	loadNegotiation() {
+	loadNegotiation(after?: (state: any) => void) {
 		const id = this.offerId();
 		if (!id) return;
 		this.negLoading.set(true);
@@ -140,6 +142,7 @@ export class OfferNegotiate implements OnInit {
 				this.neg.set(state);
 				this.negLoading.set(false);
 				this.rebuildRounds();
+				after?.(state);
 			},
 			error: (err) => {
 				this.negLoading.set(false);
@@ -229,12 +232,25 @@ export class OfferNegotiate implements OnInit {
 		this.counterError.set('');
 	}
 
+	/**
+	 * One honest text per failure. The page then re-reads the negotiation from the server whenever the real state may differ from what is shown
+	 * (409 = it changed under us, or the answer was lost): what the user sees afterwards is what was really saved, so nothing is repeated blindly.
+	 */
+	private failureText(err: any, fallback: string): string {
+		const mapped = mapHttpError(err, { fallback });
+		// a lost answer: re-read what the server really holds and SAY what it found (the form, with its error box, disappears when the counter was in fact saved)
+		if (mapped.outcomeUnknown) this.loadNegotiation(state => { if (state?.counterPending) this.lostAnswerNotice.set('تم حفظ عرضك المضاد رغم انقطاع الاتصال، وهو الآن بانتظار رد العميل. لا حاجة لإرساله مرة أخرى.'); });
+		else if (err?.status === 409) this.loadNegotiation();
+		return mapped.outcomeUnknown ? 'انقطع الاتصال قبل أن نعرف إن كان طلبك وصل. حدّثنا الصفحة لتعرض آخر حالة محفوظة، فتحقق منها قبل إعادة المحاولة.' : mapped.message;
+	}
+
 	submitCounter() {
 		const price = this.counterPriceValue();
 		const days = this.counterDaysValue();
 		if (this.counterSaving() || this.counterBlocker() || price === null || days === null) return;
 		this.counterSaving.set(true);
 		this.counterError.set('');
+		this.lostAnswerNotice.set('');
 		this.counterSuccess.set(false);
 		const note = this.counterNote().trim();
 		this.offersService.counterOffer(this.offerId(), { price, deliveryDays: days, ...(note ? { note } : {}) }).subscribe({
@@ -248,7 +264,7 @@ export class OfferNegotiate implements OnInit {
 			},
 			error: (err) => {
 				this.counterSaving.set(false);
-				this.counterError.set(err?.error?.message || 'تعذر إرسال العرض المضاد. حاول مرة أخرى.');
+				this.counterError.set(this.failureText(err, 'تعذر إرسال العرض المضاد. حاول مرة أخرى.'));
 			}
 		});
 	}
@@ -276,7 +292,7 @@ export class OfferNegotiate implements OnInit {
 			},
 			error: (err) => {
 				this.acting.set(false);
-				this.actionError.set(err?.error?.message || 'تعذر تنفيذ الإجراء. حاول مرة أخرى.');
+				this.actionError.set(this.failureText(err, 'تعذر تنفيذ الإجراء. حاول مرة أخرى.'));
 			}
 		});
 	}
@@ -294,7 +310,7 @@ export class OfferNegotiate implements OnInit {
 			},
 			error: (err) => {
 				this.acting.set(false);
-				this.actionError.set(err?.error?.message || 'تعذر سحب العرض. حاول مرة أخرى.');
+				this.actionError.set(this.failureText(err, 'تعذر سحب العرض. حاول مرة أخرى.'));
 			}
 		});
 	}

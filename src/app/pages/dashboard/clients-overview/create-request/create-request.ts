@@ -1411,9 +1411,63 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   isSubmitting = signal(false);
+  /** Why publishing failed, shown next to the publish button (the wizard entries stay as they are). */
+  publishError = signal<string>('');
+  /** Set when the server answered with the request that already existed (same request sent again): its id, so the success screen says it was already saved and links to it. */
+  alreadyPublishedId = signal<string | null>(null);
   showSuccessOverlay = signal(false);
 
+  /**
+   * UNCERTAIN OUTCOME: a publish whose answer was lost (network / gateway / unexpected 5xx) may or may not have been saved. The moment it happened is kept (also across a reload):
+   * until the user has looked at the requests that appeared since, «نشر الطلب» does not create anything - whatever the typed content is now and however long ago it was.
+   */
+  private static readonly UNCERTAIN_KEY = 'ws:publish-uncertain:v1';
+  uncertainSince = signal<number | null>(CreateRequest.readUncertain());
+  publishCandidates = signal<Array<{ id: string; title: string; createdAt: string }> | null>(null);
+  publishVerifying = signal(false);
+  private lastAttemptAt = 0;
+  private static readUncertain(): number | null {
+    try { const v = Number(localStorage.getItem(CreateRequest.UNCERTAIN_KEY)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; }
+  }
+  private setUncertain(at: number | null) {
+    this.uncertainSince.set(at);
+    try { if (at) localStorage.setItem(CreateRequest.UNCERTAIN_KEY, String(at)); else localStorage.removeItem(CreateRequest.UNCERTAIN_KEY); } catch { /* storage unavailable: the in-memory state still gates this page */ }
+  }
+
+  /** Looks at the client's own requests created since the uncertain attempt (any title, any content). Found -> stop and show them; none -> the lost publish never arrived, publishing is safe. */
+  private verifyPublishOutcome() {
+    if (this.publishVerifying()) return;
+    this.publishVerifying.set(true);
+    this.publishError.set('');
+    this.projectApi.getMyRequests().subscribe({
+      next: (res: any) => {
+        this.publishVerifying.set(false);
+        const list: any[] = Array.isArray(res) ? res : (res?.data ?? res?.requests ?? []);
+        const since = (this.uncertainSince() ?? 0) - 2 * 60 * 1000; // clock difference between this device and the server
+        const found = list.filter(r => r?.createdAt && new Date(r.createdAt).getTime() >= since).map(r => ({ id: String(r.id), title: String(r.title ?? ''), createdAt: String(r.createdAt) }));
+        if (found.length) { this.publishCandidates.set(found); return; }
+        this.setUncertain(null);
+        this.publishCandidates.set(null);
+        void this.submitRequest();
+      },
+      error: () => {
+        this.publishVerifying.set(false);
+        this.publishError.set('تعذر التحقق من طلباتك الحالية، فلن ننشئ طلبًا جديدًا الآن. تحقق من اتصالك ثم اضغط «نشر الطلب» مرة أخرى، أو افتح «طلباتي» وراجعها أولًا.');
+      }
+    });
+  }
+
+  openPublishCandidate(id: string) { void this.router.navigate(['/client-overview/my-requests', id]); }
+
+  /** The user looked at the listed requests and none of them is the one being published: an explicit choice to create a new one. */
+  publishAnyway() {
+    this.setUncertain(null);
+    this.publishCandidates.set(null);
+    void this.submitRequest();
+  }
+
   async submitRequest() {
+    if (this.uncertainSince() !== null) { this.verifyPublishOutcome(); return; }
     if (this.isSubmitting() || !this.publishGuard.enter()) return;
     this.isSubmitting.set(true);
 
@@ -1473,10 +1527,14 @@ export class CreateRequest implements OnInit, OnDestroy {
       milestones: this.splitMilestones() ? this.milestones().map(m => ({ name: m.name, pct: m.pct as number })) : [] // validated: every pct is a number here
     };
 
+    this.publishError.set('');
+    this.lastAttemptAt = Date.now();
     this.projectApi.createProject(payload).subscribe({
       next: (res) => {
         this.isSubmitting.set(false);
         this.publishGuard.release();
+        this.setUncertain(null);
+        this.alreadyPublishedId.set((res as { deduplicated?: boolean })?.deduplicated ? ((res as { data?: { id?: string } }).data?.id ?? null) : null);
         // Only clear the draft once the backend has actually confirmed the
         // request was published — never on error, never before this point.
         this.clearDraft();
@@ -1516,8 +1574,15 @@ export class CreateRequest implements OnInit, OnDestroy {
       this.notify.error(errMsg);
       return;
     }
-    // Network / 429 / 5xx / 403 / 409 and any 400 without field names: one honest generic message, no invented field error.
-    if (!hasFieldErrors(err)) { this.notify.error(mapped.message); return; }
+    // Network / 429 / 5xx / 403 / 409 and any 400 without field names: one honest generic message next to the button (and as a toast), no invented field error.
+    if (!hasFieldErrors(err)) {
+      // a lost answer: the server never creates a second copy of the same request (it answers with the existing one), so repeating is safe - say so
+      if (mapped.outcomeUnknown) this.setUncertain(this.lastAttemptAt || Date.now());
+      const text = mapped.outcomeUnknown ? 'نتيجة النشر غير مؤكدة: انقطع الاتصال قبل أن نعرف إن كان طلبك وصل. عند الضغط على «نشر الطلب» سنتحقق أولًا من طلباتك قبل إنشاء أي طلب جديد.' : mapped.message;
+      this.publishError.set(text);
+      this.notify.error(mapped.message);
+      return;
+    }
     void reportClientBackend(this.host.nativeElement, err, { ...this.publishFieldMap(), openStep: s => this.currentStep.set(Number(s)) }).then(r => {
       this.notify.error(r.handled && !r.generic ? 'راجع الحقول المحددة بالأحمر ثم أعد النشر' : (r.generic || mapped.message));
     });

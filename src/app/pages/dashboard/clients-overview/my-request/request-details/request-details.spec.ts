@@ -504,11 +504,12 @@ describe('RequestDetails — negotiation guard', () => {
 
 	it('a server refusal shows the server message and does not navigate to a fake room', () => {
 		const router = TestBed.inject(Router) as any;
-		chat.initiateConversation.mockReturnValue(throwError(() => ({ error: { message: 'لا يمكن التفاوض على هذا العرض لأنه مرفوض' } })));
+		chat.initiateConversation.mockReturnValue(throwError(() => ({ status: 409, error: { success: false, message: 'لا يمكن التفاوض على هذا العرض لأنه مرفوض' } })));
 		component.openNegotiation(makeOffer({ status: 'PENDING' }));
 		component.negPrice.set('4000'); // the price box starts empty now
 		component.sendNegotiation();
-		expect(lastToast()).toBe('لا يمكن التفاوض على هذا العرض لأنه مرفوض');
+		expect(component.negError()).toBe('لا يمكن التفاوض على هذا العرض لأنه مرفوض');
+		expect(component.showNegModal()).toBe(true);
 		expect(router.navigate).not.toHaveBeenCalled();
 	});
 });
