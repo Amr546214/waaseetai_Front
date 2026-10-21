@@ -105,11 +105,21 @@ describe('RequestDetails - states and actions come from the server', () => {
 	});
 
 	it('decline posts to decline-counter; a stale-counter refusal (409) is shown as the server wrote it', async () => {
-		const post = vi.fn(() => throwError(() => ({ error: { message: 'هذا العرض المضاد لم يعد الأحدث أو تم الرد عليه، حدّث الصفحة' } })));
+		const post = vi.fn(() => throwError(() => ({ status: 409, error: { success: false, code: 'OFFER_STATE_CHANGED', message: 'هذا العرض المضاد لم يعد الأحدث أو تم الرد عليه، حدّث الصفحة' } })));
 		const s = await setup(details({}, [prop({ status: 'UNDER_NEGOTIATION', negotiation: { state: 'COUNTER_PENDING', counter: { messageId: 'old', price: 1, deliveryDays: 1, notes: '' } } })]), { post });
 		s.q('decline-counter')!.click();
 		expect(post).toHaveBeenCalledWith(expect.stringContaining('/counter/decline'), { messageId: 'old' });
 		expect(lastToast()).toContain('لم يعد الأحدث');
+		// the reason also stays ON the offer card (the toast vanishes, and the counter box may disappear once the page re-reads the server state)
+		s.f.detectChanges();
+		expect(s.q('counter-notice')!.textContent).toContain('لم يعد الأحدث');
+	});
+
+	it('accept answer lost (network): the card says it may have been recorded and to check the refreshed state; the details are re-read', async () => {
+		const post = vi.fn(() => throwError(() => ({ status: 0, error: null })));
+		const s = await setup(details({}, [prop({ status: 'UNDER_NEGOTIATION', negotiation: { state: 'COUNTER_PENDING', counter: { messageId: 'c1', price: 1, deliveryDays: 1, notes: '' } } })]), { post });
+		s.q('accept-counter')!.click(); s.f.detectChanges();
+		expect(s.q('counter-notice')!.textContent).toContain('تحقق');
 	});
 
 	it('a request sent and waiting is stated, with the note that the offer changes only by an accepted counter', async () => {

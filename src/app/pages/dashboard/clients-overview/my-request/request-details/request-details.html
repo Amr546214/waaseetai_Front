@@ -304,6 +304,7 @@
 					</span>
 					}
 				</div>
+				@if (counterNotice()?.offerId === offer.id) { <div class="ws-note ws-note--warn" role="alert" data-testid="counter-notice" style="margin-top:14px"><div class="ws-note-body">{{ counterNotice()!.text }}</div></div> }
 				@if (!isOfferSelectionClosed() && hasPendingCounter(offer)) {
 					<div class="ws-note ws-note--neutral" role="region" aria-label="عرض مضاد من مقدم الخدمة" data-testid="counter-box" style="margin-top:14px" (click)="$event.stopPropagation()">
 						<div class="ws-note-body">

@@ -1,3 +1,4 @@
+import { mapHttpError } from '../../../../../core/forms/http-error';
 import { LevelBadgeComponent } from '../../../../../shared/levels/level-badge.component';
 import { Component, signal, computed, inject, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -383,6 +384,8 @@ export class RequestDetails implements OnInit {
 	isSendingNegotiation = signal<boolean>(false);
 	/** The offer whose counter offer is being answered right now (blocks double clicks). */
 	answeringOfferId = signal<string | null>(null);
+	/** Why the last accept/decline of a counter offer failed - kept on the offer card (the counter box itself may disappear once the page re-reads the server state). */
+	counterNotice = signal<{ offerId: string; text: string } | null>(null);
 
 	private errorText(err: any, fallback: string): string {
 		return err?.error?.message || fallback;
@@ -609,6 +612,7 @@ export class RequestDetails implements OnInit {
 		const counter = offer.negotiation?.counter;
 		if (!counter || this.answeringOfferId()) return;
 		this.answeringOfferId.set(offer.id);
+		this.counterNotice.set(null);
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/offers/${offer.id}/counter/${action}`, { messageId: counter.messageId })
 			.subscribe({
 				next: (res) => {
@@ -618,7 +622,11 @@ export class RequestDetails implements OnInit {
 				},
 				error: (err) => {
 					this.answeringOfferId.set(null);
-					this.notify.error(this.errorText(err, 'تعذر تنفيذ الإجراء، حاول مرة أخرى'));
+					// the server's reason is kept visible on the card (a toast alone vanishes); a lost answer says the action may have been recorded and the page shows what really was
+					const mapped = mapHttpError(err, { fallback: 'تعذر تنفيذ الإجراء، حاول مرة أخرى' });
+					const text = mapped.outcomeUnknown ? `${mapped.message} حدّثنا الصفحة لتعرض آخر حالة محفوظة، فتحقق منها قبل إعادة المحاولة.` : mapped.message;
+					this.counterNotice.set({ offerId: offer.id, text });
+					this.notify.error(text);
 					this.fetchRequestDetails(this.requestId());
 				}
 			});
