@@ -115,7 +115,7 @@ describe('Data (marketer profile): shared validation', () => {
       c.channelForm.patchValue({ platform: 'LINKEDIN', handle: 'abc' });
       c.addChannel();
       expect(hasEnglish(toasts())).toBe(false);
-      expect(toasts()).toContain('الخادم');
+      expect(toasts()).toContain('من جهتنا');
       expect(c.channelForm.value.handle).toBe('abc');
     });
 
