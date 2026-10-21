@@ -1,3 +1,4 @@
+import { LoadError } from '../../../../../shared/load-error/load-error';
 import type { RegisteredSpecialty } from '../../../../../core/utils/specialty-states';
 import { Component, signal, computed, effect, untracked, OnInit, OnDestroy, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -51,7 +52,7 @@ export interface AccreditationModelItem {
 @Component({
 	selector: 'app-business-models-new-project',
 	standalone: true,
-	imports: [CommonModule, RouterLink, Step1DetailsComponent, Step2SpecialtyComponent, Step3ModelComponent, Step4StagesComponent, Step5EvaluationComponent],
+	imports: [LoadError, CommonModule, RouterLink, Step1DetailsComponent, Step2SpecialtyComponent, Step3ModelComponent, Step4StagesComponent, Step5EvaluationComponent],
 	templateUrl: './new-project.html',
 	styleUrl: './new-project.css',
 })
@@ -83,6 +84,30 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	editServiceId = signal<string | null>(null);
+	/** A failed LOAD is not an empty state: each prerequisite that could not be loaded says so (with retry) instead of showing "no accredited specialty / no model / blank form". */
+	/** Why publishing failed - shown beside the publish button (never only a toast); the wizard entries stay as they are. */
+	publishError = signal<string>('');
+	/** the way to complete a missing requirement named by the server (specialty not owned / not approved, model not approved) */
+	requirementLink = signal<{ text: string; url: string[] } | null>(null);
+	/**
+	 * UNCERTAIN OUTCOME (create mode only; an edit is a PUT and can be repeated): a publish whose answer was lost may have created the service. The moment is kept (also across a reload);
+	 * until the user has looked at the services created since, publishing again creates nothing - whatever the typed content is now and however long ago it was.
+	 */
+	private static readonly UNCERTAIN_KEY = 'ws:service-publish-uncertain:v1';
+	uncertainSince = signal<number | null>(NewProject.readUncertain());
+	publishCandidates = signal<Array<{ id: string; title: string; status: string }> | null>(null);
+	publishVerifying = signal(false);
+	private lastAttemptAt = 0;
+	private static readUncertain(): number | null {
+		try { const v = Number(localStorage.getItem(NewProject.UNCERTAIN_KEY)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; }
+	}
+	private setUncertain(at: number | null) {
+		this.uncertainSince.set(at);
+		try { if (at) localStorage.setItem(NewProject.UNCERTAIN_KEY, String(at)); else localStorage.removeItem(NewProject.UNCERTAIN_KEY); } catch { /* the in-memory state still gates this page */ }
+	}
+	specialtiesLoadError = signal<string>('');
+	modelsLoadError = signal<string>('');
+	editLoadError = signal<string>('');
 	isEditMode = computed(() => !!this.editServiceId());
 
 	currentStep = signal<number>(1);
@@ -448,6 +473,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 	loadPassedSpecialties() {
 		this.isLoadingSpecialties.set(true);
+		this.specialtiesLoadError.set('');
 		this.providerApi.getPassedSpecialties().subscribe({
 			next: (res) => {
 				this.isLoadingSpecialties.set(false);
@@ -466,8 +492,7 @@ export class NewProject implements OnInit, OnDestroy {
 			error: (err) => {
 				console.warn('Error fetching passed specialties', err);
 				this.isLoadingSpecialties.set(false);
-				this.passedCategories.set([]);
-				this.hasAccreditedSpecialties.set(false);
+				this.specialtiesLoadError.set(mapHttpError(err, { fallback: 'حدث خطأ أثناء التحميل.' }).message);
 			}
 		});
 	}
@@ -598,6 +623,7 @@ export class NewProject implements OnInit, OnDestroy {
 
 	loadAccreditationModels() {
 		this.isLoadingModels.set(true);
+		this.modelsLoadError.set('');
 		this.providerApi.getAccreditationSamples().subscribe({
 			next: (res) => {
 				this.isLoadingModels.set(false);
@@ -625,9 +651,9 @@ export class NewProject implements OnInit, OnDestroy {
 				}
 			},
 			error: (err) => {
-				console.warn('Error fetching accreditation samples, loading fallback', err);
+				console.warn('Error fetching accreditation samples', err);
 				this.isLoadingModels.set(false);
-				this.setFallbackAccreditationModels();
+				this.modelsLoadError.set(mapHttpError(err, { fallback: 'حدث خطأ أثناء التحميل.' }).message);
 			}
 		});
 	}
@@ -857,7 +883,10 @@ export class NewProject implements OnInit, OnDestroy {
 		this.loadAccreditationModels();
 	}
 
+	retryEditLoad() { const id = this.editServiceId(); if (id) this.loadExistingService(id); }
+
 	loadExistingService(serviceId: string) {
+		this.editLoadError.set('');
 		this.newProjectService.getServiceById(serviceId).subscribe({
 			next: (res) => {
 				const service = res?.data || res;
@@ -912,7 +941,11 @@ export class NewProject implements OnInit, OnDestroy {
 
 				this.notify.info('تم تحميل تفاصيل النموذج للتعديل');
 			},
-			error: (err) => console.error('Failed to load existing service for editing:', err)
+			error: (err) => {
+				console.error('Failed to load existing service for editing:', err);
+				// the form stays EMPTY: saving it would overwrite the real service, so the wizard is blocked until the service is loaded
+				this.editLoadError.set(mapHttpError(err, { fallback: 'حدث خطأ أثناء التحميل.' }).message);
+			}
 		});
 	}
 
@@ -966,6 +999,7 @@ export class NewProject implements OnInit, OnDestroy {
 	}
 
 	async goNext() {
+		if (this.editLoadError()) return;
 		if (this.isSubmitting() || this.isStreamingText() || (this.currentStep() === 5 && this.isAiAnalyzing())) return;
 		const problems = this.stepProblems();
 		if (problems.length) { await this.showStepProblems(problems); return; }
@@ -1080,8 +1114,44 @@ export class NewProject implements OnInit, OnDestroy {
 		this.notify.success('تم تعديل الميزانية الإجمالية وفق نطاق تسعير السوق المقترح!');
 	}
 
+	/** Looks at the provider's own services created since the uncertain attempt (any title, any content). Found -> stop and show them; none -> the lost publish never arrived. */
+	private verifyPublishOutcome() {
+		if (this.publishVerifying()) return;
+		this.publishVerifying.set(true);
+		this.publishError.set('');
+		this.newProjectService.getMyMarketModels({ _t: Date.now() }, true).subscribe({
+			next: (res: any) => {
+				this.publishVerifying.set(false);
+				const models: Array<{ id: string; title: string; status: string; createdAt?: string }> = res?.data?.models ?? [];
+				const since = (this.uncertainSince() ?? 0) - 2 * 60 * 1000; // clock difference between this device and the server
+				const found = models.filter(m => m.createdAt && new Date(m.createdAt).getTime() >= since).map(m => ({ id: String(m.id), title: String(m.title ?? ''), status: String(m.status ?? '') }));
+				if (found.length) { this.publishCandidates.set(found); return; }
+				this.setUncertain(null);
+				this.publishCandidates.set(null);
+				this.submitProject();
+			},
+			error: () => {
+				this.publishVerifying.set(false);
+				this.publishError.set('تعذر التحقق من خدماتك الحالية، فلن ننشئ خدمة جديدة الآن. تحقق من اتصالك ثم اضغط «نشر» مرة أخرى، أو افتح «سوقي» وراجع خدماتك أولًا.');
+			}
+		});
+	}
+
+	openPublishCandidate(id: string) { void this.router.navigate(['/provider-overview/business-models/market', id]); }
+
+	/** The user looked at the listed services and none of them is the one being published: an explicit choice to create a new one. */
+	publishAnyway() {
+		this.setUncertain(null);
+		this.publishCandidates.set(null);
+		this.submitProject();
+	}
+
 	private submitProject() {
+		const creating = !(this.isEditMode() && this.editServiceId());
+		if (creating && this.uncertainSince() !== null) { this.verifyPublishOutcome(); return; }
 		if (!this.submitGuard.enter()) return;
+		this.publishError.set('');
+		this.lastAttemptAt = Date.now();
 		this.isSubmitting.set(true);
 		const payload = {
 			title: this.projectName(),
@@ -1106,8 +1176,9 @@ export class NewProject implements OnInit, OnDestroy {
 			next: (res) => {
 				this.submitGuard.release();
 				this.isSubmitting.set(false);
+				this.setUncertain(null);
 				this.clearDraft();
-					const msg = this.isEditMode() ? 'تم تحديث النموذج ونشره مباشرة' : 'تم نشر مشروعك مباشرة في السوق';
+					const msg = this.isEditMode() ? 'تم تحديث النموذج ونشره مباشرة' : ((res as { deduplicated?: boolean })?.deduplicated ? 'خدمتك منشورة بالفعل، فلم ننشئ نسخة ثانية منها' : 'تم نشر مشروعك مباشرة في السوق');
 				this.notify.success(msg);
 				setTimeout(() => {
 					this.router.navigate(['/provider-overview/business-models/market']);
@@ -1122,8 +1193,18 @@ export class NewProject implements OnInit, OnDestroy {
 					// Batch B T1: server field errors go to the step that holds the field (specialty / skills / approval model), shown next to it
 					const fields: Array<{ field?: string; path?: string; message?: string }> = Array.isArray(err?.error?.errors) ? err.error.errors : [];
 					const fieldMsg = (name: string) => fields.find(f => (f.field || f.path) === name)?.message;
-					if (fieldMsg('accreditationSampleId')) { this.modelError.set(fieldMsg('accreditationSampleId')!); this.currentStep.set(3); }
-					else if (fieldMsg('specialtyId')) { this.specialtyError.set(fieldMsg('specialtyId')!); this.currentStep.set(2); }
+					const fieldCode = (name: string) => fields.find(f => (f.field || f.path) === name) as { code?: string } | undefined;
+					this.requirementLink.set(null);
+					if (fieldMsg('accreditationSampleId')) {
+						this.modelError.set(fieldMsg('accreditationSampleId')!); this.currentStep.set(3);
+						// the way to complete the missing requirement: the approval requests page (the model is not approved yet / belongs to another specialty)
+						this.requirementLink.set({ text: 'متابعة طلبات الاعتماد', url: ['/provider-overview/business-models/accreditation/list'] });
+					}
+					else if (fieldMsg('specialtyId')) {
+						this.specialtyError.set(fieldMsg('specialtyId')!); this.currentStep.set(2);
+						const c = fieldCode('specialtyId')?.code;
+						this.requirementLink.set(c === 'SPECIALTY_NOT_OWNED' ? { text: 'إضافة التخصص من صفحة التخصصات', url: ['/provider-overview/profile/specialties'] } : c === 'SPECIALTY_NOT_APPROVED' ? { text: 'متابعة طلبات الاعتماد', url: ['/provider-overview/business-models/accreditation/list'] } : null);
+					}
 					else if (fieldMsg('skills')) { this.skillsError.set(fieldMsg('skills')!); this.currentStep.set(2); }
 					if (err?.status === 400 && /مهار|skill/i.test(serverMsg)) {
 						// The server refused a skill that is not in the catalog of this field: show it next to the skills.
@@ -1136,7 +1217,14 @@ export class NewProject implements OnInit, OnDestroy {
 						steps: { title: 1, description: 1, specialtyId: 2, subSpecialty: 2, accreditationSampleId: 3, totalAmount: 4 },
 						openStep: (st) => { this.currentStep.set(Number(st)); },
 					}).then(r => {
-						if (!r.handled) this.notify.error(mapped.kind === 'backend-validation' ? (serverMsg || mapped.message) : mapped.message);
+						if (r.handled) return;
+						// beside the publish button, not a toast; a lost answer marks the outcome UNCERTAIN (create mode): the next press checks first
+						if (mapped.outcomeUnknown && !(this.isEditMode() && this.editServiceId())) {
+							this.setUncertain(this.lastAttemptAt || Date.now());
+							this.publishError.set('نتيجة النشر غير مؤكدة: انقطع الاتصال قبل أن نعرف إن كانت خدمتك نُشرت. عند الضغط على «نشر» سنتحقق أولًا من خدماتك قبل إنشاء أي خدمة جديدة.');
+						} else {
+							this.publishError.set(mapped.kind === 'backend-validation' ? (serverMsg || mapped.message) : mapped.message);
+						}
 					});
 				}
 		});

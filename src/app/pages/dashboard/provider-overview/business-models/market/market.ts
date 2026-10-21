@@ -1,3 +1,5 @@
+import { LoadError } from '../../../../../shared/load-error/load-error';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 import { Component, signal, inject, OnDestroy, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -23,6 +25,7 @@ export interface MarketModel {
 	title: string;
 	category: string;
 	categorySlug?: string;
+	createdAt?: string;
 	createdAtFormatted: string;
 	viewsCount: number;
 	offersCount: number;
@@ -69,7 +72,7 @@ export interface ModificationRequest {
 @Component({
 	selector: 'app-business-models-market',
 	standalone: true,
-	imports: [CommonModule, RouterLink, FormsModule],
+	imports: [LoadError, CommonModule, RouterLink, FormsModule],
 	templateUrl: './market.html',
 	styleUrl: './market.css'
 })
@@ -165,7 +168,7 @@ export class Market implements OnInit, OnDestroy {
 			error: (err) => {
 				if (!silent) {
 					this.isLoading.set(false);
-					this.errorMessage.set('ERR-PR-026-MKT-02: خطأ في استدعاء بيانات السوق');
+					this.errorMessage.set(mapHttpError(err, { fallback: 'حدث خطأ أثناء التحميل.' }).message);
 				}
 				console.error('Error fetching market models:', err);
 			}
@@ -196,10 +199,16 @@ export class Market implements OnInit, OnDestroy {
 		this.router.navigate(['/provider-overview/business-models/new-project'], { queryParams: { edit: model.id } });
 	}
 
+	/** the service whose show / hide is in flight (no second tap while waiting) */
+	togglingId = signal<string | null>(null);
+
 	onToggleVisibility(model: MarketModel) {
+		if (this.togglingId()) return;
 		const isHidden = model.status === 'ARCHIVED';
+		this.togglingId.set(model.id);
 		this.newProjectService.setServiceVisibility(model.id, isHidden).subscribe({
 			next: (res) => {
+				this.togglingId.set(null);
 				const newStatus = res?.data?.status || (isHidden ? 'PUBLISHED' : 'ARCHIVED');
 				this.models.update(list => list.map(item => item.id === model.id ? { ...item, status: newStatus } : item));
 				this.groups.update(list => list.map(group => ({
@@ -210,7 +219,15 @@ export class Market implements OnInit, OnDestroy {
 			},
 			error: (err) => {
 				console.error('Visibility update failed', err);
-				this.notify.error(err?.error?.error || 'تعذر تحديث ظهور الخدمة');
+				this.togglingId.set(null);
+				const mapped = mapHttpError(err, { fallback: 'تعذر تحديث ظهور الخدمة' });
+				if (mapped.outcomeUnknown) {
+					// a lost answer: the list is re-read so the card shows the REAL state (the server treats a repeat of the same hide / show as a success)
+					this.notify.warning('انقطع الاتصال قبل أن نعرف إن كان التغيير تم. حدّثنا القائمة لتعرض الحالة المحفوظة فعليًا.');
+					this.fetchMarketModels(true);
+					return;
+				}
+				this.notify.error(mapped.message);
 			}
 		});
 	}

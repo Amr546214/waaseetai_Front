@@ -1,3 +1,4 @@
+import { mapHttpError } from '../../../../../../core/forms/http-error';
 import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -37,6 +38,9 @@ export class ModelDetails implements OnInit {
 	model = signal<MarketModel | null>(null);
 	isLoading = signal<boolean>(true);
 	errorMessage = signal<string | null>(null);
+	/** true when the list loaded fine and this model is not in it (a refusal, not a failed load) */
+	notFound = signal(false);
+	retry() { const id = this.route.snapshot.paramMap.get('id'); if (id) this.loadModel(id); }
 
 	ratingStars = computed(() => {
 		const rating = Math.round(this.model()?.rating || 0);
@@ -89,7 +93,7 @@ export class ModelDetails implements OnInit {
 		const id = this.route.snapshot.paramMap.get('id');
 		if (!id) {
 			this.isLoading.set(false);
-			this.errorMessage.set('ERR-PR-026-D: معرّف النموذج غير صالح');
+			this.errorMessage.set('رابط النموذج غير صالح. ارجع إلى قائمة نماذجك وافتحه من هناك.');
 			return;
 		}
 		this.loadModel(id);
@@ -98,6 +102,7 @@ export class ModelDetails implements OnInit {
 	loadModel(id: string): void {
 		this.isLoading.set(true);
 		this.errorMessage.set(null);
+		this.notFound.set(false);
 		this.newProjectService.getMyMarketModels({ _t: Date.now() }).subscribe({
 			next: (res: any) => {
 				this.isLoading.set(false);
@@ -106,12 +111,13 @@ export class ModelDetails implements OnInit {
 				if (found) {
 					this.model.set(found);
 				} else {
-					this.errorMessage.set('ERR-PR-026-D-404: تعذر العثور على هذا النموذج');
+					this.notFound.set(true);
+					this.errorMessage.set('هذا النموذج غير موجود ضمن نماذجك (ربما حُذف أو لا يخص حسابك). ارجع إلى قائمة نماذجك.');
 				}
 			},
-			error: () => {
+			error: (err) => {
 				this.isLoading.set(false);
-				this.errorMessage.set('ERR-PR-026-D: خطأ في استدعاء بيانات النموذج');
+				this.errorMessage.set(mapHttpError(err, { fallback: 'حدث خطأ أثناء التحميل.' }).message);
 			}
 		});
 	}

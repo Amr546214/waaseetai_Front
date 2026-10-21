@@ -86,6 +86,7 @@
 		</div>
 	</div>
 
+	@if (editLoadError()) { <app-load-error what="الخدمة المراد تعديلها" [message]="editLoadError()" (retry)="retryEditLoad()" /> }
 	<ng-container [ngSwitch]="currentStep()">
 
 		<!-- ==================== STEP 1: الاسم والوصف ==================== -->
@@ -102,22 +103,28 @@
 		<!-- ==================== STEP 2: التخصص ==================== -->
 		<ng-container *ngSwitchCase="2">
 			@if (specialtyError()) { <p role="alert" data-testid="specialty-error" class="inline-error" style="margin-bottom:12px">{{ specialtyError() }}</p> }
+			@if (specialtyError() && requirementLink(); as rl) { <a [routerLink]="rl.url" data-testid="requirement-link" class="font-bold underline" style="display:inline-block;margin-bottom:12px">{{ rl.text }}</a> }
+			@if (specialtiesLoadError()) { <app-load-error what="تخصصاتك المعتمدة" [message]="specialtiesLoadError()" (retry)="loadPassedSpecialties()" /> } @else {
 			<app-step2-specialty [isLoadingSpecialties]="isLoadingSpecialties()" [passedCategories]="passedCategories()" [registered]="registeredSpecialties()"
 				[selectedSpecialty]="selectedSpecialty()" [selectedMainSpecialtyObj]="selectedMainSpecialtyObj()"
 				[selectedSubSpecialty]="selectedSubSpecialty()" [skillOptions]="skillOptions()" [selectedSkills]="selectedSkills()" [skillsLoading]="skillsLoading()" [skillsError]="skillsError()" (onSkillsChange)="onSkillsChange($event)"
 				(onSelectMainSpecialty)="selectMainSpecialty($event)"
 				(onSelectSubSpecialty)="selectSubSpecialty($event)">
 			</app-step2-specialty>
+			}
 		</ng-container>
 
 		<!-- ==================== STEP 3: النموذج ==================== -->
 		<ng-container *ngSwitchCase="3">
+			@if (modelError() && requirementLink(); as rl) { <a [routerLink]="rl.url" data-testid="requirement-link" class="font-bold underline" style="display:inline-block;margin-bottom:12px">{{ rl.text }}</a> }
+			@if (modelsLoadError()) { <app-load-error what="نماذج الاعتماد" [message]="modelsLoadError()" (retry)="loadAccreditationModels()" /> } @else {
 			<app-step3-model [accreditedCount]="accreditedCount()"
 				[distinctSpecialtiesCount]="distinctSpecialtiesCount()" [totalViewsCount]="totalViewsCount()"
 				[averageAiScore]="averageAiScore()" [isLoadingModels]="isLoadingModels()"
 				[filteredModels]="filteredModels()" [selectedModel]="selectedModel()"
 				[errorMessage]="modelError()" (onSelectModel)="selectModel($event)">
 			</app-step3-model>
+			}
 		</ng-container>
 
 		<!-- ==================== STEP 4: المراحل ==================== -->
@@ -146,6 +153,16 @@
 <!-- Sticky Bottom Navigation Bar -->
 <div
 	class="np-sticky-bar fixed bottom-0 right-0 md:right-[250px] left-0 backdrop-blur-md border-t border-[var(--crd-bd)] p-[14px_24px] z-50 shadow-2xl">
+	@if (publishCandidates(); as found) {
+	<div role="alert" data-testid="publish-candidates" class="text-[13px] leading-[1.8] pb-2 text-center" style="color:#ffd27a">
+		<p class="m-0">محاولة النشر السابقة لم نعرف نتيجتها، ووجدنا خدمات أُنشئت بعدها. افتح الخدمة وراجعها أولًا؛ لا ننشئ خدمة جديدة قبل أن تقرر.</p>
+		<ul class="list-none p-0 my-1">
+			@for (r of found; track r.id) { <li class="my-1"><span>{{ r.title }}</span> <button type="button" class="font-bold underline bg-transparent border-0 cursor-pointer text-inherit" data-testid="publish-candidate-open" (click)="openPublishCandidate(r.id)">فتح</button></li> }
+		</ul>
+		<button type="button" class="font-semibold underline bg-transparent border-0 cursor-pointer text-inherit" data-testid="publish-anyway" (click)="publishAnyway()">ليست أيٌّ منها خدمتي، انشر خدمة جديدة</button>
+	</div>
+	}
+	@if (publishError()) { <p role="alert" data-testid="publish-error" class="text-[13px] leading-[1.7] m-0 pb-2 text-center" style="color:#ff8a8a">{{ publishError() }}</p> }
 	<div class="w-full max-w-full mx-auto flex items-center justify-between gap-3">
 
 		<div class="flex items-center gap-3">

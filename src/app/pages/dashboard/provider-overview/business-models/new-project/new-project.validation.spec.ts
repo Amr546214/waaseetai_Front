@@ -23,6 +23,7 @@ describe('NewProject wizard: validation wiring + no ready-made numbers', () => {
 			initSocket: vi.fn(), onStreamStart: vi.fn(), onStreamChunk: vi.fn(), onStreamEnd: vi.fn(), disconnectSocket: vi.fn(),
 			getServiceById: vi.fn(() => of({ data: service })),
 			publishService: vi.fn(() => of({ success: true })),
+			getMyMarketModels: vi.fn(() => of({ success: true, data: { models: [] } })),
 			updateService: vi.fn(() => of({ success: true })),
 			analyzeProjectModel: vi.fn(() => of({ success: false })),
 		};

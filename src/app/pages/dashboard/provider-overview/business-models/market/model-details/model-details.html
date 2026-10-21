@@ -19,8 +19,9 @@
 	<!-- Error State -->
 	@if (!isLoading() && errorMessage()) {
 	<div class="mdl-error">
-		<div class="mdl-error-title">تعذر تحميل تفاصيل النموذج</div>
-		<div class="mdl-error-code">{{ errorMessage() }}</div>
+		<div class="mdl-error-title">{{ notFound() ? 'النموذج غير موجود' : 'تعذر تحميل تفاصيل النموذج' }}</div>
+		<div class="mdl-error-code" data-testid="model-error">{{ errorMessage() }}</div>
+		@if (!notFound()) { <button type="button" class="mdl-btn-secondary" data-testid="model-retry" (click)="retry()">إعادة المحاولة</button> }
 		<a routerLink="/provider-overview/business-models/market" class="mdl-btn-secondary">العودة للنماذج</a>
 	</div>
 	}

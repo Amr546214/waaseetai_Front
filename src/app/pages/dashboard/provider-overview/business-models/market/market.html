@@ -98,10 +98,7 @@
 
 	<!-- Error State -->
 	@if (errorMessage()) {
-	<div
-		style="padding:18px;background:rgba(255,180,0,.05);border:1px solid rgba(255,180,0,.18);border-radius:12px;text-align:center;margin-bottom:20px">
-		<div style="font-size:12px;font-weight:700" class="txt-amber-dk">{{ errorMessage() }}</div>
-	</div>
+	<app-load-error what="خدماتك في السوق" [message]="errorMessage()!" (retry)="fetchMarketModels()" />
 	}
 
 	<!-- Loading State -->
@@ -117,7 +114,7 @@
 	@if (!isLoading()) {
 	<!-- تبويب النماذج (Models Tab) -->
 	@if (activeSubTab() === 'models') {
-	@if (models().length === 0) {
+	@if (models().length === 0 && !errorMessage()) {
 	<!-- Empty State -->
 	<div
 		style="text-align:center;padding:70px 20px;background:var(--mkt-card-bg);border:1px dashed var(--mkt-border);border-radius:16px;margin-bottom:20px">
@@ -254,7 +251,7 @@
 					<!-- Action Buttons -->
 					<div class="mkt-card-actions">
 						<button (click)="onEdit(model)" class="action-btn-edit">تعديل</button>
-						<button (click)="onToggleVisibility(model)" class="action-btn-toggle"
+						<button (click)="onToggleVisibility(model)" [disabled]="togglingId() === model.id" [attr.aria-busy]="togglingId() === model.id" class="action-btn-toggle"
 								[class.is-hidden]="model.status === 'ARCHIVED'">
 								{{ model.status === 'ARCHIVED' ? 'إظهار' : 'إخفاء' }}
 						</button>
@@ -376,7 +373,7 @@
 					<span>إرجاع وتعديل</span>
 				</button>
 
-				<button (click)="onApproveRequest(req)" class="req-btn-approve" disabled
+				<button (click)="onApproveRequest(req)" class="req-btn-approve" disabled [attr.aria-describedby]="'req-approve-why-' + req.id"
 					[title]="!req.canApprove ? 'يوجد ملاحظات تحتاج تعديل قبل الاعتماد' : 'اعتماد التعديل غير متاح حاليًا'">
 					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="2.5">
@@ -384,6 +381,7 @@
 					</svg>
 					<span>اعتماد التعديل</span>
 				</button>
+				<span [attr.id]="'req-approve-why-' + req.id" data-testid="req-approve-why" class="txt-muted" style="font-size:11px;flex-basis:100%">{{ !req.canApprove ? 'لا يمكن الاعتماد الآن: توجد ملاحظات تحتاج تعديلًا أولًا (استخدم «إرجاع وتعديل»).' : 'اعتماد التعديل غير متاح حاليًا.' }}</span>
 			</div>
 		</div>
 		}
