@@ -99,6 +99,8 @@
 		</svg>
 		<div style="font-size:14px" class="txt-muted">جاري تحميل طلبات الاعتماد...</div>
 	</div>
+	} @else if (loadError()) {
+	<app-load-error what="طلبات الاعتماد" [message]="loadError()" (retry)="fetchSamples()" />
 	} @else if (samples().length === 0) {
 	<div class="state-card" style="text-align:center;padding:40px 24px">
 		<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد نماذج اعتماد مرفوعة حتى الآن

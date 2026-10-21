@@ -1,3 +1,5 @@
+import { LoadError } from '../../../../../shared/load-error/load-error';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -42,7 +44,7 @@ export interface AccreditationSampleItem {
 @Component({
 	selector: 'app-business-models-center',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [LoadError, CommonModule, RouterLink],
 	templateUrl: './center.html',
 	styleUrl: './center.css'
 })
@@ -67,8 +69,11 @@ export class Center implements OnInit {
 		this.loadAccreditationSamples();
 	}
 
+	loadError = signal<string>('');
+
 	loadAccreditationSamples() {
 		this.isLoading.set(true);
+		this.loadError.set('');
 		this.providerApi.getAccreditationSamples().subscribe({
 			next: (res) => {
 				if (res && res.success && Array.isArray(res.samples)) {
@@ -80,7 +85,8 @@ export class Center implements OnInit {
 			},
 			error: (err) => {
 				console.error('Failed to load accreditation samples', err);
-				this.accreditationSamples.set([]);
+				// a failed load is NOT an empty list: keep what was shown, say why it could not be refreshed
+				this.loadError.set(mapHttpError(err, { fallback: 'حدث خطأ أثناء التحميل.' }).message);
 				this.isLoading.set(false);
 			}
 		});
