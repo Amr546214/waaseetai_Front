@@ -1,3 +1,4 @@
+import { LoadError } from '../../../../../shared/load-error/load-error';
 import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
@@ -122,7 +123,7 @@ export interface PortfolioReview {
 @Component({
 	selector: 'app-profile-specialties',
 	standalone: true,
-	imports: [CommonModule, FormsModule, SpecialtyStatusComponent, SpecialtyTestComponent],
+	imports: [LoadError, CommonModule, FormsModule, SpecialtyStatusComponent, SpecialtyTestComponent],
 	templateUrl: './specialties.html',
 	styleUrls: ['./specialties.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
@@ -304,12 +305,20 @@ export class Specialties implements OnInit, OnDestroy {
 		this.selectedSubs.set(new Set(names));
 	}
 
-	ngOnInit() {
-		this.loadRecommendation();
+	/** the status cards of the provider's specialties failed to load (not the same as "no specialties yet") */
+	registeredLoadError = signal<string>('');
+
+	loadRegistered() {
+		this.registeredLoadError.set('');
 		this.providerApi.getPassedSpecialties().subscribe({
 			next: (res: any) => this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []),
-			error: () => this.registeredSpecialties.set([]),
+			error: (err: any) => this.registeredLoadError.set(mapHttpError(err, { fallback: 'حدث خطأ أثناء التحميل.' }).message),
 		});
+	}
+
+	ngOnInit() {
+		this.loadRecommendation();
+		this.loadRegistered();
 		this.specialtyService.getCategories().subscribe({
 			next: (res: any) => {
 				if (res && res.success && res.data) {
@@ -700,7 +709,7 @@ export class Specialties implements OnInit, OnDestroy {
 					this.isSubmittingSamples.set(false);
 					this.uploadProgress.set(0);
 					// field-keyed 400/422 (sampleTitle_0 ...) lands on that sample's control; network / 429 / 5xx stay the honest banner
-					if (genericBanner(mapHttpError(err)) !== null) { this.stepError.set(err?.error?.message || 'تعذّر رفع النماذج. تحقق من الاتصال وأعد المحاولة؛ لم يتم حفظ أي نموذج.'); return; }
+					if (genericBanner(mapHttpError(err)) !== null) { this.stepError.set(this.uploadFailureText(err)); return; }
 					const ids = this.samples();
 					const resolve: Record<string, string> = {};
 					ids.forEach((smp, i) => {
@@ -709,13 +718,23 @@ export class Specialties implements OnInit, OnDestroy {
 					});
 					const res = await reportBackendError(this.host.nativeElement, mapHttpError(err), { resolve });
 					if (res.handled && !Object.keys(res.unresolved).length) { this.stepError.set(null); return; }
-					this.stepError.set(err?.error?.message || 'تعذّر رفع النماذج. تحقق من الاتصال وأعد المحاولة؛ لم يتم حفظ أي نموذج.');
+					this.stepError.set(this.uploadFailureText(err));
 				}
 			});
 		} else if (this.currentStep() === 3 && this.allDeclarationsChecked()) {
 			// Step 3 -> Step 4: Initiate instant real-time 20-question dynamic streaming quiz
 			this.initiateDynamicQuiz();
 		}
+	}
+
+	/**
+	 * Why the samples upload failed. "Nothing was saved" is only said when the server REFUSED the upload (it answered); after a lost answer / gateway / unexpected 5xx the outcome is
+	 * unknown, and the text says so - repeating is safe because the upload REPLACES the samples of this specialty (no duplicates).
+	 */
+	private uploadFailureText(err: any): string {
+		const m = mapHttpError(err);
+		if (m.outcomeUnknown && (!err?.error?.message || err.error.code === 'INTERNAL_ERROR')) return 'انقطع الاتصال قبل أن نعرف إن كانت النماذج حُفظت. يمكنك إعادة الرفع بأمان: الرفع يستبدل النماذج السابقة لهذا التخصص ولا ينشئ نسخًا مكررة.';
+		return err?.error?.message || 'تعذّر رفع النماذج ولم يُحفظ أي نموذج. تحقق من الاتصال وأعد المحاولة.';
 	}
 
 	async prevStep() {

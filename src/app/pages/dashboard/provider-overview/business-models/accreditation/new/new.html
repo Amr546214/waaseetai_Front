@@ -89,7 +89,7 @@
 
 		<!-- ==================== STEP 3: SUBMISSION RESULT (manual review by the Waseet team) ==================== -->
 		<ng-container *ngSwitchCase="3">
-			<app-step3-evaluation [isAnalyzing]="isAnalyzing()" [hasError]="hasError()"
+			<app-step3-evaluation [isAnalyzing]="isAnalyzing()" [hasError]="hasError()" [errorLink]="errorLink()"
 				[evaluationResult]="evaluationResult()" [manualReviewNotice]="manualReviewNotice()" (onRetry)="submitForAiEvaluation()"
 				(onViewAll)="viewAllAccreditationSamples()">
 			</app-step3-evaluation>

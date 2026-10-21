@@ -67,6 +67,22 @@ export class New implements OnInit, OnDestroy {
 	isLoading = signal<boolean>(true);
 	isAnalyzing = signal<boolean>(false);
 	hasError = signal<string | null>(null);
+	/** the way to complete a missing requirement / follow an existing request (a correct link, by the server's fixed code) */
+	errorLink = signal<{ text: string; url: string[] } | null>(null);
+	/**
+	 * UNCERTAIN OUTCOME: a submit whose answer was lost may have been stored. The moment is kept (also across a reload); until the provider's requests have been looked at,
+	 * sending again does not post anything: a request already waiting is reported as arrived (the server also refuses a second open request per specialty).
+	 */
+	private static readonly UNCERTAIN_KEY = 'ws:accreditation-submit-uncertain:v1';
+	uncertainSince = signal<number | null>(New.readUncertain());
+	private lastAttemptAt = 0;
+	private static readUncertain(): number | null {
+		try { const v = Number(localStorage.getItem(New.UNCERTAIN_KEY)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; }
+	}
+	private setUncertain(at: number | null) {
+		this.uncertainSince.set(at);
+		try { if (at) localStorage.setItem(New.UNCERTAIN_KEY, String(at)); else localStorage.removeItem(New.UNCERTAIN_KEY); } catch { /* the in-memory state still gates this page */ }
+	}
 	isAiSuggesting = signal<boolean>(false);
 	aiSuggestError = signal<string | null>(null);
 
@@ -495,6 +511,42 @@ export class New implements OnInit, OnDestroy {
 	submitForAiEvaluation() {
 		if (!this.isValidStep2 || this.isAnalyzing()) return; // one request at a time (no double click)
 		this.fieldErrors.set({});
+		this.errorLink.set(null);
+		if (this.uncertainSince() !== null) { this.verifySubmitOutcome(); return; }
+		this.postSubmission();
+	}
+
+	/** Looks at the provider's own requests: an OPEN request of the chosen specialty means the lost send arrived; nothing open -> it never did, so sending is safe. */
+	private verifySubmitOutcome() {
+		this.isAnalyzing.set(true);
+		this.hasError.set(null);
+		this.currentStep.set(3);
+		this.providerApi.getAccreditationSamples().subscribe({
+			next: (res: any) => {
+				const spec = this.getSelectedSpecialty();
+				const wanted = spec?.id || this.selectedSpecialtyId();
+				const samples: any[] = Array.isArray(res?.samples) ? res.samples : [];
+				const open = samples.find(x => (x.providerSpecialty?.id === wanted || x.providerSpecialtyId === wanted) && ['MANUAL_REVIEW', 'PENDING_AI_AUDIT'].includes(String(x.status)));
+				if (open) {
+					this.isAnalyzing.set(false);
+					this.setUncertain(null);
+					this.clearDraft();
+					this.manualReviewNotice.set('وصل طلبك سابقًا رغم انقطاع الاتصال وقت الإرسال، وهو الآن قيد المراجعة اليدوية من فريق وسيط. لم نرسله مرة ثانية؛ تابع حالته من قائمة طلبات الاعتماد.');
+					return;
+				}
+				this.setUncertain(null);
+				this.postSubmission();
+			},
+			error: () => {
+				this.isAnalyzing.set(false);
+				this.hasError.set('تعذر التحقق من طلباتك الحالية، فلن نرسل طلبًا جديدًا الآن. تحقق من اتصالك ثم حاول مرة أخرى، أو افتح «طلبات الاعتماد» وراجعها أولًا.');
+				this.errorLink.set({ text: 'طلبات الاعتماد', url: ['/provider-overview/business-models/accreditation/list'] });
+			}
+		});
+	}
+
+	private postSubmission() {
+		this.lastAttemptAt = Date.now();
 
 		this.isAnalyzing.set(true);
 		this.hasError.set(null);
@@ -522,6 +574,7 @@ export class New implements OnInit, OnDestroy {
 			next: (res) => {
 				this.isAnalyzing.set(false);
 				if (res && res.success && res.data) {
+					this.setUncertain(null);
 					this.clearDraft();
 					this.afterSampleSubmitted(res.data?.sample?.id);
 					if (res.data.evaluation) {
@@ -549,6 +602,16 @@ export class New implements OnInit, OnDestroy {
 					return;
 				}
 				// a duplicate / state conflict (409), 429 or a network error stay honest generic messages, never invented field errors
+				if (m.code === 'SPECIALTY_TEST_NOT_PASSED' || m.code === 'SPECIALTY_NOT_OWNED') {
+					this.errorLink.set({ text: 'الذهاب إلى صفحة التخصصات', url: ['/provider-overview/profile/specialties'] });
+				} else if (err?.status === 409) {
+					this.errorLink.set({ text: 'متابعة طلبات الاعتماد', url: ['/provider-overview/business-models/accreditation/list'] });
+				}
+				if (m.outcomeUnknown) {
+					this.setUncertain(this.lastAttemptAt || Date.now());
+					this.hasError.set('نتيجة الإرسال غير مؤكدة: انقطع الاتصال قبل أن نعرف إن كان طلبك وصل. عند إعادة المحاولة سنتحقق أولًا من طلباتك قبل إرسال أي طلب جديد.');
+					return;
+				}
 				this.hasError.set(m.message);
 			}
 		});

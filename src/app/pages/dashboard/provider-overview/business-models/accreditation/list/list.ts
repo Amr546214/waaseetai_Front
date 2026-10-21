@@ -1,3 +1,5 @@
+import { LoadError } from '../../../../../../shared/load-error/load-error';
+import { mapHttpError } from '../../../../../../core/forms/http-error';
 import { Component, signal, computed, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -34,7 +36,7 @@ export interface AccreditationSampleItem {
 @Component({
   selector: 'app-business-models-accreditation-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpecialtyStatusComponent],
+  imports: [LoadError, CommonModule, RouterLink, SpecialtyStatusComponent],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
@@ -42,6 +44,7 @@ export class List implements OnInit {
   private providerApi = inject(ProviderApiService);
 
   isLoading = signal<boolean>(true);
+  loadError = signal<string>('');
   samples = signal<AccreditationSampleItem[]>([]);
   registeredSpecialties = signal<(RegisteredSpecialty & SpecialtyApprovalInfo)[]>([]);
 
@@ -67,13 +70,14 @@ export class List implements OnInit {
     this.fetchSamples();
     this.providerApi.getPassedSpecialties().subscribe({
       next: (res: any) => this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []),
-      error: () => this.registeredSpecialties.set([]),
+      error: () => { /* the status cards are an extra: the failure is reported once, by the samples load */ },
     });
   
   }
 
   fetchSamples() {
     this.isLoading.set(true);
+    this.loadError.set('');
     this.providerApi.getAccreditationSamples().subscribe({
       next: (res) => {
         if (res && res.success && Array.isArray(res.samples)) {
@@ -83,8 +87,9 @@ export class List implements OnInit {
         }
         this.isLoading.set(false);
       },
-      error: () => {
+      error: (err) => {
         this.isLoading.set(false);
+        this.loadError.set(mapHttpError(err, { fallback: 'حدث خطأ أثناء التحميل.' }).message);
       }
     });
   }

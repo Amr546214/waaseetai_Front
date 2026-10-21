@@ -57,6 +57,7 @@
 		class="p-6 bg-[rgba(255,107,107,.1)] border border-[rgba(255,107,107,.3)] rounded-2xl text-center mb-6">
 		<div class="text-red-400 font-extrabold text-sm mb-2">⚠️ تعذّر إرسال النموذج للمراجعة</div>
 		<div class="text-xs text-[var(--txt-2)] mb-4">{{ hasError }}</div>
+		<a *ngIf="errorLink" [routerLink]="errorLink.url" data-testid="submit-error-link" class="inline-block text-xs font-bold underline mb-4">{{ errorLink.text }}</a>
 		<button type="button" (click)="submitForAiEvaluation()"
 			class="px-5 py-2.5 bg-[#2BD4C7] text-[#070D24] text-xs font-extrabold rounded-xl hover:opacity-90">
 			إعادة المحاولة 🔄

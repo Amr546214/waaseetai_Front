@@ -15,6 +15,8 @@ export class Step3EvaluationComponent {
 	@Input({ required: true }) evaluationResult!: EvaluationData | null;
 	/** Set when the sample was stored and is waiting for the Waseet team's manual review (the normal outcome today). */
 	@Input() manualReviewNotice: string | null = null;
+	/** the correct way to complete a missing requirement or follow the existing request */
+	@Input() errorLink: { text: string; url: string[] } | null = null;
 
 	@Output() onRetry = new EventEmitter<void>();
 	@Output() onViewAll = new EventEmitter<void>();
