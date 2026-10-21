@@ -231,7 +231,7 @@ export function mapHttpError(err: unknown, options: MapHttpErrorOptions = {}): M
 	}
 
 	// A deliberate 5xx from the backend (e.g. a verification service that is not available) carries its own Arabic explanation (and a trace id).
-	if (status >= 500 && arabicServer && !/^(Internal Server Error|Bad Gateway|Service Unavailable|Gateway Time-?out)$/i.test(arabicServer)) return make('server', status === 503 ? 'الخدمة غير متاحة' : 'خطأ في الخادم', `${arabicServer}${/معرّف التتبع/.test(arabicServer) ? '' : traceSuffix}`, { retryable: true, outcomeUnknown: status !== 503 });
+	if (status >= 500 && arabicServer && !/^(Internal Server Error|Bad Gateway|Service Unavailable|Gateway Time-?out)$/i.test(arabicServer)) return make('server', status === 503 ? 'الخدمة غير متاحة' : 'خطأ في الخادم', `${arabicServer}${traceId && arabicServer.includes(traceId) ? '' : traceSuffix}`, { retryable: true, outcomeUnknown: status !== 503 });
 
 	// A gateway answer (502 / 503 / 504): the page of a proxy, not ours. 504 = no answer in time (the operation may have completed); 502 / 503 = the service is not reachable right now.
 	if (status === 504) return make('server', 'لم يصل الرد في الوقت المناسب', 'لم يردّ الخادم في الوقت المناسب، فقد لا نعرف إن كانت العملية تمّت. تحقق من الصفحة قبل تكرارها.', { retryable: true, outcomeUnknown: true });

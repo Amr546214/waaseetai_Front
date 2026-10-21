@@ -128,10 +128,12 @@ describe('mapHttpError: the BE error contract (code, trace id, honest unexpected
 		expect(m.message).not.toMatch(/prisma|SELECT|stack/); expect(m.retryable).toBe(true); expect(m.outcomeUnknown).toBe(true);
 	});
 
-	it('the server\'s own Arabic 5xx text (already honest, with its trace id) is shown once, not doubled', () => {
-		const m = mapHttpError(err(500, { message: 'تعذّر إكمال العملية بسبب خطأ غير متوقع من جهتنا. تحقق ثم أعد المحاولة.', code: 'INTERNAL_ERROR', traceId: 'AAAA1111' }));
+	it('the server\'s own Arabic 5xx text keeps its wording and gets the trace id appended exactly once (even if the text already says «معرّف التتبع» as an instruction)', () => {
+		const m = mapHttpError(err(500, { message: 'تعذّر إكمال العملية بسبب خطأ غير متوقع من جهتنا. تواصل مع الدعم وأرفق معرّف التتبع.', code: 'INTERNAL_ERROR', traceId: 'AAAA1111' }));
 		expect(m.message.startsWith('تعذّر إكمال العملية بسبب خطأ غير متوقع من جهتنا')).toBe(true);
 		expect(m.message.match(/AAAA1111/g)?.length).toBe(1);
+		const again = mapHttpError(err(500, { message: 'خطأ. معرّف التتبع: AAAA1111', traceId: 'AAAA1111' }));
+		expect(again.message.match(/AAAA1111/g)?.length).toBe(1);
 	});
 
 	it('a trace-id that is not a plain token is ignored (never rendered)', () => {
