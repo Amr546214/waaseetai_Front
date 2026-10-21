@@ -1525,7 +1525,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     // Network / 429 / 5xx / 403 / 409 and any 400 without field names: one honest generic message next to the button (and as a toast), no invented field error.
     if (!hasFieldErrors(err)) {
       // a lost answer: the server never creates a second copy of the same request (it answers with the existing one), so repeating is safe - say so
-      const text = mapped.outcomeUnknown ? `${mapped.message} يمكنك الضغط على «نشر الطلب» مرة أخرى بأمان: إن كان طلبك قد وصل فلن ننشئ منه نسخة ثانية.` : mapped.message;
+      const text = mapped.outcomeUnknown ? 'انقطع الاتصال قبل أن نعرف إن كان طلبك وصل. اضغط «نشر الطلب» مرة أخرى بأمان: إن كان قد وصل فلن ننشئ منه نسخة ثانية، وسنخبرك أنه محفوظ.' : mapped.message;
       this.publishError.set(text);
       this.notify.error(mapped.message);
       return;
