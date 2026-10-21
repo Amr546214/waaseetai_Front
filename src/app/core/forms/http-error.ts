@@ -39,6 +39,15 @@ export interface MappedHttpError {
 	retryEndsAt?: number | null;
 	/** True when trying again unchanged can reasonably succeed (network, 5xx, 429 later). */
 	retryable: boolean;
+	/** The server's fixed marker (`code` in the body), e.g. IDENTITY_REQUEST_WAITING / OTP_ATTEMPTS_LOCKED / INTERNAL_ERROR; null when none. Branch on this, never on the text. */
+	code?: string | null;
+	/** The server's trace id of an unexpected failure (also in the server log): shown so support can find it. Never a stack, never a SQL text. */
+	traceId?: string | null;
+	/**
+	 * True when the request may HAVE been processed although the answer did not arrive or was a gateway failure (network drop, 502/504, a 5xx from the server):
+	 * a write that creates something must be checked (or be idempotent) before it is offered again.
+	 */
+	outcomeUnknown?: boolean;
 }
 
 export interface MapHttpErrorOptions {
@@ -157,16 +166,20 @@ export function mapHttpError(err: unknown, options: MapHttpErrorOptions = {}): M
 	const status: number = typeof e?.status === 'number' ? e.status : 0;
 	const body = e?.error;
 	const serverMessage = serverMessageOf(body);
-	const code = messageForBackendCode(serverMessage);
+	const bodyCode = typeof body?.code === 'string' && /^[A-Z][A-Z0-9_]{2,63}$/.test(body.code) ? (body.code as string) : null;
+	const traceId = typeof body?.traceId === 'string' && /^[0-9A-Za-z-]{4,40}$/.test(body.traceId) ? (body.traceId as string) : null;
+	// a known marker maps to its fixed Arabic text first; then a raw code sent as the message
+	const code = messageForBackendCode(bodyCode) || messageForBackendCode(serverMessage);
 	const arabicServer = hasArabic(serverMessage) ? serverMessage : null;
-	const fallback = options.fallback || 'حدث خطأ غير متوقع، حاول مرة أخرى';
+	const fallback = options.fallback || 'تعذّر إكمال العملية ولم نتعرف على السبب، حاول مرة أخرى.';
+	const traceSuffix = traceId ? ` (معرّف التتبع: ${traceId})` : '';
 
 	const make = (kind: HttpErrorKind, title: string, message: string, extra: Partial<MappedHttpError> = {}): MappedHttpError => ({
-		kind, status, title, message, fieldErrors: {}, retryAfterSeconds: null, retryable: false, ...extra,
+		kind, status, title, message, fieldErrors: {}, retryAfterSeconds: null, retryable: false, code: bodyCode, traceId, ...extra,
 	});
 
 	if (status === 0) {
-		return make('network', 'تعذّر الاتصال', 'تعذّر الاتصال بالخادم. تحقق من اتصال الإنترنت ثم حاول مجددًا.', { retryable: true });
+		return make('network', 'تعذّر الاتصال', 'تعذّر الاتصال بالخادم. تحقق من اتصال الإنترنت ثم حاول مجددًا. إن كنت قد ضغطت «إرسال» قبل انقطاع الاتصال فقد يكون الطلب وصل: تحقق من الصفحة قبل تكراره.', { retryable: true, outcomeUnknown: true });
 	}
 
 	if (status === 400 || status === 422) {
@@ -192,13 +205,13 @@ export function mapHttpError(err: unknown, options: MapHttpErrorOptions = {}): M
 		if (serverMessage && PENDING.test(serverMessage)) {
 			return make('pending-review', 'قيد المراجعة', code || arabicServer || 'حسابك أو طلبك قيد المراجعة/التحقق حاليًا');
 		}
-		return make('forbidden', 'غير مسموح', code || arabicServer || 'ليست لديك صلاحية لتنفيذ هذا الإجراء');
+		return make('forbidden', 'غير مسموح', code || arabicServer || 'ليست لديك صلاحية لتنفيذ هذا الإجراء بهذا الحساب. تأكد من أنك تستخدم الحساب والدور المناسبين، أو تواصل مع الدعم إن كان هذا غير متوقع.');
 	}
 
-	if (status === 404) return make('not-found', 'غير موجود', code || arabicServer || 'لم يتم العثور على العنصر المطلوب');
+	if (status === 404) return make('not-found', 'غير موجود', code || arabicServer || 'لم يتم العثور على العنصر المطلوب. ربما حُذف أو تغيّر رابطه، أعد تحميل الصفحة أو ارجع إلى القائمة.');
 
 	if (status === 409) {
-		return make('conflict', 'تعارض', code || arabicServer || 'هذا العنصر موجود مسبقًا أو حالته لا تسمح بهذا الإجراء');
+		return make('conflict', 'تعارض', code || arabicServer || 'تغيّرت حالة هذا العنصر منذ تحميل الصفحة، أو أنه موجود مسبقًا. أعد تحميل الصفحة ثم أعد المحاولة.');
 	}
 
 	if (status === 413) {
@@ -217,11 +230,15 @@ export function mapHttpError(err: unknown, options: MapHttpErrorOptions = {}): M
 		return make('rate-limit', 'محاولات كثيرة', message, { retryAfterSeconds: wait, retryEndsAt: parseRetryAfter(e), retryable: true });
 	}
 
-	// A deliberate 503 from the backend (e.g. SMS verification not available) carries its own Arabic explanation.
-	if (status === 503 && arabicServer) return make('server', 'الخدمة غير متاحة', arabicServer, { retryable: true });
+	// A deliberate 5xx from the backend (e.g. a verification service that is not available) carries its own Arabic explanation (and a trace id).
+	if (status >= 500 && arabicServer && !/^(Internal Server Error|Bad Gateway|Service Unavailable|Gateway Time-?out)$/i.test(arabicServer)) return make('server', status === 503 ? 'الخدمة غير متاحة' : 'خطأ في الخادم', `${arabicServer}${/معرّف التتبع/.test(arabicServer) ? '' : traceSuffix}`, { retryable: true, outcomeUnknown: status !== 503 });
+
+	// A gateway answer (502 / 503 / 504): the page of a proxy, not ours. 504 = no answer in time (the operation may have completed); 502 / 503 = the service is not reachable right now.
+	if (status === 504) return make('server', 'لم يصل الرد في الوقت المناسب', 'لم يردّ الخادم في الوقت المناسب، فقد لا نعرف إن كانت العملية تمّت. تحقق من الصفحة قبل تكرارها.', { retryable: true, outcomeUnknown: true });
+	if (status === 502 || status === 503) return make('server', 'الخدمة غير متاحة', 'الخدمة غير متاحة مؤقتًا. حاول مرة أخرى بعد قليل، وإن استمرت المشكلة تواصل مع الدعم.', { retryable: true });
 
 	if (status >= 500) {
-		return make('server', 'خطأ في الخادم', 'حدث خطأ في الخادم. حاول مرة أخرى بعد قليل.', { retryable: true });
+		return make('server', 'خطأ في الخادم', `تعذّر إكمال العملية بسبب خطأ غير متوقع من جهتنا. لا نستطيع تأكيد أن التغيير قد حُفظ، فتحقّق من الصفحة قبل تكرار العملية، وإن استمرت المشكلة تواصل مع الدعم${traceId ? ` وأرفق معرّف التتبع: ${traceId}` : ''}.`, { retryable: true, outcomeUnknown: true });
 	}
 
 	return make('unknown', 'تعذّر التنفيذ', code || arabicServer || fallback);

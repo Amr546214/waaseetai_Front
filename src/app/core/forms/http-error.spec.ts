@@ -117,3 +117,48 @@ describe('http-error helpers', () => {
 		expect(formatWait(7200)).toBe('ساعتين');
 	});
 });
+
+describe('mapHttpError: the BE error contract (code, trace id, honest unexpected-error message, gateway answers)', () => {
+	const err = (status: number, error: any = null) => ({ status, error } as any);
+
+	it('an unexpected 500 shows the honest message, the next step and the trace id; nothing else of the body', () => {
+		const m = mapHttpError(err(500, { success: false, message: 'Invalid `prisma.x` invocation SELECT', code: 'INTERNAL_ERROR', traceId: 'A1B2C3D4', errors: ['stack...'] }));
+		expect(m.kind).toBe('server'); expect(m.code).toBe('INTERNAL_ERROR'); expect(m.traceId).toBe('A1B2C3D4');
+		expect(m.message).toContain('لا نستطيع تأكيد أن التغيير قد حُفظ'); expect(m.message).toContain('A1B2C3D4');
+		expect(m.message).not.toMatch(/prisma|SELECT|stack/); expect(m.retryable).toBe(true); expect(m.outcomeUnknown).toBe(true);
+	});
+
+	it('the server\'s own Arabic 5xx text (already honest, with its trace id) is shown once, not doubled', () => {
+		const m = mapHttpError(err(500, { message: 'تعذّر إكمال العملية بسبب خطأ غير متوقع من جهتنا. تحقق ثم أعد المحاولة.', code: 'INTERNAL_ERROR', traceId: 'AAAA1111' }));
+		expect(m.message.startsWith('تعذّر إكمال العملية بسبب خطأ غير متوقع من جهتنا')).toBe(true);
+		expect(m.message.match(/AAAA1111/g)?.length).toBe(1);
+	});
+
+	it('a trace-id that is not a plain token is ignored (never rendered)', () => {
+		expect(mapHttpError(err(500, { traceId: '<script>alert(1)</script>' })).traceId).toBeNull();
+	});
+
+	it('gateway answers: 504 says the outcome may be unknown; 502 / 503 say the service is not reachable; neither shows a proxy page', () => {
+		const t = mapHttpError(err(504, '<html>Gateway Time-out</html>')); expect(t.message).toContain('لا نعرف إن كانت العملية تمّت'); expect(t.outcomeUnknown).toBe(true);
+		for (const s of [502, 503]) { const m = mapHttpError(err(s, '<html>Bad Gateway</html>')); expect(m.message).toContain('الخدمة غير متاحة مؤقتًا'); expect(m.message).not.toMatch(/html|Bad Gateway/i); expect(m.retryable).toBe(true); }
+	});
+
+	it('a deliberate Arabic 503 (e.g. a verification service that is down) keeps its own explanation', () => {
+		const m = mapHttpError(err(503, { message: 'خدمة التحقق غير متاحة حاليًا، حاول لاحقًا', traceId: 'BBBB2222' }));
+		expect(m.message).toContain('خدمة التحقق غير متاحة حاليًا'); expect(m.message).toContain('BBBB2222'); expect(m.outcomeUnknown).toBe(false);
+	});
+
+	it('network: says what to do, and that a request that was just sent may have arrived (check before repeating)', () => {
+		const m = mapHttpError(err(0)); expect(m.kind).toBe('network'); expect(m.message).toContain('تحقق من اتصال الإنترنت'); expect(m.message).toContain('قد يكون الطلب وصل'); expect(m.outcomeUnknown).toBe(true);
+	});
+
+	it('a known marker maps to its Arabic text even when the message is a raw code; field errors keep the right field name', () => {
+		expect(mapHttpError(err(409, { code: 'REQUEST_ALREADY_PENDING', message: 'REQUEST_ALREADY_PENDING' })).message).toContain('لديك طلب قيد مراجعة الإدارة');
+		const v = mapHttpError(err(400, { message: 'بيانات غير صالحة', errors: [{ field: 'identity.frontId', message: 'صورة الهوية مطلوبة' }] }));
+		expect(v.fieldErrors).toEqual({ frontId: 'صورة الهوية مطلوبة' });
+	});
+
+	it('default texts for 403 / 404 / 409 / unknown name the next step instead of a bare refusal', () => {
+		expect(mapHttpError(err(403)).message).toContain('تواصل مع الدعم'); expect(mapHttpError(err(404)).message).toContain('أعد تحميل الصفحة'); expect(mapHttpError(err(409)).message).toContain('أعد تحميل الصفحة'); expect(mapHttpError(err(418)).message).toContain('حاول مرة أخرى');
+	});
+});
