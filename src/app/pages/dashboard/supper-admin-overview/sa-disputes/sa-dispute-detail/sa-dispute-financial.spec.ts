@@ -272,7 +272,7 @@ describe('SaDisputeDetail - validation UX', () => {
     api.resolveAdminDispute.mockReturnValueOnce(throwError(() => httpFail(500, null)));
     c.openResolveForm('resolve'); c.resolutionText.set('تم الحل'); f.detectChanges();
     c.requestResolveConfirm(); c.submitResolve(); await settleForm(); f.detectChanges();
-    expect(el.querySelector('[data-testid="resolve-error"]')?.textContent).toContain('الخادم');
+    expect(el.querySelector('[data-testid="resolve-error"]')?.textContent).toContain('من جهتنا');
     expectNoFieldProblem(el);
   });
 

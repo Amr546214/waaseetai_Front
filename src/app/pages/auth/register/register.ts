@@ -24,6 +24,8 @@ import { matchFieldsValidator, strongPasswordValidator } from '../../../core/for
 import { backendPhoneValidator, phoneDigits } from '../../../core/forms/phone.validator';
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
 
+/** The register payload names some fields differently from the form controls. */
+const REGISTER_SERVER_FIELD_ALIASES: Record<string, string> = { phoneNumber: 'phone', phoneCountryCode: 'phone', agreedToTerms: 'agreeTerms', confirmPassword: 'confirmPassword' };
 const REGISTER_LABELS: Record<string, string> = {
 	firstName: 'الاسم الأول',
 	lastName: 'اسم العائلة',
@@ -133,6 +135,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	readonly verifyWait = this.waits.trackKeyed('otp-verify', () => this.registeredEmail, inject(DestroyRef));
 	/** A 429 whose duration the server did not state: an honest sentence without a number. */
 	rateLimitedNoTime = false;
+	/** The code step's own error (wrong / expired / locked code): only then are the code boxes marked invalid; a server, network or limit failure never marks a code that may be right. */
+	codeInvalid = false;
 	private rateLimitSource: 'register' | 'resend' | 'verify' | 'google' | null = null;
 
 	/** The server's wait after a 429 on Google sign-up (end timestamp, survives a refresh). Gates ONLY the Google button. */
@@ -505,7 +509,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				}
 				const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ في التسجيل' });
 				// Server field messages (zod) land on the matching inputs; the rest go to the banner.
-				const unmatched = applyServerFieldErrors(this.basicInfoForm, mapped.fieldErrors);
+				const unmatched = applyServerFieldErrors(this.basicInfoForm, mapped.fieldErrors, REGISTER_SERVER_FIELD_ALIASES);
 				this.accountExistsError = mapped.kind === 'conflict';
 				this.errorMessage = unmatched.length || !Object.keys(mapped.fieldErrors).length
 					? mapped.message
@@ -538,6 +542,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			// Never a silent no-op: say what is needed and put the cursor on the first empty box.
 			this.verificationForm.markAllAsTouched();
 			this.errorMessage = 'أدخل رمز التحقق المكوّن من 6 أرقام';
+			this.codeInvalid = true;
 			this.focusOtpInput(this.otpIndexes.find(i => !this.otpDigit(i)) ?? 0);
 			this.cdr.markForCheck();
 			return;
@@ -552,6 +557,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			if (this.verifyWait().active()) return;
 			this.isSubmitting = true;
 			this.errorMessage = '';
+			this.codeInvalid = false;
 			this.rateLimitedNoTime = false;
 			this.cdr.markForCheck();
 
@@ -576,13 +582,16 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 					if (err?.error?.code === 'OTP_ATTEMPTS_LOCKED') {
 						// too many wrong codes: the message asks for a NEW code; no timer
 						this.errorMessage = err.error.message || 'تم تجاوز عدد المحاولات المسموح به، يرجى طلب رمز جديد';
+						this.codeInvalid = true;
 					} else if (isRateLimitError(err)) {
 						this.rateLimitSource = 'verify';
 						const end = startWaitFromError(this.verifyWait(), err);
 						this.rateLimitedNoTime = end == null || !this.verifyWait().active();
 					} else {
 						// a wrong / expired code: a message only, never a UI wait
-						this.errorMessage = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح' }).message;
+						const mappedCode = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح' });
+						this.errorMessage = mappedCode.message;
+						this.codeInvalid = mappedCode.kind === 'backend-validation' || mappedCode.kind === 'credentials';
 					}
 					this.cdr.markForCheck();
 				}
@@ -611,6 +620,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		this.verificationForm.get(`code${index + 1}`)?.setValue(raw);
 		input.value = raw;
 		this.errorMessage = '';
+		this.codeInvalid = false;
 
 		if (raw && index < 5) {
 			this.focusOtpInput(index + 1);

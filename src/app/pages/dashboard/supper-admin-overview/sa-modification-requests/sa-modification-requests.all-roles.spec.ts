@@ -99,9 +99,12 @@ describe('admin modification requests: all roles + history', () => {
 
 	it('a failed decision shows the server message and no success', async () => {
 		const { c } = await mount({ profile: of({ success: true, data: [prof()] }) });
-		svc.reviewProfileRequest.mockReturnValueOnce(throwError(() => ({ error: { message: 'REQUEST_NOT_PENDING_REVIEW' } })));
+		svc.reviewProfileRequest.mockReturnValueOnce(throwError(() => ({ status: 409, error: { message: 'REQUEST_NOT_PENDING_REVIEW' } })));
 		c.approve(c.requests()[0]);
-		expect(TestBed.inject(UiNotificationService).toasts().map(t => ({ kind: t.kind, message: t.message }))).toContainEqual({ kind: 'error', message: 'REQUEST_NOT_PENDING_REVIEW' });
+		// the explanation is Arabic and sits on the request's card (never the raw code), and no success toast is raised
+		expect(c.cardError()).toEqual({ id: c.requests()[0].id, message: expect.stringContaining('لم يعد قيد المراجعة') });
+		expect(c.cardError()!.message).not.toContain('REQUEST_NOT_PENDING_REVIEW');
+		expect(TestBed.inject(UiNotificationService).toasts().some(t => t.kind === 'success')).toBe(false);
 	});
 
 	it('one source failing still shows the other, with a visible incomplete-list warning', async () => {
@@ -156,5 +159,52 @@ describe('admin modification requests: AI pre-review block', () => {
 		expect(el.querySelectorAll('[data-testid="ai-review-failed"]').length).toBe(1);
 		expect(el.querySelectorAll('[data-testid="ai-review-waiting"]').length).toBe(1);   // p-null only (password + marketer: none)
 		expect(el.textContent).not.toContain('ثقة');
+	});
+});
+
+describe('admin modification requests: the new identity document can be opened', () => {
+	afterEach(() => { TestBed.resetTestingModule(); vi.restoreAllMocks(); });
+	it('a DOCUMENTS request with an identity document shows «عرض مستند الهوية الجديد» (access link by request id); other requests show none', async () => {
+		const createAccessLink = vi.fn(() => of({ url: 'https://signed.example/x', expiresAt: null, expiresInSeconds: 120, private: true, legacy: false }));
+		const { KycDocumentService } = await import('../../../../core/services/kyc-document.service');
+		const svc = { list: vi.fn(() => of({ success: true, data: [] })), listProfileRequests: vi.fn(() => of({ success: true, data: [
+			prof({ id: 'doc-req-1', category: 'DOCUMENTS', fieldName: 'DOCUMENTS', fieldLabel: 'المستندات الرسمية', requestedValue: '{"idDocumentUrl":"مستند محفوظ بشكل خاص"}', documentsAccess: { idDocumentUrl: true } }),
+			prof({ id: 'other-req-2', category: 'CLIENT_IDENTITY' }),
+		] })), approve: vi.fn(), reject: vi.fn(), reviewProfileRequest: vi.fn() };
+		await TestBed.configureTestingModule({ imports: [SaModificationRequests], providers: [{ provide: SaModificationRequestsService, useValue: svc }, { provide: KycDocumentService, useValue: { createAccessLink } }] }).compileComponents();
+		const f = TestBed.createComponent(SaModificationRequests); f.detectChanges(); await f.whenStable(); f.detectChanges();
+		const el = f.nativeElement as HTMLElement;
+		const links = el.querySelectorAll('[data-testid="mr-identity-doc"]');
+		expect(links.length).toBe(1);
+		expect(el.textContent).not.toContain('private:');
+		(links[0].querySelector('a, button') as HTMLElement).click();
+		expect(createAccessLink).toHaveBeenCalledWith(expect.objectContaining({ document: 'profile_request_document', id: 'doc-req-1' }));
+	});
+});
+
+describe('admin modification requests: a failed approve is explained on that request\'s card', () => {
+	afterEach(() => { TestBed.resetTestingModule(); vi.restoreAllMocks(); });
+	async function mountWith(failure: any) {
+		const { HttpErrorResponse } = await import('@angular/common/http');
+		const svc = { list: vi.fn(() => of({ success: true, data: [] })), listProfileRequests: vi.fn(() => of({ success: true, data: [prof({ id: 'req-a' }), prof({ id: 'req-b', createdAt: '2026-10-07T11:00:00Z' })] })), approve: vi.fn(), reject: vi.fn(), reviewProfileRequest: vi.fn(() => throwError(() => new HttpErrorResponse(failure))) };
+		await TestBed.configureTestingModule({ imports: [SaModificationRequests], providers: [{ provide: SaModificationRequestsService, useValue: svc }] }).compileComponents();
+		const f = TestBed.createComponent(SaModificationRequests); f.detectChanges(); await f.whenStable(); f.detectChanges();
+		return { f, el: f.nativeElement as HTMLElement, svc };
+	}
+	it('409 (decided by someone else): the message is inside the clicked card only, and the list is reloaded to show the current state', async () => {
+		const { f, el, svc } = await mountWith({ status: 409, error: { code: 'REQUEST_NOT_PENDING_REVIEW', message: 'REQUEST_NOT_PENDING_REVIEW' } });
+		const cards = el.querySelectorAll('.mr-card'); expect(cards.length).toBe(2);
+		(cards[0].querySelector('.mr-btn-primary') as HTMLButtonElement).click(); await f.whenStable(); f.detectChanges();
+		const err = el.querySelectorAll('[data-testid="card-action-error"]'); expect(err.length).toBe(1);
+		expect(err[0].closest('.mr-card')).toBe(el.querySelectorAll('.mr-card')[0]);
+		expect(err[0].textContent).toContain('لم يعد قيد المراجعة');
+		expect(svc.listProfileRequests.mock.calls.length).toBeGreaterThan(1);
+	});
+	it('500: the honest message with the trace id on the card; no raw server text; the buttons are usable again', async () => {
+		const { f, el } = await mountWith({ status: 500, error: { code: 'INTERNAL_ERROR', traceId: 'ABCD1234', message: 'Invalid `prisma` invocation' } });
+		(el.querySelector('.mr-btn-primary') as HTMLButtonElement).click(); await f.whenStable(); f.detectChanges();
+		const text = el.querySelector('[data-testid="card-action-error"]')!.textContent!;
+		expect(text).toContain('ABCD1234'); expect(text).not.toMatch(/prisma|invocation/i);
+		expect((el.querySelector('.mr-btn-primary') as HTMLButtonElement).disabled).toBe(false);
 	});
 });

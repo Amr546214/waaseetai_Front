@@ -100,7 +100,7 @@ describe('Login (shared validation)', () => {
 	it.each([
 		[429, { message: 'Too many authentication attempts, please try again after an hour' }, 'ساعة'],
 		[0, undefined, 'الاتصال'],
-		[500, { message: 'Internal Server Error' }, 'الخادم'],
+		[500, { message: 'Internal Server Error' }, 'من جهتنا'],
 	])('status %s is shown in Arabic only', (status, body, expected) => {
 		const { fixture, component, el } = setup(() => httpErr(status as number, body));
 		component.loginForm.patchValue({ email: 'a@b.co', password: 'x' });

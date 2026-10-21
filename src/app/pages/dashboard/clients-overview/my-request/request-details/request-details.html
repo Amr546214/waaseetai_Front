@@ -304,6 +304,7 @@
 					</span>
 					}
 				</div>
+				@if (counterNotice()?.offerId === offer.id) { <div class="ws-note ws-note--warn" role="alert" data-testid="counter-notice" style="margin-top:14px"><div class="ws-note-body">{{ counterNotice()!.text }}</div></div> }
 				@if (!isOfferSelectionClosed() && hasPendingCounter(offer)) {
 					<div class="ws-note ws-note--neutral" role="region" aria-label="عرض مضاد من مقدم الخدمة" data-testid="counter-box" style="margin-top:14px" (click)="$event.stopPropagation()">
 						<div class="ws-note-body">
@@ -651,6 +652,9 @@
 						العرض المضاد أو ترفضه</span>
 				</div>
 			</div>
+			@if (negFound()) { <div role="alert" data-testid="neg-found" class="field-error" style="margin-top:10px" (click)="$event.stopPropagation()">وجدنا طلب تفاوض قائم على هذا العرض (غالبًا الذي انقطع الاتصال أثناء إرساله). افتح المحادثة وراجعه أولًا؛ أو أرسل طلبًا آخر إن كنت تريد ذلك فعلًا.
+				<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button type="button" class="py-2 px-4 rounded-lg text-[13px] font-bold txt-navy" style="background: linear-gradient(135deg, #2BD4C7, #2B7FFF)" data-testid="neg-open-existing" (click)="openExistingNegotiation()">فتح المحادثة</button><button type="button" class="py-2 px-4 rounded-lg text-[13px] font-semibold txt-slate" style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12)" data-testid="neg-send-another" (click)="sendAnotherNegotiation()">إرسال طلب آخر</button></div></div> }
+			@if (negError()) { <div role="alert" data-testid="neg-error" class="field-error" style="margin-top:10px" (click)="$event.stopPropagation()">{{ negError() }}</div> }
 			<div class="grid grid-cols-2 gap-3 mt-4 w-full" dir="rtl" (click)="$event.stopPropagation()">
 				<!-- إلغاء (يمين) -->
 				<button type="button"
@@ -664,7 +668,7 @@
 				<button type="button"
 					style="background: linear-gradient(135deg, #2BD4C7, #2B7FFF)"
 					class="w-full py-2.5 px-4 rounded-xl text-[13px] font-bold shadow-sm flex items-center justify-center text-center leading-none hover:brightness-110 active:scale-[0.98] transition-all txt-navy"
-					[disabled]="isSendingNegotiation()" (click)="sendNegotiation()">
+					[disabled]="isSendingNegotiation() || negVerifying()" (click)="sendNegotiation()">
 					<span>{{ isSendingNegotiation() ? 'جارٍ الإرسال...' : 'إرسال طلب التفاوض' }}</span>
 				</button>
 			</div>

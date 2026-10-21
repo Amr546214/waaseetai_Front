@@ -24,7 +24,8 @@ export const providerGateInterceptor: HttpInterceptorFn = (req, next) => {
 			if (err instanceof HttpErrorResponse && err.status === 403 && !handling && authStore.actingRole() === UserRole.PROVIDER) {
 				const body: any = err.error;
 				const msg = (typeof body === 'string' ? body : body?.message) ?? '';
-				if (typeof msg === 'string' && msg.trim() === PROVIDER_GATE_MESSAGE) {
+				// the fixed marker first (the BE contract), the exact text as before for older answers
+				if ((typeof body === 'object' && body?.code === 'PROVIDER_DASHBOARD_LOCKED') || (typeof msg === 'string' && msg.trim() === PROVIDER_GATE_MESSAGE)) {
 					handling = true;
 					access.invalidate();
 					const go = (url: string) => { if (!router.url.split(/[?#]/)[0].startsWith(url)) router.navigateByUrl(url); };

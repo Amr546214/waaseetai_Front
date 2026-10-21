@@ -69,6 +69,8 @@ export interface KycProvider {
   isProfileSetupComplete?: boolean;
   frontIdUrl?: string | null;
   frontIdUrlAccess?: KycAccess | null;
+  /** A NEW identity document (sent after a refusal) waits in the change-request queue: its request id. The decision is taken there, never on the old document above. */
+  pendingIdentityRequestId?: string | null;
   backIdUrl?: string | null;
   backIdUrlAccess?: KycAccess | null;
   selfieUrl?: string | null;

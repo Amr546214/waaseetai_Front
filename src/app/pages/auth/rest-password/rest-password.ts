@@ -330,8 +330,10 @@ export class RestPassword implements OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        this.showOtpError = true;
-        this.bannerError = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح أو منتهي الصلاحية' }).message;
+        const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح أو منتهي الصلاحية' });
+        this.bannerError = mapped.message;
+        // only a refusal of the CODE (wrong / expired / locked) marks the boxes; a server, network, gateway or limit failure says nothing about a code that may be right
+        this.showOtpError = mapped.kind === 'backend-validation' || mapped.kind === 'credentials' || mapped.code === 'OTP_ATTEMPTS_LOCKED';
         this.cdr.markForCheck();
       }
     });

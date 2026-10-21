@@ -1,7 +1,7 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { Data } from './data';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
@@ -67,5 +67,40 @@ describe('provider docs approval request: the proof is mandatory and must be ful
     c.saveDocs();
     expect(svc['initiateSensitiveChange']).toHaveBeenCalledTimes(1);
     expect(svc['initiateSensitiveChange'].mock.calls[0][0]).toBe('DOCUMENTS');
+  });
+
+  const ready = () => {
+    c.docsForm.get('idDocumentUrl').setValue('https://res.cloudinary.com/x/id.pdf');
+    c.setDocumentState('idDocumentUrl', { name: 'id.pdf', progress: 100, status: 'uploaded' });
+  };
+
+  it('429 OTP_THROTTLED: the exact wait shows beside the send button, the button is locked, the file and entries stay', () => {
+    vi.useFakeTimers();
+    try {
+      setup();
+      svc['initiateSensitiveChange'].mockReturnValue(throwError(() => ({ status: 429, headers: { get: () => '45' }, error: { success: false, code: 'OTP_THROTTLED', message: 'أرسلنا الرمز بالفعل.', retryAfterSeconds: 45 } })));
+      ready();
+      c.saveDocs();
+      fixture.detectChanges();
+      expect(c.docsWaitSeconds()).toBeGreaterThan(40);
+      expect(c.docsWaitSeconds()).toBeLessThanOrEqual(45);
+      expect(c.docsActionError()).toContain('أرسلنا الرمز');
+      expect(fixture.nativeElement.querySelector('[data-testid="docs-wait"]')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('[data-testid="save-docs-btn"]').disabled).toBe(true);
+      expect(c.docsForm.get('idDocumentUrl').value).toContain('id.pdf');
+      vi.advanceTimersByTime(46000);
+      fixture.detectChanges();
+      expect(c.docsWaitSeconds()).toBe(0);
+      expect(fixture.nativeElement.querySelector('[data-testid="save-docs-btn"]').disabled).toBe(false);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('reused answer: the dialog says the earlier code is still the one to use', () => {
+    setup();
+    svc['initiateSensitiveChange'].mockReturnValue(of({ data: { requestId: 'r1', emailHint: 'a***@b.co', reused: true } }));
+    ready();
+    c.saveDocs();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="otp-reused"]')).toBeTruthy();
   });
 });

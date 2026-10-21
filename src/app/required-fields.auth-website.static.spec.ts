@@ -61,7 +61,7 @@ describe('auth forms', () => {
 	it('verify-otp stars the code and marks every box required', () => {
 		expect(otp).toMatch(/otp-card-title">رمز التحقق <span class="ws-req"/);
 		expect(otp).toMatch(/class="otp-box" aria-required="true"/);
-		expect(otp).toContain(`[attr.aria-invalid]="errorMsg ? 'true' : null"`);
+		expect(otp).toContain(`[attr.aria-invalid]="errorMsg && errorIsAboutCode ? 'true' : null"`);
 	});
 
 	it('auth css has no blue on error / invalid rules', () => {

@@ -132,6 +132,13 @@ export class Data implements OnInit {
   avatarError = signal('');
   skillError = signal('');
   otpError = signal('');
+  /** A general failure of the «إرسال طلب تعديل» action (server / network / gateway / mail / conflict): shown next to the button, never as a field error. */
+  docsActionError = signal('');
+  /** Seconds left of the server's wait before a NEW sensitive-change code may be requested (429 OTP_THROTTLED); 0 = free. */
+  docsWaitSeconds = signal(0);
+  private docsWaitTimer: ReturnType<typeof setInterval> | null = null;
+  /** true when the answer to the last request re-used the code that was already sent (no new mail). */
+  otpReused = signal(false);
   docFileErrors = signal<Record<string, string>>({});
   isSavingProfile = signal(false);
 
@@ -946,9 +953,13 @@ export class Data implements OnInit {
   private rawCode(err: any): { code: string; arg: string } | null {
     // the error-message interceptor replaces `message` with Arabic and keeps the original code (and its ':arg') in rawMessage
     const raw = err?.error?.rawMessage ?? err?.error?.message;
-    if (typeof raw !== 'string') return null;
-    const [code, ...rest] = raw.trim().split(':');
-    return /^[A-Z_]+$/.test(code) ? { code, arg: rest.join(':').trim() } : null;
+    if (typeof raw === 'string') {
+      const [code, ...rest] = raw.trim().split(':');
+      if (/^[A-Z_]+$/.test(code)) return { code, arg: rest.join(':').trim() };
+    }
+    // the BE contract: a fixed `code` next to an Arabic message
+    const marker = err?.error?.code;
+    return typeof marker === 'string' && /^[A-Z][A-Z0-9_]{2,63}$/.test(marker) ? { code: marker, arg: '' } : null;
   }
 
   /**
@@ -1235,6 +1246,7 @@ export class Data implements OnInit {
   private startSensitiveChange(category: 'DOCUMENTS', changes: Record<string, unknown>) {
     if (this.isSaving()) return;
     this.isSaving.set(true);
+    this.docsActionError.set('');
     this.profileService.initiateSensitiveChange(category, changes).subscribe({
       next: (res: any) => {
         this.isSaving.set(false);
@@ -1242,6 +1254,7 @@ export class Data implements OnInit {
         this.pendingSensitiveCategory.set(category);
         this.pendingRequestId.set(res.data.requestId);
         this.otpEmailHint.set(res.data.emailHint);
+        this.otpReused.set(res.data.reused === true);
         this.otpCode.set('');
         this.otpError.set('');
         this.showOtpModal.set(true);
@@ -1267,9 +1280,27 @@ export class Data implements OnInit {
     if (field && message && this.serverFieldError(form, field, message, setSummary, labels)) return;
     if (this.applyMappedFieldErrors(form, mapHttpError(err, { fallback: 'تعذر إنشاء طلب التعديل. حاول مرة أخرى' }), labels, setSummary)) return;
     const fallback = 'تعذر إنشاء طلب التعديل. حاول مرة أخرى';
-    this.notifyHttpError(err, { fallback });
+    // the message sits NEXT TO the action (the save button), with what to do; the entries and the uploaded file stay as they are
+    const mapped = mapHttpError(err, { fallback });
+    this.docsActionError.set(mapped.message);
+    // 429: the server states the exact wait - count it down beside the button and keep the button locked until it ends
+    if (mapped.kind === 'rate-limit' || err?.error?.code === 'OTP_THROTTLED') {
+      const wait = Math.ceil(mapped.retryEndsAt ? (mapped.retryEndsAt - Date.now()) / 1000 : (mapped.retryAfterSeconds ?? Number(err?.error?.retryAfterSeconds) ?? 60));
+      this.startDocsWait(Number.isFinite(wait) && wait > 0 ? wait : 60);
+    }
     // 409: a request is already waiting for the admin - show that state instead of leaving the form looking unsent
     if (raw?.code === 'REQUEST_ALREADY_PENDING' || err?.error?.message === 'REQUEST_ALREADY_PENDING') this.loadProfile();
+  }
+
+  private startDocsWait(seconds: number) {
+    if (this.docsWaitTimer) clearInterval(this.docsWaitTimer);
+    this.docsWaitSeconds.set(seconds);
+    this.docsWaitTimer = setInterval(() => {
+      const left = this.docsWaitSeconds() - 1;
+      this.docsWaitSeconds.set(Math.max(0, left));
+      if (left <= 0 && this.docsWaitTimer) { clearInterval(this.docsWaitTimer); this.docsWaitTimer = null; this.docsActionError.set(''); }
+    }, 1000);
+    this.destroyRef.onDestroy(() => { if (this.docsWaitTimer) clearInterval(this.docsWaitTimer); });
   }
 
   closeOtpModal() {

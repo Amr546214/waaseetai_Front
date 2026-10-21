@@ -607,9 +607,10 @@
       </div>
     </div>
     <ws-form-summary [items]="identityPending() ? [] : missingDocs()" (select)="onSummarySelect($event)" />
-    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving() || docsUploading() || identityPending()" (click)="saveDocs()" data-testid="save-docs-btn">{{ isSaving() ? 'جاري الإرسال...' : (identityPending() ? 'طلب التحقق قيد المراجعة' : 'إرسال طلب تعديل') }}</button>
+    <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving() || docsUploading() || identityPending() || docsWaitSeconds() > 0" (click)="saveDocs()" data-testid="save-docs-btn">{{ isSaving() ? 'جاري الإرسال...' : (identityPending() ? 'طلب التحقق قيد المراجعة' : 'إرسال طلب تعديل') }}</button>
       @if (docsUploading()) { <span class="inp-hint" data-testid="docs-upload-reason">جاري رفع المستند، انتظر اكتمال الرفع ثم أرسل الطلب</span> }
     </div>
+    @if (docsActionError()) { <div class="field-error" role="alert" data-testid="docs-action-error" style="margin-top:8px">{{ docsActionError() }}@if (docsWaitSeconds() > 0) { <strong data-testid="docs-wait" dir="ltr"> ({{ docsWaitSeconds() }} ث)</strong> }</div> }
   </div>
 </div>
 
@@ -770,6 +771,7 @@
     <div class="modal-ico">✉</div>
     <div class="modal-title">تأكيد البريد الإلكتروني</div>
     <p class="modal-desc">أدخل رمز التحقق المرسل إلى بريد حسابك<br><span dir="ltr">{{ otpEmailHint() }}</span></p>
+    @if (otpReused()) { <p class="modal-desc" data-testid="otp-reused">أرسلنا هذا الرمز قبل قليل لنفس الطلب، فلا حاجة لرمز جديد. استخدم الرمز الذي وصلك (صلاحيته 10 دقائق من وقت إرساله).</p> }
     <ws-otp-input idPrefix="sens-otp" [(value)]="otpCode" [invalid]="!!otpError()" [disabled]="isVerifyingOtp()" (complete)="verifyOtp()" (valueChange)="otpError.set('')" />
     @if (otpError()) { <span class="field-error" role="alert" data-testid="otp-error">{{ otpError() }}</span> }
     <div class="modal-actions"><button type="button" class="modal-btn modal-btn-cancel"

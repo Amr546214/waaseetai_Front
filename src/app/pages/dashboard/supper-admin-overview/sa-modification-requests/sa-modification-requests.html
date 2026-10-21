@@ -122,6 +122,12 @@
             </div>
           </div>
 
+          @if (r.source === 'profile' && r.identityDocAccess) {
+            <div class="mr-doc" data-testid="mr-identity-doc">
+              <app-kyc-document-link document="profile_request_document" [docId]="r.id" [access]="{ private: true, legacy: false }" label="عرض مستند الهوية الجديد ↗" />
+            </div>
+          }
+
           @if (r.source === 'profile') {
             <ws-profile-ai-review [review]="r.aiReview" [status]="r.rawStatus" [category]="r.category" />
           }
@@ -153,6 +159,7 @@
                 <button type="button" class="mr-btn mr-btn-warn" [disabled]="processingId() === r.id" (click)="reject(r)">رفض</button>
               }
             </div>
+            @if (cardError()?.id === r.id) { <p role="alert" data-testid="card-action-error" style="color:#FF8C69;font-size:12px;margin:8px 0 0">{{ cardError()!.message }}</p> }
             @if (rejectingId() === r.id) {
               <div class="mr-reject-panel" data-testid="reject-panel" style="margin-top:10px">
                 <label for="mr-reject-reason" style="display:block;font-size:12px;font-weight:700;margin-bottom:6px">سبب الرفض <span style="color:#FF8C69">*</span> (يصل إلى صاحب الطلب)</label>

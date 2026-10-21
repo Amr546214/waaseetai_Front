@@ -87,7 +87,7 @@ describe('OTP delivery: pure notices and error mapping', () => {
 
 	it('503 with the Arabic SMS message is shown as is; a bare 503 stays generic', () => {
 		expect(mapHttpError({ status: 503, error: { message: SMS_503 } }).message).toBe(SMS_503);
-		expect(mapHttpError({ status: 503, error: { message: 'Service Unavailable' } }).message).toBe('حدث خطأ في الخادم. حاول مرة أخرى بعد قليل.');
+		expect(mapHttpError({ status: 503, error: { message: 'Service Unavailable' } }).message).toBe('الخدمة غير متاحة مؤقتًا. حاول مرة أخرى بعد قليل، وإن استمرت المشكلة تواصل مع الدعم.');
 	});
 });
 

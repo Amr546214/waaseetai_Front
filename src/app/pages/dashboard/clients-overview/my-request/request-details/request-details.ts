@@ -1,3 +1,4 @@
+import { mapHttpError } from '../../../../../core/forms/http-error';
 import { LevelBadgeComponent } from '../../../../../shared/levels/level-badge.component';
 import { Component, signal, computed, inject, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -192,7 +193,7 @@ export class RequestDetails implements OnInit {
 		}
 	}
 
-	fetchRequestDetails(id: string) {
+	fetchRequestDetails(id: string, after?: (ok: boolean) => void) {
 		this.isLoading.set(true);
 		this.http.get<any>(`${environment.url_api}/client/my-requests/${id}`).subscribe({
 			next: (res) => {
@@ -321,6 +322,7 @@ export class RequestDetails implements OnInit {
 					}
 				}
 				this.isLoading.set(false);
+				after?.(true);
 			},
 			error: (err) => {
 				console.error('Error fetching request details from database:', err);
@@ -328,6 +330,7 @@ export class RequestDetails implements OnInit {
 					this.router.navigate(['/auth/login']);
 				}
 				this.isLoading.set(false);
+				after?.(false);
 			}
 		});
 	}
@@ -381,8 +384,17 @@ export class RequestDetails implements OnInit {
 	selectedOffer = signal<Offer | null>(null);
 	isSelectingOffer = signal<boolean>(false);
 	isSendingNegotiation = signal<boolean>(false);
+	/** Why sending the negotiation request failed - inside the open dialog, next to the send button (entries stay as typed). */
+	negError = signal<string>('');
+	/** The last send of a negotiation request ended with an unknown outcome (lost answer): sending again is gated by a check of what the server already holds for this offer. */
+	negUncertain = signal<boolean>(false);
+	/** The check found a negotiation request already on this offer: the user must open it first, or explicitly ask for another one. */
+	negFound = signal<boolean>(false);
+	negVerifying = signal<boolean>(false);
 	/** The offer whose counter offer is being answered right now (blocks double clicks). */
 	answeringOfferId = signal<string | null>(null);
+	/** Why the last accept/decline of a counter offer failed - kept on the offer card (the counter box itself may disappear once the page re-reads the server state). */
+	counterNotice = signal<{ offerId: string; text: string } | null>(null);
 
 	private errorText(err: any, fallback: string): string {
 		return err?.error?.message || fallback;
@@ -439,6 +451,9 @@ export class RequestDetails implements OnInit {
 		this.negDuration.set('');
 		this.negType.set('price');
 		this.negMessage.set('');
+		this.negError.set('');
+		this.negUncertain.set(false);
+		this.negFound.set(false);
 		this.showNegModal.set(true);
 	}
 
@@ -494,12 +509,15 @@ export class RequestDetails implements OnInit {
 			return;
 		}
 		if (this.isSendingNegotiation()) return;
+		this.negError.set('');
 		const invalid = this.negValidationProblem();
 		if (invalid) {
 			// The message sits under the field that is wrong (red, role=alert) and the field gets focus; no toast-only validation.
 			void reportClientProblems(this.host.nativeElement, [invalid]);
 			return;
 		}
+		// an earlier send ended with an unknown outcome: never create again before looking at what already exists on this offer (whatever the typed content is now)
+		if (this.negUncertain()) { this.verifyNegotiationOutcome(); return; }
 
 		const providerId = offer.providerId || offer.provider?.id || offer.id;
 		const negCategory = this.negType() === 'price' ? 'السعر' : (this.negType() === 'dur' ? 'المدة' : (this.negType() === 'plan' ? 'الخطة' : 'تفاوض عام'));
@@ -539,17 +557,48 @@ export class RequestDetails implements OnInit {
 				if (hasFieldErrors(err)) {
 					void reportClientBackend(this.host.nativeElement, err, { resolve: { price: 'neg-price', duration: 'neg-dur', notes: 'neg-msg' } }).then((r) => {
 						if (r.handled && !r.generic) return;
-						this.closeNegotiation();
-						this.notify.error(r.generic || this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
+						this.negError.set(r.generic || this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
 					});
 					return;
 				}
-				this.closeNegotiation();
-				this.notify.error(this.errorText(err, 'تعذر إرسال طلب التفاوض، حاول مرة أخرى'));
-				// the reason may be a state change (offer withdrawn / chosen): reload so the buttons match the server
+				// Every other failure keeps the dialog OPEN with the reason beside the send button and the typed entries untouched.
+				// A lost answer: the server never stores the identical request twice, so pressing send again is safe.
+				const mapped = mapHttpError(err, { fallback: 'تعذر إرسال طلب التفاوض، حاول مرة أخرى' });
+				if (mapped.outcomeUnknown) this.negUncertain.set(true);
+				this.negError.set(mapped.outcomeUnknown ? 'نتيجة الإرسال غير مؤكدة: انقطع الاتصال قبل أن نعرف إن كان طلبك وصل. عند الضغط على «إرسال طلب التفاوض» سنتحقق أولًا من التفاوض الموجود على هذا العرض قبل إنشاء طلب جديد.' : mapped.message);
+				// the reason may be a state change (offer withdrawn / chosen): re-read so the buttons behind the dialog match the server
 				this.fetchRequestDetails(this.requestId());
 			}
 		});
+	}
+
+	/** Re-reads the offer's negotiation state from the server. Something already there -> stop and let the user open it; nothing there -> the lost send never arrived, so sending is safe. */
+	private verifyNegotiationOutcome() {
+		const offerId = this.selectedOffer()?.id;
+		if (!offerId || this.negVerifying()) return;
+		this.negVerifying.set(true);
+		this.negError.set('');
+		this.fetchRequestDetails(this.requestId(), (ok) => {
+			this.negVerifying.set(false);
+			if (!ok) { this.negError.set('تعذر التحقق من طلب التفاوض الموجود، فلن نرسل طلبًا جديدًا الآن. تحقق من اتصالك وحاول مرة أخرى.'); return; }
+			const current = this.offers().find(o => o.id === offerId);
+			if (current?.negotiation && current.negotiation.state !== 'NONE') { this.negFound.set(true); return; }
+			this.negUncertain.set(false);
+			this.sendNegotiation();
+		});
+	}
+
+	openExistingNegotiation() {
+		const offer = this.selectedOffer();
+		if (!offer) return;
+		this.closeNegotiation();
+		this.startChat(offer);
+	}
+
+	sendAnotherNegotiation() {
+		this.negUncertain.set(false);
+		this.negFound.set(false);
+		this.sendNegotiation();
 	}
 
 	startChat(offer: Offer) {
@@ -609,6 +658,7 @@ export class RequestDetails implements OnInit {
 		const counter = offer.negotiation?.counter;
 		if (!counter || this.answeringOfferId()) return;
 		this.answeringOfferId.set(offer.id);
+		this.counterNotice.set(null);
 		this.http.post<any>(`${environment.url_api}/client/my-requests/${this.requestId()}/offers/${offer.id}/counter/${action}`, { messageId: counter.messageId })
 			.subscribe({
 				next: (res) => {
@@ -618,7 +668,11 @@ export class RequestDetails implements OnInit {
 				},
 				error: (err) => {
 					this.answeringOfferId.set(null);
-					this.notify.error(this.errorText(err, 'تعذر تنفيذ الإجراء، حاول مرة أخرى'));
+					// the server's reason is kept visible on the card (a toast alone vanishes); a lost answer says the action may have been recorded and the page shows what really was
+					const mapped = mapHttpError(err, { fallback: 'تعذر تنفيذ الإجراء، حاول مرة أخرى' });
+					const text = mapped.outcomeUnknown ? 'انقطع الاتصال قبل أن نعرف إن كان ردّك وصل. حدّثنا الصفحة لتعرض آخر حالة محفوظة، فتحقق منها قبل إعادة المحاولة.' : mapped.message;
+					this.counterNotice.set({ offerId: offer.id, text });
+					this.notify.error(text);
 					this.fetchRequestDetails(this.requestId());
 				}
 			});

@@ -166,6 +166,6 @@ describe('SaSupportDetail form validation UX', () => {
 		const { f, c, api, el } = setup();
 		api.adminSetStatus.mockReturnValueOnce(throwError(() => httpFail(500, null)));
 		c.setStatus('RESOLVED'); await settleForm(); f.detectChanges();
-		expect(el.querySelector('[data-testid="action-error"]')?.textContent).toContain('الخادم');
+		expect(el.querySelector('[data-testid="action-error"]')?.textContent).toContain('من جهتنا');
 	});
 });

@@ -33,7 +33,7 @@
     @if (targetEmail) {
     <p class="auth-sub" data-testid="otp-target" style="margin-top:-6px">أرسلنا الرمز إلى <bdi dir="ltr">{{ targetEmail }}</bdi></p>
     }
-    <p class="inp-hint" data-testid="otp-delivery-hint" style="text-align:center;margin:0 0 10px">{{ deliveryHint }}</p>
+    <p class="inp-hint" data-testid="otp-delivery-hint" style="text-align:center;margin:0 0 12px;font-size:12.5px;line-height:1.7;opacity:.8">{{ deliveryHint }}</p>
 
     @if (!loginMode) {
     <div class="stepper" role="list" aria-label="خطوات التسجيل">
@@ -78,7 +78,7 @@
         <div class="otp-card-title">رمز التحقق <span class="ws-req" aria-hidden="true">*</span></div>
         <div class="otp-group" id="otp-group" aria-label="خانات رمز التحقق" role="group" dir="ltr" (paste)="onOtpPaste($event)">
           @for (i of otpIndexes; track i) {
-          <input class="otp-box" aria-required="true" [class.filled]="!!otpDigit(i)" [class.has-error]="!!errorMsg" [attr.aria-invalid]="errorMsg ? 'true' : null" [attr.aria-describedby]="errorMsg ? 'banner-error' : null" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+          <input class="otp-box" aria-required="true" [class.filled]="!!otpDigit(i)" [class.has-error]="!!errorMsg && errorIsAboutCode" [attr.aria-invalid]="errorMsg && errorIsAboutCode ? 'true' : null" [attr.aria-describedby]="errorMsg ? 'banner-error' : null" [value]="otpDigit(i)" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
             [id]="'otp-' + i" [attr.aria-label]="'الرقم ' + (i + 1)" (input)="onOtpInput(i, $event)" (keydown)="onOtpKeydown(i, $event)" (focus)="$any($event.target).select()">
           }
         </div>
