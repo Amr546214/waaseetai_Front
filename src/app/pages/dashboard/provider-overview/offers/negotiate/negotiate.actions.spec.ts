@@ -93,7 +93,7 @@ describe('provider offer negotiation page', () => {
 	});
 
 	it('counter failure shows the server message and NO success', async () => {
-		const s = await setup(STATE(), { counterOffer: vi.fn(() => throwError(() => ({ error: { message: 'لديك عرض مضاد معلّق بانتظار رد العميل' } }))) });
+		const s = await setup(STATE(), { counterOffer: vi.fn(() => throwError(() => ({ status: 409, error: { success: false, message: 'لديك عرض مضاد معلّق بانتظار رد العميل' } }))) });
 		s.c.counterPrice.set('900'); s.c.counterDays.set('10'); s.f.detectChanges();
 		s.c.submitCounter(); s.f.detectChanges();
 		expect(s.q('neg-counter-error')!.textContent).toContain('لديك عرض مضاد معلّق');
@@ -114,7 +114,7 @@ describe('provider offer negotiation page', () => {
 	});
 
 	it('reject failure: error shown, no "done" message', async () => {
-		const s = await setup(STATE(), { rejectNegotiation: vi.fn(() => throwError(() => ({ error: { message: 'تم الرد على هذا الطلب مسبقًا' } }))) });
+		const s = await setup(STATE(), { rejectNegotiation: vi.fn(() => throwError(() => ({ status: 409, error: { success: false, message: 'تم الرد على هذا الطلب مسبقًا' } }))) });
 		s.c.ask('reject'); s.c.confirmReject(); s.f.detectChanges();
 		expect(s.q('neg-action-error')!.textContent).toContain('تم الرد على هذا الطلب مسبقًا');
 		expect(s.q('neg-done')).toBeNull();
@@ -134,7 +134,7 @@ describe('provider offer negotiation page', () => {
 	});
 
 	it('withdraw failure: error shown, no "done" message', async () => {
-		const s = await setup(STATE(), { withdrawOffer: vi.fn(() => throwError(() => ({ error: { message: 'لا يمكن سحب هذا العرض في حالته الحالية' } }))) });
+		const s = await setup(STATE(), { withdrawOffer: vi.fn(() => throwError(() => ({ status: 409, error: { success: false, message: 'لا يمكن سحب هذا العرض في حالته الحالية' } }))) });
 		s.c.ask('withdraw'); s.c.confirmWithdraw(); s.f.detectChanges();
 		expect(s.q('neg-action-error')!.textContent).toContain('لا يمكن سحب هذا العرض');
 		expect(s.q('neg-done')).toBeNull();
@@ -155,5 +155,26 @@ describe('provider offer negotiation page', () => {
 	it('no AI purple / AI icon on the negotiation page', () => {
 		const html = readFileSync(join(__dirname, 'negotiate.html'), 'utf8');
 		expect(html).not.toMatch(/#i-ai|ai-disc|ai-bc|ai-insight|ai-banner|txt-purple|text-purple/);
+	});
+
+	it('counter refused because the state changed (409): the reason is shown and the page re-reads the server state', async () => {
+		const s = await setup(STATE(), { counterOffer: vi.fn(() => throwError(() => ({ status: 409, error: { success: false, code: 'COUNTER_PENDING_EXISTS', message: 'لديك عرض مضاد معلّق بانتظار رد العميل' } }))) });
+		const calls = s.api.getNegotiation.mock.calls.length;
+		s.c.counterPrice.set('700'); s.c.counterDays.set('5');
+		s.c.submitCounter(); s.f.detectChanges();
+		expect(s.c.counterError()).toContain('لديك عرض مضاد معلّق');
+		expect(s.api.getNegotiation.mock.calls.length).toBe(calls + 1);
+		expect(s.c.counterPrice()).toBe('700');
+	});
+
+	it('counter sent but the answer was lost (network): says it may have been saved, refreshes the state, keeps the entries', async () => {
+		const s = await setup(STATE(), { counterOffer: vi.fn(() => throwError(() => ({ status: 0, error: null }))) });
+		const calls = s.api.getNegotiation.mock.calls.length;
+		s.c.counterPrice.set('700'); s.c.counterDays.set('5');
+		s.c.submitCounter(); s.f.detectChanges();
+		expect(s.c.counterError()).toContain('تحقق');
+		expect(s.api.getNegotiation.mock.calls.length).toBe(calls + 1);
+		expect(s.c.counterPrice()).toBe('700');
+		expect(s.c.counterSaving()).toBe(false);
 	});
 });
