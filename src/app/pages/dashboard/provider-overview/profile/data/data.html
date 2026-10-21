@@ -610,6 +610,7 @@
     <div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSaving() || docsUploading() || identityPending()" (click)="saveDocs()" data-testid="save-docs-btn">{{ isSaving() ? 'جاري الإرسال...' : (identityPending() ? 'طلب التحقق قيد المراجعة' : 'إرسال طلب تعديل') }}</button>
       @if (docsUploading()) { <span class="inp-hint" data-testid="docs-upload-reason">جاري رفع المستند، انتظر اكتمال الرفع ثم أرسل الطلب</span> }
     </div>
+    @if (docsActionError()) { <div class="field-error" role="alert" data-testid="docs-action-error" style="margin-top:8px">{{ docsActionError() }}</div> }
   </div>
 </div>
 

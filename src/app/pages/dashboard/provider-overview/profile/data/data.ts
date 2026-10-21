@@ -132,6 +132,8 @@ export class Data implements OnInit {
   avatarError = signal('');
   skillError = signal('');
   otpError = signal('');
+  /** A general failure of the «إرسال طلب تعديل» action (server / network / gateway / mail / conflict): shown next to the button, never as a field error. */
+  docsActionError = signal('');
   docFileErrors = signal<Record<string, string>>({});
   isSavingProfile = signal(false);
 
@@ -1235,6 +1237,7 @@ export class Data implements OnInit {
   private startSensitiveChange(category: 'DOCUMENTS', changes: Record<string, unknown>) {
     if (this.isSaving()) return;
     this.isSaving.set(true);
+    this.docsActionError.set('');
     this.profileService.initiateSensitiveChange(category, changes).subscribe({
       next: (res: any) => {
         this.isSaving.set(false);
@@ -1267,7 +1270,8 @@ export class Data implements OnInit {
     if (field && message && this.serverFieldError(form, field, message, setSummary, labels)) return;
     if (this.applyMappedFieldErrors(form, mapHttpError(err, { fallback: 'تعذر إنشاء طلب التعديل. حاول مرة أخرى' }), labels, setSummary)) return;
     const fallback = 'تعذر إنشاء طلب التعديل. حاول مرة أخرى';
-    this.notifyHttpError(err, { fallback });
+    // the message sits NEXT TO the action (the save button), with what to do; the entries and the uploaded file stay as they are
+    this.docsActionError.set(mapHttpError(err, { fallback }).message);
     // 409: a request is already waiting for the admin - show that state instead of leaving the form looking unsent
     if (raw?.code === 'REQUEST_ALREADY_PENDING' || err?.error?.message === 'REQUEST_ALREADY_PENDING') this.loadProfile();
   }
