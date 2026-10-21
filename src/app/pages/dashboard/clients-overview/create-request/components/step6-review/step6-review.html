@@ -181,6 +181,15 @@
 
 <!-- STICKY BOTTOM -->
 <div class="sticky-bottom" style="right:0;">
+  @if (parent.publishCandidates(); as found) {
+    <div role="alert" data-testid="publish-candidates" class="text-[13px] leading-[1.8] px-4 py-3 text-center" style="color:#ffd27a">
+      <p class="m-0">محاولة النشر السابقة لم نعرف نتيجتها، ووجدنا طلبات أُنشئت بعدها. افتح الطلب وراجعه أولًا؛ لا ننشئ طلبًا جديدًا قبل أن تقرر.</p>
+      <ul class="list-none p-0 my-2">
+        @for (r of found; track r.id) { <li class="my-1"><span>{{ r.title }}</span> <button type="button" class="font-bold underline bg-transparent border-0 cursor-pointer text-inherit" data-testid="publish-candidate-open" (click)="parent.openPublishCandidate(r.id)">فتح</button></li> }
+      </ul>
+      <button type="button" class="font-semibold underline bg-transparent border-0 cursor-pointer text-inherit" data-testid="publish-anyway" (click)="parent.publishAnyway()">ليس أيٌّ منها طلبي، انشر طلبًا جديدًا</button>
+    </div>
+  }
   @if (parent.publishError()) { <p role="alert" class="text-[13px] leading-[1.7] text-[#ff8a8a] m-0 px-4 py-2 text-center" data-testid="publish-error">{{ parent.publishError() }}</p> }
   <div class="sticky-inner max-w-6xl mx-auto px-4 lg:px-6 flex items-center justify-between gap-4 flex-row-reverse" style="margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-direction:row-reverse;">
 	<div class="flex items-center gap-4">
