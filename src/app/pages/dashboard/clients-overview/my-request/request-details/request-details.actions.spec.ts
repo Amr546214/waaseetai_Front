@@ -198,7 +198,7 @@ describe('RequestDetails - states and actions come from the server', () => {
 		expect(readFileSync(join(__dirname, 'request-details.ts'), 'utf8')).not.toContain("'c1'");
 	});
 
-	it('negotiation request sent but the answer was lost (network): dialog stays open, entries kept, one sentence says pressing send again is safe', async () => {
+	it('negotiation request sent but the answer was lost (network): dialog stays open, entries kept, the outcome is marked uncertain', async () => {
 		const chat = { initiateConversation: vi.fn(() => throwError(() => ({ status: 0, error: null }))) };
 		const s = await setup(details(), { chat });
 		s.c.openNegotiation(s.c.offers()[0]);
@@ -206,7 +206,56 @@ describe('RequestDetails - states and actions come from the server', () => {
 		s.c.sendNegotiation(); s.f.detectChanges();
 		expect(s.c.showNegModal()).toBe(true);
 		expect(s.c.negPrice()).toBe('4000'); expect(s.c.negMessage()).toBe('خصم؟');
-		expect(s.q('neg-error')!.textContent).toContain('بأمان');
+		expect(s.q('neg-error')!.textContent).toContain('نتيجة الإرسال غير مؤكدة');
 		expect(s.nav).not.toHaveBeenCalled();
+	});
+
+	// ---- uncertain outcome: sending again is gated by a check of what the server already holds for the offer ----
+	const lostThenVerify = async (afterGet: any) => {
+		const chat = { initiateConversation: vi.fn(() => throwError(() => ({ status: 0, error: null }))) };
+		const s = await setup(details(), { chat });
+		s.c.openNegotiation(s.c.offers()[0]);
+		s.c.negPrice.set('4000'); s.c.negMessage.set('خصم؟');
+		s.c.sendNegotiation(); s.f.detectChanges();
+		expect(s.c.negUncertain()).toBe(true);
+		if (afterGet) s.get.mockImplementation(afterGet);
+		return { s, chat };
+	};
+
+	it('uncertain + the server already holds a request on the offer: pressing send creates NOTHING, offers to open the existing one first', async () => {
+		const withRequest = details({}, [prop({ status: 'UNDER_NEGOTIATION', negotiation: { state: 'REQUEST_SENT', counter: null } })]);
+		const { s, chat } = await lostThenVerify(() => of(withRequest));
+		s.c.sendNegotiation(); s.f.detectChanges();
+		expect(chat.initiateConversation).toHaveBeenCalledTimes(1); // only the lost one
+		expect(s.q('neg-found')).not.toBeNull();
+		s.q('neg-open-existing')!.click();
+		expect(chat.initiateConversation).toHaveBeenCalledTimes(2); // opening the conversation (no negotiation payload)
+		expect((chat.initiateConversation as any).mock.calls[1][0].negotiationPayload).toBeUndefined();
+	});
+
+	it('uncertain + an EDITED field + something already there: still gated (not tied to identical content); «إرسال طلب آخر» is an explicit choice', async () => {
+		const withRequest = details({}, [prop({ status: 'UNDER_NEGOTIATION', negotiation: { state: 'REQUEST_SENT', counter: null } })]);
+		const { s, chat } = await lostThenVerify(() => of(withRequest));
+		s.c.negPrice.set('3500'); // changed after the lost answer
+		s.c.sendNegotiation(); s.f.detectChanges();
+		expect(chat.initiateConversation).toHaveBeenCalledTimes(1);
+		s.q('neg-send-another')!.click();
+		expect(chat.initiateConversation).toHaveBeenCalledTimes(2);
+		expect((chat.initiateConversation as any).mock.calls[1][0].negotiationPayload).toMatchObject({ price: '3500' });
+	});
+
+	it('uncertain + nothing on the offer: the lost send never arrived, so the next press sends', async () => {
+		const { s, chat } = await lostThenVerify(null);
+		(chat.initiateConversation as any).mockReturnValue(of({ data: { id: 'conv-9' } }));
+		s.c.sendNegotiation(); s.f.detectChanges();
+		expect(chat.initiateConversation).toHaveBeenCalledTimes(2);
+		expect(s.nav).toHaveBeenCalledWith(['/client-overview/messages'], { queryParams: { conversationId: 'conv-9' } });
+	});
+
+	it('uncertain + the check itself fails: nothing is sent, the user is told why', async () => {
+		const { s, chat } = await lostThenVerify(() => throwError(() => ({ status: 0 })));
+		s.c.sendNegotiation(); s.f.detectChanges();
+		expect(chat.initiateConversation).toHaveBeenCalledTimes(1);
+		expect(s.c.negError()).toContain('لن نرسل طلبًا جديدًا');
 	});
 });
