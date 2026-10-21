@@ -60,6 +60,8 @@ export class SaModificationRequests implements OnInit {
   rejectReason = signal('');
   rejectError = signal('');
   actionError = signal('');
+  /** A failed approve: the message belongs to THAT request's card (next to its buttons), not to the top of a long list. */
+  cardError = signal<{ id: string; message: string } | null>(null);
 
   activeFilter = signal<FilterKey>('all');
   isLoading = signal(false);
@@ -141,6 +143,7 @@ export class SaModificationRequests implements OnInit {
   approve(req: ModificationRequest) {
     if (this.processingId()) return;
     this.actionError.set('');
+    this.cardError.set(null);
 
     this.processingId.set(req.id);
     const call$: Observable<{ success: boolean; message?: string }> = req.source === 'profile' ? this.service.reviewProfileRequest(req.id, true) : this.service.approve(req.id);
@@ -155,7 +158,12 @@ export class SaModificationRequests implements OnInit {
           this.notify.error(res.message || 'تعذر اعتماد الطلب');
         }
       },
-      error: (err) => { this.actionError.set(mapHttpError(err, { fallback: 'تعذر اعتماد الطلب، حاول مرة أخرى' }).message); this.notify.error(err?.error?.message || 'تعذر اعتماد الطلب، حاول مرة أخرى'); }
+      error: (err) => {
+        const mapped = mapHttpError(err, { fallback: 'تعذر اعتماد الطلب، حاول مرة أخرى' });
+        this.cardError.set({ id: req.id, message: mapped.message });
+        // the request was decided by someone else / is no longer waiting (409) or is gone (404): reload so the card shows its CURRENT state next to the message
+        if (mapped.kind === 'conflict' || mapped.kind === 'not-found') this.loadRequests();
+      }
     });
   }
 
@@ -163,6 +171,7 @@ export class SaModificationRequests implements OnInit {
   reject(req: ModificationRequest) {
     if (this.processingId()) return;
     this.actionError.set('');
+    this.cardError.set(null);
     this.rejectError.set('');
     this.rejectReason.set('');
     this.rejectingId.set(req.id);
