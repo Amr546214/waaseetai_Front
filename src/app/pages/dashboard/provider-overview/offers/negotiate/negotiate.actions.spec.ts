@@ -187,4 +187,15 @@ describe('provider offer negotiation page', () => {
 		expect(s.q('neg-lost-resolved')!.textContent).toContain('تم حفظ عرضك المضاد');
 		expect(s.api.counterOffer).toHaveBeenCalledTimes(1);
 	});
+
+	it('the disabled send button says what is missing from the very first render (no field has to be touched)', async () => {
+		const s = await setup();
+		expect((s.q('neg-counter-submit') as HTMLButtonElement).disabled).toBe(true);
+		expect(s.q('neg-counter-blocker')!.textContent).toContain('أدخل سعرًا');
+		s.c.counterPrice.set('700'); s.f.detectChanges();
+		expect(s.q('neg-counter-blocker')!.textContent).toContain('مدة');
+		s.c.counterDays.set('5'); s.f.detectChanges();
+		expect(s.q('neg-counter-blocker')).toBeNull();
+		expect((s.q('neg-counter-submit') as HTMLButtonElement).disabled).toBe(false);
+	});
 });
