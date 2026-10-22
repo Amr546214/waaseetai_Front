@@ -151,3 +151,6 @@
 :host-context(body.theme-light) .sq-score-item,
 :host-context(.light-theme) .sq-score-item,
 :host-context(.theme-light) .sq-score-item{background:#f8fafc;border-color:#E7EAF1}
+
+/* admin audit: the card scrolls inside itself at 320px instead of widening the page */
+.sq-card{max-width:100%;overflow-x:auto}
