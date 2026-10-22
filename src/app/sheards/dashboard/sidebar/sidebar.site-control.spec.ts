@@ -11,6 +11,7 @@ const fakeSocket = { connected: false, on: vi.fn(), emit: vi.fn(), disconnect: v
 import { Sidebar } from './sidebar';
 import { AuthStore } from '../../../core/store/auth.store';
 import { ProviderAccessService } from '../../../core/services/provider-access.service';
+import { isAdminUser } from '../../../core/guards/auth.guards';
 
 // «التحكم بالموقع»: a section at the BOTTOM of the admin sidebar (just above the logout button), with the nine pages under it and real links.
 describe('Sidebar: التحكم بالموقع', () => {
@@ -31,6 +32,14 @@ describe('Sidebar: التحكم بالموقع', () => {
 		const children = nav[i + 1].children as any[];
 		expect(children.map(c => c.label)).toEqual(['صحة الهوية', 'القيم والألوان', 'الأيقونات', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'دليل الأنماط', 'المعاينة الشاملة', 'تصدير CSS']);
 		expect(children.every(c => String(c.route).startsWith('/supper-admin-overview/site-control/'))).toBe(true);
+	});
+
+	it('PINS the current state (a permission decision is still pending): an ADMIN account does NOT get the link (it gets the client menu), while the ROUTE guard admits ADMIN', () => {
+		expect(items('ADMIN').some(n => n.label === 'التحكم بالموقع')).toBe(false);
+		TestBed.resetTestingModule();
+		expect(isAdminUser({ accountType: 'ADMIN' })).toBe(true);
+		expect(isAdminUser({ accountType: 'SUPER_ADMIN' })).toBe(true);
+		expect(isAdminUser({ accountType: 'CLIENT_INDIVIDUAL' })).toBe(false);
 	});
 
 	it('no other role gets the section', () => {
