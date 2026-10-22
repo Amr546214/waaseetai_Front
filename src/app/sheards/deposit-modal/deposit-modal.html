@@ -126,6 +126,9 @@
 				</div>
 			</div>
 
+			<!-- Bank card (ARB / Neoleap hosted page): only rendered when the server reports the rail as available -->
+			<app-arb-card-deposit [amount]="amount()" [termsAccepted]="termsAccepted()" (termsMissing)="termsError.set('وافق على شروط الإيداع أولًا للمتابعة')" (amountMissing)="amountTouched.set(true)" />
+
 			<!-- Terms Checkbox -->
 			<div (click)="toggleTerms()" (keydown.space)="$event.preventDefault(); toggleTerms()" (keydown.enter)="$event.preventDefault(); toggleTerms()" id="deposit-terms" role="checkbox" aria-required="true" tabindex="0" [attr.aria-checked]="termsAccepted()" [attr.aria-invalid]="termsError() ? 'true' : null" [attr.aria-describedby]="termsError() ? 'deposit-terms-err' : null" class="flex items-start gap-2.5 p-2.5 rounded-xl cursor-pointer transition-colors"
 				[class.bg-slate-950/40]="!termsAccepted()" [class.bg-cyan-500/10]="termsAccepted()">
