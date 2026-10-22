@@ -1,6 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, Output, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { handleAdminError, reportAdminProblems, SubmitGuard } from './shared/admin-form-report';
+import { mapHttpError } from '../../../core/forms/http-error';
 import { environment } from '../../../../environments/environment';
 
 /**
@@ -16,9 +17,10 @@ import { environment } from '../../../../environments/environment';
 				<h3 style="margin:0 0 6px;font-size:16px">إرسال رسالة إلى {{ userName }}</h3>
 				<p style="font-size:12px;opacity:.75;margin:0 0 10px">تصل الرسالة كإشعار داخل المنصة (وعبر قنوات المستخدم المفعّلة) ويُسجَّل الإرسال في سجل التدقيق.</p>
 				<textarea id="sa-notify-message" rows="4" style="width:100%" maxlength="500" aria-label="نص الرسالة" placeholder="اكتب الرسالة (5 أحرف على الأقل)" [value]="message()" (input)="message.set($any($event.target).value)"></textarea>
-				@if (error()) { <p role="alert" style="color:#FF6B6B;font-size:12px">{{ error() }}</p> }
+				@if (error()) { <p role="alert" style="color:#FF6B6B;font-size:12px" data-testid="notify-error">{{ error() }}</p> }
+				@if (unconfirmed()) { <p role="status" style="font-size:12px" data-testid="notify-unconfirmed">انقطع الاتصال قبل وصول الرد، فقد تكون الرسالة أُرسلت. لتجنّب إرسالها مرتين لا يمكن إعادة الإرسال من هذه النافذة: تحقق من <a href="/supper-admin-overview/audit-trail" target="_blank" rel="noopener">سجل التدقيق</a> ثم أغلقها وافتحها من جديد إن لم تجد الرسالة.</p> }
 				<div style="display:flex;gap:8px;margin-top:12px">
-					<button type="button" class="btn btn-primary" [disabled]="busy()" (click)="send()">{{ busy() ? 'جارٍ الإرسال...' : 'تأكيد الإرسال' }}</button>
+					<button type="button" class="btn btn-primary" [disabled]="busy() || unconfirmed()" (click)="send()">{{ busy() ? 'جارٍ الإرسال...' : 'تأكيد الإرسال' }}</button>
 					<button type="button" class="btn" [disabled]="busy()" (click)="close()">إلغاء</button>
 				</div>
 			</div>
@@ -38,11 +40,13 @@ export class SaNotifyModal {
 	message = signal('');
 	busy = signal(false);
 	error = signal('');
+	/** The answer was lost: the message may have been sent, so a second send is blocked until the admin closes the dialog (checks the audit log first). */
+	unconfirmed = signal(false);
 
 	close() { if (!this.busy()) this.closed.emit(); }
 
 	send() {
-		if (this.busy()) return;
+		if (this.busy() || this.unconfirmed()) return;
 		this.error.set('');
 		const text = this.message().trim();
 		if (text.length < 5) {
@@ -56,6 +60,7 @@ export class SaNotifyModal {
 			error: (err) => {
 				this.guard.release();
 				this.busy.set(false);
+				if (mapHttpError(err).outcomeUnknown) this.unconfirmed.set(true);
 				handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر إرسال الرسالة', resolve: { message: 'sa-notify-message' } }, (m) => this.error.set(m));
 			},
 		});
