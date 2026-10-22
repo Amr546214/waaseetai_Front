@@ -1040,6 +1040,7 @@
   .sk-table td {
     display: block;
     width: 100%;
+    min-width: 0;
   }
   .sk-table-wrap {
     background: transparent !important;
