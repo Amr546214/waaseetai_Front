@@ -13,21 +13,21 @@
       <div class="it-kpi-top">
         <span class="it-kpi-lbl">أحداث اليوم</span>
       </div>
-      <div class="it-kpi-val">{{ kpis().totalEventsToday }}</div>
+      <div class="it-kpi-val">{{ loadError() || isLoading() ? '—' : kpis().totalEventsToday }}</div>
       <div class="it-kpi-unit">سجل</div>
     </div>
     <div class="it-kpi-card">
       <div class="it-kpi-top">
         <span class="it-kpi-lbl">أحداث تحذيرية/خطيرة اليوم</span>
       </div>
-      <div class="it-kpi-val" style="color:#FF8C69">{{ kpis().criticalOrWarningToday }}</div>
+      <div class="it-kpi-val" style="color:#FF8C69">{{ loadError() || isLoading() ? '—' : kpis().criticalOrWarningToday }}</div>
       <div class="it-kpi-unit">حدث</div>
     </div>
     <div class="it-kpi-card">
       <div class="it-kpi-top">
         <span class="it-kpi-lbl">محاولات دخول مرفوضة اليوم</span>
       </div>
-      <div class="it-kpi-val" style="color:#FFB400">{{ kpis().failedLoginAttemptsToday }}</div>
+      <div class="it-kpi-val" style="color:#FFB400">{{ loadError() || isLoading() ? '—' : kpis().failedLoginAttemptsToday }}</div>
       <div class="it-kpi-unit">محاولة</div>
     </div>
   </div>
@@ -48,6 +48,8 @@
         <tbody>
           @if (isLoading()) {
             <tr><td colspan="7" class="itsec-empty">جاري تحميل سجل الأحداث...</td></tr>
+          } @else if (loadError()) {
+            <tr><td colspan="7" class="itsec-empty" role="alert" data-testid="itsec-error">تعذر تحميل سجل الأحداث الأمنية. لا يعني ذلك أنه لا توجد أحداث. <button type="button" class="btn btn-ghost" (click)="load()">إعادة المحاولة</button></td></tr>
           } @else {
             @for (e of filteredEvents(); track e.id) {
               <tr>

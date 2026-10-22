@@ -5,8 +5,21 @@ import { AccountType, UserRole, type User } from '../models/auth.model';
 
 type RoleSource = Pick<User, 'accountType' | 'activeRole'> | null | undefined;
 
-/** The role the user is acting as RIGHT NOW: the active role first; only when it is missing, the role implied by the account type. */
+/**
+ * An ADMIN / SUPER_ADMIN account ALWAYS acts as admin: its stored `activeRole` is often CLIENT (the account code maps every non-provider, non-marketer type to CLIENT), which used to
+ * draw the client shell and a role switch that cannot work. The account type decides; nothing is granted by this (the server authorizes admin access by account type).
+ */
+export function adminRoleOf(user: RoleSource): UserRole | null {
+	const type = String(user?.accountType ?? '');
+	if (type === AccountType.SUPER_ADMIN) return UserRole.SUPER_ADMIN;
+	if (type === 'ADMIN') return UserRole.ADMIN;
+	return null;
+}
+
+/** The role the user is acting as RIGHT NOW: an admin account is always its admin role; otherwise the active role first, and only when it is missing the role implied by the account type. */
 export function resolveActiveRole(user: RoleSource): UserRole {
+	const admin = adminRoleOf(user);
+	if (admin) return admin;
 	if (user?.activeRole) return user.activeRole;
 	switch (user?.accountType) {
 		case AccountType.SUPER_ADMIN: return UserRole.SUPER_ADMIN;
@@ -23,6 +36,8 @@ export function resolveActiveRole(user: RoleSource): UserRole {
  */
 export function resolveRoleStrict(user: RoleSource): UserRole | null {
 	if (!user) return null;
+	const admin = adminRoleOf(user);
+	if (admin) return admin;
 	if (user.activeRole) return user.activeRole;
 	switch (user.accountType) {
 		case AccountType.SUPER_ADMIN: return UserRole.SUPER_ADMIN;

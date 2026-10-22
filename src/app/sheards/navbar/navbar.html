@@ -138,6 +138,21 @@
 				<div class="user-dropdown" id="user-dropdown" role="menu" aria-label="خيارات الحساب">
 					<!-- Account Header Card -->
 					<div class="udrop-dash-wrap" id="udrop-dash-wrap">
+				@if (isAdminAccount()) {
+				<a [routerLink]="links().home" class="udrop-account-toggle" data-testid="topnav-admin-home" (click)="isUserDropdownOpen.set(false)">
+							<div class="udrop-acc-row">
+								<div class="udrop-av-wrap">
+									<div class="udrop-av">{{ userInitials() }}</div>
+									<span class="udrop-av-dot"></span>
+								</div>
+								<div class="udrop-acc-info">
+									<div class="udrop-acc-lbl">لوحة الإدارة</div>
+									<div class="udrop-acc-name">{{ userFullName() }}</div>
+									<div class="udrop-acc-role" data-testid="topnav-role-label">{{ accountTypeLabel() }}</div>
+								</div>
+							</div>
+						</a>
+				} @else {
 						<button type="button"
 							class="udrop-account-toggle"
 							(click)="toggleDashSubMenu($event)" [attr.aria-expanded]="isDashSubMenuOpen()">
@@ -189,7 +204,8 @@
 							</a>
 						</div>
 						}
-					</div>
+					}
+			</div>
 
 					<div class="udrop-sep"></div>
 
