@@ -34,8 +34,10 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(children.every(c => String(c.route).startsWith('/supper-admin-overview/site-control/'))).toBe(true);
 	});
 
-	it('PINS the current state (a permission decision is still pending): an ADMIN account does NOT get the link (it gets the client menu), while the ROUTE guard admits ADMIN', () => {
-		expect(items('ADMIN').some(n => n.label === 'التحكم بالموقع')).toBe(false);
+	it('PINS the current state (a permission decision is still pending): an ADMIN account gets the admin menu WITHOUT the link (link = SUPER_ADMIN only), while the ROUTE guard still admits ADMIN', () => {
+		const adminNav = items('ADMIN');
+		expect(adminNav.some(n => n.label === 'التحكم بالموقع')).toBe(false);
+		expect(adminNav.some(n => n.route === '/supper-admin-overview')).toBe(true);
 		TestBed.resetTestingModule();
 		expect(isAdminUser({ accountType: 'ADMIN' })).toBe(true);
 		expect(isAdminUser({ accountType: 'SUPER_ADMIN' })).toBe(true);

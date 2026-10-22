@@ -251,7 +251,7 @@ export class Sidebar implements OnInit {
 			logout: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9'
 		};
 
-		return [
+		const all: NavItem[] = [
 			{ type: 'header', label: 'الرئيسية' },
 			{ type: 'link', label: 'لوحة التحكم', route: '/supper-admin-overview', exact: true, icon: icons.home },
 			{ type: 'link', label: 'الرسائل', route: '/supper-admin-overview/messages', icon: icons.chat, badge: this.chatStateService.totalUnreadCount() > 0 ? this.chatStateService.totalUnreadCount() : undefined },
@@ -326,7 +326,7 @@ export class Sidebar implements OnInit {
 				children: [
 					{ type: 'link', label: 'إعدادات النظام', route: '/supper-admin-overview/system-settings', icon: icons.settings },
 					{ type: 'link', label: 'المواد التسويقية', route: '/supper-admin-overview/marketing-assets', icon: icons.list },
-					...(isSuper ? [{ type: 'link' as const, label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield }] : []),
+					...(isSuper ? [{ type: 'link' as const, label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield }] as NavItem[] : []),
 					{ type: 'link', label: 'حسابي وأمان الدخول', route: '/supper-admin-overview/my-account', icon: icons.person }
 				]
 			},
@@ -405,20 +405,21 @@ export class Sidebar implements OnInit {
 				]
 			},
 
+			// «التحكم بالموقع» link: visible to SUPER_ADMIN only (the route itself still admits ADMIN; read/edit/publish permissions are an open owner decision)
 			{ type: 'header', label: 'التحكم بالموقع' },
 			{
 				type: 'accordion', id: 'sa-site-control', label: 'التحكم بالموقع', icon: icons.settings,
-				children: [
-					{ type: 'link', label: 'صحة الهوية', route: '/supper-admin-overview/site-control/health', icon: icons.check },
-					{ type: 'link', label: 'القيم والألوان', route: '/supper-admin-overview/site-control/tokens', icon: icons.settings },
-					{ type: 'link', label: 'الأيقونات', route: '/supper-admin-overview/site-control/icons', icon: icons.star },
-					{ type: 'link', label: 'المستويات والنقاط', route: '/supper-admin-overview/site-control/accounts', icon: icons.chart },
-					{ type: 'link', label: 'القوالب', route: '/supper-admin-overview/site-control/templates', icon: icons.doc },
-					{ type: 'link', label: 'الخطوط', route: '/supper-admin-overview/site-control/typography', icon: icons.edit },
-					{ type: 'link', label: 'دليل الأنماط', route: '/supper-admin-overview/site-control/style-guide', icon: icons.list },
-					{ type: 'link', label: 'المعاينة الشاملة', route: '/supper-admin-overview/site-control/live-preview', icon: icons.globe },
-					{ type: 'link', label: 'تصدير CSS', route: '/supper-admin-overview/site-control/export', icon: icons.send }
-				]
+					children: [
+						{ type: 'link', label: 'صحة الهوية', route: '/supper-admin-overview/site-control/health', icon: icons.check },
+						{ type: 'link', label: 'القيم والألوان', route: '/supper-admin-overview/site-control/tokens', icon: icons.settings },
+						{ type: 'link', label: 'الأيقونات', route: '/supper-admin-overview/site-control/icons', icon: icons.star },
+						{ type: 'link', label: 'المستويات والنقاط', route: '/supper-admin-overview/site-control/accounts', icon: icons.chart },
+						{ type: 'link', label: 'القوالب', route: '/supper-admin-overview/site-control/templates', icon: icons.doc },
+						{ type: 'link', label: 'الخطوط', route: '/supper-admin-overview/site-control/typography', icon: icons.edit },
+						{ type: 'link', label: 'دليل الأنماط', route: '/supper-admin-overview/site-control/style-guide', icon: icons.list },
+						{ type: 'link', label: 'المعاينة الشاملة', route: '/supper-admin-overview/site-control/live-preview', icon: icons.globe },
+						{ type: 'link', label: 'تصدير CSS', route: '/supper-admin-overview/site-control/export', icon: icons.send }
+					]
 			},
 
 			{
@@ -428,6 +429,7 @@ export class Sidebar implements OnInit {
 				action: 'logout'
 			}
 		];
+		return all.filter(n => isSuper || (n.id !== 'sa-site-control' && !(n.type === 'header' && n.label === 'التحكم بالموقع')));
 	}
 
 	private getMarketerNavItems(): NavItem[] {
