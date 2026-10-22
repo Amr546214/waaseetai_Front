@@ -57,15 +57,18 @@
         </div>
       }
     </div>
+    @if (statsError()) {
+      <div class="empty-state" role="alert" data-testid="users-stats-error"><div class="empty-ttl">تعذر تحميل إحصاءات المستخدمين. الجدول أدناه يعمل بشكل مستقل.</div><button type="button" class="btn btn-ghost" (click)="fetchStats()">إعادة المحاولة</button></div>
+    }
 
     <div class="tabs-wrap" role="tablist" aria-label="تصفية حسب نوع المستخدم">
-      <button class="tab" [class.active]="selectedAccountType() === 'all'" (click)="setTab('all')" role="tab" type="button">الكل<span class="tab-count">{{ usersStats()?.tabCounts?.['all'] || 0 }}</span></button>
-      <button class="tab" [class.active]="selectedAccountType() === 'sk-ind'" (click)="setTab('sk-ind')" role="tab" type="button">طالب خدمة فرد<span class="tab-count">{{ usersStats()?.tabCounts?.['sk-ind'] || 0 }}</span></button>
-      <button class="tab" [class.active]="selectedAccountType() === 'sk-co'" (click)="setTab('sk-co')" role="tab" type="button">طالب خدمة شركة<span class="tab-count">{{ usersStats()?.tabCounts?.['sk-co'] || 0 }}</span></button>
-      <button class="tab" [class.active]="selectedAccountType() === 'pr-ind'" (click)="setTab('pr-ind')" role="tab" type="button">مقدم خدمة فرد<span class="tab-count">{{ usersStats()?.tabCounts?.['pr-ind'] || 0 }}</span></button>
-      <button class="tab" [class.active]="selectedAccountType() === 'pr-co'" (click)="setTab('pr-co')" role="tab" type="button">مقدم خدمة شركة<span class="tab-count">{{ usersStats()?.tabCounts?.['pr-co'] || 0 }}</span></button>
-      <button class="tab" [class.active]="selectedAccountType() === 'affiliate'" (click)="setTab('affiliate')" role="tab" type="button">وسيط تسويقي<span class="tab-count">{{ usersStats()?.tabCounts?.['affiliate'] || 0 }}</span></button>
-      <button class="tab" [class.active]="selectedAccountType() === 'admin'" (click)="setTab('admin')" role="tab" type="button">إداري<span class="tab-count">{{ usersStats()?.tabCounts?.['admin'] || 0 }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'all'" (click)="setTab('all')" role="tab" type="button">الكل<span class="tab-count">{{ usersStats() ? (usersStats()!.tabCounts['all'] ?? 0) : '—' }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'sk-ind'" (click)="setTab('sk-ind')" role="tab" type="button">طالب خدمة فرد<span class="tab-count">{{ usersStats() ? (usersStats()!.tabCounts['sk-ind'] ?? 0) : '—' }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'sk-co'" (click)="setTab('sk-co')" role="tab" type="button">طالب خدمة شركة<span class="tab-count">{{ usersStats() ? (usersStats()!.tabCounts['sk-co'] ?? 0) : '—' }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'pr-ind'" (click)="setTab('pr-ind')" role="tab" type="button">مقدم خدمة فرد<span class="tab-count">{{ usersStats() ? (usersStats()!.tabCounts['pr-ind'] ?? 0) : '—' }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'pr-co'" (click)="setTab('pr-co')" role="tab" type="button">مقدم خدمة شركة<span class="tab-count">{{ usersStats() ? (usersStats()!.tabCounts['pr-co'] ?? 0) : '—' }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'affiliate'" (click)="setTab('affiliate')" role="tab" type="button">وسيط تسويقي<span class="tab-count">{{ usersStats() ? (usersStats()!.tabCounts['affiliate'] ?? 0) : '—' }}</span></button>
+      <button class="tab" [class.active]="selectedAccountType() === 'admin'" (click)="setTab('admin')" role="tab" type="button">إداري<span class="tab-count">{{ usersStats() ? (usersStats()!.tabCounts['admin'] ?? 0) : '—' }}</span></button>
     </div>
 
     <div class="filter-rail" id="filter-rail">

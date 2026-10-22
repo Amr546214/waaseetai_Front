@@ -47,6 +47,7 @@ export class SaUsers implements OnInit {
 
   users = signal<AdminUser[]>([]);
   usersStats = signal<AdminUsersStats | null>(null);
+  statsError = signal(false);
   totalUsersCount = signal<number>(0);
   totalPages = signal<number>(1);
   loading = signal<boolean>(false);
@@ -91,11 +92,13 @@ export class SaUsers implements OnInit {
     const NA = 'غير متاح';
 
     if (!stats) {
+      // No stats yet (loading) or they failed: show a dash, never a fake "0".
+      const sub = this.statsError() ? 'تعذر تحميل الإحصاءات' : 'جاري التحميل...';
       return [
-        { ic: 'i-person', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'إجمالي المستخدمين', val: '0', sub: 'جاري التحميل...', subCl: '#0FA99A' },
-        { ic: 'i-check', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'نشطون هذا الشهر', val: '0', sub: '0% من الإجمالي', subCl: '#6B7699' },
-        { ic: 'i-pause', bg: 'rgba(255,140,105,.12)', cl: '#FF8C69', lbl: 'موقوفون', val: '0', sub: '0 بانتظار مراجعة', subCl: '#D98A0B' },
-        { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'جدد هذا الأسبوع', val: '0', sub: '0% من الأسبوع الماضي', subCl: '#0FA99A' }
+        { ic: 'i-person', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'إجمالي المستخدمين', val: '—', sub, subCl: '#6B7699' },
+        { ic: 'i-check', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'نشطون هذا الشهر', val: '—', sub, subCl: '#6B7699' },
+        { ic: 'i-pause', bg: 'rgba(255,140,105,.12)', cl: '#FF8C69', lbl: 'موقوفون', val: '—', sub, subCl: '#6B7699' },
+        { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'جدد هذا الأسبوع', val: '—', sub, subCl: '#6B7699' }
       ];
     }
 
@@ -171,13 +174,16 @@ export class SaUsers implements OnInit {
   }
 
   fetchStats() {
+    this.statsError.set(false);
     this.usersService.getStats().subscribe({
       next: (res) => {
         if (res.success) {
           this.usersStats.set(res.data);
+        } else {
+          this.statsError.set(true);
         }
       },
-      error: (err) => console.error('Failed to load user stats:', err)
+      error: () => this.statsError.set(true)
     });
   }
 

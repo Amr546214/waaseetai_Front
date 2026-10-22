@@ -230,10 +230,12 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         path: 'sub-finance',
         children: [
             {
-        path: 'sub-finance',
+        // the group's own page: the child path was 'sub-finance' (=> /sub-finance/sub-finance), so /sub-finance - the sidebar link «لوحة المالية» - rendered an empty page
+        path: '',
+        pathMatch: 'full',
         loadComponent: () => import('./sa-sub-finance/sa-sub-finance').then(m => m.SaSubFinance),
         data: { title: 'لوحة المالية الإدارية' }
-    }, // Base route for sub-finance
+    },
     {
         path: 'invoices-out',
         loadComponent: () => import('./sub-finance/sa-invoices-out/sa-invoices-out').then(m => m.SaInvoicesOut),

@@ -35,19 +35,29 @@ export class SaSecurity implements OnInit {
 
   readonly activeTab = signal<SecTab>('all');
   readonly isLoading = signal<boolean>(true);
+  readonly loadError = signal<boolean>(false);
   readonly events = signal<SecurityEventItem[]>([]);
   readonly kpis = signal({ totalEventsToday: 0, criticalOrWarningToday: 0, failedLoginAttemptsToday: 0 });
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.isLoading.set(true);
+    this.loadError.set(false);
     this.api.getSecurityEvents().subscribe({
       next: (res) => {
         if (res.success && res.data) {
           this.events.set(res.data.events);
           this.kpis.set(res.data.kpis);
+        } else {
+          this.loadError.set(true);
         }
         this.isLoading.set(false);
       },
       error: () => {
+        this.loadError.set(true);
         this.isLoading.set(false);
       },
     });
