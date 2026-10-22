@@ -205,3 +205,7 @@
 /* admin audit: a 12-month bar chart must scroll inside its own box on a phone instead of widening the page */
 .frp-bars { overflow-x: auto; max-width: 100%; }
 .frp-bar-wrap { min-width: 34px; }
+/* the grid tracks may shrink below their content (`1fr` alone = minmax(auto,1fr) lets the 12-bar chart widen the page) */
+.frp-chart-row { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.frp-chart-row > * { min-width: 0; }
+@media (max-width: 1100px) { .frp-chart-row { grid-template-columns: minmax(0, 1fr); } }
