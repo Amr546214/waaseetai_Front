@@ -1,3 +1,4 @@
+import { mapHttpError } from '../../../../core/forms/http-error';
 import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -52,6 +53,8 @@ export class SaMarketingAssets implements OnInit {
 	readonly saving = signal(false);
 	readonly formError = signal('');
 	readonly busyId = signal('');
+	/** Why the last enable / disable of an item failed: shown on that item's card, next to its button. */
+	readonly rowErrors = signal<Record<string, string>>({});
 
 	title = '';
 	description = '';
@@ -152,9 +155,10 @@ export class SaMarketingAssets implements OnInit {
 		});
 		if (!ok) return;
 		this.busyId.set(a.id);
+		this.rowErrors.update((m) => { const n = { ...m }; delete n[a.id]; return n; });
 		this.api.setActive(a.id, enabling).subscribe({
 			next: (r) => { this.items.update((l) => l.map((x) => (x.id === a.id ? r.data : x))); this.busyId.set(''); this.notify.success(enabling ? 'تم تفعيل المادة.' : 'تم تعطيل المادة.'); },
-			error: (e) => { this.busyId.set(''); this.notify.error(this.err(e, 'تعذر تحديث المادة.')); },
+			error: (e) => { this.busyId.set(''); const m = mapHttpError(e, { fallback: 'تعذر تحديث المادة، ولم تتغير حالتها.' }); this.rowErrors.update((r) => ({ ...r, [a.id]: m.message })); if (m.status === 409) this.load(); },
 		});
 	}
 }
