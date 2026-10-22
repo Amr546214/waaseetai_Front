@@ -1,0 +1,175 @@
+<div class="sg-wrap">
+  <header class="panel-header">
+    <h1>دليل الأنماط الموحّد — هوية وسيط AI</h1>
+    <p class="sub">كل نظام التصميم بصفحة واحدة — مبني حيًا من نفس بيانات اللوحة، بلا إدخال يدوي إضافي</p>
+    <div class="theme-toggle">
+      <button type="button" class="toggle-seg" [class.active]="themeMode.mode() === 'dark'" (click)="setMode('dark')">داكن</button>
+      <button type="button" class="toggle-seg" [class.active]="themeMode.mode() === 'light'" (click)="setMode('light')">فاتح</button>
+    </div>
+  </header>
+
+  <section class="sg-section">
+    <h2>الألوان</h2>
+    @for (group of colorGroups(); track group.id) {
+      <div class="color-group">
+        <h3>{{ group.label }}</h3>
+        <div class="swatch-grid">
+          @for (token of group.tokens; track token.var) {
+            @if (token.type === 'color' || token.type === 'gradient') {
+              <div class="swatch-item">
+                <span class="swatch-box" [style.background]="token.value"></span>
+                <span class="swatch-label">{{ token.label }}</span>
+                <code class="swatch-var">{{ token.var }}</code>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="sg-section">
+    <h2>الخطوط</h2>
+    <div class="type-samples">
+      @for (role of typographyService.roles(); track role.id) {
+        <div class="type-sample-row">
+          <span class="type-meta">{{ role.label }} · {{ role.fontSize }} / {{ role.fontWeight }}</span>
+          <p class="type-sample" [style.fontSize]="role.fontSize" [style.fontWeight]="role.fontWeight"
+             [style.lineHeight]="role.lineHeight" [style.letterSpacing]="role.letterSpacing">
+            وسيط AI — سوق خدمات موثوق
+          </p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>الأيقونات</h2>
+    @for (lib of iconsService.libraries(); track lib.id) {
+      <div class="icon-group">
+        <h3>{{ lib.label }}</h3>
+        <div class="icon-grid">
+          @for (icon of lib.icons; track icon.slot) {
+            <span class="icon-box" [style.color]="'var(' + lib.colorVar + ')'" [title]="icon.label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" [innerHTML]="safeSvg(icon.svg)"></svg>
+            </span>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="sg-section">
+    <h2>المقاسات</h2>
+    <div class="size-grid">
+      @for (token of sizeTokens(); track token.var) {
+        <div class="size-item">
+          <span class="size-box" [style.width.px]="token.value" [style.height.px]="token.value"></span>
+          <span class="size-label">{{ token.label }} — {{ token.value }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>المكوّنات</h2>
+    <h3>مكتبة المكوّنات العامة</h3>
+    <div class="btn-states-wrap">
+      <p class="comp-note">حالات الأزرار — Outline وText معلّمة "مقترح" (غير مطبّقة فعليًا بالكود الحالي)</p>
+      <div class="btn-states-table">
+        <div class="btn-states-head">
+          <span>النوع</span><span>الحالة</span><span>Default</span><span>Hover</span><span>Active</span><span>Disabled</span><span>Loading</span>
+        </div>
+        @for (bs of buttonStates; track bs.type) {
+          <div class="btn-states-row">
+            <span class="bs-type">{{ bs.type }}</span>
+            <span class="bs-status" [style.color]="bs.statusColor">{{ bs.status }}</span>
+            <span>{{ bs.default }}</span>
+            <span>{{ bs.hover }}</span>
+            <span>{{ bs.active }}</span>
+            <span>{{ bs.disabled }}</span>
+            <span>{{ bs.loading }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="comp-grid">
+      <div class="comp-card">
+        @if (briefIcon(); as icon) {
+          <span class="comp-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+          </span>
+        }
+        <div class="comp-card-title">بطاقة قياسية</div>
+        <p class="comp-card-sub">radius:16px</p>
+        <h4>حالات البطاقات</h4>
+        <div class="state-list">
+          @for (cs of cardStates; track cs.state) {
+            <div class="state-row"><span class="st-name">{{ cs.state }}</span><span class="st-desc">{{ cs.desc }}</span></div>
+          }
+        </div>
+      </div>
+
+      <div class="field-preview">
+        <h4>حالات الحقول</h4>
+        <input placeholder="Default" class="field-preview-input" disabled />
+        <input placeholder="Focus" class="field-preview-input field-preview-focus" disabled />
+        <input placeholder="Error" class="field-preview-input field-preview-error" disabled />
+        <input placeholder="Disabled" class="field-preview-input" disabled />
+        <div class="state-list">
+          @for (fs of fieldStates; track fs.state) {
+            <div class="state-row"><span class="st-name">{{ fs.state }}</span><span class="st-desc">{{ fs.desc }}</span></div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <p class="comp-note">مبدّل الوضع الداكن/الفاتح (t-toggle) — كبسولة مقسومة لقطعتين، القطعة النشطة بيضاء</p>
+    <div class="toggle-preview">
+      <span class="toggle-preview-seg on"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"></circle></svg>داكن</span>
+      <span class="toggle-preview-seg">فاتح</span>
+    </div>
+
+    <p class="comp-note">شارات حالة الطلب/العرض (op-*)</p>
+    <div class="badge-row">
+      @for (sb of statusBadgesDemo; track sb.name) {
+        <span class="badge-pill" [style.background]="sb.bg" [style.color]="sb.text">{{ sb.name }}</span>
+      }
+    </div>
+    <div class="badge-note-list">
+      @for (sb of statusBadgesDemo; track sb.name) {
+        <span>{{ sb.name }} — {{ sb.darkNote }}</span>
+      }
+    </div>
+
+    <p class="comp-note">القائمة المنسدلة (select) — بلا سهم افتراضي، مظهر موحّد</p>
+    <select class="select-preview" disabled>
+      <option>ترتيب حسب الأحدث</option>
+    </select>
+
+    <p class="comp-note">زر الاختيار (radio-opt) — بطاقة قابلة للنقر كاملة، دائرة+نقطة عند الاختيار</p>
+    <div class="radio-preview-row">
+      <div class="radio-opt-preview checked">
+        <span class="radio-dot"><span class="radio-dot-inner"></span></span>
+        <span class="radio-opt-label">شهرياً</span>
+      </div>
+      <div class="radio-opt-preview">
+        <span class="radio-dot"></span>
+        <span class="radio-opt-label">سنوياً</span>
+      </div>
+    </div>
+
+    <h3 class="ai-comp-title">مكتبة مكوّنات الذكاء الاصطناعي</h3>
+    <div class="ai-comp-card">
+      @if (aiSparkIcon(); as icon) {
+        <span class="ai-comp-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+        </span>
+      }
+      <div class="ai-comp-card-title">بطاقة AI</div>
+      <p class="ai-comp-card-sub">حصراً لمحتوى AI</p>
+    </div>
+    <p class="comp-note">بانر إفصاح الذكاء (ai-disclosure) وشارة الذكاء بالتوب-بار — موثّقة بتبويب القوالب</p>
+  </section>
+</div>

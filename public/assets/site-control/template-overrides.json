@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "updatedAt": "2026-08-21T00:00:00.000Z",
+  "note": "قيم قابلة للتعديل لكل خانة (أيقونة/حجم/عدد/لون/وزن خط) داخل معاينات القوالب العشرين بتبويب القوالب. القيم هنا هي الافتراضية المطابقة تمامًا لما كان مثبّتًا بالكود سابقًا — لا قيمة مخترَعة (الألوان مأخوذة حرفيًا من tokens.json: teal=#2BD4C7, blue-txt=#5DA0FF, kahr=#D98A0B, ai-txt=#A56BE0, red=#FF8C69). إصدار 2 (2026-08-21): استُبدلت خانات variant المغلقة بخانات color حرة (نفس أسلوب تبويب الألوان)، وأُضيفت خانات weight (وزن الخط).",
+  "overrides": {
+    "dash": { "navCount": 4, "avatarSize": 22, "brandColor": "#2BD4C7", "brandWeight": 900 },
+    "site": { "navLinkCount": 2, "socialCount": 3, "logoColor": "#2BD4C7", "logoWeight": 900 },
+    "states5": { "emptyIcon": "general:i-inbox", "errorIcon": "general:i-warn", "successIcon": "general:i-check", "iconSize": 18 },
+    "aidisc": { "icon": "ai:ws-ai-spark", "iconSize": 22, "tagColor": "#A56BE0", "tagWeight": 900 },
+    "wizard": { "stepCount": 3, "stepSize": 26, "stepWeight": 900 },
+    "tabs": { "tabCount": 3 },
+    "kpi": {
+      "cardCount": 4,
+      "icon0": "general:i-list", "icon1": "general:i-star", "icon2": "general:i-clock", "icon3": "ai:ws-ai-spark",
+      "icon4": "general:i-list", "icon5": "general:i-star",
+      "color0": "#2BD4C7", "color1": "#2BD4C7", "color2": "#2BD4C7", "color3": "#A56BE0", "color4": "#2BD4C7", "color5": "#5DA0FF",
+      "iconSize": 12, "iconBoxSize": 24, "numWeight": 900, "lblWeight": 400
+    },
+    "table": { "rowCount": 3 },
+    "slot": { "icon": "general:i-plus", "iconSize": 18 },
+    "modal": { "buttonCount": 2 },
+    "tier": { "icon": "general:i-star", "iconSize": 16, "dotCount": 5, "dotsOnCount": 3, "dotSize": 5, "nameColor": "#D98A0B", "nameWeight": 900 },
+    "breadcrumb": { "separatorIcon": "ws-site:ws-chevron", "iconSize": 12, "linkCount": 2 },
+    "pagination": { "arrowIcon": "ws-site:ws-chevron", "iconSize": 12, "pageCount": 3 },
+    "toast": { "icon": "general:i-check", "iconSize": 15 },
+    "tooltip": { "iconSize": 16 },
+    "emptystate": { "icon": "general:i-search", "iconSize": 22 },
+    "err": {
+      "icon0": "general:i-warn", "icon1": "general:i-warn", "icon2": "general:i-clock", "icon3": "general:i-lock", "icon4": "general:i-shield",
+      "color0": "#FF8C69", "color1": "#FF8C69", "color2": "#D98A0B", "color3": "#5DA0FF", "color4": "#FF8C69",
+      "iconSize": 34, "codeWeight": 900, "titleWeight": 900
+    },
+    "pref": { "rowCount": 2 },
+    "radioref": { "optionCount": 2 },
+    "filterrail": { "specialtyPillCount": 3, "sortPillCount": 2, "searchIcon": "general:i-search", "advIcon": "general:i-filter", "iconSize": 12 }
+  }
+}

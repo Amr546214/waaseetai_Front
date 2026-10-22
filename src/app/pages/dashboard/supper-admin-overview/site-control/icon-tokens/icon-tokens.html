@@ -1,0 +1,142 @@
+<div class="icons-wrap">
+  <header class="panel-header">
+    <h1>لوحة تحكم الهوية — الأيقونات</h1>
+    <p class="sub">كل أيقونة تُستبدل باختيار من نفس المكتبة، أو برفع SVG من الجهاز — الفصل بين العامة وAI بنيوي</p>
+    <div class="actions">
+      <button type="button" class="btn-save" (click)="save()">حفظ التغييرات</button>
+      <button type="button" class="btn-secondary" (click)="exportJson()">تصدير JSON</button>
+      <label class="btn-secondary import-label">
+        استيراد JSON
+        <input type="file" accept="application/json" hidden (change)="onImportFile($event)" />
+      </label>
+      @if (savedMsg()) {
+        <span class="saved-msg">{{ savedMsg() }}</span>
+      }
+    </div>
+  </header>
+
+  @if (iconsService.loadError()) {
+    <div class="err-box">{{ iconsService.loadError() }}</div>
+  }
+
+  <div class="lib-tabs">
+    @for (lib of iconsService.libraries(); track lib.id) {
+      <button type="button" class="lib-tab" [class.active]="activeLib()?.id === lib.id" (click)="selectLib(lib.id)">
+        {{ lib.label }}
+      </button>
+    }
+  </div>
+
+  @if (activeLib(); as lib) {
+    <section class="lib-section" [class.ai-section]="lib.id === 'ai'">
+      @if (lib.id === 'general') {
+        <h4 class="icon-group-title display-style-heading">اللوحات (i-*) — بدون إطار</h4>
+      }
+      @if (lib.id === 'ws-site') {
+        <h4 class="icon-group-title display-style-heading">الموقع العام (ws-*)</h4>
+      }
+      @if (lib.id === 'ai') {
+        <!-- إصلاح 2026-08-21 (ملاحظة ثانية مباشرة من المالك): كانت "معتمدة نهائياً" و"مقترحة
+             جديدة" تُعرَضان كقسمين منفصلين بعنوانين مستقلين (عبر groupedIcons()) — هذا يخالف
+             طلب المالك الصريح "قسمين فقط بكامل التبويب": (1) الأيقونات كلها بمربع واحد، (2) نفس
+             الأيقونات بإطار زجاجي أسفلها. الآن تُعرض كل أيقونات الذكاء الـ22 بشبكة واحدة بلا
+             فصل بعنوان قسم؛ التمييز بين معتمدة/مقترحة أصبح شارة صغيرة على كل بطاقة على حِدة
+             (مثل نمط proposed-badge نفسه) بدل عنوان قسم كامل — المعلومة لم تُحذف، فقط انتقلت
+             من مستوى القسم لمستوى البطاقة. -->
+        <div class="icon-grid">
+          @for (icon of lib.icons; track icon.slot) {
+            <div class="icon-card">
+              <span class="icon-box" [attr.title]="icon.shape || null" [style.color]="'var(' + lib.colorVar + ')'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+              </span>
+              <span class="icon-label">
+                {{ icon.label }}
+                @if (icon.group === 'proposed') {<span class="proposed-badge proposed-badge-inline">مقترح</span>}
+              </span>
+              <code class="icon-slot">{{ icon.slot }}</code>
+              @if (icon.note) {<span class="icon-note">{{ icon.note }}</span>}
+              <select class="icon-select" [value]="icon.slot" (change)="onReassign(lib.id, icon.slot, $event)">
+                @for (opt of lib.icons; track opt.slot) {
+                  <option [value]="opt.slot">{{ opt.label }}</option>
+                }
+              </select>
+              <label class="upload-mini-btn">
+                رفع من الجهاز
+                <input type="file" accept=".svg,image/svg+xml" (change)="onUploadIcon(lib.id, icon.slot, $event)" hidden />
+              </label>
+              @if (uploadError()[lib.id + ':' + icon.slot]; as err) {
+                <span class="upload-err">{{ err }}</span>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        @for (grp of groupedIcons(); track grp.key) {
+          @if (grp.label) {
+            <h4 class="icon-group-title" [class.proposed-group]="grp.key === 'proposed'">
+              {{ grp.label }}
+              @if (grp.key === 'proposed') {<span class="proposed-badge">مقترح</span>}
+            </h4>
+          }
+          <div class="icon-grid">
+            @for (icon of grp.icons; track icon.slot) {
+              <div class="icon-card">
+                <span class="icon-box" [attr.title]="icon.shape || null" [style.color]="'var(' + lib.colorVar + ')'">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+                </span>
+                <span class="icon-label">{{ icon.label }}</span>
+                <code class="icon-slot">{{ icon.slot }}</code>
+                @if (icon.note) {<span class="icon-note">{{ icon.note }}</span>}
+                <select class="icon-select" [value]="icon.slot" (change)="onReassign(lib.id, icon.slot, $event)">
+                  @for (opt of lib.icons; track opt.slot) {
+                    <option [value]="opt.slot">{{ opt.label }}</option>
+                  }
+                </select>
+                <label class="upload-mini-btn">
+                  رفع من الجهاز
+                  <input type="file" accept=".svg,image/svg+xml" (change)="onUploadIcon(lib.id, icon.slot, $event)" hidden />
+                </label>
+                @if (uploadError()[lib.id + ':' + icon.slot]; as err) {
+                  <span class="upload-err">{{ err }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+      @if (lib.id === 'general') {
+        <h4 class="icon-group-title display-style-heading framed-heading">اللوحات (i-*) — بإطار (مربع زجاجي)</h4>
+        <div class="icon-grid icon-grid-framed">
+          @for (icon of lib.icons; track icon.slot) {
+            <div class="icon-card icon-card-framed">
+              <span class="icon-box icon-box-framed" [style.color]="'var(--teal)'" [style.background]="'var(--icon-bg)'" [style.borderColor]="'var(--icon-border)'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+              </span>
+              <span class="icon-label">{{ icon.label }}</span>
+            </div>
+          }
+        </div>
+      }
+      @if (lib.id === 'ai') {
+        <!-- إصلاح 2026-08-21 (ملاحظة مباشرة من المالك): أيقونات الذكاء لم يكن لها قسم "بإطار
+             (مربع زجاجي)" إطلاقًا مقابل مكتبة i-* — أُضيف هنا بنفس الفكرة تمامًا. الفرق الإلزامي:
+             زجاج/حدود المربع هنا مثبّتان على --ai-bg/--ai-border (بنفسجي AI) حصرًا، وليس
+             --icon-bg/--icon-border (فيروزي عام) — لأن أي عنصر يخص الذكاء يجب أن يكون الزجاج
+             بنفس درجة الأيقونة (بنفسجي)، لا لونًا آخر. هذا هو الخلل الذي أبلغ عنه المالك حين
+             استُخدم مربع زجاجي عام بلون غير بنفسجي لعنصر ذكاء (انظر أيضًا إصلاح kp-ico/kpi-ico
+             بتبويبي القوالب والمعاينة الحية لنفس السبب). -->
+        <h4 class="icon-group-title display-style-heading framed-heading">أيقونات الذكاء الاصطناعي — بإطار (مربع زجاجي بنفسجي)</h4>
+        <div class="icon-grid icon-grid-framed">
+          @for (icon of lib.icons; track icon.slot) {
+            <div class="icon-card icon-card-framed">
+              <span class="icon-box icon-box-framed" [style.color]="'var(' + lib.colorVar + ')'" [style.background]="'var(--ai-bg)'" [style.borderColor]="'var(--ai-border)'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+              </span>
+              <span class="icon-label">{{ icon.label }}</span>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

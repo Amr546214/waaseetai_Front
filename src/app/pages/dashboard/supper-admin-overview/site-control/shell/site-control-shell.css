@@ -1,0 +1,23 @@
+:host { display: block; }
+/* the panel's own page background (the token --pg, set on this element by the panel) behind the pages, like the source app's body */
+.sc-root {
+	min-height: calc(100vh - 64px);
+	background: var(--pg, #070D24);
+	color: var(--txt, #FFFFFF);
+	font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+	margin: -24px;
+	padding: 0;
+	/* anything wider than the screen scrolls INSIDE the panel; the platform page itself never grows sideways */
+	overflow-x: auto;
+}
+.sc-notice {
+	margin: 16px 24px 0;
+	padding: 8px 14px;
+	border: 1px solid var(--border, rgba(255,255,255,.08));
+	border-radius: 10px;
+	background: var(--surface, rgba(255,255,255,.04));
+	color: var(--txt-2, #A8B2D1);
+	font-size: 12px;
+	font-weight: 700;
+}
+@media (max-width: 640px) { .sc-root { margin: -16px; } .sc-notice { margin: 12px 12px 0; } }
