@@ -50,7 +50,7 @@
           </div>
           <div class="ss-row">
             <div class="ss-row-left"><div class="ss-row-lbl">نص التنبيه</div><div class="ss-row-desc">حتى 300 حرف</div></div>
-            <input type="text" class="ss-input" maxlength="300" style="min-width:260px" id="ss-maintenanceBannerText" name="maintenanceBannerText" [value]="form().maintenanceBannerText" (input)="setField('maintenanceBannerText', $any($event.target).value)" placeholder="" />
+            <input type="text" class="ss-input" maxlength="300" style="min-width:min(260px,100%)" id="ss-maintenanceBannerText" name="maintenanceBannerText" [value]="form().maintenanceBannerText" (input)="setField('maintenanceBannerText', $any($event.target).value)" placeholder="" />
           </div>
         </div>
         <div class="ss-card">
