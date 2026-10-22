@@ -201,3 +201,7 @@
 }
 .frp-btn:disabled{opacity:.5;cursor:not-allowed}
 @media print{.frp-hdr-actions,.frp-tabs{display:none}}
+
+/* admin audit: a 12-month bar chart must scroll inside its own box on a phone instead of widening the page */
+.frp-bars { overflow-x: auto; max-width: 100%; }
+.frp-bar-wrap { min-width: 34px; }

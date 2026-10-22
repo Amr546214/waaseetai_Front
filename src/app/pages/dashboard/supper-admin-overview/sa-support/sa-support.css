@@ -383,3 +383,7 @@
 /* Full-width list (ticket detail is now the routed `support/:id` page) */
 .sup-tlist-full { max-height: none; overflow: visible; padding-inline-end: 0; }
 .sup-pag{display:flex;gap:8px;align-items:center;justify-content:center;padding:12px;font-size:13px}
+
+/* admin audit: on a phone the tab strip scrolls inside itself and the search box shrinks, so the page never grows wider than the screen */
+.sup-tabs { max-width: 100%; min-width: 0; }
+.sup-search { min-width: 0; flex: 1 1 180px; max-width: 100%; }
