@@ -100,22 +100,22 @@
 
             <div class="form-section">
               <div class="form-label">مرفقات</div>
-              <div class="form-hint">صور أو ملفات توضح المشكلة — اختياري (PNG, JPG, PDF حتى 10 ميجا)</div>
-              <div class="upload-zone">
-                <input type="file" accept="image/*,.pdf" multiple aria-label="ارفع ملفات" (change)="onFiles($event)">
-                <div class="upload-icon"><svg aria-hidden="true"><use href="#ws-upload"></use></svg></div>
-                <div class="upload-label">اسحب الملفات هنا أو اضغط للاختيار</div>
-                <div class="upload-sub">
-                  @if (fileCount > 0) { تم اختيار {{ fileCount }} ملف } @else { PNG, JPG, PDF — حتى 10 ميجا لكل ملف }
-                </div>
-              </div>
+              <div class="form-hint" data-testid="rp-attach-note">إرفاق الملفات غير متاح حاليًا. صِف المشكلة في النص أعلاه، ويمكن للفريق طلب الصور منك في ردّه على التذكرة.</div>
             </div>
 
             <div class="submit-row">
               <div class="submit-note">نرد خلال ساعات العمل (9 ص — 6 م)<br>يوم الأحد إلى الخميس</div>
-              <button type="submit" class="btn-primary" [disabled]="isSubmitting" [attr.aria-busy]="isSubmitting">
+              <button type="submit" class="btn-primary" [disabled]="isSubmitting || outcomeUnknown" [attr.aria-busy]="isSubmitting" aria-describedby="rp-send-msg">
                 @if (isSubmitting) { جاري الإرسال... } @else { إرسال البلاغ }
               </button>
+            </div>
+            <div id="rp-send-msg" aria-live="polite">
+              @if (!loggedIn) {
+                <div class="field-err" role="alert" data-testid="rp-login-required">لإرسال بلاغ يصل إلى الإدارة يلزم تسجيل الدخول. <a routerLink="/auth/login" [queryParams]="{ returnUrl: '/support/report-problem' }">سجّل الدخول</a> ثم أرسل البلاغ (ما كتبته هنا لن يُرسل قبل ذلك).</div>
+              }
+              @if (sendError) {
+                <div class="field-err" role="alert" data-testid="rp-send-error">{{ sendError }} @if (outcomeUnknown) { <a [routerLink]="ticketsLink">افتح تذاكري</a> }</div>
+              }
             </div>
           </div>
         </form>
@@ -124,7 +124,7 @@
         <div class="success-state show" id="success-state">
           <div class="success-ico"><svg aria-hidden="true"><use href="#ws-check"></use></svg></div>
           <div style="font-size:20px;font-weight:900;color:var(--txt);margin-bottom:8px">تم استلام بلاغك</div>
-          <div style="font-size:13px;color:var(--txt-2);margin-bottom:22px;line-height:1.6">سيصلك بريد إلكتروني بتأكيد الاستلام. سيتواصل معك فريقنا.</div>
+          <div style="font-size:13px;color:var(--txt-2);margin-bottom:22px;line-height:1.6">رقم بلاغك: <b dir="ltr" data-testid="rp-ticket-number">{{ ticketNumber }}</b>. تجده في قائمة تذاكرك ويصلك إشعار داخل المنصة عند ردّ الفريق.</div>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
             <a routerLink="/support/help-center" style="padding:9px 20px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--txt-2);text-decoration:none">العودة للمساعدة</a>
             <button type="button" (click)="resetForm()" style="padding:9px 20px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--txt-2)">إرسال بلاغ آخر</button>

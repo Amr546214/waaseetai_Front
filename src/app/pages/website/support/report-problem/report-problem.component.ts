@@ -1,6 +1,11 @@
 import { Component, ElementRef, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthStore } from '../../../../core/store/auth.store';
+import { TicketApiService, TicketRole } from '../../../../core/services/ticket-api.service';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { UserRole } from '../../../../core/models/auth.model';
 import { attemptSubmit } from '../../../../core/forms/form-helpers';
 import { focusInvalidControls } from '../../../../shared/forms/form-error-focus';
 
@@ -19,11 +24,18 @@ interface ProblemType { id: string; label: string; desc: string; icon: string; i
 })
 export class ReportProblemComponent {
 	private readonly host = inject(ElementRef<HTMLElement>);
+	private readonly auth = inject(AuthStore);
+	private readonly tickets = inject(TicketApiService);
+	/** Set once the server confirmed the save: the ticket number the person can look up. */
+	ticketNumber = '';
+	/** Error beside the send button (what failed, what to do). Inputs are kept. */
+	sendError = '';
+	/** The reply was lost: the ticket may exist. Resending is blocked until the person checks their tickets. */
+	outcomeUnknown = false;
+	fieldServerErrors: Record<string, string> = {};
 	reportForm: FormGroup;
 	isSubmitting = false;
 	submitted = false;
-	/** Number of attachments picked in the upload zone. */
-	fileCount = 0;
 
 	/** Problem types, verbatim from the design (P-SP-003 type grid). */
 	categories: ProblemType[] = [
@@ -59,9 +71,17 @@ export class ReportProblemComponent {
 		this.reportForm.get('priority')?.setValue(p);
 	}
 
-	onFiles(event: Event) {
-		const input = event.target as HTMLInputElement;
-		this.fileCount = input.files?.length ?? 0;
+	get loggedIn(): boolean { return this.auth.isAuthenticated(); }
+
+	/** The ticket router for the role the person acts as (admins use the client one: it only needs a signed-in active user). */
+	private ticketRole(): TicketRole {
+		const r = this.auth.actingRole();
+		return r === UserRole.PROVIDER ? 'provider' : r === UserRole.AFFILIATE ? 'marketer' : 'client';
+	}
+
+	get ticketsLink(): string {
+		const role = this.ticketRole();
+		return role === 'provider' ? '/provider-overview/help/tickets' : role === 'marketer' ? '/marketer-overview/help/tickets' : '/client-overview/help/tickets';
 	}
 
 	invalid(name: string): boolean {
@@ -74,13 +94,39 @@ export class ReportProblemComponent {
 		// Every invalid field shows its message (touched) and the first one, in page order, takes the focus below the header.
 		const attempt = attemptSubmit(this.reportForm, { labels: REPORT_LABELS });
 		if (attempt.valid) {
+			if (!this.loggedIn) return; // the page shows the sign-in requirement; nothing is sent
+			if (this.outcomeUnknown) return; // check the tickets first (a second send could create a duplicate)
 			this.isSubmitting = true;
-			// Presentational only — no backend call per constraints
-			setTimeout(() => {
-				this.isSubmitting = false;
-				this.submitted = true;
-				window.scrollTo({ top: 0, behavior: 'smooth' });
-			}, 800);
+			this.sendError = '';
+			this.fieldServerErrors = {};
+			const v = this.reportForm.getRawValue();
+			const pri = v.priority === 'high' ? 'عالية' : v.priority === 'low' ? 'منخفضة' : 'عادية';
+			const label = this.categories.find(c => c.id === v.category)?.label || v.category;
+			this.tickets.createTicket(this.ticketRole(), {
+				subject: v.subject, category: label, priority: pri,
+				description: v.description, relatedProject: v.projectId || undefined, ccEmail: v.email,
+			}).subscribe({
+				next: (res) => {
+					this.isSubmitting = false;
+					const num = res?.data?.ticketNumber;
+					if (res?.success && num) {
+						this.ticketNumber = num;
+						this.submitted = true;
+						window.scrollTo({ top: 0, behavior: 'smooth' });
+					} else {
+						// no confirmed ticket number: never claim success
+						this.outcomeUnknown = true;
+						this.sendError = 'لم يصلنا تأكيد حفظ البلاغ. تحقق من قائمة تذاكرك قبل إعادة الإرسال حتى لا يتكرر.';
+					}
+				},
+				error: (err: HttpErrorResponse) => {
+					this.isSubmitting = false;
+					const m = mapHttpError(err, { fallback: 'تعذّر إرسال البلاغ. لم يُحفظ شيء، ويمكنك المحاولة مجددًا.' });
+					this.fieldServerErrors = m.fieldErrors;
+					this.outcomeUnknown = !!m.outcomeUnknown;
+					this.sendError = m.kind === 'forbidden' || m.status === 403 ? 'لا تملك صلاحية إرسال بلاغ بهذا الحساب. سجّل الدخول بحساب مستخدم.' : m.message;
+				},
+			});
 		} else {
 			void focusInvalidControls(this.host.nativeElement, attempt.missing);
 		}
@@ -88,7 +134,9 @@ export class ReportProblemComponent {
 
 	resetForm() {
 		this.submitted = false;
-		this.fileCount = 0;
+		this.ticketNumber = '';
+		this.sendError = '';
+		this.outcomeUnknown = false;
 		this.reportForm.reset({ category: '', name: '', email: '', projectId: '', subject: '', description: '', priority: '' });
 	}
 }
