@@ -183,7 +183,7 @@ export class Sidebar implements OnInit {
 
 	sidebarTitle = computed<string>(() => {
 		const role = this.effectiveRole();
-		if (role === UserRole.SUPER_ADMIN) {
+		if (role === UserRole.SUPER_ADMIN || role === UserRole.ADMIN) {
 			return 'لوحة الإدارة';
 		}
 		if (role === UserRole.AFFILIATE) {
@@ -203,7 +203,13 @@ export class Sidebar implements OnInit {
 		const role = this.effectiveRole();
 
 		if (role === UserRole.SUPER_ADMIN || user.accountType === AccountType.SUPER_ADMIN) {
-			return this.getSuperAdminNavItems();
+			return this.getSuperAdminNavItems(true);
+		}
+
+		// A real ADMIN account (e.g. the accreditation reviewer) works in the admin area too: the admin menu, minus what is for the super admin only.
+		// Hiding a link is not the authorization: the backend decides every request.
+		if (role === UserRole.ADMIN) {
+			return this.getSuperAdminNavItems(false);
 		}
 
 		if (role === UserRole.AFFILIATE) {
@@ -217,7 +223,7 @@ export class Sidebar implements OnInit {
 		return this.getClientNavItems();
 	});
 
-	private getSuperAdminNavItems(): NavItem[] {
+	private getSuperAdminNavItems(isSuper: boolean): NavItem[] {
 		const icons = {
 			home: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10',
 			chat: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
@@ -316,7 +322,7 @@ export class Sidebar implements OnInit {
 				children: [
 					{ type: 'link', label: 'إعدادات النظام', route: '/supper-admin-overview/system-settings', icon: icons.settings },
 					{ type: 'link', label: 'المواد التسويقية', route: '/supper-admin-overview/marketing-assets', icon: icons.list },
-					{ type: 'link', label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield },
+					...(isSuper ? [{ type: 'link' as const, label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield }] : []),
 					{ type: 'link', label: 'حسابي وأمان الدخول', route: '/supper-admin-overview/my-account', icon: icons.person }
 				]
 			},
