@@ -137,7 +137,7 @@
 .mr-diff { display: flex; align-items: stretch; gap: 10px; margin-bottom: 12px; }
 .mr-diff-cell { flex: 1; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 9px 12px; min-width: 0; }
 .mr-diff-lbl { font-size: 9.5px; font-weight: 800; letter-spacing: .05em; color: #6B7699; margin-bottom: 3px; }
-.mr-diff-val { font-size: 13px; font-weight: 600; color: #fff; word-break: break-word; }
+.mr-diff-val { font-size: 13px; font-weight: 600; color: #fff; word-break: break-word; white-space: pre-line; }
 .mr-diff-old .mr-diff-val { color: #6B7699; text-decoration: line-through; }
 .mr-diff-new { background: rgba(43,212,199,.05); border-color: rgba(43,212,199,.16); }
 .mr-diff-new .mr-diff-lbl { color: #2BD4C7; }

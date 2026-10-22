@@ -139,3 +139,6 @@
 .ss-save-btn:disabled{opacity:.45;cursor:not-allowed}
 .ss-sw:disabled{opacity:.5;cursor:not-allowed}
 textarea.ss-input{width:100%;resize:vertical;line-height:1.7}
+
+/* admin audit: at 320px a setting row stacks (label above its field) instead of widening the page */
+@media (max-width: 420px) { .ss-row { flex-wrap: wrap; } .ss-row .ss-input { width: 100%; min-width: 0; } }
