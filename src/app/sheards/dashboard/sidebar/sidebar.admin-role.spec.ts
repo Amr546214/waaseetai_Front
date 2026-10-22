@@ -46,9 +46,12 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 		expect(r).toContain('/supper-admin-overview/super-admins');
 		expect(r).toContain('/supper-admin-overview/accreditations');
 	});
-	it('an ADMIN acting as CLIENT gets the client menu (the active role decides)', () => {
-		const { routes } = setup({ accountType: 'ADMIN', activeRole: 'CLIENT', roles: ['ADMIN', 'CLIENT'] });
-		expect(routes().some(r => r.startsWith('/client-overview'))).toBe(true);
-		expect(routes().some(r => r.startsWith('/supper-admin-overview'))).toBe(false);
+	it('an admin account whose STORED active role is CLIENT still gets the admin menu (the account type decides, never the client shell)', () => {
+		for (const accountType of ['ADMIN', 'SUPER_ADMIN']) {
+			const { routes } = setup({ accountType, activeRole: 'CLIENT', roles: ['CLIENT'] });
+			expect(routes().some(r => r.startsWith('/client-overview'))).toBe(false);
+			expect(routes()).toContain('/supper-admin-overview/users');
+			TestBed.resetTestingModule();
+		}
 	});
 });

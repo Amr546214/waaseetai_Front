@@ -101,3 +101,37 @@ describe('NavDashboard — account-dropdown active-row click', () => {
 		expect(switchActiveRoleSpy).toHaveBeenCalledWith(UserRole.PROVIDER);
 	});
 });
+
+describe('NavDashboard — admin accounts', () => {
+	afterEach(() => vi.unstubAllGlobals());
+	const adminCases: Array<[string, any, string]> = [
+		['SUPER_ADMIN stored as CLIENT', { firstName: 'Amr', lastName: 'Okasha', accountType: 'SUPER_ADMIN', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT] }, 'مدير النظام'],
+		['ADMIN stored as CLIENT with a client role too', { firstName: 'Ola', lastName: 'Admin', accountType: 'ADMIN', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT, UserRole.ADMIN] }, 'مشرف النظام'],
+		['ADMIN stored as ADMIN', { firstName: 'Ola', lastName: 'Admin', accountType: 'ADMIN', activeRole: UserRole.ADMIN, roles: [UserRole.ADMIN] }, 'مشرف النظام'],
+	];
+	for (const [name, user, label] of adminCases) {
+		it(`${name}: shows «${label}» (never «طالب الخدمة»), a direct link to the admin panel, and NO role list / switch`, () => {
+			const { fixture, component, switchActiveRoleSpy } = setup(user);
+			fixture.detectChanges();
+			component.isUserDropdownOpen.set(true);
+			fixture.detectChanges();
+			const el = fixture.nativeElement as HTMLElement;
+			expect(el.querySelector('[data-testid="topnav-role-label"]')!.textContent!.trim()).toBe(label);
+			expect(el.textContent).not.toContain('طالب الخدمة');
+			expect(el.querySelector('[data-testid="topnav-admin-home"]')!.getAttribute('href')).toBe('/supper-admin-overview');
+			expect(el.querySelector('#udrop-dash-sub')).toBeNull();
+			expect(el.querySelector('[data-testid="topnav-add-account"]')).toBeNull();
+			expect(switchActiveRoleSpy).not.toHaveBeenCalled();
+		});
+	}
+
+	it('the role switch stays for client / provider / marketer accounts', () => {
+		const { fixture, component } = setup({ firstName: 'A', lastName: 'B', accountType: 'CLIENT_INDIVIDUAL', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT, UserRole.PROVIDER] });
+		fixture.detectChanges();
+		component.isUserDropdownOpen.set(true); component.isDashSubMenuOpen.set(true);
+		fixture.detectChanges();
+		const el = fixture.nativeElement as HTMLElement;
+		expect(el.querySelector('[data-testid="topnav-admin-home"]')).toBeNull();
+		expect(el.querySelectorAll('.udrop-dash-item').length).toBe(2);
+	});
+});

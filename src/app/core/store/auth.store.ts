@@ -74,6 +74,8 @@ export class AuthStore {
   readonly actingRole = computed<UserRole | null>(() => {
     const u = this._currentUser();
     if (!u) return null;
+    if (String(u.accountType) === 'ADMIN') return UserRole.ADMIN;
+    if (u.accountType === AccountType.SUPER_ADMIN) return UserRole.SUPER_ADMIN;
     if (u.activeRole) return u.activeRole;
     if (u.accountType === AccountType.CLIENT_INDIVIDUAL || u.accountType === AccountType.CLIENT_COMPANY) return UserRole.CLIENT;
     if (u.accountType === AccountType.PROVIDER_INDIVIDUAL || u.accountType === AccountType.PROVIDER_COMPANY) return UserRole.PROVIDER;

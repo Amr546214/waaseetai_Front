@@ -1,4 +1,4 @@
-import { resolveActiveRole, roleHome, roleLinks } from '../../core/routing/role-routes';
+import { adminRoleOf, resolveActiveRole, roleHome, roleLinks } from '../../core/routing/role-routes';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, ChangeDetectorRef, effect, ElementRef, HostListener, PLATFORM_ID } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -91,6 +91,9 @@ export class Navbar {
 
 	activeRole = computed<UserRole>(() => resolveActiveRole(this.currentUser()));
 
+	/** An admin account has ONE experience, the admin panel: no role list, no role switch (the server refuses it too), just a direct link. */
+	isAdminAccount = computed(() => adminRoleOf(this.currentUser()) !== null);
+
 	/** Profile / settings / add-account of the ACTIVE role. */
 	links = computed(() => roleLinks(this.activeRole()));
 
@@ -100,6 +103,7 @@ export class Navbar {
 	});
 
 	accountEntityLabel = computed(() => {
+		if (this.isAdminAccount()) return '';
 		const type = this.currentUser()?.accountType;
 		if (type?.includes('COMPANY')) return 'شركة';
 		if (type?.includes('INDIVIDUAL')) return 'فرد';
@@ -142,6 +146,10 @@ export class Navbar {
 
 	getRoleLabel(role: UserRole): string {
 		switch (role) {
+			case UserRole.SUPER_ADMIN:
+				return 'مدير النظام';
+			case UserRole.ADMIN:
+				return 'مشرف النظام';
 			case UserRole.PROVIDER:
 				return 'مقدم الخدمة';
 			case UserRole.AFFILIATE:

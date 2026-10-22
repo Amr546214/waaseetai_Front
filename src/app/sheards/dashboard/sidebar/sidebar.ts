@@ -148,8 +148,12 @@ export class Sidebar implements OnInit {
 		const user = this.authStore.currentUser();
 		const url = this.currentUrl() || '';
 
+		// an admin account always acts as admin (its stored activeRole is often CLIENT)
 		if (user?.accountType === AccountType.SUPER_ADMIN) {
 			return UserRole.SUPER_ADMIN;
+		}
+		if (String(user?.accountType) === 'ADMIN') {
+			return UserRole.ADMIN;
 		}
 
 		if (user?.activeRole) {
