@@ -133,3 +133,6 @@
 
 .sap-btn:disabled { opacity: .5; cursor: not-allowed; }
 @media print { .sap-hdr ws-select, .sap-hdr .sap-btn { display: none !important; } }
+
+/* admin audit: at 320px a provider row wraps instead of widening the page */
+@media (max-width: 420px) { .sap-prov { flex-wrap: wrap; } .sap-bar-mini { width: 100%; } }
