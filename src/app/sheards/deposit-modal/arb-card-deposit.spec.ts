@@ -8,8 +8,8 @@ import { ArbDepositService, ArbView } from '../../core/services/arb-deposit.serv
 const view = (state: ArbView['state'], over: Partial<ArbView> = {}): ArbView => ({ reference: 'ref-1', state, message: 'م', nextStep: 'خ', redirectUrl: null, creditedUsd: null, chargedSar: null, bankFinal: false, requiresAcknowledgement: false, previousReference: null, ...over });
 const quote = { netUsd: 100, feePercent: 4.25, feeUsd: 4.44, grossUsd: 104.44, chargedSar: 391.65, currency: 'SAR' as const, sarPerUsd: 3.75 };
 
-function setup(over: { available?: boolean; initiate?: any; open?: any; amount?: number | null; terms?: boolean } = {}) {
-	const svc = { availability: () => of({ success: true, data: { available: over.available ?? true } }), quote: vi.fn(() => of({ success: true, data: quote })), initiate: vi.fn(over.initiate ?? (() => of({ success: true, data: view('WAITING_PAGE', { redirectUrl: 'https://bank.example/pg/paymentpage.htm?PaymentID=1' }) }))), open: vi.fn(over.open ?? (() => of({ success: true, data: null }))) };
+function setup(over: { available?: boolean; initiate?: any; open?: any; status?: any; amount?: number | null; terms?: boolean } = {}) {
+	const svc = { availability: () => of({ success: true, data: { available: over.available ?? true } }), quote: vi.fn(() => of({ success: true, data: quote })), initiate: vi.fn(over.initiate ?? (() => of({ success: true, data: view('WAITING_PAGE', { redirectUrl: 'https://bank.example/pg/paymentpage.htm?PaymentID=1' }) }))), open: vi.fn(over.open ?? (() => of({ success: true, data: null }))), status: vi.fn(over.status ?? (() => of({ success: true, data: view('VERIFYING') }))) };
 	TestBed.configureTestingModule({ imports: [ArbCardDeposit], providers: [provideRouter([]), { provide: ArbDepositService, useValue: svc }] });
 	const f = TestBed.createComponent(ArbCardDeposit);
 	f.componentRef.setInput('amount', over.amount === undefined ? 100 : over.amount); f.componentRef.setInput('termsAccepted', over.terms ?? true);
@@ -102,20 +102,23 @@ describe('bank card deposit option', () => {
 		expect(el.querySelector('[data-testid="arb-quote-wallet"]')?.textContent).toContain('100.00');
 	});
 
-	it('an earlier attempt that can still be collected BLOCKS a new start: warning, no acknowledgement box, the button stays disabled, «تحديث الحالة» asks again; it lifts only when the server says so', () => {
+	it('an earlier attempt that can still be collected BLOCKS a new start: warning, no acknowledgement box, the button stays disabled; «تحديث الحالة» only READS the earlier attempt (never starts a payment); the block lifts only when the bank is final', () => {
 		const unsettled = view('UNSETTLED', { previousReference: 'old-1', message: 'لم نتأكد بعد', nextStep: 'لا يمكن بدء عملية جديدة قبل أن يحسم البنك' });
 		let n = 0;
-		const { c, f, el, svc } = setup({ initiate: () => of({ success: true, data: ++n < 3 ? unsettled : view('WAITING_PAGE', { redirectUrl: 'https://bank.example/pg/paymentpage.htm?PaymentID=2' }) }) });
+		const { c, f, el, svc } = setup({
+			initiate: () => of({ success: true, data: unsettled }),
+			status: () => of({ success: true, data: ++n < 2 ? view('EXPIRED', { bankFinal: false, message: 'أغلقنا المحاولة من جهتنا', nextStep: 'لم يؤكد البنك بعد' }) : view('DECLINED', { bankFinal: true }) }),
+		});
 		c.pay(); f.detectChanges();
 		expect(el.querySelector('[data-testid="arb-unsettled"]')).toBeTruthy();
 		expect(el.querySelector('[data-testid="arb-ack"]')).toBeNull(); // no «accept the double-charge risk» box
 		expect((el.querySelector('[data-testid="arb-pay"]') as HTMLButtonElement).disabled).toBe(true);
 		expect((el.querySelector('[data-testid="arb-follow-previous"]') as HTMLAnchorElement).getAttribute('href')).toContain('arb=old-1');
-		(el.querySelector('[data-testid="arb-refresh"]') as HTMLButtonElement).click(); f.detectChanges(); // still blocked
-		expect(el.querySelector('[data-testid="arb-unsettled"]')).toBeTruthy(); expect(c.navigateTo).not.toHaveBeenCalled();
-		(el.querySelector('[data-testid="arb-refresh"]') as HTMLButtonElement).click(); f.detectChanges(); // the server finally answers: the bank is final
-		expect(svc.initiate).toHaveBeenCalledTimes(3); for (const call of svc.initiate.mock.calls) expect(call).toEqual([100]);
-		expect(c.navigateTo).toHaveBeenCalled();
-		expect(el.querySelector('[data-testid="arb-unsettled"]')).toBeNull();
+		(el.querySelector('[data-testid="arb-refresh"]') as HTMLButtonElement).click(); f.detectChanges(); // the bank has not spoken: still blocked, text from the server
+		expect(el.querySelector('[data-testid="arb-unsettled"]')).toBeTruthy(); expect(el.textContent).toContain('لم يؤكد البنك بعد');
+		expect(svc.status).toHaveBeenCalledWith('old-1'); expect(svc.initiate).toHaveBeenCalledTimes(1); expect(c.navigateTo).not.toHaveBeenCalled();
+		(el.querySelector('[data-testid="arb-refresh"]') as HTMLButtonElement).click(); f.detectChanges(); // the bank is final (declined): the block lifts, NO payment starts by itself
+		expect(el.querySelector('[data-testid="arb-unsettled"]')).toBeNull(); expect(c.navigateTo).not.toHaveBeenCalled(); expect(svc.initiate).toHaveBeenCalledTimes(1);
+		expect((el.querySelector('[data-testid="arb-pay"]') as HTMLButtonElement).disabled).toBe(false);
 	});
 });

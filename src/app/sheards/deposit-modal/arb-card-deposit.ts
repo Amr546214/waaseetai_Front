@@ -31,7 +31,7 @@ import { mapHttpError } from '../../core/forms/http-error';
 		<div class="arb-warn" role="alert" data-testid="arb-unsettled">
 			<div class="arb-warn-t">{{ u.message }}</div>
 			<div>{{ u.nextStep }}</div>
-			<button type="button" class="arb-link" data-testid="arb-refresh" [disabled]="busy()" (click)="pay()">تحديث الحالة</button>
+			<button type="button" class="arb-link" data-testid="arb-refresh" [disabled]="busy()" (click)="refresh()">تحديث الحالة</button>
 			<a class="arb-link" [href]="walletLink(u)" data-testid="arb-follow-previous">متابعة العملية السابقة على صفحة المحفظة</a>
 		</div>
 		}
@@ -92,6 +92,28 @@ export class ArbCardDeposit implements OnInit, OnChanges {
 		this.arb.quote(a).subscribe({
 			next: r => { if (seq === this.quoteSeq && r?.success) this.quote.set(r.data); },
 			error: e => { if (seq === this.quoteSeq) this.quoteError.set(mapHttpError(e, { fallback: 'تعذّر حساب المبلغ المطلوب الآن.' }).message); },
+		});
+	}
+
+	/**
+	 * «تحديث الحالة»: asks the server to re-ask the bank about the EARLIER attempt (a read of its status; it never starts a payment and does not use the payment-start limiter).
+	 * The block lifts only when the answer says the bank is final and the money was not taken; a paid attempt goes to the wallet page; anything else stays blocked with the server's text.
+	 */
+	refresh(): void {
+		const u = this.unsettled();
+		if (!u || this.busy()) return;
+		const ref = u.previousReference ?? u.reference;
+		this.busy.set(true); this.error.set('');
+		this.arb.status(ref).subscribe({
+			next: r => {
+				this.busy.set(false);
+				const v = r?.data;
+				if (!r?.success || !v) { this.error.set('تعذّر تحديث الحالة الآن. حاول بعد قليل.'); return; }
+				if (v.state === 'PAID') { this.router.navigate(['/client-overview/finance/wallet'], { queryParams: { arb: v.reference } }); return; }
+				if (v.bankFinal && v.state !== 'REVIEW') { this.unsettled.set(null); this.info.set('أكّد البنك أن العملية السابقة لن تُحصَّل. يمكنك الآن بدء عملية جديدة.'); return; }
+				this.unsettled.set({ ...u, message: v.message, nextStep: v.nextStep });
+			},
+			error: e => { this.busy.set(false); this.error.set(mapHttpError(e, { fallback: 'تعذّر تحديث الحالة الآن. حاول بعد قليل.' }).message); },
 		});
 	}
 
