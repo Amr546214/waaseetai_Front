@@ -2,6 +2,7 @@ import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry
 import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ArbPaymentBanner } from '../../../../../sheards/arb-payment-banner/arb-payment-banner';
 import { DepositModal } from '../../../../../sheards/deposit-modal/deposit-modal';
 import { ClientFinanceService, ClientWalletData, ClientWalletEmployeeSpend } from '../../../../../core/services/client-finance.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -27,7 +28,7 @@ export interface DisplayTransaction {
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [CommonModule, RouterLink, DepositModal, LoadRetryComponent, RateLimitNoteComponent],
+  imports: [CommonModule, RouterLink, DepositModal, ArbPaymentBanner, LoadRetryComponent, RateLimitNoteComponent],
   templateUrl: './wallet.html',
   styleUrl: './wallet.css',
 })
@@ -187,6 +188,11 @@ export class Wallet implements OnInit {
         this.router.navigate(['/client-overview/finance/transactions', tx.id]);
       }
     });
+  }
+
+  /** the bank-card deposit was verified and credited by the server: reload the real balance */
+  onArbPaid() {
+    this.loadWalletData();
   }
 
   retryLoading() {

@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, EventEmitter, OnDestroy, Output, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ArbCardDeposit } from './arb-card-deposit';
 import { PaypalDepositService } from '../../core/services/paypal-deposit.service';
 import { LevelsService } from '../../core/levels/levels.service';
 import { paypalDepositBreakdown } from '../../core/levels/deposit-fee';
@@ -18,7 +19,7 @@ declare const paypal: any;
 @Component({
 	selector: 'app-deposit-modal',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, ArbCardDeposit],
 	templateUrl: './deposit-modal.html',
 	styleUrl: './deposit-modal.css',
 })
