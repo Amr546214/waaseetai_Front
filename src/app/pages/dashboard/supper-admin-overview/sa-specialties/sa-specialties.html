@@ -7,7 +7,7 @@
 			<p class="text-sm text-slate-500 dark:text-slate-400 mt-1">التخصصات التي يمكن لمقدمي الخدمة التقدم لاعتمادها
 				في المنصة</p>
 		</div>
-		<div class="flex gap-2">
+		<div class="flex flex-wrap gap-2">
 			<button (click)="promptImportCatalog()" [disabled]="isImporting()"
 				class="inline-flex items-center gap-2 cursor-pointer px-4 py-2 bg-white dark:bg-[#131B36] border border-slate-200 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
 				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -175,6 +175,7 @@
 							<span class="w-2 h-2 rounded-full" [class.bg-emerald-500]="cat.isActive !== false" [class.bg-slate-400]="cat.isActive === false"></span>
 							{{ cat.isActive !== false ? 'مُفعَّل' : 'معطَّل' }}
 						</button>
+						@if (toggleErrors()[cat.id]; as te) { <span class="text-xs font-bold text-red-500" role="alert" [attr.data-testid]="'toggle-error-' + cat.id">{{ te }}</span> }
 
 						<!-- Category Edit Button -->
 						<button type="button" (click)="openCategoryModal(cat)"
@@ -226,6 +227,7 @@
 									[style.right]="'4px'"></span>
 							</button>
 						</div>
+						@if (toggleErrors()[s.id]; as te) { <div class="text-xs font-bold text-red-500 mb-2" role="alert" [attr.data-testid]="'toggle-error-' + s.id">{{ te }}</div> }
 
 						<div class="flex gap-4 mb-4">
 							<div class="text-xs text-slate-500 dark:text-slate-400">مقدمون: <span

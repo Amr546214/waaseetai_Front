@@ -91,7 +91,7 @@ describe('D1 admin pages read the real endpoints', () => {
 	});
 
 	it('notify modal: needs 5+ chars, posts to /admin/users/:id/notify with the request context, shows the BE error', () => {
-		const post = vi.fn().mockReturnValueOnce(throwError(() => ({ error: { message: 'هذا الطلب لا يخص المستخدم المحدد' } }))).mockReturnValueOnce(of({ success: true }));
+		const post = vi.fn().mockReturnValueOnce(throwError(() => ({ status: 400, error: { message: 'هذا الطلب لا يخص المستخدم المحدد' } }))).mockReturnValueOnce(of({ success: true }));
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule({ imports: [SaNotifyModal], providers: [{ provide: HttpClient, useValue: { post } }] });
 		const f = TestBed.createComponent(SaNotifyModal);

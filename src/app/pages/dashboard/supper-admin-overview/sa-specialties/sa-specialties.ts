@@ -225,8 +225,15 @@ export class SaSpecialties implements OnInit {
     });
   }
 
+  /** Why the last hide/show of a category or specialty failed, shown beside that row's switch (the switch itself reverts). */
+  readonly toggleErrors = signal<Record<string, string>>({});
+  private setToggleError(id: string, message: string | null) {
+    this.toggleErrors.update((m) => { const n = { ...m }; if (message) n[id] = message; else delete n[id]; return n; });
+  }
+
   // --- Category Actions ---
   toggleCategory(cat: AdminCategory) {
+    this.setToggleError(cat.id, null);
     const targetStatus = cat.isActive !== undefined ? !cat.isActive : false;
 
     // Optimistic UI update
@@ -241,7 +248,7 @@ export class SaSpecialties implements OnInit {
       },
       error: (err) => {
         this.loadTree(this.searchQuery());
-        this.notify.error(err.error?.message || 'حدث خطأ أثناء تغيير حالة القسم');
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذّر تغيير حالة القسم، ولم تتغير حالته.' }, (m) => this.setToggleError(cat.id, m));
       }
     });
   }
@@ -331,6 +338,7 @@ export class SaSpecialties implements OnInit {
 
   // --- Specialty Actions ---
   toggleSpec(id: string) {
+    this.setToggleError(id, null);
     // Optimistic UI update
     this.categories.update(cats => cats.map(c => ({
       ...c,
@@ -344,7 +352,7 @@ export class SaSpecialties implements OnInit {
       },
       error: (err) => {
         this.loadTree(this.searchQuery());
-        this.notify.error(err.error?.message || 'حدث خطأ أثناء تغيير حالة التخصص');
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذّر تغيير حالة التخصص، ولم تتغير حالته.' }, (m) => this.setToggleError(id, m));
       }
     });
   }

@@ -317,3 +317,7 @@
 .sac-ai-mini { width: 11px; height: 11px; margin-inline-end: 4px; fill: none; stroke: currentColor; stroke-width: 1.8; }
 .sac-pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 .sac-ai-stored { background: rgba(123,47,190,.12); color: #A56BE0; }
+
+/* admin audit: on a phone the tab strip scrolls inside itself and the search box shrinks, so the page never grows wider than the screen */
+.sac-tabs { max-width: 100%; min-width: 0; }
+.sac-search { min-width: 0; flex: 1 1 180px; max-width: 100%; }

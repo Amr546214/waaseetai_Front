@@ -318,3 +318,6 @@
 
 /* Multi-row advanced filter: rows stack inside the shared filter-rail. */
 .filter-rail{flex-direction:column}
+
+/* admin audit: at 320px the status chips wrap instead of widening the page */
+.date-segs { flex-wrap: wrap; max-width: 100%; }

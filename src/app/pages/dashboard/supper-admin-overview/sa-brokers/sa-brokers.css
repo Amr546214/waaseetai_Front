@@ -316,3 +316,7 @@
   .bk-page { padding: 14px 16px; }
   .bk-filters { flex-direction: column; align-items: stretch; }
 }
+
+/* admin audit: on a phone the tab strip scrolls inside itself and the search box shrinks, so the page never grows wider than the screen */
+.bk-tabs { max-width: 100%; min-width: 0; }
+.bk-search { min-width: 0; flex: 1 1 180px; max-width: 100%; }
