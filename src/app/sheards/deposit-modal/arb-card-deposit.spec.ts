@@ -42,7 +42,7 @@ describe('bank card deposit option', () => {
 	it('sends ONLY the net amount and follows the bank address it received (https)', () => {
 		const { c, svc, nav } = setup();
 		c.pay();
-		expect(svc.initiate).toHaveBeenCalledWith(100, false);
+		expect(svc.initiate).toHaveBeenCalledWith(100);
 		expect(nav).toHaveBeenCalledWith('https://bank.example/pg/paymentpage.htm?PaymentID=1');
 	});
 
@@ -102,19 +102,20 @@ describe('bank card deposit option', () => {
 		expect(el.querySelector('[data-testid="arb-quote-wallet"]')?.textContent).toContain('100.00');
 	});
 
-	it('an earlier attempt the bank has not settled: warned first, the button stays disabled until the box is ticked, then the SAME amount is sent with the acknowledgement', () => {
-		const unsettled = view('UNSETTLED', { requiresAcknowledgement: true, previousReference: 'old-1', message: 'لم نتأكد بعد', nextStep: 'قد تُحصَّل لاحقًا' });
+	it('an earlier attempt that can still be collected BLOCKS a new start: warning, no acknowledgement box, the button stays disabled, «تحديث الحالة» asks again; it lifts only when the server says so', () => {
+		const unsettled = view('UNSETTLED', { previousReference: 'old-1', message: 'لم نتأكد بعد', nextStep: 'لا يمكن بدء عملية جديدة قبل أن يحسم البنك' });
 		let n = 0;
-		const { c, f, el, svc } = setup({ initiate: () => of({ success: true, data: ++n === 1 ? unsettled : view('WAITING_PAGE', { redirectUrl: 'https://bank.example/pg/paymentpage.htm?PaymentID=2' }) }) });
+		const { c, f, el, svc } = setup({ initiate: () => of({ success: true, data: ++n < 3 ? unsettled : view('WAITING_PAGE', { redirectUrl: 'https://bank.example/pg/paymentpage.htm?PaymentID=2' }) }) });
 		c.pay(); f.detectChanges();
-		expect(svc.initiate).toHaveBeenLastCalledWith(100, false);
 		expect(el.querySelector('[data-testid="arb-unsettled"]')).toBeTruthy();
+		expect(el.querySelector('[data-testid="arb-ack"]')).toBeNull(); // no «accept the double-charge risk» box
 		expect((el.querySelector('[data-testid="arb-pay"]') as HTMLButtonElement).disabled).toBe(true);
 		expect((el.querySelector('[data-testid="arb-follow-previous"]') as HTMLAnchorElement).getAttribute('href')).toContain('arb=old-1');
-		(el.querySelector('[data-testid="arb-ack"]') as HTMLInputElement).click(); f.detectChanges();
-		expect((el.querySelector('[data-testid="arb-pay"]') as HTMLButtonElement).disabled).toBe(false);
-		c.pay();
-		expect(svc.initiate).toHaveBeenLastCalledWith(100, true);
+		(el.querySelector('[data-testid="arb-refresh"]') as HTMLButtonElement).click(); f.detectChanges(); // still blocked
+		expect(el.querySelector('[data-testid="arb-unsettled"]')).toBeTruthy(); expect(c.navigateTo).not.toHaveBeenCalled();
+		(el.querySelector('[data-testid="arb-refresh"]') as HTMLButtonElement).click(); f.detectChanges(); // the server finally answers: the bank is final
+		expect(svc.initiate).toHaveBeenCalledTimes(3); for (const call of svc.initiate.mock.calls) expect(call).toEqual([100]);
 		expect(c.navigateTo).toHaveBeenCalled();
+		expect(el.querySelector('[data-testid="arb-unsettled"]')).toBeNull();
 	});
 });

@@ -18,7 +18,7 @@ export interface ArbView {
 	chargedSar: number | null;
 	/** the bank itself gave a final answer */
 	bankFinal: boolean;
-	/** an earlier attempt may still be collected by the bank: a new one needs the user's explicit acknowledgement */
+	/** always false: there is no override while an earlier attempt can still be collected */
 	requiresAcknowledgement: boolean;
 	previousReference: string | null;
 }
@@ -32,8 +32,7 @@ export class ArbDepositService {
 
 	availability(): Observable<{ success: boolean; data: { available: boolean } }> { return this.http.get<{ success: boolean; data: { available: boolean } }>(`${this.base}/config`); }
 	quote(netUsd: number): Observable<{ success: boolean; data: ArbQuote }> { return this.http.get<{ success: boolean; data: ArbQuote }>(`${this.base}/quote`, { params: { netUsd } }); }
-	initiate(netUsd: number, acknowledgePreviousRisk = false): Observable<{ success: boolean; data: ArbView }> { return this.http.post<{ success: boolean; data: ArbView }>(`${this.base}/initiate`, acknowledgePreviousRisk ? { netUsd, acknowledgePreviousRisk: true } : { netUsd }); }
+	initiate(netUsd: number): Observable<{ success: boolean; data: ArbView }> { return this.http.post<{ success: boolean; data: ArbView }>(`${this.base}/initiate`, { netUsd }); }
 	status(reference: string): Observable<{ success: boolean; data: ArbView }> { return this.http.get<{ success: boolean; data: ArbView }>(`${this.base}/${encodeURIComponent(reference)}/status`); }
-	abandon(reference: string): Observable<{ success: boolean; data: ArbView }> { return this.http.post<{ success: boolean; data: ArbView }>(`${this.base}/${encodeURIComponent(reference)}/abandon`, {}); }
 	open(): Observable<{ success: boolean; data: ArbView | null }> { return this.http.get<{ success: boolean; data: ArbView | null }>(`${this.base}/open`); }
 }

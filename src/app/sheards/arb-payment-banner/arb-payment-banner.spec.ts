@@ -8,7 +8,7 @@ import { ArbDepositService, ArbView } from '../../core/services/arb-deposit.serv
 const view = (state: ArbView['state'], over: Partial<ArbView> = {}): ArbView => ({ reference: 'ref-1', state, message: 'رسالة ' + state, nextStep: 'الخطوة التالية', redirectUrl: null, creditedUsd: null, chargedSar: null, bankFinal: false, requiresAcknowledgement: false, previousReference: null, ...over });
 
 function setup(opts: { arbParam: string | null; status?: any; open?: any }) {
-	const svc: any = { abandon: vi.fn(() => of({ success: true, data: view('CANCELLED') })), status: vi.fn(opts.status ?? (() => of({ success: true, data: view('VERIFYING') }))), open: vi.fn(opts.open ?? (() => of({ success: true, data: null }))) };
+	const svc: any = { status: vi.fn(opts.status ?? (() => of({ success: true, data: view('VERIFYING') }))), open: vi.fn(opts.open ?? (() => of({ success: true, data: null }))) };
 	TestBed.configureTestingModule({ imports: [ArbPaymentBanner], providers: [provideRouter([]), { provide: ArbDepositService, useValue: svc }, { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => opts.arbParam } } } }] });
 	const f = TestBed.createComponent(ArbPaymentBanner); f.detectChanges();
 	return { f, c: f.componentInstance, svc, el: f.nativeElement as HTMLElement };
@@ -68,15 +68,13 @@ describe('arb payment banner: shows only what the server verified', () => {
 		expect(el.querySelector('[data-testid="arb-resume"]')?.getAttribute('href')).toBe('https://bank.example/p?PaymentID=1');
 	});
 
-	it('«I left the bank page»: asks the server to close the attempt softly, then shows the cancelled state; a failure keeps the page and says nothing changed', () => {
-		const { f, svc, el, c } = setup({ arbParam: 'ref-1', status: () => of({ success: true, data: view('WAITING_PAGE', { redirectUrl: 'https://bank.example/p?PaymentID=1' }) }) });
-		(el.querySelector('[data-testid="arb-abandon"]') as HTMLButtonElement).click(); f.detectChanges();
-		expect(svc.abandon).toHaveBeenCalledWith('ref-1');
-		expect(el.querySelector('[data-testid="arb-banner"]')?.getAttribute('data-state')).toBe('CANCELLED');
-		svc.abandon.mockReturnValueOnce(throwError(() => ({ status: 0 })));
-		c.view.set(view('WAITING_PAGE', { redirectUrl: 'https://bank.example/p' })); f.detectChanges();
-		(el.querySelector('[data-testid="arb-abandon"]') as HTMLButtonElement).click(); f.detectChanges();
-		expect(el.querySelector('[data-testid="arb-abandon-error"]')?.textContent).toContain('لم يتغير شيء');
+	it('«تحديث الحالة» asks the server again at once for any attempt the bank has not finalized; there is no «start over» override', () => {
+		const { f, svc, el } = setup({ arbParam: 'ref-1', status: () => of({ success: true, data: view('UNSETTLED', { message: 'لم نتأكد بعد', bankFinal: false }) }) });
+		const before = svc.status.mock.calls.length;
+		(el.querySelector('[data-testid="arb-refresh"]') as HTMLButtonElement).click(); f.detectChanges();
+		expect(svc.status.mock.calls.length).toBe(before + 1);
+		expect(el.querySelector('[data-testid="arb-abandon"]')).toBeNull();
+		expect(el.textContent).not.toContain('البدء من جديد');
 	});
 
 	it('a LOCALLY cancelled attempt the bank has not finalized keeps being checked and carries the server warning; a bank-final one stops', () => {

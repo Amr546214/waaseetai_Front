@@ -31,12 +31,12 @@ import { mapHttpError } from '../../core/forms/http-error';
 		<div class="arb-warn" role="alert" data-testid="arb-unsettled">
 			<div class="arb-warn-t">{{ u.message }}</div>
 			<div>{{ u.nextStep }}</div>
-			<label class="arb-ack"><input type="checkbox" data-testid="arb-ack" [checked]="ack()" (change)="ack.set($any($event.target).checked)" /> أفهم أن العملية السابقة قد تُحصَّل لاحقًا وقد يُخصم مني مبلغان</label>
+			<button type="button" class="arb-link" data-testid="arb-refresh" [disabled]="busy()" (click)="pay()">تحديث الحالة</button>
 			<a class="arb-link" [href]="walletLink(u)" data-testid="arb-follow-previous">متابعة العملية السابقة على صفحة المحفظة</a>
 		</div>
 		}
-		<button type="button" class="arb-pay" data-testid="arb-pay" [disabled]="busy() || blocked() || (unsettled() !== null && !ack())" [attr.aria-busy]="busy()" aria-describedby="arb-msg" (click)="pay()">
-			{{ busy() ? 'جارٍ تجهيز صفحة البنك…' : (unsettled() ? 'بدء عملية جديدة رغم ذلك' : 'المتابعة إلى صفحة البنك') }}
+		<button type="button" class="arb-pay" data-testid="arb-pay" [disabled]="busy() || blocked() || unsettled() !== null" [attr.aria-busy]="busy()" aria-describedby="arb-msg" (click)="pay()">
+			{{ busy() ? 'جارٍ تجهيز صفحة البنك…' : 'المتابعة إلى صفحة البنك' }}
 		</button>
 		<div id="arb-msg" aria-live="polite">
 			@if (error()) { <div class="arb-err" role="alert" data-testid="arb-error">{{ error() }}</div> }
@@ -70,9 +70,8 @@ export class ArbCardDeposit implements OnInit, OnChanges {
 	busy = signal(false);
 	/** a lost answer left us unsure whether an attempt exists: no new start until the user has checked */
 	blocked = signal(false);
-	/** an earlier attempt is not finally settled by the bank: the user must acknowledge before a new one starts */
+	/** an earlier attempt can still be collected: a new start is blocked until the bank answers (no override); «تحديث الحالة» asks again */
 	unsettled = signal<ArbView | null>(null);
-	ack = signal(false);
 	error = signal('');
 	info = signal('');
 	private quoteSeq = 0;
@@ -111,13 +110,12 @@ export class ArbCardDeposit implements OnInit, OnChanges {
 		if (this.amount === null || this.amount < 50 || this.amount > 100000) { this.amountMissing.emit(); return; }
 		if (!this.termsAccepted) { this.termsMissing.emit(); return; }
 		this.busy.set(true);
-		const acknowledged = this.unsettled() !== null && this.ack();
-		this.arb.initiate(this.amount, acknowledged).subscribe({
+		this.arb.initiate(this.amount).subscribe({
 			next: r => {
 				this.busy.set(false);
 				const v = r?.data;
-				if (v?.requiresAcknowledgement) { this.unsettled.set(v); this.ack.set(false); return; } // warn first, nothing is started silently
-				this.unsettled.set(null); this.ack.set(false);
+				if (v?.state === 'UNSETTLED') { this.unsettled.set(v); return; } // blocked: the bank has not answered about the earlier attempt
+				this.unsettled.set(null);
 				if (!r?.success || !v) { this.error.set('تعذّر بدء الدفع بالبطاقة، ولم يُخصم أي مبلغ. حاول مرة أخرى.'); return; }
 				if (v.state === 'WAITING_PAGE' && v.redirectUrl) {
 					this.info.set('جارٍ تحويلك إلى صفحة البنك الآمنة…');
