@@ -14,13 +14,13 @@ import { ArbDepositService, ArbView } from '../../core/services/arb-deposit.serv
 	imports: [CommonModule],
 	template: `
 	@if (view(); as v) {
-	<div class="arb-banner" role="status" aria-live="polite" data-testid="arb-banner" [attr.data-state]="v.state" [class.arb-ok]="v.state === 'PAID'" [class.arb-bad]="v.state === 'DECLINED' || v.state === 'FAILED'" [class.arb-wait]="v.state === 'VERIFYING' || v.state === 'WAITING_PAGE' || v.state === 'REVIEW' || v.state === 'CANCELLED' || v.state === 'EXPIRED'">
+	<div class="arb-banner" role="status" aria-live="polite" data-testid="arb-banner" [attr.data-state]="v.state" [class.arb-ok]="v.state === 'PAID'" [class.arb-bad]="v.state === 'DECLINED' || v.state === 'FAILED'" [class.arb-wait]="v.state === 'UNSETTLED' || v.state === 'VERIFYING' || v.state === 'WAITING_PAGE' || v.state === 'REVIEW' || v.state === 'CANCELLED' || v.state === 'EXPIRED'">
 		<div class="arb-title" data-testid="arb-message">{{ v.message }}</div>
 		<div class="arb-next" data-testid="arb-next">{{ v.nextStep }}</div>
 		@if (v.state === 'PAID' && v.creditedUsd !== null) { <div class="arb-amount" data-testid="arb-credited">أُضيف إلى محفظتك: {{ v.creditedUsd | number:'1.2-2' }} $</div> }
 		@if (v.state === 'WAITING_PAGE' && v.redirectUrl) {
 			<a class="arb-link" [href]="v.redirectUrl" data-testid="arb-resume">العودة إلى صفحة الدفع</a>
-			<button type="button" class="arb-link" data-testid="arb-abandon" [disabled]="abandoning()" (click)="abandon(v.reference)">غادرتُ صفحة البنك وأريد البدء من جديد</button>
+			<button type="button" class="arb-link" data-testid="arb-abandon" [disabled]="abandoning()" (click)="abandon(v.reference)">غادرتُ صفحة البنك (إغلاق محلي: قد يظل الدفع ممكنًا لدى البنك)</button>
 		}
 		@if (abandonError()) { <div class="arb-error" role="alert" data-testid="arb-abandon-error">{{ abandonError() }}</div> }
 		@if (checking()) { <div class="arb-checking" data-testid="arb-checking">جارٍ التحقق…</div> }
@@ -56,7 +56,7 @@ export class ArbPaymentBanner implements OnInit, OnDestroy {
 		if (ref && ref !== 'unknown') { this.poll(ref); return; }
 		// no pointer in the address (refresh, new tab, lost reply): pick up the user's open attempt, if any
 		this.arb.open().subscribe({ next: r => { if (r?.success && r.data) this.accept(r.data); }, error: () => { /* nothing to show; the wallet itself is unaffected */ } });
-		if (ref === 'unknown') this.view.set({ reference: '—', state: 'VERIFYING', message: 'لم نتعرّف على عملية الدفع من العنوان الذي عدت منه.', nextStep: 'إن كنت قد دفعت للتو فسنؤكد العملية تلقائيًا ويظهر الرصيد هنا. لا تُعد الدفع قبل أن نؤكد لك.', redirectUrl: null, creditedUsd: null, chargedSar: null });
+		if (ref === 'unknown') this.view.set({ reference: '—', state: 'VERIFYING', message: 'لم نتعرّف على عملية الدفع من العنوان الذي عدت منه.', nextStep: 'إن كنت قد دفعت للتو فسنؤكد العملية تلقائيًا ويظهر الرصيد هنا. لا تُعد الدفع قبل أن نؤكد لك.', redirectUrl: null, creditedUsd: null, chargedSar: null, bankFinal: false, requiresAcknowledgement: false, previousReference: null });
 	}
 
 	ngOnDestroy(): void { this.destroyed = true; if (this.timer) clearTimeout(this.timer); }
@@ -88,7 +88,7 @@ export class ArbPaymentBanner implements OnInit, OnDestroy {
 	private accept(v: ArbView, ref?: string): void {
 		this.view.set(v);
 		if (v.state === 'PAID') { this.paid.emit(v); this.router.navigate([], { queryParams: { arb: null }, queryParamsHandling: 'merge', replaceUrl: true }); return; }
-		if ((v.state === 'VERIFYING' || v.state === 'WAITING_PAGE' || v.state === 'CANCELLED' || v.state === 'EXPIRED') && Date.now() < this.stopAt) this.next(ref ?? v.reference);
+		if ((v.state === 'VERIFYING' || v.state === 'WAITING_PAGE' || ((v.state === 'CANCELLED' || v.state === 'EXPIRED' || v.state === 'UNSETTLED') && !v.bankFinal)) && Date.now() < this.stopAt) this.next(ref ?? v.reference);
 	}
 
 	private next(ref: string): void {

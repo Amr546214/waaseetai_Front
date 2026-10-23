@@ -5,7 +5,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { ArbCardDeposit } from './arb-card-deposit';
 import { ArbDepositService, ArbView } from '../../core/services/arb-deposit.service';
 
-const view = (state: ArbView['state'], over: Partial<ArbView> = {}): ArbView => ({ reference: 'ref-1', state, message: 'م', nextStep: 'خ', redirectUrl: null, creditedUsd: null, chargedSar: null, ...over });
+const view = (state: ArbView['state'], over: Partial<ArbView> = {}): ArbView => ({ reference: 'ref-1', state, message: 'م', nextStep: 'خ', redirectUrl: null, creditedUsd: null, chargedSar: null, bankFinal: false, requiresAcknowledgement: false, previousReference: null, ...over });
 const quote = { netUsd: 100, feePercent: 4.25, feeUsd: 4.44, grossUsd: 104.44, chargedSar: 391.65, currency: 'SAR' as const, sarPerUsd: 3.75 };
 
 function setup(over: { available?: boolean; initiate?: any; open?: any; amount?: number | null; terms?: boolean } = {}) {
@@ -42,7 +42,7 @@ describe('bank card deposit option', () => {
 	it('sends ONLY the net amount and follows the bank address it received (https)', () => {
 		const { c, svc, nav } = setup();
 		c.pay();
-		expect(svc.initiate).toHaveBeenCalledWith(100);
+		expect(svc.initiate).toHaveBeenCalledWith(100, false);
 		expect(nav).toHaveBeenCalledWith('https://bank.example/pg/paymentpage.htm?PaymentID=1');
 	});
 
@@ -94,5 +94,27 @@ describe('bank card deposit option', () => {
 		c.pay(); f.detectChanges();
 		expect(assign).not.toHaveBeenCalled(); expect(el.querySelector('[data-testid="arb-error"]')).toBeTruthy();
 		vi.unstubAllGlobals();
+	});
+
+	it('the quote also shows the rate and the wallet credit in dollars before the user leaves', () => {
+		const { f, el } = setup(); f.detectChanges();
+		expect(el.querySelector('[data-testid="arb-quote-rate"]')?.textContent).toContain('3.75');
+		expect(el.querySelector('[data-testid="arb-quote-wallet"]')?.textContent).toContain('100.00');
+	});
+
+	it('an earlier attempt the bank has not settled: warned first, the button stays disabled until the box is ticked, then the SAME amount is sent with the acknowledgement', () => {
+		const unsettled = view('UNSETTLED', { requiresAcknowledgement: true, previousReference: 'old-1', message: 'لم نتأكد بعد', nextStep: 'قد تُحصَّل لاحقًا' });
+		let n = 0;
+		const { c, f, el, svc } = setup({ initiate: () => of({ success: true, data: ++n === 1 ? unsettled : view('WAITING_PAGE', { redirectUrl: 'https://bank.example/pg/paymentpage.htm?PaymentID=2' }) }) });
+		c.pay(); f.detectChanges();
+		expect(svc.initiate).toHaveBeenLastCalledWith(100, false);
+		expect(el.querySelector('[data-testid="arb-unsettled"]')).toBeTruthy();
+		expect((el.querySelector('[data-testid="arb-pay"]') as HTMLButtonElement).disabled).toBe(true);
+		expect((el.querySelector('[data-testid="arb-follow-previous"]') as HTMLAnchorElement).getAttribute('href')).toContain('arb=old-1');
+		(el.querySelector('[data-testid="arb-ack"]') as HTMLInputElement).click(); f.detectChanges();
+		expect((el.querySelector('[data-testid="arb-pay"]') as HTMLButtonElement).disabled).toBe(false);
+		c.pay();
+		expect(svc.initiate).toHaveBeenLastCalledWith(100, true);
+		expect(c.navigateTo).toHaveBeenCalled();
 	});
 });

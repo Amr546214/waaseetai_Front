@@ -5,7 +5,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { ArbPaymentBanner } from './arb-payment-banner';
 import { ArbDepositService, ArbView } from '../../core/services/arb-deposit.service';
 
-const view = (state: ArbView['state'], over: Partial<ArbView> = {}): ArbView => ({ reference: 'ref-1', state, message: 'رسالة ' + state, nextStep: 'الخطوة التالية', redirectUrl: null, creditedUsd: null, chargedSar: null, ...over });
+const view = (state: ArbView['state'], over: Partial<ArbView> = {}): ArbView => ({ reference: 'ref-1', state, message: 'رسالة ' + state, nextStep: 'الخطوة التالية', redirectUrl: null, creditedUsd: null, chargedSar: null, bankFinal: false, requiresAcknowledgement: false, previousReference: null, ...over });
 
 function setup(opts: { arbParam: string | null; status?: any; open?: any }) {
 	const svc: any = { abandon: vi.fn(() => of({ success: true, data: view('CANCELLED') })), status: vi.fn(opts.status ?? (() => of({ success: true, data: view('VERIFYING') }))), open: vi.fn(opts.open ?? (() => of({ success: true, data: null }))) };
@@ -77,5 +77,15 @@ describe('arb payment banner: shows only what the server verified', () => {
 		c.view.set(view('WAITING_PAGE', { redirectUrl: 'https://bank.example/p' })); f.detectChanges();
 		(el.querySelector('[data-testid="arb-abandon"]') as HTMLButtonElement).click(); f.detectChanges();
 		expect(el.querySelector('[data-testid="arb-abandon-error"]')?.textContent).toContain('لم يتغير شيء');
+	});
+
+	it('a LOCALLY cancelled attempt the bank has not finalized keeps being checked and carries the server warning; a bank-final one stops', () => {
+		vi.useFakeTimers();
+		let n = 0;
+		const { svc, el, f } = setup({ arbParam: 'ref-1', status: () => of({ success: true, data: ++n < 3 ? view('CANCELLED', { message: 'أغلقنا المحاولة من جهتنا، لكن البنك لم يؤكد بعد', bankFinal: false }) : view('DECLINED', { bankFinal: true }) }) });
+		expect(el.querySelector('[data-testid="arb-message"]')?.textContent).toContain('لم يؤكد بعد');
+		vi.advanceTimersByTime(4000); vi.advanceTimersByTime(4000); f.detectChanges();
+		expect(svc.status).toHaveBeenCalledTimes(3);
+		vi.advanceTimersByTime(60_000); expect(svc.status).toHaveBeenCalledTimes(3);
 	});
 });
