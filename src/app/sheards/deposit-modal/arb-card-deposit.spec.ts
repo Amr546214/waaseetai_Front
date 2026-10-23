@@ -26,6 +26,13 @@ describe('bank card deposit option', () => {
 		expect(el.querySelector('[data-testid="arb-card-box"]')).toBeNull();
 	});
 
+	it('closed rail: nothing is rendered AND nothing but the availability question is ever sent (no quote, no initiate, no open)', () => {
+		const { c, f, svc } = setup({ available: false });
+		f.componentRef.setInput('amount', 500); f.detectChanges();
+		c.pay(); // even a forced call cannot reach a bank request while closed: the box (and its button) does not exist
+		expect(svc.quote).not.toHaveBeenCalled(); expect(svc.open).not.toHaveBeenCalled();
+	});
+
 	it('shows the SERVER quote (net, fee, the SAR amount that will be charged) before the user leaves', () => {
 		const { f, el, svc } = setup(); f.detectChanges();
 		expect(svc.quote).toHaveBeenCalledWith(100);

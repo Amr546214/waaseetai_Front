@@ -90,7 +90,7 @@ export class ArbCardDeposit implements OnInit, OnChanges {
 	}
 
 	pay(): void {
-		if (this.busy() || this.blocked()) return;
+		if (!this.available() || this.busy() || this.blocked()) return;
 		this.error.set(''); this.info.set('');
 		if (this.amount === null || this.amount < 50 || this.amount > 100000) { this.amountMissing.emit(); return; }
 		if (!this.termsAccepted) { this.termsMissing.emit(); return; }

@@ -18,7 +18,11 @@ import { ArbDepositService, ArbView } from '../../core/services/arb-deposit.serv
 		<div class="arb-title" data-testid="arb-message">{{ v.message }}</div>
 		<div class="arb-next" data-testid="arb-next">{{ v.nextStep }}</div>
 		@if (v.state === 'PAID' && v.creditedUsd !== null) { <div class="arb-amount" data-testid="arb-credited">أُضيف إلى محفظتك: {{ v.creditedUsd | number:'1.2-2' }} $</div> }
-		@if (v.state === 'WAITING_PAGE' && v.redirectUrl) { <a class="arb-link" [href]="v.redirectUrl" data-testid="arb-resume">العودة إلى صفحة الدفع</a> }
+		@if (v.state === 'WAITING_PAGE' && v.redirectUrl) {
+			<a class="arb-link" [href]="v.redirectUrl" data-testid="arb-resume">العودة إلى صفحة الدفع</a>
+			<button type="button" class="arb-link" data-testid="arb-abandon" [disabled]="abandoning()" (click)="abandon(v.reference)">غادرتُ صفحة البنك وأريد البدء من جديد</button>
+		}
+		@if (abandonError()) { <div class="arb-error" role="alert" data-testid="arb-abandon-error">{{ abandonError() }}</div> }
 		@if (checking()) { <div class="arb-checking" data-testid="arb-checking">جارٍ التحقق…</div> }
 		@if (pollError()) { <div class="arb-error" role="alert" data-testid="arb-poll-error">تعذّر الاتصال بالخادم للتحقق الآن. لا يعني ذلك أن الدفع فشل؛ سنحاول مرة أخرى تلقائيًا.</div> }
 		<div class="arb-ref" dir="ltr">{{ v.reference }}</div>
@@ -38,6 +42,8 @@ export class ArbPaymentBanner implements OnInit, OnDestroy {
 	view = signal<ArbView | null>(null);
 	checking = signal(false);
 	pollError = signal(false);
+	abandoning = signal(false);
+	abandonError = signal('');
 	private timer?: ReturnType<typeof setTimeout>;
 	private stopAt = 0;
 	private destroyed = false;
@@ -54,6 +60,16 @@ export class ArbPaymentBanner implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void { this.destroyed = true; if (this.timer) clearTimeout(this.timer); }
+
+	/** The user left the bank page: the attempt is closed softly (a later verified capture is still applied) so a new one can start. */
+	abandon(ref: string): void {
+		if (this.abandoning()) return;
+		this.abandoning.set(true); this.abandonError.set('');
+		this.arb.abandon(ref).subscribe({
+			next: r => { this.abandoning.set(false); if (r?.success && r.data) this.accept(r.data, ref); },
+			error: () => { this.abandoning.set(false); this.abandonError.set('تعذّر إغلاق المحاولة الآن. لم يتغير شيء في دفعتك؛ حاول مرة أخرى بعد قليل.'); },
+		});
+	}
 
 	private poll(ref: string): void {
 		if (this.destroyed) return;

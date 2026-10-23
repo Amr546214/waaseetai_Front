@@ -29,5 +29,6 @@ export class ArbDepositService {
 	quote(netUsd: number): Observable<{ success: boolean; data: ArbQuote }> { return this.http.get<{ success: boolean; data: ArbQuote }>(`${this.base}/quote`, { params: { netUsd } }); }
 	initiate(netUsd: number): Observable<{ success: boolean; data: ArbView }> { return this.http.post<{ success: boolean; data: ArbView }>(`${this.base}/initiate`, { netUsd }); }
 	status(reference: string): Observable<{ success: boolean; data: ArbView }> { return this.http.get<{ success: boolean; data: ArbView }>(`${this.base}/${encodeURIComponent(reference)}/status`); }
+	abandon(reference: string): Observable<{ success: boolean; data: ArbView }> { return this.http.post<{ success: boolean; data: ArbView }>(`${this.base}/${encodeURIComponent(reference)}/abandon`, {}); }
 	open(): Observable<{ success: boolean; data: ArbView | null }> { return this.http.get<{ success: boolean; data: ArbView | null }>(`${this.base}/open`); }
 }
