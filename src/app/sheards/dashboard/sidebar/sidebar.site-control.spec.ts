@@ -12,18 +12,22 @@ import { Sidebar } from './sidebar';
 import { AuthStore } from '../../../core/store/auth.store';
 import { ProviderAccessService } from '../../../core/services/provider-access.service';
 import { isAdminUser } from '../../../core/guards/auth.guards';
+import { AdminAccessService } from '../../../core/services/admin-access.service';
 
 // «التحكم بالموقع»: a section at the BOTTOM of the admin sidebar (just above the logout button), with the nine pages under it and real links.
 describe('Sidebar: التحكم بالموقع', () => {
-	const items = (accountType: string) => {
+	// the menu follows what the SERVER says this account may do (admin access): a SUPER_ADMIN holds every permission, an ADMIN only those of its role
+	const items = (accountType: string, perms: string[] = []) => {
 		TestBed.configureTestingModule({ imports: [Sidebar], providers: [provideRouter([]), { provide: HttpClient, useValue: { get: () => of({ success: true, data: {} }) } }, { provide: AuthStore, useValue: { currentUser: signal({ accountType } as any), token: signal('t') } }, { provide: ProviderAccessService, useValue: { load: () => of({}), latest: signal(null) } }] });
+		const acc = TestBed.inject(AdminAccessService);
+		if (accountType === 'SUPER_ADMIN' || accountType === 'ADMIN') { acc.access.set({ userId: 'u', isSuperAdmin: accountType === 'SUPER_ADMIN', staffStatus: 'ACTIVE', roleName: 'r', permissions: perms, hasAnyPermission: true, state: accountType === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'ACTIVE', displayRole: 'r' }); acc.status.set('ready'); }
 		const f = TestBed.createComponent(Sidebar); f.detectChanges();
 		return (f.componentInstance as any).navItems() as any[];
 	};
 	afterEach(() => TestBed.resetTestingModule());
 
 	it('a super admin sees the section last (before logout) with the nine pages and correct routes', () => {
-		const nav = items('SUPER_ADMIN');
+		const nav = items('SUPER_ADMIN', ['site_control.manage']);
 		const i = nav.findIndex(n => n.type === 'header' && n.label === 'التحكم بالموقع');
 		expect(i).toBeGreaterThan(-1);
 		expect(nav[i + 1].type).toBe('accordion');
@@ -34,11 +38,14 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(children.every(c => String(c.route).startsWith('/supper-admin-overview/site-control/'))).toBe(true);
 	});
 
-	it('PINS the current state (a permission decision is still pending): an ADMIN account gets the admin menu WITHOUT the link (link = SUPER_ADMIN only), while the ROUTE guard still admits ADMIN', () => {
-		const adminNav = items('ADMIN');
-		expect(adminNav.some(n => n.label === 'التحكم بالموقع')).toBe(false);
-		expect(adminNav.some(n => n.route === '/supper-admin-overview')).toBe(true);
+	it('an ADMIN account sees the link only while its role (or a personal grant) holds site_control.manage; without it the section is absent, and the admin menu still opens', () => {
+		const without = items('ADMIN', ['users.view']);
+		expect(without.some(n => n.label === 'التحكم بالموقع')).toBe(false);
+		expect(without.some(n => n.route === '/supper-admin-overview')).toBe(true);
 		TestBed.resetTestingModule();
+		expect(items('ADMIN', ['site_control.manage']).some(n => n.label === 'التحكم بالموقع')).toBe(true);
+		TestBed.resetTestingModule();
+		// the ROUTE guard of the account type is unchanged; the permission rule (site_control.manage) is enforced by the access guard on top of it
 		expect(isAdminUser({ accountType: 'ADMIN' })).toBe(true);
 		expect(isAdminUser({ accountType: 'SUPER_ADMIN' })).toBe(true);
 		expect(isAdminUser({ accountType: 'CLIENT_INDIVIDUAL' })).toBe(false);
