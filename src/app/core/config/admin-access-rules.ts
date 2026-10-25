@@ -40,7 +40,7 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'finance-reports': { all: ['finance.read'] },
 	'analytics-hub': { all: ['finance.read'] },
 	'sub-finance': { all: ['finance.read'] },
-	fees: { anyOf: ['finance.read', 'packages.manage'] },
+	fees: { anyOf: ['finance.read', 'packages.manage', 'fees.view', 'fees.manage'] },
 	coupons: { all: ['packages.manage'] },
 	team: { all: ['team.view'] },
 	roles: { superAdmin: true },

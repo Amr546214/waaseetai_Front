@@ -3,6 +3,7 @@ import { LevelsService, LevelRow, DEPOSIT_METHOD_LABELS, WITHDRAWAL_METHOD_LABEL
 import { CommonModule } from '@angular/common';
 import { AdminCommissionsData, AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { errMsg, usd } from '../sub-finance/finance-ui';
+import { FeePolicyPanel } from './fee-policy-panel/fee-policy-panel';
 
 interface PlatformFee {
   label: string;
@@ -14,7 +15,7 @@ interface PlatformFee {
 @Component({
   selector: 'app-sa-fees',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FeePolicyPanel],
   templateUrl: './sa-fees.html',
   styleUrl: './sa-fees.css',
 })

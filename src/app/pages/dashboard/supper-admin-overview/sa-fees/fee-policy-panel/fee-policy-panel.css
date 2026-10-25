@@ -1,0 +1,22 @@
+:host { display: block; }
+.fp { margin-top: 24px; padding: 16px; border: 1px solid var(--ws-border, #e2e8f0); border-radius: 12px; background: var(--ws-surface, #fff); color: var(--ws-text, inherit); }
+.fp-h { margin: 0 0 4px; font-size: 18px; } .fp-h3 { margin: 20px 0 8px; font-size: 15px; }
+.fp-sub, .fp-note { color: var(--ws-text-muted, #64748b); font-size: 13px; margin: 0 0 12px; }
+.fp-active, .fp-pending { padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; background: var(--ws-surface-2, #f1f5f9); }
+.fp-pending { border: 1px solid #f59e0b; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.fp-tbl-wrap { overflow-x: auto; }
+.fp-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fp-tbl th, .fp-tbl td { padding: 4px 8px; text-align: center; border-bottom: 1px solid var(--ws-border, #e2e8f0); }
+.fp-in { width: 100%; min-width: 72px; padding: 6px 8px; border: 1px solid var(--ws-border, #cbd5e1); border-radius: 6px; background: transparent; color: inherit; font: inherit; }
+.fp-in:disabled { opacity: .6; }
+.fp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 16px; }
+.fp-fs { border: 1px solid var(--ws-border, #e2e8f0); border-radius: 8px; padding: 8px 12px; }
+.fp-row { display: flex; flex-direction: column; gap: 4px; margin: 6px 0; font-size: 13px; }
+.fp-form { margin-top: 16px; display: grid; gap: 8px; max-width: 480px; }
+.fp-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.fp-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--ws-border, #cbd5e1); background: transparent; color: inherit; cursor: pointer; font: inherit; }
+.fp-btn-primary { background: var(--ws-primary, #0f766e); border-color: transparent; color: #fff; }
+.fp-btn:disabled { opacity: .5; cursor: not-allowed; }
+.fp-err { color: #b91c1c; font-size: 13px; } .fp-ok { color: #047857; font-size: 13px; } .fp-count { font-size: 13px; color: var(--ws-text-muted, #64748b); }
+.fp-hist { margin: 0; padding-inline-start: 20px; font-size: 13px; }
+@media (prefers-color-scheme: dark) { .fp-err { color: #fca5a5; } .fp-ok { color: #6ee7b7; } }
