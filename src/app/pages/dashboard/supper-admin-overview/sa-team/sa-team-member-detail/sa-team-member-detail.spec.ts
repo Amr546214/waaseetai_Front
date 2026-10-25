@@ -18,7 +18,7 @@ describe('team member page (P-AD-022-موظف): the design\'s blocks, real value
 	let http: HttpTestingController;
 	beforeEach(() => { TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'u1' } } } }] }); http = TestBed.inject(HttpTestingController); });
 
-	it('owner: header actions, 4 KPIs, 4 tabs, quick links; presence is «غير متاح» without a live session; unavailable measures say so and show no number', async () => {
+	it('SUPER_ADMIN: header actions, 4 KPIs, 4 tabs, quick links; presence is «غير متاح» without a live session; unavailable measures say so and show no number', async () => {
 		setAccess(true, []);
 		const f = TestBed.createComponent(SaTeamMemberDetail); await flush(f);
 		http.expectOne(r => r.url === `${B}/staff`).flush(list(member()));
@@ -36,7 +36,7 @@ describe('team member page (P-AD-022-موظف): the design\'s blocks, real value
 		expect(el(f).textContent).toContain('نقل المهمة T-0007 إلى «مكتمل»');
 	});
 
-	it('a plain member (team.view only): no owner actions, the permissions tab is owner-only, no roles/catalog request, no activity of colleagues', async () => {
+	it('a plain member (team.view only): no SUPER_ADMIN actions, the permissions tab is SUPER_ADMIN-only, no roles/catalog request, no activity of colleagues', async () => {
 		setAccess(false, ['team.view']);
 		const f = TestBed.createComponent(SaTeamMemberDetail); await flush(f);
 		http.expectOne(r => r.url === `${B}/staff`).flush(list(member({ activeNow: true })));
@@ -45,7 +45,7 @@ describe('team member page (P-AD-022-موظف): the design\'s blocks, real value
 		expect(el(f).querySelector('[data-testid="member-status"]')?.textContent?.trim()).toBe('نشط الآن');
 		expect(el(f).querySelector('[data-testid="member-edit-perms"]')).toBeNull(); expect(el(f).querySelector('[data-testid="member-toggle"]')).toBeNull();
 		(el(f).querySelector('[data-testid="tab-perms"]') as HTMLButtonElement).click(); await flush(f);
-		expect(el(f).querySelector('[data-testid="perms-owner-only"]')).toBeTruthy(); expect(el(f).querySelector('[data-testid="member-role-select"]')).toBeNull();
+		expect(el(f).querySelector('[data-testid="perms-SUPER_ADMIN-only"]')).toBeTruthy(); expect(el(f).querySelector('[data-testid="member-role-select"]')).toBeNull();
 		(el(f).querySelector('[data-testid="tab-log"]') as HTMLButtonElement).click(); await flush(f);
 		expect(el(f).querySelector('[data-testid="log-empty"]')?.textContent).toContain('ليست لديك صلاحية');
 	});
