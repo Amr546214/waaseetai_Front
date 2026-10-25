@@ -105,9 +105,9 @@ describe('NavDashboard — account-dropdown active-row click', () => {
 describe('NavDashboard — admin accounts', () => {
 	afterEach(() => vi.unstubAllGlobals());
 	const adminCases: Array<[string, any, string]> = [
-		['SUPER_ADMIN stored as CLIENT', { firstName: 'Amr', lastName: 'Okasha', accountType: 'SUPER_ADMIN', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT] }, 'مدير النظام'],
-		['ADMIN stored as CLIENT with a client role too', { firstName: 'Ola', lastName: 'Admin', accountType: 'ADMIN', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT, UserRole.ADMIN] }, 'مشرف النظام'],
-		['ADMIN stored as ADMIN', { firstName: 'Ola', lastName: 'Admin', accountType: 'ADMIN', activeRole: UserRole.ADMIN, roles: [UserRole.ADMIN] }, 'مشرف النظام'],
+		['SUPER_ADMIN stored as CLIENT', { firstName: 'Amr', lastName: 'Okasha', accountType: 'SUPER_ADMIN', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT] }, 'حساب إداري'],
+		['ADMIN stored as CLIENT with a client role too', { firstName: 'Ola', lastName: 'Admin', accountType: 'ADMIN', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT, UserRole.ADMIN] }, 'حساب إداري'],
+		['ADMIN stored as ADMIN', { firstName: 'Ola', lastName: 'Admin', accountType: 'ADMIN', activeRole: UserRole.ADMIN, roles: [UserRole.ADMIN] }, 'حساب إداري'],
 	];
 	for (const [name, user, label] of adminCases) {
 		it(`${name}: shows «${label}» (never «طالب الخدمة»), a direct link to the admin panel, and NO role list / switch`, () => {
@@ -124,6 +124,15 @@ describe('NavDashboard — admin accounts', () => {
 			expect(switchActiveRoleSpy).not.toHaveBeenCalled();
 		});
 	}
+
+	it('an admin account shows its REAL administrative role from the server (a SUPER_ADMIN, or the team role), never a generic «مدير/مشرف النظام» that suggests authority', async () => {
+		const { fixture, component } = setup({ firstName: 'Amr', lastName: 'O', accountType: 'SUPER_ADMIN', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT] });
+		const { AdminAccessService } = await import('../../../core/services/admin-access.service');
+		const acc = TestBed.inject(AdminAccessService);
+		acc.access.set({ userId: 'u', isSuperAdmin: true, staffStatus: null, roleName: 'Super Admin', permissions: [], hasAnyPermission: true, state: 'SUPER_ADMIN', displayRole: 'Super Admin' }); acc.status.set('ready');
+		fixture.detectChanges(); component.isUserDropdownOpen.set(true); fixture.detectChanges();
+		expect((fixture.nativeElement as HTMLElement).querySelector('[data-testid="topnav-role-label"]')!.textContent!.trim()).toBe('Super Admin');
+	});
 
 	it('the role switch stays for client / provider / marketer accounts', () => {
 		const { fixture, component } = setup({ firstName: 'A', lastName: 'B', accountType: 'CLIENT_INDIVIDUAL', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT, UserRole.PROVIDER] });

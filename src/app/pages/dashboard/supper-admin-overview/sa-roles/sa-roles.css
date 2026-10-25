@@ -1,10 +1,10 @@
 :host { display: block; width: 100%; }
 
-.rl-page { padding: 22px 24px; min-height: calc(100vh - 56px); direction: rtl; }
+.rl-page { line-height: normal; padding: 22px 24px; min-height: calc(100vh - 56px); direction: rtl; }
 
 .rl-hdr { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
-.rl-ttl { font-size: 20px; font-weight: 900; color: #fff; margin: 0 0 3px; }
-.rl-sub { font-size: 12px; color: #6B7699; margin: 0; }
+.rl-ttl { font-size: 20px; font-weight: 900; color: #fff; margin: 0; }
+.rl-sub { font-size: 12px; color: #6B7699; margin: 3px 0 0; }
 
 :host-context(body.light-theme) .rl-ttl,
 :host-context(body.theme-light) .rl-ttl,
@@ -13,7 +13,7 @@
 
 .rl-btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; height: 34px; border-radius: 9px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; border: 1px solid transparent; white-space: nowrap; }
 .rl-btn svg { width: 14px; height: 14px; }
-.rl-btn-primary { background: linear-gradient(135deg,#2BD4C7,#2B7FFF); color: #070D24; }
+.rl-btn-primary { background: linear-gradient(135deg,#2BD4C7,#2B7FFF); color: #070D24; border: none; }
 .rl-btn-ghost { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.10); color: #A8B2D1; }
 .rl-btn-ghost:hover { background: rgba(255,255,255,.10); color: #fff; }
 
@@ -168,3 +168,6 @@
   .rl-page { padding: 14px 16px; }
   .rl-audit-row { flex-wrap: wrap; }
 }
+
+/* the design shows two role cards per row on a phone */
+@media (max-width: 600px) { .rl-roles-grid { grid-template-columns: repeat(2, 1fr); } .rl-role-card { padding: 12px; } }

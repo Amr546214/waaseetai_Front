@@ -61,6 +61,13 @@ export const routes: Routes = [
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),
 		children: MARKETER_ROUTES
 	},
+	// admin invitation link (public; the one-time token is the proof of the invited address)
+	{
+		path: 'admin-invite',
+		loadComponent: () => import('./layouts/auth-layout/auth-layout').then(m => m.AuthLayoutComponent),
+		data: { hideAssistant: true },
+		children: [{ path: '', loadComponent: () => import('./pages/auth/admin-invite/admin-invite').then(m => m.AdminInvite) }],
+	},
 	// supper admin
 	{
 		path: 'supper-admin-overview',

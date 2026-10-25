@@ -1,1 +1,136 @@
-<app-sa-unavailable title="فريق الإدارة" subtitle="حسابات فريق الإدارة وأدوارهم" heading="قائمة الفريق غير متاحة هنا بعد" reason="هذه الصفحة لا ترتبط بسجل حقيقي لأعضاء الفريق ولا بنظام دعوات أو حالة اتصال أو مهام، لذلك لا تُعرض أسماء أو أعداد. حسابات المشرفين الفعلية وأدوارهم تُدار من صفحتي المشرفين العامين والأدوار." linkLabel="فتح المشرفين العامين" linkTo="/supper-admin-overview/super-admins" disabledLabel="دعوة عضو" disabledReason="لا يوجد نظام دعوات للفريق" />
+<section class="tm-page" dir="rtl">
+  <div class="tm-hdr">
+    <div>
+      <h1 class="tm-ttl">فريق الإدارة</h1>
+      <p class="tm-sub">إدارة موظفي وسيط AI وصلاحياتهم وأدوارهم</p>
+    </div>
+    <div class="tm-hdr-actions">
+      @if (isSuperAdmin()) {
+        <a routerLink="/supper-admin-overview/roles" class="tm-btn tm-btn-ghost" data-testid="team-roles-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>الصلاحيات
+        </a>
+        <button type="button" class="tm-btn tm-btn-primary" (click)="openInvite()" data-testid="team-invite-open">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>دعوة موظف
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (notice()) { <div class="tm-pending-note" role="status" data-testid="team-notice">{{ notice() }}</div> }
+
+  @if (error()) {
+    <div class="tm-empty" role="alert">{{ error() }} <button type="button" class="tm-btn tm-btn-ghost" (click)="load()">إعادة المحاولة</button></div>
+  } @else if (loading() && !data()) {
+    <div class="tm-empty" role="status">جاري تحميل الفريق...</div>
+  } @else if (data(); as d) {
+    <div class="tm-kpi-row">
+      <div class="tm-kpi"><div class="tm-kpi-lbl">إجمالي الفريق</div><div class="tm-kpi-val" style="color:#2BD4C7" data-testid="kpi-total">{{ d.counts.total }}</div><div class="tm-kpi-sub">{{ d.counts.active }} نشط · {{ d.counts.pendingInvites }} دعوة معلقة@if (d.counts.suspended) { · {{ d.counts.suspended }} موقوف }</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">نشطون الآن</div><div class="tm-kpi-val" style="color:#0FA99A" data-testid="kpi-active-now">{{ d.counts.activeNow }}</div><div class="tm-kpi-sub">من {{ d.counts.active }} عضو · نشاط خلال آخر 5 دقائق</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">مهام مفتوحة</div><div class="tm-kpi-val" style="color:#FFB400">{{ d.counts.openTasks }}</div><div class="tm-kpi-sub">{{ d.counts.overdueTasks }} متأخرة</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">متوسط الأداء</div><div class="tm-kpi-val" style="color:#A56BE0">—</div><div class="tm-kpi-sub">لا تتوفر بيانات: قاعدة الدرجة الكلية لم تُعتمد</div></div>
+    </div>
+
+    <div class="tm-tabs" role="tablist">
+      <button class="tm-tab" [class.active]="tab() === 'all'" type="button" (click)="setTab('all')">الكل <span class="tm-tab-count">{{ d.counts.total }}</span></button>
+      @for (r of roleTabs(); track r.id) { <button class="tm-tab" [class.active]="tab() === r.id" type="button" (click)="setTab(r.id)">{{ r.name }} <span class="tm-tab-count">{{ r.memberCount }}</span></button> }
+      <button class="tm-tab" [class.active]="tab() === 'pending'" type="button" (click)="setTab('pending')" data-testid="tab-pending">دعوات معلقة <span class="tm-tab-count">{{ d.counts.pendingInvites }}</span></button>
+    </div>
+
+    <div class="tm-filters">
+      <div class="tm-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" placeholder="ابحث باسم الموظف..." aria-label="بحث" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="onFilter()" (blur)="onFilter()">
+      </div>
+      <ws-select class="tm-select" ariaLabel="الدور" [leading]="allRoles" [options]="roleOpts()" [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event); onFilter()" />
+      <ws-select class="tm-select" ariaLabel="الحالة" [options]="statusOpts" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); onFilter()" />
+    </div>
+
+    <div class="tm-workload">
+      <div class="tm-wl-box"><div class="tm-wl-val" style="color:#FF8C69">{{ workload().heavy }}</div><div class="tm-wl-lbl">ثقيل العبء (&gt;8 مهام)</div></div>
+      <div class="tm-wl-box"><div class="tm-wl-val" style="color:#FFB400">{{ workload().mid }}</div><div class="tm-wl-lbl">متوسط العبء (4-8)</div></div>
+      <div class="tm-wl-box"><div class="tm-wl-val" style="color:#0FA99A">{{ workload().light }}</div><div class="tm-wl-lbl">خفيف العبء (&lt;4)</div></div>
+      <div class="tm-wl-box"><div class="tm-wl-val" style="color:#6B7699">{{ workload().avg ?? '—' }}</div><div class="tm-wl-lbl">متوسط مهام/موظف</div></div>
+    </div>
+
+    <div class="tm-grid" data-testid="team-grid">
+      @if (tab() !== 'pending') {
+        @for (m of filtered(); track m.userId; let i = $index) {
+          <a class="tm-card" [routerLink]="['/supper-admin-overview/team', m.userId]" style="display:block;text-decoration:none" data-testid="team-member">
+            <div class="tm-card-top">
+              <div class="tm-avatar" [style.background]="avatar(i)">{{ initial(m.name) }}</div>
+              <div class="tm-card-head-body"><div class="tm-name">{{ m.name }}</div><div class="tm-role">{{ m.role?.name ?? 'بلا دور' }}</div></div>
+              <span class="tm-status-dot" [class.tm-online]="m.activeNow" [class.tm-offline]="!m.activeNow" data-testid="member-presence">{{ m.status !== 'ACTIVE' ? 'موقوف' : m.activeNow ? 'نشط الآن' : 'غير متاح' }}</span>
+            </div>
+            <div class="tm-dept">{{ departments(m) }}</div>
+            <div class="tm-stats">
+              <div class="tm-stat"><div class="tm-stat-val" style="color:#2BD4C7">{{ m.openTasks }}</div><div class="tm-stat-lbl">مهام مفتوحة</div></div>
+              <div class="tm-stat"><div class="tm-stat-val" style="color:#0FA99A">{{ m.doneTasks }}</div><div class="tm-stat-lbl">مكتملة</div></div>
+              <div class="tm-stat"><div class="tm-stat-val" [style.color]="m.overdueTasks ? '#FF8C69' : '#6B7699'">{{ m.overdueTasks }}</div><div class="tm-stat-lbl">متأخرة</div></div>
+            </div>
+          </a>
+        } @empty { <div class="tm-empty">لا يوجد أعضاء</div> }
+      } @else {
+        @for (p of d.pendingInvites; track p.id) {
+          <div class="tm-card tm-card-pending" data-testid="pending-invite">
+            <div class="tm-card-top"><div class="tm-avatar tm-avatar-pending">?</div><div class="tm-card-head-body"><div class="tm-name muted">{{ p.fullName }}</div><div class="tm-role">{{ p.roleName }} · معلقة</div></div></div>
+            <div class="tm-pending-note">{{ p.email }} · تنتهي {{ p.expiresAt | date:'yyyy/MM/dd HH:mm' }}</div>
+            @if (isSuperAdmin()) {
+              <div class="tm-modal-actions-row">
+                <button type="button" class="tm-btn tm-btn-ghost tm-btn-sm" [disabled]="busyId() === p.id" (click)="resend(p)">إعادة الإرسال</button>
+                <button type="button" class="tm-btn tm-btn-warn tm-btn-sm" [disabled]="busyId() === p.id" (click)="cancel(p)">إلغاء الدعوة</button>
+              </div>
+            }
+          </div>
+        } @empty { <div class="tm-empty">لا توجد دعوات معلقة</div> }
+      }
+    </div>
+
+    @if (isSuperAdmin() && unplaced().length) {
+      <div class="tm-panel" data-testid="unplaced-panel">
+        <div class="tm-panel-ttl">حسابات إدارية قائمة لم تُضم إلى الفريق بعد</div>
+        <div class="tm-pending-note" style="border-top:0">هذه الحسابات لا تملك أي صلاحية حتى تضمّها وتختار لها دورًا.</div>
+        @for (u of unplaced(); track u.userId) {
+          <div class="tm-detail-row">
+            <span>{{ u.name }} · {{ u.email }}</span>
+            <span style="display:flex;gap:6px">
+              <ws-select class="tm-select" ariaLabel="الدور" [leading]="noRole" [options]="roleOpts()" [ngModel]="attachRole[u.userId]" (ngModelChange)="attachRole[u.userId] = $event" />
+              <button type="button" class="tm-btn tm-btn-primary tm-btn-sm" [disabled]="busyId() === u.userId" (click)="attach(u.userId)">إضافة للفريق</button>
+            </span>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (inviteOpen()) {
+    <div class="tm-overlay" (click)="closeInvite()" data-testid="invite-modal">
+      <div class="tm-modal tm-modal-sm" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="دعوة موظف جديد">
+        <div class="tm-modal-hdr"><h3>دعوة موظف جديد</h3><button type="button" class="tm-modal-close" (click)="closeInvite()" aria-label="إغلاق">×</button></div>
+        @if (inviteResult(); as r) {
+          <div class="tm-pending-note" style="border-top:0">{{ r.emailed ? 'أُرسلت الدعوة بالبريد.' : 'لم يُرسل أي بريد. انسخ الرابط وأرسله للمدعو بنفسك؛ يظهر هنا مرة واحدة وصالح 72 ساعة ويُستعمل مرة واحدة.' }}</div>
+          <input class="tm-input" readonly [value]="r.link" dir="ltr" style="width:100%" data-testid="invite-link">
+          <div class="tm-modal-actions-row" style="margin-top:12px"><button type="button" class="tm-btn tm-btn-primary" (click)="copy(r.link)">نسخ الرابط</button><button type="button" class="tm-btn tm-btn-ghost" (click)="closeInvite()">تم</button></div>
+        } @else {
+          <label class="tm-field-lbl">البريد الإلكتروني</label>
+          <input class="tm-input" type="email" placeholder="name@company.com" dir="ltr" [(ngModel)]="invite.email" name="email" style="width:100%">
+          <label class="tm-field-lbl">الاسم الكامل</label>
+          <input class="tm-input" type="text" placeholder="الاسم الكامل" [(ngModel)]="invite.fullName" name="fullName" style="width:100%">
+          <label class="tm-field-lbl">الدور الإداري</label>
+          <ws-select class="tm-select-full" ariaLabel="الدور الإداري" [options]="roleOpts()" [(ngModel)]="invite.roleId" name="roleId" />
+          <label class="tm-field-lbl">الأقسام المتاحة</label>
+          <div class="tm-sections" data-testid="invite-sections" role="group" aria-label="الأقسام المتاحة">
+            @for (d of departmentList; track d.key) { <button type="button" role="checkbox" class="tm-sections-row" [class.on]="inviteDeps().includes(d.key)" [attr.aria-checked]="inviteDeps().includes(d.key)" (click)="toggleDept(d.key)" [attr.data-testid]="'dept-' + d.key"><span class="tm-sections-box">{{ inviteDeps().includes(d.key) ? '✓' : '' }}</span>{{ d.label }}@if (!roleCovers(d.key)) { <span class="tm-sections-hint">الدور لا يشمله</span> }</button> }
+          </div>
+          <div class="tm-pending-note" style="border-top:0">نطاق وصول فعلي: إن حدّدت أقسامًا فلن تعمل صلاحيات الدور إلا ضمنها. بلا تحديد يعمل الموظف بصلاحيات دوره كاملة. الأقسام تضيّق ولا تمنح.</div>
+          @if (!roles().length) { <div class="tm-pending-note">لا توجد أدوار بعد. أنشئ دورًا من صفحة الصلاحيات أولًا.</div> }
+          @if (inviteError()) { <div class="tm-pending-note" role="alert" style="color:#FF8C69">{{ inviteError() }}</div> }
+          <div class="tm-modal-actions-row" style="margin-top:12px">
+            <button type="button" class="tm-btn tm-btn-ghost" (click)="closeInvite()">إلغاء</button>
+            <button type="button" class="tm-btn tm-btn-primary" [disabled]="inviteBusy() || !invite.roleId" (click)="sendInvite()" data-testid="invite-send">إرسال الدعوة</button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  <div class="tm-foot">© 2026 وسيط AI · v2.0.0</div>
+</section>

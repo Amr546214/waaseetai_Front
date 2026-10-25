@@ -20,14 +20,11 @@ import { SaPromotions } from '../../subscriptions/sa-promotions/sa-promotions';
 import { SaPlanDetails } from '../../subscriptions/sa-plan-details/sa-plan-details';
 import { SaBroadcast } from '../../communication/sa-broadcast/sa-broadcast';
 import { SaNotifications } from '../../communication/sa-notifications/sa-notifications';
-import { SaTasks } from '../../sa-tasks/sa-tasks';
-import { SaTeam } from '../../sa-team/sa-team';
-import { SaTeamMemberDetail } from '../../sa-team/sa-team-member-detail/sa-team-member-detail';
-import { SaTeamPerformance } from '../../sa-team-performance/sa-team-performance';
 import { SaMessages } from '../../sa-messages/sa-messages';
 import { SaBusinessModels } from '../../sa-business-models/sa-business-models';
 import { SaBusinessModelDetail } from '../../sa-business-models/sa-business-model-detail/sa-business-model-detail';
 
+// The team / tasks / performance pages are real now (admin-team-pages.spec.ts covers their honest unavailable measures).
 // Admin sweep (D3): every converted page must render the honest "not available"
 // state (status card with a reason) and no fabricated numeric KPIs.
 const PAGES: [string, any][] = [
@@ -35,8 +32,7 @@ const PAGES: [string, any][] = [
   ['sa-monitoring', SaMonitoring], ['sa-performance', SaPerformance], ['sa-plans', SaPlans],
   ['sa-upgrade', SaUpgrade], ['sa-active-subs', SaActiveSubs], ['sa-sub-invoices', SaSubInvoices],
   ['sa-boost', SaBoost], ['sa-ads', SaAds], ['sa-promotions', SaPromotions], ['sa-plan-details', SaPlanDetails],
-  ['sa-broadcast', SaBroadcast], ['sa-notifications', SaNotifications], ['sa-tasks', SaTasks],
-  ['sa-team', SaTeam], ['sa-team-member-detail', SaTeamMemberDetail], ['sa-team-performance', SaTeamPerformance],
+  ['sa-broadcast', SaBroadcast], ['sa-notifications', SaNotifications], 
   ['sa-messages', SaMessages], ['sa-business-models', SaBusinessModels], ['sa-business-model-detail', SaBusinessModelDetail],
 ];
 

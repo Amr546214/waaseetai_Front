@@ -1,1 +1,127 @@
-<app-sa-unavailable title="تفاصيل عضو الفريق" subtitle="ملف عضو في فريق الإدارة" heading="تفاصيل العضو غير متاحة" reason="لا يوجد سجل لأداء أعضاء الفريق أو مهامهم أو حالة اتصالهم في المنصة بعد، لذلك لا يُعرض ملف تفصيلي." linkLabel="فتح فريق الإدارة" linkTo="/supper-admin-overview/team" />
+<section class="tm-page" dir="rtl">
+  <a routerLink="/supper-admin-overview/team" class="tm-bk-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>العودة إلى فريق الإدارة</a>
+  @if (error()) { <div class="tm-empty" role="alert">{{ error() }} <button type="button" class="tm-btn tm-btn-ghost" (click)="load()">إعادة المحاولة</button></div> }
+  @else if (loading() && !member()) { <div class="tm-empty" role="status">جاري التحميل...</div> }
+  @else if (!member()) { <div class="tm-empty" data-testid="member-missing">الموظف غير موجود في الفريق</div> }
+  @else if (member(); as m) {
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#A56BE0,#5DA0FF);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#070D24;flex-shrink:0">{{ initial(m.name) }}</div>
+        <div>
+          <div class="tm-name-row">{{ m.name }} <span class="tm-bdg" [class.tm-bdg-on]="m.activeNow" [class.tm-bdg-off]="!m.activeNow" data-testid="member-status">{{ m.status !== 'ACTIVE' ? 'وصوله موقوف' : m.activeNow ? 'نشط الآن' : 'غير متاح' }}</span></div>
+          <div class="tm-name-sub">{{ m.role?.name ?? 'بلا دور' }} · {{ m.email }} · في الفريق منذ {{ m.joinedAt | date:'yyyy/MM' }}</div>
+        </div>
+      </div>
+      @if (isSuperAdmin()) {
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="tm-btn tm-btn-ghost" (click)="tab.set('perms')" data-testid="member-edit-perms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>تعديل الصلاحيات</button>
+          <button type="button" class="tm-btn" [class.tm-btn-warn]="m.status === 'ACTIVE'" [class.tm-btn-primary]="m.status !== 'ACTIVE'" [disabled]="busy()" (click)="toggleAccess()" data-testid="member-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>{{ m.status === 'ACTIVE' ? 'تعليق الحساب' : 'إعادة تفعيل الحساب' }}</button>
+        </div>
+      }
+    </div>
+    @if (notice()) { <div class="tm-pending-note" role="status" data-testid="member-notice">{{ notice() }}</div> }
+
+    <div class="tm-kpi-row">
+      <div class="tm-kpi"><div class="tm-kpi-lbl">مهام مُنجزة</div><div class="tm-kpi-val" style="color:#2BD4C7" data-testid="kpi-done">{{ m.doneTasks }}</div><div class="tm-kpi-sub">منذ انضمامه</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">نزاعات محلولة</div><div class="tm-kpi-val" style="color:#0FA99A" data-testid="kpi-disputes">{{ m.resolvedDisputes }}</div><div class="tm-kpi-sub">العدد المسجَّل · لا يوجد تعريف «نجاح»</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">متوسط وقت الإنجاز</div><div class="tm-kpi-val" style="color:#FFB400">{{ m.avgCompletionHours !== null ? m.avgCompletionHours + 'h' : '—' }}</div><div class="tm-kpi-sub">SLA: لا تتوفر بيانات</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">درجة الأداء</div><div class="tm-kpi-val" style="color:#A56BE0">—</div><div class="tm-kpi-sub">لا تتوفر بيانات: قاعدة الدرجة لم تُعتمد</div></div>
+    </div>
+
+    <div class="tm-layout">
+      <div>
+        <div class="tm-tabs tm-detail-tabs" role="tablist">
+          <button class="tm-tab" [class.active]="tab() === 'overview'" type="button" (click)="tab.set('overview')">نظرة عامة</button>
+          <button class="tm-tab" [class.active]="tab() === 'tasks'" type="button" (click)="tab.set('tasks')">مهامه الحالية</button>
+          <button class="tm-tab" [class.active]="tab() === 'perms'" type="button" (click)="tab.set('perms')" data-testid="tab-perms">صلاحياته</button>
+          <button class="tm-tab" [class.active]="tab() === 'log'" type="button" (click)="tab.set('log')" data-testid="tab-log">سجل النشاط</button>
+        </div>
+
+        @if (tab() === 'overview') {
+          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>المعلومات الوظيفية</div>
+            <div class="tm-info-grid">
+              <div class="tm-info-item"><div class="tm-info-lbl">الاسم الكامل</div><div class="tm-info-val">{{ m.name }}</div></div>
+              <div class="tm-info-item"><div class="tm-info-lbl">البريد الإداري</div><div class="tm-info-val" dir="ltr" style="text-align:right;font-size:11px">{{ m.email }}</div></div>
+              <div class="tm-info-item"><div class="tm-info-lbl">الدور الإداري</div><div class="tm-info-val">{{ m.role?.name ?? 'بلا دور' }}</div></div>
+              <div class="tm-info-item"><div class="tm-info-lbl">القسم</div><div class="tm-info-val">{{ departmentsText(m.departments) }}</div></div>
+              <div class="tm-info-item"><div class="tm-info-lbl">تاريخ الانضمام</div><div class="tm-info-val">{{ m.joinedAt | date:'yyyy/MM/dd' }}</div></div>
+              <div class="tm-info-item"><div class="tm-info-lbl">آخر دخول</div><div class="tm-info-val" data-testid="member-last-login">{{ m.lastLoginAt ? (m.lastLoginAt | date:'yyyy/MM/dd HH:mm') : '—' }}</div></div>
+            </div>
+          </div>
+          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>مؤشرات الأداء الشهرية</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              @for (k of kpiBars; track k) {
+                <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#6B7699;width:160px">{{ k }}</span><div style="flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden"></div><span style="font-size:12px;font-weight:700;color:#6B7699;width:38px;text-align:left">—</span></div>
+              }
+            </div>
+            <div class="tm-pending-note" style="border-top:0;padding-inline:0">لا تتوفر بيانات: معدل الحل والالتزام بـ SLA ورضا المستخدمين تنتظر اعتماد تعريفاتها.</div>
+          </div>
+        }
+        @if (tab() === 'tasks') {
+          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>المهام الحالية ({{ tasks().length }} مهام)</div>
+            <table class="tm-data-tbl"><thead><tr><th>المهمة</th><th>النوع</th><th>الأولوية</th><th>الموعد</th><th>الحالة</th></tr></thead><tbody>
+              @for (t of tasks(); track t.id) { <tr><td style="color:#fff">{{ t.title }}</td><td>{{ typeLabel[t.type] }}</td><td>{{ priorityLabel[t.priority] }}</td><td [style.color]="t.overdue ? '#FF8C69' : '#6B7699'">{{ t.dueAt ? (t.dueAt | date:'yyyy/MM/dd') : '—' }}{{ t.overdue ? ' · متأخرة' : '' }}</td><td>{{ statusLabel[t.status] }}</td></tr> }
+              @empty { <tr><td colspan="5" style="text-align:center;padding:14px">لا توجد مهام لهذا الموظف، أو ليست لديك صلاحية عرض مهام الفريق.</td></tr> }
+            </tbody></table>
+          </div>
+        }
+        @if (tab() === 'perms') {
+          <div class="tm-sec-card" data-testid="perms-panel"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الصلاحيات الممنوحة</div>
+            @if (!isSuperAdmin()) { <div class="tm-pending-note" style="border-top:0;padding-inline:0" data-testid="perms-super-admin-only">عرض الصلاحيات وتعديلها لـSuper Admin وحده.</div> }
+            @else {
+              <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+                <ws-select class="tm-select" ariaLabel="الدور" data-testid="member-role-select" [leading]="noRole" [options]="roleOpts()" [ngModel]="newRoleId()" (ngModelChange)="newRoleId.set($event)" />
+                <button type="button" class="tm-btn tm-btn-ghost" [disabled]="busy() || newRoleId() === (m.role?.id ?? '')" (click)="saveRole()" data-testid="member-role-save">حفظ الدور</button>
+              </div>
+              <div class="tm-pending-note" style="border-top:0;padding-inline:0">اختيار الدور يعطي الصلاحيات الأساسية. التعديلات أدناه تخص هذا الموظف وحده: «سماح فردي» يضيف صلاحية، و«منع فردي» يسحبها حتى لو منحها الدور (المنع يغلب). تغيير الدور يعيد الضبط إلى صلاحيات الدور الجديد.</div>
+              <div class="tm-sec-ttl-s">الأقسام المتاحة</div>
+              <div class="tm-perm-row2"><span>تقييد الموظف بأقسام محددة</span><button type="button" class="tm-sw" [class.on]="draftScoped()" role="switch" [attr.aria-checked]="draftScoped()" aria-label="تقييد الأقسام" (click)="toggleScoped()" data-testid="scope-toggle"></button></div>
+              @if (draftScoped()) {
+                <div class="tm-dept-chips" data-testid="scope-chips">@for (d of departmentList; track d.key) { <button type="button" class="tm-dept-chip" [class.on]="draftDeps().includes(d.key)" role="checkbox" [attr.aria-checked]="draftDeps().includes(d.key)" (click)="toggleDraftDept(d.key)" [attr.data-testid]="'scope-' + d.key">{{ d.label }}</button> }</div>
+                <div class="tm-pending-note" style="border-top:0;padding-inline:0">الأقسام نطاق بيانات: تعمل صلاحيات كل قسم داخل الأقسام المحددة فقط، وهي تضيّق ولا تمنح. صلاحيات المالية والإعدادات والفريق لا ترتبط بقسم.</div>
+              }
+              <div class="tm-sec-ttl-s">الصلاحيات ({{ personalCount() }} تخصيص فردي)</div>
+              <div style="display:flex;flex-direction:column;gap:6px" data-testid="perm-list">
+              @for (g of groups(); track g.label) {
+                <div class="tm-sec-ttl-s">{{ g.label }}</div>
+                @for (p of g.items; track p.id) { <div class="tm-perm-row2" [attr.data-perm]="p.id"><span [style.color]="p.on ? '#fff' : '#6B7699'">{{ p.label }}@if (p.sensitive) { <span style="color:#FFB400"> ●</span> }
+                  @if (p.effect === 'GRANT') { <span class="tm-src tm-src-grant">سماح فردي</span> } @else if (p.effect === 'DENY') { <span class="tm-src tm-src-deny">منع فردي</span> } @else if (p.inherited) { <span class="tm-src">من الدور</span> }
+                  @if (p.cutByScope) { <span class="tm-src tm-src-deny">خارج الأقسام</span> }</span>
+                  <button type="button" class="tm-sw" [class.on]="p.on" role="switch" [attr.aria-checked]="p.on" [attr.aria-label]="p.label" (click)="togglePerm(p.id)"></button></div> }
+              }
+              </div>
+              @if (needConfirm().length) { <div class="tm-pending-note" role="alert" style="color:#FFB400" data-testid="confirm-sensitive">منح صلاحية حساسة لهذا الموظف بعينه: {{ confirmText() }}. أكّد لتتمكن من الحفظ. <button type="button" class="tm-btn tm-btn-warn tm-btn-sm" (click)="savePerms(true)" data-testid="confirm-sensitive-btn">أؤكد المنح</button></div> }
+              <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+                <button type="button" class="tm-btn tm-btn-primary" [disabled]="busy() || !dirty()" (click)="savePerms()" data-testid="perms-save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>حفظ الصلاحيات</button>
+                <button type="button" class="tm-btn tm-btn-ghost" [disabled]="busy() || (personalCount() === 0 && !draftScoped() && !(access2()?.overrides?.length) && !access2()?.scoped)" (click)="resetToRole()" data-testid="perms-reset">إعادة الضبط إلى صلاحيات الدور</button>
+              </div>
+            }
+          </div>
+        }
+        @if (tab() === 'log') {
+          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>سجل النشاط الأخير</div>
+            @for (a of activity(); track a.id) { <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><div style="width:7px;height:7px;border-radius:50%;background:#2BD4C7;flex-shrink:0;margin-top:4px"></div><div><div style="font-size:12px;font-weight:700;color:#fff">{{ activityText(a) }}</div><div style="font-size:11px;color:#6B7699">{{ a.at | date:'yyyy/MM/dd HH:mm' }}</div></div></div> }
+            @empty { <div class="tm-empty" data-testid="log-empty">{{ activityDenied() ? 'ليست لديك صلاحية عرض نشاط هذا الموظف.' : 'لا يوجد نشاط مسجَّل بعد. يظهر هنا ما سجّله على المهام فقط.' }}</div> }
+          </div>
+        }
+      </div>
+      <div>
+        <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>روابط سريعة</div>
+          <a class="tm-quick tm-quick-main" href="javascript:void 0" (click)="tab.set('tasks'); $event.preventDefault()" data-testid="quick-tasks"><span>المهام المكلَّفة ({{ m.openTasks }})</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></a>
+          @if (access.can('performance.view')) { <a class="tm-quick" routerLink="/supper-admin-overview/team-performance"><span>تقرير الأداء</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></a> }
+          @if (isSuperAdmin()) { <a class="tm-quick" routerLink="/supper-admin-overview/roles"><span>إدارة الصلاحيات</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></a> }
+        </div>
+      </div>
+    </div>
+
+    <div class="tm-two">
+      <div class="tm-panel"><div class="tm-panel-ttl">أداء الموظف — 6 أشهر</div>
+        <div class="tm-pending-note" style="border-top:0;padding-inline:0" data-testid="trend-unavailable">لا تتوفر بيانات: لا توجد درجة أداء معتمدة لرسم الاتجاه.</div></div>
+      <div class="tm-panel"><div class="tm-panel-ttl">سجل الحالات مع النتائج</div>
+        <div class="tm-pending-note" style="border-top:0;padding-inline:0" data-testid="cases-unavailable">لا تتوفر بيانات: نتائج الحالات لا تُسجَّل بتعريف موحَّد بعد.</div></div>
+    </div>
+    <div class="tm-csat"><div class="tm-csat-ttl">رضا المستخدمين عن هذا الموظف</div>
+      <div class="tm-pending-note" style="border-top:0;padding-inline:0" data-testid="csat-unavailable">لا تتوفر بيانات: لا يوجد مصدر تقييم للموظفين.</div></div>
+  }
+  <div class="tm-foot">© 2026 وسيط AI · v2.0.0</div>
+</section>

@@ -1,3 +1,4 @@
+import { AdminAccessService } from '../../core/services/admin-access.service';
 import { adminRoleOf, resolveActiveRole, roleHome, roleLinks } from '../../core/routing/role-routes';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, ChangeDetectorRef, effect, ElementRef, HostListener, PLATFORM_ID } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
@@ -31,6 +32,7 @@ export class Navbar {
 	public authStore = inject(AuthStore);
 	public accountService = inject(AccountService);
 	public router = inject(Router);
+	private adminAccess = inject(AdminAccessService);
 	public notifEngine = inject(NotificationEngineService);
 	private notify = inject(UiNotificationService);
 	public chatState = inject(ChatStateService);
@@ -149,7 +151,8 @@ export class Navbar {
 			case UserRole.SUPER_ADMIN:
 				return 'مدير النظام';
 			case UserRole.ADMIN:
-				return 'مشرف النظام';
+				// the account TYPE is ADMIN for every staff member; what is shown is the member's real job role (never «مدير النظام» / «Super Admin», which is the SUPER_ADMIN account only)
+				return this.adminAccess.displayRole() || 'موظف إدارة';
 			case UserRole.PROVIDER:
 				return 'مقدم الخدمة';
 			case UserRole.AFFILIATE:

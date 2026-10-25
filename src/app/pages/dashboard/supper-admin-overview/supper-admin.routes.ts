@@ -1,6 +1,13 @@
-import { Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
+import { adminAccessGuard } from '../../../core/guards/admin-access.guard';
+import { ruleForPath } from '../../../core/config/admin-access-rules';
 
-export const SUPPER_ADMIN_ROUTES: Routes = [
+const RAW_ROUTES: Routes = [
+    {
+        path: 'no-access',
+        loadComponent: () => import('./sa-no-access/sa-no-access').then(m => m.SaNoAccess),
+        data: { title: 'الوصول' }
+    },
     {
         path: '',
         loadComponent: () => import('./supper-admin-overview/supper-admin-overview').then(m => m.SupperAdminOverview),
@@ -444,3 +451,22 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
 		data: { title: "الصفحة غير موجودة", hideAssistant: true, embedded: true }
 	}
 ];
+
+/**
+ * Every page gets the access guard with the rule of its path (core/config/admin-access-rules.ts). The server still decides every request: this only keeps a direct link, a refresh or
+ * a bookmark from showing a page the signed-in account has no permission for.
+ */
+function withAccess(routes: Routes, prefix = ''): Routes {
+    return routes.map((r: Route) => {
+        const full = [prefix, r.path ?? ''].filter(Boolean).join('/');
+        if (r.path === '**' || r.redirectTo !== undefined) return r;
+        return {
+            ...r,
+            canActivate: [...(r.canActivate ?? []), adminAccessGuard],
+            data: { ...(r.data ?? {}), access: ruleForPath(full) },
+            ...(r.children ? { children: withAccess(r.children, full) } : {}),
+        };
+    });
+}
+
+export const SUPPER_ADMIN_ROUTES: Routes = withAccess(RAW_ROUTES);
