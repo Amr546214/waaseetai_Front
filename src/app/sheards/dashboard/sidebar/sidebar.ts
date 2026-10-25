@@ -277,6 +277,7 @@ export class Sidebar implements OnInit {
 			{ type: 'header', label: 'الرئيسية' },
 			{ type: 'link', label: 'لوحة التحكم', route: '/supper-admin-overview', exact: true, icon: icons.home },
 			{ type: 'link', label: 'الرسائل', route: '/supper-admin-overview/messages', icon: icons.chat, badge: this.chatStateService.totalUnreadCount() > 0 ? this.chatStateService.totalUnreadCount() : undefined },
+			{ type: 'link', label: 'حسابي وأمان الدخول', route: '/supper-admin-overview/my-account', icon: icons.person },
 
 			{ type: 'header', label: 'العمليات' },
 			{
@@ -306,7 +307,8 @@ export class Sidebar implements OnInit {
 					{ type: 'link', label: 'التخصصات', route: '/supper-admin-overview/specialties', icon: icons.check },
 					{ type: 'link', label: 'اعتماد التخصصات', route: '/supper-admin-overview/specialties-accreditation', icon: icons.shield },
 					{ type: 'link', label: 'نماذج الأعمال', route: '/supper-admin-overview/business-models', icon: icons.list },
-					{ type: 'link', label: 'التصنيفات', route: '/supper-admin-overview/categories', icon: icons.star }
+					{ type: 'link', label: 'التصنيفات', route: '/supper-admin-overview/categories', icon: icons.star },
+					{ type: 'link', label: 'المواد التسويقية', route: '/supper-admin-overview/marketing-assets', icon: icons.list }
 				]
 			},
 			{ type: 'link', label: 'الوسطاء', route: '/supper-admin-overview/brokers', icon: icons.market },
@@ -347,9 +349,7 @@ export class Sidebar implements OnInit {
 				type: 'accordion', id: 'sa-system', label: 'إدارة النظام', icon: icons.settings,
 				children: [
 					{ type: 'link', label: 'إعدادات النظام', route: '/supper-admin-overview/system-settings', icon: icons.settings },
-					{ type: 'link', label: 'المواد التسويقية', route: '/supper-admin-overview/marketing-assets', icon: icons.list },
-					...(isSuper ? [{ type: 'link' as const, label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield }] : []),
-					{ type: 'link', label: 'حسابي وأمان الدخول', route: '/supper-admin-overview/my-account', icon: icons.person }
+					...(isSuper ? [{ type: 'link' as const, label: 'Super Admin', route: '/supper-admin-overview/super-admins', icon: icons.shield }] : [])
 				]
 			},
 
