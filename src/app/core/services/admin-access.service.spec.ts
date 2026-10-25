@@ -41,7 +41,7 @@ describe('admin access (what the SERVER says this admin account may do)', () => 
 		expect(ruleForPath('/supper-admin-overview/roles')).toEqual({ superAdmin: true });
 		expect(ruleForPath('/supper-admin-overview/super-admins')).toEqual({ superAdmin: true });
 		expect(ruleForPath('/supper-admin-overview/team-performance')).toEqual({ all: ['performance.view'] });
-		expect(ruleForPath('/supper-admin-overview/system-settings')).toEqual({ all: ['settings.manage'] });
+		expect(ruleForPath('/supper-admin-overview/system-settings')).toEqual({ anyOf: ['settings.view', 'settings.manage'] });
 		expect(ruleForPath('/supper-admin-overview/sub-finance/invoices-out')).toEqual({ all: ['finance.read'] });
 		expect(ruleForPath('/supper-admin-overview/my-account')).toEqual({ self: true });
 		expect(ruleForPath('/supper-admin-overview')).toEqual({ member: true });

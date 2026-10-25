@@ -8,15 +8,17 @@ import { ConfirmModalComponent } from './sheards/confirm-modal/confirm-modal.com
 import { NotificationHostComponent } from './shared/forms/notification-host.component';
 import { FormA11ySyncService } from './shared/forms/form-a11y-sync.service';
 import { AssistantWidgetComponent } from './sheards/assistant-widget/assistant-widget';
+import { PlatformBannerComponent } from './shared/platform-banner/platform-banner.component';
 import { assistantLiftPx, isAssistantHidden } from './sheards/assistant-widget/assistant-visibility';
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent],
+	imports: [RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent, PlatformBannerComponent],
 	styleUrl: './app.css',
 	template: `
 		<ng-container *ngIf="authStore.isInitialized$ | async">
+			<app-platform-banner />
 			<router-outlet />
 		</ng-container>
 

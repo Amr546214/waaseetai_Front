@@ -1,5 +1,6 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { providerGateInterceptor } from './core/interceptors/provider-gate.interceptor';
+import { maintenanceInterceptor } from './core/interceptors/maintenance.interceptor';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -24,7 +25,7 @@ export const appConfig: ApplicationConfig = {
 			anchorScrolling: 'enabled'
 		})),
 		provideClientHydration(withEventReplay()),
-		provideHttpClient(withFetch(), withInterceptors([adminAccessInterceptor, errorMessageInterceptor, loadingInterceptor, providerGateInterceptor, authInterceptor, getCacheInterceptor, rateLimitInterceptor])),
+		provideHttpClient(withFetch(), withInterceptors([adminAccessInterceptor, errorMessageInterceptor, loadingInterceptor, providerGateInterceptor, authInterceptor, getCacheInterceptor, rateLimitInterceptor, maintenanceInterceptor])),
 		provideTranslateService({ lang: 'ar', fallbackLang: 'ar' }),
 		{
 			provide: SOCIAL_AUTH_CONFIG,
