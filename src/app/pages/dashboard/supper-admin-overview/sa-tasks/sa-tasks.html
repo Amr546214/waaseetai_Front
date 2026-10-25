@@ -1,1 +1,126 @@
-<app-sa-unavailable title="المهام والتكليفات" subtitle="مهام فريق الإدارة" heading="المهام غير متاحة بعد" reason="لا يوجد نظام مهام وتكليفات لفريق الإدارة في المنصة بعد، لذلك لا تُعرض مهام أو أعداد." linkLabel="فتح المشرفين العامين" linkTo="/supper-admin-overview/super-admins" disabledLabel="مهمة جديدة" disabledReason="لا يوجد نظام مهام" />
+<section class="tk-page" dir="rtl">
+  <div class="tk-hdr">
+    <div><h1 class="tk-ttl">المهام والتكليفات</h1><p class="tk-sub">{{ canManage() ? 'جميع مهام فريق الإدارة ومتابعتها' : 'مهامك المكلَّف بها' }}</p></div>
+    <div class="tk-hdr-actions">
+      @if (access.can('performance.view')) { <a routerLink="/supper-admin-overview/team-performance" class="tk-btn tk-btn-gh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>تقرير الأداء</a> }
+      @if (canManage()) { <button type="button" class="tk-btn tk-btn-pri" (click)="openCreate()" data-testid="task-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مهمة جديدة</button> }
+    </div>
+  </div>
+
+  @if (summary(); as s) {
+    <div class="tk-kpi-row">
+      <div class="tk-kpi"><div class="tk-kpi-lbl">مهام مفتوحة</div><div class="tk-kpi-val" style="color:#2BD4C7">{{ s.open }}</div><div class="tk-kpi-sub">{{ s.inProgress }} جارية</div></div>
+      <div class="tk-kpi"><div class="tk-kpi-lbl">متأخرة</div><div class="tk-kpi-val" style="color:#FF8C69">{{ s.overdue }}</div><div class="tk-kpi-sub">تحتاج متابعة عاجلة</div></div>
+      <div class="tk-kpi"><div class="tk-kpi-lbl">مكتملة (الشهر)</div><div class="tk-kpi-val" style="color:#0FA99A">{{ s.doneThisMonth }}</div><div class="tk-kpi-sub">@if (s.onTimeThisMonth; as o) { {{ o.onTime }} من {{ o.of }} في الموعد } @else { لا مواعيد محددة لقياس الالتزام }</div></div>
+      <div class="tk-kpi"><div class="tk-kpi-lbl">متوسط وقت الإنجاز</div><div class="tk-kpi-val" style="color:#FFB400">{{ s.avgCompletionHoursThisMonth !== null ? s.avgCompletionHoursThisMonth + ' س' : '—' }}</div><div class="tk-kpi-sub">هدف SLA غير معتمد بعد</div></div>
+    </div>
+  }
+
+  <div class="tk-tabs" role="tablist" id="task-tabs">
+    <button class="tk-tab" [class.active]="tab() === 'open'" type="button" (click)="setTab('open')">جارية @if (summary()) { <span>({{ summary()!.inProgress }})</span> }</button>
+    <button class="tk-tab" [class.active]="tab() === 'pending'" type="button" (click)="setTab('pending')">معلقة @if (summary()) { <span>({{ summary()!.pending }})</span> }</button>
+    <button class="tk-tab" [class.active]="tab() === 'done'" type="button" (click)="setTab('done')">مكتملة</button>
+    <button class="tk-tab" [class.active]="tab() === 'all'" type="button" (click)="setTab('all')">الكل</button>
+  </div>
+
+  <div class="tk-filters">
+    <div class="tk-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" placeholder="ابحث في المهام..." aria-label="بحث" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="load()" (blur)="load()"></div>
+    @if (canManage()) {
+      <select class="tk-sel" aria-label="الموظف" [ngModel]="assigneeFilter()" (ngModelChange)="assigneeFilter.set($event); load()"><option value="">كل الموظفين</option>@for (m of team(); track m.userId) { <option [value]="m.userId">{{ m.name }}</option> }</select>
+    }
+    <select class="tk-sel" aria-label="النوع" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); load()"><option value="">كل الأنواع</option>@for (t of typeLabel | keyvalue; track t.key) { <option [value]="t.key">{{ t.value }}</option> }</select>
+  </div>
+
+  <div style="display:flex;gap:3px;margin-bottom:12px" role="group" aria-label="طريقة العرض">
+    <button type="button" class="tk-tab" [class.active]="view() === 'list'" (click)="view.set('list')" data-testid="view-list">قائمة</button>
+    <button type="button" class="tk-tab" [class.active]="view() === 'kanban'" (click)="view.set('kanban')" data-testid="view-kanban">Kanban</button>
+  </div>
+
+  @if (error()) { <div class="tk-empty" role="alert">{{ error() }} <button type="button" class="tk-btn tk-btn-gh" (click)="load()">إعادة المحاولة</button></div> }
+  @else if (loading() && !tasks().length) { <div class="tk-empty" role="status">جاري تحميل المهام...</div> }
+  @else if (view() === 'list') {
+    <div class="tk-card">
+      <div class="tk-card-hdr"><span class="tk-card-ttl">{{ title() }}</span><span class="tk-card-count">{{ tasks().length }} مهام</span></div>
+      <div class="tk-tbl-wrap">
+        <table class="tk-tbl" data-testid="tasks-table">
+          <thead><tr><th>#</th><th>المهمة</th><th>النوع</th><th>المُكلَّف</th><th>الأولوية</th><th>الموعد</th><th>الحالة</th><th>إجراء</th></tr></thead>
+          <tbody>
+            @for (t of tasks(); track t.id) {
+              <tr data-testid="task-row">
+                <td class="tk-mono">{{ t.code }}</td><td class="tk-strong">{{ t.title }}</td>
+                <td><span class="tk-bdg" style="background:rgba(255,255,255,.06);color:#6B7699">{{ typeLabel[t.type] }}</span></td>
+                <td class="tk-assignee">{{ t.assignee?.name ?? 'غير مُكلَّفة' }}</td>
+                <td><span class="tk-bdg" [ngStyle]="pStyle(t.priority)">{{ priorityLabel[t.priority] }}</span></td>
+                <td [style.color]="t.overdue ? '#FF5050' : '#6B7699'">{{ t.dueAt ? (t.dueAt | date:'yyyy/MM/dd') : '—' }}{{ t.overdue ? ' (متأخر)' : '' }}</td>
+                <td><span class="tk-bdg" [ngStyle]="sStyle(t.status)">{{ statusLabel[t.status] }}</span></td>
+                <td><button type="button" class="tk-detail-btn" (click)="open(t)" data-testid="task-open">تفاصيل</button></td>
+              </tr>
+            } @empty { <tr><td colspan="8" class="tk-empty">لا توجد مهام</td></tr> }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else {
+    <div class="tk-kanban" data-testid="kanban"><div class="tk-kanban-grid">
+      @for (c of kanban(); track c.key) {
+        <div class="tk-kanban-col" [style.border-color]="c.key === 'OVERDUE' ? 'rgba(255,180,0,.14)' : c.key === 'DONE' ? 'rgba(15,169,154,.14)' : c.key === 'IN_PROGRESS' ? 'rgba(43,127,255,.14)' : 'rgba(255,255,255,.07)'">
+          <div class="tk-kanban-col-ttl">{{ { NEW: 'جديدة', IN_PROGRESS: 'جارية', OVERDUE: 'متأخرة', DONE: 'مكتملة' }[c.key] }} ({{ c.tasks.length }})</div>
+          <div class="tk-kanban-items">
+            @for (t of c.tasks; track t.id) { <div class="tk-kanban-item" (click)="open(t)">{{ t.title }}<div class="tk-kanban-item-meta">{{ t.assignee?.name ?? 'غير مُكلَّفة' }} · {{ priorityLabel[t.priority] }}</div></div> } @empty { <div class="tk-kanban-empty">—</div> }
+          </div>
+        </div>
+      }
+    </div></div>
+  }
+
+  @if (workload().length) {
+    <div class="tk-workload"><div class="tk-sec-ttl">توازن العبء على الفريق</div><div class="tk-wl-list">
+      @for (w of workload(); track w.name) { <div class="tk-wl-row"><span class="tk-wl-name">{{ w.name }}</span><div class="tk-wl-bar"><div class="tk-wl-fill" [style.width.%]="w.pct" [style.background]="w.color"></div></div><span class="tk-wl-count" [style.color]="w.color">{{ w.n }} مهام</span></div> }
+    </div></div>
+  }
+
+  @if (detail(); as d) {
+    <div class="tk-mov" (click)="closeDetail()" data-testid="task-detail">
+      <div class="tk-mbox" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="تفاصيل المهمة">
+        <div class="tk-mhdr"><div><h3>{{ d.title }}</h3><span class="tk-bdg" [ngStyle]="sStyle(d.status)">{{ statusLabel[d.status] }}</span></div><button type="button" class="tk-mclose" (click)="closeDetail()" aria-label="إغلاق">×</button></div>
+        <div class="tk-mbody">
+          <div class="tk-mrow"><div class="tk-mfield"><label>الرقم</label><p>{{ d.code }}</p></div><div class="tk-mfield"><label>النوع</label><p>{{ typeLabel[d.type] }}</p></div></div>
+          <div class="tk-mrow"><div class="tk-mfield"><label>المُكلَّف</label><p>{{ d.assignee?.name ?? 'غير مُكلَّفة' }}</p></div><div class="tk-mfield"><label>الأولوية</label><p>{{ priorityLabel[d.priority] }}</p></div></div>
+          <div class="tk-mfield"><label>الموعد</label><p>{{ d.dueAt ? (d.dueAt | date:'yyyy/MM/dd HH:mm') : '—' }}</p></div>
+          @if (d.description) { <div class="tk-mfield"><label>الوصف</label><p>{{ d.description }}</p></div> }
+          <div class="tk-mfield"><label>السجل</label>@for (ev of d.events; track $index) { <p style="font-size:11px">{{ ev.at | date:'MM/dd HH:mm' }} · {{ ev.kind === 'STATUS' ? ('الحالة: ' + (statusLabel[ev.to ?? ''] || ev.to)) : ev.kind === 'CREATED' ? 'أُنشئت' : ev.kind === 'ASSIGNED' ? 'أُسندت' : 'عُدّلت' }}</p> }</div>
+        </div>
+        @if (detailError()) { <div class="tk-empty" role="alert" style="color:#FF8C69">{{ detailError() }}</div> }
+        @if (canChangeStatus(d)) {
+          <div class="tk-mactions">
+            @if (d.status === 'NEW' || d.status === 'PENDING') { <button type="button" class="tk-btn tk-btn-gh" [disabled]="busy()" (click)="setStatus('IN_PROGRESS')" data-testid="st-progress">بدء العمل</button> }
+            @if (d.status !== 'PENDING' && d.status !== 'DONE' && d.status !== 'CANCELLED') { <button type="button" class="tk-btn tk-btn-gh" [disabled]="busy()" (click)="setStatus('PENDING')">تعليق</button> }
+            @if (d.status !== 'DONE' && d.status !== 'CANCELLED') { <button type="button" class="tk-btn tk-btn-pri" [disabled]="busy()" (click)="setStatus('DONE')" data-testid="st-done">تم الإنجاز</button> }
+            @if (canManage() && d.status !== 'CANCELLED' && d.status !== 'DONE') { <button type="button" class="tk-btn tk-btn-gh" [disabled]="busy()" (click)="setStatus('CANCELLED')">إلغاء المهمة</button> }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (creating()) {
+    <div class="tk-mov" (click)="creating.set(false)" data-testid="task-create">
+      <div class="tk-mbox" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="مهمة جديدة">
+        <div class="tk-mhdr"><div><h3>مهمة جديدة</h3></div><button type="button" class="tk-mclose" (click)="creating.set(false)" aria-label="إغلاق">×</button></div>
+        <div class="tk-mbody">
+          <div class="tk-mfield"><label>العنوان</label><input class="tk-sel" style="width:100%" [(ngModel)]="form.title" name="title" maxlength="200"></div>
+          <div class="tk-mrow">
+            <div class="tk-mfield"><label>النوع</label><select class="tk-sel" [(ngModel)]="form.type" name="type">@for (t of typeLabel | keyvalue; track t.key) { <option [value]="t.key">{{ t.value }}</option> }</select></div>
+            <div class="tk-mfield"><label>الأولوية</label><select class="tk-sel" [(ngModel)]="form.priority" name="prio">@for (t of priorityLabel | keyvalue; track t.key) { <option [value]="t.key">{{ t.value }}</option> }</select></div>
+          </div>
+          <div class="tk-mfield"><label>المُكلَّف</label><select class="tk-sel" [(ngModel)]="form.assigneeId" name="assignee"><option value="">بلا تكليف</option>@for (m of team(); track m.userId) { <option [value]="m.userId">{{ m.name }}</option> }</select><span style="font-size:10px;color:#6B7699">التكليف لا يمنح الموظف صلاحية جديدة؛ يجب أن يملك صلاحية هذا النوع من العمل.</span></div>
+          <div class="tk-mfield"><label>الموعد (اختياري)</label><input class="tk-sel" type="datetime-local" [(ngModel)]="form.dueAt" name="due"></div>
+          <div class="tk-mfield"><label>الوصف (اختياري)</label><textarea class="tk-sel" style="height:70px;padding:8px" [(ngModel)]="form.description" name="desc" maxlength="2000"></textarea></div>
+        </div>
+        @if (createError()) { <div class="tk-empty" role="alert" style="color:#FF8C69" data-testid="create-error">{{ createError() }}</div> }
+        <div class="tk-mactions"><button type="button" class="tk-btn tk-btn-gh" (click)="creating.set(false)">إلغاء</button><button type="button" class="tk-btn tk-btn-pri" [disabled]="busy() || form.title.trim().length < 3" (click)="create()" data-testid="task-save">إنشاء</button></div>
+      </div>
+    </div>
+  }
+  <div class="tk-foot">© 2026 وسيط AI · v2.0.0</div>
+</section>

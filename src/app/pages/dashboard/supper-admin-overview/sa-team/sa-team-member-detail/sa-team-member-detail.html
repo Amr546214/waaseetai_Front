@@ -1,1 +1,69 @@
-<app-sa-unavailable title="تفاصيل عضو الفريق" subtitle="ملف عضو في فريق الإدارة" heading="تفاصيل العضو غير متاحة" reason="لا يوجد سجل لأداء أعضاء الفريق أو مهامهم أو حالة اتصالهم في المنصة بعد، لذلك لا يُعرض ملف تفصيلي." linkLabel="فتح فريق الإدارة" linkTo="/supper-admin-overview/team" />
+<section class="tm-page" dir="rtl">
+  <div class="tm-detail-crumb"><a routerLink="/supper-admin-overview/team">← العودة إلى فريق الإدارة</a></div>
+  @if (error()) { <div class="tm-empty" role="alert">{{ error() }} <button type="button" class="tm-btn tm-btn-ghost" (click)="load()">إعادة المحاولة</button></div> }
+  @else if (loading() && !member()) { <div class="tm-empty" role="status">جاري التحميل...</div> }
+  @else if (!member()) { <div class="tm-empty" data-testid="member-missing">الموظف غير موجود في الفريق</div> }
+  @else if (member(); as m) {
+    <div class="tm-hdr">
+      <div class="tm-modal-head">
+        <div class="tm-avatar tm-avatar-lg" style="background:linear-gradient(135deg,#A56BE0,#5DA0FF)">{{ initial(m.name) }}</div>
+        <div><h1 class="tm-ttl">{{ m.name }} <span class="tm-badge" [class.tm-online]="m.status === 'ACTIVE'" [class.tm-offline]="m.status !== 'ACTIVE'" data-testid="member-status">{{ m.status === 'ACTIVE' ? 'وصوله مفعّل' : 'وصوله موقوف' }}</span></h1>
+          <p class="tm-sub">{{ m.isOwner ? 'مالك المنصة' : (m.role?.name ?? 'بلا دور') }} · {{ m.email }} · في الفريق منذ {{ m.joinedAt | date:'yyyy/MM/dd' }}</p></div>
+      </div>
+      @if (isOwner() && !m.isOwner) {
+        <div class="tm-hdr-actions">
+          <button type="button" class="tm-btn" [class.tm-btn-warn]="m.status === 'ACTIVE'" [class.tm-btn-primary]="m.status !== 'ACTIVE'" [disabled]="busy()" (click)="toggleAccess()" data-testid="member-toggle">{{ m.status === 'ACTIVE' ? 'إيقاف الوصول' : 'إعادة تفعيل الوصول' }}</button>
+        </div>
+      }
+    </div>
+    @if (notice()) { <div class="tm-pending-note" role="status" data-testid="member-notice">{{ notice() }}</div> }
+
+    <div class="tm-kpi-row">
+      <div class="tm-kpi"><div class="tm-kpi-lbl">مهام مُنجزة</div><div class="tm-kpi-val" style="color:#2BD4C7">{{ m.doneTasks }}</div><div class="tm-kpi-sub">منذ انضمامه</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">مهام مفتوحة</div><div class="tm-kpi-val" style="color:#FFB400">{{ m.openTasks }}</div><div class="tm-kpi-sub">{{ m.overdueTasks }} متأخرة</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">آخر نشاط</div><div class="tm-kpi-val" style="font-size:14px;color:#0FA99A">{{ m.lastActiveAt ? (m.lastActiveAt | date:'yyyy/MM/dd HH:mm') : '—' }}</div><div class="tm-kpi-sub">لا يوجد مصدر «متصل الآن»</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">درجة الأداء</div><div class="tm-kpi-val" style="color:#A56BE0">—</div><div class="tm-kpi-sub">لا تتوفر بيانات: قاعدة الدرجة لم تُعتمد</div></div>
+    </div>
+
+    <div class="tm-tabs tm-detail-tabs" role="tablist">
+      <button class="tm-tab" [class.active]="tab() === 'overview'" type="button" (click)="tab.set('overview')">نظرة عامة</button>
+      <button class="tm-tab" [class.active]="tab() === 'tasks'" type="button" (click)="tab.set('tasks')">مهامه الحالية</button>
+      @if (isOwner()) { <button class="tm-tab" [class.active]="tab() === 'perms'" type="button" (click)="tab.set('perms')" data-testid="tab-perms">صلاحياته</button> }
+    </div>
+
+    @if (tab() === 'overview') {
+      <div class="tm-panel"><div class="tm-panel-ttl">المعلومات الوظيفية</div>
+        <div class="tm-info-grid">
+          <div class="tm-info-item"><div class="tm-info-lbl">الاسم الكامل</div><div class="tm-info-val">{{ m.name }}</div></div>
+          <div class="tm-info-item"><div class="tm-info-lbl">البريد الإداري</div><div class="tm-info-val" dir="ltr" style="text-align:right;font-size:12px">{{ m.email }}</div></div>
+          <div class="tm-info-item"><div class="tm-info-lbl">الدور الإداري</div><div class="tm-info-val">{{ m.isOwner ? 'مالك المنصة' : (m.role?.name ?? 'بلا دور') }}</div></div>
+          <div class="tm-info-item"><div class="tm-info-lbl">تاريخ الانضمام</div><div class="tm-info-val">{{ m.joinedAt | date:'yyyy/MM/dd' }}</div></div>
+        </div>
+      </div>
+    }
+    @if (tab() === 'tasks') {
+      <div class="tm-panel"><div class="tm-panel-ttl">المهام ({{ tasks().length }})</div>
+        @for (t of tasks(); track t.id) { <div class="tm-detail-row"><span>{{ t.code }} · {{ t.title }} · {{ typeLabel[t.type] }}</span><span>{{ priorityLabel[t.priority] }} · {{ statusLabel[t.status] }}{{ t.overdue ? ' · متأخرة' : '' }}</span></div> }
+        @empty { <div class="tm-empty">لا توجد مهام لهذا الموظف، أو ليست لديك صلاحية عرض مهام الفريق.</div> }
+      </div>
+    }
+    @if (tab() === 'perms' && isOwner()) {
+      <div class="tm-panel" data-testid="perms-panel"><div class="tm-panel-ttl">الصلاحيات الفعلية (من الدور)</div>
+        @if (m.isOwner) { <div class="tm-pending-note" style="border-top:0">المالك يملك كل الصلاحيات وسلطات الإدارة، ولا يتغير من هنا.</div> }
+        @else {
+          <label class="tm-field-lbl">الدور</label>
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <select class="tm-select" [ngModel]="newRoleId()" (ngModelChange)="newRoleId.set($event)" aria-label="الدور" data-testid="member-role-select"><option value="">بلا دور (لا صلاحيات)</option>@for (r of roles(); track r.id) { <option [value]="r.id">{{ r.name }}</option> }</select>
+            <button type="button" class="tm-btn tm-btn-primary" [disabled]="busy() || newRoleId() === (m.role?.id ?? '')" (click)="saveRole()" data-testid="member-role-save">حفظ الدور</button>
+          </div>
+          <div class="tm-pending-note" style="border-top:0">تُعدَّل صلاحيات الدور نفسه من صفحة «الصلاحيات والأدوار». لا توجد استثناءات فردية، لتبقى مصدرًا واحدًا للحقيقة.</div>
+        }
+        @for (g of groups(); track g.label) {
+          <div class="tm-sec-ttl">{{ g.label }}</div>
+          @for (p of g.items; track p.id) { <div class="tm-perm-row" style="display:flex;justify-content:space-between;padding:6px 0"><span class="tm-perm-label" [style.color]="p.on ? '#fff' : '#6B7699'">{{ p.label }}@if (p.sensitive) { <span style="color:#FFB400"> ●</span> }</span><span [style.color]="p.on ? '#0FA99A' : '#6B7699'">{{ p.on ? '✓ ممنوحة' : '✕' }}</span></div> }
+        }
+      </div>
+    }
+  }
+  <div class="tm-foot">© 2026 وسيط AI · v2.0.0</div>
+</section>

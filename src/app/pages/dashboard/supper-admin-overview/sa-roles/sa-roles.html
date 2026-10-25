@@ -2,71 +2,135 @@
   <div class="rl-hdr">
     <div>
       <h1 class="rl-ttl">الصلاحيات والأدوار</h1>
-      <p class="rl-sub">أدوار المنصة الفعلية وأعداد أعضائها، وما تُطبّقه الواجهة الخلفية فعلاً لكل مستوى إداري</p>
+      <p class="rl-sub">تعريف أدوار فريق الإدارة وصلاحيات كل دور. يحدد مالك المنصة الصلاحيات وحده.</p>
     </div>
-    <button type="button" class="rl-btn rl-btn-primary" disabled [title]="fixedRolesNote" style="opacity:.5;cursor:not-allowed">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      إضافة دور
-    </button>
+    @if (access.isOwner()) {
+      <button type="button" class="rl-btn rl-btn-primary" (click)="openCreate()" data-testid="role-add">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة دور
+      </button>
+    }
   </div>
-  <div class="rl-modal-note" style="margin-bottom:14px">{{ fixedRolesNote }}: إنشاء أدوار جديدة وتعديل الصلاحيات غير مربوط بالخادم، لذلك لا يُحفظ أي تغيير من هذه الصفحة.</div>
+  @if (notice()) { <div class="rl-modal-note" role="status" data-testid="roles-notice" style="margin-bottom:12px">{{ notice() }}</div> }
 
   @if (error()) {
     <div class="rl-modal-note" role="alert">{{ error() }} <button type="button" class="rl-btn rl-btn-ghost" (click)="load()">إعادة المحاولة</button></div>
   } @else if (loading()) {
     <div class="rl-modal-note" role="status">جاري تحميل الأدوار...</div>
-  } @else if (data(); as d) {
-    <div class="rl-roles-grid">
-      @for (r of d.roles; track r.role) {
-        <div class="rl-role-card" [style.border-color]="color(r.role) + '38'">
+  } @else {
+    @if (roles().length === 0) {
+      <div class="rl-modal-note" data-testid="roles-empty">لا توجد أدوار بعد. أنشئ دورًا من «إضافة دور»، أو ابدأ من أحد القوالب أدناه (قوالب فقط: لا أحد يحملها حتى تنشئها وتسندها).</div>
+    }
+    <div class="rl-roles-grid" data-testid="roles-grid">
+      @for (r of roles(); track r.id; let i = $index) {
+        <div class="rl-role-card" [style.border-color]="(r.color || color(i)) + '38'" data-testid="role-card">
           <div class="rl-role-top">
-            <div class="rl-role-dot" [style.background]="color(r.role)"></div>
-            <span class="rl-role-name">{{ r.label }}</span>
-            <button type="button" class="rl-role-edit" disabled [title]="fixedRolesNote" style="opacity:.5;cursor:not-allowed">تعديل</button>
+            <div class="rl-role-dot" [style.background]="r.color"></div>
+            <span class="rl-role-name">{{ r.name }}</span>
+            <button type="button" class="rl-role-edit" (click)="openEdit(r)" data-testid="role-edit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>تعديل
+            </button>
           </div>
-          <div class="rl-role-desc">{{ r.description }}</div>
-          <div class="rl-role-meta">
-            <span [style.color]="color(r.role)">{{ r.members }} عضو</span>
-          </div>
+          <div class="rl-role-desc">{{ r.description || '—' }}</div>
+          <div class="rl-role-meta"><span [style.color]="r.color">{{ r.permissionCount }} صلاحية</span><span>{{ r.memberCount }} أعضاء</span></div>
         </div>
       }
     </div>
 
-    <div class="rl-matrix-card">
-      <div class="rl-matrix-hdr">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        ما يُطبَّق فعلاً على المستويات الإدارية (للقراءة فقط)
+    @if (catalog(); as c) {
+      <div class="rl-matrix-card">
+        <div class="rl-matrix-hdr">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>مصفوفة الصلاحيات
+        </div>
+        <div class="rl-table-wrap">
+          <table class="rl-table" data-testid="roles-matrix">
+            <thead><tr><th class="rl-th-perm">الصلاحية</th><th style="color:#FF8C69">المالك</th>@for (r of roles(); track r.id) { <th [style.color]="r.color">{{ r.name }}</th> }</tr></thead>
+            <tbody>
+              @for (p of c.permissions; track p.id) {
+                <tr>
+                  <td class="rl-td-perm">{{ p.label }}@if (p.sensitive) { <span title="حساسة" style="color:#FFB400"> ●</span> }</td>
+                  <td class="rl-td-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg></td>
+                  @for (r of roles(); track r.id) {
+                    <td class="rl-td-check">@if (has(r, p.id)) { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg> } @else { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="rl-check-no"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> }</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="rl-table-wrap">
-        <table class="rl-table">
-          <thead><tr><th class="rl-th-perm">الإجراء</th><th>إداري</th><th>مدير عام</th></tr></thead>
-          <tbody>
-            @for (c of d.adminCapabilities; track c.key) {
-              <tr>
-                <td class="rl-td-perm">{{ c.label }}</td>
-                <td class="rl-td-check">@if (c.admin) { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg> } @else { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-no"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> }</td>
-                <td class="rl-td-check">@if (c.superAdmin) { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg> } @else { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-no"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> }</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
 
-    <div class="rl-audit-card">
-      <div class="rl-audit-ttl">الحسابات حسب النوع</div>
-      <div class="rl-audit-list">
-        @for (t of d.accountTypes; track t.accountType) {
-          <div class="rl-audit-row"><span class="rl-audit-text">{{ typeLabel(t.accountType) }}</span><span class="rl-audit-kind">{{ t.count }}</span></div>
-        } @empty {
-          <div class="rl-audit-row"><span class="rl-audit-text">لا توجد حسابات بعد</span></div>
-        }
-        <div class="rl-audit-row"><span class="rl-audit-text">حسابات موقوفة أو قيد مراجعة الإيقاف</span><span class="rl-audit-kind">{{ d.suspendedAccounts }}</span></div>
+      <div class="rl-audit-card">
+        <div class="rl-audit-ttl">قوالب أدوار من تصميم الصفحة (للبدء منها فقط)</div>
+        <div class="rl-audit-list">
+          @for (t of c.templates; track t.key) {
+            <div class="rl-audit-row"><span class="rl-audit-text"><strong>{{ t.name }}</strong> — {{ t.description }} ({{ t.permissions.length }} صلاحية)</span>
+              @if (access.isOwner()) { <button type="button" class="rl-btn rl-btn-ghost" style="height:26px" (click)="openCreate(t)" data-testid="template-use">إنشاء من القالب</button> }</div>
+          }
+        </div>
       </div>
-      <a class="rl-audit-more" routerLink="/supper-admin-overview/audit-trail">سجل التدقيق الكامل ←</a>
-      <div class="rl-modal-note" style="margin-top:8px">تغييرات أدوار حساب بعينه تُسجَّل في سجل تدقيق ذلك الحساب وتظهر في ملفه من صفحة المستخدمين.</div>
-    </div>
+
+      <div class="rl-audit-card">
+        <div class="rl-audit-ttl">سجل تغييرات الصلاحيات (Permission Audit Trail)</div>
+        @if (auditError()) { <div class="rl-modal-note">تعذّر تحميل السجل (يحتاج صلاحية عرض سجلات التدقيق).</div> }
+        <div class="rl-audit-list" data-testid="audit-list">
+          @for (a of audit(); track a.id) {
+            <div class="rl-audit-row" [ngClass]="auditView(a).cls"><span class="rl-audit-time">{{ a.at | date:'MM/dd HH:mm' }}</span><span class="rl-audit-text">{{ auditView(a).text }}</span><span class="rl-audit-kind">{{ auditView(a).kind }}</span></div>
+          } @empty { @if (!auditError()) { <div class="rl-audit-row"><span class="rl-audit-text">لا توجد تغييرات مسجَّلة بعد</span></div> } }
+        </div>
+      </div>
+
+      @if (c.ambiguities.length) {
+        <div class="rl-audit-card" data-testid="ambiguities">
+          <div class="rl-audit-ttl">نقاط تحتاج قرارك (غموض بين التصميم وقرارك)</div>
+          <div class="rl-audit-list">@for (t of c.ambiguities; track $index) { <div class="rl-audit-row"><span class="rl-audit-text">{{ t }}</span></div> }</div>
+        </div>
+      }
+    }
   }
 
-  <div class="rl-foot">© 2026 وسيط AI</div>
+  @if (editing(); as e) {
+    <div class="rl-overlay" (click)="close()" data-testid="role-modal">
+      <div class="rl-modal" style="max-width:720px;max-height:90vh;overflow-y:auto" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="e.id ? 'تعديل الدور' : 'إضافة دور'">
+        <div class="rl-modal-hdr"><h3>{{ e.id ? 'تعديل الدور' : 'إضافة دور' }}</h3><button type="button" class="rl-modal-close" (click)="close()" aria-label="إغلاق">×</button></div>
+        <label class="rl-field-lbl">اسم الدور</label>
+        <input class="rl-input" type="text" [ngModel]="e.name" (ngModelChange)="e.name = $event" name="rname" maxlength="80">
+        <label class="rl-field-lbl" style="margin-top:10px">الوصف</label>
+        <input class="rl-input" type="text" [ngModel]="e.description" (ngModelChange)="e.description = $event" name="rdesc" maxlength="300">
+        @if (templateNote()) { <div class="rl-modal-note">{{ templateNote() }}</div> }
+        <div class="rl-field-lbl" style="margin-top:14px">الصلاحيات ({{ e.selected.size }})</div>
+        @for (g of permsByGroup(); track g.group) {
+          <div class="rl-modal-note" style="margin:10px 0 4px;color:#2BD4C7;font-weight:800">{{ g.label }}</div>
+          @for (p of g.items; track p.id) {
+            <label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12.5px;color:#A8B2D1;cursor:pointer">
+              <input type="checkbox" [checked]="e.selected.has(p.id)" (change)="toggle(p.id)" [attr.data-testid]="'perm-' + p.id">
+              <span>{{ p.label }}</span>@if (p.sensitive) { <span style="color:#FFB400;font-size:11px">حساسة</span> }
+            </label>
+          }
+        }
+        @if (preview(); as pv) {
+          <div class="rl-audit-card" style="margin-top:12px" data-testid="role-preview">
+            <div class="rl-audit-ttl">أثر التعديل قبل الحفظ</div>
+            <div class="rl-modal-note">سيتأثر {{ pv.affectedMembers }} عضو بهذا الدور.</div>
+            @if (pv.added.length) { <div class="rl-modal-note" style="color:#0FA99A">تُضاف: @for (a of pv.added; track a) { {{ label(a) }}، }</div> }
+            @if (pv.removed.length) { <div class="rl-modal-note" style="color:#FF8C69">تُسحب: @for (a of pv.removed; track a) { {{ label(a) }}، }</div> }
+            @if (!pv.added.length && !pv.removed.length) { <div class="rl-modal-note">لا تغيير في الصلاحيات.</div> }
+          </div>
+        }
+        @if (needConfirm().length) {
+          <div class="rl-modal-note" role="alert" style="color:#FFB400" data-testid="sensitive-confirm">تمنح هذه الصلاحيات الحساسة: @for (a of needConfirm(); track a) { {{ label(a) }}، } تأكيدك مطلوب.
+            <button type="button" class="rl-btn rl-btn-primary" style="margin-top:8px" (click)="save(true)" data-testid="confirm-sensitive">أؤكد منح الصلاحيات الحساسة</button></div>
+        }
+        @if (editError()) {
+          <div class="rl-modal-note" role="alert" style="color:#FF8C69" data-testid="role-error">{{ editError() }}
+            @if (conflict()) { <button type="button" class="rl-btn rl-btn-ghost" style="margin-inline-start:8px" (click)="reloadEditing()" data-testid="role-reload">إعادة تحميل الدور</button> }</div>
+        }
+        <div class="rl-modal-actions">
+          <button type="button" class="rl-btn rl-btn-ghost" (click)="close()">إلغاء</button>
+          @if (e.id) { <button type="button" class="rl-btn rl-btn-ghost" (click)="showPreview()" data-testid="role-preview-btn">أثر التعديل</button> }
+          <button type="button" class="rl-btn rl-btn-primary" [disabled]="saving() || e.name.trim().length < 2" (click)="save(false)" data-testid="role-save">حفظ</button>
+        </div>
+      </div>
+    </div>
+  }
+  <div class="rl-foot">© 2026 وسيط AI · v2.0.0</div>
 </section>

@@ -15,6 +15,7 @@ import { NotificationPopupComponent } from '../../notification-popup/notificatio
 import { NotificationBell } from '../../notification-bell/notification-bell';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { AssistantStore } from '../../../core/store/assistant.store';
+import { AdminAccessService } from '../../../core/services/admin-access.service';
 
 @Component({
 	selector: 'app-nav-dashboard',
@@ -34,6 +35,7 @@ export class NavDashboard {
 	public accountService = inject(AccountService);
 	public router = inject(Router);
 	public notifEngine = inject(NotificationEngineService);
+	private adminAccess = inject(AdminAccessService);
 	private notificationNavigator = inject(NotificationNavigator);
 	private notify = inject(UiNotificationService);
 	public themeService = inject(ThemeService);
@@ -112,7 +114,9 @@ export class NavDashboard {
 	/** Messages / profile / settings / add-account of the ACTIVE role (a marketer never gets client links). */
 	links = computed(() => roleLinks(this.activeRole()));
 
+	/** An admin account shows its REAL administrative role (the platform owner, or the team role the owner gave it, or «غير مُسند»), never a generic title that suggests authority it was not given. */
 	accountTypeLabel = computed(() => {
+		if (this.isAdminAccount()) return this.adminAccess.displayRole() || 'حساب إداري';
 		const role = this.activeRole();
 		return this.getRoleLabel(role);
 	});
