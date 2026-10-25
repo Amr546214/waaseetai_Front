@@ -51,9 +51,25 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'system-settings': { all: ['settings.manage'] },
 	'site-control': { all: ['site_control.manage'] },
 	audit: { all: ['audit.view'] }, 'audit-trail': { all: ['audit.view'] },
+	// every remaining page of the console has its own explicit rule (nothing is opened to "any team member" by omission)
+	subscriptions: { all: ['packages.manage'] }, 'subscriptions/invoices': { all: ['finance.read'] },
+	it: { superAdmin: true }, 'it/security': { all: ['audit.view'] },
+	ai: { superAdmin: true },
+	communication: { superAdmin: true },
+	analytics: { all: ['finance.read'] }, 'analytics/coupons': { all: ['packages.manage'] },
+	'risk-center': { all: ['finance.read'] },
 	'my-account': { self: true },
 	'no-access': { self: true },
 };
+
+/** true when the path (or a parent prefix) has its own entry: used by the structural spec, so a page can never rely on the closed default */
+export function hasExplicitRule(path: string): boolean {
+	const p = path.replace(/^\/?(supper-admin-overview)?\/?/, '').split('?')[0].replace(/\/+$/, '');
+	if (p === '') return true;
+	const parts = p.split('/');
+	for (let n = parts.length; n >= 1; n--) if (parts.slice(0, n).join('/') in ADMIN_ROUTE_ACCESS) return true;
+	return false;
+}
 
 export function ruleForPath(path: string): AccessRule {
 	const p = path.replace(/^\/?(supper-admin-overview)?\/?/, '').split('?')[0].replace(/\/+$/, '');
@@ -62,5 +78,5 @@ export function ruleForPath(path: string): AccessRule {
 	// the LIST of an operations record is SUPER_ADMIN-only; one record opens only through a case the server lets this person hold (scope is decided there)
 	if (parts.length > 1 && OPERATIONS_DETAIL.has(parts[0])) return { member: true };
 	for (let n = parts.length; n >= 1; n--) { const r = ADMIN_ROUTE_ACCESS[parts.slice(0, n).join('/')]; if (r) return r; }
-	return { member: true }; // pages without their own entry (IT, subscriptions, ...): any team member; their data is gated by the server
+	return { superAdmin: true }; // an unlisted page is closed (SUPER_ADMIN only) until it gets its own rule: a structural spec lists every route and fails if one is missing
 }
