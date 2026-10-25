@@ -245,7 +245,8 @@ export class Sidebar implements OnInit {
 			if (allowed(it)) out.push(it);
 		}
 		// a header with nothing under it is dropped (also two headers in a row, and a trailing one)
-		return out.filter((it, i) => !(it.type === 'header' || it.type === 'divider') || (out[i + 1] && out[i + 1].type !== 'header' && out[i + 1].type !== 'divider'));
+		// a header (or divider) stays only while real entries (a link or a group) follow it: the logout button alone is not a section
+		return out.filter((it, i) => !(it.type === 'header' || it.type === 'divider') || (out[i + 1] && (out[i + 1].type === 'link' || out[i + 1].type === 'accordion')));
 	}
 
 	private getSuperAdminNavItems(isSuper: boolean): NavItem[] {
