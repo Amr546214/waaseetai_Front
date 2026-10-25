@@ -1,4 +1,5 @@
-.ms-page{direction:rtl;display:flex;flex-direction:column;height:calc(100vh - 56px);overflow:hidden}
+/* the shell puts the page 22px below the 56px bar (16px on a phone) and keeps the floating assistant launcher at the bottom: the page ends above it so the composer is never covered or cut */
+.ms-page{direction:rtl;display:flex;flex-direction:column;height:calc(100dvh - 78px - 88px);min-height:420px;overflow:hidden}
 
 .ms-note{margin-bottom:0;padding:10px 20px;gap:9px;border-radius:0;border-width:0 0 1px 0;flex-shrink:0;font-size:12px;line-height:1.5}
 .ms-note .ws-note-ico{width:26px;height:26px;border-radius:7px}
@@ -289,3 +290,7 @@
 :host-context(.light-theme) .ms-back,:host-context(.theme-light) .ms-back{background:#fff;border-color:#D8DFEC;color:#0F172A}
 :host-context(.light-theme) .ms-inline-err,:host-context(.theme-light) .ms-inline-err{color:#C2410C;background:rgba(194,65,12,.07);border-color:rgba(194,65,12,.25)}
 :host-context(.light-theme) .ms-fail,:host-context(.theme-light) .ms-fail{color:#C2410C}
+
+/* the floating assistant mascot is fixed at the bottom-left of every admin page: keep the send button clear of it */
+.ms-input-wrap{padding-inline-end:96px}
+@media(max-width:700px){ .ms-input-wrap{padding-inline-end:68px} }
