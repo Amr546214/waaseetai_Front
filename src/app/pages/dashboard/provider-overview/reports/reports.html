@@ -179,7 +179,7 @@
                 <td class="py-3 px-4 text-[12.5px] font-bold text-[var(--txt-2)]">{{ i.specialty ?? '—' }}</td>
                 <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ i.price | number:'1.0-2' }}</td>
                 <td class="py-3 px-4 text-[12px] font-bold text-[var(--txt-2)]">{{ bucketLabel(i.bucket) }}</td>
-                <td class="py-3 px-4 text-[12px] font-bold text-[var(--txt-3)]">{{ i.createdAt | date:'yyyy-MM-dd' }}</td>
+                <td class="py-3 px-4 text-[12px] font-bold text-[var(--txt-3)]">{{ i.createdAt | wsDate:'date':'yyyy-MM-dd' }}</td>
               </tr>
             } @empty {
               <tr><td colspan="5" class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</td></tr>
@@ -306,7 +306,7 @@
       @for (t of reports()?.payments?.transactions ?? []; track t.id) {
         <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--sec-bd)] last:border-b-0 text-[12.5px] font-bold">
           <span class="text-[var(--txt-2)]">{{ t.description ?? t.type }}</span>
-          <span class="text-[var(--txt-3)]">{{ t.createdAt | date:'yyyy-MM-dd' }}</span>
+          <span class="text-[var(--txt-3)]">{{ t.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span>
           <span class="text-[#2BD4C7]">{{ t.amount | number:'1.0-2' }} {{ t.currency }}</span>
         </div>
       } @empty { <div class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
@@ -333,7 +333,7 @@
       @for (d of reports()?.disputes?.items ?? []; track d.id) {
         <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--sec-bd)] last:border-b-0 text-[12.5px] font-bold">
           <span class="text-[var(--txt-2)]">{{ d.reason }}</span>
-          <span class="text-[var(--txt-3)]">{{ d.createdAt | date:'yyyy-MM-dd' }}</span>
+          <span class="text-[var(--txt-3)]">{{ d.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span>
           <span class="text-[var(--txt-2)]">{{ d.status }}</span>
         </div>
       } @empty { <div class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }

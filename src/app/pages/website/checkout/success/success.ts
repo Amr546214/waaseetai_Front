@@ -1,4 +1,5 @@
 import { Component, inject, computed, OnInit, HostListener, signal } from '@angular/core';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CheckoutService } from '../../../../core/services/checkout.service';
@@ -37,8 +38,7 @@ export class CheckoutSuccessComponent implements OnInit {
     return new Date(created).toLocaleDateString('ar-SA', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric',
-    });
+      day: 'numeric', timeZone: providerTimeZone() });
   });
   itemCount = computed(() => this.currentOrder()?.items.length || 0);
   orderItems = computed(() => this.currentOrder()?.items || []);

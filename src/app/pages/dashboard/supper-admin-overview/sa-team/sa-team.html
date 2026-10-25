@@ -73,7 +73,7 @@
         @for (p of d.pendingInvites; track p.id) {
           <div class="tm-card tm-card-pending" data-testid="pending-invite">
             <div class="tm-card-top"><div class="tm-avatar tm-avatar-pending">?</div><div class="tm-card-head-body"><div class="tm-name muted">{{ p.fullName }}</div><div class="tm-role">{{ p.roleName }} · معلقة</div></div></div>
-            <div class="tm-pending-note">{{ p.email }} · تنتهي {{ p.expiresAt | date:'yyyy/MM/dd HH:mm' }}</div>
+            <div class="tm-pending-note">{{ p.email }} · تنتهي {{ p.expiresAt | wsDate:'datetime':'yyyy/MM/dd HH:mm' }}</div>
             @if (isSuperAdmin()) {
               <div class="tm-modal-actions-row">
                 <button type="button" class="tm-btn tm-btn-ghost tm-btn-sm" [disabled]="busyId() === p.id" (click)="resend(p)">إعادة الإرسال</button>

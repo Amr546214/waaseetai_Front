@@ -1,4 +1,5 @@
 import { isRateLimitError } from '../../../../core/utils/rate-limit.util';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../../core/store/auth.store';
@@ -9,7 +10,7 @@ import { UiNotificationService } from '../../../../core/services/ui-notification
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule],
+  imports: [WsDatePipe, CommonModule],
   templateUrl: './reports.html'
 })
 export class Reports implements OnInit {

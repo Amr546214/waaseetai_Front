@@ -162,7 +162,7 @@
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.07);padding-top:9px">
                 <span style="font-size:12px;font-weight:700" class="txt-teal">تفاصيل ›</span>
-                <span *ngIf="isPublishedInMarket(sample)" style="font-size:11px" class="txt-muted">{{ sample.createdAt | date:'yyyy/MM/dd' }}</span>
+                <span *ngIf="isPublishedInMarket(sample)" style="font-size:11px" class="txt-muted">{{ sample.createdAt | wsDate:'date':'yyyy/MM/dd' }}</span>
                 <span *ngIf="!isPublishedInMarket(sample)" style="font-size:11px" class="txt-muted">لم يُرفع للسوق بعد</span>
               </div>
             </div>

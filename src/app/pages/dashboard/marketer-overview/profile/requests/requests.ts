@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { MarketerProfileService, ProfileRequestsSummary, ProfileChangeRequest, ChangeRequestStatus } from '../../../../../core/services/marketer-profile.service';
@@ -6,7 +7,7 @@ import { MarketerProfileService, ProfileRequestsSummary, ProfileChangeRequest, C
 @Component({
   selector: 'app-requests',
   standalone: true,
-  imports: [CommonModule],
+  imports: [WsDatePipe, CommonModule],
   templateUrl: './requests.html',
   styleUrl: './requests.css',
 })

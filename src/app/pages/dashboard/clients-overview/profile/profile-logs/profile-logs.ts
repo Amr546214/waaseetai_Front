@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AccountLogsService, AccountAuditLog } from '../../../../../core/services/account-logs.service';
@@ -121,7 +122,7 @@ export class ProfileLogs implements OnInit {
 				id: log.id,
 				type: log.title || 'إجراء في الحساب',
 				title: log.summary || log.actionText || 'تفاصيل العملية',
-				date: new Date(log.occurredAt || log.createdAt).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+				date: new Date(log.occurredAt || log.createdAt).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() }),
 				status: uiStatus,
 				statusText: log.statusText || (log.category === 'SECURITY_CHANGE' ? 'مكتمل بنجاح' : (uiStatus === 'review' ? 'قيد المراجعة' : uiStatus)),
 				statusHint: log.canResubmit ? 'يمكنك التعديل وإعادة التقديم' : undefined,

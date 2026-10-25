@@ -87,7 +87,7 @@
           @for (item of filteredReferrals(); track item.referredUserDisplayName + item.joinedAt) {
             <tr (click)="openRefModal(item)">
               <td>{{ item.referredUserDisplayName }}</td>
-              <td>{{ item.joinedAt | date:'yyyy-MM-dd' }}</td>
+              <td>{{ item.joinedAt | wsDate:'date':'yyyy-MM-dd' }}</td>
               <td>
                 <span [style.background]="getStatusBg(item.status)" style="padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" [class]="getStatusClass(item.status)">{{ getStatusLabel(item.status) }}</span>
               </td>
@@ -122,7 +122,7 @@
         <div class="modal-ico"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div>
         <div class="modal-title">تفاصيل الإحالة</div>
         <div class="ref-detail-row"><span class="ref-detail-lbl">المُحال</span><span class="ref-detail-val">{{ ref.referredUserDisplayName }}</span></div>
-        <div class="ref-detail-row"><span class="ref-detail-lbl">تاريخ التسجيل</span><span class="ref-detail-val">{{ ref.joinedAt | date:'yyyy-MM-dd' }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">تاريخ التسجيل</span><span class="ref-detail-val">{{ ref.joinedAt | wsDate:'date':'yyyy-MM-dd' }}</span></div>
         <div class="ref-detail-row"><span class="ref-detail-lbl">الحالة</span><span class="ref-detail-val">{{ getStatusLabel(ref.status) }}</span></div>
         <div class="ref-detail-row"><span class="ref-detail-lbl">العمولة</span><span class="ref-detail-val">{{ formatCommission(ref.commissionEarned) }}</span></div>
         <div class="modal-actions" style="margin-top:16px">

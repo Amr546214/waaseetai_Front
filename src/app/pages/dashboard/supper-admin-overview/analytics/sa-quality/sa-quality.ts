@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { AdminAnalyticsService, AnalyticsOverview } from '../../../../../core/services/admin-analytics.service';
 import { exportCsv, printPage } from '../../../../../core/utils/export.util';
@@ -13,7 +14,7 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 @Component({
   selector: 'app-sa-quality',
   standalone: true,
-  imports: [CommonModule, ReviewsSummaryComponent],
+  imports: [WsDatePipe, CommonModule, ReviewsSummaryComponent],
   templateUrl: './sa-quality.html',
   styleUrl: './sa-quality.css',
 })

@@ -1,4 +1,5 @@
 import { Component, ElementRef, inject, OnInit, signal, computed } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -27,7 +28,7 @@ export const WITHDRAWAL_STATE: Record<string, { label: string; tone: 'blue' | 'g
 @Component({
   selector: 'app-withdraw',
   standalone: true,
-  imports: [MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [WsDatePipe, MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './withdraw.html',
   styleUrl: './withdraw.css',
 })

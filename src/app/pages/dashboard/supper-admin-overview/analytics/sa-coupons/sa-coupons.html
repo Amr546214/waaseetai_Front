@@ -43,7 +43,7 @@
               <div class="scp-coupon-name">{{ c.provider?.name || c.provider?.email || 'بدون مقدم' }} · {{ statusLabel[c.status] }}</div>
               <div class="scp-coupon-meta">
                 الاستخدام {{ usageText(c) }} ·
-                @if (c.expiresAt) { ينتهي {{ c.expiresAt | date:'yyyy-MM-dd' }} } @else { بلا تاريخ انتهاء } ·
+                @if (c.expiresAt) { ينتهي {{ c.expiresAt | wsDate:'date':'yyyy-MM-dd' }} } @else { بلا تاريخ انتهاء } ·
                 {{ scopeText(c) }}
               </div>
             </div>
@@ -78,7 +78,7 @@
             <div class="scp-stat-row"><span>الخصم</span><span>{{ discountText(d) }}@if (d.maxDiscount) { (حتى {{ d.maxDiscount }} $) }</span></div>
             <div class="scp-stat-row"><span>الحد الأدنى للطلب</span><span>{{ d.minimumAmount !== null ? d.minimumAmount + ' $' : 'بلا حد أدنى' }}</span></div>
             <div class="scp-stat-row"><span>الاستخدام</span><span>{{ usageText(d) }} (للعميل الواحد: {{ d.maxUsesPerUser }})</span></div>
-            <div class="scp-stat-row"><span>الصلاحية</span><span>{{ d.startAt | date:'yyyy-MM-dd' }} ← {{ d.expiresAt ? (d.expiresAt | date:'yyyy-MM-dd') : 'بلا انتهاء' }}</span></div>
+            <div class="scp-stat-row"><span>الصلاحية</span><span>{{ d.startAt | wsDate:'date':'yyyy-MM-dd' }} ← {{ d.expiresAt ? (d.expiresAt | wsDate:'date':'yyyy-MM-dd') : 'بلا انتهاء' }}</span></div>
             <div class="scp-stat-row"><span>الخدمات المشمولة</span><span>{{ scopeText(d) }}</span></div>
             @if (d.excludedServiceIds.length) { <div class="scp-stat-row"><span>خدمات مستثناة</span><span>{{ d.excludedServiceIds.length }}</span></div> }
             @if (d.approvalStatus === 'PENDING' || d.approvalStatus === 'REJECTED') { <div class="scp-stat-row"><span>موافقة الشركة</span><span>{{ d.approvalStatus === 'PENDING' ? 'بانتظار الموافقة' : 'مرفوض' }}{{ d.rejectionReason ? ' — ' + d.rejectionReason : '' }}</span></div> }
@@ -91,7 +91,7 @@
               <thead><tr><th>الطلب</th><th>العميل</th><th>قيمة الطلب</th><th>الخصم</th><th>الصافي</th><th>التاريخ</th></tr></thead>
               <tbody>
                 @for (r of d.redemptions; track r.id) {
-                  <tr><td>{{ r.orderNumber || '—' }}</td><td>{{ r.customer?.name || '—' }}</td><td>{{ r.orderValue !== null ? r.orderValue + ' $' : '—' }}</td><td>{{ r.discountApplied }} $</td><td>{{ r.netValue !== null ? r.netValue + ' $' : '—' }}</td><td>{{ r.createdAt | date:'yyyy-MM-dd' }}</td></tr>
+                  <tr><td>{{ r.orderNumber || '—' }}</td><td>{{ r.customer?.name || '—' }}</td><td>{{ r.orderValue !== null ? r.orderValue + ' $' : '—' }}</td><td>{{ r.discountApplied }} $</td><td>{{ r.netValue !== null ? r.netValue + ' $' : '—' }}</td><td>{{ r.createdAt | wsDate:'date':'yyyy-MM-dd' }}</td></tr>
                 }
               </tbody>
             </table></div>
@@ -133,7 +133,7 @@
             <div class="scp-code" [class.expired]="o.status !== 'active'">{{ o.badgeText }}</div>
             <div class="scp-coupon-body">
               <div class="scp-coupon-name">{{ o.name }} · {{ offerTypeLabel[o.type] }} · {{ statusLabel[o.status] }}</div>
-              <div class="scp-coupon-meta">{{ o.provider?.name || o.provider?.email || '—' }} · {{ offerScope(o) }} · استُخدم {{ o.usedCount }} مرة@if (o.expiresAt) { · ينتهي {{ o.expiresAt | date:'yyyy-MM-dd' }} }</div>
+              <div class="scp-coupon-meta">{{ o.provider?.name || o.provider?.email || '—' }} · {{ offerScope(o) }} · استُخدم {{ o.usedCount }} مرة@if (o.expiresAt) { · ينتهي {{ o.expiresAt | wsDate:'date':'yyyy-MM-dd' }} }</div>
             </div>
             <div class="scp-discount"><div class="scp-discount-val">{{ o.discountValue }}%</div><div class="scp-discount-unit">خصم</div></div>
           </div>

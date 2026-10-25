@@ -40,7 +40,7 @@
       مقارنة بالفترة السابقة
     </label>
     <div class="ah-updated">
-      @if (loading()) { جارٍ التحميل… } @else if (loadedAt(); as t) { آخر تحديث: {{ t | date:'yyyy-MM-dd HH:mm' }} }
+      @if (loading()) { جارٍ التحميل… } @else if (loadedAt(); as t) { آخر تحديث: {{ t | wsDate:'datetime':'yyyy-MM-dd HH:mm' }} }
     </div>
   </div>
 

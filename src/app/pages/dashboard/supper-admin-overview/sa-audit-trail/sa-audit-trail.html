@@ -92,7 +92,7 @@
               </div>
               <div class="at-action">{{ e.title }}</div>
               <div class="at-detail">{{ e.summary }}</div>
-              <div class="at-time">{{ e.eventType }} · {{ sourceLabels[e.source] || e.source }}@if (e.ipAddress) { · IP: {{ e.ipAddress }} }@if (e.device) { · {{ e.device }} } · {{ e.occurredAt | date:'yyyy-MM-dd HH:mm' }}</div>
+              <div class="at-time">{{ e.eventType }} · {{ sourceLabels[e.source] || e.source }}@if (e.ipAddress) { · IP: {{ e.ipAddress }} }@if (e.device) { · {{ e.device }} } · {{ e.occurredAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</div>
             </div>
           </div>
         } @empty {

@@ -64,7 +64,7 @@
             <div class="sq-review" [class]="'sq-review-' + r.tone">
               <div class="sq-review-head" [style.color]="r.tone==='good' ? '#0FA99A' : (r.tone==='ok' ? '#2BD4C7' : '#FF8C69')">{{ r.rating }}★ — {{ r.clientName || 'عميل' }} → {{ r.providerName }}</div>
               @if (r.comment) { <div class="sq-review-text">{{ r.comment }}</div> }
-              <div class="sq-review-time">{{ r.createdAt | date:'yyyy-MM-dd HH:mm' }}</div>
+              <div class="sq-review-time">{{ r.createdAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</div>
             </div>
           } @empty {
             <p class="txt-muted" style="font-size:12px" data-testid="sq-reviews-empty">لا توجد تقييمات في هذه الفترة.</p>

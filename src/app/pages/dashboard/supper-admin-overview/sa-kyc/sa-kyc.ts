@@ -1,4 +1,5 @@
 import { providerDocumentsCount, withOwnerFields } from './kyc-owner';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { Component, ElementRef, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { handleAdminError, reportAdminProblems } from '../shared/admin-form-report';
@@ -460,8 +461,7 @@ export class SaKyc implements OnInit {
       return new Date(date).toLocaleDateString('en-GB', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric',
-      });
+        day: 'numeric', timeZone: providerTimeZone() });
     } catch {
       return date;
     }

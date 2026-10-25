@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -64,7 +65,7 @@ export interface WalletData {
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [RouterLink, CommonModule, ProviderDepositModal],
+  imports: [WsDatePipe, RouterLink, CommonModule, ProviderDepositModal],
   templateUrl: './wallet.html',
   styleUrl: './wallet.css'
 })

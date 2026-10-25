@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { reportAdminProblems } from '../shared/admin-form-report';
@@ -19,7 +20,7 @@ const DAY = 86400000;
 @Component({
   selector: 'app-sa-analytics-hub',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [WsDatePipe, CommonModule, FormsModule],
   templateUrl: './sa-analytics-hub.html',
   styleUrl: './sa-analytics-hub.css',
 })

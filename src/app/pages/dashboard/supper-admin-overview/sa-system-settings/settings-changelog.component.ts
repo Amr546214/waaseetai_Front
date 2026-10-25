@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, input, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -12,7 +13,7 @@ const show = (v: unknown) => (v === true ? 'مفعّل' : v === false ? 'غير 
 @Component({
 	selector: 'app-settings-changelog',
 	standalone: true,
-	imports: [DatePipe, RouterLink],
+	imports: [WsDatePipe, DatePipe, RouterLink],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 	<div class="cl-card" data-testid="changelog">
@@ -24,7 +25,7 @@ const show = (v: unknown) => (v === true ? 'مفعّل' : v === false ? 'غير 
 	    <div class="cl-list">
 	      @for (r of rows(); track r.id) {
 	        <div class="cl-row" [class.warn]="r.severity === 'WARNING'" data-testid="changelog-row">
-	          <span class="cl-time">{{ r.at | date:'yyyy-MM-dd HH:mm' }}</span>
+	          <span class="cl-time">{{ r.at | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</span>
 	          <span class="cl-msg"><b>{{ r.actor || 'حساب إداري' }}</b> غيّر @for (c of r.changes; track c.key; let last = $last) { <span class="cl-chg">{{ c.label }}: من {{ fmt(c.from) }} ← {{ fmt(c.to) }}</span>@if (!last) { ، } }</span>
 	          @if (r.ip) { <span class="cl-ip">IP: {{ r.ip }}</span> }
 	        </div>

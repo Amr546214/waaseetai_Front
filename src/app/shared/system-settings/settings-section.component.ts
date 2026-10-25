@@ -72,7 +72,7 @@ export class SettingsSectionComponent {
 	isLong(k: string) { return LONG_TEXT.has(k); }
 	isLtr(k: string) { return LTR.has(k); }
 	kind(r: SettingItem): 'bool' | 'number' | 'enum' | 'text' { if (typeof r.value === 'boolean') return 'bool'; if (r.allowed && r.allowed.length) return 'enum'; if (typeof r.value === 'number') return 'number'; return 'text'; }
-	enumOptions(r: SettingItem) { return (r.allowed ?? []).map(v => ({ value: String(v), label: r.unit ? `${v} ${r.unit}` : String(v) })); }
+	enumOptions(r: SettingItem) { return (r.allowed ?? []).map(v => ({ value: String(v), label: r.allowedLabels?.[String(v)] ?? (r.unit ? `${v} ${r.unit}` : String(v)) })); }
 	/** a numeric enum (session hours) is stored as a number, never as the select's text */
 	setEnum(r: SettingItem, v: string) { this.store.setDraft(r.key, typeof r.value === 'number' ? Number(v) : v); }
 	readonly conflicts = computed(() => this.store.conflicts().filter(c => this.scope().includes(c.key)));

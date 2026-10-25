@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, ElementRef } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -307,7 +308,7 @@ export class Account implements OnInit {
   sessionActivityLabel(s: AccountSession): string {
     if (s.isCurrent) return 'الجلسة الحالية · نشطة الآن';
     const d = new Date(s.lastActiveAt);
-    return Number.isNaN(d.getTime()) ? '' : 'آخر نشاط: ' + d.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return Number.isNaN(d.getTime()) ? '' : 'آخر نشاط: ' + d.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
   }
 
   // Data copy and account deletion have no self-service endpoint: both open the real support-ticket flow (a human channel), and nothing here claims the request was made.

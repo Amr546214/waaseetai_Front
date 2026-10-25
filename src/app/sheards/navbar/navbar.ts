@@ -1,4 +1,5 @@
 import { AdminAccessService } from '../../core/services/admin-access.service';
+import { BrandNamePipe } from '../../shared/brand/brand-name.pipe';
 import { adminRoleOf, resolveActiveRole, roleHome, roleLinks } from '../../core/routing/role-routes';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, ChangeDetectorRef, effect, ElementRef, HostListener, PLATFORM_ID } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
@@ -19,7 +20,7 @@ import { AssistantStore } from '../../core/store/assistant.store';
 @Component({
 	selector: 'app-navbar',
 	standalone: true,
-	imports: [RouterModule, CommonModule, NotificationBell, NotificationPopupComponent],
+	imports: [BrandNamePipe, RouterModule, CommonModule, NotificationBell, NotificationPopupComponent],
 	templateUrl: './navbar.html',
 	styleUrl: './navbar.css',
 	host: {
