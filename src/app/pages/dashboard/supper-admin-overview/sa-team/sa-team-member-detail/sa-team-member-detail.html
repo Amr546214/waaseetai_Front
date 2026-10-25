@@ -67,7 +67,7 @@
         }
         @if (tab() === 'perms') {
           <div class="tm-sec-card" data-testid="perms-panel"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الصلاحيات الممنوحة</div>
-            @if (!isSuperAdmin()) { <div class="tm-pending-note" style="border-top:0;padding-inline:0" data-testid="perms-owner-only">عرض الصلاحيات وتعديلها لـSuper Admin وحده.</div> }
+            @if (!isSuperAdmin()) { <div class="tm-pending-note" style="border-top:0;padding-inline:0" data-testid="perms-super-admin-only">عرض الصلاحيات وتعديلها لـSuper Admin وحده.</div> }
             @else {
               <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
                 <ws-select class="tm-select" ariaLabel="الدور" data-testid="member-role-select" [leading]="noRole" [options]="roleOpts()" [ngModel]="newRoleId()" (ngModelChange)="newRoleId.set($event)" />
