@@ -119,6 +119,19 @@ describe('admin team pages (real data, honest states, SUPER_ADMIN-only actions)'
 		expect(el.querySelector('[data-testid="perf-export"]')?.textContent).toContain('CSV');
 		print.mockRestore();
 	});
+	it('invite dialog: the role options are exactly the roles the server stores (all five design roles + custom ones), in server order, and each choice sets that role id', async () => {
+		setAccess(true, []);
+		const f = TestBed.createComponent(SaTeam); await flush(f);
+		http.expectOne(r => r.url === `${B}/staff`).flush(staffList());
+		const names = ['مدير فريق', 'مشرف دعم', 'مشرف نزاعات', 'مشرف محتوى', 'مشرف مالي', 'دور مخصص'];
+		http.expectOne(`${B}/roles`).flush({ success: true, data: names.map((name, i) => ({ id: `r${i}`, name, description: null, color: '#fff', permissions: [], permissionCount: 0, memberCount: 0, version: 1, updatedAt: '' })) });
+		http.expectOne(`${B}/staff/unplaced`).flush({ success: true, data: [] }); await flush(f);
+		const c = f.componentInstance as any;
+		expect(c.roleOpts().map((o: any) => o.label)).toEqual(names);
+		(f.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('[data-testid="team-invite-open"]')!.click(); await flush(f);
+		for (const o of c.roleOpts()) { c.invite.roleId = o.value; expect(c.roles().find((r: any) => r.id === c.invite.roleId).name).toBe(o.label); }
+	});
+
 	it('invite dialog: «الأقسام المتاحة» is a REAL scope - selectable sections are sent with the invitation (none selected = no scope), sections the role does not cover are marked; the button is the design\'s «إرسال الدعوة»', async () => {
 		setAccess(true, []);
 		const f = TestBed.createComponent(SaTeam); await flush(f);
