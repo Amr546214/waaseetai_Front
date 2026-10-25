@@ -12,7 +12,7 @@ const payload = { roles: { MARKETER: { levels: [row(1, 'مسوق', 1), row(8, '�
 describe('join-marketer: the ladder comes from the backend table', () => {
 	const mount = (p: LevelsPayload | null) => {
 		const levelsStub = {
-			payload: signal(p), ensureLoaded: () => undefined,
+			payload: signal(p), ensureLoaded: () => undefined, minMarketerPayout: () => p?.payments?.minMarketerPayout ?? null,
 			range: () => () => (p ? { min: 1, max: 4.5 } : null),
 			level: (_r: string, n: number) => p?.roles.MARKETER.levels.find(l => l.level === n) ?? null,
 		};
