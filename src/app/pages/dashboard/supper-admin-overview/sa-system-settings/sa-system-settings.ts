@@ -1,3 +1,4 @@
+import { FeePolicyPanel } from '../../../../shared/fee-policy/fee-policy-panel';
 import { ChangeDetectionStrategy, Component, OnInit, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -17,7 +18,7 @@ type Tab = 'general' | 'ai' | 'notifications' | 'security' | 'finance' | 'region
 @Component({
 	selector: 'app-sa-system-settings',
 	standalone: true,
-	imports: [SettingsSectionComponent, SettingsHealthComponent, SettingsChangelogComponent],
+	imports: [FeePolicyPanel, SettingsSectionComponent, SettingsHealthComponent, SettingsChangelogComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './sa-system-settings.html',
 	styleUrl: './sa-system-settings.css',

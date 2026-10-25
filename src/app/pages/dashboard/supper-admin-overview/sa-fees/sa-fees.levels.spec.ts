@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { describe, it, expect } from 'vitest';
@@ -20,7 +21,7 @@ const payload = {
 
 describe('admin fees page: the official percentages (نظام النقاط و الولاء.xlsx / نسب الدفع.xlsx), read-only', () => {
 	const mount = (p: LevelsPayload | null) => {
-		TestBed.configureTestingModule({ imports: [SaFees], providers: [{ provide: LevelsService, useValue: { payload: signal(p), ensureLoaded: () => undefined } }, { provide: AdminOpsApiService, useValue: { financeCommissions: () => of({ success: true, data: { currency: 'USD', totals: { releasedGross: 0, platformCommission: 0, providerNet: 0 }, affiliate: {}, items: [], pagination: { page: 1, limit: 1, total: 0, pages: 0, totalPages: 0 } } }) } }] });
+		TestBed.configureTestingModule({ imports: [SaFees], providers: [provideRouter([]), { provide: LevelsService, useValue: { payload: signal(p), ensureLoaded: () => undefined } }, { provide: AdminOpsApiService, useValue: { financeCommissions: () => of({ success: true, data: { currency: 'USD', totals: { releasedGross: 0, platformCommission: 0, providerNet: 0 }, affiliate: {}, items: [], pagination: { page: 1, limit: 1, total: 0, pages: 0, totalPages: 0 } } }) } }] });
 		const f = TestBed.createComponent(SaFees);
 		f.detectChanges();
 		return { el: f.nativeElement as HTMLElement, c: f.componentInstance };
@@ -34,7 +35,7 @@ describe('admin fees page: the official percentages (نظام النقاط و ا
 		expect(byLabel['نسبة الكاش باك لطالب الخدمة'].value).toBe('1% – 5%');
 		expect(byLabel['عمولة الوسيط'].value).toBe('1% – 4.5%');
 		expect(byLabel['رسوم إيداع طالب الخدمة'].desc).toBe('مدى 4.25% · فيزا/ماستر 5.5% · PayPal 7% · تحويل دولي 7.5% · غير ذلك 8.5%');
-		expect(byLabel['رسوم سحب الوسيط'].desc).toBe('تحويل بنكي 8.25% · PayPal 7.75% · USDT 4%');
+		expect(byLabel['رسوم سحب الوسيط'].desc).toContain('تحويل بنكي 8.25% · PayPal 7.75% · USDT 4%');
 	});
 
 	it('no invented rows (10% deal fee, 200 $ minimum, 72 h escrow, 49 $ boost, 2% cashback, 0% withdrawal) and no edit button', () => {

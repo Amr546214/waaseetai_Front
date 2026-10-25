@@ -18,15 +18,16 @@
 
     @if (draft(); as d) {
       @if (!editable() && canManage()) { <div class="fp-note">توجد نسخة مجدولة؛ ألغِها أو انتظر سريانها قبل جدولة تعديل جديد.</div> }
+      <div class="fp-note" role="note" data-testid="fp-display-only">الكاش باك ورسوم سحب الوسيط <b>لا تُطبَّق ماليًا حاليًا</b> (لا يوجد قيد يمنح الكاش باك ولا خصم يطبّق رسم السحب)، لذلك تُعرض للاطلاع ولا يمكن تعديلها حتى يُنفَّذ مسارها كاملًا. المطبّق فعليًا: عمولة مقدم الخدمة، عمولة الوسيط، رسوم الإيداع والحدّان الأدنيان للسحب.</div>
       <div class="fp-tbl-wrap">
         <table class="fp-tbl" data-testid="fp-ladders">
-          <thead><tr><th>المستوى</th><th>عمولة مقدم الخدمة %</th><th>كاش باك طالب الخدمة %</th><th>عمولة الوسيط %</th></tr></thead>
+          <thead><tr><th>المستوى</th><th>عمولة مقدم الخدمة %</th><th>كاش باك طالب الخدمة % <span class="fp-tag">للعرض فقط</span></th><th>عمولة الوسيط %</th></tr></thead>
           <tbody>
             @for (l of levels; track l; let i = $index) {
               <tr>
                 <td>{{ l }}</td>
                 <td><input class="fp-in" type="number" step="0.01" [value]="d.providerCommissionByLevel[i]" [disabled]="!editable()" (input)="setLadder('providerCommissionByLevel', i, $any($event.target).value)" [attr.aria-label]="'عمولة مقدم الخدمة المستوى ' + l" /></td>
-                <td><input class="fp-in" type="number" step="0.01" [value]="d.clientCashbackByLevel[i]" [disabled]="!editable()" (input)="setLadder('clientCashbackByLevel', i, $any($event.target).value)" [attr.aria-label]="'كاش باك المستوى ' + l" /></td>
+                <td><input class="fp-in" type="number" step="0.01" [value]="d.clientCashbackByLevel[i]" disabled [attr.aria-label]="'كاش باك المستوى ' + l" /></td>
                 <td><input class="fp-in" type="number" step="0.01" [value]="d.marketerCommissionByLevel[i]" [disabled]="!editable()" (input)="setLadder('marketerCommissionByLevel', i, $any($event.target).value)" [attr.aria-label]="'عمولة الوسيط المستوى ' + l" /></td>
               </tr>
             }
@@ -38,8 +39,8 @@
         <fieldset class="fp-fs"><legend>رسوم الإيداع %</legend>
           @for (k of depositKeys; track k) { <label class="fp-row">{{ depositLabels[k] }}<input class="fp-in" type="number" step="0.01" [value]="d.depositFeePercent[k]" [disabled]="!editable()" (input)="setTable('depositFeePercent', k, $any($event.target).value)" /></label> }
         </fieldset>
-        <fieldset class="fp-fs"><legend>رسوم سحب الوسيط %</legend>
-          @for (k of withdrawKeys; track k) { <label class="fp-row">{{ withdrawLabels[k] }}<input class="fp-in" type="number" step="0.01" [value]="d.marketerWithdrawalFeePercent[k]" [disabled]="!editable()" (input)="setTable('marketerWithdrawalFeePercent', k, $any($event.target).value)" /></label> }
+        <fieldset class="fp-fs"><legend>رسوم سحب الوسيط % <span class="fp-tag">للعرض فقط</span></legend>
+          @for (k of withdrawKeys; track k) { <label class="fp-row">{{ withdrawLabels[k] }}<input class="fp-in" type="number" step="0.01" [value]="d.marketerWithdrawalFeePercent[k]" disabled /></label> }
         </fieldset>
         <fieldset class="fp-fs"><legend>الحد الأدنى للسحب</legend>
           <label class="fp-row">الوسيط<input class="fp-in" type="number" step="0.01" [value]="d.minMarketerPayout" [disabled]="!editable()" (input)="setMin('minMarketerPayout', $any($event.target).value)" /></label>
@@ -49,7 +50,7 @@
 
       @if (editable()) {
         <div class="fp-form">
-          <label class="fp-row">وقت السريان<input class="fp-in" type="datetime-local" [value]="effectiveFrom()" (input)="effectiveFrom.set($any($event.target).value)" data-testid="fp-effective" /></label>
+          <label class="fp-row">وقت السريان (بتوقيت {{ zoneLabel() }})<input class="fp-in" type="datetime-local" [value]="effectiveFrom()" (input)="effectiveFrom.set($any($event.target).value)" data-testid="fp-effective" /></label>
           <label class="fp-row">سبب التعديل<input class="fp-in" type="text" maxlength="500" [value]="note()" (input)="note.set($any($event.target).value)" data-testid="fp-note" /></label>
           <div class="fp-count" data-testid="fp-diff-count">{{ diff().length }} تغييرًا</div>
           @if (formError()) { <div class="fp-err" role="alert" data-testid="fp-form-error">{{ formError() }}</div> }

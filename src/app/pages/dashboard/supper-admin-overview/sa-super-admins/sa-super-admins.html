@@ -72,7 +72,7 @@
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الرسوم والمالية</div><div class="spa-sec-sub">رسوم النظام والضمان وسياسات السحب</div></div>
         </div>
-        <div class="spa-card" data-testid="fees-readonly-note"><div class="spa-row"><div><div class="spa-row-lbl">النسب المالية تُدار بسياسة الرسوم المعتمدة</div><div class="spa-row-sub">عمولة المنصة والكاش باك وعمولة الوسيط ورسوم الإيداع والسحب تُعرض في «الباقات والرسوم» من مصدرها المعتمد. العملة الأساسية في «عام».</div></div><a class="spa-btn spa-btn-gh" routerLink="/supper-admin-overview/fees">فتح الباقات والرسوم</a></div></div>
+        <app-fee-policy-panel />
         <app-settings-section title="رسوم المعاملات" [keys]="fees" variant="spa" [showSave]="false" />
         <app-settings-section title="تجهيز فوترة مستقبلية" [keys]="billing" variant="spa" [showSave]="false" />
       }
