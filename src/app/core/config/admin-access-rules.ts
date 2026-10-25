@@ -48,6 +48,7 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'team-performance': { all: ['performance.view'] },
 	'marketing-assets': { all: ['marketing_assets.manage'] },
 	'system-settings': { all: ['settings.manage'] },
+	'site-control': { all: ['site_control.manage'] },
 	audit: { all: ['audit.view'] }, 'audit-trail': { all: ['audit.view'] },
 	'my-account': { self: true },
 	'no-access': { self: true },
