@@ -10,7 +10,7 @@ import { ruleForPath } from '../config/admin-access-rules';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
-const access = (over: Partial<AdminAccess> = {}): AdminAccess => ({ userId: 'u1', isOwner: false, staffStatus: 'ACTIVE', roleName: 'مشرف دعم', permissions: ['support.review'], hasAnyPermission: true, state: 'ACTIVE', displayRole: 'مشرف دعم', ...over });
+const access = (over: Partial<AdminAccess> = {}): AdminAccess => ({ userId: 'u1', isSuperAdmin: false, staffStatus: 'ACTIVE', roleName: 'مشرف دعم', permissions: ['support.review'], hasAnyPermission: true, state: 'ACTIVE', displayRole: 'مشرف دعم', ...over });
 const URL = () => `${environment.url_api}/admin/team/access/me`;
 
 describe('admin access (what the SERVER says this admin account may do)', () => {
@@ -29,17 +29,17 @@ describe('admin access (what the SERVER says this admin account may do)', () => 
 	it('a member holds exactly the permissions of the role; the owner holds all; a team member without any permission is not a "member"', async () => {
 		await load(access());
 		expect(svc.can('support.review')).toBe(true); expect(svc.can('users.view')).toBe(false); expect(svc.allows({ member: true })).toBe(true);
-		expect(svc.allows({ owner: true })).toBe(false); expect(svc.allows({ anyOf: ['users.view', 'support.review'] })).toBe(true); expect(svc.allows({ all: ['support.review', 'users.view'] })).toBe(false);
+		expect(svc.allows({ superAdmin: true })).toBe(false); expect(svc.allows({ anyOf: ['users.view', 'support.review'] })).toBe(true); expect(svc.allows({ all: ['support.review', 'users.view'] })).toBe(false);
 		svc.reset(); await load(access({ permissions: [], hasAnyPermission: false, state: 'NO_PERMISSIONS' }));
 		expect(svc.allows({ member: true })).toBe(false);
-		svc.reset(); await load(access({ isOwner: true, permissions: [], state: 'OWNER', displayRole: 'مالك المنصة' }));
-		expect(svc.can('payouts.send')).toBe(true); expect(svc.allows({ owner: true })).toBe(true);
+		svc.reset(); await load(access({ isSuperAdmin: true, permissions: [], state: 'SUPER_ADMIN', displayRole: 'Super Admin' }));
+		expect(svc.can('payouts.send')).toBe(true); expect(svc.allows({ superAdmin: true })).toBe(true);
 	});
 	it('every route has a rule: money / settings / roles / performance are never "member" pages', () => {
 		expect(ruleForPath('/supper-admin-overview/withdrawals')).toEqual({ all: ['withdrawals.review'] });
 		expect(ruleForPath('/supper-admin-overview/withdrawals/abc')).toEqual({ all: ['withdrawals.review'] });
-		expect(ruleForPath('/supper-admin-overview/roles')).toEqual({ owner: true });
-		expect(ruleForPath('/supper-admin-overview/super-admins')).toEqual({ owner: true });
+		expect(ruleForPath('/supper-admin-overview/roles')).toEqual({ superAdmin: true });
+		expect(ruleForPath('/supper-admin-overview/super-admins')).toEqual({ superAdmin: true });
 		expect(ruleForPath('/supper-admin-overview/team-performance')).toEqual({ all: ['performance.view'] });
 		expect(ruleForPath('/supper-admin-overview/system-settings')).toEqual({ all: ['settings.manage'] });
 		expect(ruleForPath('/supper-admin-overview/sub-finance/invoices-out')).toEqual({ all: ['finance.read'] });
@@ -73,7 +73,7 @@ describe('admin access (what the SERVER says this admin account may do)', () => 
 
 	it('operations records: the LIST pages are owner-only, one record opens for any member (the server decides which, by the case held)', () => {
 		for (const list of ['projects', 'contracts', 'requests', 'offers']) {
-			expect(ruleForPath(`/supper-admin-overview/${list}`)).toEqual({ owner: true });
+			expect(ruleForPath(`/supper-admin-overview/${list}`)).toEqual({ superAdmin: true });
 			expect(ruleForPath(`/supper-admin-overview/${list}/abc`)).toEqual({ member: true });
 		}
 	});

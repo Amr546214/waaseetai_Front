@@ -12,9 +12,9 @@ describe('SaRoles', () => {
 	it('with no roles yet it says so and offers templates; the add button is live for the owner (no more "fixed roles" notice)', async () => {
 		TestBed.configureTestingModule({ imports: [SaRoles], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
 		const { AdminAccessService } = await import('../../../../core/services/admin-access.service');
-		const acc = TestBed.inject(AdminAccessService); acc.access.set({ userId: 'u', isOwner: true, staffStatus: null, roleName: 'المالك', permissions: [], hasAnyPermission: true, state: 'OWNER', displayRole: 'مالك المنصة' }); acc.status.set('ready');
+		const acc = TestBed.inject(AdminAccessService); acc.access.set({ userId: 'u', isSuperAdmin: true, staffStatus: null, roleName: 'المالك', permissions: [], hasAnyPermission: true, state: 'SUPER_ADMIN', displayRole: 'Super Admin' }); acc.status.set('ready');
 		const http = TestBed.inject(HttpTestingController); const f = TestBed.createComponent(SaRoles); f.detectChanges();
-		http.expectOne(`${environment.url_api}/admin/team/permissions`).flush({ success: true, data: { permissions: [], groups: {}, templates: [], ownerOnly: [], ambiguities: [] } });
+		http.expectOne(`${environment.url_api}/admin/team/permissions`).flush({ success: true, data: { permissions: [], groups: {}, templates: [], superAdminOnly: [], ambiguities: [] } });
 		http.expectOne(`${environment.url_api}/admin/team/roles`).flush({ success: true, data: [] });
 		http.expectOne(r => r.url === `${environment.url_api}/admin/team/access-audit`).flush({ success: true, data: [] }); f.detectChanges(); await f.whenStable(); f.detectChanges();
 		const el = f.nativeElement as HTMLElement;

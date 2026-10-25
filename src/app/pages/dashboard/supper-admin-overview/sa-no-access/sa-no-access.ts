@@ -22,15 +22,15 @@ export class SaNoAccess {
 	private route = inject(ActivatedRoute);
 	private access = inject(AdminAccessService);
 	reason = toSignal(this.route.queryParamMap.pipe(map(p => p.get('reason') ?? 'denied')), { initialValue: 'denied' });
-	canSeeHome = computed(() => this.access.status() === 'ready' && (this.access.isOwner() || (this.access.access()?.permissions.length ?? 0) > 0));
+	canSeeHome = computed(() => this.access.status() === 'ready' && (this.access.isSuperAdmin() || (this.access.access()?.permissions.length ?? 0) > 0));
 	subtitle = computed(() => (this.access.displayRole() ? `دورك الحالي: ${this.access.displayRole()}` : ''));
 	text = computed(() => {
 		switch (this.reason()) {
-			case 'SUSPENDED': return { heading: 'تم إيقاف وصولك إلى لوحة الإدارة', reason: 'أوقف مالك المنصة وصولك. لا تظهر لك بيانات الإدارة ولا يمكنك تنفيذ إجراءات فيها حتى يُعاد تفعيله. تواصل مع مالك المنصة.' };
-			case 'NOT_IN_TEAM': return { heading: 'حسابك ليس ضمن فريق الإدارة بعد', reason: 'حسابك إداري لكن مالك المنصة لم يضمّه إلى الفريق ولم يمنحه دورًا. لا تظهر لك بيانات الإدارة قبل ذلك. تواصل مع مالك المنصة.' };
-			case 'NO_PERMISSIONS': return { heading: 'لم تُمنح أي صلاحية بعد', reason: 'أنت ضمن الفريق لكن الدور المسند إليك لا يتضمن أي صلاحية حاليًا. يحدد مالك المنصة صلاحيات الدور وحده.' };
+			case 'SUSPENDED': return { heading: 'تم إيقاف وصولك إلى لوحة الإدارة', reason: 'أوقف Super Admin وصولك. لا تظهر لك بيانات الإدارة ولا يمكنك تنفيذ إجراءات فيها حتى يُعاد تفعيله. تواصل مع Super Admin.' };
+			case 'NOT_IN_TEAM': return { heading: 'حسابك ليس ضمن فريق الإدارة بعد', reason: 'حسابك إداري لكن Super Admin لم يضمّه إلى الفريق ولم يمنحه دورًا. لا تظهر لك بيانات الإدارة قبل ذلك. تواصل مع Super Admin.' };
+			case 'NO_PERMISSIONS': return { heading: 'لم تُمنح أي صلاحية بعد', reason: 'أنت ضمن الفريق لكن الدور المسند إليك لا يتضمن أي صلاحية حاليًا. يحدد Super Admin صلاحيات الدور وحده.' };
 			case 'unavailable': return { heading: 'تعذّر التحقق من صلاحياتك الآن', reason: 'لم نتمكن من قراءة صلاحياتك من الخادم، فلم نعرض أي بيانات إدارية ولم يُنفَّذ أي إجراء. أعد المحاولة بعد قليل.' };
-			default: return { heading: 'ليست لديك صلاحية لهذه الصفحة', reason: 'هذه الصفحة تحتاج صلاحية لم تُمنح لدورك. إن كنت تحتاجها فاطلبها من مالك المنصة؛ منح الصلاحيات حصري له.' };
+			default: return { heading: 'ليست لديك صلاحية لهذه الصفحة', reason: 'هذه الصفحة تحتاج صلاحية لم تُمنح لدورك. إن كنت تحتاجها فاطلبها من Super Admin؛ منح الصلاحيات حصري له.' };
 		}
 	});
 	async retry() { await this.access.refresh(); }

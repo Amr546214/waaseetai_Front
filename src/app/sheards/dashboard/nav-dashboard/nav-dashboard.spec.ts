@@ -129,9 +129,9 @@ describe('NavDashboard — admin accounts', () => {
 		const { fixture, component } = setup({ firstName: 'Amr', lastName: 'O', accountType: 'SUPER_ADMIN', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT] });
 		const { AdminAccessService } = await import('../../../core/services/admin-access.service');
 		const acc = TestBed.inject(AdminAccessService);
-		acc.access.set({ userId: 'u', isOwner: true, staffStatus: null, roleName: 'المالك', permissions: [], hasAnyPermission: true, state: 'OWNER', displayRole: 'مالك المنصة' }); acc.status.set('ready');
+		acc.access.set({ userId: 'u', isSuperAdmin: true, staffStatus: null, roleName: 'المالك', permissions: [], hasAnyPermission: true, state: 'SUPER_ADMIN', displayRole: 'Super Admin' }); acc.status.set('ready');
 		fixture.detectChanges(); component.isUserDropdownOpen.set(true); fixture.detectChanges();
-		expect((fixture.nativeElement as HTMLElement).querySelector('[data-testid="topnav-role-label"]')!.textContent!.trim()).toBe('مالك المنصة');
+		expect((fixture.nativeElement as HTMLElement).querySelector('[data-testid="topnav-role-label"]')!.textContent!.trim()).toBe('Super Admin');
 	});
 
 	it('the role switch stays for client / provider / marketer accounts', () => {

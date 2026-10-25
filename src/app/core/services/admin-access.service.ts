@@ -4,9 +4,9 @@ import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AccessRule, ruleForPath } from '../config/admin-access-rules';
 
-export type AdminAccessState = 'OWNER' | 'ACTIVE' | 'NO_PERMISSIONS' | 'NOT_IN_TEAM' | 'SUSPENDED';
-export interface AdminAccess { userId: string; isOwner: boolean; staffStatus: string | null; roleName: string | null; permissions: string[]; hasAnyPermission: boolean; state: AdminAccessState; displayRole: string }
-export const ADMIN_DENIED_CODES = ['ADMIN_PERMISSION_DENIED', 'ADMIN_OWNER_REQUIRED', 'ADMIN_ACCESS_UNAVAILABLE'];
+export type AdminAccessState = 'SUPER_ADMIN' | 'ACTIVE' | 'NO_PERMISSIONS' | 'NOT_IN_TEAM' | 'SUSPENDED';
+export interface AdminAccess { userId: string; isSuperAdmin: boolean; staffStatus: string | null; roleName: string | null; permissions: string[]; hasAnyPermission: boolean; state: AdminAccessState; displayRole: string }
+export const ADMIN_DENIED_CODES = ['ADMIN_PERMISSION_DENIED', 'ADMIN_SUPER_ADMIN_REQUIRED', 'ADMIN_ACCESS_UNAVAILABLE'];
 
 /**
  * What the signed-in admin account may do, as the SERVER reports it (GET /admin/team/access/me). It is read again whenever the server refuses an action with a permission code, so a
@@ -19,7 +19,7 @@ export class AdminAccessService {
 	private router = inject(Router);
 	readonly status = signal<'idle' | 'loading' | 'ready' | 'error'>('idle');
 	readonly access = signal<AdminAccess | null>(null);
-	readonly isOwner = computed(() => this.access()?.isOwner === true);
+	readonly isSuperAdmin = computed(() => this.access()?.isSuperAdmin === true);
 	readonly displayRole = computed(() => this.access()?.displayRole ?? '');
 	readonly state = computed<AdminAccessState | null>(() => this.access()?.state ?? null);
 	private inflight: Promise<void> | null = null;
@@ -49,13 +49,13 @@ export class AdminAccessService {
 		if (!this.allows(ruleForPath(url))) void this.router.navigateByUrl('/supper-admin-overview/no-access?reason=denied', { replaceUrl: true });
 	}
 
-	can(id: string): boolean { const a = this.access(); return !!a && (a.isOwner || a.permissions.includes(id)); }
+	can(id: string): boolean { const a = this.access(); return !!a && (a.isSuperAdmin || a.permissions.includes(id)); }
 	canAny(ids: string[]): boolean { return ids.some(i => this.can(i)); }
 	allows(rule: AccessRule): boolean {
 		if (rule.self) return true; // the admin's own account pages need no permission
 		const a = this.access(); if (!a) return false;
-		if (rule.owner) return a.isOwner;
-		if (rule.member) return a.isOwner || a.permissions.length > 0;
+		if (rule.superAdmin) return a.isSuperAdmin;
+		if (rule.member) return a.isSuperAdmin || a.permissions.length > 0;
 		if (rule.all) return rule.all.every(i => this.can(i));
 		if (rule.anyOf) return this.canAny(rule.anyOf);
 		return false;

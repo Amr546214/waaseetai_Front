@@ -114,7 +114,7 @@ export class NavDashboard {
 	/** Messages / profile / settings / add-account of the ACTIVE role (a marketer never gets client links). */
 	links = computed(() => roleLinks(this.activeRole()));
 
-	/** An admin account shows its REAL administrative role (the platform owner, or the team role the owner gave it, or «غير مُسند»), never a generic title that suggests authority it was not given. */
+	/** An admin account shows its REAL administrative role (Super Admin, or the team role a SUPER_ADMIN gave it, or «غير مُسند»), never a generic title that suggests authority it was not given. */
 	accountTypeLabel = computed(() => {
 		if (this.isAdminAccount()) return this.adminAccess.displayRole() || 'حساب إداري';
 		const role = this.activeRole();

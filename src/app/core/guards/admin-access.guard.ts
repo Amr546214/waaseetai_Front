@@ -15,5 +15,5 @@ export const adminAccessGuard: CanActivateFn = async (route, state) => {
 	const rule = (route.data?.['access'] ?? { member: true }) as AccessRule;
 	if (access.status() !== 'ready') return router.createUrlTree(['/supper-admin-overview/no-access'], { queryParams: { reason: 'unavailable', from: state.url } });
 	if (access.allows(rule)) return true;
-	return router.createUrlTree(['/supper-admin-overview/no-access'], { queryParams: { reason: access.state() === 'ACTIVE' || access.state() === 'OWNER' ? 'denied' : (access.state() ?? 'denied'), from: state.url } });
+	return router.createUrlTree(['/supper-admin-overview/no-access'], { queryParams: { reason: access.state() === 'ACTIVE' || access.state() === 'SUPER_ADMIN' ? 'denied' : (access.state() ?? 'denied'), from: state.url } });
 };

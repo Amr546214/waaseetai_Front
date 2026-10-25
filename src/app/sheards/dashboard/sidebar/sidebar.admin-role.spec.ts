@@ -13,7 +13,7 @@ import { Sidebar, NavItem } from './sidebar';
 import { AuthStore } from '../../../core/store/auth.store';
 import { AdminAccessService } from '../../../core/services/admin-access.service';
 
-function setup(user: any, perms: string[] = ['users.view', 'specialties.approve'], isOwner = false) {
+function setup(user: any, perms: string[] = ['users.view', 'specialties.approve'], isSuperAdmin = false) {
 	TestBed.configureTestingModule({
 		imports: [Sidebar],
 		providers: [
@@ -23,7 +23,7 @@ function setup(user: any, perms: string[] = ['users.view', 'specialties.approve'
 		],
 	});
 	// what the account may do comes from the server (core/services/admin-access.service); an account TYPE grants no menu entry by itself
-	const acc = TestBed.inject(AdminAccessService); acc.access.set({ userId: 'u', isOwner, staffStatus: 'ACTIVE', roleName: 'دور', permissions: perms, hasAnyPermission: true, state: isOwner ? 'OWNER' : 'ACTIVE', displayRole: 'دور' }); acc.status.set('ready');
+	const acc = TestBed.inject(AdminAccessService); acc.access.set({ userId: 'u', isSuperAdmin, staffStatus: 'ACTIVE', roleName: 'دور', permissions: perms, hasAnyPermission: true, state: isSuperAdmin ? 'SUPER_ADMIN' : 'ACTIVE', displayRole: 'دور' }); acc.status.set('ready');
 	const f = TestBed.createComponent(Sidebar);
 	f.detectChanges();
 	const flat = () => (f.componentInstance.navItems() as NavItem[]).flatMap(i => [i, ...(i.children ?? [])]);

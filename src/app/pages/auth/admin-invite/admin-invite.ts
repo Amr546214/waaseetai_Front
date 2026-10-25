@@ -12,10 +12,10 @@ import { AdminTeamService } from '../../../core/services/admin-team.service';
 	<section class="ai-wrap" dir="rtl">
 		<h1 class="ai-ttl">دعوة إلى فريق إدارة وسيط AI</h1>
 		@if (state() === 'loading') { <p class="ai-sub" role="status">جاري التحقق من الدعوة...</p> }
-		@else if (state() === 'invalid') { <p class="ai-err" role="alert" data-testid="invite-invalid">هذه الدعوة غير صالحة أو انتهت أو استُخدمت. اطلب من مالك المنصة دعوة جديدة.</p> }
+		@else if (state() === 'invalid') { <p class="ai-err" role="alert" data-testid="invite-invalid">هذه الدعوة غير صالحة أو انتهت أو استُخدمت. اطلب من Super Admin دعوة جديدة.</p> }
 		@else if (state() === 'done') { <p class="ai-ok" role="status" data-testid="invite-done">أُنشئ حسابك. سجّل الدخول بالبريد وكلمة المرور؛ ستصلك رسالة تحقق بالبريد عند كل دخول.</p><a class="ai-btn" routerLink="/auth/login">تسجيل الدخول</a> }
 		@else {
-			<p class="ai-sub">دُعيت بالبريد <b dir="ltr">{{ info()?.email }}</b> بدور «{{ info()?.roleName }}». اختر كلمة مرور لحسابك. لا تُمنح أي صلاحية إلا ما يحدده الدور الذي منحك إياه مالك المنصة.</p>
+			<p class="ai-sub">دُعيت بالبريد <b dir="ltr">{{ info()?.email }}</b> بدور «{{ info()?.roleName }}». اختر كلمة مرور لحسابك. لا تُمنح أي صلاحية إلا ما يحدده الدور الذي منحك إياه Super Admin.</p>
 			@if (!codeSent()) {
 				<p class="ai-hint">للتأكد أنك صاحب هذا البريد، سنرسل إليه رمز تحقق من 6 أرقام. الرابط وحده لا يكفي لإنشاء الحساب.</p>
 				@if (error()) { <p class="ai-err" role="alert" data-testid="invite-error">{{ error() }}</p> }
@@ -57,7 +57,7 @@ export class AdminInvite implements OnInit {
 		if (this.busy()) return; this.busy.set(true); this.error.set('');
 		this.api.inviteAccept(this.token, this.password, this.code).subscribe({
 			next: () => { this.busy.set(false); this.password = ''; this.code = ''; this.token = ''; this.state.set('done'); },
-			error: e => { this.busy.set(false); const code = e?.error?.code; if (code === 'INVITE_INVALID') { this.state.set('invalid'); return; } if (code === 'INVITE_CODE_INVALID') { this.error.set('رمز التحقق غير صحيح أو انتهت صلاحيته. اطلب رمزًا جديدًا.'); return; } this.error.set(e?.error?.errors?.[0]?.message || (code === 'ACCOUNT_EXISTS' ? 'يوجد حساب بهذا البريد. تواصل مع مالك المنصة.' : e?.error?.message || 'تعذّر قبول الدعوة')); },
+			error: e => { this.busy.set(false); const code = e?.error?.code; if (code === 'INVITE_INVALID') { this.state.set('invalid'); return; } if (code === 'INVITE_CODE_INVALID') { this.error.set('رمز التحقق غير صحيح أو انتهت صلاحيته. اطلب رمزًا جديدًا.'); return; } this.error.set(e?.error?.errors?.[0]?.message || (code === 'ACCOUNT_EXISTS' ? 'يوجد حساب بهذا البريد. تواصل مع Super Admin.' : e?.error?.message || 'تعذّر قبول الدعوة')); },
 		});
 	}
 }

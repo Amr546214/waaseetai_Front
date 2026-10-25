@@ -13,11 +13,11 @@ import { SaNoAccess } from './sa-no-access/sa-no-access';
 
 const B = `${environment.url_api}/admin/team`;
 const flush = async (f: any) => { f.detectChanges(); await f.whenStable(); f.detectChanges(); };
-const setAccess = (isOwner: boolean, permissions: string[]) => {
+const setAccess = (isSuperAdmin: boolean, permissions: string[]) => {
 	const a = TestBed.inject(AdminAccessService);
-	a.access.set({ userId: 'me', isOwner, staffStatus: 'ACTIVE', roleName: isOwner ? 'المالك' : 'دور', permissions, hasAnyPermission: true, state: isOwner ? 'OWNER' : 'ACTIVE', displayRole: isOwner ? 'مالك المنصة' : 'دور' }); a.status.set('ready');
+	a.access.set({ userId: 'me', isSuperAdmin, staffStatus: 'ACTIVE', roleName: isSuperAdmin ? 'المالك' : 'دور', permissions, hasAnyPermission: true, state: isSuperAdmin ? 'SUPER_ADMIN' : 'ACTIVE', displayRole: isSuperAdmin ? 'Super Admin' : 'دور' }); a.status.set('ready');
 };
-const staffList = (over: any = {}) => ({ success: true, data: { members: [{ userId: 'u1', name: 'هيثم القرني', email: 'h@x.com', status: 'ACTIVE', isOwner: false, role: { id: 'r1', name: 'مشرف نزاعات', color: '#A56BE0' }, joinedAt: '2026-01-01T00:00:00Z', lastActiveAt: '2026-10-25T10:00:00Z', activeNow: true, lastLoginAt: '2026-10-25T09:00:00Z', resolvedDisputes: 3, avgCompletionHours: 2.4, departments: ['النزاعات'], version: 1, openTasks: 9, overdueTasks: 2, doneTasks: 4 }], pendingInvites: [{ id: 'i1', email: 'p@x.com', fullName: 'مدعو', roleName: 'مشرف دعم', expiresAt: '2026-12-01T00:00:00Z', createdAt: '2026-10-01T00:00:00Z', resendCount: 0 }], counts: { total: 1, activeNow: 1, active: 1, suspended: 0, pendingInvites: 1, openTasks: 9, overdueTasks: 2 }, ...over } });
+const staffList = (over: any = {}) => ({ success: true, data: { members: [{ userId: 'u1', name: 'هيثم القرني', email: 'h@x.com', status: 'ACTIVE', isSuperAdmin: false, role: { id: 'r1', name: 'مشرف نزاعات', color: '#A56BE0' }, joinedAt: '2026-01-01T00:00:00Z', lastActiveAt: '2026-10-25T10:00:00Z', activeNow: true, lastLoginAt: '2026-10-25T09:00:00Z', resolvedDisputes: 3, avgCompletionHours: 2.4, departments: ['النزاعات'], version: 1, openTasks: 9, overdueTasks: 2, doneTasks: 4 }], pendingInvites: [{ id: 'i1', email: 'p@x.com', fullName: 'مدعو', roleName: 'مشرف دعم', expiresAt: '2026-12-01T00:00:00Z', createdAt: '2026-10-01T00:00:00Z', resendCount: 0 }], counts: { total: 1, activeNow: 1, active: 1, suspended: 0, pendingInvites: 1, openTasks: 9, overdueTasks: 2 }, ...over } });
 
 describe('admin team pages (real data, honest states, owner-only actions)', () => {
 	let http: HttpTestingController;
@@ -48,7 +48,7 @@ describe('admin team pages (real data, honest states, owner-only actions)', () =
 	it('roles page: the matrix and counts are the server\'s; sensitive grants need an explicit confirmation; a stale save shows the conflict with a reload', async () => {
 		setAccess(true, []);
 		const f = TestBed.createComponent(SaRoles); await flush(f);
-		http.expectOne(`${B}/permissions`).flush({ success: true, data: { permissions: [{ id: 'users.view', label: 'عرض المستخدمين', group: 'users', sensitive: false }, { id: 'users.delete', label: 'حذف الحسابات', group: 'users', sensitive: true }], groups: { users: 'المستخدمون' }, templates: [{ key: 't', name: 'قالب', description: 'د', color: '#fff', permissions: ['users.view'], notes: 'ملاحظة' }], ownerOnly: [], ambiguities: ['نقطة غامضة'] } });
+		http.expectOne(`${B}/permissions`).flush({ success: true, data: { permissions: [{ id: 'users.view', label: 'عرض المستخدمين', group: 'users', sensitive: false }, { id: 'users.delete', label: 'حذف الحسابات', group: 'users', sensitive: true }], groups: { users: 'المستخدمون' }, templates: [{ key: 't', name: 'قالب', description: 'د', color: '#fff', permissions: ['users.view'], notes: 'ملاحظة' }], superAdminOnly: [], ambiguities: ['نقطة غامضة'] } });
 		http.expectOne(`${B}/roles`).flush({ success: true, data: [{ id: 'r1', name: 'مشرف', description: 'وصف', color: '#2BD4C7', permissions: ['users.view'], permissionCount: 1, memberCount: 3, version: 4, updatedAt: '' }] });
 		http.expectOne(r => r.url === `${B}/access-audit`).flush({ success: true, data: [] }); await flush(f);
 		const el = f.nativeElement as HTMLElement;
@@ -118,18 +118,28 @@ describe('admin team pages (real data, honest states, owner-only actions)', () =
 		expect(el.querySelector('[data-testid="perf-export"]')?.textContent).toContain('CSV');
 		print.mockRestore();
 	});
-	it('invite dialog: «الأقسام المتاحة» is shown as in the design but derived from the chosen role (read-only, grants nothing); the button is the design\'s «إرسال الدعوة»', async () => {
+	it('invite dialog: «الأقسام المتاحة» is a REAL scope - selectable sections are sent with the invitation (none selected = no scope), sections the role does not cover are marked; the button is the design\'s «إرسال الدعوة»', async () => {
 		setAccess(true, []);
 		const f = TestBed.createComponent(SaTeam); await flush(f);
 		http.expectOne(r => r.url === `${B}/staff`).flush(staffList());
 		http.expectOne(`${B}/roles`).flush({ success: true, data: [{ id: 'r1', name: 'مشرف نزاعات', description: null, color: '#fff', permissions: ['disputes.view', 'users.view'], permissionCount: 2, memberCount: 1, version: 1, updatedAt: '' }, { id: 'r2', name: 'مشرف دعم', description: null, color: '#fff', permissions: ['support.review'], permissionCount: 1, memberCount: 0, version: 1, updatedAt: '' }] });
 		http.expectOne(`${B}/staff/unplaced`).flush({ success: true, data: [] }); await flush(f);
 		const el = f.nativeElement as HTMLElement; (el.querySelector('[data-testid="team-invite-open"]') as HTMLButtonElement).click(); await flush(f);
-		const on = () => Array.from(el.querySelectorAll('[data-testid="invite-sections"] .tm-sections-row')).map(r => `${r.textContent?.replace('✓', '').trim()}:${r.classList.contains('on')}`);
-		expect(on()).toEqual(['المستخدمون:true', 'النزاعات:true', 'البلاغات:false', 'الدعم الفني:false', 'التخصصات:false']);
-		(el.querySelector('.tm-modal ws-select button') as HTMLButtonElement).click(); f.detectChanges(); (el.querySelectorAll('[data-testid="ws-select-option"]')[1] as HTMLElement).click(); await flush(f);
-		expect(on()).toEqual(['المستخدمون:false', 'النزاعات:false', 'البلاغات:false', 'الدعم الفني:true', 'التخصصات:false']);
+		const rows = () => Array.from(el.querySelectorAll('[data-testid="invite-sections"] .tm-sections-row')) as HTMLElement[];
+		expect(rows().map(r => r.textContent?.replace('✓', '').trim())).toEqual(['المستخدمون', 'النزاعات', 'البلاغات', 'الدعم الفني', 'التخصصات'].map((n, i) => (i >= 2 ? `${n}الدور لا يشمله` : n)));
 		expect(el.querySelector('[data-testid="invite-send"]')?.textContent).toContain('إرسال الدعوة');
-		expect(el.querySelector('[data-testid="invite-sections"] input, [data-testid="invite-sections"] select')).toBeNull(); // nothing to toggle: it cannot grant anything
+		(el.querySelector('input[name="email"]') as HTMLInputElement).value = 'n@x.com'; (el.querySelector('input[name="email"]') as HTMLInputElement).dispatchEvent(new Event('input'));
+		(f.componentInstance as any).invite.fullName = 'اسم كامل';
+		// no section chosen: the request carries no `departments` at all
+		(el.querySelector('[data-testid="invite-send"]') as HTMLButtonElement).click();
+		let req = http.expectOne(`${B}/invites`); expect(req.request.body.departments).toBeUndefined(); expect(req.request.body.roleId).toBe('r1');
+		req.flush({ success: false, errors: [{ message: 'x' }] }, { status: 400, statusText: 'Bad' }); await flush(f);
+		// choosing sections: they are sent (and are the only thing the form adds; a department grants nothing here)
+		(el.querySelector('[data-testid="dept-disputes"]') as HTMLButtonElement).click(); await flush(f);
+		expect(el.querySelector('[data-testid="dept-disputes"]')?.getAttribute('aria-checked')).toBe('true');
+		(el.querySelector('[data-testid="invite-send"]') as HTMLButtonElement).click();
+		req = http.expectOne(`${B}/invites`); expect(req.request.body.departments).toEqual(['disputes']); expect(Object.keys(req.request.body).sort()).toEqual(['departments', 'email', 'fullName', 'roleId']);
+		req.flush({ success: true, data: { id: 'i', email: 'n@x.com', expiresAt: '', emailed: false, link: 'https://x/admin-invite#abc' } }); await flush(f);
+		expect((el.querySelector('[data-testid="invite-link"]') as HTMLInputElement).value).toContain('#abc');
 	});
 });

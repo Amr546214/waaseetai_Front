@@ -44,3 +44,11 @@
 :host-context(.light-theme) .tm-perm-row2, :host-context(.theme-light) .tm-perm-row2 { background: #F8FAFC; border-color: #E7EAF1; }
 :host-context(.light-theme) .tm-data-tbl tbody td, :host-context(.theme-light) .tm-data-tbl tbody td { color: #475569; }
 :host-context(.light-theme) .tm-quick, :host-context(.theme-light) .tm-quick { background: #F8FAFC; border-color: #E7EAF1; }
+
+.tm-sw { border: 0; cursor: pointer; }
+.tm-src { display: inline-block; margin-inline-start: 8px; padding: 1px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; background: rgba(255,255,255,.06); color: #6B7699; }
+.tm-src-grant { background: rgba(43,212,199,.12); color: #2BD4C7; }
+.tm-src-deny { background: rgba(255,140,105,.12); color: #FF8C69; }
+.tm-dept-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.tm-dept-chip { padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,.12); background: transparent; color: #6B7699; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.tm-dept-chip.on { background: rgba(43,212,199,.10); color: #2BD4C7; border-color: rgba(43,212,199,.25); }

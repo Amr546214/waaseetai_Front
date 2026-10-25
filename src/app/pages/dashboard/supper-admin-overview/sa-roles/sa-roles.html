@@ -2,9 +2,9 @@
   <div class="rl-hdr">
     <div>
       <h1 class="rl-ttl">الصلاحيات والأدوار</h1>
-      <p class="rl-sub">تعريف أدوار فريق الإدارة وصلاحيات كل دور. يحدد مالك المنصة الصلاحيات وحده.</p>
+      <p class="rl-sub">تعريف أدوار فريق الإدارة وصلاحيات كل دور</p>
     </div>
-    @if (access.isOwner()) {
+    @if (access.isSuperAdmin()) {
       <button type="button" class="rl-btn rl-btn-primary" (click)="openCreate()" data-testid="role-add">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة دور
       </button>
@@ -43,7 +43,7 @@
         </div>
         <div class="rl-table-wrap">
           <table class="rl-table" data-testid="roles-matrix">
-            <thead><tr><th class="rl-th-perm">الصلاحية</th><th style="color:#FF8C69">المالك</th>@for (r of roles(); track r.id) { <th [style.color]="r.color">{{ r.name }}</th> }</tr></thead>
+            <thead><tr><th class="rl-th-perm">الصلاحية</th><th style="color:#FF8C69">Super Admin</th>@for (r of roles(); track r.id) { <th [style.color]="r.color">{{ r.name }}</th> }</tr></thead>
             <tbody>
               @for (p of c.permissions; track p.id) {
                 <tr>
@@ -64,7 +64,7 @@
         <div class="rl-audit-list">
           @for (t of c.templates; track t.key) {
             <div class="rl-audit-row"><span class="rl-audit-text"><strong>{{ t.name }}</strong> — {{ t.description }} ({{ t.permissions.length }} صلاحية)</span>
-              @if (access.isOwner()) { <button type="button" class="rl-btn rl-btn-ghost" style="height:26px" (click)="openCreate(t)" data-testid="template-use">إنشاء من القالب</button> }</div>
+              @if (access.isSuperAdmin()) { <button type="button" class="rl-btn rl-btn-ghost" style="height:26px" (click)="openCreate(t)" data-testid="template-use">إنشاء من القالب</button> }</div>
           }
         </div>
       </div>

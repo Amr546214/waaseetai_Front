@@ -1,3 +1,4 @@
+import { ADMIN_DEPARTMENTS } from '../../../../core/services/admin-team.service';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -27,8 +28,8 @@ export class SaTeam implements OnInit {
 	unplaced = signal<Array<{ userId: string; name: string; email: string; accountType: string; lastActiveAt: string | null }>>([]); attachRole: Record<string, string> = {};
 	notice = signal(''); busyId = signal('');
 
-	isOwner = computed(() => this.access.isOwner());
-	canSeeRoles = computed(() => this.access.isOwner());
+	isSuperAdmin = computed(() => this.access.isSuperAdmin());
+	canSeeRoles = computed(() => this.access.isSuperAdmin());
 	filtered = computed<StaffMember[]>(() => {
 		const d = this.data(); if (!d) return [];
 		return d.members.filter(m => (this.tab() === 'all' || this.tab() === 'pending' || m.role?.id === this.tab()));
@@ -41,7 +42,7 @@ export class SaTeam implements OnInit {
 		return { heavy, mid, light, avg };
 	});
 
-	ngOnInit() { this.load(); if (this.isOwner()) { this.api.roles().subscribe({ next: r => this.roles.set(r.data), error: () => undefined }); this.loadUnplaced(); } }
+	ngOnInit() { this.load(); if (this.isSuperAdmin()) { this.api.roles().subscribe({ next: r => this.roles.set(r.data), error: () => undefined }); this.loadUnplaced(); } }
 
 	load() {
 		this.loading.set(true); this.error.set('');
@@ -58,27 +59,20 @@ export class SaTeam implements OnInit {
 	departments(m: { departments: string[] }): string { const d = m.departments; return d.length ? d.slice(0, 3).join(' · ') + (d.length > 3 ? ` +${d.length - 3}` : '') : 'بلا أقسام'; }
 	initial(name: string) { return (name || '?').trim().charAt(0); }
 	roleTabs = computed(() => this.roles());
-	/** The design's «الأقسام المتاحة»: shown, but derived from the chosen role's permissions (a department grants nothing of its own). */
-	inviteSections() {
-		const held = new Set(this.roles().find(r => r.id === this.invite.roleId)?.permissions ?? []);
-		const has = (...ids: string[]) => ids.some(i => held.has(i));
-		return [
-			{ label: 'المستخدمون', on: has('users.view', 'users.suspend', 'users.delete') },
-			{ label: 'النزاعات', on: has('disputes.view', 'disputes.note', 'disputes.assign', 'disputes.resolve') },
-			{ label: 'البلاغات', on: has('reports.view') },
-			{ label: 'الدعم الفني', on: has('support.review', 'support.reply') },
-			{ label: 'التخصصات', on: has('specialties.approve', 'content.manage', 'business_models.review') },
-		];
-	}
+	/** The design's «الأقسام المتاحة»: a REAL data scope. Nothing selected = no section scope (the role decides); selected sections narrow what the member's permissions apply to. It never grants. */
+	readonly departmentList = ADMIN_DEPARTMENTS;
+	inviteDeps = signal<string[]>([]);
+	toggleDept(key: string) { this.inviteDeps.update(l => (l.includes(key) ? l.filter(x => x !== key) : [...l, key])); }
+	roleCovers(key: string): boolean { const held = new Set(this.roles().find(r => r.id === this.invite.roleId)?.permissions ?? []); return !!ADMIN_DEPARTMENTS.find(d => d.key === key)?.permissions.some(p => held.has(p)); }
 	readonly roleOpts = computed(() => this.roles().map(r => ({ value: r.id, label: r.name })));
 	readonly allRoles = [{ value: '', label: 'كل الأدوار' }]; readonly noRole = [{ value: '', label: 'بلا دور' }];
 	readonly statusOpts = [{ value: '', label: 'كل الحالات' }, { value: 'ACTIVE', label: 'نشط' }, { value: 'SUSPENDED', label: 'موقوف' }];
 
-	openInvite() { this.invite = { email: '', fullName: '', roleId: this.roles()[0]?.id ?? '' }; this.inviteError.set(''); this.inviteResult.set(null); this.inviteOpen.set(true); }
+	openInvite() { this.invite = { email: '', fullName: '', roleId: this.roles()[0]?.id ?? '' }; this.inviteDeps.set([]); this.inviteError.set(''); this.inviteResult.set(null); this.inviteOpen.set(true); }
 	closeInvite() { this.inviteOpen.set(false); this.load(); }
 	sendInvite() {
 		if (this.inviteBusy()) return; this.inviteBusy.set(true); this.inviteError.set('');
-		this.api.invite({ email: this.invite.email, fullName: this.invite.fullName, roleId: this.invite.roleId }).subscribe({
+		this.api.invite({ email: this.invite.email, fullName: this.invite.fullName, roleId: this.invite.roleId, ...(this.inviteDeps().length ? { departments: this.inviteDeps() } : {}) }).subscribe({
 			next: r => { this.inviteBusy.set(false); this.inviteResult.set({ link: r.data.link, emailed: r.data.emailed }); },
 			error: e => { this.inviteBusy.set(false); this.inviteError.set(e?.error?.errors?.[0]?.message || errText(e, 'تعذّر إنشاء الدعوة')); },
 		});

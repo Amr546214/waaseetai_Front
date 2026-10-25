@@ -477,3 +477,5 @@
 .tm-modal-actions-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
 @media (max-width: 900px) { .tm-kpi-row { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .tm-kpi-row { grid-template-columns: repeat(2, 1fr); } .tm-page { padding: 14px 16px; } }
+.tm-sections-row { width: 100%; background: none; border: 0; cursor: pointer; font-family: inherit; text-align: start; }
+.tm-sections-hint { margin-inline-start: auto; font-size: 10px; color: #6B7699; }

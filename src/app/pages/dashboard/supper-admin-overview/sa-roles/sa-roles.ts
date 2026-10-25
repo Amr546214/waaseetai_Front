@@ -9,11 +9,11 @@ const ACTION_TEXT: Record<string, { label: string; cls: string }> = {
 	ROLE_CREATED: { label: 'دور جديد', cls: 'rl-audit-new' }, ROLE_UPDATED: { label: 'تعديل', cls: 'rl-audit-edited' }, STAFF_ROLE_SET: { label: 'تعيين دور', cls: 'rl-audit-added' },
 	STAFF_SUSPENDED: { label: 'إيقاف', cls: 'rl-audit-removed' }, STAFF_REACTIVATED: { label: 'إعادة تفعيل', cls: 'rl-audit-added' }, STAFF_ATTACHED: { label: 'ضم للفريق', cls: 'rl-audit-added' },
 	INVITE_CREATED: { label: 'دعوة', cls: 'rl-audit-new' }, INVITE_RESENT: { label: 'إعادة إرسال', cls: 'rl-audit-edited' }, INVITE_CANCELLED: { label: 'إلغاء دعوة', cls: 'rl-audit-removed' },
-	INVITE_ACCEPTED: { label: 'قُبلت دعوة', cls: 'rl-audit-added' }, OWNER_DESIGNATED: { label: 'تعيين المالك', cls: 'rl-audit-new' },
+	INVITE_ACCEPTED: { label: 'قُبلت دعوة', cls: 'rl-audit-added' }, STAFF_ACCESS_SET: { label: 'ضُبطت صلاحيات موظف', cls: 'rl-audit-new' }, STAFF_ACCESS_RESET: { label: 'أُعيد ضبط صلاحيات موظف إلى دوره', cls: 'rl-audit-removed' },
 };
 const errText = (e: any, fallback: string) => e?.error?.message || fallback;
 
-/** P-AD-024: roles and permissions, for real. Only the platform owner sees this page and changes anything; the matrix, the counts and the trail come from the server. */
+/** P-AD-024: roles and permissions, for real. Only a SUPER_ADMIN sees this page and changes anything; the matrix, the counts and the trail come from the server. */
 @Component({
 	selector: 'app-sa-roles',
 	standalone: true,
