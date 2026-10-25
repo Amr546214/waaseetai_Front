@@ -10,7 +10,7 @@ import { AdminRoleRow, AdminTeamService, PendingInvite, StaffList, StaffMember }
 const AVATARS = ['linear-gradient(135deg,#A56BE0,#5DA0FF)', 'linear-gradient(135deg,#2BD4C7,#2B7FFF)', 'linear-gradient(135deg,#FFB400,#D98A0B)', 'linear-gradient(135deg,#FF8C69,#D98A0B)', 'linear-gradient(135deg,#0FA99A,#2BD4C7)', 'linear-gradient(135deg,#5DA0FF,#2BD4C7)'];
 const errText = (e: any, fallback: string) => e?.error?.message || fallback;
 
-/** P-AD-022: the admin team. Real staff, roles, invitations and task counts from the server; nothing from the design's sample data. Inviting and placing accounts is the owner's alone. */
+/** P-AD-022: the admin team. Real staff, roles, invitations and task counts from the server; nothing from the design's sample data. Inviting and placing accounts is a SUPER_ADMIN's alone. */
 @Component({
 	selector: 'app-sa-team',
 	standalone: true,

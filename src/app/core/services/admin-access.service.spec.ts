@@ -26,7 +26,7 @@ describe('admin access (what the SERVER says this admin account may do)', () => 
 		const p = svc.ensure(); http.expectOne(URL()).flush({}, { status: 500, statusText: 'x' }); await p;
 		expect(svc.status()).toBe('error'); expect(svc.allows({ member: true })).toBe(false); expect(svc.can('users.view')).toBe(false);
 	});
-	it('a member holds exactly the permissions of the role; the owner holds all; a team member without any permission is not a "member"', async () => {
+	it('a member holds exactly the permissions of the role; a SUPER_ADMIN holds all; a team member without any permission is not a "member"', async () => {
 		await load(access());
 		expect(svc.can('support.review')).toBe(true); expect(svc.can('users.view')).toBe(false); expect(svc.allows({ member: true })).toBe(true);
 		expect(svc.allows({ superAdmin: true })).toBe(false); expect(svc.allows({ anyOf: ['users.view', 'support.review'] })).toBe(true); expect(svc.allows({ all: ['support.review', 'users.view'] })).toBe(false);
@@ -71,7 +71,7 @@ describe('admin access (what the SERVER says this admin account may do)', () => 
 		http.expectNone(URL());
 	});
 
-	it('operations records: the LIST pages are owner-only, one record opens for any member (the server decides which, by the case held)', () => {
+	it('operations records: the LIST pages are SUPER_ADMIN-only, one record opens for any member (the server decides which, by the case held)', () => {
 		for (const list of ['projects', 'contracts', 'requests', 'offers']) {
 			expect(ruleForPath(`/supper-admin-overview/${list}`)).toEqual({ superAdmin: true });
 			expect(ruleForPath(`/supper-admin-overview/${list}/abc`)).toEqual({ member: true });

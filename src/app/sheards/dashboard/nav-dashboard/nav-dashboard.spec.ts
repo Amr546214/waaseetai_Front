@@ -125,11 +125,11 @@ describe('NavDashboard — admin accounts', () => {
 		});
 	}
 
-	it('an admin account shows its REAL administrative role from the server (the owner, or the team role), never a generic «مدير/مشرف النظام» that suggests authority', async () => {
+	it('an admin account shows its REAL administrative role from the server (a SUPER_ADMIN, or the team role), never a generic «مدير/مشرف النظام» that suggests authority', async () => {
 		const { fixture, component } = setup({ firstName: 'Amr', lastName: 'O', accountType: 'SUPER_ADMIN', activeRole: UserRole.CLIENT, roles: [UserRole.CLIENT] });
 		const { AdminAccessService } = await import('../../../core/services/admin-access.service');
 		const acc = TestBed.inject(AdminAccessService);
-		acc.access.set({ userId: 'u', isSuperAdmin: true, staffStatus: null, roleName: 'المالك', permissions: [], hasAnyPermission: true, state: 'SUPER_ADMIN', displayRole: 'Super Admin' }); acc.status.set('ready');
+		acc.access.set({ userId: 'u', isSuperAdmin: true, staffStatus: null, roleName: 'Super Admin', permissions: [], hasAnyPermission: true, state: 'SUPER_ADMIN', displayRole: 'Super Admin' }); acc.status.set('ready');
 		fixture.detectChanges(); component.isUserDropdownOpen.set(true); fixture.detectChanges();
 		expect((fixture.nativeElement as HTMLElement).querySelector('[data-testid="topnav-role-label"]')!.textContent!.trim()).toBe('Super Admin');
 	});

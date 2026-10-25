@@ -50,7 +50,7 @@ export class AdminInvite implements OnInit {
 		if (this.busy()) return; this.busy.set(true); this.error.set('');
 		this.api.inviteRequestCode(this.token).subscribe({
 			next: () => { this.busy.set(false); this.codeSent.set(true); },
-			error: e => { this.busy.set(false); const c = e?.error?.code; if (c === 'INVITE_INVALID') { this.state.set('invalid'); return; } this.error.set(c === 'INVITE_CODE_TOO_SOON' ? 'انتظر دقيقة قبل طلب رمز جديد.' : c === 'INVITE_CODE_LIMIT' ? 'استُهلكت رموز هذه الدعوة. اطلب من المالك إعادة إصدارها.' : (e?.error?.message || 'تعذّر إرسال الرمز، حاول مرة أخرى')); },
+			error: e => { this.busy.set(false); const c = e?.error?.code; if (c === 'INVITE_INVALID') { this.state.set('invalid'); return; } this.error.set(c === 'INVITE_CODE_TOO_SOON' ? 'انتظر دقيقة قبل طلب رمز جديد.' : c === 'INVITE_CODE_LIMIT' ? 'استُهلكت رموز هذه الدعوة. اطلب من Super Admin إعادة إصدارها.' : (e?.error?.message || 'تعذّر إرسال الرمز، حاول مرة أخرى')); },
 		});
 	}
 	accept() {

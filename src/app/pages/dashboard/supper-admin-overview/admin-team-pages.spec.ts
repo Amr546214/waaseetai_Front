@@ -19,11 +19,11 @@ const setAccess = (isSuperAdmin: boolean, permissions: string[]) => {
 };
 const staffList = (over: any = {}) => ({ success: true, data: { members: [{ userId: 'u1', name: 'هيثم القرني', email: 'h@x.com', status: 'ACTIVE', isSuperAdmin: false, role: { id: 'r1', name: 'مشرف نزاعات', color: '#A56BE0' }, joinedAt: '2026-01-01T00:00:00Z', lastActiveAt: '2026-10-25T10:00:00Z', activeNow: true, lastLoginAt: '2026-10-25T09:00:00Z', resolvedDisputes: 3, avgCompletionHours: 2.4, departments: ['النزاعات'], version: 1, openTasks: 9, overdueTasks: 2, doneTasks: 4 }], pendingInvites: [{ id: 'i1', email: 'p@x.com', fullName: 'مدعو', roleName: 'مشرف دعم', expiresAt: '2026-12-01T00:00:00Z', createdAt: '2026-10-01T00:00:00Z', resendCount: 0 }], counts: { total: 1, activeNow: 1, active: 1, suspended: 0, pendingInvites: 1, openTasks: 9, overdueTasks: 2 }, ...over } });
 
-describe('admin team pages (real data, honest states, owner-only actions)', () => {
+describe('admin team pages (real data, honest states, SUPER_ADMIN-only actions)', () => {
 	let http: HttpTestingController;
 	beforeEach(() => { TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] }); http = TestBed.inject(HttpTestingController); });
 
-	it('team page: real members and counts, no sample names, «active now» comes from the server (never invented), the owner-only buttons are absent for a plain member', async () => {
+	it('team page: real members and counts, no sample names, «active now» comes from the server (never invented), the SUPER_ADMIN-only buttons are absent for a plain member', async () => {
 		setAccess(false, ['team.view']);
 		const f = TestBed.createComponent(SaTeam); await flush(f);
 		http.expectOne(r => r.url === `${B}/staff`).flush(staffList()); await flush(f);
@@ -35,7 +35,7 @@ describe('admin team pages (real data, honest states, owner-only actions)', () =
 		expect(el.querySelector('[data-testid="team-invite-open"]')).toBeNull(); expect(el.querySelector('[data-testid="team-roles-link"]')).toBeNull();
 		http.expectNone(`${B}/roles`);
 	});
-	it('team page for the owner: invite button, pending invites with resend / cancel, the unplaced-accounts panel', async () => {
+	it('team page for a SUPER_ADMIN: invite button, pending invites with resend / cancel, the unplaced-accounts panel', async () => {
 		setAccess(true, []);
 		const f = TestBed.createComponent(SaTeam); await flush(f);
 		http.expectOne(r => r.url === `${B}/staff`).flush(staffList()); http.expectOne(`${B}/roles`).flush({ success: true, data: [{ id: 'r1', name: 'مشرف نزاعات', description: null, color: '#fff', permissions: [], permissionCount: 0, memberCount: 1, version: 1, updatedAt: '' }] });
