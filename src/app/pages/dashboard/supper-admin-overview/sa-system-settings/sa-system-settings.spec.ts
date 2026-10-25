@@ -7,7 +7,9 @@ import { environment } from '../../../../../environments/environment';
 import { ConfirmModalService } from '../../../../core/services/confirm-modal.service';
 import { AdminAccessService } from '../../../../core/services/admin-access.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
-import { SettingItem } from '../../../../core/services/system-settings.store';
+import { SettingItem, SystemSettingsStore } from '../../../../core/services/system-settings.store';
+import { By } from '@angular/platform-browser';
+import { SettingsSectionComponent } from '../../../../shared/system-settings/settings-section.component';
 import { SaSystemSettings } from './sa-system-settings';
 
 const B = `${environment.url_api}/admin/system-settings`;
@@ -20,7 +22,8 @@ const ITEMS: SettingItem[] = [
 	item({ key: 'liveSupportAssistant', label: 'الدعم الفوري', status: 'blocked', canWrite: false, value: null, version: null, effect: null, reason: 'تغييرات الذكاء الاصطناعي نطاق منفصل: يُجرد هنا فقط.', source: null }),
 	item({ key: 'supportEmail', value: 'a@b.co', version: 1 }), item({ key: 'supportPhone', value: '' }), item({ key: 'maintenanceBannerEnabled', value: false }), item({ key: 'maintenanceBannerText', value: '' }),
 	item({ key: 'termsVersion', value: '' }), item({ key: 'privacyVersion', value: '' }), item({ key: 'termsContent', value: '' }), item({ key: 'privacyContent', value: '' }),
-	item({ key: 'sessionIdleMinutes', tab: 'security', label: 'مدة انتهاء الجلسة', value: 0, unit: 'دقيقة' }),
+	item({ key: 'sessionIdleMinutes', tab: 'security', label: 'انتهاء الجلسة بسبب الخمول', value: 0, unit: 'دقيقة' }),
+	item({ key: 'sessionMaxHours', tab: 'security', label: 'المدة القصوى المطلقة للجلسة', value: 168, allowed: [8, 24, 48, 168], unit: 'ساعة', effect: 'new-sessions' }),
 	item({ key: 'auditLogging', tab: 'security', label: 'تسجيل سجلات التدقيق', status: 'readonly', canWrite: false, value: true, version: null, effect: null, source: 'دائم', reason: 'مفعّل دائمًا ولا يمكن تعطيله (سلامة التدقيق).' }),
 	item({ key: 'baseCurrency', tab: 'finance', label: 'العملة الأساسية', value: 'USD', allowed: ['USD', 'SAR'], effect: 'immediate' }),
 ];
@@ -88,17 +91,34 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 		(el.querySelector('[data-testid="settings-save"]') as HTMLButtonElement).click(); await flush(f); http.expectOne(r => r.method === 'PUT'); // still editable, retry possible
 	});
 
-	it('a concurrent change (409) offers: reload the newest (discard mine) or continue on top of it (keep mine, newest versions); the typed value is never lost silently', async () => {
+	it('a concurrent change (409) shows MY value next to the server\'s, and continuing is a two-step act: re-read the newest, then a confirmation that names the value being replaced - the write carries the NEW version, nothing is overwritten silently', async () => {
 		const { f, el } = await boot();
 		await type(f, row(el, 'platformName').querySelector('input') as HTMLInputElement, 'تعديلي');
 		(el.querySelector('[data-testid="settings-save"]') as HTMLButtonElement).click(); await flush(f);
 		http.expectOne(r => r.method === 'PUT').flush({ success: false, code: 'SETTINGS_VERSION_CONFLICT', message: 'عُدّل هذا الإعداد من جهة أخرى قبل حفظك.', errors: [{ key: 'platformName', current: { value: 'من آخر', version: 5 } }] }, { status: 409, statusText: 'x' }); await flush(f);
 		expect(el.querySelector('[data-testid="settings-failure"]')?.textContent).toContain('عُدّل هذا الإعداد'); expect((row(el, 'platformName').querySelector('input') as HTMLInputElement).value).toBe('تعديلي');
+		const tbl = el.querySelector('[data-testid="conflict-table"]')?.textContent ?? ''; expect(tbl).toContain('تعديلي'); expect(tbl).toContain('من آخر');
 		(el.querySelector('[data-testid="conflict-overwrite"]') as HTMLButtonElement).click(); await flush(f);
 		http.expectOne(B).flush({ success: true, data: { storageReady: true, items: ITEMS.map(i => (i.key === 'platformName' ? { ...i, value: 'من آخر', version: 5 } : i)) } }); await flush(f);
-		expect((row(el, 'platformName').querySelector('input') as HTMLInputElement).value).toBe('تعديلي'); // my draft survives, now against version 5
+		http.expectNone(r => r.method === 'PUT'); // re-reading wrote NOTHING
+		expect((row(el, 'platformName').querySelector('input') as HTMLInputElement).value).toBe('تعديلي'); // my draft survives, against version 5
+		confirm.mockResolvedValueOnce(false); (el.querySelector('[data-testid="settings-save"]') as HTMLButtonElement).click(); await flush(f);
+		expect(confirm.mock.calls.at(-1)![0].message).toContain('«من آخر» ستُستبدل بقيمتك «تعديلي»'); http.expectNone(r => r.method === 'PUT'); // declined: still nothing written
 		(el.querySelector('[data-testid="settings-save"]') as HTMLButtonElement).click(); await flush(f);
-		expect(http.expectOne(r => r.method === 'PUT').request.body.expected).toEqual({ platformName: 5 });
+		expect(http.expectOne(r => r.method === 'PUT').request.body).toEqual({ changes: { platformName: 'تعديلي' }, expected: { platformName: 5 } });
+	});
+
+	it('idle-session change: the confirmation says how many live sessions end right now; the absolute max-hours select keeps its numeric values and says it reaches new sessions only', async () => {
+		const { f, el, c } = await boot(); c.setTab('security'); await flush(f);
+		await type(f, row(el, 'sessionIdleMinutes').querySelector('input') as HTMLInputElement, '60');
+		(el.querySelector('[data-testid="settings-save"]') as HTMLButtonElement).click(); await flush(f);
+		http.expectOne(r => r.url === `${B}/sessions-impact` && r.params.get('idleMinutes') === '60').flush({ success: true, data: { idleMinutes: 60, activeSessions: 40, wouldEndNow: 7 } }); await flush(f);
+		expect(confirm.mock.calls.at(-1)![0].message).toContain('ستنتهي الآن 7 جلسة خاملة من أصل 40'); http.expectOne(r => r.method === 'PUT').flush({ success: true, data: { changed: ['sessionIdleMinutes'], items: ITEMS } }); await flush(f);
+		expect(row(el, 'sessionMaxHours').querySelector('ws-select')).toBeTruthy(); // a select with the four numeric choices, not a text box
+		const section = f.debugElement.queryAll(By.directive(SettingsSectionComponent)).map(d => d.componentInstance as SettingsSectionComponent).find(c => c.keys().includes('sessionMaxHours'))!;
+		section.setEnum(ITEMS.find(i => i.key === 'sessionMaxHours')!, '24'); await flush(f); expect(TestBed.inject(SystemSettingsStore).value('sessionMaxHours')).toBe(24); // stored as the NUMBER 24
+		(el.querySelector('[data-testid="settings-save"]') as HTMLButtonElement).click(); await flush(f);
+		expect(confirm.mock.calls.at(-1)![0].message).toContain('الجلسات الجديدة فقط'); expect(http.expectOne(r => r.method === 'PUT').request.body.changes).toEqual({ sessionMaxHours: 24 });
 	});
 
 	it('a sensitive change (maintenance, registration, idle session, currency) asks for confirmation first, spelling out what changes; declining sends nothing', async () => {
