@@ -1,3 +1,4 @@
+import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +13,7 @@ const errText = (e: any, fallback: string) => e?.error?.message || fallback;
 @Component({
 	selector: 'app-sa-team-member-detail',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterLink, DatePipe],
+	imports: [CommonModule, FormsModule, RouterLink, DatePipe, WsSelectComponent],
 	templateUrl: './sa-team-member-detail.html',
 	styleUrls: ['../sa-team.css', './sa-team-member-detail.css'],
 })
@@ -26,6 +27,8 @@ export class SaTeamMemberDetail implements OnInit {
 	tasks = signal<TaskRow[]>([]); tab = signal<'overview' | 'tasks' | 'perms'>('overview'); notice = signal(''); busy = signal(false); newRoleId = signal('');
 	isOwner = computed(() => this.access.isOwner());
 	userId = computed(() => this.route.snapshot.paramMap.get('id') ?? '');
+	readonly roleOpts = computed(() => this.roles().map(r => ({ value: r.id, label: r.name })));
+	readonly noRole = [{ value: '', label: 'بلا دور (لا صلاحيات)' }];
 	rolePerms = computed(() => { const m = this.member(); return this.roles().find(r => r.id === m?.role?.id)?.permissions ?? []; });
 	groups = computed(() => {
 		const c = this.catalog(); if (!c) return [] as Array<{ label: string; items: Array<{ id: string; label: string; on: boolean; sensitive: boolean }> }>;

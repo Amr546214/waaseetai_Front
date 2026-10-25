@@ -1,3 +1,4 @@
+import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +13,7 @@ const errText = (e: any, fallback: string) => e?.error?.message || fallback;
 @Component({
 	selector: 'app-sa-team',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterLink, DatePipe],
+	imports: [CommonModule, FormsModule, RouterLink, DatePipe, WsSelectComponent],
 	templateUrl: './sa-team.html',
 	styleUrl: './sa-team.css',
 })
@@ -55,6 +56,9 @@ export class SaTeam implements OnInit {
 	avatar(i: number) { return AVATARS[i % AVATARS.length]; }
 	initial(name: string) { return (name || '?').trim().charAt(0); }
 	roleTabs = computed(() => this.roles());
+	readonly roleOpts = computed(() => this.roles().map(r => ({ value: r.id, label: r.name })));
+	readonly allRoles = [{ value: '', label: 'كل الأدوار' }]; readonly noRole = [{ value: '', label: 'بلا دور' }];
+	readonly statusOpts = [{ value: '', label: 'كل الحالات' }, { value: 'ACTIVE', label: 'نشط' }, { value: 'SUSPENDED', label: 'موقوف' }];
 
 	openInvite() { this.invite = { email: '', fullName: '', roleId: this.roles()[0]?.id ?? '' }; this.inviteError.set(''); this.inviteResult.set(null); this.inviteOpen.set(true); }
 	closeInvite() { this.inviteOpen.set(false); this.load(); }

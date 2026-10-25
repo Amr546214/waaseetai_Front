@@ -1,3 +1,4 @@
+import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,13 +17,17 @@ const errText = (e: any, fallback: string) => e?.error?.errors?.[0]?.message || 
 @Component({
 	selector: 'app-sa-tasks',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterLink, DatePipe],
+	imports: [CommonModule, FormsModule, RouterLink, DatePipe, WsSelectComponent],
 	templateUrl: './sa-tasks.html',
 	styleUrl: './sa-tasks.css',
 })
 export class SaTasks implements OnInit {
 	private api = inject(AdminTeamService);
 	readonly access = inject(AdminAccessService);
+	readonly typeOpts = Object.entries(TASK_TYPE_LABEL).map(([value, label]) => ({ value, label: label as string }));
+	readonly prioOpts = Object.entries(TASK_PRIORITY_LABEL).map(([value, label]) => ({ value, label: label as string }));
+	readonly allStaff = [{ value: '', label: 'كل الموظفين' }]; readonly allTypes = [{ value: '', label: 'كل الأنواع' }]; readonly noAssignee = [{ value: '', label: 'بلا تكليف' }];
+	readonly teamOpts = computed(() => this.team().map(m => ({ value: m.userId, label: m.name })));
 	readonly typeLabel = TASK_TYPE_LABEL; readonly statusLabel = TASK_STATUS_LABEL; readonly priorityLabel = TASK_PRIORITY_LABEL;
 
 	loading = signal(true); error = signal(''); tasks = signal<TaskRow[]>([]); summary = signal<TaskSummary | null>(null); team = signal<StaffMember[]>([]);

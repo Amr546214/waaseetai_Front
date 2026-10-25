@@ -53,7 +53,7 @@
         @else {
           <label class="tm-field-lbl">الدور</label>
           <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-            <select class="tm-select" [ngModel]="newRoleId()" (ngModelChange)="newRoleId.set($event)" aria-label="الدور" data-testid="member-role-select"><option value="">بلا دور (لا صلاحيات)</option>@for (r of roles(); track r.id) { <option [value]="r.id">{{ r.name }}</option> }</select>
+            <ws-select class="tm-select" ariaLabel="الدور" data-testid="member-role-select" [leading]="noRole" [options]="roleOpts()" [ngModel]="newRoleId()" (ngModelChange)="newRoleId.set($event)" />
             <button type="button" class="tm-btn tm-btn-primary" [disabled]="busy() || newRoleId() === (m.role?.id ?? '')" (click)="saveRole()" data-testid="member-role-save">حفظ الدور</button>
           </div>
           <div class="tm-pending-note" style="border-top:0">تُعدَّل صلاحيات الدور نفسه من صفحة «الصلاحيات والأدوار». لا توجد استثناءات فردية، لتبقى مصدرًا واحدًا للحقيقة.</div>

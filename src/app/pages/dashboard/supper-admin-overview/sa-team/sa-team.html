@@ -41,13 +41,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="search" placeholder="ابحث باسم الموظف..." aria-label="بحث" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="onFilter()" (blur)="onFilter()">
       </div>
-      <select class="tm-select" aria-label="الدور" [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event); onFilter()">
-        <option value="">كل الأدوار</option>
-        @for (r of roleTabs(); track r.id) { <option [value]="r.id">{{ r.name }}</option> }
-      </select>
-      <select class="tm-select" aria-label="الحالة" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); onFilter()">
-        <option value="">كل الحالات</option><option value="ACTIVE">نشط</option><option value="SUSPENDED">موقوف</option>
-      </select>
+      <ws-select class="tm-select" ariaLabel="الدور" [leading]="allRoles" [options]="roleOpts()" [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event); onFilter()" />
+      <ws-select class="tm-select" ariaLabel="الحالة" [options]="statusOpts" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); onFilter()" />
     </div>
 
     <div class="tm-workload">
@@ -98,9 +93,7 @@
           <div class="tm-detail-row">
             <span>{{ u.name }} · {{ u.email }}</span>
             <span style="display:flex;gap:6px">
-              <select class="tm-select" [ngModel]="attachRole[u.userId]" (ngModelChange)="attachRole[u.userId] = $event" aria-label="الدور">
-                <option value="">بلا دور</option>@for (r of roles(); track r.id) { <option [value]="r.id">{{ r.name }}</option> }
-              </select>
+              <ws-select class="tm-select" ariaLabel="الدور" [leading]="noRole" [options]="roleOpts()" [ngModel]="attachRole[u.userId]" (ngModelChange)="attachRole[u.userId] = $event" />
               <button type="button" class="tm-btn tm-btn-primary tm-btn-sm" [disabled]="busyId() === u.userId" (click)="attach(u.userId)">إضافة للفريق</button>
             </span>
           </div>
@@ -123,9 +116,7 @@
           <label class="tm-field-lbl">الاسم الكامل</label>
           <input class="tm-input" type="text" placeholder="الاسم الكامل" [(ngModel)]="invite.fullName" name="fullName" style="width:100%">
           <label class="tm-field-lbl">الدور الإداري</label>
-          <select class="tm-select tm-select-full" [(ngModel)]="invite.roleId" name="roleId">
-            @for (r of roles(); track r.id) { <option [value]="r.id">{{ r.name }}</option> }
-          </select>
+          <ws-select class="tm-select-full" ariaLabel="الدور الإداري" [options]="roleOpts()" [(ngModel)]="invite.roleId" name="roleId" />
           @if (!roles().length) { <div class="tm-pending-note">لا توجد أدوار بعد. أنشئ دورًا من صفحة الصلاحيات أولًا.</div> }
           @if (inviteError()) { <div class="tm-pending-note" role="alert" style="color:#FF8C69">{{ inviteError() }}</div> }
           <div class="tm-modal-actions-row" style="margin-top:12px">

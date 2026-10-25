@@ -26,9 +26,9 @@
   <div class="tk-filters">
     <div class="tk-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="search" placeholder="ابحث في المهام..." aria-label="بحث" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="load()" (blur)="load()"></div>
     @if (canManage()) {
-      <select class="tk-sel" aria-label="الموظف" [ngModel]="assigneeFilter()" (ngModelChange)="assigneeFilter.set($event); load()"><option value="">كل الموظفين</option>@for (m of team(); track m.userId) { <option [value]="m.userId">{{ m.name }}</option> }</select>
+      <ws-select class="tk-sel" ariaLabel="الموظف" [leading]="allStaff" [options]="teamOpts()" [ngModel]="assigneeFilter()" (ngModelChange)="assigneeFilter.set($event); load()" />
     }
-    <select class="tk-sel" aria-label="النوع" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); load()"><option value="">كل الأنواع</option>@for (t of typeLabel | keyvalue; track t.key) { <option [value]="t.key">{{ t.value }}</option> }</select>
+    <ws-select class="tk-sel" ariaLabel="النوع" [leading]="allTypes" [options]="typeOpts" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); load()" />
   </div>
 
   <div style="display:flex;gap:3px;margin-bottom:12px" role="group" aria-label="طريقة العرض">
@@ -110,10 +110,10 @@
         <div class="tk-mbody">
           <div class="tk-mfield"><label>العنوان</label><input class="tk-sel" style="width:100%" [(ngModel)]="form.title" name="title" maxlength="200"></div>
           <div class="tk-mrow">
-            <div class="tk-mfield"><label>النوع</label><select class="tk-sel" [(ngModel)]="form.type" name="type">@for (t of typeLabel | keyvalue; track t.key) { <option [value]="t.key">{{ t.value }}</option> }</select></div>
-            <div class="tk-mfield"><label>الأولوية</label><select class="tk-sel" [(ngModel)]="form.priority" name="prio">@for (t of priorityLabel | keyvalue; track t.key) { <option [value]="t.key">{{ t.value }}</option> }</select></div>
+            <div class="tk-mfield"><label>النوع</label><ws-select ariaLabel="النوع" [options]="typeOpts" [(ngModel)]="form.type" name="type" /></div>
+            <div class="tk-mfield"><label>الأولوية</label><ws-select ariaLabel="الأولوية" [options]="prioOpts" [(ngModel)]="form.priority" name="prio" /></div>
           </div>
-          <div class="tk-mfield"><label>المُكلَّف</label><select class="tk-sel" [(ngModel)]="form.assigneeId" name="assignee"><option value="">بلا تكليف</option>@for (m of team(); track m.userId) { <option [value]="m.userId">{{ m.name }}</option> }</select><span style="font-size:10px;color:#6B7699">التكليف لا يمنح الموظف صلاحية جديدة؛ يجب أن يملك صلاحية هذا النوع من العمل.</span></div>
+          <div class="tk-mfield"><label>المُكلَّف</label><ws-select ariaLabel="المُكلَّف" [leading]="noAssignee" [options]="teamOpts()" [(ngModel)]="form.assigneeId" name="assignee" /><span style="font-size:10px;color:#6B7699">التكليف لا يمنح الموظف صلاحية جديدة؛ يجب أن يملك صلاحية هذا النوع من العمل.</span></div>
           <div class="tk-mfield"><label>الموعد (اختياري)</label><input class="tk-sel" type="datetime-local" [(ngModel)]="form.dueAt" name="due"></div>
           <div class="tk-mfield"><label>الوصف (اختياري)</label><textarea class="tk-sel" style="height:70px;padding:8px" [(ngModel)]="form.description" name="desc" maxlength="2000"></textarea></div>
         </div>
