@@ -1,7 +1,11 @@
 /// <reference types="node" />
 
-// FE-3: USD only, PayPal only. Production files (including the withdrawal screens) must never bring back a riyal / SAR label,
-// Moyasar, or a non-PayPal deposit rail.
+// FE-3: PayPal only, and (until the currency formatter of phase D exists) no riyal / SAR LABEL in production files. Production files (including the withdrawal screens) must never bring back
+// Moyasar or a non-PayPal deposit rail.
+// POLICY UPDATE (2026-10-25): "USD only" is no longer an absolute product rule - the platform base currency becomes configurable (USD / SAR), each amount keeps its own currency, nothing is summed across
+// currencies. This check is deliberately KEPT as is for now because no SAR can be shown honestly before the per-record currency formatter exists (design: admin-team/system-settings/CURRENCY-TRANSITION-DESIGN.md,
+// phases B-D); when that phase lands this file is rewritten to allow currency labels ONLY through that formatter, still banning Moyasar / mada / Apple Pay. The consistency of amounts and currencies is
+// guarded on the server by src/config/currency-consistency.guard.test.ts.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
