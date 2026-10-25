@@ -13,7 +13,7 @@ export const ADMIN_DEPARTMENTS: ReadonlyArray<{ key: string; label: string; perm
 	{ key: 'specialties', label: 'التخصصات', permissions: ['specialties.approve', 'content.manage', 'business_models.review'] },
 ];
 export interface StaffAccess { userId: string; version: number; status: string; role: { id: string; name: string } | null; rolePermissions: string[]; overrides: Array<{ permission: string; effect: 'GRANT' | 'DENY'; at: string }>; scoped: boolean; departments: string[]; effective: string[] }
-export interface PermissionsCatalog { permissions: PermissionDef[]; groups: Record<string, string>; templates: RoleTemplate[]; superAdminOnly: string[]; ambiguities: string[] }
+export interface PermissionsCatalog { permissions: PermissionDef[]; groups: Record<string, string>; templates: RoleTemplate[]; superAdminOnly: string[]; ambiguities: string[]; superAdminCount?: number }
 export interface AdminRoleRow { id: string; name: string; description: string | null; color: string; permissions: string[]; permissionCount: number; memberCount: number; version: number; updatedAt: string }
 export interface RolePreview { roleId: string; version: number; added: string[]; removed: string[]; addedSensitive: string[]; affectedMembers: number }
 export interface StaffMember { userId: string; name: string; email: string; status: 'ACTIVE' | 'SUSPENDED'; scoped: boolean; sections: string[] | null; personalChanges: number; role: { id: string; name: string; color: string } | null; joinedAt: string; lastActiveAt: string | null; activeNow: boolean; lastLoginAt: string | null; resolvedDisputes: number; avgCompletionHours: number | null; departments: string[]; version: number; openTasks: number; overdueTasks: number; doneTasks: number }

@@ -21,6 +21,14 @@
       <div class="rl-modal-note" data-testid="roles-empty">لا توجد أدوار بعد. أنشئ دورًا من «إضافة دور»، أو ابدأ من أحد القوالب أدناه (قوالب فقط: لا أحد يحملها حتى تنشئها وتسندها).</div>
     }
     <div class="rl-roles-grid" data-testid="roles-grid">
+      @if (catalog(); as c) {
+        <!-- the design's first card: Super Admin is an ACCOUNT TYPE (full control), shown read-only: it is not a stored role and nobody is given it from here -->
+        <div class="rl-role-card" style="border-color:#FF8C6938" data-testid="role-card-super-admin">
+          <div class="rl-role-top"><div class="rl-role-dot" style="background:#FF8C69"></div><span class="rl-role-name">Super Admin</span></div>
+          <div class="rl-role-desc">تحكم كامل — مدير النظام</div>
+          <div class="rl-role-meta"><span style="color:#FF8C69">{{ c.permissions.length }} صلاحية</span><span>{{ c.superAdminCount ?? 0 }} أعضاء</span></div>
+        </div>
+      }
       @for (r of roles(); track r.id; let i = $index) {
         <div class="rl-role-card" [style.border-color]="(r.color || color(i)) + '38'" data-testid="role-card">
           <div class="rl-role-top">
