@@ -2,10 +2,9 @@
 
 // FE-3: PayPal only, and (until the currency formatter of phase D exists) no riyal / SAR LABEL in production files. Production files (including the withdrawal screens) must never bring back
 // Moyasar or a non-PayPal deposit rail.
-// POLICY UPDATE (2026-10-25): "USD only" is no longer an absolute product rule - the platform base currency becomes configurable (USD / SAR), each amount keeps its own currency, nothing is summed across
-// currencies. This check is deliberately KEPT as is for now because no SAR can be shown honestly before the per-record currency formatter exists (design: admin-team/system-settings/CURRENCY-TRANSITION-DESIGN.md,
-// phases B-D); when that phase lands this file is rewritten to allow currency labels ONLY through that formatter, still banning Moyasar / mada / Apple Pay. The consistency of amounts and currencies is
-// guarded on the server by src/config/currency-consistency.guard.test.ts.
+// POLICY (2026-10-26, currency batch C): "USD only" is no longer an absolute product rule - each amount keeps its own currency (USD / SAR) and nothing is summed across currencies. A currency code or
+// name may therefore appear in production files ONLY inside the central formatter (core/utils/currency.ts); everywhere else an amount goes through formatMoneyIn / the `money` pipe. Moyasar, the mada
+// network and Apple Pay stay banned everywhere. The consistency of amounts and currencies is guarded on the server by src/config/currency-consistency.guard.test.ts.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -23,6 +22,9 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 const production = walk(SRC).filter(f => /\.(ts|html|css)$/.test(f) && !/\.spec\.ts$/.test(f) && !/test-fixtures/.test(f));
 const read = (rel: string) => readFileSync(join(APP, rel), 'utf-8');
+/** the only files allowed to name a currency (its code or its Arabic name) */
+const CURRENCY_NAMING_ALLOWED = [join('core', 'utils', 'currency.ts')];
+const CURRENCY_ONLY = new Set(['SAR', 'ريال', 'ر.س', '﷼']);
 const BANNED = [
 	{ name: 'SAR', re: /\bSAR\b/ },
 	{ name: 'ريال', re: /ريال/ },
@@ -34,11 +36,12 @@ const BANNED = [
 	{ name: 'مدى (شبكة الدفع)', re: /بمدى|>\s*مدى\s*<|[\/،]\s*مدى(?!\s*الحياة)|مدى\s*[\/،]/ },
 ];
 
-describe('FE-3 USD only / PayPal only', () => {
-	it('no production file mentions SAR, riyal wording/symbols, Moyasar, Apple Pay or the mada network', () => {
+describe('FE-3 PayPal only; currencies only through the central formatter', () => {
+	it('no production file names a currency outside the formatter, and none mentions Moyasar, Apple Pay or the mada network', () => {
 		for (const f of production) {
 			const text = readFileSync(f, 'utf-8');
-			for (const b of BANNED) expect(b.re.test(text), `${f.replace(SRC, 'src')}: ${b.name}`).toBe(false);
+			const allowedHere = CURRENCY_NAMING_ALLOWED.some(a => f.endsWith(a));
+			for (const b of BANNED) { if (allowedHere && CURRENCY_ONLY.has(b.name)) continue; expect(b.re.test(text), `${f.replace(SRC, 'src')}: ${b.name}`).toBe(false); }
 		}
 	});
 

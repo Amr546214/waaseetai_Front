@@ -68,6 +68,9 @@ export interface AdminStaffMember { id: string; name: string; email: string; acc
 export interface FinanceBucket { count: number; amount: number }
 export interface AdminFinanceOverview {
   currency: string;
+  /** every currency listed on its own (never one total across currencies) and whether more than one exists */
+  byCurrency?: Record<string, { escrowHeldAmount: number; releasedGross: number; platformCommission: number; providerNetReleased: number; depositsAmount: number }>;
+  mixedCurrencies?: boolean;
   totals: { escrowHeldCount: number; escrowHeldAmount: number; releasedGross: number; platformCommission: number; providerNetReleased: number; depositsCount: number; depositsAmount: number; paymentGatewayFees: number };
   withdrawals: Record<string, FinanceBucket>;
   affiliateCommissions: Record<string, FinanceBucket>;

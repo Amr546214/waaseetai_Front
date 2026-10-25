@@ -1,3 +1,4 @@
+import { formatMoneyIn } from '../../../../core/utils/currency';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -32,6 +33,9 @@ export class SaSubFinance implements OnInit {
   downloadError = signal('');
 
   bars = computed(() => seriesBars(this.overview()));
+  /** per-currency lines, only when the platform holds more than one currency (the KPIs above are the headline currency) */
+  currencyRows = computed(() => { const o = this.overview(); return o?.mixedCurrencies && o.byCurrency ? Object.entries(o.byCurrency).map(([currency, v]) => ({ currency, ...v })) : []; });
+  readonly money = formatMoneyIn;
   pendingWithdrawals = computed(() => bucket(this.overview()?.withdrawals, 'PENDING'));
   breakdown = computed(() => {
     const t = this.overview()?.totals;

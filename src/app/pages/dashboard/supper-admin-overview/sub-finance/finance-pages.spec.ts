@@ -108,6 +108,16 @@ describe('SaSubFinance', () => {
 	});
 });
 
+describe('SaSubFinance - currencies', () => {
+	it('with one currency there is no per-currency strip; with several, each currency is listed on its own and never added', () => {
+		const one = mount(SaSubFinance); expect(q(one.el, 'sf-by-currency')).toBeNull();
+		TestBed.resetTestingModule();
+		const many = { ...OVERVIEW, mixedCurrencies: true, byCurrency: { USD: { escrowHeldAmount: 1234.56, releasedGross: 8000, platformCommission: 777.77, providerNetReleased: 7222.23, depositsAmount: 9999.99 }, SAR: { escrowHeldAmount: 500, releasedGross: 0, platformCommission: 0, providerNetReleased: 0, depositsAmount: 0 } } };
+		const m = mount(SaSubFinance, api({ financeOverview: vi.fn(() => of({ success: true, data: many })) }));
+		const strip = q(m.el, 'sf-by-currency')!; expect(strip).not.toBeNull(); expect(strip.textContent).toContain('SAR: ضمان محجوز 500.00 SAR'); expect(strip.textContent).toContain('USD: ضمان محجوز 1,234.56 USD');
+	});
+});
+
 describe('SaFinanceReports', () => {
 	it('binds overview to API figures; expenses/profit show the honest empty state plus real cost figures', () => {
 		const { f, el } = mount(SaFinanceReports);

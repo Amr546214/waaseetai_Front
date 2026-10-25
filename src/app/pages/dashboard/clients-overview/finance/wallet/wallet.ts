@@ -1,3 +1,4 @@
+import { formatMoneyIn } from '../../../../../core/utils/currency';
 import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
@@ -108,11 +109,15 @@ export class Wallet implements OnInit {
     });
   }
 
+  /** balances in a currency other than USD (none today): each listed on its own, never added to the USD balance */
+  readonly otherBalances = signal<Array<{ currency: string; value: number }>>([]);
+  readonly money = formatMoneyIn;
   private walletLoaded = false;
 
   private applyWalletData(data: ClientWalletData) {
     this.walletLoaded = true;
     this.balance.set(data.summary?.availableBalance ?? 0);
+    this.otherBalances.set(Object.entries(data.summary?.balances ?? {}).filter(([c, v]) => c !== 'USD' && v > 0).map(([currency, value]) => ({ currency, value })));
     this.escrowBalance.set(data.summary?.escrowBalance ?? 0);
     this.activeProjectsCount.set(data.summary?.activeProjectsCount ?? 0);
     this.quarterSpend.set(data.summary?.quarterSpend ?? 0);

@@ -228,3 +228,4 @@
 .fd-btn:disabled{opacity:.5;cursor:not-allowed}
 .fd-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 @media print{.fd-actions{display:none}}
+.fd-note { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--border, #cbd5e1); border-radius: 10px; font-size: 13px; line-height: 1.7; }
