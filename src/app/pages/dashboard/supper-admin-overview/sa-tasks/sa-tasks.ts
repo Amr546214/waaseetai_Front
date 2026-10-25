@@ -31,7 +31,7 @@ export class SaTasks implements OnInit {
 	readonly typeLabel = TASK_TYPE_LABEL; readonly statusLabel = TASK_STATUS_LABEL; readonly priorityLabel = TASK_PRIORITY_LABEL;
 
 	loading = signal(true); error = signal(''); tasks = signal<TaskRow[]>([]); summary = signal<TaskSummary | null>(null); team = signal<StaffMember[]>([]);
-	tab = signal('open'); search = signal(''); assigneeFilter = signal(''); typeFilter = signal(''); view = signal<'list' | 'kanban'>('list');
+	tab = signal('open'); search = signal(''); assigneeFilter = signal(''); typeFilter = signal(''); view = signal<'list' | 'kanban'>('kanban');
 	detail = signal<(TaskRow & { events: Array<{ kind: string; from: string | null; to: string | null; at: string }> }) | null>(null); detailError = signal(''); busy = signal(false);
 	creating = signal(false); createError = signal(''); form = { title: '', description: '', type: 'SUPPORT', priority: 'NORMAL', dueAt: '', assigneeId: '' };
 

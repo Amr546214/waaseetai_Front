@@ -61,7 +61,7 @@
               <div class="tm-card-head-body"><div class="tm-name">{{ m.name }}</div><div class="tm-role">{{ m.isOwner ? 'مالك المنصة' : (m.role?.name ?? 'بلا دور') }}</div></div>
               <span class="tm-status-dot" [class.tm-online]="m.activeNow" [class.tm-offline]="!m.activeNow" data-testid="member-presence">{{ m.status !== 'ACTIVE' ? 'موقوف' : m.activeNow ? 'نشط الآن' : 'غير متاح' }}</span>
             </div>
-            <div class="tm-dept">{{ m.departments.length ? m.departments.join(' · ') : 'بلا أقسام' }}</div>
+            <div class="tm-dept">{{ departments(m) }}</div>
             <div class="tm-stats">
               <div class="tm-stat"><div class="tm-stat-val" style="color:#2BD4C7">{{ m.openTasks }}</div><div class="tm-stat-lbl">مهام مفتوحة</div></div>
               <div class="tm-stat"><div class="tm-stat-val" style="color:#0FA99A">{{ m.doneTasks }}</div><div class="tm-stat-lbl">مكتملة</div></div>

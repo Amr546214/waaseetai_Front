@@ -43,7 +43,7 @@
               <div class="tm-info-item"><div class="tm-info-lbl">الاسم الكامل</div><div class="tm-info-val">{{ m.name }}</div></div>
               <div class="tm-info-item"><div class="tm-info-lbl">البريد الإداري</div><div class="tm-info-val" dir="ltr" style="text-align:right;font-size:11px">{{ m.email }}</div></div>
               <div class="tm-info-item"><div class="tm-info-lbl">الدور الإداري</div><div class="tm-info-val">{{ m.isOwner ? 'مالك المنصة' : (m.role?.name ?? 'بلا دور') }}</div></div>
-              <div class="tm-info-item"><div class="tm-info-lbl">القسم</div><div class="tm-info-val">{{ m.departments.length ? m.departments.join(' · ') : '—' }}</div></div>
+              <div class="tm-info-item"><div class="tm-info-lbl">القسم</div><div class="tm-info-val">{{ departmentsText(m.departments) }}</div></div>
               <div class="tm-info-item"><div class="tm-info-lbl">تاريخ الانضمام</div><div class="tm-info-val">{{ m.joinedAt | date:'yyyy/MM/dd' }}</div></div>
               <div class="tm-info-item"><div class="tm-info-lbl">آخر دخول</div><div class="tm-info-val" data-testid="member-last-login">{{ m.lastLoginAt ? (m.lastLoginAt | date:'yyyy/MM/dd HH:mm') : '—' }}</div></div>
             </div>

@@ -74,5 +74,6 @@ export class SaTeamMemberDetail implements OnInit {
 			default: return `عدّل المهمة ${code} · ${a.taskTitle}`;
 		}
 	}
+	departmentsText(d: string[]): string { return d.length ? d.slice(0, 3).join(' · ') + (d.length > 3 ? ` +${d.length - 3}` : '') : '—'; }
 	initial(n: string) { return (n || '?').trim().charAt(0); }
 }

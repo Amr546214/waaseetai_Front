@@ -17,8 +17,8 @@
   }
 
   <div class="tk-tabs" role="tablist" id="task-tabs">
-    <button class="tk-tab" [class.active]="tab() === 'open'" type="button" (click)="setTab('open')">جارية @if (summary()) { <span>({{ summary()!.inProgress }})</span> }</button>
-    <button class="tk-tab" [class.active]="tab() === 'pending'" type="button" (click)="setTab('pending')">معلقة @if (summary()) { <span>({{ summary()!.pending }})</span> }</button>
+    <button class="tk-tab" [class.active]="tab() === 'open'" type="button" (click)="setTab('open')">جارية @if (summary()) { <span class="tk-pill tk-pill-amber">{{ summary()!.inProgress }}</span> }</button>
+    <button class="tk-tab" [class.active]="tab() === 'pending'" type="button" (click)="setTab('pending')">معلقة @if (summary()) { <span class="tk-pill tk-pill-blue">{{ summary()!.pending }}</span> }</button>
     <button class="tk-tab" [class.active]="tab() === 'done'" type="button" (click)="setTab('done')">مكتملة</button>
     <button class="tk-tab" [class.active]="tab() === 'all'" type="button" (click)="setTab('all')">الكل</button>
   </div>
@@ -31,14 +31,9 @@
     <ws-select class="tk-sel" ariaLabel="النوع" [leading]="allTypes" [options]="typeOpts" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); load()" />
   </div>
 
-  <div style="display:flex;gap:3px;margin-bottom:12px" role="group" aria-label="طريقة العرض">
-    <button type="button" class="tk-tab" [class.active]="view() === 'list'" (click)="view.set('list')" data-testid="view-list">قائمة</button>
-    <button type="button" class="tk-tab" [class.active]="view() === 'kanban'" (click)="view.set('kanban')" data-testid="view-kanban">Kanban</button>
-  </div>
-
   @if (error()) { <div class="tk-empty" role="alert">{{ error() }} <button type="button" class="tk-btn tk-btn-gh" (click)="load()">إعادة المحاولة</button></div> }
   @else if (loading() && !tasks().length) { <div class="tk-empty" role="status">جاري تحميل المهام...</div> }
-  @else if (view() === 'list') {
+  @else {
     <div class="tk-card">
       <div class="tk-card-hdr"><span class="tk-card-ttl">{{ title() }}</span><span class="tk-card-count">{{ tasks().length }} مهام</span></div>
       <div class="tk-tbl-wrap">
@@ -60,8 +55,31 @@
         </table>
       </div>
     </div>
-  } @else {
-    <div class="tk-kanban" data-testid="kanban"><div class="tk-kanban-grid">
+
+    @if (summary(); as s) {
+      <div class="tk-boxes" data-testid="status-boxes">
+        <div class="tk-box"><div class="tk-box-val" style="color:#6B7699">{{ s.byStatus['NEW'] ?? 0 }}</div><div class="tk-box-lbl">جديدة</div></div>
+        <div class="tk-box tk-box-blue"><div class="tk-box-val" style="color:#5DA0FF">{{ s.byStatus['IN_PROGRESS'] ?? 0 }}</div><div class="tk-box-lbl">جارية</div></div>
+        <div class="tk-box tk-box-amber"><div class="tk-box-val" style="color:#FFB400">{{ s.overdue }}</div><div class="tk-box-lbl" style="color:#FF8C69">متأخرة ⚠</div></div>
+        <div class="tk-box tk-box-green"><div class="tk-box-val" style="color:#0FA99A">{{ s.byStatus['DONE'] ?? 0 }}</div><div class="tk-box-lbl">مكتملة</div></div>
+      </div>
+    }
+  }
+  @if (workload().length) {
+    <div class="tk-workload"><div class="tk-sec-ttl">توازن العبء على الفريق</div><div class="tk-wl-list">
+      @for (w of workload(); track w.name) { <div class="tk-wl-row"><span class="tk-wl-name">{{ w.name }}</span><div class="tk-wl-bar"><div class="tk-wl-fill" [style.width.%]="w.pct" [style.background]="w.color"></div></div><span class="tk-wl-count" [style.color]="w.color">{{ w.n }} مهام</span></div> }
+    </div></div>
+  }
+
+  @if (!error() && !(loading() && !tasks().length)) {
+    <div class="tk-kb-sec" data-testid="kanban-section">
+      <div class="tk-kb-hdr"><div class="tk-kb-ttl">Kanban Board</div>
+        <div class="tk-kb-toggle" role="group" aria-label="طريقة العرض">
+          <button type="button" class="tk-kb-btn" [class.on]="view() === 'kanban'" (click)="view.set('kanban')" data-testid="view-kanban">Kanban</button>
+          <button type="button" class="tk-kb-btn" [class.on]="view() === 'list'" (click)="view.set('list')" data-testid="view-list">قائمة</button>
+        </div></div>
+      @if (view() === 'kanban') {
+        <div class="tk-kanban" data-testid="kanban"><div class="tk-kanban-grid">
       @for (c of kanban(); track c.key) {
         <div class="tk-kanban-col" [style.border-color]="c.key === 'OVERDUE' ? 'rgba(255,180,0,.14)' : c.key === 'DONE' ? 'rgba(15,169,154,.14)' : c.key === 'IN_PROGRESS' ? 'rgba(43,127,255,.14)' : 'rgba(255,255,255,.07)'">
           <div class="tk-kanban-col-ttl">{{ { NEW: 'جديدة', IN_PROGRESS: 'جارية', OVERDUE: 'متأخرة', DONE: 'مكتملة' }[c.key] }} ({{ c.tasks.length }})</div>
@@ -70,13 +88,15 @@
           </div>
         </div>
       }
-    </div></div>
-  }
-
-  @if (workload().length) {
-    <div class="tk-workload"><div class="tk-sec-ttl">توازن العبء على الفريق</div><div class="tk-wl-list">
-      @for (w of workload(); track w.name) { <div class="tk-wl-row"><span class="tk-wl-name">{{ w.name }}</span><div class="tk-wl-bar"><div class="tk-wl-fill" [style.width.%]="w.pct" [style.background]="w.color"></div></div><span class="tk-wl-count" [style.color]="w.color">{{ w.n }} مهام</span></div> }
-    </div></div>
+    </div>
+        </div>
+      } @else {
+        <div class="tk-kb-list" data-testid="kanban-list">
+          @for (t of tasks(); track t.id) { <div class="tk-kanban-item" (click)="open(t)">{{ t.title }}<div class="tk-kanban-item-meta">{{ t.assignee?.name ?? 'غير مُكلَّفة' }} · {{ priorityLabel[t.priority] }} · {{ statusLabel[t.status] }}</div></div> }
+          @empty { <div class="tk-empty">لا توجد مهام</div> }
+        </div>
+      }
+    </div>
   }
 
   @if (detail(); as d) {

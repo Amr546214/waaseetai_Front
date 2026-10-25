@@ -54,6 +54,8 @@ export class SaTeam implements OnInit {
 	setTab(t: string) { this.tab.set(t); this.load(); }
 	onFilter() { this.load(); }
 	avatar(i: number) { return AVATARS[i % AVATARS.length]; }
+	/** At most three departments are written out; the rest is a count (a broad role would otherwise fill the card). */
+	departments(m: { departments: string[] }): string { const d = m.departments; return d.length ? d.slice(0, 3).join(' · ') + (d.length > 3 ? ` +${d.length - 3}` : '') : 'بلا أقسام'; }
 	initial(name: string) { return (name || '?').trim().charAt(0); }
 	roleTabs = computed(() => this.roles());
 	/** The design's «الأقسام المتاحة»: shown, but derived from the chosen role's permissions (a department grants nothing of its own). */
