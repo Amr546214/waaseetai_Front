@@ -14,6 +14,8 @@ import { MarketerProfileService } from '../../../core/services/marketer-profile.
 import { resolveMarketerSetup } from '../../../pages/dashboard/marketer-overview/profile/profile-setup/marketer-setup-state';
 import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../core/services/provider-access.service';
 import { isOnboardingAllowedPath } from '../../../core/guards/profile-complete.guard';
+import { AdminAccessService } from '../../../core/services/admin-access.service';
+import { ruleForPath } from '../../../core/config/admin-access-rules';
 
 export interface NavItem {
 	type: 'header' | 'link' | 'accordion' | 'button' | 'divider';
@@ -46,6 +48,7 @@ export class Sidebar implements OnInit {
 	private providerAccess = inject(ProviderAccessService);
 	private marketingCenterService = inject(MarketingCenterService);
 	private marketerProfileService = inject(MarketerProfileService);
+	private adminAccess = inject(AdminAccessService);
 
 	isProviderProfileIncomplete = signal<boolean>(false);
 	/** Individual provider: the setup form AND the classification test are done -> the "استكمال البيانات" link goes away. */
@@ -81,6 +84,8 @@ export class Sidebar implements OnInit {
 	}
 
 	ngOnInit() {
+		// Admin accounts: what the account may do is read once from the server; until then the menu shows only the account's own pages.
+		if (this.effectiveRole() === UserRole.ADMIN || this.effectiveRole() === UserRole.SUPER_ADMIN) void this.adminAccess.ensure();
 		// Marketer: read the profile once so the sidebar knows whether the setup wizard still has something to collect (pages keep it fresh).
 		if (this.effectiveRole() === UserRole.AFFILIATE && !this.marketerProfileService.profileSnapshot()) {
 			this.marketerProfileService.getProfile().subscribe({ error: () => { /* unknown = the link stays */ } });
@@ -207,13 +212,13 @@ export class Sidebar implements OnInit {
 		const role = this.effectiveRole();
 
 		if (role === UserRole.SUPER_ADMIN || user.accountType === AccountType.SUPER_ADMIN) {
-			return this.getSuperAdminNavItems(true);
+			return this.adminMenu(this.getSuperAdminNavItems(true));
 		}
 
 		// A real ADMIN account (e.g. the accreditation reviewer) works in the admin area too: the admin menu, minus what is for the super admin only.
 		// Hiding a link is not the authorization: the backend decides every request.
 		if (role === UserRole.ADMIN) {
-			return this.getSuperAdminNavItems(false);
+			return this.adminMenu(this.getSuperAdminNavItems(true));
 		}
 
 		if (role === UserRole.AFFILIATE) {
@@ -226,6 +231,22 @@ export class Sidebar implements OnInit {
 
 		return this.getClientNavItems();
 	});
+
+	/**
+	 * The admin menu shows only what the account's PERMISSIONS allow (read from the server, core/services/admin-access.service). While they are not known, or when they cannot be read, only the
+	 * account's own pages are shown. Hiding is a convenience: the server refuses every request without the permission.
+	 */
+	private adminMenu(items: NavItem[]): NavItem[] {
+		const allowed = (i: NavItem) => !i.route || !i.route.startsWith('/supper-admin-overview') || this.adminAccess.allows(ruleForPath(i.route));
+		const out: NavItem[] = [];
+		for (const it of items) {
+			if (it.type === 'accordion') { const kids = (it.children ?? []).filter(allowed); if (kids.length) out.push({ ...it, children: kids }); continue; }
+			if (it.type === 'header' || it.type === 'divider') { out.push(it); continue; }
+			if (allowed(it)) out.push(it);
+		}
+		// a header with nothing under it is dropped (also two headers in a row, and a trailing one)
+		return out.filter((it, i) => !(it.type === 'header' || it.type === 'divider') || (out[i + 1] && out[i + 1].type !== 'header' && out[i + 1].type !== 'divider'));
+	}
 
 	private getSuperAdminNavItems(isSuper: boolean): NavItem[] {
 		const icons = {

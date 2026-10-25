@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal, effect, AfterViewInit, OnInit, OnDestroy, PLATFORM_ID, Renderer2 } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthStore } from '../../core/store/auth.store';
@@ -34,6 +34,10 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
   currentYear = new Date().getFullYear();
   // Real build value from the active environment file (no hardcoded literal in the component).
   readonly appVersion = environment.appVersion;
+
+  /** The admin console follows the identity file's sidebar width (220px, DESIGN_SYSTEM.md «Layout»); the other dashboards keep their own 260px. */
+  isAdminShell = signal(false);
+  private syncAdminShell = () => this.isAdminShell.set((this.router.url ?? '').startsWith('/supper-admin-overview'));
 
   // Responsive Sidebar Toggle
   isSidebarOpen = signal(false);
@@ -88,6 +92,8 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
   }
 
   ngOnInit() {
+    this.syncAdminShell();
+    this.sub.add(this.router.events.subscribe(e => { if (e instanceof NavigationEnd) this.syncAdminShell(); }));
     if (isPlatformBrowser(this.platformId)) {
       const user = this.currentUser();
       let userId = user?.id;

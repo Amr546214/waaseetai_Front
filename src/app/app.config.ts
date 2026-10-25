@@ -11,6 +11,7 @@ import { getCacheInterceptor } from './core/interceptors/get-cache.interceptor';
 import { rateLimitInterceptor } from './core/interceptors/rate-limit.interceptor';
 import { errorMessageInterceptor } from './core/interceptors/error-message.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
+import { adminAccessInterceptor } from './core/interceptors/admin-access.interceptor';
 import { SOCIAL_AUTH_CONFIG, SocialAuthServiceConfig, GoogleLoginProvider } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment';
 
@@ -23,7 +24,7 @@ export const appConfig: ApplicationConfig = {
 			anchorScrolling: 'enabled'
 		})),
 		provideClientHydration(withEventReplay()),
-		provideHttpClient(withFetch(), withInterceptors([errorMessageInterceptor, loadingInterceptor, providerGateInterceptor, authInterceptor, getCacheInterceptor, rateLimitInterceptor])),
+		provideHttpClient(withFetch(), withInterceptors([adminAccessInterceptor, errorMessageInterceptor, loadingInterceptor, providerGateInterceptor, authInterceptor, getCacheInterceptor, rateLimitInterceptor])),
 		provideTranslateService({ lang: 'ar', fallbackLang: 'ar' }),
 		{
 			provide: SOCIAL_AUTH_CONFIG,

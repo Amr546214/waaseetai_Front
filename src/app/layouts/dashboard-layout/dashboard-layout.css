@@ -176,3 +176,9 @@
 
 .main-inner[hidden] { display: none !important; }
 .ws-role-redirect { padding: 48px 16px; text-align: center; color: var(--text-secondary, #64748b); font-weight: 600; }
+
+/* Admin console: sidebar 220px as in the identity file and the admin design pages (the other dashboards keep 260px). Desktop only: below 1024px the sidebar is a drawer as before. */
+@media (min-width: 1024px) {
+  .admin-shell .sidebar-wrapper { width: 220px; }
+  .admin-shell .main { margin-right: 220px; }
+}

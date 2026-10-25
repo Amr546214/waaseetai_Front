@@ -11,8 +11,9 @@ const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
 
 import { Sidebar, NavItem } from './sidebar';
 import { AuthStore } from '../../../core/store/auth.store';
+import { AdminAccessService } from '../../../core/services/admin-access.service';
 
-function setup(user: any) {
+function setup(user: any, perms: string[] = ['users.view', 'specialties.approve'], isSuperAdmin = false) {
 	TestBed.configureTestingModule({
 		imports: [Sidebar],
 		providers: [
@@ -21,6 +22,8 @@ function setup(user: any) {
 			{ provide: AuthStore, useValue: { currentUser: signal<any>(user), token: signal('t') } },
 		],
 	});
+	// what the account may do comes from the server (core/services/admin-access.service); an account TYPE grants no menu entry by itself
+	const acc = TestBed.inject(AdminAccessService); acc.access.set({ userId: 'u', isSuperAdmin, staffStatus: 'ACTIVE', roleName: 'دور', permissions: perms, hasAnyPermission: true, state: isSuperAdmin ? 'SUPER_ADMIN' : 'ACTIVE', displayRole: 'دور' }); acc.status.set('ready');
 	const f = TestBed.createComponent(Sidebar);
 	f.detectChanges();
 	const flat = () => (f.componentInstance.navItems() as NavItem[]).flatMap(i => [i, ...(i.children ?? [])]);
@@ -31,24 +34,34 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 	afterEach(() => TestBed.resetTestingModule());
 	const ADMIN = { accountType: 'ADMIN', activeRole: 'ADMIN', roles: ['ADMIN'] };
 
-	it('shows the admin menu and title, never the client menu', () => {
+	it('shows the admin menu (only what the permissions allow) and title, never the client menu', () => {
 		const { routes, title } = setup(ADMIN);
 		expect(title()).toBe('لوحة الإدارة');
 		expect(routes()).toContain('/supper-admin-overview/accreditations');
 		expect(routes()).toContain('/supper-admin-overview/users');
+		expect(routes()).not.toContain('/supper-admin-overview/withdrawals'); // no withdrawals.review: no link
+		expect(routes()).not.toContain('/supper-admin-overview/roles'); // owner only
 		expect(routes().some(r => r.startsWith('/client-overview'))).toBe(false);
+	});
+	it('an account with NO permission sees only its own account page (nothing that suggests authority)', () => {
+		const { routes } = setup(ADMIN, []);
+		expect(routes()).toEqual(['/supper-admin-overview/my-account']);
 	});
 	it('does not list the super-admin-only page', () => {
 		expect(setup(ADMIN).routes()).not.toContain('/supper-admin-overview/super-admins');
 	});
-	it('a SUPER_ADMIN keeps the full menu including the super admin page', () => {
-		const r = setup({ accountType: 'SUPER_ADMIN', activeRole: 'SUPER_ADMIN', roles: ['SUPER_ADMIN'] }).routes();
+	it('the OWNER keeps the full menu including the roles and super admin pages; a SUPER_ADMIN ACCOUNT that is not the owner does not', () => {
+		const sa = { accountType: 'SUPER_ADMIN', activeRole: 'SUPER_ADMIN', roles: ['SUPER_ADMIN'] };
+		expect(setup(sa, ['users.view']).routes()).not.toContain('/supper-admin-overview/super-admins');
+		TestBed.resetTestingModule();
+		const r = setup(sa, [], true).routes();
+		expect(r).toContain('/supper-admin-overview/roles');
 		expect(r).toContain('/supper-admin-overview/super-admins');
 		expect(r).toContain('/supper-admin-overview/accreditations');
 	});
 	it('an admin account whose STORED active role is CLIENT still gets the admin menu (the account type decides, never the client shell)', () => {
 		for (const accountType of ['ADMIN', 'SUPER_ADMIN']) {
-			const { routes } = setup({ accountType, activeRole: 'CLIENT', roles: ['CLIENT'] });
+			const { routes } = setup({ accountType, activeRole: 'CLIENT', roles: ['CLIENT'] }, ['users.view']);
 			expect(routes().some(r => r.startsWith('/client-overview'))).toBe(false);
 			expect(routes()).toContain('/supper-admin-overview/users');
 			TestBed.resetTestingModule();
