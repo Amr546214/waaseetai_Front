@@ -45,7 +45,7 @@ describe('team member page (P-AD-022-موظف): the design\'s blocks, real value
 		expect(el(f).querySelector('[data-testid="member-status"]')?.textContent?.trim()).toBe('نشط الآن');
 		expect(el(f).querySelector('[data-testid="member-edit-perms"]')).toBeNull(); expect(el(f).querySelector('[data-testid="member-toggle"]')).toBeNull();
 		(el(f).querySelector('[data-testid="tab-perms"]') as HTMLButtonElement).click(); await flush(f);
-		expect(el(f).querySelector('[data-testid="perms-SUPER_ADMIN-only"]')).toBeTruthy(); expect(el(f).querySelector('[data-testid="member-role-select"]')).toBeNull();
+		expect(el(f).querySelector('[data-testid="perms-super-admin-only"]')).toBeTruthy(); expect(el(f).querySelector('[data-testid="member-role-select"]')).toBeNull();
 		(el(f).querySelector('[data-testid="tab-log"]') as HTMLButtonElement).click(); await flush(f);
 		expect(el(f).querySelector('[data-testid="log-empty"]')?.textContent).toContain('ليست لديك صلاحية');
 	});
