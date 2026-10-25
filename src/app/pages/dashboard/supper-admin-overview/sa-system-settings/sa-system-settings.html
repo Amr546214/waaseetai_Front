@@ -35,6 +35,7 @@
           @case ('security') { <app-settings-section title="الأمان والمصادقة" [keys]="security" variant="ss" /> }
           @case ('finance') {
             <app-settings-section title="الإعدادات المالية" [keys]="finance" variant="ss" />
+            @if (access.canAny(['fees.view','fees.manage'])) { <app-fee-policy-panel /> }
             @if (access.isSuperAdmin()) {
               <div class="ss-card" data-testid="currency-readiness">
                 <div class="ss-card-ttl">جاهزية تغيير العملة الأساسية</div>

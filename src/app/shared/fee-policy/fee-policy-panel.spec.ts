@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { FeePolicyPanel, diffPayload, describePath } from './fee-policy-panel';
-import { FeePolicyApi, FeePolicyPayload, FeePolicyView } from '../../../../../core/services/fee-policy.api';
-import { AdminAccessService } from '../../../../../core/services/admin-access.service';
-import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
+import { FeePolicyApi, FeePolicyPayload, FeePolicyView } from '../../core/services/fee-policy.api';
+import { AdminAccessService } from '../../core/services/admin-access.service';
+import { ConfirmModalService } from '../../core/services/confirm-modal.service';
 
 const payload = (): FeePolicyPayload => ({
 	providerCommissionByLevel: Array(15).fill(10), clientCashbackByLevel: Array(15).fill(1), marketerCommissionByLevel: Array(15).fill(2),
@@ -42,5 +42,23 @@ describe('FeePolicyPanel', () => {
 		const a = await setup(view(), false); expect(a.c.editable()).toBe(false);
 		TestBed.resetTestingModule();
 		const b = await setup(view([{ ...view().active, id: 'u', version: 2, state: 'SCHEDULED' }])); expect(b.c.editable()).toBe(false); expect(b.c.pending().length).toBe(1);
+	});
+	it('shows cashback and the marketer withdrawal fee as display-only: disabled, labelled, never sent', async () => {
+		const { f, c, api } = await setup(view()); f.detectChanges();
+		const el = f.nativeElement as HTMLElement;
+		expect(el.querySelector('[data-testid="fp-display-only"]')?.textContent).toContain('لا تُطبَّق ماليًا');
+		const cashback = el.querySelectorAll('[data-testid="fp-ladders"] tbody tr td:nth-child(3) input');
+		expect(cashback.length).toBe(15); expect(Array.from(cashback).every(i => (i as HTMLInputElement).disabled)).toBe(true);
+		c.setMin('minProviderPayout', '5'); c.note.set('r'); await c.submit();
+		expect(Object.keys((api.schedule.mock.lastCall as any[])[0].changes)).toEqual(['minProviderPayout']);
+	});
+	it('types the effective time in the platform zone and sends the matching UTC instant', async () => {
+		const { setPlatformRegional } = await import('../../core/utils/regional');
+		setPlatformRegional({ defaultTimezone: 'Asia/Riyadh' });
+		try {
+			const { c, api } = await setup(view()); c.setMin('minProviderPayout', '5'); c.note.set('r'); c.effectiveFrom.set('2030-03-10T09:30');
+			await c.submit(); expect((api.schedule.mock.lastCall as any[])[0].effectiveFrom).toBe('2030-03-10T06:30:00.000Z');
+			expect(c.zoneLabel()).toBe('Asia/Riyadh');
+		} finally { setPlatformRegional({}); }
 	});
 });

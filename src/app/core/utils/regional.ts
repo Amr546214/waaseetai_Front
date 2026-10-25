@@ -25,3 +25,17 @@ export function zoneOffsetString(zone: string, at: Date = new Date()): string | 
 	} catch { return undefined; }
 }
 export const platformDateOffset = (): string | undefined => { const z = platformTimeZone(); return z ? zoneOffsetString(z) : undefined; };
+
+/** "YYYY-MM-DDTHH:mm" as the wall clock of `zone` at the given instant (for a datetime-local input shown in the platform zone) */
+export function wallClockInZone(at: Date, zone: string): string {
+	const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: zone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(at).map(x => [x.type, x.value]));
+	return `${p['year']}-${p['month']}-${p['day']}T${p['hour']}:${p['minute']}`;
+}
+/** the instant at which `zone`'s wall clock reads `local` ("YYYY-MM-DDTHH:mm"); the reference time that is stored and sent to the server (UTC) */
+export function instantOfWallClock(local: string, zone: string): Date {
+	const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(local); if (!m) return new Date(NaN);
+	const asUtc = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+	let guess = asUtc;
+	for (let i = 0; i < 2; i++) { const o = /([+-])(\d{2})(\d{2})/.exec(zoneOffsetString(zone, new Date(guess)) ?? '+0000')!; guess = asUtc - (o[1] === '-' ? -1 : 1) * (+o[2] * 60 + +o[3]) * 60_000; }
+	return new Date(guess);
+}

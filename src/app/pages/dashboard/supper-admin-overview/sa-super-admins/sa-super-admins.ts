@@ -1,3 +1,4 @@
+import { FeePolicyPanel } from '../../../../shared/fee-policy/fee-policy-panel';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { FormsModule } from '@angular/forms';
@@ -15,7 +16,7 @@ type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'in
 @Component({
   selector: 'app-sa-super-admins',
   standalone: true,
-  imports: [WsDatePipe, CommonModule, WsSelectComponent, FormsModule, SettingsSectionComponent, RouterLink],
+  imports: [WsDatePipe, CommonModule, WsSelectComponent, FormsModule, SettingsSectionComponent, RouterLink, FeePolicyPanel],
   templateUrl: './sa-super-admins.html',
   styleUrl: './sa-super-admins.css',
 })
@@ -47,7 +48,7 @@ export class SaSuperAdmins implements OnInit {
   readonly identity = ['platformName', 'defaultLanguage', 'defaultTimezone', 'baseCurrency'];
   readonly registration = ['registrationOpen', 'emailRegistration', 'phoneOtpAtRegistration', 'kycBeforeOffers', 'maintenanceMode'];
   readonly contentPolicy = ['projectReviewBeforePublish', 'providerProfileApproval', 'profanityFilter'];
-  readonly fees = ['transactionFee', 'withdrawalFee', 'minWithdrawal', 'escrowHoldHours', 'clientCashback'];
+  readonly fees = ['escrowHoldHours'];
   readonly billing = ['futureBilling'];
   readonly security = ['sessionIdleMinutes', 'sessionMaxHours', 'loginProtection', 'minPasswordLength', 'adminTwoFactor', 'anomalyLock'];
   readonly channels = ['channelInApp', 'channelEmail', 'channelSms', 'channelWhatsapp', 'channelPush'];

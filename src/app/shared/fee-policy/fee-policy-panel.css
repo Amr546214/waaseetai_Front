@@ -20,3 +20,4 @@
 .fp-err { color: #b91c1c; font-size: 13px; } .fp-ok { color: #047857; font-size: 13px; } .fp-count { font-size: 13px; color: var(--ws-text-muted, #64748b); }
 .fp-hist { margin: 0; padding-inline-start: 20px; font-size: 13px; }
 @media (prefers-color-scheme: dark) { .fp-err { color: #fca5a5; } .fp-ok { color: #6ee7b7; } }
+.fp-tag { font-size: 11px; padding: 1px 6px; border-radius: 6px; background: var(--ws-surface-2, #f1f5f9); color: var(--ws-text-muted, #64748b); }
