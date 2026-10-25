@@ -21,7 +21,7 @@ const OPERATIONS_DETAIL = new Set(['requests', 'offers', 'projects', 'contracts'
 /** longest matching prefix of the path after /supper-admin-overview/ wins; '' is the dashboard */
 export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'': { member: true },
-	messages: { member: true },
+	messages: { all: ['messages.use'] },
 	users: { all: ['users.view'] },
 	brokers: { all: ['users.view'] },
 	accreditations: { all: ['specialties.approve'] },

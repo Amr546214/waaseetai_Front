@@ -1,4 +1,5 @@
-.ms-page{direction:rtl;display:flex;flex-direction:column;height:calc(100vh - 56px);overflow:hidden}
+/* the shell puts the page 22px below the 56px bar (16px on a phone) and keeps the floating assistant launcher at the bottom: the page ends above it so the composer is never covered or cut */
+.ms-page{direction:rtl;display:flex;flex-direction:column;height:calc(100dvh - 78px - 88px);min-height:420px;overflow:hidden}
 
 .ms-note{margin-bottom:0;padding:10px 20px;gap:9px;border-radius:0;border-width:0 0 1px 0;flex-shrink:0;font-size:12px;line-height:1.5}
 .ms-note .ws-note-ico{width:26px;height:26px;border-radius:7px}
@@ -249,3 +250,47 @@
 :host-context(.theme-light) .ms-itxt {
   color: #0F172A;
 }
+
+/* ---- admin team messaging additions ---- */
+.ms-conv-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.ms-conv-top .ms-conv-title{margin-bottom:0;display:flex;align-items:center;gap:8px}
+.ms-new-btn{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;border:none;border-radius:50px;padding:6px 14px;font-family:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
+.ms-new-btn:hover{opacity:.88}
+.ms-link{background:none;border:none;color:#2BD4C7;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;padding:0 4px;text-decoration:underline}
+.ms-link:disabled{opacity:.5;cursor:default}
+.ms-dir{border-bottom:1px solid rgba(255,255,255,.07);max-height:46%;overflow-y:auto;flex-shrink:0;background:rgba(43,212,199,.03)}
+.ms-dir-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 4px;font-size:12px;font-weight:800;color:#fff}
+.ms-dir-search{margin:6px 14px 8px}
+.ms-dir-item{width:100%;text-align:start;background:none;border:none;border-bottom:1px solid rgba(255,255,255,.04);font-family:inherit;color:inherit}
+.ms-dir-item:disabled{opacity:.6;cursor:default}
+.ms-inline-err{margin:8px 14px;padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.5;color:#FF8C69;background:rgba(255,140,105,.1);border:1px solid rgba(255,140,105,.25)}
+.ms-bbl.pending{opacity:.6}
+.ms-bbl.failed{border-color:rgba(255,140,105,.5)}
+.ms-fail{color:#FF8C69}
+.ms-day{align-self:center;font-size:10.5px;color:#6B7699;background:rgba(255,255,255,.05);padding:2px 12px;border-radius:20px}
+.ms-older{align-self:center}
+.ms-back{display:none;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.ms-back svg{width:14px;height:14px}
+.ms-sbtn:disabled{opacity:.4;cursor:default}
+.ms-msgs{min-height:0}
+@media(max-width:700px){
+  .ms-shell{flex-direction:row}
+  .ms-conv-panel{width:100%;max-height:none;border-inline-start:none;border-bottom:none}
+  .ms-msg-panel{display:none;width:100%}
+  .ms-page.has-thread .ms-conv-panel{display:none}
+  .ms-page.has-thread .ms-msg-panel{display:flex}
+  .ms-back{display:flex}
+  .ms-mcontent{max-width:82%}
+}
+:host-context(.light-theme) .ms-link,:host-context(.theme-light) .ms-link{color:#0F8A7F}
+:host-context(.light-theme) .ms-day,:host-context(.theme-light) .ms-day{background:#EEF2F7;color:#64748B}
+:host-context(.light-theme) .ms-dir,:host-context(.theme-light) .ms-dir{background:rgba(15,138,127,.04);border-color:#E2E8F0}
+:host-context(.light-theme) .ms-dir-head,:host-context(.theme-light) .ms-dir-head{color:#0F172A}
+:host-context(.light-theme) .ms-dir-item,:host-context(.theme-light) .ms-dir-item{border-bottom-color:#F1F5F9}
+:host-context(.light-theme) .ms-back,:host-context(.theme-light) .ms-back{background:#fff;border-color:#D8DFEC;color:#0F172A}
+:host-context(.light-theme) .ms-inline-err,:host-context(.theme-light) .ms-inline-err{color:#C2410C;background:rgba(194,65,12,.07);border-color:rgba(194,65,12,.25)}
+:host-context(.light-theme) .ms-fail,:host-context(.theme-light) .ms-fail{color:#C2410C}
+
+/* the floating assistant mascot is fixed at the bottom-left of every admin page: keep the send button clear of it */
+.ms-input-wrap{padding-inline-end:96px}
+@media(max-width:700px){ .ms-input-wrap{padding-inline-end:68px} }

@@ -20,7 +20,6 @@ import { SaPromotions } from '../../subscriptions/sa-promotions/sa-promotions';
 import { SaPlanDetails } from '../../subscriptions/sa-plan-details/sa-plan-details';
 import { SaBroadcast } from '../../communication/sa-broadcast/sa-broadcast';
 import { SaNotifications } from '../../communication/sa-notifications/sa-notifications';
-import { SaMessages } from '../../sa-messages/sa-messages';
 import { SaBusinessModels } from '../../sa-business-models/sa-business-models';
 import { SaBusinessModelDetail } from '../../sa-business-models/sa-business-model-detail/sa-business-model-detail';
 
@@ -33,7 +32,7 @@ const PAGES: [string, any][] = [
   ['sa-upgrade', SaUpgrade], ['sa-active-subs', SaActiveSubs], ['sa-sub-invoices', SaSubInvoices],
   ['sa-boost', SaBoost], ['sa-ads', SaAds], ['sa-promotions', SaPromotions], ['sa-plan-details', SaPlanDetails],
   ['sa-broadcast', SaBroadcast], ['sa-notifications', SaNotifications], 
-  ['sa-messages', SaMessages], ['sa-business-models', SaBusinessModels], ['sa-business-model-detail', SaBusinessModelDetail],
+  ['sa-business-models', SaBusinessModels], ['sa-business-model-detail', SaBusinessModelDetail],
 ];
 
 describe('converted admin pages show an honest unavailable state', () => {
