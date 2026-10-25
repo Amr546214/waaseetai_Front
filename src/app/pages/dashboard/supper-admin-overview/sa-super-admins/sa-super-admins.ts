@@ -4,7 +4,7 @@ import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { AdminAuditEntry, AdminConsoleApiService, AdminRosterItem } from '../../../../core/services/admin-console-api.service';
 import { ConfirmModalService } from '../../../../core/services/confirm-modal.service';
-import { SystemSettingsStore } from '../../../../core/services/system-settings.store';
+import { SystemSettingsApi, SystemSettingsStore } from '../../../../core/services/system-settings.store';
 import { RouterLink } from '@angular/router';
 import { SettingsSectionComponent, saveWithConfirm } from '../../../../shared/system-settings/settings-section.component';
 import { AUDIT_SEVERITY_LABELS } from '../sa-audit-trail/sa-audit-trail';
@@ -48,7 +48,7 @@ export class SaSuperAdmins implements OnInit {
   readonly contentPolicy = ['projectReviewBeforePublish', 'providerProfileApproval', 'profanityFilter'];
   readonly fees = ['transactionFee', 'withdrawalFee', 'minWithdrawal', 'escrowHoldHours', 'clientCashback'];
   readonly billing = ['futureBilling'];
-  readonly security = ['sessionIdleMinutes', 'loginProtection', 'minPasswordLength', 'adminTwoFactor', 'anomalyLock'];
+  readonly security = ['sessionIdleMinutes', 'sessionMaxHours', 'loginProtection', 'minPasswordLength', 'adminTwoFactor', 'anomalyLock'];
   readonly channels = ['channelInApp', 'channelEmail', 'channelSms', 'channelWhatsapp', 'channelPush'];
   readonly smtp = ['smtp'];
   readonly ai = ['aiMatchEngine', 'aiFraudDetection', 'aiDisputeArbitration', 'aiMatchMinimum'];
@@ -56,7 +56,8 @@ export class SaSuperAdmins implements OnInit {
 
   readonly generalKeys = [...this.identity, ...this.registration, ...this.contentPolicy];
   dirtyIn(keys: string[]) { return this.store.dirtyKeys(keys); }
-  saveTab(keys: string[]) { return saveWithConfirm(this.store, this.confirmModal, keys); }
+  saveTab(keys: string[]) { return saveWithConfirm(this.store, this.confirmModal, keys, this.api2); }
+  private readonly api2 = inject(SystemSettingsApi);
 
   readonly admins = signal<AdminRosterItem[]>([]);
   readonly adminsFailed = signal(false);

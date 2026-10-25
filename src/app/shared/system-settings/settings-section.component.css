@@ -62,3 +62,6 @@
 :host-context(.light-theme) .st-fail,:host-context(.theme-light) .st-fail{color:#9A3412;background:rgba(194,65,12,.07);border-color:rgba(194,65,12,.3)}
 :host-context(.light-theme) .st-blockers,:host-context(.theme-light) .st-blockers{color:#0F172A}
 @media(max-width:700px){.st-row{flex-direction:column;align-items:stretch;gap:10px}.st-ro{align-items:flex-start;text-align:start;max-width:100%}.st-card{padding:16px 14px}.st-input{width:100%}}
+
+.st-conf{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}.st-conf th,.st-conf td{text-align:start;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.08)}.st-conf th{color:#A8B2D1;font-weight:700}
+:host-context(.light-theme) .st-conf th,:host-context(.theme-light) .st-conf th{color:#475569}:host-context(.light-theme) .st-conf td,:host-context(.theme-light) .st-conf td{border-bottom-color:#E2E8F0}

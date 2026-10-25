@@ -27,6 +27,7 @@ export class SystemSettingsApi {
 	save(changes: Record<string, unknown>, expected: Record<string, number>): Observable<Envelope<{ changed: string[]; items: SettingItem[] }>> { return this.http.put<Envelope<{ changed: string[]; items: SettingItem[] }>>(base(), { changes, expected }); }
 	history(limit = 20): Observable<Envelope<SettingsHistoryItem[]>> { return this.http.get<Envelope<SettingsHistoryItem[]>>(`${base()}/history`, { params: { limit } }); }
 	health(): Observable<Envelope<{ checkedAt: string; items: HealthItem[] }>> { return this.http.get<Envelope<{ checkedAt: string; items: HealthItem[] }>>(`${base()}/health`); }
+	sessionsImpact(idleMinutes: number): Observable<Envelope<{ idleMinutes: number; activeSessions: number; wouldEndNow: number }>> { return this.http.get<Envelope<{ idleMinutes: number; activeSessions: number; wouldEndNow: number }>>(`${base()}/sessions-impact`, { params: { idleMinutes } }); }
 	readiness(): Observable<Envelope<{ ready: boolean; blockers: Blocker[] }>> { return this.http.get<Envelope<{ ready: boolean; blockers: Blocker[] }>>(`${base()}/currency-readiness`); }
 }
 
@@ -49,6 +50,10 @@ export class SystemSettingsStore {
 	readonly failure = signal<{ keys: string[]; text: string; code: string | null; blockers: Blocker[] } | null>(null);
 	/** keys whose server version moved on while the user was editing */
 	readonly conflictKeys = signal<string[]>([]);
+	/** the values that clashed: mine vs what the server has now (shown side by side before anything can be overwritten) */
+	readonly conflicts = signal<Array<{ key: string; label: string; mine: unknown; current: unknown; currentVersion: number }>>([]);
+	/** keys whose draft was kept over a NEWER server version: the next save states the replaced value and needs an explicit confirmation */
+	readonly rebasedKeys = signal<string[]>([]);
 	readonly byKey = computed(() => new Map(this.items().map(i => [i.key, i])));
 
 	item(key: string): SettingItem | undefined { return this.byKey().get(key); }
@@ -62,7 +67,7 @@ export class SystemSettingsStore {
 		if (this.errors()[key]) this.errors.update(e => { const { [key]: _x, ...rest } = e; return rest; });
 		this.notice.set(null);
 	}
-	discard(keys: string[]) { this.drafts.update(d => { const n = { ...d }; for (const k of keys) delete n[k]; return n; }); this.errors.update(e => { const n = { ...e }; for (const k of keys) delete n[k]; return n; }); this.failure.set(null); this.conflictKeys.set([]); }
+	discard(keys: string[]) { this.rebasedKeys.update(r => r.filter(k => !keys.includes(k))); this.conflicts.set([]); this.drafts.update(d => { const n = { ...d }; for (const k of keys) delete n[k]; return n; }); this.errors.update(e => { const n = { ...e }; for (const k of keys) delete n[k]; return n; }); this.failure.set(null); this.conflictKeys.set([]); }
 
 	async load(): Promise<void> {
 		this.loading.set(true); this.loadError.set('');
@@ -71,19 +76,23 @@ export class SystemSettingsStore {
 		finally { this.loading.set(false); }
 	}
 
-	/** Adopt the newest server versions but KEEP what the user typed (used after a conflict when they decide to overwrite knowingly). */
+	/**
+	 * "Continue on top of the newest": re-read the server (newest values AND versions) and keep my drafts - NOTHING is written here. The keys are marked `rebased`, so the next save names the value it
+	 * replaces and needs an explicit confirmation; the server still checks the new version on that write.
+	 */
 	async rebase(): Promise<void> {
-		const keep = this.drafts(); await this.load(); this.drafts.set(keep); this.conflictKeys.set([]); this.failure.set(null);
+		const keep = this.drafts(), clash = this.conflicts().map(c => c.key); await this.load(); this.drafts.set(keep); this.conflictKeys.set([]); this.conflicts.set([]); this.failure.set(null);
+		this.rebasedKeys.set(clash.filter(k => k in keep && this.isDirty(k)));
 	}
 
 	async save(keys: string[]): Promise<boolean> {
 		const dirty = this.dirtyKeys(keys); if (!dirty.length || this.saving()) return false;
 		const changes: Record<string, unknown> = {}, expected: Record<string, number> = {};
 		for (const k of dirty) { changes[k] = this.drafts()[k]; expected[k] = this.item(k)?.version ?? 0; }
-		this.saving.set(true); this.failure.set(null); this.notice.set(null); this.errors.set({}); this.conflictKeys.set([]);
+		this.saving.set(true); this.failure.set(null); this.notice.set(null); this.errors.set({}); this.conflictKeys.set([]); this.conflicts.set([]);
 		try {
 			const r = await firstValueFrom(this.api.save(changes, expected));
-			this.items.set(r.data.items); this.discard(dirty);
+			this.items.set(r.data.items); this.discard(dirty); this.rebasedKeys.update(r => r.filter(k => !dirty.includes(k)));
 			this.notice.set({ keys: dirty, text: r.data.changed.length ? 'تم الحفظ' : 'لا توجد تغييرات للحفظ' });
 			if (r.data.changed.length) this.ui.success('تم حفظ الإعدادات'); // after the server's 200 only
 			return true;
@@ -91,7 +100,11 @@ export class SystemSettingsStore {
 			const he = e as HttpErrorResponse; const m = mapHttpError(e, { fallback: 'تعذّر حفظ الإعدادات. لم يتغيّر شيء.' }); const body = he?.error ?? {};
 			const code: string | null = body.code ?? m.code ?? null;
 			if (m.fieldErrors && Object.keys(m.fieldErrors).length) this.errors.set(m.fieldErrors);
-			if (code === 'SETTINGS_VERSION_CONFLICT') this.conflictKeys.set((body.errors ?? []).map((x: { key: string }) => x.key).filter(Boolean));
+			if (code === 'SETTINGS_VERSION_CONFLICT') {
+				const rows = (body.errors ?? []) as Array<{ key: string; current?: { value: unknown; version: number } }>;
+				this.conflictKeys.set(rows.map(x => x.key).filter(Boolean));
+				this.conflicts.set(rows.filter(x => x.key && x.current).map(x => ({ key: x.key, label: this.item(x.key)?.label ?? x.key, mine: this.drafts()[x.key], current: x.current!.value, currentVersion: x.current!.version })));
+			}
 			this.failure.set({ keys: dirty, code, blockers: code === 'CURRENCY_CHANGE_NOT_READY' ? (body.errors ?? []) : [], text: m.message });
 			return false;
 		} finally { this.saving.set(false); }
