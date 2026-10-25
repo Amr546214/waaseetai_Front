@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
@@ -100,7 +101,7 @@ export class SaSupportDetail implements OnInit {
   }
 
   formatTime(iso: string): string {
-    return new Date(iso).toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return new Date(iso).toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
   }
 
   goBack(): void {

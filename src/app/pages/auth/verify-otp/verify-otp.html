@@ -21,12 +21,12 @@
     </div>
 
     <div class="auth-head">
-      <div class="auth-logo"><img src="/images/waseet-mark.png" alt="وسيط AI"></div>
+      <div class="auth-logo"><img src="/images/waseet-mark.png" [attr.alt]="\'\' | brandName"></div>
       <h1 class="auth-h1" id="page-h1">{{ loginMode ? 'تأكيد تسجيل الدخول' : 'تأكيد البريد الإلكتروني' }}</h1>
       @if (loginMode) {
       <p class="auth-sub" data-testid="login-otp-sub">أدخل رمز التحقق المرسل إلى بريدك الإلكتروني لإكمال تسجيل الدخول</p>
       } @else {
-      <p class="auth-sub">الخطوة 3 من 3 في رحلة التسجيل في وسيط AI</p>
+      <p class="auth-sub">الخطوة 3 من 3 في رحلة التسجيل في {{ '' | brandName }}</p>
       }
     </div>
 

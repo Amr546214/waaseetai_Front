@@ -43,7 +43,7 @@
       <div class="ma-sess" data-testid="session-row">
         <div>
           <div>{{ sessionLabel(s) }}@if (s.isCurrent) { <strong> — هذه الجلسة</strong> }</div>
-          <div class="ma-note">@if (s.ipAddress) { IP: {{ s.ipAddress }} · } آخر نشاط: {{ s.lastActiveAt | date:'yyyy-MM-dd HH:mm' }}</div>
+          <div class="ma-note">@if (s.ipAddress) { IP: {{ s.ipAddress }} · } آخر نشاط: {{ s.lastActiveAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</div>
         </div>
         @if (!s.isCurrent) {
           <button type="button" class="ma-btn ma-btn-danger" (click)="askTerminate(s.id)" data-testid="terminate-session">إنهاء الجلسة</button>

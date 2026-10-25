@@ -1,4 +1,5 @@
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +20,7 @@ const SEV_STYLE: Record<string, { color: string; bg: string }> = {
 @Component({
   selector: 'app-sa-audit-trail',
   standalone: true,
-  imports: [CommonModule, RouterLink, AnomalySummaryComponent, FormsModule, WsSelectComponent],
+  imports: [WsDatePipe, CommonModule, RouterLink, AnomalySummaryComponent, FormsModule, WsSelectComponent],
   templateUrl: './sa-audit-trail.html',
   styleUrl: './sa-audit-trail.css',
 })

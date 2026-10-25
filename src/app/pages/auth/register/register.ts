@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject, signal } from '@angular/core';
+import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -42,7 +43,7 @@ const REGISTER_CONFIRM_REQUIRED = 'تأكيد كلمة المرور مطلوب';
 @Component({
 	selector: 'app-register',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, GoogleBtnStateDirective, AffiliatePicker, FormSummaryComponent],
+	imports: [BrandNamePipe, CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, GoogleBtnStateDirective, AffiliatePicker, FormSummaryComponent],
 	templateUrl: './register.html',
 	styleUrl: './register.css',
 	encapsulation: ViewEncapsulation.None,

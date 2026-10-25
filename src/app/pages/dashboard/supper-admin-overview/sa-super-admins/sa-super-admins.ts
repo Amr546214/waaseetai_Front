@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
@@ -14,7 +15,7 @@ type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'in
 @Component({
   selector: 'app-sa-super-admins',
   standalone: true,
-  imports: [CommonModule, WsSelectComponent, FormsModule, SettingsSectionComponent, RouterLink],
+  imports: [WsDatePipe, CommonModule, WsSelectComponent, FormsModule, SettingsSectionComponent, RouterLink],
   templateUrl: './sa-super-admins.html',
   styleUrl: './sa-super-admins.css',
 })

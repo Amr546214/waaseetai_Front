@@ -44,8 +44,8 @@
               <div class="tm-info-item"><div class="tm-info-lbl">البريد الإداري</div><div class="tm-info-val" dir="ltr" style="text-align:right;font-size:11px">{{ m.email }}</div></div>
               <div class="tm-info-item"><div class="tm-info-lbl">الدور الإداري</div><div class="tm-info-val">{{ m.role?.name ?? 'بلا دور' }}</div></div>
               <div class="tm-info-item"><div class="tm-info-lbl">القسم</div><div class="tm-info-val">{{ departmentsText(m.departments) }}</div></div>
-              <div class="tm-info-item"><div class="tm-info-lbl">تاريخ الانضمام</div><div class="tm-info-val">{{ m.joinedAt | date:'yyyy/MM/dd' }}</div></div>
-              <div class="tm-info-item"><div class="tm-info-lbl">آخر دخول</div><div class="tm-info-val" data-testid="member-last-login">{{ m.lastLoginAt ? (m.lastLoginAt | date:'yyyy/MM/dd HH:mm') : '—' }}</div></div>
+              <div class="tm-info-item"><div class="tm-info-lbl">تاريخ الانضمام</div><div class="tm-info-val">{{ m.joinedAt | wsDate:'date':'yyyy/MM/dd' }}</div></div>
+              <div class="tm-info-item"><div class="tm-info-lbl">آخر دخول</div><div class="tm-info-val" data-testid="member-last-login">{{ m.lastLoginAt ? (m.lastLoginAt | wsDate:'datetime':'yyyy/MM/dd HH:mm') : '—' }}</div></div>
             </div>
           </div>
           <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>مؤشرات الأداء الشهرية</div>
@@ -60,7 +60,7 @@
         @if (tab() === 'tasks') {
           <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>المهام الحالية ({{ tasks().length }} مهام)</div>
             <table class="tm-data-tbl"><thead><tr><th>المهمة</th><th>النوع</th><th>الأولوية</th><th>الموعد</th><th>الحالة</th></tr></thead><tbody>
-              @for (t of tasks(); track t.id) { <tr><td style="color:#fff">{{ t.title }}</td><td>{{ typeLabel[t.type] }}</td><td>{{ priorityLabel[t.priority] }}</td><td [style.color]="t.overdue ? '#FF8C69' : '#6B7699'">{{ t.dueAt ? (t.dueAt | date:'yyyy/MM/dd') : '—' }}{{ t.overdue ? ' · متأخرة' : '' }}</td><td>{{ statusLabel[t.status] }}</td></tr> }
+              @for (t of tasks(); track t.id) { <tr><td style="color:#fff">{{ t.title }}</td><td>{{ typeLabel[t.type] }}</td><td>{{ priorityLabel[t.priority] }}</td><td [style.color]="t.overdue ? '#FF8C69' : '#6B7699'">{{ t.dueAt ? (t.dueAt | wsDate:'date':'yyyy/MM/dd') : '—' }}{{ t.overdue ? ' · متأخرة' : '' }}</td><td>{{ statusLabel[t.status] }}</td></tr> }
               @empty { <tr><td colspan="5" style="text-align:center;padding:14px">لا توجد مهام لهذا الموظف، أو ليست لديك صلاحية عرض مهام الفريق.</td></tr> }
             </tbody></table>
           </div>
@@ -100,7 +100,7 @@
         }
         @if (tab() === 'log') {
           <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>سجل النشاط الأخير</div>
-            @for (a of activity(); track a.id) { <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><div style="width:7px;height:7px;border-radius:50%;background:#2BD4C7;flex-shrink:0;margin-top:4px"></div><div><div style="font-size:12px;font-weight:700;color:#fff">{{ activityText(a) }}</div><div style="font-size:11px;color:#6B7699">{{ a.at | date:'yyyy/MM/dd HH:mm' }}</div></div></div> }
+            @for (a of activity(); track a.id) { <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><div style="width:7px;height:7px;border-radius:50%;background:#2BD4C7;flex-shrink:0;margin-top:4px"></div><div><div style="font-size:12px;font-weight:700;color:#fff">{{ activityText(a) }}</div><div style="font-size:11px;color:#6B7699">{{ a.at | wsDate:'datetime':'yyyy/MM/dd HH:mm' }}</div></div></div> }
             @empty { <div class="tm-empty" data-testid="log-empty">{{ activityDenied() ? 'ليست لديك صلاحية عرض نشاط هذا الموظف.' : 'لا يوجد نشاط مسجَّل بعد. يظهر هنا ما سجّله على المهام فقط.' }}</div> }
           </div>
         }

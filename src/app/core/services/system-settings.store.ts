@@ -7,7 +7,7 @@ import { UiNotificationService } from './ui-notification.service';
 
 export type SettingStatus = 'enforced' | 'readonly' | 'blocked';
 export interface SettingItem {
-	key: string; tab: string; label: string; description: string; status: SettingStatus; unit: string | null; allowed: unknown[] | null; pages: string[];
+	key: string; tab: string; label: string; description: string; status: SettingStatus; unit: string | null; allowed: unknown[] | null; allowedLabels?: Record<string, string> | null; pages: string[];
 	canWrite: boolean; effect: 'immediate' | 'within-5s' | 'new-sessions' | null; reason: string | null; value: unknown; version: number | null; source: string | null;
 }
 export interface SettingsView { storageReady: boolean; items: SettingItem[] }

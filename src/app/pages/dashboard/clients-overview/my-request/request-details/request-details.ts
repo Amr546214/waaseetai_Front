@@ -1,4 +1,5 @@
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { LevelBadgeComponent } from '../../../../../shared/levels/level-badge.component';
 import { Component, signal, computed, inject, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -213,7 +214,7 @@ export class RequestDetails implements OnInit {
 					let formattedDate = '';
 					if (data.createdAt) {
 						const d = new Date(data.createdAt);
-						formattedDate = d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+						formattedDate = d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', timeZone: providerTimeZone() });
 					}
 
 					let formattedSpecialty = data.specialty?.nameAr || data.category?.nameAr || '';

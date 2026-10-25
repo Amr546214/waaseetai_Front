@@ -390,7 +390,7 @@
                     <div class="rev-av" style="background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24">{{ clientInitial(review.client?.name) }}</div>
                     <div class="rev-info">
                       <div class="rev-name">{{ review.client?.name || 'عميل' }}</div>
-                      <div class="rev-date">{{ review.createdAt | date:'yyyy/MM/dd' }}</div>
+                      <div class="rev-date">{{ review.createdAt | wsDate:'date':'yyyy/MM/dd' }}</div>
                     </div>
                     <div class="rev-stars">{{ '★★★★★'.slice(0, review.rating) }}</div>
                   </div>
@@ -538,7 +538,7 @@
                             <svg aria-hidden="true" [style.opacity]="star <= review.rating ? null : .3"><use href="#ws-star"></use></svg>
                           }
                         </div>
-                        <span class="rc-date">{{ review.createdAt | date:'yyyy/MM/dd' }}</span>
+                        <span class="rc-date">{{ review.createdAt | wsDate:'date':'yyyy/MM/dd' }}</span>
                       </div>
                     </div>
                   </div>

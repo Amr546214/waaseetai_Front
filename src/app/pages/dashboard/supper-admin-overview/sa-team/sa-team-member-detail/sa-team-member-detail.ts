@@ -1,4 +1,5 @@
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +14,7 @@ const errText = (e: any, fallback: string) => e?.error?.message || fallback;
 @Component({
 	selector: 'app-sa-team-member-detail',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterLink, DatePipe, WsSelectComponent],
+	imports: [WsDatePipe, CommonModule, FormsModule, RouterLink, DatePipe, WsSelectComponent],
 	templateUrl: './sa-team-member-detail.html',
 	styleUrls: ['../sa-team.css', './sa-team-member-detail.css'],
 })

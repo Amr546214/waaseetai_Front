@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, inject, signal, computed } from '@angular/core';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
 import { ProfileAiReview } from '../../../../core/models/ai-result.model';
@@ -272,7 +273,7 @@ export class SaModificationRequests implements OnInit {
       status,
       oldValue: readableValue(r.currentValue) || 'لا يوجد',
       newValue: readableValue(r.requestedValue),
-      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
+      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA', { timeZone: providerTimeZone() }),
       verdictLabel: status === 'ai' ? 'قيد المراجعة'
         : status === 'human' ? 'تم تأكيد الهوية عبر الرمز وبانتظار مراجعة الفريق'
         : status === 'ok' ? 'اعتمده المراجع'
@@ -309,7 +310,7 @@ export class SaModificationRequests implements OnInit {
       identityDocAccess: r.documentsAccess?.idDocumentUrl === true,
       oldValue: readableValue(r.currentValue) || 'لا يوجد',
       newValue: readableValue(r.requestedValue),
-      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
+      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA', { timeZone: providerTimeZone() }),
       verdictLabel: status === 'human' ? 'بانتظار قرار المراجع' : status === 'ok' ? 'اعتمده المراجع' : 'مرفوض',
       verdictText: r.rejectionReason || (status === 'ok' ? 'تم تطبيق التعديل بعد اعتماد الفريق' : 'بانتظار مراجعة الفريق'),
       verdictScore: status === 'rejected' ? 'تعارض' : '',

@@ -1,4 +1,5 @@
 import { Component, computed, ElementRef, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
@@ -18,7 +19,7 @@ const errMsg = (e: any, fallback: string) => e?.error?.message || fallback;
 @Component({
   selector: 'app-sa-coupons',
   standalone: true,
-  imports: [CommonModule, FormsModule, WsSelectComponent],
+  imports: [WsDatePipe, CommonModule, FormsModule, WsSelectComponent],
   templateUrl: './sa-coupons.html',
   styleUrl: './sa-coupons.css',
 })

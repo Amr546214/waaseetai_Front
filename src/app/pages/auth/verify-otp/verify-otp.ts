@@ -1,4 +1,5 @@
 import { consumeReturnUrl } from '../../../core/routing/return-url';
+import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { Component, inject, OnInit, ViewEncapsulation, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
@@ -20,7 +21,7 @@ const ATTEMPTS_LOCKED_CODE = 'OTP_ATTEMPTS_LOCKED';
 @Component({
   selector: 'app-verify-otp',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [BrandNamePipe, CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './verify-otp.html',
   styleUrls: ['./verify-otp.css'],
   encapsulation: ViewEncapsulation.None,

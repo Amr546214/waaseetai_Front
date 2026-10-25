@@ -1,4 +1,5 @@
 import { chatPreview } from '../../../../core/utils/chat-preview.util';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -161,7 +162,7 @@ export class ClientMessages implements OnInit, OnDestroy {
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
                 lastMsg: chatPreview(c.lastMessage?.content || c.lastMsg || ''),
-                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (c.time || ''),
+                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() }) : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
                 // the server has no presence data for this list (its `online` field is a constant), so nothing is claimed unless a real flag arrives
                 online: partner.isOnline === true,

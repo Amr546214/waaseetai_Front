@@ -195,7 +195,7 @@
                   </div>
                 </td>
                 @if (isCompany()) {<td>{{ tx.providerName || '—' }}</td>}
-                <td>{{ tx.createdAt | date:'yyyy-MM-dd' }}</td>
+                <td>{{ tx.createdAt | wsDate:'date':'yyyy-MM-dd' }}</td>
                 <td>
                   <span [ngClass]="tx.type === 'credit' ? 'tx-amt-in' : 'tx-amt-out'">
                     {{ tx.type === 'credit' ? '+' : '-' }} {{ tx.amount | number:'1.0-2' }} $

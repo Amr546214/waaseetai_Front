@@ -1,4 +1,5 @@
 import { roleHome } from '../../../core/routing/role-routes';
+import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { Component, Input, Output, EventEmitter, inject, signal, computed, ChangeDetectorRef, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
@@ -35,7 +36,7 @@ export interface NavItem {
 @Component({
 	selector: 'app-sidebar',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [BrandNamePipe, CommonModule, RouterModule],
 	templateUrl: './sidebar.html',
 	styleUrl: './sidebar.css',
 })

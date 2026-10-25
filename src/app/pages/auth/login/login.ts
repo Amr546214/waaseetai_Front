@@ -1,4 +1,5 @@
 import { consumeReturnUrl } from '../../../core/routing/return-url';
+import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { Component, ElementRef, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -31,7 +32,7 @@ export const SMS_UNAVAILABLE_MESSAGE = 'التحقق عبر الرسائل ال�
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, GoogleBtnStateDirective, FormSummaryComponent],
+  imports: [BrandNamePipe, CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, GoogleBtnStateDirective, FormSummaryComponent],
   templateUrl: './login.html',
   styleUrl: './login.css',
   encapsulation: ViewEncapsulation.None,
