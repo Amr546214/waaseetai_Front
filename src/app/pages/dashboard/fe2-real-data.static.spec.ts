@@ -35,10 +35,11 @@ describe('FE-2 real data', () => {
 		expect(read('pages/dashboard/provider-overview/profile/profile-setup/profile-setup.html')).toContain('storedSetupTestScore()');
 	});
 
-	it('sa-messages ships no invented conversations or fake online flag (now an honest unavailable state)', () => {
+	it('sa-messages ships no invented conversations or fake online flag (real staff conversations from the server)', () => {
 		const ts = read('pages/dashboard/supper-admin-overview/sa-messages/sa-messages.ts');
 		for (const x of ['أحمد الغامدي', 'شركة التقنية المتقدمة', 'محمد الحربي', 'سارة الزهراني', 'فهد العتيبي', 'نورة القحطاني', 'online: true']) expect(ts, x).not.toContain(x);
-		expect(ts).not.toContain('conversations');
+		const html = read('pages/dashboard/supper-admin-overview/sa-messages/sa-messages.html');
+		expect(html).not.toContain('متصل الآن'); expect(html).toContain('conversations()');
 	});
 
 	it('the "متصل الآن" label in the three real messages pages only renders behind the real presence flag', () => {

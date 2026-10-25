@@ -1,1 +1,109 @@
-<app-sa-unavailable title="الرسائل" subtitle="مراسلات فريق الإدارة" heading="رسائل الإدارة غير متاحة بعد" reason="لا يوجد نظام مراسلة داخلي للإدارة في المنصة بعد، لذلك لا تُعرض محادثات. لمتابعة مراسلات المستخدمين مع الإدارة افتح الدعم." linkLabel="فتح الدعم" linkTo="/supper-admin-overview/support" />
+<section class="ms-page" dir="rtl" [class.has-thread]="!!selected()">
+  <div class="ms-shell">
+    <div class="ms-conv-panel" data-testid="conv-panel">
+      <div class="ms-conv-hdr">
+        <div class="ms-conv-top">
+          <div class="ms-conv-title">المحادثات @if (totalUnread() > 0) { <span class="ms-c-badge" data-testid="total-unread">{{ totalUnread() }}</span> }</div>
+          <button type="button" class="ms-new-btn" data-testid="new-chat-open" (click)="openNewChat()">محادثة جديدة</button>
+        </div>
+        <div class="ms-conv-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" placeholder="ابحث في المحادثات" aria-label="ابحث في المحادثات" data-testid="conv-search" [value]="search()" (input)="onSearch($any($event.target).value)" />
+        </div>
+      </div>
+
+      @if (newChatOpen()) {
+        <div class="ms-dir" data-testid="directory">
+          <div class="ms-dir-head"><span>اختر موظفًا</span><button type="button" class="ms-link" data-testid="new-chat-close" (click)="closeNewChat()">إغلاق</button></div>
+          <div class="ms-conv-search ms-dir-search">
+            <input type="search" placeholder="ابحث عن موظف بالاسم" aria-label="ابحث عن موظف" data-testid="dir-search" [value]="dirQ()" (input)="onDirSearch($any($event.target).value)" />
+          </div>
+          @if (dirError()) { <div class="ms-inline-err" role="alert" data-testid="dir-error">{{ dirError() }}</div> }
+          @if (dirLoading()) { <div class="ms-conv-empty">جاري التحميل...</div> }
+          @else {
+            @for (p of directory(); track p.userId) {
+              <button type="button" class="ms-conv-item ms-dir-item" [disabled]="!!startingId()" [attr.data-testid]="'dir-' + p.userId" (click)="startWith(p)">
+                <div class="ms-c-av type-sk">{{ initials(p.name) }}</div>
+                <div class="ms-conv-meta"><div class="ms-c-name">{{ p.name }}</div><div class="ms-c-role">{{ p.role || 'موظف' }}</div></div>
+                @if (startingId() === p.userId) { <span class="ms-c-time">جاري الفتح...</span> }
+              </button>
+            } @empty { @if (!dirError()) { <div class="ms-conv-empty" data-testid="dir-empty">لا يوجد موظفون متاحون للمراسلة حاليًا</div> } }
+          }
+        </div>
+      }
+
+      <div class="ms-conv-list">
+        @if (loading()) { <div class="ms-conv-empty">جاري تحميل المحادثات...</div> }
+        @else if (error()) { <div class="ms-conv-empty" role="alert" data-testid="list-error">{{ error() }} <button type="button" class="ms-link" (click)="loading.set(true); loadList()">إعادة المحاولة</button></div> }
+        @else {
+          @for (c of conversations(); track c.id) {
+            <div class="ms-conv-item" role="button" tabindex="0" [class.active]="c.id === selectedId()" [class.unread]="c.unread > 0" [attr.data-testid]="'conv-' + c.id" (click)="openConversation(c.id)" (keydown.enter)="openConversation(c.id)">
+              <div class="ms-c-av type-sk">{{ initials(c.counterpart.name) }}</div>
+              <div class="ms-conv-meta">
+                <div class="ms-c-name">{{ c.counterpart.name }}</div>
+                <div class="ms-c-role">{{ c.counterpart.role || 'موظف' }}</div>
+                <div class="ms-c-last" [class.bold]="c.unread > 0">{{ c.lastMessage ? (c.lastMessage.mine ? 'أنت: ' : '') + c.lastMessage.body : 'لا توجد رسائل بعد' }}</div>
+              </div>
+              <div class="ms-conv-side">
+                <span class="ms-c-time">{{ listTime(c.lastMessageAt) }}</span>
+                @if (c.unread > 0) { <span class="ms-c-badge" [attr.data-testid]="'unread-' + c.id">{{ c.unread }}</span> }
+              </div>
+            </div>
+          } @empty {
+            <div class="ms-conv-empty" data-testid="list-empty">{{ search().trim() ? 'لا توجد محادثات مطابقة' : 'لا توجد محادثات بعد. ابدأ محادثة مع أحد الموظفين.' }}</div>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="ms-msg-panel" data-testid="thread-panel">
+      @if (selected(); as conv) {
+        <div class="ms-msg-hdr">
+          <button type="button" class="ms-back" aria-label="رجوع إلى المحادثات" data-testid="thread-back" (click)="back()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+          </button>
+          <div class="ms-mh-av type-sk">{{ initials(conv.counterpart.name) }}</div>
+          <div>
+            <div class="ms-mh-name">{{ conv.counterpart.name }}</div>
+            <div class="ms-mh-role">{{ conv.counterpart.role || 'موظف' }}</div>
+          </div>
+          @if (liveState() !== 'live') { <div class="ms-mh-stat" data-testid="live-state">{{ liveState() === 'denied' ? 'التحديث الفوري غير متاح' : 'جاري الاتصال بالتحديث الفوري...' }}</div> }
+        </div>
+
+        <div class="ms-msgs" #scroller data-testid="thread">
+          @if (hasMore()) { <button type="button" class="ms-link ms-older" data-testid="load-older" [disabled]="olderLoading()" (click)="loadOlder()">{{ olderLoading() ? 'جاري التحميل...' : 'عرض الرسائل الأقدم' }}</button> }
+          @if (threadLoading() && !thread().length) { <div class="ms-empty-state">جاري تحميل الرسائل...</div> }
+          @if (threadError()) { <div class="ms-inline-err" role="alert" data-testid="thread-error">{{ threadError() }} <button type="button" class="ms-link" (click)="loadThread(conv.id)">إعادة المحاولة</button></div> }
+          @for (m of thread(); track m.key; let i = $index) {
+            @if (newDay(i)) { <div class="ms-day">{{ dayLabel(m.createdAt) }}</div> }
+            <div class="ms-row" [class.mine]="m.mine" [attr.data-testid]="'msg-' + m.state">
+              <div class="ms-mav" [class]="m.mine ? 'me' : 'other'">{{ m.mine ? 'أنت' : initials(conv.counterpart.name) }}</div>
+              <div class="ms-mcontent">
+                <div class="ms-bbl" [class]="m.mine ? 'mine' : 'other'" [class.pending]="m.state === 'sending'" [class.failed]="m.state === 'failed'">{{ m.body }}</div>
+                @if (m.state === 'sending') { <div class="ms-btime" data-testid="msg-sending">جاري الإرسال...</div> }
+                @else if (m.state === 'failed') {
+                  <div class="ms-btime ms-fail" role="alert">{{ m.error }}
+                    <button type="button" class="ms-link" data-testid="msg-retry" (click)="retry(m)">إعادة المحاولة</button>
+                    <button type="button" class="ms-link" data-testid="msg-discard" (click)="discard(m)">إلغاء</button>
+                  </div>
+                } @else { <div class="ms-btime">{{ hm(m.createdAt) }}</div> }
+              </div>
+            </div>
+          }
+          @if (!threadLoading() && !thread().length && !threadError()) { <div class="ms-empty-state" data-testid="thread-empty">لا توجد رسائل بعد. اكتب أول رسالة.</div> }
+        </div>
+
+        <div class="ms-input-wrap">
+          <div class="ms-irow">
+            <textarea class="ms-itxt" rows="1" maxlength="4000" placeholder="اكتب رسالتك..." aria-label="نص الرسالة" data-testid="composer" [value]="draft()" (input)="draft.set($any($event.target).value)" (keydown)="onKey($event)"></textarea>
+            <button type="button" class="ms-sbtn" aria-label="إرسال" data-testid="send" [disabled]="!canSend()" (click)="send()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="ms-empty-state" data-testid="no-selection">اختر محادثة لعرضها أو ابدأ محادثة جديدة</div>
+      }
+    </div>
+  </div>
+</section>
