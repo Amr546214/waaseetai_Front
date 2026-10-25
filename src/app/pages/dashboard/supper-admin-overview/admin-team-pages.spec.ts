@@ -48,10 +48,11 @@ describe('admin team pages (real data, honest states, SUPER_ADMIN-only actions)'
 	it('roles page: the matrix and counts are the server\'s; sensitive grants need an explicit confirmation; a stale save shows the conflict with a reload', async () => {
 		setAccess(true, []);
 		const f = TestBed.createComponent(SaRoles); await flush(f);
-		http.expectOne(`${B}/permissions`).flush({ success: true, data: { permissions: [{ id: 'users.view', label: 'عرض المستخدمين', group: 'users', sensitive: false }, { id: 'users.delete', label: 'حذف الحسابات', group: 'users', sensitive: true }], groups: { users: 'المستخدمون' }, templates: [{ key: 't', name: 'قالب', description: 'د', color: '#fff', permissions: ['users.view'], notes: 'ملاحظة' }], superAdminOnly: [], ambiguities: ['نقطة غامضة'] } });
+		http.expectOne(`${B}/permissions`).flush({ success: true, data: { permissions: [{ id: 'users.view', label: 'عرض المستخدمين', group: 'users', sensitive: false }, { id: 'users.delete', label: 'حذف الحسابات', group: 'users', sensitive: true }], groups: { users: 'المستخدمون' }, templates: [{ key: 't', name: 'قالب', description: 'د', color: '#fff', permissions: ['users.view'], notes: 'ملاحظة' }], superAdminOnly: [], superAdminCount: 1, ambiguities: ['نقطة غامضة'] } });
 		http.expectOne(`${B}/roles`).flush({ success: true, data: [{ id: 'r1', name: 'مشرف', description: 'وصف', color: '#2BD4C7', permissions: ['users.view'], permissionCount: 1, memberCount: 3, version: 4, updatedAt: '' }] });
 		http.expectOne(r => r.url === `${B}/access-audit`).flush({ success: true, data: [] }); await flush(f);
 		const el = f.nativeElement as HTMLElement;
+		const sa = el.querySelector('[data-testid="role-card-super-admin"]')!; expect(sa.textContent).toContain('Super Admin'); expect(sa.textContent).toContain('تحكم كامل'); expect(sa.textContent).toContain('2 صلاحية'); expect(sa.textContent).toContain('1 أعضاء'); expect(sa.querySelector('button')).toBeNull(); // read-only: an account type, not a role
 		expect(el.querySelectorAll('[data-testid="role-card"]').length).toBe(1); expect(el.textContent).toContain('1 صلاحية'); expect(el.textContent).toContain('3 أعضاء'); expect(el.textContent).toContain('نقطة غامضة');
 		expect(el.querySelectorAll('[data-testid="roles-matrix"] tbody tr').length).toBe(2);
 		(el.querySelector('[data-testid="role-edit"]') as HTMLButtonElement).click(); await flush(f);

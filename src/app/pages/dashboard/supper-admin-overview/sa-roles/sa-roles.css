@@ -168,3 +168,6 @@
   .rl-page { padding: 14px 16px; }
   .rl-audit-row { flex-wrap: wrap; }
 }
+
+/* the design shows two role cards per row on a phone */
+@media (max-width: 600px) { .rl-roles-grid { grid-template-columns: repeat(2, 1fr); } .rl-role-card { padding: 12px; } }
