@@ -24,8 +24,8 @@
     <div class="tm-empty" role="status">جاري تحميل الفريق...</div>
   } @else if (data(); as d) {
     <div class="tm-kpi-row">
-      <div class="tm-kpi"><div class="tm-kpi-lbl">إجمالي الفريق</div><div class="tm-kpi-val" style="color:#2BD4C7" data-testid="kpi-total">{{ d.counts.total }}</div><div class="tm-kpi-sub">{{ d.counts.active }} نشط · {{ d.counts.pendingInvites }} دعوة معلقة</div></div>
-      <div class="tm-kpi"><div class="tm-kpi-lbl">الموقوفون</div><div class="tm-kpi-val" style="color:#FF8C69">{{ d.counts.suspended }}</div><div class="tm-kpi-sub">وصولهم موقوف من المالك</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">إجمالي الفريق</div><div class="tm-kpi-val" style="color:#2BD4C7" data-testid="kpi-total">{{ d.counts.total }}</div><div class="tm-kpi-sub">{{ d.counts.active }} نشط · {{ d.counts.pendingInvites }} دعوة معلقة@if (d.counts.suspended) { · {{ d.counts.suspended }} موقوف }</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">نشطون الآن</div><div class="tm-kpi-val" style="color:#0FA99A" data-testid="kpi-active-now">{{ d.counts.activeNow }}</div><div class="tm-kpi-sub">من {{ d.counts.active }} عضو · نشاط خلال آخر 5 دقائق</div></div>
       <div class="tm-kpi"><div class="tm-kpi-lbl">مهام مفتوحة</div><div class="tm-kpi-val" style="color:#FFB400">{{ d.counts.openTasks }}</div><div class="tm-kpi-sub">{{ d.counts.overdueTasks }} متأخرة</div></div>
       <div class="tm-kpi"><div class="tm-kpi-lbl">متوسط الأداء</div><div class="tm-kpi-val" style="color:#A56BE0">—</div><div class="tm-kpi-sub">لا تتوفر بيانات: قاعدة الدرجة الكلية لم تُعتمد</div></div>
     </div>
@@ -59,9 +59,9 @@
             <div class="tm-card-top">
               <div class="tm-avatar" [style.background]="avatar(i)">{{ initial(m.name) }}</div>
               <div class="tm-card-head-body"><div class="tm-name">{{ m.name }}</div><div class="tm-role">{{ m.isOwner ? 'مالك المنصة' : (m.role?.name ?? 'بلا دور') }}</div></div>
-              <span class="tm-status-dot" [class.tm-online]="m.status === 'ACTIVE'" [class.tm-offline]="m.status !== 'ACTIVE'">{{ m.status === 'ACTIVE' ? 'نشط' : 'موقوف' }}</span>
+              <span class="tm-status-dot" [class.tm-online]="m.activeNow" [class.tm-offline]="!m.activeNow" data-testid="member-presence">{{ m.status !== 'ACTIVE' ? 'موقوف' : m.activeNow ? 'نشط الآن' : 'غير متاح' }}</span>
             </div>
-            <div class="tm-dept">{{ m.email }}</div>
+            <div class="tm-dept">{{ m.departments.length ? m.departments.join(' · ') : 'بلا أقسام' }}</div>
             <div class="tm-stats">
               <div class="tm-stat"><div class="tm-stat-val" style="color:#2BD4C7">{{ m.openTasks }}</div><div class="tm-stat-lbl">مهام مفتوحة</div></div>
               <div class="tm-stat"><div class="tm-stat-val" style="color:#0FA99A">{{ m.doneTasks }}</div><div class="tm-stat-lbl">مكتملة</div></div>
@@ -117,11 +117,16 @@
           <input class="tm-input" type="text" placeholder="الاسم الكامل" [(ngModel)]="invite.fullName" name="fullName" style="width:100%">
           <label class="tm-field-lbl">الدور الإداري</label>
           <ws-select class="tm-select-full" ariaLabel="الدور الإداري" [options]="roleOpts()" [(ngModel)]="invite.roleId" name="roleId" />
+          <label class="tm-field-lbl">الأقسام المتاحة</label>
+          <div class="tm-sections" data-testid="invite-sections" aria-label="الأقسام المتاحة (تُحدَّد من الدور)">
+            @for (s of inviteSections(); track s.label) { <div class="tm-sections-row" [class.on]="s.on"><span class="tm-sections-box">{{ s.on ? '✓' : '' }}</span>{{ s.label }}</div> }
+          </div>
+          <div class="tm-pending-note" style="border-top:0">الأقسام تُشتق من صلاحيات الدور المختار ولا تُمنح بشكل منفصل.</div>
           @if (!roles().length) { <div class="tm-pending-note">لا توجد أدوار بعد. أنشئ دورًا من صفحة الصلاحيات أولًا.</div> }
           @if (inviteError()) { <div class="tm-pending-note" role="alert" style="color:#FF8C69">{{ inviteError() }}</div> }
           <div class="tm-modal-actions-row" style="margin-top:12px">
             <button type="button" class="tm-btn tm-btn-ghost" (click)="closeInvite()">إلغاء</button>
-            <button type="button" class="tm-btn tm-btn-primary" [disabled]="inviteBusy() || !invite.roleId" (click)="sendInvite()" data-testid="invite-send">إنشاء الدعوة</button>
+            <button type="button" class="tm-btn tm-btn-primary" [disabled]="inviteBusy() || !invite.roleId" (click)="sendInvite()" data-testid="invite-send">إرسال الدعوة</button>
           </div>
         }
       </div>

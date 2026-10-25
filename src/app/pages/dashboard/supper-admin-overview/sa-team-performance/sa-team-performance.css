@@ -241,3 +241,5 @@
 :host-context(body.theme-light) .tp-bar-prev,
 :host-context(.light-theme) .tp-bar-prev,
 :host-context(.theme-light) .tp-bar-prev{background:rgba(7,13,36,.10)}
+.tp-bm-val{font-weight:800;color:#fff}
+:host-context(.light-theme) .tp-bm-val,:host-context(.theme-light) .tp-bm-val{color:#1E293B}

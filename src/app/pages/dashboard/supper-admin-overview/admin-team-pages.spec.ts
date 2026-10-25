@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { environment } from '../../../../environments/environment';
 import { AdminAccessService } from '../../../core/services/admin-access.service';
 import { SaTeam } from './sa-team/sa-team';
@@ -17,20 +17,21 @@ const setAccess = (isOwner: boolean, permissions: string[]) => {
 	const a = TestBed.inject(AdminAccessService);
 	a.access.set({ userId: 'me', isOwner, staffStatus: 'ACTIVE', roleName: isOwner ? 'المالك' : 'دور', permissions, hasAnyPermission: true, state: isOwner ? 'OWNER' : 'ACTIVE', displayRole: isOwner ? 'مالك المنصة' : 'دور' }); a.status.set('ready');
 };
-const staffList = (over: any = {}) => ({ success: true, data: { members: [{ userId: 'u1', name: 'هيثم القرني', email: 'h@x.com', status: 'ACTIVE', isOwner: false, role: { id: 'r1', name: 'مشرف نزاعات', color: '#A56BE0' }, joinedAt: '2026-01-01T00:00:00Z', lastActiveAt: null, version: 1, openTasks: 9, overdueTasks: 2, doneTasks: 4 }], pendingInvites: [{ id: 'i1', email: 'p@x.com', fullName: 'مدعو', roleName: 'مشرف دعم', expiresAt: '2026-12-01T00:00:00Z', createdAt: '2026-10-01T00:00:00Z', resendCount: 0 }], counts: { total: 1, active: 1, suspended: 0, pendingInvites: 1, openTasks: 9, overdueTasks: 2 }, ...over } });
+const staffList = (over: any = {}) => ({ success: true, data: { members: [{ userId: 'u1', name: 'هيثم القرني', email: 'h@x.com', status: 'ACTIVE', isOwner: false, role: { id: 'r1', name: 'مشرف نزاعات', color: '#A56BE0' }, joinedAt: '2026-01-01T00:00:00Z', lastActiveAt: '2026-10-25T10:00:00Z', activeNow: true, lastLoginAt: '2026-10-25T09:00:00Z', resolvedDisputes: 3, avgCompletionHours: 2.4, departments: ['النزاعات'], version: 1, openTasks: 9, overdueTasks: 2, doneTasks: 4 }], pendingInvites: [{ id: 'i1', email: 'p@x.com', fullName: 'مدعو', roleName: 'مشرف دعم', expiresAt: '2026-12-01T00:00:00Z', createdAt: '2026-10-01T00:00:00Z', resendCount: 0 }], counts: { total: 1, activeNow: 1, active: 1, suspended: 0, pendingInvites: 1, openTasks: 9, overdueTasks: 2 }, ...over } });
 
 describe('admin team pages (real data, honest states, owner-only actions)', () => {
 	let http: HttpTestingController;
 	beforeEach(() => { TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] }); http = TestBed.inject(HttpTestingController); });
 
-	it('team page: real members and counts, no sample names, no «online now», the owner-only buttons are absent for a plain member', async () => {
+	it('team page: real members and counts, no sample names, «active now» comes from the server (never invented), the owner-only buttons are absent for a plain member', async () => {
 		setAccess(false, ['team.view']);
 		const f = TestBed.createComponent(SaTeam); await flush(f);
 		http.expectOne(r => r.url === `${B}/staff`).flush(staffList()); await flush(f);
 		const el = f.nativeElement as HTMLElement;
 		expect(el.querySelectorAll('[data-testid="team-member"]').length).toBe(1); expect(el.textContent).toContain('هيثم القرني');
 		expect(el.querySelector('[data-testid="kpi-total"]')?.textContent?.trim()).toBe('1');
-		expect(el.textContent).not.toContain('نشطون الآن'); expect(el.textContent).toContain('لا تتوفر بيانات');
+		expect(el.querySelector('[data-testid="kpi-active-now"]')?.textContent?.trim()).toBe('1'); expect(el.querySelector('[data-testid="member-presence"]')?.textContent?.trim()).toBe('نشط الآن'); expect(el.textContent).toContain('النزاعات');
+		expect(el.textContent).toContain('لا تتوفر بيانات');
 		expect(el.querySelector('[data-testid="team-invite-open"]')).toBeNull(); expect(el.querySelector('[data-testid="team-roles-link"]')).toBeNull();
 		http.expectNone(`${B}/roles`);
 	});
@@ -101,5 +102,34 @@ describe('admin team pages (real data, honest states, owner-only actions)', () =
 			const f = TestBed.createComponent(SaNoAccess); await flush(f); const el = f.nativeElement as HTMLElement;
 			expect(el.textContent).toContain(text); expect(!!el.querySelector('[data-testid="no-access-retry"]')).toBe(retry); expect(el.querySelector('[data-testid="no-access-account"]')).toBeTruthy();
 		}
+	});
+
+	it('performance page: «تصدير PDF» is in the design\'s place (print / save-as-PDF of what the page shows), CSV is an addition, both need performance.export; the design\'s 7 columns', async () => {
+		const report = { success: true, data: { period: 'month', from: '', to: '', team: { members: 1, completed: 4, avgCompletionHours: 5, onTimeRate: 50, onTimeOf: 2 }, members: [{ userId: 'u1', name: 'هيثم', role: 'مشرف', roleColor: null, status: 'ACTIVE', openTasks: 1, completed: 4, avgCompletionHours: 5, onTimeRate: 50, onTimeOf: 2, slaRate: null, userRating: null, overallScore: null }], trend: Array.from({ length: 12 }, (_, i) => ({ month: i + 1, thisYear: 0, lastYear: 0 })), definitions: { completed: 'ت', completionTime: 'ت', onTime: 'ت', decisionsNeeded: ['قرار'] } } };
+		setAccess(false, ['performance.view', 'performance.export']);
+		const print = vi.spyOn(window, 'print').mockImplementation(() => undefined);
+		const f = TestBed.createComponent(SaTeamPerformance); await flush(f);
+		http.expectOne(r => r.url === `${B}/performance`).flush(report); await flush(f);
+		const el = f.nativeElement as HTMLElement;
+		expect(Array.from(el.querySelectorAll('[data-testid="perf-table"] th')).map(x => x.textContent?.trim())).toEqual(['الموظف', 'الدور', 'مهام منجزة', 'الالتزام بـ SLA', 'تقييم المستخدمين', 'الدرجة الكلية', 'الملف']);
+		expect(el.querySelector('[data-testid="kpi-sla"]')?.textContent?.trim()).toBe('—'); expect(el.querySelector('[data-testid="kpi-ontime"]')?.textContent?.trim()).toBe('50%');
+		expect(el.querySelector('[data-testid="benchmark"]')?.textContent).toContain('لا يوجد معيار معتمد'); expect(el.textContent).not.toMatch(/\b(80|4h|7 يوم|4\.2)/);
+		(el.querySelector('[data-testid="perf-export-pdf"]') as HTMLButtonElement).click(); expect(print).toHaveBeenCalledTimes(1);
+		expect(el.querySelector('[data-testid="perf-export"]')?.textContent).toContain('CSV');
+		print.mockRestore();
+	});
+	it('invite dialog: «الأقسام المتاحة» is shown as in the design but derived from the chosen role (read-only, grants nothing); the button is the design\'s «إرسال الدعوة»', async () => {
+		setAccess(true, []);
+		const f = TestBed.createComponent(SaTeam); await flush(f);
+		http.expectOne(r => r.url === `${B}/staff`).flush(staffList());
+		http.expectOne(`${B}/roles`).flush({ success: true, data: [{ id: 'r1', name: 'مشرف نزاعات', description: null, color: '#fff', permissions: ['disputes.view', 'users.view'], permissionCount: 2, memberCount: 1, version: 1, updatedAt: '' }, { id: 'r2', name: 'مشرف دعم', description: null, color: '#fff', permissions: ['support.review'], permissionCount: 1, memberCount: 0, version: 1, updatedAt: '' }] });
+		http.expectOne(`${B}/staff/unplaced`).flush({ success: true, data: [] }); await flush(f);
+		const el = f.nativeElement as HTMLElement; (el.querySelector('[data-testid="team-invite-open"]') as HTMLButtonElement).click(); await flush(f);
+		const on = () => Array.from(el.querySelectorAll('[data-testid="invite-sections"] .tm-sections-row')).map(r => `${r.textContent?.replace('✓', '').trim()}:${r.classList.contains('on')}`);
+		expect(on()).toEqual(['المستخدمون:true', 'النزاعات:true', 'البلاغات:false', 'الدعم الفني:false', 'التخصصات:false']);
+		(el.querySelector('.tm-modal ws-select button') as HTMLButtonElement).click(); f.detectChanges(); (el.querySelectorAll('[data-testid="ws-select-option"]')[1] as HTMLElement).click(); await flush(f);
+		expect(on()).toEqual(['المستخدمون:false', 'النزاعات:false', 'البلاغات:false', 'الدعم الفني:true', 'التخصصات:false']);
+		expect(el.querySelector('[data-testid="invite-send"]')?.textContent).toContain('إرسال الدعوة');
+		expect(el.querySelector('[data-testid="invite-sections"] input, [data-testid="invite-sections"] select')).toBeNull(); // nothing to toggle: it cannot grant anything
 	});
 });

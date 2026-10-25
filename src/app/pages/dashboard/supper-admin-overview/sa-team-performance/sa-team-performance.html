@@ -8,9 +8,10 @@
         <button type="button" class="tp-pt" [class.active]="period() === 'year'" (click)="setPeriod('year')">سنة</button>
       </div>
       @if (canExport()) {
+        <button type="button" class="tp-btn tp-btn-gh" (click)="exportPdf()" data-testid="perf-export-pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير PDF</button>
         <button type="button" class="tp-btn tp-btn-gh" [disabled]="exporting()" (click)="export()" data-testid="perf-export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير CSV</button>
       } @else {
-        <button type="button" class="tp-btn tp-btn-gh" disabled title="التصدير يحتاج صلاحية «تصدير الأداء»" data-testid="perf-export-disabled">تصدير CSV</button>
+        <button type="button" class="tp-btn tp-btn-gh" disabled title="التصدير يحتاج صلاحية «تصدير الأداء»" data-testid="perf-export-disabled">تصدير PDF</button>
       }
     </div>
   </div>
@@ -23,9 +24,9 @@
   } @else if (report(); as r) {
     <div class="tp-kpi-row">
       <div class="tp-kpi"><div class="tp-kpi-lbl">متوسط أداء الفريق</div><div class="tp-kpi-val" style="color:#2BD4C7">—</div><div class="tp-kpi-sub">لا تتوفر بيانات: قاعدة الدرجة الكلية لم تُعتمد</div></div>
-      <div class="tp-kpi"><div class="tp-kpi-lbl">الالتزام بالموعد</div><div class="tp-kpi-val" style="color:#0FA99A" data-testid="kpi-ontime">{{ r.team.onTimeRate !== null ? r.team.onTimeRate + '%' : '—' }}</div><div class="tp-kpi-sub">{{ r.team.onTimeRate !== null ? 'من ' + r.team.onTimeOf + ' مهمة لها موعد' : 'لا مهام مكتملة لها موعد في هذه الفترة' }}</div></div>
+      <div class="tp-kpi"><div class="tp-kpi-lbl">الالتزام بـ SLA</div><div class="tp-kpi-val" style="color:#0FA99A" data-testid="kpi-sla">—</div><div class="tp-kpi-sub">لا تتوفر بيانات: لا يوجد تعريف SLA</div></div>
       <div class="tp-kpi"><div class="tp-kpi-lbl">رضا المستخدمين</div><div class="tp-kpi-val" style="color:#FFB400">—</div><div class="tp-kpi-sub">لا تتوفر بيانات: لا يوجد مصدر تقييم للموظفين</div></div>
-      <div class="tp-kpi"><div class="tp-kpi-lbl">مهام منجزة</div><div class="tp-kpi-val" style="color:#A56BE0" data-testid="kpi-completed">{{ r.team.completed }}</div><div class="tp-kpi-sub">الفريق كاملًا · متوسط الإنجاز {{ r.team.avgCompletionHours !== null ? r.team.avgCompletionHours + ' ساعة' : '—' }}</div></div>
+      <div class="tp-kpi"><div class="tp-kpi-lbl">مهام منجزة</div><div class="tp-kpi-val" style="color:#A56BE0" data-testid="kpi-completed">{{ r.team.completed }}</div><div class="tp-kpi-sub">الفريق كاملًا · متوسط الإنجاز {{ r.team.avgCompletionHours !== null ? r.team.avgCompletionHours + ' ساعة' : '—' }} · في الموعد <span data-testid="kpi-ontime">{{ r.team.onTimeRate !== null ? r.team.onTimeRate + '%' : '—' }}</span></div></div>
     </div>
 
     <div class="tp-card">
@@ -42,24 +43,35 @@
       <div class="tp-tbl-hdr"><div class="tp-card-ttl">أداء الأعضاء — {{ periodLabel[period()] }}</div></div>
       <div class="tp-tbl-wrap">
         <table class="tp-tbl" data-testid="perf-table">
-          <thead><tr><th>الموظف</th><th>الدور</th><th>مهام منجزة</th><th>متوسط الإنجاز</th><th>الالتزام بالموعد</th><th>مفتوحة</th><th>تقييم المستخدمين</th><th>الدرجة الكلية</th><th>الملف</th></tr></thead>
+          <thead><tr><th>الموظف</th><th>الدور</th><th>مهام منجزة</th><th>الالتزام بـ SLA</th><th>تقييم المستخدمين</th><th>الدرجة الكلية</th><th>الملف</th></tr></thead>
           <tbody>
             @for (m of r.members; track m.userId; let i = $index) {
               <tr data-testid="perf-row">
                 <td><div class="tp-member"><div class="tp-avatar" [style.background]="color(i)">{{ initial(m.name) }}</div><span class="tp-member-name">{{ m.name }}</span></div></td>
                 <td class="tp-role">{{ m.role ?? 'بلا دور' }}</td>
                 <td class="tp-tasks">{{ m.completed }}</td>
-                <td>{{ m.avgCompletionHours !== null ? m.avgCompletionHours + ' س' : '—' }}</td>
-                <td>@if (m.onTimeRate !== null) { <div class="tp-sla"><div class="tp-sla-bar"><div class="tp-sla-fill" [style.width.%]="m.onTimeRate"></div></div><span class="tp-sla-val">{{ m.onTimeRate }}%</span></div> } @else { <span class="tp-role">—</span> }</td>
-                <td>{{ m.openTasks }}</td>
+                <td class="tp-role" title="لا يوجد تعريف SLA">—</td>
                 <td class="tp-role" title="لا يوجد مصدر تقييم">—</td>
                 <td class="tp-role" title="قاعدة الدرجة الكلية لم تُعتمد">—</td>
                 <td>@if (access.can('team.view')) { <a class="tp-view-btn" [routerLink]="['/supper-admin-overview/team', m.userId]">عرض</a> }</td>
               </tr>
-            } @empty { <tr><td colspan="9" class="tp-role" style="text-align:center;padding:20px">لا يوجد أعضاء في الفريق بعد</td></tr> }
+            } @empty { <tr><td colspan="7" class="tp-role" style="text-align:center;padding:20px">لا يوجد أعضاء في الفريق بعد</td></tr> }
           </tbody>
         </table>
       </div>
+    </div>
+
+    <div class="tp-benchmark" data-testid="benchmark">
+      <div class="tp-sec-ttl">مقارنة الأداء بالمعيار (Benchmark)</div>
+      <div style="overflow-x:auto"><table class="tp-bm-tbl">
+        <thead><tr><th>المؤشر</th><th>الفريق</th><th>المعيار</th><th>الحالة</th></tr></thead>
+        <tbody>
+          <tr><td class="tp-bm-metric">معدل إنجاز المهام</td><td class="tp-bm-val">—</td><td class="tp-bm-target">لا يوجد معيار معتمد</td><td class="tp-bm-target">لا تتوفر بيانات</td></tr>
+          <tr><td class="tp-bm-metric">وقت الرد على التذاكر</td><td class="tp-bm-val">—</td><td class="tp-bm-target">لا يوجد معيار معتمد</td><td class="tp-bm-target">لا تتوفر بيانات</td></tr>
+          <tr><td class="tp-bm-metric">حل النزاعات</td><td class="tp-bm-val">—</td><td class="tp-bm-target">لا يوجد معيار معتمد</td><td class="tp-bm-target">لا تتوفر بيانات</td></tr>
+          <tr><td class="tp-bm-metric">رضا المستخدم</td><td class="tp-bm-val">—</td><td class="tp-bm-target">لا يوجد معيار معتمد</td><td class="tp-bm-target">لا تتوفر بيانات</td></tr>
+        </tbody>
+      </table></div>
     </div>
 
     <div class="tp-benchmark" data-testid="definitions">

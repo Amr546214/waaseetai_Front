@@ -1,4 +1,5 @@
-import { Injectable, InjectionToken, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Injectable, InjectionToken, Injector, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { AdminAccessService } from './admin-access.service';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -81,6 +82,7 @@ interface IconStyle {
 })
 export class NotificationEngineService implements OnDestroy {
 	private http = inject(HttpClient);
+	private injector = inject(Injector);
 	private soundService = inject(NotificationSoundService);
 	private platformId = inject(PLATFORM_ID);
 	private isBrowser = isPlatformBrowser(this.platformId);
@@ -314,6 +316,11 @@ export class NotificationEngineService implements OnDestroy {
 		// The server cut this connection because the account is no longer active (admin suspension), or refused it at the handshake.
 		this.socket.on('account_not_active', (payload: { message?: string }) => {
 			this.ui.showBanner('error', accountBlockedText(payload?.message), { title: 'الحساب غير نشط' });
+		});
+		// staff access was suspended / re-roled / reduced: the server cut this connection on purpose. Read the access again (open pages leave at once if it no longer allows them) and reconnect with what is held now.
+		this.socket.on('admin_access_changed', () => {
+			void this.injector.get(AdminAccessService).refresh();
+			setTimeout(() => { try { this.socket?.connect(); } catch { /* offline */ } }, 500);
 		});
 		this.socket.on('connect_error', (err: Error & { data?: { code?: string } }) => {
 			if (err?.data?.code === ACCOUNT_NOT_ACTIVE_CODE) this.ui.showBanner('error', accountBlockedText(undefined), { title: 'الحساب غير نشط' });

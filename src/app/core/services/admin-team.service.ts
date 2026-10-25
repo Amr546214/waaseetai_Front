@@ -8,9 +8,9 @@ export interface RoleTemplate { key: string; name: string; description: string; 
 export interface PermissionsCatalog { permissions: PermissionDef[]; groups: Record<string, string>; templates: RoleTemplate[]; ownerOnly: string[]; ambiguities: string[] }
 export interface AdminRoleRow { id: string; name: string; description: string | null; color: string; permissions: string[]; permissionCount: number; memberCount: number; version: number; updatedAt: string }
 export interface RolePreview { roleId: string; version: number; added: string[]; removed: string[]; addedSensitive: string[]; affectedMembers: number }
-export interface StaffMember { userId: string; name: string; email: string; status: 'ACTIVE' | 'SUSPENDED'; isOwner: boolean; role: { id: string; name: string; color: string } | null; joinedAt: string; lastActiveAt: string | null; version: number; openTasks: number; overdueTasks: number; doneTasks: number }
+export interface StaffMember { userId: string; name: string; email: string; status: 'ACTIVE' | 'SUSPENDED'; isOwner: boolean; role: { id: string; name: string; color: string } | null; joinedAt: string; lastActiveAt: string | null; activeNow: boolean; lastLoginAt: string | null; resolvedDisputes: number; avgCompletionHours: number | null; departments: string[]; version: number; openTasks: number; overdueTasks: number; doneTasks: number }
 export interface PendingInvite { id: string; email: string; fullName: string; roleName: string; expiresAt: string; createdAt: string; resendCount: number }
-export interface StaffList { members: StaffMember[]; pendingInvites: PendingInvite[]; counts: { total: number; active: number; suspended: number; pendingInvites: number; openTasks: number; overdueTasks: number } }
+export interface StaffList { members: StaffMember[]; pendingInvites: PendingInvite[]; counts: { total: number; activeNow: number; active: number; suspended: number; pendingInvites: number; openTasks: number; overdueTasks: number } }
 export interface TaskRow { id: string; number: number; code: string; title: string; description: string | null; type: string; priority: string; status: string; overdue: boolean; dueAt: string | null; completedAt: string | null; version: number; createdAt: string; assignee: { id: string; name: string } | null; link: { type: string; id: string } | null }
 export interface TaskSummary { byStatus: Record<string, number>; open: number; inProgress: number; pending: number; overdue: number; doneThisMonth: number; onTimeThisMonth: { onTime: number; of: number } | null; avgCompletionHoursThisMonth: number | null }
 export interface PerformanceMember { userId: string; name: string; role: string | null; roleColor: string | null; status: string; openTasks: number; completed: number; avgCompletionHours: number | null; onTimeRate: number | null; onTimeOf: number; slaRate: null; userRating: null; overallScore: null }
@@ -41,6 +41,7 @@ export class AdminTeamService {
 	invite(b: { email: string; fullName: string; roleId: string }) { return this.http.post<Envelope<{ id: string; email: string; expiresAt: string; emailed: boolean; link: string }>>(`${base()}/invites`, b); }
 	resendInvite(id: string) { return this.http.post<Envelope<{ id: string; expiresAt: string; emailed: boolean; link: string }>>(`${base()}/invites/${id}/resend`, {}); }
 	cancelInvite(id: string) { return this.http.post<Envelope<unknown>>(`${base()}/invites/${id}/cancel`, {}); }
+	staffActivity(userId: string) { return this.http.get<Envelope<Array<{ id: string; at: string; kind: string; from: string | null; to: string | null; taskNumber: number; taskTitle: string }>>>(`${base()}/staff/${userId}/activity`); }
 	taskMeta() { return this.http.get<Envelope<{ statuses: string[]; priorities: string[]; types: string[] }>>(`${base()}/tasks/meta`); }
 	taskSummary() { return this.http.get<Envelope<TaskSummary>>(`${base()}/tasks/summary`); }
 	tasks(q: { tab?: string; assigneeId?: string; type?: string; search?: string } = {}) {
@@ -55,6 +56,8 @@ export class AdminTeamService {
 	performanceExportUrl(period: string) { return `${base()}/performance/export?period=${encodeURIComponent(period)}`; }
 	exportPerformance(period: string) { return this.http.get(`${base()}/performance/export`, { params: { period }, responseType: 'blob' }); }
 	accessAudit(limit = 30) { return this.http.get<Envelope<AccessAuditRow[]>>(`${base()}/access-audit`, { params: { limit } }); }
-	invitePreview(token: string) { return this.http.get<Envelope<{ email: string; roleName: string; expiresAt: string }>>(`${environment.url_api}/admin-invite/preview`, { params: { token } }); }
-	inviteAccept(token: string, password: string) { return this.http.post<Envelope<{ userId: string; email: string }>>(`${environment.url_api}/admin-invite/accept`, { token, password }); }
+	// the token goes in the BODY, never in a URL / query string (those are written to access logs)
+	invitePreview(token: string) { return this.http.post<Envelope<{ email: string; roleName: string; expiresAt: string }>>(`${environment.url_api}/admin-invite/preview`, { token }); }
+	inviteRequestCode(token: string) { return this.http.post<Envelope<{ sent: boolean; email: string; expiresInSeconds: number }>>(`${environment.url_api}/admin-invite/request-code`, { token }); }
+	inviteAccept(token: string, password: string, code: string) { return this.http.post<Envelope<{ userId: string; email: string }>>(`${environment.url_api}/admin-invite/accept`, { token, password, code }); }
 }

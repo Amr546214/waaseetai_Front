@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { printPage } from '../../../../core/utils/export.util';
 import { AdminAccessService } from '../../../../core/services/admin-access.service';
 import { AdminTeamService, PerformanceReport } from '../../../../core/services/admin-team.service';
 
@@ -37,6 +38,8 @@ export class SaTeamPerformance implements OnInit {
 	setPeriod(p: 'month' | 'quarter' | 'year') { this.period.set(p); this.load(); }
 	color(i: number) { return COLORS[i % COLORS.length]; }
 	initial(n: string) { return (n || '?').trim().charAt(0); }
+	/** PDF = the browser's print dialog (Save as PDF) on exactly what this page shows, i.e. the same data, scope and permission as the CSV; the same helper the other admin reports use. */
+	exportPdf() { printPage(`أداء الفريق — ${this.periodLabel[this.period()]}`); }
 	export() {
 		if (this.exporting()) return; this.exporting.set(true); this.exportError.set('');
 		this.api.exportPerformance(this.period()).subscribe({

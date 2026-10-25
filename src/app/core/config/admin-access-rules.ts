@@ -15,7 +15,8 @@ export interface AccessRule {
 	self?: boolean;
 }
 
-const OPS = ['users.view', 'disputes.view', 'support.review', 'finance.read'];
+
+const OPERATIONS_DETAIL = new Set(['requests', 'offers', 'projects', 'contracts']);
 
 /** longest matching prefix of the path after /supper-admin-overview/ wins; '' is the dashboard */
 export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
@@ -28,7 +29,7 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	specialties: { all: ['content.manage'] },
 	categories: { all: ['content.manage'] },
 	'business-models': { all: ['business_models.review'] },
-	requests: { anyOf: OPS }, offers: { anyOf: OPS }, projects: { anyOf: OPS }, contracts: { anyOf: OPS },
+	requests: { owner: true }, offers: { owner: true }, projects: { owner: true }, contracts: { owner: true },
 	disputes: { all: ['disputes.view'] },
 	reports: { all: ['reports.view'] },
 	support: { all: ['support.review'] },
@@ -58,6 +59,8 @@ export function ruleForPath(path: string): AccessRule {
 	const p = path.replace(/^\/?(supper-admin-overview)?\/?/, '').split('?')[0].replace(/\/+$/, '');
 	if (p === '') return ADMIN_ROUTE_ACCESS[''];
 	const parts = p.split('/');
+	// the LIST of an operations record is owner-only; one record opens only through a case the server lets this person hold (scope is decided there)
+	if (parts.length > 1 && OPERATIONS_DETAIL.has(parts[0])) return { member: true };
 	for (let n = parts.length; n >= 1; n--) { const r = ADMIN_ROUTE_ACCESS[parts.slice(0, n).join('/')]; if (r) return r; }
 	return { member: true }; // pages without their own entry (IT, subscriptions, ...): any team member; their data is gated by the server
 }

@@ -1,7 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { AccessRule } from '../config/admin-access-rules';
+import { AccessRule, ruleForPath } from '../config/admin-access-rules';
 
 export type AdminAccessState = 'OWNER' | 'ACTIVE' | 'NO_PERMISSIONS' | 'NOT_IN_TEAM' | 'SUSPENDED';
 export interface AdminAccess { userId: string; isOwner: boolean; staffStatus: string | null; roleName: string | null; permissions: string[]; hasAnyPermission: boolean; state: AdminAccessState; displayRole: string }
@@ -15,6 +16,7 @@ export const ADMIN_DENIED_CODES = ['ADMIN_PERMISSION_DENIED', 'ADMIN_OWNER_REQUI
 @Injectable({ providedIn: 'root' })
 export class AdminAccessService {
 	private http = inject(HttpClient);
+	private router = inject(Router);
 	readonly status = signal<'idle' | 'loading' | 'ready' | 'error'>('idle');
 	readonly access = signal<AdminAccess | null>(null);
 	readonly isOwner = computed(() => this.access()?.isOwner === true);
@@ -32,11 +34,19 @@ export class AdminAccessService {
 		this.status.set(this.access() ? 'ready' : 'loading');
 		this.inflight = new Promise<void>(resolve => {
 			this.http.get<{ success: boolean; data: AdminAccess }>(`${environment.url_api}/admin/team/access/me`).subscribe({
-				next: r => { if (r?.success && r.data && Array.isArray(r.data.permissions)) { this.access.set(r.data); this.status.set('ready'); } else { this.access.set(null); this.status.set('error'); } this.inflight = null; resolve(); },
-				error: () => { this.access.set(null); this.status.set('error'); this.inflight = null; resolve(); },
+				next: r => { if (r?.success && r.data && Array.isArray(r.data.permissions)) { this.access.set(r.data); this.status.set('ready'); } else { this.access.set(null); this.status.set('error'); } this.enforceOpenPage(); this.inflight = null; resolve(); },
+				error: () => { this.access.set(null); this.status.set('error'); this.enforceOpenPage(); this.inflight = null; resolve(); },
 			});
 		});
 		return this.inflight;
+	}
+
+	/** A page that is already open when access is withdrawn (or becomes unreadable) is left at once: its data and actions disappear instead of waiting for the next navigation. */
+	private enforceOpenPage(): void {
+		const url = this.router.url ?? '';
+		if (!url.startsWith('/supper-admin-overview') || url.startsWith('/supper-admin-overview/no-access')) return;
+		if (this.status() === 'error') { void this.router.navigateByUrl('/supper-admin-overview/no-access?reason=unavailable', { replaceUrl: true }); return; }
+		if (!this.allows(ruleForPath(url))) void this.router.navigateByUrl('/supper-admin-overview/no-access?reason=denied', { replaceUrl: true });
 	}
 
 	can(id: string): boolean { const a = this.access(); return !!a && (a.isOwner || a.permissions.includes(id)); }

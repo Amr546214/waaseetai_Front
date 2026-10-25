@@ -24,7 +24,8 @@ export class SaTeamMemberDetail implements OnInit {
 	readonly typeLabel = TASK_TYPE_LABEL; readonly statusLabel = TASK_STATUS_LABEL; readonly priorityLabel = TASK_PRIORITY_LABEL;
 
 	loading = signal(true); error = signal(''); member = signal<StaffMember | null>(null); roles = signal<AdminRoleRow[]>([]); catalog = signal<PermissionsCatalog | null>(null);
-	tasks = signal<TaskRow[]>([]); tab = signal<'overview' | 'tasks' | 'perms'>('overview'); notice = signal(''); busy = signal(false); newRoleId = signal('');
+	tasks = signal<TaskRow[]>([]); tab = signal<'overview' | 'tasks' | 'perms' | 'log'>('overview'); activity = signal<Array<{ id: string; at: string; kind: string; from: string | null; to: string | null; taskNumber: number; taskTitle: string }>>([]); activityDenied = signal(false);
+	readonly kpiBars = ['معدل حل النزاعات', 'الالتزام بـ SLA', 'رضا المستخدمين']; notice = signal(''); busy = signal(false); newRoleId = signal('');
 	isOwner = computed(() => this.access.isOwner());
 	userId = computed(() => this.route.snapshot.paramMap.get('id') ?? '');
 	readonly roleOpts = computed(() => this.roles().map(r => ({ value: r.id, label: r.name })));
@@ -44,6 +45,7 @@ export class SaTeamMemberDetail implements OnInit {
 			next: r => {
 				const m = r.data.members.find(x => x.userId === this.userId()) ?? null; this.member.set(m); this.newRoleId.set(m?.role?.id ?? ''); this.loading.set(false);
 				if (m && (this.access.can('tasks.manage') || m.userId === this.access.access()?.userId)) this.api.tasks({ assigneeId: m.userId, tab: '' }).subscribe({ next: t => this.tasks.set(t.data), error: () => this.tasks.set([]) });
+				if (m) this.api.staffActivity(m.userId).subscribe({ next: a => { this.activity.set(a.data); this.activityDenied.set(false); }, error: e => { this.activity.set([]); this.activityDenied.set(e?.status === 403); } });
 				if (this.isOwner()) { this.api.roles().subscribe(x => this.roles.set(x.data)); this.api.catalog().subscribe(x => this.catalog.set(x.data)); }
 			},
 			error: e => { this.error.set(errText(e, 'تعذّر تحميل ملف الموظف')); this.loading.set(false); },
@@ -62,6 +64,15 @@ export class SaTeamMemberDetail implements OnInit {
 			next: () => { this.busy.set(false); this.notice.set(m.status === 'ACTIVE' ? 'أُوقف وصول الموظف فورًا' : 'أُعيد تفعيل وصول الموظف'); this.load(); },
 			error: e => { this.busy.set(false); this.notice.set(errText(e, 'تعذّر تنفيذ الإجراء')); },
 		});
+	}
+	activityText(a: { kind: string; from: string | null; to: string | null; taskNumber: number; taskTitle: string }) {
+		const code = `T-${String(a.taskNumber).padStart(4, '0')}`;
+		switch (a.kind) {
+			case 'CREATED': return `أنشأ المهمة ${code} · ${a.taskTitle}`;
+			case 'ASSIGNED': return `أعاد إسناد المهمة ${code} · ${a.taskTitle}`;
+			case 'STATUS': return `نقل المهمة ${code} إلى «${this.statusLabel[a.to ?? ''] ?? a.to}»`;
+			default: return `عدّل المهمة ${code} · ${a.taskTitle}`;
+		}
 	}
 	initial(n: string) { return (n || '?').trim().charAt(0); }
 }

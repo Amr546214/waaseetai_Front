@@ -70,4 +70,26 @@ describe('admin access (what the SERVER says this admin account may do)', () => 
 		http.expectOne(`${environment.url_api}/admin/other`).flush({ code: 'SOMETHING' }, { status: 403, statusText: 'Forbidden' });
 		http.expectNone(URL());
 	});
+
+	it('operations records: the LIST pages are owner-only, one record opens for any member (the server decides which, by the case held)', () => {
+		for (const list of ['projects', 'contracts', 'requests', 'offers']) {
+			expect(ruleForPath(`/supper-admin-overview/${list}`)).toEqual({ owner: true });
+			expect(ruleForPath(`/supper-admin-overview/${list}/abc`)).toEqual({ member: true });
+		}
+	});
+	it('a page that is open when access is withdrawn is left at once (open page, new permissions); an unreadable state also leaves it', async () => {
+		const router = TestBed.inject(Router);
+		await load(access({ permissions: ['support.review'] }));
+		await router.navigateByUrl('/supper-admin-overview/support', { skipLocationChange: true }).catch(() => undefined);
+		Object.defineProperty(router, 'url', { get: () => '/supper-admin-overview/support', configurable: true });
+		const nav: string[] = []; (router as any).navigateByUrl = (u: string) => { nav.push(u); return Promise.resolve(true); };
+		// still allowed -> stays
+		let p = svc.refresh(); http.expectOne(URL()).flush({ success: true, data: access({ permissions: ['support.review'] }) }); await p; expect(nav).toEqual([]);
+		// support.review withdrawn while the page is open -> leaves to the no-access page
+		p = svc.refresh(); http.expectOne(URL()).flush({ success: true, data: access({ permissions: ['users.view'] }) }); await p;
+		expect(nav).toEqual(['/supper-admin-overview/no-access?reason=denied']);
+		// the state cannot be read -> also leaves (never "allowed")
+		nav.length = 0; p = svc.refresh(); http.expectOne(URL()).flush({}, { status: 500, statusText: 'x' }); await p;
+		expect(nav).toEqual(['/supper-admin-overview/no-access?reason=unavailable']);
+	});
 });

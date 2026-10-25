@@ -56,6 +56,18 @@ export class SaTeam implements OnInit {
 	avatar(i: number) { return AVATARS[i % AVATARS.length]; }
 	initial(name: string) { return (name || '?').trim().charAt(0); }
 	roleTabs = computed(() => this.roles());
+	/** The design's «الأقسام المتاحة»: shown, but derived from the chosen role's permissions (a department grants nothing of its own). */
+	inviteSections() {
+		const held = new Set(this.roles().find(r => r.id === this.invite.roleId)?.permissions ?? []);
+		const has = (...ids: string[]) => ids.some(i => held.has(i));
+		return [
+			{ label: 'المستخدمون', on: has('users.view', 'users.suspend', 'users.delete') },
+			{ label: 'النزاعات', on: has('disputes.view', 'disputes.note', 'disputes.assign', 'disputes.resolve') },
+			{ label: 'البلاغات', on: has('reports.view') },
+			{ label: 'الدعم الفني', on: has('support.review', 'support.reply') },
+			{ label: 'التخصصات', on: has('specialties.approve', 'content.manage', 'business_models.review') },
+		];
+	}
 	readonly roleOpts = computed(() => this.roles().map(r => ({ value: r.id, label: r.name })));
 	readonly allRoles = [{ value: '', label: 'كل الأدوار' }]; readonly noRole = [{ value: '', label: 'بلا دور' }];
 	readonly statusOpts = [{ value: '', label: 'كل الحالات' }, { value: 'ACTIVE', label: 'نشط' }, { value: 'SUSPENDED', label: 'موقوف' }];

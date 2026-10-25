@@ -3,3 +3,44 @@
 .tm-detail-crumb a:hover{color:#2BD4C7}
 .tm-detail-box{max-width:900px;max-height:none;overflow:visible;margin:0 auto}
 .tm-detail-box .tm-modal-body-scroll{max-height:none;overflow:visible}
+
+/* P-AD-022-موظف — the design's own values (.bk-link, .sec-card, .sec-ttl, .layout, .bdg, .data-tbl, .sw), prefixed */
+.tm-bk-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #6B7699; text-decoration: none; margin-bottom: 16px; transition: color .15s; }
+.tm-bk-link:hover { color: #2BD4C7; }
+.tm-bk-link svg { width: 14px; height: 14px; }
+.tm-name-row { font-size: 20px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 10px; }
+.tm-name-sub { font-size: 12px; color: #6B7699; margin-top: 2px; }
+.tm-bdg { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.tm-bdg-on { background: rgba(43,212,199,.10); color: #2BD4C7; }
+.tm-bdg-off { background: rgba(255,255,255,.06); color: #6B7699; }
+.tm-layout { display: grid; grid-template-columns: 1fr 280px; gap: 14px; align-items: start; margin-bottom: 14px; }
+.tm-sec-card { background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
+.tm-sec-card:last-child { margin-bottom: 0; }
+.tm-sec-ttl { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; margin-top: 0; }
+.tm-sec-ttl svg { width: 14px; height: 14px; color: #2BD4C7; flex-shrink: 0; }
+.tm-sec-ttl-s { font-size: 11px; font-weight: 800; color: #6B7699; margin: 8px 0 2px; }
+.tm-perm-row2 { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 8px; font-size: 13px; }
+.tm-sw { width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.12); position: relative; flex-shrink: 0; }
+.tm-sw::after { content: ''; position: absolute; top: 2px; inset-inline-start: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: inset-inline-start .15s; }
+.tm-sw.on { background: #2BD4C7; }
+.tm-sw.on::after { inset-inline-start: 18px; }
+.tm-data-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+.tm-data-tbl thead tr { border-bottom: 1px solid rgba(255,255,255,.07); }
+.tm-data-tbl thead th { font-size: 10px; font-weight: 800; color: #6B7699; letter-spacing: .05em; padding: 8px 10px; text-align: right; background: rgba(255,255,255,.02); }
+.tm-data-tbl tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); }
+.tm-data-tbl tbody tr:last-child { border-bottom: 0; }
+.tm-data-tbl tbody td { padding: 9px 10px; vertical-align: middle; color: #A8B2D1; }
+.tm-quick { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 9px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); text-decoration: none; margin-bottom: 6px; cursor: pointer; }
+.tm-quick span { font-size: 12px; font-weight: 700; color: #A8B2D1; }
+.tm-quick svg { width: 14px; height: 14px; color: #6B7699; }
+.tm-quick-main { background: rgba(43,212,199,.06); border-color: rgba(43,212,199,.14); }
+.tm-quick-main span { color: #2BD4C7; }
+.tm-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.tm-csat { background: rgba(43,212,199,.05); border: 1px solid rgba(43,212,199,.16); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+.tm-csat-ttl { font-size: 13px; font-weight: 800; color: #2BD4C7; margin-bottom: 10px; }
+@media (max-width: 900px) { .tm-layout, .tm-two { grid-template-columns: 1fr; } }
+:host-context(.light-theme) .tm-sec-card, :host-context(.theme-light) .tm-sec-card { background: #fff; border-color: #E7EAF1; }
+:host-context(.light-theme) .tm-sec-ttl, :host-context(.theme-light) .tm-sec-ttl, :host-context(.light-theme) .tm-name-row, :host-context(.theme-light) .tm-name-row { color: #1E293B; }
+:host-context(.light-theme) .tm-perm-row2, :host-context(.theme-light) .tm-perm-row2 { background: #F8FAFC; border-color: #E7EAF1; }
+:host-context(.light-theme) .tm-data-tbl tbody td, :host-context(.theme-light) .tm-data-tbl tbody td { color: #475569; }
+:host-context(.light-theme) .tm-quick, :host-context(.theme-light) .tm-quick { background: #F8FAFC; border-color: #E7EAF1; }
