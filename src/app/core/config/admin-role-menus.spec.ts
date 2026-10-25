@@ -10,7 +10,7 @@ import { ruleForPath } from './admin-access-rules';
 const ROLES: Record<string, string[]> = {
 	'مدير فريق': ['users.view', 'users.suspend', 'disputes.view', 'disputes.resolve', 'reports.view', 'support.review', 'specialties.approve', 'packages.manage', 'withdrawals.review', 'withdrawals.approve', 'finance.read', 'team.view', 'tasks.manage'],
 	'مشرف نزاعات': ['users.view', 'users.suspend', 'disputes.view', 'disputes.resolve', 'reports.view'],
-	'مشرف دعم': ['users.view', 'reports.view', 'support.review'],
+	'مشرف دعم': ['users.view', 'reports.view', 'support.review', 'support.reply'],
 	'مشرف محتوى': ['specialties.approve'],
 	'مشرف مالي': ['withdrawals.review', 'withdrawals.approve', 'finance.read'],
 };
