@@ -1,0 +1,91 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--pg);
+  color: var(--txt);
+  font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+  direction: rtl;
+}
+.lp-wrap { max-width: 1280px; margin: 0 auto; padding: 24px; }
+.lp-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.lp-toolbar h1 { font-size: 20px; font-weight: 900; margin: 0; }
+.theme-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.toggle-seg { background: var(--surface); color: var(--txt-2); border: none; padding: 8px 18px; font-size: 12px; font-weight: 800; cursor: pointer; }
+.toggle-seg.active { background: rgba(var(--teal-rgb),.15); color: var(--teal, #2BD4C7); }
+
+.pv-dashboard {
+  display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 56px 1fr; grid-template-areas: "sidebar topbar" "sidebar main"; gap: 0;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px);
+  overflow: hidden; min-height: 560px;
+}
+.pv-topbar { grid-area: topbar; height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.pv-sidebar { grid-area: sidebar; background: var(--navy, var(--pg)); padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; border-inline-end: 1px solid var(--border); }
+.pv-logo { font-weight: 900; font-size: 15px; margin-bottom: 16px; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.pv-nav-link {
+  padding: 9px 12px; border-radius: 8px; font-size: 12.5px; font-weight: var(--fw-sidebar-link, 500);
+  color: var(--txt-2); cursor: pointer;
+}
+.pv-nav-link.active { background: rgba(var(--teal-rgb),.12); color: var(--teal, #2BD4C7); }
+
+.pv-main { grid-area: main; padding: 24px; }
+
+.page-title-sample {
+  font-size: var(--fs-page-title, 19px); font-weight: var(--fw-page-title, 900);
+  line-height: var(--lh-page-title, 1.3); margin: 0 0 18px;
+}
+.section-title-sample {
+  font-size: var(--fs-section-title, 14px); font-weight: var(--fw-section-title, 800);
+  line-height: var(--lh-section-title, 1.4); margin: 0 0 12px; color: var(--teal, #2BD4C7);
+}
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 26px; }
+@media (max-width: 640px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+.kpi-card { background: var(--pg); border: 1px solid var(--border); border-radius: var(--radius-md, 14px); padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.kpi-card.ai-card { background: var(--ai-bg); border-color: var(--ai-border); }
+/* إصلاح 2026-08-21: أيقونة KPI حيّة من overrides تبويب القوالب (kpi.icon0/1/3 + color0/1/3) —
+   نفس بنية .kp-ico بملف templates.css بالضبط، لضمان اتساق العرض بين التبويبين. */
+.kpi-ico {
+  width: 24px; height: 24px;
+  border-radius: 7px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--icon-border); background: var(--icon-bg); margin-bottom: 2px;
+}
+.kpi-ico svg { display: block; }
+.kpi-number-sample {
+  font-size: var(--fs-kpi-number, 26px); font-weight: var(--fw-kpi-number, 900);
+  line-height: var(--lh-kpi-number, 1.15); color: var(--txt);
+}
+.ai-card .kpi-number-sample { color: var(--ai-txt); }
+.kpi-label { font-size: 11px; color: var(--txt-3); }
+
+.pv-section { margin-bottom: 24px; }
+.pv-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.pv-table th { text-align: right; color: var(--txt-3); font-size: 11px; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.pv-table td { padding: 10px; border-bottom: 1px solid var(--border); color: var(--txt-2); }
+
+.badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+.badge-active { background: var(--badge-active-bg); color: var(--badge-active-text); }
+.badge-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
+.badge-dispute { background: var(--badge-dispute-bg); color: var(--badge-dispute-text); }
+
+.form-section { background: var(--pg); border: 1px solid var(--border); border-radius: var(--radius-md, 14px); padding: 18px; }
+.pv-form-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.pv-form-row label { font-size: 11.5px; color: var(--txt-3); }
+.pv-input {
+  background: var(--surface); border: 1px solid var(--border); color: var(--txt);
+  border-radius: 8px; padding: 9px 12px; font-size: 12.5px; font-family: inherit;
+}
+.pv-actions { display: flex; gap: 10px; margin-top: 8px; }
+.pv-btn-primary { background: var(--grad); color: #070D24; border: none; border-radius: var(--radius-sm, 9px); padding: 10px 20px; font-weight: 900; font-size: 12.5px; cursor: pointer; }
+.pv-btn-secondary { background: var(--surface); color: var(--txt-2); border: 1px solid var(--border); border-radius: var(--radius-sm, 9px); padding: 10px 20px; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+
+.ai-chip-sample {
+  margin-top: 20px; background: var(--ai-bg); border: 1px solid var(--ai-border); color: var(--ai-txt);
+  border-radius: var(--radius-md, 14px); padding: 12px 16px; font-size: 12.5px; font-weight: 700;
+  display: flex; align-items: center; gap: 10px;
+}
+/* إصلاح 2026-08-19: أيقونة AI الفعلية (من icons.json مكتبة "ai") بدل إيموجي ✨ ثابت —
+   الإيموجي يتجاهل CSS color ويرسم بلون خط النظام، فكان يخالف قاعدة تلوين أيقونات AI بالهوية.
+   إصلاح 2026-08-21: اللون لم يعد ثابتًا هنا — يرث من .ai-chip-sample المربوط بـaidisc.tagColor
+   (خانة حرة بتبويب القوالب)، والمقاس يُضبط حيًّا عبر aidisc.iconSize بدل القيمة الثابتة 18px. */
+.ai-chip-icon { display: inline-flex; flex-shrink: 0; }
+.ai-chip-icon svg { width: 100%; height: 100%; }

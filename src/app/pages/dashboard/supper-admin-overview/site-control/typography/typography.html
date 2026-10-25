@@ -1,0 +1,124 @@
+<div class="typo-wrap">
+  <header class="panel-header">
+    <h1>لوحة تحكم الهوية — الخطوط (Typography)</h1>
+    <p class="sub">تحكم كامل بكل مكان يظهر فيه نص: نوع الخط، الحجم، الوزن، تباعد الأسطر، تباعد الأحرف — لكل دور نصي بالهوية</p>
+    <div class="actions">
+      <button type="button" class="btn-save" (click)="save()">حفظ التغييرات</button>
+      <button type="button" class="btn-secondary" (click)="exportJson()">تصدير JSON</button>
+      <label class="btn-secondary import-label">
+        استيراد JSON
+        <input type="file" accept="application/json" hidden (change)="onImportFile($event)" />
+      </label>
+      <button type="button" class="btn-secondary" (click)="resetToSource()">استعادة القيم المصدرية</button>
+      @if (savedMsg()) {
+        <span class="saved-msg">{{ savedMsg() }}</span>
+      }
+    </div>
+  </header>
+
+  @if (service.loadError()) {
+    <div class="err-box">{{ service.loadError() }}</div>
+  }
+
+  <div class="sub-tabs">
+    <button type="button" class="sub-tab" [class.active]="activeTab() === 'roles'" (click)="selectTab('roles')">أدوار النص</button>
+    <button type="button" class="sub-tab" [class.active]="activeTab() === 'families'" (click)="selectTab('families')">عائلات الخطوط</button>
+    <button type="button" class="sub-tab" [class.active]="activeTab() === 'scale'" (click)="selectTab('scale')">المقياس البصري</button>
+  </div>
+
+  @if (activeTab() === 'families') {
+    <section class="families-section">
+      <p class="scale-hint">اختر خطًا من مكتبة {{ service.fontLibrary().length }} خطوط حقيقية (Google Fonts، تدعم العربية) — الاختيار يحمّل الخط فعليًا بالمتصفح، مو مجرد تغيير اسم. كل خط مرفق بخط لاتيني شريك لعرض جيد للأرقام/أي نص إنجليزي لاحقًا.</p>
+      @for (fam of service.families(); track fam.id) {
+        <div class="family-row">
+          <div class="family-info">
+            <strong>{{ fam.label }}</strong>
+            <code>{{ fam.var }}</code>
+          </div>
+          <select class="value-text" [value]="currentLibraryId(fam)" (change)="onFamilyLibrarySelect(fam.id, $event)">
+            <option value="" disabled>اختر خطًا من المكتبة...</option>
+            @for (f of service.fontLibrary(); track f.id) {
+              <option [value]="f.id">{{ f.label }}</option>
+            }
+          </select>
+          <span class="family-preview" [style.fontFamily]="fam.stack">Aa — نص تجريبي Abc 123</span>
+          <span class="family-source">{{ fam.source }}</span>
+        </div>
+      }
+    </section>
+  }
+
+  @if (activeTab() === 'roles') {
+    <section class="roles-section">
+      @for (role of service.roles(); track role.id) {
+        <div class="role-card" [class.dupe]="duplicateSizeIds().has(role.id)">
+          <div class="role-head">
+            <div>
+              <strong>{{ role.label }}</strong>
+              <span class="role-usage">{{ role.usage }}</span>
+            </div>
+            @if (role.interpolated) {
+              <span class="interp-badge" [title]="role.interpolatedNote">مُستنتج — راجع</span>
+            }
+            @if (duplicateSizeIds().has(role.id)) {
+              <span class="dupe-badge" title="نفس الحجم مستخدم بدور نصي آخر أيضًا">⚠ حجم مكرر</span>
+            }
+          </div>
+
+          <div class="role-fields">
+            <label>
+              العائلة
+              <select [value]="role.familyRef" (change)="onRoleFamilyRef(role.id, $event)">
+                @for (fam of service.families(); track fam.id) {
+                  <option [value]="fam.id">{{ fam.label }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              الحجم
+              <input type="text" [value]="role.fontSize" (change)="onRoleField(role.id, 'fontSize', $event)" />
+            </label>
+            <label>
+              الوزن
+              <select [value]="role.fontWeight" (change)="onRoleField(role.id, 'fontWeight', $event)">
+                @for (w of [400,500,700,800,900]; track w) {
+                  <option [value]="w">{{ w }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              تباعد الأسطر
+              <input type="text" [value]="role.lineHeight" (change)="onRoleField(role.id, 'lineHeight', $event)" />
+            </label>
+            <label>
+              تباعد الأحرف
+              <input type="text" [value]="role.letterSpacing" (change)="onRoleField(role.id, 'letterSpacing', $event)" />
+            </label>
+          </div>
+
+          @if (service.errorFor(role.id, 'fontSize'); as e) { <div class="field-error">{{ e }}</div> }
+          @if (service.errorFor(role.id, 'lineHeight'); as e) { <div class="field-error">{{ e }}</div> }
+          @if (service.errorFor(role.id, 'letterSpacing'); as e) { <div class="field-error">{{ e }}</div> }
+
+          <p class="role-preview" [style.fontFamily]="service.familyLabel(role.familyRef)"
+             [style.fontSize]="role.fontSize" [style.fontWeight]="role.fontWeight"
+             [style.lineHeight]="role.lineHeight" [style.letterSpacing]="role.letterSpacing">
+            {{ previewText }}
+          </p>
+        </div>
+      }
+    </section>
+  }
+
+  @if (activeTab() === 'scale') {
+    <section class="scale-section">
+      <p class="scale-hint">كل الأدوار مرتّبة من الأكبر للأصغر — أي تطابق بالحجم بين دورين مختلفين يظهر بعلامة تحذير</p>
+      @for (role of sortedRolesBySize(); track role.id) {
+        <div class="scale-row" [class.dupe]="duplicateSizeIds().has(role.id)">
+          <span class="scale-label">{{ role.label }} <code>{{ role.fontSize }}</code></span>
+          <span class="scale-sample" [style.fontSize]="role.fontSize" [style.fontWeight]="role.fontWeight">Aa وسيط AI</span>
+        </div>
+      }
+    </section>
+  }
+</div>

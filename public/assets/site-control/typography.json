@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-18T00:00:00.000Z",
+  "note": "نظام إدارة الخطوط الكامل — أُنشئ 2026-08-18 (قرار المالك: تحكم كامل بكل مكان نص بالهوية). القيم منقولة حرفيًا من مجموعة typography بملف tokens.json/tokens-light.json (لا اختراع)، مع إضافة 3 أدوار كانت موثّقة بصفحة الهوية وغير موجودة كتوكنات (page-title, section-title, kpi-number) — تباعد الأسطر/الأحرف لهذي الثلاثة مُستنتج بالتناظر مع أقرب دور موثّق (مو قيمة مصدر حرفية) وعليه علامة 'interpolated': true، راجعها قبل الاعتماد النهائي.",
+  "families": [
+    {
+      "id": "heading",
+      "var": "--font-heading",
+      "label": "خط العناوين",
+      "value": "Tajawal",
+      "stack": "'Tajawal', system-ui, sans-serif",
+      "source": "Google Fonts — https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900",
+      "availableWeights": [
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ]
+    },
+    {
+      "id": "body",
+      "var": "--font-body",
+      "label": "خط النصوص",
+      "value": "Tajawal",
+      "stack": "'Tajawal', system-ui, sans-serif",
+      "source": "Google Fonts — https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900",
+      "availableWeights": [
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ]
+    },
+    {
+      "id": "numeric",
+      "var": "--font-numeric",
+      "label": "خط الأرقام (عرض LTR محلي — أرقام KPI ومبالغ)",
+      "value": "Tajawal",
+      "stack": "'Tajawal', system-ui, sans-serif",
+      "source": "Google Fonts — https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800;900",
+      "availableWeights": [
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "id": "h1",
+      "label": "عنوان رئيسي H1",
+      "usage": "عنوان الصفحة الأعلى — واحد لكل صفحة",
+      "familyRef": "heading",
+      "fontSize": "38px",
+      "fontWeight": 900,
+      "lineHeight": 1.2,
+      "letterSpacing": "-0.01em"
+    },
+    {
+      "id": "h2",
+      "label": "عنوان فرعي H2",
+      "usage": "عناوين الأقسام الرئيسية",
+      "familyRef": "heading",
+      "fontSize": "27px",
+      "fontWeight": 900,
+      "lineHeight": 1.25,
+      "letterSpacing": "-0.01em"
+    },
+    {
+      "id": "h3",
+      "label": "عنوان H3",
+      "usage": "عناوين البطاقات والمكوّنات",
+      "familyRef": "heading",
+      "fontSize": "19px",
+      "fontWeight": 800,
+      "lineHeight": 1.3,
+      "letterSpacing": "normal"
+    },
+    {
+      "id": "h4",
+      "label": "عنوان H4",
+      "usage": "عناوين فرعية داخل البطاقات",
+      "familyRef": "heading",
+      "fontSize": "16px",
+      "fontWeight": 800,
+      "lineHeight": 1.35,
+      "letterSpacing": "normal"
+    },
+    {
+      "id": "h5",
+      "label": "عنوان H5",
+      "usage": "عناوين صغيرة/تسميات أقسام مصغّرة",
+      "familyRef": "heading",
+      "fontSize": "14px",
+      "fontWeight": 700,
+      "lineHeight": 1.4,
+      "letterSpacing": "normal"
+    },
+    {
+      "id": "h6",
+      "label": "عنوان H6",
+      "usage": "أصغر مستوى عناوين",
+      "familyRef": "heading",
+      "fontSize": "13px",
+      "fontWeight": 700,
+      "lineHeight": 1.4,
+      "letterSpacing": "0.02em"
+    },
+    {
+      "id": "body-lg",
+      "label": "نص أساسي كبير",
+      "usage": "فقرات مهمة/مقدمات",
+      "familyRef": "body",
+      "fontSize": "15px",
+      "fontWeight": 400,
+      "lineHeight": 1.7,
+      "letterSpacing": "normal"
+    },
+    {
+      "id": "body-md",
+      "label": "نص أساسي",
+      "usage": "النص الافتراضي لكل المحتوى",
+      "familyRef": "body",
+      "fontSize": "14px",
+      "fontWeight": 400,
+      "lineHeight": 1.7,
+      "letterSpacing": "normal"
+    },
+    {
+      "id": "body-sm",
+      "label": "نص أساسي صغير",
+      "usage": "نصوص ثانوية/تسميات حقول",
+      "familyRef": "body",
+      "fontSize": "12.5px",
+      "fontWeight": 500,
+      "lineHeight": 1.6,
+      "letterSpacing": "normal"
+    },
+    {
+      "id": "caption",
+      "label": "شرح مصغّر",
+      "usage": "تفاصيل إضافية أسفل العناصر",
+      "familyRef": "body",
+      "fontSize": "11px",
+      "fontWeight": 700,
+      "lineHeight": 1.5,
+      "letterSpacing": "0.01em"
+    },
+    {
+      "id": "overline",
+      "label": "نص فوقي (Overline)",
+      "usage": "وسوم فوق العناوين/تصنيفات صغيرة بأحرف متباعدة",
+      "familyRef": "body",
+      "fontSize": "9.5px",
+      "fontWeight": 800,
+      "lineHeight": 1.4,
+      "letterSpacing": "0.08em"
+    },
+    {
+      "id": "page-title",
+      "label": "عنوان صفحة داخلي",
+      "usage": "عنوان أعلى صفحات لوحة التحكم الداخلية",
+      "familyRef": "heading",
+      "fontSize": "19px",
+      "fontWeight": 900,
+      "lineHeight": 1.35,
+      "letterSpacing": "normal",
+      "interpolated": false,
+      "interpolatedNote": "الحجم/الوزن/تباعد الأسطر موثّقة حرفيًا بصفحة الهوية (typeScale، صف \"عنوان صفحة داخلي\"/font-size-h4: lh:1.35, ls:normal) — لم تعد قيمة مُستنتجة بالتناظر."
+    },
+    {
+      "id": "section-title",
+      "label": "عنوان قسم",
+      "usage": "عناوين الأقسام داخل صفحات لوحة التحكم",
+      "familyRef": "heading",
+      "fontSize": "14px",
+      "fontWeight": 800,
+      "lineHeight": 1.4,
+      "letterSpacing": "normal",
+      "interpolated": true,
+      "interpolatedNote": "الحجم/الوزن موثّقان حرفيًا بصفحة الهوية (typeScale). تباعد الأسطر/الأحرف مُستنتج بالتناظر مع h5 (نفس الحجم 14px) لعدم وجود توثيق مباشر."
+    },
+    {
+      "id": "kpi-number",
+      "label": "رقم KPI",
+      "usage": "أرقام لوحات المؤشرات (إحصائيات، مبالغ بارزة)",
+      "familyRef": "numeric",
+      "fontSize": "26px",
+      "fontWeight": 900,
+      "lineHeight": 1.1,
+      "letterSpacing": "normal",
+      "interpolated": false,
+      "interpolatedNote": "تباعد الأسطر/الأحرف موثّق حرفيًا بصفحة الهوية (typeScale، صف \"رقم KPI\"/font-size-kpi: lh:1.1, ls:normal) — لم يعد قيمة مُستنتجة بالتناظر. (الحجم يبقى منتصف النطاق الموثّق 20-32px حسب القرار السابق)."
+    }
+  ]
+}

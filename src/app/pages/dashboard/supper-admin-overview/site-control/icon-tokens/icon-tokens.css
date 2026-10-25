@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--pg);
+  color: var(--txt);
+  font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+  direction: rtl;
+}
+.icons-wrap { max-width: 1240px; margin: 0 auto; padding: 24px; }
+.panel-header h1 { margin: 0 0 4px; font-size: 22px; font-weight: 900; }
+.panel-header .sub { margin: 0 0 12px; color: var(--txt-2); font-size: 13px; }
+.actions { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.btn-save {
+  background: var(--grad); color: #070D24; border: none; border-radius: var(--radius-sm, 9px);
+  padding: 10px 22px; font-weight: 900; font-size: 13px; cursor: pointer;
+}
+.btn-secondary {
+  background: var(--surface); color: var(--txt-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 9px); padding: 9px 16px; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+}
+.import-label { display: inline-flex; align-items: center; }
+.saved-msg { color: var(--green, #0FA99A); font-size: 13px; }
+
+.err-box { background: rgba(var(--red-rgb),.1); border: 1px solid rgba(var(--red-rgb),.3); color: var(--red, #FF8C69); padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 12.5px; }
+
+.lib-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.lib-tab {
+  background: var(--surface); border: 1px solid var(--border); color: var(--txt-2);
+  border-radius: 10px; padding: 9px 18px; font-size: 12.5px; font-weight: 800; cursor: pointer;
+  font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+}
+.lib-tab.active { background: rgba(var(--teal-rgb),.12); border-color: var(--teal, #2BD4C7); color: var(--teal, #2BD4C7); }
+
+.upload-mini-btn {
+  width: 100%; text-align: center; margin-top: 4px; font-size: 9.5px; color: var(--teal, #2BD4C7);
+  background: rgba(var(--teal-rgb),.08); border: 1px solid rgba(var(--teal-rgb),.25); border-radius: 6px;
+  padding: 4px 6px; cursor: pointer; font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+}
+.upload-err { font-size: 9px; color: var(--red, #FF8C69); text-align: center; }
+
+.lib-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.ai-section { border-color: var(--ai-border); }
+.lib-section h2 { font-size: 15px; font-weight: 900; margin: 0 0 14px; }
+.ai-section h2 { color: var(--ai-txt); }
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+}
+.ai-section .icon-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.icon-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 6px;
+}
+.ai-section .icon-card { background: linear-gradient(135deg, rgba(123,47,190,.09), rgba(43,127,255,.06)); }
+.icon-box {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-box svg { width: 16px; height: 16px; }
+.icon-label { font-size: 11px; color: var(--txt-2); text-align: center; }
+.icon-slot { font-size: 9px; color: var(--txt-3); direction: ltr; }
+.icon-select {
+  width: 100%;
+  background: var(--pg);
+  border: 1px solid var(--border);
+  color: var(--txt-2);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 10px;
+  margin-top: 4px;
+}
+.proposed-section { opacity: .85; border: 1px dashed rgba(var(--kahr-rgb),.4); border-radius: 12px; padding: 10px; }
+.proposed-badge { display: inline-block; font-size: 10px; font-weight: 800; color: var(--kahr, #D98A0B); background: rgba(var(--kahr-rgb),.12); padding: 2px 8px; border-radius: 999px; margin-inline-start: 8px; vertical-align: middle; }
+/* شارة "مقترح" على مستوى البطاقة (لا عنوان قسم) — إصلاح 2026-08-21: أيقونات الذكاء أصبحت
+   بشبكة واحدة غير مقسّمة لـ"معتمدة"/"مقترحة"؛ التمييز انتقل لهذه الشارة الصغيرة أسفل كل بطاقة. */
+.proposed-badge-inline { display: block; margin: 4px auto 0; width: fit-content; font-size: 9px; padding: 1px 7px; }
+
+/* ترويسات المجموعات الفرعية داخل نفس القسم — أُضيفت 2026-08-20 مع دمج مكتبتي أيقونات الذكاء
+   (معتمدة نهائياً / مقترحة جديدة) بمكتبة واحدة، بنفس أسلوب عرض ملف الهوية: عنوان مجموعة
+   صغير فوق شبكة عناصرها. تُطبَّق كذلك على مجموعات مكتبة الموقع ws-* الأربع. */
+.icon-group-title {
+  font-size: 11px; font-weight: 800; color: var(--txt-2);
+  margin: 4px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.ai-section .icon-group-title { color: var(--ai-txt); border-bottom-color: var(--ai-border); }
+.icon-group-title.proposed-group { color: var(--kahr, #D98A0B); border-bottom-style: dashed; border-bottom-color: rgba(var(--kahr-rgb),.4); }
+.ai-section .icon-group-title.proposed-group { color: var(--kahr, #D98A0B); border-bottom-color: rgba(var(--kahr-rgb),.4); }
+.icon-grid + .icon-group-title { margin-top: 20px; }
+.icon-note { font-size: 9px; color: var(--txt-3); text-align: center; line-height: 1.5; }
+
+/* الفصل بين نمطي عرض i-* في الهوية: بدون إطار / بإطار (مربع زجاجي) — وعنوان مكتبة ws-* */
+.display-style-heading { margin-top: 18px; }
+.icon-grid-framed { margin-top: 10px; }
+.icon-card-framed { gap: 6px; }
+/* الخلفية/الحدود تُضبَط الآن حيًّا من القالب ([style.background]/[style.borderColor]) حسب
+   المكتبة — إصلاح 2026-08-21: أيقونات AI يجب أن تُظهِر زجاجًا بنفسجيًا (--ai-bg/--ai-border)،
+   لا الفيروزي العام (--icon-bg/--icon-border) المستخدَم لمكتبة i-*. القيم أدناه fallback فقط. */
+.icon-box-framed {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background: var(--icon-bg);
+  border: 1px solid var(--icon-border);
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-box-framed svg { width: 16px; height: 16px; }
