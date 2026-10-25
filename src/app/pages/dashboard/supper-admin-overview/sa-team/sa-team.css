@@ -422,3 +422,7 @@
   .tm-metric-lbl { width: 110px; font-size: 11px; }
   .tm-csat-kpis { grid-template-columns: 1fr; }
 }
+
+/* the filter row stays ONE row like the design (the global select rule would otherwise stretch each select to the full width) */
+.tm-filters .tm-select { width: auto; min-width: 140px; flex: 0 0 auto; }
+@media (max-width: 480px) { .tm-filters .tm-select { flex: 1 1 140px; } }

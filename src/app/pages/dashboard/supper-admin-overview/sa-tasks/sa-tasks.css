@@ -266,3 +266,7 @@
 :host-context(body.theme-light) .tk-kanban-item,
 :host-context(.light-theme) .tk-kanban-item,
 :host-context(.theme-light) .tk-kanban-item{background:rgba(7,13,36,.02);border-color:#E7EAF1;color:#475569}
+
+/* filters stay on ONE row like the design (the global select rule would stretch each select to the full width) */
+.tk-filters .tk-sel { width: auto; min-width: 140px; flex: 0 0 auto; }
+@media (max-width: 480px) { .tk-filters .tk-sel { flex: 1 1 140px; } }

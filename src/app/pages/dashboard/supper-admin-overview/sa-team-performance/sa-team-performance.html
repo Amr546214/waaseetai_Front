@@ -64,7 +64,7 @@
 
     <div class="tp-benchmark" data-testid="definitions">
       <div class="tp-sec-ttl">كيف تُحسب الأرقام، وما الذي ينتظر قرارًا</div>
-      <table class="tp-bm-tbl">
+      <div style="overflow-x:auto"><table class="tp-bm-tbl">
         <thead><tr><th>المؤشر</th><th>التعريف المعتمد في التقرير</th></tr></thead>
         <tbody>
           <tr><td class="tp-bm-metric">مهمة منجزة</td><td>{{ r.definitions.completed }}</td></tr>
@@ -72,7 +72,7 @@
           <tr><td class="tp-bm-metric">الالتزام بالموعد</td><td>{{ r.definitions.onTime }}</td></tr>
           @for (d of r.definitions.decisionsNeeded; track d) { <tr><td class="tp-bm-metric" style="color:#FFB400">قرار مطلوب</td><td class="tp-bm-target">{{ d }}</td></tr> }
         </tbody>
-      </table>
+      </table></div>
     </div>
   }
   <div class="tp-foot">© 2026 وسيط AI · v2.0.0</div>
