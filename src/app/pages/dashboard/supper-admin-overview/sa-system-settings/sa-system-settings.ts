@@ -44,6 +44,8 @@ export class SaSystemSettings implements OnInit {
 	readonly active = signal<Tab>('general');
 	readonly readiness = signal<{ ready: boolean; blockers: Blocker[] } | null>(null);
 	readonly readinessError = signal('');
+	/** the technical requirement list sits behind a toggle (the long text is not part of the compact card) */
+	readonly readyOpen = signal(false);
 
 	readonly general = ['platformName', 'maintenanceMode', 'registrationOpen', 'liveSupportAssistant'];
 	readonly contacts = ['supportEmail', 'supportPhone', 'maintenanceBannerEnabled', 'maintenanceBannerText'];

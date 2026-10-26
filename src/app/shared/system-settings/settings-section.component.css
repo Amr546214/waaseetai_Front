@@ -160,3 +160,37 @@
 /* the read-only badge must not make its row taller than the design's (label line box) */
 .v-spa .st-row-lbl .st-badge{padding:1px 9px;line-height:1.3;white-space:nowrap;flex-shrink:0}
 @media(max-width:700px){.v-spa .st-row-lbl .st-badge{display:none}.v-spa .st-row-lbl{flex-wrap:nowrap}.v-spa .st-help-btn{flex-shrink:0;margin-inline-start:0}}
+/* ===== round 2 («ss»): compact rows exactly as the reference (label + one short line + control); every long text lives in the ⓘ help ===== */
+.v-ss .st-row-lbl{display:block;line-height:normal}
+.v-ss .st-help-btn{width:14px;height:14px;padding:0;margin-block:-1px;line-height:1;vertical-align:-2px}
+.v-ss .st-help-btn svg{width:14px;height:14px;display:block}
+.v-ss .st-row-desc{overflow:hidden;text-overflow:ellipsis}
+.v-ss .st-help{margin-top:8px;padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:11px;line-height:1.7;color:#A8B2D1}
+.v-ss .st-help-k{color:#fff;font-weight:700}
+.v-ss .st-help-btn{color:#6B7699}
+.v-ss .st-help-btn:hover,.v-ss .st-help-btn[aria-expanded="true"]{color:#2BD4C7}
+:host-context(.light-theme) .v-ss .st-help,:host-context(.theme-light) .v-ss .st-help{background:#F8FAFC;border-color:#E7EAF1;color:#475569}
+:host-context(.light-theme) .v-ss .st-help-k,:host-context(.theme-light) .v-ss .st-help-k{color:#1E293B}
+:host-context(.light-theme) .v-ss .st-help-btn,:host-context(.theme-light) .v-ss .st-help-btn{color:#64748B}
+:host-context(.light-theme) .v-ss .st-help-btn:hover,:host-context(.theme-light) .v-ss .st-help-btn:hover,:host-context(.light-theme) .v-ss .st-help-btn[aria-expanded="true"],:host-context(.theme-light) .v-ss .st-help-btn[aria-expanded="true"]{color:#0F8A7F}
+
+/* round 2: selects take the reference's .setting-input box (34h, r8, pad 0 10, 13px) */
+.v-ss .st-sel{min-width:120px;width:auto}
+.v-ss .st-sel ::ng-deep .ws-sel-trigger{height:34px;padding:0 10px;border-radius:8px;font-size:13px;color:#fff;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);gap:8px}
+:host-context(.light-theme) .v-ss .st-sel ::ng-deep .ws-sel-trigger,:host-context(.theme-light) .v-ss .st-sel ::ng-deep .ws-sel-trigger{background:#fff;border-color:#CBD5E1;color:#1E293B}
+/* light values measured on the reference (P-AD-020 with its light polish): input border #CBD5E1, helper text #6B7699, title icon teal */
+:host-context(.light-theme) .v-ss .st-input,:host-context(.theme-light) .v-ss .st-input{border-color:#CBD5E1}
+:host-context(.light-theme) .v-ss .st-row-desc,:host-context(.theme-light) .v-ss .st-row-desc{color:#6B7699}
+:host-context(.light-theme) .v-ss .st-ttl-ico,:host-context(.theme-light) .v-ss .st-ttl-ico{color:#2BD4C7}
+
+/* round 2, phones: the reference keeps label and control on ONE line (row h 63) and the card padding 18/20; only the long-text rows (textareas) stack */
+@media(max-width:700px){
+  .v-ss.st-card{padding:18px 20px}
+  .v-ss .st-row:not(.st-row-col){flex-direction:row;align-items:center;gap:16px}
+  .v-ss .st-row-left{min-width:0}
+  .v-ss .st-input{width:160px;min-width:120px}
+  .v-ss .st-input-sm{width:120px}
+  .v-ss .st-input.st-input-w{width:200px;max-width:55%}
+  .v-ss .st-ro{align-items:flex-end;text-align:end;max-width:50%}
+}
+.v-ss .st-row-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}

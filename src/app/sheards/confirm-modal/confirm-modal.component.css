@@ -1,5 +1,5 @@
-/* Always a dark glass surface, in both themes — the modal system is
-   intentionally theme-independent per the identity spec (5.4). */
+/* Round 2 (owner decision 2026-10-26): the dialog follows BOTH themes. Tokens are the admin reference's (P-AD-020): card radius 14 / border .08, 36px buttons with radius 9,
+   .save-btn gradient, muted #6B7699 helper tone. Dark = the previous glass surface; light = white card, #E7EAF1 border, #1E293B title. API and behaviour are unchanged. */
 
 .cm-overlay {
 	position: fixed;
@@ -22,8 +22,8 @@
 	overflow-y: auto;
 	background: rgba(11, 20, 42, .92);
 	backdrop-filter: blur(22px);
-	border: 1px solid rgba(255, 255, 255, .12);
-	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, .10);
+	border-radius: 14px;
 	padding: 24px;
 	color: #FFFFFF;
 	font-family: inherit;
@@ -107,8 +107,11 @@
 /* Primary stays the brand teal gradient in every case, including delete/leave
    confirmations — severity is conveyed by the icon above, not by a red button. */
 .cm-btn-primary {
-	padding: 10px 22px;
-	border-radius: 999px;
+	display: inline-flex;
+	align-items: center;
+	height: 36px;
+	padding: 0 18px;
+	border-radius: 9px;
 	background: linear-gradient(135deg, #2BD4C7, #2B7FFF);
 	color: #070D24;
 	font-size: 13px;
@@ -121,8 +124,11 @@
 .cm-btn-primary:focus-visible { outline: 2px solid rgba(43, 212, 199, .5); outline-offset: 2px; }
 
 .cm-btn-secondary {
-	padding: 10px 22px;
-	border-radius: 999px;
+	display: inline-flex;
+	align-items: center;
+	height: 36px;
+	padding: 0 18px;
+	border-radius: 9px;
 	background: rgba(255, 255, 255, .05);
 	color: #FFFFFF;
 	font-size: 13px;
@@ -142,3 +148,17 @@
 	from { opacity: 0; transform: translateY(12px); }
 	to { opacity: 1; transform: translateY(0); }
 }
+
+/* ---- light theme ---- */
+:host-context(.light-theme) .cm-overlay, :host-context(.theme-light) .cm-overlay { background: rgba(15, 23, 42, .45); }
+:host-context(.light-theme) .cm-box, :host-context(.theme-light) .cm-box { background: #FFFFFF; border-color: #E7EAF1; color: #1E293B; box-shadow: 0 20px 60px rgba(15, 23, 42, .15); backdrop-filter: none; }
+:host-context(.light-theme) .cm-title, :host-context(.theme-light) .cm-title { color: #1E293B; }
+:host-context(.light-theme) .cm-msg, :host-context(.theme-light) .cm-msg { color: #475569; }
+:host-context(.light-theme) .cm-close, :host-context(.theme-light) .cm-close { background: #F1F5F9; color: #64748B; }
+:host-context(.light-theme) .cm-close:hover, :host-context(.theme-light) .cm-close:hover { background: #E2E8F0; color: #1E293B; }
+:host-context(.light-theme) .cm-btn-secondary, :host-context(.theme-light) .cm-btn-secondary { background: #FFFFFF; color: #1E293B; border-color: #CBD5E1; }
+:host-context(.light-theme) .cm-btn-secondary:hover, :host-context(.theme-light) .cm-btn-secondary:hover { background: #F8FAFC; }
+:host-context(.light-theme) .cm-icon-success, :host-context(.theme-light) .cm-icon-success { background: rgba(15, 138, 127, .12); color: #0F8A7F; }
+:host-context(.light-theme) .cm-icon-info, :host-context(.theme-light) .cm-icon-info { background: rgba(29, 111, 224, .10); color: #1D6FE0; }
+:host-context(.light-theme) .cm-icon-warning, :host-context(.theme-light) .cm-icon-warning { background: rgba(154, 103, 0, .12); color: #9A6700; }
+:host-context(.light-theme) .cm-icon-danger, :host-context(.theme-light) .cm-icon-danger { background: rgba(194, 65, 12, .10); color: #C2410C; }
