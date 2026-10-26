@@ -129,20 +129,19 @@
 					class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 flex flex-col gap-4">
 					<div class="flex items-center justify-between text-base">
 						<span class="font-bold text-slate-500 dark:text-slate-400">قيمة الخدمة</span>
-						<span class="font-black text-slate-900 dark:text-white">{{ invoice()?.subtotal | number:'1.0-2' }} $</span>
+						<span class="font-black text-slate-900 dark:text-white">{{ invoice()?.subtotal | wsAmount:invoice()?.currency }}</span>
 					</div>
 					@if ((invoice()?.discount || 0) > 0) {
 					<div class="flex items-center justify-between text-base" data-testid="invoice-discount-row">
 						<span class="font-bold text-slate-500 dark:text-slate-400">خصم الكوبون@if (invoice()?.couponCode) { ({{ invoice()?.couponCode }}) }</span>
-						<span class="font-black text-emerald-600 dark:text-emerald-400">- {{ invoice()?.discount | number:'1.0-2' }} $</span>
+						<span class="font-black text-emerald-600 dark:text-emerald-400">- {{ invoice()?.discount | wsAmount:invoice()?.currency }}</span>
 					</div>
 					}
 					<div class="w-full h-px bg-slate-200 dark:bg-slate-700 my-2"></div>
 
 					<div class="flex items-center justify-between">
 						<span class="text-lg font-black text-slate-900 dark:text-white">الإجمالي المدفوع</span>
-						<span class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ invoice()?.total | number:'1.0-2'
-							}} $</span>
+						<span class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ invoice()?.total | wsAmount:invoice()?.currency }}</span>
 					</div>
 				</div>
 			</div>

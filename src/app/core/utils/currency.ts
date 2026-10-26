@@ -25,3 +25,18 @@ export function formatByCurrency(map: Record<string, number> | null | undefined)
 	const parts = Object.entries(map ?? {}).filter(([, v]) => v !== 0).map(([c, v]) => formatMoneyIn(v, c));
 	return parts.length ? parts.join(' · ') : '—';
 }
+
+/**
+ * An amount in the platform's CURRENT screen style: USD keeps the "$" suffix the screens have always used, every other currency prints its CODE ("300.00 SAR"). `digits` is Angular's
+ * number-pipe format so an existing screen keeps its own decimals. This is the only function that may print "$"; a screen passes the RECORD's currency, never a setting.
+ */
+export function formatAmount(value: number | null | undefined, currency: unknown, digits = '1.0-2'): string {
+	if (value == null || !Number.isFinite(value)) return '—';
+	const c = currencyOf(currency); const [, frac = '0-2'] = digits.split('.'); const [min, max] = frac.split('-').map(Number);
+	const n = new Intl.NumberFormat('en-US', { minimumFractionDigits: min, maximumFractionDigits: Number.isFinite(max) ? max : min }).format(value);
+	return c === LEGACY_CURRENCY ? `${n} $` : `${n} ${c}`;
+}
+/** the currencies of a per-currency map that are NOT the legacy one and hold an amount (what a screen adds under its USD headline) */
+export function otherCurrencyAmounts(map: Record<string, number> | null | undefined): Array<{ currency: string; value: number }> {
+	return Object.entries(map ?? {}).filter(([c, v]) => c !== LEGACY_CURRENCY && v !== 0).map(([currency, value]) => ({ currency, value }));
+}

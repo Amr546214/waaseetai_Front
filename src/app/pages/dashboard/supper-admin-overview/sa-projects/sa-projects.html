@@ -23,6 +23,7 @@
       <div class="pj-kpi-val txt-teal">
         @if (data(); as d) { {{ d.kpis.escrowHeldTotal | number:'1.0-2' }}<span class="pj-kpi-unit">{{ currency() }}</span> } @else { - }
       </div>
+      @if (data(); as d) { <ws-money-by [map]="d.kpis.escrowHeldTotalBy" /> }
     </div>
     <div class="pj-kpi" data-testid="pj-kpi-settled"><span class="pj-kpi-lbl">أُغلقت بتسوية نزاع</span><div class="pj-kpi-val txt-coral">{{ data() ? (counts()['CLOSED_BY_SETTLEMENT'] ?? 0) : '-' }}</div></div>
   </div>

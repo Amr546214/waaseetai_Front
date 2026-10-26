@@ -1,3 +1,4 @@
+import { ProviderFeePreviewComponent } from '../../../../../../../shared/fee-policy/provider-fee-preview.component';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,7 +7,7 @@ import { Milestone } from '../../applay-request';
 @Component({
   selector: 'app-step2-pricing',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [ProviderFeePreviewComponent, CommonModule, FormsModule],
   templateUrl: './step2-pricing.html',
   styleUrl: './step2-pricing.css'
 })

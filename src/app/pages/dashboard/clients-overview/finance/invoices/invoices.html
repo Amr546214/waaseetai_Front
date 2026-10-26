@@ -168,10 +168,9 @@
 							<td class="py-4 px-5 text-sm font-bold text-slate-500">{{ formatDate(inv.date) }}</td>
 							<td class="py-4 px-5">
 								<div class="flex flex-col gap-0.5">
-									<div class="text-sm font-black text-slate-900 dark:text-white">{{ inv.total | number:'1.0-2'
-										}} $</div>
+									<div class="text-sm font-black text-slate-900 dark:text-white">{{ inv.total | wsAmount:inv.currency }}</div>
 									@if ((inv.discount || 0) > 0) {
-									<div class="text-[10px] font-bold text-emerald-600" data-testid="invoice-row-discount">بعد خصم كوبون {{ inv.discount | number:'1.0-2' }} $</div>
+									<div class="text-[10px] font-bold text-emerald-600" data-testid="invoice-row-discount">بعد خصم كوبون {{ inv.discount | wsAmount:inv.currency }}</div>
 									}
 								</div>
 							</td>

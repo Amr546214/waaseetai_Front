@@ -1,3 +1,4 @@
+import { MoneyByComponent } from '../../../../shared/money/money-by.component';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
@@ -12,7 +13,7 @@ import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.compo
 @Component({
 	selector: 'app-client-overview',
 	standalone: true,
-	imports: [CommonModule, RouterLink, LevelBadgeComponent],
+	imports: [MoneyByComponent, CommonModule, RouterLink, LevelBadgeComponent],
 	templateUrl: './client-overview.component.html',
 	styleUrl: './client-overview.component.css'
 })

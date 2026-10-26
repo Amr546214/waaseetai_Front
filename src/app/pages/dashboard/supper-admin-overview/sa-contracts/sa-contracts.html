@@ -19,6 +19,7 @@
     <div class="ct-kpi">
       <span class="ct-kpi-lbl">قيمة العقود النشطة</span>
       <div class="ct-kpi-val txt-green">@if (data(); as d) { {{ d.kpis.activeContractsValue | number:'1.0-2' }}<span class="ct-kpi-unit">$</span> } @else { - }</div>
+      @if (data(); as d) { <ws-money-by [map]="d.kpis.activeContractsValueBy" /> }
     </div>
     <div class="ct-kpi"><span class="ct-kpi-lbl">عقود متنازع عليها</span><div class="ct-kpi-val txt-coral">{{ data() ? (counts()['DISPUTED'] ?? 0) : '-' }}</div></div>
     <div class="ct-kpi"><span class="ct-kpi-lbl">مكتملة</span><div class="ct-kpi-val txt-teal">{{ data() ? (counts()['COMPLETED'] ?? 0) : '-' }}</div></div>

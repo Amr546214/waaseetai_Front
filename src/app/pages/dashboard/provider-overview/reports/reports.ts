@@ -1,3 +1,4 @@
+import { MoneyByComponent } from '../../../../shared/money/money-by.component';
 import { isRateLimitError } from '../../../../core/utils/rate-limit.util';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
@@ -10,7 +11,7 @@ import { UiNotificationService } from '../../../../core/services/ui-notification
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [WsDatePipe, CommonModule],
+  imports: [MoneyByComponent, WsDatePipe, CommonModule],
   templateUrl: './reports.html'
 })
 export class Reports implements OnInit {

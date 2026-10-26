@@ -1,3 +1,4 @@
+import { MoneyByComponent } from '../../../../shared/money/money-by.component';
 import { Component, signal, computed, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -10,7 +11,7 @@ import { formatMoney } from '../../../../core/utils/money.util';
 @Component({
 	selector: 'app-reports',
 	standalone: true,
-	imports: [CommonModule, RouterModule, AiResultCardComponent],
+	imports: [MoneyByComponent, CommonModule, RouterModule, AiResultCardComponent],
 	templateUrl: './reports.html',
 	styleUrl: './reports.css'
 })

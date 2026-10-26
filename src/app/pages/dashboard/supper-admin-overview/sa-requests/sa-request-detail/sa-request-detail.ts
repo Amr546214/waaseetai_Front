@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { CommonModule } from '@angular/common';
@@ -17,7 +18,7 @@ import {
 @Component({
   selector: 'app-sa-request-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, SaNotifyModal],
+  imports: [WsAmountPipe, CommonModule, RouterLink, SaNotifyModal],
   templateUrl: './sa-request-detail.html',
   styleUrls: ['../sa-requests.css', './sa-request-detail.css'],
 })

@@ -23,6 +23,9 @@ export interface MarketerSummary {
 	approvedCommissions?: number;
 	paidCommissions?: number;
 	pendingCommissions?: number;
+	/** the same figures per currency (the numbers are the USD ones; amounts of different currencies are never added) */
+	totalCommissionsBy?: Record<string, number>;
+	pendingCommissionsBy?: Record<string, number>;
 }
 
 export interface ChannelPerformance {
@@ -55,6 +58,8 @@ export interface MarketerWallet {
 	paidWithdrawals: number;
 	/** approvedEarnings minus reserved and paid: the amount a new request may ask for. */
 	withdrawableBalance: number;
+	/** earnings per currency (approved / pending); withdrawableBalance and the figures here are USD (payouts are PayPal/USD) */
+	earningsByCurrency?: Record<string, { approved: number; pending: number }>;
 	minimumWithdrawal: number;
 	paypalEmail: string | null;
 	hasPaypal: boolean;

@@ -136,8 +136,8 @@
         @if (d.financialOutcome; as fo) {
           <div class="dp-escrow-card" data-testid="financial-outcome">
             <span class="dp-badge dp-st-resolved">نُفِّذ قرار مالي</span>
-            @if (fo.refundToClient > 0) { <span>أُعيد للعميل: {{ fo.refundToClient | number:'1.2-2' }} $</span> }
-            @if (fo.releaseToProvider > 0) { <span>صُرف لمقدم الخدمة: {{ fo.releaseToProvider | number:'1.2-2' }} $ (عمولة المنصة {{ fo.platformCommission | number:'1.2-2' }} $، الصافي {{ fo.providerNet | number:'1.2-2' }} $)</span> }
+            @if (fo.refundToClient > 0) { <span>أُعيد للعميل: {{ fo.refundToClient | wsAmount:fo.currency:'1.2-2' }}</span> }
+            @if (fo.releaseToProvider > 0) { <span>صُرف لمقدم الخدمة: {{ fo.releaseToProvider | wsAmount:fo.currency:'1.2-2' }} (عمولة المنصة {{ fo.platformCommission | wsAmount:fo.currency:'1.2-2' }}، الصافي {{ fo.providerNet | wsAmount:fo.currency:'1.2-2' }})</span> }
           </div>
         } @else if (d.status === 'RESOLVED' || d.status === 'REJECTED') {
           <p class="dp-disabled-note" data-testid="no-financial-outcome">لم يُنفَّذ أي أثر مالي بهذا القرار.</p>

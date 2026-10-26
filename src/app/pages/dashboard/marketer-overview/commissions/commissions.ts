@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
@@ -9,7 +10,7 @@ import { handleLoadError } from '../../../../core/utils/rate-limit.util';
 @Component({
   selector: 'app-commissions',
   standalone: true,
-  imports: [WsDatePipe, MarketerLevelTagComponent, CommonModule],
+  imports: [WsAmountPipe, WsDatePipe, MarketerLevelTagComponent, CommonModule],
   templateUrl: './commissions.html',
   styleUrl: './commissions.css',
 })

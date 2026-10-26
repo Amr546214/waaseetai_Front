@@ -38,6 +38,7 @@ export interface ClientReportTransaction {
 
 export interface ClientReportsData {
 	kpis: {
+		totalSpentBy?: Record<string, number>;
 		totalRequests: number;
 		requestsDeltaThisMonth: number;
 		completedProjectsCount: number;
@@ -62,7 +63,9 @@ export interface ClientReportsData {
 	};
 	finance: {
 		totalSpent: number;
+		totalSpentBy?: Record<string, number>;
 		escrowHeld: number;
+		escrowHeldBy?: Record<string, number>;
 		transactions: ClientReportTransaction[];
 	};
 	disputes: {

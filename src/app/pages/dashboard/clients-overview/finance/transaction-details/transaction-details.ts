@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -6,7 +7,7 @@ import { ClientFinanceService, ClientWalletTransaction } from '../../../../../co
 @Component({
   selector: 'app-transaction-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [WsAmountPipe, CommonModule, RouterLink],
   templateUrl: './transaction-details.html',
   styleUrl: './transaction-details.css',
 })

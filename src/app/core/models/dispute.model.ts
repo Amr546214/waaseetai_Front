@@ -57,6 +57,8 @@ export interface Dispute {
 }
 
 export interface FinancialOutcome {
+  /** the currency of every amount below (the escrow's own) */
+  currency?: string;
   outcome: FinancialOutcomeCode;
   refundToClient: number;
   releaseToProvider: number;

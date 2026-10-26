@@ -500,6 +500,7 @@
 					</svg></div>
 			</div>
 			<div class="stat-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number:'1.0-2' }}</div>
+			<ws-money-by [map]="dashboardStore.dashboardData()!.summary.totalEscrowAmounts" />
 			<div class="stat-sub">$ محجوز</div>
 		</div>
 		<div class="stat-card">

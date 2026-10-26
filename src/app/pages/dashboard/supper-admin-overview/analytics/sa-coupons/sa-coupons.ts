@@ -1,3 +1,4 @@
+import { MoneyByComponent } from '../../../../../shared/money/money-by.component';
 import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
@@ -19,7 +20,7 @@ const errMsg = (e: any, fallback: string) => e?.error?.message || fallback;
 @Component({
   selector: 'app-sa-coupons',
   standalone: true,
-  imports: [WsDatePipe, CommonModule, FormsModule, WsSelectComponent],
+  imports: [MoneyByComponent, WsDatePipe, CommonModule, FormsModule, WsSelectComponent],
   templateUrl: './sa-coupons.html',
   styleUrl: './sa-coupons.css',
 })

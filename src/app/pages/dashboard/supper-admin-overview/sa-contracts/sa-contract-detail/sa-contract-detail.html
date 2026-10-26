@@ -33,7 +33,7 @@
         @if (d.contract; as c) {
           <div class="ct-md-value">
             <span>قيمة العقد</span>
-            <strong>{{ c.price | number:'1.0-2' }} $</strong>
+            <strong>{{ c.price | wsAmount:c.currency }}</strong>
           </div>
         }
       </div>
@@ -85,12 +85,12 @@
       @if (d.escrow; as e) {
         <div class="ct-escrow-block">
           <div class="ct-escrow-row"><span>الحالة</span><strong>{{ label(escrowLabels, e.status) }}</strong></div>
-          <div class="ct-escrow-row"><span>المبلغ المودَع</span><strong class="txt-green">{{ e.amount | number:'1.0-2' }} $</strong></div>
-          <div class="ct-escrow-row"><span>المحرَّر حتى الآن</span><strong>{{ e.releasedAmount | number:'1.0-2' }} $</strong></div>
-          <div class="ct-escrow-row"><span>المتبقي محتجزاً</span><strong>{{ (e.heldAmount ?? 0) | number:'1.0-2' }} $</strong></div>
+          <div class="ct-escrow-row"><span>المبلغ المودَع</span><strong class="txt-green">{{ e.amount | wsAmount:e.currency }}</strong></div>
+          <div class="ct-escrow-row"><span>المحرَّر حتى الآن</span><strong>{{ e.releasedAmount | wsAmount:e.currency }}</strong></div>
+          <div class="ct-escrow-row"><span>المتبقي محتجزاً</span><strong>{{ (e.heldAmount ?? 0) | wsAmount:e.currency }}</strong></div>
           @if (showFees()) {
-            <div class="ct-escrow-row"><span>عمولة المنصة</span><strong class="txt-teal">{{ e.platformCommissionAmount | number:'1.0-2' }} $</strong></div>
-            <div class="ct-escrow-row"><span>صافي المقدم المحرَّر</span><strong>{{ e.providerNetReleasedAmount | number:'1.0-2' }} $</strong></div>
+            <div class="ct-escrow-row"><span>عمولة المنصة</span><strong class="txt-teal">{{ e.platformCommissionAmount | wsAmount:e.currency }}</strong></div>
+            <div class="ct-escrow-row"><span>صافي المقدم المحرَّر</span><strong>{{ e.providerNetReleasedAmount | wsAmount:e.currency }}</strong></div>
           }
           @if (e.fundedAt) {
             <div class="ct-escrow-row"><span>تاريخ التمويل</span><strong>{{ e.fundedAt | date: 'yyyy-MM-dd' }}</strong></div>
@@ -114,7 +114,7 @@
           <div class="ct-log-item">
             <div class="ct-log-dot" [style.background]="s.approvedAt ? '#0FA99A' : '#6B7699'"></div>
             <div>
-              <div class="ct-log-text">{{ s.stepOrder }}. {{ s.title }} · {{ s.amount | number:'1.0-2' }} $ ({{ s.percentage }}%)</div>
+              <div class="ct-log-text">{{ s.stepOrder }}. {{ s.title }} · {{ s.amount | wsAmount:s.currency }} ({{ s.percentage }}%)</div>
               <div class="ct-log-time">
                 {{ label(stageLabels, s.status) }}
                 @if (s.approvedAt) { · اعتُمدت في {{ s.approvedAt | date: 'yyyy-MM-dd' }} }
@@ -145,7 +145,7 @@
               <div class="ct-log-text">{{ a.title }}</div>
               <div class="ct-log-time">
                 {{ label(amendmentLabels, a.status) }}
-                @if (a.budgetDelta !== null) { · تغيير مقترح في الميزانية {{ a.budgetDelta | number:'1.0-2' }} $ }
+                @if (a.budgetDelta !== null) { · تغيير مقترح في الميزانية {{ a.budgetDelta | wsAmount:a.currency }} }
                 @if (a.durationDeltaDays !== null) { · تغيير مقترح في المدة {{ a.durationDeltaDays }} يوم }
                 · {{ a.createdAt | date: 'yyyy-MM-dd' }}
               </div>

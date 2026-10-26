@@ -7,11 +7,15 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { formatMoney } from '../../../../../core/utils/money.util';
+import { formatAmount } from '../../../../../core/utils/currency';
 
 export interface ProviderContractMilestone { order: number; title: string; description: string | null; days: number | null; percentage: number | null; amount: number | null }
 export interface ProviderContract {
 	id: string; status: string; price: number; durationDays: number; phasesCount: number;
 	milestones: ProviderContractMilestone[]; escrow: { amount: number; status: string } | null;
+	currency: string;
+	/** the FINAL commission and net, frozen on the escrow when the client funded (null when none was frozen) */
+	providerTerms: { ratePercent: number; commission: number; net: number } | null;
 }
 
 /** "5 يوم · 40% · 380 $" from whatever the saved milestone really has ('' when it has none of them). */
@@ -37,7 +41,9 @@ export function readProviderContract(raw: unknown): ProviderContract | null {
 			days: finite(m.days) ? m.days : null, percentage: finite(m.percentage) ? m.percentage : null, amount: finite(m.amount) ? m.amount : null }));
 	const e = c['escrow'];
 	return { id: String(c['id'] ?? ''), status: String(c['status'] ?? ''), price: c['price'], durationDays: c['durationDays'], phasesCount: c['phasesCount'], milestones,
-		escrow: e && finite(e.amount) ? { amount: e.amount, status: String(e.status ?? '') } : null };
+		escrow: e && finite(e.amount) ? { amount: e.amount, status: String(e.status ?? '') } : null,
+		currency: typeof c['currency'] === 'string' ? c['currency'] : 'USD',
+		providerTerms: c['providerTerms'] && finite(c['providerTerms'].ratePercent) && finite(c['providerTerms'].commission) && finite(c['providerTerms'].net) ? { ratePercent: c['providerTerms'].ratePercent, commission: c['providerTerms'].commission, net: c['providerTerms'].net } : null };
 }
 
 @Component({
@@ -83,10 +89,12 @@ export class SignContract {
 	// The REAL contract (price / duration / phases / saved milestones / funded escrow) returned by GET /provider/offers for an offer the provider
 	// can sign now. null = no contract to show (client has not signed / funded yet, or the offer is not at the signing stage): nothing is invented.
 	contract = signal<ProviderContract | null>(null);
-	contractPrice = computed(() => { const c = this.contract(); return c ? formatUsd(c.price) : ''; });
+	contractPrice = computed(() => { const c = this.contract(); return c ? formatAmount(c.price, c.currency, '1.0-2') : ''; });
+	/** the commission and net that are now FINAL for this contract (frozen when the client funded the escrow) */
+	finalTerms = computed(() => { const c = this.contract(); const t = c?.providerTerms; return c && t ? { rate: t.ratePercent, commission: formatAmount(t.commission, c.currency, '1.0-2'), net: formatAmount(t.net, c.currency, '1.0-2') } : null; });
 	contractDuration = computed(() => { const c = this.contract(); return c && c.durationDays > 0 ? `${c.durationDays} يوم` : ''; });
 	contractPhases = computed(() => { const c = this.contract(); return c ? (c.milestones.length || c.phasesCount) : 0; });
-	escrowAmount = computed(() => { const c = this.contract(); return c?.escrow ? formatUsd(c.escrow.amount) : ''; });
+	escrowAmount = computed(() => { const c = this.contract(); return c?.escrow ? formatAmount(c.escrow.amount, c.currency, '1.0-2') : ''; });
 	isLoading = signal<boolean>(true);
 	loadError = signal<string | null>(null);
 

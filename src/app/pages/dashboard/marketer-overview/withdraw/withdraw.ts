@@ -1,3 +1,5 @@
+import { formatMoneyIn } from '../../../../core/utils/currency';
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { Component, ElementRef, inject, OnInit, signal, computed } from '@angular/core';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
@@ -28,7 +30,7 @@ export const WITHDRAWAL_STATE: Record<string, { label: string; tone: 'blue' | 'g
 @Component({
   selector: 'app-withdraw',
   standalone: true,
-  imports: [WsDatePipe, MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [WsAmountPipe, WsDatePipe, MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './withdraw.html',
   styleUrl: './withdraw.css',
 })
@@ -62,6 +64,9 @@ export class Withdraw implements OnInit {
   withdrawForm!: FormGroup;
 
   withdrawableBalance = computed(() => this.wallet()?.withdrawableBalance ?? 0);
+  /** earnings in a currency other than USD: listed on their own and NOT part of the withdrawable balance (payouts are USD only) */
+  otherEarnings = computed(() => Object.entries(this.wallet()?.earningsByCurrency ?? {}).filter(([c, v]) => c !== 'USD' && (v.approved || v.pending)).map(([currency, v]) => ({ currency, approved: v.approved, pending: v.pending })));
+  readonly money = formatMoneyIn;
   reservedAmount = computed(() => this.wallet()?.reservedWithdrawals ?? 0);
   completedAmount = computed(() => this.wallet()?.paidWithdrawals ?? 0);
   minimumWithdrawal = computed(() => this.wallet()?.minimumWithdrawal ?? 0);

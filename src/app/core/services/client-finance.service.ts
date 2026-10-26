@@ -45,6 +45,8 @@ export interface ClientWalletData {
 }
 
 export interface ClientInvoice {
+	/** the contract's own currency */
+	currency?: string;
 	id: string;
 	sourceId: string;
 	contractId: string;

@@ -28,6 +28,8 @@ describe('provider new ticket: invalid submit, backend errors, double submit', (
 		const pickCategory = async () => {
 			(el.querySelector('ws-select#tk-cat button') as HTMLButtonElement).click(); f.detectChanges();
 			(el.querySelectorAll('[data-testid=ws-select-option]')[0] as HTMLElement).click(); f.detectChanges(); await f.whenStable();
+			// the mark is removed by the NEXT change-detection pass: run it explicitly instead of hoping the scheduler already ran it (it does not when the machine is loaded)
+			f.detectChanges();
 		};
 		return { f, c: f.componentInstance, el, notify, err, submitBtn, pickCategory };
 	}

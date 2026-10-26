@@ -48,6 +48,7 @@
         <span *ngIf="totalBudgetModel.errors?.['required']">يرجى إدخال سعر العرض</span>
         <span *ngIf="totalBudgetModel.errors?.['min']">يجب أن يكون السعر 1 على الأقل</span>
       </div>
+      <ws-provider-fee-preview [price]="totalBudget" />
     </div>
     <div class="flex-1 min-w-[170px] bg-[rgba(15,169,154,.05)] border border-[rgba(15,169,154,.15)] rounded-lg p-[10px_14px]">
       <div class="text-[11px] text-[#6B7699] mb-1">إجمالي مدة التنفيذ</div>

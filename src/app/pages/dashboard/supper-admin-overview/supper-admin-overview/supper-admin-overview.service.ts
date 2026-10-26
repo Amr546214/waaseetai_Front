@@ -12,10 +12,10 @@ export interface DashboardSummary {
 	kpis: {
 		users: { total: number; active: number; suspended: number; newThisMonth: number; newPreviousMonth: number; growthPercent: number | null };
 		projects: { active: number; completed: number; openRequests: number };
-		revenue: { platformCommissionTotal: number; platformCommissionThisMonth: number; escrowHeld: number };
+		revenue: { platformCommissionTotal: number; platformCommissionThisMonth: number; escrowHeld: number; platformCommissionTotalBy?: Record<string, number>; platformCommissionThisMonthBy?: Record<string, number>; escrowHeldBy?: Record<string, number> };
 		disputes: { open: number; openOver7Days: number };
 		tickets: { open: number };
-		withdrawals: { pending: number; pendingAmount: number };
+		withdrawals: { pending: number; pendingAmount: number; pendingAmountBy?: Record<string, number> };
 	};
 	queues: DashboardQueue[];
 	alerts: DashboardAlert[];

@@ -48,6 +48,7 @@
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">إيرادات الفترة (مُفرَج عنها)</div>
     <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ reports()?.payments?.releasedTotal != null ? (reports()!.payments.releasedTotal | number:'1.0-2') : '—' }}</div>
+    <ws-money-by [map]="reports()?.payments?.releasedTotalBy" />
     <div class="flex items-center justify-between mt-3">
       <span class="text-[11px] font-bold text-[var(--txt-3)]">دولار أمريكي</span>
       
@@ -295,10 +296,12 @@
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 shadow-sm">
         <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">مُفرَج عنه في الفترة ($)</div>
         <div class="text-[26px] font-black text-[#2BD4C7] leading-none">{{ reports()?.payments?.releasedTotal != null ? (reports()!.payments.releasedTotal | number:'1.0-2') : '—' }}</div>
+        <ws-money-by [map]="reports()?.payments?.releasedTotalBy" />
       </div>
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 shadow-sm">
         <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">محجوز في الضمان ($)</div>
         <div class="text-[26px] font-black text-[var(--txt)] leading-none">{{ reports()?.payments?.heldInEscrow != null ? (reports()!.payments.heldInEscrow | number:'1.0-2') : '—' }}</div>
+        <ws-money-by [map]="reports()?.payments?.heldInEscrowBy" />
       </div>
     </div>
     <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden shadow-sm">

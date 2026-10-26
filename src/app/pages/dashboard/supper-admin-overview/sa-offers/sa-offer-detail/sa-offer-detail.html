@@ -25,7 +25,7 @@
       </div>
 
       <div class="of-price-row">
-        <div class="of-price-box"><div class="of-price-big">{{ d.price | number:'1.0-2' }} $</div></div>
+        <div class="of-price-box"><div class="of-price-big">{{ d.price | wsAmount:d.currency }}</div></div>
         <div class="of-price-box"><div class="of-price-big">{{ d.deliveryDays }} يوم</div></div>
         <div class="of-tags">
           <span class="of-status" [ngClass]="statusClasses[d.status]">{{ statusLabels[d.status] || d.status }}</span>
@@ -76,7 +76,7 @@
                       <td>{{ m.title }}@if (m.description) { <div class="of-muted">{{ m.description }}</div> }</td>
                       <td>@if (m.days !== null) { {{ m.days }} يوم } @else { — }</td>
                       <td>@if (m.percentage !== null) { {{ m.percentage }}% } @else { — }</td>
-                      <td>@if (m.amount !== null) { {{ m.amount | number:'1.0-2' }} $ } @else { — }</td>
+                      <td>@if (m.amount !== null) { {{ m.amount | wsAmount:m.currency }} } @else { — }</td>
                     </tr>
                   }
                 </tbody>
@@ -112,7 +112,7 @@
           <div class="of-card">
             <div class="of-card-ttl">بيانات العرض</div>
             <div class="of-info-row"><span class="of-info-lbl">رقم العرض</span><span class="of-info-val" style="font-family:monospace;font-size:11px">{{ d.id }}</span></div>
-            <div class="of-info-row"><span class="of-info-lbl">المبلغ</span><span class="of-info-val">{{ d.price | number:'1.0-2' }} $</span></div>
+            <div class="of-info-row"><span class="of-info-lbl">المبلغ</span><span class="of-info-val">{{ d.price | wsAmount:d.currency }}</span></div>
             <div class="of-info-row"><span class="of-info-lbl">المدة</span><span class="of-info-val">{{ d.deliveryDays }} يوم</span></div>
             <div class="of-info-row"><span class="of-info-lbl">موافقة الشروط</span><span class="of-info-val">{{ d.agreedToTerms ? 'نعم' : 'لا' }}</span></div>
             <div class="of-info-row"><span class="of-info-lbl">موافقة الضمان</span><span class="of-info-val">{{ d.agreedToEscrow ? 'نعم' : 'لا' }}</span></div>
@@ -125,7 +125,7 @@
             @if (d.contract; as ct) {
               <div class="of-info-row">
                 <span class="of-info-lbl">العقد</span>
-                <a class="of-info-val of-info-link" [routerLink]="['/supper-admin-overview/contracts', ct.id]">{{ contractLabels[ct.status] || ct.status }} · {{ ct.price | number:'1.0-2' }} $</a>
+                <a class="of-info-val of-info-link" [routerLink]="['/supper-admin-overview/contracts', ct.id]">{{ contractLabels[ct.status] || ct.status }} · {{ ct.price | wsAmount:ct.currency }}</a>
               </div>
             }
           </div>

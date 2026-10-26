@@ -97,6 +97,7 @@ export interface AdminRequestOffer {
   id: string;
   status: string;
   price: number;
+  currency?: string;
   deliveryDays: number;
   aiMatchScore: number | null;
   aiQualityTag: string | null;
@@ -133,11 +134,12 @@ export interface AdminRequestDetail {
     id: string;
     status: string;
     price: number;
+    currency?: string;
     durationDays: number | null;
     clientSignedAt: string | null;
     providerSignedAt: string | null;
   } | null;
-  escrow: { status: string; amount: number; fundedAt: string | null } | null;
+  escrow: { currency?: string; status: string; amount: number; fundedAt: string | null } | null;
   offers: AdminRequestOffer[];
   disputes: { id: string; reason: string; status: string; createdAt: string }[];
   timeline: { at: string; text: string }[];

@@ -66,6 +66,7 @@
 		<div class="state-card kpi-card">
 			<div class="kpi-lbl">إجمالي الإنفاق</div>
 			<div class="kpi-val kpi-val-teal">{{ formatBudget(d.kpis.totalSpent) }}</div>
+			<ws-money-by [map]="d.kpis.totalSpentBy" />
 			<div class="kpi-foot">
 				<span class="kpi-unit">دولار أمريكي</span>
 			</div>
@@ -333,7 +334,9 @@
 				</div>
 				<div class="kv-list">
 					<div class="kv-row"><span class="kv-lbl">إجمالي الإنفاق</span><span class="kv-val kv-val-teal">{{ formatBudget(d.finance.totalSpent) }}</span></div>
+					<ws-money-by [map]="d.finance.totalSpentBy" />
 					<div class="kv-row"><span class="kv-lbl">محتجز في الضمان</span><span class="kv-val">{{ formatBudget(d.finance.escrowHeld) }}</span></div>
+					<ws-money-by [map]="d.finance.escrowHeldBy" />
 					<div class="kv-row"><span class="kv-lbl">عدد الحركات</span><span class="kv-val">{{ d.finance.transactions.length }}</span></div>
 				</div>
 			</div>

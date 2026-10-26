@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
 import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
@@ -10,7 +11,7 @@ import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
 @Component({
 	selector: 'app-provider-invoices',
 	standalone: true,
-	imports: [CommonModule, RouterModule, LoadRetryComponent, RateLimitNoteComponent],
+	imports: [WsAmountPipe, CommonModule, RouterModule, LoadRetryComponent, RateLimitNoteComponent],
 	templateUrl: './invoices.html',
 	styleUrls: ['./invoices.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush

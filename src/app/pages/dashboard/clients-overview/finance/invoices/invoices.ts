@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -8,7 +9,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 @Component({
   selector: 'app-invoices',
   standalone: true,
-  imports: [CommonModule],
+  imports: [WsAmountPipe, CommonModule],
   templateUrl: './invoices.html',
   styleUrl: './invoices.css',
 })

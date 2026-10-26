@@ -59,7 +59,7 @@
               <td>{{ inv.clientName }}</td>
               <td>{{ formatDate(inv.date) }}</td>
               <td>
-                <span class="inv-amt">{{ inv.net | number:'1.0-2' }} دولار</span>
+                <span class="inv-amt">{{ inv.net | wsAmount:inv.currency }}</span>
                 <div class="inv-amt-sub">قيمة المرحلة {{ inv.stageValue | number:'1.0-2' }} − عمولة المنصة {{ inv.platformCommission | number:'1.0-2' }}{{ inv.commissionEstimated ? ' (متوقعة)' : '' }}</div>
               </td>
               <td>

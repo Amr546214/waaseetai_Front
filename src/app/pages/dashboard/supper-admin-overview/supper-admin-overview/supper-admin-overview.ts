@@ -1,3 +1,4 @@
+import { MoneyByComponent } from '../../../../shared/money/money-by.component';
 import { isRateLimitError } from '../../../../core/utils/rate-limit.util';
 import { Component, OnInit, computed, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
@@ -9,7 +10,7 @@ import { ACTIVITY_STATUS, DashboardActivityItem, DashboardCharts, DashboardSumma
 	templateUrl: './supper-admin-overview.html',
 	styleUrl: './supper-admin-overview.css',
 	standalone: true,
-	imports: [CommonModule, RouterLink]
+	imports: [MoneyByComponent, CommonModule, RouterLink]
 })
 export class SupperAdminOverview implements OnInit {
 	private api = inject(SaDashboardService);

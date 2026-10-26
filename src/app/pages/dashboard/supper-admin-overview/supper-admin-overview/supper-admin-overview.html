@@ -77,11 +77,13 @@
           <div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">طلبات سحب معلقة</span></div>
           <div class="kpi-val txt-amber">{{ s.kpis.withdrawals.pending }}</div>
           <div class="kpi-sub txt-amber-dk">بقيمة {{ money(s.kpis.withdrawals.pendingAmount) }} $ (دولار)</div>
+          <ws-money-by [map]="s.kpis.withdrawals.pendingAmountBy" />
         </a>
         <a class="kpi-card" routerLink="/supper-admin-overview/support" style="text-decoration:none">
           <div class="kpi-top"><div class="kpi-ic ic-blue-lt"><svg aria-hidden="true"><use href="#i-inbox"></use></svg></div><span class="kpi-lbl">تذاكر دعم مفتوحة</span></div>
           <div class="kpi-val txt-blue">{{ s.kpis.tickets.open }}</div>
           <div class="kpi-sub txt-muted">محجوز في الضمان: {{ money(s.kpis.revenue.escrowHeld) }} $</div>
+          <ws-money-by [map]="s.kpis.revenue.escrowHeldBy" />
         </a>
       </div>
 

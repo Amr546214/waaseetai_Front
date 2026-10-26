@@ -9,6 +9,10 @@ export interface DashboardStatsPayload {
     monthlyEarnings?: number;
     availableEarnings?: number;
     totalEscrowAmount: number;
+    /** the same figures per currency (the numbers above are the USD ones; amounts of different currencies are never added) */
+    totalEscrowAmounts?: Record<string, number>;
+    totalSpents?: Record<string, number>;
+    monthlyEarningsBy?: Record<string, number>;
     totalSpent: number;
     /** Average WaseetAI evaluation of the received offers, 0-5. null = no scored offer yet (never a placeholder number). */
     aiRating: number | null;

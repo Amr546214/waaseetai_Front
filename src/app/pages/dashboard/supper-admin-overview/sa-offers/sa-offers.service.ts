@@ -77,10 +77,11 @@ export interface AdminOfferDetail {
     days: number | null;
     percentage: number | null;
     amount: number | null;
+    currency?: string;
   }[];
   provider: AdminPerson;
   client: AdminPerson;
-  contract: { id: string; status: string; price: number } | null;
+  contract: { id: string; status: string; price: number; currency?: string } | null;
   negotiation: {
     state: 'NONE' | 'REQUEST_SENT' | 'COUNTER_PENDING';
     entriesCount: number;

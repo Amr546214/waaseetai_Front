@@ -16,7 +16,7 @@
   @if (tab() === 'coupons') {
     <div class="scp-kpis">
       <div class="scp-kpi"><div class="scp-kpi-v" style="color:#2BD4C7">{{ list() ? list()!.summary.totalRedemptions : '—' }}</div><div class="scp-kpi-l">إجمالي مرات الاستخدام</div></div>
-      <div class="scp-kpi"><div class="scp-kpi-v" style="color:#FF8C69">{{ list() ? (list()!.summary.totalDiscountGiven | number:'1.0-2') + ' $' : '—' }}</div><div class="scp-kpi-l">قيمة الخصومات الممنوحة</div></div>
+      <div class="scp-kpi"><div class="scp-kpi-v" style="color:#FF8C69">{{ list() ? (list()!.summary.totalDiscountGiven | number:'1.0-2') + ' $' : '—' }}</div><div class="scp-kpi-l">قيمة الخصومات الممنوحة</div>@if (list(); as l) { <ws-money-by [map]="l.summary.totalDiscountGivenBy" /> }</div>
       <div class="scp-kpi"><div class="scp-kpi-v" style="color:#FFB400">{{ list() ? list()!.total : '—' }}</div><div class="scp-kpi-l">عدد الكوبونات (حسب الفلتر)</div></div>
     </div>
 

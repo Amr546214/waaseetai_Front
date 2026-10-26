@@ -664,6 +664,7 @@
 					<div class="stat-ico amber" aria-hidden="true"><svg><use href="#i-wallet"></use></svg></div>
 				</div>
 				<div class="stat-val">{{ data.summary?.monthlyEarnings | number:'1.0-2' }}</div>
+				<ws-money-by [map]="data.summary?.monthlyEarningsBy" />
 				<div class="stat-sub">$ صافي للشركة</div>
 			</div>
 			<div class="stat-card">

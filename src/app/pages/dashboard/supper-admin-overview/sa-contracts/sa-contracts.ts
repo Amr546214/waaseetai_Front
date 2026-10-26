@@ -1,3 +1,4 @@
+import { MoneyByComponent } from '../../../../shared/money/money-by.component';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -17,7 +18,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-sa-contracts',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [MoneyByComponent, CommonModule, RouterLink],
   templateUrl: './sa-contracts.html',
   styleUrl: './sa-contracts.css',
 })

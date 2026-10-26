@@ -1,3 +1,4 @@
+import { MoneyByComponent } from '../../../../shared/money/money-by.component';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -11,7 +12,7 @@ import { handleLoadError, rateLimitToastMessage } from '../../../../core/utils/r
 @Component({
   selector: 'app-provider-overview',
   standalone: true,
-  imports: [CommonModule, RouterModule, LevelBadgeComponent],
+  imports: [MoneyByComponent, CommonModule, RouterModule, LevelBadgeComponent],
   templateUrl: './provider-overview.html',
   styleUrl: './provider-overview.css',
 })

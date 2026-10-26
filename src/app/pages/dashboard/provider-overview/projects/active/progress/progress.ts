@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../../../shared/money/money.pipe';
 import { providerTimeZone } from '../../../../../../core/services/provider-prefs.store';
 import { Component, DestroyRef, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -53,7 +54,7 @@ export function isHttpsLink(value: string): boolean {
 
 @Component({
   selector: 'app-progress', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RatingSummary, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
+  imports: [WsAmountPipe, CommonModule, FormsModule, RouterLink, RatingSummary, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
 })
 export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);

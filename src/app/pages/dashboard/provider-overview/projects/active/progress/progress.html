@@ -27,7 +27,7 @@
       <span class="opill op-active"><span class="lv"></span>{{data.adminSettled?.label || data.statusLabel}}</span>@if(data.disputeStatus){<span class="opill" data-testid="dispute-badge">نزاع مفتوح</span>}
     </div>
     @if(data.closedBySettlement){
-    <div class="review-note" role="status" data-testid="provider-settled-banner"><b>{{data.statusLabel || 'أُغلق بتسوية نزاع'}}.</b> لا اعتماد ولا تسليم جديد ولا تعديل على العقد بعد التسوية. تبقى التسليمات للاطلاع فقط، ولا تُنسب مبالغ التسوية إلى مراحل بعينها@if(data.financial?.settlement; as st){. بقرار التسوية: استرداد للعميل {{st.refundToClient| number:'1.0-2'}} $، وأُفرج لك {{st.releaseToProvider| number:'1.0-2'}} $ إجمالًا (عمولة المنصة {{st.platformCommission| number:'1.0-2'}} $، صافي ما تلقيته {{st.providerNet| number:'1.0-2'}} $)}. <span data-testid="provider-settled-value-note">{{data.financial?.contractValueNote}}</span>.</div>
+    <div class="review-note" role="status" data-testid="provider-settled-banner"><b>{{data.statusLabel || 'أُغلق بتسوية نزاع'}}.</b> لا اعتماد ولا تسليم جديد ولا تعديل على العقد بعد التسوية. تبقى التسليمات للاطلاع فقط، ولا تُنسب مبالغ التسوية إلى مراحل بعينها@if(data.financial?.settlement; as st){. بقرار التسوية: استرداد للعميل {{ st.refundToClient | wsAmount:st.currency }}، وأُفرج لك {{ st.releaseToProvider | wsAmount:st.currency }} إجمالًا (عمولة المنصة {{ st.platformCommission | wsAmount:st.currency }}، صافي ما تلقيته {{ st.providerNet | wsAmount:st.currency }})}. <span data-testid="provider-settled-value-note">{{data.financial?.contractValueNote}}</span>.</div>
     }
     @if(data.disputeFreeze?.frozen){
     <div class="review-note" role="status" data-testid="provider-freeze-banner"><b>اعتماد المراحل وصرف الدفعات موقوفان مؤقتًا:</b> {{data.disputeFreeze.reason}} يمكنك متابعة التسليم والمحادثة ورفع الأدلة كالمعتاد. <a routerLink="/provider-overview/disputes/{{data.disputeFreeze.disputeId}}" data-testid="provider-freeze-link">متابعة النزاع</a></div>
@@ -43,7 +43,7 @@
     </div>
     }
     <div class="od-meta">
-      <div class="od-meta-item"><div class="od-meta-lbl">قيمة العقد</div><div class="od-meta-val">{{data.price| number:'1.0-2'}} $</div></div>
+      <div class="od-meta-item"><div class="od-meta-lbl">قيمة العقد</div><div class="od-meta-val">{{ data.price | wsAmount:data.currency }}</div></div>
       <div class="od-meta-item"><div class="od-meta-lbl">المتبقي</div><div class="od-meta-val">{{data.closedBySettlement ? '—' : data.daysLeft + ' يوم'}}</div></div>
       <div class="od-meta-item"><div class="od-meta-lbl">المراحل</div><div class="od-meta-val">{{approvedCount(data)}}/{{data.stages.length}}</div></div>
       <div class="od-meta-item"><div class="od-meta-lbl">الملفات</div><div class="od-meta-val">{{data.files?.length || 0}}</div></div>
@@ -95,7 +95,7 @@
         <div class="up-pg-sub">المرحلة الحالية: {{stage.title}}</div>
       </div>
       @if(projectData(); as data){
-      <div class="up-pg-contract"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>عقد رقم {{data.contractRef}} · {{data.price| number:'1.0-2'}} $</div>
+      <div class="up-pg-contract"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>عقد رقم {{data.contractRef}} · {{ data.price | wsAmount:data.currency }}</div>
       }
     </div>
 
@@ -279,7 +279,7 @@
           <div class="up-log-proj-av">{{data.clientInitial}}</div>
           <div>
             <div class="up-log-proj-name">{{data.title}}</div>
-            <div class="up-log-proj-ct">عقد {{data.contractRef}} · قيمة {{data.price| number:'1.0-2'}} $ · {{data.stages?.length || 0}} مراحل</div>
+            <div class="up-log-proj-ct">عقد {{data.contractRef}} · قيمة {{ data.price | wsAmount:data.currency }} · {{data.stages?.length || 0}} مراحل</div>
           </div>
         </div>
         <div class="up-log-body">
@@ -295,7 +295,7 @@
                 <div class="up-lm-name" [class.active]="s.id===stage.id">{{s.title}}@if(s.id===stage.id){ <span class="up-lm-here">← أنت هنا</span>}</div>
                 <div class="up-lm-meta">{{stageText(s)}}@if(s.roundsCount){ · {{s.roundsCount}} جولات}</div>
               </div>
-              <div class="up-lm-val" [class.done]="s.isDone" [class.wait]="!s.isDone">{{s.amount| number:'1.0-2'}} $</div>
+              <div class="up-lm-val" [class.done]="s.isDone" [class.wait]="!s.isDone">{{ s.amount | wsAmount:s.currency }}</div>
             </div>
             @if(s.id===stage.id){
             <div class="up-lm-body open">

@@ -108,7 +108,7 @@
                     <a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/users', o.provider.userId]">{{ o.provider.name }}</a>
                     @if (o.accepted) { <span class="rq-offer-badge rq-offer-badge-accepted">✓ المقبول</span> }
                   </td>
-                  <td>{{ o.price | number:'1.0-2' }} $</td>
+                  <td>{{ o.price | wsAmount:o.currency }}</td>
                   <td>{{ o.deliveryDays }} يوم</td>
                   <td>{{ offerLabels[o.status] || o.status }}</td>
                   <td>{{ o.createdAt | date: 'yyyy-MM-dd' }}</td>
@@ -124,11 +124,11 @@
         <div class="rq-section-ttl">العقد والضمان</div>
         @if (d.contract; as ct) {
           <div class="rq-fin-row"><span>حالة العقد</span><strong>{{ contractLabels[ct.status] || ct.status }}</strong></div>
-          <div class="rq-fin-row"><span>قيمة العقد</span><strong class="txt-teal">{{ ct.price | number:'1.0-2' }} $</strong></div>
+          <div class="rq-fin-row"><span>قيمة العقد</span><strong class="txt-teal">{{ ct.price | wsAmount:ct.currency }}</strong></div>
           <div class="rq-fin-row"><span>العقد</span><a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/contracts', ct.id]">فتح العقد</a></div>
         }
         @if (d.escrow; as es) {
-          <div class="rq-fin-row rq-fin-escrow"><span>الضمان ({{ es.status }})</span><strong class="txt-teal">{{ es.amount | number:'1.0-2' }} $</strong></div>
+          <div class="rq-fin-row rq-fin-escrow"><span>الضمان ({{ es.status }})</span><strong class="txt-teal">{{ es.amount | wsAmount:es.currency }}</strong></div>
         }
       }
 

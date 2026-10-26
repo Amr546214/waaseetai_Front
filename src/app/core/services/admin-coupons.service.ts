@@ -51,7 +51,7 @@ export interface AdminCouponDetail extends AdminCoupon {
 }
 
 export interface AdminPage<T> { items: T[]; page: number; pageSize: number; total: number; totalPages: number }
-export interface AdminCouponList extends AdminPage<AdminCoupon> { summary: { totalRedemptions: number; totalDiscountGiven: number } }
+export interface AdminCouponList extends AdminPage<AdminCoupon> { summary: { totalRedemptions: number; totalDiscountGiven: number; totalDiscountGivenBy?: Record<string, number> } }
 
 export interface AdminSpecialOffer {
 	id: string;

@@ -1,3 +1,5 @@
+import { formatMoneyIn } from '../../../../../core/utils/currency';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { CommonModule } from '@angular/common';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
@@ -54,10 +56,11 @@ export interface WalletData {
     releasedTransactionsCount: number;
     fundedProjectsCount: number;
     completedProjectsCount: number;
-    currency: string; // backend sends 'USD'
+    currency: string; // the currency of the headline figures (USD); byCurrency lists every currency on its own
+    byCurrency?: Record<string, { availableBalance: number; escrowBalance: number; platformCommissionTotal: number; withdrawableBalance: number; payoutSupported: boolean }>;
   };
   transactions: WalletTransaction[];
-  escrows: Array<{ id: string; projectId: string; projectTitle: string; total: number; released: number; held: number; status: string; updatedAt: string }>;
+  escrows: Array<{ id: string; projectId: string; projectTitle: string; currency?: string; total: number; released: number; held: number; status: string; updatedAt: string }>;
   // Company-mode only — see ProviderWalletProviderSpend above.
   providerSpending?: ProviderWalletProviderSpend[];
 }
@@ -65,11 +68,14 @@ export interface WalletData {
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [WsDatePipe, RouterLink, CommonModule, ProviderDepositModal],
+  imports: [WsAmountPipe, WsDatePipe, RouterLink, CommonModule, ProviderDepositModal],
   templateUrl: './wallet.html',
   styleUrl: './wallet.css'
 })
 export class Wallet implements OnInit {
+  /** the same wallet in every currency OTHER than USD (none today): listed on its own, never added to the USD headline */
+  otherCurrencies = computed(() => Object.entries(this.data()?.summary?.byCurrency ?? {}).filter(([c]) => c !== 'USD').map(([currency, v]) => ({ currency, ...v })));
+  readonly money = formatMoneyIn;
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);
   private notify = inject(UiNotificationService);
