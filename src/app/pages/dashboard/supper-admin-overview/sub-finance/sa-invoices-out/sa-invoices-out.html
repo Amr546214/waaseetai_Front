@@ -2,7 +2,7 @@
   <div class="fio-hdr">
     <div>
       <h1 class="fio-ttl">الفواتير الصادرة</h1>
-      <p class="fio-sub">فواتير مراحل المشاريع المفوترة للعملاء — مشتقة من تسليمات المراحل الفعلية — بالدولار الأمريكي ($)</p>
+      <p class="fio-sub">فواتير مراحل المشاريع المفوترة للعملاء — مشتقة من تسليمات المراحل الفعلية — بعملة المنصة ({{ '' | wsCurrency }})</p>
     </div>
     <div class="fio-actions">
       <button type="button" class="fio-btn fio-btn-ghost" data-testid="inv-export" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : 'تصدير CSV' }}</button>
@@ -28,18 +28,18 @@
     </div>
     <div class="fio-kpi-card">
       <div class="fio-kpi-top"><span class="fio-kpi-lbl">مدفوعة</span></div>
-      <div class="fio-kpi-val txt-green">{{ usd(d.summary.paidTotal) }}</div>
+      <div class="fio-kpi-val txt-green">{{ fmtAmount(d.summary.paidTotal) }}</div>
       <div class="fio-kpi-unit">{{ d.summary.paidCount }} فاتورة</div>
     </div>
     <div class="fio-kpi-card">
       <div class="fio-kpi-top"><span class="fio-kpi-lbl">مستحقة</span></div>
-      <div class="fio-kpi-val txt-amber">{{ usd(d.summary.dueTotal) }}</div>
+      <div class="fio-kpi-val txt-amber">{{ fmtAmount(d.summary.dueTotal) }}</div>
       <div class="fio-kpi-unit">{{ d.summary.dueCount }} فاتورة</div>
     </div>
     <div class="fio-kpi-card">
       <div class="fio-kpi-top"><span class="fio-kpi-lbl">عمولة المنصة</span></div>
-      <div class="fio-kpi-val txt-blue">{{ usd(d.summary.platformCommission) }}</div>
-      <div class="fio-kpi-unit">دولار أمريكي</div>
+      <div class="fio-kpi-val txt-blue">{{ fmtAmount(d.summary.platformCommission) }}</div>
+      <div class="fio-kpi-unit">{{ '' | wsCurrency:'name' }}</div>
     </div>
   </div>
 
@@ -67,7 +67,7 @@
               <td class="fio-party">{{ inv.projectTitle }}</td>
               <td>{{ inv.stageTitle }}</td>
               <td class="fio-party">{{ inv.clientName }}</td>
-              <td class="fio-amount">{{ usd(inv.stageValue) }}</td>
+              <td class="fio-amount">{{ fmtAmount(inv.stageValue, inv.currency) }}</td>
               <td class="fio-date">{{ fmtDate(inv.paymentDate || inv.date) }}</td>
               <td><span class="fio-status" [ngClass]="statusClasses[inv.status]">{{ statusLabels[inv.status] }}</span></td>
             </tr>

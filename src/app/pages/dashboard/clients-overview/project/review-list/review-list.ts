@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
+import { formatAmount } from '../../../../../core/utils/currency';
 import { formatMoney } from '../../../../../core/utils/money.util';
 import { deliveryHeading } from '../../../../../core/utils/stage-title.util';
 
@@ -13,6 +14,7 @@ interface PendingDeliveryItem {
 	stageNumber: number;
 	stageTitle: string;
 	amount: number;
+	currency?: string;
 	submittedAt: string;
 	providerName: string;
 	filesCount: number;
@@ -63,6 +65,9 @@ export class ReviewList implements OnInit {
 
 	/** «تسليم المرحلة N: ...» without duplicating a number already inside the stage title. */
 	heading(item: { stageNumber: number; stageTitle: string }): string { return deliveryHeading(item.stageNumber, item.stageTitle); }
+
+	/** an amount with the currency code of its stage (absent = legacy USD) */
+	money(value: number | null | undefined, currency?: string | null): string { return formatAmount(value || 0, currency); }
 
 	formatNumber(value: number) {
 		return formatMoney(value || 0);

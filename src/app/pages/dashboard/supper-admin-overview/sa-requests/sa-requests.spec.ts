@@ -65,8 +65,8 @@ describe('SaRequests (live)', () => {
   });
 
   it('formats budgets in USD', () => {
-    expect(formatBudget({ type: 'RANGE', min: 100, max: 300, currency: 'USD' })).toBe('100–300 $');
-    expect(formatBudget({ type: 'FIXED', min: 500, max: null, currency: 'USD' })).toBe('500 $');
+    expect(formatBudget({ type: 'RANGE', min: 100, max: 300, currency: 'USD' })).toBe('100–300 USD');
+    expect(formatBudget({ type: 'FIXED', min: 500, max: null, currency: 'USD' })).toBe('500 USD');
     expect(formatBudget({ type: 'FIXED', min: null, max: null, currency: 'USD' })).toBe('—');
   });
 });

@@ -23,6 +23,9 @@ export interface MarketerSummary {
 	approvedCommissions?: number;
 	paidCommissions?: number;
 	pendingCommissions?: number;
+	/** the same figures per currency (the numbers are the USD ones; amounts of different currencies are never added) */
+	totalCommissionsBy?: Record<string, number>;
+	pendingCommissionsBy?: Record<string, number>;
 }
 
 export interface ChannelPerformance {
@@ -55,6 +58,8 @@ export interface MarketerWallet {
 	paidWithdrawals: number;
 	/** approvedEarnings minus reserved and paid: the amount a new request may ask for. */
 	withdrawableBalance: number;
+	/** earnings per currency (approved / pending); withdrawableBalance and the figures here are USD (payouts are PayPal/USD) */
+	earningsByCurrency?: Record<string, { approved: number; pending: number }>;
 	minimumWithdrawal: number;
 	paypalEmail: string | null;
 	hasPaypal: boolean;
@@ -101,6 +106,8 @@ export interface ReferredUser {
 	status: ReferralStatus | string;
 	joinedAt: string;
 	commissionEarned: number | null;
+	/** the commission's own currency (a missing one reads as USD, legacy) */
+	currency?: string;
 }
 
 export interface ReferralListData {
@@ -132,6 +139,7 @@ export function toReferralListData(res: ReferralsApiResponse, page: number, limi
 			status: r.status,
 			joinedAt: r.joinedAt,
 			commissionEarned: r.commissionEarned ?? r.totalCommissionEarned ?? null,
+			...(r.currency ? { currency: r.currency } : {}),
 		})),
 		page: paging.page ?? page,
 		limit: paging.limit ?? limit,

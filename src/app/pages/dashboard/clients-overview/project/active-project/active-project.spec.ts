@@ -142,7 +142,7 @@ describe('ActiveProject — funding states', () => {
   it('funded and waiting for the provider: shows the held money, says the provider signs next, and opens the project (nothing left for the client to sign)', () => {
     const s = setup([P({ funded: true, phase: 'awaiting_provider_signature', heldAmount: 900, nextStep: 'بانتظار توقيع مقدم الخدمة للعقد' })]);
     expect(s.el.querySelector('.pl-badge')!.textContent!.trim()).toBe('بانتظار توقيع مقدم الخدمة');
-    expect(s.text()).toContain('محتجز 900 $');
+    expect(s.text()).toContain('محتجز 900 USD');
     expect(s.el.querySelector('a.pl-card')!.getAttribute('href')).toContain('/client-overview/projects/p1');
     expect(s.text()).not.toContain('إكمال التوقيع والضمان');
   });

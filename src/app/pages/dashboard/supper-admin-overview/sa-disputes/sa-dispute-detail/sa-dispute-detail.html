@@ -136,8 +136,8 @@
         @if (d.financialOutcome; as fo) {
           <div class="dp-escrow-card" data-testid="financial-outcome">
             <span class="dp-badge dp-st-resolved">نُفِّذ قرار مالي</span>
-            @if (fo.refundToClient > 0) { <span>أُعيد للعميل: {{ fo.refundToClient | number:'1.2-2' }} $</span> }
-            @if (fo.releaseToProvider > 0) { <span>صُرف لمقدم الخدمة: {{ fo.releaseToProvider | number:'1.2-2' }} $ (عمولة المنصة {{ fo.platformCommission | number:'1.2-2' }} $، الصافي {{ fo.providerNet | number:'1.2-2' }} $)</span> }
+            @if (fo.refundToClient > 0) { <span>أُعيد للعميل: {{ fo.refundToClient | wsAmount:fo.currency:'1.2-2' }}</span> }
+            @if (fo.releaseToProvider > 0) { <span>صُرف لمقدم الخدمة: {{ fo.releaseToProvider | wsAmount:fo.currency:'1.2-2' }} (عمولة المنصة {{ fo.platformCommission | wsAmount:fo.currency:'1.2-2' }}، الصافي {{ fo.providerNet | wsAmount:fo.currency:'1.2-2' }})</span> }
           </div>
         } @else if (d.status === 'RESOLVED' || d.status === 'REJECTED') {
           <p class="dp-disabled-note" data-testid="no-financial-outcome">لم يُنفَّذ أي أثر مالي بهذا القرار.</p>
@@ -151,7 +151,7 @@
               <span class="dp-badge dp-st-review">{{ escrowLabels[e.status] || e.status }}</span>
               <span>المبلغ: {{ e.amount | number:'1.2-2' }}</span>
               <span>المُحرَّر: {{ e.releasedAmount | number:'1.2-2' }}</span>
-              <span>المحتجز حالياً: {{ (d.heldEscrowAmount ?? (e.status === 'HELD' ? e.amount - e.releasedAmount : 0)) | number:'1.2-2' }}</span>
+              <span>المحتجز حالياً: {{ (d.heldEscrowAmount ?? (e.status === 'HELD' ? e.amount - e.releasedAmount : 0)) | wsAmount:d.currency:'1.2-2' }}</span>
               @if (d.contractStatus) {
                 <span>حالة العقد: {{ d.contractStatus }}</span>
               }
@@ -263,7 +263,7 @@
       } @else if (showFinancialForm()) {
         <div class="dp-resolve-form" data-testid="financial-form">
           <h4 class="dp-rf-ttl">قرار مالي في النزاع</h4>
-          <p class="dp-disabled-note" data-testid="financial-held">المبلغ المحتجز الذي سيُسوَّى بالكامل: <b>{{ heldAmount(d) | number:'1.2-2' }} $</b>. المبالغ المصروفة سابقًا لا تُمسّ.</p>
+          <p class="dp-disabled-note" data-testid="financial-held">المبلغ المحتجز الذي سيُسوَّى بالكامل: <b>{{ heldAmount(d) | wsAmount:d.currency:'1.2-2' }}</b>. المبالغ المصروفة سابقًا لا تُمسّ.</p>
 
           <div class="dp-md-field">
             <label>نوع القرار <span class="dp-req">*</span></label>
@@ -284,7 +284,7 @@
               <label>مبلغ يُصرف لمقدم الخدمة ($، قبل خصم عمولة المنصة) <span class="dp-req">*</span></label>
               <input id="dp-fin-release" class="dp-rf-input" type="number" min="0" step="0.01" data-testid="fin-release" [value]="finRelease()" (input)="finRelease.set($any($event.target).value); finConfirmStep.set(false)" />
             </div>
-            <small class="dp-rf-count" data-testid="fin-sum">المجموع {{ finSum() | number:'1.2-2' }} من أصل {{ heldAmount(d) | number:'1.2-2' }} $ (يجب أن يتطابقا). العمولة تُحسب في الخادم بنسبة العقد المثبّتة.</small>
+            <small class="dp-rf-count" data-testid="fin-sum">المجموع {{ finSum() | wsAmount:d.currency:'1.2-2' }} من أصل {{ heldAmount(d) | wsAmount:d.currency:'1.2-2' }} (يجب أن يتطابقا). العمولة تُحسب في الخادم بنسبة العقد المثبّتة.</small>
             <div class="dp-md-field">
               <label>ملاحظات القرار (اختياري)</label>
               <textarea id="dp-fin-note" aria-label="ملاحظات القرار" class="dp-rf-ta" [value]="finNote()" (input)="finNote.set($any($event.target).value)" placeholder="ملاحظات إضافية…"></textarea>
@@ -295,7 +295,7 @@
 
           @if (finConfirmStep()) {
             <div class="dp-confirm-box" role="alert" data-testid="fin-confirm-box">
-              <p><b>تأكيد التنفيذ المالي:</b> سيُنقل {{ finRefundNum() | number:'1.2-2' }} $ إلى محفظة العميل و{{ finReleaseNum() | number:'1.2-2' }} $ لمقدم الخدمة (قبل العمولة). يُغلق العقد، ولا يمكن التراجع عن هذه العملية.</p>
+              <p><b>تأكيد التنفيذ المالي:</b> سيُنقل {{ finRefundNum() | wsAmount:d.currency:'1.2-2' }} إلى محفظة العميل و{{ finReleaseNum() | wsAmount:d.currency:'1.2-2' }} لمقدم الخدمة (قبل العمولة). يُغلق العقد، ولا يمكن التراجع عن هذه العملية.</p>
               <label><input type="checkbox" data-testid="fin-confirm-check" [checked]="finConfirmed()" (change)="finConfirmed.set($any($event.target).checked)" /> أؤكد أنني راجعت المبالغ وأن القرار نهائي</label>
             </div>
             <div class="dp-rf-actions">

@@ -14,6 +14,8 @@ import { Step3Review } from './components/step3-review/step3-review';
 import { Step4Success } from './components/step4-success/step4-success';
 import { aiSuggestInputError } from './ai-suggest-input';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { formatAmount } from '../../../../../core/utils/currency';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 
 export interface Milestone {
 	id: string;
@@ -68,7 +70,7 @@ export interface AiAuditResult {
 @Component({
 	selector: 'app-applay-request',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterLink, Step1General, Step2Pricing, Step3Review, Step4Success],
+	imports: [WsAmountPipe, CommonModule, FormsModule, RouterLink, Step1General, Step2Pricing, Step3Review, Step4Success],
 	templateUrl: './applay-request.html',
 	styleUrl: './applay-request.css',
 })
@@ -765,7 +767,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			profileAudit: [{ title: 'تعذر إكمال مراجعة الجودة', subtitle: 'لم يتم إنشاء تقييم بديل أو درجات وهمية. يمكنك المتابعة وتقديم العرض بشكل طبيعي.', status: 'WARNING', badge: 'غير متاح' }],
 			triPartyComparison: {
 				client: { budget: 'غير متاح', duration: 'غير متاح', milestones: 'غير متاح' },
-				provider: { budget: `${this.totalAmount} $`, duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
+				provider: { budget: formatAmount(this.totalAmount, this.projectDetails()?.currency), duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
 				aiRecommendation: { budget: 'غير مدعوم', duration: 'غير مدعوم', milestones: 'غير مدعوم' }
 			},
 			triPartyNote: 'يقيّم هذا الفحص نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع المشروع ولا عدالة السعر مقارنة بميزانية العميل. مراجعة الجودة غير متاحة حالياً ولم تُولد المنصة أي استنتاج بديل.',

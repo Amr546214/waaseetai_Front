@@ -44,7 +44,7 @@
             <div *ngFor="let m of messages()" class="lv-row" [ngClass]="isMine(m) ? 'me' : 'ai'">
               <div class="lv-msg">
                 <div class="lv-bubble">{{ m.body }}</div>
-                <div class="lv-time">{{ senderName(m) }} · {{ m.createdAt | date: 'yyyy-MM-dd HH:mm' }}</div>
+                <div class="lv-time">{{ senderName(m) }} · {{ m.createdAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</div>
               </div>
             </div>
           </div>

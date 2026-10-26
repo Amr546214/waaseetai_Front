@@ -1,4 +1,5 @@
-import { providerTimeZone } from '../../../../../../core/services/provider-prefs.store';
+import { WsAmountPipe } from '../../../../../../shared/money/money.pipe';
+import { WsDatePipe, formatWsText, formatWsDate } from '../../../../../../shared/ws-date/ws-date.pipe';
 import { Component, DestroyRef, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RatingSummary } from '../../../../../../sheards/rating-summary/rating-summary.component';
@@ -16,10 +17,10 @@ import { ChatService, MessageContext } from '../../../../../../core/services/cha
 import { sortAmendments, upsertAmendment } from '../../../../../../core/utils/amendment-list';
 import { AuthStore } from '../../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../../core/models/auth.model';
-import { formatMoney } from '../../../../../../core/utils/money.util';
 import { stageHeading } from '../../../../../../core/utils/stage-title.util';
 import { deliveryFileOpenUrl } from '../../../../../../core/utils/delivery-file.util';
 import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment, amendmentActionBlockedReason } from '../../../../../../core/constants/amendment-effect';
+import { formatAmount, currencyOf } from '../../../../../../core/utils/currency';
 
 export type AmendKind = 'SCOPE' | 'BUDGET' | 'DURATION';
 
@@ -53,7 +54,7 @@ export function isHttpsLink(value: string): boolean {
 
 @Component({
   selector: 'app-progress', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RatingSummary, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
+  imports: [WsDatePipe, WsAmountPipe, CommonModule, FormsModule, RouterLink, RatingSummary, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
 })
 export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);
@@ -94,6 +95,9 @@ export class Progress implements OnInit {
   });
 
   projectData = signal<any>(null);
+  /** the contract's own currency (financial summary, else the project, else the first stage); undefined = legacy, which the formatter reads as USD */
+  cur(): string | undefined { const d = this.projectData(); return d?.financial?.currency ?? d?.currency ?? d?.stages?.[0]?.currency; }
+  curCode(): string { return currencyOf(this.cur()); }
   loading = signal(true); error = signal(''); saving = signal(false);
   activeTab = signal<'overview' | 'miles' | 'msgs' | 'files' | 'delivs' | 'edits'>('overview');
   deliveryFilter = signal<'all' | 'pending' | 'approved' | 'notes'>('all');
@@ -344,7 +348,7 @@ export class Progress implements OnInit {
   }
   /** Money label of a stage from the server's amount state: released / held in the escrow / only its contractual value (historical after a settlement). */
   stageMoneyLabel(stage: any): string {
-    const amount = `${formatMoney(stage?.amount || 0)} $`;
+    const amount = formatAmount(stage?.amount || 0, stage?.currency ?? this.cur());
     if (this.stageClosedBySettlement(stage)) return `قيمة المرحلة ${amount} (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)`;
     if (stage?.isDone) return `أُفرج ${amount}`;
     return stage?.amountHeld ? `محتجز ${amount}` : `قيمة المرحلة ${amount}`;
@@ -363,7 +367,7 @@ export class Progress implements OnInit {
     if (stage?.status === 'completed') return 'مكتملة';
     return 'جارية';
   }
-  deliveryStageAmount(stage: any): string { return stage?.amount ? (stage.amount + ' $') : '—'; }
+  deliveryStageAmount(stage: any): string { return stage?.amount ? formatAmount(stage.amount, stage.currency ?? this.cur()) : '—'; }
   deliveryNoteLength(): number { return (this.deliveryNote || '').length; }
   // Company-mode header copy for the top AI disclosure strip — same real
   // "متابعة المشروع" concept, reworded for the admin/oversight framing and
@@ -429,11 +433,11 @@ export class Progress implements OnInit {
     if (!d?.date) return '';
     try {
       const dt = new Date(d.date);
-      return dt.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', timeZone: providerTimeZone() }) + '، ' + dt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
+      return formatWsText(dt, { year: 'numeric', month: 'long', day: 'numeric' }) + '، ' + formatWsDate(dt, 'time');
     } catch { return d.date; }
   }
-  // Escrow amount formatted "2,500 $" (active contract/escrow pricing is USD-canonical)
-  escrowAmountLabel(stage: any): string { return stage?.amount ? formatMoney(stage.amount) + ' $' : '—'; }
+  // Escrow amount with the contract's own currency code
+  escrowAmountLabel(stage: any): string { return stage?.amount ? formatAmount(stage.amount, stage.currency ?? this.cur()) : '—'; }
 
   // === Batch 8 — real, on-demand Gemini project health analysis ===
   // Replaces the previously-permanent aiInsights placeholder. Not fetched
@@ -587,7 +591,7 @@ export class Progress implements OnInit {
   amendmentTypeLabel(t: string) { return AMENDMENT_TYPE_LABEL[t] || t; }
   amendmentDeltas(a: ProviderAmendment): string {
     const parts: string[] = [];
-    if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${formatMoney(a.budgetDelta)} $`);
+    if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${formatAmount(a.budgetDelta, this.cur())}`);
     if (a.durationDeltaDays !== null && a.durationDeltaDays !== undefined) parts.push(`${a.durationDeltaDays > 0 ? '+' : ''}${a.durationDeltaDays} يوم`);
     return parts.join(' · ');
   }

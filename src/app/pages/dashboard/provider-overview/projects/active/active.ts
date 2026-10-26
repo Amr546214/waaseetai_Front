@@ -4,7 +4,7 @@ import { ActiveProjectsService } from '../../../../../core/services/active.servi
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { handleLoadError, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
-import { formatMoney } from '../../../../../core/utils/money.util';
+import { currencyOf, formatByCurrency, formatBase } from '../../../../../core/utils/currency';
 
 interface Project {
 	id: string;
@@ -30,6 +30,8 @@ interface Project {
 	contractStatus?: string;
 	escrowFunded?: boolean;
 	heldAmount?: number;
+	/** currency of heldAmount / escrowAmount (the contract's own; absent = legacy USD) */
+	currency?: string;
 	canUploadDelivery?: boolean;
 	uploadBlockedReason?: string | null;
 	awaitingClientReview?: boolean;
@@ -115,7 +117,9 @@ export class Active implements OnInit {
 	counts = computed(() => {
 		const projs = this.projects();
 		// Only funded escrows hold money: the server sends heldAmount = 0 for a contract without one.
-		const totalEscrow = projs.reduce((sum, p) => sum + (p.heldAmount ?? 0), 0);
+		// Held money is summed per currency only: amounts of different currencies are never added together.
+		const heldBy: Record<string, number> = {};
+		for (const p of projs) { const c = currencyOf(p.currency); heldBy[c] = (heldBy[c] ?? 0) + (p.heldAmount ?? 0); }
 		const lateCount = projs.filter(p => p.status === 'late').length;
 
 		return {
@@ -127,7 +131,7 @@ export class Active implements OnInit {
 			// Projects where the next move is the provider's (a delivery or a requested revision can be sent now).
 			needsAction: projs.filter(p => p.canUploadDelivery).length,
 			late: lateCount,
-			totalEscrowFormatted: formatMoney(totalEscrow)
+			totalEscrowFormatted: Object.values(heldBy).some(v => v !== 0) ? formatByCurrency(heldBy) : formatBase(0)
 		};
 	});
 

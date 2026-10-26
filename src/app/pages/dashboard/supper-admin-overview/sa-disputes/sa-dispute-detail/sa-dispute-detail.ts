@@ -1,3 +1,5 @@
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
@@ -15,7 +17,7 @@ import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionT
 @Component({
   selector: 'app-sa-dispute-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, WsSelectComponent],
+  imports: [WsAmountPipe, CommonModule, RouterLink, FormsModule, WsSelectComponent],
   templateUrl: './sa-dispute-detail.html',
   styleUrls: ['../sa-disputes.css', './sa-dispute-detail.css'],
 })
@@ -492,12 +494,6 @@ export class SaDisputeDetail implements OnInit {
 
   formatDate(value: string | null | undefined): string {
     if (!value) return '—';
-    return new Intl.DateTimeFormat('ar-SA', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(value));
+    return formatWsText(new Date(value), { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', });
   }
 }

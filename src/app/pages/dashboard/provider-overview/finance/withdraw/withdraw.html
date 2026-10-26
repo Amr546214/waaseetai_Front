@@ -125,7 +125,7 @@
       <div class="wd-field">
         <label class="wd-lbl" for="wdAmt">المبلغ ({{ currency() }}) <span class="ws-req" aria-hidden="true">*</span></label>
         <div class="wd-amt-wrap">
-          <input id="wdAmt" aria-required="true" name="amount" data-field="amount" type="text" inputmode="decimal" placeholder="أدخل المبلغ بالدولار"
+          <input id="wdAmt" aria-required="true" name="amount" data-field="amount" type="text" inputmode="decimal" placeholder="أدخل المبلغ ({{ currency() }})"
             [attr.aria-invalid]="formErrors()['amount'] ? 'true' : null"
             [attr.aria-describedby]="formErrors()['amount'] ? 'wdAmt-err' : 'wdAmt-hint'"
             [value]="amount() == null ? '' : amount()"

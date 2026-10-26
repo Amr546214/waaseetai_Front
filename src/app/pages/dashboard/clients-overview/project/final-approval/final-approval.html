@@ -34,8 +34,8 @@
 				<span class="fa-badge" data-testid="fa-badge">{{ badgeText() }}</span>
 			</div>
 			<div class="fa-meta">
-				<div class="fa-mi"><div class="l">إجمالي العقد</div><div class="v">{{ formatNumber(totalAmount()) }}<small> $</small></div></div>
-				<div class="fa-mi"><div class="l">أُفرِج عبر المراحل المعتمدة</div><div class="v fa-v-free">{{ formatNumber(releasedAmount()) }}</div></div>
+				<div class="fa-mi"><div class="l">إجمالي العقد</div><div class="v">{{ money(totalAmount()) }}</div></div>
+				<div class="fa-mi"><div class="l">أُفرِج عبر المراحل المعتمدة</div><div class="v fa-v-free">{{ money(releasedAmount()) }}</div></div>
 				@if (settled()) {
 					<div class="fa-mi"><div class="l">محتجز الآن</div><div class="v" data-testid="fa-held-now">{{ formatNumber(financial()?.heldNow || 0) }}</div></div>
 				} @else {
@@ -156,12 +156,12 @@
 				أُغلق بتسوية نزاع: الخلاصة المالية
 			</div>
 			<div class="fa-settle-rows">
-				<div class="fa-srow"><span>قيمة العقد (تعاقدية قبل التسوية)</span><b>{{ formatNumber(financial()?.contractValue) }} $</b></div>
-				<div class="fa-srow"><span>أُفرِج عبر المراحل المعتمدة</span><b class="fa-v-free" data-testid="fa-stage-released">{{ formatNumber(releasedAmount()) }} $</b></div>
-				<div class="fa-srow"><span>استرداد للعميل بقرار التسوية</span><b data-testid="fa-refund">{{ formatNumber(st.refundToClient) }} $</b></div>
-				<div class="fa-srow"><span>أُفرِج لمقدم الخدمة بقرار التسوية (إجمالي)</span><b data-testid="fa-release">{{ formatNumber(st.releaseToProvider) }} $</b></div>
-				<div class="fa-srow"><span>عمولة المنصة على هذا المبلغ</span><b>{{ formatNumber(st.platformCommission) }} $</b></div>
-				<div class="fa-srow fa-srow-tot"><span>صافي مقدم الخدمة من التسوية</span><b>{{ formatNumber(st.providerNet) }} $</b></div>
+				<div class="fa-srow"><span>قيمة العقد (تعاقدية قبل التسوية)</span><b>{{ money(financial()?.contractValue) }}</b></div>
+				<div class="fa-srow"><span>أُفرِج عبر المراحل المعتمدة</span><b class="fa-v-free" data-testid="fa-stage-released">{{ money(releasedAmount()) }}</b></div>
+				<div class="fa-srow"><span>استرداد للعميل بقرار التسوية</span><b data-testid="fa-refund">{{ money(st.refundToClient, st.currency) }}</b></div>
+				<div class="fa-srow"><span>أُفرِج لمقدم الخدمة بقرار التسوية (إجمالي)</span><b data-testid="fa-release">{{ money(st.releaseToProvider, st.currency) }}</b></div>
+				<div class="fa-srow"><span>عمولة المنصة على هذا المبلغ</span><b>{{ money(st.platformCommission, st.currency) }}</b></div>
+				<div class="fa-srow fa-srow-tot"><span>صافي مقدم الخدمة من التسوية</span><b>{{ money(st.providerNet, st.currency) }}</b></div>
 			</div>
 			<p class="fa-settle-note" data-testid="fa-settle-note">{{ financial()?.contractValueNote }}. مبلغ التسوية لا يُنسب إلى مراحل بعينها، ولا يُحتجز الآن أي مبلغ.</p>
 		</div>
@@ -172,9 +172,9 @@
 				الخلاصة المالية للمشروع
 			</div>
 			<div class="fa-settle-rows">
-				<div class="fa-srow"><span>إجمالي قيمة العقد</span><b>{{ formatNumber(totalAmount()) }} $</b></div>
-				<div class="fa-srow"><span>أُفرِج عبر المراحل المعتمدة</span><b class="fa-v-free">{{ formatNumber(releasedAmount()) }} $</b></div>
-				<div class="fa-srow fa-srow-tot"><span>المتبقي من قيمة العقد</span><b>{{ formatNumber(remainingAmount()) }} $</b></div>
+				<div class="fa-srow"><span>إجمالي قيمة العقد</span><b>{{ money(totalAmount()) }}</b></div>
+				<div class="fa-srow"><span>أُفرِج عبر المراحل المعتمدة</span><b class="fa-v-free">{{ money(releasedAmount()) }}</b></div>
+				<div class="fa-srow fa-srow-tot"><span>المتبقي من قيمة العقد</span><b>{{ money(remainingAmount()) }}</b></div>
 			</div>
 			<div class="fa-settle-bar">
 				@if (totalAmount() > 0) {

@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminAccessService } from '../../../../core/services/admin-access.service';
 import { AccessAuditRow, AdminRoleRow, AdminTeamService, PermissionDef, PermissionsCatalog, RolePreview, RoleTemplate } from '../../../../core/services/admin-team.service';
@@ -17,7 +18,7 @@ const errText = (e: any, fallback: string) => e?.error?.message || fallback;
 @Component({
 	selector: 'app-sa-roles',
 	standalone: true,
-	imports: [CommonModule, FormsModule, DatePipe],
+	imports: [WsDatePipe, CommonModule, FormsModule],
 	templateUrl: './sa-roles.html',
 	styleUrl: './sa-roles.css',
 })

@@ -30,6 +30,10 @@
       <div class="od-meta-item"><div class="od-meta-lbl">العميل</div><div class="od-meta-val">{{ providerName() }}</div></div>
       @if (contract()) {
       <div class="od-meta-item"><div class="od-meta-lbl">قيمة العقد</div><div class="od-meta-val" data-testid="contract-price">{{ contractPrice() }}</div></div>
+      @if (finalTerms(); as t) {
+      <div class="od-meta-item"><div class="od-meta-lbl">عمولة المنصة ({{ t.rate }}٪) — نهائية لهذا العقد</div><div class="od-meta-val" data-testid="contract-commission">{{ t.commission }}</div></div>
+      <div class="od-meta-item"><div class="od-meta-lbl">صافي ما تستلمه</div><div class="od-meta-val" data-testid="contract-net">{{ t.net }}</div></div>
+      }
       @if (contractDuration()) {<div class="od-meta-item"><div class="od-meta-lbl">المدة</div><div class="od-meta-val" data-testid="contract-duration">{{ contractDuration() }}</div></div>}
       <div class="od-meta-item"><div class="od-meta-lbl">المراحل</div><div class="od-meta-val" data-testid="contract-phases">{{ contractPhases() }}</div></div>
       }
@@ -77,7 +81,7 @@
       @for (m of c.milestones; track m.order) {
       <li>
         <strong class="txt-white">{{ m.title }}</strong>
-        @if (milestoneMeta(m); as meta) {<span class="txt-muted"> — {{ meta }}</span>}
+        @if (milestoneMeta(m, c.currency); as meta) {<span class="txt-muted"> — {{ meta }}</span>}
         @if (m.description) {<div class="txt-muted" style="font-size:12px">{{ m.description }}</div>}
       </li>
       }

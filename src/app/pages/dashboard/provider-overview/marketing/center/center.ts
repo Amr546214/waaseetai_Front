@@ -13,12 +13,14 @@ import {
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { currencyCode } from '../../../../../core/utils/currency';
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 
 /** P-PR-039 (individual) / P-CO-MK-005 (company) — مركز التسويق. */
 @Component({
   selector: 'app-marketing-center',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [WsCurrencyPipe, CommonModule, FormsModule, RouterLink],
   templateUrl: './center.html',
   styleUrls: ['../marketing-shared.css', './center.css'],
 })
@@ -140,7 +142,7 @@ export class MarketingCenter implements OnInit {
   saveCap(remove = false): void {
     const cap = remove ? null : this.capInput;
     if (!remove && (cap === null || !(Number(cap) > 0) || Number(cap) > 100_000_000)) {
-      const message = cap === null || (cap as unknown) === '' ? 'أدخل السقف الشهري بالدولار' : Number(cap) > 100_000_000 ? 'السقف الشهري كبير جدًا' : 'أدخل سقفاً شهرياً صحيحاً أكبر من صفر';
+      const message = cap === null || (cap as unknown) === '' ? `أدخل السقف الشهري (${currencyCode()})` : Number(cap) > 100_000_000 ? 'السقف الشهري كبير جدًا' : 'أدخل سقفاً شهرياً صحيحاً أكبر من صفر';
       this.capError.set(message);
       this.notify.warning(message);
       void focusInvalidControls(this.host.nativeElement, [{ path: 'cap-input', message }]);
@@ -185,8 +187,8 @@ export class MarketingCenter implements OnInit {
       ['المؤشر', 'القيمة', 'الشهر الماضي', 'التغير %'],
       ['أدوات تسويقية نشطة', d.kpis.activeTools.count, '', ''],
       ['مرات الاستخدام', d.kpis.monthlyUsage.value, d.kpis.monthlyUsage.previousMonth, d.kpis.monthlyUsage.changePercent ?? ''],
-      ['القيمة المخصومة (دولار)', d.kpis.discountedValue.value, d.kpis.discountedValue.previousMonth, d.kpis.discountedValue.changePercent ?? ''],
-      ['إيراد إضافي (دولار)', d.kpis.extraRevenue.value, d.kpis.extraRevenue.previousMonth, d.kpis.extraRevenue.changePercent ?? ''],
+      [`القيمة المخصومة (${currencyCode()})`, d.kpis.discountedValue.value, d.kpis.discountedValue.previousMonth, d.kpis.discountedValue.changePercent ?? ''],
+      [`إيراد إضافي (${currencyCode()})`, d.kpis.extraRevenue.value, d.kpis.extraRevenue.previousMonth, d.kpis.extraRevenue.changePercent ?? ''],
       [],
       ['الشهر', 'مرات الاستخدام', 'القيمة المخصومة', 'الإيراد'],
       ...d.monthlyTrend.map(t => [t.month, t.usageCount, t.discountedValue, t.revenue]),

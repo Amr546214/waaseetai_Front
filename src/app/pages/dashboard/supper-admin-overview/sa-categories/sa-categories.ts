@@ -1,4 +1,6 @@
+import { WsBasePipe } from '../../../../shared/money/money.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { WsDateTextPipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -11,7 +13,7 @@ interface ProviderLevels { levels: LevelRow[]; totalProviders: number; providers
 @Component({
   selector: 'app-sa-categories',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [WsBasePipe, WsDateTextPipe, CommonModule, RouterLink],
   templateUrl: './sa-categories.html',
   styleUrl: './sa-categories.css',
 })

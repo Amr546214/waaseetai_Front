@@ -13,9 +13,9 @@
 <section class="auth-section" aria-labelledby="auth-title">
 	<div class="auth-wrap">
 		<div class="auth-card">
-			<div class="auth-logo"><a routerLink="/"><img src="/images/waseet-mark.png" alt="وسيط AI"></a></div>
+			<div class="auth-logo"><a routerLink="/"><img src="/images/waseet-mark.png" [attr.alt]="'' | brandName"></a></div>
 			<h1 class="auth-h1" id="auth-title">تسجيل الدخول</h1>
-			<p class="auth-sub">سجل دخولك لحسابك في وسيط AI</p>
+			<p class="auth-sub">سجل دخولك لحسابك في {{ '' | brandName }}</p>
 
 			@if (rateLimitText) {
 			<div class="auth-banner banner-error" id="banner-error" role="alert" data-testid="rate-limit-msg">

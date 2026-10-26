@@ -1,10 +1,11 @@
+import { WsCurrencyPipe } from '../../../shared/money/money.pipe';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-partners',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, WsCurrencyPipe],
   templateUrl: './partners.html',
   styleUrl: './partners.css'
 })

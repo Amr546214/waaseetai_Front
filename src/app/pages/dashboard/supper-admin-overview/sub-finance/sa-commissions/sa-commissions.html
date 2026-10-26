@@ -2,7 +2,7 @@
   <div class="fcm-hdr">
     <div>
       <h1 class="fcm-ttl">إدارة العمولات</h1>
-      <p class="fcm-sub">عمولة المنصة لكل مشروع وعمولات الوسطاء التسويقيين — من السجلات الفعلية — بالدولار الأمريكي ($)</p>
+      <p class="fcm-sub">عمولة المنصة لكل مشروع وعمولات الوسطاء التسويقيين — من السجلات الفعلية — بعملة المنصة ({{ '' | wsCurrency }})</p>
     </div>
     <div class="fcm-actions">
       <button type="button" class="fcm-btn fcm-btn-ghost" data-testid="cm-export" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : 'تصدير CSV' }}</button>
@@ -23,18 +23,18 @@
     <div class="fcm-kpi-grid" data-testid="cm-kpis">
       <div class="fcm-kpi-card">
         <div class="fcm-kpi-top"><span class="fcm-kpi-lbl">عمولة المنصة</span></div>
-        <div class="fcm-kpi-val txt-teal">{{ usd(d.totals.platformCommission) }}</div>
-        <div class="fcm-kpi-unit">من إجمالي محرَّر {{ usd(d.totals.releasedGross) }}</div>
+        <div class="fcm-kpi-val txt-teal">{{ fmtAmount(d.totals.platformCommission) }}</div>
+        <div class="fcm-kpi-unit">من إجمالي محرَّر {{ fmtAmount(d.totals.releasedGross) }}</div>
       </div>
       <div class="fcm-kpi-card">
         <div class="fcm-kpi-top"><span class="fcm-kpi-lbl">صافي مقدمي الخدمة</span></div>
-        <div class="fcm-kpi-val txt-green">{{ usd(d.totals.providerNet) }}</div>
-        <div class="fcm-kpi-unit">دولار أمريكي</div>
+        <div class="fcm-kpi-val txt-green">{{ fmtAmount(d.totals.providerNet) }}</div>
+        <div class="fcm-kpi-unit">{{ '' | wsCurrency:'name' }}</div>
       </div>
       @for (a of affiliateRows(); track a.key) {
         <div class="fcm-kpi-card">
           <div class="fcm-kpi-top"><span class="fcm-kpi-lbl">عمولات الوسطاء — {{ a.label }}</span></div>
-          <div class="fcm-kpi-val txt-amber">{{ usd(a.amount) }}</div>
+          <div class="fcm-kpi-val txt-amber">{{ fmtAmount(a.amount) }}</div>
           <div class="fcm-kpi-unit">{{ a.count }} عمولة</div>
         </div>
       }
@@ -51,11 +51,11 @@
                 <td class="fcm-tier-name">{{ r.projectTitle }}</td>
                 <td>{{ r.provider }}</td>
                 <td class="fcm-muted">{{ escrowLabels[r.escrowStatus] || r.escrowStatus }}</td>
-                <td>{{ usd(r.releasedGross) }}</td>
+                <td>{{ fmtAmount(r.releasedGross) }}</td>
                 <td>{{ r.ratePercent === null ? '—' : r.ratePercent + '%' }}</td>
                 <td>{{ r.level === null ? '—' : r.level }}</td>
-                <td class="fcm-tier-total">{{ usd(r.platformCommission) }}</td>
-                <td>{{ usd(r.providerNet) }}</td>
+                <td class="fcm-tier-total">{{ fmtAmount(r.platformCommission) }}</td>
+                <td>{{ fmtAmount(r.providerNet) }}</td>
                 <td class="fcm-muted">{{ fmtDate(r.updatedAt) }}</td>
               </tr>
             } @empty {

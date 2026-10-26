@@ -18,12 +18,13 @@ import {
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 
 /** P-PR-040-تفاصيل / P-CO-MK-006-تفاصيل — coupon stats & details. */
 @Component({
   selector: 'app-marketing-coupon-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [WsCurrencyPipe, CommonModule, FormsModule, RouterLink],
   templateUrl: './coupon-details.html',
   styleUrls: ['../marketing-shared.css'],
 })
@@ -96,7 +97,7 @@ export class MarketingCouponDetails implements OnInit {
   subtitle = computed(() => {
     const c = this.coupon();
     if (!c) return '';
-    const disc = c.discountType === 'percentage' ? `خصم ${c.discountValue}%` : `خصم ${formatNumber(c.discountValue)} دولار`;
+    const disc = c.discountType === 'percentage' ? `خصم ${c.discountValue}%` : `خصم ${formatMoney(c.discountValue)}`;
     const inc = this.scopeNames().included;
     const scope = inc.length === 1 ? `على ${inc[0]}` : `على ${inc.length} نماذج`;
     return `${disc} ${scope} · ${validityLabel(c.startAt, c.expiresAt)}`;

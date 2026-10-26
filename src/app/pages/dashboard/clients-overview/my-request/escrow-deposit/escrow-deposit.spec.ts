@@ -44,7 +44,7 @@ describe('client escrow deposit page', () => {
 		const s = await setup();
 		expect(s.get.mock.calls[0][0]).toContain('/client/my-requests/req-1/contract?offerId=offer-1');
 		expect(s.c.totalAmount()).toBe(1500);
-		expect(s.text()).toContain('1,500.00 $');
+		expect(s.text()).toContain('1,500.00 USD');
 		expect(s.text()).toContain('21 يوم');
 	});
 

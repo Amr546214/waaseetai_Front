@@ -107,7 +107,7 @@
           @if(d.amount) {
             <span class="dp-meta">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              مبلغ متجمّد بالضمان {{ d.amount | number:'1.0-2' }} دولار
+              مبلغ متجمّد بالضمان {{ +d.amount | wsAmount:d.currency }}
             </span>
           }
           @if(d.date) {
@@ -141,7 +141,7 @@
                 <div><b>الأدلة:</b> @for (url of x.evidence; track url) { <a [href]="url" target="_blank" rel="noopener noreferrer">رابط {{ $index + 1 }}</a>{{ $last ? '' : ' · ' }} }</div>
               }
               @if (x.heldEscrowAmount !== null && x.heldEscrowAmount !== undefined) {
-                <div data-testid="dispute-held"><b>المبلغ المحتجز بالضمان:</b> {{ x.heldEscrowAmount | number:'1.0-2' }} $</div>
+                <div data-testid="dispute-held"><b>المبلغ المحتجز بالضمان:</b> {{ x.heldEscrowAmount | wsAmount:x.currency }}</div>
               }
               @if (x.projectFreeze?.frozen && (x.status === 'OPEN' || x.status === 'UNDER_REVIEW')) {
                 <div data-testid="dispute-freeze"><b>أثر النزاع على المشروع:</b> {{ x.projectFreeze?.reason }}</div>
@@ -151,8 +151,8 @@
               }
               @if (x.financialOutcome; as fo) {
                 <div data-testid="dispute-financial"><b>الأثر المالي:</b>
-                  @if (fo.refundToClient > 0) { أُعيد {{ fo.refundToClient | number:'1.0-2' }} $ إلى محفظة العميل. }
-                  @if (fo.releaseToProvider > 0) { صُرف {{ fo.releaseToProvider | number:'1.0-2' }} $ لمقدم الخدمة. }
+                  @if (fo.refundToClient > 0) { أُعيد {{ fo.refundToClient | wsAmount:fo.currency }} إلى محفظة العميل. }
+                  @if (fo.releaseToProvider > 0) { صُرف {{ fo.releaseToProvider | wsAmount:fo.currency }} لمقدم الخدمة. }
                 </div>
               } @else if (x.status === 'RESOLVED' || x.status === 'REJECTED') {
                 <div data-testid="dispute-no-financial"><b>الأثر المالي:</b> لم يتغيّر أي مبلغ مالي بهذا القرار.</div>

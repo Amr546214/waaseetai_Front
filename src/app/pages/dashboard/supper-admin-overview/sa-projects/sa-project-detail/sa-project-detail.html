@@ -53,8 +53,8 @@
               <div class="pj-ms-name">{{ s.stepOrder }}. {{ s.title }}</div>
               <div class="pj-ms-track"><div class="pj-ms-fill" [style.width.%]="stageState(s) === 'done' ? 100 : 0"></div></div>
               <div class="pj-deliv-meta">
-                {{ s.amount | number:'1.0-2' }} $ ({{ s.percentage }}%) · {{ s.displayStatusLabel || label(stageLabels, s.status) }}
-                @if (s.approvedAt) { · اعتُمدت في {{ s.approvedAt | date: 'yyyy-MM-dd' }} }
+                {{ s.amount | wsAmount:s.currency }} ({{ s.percentage }}%) · {{ s.displayStatusLabel || label(stageLabels, s.status) }}
+                @if (s.approvedAt) { · اعتُمدت في {{ s.approvedAt | wsDate:'date':'yyyy-MM-dd' }} }
               </div>
               <div class="pj-deliv-list">
                 @for (dl of s.deliveries; track dl.id) {
@@ -62,7 +62,7 @@
                     <div class="pj-deliv-body">
                       <div class="pj-deliv-name">{{ dl.note || 'تسليم بدون ملاحظة' }}</div>
                       <div class="pj-deliv-meta">
-                        {{ dl.submittedAt | date: 'yyyy-MM-dd HH:mm' }}
+                        {{ dl.submittedAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}
                         @if (dl.reviewNote) { · ملاحظة المراجعة: {{ dl.reviewNote }} }
                       </div>
                       @if (dl.files.length) {
@@ -88,28 +88,28 @@
       @if (d.escrow; as e) {
         <div class="pj-md-tags"><span class="ct-escrow" [ngClass]="escrowClasses[e.status]">{{ label(escrowLabels, e.status) }}</span></div>
         <div class="pj-escrow-row">
-          <div class="pj-escrow-item"><span>إجمالي الضمان</span><strong>{{ e.amount | number:'1.0-2' }} $</strong></div>
-          <div class="pj-escrow-item"><span>@if (d.financial?.settlement) { إجمالي المحرَّر من الضمان (مراحل + تسوية) } @else { محرَّر حتى الآن }</span><strong class="txt-green">{{ e.releasedAmount | number:'1.0-2' }} $</strong></div>
-          <div class="pj-escrow-item"><span>المتبقي محتجزاً</span><strong class="txt-amber">{{ (e.heldAmount ?? 0) | number:'1.0-2' }} $</strong></div>
+          <div class="pj-escrow-item"><span>إجمالي الضمان</span><strong>{{ e.amount | wsAmount:e.currency }}</strong></div>
+          <div class="pj-escrow-item"><span>@if (d.financial?.settlement) { إجمالي المحرَّر من الضمان (مراحل + تسوية) } @else { محرَّر حتى الآن }</span><strong class="txt-green">{{ e.releasedAmount | wsAmount:e.currency }}</strong></div>
+          <div class="pj-escrow-item"><span>المتبقي محتجزاً</span><strong class="txt-amber">{{ (e.heldAmount ?? 0) | wsAmount:e.currency }}</strong></div>
           @if (showFees()) {
-            <div class="pj-escrow-item"><span>عمولة المنصة</span><strong>{{ e.platformCommissionAmount | number:'1.0-2' }} $</strong></div>
-            <div class="pj-escrow-item"><span>صافي المقدم المحرَّر</span><strong>{{ e.providerNetReleasedAmount | number:'1.0-2' }} $</strong></div>
+            <div class="pj-escrow-item"><span>عمولة المنصة</span><strong>{{ e.platformCommissionAmount | wsAmount:e.currency }}</strong></div>
+            <div class="pj-escrow-item"><span>صافي المقدم المحرَّر</span><strong>{{ e.providerNetReleasedAmount | wsAmount:e.currency }}</strong></div>
           }
         </div>
         @if (d.financial?.settlement; as st) {
           <div class="pj-section-ttl" data-testid="pj-settlement-ttl">قرار التسوية المالية (من سجل القرار)</div>
           <div class="pj-escrow-row" data-testid="pj-settlement">
-            <div class="pj-escrow-item"><span>قيمة العقد (تعاقدية قبل التسوية)</span><strong>{{ d.financial.contractValue | number:'1.0-2' }} $</strong></div>
-            <div class="pj-escrow-item"><span>محرَّر عبر اعتماد المراحل</span><strong class="txt-green">{{ d.financial.releasedByStageApprovals | number:'1.0-2' }} $</strong></div>
-            <div class="pj-escrow-item"><span>استرداد للعميل</span><strong>{{ st.refundToClient | number:'1.0-2' }} $</strong></div>
-            <div class="pj-escrow-item"><span>إفراج لمقدم الخدمة (إجمالي)</span><strong class="txt-green">{{ st.releaseToProvider | number:'1.0-2' }} $</strong></div>
-            <div class="pj-escrow-item"><span>عمولة المنصة على التسوية</span><strong>{{ st.platformCommission | number:'1.0-2' }} $</strong></div>
-            <div class="pj-escrow-item"><span>صافي مقدم الخدمة من التسوية</span><strong>{{ st.providerNet | number:'1.0-2' }} $</strong></div>
+            <div class="pj-escrow-item"><span>قيمة العقد (تعاقدية قبل التسوية)</span><strong>{{ d.financial.contractValue | wsAmount:d.currency }}</strong></div>
+            <div class="pj-escrow-item"><span>محرَّر عبر اعتماد المراحل</span><strong class="txt-green">{{ d.financial.releasedByStageApprovals | wsAmount:d.currency }}</strong></div>
+            <div class="pj-escrow-item"><span>استرداد للعميل</span><strong>{{ st.refundToClient | wsAmount:st.currency }}</strong></div>
+            <div class="pj-escrow-item"><span>إفراج لمقدم الخدمة (إجمالي)</span><strong class="txt-green">{{ st.releaseToProvider | wsAmount:st.currency }}</strong></div>
+            <div class="pj-escrow-item"><span>عمولة المنصة على التسوية</span><strong>{{ st.platformCommission | wsAmount:st.currency }}</strong></div>
+            <div class="pj-escrow-item"><span>صافي مقدم الخدمة من التسوية</span><strong>{{ st.providerNet | wsAmount:st.currency }}</strong></div>
           </div>
           <p class="pj-disabled-note">{{ d.financial.contractValueNote }}. حالة الضمان «مُفرَج» هنا نتيجة قرار التسوية وليست دفع كامل القيمة لمقدم الخدمة.</p>
         }
         @if (e.fundedAt) {
-          <p class="pj-disabled-note">تاريخ التمويل: {{ e.fundedAt | date: 'yyyy-MM-dd' }}</p>
+          <p class="pj-disabled-note">تاريخ التمويل: {{ e.fundedAt | wsDate:'date':'yyyy-MM-dd' }}</p>
         }
       } @else {
         <div class="pj-empty-inline">لا يوجد ضمان مسجّل لهذا المشروع</div>
@@ -122,9 +122,9 @@
           <div class="pj-sub-row">
             <strong>{{ a.title }}</strong>
             <span>{{ label(amendmentLabels, a.status) }}</span>
-            @if (a.budgetDelta !== null) { <span>تغيير مقترح في الميزانية: {{ a.budgetDelta | number:'1.0-2' }} $</span> }
+            @if (a.budgetDelta !== null) { <span>تغيير مقترح في الميزانية: {{ a.budgetDelta | wsAmount:a.currency }}</span> }
             @if (a.durationDeltaDays !== null) { <span>تغيير مقترح في المدة: {{ a.durationDeltaDays }} يوم</span> }
-            <span>{{ a.createdAt | date: 'yyyy-MM-dd' }}</span>
+            <span>{{ a.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span>
             <span data-testid="amend-effect-note">@if (a.status === 'APPROVED' || a.status === 'ACCEPTED' || a.status === 'REJECTED') { <b>{{ amendmentRecordedBadge }}</b> · } {{ a.effectNote || amendmentEffectNote }}</span>
           </div>
         } @empty {
@@ -138,7 +138,7 @@
           <a class="pj-linked-item" [routerLink]="['/supper-admin-overview/disputes', x.id]">
             <div class="pj-linked-body">
               <div class="pj-linked-name">{{ x.reason }}</div>
-              <div class="pj-linked-id">{{ label(disputeLabels, x.status) }} · {{ x.createdAt | date: 'yyyy-MM-dd' }}</div>
+              <div class="pj-linked-id">{{ label(disputeLabels, x.status) }} · {{ x.createdAt | wsDate:'date':'yyyy-MM-dd' }}</div>
             </div>
           </a>
         } @empty {
@@ -150,14 +150,14 @@
         <div class="pj-info-card">
           <div class="pj-section-ttl sm">معلومات المشروع</div>
           <div class="pj-info-row"><span>رقم المشروع</span><strong class="mono">{{ d.id }}</strong></div>
-          <div class="pj-info-row"><span>تاريخ الإنشاء</span><strong>{{ d.createdAt | date: 'yyyy-MM-dd' }}</strong></div>
+          <div class="pj-info-row"><span>تاريخ الإنشاء</span><strong>{{ d.createdAt | wsDate:'date':'yyyy-MM-dd' }}</strong></div>
           <div class="pj-info-row"><span>مدة التسليم</span><strong>{{ d.deliveryDays }} يوم</strong></div>
           <div class="pj-info-row"><span>التخصص</span><strong>{{ d.specialty || '-' }}</strong></div>
           @if (d.contract; as c) {
-            <div class="pj-info-row"><span>قيمة العقد</span><strong class="txt-green">{{ c.price | number:'1.0-2' }} $</strong></div>
+            <div class="pj-info-row"><span>قيمة العقد</span><strong class="txt-green">{{ c.price | wsAmount:c.currency }}</strong></div>
             <div class="pj-info-row"><span>مدة العقد</span><strong>{{ c.durationDays }} يوم</strong></div>
-            <div class="pj-info-row"><span>توقيع الطالب</span><strong>{{ c.clientSignedAt ? (c.clientSignedAt | date: 'yyyy-MM-dd') : 'لم يوقّع' }}</strong></div>
-            <div class="pj-info-row"><span>توقيع المقدم</span><strong>{{ c.providerSignedAt ? (c.providerSignedAt | date: 'yyyy-MM-dd') : 'لم يوقّع' }}</strong></div>
+            <div class="pj-info-row"><span>توقيع الطالب</span><strong>{{ c.clientSignedAt ? (c.clientSignedAt | wsDate:'date':'yyyy-MM-dd') : 'لم يوقّع' }}</strong></div>
+            <div class="pj-info-row"><span>توقيع المقدم</span><strong>{{ c.providerSignedAt ? (c.providerSignedAt | wsDate:'date':'yyyy-MM-dd') : 'لم يوقّع' }}</strong></div>
           }
         </div>
 

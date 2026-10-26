@@ -82,7 +82,7 @@
         @if (auditError()) { <div class="rl-modal-note">تعذّر تحميل السجل (يحتاج صلاحية عرض سجلات التدقيق).</div> }
         <div class="rl-audit-list" data-testid="audit-list">
           @for (a of audit(); track a.id) {
-            <div class="rl-audit-row" [ngClass]="auditView(a).cls"><span class="rl-audit-time">{{ a.at | date:'MM/dd HH:mm' }}</span><span class="rl-audit-text">{{ auditView(a).text }}</span><span class="rl-audit-kind">{{ auditView(a).kind }}</span></div>
+            <div class="rl-audit-row" [ngClass]="auditView(a).cls"><span class="rl-audit-time">{{ a.at | wsDate:'datetime' }}</span><span class="rl-audit-text">{{ auditView(a).text }}</span><span class="rl-audit-kind">{{ auditView(a).kind }}</span></div>
           } @empty { @if (!auditError()) { <div class="rl-audit-row"><span class="rl-audit-text">لا توجد تغييرات مسجَّلة بعد</span></div> } }
         </div>
       </div>

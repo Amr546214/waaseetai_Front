@@ -16,6 +16,7 @@ import { isMeaningfulProjectTitle } from '../../../../../core/utils/title-valida
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldProblem, SubmitGuard, reportBackendError, reportProblems } from '../../../../../shared/forms/form-error-focus';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { currencyCode } from '../../../../../core/utils/currency';
 export interface PassedSpecialtySubItem {
 	id: string;
 	specialtyId: string;
@@ -946,7 +947,7 @@ export class NewProject implements OnInit, OnDestroy {
 		} else if (step === 3) {
 			if (!this.isValidStep3()) out.push({ field: 'np-model', message: 'اختر نموذجاً من معرض أعمالك للمتابعة', label: 'النموذج', step });
 		} else if (step === 4) {
-			if (!((this.totalAmount() ?? 0) > 0)) out.push({ field: 'np-total-amount', message: 'أدخل الميزانية الإجمالية بالدولار (أكبر من صفر)', label: 'الميزانية', step });
+			if (!((this.totalAmount() ?? 0) > 0)) out.push({ field: 'np-total-amount', message: `أدخل الميزانية الإجمالية بعملة المنصة (${currencyCode()}) (أكبر من صفر)`, label: 'الميزانية', step });
 			this.stages().forEach((s, i) => {
 				if (!String(s.title ?? '').trim()) out.push({ field: `np-stage-title-${i}`, message: 'اكتب عنوان المرحلة', step });
 				if (!(Number(s.days) > 0)) out.push({ field: `np-stage-days-${i}`, message: 'أدخل مدة التسليم بالأيام', step });
@@ -1066,7 +1067,7 @@ export class NewProject implements OnInit, OnDestroy {
 		const ev = this.aiEvaluation();
 		if (!ev || !ev.suggestedPricingStrategy?.recommendedRange) return;
 
-		// Try parsing numerical average out of string like "4000 - 5000 $"
+		// Try parsing numerical average out of string like "4000 - 5000" with a currency code
 		const matches = ev.suggestedPricingStrategy.recommendedRange.match(/\d+[,\d]*/g);
 		if (matches && matches.length >= 1) {
 			const nums = matches.map(m => parseInt(m.replace(/,/g, ''), 10)).filter(n => !isNaN(n));

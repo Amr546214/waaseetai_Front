@@ -8,11 +8,12 @@ import { Dispute } from './disputes.model';
 import { mapDispute } from './disputes.mapper';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { reportProblems } from '../../../../shared/forms/form-error-focus';
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 
 @Component({
   selector: 'app-disputes',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [WsAmountPipe, CommonModule, RouterModule],
   templateUrl: './disputes.html',
 })
 export class Disputes implements OnInit {

@@ -1,3 +1,5 @@
+import { formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -6,7 +8,7 @@ import { ClientFinanceService, ClientWalletTransaction } from '../../../../../co
 @Component({
   selector: 'app-transaction-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [WsAmountPipe, CommonModule, RouterLink],
   templateUrl: './transaction-details.html',
   styleUrl: './transaction-details.css',
 })
@@ -80,9 +82,6 @@ export class TransactionDetails implements OnInit {
 
   formatDateTime(value: string | undefined): string {
     if (!value) return '—';
-    const date = new Date(value);
-    const datePart = new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
-    const timePart = new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { hour: '2-digit', minute: '2-digit' }).format(date);
-    return `${datePart} · ${timePart}`;
+    return `${formatWsDate(value, 'date', 'yyyy-MM-dd')} · ${formatWsDate(value, 'time')}`;
   }
 }

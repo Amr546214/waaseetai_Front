@@ -1,4 +1,5 @@
 import { Component, signal, computed, OnInit, inject } from '@angular/core';
+import { WsDateTextPipe } from '../../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SpecialtyStatusComponent } from '../../../../../../shared/forms/specialty-status.component';
@@ -34,7 +35,7 @@ export interface AccreditationSampleItem {
 @Component({
   selector: 'app-business-models-accreditation-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, SpecialtyStatusComponent],
+  imports: [WsDateTextPipe, CommonModule, RouterLink, SpecialtyStatusComponent],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })

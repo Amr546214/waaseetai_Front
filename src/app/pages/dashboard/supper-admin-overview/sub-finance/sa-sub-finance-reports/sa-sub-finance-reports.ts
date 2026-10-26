@@ -1,23 +1,24 @@
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ForecastSummaryComponent } from '../../sa-finance-reports/forecast-summary.component';
 import { AdminFinanceOverview, AdminOpsApiService, saveBlob } from '../../../../../core/services/admin-ops-api.service';
-import { errMsg, usd } from '../finance-ui';
+import { errMsg, fmtAmount } from '../finance-ui';
 
 type ExportName = 'transactions' | 'commissions' | 'invoices' | 'withdrawals';
 
 @Component({
   selector: 'app-sa-sub-finance-reports',
   standalone: true,
-  imports: [CommonModule, RouterLink, ForecastSummaryComponent],
+  imports: [WsCurrencyPipe, CommonModule, RouterLink, ForecastSummaryComponent],
   templateUrl: './sa-sub-finance-reports.html',
   styleUrl: './sa-sub-finance-reports.css',
 })
 export class SaSubFinanceReports implements OnInit {
   private api = inject(AdminOpsApiService);
 
-  readonly usd = usd;
+  readonly fmtAmount = fmtAmount;
   readonly exports: { name: ExportName; title: string; desc: string }[] = [
     { name: 'transactions', title: 'المعاملات المالية', desc: 'كل حركات المحفظة: إيداعات وحجز وتحرير واسترداد' },
     { name: 'commissions', title: 'العمولات', desc: 'عمولة المنصة لكل مشروع وصافي مقدم الخدمة' },
@@ -34,9 +35,9 @@ export class SaSubFinanceReports implements OnInit {
   kpis = computed(() => {
     const t = this.overview()?.totals;
     return t ? [
-      { label: 'عمولة المنصة', value: usd(t.platformCommission) },
-      { label: 'إجمالي المحرَّر', value: usd(t.releasedGross) },
-      { label: 'الإيداعات', value: usd(t.depositsAmount) },
+      { label: 'عمولة المنصة', value: fmtAmount(t.platformCommission) },
+      { label: 'إجمالي المحرَّر', value: fmtAmount(t.releasedGross) },
+      { label: 'الإيداعات', value: fmtAmount(t.depositsAmount) },
     ] : [];
   });
 

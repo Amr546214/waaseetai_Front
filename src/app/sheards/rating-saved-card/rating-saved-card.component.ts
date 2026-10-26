@@ -1,4 +1,5 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { WsDatePipe } from '../../shared/ws-date/ws-date.pipe';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { SavedReview, VISIBILITY_LABEL_AR } from '../../core/models/rating.model';
 
@@ -9,7 +10,7 @@ import { SavedReview, VISIBILITY_LABEL_AR } from '../../core/models/rating.model
 @Component({
 	selector: 'app-rating-saved-card',
 	standalone: true,
-	imports: [CommonModule, DatePipe],
+	imports: [CommonModule, WsDatePipe],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 <div class="rsc" dir="rtl" data-testid="saved-rating-card">
@@ -37,7 +38,7 @@ import { SavedReview, VISIBILITY_LABEL_AR } from '../../core/models/rating.model
 	@if (review().isPublic !== undefined) {
 		<div class="rsc-vis" [class.rsc-vis--off]="!review().isPublic" data-testid="saved-rating-visibility">{{ review().isPublic ? labels.published : labels.unpublished }}</div>
 	}
-	<div class="rsc-date" data-testid="saved-rating-date">أُرسل في {{ review().createdAt | date: 'yyyy/MM/dd HH:mm' }}</div>
+	<div class="rsc-date" data-testid="saved-rating-date">أُرسل في {{ review().createdAt | wsDate:'datetime':'yyyy/MM/dd HH:mm' }}</div>
 </div>`,
 	styles: [`
 :host{display:block}

@@ -2,7 +2,7 @@ import { Component, inject, computed, OnInit, HostListener } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CheckoutService } from '../../../../core/services/checkout.service';
-import { formatMoney } from '../../../../core/utils/money.util';
+import { formatAmount } from '../../../../core/utils/currency';
 
 @Component({
   selector: 'app-checkout-failure',
@@ -25,8 +25,11 @@ export class CheckoutFailureComponent implements OnInit {
   orderTotal = computed(() => this.currentOrder()?.total || 0);
 
 
-  formatPrice(value: number): string {
-    return formatMoney(value, 0);
+  /** the order's / cart's own currency (a missing one reads as USD, legacy) */
+  currency = computed(() => this.currentOrder()?.currency ?? this.currentOrder()?.items[0]?.currency);
+
+  formatPrice(value: number, currency?: string): string {
+    return formatAmount(value, currency ?? this.currency());
   }
 
   ngOnInit(): void {

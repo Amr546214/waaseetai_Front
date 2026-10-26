@@ -1,10 +1,11 @@
-import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { Dispute as ApiDispute } from '../../../../core/models/dispute.model';
 import { disputeResolutionText } from '../../../../core/utils/dispute-labels.util';
 import { Dispute, DisputeDetail, DisputeEvidenceItem, DisputeHistoryEntry, DisputeParty, DisputeStatusStep, DisputeTimelineStep } from './disputes.model';
+import { formatWsText } from '../../../../shared/ws-date/ws-date.pipe';
+import { formatAmount } from '../../../../core/utils/currency';
 
 const dateLabel = (iso?: string | null): string =>
-	iso ? new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: providerTimeZone() }) : '—';
+	iso ? formatWsText(iso, { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 
 export function buildTimeline(status: ApiDispute['status']): DisputeTimelineStep[] {
 	return [
@@ -33,8 +34,8 @@ function financialSummary(d: ApiDispute): string {
 	const fo = d.financialOutcome;
 	if (!fo) return 'لم يتغيّر أي مبلغ مالي بهذا القرار';
 	const parts: string[] = [];
-	if (fo.releaseToProvider > 0) parts.push(`صُرف لرصيدك ${fo.providerNet} $${fo.platformCommission > 0 ? ` بعد خصم عمولة المنصة ${fo.platformCommission} $` : ''}`);
-	if (fo.refundToClient > 0) parts.push(`أُعيد ${fo.refundToClient} $ إلى العميل`);
+	if (fo.releaseToProvider > 0) parts.push(`صُرف لرصيدك ${formatAmount(fo.providerNet, fo.currency)}${fo.platformCommission > 0 ? ` بعد خصم عمولة المنصة ${formatAmount(fo.platformCommission, fo.currency)}` : ''}`);
+	if (fo.refundToClient > 0) parts.push(`أُعيد ${formatAmount(fo.refundToClient, fo.currency)} إلى العميل`);
 	return parts.join('، ');
 }
 
@@ -119,8 +120,8 @@ export function mapDispute(d: ApiDispute, currentUserId: string | undefined): Di
 		timeline: buildTimeline(d.status),
 		aiText: closed ? ([disputeResolutionText(d), d.resolutionNote].filter(Boolean).join(' — ') || 'تم إغلاق النزاع') : d.description,
 		aiDone: closed,
-		// No escrow-amount field exists on a Dispute row — omit rather than fabricate.
-		amount: '',
+		amount: !closed && typeof d.heldEscrowAmount === 'number' && d.heldEscrowAmount > 0 ? d.heldEscrowAmount : null,
+		currency: d.currency,
 		date: dateLabel(d.createdAt),
 		detail: buildDetail(d, mine),
 		// No backend concept of a company team-member assignment on a dispute.

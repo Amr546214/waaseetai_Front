@@ -43,18 +43,18 @@
 					</div>
 				</div>
 				<div class="f-g">
-					<label class="f-lbl" for="cp-val">قيمة الخصم ({{ form().discountType === 'percentage' ? '%' : 'دولار' }}) <span class="ws-req" aria-hidden="true">*</span></label>
+					<label class="f-lbl" for="cp-val">قيمة الخصم ({{ form().discountType === 'percentage' ? '%' : ('' | wsCurrency) }}) <span class="ws-req" aria-hidden="true">*</span></label>
 					<div class="f-suffix-wrap">
 						<input id="cp-val" aria-required="true" name="discountValue" class="f-inp" type="number" min="0" [attr.max]="form().discountType === 'percentage' ? 100 : null" placeholder="أدخل قيمة الخصم"
 							[class.invalid]="errors().discountValue" [attr.aria-invalid]="errors().discountValue ? 'true' : null" [attr.aria-describedby]="errors().discountValue ? 'cp-err-discountValue' : null" [ngModel]="form().discountValue" (ngModelChange)="patch({ discountValue: $event })">
-						<span class="f-suffix">{{ form().discountType === 'percentage' ? '%' : 'دولار' }}</span>
+						<span class="f-suffix">{{ form().discountType === 'percentage' ? '%' : ('' | wsCurrency) }}</span>
 					</div>
 					@if (errors().discountValue) { <div class="f-err" id="cp-err-discountValue" role="alert">{{ errors().discountValue }}</div> }
 					@else { <div class="f-hint">{{ form().discountType === 'percentage' ? 'نسبة من قيمة الطلب، حتى 100%' : 'مبلغ ثابت يُخصم من قيمة الطلب' }}</div> }
 				</div>
 				<div class="f-g">
 					<label class="f-lbl" for="cp-min">الحد الأدنى لقيمة الطلب (اختياري)</label>
-					<input id="cp-min" name="minimumAmount" class="f-inp" type="number" min="0" placeholder="أدخل المبلغ بالدولار"
+					<input id="cp-min" name="minimumAmount" class="f-inp" type="number" min="0" placeholder="أدخل المبلغ ({{ '' | wsCurrency }})"
 						[class.invalid]="errors().minimumAmount" [attr.aria-invalid]="errors().minimumAmount ? 'true' : null" [attr.aria-describedby]="errors().minimumAmount ? 'cp-err-minimumAmount' : null" [ngModel]="form().minimumAmount" (ngModelChange)="patch({ minimumAmount: $event })">
 					@if (errors().minimumAmount) { <div class="f-err" id="cp-err-minimumAmount" role="alert">{{ errors().minimumAmount }}</div> }
 				</div>

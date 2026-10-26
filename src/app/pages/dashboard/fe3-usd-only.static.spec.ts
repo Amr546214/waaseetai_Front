@@ -1,7 +1,10 @@
 /// <reference types="node" />
 
-// FE-3: USD only, PayPal only. Production files (including the withdrawal screens) must never bring back a riyal / SAR label,
-// Moyasar, or a non-PayPal deposit rail.
+// FE-3: PayPal only, and (until the currency formatter of phase D exists) no riyal / SAR LABEL in production files. Production files (including the withdrawal screens) must never bring back
+// Moyasar or a non-PayPal deposit rail.
+// POLICY (2026-10-26, currency batch C): "USD only" is no longer an absolute product rule - each amount keeps its own currency (USD / SAR) and nothing is summed across currencies. A currency code or
+// name may therefore appear in production files ONLY inside the central formatter (core/utils/currency.ts); everywhere else an amount goes through formatMoneyIn / the `money` pipe. Moyasar, the mada
+// network and Apple Pay stay banned everywhere. The consistency of amounts and currencies is guarded on the server by src/config/currency-consistency.guard.test.ts.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -19,9 +22,12 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 const production = walk(SRC).filter(f => /\.(ts|html|css)$/.test(f) && !/\.spec\.ts$/.test(f) && !/test-fixtures/.test(f));
 const read = (rel: string) => readFileSync(join(APP, rel), 'utf-8');
+/** the only files allowed to name a currency (its code or its Arabic name) */
+const CURRENCY_NAMING_ALLOWED = [join('core', 'utils', 'currency.ts'), join('core', 'utils', 'regional.ts')]; // the platform currency setting is named in the regional state
+const CURRENCY_ONLY = new Set(['SAR', 'ريال', 'ر.س', '﷼']);
 const BANNED = [
 	{ name: 'SAR', re: /\bSAR\b/ },
-	{ name: 'ريال', re: /ريال/ },
+	{ name: 'ريال', re: /(?<![\u0600-\u06FF])ريال(?![\u0600-\u06FF])/ },
 	{ name: 'ر.س', re: /ر\.س/ },
 	{ name: '﷼', re: /﷼/ },
 	{ name: 'Moyasar', re: /moyasar|mysr/i },
@@ -30,11 +36,12 @@ const BANNED = [
 	{ name: 'مدى (شبكة الدفع)', re: /بمدى|>\s*مدى\s*<|[\/،]\s*مدى(?!\s*الحياة)|مدى\s*[\/،]/ },
 ];
 
-describe('FE-3 USD only / PayPal only', () => {
-	it('no production file mentions SAR, riyal wording/symbols, Moyasar, Apple Pay or the mada network', () => {
+describe('FE-3 PayPal only; currencies only through the central formatter', () => {
+	it('no production file names a currency outside the formatter, and none mentions Moyasar, Apple Pay or the mada network', () => {
 		for (const f of production) {
 			const text = readFileSync(f, 'utf-8');
-			for (const b of BANNED) expect(b.re.test(text), `${f.replace(SRC, 'src')}: ${b.name}`).toBe(false);
+			const allowedHere = CURRENCY_NAMING_ALLOWED.some(a => f.endsWith(a));
+			for (const b of BANNED) { if (allowedHere && CURRENCY_ONLY.has(b.name)) continue; expect(b.re.test(text), `${f.replace(SRC, 'src')}: ${b.name}`).toBe(false); }
 		}
 	});
 
@@ -53,7 +60,7 @@ describe('FE-3 USD only / PayPal only', () => {
 			expect(t, f).not.toMatch(/ريال|ر\.س|﷼|\bSAR\b/);
 		}
 		// M2: the limits come from the server wallet and are shown in dollars ("$"), never in riyals
-		expect(read('pages/dashboard/marketer-overview/withdraw/withdraw.html')).toMatch(/الحد الأدنى: \{\{ wallet\(\) \? minimumWithdrawal\(\) : '—' \}\} \$/);
+		expect(read('pages/dashboard/marketer-overview/withdraw/withdraw.html')).toMatch(/الحد الأدنى: \{\{ wallet\(\) \? \(minimumWithdrawal\(\) \| wsAmount:payoutCurrency\) : '—' \}\}/);
 	});
 
 	it('index.html and styles.css no longer load or style Moyasar', () => {

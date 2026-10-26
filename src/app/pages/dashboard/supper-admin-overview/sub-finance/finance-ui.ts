@@ -1,13 +1,14 @@
+import { formatWsText } from '../../../../shared/ws-date/ws-date.pipe';
 import { AdminFinanceOverview, AdminTransaction } from '../../../../core/services/admin-ops-api.service';
-import { formatMoney } from '../../../../core/utils/money.util';
+import { formatAmount, platformCurrency } from '../../../../core/utils/currency';
 
 /** Shared, data-free helpers for the admin finance pages (all figures come from the API). */
 
 const AR_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
-export function usd(n: number | null | undefined): string {
-  if (n == null || !isFinite(n)) return '—';
-  return `${formatMoney(n, 2)} $`;
+/** An amount with its currency code. A row passes ITS OWN currency; without one the figure is a platform headline (base currency). */
+export function fmtAmount(n: number | null | undefined, currency?: unknown): string {
+  return formatAmount(n, currency === undefined ? platformCurrency() : currency, '1.2-2');
 }
 
 /** 'YYYY-MM' -> month name + year. */
@@ -24,7 +25,7 @@ export function monthShort(m: string): string {
 export function fmtDate(v: string | null | undefined): string {
   if (!v) return '—';
   const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+  return isNaN(d.getTime()) ? '—' : formatWsText(d, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export const TX_TYPE_LABELS: Record<string, string> = {

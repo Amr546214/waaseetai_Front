@@ -38,6 +38,7 @@ export interface CompanyPendingApproval {
 	requesterName: string;
 	requesterInitials: string;
 	amount: number;
+	currency?: string;
 	overBudget: boolean;
 }
 
@@ -47,6 +48,7 @@ export interface CompanyTeamRequest {
 	requesterName: string;
 	department: string;
 	amount: number;
+	currency?: string;
 	status: 'approved' | 'pending-approval' | 'new-offers' | 'completed';
 	offersCount?: number;
 }

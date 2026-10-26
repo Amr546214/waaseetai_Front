@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarketerKycRequest, MarketerKycService } from '../../../../../core/services/marketer-kyc.service';
@@ -18,7 +19,7 @@ export const REJECT_REASON_MAX = 500;
 @Component({
 	selector: 'app-sa-broker-kyc-requests',
 	standalone: true,
-	imports: [CommonModule, FormsModule, KycDocumentLink],
+	imports: [WsDatePipe, CommonModule, FormsModule, KycDocumentLink],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './sa-broker-kyc-requests.html',
 	styleUrl: './sa-broker-kyc-requests.css',

@@ -14,25 +14,37 @@
         <div class="spa-nav-ttl">الإعدادات</div>
         @for (n of navItems; track n.key) {
           @if (!n.danger) {
-            <button type="button" class="spa-nav-item" [class.active]="activeSection() === n.key" (click)="setSection(n.key)">{{ n.label }}</button>
+            <button type="button" class="spa-nav-item" [attr.data-testid]="'tab-' + n.key" [class.active]="activeSection() === n.key" (click)="setSection(n.key)">{{ n.label }}</button>
           }
         }
         <div class="spa-nav-ttl spa-nav-ttl-danger">خطر</div>
         @for (n of navItems; track n.key) {
           @if (n.danger) {
-            <button type="button" class="spa-nav-item spa-nav-item-danger" [class.active]="activeSection() === n.key" (click)="setSection(n.key)">{{ n.label }}</button>
+            <button type="button" class="spa-nav-item spa-nav-item-danger" [attr.data-testid]="'tab-' + n.key" [class.active]="activeSection() === n.key" (click)="setSection(n.key)">{{ n.label }}</button>
           }
         }
       </div>
     </div>
 
     <div class="spa-content">
+      @if (store.loading() && !store.items().length) {
+        <div class="spa-card" role="status" data-testid="settings-loading">جارٍ تحميل الإعدادات…</div>
+      } @else if (store.loadError()) {
+        <div class="spa-card" role="alert" data-testid="settings-load-error" style="color:#FF8C69">{{ store.loadError() }} <button type="button" class="spa-btn spa-btn-gh" (click)="store.load()">إعادة المحاولة</button></div>
+      }
 
-      @if (activeSection() === 'admins') {
+      @if (store.notice(); as n) { <div class="spa-notice" role="status" data-testid="settings-saved">{{ n.text }}</div> }
+
+      @if (activeSection() === 'general') {
         <div class="spa-sec-hdr">
-          <div><div class="spa-sec-ttl">الحسابات الإدارية</div><div class="spa-sec-sub">حسابات المسؤول والمسؤول الأعلى المسجلة فعليًا في النظام</div></div>
+          <div><div class="spa-sec-ttl">الإعدادات العامة</div><div class="spa-sec-sub">اسم النظام، اللغة، التوقيت والسياسات الأساسية</div></div>
+          <button type="button" class="spa-btn spa-btn-pri" data-testid="header-save" [disabled]="!dirtyIn(generalKeys).length || store.saving()" (click)="saveTab(generalKeys)"><svg><use href="#spa-i-save"></use></svg>{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
         </div>
-        <div class="spa-card spa-card-flush">
+        <app-settings-section title="هوية النظام" [keys]="identity" variant="spa" [showSave]="false" />
+        <app-settings-section title="التسجيل والوصول" [keys]="registration" variant="spa" [showSave]="false" />
+        <app-settings-section title="سياسات المحتوى" [keys]="contentPolicy" variant="spa" [showSave]="false" />
+        <div class="spa-sec-hdr" style="margin-top:18px"><div><div class="spa-card-ttl">الحسابات الإدارية</div><div class="spa-sec-sub">حسابات المسؤول والمسؤول الأعلى المسجلة فعليًا في النظام</div></div></div>
+        <div class="spa-card spa-card-flush" data-testid="admins-card">
           @if (adminsFailed()) { <div class="spa-empty" role="alert" data-testid="admins-error">تعذّر تحميل الحسابات الإدارية.</div> }
           <div class="spa-tbl-wrap">
             <table class="spa-tbl">
@@ -44,7 +56,7 @@
                     <td style="direction:ltr;text-align:right">{{ a.email }}</td>
                     <td>{{ a.accountType === 'SUPER_ADMIN' ? 'مسؤول أعلى' : 'مسؤول' }}</td>
                     <td>{{ a.status }}</td>
-                    <td class="spa-date">{{ a.lastActiveAt ? (a.lastActiveAt | date:'yyyy-MM-dd HH:mm') : '—' }}</td>
+                    <td class="spa-date">{{ a.lastActiveAt ? (a.lastActiveAt | wsDate:'datetime':'yyyy-MM-dd HH:mm') : '—' }}</td>
                     <td><button type="button" class="spa-btn spa-btn-gh" disabled [title]="adminActionBlockedReason" style="opacity:.5;cursor:not-allowed">تغيير الدور</button></td>
                   </tr>
                 } @empty {
@@ -56,98 +68,43 @@
         </div>
       }
 
-      @if (activeSection() === 'general') {
-        <div class="spa-sec-hdr">
-          <div><div class="spa-sec-ttl">الإعدادات العامة</div><div class="spa-sec-sub">فتح التسجيل، سياسات المحتوى، والتحقق من الهوية</div></div>
-          <button type="button" class="spa-btn spa-btn-pri" disabled [title]="settingsBlockedReason" style="opacity:.5;cursor:not-allowed"><svg><use href="#spa-i-save"></use></svg>حفظ التغييرات</button>
-        </div>
-        <div class="spa-card">
-          <div class="spa-card-ttl">التسجيل والوصول</div>
-          @for (t of registrationToggles(); track t.key) {
-            <div class="spa-row">
-              <div><div class="spa-row-lbl">{{ t.label }}</div><div class="spa-row-sub">{{ t.desc }}</div></div>
-              <button type="button" class="spa-sw" [class.on]="t.on" disabled [title]="t.key === '2fa' ? twoFaBlockedReason : settingsBlockedReason" [attr.aria-label]="t.label" style="opacity:.5;cursor:not-allowed"></button>
-            </div>
-          }
-        </div>
-        <div class="spa-card">
-          <div class="spa-card-ttl">سياسات المحتوى</div>
-          @for (t of contentToggles(); track t.key) {
-            <div class="spa-row">
-              <div><div class="spa-row-lbl">{{ t.label }}</div><div class="spa-row-sub">{{ t.desc }}</div></div>
-              <button type="button" class="spa-sw" [class.on]="t.on" disabled [title]="t.key === '2fa' ? twoFaBlockedReason : settingsBlockedReason" [attr.aria-label]="t.label" style="opacity:.5;cursor:not-allowed"></button>
-            </div>
-          }
-        </div>
-      }
-
       @if (activeSection() === 'fees') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الرسوم والمالية</div><div class="spa-sec-sub">رسوم النظام والضمان وسياسات السحب</div></div>
-          <button type="button" class="spa-btn spa-btn-pri" disabled [title]="settingsBlockedReason" style="opacity:.5;cursor:not-allowed"><svg><use href="#spa-i-save"></use></svg>حفظ التغييرات</button>
         </div>
-        <div class="spa-card">
-          <div class="spa-card-ttl">رسوم المعاملات</div>
-          <div class="spa-row" data-testid="fees-readonly-note"><div><div class="spa-row-lbl">النسب المالية معتمدة وللقراءة فقط</div><div class="spa-row-sub">عمولة المنصة والكاش باك وعمولة الوسيط ورسوم الإيداع والسحب تُؤخذ من جداول المستويات ونسب الدفع المعتمدة وتُعرض في صفحة الرسوم، ولا تُعدَّل من هنا.</div></div></div>
-        </div>
-        <div class="spa-card">
-          <div class="spa-card-ttl">تجهيز فوترة مستقبلية</div>
-          <div class="spa-row"><div><div class="spa-row-lbl">تجهيز فوترة مستقبلية</div><div class="spa-row-sub">غير مفعّل في V1</div></div><button type="button" class="spa-sw" disabled title="غير مفعّل في V1" style="opacity:.5;cursor:not-allowed"></button></div>
-        </div>
+        <app-fee-policy-panel />
+        <app-settings-section title="رسوم المعاملات" [keys]="fees" variant="spa" [showSave]="false" />
+        <app-settings-section title="تجهيز فوترة مستقبلية" [keys]="billing" variant="spa" [showSave]="false" />
       }
 
       @if (activeSection() === 'security') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الأمان</div><div class="spa-sec-sub">سياسات كلمات المرور والجلسات والمصادقة</div></div>
-          <button type="button" class="spa-btn spa-btn-pri" disabled [title]="settingsBlockedReason" style="opacity:.5;cursor:not-allowed"><svg><use href="#spa-i-save"></use></svg>حفظ التغييرات</button>
+          <button type="button" class="spa-btn spa-btn-pri" data-testid="header-save" [disabled]="!dirtyIn(security).length || store.saving()" (click)="saveTab(security)"><svg><use href="#spa-i-save"></use></svg>{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
         </div>
-        <div class="spa-card">
-          <div class="spa-card-ttl">سياسات الجلسات وكلمة المرور</div>
-          <div class="spa-row"><div><div class="spa-row-lbl">مدة انتهاء الجلسة</div><div class="spa-row-sub">دقائق من آخر نشاط</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="number" [value]="securitySession()" (input)="securitySession.set(+$any($event.target).value)"  disabled [title]="settingsBlockedReason" /><span class="spa-unit">دقيقة</span></div></div>
-          <div class="spa-row"><div><div class="spa-row-lbl">الحد الأقصى لمحاولات الدخول</div><div class="spa-row-sub">قبل تعليق الحساب مؤقتاً</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="number" [value]="securityAttempts()" (input)="securityAttempts.set(+$any($event.target).value)"  disabled [title]="settingsBlockedReason" /><span class="spa-unit">محاولة</span></div></div>
-          <div class="spa-row"><div><div class="spa-row-lbl">الحد الأدنى لطول كلمة المرور</div><div class="spa-row-sub">عدد الأحرف الدنيا</div></div><div class="spa-inp-inline"><input class="spa-inp spa-inp-sm" type="number" [value]="securityMinPassword()" (input)="securityMinPassword.set(+$any($event.target).value)"  disabled [title]="settingsBlockedReason" /><span class="spa-unit">حرف</span></div></div>
-          @for (t of securityToggles(); track t.key) {
-            <div class="spa-row">
-              <div><div class="spa-row-lbl">{{ t.label }}</div><div class="spa-row-sub">{{ t.desc }}</div></div>
-              <button type="button" class="spa-sw" [class.on]="t.on" disabled [title]="t.key === '2fa' ? twoFaBlockedReason : settingsBlockedReason" [attr.aria-label]="t.label" style="opacity:.5;cursor:not-allowed"></button>
-            </div>
-          }
-        </div>
+        <app-settings-section title="سياسات الجلسات وكلمة المرور" [keys]="security" variant="spa" [showSave]="false" />
       }
 
       @if (activeSection() === 'notifications') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الإشعارات</div><div class="spa-sec-sub">قنوات التواصل مع المستخدمين وإعدادات البريد والـ SMS</div></div>
         </div>
-        <div class="spa-card">
-          <div class="spa-card-ttl">القنوات المفعّلة</div>
-          @for (t of notifChannels(); track t.key) {
-            <div class="spa-row"><div><div class="spa-row-lbl">{{ t.label }}</div></div><button type="button" class="spa-sw" [class.on]="t.on" disabled [title]="t.key === '2fa' ? twoFaBlockedReason : settingsBlockedReason" [attr.aria-label]="t.label" style="opacity:.5;cursor:not-allowed"></button></div>
-          }
+        <app-settings-section title="القنوات المفعّلة" [keys]="channels" variant="spa" [showSave]="false" />
+        <app-settings-section title="إعدادات خادم البريد (SMTP)" [keys]="smtp" variant="spa" [showSave]="false" />
+      }
+
+      @if (activeSection() === 'ai') {
+        <div class="spa-sec-hdr">
+          <div><div class="spa-sec-ttl">محركات AI</div><div class="spa-sec-sub">تكوين محركات AI المشغّلة داخل وسيط AI</div></div>
         </div>
-        <div class="spa-card">
-          <div class="spa-card-ttl">إعدادات خادم البريد (SMTP)</div>
-          <div class="spa-row"><div><div class="spa-row-lbl">خادم SMTP</div></div><input class="spa-inp" style="direction:ltr" [value]="smtpHost()" (input)="smtpHost.set($any($event.target).value)"  disabled [title]="settingsBlockedReason" /></div>
-          <div class="spa-row"><div><div class="spa-row-lbl">المنفذ</div></div><input class="spa-inp spa-inp-sm" type="number" [value]="smtpPort()" (input)="smtpPort.set(+$any($event.target).value)"  disabled [title]="settingsBlockedReason" /></div>
-          <div class="spa-row"><div><div class="spa-row-lbl">البريد المُرسِل</div></div><input class="spa-inp" style="direction:ltr" [value]="smtpFrom()" (input)="smtpFrom.set($any($event.target).value)"  disabled [title]="settingsBlockedReason" /></div>
-        </div>
+        <app-settings-section title="محركات المطابقة والتوصيات" [keys]="ai" variant="spa" [showSave]="false" />
       }
 
       @if (activeSection() === 'integrations') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">التكاملات والـ API</div><div class="spa-sec-sub">مفاتيح API والتكاملات الخارجية</div></div>
         </div>
-        <div class="spa-card">
-          <div class="spa-card-ttl">مفاتيح API الخارجية</div>
-          @for (k of apiKeysMasked; track k.label; let i = $index) {
-            <div class="spa-row">
-              <div><div class="spa-row-lbl">{{ k.label }}</div><div class="spa-row-sub">{{ k.desc }}</div></div>
-              <div class="spa-key-row">
-                <input class="spa-inp" style="direction:ltr" type="text" value="•••••••••••••••••••••• — غير متاح للعرض من الواجهة" readonly />
-              </div>
-            </div>
-          }
-        </div>
+        <app-settings-section title="مفاتيح API الخارجية" [keys]="integrations" variant="spa" [showSave]="false" />
       }
 
       @if (activeSection() === 'audit') {
@@ -173,7 +130,7 @@
                     <td class="spa-detail">{{ r.summary }}</td>
                     <td>{{ r.account.name || r.actorLabel || '—' }}</td>
                     <td class="spa-mono" style="direction:ltr;text-align:right">{{ r.ipAddress || '—' }}</td>
-                    <td class="spa-date">{{ r.occurredAt | date:'yyyy-MM-dd HH:mm' }}</td>
+                    <td class="spa-date">{{ r.occurredAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</td>
                     <td><span class="spa-bdg">{{ sevLabels[r.severity] || r.severity }}</span></td>
                   </tr>
                 } @empty {
@@ -201,10 +158,15 @@
         </div>
         <div class="spa-danger-zone">
           <div class="spa-card-ttl spa-card-ttl-danger"><svg><use href="#spa-i-warn"></use></svg>إجراءات حرجة</div>
-          @for (d of dangerActions; track d.key) {
-            <div class="spa-row">
-              <div><div class="spa-row-lbl spa-row-lbl-danger">{{ d.label }}</div><div class="spa-row-sub">{{ d.desc }}</div></div>
-              <button type="button" class="spa-btn spa-btn-danger" disabled [title]="dangerBlockedTooltip" style="opacity:.5;cursor:not-allowed">{{ d.buttonLabel }}</button>
+          <div class="spa-row" data-testid="danger-maintenance">
+            <div><div class="spa-row-lbl spa-row-lbl-danger">{{ maintenanceOn() ? 'إيقاف وضع الصيانة' : 'تفعيل وضع الصيانة الكامل' }}</div><div class="spa-row-sub">{{ maintenanceOn() ? 'الصيانة مفعّلة الآن؛ يعود الوصول لجميع المستخدمين بعد الإيقاف' : 'يعطل النظام لجميع المستخدمين (يبقى متاحًا: الإدارة والدخول والصحة واستدعاءات الدفع)' }}</div></div>
+            <button type="button" class="spa-btn spa-btn-danger" data-testid="danger-maintenance-btn" [disabled]="store.saving() || !store.item('maintenanceMode')?.canWrite" (click)="toggleMaintenance()">{{ maintenanceOn() ? 'إيقاف' : 'تفعيل' }}</button>
+          </div>
+          @if (dangerError()) { <div class="spa-row" role="alert" data-testid="danger-error" style="color:#FF8C69;font-size:12.5px">{{ dangerError() }}</div> }
+          @for (d of unavailableActions; track d.key) {
+            <div class="spa-row" [attr.data-testid]="'danger-' + d.key">
+              <div><div class="spa-row-lbl spa-row-lbl-danger">{{ d.label }} <span class="spa-bdg">غير متاح</span></div><div class="spa-row-sub">{{ d.desc }}</div><div class="spa-row-sub" style="color:#A8B2D1">{{ d.reason }}</div></div>
+              <button type="button" class="spa-btn spa-btn-danger" disabled [title]="d.reason" style="opacity:.5;cursor:not-allowed">{{ d.buttonLabel }}</button>
             </div>
           }
         </div>

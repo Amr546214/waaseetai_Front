@@ -1,3 +1,4 @@
+import { WsBasePipe } from '../../../../../../shared/money/money.pipe';
 import { Component, ElementRef, Input, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +10,7 @@ import type { CreateRequest } from '../../create-request';
 @Component({
 	selector: 'app-step6-review',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterLink],
+	imports: [CommonModule, FormsModule, RouterLink, WsBasePipe],
 	templateUrl: './step6-review.html',
 })
 export class Step6Review {

@@ -110,7 +110,7 @@
                 </div>
               </div>
               <div class="order-price-col">
-                <div class="order-price">{{ formatPrice(item.totalAmount) }} <span>$</span></div>
+                <div class="order-price">{{ formatPrice(item.totalAmount, item.currency) }}</div>
               </div>
             </div>
             <div class="order-deliverables">
@@ -209,12 +209,12 @@
             @for (item of activeItems(); track item.id) {
               <div class="sum-row">
                 <span class="sum-row-label">{{ item.title }}</span>
-                <span class="sum-row-val">{{ formatPrice(item.totalAmount) }} $</span>
+                <span class="sum-row-val">{{ formatPrice(item.totalAmount, item.currency) }}</span>
               </div>
             }
             <div class="sum-row" style="padding-top:8px;border-top:1px solid var(--border)">
               <span class="sum-row-label">المجموع الفرعي</span>
-              <span class="sum-row-val">{{ formatPrice(subtotal()) }} $</span>
+              <span class="sum-row-val">{{ formatPrice(subtotal()) }}</span>
             </div>
             @if (couponNotice()) {
               <div class="coupon-msg error" role="alert" data-testid="coupon-notice">{{ couponNotice() }}</div>
@@ -222,12 +222,12 @@
             @if (discount() > 0) {
               <div class="sum-row discount-row">
                 <span class="sum-row-label">خصم الكوبون ({{ coupon()!.code }})</span>
-                <span class="sum-row-val">- {{ formatPrice(discount()) }} $</span>
+                <span class="sum-row-val">- {{ formatPrice(discount()) }}</span>
               </div>
             }
             <div class="sum-row total">
               <span class="sum-row-label">الإجمالي</span>
-              <span class="sum-row-val">{{ formatPrice(total()) }} $</span>
+              <span class="sum-row-val">{{ formatPrice(total()) }}</span>
             </div>
           </div>
           <div class="checkout-wrap">

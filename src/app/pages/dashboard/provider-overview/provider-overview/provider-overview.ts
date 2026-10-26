@@ -1,3 +1,5 @@
+import { MoneyByComponent } from '../../../../shared/money/money-by.component';
+import { WsDateTextPipe, WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -7,11 +9,12 @@ import { AccountType } from '../../../../core/models/auth.model';
 import { resolveLevelDisplay } from '../../../../core/levels/level-display';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { handleLoadError, rateLimitToastMessage } from '../../../../core/utils/rate-limit.util';
+import { WsAmountPipe, WsBasePipe } from '../../../../shared/money/money.pipe';
 
 @Component({
   selector: 'app-provider-overview',
   standalone: true,
-  imports: [CommonModule, RouterModule, LevelBadgeComponent],
+  imports: [WsAmountPipe, WsBasePipe, WsDateTextPipe, WsDatePipe, MoneyByComponent, CommonModule, RouterModule, LevelBadgeComponent],
   templateUrl: './provider-overview.html',
   styleUrl: './provider-overview.css',
 })

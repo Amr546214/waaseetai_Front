@@ -18,12 +18,13 @@ import {
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 
 /** P-PR-041-تفاصيل / P-CO-MK-007-تفاصيل — special offer stats & details. */
 @Component({
   selector: 'app-marketing-offer-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [WsCurrencyPipe, CommonModule, FormsModule, RouterLink],
   templateUrl: './offer-details.html',
   styleUrls: ['../marketing-shared.css'],
 })

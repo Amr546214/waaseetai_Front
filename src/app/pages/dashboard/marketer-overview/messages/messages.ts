@@ -1,4 +1,5 @@
 import { chatPreview } from '../../../../core/utils/chat-preview.util';
+import { formatWsDate } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, computed, ElementRef, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -135,7 +136,7 @@ export class MarketerMessages implements OnInit, OnDestroy {
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
                 lastMsg: chatPreview(c.lastMessage?.content || c.lastMsg || ''),
-                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (c.time || ''),
+                time: c.lastMessage?.createdAt ? formatWsDate(c.lastMessage.createdAt, 'time') : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
                 online: partner.isOnline || c.online || false,
                 messages: c.messages || []

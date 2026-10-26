@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { ProfileApiService } from './profile-api.service';
 import { AuthStore } from '../store/auth.store';
 import { UserRole } from '../models/auth.model';
+import { platformDateOffset, platformTimeZone } from '../utils/regional';
 
 /** The IANA zones the provider can pick (same list as PUT /provider/profile/preferences). */
 export const PROVIDER_TIMEZONES = ['Asia/Riyadh', 'Asia/Dubai', 'Asia/Kuwait', 'Africa/Cairo', 'Asia/Amman', 'GMT'] as const;
@@ -16,8 +17,9 @@ export function timezoneOffset(zone: string, at: Date = new Date()): string | un
 }
 
 let activeZone: string | undefined;
-/** The provider's saved IANA zone for hand-formatted dates (Intl `timeZone`); undefined = the browser's own zone. */
-export const providerTimeZone = (): string | undefined => activeZone;
+/** The zone for hand-formatted dates (Intl `timeZone`): the user's saved zone, else the PLATFORM zone (setting `defaultTimezone`), else undefined = the browser's own zone. */
+export const providerTimeZone = (): string | undefined => activeZone ?? platformTimeZone();
+export const displayTimeZone = providerTimeZone;
 
 /** The provider's saved display preferences; the timezone drives every date the provider area shows through DatePipe (see app.routes.ts). */
 @Injectable({ providedIn: 'root' })
@@ -33,10 +35,10 @@ export class ProviderPrefsStore {
 	}
 	private loaded = false;
 
-	/** Offset for DatePipe, or undefined (= the browser's own zone) until a zone was saved. */
+	/** Offset for DatePipe: the user's saved zone, else the platform zone (setting `defaultTimezone`), else undefined (= the browser's own zone). */
 	get dateOffset(): string | undefined {
 		const z = this.timezone();
-		return z ? timezoneOffset(z) : undefined;
+		return z ? timezoneOffset(z) : platformDateOffset();
 	}
 
 	ensureLoaded() {

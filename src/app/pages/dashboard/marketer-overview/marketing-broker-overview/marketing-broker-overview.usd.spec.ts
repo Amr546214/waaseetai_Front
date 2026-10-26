@@ -25,9 +25,8 @@ describe('marketer dashboard — USD only, no invented claims (#28)', () => {
 
 	it('money is shown in dollars and no riyal / SAR text exists', () => {
 		const text = render([{ id: '1', source: 'خالد', type: 'اشتراك', time: '2026-10-01', amount: 7, currency: 'USD', status: 'PAID' }]);
-		expect(text).toContain('42.5 دولار');
-		expect(text).toContain('7 دولار');
-		expect(text).toContain('دولار أمريكي');
+		expect(text).toContain('42.5 USD');
+		expect(text).toContain('7 USD');
 		expect(text).not.toMatch(/ريال|SAR|ر\.س|﷼/);
 	});
 

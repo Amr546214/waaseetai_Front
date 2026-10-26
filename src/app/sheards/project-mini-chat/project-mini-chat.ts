@@ -1,3 +1,4 @@
+import { formatWsDate } from '../../shared/ws-date/ws-date.pipe';
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -166,7 +167,7 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
   formatTime(value: string | Date): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return String(value || 'الآن');
-    return new Intl.DateTimeFormat('ar-SA', { hour: '2-digit', minute: '2-digit' }).format(date);
+    return formatWsDate(date, 'time');
   }
 
   private loadHistory(): void {

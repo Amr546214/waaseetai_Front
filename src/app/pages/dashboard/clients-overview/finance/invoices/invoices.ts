@@ -1,3 +1,5 @@
+import { formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -8,7 +10,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 @Component({
   selector: 'app-invoices',
   standalone: true,
-  imports: [CommonModule],
+  imports: [WsAmountPipe, CommonModule],
   templateUrl: './invoices.html',
   styleUrl: './invoices.css',
 })
@@ -60,7 +62,7 @@ export class Invoices implements OnInit {
   }
 
   formatDate(value: string): string {
-    return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(value));
+    return formatWsDate(value, 'date', 'yyyy-MM-dd');
   }
 
   openInvoice(inv: ClientInvoice) {

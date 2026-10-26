@@ -1,5 +1,6 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { ProfileAiReviewComponent } from '../../../../../shared/ai/profile-ai-review.component';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
@@ -7,7 +8,7 @@ import { ProfileApiService } from '../../../../../core/services/profile-api.serv
 @Component({
 	selector: 'app-profile-requests',
 	standalone: true,
-	imports: [CommonModule, DatePipe, DecimalPipe, ProfileAiReviewComponent],
+	imports: [CommonModule, WsDatePipe, DecimalPipe, ProfileAiReviewComponent],
 	templateUrl: './profile-requests.html',
 })
 export class ProfileRequests implements OnInit {

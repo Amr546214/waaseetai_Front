@@ -130,7 +130,7 @@
 							<span class="ord-id">#ACC-{{ sample.id.substring(0,8).toUpperCase() }}</span>
 						</td>
 						<td>{{ sample.providerSpecialty?.specialty?.nameAr || 'اعتماد فني' }}</td>
-						<td style="font-size:12px" class="txt-muted">{{ sample.createdAt | date:'d MMMM yyyy' }}</td>
+						<td style="font-size:12px" class="txt-muted">{{ sample.createdAt | wsDateText:{ day:'numeric', month:'long', year:'numeric' } }}</td>
 						<td>
 							@if (sample.status === 'PENDING_AI_AUDIT' || sample.status === 'MANUAL_REVIEW') {
 							<span class="opill op-active">قيد المراجعة اليدوية</span>

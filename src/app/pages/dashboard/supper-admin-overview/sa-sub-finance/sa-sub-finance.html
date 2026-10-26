@@ -2,7 +2,7 @@
   <div class="fd-hdr">
     <div>
       <h1 class="fd-ttl">لوحة المالية الإدارية</h1>
-      <p class="fd-sub">نظرة على الوضع المالي للمنصة من السجلات الفعلية — بالدولار الأمريكي ($)</p>
+      <p class="fd-sub">نظرة على الوضع المالي للمنصة من السجلات الفعلية — بعملة المنصة ({{ '' | wsCurrency }})</p>
     </div>
     <div class="fd-actions">
       <button type="button" class="fd-btn fd-btn-ghost" data-testid="sf-print" (click)="print()">طباعة / حفظ PDF</button>
@@ -19,29 +19,37 @@
       <button type="button" class="fd-btn fd-btn-ghost fd-btn-sm" (click)="load()">إعادة المحاولة</button>
     </div>
   } @else if (overview(); as o) {
+  @if (currencyRows().length) {
+    <div class="fd-note" role="note" data-testid="sf-by-currency">
+      <b>المبالغ حسب العملة</b> — لا تُجمع عملات مختلفة في رقم واحد، والمؤشرات أدناه بعملة {{ overview()?.currency }} فقط:
+      @for (r of currencyRows(); track r.currency) {
+        <div>{{ r.currency }}: ضمان محجوز {{ money(r.escrowHeldAmount, r.currency) }} · مُفرج {{ money(r.releasedGross, r.currency) }} · عمولة المنصة {{ money(r.platformCommission, r.currency) }} · إيداعات {{ money(r.depositsAmount, r.currency) }}</div>
+      }
+    </div>
+  }
   <div class="fd-kpi-grid" data-testid="sf-kpis">
     <div class="fd-kpi-card">
       <div class="fd-kpi-top"><span class="fd-kpi-lbl">عمولة المنصة</span></div>
-      <div class="fd-kpi-val txt-teal">{{ usd(o.totals.platformCommission) }}</div>
-      <div class="fd-kpi-unit">دولار أمريكي</div>
-      <div class="fd-kpi-sub txt-muted">من إجمالي محرَّر {{ usd(o.totals.releasedGross) }}</div>
+      <div class="fd-kpi-val txt-teal">{{ fmtAmount(o.totals.platformCommission) }}</div>
+      <div class="fd-kpi-unit">{{ '' | wsCurrency:'name' }}</div>
+      <div class="fd-kpi-sub txt-muted">من إجمالي محرَّر {{ fmtAmount(o.totals.releasedGross) }}</div>
     </div>
     <div class="fd-kpi-card">
       <div class="fd-kpi-top"><span class="fd-kpi-lbl">الإيداعات</span></div>
-      <div class="fd-kpi-val txt-green">{{ usd(o.totals.depositsAmount) }}</div>
-      <div class="fd-kpi-unit">دولار أمريكي</div>
+      <div class="fd-kpi-val txt-green">{{ fmtAmount(o.totals.depositsAmount) }}</div>
+      <div class="fd-kpi-unit">{{ '' | wsCurrency:'name' }}</div>
       <div class="fd-kpi-sub txt-muted">{{ o.totals.depositsCount }} عملية</div>
     </div>
     <div class="fd-kpi-card">
       <div class="fd-kpi-top"><span class="fd-kpi-lbl">محجوز في الضمان</span></div>
-      <div class="fd-kpi-val txt-amber">{{ usd(o.totals.escrowHeldAmount) }}</div>
-      <div class="fd-kpi-unit">دولار أمريكي</div>
+      <div class="fd-kpi-val txt-amber">{{ fmtAmount(o.totals.escrowHeldAmount) }}</div>
+      <div class="fd-kpi-unit">{{ '' | wsCurrency:'name' }}</div>
       <div class="fd-kpi-sub txt-amber-dk">{{ o.totals.escrowHeldCount }} مشروع</div>
     </div>
     <div class="fd-kpi-card">
       <div class="fd-kpi-top"><span class="fd-kpi-lbl">سحوبات قيد المراجعة</span></div>
-      <div class="fd-kpi-val txt-blue">{{ usd(pendingWithdrawals().amount) }}</div>
-      <div class="fd-kpi-unit">دولار أمريكي</div>
+      <div class="fd-kpi-val txt-blue">{{ fmtAmount(pendingWithdrawals().amount) }}</div>
+      <div class="fd-kpi-unit">{{ '' | wsCurrency:'name' }}</div>
       <div class="fd-kpi-sub txt-muted">{{ pendingWithdrawals().count }} طلب</div>
     </div>
   </div>
@@ -55,7 +63,7 @@
       <div class="fd-chart-bars" data-testid="sf-chart">
         @for (b of bars().rows; track b.month) {
           <div class="fd-bar-wrap">
-            <div class="fd-bar-val">{{ usd(b.releasedGross) }}</div>
+            <div class="fd-bar-val">{{ fmtAmount(b.releasedGross) }}</div>
             <div class="fd-bar" [style.height.%]="pct(b.releasedGross, bars().max)"></div>
             <div class="fd-bar-lbl">{{ b.label }}</div>
           </div>
@@ -97,7 +105,7 @@
             @for (t of transactions(); track t.id) {
               <tr>
                 <td><span class="fd-bdg tag-teal">{{ txTypeLabel(t.type) }}</span></td>
-                <td style="font-weight:800">{{ usd(t.amount) }}</td>
+                <td style="font-weight:800">{{ fmtAmount(t.amount, t.currency) }}</td>
                 <td>{{ txParty(t) }}</td>
                 <td>{{ fmtDate(t.createdAt) }}</td>
                 <td><span class="fd-status" [class.fd-status-ok]="t.status === 'COMPLETED'" [class.fd-status-pending]="t.status !== 'COMPLETED'">{{ txStatusLabel(t.status) }}</span></td>
@@ -111,5 +119,5 @@
     }
   </div>
 
-  <div class="fd-foot">@if (updatedAt(); as u) { <span>آخر تحديث: {{ u | date: 'yyyy-MM-dd HH:mm' }}</span> }</div>
+  <div class="fd-foot">@if (updatedAt(); as u) { <span>آخر تحديث: {{ u | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</span> }</div>
 </section>

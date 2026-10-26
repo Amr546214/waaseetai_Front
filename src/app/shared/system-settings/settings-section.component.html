@@ -1,0 +1,62 @@
+<div class="st-card" [class.v-ss]="variant() === 'ss'" [class.v-spa]="variant() === 'spa'" [class.st-danger]="danger()" [attr.data-testid]="'settings-card'">
+  @if (title()) { <div class="st-card-ttl">{{ title() }}</div> }
+  @for (r of rows(); track r.key) {
+    <div class="st-row" [class.st-row-col]="isLong(r.key)" [attr.data-testid]="'row-' + r.key" [attr.data-status]="r.status">
+      <div class="st-row-left">
+        <div class="st-row-lbl">{{ r.label }}@if (r.status === 'blocked') { <span class="st-badge st-badge-off">غير متاح</span> } @else if (r.status === 'readonly') { <span class="st-badge st-badge-ro">للعرض فقط</span> }</div>
+        <div class="st-row-desc">{{ r.description }}@if (r.status === 'enforced' && r.effect) { <span class="st-row-eff"> · {{ effectText[r.effect] }}</span> }</div>
+        @if (r.status !== 'enforced' && r.reason) { <div class="st-row-reason" [attr.data-testid]="'reason-' + r.key">{{ r.reason }}</div> }
+        @if (r.status === 'enforced' && !r.canWrite) { <div class="st-row-reason">ليست لديك صلاحية تعديل هذا الإعداد.</div> }
+        @if (store.errors()[r.key]) { <div class="st-err" role="alert" [attr.data-testid]="'error-' + r.key">{{ store.errors()[r.key] }}</div> }
+      </div>
+
+      @if (r.status === 'enforced') {
+        @switch (kind(r)) {
+          @case ('bool') {
+            <button type="button" class="st-sw" [class.on]="val(r.key) === true" role="switch" [attr.aria-checked]="val(r.key) === true" [attr.aria-label]="r.label"
+              [disabled]="!r.canWrite || store.saving()" (click)="setBool(r.key, val(r.key) !== true)"></button>
+          }
+          @case ('enum') {
+            <ws-select class="st-sel" [ariaLabel]="r.label" [options]="enumOptions(r)" [ngModel]="text(val(r.key))" (ngModelChange)="setEnum(r, $event)" [disabled]="!r.canWrite || store.saving()" />
+          }
+          @case ('number') {
+            <div class="st-inline"><input type="number" class="st-input st-input-sm" [attr.id]="'st-' + r.key" [attr.aria-label]="r.label" [value]="text(val(r.key))" [disabled]="!r.canWrite || store.saving()" (input)="setNumber(r.key, $any($event.target).value)" />@if (r.unit) { <span class="st-unit">{{ r.unit }}</span> }</div>
+          }
+          @default {
+            @if (isLong(r.key)) {
+              <textarea class="st-input st-area" rows="8" maxlength="60000" [attr.id]="'st-' + r.key" [attr.aria-label]="r.label" [value]="text(val(r.key))" [disabled]="!r.canWrite || store.saving()" (input)="setText(r.key, $any($event.target).value)"></textarea>
+            } @else {
+              <input type="text" class="st-input" [style.direction]="isLtr(r.key) ? 'ltr' : null" [attr.id]="'st-' + r.key" [attr.aria-label]="r.label" [value]="text(val(r.key))" [disabled]="!r.canWrite || store.saving()" (input)="setText(r.key, $any($event.target).value)" />
+            }
+          }
+        }
+      } @else if (r.status === 'readonly') {
+        <div class="st-ro" [attr.data-testid]="'value-' + r.key"><span class="st-ro-val">{{ readonlyText(r) }}</span>@if (r.source) { <span class="st-ro-src">المصدر: {{ r.source }}</span> }</div>
+      } @else {
+        <span class="st-sw st-sw-off" aria-hidden="true"></span>
+      }
+    </div>
+  } @empty {
+    <div class="st-empty">لا توجد إعدادات متاحة لك في هذا القسم.</div>
+  }
+
+</div>
+  @if (failure(); as f) {
+    <div class="st-fail" role="alert" data-testid="settings-failure">
+      <div>{{ f.text }}</div>
+      @if (f.blockers.length) { <ul class="st-blockers" data-testid="currency-blockers">@for (b of f.blockers; track b.code) { <li>{{ b.message }}</li> }</ul> }
+      @if (conflicts().length) {
+        <table class="st-conf" data-testid="conflict-table"><thead><tr><th>الإعداد</th><th>قيمتك</th><th>القيمة الحالية على الخادم</th></tr></thead>
+          <tbody>@for (c of conflicts(); track c.key) { <tr><td>{{ c.label }}</td><td>{{ showVal(c.mine) }}</td><td>{{ showVal(c.current) }}</td></tr> }</tbody></table>
+      }
+      @if (conflict()) { <div class="st-fail-actions"><button type="button" class="st-link" data-testid="conflict-reload" (click)="reload()">تحميل الأحدث وتجاهل تعديلي</button><button type="button" class="st-link" data-testid="conflict-overwrite" (click)="overwrite()">إعادة القراءة ومراجعة تعديلي</button></div> }
+    </div>
+  }
+  @if (showSave() && editableKeys().length) {
+    <div class="st-save-row">
+      <button type="button" class="st-save" data-testid="settings-save" [disabled]="!dirty().length || store.saving() || !store.storageReady()" (click)="save()">{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
+      @if (dirty().length && !store.saving()) { <button type="button" class="st-link" (click)="discard()">تراجع عن التعديل</button> }
+      @if (notice(); as n) { <span class="st-ok" role="status" data-testid="settings-saved">{{ n.text }}</span> }
+      @if (!store.storageReady()) { <span class="st-row-reason">مخزن الإعدادات غير جاهز على الخادم بعد، فلا يمكن الحفظ الآن.</span> }
+    </div>
+  }

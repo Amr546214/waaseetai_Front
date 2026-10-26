@@ -45,7 +45,7 @@ describe('provider progress: effective amendments', () => {
 		(s.qa('amend-respond-approve')[0] as HTMLButtonElement).click(); s.f.detectChanges();
 		expect(s.qa('amend-confirm-text')[0].textContent).toContain('يُخصم المبلغ من محفظة العميل الذي اعتمد الدفع مسبقًا');
 		const lines = s.qa('amend-effect-lines')[0].textContent!.replace(/\s+/g, ' ');
-		expect(lines).toContain('20 $ ← 25 $'); expect(lines).toContain('مرحلة جديدة في آخر العقد');
+		expect(lines).toContain('20 USD ← 25 USD'); expect(lines).toContain('مرحلة جديدة في آخر العقد');
 		expect(s.post).not.toHaveBeenCalled();
 		(s.qa('amend-confirm-yes')[0] as HTMLButtonElement).click(); s.f.detectChanges();
 		expect(s.post.mock.calls[0]).toEqual([expect.stringContaining('/provider/amendments/c1/respond'), { decision: 'approve' }]);

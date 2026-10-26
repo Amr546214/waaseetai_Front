@@ -2,7 +2,8 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { LevelsService, LevelRow, DEPOSIT_METHOD_LABELS, WITHDRAWAL_METHOD_LABELS } from '../../../../core/levels/levels.service';
 import { CommonModule } from '@angular/common';
 import { AdminCommissionsData, AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
-import { errMsg, usd } from '../sub-finance/finance-ui';
+import { errMsg, fmtAmount } from '../sub-finance/finance-ui';
+import { RouterLink } from '@angular/router';
 
 interface PlatformFee {
   label: string;
@@ -14,13 +15,13 @@ interface PlatformFee {
 @Component({
   selector: 'app-sa-fees',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './sa-fees.html',
   styleUrl: './sa-fees.css',
 })
 export class SaFees implements OnInit {
   private adminOps = inject(AdminOpsApiService);
-  readonly usd = usd;
+  readonly fmtAmount = fmtAmount;
   commissions = signal<AdminCommissionsData | null>(null);
   commLoading = signal(true);
   commError = signal('');
@@ -50,7 +51,7 @@ export class SaFees implements OnInit {
 
   /**
    * The platform's percentages, read from the backend tables (نظام النقاط و الولاء.xlsx / نسب الدفع.xlsx through GET /levels). Nothing is typed:
-   * until the table answers the list is empty. (The old rows - a 10% deal fee, a 200 $ minimum, 72 h escrow, a 49 $ boost, 2% cashback - were
+   * until the table answers the list is empty. (The old rows - a 10% deal fee, a fixed minimum fee, 72 h escrow, a fixed boost price, 2% cashback - were
    * invented values that no workbook contains and are gone.)
    */
   platformFees = computed<PlatformFee[]>(() => {
@@ -60,10 +61,10 @@ export class SaFees implements OnInit {
     const list = (m: Record<string, number>, labels: Record<string, string>) => Object.entries(m).map(([k, v]) => `${labels[k] ?? k} ${v}%`).join(' · ');
     return [
       { label: 'عمولة المنصة على مقدم الخدمة (الخصم النهائي)', value: range(p.roles.PROVIDER.levels), color: '#2BD4C7', desc: 'تنخفض مع ارتفاع المستوى: المستوى 1 إلى المستوى 15' },
-      { label: 'نسبة الكاش باك لطالب الخدمة', value: range(p.roles.CLIENT.levels), color: '#59C1F5', desc: 'تزيد مع ارتفاع المستوى' },
+      { label: 'نسبة الكاش باك لطالب الخدمة', value: range(p.roles.CLIENT.levels), color: '#59C1F5', desc: 'تزيد مع ارتفاع المستوى — للعرض فقط: لا يُمنح كاش باك ماليًا حاليًا' },
       { label: 'عمولة الوسيط', value: range(p.roles.MARKETER.levels), color: '#0FA99A', desc: 'تزيد مع ارتفاع المستوى' },
       { label: 'رسوم إيداع طالب الخدمة', value: '', color: '#FFB400', desc: list(p.payments.clientDeposit, DEPOSIT_METHOD_LABELS) },
-      { label: 'رسوم سحب الوسيط', value: '', color: '#5DA0FF', desc: list(p.payments.marketerWithdrawal, WITHDRAWAL_METHOD_LABELS) },
+      { label: 'رسوم سحب الوسيط', value: '', color: '#5DA0FF', desc: list(p.payments.marketerWithdrawal, WITHDRAWAL_METHOD_LABELS) + ' — للعرض فقط: لا تُخصم من السحب حاليًا' },
     ];
   });
 }

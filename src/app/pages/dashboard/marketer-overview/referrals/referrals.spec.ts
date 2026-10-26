@@ -102,10 +102,11 @@ describe('Referrals', () => {
     expect(component.getStatusLabel(ReferralStatus.CONVERTED)).toBe('محولة');
   });
 
-  it('shows commissionEarned as "—" when null and "0 دولار" when zero, never blank', () => {
+  it('shows commissionEarned as "—" when null and "0 USD" when zero, never blank', () => {
     expect(component.formatCommission(null)).toBe('—');
-    expect(component.formatCommission(0)).toBe('0 دولار');
-    expect(component.formatCommission(150)).toBe('150 دولار');
+    expect(component.formatCommission(0)).toBe('0 USD');
+    expect(component.formatCommission(150)).toBe('150 USD');
+    expect(component.formatCommission(150, 'SAR')).toBe('150 SAR');
   });
 
   it('paginates by calling getReferrals with the requested page', () => {
@@ -161,7 +162,7 @@ describe('Referrals — KPI cards (real/derived data, no fabricated fallbacks)',
     expect(kpiVals[0].textContent?.trim()).toBe('0');       // إجمالي الإحالات
     expect(kpiVals[1].textContent?.trim()).toBe('0');       // أول مشروع مؤهل
     expect(kpiVals[2].textContent?.trim()).toBe('0');       // بانتظار الاكتمال
-    expect(kpiVals[3].textContent?.trim()).toBe('0 دولار');  // إجمالي العمولات
+    expect(kpiVals[3].textContent?.trim()).toBe('0 USD');  // إجمالي العمولات
 
     // None of the old hardcoded mock digits appear anywhere in the KPI grid.
     const kpiGridHtml = fixture.nativeElement.querySelector('.kpi-grid')?.textContent ?? '';

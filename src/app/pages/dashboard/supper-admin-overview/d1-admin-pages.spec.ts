@@ -68,14 +68,14 @@ describe('D1 admin pages read the real endpoints', () => {
 		expect((f.nativeElement as HTMLElement).textContent).not.toContain('824');
 	});
 
-	it('super-admins page: settings are read-only (no save), audit reads real events', () => {
+	it('super-admins page: no sample settings, audit reads real events', () => {
 		// D3: the page reads /admin/console/admins (roster) and /admin/console/audit-log (items + pagination + eventTypes)
 		const entry = { id: 'e1', category: 'SECURITY_CHANGE', eventType: 'X', title: 'حدث حقيقي', summary: 's', severity: 'INFO', source: 'ADMIN', status: 'COMPLETED', occurredAt: new Date().toISOString(), ipAddress: null, device: null, actorLabel: null, account: { id: 'a', name: 'م', accountType: 'ADMIN' } };
 		const get = vi.fn((url: string) => of(url.includes('/audit-log') ? ok({ items: [entry], pagination: { page: 1, limit: 20, total: 1, pages: 1 }, eventTypes: ['X'] }) : ok([])));
 		const f = mount(SaSuperAdmins, get);
 		const el: HTMLElement = f.nativeElement;
 		expect(el.textContent).not.toContain('smtp.sendgrid.net');
-		expect(el.textContent).not.toContain('حفظ التغييرات');
+		expect(el.textContent).not.toContain('•••'); expect(el.textContent).not.toContain('300xxxxxxxxx003'); // no sample secrets / ids from the design
 		(f.componentInstance as any).setSection('audit');
 		f.detectChanges();
 		expect(el.textContent).toContain('حدث حقيقي');

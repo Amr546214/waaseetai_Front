@@ -1,20 +1,23 @@
+import { WsCurrencyPipe } from '../../../../shared/money/money.pipe';
+import { formatMoneyIn } from '../../../../core/utils/currency';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminFinanceOverview, AdminOpsApiService, AdminTransaction, saveBlob } from '../../../../core/services/admin-ops-api.service';
-import { bucket, errMsg, fmtDate, pct, seriesBars, txParty, txStatusLabel, txTypeLabel, usd } from '../sub-finance/finance-ui';
+import { bucket, errMsg, fmtDate, pct, seriesBars, txParty, txStatusLabel, txTypeLabel, fmtAmount } from '../sub-finance/finance-ui';
 
 @Component({
   selector: 'app-sa-sub-finance',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [WsCurrencyPipe, WsDatePipe, CommonModule, RouterLink],
   templateUrl: './sa-sub-finance.html',
   styleUrl: './sa-sub-finance.css',
 })
 export class SaSubFinance implements OnInit {
   private api = inject(AdminOpsApiService);
 
-  readonly usd = usd;
+  readonly fmtAmount = fmtAmount;
   readonly fmtDate = fmtDate;
   readonly pct = pct;
   readonly txTypeLabel = txTypeLabel;
@@ -32,15 +35,18 @@ export class SaSubFinance implements OnInit {
   downloadError = signal('');
 
   bars = computed(() => seriesBars(this.overview()));
+  /** per-currency lines, only when the platform holds more than one currency (the KPIs above are the headline currency) */
+  currencyRows = computed(() => { const o = this.overview(); return o?.mixedCurrencies && o.byCurrency ? Object.entries(o.byCurrency).map(([currency, v]) => ({ currency, ...v })) : []; });
+  readonly money = formatMoneyIn;
   pendingWithdrawals = computed(() => bucket(this.overview()?.withdrawals, 'PENDING'));
   breakdown = computed(() => {
     const t = this.overview()?.totals;
     if (!t) return [];
     const share = (v: number) => (t.releasedGross > 0 ? Math.round((v / t.releasedGross) * 1000) / 10 : 0);
     return [
-      { name: 'عمولة المنصة', amount: usd(t.platformCommission), percent: share(t.platformCommission), showPct: t.releasedGross > 0, color: 'linear-gradient(90deg,#2BD4C7,#2B7FFF)' },
-      { name: 'صافي مقدمي الخدمة', amount: usd(t.providerNetReleased), percent: share(t.providerNetReleased), showPct: t.releasedGross > 0, color: '#5DA0FF' },
-      { name: 'رسوم بوابة الدفع (تكلفة مدفوعات — ليست إيرادًا)', amount: usd(t.paymentGatewayFees), percent: 0, showPct: false, color: '#D98A0B' },
+      { name: 'عمولة المنصة', amount: fmtAmount(t.platformCommission), percent: share(t.platformCommission), showPct: t.releasedGross > 0, color: 'linear-gradient(90deg,#2BD4C7,#2B7FFF)' },
+      { name: 'صافي مقدمي الخدمة', amount: fmtAmount(t.providerNetReleased), percent: share(t.providerNetReleased), showPct: t.releasedGross > 0, color: '#5DA0FF' },
+      { name: 'رسوم بوابة الدفع (تكلفة مدفوعات — ليست إيرادًا)', amount: fmtAmount(t.paymentGatewayFees), percent: 0, showPct: false, color: '#D98A0B' },
     ];
   });
 

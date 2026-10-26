@@ -40,7 +40,7 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'finance-reports': { all: ['finance.read'] },
 	'analytics-hub': { all: ['finance.read'] },
 	'sub-finance': { all: ['finance.read'] },
-	fees: { anyOf: ['finance.read', 'packages.manage'] },
+	fees: { anyOf: ['finance.read', 'packages.manage', 'fees.view', 'fees.manage'] },
 	coupons: { all: ['packages.manage'] },
 	team: { all: ['team.view'] },
 	roles: { superAdmin: true },
@@ -48,7 +48,7 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	tasks: { member: true },
 	'team-performance': { all: ['performance.view'] },
 	'marketing-assets': { all: ['marketing_assets.manage'] },
-	'system-settings': { all: ['settings.manage'] },
+	'system-settings': { anyOf: ['settings.view', 'settings.manage'] },
 	'site-control': { all: ['site_control.manage'] },
 	audit: { all: ['audit.view'] }, 'audit-trail': { all: ['audit.view'] },
 	// every remaining page of the console has its own explicit rule (nothing is opened to "any team member" by omission)

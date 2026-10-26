@@ -7,6 +7,8 @@ import { ApiResponse } from '../models/api.model';
 export interface AdminPagination { page: number; limit: number; total: number; pages: number; totalPages: number }
 export interface AdminParty { id: string; name: string; email: string | null }
 export interface AdminEscrow {
+  /** the escrow's own currency (a missing one reads as USD) */
+  currency?: string;
   status: 'HELD' | 'RELEASED' | 'REFUNDED';
   amount: number;
   releasedAmount: number;
@@ -26,37 +28,37 @@ export interface AdminProjectRow {
   /** The shared server lifecycle (state, closure, per-action eligibility) and its financial summary; list rows carry the light version. */
   lifecycle?: any; financial?: any;
   client: AdminParty | null; provider: AdminParty | null;
-  contract: { id: string; price: number; status: string } | null;
+  contract: { id: string; price: number; currency?: string; status: string } | null;
   escrow: AdminEscrow | null; progress: AdminProgress;
 }
 export interface AdminProjectListData {
   items: AdminProjectRow[];
   counts: Record<string, number>;
-  kpis: { escrowHeldCount: number; escrowHeldTotal: number; currency: string };
+  kpis: { escrowHeldCount: number; escrowHeldTotal: number; escrowHeldTotalBy?: Record<string, number>; currency: string };
   pagination: AdminPagination;
 }
 export interface AdminStageDelivery { id: string; status: string; note: string; files: string[]; reviewNote: string | null; submittedAt: string; reviewedAt: string | null }
-export interface AdminStage { id: string; stepOrder: number; title: string; amount: number; percentage: number; days: number; status: string; displayStatus?: string | null; displayStatusLabel?: string | null; startedAt: string | null; approvedAt: string | null; deliveries: AdminStageDelivery[] }
+export interface AdminStage { id: string; stepOrder: number; title: string; amount: number; currency?: string; percentage: number; days: number; status: string; displayStatus?: string | null; displayStatusLabel?: string | null; startedAt: string | null; approvedAt: string | null; deliveries: AdminStageDelivery[] }
 export interface AdminProjectDetail {
   adminSettled?: { disputeId: string; outcome: string; label: string } | null; statusLabel?: string | null;
   /** The shared server lifecycle (state, closure, per-action eligibility) and its financial summary; list rows carry the light version. */
   lifecycle?: any; financial?: any;
   id: string; title: string; description: string; status: string; createdAt: string; deliveryDays: number; specialty: string;
   client: AdminParty | null; provider: AdminParty | null;
-  contract: { id: string; price: number; status: string; durationDays: number; signedAt: string | null; clientSignedAt: string | null; providerSignedAt: string | null } | null;
+  contract: { id: string; price: number; currency?: string; status: string; durationDays: number; signedAt: string | null; clientSignedAt: string | null; providerSignedAt: string | null } | null;
   escrow: AdminEscrow | null; stages: AdminStage[];
-  amendments: { id: string; title: string; type: string; status: string; budgetDelta: number | null; durationDeltaDays: number | null; createdAt: string; effect?: 'RECORD_ONLY'; effectNote?: string }[];
+  amendments: { currency?: string; id: string; title: string; type: string; status: string; budgetDelta: number | null; durationDeltaDays: number | null; createdAt: string; effect?: 'RECORD_ONLY'; effectNote?: string }[];
   progress: AdminProgress;
   disputes: { id: string; status: string; reason: string; createdAt: string; resolvedAt: string | null }[];
   openDisputes: number; currency: string;
 }
 export interface AdminContractRow {
-  id: string; projectId: string; projectTitle: string; price: number; durationDays: number; status: string; signedAt: string | null; createdAt: string;
+  id: string; projectId: string; projectTitle: string; price: number; currency?: string; durationDays: number; status: string; signedAt: string | null; createdAt: string;
   client: AdminParty | null; provider: AdminParty | null; escrow: AdminEscrow | null;
 }
 export interface AdminContractListData {
   items: AdminContractRow[]; counts: Record<string, number>;
-  kpis: { activeContractsValue: number; currency: string };
+  kpis: { activeContractsValue: number; activeContractsValueBy?: Record<string, number>; currency: string };
   pagination: AdminPagination;
 }
 export interface AdminContractDetail extends AdminProjectDetail {
@@ -68,6 +70,9 @@ export interface AdminStaffMember { id: string; name: string; email: string; acc
 export interface FinanceBucket { count: number; amount: number }
 export interface AdminFinanceOverview {
   currency: string;
+  /** every currency listed on its own (never one total across currencies) and whether more than one exists */
+  byCurrency?: Record<string, { escrowHeldAmount: number; releasedGross: number; platformCommission: number; providerNetReleased: number; depositsAmount: number }>;
+  mixedCurrencies?: boolean;
   totals: { escrowHeldCount: number; escrowHeldAmount: number; releasedGross: number; platformCommission: number; providerNetReleased: number; depositsCount: number; depositsAmount: number; paymentGatewayFees: number };
   withdrawals: Record<string, FinanceBucket>;
   affiliateCommissions: Record<string, FinanceBucket>;

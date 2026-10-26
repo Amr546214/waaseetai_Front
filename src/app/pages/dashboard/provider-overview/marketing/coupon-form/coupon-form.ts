@@ -19,6 +19,7 @@ import {
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SubmitGuard, focusInvalidControls, reportBackendError } from '../../../../../shared/forms/form-error-focus';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 
 const CODE_RE = /^[A-Za-z0-9_-]{3,50}$/;
 const MAX_SCOPE = 50;
@@ -45,7 +46,7 @@ type Errors = Partial<Record<keyof CouponForm, string>>;
 @Component({
   selector: 'app-marketing-coupon-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MarketingAssignPicker],
+  imports: [WsCurrencyPipe, CommonModule, FormsModule, RouterLink, MarketingAssignPicker],
   templateUrl: './coupon-form.html',
   styleUrls: ['../marketing-shared.css'],
 })

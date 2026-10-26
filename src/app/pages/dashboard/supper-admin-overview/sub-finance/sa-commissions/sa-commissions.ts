@@ -1,13 +1,14 @@
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminCommissionsData, AdminOpsApiService, saveBlob } from '../../../../../core/services/admin-ops-api.service';
 import { LevelsService } from '../../../../../core/levels/levels.service';
-import { errMsg, fmtDate, usd } from '../finance-ui';
+import { errMsg, fmtDate, fmtAmount } from '../finance-ui';
 
 @Component({
   selector: 'app-sa-commissions',
   standalone: true,
-  imports: [CommonModule],
+  imports: [WsCurrencyPipe, CommonModule],
   templateUrl: './sa-commissions.html',
   styleUrl: './sa-commissions.css',
 })
@@ -15,7 +16,7 @@ export class SaCommissions implements OnInit {
   private api = inject(AdminOpsApiService);
   private levels = inject(LevelsService);
 
-  readonly usd = usd;
+  readonly fmtAmount = fmtAmount;
   readonly fmtDate = fmtDate;
   readonly editReason = 'نسب العمولة تُدار من جداول المستويات في النظام ولا تُعدَّل من هذه الصفحة';
   readonly escrowLabels: Record<string, string> = { HELD: 'محجوز', RELEASED: 'محرَّر', REFUNDED: 'مُسترد' };

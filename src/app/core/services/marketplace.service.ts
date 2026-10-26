@@ -22,6 +22,8 @@ export interface MarketplaceModel {
   specialtySlug?: string;
   status: string;
   totalAmount: number;
+  /** the service's own currency (a missing one reads as USD, legacy) */
+  currency?: string;
   totalDays: number;
   /** Stored audit score; null = never audited (a real 0 is a real 0). */
   aiScore: number | null;

@@ -6,24 +6,28 @@ import { OffersService } from '../../../../../core/services/offers.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
-import { formatMoney } from '../../../../../core/utils/money.util';
+import { formatAmount } from '../../../../../core/utils/currency';
 
 export interface ProviderContractMilestone { order: number; title: string; description: string | null; days: number | null; percentage: number | null; amount: number | null }
 export interface ProviderContract {
 	id: string; status: string; price: number; durationDays: number; phasesCount: number;
 	milestones: ProviderContractMilestone[]; escrow: { amount: number; status: string } | null;
+	currency: string;
+	/** the FINAL commission and net, frozen on the escrow when the client funded (null when none was frozen) */
+	providerTerms: { ratePercent: number; commission: number; net: number } | null;
+	/** fingerprint of the terms shown; sent back at signing so the server can refuse terms that changed after they were displayed */
+	termsDigest: string | null;
 }
 
-/** "5 يوم · 40% · 380 $" from whatever the saved milestone really has ('' when it has none of them). */
-export function milestoneMeta(m: ProviderContractMilestone): string {
+/** "5 يوم · 40% · 380 USD" (the contract's own currency code) from whatever the saved milestone really has ('' when it has none of them). */
+export function milestoneMeta(m: ProviderContractMilestone, currency?: string): string {
 	const parts: string[] = [];
 	if (m.days !== null) parts.push(`${m.days} يوم`);
 	if (m.percentage !== null) parts.push(`${m.percentage}%`);
-	if (m.amount !== null) parts.push(`${formatMoney(m.amount)} $`);
+	if (m.amount !== null) parts.push(formatAmount(m.amount, currency));
 	return parts.join(' · ');
 }
 
-const formatUsd = (v: number) => `${formatMoney(v)} $`;
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
 /** Reads `contract` from an offers-API item defensively: anything unusable means "no contract" (the page then shows nothing invented). */
@@ -37,7 +41,10 @@ export function readProviderContract(raw: unknown): ProviderContract | null {
 			days: finite(m.days) ? m.days : null, percentage: finite(m.percentage) ? m.percentage : null, amount: finite(m.amount) ? m.amount : null }));
 	const e = c['escrow'];
 	return { id: String(c['id'] ?? ''), status: String(c['status'] ?? ''), price: c['price'], durationDays: c['durationDays'], phasesCount: c['phasesCount'], milestones,
-		escrow: e && finite(e.amount) ? { amount: e.amount, status: String(e.status ?? '') } : null };
+		escrow: e && finite(e.amount) ? { amount: e.amount, status: String(e.status ?? '') } : null,
+		currency: typeof c['currency'] === 'string' ? c['currency'] : 'USD',
+		termsDigest: typeof c['termsDigest'] === 'string' && c['termsDigest'] ? c['termsDigest'] : null,
+		providerTerms: c['providerTerms'] && finite(c['providerTerms'].ratePercent) && finite(c['providerTerms'].commission) && finite(c['providerTerms'].net) ? { ratePercent: c['providerTerms'].ratePercent, commission: c['providerTerms'].commission, net: c['providerTerms'].net } : null };
 }
 
 @Component({
@@ -83,10 +90,12 @@ export class SignContract {
 	// The REAL contract (price / duration / phases / saved milestones / funded escrow) returned by GET /provider/offers for an offer the provider
 	// can sign now. null = no contract to show (client has not signed / funded yet, or the offer is not at the signing stage): nothing is invented.
 	contract = signal<ProviderContract | null>(null);
-	contractPrice = computed(() => { const c = this.contract(); return c ? formatUsd(c.price) : ''; });
+	contractPrice = computed(() => { const c = this.contract(); return c ? formatAmount(c.price, c.currency, '1.0-2') : ''; });
+	/** the commission and net that are now FINAL for this contract (frozen when the client funded the escrow) */
+	finalTerms = computed(() => { const c = this.contract(); const t = c?.providerTerms; return c && t ? { rate: t.ratePercent, commission: formatAmount(t.commission, c.currency, '1.0-2'), net: formatAmount(t.net, c.currency, '1.0-2') } : null; });
 	contractDuration = computed(() => { const c = this.contract(); return c && c.durationDays > 0 ? `${c.durationDays} يوم` : ''; });
 	contractPhases = computed(() => { const c = this.contract(); return c ? (c.milestones.length || c.phasesCount) : 0; });
-	escrowAmount = computed(() => { const c = this.contract(); return c?.escrow ? formatUsd(c.escrow.amount) : ''; });
+	escrowAmount = computed(() => { const c = this.contract(); return c?.escrow ? formatAmount(c.escrow.amount, c.currency, '1.0-2') : ''; });
 	isLoading = signal<boolean>(true);
 	loadError = signal<string | null>(null);
 
@@ -126,7 +135,7 @@ export class SignContract {
 				this.offerTitle.set(item.projectTitle || item.title || this.offerTitle());
 				this.offerRef.set(item.projectRef || item.ref || this.offerRef());
 				this.providerName.set(item.providerName || item.clientName || this.providerName());
-				this.price.set(typeof item.offeredPrice === 'number' ? `${formatMoney(item.offeredPrice)} $` : (item.price || this.price()));
+				this.price.set(typeof item.offeredPrice === 'number' ? formatAmount(item.offeredPrice, item.currency) : (item.price || this.price()));
 				this.contract.set(readProviderContract(item.contract));
 				if (item.projectId) this.projectId.set(String(item.projectId));
 			},
@@ -156,7 +165,7 @@ export class SignContract {
 			return;
 		}
 
-		this.offersService.signContract(this.offerId(), { accepted: true }).subscribe({
+		this.offersService.signContract(this.offerId(), { accepted: true, termsDigest: this.contract()?.termsDigest ?? undefined }).subscribe({
 			next: (res) => {
 				this.notify.success('تم تأكيد توقيع العقد بنجاح، جاري التوجيه...');
 				
@@ -165,6 +174,13 @@ export class SignContract {
 				}, 1500);
 			},
 			error: (err) => {
+				if (err?.status === 409 && err?.error?.code === 'TERMS_CHANGED') {
+					// the terms moved after they were displayed: show the current ones and require a fresh confirmation
+					this.isAgreed = false;
+					this.notify.warning('تغيّرت شروط العقد بعد أن عُرضت عليك. راجع السعر والعمولة والصافي الحاليين ثم أكّد من جديد');
+					this.fetchContractDetails(this.offerId());
+					return;
+				}
 				this.notify.error('تعذّر حفظ توقيع العقد، حاول مرة أخرى');
 				console.error(err);
 			}

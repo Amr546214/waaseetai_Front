@@ -172,7 +172,7 @@
                         @if (neg.price) {
                           <div class="neg-card-row">
                             <span class="neg-card-lbl">{{ negKind(msg) === 'counter' ? 'السعر المقترح من مقدم الخدمة:' : negKind(msg) === 'accepted' ? 'السعر المعتمد:' : 'السعر المقترح:' }}</span>
-                            <span class="neg-card-val highlight">{{ neg.price }} دولار</span>
+                            <span class="neg-card-val highlight">{{ +neg.price | wsAmount:neg.currency }}</span>
                           </div>
                         }
                         @if (neg.deliveryDays || neg.duration) {
@@ -206,7 +206,7 @@
                             <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-accept" (click)="askAcceptCounter(msg)">قبول العرض المضاد</button>
                             <button type="button" class="neg-act-btn decline-counter" data-testid="neg-counter-decline" [disabled]="!!counterBusyId()" (click)="declineCounter(msg)">رفض العرض المضاد</button>
                           } @else {
-                            <div class="neg-card-decided" data-testid="neg-counter-confirm-text"><span>سيصبح سعر العرض {{ neg.priceValue || neg.price }} دولار ومدته {{ neg.deliveryDays }} يوم، وتتغير مبالغ المراحل بالتناسب. هل تؤكد قبول العرض المضاد؟</span></div>
+                            <div class="neg-card-decided" data-testid="neg-counter-confirm-text"><span>سيصبح سعر العرض {{ +(neg.priceValue || neg.price) | wsAmount:neg.currency }} ومدته {{ neg.deliveryDays }} يوم، وتتغير مبالغ المراحل بالتناسب. هل تؤكد قبول العرض المضاد؟</span></div>
                             <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-accept-yes" [disabled]="!!counterBusyId()" (click)="confirmAcceptCounter(msg)">{{ counterBusyId() ? 'جارٍ القبول…' : 'تأكيد قبول العرض المضاد' }}</button>
                             <button type="button" class="neg-act-btn discuss" data-testid="neg-counter-accept-no" [disabled]="!!counterBusyId()" (click)="cancelAcceptCounter()">تراجع</button>
                           }

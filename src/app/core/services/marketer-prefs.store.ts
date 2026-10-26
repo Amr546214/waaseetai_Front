@@ -4,7 +4,7 @@ import { MarketerOverviewService, MarketerSettings } from './marketer-overview.s
 import { ProviderPrefsStore } from './provider-prefs.store';
 
 /**
- * The marketer's saved display settings. The timezone feeds the SAME app-wide date formatting the provider area uses (DatePipe default + providerTimeZone()),
+ * The marketer's saved display settings. The timezone feeds the SAME app-wide date formatting the provider area uses (the default date-pipe options + providerTimeZone()),
  * so every date in the marketer area follows it. A marketer with no saved timezone keeps the browser's own zone; a saved one is applied when the marketer area opens
  * (an account that is both marketer and provider shares the one formatter, so the zone of the side being used wins).
  */

@@ -72,7 +72,7 @@
           </div>
           <div class="req-head-body">
             <div class="req-field-name">{{ req.fieldLabel }}</div>
-            <div class="req-meta"><span class="sens-tag"><svg aria-hidden="true"><use href="#i-shield"></use></svg>بيانات حساسة</span><span class="dot"></span><span>طلب {{ req.requestNumber }}</span><span class="dot"></span><span>{{ req.createdAt | date:'yyyy-MM-dd HH:mm' }}</span></div>
+            <div class="req-meta"><span class="sens-tag"><svg aria-hidden="true"><use href="#i-shield"></use></svg>بيانات حساسة</span><span class="dot"></span><span>طلب {{ req.requestNumber }}</span><span class="dot"></span><span>{{ req.createdAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</span></div>
           </div>
           
           @if (req.status === ChangeRequestStatus.PENDING_AI_REVIEW) {
@@ -173,9 +173,9 @@
       <div class="modal-info-row"><span class="modal-info-lbl">الحقل</span><span class="modal-info-val">{{ req.fieldLabel }}</span></div>
       <div class="modal-info-row"><span class="modal-info-lbl">القيمة الحالية</span><span class="modal-info-val" dir="ltr">{{ req.currentValue || 'لا يوجد' }}</span></div>
       <div class="modal-info-row"><span class="modal-info-lbl">القيمة المطلوبة</span><span class="modal-info-val" dir="ltr">{{ req.requestedValue }}</span></div>
-      <div class="modal-info-row"><span class="modal-info-lbl">تاريخ الطلب</span><span class="modal-info-val">{{ req.createdAt | date:'yyyy-MM-dd HH:mm' }}</span></div>
+      <div class="modal-info-row"><span class="modal-info-lbl">تاريخ الطلب</span><span class="modal-info-val">{{ req.createdAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</span></div>
       @if (req.status === ChangeRequestStatus.APPROVED_AND_APPLIED) {
-        <div class="modal-info-row"><span class="modal-info-lbl">تاريخ التطبيق</span><span class="modal-info-val">{{ req.appliedAt ? (req.appliedAt | date:'yyyy-MM-dd HH:mm') : '—' }}</span></div>
+        <div class="modal-info-row"><span class="modal-info-lbl">تاريخ التطبيق</span><span class="modal-info-val">{{ req.appliedAt ? (req.appliedAt | wsDate:'datetime':'yyyy-MM-dd HH:mm') : '—' }}</span></div>
         <div class="modal-info-row"><span class="modal-info-lbl">اعتمده</span><span class="modal-info-val">{{ req.reviewedBy || '—' }}</span></div>
       }
       @if (req.status === ChangeRequestStatus.WITHDRAWN) {

@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TicketApiService, SupportTicket } from '../../../../../core/services/ticket-api.service';
@@ -24,7 +25,7 @@ function formatRelative(iso: string): string {
 	const days = Math.floor(hours / 24);
 	if (days === 1) return 'أمس';
 	if (days < 7) return `قبل ${days} أيام`;
-	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+	return formatWsText(iso, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function mapTicket(t: SupportTicket): Ticket {

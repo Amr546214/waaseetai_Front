@@ -7,6 +7,8 @@ interface DeliveryFile {
 	type: string;
 }
 
+import { formatBase } from '../../../../../core/utils/currency';
+
 @Component({
 	selector: 'app-review-project',
 	standalone: true,
@@ -19,7 +21,7 @@ export class ReviewProject {
 		title: 'تسليم المرحلة 2: الهوية الكاملة',
 		provider: 'نورة التصميم',
 		status: 'بانتظار اعتمادك',
-		amount: '1,500 دولار',
+		amount: formatBase(1500),
 		submitted: 'قبل يوم',
 		deadline: '6 أيام',
 		filesCount: '4 ملفات'

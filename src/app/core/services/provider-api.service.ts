@@ -29,7 +29,7 @@ export interface ProviderReports {
 	};
 	offersBySpecialty: Array<{ specialty: string; total: number; accepted: number; rate: number | null }>;
 	projects: { totalCount: number; activeCount: number; completedCount: number; avgDurationDays: number | null; completedOnTime: number; completedWithAgreedDuration: number };
-	payments: { releasedTotal: number | null; heldInEscrow: number | null; transactions: Array<{ id: string; type: string; amount: number; currency: string; status: string; description: string | null; createdAt: string }> };
+	payments: { releasedTotal: number | null; releasedTotalBy?: Record<string, number>; heldInEscrow: number | null; heldInEscrowBy?: Record<string, number>; transactions: Array<{ id: string; type: string; amount: number; currency: string; status: string; description: string | null; createdAt: string }> };
 	disputes: { items: Array<{ id: string; status: string; reason: string; createdAt: string; resolvedAt: string | null }>; counts: { all: number; open: number; resolved: number; rejected: number }; ratioPercent: number | null };
 }
 
@@ -75,6 +75,7 @@ export interface ProviderStatsResponse {
 			pendingClientApprovalCount: number;
 			availableEarnings: number;
 			monthlyEarnings: number;
+			monthlyEarningsBy?: Record<string, number>;
 			totalEscrowAmount: number;
 			providerRating: number | null;
 			humanRating: number | null;

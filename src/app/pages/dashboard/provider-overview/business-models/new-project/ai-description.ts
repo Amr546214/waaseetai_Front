@@ -1,4 +1,5 @@
 import type { AiTextCandidate } from '../../../../../core/services/new-project.service';
+import { formatBase } from '../../../../../core/utils/currency';
 
 /**
  * The project description limit, in UTF-16 code units (`String.length`): the same unit as the textarea `maxlength`, the on-screen counter
@@ -97,7 +98,7 @@ export function buildDescriptionSeed(ctx: DescriptionSeedContext, max = PROJECT_
 	if (ctx.model?.trim()) facts.push(`النموذج المرتبط: ${ctx.model.trim()}`);
 	const skills = (ctx.skills ?? []).map(s => s.trim()).filter(Boolean);
 	if (skills.length) facts.push(`المهارات: ${skills.join('، ')}`);
-	if (ctx.budgetUsd && ctx.budgetUsd > 0) facts.push(`الميزانية الإجمالية: ${ctx.budgetUsd} دولار`);
+	if (ctx.budgetUsd && ctx.budgetUsd > 0) facts.push(`الميزانية الإجمالية: ${formatBase(ctx.budgetUsd)}`);
 	if (ctx.days && ctx.days > 0) facts.push(`المدة الإجمالية: ${ctx.days} يومًا`);
 	const others = facts.length - (title ? 1 : 0);
 	if (meaningfulWords(title) < 2 && others === 0) return null;

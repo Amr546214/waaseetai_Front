@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
-import { formatMoney } from '../../../../core/utils/money.util';
+import { formatAmount } from '../../../../core/utils/currency';
 import { WaitTimerService, waitScope } from '../../../../core/wait/wait-timer.service';
 import { RATE_LIMIT_MESSAGE } from '../../../../core/utils/rate-limit.util';
 import { rateLimitSentence } from '../../../../core/wait/wait-format';
@@ -222,8 +222,11 @@ export class CheckoutConfirmComponent {
 
   canResend = computed(() => !this.resendWait.active());
 
-  formatPrice(value: number): string {
-    return formatMoney(value, 0);
+  /** the order's / cart's own currency (a missing one reads as USD, legacy) */
+  currency = computed(() => this.currentOrder()?.currency ?? this.activeItems()[0]?.currency);
+
+  formatPrice(value: number, currency?: string): string {
+    return formatAmount(value, currency ?? this.currency());
   }
 
   private normalizeDigits(value: string): string {

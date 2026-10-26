@@ -1,4 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
+import { formatAmount } from '../../../../../core/utils/currency';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -252,16 +254,14 @@ export class ArchivedProjects implements OnInit {
 		const numericAmount = p.totalPrice != null ? Number(p.totalPrice) : Number(p.amount) || 0;
 		// A settled project's value is the CONTRACTUAL value before the settlement, not money awaiting release: the row says so.
 		const amount = numericAmount > 0
-			? `${formatMoney(numericAmount)} $${status === 'settled' ? ' (قيمة العقد قبل التسوية)' : ''}`
+			? `${formatAmount(numericAmount, p.currency)}${status === 'settled' ? ' (قيمة العقد قبل التسوية)' : ''}`
 			: '—';
 
 		let dateStr = '—';
 		const rawDate = p.completedAt || p.updatedAt || p.createdAt;
 		if (rawDate) {
 			try {
-				dateStr = new Date(rawDate).toLocaleDateString('ar-SA-u-nu-latn', {
-					year: 'numeric', month: 'short', day: 'numeric',
-				});
+				dateStr = formatWsText(rawDate, { year: 'numeric', month: 'short', day: 'numeric' }) || String(rawDate);
 			} catch {
 				dateStr = String(rawDate);
 			}

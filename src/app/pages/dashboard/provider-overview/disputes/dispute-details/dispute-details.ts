@@ -8,11 +8,12 @@ import { Dispute } from '../disputes.model';
 import { mapDispute } from '../disputes.mapper';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { reportProblems } from '../../../../../shared/forms/form-error-focus';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 
 @Component({
 	selector: 'app-dispute-details',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [WsAmountPipe, CommonModule, RouterLink],
 	templateUrl: './dispute-details.html',
 	styleUrl: './dispute-details.css'
 })

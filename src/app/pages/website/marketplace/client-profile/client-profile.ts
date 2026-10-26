@@ -4,6 +4,7 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ClientPublicProfileService } from '../../../../core/services/client-public-profile.service';
 import { ClientPublicProfile } from '../../../../core/models/client-public-profile.model';
+import { formatWsText } from '../../../../shared/ws-date/ws-date.pipe';
 
 // Implementation Batch 6. Every field below is real (backed by
 // GET /api/client/profile/public/:id) — the previous hardcoded mock
@@ -102,7 +103,7 @@ export class ClientProfileComponent implements OnInit {
 	}
 
 	reviewDate(iso: string): string {
-		try { return new Intl.DateTimeFormat('ar-SA', { month: 'long', year: 'numeric' }).format(new Date(iso)); } catch { return ''; }
+		return formatWsText(iso, { month: 'long', year: 'numeric' });
 	}
 
 	/** P-MK-016 renders review stars as text (★★★★☆) in the kahr colour. */

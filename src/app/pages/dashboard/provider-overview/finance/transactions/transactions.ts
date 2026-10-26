@@ -1,3 +1,5 @@
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -13,7 +15,7 @@ interface FinancialEvent {
   projectTitle: string; stageId: string | null; status: 'COMPLETED' | 'HELD' | 'RELEASED' | 'REFUNDED'; createdAt: string;
 }
 
-@Component({ selector: 'app-transactions', standalone: true, imports: [CommonModule, RouterModule], templateUrl: './transactions.html' })
+@Component({ selector: 'app-transactions', standalone: true, imports: [WsDatePipe, WsAmountPipe, CommonModule, RouterModule], templateUrl: './transactions.html' })
 export class Transactions implements OnInit {
   private http = inject(HttpClient);
   private authStore = inject(AuthStore);

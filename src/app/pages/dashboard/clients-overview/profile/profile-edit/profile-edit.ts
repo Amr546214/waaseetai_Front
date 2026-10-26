@@ -1,4 +1,6 @@
 import { ChangeDetectorRef, Component, DestroyRef, ElementRef, inject, signal, computed } from '@angular/core';
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -41,7 +43,7 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent, WsCurrencyPipe, WsDatePipe],
 	templateUrl: './profile-edit.html',
 	styleUrl: './profile-edit.css',
 })

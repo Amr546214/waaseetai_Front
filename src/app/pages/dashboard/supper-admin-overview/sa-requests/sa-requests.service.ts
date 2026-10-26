@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { currencyOf } from '../../../../core/utils/currency';
 import { formatMoney } from '../../../../core/utils/money.util';
 
 export type RequestStatusKey =
@@ -97,6 +98,7 @@ export interface AdminRequestOffer {
   id: string;
   status: string;
   price: number;
+  currency?: string;
   deliveryDays: number;
   aiMatchScore: number | null;
   aiQualityTag: string | null;
@@ -133,11 +135,12 @@ export interface AdminRequestDetail {
     id: string;
     status: string;
     price: number;
+    currency?: string;
     durationDays: number | null;
     clientSignedAt: string | null;
     providerSignedAt: string | null;
   } | null;
-  escrow: { status: string; amount: number; fundedAt: string | null } | null;
+  escrow: { currency?: string; status: string; amount: number; fundedAt: string | null } | null;
   offers: AdminRequestOffer[];
   disputes: { id: string; reason: string; status: string; createdAt: string }[];
   timeline: { at: string; text: string }[];
@@ -161,16 +164,17 @@ export function buildListParams(q: AdminListQuery): HttpParams {
   return p;
 }
 
-/** Budget text, USD only: range, fixed, or hourly. */
+/** Budget text in the request's own currency: range, fixed, or hourly. */
 export function formatBudget(b: AdminBudget | null | undefined): string {
   if (!b) return '—';
   const f = (n: number | null) => (n === null || n === undefined ? null : formatMoney(n));
+  const cur = currencyOf(b.currency);
   const min = f(b.min);
   const max = f(b.max);
-  if (b.type === 'RANGE' && min && max) return `${min}–${max} $`;
+  if (b.type === 'RANGE' && min && max) return `${min}–${max} ${cur}`;
   const one = min ?? max;
   if (!one) return '—';
-  return b.type === 'HOURLY' ? `${one} $ / ساعة` : `${one} $`;
+  return b.type === 'HOURLY' ? `${one} ${cur} / ساعة` : `${one} ${cur}`;
 }
 
 export function apiErrorMessage(err: any, fallback: string): string {

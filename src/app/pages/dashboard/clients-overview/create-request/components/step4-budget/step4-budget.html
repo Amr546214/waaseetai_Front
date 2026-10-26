@@ -53,15 +53,15 @@
 					<div>
 						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-from">من <span class="ws-req" aria-hidden="true">*</span></label>
 						<div class="relative" data-field-wrap>
-						<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-from" aria-required="true" placeholder="أدخل الحد الأدنى بالدولار" [attr.min]="100" [ngModel]="parent.budgetMin()" (ngModelChange)="parent.budgetMin.set($event ? +$event : null)">
-							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$</span>
+						<input type="number" class="w-full p-4 pl-[80px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-from" aria-required="true" placeholder="أدخل الحد الأدنى ({{ '' | wsCurrency }})" [attr.min]="100" [ngModel]="parent.budgetMin()" (ngModelChange)="parent.budgetMin.set($event ? +$event : null)">
+							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">{{ '' | wsCurrency }}</span>
 						</div>
 					</div>
 					<div>
 						<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-to">إلى <span class="ws-req" aria-hidden="true">*</span></label>
 						<div class="relative" data-field-wrap>
-						<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-to" aria-required="true" placeholder="أدخل الحد الأعلى بالدولار" [attr.min]="100" [ngModel]="parent.budgetMax()" (ngModelChange)="parent.budgetMax.set($event ? +$event : null)">
-							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$</span>
+						<input type="number" class="w-full p-4 pl-[80px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-to" aria-required="true" placeholder="أدخل الحد الأعلى ({{ '' | wsCurrency }})" [attr.min]="100" [ngModel]="parent.budgetMax()" (ngModelChange)="parent.budgetMax.set($event ? +$event : null)">
+							<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">{{ '' | wsCurrency }}</span>
 						</div>
 					</div>
 				</div>
@@ -73,8 +73,8 @@
 			<div id="budget-fixed-input">
 				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-fixed">المبلغ الثابت <span class="ws-req" aria-hidden="true">*</span></label>
 				<div class="relative max-w-md" data-field-wrap>
-					<input type="number" class="w-full p-4 pl-[60px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-fixed" aria-required="true" placeholder="أدخل الميزانية بالدولار" [attr.min]="100" [ngModel]="parent.budgetFixed()" (ngModelChange)="parent.budgetFixed.set($event ? +$event : null)">
-					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$</span>
+					<input type="number" class="w-full p-4 pl-[80px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-fixed" aria-required="true" placeholder="أدخل الميزانية ({{ '' | wsCurrency }})" [attr.min]="100" [ngModel]="parent.budgetFixed()" (ngModelChange)="parent.budgetFixed.set($event ? +$event : null)">
+					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">{{ '' | wsCurrency }}</span>
 				</div>
 			</div>
 			}
@@ -84,8 +84,8 @@
 			<div id="budget-hourly-input">
 				<label class="block text-sm font-bold text-[var(--txt-2)] mb-2" for="f-budget-hourly">معدل الساعة <span class="ws-req" aria-hidden="true">*</span></label>
 				<div class="relative max-w-md" data-field-wrap>
-					<input type="number" class="w-full p-4 pl-[70px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-hourly" aria-required="true" placeholder="أدخل سعر الساعة بالدولار" [attr.min]="50" [ngModel]="parent.budgetHourly()" (ngModelChange)="parent.budgetHourly.set($event ? +$event : null)">
-					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">$/س</span>
+					<input type="number" class="w-full p-4 pl-[90px] bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-xl font-bold" id="f-budget-hourly" aria-required="true" placeholder="أدخل سعر الساعة ({{ '' | wsCurrency }})" [attr.min]="50" [ngModel]="parent.budgetHourly()" (ngModelChange)="parent.budgetHourly.set($event ? +$event : null)">
+					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--txt-3)] font-bold">{{ '' | wsCurrency }}/س</span>
 				</div>
 			</div>
 			}

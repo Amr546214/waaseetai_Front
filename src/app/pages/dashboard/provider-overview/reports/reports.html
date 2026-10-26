@@ -47,9 +47,10 @@
   <!-- KPI 3 -->
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">إيرادات الفترة (مُفرَج عنها)</div>
-    <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ reports()?.payments?.releasedTotal != null ? (reports()!.payments.releasedTotal | number:'1.0-2') : '—' }}</div>
+    <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ reports()?.payments?.releasedTotal != null ? (reports()!.payments.releasedTotal | wsBase) : '—' }}</div>
+    <ws-money-by [map]="reports()?.payments?.releasedTotalBy" />
     <div class="flex items-center justify-between mt-3">
-      <span class="text-[11px] font-bold text-[var(--txt-3)]">دولار أمريكي</span>
+      <span class="text-[11px] font-bold text-[var(--txt-3)]">{{ '' | wsCurrency:'name' }}</span>
       
     </div>
   </div>
@@ -179,7 +180,7 @@
                 <td class="py-3 px-4 text-[12.5px] font-bold text-[var(--txt-2)]">{{ i.specialty ?? '—' }}</td>
                 <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ i.price | number:'1.0-2' }}</td>
                 <td class="py-3 px-4 text-[12px] font-bold text-[var(--txt-2)]">{{ bucketLabel(i.bucket) }}</td>
-                <td class="py-3 px-4 text-[12px] font-bold text-[var(--txt-3)]">{{ i.createdAt | date:'yyyy-MM-dd' }}</td>
+                <td class="py-3 px-4 text-[12px] font-bold text-[var(--txt-3)]">{{ i.createdAt | wsDate:'date':'yyyy-MM-dd' }}</td>
               </tr>
             } @empty {
               <tr><td colspan="5" class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</td></tr>
@@ -197,7 +198,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
         <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">مدفوعات للمقدمين</div>
-        <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ providerPayoutsTotal != null ? providerPayoutsTotal + ' $' : '—' }}</div>
+        <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ providerPayoutsTotal != null ? providerPayoutsTotal : '—' }}</div>
         <div class="flex items-center justify-between mt-3">
           <span class="text-[11px] font-bold text-[var(--txt-3)]">{{ providerPayoutsTrend ?? 'لا توجد بيانات بعد' }}</span>
         </div>
@@ -245,7 +246,7 @@
                 <td class="py-3 px-4 text-[13px] font-black text-[#FFB400]">{{ member.rating }} ★</td>
                 <td class="py-3 px-4 text-[13px] font-black"
                     [ngClass]="member.onTime >= 90 ? 'text-[#0FA99A]' : member.onTime >= 75 ? 'text-[#FFB400]' : 'text-[#FF8C69]'">{{ member.onTime }}%</td>
-                <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ member.revenue | number:'1.0-2' }} $</td>
+                <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ member.revenue | wsAmount:member.currency }}</td>
                 <td class="py-3 px-4">
                   @if(member.status === 'active') {
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0FA99A]/10 border border-[#0FA99A]/30 text-[#0FA99A] text-[10px] font-black whitespace-nowrap">
@@ -295,10 +296,12 @@
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 shadow-sm">
         <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">مُفرَج عنه في الفترة ($)</div>
         <div class="text-[26px] font-black text-[#2BD4C7] leading-none">{{ reports()?.payments?.releasedTotal != null ? (reports()!.payments.releasedTotal | number:'1.0-2') : '—' }}</div>
+        <ws-money-by [map]="reports()?.payments?.releasedTotalBy" />
       </div>
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 shadow-sm">
         <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">محجوز في الضمان ($)</div>
         <div class="text-[26px] font-black text-[var(--txt)] leading-none">{{ reports()?.payments?.heldInEscrow != null ? (reports()!.payments.heldInEscrow | number:'1.0-2') : '—' }}</div>
+        <ws-money-by [map]="reports()?.payments?.heldInEscrowBy" />
       </div>
     </div>
     <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden shadow-sm">
@@ -306,7 +309,7 @@
       @for (t of reports()?.payments?.transactions ?? []; track t.id) {
         <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--sec-bd)] last:border-b-0 text-[12.5px] font-bold">
           <span class="text-[var(--txt-2)]">{{ t.description ?? t.type }}</span>
-          <span class="text-[var(--txt-3)]">{{ t.createdAt | date:'yyyy-MM-dd' }}</span>
+          <span class="text-[var(--txt-3)]">{{ t.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span>
           <span class="text-[#2BD4C7]">{{ t.amount | number:'1.0-2' }} {{ t.currency }}</span>
         </div>
       } @empty { <div class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
@@ -333,7 +336,7 @@
       @for (d of reports()?.disputes?.items ?? []; track d.id) {
         <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--sec-bd)] last:border-b-0 text-[12.5px] font-bold">
           <span class="text-[var(--txt-2)]">{{ d.reason }}</span>
-          <span class="text-[var(--txt-3)]">{{ d.createdAt | date:'yyyy-MM-dd' }}</span>
+          <span class="text-[var(--txt-3)]">{{ d.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span>
           <span class="text-[var(--txt-2)]">{{ d.status }}</span>
         </div>
       } @empty { <div class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }

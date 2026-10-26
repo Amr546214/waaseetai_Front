@@ -114,8 +114,8 @@
             </div>
             <div class="form-grid">
               <div class="form-field">
-                <label class="form-label" for="req-budget">الميزانية ($) <span class="ws-req" aria-hidden="true">*</span></label>
-                <input class="form-input" id="req-budget" aria-required="true" type="number" min="1" placeholder="أدخل الميزانية بالدولار" dir="ltr" style="text-align:right"
+                <label class="form-label" for="req-budget">الميزانية ({{ '' | wsCurrency }}) <span class="ws-req" aria-hidden="true">*</span></label>
+                <input class="form-input" id="req-budget" aria-required="true" type="number" min="1" placeholder="أدخل الميزانية بـ {{ '' | wsCurrency:'name' }}" dir="ltr" style="text-align:right"
                   [class.invalid]="budgetError()" [attr.aria-invalid]="budgetError() ? 'true' : null" [attr.aria-describedby]="budgetError() ? 'req-budget-err' : null"
                   [value]="budget()"
                   (input)="budget.set($any($event.target).valueAsNumber || null)"

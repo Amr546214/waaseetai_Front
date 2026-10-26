@@ -1,4 +1,3 @@
-import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, ChangeDetectionStrategy, ElementRef, OnInit, signal, computed, inject } from '@angular/core';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
@@ -10,6 +9,8 @@ import { ProviderProfileService } from '../../../../../core/services/provider-pr
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
+import { currencyCode, currencyLabel } from '../../../../../core/utils/currency';
 
 export interface ProviderSession {
   id: string;
@@ -333,7 +334,9 @@ export class Account implements OnInit {
   coLanguage = signal<string>('العربية');
   coTimezone = signal<string>('(GMT+3) الرياض');
   coCalendar = signal<string>('ميلادي');
-  coCurrency = signal<string>('الدولار السعودي (USD)');
+  /** the display-currency choices: the platform base currency only (no conversion between currencies exists) */
+  readonly currencyOptions = () => [{ value: currencyCode(), label: `${currencyLabel()} (${currencyCode()})` }];
+  coCurrency = signal<string>(currencyCode());
   coNumberFormat = signal<string>('1234 — عربية غربية');
   coLandingPage = signal<string>('لوحة التحكم');
   coIdleTimeout = signal<string>('30 دقيقة');
@@ -355,7 +358,7 @@ export class Account implements OnInit {
     this.coLanguage.set('العربية');
     this.coTimezone.set('(GMT+3) الرياض');
     this.coCalendar.set('ميلادي');
-    this.coCurrency.set('الدولار السعودي (USD)');
+    this.coCurrency.set(currencyCode());
     this.coNumberFormat.set('1234 — عربية غربية');
     this.coLandingPage.set('لوحة التحكم');
     this.coIdleTimeout.set('30 دقيقة');
@@ -377,7 +380,7 @@ export class Account implements OnInit {
 
   language = signal<string>('العربية');
   timezone = signal<string>('توقيت الرياض (GMT+3)');
-  currency = signal<string>('دولار أمريكي (USD)');
+  currency = signal<string>(currencyCode());
   dateFormat = signal<string>('هجري وميلادي');
 
   showProfile = signal<boolean>(true);
@@ -545,7 +548,7 @@ export class Account implements OnInit {
   sessionActivityLabel(s: ProviderSession): string {
     if (s.isCurrent) return 'الجلسة الحالية · نشطة الآن';
     const date = new Date(s.lastActiveAt);
-    return 'آخر نشاط: ' + date.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
+    return 'آخر نشاط: ' + formatWsText(date, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
 
   // --- Data export: no backend endpoint exists anywhere (confirmed by a

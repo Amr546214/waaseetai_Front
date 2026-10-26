@@ -1,215 +1,60 @@
 <section class="ss-page" dir="rtl">
-  <h1 class="sr-only">إعدادات النظام</h1>
-  <svg style="display:none" aria-hidden="true"><defs>
-    <symbol id="ss-i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
-  </defs></svg>
-
   <div class="ss-hdr">
     <div>
-      <h2 class="ss-ttl">إدارة النظام</h2>
-      <p class="ss-sub">إعدادات المنصة العامة. الحقول القابلة للتعديل تُحفظ فعلياً؛ أما غير المرتبطة بالنظام فمعطّلة مع بيان السبب.</p>
+      <h1 class="ss-ttl">إدارة النظام</h1>
+      <p class="ss-sub">إعدادات وسيط AI العامة والتقنية والأمنية</p>
     </div>
   </div>
-  @if (!storageReady()) {
-  <div class="ss-toast-warn" role="status" data-testid="settings-storage-pending" style="margin:10px 0;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,140,105,.4);font-size:12.5px;font-weight:700">مخزن الإعدادات لم يُفعَّل بعد على الخادم، لذلك تظهر القيم الافتراضية للمنصة والحفظ معطّل إلى حين تطبيق تحديث قاعدة البيانات.</div>
+
+  @if (!store.storageReady()) {
+    <div class="ss-note" role="status" data-testid="settings-storage-pending" style="border-color:rgba(255,140,105,.4)">مخزن الإعدادات غير جاهز على الخادم بعد: تُعرض القيم الافتراضية ولا يمكن الحفظ حتى يُهيَّأ.</div>
   }
-
-  @if (loading()) {
-    <div class="ss-card" role="status">جارٍ تحميل الإعدادات…</div>
-  } @else if (loadError()) {
-    <div class="ss-card ss-err" role="alert">{{ loadError() }} <button type="button" class="ss-save-btn" (click)="loadSettings()">إعادة المحاولة</button></div>
+  @if (store.loading() && !store.items().length) {
+    <div class="ss-card" role="status" data-testid="settings-loading">جارٍ تحميل الإعدادات…</div>
+  } @else if (store.loadError()) {
+    <div class="ss-card ss-err" role="alert" data-testid="settings-load-error">{{ store.loadError() }} <button type="button" class="ss-link" (click)="store.load()">إعادة المحاولة</button></div>
+  } @else {
+    <div class="ss-layout">
+      <div class="ss-nav" role="tablist">
+        @for (t of tabs; track t.key) {
+          <button type="button" role="tab" class="ss-nav-item" [attr.data-testid]="'tab-' + t.key" [attr.aria-selected]="active() === t.key" [class.active]="active() === t.key" (click)="setTab(t.key)"><span class="ss-nav-lbl">{{ t.label }}</span><svg class="ss-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="t.icon"/></svg></button>
+        }
+      </div>
+      <div class="ss-content">
+        @switch (active()) {
+          @case ('general') {
+            <app-settings-section title="الإعدادات العامة" [keys]="general" variant="ss" [showSave]="false" />
+            <app-settings-section title="التواصل وبنر التنبيه" [keys]="contacts" variant="ss" [showSave]="false" />
+            <app-settings-section title="الشروط والخصوصية" [keys]="legal" [saveKeys]="generalAll" variant="ss" />
+          }
+          @case ('ai') {
+            <div class="ss-note" role="note">إعدادات الذكاء الاصطناعي والمزوّد والمفاتيح نطاق منفصل؛ تُجرد هنا ولا يُعدَّل تشغيلها من هذه الصفحة.</div>
+            <app-settings-section title="إعدادات الذكاء الاصطناعي" [keys]="ai" variant="ss" [showSave]="false" />
+          }
+          @case ('notifications') { <app-settings-section title="إعدادات الإشعارات" [keys]="notif" variant="ss" /> }
+          @case ('security') { <app-settings-section title="الأمان والمصادقة" [keys]="security" variant="ss" /> }
+          @case ('finance') {
+            <app-settings-section title="الإعدادات المالية" [keys]="finance" variant="ss" />
+            @if (access.canAny(['fees.view','fees.manage'])) { <app-fee-policy-panel /> }
+            @if (access.isSuperAdmin()) {
+              <div class="ss-card" data-testid="currency-readiness">
+                <div class="ss-card-ttl">جاهزية تغيير العملة الأساسية</div>
+                @if (readinessError()) { <div class="ss-err" role="alert">{{ readinessError() }} <button type="button" class="ss-link" (click)="loadReadiness()">إعادة المحاولة</button></div> }
+                @else if (!readiness()) { <div class="ss-sub" role="status">جارٍ الفحص…</div> }
+                @else if (readiness()!.ready) { <div class="ss-ok">البنية جاهزة لتغيير العملة الأساسية.</div> }
+                @else {
+                  <div class="ss-sub">يرفض الخادم تغيير العملة حتى تُنجز هذه المتطلبات (لا يُحفظ اختيار لا يعمل):</div>
+                  <ul class="ss-blockers" data-testid="readiness-blockers">@for (b of readiness()!.blockers; track b.code) { <li>{{ b.message }}</li> }</ul>
+                }
+              </div>
+            }
+          }
+          @case ('regional') { <app-settings-section title="الإعدادات الإقليمية" [keys]="regional" variant="ss" /> }
+          @case ('health') { <app-settings-health /> }
+        }
+      </div>
+    </div>
+    <app-settings-changelog />
   }
-
-  <div class="ss-layout">
-    <div class="ss-nav">
-      @for (s of sections; track s.key) {
-        <button type="button" class="ss-nav-item" [class.active]="activeSection() === s.key" (click)="setSection(s.key)">{{ s.label }}</button>
-      }
-    </div>
-
-    <div class="ss-content">
-
-      @if (activeSection() === 'general') {
-        <div class="ss-card">
-          <div class="ss-card-ttl">الإعدادات العامة</div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">اسم المنصة</div><div class="ss-row-desc">يُقرأ من نقطة الإعدادات العامة ويمكن عرضه في الواجهات</div></div>
-            <input type="text" class="ss-input" maxlength="80" id="ss-platformName" name="platformName" [value]="form().platformName" (input)="setField('platformName', $any($event.target).value)" placeholder="" />
-          </div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">بريد الدعم</div><div class="ss-row-desc">يظهر للمستخدمين كوسيلة تواصل</div></div>
-            <input type="email" class="ss-input" style="direction:ltr" id="ss-supportEmail" name="supportEmail" [value]="form().supportEmail" (input)="setField('supportEmail', $any($event.target).value)" placeholder="" />
-          </div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">هاتف الدعم</div><div class="ss-row-desc">يظهر للمستخدمين كوسيلة تواصل</div></div>
-            <input type="tel" class="ss-input" style="direction:ltr" maxlength="30" id="ss-supportPhone" name="supportPhone" [value]="form().supportPhone" (input)="setField('supportPhone', $any($event.target).value)" placeholder="" />
-          </div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">شريط تنبيه الصيانة</div><div class="ss-row-desc">يعرض نص التنبيه أدناه للمستخدمين؛ لا يوقف الوصول إلى المنصة.</div></div>
-            <button type="button" class="ss-sw" [class.on]="form().maintenanceBannerEnabled" role="switch" [attr.aria-checked]="form().maintenanceBannerEnabled" (click)="setField('maintenanceBannerEnabled', !form().maintenanceBannerEnabled)"></button>
-          </div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">نص التنبيه</div><div class="ss-row-desc">حتى 300 حرف</div></div>
-            <input type="text" class="ss-input" maxlength="300" style="min-width:min(260px,100%)" id="ss-maintenanceBannerText" name="maintenanceBannerText" [value]="form().maintenanceBannerText" (input)="setField('maintenanceBannerText', $any($event.target).value)" placeholder="" />
-          </div>
-        </div>
-        <div class="ss-card">
-          <div class="ss-card-ttl">خيارات غير مرتبطة بالنظام</div>
-          <div class="ss-note" role="note">{{ notWiredReason }} القيم المعروضة للاطلاع فقط وليست إعدادات فعلية.</div>
-          @for (t of generalToggles(); track t.key) {
-            <div class="ss-row">
-              <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
-              <button type="button" class="ss-sw" [class.on]="t.on" disabled [attr.aria-disabled]="true" [title]="notWiredReason"></button>
-            </div>
-          }
-        </div>
-        <div class="ss-save-row">
-          <button type="button" class="ss-save-btn" [disabled]="saving() || !storageReady() || !hasChanges(['platformName', 'supportEmail', 'supportPhone', 'maintenanceBannerEnabled', 'maintenanceBannerText'])" (click)="save(['platformName', 'supportEmail', 'supportPhone', 'maintenanceBannerEnabled', 'maintenanceBannerText'])"><svg><use href="#ss-i-check"></use></svg>{{ saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
-        </div>
-        @if (error()) { <div class="ss-err" role="alert">{{ error() }}</div> }
-      }
-
-      @if (activeSection() === 'legal') {
-        <div class="ss-card">
-          <div class="ss-card-ttl">الشروط والأحكام وسياسة الخصوصية</div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">إصدار الشروط</div><div class="ss-row-desc">رقم أو تاريخ الإصدار المعتمد</div></div>
-            <input type="text" class="ss-input" maxlength="40" id="ss-termsVersion" name="termsVersion" [value]="form().termsVersion" (input)="setField('termsVersion', $any($event.target).value)" placeholder="" />
-          </div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">إصدار سياسة الخصوصية</div><div class="ss-row-desc">رقم أو تاريخ الإصدار المعتمد</div></div>
-            <input type="text" class="ss-input" maxlength="40" id="ss-privacyVersion" name="privacyVersion" [value]="form().privacyVersion" (input)="setField('privacyVersion', $any($event.target).value)" placeholder="" />
-          </div>
-          <div class="ss-row" style="flex-direction:column;align-items:stretch">
-            <div class="ss-row-left"><div class="ss-row-lbl">نص الشروط والأحكام</div></div>
-            <textarea class="ss-input" rows="8" style="height:auto;padding:10px" maxlength="60000" id="ss-termsContent" name="termsContent" [value]="form().termsContent" (input)="setField('termsContent', $any($event.target).value)"></textarea>
-          </div>
-          <div class="ss-row" style="flex-direction:column;align-items:stretch">
-            <div class="ss-row-left"><div class="ss-row-lbl">نص سياسة الخصوصية</div></div>
-            <textarea class="ss-input" rows="8" style="height:auto;padding:10px" maxlength="60000" id="ss-privacyContent" name="privacyContent" [value]="form().privacyContent" (input)="setField('privacyContent', $any($event.target).value)"></textarea>
-          </div>
-        </div>
-        <div class="ss-save-row">
-          <button type="button" class="ss-save-btn" [disabled]="saving() || !storageReady() || !hasChanges(['termsVersion', 'privacyVersion', 'termsContent', 'privacyContent'])" (click)="save(['termsVersion', 'privacyVersion', 'termsContent', 'privacyContent'])"><svg><use href="#ss-i-check"></use></svg>{{ saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
-        </div>
-        @if (error()) { <div class="ss-err" role="alert">{{ error() }}</div> }
-      }
-
-      @if (activeSection() === 'notifications') {
-        <div class="ss-card">
-          <div class="ss-card-ttl">إعدادات الإشعارات</div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">بريد الإشعارات الإدارية</div><div class="ss-row-desc">عنوان يُحفظ كبريد تنبيهات الإدارة</div></div>
-            <input type="email" class="ss-input" style="direction:ltr" id="ss-adminNotificationEmail" name="adminNotificationEmail" [value]="form().adminNotificationEmail" (input)="setField('adminNotificationEmail', $any($event.target).value)" placeholder="" />
-          </div>
-        </div>
-        <div class="ss-card">
-          <div class="ss-card-ttl">خيارات غير مرتبطة بالنظام</div>
-          <div class="ss-note" role="note">{{ notWiredReason }} القيم المعروضة للاطلاع فقط وليست إعدادات فعلية.</div>
-          @for (t of notificationToggles(); track t.key) {
-            <div class="ss-row">
-              <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
-              <button type="button" class="ss-sw" [class.on]="t.on" disabled [attr.aria-disabled]="true" [title]="notWiredReason"></button>
-            </div>
-          }
-        </div>
-        <div class="ss-save-row">
-          <button type="button" class="ss-save-btn" [disabled]="saving() || !storageReady() || !hasChanges(['adminNotificationEmail'])" (click)="save(['adminNotificationEmail'])"><svg><use href="#ss-i-check"></use></svg>{{ saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
-        </div>
-        @if (error()) { <div class="ss-err" role="alert">{{ error() }}</div> }
-      }
-
-      @if (activeSection() === 'security') {
-        <div class="ss-card">
-          <div class="ss-card-ttl">الأمان والمصادقة</div>
-          <div class="ss-note" role="note">{{ notWiredReason }} القيم المعروضة للاطلاع فقط وليست إعدادات فعلية.</div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">مدة جلسة الدخول</div><div class="ss-row-desc">انتهاء الجلسة تلقائياً بعد عدم النشاط</div></div>
-            <ws-select [options]="[{value: '8', label: '8 ساعات'}, {value: '24', label: '24 ساعة'}, {value: '48', label: '48 ساعة'}]" [ngModel]="sessionDuration()" [disabled]="true" [title]="notWiredReason" style="min-width:160px;max-width:100%;display:block"></ws-select>
-          </div>
-          @for (t of securityToggles(); track t.key) {
-            <div class="ss-row">
-              <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
-              <button type="button" class="ss-sw" [class.on]="t.on" disabled [attr.aria-disabled]="true" [title]="notWiredReason"></button>
-            </div>
-          }
-        </div>
-      }
-
-      @if (activeSection() === 'finance') {
-        <div class="ss-card">
-          <div class="ss-card-ttl">الإعدادات المالية</div>
-          <div class="ss-note" role="note">{{ notWiredReason }} القيم المعروضة للاطلاع فقط وليست إعدادات فعلية.</div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">العملة الافتراضية</div><div class="ss-row-desc">عملة المعاملات على المنصة</div></div>
-            <ws-select [options]="[{value: 'USD', label: 'دولار أمريكي (USD)'}]" [ngModel]="currency()" [disabled]="true" [title]="notWiredReason" style="min-width:160px;max-width:100%;display:block"></ws-select>
-          </div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">بوابة الدفع</div><div class="ss-row-desc">البوابة النشطة لمعالجة المدفوعات</div></div>
-            <ws-select [options]="[{value: 'PayPal', label: 'PayPal'}, {value: 'HyperPay', label: 'HyperPay'}, {value: 'Tamara', label: 'Tamara'}]" [ngModel]="paymentGateway()" [disabled]="true" [title]="notWiredReason" style="min-width:160px;max-width:100%;display:block"></ws-select>
-          </div>
-          @for (t of financeToggles(); track t.key) {
-            <div class="ss-row">
-              <div class="ss-row-left"><div class="ss-row-lbl">{{ t.label }}</div><div class="ss-row-desc">{{ t.desc }}</div></div>
-              <button type="button" class="ss-sw" [class.on]="t.on" disabled [attr.aria-disabled]="true" [title]="notWiredReason"></button>
-            </div>
-          }
-        </div>
-      }
-
-      @if (activeSection() === 'localization') {
-        <div class="ss-card">
-          <div class="ss-card-ttl">الإعدادات الإقليمية</div>
-          <div class="ss-note" role="note">{{ notWiredReason }} القيم المعروضة للاطلاع فقط وليست إعدادات فعلية.</div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">المنطقة الزمنية</div><div class="ss-row-desc">المنطقة الزمنية الافتراضية للنظام</div></div>
-            <ws-select [options]="[{value: 'Asia/Riyadh (GMT+3)', label: 'Asia/Riyadh (GMT+3)'}, {value: 'UTC', label: 'UTC'}]" [ngModel]="timezone()" [disabled]="true" [title]="notWiredReason" style="min-width:160px;max-width:100%;display:block"></ws-select>
-          </div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">تنسيق التاريخ</div><div class="ss-row-desc">طريقة عرض التواريخ في النظام</div></div>
-            <ws-select [options]="[{value: 'DD/MM/YYYY', label: 'DD/MM/YYYY'}, {value: 'YYYY-MM-DD', label: 'YYYY-MM-DD'}]" [ngModel]="dateFormat()" [disabled]="true" [title]="notWiredReason" style="min-width:160px;max-width:100%;display:block"></ws-select>
-          </div>
-          <div class="ss-row">
-            <div class="ss-row-left"><div class="ss-row-lbl">نظام التقويم</div><div class="ss-row-desc">التقويم الافتراضي المستخدم</div></div>
-            <ws-select [options]="[{value: 'ميلادي', label: 'ميلادي'}, {value: 'هجري', label: 'هجري'}]" [ngModel]="calendarSystem()" [disabled]="true" [title]="notWiredReason" style="min-width:160px;max-width:100%;display:block"></ws-select>
-          </div>
-        </div>
-      }
-
-      @if (activeSection() === 'health') {
-        <div class="ss-card">
-          <div class="ss-card-ttl">صحة النظام</div>
-          <div class="ss-note" role="note">لا يوجد حالياً مصدر مراقبة مرتبط بهذه الصفحة، لذلك لا تُعرض حالة فعلية للخدمات.</div>
-          @for (h of healthRows; track h.name) {
-            <div class="ss-health-row">
-              <div class="ss-health-dot" [style.background]="h.color"></div>
-              <span class="ss-health-name">{{ h.name }}</span>
-              <span class="ss-health-val" [style.color]="h.color">{{ h.value }}</span>
-            </div>
-          }
-        </div>
-      }
-
-    </div>
-  </div>
-
-  <div class="ss-changelog">
-    <div class="ss-changelog-ttl">سجل تغييرات الإعدادات</div>
-    <div class="ss-changelog-list">
-      @if (historyError()) {
-        <div class="ss-changelog-row"><span class="ss-cl-msg">{{ historyError() }}</span></div>
-      } @else if (!history().length) {
-        <div class="ss-changelog-row"><span class="ss-cl-msg">لا توجد تغييرات مسجلة بعد.</span></div>
-      }
-      @for (c of history(); track c.id) {
-        <div class="ss-changelog-row">
-          <span class="ss-cl-time">{{ c.at | date: 'yyyy-MM-dd HH:mm' }}</span>
-          <span class="ss-cl-msg">{{ c.actor || 'مدير' }} · {{ c.summary }}</span>
-          <span class="ss-cl-ip">{{ c.ip ? 'IP: ' + c.ip : '' }}</span>
-        </div>
-      }
-    </div>
-  </div>
-
-  <div class="ss-foot">© {{ 'وسيط AI' }} · v{{ appVersion }}</div>
+  <div class="ss-foot">© 2026 وسيط AI · v{{ appVersion }}</div>
 </section>

@@ -1,3 +1,5 @@
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -17,7 +19,7 @@ interface FinancialEvent {
 // (transactions.ts) — there is no dedicated GET-by-id endpoint for provider
 // finance transactions, so, like the client-side transaction-details page,
 // this fetches the full list and finds the matching id client-side.
-@Component({ selector: 'app-transaction-details', standalone: true, imports: [CommonModule, RouterModule], templateUrl: './transaction-details.html' })
+@Component({ selector: 'app-transaction-details', standalone: true, imports: [WsDatePipe, WsAmountPipe, CommonModule, RouterModule], templateUrl: './transaction-details.html' })
 export class TransactionDetails implements OnInit {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);

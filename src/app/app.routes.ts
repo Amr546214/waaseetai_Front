@@ -41,9 +41,9 @@ export const routes: Routes = [
 		canActivateChild: [providerProfileCompleteGuard],
 		// re-ask the backend on every navigation under the provider area, in-app ones (after login/logout/role switch) included
 		runGuardsAndResolvers: 'always',
-		// every DatePipe in the provider area shows dates in the zone the provider saved on the profile page (browser zone until one is saved)
+		// every date in the provider area shows dates in the zone the provider saved on the profile page (browser zone until one is saved)
 		providers: [
-			// the saved zone is loaded as soon as the provider area opens (not only when a DatePipe happens to be created), so hand-formatted dates see it too
+			// the saved zone is loaded as soon as the provider area opens (not only when a date pipe happens to be created), so hand-formatted dates see it too
 			provideEnvironmentInitializer(() => inject(ProviderPrefsStore).ensureLoaded()),
 			{
 				provide: DATE_PIPE_DEFAULT_OPTIONS,

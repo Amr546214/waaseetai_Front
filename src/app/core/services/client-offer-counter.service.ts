@@ -16,6 +16,7 @@ export interface ClientCounterAccepted {
 	legacyOfferId: string | null;
 	status: string;
 	price: number;
+	currency?: string;
 	deliveryDays: number;
 	messageId: string;
 }

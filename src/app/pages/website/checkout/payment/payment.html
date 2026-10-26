@@ -98,29 +98,29 @@
           } @else if (hasSufficientBalance()) {
             <div class="wallet-confirm-row">
               <span class="wallet-confirm-row-label">إجمالي الطلب</span>
-              <span class="wallet-confirm-row-val">{{ formatPrice(total()) }} $</span>
+              <span class="wallet-confirm-row-val">{{ formatPrice(total()) }}</span>
             </div>
             <div class="wallet-confirm-row">
               <span class="wallet-confirm-row-label">رصيد المحفظة الحالي</span>
-              <span class="wallet-confirm-row-val">{{ formatPrice(walletBalance()!) }} $</span>
+              <span class="wallet-confirm-row-val">{{ formatPrice(walletBalance()!) }}</span>
             </div>
             <div class="wallet-confirm-row total">
               <span class="wallet-confirm-row-label">الرصيد المتبقي بعد الدفع</span>
-              <span class="wallet-confirm-row-val">{{ walletAfterPay() }} $</span>
+              <span class="wallet-confirm-row-val">{{ walletAfterPay() }}</span>
             </div>
             <div class="wallet-note">سيُخصم المبلغ فوراً من رصيد محفظتك عند تأكيد الدفع.</div>
           } @else {
             <div class="wallet-confirm-row">
               <span class="wallet-confirm-row-label">المطلوب</span>
-              <span class="wallet-confirm-row-val">{{ formatPrice(total()) }} $</span>
+              <span class="wallet-confirm-row-val">{{ formatPrice(total()) }}</span>
             </div>
             <div class="wallet-confirm-row">
               <span class="wallet-confirm-row-label">رصيد المحفظة الحالي</span>
-              <span class="wallet-confirm-row-val">{{ formatPrice(walletBalance()!) }} $</span>
+              <span class="wallet-confirm-row-val">{{ formatPrice(walletBalance()!) }}</span>
             </div>
             <div class="wallet-confirm-row shortfall">
               <span class="wallet-confirm-row-label">المبلغ المطلوب إضافته</span>
-              <span class="wallet-confirm-row-val">{{ formatPrice(shortfall()) }} $</span>
+              <span class="wallet-confirm-row-val">{{ formatPrice(shortfall()) }}</span>
             </div>
             <div class="wallet-note">رصيد محفظتك غير كافٍ لإتمام هذا الطلب. أضف الفرق عبر PayPal للمتابعة.</div>
             <button class="btn-add-funds" type="button" (click)="openAddFunds()">
@@ -165,14 +165,14 @@
                   <div class="order-mini-title">{{ item.title }}</div>
                   <div class="order-mini-sub">{{ item.provider.name }} · {{ item.totalDays }} أيام</div>
                 </div>
-                <div class="order-mini-price">{{ formatPrice(item.totalAmount) }}</div>
+                <div class="order-mini-price">{{ formatPrice(item.totalAmount, item.currency) }}</div>
               </div>
             }
           </div>
           <div class="summary-rows">
             <div class="sum-row">
               <span class="sum-row-label">المجموع الفرعي</span>
-              <span class="sum-row-val">{{ formatPrice(subtotal()) }} $</span>
+              <span class="sum-row-val">{{ formatPrice(subtotal()) }}</span>
             </div>
             @if (couponNotice()) {
               <div class="coupon-msg error" role="alert" data-testid="coupon-notice">{{ couponNotice() }}</div>
@@ -180,12 +180,12 @@
             @if (discount() > 0) {
               <div class="sum-row">
                 <span class="sum-row-label">خصم الكوبون</span>
-                <span class="sum-row-val discount-val" style="color:var(--teal)">- {{ formatPrice(discount()) }} $</span>
+                <span class="sum-row-val discount-val" style="color:var(--teal)">- {{ formatPrice(discount()) }}</span>
               </div>
             }
             <div class="sum-row total">
               <span class="sum-row-label">الإجمالي</span>
-              <span class="sum-row-val">{{ formatPrice(total()) }} $</span>
+              <span class="sum-row-val">{{ formatPrice(total()) }}</span>
             </div>
           </div>
           <div class="pay-btn-wrap">
@@ -194,7 +194,7 @@
                 جاري المعالجة...
               } @else {
                 <svg aria-hidden="true"><use href="#ws-lock"></use></svg>
-                ادفع من المحفظة — {{ formatPrice(total()) }} $
+                ادفع من المحفظة — {{ formatPrice(total()) }}
                 @if (payWait.active()) { <span data-testid="pay-wait">{{ payWait.label() }}</span> }
               }
             </button>

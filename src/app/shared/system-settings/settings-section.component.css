@@ -1,0 +1,67 @@
+:host{display:block}
+.st-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.st-card-ttl{font-size:14px;font-weight:800;color:#fff;margin-bottom:16px}
+.st-danger{border-color:rgba(255,140,105,.25)}
+.st-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);gap:16px}
+.st-row:last-of-type{border-bottom:0}
+.st-row:first-child,.st-card-ttl + .st-row{padding-top:0}
+.st-row-col{flex-direction:column;align-items:stretch}
+.st-row-left{flex:1;min-width:0}
+.st-row-lbl{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.st-row-desc{font-size:11px;color:#6B7699;line-height:1.5}
+.st-row-eff{font-size:10.5px;color:#5DA0FF}
+.st-row-reason{font-size:11px;color:#A8B2D1;line-height:1.6;margin-top:4px}
+.st-badge{font-size:9.5px;font-weight:800;padding:1px 8px;border-radius:20px;white-space:nowrap}
+.st-badge-off{background:rgba(255,140,105,.12);color:#FF8C69;border:1px solid rgba(255,140,105,.25)}
+.st-badge-ro{background:rgba(93,160,255,.12);color:#5DA0FF;border:1px solid rgba(93,160,255,.25)}
+.st-err{font-size:11.5px;color:#FF8C69;margin-top:5px;line-height:1.5}
+
+.st-sw{width:42px;height:24px;border-radius:12px;background:rgba(255,255,255,.10);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;display:inline-block}
+.st-sw::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;right:3px;transition:transform .2s}
+.v-ss .st-sw.on{background:rgba(43,212,199,.35);box-shadow:inset 0 0 0 1px rgba(43,212,199,.5)}
+.v-spa .st-sw{width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,.12)}
+.v-spa .st-sw::after{width:16px;height:16px;top:3px;right:3px}
+.v-spa .st-sw.on{background:linear-gradient(135deg,#2BD4C7,#2B7FFF)}
+.st-sw.on::after{transform:translateX(-18px)}
+.st-sw:disabled,.st-sw-off{opacity:.4;cursor:not-allowed}
+
+.st-input{height:34px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;padding:0 10px;font-size:13px;color:#fff;font-family:inherit;outline:none;min-width:min(260px,100%)}
+.st-input:focus{border-color:rgba(43,212,199,.30)}
+.st-input:disabled{opacity:.55;cursor:not-allowed}
+.st-input-sm{width:84px;min-width:0}
+.st-area{height:auto;padding:10px;line-height:1.6;resize:vertical;width:100%}
+.st-inline{display:flex;align-items:center;gap:6px}
+.st-unit{font-size:12px;color:#6B7699}
+.st-sel{min-width:160px}
+.st-ro{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:end;max-width:46%}
+.st-ro-val{font-size:12.5px;font-weight:700;color:#E7EAF1}
+.st-ro-src{font-size:10.5px;color:#6B7699}
+.st-empty{font-size:12px;color:#6B7699;padding:6px 0}
+
+.st-fail{margin:-6px 0 12px;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,140,105,.35);background:rgba(255,140,105,.08);color:#FFB29C;font-size:12.5px;line-height:1.6}
+.st-blockers{margin:8px 0 0;padding-inline-start:18px;font-size:12px;color:#E7EAF1}
+.st-fail-actions{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.st-save-row{display:flex;align-items:center;gap:14px;margin:0 0 14px;flex-wrap:wrap}
+.st-save{display:inline-flex;align-items:center;padding:0 18px;height:36px;border-radius:9px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;font-size:13px;font-weight:800;border:none;cursor:pointer;font-family:inherit}
+.st-save:disabled{opacity:.45;cursor:not-allowed}
+.st-link{background:none;border:none;color:#2BD4C7;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
+.st-ok{font-size:12px;font-weight:700;color:#0FA99A}
+
+:host-context(.light-theme) .st-card,:host-context(.theme-light) .st-card{background:#fff;border-color:#E2E8F0}
+:host-context(.light-theme) .st-card-ttl,:host-context(.theme-light) .st-card-ttl,:host-context(.light-theme) .st-row-lbl,:host-context(.theme-light) .st-row-lbl{color:#0F172A}
+:host-context(.light-theme) .st-row,:host-context(.theme-light) .st-row{border-bottom-color:#F1F5F9}
+:host-context(.light-theme) .st-row-desc,:host-context(.theme-light) .st-row-desc,:host-context(.light-theme) .st-unit,:host-context(.theme-light) .st-unit,:host-context(.light-theme) .st-ro-src,:host-context(.theme-light) .st-ro-src{color:#64748B}
+:host-context(.light-theme) .st-row-reason,:host-context(.theme-light) .st-row-reason{color:#475569}
+:host-context(.light-theme) .st-ro-val,:host-context(.theme-light) .st-ro-val{color:#0F172A}
+:host-context(.light-theme) .st-input,:host-context(.theme-light) .st-input{background:#fff;border-color:#D8DFEC;color:#0F172A}
+:host-context(.light-theme) .st-sw,:host-context(.theme-light) .st-sw{background:#CBD5E1}
+:host-context(.light-theme) .v-ss .st-sw.on,:host-context(.theme-light) .v-ss .st-sw.on{background:rgba(15,138,127,.35)}
+:host-context(.light-theme) .v-spa .st-sw.on,:host-context(.theme-light) .v-spa .st-sw.on{background:linear-gradient(135deg,#2BD4C7,#2B7FFF)}
+:host-context(.light-theme) .st-link,:host-context(.theme-light) .st-link{color:#0F8A7F}
+:host-context(.light-theme) .st-err,:host-context(.theme-light) .st-err{color:#C2410C}
+:host-context(.light-theme) .st-fail,:host-context(.theme-light) .st-fail{color:#9A3412;background:rgba(194,65,12,.07);border-color:rgba(194,65,12,.3)}
+:host-context(.light-theme) .st-blockers,:host-context(.theme-light) .st-blockers{color:#0F172A}
+@media(max-width:700px){.st-row{flex-direction:column;align-items:stretch;gap:10px}.st-ro{align-items:flex-start;text-align:start;max-width:100%}.st-card{padding:16px 14px}.st-input{width:100%}}
+
+.st-conf{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}.st-conf th,.st-conf td{text-align:start;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.08)}.st-conf th{color:#A8B2D1;font-weight:700}
+:host-context(.light-theme) .st-conf th,:host-context(.theme-light) .st-conf th{color:#475569}:host-context(.light-theme) .st-conf td,:host-context(.theme-light) .st-conf td{border-bottom-color:#E2E8F0}

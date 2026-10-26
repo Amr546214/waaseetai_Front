@@ -1,22 +1,23 @@
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminInvoice, AdminInvoicesData, AdminOpsApiService, saveBlob } from '../../../../../core/services/admin-ops-api.service';
-import { errMsg, fmtDate, usd } from '../finance-ui';
+import { errMsg, fmtDate, fmtAmount } from '../finance-ui';
 
 type TabKey = 'all' | 'paid' | 'due';
 
 @Component({
   selector: 'app-sa-invoices-in',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [WsCurrencyPipe, CommonModule, FormsModule],
   templateUrl: './sa-invoices-in.html',
   styleUrl: './sa-invoices-in.css',
 })
 export class SaInvoicesIn implements OnInit {
   private api = inject(AdminOpsApiService);
 
-  readonly usd = usd;
+  readonly fmtAmount = fmtAmount;
   readonly fmtDate = fmtDate;
   readonly newInvoiceReason = 'الفواتير الواردة تُشتق من تسليمات المراحل ولا تُرفع يدويًا';
 

@@ -1,4 +1,6 @@
+import { formatAmount, formatMoneyIn } from '../../../../../core/utils/currency';
 import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
+import { formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
 import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -8,7 +10,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
-import { formatMoney } from '../../../../../core/utils/money.util';
 
 export interface DisplayTransaction {
   id: string;
@@ -107,11 +108,15 @@ export class Wallet implements OnInit {
     });
   }
 
+  /** balances in a currency other than USD (none today): each listed on its own, never added to the USD balance */
+  readonly otherBalances = signal<Array<{ currency: string; value: number }>>([]);
+  readonly money = formatMoneyIn;
   private walletLoaded = false;
 
   private applyWalletData(data: ClientWalletData) {
     this.walletLoaded = true;
     this.balance.set(data.summary?.availableBalance ?? 0);
+    this.otherBalances.set(Object.entries(data.summary?.balances ?? {}).filter(([c, v]) => c !== 'USD' && v > 0).map(([currency, value]) => ({ currency, value })));
     this.escrowBalance.set(data.summary?.escrowBalance ?? 0);
     this.activeProjectsCount.set(data.summary?.activeProjectsCount ?? 0);
     this.quarterSpend.set(data.summary?.quarterSpend ?? 0);
@@ -132,17 +137,10 @@ export class Wallet implements OnInit {
         const statusText = isFailed ? 'فشلت' : (isDone ? 'مكتمل' : (isHeld ? 'محجوز' : 'قيد المعالجة'));
         const icon: 'escrow' | 'wallet' = isEscrow ? 'escrow' : 'wallet';
 
-        const formattedDate = new Date(tx.createdAt).toLocaleDateString('ar-EG', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit'
-        });
+        const formattedDate = formatWsDate(tx.createdAt, 'date', 'yyyy-MM-dd');
 
         // A failed attempt moved no money: no sign. A recorded payment is stored negative (ORDER_PAYMENT), so the sign is shown once, from the direction.
         const sign = isFailed ? '' : (direction === 'in' ? '+' : '-');
-        // Each transaction shows its own recorded currency: USD as '$'; a legacy row in any other currency shows no
-        // currency symbol at all (never an old riyal label).
-        const currencyLabel = tx.currency === 'USD' ? '$' : '';
 
         return {
           id: tx.id,
@@ -150,7 +148,7 @@ export class Wallet implements OnInit {
           title: tx.description || (isDeposit ? 'إيداع رصيد بالمحفظة' : 'معاملة مالية'),
           description: tx.referenceId ? `رقم العملية ${tx.referenceId}` : (tx.paymentMethod || 'محفظة وسيط AI'),
           date: formattedDate,
-          amount: `${sign}${formatMoney(Math.abs(tx.amount))}${currencyLabel ? ' ' + currencyLabel : ''}`,
+          amount: `${sign}${formatAmount(Math.abs(tx.amount), tx.currency)}`,
           direction,
           status: statusText,
           statusType,

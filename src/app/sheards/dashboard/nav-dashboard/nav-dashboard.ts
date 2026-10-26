@@ -1,4 +1,5 @@
 import { adminRoleOf, resolveActiveRole, roleLinks } from '../../../core/routing/role-routes';
+import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, Output, EventEmitter, ChangeDetectorRef, effect, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -20,7 +21,7 @@ import { AdminAccessService } from '../../../core/services/admin-access.service'
 @Component({
 	selector: 'app-nav-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, NotificationBell, NotificationPopupComponent],
+	imports: [BrandNamePipe, CommonModule, RouterModule, NotificationBell, NotificationPopupComponent],
 	templateUrl: './nav-dashboard.html',
 	styleUrl: './nav-dashboard.css',
 	host: {

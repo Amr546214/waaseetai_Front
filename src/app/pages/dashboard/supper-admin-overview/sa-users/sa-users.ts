@@ -1,3 +1,4 @@
+import { formatBase } from '../../../../core/utils/currency';
 import { Component, ElementRef, OnInit, Signal, WritableSignal, computed, inject, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +21,8 @@ import { formatMoney } from '../../../../core/utils/money.util';
   styleUrl: './sa-users.css'
 })
 export class SaUsers implements OnInit {
+  /** Aggregate figures of a user carry no currency from the API: the platform base currency labels them; unknown stays a dash. */
+  amt(v: string | number | null | undefined): string { const n = v == null || v === '' ? NaN : Number(v); return Number.isFinite(n) ? formatBase(n) : '—'; }
   private usersService = inject(SaUsersService);
   private authStore = inject(AuthStore);
   private notify = inject(UiNotificationService);

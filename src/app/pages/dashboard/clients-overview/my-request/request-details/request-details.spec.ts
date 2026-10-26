@@ -23,7 +23,7 @@ function makeOffer(overrides: Partial<any> = {}): any {
 		projectsCount: 4,
 		rating: null,
 		matchScore: null,
-		price: '1,000 $',
+		price: '1,000 USD',
 		duration: '5 أيام',
 		description: 'وصف العرض',
 		plan: 'خطة العمل',
@@ -341,7 +341,7 @@ describe('RequestDetails — real provider level vs accreditation badge (Batch 5
 		expect(offer.id).toBe('prop-9');
 		expect(offer.providerName).toBe('شركة التطوير');
 		expect(offer.status).toBe('SUBMITTED');
-		expect(offer.price).toBe('500 $');
+		expect(offer.price).toBe('500 USD');
 	});
 });
 

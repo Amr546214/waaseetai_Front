@@ -99,7 +99,7 @@ describe('create-request: red validation on every step', () => {
   it('step 4: only the active budget type is required (conditional rules kept)', async () => {
     c.currentStep.set(4); c.budgetType.set('fixed'); fixture.detectChanges();
     await press();
-    expect(errors()).toEqual(['أدخل الميزانية بالدولار']);
+    expect(errors()).toEqual(['أدخل الميزانية (USD)']);
     expect(q('#f-budget-fixed')!.getAttribute('aria-invalid')).toBe('true');
     c.budgetType.set('range'); render();
     await press();

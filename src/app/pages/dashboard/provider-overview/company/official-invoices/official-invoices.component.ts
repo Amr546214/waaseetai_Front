@@ -2,6 +2,7 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 
 interface Invoice {
 	id: string;
@@ -9,6 +10,7 @@ interface Invoice {
 	date: string;
 	project: string;
 	amount: number;
+	currency?: string;
 	tax: number;
 	status: 'paid' | 'due';
 }
@@ -16,7 +18,7 @@ interface Invoice {
 @Component({
 	selector: 'app-official-invoices',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [WsAmountPipe, CommonModule, RouterModule],
 	templateUrl: './official-invoices.component.html',
 	styleUrls: ['./official-invoices.component.css']
 })

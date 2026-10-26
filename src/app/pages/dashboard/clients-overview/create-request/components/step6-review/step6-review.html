@@ -77,15 +77,15 @@
 		</div>
 		<div class="sc-rows">
 		<div class="sc-row"><span class="sc-row-key">الميزانية</span><span class="sc-row-val txt-amber" style="font-weight:800">
-			@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | number:'1.0-2' }} - {{ parent.budgetMax() | number:'1.0-2' }} $ }
-			@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | number:'1.0-2' }} $ }
-			@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | number:'1.0-2' }} $/س }
+			@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | wsBase }} - {{ parent.budgetMax() | wsBase }} }
+			@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | wsBase }} }
+			@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | wsBase }}/س }
 		</span></div>
 		<div class="sc-row"><span class="sc-row-key">النوع</span><span class="sc-row-val">{{ parent.budgetType() === 'range' ? 'نطاق' : parent.budgetType() === 'fixed' ? 'سعر ثابت' : 'بالساعة' }}</span></div>
 		<div class="sc-row"><span class="sc-row-key">رسم الضمان (1%)</span><span class="sc-row-val">
-			@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | number:'1.0-2' }} $ }
-			@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number:'1.0-2' }} $ }
-			@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number:'1.0-2' }} $ }
+			@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | wsBase }} }
+			@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | wsBase }} }
+			@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | wsBase }} }
 		</span></div>
 		</div>
 		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
@@ -236,14 +236,14 @@
     <div class="modal-info">
       <div class="modal-info-row"><span class="modal-info-key">عنوان الطلب</span><span class="modal-info-val">{{ parent.title() || 'بدون عنوان' }}</span></div>
       <div class="modal-info-row"><span class="modal-info-key">الميزانية</span><span class="modal-info-val txt-amber">
-	  	@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | number:'1.0-2' }} - {{ parent.budgetMax() | number:'1.0-2' }} $ }
-		@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | number:'1.0-2' }} $ }
-		@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | number:'1.0-2' }} $/س }
+	  	@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | wsBase }} - {{ parent.budgetMax() | wsBase }} }
+		@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | wsBase }} }
+		@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | wsBase }}/س }
 	  </span></div>
       <div class="modal-info-row"><span class="modal-info-key">رسم الضمان (1%)</span><span class="modal-info-val">
-	  	@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | number:'1.0-2' }} $ }
-		@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number:'1.0-2' }} $ }
-		@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number:'1.0-2' }} $ }
+	  	@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | wsBase }} }
+		@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | wsBase }} }
+		@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | wsBase }} }
 	  </span></div>
     </div>
     <div class="modal-btns">

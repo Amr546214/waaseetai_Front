@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { formatWsText } from '../../../../shared/ws-date/ws-date.pipe';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -11,10 +12,10 @@ export interface DashboardSummary {
 	kpis: {
 		users: { total: number; active: number; suspended: number; newThisMonth: number; newPreviousMonth: number; growthPercent: number | null };
 		projects: { active: number; completed: number; openRequests: number };
-		revenue: { platformCommissionTotal: number; platformCommissionThisMonth: number; escrowHeld: number };
+		revenue: { platformCommissionTotal: number; platformCommissionThisMonth: number; escrowHeld: number; platformCommissionTotalBy?: Record<string, number>; platformCommissionThisMonthBy?: Record<string, number>; escrowHeldBy?: Record<string, number> };
 		disputes: { open: number; openOver7Days: number };
 		tickets: { open: number };
-		withdrawals: { pending: number; pendingAmount: number };
+		withdrawals: { pending: number; pendingAmount: number; pendingAmountBy?: Record<string, number> };
 	};
 	queues: DashboardQueue[];
 	alerts: DashboardAlert[];
@@ -57,5 +58,5 @@ export function relativeTimeAr(iso: string, now = Date.now()): string {
 	if (h < 24) return `قبل ${h} ${h === 1 ? 'ساعة' : h === 2 ? 'ساعتين' : 'ساعات'}`;
 	if (d === 1) return 'أمس';
 	if (d < 30) return `قبل ${d} أيام`;
-	return new Date(iso).toLocaleDateString('ar-SA');
+	return formatWsText(iso);
 }

@@ -8,7 +8,7 @@ import { RatingScore, RatingStatus } from '../../../../../core/models/rating.mod
 import { RatingSavedCard } from '../../../../../sheards/rating-saved-card/rating-saved-card.component';
 import { RatingPublishChoice } from '../../../../../sheards/rating-publish-choice/rating-publish-choice.component';
 import { SettlementSummary } from '../../../../../sheards/settlement-summary/settlement-summary.component';
-import { formatMoney } from '../../../../../core/utils/money.util';
+import { formatAmount } from '../../../../../core/utils/currency';
 
 @Component({
 	selector: 'app-provider-rating-page',
@@ -133,7 +133,7 @@ export class ProviderRatingPage implements OnInit {
 	releasedAmount(): string {
 		const data = this.project();
 		const amount = data?.price ?? data?.amount ?? data?.totalAmount ?? 0;
-		return formatMoney(amount);
+		return formatAmount(amount, data?.currency);
 	}
 
 	submit() {

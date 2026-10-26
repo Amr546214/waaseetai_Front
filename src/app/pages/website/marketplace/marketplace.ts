@@ -1,3 +1,5 @@
+import { WsAmountPipe } from '../../../shared/money/money.pipe';
+import { formatBase } from '../../../core/utils/currency';
 import { Component, HostListener, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -27,7 +29,7 @@ interface FilterDraft { cat: string; levels: string[]; rating: number; maxDays: 
 @Component({
 	selector: 'app-marketplace',
 	standalone: true,
-	imports: [CommonModule, RouterLink, SpecialtiesBar, LevelBadgeComponent, LoadRetryComponent],
+	imports: [CommonModule, RouterLink, SpecialtiesBar, LevelBadgeComponent, LoadRetryComponent, WsAmountPipe],
 	templateUrl: './marketplace.html',
 	styleUrl: './marketplace.css',
 	encapsulation: ViewEncapsulation.None
@@ -295,7 +297,7 @@ export class Marketplace implements OnInit, OnDestroy {
 		if (this.selectedSkill()) chips.push({ key: 'skill', label: 'مهارة: ' + this.selectedSkill() });
 		if (this.selectedRating()) chips.push({ key: 'minRating', label: this.selectedRating() + ' وأعلى' });
 		if (this.selectedMaxDays()) chips.push({ key: 'maxDays', label: this.deliveryLabel(this.selectedMaxDays()) });
-		if (this.selectedMaxPrice()) chips.push({ key: 'maxPrice', label: 'حتى ' + this.selectedMaxPrice() + ' $' });
+		if (this.selectedMaxPrice()) chips.push({ key: 'maxPrice', label: 'حتى ' + formatBase(Number(this.selectedMaxPrice())) });
 		if (this.selectedLevels().length) chips.push({ key: 'level', label: this.selectedLevels().join(' + ') });
 		return chips;
 	});

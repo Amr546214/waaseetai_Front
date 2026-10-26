@@ -44,6 +44,7 @@
           <text x="50" y="47" text-anchor="middle" font-size="13" font-weight="900" fill="white">{{ availableRatio() }}%</text>
           <text x="50" y="59" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.45)">متاح</text>
         </svg>
+        @for (b of otherBalances(); track b.currency) { <div class="wal-main-lbl" data-testid="wal-other-balance">رصيد بعملة {{ b.currency }}: {{ money(b.value, b.currency) }}</div> }
         <div class="wal-main-lbl">الرصيد المتاح</div>
         <div><span class="wal-main-val">{{ balance() | number:'1.0-2' }}</span> <span class="wal-main-cur">$</span></div>
         <div class="wal-main-act">

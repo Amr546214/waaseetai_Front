@@ -1,4 +1,6 @@
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminListPagination, OFFER_STATUS_LABELS, apiErrorMessage } from '../sa-requests/sa-requests.service';
@@ -9,7 +11,7 @@ type FilterKey = 'ALL' | 'PENDING_SIGNATURE' | 'IN_AI_REVIEW' | 'SUBMITTED' | 'U
 @Component({
   selector: 'app-sa-offers',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [WsAmountPipe, WsDatePipe, CommonModule, RouterLink],
   templateUrl: './sa-offers.html',
   styleUrl: './sa-offers.css',
 })

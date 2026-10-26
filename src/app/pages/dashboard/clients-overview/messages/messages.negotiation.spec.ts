@@ -62,7 +62,7 @@ describe('client messages: negotiation cards are server-driven; the only decisio
 		const c = s.cards()[1];
 		expect(c.getAttribute('data-neg-kind')).toBe('counter');
 		const t = c.textContent!.replace(/\s+/g, ' ');
-		expect(t).toContain('900 دولار'); expect(t).toContain('10 يوم'); expect(t).toContain('ملاحظة');
+		expect(t).toContain('900 USD'); expect(t).toContain('10 يوم'); expect(t).toContain('ملاحظة');
 		expect(c.querySelector('[data-testid="neg-counter-note"]')!.textContent).toContain('ولا يغيّر السعر أو المدة الرسمية');
 		expect(Array.from(c.querySelectorAll('button')).map(b => b.textContent!.trim()).join('|')).not.toMatch(/رفض التفاوض|رفض الطلب/);
 	});
@@ -126,7 +126,7 @@ describe('client messages: negotiation cards are server-driven; the only decisio
 			expect(accept(card)!.textContent).toContain('قبول العرض المضاد');
 			accept(card)!.click(); s.f.detectChanges();
 			const text = card.textContent!.replace(/\s+/g, ' ');
-			expect(text).toContain('سيصبح سعر العرض 900 دولار ومدته 10 يوم');
+			expect(text).toContain('سيصبح سعر العرض 900 USD ومدته 10 يوم');
 			expect(calls).toHaveLength(0);
 			(card.querySelector('[data-testid="neg-counter-accept-no"]') as HTMLButtonElement).click(); s.f.detectChanges();
 			expect(accept(card)).not.toBeNull();
@@ -142,7 +142,7 @@ describe('client messages: negotiation cards are server-driven; the only decisio
 			expect(accept(card)).toBeNull();
 			expect(card.querySelector('[data-testid="neg-counter-accepted"]')!.textContent).toContain('تم قبول هذا العرض المضاد');
 			expect(card.querySelector('[data-testid="neg-counter-open-request"]')).not.toBeNull();
-			expect(TestBed.inject(UiNotificationService).toasts().map(t => t.message).join(' ')).toContain('900 دولار خلال 10 يوم');
+			expect(TestBed.inject(UiNotificationService).toasts().map(t => t.message).join(' ')).toContain('900 USD خلال 10 يوم');
 		});
 
 		it('a server refusal (e.g. stale counter) is shown in the card with the server text, the counter stays acceptable', async () => {

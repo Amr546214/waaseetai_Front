@@ -1,4 +1,3 @@
-import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, ChangeDetectionStrategy, ElementRef, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +8,7 @@ import { TicketApiService, SupportTicket, SupportTicketMessage, TicketStatus } f
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SubmitGuard, reportProblems } from '../../../../../shared/forms/form-error-focus';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { formatWsText, formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
 
 interface TimelineStep { label: string; state: 'done' | 'active' | 'idle'; }
 interface ChatMessage { from: 'me' | 'agent'; name: string; time: string; text: string; }
@@ -37,11 +37,11 @@ const STATUS_LABELS: Record<TicketStatus, string> = {
 };
 
 function formatDate(iso: string): string {
-	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', timeZone: providerTimeZone() });
+	return formatWsText(iso, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 function formatTime(iso: string): string {
-	return new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
+	return formatWsDate(iso, 'time');
 }
 
 function buildTimeline(status: TicketStatus): TimelineStep[] {

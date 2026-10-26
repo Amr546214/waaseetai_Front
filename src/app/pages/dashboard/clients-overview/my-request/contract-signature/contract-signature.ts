@@ -1,3 +1,5 @@
+import { formatAmount } from '../../../../../core/utils/currency';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { Component, signal, inject, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -15,7 +17,7 @@ type ContractView = 'loading' | 'ready' | 'readonly' | 'blocked' | 'error';
 @Component({
 	selector: 'app-contract-signature',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, WsAmountPipe],
 	templateUrl: './contract-signature.html',
 	styleUrl: './contract-signature.css',
 	encapsulation: ViewEncapsulation.None
@@ -42,6 +44,7 @@ export class ContractSignature implements OnInit {
 	requestTitle = signal<string>('');
 	providerName = signal<string>('');
 	price = signal<string>('');
+	currency = signal<string | undefined>(undefined);
 	duration = signal<string>('');
 	/** The contract's real stages (title, share, amount, days) exactly as they were frozen when the offer was selected; nothing is invented. */
 	milestones = signal<{ order: number; title: string; description: string; percentage: number; amount: number; days: number }[]>([]);
@@ -73,7 +76,8 @@ export class ContractSignature implements OnInit {
 				}
 				this.providerName.set(c.provider?.name || '');
 				this.requiredAmount.set(Math.round(Number(c.price || 0) * 100) / 100);
-				this.price.set(`${Number(c.price || 0)} $`);
+				this.currency.set(c.currency);
+				this.price.set(formatAmount(Number(c.price || 0), c.currency));
 				this.duration.set(c.durationDays ? `${c.durationDays} يوم` : '');
 				this.milestones.set((Array.isArray(c.milestones) ? c.milestones : []).map((m: any, i: number) => ({
 					order: Number(m.order) || i + 1,

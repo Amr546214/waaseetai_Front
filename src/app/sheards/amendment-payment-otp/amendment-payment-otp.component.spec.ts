@@ -73,7 +73,7 @@ describe('AmendmentPaymentOtpComponent', () => {
 	it('a short wallet at the code request shows the shortfall with the deposit link', async () => {
 		const s = await setup('respond', () => throwError(() => ({ status: 409, error: { message: 'رصيد المحفظة غير كافٍ', errors: [{ required: 5, available: 1, shortfall: 4 }] } })));
 		s.click('amendment-otp-send');
-		expect(s.q('amendment-otp-insufficient')!.textContent).toContain('المطلوب 5 $');
+		expect(s.q('amendment-otp-insufficient')!.textContent).toContain('المطلوب 5 USD');
 		expect((s.q('amendment-otp-deposit') as HTMLAnchorElement).getAttribute('href')).toBe('/client-overview/finance/wallet');
 		expect(s.q('amendment-otp-input')).toBeNull();
 	});
@@ -105,9 +105,10 @@ describe('amendment-effect helpers', () => {
 
 	it('financial lines: increase (amount, new price, new stage), decrease (refund, shrink unreleased only), duration, scope', () => {
 		const inc = amendmentEffectLines({ type: 'BUDGET', budgetDelta: 5, contractPrice: 20 }).map(l => `${l.label}:${l.value}`).join('|');
-		expect(inc).toContain('يُخصم من محفظة العميل:5 $'); expect(inc).toContain('20 $ ← 25 $'); expect(inc).toContain('مرحلة جديدة في آخر العقد:5 $');
+		expect(inc).toContain('يُخصم من محفظة العميل:5 USD'); expect(inc).toContain('20 USD ← 25 USD'); expect(inc).toContain('مرحلة جديدة في آخر العقد:5 USD');
 		const dec = amendmentEffectLines({ type: 'BUDGET', budgetDelta: -4, contractPrice: 20 }).map(l => `${l.label}:${l.value}`).join('|');
-		expect(dec).toContain('يُردّ إلى محفظة العميل:4 $'); expect(dec).toContain('20 $ ← 16 $'); expect(dec).toContain('غير المسلَّمة فقط');
+		expect(dec).toContain('يُردّ إلى محفظة العميل:4 USD'); expect(dec).toContain('20 USD ← 16 USD'); expect(dec).toContain('غير المسلَّمة فقط');
+		expect(amendmentEffectLines({ type: 'BUDGET', budgetDelta: 5, contractPrice: 20, currency: 'SAR' }).map(l => l.value).join('|')).toContain('20 SAR ← 25 SAR');
 		expect(amendmentEffectLines({ type: 'DURATION', durationDeltaDays: -2, contractDurationDays: 14 })[0].value).toBe('14 ← 12 يومًا');
 		expect(amendmentEffectLines({ type: 'SCOPE', description: 'إضافة' })[0].label).toBe('النطاق');
 		expect(amendmentEffectLines({ type: 'SCOPE', description: '' })).toEqual([]);

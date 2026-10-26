@@ -17,7 +17,7 @@ describe('ProviderDepositModal: no ready-made amount', () => {
 		const input = el.querySelector('#dpmAmt') as HTMLInputElement;
 		expect(c.amount()).toBeNull();
 		expect(input.value).toBe('');
-		expect(input.getAttribute('placeholder')).toBe('أدخل المبلغ بالدولار');
+		expect(input.getAttribute('placeholder')).toBe('أدخل المبلغ (USD)');
 		expect(el.querySelectorAll('.dpm-chip').length).toBe(0);
 		expect(el.querySelector('.dpm-summary-row:nth-child(2)')!.textContent).toContain('—');
 		expect(c.balanceAfter()).toBe(120);

@@ -46,7 +46,7 @@
                 <td><span class="tk-bdg" style="background:rgba(255,255,255,.06);color:#6B7699">{{ typeLabel[t.type] }}</span></td>
                 <td class="tk-assignee">{{ t.assignee?.name ?? 'غير مُكلَّفة' }}</td>
                 <td><span class="tk-bdg" [ngStyle]="pStyle(t.priority)">{{ priorityLabel[t.priority] }}</span></td>
-                <td [style.color]="t.overdue ? '#FF5050' : '#6B7699'">{{ t.dueAt ? (t.dueAt | date:'yyyy/MM/dd') : '—' }}{{ t.overdue ? ' (متأخر)' : '' }}</td>
+                <td [style.color]="t.overdue ? '#FF5050' : '#6B7699'">{{ t.dueAt ? (t.dueAt | wsDate:'date':'yyyy/MM/dd') : '—' }}{{ t.overdue ? ' (متأخر)' : '' }}</td>
                 <td><span class="tk-bdg" [ngStyle]="sStyle(t.status)">{{ statusLabel[t.status] }}</span></td>
                 <td><button type="button" class="tk-detail-btn" (click)="open(t)" data-testid="task-open">تفاصيل</button></td>
               </tr>
@@ -106,9 +106,9 @@
         <div class="tk-mbody">
           <div class="tk-mrow"><div class="tk-mfield"><label>الرقم</label><p>{{ d.code }}</p></div><div class="tk-mfield"><label>النوع</label><p>{{ typeLabel[d.type] }}</p></div></div>
           <div class="tk-mrow"><div class="tk-mfield"><label>المُكلَّف</label><p>{{ d.assignee?.name ?? 'غير مُكلَّفة' }}</p></div><div class="tk-mfield"><label>الأولوية</label><p>{{ priorityLabel[d.priority] }}</p></div></div>
-          <div class="tk-mfield"><label>الموعد</label><p>{{ d.dueAt ? (d.dueAt | date:'yyyy/MM/dd HH:mm') : '—' }}</p></div>
+          <div class="tk-mfield"><label>الموعد</label><p>{{ d.dueAt ? (d.dueAt | wsDate:'datetime':'yyyy/MM/dd HH:mm') : '—' }}</p></div>
           @if (d.description) { <div class="tk-mfield"><label>الوصف</label><p>{{ d.description }}</p></div> }
-          <div class="tk-mfield"><label>السجل</label>@for (ev of d.events; track $index) { <p style="font-size:11px">{{ ev.at | date:'MM/dd HH:mm' }} · {{ ev.kind === 'STATUS' ? ('الحالة: ' + (statusLabel[ev.to ?? ''] || ev.to)) : ev.kind === 'CREATED' ? 'أُنشئت' : ev.kind === 'ASSIGNED' ? 'أُسندت' : 'عُدّلت' }}</p> }</div>
+          <div class="tk-mfield"><label>السجل</label>@for (ev of d.events; track $index) { <p style="font-size:11px">{{ ev.at | wsDate:'datetime' }} · {{ ev.kind === 'STATUS' ? ('الحالة: ' + (statusLabel[ev.to ?? ''] || ev.to)) : ev.kind === 'CREATED' ? 'أُنشئت' : ev.kind === 'ASSIGNED' ? 'أُسندت' : 'عُدّلت' }}</p> }</div>
         </div>
         @if (detailError()) { <div class="tk-empty" role="alert" style="color:#FF8C69">{{ detailError() }}</div> }
         @if (canChangeStatus(d)) {

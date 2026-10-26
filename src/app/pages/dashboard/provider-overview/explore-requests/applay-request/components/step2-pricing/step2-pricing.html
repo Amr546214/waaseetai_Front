@@ -48,6 +48,7 @@
         <span *ngIf="totalBudgetModel.errors?.['required']">يرجى إدخال سعر العرض</span>
         <span *ngIf="totalBudgetModel.errors?.['min']">يجب أن يكون السعر 1 على الأقل</span>
       </div>
+      <ws-provider-fee-preview [price]="totalBudget" />
     </div>
     <div class="flex-1 min-w-[170px] bg-[rgba(15,169,154,.05)] border border-[rgba(15,169,154,.15)] rounded-lg p-[10px_14px]">
       <div class="text-[11px] text-[#6B7699] mb-1">إجمالي مدة التنفيذ</div>
@@ -148,7 +149,7 @@
           <div class="mb-0">
             <label class="flex items-center justify-between gap-2 mb-[7px] text-[12.5px] font-bold text-[#6B7699]">المبلغ عند التسليم</label>
             <div class="h-[38px] flex items-center text-[14px] font-black text-[#2BD4C7] px-3 bg-[rgba(43,212,199,.07)] border border-[rgba(43,212,199,.18)] rounded-[10px]">
-              {{ getAmount(m.pct) | number:'1.0-2' }} $
+              {{ getAmount(m.pct) | wsAmount:currency }}
             </div>
           </div>
         </div>
@@ -182,7 +183,7 @@
       @for(m of proposal.milestones; track m.id; let i = $index) {
         <div class="p-[8px_12px] bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.18)] rounded-[9px] text-center min-w-[90px]">
           <div class="text-[10px] text-[#6B7699]">مرحلة {{ i + 1 }}</div>
-          <div class="text-[15px] font-black text-[#2BD4C7]">{{ getAmount(m.pct) | number:'1.0-2' }} $</div>
+          <div class="text-[15px] font-black text-[#2BD4C7]">{{ getAmount(m.pct) | wsAmount:currency }}</div>
           <div class="text-[10px] text-[#6B7699]">{{ m.pct || 0 }}%</div>
         </div>
       }
@@ -209,7 +210,7 @@
             </div>
             <div class="text-center text-[12px] text-[#A8B2D1] pricing-label">{{ m.days ? m.days + ' يوم' : '—' }}</div>
             <div class="text-center text-[13px] font-extrabold text-[#2BD4C7]">{{ m.pct ? m.pct + '%' : '—' }}</div>
-            <div class="text-center text-[13px] font-extrabold text-[#A8B2D1] pricing-label">{{ getAmount(m.pct) ? (getAmount(m.pct) | number:'1.0-2') + ' $' : '—' }}</div>
+            <div class="text-center text-[13px] font-extrabold text-[#A8B2D1] pricing-label">{{ getAmount(m.pct) ? (getAmount(m.pct) | wsAmount:currency) : '—' }}</div>
           </div>
         }
         
@@ -221,7 +222,7 @@
           <div class="text-[12px] font-extrabold text-[#A8B2D1] pricing-label">المجموع</div>
           <div class="text-center text-[13px] font-black text-white pricing-title">{{ totalDays > 0 ? totalDays + ' يوم' : '—' }}</div>
           <div class="text-center text-[13px] font-black" [class.text-[#2BD4C7]]="totalPct === 100" [class.text-[#FF8C69]]="totalPct !== 100">{{ totalPct }}%</div>
-          <div class="text-center text-[13px] font-black text-[#2BD4C7]">{{ totalAmount > 0 ? (totalAmount | number:'1.0-2') + ' $' : '—' }}</div>
+          <div class="text-center text-[13px] font-black text-[#2BD4C7]">{{ totalAmount > 0 ? (totalAmount | wsAmount:currency) : '—' }}</div>
         </div>
       </div>
     </div>

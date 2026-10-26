@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, OnInit, PLATFORM_ID, inject, signal, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -11,7 +12,7 @@ import { isOwnModel } from '../../../../core/utils/own-service.util';
 @Component({
 	selector: 'app-favorites',
 	standalone: true,
-	imports: [LevelBadgeComponent, CommonModule, RouterLink],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink, WsAmountPipe],
 	templateUrl: './favorites.html',
 	styleUrl: './favorites.css'
 })

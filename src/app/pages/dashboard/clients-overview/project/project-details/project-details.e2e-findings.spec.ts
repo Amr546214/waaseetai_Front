@@ -30,7 +30,7 @@ describe('client workspace: real stages only (e2e findings)', () => {
 		const txt = s.el.textContent!.replace(/\s+/g, ' ');
 		expect(txt).toContain('التصميم'); expect(txt).toContain('التطوير');
 		expect(txt).toContain('5 يوم'); expect(txt).toContain('9 يوم');
-		expect(txt).toContain('محتجز 8.73 $'); expect(txt).toContain('قيمة المرحلة 61.07 $');
+		expect(txt).toContain('محتجز 8.73 USD'); expect(txt).toContain('قيمة المرحلة 61.07 USD');
 		expect(txt).not.toContain('8.729999'); expect(txt).not.toContain('تسليم المشروع النهائي');
 		expect(s.el.querySelector('[data-testid="pd-no-stages"]')).toBeNull();
 	});

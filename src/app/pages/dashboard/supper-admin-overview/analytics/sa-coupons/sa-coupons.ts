@@ -1,4 +1,8 @@
+import { WsAmountPipe, WsBasePipe } from '../../../../../shared/money/money.pipe';
+import { formatAmount } from '../../../../../core/utils/currency';
+import { MoneyByComponent } from '../../../../../shared/money/money-by.component';
 import { Component, computed, ElementRef, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
@@ -18,7 +22,7 @@ const errMsg = (e: any, fallback: string) => e?.error?.message || fallback;
 @Component({
   selector: 'app-sa-coupons',
   standalone: true,
-  imports: [CommonModule, FormsModule, WsSelectComponent],
+  imports: [WsAmountPipe, WsBasePipe, MoneyByComponent, WsDatePipe, CommonModule, FormsModule, WsSelectComponent],
   templateUrl: './sa-coupons.html',
   styleUrl: './sa-coupons.css',
 })
@@ -90,7 +94,7 @@ export class SaCoupons {
   goPage(p: number): void { this.page.set(p); this.load(); }
 
   discountText(c: AdminCoupon): string {
-    return c.discountType === 'percentage' ? `${c.discountValue}%` : `${c.discountValue} $`;
+    return c.discountType === 'percentage' ? `${c.discountValue}%` : formatAmount(c.discountValue, c.currency);
   }
 
   usageText(c: AdminCoupon): string {

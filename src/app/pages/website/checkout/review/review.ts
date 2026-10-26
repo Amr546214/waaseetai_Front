@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 import { AuthStore } from '../../../../core/store/auth.store';
-import { formatMoney } from '../../../../core/utils/money.util';
+import { formatAmount } from '../../../../core/utils/currency';
 
 @Component({
   selector: 'app-checkout-review',
@@ -70,8 +70,11 @@ export class CheckoutReviewComponent {
     return map[u.accountType] || u.accountType || '—';
   }
 
-  formatPrice(value: number): string {
-    return formatMoney(value, 0);
+  /** the order's / cart's own currency (a missing one reads as USD, legacy) */
+  currency = computed(() => this.activeItems()[0]?.currency);
+
+  formatPrice(value: number, currency?: string): string {
+    return formatAmount(value, currency ?? this.currency());
   }
 
   // Fallback deliverables derived from item category/package (no API calls)

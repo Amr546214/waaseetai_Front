@@ -38,7 +38,7 @@
 				<div class="model-row">
 					<div class="model-info">
 						<div class="model-name">{{ m.name }}</div>
-						<div class="model-meta">{{ m.sales }} مبيع · {{ m.revenue | number:'1.0-2' }} دولار</div>
+						<div class="model-meta">{{ m.sales }} مبيع · {{ m.revenue | wsAmount:summaryCurrency }}</div>
 					</div>
 					<div class="model-bar-wrap">
 						<div class="model-bar">
@@ -65,7 +65,7 @@
 					<div class="sale-id">{{ sale.orderNumber }}</div>
 					<div class="sale-model">{{ sale.model }}</div>
 					<div class="sale-client">{{ sale.client }}</div>
-					<div class="sale-amount">{{ sale.amount | number:'1.0-2' }} دولار</div>
+					<div class="sale-amount">{{ sale.amount | wsAmount:sale.currency }}</div>
 					<div class="sale-date">{{ sale.date }}</div>
 					<span class="sale-status" [ngClass]="'st-' + sale.status">{{ statusLabel(sale.status) }}</span>
 				</div>

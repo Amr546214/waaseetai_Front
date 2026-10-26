@@ -1,4 +1,3 @@
-import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -15,6 +14,8 @@ import { ProviderProfileService } from '../../../../../core/services/provider-pr
 import { formatMoney } from '../../../../../core/utils/money.util';
 import { mapHttpError } from '../../../../../core/forms/http-error';
 import { SubmitGuard, resolveField, scrollFocus } from '../../../../../shared/forms/form-error-focus';
+import { formatWsDate, formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
+import { currencyOf } from '../../../../../core/utils/currency';
 
 
 @Component({
@@ -46,14 +47,12 @@ export class Withdraw implements OnInit {
   pendingWithdrawals = computed(() => this.wallet()?.summary?.pendingWithdrawals ?? 0);
   totalEarnings = computed(() => this.wallet()?.summary?.totalEarnings ?? 0);
   escrowBalance = computed(() => this.wallet()?.summary?.escrowBalance ?? 0);
-  // Reads the real currency code from the wallet API (now USD-semantic for
-  // new/active balances) and renders it as the app's established symbol —
-  // never hardcodes the currency, it follows the actual stored value.
-  currency = computed(() => this.currencySymbol(this.wallet()?.summary?.currency || 'USD'));
+  // Reads the real currency code from the wallet API and prints the CODE
+  // (never a typed symbol); a missing value reads as the legacy currency.
+  currency = computed(() => this.currencySymbol(this.wallet()?.summary?.currency));
 
-  private currencySymbol(code: string): string {
-    if (code === 'USD') return '$';
-    return code;
+  private currencySymbol(code?: string | null): string {
+    return currencyOf(code);
   }
 
   // ── Withdrawal history ──────────────────────────────────────────────
@@ -284,7 +283,7 @@ export class Withdraw implements OnInit {
         const availableAt = err?.error?.availableAt;
         if (err?.error?.code === 'PAYPAL_EMAIL_FROZEN' && availableAt) {
           const d = new Date(availableAt);
-          if (!Number.isNaN(d.getTime())) this.submitErrorHint.set(`يتاح السحب بعد: ${d.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short', timeZone: providerTimeZone() })}`);
+          if (!Number.isNaN(d.getTime())) this.submitErrorHint.set(`يتاح السحب بعد: ${formatWsDate(d, 'datetime')}`);
         }
       },
     });
@@ -354,14 +353,7 @@ export class Withdraw implements OnInit {
   formatDate(date?: string | null): string {
     if (!date) return '—';
     try {
-      return new Date(date).toLocaleString('ar-SA', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: providerTimeZone(),
-      });
+      return formatWsText(date, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
       return date;
     }

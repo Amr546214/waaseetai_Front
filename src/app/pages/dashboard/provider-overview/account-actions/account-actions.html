@@ -71,7 +71,7 @@
 					<span class="px-2 py-1 rounded-lg bg-white/10 text-xs" data-testid="request-status">{{ r.statusLabel }}</span>
 				</div>
 				<div class="opacity-90" data-testid="request-model">النموذج: {{ r.model.title }}</div>
-				<div class="opacity-80 text-xs mt-1" data-testid="request-dates">أُرسل: {{ r.submittedAt | date:'medium' }} · آخر تحديث: {{ r.updatedAt | date:'medium' }}@if (r.decidedAt) { · القرار: {{ r.decidedAt | date:'medium' }} }</div>
+				<div class="opacity-80 text-xs mt-1" data-testid="request-dates">أُرسل: {{ r.submittedAt | wsDate:'datetime' }} · آخر تحديث: {{ r.updatedAt | wsDate:'datetime' }}@if (r.decidedAt) { · القرار: {{ r.decidedAt | wsDate:'datetime' }} }</div>
 				<div class="opacity-80 text-xs mt-1" data-testid="request-attachments">
 					المرفقات: {{ r.attachments.length }} ملف@if (r.attachments.length) { ({{ r.attachments.map(a => a.fileName).join('، ') }}) }
 					· المسموح: {{ r.allowedAttachments.allowedExtensions.join('، ') }} حتى {{ r.allowedAttachments.maxMegabytes }} ميجابايت
@@ -84,7 +84,7 @@
 				}
 				@if (r.history.length) {
 					<ol class="mt-3 text-xs opacity-80 list-disc ps-5" data-testid="request-history">
-						@for (h of r.history; track h.id) { <li>{{ h.label }} · {{ h.at | date:'short' }}@if (h.note) { — {{ h.note }} }</li> }
+						@for (h of r.history; track h.id) { <li>{{ h.label }} · {{ h.at | wsDate:'datetime' }}@if (h.note) { — {{ h.note }} }</li> }
 					</ol>
 				}
 				@if (r.status === 'COMPLETION_REQUIRED') {

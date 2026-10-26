@@ -1,6 +1,8 @@
 import { Component, ElementRef, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { resolveField, scrollFocus } from '../../../../../../shared/forms/form-error-focus';
+import { WsBasePipe, WsCurrencyPipe } from '../../../../../../shared/money/money.pipe';
+import { currencyCode, formatBase } from '../../../../../../core/utils/currency';
 
 /**
  * UI-only deposit dialog for the provider wallet.
@@ -20,7 +22,7 @@ import { resolveField, scrollFocus } from '../../../../../../shared/forms/form-e
 @Component({
 	selector: 'app-provider-deposit-modal',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [WsBasePipe, WsCurrencyPipe, CommonModule],
 	templateUrl: './deposit-modal.html',
 	styleUrl: './deposit-modal.css'
 })
@@ -30,7 +32,7 @@ export class ProviderDepositModal {
 	@Output() close = new EventEmitter<void>();
 	@Output() confirmed = new EventEmitter<{ amount: number; method: 'paypal' }>();
 
-	/** Real deposit limits (USD). */
+	/** Real deposit limits (platform base currency). */
 	readonly minAmount = 50;
 	readonly maxAmount = 100000;
 
@@ -47,9 +49,9 @@ export class ProviderDepositModal {
 	/** Why the amount is not acceptable (null when it is fine or still untouched). */
 	amountError = computed<string | null>(() => {
 		const a = this.amount();
-		if (a == null) return this.attempted() ? 'أدخل مبلغ الإيداع بالدولار' : null;
-		if (a < this.minAmount) return `الحد الأدنى لمبلغ الإيداع ${this.minAmount} دولار`;
-		if (a > this.maxAmount) return `الحد الأقصى لمبلغ الإيداع ${this.maxAmount} دولار`;
+		if (a == null) return this.attempted() ? `أدخل مبلغ الإيداع (${currencyCode()})` : null;
+		if (a < this.minAmount) return `الحد الأدنى لمبلغ الإيداع ${formatBase(this.minAmount)}`;
+		if (a > this.maxAmount) return `الحد الأقصى لمبلغ الإيداع ${formatBase(this.maxAmount)}`;
 		return null;
 	});
 

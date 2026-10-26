@@ -54,7 +54,7 @@
           </div>
           <div class="ai-banner-content">
             <div class="ai-banner-label">مقارنة تقييم AI</div>
-            <div class="ai-banner-text">صاحبة أعلى تقييم جودة AI بين الخدمات المختارة: <strong>{{ w.provider.name }}</strong> — جودة AI {{ w.aiScore }} وسعر يبدأ من {{ w.totalAmount }} $</div>
+            <div class="ai-banner-text">صاحبة أعلى تقييم جودة AI بين الخدمات المختارة: <strong>{{ w.provider.name }}</strong> — جودة AI {{ w.aiScore }} وسعر يبدأ من {{ w.totalAmount | wsAmount:w.currency }}</div>
           </div>
           <div class="ai-banner-badge">AI · تقييم</div>
         </div>
@@ -129,7 +129,7 @@
               </div>
               <div class="pcard-price-row">
                 <div class="pcard-price-label">يبدأ من</div>
-                <span class="pcard-price-val" [style.color]="isWinner ? 'var(--teal)' : null">{{ m.totalAmount }}</span><span class="pcard-price-cur">$</span>
+                <span class="pcard-price-val" [style.color]="isWinner ? 'var(--teal)' : null">{{ m.totalAmount | wsAmount:m.currency }}</span>
                 <div class="pcard-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ m.totalDays }} أيام</div>
               </div>
               <button class="pcard-btn" type="button" [attr.data-testid]="isOwn(m) ? 'own-service' : null" [class.primary]="isWinner" [class.ghost]="!isWinner" [routerLink]="['/marketplace/offer', m.id]">{{ isOwn(m) ? 'هذه خدمتك' : (isWinner ? 'اطلب الآن' : 'عرض الخدمة') }}</button>
@@ -183,7 +183,7 @@
               <div class="summary-item-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-star"></use></svg></div>
               <div>
                 <div class="summary-item-label">أفضل سعر</div>
-                <div class="summary-item-val">{{ c.totalAmount | number:'1.0-2' }} $ — {{ c.provider.name }}</div>
+                <div class="summary-item-val">{{ c.totalAmount | wsAmount:c.currency }} — {{ c.provider.name }}</div>
               </div>
             </div>
           }

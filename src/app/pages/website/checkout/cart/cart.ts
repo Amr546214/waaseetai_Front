@@ -1,7 +1,7 @@
 import { mapHttpError } from '../../../../core/forms/http-error';
 import { scrollFocus } from '../../../../shared/forms/form-error-focus';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
-import { Component, inject, signal, effect, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../../../core/services/cart.service';
@@ -10,7 +10,7 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { isOwnModel } from '../../../../core/utils/own-service.util';
 import { Subscription, Observable, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { formatMoney } from '../../../../core/utils/money.util';
+import { formatAmount } from '../../../../core/utils/currency';
 
 @Component({
   selector: 'app-cart',
@@ -157,8 +157,11 @@ export class CartComponent implements OnInit, OnDestroy {
     return this.items().filter(i => i.savedForLater);
   }
 
-  formatPrice(value: number): string {
-    return formatMoney(value, 0);
+  /** the order's / cart's own currency (a missing one reads as USD, legacy) */
+  currency = computed(() => this.activeItems[0]?.currency);
+
+  formatPrice(value: number, currency?: string): string {
+    return formatAmount(value, currency ?? this.currency());
   }
 
   removeItem(itemId: string) {

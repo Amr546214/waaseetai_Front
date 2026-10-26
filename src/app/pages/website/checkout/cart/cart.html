@@ -137,7 +137,7 @@
             </div>
             <div class="cart-actions">
               <div>
-                <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">$</span></div>
+                <div class="cart-price">{{ formatPrice(item.totalAmount, item.currency) }}</div>
               </div>
 @if (!item.ownService) {
               <button class="cart-save-btn" type="button" (click)="toggleSaveForLater(item.id)">
@@ -191,7 +191,7 @@
               </div>
               <div class="cart-actions">
                 <div>
-                  <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">$</span></div>
+                  <div class="cart-price">{{ formatPrice(item.totalAmount, item.currency) }}</div>
                 </div>
                 @if (item.ownService) {
                   <span class="cart-conflict-alert" data-testid="cart-own-service-saved">هذه خدمتك — لا يمكن شراؤها</span>
@@ -244,7 +244,7 @@
                 </div>
                 <div class="rec-body">
                   <div class="rec-title-text">{{ rec.title }}</div>
-                  <div class="rec-price">{{ formatPrice(rec.totalAmount) }} <span>$</span></div>
+                  <div class="rec-price">{{ formatPrice(rec.totalAmount, rec.currency) }}</div>
                   <div class="rec-prov">{{ rec.provider.name }}@if (rec.level) { · {{ rec.level }}}</div>
                   @if (!isOwnRec(rec) && recConflictIds().has(rec.id)) {
                     <div class="rec-conflict-tag">{{ duplicatePurchaseMessage }}</div>
@@ -281,12 +281,12 @@
           @for (item of activeItems; track item.id) {
             <div class="sum-row">
               <span class="sum-row-label">{{ item.title }}</span>
-              <span class="sum-row-val">{{ formatPrice(item.totalAmount) }} $</span>
+              <span class="sum-row-val">{{ formatPrice(item.totalAmount, item.currency) }}</span>
             </div>
           }
           <div class="sum-row" style="padding-top:8px;border-top:1px solid var(--border);margin-top:2px">
             <span class="sum-row-label">المجموع الفرعي</span>
-            <span class="sum-row-val">{{ formatPrice(subtotal()) }} $</span>
+            <span class="sum-row-val">{{ formatPrice(subtotal()) }}</span>
           </div>
 
           <div class="sum-row" style="margin-top:2px;padding:0">
@@ -296,7 +296,7 @@
             </span>
             <span class="sum-row-val" style="color:var(--teal)">
               @if (discount() > 0) {
-                - {{ formatPrice(discount()) }} $
+                - {{ formatPrice(discount()) }}
               } @else {
                 —
               }
@@ -304,7 +304,7 @@
           </div>
           <div class="sum-row total">
             <span class="sum-row-label">الإجمالي</span>
-            <span class="sum-row-val">{{ formatPrice(total()) }} $</span>
+            <span class="sum-row-val">{{ formatPrice(total()) }}</span>
           </div>
         </div>
         <div class="coupon-wrap">
@@ -317,7 +317,7 @@
                 @if (coupon()!.discountType === 'percentage') {
                   خصم {{ coupon()!.discountValue }}%
                 } @else {
-                  خصم {{ formatPrice(coupon()!.discountValue) }} $
+                  خصم {{ formatPrice(coupon()!.discountValue) }}
                 }
               </span>
               <button class="coupon-btn" type="button" (click)="removeCoupon()">إزالة</button>

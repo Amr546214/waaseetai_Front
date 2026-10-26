@@ -83,7 +83,7 @@
 						<td class="inv-client">{{ inv.client }}</td>
 						<td class="inv-date">{{ inv.date }}</td>
 						<td>
-							<span class="inv-amt">{{ inv.amount | number:'1.0-2' }} دولار</span>
+							<span class="inv-amt">{{ inv.amount | wsAmount:inv.currency }}</span>
 							<div class="inv-amt-sub">مستند مالي رسمي</div>
 						</td>
 						<td>

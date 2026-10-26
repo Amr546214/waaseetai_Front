@@ -36,7 +36,7 @@ describe('provider timezone reaches hand-formatted dates', () => {
 	it('every hand-formatted date in the individual provider area passes the saved zone', () => {
 		const root = join(__dirname, '../../pages/dashboard/provider-overview');
 		for (const f of ['messages/messages.ts', 'projects/active/progress/progress.ts', 'settings/account/account.ts', 'finance/withdraw/withdraw.ts', 'disputes/disputes.mapper.ts', 'profile/logs/logs.ts', 'profile/data/data.ts', 'finance/invoices/invoices.ts', 'help/tickets/tickets.ts', 'help/ticket-detail/ticket-detail.ts', 'marketing/marketing-utils.ts', 'marketing/approvals/approvals.ts']) {
-			expect(readFileSync(join(root, f), 'utf8'), f).toContain('providerTimeZone()');
+			expect(readFileSync(join(root, f), 'utf8'), f).toMatch(/providerTimeZone\(\)|formatWs(Date|Text)|wsDate/);
 		}
 	});
 });

@@ -81,7 +81,7 @@
                   <span class="rq-status" [ngClass]="statusClasses[r.status]">{{ statusLabels[r.status] || r.status }}</span>
                   @if (r.contractStatus) { <div class="rq-muted rq-sub-st">عقد: {{ contractLabels[r.contractStatus] || r.contractStatus }}</div> }
                 </td>
-                <td class="rq-muted">{{ r.createdAt | date: 'yyyy-MM-dd' }}</td>
+                <td class="rq-muted">{{ r.createdAt | wsDate:'date':'yyyy-MM-dd' }}</td>
               </tr>
             }
           </tbody>

@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { WsAmountPipe } from '../../../../../../../shared/money/money.pipe';
 
 @Component({
   selector: 'app-step4-success',
   standalone: true,
-  imports: [CommonModule],
+  imports: [WsAmountPipe, CommonModule],
   templateUrl: './step4-success.html'
 })
 export class Step4Success {

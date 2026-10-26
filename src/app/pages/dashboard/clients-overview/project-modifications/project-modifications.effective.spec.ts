@@ -44,8 +44,8 @@ describe('ProjectModificationsComponent: effective amendments', () => {
     await setup([AM()]);
     (fixture.nativeElement.querySelector('.dp-appr-btn') as HTMLButtonElement).click(); fixture.detectChanges();
     const lines = q('am-effect-lines')!.textContent!.replace(/\s+/g, ' ');
-    expect(lines).toContain('يُخصم من محفظة العميل'); expect(lines).toContain('5 $');
-    expect(lines).toContain('20 $ ← 25 $');
+    expect(lines).toContain('يُخصم من محفظة العميل'); expect(lines).toContain('5 USD');
+    expect(lines).toContain('20 USD ← 25 USD');
     expect(lines).toContain('مرحلة جديدة في آخر العقد');
     expect(q('am-confirm')!.textContent).toContain('بعد إدخال رمز التحقق');
     expect(q('am-confirm-yes')!.textContent).toContain('متابعة إلى اعتماد الدفع');
@@ -82,7 +82,7 @@ describe('ProjectModificationsComponent: effective amendments', () => {
     input.value = '123456'; input.dispatchEvent(new Event('input')); fixture.detectChanges();
     click('amendment-otp-confirm');
     await fixture.whenStable(); fixture.detectChanges();
-    expect(q('amendment-otp-insufficient')!.textContent).toContain('الناقص 3 $');
+    expect(q('amendment-otp-insufficient')!.textContent).toContain('الناقص 3 USD');
     expect((q('amendment-otp-deposit') as HTMLAnchorElement).getAttribute('href')).toContain('/client-overview/finance/wallet');
     expect(get).toHaveBeenCalledTimes(1);
     expect(component.amendments()[0].status).toBe('PENDING_OTHER_PARTY');

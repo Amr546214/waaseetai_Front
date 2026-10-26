@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { WsBasePipe, WsCurrencyPipe } from '../../../../../../../shared/money/money.pipe';
 
 @Component({
 	selector: 'app-step4-stages',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [WsBasePipe, WsCurrencyPipe, CommonModule],
 	templateUrl: './step4-stages.component.html',
 	styleUrl: './step4-stages.component.css'
 })

@@ -292,7 +292,7 @@
                 <span class="svc-price-val" style="font-size:12px">قيد التنفيذ</span>
                 } @else if (model.totalAmount) {
                 <span class="svc-price-lbl">يبدأ من</span>
-                <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">$</span></span>
+                <span class="svc-price-val">{{ model.totalAmount | wsAmount:model.currency }}</span>
                 } @else {
                 <span class="svc-price-lbl">سعر الخدمة</span>
                 <span class="svc-price-val" style="font-size:12px">نشط وقابل للطلب</span>

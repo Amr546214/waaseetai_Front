@@ -1,3 +1,5 @@
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
+import { PAYOUT_CURRENCY } from '../../../../core/utils/currency';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -26,11 +28,12 @@ type StatusFilter = 'all' | BrokerUserStatus;
 @Component({
   selector: 'app-sa-brokers',
   standalone: true,
-  imports: [CommonModule, RouterLink, SaBrokerKycRequests],
+  imports: [WsAmountPipe, CommonModule, RouterLink, SaBrokerKycRequests],
   templateUrl: './sa-brokers.html',
   styleUrl: './sa-brokers.css',
 })
 export class SaBrokers implements OnInit {
+  readonly payoutCurrency = PAYOUT_CURRENCY;
   private brokerApi = inject(AdminBrokerApiService);
 
   brokers = signal<AdminBrokerListItem[]>([]);

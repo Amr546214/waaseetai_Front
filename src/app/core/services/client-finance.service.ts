@@ -9,6 +9,9 @@ export interface ClientWalletSummary {
 	totalDeposited: number;
 	activeProjectsCount: number;
 	currency: string;
+	/** every wallet balance / held escrow amount in its own currency (availableBalance and escrowBalance stay the USD figures) */
+	balances?: Record<string, number>;
+	escrowBalances?: Record<string, number>;
 	/** Company-mode only (P-SK-018-شركة): this quarter's total spend and the quarter's budget cap. */
 	quarterSpend?: number;
 	quarterBudget?: number;
@@ -42,6 +45,8 @@ export interface ClientWalletData {
 }
 
 export interface ClientInvoice {
+	/** the contract's own currency */
+	currency?: string;
 	id: string;
 	sourceId: string;
 	contractId: string;

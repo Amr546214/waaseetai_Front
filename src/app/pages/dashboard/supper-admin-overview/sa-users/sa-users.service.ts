@@ -78,10 +78,10 @@ export interface AdminUserPersonalInfo {
 
 export interface AdminUserDetailTabs {
   requests: { id: string; title: string; status: string; proposalsCount: number; createdAt: string }[];
-  purchases: { id: string; orderNumber: string; total: number; status: string; createdAt: string }[];
+  purchases: { id: string; orderNumber: string; total: number; currency?: string; status: string; createdAt: string }[];
   disputes: { id: string; reason: string; status: string; openedById: string; createdAt: string }[];
   reports: { id: string; ticketNumber: string; subject: string; status: string; createdAt: string }[];
-  contracts: { id: string; projectId: string; status: string; price: number; role: 'CLIENT' | 'PROVIDER'; createdAt: string }[];
+  contracts: { id: string; projectId: string; status: string; price: number; currency?: string; role: 'CLIENT' | 'PROVIDER'; createdAt: string }[];
   payments: { id: string; type: string; amount: number; currency: string; status: string; createdAt: string }[];
 }
 

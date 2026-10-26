@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -11,7 +12,7 @@ import { AdminConsoleApiService, AdminSelfProfile, AdminSession } from '../../..
 @Component({
   selector: 'app-sa-my-account',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [WsDatePipe, CommonModule, FormsModule],
   templateUrl: './sa-my-account.html',
   styles: [`
     .ma{padding:22px 24px;direction:rtl;max-width:880px}

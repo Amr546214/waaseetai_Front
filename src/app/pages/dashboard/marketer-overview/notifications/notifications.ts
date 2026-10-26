@@ -1,3 +1,4 @@
+import { WsBasePipe } from '../../../../shared/money/money.pipe';
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
@@ -6,7 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NotificationEngineService } from '../../../../core/services/notification-engine.service';
 import { NotificationNavigator } from '../../../../core/services/notification-navigator.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
-import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
+import { formatWsDate, formatWsText } from '../../../../shared/ws-date/ws-date.pipe';
 import { MarketerOverviewService, MarketerSummary } from '../../../../core/services/marketer-overview.service';
 
 interface RawNotification {
@@ -44,7 +45,7 @@ interface DisplayNotification extends RawNotification {
 @Component({
 	selector: 'app-marketer-notifications',
 	standalone: true,
-	imports: [MarketerLevelTagComponent, CommonModule, RouterLink],
+	imports: [WsBasePipe, MarketerLevelTagComponent, CommonModule, RouterLink],
 	templateUrl: './notifications.html',
 	styleUrl: './notifications.css',
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -279,8 +280,8 @@ export class Notifications implements OnInit {
 		const diffHr = Math.floor(diffMin / 60);
 		if (diffHr < 24) return `قبل ${diffHr} ساعة`;
 		const diffDays = Math.floor(diffHr / 24);
-		if (diffDays === 1) return `أمس ${d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() })}`;
+		if (diffDays === 1) return `أمس ${formatWsDate(d, 'time')}`;
 		if (diffDays < 7) return `قبل ${diffDays} أيام`;
-		return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', timeZone: providerTimeZone() });
+		return formatWsText(d, { day: 'numeric', month: 'short' });
 	}
 }

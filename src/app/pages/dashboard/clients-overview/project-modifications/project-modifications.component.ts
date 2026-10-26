@@ -8,7 +8,8 @@ import { AccountType } from '../../../../core/models/auth.model';
 import { ChatService, MessageContext } from '../../../../core/services/chat.service';
 import { sortAmendments } from '../../../../core/utils/amendment-list';
 import { environment } from '../../../../../environments/environment';
-import { formatMoney } from '../../../../core/utils/money.util';
+import { formatAmount } from '../../../../core/utils/currency';
+import { WsDatePipe, WsDateTextPipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { AMENDMENT_PROPOSED_CHANGE_LABEL, AMENDMENT_REJECT_CONFIRM_TEXT, amendmentApproveText, amendmentApprovedBadge, amendmentEffect, amendmentEffectLines, amendmentEffectNote, amendmentNeedsPayment, amendmentBudgetPart, amendmentActionBlockedReason } from '../../../../core/constants/amendment-effect';
 import { AmendmentActionsService } from '../../../../core/services/amendment-actions.service';
 import { AmendmentPaymentOtpComponent } from '../../../../sheards/amendment-payment-otp/amendment-payment-otp.component';
@@ -29,6 +30,7 @@ interface Amendment {
 	title: string;
 	description: string | null;
 	budgetDelta: number | null;
+	currency?: string;
 	durationDeltaDays: number | null;
 	status: 'PENDING_OTHER_PARTY' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 	createdAt: string;
@@ -59,7 +61,7 @@ interface TimelineStep {
 @Component({
 	selector: 'app-project-modifications',
 	standalone: true,
-	imports: [CommonModule, RouterModule, AmendmentPaymentOtpComponent],
+	imports: [CommonModule, RouterModule, WsDatePipe, WsDateTextPipe, AmendmentPaymentOtpComponent],
 	templateUrl: './project-modifications.component.html',
 	styleUrl: './project-modifications.component.css'
 })
@@ -188,10 +190,10 @@ export class ProjectModificationsComponent implements OnInit {
 		return 'تعديل متعدد';
 	}
 
-	formatBudgetDelta(value: number | null): string {
+	formatBudgetDelta(value: number | null, currency?: string | null): string {
 		if (value === null || value === 0) return 'بلا تغيير';
 		const sign = value > 0 ? '+' : '-';
-		return `${sign}${formatMoney(Math.abs(value))} $`;
+		return `${sign}${formatAmount(Math.abs(value), currency)}`;
 	}
 
 	formatDurationDelta(value: number | null): string {

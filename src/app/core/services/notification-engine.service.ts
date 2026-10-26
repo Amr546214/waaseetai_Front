@@ -1,4 +1,5 @@
 import { Injectable, InjectionToken, Injector, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { formatWsText } from '../../shared/ws-date/ws-date.pipe';
 import { AdminAccessService } from './admin-access.service';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -781,7 +782,7 @@ export class NotificationEngineService implements OnDestroy {
 		if (diffMin < 60) return `منذ ${diffMin} د`;
 		const diffHr = Math.floor(diffMin / 60);
 		if (diffHr < 24) return `منذ ${diffHr} س`;
-		return date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+		return formatWsText(date, { day: 'numeric', month: 'short' });
 	}
 
 	private resolveDateCategory(date: Date): 'اليوم' | 'أمس' | 'أقدم' {

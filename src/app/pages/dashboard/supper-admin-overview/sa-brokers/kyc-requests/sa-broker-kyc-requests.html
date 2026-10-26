@@ -21,7 +21,7 @@
 				<div class="kq-row" data-testid="kyc-row">
 					<div class="kq-who">
 						<div class="kq-name">{{ r.name || '—' }}</div>
-						<div class="kq-meta">{{ r.email || '—' }} · {{ r.submittedAt | date:'shortDate' }}</div>
+						<div class="kq-meta">{{ r.email || '—' }} · {{ r.submittedAt | wsDate:'date' }}</div>
 					</div>
 					<div class="kq-actions">
 						<app-kyc-document-link document="marketer_kyc_document" [userId]="r.userId" [access]="{ private: true, legacy: false }" label="عرض المستند" />

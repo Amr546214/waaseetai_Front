@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
@@ -42,7 +43,7 @@ export interface AccreditationSampleItem {
 @Component({
 	selector: 'app-business-models-center',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [WsDatePipe, CommonModule, RouterLink],
 	templateUrl: './center.html',
 	styleUrl: './center.css'
 })

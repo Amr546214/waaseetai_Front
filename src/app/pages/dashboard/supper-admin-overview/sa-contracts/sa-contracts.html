@@ -19,6 +19,7 @@
     <div class="ct-kpi">
       <span class="ct-kpi-lbl">قيمة العقود النشطة</span>
       <div class="ct-kpi-val txt-green">@if (data(); as d) { {{ d.kpis.activeContractsValue | number:'1.0-2' }}<span class="ct-kpi-unit">$</span> } @else { - }</div>
+      @if (data(); as d) { <ws-money-by [map]="d.kpis.activeContractsValueBy" /> }
     </div>
     <div class="ct-kpi"><span class="ct-kpi-lbl">عقود متنازع عليها</span><div class="ct-kpi-val txt-coral">{{ data() ? (counts()['DISPUTED'] ?? 0) : '-' }}</div></div>
     <div class="ct-kpi"><span class="ct-kpi-lbl">مكتملة</span><div class="ct-kpi-val txt-teal">{{ data() ? (counts()['COMPLETED'] ?? 0) : '-' }}</div></div>
@@ -62,7 +63,7 @@
                 <td>@if (c.client; as u) { <div class="ct-u-cell"><div class="ct-u-av">{{ initials(u.name) }}</div><span>{{ u.name }}</span></div> } @else { <span class="ct-muted">-</span> }</td>
                 <td>@if (c.provider; as u) { <div class="ct-u-cell"><div class="ct-u-av">{{ initials(u.name) }}</div><span>{{ u.name }}</span></div> } @else { <span class="ct-muted">-</span> }</td>
                 <td class="ct-desc-cell">{{ c.projectTitle }}</td>
-                <td class="ct-value">{{ c.price | number:'1.0-2' }} $</td>
+                <td class="ct-value">{{ c.price | wsAmount:c.currency }}</td>
                 <td>
                   @if (c.escrow; as e) {
                     <span class="ct-escrow" [ngClass]="escrowClasses[e.status]">{{ escrowLabels[e.status] }}</span>
