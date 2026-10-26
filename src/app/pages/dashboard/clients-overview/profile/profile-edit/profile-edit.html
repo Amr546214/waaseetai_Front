@@ -343,7 +343,7 @@
 					<p class="text-xs font-medium text-slate-500 dark:text-slate-400">قناتا Telegram وWhatsApp غير مدعومتين في المنصة حاليًا، لذلك لا تظهران هنا.</p>
 					<div class="flex flex-wrap gap-4 pt-1">
 						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
-							<input type="checkbox" data-testid="notif-email" [disabled]="prefsState() !== 'ready'" [checked]="notifEmail()" (change)="notifEmail.set($any($event.target).checked)"
+							<input type="checkbox" data-testid="notif-email" [disabled]="prefsState() !== 'ready' || emailDisabled()" [checked]="notifEmail()" (change)="notifEmail.set($any($event.target).checked)"
 								class="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
 							البريد الإلكتروني
 						</label>
@@ -353,6 +353,8 @@
 							إشعارات داخل التطبيق
 						</label>
 					</div>
+					@if (emailDisabled()) {<p class="text-xs font-bold text-amber-600 dark:text-amber-400" data-testid="email-platform-disabled" role="status">البريد الإلكتروني: {{ emailDisabledText }} · اختيارك المحفوظ محفوظ كما هو ويعود العمل به عند إعادة تفعيل القناة</p>}
+					<p class="text-xs font-medium text-slate-500 dark:text-slate-400" data-testid="code-mail-note">{{ codeMailNote }}</p>
 				</div>
 			</div>
 

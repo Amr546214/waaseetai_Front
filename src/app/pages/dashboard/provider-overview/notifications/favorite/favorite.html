@@ -49,9 +49,13 @@
           <div class="flex-1">
             <div class="text-[13.5px] font-bold text-[var(--txt)]">{{ item.title }}</div>
             <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">{{ item.subtitle }}</div>
+            @if (item.id === 'channel_email') {
+              @if (emailDisabled()) {<div class="text-[11.5px] font-bold mt-0.5" data-testid="email-platform-disabled" role="status">{{ emailDisabledText }} · اختيارك المحفوظ محفوظ كما هو ويعود العمل به عند إعادة تفعيل القناة</div>}
+              <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5" data-testid="code-mail-note">{{ codeMailNote }}</div>
+            }
           </div>
           <label class="sw">
-            <input type="checkbox" [(ngModel)]="item.enabled">
+            <input type="checkbox" [(ngModel)]="item.enabled" [disabled]="item.id === 'channel_email' && emailDisabled()" [attr.aria-label]="item.title">
             <span class="sw-track"><span class="sw-thumb"></span></span>
           </label>
         </div>

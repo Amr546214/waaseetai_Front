@@ -32,6 +32,7 @@ import { KycAccess } from '../../../../../core/models/kyc-document.model';
 import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSetup } from './provider-setup-state';
 import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../core/services/provider-access.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, isEmailDisabledError } from '../../../../../core/services/notification-preferences.service';
 
 const SETUP_LABELS: Record<string, string> = {
 	jobTitle: 'المسمى الوظيفي',
@@ -91,6 +92,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private authStore = inject(AuthStore);
 	private waitTimers = inject(WaitTimerService);
 	private profileApi = inject(ProfileApiService);
+	/** the provider's stored choice (not the page default): while the platform has optional e-mail off, 'email' is only ever sent back if it was already stored */
+	private storedEmailChannel = false;
 	private prefsStore = inject(ProviderPrefsStore);
 	private providerProfileService = inject(ProviderProfileService);
 	private specialtyService = inject(SpecialtyService);
@@ -208,6 +211,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	skillsList = signal<string[]>([]);
 	isSuggestingSkills = signal<boolean>(false);
 	notifChannels = signal<string[]>(['email']);
+	/** the platform switched optional e-mail off: the e-mail channel is shown with its stored state but cannot be toggled */
+	emailDisabledByPlatform = signal(false);
+	readonly emailDisabledText = EMAIL_DISABLED_BY_PLATFORM;
+	readonly codeMailNote = CODE_MAIL_ALWAYS_NOTE;
 	aiSuggestedSkills = signal<string[]>([]);
 	skillsSuggestionError = signal('');
 	skillsSuggestionReady = signal(false);
@@ -314,6 +321,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					const prefs = d.preferences && typeof d.preferences === 'object' ? d.preferences : {};
 					if (prefs.preferredCommunicationLanguage === 'ar' || prefs.preferredCommunicationLanguage === 'en') this.setupForm.get('uiLanguage')?.setValue(prefs.preferredCommunicationLanguage);
 					if (typeof prefs.timezone === 'string' && prefs.timezone) this.setupForm.get('profData.timezone')?.setValue(prefs.timezone);
+					// the setup answer carries the platform's optional-e-mail state (false = switched off by the platform)
+					this.emailDisabledByPlatform.set(d.emailEnabledByPlatform === false);
+					this.storedEmailChannel = Array.isArray(prefs.notifChannels) && prefs.notifChannels.includes('email');
 					if (Array.isArray(prefs.notifChannels)) this.notifChannels.set(prefs.notifChannels.filter((c: unknown) => c === 'push' || c === 'email'));
 					this.setupForm.patchValue({
 						profData: {
@@ -772,10 +782,13 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.profileApi.saveProviderPreferences({
 			preferredCommunicationLanguage: lang,
 			timezone: this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh',
-			notifChannels: this.notifChannels()
+			notifChannels: this.emailDisabledByPlatform() && !this.storedEmailChannel ? this.notifChannels().filter(c => c !== 'email') : this.notifChannels()
 		}).subscribe({
 			next: () => { this.prefsStatus.set('saved'); this.prefsStore.setTimezone(this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh'); },
-			error: () => this.prefsStatus.set('error')
+			error: (err) => {
+				if (isEmailDisabledError(err)) { this.emailDisabledByPlatform.set(true); this.prefsStatus.set('error'); return; }
+				this.prefsStatus.set('error');
+			}
 		});
 	}
 
@@ -796,6 +809,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	toggleNotifChannel(channel: string) {
+		if (channel === 'email' && this.emailDisabledByPlatform()) return;
 		this.notifChannels.update(list =>
 			list.includes(channel) ? list.filter(c => c !== channel) : [...list, channel]
 		);

@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, DestroyRef, ElementRef, inject, signal, c
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
+import { EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, emailDisabledByPlatform, isEmailDisabledError, NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { phoneToE164, parseStoredPhone } from '../../../../../core/forms/phone-countries';
 import type { CountryCode } from 'libphonenumber-js/mobile';
@@ -88,6 +88,10 @@ export class ProfileEdit {
 
 	// Notification channel toggles
 	notifEmail = signal(false);
+	/** the platform switched optional e-mail off: shown disabled, stored choice kept */
+	emailDisabled = signal(false);
+	readonly emailDisabledText = EMAIL_DISABLED_BY_PLATFORM;
+	readonly codeMailNote = CODE_MAIL_ALWAYS_NOTE;
 	notifSms = signal(false);
 	notifInApp = signal(true);
 	notifTelegram = signal(false);
@@ -642,6 +646,7 @@ export class ProfileEdit {
 				const settings = (res?.success && res.data?.settings) ? res.data.settings : null;
 				if (!settings) { this.prefsState.set('error'); return; }
 				// e-mail copies are opt-in (nothing saved = no e-mail), exactly what delivery does with an unsaved account
+				this.emailDisabled.set(emailDisabledByPlatform(res));
 				this.notifEmail.set(settings['channel_email'] === true);
 				this.notifInApp.set(settings['channel_in_app'] !== false);
 				this.prefsRef = { email: this.notifEmail(), inApp: this.notifInApp() };
@@ -716,9 +721,10 @@ export class ProfileEdit {
 						if (pr?.success) { this.prefsRef = next; this.finishSave(); }
 						else this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
 					},
-					error: () => {
+					error: (err) => {
 						this.isSaving.set(false);
-						this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
+						if (isEmailDisabledError(err)) { this.emailDisabled.set(true); this.notifEmail.set(this.prefsRef?.email ?? false); }
+						this.errorMsg.set(isEmailDisabledError(err) ? `تم حفظ بيانات الملف، لكن خيار البريد ${EMAIL_DISABLED_BY_PLATFORM}.` : 'تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
 					}
 				});
 				return;
