@@ -103,9 +103,9 @@
 
       @if (activeSection() === 'ai') {
         <div class="spa-sec-hdr">
-          <div><div class="spa-sec-ttl">محركات الذكاء الاصطناعي</div><div class="spa-sec-sub">تكوين محركات AI المشغّلة داخل وسيط AI</div></div>
+          <div><div class="spa-sec-ttl">إعدادات الذكاء الاصطناعي</div><div class="spa-sec-sub">تُعرض حالة هذه الإعدادات فقط؛ لا يُعدَّل تشغيل الذكاء الاصطناعي من هذه الصفحة</div></div>
         </div>
-        <app-settings-section title="محركات المطابقة والتوصيات" icon="ai" [keys]="ai" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section title="إعدادات الذكاء الاصطناعي" icon="ai" [keys]="ai" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'integrations') {
