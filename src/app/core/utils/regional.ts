@@ -4,14 +4,14 @@
  * > the browser's own zone (today's behaviour, the initial platform setting).
  */
 export type PlatformDateFormat = 'legacy' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
-export interface PlatformRegional { timezone: string; dateFormat: PlatformDateFormat; calendar: 'gregorian' | 'hijri'; language: 'ar' | 'en' }
+export interface PlatformRegional { timezone: string; dateFormat: PlatformDateFormat; calendar: 'gregorian' | 'hijri'; language: 'ar' | 'en'; /** the platform BASE currency (public setting): the currency of new records and of the headline figures */ currency: 'USD' | 'SAR' }
 
-let state: PlatformRegional = { timezone: 'browser', dateFormat: 'legacy', calendar: 'gregorian', language: 'ar' };
+let state: PlatformRegional = { timezone: 'browser', dateFormat: 'legacy', calendar: 'gregorian', language: 'ar', currency: 'USD' };
 export const platformRegional = (): PlatformRegional => state;
-export function setPlatformRegional(v: Partial<{ defaultTimezone: unknown; dateFormat: unknown; calendarSystem: unknown; defaultLanguage: unknown }>) {
+export function setPlatformRegional(v: Partial<{ defaultTimezone: unknown; dateFormat: unknown; calendarSystem: unknown; defaultLanguage: unknown; baseCurrency: unknown }>) {
 	const tz = v.defaultTimezone === 'Asia/Riyadh' || v.defaultTimezone === 'UTC' ? v.defaultTimezone : 'browser';
 	const df = v.dateFormat === 'DD/MM/YYYY' || v.dateFormat === 'YYYY-MM-DD' ? v.dateFormat : 'legacy';
-	state = { timezone: tz, dateFormat: df, calendar: v.calendarSystem === 'hijri' ? 'hijri' : 'gregorian', language: v.defaultLanguage === 'en' ? 'en' : 'ar' };
+	state = { timezone: tz, dateFormat: df, calendar: v.calendarSystem === 'hijri' ? 'hijri' : 'gregorian', language: v.defaultLanguage === 'en' ? 'en' : 'ar', currency: v.baseCurrency === 'SAR' ? 'SAR' : 'USD' };
 }
 /** the platform IANA zone, or undefined when it is "browser" */
 export const platformTimeZone = (): string | undefined => (state.timezone === 'browser' ? undefined : state.timezone);

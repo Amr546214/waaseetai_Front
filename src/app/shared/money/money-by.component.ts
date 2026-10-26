@@ -15,6 +15,8 @@ import { formatMoneyIn, otherCurrencyAmounts } from '../../core/utils/currency';
 export class MoneyByComponent {
 	readonly map = input<Record<string, number> | null | undefined>(null);
 	readonly label = input<string>('بعملة أخرى:');
-	readonly rows = computed(() => otherCurrencyAmounts(this.map()));
+	/** the headline currency the figure above already shows (default: the platform base currency); every OTHER currency is listed here */
+	readonly headline = input<string | null | undefined>(null);
+	readonly rows = computed(() => otherCurrencyAmounts(this.map(), this.headline() ?? undefined));
 	readonly fmt = formatMoneyIn;
 }
