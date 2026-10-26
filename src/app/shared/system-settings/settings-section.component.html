@@ -47,7 +47,7 @@
         }
       } @else if (r.status === 'readonly') {
         @if (variant() === 'spa') {
-          <span class="st-na" [attr.data-testid]="'value-' + r.key">{{ entries(r) ? 'للعرض فقط' : readonlyText(r) }}</span>
+          @if (!entries(r)) { <span class="st-na" [attr.data-testid]="'value-' + r.key">{{ readonlyText(r) }}</span> }
         } @else {
           <div class="st-ro" [attr.data-testid]="'value-' + r.key"><span class="st-ro-val">{{ readonlyText(r) }}</span>@if (r.source) { <span class="st-ro-src">المصدر: {{ r.source }}</span> }</div>
         }
