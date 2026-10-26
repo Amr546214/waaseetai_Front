@@ -8,8 +8,10 @@ import { UiNotificationService } from './ui-notification.service';
 export type SettingStatus = 'enforced' | 'readonly' | 'blocked';
 export interface SettingItem {
 	key: string; tab: string; label: string; description: string; status: SettingStatus; unit: string | null; allowed: unknown[] | null; allowedLabels?: Record<string, string> | null; pages: string[];
-	canWrite: boolean; effect: 'immediate' | 'within-5s' | 'new-sessions' | null; reason: string | null; value: unknown; version: number | null; source: string | null;
+	canWrite: boolean; effect: 'immediate' | 'within-5s' | 'new-sessions' | null; reason: string | null; value: unknown; version: number | null; source: string | null; effective?: SettingEffective | null;
 }
+/** what the product really uses (server-computed from the consumers' own constants); source 'setting' = the stored value */
+export interface SettingEffective { value: unknown; source: 'setting' | 'built-in default' | 'static page text' | 'not consumed'; note?: string; uses?: Array<{ where: string; value: unknown }> }
 export interface SettingsView { storageReady: boolean; items: SettingItem[] }
 export interface SettingsHistoryItem { id: string; at: string; severity: string | null; ip: string | null; actor: string | null; changes: Array<{ key: string; label: string; from: unknown; to: unknown }> }
 export interface HealthItem { key: string; label: string; status: 'ok' | 'down' | 'configured' | 'unconfigured' | 'unavailable'; detail: string }
@@ -42,6 +44,12 @@ export class SystemSettingsStore {
 	readonly items = signal<SettingItem[]>([]);
 	readonly loading = signal(false);
 	readonly loadError = signal('');
+	/** true when the last failure was a 403 (no permission: nothing to retry) */
+	readonly forbidden = signal(false);
+	/** at least one load succeeded in this session */
+	readonly loaded = signal(false);
+	/** loading = nothing known yet; error = the last load failed (also 403); ready = values are known. A failed RE-load keeps the values but the state is 'error' until a load succeeds. */
+	readonly state = computed<'loading' | 'error' | 'ready'>(() => (this.loadError() ? 'error' : this.loaded() || this.items().length ? 'ready' : 'loading'));
 	readonly storageReady = signal(true);
 	readonly drafts = signal<Record<string, unknown>>({});
 	readonly errors = signal<Record<string, string>>({});
@@ -70,9 +78,9 @@ export class SystemSettingsStore {
 	discard(keys: string[]) { this.rebasedKeys.update(r => r.filter(k => !keys.includes(k))); this.conflicts.set([]); this.drafts.update(d => { const n = { ...d }; for (const k of keys) delete n[k]; return n; }); this.errors.update(e => { const n = { ...e }; for (const k of keys) delete n[k]; return n; }); this.failure.set(null); this.conflictKeys.set([]); }
 
 	async load(): Promise<void> {
-		this.loading.set(true); this.loadError.set('');
-		try { const r = await firstValueFrom(this.api.view()); this.items.set(r.data.items); this.storageReady.set(r.data.storageReady !== false); }
-		catch (e) { this.loadError.set((e as HttpErrorResponse)?.status === 403 ? 'ليست لديك صلاحية عرض إعدادات النظام.' : 'تعذّر تحميل الإعدادات. لم يتغيّر شيء، ويمكنك إعادة المحاولة.'); }
+		this.loading.set(true);
+		try { const r = await firstValueFrom(this.api.view()); this.items.set(r.data.items); this.storageReady.set(r.data.storageReady !== false); this.loadError.set(''); this.forbidden.set(false); this.loaded.set(true); }
+		catch (e) { const f = (e as HttpErrorResponse)?.status === 403; this.forbidden.set(f); this.loadError.set(f ? 'ليست لديك صلاحية عرض إعدادات النظام.' : 'تعذّر تحميل الإعدادات. لم يتغيّر شيء، ويمكنك إعادة المحاولة.'); } // previously loaded values stay in `items`; the pages show no form while loadError is set
 		finally { this.loading.set(false); }
 	}
 
@@ -86,7 +94,7 @@ export class SystemSettingsStore {
 	}
 
 	async save(keys: string[]): Promise<boolean> {
-		const dirty = this.dirtyKeys(keys); if (!dirty.length || this.saving()) return false;
+		const dirty = this.dirtyKeys(keys); if (!dirty.length || this.saving() || this.state() !== 'ready') return false; // never save while the values are unknown / the last load failed
 		const changes: Record<string, unknown> = {}, expected: Record<string, number> = {};
 		for (const k of dirty) { changes[k] = this.drafts()[k]; expected[k] = this.item(k)?.version ?? 0; }
 		this.saving.set(true); this.failure.set(null); this.notice.set(null); this.errors.set({}); this.conflictKeys.set([]); this.conflicts.set([]);

@@ -1,6 +1,8 @@
-import { Component, HostListener, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, HostListener, Inject, PLATFORM_ID, OnInit, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { PlatformInfoService } from '../../../core/services/platform-info.service';
+import { LEGAL_PREPARED_ON } from '../../../core/constants/legal-meta';
 
 @Component({
 	selector: 'app-terms',
@@ -10,6 +12,8 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 	styleUrls: ['./terms.component.css']
 })
 export class TermsComponent implements OnInit {
+	readonly platform = inject(PlatformInfoService);
+	readonly preparedOn = LEGAL_PREPARED_ON;
 	activeSection = 's1';
 
 	constructor(@Inject(PLATFORM_ID) private platformId: Object) { }

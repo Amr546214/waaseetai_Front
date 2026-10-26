@@ -1,3 +1,4 @@
+import { PlatformInfoService } from '../../../core/services/platform-info.service';
 import { consumeReturnUrl } from '../../../core/routing/return-url';
 import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { Component, ElementRef, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject, signal } from '@angular/core';
@@ -45,6 +46,7 @@ export class Login implements AfterViewInit {
   /** What is missing after a failed submit attempt (shown by <ws-form-summary>). */
   missingFields: InvalidField[] = [];
   private readonly host = inject(ElementRef<HTMLElement>);
+  readonly platform = inject(PlatformInfoService);
   private readonly notify = inject(UiNotificationService);
   private readonly otpHandoff = inject(OtpHandoffService);
   isSubmitting = false;

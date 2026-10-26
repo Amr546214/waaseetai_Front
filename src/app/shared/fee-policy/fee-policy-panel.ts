@@ -31,7 +31,7 @@ const localInput = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${p
 })
 export class FeePolicyPanel implements OnInit {
 	private api = inject(FeePolicyApi); private confirmModal = inject(ConfirmModalService); private ui = inject(UiNotificationService); readonly access = inject(AdminAccessService);
-	readonly loading = signal(true); readonly loadError = signal(''); readonly view = signal<FeePolicyView | null>(null);
+	readonly loading = signal(true); readonly loadError = signal(''); readonly forbidden = signal(false); readonly view = signal<FeePolicyView | null>(null);
 	readonly draft = signal<FeePolicyPayload | null>(null); readonly effectiveFrom = signal(''); readonly note = signal('');
 	readonly saving = signal(false); readonly formError = signal(''); readonly fieldErrors = signal<string[]>([]); readonly notice = signal('');
 	readonly levels = Array.from({ length: 15 }, (_, i) => i + 1);
@@ -46,9 +46,9 @@ export class FeePolicyPanel implements OnInit {
 
 	ngOnInit() { void this.load(); }
 	async load() {
-		this.loading.set(true); this.loadError.set('');
-		try { const r = (await firstValueFrom(this.api.view())).data; this.view.set(r); this.draft.set(clone(r.active.payload)); const d = new Date(Date.now() + 65 * 60_000); d.setSeconds(0, 0); const z = platformTimeZone(); this.effectiveFrom.set(z ? wallClockInZone(d, z) : localInput(d)); }
-		catch (e) { this.loadError.set((e as HttpErrorResponse)?.status === 403 ? 'ليست لديك صلاحية عرض سياسة الرسوم.' : 'تعذّر تحميل سياسة الرسوم. لم يتغيّر شيء، ويمكنك إعادة المحاولة.'); }
+		this.loading.set(true);
+		try { const r = (await firstValueFrom(this.api.view())).data; this.loadError.set(''); this.forbidden.set(false); this.view.set(r); this.draft.set(clone(r.active.payload)); const d = new Date(Date.now() + 65 * 60_000); d.setSeconds(0, 0); const z = platformTimeZone(); this.effectiveFrom.set(z ? wallClockInZone(d, z) : localInput(d)); }
+		catch (e) { const f = (e as HttpErrorResponse)?.status === 403; this.forbidden.set(f); this.loadError.set(f ? 'ليست لديك صلاحية عرض سياسة الرسوم.' : 'تعذّر تحميل سياسة الرسوم. لم يتغيّر شيء، ويمكنك إعادة المحاولة.'); }
 		finally { this.loading.set(false); }
 	}
 	setLadder(key: 'providerCommissionByLevel' | 'clientCashbackByLevel' | 'marketerCommissionByLevel', i: number, raw: string) { this.draft.update(d => d && ({ ...d, [key]: d[key].map((v, k) => (k === i ? num(raw) : v)) })); this.clearMessages(); }

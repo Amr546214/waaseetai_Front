@@ -3,10 +3,11 @@
   <p class="fp-sub">النسب والحدود الدنيا تُحفظ كنسخ ثابتة. التعديل يُجدول لوقت لاحق ويسري على العمليات الجديدة فقط؛ العقود وطلبات الإيداع والسحب القائمة تحتفظ بشروطها.</p>
 
   @if (loading()) { <div class="fp-note" role="status">جارٍ التحميل…</div> }
-  @else if (loadError()) { <div class="fp-err" role="alert" data-testid="fp-load-error">{{ loadError() }} <button type="button" class="fp-btn" (click)="load()">إعادة المحاولة</button></div> }
+  @else if (loadError()) { <div class="fp-err" role="alert" data-testid="fp-load-error">{{ loadError() }} @if (!forbidden()) { <button type="button" class="fp-btn" data-testid="fp-retry" (click)="load()">إعادة المحاولة</button> }</div> }
   @else if (view(); as v) {
     <div class="fp-active" data-testid="fp-active">
       النسخة السارية: <b>{{ v.active.version }}</b> — منذ {{ v.active.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}
+      <span class="fp-src" data-testid="fp-source">— المصدر: {{ v.activeSource === 'built-in fallback' ? 'قيم مدمجة في الخادم (لا نسخة محفوظة قابلة للقراءة في قاعدة البيانات)' : 'نسخة محفوظة في قاعدة البيانات' }}@if (v.active.note) { — {{ v.active.note }} }</span>
     </div>
 
     @for (u of pending(); track u.id) {

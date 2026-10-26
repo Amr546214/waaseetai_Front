@@ -30,7 +30,7 @@
       @if (store.loading() && !store.items().length) {
         <div class="spa-card" role="status" data-testid="settings-loading">جارٍ تحميل الإعدادات…</div>
       } @else if (store.loadError()) {
-        <div class="spa-card" role="alert" data-testid="settings-load-error" style="color:#FF8C69">{{ store.loadError() }} <button type="button" class="spa-btn spa-btn-gh" (click)="store.load()">إعادة المحاولة</button></div>
+        <div class="spa-card" role="alert" data-testid="settings-load-error" style="color:#FF8C69">{{ store.loadError() }} @if (!store.forbidden()) { <button type="button" class="spa-btn spa-btn-gh" (click)="store.load()">إعادة المحاولة</button> }</div>
       }
 
       @if (store.notice(); as n) { <div class="spa-notice" role="status" data-testid="settings-saved">{{ n.text }}</div> }
@@ -38,11 +38,11 @@
       @if (activeSection() === 'general') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الإعدادات العامة</div><div class="spa-sec-sub">اسم النظام، اللغة، التوقيت والسياسات الأساسية</div></div>
-          <button type="button" class="spa-btn spa-btn-pri" data-testid="header-save" [disabled]="!dirtyIn(generalKeys).length || store.saving()" (click)="saveTab(generalKeys)"><svg><use href="#spa-i-save"></use></svg>{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
+          <button type="button" class="spa-btn spa-btn-pri" data-testid="header-save" [disabled]="!dirtyIn(generalKeys).length || store.saving() || store.state() !== 'ready'" (click)="saveTab(generalKeys)"><svg><use href="#spa-i-save"></use></svg>{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
         </div>
-        <app-settings-section title="هوية النظام" [keys]="identity" variant="spa" [showSave]="false" />
-        <app-settings-section title="التسجيل والوصول" [keys]="registration" variant="spa" [showSave]="false" />
-        <app-settings-section title="سياسات المحتوى" [keys]="contentPolicy" variant="spa" [showSave]="false" />
+        <app-settings-section title="هوية النظام" [keys]="identity" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section title="التسجيل والوصول" [keys]="registration" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section title="سياسات المحتوى" [keys]="contentPolicy" variant="spa" [showState]="false" [showSave]="false" />
         <div class="spa-sec-hdr" style="margin-top:18px"><div><div class="spa-card-ttl">الحسابات الإدارية</div><div class="spa-sec-sub">حسابات المسؤول والمسؤول الأعلى المسجلة فعليًا في النظام</div></div></div>
         <div class="spa-card spa-card-flush" data-testid="admins-card">
           @if (adminsFailed()) { <div class="spa-empty" role="alert" data-testid="admins-error">تعذّر تحميل الحسابات الإدارية.</div> }
@@ -73,8 +73,8 @@
           <div><div class="spa-sec-ttl">الرسوم والمالية</div><div class="spa-sec-sub">رسوم النظام والضمان وسياسات السحب</div></div>
         </div>
         <app-fee-policy-panel />
-        <app-settings-section title="رسوم المعاملات" [keys]="fees" variant="spa" [showSave]="false" />
-        <app-settings-section title="تجهيز فوترة مستقبلية" [keys]="billing" variant="spa" [showSave]="false" />
+        <app-settings-section title="رسوم المعاملات" [keys]="fees" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section title="تجهيز فوترة مستقبلية" [keys]="billing" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'security') {
@@ -82,29 +82,29 @@
           <div><div class="spa-sec-ttl">الأمان</div><div class="spa-sec-sub">سياسات كلمات المرور والجلسات والمصادقة</div></div>
           <button type="button" class="spa-btn spa-btn-pri" data-testid="header-save" [disabled]="!dirtyIn(security).length || store.saving()" (click)="saveTab(security)"><svg><use href="#spa-i-save"></use></svg>{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
         </div>
-        <app-settings-section title="سياسات الجلسات وكلمة المرور" [keys]="security" variant="spa" [showSave]="false" />
+        <app-settings-section title="سياسات الجلسات وكلمة المرور" [keys]="security" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'notifications') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الإشعارات</div><div class="spa-sec-sub">قنوات التواصل مع المستخدمين وإعدادات البريد والـ SMS</div></div>
         </div>
-        <app-settings-section title="القنوات المفعّلة" [keys]="channels" variant="spa" [showSave]="false" />
-        <app-settings-section title="إعدادات خادم البريد (SMTP)" [keys]="smtp" variant="spa" [showSave]="false" />
+        <app-settings-section title="القنوات المفعّلة" [keys]="channels" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section title="إعدادات خادم البريد (SMTP)" [keys]="smtp" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'ai') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">محركات AI</div><div class="spa-sec-sub">تكوين محركات AI المشغّلة داخل وسيط AI</div></div>
         </div>
-        <app-settings-section title="محركات المطابقة والتوصيات" [keys]="ai" variant="spa" [showSave]="false" />
+        <app-settings-section title="محركات المطابقة والتوصيات" [keys]="ai" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'integrations') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">التكاملات والـ API</div><div class="spa-sec-sub">مفاتيح API والتكاملات الخارجية</div></div>
         </div>
-        <app-settings-section title="مفاتيح API الخارجية" [keys]="integrations" variant="spa" [showSave]="false" />
+        <app-settings-section title="مفاتيح API الخارجية" [keys]="integrations" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'audit') {

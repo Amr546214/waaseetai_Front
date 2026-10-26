@@ -12,7 +12,7 @@
   @if (store.loading() && !store.items().length) {
     <div class="ss-card" role="status" data-testid="settings-loading">جارٍ تحميل الإعدادات…</div>
   } @else if (store.loadError()) {
-    <div class="ss-card ss-err" role="alert" data-testid="settings-load-error">{{ store.loadError() }} <button type="button" class="ss-link" (click)="store.load()">إعادة المحاولة</button></div>
+    <div class="ss-card ss-err" role="alert" data-testid="settings-load-error">{{ store.loadError() }} @if (!store.forbidden()) { <button type="button" class="ss-link" (click)="store.load()">إعادة المحاولة</button> }</div>
   } @else {
     <div class="ss-layout">
       <div class="ss-nav" role="tablist">

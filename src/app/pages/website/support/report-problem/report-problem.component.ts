@@ -2,6 +2,7 @@ import { Component, ElementRef, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { PlatformInfoService } from '../../../../core/services/platform-info.service';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { TicketApiService, TicketRole } from '../../../../core/services/ticket-api.service';
 import { mapHttpError } from '../../../../core/forms/http-error';
@@ -25,6 +26,7 @@ interface ProblemType { id: string; label: string; desc: string; icon: string; i
 export class ReportProblemComponent {
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private readonly auth = inject(AuthStore);
+	readonly platform = inject(PlatformInfoService);
 	private readonly tickets = inject(TicketApiService);
 	/** Set once the server confirmed the save: the ticket number the person can look up. */
 	ticketNumber = '';

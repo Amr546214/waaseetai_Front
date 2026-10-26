@@ -170,7 +170,7 @@
 		<h2 class="modal-title" id="frozen-title">الحساب معلق</h2>
 		<p class="modal-desc">هذا الحساب معلق حاليا. يرجى التواصل مع فريق الدعم لمعرفة التفاصيل</p>
 		<div class="modal-actions">
-			<a href="mailto:support@waseet.ai" class="btn-primary"
+			<a [attr.href]="'mailto:' + platform.supportEmail()" class="btn-primary"
 				style="width:100%;justify-content:center;display:flex;text-align:center">التواصل مع الدعم</a>
 			<button type="button" class="btn-secondary" id="btn-frozen-close">اغلاق</button>
 		</div>

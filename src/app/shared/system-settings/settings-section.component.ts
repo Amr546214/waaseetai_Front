@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../forms/select.component';
 import { ConfirmModalService } from '../../core/services/confirm-modal.service';
-import { EFFECT_TEXT, SettingItem, SystemSettingsApi, SystemSettingsStore } from '../../core/services/system-settings.store';
+import { LEGAL_PREPARED_ON } from '../../core/constants/legal-meta';
+import { EFFECT_TEXT, SettingEffective, SettingItem, SystemSettingsApi, SystemSettingsStore } from '../../core/services/system-settings.store';
 import { firstValueFrom } from 'rxjs';
 
 const LONG_TEXT = new Set(['termsContent', 'privacyContent']);
@@ -60,6 +61,9 @@ export class SettingsSectionComponent {
 	readonly saveKeys = input<string[] | null>(null);
 	private scope = computed(() => this.saveKeys() ?? this.keys());
 	readonly danger = input<boolean>(false);
+	/** false when the page itself already shows the loading / failure state (the card then just stays empty meanwhile) */
+	readonly showState = input<boolean>(true);
+	readonly state = this.store.state;
 
 	readonly rows = computed(() => this.keys().map(k => this.store.item(k)).filter((i): i is SettingItem => !!i));
 	readonly editableKeys = computed(() => this.scope().filter(k => { const r = this.store.item(k); return r?.status === 'enforced' && r.canWrite; }));
@@ -94,6 +98,24 @@ export class SettingsSectionComponent {
 
 	save() { return saveWithConfirm(this.store, this.confirmModal, this.dirty(), this.api); }
 	discard() { this.store.discard(this.dirty()); }
+	retry() { return this.store.load(); }
+	/** the value in use while a setting is not stored (nothing to show for a stored value, and never for read-only / blocked rows) */
+	unset(r: SettingItem): SettingEffective | null { return r.status === 'enforced' && r.effective && r.effective.source !== 'setting' ? r.effective : null; }
+	/** the web app knows the static legal text's date itself (the server cannot read it) */
+	inUseText(r: SettingItem, e: SettingEffective): string {
+		const own = r.key === 'termsVersion' || r.key === 'privacyVersion' ? `${LEGAL_PREPARED_ON} (تاريخ الإعداد المكتوب في ${r.key === 'termsVersion' ? 'صفحة الشروط' : 'صفحة الخصوصية'})` : null;
+		if (own) return own;
+		return this.fmt(r, e.value);
+	}
+	private fmt(r: SettingItem, v: unknown): string {
+		if (v === null || v === undefined) return '';
+		if (typeof v === 'boolean') return STATE_WORD(v);
+		if (v === '') return 'فارغ (لا قيمة)';
+		const lab = r.allowedLabels?.[String(v)]; if (lab) return lab;
+		const t = String(v); return t.length > 160 ? `${t.slice(0, 160)}…` : t;
+	}
+	useText(r: SettingItem, u: { where: string; value: unknown }) { return `${u.where}: ${this.fmt(r, u.value)}`; }
+	sourceText(e: SettingEffective) { return ({ 'built-in default': 'قيمة مدمجة في النظام', 'static page text': 'نص ثابت مكتوب في الصفحة', 'not consumed': 'لا يستعمله أي موضع حاليًا', setting: 'الإعداد' } as Record<string, string>)[e.source] ?? e.source; }
 	reload() { return this.store.load().then(() => this.store.discard(this.scope())); }
 	overwrite() { return this.store.rebase(); }
 }

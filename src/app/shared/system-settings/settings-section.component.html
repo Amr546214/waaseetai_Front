@@ -1,3 +1,8 @@
+@if (state() === 'loading') {
+  @if (showState()) { <div class="st-card st-state" [class.v-ss]="variant() === 'ss'" [class.v-spa]="variant() === 'spa'" role="status" data-testid="settings-section-loading">@if (title()) { <div class="st-card-ttl">{{ title() }}</div> }<div class="st-skel" aria-hidden="true"></div><div class="st-row-desc">جارٍ تحميل الإعدادات…</div></div> }
+} @else if (state() === 'error') {
+  @if (showState()) { <div class="st-card st-state" [class.v-ss]="variant() === 'ss'" [class.v-spa]="variant() === 'spa'" role="alert" data-testid="settings-section-error">@if (title()) { <div class="st-card-ttl">{{ title() }}</div> }<div class="st-err">{{ store.loadError() }}</div>@if (!store.forbidden()) { <button type="button" class="st-link" data-testid="settings-section-retry" (click)="retry()">إعادة المحاولة</button> }</div> }
+} @else {
 <div class="st-card" [class.v-ss]="variant() === 'ss'" [class.v-spa]="variant() === 'spa'" [class.st-danger]="danger()" [attr.data-testid]="'settings-card'">
   @if (title()) { <div class="st-card-ttl">{{ title() }}</div> }
   @for (r of rows(); track r.key) {
@@ -7,6 +12,15 @@
         <div class="st-row-desc">{{ r.description }}@if (r.status === 'enforced' && r.effect) { <span class="st-row-eff"> · {{ effectText[r.effect] }}</span> }</div>
         @if (r.status !== 'enforced' && r.reason) { <div class="st-row-reason" [attr.data-testid]="'reason-' + r.key">{{ r.reason }}</div> }
         @if (r.status === 'enforced' && !r.canWrite) { <div class="st-row-reason">ليست لديك صلاحية تعديل هذا الإعداد.</div> }
+        @if (unset(r); as u) {
+          <div class="st-inuse" [attr.data-testid]="'inuse-' + r.key">
+            <span class="st-inuse-lbl">غير مضبوط@if (u.source !== 'not consumed') { — المستخدم حاليًا: }</span>
+            @if (inUseText(r, u); as t) { <span class="st-inuse-val">{{ t }}</span> }
+            <span class="st-inuse-src">(المصدر: {{ sourceText(u) }})</span>
+            @if (u.note) { <span class="st-inuse-note">{{ u.note }}</span> }
+            @for (x of u.uses ?? []; track x.where) { <span class="st-inuse-use">{{ useText(r, x) }}</span> }
+          </div>
+        }
         @if (store.errors()[r.key]) { <div class="st-err" role="alert" [attr.data-testid]="'error-' + r.key">{{ store.errors()[r.key] }}</div> }
       </div>
 
@@ -60,3 +74,4 @@
       @if (!store.storageReady()) { <span class="st-row-reason">مخزن الإعدادات غير جاهز على الخادم بعد، فلا يمكن الحفظ الآن.</span> }
     </div>
   }
+}

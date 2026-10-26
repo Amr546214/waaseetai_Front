@@ -9,7 +9,7 @@ export interface FeePolicyPayload {
 	minMarketerPayout: number; minProviderPayout: number;
 }
 export interface FeePolicyVersion { id: string; version: number; effectiveFrom: string; payload: FeePolicyPayload; note: string | null; createdById: string | null; createdAt: string; cancelledAt: string | null; state: 'EFFECTIVE' | 'SCHEDULED' | 'CANCELLED' }
-export interface FeePolicyView { active: FeePolicyVersion; upcoming: FeePolicyVersion[]; history: FeePolicyVersion[]; limits: Record<string, unknown> & { minLeadMinutes: number; maxLeadDays: number }; now: string }
+export interface FeePolicyView { active: FeePolicyVersion; /** 'stored' = a version row in the database; 'built-in fallback' = the store had no readable version and the server's own constants are shown */ activeSource?: 'stored' | 'built-in fallback'; upcoming: FeePolicyVersion[]; history: FeePolicyVersion[]; limits: Record<string, unknown> & { minLeadMinutes: number; maxLeadDays: number }; now: string }
 interface Envelope<T> { success: boolean; data: T }
 const base = () => `${environment.url_api}/admin/fee-policy`;
 

@@ -61,4 +61,26 @@ describe('FeePolicyPanel', () => {
 			expect(c.zoneLabel()).toBe('Asia/Riyadh');
 		} finally { setPlatformRegional({}); }
 	});
+
+	it('three states: a failed load shows an error with retry and NO form; a 403 says no permission and offers no retry; a failed re-load never shows an empty editable form', async () => {
+		const { throwError } = await import('rxjs'); const { HttpErrorResponse } = await import('@angular/common/http');
+		const calls: Array<'ok' | 500 | 403> = ['ok', 500, 403];
+		const api = { view: vi.fn(() => { const n = calls.shift()!; return n === 'ok' ? of({ success: true, data: view() }) : throwError(() => new HttpErrorResponse({ status: n })); }) };
+		TestBed.configureTestingModule({ imports: [FeePolicyPanel], providers: [{ provide: FeePolicyApi, useValue: api }, { provide: AdminAccessService, useValue: { can: () => true } }, { provide: ConfirmModalService, useValue: { confirm: () => Promise.resolve(true) } }] });
+		const f = TestBed.createComponent(FeePolicyPanel); f.detectChanges(); await f.whenStable(); f.detectChanges(); const el = f.nativeElement as HTMLElement;
+		expect(el.querySelector('[data-testid="fp-active"]')).toBeTruthy(); expect(el.querySelectorAll('[data-testid="fp-ladders"] input').length).toBeGreaterThan(0);
+		await f.componentInstance.load(); f.detectChanges();
+		expect(el.querySelector('[data-testid="fp-load-error"]')?.textContent).toContain('تعذّر تحميل'); expect(el.querySelector('[data-testid="fp-retry"]')).toBeTruthy();
+		expect(el.querySelectorAll('input').length).toBe(0); expect(el.querySelector('[data-testid="fp-submit"]')).toBeNull();
+		expect(f.componentInstance.view()?.active.payload.minMarketerPayout).toBe(300); // the loaded values are kept, just not offered for editing
+		await f.componentInstance.load(); f.detectChanges();
+		expect(el.querySelector('[data-testid="fp-load-error"]')?.textContent).toContain('ليست لديك صلاحية'); expect(el.querySelector('[data-testid="fp-retry"]')).toBeNull();
+	});
+	it('shows the real current policy and where it comes from (stored version vs built-in fallback)', async () => {
+		const a = await setup({ ...view(), activeSource: 'stored' }); a.f.detectChanges();
+		const el = a.f.nativeElement as HTMLElement; expect(el.querySelector('[data-testid="fp-source"]')?.textContent).toContain('نسخة محفوظة في قاعدة البيانات');
+		expect((el.querySelector('[data-testid="fp-ladders"] tbody tr td:nth-child(2) input') as HTMLInputElement).value).toBe('10');
+		TestBed.resetTestingModule();
+		const b = await setup({ ...view(), activeSource: 'built-in fallback' }); b.f.detectChanges(); expect((b.f.nativeElement as HTMLElement).querySelector('[data-testid="fp-source"]')?.textContent).toContain('مدمجة في الخادم');
+	});
 });

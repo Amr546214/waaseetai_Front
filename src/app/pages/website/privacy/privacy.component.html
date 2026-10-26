@@ -10,7 +10,8 @@
       <div>
         <h1 class="legal-h1" id="page-h1">سياسة الخصوصية والبيانات</h1>
         <div class="legal-meta">
-          <span class="legal-meta-item">تاريخ الإعداد: 2026-07-21</span>
+          <span class="legal-meta-item">تاريخ الإعداد: {{ preparedOn }}</span>
+          @if (platform.privacyVersion()) { <span class="legal-meta-item" data-testid="legal-version">الإصدار: {{ platform.privacyVersion() }}</span> }
           <span class="legal-meta-item">الحالة: مسودة مرجعية حاكمة</span>
         </div>
       </div>
