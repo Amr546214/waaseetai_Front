@@ -87,7 +87,7 @@
   }
 
 </div>
-  @if (failure(); as f) {
+  @if (showSave() && failure(); as f) {
     <div class="st-fail" role="alert" data-testid="settings-failure">
       <div>{{ f.text }}</div>
       @if (f.blockers.length) { <ul class="st-blockers" data-testid="currency-blockers">@for (b of f.blockers; track b.code) { <li>{{ b.message }}</li> }</ul> }
