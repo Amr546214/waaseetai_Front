@@ -45,7 +45,7 @@ export class SaSuperAdmins implements OnInit {
     { key: 'fees', icon: 'wallet', label: 'الرسوم والمالية' },
     { key: 'security', icon: 'shield', label: 'الأمان' },
     { key: 'notifications', icon: 'bell2', label: 'الإشعارات' },
-    { key: 'ai', icon: 'ai', label: 'محركات AI' },
+    { key: 'ai', icon: 'ai', label: 'الذكاء الاصطناعي' },
     { key: 'integrations', icon: 'key', label: 'التكاملات والـ API' },
     { key: 'audit', icon: 'list', label: 'Audit Trail' },
     { key: 'danger', icon: 'warn', label: 'المنطقة الحمراء', danger: true },

@@ -42,7 +42,7 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 
 	it('has the eight design tabs in order (settings tabs + red zone)', async () => {
 		const { el } = await boot();
-		expect(Array.from(el.querySelectorAll('.spa-nav-item')).map(b => b.textContent?.trim())).toEqual(['عام', 'الرسوم والمالية', 'الأمان', 'الإشعارات', 'محركات AI', 'التكاملات والـ API', 'Audit Trail', 'المنطقة الحمراء']);
+		expect(Array.from(el.querySelectorAll('.spa-nav-item')).map(b => b.textContent?.trim())).toEqual(['عام', 'الرسوم والمالية', 'الأمان', 'الإشعارات', 'الذكاء الاصطناعي', 'التكاملات والـ API', 'Audit Trail', 'المنطقة الحمراء']);
 	});
 
 	it('general: identity / registration / content cards come from the registry; a blocked item states why; the roster of admin accounts is kept', async () => {

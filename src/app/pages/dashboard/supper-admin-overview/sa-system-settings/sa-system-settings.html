@@ -41,12 +41,12 @@
             @if (access.canAny(['fees.view','fees.manage'])) { <app-fee-policy-panel variant="ss" /> }
             @if (access.isSuperAdmin()) {
               <div class="ss-card" data-testid="currency-readiness">
-                <div class="ss-card-ttl"><svg class="ss-ttl-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icons.check"/></svg>جاهزية تغيير العملة الأساسية</div>
+                <div class="ss-card-ttl"><svg class="ss-ttl-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icons.check"/></svg>العملة الأساسية: تعدد العملات مؤجَّل</div>
                 @if (readinessError()) { <div class="ss-err" role="alert">{{ readinessError() }} <button type="button" class="ss-link" (click)="loadReadiness()">إعادة المحاولة</button></div> }
                 @else if (!readiness()) { <div class="ss-sub" role="status">جارٍ الفحص…</div> }
                 @else if (readiness()!.ready) { <div class="ss-ok">البنية جاهزة لتغيير العملة الأساسية.</div> }
                 @else {
-                  <div class="ss-sub">يرفض الخادم تغيير العملة حتى تُنجز هذه المتطلبات (لا يُحفظ اختيار لا يعمل):</div>
+                  <div class="ss-sub">المنصة بالدولار الأمريكي (USD) فقط في هذا الإصدار، ويرفض الخادم أي تغيير للعملة. هذه المتطلبات التقنية تُنجز قبل تفعيل أي عملة ثانية:</div>
                   <ul class="ss-blockers" data-testid="readiness-blockers">@for (b of readiness()!.blockers; track b.code) { <li>{{ b.message }}</li> }</ul>
                 }
               </div>
