@@ -54,6 +54,9 @@ export class SaSuperAdmins implements OnInit {
   ];
 
   readonly activeSection = signal<SpaSection>('general');
+  /** a failed / conflicting header save is shown here (the cards of this page have no save button of their own, so they print nothing) */
+  conflictReload(keys: string[]) { return this.store.load().then(() => this.store.discard(keys)); }
+  showVal(v: unknown): string { return typeof v === 'boolean' ? (v ? 'مفعّل' : 'غير مفعّل') : v === null || v === undefined || v === '' ? '—' : String(v); }
   /** red-zone rows whose ⓘ explanation is open (the reasons live there, not in the row) */
   readonly dangerHelp = signal<ReadonlySet<string>>(new Set());
   toggleDangerHelp(k: string) { this.dangerHelp.update((o) => { const n = new Set(o); if (n.has(k)) n.delete(k); else n.add(k); return n; }); }

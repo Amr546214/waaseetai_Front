@@ -41,6 +41,19 @@
       }
 
       @if (store.notice(); as n) { <div class="spa-notice" role="status" data-testid="settings-saved">{{ n.text }}</div> }
+      @if (store.failure(); as f) {
+        @if (activeSection() !== 'danger') {
+          <div class="spa-fail" role="alert" data-testid="settings-failure">
+            <div>{{ f.text }}</div>
+            @if (f.blockers.length) { <ul class="spa-fail-list" data-testid="currency-blockers">@for (b of f.blockers; track b.code) { <li>{{ b.message }}</li> }</ul> }
+            @if (store.conflicts().length) {
+              <div class="spa-tbl-wrap"><table class="spa-tbl spa-conf" data-testid="conflict-table"><thead><tr><th>الإعداد</th><th>قيمتك</th><th>القيمة الحالية على الخادم</th></tr></thead>
+                <tbody>@for (c of store.conflicts(); track c.key) { <tr><td>{{ c.label }}</td><td>{{ showVal(c.mine) }}</td><td>{{ showVal(c.current) }}</td></tr> }</tbody></table></div>
+            }
+            @if (store.conflictKeys().length) { <div class="spa-fail-actions"><button type="button" class="spa-btn spa-btn-gh" data-testid="conflict-reload" (click)="conflictReload(f.keys)">تحميل الأحدث وتجاهل تعديلي</button><button type="button" class="spa-btn spa-btn-gh" data-testid="conflict-overwrite" (click)="store.rebase()">إعادة القراءة ومراجعة تعديلي</button></div> }
+          </div>
+        }
+      }
 
       @if (activeSection() === 'general') {
         <div class="spa-sec-hdr">

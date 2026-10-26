@@ -118,4 +118,15 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 		const [head, row] = text.replace('\ufeff', '').split('\n');
 		expect(head.split(',').slice(0, 2)).toEqual(['معرّف الحدث', 'ترتيب العرض']); expect(row).toContain('"ACCESS:abc"'); expect(row).toContain('"STAFF_SUSPENDED"');
 	});
+
+	it('a failed or conflicting header save is SHOWN on this page (its cards have no save button of their own): conflict table, reload and continue actions', async () => {
+		const { f, el, c } = await boot();
+		const input = el.querySelector('[data-testid="row-platformName"] input') as HTMLInputElement; input.value = 'اسم آخر'; input.dispatchEvent(new Event('input')); await flush(f);
+		(el.querySelector('[data-testid="header-save"]') as HTMLButtonElement).click(); await flush(f);
+		http.expectOne(r => r.method === 'PUT').flush({ success: false, message: 'عُدّل هذا الإعداد من جهة أخرى قبل حفظك.', code: 'SETTINGS_VERSION_CONFLICT', errors: [{ key: 'platformName', current: { value: 'وسيط آخر', version: 5 } }] }, { status: 409, statusText: 'x' }); await flush(f); await flush(f);
+		expect(el.querySelector('[data-testid="settings-failure"]')?.textContent).toContain('عُدّل هذا الإعداد');
+		expect(el.querySelector('[data-testid="conflict-table"]')?.textContent).toContain('وسيط آخر');
+		expect(el.querySelector('[data-testid="conflict-overwrite"]')).toBeTruthy(); expect(el.querySelector('[data-testid="conflict-reload"]')).toBeTruthy();
+		void c;
+	});
 });
