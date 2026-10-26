@@ -56,6 +56,8 @@ export class SettingsSectionComponent {
 	readonly keys = input.required<string[]>();
 	/** 'ss' = P-AD-020 look, 'spa' = P-AD-021 look */
 	readonly variant = input<'ss' | 'spa'>('ss');
+	/** spa variant only: the card-title icon (a symbol id suffix defined by the page: spa-i-<icon>) */
+	readonly icon = input<string>('');
 	readonly showSave = input<boolean>(true);
 	/** the keys the save button of THIS card covers (a tab with several cards has one save button, as in the design); default: this card's own keys */
 	readonly saveKeys = input<string[] | null>(null);
@@ -91,6 +93,14 @@ export class SettingsSectionComponent {
 		return v == null ? '—' : String(v);
 	}
 	private nameOf(k: string) { return ({ configured: 'الخادم', senderConfigured: 'المرسِل', paypal: 'PayPal', smsProvider: 'مزوّد SMS', billingGateway: 'بوابة الفوترة' } as Record<string, string>)[k] ?? k; }
+
+	/** spa variant: an object value (the integrations registry) becomes one row per entry - name and real state, never a secret */
+	entries(r: SettingItem): { key: string; label: string; text: string }[] | null {
+		const v = r.value; if (!v || typeof v !== 'object') return null;
+		return Object.entries(v as Record<string, unknown>).map(([k, x]) => ({ key: k, label: this.nameOf(k), text: typeof x === 'boolean' ? (x ? 'مهيّأ' : 'غير مهيّأ') : String(x) }));
+	}
+	/** a value the platform fixes for this release even though the registry key is not editable (multi-currency is deferred: USD only) */
+	fixedValue(r: SettingItem): string | null { return r.key === 'baseCurrency' ? 'USD — دولار أمريكي' : null; }
 
 	setBool(k: string, v: boolean) { this.store.setDraft(k, v); }
 	setNumber(k: string, raw: string) { this.store.setDraft(k, raw === '' ? NaN : Number(raw)); }

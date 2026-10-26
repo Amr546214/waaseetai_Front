@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -27,9 +27,10 @@ const localInput = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${p
 	imports: [DatePipe, WsDatePipe],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './fee-policy-panel.html',
-	styleUrl: './fee-policy-panel.css',
+	styleUrls: ['./fee-policy-panel.css', './fee-policy-panel.spa.css'],
 })
 export class FeePolicyPanel implements OnInit {
+	readonly variant = input<'ss' | 'spa'>('ss');
 	private api = inject(FeePolicyApi); private confirmModal = inject(ConfirmModalService); private ui = inject(UiNotificationService); readonly access = inject(AdminAccessService);
 	readonly loading = signal(true); readonly loadError = signal(''); readonly forbidden = signal(false); readonly view = signal<FeePolicyView | null>(null);
 	readonly draft = signal<FeePolicyPayload | null>(null); readonly effectiveFrom = signal(''); readonly note = signal('');

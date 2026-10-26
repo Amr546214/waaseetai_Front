@@ -1,5 +1,5 @@
-<section class="fp" dir="rtl" data-testid="fee-policy">
-  <h2 class="fp-h">سياسة الرسوم والعمولات</h2>
+<section class="fp" [class.fp-spa]="variant() === 'spa'" dir="rtl" data-testid="fee-policy">
+  <h2 class="fp-h">@if (variant() === 'spa') { <svg class="fp-ico" aria-hidden="true"><use href="#spa-i-wallet"></use></svg> }سياسة الرسوم والعمولات</h2>
   <p class="fp-sub">النسب والحدود الدنيا تُحفظ كنسخ ثابتة. التعديل يُجدول لوقت لاحق ويسري على العمليات الجديدة فقط؛ العقود وطلبات الإيداع والسحب القائمة تحتفظ بشروطها.</p>
 
   @if (loading()) { <div class="fp-note" role="status">جارٍ التحميل…</div> }
