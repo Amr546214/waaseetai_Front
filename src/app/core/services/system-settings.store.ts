@@ -4,20 +4,36 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { mapHttpError } from '../forms/http-error';
 import { UiNotificationService } from './ui-notification.service';
+import { LEGAL_PREPARED_ON } from '../constants/legal-meta';
+import { PRIVACY_DEFAULT_TEXT, TERMS_DEFAULT_TEXT } from '../constants/legal-text';
 
 export type SettingStatus = 'enforced' | 'readonly' | 'blocked';
 export interface SettingItem {
 	key: string; tab: string; label: string; description: string; status: SettingStatus; unit: string | null; allowed: unknown[] | null; allowedLabels?: Record<string, string> | null; pages: string[];
-	canWrite: boolean; effect: 'immediate' | 'within-5s' | 'new-sessions' | null; reason: string | null; value: unknown; version: number | null; source: string | null; effective?: SettingEffective | null;
+	canWrite: boolean; /** who may change it, as the registry says: 'SUPER' = Super Admin only, 'settings.manage' = that permission (or Super Admin) */ writeBy?: string | null; effect: 'immediate' | 'within-5s' | 'new-sessions' | null; reason: string | null; value: unknown; version: number | null; source: string | null; effective?: SettingEffective | null;
 }
 /** what the product really uses (server-computed from the consumers' own constants); source 'setting' = the stored value */
-export interface SettingEffective { value: unknown; source: 'setting' | 'built-in default' | 'static page text' | 'not consumed'; note?: string; uses?: Array<{ where: string; value: unknown }> }
+export interface SettingEffective { value: unknown; /** the value written for people (e.g. «USD — دولار أمريكي») */ label?: string; source: 'setting' | 'built-in default' | 'static page text' | 'not consumed'; note?: string; uses?: Array<{ where: string; value: unknown }> }
 export interface SettingsView { storageReady: boolean; items: SettingItem[] }
 export interface SettingsHistoryItem { id: string; at: string; severity: string | null; ip: string | null; actor: string | null; changes: Array<{ key: string; label: string; from: unknown; to: unknown }> }
 export interface HealthItem { key: string; label: string; status: 'ok' | 'down' | 'configured' | 'unconfigured' | 'unavailable'; detail: string }
 export interface Blocker { code: string; message: string }
 interface Envelope<T> { success: boolean; data: T }
 
+/**
+ * What the WEB APP itself uses while a setting is unset and the server cannot say (the server reports `value: null, source: 'static page text'`): the static legal texts and their date. Shared with the
+ * pages that render them, so the editor shows exactly what the page shows.
+ */
+export const CLIENT_UNSET_VALUES: Record<string, string> = { termsContent: TERMS_DEFAULT_TEXT, privacyContent: PRIVACY_DEFAULT_TEXT, termsVersion: LEGAL_PREPARED_ON, privacyVersion: LEGAL_PREPARED_ON };
+/** The value a setting row SHOWS: the stored value when there is one, else the value the product really uses (server `effective`, or the web app's own static value). Never written back unless the user edits it. */
+export function shownValue(it: SettingItem | undefined): unknown {
+	if (!it) return undefined;
+	if (it.status !== 'enforced') return it.value;
+	const e = it.effective;
+	if (!e || e.source === 'setting') return it.value;
+	if (e.value !== null && e.value !== undefined) return e.value;
+	return CLIENT_UNSET_VALUES[it.key] ?? it.value;
+}
 export const EFFECT_TEXT: Record<string, string> = { immediate: 'يسري فورًا', 'within-5s': 'يسري خلال ثوانٍ من الحفظ', 'new-sessions': 'يسري على الجلسات الجديدة' };
 const base = () => `${environment.url_api}/admin/system-settings`;
 
@@ -65,9 +81,10 @@ export class SystemSettingsStore {
 	readonly byKey = computed(() => new Map(this.items().map(i => [i.key, i])));
 
 	item(key: string): SettingItem | undefined { return this.byKey().get(key); }
-	/** the value to show: the draft when there is one, else what the server has */
-	value(key: string): unknown { const d = this.drafts(); return key in d ? d[key] : this.item(key)?.value; }
-	isDirty(key: string): boolean { const d = this.drafts(); return key in d && JSON.stringify(d[key]) !== JSON.stringify(this.item(key)?.value); }
+	/** the value to show: the draft when there is one, else the value in use (stored value, or what the product uses while unset) */
+	value(key: string): unknown { const d = this.drafts(); return key in d ? d[key] : shownValue(this.item(key)); }
+	/** dirty = the user changed it relative to what was SHOWN: the effective value of an unset setting is not a draft, and editing a field back to it is "unchanged" */
+	isDirty(key: string): boolean { const d = this.drafts(); return key in d && JSON.stringify(d[key]) !== JSON.stringify(shownValue(this.item(key))); }
 	dirtyKeys(keys: string[]): string[] { return keys.filter(k => this.item(k)?.status === 'enforced' && this.item(k)?.canWrite && this.isDirty(k)); }
 
 	setDraft(key: string, value: unknown) {

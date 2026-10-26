@@ -43,15 +43,7 @@
       <div class="toc-box">
         <div class="toc-title">فهرس المحتوى</div>
         <nav aria-label="اقسام سياسة الخصوصية">
-          <a [attr.href]="'#s1'" class="toc-link" [class.active]="activeSection === 's1'" (click)="$event.preventDefault(); scrollTo('s1')">الغرض</a>
-          <a [attr.href]="'#s2'" class="toc-link" [class.active]="activeSection === 's2'" (click)="$event.preventDefault(); scrollTo('s2')">البيانات التي تُجمع</a>
-          <a [attr.href]="'#s3'" class="toc-link" [class.active]="activeSection === 's3'" (click)="$event.preventDefault(); scrollTo('s3')">أغراض الاستخدام</a>
-          <a [attr.href]="'#s4'" class="toc-link" [class.active]="activeSection === 's4'" (click)="$event.preventDefault(); scrollTo('s4')">السرية الافتراضية</a>
-          <a [attr.href]="'#s5'" class="toc-link" [class.active]="activeSection === 's5'" (click)="$event.preventDefault(); scrollTo('s5')">مشاركة البيانات</a>
-          <a [attr.href]="'#s6'" class="toc-link" [class.active]="activeSection === 's6'" (click)="$event.preventDefault(); scrollTo('s6')">حذف الحساب</a>
-          <a [attr.href]="'#s7'" class="toc-link" [class.active]="activeSection === 's7'" (click)="$event.preventDefault(); scrollTo('s7')">مدة الاحتفاظ</a>
-          <a [attr.href]="'#s8'" class="toc-link" [class.active]="activeSection === 's8'" (click)="$event.preventDefault(); scrollTo('s8')">حقوق المستخدم</a>
-          <a [attr.href]="'#s9'" class="toc-link" [class.active]="activeSection === 's9'" (click)="$event.preventDefault(); scrollTo('s9')">أمن البيانات</a>
+          @for (s of sections(); track s.id) { @if (s.title) { <a [attr.href]="'#' + s.id" class="toc-link" [class.active]="activeSection === s.id" (click)="$event.preventDefault(); scrollTo(s.id)">{{ s.toc }}</a> } }
         </nav>
       </div>
       <div class="toc-box">
@@ -65,117 +57,21 @@
 
     <div class="legal-content">
 
-      <article class="legal-section" id="s1">
-        <span class="sec-num">01</span>
-        <h2 class="sec-h2">الغرض</h2>
+      @for (s of sections(); track s.id) {
+      <article [attr.id]="s.id" class="legal-section">
+        <span class="sec-num">{{ s.num }}</span>
+        @if (s.title) { <h2 class="sec-h2">{{ s.title }}</h2> }
         <div class="sec-body">
-          <p>توضح هذه السياسة أنواع البيانات التي يجمعها وسيط AI، وأغراض استخدامها، وحدود مشاركتها، ومدة الاحتفاظ بها، وأثر حذف الحساب.</p>
+          @for (b of s.blocks; track $index) {
+            @switch (b.kind) {
+              @case ('p') { <p>@for (x of b.parts; track $index) {@if (x.strong) {<strong>{{ x.t }}</strong>} @else {<ng-container>{{ x.t }}</ng-container>}}</p> }
+              @case ('ul') { <ul class="sec-list">@for (it of b.items; track $index) {<li>@for (x of it; track $index) {@if (x.strong) {<strong>{{ x.t }}</strong>} @else {<ng-container>{{ x.t }}</ng-container>}}</li>}</ul> }
+              @case ('table') { <div class="cookie-table-wrap"><table class="cookie-table"><thead><tr>@for (h of b.head; track $index) {<th>{{ h }}</th>}</tr></thead><tbody>@for (r of b.rows; track $index) {<tr>@for (c of r; track $index) {<td [class.td-name]="$first">@for (x of c; track $index) {@if (x.strong) {<strong>{{ x.t }}</strong>} @else {<ng-container>{{ x.t }}</ng-container>}}</td>}</tr>}</tbody></table></div> }
+            }
+          }
         </div>
       </article>
-
-      <article class="legal-section" id="s2">
-        <span class="sec-num">02</span>
-        <h2 class="sec-h2">البيانات التي تُجمع</h2>
-        <div class="sec-body">
-          <p>قد يجمع وسيط AI:</p>
-          <ul class="sec-list">
-          <li><strong>بيانات الحساب:</strong> الاسم، البريد، الجوال، كلمة المرور المشفرة، نوع الحساب</li>
-          <li><strong>بيانات التحقق:</strong> هوية، سجل تجاري، تفويض، وثائق ملكية، بيانات الشركة</li>
-          <li><strong>بيانات مالية تشغيلية:</strong> معاملات الدفع، الفواتير، الرصيد، طلبات السحب، بريد PayPal المستخدم لاستلام الأرباح</li>
-          <li><strong>بيانات المشاريع:</strong> الطلبات، العروض، العقود، المراحل، الملفات، التسليمات، المحادثات، النزاعات</li>
-          <li><strong>بيانات AI:</strong> التحليلات، نسب المطابقة، التقييمات، أسباب التوصيات</li>
-          <li><strong>بيانات الاستخدام:</strong> الجلسات، الأجهزة، سجلات الأمان، تفضيلات الواجهة، الكوكيز</li>
-          </ul>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s3">
-        <span class="sec-num">03</span>
-        <h2 class="sec-h2">أغراض الاستخدام</h2>
-        <div class="sec-body">
-          <p>تستخدم البيانات من أجل:</p>
-          <ul class="sec-list">
-          <li>تشغيل الحسابات والخدمات</li>
-          <li>التحقق والاعتماد</li>
-          <li>حفظ العقود والأدلة</li>
-          <li>معالجة الدفع والسحب والفواتير</li>
-          <li>إدارة الضمان المالي والنزاعات</li>
-          <li>تحسين المطابقة والتقييم وAI</li>
-          <li>منع الاحتيال والمخالفات</li>
-          <li>الامتثال للأنظمة والطلبات النظامية عند الحاجة</li>
-          </ul>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s4">
-        <span class="sec-num">04</span>
-        <h2 class="sec-h2">قاعدة السرية الافتراضية</h2>
-        <div class="sec-body">
-          <p>ملفات المشاريع والمخرجات والمحادثات والوثائق سرية افتراضياً. لا تستخدم في المعارض أو الصفحات العامة أو التسويق إلا بإذن صريح محفوظ أو إذا كانت أصلاً منشورة من صاحب الحق.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s5">
-        <span class="sec-num">05</span>
-        <h2 class="sec-h2">مشاركة البيانات</h2>
-        <div class="sec-body">
-          <p>قد تشارك البيانات بالقدر اللازم مع:</p>
-          <ul class="sec-list">
-          <li>بوابات الدفع والبنوك لمعالجة الدفع أو السحب أو الاسترداد</li>
-          <li>مزودي البنية التقنية والتخزين والأمان</li>
-          <li>أدوات AI المعتمدة تشغيلياً دون إظهار أسمائها للعامة</li>
-          <li>الجهات المختصة إذا وجد طلب نظامي أو ضرورة قانونية</li>
-          <li>أطراف المشروع بما يلزم لتنفيذ العقد فقط</li>
-          </ul>
-          <p>لا تباع البيانات الشخصية للمعلنين.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s6">
-        <span class="sec-num">06</span>
-        <h2 class="sec-h2">حذف الحساب</h2>
-        <div class="sec-body">
-          <p>حذف الحساب يوقف وصول المستخدم إلى واجهة الحساب أو يخفيه عنه، لكنه لا يحذف السجلات التي يحتاجها وسيط AI لحفظ الحقوق والعقود والنزاعات والالتزامات المالية والأدلة.</p>
-          <p>المبالغ المحررة أو المستحقة لا تضيع بسبب حذف واجهة الحساب، وتبقى محفوظة وفق السجلات المالية وسياسات السحب والتحقق.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s7">
-        <span class="sec-num">07</span>
-        <h2 class="sec-h2">مدة الاحتفاظ</h2>
-        <div class="sec-body">
-          <div class="cookie-table-wrap"><table class="cookie-table">
-          <thead>
-          <tr><th>نوع البيانات</th><th>مدة الاحتفاظ</th></tr>
-          </thead>
-          <tbody>
-          <tr><td class="td-name">العقود والفواتير والسجلات المالية</td><td>10 سنوات</td></tr>
-          <tr><td class="td-name">النزاعات والقرارات الإدارية وسجل التدقيق</td><td>10 سنوات</td></tr>
-          <tr><td class="td-name">بيانات التحقق والهوية</td><td>مدة الحساب + 5 سنوات بعد الإغلاق</td></tr>
-          <tr><td class="td-name">ملفات المشاريع والتسليمات</td><td>مدة المشروع + 3 سنوات</td></tr>
-          <tr><td class="td-name">المحادثات المرتبطة بمشروع</td><td>مدة المشروع + 5 سنوات</td></tr>
-          <tr><td class="td-name">سجلات الأمان والجلسات</td><td>12 إلى 24 شهراً</td></tr>
-          <tr><td class="td-name">تفضيلات الكوكيز</td><td>12 شهراً أو حتى تغييرها</td></tr>
-          </tbody>
-          </table></div>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s8">
-        <span class="sec-num">08</span>
-        <h2 class="sec-h2">حقوق المستخدم</h2>
-        <div class="sec-body">
-          <p>يمكن للمستخدم طلب تحديث بياناته أو تصحيحها أو إغلاق حسابه أو الاستفسار عن بياناته عبر الدعم. لا يوجد حالياً مسار تصدير بيانات شامل معتمد، ويجب عدم وعد المستخدم به قبل برمجته.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s9">
-        <span class="sec-num">09</span>
-        <h2 class="sec-h2">أمن البيانات</h2>
-        <div class="sec-body">
-          <p>تستخدم وسائل حماية مناسبة مثل التشفير، التحكم بالصلاحيات، سجلات التدقيق، مراقبة الدخول، وعدم تخزين بيانات وسائل الدفع الحساسة داخل وسيط AI إذا كانت بوابة الدفع تتولاها.</p>
-        </div>
-      </article>
+      }
 
     </div>
   </div>

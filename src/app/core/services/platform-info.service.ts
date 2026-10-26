@@ -9,6 +9,10 @@ import { setPlatformRegional } from '../utils/regional';
 export const DEFAULT_BRAND = 'وسيط AI';
 /** shown by the support buttons (login «account frozen» dialog, report-a-problem page) while the `supportEmail` setting is empty; the server's registry reports the same literal as the value in use */
 export const DEFAULT_SUPPORT_EMAIL = 'support@waseet.ai';
+/** the support / WhatsApp number shown by the contact page and the footer while the `supportPhone` setting is empty (the server's registry reports the same literal as the value in use) */
+export const DEFAULT_SUPPORT_PHONE = '+966 55 256 0392';
+/** wa.me link of a displayed number: digits only, a leading 00 dropped (the number must be written in international form) */
+export const waLink = (phone: string) => `https://wa.me/${phone.replace(/\D/g, '').replace(/^00/, '')}`;
 /** the server's answer during maintenance has this sentence when no banner text is configured; the web app uses it when the server sent none */
 export const DEFAULT_MAINTENANCE_MESSAGE = 'المنصة في صيانة مؤقتة. سنعود قريبًا.';
 @Injectable({ providedIn: 'root' })
@@ -25,10 +29,18 @@ export class PlatformInfoService {
 	readonly supportEmailSetting = signal('');
 	readonly termsVersion = signal('');
 	readonly privacyVersion = signal('');
+	/** the saved legal texts (empty = not set: the pages render their static text) */
+	readonly termsContent = signal('');
+	readonly privacyContent = signal('');
+	readonly supportPhoneSetting = signal('');
+	readonly supportPhone = computed(() => this.supportPhoneSetting() || DEFAULT_SUPPORT_PHONE);
+	readonly supportPhoneLink = computed(() => waLink(this.supportPhone()));
 	readonly supportEmail = computed(() => this.supportEmailSetting() || DEFAULT_SUPPORT_EMAIL);
 	private applyPublic(d: Record<string, unknown> | undefined) {
 		const str = (k: string) => (typeof d?.[k] === 'string' ? (d[k] as string).trim() : '');
 		this.supportEmailSetting.set(str('supportEmail')); this.termsVersion.set(str('termsVersion')); this.privacyVersion.set(str('privacyVersion'));
+		this.supportPhoneSetting.set(str('supportPhone'));
+		this.termsContent.set(str('termsContent')); this.privacyContent.set(str('privacyContent'));
 	}
 	private applyName(v: unknown) { const n = typeof v === 'string' ? v.trim() : ''; this.name.set(n); if (this.browser && n) this.title.setTitle(`${n} | للخدمات الذكية`); }
 

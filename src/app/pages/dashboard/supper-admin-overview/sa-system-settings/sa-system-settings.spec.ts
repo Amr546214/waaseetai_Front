@@ -65,7 +65,7 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 		expect((row(el, 'maintenanceMode').querySelector('button[role=switch]') as HTMLButtonElement).disabled).toBe(false);
 		const blocked = row(el, 'liveSupportAssistant'); expect(blocked.querySelector('button[role=switch]')).toBeNull(); expect(blocked.textContent).toContain('غير متاح'); expect(blocked.textContent).toContain('نطاق منفصل');
 		// an unavailable function is a muted label, never a control (no switch, input, select or button)
-		expect(blocked.querySelector('[data-testid="na-liveSupportAssistant"]')?.textContent).toContain('غير متاح'); expect(blocked.querySelector('input, select, textarea, button, [role=switch]')).toBeNull();
+		expect(blocked.querySelector('[data-testid="na-liveSupportAssistant"]')?.textContent).toContain('غير متاح'); expect(blocked.querySelector('input, select, textarea, button:not(.st-help-btn), [role=switch]')).toBeNull(); // the only button is the row's ⓘ help (information, not a control of the value)
 		c.setTab('security'); await flush(f);
 		expect(row(el, 'auditLogging').querySelector('[data-testid="value-auditLogging"]')?.textContent).toContain('مفعّل'); expect(row(el, 'auditLogging').textContent).toContain('المصدر: دائم'); expect(row(el, 'auditLogging').textContent).toContain('لا يمكن تعطيله');
 		expect(row(el, 'auditLogging').querySelector('input, button[role=switch]')).toBeNull();

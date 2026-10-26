@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../forms/select.component';
 import { ConfirmModalService } from '../../core/services/confirm-modal.service';
-import { LEGAL_PREPARED_ON } from '../../core/constants/legal-meta';
-import { EFFECT_TEXT, SettingEffective, SettingItem, SystemSettingsApi, SystemSettingsStore } from '../../core/services/system-settings.store';
+import { EFFECT_TEXT, SettingEffective, SettingItem, SystemSettingsApi, SystemSettingsStore, shownValue } from '../../core/services/system-settings.store';
 import { firstValueFrom } from 'rxjs';
 
 const LONG_TEXT = new Set(['termsContent', 'privacyContent']);
@@ -94,16 +93,16 @@ export class SettingsSectionComponent {
 	}
 	private nameOf(k: string) { return ({ configured: 'الخادم', senderConfigured: 'المرسِل', paypal: 'PayPal', smsProvider: 'مزوّد SMS', billingGateway: 'بوابة الفوترة' } as Record<string, string>)[k] ?? k; }
 
-	/** the value shown beside «غير متاح»: the currency is USD while multi-currency is deferred (the server sends no value for it); other unavailable rows show none */
-	blockedValue(r: SettingItem): string { if (r.key === 'baseCurrency') return 'USD'; const v = r.value; return v === null || v === undefined || typeof v === 'boolean' || typeof v === 'object' ? '' : String(v); }
+	/** the value shown beside «غير متاح»: what the SERVER reports as in use for the row (the platform currency for baseCurrency, from the same constant the money code uses); none when it reports nothing */
+	blockedValue(r: SettingItem): string { const e = r.effective; if (e) return e.label ?? (e.value === null || e.value === undefined ? '' : String(e.value)); const v = r.value; return v === null || v === undefined || typeof v === 'boolean' || typeof v === 'object' ? '' : String(v); }
 
 	/** spa variant: an object value (the integrations registry) becomes one row per entry - name and real state, never a secret */
 	entries(r: SettingItem): { key: string; label: string; text: string }[] | null {
 		const v = r.value; if (!v || typeof v !== 'object') return null;
 		return Object.entries(v as Record<string, unknown>).map(([k, x]) => ({ key: k, label: this.nameOf(k), text: typeof x === 'boolean' ? (x ? 'مهيّأ' : 'غير مهيّأ') : String(x) }));
 	}
-	/** a value the platform fixes for this release even though the registry key is not editable (multi-currency is deferred: USD only) */
-	fixedValue(r: SettingItem): string | null { return r.key === 'baseCurrency' ? 'USD — دولار أمريكي' : null; }
+	/** a value the platform fixes for this release even though the registry key is not editable (multi-currency is deferred): the server's own label for it, e.g. «USD — دولار أمريكي» */
+	fixedValue(r: SettingItem): string | null { return r.status === 'blocked' && r.effective ? (r.effective.label ?? (r.effective.value == null ? null : String(r.effective.value))) : null; }
 
 	setBool(k: string, v: boolean) { this.store.setDraft(k, v); }
 	setNumber(k: string, raw: string) { this.store.setDraft(k, raw === '' ? NaN : Number(raw)); }
@@ -112,14 +111,16 @@ export class SettingsSectionComponent {
 	save() { return saveWithConfirm(this.store, this.confirmModal, this.dirty(), this.api); }
 	discard() { this.store.discard(this.dirty()); }
 	retry() { return this.store.load(); }
-	/** the value in use while a setting is not stored (nothing to show for a stored value, and never for read-only / blocked rows) */
+	/** the value in use while a setting is not stored (for the help text only: the field itself already shows it) */
 	unset(r: SettingItem): SettingEffective | null { return r.status === 'enforced' && r.effective && r.effective.source !== 'setting' ? r.effective : null; }
-	/** the web app knows the static legal text's date itself (the server cannot read it) */
-	inUseText(r: SettingItem, e: SettingEffective): string {
-		const own = r.key === 'termsVersion' || r.key === 'privacyVersion' ? `${LEGAL_PREPARED_ON} (تاريخ الإعداد المكتوب في ${r.key === 'termsVersion' ? 'صفحة الشروط' : 'صفحة الخصوصية'})` : null;
-		if (own) return own;
-		return this.fmt(r, e.value);
-	}
+	inUseText(r: SettingItem): string { return this.fmt(r, shownValue(r)); }
+	/** one visible line: the first sentence of the registry description (the whole text is in the help) */
+	shortDesc(r: SettingItem): string { const d = (r.description ?? '').trim(); const first = d.split(/\.(?:\s|$)/)[0].trim(); return first.length > 110 ? `${first.slice(0, 110).trim()}…` : first; }
+	/** per-row help (ⓘ): which rows are open */
+	readonly helpOpen = signal<ReadonlySet<string>>(new Set());
+	toggleHelp(k: string) { this.helpOpen.update(o => { const n = new Set(o); if (n.has(k)) n.delete(k); else n.add(k); return n; }); }
+	closeHelp(k: string) { this.helpOpen.update(o => { const n = new Set(o); n.delete(k); return n; }); }
+	whoText(r: SettingItem): string { return r.writeBy === 'SUPER' ? 'Super Admin فقط' : r.writeBy === 'settings.manage' ? 'من يملك صلاحية «إدارة الإعدادات» أو Super Admin' : r.writeBy === 'settings.view' ? 'من يملك صلاحية «عرض الإعدادات» أو Super Admin' : 'غير محدد'; }
 	private fmt(r: SettingItem, v: unknown): string {
 		if (v === null || v === undefined) return '';
 		if (typeof v === 'boolean') return STATE_WORD(v);

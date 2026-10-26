@@ -92,7 +92,7 @@
           </div>
           <div class="info-title">واتساب</div>
           <div class="info-val">للدعم السريع والمباشر</div>
-          <a href="https://wa.me/966552560392" class="info-link" target="_blank" rel="noopener" dir="ltr">+966 55 256 0392</a>
+          <a [attr.href]="platform.supportPhoneLink()" class="info-link" target="_blank" rel="noopener" dir="ltr" data-testid="support-phone">{{ platform.supportPhone() }}</a>
         </div>
 
         <div class="info-card">

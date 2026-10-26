@@ -45,6 +45,7 @@ const FILES = [
 	'dashboard/supper-admin-overview/sa-audit-trail/sa-audit-trail.ts',
 	// public
 	'website/privacy/privacy.component.html',
+	'../core/constants/legal-text.ts', // the static text of the terms / privacy pages now lives here (the pages render it)
 	'website/terms/terms.component.html',
 	'website/legal/legal-page.component.ts',
 	'website/partners/partners.html',

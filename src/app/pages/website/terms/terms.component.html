@@ -22,18 +22,7 @@
       <div class="toc-box">
         <div class="toc-title">فهرس المحتوى</div>
         <nav aria-label="اقسام الشروط والأحكام">
-          <a [attr.href]="'#s1'" class="toc-link" [class.active]="activeSection === 's1'" (click)="$event.preventDefault(); scrollTo('s1')">نطاق الشروط</a>
-          <a [attr.href]="'#s2'" class="toc-link" [class.active]="activeSection === 's2'" (click)="$event.preventDefault(); scrollTo('s2')">الاسم والصفة التشغيلية</a>
-          <a [attr.href]="'#s3'" class="toc-link" [class.active]="activeSection === 's3'" (click)="$event.preventDefault(); scrollTo('s3')">أهلية الحساب وصحة البيانات</a>
-          <a [attr.href]="'#s4'" class="toc-link" [class.active]="activeSection === 's4'" (click)="$event.preventDefault(); scrollTo('s4')">أنواع الحسابات</a>
-          <a [attr.href]="'#s5'" class="toc-link" [class.active]="activeSection === 's5'" (click)="$event.preventDefault(); scrollTo('s5')">الخدمات والنطاق</a>
-          <a [attr.href]="'#s6'" class="toc-link" [class.active]="activeSection === 's6'" (click)="$event.preventDefault(); scrollTo('s6')">التعاقد والدفع</a>
-          <a [attr.href]="'#s7'" class="toc-link" [class.active]="activeSection === 's7'" (click)="$event.preventDefault(); scrollTo('s7')">التواصل الداخلي</a>
-          <a [attr.href]="'#s8'" class="toc-link" [class.active]="activeSection === 's8'" (click)="$event.preventDefault(); scrollTo('s8')">الذكاء الاصطناعي</a>
-          <a [attr.href]="'#s9'" class="toc-link" [class.active]="activeSection === 's9'" (click)="$event.preventDefault(); scrollTo('s9')">النزاعات والإلغاء</a>
-          <a [attr.href]="'#s10'" class="toc-link" [class.active]="activeSection === 's10'" (click)="$event.preventDefault(); scrollTo('s10')">الملكية والسرية</a>
-          <a [attr.href]="'#s11'" class="toc-link" [class.active]="activeSection === 's11'" (click)="$event.preventDefault(); scrollTo('s11')">المخالفات والعقوبات</a>
-          <a [attr.href]="'#s12'" class="toc-link" [class.active]="activeSection === 's12'" (click)="$event.preventDefault(); scrollTo('s12')">تحديث الشروط</a>
+          @for (s of sections(); track s.id) { @if (s.title) { <a [attr.href]="'#' + s.id" class="toc-link" [class.active]="activeSection === s.id" (click)="$event.preventDefault(); scrollTo(s.id)">{{ s.toc }}</a> } }
         </nav>
       </div>
       <div class="toc-box">
@@ -47,117 +36,21 @@
 
     <div class="legal-content">
 
-      <article class="legal-section" id="s1">
-        <span class="sec-num">01</span>
-        <h2 class="sec-h2">نطاق الشروط</h2>
+      @for (s of sections(); track s.id) {
+      <article [attr.id]="s.id" class="legal-section">
+        <span class="sec-num">{{ s.num }}</span>
+        @if (s.title) { <h2 class="sec-h2">{{ s.title }}</h2> }
         <div class="sec-body">
-          <p>تنظم هذه الشروط استخدام وسيط AI، وإنشاء الحسابات، وطلب الخدمات، وتقديم الخدمات، والتسويق بالإحالة، والدفع، والتسليم، والنزاعات، والالتزامات العامة.</p>
-          <p>باستخدام وسيط AI أو إنشاء حساب أو قبول عرض أو دفع مبلغ أو تقديم خدمة، يقر المستخدم بأنه قرأ الشروط والسياسات المرتبطة بها ووافق عليها.</p>
+          @for (b of s.blocks; track $index) {
+            @switch (b.kind) {
+              @case ('p') { <p>@for (x of b.parts; track $index) {@if (x.strong) {<strong>{{ x.t }}</strong>} @else {<ng-container>{{ x.t }}</ng-container>}}</p> }
+              @case ('ul') { <ul class="sec-list">@for (it of b.items; track $index) {<li>@for (x of it; track $index) {@if (x.strong) {<strong>{{ x.t }}</strong>} @else {<ng-container>{{ x.t }}</ng-container>}}</li>}</ul> }
+              @case ('table') { <div class="cookie-table-wrap"><table class="cookie-table"><thead><tr>@for (h of b.head; track $index) {<th>{{ h }}</th>}</tr></thead><tbody>@for (r of b.rows; track $index) {<tr>@for (c of r; track $index) {<td [class.td-name]="$first">@for (x of c; track $index) {@if (x.strong) {<strong>{{ x.t }}</strong>} @else {<ng-container>{{ x.t }}</ng-container>}}</td>}</tr>}</tbody></table></div> }
+            }
+          }
         </div>
       </article>
-
-      <article class="legal-section" id="s2">
-        <span class="sec-num">02</span>
-        <h2 class="sec-h2">الاسم والصفة التشغيلية</h2>
-        <div class="sec-body">
-          <p>الاسم الواجهي هو <strong>وسيط AI</strong>، والاسم الرسمي في الأوراق هو شركة وسيط AI. يقدم وسيط AI تجربة وسيطة رقمية مدعومة بـ AI لتنظيم الطلبات والعروض والتعاقد والتسليم والضمان المالي والتقييم.</p>
-          <p>وسيط AI ليس بنكاً ولا جهة تمويل ولا محفظة مالية مستقلة. أي أرصدة أو مبالغ تظهر للمستخدم هي قيود تشغيلية مرتبطة بالطلبات والضمان والمستحقات، وتخضع لبوابة الدفع (PayPal) والسياسات المالية.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s3">
-        <span class="sec-num">03</span>
-        <h2 class="sec-h2">أهلية الحساب وصحة البيانات</h2>
-        <div class="sec-body">
-          <p>المستخدم مسؤول عن صحة بياناته ووثائقه ومعلومات الدفع والسحب والتفويضات. أي بيانات مزورة أو غير صحيحة أو استخدام هوية لا تخص المستخدم قد يؤدي إلى التقييد أو التعليق أو الحظر أو تجميد المستحقات محل الاشتباه.</p>
-          <p>لا يجوز بيع الحساب أو تأجيره أو مشاركة بيانات الدخول أو استخدام حساب شخص آخر.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s4">
-        <span class="sec-num">04</span>
-        <h2 class="sec-h2">أنواع الحسابات</h2>
-        <div class="sec-body">
-          <p>يدعم وسيط AI أدواراً متعددة، منها:</p>
-          <ul class="sec-list">
-          <li>طالب خدمة فرد</li>
-          <li>طالب خدمة شركة</li>
-          <li>مقدم خدمة فرد</li>
-          <li>مقدم خدمة شركة</li>
-          <li>وسيط تسويقي</li>
-          <li>موظف أو مفوض تابع لشركة</li>
-          </ul>
-          <p>كل دور يخضع لشروطه وموافقاته ومتطلبات التحقق والصلاحيات الخاصة به.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s5">
-        <span class="sec-num">05</span>
-        <h2 class="sec-h2">الخدمات والنطاق</h2>
-        <div class="sec-body">
-          <p>النطاق الأولي لوسيط AI يركز على الخدمات الرقمية وعن بعد. الخدمات التي تتطلب حضوراً مادياً أو نشاطاً خارج النطاق الرقمي لا تُفعَّل في V1 إلا بقرار لاحق.</p>
-          <p>كل طلب أو عرض أو خدمة يجب أن يوضح النطاق، السعر، المدة، المراحل، المخرجات، التعديلات، وشروط القبول. أي تغيير جوهري بعد القبول يحتاج طلب تغيير نطاق مستقل.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s6">
-        <span class="sec-num">06</span>
-        <h2 class="sec-h2">التعاقد والدفع</h2>
-        <div class="sec-body">
-          <p>قبول العرض والتوقيع ينشئ عقداً بين الأطراف، لكن بدء التنفيذ لا يكون إلا بعد تأكيد الدفع أو وصول المبلغ حسب طريقة الدفع. يحتجز مبلغ المشروع أو المرحلة في الضمان المالي، ولا يفرج عنه إلا عند القبول أو انتهاء المهلة أو قرار نزاع أو تسوية.</p>
-          <p>رسوم طريقة الدفع (إيداع المحفظة عبر PayPal) غير مستردة لأنها تخص مزود الدفع، وتُعرض قبل تأكيد الإيداع. لا تُفرض رسوم على طالب الخدمة عند حجز الضمان.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s7">
-        <span class="sec-num">07</span>
-        <h2 class="sec-h2">التواصل الداخلي</h2>
-        <div class="sec-body">
-          <p>كل التواصل المتعلق بالطلبات والعروض والمشاريع والنزاعات يجب أن يبقى داخل وسيط AI حتى يمكن حفظ السجل وحماية الطرفين. طلب الدفع أو التنفيذ أو التفاوض خارج وسيط AI يعد مخالفة.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s8">
-        <span class="sec-num">08</span>
-        <h2 class="sec-h2">الذكاء الاصطناعي</h2>
-        <div class="sec-body">
-          <p>يستخدم وسيط AI الذكاء الاصطناعي لتحليل الطلبات والعروض والمخرجات والتقييمات. نتائج AI قد تكون توصية أو تقييماً، ولكل منها أثر مختلف كما هو موضح في سياسة حوكمة AI. النزاعات تُراجع وتُحسم من قبل فريق الإدارة.</p>
-          <p>تخطي توصية AI المؤثرة يسجل في سجل المشروع، ولا يمنع الاعتراض لاحقاً، لكنه يدخل في سياق النزاع إذا كان الاعتراض مرتبطاً بنفس التحذير.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s9">
-        <span class="sec-num">09</span>
-        <h2 class="sec-h2">النزاعات والإلغاء</h2>
-        <div class="sec-body">
-          <p>تخضع النزاعات والإلغاء والاسترداد والتعويضات لسياسة الإلغاء والاسترداد والضمان والنزاعات. عند وجود نزاع، يعلق الإفراج أو السحب المرتبط بالنطاق المتنازع عليه حتى صدور قرار أو تسوية.</p>
-          <p>إذا بدأ مقدم الخدمة العمل وأثبت ذلك، قد يستحق تعويضاً أو تسوية نسبية من مبلغ الضمان حسب الأدلة ونسبة الإنجاز، ولا يحق لطالب الخدمة استخدام أو استلام مخرجات غير مدفوعة.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s10">
-        <span class="sec-num">10</span>
-        <h2 class="sec-h2">الملكية والسرية</h2>
-        <div class="sec-body">
-          <p>ملفات طالب الخدمة ومخرجات مقدم الخدمة سرية افتراضياً. تنتقل حقوق استخدام المخرجات لطالب الخدمة بحسب العقد وبعد سداد المستحقات أو الإفراج المالي المناسب. لا يجوز نشر مخرجات أو ملفات مشروع في معرض أعمال أو قناة عامة إلا بإذن صريح محفوظ.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s11">
-        <span class="sec-num">11</span>
-        <h2 class="sec-h2">المخالفات والعقوبات</h2>
-        <div class="sec-body">
-          <p>قد تؤدي المخالفات إلى تحذير أو تقييد أو تعليق مؤقت أو حظر دائم أو تجميد مستحقات محل النزاع أو الاحتيال. تشمل المخالفات: الدفع الخارجي، التواصل الخارجي المخالف، التزوير، انتهاك الملكية، الاحتيال، إفشاء البيانات، إساءة استخدام AI، أو مخالفة العقد.</p>
-        </div>
-      </article>
-
-      <article class="legal-section" id="s12">
-        <span class="sec-num">12</span>
-        <h2 class="sec-h2">تحديث الشروط</h2>
-        <div class="sec-body">
-          <p>يجوز تحديث الشروط والسياسات. إذا كان التحديث جوهرياً ويمس الحقوق أو الرسوم أو النزاعات أو الخصوصية أو AI أو الملكية، فيجب حفظ نسخة جديدة وطلب موافقة جديدة عند الحاجة.</p>
-        </div>
-      </article>
+      }
 
     </div>
   </div>

@@ -1,8 +1,10 @@
-import { Component, HostListener, Inject, PLATFORM_ID, OnInit, inject } from '@angular/core';
+import { Component, computed, HostListener, Inject, PLATFORM_ID, OnInit, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { PlatformInfoService } from '../../../core/services/platform-info.service';
 import { LEGAL_PREPARED_ON } from '../../../core/constants/legal-meta';
+import { TERMS_DEFAULT_TEXT } from '../../../core/constants/legal-text';
+import { parseLegalText } from '../../../core/utils/legal-text';
 
 @Component({
 	selector: 'app-terms',
@@ -14,6 +16,8 @@ import { LEGAL_PREPARED_ON } from '../../../core/constants/legal-meta';
 export class TermsComponent implements OnInit {
 	readonly platform = inject(PlatformInfoService);
 	readonly preparedOn = LEGAL_PREPARED_ON;
+	/** the saved text (setting `termsContent`) when there is one, else the static text of the page - parsed to typed blocks, rendered as plain text only */
+	readonly sections = computed(() => parseLegalText(this.platform.termsContent() || TERMS_DEFAULT_TEXT));
 	activeSection = 's1';
 
 	constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
@@ -24,7 +28,7 @@ export class TermsComponent implements OnInit {
 	onScroll() {
 		if (isPlatformBrowser(this.platformId)) {
 			const scrollPosition = window.scrollY + 150;
-			const sections = ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 's11', 's12'];
+			const sections = this.sections().map(s => s.id);
 			for (const id of sections) {
 				const el = document.getElementById(id);
 				if (el) {
