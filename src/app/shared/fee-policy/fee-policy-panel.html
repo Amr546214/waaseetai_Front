@@ -1,13 +1,13 @@
 <section class="fp" [class.fp-ss]="variant() === 'ss'" [class.fp-spa]="variant() === 'spa'" dir="rtl" data-testid="fee-policy">
-  <h2 class="fp-h">@if (variant() === 'spa') { <svg class="fp-ico" aria-hidden="true"><use href="#spa-i-wallet"></use></svg> } @else { <svg class="fp-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM14.5 14a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0z"/></svg> }سياسة الرسوم والعمولات</h2>
-  <p class="fp-sub">النسب والحدود الدنيا تُحفظ كنسخ ثابتة. التعديل يُجدول لوقت لاحق ويسري على العمليات الجديدة فقط؛ العقود وطلبات الإيداع والسحب القائمة تحتفظ بشروطها.</p>
+  <h2 class="fp-h">@if (variant() === 'spa') { <svg class="fp-ico" aria-hidden="true"><use href="#spa-i-wallet"></use></svg> } @else { <svg class="fp-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM14.5 14a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0z"/></svg> }سياسة الرسوم والعمولات@if (variant() === 'spa') { <button type="button" class="fp-help-btn" data-testid="fp-help-btn" aria-label="تفاصيل سياسة الرسوم" [attr.aria-expanded]="helpOpen()" (click)="helpOpen.set(!helpOpen())"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button> }</h2>
+  @if (variant() !== 'spa' || helpOpen()) {<p class="fp-sub">النسب والحدود الدنيا تُحفظ كنسخ ثابتة. التعديل يُجدول لوقت لاحق ويسري على العمليات الجديدة فقط؛ العقود وطلبات الإيداع والسحب القائمة تحتفظ بشروطها.</p>}
 
   @if (loading()) { <div class="fp-note" role="status">جارٍ التحميل…</div> }
   @else if (loadError()) { <div class="fp-err" role="alert" data-testid="fp-load-error">{{ loadError() }} @if (!forbidden()) { <button type="button" class="fp-btn" data-testid="fp-retry" (click)="load()">إعادة المحاولة</button> }</div> }
   @else if (view(); as v) {
     <div class="fp-active" data-testid="fp-active"><span class="fp-dot fp-dot-ok" aria-hidden="true"></span><span class="fp-line">
       النسخة السارية: <b>{{ v.active.version }}</b> — منذ {{ v.active.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}
-      <span class="fp-src" data-testid="fp-source">— المصدر: {{ v.activeSource === 'built-in fallback' ? 'قيم مدمجة في الخادم (لا نسخة محفوظة قابلة للقراءة في قاعدة البيانات)' : 'نسخة محفوظة في قاعدة البيانات' }}@if (v.active.note) { — {{ v.active.note }} }</span></span>
+      @if (variant() !== 'spa' || helpOpen()) {<span class="fp-src" data-testid="fp-source">— المصدر: {{ v.activeSource === 'built-in fallback' ? 'قيم مدمجة في الخادم (لا نسخة محفوظة قابلة للقراءة في قاعدة البيانات)' : 'نسخة محفوظة في قاعدة البيانات' }}@if (v.active.note) { — {{ v.active.note }} }</span>}</span>
     </div>
 
     @for (u of pending(); track u.id) {
@@ -19,7 +19,7 @@
 
     @if (draft(); as d) {
       @if (!editable() && canManage()) { <div class="fp-note">توجد نسخة مجدولة؛ ألغِها أو انتظر سريانها قبل جدولة تعديل جديد.</div> }
-      <div class="fp-note" role="note" data-testid="fp-display-only">الكاش باك ورسوم سحب الوسيط <b>لا تُطبَّق ماليًا حاليًا</b> (لا يوجد قيد يمنح الكاش باك ولا خصم يطبّق رسم السحب)، لذلك تُعرض للاطلاع ولا يمكن تعديلها حتى يُنفَّذ مسارها كاملًا. المطبّق فعليًا: عمولة مقدم الخدمة، عمولة الوسيط، رسوم الإيداع والحدّان الأدنيان للسحب.</div>
+      @if (variant() !== 'spa' || helpOpen()) {<div class="fp-note" role="note" data-testid="fp-display-only">الكاش باك ورسوم سحب الوسيط <b>لا تُطبَّق ماليًا حاليًا</b> (لا يوجد قيد يمنح الكاش باك ولا خصم يطبّق رسم السحب)، لذلك تُعرض للاطلاع ولا يمكن تعديلها حتى يُنفَّذ مسارها كاملًا. المطبّق فعليًا: عمولة مقدم الخدمة، عمولة الوسيط، رسوم الإيداع والحدّان الأدنيان للسحب.</div>}
       <div class="fp-tbl-wrap">
         <table class="fp-tbl" data-testid="fp-ladders">
           <thead><tr><th>المستوى</th><th>عمولة مقدم الخدمة %</th><th>كاش باك طالب الخدمة % <span class="fp-tag">للعرض فقط</span></th><th>عمولة الوسيط %</th></tr></thead>
