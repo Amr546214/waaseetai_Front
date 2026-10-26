@@ -92,3 +92,11 @@
 :host-context(.light-theme) .fp-ss .fp-err, :host-context(.theme-light) .fp-ss .fp-err { color: #C2410C; }
 :host-context(.light-theme) .fp-ss .fp-note, :host-context(.theme-light) .fp-ss .fp-note { background: rgba(43,127,255,.06); border-color: rgba(43,127,255,.2); }
 @media (max-width: 700px) { .fp-ss { padding: 16px 14px; } .fp-ss .fp-form .fp-in { width: 100%; max-width: 100%; } .fp-ss .fp-form .fp-row { flex-direction: column; align-items: stretch; } .fp-ss .fp-tbl .fp-in { width: 96px; } }
+
+/* round 2: ⓘ help (long explanations), hidden rows, and tokens */
+.fp-ss [hidden] { display: none !important; }
+.fp-ss .fp-help-btn { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; padding: 0; border: 0; background: transparent; color: #6B7699; cursor: pointer; margin-inline-start: 2px; }
+.fp-ss .fp-help-btn:hover, .fp-ss .fp-help-btn[aria-expanded="true"] { color: #2BD4C7; }
+.fp-ss .fp-sub:not([hidden]) + .fp-sub { padding: 10px 12px; border-radius: 9px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); color: #A8B2D1; line-height: 1.7; }
+:host-context(.light-theme) .fp-ss .fp-help-btn, :host-context(.theme-light) .fp-ss .fp-help-btn { color: #64748B; }
+:host-context(.light-theme) .fp-ss .fp-sub:not([hidden]) + .fp-sub, :host-context(.theme-light) .fp-ss .fp-sub:not([hidden]) + .fp-sub { background: #F8FAFC; border-color: #E7EAF1; color: #475569; }

@@ -63,11 +63,15 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 	it('rows follow the server: enforced = live control, blocked = disabled with the reason, read-only = value + source; nothing is a switch that changes nothing', async () => {
 		const { f, el, c } = await boot();
 		expect((row(el, 'maintenanceMode').querySelector('button[role=switch]') as HTMLButtonElement).disabled).toBe(false);
-		const blocked = row(el, 'liveSupportAssistant'); expect(blocked.querySelector('button[role=switch]')).toBeNull(); expect(blocked.textContent).toContain('غير متاح'); expect(blocked.textContent).toContain('نطاق منفصل');
+		const blocked = row(el, 'liveSupportAssistant'); expect(blocked.querySelector('button[role=switch]')).toBeNull(); expect(blocked.textContent).toContain('غير متاح');
+		// round 2: the long reason lives in the row's ⓘ help (not inline); opening it shows it
+		(blocked.querySelector('[data-testid="help-btn-liveSupportAssistant"]') as HTMLButtonElement).click(); await flush(f); expect(row(el, 'liveSupportAssistant').textContent).toContain('نطاق منفصل');
 		// an unavailable function is a muted label, never a control (no switch, input, select or button)
 		expect(blocked.querySelector('[data-testid="na-liveSupportAssistant"]')?.textContent).toContain('غير متاح'); expect(blocked.querySelector('input, select, textarea, button:not(.st-help-btn), [role=switch]')).toBeNull(); // the only button is the row's ⓘ help (information, not a control of the value)
 		c.setTab('security'); await flush(f);
-		expect(row(el, 'auditLogging').querySelector('[data-testid="value-auditLogging"]')?.textContent).toContain('مفعّل'); expect(row(el, 'auditLogging').textContent).toContain('المصدر: دائم'); expect(row(el, 'auditLogging').textContent).toContain('لا يمكن تعطيله');
+		expect(row(el, 'auditLogging').querySelector('[data-testid="value-auditLogging"]')?.textContent).toContain('مفعّل'); 
+		// round 2: source and reason of a read-only row are in its ⓘ help
+		(row(el, 'auditLogging').querySelector('[data-testid="help-btn-auditLogging"]') as HTMLButtonElement).click(); await flush(f); expect(row(el, 'auditLogging').textContent).toContain('المصدر: دائم'); expect(row(el, 'auditLogging').textContent).toContain('لا يمكن تعطيله');
 		expect(row(el, 'auditLogging').querySelector('input, button[role=switch]')).toBeNull();
 	});
 
@@ -132,9 +136,19 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 		expect(http.expectOne(r => r.method === 'PUT').request.body).toEqual({ changes: { maintenanceMode: true }, expected: { maintenanceMode: 0 } });
 	});
 
+	it('round 2: save button text follows the reference (حفظ التغييرات on the first tab, حفظ on the others) and a row shows no inline reason/source text', async () => {
+		const { f, el, c } = await boot();
+		expect(el.querySelector('[data-testid="settings-save"]')?.textContent?.trim()).toBe('حفظ التغييرات');
+		c.setTab('security'); await flush(f);
+		expect(el.querySelector('[data-testid="settings-save"]')?.textContent?.trim()).toBe('حفظ');
+		expect(el.querySelector('[data-testid="reason-auditLogging"]')).toBeNull(); expect(el.querySelector('.st-ro-src')).toBeNull();
+	});
+
 	it('a setting the user may not change is shown but locked, with the reason', async () => {
-		const { el } = await boot(ITEMS.map(i => (i.key === 'platformName' ? { ...i, canWrite: false } : i)));
-		const r = row(el, 'platformName'); expect((r.querySelector('input') as HTMLInputElement).disabled).toBe(true); expect(r.textContent).toContain('ليست لديك صلاحية');
+		const { f, el } = await boot(ITEMS.map(i => (i.key === 'platformName' ? { ...i, canWrite: false } : i)));
+		const r = row(el, 'platformName'); expect((r.querySelector('input') as HTMLInputElement).disabled).toBe(true);
+		// round 2: the permission reason is in the ⓘ help of the row
+		(r.querySelector('[data-testid="help-btn-platformName"]') as HTMLButtonElement).click(); await flush(f); expect(row(el, 'platformName').textContent).toContain('ليست لديك صلاحية');
 	});
 
 	it('currency: USD today; a refused change lists the real blockers; the readiness card lists them too', async () => {

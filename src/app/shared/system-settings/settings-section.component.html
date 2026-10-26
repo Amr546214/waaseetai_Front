@@ -11,10 +11,6 @@
         <div class="st-row-lbl">{{ r.label }}@if (r.status === 'readonly') { <span class="st-badge st-badge-ro">للعرض فقط</span> }
           <button type="button" class="st-help-btn" [attr.data-testid]="'help-btn-' + r.key" [attr.aria-label]="'تفاصيل: ' + r.label" [attr.aria-expanded]="helpOpen().has(r.key)" [attr.aria-controls]="'help-' + r.key" (click)="toggleHelp(r.key)" (keydown.escape)="closeHelp(r.key)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div>
         @if (shortDesc(r)) { <div class="st-row-desc" [attr.data-testid]="'desc-' + r.key">{{ shortDesc(r) }}</div> }
-        @if (variant() !== 'spa') {
-          @if (r.status !== 'enforced' && r.reason) { <div class="st-row-reason" [attr.data-testid]="'reason-' + r.key">{{ r.reason }}</div> }
-          @if (r.status === 'enforced' && !r.canWrite) { <div class="st-row-reason">ليست لديك صلاحية تعديل هذا الإعداد.</div> }
-        }
         @if (helpOpen().has(r.key)) {
           <div class="st-help" role="region" [id]="'help-' + r.key" [attr.aria-label]="'تفاصيل: ' + r.label" [attr.data-testid]="'help-' + r.key" (keydown.escape)="closeHelp(r.key)">
             <div class="st-help-desc">{{ r.description }}</div>
@@ -28,7 +24,7 @@
               }
             }
             @if (r.status !== 'enforced' && r.reason) { <div class="st-help-line" [attr.data-testid]="'reason-' + r.key"><span class="st-help-k">لماذا لا يُعدَّل:</span> {{ r.reason }}</div> }
-            @if (r.status === 'readonly' && r.source) { <div class="st-help-line"><span class="st-help-k">المصدر:</span> {{ r.source }}</div> }
+            @if (r.status === 'readonly' && r.source) { <div class="st-help-line" [attr.data-testid]="'src-' + r.key"><span class="st-help-k">المصدر:</span> {{ r.source }}</div> }
             @if (r.status === 'enforced' && !r.canWrite) { <div class="st-help-line"><span class="st-help-k">الصلاحية:</span> ليست لديك صلاحية تعديل هذا الإعداد.</div> }
             <div class="st-help-line" [attr.data-testid]="'who-' + r.key"><span class="st-help-k">من يملك التغيير:</span> {{ whoText(r) }}</div>
           </div>
@@ -60,7 +56,7 @@
         @if (variant() === 'spa') {
           @if (!entries(r)) { <span class="st-na" [attr.data-testid]="'value-' + r.key">{{ readonlyText(r) }}</span> }
         } @else {
-          <div class="st-ro" [attr.data-testid]="'value-' + r.key"><span class="st-ro-val">{{ readonlyText(r) }}</span>@if (r.source) { <span class="st-ro-src">المصدر: {{ r.source }}</span> }</div>
+          <div class="st-ro" [attr.data-testid]="'value-' + r.key"><span class="st-ro-val">{{ readonlyText(r) }}</span>@if (variant() === 'spa' && r.source) { <span class="st-ro-src">المصدر: {{ r.source }}</span> }</div>
         }
       } @else {
 @if (variant() === 'spa') {
@@ -86,7 +82,7 @@
   }
 
 </div>
-  @if (failure(); as f) {
+  @if (showSave() && failure(); as f) {
     <div class="st-fail" role="alert" data-testid="settings-failure">
       <div>{{ f.text }}</div>
       @if (f.blockers.length) { <ul class="st-blockers" data-testid="currency-blockers">@for (b of f.blockers; track b.code) { <li>{{ b.message }}</li> }</ul> }
@@ -99,7 +95,7 @@
   }
   @if (showSave() && editableKeys().length) {
     <div class="st-save-row">
-      <button type="button" class="st-save" data-testid="settings-save" [disabled]="!dirty().length || store.saving() || !store.storageReady()" (click)="save()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
+      <button type="button" class="st-save" data-testid="settings-save" [disabled]="!dirty().length || store.saving() || !store.storageReady()" (click)="save()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>{{ store.saving() ? 'جارٍ الحفظ…' : saveLabel() }}</button>
       @if (dirty().length && !store.saving()) { <button type="button" class="st-link" (click)="discard()">تراجع عن التعديل</button> }
       @if (notice(); as n) { <span class="st-ok" role="status" data-testid="settings-saved">{{ n.text }}</span> }
       @if (!store.storageReady()) { <span class="st-row-reason">مخزن الإعدادات غير جاهز على الخادم بعد، فلا يمكن الحفظ الآن.</span> }
