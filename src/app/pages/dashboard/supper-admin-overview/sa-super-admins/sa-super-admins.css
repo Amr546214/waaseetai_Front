@@ -37,7 +37,7 @@
 .spa-btn svg{width:12px;height:12px;flex-shrink:0}
 .spa-btn-pri{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24}
 .spa-btn-pri:hover:not(:disabled){opacity:.88}
-.spa-btn-pri:disabled{opacity:.45;cursor:not-allowed}
+.spa-btn-pri:disabled{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:#6B7699;opacity:1;cursor:not-allowed}
 .spa-btn-gh{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.10);color:#A8B2D1}
 .spa-btn-gh:hover:not(:disabled){background:rgba(255,255,255,.10);color:#fff}
 .spa-btn-danger{background:rgba(255,140,105,.08);border-color:rgba(255,140,105,.22);color:#FF8C69}
@@ -105,6 +105,7 @@
 @media(max-width:767px){.spa-card-flush .spa-tbl{min-width:640px}}
 
 /* Light theme: the design's ws-light-polish tokens */
+:host-context(.light-theme) .spa-btn-pri:disabled,:host-context(.theme-light) .spa-btn-pri:disabled{background:#E2E8F0;border-color:#CBD5E1;color:#94A3B8}
 :host-context(.light-theme) .spa-help,:host-context(.theme-light) .spa-help{background:#F8FAFC;border-color:#E7EAF1;color:#475569}
 :host-context(.light-theme) .spa-target,:host-context(.theme-light) .spa-target{color:#64748B}
 :host-context(.light-theme) .spa-sec-ttl,:host-context(.theme-light) .spa-sec-ttl,:host-context(.light-theme) .spa-card-ttl,:host-context(.theme-light) .spa-card-ttl,:host-context(.light-theme) .spa-row-lbl,:host-context(.theme-light) .spa-row-lbl,:host-context(.light-theme) .spa-strong,:host-context(.theme-light) .spa-strong,:host-context(.light-theme) .spa-actor,:host-context(.theme-light) .spa-actor{color:#1E293B}

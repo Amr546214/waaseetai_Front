@@ -131,18 +131,18 @@
         <div class="spa-card spa-card-flush">
           <div class="spa-tbl-wrap">
             <table class="spa-tbl">
-              <thead><tr><th>#</th><th>الإجراء</th><th>التفاصيل</th><th>المنفذ</th><th>الدور</th><th>IP</th><th>التاريخ</th><th>الخطورة</th></tr></thead>
+              <thead><tr><th title="ترتيب العرض في النتيجة الحالية فقط، وليس رقمًا دائمًا للحدث" data-testid="audit-order-th">#</th><th>الإجراء</th><th>التفاصيل</th><th>المنفذ</th><th>الدور</th><th>IP</th><th>التاريخ</th><th>الخطورة</th></tr></thead>
               <tbody>
-                @for (r of auditRows(); track r.id) {
+                @for (r of auditRows(); track r.id; let i = $index) {
                   <tr data-testid="audit-row" [attr.data-event]="r.eventType">
-                    <td class="spa-mono" data-testid="audit-seq">{{ seqText(r) }}</td>
+                    <td class="spa-mono" data-testid="audit-order" [title]="'معرّف الحدث: ' + (r.eventId ?? r.id)">{{ displayOrder(i) }}</td>
                     <td class="spa-strong" data-testid="audit-action" [title]="r.eventType">{{ r.actionLabel || r.title }}</td>
                     <td class="spa-detail" data-testid="audit-detail">
                       @if (r.detail || r.summary) { <span>{{ r.detail || r.summary }}@if (r.detailDate) { {{ r.detailDate | wsDate:'datetime' }} }</span> }
                       @if (targetText(r); as t) { <span class="spa-target" data-testid="audit-target">{{ t }}</span> }
                     </td>
                     <td class="spa-actor" data-testid="audit-actor">{{ actorName(r) }}</td>
-                    <td><span class="spa-bdg spa-bdg-role">{{ roleLabel(r.actor?.accountType ?? r.account.accountType) }}</span></td>
+                    <td><span class="spa-bdg spa-bdg-role">{{ r.actor?.kind === 'USER' || !r.actor ? roleLabel(r.actor?.accountType ?? r.account.accountType) : '—' }}</span></td>
                     <td class="spa-mono spa-ltr">{{ r.ipAddress || '—' }}</td>
                     <td class="spa-date" data-testid="audit-date">{{ r.occurredAt | wsDate:'datetime' }}</td>
                     <td><span class="spa-bdg" [style.background]="sev(r).bg" [style.color]="sev(r).color">{{ sevLabels[r.severity] || r.severity }}</span></td>

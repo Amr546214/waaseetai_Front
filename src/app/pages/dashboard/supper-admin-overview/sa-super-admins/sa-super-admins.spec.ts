@@ -88,22 +88,34 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 		expect(el.querySelector('[data-testid="danger-error"]')).toBeTruthy(); expect(el.querySelector('[data-testid="danger-maintenance-btn"]')?.textContent).toContain('تفعيل'); // still off: the server did not confirm
 	});
 
-	it('audit tab: every row shows ITS OWN event (Arabic name from the code, actor, target, detail), the stored sequence number (not the page position) and platform-formatted dates', async () => {
+	it('audit tab: every row shows ITS OWN event (Arabic name from the code, actor, target, detail), the real event id (as tooltip) with «#» only a display order and platform-formatted dates', async () => {
 		const { f, el, c } = await boot();
 		const mk = (o: any) => ({ category: 'SYSTEM_AUDIT', title: 't', summary: null, severity: 'INFO', source: 'ADMIN', status: 'COMPLETED', ipAddress: null, device: null, actorLabel: null, account: { id: 'x', name: '', accountType: null }, ...o });
 		await go(f, c, 'audit');
 		c.auditRows.set([
-			mk({ id: '1', seq: 4812, eventType: 'SESSION_STARTED', actionLabel: 'تسجيل دخول جديد', title: 'تسجيل دخول جديد', detail: 'بدأت جلسة جديدة', occurredAt: '2026-10-26T12:00:00Z', actor: { id: 'a', name: 'مدير النظام', accountType: 'SUPER_ADMIN' }, ipAddress: '10.0.0.1' }),
-			mk({ id: '2', seq: 4811, eventType: 'STAFF_SUSPENDED', actionLabel: 'إيقاف موظف', severity: 'WARNING', detail: 'الحالة: نشط ← موقوف', occurredAt: '2026-10-26T11:00:00Z', actor: { id: 'a', name: 'مدير النظام', accountType: 'SUPER_ADMIN' }, target: { type: 'USER', typeLabel: 'حساب', id: 'u9', label: 'سارة' } }),
-			mk({ id: '3', seq: 4810, eventType: 'FEE_POLICY_SCHEDULED', actionLabel: 'جدولة تعديل سياسة الرسوم', detail: 'نسخة 2 · تسري من', detailDate: '2026-10-30T00:00:00Z', occurredAt: '2026-10-26T10:00:00Z', actor: { id: 'a', name: 'مدير النظام', accountType: 'SUPER_ADMIN' }, target: { type: 'FEE_POLICY', typeLabel: 'سياسة الرسوم', id: '2', label: 'نسخة 2' } }),
-			mk({ id: '4', seq: 4809, eventType: 'NEW_UNKNOWN', actionLabel: 'NEW_UNKNOWN', occurredAt: '2026-10-26T09:00:00Z', actor: { id: 'b', name: 'سارة', accountType: 'ADMIN' } }),
+			mk({ id: 'LOG:1', eventId: 'LOG:1', eventType: 'SESSION_STARTED', actionLabel: 'تسجيل دخول جديد', title: 'تسجيل دخول جديد', detail: 'بدأت جلسة جديدة', occurredAt: '2026-10-26T12:00:00Z', actor: { id: 'a', name: 'مدير النظام', accountType: 'SUPER_ADMIN' }, ipAddress: '10.0.0.1' }),
+			mk({ id: 'ACCESS:2', eventId: 'ACCESS:2', eventType: 'STAFF_SUSPENDED', actionLabel: 'إيقاف موظف', severity: 'WARNING', detail: 'الحالة: نشط ← موقوف', occurredAt: '2026-10-26T11:00:00Z', actor: { id: 'a', name: 'مدير النظام', accountType: 'SUPER_ADMIN' }, target: { type: 'USER', typeLabel: 'حساب', id: 'u9', label: 'سارة' } }),
+			mk({ id: 'LOG:3', eventId: 'LOG:3', eventType: 'FEE_POLICY_SCHEDULED', actionLabel: 'جدولة تعديل سياسة الرسوم', detail: 'نسخة 2 · تسري من', detailDate: '2026-10-30T00:00:00Z', occurredAt: '2026-10-26T10:00:00Z', actor: { id: 'a', name: 'مدير النظام', accountType: 'SUPER_ADMIN' }, target: { type: 'FEE_POLICY', typeLabel: 'سياسة الرسوم', id: '2', label: 'نسخة 2' } }),
+			mk({ id: 'LOG:4', eventId: 'LOG:4', severity: 'UNCLASSIFIED', actor: { id: null, name: 'غير معروف', accountType: null, kind: 'UNKNOWN' }, eventType: 'NEW_UNKNOWN', actionLabel: 'NEW_UNKNOWN', occurredAt: '2026-10-26T09:00:00Z', }),
 		]); await flush(f);
 		const rows = Array.from(el.querySelectorAll('[data-testid="audit-row"]'));
 		expect(rows.map(r => r.querySelector('[data-testid="audit-action"]')?.textContent?.trim())).toEqual(['تسجيل دخول جديد', 'إيقاف موظف', 'جدولة تعديل سياسة الرسوم', 'NEW_UNKNOWN']);
-		expect(rows.map(r => r.querySelector('[data-testid="audit-seq"]')?.textContent?.trim())).toEqual(['#4812', '#4811', '#4810', '#4809']);
+		expect(rows.map(r => r.querySelector('[data-testid="audit-order"]')?.textContent?.trim())).toEqual(['#1', '#2', '#3', '#4']);
+		expect(rows[0].querySelector('[data-testid="audit-order"]')?.getAttribute('title')).toContain('LOG:1'); expect(el.querySelector('[data-testid="audit-order-th"]')?.getAttribute('title')).toContain('ترتيب العرض');
+		expect(rows[3].querySelector('td:last-child .spa-bdg')?.textContent).toContain('غير مصنّف');
 		expect(rows[1].querySelector('[data-testid="audit-target"]')?.textContent).toContain('سارة'); expect(rows[1].querySelector('[data-testid="audit-target"]')?.textContent).toContain('u9');
 		expect(rows[2].querySelector('[data-testid="audit-detail"]')?.textContent).toMatch(/تسري من\s+2026-10-30/);
-		expect(rows[3].querySelector('[data-testid="audit-actor"]')?.textContent).toContain('سارة');
+		expect(rows[3].querySelector('[data-testid="audit-actor"]')?.textContent).toContain('غير معروف');
 		expect(new Set(rows.map(r => r.querySelector('[data-testid="audit-action"]')?.textContent?.trim())).size).toBe(4); // not «every row looks like a login»
+	});
+
+	it('audit CSV: carries the real event id as its own column and calls «#» a display order', async () => {
+		const { f, c } = await boot(); await go(f, c, 'audit');
+		const base: any = { category: 'SYSTEM_AUDIT', title: 't', summary: null, severity: 'WARNING', source: 'ADMIN', status: 'COMPLETED', ipAddress: '10.0.0.1', device: null, actorLabel: null, account: { id: 'x', name: '', accountType: null }, occurredAt: '2026-10-26T12:00:00Z' };
+		c.auditRows.set([{ ...base, id: 'ACCESS:abc', eventId: 'ACCESS:abc', eventType: 'STAFF_SUSPENDED', actionLabel: 'إيقاف موظف', actor: { id: 'a', name: 'مدير', accountType: 'SUPER_ADMIN', kind: 'USER' } }]); await flush(f);
+		let blob: Blob | null = null; const create = vi.fn((b: Blob) => { blob = b; return 'blob:x'; }); (URL as any).createObjectURL = create; (URL as any).revokeObjectURL = vi.fn();
+		c.exportAuditCsv(); const text = await new Promise<string>((res) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.readAsText(blob as unknown as Blob); });
+		const [head, row] = text.replace('\ufeff', '').split('\n');
+		expect(head.split(',').slice(0, 2)).toEqual(['معرّف الحدث', 'ترتيب العرض']); expect(row).toContain('"ACCESS:abc"'); expect(row).toContain('"STAFF_SUSPENDED"');
 	});
 });

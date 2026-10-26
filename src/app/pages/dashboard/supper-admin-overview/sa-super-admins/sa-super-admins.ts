@@ -14,6 +14,7 @@ import { AUDIT_SEVERITY_LABELS } from '../sa-audit-trail/sa-audit-trail';
 /** the design's severity badge tokens (SEV_CFG): info teal, medium amber, danger red */
 const SEV_STYLE: Record<string, { bg: string; color: string }> = {
   INFO: { bg: 'rgba(43,212,199,.10)', color: '#2BD4C7' },
+  UNCLASSIFIED: { bg: 'rgba(255,255,255,.06)', color: '#6B7699' },
   WARNING: { bg: 'rgba(255,180,0,.10)', color: '#D98A0B' },
   CRITICAL: { bg: 'rgba(255,80,80,.12)', color: '#FF5050' },
 };
@@ -98,7 +99,7 @@ export class SaSuperAdmins implements OnInit {
   readonly auditEventTypes = signal<string[]>([]);
   readonly auditLoading = signal(false);
   readonly auditFailed = signal(false);
-  readonly sevLabels = AUDIT_SEVERITY_LABELS;
+  readonly sevLabels: Record<string, string> = { ...AUDIT_SEVERITY_LABELS, UNCLASSIFIED: 'غير مصنّف' };
   readonly auditPageNumbers = computed(() => Array.from({ length: this.totalAuditPages() }, (_, i) => i + 1));
   readonly auditRangeLabel = computed(() => {
     const total = this.auditTotal();
@@ -150,8 +151,8 @@ export class SaSuperAdmins implements OnInit {
 
   setAuditSearch(value: string) { this.auditSearch.set(value); this.auditPage.set(1); this.loadAudit(); }
   setAuditActor(value: string) { this.auditActorFilter.set(value); this.auditPage.set(1); this.loadAudit(); }
-  /** the stable sequence number of the event as the server numbers it (creation order of all administrative events); never the position in a filtered page */
-  seqText(r: AdminAuditEntry) { return r.seq != null ? `#${r.seq}` : '—'; }
+  /** «#» is the DISPLAY ORDER in the current result (page position), never an event number: the event's identity is its eventId */
+  displayOrder(i: number) { return `#${(this.auditPage() - 1) * 20 + i + 1}`; }
   actorName(r: AdminAuditEntry) { return r.actor?.name || r.account.name || r.actorLabel || '—'; }
   targetText(r: AdminAuditEntry) { const t = r.target; return t ? [t.typeLabel, t.label, t.id && t.id !== t.label ? (t.id.length > 20 ? `${t.id.slice(0, 8)}…` : t.id) : null].filter(Boolean).join(' · ') : ''; }
   roleLabel(t: string | null | undefined) { return t === 'SUPER_ADMIN' ? 'مسؤول أعلى' : t === 'ADMIN' ? 'مسؤول' : t ? 'مستخدم' : '—'; }
@@ -164,8 +165,8 @@ export class SaSuperAdmins implements OnInit {
   /** Exports the rows currently on screen (the filtered page). */
   exportAuditCsv() {
     const esc = (v: string | null | undefined) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const rows = ['التسلسل,الإجراء,الرمز,التفاصيل,المنفذ,IP,التاريخ,المستوى'];
-    this.auditRows().forEach((r) => rows.push([esc(r.seq != null ? String(r.seq) : ''), esc(r.actionLabel || r.title), esc(r.eventType), esc([r.detail, this.targetText(r)].filter(Boolean).join(' | ') || r.summary), esc(this.actorName(r)), esc(r.ipAddress), esc(formatWsDate(r.occurredAt, 'datetime')), esc(this.sevLabels[r.severity] ?? r.severity)].join(',')));
+    const rows = ['معرّف الحدث,ترتيب العرض,الإجراء,الرمز,التفاصيل,المنفذ,IP,التاريخ,المستوى'];
+    this.auditRows().forEach((r) => rows.push([esc(r.eventId ?? r.id), esc(String((this.auditPage() - 1) * 20 + this.auditRows().indexOf(r) + 1)), esc(r.actionLabel || r.title), esc(r.eventType), esc([r.detail, this.targetText(r)].filter(Boolean).join(' | ') || r.summary), esc(this.actorName(r)), esc(r.ipAddress), esc(formatWsDate(r.occurredAt, 'datetime')), esc(this.sevLabels[r.severity] ?? r.severity)].join(',')));
     const blob = new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

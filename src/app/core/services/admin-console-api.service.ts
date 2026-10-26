@@ -9,7 +9,7 @@ export interface AdminAuditEntry {
 	category: string;
 	title: string;
 	summary: string | null;
-	severity: 'INFO' | 'WARNING' | 'CRITICAL' | string;
+	severity: 'INFO' | 'WARNING' | 'CRITICAL' | 'UNCLASSIFIED' | string;
 	source: string;
 	status: string;
 	occurredAt: string;
@@ -18,13 +18,15 @@ export interface AdminAuditEntry {
 	actorLabel: string | null;
 	account: { id: string; name: string; accountType: string | null };
 	/** the audit trail's own identity of the event (see the server's admin-audit-trail service) */
-	seq?: number | null;
+	/** the event's own identity: the real row id prefixed by its table (LOG:<id> / ACCESS:<id>); there is no event number */
+	eventId?: string;
+	severitySource?: 'stored' | 'classification' | 'none';
 	action?: string;
 	actionLabel?: string;
 	detail?: string | null;
 	detailDate?: string | null;
 	origin?: 'LOG' | 'ACCESS';
-	actor?: { id: string; name: string; accountType: string | null };
+	actor?: { id: string | null; name: string; accountType: string | null; kind?: 'USER' | 'SYSTEM' | 'AI' | 'UNKNOWN' };
 	target?: { type: string; typeLabel: string; id: string | null; label: string | null } | null;
 }
 export interface AdminAuditLogPage {
