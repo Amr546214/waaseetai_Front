@@ -8,7 +8,7 @@ import { EMPTY_MANIFEST, IdentityManifest, IdentityManifestItem, parseManifest }
 export const IDENTITY_CACHE_KEY = 'ws-site-identity-manifest-v1';
 export const IDENTITY_CHANNEL = 'ws-site-identity';
 const REFRESH_EVERY_MS = 5 * 60_000;
-const FOCUS_THROTTLE_MS = 15_000;
+const FOCUS_THROTTLE_MS = 5_000;
 const FETCH_TIMEOUT_MS = 8_000;
 
 /**
