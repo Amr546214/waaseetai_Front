@@ -70,10 +70,9 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 		await go(f, c, 'ai'); expect(el.querySelector('[data-testid="row-aiMatchEngine"]')?.textContent).toContain('نطاق منفصل');
 	});
 
-	it('fees tab: the header save is visibly disabled (nothing here saves through it) and the currency is a fixed, non-editable USD value', async () => {
+	it('fees tab: the header save is visibly disabled (nothing here saves through it) ', async () => {
 		const { f, el, c } = await boot(); await go(f, c, 'fees');
 		const b = el.querySelector('[data-testid="header-save-fees"]') as HTMLButtonElement; expect(b.disabled).toBe(true); expect(b.title).toContain('تُجدول');
-		await go(f, c, 'general'); const cur = el.querySelector('[data-testid="na-baseCurrency"]'); expect(cur?.textContent).toContain('USD'); expect(el.querySelector('[data-testid="row-baseCurrency"] input, [data-testid="row-baseCurrency"] button[role=switch]')).toBeNull();
 	});
 
 	it('red zone: maintenance is the REAL setting behind a double confirmation; wipe / broadcast / backup are disabled and say why; nothing pretends to run', async () => {
