@@ -3,7 +3,7 @@ import { EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, emailDisabledByPlatf
 describe('optional e-mail: platform state helpers', () => {
 	it('uses the exact owner wording', () => {
 		expect(EMAIL_DISABLED_BY_PLATFORM).toBe('معطّل بواسطة إدارة المنصة');
-		expect(CODE_MAIL_ALWAYS_NOTE).toContain('رموز تسجيل الدخول والتفعيل وإعادة تعيين كلمة المرور');
+		expect(CODE_MAIL_ALWAYS_NOTE).toContain('إيصالات العمليات ودعوات العقود ورموز الدخول والتفعيل والاستعادة تصل دائمًا');
 	});
 	it('is disabled only when the server says emailEnabled === false (missing field keeps today\'s behaviour)', () => {
 		expect(emailDisabledByPlatform({ data: { platform: { emailEnabled: false } } })).toBe(true);

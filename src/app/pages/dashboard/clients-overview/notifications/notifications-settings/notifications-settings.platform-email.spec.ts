@@ -22,7 +22,7 @@ describe('client notification settings - platform switch for optional e-mail', (
 		expect(emailInput(el).disabled).toBe(true);
 		expect(emailInput(el).checked).toBe(true);
 		expect(el.querySelector('[data-testid="email-platform-disabled"]')!.textContent).toContain('معطّل بواسطة إدارة المنصة');
-		expect(el.querySelector('[data-testid="code-mail-note"]')!.textContent).toContain('رموز تسجيل الدخول');
+		expect(el.querySelector('[data-testid="code-mail-note"]')!.textContent).toContain('رموز الدخول والتفعيل والاستعادة');
 	});
 	it('platform ON (or no field): the option is editable and no disabled message is shown', async () => {
 		for (const platform of [{ emailEnabled: true }, undefined]) {

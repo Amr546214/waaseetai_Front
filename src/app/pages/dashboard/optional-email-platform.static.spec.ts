@@ -32,6 +32,10 @@ describe('optional e-mail platform switch is wired on every preferences page', (
 		const h = read('supper-admin-overview/sa-system-settings/sa-system-settings.html');
 		expect(h).toContain('data-testid="email-channel-note"');
 		expect(h).toContain('معطّلًا «بواسطة إدارة المنصة»');
-		expect(h).toContain('قناة مستقلة تعمل دائمًا');
+		// owner decision 3: the switch governs every optional mail and no preference overrides it; operation receipts / contract invitations / codes are the stated exception
+		expect(h).toContain('ولا يتجاوزه تفضيل أي مستخدم');
+		expect(h).toContain('data-testid="email-channel-transactional-note"');
+		expect(h).toContain('إيصال إيداع الضمان');
+		expect(h).toContain('دعوة المزوّد لتوقيع العقد');
 	});
 });
