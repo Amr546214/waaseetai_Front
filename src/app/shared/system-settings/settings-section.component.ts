@@ -58,6 +58,8 @@ export class SettingsSectionComponent {
 	/** 'ss' = P-AD-020 look, 'spa' = P-AD-021 look */
 	readonly variant = input<'ss' | 'spa'>('ss');
 	readonly showSave = input<boolean>(true);
+	/** the save button's text: the reference says «حفظ التغييرات» on the first tab and «حفظ» on the others */
+	readonly saveLabel = input<string>('حفظ التغييرات');
 	/** the keys the save button of THIS card covers (a tab with several cards has one save button, as in the design); default: this card's own keys */
 	readonly saveKeys = input<string[] | null>(null);
 	private scope = computed(() => this.saveKeys() ?? this.keys());
@@ -115,7 +117,7 @@ export class SettingsSectionComponent {
 	unset(r: SettingItem): SettingEffective | null { return r.status === 'enforced' && r.effective && r.effective.source !== 'setting' ? r.effective : null; }
 	inUseText(r: SettingItem): string { return this.fmt(r, shownValue(r)); }
 	/** one visible line: the first sentence of the registry description (the whole text is in the help) */
-	shortDesc(r: SettingItem): string { const d = (r.description ?? '').trim(); const first = d.split(/\.(?:\s|$)/)[0].trim(); return first.length > 110 ? `${first.slice(0, 110).trim()}…` : first; }
+	shortDesc(r: SettingItem): string { const d = (r.description ?? '').trim(); const first = d.split(/\.(?:\s|$)/)[0].trim(); return first.length > 72 ? `${first.slice(0, 72).trim()}…` : first; }
 	/** per-row help (ⓘ): which rows are open */
 	readonly helpOpen = signal<ReadonlySet<string>>(new Set());
 	toggleHelp(k: string) { this.helpOpen.update(o => { const n = new Set(o); if (n.has(k)) n.delete(k); else n.add(k); return n; }); }

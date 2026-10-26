@@ -154,3 +154,26 @@
 .st-help { margin-top: 8px; padding: 10px 12px; border: 1px solid var(--border, rgba(127,127,127,.28)); border-radius: 8px; background: var(--bg-2, rgba(127,127,127,.08)); font-size: 12px; line-height: 1.7; color: var(--txt-2, inherit); }
 .st-help-desc { margin-bottom: 6px; }
 .st-help-k { font-weight: 700; }
+
+/* ===== round 2 («ss»): compact rows exactly as the reference (label + one short line + control); every long text lives in the ⓘ help ===== */
+.v-ss .st-row-lbl{display:block;line-height:normal}
+.v-ss .st-help-btn{width:14px;height:14px;padding:0;margin-block:-1px;line-height:1;vertical-align:-2px}
+.v-ss .st-help-btn svg{width:14px;height:14px;display:block}
+.v-ss .st-row-desc{overflow:hidden;text-overflow:ellipsis}
+.v-ss .st-help{margin-top:8px;padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:11px;line-height:1.7;color:#A8B2D1}
+.v-ss .st-help-k{color:#fff;font-weight:700}
+.v-ss .st-help-btn{color:#6B7699}
+.v-ss .st-help-btn:hover,.v-ss .st-help-btn[aria-expanded="true"]{color:#2BD4C7}
+:host-context(.light-theme) .v-ss .st-help,:host-context(.theme-light) .v-ss .st-help{background:#F8FAFC;border-color:#E7EAF1;color:#475569}
+:host-context(.light-theme) .v-ss .st-help-k,:host-context(.theme-light) .v-ss .st-help-k{color:#1E293B}
+:host-context(.light-theme) .v-ss .st-help-btn,:host-context(.theme-light) .v-ss .st-help-btn{color:#64748B}
+:host-context(.light-theme) .v-ss .st-help-btn:hover,:host-context(.theme-light) .v-ss .st-help-btn:hover,:host-context(.light-theme) .v-ss .st-help-btn[aria-expanded="true"],:host-context(.theme-light) .v-ss .st-help-btn[aria-expanded="true"]{color:#0F8A7F}
+
+/* round 2: selects take the reference's .setting-input box (34h, r8, pad 0 10, 13px) */
+.v-ss .st-sel{min-width:120px;width:auto}
+.v-ss .st-sel ::ng-deep .ws-sel-trigger{height:34px;padding:0 10px;border-radius:8px;font-size:13px;color:#fff;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);gap:8px}
+:host-context(.light-theme) .v-ss .st-sel ::ng-deep .ws-sel-trigger,:host-context(.theme-light) .v-ss .st-sel ::ng-deep .ws-sel-trigger{background:#fff;border-color:#CBD5E1;color:#1E293B}
+/* light values measured on the reference (P-AD-020 with its light polish): input border #CBD5E1, helper text #6B7699, title icon teal */
+:host-context(.light-theme) .v-ss .st-input,:host-context(.theme-light) .v-ss .st-input{border-color:#CBD5E1}
+:host-context(.light-theme) .v-ss .st-row-desc,:host-context(.theme-light) .v-ss .st-row-desc{color:#6B7699}
+:host-context(.light-theme) .v-ss .st-ttl-ico,:host-context(.theme-light) .v-ss .st-ttl-ico{color:#2BD4C7}

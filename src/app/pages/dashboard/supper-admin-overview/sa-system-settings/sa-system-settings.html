@@ -29,15 +29,15 @@
           }
           @case ('ai') {
             <div class="ss-note" role="note">إعدادات الذكاء الاصطناعي والمزوّد والمفاتيح نطاق منفصل؛ تُجرد هنا ولا يُعدَّل تشغيلها من هذه الصفحة.</div>
-            <app-settings-section title="إعدادات الذكاء الاصطناعي" [icon]="icons.ai" [keys]="ai" variant="ss" [showSave]="false" />
+            <app-settings-section title="إعدادات الذكاء الاصطناعي" [icon]="icons.ai" [keys]="ai" variant="ss" saveLabel="حفظ" [showSave]="false" />
           }
           @case ('notifications') {
             <div class="ss-note" role="note" data-testid="email-channel-note">مفتاح «إشعارات البريد الإلكتروني الاختيارية» يوقف فقط البريد الذي يختاره المستخدم في إعدادات إشعاراته (نسخ الإشعارات وملخص الرسائل غير المقروءة). عند إيقافه يظهر خيار البريد لدى المستخدمين معطّلًا «بواسطة إدارة المنصة» ويبقى اختيارهم المحفوظ كما هو. أما رموز تسجيل الدخول والتفعيل وإعادة تعيين كلمة المرور فهي قناة مستقلة تعمل دائمًا ولا يوقفها هذا المفتاح.</div>
-            <app-settings-section title="إعدادات الإشعارات" [icon]="icons.bell" [keys]="notif" variant="ss" />
+            <app-settings-section title="إعدادات الإشعارات" [icon]="icons.bell" [keys]="notif" variant="ss" saveLabel="حفظ" />
           }
-          @case ('security') { <app-settings-section title="الأمان والمصادقة" [icon]="icons.shield" [keys]="security" variant="ss" /> }
+          @case ('security') { <app-settings-section title="الأمان والمصادقة" [icon]="icons.shield" [keys]="security" variant="ss" saveLabel="حفظ" /> }
           @case ('finance') {
-            <app-settings-section title="الإعدادات المالية" [icon]="icons.wallet" [keys]="finance" variant="ss" />
+            <app-settings-section title="الإعدادات المالية" [icon]="icons.wallet" [keys]="finance" variant="ss" saveLabel="حفظ" />
             @if (access.canAny(['fees.view','fees.manage'])) { <app-fee-policy-panel variant="ss" /> }
             @if (access.isSuperAdmin()) {
               <div class="ss-card" data-testid="currency-readiness">
@@ -52,7 +52,7 @@
               </div>
             }
           }
-          @case ('regional') { <app-settings-section title="الإعدادات الإقليمية" [icon]="icons.globe" [keys]="regional" variant="ss" /> }
+          @case ('regional') { <app-settings-section title="الإعدادات الإقليمية" [icon]="icons.globe" [keys]="regional" variant="ss" saveLabel="حفظ" /> }
           @case ('health') { <app-settings-health /> }
         }
       </div>

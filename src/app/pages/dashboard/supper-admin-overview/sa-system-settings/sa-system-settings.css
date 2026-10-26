@@ -162,3 +162,13 @@ textarea.ss-input{width:100%;resize:vertical;line-height:1.7}
 :host-context(.light-theme) .ss-ttl-ico,:host-context(.theme-light) .ss-ttl-ico{color:#0F8A7F}
 :host-context(.light-theme) .ss-card,:host-context(.theme-light) .ss-card{border-color:#E7EAF1}
 :host-context(.light-theme) .ss-input,:host-context(.theme-light) .ss-input{border-color:#E2E8F0}
+
+/* round 2: inner footer and subtitle exactly as the reference (.inner-foot, .page-sub) */
+.ss-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.05)}
+.ss-ttl{line-height:normal}
+.ss-sub{line-height:1.4}
+.ss-foot{line-height:1.4}
+:host-context(.light-theme) .ss-ttl-ico,:host-context(.theme-light) .ss-ttl-ico{color:#2BD4C7}
+:host-context(.light-theme) .ss-foot,:host-context(.theme-light) .ss-foot{color:#6B7699}
+:host-context(.light-theme) .ss-nav-item:not(.active):hover,:host-context(.theme-light) .ss-nav-item:not(.active):hover{background:rgba(7,13,36,.05)}
+:host-context(.light-theme) .ss-nav-item.active:hover,:host-context(.theme-light) .ss-nav-item.active:hover{background:rgba(43,212,199,.08);color:#2BD4C7}
