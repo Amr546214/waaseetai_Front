@@ -172,3 +172,6 @@ textarea.ss-input{width:100%;resize:vertical;line-height:1.7}
 :host-context(.light-theme) .ss-foot,:host-context(.theme-light) .ss-foot{color:#6B7699}
 :host-context(.light-theme) .ss-nav-item:not(.active):hover,:host-context(.theme-light) .ss-nav-item:not(.active):hover{background:rgba(7,13,36,.05)}
 :host-context(.light-theme) .ss-nav-item.active:hover,:host-context(.theme-light) .ss-nav-item.active:hover{background:rgba(43,212,199,.08);color:#2BD4C7}
+/* round 2: wide children (the fee ladder table) scroll inside their own wrapper instead of widening the grid column */
+.ss-layout > *{min-width:0}
+.ss-content{min-width:0}

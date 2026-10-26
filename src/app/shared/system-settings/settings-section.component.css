@@ -177,3 +177,15 @@
 :host-context(.light-theme) .v-ss .st-input,:host-context(.theme-light) .v-ss .st-input{border-color:#CBD5E1}
 :host-context(.light-theme) .v-ss .st-row-desc,:host-context(.theme-light) .v-ss .st-row-desc{color:#6B7699}
 :host-context(.light-theme) .v-ss .st-ttl-ico,:host-context(.theme-light) .v-ss .st-ttl-ico{color:#2BD4C7}
+
+/* round 2, phones: the reference keeps label and control on ONE line (row h 63) and the card padding 18/20; only the long-text rows (textareas) stack */
+@media(max-width:700px){
+  .v-ss.st-card{padding:18px 20px}
+  .v-ss .st-row:not(.st-row-col){flex-direction:row;align-items:center;gap:16px}
+  .v-ss .st-row-left{min-width:0}
+  .v-ss .st-input{width:160px;min-width:120px}
+  .v-ss .st-input-sm{width:120px}
+  .v-ss .st-input.st-input-w{width:200px;max-width:55%}
+  .v-ss .st-ro{align-items:flex-end;text-align:end;max-width:50%}
+}
+.v-ss .st-row-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
