@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, input, signal } from '@angular/core';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
-import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { mapHttpError } from '../../../../core/forms/http-error';
@@ -13,7 +12,7 @@ const show = (v: unknown) => (v === true ? 'مفعّل' : v === false ? 'غير 
 @Component({
 	selector: 'app-settings-changelog',
 	standalone: true,
-	imports: [WsDatePipe, DatePipe, RouterLink],
+	imports: [WsDatePipe, RouterLink],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 	<div class="cl-card" data-testid="changelog">

@@ -2,12 +2,13 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProviderApiService, ProviderSale } from '../../../../../core/services/provider-api.service';
-import { formatMoney } from '../../../../../core/utils/money.util';
+import { formatAmount } from '../../../../../core/utils/currency';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 
 @Component({
 	selector: 'app-sales-tracking',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, WsAmountPipe],
 	templateUrl: './sales-tracking.component.html',
 	styleUrls: ['./sales-tracking.component.css']
 })
@@ -22,7 +23,9 @@ export class SalesTrackingComponent implements OnInit {
 		{ lbl: 'متوسط قيمة الطلب', val: '—', color: 'amber', ico: 'tag' }
 	];
 	topModels: { name: string; sales: number; revenue: number; pct: number }[] = [];
-	sales: ProviderSale[] = [];
+	sales: (ProviderSale & { currency?: string })[] = [];
+	/** currency of the headline figures and of the top models (the platform base currency, from the summary) */
+	summaryCurrency: string | undefined;
 	loadError = false;
 
 	ngOnInit() {
@@ -30,7 +33,8 @@ export class SalesTrackingComponent implements OnInit {
 			next: res => {
 				const d = res?.data;
 				if (!d) return;
-				const usd = (n: number) => `${formatMoney(n)} $`;
+				this.summaryCurrency = d.summary.currency;
+				const usd = (n: number) => formatAmount(n, d.summary.currency);
 				this.stats = [
 					{ lbl: 'إجمالي المبيعات', val: usd(d.summary.totalRevenue), color: 'teal', ico: 'wallet' },
 					{ lbl: 'هذا الشهر', val: usd(d.summary.monthRevenue), color: 'blue', ico: 'chart' },

@@ -34,7 +34,7 @@
         <div class="rq-md-meta"><span>العروض</span><strong>{{ d.offers.length }}</strong></div>
         <div class="rq-md-meta"><span>المدة المطلوبة</span><strong>@if (d.durationDays) { {{ d.durationDays }} يوم } @else { — }</strong></div>
         <div class="rq-md-meta"><span>المرفقات</span><strong>{{ d.attachmentsCount }}</strong></div>
-        <div class="rq-md-meta"><span>تاريخ النشر</span><strong>{{ d.createdAt | date: 'yyyy-MM-dd' }}</strong></div>
+        <div class="rq-md-meta"><span>تاريخ النشر</span><strong>{{ d.createdAt | wsDate:'date':'yyyy-MM-dd' }}</strong></div>
       </div>
 
       <div class="rq-section-ttl">وصف الطلب والمتطلبات</div>
@@ -87,7 +87,7 @@
               <div class="rq-tl-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
               <div>
                 <div class="rq-tl-name">{{ step.text }}</div>
-                <div class="rq-tl-note">{{ step.at | date: 'yyyy-MM-dd HH:mm' }}</div>
+                <div class="rq-tl-note">{{ step.at | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</div>
               </div>
             </div>
           }
@@ -111,7 +111,7 @@
                   <td>{{ o.price | wsAmount:o.currency }}</td>
                   <td>{{ o.deliveryDays }} يوم</td>
                   <td>{{ offerLabels[o.status] || o.status }}</td>
-                  <td>{{ o.createdAt | date: 'yyyy-MM-dd' }}</td>
+                  <td>{{ o.createdAt | wsDate:'date':'yyyy-MM-dd' }}</td>
                   <td><a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/offers', o.id]">عرض العرض</a></td>
                 </tr>
               }
@@ -140,7 +140,7 @@
               <div class="rq-act-dot" style="background:#FF8C69"></div>
               <div class="rq-act-body">
                 <a class="rq-person-lnk" [routerLink]="['/supper-admin-overview/disputes', x.id]">{{ x.reason }}</a>
-                <div class="rq-act-time">{{ x.status }} · {{ x.createdAt | date: 'yyyy-MM-dd' }}</div>
+                <div class="rq-act-time">{{ x.status }} · {{ x.createdAt | wsDate:'date':'yyyy-MM-dd' }}</div>
               </div>
             </div>
           }
@@ -159,7 +159,7 @@
           <div class="rq-md-meta-row rq-client-stats">
             <div class="rq-md-meta"><span>مشاريع منجزة</span><strong>{{ cl.completedProjects }}</strong></div>
             <div class="rq-md-meta"><span>التقييم</span><strong>@if (cl.rating) { {{ cl.rating }}★ } @else { — }</strong></div>
-            <div class="rq-md-meta"><span>عضو منذ</span><strong>{{ cl.memberSince | date: 'yyyy-MM-dd' }}</strong></div>
+            <div class="rq-md-meta"><span>عضو منذ</span><strong>{{ cl.memberSince | wsDate:'date':'yyyy-MM-dd' }}</strong></div>
           </div>
           <a [routerLink]="['/supper-admin-overview/users', cl.userId]" class="rq-btn rq-btn-ghost rq-client-link">عرض الملف الكامل</a>
         </div>

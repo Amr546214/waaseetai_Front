@@ -36,12 +36,12 @@
 		</div>
 		<div class="kpi-c">
 			<div class="kpi-v">{{ fmt(d.kpis.discountedValue.value) }}</div>
-			<div class="kpi-l">القيمة المخصومة (دولار)</div>
+			<div class="kpi-l">القيمة المخصومة ({{ '' | wsCurrency }})</div>
 			<div class="kpi-delta" [ngClass]="deltaClass(d.kpis.discountedValue)">{{ deltaText(d.kpis.discountedValue) }}</div>
 		</div>
 		<div class="kpi-c">
 			<div class="kpi-v">{{ fmt(d.kpis.extraRevenue.value) }}</div>
-			<div class="kpi-l">إيراد إضافي محقَّق (دولار)</div>
+			<div class="kpi-l">إيراد إضافي محقَّق ({{ '' | wsCurrency }})</div>
 			<div class="kpi-delta" [ngClass]="deltaClass(d.kpis.extraRevenue)">{{ deltaText(d.kpis.extraRevenue) }}</div>
 		</div>
 	</div>
@@ -61,8 +61,8 @@
 				@if (editingCap()) {
 					<div class="cap-edit">
 						<div class="f-suffix-wrap">
-							<input id="cap-input" name="cap" class="f-inp" [class.invalid]="capError()" type="number" min="1" [(ngModel)]="capInput" (ngModelChange)="capError.set(null)" placeholder="أدخل السقف الشهري بالدولار" [attr.aria-invalid]="capError() ? 'true' : null" [attr.aria-describedby]="capError() ? 'cap-err' : null">
-							<span class="f-suffix">دولار</span>
+							<input id="cap-input" name="cap" class="f-inp" [class.invalid]="capError()" type="number" min="1" [(ngModel)]="capInput" (ngModelChange)="capError.set(null)" placeholder="أدخل السقف الشهري ({{ '' | wsCurrency }})" [attr.aria-invalid]="capError() ? 'true' : null" [attr.aria-describedby]="capError() ? 'cap-err' : null">
+							<span class="f-suffix">{{ '' | wsCurrency }}</span>
 						</div>
 						@if (capError(); as ce) { <div class="f-err" id="cap-err" role="alert">{{ ce }}</div> }
 						@if (capGeneralError(); as cg) { <div class="f-err" role="alert" data-testid="form-error">{{ cg }}</div> }
@@ -76,7 +76,7 @@
 					</div>
 				} @else if (co.spendCap.configured) {
 					<div class="prog-hd">
-						<span>استُهلك <b>{{ fmt(co.spendCap.consumed) }}</b> من <b>{{ fmt(co.spendCap.cap) }}</b> دولار</span>
+						<span>استُهلك <b>{{ fmt(co.spendCap.consumed) }}</b> من <b>{{ fmt(co.spendCap.cap) }}</b> {{ '' | wsCurrency }}</span>
 						<span>{{ co.spendCap.percentUsed ?? 0 }}%</span>
 					</div>
 					<div class="prog-bg"><div class="prog-fill" [class.warn]="(co.spendCap.percentUsed ?? 0) >= 80" [style.width.%]="(co.spendCap.percentUsed ?? 0) > 100 ? 100 : (co.spendCap.percentUsed ?? 0)"></div></div>

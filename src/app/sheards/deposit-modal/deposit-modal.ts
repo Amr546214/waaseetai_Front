@@ -1,5 +1,7 @@
 import { AfterViewInit, Component, EventEmitter, OnDestroy, Output, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { WsBasePipe, WsCurrencyPipe } from '../../shared/money/money.pipe';
+import { currencyLabel, formatBase } from '../../core/utils/currency';
 import { PaypalDepositService } from '../../core/services/paypal-deposit.service';
 import { LevelsService } from '../../core/levels/levels.service';
 import { paypalDepositBreakdown } from '../../core/levels/deposit-fee';
@@ -18,7 +20,7 @@ declare const paypal: any;
 @Component({
 	selector: 'app-deposit-modal',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, WsBasePipe, WsCurrencyPipe],
 	templateUrl: './deposit-modal.html',
 	styleUrl: './deposit-modal.css',
 })
@@ -47,6 +49,8 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 	amount = signal<number | null>(null);
 	static readonly MIN_AMOUNT = 50;
 	static readonly MAX_AMOUNT = 100000;
+	readonly minAmount = DepositModal.MIN_AMOUNT;
+	readonly maxAmount = DepositModal.MAX_AMOUNT;
 	/** What is literally in the box while typing (so "5" is not rewritten to the minimum under the user's fingers). */
 	private rawText = signal<string | null>(null);
 	readonly amountDisplay = computed(() => this.rawText() ?? (this.amount() ?? ''));
@@ -57,9 +61,9 @@ export class DepositModal implements AfterViewInit, OnDestroy {
 	readonly amountError = computed(() => {
 		if (!this.amountTouched()) return '';
 		const v = this.amount();
-		if (v === null) return 'أدخل مبلغ الإيداع بالدولار';
-		if (v < DepositModal.MIN_AMOUNT) return `الحد الأدنى للإيداع ${DepositModal.MIN_AMOUNT} دولار`;
-		if (v > DepositModal.MAX_AMOUNT) return `الحد الأقصى للإيداع ${DepositModal.MAX_AMOUNT.toLocaleString('en-US')} دولار`;
+		if (v === null) return `أدخل مبلغ الإيداع بـ${currencyLabel()}`;
+		if (v < DepositModal.MIN_AMOUNT) return `الحد الأدنى للإيداع ${formatBase(DepositModal.MIN_AMOUNT)}`;
+		if (v > DepositModal.MAX_AMOUNT) return `الحد الأقصى للإيداع ${formatBase(DepositModal.MAX_AMOUNT)}`;
 		return '';
 	});
 	private creatingOrder = false;

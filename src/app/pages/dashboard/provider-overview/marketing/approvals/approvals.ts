@@ -1,4 +1,3 @@
-import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,12 +14,13 @@ import { NewProjectService } from '../../../../../core/services/new-project.serv
 import { ProviderCoupon, ProviderSpecialOffer } from '../../../../../core/models/marketing.model';
 import { CompanyTeamMember } from '../../../../../core/models/company-team.model';
 import {
-  COMPANY_APPROVAL_THRESHOLD, ProviderModelOption, couponNeedsApproval, describeOffer, formatNumber, httpErrorMessage,
+  COMPANY_APPROVAL_THRESHOLD, ProviderModelOption, couponNeedsApproval, describeOffer, formatMoney, formatNumber, httpErrorMessage,
   mapProviderModels, offerNeedsApproval, relativeTime,
 } from '../marketing-utils';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { SubmitGuard, focusInvalidControls } from '../../../../../shared/forms/form-error-focus';
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
 
 type ApprovalTab = 'pending' | 'approved' | 'rejected';
 
@@ -98,7 +98,7 @@ export class MarketingApprovals implements OnInit {
       if (c.approvalStatus === 'APPROVED' && !couponNeedsApproval(c)) continue;
       const high = c.discountType === 'percentage' && c.discountValue > COMPANY_APPROVAL_THRESHOLD;
       const uncapped = c.maxUses === null;
-      const disc = c.discountType === 'percentage' ? `${c.discountValue}%` : `${formatNumber(c.discountValue)} دولار`;
+      const disc = c.discountType === 'percentage' ? `${c.discountValue}%` : formatMoney(c.discountValue);
       const covered = c.serviceIds.filter(id => !c.excludedServiceIds.includes(id));
       const scope = allModels.length && allModels.every(m => c.serviceIds.includes(m.id))
         ? 'كل نماذج الشركة'
@@ -106,7 +106,7 @@ export class MarketingApprovals implements OnInit {
       const reasons: string[] = [];
       if (high) reasons.push(`تجاوز الكوبون حد الخصم المسموح تلقائياً (${COMPANY_APPROVAL_THRESHOLD}%)`);
       if (uncapped) reasons.push('ليس له حد أقصى لمرات الاستخدام وقد يستهلك السقف الشهري بسرعة');
-      const limits = `${c.maxUses ? `الحد الأقصى للاستخدام: ${c.maxUses} مرة` : 'بلا حد أقصى للاستخدام'}، ${c.minimumAmount ? `حد أدنى للطلب ${formatNumber(c.minimumAmount)} دولار` : 'بدون حد أدنى لقيمة الطلب'}.`;
+      const limits = `${c.maxUses ? `الحد الأقصى للاستخدام: ${c.maxUses} مرة` : 'بلا حد أقصى للاستخدام'}، ${c.minimumAmount ? `حد أدنى للطلب ${formatMoney(c.minimumAmount)}` : 'بدون حد أدنى لقيمة الطلب'}.`;
       out.push({
         kind: 'COUPON', id: c.id, title: `كوبون ${c.code}`,
         tag: high ? `خصم ${disc}` : uncapped ? 'بلا حد استخدام' : `خصم ${disc}`,
@@ -147,7 +147,7 @@ export class MarketingApprovals implements OnInit {
     const now = new Date();
     const thisMonth = (iso: string) => {
       const d = new Date(iso);
-      const ym = (x: Date) => new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', timeZone: providerTimeZone() }).format(x);
+      const ym = (x: Date) => formatWsText(x, { year: 'numeric', month: '2-digit' });
       return ym(d) === ym(now);
     };
     const items = this.items();

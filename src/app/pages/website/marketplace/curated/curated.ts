@@ -1,4 +1,5 @@
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { Component, DestroyRef, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -61,7 +62,7 @@ const PAGE_SIZE = 8;
 @Component({
 	selector: 'app-curated',
 	standalone: true,
-	imports: [LevelBadgeComponent, CommonModule, RouterLink],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink, WsAmountPipe],
 	templateUrl: './curated.html',
 	styleUrl: './curated.css'
 })

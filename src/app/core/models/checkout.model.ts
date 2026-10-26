@@ -23,6 +23,8 @@ export interface CartItem {
 	specializationSlug?: string;
 	coverImage?: string;
 	totalAmount: number;
+	/** the service's own currency (a missing one reads as USD, legacy) */
+	currency?: string;
 	totalDays: number;
 	level?: string;
 	aiScore?: number | null;
@@ -56,6 +58,7 @@ export interface OrderItem {
 	title: string;
 	category?: string;
 	totalAmount: number;
+	currency?: string;
 	totalDays: number;
 	provider: { id: string; name: string };
 	packageName?: string;
@@ -73,6 +76,7 @@ export interface Order {
 	subtotal: number;
 	discount: number;
 	total: number;
+	currency?: string;
 	couponCode?: string;
 	createdAt: string;
 }

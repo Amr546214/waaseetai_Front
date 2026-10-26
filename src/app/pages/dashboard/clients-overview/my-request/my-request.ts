@@ -1,3 +1,4 @@
+import { formatAmount } from '../../../../core/utils/currency';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -7,7 +8,6 @@ import { firstValueFrom } from 'rxjs';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { AccountType } from '../../../../core/models/auth.model';
 import { isRateLimitError, rateLimitToastMessage } from '../../../../core/utils/rate-limit.util';
-import { formatMoney } from '../../../../core/utils/money.util';
 
 interface FilterTab {
 	id: string;
@@ -183,10 +183,10 @@ export class MyRequest implements OnInit {
 		const fixedB = p.budgetFixed || p.fixedBudget;
 		const hourlyB = p.budgetHourly || p.hourlyBudget;
 
-		if (fixedB) return `${formatMoney(fixedB)} $`;
-		if (minB && maxB) return `${formatMoney(minB)} - ${formatMoney(maxB)} $`;
-		if (minB) return `${formatMoney(minB)} $`;
-		if (hourlyB) return `${formatMoney(hourlyB)} $/ساعة`;
+		if (fixedB) return formatAmount(Number(fixedB), p.currency);
+		if (minB && maxB) return `${formatAmount(Number(minB), p.currency)} - ${formatAmount(Number(maxB), p.currency)}`;
+		if (minB) return formatAmount(Number(minB), p.currency);
+		if (hourlyB) return `${formatAmount(Number(hourlyB), p.currency)}/ساعة`;
 		return 'غير محدد';
 	}
 

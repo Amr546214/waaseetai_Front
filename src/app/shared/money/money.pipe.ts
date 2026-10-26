@@ -7,7 +7,7 @@ export class MoneyPipe implements PipeTransform {
 	transform(value: number | null | undefined, currency?: string | null): string { return formatMoneyIn(value, currency); }
 }
 
-/** `{{ amount | wsAmount:record.currency }}` - "1,234.5 USD" / "300.00 SAR": the RECORD's currency code. Optional second argument: the number-pipe digits (default '1.0-2'). */
+/** `{{ amount | wsAmount:record.currency }}` - the amount followed by the RECORD's currency code. Optional second argument: the number-pipe digits (default '1.0-2'). */
 @Pipe({ name: 'wsAmount', standalone: true })
 export class WsAmountPipe implements PipeTransform {
 	transform(value: number | null | undefined, currency?: string | null, digits = '1.0-2'): string { return formatAmount(value, currency, digits); }
@@ -19,7 +19,7 @@ export class WsBasePipe implements PipeTransform {
 	transform(value: number | null | undefined, digits = '1.0-2'): string { return formatBase(value, digits); }
 }
 
-/** `{{ '' | wsCurrency }}` -> "USD"/"SAR" of the platform; `{{ rec.currency | wsCurrency }}` -> that record's; `| wsCurrency:'name'` -> "دولار أمريكي". Impure for the platform case. */
+/** `{{ '' | wsCurrency }}` -> the platform currency code; `{{ rec.currency | wsCurrency }}` -> that record's; `| wsCurrency:'name'` -> its Arabic name. Impure for the platform case. */
 @Pipe({ name: 'wsCurrency', standalone: true, pure: false })
 export class WsCurrencyPipe implements PipeTransform {
 	transform(currency?: unknown, mode: 'code' | 'name' = 'code'): string { const c = currency === '' ? undefined : currency; return mode === 'name' ? currencyLabel(c) : currencyCode(c); }

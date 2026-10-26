@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../shared/money/money.pipe';
 import { LevelBadgeComponent } from '../../shared/levels/level-badge.component';
 import { Component, ViewEncapsulation, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -9,7 +10,7 @@ import { OWN_SERVICE_LABEL, isOwnModel } from '../../core/utils/own-service.util
 @Component({
 	selector: 'app-card',
 	standalone: true,
-	imports: [LevelBadgeComponent, CommonModule, RouterLink],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink, WsAmountPipe],
 	templateUrl: './card.html',
 	styleUrl: './card.css',
 	encapsulation: ViewEncapsulation.None,

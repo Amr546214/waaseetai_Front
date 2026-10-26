@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { WsDateTextPipe, WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
@@ -10,7 +11,7 @@ import { UiNotificationService } from '../../../../../core/services/ui-notificat
 @Component({
   selector: 'app-profile-requests',
   standalone: true,
-  imports: [CommonModule, RouterModule, ProfileAiReviewComponent],
+  imports: [WsDateTextPipe, WsDatePipe, CommonModule, RouterModule, ProfileAiReviewComponent],
   templateUrl: './requests.html',
   styleUrls: ['./requests.css'],
 })

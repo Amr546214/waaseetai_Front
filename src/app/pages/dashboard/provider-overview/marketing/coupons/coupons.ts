@@ -13,7 +13,7 @@ import { NewProjectService } from '../../../../../core/services/new-project.serv
 import { ProviderCoupon } from '../../../../../core/models/marketing.model';
 import { CompanyTeamMember } from '../../../../../core/models/company-team.model';
 import {
-  ProviderModelOption, STATUS_LABELS, STATUS_PILL, ToolDisplayStatus, avatarGradient, couponStatus, formatNumber,
+  ProviderModelOption, STATUS_LABELS, STATUS_PILL, ToolDisplayStatus, avatarGradient, couponStatus, formatMoney, formatNumber,
   httpErrorMessage, initials, isToggleable, mapProviderModels, validityLabel,
 } from '../marketing-utils';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
@@ -234,7 +234,7 @@ export class MarketingCoupons implements OnInit {
   }
 
   discountLabel(c: ProviderCoupon): string {
-    return c.discountType === 'percentage' ? `${c.discountValue}%` : `${formatNumber(c.discountValue)} دولار`;
+    return c.discountType === 'percentage' ? `${c.discountValue}%` : formatMoney(c.discountValue);
   }
 
   usageLabel(c: ProviderCoupon): string {

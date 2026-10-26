@@ -6,6 +6,7 @@ import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { formatMoney } from '../../../../../core/utils/money.util';
+import { currencyCode, currencyOf, formatAmount, platformCurrency } from '../../../../../core/utils/currency';
 
 type ProjectFilter = 'all' | 'run' | 'wait' | 'late' | 'pending';
 
@@ -31,6 +32,8 @@ interface ProjectItem {
 	contract: string;
 	nextStep: string;
 	heldAmount: number;
+	/** the project's own currency (the escrow is held in it); absent = legacy USD */
+	currency?: string;
 	completedStages: number;
 	stagesCount: number;
 	/** null while the contract has not started (nothing counts down before it is signed and funded). */
@@ -108,6 +111,11 @@ export class ActiveProject implements OnInit {
 		this.currentFilter.set(filter);
 	}
 
+	/** a project's held amount with its own currency code */
+	formatHeld(project: ProjectItem): string {
+		return formatAmount(project.heldAmount, project.currency);
+	}
+
 	formatNumber(value: number | string) {
 		return typeof value === 'number' ? formatMoney(value) : value;
 	}
@@ -172,6 +180,7 @@ export class ActiveProject implements OnInit {
 			contract: project.contract || `CT-${String(project.id).slice(0, 4).toUpperCase()}`,
 			nextStep: project.nextStep || 'متابعة تنفيذ المرحلة الحالية',
 			heldAmount: Math.max(0, Number(project.heldAmount) || 0),
+			currency: project.currency,
 			completedStages: Math.max(0, Number(project.completedStages) || 0),
 			stagesCount: Math.max(0, Number(project.stagesCount) || 0),
 			daysLeft,
@@ -200,12 +209,13 @@ export class ActiveProject implements OnInit {
 	}
 
 	private kpisFromProjects(projects: ProjectItem[]): ProjectKPI[] {
-		const held = projects.reduce((sum, project) => sum + project.heldAmount, 0);
+		// only projects held in the platform base currency are summed here: amounts of different currencies are never added together
+		const held = projects.filter(project => currencyOf(project.currency) === platformCurrency()).reduce((sum, project) => sum + project.heldAmount, 0);
 		const waiting = projects.filter(project => project.status === 'wait').length;
 		const late = projects.filter(project => project.status === 'late').length;
 		return [
 			{ icon: 'list', value: projects.length, label: 'مشاريع نشطة', color: 'teal' },
-			{ icon: 'lock', value: held, label: 'محتجز بالضمان $', color: 'blue' },
+			{ icon: 'lock', value: held, label: `محتجز بالضمان (${currencyCode()})`, color: 'blue' },
 			{ icon: 'clock', value: waiting, label: 'بانتظار مراجعتك', color: 'amber' },
 			{ icon: 'ai', value: projects.length === 0 ? '—' : (late ? `${late} متأخر` : 'لا يوجد متأخر'), label: 'الحالة العامة', color: 'teal' },
 		];
@@ -214,7 +224,7 @@ export class ActiveProject implements OnInit {
 	private emptyKpis(): ProjectKPI[] {
 		return [
 			{ icon: 'list', value: 0, label: 'مشاريع نشطة', color: 'teal' },
-			{ icon: 'lock', value: 0, label: 'محتجز بالضمان $', color: 'blue' },
+			{ icon: 'lock', value: 0, label: `محتجز بالضمان (${currencyCode()})`, color: 'blue' },
 			{ icon: 'clock', value: 0, label: 'بانتظار مراجعتك', color: 'amber' },
 			{ icon: 'ai', value: '—', label: 'الحالة العامة', color: 'teal' },
 		];

@@ -58,6 +58,8 @@ export interface SettlementDistribution {
 	releaseToProvider: number;
 	platformCommission: number;
 	providerNet: number;
+	/** the settled escrow's currency (a missing one reads as USD, legacy) */
+	currency?: string;
 }
 
 /** What the rating page asks the server BEFORE it shows a form: may this user rate, and what did they already rate. */

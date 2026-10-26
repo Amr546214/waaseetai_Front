@@ -45,7 +45,7 @@
           <div class="flex justify-between border-b border-white/5 px-3 py-3"><span class="text-[12px] text-[var(--txt-3)]">الوصف</span><span class="text-[13px] font-bold text-[var(--txt)]">{{ t.description }}</span></div>
         }
         <div class="flex justify-between border-b border-white/5 px-3 py-3"><span class="text-[12px] text-[var(--txt-3)]">مقدم الخدمة</span><span class="text-[13px] font-bold text-[var(--txt)]">{{ providerName() }}</span></div>
-        <div class="flex justify-between border-b border-white/5 px-3 py-3"><span class="text-[12px] text-[var(--txt-3)]">التاريخ والوقت</span><span class="text-[13px] font-bold text-[var(--txt)]">{{ t.createdAt|date:'yyyy/MM/dd · HH:mm' }}</span></div>
+        <div class="flex justify-between border-b border-white/5 px-3 py-3"><span class="text-[12px] text-[var(--txt-3)]">التاريخ والوقت</span><span class="text-[13px] font-bold text-[var(--txt)]">{{ t.createdAt| wsDate:'datetime':'yyyy/MM/dd HH:mm' }}</span></div>
         <div class="flex justify-between border-b border-white/5 px-3 py-3"><span class="text-[12px] text-[var(--txt-3)]">طريقة الدفع</span><span class="text-[13px] font-bold text-[var(--txt)]">رصيد المحفظة</span></div>
         <div class="flex justify-between px-3 py-3"><span class="text-[12px] text-[var(--txt-3)]">الحالة</span><span class="text-[13px] font-bold" [ngClass]="t.type==='credit'?'text-[#2ECC8A]':'text-[#FFB400]'">{{ statusLabel(t) }}</span></div>
       </div>

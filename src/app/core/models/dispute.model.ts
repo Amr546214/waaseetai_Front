@@ -39,6 +39,8 @@ export interface Dispute {
   project?: { id: string; title?: string } | null;
   /** Escrow still held for the dispute's project (own-disputes endpoints only; null = none/unknown, absent on an older backend). */
   heldEscrowAmount?: number | null;
+  /** currency of heldEscrowAmount (the escrow's own); absent = legacy USD */
+  currency?: string;
   /** Admin endpoints only: current assignee (from the admin audit store). */
   assignedTo?: { id: string; name: string } | null;
   /** Admin detail only: escrow of the dispute's project, straight from the database. */

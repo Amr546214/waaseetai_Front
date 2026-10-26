@@ -285,7 +285,7 @@
 				<div class="info-row">
 					<span class="info-key">تاريخ انتهاء الهوية</span>
 					<span class="info-val" [class.missing]="!profileData()?.idExpiryDate">
-						{{ profileData()?.idExpiryDate ? (profileData().idExpiryDate | date:'longDate':'':'ar') : 'غير
+						{{ profileData()?.idExpiryDate ? (profileData().idExpiryDate | wsDateText:{ day:'numeric', month:'long', year:'numeric' }) : 'غير
 						مضاف' }}
 					</span>
 				</div>

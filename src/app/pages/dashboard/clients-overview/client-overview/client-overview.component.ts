@@ -1,3 +1,5 @@
+import { WsAmountPipe, WsBasePipe, WsCurrencyPipe } from '../../../../shared/money/money.pipe';
+import { WsDateTextPipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { MoneyByComponent } from '../../../../shared/money/money-by.component';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -13,7 +15,7 @@ import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.compo
 @Component({
 	selector: 'app-client-overview',
 	standalone: true,
-	imports: [MoneyByComponent, CommonModule, RouterLink, LevelBadgeComponent],
+	imports: [WsAmountPipe, WsBasePipe, WsCurrencyPipe, WsDateTextPipe, MoneyByComponent, CommonModule, RouterLink, LevelBadgeComponent],
 	templateUrl: './client-overview.component.html',
 	styleUrl: './client-overview.component.css'
 })

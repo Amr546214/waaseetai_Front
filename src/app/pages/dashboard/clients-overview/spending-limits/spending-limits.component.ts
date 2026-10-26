@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 interface SpendingLimit {
-	id: string; category: string; limit: number; spent: number; period: string;
+	id: string; category: string; limit: number; spent: number; currency?: string; period: string;
 }
 
 interface PenaltyRule {
@@ -13,7 +14,7 @@ interface PenaltyRule {
 @Component({
 	selector: 'app-spending-limits',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, WsAmountPipe],
 	templateUrl: './spending-limits.component.html',
 	styleUrls: ['./spending-limits.component.css']
 })

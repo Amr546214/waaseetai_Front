@@ -23,8 +23,17 @@ describe('provider sales-tracking page', () => {
 		const f = TestBed.createComponent(SalesTrackingComponent);
 		f.detectChanges();
 		const text = ((f.nativeElement as HTMLElement).textContent ?? '').replace(/\s+/g, ' ');
-		expect(text).toContain('140 $');
+		expect(text).toContain('140 USD');
 		expect(text).toContain('WS-1');
 		expect(text).toContain('خدمة 1');
+	});
+
+	it('a SAR sale prints its own currency code', async () => {
+		const data = { summary: { totalRevenue: 140, monthRevenue: 90, salesCount: 1, averageOrderValue: 90, currency: 'USD' }, topModels: [], sales: [{ id: 'a', orderNumber: 'WS-9', model: 'خدمة 9', client: 'أ ب', amount: 90, currency: 'SAR', date: '2026-10-01', status: 'completed' }] };
+		await TestBed.configureTestingModule({ imports: [SalesTrackingComponent], providers: [provideRouter([]), { provide: ProviderApiService, useValue: { getProviderSales: () => of({ success: true, data }) } }] }).compileComponents();
+		const f = TestBed.createComponent(SalesTrackingComponent);
+		f.detectChanges();
+		const text = ((f.nativeElement as HTMLElement).textContent ?? '').replace(/\s+/g, ' ');
+		expect(text).toContain('90 SAR');
 	});
 });

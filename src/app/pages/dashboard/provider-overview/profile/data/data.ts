@@ -1,5 +1,4 @@
 import { requiredText } from '../../../../../core/forms/required-text.validator';
-import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, signal, OnInit, inject, PLATFORM_ID, computed, DestroyRef, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -29,6 +28,7 @@ import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.c
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
+import { formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
 
 /** Arabic names of the fields, used by the "what is missing" summary. */
 const PROFILE_LABELS: Record<string, string> = {
@@ -378,7 +378,7 @@ export class Data implements OnInit {
     try {
       const raw = this.profileForm.getRawValue();
       const now = new Date();
-      const label = new Intl.DateTimeFormat('ar', { hour: '2-digit', minute: '2-digit' }).format(now);
+      const label = formatWsDate(now, 'time');
       const payload = {
         values: {
           firstName: raw.firstName,
@@ -1422,7 +1422,7 @@ export class Data implements OnInit {
     if (diffMinutes < 1) return 'نشطة الآن';
     if (diffMinutes < 60) return `منذ ${diffMinutes} دقيقة`;
     if (diffMinutes < 1440) return `منذ ${Math.floor(diffMinutes / 60)} ساعة`;
-    return new Intl.DateTimeFormat('ar', { dateStyle: 'medium', timeStyle: 'short', timeZone: providerTimeZone() }).format(date);
+    return formatWsDate(date, 'datetime');
   }
 
   openRequestsModal() {

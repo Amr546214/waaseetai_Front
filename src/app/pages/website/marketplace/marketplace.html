@@ -79,11 +79,11 @@
       } @else if (hasActivePurchase(model)) {
       <div class="svc-foot"><div><div class="svc-price-lbl">لديك طلب قائم</div><div class="svc-price">قيد التنفيذ — متابعة</div></div></div>
       } @else if (mode === 'flash') {
-      <div class="svc-foot"><div><div class="svc-price-lbl">بعد الخصم</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $ <span style="font-size:10px;text-decoration:line-through;color:var(--txt-3);font-weight:400">{{ originalPrice(model) | number:'1.0-0' }}</span></div></div></div>
+      <div class="svc-foot"><div><div class="svc-price-lbl">بعد الخصم</div><div class="svc-price">{{ model.totalAmount | wsAmount:model.currency }} <span style="font-size:10px;text-decoration:line-through;color:var(--txt-3);font-weight:400">{{ originalPrice(model) | wsAmount:model.currency }}</span></div></div></div>
       } @else if (mode === 'ai') {
-      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $</div></div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div>
+      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | wsAmount:model.currency }}</div></div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div>
       } @else {
-      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $</div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div></div>
+      <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | wsAmount:model.currency }}</div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div></div>
       }
     </div>
   </a>
@@ -614,7 +614,7 @@
               } @else {
               <div class="svc-price">
                 <span class="svc-price-lbl">يبدأ من</span>
-                <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">$</span></span>
+                <span class="svc-price-val">{{ model.totalAmount | wsAmount:model.currency }}</span>
               </div>
               }
               @if (model.totalDays) {

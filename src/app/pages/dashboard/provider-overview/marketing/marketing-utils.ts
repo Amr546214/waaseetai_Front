@@ -1,4 +1,7 @@
-import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
+import { formatDate } from '@angular/common';
+import { providerTimeZone, timezoneOffset } from '../../../../core/services/provider-prefs.store';
+import { formatWsText } from '../../../../shared/ws-date/ws-date.pipe';
+import { formatBase } from '../../../../core/utils/currency';
 import {
   MarketingApprovalStatus,
   MarketingToolStatus,
@@ -75,7 +78,7 @@ export function formatNumber(n: number | null | undefined): string {
 
 export function formatMoney(n: number | null | undefined): string {
   if (n === null || n === undefined) return '—';
-  return `${formatNumber(n)} دولار`;
+  return formatBase(n);
 }
 
 const AR_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -84,10 +87,7 @@ export function formatDay(iso: string | null | undefined): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
-  const parts = new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'numeric', timeZone: providerTimeZone() }).formatToParts(d);
-  const day = parts.find(p => p.type === 'day')?.value ?? String(d.getDate());
-  const month = Number(parts.find(p => p.type === 'month')?.value ?? d.getMonth() + 1) - 1;
-  return `${day} ${AR_MONTHS[month]}`;
+  return formatWsText(d, { day: 'numeric', month: 'long' });
 }
 
 /** "2026-09" → "سبتمبر". */
@@ -159,7 +159,8 @@ export function isoToDateInput(iso: string | null | undefined): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
   // yyyy-mm-dd of that instant in the provider's zone (en-CA prints exactly that shape)
-  return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: providerTimeZone() }).format(d);
+  const zone = providerTimeZone();
+  return formatDate(d, 'yyyy-MM-dd', 'en-US', zone ? timezoneOffset(zone, d) : undefined);
 }
 
 export function todayInput(): string {

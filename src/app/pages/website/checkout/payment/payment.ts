@@ -7,7 +7,7 @@ import { CheckoutService, InsufficientBalanceInfo } from '../../../../core/servi
 import { CheckoutApiService } from '../../../../core/services/checkout-api.service';
 import { DepositModal } from '../../../../sheards/deposit-modal/deposit-modal';
 import { scrollFocus } from '../../../../shared/forms/form-error-focus';
-import { formatMoney } from '../../../../core/utils/money.util';
+import { formatAmount } from '../../../../core/utils/currency';
 import { WaitTimerService, waitScope } from '../../../../core/wait/wait-timer.service';
 import { RATE_LIMIT_MESSAGE } from '../../../../core/utils/rate-limit.util';
 import { rateLimitSentence } from '../../../../core/wait/wait-format';
@@ -220,8 +220,11 @@ export class CheckoutPaymentComponent implements OnInit {
     });
   }
 
-  formatPrice(value: number): string {
-    return formatMoney(value, 0);
+  /** the order's / cart's own currency (a missing one reads as USD, legacy) */
+  currency = computed(() => this.currentOrder()?.currency ?? this.activeItems()[0]?.currency);
+
+  formatPrice(value: number, currency?: string): string {
+    return formatAmount(value, currency ?? this.currency());
   }
 
   walletAfterPay(): string {

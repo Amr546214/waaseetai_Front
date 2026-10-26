@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
+import { formatWsText } from '../../../../shared/ws-date/ws-date.pipe';
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
@@ -36,6 +37,7 @@ interface DisputeItem {
   aiText: string;
   aiDone: boolean;
   amount: string;
+  currency?: string;
   showEscalate: boolean;
   messages: number;
   date: string;
@@ -88,18 +90,19 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
     // No escrow-amount field exists on a Dispute row — omit rather than
     // fabricate a number; the template hides this line when amount is falsy.
     amount: '',
+    currency: d.currency,
     // No escalate endpoint exists yet.
     showEscalate: false,
     // No dispute-messaging endpoint exists yet.
     messages: 0,
-    date: new Date(d.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: providerTimeZone() }),
+    date: formatWsText(d.createdAt, { year: 'numeric', month: 'short', day: 'numeric' }),
   };
 }
 
 @Component({
   selector: 'app-disputes',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, WsAmountPipe],
   templateUrl: './disputes.html',
   styleUrl: './disputes.css'
 })

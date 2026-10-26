@@ -286,7 +286,7 @@ describe('ProjectDetails: honest contract / funding / stage states', () => {
     expect(s.q('pd-held')!.textContent!.trim()).toBe('0');
     expect(s.text()).toContain('لم يبدأ');
     expect(s.text()).not.toContain('محتجز 500');
-    expect(s.text()).toContain('قيمة المرحلة 500 $');
+    expect(s.text()).toContain('قيمة المرحلة 500 USD');
     expect(s.q('open-dispute')!.disabled).toBe(true);
     expect(s.q('open-amendments')!.disabled).toBe(true);
     expect(s.q('open-dispute')!.getAttribute('title')).toContain('بعد بدء العقد');
@@ -296,7 +296,7 @@ describe('ProjectDetails: honest contract / funding / stage states', () => {
     const s = await open(WS({ escrowFunded: true, escrowHeld: 1000, escrowTotal: 1000, contractStatus: 'PENDING_PROVIDER_SIGNATURE', stages: [STAGE({ amountHeld: true })] }));
     expect(s.q('pd-not-started')!.textContent).toContain('بانتظار توقيع مقدم الخدمة');
     expect(s.q('pd-held')!.textContent!.trim()).toBe('1,000');
-    expect(s.text()).toContain('محتجز 500 $');
+    expect(s.text()).toContain('محتجز 500 USD');
   });
 
   it('active and funded: running, the actions are enabled, the stage shows held money', async () => {
@@ -315,7 +315,7 @@ describe('ProjectDetails: honest contract / funding / stage states', () => {
     expect(s.c.statusHint({ status: 'submitted', roundsCount: 2, revisionResubmitted: true })).toContain('أعاد مقدم الخدمة التسليم');
     expect(s.c.statusHint({ status: 'revision' })).toContain('طلبت تعديلًا');
     expect(s.c.statusHint({ status: 'completed', completedDate: null })).toContain('اكتملت واعتمدت');
-    expect(s.c.stageMoneyLabel({ status: 'completed', amount: 500, amountHeld: false })).toBe('أُفرج 500 $');
+    expect(s.c.stageMoneyLabel({ status: 'completed', amount: 500, amountHeld: false })).toBe('أُفرج 500 USD');
   });
 
   it('the review buttons exist only for a submitted delivery; revision goes to the review page, not to the chat', async () => {

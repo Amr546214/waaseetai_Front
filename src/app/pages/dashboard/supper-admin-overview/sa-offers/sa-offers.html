@@ -62,7 +62,7 @@
                 <td class="of-req-title">
                   <a class="of-info-link" [routerLink]="['/supper-admin-overview/requests', o.requestId]" (click)="$event.stopPropagation()">{{ o.requestTitle }}</a>
                 </td>
-                <td class="of-price">{{ o.price | number:'1.0-2' }} $</td>
+                <td class="of-price">{{ o.price | wsAmount:o.currency }}</td>
                 <td class="of-muted">{{ o.deliveryDays }} يوم</td>
                 <td>
                   @if (o.aiMatchScore !== null || o.aiQualityTag || o.aiPriceTag) {
@@ -73,7 +73,7 @@
                   } @else { <span class="of-muted">—</span> }
                 </td>
                 <td><span class="of-status" [ngClass]="statusClasses[o.status]">{{ statusLabels[o.status] || o.status }}</span></td>
-                <td class="of-muted">{{ o.createdAt | date: 'yyyy-MM-dd' }}</td>
+                <td class="of-muted">{{ o.createdAt | wsDate:'date':'yyyy-MM-dd' }}</td>
               </tr>
             }
           </tbody>

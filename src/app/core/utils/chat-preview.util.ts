@@ -1,3 +1,4 @@
+import { formatAmount } from './currency';
 /**
  * The one place that turns a message's stored text into the short preview a conversation list shows. A negotiation card is stored as
  * `WS_NEGOTIATION::{json}` (internal state) and must never be shown raw.
@@ -15,10 +16,10 @@ export function chatPreview(text: string | null | undefined): string {
 	const t = text ?? '';
 	if (!t.startsWith(NEGOTIATION_PREFIX)) return t;
 	try {
-		const o = JSON.parse(t.slice(NEGOTIATION_PREFIX.length)) as { kind?: unknown; priceValue?: unknown; price?: unknown } | null;
+		const o = JSON.parse(t.slice(NEGOTIATION_PREFIX.length)) as { kind?: unknown; priceValue?: unknown; price?: unknown; currency?: unknown } | null;
 		const kind = typeof o?.kind === 'string' ? o.kind : '';
 		const price = Number(String(o?.priceValue ?? o?.price ?? '').replace(/[^\d.]/g, ''));
-		const withPrice = Number.isFinite(price) && price > 0 ? ` — ${price} $` : '';
+		const withPrice = Number.isFinite(price) && price > 0 ? ` — ${formatAmount(price, o?.currency)}` : '';
 		if (KIND_TEXT[kind]) return KIND_TEXT[kind] + (kind === 'PROVIDER_COUNTER' ? withPrice : '');
 		return 'طلب تفاوض على العرض' + withPrice;
 	} catch {

@@ -1,3 +1,5 @@
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
+import { WsBasePipe, WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { MoneyByComponent } from '../../../../shared/money/money-by.component';
 import { RateLimitNoteComponent } from '../../../../sheards/load-retry/rate-limit-note';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
@@ -12,7 +14,7 @@ import { handleLoadError } from '../../../../core/utils/rate-limit.util';
 @Component({
 	selector: 'app-marketing-broker-overview',
 	standalone: true,
-	imports: [MoneyByComponent, RateLimitNoteComponent, MarketerLevelTagComponent, CommonModule, AiResultCardComponent, RouterLink],
+	imports: [WsBasePipe, WsAmountPipe, WsDatePipe, MoneyByComponent, RateLimitNoteComponent, MarketerLevelTagComponent, CommonModule, AiResultCardComponent, RouterLink],
 	templateUrl: './marketing-broker-overview.html',
 	styleUrl: './marketing-broker-overview.css',
 })

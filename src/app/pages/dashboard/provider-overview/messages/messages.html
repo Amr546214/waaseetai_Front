@@ -194,7 +194,7 @@
                         @if (neg.price) {
                           <div class="neg-card-row">
                             <span class="neg-card-lbl">السعر المقترح:</span>
-                            <span class="neg-card-val highlight">{{ neg.price }} دولار</span>
+                            <span class="neg-card-val highlight">{{ negPrice(neg) }}</span>
                           </div>
                         }
                         @if (neg.deliveryDays || neg.duration) {

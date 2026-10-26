@@ -185,7 +185,7 @@
 				@for (r of u.tabs.requests; track r.id) { <div class="ud-info-item"><a [routerLink]="['/supper-admin-overview/requests', r.id]" class="ud-info-val">{{ r.title }}</a><span class="ud-info-lbl">{{ label(statusLabels, r.status) }} · {{ r.proposalsCount }} عرض · {{ r.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد طلبات لهذا الحساب</div> }
 			}
 			@case ('purchases') {
-				@for (o of u.tabs.purchases; track o.id) { <div class="ud-info-item"><span class="ud-info-val">{{ o.orderNumber }}</span><span class="ud-info-lbl">{{ o.total }} $ · {{ o.status }} · {{ o.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد مشتريات لهذا الحساب</div> }
+				@for (o of u.tabs.purchases; track o.id) { <div class="ud-info-item"><span class="ud-info-val">{{ o.orderNumber }}</span><span class="ud-info-lbl">{{ o.total | wsAmount:o.currency }} · {{ o.status }} · {{ o.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد مشتريات لهذا الحساب</div> }
 			}
 			@case ('disputes') {
 				@for (d of u.tabs.disputes; track d.id) { <div class="ud-info-item"><a [routerLink]="['/supper-admin-overview/disputes', d.id]" class="ud-info-val">{{ d.reason }}</a><span class="ud-info-lbl">{{ label(statusLabels, d.status) }} · {{ d.openedById === u.id ? 'فتحها' : 'مرفوع ضده' }} · {{ d.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد نزاعات لهذا الحساب</div> }
@@ -194,10 +194,10 @@
 				@for (t of u.tabs.reports; track t.id) { <div class="ud-info-item"><a [routerLink]="['/supper-admin-overview/support', t.id]" class="ud-info-val">{{ t.ticketNumber }} — {{ t.subject }}</a><span class="ud-info-lbl">{{ label(statusLabels, t.status) }} · {{ t.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد تذاكر دعم لهذا الحساب</div> }
 			}
 			@case ('contracts') {
-				@for (c of u.tabs.contracts; track c.id) { <div class="ud-info-item"><a [routerLink]="['/supper-admin-overview/contracts', c.id]" class="ud-info-val">عقد {{ c.id.slice(0, 8) }}</a><span class="ud-info-lbl">{{ label(statusLabels, c.status) }} · {{ c.price }} $ · {{ c.role === 'CLIENT' ? 'كطالب' : 'كمقدم' }} · {{ c.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد عقود لهذا الحساب</div> }
+				@for (c of u.tabs.contracts; track c.id) { <div class="ud-info-item"><a [routerLink]="['/supper-admin-overview/contracts', c.id]" class="ud-info-val">عقد {{ c.id.slice(0, 8) }}</a><span class="ud-info-lbl">{{ label(statusLabels, c.status) }} · {{ c.price | wsAmount:c.currency }} · {{ c.role === 'CLIENT' ? 'كطالب' : 'كمقدم' }} · {{ c.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد عقود لهذا الحساب</div> }
 			}
 			@case ('payments') {
-				@for (p of u.tabs.payments; track p.id) { <div class="ud-info-item"><span class="ud-info-val">{{ p.type }}</span><span class="ud-info-lbl">{{ p.amount }} {{ p.currency === 'USD' ? '$' : p.currency }} · {{ p.status }} · {{ p.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد حركات مالية لهذا الحساب</div> }
+				@for (p of u.tabs.payments; track p.id) { <div class="ud-info-item"><span class="ud-info-val">{{ p.type }}</span><span class="ud-info-lbl">{{ p.amount | wsAmount:p.currency }} · {{ p.status }} · {{ p.createdAt | wsDate:'date':'yyyy-MM-dd' }}</span></div> } @empty { <div class="ud-empty-inline">لا توجد حركات مالية لهذا الحساب</div> }
 			}
 			}
 		</div>

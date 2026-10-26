@@ -3,7 +3,7 @@
     <div>
       <h1 class="rev-ttl">المالية والإيرادات</h1>
       <p class="rev-sub">
-        @if (updatedAt(); as u) { آخر تحديث: {{ u | date: 'yyyy-MM-dd HH:mm' }} · } جميع المبالغ بالدولار الأمريكي ($)
+        @if (updatedAt(); as u) { آخر تحديث: {{ u | wsDate:'datetime':'yyyy-MM-dd HH:mm' }} · } جميع المبالغ بعملة المنصة ({{ '' | wsCurrency }})
       </p>
     </div>
     <div class="rev-hdr-actions">
@@ -34,15 +34,15 @@
         <div class="rev-kpi-ic ic-teal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
         </div>
-        <div class="rev-kpi-val" data-testid="kpi-commission">{{ usd(o.totals.platformCommission) }}</div>
+        <div class="rev-kpi-val" data-testid="kpi-commission">{{ fmtAmount(o.totals.platformCommission) }}</div>
         <div class="rev-kpi-lbl">عمولة المنصة (إيراد)</div>
-        <div class="rev-kpi-change">من إجمالي محرَّر {{ usd(o.totals.releasedGross) }}</div>
+        <div class="rev-kpi-change">من إجمالي محرَّر {{ fmtAmount(o.totals.releasedGross) }}</div>
       </div>
       <div class="rev-kpi">
         <div class="rev-kpi-ic ic-blue">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-        <div class="rev-kpi-val" data-testid="kpi-escrow">{{ usd(o.totals.escrowHeldAmount) }}</div>
+        <div class="rev-kpi-val" data-testid="kpi-escrow">{{ fmtAmount(o.totals.escrowHeldAmount) }}</div>
         <div class="rev-kpi-lbl">محجوز في الضمان</div>
         <div class="rev-kpi-change">{{ o.totals.escrowHeldCount }} مشروع</div>
       </div>
@@ -50,7 +50,7 @@
         <div class="rev-kpi-ic ic-green">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         </div>
-        <div class="rev-kpi-val" data-testid="kpi-deposits">{{ usd(o.totals.depositsAmount) }}</div>
+        <div class="rev-kpi-val" data-testid="kpi-deposits">{{ fmtAmount(o.totals.depositsAmount) }}</div>
         <div class="rev-kpi-lbl">الإيداعات</div>
         <div class="rev-kpi-change">{{ o.totals.depositsCount }} عملية</div>
       </div>
@@ -58,7 +58,7 @@
         <div class="rev-kpi-ic ic-amber">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </div>
-        <div class="rev-kpi-val" data-testid="kpi-gateway">{{ usd(o.totals.paymentGatewayFees) }}</div>
+        <div class="rev-kpi-val" data-testid="kpi-gateway">{{ fmtAmount(o.totals.paymentGatewayFees) }}</div>
         <div class="rev-kpi-lbl">رسوم بوابة الدفع</div>
         <div class="rev-kpi-change">تكلفة مدفوعات يتحمّلها المودِع — ليست إيرادًا</div>
       </div>
@@ -66,7 +66,7 @@
         <div class="rev-kpi-ic ic-amber">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
         </div>
-        <div class="rev-kpi-val" data-testid="kpi-pending-wd">{{ usd(pendingWithdrawals().amount) }}</div>
+        <div class="rev-kpi-val" data-testid="kpi-pending-wd">{{ fmtAmount(pendingWithdrawals().amount) }}</div>
         <div class="rev-kpi-lbl">سحوبات قيد المراجعة</div>
         <div class="rev-kpi-change">{{ pendingWithdrawals().count }} طلب</div>
       </div>
@@ -87,9 +87,9 @@
             @for (d of bars().rows; track d.month) {
               <div class="rev-bar-wrap">
                 <div class="rev-bar-pair">
-                  <div class="rev-bar" style="background:#2BD4C7" [style.height.%]="pct(d.deposits, bars().max)" [title]="usd(d.deposits)"></div>
-                  <div class="rev-bar" style="background:#5DA0FF" [style.height.%]="pct(d.releasedGross, bars().max)" [title]="usd(d.releasedGross)"></div>
-                  <div class="rev-bar" style="background:#FFB400" [style.height.%]="pct(d.withdrawalsPaid, bars().max)" [title]="usd(d.withdrawalsPaid)"></div>
+                  <div class="rev-bar" style="background:#2BD4C7" [style.height.%]="pct(d.deposits, bars().max)" [title]="fmtAmount(d.deposits)"></div>
+                  <div class="rev-bar" style="background:#5DA0FF" [style.height.%]="pct(d.releasedGross, bars().max)" [title]="fmtAmount(d.releasedGross)"></div>
+                  <div class="rev-bar" style="background:#FFB400" [style.height.%]="pct(d.withdrawalsPaid, bars().max)" [title]="fmtAmount(d.withdrawalsPaid)"></div>
                 </div>
                 <div class="rev-bar-lbl">{{ d.label }}</div>
               </div>
@@ -99,8 +99,8 @@
           <div class="rev-table-empty">لا توجد حركة مالية في هذه الفترة</div>
         }
         <div class="rev-mini-stats">
-          <div class="rev-mini"><div class="rev-mini-val txt-teal">{{ usd(o.totals.releasedGross) }}</div><div class="rev-mini-lbl">إجمالي المحرَّر</div></div>
-          <div class="rev-mini"><div class="rev-mini-val">{{ usd(o.totals.providerNetReleased) }}</div><div class="rev-mini-lbl">صافي مقدمي الخدمة</div></div>
+          <div class="rev-mini"><div class="rev-mini-val txt-teal">{{ fmtAmount(o.totals.releasedGross) }}</div><div class="rev-mini-lbl">إجمالي المحرَّر</div></div>
+          <div class="rev-mini"><div class="rev-mini-val">{{ fmtAmount(o.totals.providerNetReleased) }}</div><div class="rev-mini-lbl">صافي مقدمي الخدمة</div></div>
           <div class="rev-mini">
             <div class="rev-mini-val txt-green" data-testid="rev-mom">{{ momChange() === null ? '—' : ((momChange()! > 0 ? '+' : '') + (momChange()! | number: '1.0-1') + '%') }}</div>
             <div class="rev-mini-lbl">تغيّر المحرَّر عن الشهر السابق</div>
@@ -125,7 +125,7 @@
                   <div class="rev-dl-dot" [style.background]="s.color"></div>
                   <span class="rev-dl-lbl">{{ s.label }}</span>
                   <span class="rev-dl-pct">{{ s.share | number: '1.0-1' }}%</span>
-                  <span class="rev-dl-val">{{ usd(s.value) }}</span>
+                  <span class="rev-dl-val">{{ fmtAmount(s.value) }}</span>
                 </div>
               }
             </div>
@@ -139,11 +139,11 @@
     <div class="rev-row-2">
       <div class="rev-pl-card">
         <div class="rev-pl-title">ملخص الحركة (من السجلات الفعلية)</div>
-        <div class="rev-pl-row"><span>عمولة المنصة</span><span class="income">{{ usd(o.totals.platformCommission) }}</span></div>
+        <div class="rev-pl-row"><span>عمولة المنصة</span><span class="income">{{ fmtAmount(o.totals.platformCommission) }}</span></div>
         <div class="rev-pl-sep-lbl">— مدفوعات —</div>
-        <div class="rev-pl-row"><span>صافي محرَّر لمقدمي الخدمة</span><span class="expense">{{ usd(o.totals.providerNetReleased) }}</span></div>
+        <div class="rev-pl-row"><span>صافي محرَّر لمقدمي الخدمة</span><span class="expense">{{ fmtAmount(o.totals.providerNetReleased) }}</span></div>
         @for (st of ['PENDING', 'APPROVED', 'PAID']; track st) {
-          <div class="rev-pl-row"><span>عمولات الوسطاء — {{ st === 'PENDING' ? 'قيد المراجعة' : st === 'APPROVED' ? 'معتمدة' : 'مدفوعة' }} ({{ o.affiliateCommissions[st]?.count ?? 0 }})</span><span class="expense">{{ usd(o.affiliateCommissions[st]?.amount ?? 0) }}</span></div>
+          <div class="rev-pl-row"><span>عمولات الوسطاء — {{ st === 'PENDING' ? 'قيد المراجعة' : st === 'APPROVED' ? 'معتمدة' : 'مدفوعة' }} ({{ o.affiliateCommissions[st]?.count ?? 0 }})</span><span class="expense">{{ fmtAmount(o.affiliateCommissions[st]?.amount ?? 0) }}</span></div>
         }
         <div class="rev-pl-hr"></div>
         <div class="rev-pl-margin">لا يوجد سجل مصروفات تشغيلية في المنصة؛ لا يُحتسب صافي ربح تقديري.</div>
@@ -164,10 +164,10 @@
               @for (r of monthRows(); track r.month) {
                 <tr>
                   <td class="strong">{{ monthLabel(r.month) }}</td>
-                  <td>{{ usd(r.deposits) }}</td>
-                  <td>{{ usd(r.releasedGross) }}</td>
-                  <td>{{ usd(r.withdrawalsPaid) }}</td>
-                  <td>{{ usd(r.affiliateCommissions) }}</td>
+                  <td>{{ fmtAmount(r.deposits) }}</td>
+                  <td>{{ fmtAmount(r.releasedGross) }}</td>
+                  <td>{{ fmtAmount(r.withdrawalsPaid) }}</td>
+                  <td>{{ fmtAmount(r.affiliateCommissions) }}</td>
                 </tr>
               }
             </tbody>
@@ -203,7 +203,7 @@
                 <td class="mono">{{ t.referenceId || (t.id | slice: 0 : 8) }}</td>
                 <td>{{ txTypeLabel(t.type) }}</td>
                 <td>{{ txParty(t) }}</td>
-                <td class="strong">{{ usd(t.amount) }}</td>
+                <td class="strong">{{ fmtAmount(t.amount, t.currency) }}</td>
                 <td><span class="rev-badge" [class]="'rev-badge-' + txStatusClass(t.status)">{{ txStatusLabel(t.status) }}</span></td>
                 <td class="ltr">{{ fmtDate(t.createdAt) }}</td>
               </tr>

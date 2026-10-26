@@ -1,3 +1,4 @@
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -5,7 +6,7 @@ import { handleAdminError, reportAdminProblems, SubmitGuard } from '../../shared
 import { WithdrawalApiService } from '../../../../../core/services/withdrawal-api.service';
 import { WITHDRAWAL_STATUS_LABELS, WITHDRAWAL_STATUS_CLASSES, withdrawalUserDisplay, withdrawalOwnerLabel } from '../sa-withdrawals';
 import { Withdrawal, LEGACY_WITHDRAWAL_LABEL, isLegacyWithdrawal, ApproveWithdrawalPayload, RejectWithdrawalPayload } from '../../../../../core/models/withdrawal.model';
-import { formatMoney } from '../../../../../core/utils/money.util';
+import { formatAmount as formatAmountIn } from '../../../../../core/utils/currency';
 
 @Component({
   selector: 'app-sa-withdrawal-detail',
@@ -261,19 +262,12 @@ export class SaWithdrawalDetail implements OnInit {
 
   formatDate(value: string | null | undefined): string {
     if (!value) return '—';
-    return new Intl.DateTimeFormat('ar-SA', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(value));
+    return formatWsText(new Date(value), { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', });
   }
 
   formatAmount(amount: number | null | undefined, currency: string | undefined): string {
     if (amount == null) return '—';
-    const formatted = formatMoney(amount, 2);
-    return currency ? `${formatted} ${currency === 'USD' ? '$' : currency}` : `${formatted} $`;
+    return formatAmountIn(amount, currency, '1.2-2');
   }
 
   readonly legacyLabel = LEGACY_WITHDRAWAL_LABEL;

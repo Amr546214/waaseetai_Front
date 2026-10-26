@@ -72,8 +72,8 @@
                 <td class="cat-rating">{{ p.rating ? '★ ' + p.rating : '—' }}</td>
                 <td class="cat-center">{{ p.completedProjects }}</td>
                 <td>{{ p.level }} — {{ p.levelName }}</td>
-                <td class="cat-revenue">{{ p.revenue | number:'1.0-2' }} $</td>
-                <td class="cat-date">{{ p.memberSince ? (p.memberSince | date:'yyyy-MM') : '—' }}</td>
+                <td class="cat-revenue">{{ p.revenue | wsBase }}</td>
+                <td class="cat-date">{{ p.memberSince ? (p.memberSince | wsDateText:{ year:'numeric', month:'2-digit' }) : '—' }}</td>
               </tr>
             } @empty {
               <tr><td colspan="7" class="cat-center">لا يوجد مقدمو خدمة بسجل نقاط بعد</td></tr>

@@ -20,8 +20,8 @@ const OFFER = (contract: unknown) => ({ offerId: 'o1', id: 'o1', projectTitle: '
 const FORBIDDEN = [/ثم السداد/, /أفوض/, /3 مراحل/, /30 يوم/, /30 يوما/, /الملكية الفكرية/, /تنتقل ملكية/, /تعديلات حسب الباقة/, /ضمان الجودة/];
 
 describe('provider sign-contract: real contract terms only', () => {
-	async function setup(item: unknown, opts: { error?: boolean } = {}) {
-		const post = vi.fn(() => of({ success: true }));
+	async function setup(item: unknown, opts: { error?: boolean; postError?: unknown } = {}) {
+		const post = vi.fn(() => (opts.postError ? throwError(() => opts.postError) : of({ success: true })));
 		const get = vi.fn(() => (opts.error ? throwError(() => ({ status: 500 })) : of({ success: true, data: item })));
 		await TestBed.configureTestingModule({ imports: [SignContract], providers: [provideRouter([]),
 			{ provide: HttpClient, useValue: { get, post } },
@@ -101,6 +101,23 @@ describe('provider sign-contract: real contract terms only', () => {
 		expect(call[1]).toEqual({ agreedTerms: { accepted: true } });
 	});
 
+	it('the digest of the terms that were DISPLAYED is sent with the signature', async () => {
+		const s = await setup(OFFER(CONTRACT({ termsDigest: 'abc123' })));
+		s.c.isAgreed = true; s.c.signContract();
+		const call = s.post.mock.calls[0] as unknown as [string, unknown];
+		expect(call[1]).toEqual({ agreedTerms: { accepted: true, termsDigest: 'abc123' } });
+	});
+
+	it('409 TERMS_CHANGED: the current terms are reloaded and the agreement must be ticked again', async () => {
+		const s = await setup(OFFER(CONTRACT({ termsDigest: 'old' })), { postError: { status: 409, error: { code: 'TERMS_CHANGED' } } });
+		s.c.isAgreed = true; s.c.signContract(); s.f.detectChanges();
+		expect(s.c.isAgreed).toBe(false);
+		expect(s.post).toHaveBeenCalledTimes(1);
+		// the contract was fetched again (initial load + reload)
+		const http = TestBed.inject(HttpClient) as unknown as { get: ReturnType<typeof vi.fn> };
+		expect(http.get.mock.calls.length).toBeGreaterThanOrEqual(2);
+	});
+
 	it('signing without the agreement shows a red alert next to the checkbox (aria-invalid + describedby), not only a toast; ticking it clears it', async () => {
 		const s = await setup(OFFER(CONTRACT()));
 		const box = s.el.querySelector('#ack-ctr') as HTMLInputElement;
@@ -127,7 +144,8 @@ describe('provider sign-contract: real contract terms only', () => {
 	});
 
 	it('milestone detail text only mentions the fields that exist', () => {
-		expect(milestoneMeta({ order: 1, title: 'a', description: null, days: 5, percentage: 40, amount: 1380 })).toBe('5 يوم · 40% · 1,380 $');
+		expect(milestoneMeta({ order: 1, title: 'a', description: null, days: 5, percentage: 40, amount: 1380 })).toBe('5 يوم · 40% · 1,380 USD');
+		expect(milestoneMeta({ order: 1, title: 'a', description: null, days: 5, percentage: 40, amount: 1380 }, 'SAR')).toBe('5 يوم · 40% · 1,380 SAR');
 		expect(milestoneMeta({ order: 1, title: 'a', description: null, days: null, percentage: null, amount: null })).toBe('');
 		expect(milestoneMeta({ order: 1, title: 'a', description: null, days: 3, percentage: null, amount: null })).toBe('3 يوم');
 	});

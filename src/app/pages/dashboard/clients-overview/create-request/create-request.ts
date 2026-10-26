@@ -16,6 +16,7 @@ import { mapHttpError } from '../../../../core/forms/http-error';
 import { clearInvalid, FieldProblem, scrollFocus, SubmitGuard } from '../../../../shared/forms/form-error-focus';
 import { hasFieldErrors, reportClientBackend, reportClientProblems } from '../client-form-report';
 import { io, Socket } from 'socket.io-client';
+import { currencyCode } from '../../../../core/utils/currency';
 import { SOCKET_BACKOFF } from '../../../../core/utils/socket-backoff';
 import { environment } from '../../../../../environments/environment';
 
@@ -1330,13 +1331,13 @@ export class CreateRequest implements OnInit, OnDestroy {
       const type = this.budgetType();
       const positive = (v: number | null) => v !== null && Number.isFinite(v) && v > 0;
       if (type === 'fixed') {
-        if (!positive(this.budgetFixed())) add('f-budget-fixed', 'أدخل الميزانية بالدولار');
+        if (!positive(this.budgetFixed())) add('f-budget-fixed', `أدخل الميزانية (${currencyCode()})`);
       } else if (type === 'hourly') {
-        if (!positive(this.budgetHourly())) add('f-budget-hourly', 'أدخل سعر الساعة بالدولار');
+        if (!positive(this.budgetHourly())) add('f-budget-hourly', `أدخل سعر الساعة (${currencyCode()})`);
       } else if (type === 'range') {
         const lo = this.budgetMin(), hi = this.budgetMax();
-        if (!positive(lo)) add('f-budget-from', 'أدخل الحد الأدنى للميزانية بالدولار');
-        if (!positive(hi)) add('f-budget-to', 'أدخل الحد الأعلى للميزانية بالدولار');
+        if (!positive(lo)) add('f-budget-from', `أدخل الحد الأدنى للميزانية (${currencyCode()})`);
+        if (!positive(hi)) add('f-budget-to', `أدخل الحد الأعلى للميزانية (${currencyCode()})`);
         else if (positive(lo) && lo! > hi!) add('f-budget-to', 'الحد الأعلى يجب أن يكون أكبر من أو يساوي الحد الأدنى');
       }
     }

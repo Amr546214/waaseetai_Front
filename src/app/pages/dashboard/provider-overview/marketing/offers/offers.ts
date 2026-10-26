@@ -16,6 +16,7 @@ import {
   isToggleable, mapProviderModels, offerStatus, validityLabel,
 } from '../marketing-utils';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 
 export interface OfferRow {
   offer: ProviderSpecialOffer;
@@ -29,7 +30,7 @@ export interface OfferRow {
 @Component({
   selector: 'app-marketing-offers',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [WsCurrencyPipe, CommonModule, FormsModule, RouterLink],
   templateUrl: './offers.html',
   styleUrls: ['../marketing-shared.css'],
 })

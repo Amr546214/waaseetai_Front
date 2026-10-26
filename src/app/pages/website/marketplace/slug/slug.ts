@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, HostListener, AfterViewInit, OnDestroy, OnInit, PLATFORM_ID, Inject, ViewEncapsulation, signal, computed } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
@@ -14,7 +15,7 @@ interface FilterDraft { sub: string; levels: string[]; rating: number; maxDays: 
 @Component({
 	selector: 'app-slug',
 	standalone: true,
-	imports: [LevelBadgeComponent, CommonModule, RouterLink, SpecialtiesBar],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink, SpecialtiesBar, WsAmountPipe],
 	templateUrl: './slug.html',
 	styleUrl: './slug.css',
 	encapsulation: ViewEncapsulation.None

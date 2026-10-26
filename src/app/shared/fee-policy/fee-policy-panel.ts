@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { mapHttpError } from '../../core/forms/http-error';
@@ -24,7 +23,7 @@ const localInput = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${p
 @Component({
 	selector: 'app-fee-policy-panel',
 	standalone: true,
-	imports: [DatePipe, WsDatePipe],
+	imports: [WsDatePipe],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './fee-policy-panel.html',
 	styleUrl: './fee-policy-panel.css',
@@ -37,7 +36,7 @@ export class FeePolicyPanel implements OnInit {
 	readonly levels = Array.from({ length: 15 }, (_, i) => i + 1);
 	readonly depositKeys = Object.keys(DEPOSIT_LABELS); readonly withdrawKeys = Object.keys(WITHDRAW_LABELS); readonly depositLabels = DEPOSIT_LABELS; readonly withdrawLabels = WITHDRAW_LABELS;
 	/** the zone the effective time is typed in: the platform zone, else this browser's own */
-	readonly zoneLabel = computed(() => platformTimeZone() ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
+	readonly zoneLabel = computed(() => platformTimeZone() ?? 'المتصفح');
 	readonly canManage = computed(() => this.access.can('fees.manage'));
 	readonly pending = computed(() => (this.view()?.upcoming ?? []).filter(u => u.state === 'SCHEDULED'));
 	readonly editable = computed(() => this.canManage() && !this.pending().length);

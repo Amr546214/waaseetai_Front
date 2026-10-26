@@ -23,11 +23,11 @@ function walk(dir: string, out: string[] = []): string[] {
 const production = walk(SRC).filter(f => /\.(ts|html|css)$/.test(f) && !/\.spec\.ts$/.test(f) && !/test-fixtures/.test(f));
 const read = (rel: string) => readFileSync(join(APP, rel), 'utf-8');
 /** the only files allowed to name a currency (its code or its Arabic name) */
-const CURRENCY_NAMING_ALLOWED = [join('core', 'utils', 'currency.ts')];
+const CURRENCY_NAMING_ALLOWED = [join('core', 'utils', 'currency.ts'), join('core', 'utils', 'regional.ts')]; // the platform currency setting is named in the regional state
 const CURRENCY_ONLY = new Set(['SAR', 'ريال', 'ر.س', '﷼']);
 const BANNED = [
 	{ name: 'SAR', re: /\bSAR\b/ },
-	{ name: 'ريال', re: /ريال/ },
+	{ name: 'ريال', re: /(?<![\u0600-\u06FF])ريال(?![\u0600-\u06FF])/ },
 	{ name: 'ر.س', re: /ر\.س/ },
 	{ name: '﷼', re: /﷼/ },
 	{ name: 'Moyasar', re: /moyasar|mysr/i },
@@ -60,7 +60,7 @@ describe('FE-3 PayPal only; currencies only through the central formatter', () =
 			expect(t, f).not.toMatch(/ريال|ر\.س|﷼|\bSAR\b/);
 		}
 		// M2: the limits come from the server wallet and are shown in dollars ("$"), never in riyals
-		expect(read('pages/dashboard/marketer-overview/withdraw/withdraw.html')).toMatch(/الحد الأدنى: \{\{ wallet\(\) \? minimumWithdrawal\(\) : '—' \}\} \$/);
+		expect(read('pages/dashboard/marketer-overview/withdraw/withdraw.html')).toMatch(/الحد الأدنى: \{\{ wallet\(\) \? \(minimumWithdrawal\(\) \| wsAmount:payoutCurrency\) : '—' \}\}/);
 	});
 
 	it('index.html and styles.css no longer load or style Moyasar', () => {

@@ -2,7 +2,7 @@
   <div class="fii-hdr">
     <div>
       <h1 class="fii-ttl">الفواتير الواردة</h1>
-      <p class="fii-sub">فواتير مراحل المشاريع من جهة مقدمي الخدمة — عمولة المنصة وصافي المقدم — بالدولار الأمريكي ($)</p>
+      <p class="fii-sub">فواتير مراحل المشاريع من جهة مقدمي الخدمة — عمولة المنصة وصافي المقدم — بعملة المنصة ({{ '' | wsCurrency }})</p>
     </div>
     <div class="fii-actions">
       <button type="button" class="fii-btn fii-btn-ghost" data-testid="inv-export" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : 'تصدير CSV' }}</button>
@@ -28,18 +28,18 @@
     </div>
     <div class="fii-kpi-card">
       <div class="fii-kpi-top"><span class="fii-kpi-lbl">مدفوعة</span></div>
-      <div class="fii-kpi-val txt-green">{{ usd(d.summary.paidTotal) }}</div>
+      <div class="fii-kpi-val txt-green">{{ fmtAmount(d.summary.paidTotal) }}</div>
       <div class="fii-kpi-unit">{{ d.summary.paidCount }} فاتورة</div>
     </div>
     <div class="fii-kpi-card">
       <div class="fii-kpi-top"><span class="fii-kpi-lbl">مستحقة</span></div>
-      <div class="fii-kpi-val txt-amber">{{ usd(d.summary.dueTotal) }}</div>
+      <div class="fii-kpi-val txt-amber">{{ fmtAmount(d.summary.dueTotal) }}</div>
       <div class="fii-kpi-unit">{{ d.summary.dueCount }} فاتورة</div>
     </div>
     <div class="fii-kpi-card">
       <div class="fii-kpi-top"><span class="fii-kpi-lbl">عمولة المنصة</span></div>
-      <div class="fii-kpi-val txt-blue">{{ usd(d.summary.platformCommission) }}</div>
-      <div class="fii-kpi-unit">دولار أمريكي</div>
+      <div class="fii-kpi-val txt-blue">{{ fmtAmount(d.summary.platformCommission) }}</div>
+      <div class="fii-kpi-unit">{{ '' | wsCurrency:'name' }}</div>
     </div>
   </div>
 
@@ -67,9 +67,9 @@
               <td class="fii-supplier">{{ inv.projectTitle }}</td>
               <td>{{ inv.stageTitle }}</td>
               <td class="fii-supplier">{{ inv.providerName }}</td>
-              <td class="fii-amount">{{ usd(inv.stageValue) }}</td>
-              <td class="fii-amount">{{ usd(inv.platformCommission) }}</td>
-              <td class="fii-amount">{{ usd(inv.net) }}</td>
+              <td class="fii-amount">{{ fmtAmount(inv.stageValue, inv.currency) }}</td>
+              <td class="fii-amount">{{ fmtAmount(inv.platformCommission, inv.currency) }}</td>
+              <td class="fii-amount">{{ fmtAmount(inv.net, inv.currency) }}</td>
               <td class="fii-date">{{ fmtDate(inv.paymentDate || inv.date) }}</td>
               <td><span class="fii-bdg" [ngClass]="statusClasses[inv.status]">{{ statusLabels[inv.status] }}</span></td>
             </tr>

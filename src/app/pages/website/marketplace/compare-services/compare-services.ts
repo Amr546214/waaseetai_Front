@@ -1,4 +1,5 @@
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -13,7 +14,7 @@ const MAX_COMPARE = 3;
 @Component({
 	selector: 'app-compare-services',
 	standalone: true,
-	imports: [LevelBadgeComponent, CommonModule, RouterLink],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink, WsAmountPipe],
 	templateUrl: './compare-services.html',
 	styleUrl: './compare-services.css'
 })

@@ -1,3 +1,4 @@
+import { formatAmount } from '../utils/currency';
 /**
  * What an amendment decision does. The backend sends `effect` on every amendment:
  *  - APPLIED     the approval changed the contract / escrow / stages in one step (appliedAt is set);
@@ -28,6 +29,8 @@ export interface AmendmentLike {
 	effect?: string | null; effectNote?: string | null; actionable?: boolean | null; actionBlockedReason?: string | null;
 	needsClientPayment?: boolean; fundingAuthorized?: boolean; fundingAuthorizedUntil?: string | null;
 	contractPrice?: number | null; contractDurationDays?: number | null;
+	/** the contract's currency (a missing one reads as USD, legacy) */
+	currency?: string | null;
 	priceBefore?: number | null; priceAfter?: number | null; durationBefore?: number | null; durationAfter?: number | null;
 }
 
@@ -80,7 +83,7 @@ export function amendmentNeedsPayment(a: AmendmentLike | null | undefined): bool
 
 export interface AmendmentEffectLine { label: string; value: string }
 
-const money = (n: number) => `${(Math.round(Math.abs(n) * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} $`;
+const moneyIn = (currency: unknown) => (n: number) => formatAmount(Math.abs(n), currency);
 
 /**
  * The financial effect shown BEFORE the user confirms an approval: the amount, the new contract price, the new stage. Only what the backend will
@@ -89,6 +92,7 @@ const money = (n: number) => `${(Math.round(Math.abs(n) * 100) / 100).toLocaleSt
  */
 export function amendmentEffectLines(a: AmendmentLike | null | undefined): AmendmentEffectLine[] {
 	const lines: AmendmentEffectLine[] = [];
+	const money = moneyIn(a?.currency);
 	const budget = amendmentBudgetPart(a);
 	const days = amendmentDaysPart(a);
 	const price = typeof a?.contractPrice === 'number' ? a.contractPrice : null;

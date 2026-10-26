@@ -68,7 +68,7 @@
 			<div class="kpi-val kpi-val-teal">{{ formatBudget(d.kpis.totalSpent) }}</div>
 			<ws-money-by [map]="d.kpis.totalSpentBy" />
 			<div class="kpi-foot">
-				<span class="kpi-unit">دولار أمريكي</span>
+				<span class="kpi-unit">{{ '' | wsCurrency:'name' }}</span>
 			</div>
 		</div>
 		<div class="state-card kpi-card">
@@ -220,7 +220,7 @@
 							<tr>
 								<td><div class="td-main">{{ o.title }}</div><div class="td-sub">{{ orderRef(o.id) }}</div></td>
 								<td>{{ o.specialty }}</td>
-								<td class="td-bold">{{ formatBudget(o.budget) }}</td>
+								<td class="td-bold">{{ formatRow(o.budget, o.currency) }}</td>
 								<td class="td-offers">{{ o.proposalsCount }}</td>
 								<td><span class="opill" [ngClass]="opillClass(o.bucket)">{{ o.bucket }}</span></td>
 								<td>{{ formatRelativeDate(o.createdAt) }}</td>
@@ -298,7 +298,7 @@
 								<tr>
 									<td><div class="td-main">{{ p.title }}</div><div class="td-sub">{{ orderRef(p.id) }}</div></td>
 									<td>{{ p.specialty }}</td>
-									<td class="td-bold">{{ formatBudget(p.budget) }}</td>
+									<td class="td-bold">{{ formatRow(p.budget, p.currency) }}</td>
 									<td><span class="opill" [ngClass]="opillClass(p.bucket)">{{ p.bucket }}</span></td>
 									<td>{{ formatRelativeDate(p.createdAt) }}</td>
 								</tr>

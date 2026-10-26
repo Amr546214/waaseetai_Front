@@ -1,3 +1,4 @@
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -129,7 +130,7 @@ export class SaSpecialtyAccreditationDetail implements OnInit {
     if (!value) return '—';
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return '—';
-    return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+    return formatWsText(d, { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   score(v: number | null | undefined): string {

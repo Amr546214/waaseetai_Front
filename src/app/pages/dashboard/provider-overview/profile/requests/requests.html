@@ -69,7 +69,7 @@
 						<tr>
 							<td style="font-weight:700" class="txt-white">{{ req.id?.substring(0, 12) || '—' }}</td>
 							<td>{{ req.fieldLabel || '—' }}</td>
-							<td class="txt-slate">{{ req.createdAt | date:'mediumDate' }}</td>
+							<td class="txt-slate">{{ req.createdAt | wsDateText:{ day:'numeric', month:'short', year:'numeric' } }}</td>
 							<td>
 								<span class="pill"
 									[class.pill-gold]="req.status === 'PENDING_HUMAN_REVIEW' || req.status === 'IN_AI_REVIEW'"
@@ -239,7 +239,7 @@
             <span class="w-[3px] h-[3px] rounded-full bg-[var(--txt-3)]"></span>
             <span>طلب {{ req.id.substring(0, 8) }}</span>
             <span class="w-[3px] h-[3px] rounded-full bg-[var(--txt-3)]"></span>
-            <span>{{ req.createdAt | date:'medium' }}</span>
+            <span>{{ req.createdAt | wsDate:'datetime' }}</span>
           </div>
         </div>
         

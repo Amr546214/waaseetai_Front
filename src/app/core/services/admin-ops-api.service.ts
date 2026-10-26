@@ -53,7 +53,7 @@ export interface AdminProjectDetail {
   openDisputes: number; currency: string;
 }
 export interface AdminContractRow {
-  id: string; projectId: string; projectTitle: string; price: number; durationDays: number; status: string; signedAt: string | null; createdAt: string;
+  id: string; projectId: string; projectTitle: string; price: number; currency?: string; durationDays: number; status: string; signedAt: string | null; createdAt: string;
   client: AdminParty | null; provider: AdminParty | null; escrow: AdminEscrow | null;
 }
 export interface AdminContractListData {

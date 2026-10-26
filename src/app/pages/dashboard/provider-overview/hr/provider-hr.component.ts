@@ -1,4 +1,5 @@
 import { Component, ElementRef, computed, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -26,7 +27,7 @@ const UNBACKED_TABS: Partial<Record<MainTab, { title: string; hint: string }>> =
 @Component({
 	selector: 'app-provider-hr',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule],
+	imports: [WsDatePipe, CommonModule, FormsModule, RouterModule],
 	templateUrl: './provider-hr.component.html',
 	styleUrls: ['./provider-hr.component.css']
 })

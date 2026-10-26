@@ -112,7 +112,7 @@
                 <div class="prov-price-row">
                   <div class="prov-price-label">يبدأ من</div>
                   <div class="prov-price-range" [style.color]="isWinner ? 'var(--teal)' : null">{{ pr.minServicePrice | number:'1.0-2' }} <span>$ / مشروع</span></div>
-                  <div class="prov-price-note">أعلى خدمة: {{ pr.maxServicePrice | number:'1.0-2' }} $</div>
+                  <div class="prov-price-note">أعلى خدمة: {{ pr.maxServicePrice | wsAmount:pr.currency }}</div>
                 </div>
               } @else if (pr.hourlyRate) {
                 <div class="prov-price-row">
@@ -173,9 +173,9 @@
               <div class="sum-ico" style="background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2)"><svg aria-hidden="true" style="color:var(--blue-txt)"><use href="#ws-file"></use></svg></div>
               <div><div class="sum-lbl">أفضل سعر</div>
                 @if (c.minServicePrice != null) {
-                  <div class="sum-val">{{ c.minServicePrice | number:'1.0-2' }} $ — {{ c.fullName }}</div>
+                  <div class="sum-val">{{ c.minServicePrice | wsAmount:c.currency }} — {{ c.fullName }}</div>
                 } @else {
-                  <div class="sum-val">{{ c.hourlyRate | number:'1.0-2' }} $ / ساعة — {{ c.fullName }}</div>
+                  <div class="sum-val">{{ c.hourlyRate | wsAmount:c.currency }} / ساعة — {{ c.fullName }}</div>
                 }
               </div>
             </div>

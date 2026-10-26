@@ -11,6 +11,8 @@ import { UiNotificationService } from '../../../../../../core/services/ui-notifi
 import { formatMoney } from '../../../../../../core/utils/money.util';
 import { stageHeading } from '../../../../../../core/utils/stage-title.util';
 import { deliveryFileOpenUrl, deliveryFileDownloadUrl, LEGACY_FILE_NOTE } from '../../../../../../core/utils/delivery-file.util';
+import { WsAmountPipe } from '../../../../../../shared/money/money.pipe';
+import { formatAmount } from '../../../../../../core/utils/currency';
 
 /**
  * Final delivery & project closure review.
@@ -31,7 +33,7 @@ import { deliveryFileOpenUrl, deliveryFileDownloadUrl, LEGACY_FILE_NOTE } from '
 @Component({
 	selector: 'app-delivery-review',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RatingEntry],
+	imports: [WsAmountPipe, CommonModule, FormsModule, RatingEntry],
 	templateUrl: './delivery-review.html',
 	styleUrl: './delivery-review.css',
 })
@@ -83,6 +85,8 @@ export class DeliveryReview implements OnInit {
 		if (!s || this.settled()) return false;
 		return s.lifecycle ? s.lifecycle.awaitingClientReview === true : s.status === 'submitted';
 	});
+	/** the contract's own currency: the financial summary's, else the first stage's (a missing one reads as the legacy currency) */
+	currency = computed<string | undefined>(() => this.financial()?.currency ?? this.stages()[0]?.currency);
 	settlement = computed<any>(() => this.financial()?.settlement ?? null);
 	badge = computed<{ text: string; ok: boolean }>(() => {
 		if (this.settled()) return { text: this.projectData()?.statusLabel || 'أُغلق بتسوية نزاع', ok: false };
@@ -96,7 +100,7 @@ export class DeliveryReview implements OnInit {
 	downloadUrl(file: any): string | null { return deliveryFileDownloadUrl(file); }
 	readonly legacyFileNote = LEGACY_FILE_NOTE;
 	stageMoney(stage: any): string {
-		const amount = `${formatMoney(stage?.amount || 0)} $`;
+		const amount = formatAmount(stage?.amount || 0, stage?.currency ?? this.currency());
 		const st = stage?.lifecycle?.amountState;
 		if (st === 'RELEASED' || stage?.isDone || stage?.status === 'completed') return `أُفرِج ${amount}`;
 		if (st === 'HISTORICAL') return `قيمة المرحلة ${amount} (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)`;

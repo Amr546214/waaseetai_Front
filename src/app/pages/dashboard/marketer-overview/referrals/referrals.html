@@ -14,7 +14,7 @@
     <div style="flex:1;min-width:220px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <ws-marketer-level [summary]="summary()" />
-        <span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals ?? 0 }} إحالة ناجحة · {{ summary()?.totalCommissions ?? 0 }} دولار عمولات</span>
+        <span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals ?? 0 }} إحالة ناجحة · عمولات {{ (summary()?.totalCommissions ?? 0) | wsBase }}</span>
       </div>
     </div>
   </div>
@@ -48,7 +48,7 @@
         <div class="kpi-ic ic-coral"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div>
         <span class="kpi-lbl">إجمالي العمولات</span>
       </div>
-      <div class="kpi-val txt-coral">{{ formatCommission(summary()?.totalCommissions ?? 0) }}</div>
+      <div class="kpi-val txt-coral">{{ formatCommission(summary()?.totalCommissions ?? 0, baseCurrency()) }}</div>
       <div class="kpi-delta txt-muted">عمولات مؤكدة ومحوّلة</div>
     </div>
   </div>
@@ -92,7 +92,7 @@
                 <span [style.background]="getStatusBg(item.status)" style="padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" [class]="getStatusClass(item.status)">{{ getStatusLabel(item.status) }}</span>
               </td>
               <td [class]="getStatusClass(item.status)" style="font-weight:700">
-                {{ formatCommission(item.commissionEarned) }}
+                {{ formatCommission(item.commissionEarned, item.currency) }}
               </td>
             </tr>
           }
@@ -124,7 +124,7 @@
         <div class="ref-detail-row"><span class="ref-detail-lbl">المُحال</span><span class="ref-detail-val">{{ ref.referredUserDisplayName }}</span></div>
         <div class="ref-detail-row"><span class="ref-detail-lbl">تاريخ التسجيل</span><span class="ref-detail-val">{{ ref.joinedAt | wsDate:'date':'yyyy-MM-dd' }}</span></div>
         <div class="ref-detail-row"><span class="ref-detail-lbl">الحالة</span><span class="ref-detail-val">{{ getStatusLabel(ref.status) }}</span></div>
-        <div class="ref-detail-row"><span class="ref-detail-lbl">العمولة</span><span class="ref-detail-val">{{ formatCommission(ref.commissionEarned) }}</span></div>
+        <div class="ref-detail-row"><span class="ref-detail-lbl">العمولة</span><span class="ref-detail-val">{{ formatCommission(ref.commissionEarned, ref.currency) }}</span></div>
         <div class="modal-actions" style="margin-top:16px">
           <button type="button" class="modal-btn modal-btn-cancel" (click)="closeRefModal()">إغلاق</button>
         </div>

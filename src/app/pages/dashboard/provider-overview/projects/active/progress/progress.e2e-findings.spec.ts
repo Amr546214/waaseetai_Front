@@ -26,7 +26,7 @@ describe('provider progress: delivery buttons follow the server flags (e2e findi
 		expect(s.el.textContent).toContain('التطوير');
 		expect(uploadBtns(s.el)).toHaveLength(1); // only the stage the server allows
 		expect(s.el.textContent).toContain('تبدأ بعد اعتماد المرحلة السابقة');
-		expect(s.el.textContent).toContain('8.73 $');
+		expect(s.el.textContent).toContain('8.73 USD');
 		expect(s.el.textContent).not.toContain('8.729999');
 	});
 

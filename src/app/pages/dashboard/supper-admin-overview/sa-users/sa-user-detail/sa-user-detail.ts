@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
@@ -16,7 +17,7 @@ type DetailTab = 'overview' | 'requests' | 'purchases' | 'disputes' | 'reports' 
 @Component({
 	selector: 'app-sa-user-detail',
 	standalone: true,
-	imports: [WsDatePipe, CommonModule, RouterLink, FormsModule, WsSelectComponent, SaNotifyModal],
+	imports: [WsAmountPipe, WsDatePipe, CommonModule, RouterLink, FormsModule, WsSelectComponent, SaNotifyModal],
 	templateUrl: './sa-user-detail.html',
 	styleUrl: './sa-user-detail.css'
 })

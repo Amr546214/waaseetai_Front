@@ -1,4 +1,6 @@
-import { Component, Input, HostListener, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Input, HostListener, Inject, PLATFORM_ID, OnInit, inject } from '@angular/core';
+import { LevelsService } from '../../../core/levels/levels.service';
+import { formatAmount, PAYOUT_CURRENCY } from '../../../core/utils/currency';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 
@@ -38,9 +40,13 @@ export class LegalPageComponent implements OnInit {
 	@Input() doc!: 'lg-002' | 'lg-010' | 'lg-011' | 'lg-012' | 'lg-013' | 'lg-014';
 	activeSection = 's1';
 
+	private levels = inject(LevelsService);
+	private resolved = new Map<string, LegalDoc>();
+
 	constructor(@Inject(PLATFORM_ID) private platformId: Object, private route: ActivatedRoute) {}
 
 	ngOnInit() {
+		this.levels.ensureLoaded();
 		if (!this.doc) {
 			const data = this.route.snapshot.data;
 			if (data && data['doc']) this.doc = data['doc'];
@@ -87,7 +93,22 @@ export class LegalPageComponent implements OnInit {
 		return { kind: 'table', head: b.table.head, rows: b.table.rows };
 	}
 
-	get document(): LegalDoc {
+	/** the payout minimum is a policy value served by /levels: the sentence carries no number until it is loaded */
+	private withPolicy(base: LegalDoc): LegalDoc {
+		const min = this.levels.minMarketerPayout();
+		const key = base.title + '|' + min;
+		let doc = this.resolved.get(key);
+		if (!doc) {
+			const sentence = min === null ? 'يظهر حد سحب الوسيط التسويقي بعد تحميل السياسة المالية.' : min > 0 ? `حد سحب الوسيط التسويقي: <strong>${formatAmount(min, PAYOUT_CURRENCY)}</strong>.` : 'لا يوجد حد أدنى لسحب الوسيط التسويقي.';
+			doc = { ...base, sections: base.sections.map(sec => ({ ...sec, paragraphs: sec.paragraphs.map(par => typeof par === 'string' ? par.replace('{{MIN_MARKETER_PAYOUT}}', sentence) : par) })) };
+			this.resolved.set(key, doc);
+		}
+		return doc;
+	}
+
+	get document(): LegalDoc { return this.withPolicy(this.rawDocument); }
+
+	private get rawDocument(): LegalDoc {
 		switch (this.doc) {
 			case 'lg-002': return LG_002;
 			case 'lg-010': return LG_010;
@@ -212,7 +233,7 @@ const LG_010: LegalDoc = {
 		]},
 		{ id: 's9', title: 'السحب', paragraphs: [
 			'طلبات السحب تستقبل في أي وقت وتُعالج ضمن دفعة أسبوعية <strong>يوم الأربعاء</strong>. وصول المبلغ عبر PayPal يكون غالباً خلال <strong>1 إلى 3 أيام عمل</strong> وهي مدة متوقعة وليست ضماناً مطلقاً.',
-			'حد سحب الوسيط التسويقي: <strong>300</strong> دولار أمريكي. لا يُفرض حد أدنى آخر على مقدم الخدمة غير الرصيد المتاح للسحب.',
+			'{{MIN_MARKETER_PAYOUT}} لا يُفرض حد أدنى آخر على مقدم الخدمة غير الرصيد المتاح للسحب.',
 			'يُعلَّق السحب عند وجود نزاع مفتوح أو شبهة احتيال أو نقص تحقق أو مراجعة امتثال.'
 		]},
 		{ id: 's10', title: 'الفواتير والعملات', paragraphs: [

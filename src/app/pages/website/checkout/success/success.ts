@@ -1,12 +1,12 @@
 import { Component, inject, computed, OnInit, HostListener, signal } from '@angular/core';
-import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CheckoutService } from '../../../../core/services/checkout.service';
 import { CheckoutApiService } from '../../../../core/services/checkout-api.service';
 import { mapOrder, BackendOrderResponse } from '../../../../core/services/checkout-mappers';
 import { AuthStore } from '../../../../core/store/auth.store';
-import { formatMoney } from '../../../../core/utils/money.util';
+import { formatWsText } from '../../../../shared/ws-date/ws-date.pipe';
+import { formatAmount } from '../../../../core/utils/currency';
 
 @Component({
   selector: 'app-checkout-success',
@@ -35,10 +35,7 @@ export class CheckoutSuccessComponent implements OnInit {
   orderDate = computed(() => {
     const created = this.currentOrder()?.createdAt;
     if (!created) return '';
-    return new Date(created).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric', timeZone: providerTimeZone() });
+    return formatWsText(created, { year: 'numeric', month: 'long', day: 'numeric' });
   });
   itemCount = computed(() => this.currentOrder()?.items.length || 0);
   orderItems = computed(() => this.currentOrder()?.items || []);
@@ -51,8 +48,11 @@ export class CheckoutSuccessComponent implements OnInit {
     { num: 3, title: 'التسليم والتقييم', sub: 'بعد اعتماد التسليم تحرر المدفوعات للمقدم ويمكنك تقييم التجربة' },
   ];
 
-  formatPrice(value: number): string {
-    return formatMoney(value, 0);
+  /** the order's / cart's own currency (a missing one reads as USD, legacy) */
+  currency = computed(() => this.currentOrder()?.currency ?? this.currentOrder()?.items[0]?.currency);
+
+  formatPrice(value: number, currency?: string): string {
+    return formatAmount(value, currency ?? this.currency());
   }
 
   ngOnInit(): void {

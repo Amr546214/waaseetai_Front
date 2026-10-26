@@ -28,13 +28,18 @@ describe('client wallet — row states', () => {
 		const row = c.transactions()[0];
 		expect(row.status).toBe('فشلت');
 		expect(row.statusType).toBe('failed');
-		expect(row.amount).toBe('100 $');
+		expect(row.amount).toBe('100 USD');
 	});
 
 	it('a wallet payment stored negative shows ONE minus sign', () => {
 		const row = setup([tx({ type: 'ORDER_PAYMENT', amount: -18, paymentMethod: 'WALLET' })]).transactions()[0];
 		expect(row.direction).toBe('out');
-		expect(row.amount).toBe('-18 $');
+		expect(row.amount).toBe('-18 USD');
+	});
+
+	it('a SAR transaction prints its own currency code', () => {
+		const row = setup([tx({ amount: 30, currency: 'SAR' } as any)]).transactions()[0];
+		expect(row.amount).toContain('30 SAR');
 	});
 
 	it('a refund is money coming back (+), a held escrow is "محجوز", anything else is "قيد المعالجة"', () => {
@@ -44,7 +49,7 @@ describe('client wallet — row states', () => {
 			tx({ id: 'p', status: 'PENDING' })
 		]).transactions();
 		expect(rows[0].direction).toBe('in');
-		expect(rows[0].amount).toBe('+25 $');
+		expect(rows[0].amount).toBe('+25 USD');
 		expect(rows[1].status).toBe('محجوز');
 		expect(rows[2].status).toBe('قيد المعالجة');
 	});

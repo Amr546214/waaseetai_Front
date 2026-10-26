@@ -42,7 +42,7 @@ describe('Marketer dashboard (M1)', () => {
 		expect(text).toContain('لا توجد عمولات سابقة حالياً');
 		expect(text).toContain('لا توجد زيارات مسجّلة لروابطك بعد');
 		const vals = Array.from((f.nativeElement as HTMLElement).querySelectorAll('.kpi-val')).map((e) => e.textContent!.trim());
-		expect(vals.slice(0, 4)).toEqual(['0', '0', '0', '0']);
+		expect(vals.slice(0, 4)).toEqual(['0', '0', '0 USD', '0 USD']);
 	});
 
 	it('renders real aggregates from the backend (no fixed numbers)', () => {
@@ -53,7 +53,7 @@ describe('Marketer dashboard (M1)', () => {
 		}));
 		const el = f.nativeElement as HTMLElement;
 		const vals = Array.from(el.querySelectorAll('.kpi-val')).map((e) => e.textContent!.trim());
-		expect(vals.slice(0, 4)).toEqual(['7', '42', '120', '15']);
+		expect(vals.slice(0, 4)).toEqual(['7', '42', '120 USD', '15 USD']);
 		expect(el.textContent).toContain('تيك توك');
 		expect(el.textContent).toContain('إفراج مرحلة');
 		expect(el.textContent).toContain('مؤكد');

@@ -1,4 +1,5 @@
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { WsAmountPipe } from '../../shared/money/money.pipe';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { SettlementDistribution } from '../../core/models/rating.model';
 
@@ -9,17 +10,17 @@ import { SettlementDistribution } from '../../core/models/rating.model';
 @Component({
 	selector: 'app-settlement-summary',
 	standalone: true,
-	imports: [CommonModule, DecimalPipe],
+	imports: [CommonModule, WsAmountPipe],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 <div class="ss" dir="rtl" data-testid="settlement-summary" role="region" aria-label="توزيع التسوية">
 	<div class="ss-ttl">أُغلق بتسوية نزاع</div>
 	@if (distribution(); as d) {
 		<ul class="ss-list">
-			<li data-testid="ss-refund">استُرد للعميل: <b>{{ d.refundToClient | number: '1.2-2' }} $</b></li>
-			<li data-testid="ss-release">أُفرج لمقدّم الخدمة (إجمالي): <b>{{ d.releaseToProvider | number: '1.2-2' }} $</b></li>
+			<li data-testid="ss-refund">استُرد للعميل: <b>{{ d.refundToClient | wsAmount:d.currency:'1.2-2' }}</b></li>
+			<li data-testid="ss-release">أُفرج لمقدّم الخدمة (إجمالي): <b>{{ d.releaseToProvider | wsAmount:d.currency:'1.2-2' }}</b></li>
 			@if (d.releaseToProvider > 0) {
-				<li data-testid="ss-commission">عمولة المنصة على المُفرَج: <b>{{ d.platformCommission | number: '1.2-2' }} $</b> · صافي المقدّم: <b>{{ d.providerNet | number: '1.2-2' }} $</b></li>
+				<li data-testid="ss-commission">عمولة المنصة على المُفرَج: <b>{{ d.platformCommission | wsAmount:d.currency:'1.2-2' }}</b> · صافي المقدّم: <b>{{ d.providerNet | wsAmount:d.currency:'1.2-2' }}</b></li>
 			}
 		</ul>
 	} @else {

@@ -1,3 +1,4 @@
+import { formatAmount, PAYOUT_CURRENCY } from '../../../../core/utils/currency';
 import { Component, computed, inject } from '@angular/core';
 import { LevelsService } from '../../../../core/levels/levels.service';
 import { RouterModule } from '@angular/router';
@@ -23,7 +24,7 @@ export class JoinMarketerComponent {
 	 * The broker ladder shown on the page comes from the backend table (GET /levels): level 1, level 8 and level 15 with THEIR real commission.
 	 * Until it answers (or if it fails) no percentage is shown: nothing is typed here.
 	 */
-	private minMarketerText = computed(() => { const m = this.levels.minMarketerPayout(); return m && m > 0 ? `${m} دولار` : ''; });
+	private minMarketerText = computed(() => { const m = this.levels.minMarketerPayout(); return m && m > 0 ? formatAmount(m, PAYOUT_CURRENCY) : ''; });
 	tiers = computed<Tier[]>(() => {
 		const pick = (n: number, perks: string[], featured = false): Tier | null => {
 			const l = this.levels.level('MARKETER', n);

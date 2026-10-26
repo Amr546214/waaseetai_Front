@@ -1,3 +1,5 @@
+import { WsBasePipe } from '../../../../shared/money/money.pipe';
+import { formatAmount, currencyCode } from '../../../../core/utils/currency';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
@@ -9,7 +11,7 @@ import { handleLoadError, rateLimitToastMessage } from '../../../../core/utils/r
 @Component({
   selector: 'app-referrals',
   standalone: true,
-  imports: [WsDatePipe, MarketerLevelTagComponent, CommonModule, FormsModule],
+  imports: [WsBasePipe, WsDatePipe, MarketerLevelTagComponent, CommonModule, FormsModule],
   templateUrl: './referrals.html',
   styleUrl: './referrals.css',
 })
@@ -141,11 +143,14 @@ export class Referrals implements OnInit {
     return map[status as string] || 'rgba(255,255,255,.06)';
   }
 
-  /** Never blank/undefined: null/undefined shows as "—", a real 0 shows as "0 دولار". */
-  formatCommission(amount: number | null | undefined): string {
+  /** Never blank/undefined: null/undefined shows as "—", a real 0 shows as "0 <code>". The currency is the row's own; the headline passes the platform one. */
+  formatCommission(amount: number | null | undefined, currency?: string): string {
     if (amount === null || amount === undefined) return '—';
-    return `${amount} دولار`;
+    return formatAmount(amount, currency);
   }
+
+  /** the platform base currency (headline figures that belong to no record) */
+  readonly baseCurrency = currencyCode;
 
   openRefModal(ref: ReferredUser) {
     this.selectedReferral.set(ref);

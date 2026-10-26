@@ -1,5 +1,5 @@
 import { providerDocumentsCount, withOwnerFields } from './kyc-owner';
-import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
+import { formatWsText } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, ElementRef, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { handleAdminError, reportAdminProblems } from '../shared/admin-form-report';
@@ -458,10 +458,7 @@ export class SaKyc implements OnInit {
   formatDate(date?: string | null): string {
     if (!date) return '—';
     try {
-      return new Date(date).toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric', timeZone: providerTimeZone() });
+      return formatWsText(date, { year: 'numeric', month: 'short', day: 'numeric' }, 'en');
     } catch {
       return date;
     }

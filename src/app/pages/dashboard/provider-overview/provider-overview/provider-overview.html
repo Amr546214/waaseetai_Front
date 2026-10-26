@@ -267,8 +267,8 @@
 							<use href="#i-wallet"></use>
 						</svg></div>
 				</div>
-				<div class="stat-val">{{ data.summary.availableEarnings | number:'1.0-2' }}</div>
-				<div class="stat-sub">$ في المحفظة</div>
+				<div class="stat-val">{{ data.summary.availableEarnings | wsBase }}</div>
+				<div class="stat-sub">في المحفظة</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
@@ -339,15 +339,13 @@
 						</div>
 						<div class="req-info">
 							<div class="req-name">{{ p.title || p.projectTitle || 'مشروع أو عرض خدمات' }}</div>
-							<div class="req-meta">{{ p.category || 'تطوير مشاريع' }} &middot; {{ p.createdAt |
-								date:'longDate' }}</div>
+							<div class="req-meta">{{ p.category || 'تطوير مشاريع' }} &middot; {{ p.createdAt | wsDateText:{ day:'numeric', month:'long', year:'numeric' } }}</div>
 						</div>
 						<div class="req-right">
 							<span class="req-status" [ngClass]="getStatusTextClass(p.status)">
 								{{ getStatusLabel(p.status, p.type) }}
 							</span>
-							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number:'1.0-2' }}
-								$</span>
+							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | wsAmount:$any(p).currency }}</span>
 						</div>
 					</a>
 
@@ -418,7 +416,7 @@
 				<!-- Escrow Balance -->
 				<div class="eb-card">
 					<div class="eb-lbl">أرباحي المتاحة</div>
-					<div class="eb-val">{{ data.summary.availableEarnings | number:'1.0-2' }} $</div>
+					<div class="eb-val">{{ data.summary.availableEarnings | wsBase }}</div>
 					<div class="eb-sub">قابلة للسحب الآن</div>
 				</div>
 
@@ -495,7 +493,7 @@
 						style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
 						<span style="font-size:11px" *ngIf="m.deliveryDays" class="txt-muted">المدة: {{ m.deliveryDays }}
 							أيام</span>
-						<div *ngIf="m.budget">{{ m.budget | number:'1.0-2' }} <span style="font-size:11px;">$</span></div>
+						<div *ngIf="m.budget">{{ m.budget | wsAmount:$any(m).currency }}</div>
 					</div>
 				</button>
 
@@ -663,9 +661,9 @@
 					<span class="stat-lbl">إيرادات هذا الشهر</span>
 					<div class="stat-ico amber" aria-hidden="true"><svg><use href="#i-wallet"></use></svg></div>
 				</div>
-				<div class="stat-val">{{ data.summary?.monthlyEarnings | number:'1.0-2' }}</div>
+				<div class="stat-val">{{ data.summary?.monthlyEarnings | wsBase }}</div>
 				<ws-money-by [map]="data.summary?.monthlyEarningsBy" />
-				<div class="stat-sub">$ صافي للشركة</div>
+				<div class="stat-sub">صافي للشركة</div>
 			</div>
 			<div class="stat-card">
 				<div class="stat-top">
@@ -743,13 +741,13 @@
 						</div>
 						<div class="req-info">
 							<div class="req-name">{{ p.title || p.projectTitle || 'مشروع أو عرض خدمات' }}</div>
-							<div class="req-meta">{{ p.category || 'تطوير مشاريع' }} · {{ p.createdAt | date:'longDate' }}</div>
+							<div class="req-meta">{{ p.category || 'تطوير مشاريع' }} · {{ p.createdAt | wsDateText:{ day:'numeric', month:'long', year:'numeric' } }}</div>
 						</div>
 						<div class="req-right">
 							<span class="req-status" [ngClass]="getStatusTextClass(p.status)">
 								{{ getStatusLabel(p.status, p.type) }}
 							</span>
-							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | number:'1.0-2' }} $</span>
+							<span class="req-budget">{{ (p.budget !== undefined ? p.budget : p.price) | wsAmount:$any(p).currency }}</span>
 						</div>
 					</a>
 
@@ -806,7 +804,7 @@
 				<!-- Company Wallet -->
 				<div class="eb-card">
 					<div class="eb-lbl">أرباح الشركة المتاحة</div>
-					<div class="eb-val">{{ data.summary.availableEarnings | number:'1.0-2' }} $</div>
+					<div class="eb-val">{{ data.summary.availableEarnings | wsBase }}</div>
 					<div class="eb-sub">قابلة للسحب · محفظة مركزية</div>
 				</div>
 
@@ -817,7 +815,7 @@
 						<div class="ac-prog-item" *ngFor="let p of (data.latestProjects || []).slice(0, 3)">
 							<div class="ac-prog-head">
 								<span class="ac-prog-name">{{ p.title || p.projectTitle || 'مقدم خدمة' }}</span>
-								<span class="ac-prog-val">{{ (p.budget !== undefined ? p.budget : p.price) | number:'1.0-2' }}</span>
+								<span class="ac-prog-val">{{ (p.budget !== undefined ? p.budget : p.price) | wsAmount:$any(p).currency }}</span>
 							</div>
 							<div class="ac-prog-bar"><div class="ac-prog-fill" [style.width.%]="((p.budget || p.price || 0) / 24000) * 100"></div></div>
 						</div>
@@ -851,7 +849,7 @@
 						{{ p.category || 'تحديث مشروع' }}
 						— <span class="af-status" [ngClass]="getStatusTextClass(p.status) === 's-done' ? 'af-ok' : 'af-wait'">{{ getStatusLabel(p.status) }}</span>
 					</div>
-					<span class="af-time">{{ p.createdAt | date:'short' }}</span>
+					<span class="af-time">{{ p.createdAt | wsDate:'datetime' }}</span>
 				</div>
 				<ng-container *ngIf="!(data.latestProjects?.length)">
 					<div class="af-row">

@@ -74,7 +74,7 @@
           <div class="ct-sig-row">
             <div class="ct-sig-info">
               <div class="ct-sig-name">{{ s.name }}</div>
-              @if (s.at) { <div class="ct-sig-meta">{{ s.at | date: 'yyyy-MM-dd HH:mm' }}</div> }
+              @if (s.at) { <div class="ct-sig-meta">{{ s.at | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</div> }
             </div>
             <span class="ct-sig-badge">{{ s.done ? 'موقّع' : 'لم يوقّع بعد' }}</span>
           </div>
@@ -93,7 +93,7 @@
             <div class="ct-escrow-row"><span>صافي المقدم المحرَّر</span><strong>{{ e.providerNetReleasedAmount | wsAmount:e.currency }}</strong></div>
           }
           @if (e.fundedAt) {
-            <div class="ct-escrow-row"><span>تاريخ التمويل</span><strong>{{ e.fundedAt | date: 'yyyy-MM-dd' }}</strong></div>
+            <div class="ct-escrow-row"><span>تاريخ التمويل</span><strong>{{ e.fundedAt | wsDate:'date':'yyyy-MM-dd' }}</strong></div>
           }
         </div>
       } @else {
@@ -117,11 +117,11 @@
               <div class="ct-log-text">{{ s.stepOrder }}. {{ s.title }} · {{ s.amount | wsAmount:s.currency }} ({{ s.percentage }}%)</div>
               <div class="ct-log-time">
                 {{ label(stageLabels, s.status) }}
-                @if (s.approvedAt) { · اعتُمدت في {{ s.approvedAt | date: 'yyyy-MM-dd' }} }
+                @if (s.approvedAt) { · اعتُمدت في {{ s.approvedAt | wsDate:'date':'yyyy-MM-dd' }} }
               </div>
               @for (dl of s.deliveries; track dl.id) {
                 <div class="ct-log-time">
-                  تسليم {{ dl.submittedAt | date: 'yyyy-MM-dd' }}: {{ label(deliveryLabels, dl.status) }}
+                  تسليم {{ dl.submittedAt | wsDate:'date':'yyyy-MM-dd' }}: {{ label(deliveryLabels, dl.status) }}
                   @if (dl.note) { · {{ dl.note }} }
                   @if (dl.reviewNote) { · ملاحظة المراجعة: {{ dl.reviewNote }} }
                   @for (f of dl.files; track f; let i = $index) {
@@ -147,7 +147,7 @@
                 {{ label(amendmentLabels, a.status) }}
                 @if (a.budgetDelta !== null) { · تغيير مقترح في الميزانية {{ a.budgetDelta | wsAmount:a.currency }} }
                 @if (a.durationDeltaDays !== null) { · تغيير مقترح في المدة {{ a.durationDeltaDays }} يوم }
-                · {{ a.createdAt | date: 'yyyy-MM-dd' }}
+                · {{ a.createdAt | wsDate:'date':'yyyy-MM-dd' }}
               </div>
               <div class="ct-log-time" data-testid="amend-effect-note">@if (a.status === 'APPROVED' || a.status === 'ACCEPTED' || a.status === 'REJECTED') { <b>{{ amendmentRecordedBadge }}</b> · } {{ a.effectNote || amendmentEffectNote }}</div>
             </div>
@@ -164,7 +164,7 @@
             <div class="ct-log-dot" style="background:#FF8C69"></div>
             <div>
               <a class="ct-log-text" [routerLink]="['/supper-admin-overview/disputes', x.id]">{{ x.reason }}</a>
-              <div class="ct-log-time">{{ label(disputeLabels, x.status) }} · {{ x.createdAt | date: 'yyyy-MM-dd' }}</div>
+              <div class="ct-log-time">{{ label(disputeLabels, x.status) }} · {{ x.createdAt | wsDate:'date':'yyyy-MM-dd' }}</div>
             </div>
           </div>
         } @empty {

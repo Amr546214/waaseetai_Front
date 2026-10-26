@@ -10,6 +10,8 @@ import { environment } from '../../../../../../environments/environment';
 import { MessageContext } from '../../../../../core/services/chat.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { formatAmount } from '../../../../../core/utils/currency';
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
 import { formatMoney } from '../../../../../core/utils/money.util';
 import { deliveryHeading } from '../../../../../core/utils/stage-title.util';
 import { deliveryFileOpenUrl, deliveryFileDownloadUrl, LEGACY_FILE_NOTE } from '../../../../../core/utils/delivery-file.util';
@@ -142,6 +144,8 @@ export class DeliveryReview implements OnInit {
 	}
 
 	formatNumber(value: number) { return formatMoney(value || 0); }
+	/** an amount with the currency code of the stage / project it belongs to (absent = legacy USD) */
+	money(value: number | null | undefined, currency?: string | null): string { return formatAmount(value || 0, currency ?? this.project()?.currency); }
 
 	readonly legacyFileNote = LEGACY_FILE_NOTE;
 	/** «تسليم المرحلة 1: ...» with the stage's own number prefix never duplicated. */
@@ -185,7 +189,7 @@ export class DeliveryReview implements OnInit {
 	decisionDate(stage: any): string | Date | null { return stage?.lifecycle?.decision?.decidedAt ?? stage?.completedDate ?? null; }
 	formatDate(value: string | Date | null): string {
 		if (!value) return '';
-		return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value));
+		return formatWsText(value, { day: 'numeric', month: 'long', year: 'numeric' });
 	}
 	/** The delivery exists and can be read (also after approval or a settlement, as history). */
 	hasDelivery(stage: any): boolean { return !!this.latestThread(stage); }

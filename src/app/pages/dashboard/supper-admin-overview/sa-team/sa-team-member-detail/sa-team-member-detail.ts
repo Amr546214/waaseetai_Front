@@ -1,7 +1,8 @@
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
+import { WsDateTextPipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AdminAccessService } from '../../../../../core/services/admin-access.service';
@@ -14,7 +15,7 @@ const errText = (e: any, fallback: string) => e?.error?.message || fallback;
 @Component({
 	selector: 'app-sa-team-member-detail',
 	standalone: true,
-	imports: [WsDatePipe, CommonModule, FormsModule, RouterLink, DatePipe, WsSelectComponent],
+	imports: [WsDateTextPipe, WsDatePipe, CommonModule, FormsModule, RouterLink, WsSelectComponent],
 	templateUrl: './sa-team-member-detail.html',
 	styleUrls: ['../sa-team.css', './sa-team-member-detail.css'],
 })

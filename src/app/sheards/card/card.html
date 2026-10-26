@@ -104,7 +104,7 @@
 					} @else if (hasActivePurchase(model)) {
 					<div class="svc-price">قيد التنفيذ — متابعة المشروع</div>
 					} @else {
-					<div class="svc-price">{{ model.totalAmount ? (model.totalAmount + ' $') : 'نشط وقابل للطلب' }}
+					<div class="svc-price">{{ model.totalAmount ? (model.totalAmount | wsAmount:model.currency) : 'نشط وقابل للطلب' }}
 					</div>
 					}
 				</div>

@@ -1,8 +1,8 @@
-import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccountLogsService } from '../../../../../core/services/account-logs.service';
+import { formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
 
 interface AuditListItem {
   id: string; eventType: string; category: string; title: string; summary: string; status: string; statusText?: string;
@@ -53,7 +53,7 @@ export class Logs implements OnInit {
   sourceLabel(source: string) { return ({ USER: 'المستخدم', AI: 'الذكاء الاصطناعي', ADMIN: 'مراجع بشري', SYSTEM: 'النظام' } as any)[source] || source; }
   categoryLabel(category: string) { return ({ PROFILE_COMPLETION: 'الملف والبيانات', SECURITY_CHANGE: 'الأمان والجلسات', ROLE_ADDITION: 'الأدوار والحسابات', SYSTEM_AUDIT: 'النظام' } as any)[category] || category; }
   eventIcon(eventType: string) { return eventType.includes('SESSION') || eventType.includes('LOGIN') ? '⌁' : eventType.includes('PASSWORD') || eventType.includes('OTP') ? '⌾' : eventType.includes('ROLE') ? '◎' : eventType.includes('REVIEW') ? '✦' : '✓'; }
-  formatDate(value: string) { return new Intl.DateTimeFormat('ar', { dateStyle: 'medium', timeStyle: 'short', timeZone: providerTimeZone() }).format(new Date(value)); }
+  formatDate(value: string) { return formatWsDate(value, 'datetime'); }
   objectEntries(value: unknown) { return value && typeof value === 'object' && !Array.isArray(value) ? Object.entries(value as Record<string, unknown>) : []; }
   displayValue(value: unknown) { if (value === null || value === undefined || value === '') return 'غير محدد'; if (typeof value === 'object') return JSON.stringify(value, null, 2); return String(value); }
 }

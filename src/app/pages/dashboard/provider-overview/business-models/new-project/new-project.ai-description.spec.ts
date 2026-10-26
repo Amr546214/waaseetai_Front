@@ -81,7 +81,7 @@ describe('provider new project: description AI (single action, cards, limit, fai
 		const seed: string = svc.streamEnhanceDescription.mock.calls[0][1];
 		expect(seed).toContain('البيانات المقدمة:');
 		expect(seed).toContain('المهارات: React، Node.js');
-		expect(seed).toContain('الميزانية الإجمالية: 800 دولار');
+		expect(seed).toContain('الميزانية الإجمالية: 800 USD');
 		expect(seed).not.toContain('المدة الإجمالية'); // not provided -> not stated
 		expect(seed).not.toContain('التصنيف'); // no specialty chosen -> not stated
 		expect(seed).toMatch(/لا تضف خبرات أو تقنيات أو أدوات أو مخرجات أو أسعارًا أو مواعيد أو التزامات غير مذكورة/);
@@ -345,7 +345,7 @@ describe('provider new project: description AI (single action, cards, limit, fai
 		expect(seed).toContain('التخصص الفرعي: API');
 		expect(seed).toContain('النموذج المرتبط: نموذج أعمال - تطوير الواجهات الخلفية');
 		expect(seed).toContain('المهارات: Angular');
-		expect(seed).toContain('الميزانية الإجمالية: 900 دولار');
+		expect(seed).toContain('الميزانية الإجمالية: 900 USD');
 		expect(seed).toContain('المدة الإجمالية: 14 يومًا');
 		expect(seed).not.toContain('React');
 	});

@@ -1,4 +1,5 @@
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -25,6 +26,8 @@ export interface CompareProviderCard {
 	/** Lowest / highest totalAmount among the provider's published services. */
 	minServicePrice: number | null;
 	maxServicePrice: number | null;
+	/** currency of the provider's services (profile response; a missing one reads as USD, legacy) */
+	currency?: string;
 	skills: string[];
 	location: string;
 }
@@ -52,6 +55,7 @@ function mapToCard(id: string, raw: any): CompareProviderCard | null {
 		hourlyRate: data.basicInfo?.hourlyRate ?? data.hourlyRate ?? null,
 		minServicePrice: prices.length ? Math.min(...prices) : null,
 		maxServicePrice: prices.length ? Math.max(...prices) : null,
+		currency: (data.services || []).find((s: any) => s?.currency)?.currency,
 		skills: (data.skills || []).slice(0, 4),
 		location: data.header?.location || data.basicInfo?.location || 'غير محدد'
 	};
@@ -60,7 +64,7 @@ function mapToCard(id: string, raw: any): CompareProviderCard | null {
 @Component({
 	selector: 'app-compare-providers',
 	standalone: true,
-	imports: [LevelBadgeComponent, CommonModule, RouterLink],
+	imports: [LevelBadgeComponent, CommonModule, RouterLink, WsAmountPipe],
 	templateUrl: './compare-providers.html',
 	styleUrl: './compare-providers.css'
 })

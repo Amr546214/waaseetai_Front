@@ -106,6 +106,8 @@ export interface ReferredUser {
 	status: ReferralStatus | string;
 	joinedAt: string;
 	commissionEarned: number | null;
+	/** the commission's own currency (a missing one reads as USD, legacy) */
+	currency?: string;
 }
 
 export interface ReferralListData {
@@ -137,6 +139,7 @@ export function toReferralListData(res: ReferralsApiResponse, page: number, limi
 			status: r.status,
 			joinedAt: r.joinedAt,
 			commissionEarned: r.commissionEarned ?? r.totalCommissionEarned ?? null,
+			...(r.currency ? { currency: r.currency } : {}),
 		})),
 		page: paging.page ?? page,
 		limit: paging.limit ?? limit,

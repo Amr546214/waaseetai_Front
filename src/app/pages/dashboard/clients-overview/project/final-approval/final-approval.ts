@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { MessageContext } from '../../../../../core/services/chat.service';
+import { formatAmount } from '../../../../../core/utils/currency';
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
 import { formatMoney } from '../../../../../core/utils/money.util';
 import { stageHeading } from '../../../../../core/utils/stage-title.util';
 import { deliveryFileOpenUrl, deliveryFileDownloadUrl } from '../../../../../core/utils/delivery-file.util';
@@ -111,7 +113,7 @@ export class FinalApproval implements OnInit {
 		return 'المشروع قيد التنفيذ';
 	}
 	stageMoneyText(stage: any): string {
-		const amount = `${this.formatNumber(stage?.amount)} $`;
+		const amount = this.money(stage?.amount, stage?.currency);
 		if (this.isStageCompleted(stage)) return `أُفرِج ${amount}`;
 		if (this.closedStage(stage)) return `قيمة المرحلة ${amount} (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)`;
 		return stage?.amountHeld === false ? `قيمة المرحلة ${amount}` : `محتجز ${amount}`;
@@ -135,9 +137,11 @@ export class FinalApproval implements OnInit {
 		}, 0);
 	}
 	formatNumber(value: number) { return formatMoney(value || 0); }
+	/** an amount with the currency code of the stage / project it belongs to (absent = legacy USD) */
+	money(value: number | null | undefined, currency?: string | null): string { return formatAmount(value || 0, currency ?? this.project()?.currency); }
 	formatDate(value: string | Date | null) {
 		if (!value) return '—';
-		return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(new Date(value));
+		return formatWsText(value, { day: 'numeric', month: 'short' });
 	}
 	stageFileCount(stage: any): number { return this.latestThread(stage)?.files?.length || 0; }
 	stageFiles(stage: any): any[] { return this.latestThread(stage)?.files || []; }

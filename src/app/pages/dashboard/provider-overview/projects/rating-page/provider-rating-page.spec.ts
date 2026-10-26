@@ -73,7 +73,7 @@ describe('provider rating page reads the server state before showing anything', 
 		expect(el.querySelector('.rp-hd-ttl')?.textContent).toContain('أُغلق بتسوية نزاع');
 		expect(el.textContent).not.toContain('اكتمل المشروع بنجاح'); expect(el.textContent).not.toMatch(/أُفرِج كامل المبلغ/);
 		const sum = el.querySelector('[data-testid="settlement-summary"]')!.textContent!;
-		expect(sum).toContain('10.00 $'); expect(sum).toContain('15.00 $'); expect(sum).toContain('1.86 $'); expect(sum).toContain('13.14 $');
+		expect(sum).toContain('10.00 USD'); expect(sum).toContain('15.00 USD'); expect(sum).toContain('1.86 USD'); expect(sum).toContain('13.14 USD');
 	});
 });
 

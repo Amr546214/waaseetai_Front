@@ -1,3 +1,4 @@
+import { WsBasePipe } from '../../../../shared/money/money.pipe';
 import { ActivatedRoute } from '@angular/router';
 import { guidedCatalog } from '../../../../core/help/help-guided';
 import { Component, ChangeDetectionStrategy, ElementRef, signal, inject, OnInit } from '@angular/core';
@@ -17,7 +18,7 @@ import { genericBanner } from '../../../../shared/forms/submit-feedback';
 @Component({
 	selector: 'app-marketer-help',
 	standalone: true,
-	imports: [MarketerLevelTagComponent, CommonModule, FormsModule, RouterModule],
+	imports: [WsBasePipe, MarketerLevelTagComponent, CommonModule, FormsModule, RouterModule],
 	templateUrl: './help.html',
 	styleUrl: './help.css',
 	changeDetection: ChangeDetectionStrategy.OnPush,

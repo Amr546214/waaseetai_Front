@@ -48,7 +48,7 @@ describe('provider project progress: change request', () => {
 		expect(s.q('amend-note')!.textContent).toContain('لا يتغير السعر أو المدة أو الضمان أو المراحل بمجرد إرسال الطلب');
 		const items = Array.from(s.el.querySelectorAll('[data-testid="amend-item"]')).map(e => e.textContent!.replace(/\s+/g, ' '));
 		expect(items).toHaveLength(3);
-		expect(items[0]).toContain('زيادة الميزانية'); expect(items[0]).toContain('+200 $'); expect(items[0]).toContain('بانتظار رد العميل');
+		expect(items[0]).toContain('زيادة الميزانية'); expect(items[0]).toContain('+200 USD'); expect(items[0]).toContain('بانتظار رد العميل');
 		expect(items[1]).toContain('+5 يوم'); expect(items[1]).toContain('وافق العميل');
 		expect(items[2]).toContain('رفضه العميل');
 	});

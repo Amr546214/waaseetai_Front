@@ -1,5 +1,5 @@
 import { formatMoneyIn } from '../../../../../core/utils/currency';
-import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
+import { WsAmountPipe, WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 import { CommonModule } from '@angular/common';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
@@ -43,6 +43,7 @@ export interface ProviderWalletProviderSpend {
   specialty?: string;
   projectsCount?: number;
   revenue: number;
+  currency?: string;
 }
 
 export interface WalletData {
@@ -68,7 +69,7 @@ export interface WalletData {
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [WsAmountPipe, WsDatePipe, RouterLink, CommonModule, ProviderDepositModal],
+  imports: [WsCurrencyPipe, WsAmountPipe, WsDatePipe, RouterLink, CommonModule, ProviderDepositModal],
   templateUrl: './wallet.html',
   styleUrl: './wallet.css'
 })

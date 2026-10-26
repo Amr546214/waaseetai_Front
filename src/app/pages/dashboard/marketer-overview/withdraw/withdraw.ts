@@ -1,5 +1,5 @@
-import { formatMoneyIn } from '../../../../core/utils/currency';
-import { WsAmountPipe } from '../../../../shared/money/money.pipe';
+import { formatMoneyIn, formatAmount, currencyLabel, PAYOUT_CURRENCY } from '../../../../core/utils/currency';
+import { WsAmountPipe, WsCurrencyPipe } from '../../../../shared/money/money.pipe';
 import { Component, ElementRef, inject, OnInit, signal, computed } from '@angular/core';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
@@ -30,7 +30,7 @@ export const WITHDRAWAL_STATE: Record<string, { label: string; tone: 'blue' | 'g
 @Component({
   selector: 'app-withdraw',
   standalone: true,
-  imports: [WsAmountPipe, WsDatePipe, MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [WsAmountPipe, WsCurrencyPipe, WsDatePipe, MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './withdraw.html',
   styleUrl: './withdraw.css',
 })
@@ -64,9 +64,11 @@ export class Withdraw implements OnInit {
   withdrawForm!: FormGroup;
 
   withdrawableBalance = computed(() => this.wallet()?.withdrawableBalance ?? 0);
-  /** earnings in a currency other than USD: listed on their own and NOT part of the withdrawable balance (payouts are USD only) */
-  otherEarnings = computed(() => Object.entries(this.wallet()?.earningsByCurrency ?? {}).filter(([c, v]) => c !== 'USD' && (v.approved || v.pending)).map(([currency, v]) => ({ currency, approved: v.approved, pending: v.pending })));
+  /** earnings in a currency other than USD: listed on their own and NOT part of the withdrawable balance (payouts are in the payout currency only) */
+  otherEarnings = computed(() => Object.entries(this.wallet()?.earningsByCurrency ?? {}).filter(([c, v]) => c !== PAYOUT_CURRENCY && (v.approved || v.pending)).map(([currency, v]) => ({ currency, approved: v.approved, pending: v.pending })));
   readonly money = formatMoneyIn;
+  /** withdrawals are paid out in the payout currency */
+  readonly payoutCurrency = PAYOUT_CURRENCY;
   reservedAmount = computed(() => this.wallet()?.reservedWithdrawals ?? 0);
   completedAmount = computed(() => this.wallet()?.paidWithdrawals ?? 0);
   minimumWithdrawal = computed(() => this.wallet()?.minimumWithdrawal ?? 0);
@@ -162,12 +164,12 @@ export class Withdraw implements OnInit {
     }
     if (this.withdrawForm.invalid) {
       this.withdrawForm.markAllAsTouched();
-      this.amountProblem('أدخل مبلغ السحب بالدولار');
+      this.amountProblem(`أدخل مبلغ السحب بـ${currencyLabel(PAYOUT_CURRENCY)}`);
       return;
     }
     const amount = Number(this.withdrawForm.value.amount);
     if (amount < this.minimumWithdrawal()) {
-      this.amountProblem(`الحد الأدنى لطلب السحب ${this.minimumWithdrawal()} دولار`);
+      this.amountProblem(`الحد الأدنى لطلب السحب ${formatAmount(this.minimumWithdrawal(), PAYOUT_CURRENCY)}`);
       return;
     }
     if (amount > this.withdrawableBalance()) {

@@ -35,7 +35,7 @@ describe('client contract signature page: real terms only', () => {
 			const s = await setup(CONTRACT(n));
 			expect(s.el.querySelectorAll('[data-testid="cs-milestone"]')).toHaveLength(n);
 			expect(s.q('cs-stages-count')!.textContent).toContain(`${n} مراحل`);
-			expect(s.text()).toContain('1500 $'); expect(s.text()).toContain('21 يوم'); expect(s.text()).toContain('مرحلة 1'); expect(s.text()).toContain('وصف المرحلة الأولى');
+			expect(s.text()).toContain('1,500 USD'); expect(s.text()).toContain('21 يوم'); expect(s.text()).toContain('مرحلة 1'); expect(s.text()).toContain('وصف المرحلة الأولى');
 			expect(s.q('cs-sign')).not.toBeNull();
 		});
 	}
@@ -48,7 +48,7 @@ describe('client contract signature page: real terms only', () => {
 
 	it('price and duration are the contract\'s (an accepted counter changes the contract, and the page follows it)', async () => {
 		const s = await setup(CONTRACT(2, { price: 1800, durationDays: 30 }));
-		expect(s.text()).toContain('1800 $'); expect(s.text()).toContain('30 يوم');
+		expect(s.text()).toContain('1,800 USD'); expect(s.text()).toContain('30 يوم');
 		expect(s.c.requiredAmount()).toBe(1800);
 	});
 
@@ -72,7 +72,7 @@ describe('client contract signature page: real terms only', () => {
 
 	it('the real escrow statement stays, built from the contract price; the terms link keeps opening in a new tab', async () => {
 		const s = await setup(CONTRACT(3));
-		expect(s.text()).toContain('يحجز مبلغ 1500 $ في حساب الضمان');
+		expect(s.text()).toContain('يحجز مبلغ 1,500 USD في حساب الضمان');
 		expect(s.text()).toContain('ولا يُفرج عن كل مرحلة إلا بعد اعتمادك لتسليمها');
 		const a = s.el.querySelector('a[href="/terms"], a[target="_blank"]') as HTMLAnchorElement;
 		expect(a.getAttribute('rel')).toContain('noopener');
@@ -98,7 +98,7 @@ describe('client contract signature page: real terms only', () => {
 		expect(s.q('cs-readonly-note')!.textContent).toContain('بانتظار توقيع مقدم الخدمة');
 		expect(s.q('cs-readonly-pill')).not.toBeNull();
 		expect(s.el.querySelectorAll('[data-testid="cs-milestone"]')).toHaveLength(2);
-		expect(s.text()).toContain('1500 $');
+		expect(s.text()).toContain('1,500 USD');
 		expect(s.q('cs-sign')).toBeNull();
 		expect(s.q('cs-ack')).toBeNull();
 		expect(s.text()).not.toContain('بانتظار توقيعك');

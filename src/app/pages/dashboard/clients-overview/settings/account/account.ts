@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, ElementRef } from '@angular/core';
+import { WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
@@ -24,7 +25,7 @@ export interface AccountSession {
 @Component({
   selector: 'app-client-settings-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, WsSelectComponent],
+  imports: [CommonModule, FormsModule, RouterLink, WsSelectComponent, WsCurrencyPipe],
   templateUrl: './account.html',
   styles: [`
     :host {

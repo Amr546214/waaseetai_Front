@@ -79,7 +79,10 @@ export interface Dispute {
 	timeline: DisputeTimelineStep[];
 	aiText: string;
 	aiDone: boolean;
-	amount: string;
+	/** escrow still held for the dispute's project while it is open (the server's heldEscrowAmount); null = none/unknown */
+	amount: number | null;
+	/** currency of `amount` (the escrow's own; absent = legacy USD) */
+	currency?: string;
 	date: string;
 	detail?: DisputeDetail;
 	/** Company-mode only — see DisputeTeamMember. Mock/placeholder field. */

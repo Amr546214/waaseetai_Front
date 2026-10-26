@@ -16,7 +16,7 @@ describe('regional display settings: one answer for every formatter', () => {
 	afterEach(() => reset());
 
 	it('initial platform values keep today\'s behaviour: legacy page formats, Gregorian, the browser\'s own zone', () => {
-		expect(platformRegional()).toEqual({ timezone: 'browser', dateFormat: 'legacy', calendar: 'gregorian', language: 'ar' });
+		expect(platformRegional()).toEqual({ timezone: 'browser', dateFormat: 'legacy', calendar: 'gregorian', language: 'ar', currency: 'USD' });
 		expect(platformTimeZone()).toBeUndefined(); expect(platformDateOffset()).toBeUndefined();
 		expect(formatWsDate('2026-10-25T10:30:00Z', 'date', 'yyyy/MM/dd')).toMatch(/^2026\/10\/25$|^2026\/10\/2[46]$/); // the page's own format, in the machine's zone
 		expect(formatWsDate('2026-10-25T10:30:00Z', 'datetime', 'yyyy-MM-dd HH:mm')).toMatch(/^2026-10-2[56] \d{2}:30$|^2026-10-2[56] \d{2}:\d{2}$/);
@@ -49,7 +49,7 @@ describe('regional display settings: one answer for every formatter', () => {
 	it('the app start reads the public settings once, applies them, and a failed or slow read never blocks or breaks the app', async () => {
 		const http = TestBed.inject(HttpTestingController); const info = TestBed.inject(PlatformInfoService);
 		const p = info.loadOnce(); http.expectOne(`${environment.url_api}/public/settings`).flush({ success: true, data: { defaultTimezone: 'Asia/Riyadh', dateFormat: 'DD/MM/YYYY', calendarSystem: 'hijri', defaultLanguage: 'en', maintenanceBannerEnabled: true, maintenanceBannerText: 'x' } }); await p;
-		expect(platformRegional()).toEqual({ timezone: 'Asia/Riyadh', dateFormat: 'DD/MM/YYYY', calendar: 'hijri', language: 'en' }); expect(info.banner().enabled).toBe(true);
+		expect(platformRegional()).toEqual({ timezone: 'Asia/Riyadh', dateFormat: 'DD/MM/YYYY', calendar: 'hijri', language: 'en', currency: 'USD' }); expect(info.banner().enabled).toBe(true);
 		const p2 = info.loadOnce(); http.expectOne(`${environment.url_api}/public/settings`).flush('x', { status: 500, statusText: 'x' }); await p2; // resolved, nothing thrown; the previous values stay
 		expect(platformRegional().timezone).toBe('Asia/Riyadh');
 	});

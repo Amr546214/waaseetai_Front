@@ -1,5 +1,4 @@
 import { chatPreview } from '../../../../core/utils/chat-preview.util';
-import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { Component, ElementRef, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +13,8 @@ import { VideoCallService } from '../../../../core/services/video-call.service';
 import { OffersService, OfferNegotiationState } from '../../../../core/services/offers.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { focusInvalidControls } from '../../../../shared/forms/form-error-focus';
+import { formatWsDate } from '../../../../shared/ws-date/ws-date.pipe';
+import { formatAmount } from '../../../../core/utils/currency';
 
 export interface MessageItem {
   id: number | string;
@@ -216,7 +217,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
                 lastMsg: chatPreview(c.lastMessage?.content || c.lastMsg || ''),
-                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() }) : (c.time || ''),
+                time: c.lastMessage?.createdAt ? formatWsDate(c.lastMessage.createdAt, 'time') : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
                 online: partner.isOnline || c.online || false,
                 messages: c.messages || []
@@ -428,7 +429,7 @@ export class ProviderMessages implements OnInit, OnDestroy {
     if (!currentConv) return;
 
     const now = new Date();
-    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
+    const timeString = formatWsDate(now, 'time');
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     // Same initials computation used for the conversation partner's name —
@@ -771,6 +772,14 @@ export class ProviderMessages implements OnInit, OnDestroy {
       notes: notes,
       status: 'PENDING'
     };
+  }
+
+  /** the price of a negotiation card: a plain number is printed with the card's own currency code; any other text the sender wrote is shown as it is */
+  negPrice(neg: { price?: unknown; currency?: string } | null | undefined): string {
+    const raw = neg?.price;
+    if (raw === null || raw === undefined || raw === '') return '—';
+    const n = typeof raw === 'number' ? raw : /^\s*[\d,]+(\.\d+)?\s*$/.test(String(raw)) ? Number(String(raw).replace(/,/g, '')) : NaN;
+    return Number.isFinite(n) ? formatAmount(n, neg?.currency) : String(raw);
   }
 
   getNegStatusText(status?: string): string {

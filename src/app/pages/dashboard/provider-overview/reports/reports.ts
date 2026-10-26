@@ -7,11 +7,12 @@ import { AuthStore } from '../../../../core/store/auth.store';
 import { ProviderApiService, ProviderReportRange, ProviderReports } from '../../../../core/services/provider-api.service';
 import { AccountType } from '../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { WsAmountPipe, WsBasePipe, WsCurrencyPipe } from '../../../../shared/money/money.pipe';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [MoneyByComponent, WsDatePipe, CommonModule],
+  imports: [WsAmountPipe, WsBasePipe, WsCurrencyPipe, MoneyByComponent, WsDatePipe, CommonModule],
   templateUrl: './reports.html'
 })
 export class Reports implements OnInit {
@@ -76,10 +77,12 @@ export class Reports implements OnInit {
     projects: number;
     rating: number;
     onTime: number;
-    revenue: string;
+    revenue: number;
+    currency?: string;
     status: 'active' | 'delay';
   }> = [];  // no team-member model / team-performance endpoint exists, so no invented members are shown
 
+  /** the payouts total already formatted with its currency code (formatAmount), or null while unknown */
   providerPayoutsTotal: string | null = null;
   providerPayoutsTrend: string | null = null;
   disputeResolutionProviderRate: number | null = null;

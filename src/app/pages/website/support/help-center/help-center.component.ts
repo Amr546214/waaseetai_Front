@@ -1,3 +1,4 @@
+import { formatAmount, PAYOUT_CURRENCY } from '../../../../core/utils/currency';
 import { Component, inject } from '@angular/core';
 import { LevelsService } from '../../../../core/levels/levels.service';
 import { RouterModule } from '@angular/router';
@@ -20,7 +21,7 @@ let levelsRef: LevelsService | null = null;
 function withdrawLimitsHtml(): string {
 	const p = levelsRef?.minProviderPayout() ?? null, m = levelsRef?.minMarketerPayout() ?? null;
 	if (p === null || m === null) return '<p>تظهر حدود السحب الحالية بعد تحميل السياسة المالية.</p>';
-	return `<p>حد سحب مقدم الخدمة: <strong>${p > 0 ? p + ' دولار' : 'لا يوجد حد أدنى'}</strong>. حد سحب الوسيط التسويقي: <strong>${m > 0 ? m + ' دولار' : 'لا يوجد حد أدنى'}</strong>.</p>`;
+	return `<p>حد سحب مقدم الخدمة: <strong>${p > 0 ? formatAmount(p, PAYOUT_CURRENCY) : 'لا يوجد حد أدنى'}</strong>. حد سحب الوسيط التسويقي: <strong>${m > 0 ? formatAmount(m, PAYOUT_CURRENCY) : 'لا يوجد حد أدنى'}</strong>.</p>`;
 }
 
 const ICO_TEAL = 'background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)';

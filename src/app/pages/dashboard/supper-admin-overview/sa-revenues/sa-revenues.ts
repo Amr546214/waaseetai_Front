@@ -1,14 +1,16 @@
+import { WsCurrencyPipe } from '../../../../shared/money/money.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { AdminFinanceOverview, AdminOpsApiService, AdminPagination, AdminTransaction, saveBlob } from '../../../../core/services/admin-ops-api.service';
-import { bucket, errMsg, fmtDate, monthLabel, pct, seriesBars, txParty, txStatusClass, txStatusLabel, txTypeLabel, usd } from '../sub-finance/finance-ui';
+import { bucket, errMsg, fmtDate, monthLabel, pct, seriesBars, txParty, txStatusClass, txStatusLabel, txTypeLabel, fmtAmount } from '../sub-finance/finance-ui';
 
 type Months = 3 | 6 | 12;
 
 @Component({
   selector: 'app-sa-revenues',
   standalone: true,
-  imports: [CommonModule],
+  imports: [WsCurrencyPipe, WsDatePipe, CommonModule],
   templateUrl: './sa-revenues.html',
   styleUrl: './sa-revenues.css',
 })
@@ -20,7 +22,7 @@ export class SaRevenues implements OnInit {
     { key: 6, label: '6 أشهر' },
     { key: 12, label: 'سنة' },
   ];
-  readonly usd = usd;
+  readonly fmtAmount = fmtAmount;
   readonly fmtDate = fmtDate;
   readonly monthLabel = monthLabel;
   readonly txTypeLabel = txTypeLabel;

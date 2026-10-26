@@ -156,7 +156,7 @@
 					<span class="w-[3px] h-[3px] rounded-full bg-[var(--txt-3)]"></span>
 					<span>طلب {{ req.id.substring(0, 8) }}</span>
 					<span class="w-[3px] h-[3px] rounded-full bg-[var(--txt-3)]"></span>
-					<span>{{ req.createdAt | date:'medium' }}</span>
+					<span>{{ req.createdAt | wsDate:'datetime' }}</span>
 				</div>
 			</div>
 

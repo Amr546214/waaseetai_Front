@@ -1,3 +1,4 @@
+import { WsBasePipe } from '../../../../../shared/money/money.pipe';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MarketerLevelTagComponent } from '../../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
@@ -8,7 +9,7 @@ import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from 
 @Component({
   selector: 'app-public',
   standalone: true,
-  imports: [MarketerLevelTagComponent, CommonModule, RouterModule],
+  imports: [WsBasePipe, MarketerLevelTagComponent, CommonModule, RouterModule],
   templateUrl: './public.html',
   styleUrl: './public.css',
 })

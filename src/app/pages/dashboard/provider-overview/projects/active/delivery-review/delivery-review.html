@@ -31,7 +31,7 @@
 			<span class="dr-badge" [class.dr-badge-ok]="badge().ok" [class.dr-badge-wait]="!badge().ok" data-testid="pdr-badge">{{ badge().text }}</span>
 		</div>
 		<div class="dr-meta">
-			<div class="dr-meta-item"><div class="l">إجمالي العقد</div><div class="v">{{ formatMoney(totalContractValue()) }} <small>$</small></div></div>
+			<div class="dr-meta-item"><div class="l">إجمالي العقد</div><div class="v">{{ totalContractValue() | wsAmount:currency() }}</div></div>
 			<div class="dr-meta-item"><div class="l">أُفرِج عبر المراحل المعتمدة</div><div class="v ok">{{ formatMoney(releasedValue()) }}</div></div>
 			@if (settled()) {
 			<div class="dr-meta-item"><div class="l">محتجز الآن</div><div class="v" data-testid="pdr-held-now">{{ formatMoney(heldValue()) }}</div></div>
@@ -146,20 +146,20 @@
 	<div class="sec-ttl">الخلاصة المالية للمشروع</div>
 	@if (settled() && settlement(); as st) {
 	<div class="dr-settle" data-testid="pdr-settlement">
-		<div class="settle-row"><span>قيمة العقد (تعاقدية قبل التسوية)</span><b>{{ formatMoney(totalContractValue()) }} $</b></div>
-		<div class="settle-row"><span>أُفرِج عبر المراحل المعتمدة</span><b class="ok">{{ formatMoney(releasedValue()) }} $</b></div>
-		<div class="settle-row"><span>استرداد للعميل بقرار التسوية</span><b>{{ formatMoney(st.refundToClient) }} $</b></div>
-		<div class="settle-row"><span>أُفرِج لك بقرار التسوية (إجمالي)</span><b class="ok" data-testid="pdr-settle-release">{{ formatMoney(st.releaseToProvider) }} $</b></div>
-		<div class="settle-row"><span>عمولة المنصة</span><b>{{ formatMoney(st.platformCommission) }} $</b></div>
-		<div class="settle-row"><span>صافي ما تلقيته من التسوية</span><b class="ok">{{ formatMoney(st.providerNet) }} $</b></div>
-		<div class="settle-row"><span>محتجز الآن</span><b>{{ formatMoney(heldValue()) }} $</b></div>
+		<div class="settle-row"><span>قيمة العقد (تعاقدية قبل التسوية)</span><b>{{ totalContractValue() | wsAmount:currency() }}</b></div>
+		<div class="settle-row"><span>أُفرِج عبر المراحل المعتمدة</span><b class="ok">{{ releasedValue() | wsAmount:currency() }}</b></div>
+		<div class="settle-row"><span>استرداد للعميل بقرار التسوية</span><b>{{ st.refundToClient | wsAmount:currency() }}</b></div>
+		<div class="settle-row"><span>أُفرِج لك بقرار التسوية (إجمالي)</span><b class="ok" data-testid="pdr-settle-release">{{ st.releaseToProvider | wsAmount:currency() }}</b></div>
+		<div class="settle-row"><span>عمولة المنصة</span><b>{{ st.platformCommission | wsAmount:currency() }}</b></div>
+		<div class="settle-row"><span>صافي ما تلقيته من التسوية</span><b class="ok">{{ st.providerNet | wsAmount:currency() }}</b></div>
+		<div class="settle-row"><span>محتجز الآن</span><b>{{ heldValue() | wsAmount:currency() }}</b></div>
 		<div class="decision-note" data-testid="pdr-settle-note">{{ financial()?.contractValueNote }}. مبلغ التسوية لا يُنسب إلى مراحل بعينها.</div>
 	</div>
 	} @else {
 	<div class="dr-settle">
-		<div class="settle-row"><span>إجمالي قيمة العقد</span><b>{{ formatMoney(totalContractValue()) }} $</b></div>
-		<div class="settle-row"><span>أُفرِج عبر المراحل المعتمدة</span><b class="ok">{{ formatMoney(releasedValue()) }} $</b></div>
-		@if (heldValue() > 0) { <div class="settle-row"><span>المحتجز بالضمان</span><b class="wait">{{ formatMoney(heldValue()) }} $</b></div> }
+		<div class="settle-row"><span>إجمالي قيمة العقد</span><b>{{ totalContractValue() | wsAmount:currency() }}</b></div>
+		<div class="settle-row"><span>أُفرِج عبر المراحل المعتمدة</span><b class="ok">{{ releasedValue() | wsAmount:currency() }}</b></div>
+		@if (heldValue() > 0) { <div class="settle-row"><span>المحتجز بالضمان</span><b class="wait">{{ heldValue() | wsAmount:currency() }}</b></div> }
 		<div class="settle-bar"><i class="free" [style.width.%]="releasedPct()"></i><i class="held" [style.width.%]="100 - releasedPct()"></i></div>
 	</div>
 	}

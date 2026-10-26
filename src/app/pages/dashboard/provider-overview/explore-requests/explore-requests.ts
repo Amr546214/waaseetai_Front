@@ -2,6 +2,7 @@ import { Component, signal, computed, OnInit, effect, inject } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { ProviderApiService } from '../../../../core/services/provider-api.service';
 import { RouterLink } from '@angular/router';
+import { formatAmount, formatBase } from '../../../../core/utils/currency';
 
 @Component({
 	selector: 'app-explore-requests',
@@ -87,10 +88,10 @@ export class ExploreRequests implements OnInit {
 			id: 'budget',
 			title: 'الميزانية',
 			options: [
-				{ id: 'b1', label: 'أقل من 2,000 $', checked: false },
-				{ id: 'b2', label: '2,000 - 5,000 $', checked: false },
-				{ id: 'b3', label: '5,000 - 15,000 $', checked: false },
-				{ id: 'b4', label: 'أكثر من 15,000 $', checked: false }
+				{ id: 'b1', label: `أقل من ${formatBase(2000, '1.0-0')}`, checked: false },
+				{ id: 'b2', label: `${formatBase(2000, '1.0-0')} - ${formatBase(5000, '1.0-0')}`, checked: false },
+				{ id: 'b3', label: `${formatBase(5000, '1.0-0')} - ${formatBase(15000, '1.0-0')}`, checked: false },
+				{ id: 'b4', label: `أكثر من ${formatBase(15000, '1.0-0')}`, checked: false }
 			]
 		},
 		{
@@ -277,7 +278,8 @@ export class ExploreRequests implements OnInit {
 						ref: `#ORD-${p.id.substring(0, 8).toUpperCase()}`,
 						desc: p.description,
 						specialty: p.category,
-						clientBudget: p.budgetMin && p.budgetMax ? `${p.budgetMin} - ${p.budgetMax} $` : (p.budgetMin ? `${p.budgetMin} $` : 'غير محدد'),
+						clientBudget: p.budgetMin && p.budgetMax ? `${formatAmount(p.budgetMin, p.currency)} - ${formatAmount(p.budgetMax, p.currency)}` : (p.budgetMin ? formatAmount(p.budgetMin, p.currency) : 'غير محدد'),
+						currency: p.currency,
 						budgetMin: p.budgetMin || 0,
 						budgetMax: p.budgetMax || 0,
 						clientDuration: `${p.durationDays} يوم`,

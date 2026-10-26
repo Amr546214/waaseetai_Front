@@ -284,7 +284,7 @@
 											style="font-size: 9px; margin-inline-start: 2px" class="txt-muted">({{
 											milestone.percentage }}%)</span></span>
 									<span style="font-size: 12px; font-weight: 800" dir="ltr" class="txt-blue">{{
-										milestone.amountFormatted || milestone.amount + ' $' }}</span>
+										milestone.amountFormatted || (milestone.amount | wsAmount:offer.currency) }}</span>
 								</div>
 							</div>
 						</div>
@@ -310,7 +310,7 @@
 						<div class="ws-note-body">
 							<div class="ws-note-lbl">عرض مضاد من مقدم الخدمة بانتظار ردك</div>
 							<p class="ws-note-txt">
-								@if (offer.negotiation!.counter!.price !== null) { السعر: {{ offer.negotiation!.counter!.price | number:'1.0-2' }} $ }
+								@if (offer.negotiation!.counter!.price !== null) { السعر: {{ offer.negotiation!.counter!.price | wsAmount:offer.currency }} }
 								@if (offer.negotiation!.counter!.deliveryDays !== null) { — المدة: {{ offer.negotiation!.counter!.deliveryDays }} يوم }
 								@if (offer.negotiation!.counter!.notes) { — {{ offer.negotiation!.counter!.notes }} }
 							</p>
@@ -620,8 +620,8 @@
 			</div>
 			@if(negType() === 'price') {
 			<div id="neg-f-price" class="neg-f"><label class="neg-lbl" for="neg-price">السعر المقترح
-					($) <span class="ws-req" aria-hidden="true">*</span></label><input class="neg-inp" id="neg-price" aria-required="true" type="text" inputmode="numeric"
-					placeholder="أدخل السعر المقترح بالدولار" [value]="negPrice()" (input)="onNegPriceInput($event)">
+					({{ '' | wsCurrency }}) <span class="ws-req" aria-hidden="true">*</span></label><input class="neg-inp" id="neg-price" aria-required="true" type="text" inputmode="numeric"
+					placeholder="أدخل السعر المقترح ({{ '' | wsCurrency }})" [value]="negPrice()" (input)="onNegPriceInput($event)">
 				@if (selectedOffer()?.price; as cur) { <div class="neg-lbl" style="margin-top:5px;font-weight:600">سعر العرض الحالي: {{ cur }}</div> }</div>
 			}
 			@if(negType() === 'dur') {

@@ -1,3 +1,4 @@
+import { WsCurrencyPipe } from '../../../../shared/money/money.pipe';
 import { Component, ElementRef, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,7 +25,7 @@ interface Category {
 @Component({
   selector: 'app-custom-request',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, WsCurrencyPipe],
   templateUrl: './custom-request.html',
   styleUrls: ['../components/checkout-tokens.css', './custom-request.css'],
 })

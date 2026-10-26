@@ -1,22 +1,23 @@
+import { WsCurrencyPipe } from '../../../../shared/money/money.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ForecastSummaryComponent } from './forecast-summary.component';
 import { AdminFinanceOverview, AdminOpsApiService, saveBlob } from '../../../../core/services/admin-ops-api.service';
-import { errMsg, monthLabel, pct, seriesBars, usd } from '../sub-finance/finance-ui';
+import { errMsg, monthLabel, pct, seriesBars, fmtAmount } from '../sub-finance/finance-ui';
 
 type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit';
 
 @Component({
   selector: 'app-sa-finance-reports',
   standalone: true,
-  imports: [CommonModule, ForecastSummaryComponent],
+  imports: [WsCurrencyPipe, CommonModule, ForecastSummaryComponent],
   templateUrl: './sa-finance-reports.html',
   styleUrl: './sa-finance-reports.css',
 })
 export class SaFinanceReports implements OnInit {
   private api = inject(AdminOpsApiService);
 
-  readonly usd = usd;
+  readonly fmtAmount = fmtAmount;
   readonly pct = pct;
   readonly monthLabel = monthLabel;
   readonly noExpensesMsg = 'لا يوجد سجل مصروفات في المنصة بعد — لا تُعرض أرقام تقديرية';

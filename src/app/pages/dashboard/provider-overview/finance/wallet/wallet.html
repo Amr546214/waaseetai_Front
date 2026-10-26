@@ -67,7 +67,7 @@
         <div class="wal-main-lbl">الرصيد المتاح</div>
         <div>
           <span class="wal-main-val">{{ (wallet.summary.withdrawableBalance ?? wallet.summary.availableBalance) | number:'1.0-2' }}</span>
-          <span class="wal-main-cur"> $</span>
+          <span class="wal-main-cur"> {{ wallet.summary.currency | wsCurrency }}</span>
         </div>
         @if ((wallet.summary.pendingWithdrawals ?? 0) > 0) {
         <div class="wal-main-sub" data-testid="wallet-pending-note">طلبات سحب قيد المعالجة: {{ wallet.summary.pendingWithdrawals | wsAmount:wallet.summary.currency }}</div>
@@ -161,7 +161,7 @@
           <div class="wal-emp-row">
             <div class="wal-emp-top">
               <span>{{ p.providerName }}@if (p.specialty) { <span class="wal-emp-dept">· {{ p.specialty }}</span> }</span>
-              <span>{{ p.revenue | number:'1.0-0' }} $</span>
+              <span>{{ p.revenue | wsAmount:p.currency:'1.0-0' }}</span>
             </div>
             <div class="wal-emp-track"><div class="wal-emp-fill" [style.width.%]="providerSpendBarWidth(p.revenue)"></div></div>
           </div>

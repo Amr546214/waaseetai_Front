@@ -8,6 +8,7 @@ export interface BackendCartItemResponse {
 	categorySlug?: string;
 	specializationSlug?: string;
 	totalAmount: number;
+	currency?: string;
 	totalDays: number;
 	aiScore?: number | null;
 	level?: string;
@@ -36,6 +37,7 @@ export interface BackendOrderItemResponse {
 	provider: { id: string; name: string };
 	packageName?: string;
 	price: number;
+	currency?: string;
 	deliveryDays: number;
 	aiScore?: number | null;
 }
@@ -49,6 +51,7 @@ export interface BackendOrderResponse {
 	subtotal: number;
 	discount: number;
 	total: number;
+	currency?: string;
 	couponCode?: string | null;
 	createdAt: string;
 }
@@ -62,6 +65,7 @@ export function mapCartItem(item: BackendCartItemResponse): CartItem {
 		categorySlug: item.categorySlug,
 		specializationSlug: item.specializationSlug,
 		totalAmount: item.totalAmount,
+		currency: item.currency,
 		totalDays: item.totalDays,
 		aiScore: item.aiScore,
 		level: item.level,
@@ -89,6 +93,7 @@ export function mapOrderItem(item: BackendOrderItemResponse): OrderItem {
 		modelId: item.modelId,
 		title: item.title,
 		totalAmount: item.price,
+		currency: item.currency,
 		totalDays: item.deliveryDays,
 		provider: { id: item.provider.id, name: item.provider.name },
 		packageName: item.packageName,
@@ -106,6 +111,7 @@ export function mapOrder(order: BackendOrderResponse): Order {
 		subtotal: order.subtotal,
 		discount: order.discount,
 		total: order.total,
+		currency: order.currency,
 		couponCode: order.couponCode ?? undefined,
 		createdAt: order.createdAt,
 	};

@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { WsDateTextPipe } from '../../../../shared/ws-date/ws-date.pipe';
+import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../core/services/profile-api.service';
@@ -12,7 +13,7 @@ type ProfileTab = 'info' | 'interests' | 'links' | 'activity';
 @Component({
 	selector: 'app-profile',
 	standalone: true,
-	imports: [CommonModule, RouterModule, DatePipe, LevelBadgeComponent],
+	imports: [CommonModule, RouterModule, WsDateTextPipe, LevelBadgeComponent],
 	templateUrl: './profile.html',
 	styleUrl: './profile.css',
 })

@@ -1,3 +1,4 @@
+import { WsBasePipe } from '../../../../shared/money/money.pipe';
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
 import { Component, ElementRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -15,7 +16,7 @@ import { LoadRetryComponent } from '../../../../sheards/load-retry/load-retry';
 @Component({
   selector: 'app-ref-links',
   standalone: true,
-  imports: [MarketerLevelTagComponent, CommonModule, FormsModule, LoadRetryComponent],
+  imports: [WsBasePipe, MarketerLevelTagComponent, CommonModule, FormsModule, LoadRetryComponent],
   templateUrl: './ref-links.html',
   styleUrl: './ref-links.css',
 })

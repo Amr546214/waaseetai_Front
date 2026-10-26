@@ -19,9 +19,9 @@ describe('currency formatter', () => {
 import { formatAmount, otherCurrencyAmounts } from './currency';
 import { WsAmountPipe } from '../../shared/money/money.pipe';
 describe('currency - screen style', () => {
-	it('USD keeps the "$" suffix and the screen\'s own decimals; every other currency prints its code', () => {
-		expect(formatAmount(1234.5, 'USD')).toBe('1,234.5 $'); expect(formatAmount(8000, 'USD', '1.2-2')).toBe('8,000.00 $'); expect(formatAmount(300, 'SAR', '1.2-2')).toBe('300.00 SAR'); expect(formatAmount(undefined, 'USD')).toBe('—');
-		expect(new WsAmountPipe().transform(5, undefined)).toBe('5 $'); expect(new WsAmountPipe().transform(5, 'SAR', '1.2-2')).toBe('5.00 SAR');
+	it('every currency prints its code after the number, with the screen\'s own decimals', () => {
+		expect(formatAmount(1234.5, 'USD')).toBe('1,234.5 USD'); expect(formatAmount(8000, 'USD', '1.2-2')).toBe('8,000.00 USD'); expect(formatAmount(300, 'SAR', '1.2-2')).toBe('300.00 SAR'); expect(formatAmount(undefined, 'USD')).toBe('—');
+		expect(new WsAmountPipe().transform(5, undefined)).toBe('5 USD'); expect(new WsAmountPipe().transform(5, 'SAR', '1.2-2')).toBe('5.00 SAR');
 	});
 	it('only the non-USD amounts of a per-currency map are listed under a USD headline', () => {
 		expect(otherCurrencyAmounts({ USD: 10, SAR: 5, X: 0 })).toEqual([{ currency: 'SAR', value: 5 }, { currency: 'X', value: 0 }].filter(r => r.value !== 0)); expect(otherCurrencyAmounts({ USD: 10 })).toEqual([]); expect(otherCurrencyAmounts(null)).toEqual([]);

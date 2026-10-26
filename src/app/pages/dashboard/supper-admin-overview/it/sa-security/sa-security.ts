@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { AdminSecurityApiService, SecurityEventItem } from '../../../../../core/services/admin-security-api.service';
 
@@ -18,7 +19,7 @@ type SecTab = 'all' | 'SECURITY_CHANGE' | 'SYSTEM_AUDIT' | 'PROFILE_COMPLETION' 
 @Component({
   selector: 'app-sa-security',
   standalone: true,
-  imports: [CommonModule],
+  imports: [WsDatePipe, CommonModule],
   templateUrl: './sa-security.html',
   styleUrl: './sa-security.css',
 })

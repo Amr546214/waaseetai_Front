@@ -1,5 +1,5 @@
 import { mapHttpError } from '../../../../../core/forms/http-error';
-import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
 import { LevelBadgeComponent } from '../../../../../shared/levels/level-badge.component';
 import { Component, signal, computed, inject, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -11,7 +11,8 @@ import { UiNotificationService } from '../../../../../core/services/ui-notificat
 import { ChatService } from '../../../../../core/services/chat.service';
 import { resolveProviderLevelBadgeStyle } from '../../../../../core/utils/provider-level-style.util';
 import { assistantMarkdown } from '../../../../../core/help/assistant-content';
-import { formatMoney } from '../../../../../core/utils/money.util';
+import { formatAmount } from '../../../../../core/utils/currency';
+import { WsAmountPipe, WsCurrencyPipe } from '../../../../../shared/money/money.pipe';
 import { hasFieldErrors, reportClientBackend, reportClientProblems } from '../../client-form-report';
 
 interface OfferProviderFit { overallFit: 'HIGH' | 'MEDIUM' | 'LOW'; summary: string; matchPoints: { text: string; basedOn: string[] }[]; gaps: { text: string; basedOn: string[] }[]; }
@@ -31,6 +32,8 @@ interface Offer {
 	providerLevel: string | null;
 	levelColor: string;
 	specialty: string;
+	/** the proposal's own currency (absent = legacy USD) */
+	currency?: string;
 	projectsCount: number;
 	// null = genuinely not provided by the backend — never a fabricated
 	// default. Templates must show "غير متاح" rather than a fake value.
@@ -84,7 +87,7 @@ interface Offer {
 @Component({
 	selector: 'app-request-details',
 	standalone: true,
-	imports: [CommonModule, RouterModule, LevelBadgeComponent],
+	imports: [CommonModule, RouterModule, LevelBadgeComponent, WsAmountPipe, WsCurrencyPipe],
 	templateUrl: './request-details.html',
 	styleUrl: './request-details.css',
 	encapsulation: ViewEncapsulation.None
@@ -203,9 +206,9 @@ export class RequestDetails implements OnInit {
 					let formattedBudget = '';
 					if (data.budget) {
 						if (data.budget.type === 'RANGE' && data.budget.min && data.budget.max) {
-							formattedBudget = `${formatMoney(data.budget.min)} - ${formatMoney(data.budget.max)} $`;
+							formattedBudget = `${formatAmount(Number(data.budget.min), data.budget.currency ?? data.currency)} - ${formatAmount(Number(data.budget.max), data.budget.currency ?? data.currency)}`;
 						} else if (data.budget.type === 'FIXED' && data.budget.min) {
-							formattedBudget = `${formatMoney(data.budget.min)} $`;
+							formattedBudget = formatAmount(Number(data.budget.min), data.budget.currency ?? data.currency);
 						} else {
 							formattedBudget = 'غير محدد';
 						}
@@ -214,7 +217,7 @@ export class RequestDetails implements OnInit {
 					let formattedDate = '';
 					if (data.createdAt) {
 						const d = new Date(data.createdAt);
-						formattedDate = d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', timeZone: providerTimeZone() });
+						formattedDate = formatWsText(d, { year: 'numeric', month: 'long', day: 'numeric' });
 					}
 
 					let formattedSpecialty = data.specialty?.nameAr || data.category?.nameAr || '';
@@ -279,7 +282,8 @@ export class RequestDetails implements OnInit {
 								budgetSuitability: this.readSuitability(prop.budgetSuitability),
 								deadlineSuitability: this.readSuitability(prop.deadlineSuitability),
 								recommendationBasis: Array.isArray(prop.aiRecommendationBasis) ? prop.aiRecommendationBasis.filter((item: unknown) => typeof item === 'string').slice(0, 6) : [],
-								price: prop.totalPrice ? `${prop.totalPrice} $` : (prop.bidAmount ? `${prop.bidAmount} $` : ''),
+								currency: prop.currency,
+								price: prop.totalPrice ? formatAmount(Number(prop.totalPrice), prop.currency) : (prop.bidAmount ? formatAmount(Number(prop.bidAmount), prop.currency) : ''),
 								duration: prop.deliveryDays ? `${prop.deliveryDays} أيام` : (prop.durationText || ''),
 								description: prop.coverLetter || prop.message || prop.description || '',
 								plan: prop.outputs || prop.workPlan || '',

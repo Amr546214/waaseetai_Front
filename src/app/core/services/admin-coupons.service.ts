@@ -14,6 +14,7 @@ export interface AdminCoupon {
 	provider: AdminProviderRef | null;
 	discountType: 'percentage' | 'fixed' | string;
 	discountValue: number;
+	currency?: string;
 	minimumAmount: number | null;
 	maxDiscount: number | null;
 	maxUses: number | null;

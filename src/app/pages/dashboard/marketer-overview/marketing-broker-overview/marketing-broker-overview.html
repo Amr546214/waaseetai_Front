@@ -14,15 +14,15 @@
     <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
       <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true"><svg class="ws-star-svg" width="26" height="26" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
       <div style="flex:1;min-width:220px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><ws-marketer-level [summary]="summary()" /><span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} دولار عمولات</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><ws-marketer-level [summary]="summary()" /><span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · عمولات {{ (summary()?.totalCommissions || 0) | wsBase }}</span></div>
       </div>
     </div>
 
     <div class="kpi-grid">
       <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-teal"><svg aria-hidden="true"><use href="#i-add-user"></use></svg></div><span class="kpi-lbl">إجمالي الإحالات</span></div><div class="kpi-val txt-teal">{{ summary()?.totalReferrals || 0 }}</div><div class="kpi-delta txt-muted">{{ summary()?.successfulReferrals || 0 }} محولة · {{ summary()?.pendingReferrals || 0 }} معلقة</div></div>
       <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-blue"><svg aria-hidden="true"><use href="#i-link"></use></svg></div><span class="kpi-lbl">زيارات الروابط</span></div><div class="kpi-val txt-blue">{{ summary()?.totalVisits || 0 }}</div><div class="kpi-delta txt-muted">نقرات مسجّلة على روابطك · تحويل {{ summary()?.overallConversionRate || 0 }}%</div></div>
-      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">إجمالي العمولات المؤكدة والمحوّلة</span></div><div class="kpi-val txt-green">{{ summary()?.totalCommissions || 0 }}</div><div class="kpi-delta txt-muted">دولار أمريكي</div><ws-money-by [map]="summary()?.totalCommissionsBy" /></div>
-      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div><span class="kpi-lbl">عمولات معلقة</span></div><div class="kpi-val txt-amber">{{ summary()?.pendingCommissions || 0 }}</div><div class="kpi-delta txt-muted">دولار · بانتظار التأكيد</div><ws-money-by [map]="summary()?.pendingCommissionsBy" /></div>
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-green"><svg aria-hidden="true"><use href="#i-wallet"></use></svg></div><span class="kpi-lbl">إجمالي العمولات المؤكدة والمحوّلة</span></div><div class="kpi-val txt-green">{{ summary()?.totalCommissions || 0 | wsBase }}</div><ws-money-by [map]="summary()?.totalCommissionsBy" /></div>
+      <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-amber"><svg aria-hidden="true"><use href="#i-escrow"></use></svg></div><span class="kpi-lbl">عمولات معلقة</span></div><div class="kpi-val txt-amber">{{ summary()?.pendingCommissions || 0 | wsBase }}</div><div class="kpi-delta txt-muted">بانتظار التأكيد</div><ws-money-by [map]="summary()?.pendingCommissionsBy" /></div>
     </div>
 
     <div class="adm-card" style="margin-bottom:16px">
@@ -73,9 +73,9 @@
                 <tr>
                   <td>{{ log.source }}</td>
                   <td>{{ commissionTypeLabel(log.type) }}</td>
-                  <td>{{ log.time | date:'shortDate' }}</td>
+                  <td>{{ log.time | wsDate:'date':'yyyy-MM-dd' }}</td>
                   <td>{{ commissionStatusLabel(log.status) }}</td>
-                  <td><span style="font-weight:700" class="txt-green">{{ log.amount | number:'1.0-2' }} دولار</span></td>
+                  <td><span style="font-weight:700" class="txt-green">{{ log.amount | wsAmount:log.currency }}</span></td>
                 </tr>
               }
             </tbody>

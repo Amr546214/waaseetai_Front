@@ -1,5 +1,7 @@
 import { chatPreview } from '../../../../core/utils/chat-preview.util';
-import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
+import { formatWsDate } from '../../../../shared/ws-date/ws-date.pipe';
+import { formatAmount } from '../../../../core/utils/currency';
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { Component, computed, signal, inject, OnInit, OnDestroy, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -49,7 +51,7 @@ export interface Conversation {
 @Component({
   selector: 'app-client-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, WsAmountPipe],
   templateUrl: './messages.html',
   styleUrl: './messages.css',
   encapsulation: ViewEncapsulation.None,
@@ -162,7 +164,7 @@ export class ClientMessages implements OnInit, OnDestroy {
                 avatarType: c.avatarType || (c.type === 'COMPANY' ? 'co' : 'sk'),
                 initials: initials,
                 lastMsg: chatPreview(c.lastMessage?.content || c.lastMsg || ''),
-                time: c.lastMessage?.createdAt ? new Date(c.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() }) : (c.time || ''),
+                time: c.lastMessage?.createdAt ? formatWsDate(c.lastMessage.createdAt, 'time') : (c.time || ''),
                 unreadCount: c.unreadCount || 0,
                 // the server has no presence data for this list (its `online` field is a constant), so nothing is claimed unless a real flag arrives
                 online: partner.isOnline === true,
@@ -811,7 +813,7 @@ export class ClientMessages implements OnInit, OnDestroy {
           this.counterBusyId.set('');
           this.counterConfirmId.set('');
           this.counterAcceptedIds.update((ids) => [...ids, String(msg.id)]);
-          this.notify.success(`تم قبول العرض المضاد: ${res.price} دولار خلال ${res.deliveryDays} يوم`);
+          this.notify.success(`تم قبول العرض المضاد: ${formatAmount(res.price, res.currency)} خلال ${res.deliveryDays} يوم`);
         },
         error: (err) => {
           this.counterBusyId.set('');

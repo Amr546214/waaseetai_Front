@@ -53,7 +53,7 @@
 			<div class="tds-dp-head">
 				<div class="tds-dp-phase">{{ d.phaseLabel }}</div>
 				<div class="tds-dp-title">{{ d.projectTitle }}</div>
-				<div class="tds-dp-meta"><span>عقد {{ d.contractRef }}</span><span>&middot;</span><span>{{ d.submittedAt | date:'mediumDate' }}</span><span>&middot;</span><span>{{ d.amountLabel }}</span></div>
+				<div class="tds-dp-meta"><span>عقد {{ d.contractRef }}</span><span>&middot;</span><span>{{ d.submittedAt | wsDateText:{ day:'numeric', month:'short', year:'numeric' } }}</span><span>&middot;</span><span>{{ d.amountLabel }}</span></div>
 			</div>
 			<button type="button" class="tds-dp-close" (click)="closeDetail()">إغلاق &#10005;</button>
 		</div>
@@ -95,7 +95,7 @@
 							<div class="tds-dv-phase">{{ d.phaseLabel }}</div>
 						</td>
 						<td><span class="tds-pill" [ngClass]="'tds-pill-' + d.status">{{ d.statusLabel }}</span></td>
-						<td class="tds-date-cell">{{ d.submittedAt | date:'mediumDate' }}</td>
+						<td class="tds-date-cell">{{ d.submittedAt | wsDateText:{ day:'numeric', month:'short', year:'numeric' } }}</td>
 						<td>
 							<button type="button" class="tds-act-btn" [class.tds-act-teal]="d.status === 'SUBMITTED'" [class.tds-act-amber]="d.status === 'REVISION_REQUESTED'" [class.tds-act-ghost]="d.status === 'APPROVED'" (click)="openDetail(d)">
 								{{ d.status === 'REVISION_REQUESTED' ? 'مراجعة' : 'عرض' }}

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { WsAmountPipe } from '../../shared/money/money.pipe';
 import { AmendmentActionsService, AmendmentInsufficientBalance, insufficientBalanceOf } from '../../core/services/amendment-actions.service';
 import { scrollFocus } from '../../shared/forms/form-error-focus';
 import { AMENDMENT_DEPOSIT_ROUTE } from '../../core/constants/amendment-effect';
@@ -17,13 +18,13 @@ import { rateLimitSentence } from '../../core/wait/wait-format';
 @Component({
 	selector: 'app-amendment-payment-otp',
 	standalone: true,
-	imports: [RouterLink],
+	imports: [RouterLink, WsAmountPipe],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 <div class="apo" dir="rtl" data-testid="amendment-otp">
 	<p class="apo-txt" data-testid="amendment-otp-intro">
-		@if (mode() === 'respond') { لاعتماد دفع <b>{{ amount() }} $</b> من محفظتك لهذا التعديل نرسل رمز تحقق إلى بريدك. الرمز صالح دقيقتين ومرتبط بهذا الطلب وهذا المبلغ فقط. }
-		@else { لاعتماد دفع <b>{{ amount() }} $</b> لطلبك نرسل رمز تحقق إلى بريدك. لا يُخصم شيء الآن؛ يُخصم المبلغ فقط عندما يوافق مقدم الخدمة. }
+		@if (mode() === 'respond') { لاعتماد دفع <b>{{ amount() | wsAmount:currency() }}</b> من محفظتك لهذا التعديل نرسل رمز تحقق إلى بريدك. الرمز صالح دقيقتين ومرتبط بهذا الطلب وهذا المبلغ فقط. }
+		@else { لاعتماد دفع <b>{{ amount() | wsAmount:currency() }}</b> لطلبك نرسل رمز تحقق إلى بريدك. لا يُخصم شيء الآن؛ يُخصم المبلغ فقط عندما يوافق مقدم الخدمة. }
 	</p>
 	@if (!sent()) {
 		<button type="button" class="apo-btn apo-pri" data-testid="amendment-otp-send" [disabled]="busy() || sendWait.active()" (click)="send()">{{ sending() ? 'جارٍ الإرسال...' : 'إرسال رمز التحقق' }}@if (sendWait.active()) { <span data-testid="amendment-otp-send-wait"> {{ sendWait.label() }}</span> }</button>
@@ -39,7 +40,7 @@ import { rateLimitSentence } from '../../core/wait/wait-format';
 		</div>
 	}
 	@if (insufficient(); as short) {
-		<div class="apo-err" role="alert" data-testid="amendment-otp-insufficient">رصيد المحفظة غير كافٍ: المطلوب {{ short.required }} $ والمتاح {{ short.available }} $ (الناقص {{ short.shortfall }} $). <a [routerLink]="depositRoute" data-testid="amendment-otp-deposit">شحن المحفظة</a></div>
+		<div class="apo-err" role="alert" data-testid="amendment-otp-insufficient">رصيد المحفظة غير كافٍ: المطلوب {{ short.required | wsAmount:currency() }} والمتاح {{ short.available | wsAmount:currency() }} (الناقص {{ short.shortfall | wsAmount:currency() }}). <a [routerLink]="depositRoute" data-testid="amendment-otp-deposit">شحن المحفظة</a></div>
 	} @else if (rateLimitText()) {
 		<div class="apo-err" id="amendment-otp-err" role="alert" data-testid="amendment-otp-rate-limit">{{ rateLimitText() }}</div>
 	} @else if (error()) {
@@ -68,6 +69,8 @@ export class AmendmentPaymentOtpComponent implements OnInit {
 	amendmentId = input.required<string>();
 	mode = input<'respond' | 'authorize'>('respond');
 	amount = input<number>(0);
+	/** the amendment's contract currency (a missing one reads as USD, legacy) */
+	currency = input<string | undefined>(undefined);
 	done = output<any>();
 	closed = output<void>();
 

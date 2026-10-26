@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal, untracked } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { formatMoneyIn } from '../../core/utils/currency';
+import { currencyCode, formatMoneyIn } from '../../core/utils/currency';
 
 interface FeePreview { currency: string; price: number; level: number; ratePercent: number; commission: number; net: number; policy: { version: number }; note: string }
 
@@ -36,7 +36,7 @@ export class ProviderFeePreviewComponent {
 
 	constructor() {
 		effect(() => {
-			const price = Number(this.price()); const currency = this.currency() ?? 'USD';
+			const price = Number(this.price()); const currency = currencyCode(this.currency());
 			untracked(() => {
 				if (this.timer) clearTimeout(this.timer);
 				if (!Number.isFinite(price) || price <= 0) { this.preview.set(null); this.failed.set(false); return; }

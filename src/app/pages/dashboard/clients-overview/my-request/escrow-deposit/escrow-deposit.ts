@@ -1,3 +1,4 @@
+import { formatAmount } from '../../../../../core/utils/currency';
 import { Component, signal, computed, inject, OnInit, ViewEncapsulation, ElementRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -61,6 +62,8 @@ export class EscrowDeposit implements OnInit {
 
 	// Math and Pricing
 	basePrice = signal<number>(0);
+	/** the contract's own currency (the escrow is held in it) */
+	currency = signal<string | undefined>(undefined);
 	totalAmount = signal<number>(0);
 	walletBalance = signal(0);
 	showWalletDeposit = signal(false);
@@ -129,6 +132,7 @@ export class EscrowDeposit implements OnInit {
 				}
 				this.duration.set(c.durationDays ? `${c.durationDays} يوم` : 'غير محدد');
 				const priceNum = Number(c.price || 0);
+				this.currency.set(c.currency);
 				this.basePrice.set(priceNum);
 				// fee policy v2: locking the escrow charges the contract value ONLY (no VAT / platform / insurance at lock); the provider's level commission is taken when each stage is released
 				this.totalAmount.set(priceNum);
@@ -196,7 +200,7 @@ export class EscrowDeposit implements OnInit {
 
 	// Format helpers
 	formatCurrency(val: number): string {
-		return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
+		return formatAmount(val, this.currency(), '1.2-2');
 	}
 
 	handlePrimaryAction() {

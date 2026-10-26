@@ -1,10 +1,13 @@
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { WsDateTextPipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OffersService, OfferNegotiationState } from '../../../../../core/services/offers.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
+import { currencyOf } from '../../../../../core/utils/currency';
 
 export interface NegotiationRound {
 	id: string;
@@ -20,7 +23,7 @@ export interface NegotiationRound {
 @Component({
 	selector: 'app-offer-negotiate',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [WsAmountPipe, WsDateTextPipe, CommonModule, RouterLink],
 	templateUrl: './negotiate.html',
 	styleUrl: './negotiate.css',
 })
@@ -52,6 +55,8 @@ export class OfferNegotiate implements OnInit {
 
 	offerId = signal<string>('');
 	offer = signal<any>(null);
+	/** the offer's own currency code (a missing one on an existing offer reads as the legacy currency) */
+	offerCurrency = computed(() => currencyOf(this.offer()?.currency));
 	loading = signal<boolean>(true);
 	error = signal<string>('');
 
@@ -115,6 +120,7 @@ export class OfferNegotiate implements OnInit {
 					clientName: item.clientName || 'عميل وسيط',
 					clientType: (item.clientType && String(item.clientType).toUpperCase() === 'COMPANY') ? 'company' : 'individual',
 					offeredPrice: typeof item.offeredPrice === 'number' ? item.offeredPrice : Number(String(item.price || '0').replace(/[^\d.]/g, '')) || 0,
+					currency: item.currency,
 					duration: item.duration || item.offeredDuration || '—',
 					statusText: item.statusText || '',
 					createdAt: item.createdAt || null,

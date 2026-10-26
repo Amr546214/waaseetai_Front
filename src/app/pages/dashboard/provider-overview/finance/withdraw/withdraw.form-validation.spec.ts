@@ -41,7 +41,7 @@ describe('provider withdraw: form wiring and no ready-made amounts', () => {
 		await setup('me@example.com', 4000);
 		expect(amt().value).toBe('');
 		expect(fixture.componentInstance.amount()).toBeNull();
-		expect(amt().getAttribute('placeholder')).toBe('أدخل المبلغ بالدولار');
+		expect(amt().getAttribute('placeholder')).toBe('أدخل المبلغ (USD)');
 		const chips = Array.from(el().querySelectorAll('.wd-quick-btn')).map(b => b.textContent!.trim());
 		expect(chips).toEqual(['25%', '50%', '75%', 'الحد الأقصى']);
 		(el().querySelectorAll('.wd-quick-btn')[1] as HTMLButtonElement).click();

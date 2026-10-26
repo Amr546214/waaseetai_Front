@@ -3,11 +3,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Milestone } from '../../applay-request';
+import { WsAmountPipe } from '../../../../../../../shared/money/money.pipe';
 
 @Component({
   selector: 'app-step2-pricing',
   standalone: true,
-  imports: [ProviderFeePreviewComponent, CommonModule, FormsModule],
+  imports: [WsAmountPipe, ProviderFeePreviewComponent, CommonModule, FormsModule],
   templateUrl: './step2-pricing.html',
   styleUrl: './step2-pricing.css'
 })
@@ -17,6 +18,8 @@ export class Step2Pricing {
   @Input() totalDays = 0;
   @Input() totalPct = 0;
   @Input() totalAmount = 0;
+  /** currency of the request being answered (the offer is in it); absent = legacy USD */
+  @Input() currency?: string;
   @Input() isFetchingAiSuggest = false;
 
   @Output() updateTotalBudget = new EventEmitter<number>();

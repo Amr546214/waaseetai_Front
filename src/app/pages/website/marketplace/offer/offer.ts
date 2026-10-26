@@ -1,3 +1,4 @@
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, ViewEncapsulation, AfterViewInit, OnInit, OnDestroy, Inject, PLATFORM_ID, inject, signal, computed } from '@angular/core';
@@ -17,7 +18,7 @@ import { CartItem } from '../../../../core/models/checkout.model';
 @Component({
 	selector: 'app-offer',
 	standalone: true,
-	imports: [WsDatePipe, LevelBadgeComponent, CommonModule, RouterLink],
+	imports: [WsDatePipe, LevelBadgeComponent, CommonModule, RouterLink, WsAmountPipe],
 	templateUrl: './offer.html',
 	styleUrl: './offer.css',
 	encapsulation: ViewEncapsulation.None

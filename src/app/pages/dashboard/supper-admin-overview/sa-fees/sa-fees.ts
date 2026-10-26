@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { LevelsService, LevelRow, DEPOSIT_METHOD_LABELS, WITHDRAWAL_METHOD_LABELS } from '../../../../core/levels/levels.service';
 import { CommonModule } from '@angular/common';
 import { AdminCommissionsData, AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
-import { errMsg, usd } from '../sub-finance/finance-ui';
+import { errMsg, fmtAmount } from '../sub-finance/finance-ui';
 import { RouterLink } from '@angular/router';
 
 interface PlatformFee {
@@ -21,7 +21,7 @@ interface PlatformFee {
 })
 export class SaFees implements OnInit {
   private adminOps = inject(AdminOpsApiService);
-  readonly usd = usd;
+  readonly fmtAmount = fmtAmount;
   commissions = signal<AdminCommissionsData | null>(null);
   commLoading = signal(true);
   commError = signal('');
@@ -51,7 +51,7 @@ export class SaFees implements OnInit {
 
   /**
    * The platform's percentages, read from the backend tables (نظام النقاط و الولاء.xlsx / نسب الدفع.xlsx through GET /levels). Nothing is typed:
-   * until the table answers the list is empty. (The old rows - a 10% deal fee, a 200 $ minimum, 72 h escrow, a 49 $ boost, 2% cashback - were
+   * until the table answers the list is empty. (The old rows - a 10% deal fee, a fixed minimum fee, 72 h escrow, a fixed boost price, 2% cashback - were
    * invented values that no workbook contains and are gone.)
    */
   platformFees = computed<PlatformFee[]>(() => {

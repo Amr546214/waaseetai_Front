@@ -1,3 +1,4 @@
+import { WsBasePipe, WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { Component, ElementRef, inject, OnInit, signal, computed } from '@angular/core';
 import { MarketerLevelTagComponent } from '../../../../../shared/levels/marketer-level-tag.component';
 import { CommonModule } from '@angular/common';
@@ -70,7 +71,7 @@ export const MARKETER_TIMEZONE_OPTIONS: { value: string; label: string }[] = PRO
 @Component({
 	selector: 'app-data',
 	standalone: true,
-	imports: [MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent, MarketerKycCard, PhoneInputComponent],
+	imports: [WsBasePipe, WsAmountPipe, MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent, MarketerKycCard, PhoneInputComponent],
 	templateUrl: './data.html',
 	styleUrl: './data.css',
 })

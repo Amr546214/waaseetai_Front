@@ -49,6 +49,7 @@ export interface DashboardStatsPayload {
     id: string;
     title: string;
     budget: number;
+    currency?: string;
     status: ProjectStatus;
     createdAt: Date;
   }>;

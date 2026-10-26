@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { WsDateTextPipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -42,7 +43,7 @@ function derivePeriod(submittedAt: string): 'week' | 'month' | 'older' {
 @Component({
 	selector: 'app-team-deliveries',
 	standalone: true,
-	imports: [CommonModule, RouterLink, FormsModule],
+	imports: [WsDateTextPipe, CommonModule, RouterLink, FormsModule],
 	templateUrl: './team-deliveries.html',
 	styleUrl: './team-deliveries.css'
 })

@@ -5,7 +5,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const APP = join(__dirname, '..', '..');
-const PATTERNS = [/\}\}\s*\$(?![\{\w])/g, /(?<![\w\$\{])\$\s*\{\{/g, /['"`]\s*\$['"`]/g, /[\w\)\]]\s*\+\s*['"`] ?\$['"`]/g, /\s\$\s*</g, /\d\s*\$(?![\{\w])/g, /دولار/g, /\}\s*\$['"`]/g, /ريال/g];
+const PATTERNS = [/\}\}\s*\$(?![\{\w])/g, /(?<![\w\$\{])\$\s*\{\{/g, /['"`]\s*\$['"`]/g, /[\w\)\]]\s*\+\s*['"`] ?\$['"`]/g, /\s\$\s*</g, /\d\s*\$(?![\{\w])/g, /دولار/g, /\}\s*\$['"`]/g, /(?<![\u0600-\u06FF])ريال(?![\u0600-\u06FF])/g];
 const walk = (d: string, out: string[] = []): string[] => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) walk(p, out); else out.push(p); } return out; };
 const files = walk(APP).filter(f => /\.(ts|html)$/.test(f) && !/\.spec\.ts$|test-fixtures/.test(f) && !f.endsWith(join('core', 'utils', 'currency.ts')));
 

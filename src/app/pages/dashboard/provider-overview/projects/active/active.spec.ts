@@ -62,7 +62,9 @@ describe('Active (provider active projects) — real states, no invented labels'
 		const { fixture, component } = setup();
 		fixture.detectChanges();
 		const c = component.counts() as any;
-		expect(c.totalEscrowFormatted).toBe('100');
+		expect(c.totalEscrowFormatted).toBe('100.00 USD');
+		component.projects.set([{ ...component.projects()[0], heldAmount: 100, currency: 'USD' }, { ...component.projects()[0], heldAmount: 50, currency: 'SAR' }]);
+		expect((component.counts() as any).totalEscrowFormatted).toBe('100.00 USD · 50.00 SAR');
 		expect(c.needsAction).toBe(1);
 		expect(c.pending).toBe(1);
 		expect(c.healthStatus).toBeUndefined();

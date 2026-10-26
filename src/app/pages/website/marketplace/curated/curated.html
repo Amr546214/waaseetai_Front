@@ -286,7 +286,7 @@
                     </div>
                   }
                   <div class="pc-price">
-                    <span class="pc-price-val" [style.color]="slot.rank === 1 ? (mode() === 'top-rated' ? 'var(--kahr)' : 'var(--teal)') : null">{{ slot.model.totalAmount | number:'1.0-2' }}</span><span class="pc-price-lbl">$</span>
+                    <span class="pc-price-val" [style.color]="slot.rank === 1 ? (mode() === 'top-rated' ? 'var(--kahr)' : 'var(--teal)') : null">{{ slot.model.totalAmount | wsAmount:slot.model.currency }}</span>
                     <div class="pc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(slot.model.totalDays) }}</div>
                     <button class="pc-btn" type="button" [routerLink]="cardLink(slot.model)">{{ isOwn(slot.model) ? 'هذه خدمتك' : (hasActivePurchase(slot.model) ? 'قيد التنفيذ — متابعة المشروع' : (slot.rank === 1 ? 'اطلب الآن' : 'عرض الخدمة')) }}</button>
                   </div>
@@ -340,8 +340,7 @@
                   <div class="fc-price">
                     <div>
                       <span class="fc-price-lbl">يبدأ من</span>
-                      <span class="fc-price-val">{{ m.totalAmount | number:'1.0-2' }}</span>
-                      <span style="font-size:11px;color:var(--txt-3)"> $</span>
+                      <span class="fc-price-val">{{ m.totalAmount | wsAmount:m.currency }}</span>
                       <div class="fc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
                     </div>
                     <button class="fc-btn" type="button" [routerLink]="cardLink(m)">{{ isOwn(m) ? 'هذه خدمتك' : (hasActivePurchase(m) ? 'قيد التنفيذ' : (first ? 'اطلب الآن' : 'عرض')) }}</button>
@@ -395,9 +394,9 @@
                   </div>
                 }
                 <div class="deal-pricing">
-                  <div class="price-before">{{ priceBefore(m) | number:'1.0-2' }} $</div>
-                  <div class="price-after">{{ m.totalAmount | number:'1.0-2' }} <span>$</span></div>
-                  <div class="price-saving">توفر {{ saving(m) | number:'1.0-2' }} $</div>
+                  <div class="price-before">{{ priceBefore(m) | wsAmount:m.currency }}</div>
+                  <div class="price-after">{{ m.totalAmount | wsAmount:m.currency }}</div>
+                  <div class="price-saving">توفر {{ saving(m) | wsAmount:m.currency }}</div>
                   <button class="deal-btn" type="button">{{ isOwn(m) ? 'هذه خدمتك' : (hasActivePurchase(m) ? 'قيد التنفيذ — متابعة المشروع' : (first ? 'استفد من العرض الآن' : 'استفد الآن')) }}</button>
                 </div>
               </div>
@@ -502,7 +501,7 @@
                             } @else if (hasActivePurchase(m)) {
                               <div class="svc-price">قيد التنفيذ</div>
                             } @else {
-                              <div class="svc-price">{{ m.totalAmount | number:'1.0-2' }} <span>$</span></div>
+                              <div class="svc-price">{{ m.totalAmount | wsAmount:m.currency }}</div>
                             }
                             <div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
                           </div>
@@ -559,7 +558,7 @@
                       } @else if (hasActivePurchase(m)) {
                         <div class="svc-pricing"><div class="svc-after">قيد التنفيذ — متابعة المشروع</div></div>
                       } @else {
-                        <div class="svc-pricing"><div class="svc-before">{{ priceBefore(m) | number:'1.0-2' }} $</div><div class="svc-after">{{ m.totalAmount | number:'1.0-2' }} <span>$</span></div></div>
+                        <div class="svc-pricing"><div class="svc-before">{{ priceBefore(m) | wsAmount:m.currency }}</div><div class="svc-after">{{ m.totalAmount | wsAmount:m.currency }}</div></div>
                       }
                     </div>
                   </a>
@@ -604,7 +603,7 @@
                         } @else if (hasActivePurchase(m)) {
                           <div><div class="svc-price">قيد التنفيذ</div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div></div>
                         } @else {
-                          <div><div class="svc-price"><span>من </span>{{ m.totalAmount | number:'1.0-2' }} <span>$</span></div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div></div>
+                          <div><div class="svc-price"><span>من </span>{{ m.totalAmount | wsAmount:m.currency }}</div><div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div></div>
                         }
                         <button class="svc-fav" type="button" [class.is-favorite]="isFav(m.id)" aria-label="مفضلة" (click)="toggleFavorite(m.id, $event)"><svg aria-hidden="true"><use href="#ws-heart"></use></svg></button>
                       </div>
@@ -643,7 +642,7 @@
                     } @else if (hasActivePurchase(m)) {
                       <div class="list-price">قيد التنفيذ</div>
                     } @else {
-                      <div class="list-price">{{ m.totalAmount | number:'1.0-2' }} <span>$</span></div>
+                      <div class="list-price">{{ m.totalAmount | wsAmount:m.currency }}</div>
                     }
                     <div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
                     <button type="button" style="padding:8px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-2);cursor:pointer;font-family:inherit;white-space:nowrap">{{ isOwn(m) ? 'هذه خدمتك' : (hasActivePurchase(m) ? 'متابعة المشروع' : 'عرض الخدمة') }}</button>

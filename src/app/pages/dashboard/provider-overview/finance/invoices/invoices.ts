@@ -1,12 +1,12 @@
 import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
 import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
 import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
-import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProviderApiService, ProviderInvoice, ProviderInvoicesResponse } from '../../../../../core/services/provider-api.service';
 import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
+import { formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
 
 @Component({
 	selector: 'app-provider-invoices',
@@ -63,7 +63,7 @@ export class InvoicesComponent implements OnInit {
 	}
 
 	formatDate(value: string): string {
-		return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: providerTimeZone() }).format(new Date(value));
+		return formatWsDate(value, 'date', 'yyyy/MM/dd');
 	}
 
 	/** PDF = the browser's print dialog ("Save as PDF") until a server-generated document exists. */

@@ -81,7 +81,7 @@
       @for (m of c.milestones; track m.order) {
       <li>
         <strong class="txt-white">{{ m.title }}</strong>
-        @if (milestoneMeta(m); as meta) {<span class="txt-muted"> — {{ meta }}</span>}
+        @if (milestoneMeta(m, c.currency); as meta) {<span class="txt-muted"> — {{ meta }}</span>}
         @if (m.description) {<div class="txt-muted" style="font-size:12px">{{ m.description }}</div>}
       </li>
       }

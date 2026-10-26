@@ -53,7 +53,7 @@
           } @else {
             @for (e of filteredEvents(); track e.id) {
               <tr>
-                <td class="itsec-mono">{{ e.occurredAt | date:'short' }}</td>
+                <td class="itsec-mono">{{ e.occurredAt | wsDate:'datetime' }}</td>
                 <td class="it-tbl-strong">{{ e.title }}</td>
                 <td class="itsec-mono" [class.itsec-danger]="isRejected(e.status)">{{ e.ipAddress || '—' }}</td>
                 <td>{{ e.actorLabel || '—' }}</td>

@@ -1,3 +1,6 @@
+import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
+import { PAYOUT_CURRENCY } from '../../../../../core/utils/currency';
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -29,11 +32,12 @@ interface ReferralNode {
 @Component({
   selector: 'app-sa-broker-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [WsAmountPipe, CommonModule, RouterLink],
   templateUrl: './sa-broker-detail.html',
   styleUrls: ['../sa-brokers.css', './sa-broker-detail.css'],
 })
 export class SaBrokerDetail implements OnInit {
+  readonly payoutCurrency = PAYOUT_CURRENCY;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private brokerApi = inject(AdminBrokerApiService);
@@ -118,7 +122,7 @@ export class SaBrokerDetail implements OnInit {
 
   formatDate(value: string | null | undefined): string {
     if (!value) return '—';
-    return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
+    return formatWsText(new Date(value), { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   // Builds a simple nested/indented "referral tree" substitute from the
@@ -147,7 +151,7 @@ export class SaBrokerDetail implements OnInit {
 
   monthLabel(month: string): string {
     const [y, m] = month.split('-').map(Number);
-    return new Intl.DateTimeFormat('ar-SA', { month: 'long', year: 'numeric' }).format(new Date(Date.UTC(y, m - 1, 1)));
+    return formatWsText(new Date(Date.UTC(y, m - 1, 15)), { month: 'long', year: 'numeric' });
   }
 
   openStatusDialog(target: 'SUSPENDED' | 'ACTIVE') {

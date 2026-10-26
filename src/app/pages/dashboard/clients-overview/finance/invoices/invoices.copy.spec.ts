@@ -87,10 +87,10 @@ describe('client invoices: provider-coupon discount', () => {
 			{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'd1' }), queryParamMap: convertToParamMap({}) } } }] }).compileComponents();
 		const f = TestBed.createComponent(InvoiceDetails); f.detectChanges(); await f.whenStable(); f.detectChanges();
 		const el = f.nativeElement as HTMLElement; const t = el.textContent!.replace(/\s+/g, ' ');
-		expect(t).toContain('قيمة الخدمة'); expect(t).toMatch(/قيمة الخدمة\s*20\s*\$/);
+		expect(t).toContain('قيمة الخدمة'); expect(t).toMatch(/قيمة الخدمة\s*20\s*USD/);
 		const row = el.querySelector('[data-testid="invoice-discount-row"]')!.textContent!.replace(/\s+/g, ' ');
-		expect(row).toContain('خصم الكوبون'); expect(row).toContain('QAC2TEN'); expect(row).toMatch(/-\s*2\s*\$/);
-		expect(t).toMatch(/الإجمالي المدفوع\s*18\s*\$/);
+		expect(row).toContain('خصم الكوبون'); expect(row).toContain('QAC2TEN'); expect(row).toMatch(/-\s*2\s*USD/);
+		expect(t).toMatch(/الإجمالي المدفوع\s*18\s*USD/);
 	});
 
 	it('details without a coupon: no discount row, total = service value', async () => {
@@ -101,16 +101,16 @@ describe('client invoices: provider-coupon discount', () => {
 		const f = TestBed.createComponent(InvoiceDetails); f.detectChanges(); await f.whenStable(); f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
 		expect(el.querySelector('[data-testid="invoice-discount-row"]')).toBeNull();
-		expect(el.textContent!.replace(/\s+/g, ' ')).toMatch(/الإجمالي المدفوع\s*250\s*\$/);
+		expect(el.textContent!.replace(/\s+/g, ' ')).toMatch(/الإجمالي المدفوع\s*250\s*USD/);
 	});
 
-	it('list: the amount is what was paid, with «بعد خصم كوبون 2 $» only for the discounted invoice', async () => {
+	it('list: the amount is what was paid, with «بعد خصم كوبون 2 USD» only for the discounted invoice', async () => {
 		await TestBed.configureTestingModule({ imports: [Invoices], providers: [provideRouter([]),
 			{ provide: ClientFinanceService, useValue: { getInvoices: () => of({ success: true, data: { summary: {}, invoices: [DISC, INV({ id: 'INV-2', sourceId: 'd2' })] } }) } },
 			{ provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL' }) } }] }).compileComponents();
 		const f = TestBed.createComponent(Invoices); f.detectChanges(); await f.whenStable(); f.detectChanges();
 		const notes = (f.nativeElement as HTMLElement).querySelectorAll('[data-testid="invoice-row-discount"]');
 		expect(notes).toHaveLength(1);
-		expect(notes[0].textContent).toContain('بعد خصم كوبون 2 $');
+		expect(notes[0].textContent).toContain('بعد خصم كوبون 2 USD');
 	});
 });

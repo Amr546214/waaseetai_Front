@@ -11,6 +11,8 @@ export interface ClientReportOrderItem {
 	title: string;
 	specialty: string;
 	budget: number;
+	/** currency of the budget (absent = legacy USD) */
+	currency?: string;
 	proposalsCount: number;
 	status: string;
 	bucket: 'مكتمل' | 'ملغي' | 'نشط' | 'منشور';

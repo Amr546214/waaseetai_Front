@@ -1,3 +1,5 @@
+import { currencyOf } from '../../../../core/utils/currency';
+import { WsAmountPipe } from '../../../../shared/money/money.pipe';
 import { MoneyByComponent } from '../../../../shared/money/money-by.component';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -12,7 +14,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 @Component({
   selector: 'app-sa-projects',
   standalone: true,
-  imports: [MoneyByComponent, CommonModule, RouterLink],
+  imports: [WsAmountPipe, MoneyByComponent, CommonModule, RouterLink],
   templateUrl: './sa-projects.html',
   styleUrl: './sa-projects.css',
 })
@@ -48,7 +50,7 @@ export class SaProjects implements OnInit {
     const p = this.data()?.pagination;
     return p ? p.pages || p.totalPages || 1 : 1;
   });
-  currency = computed(() => this.data()?.kpis?.currency === 'USD' || !this.data()?.kpis?.currency ? '$' : this.data()!.kpis.currency);
+  currency = computed(() => currencyOf(this.data()?.kpis?.currency));
 
   private req?: Subscription;
   private searchTimer?: ReturnType<typeof setTimeout>;

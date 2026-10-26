@@ -64,7 +64,7 @@ describe('SaRevenues', () => {
 		const save = stubSave();
 		const { f, el, a } = mount(SaRevenues);
 		const t = el.textContent || '';
-		for (const v of ['777.77 $', '1,234.56 $', '9,999.99 $', '55.55 $', '321.09 $', '4,242.42 $', 'سلمى الدوسري']) expect(t, v).toContain(v);
+		for (const v of ['777.77 USD', '1,234.56 USD', '9,999.99 USD', '55.55 USD', '321.09 USD', '4,242.42 USD', 'سلمى الدوسري']) expect(t, v).toContain(v);
 		for (const old of ['2.84M', '284K', '1,284', 'ZATCA', 'B2B', 'ضريب']) expect(t, old).not.toContain(old);
 		expect(t).toContain('ليست إيرادًا');
 		expect(t).toContain('إيداع (1)');
@@ -95,7 +95,7 @@ describe('SaSubFinance', () => {
 		stubSave();
 		const { el, a } = mount(SaSubFinance);
 		const t = el.textContent || '';
-		for (const v of ['777.77 $', '9,999.99 $', '1,234.56 $', '321.09 $', 'سلمى الدوسري', '4,242.42 $']) expect(t, v).toContain(v);
+		for (const v of ['777.77 USD', '9,999.99 USD', '1,234.56 USD', '321.09 USD', 'سلمى الدوسري', '4,242.42 USD']) expect(t, v).toContain(v);
 		for (const old of ['14.8M', '9.2M', '99.2%', 'عتبة', '10,000']) expect(t, old).not.toContain(old);
 		expect(a.financeTransactions).toHaveBeenCalledWith({ limit: 5 });
 		expect(q(el, 'sf-print')!.textContent).toContain('طباعة / حفظ PDF');
@@ -122,14 +122,14 @@ describe('SaFinanceReports', () => {
 	it('binds overview to API figures; expenses/profit show the honest empty state plus real cost figures', () => {
 		const { f, el } = mount(SaFinanceReports);
 		const t = el.textContent || '';
-		for (const v of ['777.77 $', '8,000.00 $', '9,999.99 $']) expect(t, v).toContain(v);
+		for (const v of ['777.77 USD', '8,000.00 USD', '9,999.99 USD']) expect(t, v).toContain(v);
 		for (const old of ['14.8M', '9.2M', '8.4%']) expect(t, old).not.toContain(old);
 		expect(q(el, 'frp-print')!.textContent).toContain('طباعة / حفظ PDF');
 		(Array.from(el.querySelectorAll('.frp-tab')).find((b) => b.textContent?.includes('المصروفات')) as HTMLButtonElement).click();
 		f.detectChanges();
 		expect(q(el, 'frp-no-expenses')!.textContent).toContain('لا يوجد سجل مصروفات في المنصة بعد — لا تُعرض أرقام تقديرية');
-		expect(q(el, 'frp-costs')!.textContent).toContain('7,222.23 $');
-		expect(q(el, 'frp-costs')!.textContent).toContain('55.55 $');
+		expect(q(el, 'frp-costs')!.textContent).toContain('7,222.23 USD');
+		expect(q(el, 'frp-costs')!.textContent).toContain('55.55 USD');
 	});
 });
 
@@ -138,7 +138,7 @@ describe('Invoices pages', () => {
 		stubSave();
 		const { f, el, a } = mount(SaInvoicesOut);
 		const t = el.textContent || '';
-		for (const v of ['مشروع الاختبار', 'مرحلة أولى', 'عميل اختبار', '640.50 $', 'مستحقة']) expect(t, v).toContain(v);
+		for (const v of ['مشروع الاختبار', 'مرحلة أولى', 'عميل اختبار', '640.50 USD', 'مستحقة']) expect(t, v).toContain(v);
 		expect(t).not.toContain('B2B');
 		expect(t).not.toContain('B2C');
 		(Array.from(el.querySelectorAll('.fio-tab')).find((b) => b.textContent?.includes('مدفوعة')) as HTMLButtonElement).click();
@@ -152,7 +152,7 @@ describe('Invoices pages', () => {
 	it('invoices-in shows provider, platform commission and provider net', () => {
 		const { el } = mount(SaInvoicesIn);
 		const t = el.textContent || '';
-		for (const v of ['مقدم اختبار', '64.05 $', '576.45 $']) expect(t, v).toContain(v);
+		for (const v of ['مقدم اختبار', '64.05 USD', '576.45 USD']) expect(t, v).toContain(v);
 	});
 });
 
@@ -160,7 +160,7 @@ describe('SaCommissions', () => {
 	it('shows per-project commission and affiliate totals from the API, no 15-tier mock, disabled edit with reason', () => {
 		const { el, a } = mount(SaCommissions);
 		const t = el.textContent || '';
-		for (const v of ['500.50 $', 'مشروع العمولة', '70.00 $']) expect(t, v).toContain(v);
+		for (const v of ['500.50 USD', 'مشروع العمولة', '70.00 USD']) expect(t, v).toContain(v);
 		for (const old of ['1,247', '2.96M', 'M15', 'أسطوري']) expect(t, old).not.toContain(old);
 		expect(q(el, 'cm-edit')!.disabled).toBe(true);
 		expect(q(el, 'cm-edit-reason')!.textContent?.trim().length).toBeGreaterThan(5);

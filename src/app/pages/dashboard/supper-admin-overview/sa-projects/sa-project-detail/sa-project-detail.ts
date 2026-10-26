@@ -1,4 +1,5 @@
 import { WsAmountPipe } from '../../../../../shared/money/money.pipe';
+import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -25,7 +26,7 @@ import {
 @Component({
   selector: 'app-sa-project-detail',
   standalone: true,
-  imports: [WsAmountPipe, CommonModule, RouterLink],
+  imports: [WsDatePipe, WsAmountPipe, CommonModule, RouterLink],
   templateUrl: './sa-project-detail.html',
   styleUrls: ['../sa-projects.css', './sa-project-detail.css'],
 })

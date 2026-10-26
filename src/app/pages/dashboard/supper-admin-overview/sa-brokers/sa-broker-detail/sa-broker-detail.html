@@ -33,8 +33,8 @@
       <div class="bk-md-kpis">
         <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">إجمالي الإحالات</div><div class="bk-md-kpi-val txt-teal">{{ b.totalReferrals }}</div><div class="bk-md-kpi-sub">{{ b.convertedReferrals }} محوّلة</div></div>
         <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">نسبة التحويل</div><div class="bk-md-kpi-val txt-green">{{ b.conversionRate }}%</div></div>
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">عمولة معتمدة</div><div class="bk-md-kpi-val txt-amber">{{ b.paidCommission | number:'1.0-0' }} $</div></div>
-        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">عمولة معلقة</div><div class="bk-md-kpi-val txt-amber">{{ b.pendingCommission | number:'1.0-0' }} $</div></div>
+        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">عمولة معتمدة</div><div class="bk-md-kpi-val txt-amber">{{ b.paidCommission | wsAmount:payoutCurrency:'1.0-0' }}</div></div>
+        <div class="bk-md-kpi"><div class="bk-md-kpi-lbl">عمولة معلقة</div><div class="bk-md-kpi-val txt-amber">{{ b.pendingCommission | wsAmount:payoutCurrency:'1.0-0' }}</div></div>
       </div>
 
       <div class="bk-ai-panel">
@@ -59,7 +59,7 @@
           <div class="bk-md-field">
             <label>الرصيد المستحق</label>
             <div class="bk-withdraw-card">
-              <div class="bk-withdraw-amount">{{ b.pendingCommission | number:'1.0-0' }} $</div>
+              <div class="bk-withdraw-amount">{{ b.pendingCommission | wsAmount:payoutCurrency:'1.0-0' }}</div>
               <div class="bk-withdraw-sub">قابل للسحب</div>
               <p class="txt-muted" style="font-size:12px;margin:8px 0">السحب يبدأه الوسيط بنفسه من حسابه، وتتم مراجعة الطلب من صفحة السحوبات.</p>
               <a class="bk-btn bk-btn-approve" routerLink="/supper-admin-overview/withdrawals">
@@ -168,8 +168,8 @@
               @for (p of b.monthlyCommissions ?? []; track p.month) {
                 <div class="bk-pay-row">
                   <span class="bk-pay-month">{{ monthLabel(p.month) }}</span>
-                  <span class="bk-pay-amount">{{ p.approved | number:'1.0-2' }} $</span>
-                  <span class="bk-pay-status">معلّقة: {{ p.pending | number:'1.0-2' }} $</span>
+                  <span class="bk-pay-amount">{{ p.approved | wsAmount:payoutCurrency }}</span>
+                  <span class="bk-pay-status">معلّقة: {{ p.pending | wsAmount:payoutCurrency }}</span>
                 </div>
               } @empty {
                 <p class="txt-muted" style="font-size:12px">لا توجد بيانات.</p>

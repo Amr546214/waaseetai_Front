@@ -22,6 +22,8 @@ import { AMENDMENT_PROPOSED_CHANGE_LABEL, amendmentApprovedBadge, amendmentBudge
 import { AmendmentActionsService } from '../../../../../core/services/amendment-actions.service';
 import { AmendmentPaymentOtpComponent } from '../../../../../sheards/amendment-payment-otp/amendment-payment-otp.component';
 import { ClientCompanyTeamMember } from '../../../../../core/models/client-company-team.model';
+import { currencyOf, formatAmount } from '../../../../../core/utils/currency';
+import { formatWsText } from '../../../../../shared/ws-date/ws-date.pipe';
 import { formatMoney } from '../../../../../core/utils/money.util';
 import { FieldProblem } from '../../../../../shared/forms/form-error-focus';
 import { handleClientError, reportClientProblems } from '../../client-form-report';
@@ -204,9 +206,13 @@ export class ProjectDetails implements OnInit {
 		return last?.files?.length || 0;
 	}
 	formatNumber(value: number) { return formatMoney(value || 0); }
+	/** the currency of the contract on screen (absent = legacy USD) */
+	contractCurrency(): string { return currencyOf(this.project()?.currency); }
+	/** an amount with the currency code of the stage / contract it belongs to */
+	money(value: number | null | undefined, currency?: string | null): string { return formatAmount(value || 0, currency ?? this.project()?.currency); }
 	formatDate(value: string | Date | null) {
 		if (!value) return '—';
-		return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(new Date(value));
+		return formatWsText(value, { day: 'numeric', month: 'short' });
 	}
 	/** Closed by a dispute settlement (the server's lifecycle flag, or the older adminSettled marker). */
 	isSettled(data: any): boolean { return data?.closedBySettlement === true || !!data?.adminSettled; }
@@ -237,7 +243,7 @@ export class ProjectDetails implements OnInit {
 	}
 	/** Money label of a stage: released, really held in escrow, or just its value (nothing is held before the escrow is funded). */
 	stageMoneyLabel(stage: any): string {
-		const amount = `${this.formatNumber(stage.amount)} $`;
+		const amount = this.money(stage.amount, stage.currency);
 		if (this.stageClosedBySettlement(stage)) return `قيمة المرحلة ${amount} (تعاقدية سابقة، وليست مبلغًا ينتظر الإفراج)`;
 		if (stage.status === 'completed') return `أُفرج ${amount}`;
 		return stage.amountHeld ? `محتجز ${amount}` : `قيمة المرحلة ${amount}`;
@@ -376,7 +382,7 @@ export class ProjectDetails implements OnInit {
 	amendmentTypeLabel(s: string) { return CLIENT_AMENDMENT_TYPE_LABEL[s] || s; }
 	amendmentDeltas(a: any): string {
 		const parts: string[] = [];
-		if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${formatMoney(a.budgetDelta)} $`);
+		if (a.budgetDelta !== null && a.budgetDelta !== undefined) parts.push(`${a.budgetDelta > 0 ? '+' : ''}${this.money(a.budgetDelta, a.currency)}`);
 		if (a.durationDeltaDays !== null && a.durationDeltaDays !== undefined) parts.push(`${a.durationDeltaDays > 0 ? '+' : ''}${a.durationDeltaDays} يوم`);
 		return parts.join(' · ');
 	}

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { firstValueFrom } from 'rxjs';
 import { mapHttpError } from '../../../../core/forms/http-error';
 import { HealthItem, SystemSettingsApi } from '../../../../core/services/system-settings.store';
@@ -12,7 +12,7 @@ const STATUS: Record<HealthItem['status'], { text: string; color: string }> = {
 @Component({
 	selector: 'app-settings-health',
 	standalone: true,
-	imports: [DatePipe],
+	imports: [WsDatePipe],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 	<div class="sh-card" data-testid="health-card">
@@ -23,7 +23,7 @@ const STATUS: Record<HealthItem['status'], { text: string; color: string }> = {
 	    @for (h of items(); track h.key) {
 	      <div class="sh-row" [attr.data-testid]="'health-' + h.key"><span class="sh-dot" [style.background]="st(h).color"></span><span class="sh-name">{{ h.label }}</span><span class="sh-detail">{{ h.detail }}</span><span class="sh-val" [style.color]="st(h).color">{{ st(h).text }}</span></div>
 	    }
-	    @if (checkedAt()) { <div class="sh-foot">آخر فحص: {{ checkedAt() | date:'yyyy-MM-dd HH:mm:ss' }}</div> }
+	    @if (checkedAt()) { <div class="sh-foot">آخر فحص: {{ checkedAt() | wsDate:'datetime' }}</div> }
 	  }
 	</div>`,
 	styles: [`

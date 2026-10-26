@@ -1,7 +1,7 @@
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminAccessService } from '../../../../core/services/admin-access.service';
@@ -18,7 +18,7 @@ const errText = (e: any, fallback: string) => e?.error?.errors?.[0]?.message || 
 @Component({
 	selector: 'app-sa-tasks',
 	standalone: true,
-	imports: [WsDatePipe, CommonModule, FormsModule, RouterLink, DatePipe, WsSelectComponent],
+	imports: [WsDatePipe, CommonModule, FormsModule, RouterLink, WsSelectComponent],
 	templateUrl: './sa-tasks.html',
 	styleUrl: './sa-tasks.css',
 })

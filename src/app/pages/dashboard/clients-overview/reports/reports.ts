@@ -6,12 +6,13 @@ import { ThemeService } from '../../../../core/services/theme.service';
 import { AiResult, MetricSummaryDetails } from '../../../../core/models/ai-result.model';
 import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.component';
 import { ClientReportsService, ClientReportsData, ClientReportDateRange, ClientReportOrderItem, ClientReportTransaction } from '../../../../core/services/client-reports.service';
-import { formatMoney } from '../../../../core/utils/money.util';
+import { formatAmount as formatAmountIn, formatBase } from '../../../../core/utils/currency';
+import { WsCurrencyPipe } from '../../../../shared/money/money.pipe';
 
 @Component({
 	selector: 'app-reports',
 	standalone: true,
-	imports: [MoneyByComponent, CommonModule, RouterModule, AiResultCardComponent],
+	imports: [WsCurrencyPipe, MoneyByComponent, CommonModule, RouterModule, AiResultCardComponent],
 	templateUrl: './reports.html',
 	styleUrl: './reports.css'
 })
@@ -156,9 +157,14 @@ export class Reports implements OnInit {
 		return { 'نشط': 'op-active', 'مكتمل': 'op-done', 'منشور': 'op-hold', 'ملغي': 'op-cancel' }[bucket] || 'op-hold';
 	}
 
-	// Project budgets / escrow have no stored currency and are USD-canonical.
+	/** headline figures: the platform base currency (other currencies come from the *By maps) */
 	formatBudget(n: number): string {
-		return n ? `${formatMoney(n)} $` : '—';
+		return n ? formatBase(n) : '—';
+	}
+
+	/** a row's amount in the row's own currency (absent = legacy USD) */
+	formatRow(n: number, currency?: string | null): string {
+		return n ? formatAmountIn(n, currency) : '—';
 	}
 
 	orderRef(id: string): string {
@@ -218,11 +224,9 @@ export class Reports implements OnInit {
 		return amount < 0 ? 'td-bold' : 'td-bold kv-val-green';
 	}
 
-	// Wallet transactions display their OWN stored currency (USD shown as '$') — never relabeled.
+	// Wallet transactions display their OWN stored currency code - never relabeled.
 	formatAmount(n: number, currency?: string): string {
-		const abs = Math.abs(n);
-		const label = !currency || currency === 'USD' ? '$' : currency;
-		return `${n < 0 ? '−' : ''}${formatMoney(abs)} ${label}`;
+		return `${n < 0 ? '−' : ''}${formatAmountIn(Math.abs(n), currency)}`;
 	}
 
 	txStatusClass(status: string): string {

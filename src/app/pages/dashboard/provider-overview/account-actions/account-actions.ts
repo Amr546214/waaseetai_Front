@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { PROVIDER_SETUP_PAGE } from '../profile/profile-setup/provider-setup-state';
 import { RATE_LIMIT_CHECK_MESSAGE, isRateLimitError } from '../../../../core/utils/rate-limit.util';
 import { ProviderAccessService, ProviderAccessState } from '../../../../core/services/provider-access.service';
@@ -35,7 +35,7 @@ export const completionUrl = (id: string) => `/provider-overview/business-models
 @Component({
 	selector: 'app-account-actions',
 	standalone: true,
-	imports: [DatePipe],
+	imports: [WsDatePipe],
 	templateUrl: './account-actions.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

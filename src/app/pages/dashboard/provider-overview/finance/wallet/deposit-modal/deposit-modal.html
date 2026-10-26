@@ -26,9 +26,9 @@
 		<div class="dpm-field">
 			<label class="dpm-label" for="dpmAmt">المبلغ ($) <span class="ws-req" aria-hidden="true">*</span></label>
 			<div class="dpm-amt-wrap">
-				<input id="dpmAmt" aria-required="true" name="amount" data-field="amount" class="dpm-amt-input" type="text" inputmode="numeric" placeholder="أدخل المبلغ بالدولار" [value]="amount() == null ? '' : (amount() | number:'1.0-2')" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع بالدولار"
+				<input id="dpmAmt" aria-required="true" name="amount" data-field="amount" class="dpm-amt-input" type="text" inputmode="numeric" placeholder="أدخل المبلغ ({{ '' | wsCurrency }})" [value]="amount() == null ? '' : (amount() | number:'1.0-2')" (input)="onAmountInput($event)" aria-label="مبلغ الإيداع ({{ '' | wsCurrency }})"
 					[attr.aria-invalid]="amountError() ? 'true' : null" [attr.aria-describedby]="amountError() ? 'dpmAmt-err' : 'dpmAmt-hint'" />
-				<span class="dpm-amt-cur">$</span>
+				<span class="dpm-amt-cur">{{ '' | wsCurrency }}</span>
 			</div>
 			@if (amountError(); as err) {
 			<div class="dpm-hint field-err" id="dpmAmt-err" role="alert" data-testid="dpm-amount-error">{{ err }}</div>
@@ -46,16 +46,16 @@
 					PayPal <span class="dpm-soon">غير متاح حاليًا</span>
 				</button>
 			</div>
-			<div class="dpm-soon-note" id="dpm-soon-note">الإيداع في محفظة المقدم غير متاح حاليًا. المنصة تدعم PayPal فقط، بالدولار الأمريكي.</div>
+			<div class="dpm-soon-note" id="dpm-soon-note">الإيداع في محفظة المقدم غير متاح حاليًا. المنصة تدعم PayPal فقط، بعملة المنصة ({{ '' | wsCurrency:'name' }}).</div>
 		</div>
 
 		<!-- SUMMARY -->
 		<div class="dpm-summary">
-			<div class="dpm-summary-row"><span>رصيد المحفظة الحالي</span><span>{{ currentBalance | number:'1.0-2' }} $</span></div>
-			<div class="dpm-summary-row"><span>مبلغ الإيداع</span><span>{{ amount() == null ? '—' : (amount() | number:'1.0-2') + ' $' }}</span></div>
+			<div class="dpm-summary-row"><span>رصيد المحفظة الحالي</span><span>{{ currentBalance | wsBase }}</span></div>
+			<div class="dpm-summary-row"><span>مبلغ الإيداع</span><span>{{ amount() == null ? '—' : (amount() | wsBase) }}</span></div>
 			<div class="dpm-summary-row"><span>رسوم PayPal</span><span>تُحدَّد عند تفعيل الإيداع</span></div>
 			<div class="dpm-summary-divider"></div>
-			<div class="dpm-summary-total"><span>الرصيد المتوقع بعد الإيداع</span><span>{{ balanceAfter() | number:'1.0-2' }} $</span></div>
+			<div class="dpm-summary-total"><span>الرصيد المتوقع بعد الإيداع</span><span>{{ balanceAfter() | wsBase }}</span></div>
 		</div>
 
 		<div class="dpm-actions">

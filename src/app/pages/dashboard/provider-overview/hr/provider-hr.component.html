@@ -84,7 +84,7 @@
 							</td>
 							<td><span class="job-title">{{ m.jobTitle || '—' }}</span></td>
 							<td><span class="login-txt">{{ m.phone || '—' }}</span></td>
-							<td><span class="login-txt">{{ m.createdAt ? (m.createdAt | date: 'yyyy-MM-dd') : '—' }}</span></td>
+							<td><span class="login-txt">{{ m.createdAt ? (m.createdAt | wsDate:'date':'yyyy-MM-dd') : '—' }}</span></td>
 							<td>
 								<span class="pill" [class.pill-green]="m.status === 'ACTIVE'" [class.pill-amber]="m.status === 'PENDING'" [class.pill-gray]="m.status === 'INACTIVE'">{{ statusLabel(m) }}</span>
 							</td>
@@ -156,7 +156,7 @@
 							</td>
 							<td><span class="job-title">{{ m.jobTitle || '—' }}</span></td>
 							<td><span class="login-txt">{{ m.phone || '—' }}</span></td>
-							<td><span class="login-txt">{{ m.createdAt ? (m.createdAt | date: 'yyyy-MM-dd') : '—' }}</span></td>
+							<td><span class="login-txt">{{ m.createdAt ? (m.createdAt | wsDate:'date':'yyyy-MM-dd') : '—' }}</span></td>
 							<td>
 								<span class="pill" [class.pill-green]="m.status === 'ACTIVE'" [class.pill-amber]="m.status === 'PENDING'" [class.pill-gray]="m.status === 'INACTIVE'">{{ statusLabel(m) }}</span>
 							</td>

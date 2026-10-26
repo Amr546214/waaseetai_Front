@@ -9,8 +9,8 @@
   <div class="fe-kpi-grid" data-testid="fees-kpis">
     <div class="fe-kpi">
       <div class="fe-kpi-top"><span class="fe-kpi-lbl">عمولة المنصة المحصّلة</span></div>
-      <div class="fe-kpi-val txt-teal">{{ commissions() ? usd(commissions()!.totals.platformCommission) : '—' }}</div>
-      <div class="fe-kpi-sub">من إجمالي محرَّر {{ commissions() ? usd(commissions()!.totals.releasedGross) : '—' }}</div>
+      <div class="fe-kpi-val txt-teal">{{ commissions() ? fmtAmount(commissions()!.totals.platformCommission) : '—' }}</div>
+      <div class="fe-kpi-sub">من إجمالي محرَّر {{ commissions() ? fmtAmount(commissions()!.totals.releasedGross) : '—' }}</div>
     </div>
     <div class="fe-kpi">
       <div class="fe-kpi-top"><span class="fe-kpi-lbl">عمولة المنصة (مقدمو الخدمة)</span></div>
@@ -46,9 +46,9 @@
       <div class="fe-table-wrap">
         <table class="fe-table">
           <tbody>
-            <tr><td>عمولة المنصة (إجمالي)</td><td class="green">{{ usd(c.totals.platformCommission) }}</td></tr>
+            <tr><td>عمولة المنصة (إجمالي)</td><td class="green">{{ fmtAmount(c.totals.platformCommission) }}</td></tr>
             @for (a of affiliateRows(); track a.key) {
-              <tr><td>عمولات الوسطاء — {{ a.label }} ({{ a.count }})</td><td class="strong-white">{{ usd(a.amount) }}</td></tr>
+              <tr><td>عمولات الوسطاء — {{ a.label }} ({{ a.count }})</td><td class="strong-white">{{ fmtAmount(a.amount) }}</td></tr>
             }
           </tbody>
         </table>

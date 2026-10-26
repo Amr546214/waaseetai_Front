@@ -31,8 +31,8 @@ describe('create-request step 4: budget errors bound to the right field', () => 
       expect(invalid(id), id + ' invalid').toBe(msgOf(id) !== null);
     }
   };
-  const FROM = 'أدخل الحد الأدنى للميزانية بالدولار';
-  const TO = 'أدخل الحد الأعلى للميزانية بالدولار';
+  const FROM = 'أدخل الحد الأدنى للميزانية (USD)';
+  const TO = 'أدخل الحد الأعلى للميزانية (USD)';
   const ORDER = 'الحد الأعلى يجب أن يكون أكبر من أو يساوي الحد الأدنى';
 
   beforeEach(async () => {
@@ -135,11 +135,11 @@ describe('create-request step 4: budget errors bound to the right field', () => 
   it('fixed and hourly: <= 0 / empty marks only that field with a message', async () => {
     c.budgetType.set('fixed'); render();
     type('f-budget-fixed', '0'); await press();
-    expect(msgOf('f-budget-fixed')).toBe('أدخل الميزانية بالدولار');
+    expect(msgOf('f-budget-fixed')).toBe('أدخل الميزانية (USD)');
     consistent();
     c.budgetType.set('hourly'); render();
     type('f-budget-hourly', '-3'); await press();
-    expect(msgOf('f-budget-hourly')).toBe('أدخل سعر الساعة بالدولار');
+    expect(msgOf('f-budget-hourly')).toBe('أدخل سعر الساعة (USD)');
     consistent();
   });
 });

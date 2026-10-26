@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -17,7 +18,7 @@ type FilterKey = 'ALL' | 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'D
 @Component({
   selector: 'app-sa-requests',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [WsDatePipe, CommonModule, RouterLink],
   templateUrl: './sa-requests.html',
   styleUrl: './sa-requests.css',
 })
