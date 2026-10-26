@@ -46,8 +46,8 @@
                 @else if (!readiness()) { <div class="ss-sub" role="status">جارٍ الفحص…</div> }
                 @else if (readiness()!.ready) { <div class="ss-ok">البنية جاهزة لتغيير العملة الأساسية.</div> }
                 @else {
-                  <div class="ss-sub">المنصة بالدولار الأمريكي (USD) فقط في هذا الإصدار، ويرفض الخادم أي تغيير للعملة. هذه المتطلبات التقنية تُنجز قبل تفعيل أي عملة ثانية:</div>
-                  <ul class="ss-blockers" data-testid="readiness-blockers">@for (b of readiness()!.blockers; track b.code) { <li>{{ b.message }}</li> }</ul>
+                  <div class="ss-sub">المنصة بالدولار الأمريكي (USD) فقط في هذا الإصدار، ويرفض الخادم أي تغيير للعملة. هذه المتطلبات التقنية تُنجز قبل تفعيل أي عملة ثانية. <button type="button" class="ss-link" data-testid="readiness-toggle" [attr.aria-expanded]="readyOpen()" (click)="readyOpen.set(!readyOpen())">{{ readyOpen() ? 'إخفاء المتطلبات' : 'عرض المتطلبات (' + readiness()!.blockers.length + ')' }}</button></div>
+                  <ul class="ss-blockers" data-testid="readiness-blockers" [hidden]="!readyOpen()">@for (b of readiness()!.blockers; track b.code) { <li>{{ b.message }}</li> }</ul>
                 }
               </div>
             }
