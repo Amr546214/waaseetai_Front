@@ -16,11 +16,12 @@ import { getDefaultDashboard } from '../../core/guards/auth.guards';
 import { NotificationPopupComponent } from '../notification-popup/notification-popup';
 import { NotificationBell } from '../notification-bell/notification-bell';
 import { AssistantStore } from '../../core/store/assistant.store';
+import { IdentityImgDirective } from '../../core/identity/identity-img.directive';
 
 @Component({
 	selector: 'app-navbar',
 	standalone: true,
-	imports: [BrandNamePipe, RouterModule, CommonModule, NotificationBell, NotificationPopupComponent],
+	imports: [IdentityImgDirective, BrandNamePipe, RouterModule, CommonModule, NotificationBell, NotificationPopupComponent],
 	templateUrl: './navbar.html',
 	styleUrl: './navbar.css',
 	host: {

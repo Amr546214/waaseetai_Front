@@ -17,6 +17,7 @@ import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../core
 import { isOnboardingAllowedPath } from '../../../core/guards/profile-complete.guard';
 import { AdminAccessService } from '../../../core/services/admin-access.service';
 import { ruleForPath } from '../../../core/config/admin-access-rules';
+import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 
 export interface NavItem {
 	type: 'header' | 'link' | 'accordion' | 'button' | 'divider';
@@ -36,7 +37,7 @@ export interface NavItem {
 @Component({
 	selector: 'app-sidebar',
 	standalone: true,
-	imports: [BrandNamePipe, CommonModule, RouterModule],
+	imports: [IdentityImgDirective, BrandNamePipe, CommonModule, RouterModule],
 	templateUrl: './sidebar.html',
 	styleUrl: './sidebar.css',
 })

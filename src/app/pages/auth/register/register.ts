@@ -24,6 +24,7 @@ import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
 import { backendPhoneValidator, phoneDigits } from '../../../core/forms/phone.validator';
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
+import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 
 /** The register payload names some fields differently from the form controls. */
 const REGISTER_SERVER_FIELD_ALIASES: Record<string, string> = { phoneNumber: 'phone', phoneCountryCode: 'phone', agreedToTerms: 'agreeTerms', confirmPassword: 'confirmPassword' };
@@ -43,7 +44,7 @@ const REGISTER_CONFIRM_REQUIRED = 'تأكيد كلمة المرور مطلوب';
 @Component({
 	selector: 'app-register',
 	standalone: true,
-	imports: [BrandNamePipe, CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, GoogleBtnStateDirective, AffiliatePicker, FormSummaryComponent],
+	imports: [IdentityImgDirective, BrandNamePipe, CommonModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, GoogleSigninButtonModule, GoogleBtnStateDirective, AffiliatePicker, FormSummaryComponent],
 	templateUrl: './register.html',
 	styleUrl: './register.css',
 	encapsulation: ViewEncapsulation.None,
