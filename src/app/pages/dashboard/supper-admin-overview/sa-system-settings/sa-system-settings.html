@@ -31,7 +31,10 @@
             <div class="ss-note" role="note">إعدادات الذكاء الاصطناعي والمزوّد والمفاتيح نطاق منفصل؛ تُجرد هنا ولا يُعدَّل تشغيلها من هذه الصفحة.</div>
             <app-settings-section title="إعدادات الذكاء الاصطناعي" [keys]="ai" variant="ss" [showSave]="false" />
           }
-          @case ('notifications') { <app-settings-section title="إعدادات الإشعارات" [keys]="notif" variant="ss" /> }
+          @case ('notifications') {
+            <div class="ss-note" role="note" data-testid="email-channel-note">مفتاح «إشعارات البريد الإلكتروني الاختيارية» يوقف فقط البريد الذي يختاره المستخدم في إعدادات إشعاراته (نسخ الإشعارات وملخص الرسائل غير المقروءة). عند إيقافه يظهر خيار البريد لدى المستخدمين معطّلًا «بواسطة إدارة المنصة» ويبقى اختيارهم المحفوظ كما هو. أما رموز تسجيل الدخول والتفعيل وإعادة تعيين كلمة المرور فهي قناة مستقلة تعمل دائمًا ولا يوقفها هذا المفتاح.</div>
+            <app-settings-section title="إعدادات الإشعارات" [keys]="notif" variant="ss" />
+          }
           @case ('security') { <app-settings-section title="الأمان والمصادقة" [keys]="security" variant="ss" /> }
           @case ('finance') {
             <app-settings-section title="الإعدادات المالية" [keys]="finance" variant="ss" />

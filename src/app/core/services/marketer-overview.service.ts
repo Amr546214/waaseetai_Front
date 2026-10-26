@@ -82,6 +82,9 @@ export interface MarketerSettings {
 	timezone: string | null;
 }
 
+/** GET/PATCH /marketer/settings also say whether the platform switched optional e-mail off (never sent back to the server) */
+export type MarketerSettingsResponse = MarketerSettings & { emailEnabledByPlatform?: boolean };
+
 export type AiInsights = AiResult<MetricSummaryDetails>;
 
 // Single-tier direct referral status (P-LG-012). A referred user starts
@@ -221,12 +224,12 @@ export class MarketerOverviewService {
 		return this.http.get<ApiResponse<{ items: MarketerAssetFile[] }>>(`${this.apiUrl}/assets`);
 	}
 
-	getSettings(): Observable<ApiResponse<MarketerSettings>> {
-		return this.http.get<ApiResponse<MarketerSettings>>(`${this.apiUrl}/settings`);
+	getSettings(): Observable<ApiResponse<MarketerSettingsResponse>> {
+		return this.http.get<ApiResponse<MarketerSettingsResponse>>(`${this.apiUrl}/settings`);
 	}
 
-	updateMarketerSettings(data: Partial<MarketerSettings>): Observable<ApiResponse<MarketerSettings>> {
-		return this.http.patch<ApiResponse<MarketerSettings>>(`${this.apiUrl}/settings`, data);
+	updateMarketerSettings(data: Partial<MarketerSettings>): Observable<ApiResponse<MarketerSettingsResponse>> {
+		return this.http.patch<ApiResponse<MarketerSettingsResponse>>(`${this.apiUrl}/settings`, data);
 	}
 
 	/** The marketer's own data as a real JSON file. */

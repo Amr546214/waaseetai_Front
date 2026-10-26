@@ -512,8 +512,10 @@
 					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">الإشعارات داخل التطبيق<input type="checkbox" [(ngModel)]="alertPreferences.inApp"
 						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-inapp"></label>
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">نسخة من الإشعارات على بريدي الإلكتروني<input type="checkbox" [(ngModel)]="alertPreferences.email"
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">نسخة من الإشعارات على بريدي الإلكتروني<input type="checkbox" [(ngModel)]="alertPreferences.email" [disabled]="emailDisabledByPlatform()"
 						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-email"></label>
+				@if (emailDisabledByPlatform()) {<div class="inp-hint" role="status" data-testid="email-platform-disabled"><strong>{{ emailDisabledText }}</strong> · اختيارك المحفوظ محفوظ كما هو ويعود العمل به عند إعادة تفعيل القناة</div>}
+				<div class="inp-hint" data-testid="code-mail-note">{{ codeMailNote }}</div>
 				<label
 					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه عند احالة جديدة ناجحة<input type="checkbox" [(ngModel)]="alertPreferences.newReferral"
 						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-referral"></label>

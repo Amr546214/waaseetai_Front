@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
+import { NotificationPreferencesService, EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, emailDisabledByPlatform, isEmailDisabledError } from '../../../../../core/services/notification-preferences.service';
 
 const DEFAULT_PREFERENCES = {
 	newOffer: true, requestStatus: true, newMessage: true, reviewDeadline: true,
@@ -25,6 +25,10 @@ export class NotificationsSettings implements OnInit {
 	readonly isLoading = signal(false);
 	readonly hasError = signal(false);
 	readonly isSaving = signal(false);
+	/** the platform switched optional e-mail off: the option stays visible with the stored choice but cannot be edited */
+	readonly emailDisabled = signal(false);
+	readonly emailDisabledText = EMAIL_DISABLED_BY_PLATFORM;
+	readonly codeMailNote = CODE_MAIL_ALWAYS_NOTE;
 
 	ngOnInit(): void {
 		this.loadPreferences();
@@ -37,6 +41,7 @@ export class NotificationsSettings implements OnInit {
 			next: (res) => {
 				this.isLoading.set(false);
 				if (res.success) {
+					this.emailDisabled.set(emailDisabledByPlatform(res));
 					const saved = res.data?.settings || {};
 					// Keys never saved before (new account, or a toggle added since)
 					// keep their local default rather than defaulting to false.
@@ -64,8 +69,9 @@ export class NotificationsSettings implements OnInit {
 					this.notify.error(res.message || 'تعذر حفظ التفضيلات');
 				}
 			},
-			error: () => {
+			error: (err) => {
 				this.isSaving.set(false);
+				if (isEmailDisabledError(err)) { this.emailDisabled.set(true); this.notify.error(EMAIL_DISABLED_BY_PLATFORM); return; }
 				this.notify.error('تعذر حفظ التفضيلات، حاول مرة أخرى');
 			}
 		});

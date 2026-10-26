@@ -239,12 +239,14 @@
                 <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
                 <span class="notif-lbl">التنبيه اللحظي داخل التطبيق</span>
               </div>
-              <div class="notif-item" [class.active]="notifChannels().includes('email')" role="checkbox" [attr.aria-checked]="notifChannels().includes('email')" tabindex="0" (click)="toggleNotifChannel('email')">
+              <div class="notif-item" [class.active]="notifChannels().includes('email')" role="checkbox" [attr.aria-checked]="notifChannels().includes('email')" [attr.aria-disabled]="emailDisabledByPlatform() ? 'true' : null" [attr.title]="emailDisabledByPlatform() ? emailDisabledText : null" [style.opacity]="emailDisabledByPlatform() ? 0.55 : null" [style.cursor]="emailDisabledByPlatform() ? 'not-allowed' : null" tabindex="0" (click)="toggleNotifChannel('email')">
                 <div class="notif-ico ic-blue"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-mail"></use></svg></div>
                 <div class="notif-check"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-check"></use></svg></div>
                 <span class="notif-lbl">البريد الإلكتروني</span>
               </div>
             </div>
+            @if (emailDisabledByPlatform()) {<div style="font-size:11.5px;font-weight:700;margin-top:8px" data-testid="email-platform-disabled" role="status">البريد الإلكتروني: {{ emailDisabledText }} · اختيارك المحفوظ محفوظ كما هو ويعود العمل به عند إعادة تفعيل القناة</div>}
+            <div style="font-size:11.5px;opacity:.7;margin-top:6px" data-testid="code-mail-note">{{ codeMailNote }}</div>
           </div>
           <div class="pref-section" style="margin-bottom:0">
             <div class="pref-section-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-globe"></use></svg>المنطقة الزمنية</div>
