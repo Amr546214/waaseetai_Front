@@ -59,3 +59,6 @@
 :host-context(.light-theme) .fp-spa .fp-ok,:host-context(.theme-light) .fp-spa .fp-ok{color:#0F8A7F}
 :host-context(.light-theme) .fp-spa .fp-err,:host-context(.theme-light) .fp-spa .fp-err{color:#C2410C}
 @media(max-width:700px){.fp.fp-spa{padding:16px 14px}.fp-spa .fp-form .fp-in{width:100%}.fp-spa .fp-row{flex-wrap:wrap}}
+
+.fp-spa .fp-help-btn{display:inline-flex;align-items:center;justify-content:center;margin-inline-start:6px;padding:2px;border:0;background:transparent;color:#6B7699;cursor:pointer;line-height:0}
+.fp-spa .fp-help-btn:hover,.fp-spa .fp-help-btn[aria-expanded="true"]{color:#2BD4C7}

@@ -17,11 +17,21 @@ export interface AdminAuditEntry {
 	device: string | null;
 	actorLabel: string | null;
 	account: { id: string; name: string; accountType: string | null };
+	/** the audit trail's own identity of the event (see the server's admin-audit-trail service) */
+	seq?: number | null;
+	action?: string;
+	actionLabel?: string;
+	detail?: string | null;
+	detailDate?: string | null;
+	origin?: 'LOG' | 'ACCESS';
+	actor?: { id: string; name: string; accountType: string | null };
+	target?: { type: string; typeLabel: string; id: string | null; label: string | null } | null;
 }
 export interface AdminAuditLogPage {
 	items: AdminAuditEntry[];
 	pagination: { page: number; limit: number; total: number; pages: number };
 	eventTypes: string[];
+	eventTypeOptions?: { value: string; label: string }[];
 }
 export interface AdminAuditQuery { page?: number; limit?: number; q?: string; eventType?: string; severity?: string; actorId?: string; from?: string; to?: string; scope?: 'admin' | 'all' }
 export interface AdminRosterItem { id: string; name: string; email: string; accountType: 'ADMIN' | 'SUPER_ADMIN' | string; status: string; lastActiveAt: string | null; createdAt: string }

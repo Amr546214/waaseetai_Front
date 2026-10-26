@@ -1,6 +1,6 @@
 import { FeePolicyPanel } from '../../../../shared/fee-policy/fee-policy-panel';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
+import { WsDatePipe, formatWsDate } from '../../../../shared/ws-date/ws-date.pipe';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
@@ -32,7 +32,8 @@ type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'in
  * each setting is - nothing here keeps its own copy or is stored in the browser.
  */
 export class SaSuperAdmins implements OnInit {
-  auditTypeOptions = computed(() => [{ value: '', label: 'كل الإجراءات' }, ...this.auditEventTypes().map((t) => ({ value: t, label: t }))]);
+  auditTypeOptions = computed(() => [{ value: '', label: 'كل الإجراءات' }, ...(this.auditTypeOpts().length ? this.auditTypeOpts() : this.auditEventTypes().map((t) => ({ value: t, label: t })))]);
+  readonly auditTypeOpts = signal<{ value: string; label: string }[]>([]);
 
   auditActorOptions = computed(() => [{ value: '', label: 'كل المنفذين' }, ...this.admins().map((a) => ({ value: a.id, label: a.name }))]);
 
@@ -45,13 +46,16 @@ export class SaSuperAdmins implements OnInit {
     { key: 'fees', icon: 'wallet', label: 'الرسوم والمالية' },
     { key: 'security', icon: 'shield', label: 'الأمان' },
     { key: 'notifications', icon: 'bell2', label: 'الإشعارات' },
-    { key: 'ai', icon: 'ai', label: 'الذكاء الاصطناعي' },
+    { key: 'ai', icon: 'ai', label: 'محركات AI' },
     { key: 'integrations', icon: 'key', label: 'التكاملات والـ API' },
     { key: 'audit', icon: 'list', label: 'Audit Trail' },
     { key: 'danger', icon: 'warn', label: 'المنطقة الحمراء', danger: true },
   ];
 
   readonly activeSection = signal<SpaSection>('general');
+  /** red-zone rows whose ⓘ explanation is open (the reasons live there, not in the row) */
+  readonly dangerHelp = signal<ReadonlySet<string>>(new Set());
+  toggleDangerHelp(k: string) { this.dangerHelp.update((o) => { const n = new Set(o); if (n.has(k)) n.delete(k); else n.add(k); return n; }); }
 
   // the settings of each card (keys of the server registry)
   readonly identity = ['platformName', 'defaultLanguage', 'defaultTimezone', 'baseCurrency'];
@@ -118,6 +122,7 @@ export class SaSuperAdmins implements OnInit {
         this.auditTotal.set(r.data.pagination.total);
         this.totalAuditPages.set(r.data.pagination.pages);
         this.auditEventTypes.set(r.data.eventTypes);
+        this.auditTypeOpts.set(r.data.eventTypeOptions ?? []);
         this.auditLoading.set(false);
       },
       error: () => { this.auditRows.set([]); this.auditTotal.set(0); this.auditFailed.set(true); this.auditLoading.set(false); },
@@ -145,8 +150,10 @@ export class SaSuperAdmins implements OnInit {
 
   setAuditSearch(value: string) { this.auditSearch.set(value); this.auditPage.set(1); this.loadAudit(); }
   setAuditActor(value: string) { this.auditActorFilter.set(value); this.auditPage.set(1); this.loadAudit(); }
-  /** the running number of a row, newest = highest (the design's «#» column; the log has no stored sequence, so this is the position in the filtered log) */
-  auditNumber(i: number) { return Math.max(this.auditTotal() - (this.auditPage() - 1) * 20 - i, 1); }
+  /** the stable sequence number of the event as the server numbers it (creation order of all administrative events); never the position in a filtered page */
+  seqText(r: AdminAuditEntry) { return r.seq != null ? `#${r.seq}` : '—'; }
+  actorName(r: AdminAuditEntry) { return r.actor?.name || r.account.name || r.actorLabel || '—'; }
+  targetText(r: AdminAuditEntry) { const t = r.target; return t ? [t.typeLabel, t.label, t.id && t.id !== t.label ? (t.id.length > 20 ? `${t.id.slice(0, 8)}…` : t.id) : null].filter(Boolean).join(' · ') : ''; }
   roleLabel(t: string | null | undefined) { return t === 'SUPER_ADMIN' ? 'مسؤول أعلى' : t === 'ADMIN' ? 'مسؤول' : t ? 'مستخدم' : '—'; }
   sev(r: AdminAuditEntry) { return SEV_STYLE[r.severity] ?? SEV_STYLE['INFO']; }
   setAuditType(value: string) { this.auditTypeFilter.set(value); this.auditPage.set(1); this.loadAudit(); }
@@ -157,8 +164,8 @@ export class SaSuperAdmins implements OnInit {
   /** Exports the rows currently on screen (the filtered page). */
   exportAuditCsv() {
     const esc = (v: string | null | undefined) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const rows = ['الحدث,العنوان,التفاصيل,الحساب,IP,التاريخ,المستوى'];
-    this.auditRows().forEach((r) => rows.push([esc(r.eventType), esc(r.title), esc(r.summary), esc(r.account.name || r.actorLabel), esc(r.ipAddress), esc(r.occurredAt), esc(this.sevLabels[r.severity] ?? r.severity)].join(',')));
+    const rows = ['التسلسل,الإجراء,الرمز,التفاصيل,المنفذ,IP,التاريخ,المستوى'];
+    this.auditRows().forEach((r) => rows.push([esc(r.seq != null ? String(r.seq) : ''), esc(r.actionLabel || r.title), esc(r.eventType), esc([r.detail, this.targetText(r)].filter(Boolean).join(' | ') || r.summary), esc(this.actorName(r)), esc(r.ipAddress), esc(formatWsDate(r.occurredAt, 'datetime')), esc(this.sevLabels[r.severity] ?? r.severity)].join(',')));
     const blob = new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

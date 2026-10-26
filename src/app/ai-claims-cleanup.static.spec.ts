@@ -150,7 +150,7 @@ describe('4. admin mock AI cards are gone', () => {
 		expectAbsent([A + 'sa-offers/sa-offers.html', A + 'sa-offers/sa-offer-detail/sa-offer-detail.html'], ['AI Score', 'تحليل AI للعرض', 'aiClean', 'عروض مشبوهة']);
 		expectAbsent([A + 'sa-requests/sa-requests.html'], ['aiClean', '<th>AI</th>']);
 		expectAbsent([A + 'sa-projects/sa-projects.html'], ['خطر AI', 'pj-risk']);
-		expectAbsent([A + 'sa-super-admins/sa-super-admins.html', A + 'sa-super-admins/sa-super-admins.ts'], ['محركات الذكاء الاصطناعي', 'حد نسبة المطابقة', 'aiToggles', 'aiMatchThreshold']);
+		expectAbsent([A + 'sa-super-admins/sa-super-admins.html', A + 'sa-super-admins/sa-super-admins.ts'], ['حد نسبة المطابقة', 'aiToggles', 'aiMatchThreshold']);
 		expectAbsent([A + 'subscriptions/sa-upgrade/sa-upgrade.html'], ['AI يتوقع', 'احتمال AI']);
 		for (const f of ['sa-boost/sa-boost', 'sa-promotions/sa-promotions', 'sa-ads/sa-ads', 'sa-plans/sa-plans']) {
 			expectAbsent([A + 'subscriptions/' + f + '.html'], ['AI Bid', 'AI Performance', 'AI Targeting', 'AI Recommend', 'ROI متوسط', 'CTR متوسط']);

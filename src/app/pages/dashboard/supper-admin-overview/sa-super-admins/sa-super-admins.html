@@ -82,7 +82,7 @@
         </div>
         <app-fee-policy-panel variant="spa" />
         <app-settings-section title="رسوم المعاملات" icon="wallet" [keys]="fees" variant="spa" [showState]="false" [showSave]="false" />
-        <app-settings-section title="تجهيز فوترة مستقبلية" icon="wallet" [keys]="billing" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section class="spa-last" title="تجهيز فوترة مستقبلية" icon="wallet" [keys]="billing" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'security') {
@@ -90,7 +90,7 @@
           <div><div class="spa-sec-ttl">الأمان</div><div class="spa-sec-sub">سياسات كلمات المرور والجلسات والمصادقة</div></div>
           <button type="button" class="spa-btn spa-btn-pri" data-testid="header-save" [disabled]="!dirtyIn(security).length || store.saving()" (click)="saveTab(security)"><svg><use href="#spa-i-save"></use></svg>{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
         </div>
-        <app-settings-section title="سياسات الجلسات وكلمة المرور" icon="shield" [keys]="security" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section class="spa-last" title="سياسات الجلسات وكلمة المرور" icon="shield" [keys]="security" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'notifications') {
@@ -98,26 +98,26 @@
           <div><div class="spa-sec-ttl">الإشعارات</div><div class="spa-sec-sub">قنوات التواصل مع المستخدمين وإعدادات البريد والـ SMS</div></div>
         </div>
         <app-settings-section title="القنوات المفعّلة" icon="bell2" [keys]="channels" variant="spa" [showState]="false" [showSave]="false" />
-        <app-settings-section title="إعدادات خادم البريد (SMTP)" icon="key" [keys]="smtp" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section class="spa-last" title="إعدادات خادم البريد (SMTP)" icon="key" [keys]="smtp" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'ai') {
         <div class="spa-sec-hdr">
-          <div><div class="spa-sec-ttl">إعدادات الذكاء الاصطناعي</div><div class="spa-sec-sub">تُعرض حالة هذه الإعدادات فقط؛ لا يُعدَّل تشغيل الذكاء الاصطناعي من هذه الصفحة</div></div>
+          <div><div class="spa-sec-ttl">محركات الذكاء الاصطناعي</div><div class="spa-sec-sub">تكوين محركات AI المشغّلة داخل وسيط AI — الاسم للتصنيف فقط: المفاتيح غير المتاحة معروضة كما هي ولا تُعدَّل من هذه الصفحة</div></div>
         </div>
-        <app-settings-section title="إعدادات الذكاء الاصطناعي" icon="ai" [keys]="ai" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section class="spa-last" title="محركات المطابقة والتوصيات" icon="ai" [keys]="ai" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'integrations') {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">التكاملات والـ API</div><div class="spa-sec-sub">مفاتيح API والتكاملات الخارجية</div></div>
         </div>
-        <app-settings-section title="مفاتيح API الخارجية" icon="key" [keys]="integrations" variant="spa" [showState]="false" [showSave]="false" />
+        <app-settings-section class="spa-last" title="مفاتيح API الخارجية" icon="key" [keys]="integrations" variant="spa" [showState]="false" [showSave]="false" />
       }
 
       @if (activeSection() === 'audit') {
         <div class="spa-sec-hdr">
-          <div><div class="spa-sec-ttl">Audit Trail</div><div class="spa-sec-sub">أحداث فعلية مسجلة على الحسابات الإدارية (للقراءة فقط)</div></div>
+          <div><div class="spa-sec-ttl">Audit Trail</div><div class="spa-sec-sub">سجل الأحداث الإدارية الفعلية: إعدادات المنصة، الأدوار والصلاحيات، الدعوات، والإجراءات الإدارية (للقراءة فقط)</div></div>
           <button type="button" class="spa-btn spa-btn-gh" (click)="exportAuditCsv()" [disabled]="!auditRows().length" title="يصدّر السجلات المعروضة حاليًا"><svg><use href="#spa-i-export"></use></svg>تصدير CSV</button>
         </div>
         <div class="spa-filter-row">
@@ -133,15 +133,18 @@
             <table class="spa-tbl">
               <thead><tr><th>#</th><th>الإجراء</th><th>التفاصيل</th><th>المنفذ</th><th>الدور</th><th>IP</th><th>التاريخ</th><th>الخطورة</th></tr></thead>
               <tbody>
-                @for (r of auditRows(); track r.id; let i = $index) {
-                  <tr data-testid="audit-row">
-                    <td class="spa-mono">#{{ auditNumber(i) }}</td>
-                    <td class="spa-strong">{{ r.title }}</td>
-                    <td class="spa-detail">{{ r.summary }}</td>
-                    <td class="spa-actor">{{ r.account.name || r.actorLabel || '—' }}</td>
-                    <td><span class="spa-bdg spa-bdg-role">{{ roleLabel(r.account.accountType) }}</span></td>
+                @for (r of auditRows(); track r.id) {
+                  <tr data-testid="audit-row" [attr.data-event]="r.eventType">
+                    <td class="spa-mono" data-testid="audit-seq">{{ seqText(r) }}</td>
+                    <td class="spa-strong" data-testid="audit-action" [title]="r.eventType">{{ r.actionLabel || r.title }}</td>
+                    <td class="spa-detail" data-testid="audit-detail">
+                      @if (r.detail || r.summary) { <span>{{ r.detail || r.summary }}@if (r.detailDate) { {{ r.detailDate | wsDate:'datetime' }} }</span> }
+                      @if (targetText(r); as t) { <span class="spa-target" data-testid="audit-target">{{ t }}</span> }
+                    </td>
+                    <td class="spa-actor" data-testid="audit-actor">{{ actorName(r) }}</td>
+                    <td><span class="spa-bdg spa-bdg-role">{{ roleLabel(r.actor?.accountType ?? r.account.accountType) }}</span></td>
                     <td class="spa-mono spa-ltr">{{ r.ipAddress || '—' }}</td>
-                    <td class="spa-date">{{ r.occurredAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</td>
+                    <td class="spa-date" data-testid="audit-date">{{ r.occurredAt | wsDate:'datetime' }}</td>
                     <td><span class="spa-bdg" [style.background]="sev(r).bg" [style.color]="sev(r).color">{{ sevLabels[r.severity] || r.severity }}</span></td>
                   </tr>
                 } @empty {
@@ -170,13 +173,17 @@
         <div class="spa-danger-zone">
           <div class="spa-card-ttl spa-card-ttl-danger"><svg><use href="#spa-i-warn"></use></svg>إجراءات حرجة</div>
           <div class="spa-row" data-testid="danger-maintenance">
-            <div><div class="spa-row-lbl spa-row-lbl-danger">{{ maintenanceOn() ? 'إيقاف وضع الصيانة' : 'تفعيل وضع الصيانة الكامل' }}</div><div class="spa-row-sub">{{ maintenanceOn() ? 'الصيانة مفعّلة الآن؛ يعود الوصول لجميع المستخدمين بعد الإيقاف' : 'يعطل النظام لجميع المستخدمين (يبقى متاحًا: الإدارة والدخول والصحة واستدعاءات الدفع)' }}</div></div>
+            <div><div class="spa-row-lbl spa-row-lbl-danger">{{ maintenanceOn() ? 'إيقاف وضع الصيانة' : 'تفعيل وضع الصيانة الكامل' }}<button type="button" class="spa-help-btn" [attr.data-testid]="'help-btn-maintenance'" aria-label="تفاصيل" [attr.aria-expanded]="dangerHelp().has('maintenance')" (click)="toggleDangerHelp('maintenance')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div><div class="spa-row-sub">{{ maintenanceOn() ? 'يعود الوصول لجميع المستخدمين بعد الإيقاف' : 'يعطل النظام لجميع المستخدمين' }}</div>
+              @if (dangerHelp().has('maintenance')) { <div class="spa-help" data-testid="help-maintenance">{{ maintenanceOn() ? 'الصيانة مفعّلة الآن؛ يعود الوصول لجميع المستخدمين بعد الإيقاف.' : 'يعطل النظام لجميع المستخدمين، ويبقى متاحًا: الإدارة والدخول والصحة واستدعاءات الدفع. التفعيل يمرّ بتأكيدين.' }}</div> }
+            </div>
             <button type="button" class="spa-btn spa-btn-danger" data-testid="danger-maintenance-btn" [disabled]="store.saving() || !store.item('maintenanceMode')?.canWrite" (click)="toggleMaintenance()">{{ maintenanceOn() ? 'إيقاف' : 'تفعيل' }}</button>
           </div>
           @if (dangerError()) { <div class="spa-row spa-row-err" role="alert" data-testid="danger-error">{{ dangerError() }}</div> }
           @for (d of unavailableActions; track d.key) {
             <div class="spa-row" [attr.data-testid]="'danger-' + d.key">
-              <div><div class="spa-row-lbl spa-row-lbl-danger">{{ d.label }} <span class="spa-bdg spa-bdg-role">غير متاح</span></div><div class="spa-row-sub">{{ d.desc }}</div><div class="spa-row-sub spa-row-reason">{{ d.reason }}</div></div>
+              <div><div class="spa-row-lbl spa-row-lbl-danger">{{ d.label }} <span class="spa-bdg spa-bdg-role">غير متاح</span><button type="button" class="spa-help-btn" [attr.data-testid]="'help-btn-' + d.key" aria-label="تفاصيل" [attr.aria-expanded]="dangerHelp().has(d.key)" (click)="toggleDangerHelp(d.key)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div><div class="spa-row-sub">{{ d.desc }}</div>
+                @if (dangerHelp().has(d.key)) { <div class="spa-help" [attr.data-testid]="'help-' + d.key">{{ d.reason }}</div> }
+              </div>
               <button type="button" class="spa-btn spa-btn-danger spa-btn-na" disabled [title]="d.reason">{{ d.buttonLabel }}</button>
             </div>
           }
