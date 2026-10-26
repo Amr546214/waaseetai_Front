@@ -13,7 +13,7 @@ export interface NotificationPreferencesResponse {
 /** The exact wording shown next to the e-mail option while the platform has optional e-mail switched off. */
 export const EMAIL_DISABLED_BY_PLATFORM = 'معطّل بواسطة إدارة المنصة';
 /** Explains why login / activation / reset mail still arrives when the option is off or disabled. */
-export const CODE_MAIL_ALWAYS_NOTE = 'رموز تسجيل الدخول والتفعيل وإعادة تعيين كلمة المرور تصلك دائمًا على بريدك، وهي قناة مستقلة لا تتأثر بهذا الخيار.';
+export const CODE_MAIL_ALWAYS_NOTE = 'إيصالات العمليات ودعوات العقود ورموز الدخول والتفعيل والاستعادة تصل دائمًا على بريدك، فهي رسائل مطلوبة لإتمام العمليات ولا يغيّرها هذا الخيار.';
 /** The stable server code of the 409 sent when the option is switched ON while the platform has it OFF. */
 export const EMAIL_DISABLED_CODE = 'EMAIL_CHANNEL_DISABLED_BY_PLATFORM';
 /** true only when the server SAID the platform switched optional e-mail off (an old / missing field keeps today's behaviour: editable). */
