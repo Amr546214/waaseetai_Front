@@ -1,18 +1,18 @@
-<section class="fp" dir="rtl" data-testid="fee-policy">
-  <h2 class="fp-h">سياسة الرسوم والعمولات</h2>
+<section class="fp" [class.fp-ss]="variant() === 'ss'" [class.fp-spa]="variant() === 'spa'" dir="rtl" data-testid="fee-policy">
+  <h2 class="fp-h"><svg class="fp-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM14.5 14a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0z"/></svg>سياسة الرسوم والعمولات</h2>
   <p class="fp-sub">النسب والحدود الدنيا تُحفظ كنسخ ثابتة. التعديل يُجدول لوقت لاحق ويسري على العمليات الجديدة فقط؛ العقود وطلبات الإيداع والسحب القائمة تحتفظ بشروطها.</p>
 
   @if (loading()) { <div class="fp-note" role="status">جارٍ التحميل…</div> }
   @else if (loadError()) { <div class="fp-err" role="alert" data-testid="fp-load-error">{{ loadError() }} @if (!forbidden()) { <button type="button" class="fp-btn" data-testid="fp-retry" (click)="load()">إعادة المحاولة</button> }</div> }
   @else if (view(); as v) {
-    <div class="fp-active" data-testid="fp-active">
+    <div class="fp-active" data-testid="fp-active"><span class="fp-dot fp-dot-ok" aria-hidden="true"></span><span class="fp-line">
       النسخة السارية: <b>{{ v.active.version }}</b> — منذ {{ v.active.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}
-      <span class="fp-src" data-testid="fp-source">— المصدر: {{ v.activeSource === 'built-in fallback' ? 'قيم مدمجة في الخادم (لا نسخة محفوظة قابلة للقراءة في قاعدة البيانات)' : 'نسخة محفوظة في قاعدة البيانات' }}@if (v.active.note) { — {{ v.active.note }} }</span>
+      <span class="fp-src" data-testid="fp-source">— المصدر: {{ v.activeSource === 'built-in fallback' ? 'قيم مدمجة في الخادم (لا نسخة محفوظة قابلة للقراءة في قاعدة البيانات)' : 'نسخة محفوظة في قاعدة البيانات' }}@if (v.active.note) { — {{ v.active.note }} }</span></span>
     </div>
 
     @for (u of pending(); track u.id) {
-      <div class="fp-pending" data-testid="fp-pending">
-        نسخة مجدولة <b>{{ u.version }}</b> تسري من {{ u.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}
+      <div class="fp-pending" data-testid="fp-pending"><span class="fp-dot fp-dot-warn" aria-hidden="true"></span><span class="fp-line">
+        نسخة مجدولة <b>{{ u.version }}</b> تسري من {{ u.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</span>
         @if (canManage()) { <button type="button" class="fp-btn" [disabled]="saving()" (click)="cancel(u)">إلغاء النسخة المجدولة</button> }
       </div>
     }
@@ -37,7 +37,7 @@
       </div>
 
       <div class="fp-grid">
-        <fieldset class="fp-fs"><legend>رسوم الإيداع %</legend>
+        <fieldset class="fp-fs"><legend>رسوم الإيداع % <span class="fp-lg-sub">حسب وسيلة الدفع</span></legend>
           @for (k of depositKeys; track k) { <label class="fp-row">{{ depositLabels[k] }}<input class="fp-in" type="number" step="0.01" [value]="d.depositFeePercent[k]" [disabled]="!editable()" (input)="setTable('depositFeePercent', k, $any($event.target).value)" /></label> }
         </fieldset>
         <fieldset class="fp-fs"><legend>رسوم سحب الوسيط % <span class="fp-tag">للعرض فقط</span></legend>
@@ -58,7 +58,7 @@
           @for (m of fieldErrors(); track m) { <div class="fp-err" role="alert">{{ m }}</div> }
           @if (notice()) { <div class="fp-ok" role="status">{{ notice() }}</div> }
           <div class="fp-actions">
-            <button type="button" class="fp-btn fp-btn-primary" [disabled]="saving() || !diff().length" (click)="submit()" data-testid="fp-submit">جدولة التعديل</button>
+            <button type="button" class="fp-btn fp-btn-primary" [disabled]="saving() || !diff().length" (click)="submit()" data-testid="fp-submit"><svg class="fp-chk" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>جدولة التعديل</button>
             <button type="button" class="fp-btn" [disabled]="saving() || !diff().length" (click)="reset()">تراجع</button>
           </div>
         </div>
@@ -67,7 +67,7 @@
 
     <h3 class="fp-h3">سجل النسخ</h3>
     <ul class="fp-hist" data-testid="fp-history">
-      @for (h of v.history; track h.id) { <li>النسخة {{ h.version }} — {{ stateLabel(h.state) }} — {{ h.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}@if (h.note) { — {{ h.note }} }</li> }
+      @for (h of v.history; track h.id) { <li class="fp-h-{{ h.state === 'EFFECTIVE' ? 'ok' : h.state === 'SCHEDULED' ? 'warn' : 'off' }}"><span class="fp-dot" aria-hidden="true"></span><span class="fp-h-name">النسخة {{ h.version }} — {{ h.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}@if (h.note) { — {{ h.note }} }</span><span class="fp-h-val">{{ stateLabel(h.state) }}</span></li> }
     </ul>
   }
 </section>
