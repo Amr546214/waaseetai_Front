@@ -194,3 +194,5 @@
   .v-ss .st-ro{align-items:flex-end;text-align:end;max-width:50%}
 }
 .v-ss .st-row-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* long text editors (terms / privacy texts) use the whole row, not the 160px control cell */
+.v-ss .st-input.st-area,.v-spa .st-input.st-area{width:100%;min-width:0;max-width:none;height:auto;min-height:160px;padding:10px 12px;line-height:1.7;direction:rtl}
