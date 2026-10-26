@@ -153,7 +153,7 @@ export class SaSuperAdmins implements OnInit {
   /** the stable sequence number of the event as the server numbers it (creation order of all administrative events); never the position in a filtered page */
   seqText(r: AdminAuditEntry) { return r.seq != null ? `#${r.seq}` : '—'; }
   actorName(r: AdminAuditEntry) { return r.actor?.name || r.account.name || r.actorLabel || '—'; }
-  targetText(r: AdminAuditEntry) { const t = r.target; return t ? [t.typeLabel, t.label, t.id && t.id !== t.label ? t.id : null].filter(Boolean).join(' · ') : ''; }
+  targetText(r: AdminAuditEntry) { const t = r.target; return t ? [t.typeLabel, t.label, t.id && t.id !== t.label ? (t.id.length > 20 ? `${t.id.slice(0, 8)}…` : t.id) : null].filter(Boolean).join(' · ') : ''; }
   roleLabel(t: string | null | undefined) { return t === 'SUPER_ADMIN' ? 'مسؤول أعلى' : t === 'ADMIN' ? 'مسؤول' : t ? 'مستخدم' : '—'; }
   sev(r: AdminAuditEntry) { return SEV_STYLE[r.severity] ?? SEV_STYLE['INFO']; }
   setAuditType(value: string) { this.auditTypeFilter.set(value); this.auditPage.set(1); this.loadAudit(); }
