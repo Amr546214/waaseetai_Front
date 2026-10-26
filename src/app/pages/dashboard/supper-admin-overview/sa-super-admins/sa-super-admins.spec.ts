@@ -47,7 +47,7 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 
 	it('general: identity / registration / content cards come from the registry; a blocked item states why; the roster of admin accounts is kept', async () => {
 		const { f, el } = await boot();
-		expect(el.querySelector('[data-testid="row-platformName"] input')).toBeTruthy(); (el.querySelector('[data-testid="help-btn-defaultTimezone"]') as HTMLButtonElement).click(); await flush(f); expect(el.querySelector('[data-testid="row-defaultTimezone"]')?.textContent).toContain('لا توجد طبقة عرض'); /* round 2: the reason lives behind the row's ⓘ help, not inline */ expect(el.querySelector('[data-testid="row-defaultLanguage"]')?.textContent).toContain('المصدر');
+		expect(el.querySelector('[data-testid="row-platformName"] input')).toBeTruthy(); (el.querySelector('[data-testid="help-btn-defaultTimezone"]') as HTMLButtonElement).click(); await flush(f); expect(el.querySelector('[data-testid="row-defaultTimezone"]')?.textContent).toContain('لا توجد طبقة عرض'); /* round 2: the reason lives behind the row's ⓘ help, not inline */ (el.querySelector('[data-testid="help-btn-defaultLanguage"]') as HTMLButtonElement).click(); await flush(f); expect(el.querySelector('[data-testid="row-defaultLanguage"]')?.textContent).toContain('المصدر');
 		expect(el.querySelector('[data-testid="admins-card"]')?.textContent).toContain('مدير النظام');
 		expect(el.textContent).not.toContain('smtp.sendgrid.net'); expect(el.textContent).not.toContain('300xxxxxxxxx003');
 	});
@@ -86,5 +86,24 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 		const req = http.expectOne(r => r.method === 'PUT'); expect(req.request.body).toEqual({ changes: { maintenanceMode: true }, expected: { maintenanceMode: 0 } });
 		req.flush({ success: false, message: 'ليست لديك صلاحية', code: 'SETTING_PERMISSION_DENIED' }, { status: 403, statusText: 'x' }); await flush(f); await flush(f);
 		expect(el.querySelector('[data-testid="danger-error"]')).toBeTruthy(); expect(el.querySelector('[data-testid="danger-maintenance-btn"]')?.textContent).toContain('تفعيل'); // still off: the server did not confirm
+	});
+
+	it('audit tab: every row shows ITS OWN event (Arabic name from the code, actor, target, detail), the stored sequence number (not the page position) and platform-formatted dates', async () => {
+		const { f, el, c } = await boot();
+		const mk = (o: any) => ({ category: 'SYSTEM_AUDIT', title: 't', summary: null, severity: 'INFO', source: 'ADMIN', status: 'COMPLETED', ipAddress: null, device: null, actorLabel: null, account: { id: 'x', name: '', accountType: null }, ...o });
+		await go(f, c, 'audit');
+		c.auditRows.set([
+			mk({ id: '1', seq: 4812, eventType: 'SESSION_STARTED', actionLabel: 'تسجيل دخول جديد', title: 'تسجيل دخول جديد', detail: 'بدأت جلسة جديدة', occurredAt: '2026-10-26T12:00:00Z', actor: { id: 'a', name: 'مدير النظام', accountType: 'SUPER_ADMIN' }, ipAddress: '10.0.0.1' }),
+			mk({ id: '2', seq: 4811, eventType: 'STAFF_SUSPENDED', actionLabel: 'إيقاف موظف', severity: 'WARNING', detail: 'الحالة: نشط ← موقوف', occurredAt: '2026-10-26T11:00:00Z', actor: { id: 'a', name: 'مدير النظام', accountType: 'SUPER_ADMIN' }, target: { type: 'USER', typeLabel: 'حساب', id: 'u9', label: 'سارة' } }),
+			mk({ id: '3', seq: 4810, eventType: 'FEE_POLICY_SCHEDULED', actionLabel: 'جدولة تعديل سياسة الرسوم', detail: 'نسخة 2 · تسري من', detailDate: '2026-10-30T00:00:00Z', occurredAt: '2026-10-26T10:00:00Z', actor: { id: 'a', name: 'مدير النظام', accountType: 'SUPER_ADMIN' }, target: { type: 'FEE_POLICY', typeLabel: 'سياسة الرسوم', id: '2', label: 'نسخة 2' } }),
+			mk({ id: '4', seq: 4809, eventType: 'NEW_UNKNOWN', actionLabel: 'NEW_UNKNOWN', occurredAt: '2026-10-26T09:00:00Z', actor: { id: 'b', name: 'سارة', accountType: 'ADMIN' } }),
+		]); await flush(f);
+		const rows = Array.from(el.querySelectorAll('[data-testid="audit-row"]'));
+		expect(rows.map(r => r.querySelector('[data-testid="audit-action"]')?.textContent?.trim())).toEqual(['تسجيل دخول جديد', 'إيقاف موظف', 'جدولة تعديل سياسة الرسوم', 'NEW_UNKNOWN']);
+		expect(rows.map(r => r.querySelector('[data-testid="audit-seq"]')?.textContent?.trim())).toEqual(['#4812', '#4811', '#4810', '#4809']);
+		expect(rows[1].querySelector('[data-testid="audit-target"]')?.textContent).toContain('سارة'); expect(rows[1].querySelector('[data-testid="audit-target"]')?.textContent).toContain('u9');
+		expect(rows[2].querySelector('[data-testid="audit-detail"]')?.textContent).toMatch(/تسري من\s+2026-10-30/);
+		expect(rows[3].querySelector('[data-testid="audit-actor"]')?.textContent).toContain('سارة');
+		expect(new Set(rows.map(r => r.querySelector('[data-testid="audit-action"]')?.textContent?.trim())).size).toBe(4); // not «every row looks like a login»
 	});
 });
