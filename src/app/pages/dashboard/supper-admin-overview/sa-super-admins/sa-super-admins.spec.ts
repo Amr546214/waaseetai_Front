@@ -42,12 +42,12 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 
 	it('has the eight design tabs in order (settings tabs + red zone)', async () => {
 		const { el } = await boot();
-		expect(Array.from(el.querySelectorAll('.spa-nav-item')).map(b => b.textContent?.trim())).toEqual(['عام', 'الرسوم والمالية', 'الأمان', 'الإشعارات', 'الذكاء الاصطناعي', 'التكاملات والـ API', 'Audit Trail', 'المنطقة الحمراء']);
+		expect(Array.from(el.querySelectorAll('.spa-nav-item')).map(b => b.textContent?.trim())).toEqual(['عام', 'الرسوم والمالية', 'الأمان', 'الإشعارات', 'محركات AI', 'التكاملات والـ API', 'Audit Trail', 'المنطقة الحمراء']);
 	});
 
 	it('general: identity / registration / content cards come from the registry; a blocked item states why; the roster of admin accounts is kept', async () => {
-		const { el } = await boot();
-		expect(el.querySelector('[data-testid="row-platformName"] input')).toBeTruthy(); expect(el.querySelector('[data-testid="row-defaultTimezone"]')?.textContent).toContain('لا توجد طبقة عرض'); expect(el.querySelector('[data-testid="row-defaultLanguage"]')?.textContent).toContain('المصدر');
+		const { f, el } = await boot();
+		expect(el.querySelector('[data-testid="row-platformName"] input')).toBeTruthy(); (el.querySelector('[data-testid="help-btn-defaultTimezone"]') as HTMLButtonElement).click(); await flush(f); expect(el.querySelector('[data-testid="row-defaultTimezone"]')?.textContent).toContain('لا توجد طبقة عرض'); /* round 2: the reason lives behind the row's ⓘ help, not inline */ expect(el.querySelector('[data-testid="row-defaultLanguage"]')?.textContent).toContain('المصدر');
 		expect(el.querySelector('[data-testid="admins-card"]')?.textContent).toContain('مدير النظام');
 		expect(el.textContent).not.toContain('smtp.sendgrid.net'); expect(el.textContent).not.toContain('300xxxxxxxxx003');
 	});
@@ -67,7 +67,7 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 		const { f, el, c } = await boot(); await go(f, c, 'integrations');
 		// the design lists one row per integration (name + state); the same real states as before, now one row each instead of one joined line
 		const ent = (k: string) => el.querySelector(`[data-testid="entry-apiKeys-${k}"]`)?.textContent ?? ''; expect(ent('paypal')).toContain('PayPal'); expect(ent('paypal')).toContain('مهيّأ'); expect(ent('smsProvider')).toContain('مزوّد SMS'); expect(ent('smsProvider')).toContain('غير مهيّأ'); expect(el.textContent).not.toMatch(/•{4,}|sk_|secret/i);
-		await go(f, c, 'ai'); expect(el.querySelector('[data-testid="row-aiMatchEngine"]')?.textContent).toContain('نطاق منفصل');
+		await go(f, c, 'ai'); (el.querySelector('[data-testid="help-btn-aiMatchEngine"]') as HTMLButtonElement).click(); await flush(f); expect(el.querySelector('[data-testid="row-aiMatchEngine"]')?.textContent).toContain('نطاق منفصل');
 	});
 
 	it('fees tab: the header save is visibly disabled (nothing here saves through it) ', async () => {
@@ -77,7 +77,7 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 
 	it('red zone: maintenance is the REAL setting behind a double confirmation; wipe / broadcast / backup are disabled and say why; nothing pretends to run', async () => {
 		const { f, el, c } = await boot(); await go(f, c, 'danger');
-		for (const k of ['wipeTest', 'broadcast', 'backup']) { const r = el.querySelector(`[data-testid="danger-${k}"]`) as HTMLElement; expect((r.querySelector('button') as HTMLButtonElement).disabled).toBe(true); expect(r.textContent).toContain('غير متاح'); }
+		for (const k of ['wipeTest', 'broadcast', 'backup']) { const r = el.querySelector(`[data-testid="danger-${k}"]`) as HTMLElement; expect((r.querySelector('.spa-btn-danger') as HTMLButtonElement).disabled).toBe(true); expect(r.textContent).toContain('غير متاح'); (r.querySelector('.spa-help-btn') as HTMLButtonElement).click(); await flush(f); expect(r.querySelector(`[data-testid="help-${k}"]`)?.textContent?.length).toBeGreaterThan(10); }
 		confirm.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 		(el.querySelector('[data-testid="danger-maintenance-btn"]') as HTMLButtonElement).click(); await flush(f);
 		expect(confirm).toHaveBeenCalledTimes(2); http.expectNone(r => r.method === 'PUT'); // the second confirmation declined: nothing sent

@@ -74,13 +74,19 @@
 .spa-mono{font-family:monospace;font-size:11px;color:#6B7699}
 .spa-ltr{direction:ltr;text-align:right}
 .spa-strong{font-weight:700;color:#fff}
-.spa-detail{max-width:200px;font-size:12px;color:#A8B2D1}
+.spa-detail{max-width:260px;font-size:12px;color:#A8B2D1}
 .spa-actor{font-size:12px;color:#fff}
+.spa-detail span{display:block}
+.spa-target{margin-top:2px;font-size:11px;color:#6B7699}
 .spa-date{font-size:11px;color:#6B7699;white-space:nowrap}
 .spa-bdg{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
 .spa-bdg-role{background:rgba(255,255,255,.06);color:#6B7699}
 .spa-danger-zone{background:rgba(255,140,105,.05);border:1px solid rgba(255,140,105,.18);border-radius:14px;padding:16px 18px;margin-bottom:12px}
 .spa-row-reason{color:#A8B2D1}
+.spa-help-btn{display:inline-flex;align-items:center;justify-content:center;margin-inline-start:2px;padding:2px;border:0;background:transparent;color:#6B7699;cursor:pointer;line-height:0}
+.spa-help-btn:hover,.spa-help-btn[aria-expanded="true"]{color:#2BD4C7}
+.spa-help{margin-top:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.05);font-size:12px;line-height:1.7;color:#A8B2D1}
+.spa-last ::ng-deep .st-card.v-spa{margin-bottom:0}
 .spa-foot{margin-top:20px;padding:10px 0;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#6B7699;border-top:1px solid rgba(255,255,255,.05)}
 .spa-notice{margin-bottom:12px;padding:9px 14px;border-radius:10px;border:1px solid rgba(15,169,154,.35);background:rgba(15,169,154,.08);color:#0FA99A;font-size:12.5px;font-weight:700}
 .spa-btn[href]{text-decoration:none;display:inline-flex;align-items:center}
@@ -99,6 +105,8 @@
 @media(max-width:767px){.spa-card-flush .spa-tbl{min-width:640px}}
 
 /* Light theme: the design's ws-light-polish tokens */
+:host-context(.light-theme) .spa-help,:host-context(.theme-light) .spa-help{background:#F8FAFC;border-color:#E7EAF1;color:#475569}
+:host-context(.light-theme) .spa-target,:host-context(.theme-light) .spa-target{color:#64748B}
 :host-context(.light-theme) .spa-sec-ttl,:host-context(.theme-light) .spa-sec-ttl,:host-context(.light-theme) .spa-card-ttl,:host-context(.theme-light) .spa-card-ttl,:host-context(.light-theme) .spa-row-lbl,:host-context(.theme-light) .spa-row-lbl,:host-context(.light-theme) .spa-strong,:host-context(.theme-light) .spa-strong,:host-context(.light-theme) .spa-actor,:host-context(.theme-light) .spa-actor{color:#1E293B}
 :host-context(.light-theme) .spa-sec-ttl-danger,:host-context(.theme-light) .spa-sec-ttl-danger,:host-context(.light-theme) .spa-row-lbl-danger,:host-context(.theme-light) .spa-row-lbl-danger{color:#FF8C69}
 :host-context(.light-theme) .spa-nav-ttl,:host-context(.theme-light) .spa-nav-ttl,:host-context(.light-theme) .spa-sec-sub,:host-context(.theme-light) .spa-sec-sub,:host-context(.light-theme) .spa-row-sub,:host-context(.theme-light) .spa-row-sub,:host-context(.light-theme) .spa-mono,:host-context(.theme-light) .spa-mono,:host-context(.light-theme) .spa-date,:host-context(.theme-light) .spa-date,:host-context(.light-theme) .spa-foot,:host-context(.theme-light) .spa-foot,:host-context(.light-theme) .spa-pag-info,:host-context(.theme-light) .spa-pag-info,:host-context(.light-theme) .spa-empty,:host-context(.theme-light) .spa-empty,:host-context(.light-theme) .spa-fr-search svg,:host-context(.theme-light) .spa-fr-search svg,:host-context(.light-theme) .spa-tbl thead th,:host-context(.theme-light) .spa-tbl thead th{color:#64748B}
@@ -130,3 +138,5 @@
 :host-context(.light-theme) .spa-tbl tbody td.spa-mono,:host-context(.theme-light) .spa-tbl tbody td.spa-mono,:host-context(.light-theme) .spa-tbl tbody td.spa-date,:host-context(.theme-light) .spa-tbl tbody td.spa-date{color:#64748B}
 :host-context(.light-theme) .spa-tbl tbody td.spa-strong,:host-context(.theme-light) .spa-tbl tbody td.spa-strong,:host-context(.light-theme) .spa-tbl tbody td.spa-actor,:host-context(.theme-light) .spa-tbl tbody td.spa-actor{color:#1E293B}
 :host-context(.light-theme) .spa-fr-sel ::ng-deep .ws-sel-trigger,:host-context(.theme-light) .spa-fr-sel ::ng-deep .ws-sel-trigger{background:#fff;border-color:#CBD5E1;color:#1E293B}
+
+.spa-row-lbl .spa-bdg{padding:1px 9px;line-height:1.3}
