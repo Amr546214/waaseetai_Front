@@ -8,7 +8,7 @@ import { ConfirmModalService } from '../../core/services/confirm-modal.service';
 import { UiNotificationService } from '../../core/services/ui-notification.service';
 import { FeePolicyApi, FeePolicyPayload, FeePolicyVersion, FeePolicyView } from '../../core/services/fee-policy.api';
 import { platformTimeZone, instantOfWallClock, wallClockInZone } from '../../core/utils/regional';
-import { WsDatePipe } from '../ws-date/ws-date.pipe';
+import { WsDatePipe, effectiveTimeZone, formatWsDate } from '../ws-date/ws-date.pipe';
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 export const DEPOSIT_LABELS: Record<string, string> = { mada: 'مدى', visa_mastercard: 'فيزا / ماستركارد', paypal: 'PayPal', international_transfer: 'تحويل دولي', other: 'أخرى' };
@@ -41,6 +41,8 @@ export class FeePolicyPanel implements OnInit {
 	readonly levels = Array.from({ length: 15 }, (_, i) => i + 1);
 	readonly depositKeys = Object.keys(DEPOSIT_LABELS); readonly withdrawKeys = Object.keys(WITHDRAW_LABELS); readonly depositLabels = DEPOSIT_LABELS; readonly withdrawLabels = WITHDRAW_LABELS;
 	/** the zone the effective time is typed in: the platform zone, else this browser's own */
+	/** the schedule time as every other date on the platform (platform date format/calendar); the zone is named only when it is not the platform's own */
+	effText(d: Date): string { const z = platformTimeZone(), shown = effectiveTimeZone(); return formatWsDate(d, 'datetime', 'yyyy-MM-dd HH:mm') + (z && shown && z !== shown ? ` (بتوقيت ${shown})` : ''); }
 	readonly zoneLabel = computed(() => platformTimeZone() ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
 	readonly canManage = computed(() => this.access.can('fees.manage'));
 	readonly pending = computed(() => (this.view()?.upcoming ?? []).filter(u => u.state === 'SCHEDULED'));
@@ -67,13 +69,13 @@ export class FeePolicyPanel implements OnInit {
 		if (!this.note().trim()) { this.formError.set('اكتب سبب التعديل.'); return; }
 		if (Number.isNaN(eff.getTime())) { this.formError.set('اختر وقت السريان.'); return; }
 		const lines = this.diff().slice(0, 14).map(x => `• ${describePath(x.path)}: ${x.from} ← ${x.to}`); if (this.diff().length > 14) lines.push(`… و${this.diff().length - 14} تغييرات أخرى`);
-		const ok = await this.confirmModal.confirm({ title: 'جدولة تعديل الرسوم والعمولات', type: 'warning', size: 'md', confirmText: 'جدولة النسخة', message: `${lines.join('\n')}\n\nتسري من ${eff.toLocaleString('ar-SA-u-nu-latn', { timeZone: z })} على العمليات التي تُنشأ بعدها فقط.\nالعقود وطلبات الإيداع والسحب القائمة تحتفظ بشروطها وقت إنشائها ولا يُعاد حسابها.` });
+		const ok = await this.confirmModal.confirm({ title: 'جدولة تعديل الرسوم والعمولات', type: 'warning', size: 'md', confirmText: 'جدولة النسخة', message: `${lines.join('\n')}\n\nتسري من ${this.effText(eff)} على العمليات التي تُنشأ بعدها فقط.\nالعقود وطلبات الإيداع والسحب القائمة تحتفظ بشروطها وقت إنشائها ولا يُعاد حسابها.` });
 		if (!ok) return;
 		this.saving.set(true); this.clearMessages();
 		try {
 			const changes = changedKeys(v.active.payload, d);
 			const r = (await firstValueFrom(this.api.schedule({ changes, effectiveFrom: eff.toISOString(), note: this.note().trim(), baseVersion: Math.max(...[v.active, ...v.upcoming].map(x => x.version)), confirmSensitive: true }))).data;
-			this.ui.success('جُدولت النسخة الجديدة'); this.notice.set(`جُدولت النسخة ${r.version}: تسري على العمليات الجديدة من ${eff.toLocaleString('ar-SA-u-nu-latn', { timeZone: z })}.`); this.note.set(''); await this.load();
+			this.ui.success('جُدولت النسخة الجديدة'); this.notice.set(`جُدولت النسخة ${r.version}: تسري على العمليات الجديدة من ${this.effText(eff)}.`); this.note.set(''); await this.load();
 		} catch (e) {
 			const he = e as HttpErrorResponse; const m = mapHttpError(e, { fallback: 'تعذّرت الجدولة. لم يتغيّر شيء.' });
 			this.formError.set(he?.error?.code === 'FEE_POLICY_VERSION_CONFLICT' ? 'تغيّرت سياسة الرسوم من جهة أخرى. حمّل الأحدث وراجع تعديلك.' : m.message);
