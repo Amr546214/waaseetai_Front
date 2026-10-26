@@ -17,28 +17,28 @@
     <div class="ss-layout">
       <div class="ss-nav" role="tablist">
         @for (t of tabs; track t.key) {
-          <button type="button" role="tab" class="ss-nav-item" [attr.data-testid]="'tab-' + t.key" [attr.aria-selected]="active() === t.key" [class.active]="active() === t.key" (click)="setTab(t.key)"><span class="ss-nav-lbl">{{ t.label }}</span><svg class="ss-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="t.icon"/></svg></button>
+          <button type="button" role="tab" class="ss-nav-item" [attr.data-testid]="'tab-' + t.key" [attr.aria-selected]="active() === t.key" [class.active]="active() === t.key" (click)="setTab(t.key)"><svg class="ss-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" [attr.stroke-width]="t.key === 'health' ? 2.5 : 1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="t.icon"/></svg><span class="ss-nav-lbl">{{ t.label }}</span></button>
         }
       </div>
       <div class="ss-content">
         @switch (active()) {
           @case ('general') {
-            <app-settings-section title="الإعدادات العامة" [keys]="general" variant="ss" [showSave]="false" />
-            <app-settings-section title="التواصل وبنر التنبيه" [keys]="contacts" variant="ss" [showSave]="false" />
-            <app-settings-section title="الشروط والخصوصية" [keys]="legal" [saveKeys]="generalAll" variant="ss" />
+            <app-settings-section title="الإعدادات العامة" [icon]="icons.settings" [keys]="general" variant="ss" [showSave]="false" />
+            <app-settings-section title="التواصل وبنر التنبيه" [icon]="icons.bell" [keys]="contacts" variant="ss" [showSave]="false" />
+            <app-settings-section title="الشروط والخصوصية" [icon]="icons.shield" [keys]="legal" [saveKeys]="generalAll" variant="ss" />
           }
           @case ('ai') {
             <div class="ss-note" role="note">إعدادات الذكاء الاصطناعي والمزوّد والمفاتيح نطاق منفصل؛ تُجرد هنا ولا يُعدَّل تشغيلها من هذه الصفحة.</div>
-            <app-settings-section title="إعدادات الذكاء الاصطناعي" [keys]="ai" variant="ss" [showSave]="false" />
+            <app-settings-section title="إعدادات الذكاء الاصطناعي" [icon]="icons.ai" [keys]="ai" variant="ss" [showSave]="false" />
           }
-          @case ('notifications') { <app-settings-section title="إعدادات الإشعارات" [keys]="notif" variant="ss" /> }
-          @case ('security') { <app-settings-section title="الأمان والمصادقة" [keys]="security" variant="ss" /> }
+          @case ('notifications') { <app-settings-section title="إعدادات الإشعارات" [icon]="icons.bell" [keys]="notif" variant="ss" /> }
+          @case ('security') { <app-settings-section title="الأمان والمصادقة" [icon]="icons.shield" [keys]="security" variant="ss" /> }
           @case ('finance') {
-            <app-settings-section title="الإعدادات المالية" [keys]="finance" variant="ss" />
-            @if (access.canAny(['fees.view','fees.manage'])) { <app-fee-policy-panel /> }
+            <app-settings-section title="الإعدادات المالية" [icon]="icons.wallet" [keys]="finance" variant="ss" />
+            @if (access.canAny(['fees.view','fees.manage'])) { <app-fee-policy-panel variant="ss" /> }
             @if (access.isSuperAdmin()) {
               <div class="ss-card" data-testid="currency-readiness">
-                <div class="ss-card-ttl">جاهزية تغيير العملة الأساسية</div>
+                <div class="ss-card-ttl"><svg class="ss-ttl-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icons.check"/></svg>جاهزية تغيير العملة الأساسية</div>
                 @if (readinessError()) { <div class="ss-err" role="alert">{{ readinessError() }} <button type="button" class="ss-link" (click)="loadReadiness()">إعادة المحاولة</button></div> }
                 @else if (!readiness()) { <div class="ss-sub" role="status">جارٍ الفحص…</div> }
                 @else if (readiness()!.ready) { <div class="ss-ok">البنية جاهزة لتغيير العملة الأساسية.</div> }
@@ -49,7 +49,7 @@
               </div>
             }
           }
-          @case ('regional') { <app-settings-section title="الإعدادات الإقليمية" [keys]="regional" variant="ss" /> }
+          @case ('regional') { <app-settings-section title="الإعدادات الإقليمية" [icon]="icons.globe" [keys]="regional" variant="ss" /> }
           @case ('health') { <app-settings-health /> }
         }
       </div>

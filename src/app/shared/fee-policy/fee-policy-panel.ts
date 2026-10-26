@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -31,6 +31,8 @@ const localInput = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${p
 })
 export class FeePolicyPanel implements OnInit {
 	private api = inject(FeePolicyApi); private confirmModal = inject(ConfirmModalService); private ui = inject(UiNotificationService); readonly access = inject(AdminAccessService);
+	/** 'ss' = the P-AD-020 look (finance tab of «إعدادات النظام»), 'spa' = the look the Super Admin page («الرسوم والمالية») had */
+	readonly variant = input<'ss' | 'spa'>('ss');
 	readonly loading = signal(true); readonly loadError = signal(''); readonly forbidden = signal(false); readonly view = signal<FeePolicyView | null>(null);
 	readonly draft = signal<FeePolicyPayload | null>(null); readonly effectiveFrom = signal(''); readonly note = signal('');
 	readonly saving = signal(false); readonly formError = signal(''); readonly fieldErrors = signal<string[]>([]); readonly notice = signal('');
@@ -83,7 +85,7 @@ export class FeePolicyPanel implements OnInit {
 		catch (e) { this.formError.set(mapHttpError(e, { fallback: 'تعذّر الإلغاء. لم يتغيّر شيء.' }).message); }
 		finally { this.saving.set(false); }
 	}
-	stateLabel(s: string) { return s === 'EFFECTIVE' ? 'ساريه' : s === 'SCHEDULED' ? 'مجدولة' : 'ملغاة'; }
+	stateLabel(s: string) { return s === 'EFFECTIVE' ? 'سارية' : s === 'SCHEDULED' ? 'مجدولة' : 'ملغاة'; }
 }
 
 const num = (raw: string) => (raw.trim() === '' ? NaN : Number(raw));

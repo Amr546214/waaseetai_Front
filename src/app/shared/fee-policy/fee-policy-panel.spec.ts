@@ -43,6 +43,11 @@ describe('FeePolicyPanel', () => {
 		TestBed.resetTestingModule();
 		const b = await setup(view([{ ...view().active, id: 'u', version: 2, state: 'SCHEDULED' }])); expect(b.c.editable()).toBe(false); expect(b.c.pending().length).toBe(1);
 	});
+	it('has the P-AD-020 look by default and keeps the previous look for the spa variant', async () => {
+		const { f } = await setup(view()); f.detectChanges(); const root = (f.nativeElement as HTMLElement).querySelector('section.fp') as HTMLElement;
+		expect(root.classList.contains('fp-ss')).toBe(true); expect(root.classList.contains('fp-spa')).toBe(false);
+		f.componentRef.setInput('variant', 'spa'); f.detectChanges(); expect(root.classList.contains('fp-spa')).toBe(true); expect(root.classList.contains('fp-ss')).toBe(false);
+	});
 	it('shows cashback and the marketer withdrawal fee as display-only: disabled, labelled, never sent', async () => {
 		const { f, c, api } = await setup(view()); f.detectChanges();
 		const el = f.nativeElement as HTMLElement;

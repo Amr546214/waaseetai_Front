@@ -53,6 +53,8 @@ export class SettingsSectionComponent {
 	private confirmModal = inject(ConfirmModalService);
 	private api = inject(SystemSettingsApi);
 	readonly title = input<string>('');
+	/** the SVG path of the icon before the title (P-AD-020 «sec-ttl») */
+	readonly icon = input<string>('');
 	readonly keys = input.required<string[]>();
 	/** 'ss' = P-AD-020 look, 'spa' = P-AD-021 look */
 	readonly variant = input<'ss' | 'spa'>('ss');
@@ -92,6 +94,8 @@ export class SettingsSectionComponent {
 	}
 	private nameOf(k: string) { return ({ configured: 'الخادم', senderConfigured: 'المرسِل', paypal: 'PayPal', smsProvider: 'مزوّد SMS', billingGateway: 'بوابة الفوترة' } as Record<string, string>)[k] ?? k; }
 
+	/** the value shown beside «غير متاح»: the currency is USD while multi-currency is deferred (the server sends no value for it); other unavailable rows show none */
+	blockedValue(r: SettingItem): string { if (r.key === 'baseCurrency') return 'USD'; const v = r.value; return v === null || v === undefined || typeof v === 'boolean' || typeof v === 'object' ? '' : String(v); }
 	setBool(k: string, v: boolean) { this.store.setDraft(k, v); }
 	setNumber(k: string, raw: string) { this.store.setDraft(k, raw === '' ? NaN : Number(raw)); }
 	setText(k: string, v: string) { this.store.setDraft(k, v); }

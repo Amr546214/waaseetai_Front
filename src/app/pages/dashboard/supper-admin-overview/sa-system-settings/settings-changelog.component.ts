@@ -27,7 +27,7 @@ const show = (v: unknown) => (v === true ? 'مفعّل' : v === false ? 'غير 
 	        <div class="cl-row" [class.warn]="r.severity === 'WARNING'" data-testid="changelog-row">
 	          <span class="cl-time">{{ r.at | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</span>
 	          <span class="cl-msg"><b>{{ r.actor || 'حساب إداري' }}</b> غيّر @for (c of r.changes; track c.key; let last = $last) { <span class="cl-chg">{{ c.label }}: من {{ fmt(c.from) }} ← {{ fmt(c.to) }}</span>@if (!last) { ، } }</span>
-	          @if (r.ip) { <span class="cl-ip">IP: {{ r.ip }}</span> }
+	          @if (r.ip) { <span class="cl-ip" [class.warn]="r.severity === 'WARNING'">IP: {{ r.ip }}@if (r.severity === 'WARNING') { ⚠ }</span> }
 	        </div>
 	      }
 	    </div>
@@ -36,12 +36,14 @@ const show = (v: unknown) => (v === true ? 'مفعّل' : v === false ? 'غير 
 	</div>`,
 	styles: [`
 	:host{display:block}
-	.cl-card{background:rgba(43,127,255,.05);border:1px solid rgba(43,127,255,.16);border-radius:12px;padding:14px 18px;margin:14px 0}
+	.cl-card{background:rgba(43,127,255,.05);border:1px solid rgba(43,127,255,.16);border-radius:12px;padding:14px 18px;margin:0 0 14px}
 	.cl-ttl{font-size:13px;font-weight:800;color:#5DA0FF;margin-bottom:12px}.cl-list{display:flex;flex-direction:column;gap:6px;font-size:12px}
 	.cl-row{display:flex;gap:10px;padding:8px 10px;background:rgba(43,127,255,.04);border:1px solid rgba(43,127,255,.12);border-radius:8px;flex-wrap:wrap}.cl-row.warn{background:rgba(255,180,0,.04);border-color:rgba(255,180,0,.12)}
 	.cl-time{font-family:monospace;color:#6B7699;flex-shrink:0}.cl-msg{flex:1;color:#A8B2D1;min-width:180px}.cl-ip{color:#5DA0FF;flex-shrink:0;font-weight:700}.cl-chg{color:#E7EAF1}
-	.cl-link{display:inline-block;margin-top:10px;background:none;border:none;color:#2BD4C7;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:0;text-decoration:none}
+	.cl-ip.warn{color:#FFB400}
+	.cl-link{display:inline-block;margin-top:10px;background:none;border:none;color:#5DA0FF;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;padding:0;text-decoration:none}
 	.cl-empty{font-size:12px;color:#6B7699}.cl-err{font-size:12.5px;color:#FF8C69}
+	:host-context(.light-theme) .cl-time,:host-context(.theme-light) .cl-time{color:#64748B}:host-context(.light-theme) .cl-card,:host-context(.theme-light) .cl-card{background:rgba(43,127,255,.05)}
 	:host-context(.light-theme) .cl-msg,:host-context(.theme-light) .cl-msg{color:#475569}:host-context(.light-theme) .cl-chg,:host-context(.theme-light) .cl-chg{color:#0F172A}
 	`],
 })
