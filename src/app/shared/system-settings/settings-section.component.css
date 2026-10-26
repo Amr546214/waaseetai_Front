@@ -108,3 +108,41 @@
 :host-context(.light-theme) .v-ss .st-na-pill,:host-context(.theme-light) .v-ss .st-na-pill{background:#F1F5F9;border-color:#E2E8F0;color:#64748B}
 :host-context(.light-theme) .v-ss .st-inuse-val,:host-context(.theme-light) .v-ss .st-inuse-val{color:#475569}
 :host-context(.light-theme) .v-ss .st-row-reason,:host-context(.theme-light) .v-ss .st-row-reason,:host-context(.light-theme) .v-ss .st-inuse,:host-context(.theme-light) .v-ss .st-inuse{color:#64748B}
+/* ===== P-AD-021 («Super Admin») variant: tokens of the original design (.sec-card / .srow / .sw / .s-inp) ===== */
+.st-card.v-spa{border-radius:14px;padding:18px 20px;margin-bottom:12px;line-height:normal}
+.v-spa .st-card-ttl{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:#fff}
+.v-spa .st-ttl-ico{width:14px;height:14px;color:#2BD4C7;flex-shrink:0}
+.v-spa .st-row{padding:11px 0;gap:12px;border-bottom:1px solid rgba(255,255,255,.05)}
+.v-spa .st-row:last-of-type{border-bottom:0;padding-bottom:0}
+.v-spa .st-row:first-child{padding-top:0}
+.v-spa .st-card-ttl + .st-row{padding-top:11px}
+.v-spa .st-row-lbl{font-size:13px;font-weight:700;margin-bottom:2px;gap:8px}
+.v-spa .st-row-desc{font-size:11px;color:#6B7699;line-height:normal}
+.v-spa .st-row-eff{font-size:11px;color:#6B7699}
+.v-spa .st-row-reason{font-size:11px;color:#6B7699;line-height:normal;margin-top:3px}
+.v-spa .st-inuse{font-size:11px;line-height:normal;color:#6B7699;margin-top:3px;gap:2px 8px}
+.v-spa .st-inuse-val{color:#A8B2D1}
+.v-spa .st-badge{font-size:11px;font-weight:700;padding:3px 9px}
+.v-spa .st-err{font-size:11px;margin-top:3px;line-height:normal}
+.v-spa .st-sw::after{box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.v-spa .st-input{width:160px;min-width:160px;height:34px;border-radius:9px;padding:0 12px;font-size:12.5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);direction:rtl;transition:border-color .15s}
+.v-spa .st-input:focus{border-color:rgba(43,212,199,.30)}
+.v-spa .st-input-sm{width:80px;min-width:80px}
+.v-spa .st-inline{gap:6px}
+.v-spa .st-unit{font-size:13px;color:#6B7699}
+.v-spa .st-sel{width:160px;min-width:160px}
+.v-spa .st-sel ::ng-deep .ws-sel-trigger{height:34px;padding:0 12px;border-radius:9px;font-size:12.5px;color:#fff;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.05);gap:8px}
+:host-context(.light-theme) .v-spa .st-sel ::ng-deep .ws-sel-trigger,:host-context(.theme-light) .v-spa .st-sel ::ng-deep .ws-sel-trigger{background:#fff;border-color:#CBD5E1;color:#1E293B}
+.v-spa .st-na{display:inline-flex;align-items:center;justify-content:flex-start;width:160px;min-width:160px;max-width:160px;height:34px;padding:0 12px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);font-size:12.5px;color:#6B7699;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;cursor:not-allowed}
+.v-spa .st-row-entry{padding-top:11px}
+:host-context(.light-theme) .st-card.v-spa,:host-context(.theme-light) .st-card.v-spa{background:#fff;border-color:#E7EAF1}
+:host-context(.light-theme) .v-spa .st-card-ttl,:host-context(.theme-light) .v-spa .st-card-ttl,:host-context(.light-theme) .v-spa .st-row-lbl,:host-context(.theme-light) .v-spa .st-row-lbl{color:#1E293B}
+:host-context(.light-theme) .v-spa .st-row,:host-context(.theme-light) .v-spa .st-row{border-bottom-color:rgba(7,13,36,.08)}
+:host-context(.light-theme) .v-spa .st-row:last-of-type,:host-context(.theme-light) .v-spa .st-row:last-of-type{border-bottom:0}
+:host-context(.light-theme) .v-spa .st-row-desc,:host-context(.theme-light) .v-spa .st-row-desc,:host-context(.light-theme) .v-spa .st-row-reason,:host-context(.theme-light) .v-spa .st-row-reason,:host-context(.light-theme) .v-spa .st-inuse,:host-context(.theme-light) .v-spa .st-inuse,:host-context(.light-theme) .v-spa .st-unit,:host-context(.theme-light) .v-spa .st-unit,:host-context(.light-theme) .v-spa .st-row-eff,:host-context(.theme-light) .v-spa .st-row-eff{color:#64748B}
+:host-context(.light-theme) .v-spa .st-inuse-val,:host-context(.theme-light) .v-spa .st-inuse-val{color:#475569}
+:host-context(.light-theme) .v-spa .st-input,:host-context(.theme-light) .v-spa .st-input,:host-context(.light-theme) .v-spa .st-na,:host-context(.theme-light) .v-spa .st-na{background:#fff;border-color:#CBD5E1}
+:host-context(.light-theme) .v-spa .st-input,:host-context(.theme-light) .v-spa .st-input{color:#1E293B}
+:host-context(.light-theme) .v-spa .st-na,:host-context(.theme-light) .v-spa .st-na{color:#64748B}
+:host-context(.light-theme) .v-spa .st-sw,:host-context(.theme-light) .v-spa .st-sw{background:#CBD5E1}
+@media(max-width:700px){.v-spa .st-row{flex-direction:row;flex-wrap:wrap;align-items:center}.v-spa .st-row-left{flex:1 1 170px}.v-spa .st-input,.v-spa .st-na{width:160px}.st-card.v-spa{padding:16px 14px}}

@@ -53,7 +53,7 @@ export class SettingsSectionComponent {
 	private confirmModal = inject(ConfirmModalService);
 	private api = inject(SystemSettingsApi);
 	readonly title = input<string>('');
-	/** the SVG path of the icon before the title (P-AD-020 «sec-ttl») */
+	/** the icon before the title: for the ss variant an SVG path (P-AD-020 «sec-ttl»), for the spa variant a symbol id suffix defined by the page (spa-i-<icon>) */
 	readonly icon = input<string>('');
 	readonly keys = input.required<string[]>();
 	/** 'ss' = P-AD-020 look, 'spa' = P-AD-021 look */
@@ -96,6 +96,15 @@ export class SettingsSectionComponent {
 
 	/** the value shown beside «غير متاح»: the currency is USD while multi-currency is deferred (the server sends no value for it); other unavailable rows show none */
 	blockedValue(r: SettingItem): string { if (r.key === 'baseCurrency') return 'USD'; const v = r.value; return v === null || v === undefined || typeof v === 'boolean' || typeof v === 'object' ? '' : String(v); }
+
+	/** spa variant: an object value (the integrations registry) becomes one row per entry - name and real state, never a secret */
+	entries(r: SettingItem): { key: string; label: string; text: string }[] | null {
+		const v = r.value; if (!v || typeof v !== 'object') return null;
+		return Object.entries(v as Record<string, unknown>).map(([k, x]) => ({ key: k, label: this.nameOf(k), text: typeof x === 'boolean' ? (x ? 'مهيّأ' : 'غير مهيّأ') : String(x) }));
+	}
+	/** a value the platform fixes for this release even though the registry key is not editable (multi-currency is deferred: USD only) */
+	fixedValue(r: SettingItem): string | null { return r.key === 'baseCurrency' ? 'USD — دولار أمريكي' : null; }
+
 	setBool(k: string, v: boolean) { this.store.setDraft(k, v); }
 	setNumber(k: string, raw: string) { this.store.setDraft(k, raw === '' ? NaN : Number(raw)); }
 	setText(k: string, v: string) { this.store.setDraft(k, v); }

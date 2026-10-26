@@ -4,12 +4,13 @@
   @if (showState()) { <div class="st-card st-state" [class.v-ss]="variant() === 'ss'" [class.v-spa]="variant() === 'spa'" role="alert" data-testid="settings-section-error">@if (title()) { <div class="st-card-ttl">@if (icon()) { <svg class="st-ttl-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icon()"/></svg> }{{ title() }}</div> }<div class="st-err">{{ store.loadError() }}</div>@if (!store.forbidden()) { <button type="button" class="st-link" data-testid="settings-section-retry" (click)="retry()">إعادة المحاولة</button> }</div> }
 } @else {
 <div class="st-card" [class.v-ss]="variant() === 'ss'" [class.v-spa]="variant() === 'spa'" [class.st-danger]="danger()" [attr.data-testid]="'settings-card'">
-  @if (title()) { <div class="st-card-ttl">@if (icon()) { <svg class="st-ttl-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icon()"/></svg> }{{ title() }}</div> }
+  @if (title()) { <div class="st-card-ttl">@if (icon()) { @if (variant() === 'spa') { <svg class="st-ttl-ico" aria-hidden="true"><use [attr.href]="'#spa-i-' + icon()"></use></svg> } @else { <svg class="st-ttl-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icon()"/></svg> } }{{ title() }}</div> }
   @for (r of rows(); track r.key) {
     <div class="st-row" [class.st-row-col]="isLong(r.key)" [attr.data-testid]="'row-' + r.key" [attr.data-status]="r.status">
       <div class="st-row-left">
         <div class="st-row-lbl">{{ r.label }}@if (r.status === 'readonly') { <span class="st-badge st-badge-ro">للعرض فقط</span> }</div>
         <div class="st-row-desc">{{ r.description }}@if (r.status === 'enforced' && r.effect) { <span class="st-row-eff"> · {{ effectText[r.effect] }}</span> }</div>
+        @if (variant() === 'spa' && r.status === 'readonly' && r.source) { <div class="st-row-desc">المصدر: {{ r.source }}</div> }
         @if (r.status !== 'enforced' && r.reason) { <div class="st-row-reason" [attr.data-testid]="'reason-' + r.key">{{ r.reason }}</div> }
         @if (r.status === 'enforced' && !r.canWrite) { <div class="st-row-reason">ليست لديك صلاحية تعديل هذا الإعداد.</div> }
         @if (unset(r); as u) {
@@ -45,14 +46,30 @@
           }
         }
       } @else if (r.status === 'readonly') {
-        <div class="st-ro" [attr.data-testid]="'value-' + r.key"><span class="st-ro-val">{{ readonlyText(r) }}</span>@if (r.source) { <span class="st-ro-src">المصدر: {{ r.source }}</span> }</div>
+        @if (variant() === 'spa') {
+          @if (!entries(r)) { <span class="st-na" [attr.data-testid]="'value-' + r.key">{{ readonlyText(r) }}</span> }
+        } @else {
+          <div class="st-ro" [attr.data-testid]="'value-' + r.key"><span class="st-ro-val">{{ readonlyText(r) }}</span>@if (r.source) { <span class="st-ro-src">المصدر: {{ r.source }}</span> }</div>
+        }
       } @else {
+@if (variant() === 'spa') {
+          <span class="st-na" [attr.data-testid]="'na-' + r.key">{{ fixedValue(r) ?? 'غير متاح' }}</span>
+        } @else {
         <div class="st-ro st-na" [attr.data-testid]="'na-' + r.key">
           @if (blockedValue(r); as bv) { <span class="st-ro-val" [attr.data-testid]="'value-' + r.key">{{ bv }}</span> }
           <span class="st-na-pill">غير متاح</span>
         </div>
+        }
       }
     </div>
+    @if (variant() === 'spa' && r.status === 'readonly') {
+      @for (e of entries(r) ?? []; track e.key) {
+        <div class="st-row st-row-entry" [attr.data-testid]="'entry-' + r.key + '-' + e.key">
+          <div class="st-row-left"><div class="st-row-lbl">{{ e.label }}</div></div>
+          <span class="st-na">{{ e.text }}</span>
+        </div>
+      }
+    }
   } @empty {
     <div class="st-empty">لا توجد إعدادات متاحة لك في هذا القسم.</div>
   }

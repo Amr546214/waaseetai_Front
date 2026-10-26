@@ -11,6 +11,13 @@ import { RouterLink } from '@angular/router';
 import { SettingsSectionComponent, saveWithConfirm } from '../../../../shared/system-settings/settings-section.component';
 import { AUDIT_SEVERITY_LABELS } from '../sa-audit-trail/sa-audit-trail';
 
+/** the design's severity badge tokens (SEV_CFG): info teal, medium amber, danger red */
+const SEV_STYLE: Record<string, { bg: string; color: string }> = {
+  INFO: { bg: 'rgba(43,212,199,.10)', color: '#2BD4C7' },
+  WARNING: { bg: 'rgba(255,180,0,.10)', color: '#D98A0B' },
+  CRITICAL: { bg: 'rgba(255,80,80,.12)', color: '#FF5050' },
+};
+
 type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'integrations' | 'audit' | 'danger';
 
 @Component({
@@ -25,21 +32,23 @@ type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'in
  * each setting is - nothing here keeps its own copy or is stored in the browser.
  */
 export class SaSuperAdmins implements OnInit {
-  auditTypeOptions = computed(() => [{ value: '', label: 'كل الأحداث' }, ...this.auditEventTypes().map((t) => ({ value: t, label: t }))]);
+  auditTypeOptions = computed(() => [{ value: '', label: 'كل الإجراءات' }, ...this.auditEventTypes().map((t) => ({ value: t, label: t }))]);
+
+  auditActorOptions = computed(() => [{ value: '', label: 'كل المنفذين' }, ...this.admins().map((a) => ({ value: a.id, label: a.name }))]);
 
   private readonly api = inject(AdminConsoleApiService);
   private readonly confirmModal = inject(ConfirmModalService);
   readonly store = inject(SystemSettingsStore);
 
-  readonly navItems: { key: SpaSection; label: string; danger?: boolean }[] = [
-    { key: 'general', label: 'عام' },
-    { key: 'fees', label: 'الرسوم والمالية' },
-    { key: 'security', label: 'الأمان' },
-    { key: 'notifications', label: 'الإشعارات' },
-    { key: 'ai', label: 'محركات AI' },
-    { key: 'integrations', label: 'التكاملات والـ API' },
-    { key: 'audit', label: 'Audit Trail' },
-    { key: 'danger', label: 'المنطقة الحمراء', danger: true },
+  readonly navItems: { key: SpaSection; label: string; icon: string; danger?: boolean }[] = [
+    { key: 'general', icon: 'globe', label: 'عام' },
+    { key: 'fees', icon: 'wallet', label: 'الرسوم والمالية' },
+    { key: 'security', icon: 'shield', label: 'الأمان' },
+    { key: 'notifications', icon: 'bell2', label: 'الإشعارات' },
+    { key: 'ai', icon: 'ai', label: 'محركات AI' },
+    { key: 'integrations', icon: 'key', label: 'التكاملات والـ API' },
+    { key: 'audit', icon: 'list', label: 'Audit Trail' },
+    { key: 'danger', icon: 'warn', label: 'المنطقة الحمراء', danger: true },
   ];
 
   readonly activeSection = signal<SpaSection>('general');
@@ -77,6 +86,7 @@ export class SaSuperAdmins implements OnInit {
   // Audit Trail tab: real AccountAuditLog rows from the server (filters + pagination run server-side).
   readonly auditSearch = signal('');
   readonly auditTypeFilter = signal('');
+  readonly auditActorFilter = signal('');
   readonly auditPage = signal(1);
   readonly auditRows = signal<AdminAuditEntry[]>([]);
   readonly auditTotal = signal(0);
@@ -102,7 +112,7 @@ export class SaSuperAdmins implements OnInit {
   loadAudit(): void {
     this.auditLoading.set(true);
     this.auditFailed.set(false);
-    this.api.getAuditLog({ page: this.auditPage(), limit: 20, q: this.auditSearch().trim(), eventType: this.auditTypeFilter(), scope: 'admin' }).subscribe({
+    this.api.getAuditLog({ page: this.auditPage(), limit: 20, q: this.auditSearch().trim(), eventType: this.auditTypeFilter(), actorId: this.auditActorFilter(), scope: 'admin' }).subscribe({
       next: (r) => {
         this.auditRows.set(r.data.items);
         this.auditTotal.set(r.data.pagination.total);
@@ -134,6 +144,11 @@ export class SaSuperAdmins implements OnInit {
   }
 
   setAuditSearch(value: string) { this.auditSearch.set(value); this.auditPage.set(1); this.loadAudit(); }
+  setAuditActor(value: string) { this.auditActorFilter.set(value); this.auditPage.set(1); this.loadAudit(); }
+  /** the running number of a row, newest = highest (the design's «#» column; the log has no stored sequence, so this is the position in the filtered log) */
+  auditNumber(i: number) { return Math.max(this.auditTotal() - (this.auditPage() - 1) * 20 - i, 1); }
+  roleLabel(t: string | null | undefined) { return t === 'SUPER_ADMIN' ? 'مسؤول أعلى' : t === 'ADMIN' ? 'مسؤول' : t ? 'مستخدم' : '—'; }
+  sev(r: AdminAuditEntry) { return SEV_STYLE[r.severity] ?? SEV_STYLE['INFO']; }
   setAuditType(value: string) { this.auditTypeFilter.set(value); this.auditPage.set(1); this.loadAudit(); }
   prevAuditPage() { if (this.auditPage() > 1) { this.auditPage.update((p) => p - 1); this.loadAudit(); } }
   nextAuditPage() { if (this.auditPage() < this.totalAuditPages()) { this.auditPage.update((p) => p + 1); this.loadAudit(); } }

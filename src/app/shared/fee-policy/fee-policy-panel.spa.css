@@ -1,0 +1,61 @@
+/* P-AD-021 («Super Admin») look of the shared fee-policy panel. Built from the design's own tokens (.sec-card, .sec-ttl, .srow, .s-inp, .btn, .data-tbl, .bdg); the reference has no fee-policy panel. */
+.fp.fp-spa{margin:0 0 12px;padding:18px 20px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));color:#A8B2D1;line-height:normal;font-size:12px}
+.fp-spa .fp-h{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:14px;font-weight:800;color:#fff}
+.fp-spa .fp-ico{width:14px;height:14px;color:#2BD4C7;flex-shrink:0}
+.fp-spa .fp-h3{margin:18px 0 8px;font-size:13px;font-weight:700;color:#fff}
+.fp-spa .fp-sub,.fp-spa .fp-note,.fp-spa .fp-count{margin:0 0 12px;font-size:11px;color:#6B7699;line-height:1.5}
+.fp-spa .fp-note b{color:#A8B2D1}
+.fp-spa .fp-active,.fp-spa .fp-pending{padding:9px 12px;border-radius:9px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);font-size:12px;color:#A8B2D1}
+.fp-spa .fp-active b,.fp-spa .fp-pending b{color:#fff}
+.fp-spa .fp-src{color:#6B7699;font-size:11px}
+.fp-spa .fp-pending{background:rgba(255,180,0,.08);border-color:rgba(255,180,0,.22);color:#D98A0B;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.fp-spa .fp-tbl-wrap{margin-top:4px;border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow-x:auto}
+.fp-spa .fp-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.fp-spa .fp-tbl thead tr{border-bottom:1px solid rgba(255,255,255,.07)}
+.fp-spa .fp-tbl th{font-size:10px;font-weight:800;color:#6B7699;letter-spacing:.05em;padding:9px 12px;text-align:right;white-space:nowrap;background:rgba(255,255,255,.02);border-bottom:0}
+.fp-spa .fp-tbl td{padding:6px 12px;text-align:right;vertical-align:middle;color:#fff;font-weight:700;border-bottom:1px solid rgba(255,255,255,.04)}
+.fp-spa .fp-tbl tbody tr:last-child td{border-bottom:0}
+.fp-spa .fp-tbl tbody tr:hover{background:rgba(255,255,255,.03)}
+.fp-spa .fp-in{width:100%;min-width:72px;height:34px;padding:0 12px;border:1px solid rgba(255,255,255,.09);border-radius:9px;background:rgba(255,255,255,.05);color:#fff;font:inherit;font-size:12.5px;font-weight:500;outline:none;direction:rtl;transition:border-color .15s}
+.fp-spa .fp-tbl .fp-in{width:100px}
+.fp-spa .fp-in:focus{border-color:rgba(43,212,199,.30)}
+.fp-spa .fp-in:disabled{color:#6B7699;opacity:1;cursor:not-allowed}
+.fp-spa .fp-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;background:rgba(93,160,255,.12);border:1px solid rgba(93,160,255,.25);color:#5DA0FF;margin-inline-start:6px;letter-spacing:0}
+.fp-spa .fp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px}
+.fp-spa .fp-fs{border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:4px 14px 8px;min-width:0}
+.fp-spa .fp-fs legend{padding:0 6px;font-size:13px;font-weight:700;color:#fff}
+.fp-spa .fp-row{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;margin:0;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px;font-weight:700;color:#fff}
+.fp-spa .fp-fs .fp-row:last-child{border-bottom:0;padding-bottom:0}
+.fp-spa .fp-fs .fp-in,.fp-spa .fp-form .fp-in{width:120px;min-width:0;flex-shrink:0}
+.fp-spa .fp-form{margin-top:16px;display:grid;gap:0;max-width:none;padding-top:6px;border-top:1px solid rgba(255,255,255,.06)}
+.fp-spa .fp-form .fp-in{width:200px}
+.fp-spa .fp-form .fp-count{padding:9px 0;margin:0}
+.fp-spa .fp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.fp-spa .fp-btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:32px;border-radius:9px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);color:#A8B2D1}
+.fp-spa .fp-btn:hover:not(:disabled){background:rgba(255,255,255,.10);color:#fff}
+.fp-spa .fp-btn-primary{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-color:transparent;color:#070D24}
+.fp-spa .fp-btn-primary:hover:not(:disabled){background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;opacity:.88}
+.fp-spa .fp-btn:disabled{opacity:.45;cursor:not-allowed}
+.fp-spa .fp-err{color:#FF8C69;font-size:11.5px;margin:6px 0}
+.fp-spa .fp-ok{color:#2BD4C7;font-size:11.5px;margin:6px 0}
+.fp-spa .fp-hist{margin:0;padding:0;list-style:none;font-size:12px;color:#A8B2D1}
+.fp-spa .fp-hist li{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.fp-spa .fp-hist li:last-child{border-bottom:0;padding-bottom:0}
+
+:host-context(.light-theme) .fp.fp-spa,:host-context(.theme-light) .fp.fp-spa{background:#fff;border-color:#E7EAF1;color:#475569}
+:host-context(.light-theme) .fp-spa .fp-h,:host-context(.theme-light) .fp-spa .fp-h,:host-context(.light-theme) .fp-spa .fp-h3,:host-context(.theme-light) .fp-spa .fp-h3,:host-context(.light-theme) .fp-spa .fp-active b,:host-context(.theme-light) .fp-spa .fp-active b,:host-context(.light-theme) .fp-spa .fp-pending b,:host-context(.theme-light) .fp-spa .fp-pending b,:host-context(.light-theme) .fp-spa .fp-fs legend,:host-context(.theme-light) .fp-spa .fp-fs legend,:host-context(.light-theme) .fp-spa .fp-row,:host-context(.theme-light) .fp-spa .fp-row,:host-context(.light-theme) .fp-spa .fp-tbl td,:host-context(.theme-light) .fp-spa .fp-tbl td{color:#1E293B}
+:host-context(.light-theme) .fp-spa .fp-sub,:host-context(.theme-light) .fp-spa .fp-sub,:host-context(.light-theme) .fp-spa .fp-note,:host-context(.theme-light) .fp-spa .fp-note,:host-context(.light-theme) .fp-spa .fp-count,:host-context(.theme-light) .fp-spa .fp-count,:host-context(.light-theme) .fp-spa .fp-src,:host-context(.theme-light) .fp-spa .fp-src,:host-context(.light-theme) .fp-spa .fp-tbl th,:host-context(.theme-light) .fp-spa .fp-tbl th{color:#64748B}
+:host-context(.light-theme) .fp-spa .fp-note b,:host-context(.theme-light) .fp-spa .fp-note b,:host-context(.light-theme) .fp-spa .fp-hist,:host-context(.theme-light) .fp-spa .fp-hist,:host-context(.light-theme) .fp-spa .fp-active,:host-context(.theme-light) .fp-spa .fp-active{color:#475569}
+:host-context(.light-theme) .fp-spa .fp-active,:host-context(.theme-light) .fp-spa .fp-active{background:rgba(7,13,36,.03);border-color:#E7EAF1}
+:host-context(.light-theme) .fp-spa .fp-tbl th,:host-context(.theme-light) .fp-spa .fp-tbl th{background:rgba(7,13,36,.03)}
+:host-context(.light-theme) .fp-spa .fp-tbl-wrap,:host-context(.theme-light) .fp-spa .fp-tbl-wrap,:host-context(.light-theme) .fp-spa .fp-fs,:host-context(.theme-light) .fp-spa .fp-fs,:host-context(.light-theme) .fp-spa .fp-form,:host-context(.theme-light) .fp-spa .fp-form{border-color:#E7EAF1}
+:host-context(.light-theme) .fp-spa .fp-tbl td,:host-context(.theme-light) .fp-spa .fp-tbl td,:host-context(.light-theme) .fp-spa .fp-row,:host-context(.theme-light) .fp-spa .fp-row,:host-context(.light-theme) .fp-spa .fp-hist li,:host-context(.theme-light) .fp-spa .fp-hist li{border-bottom-color:rgba(7,13,36,.08)}
+:host-context(.light-theme) .fp-spa .fp-tbl thead tr,:host-context(.theme-light) .fp-spa .fp-tbl thead tr{border-bottom-color:#E7EAF1}
+:host-context(.light-theme) .fp-spa .fp-in,:host-context(.theme-light) .fp-spa .fp-in{background:#fff;border-color:#CBD5E1;color:#1E293B}
+:host-context(.light-theme) .fp-spa .fp-in:disabled,:host-context(.theme-light) .fp-spa .fp-in:disabled{color:#64748B}
+:host-context(.light-theme) .fp-spa .fp-btn,:host-context(.theme-light) .fp-spa .fp-btn{background:rgba(7,13,36,.05);border-color:rgba(7,13,36,.12);color:#475569}
+:host-context(.light-theme) .fp-spa .fp-btn-primary,:host-context(.theme-light) .fp-spa .fp-btn-primary{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-color:transparent;color:#070D24}
+:host-context(.light-theme) .fp-spa .fp-pending,:host-context(.theme-light) .fp-spa .fp-pending{color:#B45309;background:rgba(217,138,11,.08);border-color:rgba(217,138,11,.28)}
+:host-context(.light-theme) .fp-spa .fp-ok,:host-context(.theme-light) .fp-spa .fp-ok{color:#0F8A7F}
+:host-context(.light-theme) .fp-spa .fp-err,:host-context(.theme-light) .fp-spa .fp-err{color:#C2410C}
+@media(max-width:700px){.fp.fp-spa{padding:16px 14px}.fp-spa .fp-form .fp-in{width:100%}.fp-spa .fp-row{flex-wrap:wrap}}

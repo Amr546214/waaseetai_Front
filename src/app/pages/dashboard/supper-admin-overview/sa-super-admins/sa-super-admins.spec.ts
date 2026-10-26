@@ -65,8 +65,14 @@ describe('Super Admin page (P-AD-021): the same server registry, the real audit 
 
 	it('integrations show configured / not configured only (never a key); AI engines are listed as unavailable with the scope reason', async () => {
 		const { f, el, c } = await boot(); await go(f, c, 'integrations');
-		const v = el.querySelector('[data-testid="value-apiKeys"]')?.textContent ?? ''; expect(v).toContain('PayPal: مهيّأ'); expect(v).toContain('مزوّد SMS: غير مهيّأ'); expect(el.textContent).not.toMatch(/•{4,}|sk_|secret/i);
+		// the design lists one row per integration (name + state); the same real states as before, now one row each instead of one joined line
+		const ent = (k: string) => el.querySelector(`[data-testid="entry-apiKeys-${k}"]`)?.textContent ?? ''; expect(ent('paypal')).toContain('PayPal'); expect(ent('paypal')).toContain('مهيّأ'); expect(ent('smsProvider')).toContain('مزوّد SMS'); expect(ent('smsProvider')).toContain('غير مهيّأ'); expect(el.textContent).not.toMatch(/•{4,}|sk_|secret/i);
 		await go(f, c, 'ai'); expect(el.querySelector('[data-testid="row-aiMatchEngine"]')?.textContent).toContain('نطاق منفصل');
+	});
+
+	it('fees tab: the header save is visibly disabled (nothing here saves through it) ', async () => {
+		const { f, el, c } = await boot(); await go(f, c, 'fees');
+		const b = el.querySelector('[data-testid="header-save-fees"]') as HTMLButtonElement; expect(b.disabled).toBe(true); expect(b.title).toContain('تُجدول');
 	});
 
 	it('red zone: maintenance is the REAL setting behind a double confirmation; wipe / broadcast / backup are disabled and say why; nothing pretends to run', async () => {

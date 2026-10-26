@@ -63,4 +63,19 @@ describe('settings card: loading / failure / unset / set are four different thin
 		expect(row(el, 'termsContent').querySelector('[data-testid="inuse-termsContent"]')?.textContent).toContain('نص ثابت');
 		expect(row(el, 'maintenanceBannerEnabled').querySelector('[data-testid="inuse-maintenanceBannerEnabled"]')?.textContent).toContain('غير مفعّل');
 	});
+
+	it('spa variant (P-AD-021): a blocked key is a non-interactive «غير متاح» field (never a switch), the deferred currency shows a fixed USD value, a read-only object is one row per entry', async () => {
+		const BL = [
+			item({ key: 'baseCurrency', status: 'blocked', canWrite: false, value: null, reason: 'تعدد العملات مؤجَّل' }),
+			item({ key: 'profanityFilter', status: 'blocked', canWrite: false, value: null, reason: 'غير منفّذ' }),
+			item({ key: 'apiKeys', status: 'readonly', canWrite: false, value: { paypal: true, smsProvider: false } }),
+		];
+		const f = TestBed.createComponent(SettingsSectionComponent); f.componentRef.setInput('keys', BL.map(i => i.key)); f.componentRef.setInput('variant', 'spa'); await flush(f);
+		const store = TestBed.inject(SystemSettingsStore); const p = store.load(); http.expectOne(B).flush({ success: true, data: { storageReady: true, items: BL } }); await p; await flush(f);
+		const el = f.nativeElement as HTMLElement;
+		expect(el.querySelector('[data-testid="row-profanityFilter"] [role=switch], [data-testid="row-profanityFilter"] .st-sw')).toBeNull();
+		expect(el.querySelector('[data-testid="na-profanityFilter"]')?.textContent).toContain('غير متاح');
+		expect(el.querySelector('[data-testid="na-baseCurrency"]')?.textContent).toContain('USD'); expect(el.querySelector('[data-testid="row-baseCurrency"] input')).toBeNull();
+		expect(el.querySelector('[data-testid="entry-apiKeys-paypal"]')?.textContent).toContain('مهيّأ'); expect(el.querySelector('[data-testid="entry-apiKeys-smsProvider"]')?.textContent).toContain('غير مهيّأ');
+	});
 });

@@ -27,7 +27,7 @@ const localInput = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${p
 	imports: [DatePipe, WsDatePipe],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './fee-policy-panel.html',
-	styleUrl: './fee-policy-panel.css',
+	styleUrls: ['./fee-policy-panel.css', './fee-policy-panel.spa.css'],
 })
 export class FeePolicyPanel implements OnInit {
 	private api = inject(FeePolicyApi); private confirmModal = inject(ConfirmModalService); private ui = inject(UiNotificationService); readonly access = inject(AdminAccessService);
