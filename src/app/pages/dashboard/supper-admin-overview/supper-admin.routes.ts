@@ -446,15 +446,17 @@ const RAW_ROUTES: Routes = [
         ]
     },
     {
-        // «التحكم بالموقع»: the design-identity control panel (source: pmo, imported and kept as it is). Same admin guard as the rest of the area (no extra grant), no API of its own yet.
+        // «التحكم بالموقع»: «الهوية» is real (server-backed, site.view / site.manage); the nine pages imported from pmo stay local-only and keep site_control.manage.
         path: 'site-control',
         loadComponent: () => import('./site-control/shell/site-control-shell').then(m => m.SiteControlShell),
         data: { title: 'التحكم بالموقع' },
         children: [
-            { path: '', pathMatch: 'full', redirectTo: 'health' },
+            { path: '', pathMatch: 'full', redirectTo: 'identity' },
+            // the only server-backed page of the section: the platform's visual identity (logos, favicon, AI icon). Needs site.view / site.manage (core/config/admin-access-rules.ts); the server enforces the same.
+            { path: 'identity', loadComponent: () => import('./site-control/identity/identity').then(m => m.Identity), data: { title: 'الهوية' } },
             { path: 'health', loadComponent: () => import('./site-control/health/health').then(m => m.Health), data: { title: 'صحة الهوية' } },
             { path: 'tokens', loadComponent: () => import('./site-control/color-tokens/color-tokens').then(m => m.ColorTokens), data: { title: 'القيم والألوان' } },
-            { path: 'icons', loadComponent: () => import('./site-control/icon-tokens/icon-tokens').then(m => m.IconTokens), data: { title: 'الأيقونات' } },
+            { path: 'icons', loadComponent: () => import('./site-control/icon-tokens/icon-tokens').then(m => m.IconTokens), data: { title: 'مكتبة الأيقونات (محلية)' } },
             { path: 'accounts', loadComponent: () => import('./site-control/accounts/accounts').then(m => m.Accounts), data: { title: 'المستويات والنقاط' } },
             { path: 'templates', loadComponent: () => import('./site-control/templates/templates').then(m => m.Templates), data: { title: 'القوالب' } },
             { path: 'typography', loadComponent: () => import('./site-control/typography/typography').then(m => m.Typography), data: { title: 'الخطوط' } },

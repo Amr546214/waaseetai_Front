@@ -434,9 +434,10 @@ export class Sidebar implements OnInit {
 			{
 				type: 'accordion', id: 'sa-site-control', label: 'التحكم بالموقع', icon: icons.settings,
 					children: [
+						{ type: 'link', label: 'الهوية', route: '/supper-admin-overview/site-control/identity', icon: icons.shield },
 						{ type: 'link', label: 'صحة الهوية', route: '/supper-admin-overview/site-control/health', icon: icons.check },
 						{ type: 'link', label: 'القيم والألوان', route: '/supper-admin-overview/site-control/tokens', icon: icons.settings },
-						{ type: 'link', label: 'الأيقونات', route: '/supper-admin-overview/site-control/icons', icon: icons.star },
+						{ type: 'link', label: 'مكتبة الأيقونات (محلية)', route: '/supper-admin-overview/site-control/icons', icon: icons.star },
 						{ type: 'link', label: 'المستويات والنقاط', route: '/supper-admin-overview/site-control/accounts', icon: icons.chart },
 						{ type: 'link', label: 'القوالب', route: '/supper-admin-overview/site-control/templates', icon: icons.doc },
 						{ type: 'link', label: 'الخطوط', route: '/supper-admin-overview/site-control/typography', icon: icons.edit },

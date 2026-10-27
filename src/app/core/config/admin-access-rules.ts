@@ -49,7 +49,10 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'team-performance': { all: ['performance.view'] },
 	'marketing-assets': { all: ['marketing_assets.manage'] },
 	'system-settings': { anyOf: ['settings.view', 'settings.manage'] },
-	'site-control': { all: ['site_control.manage'] },
+	// «التحكم بالموقع»: the section opens for the identity permissions too; the new «الهوية» page needs site.view (read) or site.manage (change), the nine local-only design pages keep the older site_control.manage
+	'site-control': { anyOf: ['site_control.manage', 'site.view', 'site.manage'] },
+	'site-control/identity': { anyOf: ['site.view', 'site.manage'] },
+	...Object.fromEntries(['health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export'].map(p => [`site-control/${p}`, { all: ['site_control.manage'] } as AccessRule])),
 	audit: { all: ['audit.view'] }, 'audit-trail': { all: ['audit.view'] },
 	// every remaining page of the console has its own explicit rule (nothing is opened to "any team member" by omission)
 	subscriptions: { all: ['packages.manage'] }, 'subscriptions/invoices': { all: ['finance.read'] },
