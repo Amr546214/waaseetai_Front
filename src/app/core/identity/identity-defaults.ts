@@ -36,7 +36,8 @@ export const IDENTITY_DEFAULTS: Readonly<Record<string, IdentityDefault>> = {
 };
 
 /** keys whose consumer in THIS front end really reads the identity service (the coordinator mirrors this into the server's WIRED_KEYS) */
-export const FE_WIRED_KEYS: readonly string[] = ['logo.mark', 'favicon.tab', 'icon.ai'];
+export const BEBO_ATLAS_KEYS: readonly string[] = Object.keys(IDENTITY_DEFAULTS).filter(k => k.startsWith('character.bebo.'));
+export const FE_WIRED_KEYS: readonly string[] = ['logo.mark', 'logo.boot', 'favicon.tab', 'icon.ai', ...BEBO_ATLAS_KEYS];
 
 export const defaultPathOf = (key: string): string => {
 	const d = IDENTITY_DEFAULTS[key];

@@ -229,6 +229,23 @@
 			<div class="loader-text">جاري تهيئة مساحة العمل...</div>
 		</div>
 	</app-root>
+	<!-- Site identity (server-managed): reads the LAST GOOD manifest the app remembered in localStorage (same key as core/identity/site-identity.service.ts) and
+	     (1) publishes the custom asset URLs to window.__wsIdentityUrls for plain scripts (bebo/robot.js), (2) swaps the boot logo above ONLY when a custom `logo.boot` exists.
+	     First-ever visit / no custom version / any problem = nothing happens and the page stays exactly as written above. -->
+	<script>
+		(function () {
+			try {
+				var m = JSON.parse(localStorage.getItem('ws-site-identity-manifest-v1') || 'null');
+				var abs = m && m.abs && typeof m.abs === 'object' ? m.abs : null;
+				if (!abs) return;
+				var ok = /^(https?:\/\/|\/(?!\/))/, urls = {};
+				for (var k in abs) { if (Object.prototype.hasOwnProperty.call(abs, k) && typeof abs[k] === 'string' && ok.test(abs[k])) urls[k] = abs[k]; }
+				window.__wsIdentityUrls = urls;
+				var u = urls['logo.boot'];
+				if (u) { var i = document.querySelector('img.loader-logo'); if (i) i.src = u; }
+			} catch (e) { }
+		})();
+	</script>
 </body>
 
 </html>

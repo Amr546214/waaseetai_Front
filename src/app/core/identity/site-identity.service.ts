@@ -39,6 +39,22 @@ export class SiteIdentityService {
 	constructor() {
 		const cached = this.readCache();
 		if (cached) this.manifest.set(cached);
+		this.syncGlobals();
+	}
+
+	/**
+	 * Plain (non-Angular) scripts cannot inject this service: bebo/robot.js looks custom sprite URLs up in `window.__wsIdentityUrls` ({ key: absolute URL }, ONLY keys with a custom version).
+	 * index.html fills the same map from the cache before any script runs; this keeps it current afterwards (publish, rollback, another tab, a broken URL).
+	 */
+	private syncGlobals(): void {
+		if (!this.browser) return;
+		try {
+			const win = this.doc.defaultView as (Window & { __wsIdentityUrls?: Record<string, string> }) | null;
+			if (!win) return;
+			const urls: Record<string, string> = {};
+			for (const k of Object.keys(this.manifest().items)) { const u = this.customUrl(k); if (u) urls[k] = u; }
+			win.__wsIdentityUrls = urls;
+		} catch { /* ignore */ }
 	}
 
 	/** the API base the manifest and the (relative) asset URLs hang on */
@@ -74,6 +90,7 @@ export class SiteIdentityService {
 	reportBroken(absoluteUrl: string): void {
 		if (!absoluteUrl || this.broken().has(absoluteUrl)) return;
 		this.broken.set(new Set([...this.broken(), absoluteUrl]));
+		this.syncGlobals();
 	}
 
 	/** start loading + listening; idempotent; never throws, never awaited by the app */
@@ -131,6 +148,7 @@ export class SiteIdentityService {
 		this.manifest.set(m);
 		this.broken.set(new Set());
 		this.writeCache(m);
+		this.syncGlobals();
 		if (announce) { try { this.channel?.postMessage({ version: m.version }); } catch { /* ignore */ } }
 	}
 
@@ -142,6 +160,9 @@ export class SiteIdentityService {
 		try { const raw = this.doc.defaultView?.localStorage.getItem(IDENTITY_CACHE_KEY); return raw ? parseManifest(JSON.parse(raw)) : null; } catch { return null; }
 	}
 	private writeCache(m: IdentityManifest): void {
-		try { this.doc.defaultView?.localStorage.setItem(IDENTITY_CACHE_KEY, JSON.stringify(m)); } catch { /* storage blocked/full: the in-memory manifest still works */ }
+		try { // `abs` = every item's URL already resolved against the API base: index.html (before any JS) reads it to swap the boot logo / fill window.__wsIdentityUrls; parseManifest ignores it
+			const abs: Record<string, string> = {};
+			for (const [k, it] of Object.entries(m.items)) abs[k] = this.absoluteUrl(it.url);
+			this.doc.defaultView?.localStorage.setItem(IDENTITY_CACHE_KEY, JSON.stringify({ ...m, abs })); } catch { /* storage blocked/full: the in-memory manifest still works */ }
 	}
 }

@@ -102,6 +102,16 @@ export const BEBO_PRELOAD_ATLASES = [
 	'bebo/scout/guide-speaking.png',
 ] as const;
 
+/** identity key of each warmed-up atlas (core/identity/identity-defaults.ts): a custom version published from «الهوية» is preloaded instead of the built-in file */
+const PRELOAD_KEYS: Record<string, string> = {
+	'bebo/robot-sprites.png': 'character.bebo.classic.sprites',
+	'bebo/robot-actions.png': 'character.bebo.classic.actions',
+	'bebo/robot-speaking.png': 'character.bebo.classic.speaking',
+	'bebo/scout/guide-sprites.png': 'character.bebo.scout.sprites',
+	'bebo/scout/guide-actions.png': 'character.bebo.scout.actions',
+	'bebo/scout/guide-speaking.png': 'character.bebo.scout.speaking',
+};
+
 const preloaded = new Set<string>();
 /** Held so the decoded bitmaps stay alive until robot.js first paints them. */
 const keepAlive: HTMLImageElement[] = [];
@@ -110,7 +120,8 @@ export function preloadBeboAtlases(doc: Document): void {
 	const win = doc.defaultView;
 	if (!win || typeof win.Image !== 'function') return;
 	for (const path of BEBO_PRELOAD_ATLASES) {
-		const href = new URL(path, doc.baseURI).href;
+		const custom = (win as unknown as { __wsIdentityUrls?: Record<string, string> }).__wsIdentityUrls?.[PRELOAD_KEYS[path]];
+		const href = typeof custom === 'string' && custom ? custom : new URL(path, doc.baseURI).href;
 		if (preloaded.has(href)) continue;
 		preloaded.add(href);
 		const img = new win.Image();
