@@ -1,6 +1,10 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, Injector, effect, inject } from '@angular/core';
+import { ApplicationRef } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
 import { SiteIdentityService } from './site-identity.service';
+import { tokensCssForDocument } from './site-identity.models';
 
 export const TOKENS_STYLE_ID = 'ws-identity-tokens';
 
@@ -19,12 +23,16 @@ export class IdentityTokensRuntime {
 	private readonly doc = inject(DOCUMENT);
 	private readonly injector = inject(Injector);
 	private started = false;
+	private readonly appRef = inject(ApplicationRef);
+	private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
 
 	start(): void {
 		if (this.started) return;
 		this.started = true;
 		this.applyNow();
 		effect(() => { this.write(this.identity.tokensCss()); }, { injector: this.injector });
+		// component styles are appended to <head> while the app renders: once stable, move the element to the very end again
+		if (this.browser) void this.appRef.whenStable().then(() => this.applyNow());
 	}
 
 	/** apply the service's current CSS right now (server render, after the manifest was loaded) */
@@ -36,7 +44,7 @@ export class IdentityTokensRuntime {
 		let el = this.doc.getElementById(TOKENS_STYLE_ID);
 		if (!css) { el?.remove(); return; }
 		if (!el) { el = this.doc.createElement('style'); el.id = TOKENS_STYLE_ID; }
-		if (el.textContent !== css) el.textContent = css;
+		if (el.textContent !== tokensCssForDocument(css)) el.textContent = tokensCssForDocument(css);
 		// always the LAST element of <head>: later-added stylesheets (lazy styles) must not end up after it
 		if (el.parentNode !== head || head.lastElementChild !== el) head.appendChild(el);
 	}

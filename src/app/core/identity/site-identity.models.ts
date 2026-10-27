@@ -50,3 +50,11 @@ export function parseManifest(raw: unknown): IdentityManifest | null {
 	}
 	return { version, items, tokensCss: safeTokensCss(body['tokensCss']) };
 }
+
+/**
+ * The light rule must also reach <body>: the site's own `body.theme-light{--pg:…}` / `body.light-theme{…}` blocks (styles.css) redefine variables ON the body, which beats anything inherited from <html>
+ * (measured: a light --pg override never reached the body background). Same declarations, selector widened to the body with enough specificity (0,2,1).
+ */
+export function tokensCssForDocument(css: string): string {
+	return css.replace('.theme-light.theme-light,.light-theme.light-theme{', '.theme-light.theme-light,.light-theme.light-theme,body.theme-light.theme-light,body.light-theme.light-theme{');
+}

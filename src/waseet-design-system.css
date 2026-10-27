@@ -9,9 +9,9 @@
 :root {
   color-scheme: dark;
   --font-family: 'Tajawal';
-  --font-heading: 'Tajawal', system-ui, sans-serif;
-  --font-body: 'Tajawal', system-ui, sans-serif;
-  --font-numeric: 'Tajawal', system-ui, sans-serif;
+  --font-heading: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+  --font-body: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+  --font-numeric: var(--font-family, 'Tajawal'), system-ui, sans-serif;
 
   --pg: #070d24;
   --pg-dashboard: #070d24;

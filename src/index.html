@@ -251,7 +251,7 @@
 				var tokens = function (css) {
 					if (typeof css !== 'string' || !css || css.length > 20000 || /url\s*\(|expression|import|javascript:|<\/?style|\\/i.test(css) || !TOK_RE.test(css.trim())) return;
 					var el = document.getElementById('ws-identity-tokens') || document.createElement('style');
-					el.id = 'ws-identity-tokens'; el.textContent = css.trim(); document.head.appendChild(el);
+					el.id = 'ws-identity-tokens'; el.textContent = css.trim().replace('.theme-light.theme-light,.light-theme.light-theme{', '.theme-light.theme-light,.light-theme.light-theme,body.theme-light.theme-light,body.light-theme.light-theme{'); document.head.appendChild(el);
 				};
 				var publish = function (urls) { window.__wsIdentityUrls = urls; var u = urls['logo.boot'], i = logo(); if (u && i) i.src = u; };
 				var m = null;
