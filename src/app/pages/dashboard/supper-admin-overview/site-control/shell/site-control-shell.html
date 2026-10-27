@@ -1,5 +1,10 @@
 <div #host class="sc-root" dir="rtl" data-testid="site-control-root">
-	@if (!onIdentity()) {
+	@if (onMixed()) {
+	<p class="sc-notice" role="note" data-testid="site-control-notice-mixed">
+		<strong data-testid="site-control-mixed">هذه الصفحة جزآن:</strong>
+		القسم العلوي «المرتبط بالموقع» يُحفظ على الخادم ويغيّر الموقع كله بعد «تطبيق». أما المحرر المحلي تحته فهو <strong>غير مرتبط بالموقع</strong>: تعديلاته تُحفظ على هذا المتصفح وتُصدَّر كملف JSON فقط. المتغيّرات التي يديرها الخادم مقفلة في المحرر المحلي، فلا يوجد محرّران لنفس القيمة.
+	</p>
+	} @else if (!onIdentity()) {
 	<p class="sc-notice" role="note" data-testid="site-control-notice">
 		<strong data-testid="site-control-not-wired">غير مرتبط بالموقع: التعديل هنا محلي ولا يغيّر المنصة.</strong>
 		لوحة التحكم بالموقع تعمل على هذا المتصفح فقط: التعديلات تُحفظ محليًا وتُصدَّر كملف JSON، ولا تُغيّر الموقع الفعلي (صفحة «الهوية» وحدها مرتبطة بالخادم). الأرقام والجداول في المعاينة والقوالب عيّنات لعرض الأنماط وليست بيانات المنصة.

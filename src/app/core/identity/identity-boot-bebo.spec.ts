@@ -100,9 +100,37 @@ describe('logo.boot: inline script in index.html', () => {
 		expect(r.img.style.visibility).toBe('');
 		expect(r.img.src).toBe('assets/brand/waseet-mark.png');
 	});
-	it('the two loaders read the same key: app.ts loader binds logo.boot and keeps its old src; index.html loader is the static default', () => {
+	it('design tokens: the remembered CSS is injected as ONE <style id="ws-identity-tokens"> at the end of <head> before first paint; hostile / absent CSS injects nothing; SSR page: nothing', async () => {
+		const CSS = ':root{--radius:24px}\n:root:not(.theme-light):not(.light-theme){--pg:#0b1020;--teal:#14b8a6}';
+		const exec = (stored: string | null, opts: { server?: boolean; fetchImpl?: () => Promise<unknown> } = {}) => {
+			const els: Array<{ id: string; textContent: string }> = [];
+			const img: Img = { src: 'assets/brand/waseet-mark.png', style: { visibility: '' } };
+			const win: Record<string, unknown> = {};
+			const doc = {
+				querySelector: (q: string) => (q === 'img.loader-logo' ? img : q === 'app-root[ng-server-context]' ? (opts.server ? {} : null) : null),
+				getElementById: (id: string) => els.find(e => e.id === id) ?? null,
+				createElement: () => ({ id: '', textContent: '' }),
+				head: { appendChild: (e: { id: string; textContent: string }) => { if (!els.includes(e)) els.push(e); } },
+			};
+			runInNewContext(m![1], { window: win, document: doc, setTimeout, clearTimeout, AbortController, localStorage: { getItem: () => stored }, fetch: opts.fetchImpl });
+			return { els, win };
+		};
+		const cacheWith = (tokensCss: unknown) => JSON.stringify({ version: 3, items: {}, abs: {}, tokensCss });
+		const r = exec(cacheWith(CSS)); expect(r.els.length).toBe(1); expect(r.els[0].id).toBe('ws-identity-tokens'); expect(r.els[0].textContent).toBe(CSS);
+		for (const bad of ['body{display:none}', ':root{--a:url(http://x)}', ':root{--a:1}</style><script>', '', null, 5]) expect(exec(cacheWith(bad)).els.length, String(bad)).toBe(0);
+		expect(exec(cacheWith(CSS), { server: true }).els.length).toBe(0);
+		// first visit: the fetched manifest's CSS is injected too
+		const f = exec(null, { fetchImpl: async () => ({ ok: true, json: async () => ({ success: true, data: { version: 2, items: {}, tokensCss: CSS } }) }) });
+		await (f.win['__wsIdentityBootPromise'] as Promise<unknown>); await flush();
+		expect(f.els.length).toBe(1); expect(f.els[0].textContent).toBe(CSS);
+		const g = exec(null, { fetchImpl: async () => ({ ok: true, json: async () => ({ success: true, data: { version: 2, items: {} } }) }) });
+		await (g.win['__wsIdentityBootPromise'] as Promise<unknown>); await flush();
+		expect(g.els.length).toBe(0);
+	});
+	it('the two loaders read the same key AND the same default URL: app.ts loader binds logo.boot with src /assets/brand/waseet-mark.png (the very URL of the index.html loader; the old /images/ copy is byte-identical)', () => {
 		const APP = readFileSync(join(ROOT, 'src', 'app', 'app.ts'), 'utf8');
-		expect(APP).toContain(`<img [wsIdentityImg]="'logo.boot'" src="/images/waseet-mark.png" alt="Waseet AI Logo" class="loader-logo" />`);
+		expect(APP).toContain(`<img [wsIdentityImg]="'logo.boot'" src="/assets/brand/waseet-mark.png" alt="Waseet AI Logo" class="loader-logo" />`);
+		expect(INDEX).toContain('<img src="assets/brand/waseet-mark.png" alt="Waseet AI" class="loader-logo">');
 		expect(createHash('sha256').update(readFileSync(join(ROOT, 'public', 'images', 'waseet-mark.png'))).digest('hex')).toBe(createHash('sha256').update(readFileSync(join(ROOT, 'public', 'assets', 'brand', 'waseet-mark.png'))).digest('hex'));
 	});
 });

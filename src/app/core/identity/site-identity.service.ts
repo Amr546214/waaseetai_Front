@@ -43,6 +43,8 @@ export class SiteIdentityService {
 
 	readonly manifest = signal<IdentityManifest>(EMPTY_MANIFEST);
 	readonly version = computed(() => this.manifest().version);
+	/** the CSS of the active design-token overrides ('' = none): applied by IdentityTokensRuntime */
+	readonly tokensCss = computed(() => this.manifest().tokensCss);
 	/** asset URLs that failed to load (404 / decode error): treated as "no custom version" for their key until the manifest changes */
 	private readonly broken = signal<ReadonlySet<string>>(new Set());
 	/** last failed refresh (null = last attempt fine / none yet); informational only, never shown to visitors */
@@ -222,7 +224,7 @@ export class SiteIdentityService {
 	/** swap in a manifest (from the server, another tab, or the admin page right after a save) */
 	apply(m: IdentityManifest, announce: boolean): void {
 		const cur = this.manifest();
-		if (cur.version === m.version && JSON.stringify(cur.items) === JSON.stringify(m.items)) { this.ensureCache(m); return; }
+		if (cur.version === m.version && cur.tokensCss === m.tokensCss && JSON.stringify(cur.items) === JSON.stringify(m.items)) { this.ensureCache(m); return; }
 		this.manifest.set(m);
 		this.broken.set(new Set());
 		this.writeCache(m);

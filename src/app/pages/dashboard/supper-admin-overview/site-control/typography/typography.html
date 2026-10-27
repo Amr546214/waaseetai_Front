@@ -16,6 +16,13 @@
     </div>
   </header>
 
+  <sc-token-editor [keys]="['tokens.typography']" title="الخط العام المرتبط بالموقع" />
+
+  <section class="local-sandbox" data-testid="local-sandbox" aria-labelledby="ls-h">
+    <h2 id="ls-h">المحرر المحلي: للتجربة والتصدير فقط (غير مرتبط بالموقع)</h2>
+    <p class="hint">أدوار النص والمقياس وعائلات الخطوط أدناه تعمل على هذا المتصفح فقط ولا تغيّر الموقع. الخط العام الذي يديره الخادم (القسم أعلاه) مقفل هنا حتى لا يوجد محرّران لنفس القيمة. اختيار خط من مكتبة Google Fonts هنا للتجربة المحلية فقط؛ الموقع لا يحمّل خطوطًا جديدة.</p>
+  </section>
+
   @if (service.loadError()) {
     <div class="err-box">{{ service.loadError() }}</div>
   }
@@ -35,12 +42,16 @@
             <strong>{{ fam.label }}</strong>
             <code>{{ fam.var }}</code>
           </div>
+          @if (isPlatform(fam.var)) {
+            <span class="locked-value" data-testid="local-locked">مُدار من «الخط العام المرتبط بالموقع» أعلاه. قيمة التجربة المحلية: {{ fam.value }}</span>
+          } @else {
           <select class="value-text" [value]="currentLibraryId(fam)" (change)="onFamilyLibrarySelect(fam.id, $event)">
             <option value="" disabled>اختر خطًا من المكتبة...</option>
             @for (f of service.fontLibrary(); track f.id) {
               <option [value]="f.id">{{ f.label }}</option>
             }
           </select>
+          }
           <span class="family-preview" [style.fontFamily]="fam.stack">Aa — نص تجريبي Abc 123</span>
           <span class="family-source">{{ fam.source }}</span>
         </div>

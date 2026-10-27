@@ -74,9 +74,20 @@ export class Identity implements OnInit, OnDestroy {
 	readonly wiredCount = computed(() => this.items().filter(i => i.wired).length);
 	readonly groups = computed(() => {
 		const order = ['logo', 'favicon', 'icon', 'character'];
-		const ids = [...new Set([...order, ...this.items().map(i => i.group)])];
+		// design tokens (group `token`) are edited in «القيم والألوان» / «الخطوط» (ONE editor per element); here they only appear as a summary
+		const ids = [...new Set([...order, ...this.items().map(i => i.group)])].filter(id => id !== 'token');
 		return ids.map(id => ({ id, ...(GROUP_TITLES[id] ?? { title: id, hint: '' }), items: this.items().filter(i => i.group === id) })).filter(g => g.items.length);
 	});
+	/** the design-token keys: summarised here, edited through the central flow on the two pages that own them */
+	readonly tokenItems = computed(() => this.items().filter(i => i.group === 'token'));
+	tokenPage(key: string): { link: string; text: string } { return key === 'tokens.typography' ? { link: '/supper-admin-overview/site-control/typography', text: 'الخطوط' } : { link: '/supper-admin-overview/site-control/tokens', text: 'القيم والألوان' }; }
+	overrideCount(it: IdentityItemInfo): number { return Object.keys(it.state.active?.value ?? {}).length; }
+	/** a token row of a whole-set restore preview: the names whose value differs between the two sides (a missing name = the platform default) */
+	tokenDiff(row: IdentityPreviewRow): { name: string; from: string; to: string }[] {
+		const it = this.item(row.key), a = row.current.value ?? {}, b = row.target.value ?? {};
+		const def = new Map((it?.tokens ?? []).map(t => [t.name, t.default]));
+		return [...new Set([...Object.keys(a), ...Object.keys(b)])].filter(n => (a[n] ?? def.get(n)) !== (b[n] ?? def.get(n))).map(n => ({ name: n, from: a[n] ?? def.get(n) ?? '—', to: b[n] ?? def.get(n) ?? '—' }));
+	}
 
 	// whole-set history
 	readonly setRows = signal<SetRow[]>([]);
@@ -134,7 +145,7 @@ export class Identity implements OnInit, OnDestroy {
 	}
 
 	private async loadActivePreviews(): Promise<void> {
-		await Promise.all(this.items().filter(i => i.state.active).map(i => this.ensurePreview(i.key, i.state.active!)));
+		await Promise.all(this.items().filter(i => i.state.active && i.group !== 'token').map(i => this.ensurePreview(i.key, i.state.active!)));
 	}
 
 	// ---------------------------------------------------------------- previews
@@ -386,7 +397,7 @@ export class Identity implements OnInit, OnDestroy {
 	closeSetPreview(): void { if (!this.setBusy()) this.setPreview.set(null); }
 	private async loadPreviewSides(d: IdentityRestoreSetPreview): Promise<void> {
 		const jobs: Promise<void>[] = [];
-		for (const r of d.items) if (r.change !== 'unchanged') for (const s of [r.current, r.target]) if (s.source === 'custom' && s.versionId) jobs.push(this.ensurePreview(r.key, { versionId: s.versionId, mime: s.mime } as IdentityAssetMeta));
+		for (const r of d.items) if (r.change !== 'unchanged' && r.group !== 'token') for (const s of [r.current, r.target]) if (s.source === 'custom' && s.versionId) jobs.push(this.ensurePreview(r.key, { versionId: s.versionId, mime: s.mime } as IdentityAssetMeta));
 		await Promise.all(jobs);
 	}
 	/** what a preview side looks like: the stored bytes of the custom version, or the built-in default of that key */

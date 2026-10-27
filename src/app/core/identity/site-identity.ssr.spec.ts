@@ -113,16 +113,16 @@ describe('SiteIdentityService in the browser after SSR hydration', () => {
 	afterEach(() => { vi.useRealTimers(); delete (window as unknown as { __wsIdentityBoot?: unknown }).__wsIdentityBoot; delete (window as unknown as { __wsIdentityBootPromise?: unknown }).__wsIdentityBootPromise; localStorage.removeItem(IDENTITY_CACHE_KEY); });
 
 	it('first client render == server HTML: the transfer-state manifest is used with EMPTY localStorage (first visit)', () => {
-		const s = browser(t => t.set(IDENTITY_STATE_KEY, { version: 5, items: { 'logo.boot': item('logo.boot', SHA_A) } as never }));
+		const s = browser(t => t.set(IDENTITY_STATE_KEY, { version: 5, items: { 'logo.boot': item('logo.boot', SHA_A) } as never, tokensCss: '' }));
 		expect(s.isCustom('logo.boot')).toBe(true);
 		expect(s.customUrl('logo.boot')).toContain(SHA_A);
 	});
 
 	it('the newest of transfer state / boot answer / remembered cache wins (a stale cache never beats the server HTML)', () => {
 		localStorage.setItem(IDENTITY_CACHE_KEY, JSON.stringify({ version: 3, items: { 'logo.boot': item('logo.boot', SHA_B) } }));
-		const s = browser(t => t.set(IDENTITY_STATE_KEY, { version: 5, items: { 'logo.boot': item('logo.boot', SHA_A) } as never }));
+		const s = browser(t => t.set(IDENTITY_STATE_KEY, { version: 5, items: { 'logo.boot': item('logo.boot', SHA_A) } as never, tokensCss: '' }));
 		expect(s.customUrl('logo.boot')).toContain(SHA_A);
-		const s2 = browser(t => t.set(IDENTITY_STATE_KEY, { version: 2, items: {} }));
+		const s2 = browser(t => t.set(IDENTITY_STATE_KEY, { version: 2, items: {}, tokensCss: '' }));
 		expect(s2.customUrl('logo.boot')).toContain(SHA_B);
 	});
 

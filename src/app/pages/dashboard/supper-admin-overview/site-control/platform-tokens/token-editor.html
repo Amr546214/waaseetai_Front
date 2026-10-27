@@ -1,0 +1,135 @@
+<section class="pt-wrap" data-testid="platform-tokens" aria-labelledby="pt-h">
+  <header class="pt-head">
+    <h2 id="pt-h">{{ title() }}</h2>
+    <span class="chip chip-ok" data-testid="pt-linked">مرتبط بالموقع</span>
+  </header>
+  <p class="hint" data-testid="pt-explain">
+    هذه القيم تُحفظ على الخادم بنسخ مرقّمة وتغيّر <strong>الموقع كله</strong> (كل الزوّار) بعد «تطبيق»، بنفس مسار صفحة «الهوية»: تحقّق ومعاينة ثم تطبيق أو إلغاء، واستعادة، وكشف التعارض. القيم الافتراضية المعروضة هي قيم المنصة الحالية. ما لا تغيّره يبقى كما هو بلا أي تغيير في مظهر الموقع.
+  </p>
+  <p class="note note-warn" role="note" data-testid="pt-scope">
+    <strong>ما يتغيّر وما لا يتغيّر:</strong> يتغيّر ما يقرأ هذه المتغيّرات (var(--…)) فقط. الألوان المكتوبة مباشرة في الشيفرة لا تتبعها: حوالي 17,300 لون hex في 481 ملفًا، و15,000 لون rgb/rgba في 437 ملفًا، و2,300 صنف Tailwind لوني في 43 ملفًا (قياس هذا الفرع خارج لوحة التحكم)، مقابل 7,355 استعمالًا للمتغيّرات في 339 ملفًا. لذلك قد تتغيّر أجزاء من الموقع ولا تتغيّر أخرى؛ لم نُعدّل هذه الألوان المكتوبة مباشرة ولن تتبع الصفحةُ تغييرَها.
+  </p>
+
+  @switch (store.phase()) {
+    @case ('loading') { <p class="state" role="status" data-testid="pt-loading"><span class="spinner" aria-hidden="true"></span> جارٍ قراءة قيم التصميم من الخادم…</p> }
+    @case ('idle') { <p class="state" role="status">جارٍ التحميل…</p> }
+    @case ('denied') { <p class="note note-error" role="alert" data-testid="pt-denied"><strong>لا صلاحية.</strong> {{ store.message() }}</p> }
+    @case ('error') {
+      <p class="note note-error" role="alert" data-testid="pt-error"><strong>تعذّر التحميل.</strong> {{ store.message() }}
+        <button type="button" class="btn-secondary" (click)="store.load(true)" data-testid="pt-retry">إعادة المحاولة</button></p>
+    }
+    @default {
+      @if (!store.canManage()) {
+        <p class="note note-warn" role="note" data-testid="pt-readonly"><strong>عرض فقط.</strong> صلاحيتك لا تسمح بتعديل القيم المرتبطة بالموقع (تحتاج site.manage أو صلاحية «التحكم بالموقع»).</p>
+      }
+      @if (shown().length > 1) {
+        <div class="pt-tabs" role="tablist" aria-label="مجموعات القيم">
+          @for (k of shown(); track k.key) {
+            <button type="button" role="tab" class="pt-tab" [class.active]="current()?.key === k.key" [attr.aria-selected]="current()?.key === k.key" (click)="setActive(k.key)" [attr.data-testid]="'pt-tab-' + k.key">{{ k.label }}
+              @if (overrideCount(k)) { <span class="chip chip-ok">{{ overrideCount(k) }} مخصّصة</span> }</button>
+          }
+        </div>
+      }
+      @if (current(); as it) {
+        <article class="pt-card" [attr.data-testid]="'pt-key-' + it.key" [attr.data-wired]="it.wired">
+          <div class="pt-key-head">
+            <h3>{{ it.label }}</h3>
+            <code class="code" dir="ltr">{{ it.key }}</code>
+            @if (it.state.isDefault) { <span class="chip chip-muted" data-testid="pt-state">الأصل الافتراضي (لا تخصيص)</span> }
+            @else { <span class="chip chip-ok" data-testid="pt-state">مخصّص — النسخة {{ it.state.active?.version }} · {{ overrideCount(it) }} قيمة</span> }
+            @if (!it.wired) { <span class="chip chip-off" data-testid="pt-notwired">غير مفعّل على الموقع بعد</span> }
+          </div>
+          @if (!it.wired) {
+            <p class="note note-warn" role="note" data-testid="pt-notwired-reason">{{ it.notWiredReason || 'لا يوجد في الموقع ما يقرأ هذا المفتاح بعد، فلا يمكن تعديله من هنا.' }}</p>
+          }
+          @if (it.description) { <p class="hint">{{ it.description }}</p> }
+
+          @if (state(it.key).notice; as n) {
+            <div [class]="'note note-' + n.type" role="status" [attr.data-testid]="'pt-notice-' + it.key">
+              <strong>{{ n.text }}</strong> @if (n.detail) { <span>{{ n.detail }}</span> }
+              @if (n.type === 'conflict') { <button type="button" class="btn-secondary" (click)="reloadFromServer(it)" data-testid="pt-reload">إعادة تحميل الحالة الحالية</button> }
+            </div>
+          }
+
+          <div class="pt-grid" role="table" [attr.aria-label]="'قيم ' + it.label">
+            <div class="pt-row pt-row-head" role="row"><span role="columnheader">القيمة</span><span role="columnheader">الأصل</span><span role="columnheader">المنشورة الآن</span><span role="columnheader">القيمة الجديدة</span></div>
+            @for (t of it.tokens ?? []; track t.name) {
+              <div class="pt-row" role="row" [class.pt-edited]="isEdited(it, t)" [attr.data-testid]="'pt-row-' + t.name">
+                <span class="pt-name" role="cell"><strong>{{ t.label }}</strong><code class="code" dir="ltr">{{ t.name }}</code>@if (t.sharedWithDark) { <small class="muted">تشاركها قيمة الوضع الداكن</small> }</span>
+                <span class="pt-val" role="cell">
+                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="t.default" [attr.aria-hidden]="true"></i> }
+                  <code dir="ltr">{{ t.default }}</code>
+                </span>
+                <span class="pt-val" role="cell">
+                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="published(it, t)" [attr.aria-hidden]="true"></i> }
+                  <code dir="ltr" [attr.data-testid]="'pt-pub-' + t.name">{{ published(it, t) }}</code>
+                  @if (isOverridden(it, t)) { <span class="chip chip-ok">مخصّصة</span> }
+                </span>
+                <span class="pt-edit" role="cell">
+                  @if (canEdit(it)) {
+                    @if (t.type === 'color' && isHex6(shownValue(it, t))) {
+                      <input type="color" class="pt-color" [value]="shownValue(it, t)" (input)="pickColor(it, t, $event)" [attr.aria-label]="'منتقي لون ' + t.label" />
+                    }
+                    <input type="text" class="pt-text" dir="ltr" [value]="isEdited(it, t) ? state(it.key).edits[t.name] : ''" [placeholder]="published(it, t)" (change)="onText(it, t, $event)"
+                      [attr.aria-label]="'قيمة جديدة لـ ' + t.label" [attr.data-testid]="'pt-input-' + t.name" spellcheck="false" autocomplete="off" />
+                    @if (isEdited(it, t) || isOverridden(it, t)) { <button type="button" class="btn-link" (click)="resetRow(it, t)" [attr.data-testid]="'pt-reset-' + t.name">إرجاع للأصل</button> }
+                  } @else { <span class="muted">—</span> }
+                </span>
+              </div>
+            }
+          </div>
+
+          @if (canEdit(it)) {
+            <div class="pt-actions">
+              <button type="button" class="btn-save" [disabled]="!dirty(it) || state(it.key).busy !== null" (click)="stage(it)" [attr.data-testid]="'pt-stage-' + it.key">{{ state(it.key).busy === 'stage' ? 'جارٍ التحقق…' : 'تحقّق وعاين' }}</button>
+              <button type="button" class="btn-secondary" [disabled]="(!dirty(it) && !state(it.key).draft) || state(it.key).busy !== null" (click)="cancel(it)" [attr.data-testid]="'pt-cancel-' + it.key">إلغاء التعديلات</button>
+              <button type="button" class="btn-secondary" [disabled]="it.state.isDefault || state(it.key).busy !== null" (click)="restoreDefault(it)" [attr.data-testid]="'pt-default-' + it.key">العودة إلى الأصل</button>
+            </div>
+          }
+
+          @if (state(it.key).draft; as d) {
+            <div class="pt-review" [attr.data-testid]="'pt-review-' + it.key">
+              <h4>المراجعة قبل التطبيق (المسودة {{ d.version }} · لم يتغيّر الموقع بعد)</h4>
+              @let ch = diff(it, d.value ?? {});
+              @if (ch.length) {
+                <ul class="pt-diff" [attr.data-testid]="'pt-diff-' + it.key">
+                  @for (c of ch; track c.name) {
+                    <li><strong>{{ c.label }}</strong> <code dir="ltr">{{ c.name }}</code>
+                      <span class="pt-from">@if (c.type === 'color' || c.type === 'paint') { <i class="sw" [style.background]="c.from"></i> }<code dir="ltr">{{ c.from }}</code></span>
+                      <span aria-hidden="true">←</span>
+                      <span class="pt-to">@if (c.type === 'color' || c.type === 'paint') { <i class="sw" [style.background]="c.to"></i> }<code dir="ltr">{{ c.to }}</code></span></li>
+                  }
+                </ul>
+              } @else { <p class="hint">لا فرق بين هذه المسودة وما هو منشور.</p> }
+              <div class="pt-sample-wrap">
+                <span class="pt-cap">عيّنة بقيم المسودة ({{ sampleMode(it) === 'light' ? 'الوضع الفاتح' : sampleMode(it) === 'dark' ? 'الوضع الداكن' : 'كما في الموقع' }}) — لا تمسّ الموقع:</span>
+                <div class="pt-sample" [ngStyle]="sampleVars(it)" [attr.data-mode]="sampleMode(it)" [attr.data-testid]="'pt-sample-' + it.key">
+                  <h5>عنوان تجريبي</h5>
+                  <p>نص أساسي لمعاينة الألوان والخط معًا على محتوى المنصة.</p>
+                  <p class="s2">نص ثانوي توضيحي.</p>
+                  <div class="s-row"><button type="button" class="s-btn">زر رئيسي</button><span class="s-ai">ميزة بالذكاء الاصطناعي</span><span class="s-ok">نجاح</span><span class="s-warn">تنبيه</span><span class="s-err">خطأ</span></div>
+                </div>
+              </div>
+              <div class="row">
+                <button type="button" class="btn-save" [disabled]="state(it.key).busy !== null || !ch.length" (click)="apply(it)" [attr.data-testid]="'pt-apply-' + it.key">{{ state(it.key).busy === 'apply' ? 'جارٍ التطبيق…' : 'تطبيق على الموقع' }}</button>
+                <button type="button" class="btn-secondary" [disabled]="state(it.key).busy !== null" (click)="cancel(it)" [attr.data-testid]="'pt-cancel2-' + it.key">إلغاء المسودة</button>
+              </div>
+            </div>
+          }
+
+          @if (restorable(it).length) {
+            <details class="pt-history" [attr.data-testid]="'pt-history-' + it.key">
+              <summary>النسخ السابقة ({{ restorable(it).length }})</summary>
+              <ul class="plain-list small">
+                @for (v of restorable(it); track v.versionId) {
+                  <li><strong>النسخة {{ v.version }}</strong> · {{ keysOf(v.value) }} قيمة · {{ actor(v.createdBy) }}
+                    @if (canEdit(it)) { <button type="button" class="btn-secondary" [disabled]="state(it.key).busy !== null" (click)="restoreVersion(it, v)" [attr.data-testid]="'pt-restore-' + v.version">استعادة</button> }</li>
+                }
+              </ul>
+            </details>
+          }
+        </article>
+      }
+    }
+  }
+</section>

@@ -23,6 +23,8 @@ export class SiteControlShell implements AfterViewInit, OnDestroy {
 	private readonly tokens = inject(DesignTokensService);
 	private readonly host = viewChild.required<ElementRef<HTMLElement>>('host');
 	private readonly router = inject(Router);
+	/** the two pages that hold a SERVER-backed section (the platform's design tokens) above their local sandbox: «القيم والألوان» and «الخطوط» */
+	readonly onMixed = toSignal(this.router.events.pipe(filter(e => e instanceof NavigationEnd), startWith(null), map(() => /\/site-control\/(tokens|typography)(?:[/?#]|$)/.test(this.router.url))), { initialValue: false });
 	/** the real, server-backed page: no "local only" notice there */
 	readonly onIdentity = toSignal(this.router.events.pipe(filter(e => e instanceof NavigationEnd), startWith(null), map(() => /\/site-control\/identity(?:[/?#]|$)/.test(this.router.url))), { initialValue: false });
 

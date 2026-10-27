@@ -1,13 +1,15 @@
 import { Component, OnInit, inject, signal, ViewEncapsulation } from '@angular/core';
 import { TypographyService } from '../core/typography.service';
 import { ThemeModeService } from '../core/theme-mode.service';
+import { PlatformTokensStore } from '../platform-tokens/platform-tokens.store';
+import { TokenEditor } from '../platform-tokens/token-editor';
 
 type SubTab = 'families' | 'roles' | 'scale';
 
 @Component({
   selector: 'sc-typography',
   standalone: true,
-  imports: [],
+  imports: [TokenEditor],
   templateUrl: './typography.html',
   encapsulation: ViewEncapsulation.ShadowDom,
   styleUrls: ['../site-control-base.css', './typography.css']
@@ -15,6 +17,9 @@ type SubTab = 'families' | 'roles' | 'scale';
 export class Typography implements OnInit {
   service = inject(TypographyService);
   themeMode = inject(ThemeModeService);
+  private readonly platform = inject(PlatformTokensStore);
+  /** a variable the SERVER manages: locked in the local sandbox (one editor per element) */
+  isPlatform(varName: string): boolean { return this.platform.names().has(varName); }
 
   activeTab = signal<SubTab>('roles');
   savedMsg = signal<string>('');

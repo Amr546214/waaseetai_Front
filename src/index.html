@@ -231,19 +231,28 @@
 	</app-root>
 	<!-- Site identity (server-managed). Two loaders exist and they ALWAYS show the same file, because both read the same key `logo.boot`:
 	       (1) the static <img class="loader-logo"> above (index.html, painted before any JS; only the static/CSR host ever serves it as is),
-	       (2) the app loader in app.ts (<img class="loader-logo"> in .global-app-loader, shown while the session initialises, the one SSR renders into the first HTML).
+	       (2) the app loader in app.ts (<img class="loader-logo"> in .global-app-loader: rendered into the SSR HTML and hidden by `fade-out` as soon as the session is initialised, which is immediate today; only the static loader above is really seen).
 	     Their default files are byte-identical (assets/brand/waseet-mark.png == images/waseet-mark.png).
 	     SSR (node server): the server fetched the public manifest and rendered the right src into the HTML itself (app loader); this script then does NOTHING (app-root carries ng-server-context),
 	       so a stale browser cache can never swap in a different asset.
 	     Static/CSR host: remembered manifest (localStorage, key = core/identity/site-identity.service.ts) -> swap at once. Nothing remembered (first visit / storage blocked / corrupt) -> the logo is held
 	       invisible (never the wrong file) while ONE anonymous fetch of /api/public/site-identity runs (1.5 s limit), then it is shown with the right file (default on any failure/timeout);
-	       the answer is handed to the app (window.__wsIdentityBoot, awaited by the app initializer) so the app loader uses the same file. -->
+	       the answer is handed to the app (window.__wsIdentityBoot, awaited by the app initializer) so the app loader uses the same file.
+	     The same script also injects the remembered / fetched design-token CSS (<style id="ws-identity-tokens">, only when overrides exist). -->
 	<script>
 		(function () {
 			try {
 				if (document.querySelector('app-root[ng-server-context]')) return;
 				var KEY = 'ws-site-identity-manifest-v1', API = '/api', ok = /^(https?:\/\/|\/(?!\/))/;
 				var logo = function () { return document.querySelector('img.loader-logo'); };
+				// design-token overrides: the remembered / just fetched CSS (same strict shape the app re-validates) goes into ONE <style id="ws-identity-tokens"> at the end of <head>, only when it exists
+				var SEL = '(?::root|:root:not\\(\\.theme-light\\):not\\(\\.light-theme\\)|\\.theme-light\\.theme-light,\\.light-theme\\.light-theme)', DECL = '--[a-z0-9][a-z0-9-]{0,39}:[^;{}<>@\\\\/*]{1,220}';
+				var TOK_RE = new RegExp('^(?:' + SEL + '\\{' + DECL + '(?:;' + DECL + ')*;?\\}\\s*){1,3}$');
+				var tokens = function (css) {
+					if (typeof css !== 'string' || !css || css.length > 20000 || /url\s*\(|expression|import|javascript:|<\/?style|\\/i.test(css) || !TOK_RE.test(css.trim())) return;
+					var el = document.getElementById('ws-identity-tokens') || document.createElement('style');
+					el.id = 'ws-identity-tokens'; el.textContent = css.trim(); document.head.appendChild(el);
+				};
 				var publish = function (urls) { window.__wsIdentityUrls = urls; var u = urls['logo.boot'], i = logo(); if (u && i) i.src = u; };
 				var m = null;
 				try { m = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { m = null; }
@@ -252,6 +261,7 @@
 					var urls = {};
 					for (var k in abs) { if (Object.prototype.hasOwnProperty.call(abs, k) && typeof abs[k] === 'string' && ok.test(abs[k])) urls[k] = abs[k]; }
 					publish(urls);
+					tokens(m.tokensCss);
 					return;
 				}
 				var img = logo();
@@ -274,6 +284,7 @@
 						}
 						window.__wsIdentityBoot = b;
 						publish(urls);
+						tokens(b.tokensCss);
 					})
 					.catch(function () { /* default stays */ })
 					.then(function () { clearTimeout(timer); finish(); });

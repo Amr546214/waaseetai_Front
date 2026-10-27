@@ -27,6 +27,13 @@
     </div>
   </header>
 
+  <sc-token-editor [keys]="['tokens.colors.dark', 'tokens.colors.light', 'tokens.layout']" title="قيم التصميم المرتبطة بالموقع: الألوان والأبعاد" />
+
+  <section class="local-sandbox" data-testid="local-sandbox" aria-labelledby="ls-h">
+    <h2 id="ls-h">المحرر المحلي: للتجربة والتصدير فقط (غير مرتبط بالموقع)</h2>
+    <p class="hint">كل ما يلي يعمل على هذا المتصفح فقط ولا يغيّر الموقع. المتغيّرات التي يديرها الخادم (القسم أعلاه) مقفلة هنا حتى لا يوجد محرّران لنفس القيمة؛ الباقي (متغيّرات اللوحة نفسها) تجربة محلية.</p>
+  </section>
+
   <div class="group-tabs">
     @for (group of tokensService.groups(); track group.id) {
       <button type="button" class="group-tab" [class.active]="activeGroup()?.id === group.id" (click)="selectGroup(group.id)">
@@ -45,73 +52,77 @@
               <label>{{ token.label }}</label>
               <span class="var-name">{{ token.var }}</span>
 
-              @if (token.type === 'color' || token.type === 'gradient') {
-                @if (isSolidColor(token.value)) {
-                  <input type="color" [value]="toHex(token.value)" (input)="onColorPick(token.var, $event)" />
-                }
-                @if (hasAlphaChannel(token.value)) {
-                  <input type="range" class="alpha-range" min="0" max="1" step="0.01"
-                    [value]="alphaOf(token.value)" (input)="onAlphaChange(token.var, $event)"
-                    title="الشفافية (alpha) — منفصلة عن اللون حتى لا تُفقد عند اختيار لون جديد" />
-                  <span class="unit">{{ alphaOf(token.value) }}</span>
-                }
-                <input type="text" class="value-text" [value]="token.value" (change)="onValueChange(token.var, $event)" />
-                @if (errorFor(token.var); as err) {
-                  <span class="field-error">{{ err }}</span>
-                }
-                <span class="mini-sample" [style.background]="token.value" title="عيّنة حية"></span>
-                @if (contrastAgainstBg(token.value).ratio; as ratio) {
-                  <span class="contrast-badge" [class.pass]="contrastAgainstBg(token.value).level !== 'fail'"
-                    [title]="'تباين مقابل خلفية اللوحة (--pg): ' + ratio.toFixed(2) + ':1'">
-                    {{ contrastAgainstBg(token.value).level === 'fail' ? '⚠ تباين ضعيف' : contrastAgainstBg(token.value).level }}
-                    {{ ratio.toFixed(1) }}:1
-                  </span>
-                }
-                <div class="palette-row">
-                  @for (sw of commonPalette(); track sw.value) {
-                    <button type="button" class="palette-swatch" [style.background]="sw.value" [title]="sw.label"
-                      (click)="pickPaletteColor(token.var, sw.value)"></button>
+              @if (isPlatform(token.var)) {
+                <span class="locked-value" data-testid="local-locked">مُدار من «قيم التصميم المرتبطة بالموقع» أعلاه (قيمة هذا المتغيّر على الموقع تُحرَّر هناك فقط). القيمة المحلية للتجربة: <code dir="ltr">{{ token.value }}</code></span>
+              } @else {
+                @if (token.type === 'color' || token.type === 'gradient') {
+                  @if (isSolidColor(token.value)) {
+                    <input type="color" [value]="toHex(token.value)" (input)="onColorPick(token.var, $event)" />
                   }
-                  @for (alt of alternatesFor(token.var); track alt.value) {
-                    <button type="button" class="palette-swatch alt-swatch" [style.background]="alt.value" [title]="alt.label"
-                      (click)="pickPaletteColor(token.var, alt.value)"></button>
+                  @if (hasAlphaChannel(token.value)) {
+                    <input type="range" class="alpha-range" min="0" max="1" step="0.01"
+                      [value]="alphaOf(token.value)" (input)="onAlphaChange(token.var, $event)"
+                      title="الشفافية (alpha) — منفصلة عن اللون حتى لا تُفقد عند اختيار لون جديد" />
+                    <span class="unit">{{ alphaOf(token.value) }}</span>
                   }
-                </div>
-              }
-
-              @if (token.type === 'size') {
-                <input type="number" class="value-num" step="0.5" [value]="sizeAsNumber(token.value)" (change)="onSizeChange(token.var, $event)" />
-                <span class="unit">px</span>
-                <span class="mini-sample size-sample" [style.width.px]="sizeAsNumber(token.value)" [style.height.px]="sizeAsNumber(token.value)" title="عيّنة حية"></span>
-              }
-
-              @if (token.type === 'weight') {
-                <select class="value-select" [value]="token.value" (change)="onWeightChange(token.var, $event)">
-                  @for (w of weightOptions; track w) {
-                    <option [value]="w">{{ w }}</option>
+                  <input type="text" class="value-text" [value]="token.value" (change)="onValueChange(token.var, $event)" />
+                  @if (errorFor(token.var); as err) {
+                    <span class="field-error">{{ err }}</span>
                   }
-                </select>
-                <span class="mini-sample text-sample" [style.fontWeight]="token.value">Aa نص</span>
-              }
+                  <span class="mini-sample" [style.background]="token.value" title="عيّنة حية"></span>
+                  @if (contrastAgainstBg(token.value).ratio; as ratio) {
+                    <span class="contrast-badge" [class.pass]="contrastAgainstBg(token.value).level !== 'fail'"
+                      [title]="'تباين مقابل خلفية اللوحة (--pg): ' + ratio.toFixed(2) + ':1'">
+                      {{ contrastAgainstBg(token.value).level === 'fail' ? '⚠ تباين ضعيف' : contrastAgainstBg(token.value).level }}
+                      {{ ratio.toFixed(1) }}:1
+                    </span>
+                  }
+                  <div class="palette-row">
+                    @for (sw of commonPalette(); track sw.value) {
+                      <button type="button" class="palette-swatch" [style.background]="sw.value" [title]="sw.label"
+                        (click)="pickPaletteColor(token.var, sw.value)"></button>
+                    }
+                    @for (alt of alternatesFor(token.var); track alt.value) {
+                      <button type="button" class="palette-swatch alt-swatch" [style.background]="alt.value" [title]="alt.label"
+                        (click)="pickPaletteColor(token.var, alt.value)"></button>
+                    }
+                  </div>
+                }
 
-              @if (token.type === 'font') {
-                <span class="locked-value">{{ token.value }} (مقفل — خط واحد معتمد)</span>
-                <span class="mini-sample text-sample" [style.fontFamily]="token.value">Aa نص</span>
-              }
+                @if (token.type === 'size') {
+                  <input type="number" class="value-num" step="0.5" [value]="sizeAsNumber(token.value)" (change)="onSizeChange(token.var, $event)" />
+                  <span class="unit">px</span>
+                  <span class="mini-sample size-sample" [style.width.px]="sizeAsNumber(token.value)" [style.height.px]="sizeAsNumber(token.value)" title="عيّنة حية"></span>
+                }
 
-              @if (token.type === 'shadow') {
-                <input type="text" class="value-text" [value]="token.value" (change)="onValueChange(token.var, $event)" />
-                <span class="mini-sample shadow-sample" [style.boxShadow]="token.value" title="عيّنة حية"></span>
-              }
+                @if (token.type === 'weight') {
+                  <select class="value-select" [value]="token.value" (change)="onWeightChange(token.var, $event)">
+                    @for (w of weightOptions; track w) {
+                      <option [value]="w">{{ w }}</option>
+                    }
+                  </select>
+                  <span class="mini-sample text-sample" [style.fontWeight]="token.value">Aa نص</span>
+                }
 
-              @if (token.type === 'opacity') {
-                <input type="range" min="0" max="1" step="0.01" class="value-range" [value]="token.value" (input)="onValueChange(token.var, $event)" />
-                <span class="unit">{{ token.value }}</span>
-                <span class="mini-sample" [style.opacity]="token.value" title="عيّنة حية"></span>
-              }
+                @if (token.type === 'font') {
+                  <span class="locked-value">{{ token.value }} (مقفل — خط واحد معتمد)</span>
+                  <span class="mini-sample text-sample" [style.fontFamily]="token.value">Aa نص</span>
+                }
 
-              @if (token.type === 'text') {
-                <input type="text" class="value-text" [value]="token.value" (change)="onValueChange(token.var, $event)" />
+                @if (token.type === 'shadow') {
+                  <input type="text" class="value-text" [value]="token.value" (change)="onValueChange(token.var, $event)" />
+                  <span class="mini-sample shadow-sample" [style.boxShadow]="token.value" title="عيّنة حية"></span>
+                }
+
+                @if (token.type === 'opacity') {
+                  <input type="range" min="0" max="1" step="0.01" class="value-range" [value]="token.value" (input)="onValueChange(token.var, $event)" />
+                  <span class="unit">{{ token.value }}</span>
+                  <span class="mini-sample" [style.opacity]="token.value" title="عيّنة حية"></span>
+                }
+
+                @if (token.type === 'text') {
+                  <input type="text" class="value-text" [value]="token.value" (change)="onValueChange(token.var, $event)" />
+                }
               }
             </div>
           }

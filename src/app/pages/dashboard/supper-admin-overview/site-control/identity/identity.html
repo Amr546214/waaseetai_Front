@@ -102,9 +102,25 @@
       </section>
 
       <section class="card colors-note" data-testid="identity-colors-note">
-        <h2>الألوان والخطوط والقوالب: غير مرتبطة بالموقع</h2>
-        <p class="hint">صفحات هذا القسم الأخرى (القيم والألوان، الخطوط، القوالب، المستويات…) تعمل على هذا المتصفح فقط للمعاينة والتصدير، ولا تقرأ المنصة ألوانها وخطوطها منها في هذه الدفعة. لذلك لا تغيّر أي تعديلات هناك شيئًا في الموقع. المربوط فعلًا بالموقع هو الشعارات والأيقونات المبيّنة أدناه فقط.</p>
+        <h2>الألوان والخطوط والقيم العامة</h2>
+        <p class="hint">المتغيّرات المركزية للتصميم (ألوان الوضعين، أبعاد الحواف والحاوية، والخط العام) <strong>مرتبطة بالموقع</strong> وتُدار من صفحتي «القيم والألوان» و«الخطوط» بنفس مسار هذه الصفحة (تحقّق ومعاينة ثم تطبيق، استعادة، تعارض). هذه الصفحة لا تحرّرها ولا تكرّر محرّرها. ما سوى ذلك (القوالب، المستويات، المعاينة الشاملة، التصدير، والمحرّر المحلي في تلك الصفحتين) يعمل على هذا المتصفح فقط وهو <strong>غير مرتبط بالموقع</strong>. الألوان المكتوبة مباشرة في الشيفرة لا تتبع هذه المتغيّرات (الأعداد على صفحة «القيم والألوان»).</p>
       </section>
+
+      @if (tokenItems().length) {
+        <section class="card token-summary" data-testid="identity-tokens" aria-labelledby="tk-h">
+          <h2 id="tk-h">قيم التصميم المرتبطة بالموقع</h2>
+          <ul class="plain-list" data-testid="identity-tokens-list">
+            @for (it of tokenItems(); track it.key) {
+              <li [attr.data-testid]="'token-sum-' + it.key">
+                <strong>{{ it.label }}</strong> <code class="code" dir="ltr">{{ it.key }}</code>
+                — @if (it.state.isDefault) { <span class="chip chip-muted">الأصل الافتراضي</span> } @else { <span class="chip chip-ok">مخصّص: النسخة {{ it.state.active?.version }} ({{ overrideCount(it) }} قيمة)</span> }
+                @if (!it.wired) { <span class="chip chip-off">غير مفعّل بعد</span> }
+                — <a [routerLink]="tokenPage(it.key).link">تحرير من «{{ tokenPage(it.key).text }}»</a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
 
       @for (g of groups(); track g.id) {
         <section class="group" [attr.data-testid]="'identity-group-' + g.id" [attr.aria-labelledby]="'gh-' + g.id">
@@ -161,10 +177,16 @@
                         @for (side of [{ k: 'cur', t: 'الحالي', s: r.current }, { k: 'new', t: 'بعد الاستعادة', s: r.target }]; track side.k) {
                           <div class="diff-side" [class.diff-side-new]="side.k === 'new'" [attr.data-testid]="'diff-' + side.k + '-' + r.key">
                             <h5>{{ side.t }}</h5>
+                            @if (r.group !== 'token') {
                             <div class="diff-pv">
                               <ng-container *ngTemplateOutlet="pv; context: { p: sidePreview(r, side.s), tone: 'light', h: 40, sq: previewItem(r).group === 'icon' || previewItem(r).group === 'favicon', label: side.t + ' على خلفية فاتحة' }" />
                               <ng-container *ngTemplateOutlet="pv; context: { p: sidePreview(r, side.s), tone: 'dark', h: 40, sq: previewItem(r).group === 'icon' || previewItem(r).group === 'favicon', label: side.t + ' على خلفية داكنة' }" />
                             </div>
+                            } @else {
+                              <ul class="plain-list small" [attr.data-testid]="'diff-tokens-' + side.k + '-' + r.key">
+                                @for (d of tokenDiff(r); track d.name) { <li><code dir="ltr">{{ d.name }}</code>: <code dir="ltr">{{ side.k === 'cur' ? d.from : d.to }}</code></li> } @empty { <li class="muted">لا فرق في القيم</li> }
+                              </ul>
+                            }
                             <p class="small"><span class="chip" [class.chip-muted]="side.s.source === 'default'" [attr.data-testid]="'diff-source-' + side.k + '-' + r.key">{{ sideText(side.s) }}</span></p>
                             <p class="small muted"><span dir="ltr" class="mono" [title]="side.s.sha256">{{ sha(side.s.sha256) }}</span> · {{ mime(side.s.mime) }} · {{ dim(side.s.width, side.s.height) }}</p>
                           </div>

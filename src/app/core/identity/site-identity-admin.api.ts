@@ -14,6 +14,8 @@ export interface IdentityAssetMeta {
 	width: number | null; height: number | null; byteSize: number; note: string | null; createdBy: IdentityActor | null; createdAt: string;
 	/** staged drafts only: the draft was uploaded by the caller (a draft of another admin cannot be applied by someone else) */
 	isMine?: boolean;
+	/** design-token sets (kind json) only: the sparse override object this version holds ({} never stored; a default side has none) */
+	value?: Record<string, string>;
 	/** relative to the API root; only PUBLISHED / SUPERSEDED rows have one */
 	url: string | null;
 	/** admin-only preview of the bytes, relative to the API root (needs the admin token: fetch it with `previewBlob`) */
@@ -21,10 +23,14 @@ export interface IdentityAssetMeta {
 }
 export interface IdentityKeyState { stateVersion: number; isDefault: boolean; active: IdentityAssetMeta | null; updatedAt: string | null; updatedBy: IdentityActor | null }
 export interface IdentityDimensionRule { minWidth?: number; minHeight?: number; maxWidth?: number; maxHeight?: number; aspectMin?: number; aspectMax?: number; exact?: { width: number; height: number } }
+/** one design token of a token key (BE TOKEN_REGISTRY entry, `default` already resolved for THAT key: light key -> light value) */
+export interface IdentityTokenDef { name: string; type: 'color' | 'paint' | 'shadow' | 'length' | 'font-family'; label: string; default: string; sharedWithDark?: boolean; min?: number; max?: number }
 export interface IdentityItemInfo {
-	key: string; group: 'logo' | 'favicon' | 'icon' | 'character'; label: string; description: string; kind: 'raster' | 'svg' | 'ico';
+	key: string; group: 'logo' | 'favicon' | 'icon' | 'character' | 'token'; label: string; description: string; kind: 'raster' | 'svg' | 'ico' | 'json';
 	allowedMimes: string[]; maxBytes: number; dimensions: IdentityDimensionRule; rules: unknown;
-	defaultAsset: { type: 'file'; path: string } | { type: 'inline-symbol'; symbolId: string; source: string };
+	defaultAsset: { type: 'file'; path: string } | { type: 'inline-symbol'; symbolId: string; source: string } | { type: 'tokens' };
+	/** token keys only */
+	tokens?: IdentityTokenDef[];
 	defaultFingerprint: { mime: string; width: number | null; height: number | null; byteSize: number; sha256: string; entries?: number; note?: string };
 	usages: { where: string; ref: string }[]; notes: string[];
 	/** only a wired key (a real consumer reads it) can be changed; `notWiredReason` says why not otherwise */
@@ -44,7 +50,7 @@ export interface IdentityRestoreSetResult { manifestVersion: number; snapshot: R
 /** 409 SITE_IDENTITY_VERSION_CONFLICT body of restore-set: `current` = { manifestVersion, snapshot, keys } */
 export interface IdentityHistory { manifest: { manifestVersion: number; reason: string; createdAt: string; createdBy: IdentityActor | null; changedKeys: string[] }[]; hasMore: boolean; nextBefore: number | null; versions: IdentityAssetMeta[] }
 /** one side (current / target) of a set-restore preview row */
-export interface IdentityPreviewSide { source: 'default' | 'custom'; versionId: string | null; version: number; sha256: string; mime: string; width: number | null; height: number | null; previewUrl: string | null }
+export interface IdentityPreviewSide { source: 'default' | 'custom'; versionId: string | null; version: number; sha256: string; mime: string; width: number | null; height: number | null; previewUrl: string | null; /** token keys: the override object of that side ({} for the default) */ value?: Record<string, string> }
 export type IdentityChangeKind = 'replace' | 'to-default' | 'unchanged';
 export interface IdentityPreviewRow { key: string; label: string; group: string; current: IdentityPreviewSide; target: IdentityPreviewSide; change: IdentityChangeKind }
 /** GET /restore-set/:manifestVersion/preview - the EXACT diff the restore would execute; `previewDigest` binds the confirmation to it */
@@ -76,6 +82,8 @@ export class SiteIdentityAdminApi {
 	}
 	/** multipart, field `file`; stores a STAGED version (nothing visible on the site yet) */
 	upload(key: string, file: File): Observable<Envelope<IdentityUploadResult>> { const fd = new FormData(); fd.append('file', file, file.name); return this.http.post<Envelope<IdentityUploadResult>>(`${base()}/${encodeURIComponent(key)}/upload`, fd); }
+	/** design-token sets: JSON body `{ value: { '--teal': '#14b8a6' } }` (sparse overrides); stores a STAGED version after the server's strict validation */
+	uploadTokens(key: string, value: Record<string, string>): Observable<Envelope<IdentityUploadResult>> { return this.http.post<Envelope<IdentityUploadResult>>(`${base()}/${encodeURIComponent(key)}/upload`, { value }); }
 	publish(key: string, versionId: string, expectedVersion: number, note?: string): Observable<Envelope<IdentityChangeResult>> {
 		return this.http.post<Envelope<IdentityChangeResult>>(`${base()}/${encodeURIComponent(key)}/publish`, { versionId, expectedVersion, ...(note ? { note } : {}) });
 	}

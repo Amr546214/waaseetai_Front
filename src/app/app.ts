@@ -25,7 +25,7 @@ import { IdentityImgDirective } from './core/identity/identity-img.directive';
 
 		<div *ngIf="showLoader()" class="global-app-loader" [class.fade-out]="authStore.isInitialized$ | async">
 			<div class="loader-content">
-				<img [wsIdentityImg]="'logo.boot'" src="/images/waseet-mark.png" alt="Waseet AI Logo" class="loader-logo" />
+				<img [wsIdentityImg]="'logo.boot'" src="/assets/brand/waseet-mark.png" alt="Waseet AI Logo" class="loader-logo" />
 				<div class="waseet-spinner"></div>
 				<h2 class="loader-text">جاري تهيئة بيئة العمل...</h2>
 			</div>
