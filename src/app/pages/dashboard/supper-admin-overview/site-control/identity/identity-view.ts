@@ -19,7 +19,7 @@ export const bytesText = (n: number | null | undefined): string => {
 
 export const MIME_NAMES: Record<string, string> = { 'image/png': 'PNG', 'image/jpeg': 'JPEG', 'image/webp': 'WebP', 'image/svg+xml': 'SVG', 'image/x-icon': 'ICO', 'image/vnd.microsoft.icon': 'ICO', 'image/gif': 'GIF' };
 export const mimeName = (m: string | null | undefined): string => (m ? MIME_NAMES[m.toLowerCase()] ?? m : '—');
-export const sizeText = (w: number | null | undefined, h: number | null | undefined): string => (w && h ? `${w}×${h} بكسل` : '—');
+export const sizeText = (w: number | null | undefined, h: number | null | undefined): string => (w && h ? `\u2066${w}×${h}\u2069 بكسل` : '—');
 export const shortSha = (s: string | null | undefined): string => (s ? s.slice(0, 10) : '');
 export const shortId = (s: string | null | undefined): string => (s ? s.slice(0, 8) : '');
 
