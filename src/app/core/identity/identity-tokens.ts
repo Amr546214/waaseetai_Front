@@ -4,7 +4,6 @@ import { ApplicationRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { SiteIdentityService } from './site-identity.service';
-import { tokensCssForDocument } from './site-identity.models';
 
 export const TOKENS_STYLE_ID = 'ws-identity-tokens';
 
@@ -44,7 +43,7 @@ export class IdentityTokensRuntime {
 		let el = this.doc.getElementById(TOKENS_STYLE_ID);
 		if (!css) { el?.remove(); return; }
 		if (!el) { el = this.doc.createElement('style'); el.id = TOKENS_STYLE_ID; }
-		if (el.textContent !== tokensCssForDocument(css)) el.textContent = tokensCssForDocument(css);
+		if (el.textContent !== css) el.textContent = css;
 		// always the LAST element of <head>: later-added stylesheets (lazy styles) must not end up after it
 		if (el.parentNode !== head || head.lastElementChild !== el) head.appendChild(el);
 	}

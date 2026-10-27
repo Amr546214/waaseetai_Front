@@ -21,7 +21,7 @@ export const EMPTY_MANIFEST: IdentityManifest = Object.freeze({ version: 0, item
  * Defence in depth for the one string that becomes a <style> element: the server validates every token, and the browser accepts ONLY this exact shape again
  * (up to three rules from the known selector list, each holding `--name:value` declarations without any character that could leave a declaration). Anything else = '' = nothing injected.
  */
-const TOKEN_SELECTORS = String.raw`(?::root|:root:not\(\.theme-light\):not\(\.light-theme\)|\.theme-light\.theme-light,\.light-theme\.light-theme)`;
+const TOKEN_SELECTORS = String.raw`(?::root|:root:not\(\.theme-light\):not\(\.light-theme\)|html\.theme-light\.theme-light,html\.light-theme\.light-theme,body\.theme-light\.theme-light,body\.light-theme\.light-theme,\.theme-light\.theme-light,\.light-theme\.light-theme)`;
 const TOKEN_DECL = String.raw`--[a-z0-9][a-z0-9-]{0,39}:[^;{}<>@\\/*]{1,220}`;
 const TOKENS_CSS_RE = new RegExp(`^(?:${TOKEN_SELECTORS}\\{${TOKEN_DECL}(?:;${TOKEN_DECL})*;?\\}\\s*){1,3}$`);
 export function safeTokensCss(raw: unknown): string {
@@ -51,10 +51,3 @@ export function parseManifest(raw: unknown): IdentityManifest | null {
 	return { version, items, tokensCss: safeTokensCss(body['tokensCss']) };
 }
 
-/**
- * The light rule must also reach <body>: the site's own `body.theme-light{--pg:…}` / `body.light-theme{…}` blocks (styles.css) redefine variables ON the body, which beats anything inherited from <html>
- * (measured: a light --pg override never reached the body background). Same declarations, selector widened to the body with enough specificity (0,2,1).
- */
-export function tokensCssForDocument(css: string): string {
-	return css.replace('.theme-light.theme-light,.light-theme.light-theme{', '.theme-light.theme-light,.light-theme.light-theme,body.theme-light.theme-light,body.light-theme.light-theme{');
-}

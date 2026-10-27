@@ -80,11 +80,5 @@
   "--radius-sm": "10px",
   "--font-family": "\"Tajawal\""
  },
- "knownBeDrift": [
-  "light --teal",
-  "light --blue",
-  "light --ai",
-  "dark --ai-bg",
-  "light --card-shadow"
- ]
+ "knownBeDrift": []
 }

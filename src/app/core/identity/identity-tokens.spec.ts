@@ -2,9 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { IDENTITY_CACHE_KEY, SiteIdentityService } from './site-identity.service';
 import { IdentityTokensRuntime, TOKENS_STYLE_ID } from './identity-tokens';
-import { parseManifest, safeTokensCss, tokensCssForDocument } from './site-identity.models';
+import { parseManifest, safeTokensCss } from './site-identity.models';
 
-const CSS = ':root{--radius:24px}\n:root:not(.theme-light):not(.light-theme){--pg:#0b1020;--teal:#14b8a6}\n.theme-light.theme-light,.light-theme.light-theme{--pg:#f0f4ff;--teal:#0d9488}';
+const CSS = ':root{--radius:24px}\n:root:not(.theme-light):not(.light-theme){--pg:#0b1020;--teal:#14b8a6}\nhtml.theme-light.theme-light,html.light-theme.light-theme,body.theme-light.theme-light,body.light-theme.light-theme,.theme-light.theme-light,.light-theme.light-theme{--pg:#f0f4ff;--teal:#0d9488}';
 const SHA = 'a'.repeat(64);
 const man = (tokensCss?: unknown) => ({ success: true, data: { version: 5, items: { 'tokens.layout': { url: '/public/site-identity/assets/tokens.layout/' + SHA, sha256: SHA, mime: 'application/json', width: null, height: null, version: 1, value: { '--radius': '24px' } } }, ...(tokensCss === undefined ? {} : { tokensCss }) } });
 const styleEl = () => document.getElementById(TOKENS_STYLE_ID);
@@ -48,7 +48,7 @@ describe('IdentityTokensRuntime: <style id="ws-identity-tokens"> only when overr
 		const { svc, rt } = setup(); rt.start();
 		svc.apply(parseManifest(man(CSS))!, false); TestBed.flushEffects();
 		expect(document.querySelectorAll('#' + TOKENS_STYLE_ID).length).toBe(1);
-		expect(styleEl()!.textContent).toBe(tokensCssForDocument(CSS));
+		expect(styleEl()!.textContent).toBe(CSS);
 		expect(document.head.lastElementChild).toBe(styleEl());
 		const lateSheet = document.createElement('style'); lateSheet.textContent = '.x{}'; document.head.appendChild(lateSheet);
 		svc.apply(parseManifest({ ...man(CSS), data: { ...man(CSS).data, version: 6, tokensCss: CSS.replace('24px', '20px') } })!, false); TestBed.flushEffects();
@@ -60,28 +60,20 @@ describe('IdentityTokensRuntime: <style id="ws-identity-tokens"> only when overr
 		svc.apply(parseManifest(man(CSS))!, false); TestBed.flushEffects(); expect(styleEl()).not.toBeNull();
 		vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new TypeError('offline'))));
 		expect(await svc.refresh(true)).toBe(false); TestBed.flushEffects();
-		expect(styleEl()!.textContent).toBe(tokensCssForDocument(CSS));
+		expect(styleEl()!.textContent).toBe(CSS);
 		svc.apply(parseManifest({ success: true, data: { version: 7, items: {} } })!, false); TestBed.flushEffects();
 		expect(styleEl()).toBeNull();
 	});
 	it('a returning visitor: the remembered manifest (with its CSS) is applied at start, before any network', () => {
 		localStorage.setItem(IDENTITY_CACHE_KEY, JSON.stringify(parseManifest(man(CSS))));
 		const { rt } = setup(); rt.start();
-		expect(styleEl()!.textContent).toBe(tokensCssForDocument(CSS));
+		expect(styleEl()!.textContent).toBe(CSS);
 	});
 	it('an element that index.html already injected is taken over (not duplicated)', () => {
 		const pre = document.createElement('style'); pre.id = TOKENS_STYLE_ID; pre.textContent = ':root{--radius:1px}'; document.head.appendChild(pre);
 		const { svc, rt } = setup(); rt.start();
 		svc.apply(parseManifest(man(CSS))!, false); TestBed.flushEffects();
-		expect(document.querySelectorAll('#' + TOKENS_STYLE_ID).length).toBe(1); expect(styleEl()!.textContent).toBe(tokensCssForDocument(CSS));
+		expect(document.querySelectorAll('#' + TOKENS_STYLE_ID).length).toBe(1); expect(styleEl()!.textContent).toBe(CSS);
 	});
 });
 
-describe('tokensCssForDocument', () => {
-	it('widens ONLY the light rule to <body> (the site redefines light variables on body.theme-light); dark/root rules are untouched', () => {
-		const out = tokensCssForDocument(CSS);
-		expect(out).toContain('.theme-light.theme-light,.light-theme.light-theme,body.theme-light.theme-light,body.light-theme.light-theme{--pg:#f0f4ff');
-		expect(out.replace(/,body\.theme-light\.theme-light,body\.light-theme\.light-theme/, '')).toBe(CSS);
-		expect(tokensCssForDocument(':root{--radius:1px}')).toBe(':root{--radius:1px}');
-	});
-});

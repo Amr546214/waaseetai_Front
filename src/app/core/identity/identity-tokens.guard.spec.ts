@@ -8,6 +8,7 @@ const CANDIDATES = [join(process.cwd(), '../wt-be-id/src/config/site-identity-to
 const REG = CANDIDATES.find(existsSync);
 const GOLDEN = JSON.parse(readFileSync(join(__dirname, 'identity-tokens.effective.golden.json'), 'utf8')) as { dark: Record<string, string>; light: Record<string, string>; knownBeDrift: string[] };
 const STYLES = readFileSync(join(process.cwd(), 'src/styles.css'), 'utf8');
+const DESIGN_SYSTEM = readFileSync(join(process.cwd(), 'src/waseet-design-system.css'), 'utf8');
 
 /** same normalisation as the BE guard: lower-case, no whitespace, trailing zeros of decimals dropped (`.10` -> `.1`); `#fff` and `#ffffff` are NOT equal */
 const norm = (v: string): string => v.toLowerCase().replace(/\s+/g, '').replace(/(\.\d*?)0+(?=\D|$)/g, '$1').replace(/\.(?=\D|$)/g, '');
@@ -34,15 +35,17 @@ describe('design-token defaults: BE registry == what the front end ships', () =>
 		expect(Object.keys(root).length).toBe(37);
 		expect(Object.keys(light).length).toBeGreaterThanOrEqual(29);
 	});
-	it.skipIf(!REG)('every BE token default equals the styles.css value (dark = :root, light = .theme-light, else the dark value) after the shared normalisation', () => {
+	it.skipIf(!REG)('every BE token default equals the styles.css value (dark = :root, light = .theme-light, else dark) OR the name is also declared in waseet-design-system.css (the later stylesheet that wins; then the effective-value test below is the authority)', () => {
 		const be = parseBe(readFileSync(REG!, 'utf8'));
 		expect(be.length).toBe(38);
 		const drift: string[] = [];
 		for (const t of be) {
-			if (t.name === '--font-family') continue; // not in styles.css (design-system file defines it; see the golden test below)
-			if (norm(root[t.name] ?? '<missing>') !== norm(t.dark)) drift.push(`dark ${t.name}: styles.css=${root[t.name]} be=${t.dark}`);
-			if (t.light !== undefined && norm(light[t.name] ?? '<missing>') !== norm(t.light)) drift.push(`light ${t.name}: styles.css=${light[t.name]} be=${t.light}`);
-			if (t.light === undefined && t.scope === 'color' && light[t.name] !== undefined) drift.push(`light ${t.name}: styles.css redefines it but the BE says shared`);
+			if (t.name === '--font-family') continue;
+			const also = new RegExp(`${t.name}\\s*:`).test(DESIGN_SYSTEM);
+			if (norm(root[t.name] ?? '<missing>') !== norm(t.dark) && !also) drift.push(`dark ${t.name}: styles.css=${root[t.name]} be=${t.dark}`);
+			const lightExpected = t.light ?? t.dark;
+			const lightCss = light[t.name] ?? root[t.name];
+			if (norm(lightCss ?? '<missing>') !== norm(lightExpected) && !also) drift.push(`light ${t.name}: styles.css=${lightCss} be=${lightExpected}`);
 		}
 		expect(drift).toEqual([]);
 		for (const n of Object.keys(root)) expect(be.some(t => t.name === n), `${n} is declared in :root but not in the BE registry`).toBe(true);
@@ -50,7 +53,7 @@ describe('design-token defaults: BE registry == what the front end ships', () =>
 	it.skipIf(REG)('SKIPPED: BE registry not found beside this checkout', () => { expect(REG).toBeUndefined(); });
 
 	// What the BROWSER computes on the production build (all stylesheets, both themes) - measured by tools in the evidence folder; refreshed when styles change.
-	it.skipIf(!REG)('EFFECTIVE defaults: the BE default of every colour / layout token equals the golden computed value of the production build, except the listed known drift (reported to the BE owner)', () => {
+	it.skipIf(!REG)('EFFECTIVE defaults: the BE default of every colour / layout token equals the golden computed value of the production build, (no tolerated drift)', () => {
 		const be = parseBe(readFileSync(REG!, 'utf8'));
 		const g = GOLDEN;
 		const drift: string[] = [];
@@ -61,8 +64,8 @@ describe('design-token defaults: BE registry == what the front end ships', () =>
 			const beLight = t.light ?? t.dark;
 			if (norm(l ?? '') !== norm(beLight) && norm(expandHex(l ?? '')) !== norm(expandHex(beLight))) drift.push(`light ${t.name}`);
 		}
-		const unknown = drift.filter(x => !g.knownBeDrift.includes(x));
-		expect(unknown, 'a BE default drifted from the real computed default and is not on the known list').toEqual([]);
+		expect(g.knownBeDrift, 'no tolerated drift: BE defaults must equal the computed values').toEqual([]);
+		expect(drift, 'a BE default differs from the real computed default').toEqual([]);
 	});
 	it('the golden covers every :root token in both themes and lists --font-family', () => {
 		const g = GOLDEN;
