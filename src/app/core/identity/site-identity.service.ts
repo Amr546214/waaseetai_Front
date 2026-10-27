@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
-import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable, PLATFORM_ID, TransferState, computed, inject, makeStateKey, signal } from '@angular/core';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { defaultPathOf } from './identity-defaults';
 import { EMPTY_MANIFEST, IdentityManifest, IdentityManifestItem, parseManifest } from './site-identity.models';
@@ -10,6 +10,16 @@ export const IDENTITY_CHANNEL = 'ws-site-identity';
 const REFRESH_EVERY_MS = 5 * 60_000;
 const FOCUS_THROTTLE_MS = 5_000;
 const FETCH_TIMEOUT_MS = 8_000;
+/** server render: how long a page render waits for the manifest before using the last good one (or the defaults), and how long a fetched manifest is reused */
+export const SSR_FETCH_TIMEOUT_MS = 1_000;
+export const SSR_REUSE_MS = 15_000;
+/** the manifest the server rendered the HTML with, handed to the browser through the page's transfer state (so the first client render == the server HTML, no storage involved) */
+export const IDENTITY_STATE_KEY = makeStateKey<IdentityManifest>('ws-identity-manifest');
+
+/** server process memory: the last good manifest (shared by all renders of this process) */
+const serverMemory: { manifest: IdentityManifest | null; at: number; inflight: Promise<void> | null } = { manifest: null, at: 0, inflight: null };
+/** test hook */
+export function resetServerIdentityMemory(): void { serverMemory.manifest = null; serverMemory.at = 0; serverMemory.inflight = null; }
 
 /**
  * The single front-end source of the platform's visual identity (design 2026-10-27, decision 9).
@@ -23,7 +33,9 @@ const FETCH_TIMEOUT_MS = 8_000;
 @Injectable({ providedIn: 'root' })
 export class SiteIdentityService {
 	private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
+	private readonly server = isPlatformServer(inject(PLATFORM_ID));
 	private readonly doc = inject(DOCUMENT);
+	private readonly transfer = inject(TransferState);
 	private started = false;
 	private lastFetch = 0;
 	private inflight: Promise<boolean> | null = null;
@@ -37,9 +49,75 @@ export class SiteIdentityService {
 	readonly lastError = signal<string | null>(null);
 
 	constructor() {
-		const cached = this.readCache();
-		if (cached) this.manifest.set(cached);
+		// first client render == server HTML: the manifest the server rendered with (transfer state) wins over an older remembered one; the boot script's answer (first visit, static host) too
+		const best = [this.transfer.get(IDENTITY_STATE_KEY, null), this.readBoot(), this.readCache()]
+			.filter((m): m is IdentityManifest => !!m)
+			.reduce<IdentityManifest | null>((a, m) => (!a || m.version > a.version ? m : a), null);
+		if (best) this.manifest.set(best);
 		this.syncGlobals();
+	}
+
+	/** the answer index.html's boot script fetched on a first visit (window.__wsIdentityBoot), or null */
+	private readBoot(): IdentityManifest | null {
+		if (!this.browser) return null;
+		try { return parseManifest((this.doc.defaultView as (Window & { __wsIdentityBoot?: unknown }) | null)?.__wsIdentityBoot); } catch { return null; }
+	}
+
+	/**
+	 * Browser, app start: when index.html's boot script is still fetching the manifest (first visit, nothing remembered) wait for it (it has its own 1.5 s limit) so the first
+	 * Angular render already uses the right asset. Resolves at once when nothing is pending. Never rejects.
+	 */
+	async awaitBoot(): Promise<void> {
+		if (!this.browser) return;
+		try {
+			const win = this.doc.defaultView as (Window & { __wsIdentityBootPromise?: Promise<unknown> }) | null;
+			if (win?.__wsIdentityBootPromise) await win.__wsIdentityBootPromise;
+			const b = this.readBoot();
+			if (b) this.apply(b, false);
+		} catch { /* keep what we have */ }
+	}
+
+	/**
+	 * Server render, before the app renders: the public manifest with a short timeout; any failure = the last good manifest of this process, else the built-in defaults.
+	 * The result is rendered into the HTML (consumers resolve through it) and handed to the browser via transfer state. Needs SITE_IDENTITY_SSR_API_BASE (e.g. http://backend:5000/api)
+	 * unless url_api is absolute; otherwise the server cannot reach the API and renders the defaults.
+	 */
+	async loadForServer(): Promise<void> {
+		if (!this.server) return;
+		const now = Date.now();
+		if (!serverMemory.manifest || now - serverMemory.at > SSR_REUSE_MS) {
+			if (!serverMemory.inflight) {
+				serverMemory.inflight = this.fetchOnServer().finally(() => { serverMemory.inflight = null; });
+			}
+			await serverMemory.inflight;
+		}
+		const m = serverMemory.manifest;
+		if (m) { this.manifest.set(m); this.transfer.set(IDENTITY_STATE_KEY, m); }
+	}
+
+	private serverApiBase(): string {
+		const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.['SITE_IDENTITY_SSR_API_BASE'];
+		const base = (env && /^https?:\/\//i.test(env) ? env : /^https?:\/\//i.test(this.apiBase) ? this.apiBase : '').replace(/\/+$/, '');
+		return base;
+	}
+
+	private async fetchOnServer(): Promise<void> {
+		const base = this.serverApiBase();
+		if (!base) return;
+		const ctl = new AbortController();
+		const timer = setTimeout(() => ctl.abort(), SSR_FETCH_TIMEOUT_MS);
+		try {
+			const res = await fetch(`${base}/public/site-identity`, { headers: { Accept: 'application/json' }, signal: ctl.signal });
+			if (!res.ok) throw new Error('HTTP ' + res.status);
+			const m = parseManifest(await res.json());
+			if (!m) throw new Error('bad manifest');
+			serverMemory.manifest = m;
+			serverMemory.at = Date.now();
+		} catch (e) {
+			this.lastError.set(String((e as Error)?.message ?? e).slice(0, 120));
+			// keep serverMemory.manifest (last good). Retry soon, not after the full reuse window
+			if (serverMemory.manifest) serverMemory.at = Date.now() - SSR_REUSE_MS + 3_000;
+		} finally { clearTimeout(timer); }
 	}
 
 	/**
@@ -144,7 +222,7 @@ export class SiteIdentityService {
 	/** swap in a manifest (from the server, another tab, or the admin page right after a save) */
 	apply(m: IdentityManifest, announce: boolean): void {
 		const cur = this.manifest();
-		if (cur.version === m.version && JSON.stringify(cur.items) === JSON.stringify(m.items)) return;
+		if (cur.version === m.version && JSON.stringify(cur.items) === JSON.stringify(m.items)) { this.ensureCache(m); return; }
 		this.manifest.set(m);
 		this.broken.set(new Set());
 		this.writeCache(m);
@@ -154,6 +232,12 @@ export class SiteIdentityService {
 
 	/** the admin page calls this after a publish/restore so the very tab that changed it switches at once */
 	adopt(m: IdentityManifest): void { this.apply(m, true); }
+
+	/** an unchanged answer still has to be remembered once (a first visit with nothing published must not look like a first visit again, the boot script reads it) */
+	private ensureCache(m: IdentityManifest): void {
+		if (!this.browser) return;
+		try { const raw = this.doc.defaultView?.localStorage.getItem(IDENTITY_CACHE_KEY); const c = raw ? JSON.parse(raw) as { version?: number; abs?: unknown } : null; if (!c || c.version !== m.version || !c.abs) this.writeCache(m); } catch { /* ignore */ }
+	}
 
 	private readCache(): IdentityManifest | null {
 		if (!this.browser) return null;

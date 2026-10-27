@@ -229,20 +229,54 @@
 			<div class="loader-text">جاري تهيئة مساحة العمل...</div>
 		</div>
 	</app-root>
-	<!-- Site identity (server-managed): reads the LAST GOOD manifest the app remembered in localStorage (same key as core/identity/site-identity.service.ts) and
-	     (1) publishes the custom asset URLs to window.__wsIdentityUrls for plain scripts (bebo/robot.js), (2) swaps the boot logo above ONLY when a custom `logo.boot` exists.
-	     First-ever visit / no custom version / any problem = nothing happens and the page stays exactly as written above. -->
+	<!-- Site identity (server-managed). Two loaders exist and they ALWAYS show the same file, because both read the same key `logo.boot`:
+	       (1) the static <img class="loader-logo"> above (index.html, painted before any JS; only the static/CSR host ever serves it as is),
+	       (2) the app loader in app.ts (<img class="loader-logo"> in .global-app-loader, shown while the session initialises, the one SSR renders into the first HTML).
+	     Their default files are byte-identical (assets/brand/waseet-mark.png == images/waseet-mark.png).
+	     SSR (node server): the server fetched the public manifest and rendered the right src into the HTML itself (app loader); this script then does NOTHING (app-root carries ng-server-context),
+	       so a stale browser cache can never swap in a different asset.
+	     Static/CSR host: remembered manifest (localStorage, key = core/identity/site-identity.service.ts) -> swap at once. Nothing remembered (first visit / storage blocked / corrupt) -> the logo is held
+	       invisible (never the wrong file) while ONE anonymous fetch of /api/public/site-identity runs (1.5 s limit), then it is shown with the right file (default on any failure/timeout);
+	       the answer is handed to the app (window.__wsIdentityBoot, awaited by the app initializer) so the app loader uses the same file. -->
 	<script>
 		(function () {
 			try {
-				var m = JSON.parse(localStorage.getItem('ws-site-identity-manifest-v1') || 'null');
+				if (document.querySelector('app-root[ng-server-context]')) return;
+				var KEY = 'ws-site-identity-manifest-v1', API = '/api', ok = /^(https?:\/\/|\/(?!\/))/;
+				var logo = function () { return document.querySelector('img.loader-logo'); };
+				var publish = function (urls) { window.__wsIdentityUrls = urls; var u = urls['logo.boot'], i = logo(); if (u && i) i.src = u; };
+				var m = null;
+				try { m = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { m = null; }
 				var abs = m && m.abs && typeof m.abs === 'object' ? m.abs : null;
-				if (!abs) return;
-				var ok = /^(https?:\/\/|\/(?!\/))/, urls = {};
-				for (var k in abs) { if (Object.prototype.hasOwnProperty.call(abs, k) && typeof abs[k] === 'string' && ok.test(abs[k])) urls[k] = abs[k]; }
-				window.__wsIdentityUrls = urls;
-				var u = urls['logo.boot'];
-				if (u) { var i = document.querySelector('img.loader-logo'); if (i) i.src = u; }
+				if (abs) {
+					var urls = {};
+					for (var k in abs) { if (Object.prototype.hasOwnProperty.call(abs, k) && typeof abs[k] === 'string' && ok.test(abs[k])) urls[k] = abs[k]; }
+					publish(urls);
+					return;
+				}
+				var img = logo();
+				if (!img || typeof fetch !== 'function') return;
+				img.style.visibility = 'hidden';
+				var done = false, finish = function () { if (done) return; done = true; img.style.visibility = ''; };
+				var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+				var timer = setTimeout(function () { if (ctl) ctl.abort(); finish(); }, 1500);
+				window.__wsIdentityBootPromise = fetch(API + '/public/site-identity', { headers: { Accept: 'application/json' }, cache: 'no-cache', credentials: 'omit', signal: ctl ? ctl.signal : undefined })
+					.then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+					.then(function (j) {
+						var b = j && j.data && j.items === undefined ? j.data : j;
+						if (!b || typeof b.version !== 'number' || !b.items || typeof b.items !== 'object') throw new Error('shape');
+						var urls = {};
+						for (var k in b.items) {
+							if (!Object.prototype.hasOwnProperty.call(b.items, k) || !b.items[k] || typeof b.items[k].url !== 'string') continue;
+							var u = b.items[k].url;
+							u = /^https?:\/\//i.test(u) ? u : (u.charAt(0) === '/' && u.charAt(1) !== '/') ? (u.indexOf(API + '/') === 0 ? u : API + u) : '';
+							if (u && ok.test(u)) urls[k] = u;
+						}
+						window.__wsIdentityBoot = b;
+						publish(urls);
+					})
+					.catch(function () { /* default stays */ })
+					.then(function () { clearTimeout(timer); finish(); });
 			} catch (e) { }
 		})();
 	</script>
