@@ -29,4 +29,11 @@ describe('admin pages: an explicit rule for each one', () => {
 		expect(r('risk-center')).toEqual({ all: ['finance.read'] });
 		expect(r('withdrawals/abc')).toEqual({ all: ['withdrawals.review'] });
 	});
+	it('site control: identity needs site.view/site.manage, the local pages keep site_control.manage, the section opens for any of the three', () => {
+		const r = (p: string) => ruleForPath(`/supper-admin-overview/${p}`);
+		expect(r('site-control')).toEqual({ anyOf: ['site_control.manage', 'site.view', 'site.manage'] });
+		expect(r('site-control/identity')).toEqual({ anyOf: ['site.view', 'site.manage'] });
+		expect(r('site-control/tokens')).toEqual({ all: ['site_control.manage'] });
+		expect(r('site-control/something-new')).toEqual({ anyOf: ['site_control.manage', 'site.view', 'site.manage'] });
+	});
 });

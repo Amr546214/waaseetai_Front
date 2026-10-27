@@ -11,15 +11,28 @@ import { SiteControlShell } from './shell/site-control-shell';
 describe('site control (التحكم بالموقع)', () => {
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('the routes live inside the guarded admin area, before the not-found catch-all, nine pages with Arabic titles', () => {
+	it('the routes live inside the guarded admin area, before the not-found catch-all, «الهوية» first/default plus the nine local pages with Arabic titles', () => {
 		const idx = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === 'site-control');
 		const wild = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === '**');
 		expect(idx).toBeGreaterThan(-1);
 		expect(idx).toBeLessThan(wild);
 		const kids = SUPPER_ADMIN_ROUTES[idx].children!.filter(c => c.path);
-		expect(kids.map(k => k.path)).toEqual(['health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export']);
+		expect(kids.map(k => k.path)).toEqual(['identity', 'health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export']);
 		expect(kids.every(k => /[؀-ۿ]/.test(String((k.data as any)?.title)))).toBe(true);
 		expect((SUPPER_ADMIN_ROUTES[idx].data as any).title).toBe('التحكم بالموقع');
+		const redirect = SUPPER_ADMIN_ROUTES[idx].children!.find(c => c.path === '' && c.redirectTo);
+		expect(redirect?.redirectTo).toBe('identity'); // the section opens on the real page
+	});
+
+	it('access: «الهوية» needs site.view or site.manage, the local pages keep site_control.manage, the section opens for any of them', () => {
+		const idx = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === 'site-control');
+		const sec = SUPPER_ADMIN_ROUTES[idx];
+		expect((sec.data as any).access).toEqual({ anyOf: ['site_control.manage', 'site.view', 'site.manage'] });
+		const kid = (p: string) => sec.children!.find(c => c.path === p)!;
+		expect((kid('identity').data as any).access).toEqual({ anyOf: ['site.view', 'site.manage'] });
+		for (const p of ['health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
+		expect((kid('identity').data as any).title).toBe('الهوية');
+		expect(kid('identity').canActivate?.length).toBeGreaterThan(0);
 	});
 
 	it('the design tokens are written on the section host ONLY, never on the document (the platform keeps its own colours)', async () => {
@@ -50,6 +63,7 @@ describe('site control (التحكم بالموقع)', () => {
 		f.detectChanges();
 		const root = f.nativeElement.querySelector('[data-testid="site-control-root"]') as HTMLElement;
 		expect(f.nativeElement.querySelector('[data-testid="site-control-notice"]').textContent).toContain('على هذا المتصفح فقط');
+		expect(f.nativeElement.querySelector('[data-testid="site-control-not-wired"]').textContent).toContain('غير مرتبط بالموقع: التعديل هنا محلي ولا يغيّر المنصة');
 		await f.whenStable();
 		const reqs = http.match(r => r.url.startsWith('/assets/site-control/'));
 		expect(reqs.length).toBe(2);
@@ -59,5 +73,18 @@ describe('site control (التحكم بالموقع)', () => {
 		expect(document.documentElement.style.getPropertyValue('--navy')).toBe('');
 		f.destroy();
 		void TestBed.inject(Router);
+	});
+
+	it('on the real «الهوية» page the local-only notice is not shown (the page explains itself); on every other page it is', async () => {
+		@Component({ template: '' }) class Blank {}
+		TestBed.configureTestingModule({ imports: [SiteControlShell], providers: [provideRouter([{ path: 'x/site-control/identity', component: Blank }, { path: 'x/site-control/health', component: Blank }]), provideHttpClient(), provideHttpClientTesting()] });
+		const router = TestBed.inject(Router);
+		const f = TestBed.createComponent(SiteControlShell);
+		await router.navigateByUrl('/x/site-control/identity'); f.detectChanges();
+		expect(f.nativeElement.querySelector('[data-testid="site-control-notice"]')).toBeNull();
+		await router.navigateByUrl('/x/site-control/health'); f.detectChanges();
+		expect(f.nativeElement.querySelector('[data-testid="site-control-notice"]')).toBeTruthy();
+		TestBed.inject(HttpTestingController).match(() => true);
+		f.destroy();
 	});
 });
