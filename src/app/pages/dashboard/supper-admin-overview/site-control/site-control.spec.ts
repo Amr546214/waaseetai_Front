@@ -26,12 +26,12 @@ describe('site control (التحكم بالموقع)', () => {
 		expect(landing?.canActivate?.length).toBe(2);
 	});
 
-	it('access: «الهوية» needs site.view or site.manage (or the legacy permission, read-only), the local pages keep site_control.manage, the section opens for any of them', () => {
+	it('access: «الهوية» needs site.view or site.manage (or the legacy permission, which also edits), the local pages keep site_control.manage, the section opens for any of them', () => {
 		const idx = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === 'site-control');
 		const sec = SUPPER_ADMIN_ROUTES[idx];
 		expect((sec.data as any).access).toEqual({ anyOf: ['site_control.manage', 'site.view', 'site.manage'] });
 		const kid = (p: string) => sec.children!.find(c => c.path === p)!;
-		// Round 2 compat: the legacy permission reads «الهوية» too (the page itself offers no write control without site.manage)
+		// the legacy permission opens «الهوية» too (Round 5: it is the edit capability; the server decides canManage)
 		expect((kid('identity').data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
 		for (const p of ['health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
 		expect((kid('identity').data as any).title).toBe('الهوية');

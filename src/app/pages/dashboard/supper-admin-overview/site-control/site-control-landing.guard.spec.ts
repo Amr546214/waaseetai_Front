@@ -17,7 +17,7 @@ describe('«التحكم بالموقع» landing', () => {
 		return res instanceof UrlTree ? TestBed.inject(Router).serializeUrl(res) : String(res);
 	};
 	const ID = '/supper-admin-overview/site-control/identity';
-	it('SUPER_ADMIN, site.manage, site.view, legacy only, old+new: all land on an allowed page (identity; the legacy holder reads it)', async () => {
+	it('SUPER_ADMIN, site.manage, site.view, legacy only, old+new: all land on an allowed page (identity; the legacy holder opens it and edits)', async () => {
 		expect(await land('SUPER_ADMIN', [])).toBe(ID);
 		expect(await land('ADMIN', ['site.manage'])).toBe(ID);
 		expect(await land('ADMIN', ['site.view'])).toBe(ID);

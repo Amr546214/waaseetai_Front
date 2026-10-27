@@ -369,16 +369,19 @@ describe('«الهوية» page', () => {
 	});
 
 	// ---------------------------------------------------------------- Round 2: permissions on the page
-	it('legacy site_control.manage only: read-only with the legacy note, no upload/apply/restore/set controls even if the server said canManage', async () => {
+	it('Round 5: legacy site_control.manage = the edit capability (the server answers canManage:true): full controls, no read-only note; the server stays authoritative (canManage:false = read-only even with the grant)', async () => {
 		const t = setup(overview([item({ state: { stateVersion: 1, isDefault: false, active: meta({ version: 1 }), updatedAt: null, updatedBy: null }, history: [meta({ version: 1 }), meta({ version: 2, status: 'SUPERSEDED' })] })], true, 2), {}, true, (id: string) => id === 'site_control.manage');
 		await t.settle();
-		expect(t.q('identity-readonly-legacy')).toBeTruthy();
-		expect(t.root().querySelectorAll('[data-testid^="apply-"],[data-testid^="restore-"],[data-testid^="upload-"],[data-testid^="file-"],[data-testid^="set-restore-"]').length).toBe(0);
-		expect(t.q('identity-key-icon.ai')).toBeTruthy(); // reading is allowed
+		expect(t.q('identity-readonly')).toBeNull();
+		expect(t.q('file-icon.ai')).toBeTruthy();
+		expect(t.root().querySelectorAll('[data-testid^="restore-"]').length).toBeGreaterThan(0);
+		TestBed.resetTestingModule();
+		const ro = setup(overview([item()], false), {}, true, (id: string) => id === 'site_control.manage'); await ro.settle();
+		expect(ro.q('identity-readonly')).toBeTruthy(); expect(ro.q('file-icon.ai')).toBeNull();
 	});
-	it('site.view only: read-only with the site.view note (not the legacy one); site.manage: full controls', async () => {
+	it('site.view only: read-only with the site.view note; site.manage: full controls', async () => {
 		const ro = setup(overview([item()], false), {}, true, (id: string) => id === 'site.view'); await ro.settle();
-		expect(ro.q('identity-readonly')).toBeTruthy(); expect(ro.q('identity-readonly-legacy')).toBeNull(); expect(ro.q('file-icon.ai')).toBeNull();
+		expect(ro.q('identity-readonly')).toBeTruthy(); expect(ro.q('file-icon.ai')).toBeNull();
 		TestBed.resetTestingModule();
 		const rw = setup(overview([item()]), {}, true, (id: string) => id === 'site.manage'); await rw.settle();
 		expect(rw.q('identity-readonly')).toBeNull(); expect(rw.q('file-icon.ai')).toBeTruthy();

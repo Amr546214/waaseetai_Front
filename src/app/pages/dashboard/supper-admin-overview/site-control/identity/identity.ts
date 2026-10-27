@@ -61,10 +61,11 @@ export class Identity implements OnInit, OnDestroy {
 	readonly pageNotice = signal<Notice | null>(null);
 	readonly uiMap = signal<Record<string, KeyUi>>({});
 	readonly previews = signal<Record<string, Preview>>({});
-	/** editing needs BOTH the server's word (`canManage`) and the site.manage permission: the legacy site_control.manage and site.view only ever READ this page */
-	readonly canManage = computed(() => this.data()?.canManage === true && this.access.can('site.manage'));
-	/** a holder of the legacy «التحكم بالموقع» permission only (no site.view / site.manage): read-only, with a note that says why */
-	readonly legacyReadOnly = computed(() => !this.access.can('site.manage') && !this.access.can('site.view') && this.access.can('site_control.manage'));
+	/**
+	 * editing needs BOTH the server's word (`canManage`: true for site.manage OR the older «التحكم بالموقع» grant site_control.manage, which the server maps onto the edit capability) and the same
+	 * permission here. site.view alone only READS. (Round 5: the legacy grant is no longer read-only.)
+	 */
+	readonly canManage = computed(() => this.data()?.canManage === true && (this.access.can('site.manage') || this.access.can('site_control.manage')));
 	readonly items = computed<IdentityItemInfo[]>(() => this.data()?.items ?? []);
 	readonly platformName = computed(() => this.platform.brand());
 	readonly canOpenSettings = computed(() => this.access.allows({ anyOf: ['settings.view', 'settings.manage'] }));

@@ -62,7 +62,7 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(items('ADMIN', ['users.view']).some(n => n.label === 'التحكم بالموقع')).toBe(false);
 	});
 
-	it('Round 2 compat: the legacy site_control.manage keeps the whole section and now also sees «الهوية» (read-only on the page itself); nobody loses access', () => {
+	it('Round 5: the legacy site_control.manage keeps the whole section and sees «الهوية» (where it also edits); nobody loses access', () => {
 		const legacy = items('ADMIN', ['site_control.manage']).find(n => n.label === 'التحكم بالموقع' && n.type === 'accordion');
 		expect(legacy.children.map((c: any) => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات (محلية)', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'دليل الأنماط', 'المعاينة الشاملة', 'تصدير CSS']);
 		TestBed.resetTestingModule();

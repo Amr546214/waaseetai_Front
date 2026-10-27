@@ -50,8 +50,8 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'marketing-assets': { all: ['marketing_assets.manage'] },
 	'system-settings': { anyOf: ['settings.view', 'settings.manage'] },
 	// «التحكم بالموقع»: the section opens for the identity permissions too; the nine local-only design pages keep the older site_control.manage.
-	// «الهوية» opens for site.view / site.manage AND for the legacy site_control.manage (compat: nobody who had the section loses it) - but that legacy permission only ever READS the identity page:
-	// the page offers no upload / apply / restore unless the account holds site.manage (the server refuses writes the same way).
+	// «الهوية» opens for site.view / site.manage AND for the legacy site_control.manage. Round 5: the legacy grant («manage التحكم بالموقع») IS the edit capability of the identity manager
+	// (the server accepts site.manage OR site_control.manage on every write and answers canManage:true for both); site.view alone stays read-only.
 	'site-control': { anyOf: ['site_control.manage', 'site.view', 'site.manage'] },
 	'site-control/identity': { anyOf: ['site.view', 'site.manage', 'site_control.manage'] },
 	...Object.fromEntries(['health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export'].map(p => [`site-control/${p}`, { all: ['site_control.manage'] } as AccessRule])),
