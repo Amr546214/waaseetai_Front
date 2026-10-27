@@ -49,9 +49,11 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'team-performance': { all: ['performance.view'] },
 	'marketing-assets': { all: ['marketing_assets.manage'] },
 	'system-settings': { anyOf: ['settings.view', 'settings.manage'] },
-	// «التحكم بالموقع»: the section opens for the identity permissions too; the new «الهوية» page needs site.view (read) or site.manage (change), the nine local-only design pages keep the older site_control.manage
+	// «التحكم بالموقع»: the section opens for the identity permissions too; the nine local-only design pages keep the older site_control.manage.
+	// «الهوية» opens for site.view / site.manage AND for the legacy site_control.manage (compat: nobody who had the section loses it) - but that legacy permission only ever READS the identity page:
+	// the page offers no upload / apply / restore unless the account holds site.manage (the server refuses writes the same way).
 	'site-control': { anyOf: ['site_control.manage', 'site.view', 'site.manage'] },
-	'site-control/identity': { anyOf: ['site.view', 'site.manage'] },
+	'site-control/identity': { anyOf: ['site.view', 'site.manage', 'site_control.manage'] },
 	...Object.fromEntries(['health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export'].map(p => [`site-control/${p}`, { all: ['site_control.manage'] } as AccessRule])),
 	audit: { all: ['audit.view'] }, 'audit-trail': { all: ['audit.view'] },
 	// every remaining page of the console has its own explicit rule (nothing is opened to "any team member" by omission)

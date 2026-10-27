@@ -20,16 +20,19 @@ describe('site control (التحكم بالموقع)', () => {
 		expect(kids.map(k => k.path)).toEqual(['identity', 'health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export']);
 		expect(kids.every(k => /[؀-ۿ]/.test(String((k.data as any)?.title)))).toBe(true);
 		expect((SUPPER_ADMIN_ROUTES[idx].data as any).title).toBe('التحكم بالموقع');
-		const redirect = SUPPER_ADMIN_ROUTES[idx].children!.find(c => c.path === '' && c.redirectTo);
-		expect(redirect?.redirectTo).toBe('identity'); // the section opens on the real page
+		// Round 2: the section link opens the FIRST PAGE THE ACCOUNT MAY OPEN (landing guard), no longer a blind redirect to «الهوية» (see site-control-landing.guard.spec.ts)
+		const landing = SUPPER_ADMIN_ROUTES[idx].children!.find(c => c.path === '');
+		expect(landing?.redirectTo).toBeUndefined();
+		expect(landing?.canActivate?.length).toBe(2);
 	});
 
-	it('access: «الهوية» needs site.view or site.manage, the local pages keep site_control.manage, the section opens for any of them', () => {
+	it('access: «الهوية» needs site.view or site.manage (or the legacy permission, read-only), the local pages keep site_control.manage, the section opens for any of them', () => {
 		const idx = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === 'site-control');
 		const sec = SUPPER_ADMIN_ROUTES[idx];
 		expect((sec.data as any).access).toEqual({ anyOf: ['site_control.manage', 'site.view', 'site.manage'] });
 		const kid = (p: string) => sec.children!.find(c => c.path === p)!;
-		expect((kid('identity').data as any).access).toEqual({ anyOf: ['site.view', 'site.manage'] });
+		// Round 2 compat: the legacy permission reads «الهوية» too (the page itself offers no write control without site.manage)
+		expect((kid('identity').data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
 		for (const p of ['health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
 		expect((kid('identity').data as any).title).toBe('الهوية');
 		expect(kid('identity').canActivate?.length).toBeGreaterThan(0);

@@ -7,15 +7,19 @@ import { SiteIdentityService } from './site-identity.service';
 
 /** typed against the server contract (BE src/services/site-identity.service.ts, 2026-10-27); every success body is `{ success: true, data }` */
 export type IdentityAssetStatus = 'STAGED' | 'PUBLISHED' | 'SUPERSEDED' | 'DISCARDED';
+/** who did it (Round 2): the stable user id and the display name (null = the account no longer exists -> «غير معروف»). Never an e-mail. `null` = the row has no actor at all. */
+export interface IdentityActor { id: string; name: string | null }
 export interface IdentityAssetMeta {
 	versionId: string; key: string; version: number; status: IdentityAssetStatus; mime: string; sha256: string;
-	width: number | null; height: number | null; byteSize: number; note: string | null; createdById: string | null; createdAt: string;
+	width: number | null; height: number | null; byteSize: number; note: string | null; createdBy: IdentityActor | null; createdAt: string;
+	/** staged drafts only: the draft was uploaded by the caller (a draft of another admin cannot be applied by someone else) */
+	isMine?: boolean;
 	/** relative to the API root; only PUBLISHED / SUPERSEDED rows have one */
 	url: string | null;
 	/** admin-only preview of the bytes, relative to the API root (needs the admin token: fetch it with `previewBlob`) */
 	previewUrl: string | null;
 }
-export interface IdentityKeyState { stateVersion: number; isDefault: boolean; active: IdentityAssetMeta | null; updatedAt: string | null; updatedById: string | null }
+export interface IdentityKeyState { stateVersion: number; isDefault: boolean; active: IdentityAssetMeta | null; updatedAt: string | null; updatedBy: IdentityActor | null }
 export interface IdentityDimensionRule { minWidth?: number; minHeight?: number; maxWidth?: number; maxHeight?: number; aspectMin?: number; aspectMax?: number; exact?: { width: number; height: number } }
 export interface IdentityItemInfo {
 	key: string; group: 'logo' | 'favicon' | 'icon' | 'character'; label: string; description: string; kind: 'raster' | 'svg' | 'ico';
@@ -31,15 +35,25 @@ export interface IdentityOverview {
 	manifestVersion: number; canManage: boolean; groups: unknown; items: IdentityItemInfo[]; notIdentity: unknown; unregisteredAssets: unknown;
 }
 /** current state of one key, as returned by upload/publish/restore/discard and inside a 409 */
-export interface IdentityKeyCurrent { key: string; stateVersion: number; manifestVersion: number; isDefault: boolean; active: IdentityAssetMeta | null; updatedAt: string | null; updatedById: string | null }
+export interface IdentityKeyCurrent { key: string; stateVersion: number; manifestVersion: number; isDefault: boolean; active: IdentityAssetMeta | null; updatedAt: string | null; updatedBy: IdentityActor | null }
 export interface IdentityUploadResult extends IdentityAssetMeta { sanitized?: { changed: boolean; removed: unknown }; current: IdentityKeyCurrent }
 /** publish / restore result */
-export interface IdentityChangeResult extends IdentityKeyCurrent { previous: IdentityAssetMeta | null }
+/** `label` / `usages` / `fromVersion` / `toVersion` (0 = the built-in default) are the server's own confirmation of what changed and where it shows */
+export interface IdentityChangeResult extends IdentityKeyCurrent { previous: IdentityAssetMeta | null; label?: string; usages?: { where: string; ref: string }[]; fromVersion?: number; toVersion?: number }
 export interface IdentityRestoreSetResult { manifestVersion: number; snapshot: Record<string, string | null>; keys: { key: string; stateVersion: number; isDefault: boolean; active: IdentityAssetMeta | null }[]; changedKeys: string[] }
 /** 409 SITE_IDENTITY_VERSION_CONFLICT body of restore-set: `current` = { manifestVersion, snapshot, keys } */
-export interface IdentityHistory { manifest: { manifestVersion: number; reason: string; createdAt: string; createdById: string | null; changedKeys: string[] }[]; hasMore: boolean; nextBefore: number | null; versions: IdentityAssetMeta[] }
+export interface IdentityHistory { manifest: { manifestVersion: number; reason: string; createdAt: string; createdBy: IdentityActor | null; changedKeys: string[] }[]; hasMore: boolean; nextBefore: number | null; versions: IdentityAssetMeta[] }
+/** one side (current / target) of a set-restore preview row */
+export interface IdentityPreviewSide { source: 'default' | 'custom'; versionId: string | null; version: number; sha256: string; mime: string; width: number | null; height: number | null; previewUrl: string | null }
+export type IdentityChangeKind = 'replace' | 'to-default' | 'unchanged';
+export interface IdentityPreviewRow { key: string; label: string; group: string; current: IdentityPreviewSide; target: IdentityPreviewSide; change: IdentityChangeKind }
+/** GET /restore-set/:manifestVersion/preview - the EXACT diff the restore would execute; `previewDigest` binds the confirmation to it */
+export interface IdentityRestoreSetPreview { currentManifestVersion: number; targetManifestVersion: number; previewDigest: string; changedCount: number; canApply: boolean; items: IdentityPreviewRow[] }
 interface Envelope<T> { success: boolean; data: T; message?: string }
 export const SITE_IDENTITY_VERSION_CONFLICT = 'SITE_IDENTITY_VERSION_CONFLICT';
+/** 409 of restore-set when the diff changed after the preview was shown: `current` is the FRESH preview, nothing was executed */
+export const SITE_IDENTITY_PREVIEW_STALE = 'SITE_IDENTITY_PREVIEW_STALE';
+export const SITE_IDENTITY_DRAFT_NOT_YOURS = 'SITE_IDENTITY_DRAFT_NOT_YOURS';
 /** 409 body of a stale `expectedVersion`: `current` is the winner's state, to be shown instead of silently overwriting */
 export const isIdentityConflict = (e: unknown): e is HttpErrorResponse & { error: { code: string; current: unknown; message: string } } =>
 	e instanceof HttpErrorResponse && e.status === 409 && (e.error as { code?: string } | null)?.code === SITE_IDENTITY_VERSION_CONFLICT;
@@ -67,7 +81,10 @@ export class SiteIdentityAdminApi {
 	}
 	/** manifestVersion 0 = all defaults. `target` = a published/superseded versionId, or 'default' for the built-in asset */
 	restore(key: string, target: string | 'default', expectedVersion: number): Observable<Envelope<IdentityChangeResult>> { return this.http.post<Envelope<IdentityChangeResult>>(`${base()}/${encodeURIComponent(key)}/restore`, { target, expectedVersion }); }
-	restoreSet(manifestVersion: number, expectedManifestVersion: number): Observable<Envelope<IdentityRestoreSetResult>> { return this.http.post<Envelope<IdentityRestoreSetResult>>(`${base()}/restore-set`, { manifestVersion, expectedManifestVersion }); }
+	/** the exact per-key diff of restoring the whole identity to manifest `manifestVersion` (0 = all defaults) */
+	restoreSetPreview(manifestVersion: number): Observable<Envelope<IdentityRestoreSetPreview>> { return this.http.get<Envelope<IdentityRestoreSetPreview>>(`${base()}/restore-set/${encodeURIComponent(String(manifestVersion))}/preview`); }
+	/** executes ONLY the diff the digest was computed for: a different current state answers 409 SITE_IDENTITY_PREVIEW_STALE with the fresh preview and changes nothing */
+	restoreSet(manifestVersion: number, expectedManifestVersion: number, previewDigest: string): Observable<Envelope<IdentityRestoreSetResult>> { return this.http.post<Envelope<IdentityRestoreSetResult>>(`${base()}/restore-set`, { manifestVersion, expectedManifestVersion, previewDigest }); }
 	/** STAGED only */
 	discard(key: string, versionId: string): Observable<Envelope<IdentityAssetMeta & { current: IdentityKeyCurrent }>> { return this.http.delete<Envelope<IdentityAssetMeta & { current: IdentityKeyCurrent }>>(`${base()}/${encodeURIComponent(key)}/versions/${encodeURIComponent(versionId)}`); }
 	/** bytes of a version for the admin preview (the endpoint needs the admin token, so an <img src> cannot call it directly: use an object URL) */

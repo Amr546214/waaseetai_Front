@@ -131,4 +131,35 @@ describe('SiteIdentityService', () => {
 		expect(Object.keys(m.items)).toEqual(['logo.mark']);
 		expect(parseManifest({ version: 1 })).toBeNull();
 	});
+
+	it('Round 2: the cache entry carries every item\'s ABSOLUTE url (`abs`) for index.html\'s boot script, and still parses as a manifest', () => {
+		const s = make();
+		s.apply(parseManifest(manifest(4, { 'logo.mark': item(SHA_A), 'logo.boot': { ...item(SHA_B), url: `/public/site-identity/assets/logo.boot/${SHA_B}` } }))!, false);
+		const raw = JSON.parse(localStorage.getItem(IDENTITY_CACHE_KEY)!);
+		expect(raw.version).toBe(4);
+		expect(raw.abs['logo.boot']).toBe(s.customUrl('logo.boot'));
+		expect(raw.abs['logo.boot']).toMatch(/\/public\/site-identity\/assets\/logo\.boot\//);
+		expect(parseManifest(raw)!.items['logo.mark'].sha256).toBe(SHA_A);
+	});
+
+	it('Round 2: window.__wsIdentityUrls (read by bebo/robot.js) holds ONLY custom keys and follows publish, rollback and a broken asset', () => {
+		const w = window as unknown as { __wsIdentityUrls?: Record<string, string> };
+		const s = make();
+		expect(w.__wsIdentityUrls).toEqual({});
+		s.apply(parseManifest(manifest(1, { 'character.bebo.traffic': { ...item(SHA_A), url: `/public/site-identity/assets/character.bebo.traffic/${SHA_A}` } }))!, false);
+		expect(Object.keys(w.__wsIdentityUrls!)).toEqual(['character.bebo.traffic']);
+		const abs = s.customUrl('character.bebo.traffic')!;
+		expect(w.__wsIdentityUrls!['character.bebo.traffic']).toBe(abs);
+		s.reportBroken(abs);
+		expect(w.__wsIdentityUrls).toEqual({});
+		s.apply(parseManifest(manifest(2))!, false);
+		expect(w.__wsIdentityUrls).toEqual({});
+	});
+
+	it('Round 2: a returning visitor\'s cached manifest fills the globals at construction (before any network)', () => {
+		localStorage.setItem(IDENTITY_CACHE_KEY, JSON.stringify(manifest(8, { 'logo.boot': { ...item(SHA_B), url: `/public/site-identity/assets/logo.boot/${SHA_B}` } })));
+		const s = make();
+		expect(s.isCustom('logo.boot')).toBe(true);
+		expect((window as unknown as { __wsIdentityUrls: Record<string, string> }).__wsIdentityUrls['logo.boot']).toContain(SHA_B);
+	});
 });

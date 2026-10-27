@@ -48,7 +48,7 @@
           @for (icon of lib.icons; track icon.slot) {
             <div class="icon-card">
               <span class="icon-box" [attr.title]="icon.shape || null" [style.color]="'var(' + lib.colorVar + ')'">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="shown(icon)"></svg>
               </span>
               <span class="icon-label">
                 {{ icon.label }}
@@ -56,9 +56,15 @@
               </span>
               <code class="icon-slot">{{ icon.slot }}</code>
               @if (icon.note) {<span class="icon-note">{{ icon.note }}</span>}
-              <select class="icon-select" [value]="icon.slot" (change)="onReassign(lib.id, icon.slot, $event)">
+              @if (managed(icon.slot)) {
+                <span class="managed-note" [attr.data-testid]="'managed-' + icon.slot">
+                  <strong>مُدار من صفحة الهوية</strong> — هذه هي أيقونة الذكاء الاصطناعي الرسمية للموقع؛ تُستبدل وتُستعاد من هناك فقط (يُعرض هنا الأصل الافتراضي للمرجع). لا استبدال محلي لها.
+                  <a class="managed-link" routerLink="/supper-admin-overview/site-control/identity" [attr.data-testid]="'managed-link-' + icon.slot">فتح صفحة الهوية</a>
+                </span>
+              } @else {
+              <select class="icon-select" [value]="icon.slot" [attr.data-testid]="'select-' + icon.slot" (change)="onReassign(lib.id, icon.slot, $event)">
                 @for (opt of lib.icons; track opt.slot) {
-                  <option [value]="opt.slot">{{ opt.label }}</option>
+                  <option [value]="opt.slot" [disabled]="managed(opt.slot) && opt.slot !== icon.slot">{{ opt.label }}</option>
                 }
               </select>
               <label class="upload-mini-btn">
@@ -67,6 +73,7 @@
               </label>
               @if (uploadError()[lib.id + ':' + icon.slot]; as err) {
                 <span class="upload-err">{{ err }}</span>
+              }
               }
             </div>
           }
@@ -83,14 +90,20 @@
             @for (icon of grp.icons; track icon.slot) {
               <div class="icon-card">
                 <span class="icon-box" [attr.title]="icon.shape || null" [style.color]="'var(' + lib.colorVar + ')'">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="shown(icon)"></svg>
                 </span>
                 <span class="icon-label">{{ icon.label }}</span>
                 <code class="icon-slot">{{ icon.slot }}</code>
                 @if (icon.note) {<span class="icon-note">{{ icon.note }}</span>}
-                <select class="icon-select" [value]="icon.slot" (change)="onReassign(lib.id, icon.slot, $event)">
+                @if (managed(icon.slot)) {
+                  <span class="managed-note" [attr.data-testid]="'managed-' + icon.slot">
+                    <strong>مُدار من صفحة الهوية</strong> — هذه هي أيقونة الذكاء الاصطناعي الرسمية للموقع؛ تُستبدل وتُستعاد من هناك فقط (يُعرض هنا الأصل الافتراضي للمرجع). لا استبدال محلي لها.
+                    <a class="managed-link" routerLink="/supper-admin-overview/site-control/identity" [attr.data-testid]="'managed-link-' + icon.slot">فتح صفحة الهوية</a>
+                  </span>
+                } @else {
+                <select class="icon-select" [value]="icon.slot" [attr.data-testid]="'select-' + icon.slot" (change)="onReassign(lib.id, icon.slot, $event)">
                   @for (opt of lib.icons; track opt.slot) {
-                    <option [value]="opt.slot">{{ opt.label }}</option>
+                    <option [value]="opt.slot" [disabled]="managed(opt.slot) && opt.slot !== icon.slot">{{ opt.label }}</option>
                   }
                 </select>
                 <label class="upload-mini-btn">
@@ -99,6 +112,7 @@
                 </label>
                 @if (uploadError()[lib.id + ':' + icon.slot]; as err) {
                   <span class="upload-err">{{ err }}</span>
+                }
                 }
               </div>
             }
@@ -111,7 +125,7 @@
           @for (icon of lib.icons; track icon.slot) {
             <div class="icon-card icon-card-framed">
               <span class="icon-box icon-box-framed" [style.color]="'var(--teal)'" [style.background]="'var(--icon-bg)'" [style.borderColor]="'var(--icon-border)'">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="shown(icon)"></svg>
               </span>
               <span class="icon-label">{{ icon.label }}</span>
             </div>
@@ -131,7 +145,7 @@
           @for (icon of lib.icons; track icon.slot) {
             <div class="icon-card icon-card-framed">
               <span class="icon-box icon-box-framed" [style.color]="'var(' + lib.colorVar + ')'" [style.background]="'var(--ai-bg)'" [style.borderColor]="'var(--ai-border)'">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="safeSvg(icon.svg)"></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="shown(icon)"></svg>
               </span>
               <span class="icon-label">{{ icon.label }}</span>
             </div>

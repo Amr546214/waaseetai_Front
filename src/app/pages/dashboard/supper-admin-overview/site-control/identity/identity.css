@@ -126,3 +126,22 @@ dl.facts dd { margin: 0; overflow-wrap: anywhere; }
   .pv { min-height: 84px; }
   .btn-save, .btn-secondary { padding: 10px 14px; }
 }
+
+/* Round 2: who changed it, the set-restore diff */
+.actor { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.actor-name { font-weight: 700; color: var(--txt); }
+.actor-id { font-size: 11px; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--txt-2); }
+.btn-copy { font: inherit; font-size: 11px; padding: 1px 8px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--txt-2); cursor: pointer; }
+.btn-copy:hover { color: var(--txt); border-color: var(--teal); }
+.set-preview { margin: 14px 0; padding: 14px; border: 1px solid var(--sec-bd-hover, var(--border)); border-radius: 12px; background: var(--sec-bg, transparent); }
+.set-preview h3 { margin: 0 0 8px; font-size: 16px; }
+.diff-list { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 12px; }
+.diff-row { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.diff-head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.diff-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.diff-side { border-radius: 8px; padding: 8px; border: 1px dashed var(--border); }
+.diff-side-new { border-style: solid; border-color: var(--teal); }
+.diff-side h5 { margin: 0 0 6px; font-size: 12px; color: var(--txt-2); }
+.diff-pv { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.diff-unchanged { margin: 8px 0; }
+@media (max-width: 520px) { .diff-sides { grid-template-columns: 1fr; } }

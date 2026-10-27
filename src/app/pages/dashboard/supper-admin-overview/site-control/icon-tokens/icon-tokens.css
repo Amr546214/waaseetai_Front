@@ -118,3 +118,8 @@
   display: flex; align-items: center; justify-content: center;
 }
 .icon-box-framed svg { width: 16px; height: 16px; }
+
+/* Round 2: a slot managed by the server-backed identity page (no local replace) */
+.managed-note { display: block; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--ai-border, rgba(123,47,190,.28)); border-radius: 8px; background: var(--ai-bg, rgba(123,47,190,.10)); color: var(--txt-2, inherit); font-size: 12px; line-height: 1.6; }
+.managed-note strong { color: var(--ai-txt, inherit); }
+.managed-link { display: inline-block; margin-top: 4px; color: var(--teal-txt, var(--teal)); font-weight: 700; text-decoration: underline; }

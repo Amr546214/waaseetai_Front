@@ -13,6 +13,17 @@
   </span>
 </ng-template>
 
+<!-- who did it: the NAME and the stable id (short inline, the full id on hover and copyable); a null name is «غير معروف»; never an e-mail -->
+<ng-template #actor let-a="a" let-tid="tid">
+  @if (a) {
+    <span class="actor" [attr.data-testid]="tid">
+      <span class="actor-name" [attr.data-testid]="tid ? tid + '-name' : null">{{ actorName(a) }}</span>
+      <code class="mono actor-id" dir="ltr" [title]="a.id" [attr.data-testid]="tid ? tid + '-id' : null">{{ who(a.id) }}</code>
+      <button type="button" class="btn-copy" (click)="copyId(a.id)" [title]="'نسخ المعرّف الكامل: ' + a.id" [attr.aria-label]="'نسخ المعرّف الكامل للمستخدم ' + actorName(a)">{{ copied() === a.id ? 'نُسخ' : 'نسخ المعرّف' }}</button>
+    </span>
+  }
+</ng-template>
+
 <!-- a full preview block: big on light and dark, then the small sizes on both -->
 <ng-template #pvBlock let-p="p" let-it="it" let-prefix="prefix">
   <div class="pv-pair" [attr.data-testid]="prefix + '-big'">
@@ -75,7 +86,11 @@
     @default {
       @if (!canManage()) {
         <div class="note note-warn" role="note" data-testid="identity-readonly">
-          <strong>عرض فقط.</strong> صلاحيتك تسمح بالاطلاع على الهوية (site.view) ولا تسمح بالرفع أو التطبيق أو الاستعادة (site.manage). لا توجد أزرار تعديل في هذه الصفحة لحسابك.
+          @if (legacyReadOnly()) {
+            <strong data-testid="identity-readonly-legacy">عرض فقط.</strong> صلاحيتك القديمة «التحكم بالموقع» (site_control.manage) تتيح لك الاطلاع على هذه الصفحة فقط. الرفع والتطبيق والاستعادة تحتاج صلاحية «إدارة هوية الموقع» (site.manage) التي لا تمنحها الصلاحية القديمة تلقائيًا؛ اطلبها من مدير النظام. لا توجد أزرار تعديل في هذه الصفحة لحسابك.
+          } @else {
+            <strong>عرض فقط.</strong> صلاحيتك تسمح بالاطلاع على الهوية (site.view) ولا تسمح بالرفع أو التطبيق أو الاستعادة (site.manage). لا توجد أزرار تعديل في هذه الصفحة لحسابك.
+          }
         </div>
       }
       @if (pageNotice(); as pn) {
@@ -112,7 +127,7 @@
 
       <section class="card" data-testid="identity-set-section" aria-labelledby="set-h">
         <h2 id="set-h">استعادة نسخة هوية كاملة</h2>
-        <p class="hint">كل تطبيق أو استعادة يضيف سطرًا إلى سجل بيان الموقع. من هنا تُرجع <strong>كل المفاتيح معًا</strong> إلى حالتها في نسخة سابقة (أو إلى الأصل الكامل). يظهر لك قبل التنفيذ ما قد يتغيّر.</p>
+        <p class="hint">كل تطبيق أو استعادة يضيف سطرًا إلى سجل بيان الموقع. من هنا تُرجع <strong>كل المفاتيح معًا</strong> إلى حالتها في نسخة سابقة (أو إلى الأصل الكامل). يظهر لك قبل التنفيذ <strong>الفرق الدقيق</strong> لكل مفتاح (الحالي مقابل ما بعد الاستعادة) ولا يُنفَّذ غيره.</p>
         @if (setNotice(); as sn) {
           <div [class]="'note note-' + sn.type" role="status" data-testid="identity-set-notice">
             <strong>{{ sn.text }}</strong> {{ sn.detail }}
@@ -128,18 +143,67 @@
           @case ('loading') { @if (!setRows().length) { <p class="state" role="status">جارٍ تحميل السجل…</p> } }
           @case ('error') { <p class="note note-error" role="alert">تعذّر تحميل سجل البيان. <button type="button" class="btn-secondary" (click)="loadSetHistory()">إعادة المحاولة</button></p> }
         }
+        @if (setPreview(); as sp) {
+          <div class="set-preview" data-testid="set-preview" [attr.data-phase]="sp.phase" [attr.data-stale]="sp.stale ? 'true' : null" aria-live="polite">
+            <h3>{{ sp.manifestVersion === 0 ? 'معاينة: استعادة الأصل الكامل' : 'معاينة: استعادة نسخة بيان #' + sp.manifestVersion }}</h3>
+            @switch (sp.phase) {
+              @case ('loading') { <p class="state" role="status" data-testid="set-preview-loading"><span class="spinner" aria-hidden="true"></span> جارٍ حساب الفرق الدقيق من الخادم…</p> }
+              @case ('error') {
+                <p class="note note-error" role="alert" data-testid="set-preview-error"><strong>{{ sp.message }}</strong></p>
+                <div class="row"><button type="button" class="btn-secondary" (click)="openSetPreview(sp.manifestVersion, sp.at)">إعادة المحاولة</button> <button type="button" class="btn-link" (click)="closeSetPreview()">إغلاق</button></div>
+              }
+              @case ('ready') {
+                @let pr = sp.data!;
+                @if (sp.stale) { <p class="note note-conflict" role="alert" data-testid="set-preview-stale"><strong>تغيّرت الهوية بعد أن عُرضت عليك المعاينة السابقة، فلم يُنفَّذ أي شيء.</strong> هذه هي المعاينة المحدّثة: راجعها بعناية ثم أكّد من جديد.</p> }
+                <p class="hint" data-testid="set-preview-summary">البيان الحالي <strong>#{{ pr.currentManifestVersion }}</strong> ← الهدف <strong>#{{ pr.targetManifestVersion }}</strong> · {{ pr.changedCount }} {{ pr.changedCount === 1 ? 'مفتاح سيتغيّر' : 'مفاتيح ستتغيّر' }}، {{ unchangedRows(pr).length }} بلا تغيير.</p>
+                @if (!pr.canApply) { <p class="note note-warn" data-testid="set-preview-nochange">لا فرق بين الحالة الحالية وهذه النسخة: لا شيء يُستعاد.</p> }
+                <ul class="diff-list" data-testid="set-preview-changed">
+                  @for (r of changedRows(pr); track r.key) {
+                    <li class="diff-row" [attr.data-testid]="'diff-' + r.key" [attr.data-change]="r.change">
+                      <div class="diff-head"><strong>{{ r.label }}</strong> <code class="code" dir="ltr">{{ r.key }}</code> <span class="chip" [class.chip-ok]="r.change === 'to-default'" [attr.data-testid]="'diff-kind-' + r.key">{{ kindText[r.change] }}</span></div>
+                      <div class="diff-sides">
+                        @for (side of [{ k: 'cur', t: 'الحالي', s: r.current }, { k: 'new', t: 'بعد الاستعادة', s: r.target }]; track side.k) {
+                          <div class="diff-side" [class.diff-side-new]="side.k === 'new'" [attr.data-testid]="'diff-' + side.k + '-' + r.key">
+                            <h5>{{ side.t }}</h5>
+                            <div class="diff-pv">
+                              <ng-container *ngTemplateOutlet="pv; context: { p: sidePreview(r, side.s), tone: 'light', h: 40, sq: previewItem(r).group === 'icon' || previewItem(r).group === 'favicon', label: side.t + ' على خلفية فاتحة' }" />
+                              <ng-container *ngTemplateOutlet="pv; context: { p: sidePreview(r, side.s), tone: 'dark', h: 40, sq: previewItem(r).group === 'icon' || previewItem(r).group === 'favicon', label: side.t + ' على خلفية داكنة' }" />
+                            </div>
+                            <p class="small"><span class="chip" [class.chip-muted]="side.s.source === 'default'" [attr.data-testid]="'diff-source-' + side.k + '-' + r.key">{{ sideText(side.s) }}</span></p>
+                            <p class="small muted"><span dir="ltr" class="mono" [title]="side.s.sha256">{{ sha(side.s.sha256) }}</span> · {{ mime(side.s.mime) }} · {{ dim(side.s.width, side.s.height) }}</p>
+                          </div>
+                        }
+                      </div>
+                    </li>
+                  }
+                </ul>
+                @if (unchangedRows(pr).length) {
+                  <details class="diff-unchanged" data-testid="set-preview-unchanged">
+                    <summary>{{ unchangedRows(pr).length }} مفتاحًا بلا تغيير</summary>
+                    <ul class="plain-list small">@for (r of unchangedRows(pr); track r.key) { <li>{{ r.label }} <code class="code" dir="ltr">{{ r.key }}</code> — {{ sideText(r.current) }}</li> }</ul>
+                  </details>
+                }
+                <div class="row">
+                  <button type="button" class="btn-save" [disabled]="setBusy() || !pr.canApply" (click)="confirmSetRestore()" data-testid="set-preview-confirm">{{ setBusy() ? 'جارٍ الاستعادة…' : 'تنفيذ هذا الفرق بالضبط' }}</button>
+                  <button type="button" class="btn-secondary" [disabled]="setBusy()" (click)="closeSetPreview()" data-testid="set-preview-cancel">إلغاء</button>
+                  @if (setBusy()) { <span class="spinner" aria-hidden="true"></span> }
+                </div>
+              }
+            }
+          </div>
+        }
         <ul class="set-list" data-testid="identity-set-list">
           @for (r of setRows(); track r.manifestVersion) {
             <li class="set-row" [attr.data-testid]="'set-row-' + r.manifestVersion">
               <div class="set-main">
                 <strong>نسخة {{ r.manifestVersion }}</strong>
                 <span class="muted">{{ r.createdAt | wsDate:'datetime' }}</span>
-                @if (r.createdById) { <span class="muted" [title]="r.createdById">بواسطة {{ who(r.createdById) }}</span> }
+                @if (r.createdBy) { <span class="muted">بواسطة <ng-container *ngTemplateOutlet="actor; context: { a: r.createdBy, tid: 'set-by-' + r.manifestVersion }" /></span> }
                 @if (r.manifestVersion === data()!.manifestVersion) { <span class="chip">الحالية</span> }
               </div>
               <div class="set-keys">{{ r.changedKeys.length ? labelsOf(r.changedKeys) : 'بلا تغيير في المفاتيح' }}</div>
               @if (canManage() && r.manifestVersion !== data()!.manifestVersion) {
-                <button type="button" class="btn-secondary" [disabled]="setBusy()" (click)="restoreSet(r.manifestVersion, r.createdAt)" [attr.data-testid]="'set-restore-' + r.manifestVersion">استعادة هذه النسخة</button>
+                <button type="button" class="btn-secondary" [disabled]="setBusy()" (click)="openSetPreview(r.manifestVersion, r.createdAt)" [attr.data-testid]="'set-restore-' + r.manifestVersion">معاينة الاستعادة</button>
               }
             </li>
           } @empty {
@@ -149,7 +213,7 @@
         @if (setHasMore()) { <button type="button" class="btn-secondary" (click)="loadSetHistory(true)" [disabled]="setPhase() === 'loading'">عرض الأقدم</button> }
         @if (canManage() && data()!.manifestVersion > 0) {
           <div class="row">
-            <button type="button" class="btn-secondary" [disabled]="setBusy()" (click)="restoreSet(0)" data-testid="set-restore-0">استعادة الأصل الكامل (كل المفاتيح افتراضية)</button>
+            <button type="button" class="btn-secondary" [disabled]="setBusy()" (click)="openSetPreview(0)" data-testid="set-restore-0">استعادة الأصل الكامل (كل المفاتيح افتراضية)</button>
           </div>
         }
       </section>
@@ -202,7 +266,7 @@
               <dt>البصمة</dt><dd><span dir="ltr" class="mono" [title]="currentFacts(it).sha">{{ sha(currentFacts(it).sha) }}</span></dd>
               <dt>آخر تعديل</dt>
               <dd>
-                @if (it.state.updatedAt) { {{ it.state.updatedAt | wsDate:'datetime' }} @if (it.state.updatedById) { <span class="muted" [title]="it.state.updatedById">— بواسطة {{ who(it.state.updatedById) }}</span> } }
+                @if (it.state.updatedAt) { {{ it.state.updatedAt | wsDate:'datetime' }} @if (it.state.updatedBy) { <span class="muted">— بواسطة <ng-container *ngTemplateOutlet="actor; context: { a: it.state.updatedBy, tid: 'updated-by-' + it.key }" /></span> } }
                 @else { لم يُعدَّل بعد (الأصل المنشور) }
               </dd>
             </dl>
@@ -239,7 +303,7 @@
               @if (n.type === 'conflict') {
                 <div class="conflict-box" [attr.data-testid]="'conflict-' + it.key">
                   حالة الخادم الآن: <strong>{{ currentSummary(n.current) }}</strong>
-                  @if (conflictWho(n.current); as w) { — عدّلها {{ w }} }
+                  @if (conflictActor(n.current); as w) { — عدّلها <ng-container *ngTemplateOutlet="actor; context: { a: w, tid: 'conflict-by-' + it.key }" /> }
                   @if (conflictAt(n.current); as at) { في {{ at | wsDate:'datetime' }} }
                   <div class="row"><button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="reloadAfterConflict(it.key)" [attr.data-testid]="'conflict-reload-' + it.key">إعادة تحميل الحالة الحالية</button></div>
                 </div>
@@ -285,8 +349,9 @@
                       @if (d.meta.note) { <p class="small muted">{{ d.meta.note }}</p> }
                     </div>
                   </div>
+                  @if (d.meta.isMine === false) { <p class="note note-warn small" data-testid="draft-notmine-note">هذه المسودة رفعها {{ actorName(d.meta.createdBy) }}؛ لا يطبّقها غير صاحبها. يمكنك معاينتها أو إلغاؤها فقط.</p> }
                   <div class="row">
-                    <button type="button" class="btn-save" [disabled]="!!u.busy" (click)="apply(it.key)" [attr.data-testid]="'apply-' + it.key">{{ u.busy === 'apply' ? 'جارٍ التطبيق…' : 'تطبيق' }}</button>
+                    @if (d.meta.isMine !== false) { <button type="button" class="btn-save" [disabled]="!!u.busy" (click)="apply(it.key)" [attr.data-testid]="'apply-' + it.key">{{ u.busy === 'apply' ? 'جارٍ التطبيق…' : 'تطبيق' }}</button> }
                     <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="discard(it.key)" [attr.data-testid]="'cancel-' + it.key">{{ u.busy === 'discard' ? 'جارٍ الإلغاء…' : 'إلغاء' }}</button>
                     @if (u.busy === 'apply') { <span class="spinner" aria-hidden="true"></span> }
                   </div>
@@ -299,7 +364,7 @@
                   <ul class="ver-list">
                     @for (s of stagedOf(it); track s.versionId) {
                       <li class="ver">
-                        <span>النسخة {{ s.version }} · {{ mime(s.mime) }} · {{ bytes(s.byteSize) }} · {{ s.createdAt | wsDate:'datetime' }}</span>
+                        <span>النسخة {{ s.version }} · {{ mime(s.mime) }} · {{ bytes(s.byteSize) }} · {{ s.createdAt | wsDate:'datetime' }} @if (s.createdBy) { · رفعها <ng-container *ngTemplateOutlet="actor; context: { a: s.createdBy, tid: 'draft-by-' + s.versionId }" /> }@if (s.isMine === false) { <span class="chip chip-off" [attr.data-testid]="'draft-notmine-' + s.versionId">مسودة غيرك</span> }</span>
                         <span class="ver-actions">
                           <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="openDraft(it.key, s)" [attr.data-testid]="'draft-open-' + s.versionId">معاينة</button>
                           <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="discard(it.key, s)" [attr.data-testid]="'draft-discard-' + s.versionId">إلغاء المسودة</button>
@@ -332,7 +397,7 @@
                       <strong>النسخة {{ v.version }}</strong>
                       <span class="chip" [class.chip-ok]="isActive(it, v)">{{ isActive(it, v) ? 'الحالية' : 'سابقة' }}</span>
                       <span class="muted">{{ v.createdAt | wsDate:'datetime' }}</span>
-                      @if (v.createdById) { <span class="muted" [title]="v.createdById">بواسطة {{ who(v.createdById) }}</span> }
+                      @if (v.createdBy) { <span class="muted">بواسطة <ng-container *ngTemplateOutlet="actor; context: { a: v.createdBy, tid: 'ver-by-' + v.versionId }" /></span> }
                       <span class="muted">{{ mime(v.mime) }} · {{ bytes(v.byteSize) }}</span>
                       <span class="mono muted" dir="ltr" [title]="v.sha256">{{ sha(v.sha256) }}</span>
                       @if (v.note) { <span class="muted">— {{ v.note }}</span> }

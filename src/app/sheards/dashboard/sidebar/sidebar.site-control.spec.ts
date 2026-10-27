@@ -58,11 +58,16 @@ describe('Sidebar: التحكم بالموقع', () => {
 			expect(sec?.children.map((c: any) => c.label)).toEqual(['الهوية']);
 			TestBed.resetTestingModule();
 		}
-		// a staff member holding neither has no section; the old permission keeps the nine local pages but not the identity link
+		// a staff member holding none of the three has no section
 		expect(items('ADMIN', ['users.view']).some(n => n.label === 'التحكم بالموقع')).toBe(false);
-		TestBed.resetTestingModule();
+	});
+
+	it('Round 2 compat: the legacy site_control.manage keeps the whole section and now also sees «الهوية» (read-only on the page itself); nobody loses access', () => {
 		const legacy = items('ADMIN', ['site_control.manage']).find(n => n.label === 'التحكم بالموقع' && n.type === 'accordion');
-		expect(legacy.children.map((c: any) => c.label)).not.toContain('الهوية');
+		expect(legacy.children.map((c: any) => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات (محلية)', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'دليل الأنماط', 'المعاينة الشاملة', 'تصدير CSS']);
+		TestBed.resetTestingModule();
+		const both = items('ADMIN', ['site_control.manage', 'site.manage']).find(n => n.label === 'التحكم بالموقع' && n.type === 'accordion');
+		expect(both.children.length).toBe(10);
 	});
 
 	it('no other role gets the section', () => {

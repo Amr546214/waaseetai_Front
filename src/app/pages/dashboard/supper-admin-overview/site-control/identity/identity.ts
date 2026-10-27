@@ -7,13 +7,13 @@ import { AI_ICON_INNER } from '../../../../../core/constants/ai-icon';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { PlatformInfoService } from '../../../../../core/services/platform-info.service';
-import { IdentityAssetMeta, IdentityChangeResult, IdentityHistory, IdentityItemInfo, IdentityKeyCurrent, IdentityOverview, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
+import { IdentityActor, IdentityAssetMeta, IdentityChangeResult, IdentityHistory, IdentityItemInfo, IdentityKeyCurrent, IdentityOverview, IdentityPreviewRow, IdentityPreviewSide, IdentityRestoreSetPreview, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { ParsedSvgIcon, parseCustomSvg } from '../../../../../core/identity/identity-ai-icon';
 import { WsDatePipe, formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
 import { DesignTokensService } from '../core/design-tokens.service';
 import { ThemeModeService } from '../core/theme-mode.service';
 import { InlineSvgDirective } from './inline-svg.directive';
-import { Failure, GROUP_TITLES, bytesText, currentSummary, describeFailure, mimeName, previousVersion, restorable, shortId, shortSha, sizeText, versionName } from './identity-view';
+import { CHANGE_KIND_TEXT, Failure, GROUP_TITLES, actorName, actorOf, bytesText, currentSummary, describeFailure, mimeName, parsePreview, previousVersion, restorable, shortId, shortSha, sideText, sizeText, versionName } from './identity-view';
 
 type Phase = 'loading' | 'ready' | 'error' | 'denied' | 'unavailable';
 export type Preview = { kind: 'img'; src: string | SafeUrl } | { kind: 'svg'; icon: ParsedSvgIcon } | { kind: 'err' };
@@ -61,7 +61,10 @@ export class Identity implements OnInit, OnDestroy {
 	readonly pageNotice = signal<Notice | null>(null);
 	readonly uiMap = signal<Record<string, KeyUi>>({});
 	readonly previews = signal<Record<string, Preview>>({});
-	readonly canManage = computed(() => this.data()?.canManage === true);
+	/** editing needs BOTH the server's word (`canManage`) and the site.manage permission: the legacy site_control.manage and site.view only ever READ this page */
+	readonly canManage = computed(() => this.data()?.canManage === true && this.access.can('site.manage'));
+	/** a holder of the legacy «التحكم بالموقع» permission only (no site.view / site.manage): read-only, with a note that says why */
+	readonly legacyReadOnly = computed(() => !this.access.can('site.manage') && !this.access.can('site.view') && this.access.can('site_control.manage'));
 	readonly items = computed<IdentityItemInfo[]>(() => this.data()?.items ?? []);
 	readonly platformName = computed(() => this.platform.brand());
 	readonly canOpenSettings = computed(() => this.access.allows({ anyOf: ['settings.view', 'settings.manage'] }));
@@ -80,6 +83,9 @@ export class Identity implements OnInit, OnDestroy {
 	readonly setHasMore = signal(false);
 	readonly setBusy = signal(false);
 	readonly setNotice = signal<Notice | null>(null);
+	/** the exact diff of the whole-set restore being reviewed (Round 2): the confirmation is bound to THIS state through its digest */
+	readonly setPreview = signal<{ phase: 'loading' | 'ready' | 'error'; manifestVersion: number; at?: string; data?: IdentityRestoreSetPreview; message?: string; stale?: boolean } | null>(null);
+	readonly copied = signal('');
 
 	private readonly inflight = new Set<string>();
 	private readonly objectUrls: string[] = [];
@@ -192,7 +198,12 @@ export class Identity implements OnInit, OnDestroy {
 	}
 	rulesOf(it: IdentityItemInfo): string[] { return Array.isArray(it.rules) ? (it.rules as unknown[]).filter((x): x is string => typeof x === 'string') : []; }
 	currentSummary = currentSummary;
-	conflictWho(c: unknown): string | null { const id = (c as Partial<IdentityKeyCurrent> | null)?.updatedById; return id ? shortId(id) : null; }
+	/** «by whom»: the server's `{ id, name }` (name null = «غير معروف»); never an e-mail */
+	actorName = actorName; sideText = sideText; kindText = CHANGE_KIND_TEXT;
+	conflictActor(c: unknown): IdentityActor | null { return actorOf((c as Partial<IdentityKeyCurrent> | null)?.updatedBy); }
+	async copyId(id: string): Promise<void> {
+		try { await navigator.clipboard.writeText(id); this.copied.set(id); setTimeout(() => { if (this.copied() === id) this.copied.set(''); }, 2500); } catch { this.copied.set(''); }
+	}
 	conflictAt(c: unknown): string | null { return ((c as Partial<IdentityKeyCurrent> | null)?.updatedAt) ?? null; }
 	labelsOf(keys: string[]): string { return keys.map(k => this.label(k)).join('، '); }
 
@@ -246,9 +257,24 @@ export class Identity implements OnInit, OnDestroy {
 	private dropPreview(versionId: string): void { this.previews.update(m => { const { [versionId]: _gone, ...rest } = m; void _gone; return rest; }); }
 
 	// ---------------------------------------------------------------- publish / restore
+	/** the text of the apply confirmation: element (label + key), from -> to version, and every place of the platform where it will change (the registry's usages) */
+	applyMessage(it: IdentityItemInfo, d: Draft): string {
+		const from = it.state.active, MAX = 20;
+		const uses = (it.usages ?? []).map(u => u.where);
+		const shown = uses.slice(0, MAX).map(u => `• ${u}`).join('\n') + (uses.length > MAX ? `\n• و${uses.length - MAX} مواضع أخرى` : '');
+		return `العنصر: ${it.label} (${it.key})\nمن: ${from ? `النسخة ${from.version} (البصمة ${shortSha(from.sha256)})` : 'الأصل الافتراضي'}\nإلى: النسخة ${d.meta.version} (البصمة ${shortSha(d.meta.sha256)})\n\nستُنشر النسخة المرفوعة نفسها التي عاينتَها (لا يُعاد رفع الملف)، وسيتغيّر هذا العنصر لدى جميع الزوار في مواضع استخدامه في المنصة:\n${shown || '• (لا مواضع مسجّلة)'}\n\nتبقى النسخة الحالية محفوظة في السجل ويمكن العودة إليها.`;
+	}
+
+	/** «تطبيق»: ALWAYS behind a confirmation that names the element and the versions; confirming publishes the already staged version id (the file is never uploaded again) */
 	async apply(key: string): Promise<void> {
 		const it = this.item(key), u = this.ui(key), d = u.draft;
-		if (!it || !this.canEdit(it) || !d || u.busy || !this.claim(key)) return;
+		if (!it || !this.canEdit(it) || !d || u.busy || d.meta.isMine === false || !this.claim(key)) return; // claim() also keeps a second click from opening a second dialog
+		const ok = await this.confirmer.confirm({
+			title: `تطبيق على الموقع — ${it.label}`,
+			message: this.applyMessage(it, d),
+			type: 'warning', confirmText: 'تطبيق على الموقع', cancelText: 'إلغاء', size: 'md'
+		});
+		if (!ok) { this.release(key); return; }
 		this.patch(key, { busy: 'apply', notice: null });
 		try {
 			const res = await firstValueFrom(this.api.publish(key, d.meta.versionId, it.state.stateVersion));
@@ -340,41 +366,80 @@ export class Identity implements OnInit, OnDestroy {
 	}
 
 	// ---------------------------------------------------------------- whole-set restore
-	stateText(key: string): string { const it = this.item(key); return !it || it.state.isDefault || !it.state.active ? 'الأصل الافتراضي' : `النسخة ${it.state.active.version}`; }
-	/** keys that may differ from the chosen set: the ones changed by any later entry of the history (a superset when a key was changed and changed back) */
-	affectedBy(manifestVersion: number): string[] {
-		const out = new Set<string>();
-		if (manifestVersion === 0) { for (const i of this.items()) if (!i.state.isDefault) out.add(i.key); }
-		else for (const r of this.setRows()) if (r.manifestVersion > manifestVersion) r.changedKeys.forEach(k => out.add(k));
-		return [...out];
+	/** the exact preview endpoint: per key CURRENT vs TARGET, built by the server from the same logic the restore uses */
+	async openSetPreview(manifestVersion: number, at?: string): Promise<void> {
+		if (!this.canManage() || this.setBusy() || this.setPreview()?.phase === 'loading') return;
+		this.setNotice.set(null);
+		this.setPreview.set({ phase: 'loading', manifestVersion, at });
+		try {
+			const r = await firstValueFrom(this.api.restoreSetPreview(manifestVersion));
+			const data = parsePreview(r.data);
+			if (!data) throw new Error('bad preview');
+			this.setPreview.set({ phase: 'ready', manifestVersion, at, data });
+			void this.loadPreviewSides(data);
+		} catch (e) {
+			const f = describeFailure(e, 'قراءة معاينة الاستعادة');
+			this.setPreview.set({ phase: 'error', manifestVersion, at, message: f.message });
+		}
 	}
-	async restoreSet(manifestVersion: number, at?: string): Promise<void> {
-		const d = this.data();
-		const when = at ? formatWsDate(at, 'datetime') : '';
-		if (!d || !this.canManage() || this.setBusy() || !this.claim('set')) return;
-		const affected = this.affectedBy(manifestVersion);
-		const lines = affected.length ? affected.map(k => `• ${this.label(k)}: الآن ${this.stateText(k)}`).join('\n') : '• لا يظهر من السجل ما يتغيّر (قد يردّ الخادم بأن لا تغيير).';
+	closeSetPreview(): void { if (!this.setBusy()) this.setPreview.set(null); }
+	private async loadPreviewSides(d: IdentityRestoreSetPreview): Promise<void> {
+		const jobs: Promise<void>[] = [];
+		for (const r of d.items) if (r.change !== 'unchanged') for (const s of [r.current, r.target]) if (s.source === 'custom' && s.versionId) jobs.push(this.ensurePreview(r.key, { versionId: s.versionId, mime: s.mime } as IdentityAssetMeta));
+		await Promise.all(jobs);
+	}
+	/** what a preview side looks like: the stored bytes of the custom version, or the built-in default of that key */
+	sidePreview(row: IdentityPreviewRow, side: IdentityPreviewSide): Preview | null {
+		if (side.source === 'custom') return side.versionId ? (this.previews()[side.versionId] ?? null) : null;
+		const it = this.item(row.key);
+		return it ? this.defaultPreview(it) : null;
+	}
+	previewItem(row: IdentityPreviewRow): IdentityItemInfo { return this.item(row.key) ?? ({ key: row.key, group: row.group, kind: 'raster' } as IdentityItemInfo); }
+	changedRows(d: IdentityRestoreSetPreview): IdentityPreviewRow[] { return d.items.filter(r => r.change !== 'unchanged'); }
+	unchangedRows(d: IdentityRestoreSetPreview): IdentityPreviewRow[] { return d.items.filter(r => r.change === 'unchanged'); }
+
+	/** executes ONLY the diff on screen: the digest of the preview travels with the request; the server refuses (409 stale) when the diff is no longer the same */
+	async confirmSetRestore(): Promise<void> {
+		const sp = this.setPreview(), d = this.data();
+		if (!sp || sp.phase !== 'ready' || !sp.data || !d || !this.canManage() || this.setBusy() || !sp.data.canApply || !this.claim('set')) return;
+		const pv = sp.data, mv = sp.manifestVersion, when = sp.at ? formatWsDate(sp.at, 'datetime') : '';
+		const lines = this.changedRows(pv).map(r => `• ${r.label}: ${sideText(r.current)} ← ${sideText(r.target)} (${CHANGE_KIND_TEXT[r.change]})`).join('\n');
 		const ok = await this.confirmer.confirm({
-			title: manifestVersion === 0 ? 'استعادة الهوية الأصلية كاملة' : `استعادة نسخة هوية كاملة (#${manifestVersion})`,
-			message: `${manifestVersion === 0 ? 'ستعود كل مفاتيح الهوية إلى الأصل الافتراضي المنشور اليوم.' : `ستعود هوية الموقع كلها إلى حالتها عند النسخة #${manifestVersion}${when ? ` (${when})` : ''}.`}\nالنسخة الحالية للبيان: #${d.manifestVersion}\n\nمفاتيح قد تتغيّر:\n${lines}\n\nيتغيّر الموقع لدى جميع الزوار فور التأكيد، وتبقى كل النسخ الحالية محفوظة في السجل.`,
+			title: mv === 0 ? 'استعادة الهوية الأصلية كاملة' : `استعادة نسخة هوية كاملة (#${mv})`,
+			message: `${mv === 0 ? 'ستعود كل مفاتيح الهوية إلى الأصل الافتراضي المنشور اليوم.' : `ستعود هوية الموقع كلها إلى حالتها عند النسخة #${mv}${when ? ` (${when})` : ''}.`}\nالنسخة الحالية للبيان: #${pv.currentManifestVersion}\n\nالتغيير المعروض عليك بالضبط (${pv.changedCount}):\n${lines}\n\nيتغيّر الموقع لدى جميع الزوار فور التأكيد، وتبقى كل النسخ الحالية محفوظة في السجل. إن تغيّرت الهوية قبل التنفيذ فلن يُنفَّذ شيء وستُعرض عليك المعاينة المحدّثة.`,
 			type: 'warning', confirmText: 'استعادة الهوية الكاملة', cancelText: 'إلغاء', size: 'lg'
 		});
 		if (!ok) { this.release('set'); return; }
 		this.setBusy.set(true); this.setNotice.set(null);
 		try {
-			const res = await firstValueFrom(this.api.restoreSet(manifestVersion, d.manifestVersion));
+			const res = await firstValueFrom(this.api.restoreSet(mv, pv.currentManifestVersion, pv.previewDigest));
 			const refreshed = await this.api.refreshPublic();
 			const liveOk = refreshed && this.api.liveManifest().version >= res.data.manifestVersion;
+			this.setPreview.set(null);
 			await this.load(true); await this.loadSetHistory();
 			const changed = res.data.changedKeys ?? [];
 			this.setNotice.set(liveOk
-				? { type: 'ok', text: `استُعيدت الهوية إلى النسخة #${manifestVersion} (بيان الموقع الآن #${res.data.manifestVersion}).`, detail: changed.length ? `تغيّر: ${this.labelsOf(changed)}.` : undefined }
+				? { type: 'ok', text: `استُعيدت الهوية إلى النسخة #${mv} (بيان الموقع الآن #${res.data.manifestVersion}).`, detail: changed.length ? `تغيّر: ${this.labelsOf(changed)}.` : undefined }
 				: { type: 'warn', text: 'حُفظت الاستعادة على الخادم لكن لم يظهر بعد في بيان الموقع العام. أعد تحميل الصفحة بعد قليل.' });
 		} catch (e) {
 			const f = describeFailure(e, 'استعادة نسخة الهوية الكاملة');
-			this.setNotice.set(f.kind === 'conflict' ? { type: 'conflict', text: f.message, current: f.current } : { type: 'error', text: f.message });
+			if (f.kind === 'stale') {
+				// the state moved after the preview: NOTHING was executed; show the fresh diff and make the editor review it again
+				const fresh = parsePreview(f.current);
+				await this.load(true);
+				if (fresh) { this.setPreview.set({ phase: 'ready', manifestVersion: mv, at: sp.at, data: fresh, stale: true }); void this.loadPreviewSides(fresh); }
+				else void this.openSetPreview(mv, sp.at);
+				this.setNotice.set({ type: 'conflict', text: f.message });
+			} else if (f.kind === 'conflict') {
+				this.setNotice.set({ type: 'conflict', text: f.message, current: f.current });
+			} else this.setNotice.set({ type: 'error', text: f.message });
 		} finally { this.setBusy.set(false); this.release('set'); }
 	}
-	async reloadAfterSetConflict(): Promise<void> { await this.load(true); await this.loadSetHistory(); this.setNotice.set({ type: 'warn', text: 'حُمِّلت الحالة الحالية. راجع القائمة ثم أعد اختيار النسخة إن كنت لا تزال تريدها.' }); }
+	async reloadAfterSetConflict(): Promise<void> {
+		const sp = this.setPreview();
+		await this.load(true); await this.loadSetHistory();
+		if (sp) { this.setNotice.set({ type: 'warn', text: 'حُمِّلت الحالة الحالية. هذه معاينة محدّثة: راجعها ثم أكّد من جديد.' }); await this.openSetPreview(sp.manifestVersion, sp.at); }
+		else this.setNotice.set({ type: 'warn', text: 'حُمِّلت الحالة الحالية. راجع القائمة ثم اختر النسخة من جديد إن كنت لا تزال تريدها.' });
+	}
 	setConflictManifest(c: unknown): number | null { const v = Number((c as { manifestVersion?: unknown } | null)?.manifestVersion); return Number.isFinite(v) ? v : null; }
 }
