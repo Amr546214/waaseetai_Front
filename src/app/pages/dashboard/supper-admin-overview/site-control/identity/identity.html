@@ -86,11 +86,7 @@
     @default {
       @if (!canManage()) {
         <div class="note note-warn" role="note" data-testid="identity-readonly">
-          @if (legacyReadOnly()) {
-            <strong data-testid="identity-readonly-legacy">عرض فقط.</strong> صلاحيتك القديمة «التحكم بالموقع» (site_control.manage) تتيح لك الاطلاع على هذه الصفحة فقط. الرفع والتطبيق والاستعادة تحتاج صلاحية «إدارة هوية الموقع» (site.manage) التي لا تمنحها الصلاحية القديمة تلقائيًا؛ اطلبها من مدير النظام. لا توجد أزرار تعديل في هذه الصفحة لحسابك.
-          } @else {
-            <strong>عرض فقط.</strong> صلاحيتك تسمح بالاطلاع على الهوية (site.view) ولا تسمح بالرفع أو التطبيق أو الاستعادة (site.manage). لا توجد أزرار تعديل في هذه الصفحة لحسابك.
-          }
+          <strong>عرض فقط.</strong> صلاحيتك تسمح بالاطلاع على الهوية (site.view) ولا تسمح بالرفع أو التطبيق أو الاستعادة (تحتاج site.manage أو صلاحية «التحكم بالموقع»). لا توجد أزرار تعديل في هذه الصفحة لحسابك.
         </div>
       }
       @if (pageNotice(); as pn) {
