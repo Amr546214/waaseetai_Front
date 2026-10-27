@@ -34,7 +34,9 @@ describe('admin pages: an explicit rule for each one', () => {
 		expect(r('site-control')).toEqual({ anyOf: ['site_control.manage', 'site.view', 'site.manage'] });
 		// the legacy permission opens «الهوية» too and (Round 5) is the edit capability there; site.view stays read-only
 		expect(r('site-control/identity')).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
-		expect(r('site-control/tokens')).toEqual({ all: ['site_control.manage'] });
+		// Round 5: the two pages with the server-backed token editor follow the identity permissions; the other local pages keep site_control.manage
+		for (const pg of ['tokens', 'typography']) expect(r(`site-control/${pg}`)).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
+		expect(r('site-control/icons')).toEqual({ all: ['site_control.manage'] });
 		expect(r('site-control/something-new')).toEqual({ anyOf: ['site_control.manage', 'site.view', 'site.manage'] });
 	});
 });

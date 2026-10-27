@@ -54,7 +54,10 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	// (the server accepts site.manage OR site_control.manage on every write and answers canManage:true for both); site.view alone stays read-only.
 	'site-control': { anyOf: ['site_control.manage', 'site.view', 'site.manage'] },
 	'site-control/identity': { anyOf: ['site.view', 'site.manage', 'site_control.manage'] },
-	...Object.fromEntries(['health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export'].map(p => [`site-control/${p}`, { all: ['site_control.manage'] } as AccessRule])),
+	// «القيم والألوان» and «الخطوط» hold the SERVER-backed design-token editor above their local sandbox: the identity permissions govern them (site.view reads, site.manage / site_control.manage edit; the page and the server decide)
+	'site-control/tokens': { anyOf: ['site.view', 'site.manage', 'site_control.manage'] },
+	'site-control/typography': { anyOf: ['site.view', 'site.manage', 'site_control.manage'] },
+	...Object.fromEntries(['health', 'icons', 'accounts', 'templates', 'style-guide', 'live-preview', 'export'].map(p => [`site-control/${p}`, { all: ['site_control.manage'] } as AccessRule])),
 	audit: { all: ['audit.view'] }, 'audit-trail': { all: ['audit.view'] },
 	// every remaining page of the console has its own explicit rule (nothing is opened to "any team member" by omission)
 	subscriptions: { all: ['packages.manage'] }, 'subscriptions/invoices': { all: ['finance.read'] },

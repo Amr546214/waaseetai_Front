@@ -51,11 +51,11 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(isAdminUser({ accountType: 'CLIENT_INDIVIDUAL' })).toBe(false);
 	});
 
-	it('identity-only staff (site.view / site.manage, no site_control.manage) see ONLY «الهوية»; the local pages stay hidden from them', () => {
+	it('identity-only staff (site.view / site.manage, no site_control.manage) see «الهوية» and the two pages with the server-backed token editor («القيم والألوان», «الخطوط»); the other local pages stay hidden from them', () => {
 		for (const perm of ['site.view', 'site.manage']) {
 			const nav = items('ADMIN', [perm]);
 			const sec = nav.find(n => n.type === 'accordion' && n.label === 'التحكم بالموقع');
-			expect(sec?.children.map((c: any) => c.label)).toEqual(['الهوية']);
+			expect(sec?.children.map((c: any) => c.label)).toEqual(['الهوية', 'القيم والألوان', 'الخطوط']);
 			TestBed.resetTestingModule();
 		}
 		// a staff member holding none of the three has no section

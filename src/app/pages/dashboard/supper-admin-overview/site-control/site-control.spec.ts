@@ -33,7 +33,8 @@ describe('site control (التحكم بالموقع)', () => {
 		const kid = (p: string) => sec.children!.find(c => c.path === p)!;
 		// the legacy permission opens «الهوية» too (Round 5: it is the edit capability; the server decides canManage)
 		expect((kid('identity').data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
-		for (const p of ['health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
+		for (const p of ['tokens', 'typography']) expect((kid(p).data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] }); // server-backed token editor: identity permissions (Round 5)
+		for (const p of ['health', 'icons', 'accounts', 'templates', 'style-guide', 'live-preview', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
 		expect((kid('identity').data as any).title).toBe('الهوية');
 		expect(kid('identity').canActivate?.length).toBeGreaterThan(0);
 	});
