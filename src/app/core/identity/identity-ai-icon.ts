@@ -1,5 +1,5 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { Injectable, Injector, PLATFORM_ID, effect, inject } from '@angular/core';
+import { ApplicationRef, Injectable, Injector, PLATFORM_ID, effect, inject } from '@angular/core';
 import { AI_ICON_INNER } from '../constants/ai-icon';
 import { SiteIdentityService } from './site-identity.service';
 
@@ -64,6 +64,7 @@ export class AiIconRuntime {
 	private readonly doc = inject(DOCUMENT);
 	private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
 	private readonly injector = inject(Injector);
+	private readonly appRef = inject(ApplicationRef);
 	private readonly saved = new Map<Element, Saved>();
 	private observer: MutationObserver | null = null;
 	private active: ParsedSvgIcon | null = null;
@@ -104,6 +105,9 @@ export class AiIconRuntime {
 			} catch { if (my === this.seq) { this.identity.reportBroken(url); } return; }
 			if (my !== this.seq) return;
 		}
+		// the server-rendered DOM is hydrated first: rewriting the AI <symbol>s before hydration finished made Angular throw NG0500 (expected <circle> but found <rect>) for a visitor whose custom icon was already cached
+		try { await Promise.race([this.appRef.whenStable(), new Promise(r => setTimeout(r, 6000))]); } catch { /* apply anyway */ }
+		if (my !== this.seq) return;
 		if (!this.applyText(text, sha)) { this.identity.reportBroken(url); return; }
 		this.writeCached(sha, text);
 	}
@@ -142,9 +146,14 @@ export class AiIconRuntime {
 		for (const a of ['viewBox', ...PAINT_ATTRS]) keep.set(a, el.getAttribute(a));
 		this.saved.set(el, { attrs: keep, html: el.innerHTML });
 		el.setAttribute('viewBox', icon.viewBox);
-		for (const [k, v] of Object.entries(icon.attrs)) el.setAttribute(k, v);
 		while (el.firstChild) el.removeChild(el.firstChild);
-		for (const c of icon.children) el.appendChild(this.doc.importNode(c, true));
+		// Paint the uploaded file declared on its root (fill, stroke, stroke-width, opacity...) goes on a <g> INSIDE the symbol: a presentation attribute on the <symbol> itself loses against the
+		// page's `fill:none; stroke:currentColor` on the outer <svg> (it never reached the shapes), a <g> inside always wins over inheritance. Whatever the file does NOT declare keeps inheriting the
+		// caller's currentColor outline (the platform AI purple), exactly like the default mark.
+		const painted = Object.keys(icon.attrs).length > 0;
+		const host: Element = painted ? el.ownerDocument.createElementNS(SVGNS, 'g') : el;
+		if (painted) { for (const [k, v] of Object.entries(icon.attrs)) host.setAttribute(k, v); el.appendChild(host); }
+		for (const c of icon.children) host.appendChild(this.doc.importNode(c, true));
 	}
 	private restore(el: Element, s: Saved): void {
 		for (const [k, v] of s.attrs) { if (v === null) el.removeAttribute(k); else el.setAttribute(k, v); }

@@ -287,6 +287,17 @@
               </ul>
             }
             @for (n of it.notes; track $index) { <p class="hint small">{{ n }}</p> }
+            @if (it.key === 'icon.ai') {
+              <details class="paint-rule" [attr.data-testid]="'paint-rule-' + it.key">
+                <summary>كيف تُرسَم الأيقونة المخصصة</summary>
+                <ul class="plain-list small">
+                  <li>الملف يظهر كما رفعتَه: أي <strong>fill</strong> أو <strong>stroke</strong> (أو stroke-width / opacity) تكتبه صراحةً على عنصر <code dir="ltr">&lt;svg&gt;</code> الجذر أو على الأشكال نفسها يُحترم كما هو، فالأيقونة المصمتة تبقى مصمتة وألوانك تبقى ألوانك.</li>
+                  <li>ما لا تحدده في الملف يرث من المنصة: خط بلون الذكاء الاصطناعي البنفسجي (currentColor) دون تعبئة، كما تُرسم الأيقونة الحالية.</li>
+                  <li>للحصول على الشكل البنفسجي المعتاد: ارفع ملفًا بلا fill ولا stroke (أشكال فقط). للحصول على ألوانك: حدّدها في الملف.</li>
+                  <li>تُزال من الملف للأمان السكربتات والمراجع الخارجية والعناصر style وimage وuse؛ أما ألوان الرسم (fill / stroke) فتبقى.</li>
+                </ul>
+              </details>
+            }
           </div>
         </div>
 

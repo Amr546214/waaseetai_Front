@@ -38,4 +38,11 @@ describe('identity consumers (static)', () => {
 		const prov = readFileSync(join(__dirname, 'identity.providers.ts'), 'utf8');
 		for (const c of ['AiIconRuntime', 'FaviconRuntime', 'SiteIdentityService']) expect(prov).toContain(c);
 	});
+
+	it('Round 2: the AI-mark runtime never rewrites the DOM before hydration finished (waits for ApplicationRef.whenStable) and paints the uploaded root on a <g> inside the symbol', () => {
+		const src = readFileSync(join(__dirname, 'identity-ai-icon.ts'), 'utf8');
+		expect(src.indexOf('whenStable')).toBeGreaterThan(-1);
+		expect(src.indexOf('whenStable')).toBeLessThan(src.indexOf('if (!this.applyText(text, sha))'));
+		expect(src).toContain("createElementNS(SVGNS, 'g')");
+	});
 });

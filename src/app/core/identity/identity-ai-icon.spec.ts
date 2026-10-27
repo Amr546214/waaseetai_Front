@@ -83,4 +83,28 @@ describe('AiIconRuntime', () => {
 		const html = p.children.map(c => c.outerHTML).join('');
 		expect(html).not.toMatch(/onclick|evil|<use|<image|<style/);
 	});
+
+	// Round 2 (idqa defect 2): an uploaded icon renders as uploaded
+	const star = (rootAttrs: string, shape = '') => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" ${rootAttrs}><path ${shape} d="M12 2l2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6z"/></svg>`;
+	it('PAINT: fill/stroke declared on the file root go on a <g> inside every replaced symbol (a symbol attribute loses against the page\'s outer svg), the shapes are untouched', () => {
+		expect(rt.applyText(star('fill="#ff0080" stroke="#7a00ff" stroke-width="1.5"'), 'p1')).toBe(true);
+		const sym = host.querySelector('symbol#i-ai')!;
+		const g = sym.querySelector(':scope > g')!;
+		expect(g.getAttribute('fill')).toBe('#ff0080'); expect(g.getAttribute('stroke')).toBe('#7a00ff'); expect(g.getAttribute('stroke-width')).toBe('1.5');
+		expect(g.querySelector('path')).not.toBeNull();
+		expect(sym.getAttribute('fill')).not.toBe('#ff0080'); // never relied upon on the symbol itself
+		expect(host.querySelector('#inl > g')!.getAttribute('fill')).toBe('#ff0080');
+		rt.applyText(null); expect(host.innerHTML).toBe(snap);
+	});
+	it('PAINT: no paint on the root -> no wrapper; the shapes inherit the caller\'s currentColor outline (platform AI purple) exactly as the default mark does', () => {
+		rt.applyText(star(''), 'p2');
+		const sym = host.querySelector('symbol#i-ai')!;
+		expect(sym.querySelector(':scope > g')).toBeNull(); expect(sym.querySelector(':scope > path')).not.toBeNull();
+		expect(sym.getAttribute('stroke')).toBe('currentColor'); expect(sym.getAttribute('fill')).toBe('none');
+	});
+	it('PAINT: paint on the shapes themselves is kept as uploaded', () => {
+		rt.applyText(star('', 'fill="#00aa55" stroke="none"'), 'p3');
+		const path = host.querySelector('symbol#i-ai path')!;
+		expect(path.getAttribute('fill')).toBe('#00aa55'); expect(path.getAttribute('stroke')).toBe('none');
+	});
 });
