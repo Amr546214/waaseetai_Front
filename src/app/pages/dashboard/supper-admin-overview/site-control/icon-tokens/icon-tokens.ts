@@ -7,6 +7,7 @@ import { IconFamilyInfo, IconFnRow, IconFnStatus, SiteIdentityAdminApi } from '.
 import { DesignTokensService } from '../core/design-tokens.service';
 import { IconsService, LegacyIcon } from '../core/icons.service';
 import { RealIconsService } from '../core/real-icons.service';
+import { IconUsageService } from '../core/icon-usage.service';
 import { describeFailure } from '../identity/identity-view';
 import { ThemeModeService } from '../core/theme-mode.service';
 import { InlineSvgDirective } from '../identity/inline-svg.directive';
@@ -39,6 +40,7 @@ export class IconTokens implements OnInit {
   readonly iconsService = inject(IconsService);
   readonly store = inject(IconFnStore);
   readonly real = inject(RealIconsService);
+  readonly usage = inject(IconUsageService);
   private readonly api = inject(SiteIdentityAdminApi);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly designTokens = inject(DesignTokensService);
@@ -111,13 +113,14 @@ export class IconTokens implements OnInit {
   ngOnInit(): void {
     void this.iconsService.load();
     void this.real.load();
+    void this.usage.load();
     void this.store.load();
     void this.loadFamilies();
   }
 
   /** the panel's own light / dark view (same switch as «الهوية»): only this panel, never the site */
   setMode(mode: 'dark' | 'light'): void { this.designTokens.setMode(mode); }
-  retry(): void { void this.iconsService.load(true); void this.real.load(true); void this.store.load(true); void this.loadFamilies(); }
+  retry(): void { void this.usage.load(); void this.iconsService.load(true); void this.real.load(true); void this.store.load(true); void this.loadFamilies(); }
   selectLib(id: string): void { this.activeLibId.set(id); this.shownCount.set(PAGE); }
   setFilter(f: IconFilter): void { this.filter.set(f); this.shownCount.set(PAGE); }
   setQuery(ev: Event): void { this.query.set((ev.target as HTMLInputElement).value); this.shownCount.set(PAGE); }
@@ -165,8 +168,14 @@ export class IconTokens implements OnInit {
   isManaged(r: IconFnRow): boolean { return r.managedBy === 'icon.ai' || this.managed(r.id); }
   editable(r: IconFnRow): boolean { return !!r.key && r.status !== 'not-wired'; }
   statusText(r: IconFnRow): string { return r.status === 'custom' ? 'مخصّصة' : r.status === 'default' ? 'افتراضية' : 'غير مربوطة'; }
-  /** the short reason shown on a not-wired card; the server's full sentence is the tooltip */
+  /** not-wired rows split by the usage report: drawn somewhere but this key is not followed (USED_UNBOUND) vs drawn nowhere (UNUSED, kept, never deleted) */
+  usageKind(r: IconFnRow): 'used-unbound' | 'unused' | null { const u = this.usage.get(r.id); return r.status !== 'not-wired' || !u || u.status === 'BOUND' ? null : u.status === 'USED_UNBOUND' ? 'used-unbound' : 'unused'; }
+  /** the short label of a not-wired card; the full sentence is the tooltip */
   reasonShort(r: IconFnRow): string {
+    switch (this.usageKind(r)) {
+      case 'used-unbound': return 'مستعملة وغير مربوطة بمفتاحها';
+      case 'unused': return 'غير مستعملة في الموقع';
+    }
     switch (r.reason?.code) {
       case 'LIBRARY_ONLY': return 'في المكتبة فقط: لا يرسمها أي مكوّن في الموقع.';
       case 'NO_CONSUMER': return 'معرّفة في قالب لكن لا شيء يستعملها.';
@@ -174,6 +183,7 @@ export class IconTokens implements OnInit {
       default: return r.reason?.text || 'لا شيء في الموقع يتبع تغيير هذه الأيقونة.';
     }
   }
+  reasonTip(r: IconFnRow): string | null { return this.usage.reason(r.id) ?? r.reason?.text ?? null; }
   /** how many known places follow this icon (the explicit list is in the editor) */
   followCount(r: IconFnRow): number { return ICON_PLACES[r.id]?.follows.length ?? 0; }
   exportJson(): void { this.iconsService.exportJson(); }

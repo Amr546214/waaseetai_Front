@@ -6,6 +6,7 @@ import { IconTokens } from './icon-tokens';
 import { IconFnStore } from './icon-fn.store';
 import { IconsService } from '../core/icons.service';
 import { RealIconsService } from '../core/real-icons.service';
+import { IconUsageService } from '../core/icon-usage.service';
 import { SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { of } from 'rxjs';
 import { IconFnRow } from '../../../../../core/identity/site-identity-admin.api';
@@ -18,6 +19,7 @@ const ROWS: IconFnRow[] = [
 	row({ id: 'i-bell', label: 'إشعارات' }),
 	row({ id: 'i-check', label: 'تحقق', status: 'custom', activeVersion: 2, stateVersion: 2 }),
 	row({ id: 'i-coin', label: 'عملة', key: null, library: 'general', status: 'not-wired', reason: { code: 'LIBRARY_ONLY', text: 'موجودة في المكتبة فقط' } }),
+	row({ id: 'i-unused', label: 'غير مستعملة', key: null, library: 'general', status: 'not-wired', reason: { code: 'LIBRARY_ONLY', text: 'موجودة في المكتبة فقط' } }),
 	row({ id: 'i-ai', label: 'ذكاء', key: null, status: 'not-wired', managedBy: 'icon.ai', reason: { code: 'MANAGED_BY_ICON_AI', text: 'تُدار من الهوية' } }),
 	row({ id: 'ws-trust-ai', label: 'ثقة', key: null, library: 'ai', status: 'not-wired', managedBy: 'icon.ai', reason: { code: 'MANAGED_BY_ICON_AI', text: 'تُدار من الهوية' } }),
 ];
@@ -34,7 +36,9 @@ function setup(phase: 'loading' | 'ready' | 'error' | 'denied' = 'ready', over: 
 		loadError: signal(over.localError ? 'تعذّر تحميل ملف الأيقونات' : null), phase: signal(over.localError ? 'error' : 'ready'), savedCopyNotice: signal<string | null>(null), load: vi.fn(async () => undefined), exportJson: vi.fn(),
 	};
 	const real = { load: vi.fn(async () => undefined), get: (id: string) => (id === 'i-bell' ? { vb: '0 0 24 24', paint: { fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8' }, inner: '<path d="M18 8A6 6 0 0 0 6 8"/>', sha256: 'x', defs: 6, variants: 2, files: [] } : null), phase: signal('ready'), fullSvg: () => null };
-	TestBed.configureTestingModule({ imports: [IconTokens], providers: [provideRouter([]), { provide: IconFnStore, useValue: store }, { provide: IconsService, useValue: icons }, { provide: RealIconsService, useValue: real }, { provide: SiteIdentityAdminApi, useValue: { families: () => of({ success: true, data: { families: [], revision: 'x' } }) } }] });
+	const U: Record<string, { status: string; drawnElsewhere?: number }> = { 'i-coin': { status: 'USED_UNBOUND', drawnElsewhere: 3 }, 'i-unused': { status: 'UNUSED' } };
+	const usage = { load: vi.fn(async () => undefined), get: (id: string) => U[id] ?? null, reason: (id: string) => (U[id]?.status === 'USED_UNBOUND' ? 'مستعملة في الموقع (3 موضعًا برسم مطابق) لكن لا موضع يتبع هذا المفتاح تحديدًا' : U[id]?.status === 'UNUSED' ? 'غير مستعملة حاليًا (محفوظة ولا تُحذف).' : null) };
+	TestBed.configureTestingModule({ imports: [IconTokens], providers: [provideRouter([]), { provide: IconUsageService, useValue: usage }, { provide: IconFnStore, useValue: store }, { provide: IconsService, useValue: icons }, { provide: RealIconsService, useValue: real }, { provide: SiteIdentityAdminApi, useValue: { families: () => of({ success: true, data: { families: [], revision: 'x' } }) } }] });
 	const f = TestBed.createComponent(IconTokens); f.detectChanges();
 	const root = () => (f.nativeElement as HTMLElement).shadowRoot!;
 	return { f, c: f.componentInstance, store, icons, root, q: (id: string) => root().querySelector(`[data-testid="${id}"]`) as HTMLElement | null };
@@ -52,7 +56,8 @@ describe('icon library page (server-backed)', () => {
 		const t = setup();
 		expect(t.q('icon-status-i-bell')!.textContent).toContain('افتراضية'); expect(t.q('icon-open-i-bell')!.textContent).toContain('تخصيص');
 		expect(t.q('icon-status-i-check')!.textContent).toContain('مخصّصة'); expect(t.q('icon-open-i-check')!.textContent).toContain('تعديل');
-		expect(t.q('icon-status-i-coin')!.textContent).toContain('غير مربوطة'); expect(t.q('notwired-i-coin')!.textContent).toContain('لا يرسمها أي مكوّن');
+		expect(t.q('icon-status-i-coin')!.textContent).toContain('غير مربوطة'); expect(t.q('notwired-i-coin')!.textContent).toContain('مستعملة وغير مربوطة'); expect(t.q('notwired-i-coin')!.getAttribute('title')).toContain('لا موضع يتبع هذا المفتاح');
+		expect(t.q('notwired-i-unused')!.textContent).toContain('غير مستعملة'); expect(t.q('notwired-i-unused')!.getAttribute('data-kind')).toBe('unused'); expect(t.q('notwired-i-unused')!.getAttribute('title')).toContain('لا تُحذف');
 		expect(t.q('icon-open-i-coin')).toBeNull();
 		expect(t.q('icon-card-i-coin')!.querySelector('input[type=file], select')).toBeNull();
 	});

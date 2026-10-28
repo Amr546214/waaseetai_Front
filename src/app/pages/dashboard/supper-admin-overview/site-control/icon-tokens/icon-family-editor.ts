@@ -1,12 +1,14 @@
 import { Component, ViewEncapsulation, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
-import { IconFamilyDraft, IconFamilyInfo, IconFamilyPreview, IconFamilyPreviewBody, IdentityPreviewSide, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
+import { IconFamilyDraft, IconFamilyInfo, IdentitySourceRef, IconFamilyPreview, IconFamilyPreviewBody, IdentityPreviewSide, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { ParsedSvgIcon, parseCustomSvg } from '../../../../../core/identity/identity-ai-icon';
 import { SiteIdentityService } from '../../../../../core/identity/site-identity.service';
 import { InlineSvgDirective } from '../identity/inline-svg.directive';
 import { Failure, currentSummary, describeFailure } from '../identity/identity-view';
 import { RealIconsService } from '../core/real-icons.service';
+import { IconsService } from '../core/icons.service';
+import { IconPicker, libraryDrawingSvg } from './icon-picker';
 import { IconFnStore } from './icon-fn.store';
 
 export interface FamilyNotice { type: 'ok' | 'warn' | 'error' | 'conflict'; text: string; detail?: string }
@@ -23,7 +25,7 @@ const readText = (b: Blob): Promise<string> => (typeof b.text === 'function' ? b
 @Component({
 	selector: 'sc-icon-family-editor',
 	standalone: true,
-	imports: [InlineSvgDirective],
+	imports: [InlineSvgDirective, IconPicker],
 	templateUrl: './icon-family-editor.html',
 	encapsulation: ViewEncapsulation.ShadowDom,
 	styleUrls: ['../site-control-base.css', './icon-fn-editor.css', './icon-family-editor.css']
@@ -39,6 +41,10 @@ export class IconFamilyEditor {
 	private readonly identity = inject(SiteIdentityService);
 	private readonly confirmer = inject(ConfirmModalService);
 	private readonly real = inject(RealIconsService);
+	private readonly libs = inject(IconsService);
+	/** the library icon chosen for the WHOLE family (not staged yet) */
+	readonly pickId = signal<string | null>(null);
+	readonly pickOpen = signal(false);
 	readonly store = inject(IconFnStore);
 
 	readonly phase = signal<'loading' | 'ready' | 'error'>('loading');
@@ -85,14 +91,24 @@ export class IconFamilyEditor {
 	async onFile(ev: Event): Promise<void> {
 		const input = ev.target as HTMLInputElement; const file = input.files?.[0]; input.value = '';
 		if (!file || !this.canEdit() || !this.selectedKeys().length) return;
+		await this.stage(file, { kind: 'upload' });
+	}
+	/** library pick for the whole family: the chosen built-in drawing is staged as ONE sanitised copy under every selected key (`sourceRef` = the library icon), then the same exact-diff preview and confirmation */
+	async stagePick(): Promise<void> {
+		const id = this.pickId(); if (!id || !this.canEdit() || !this.selectedKeys().length || this.busy()) return;
+		const svg = libraryDrawingSvg(this.real, this.libs, id);
+		if (!svg) { this.notice.set({ type: 'error', text: 'لا رسم معروف لهذه الأيقونة في المكتبة، فلا يمكن اختيارها بديلًا.' }); return; }
+		await this.stage(new File([svg], `${id}.svg`, { type: 'image/svg+xml' }), { kind: 'library', symbolId: id });
+	}
+	private async stage(file: File, ref: IdentitySourceRef): Promise<void> {
 		this.fileName.set(file.name); this.busy.set('upload'); this.notice.set(null); this.clearOperation(true);
 		try {
-			const r = await firstValueFrom(this.api.familyUpload(this.familyId(), file, this.selectedKeys(), { kind: 'upload' }));
+			const r = await firstValueFrom(this.api.familyUpload(this.familyId(), file, this.selectedKeys(), ref));
 			this.drafts.set(r.data.drafts.map(d => ({ key: d.key, versionId: d.versionId })));
 			const skipped = r.data.skipped?.length ? ` وتُرك ${r.data.skipped.length} لأن ما فيه مطابق لهذا الملف.` : '';
 			this.notice.set({ type: 'ok', text: `فحص الخادم الملف مرة واحدة وحفظ النسخة نفسها كمسودة خاصة بك لـ${r.data.drafts.length} أيقونة.${skipped} لم يتغيّر الموقع بعد.`, detail: r.data.note ?? undefined });
 			await this.runPreview('publish');
-		} catch (e) { this.fail(e, 'رفع الملف للعائلة'); }
+		} catch (e) { this.fail(e, ref.kind === 'library' ? 'اختيار الأيقونة من المكتبة للعائلة' : 'رفع الملف للعائلة'); }
 		this.busy.set(null);
 	}
 
@@ -132,7 +148,7 @@ export class IconFamilyEditor {
 		const names = this.changedItems().map(i => `«${i.label}»`).join('، ');
 		const ok = await this.confirmer.confirm({
 			title: mode === 'publish' ? 'تطبيق الملف على كل أيقونات العائلة' : 'إرجاع أيقونات العائلة إلى الأصل', type: 'warning', size: 'md', confirmText: mode === 'publish' ? 'طبّق على الموقع' : 'عُد إلى الأصل', cancelText: 'لا',
-			message: `${mode === 'publish' ? 'سيُطبَّق الملف نفسه' : 'ستعود الأيقونات'} على ${n} أيقونة دفعة واحدة (كلها أو لا شيء): ${names}. يتغيّر الموقع لكل الزوّار فور التأكيد، وتبقى النسخ السابقة محفوظة للاستعادة. هذا هو الفرق الذي عاينته (بصمة ${p.previewDigest.slice(0, 8)}).`
+			message: `هذا تعديل للعائلة كلها وليس لأيقونة واحدة (لتعديل أيقونة واحدة افتح «تعديل منفرد»). ${mode === 'publish' ? 'سيُطبَّق الرسم نفسه' : 'ستعود الأيقونات'} على ${n} أيقونة دفعة واحدة (كلها أو لا شيء): ${names}. يتغيّر الموقع لكل الزوّار فور التأكيد، وتبقى النسخ السابقة محفوظة للاستعادة. هذا هو الفرق الذي عاينته (بصمة ${p.previewDigest.slice(0, 8)}).`
 		});
 		if (!ok) return;
 		this.busy.set('apply'); this.notice.set(null);

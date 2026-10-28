@@ -144,7 +144,7 @@
                   <a class="managed-link" routerLink="/supper-admin-overview/site-control/identity" [attr.data-testid]="'managed-link-' + r.id">فتح صفحة الهوية</a>
                 </span>
               } @else if (r.status === 'not-wired') {
-                <span class="notwired" [attr.title]="r.reason?.text || null" [attr.data-testid]="'notwired-' + r.id">{{ reasonShort(r) }}</span>
+                <span class="notwired" [class.nw-used]="usageKind(r) === 'used-unbound'" [attr.title]="reasonTip(r)" [attr.data-kind]="usageKind(r)" [attr.data-testid]="'notwired-' + r.id">{{ reasonShort(r) }}</span>
               } @else {
                 <button type="button" class="btn-secondary mini" (click)="open(r.id)" [attr.data-testid]="'icon-open-' + r.id">{{ canManage() ? (r.status === 'custom' ? 'تعديل / استعادة' : 'تخصيص') : 'عرض' }}</button>
               }

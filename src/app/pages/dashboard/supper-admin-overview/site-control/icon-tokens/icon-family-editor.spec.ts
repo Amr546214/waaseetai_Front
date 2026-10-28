@@ -8,6 +8,8 @@ import { IconFamilyPreview, SiteIdentityAdminApi } from '../../../../../core/ide
 import { SiteIdentityService } from '../../../../../core/identity/site-identity.service';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 import { RealIconsService } from '../core/real-icons.service';
+import { IconsService } from '../core/icons.service';
+import { signal } from '@angular/core';
 
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>';
 const SHA = 'c'.repeat(64);
@@ -29,10 +31,11 @@ function setup(over: Record<string, unknown> = {}, canEdit = true) {
 		refreshPublic: vi.fn(async () => true), ...over,
 	};
 	const confirmSvc = { confirm: vi.fn(async () => true) };
-	const store = { load: vi.fn(async () => undefined) };
+	const store = { load: vi.fn(async () => undefined), rows: () => [{ id: 'i-star', key: 'icon.fn.i-star', label: 'تقييم', library: 'general' }], phase: () => 'ready' };
+	const libs = { phase: () => 'ready', load: vi.fn(async () => undefined), pristine: signal([]) };
 	const identity = { item: vi.fn(() => ({ sha256: SHA })) };
-	const real = { load: vi.fn(async () => undefined), fullSvg: () => SVG };
-	TestBed.configureTestingModule({ imports: [IconFamilyEditor], providers: [{ provide: SiteIdentityAdminApi, useValue: api }, { provide: ConfirmModalService, useValue: confirmSvc }, { provide: IconFnStore, useValue: store }, { provide: SiteIdentityService, useValue: identity }, { provide: RealIconsService, useValue: real }] });
+	const real = { load: vi.fn(async () => undefined), fullSvg: () => SVG, phase: () => 'ready', get: (id: string) => (id === 'i-star' ? { vb: '0 0 24 24', paint: {}, inner: '<path d="M1 1"/>', sha256: 'x', defs: 1, variants: 1, files: [] } : null) };
+	TestBed.configureTestingModule({ imports: [IconFamilyEditor], providers: [{ provide: SiteIdentityAdminApi, useValue: api }, { provide: ConfirmModalService, useValue: confirmSvc }, { provide: IconFnStore, useValue: store }, { provide: SiteIdentityService, useValue: identity }, { provide: RealIconsService, useValue: real }, { provide: IconsService, useValue: libs }] });
 	const f = TestBed.createComponent(IconFamilyEditor);
 	f.componentRef.setInput('familyId', FAM.id); f.componentRef.setInput('canEdit', canEdit); f.detectChanges();
 	const root = () => (f.nativeElement as HTMLElement).shadowRoot!;
@@ -109,5 +112,17 @@ describe('icon family editor (one file, several keys, one atomic operation)', ()
 		const bad = setup({ family: vi.fn(() => throwError(() => http(500, { message: 'x' }))) }); await bad.settle();
 		expect(bad.q('fam-error')).toBeTruthy(); expect(bad.q('fam-retry')).toBeTruthy(); TestBed.resetTestingModule();
 		const ro = setup({}, false); await ro.settle(); expect(ro.q('fam-readonly')).toBeTruthy(); expect(ro.q('fam-file')).toBeNull();
+	});
+
+	it('library pick for the WHOLE family: one copy staged under every selected key with sourceRef = the library icon, then the same exact diff and a confirmation that states the family scope', async () => {
+		const t = setup(); await t.settle();
+		(t.q('fam-pick-section') as HTMLDetailsElement).open = true; t.q('fam-pick-section')!.dispatchEvent(new Event('toggle')); t.f.detectChanges(); await t.settle();
+		const pk = t.root().querySelector('sc-icon-picker')!.shadowRoot!;
+		(pk.querySelector('[data-testid="pick-i-star"]') as HTMLButtonElement).click(); await t.settle();
+		(t.q('fam-pick-apply') as HTMLButtonElement).click(); await t.settle();
+		const c = t.api['familyUpload'].mock.calls[0]; expect(c[2]).toEqual(['i-bell', 'ws-bell']); expect(c[3]).toEqual({ kind: 'library', symbolId: 'i-star' });
+		expect(t.api['familyPublish']).not.toHaveBeenCalled(); expect(t.q('fam-review')).toBeTruthy();
+		(t.q('fam-apply') as HTMLButtonElement).click(); await t.settle();
+		expect((t.confirmSvc.confirm.mock.calls as any)[0][0].message).toContain('للعائلة كلها وليس لأيقونة واحدة'); expect(t.api['familyPublish']).toHaveBeenCalled();
 	});
 });
