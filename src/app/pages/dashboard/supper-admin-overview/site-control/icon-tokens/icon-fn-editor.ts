@@ -8,6 +8,7 @@ import { iconFnKey } from '../../../../../core/identity/identity-icon-symbols';
 import { InlineSvgDirective } from '../identity/inline-svg.directive';
 import { Failure, actorName, bytesText, currentSummary, describeFailure } from '../identity/identity-view';
 import { IconFnStore } from './icon-fn.store';
+import { ICON_PLACES, IconPlaces } from './icon-places';
 
 export interface IconNotice { type: 'ok' | 'warn' | 'error' | 'conflict'; text: string; detail?: string }
 interface Draft { meta: IdentityAssetMeta; icon: ParsedSvgIcon | null; removedNote: string | null }
@@ -51,6 +52,8 @@ export class IconFnEditor {
 	readonly notice = signal<IconNotice | null>(null);
 	readonly published = signal<ParsedSvgIcon | null>(null);
 	readonly fileName = signal('');
+	/** where this icon is really seen (hand-written, guarded by icon-places.spec): followed vs NOT followed places */
+	readonly places = computed<IconPlaces | null>(() => ICON_PLACES[this.symbolId()] ?? null);
 	readonly key = computed(() => iconFnKey(this.symbolId()));
 	readonly isCustom = computed(() => !!this.item() && !this.item()!.state.isDefault);
 	readonly restorable = computed<IdentityAssetMeta[]>(() => (this.item()?.history ?? []).filter(v => (v.status === 'PUBLISHED' || v.status === 'SUPERSEDED') && v.versionId !== this.item()!.state.active?.versionId));
@@ -120,7 +123,7 @@ export class IconFnEditor {
 	async apply(): Promise<void> {
 		const d = this.draft(), it = this.item(); if (!d || !it || this.busy()) return;
 		const ok = await this.confirmer.confirm({ title: 'تطبيق الأيقونة على الموقع كله', type: 'warning', size: 'md', confirmText: 'طبّق على الموقع', cancelText: 'لا تطبّق',
-			message: `ستتغيّر أيقونة «${this.row()?.label ?? this.symbolId()}» في كل موضع يستعملها في الموقع، لكل الزوّار، فور التطبيق. تبقى النسخة الحالية محفوظة ويمكن الرجوع إلى الأصل في أي وقت.` });
+			message: `ستتغيّر أيقونة «${this.row()?.label ?? this.symbolId()}» في كل موضع يرسمها عبر <use> في الموقع، لكل الزوّار، فور التطبيق.${this.places()?.notFollowed.length ? ` ولن تتغيّر ${this.places()!.notFollowed.length} مواضع تشبهها (القائمة الجانبية وغيرها) لأنها ليست مرسومة عبر هذا المعرّف، وهي مذكورة في الأعلى.` : ''} تبقى النسخة الحالية محفوظة ويمكن الرجوع إلى الأصل في أي وقت.` });
 		if (!ok) return;
 		this.busy.set('apply'); this.notice.set(null);
 		try {

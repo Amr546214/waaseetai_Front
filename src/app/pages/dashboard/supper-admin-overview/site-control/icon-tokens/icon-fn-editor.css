@@ -42,3 +42,4 @@ button:focus-visible, summary:focus-visible, label.file-btn:focus-within { outli
 .fe-sz { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
 .fe-history { margin-top: 12px; }
 .fe-history summary { cursor: pointer; font-size: 12.5px; font-weight: 800; color: var(--txt-2); }
+.fe-places { margin: 10px 0; padding: 10px 14px; border: 1px solid rgba(var(--kahr-rgb, 217,138,11), .5); border-radius: 12px; background: rgba(var(--kahr-rgb, 217,138,11), .06); }

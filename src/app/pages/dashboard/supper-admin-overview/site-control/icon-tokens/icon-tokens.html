@@ -4,6 +4,8 @@
     <p class="sub" data-testid="icons-server-note">
       <strong>هذه الصفحة تغيّر أيقونات الموقع فعلًا.</strong> كل أيقونة تُحفظ على الخادم بنسخ مرقّمة، وتتغيّر في كل مكان يستعملها في الموقع لكل الزوّار بعد «تطبيق»، وتبقى بعد التحديث وتسجيل الخروج وعلى أي جهاز، مع معاينة وإلغاء واستعادة وكشف تعارض (نفس مسار صفحة «الهوية»).
     </p>
+    <p class="sub" data-testid="icons-local-removed">أُزيلت من هذه الصفحة أزرار الاستبدال والرفع والحفظ والاستيراد المحلية (كانت تغيّر نسخة في هذا المتصفح فقط ولا تؤثّر في الموقع)؛ يحلّ محلّها المحرّر المرتبط بالخادم أدناه. بقي «تصدير JSON» كأداة قراءة فقط تنزّل نسخة محلية من ملف المكتبة المرجعي، وليست حفظًا ولا تغيّر الموقع.
+      <button type="button" class="btn-secondary mini" (click)="exportJson()" data-testid="icons-export">تصدير JSON (نسخة محلية للقراءة)</button></p>
     <details class="limits" data-testid="icons-limits">
       <summary>ما الذي تصله هذه الصفحة وما الذي لا تصله</summary>
       <ul class="plain-list">
@@ -88,6 +90,7 @@
               <span class="icon-label">{{ r.label || r.id }}</span>
               <code class="icon-slot">{{ r.id }}</code>
               <span class="status" [class]="'status st-' + r.status" [attr.data-testid]="'icon-status-' + r.id">{{ statusText(r) }}@if (r.hasDraft) { · مسودة }</span>
+              @if (partial(r); as n) { <span class="partial" [attr.data-testid]="'icon-partial-' + r.id" title="تتغيّر في الأماكن المرسومة عبر هذا المعرّف فقط؛ افتح الأيقونة لرؤية القائمة">جزئي: {{ n }} مواضع لا تتبعه</span> }
               @if (isManaged(r)) {
                 <span class="managed-note" [attr.data-testid]="'managed-' + r.id">
                   <strong>مُدار من صفحة الهوية</strong> — أيقونة الذكاء الاصطناعي الرسمية؛ تُستبدل وتُستعاد من هناك فقط.

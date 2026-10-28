@@ -27,7 +27,7 @@ function setup(phase: 'loading' | 'ready' | 'error' | 'denied' = 'ready', over: 
 	};
 	const icons = {
 		libraries: signal([{ id: 'general', label: 'العامة', colorVar: '--teal', icons: [{ slot: 'i-bell', label: 'إشعارات', svg: '<path d="M18 8A6 6 0 0 0 6 8"/>' }, { slot: 'i-check', label: 'تحقق', svg: '<path d="M20 6L9 17l-5-5"/>' }, { slot: 'i-coin', label: 'عملة', svg: '<circle cx="12" cy="12" r="9"/>' }, { slot: 'i-ai', label: 'ذكاء', svg: '<circle cx="12" cy="12" r="9"/>' }] }]),
-		loadError: signal(over.localError ? 'تعذّر تحميل ملف الأيقونات' : null), phase: signal(over.localError ? 'error' : 'ready'), savedCopyNotice: signal<string | null>(null), load: vi.fn(async () => undefined),
+		loadError: signal(over.localError ? 'تعذّر تحميل ملف الأيقونات' : null), phase: signal(over.localError ? 'error' : 'ready'), savedCopyNotice: signal<string | null>(null), load: vi.fn(async () => undefined), exportJson: vi.fn(),
 	};
 	TestBed.configureTestingModule({ imports: [IconTokens], providers: [provideRouter([]), { provide: IconFnStore, useValue: store }, { provide: IconsService, useValue: icons }] });
 	const f = TestBed.createComponent(IconTokens); f.detectChanges();
@@ -101,8 +101,11 @@ describe('icon library page (server-backed)', () => {
 		for (const w of ['TypeScript', 'CSS', 'img', 'بعد اكتمال تحميل الصفحة']) expect(txt, w).toContain(w);
 	});
 
-	it('the old browser-only controls are gone: no local save / import / export buttons that change nothing on the site', () => {
+	it('the old browser-only replace / upload / save / import controls are gone and the page says so; export stays as a read-only local copy', () => {
 		const t = setup(); expect(t.root().querySelector('.btn-save')).toBeNull(); expect(t.root().querySelector('input[type=file]')).toBeNull();
+		expect(t.q('icons-local-removed')!.textContent).toContain('أُزيلت'); expect(t.q('icons-export')!.textContent).toContain('للقراءة');
+		t.q('icons-export')!.click(); expect(t.icons.exportJson).toHaveBeenCalled();
+		expect(t.q('icon-partial-i-bell')!.textContent).toContain('جزئي'); expect(t.q('icon-partial-i-check')).toBeNull();
 		expect(t.root().textContent).not.toContain('لا تغيّر هذه المكتبة أيقونات المنصة');
 		expect(AI_ICON_INNER).toContain('circle');
 	});

@@ -161,3 +161,5 @@ button:focus-visible, summary:focus-visible, .search:focus-visible, a:focus-visi
 .theme-toggle { display: inline-flex; background: var(--toggle-track, rgba(255,255,255,.06)); border-radius: 999px; padding: 3px; gap: 2px; }
 .toggle-seg { border: none; background: transparent; color: var(--txt-2); font-family: inherit; font-size: 12px; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; }
 .toggle-seg.active { background: var(--toggle-active-bg, #fff); color: var(--toggle-active-text, #070D24); }
+.icon-card .partial { font-size: 9.5px; font-weight: 800; color: var(--kahr, #D98A0B); text-align: center; line-height: 1.5; }
+.mini { padding: 5px 10px; font-size: 11px; }

@@ -9,6 +9,7 @@ import { ThemeModeService } from '../core/theme-mode.service';
 import { InlineSvgDirective } from '../identity/inline-svg.directive';
 import { IconFnEditor } from './icon-fn-editor';
 import { IconFnStore } from './icon-fn.store';
+import { ICON_PLACES } from './icon-places';
 
 export type IconFilter = 'all' | IconFnStatus | 'draft';
 const PAGE = 120;
@@ -115,6 +116,9 @@ export class IconTokens implements OnInit {
       default: return r.reason?.text || 'لا شيء في الموقع يتبع تغيير هذه الأيقونة.';
     }
   }
+  /** how many visible places look like this icon but will NOT change (0 = every known place follows) */
+  partial(r: IconFnRow): number { return ICON_PLACES[r.id]?.notFollowed.length ?? 0; }
+  exportJson(): void { this.iconsService.exportJson(); }
   defaultSvg(id: string): string | null { return this.glyphBySlot().get(id) ?? null; }
 
   /** a managed slot draws the official default glyph; any other library drawing is drawn from the library file */
