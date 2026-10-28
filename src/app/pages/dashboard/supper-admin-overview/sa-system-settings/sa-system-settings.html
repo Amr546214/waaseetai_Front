@@ -17,14 +17,14 @@
     <div class="ss-layout">
       <div class="ss-nav" role="tablist">
         @for (t of tabs; track t.key) {
-          <button type="button" role="tab" class="ss-nav-item" [attr.data-testid]="'tab-' + t.key" [attr.aria-selected]="active() === t.key" [class.active]="active() === t.key" (click)="setTab(t.key)"><svg class="ss-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" [attr.stroke-width]="t.key === 'health' ? 2.5 : 1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="t.icon"/></svg><span class="ss-nav-lbl">{{ t.label }}</span></button>
+          <button type="button" role="tab" class="ss-nav-item" [attr.data-testid]="'tab-' + t.key" [attr.aria-selected]="active() === t.key" [class.active]="active() === t.key" (click)="setTab(t.key)"><svg class="ss-nav-ico" [attr.data-ws-icon]="t.ws ?? null" viewBox="0 0 24 24" fill="none" stroke="currentColor" [attr.stroke-width]="t.key === 'health' ? 2.5 : 1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="t.icon"/></svg><span class="ss-nav-lbl">{{ t.label }}</span></button>
         }
       </div>
       <div class="ss-content">
         @switch (active()) {
           @case ('general') {
             <app-settings-section title="الإعدادات العامة" [icon]="icons.settings" [keys]="general" variant="ss" [showSave]="false" />
-            <app-settings-section title="التواصل وبنر التنبيه" [icon]="icons.bell" [keys]="contacts" variant="ss" [showSave]="false" />
+            <app-settings-section title="التواصل وبنر التنبيه" [icon]="icons.bell" wsIcon="ss-alert-bell" [keys]="contacts" variant="ss" [showSave]="false" />
             <app-settings-section title="الشروط والخصوصية" [icon]="icons.shield" [keys]="legal" [saveKeys]="generalAll" variant="ss" />
           }
           @case ('ai') {
@@ -34,7 +34,7 @@
           @case ('notifications') {
             <div class="ss-note" role="note" data-testid="email-channel-note">يوقف هذا المفتاح كل بريد اختياري ولا يتجاوزه تفضيل أي مستخدم. <strong data-testid="email-channel-transactional-note">إيصالات العمليات ودعوات العقود ورموز الدخول والتفعيل والاستعادة تصل دائمًا.</strong>
               <details class="ss-note-more"><summary>التفاصيل</summary>يشمل البريد الاختياري: نسخ الإشعارات، ملخص الرسائل غير المقروءة، مكافأة إكمال المشروع. عند إيقافه لا يُرسل بريد اختياري حتى لمن اختاره، وعند تفعيله يبقى لكل مستخدم اختياره الخاص. يظهر خيار البريد لدى المستخدمين معطّلًا «بواسطة إدارة المنصة» ويبقى اختيارهم المحفوظ كما هو. الرسائل المستثناة مطلوبة لإتمام العملية: إيصال إيداع الضمان، دعوة المزوّد لتوقيع العقد، رموز تسجيل الدخول والتفعيل وإعادة تعيين كلمة المرور وتأكيد الدفع والتوقيع.</details></div>
-            <app-settings-section title="إعدادات الإشعارات" [icon]="icons.bell" [keys]="notif" variant="ss" saveLabel="حفظ" />
+            <app-settings-section title="إعدادات الإشعارات" [icon]="icons.bell" wsIcon="i-bell" [keys]="notif" variant="ss" saveLabel="حفظ" />
           }
           @case ('security') { <app-settings-section title="الأمان والمصادقة" [icon]="icons.shield" [keys]="security" variant="ss" saveLabel="حفظ" /> }
           @case ('finance') {
@@ -62,3 +62,5 @@
   }
   <div class="ss-foot">© 2026 وسيط AI · v{{ appVersion }}</div>
 </section>
+<!-- registry of the icon the «التواصل وبنر التنبيه» card draws (wsIcon="ss-alert-bell") -->
+<svg style="display:none" aria-hidden="true"><defs><symbol id="ss-alert-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol></defs></svg>

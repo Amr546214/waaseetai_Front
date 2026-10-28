@@ -84,4 +84,39 @@ describe('icon library state (load / save / load failure)', () => {
 		expect(svc.save()).toBe(false);
 		expect(localStorage.getItem(KEY)).toBe('keep');
 	});
+
+	// ---- Round 7: the owner's OLD local customisations are listed FOR REVIEW (diff vs default), never applied to the page and never auto-published
+	describe('legacy local customisations (review only)', () => {
+		const bell = () => FILE.libraries.flatMap(l => l.icons).find(i => i.slot === 'i-bell')!;
+		const withBell = (svg: string) => FILE.libraries.map(l => ({ ...l, icons: l.icons.map(i => (i.slot === 'i-bell' ? { ...i, svg } : i)) }));
+		it('an old inner-markup copy with a changed bell is listed (default vs old), the shipped library stays pristine, storage is untouched', async () => {
+			const raw = JSON.stringify({ savedAt: 'x', data: withBell('<circle cx="12" cy="12" r="9"/>') }); localStorage.setItem(KEY, raw);
+			await load(FILE);
+			const l = svc.legacy().find(x => x.slot === 'i-bell')!; expect(l).toBeTruthy(); expect(l.defaultInner).toBe(bell().svg); expect(l.legacyInner).toContain('circle');
+			expect(svc.legacy().length).toBe(1);
+			expect(svc.pristine().flatMap(x => x.icons).find(i => i.slot === 'i-bell')!.svg).toBe(bell().svg);
+			expect(localStorage.getItem(KEY)).toBe(raw);
+		});
+		it('a copy saved as a FULL svg element is understood too; hostile content is sanitised before it is shown', async () => {
+			localStorage.setItem(KEY, JSON.stringify({ savedAt: 'x', data: { libraries: withBell('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" onclick="x()"/><script>alert(1)</script></svg>') } }));
+			await load(FILE);
+			const l = svc.legacy().find(x => x.slot === 'i-bell')!; expect(l.legacyInner).toContain('rect'); expect(l.legacyInner).not.toContain('script'); expect(l.legacyInner).not.toContain('onclick');
+		});
+		it('an unchanged saved copy lists nothing; an unusable one lists nothing and is kept', async () => {
+			localStorage.setItem(KEY, JSON.stringify({ savedAt: 'x', data: FILE.libraries })); await load(FILE); expect(svc.legacy()).toEqual([]);
+			localStorage.setItem(KEY, JSON.stringify({ savedAt: 'x', data: withBell('<script>x</script>') })); await load(FILE, true); expect(svc.legacy()).toEqual([]); expect(localStorage.getItem(KEY)).toContain('script');
+		});
+		it('a saved copy that cannot be parsed is reported as unreadable and kept as it is', async () => {
+			localStorage.setItem(KEY, '{not json'); await load(FILE);
+			expect(svc.legacyUnreadable()).toBeTruthy(); expect(svc.legacy()).toEqual([]); expect(localStorage.getItem(KEY)).toBe('{not json'); expect(total(svc.pristine())).toBe(total(FILE.libraries));
+		});
+		it('ignoring one hides it from the list through a SEPARATE key; the old copy is not deleted; it survives a new service instance', async () => {
+			const raw = JSON.stringify({ savedAt: 'x', data: withBell('<circle cx="12" cy="12" r="9"/>') }); localStorage.setItem(KEY, raw);
+			await load(FILE); svc.ignoreLegacy('i-bell'); expect(svc.legacyIgnored()).toContain('i-bell'); expect(localStorage.getItem(KEY)).toBe(raw);
+			TestBed.resetTestingModule(); TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+			svc = TestBed.inject(IconsService); http = TestBed.inject(HttpTestingController); await load(FILE);
+			expect(svc.legacyIgnored()).toContain('i-bell'); svc.ignoreLegacy('i-bell', false); expect(svc.legacyIgnored()).not.toContain('i-bell');
+		});
+		it('no legacy copy at all: nothing to review, no notice', async () => { await load(FILE); expect(svc.legacy()).toEqual([]); expect(svc.legacyUnreadable()).toBeNull(); });
+	});
 });

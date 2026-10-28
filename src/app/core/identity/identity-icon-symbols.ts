@@ -12,19 +12,27 @@ const CACHE_PREFIX = 'ws-site-identity-fn-';
 /** the remembered copies are bounded: at most this many characters in total (the server allows up to 50 icons of up to 64 KB, a typical icon is ~1 KB) */
 const CACHE_BUDGET = 1_500_000;
 
-interface Saved { attrs: Map<string, string | null>; html: string; id: string }
-interface Active { sha: string; icon: ParsedSvgIcon }
+interface Saved { attrs: Map<string, string | null>; html: string }
+interface Parsed { sha: string; icon: ParsedSvgIcon; text: string }
+
+/** the attribute that marks an inline / TypeScript-built `<svg>` as "the notifications icon" (or any icon.fn id): the runtime then draws the published file inside it, the default drawing stays untouched otherwise */
+export const WS_ICON_ATTR = 'data-ws-icon';
+/** ids that are THE SAME ELEMENT as another id (a second copy of the picture under another symbol id): while the alias has no key of its own customised it follows the target */
+export const ICON_ALIASES: Readonly<Record<string, string>> = { 'spa-i-bell2': 'i-bell' };
+/** icons that CSS draws as a mask / background: while customised the runtime publishes them as `--ws-icon-<id>: url(data:image/svg+xml,…)` on <html>; the stylesheet keeps its own url() as the fallback of var() */
+export const CSS_BOUND_ICON_IDS = new Set<string>();
+export const cssVarOf = (id: string): string => '--ws-icon-' + id;
+const SELECTOR = 'symbol[id], svg[data-ws-icon]';
 
 /**
- * Makes every `<use href="#id">` of the site follow a customised function icon. For each manifest item `icon.fn.<id>` it replaces the content of EVERY `<symbol id="<id>">` in the document by
- * the published SVG (several templates define the same id; every copy is replaced, later-rendered copies are caught by a MutationObserver), with the SAME paint rules as the AI icon runtime:
- * the file keeps its own fill / stroke semantics (root attributes, root style, its own <style> rules), a property it does not declare gets the SVG initial value (never the host's outline paint),
- * `currentColor` follows the colour the site gives the icon.
- *
- * Nothing is touched while the manifest has no `icon.fn.*` item: the templates' own <symbol> markup stays byte-for-byte what ships. A restore (item gone) puts each element's saved
- * markup back. A file that cannot be fetched or parsed is reported broken and that id keeps its default (last good copy first: the remembered copy of the same sha is used before any network).
- * Limits (also written on the icons page): a swap happens in the browser after hydration, so the very first paint of a server-rendered page shows the default symbol for a moment; inline
- * `<svg>` shapes written in a template, svg strings built in TypeScript, CSS masks / backgrounds and <img> icons do not use a <symbol> and are not reached.
+ * Makes every place that shows a function icon follow the published file. Adapters (all keep the DEFAULT markup byte-for-byte while the manifest has no `icon.fn.*` item):
+ *  1. `<symbol id="x">` drawn through `<use href="#x">` (every copy of the id, any template),
+ *  2. an inline / TypeScript-built `<svg data-ws-icon="x">` (the place's own size, classes, colour and states stay on the svg; only its drawing and viewBox are swapped),
+ *  3. CSS masks / backgrounds through a custom property (`CSS_BOUND_ICON_IDS`), 4. `<img [wsIdentityImg]="'icon.fn.x'">` (the existing image adapter),
+ *  5. an alias (`ICON_ALIASES`): a second symbol id that is the same element follows its target until it has its own customisation.
+ * The drawing sits in a <g> that resets the host's inherited outline paint, then applies what the file declared (same paint rules as the AI icon runtime); `currentColor` follows the colour the place gives it.
+ * Efficiency: only icons PRESENT in the document are fetched (a page uses a few dozen of the ~340), parsed once per sha, remembered by sha; new nodes are handled from the mutation records, never by re-scanning the document.
+ * Timing limit (also written on the icons page): the swap runs in the browser after hydration, so the first paint of a server-rendered page shows the default drawing for a moment.
  */
 @Injectable({ providedIn: 'root' })
 export class IconSymbolsRuntime {
@@ -34,102 +42,173 @@ export class IconSymbolsRuntime {
 	private readonly injector = inject(Injector);
 	private readonly appRef = inject(ApplicationRef);
 	private readonly saved = new Map<Element, Saved>();
-	private readonly active = new Map<string, Active>();
+	/** every tracked element (rendered or waiting for its file) by the id whose file it follows */
+	private readonly tracked = new Map<string, Set<Element>>();
+	private readonly want = new Map<string, { sha: string; url: string }>();
+	private readonly parsed = new Map<string, Parsed>();
+	private readonly fetching = new Map<string, Promise<void>>();
 	private observer: MutationObserver | null = null;
+	private added = new Set<Element>();
 	private scheduled = false;
-	private seq = 0;
 	private started = false;
+	private hydrated = true;
 
 	start(): void {
 		if (!this.browser || this.started) return;
 		this.started = true;
+		this.hydrated = false;
+		// the server-rendered DOM is hydrated first (rewriting symbols before hydration made Angular throw NG0500 for the AI icon runtime); bounded wait, then apply anyway
+		void Promise.race([this.appRef.whenStable().catch(() => undefined), new Promise(r => setTimeout(r, 6000))]).then(() => { this.hydrated = true; this.renderAll(); });
 		effect(() => {
-			const want: Record<string, { sha: string; url: string }> = {};
+			const next = new Map<string, { sha: string; url: string }>();
 			for (const k of Object.keys(this.identity.manifest().items)) {
 				const id = symbolIdOf(k); if (!id) continue;
 				const it = this.identity.item(k); if (!it) continue;
-				want[id] = { sha: it.sha256, url: this.identity.absoluteUrl(it.url) };
+				next.set(id, { sha: it.sha256, url: this.identity.absoluteUrl(it.url) });
 			}
-			void this.sync(want);
+			this.sync(next);
 		}, { injector: this.injector });
 	}
 
 	/** the ids that are currently drawn from a published file (specs, admin page) */
-	activeIds(): string[] { return [...this.active.keys()]; }
+	activeIds(): string[] { return [...this.parsed.keys()]; }
+	/** (admin page / specs) true while `id` is drawn from a published file by this runtime */
+	isCustom(id: string): boolean { return this.parsed.has(id); }
 
-	/** (exposed for specs and the admin preview) make the document show `svgText` for `<symbol id=symbolId>`; false when the file is not a usable icon */
+	/** (exposed for specs and the admin preview) make the document show `svgText` for the id; false when the file is not a usable icon */
 	applyText(symbolId: string, svgText: string, sha = ''): boolean {
-		const parsed = parseCustomSvg(svgText, sha);
-		if (!parsed) return false;
-		this.active.set(symbolId, { sha, icon: parsed });
-		for (const [el, s] of this.saved) if (s.id === symbolId && el.isConnected) this.render(el, parsed);
-		this.scan();
+		const icon = parseCustomSvg(svgText, sha);
+		if (!icon) return false;
+		this.parsed.set(symbolId, { sha, icon, text: svgText });
+		this.want.set(symbolId, this.want.get(symbolId) ?? { sha, url: '' });
+		this.publishCss(symbolId);
+		this.rescan();
+		for (const el of [...(this.tracked.get(symbolId) ?? [])]) this.render(el, icon);
 		this.observe();
 		return true;
 	}
 
 	/** (specs) restore the default markup of one id */
-	clear(symbolId: string): void {
-		this.active.delete(symbolId);
-		for (const [el, s] of [...this.saved]) {
-			if (s.id !== symbolId) continue;
-			if (el.isConnected) this.restore(el, s);
-			this.saved.delete(el);
-		}
-		if (!this.active.size) { this.observer?.disconnect(); this.observer = null; }
+	clear(symbolId: string, rescan = true): void {
+		this.parsed.delete(symbolId); this.want.delete(symbolId);
+		this.unpublishCss(symbolId);
+		const els = this.tracked.get(symbolId);
+		if (els) for (const el of els) { const s = this.saved.get(el); if (s && el.isConnected) this.restore(el, s); this.saved.delete(el); }
+		this.tracked.delete(symbolId);
+		// elements that followed this id only as an alias target may now fall back to nothing / another id: re-evaluate them
+		if (!this.want.size) { this.observer?.disconnect(); this.observer = null; }
+		else if (rescan) this.rescan();
 	}
 
-	private async sync(want: Record<string, { sha: string; url: string }>): Promise<void> {
-		const my = ++this.seq;
-		// ids that are not customised any more go back to their default markup at once
-		for (const id of [...this.active.keys()]) if (!want[id]) this.clear(id);
-		const todo = Object.entries(want).filter(([id, w]) => this.active.get(id)?.sha !== w.sha);
-		this.pruneCache(new Set(Object.values(want).map(w => w.sha)));
-		if (!todo.length) return;
-		const texts = new Map<string, string>();
-		await Promise.all(todo.map(async ([id, w]) => {
+	private sync(next: Map<string, { sha: string; url: string }>): void {
+		for (const id of [...this.want.keys()]) if (!next.has(id)) this.clear(id, false);
+		const changed: string[] = [];
+		for (const [id, w] of next) { const cur = this.want.get(id); if (!cur || cur.sha !== w.sha) changed.push(id); this.want.set(id, w); }
+		this.pruneCache(new Set([...next.values()].map(w => w.sha)));
+		// a changed sha: the old drawing stays until the new file is parsed (no flash of the default), then every tracked element is redrawn
+		for (const id of changed) if (this.parsed.get(id)?.sha !== next.get(id)!.sha) this.invalidate(id);
+		if (this.want.size) { this.rescan(); this.observe(); }
+	}
+
+	private invalidate(id: string): void {
+		const old = this.parsed.get(id);
+		if (!old) return;
+		// keep drawing the old copy until the new one arrives; mark it stale so `need` fetches
+		this.parsed.set(id, { ...old, sha: '' });
+	}
+
+	/** register every element in the document that follows a wanted id (one query) */
+	private rescan(): void {
+		if (!this.want.size && !this.tracked.size) return;
+		this.doc.querySelectorAll(SELECTOR).forEach(el => this.register(el));
+	}
+
+	private ownId(el: Element): string | null {
+		if (el.localName === 'symbol') return el.id || null;
+		return el.getAttribute(WS_ICON_ATTR) || null;
+	}
+	/** the id whose file this element follows: its own while that has a file, else its alias target */
+	private effective(id: string): string | null {
+		if (this.want.has(id)) return id;
+		const a = ICON_ALIASES[id];
+		return a && this.want.has(a) ? a : null;
+	}
+
+	private register(el: Element): void {
+		const own = this.ownId(el); if (!own) return;
+		const eff = this.effective(own); if (!eff) return;
+		let set = this.tracked.get(eff); if (!set) this.tracked.set(eff, set = new Set());
+		if (!set.has(el)) {
+			// an element tracked under another target (own file removed / added) moves
+			for (const [k, v] of this.tracked) if (k !== eff && v.delete(el)) { const s = this.saved.get(el); if (s && el.isConnected) this.restore(el, s); this.saved.delete(el); }
+			set.add(el);
+		}
+		const p = this.parsed.get(eff);
+		if (p && p.sha === (this.want.get(eff)?.sha ?? p.sha)) { if (this.hydrated) this.render(el, p.icon); } else void this.need(eff);
+	}
+
+	private renderAll(): void {
+		for (const [id, set] of this.tracked) { const p = this.parsed.get(id); if (p) for (const el of set) this.render(el, p.icon); }
+	}
+
+	/** fetch + parse the file of `id` once (shared by every element that waits for it) */
+	private need(id: string): Promise<void> {
+		const w = this.want.get(id); if (!w) return Promise.resolve();
+		const running = this.fetching.get(id); if (running) return running;
+		const job = (async () => {
 			let text = this.readCached(w.sha);
 			if (text === null) {
 				try {
 					const res = await fetch(w.url, { cache: 'force-cache', credentials: 'omit' });
 					if (!res.ok) throw new Error('HTTP ' + res.status);
 					text = await res.text();
-				} catch { if (my === this.seq) this.identity.reportBroken(w.url); return; }
+				} catch { if (this.want.get(id)?.sha === w.sha) this.identity.reportBroken(w.url); return; }
 			}
-			texts.set(id, text);
-		}));
-		if (my !== this.seq) return;
-		// the server-rendered DOM is hydrated first (rewriting symbols before hydration made Angular throw NG0500 for the AI icon runtime); bounded wait, then apply anyway
-		try { await Promise.race([this.appRef.whenStable(), new Promise(r => setTimeout(r, 6000))]); } catch { /* apply anyway */ }
-		if (my !== this.seq) return;
-		for (const [id, text] of texts) {
-			const w = want[id];
-			if (!this.applyText(id, text, w.sha)) { this.identity.reportBroken(w.url); continue; }
+			const now = this.want.get(id);
+			if (!now || now.sha !== w.sha) return; // superseded while loading
+			const icon = parseCustomSvg(text, w.sha);
+			if (!icon) { this.identity.reportBroken(w.url); return; }
+			this.parsed.set(id, { sha: w.sha, icon, text });
 			this.writeCached(w.sha, text);
-		}
+			this.publishCss(id);
+			if (this.hydrated) for (const el of [...(this.tracked.get(id) ?? [])]) this.render(el, icon);
+		})().finally(() => { if (this.fetching.get(id) === job) this.fetching.delete(id); });
+		this.fetching.set(id, job);
+		return job;
 	}
 
 	private observe(): void {
-		if (this.observer || typeof MutationObserver === 'undefined') return;
-		this.observer = new MutationObserver(() => {
-			if (this.scheduled) return;
+		if (this.observer || typeof MutationObserver === 'undefined' || !this.want.size) return;
+		this.observer = new MutationObserver(records => {
+			// an element can get its data-ws-icon AFTER it was inserted (Angular applies bound attributes in the update pass): attribute changes are handled like new nodes
+			for (const r of records) { if (r.type === 'attributes') { if (r.target.nodeType === 1) this.added.add(r.target as Element); } else r.addedNodes.forEach(n => { if (n.nodeType === 1) this.added.add(n as Element); }); }
+			if (this.scheduled || !this.added.size) return;
 			this.scheduled = true;
-			queueMicrotask(() => { this.scheduled = false; if (this.active.size) this.scan(); });
+			queueMicrotask(() => this.flush());
 		});
-		this.observer.observe(this.doc.documentElement, { childList: true, subtree: true });
+		this.observer.observe(this.doc.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: [WS_ICON_ATTR] });
 	}
 
-	private scan(): void {
-		for (const el of this.saved.keys()) if (!el.isConnected) this.saved.delete(el);
-		this.doc.querySelectorAll('symbol[id]').forEach(s => {
-			const a = this.active.get(s.id);
-			if (!a || this.saved.has(s)) return;
-			this.saved.set(s, { attrs: new Map(['viewBox', 'preserveAspectRatio'].map(n => [n, s.getAttribute(n)] as [string, string | null])), html: s.innerHTML, id: s.id });
-			this.render(s, a.icon);
-		});
+	/** handle only the nodes that were added (never the whole document) */
+	private flush(): void {
+		this.scheduled = false;
+		const nodes = [...this.added]; this.added.clear();
+		if (!this.want.size) return;
+		for (const n of nodes) {
+			if (!n.isConnected) continue;
+			if (n.matches(SELECTOR)) this.register(n);
+			if (n.firstElementChild) n.querySelectorAll(SELECTOR).forEach(el => this.register(el));
+		}
+		this.prune();
+	}
+	private prune(): void {
+		for (const [id, set] of this.tracked) { for (const el of set) if (!el.isConnected) { set.delete(el); this.saved.delete(el); } if (!set.size) this.tracked.delete(id); }
 	}
 
 	private render(el: Element, icon: ParsedSvgIcon): void {
+		if (!this.saved.has(el)) {
+			this.saved.set(el, { attrs: new Map(['viewBox', 'preserveAspectRatio'].map(n => [n, el.getAttribute(n)] as [string, string | null])), html: el.innerHTML });
+		}
 		el.setAttribute('viewBox', icon.viewBox);
 		if (icon.preserveAspectRatio) el.setAttribute('preserveAspectRatio', icon.preserveAspectRatio); else el.removeAttribute('preserveAspectRatio');
 		while (el.firstChild) el.removeChild(el.firstChild);
@@ -145,6 +224,14 @@ export class IconSymbolsRuntime {
 		for (const [k, v] of s.attrs) { if (v === null) el.removeAttribute(k); else el.setAttribute(k, v); }
 		el.innerHTML = s.html;
 	}
+
+	// ---- CSS masks / backgrounds
+	private publishCss(id: string): void {
+		if (!CSS_BOUND_ICON_IDS.has(id)) return;
+		const p = this.parsed.get(id); if (!p) return;
+		this.doc.documentElement.style.setProperty(cssVarOf(id), `url("data:image/svg+xml,${encodeURIComponent(p.text)}")`);
+	}
+	private unpublishCss(id: string): void { if (CSS_BOUND_ICON_IDS.has(id)) this.doc.documentElement.style.removeProperty(cssVarOf(id)); }
 
 	// ---- remembered copies (last good): keyed by sha, so a new version is a new entry and the old one is dropped
 	private storage(): Storage | null { try { return this.doc.defaultView?.localStorage ?? null; } catch { return null; } }

@@ -163,3 +163,18 @@ button:focus-visible, summary:focus-visible, .search:focus-visible, a:focus-visi
 .toggle-seg.active { background: var(--toggle-active-bg, #fff); color: var(--toggle-active-text, #070D24); }
 .icon-card .partial { font-size: 9.5px; font-weight: 800; color: var(--kahr, #D98A0B); text-align: center; line-height: 1.5; }
 .mini { padding: 5px 10px; font-size: 11px; }
+.legacy { margin: 12px 0; padding: 10px 14px; border: 1px dashed var(--kahr, #D98A0B); border-radius: 12px; background: rgba(217,138,11,.06); }
+.legacy summary { cursor: pointer; font-size: 13px; }
+.legacy-list { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 8px; }
+.legacy-list li { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.lg-pair { display: inline-flex; align-items: center; gap: 8px; }
+.lg-side { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
+.lg-side svg { width: 28px; height: 28px; color: var(--teal, #2BD4C7); }
+.lg-new svg { color: var(--kahr, #D98A0B); }
+.lg-side small { font-size: 10.5px; color: var(--txt-3); }
+.lg-name { flex: 1 1 160px; }
+.fam-panel { margin: 12px 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.fam-panel h3 { margin: 0 0 6px; font-size: 14px; font-weight: 900; }
+.fam-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.fam-chip { font-size: 11px; }
+.icon-card .partial.follows { color: var(--txt-2); background: none; }

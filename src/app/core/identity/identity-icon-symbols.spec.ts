@@ -91,6 +91,7 @@ describe('IconSymbolsRuntime (function icons icon.fn.<symbolId>)', () => {
 		expect(prov).toContain('IconSymbolsRuntime');
 		const src = readFileSync(join(__dirname, 'identity-icon-symbols.ts'), 'utf8');
 		expect(src.indexOf('whenStable')).toBeGreaterThan(-1);
-		expect(src.indexOf('whenStable')).toBeLessThan(src.indexOf('this.applyText(id, text, w.sha)'));
+		expect(src.indexOf('whenStable')).toBeLessThan(src.indexOf('if (this.hydrated) for (const el'));
+		expect(src).toContain('this.hydrated = true; this.renderAll()');
 	});
 });

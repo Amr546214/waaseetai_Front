@@ -52,10 +52,10 @@ describe('function-icon editor (icon.fn.<symbolId>, central flow)', () => {
 		const w = t.q('fn-where')!.textContent!; expect(w).toContain('كل موضع'); expect(w).toContain('6 قالب'); expect(w).toContain('2 أشكال');
 	});
 
-	it('the notifications icon lists where it changes AND where it does not (sidebar entry is not followed)', async () => {
+	it('the notifications icon lists where it changes (sidebar entry now follows) and the separate keys; there is no «not followed» list', async () => {
 		const t = setup(); await t.settle();
-		expect(t.q('fn-places-follow')!.textContent).toContain('الشريط العلوي'); expect(t.q('fn-places-not')!.textContent).toContain('القائمة الجانبية');
-		expect(t.q('fn-places-not')!.textContent).toContain('ws-bell');
+		expect(t.q('fn-places-follow')!.textContent).toContain('الشريط العلوي'); expect(t.q('fn-places-follow')!.textContent).toContain('القائمة الجانبية');
+		expect(t.q('fn-places-not')).toBeNull(); expect(t.q('fn-places-separate')!.textContent).toContain('ws-bell');
 	});
 
 	it('upload stores a DRAFT only (nothing published), then shows the review with the dark/light/size previews', async () => {

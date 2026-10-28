@@ -29,6 +29,8 @@ export class IconFnStore {
 	readonly canManage = computed(() => this.access.can('site.manage') || this.access.can('site_control.manage'));
 	/** published glyphs of customised icons (parsed with the SAME rules the site uses), by symbol id */
 	readonly customGlyphs = signal<Record<string, ParsedSvgIcon | null>>({});
+	/** the ids the page currently draws (set by the page); glyphs are fetched for these only */
+	readonly shownIds = signal<string[]>([]);
 	private inflight: Promise<void> | null = null;
 	private glyphSeq = 0;
 
@@ -41,7 +43,7 @@ export class IconFnStore {
 				const r = await firstValueFrom(this.api.iconList());
 				if (!r?.data || !Array.isArray(r.data.rows)) throw new Error('bad shape');
 				this.list.set(r.data); this.phase.set('ready'); this.message.set(''); this.staleWarning.set('');
-				void this.loadGlyphs();
+				this.glyphSha.clear(); void this.ensureGlyphs(this.shownIds());
 			} catch (e) {
 				const f = describeFailure(e, 'قراءة قائمة الأيقونات من الخادم');
 				if (this.phase() === 'ready' && this.list()) { this.staleWarning.set(`${f.message} المعروض هو آخر ما قرأناه من الخادم.`); return; }
@@ -53,19 +55,29 @@ export class IconFnStore {
 
 	row(id: string): IconFnRow | null { return this.rows().find(r => r.id === id) ?? null; }
 
-	/** the published files of the customised icons, parsed once per sha (the site itself fetches the same URLs, force-cache) */
-	private async loadGlyphs(): Promise<void> {
+	private readonly glyphSha = new Map<string, string>();
+	/**
+	 * The published files of the customised icons that are ON SCREEN, parsed once per sha with a small concurrency (the page lists up to ~340 icons: it never fetches all of them at once).
+	 * Rows whose sha changed since the last fetch are refreshed; rows that are no longer custom are dropped.
+	 */
+	async ensureGlyphs(ids: string[]): Promise<void> {
 		const my = ++this.glyphSeq;
-		const next: Record<string, ParsedSvgIcon | null> = {};
-		await Promise.all(this.rows().filter(r => r.status === 'custom' && r.key).map(async r => {
-			const it = this.identity.manifest().items[iconFnKey(r.id)];
-			if (!it) { next[r.id] = null; return; }
-			try {
-				const res = await fetch(this.identity.absoluteUrl(it.url), { cache: 'force-cache', credentials: 'omit' });
-				if (!res.ok) throw new Error('HTTP ' + res.status);
-				next[r.id] = parseCustomSvg(await res.text(), it.sha256);
-			} catch { next[r.id] = null; }
-		}));
+		const rows = new Map(this.rows().map(r => [r.id, r] as const));
+		const todo = ids.filter(id => { const r = rows.get(id); if (!r || r.status !== 'custom' || !r.key) return false; const it = this.identity.manifest().items[iconFnKey(id)]; return !!it && this.glyphSha.get(id) !== it.sha256; });
+		const next: Record<string, ParsedSvgIcon | null> = Object.fromEntries(Object.entries(this.customGlyphs()).filter(([id]) => rows.get(id)?.status === 'custom'));
+		const queue = [...todo];
+		const worker = async () => {
+			for (let id = queue.shift(); id; id = queue.shift()) {
+				const it = this.identity.manifest().items[iconFnKey(id)];
+				if (!it) { next[id] = null; continue; }
+				try {
+					const res = await fetch(this.identity.absoluteUrl(it.url), { cache: 'force-cache', credentials: 'omit' });
+					if (!res.ok) throw new Error('HTTP ' + res.status);
+					next[id] = parseCustomSvg(await res.text(), it.sha256); this.glyphSha.set(id, it.sha256);
+				} catch { next[id] = null; }
+			}
+		};
+		await Promise.all(Array.from({ length: Math.min(8, queue.length) }, worker));
 		if (my === this.glyphSeq) this.customGlyphs.set(next);
 	}
 }

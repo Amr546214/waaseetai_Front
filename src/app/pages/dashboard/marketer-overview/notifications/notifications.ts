@@ -219,7 +219,7 @@ export class Notifications implements OnInit {
 		return typeof url === 'string' && url.startsWith('/marketer-overview/') ? url : undefined;
 	}
 
-	private iconFor(group: FilterGroup): { bg: string; color: string; svg: string; label: string } {
+	private iconFor(group: FilterGroup): { bg: string; color: string; svg: string; label: string; ws?: string } {
 		if (group === 'finance') {
 			return {
 				bg: 'bg-[rgba(15,169,154,.14)]', color: 'text-[#0FA99A]',
@@ -237,6 +237,7 @@ export class Notifications implements OnInit {
 		return {
 			bg: 'bg-[rgba(160,178,209,.12)]', color: 'text-[var(--txt-3)]',
 			svg: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>',
+			ws: 'i-bell',
 			label: 'عام'
 		};
 	}
@@ -252,7 +253,7 @@ export class Notifications implements OnInit {
 			iconBgClass: icon.bg,
 			iconColorClass: icon.color,
 			svgIcon: icon.svg,
-			iconHtml: this.notificationEngine.buildIconHtml(icon.svg),
+			iconHtml: this.notificationEngine.buildIconHtml(icon.svg, icon.ws),
 			categoryLabel: icon.label,
 			filterGroup: group,
 			target: this.resolveTarget(raw),

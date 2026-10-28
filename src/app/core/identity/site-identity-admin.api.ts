@@ -59,11 +59,21 @@ export interface IdentityRestoreSetPreview { currentManifestVersion: number; tar
 export type IconFnStatus = 'default' | 'custom' | 'not-wired';
 export interface IconFnRow {
 	id: string; key: string | null; label: string; library: string | null; status: IconFnStatus; reason: { code: string; text: string } | null; managedBy?: string;
-	hasDraft: boolean; stateVersion: number; activeVersion: number | null; defs: number; variants: number; refs?: number; viewBox: string | null;
+	hasDraft: boolean; stateVersion: number; activeVersion: number | null; defs: number; variants: number; refs?: number; viewBox: string | null; familyId?: string | null;
 }
 export interface IconFnList { total: number; counts: { default: number; custom: number; notWired: number; withDraft: number }; limits: { maxCustom: number; maxDraftsTotal: number }; rows: IconFnRow[] }
 /** the full item of ONE icon (`GET /admin/site-identity/icons/:symbolId`): the shape of `items[]` of the overview plus family fields */
 export type IconFnItem = IdentityItemInfo & { family?: string; symbolId?: string; status?: IconFnStatus; reason?: { code: string; text: string } | null };
+/** icon FAMILIES (BE contract IDENTITY-ROUND7-CONTRACT section A): keys that are the same element / one visual family, applied together in ONE atomic operation */
+export interface IconFamilyMember { symbolId: string; key: string; role: 'primary' | 'copy' | 'adapter'; note: string | null; label: string; status: IconFnStatus; hasDraft: boolean; stateVersion: number; activeVersion: number | null; activeSha256: string | null }
+export interface IconFamilyInfo { id: string; label: string; description: string; members: IconFamilyMember[]; counts: { members: number; custom: number; withDraft: number }; uniform: boolean }
+export interface IconFamilyList { families: IconFamilyInfo[]; revision: string }
+export interface IconFamilyDraft { key: string; versionId: string; version?: number; previewUrl?: string | null; isMine?: boolean; stateVersion?: number }
+export interface IconFamilyUploadResult { familyId: string; sha256: string; sanitized?: { changed: boolean; removed: unknown }; note?: string | null; drafts: IconFamilyDraft[]; skipped: { key: string; reason: string }[] }
+export type IconFamilyPreviewBody = { mode: 'publish'; drafts: { key: string; versionId: string }[] } | { mode: 'restore'; targets: { key: string; target: string }[] | 'default' };
+export interface IconFamilyPreviewItem { key: string; symbolId: string; label: string; stateVersion: number; current: IdentityPreviewSide; target: IdentityPreviewSide; change: IdentityChangeKind }
+export interface IconFamilyPreview { familyId: string; label: string; mode: 'publish' | 'restore'; previewDigest: string; changedCount: number; canApply: boolean; items: IconFamilyPreviewItem[] }
+export interface IconFamilyApplyResult { familyId: string; label: string; mode: string; manifestVersion: number; keys: { key: string; symbolId: string; stateVersion: number; fromVersion: number; toVersion: number; isDefault: boolean }[]; changedKeys: string[]; unchangedKeys: string[] }
 interface Envelope<T> { success: boolean; data: T; message?: string }
 export const SITE_IDENTITY_VERSION_CONFLICT = 'SITE_IDENTITY_VERSION_CONFLICT';
 /** 409 of restore-set when the diff changed after the preview was shown: `current` is the FRESH preview, nothing was executed */
@@ -92,6 +102,14 @@ export class SiteIdentityAdminApi {
 	/** function icons (`icon.fn.<symbolId>`): the compact list and the full item of one icon */
 	iconList(): Observable<Envelope<IconFnList>> { return this.http.get<Envelope<IconFnList>>(`${base()}/icons`); }
 	iconItem(symbolId: string): Observable<Envelope<IconFnItem>> { return this.http.get<Envelope<IconFnItem>>(`${base()}/icons/${encodeURIComponent(symbolId)}`); }
+	/** families: list, one family (members with full items), the same file staged under several keys (one transaction), private preview, atomic apply, discard */
+	families(): Observable<Envelope<IconFamilyList>> { return this.http.get<Envelope<IconFamilyList>>(`${base()}/families`); }
+	family(id: string): Observable<Envelope<IconFamilyInfo & { members: (IconFamilyMember & { staged?: IdentityAssetMeta[]; state?: IdentityKeyState })[] }>> { return this.http.get<Envelope<IconFamilyInfo & { members: (IconFamilyMember & { staged?: IdentityAssetMeta[]; state?: IdentityKeyState })[] }>>(`${base()}/families/${encodeURIComponent(id)}`); }
+	familyUpload(id: string, file: File, keys?: string[]): Observable<Envelope<IconFamilyUploadResult>> { const fd = new FormData(); fd.append('file', file, file.name); if (keys) fd.append('keys', JSON.stringify(keys)); return this.http.post<Envelope<IconFamilyUploadResult>>(`${base()}/families/${encodeURIComponent(id)}/upload`, fd); }
+	familyPreview(id: string, body: IconFamilyPreviewBody): Observable<Envelope<IconFamilyPreview>> { return this.http.post<Envelope<IconFamilyPreview>>(`${base()}/families/${encodeURIComponent(id)}/preview`, body); }
+	familyPublish(id: string, drafts: { key: string; versionId: string }[], expectedVersions: Record<string, number>, previewDigest: string): Observable<Envelope<IconFamilyApplyResult>> { return this.http.post<Envelope<IconFamilyApplyResult>>(`${base()}/families/${encodeURIComponent(id)}/publish`, { drafts, expectedVersions, previewDigest }); }
+	familyRestore(id: string, targets: { key: string; target: string }[] | 'default', expectedVersions: Record<string, number>, previewDigest: string): Observable<Envelope<IconFamilyApplyResult>> { return this.http.post<Envelope<IconFamilyApplyResult>>(`${base()}/families/${encodeURIComponent(id)}/restore`, { targets, expectedVersions, previewDigest }); }
+	familyDiscard(id: string, drafts: { key: string; versionId: string }[]): Observable<Envelope<unknown>> { return this.http.request<Envelope<unknown>>('DELETE', `${base()}/families/${encodeURIComponent(id)}/drafts`, { body: { drafts } }); }
 	/** multipart, field `file`; stores a STAGED version (nothing visible on the site yet) */
 	upload(key: string, file: File): Observable<Envelope<IdentityUploadResult>> { const fd = new FormData(); fd.append('file', file, file.name); return this.http.post<Envelope<IdentityUploadResult>>(`${base()}/${encodeURIComponent(key)}/upload`, fd); }
 	/** design-token sets: JSON body `{ value: { '--teal': '#14b8a6' } }` (sparse overrides); stores a STAGED version after the server's strict validation */

@@ -76,6 +76,8 @@ interface IconStyle {
 	bg: string;
 	color: string;
 	svg: string;
+	/** the site icon (icon.fn id) this glyph is the same element as: the drawn <svg> carries data-ws-icon so a customised icon replaces it */
+	ws?: string;
 }
 
 @Injectable({
@@ -137,7 +139,8 @@ export class NotificationEngineService implements OnDestroy {
 	};
 	private static readonly ICON_GENERAL: IconStyle = {
 		bg: 'bg-[rgba(160,178,209,.12)]', color: 'text-[var(--txt-3)]',
-		svg: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>'
+		svg: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>',
+		ws: 'i-bell'
 	};
 
 	// type is the primary icon signal (e.g. a CHAT notification should always
@@ -587,7 +590,7 @@ export class NotificationEngineService implements OnDestroy {
 			metadata: raw?.metadata ?? null,
 			iconColorClass: iconStyle.color,
 			iconBgClass: iconStyle.bg,
-			svgIcon: this.buildIconHtml(iconStyle.svg),
+			svgIcon: this.buildIconHtml(iconStyle.svg, iconStyle.ws),
 		};
 	}
 
@@ -765,13 +768,14 @@ export class NotificationEngineService implements OnDestroy {
 	 * markup always comes from this service's own static icon maps, never
 	 * from backend/user-controlled content.
 	 */
-	buildIconHtml(innerMarkup: string): SafeHtml {
-		const cached = this.iconHtmlCache.get(innerMarkup);
+	buildIconHtml(innerMarkup: string, wsIcon?: string): SafeHtml {
+		const cacheKey = wsIcon ? wsIcon + '|' + innerMarkup : innerMarkup;
+		const cached = this.iconHtmlCache.get(cacheKey);
 		if (cached) return cached;
 		const html = this.sanitizer.bypassSecurityTrustHtml(
-			`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${innerMarkup}</svg>`
+			`<svg${wsIcon ? ` data-ws-icon="${wsIcon}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${innerMarkup}</svg>`
 		);
-		this.iconHtmlCache.set(innerMarkup, html);
+		this.iconHtmlCache.set(cacheKey, html);
 		return html;
 	}
 

@@ -54,6 +54,8 @@ export class SettingsSectionComponent {
 	readonly title = input<string>('');
 	/** the icon before the title: for the ss variant an SVG path (P-AD-020 «sec-ttl»), for the spa variant a symbol id suffix defined by the page (spa-i-<icon>) */
 	readonly icon = input<string>('');
+	/** ss variant: the icon.fn id this card icon is the same element as (data-ws-icon): a customised site icon replaces the path */
+	readonly wsIcon = input<string>('');
 	readonly keys = input.required<string[]>();
 	/** 'ss' = P-AD-020 look, 'spa' = P-AD-021 look */
 	readonly variant = input<'ss' | 'spa'>('ss');

@@ -1,0 +1,12 @@
+.fam-members { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12.5px; }
+.fam-members th, .fam-members td { text-align: start; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.fam-members th { color: var(--txt-3); font-weight: 800; font-size: 11.5px; }
+.fam-glyph { width: 28px; height: 28px; color: var(--teal, #2BD4C7); }
+.fam-diff { display: grid; gap: 8px; margin: 8px 0; }
+.fam-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 8px 12px; border: 1px solid var(--border); border-radius: 12px; background: rgba(127,127,127,.04); }
+.fam-row.is-same { opacity: .6; }
+.fam-side { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; min-width: 64px; }
+.fam-side svg { width: 28px; height: 28px; color: var(--teal, #2BD4C7); }
+.fam-side small { color: var(--txt-3); font-size: 10.5px; }
+.fam-arrow { color: var(--txt-3); font-weight: 900; }
+.fam-label { font-weight: 800; flex: 1 1 140px; min-width: 120px; }
