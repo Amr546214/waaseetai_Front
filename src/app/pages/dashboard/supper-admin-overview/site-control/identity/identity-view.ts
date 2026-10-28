@@ -61,12 +61,19 @@ const SAFE_ARABIC = (m: unknown): string | null => (typeof m === 'string' && /[�
 /** a clear Arabic answer for every way a request can fail; nothing technical leaks, the current identity is never touched by a failure */
 export function describeFailure(e: unknown, what: string): Failure {
 	if (e instanceof HttpErrorResponse) {
-		const b = (e.error ?? {}) as { code?: string; message?: unknown; errors?: { message?: unknown; reason?: string }[]; current?: unknown };
+		const b = (e.error ?? {}) as { code?: string; message?: unknown; errors?: { message?: unknown; reason?: string; field?: string; name?: string }[]; current?: unknown };
 		const server = SAFE_ARABIC(b.message);
 		if (e.status === 0) return { kind: 'network', status: 0, message: `تعذّر الاتصال بالخادم أثناء ${what}. لم يتغيّر شيء في هوية الموقع. تحقّق من الاتصال ثم أعد المحاولة.` };
 		if (e.status === 409 && b.code === SITE_IDENTITY_VERSION_CONFLICT) return { kind: 'conflict', status: 409, code: b.code, current: b.current, message: server ?? 'عدّل شخصٌ آخر هذه الهوية قبل أن تُنفّذ طلبك، ولم يُطبَّق شيء.' };
 		if (b.code === 'SITE_IDENTITY_FILE_REJECTED' || (e.status === 413) || (e.status === 400 && Array.isArray(b.errors) && b.errors.some(x => x.reason))) {
 			const first = Array.isArray(b.errors) ? SAFE_ARABIC(b.errors[0]?.message) : null;
+			// the server marks a rejected design-token VALUE with field 'value' (and the token name); an uploaded file is field 'file'. A value is never told to "choose another file".
+			const isValue = Array.isArray(b.errors) && b.errors[0]?.field === 'value';
+			if (isValue) {
+				// the server's own message already names the token and says what is accepted (contract 2026-10-28 section 8): shown as is, then what to do
+				const n = typeof b.errors?.[0]?.name === 'string' && /^--[a-z0-9-]{1,40}$/i.test(b.errors[0].name) && !first?.includes(b.errors[0].name) ? ` (\u2066${b.errors[0].name}\u2069)` : '';
+				return { kind: 'rejected', status: e.status, code: b.code, reason: b.errors?.[0]?.reason, message: `رفض الخادم القيمة${n}: ${first ?? server ?? 'القيمة غير مطابقة لشروط هذا الحقل.'} صحّح القيمة ثم أعد التحقق؛ هوية الموقع لم تتغيّر.` };
+			}
 			return { kind: 'rejected', status: e.status, code: b.code, reason: b.errors?.[0]?.reason, message: `رفض الخادم الملف: ${first ?? server ?? 'الملف غير مطابق لشروط هذا المفتاح.'} اختر ملفًا آخر؛ هوية الموقع لم تتغيّر.` };
 		}
 		if (e.status === 409 && b.code === SITE_IDENTITY_PREVIEW_STALE) return { kind: 'stale', status: 409, code: b.code, current: b.current, message: server ?? 'تغيّرت هوية الموقع بعد أن عُرضت عليك المعاينة، فلم يُنفَّذ شيء. هذه هي المعاينة المحدّثة: راجعها ثم أكّد من جديد.' };
