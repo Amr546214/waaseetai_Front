@@ -180,12 +180,13 @@ export class IconSymbolsRuntime {
 	private observe(): void {
 		if (this.observer || typeof MutationObserver === 'undefined' || !this.want.size) return;
 		this.observer = new MutationObserver(records => {
-			for (const r of records) r.addedNodes.forEach(n => { if (n.nodeType === 1) this.added.add(n as Element); });
+			// an element can get its data-ws-icon AFTER it was inserted (Angular applies bound attributes in the update pass): attribute changes are handled like new nodes
+			for (const r of records) { if (r.type === 'attributes') { if (r.target.nodeType === 1) this.added.add(r.target as Element); } else r.addedNodes.forEach(n => { if (n.nodeType === 1) this.added.add(n as Element); }); }
 			if (this.scheduled || !this.added.size) return;
 			this.scheduled = true;
 			queueMicrotask(() => this.flush());
 		});
-		this.observer.observe(this.doc.documentElement, { childList: true, subtree: true });
+		this.observer.observe(this.doc.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: [WS_ICON_ATTR] });
 	}
 
 	/** handle only the nodes that were added (never the whole document) */

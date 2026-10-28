@@ -73,6 +73,9 @@
       @if (iconsService.loadError() && iconsService.phase() === 'error') {
         <div class="note note-warn" role="note" data-testid="icons-local-error">{{ iconsService.loadError() }} تُعرض الأيقونات بأسمائها بلا رسم الأصل.</div>
       }
+      @if (real.phase() === 'error') {
+        <div class="note note-warn" role="note" data-testid="icons-real-error">تعذّر تحميل رسومات الموقع الفعلية (real-icons.json)، فتُعرض مؤقتًا عيّنات ملف المكتبة بدلها. لم يتغيّر شيء في الخادم ولا في الموقع. <button type="button" class="btn-secondary mini" (click)="retry()" data-testid="icons-real-retry">إعادة المحاولة</button></div>
+      }
       @if (!canManage()) {
         <p class="note note-warn" role="note" data-testid="icons-readonly"><strong>عرض فقط.</strong> صلاحيتك لا تسمح بتعديل الأيقونات (تحتاج site.manage أو صلاحية «التحكم بالموقع»).</p>
       }

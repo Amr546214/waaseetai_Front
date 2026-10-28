@@ -26,7 +26,7 @@ function setup(phase: 'loading' | 'ready' | 'error' | 'denied' = 'ready', over: 
 	const store = {
 		phase: signal(phase), message: signal('تعذّر الاتصال بالخادم'), staleWarning: signal(over.stale ?? ''), rows,
 		list: computed(() => (phase === 'ready' ? { total: ROWS.length, counts: { default: 1, custom: 1, notWired: 3, withDraft: 0 }, limits: { maxCustom: 50, maxDraftsTotal: 60 }, rows: rows() } : null)),
-		canManage: signal(over.canManage ?? true), customGlyphs: signal({}), load: vi.fn(async () => undefined), row: (id: string) => ROWS.find(r => r.id === id) ?? null,
+		canManage: signal(over.canManage ?? true), customGlyphs: signal({}), shownIds: signal<string[]>([]), ensureGlyphs: vi.fn(async () => undefined), load: vi.fn(async () => undefined), row: (id: string) => ROWS.find(r => r.id === id) ?? null,
 	};
 	const libs = signal([{ id: 'general', label: 'العامة', colorVar: '--teal', icons: [{ slot: 'i-bell', label: 'إشعارات', svg: '<path d="M18 8A6 6 0 0 0 6 8"/>' }, { slot: 'i-check', label: 'تحقق', svg: '<path d="M20 6L9 17l-5-5"/>' }, { slot: 'i-coin', label: 'عملة', svg: '<circle cx="12" cy="12" r="9"/>' }, { slot: 'i-ai', label: 'ذكاء', svg: '<circle cx="12" cy="12" r="9"/>' }] }]);
 	const icons = {

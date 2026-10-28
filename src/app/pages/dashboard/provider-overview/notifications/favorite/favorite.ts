@@ -14,8 +14,6 @@ export interface PreferenceItem {
 export interface PreferenceSection {
   title: string;
   iconSvg: string;
-  /** an icon.fn id this card icon follows (data-ws-icon): the same element as that site icon */
-  wsIcon?: string;
   items: PreferenceItem[];
 }
 
@@ -147,7 +145,6 @@ export class Favorite implements OnInit {
     {
       title: 'قنوات الإيصال',
       iconSvg: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
-      wsIcon: 'i-bell',
       items: [
         { id: 'channel_inapp', title: 'الإشعارات داخل وسيط AI', subtitle: 'مركز الإشعارات', enabled: true },
         { id: 'channel_email', title: 'البريد الإلكتروني', subtitle: 'إلى بريدك المسجّل', enabled: true },

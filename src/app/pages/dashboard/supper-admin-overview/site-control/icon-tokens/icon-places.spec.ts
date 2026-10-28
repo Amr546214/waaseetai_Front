@@ -20,7 +20,7 @@ describe('icon places (where a function icon is really seen)', () => {
 	it('every bell drawing in the source is accounted for (a new bell copy fails here until it is classified)', async () => {
 		const { readdirSync, statSync } = await import('node:fs');
 		const listed = new Set([...ICON_PLACES['i-bell'].follows, ...ICON_PLACES['i-bell'].separate].map(x => x.file));
-		const known = new Set(['app/layouts/dashboard-layout/dashboard-layout.ts']); // navLinks / getIconSvg: dead code, not rendered anywhere
+		const known = new Set(['app/layouts/dashboard-layout/dashboard-layout.ts', 'app/pages/dashboard/provider-overview/notifications/favorite/favorite.ts']); // dashboard-layout navLinks / getIconSvg: dead code; favorite.ts section icons: stripped by the [innerHTML] sanitiser, nothing is drawn
 		const hits: string[] = [];
 		const walk = (d: string) => { for (const e of readdirSync(d)) { const p = join(d, e); if (statSync(p).isDirectory()) walk(p); else if (/\.(html|ts)$/.test(e) && !/\.spec\.ts$/.test(e) && !p.includes('/site-control/')) { const t = readFileSync(p, 'utf8'); if (/M18 8A6 6 0 ?0 ?0 ?6 8|M15 17h5l-1\.405|M14\.857 17\.082/.test(t) && !/<symbol\b[^>]*id="(i|ic|ws|hwp|spa-i)-bell2?"/.test(t) || /data-ws-icon|ws: 'i-bell'/.test(t)) hits.push(p.slice(SRC.length)); } } };
 		walk(join(SRC, 'app'));

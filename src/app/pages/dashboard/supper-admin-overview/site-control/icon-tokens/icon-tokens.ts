@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, untracked, ViewEncapsulation } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
@@ -102,6 +102,11 @@ export class IconTokens implements OnInit {
   readonly visible = computed(() => this.filtered().slice(0, this.shownCount()));
   readonly editingRow = computed(() => (this.editing() ? this.store.row(this.editing()!) : null));
   readonly canManage = this.store.canManage;
+
+  constructor() {
+    // custom glyphs are fetched only for the cards that are on screen (the list can hold ~340 customised icons)
+    effect(() => { const ids = this.visible().filter(r => r.status === 'custom').map(r => r.id); untracked(() => { this.store.shownIds.set(ids); void this.store.ensureGlyphs(ids); }); });
+  }
 
   ngOnInit(): void {
     void this.iconsService.load();

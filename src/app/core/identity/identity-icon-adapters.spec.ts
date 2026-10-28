@@ -43,6 +43,14 @@ describe('icon adapters (inline svg, alias, CSS variable, lazy fetch)', () => {
 		rt.clear('i-bell'); expect(row.innerHTML).toBe(parsed('<span>' + BELL_INLINE + '</span>'));
 	});
 
+	it('an svg that gets data-ws-icon AFTER it was inserted (Angular bound attribute) is swapped; removing the attribute restores it', async () => {
+		rt.applyText('i-bell', FILE(4), 's1');
+		const late = document.createElement('div'); late.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M15 17h5"/></svg>'; host.appendChild(late); await new Promise(r => setTimeout(r, 0));
+		const svg = late.querySelector('svg')!; expect(svg.querySelector('rect')).toBeNull();
+		svg.setAttribute('data-ws-icon', 'i-bell'); await new Promise(r => setTimeout(r, 0));
+		expect(svg.querySelector('rect')).not.toBeNull(); expect(svg.getAttribute('viewBox')).toBe('0 0 32 32');
+	});
+
 	it('a newer version redraws what is already swapped; an unrelated id is never touched', () => {
 		rt.applyText('i-bell', FILE(4), 's1'); rt.applyText('i-bell', FILE(8), 's2');
 		expect(host.querySelector('svg.host rect')!.getAttribute('x')).toBe('8');

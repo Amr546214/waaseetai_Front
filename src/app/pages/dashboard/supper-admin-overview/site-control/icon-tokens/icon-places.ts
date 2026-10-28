@@ -6,6 +6,7 @@
  *  - `separate`: a FUNCTIONALLY DIFFERENT use of a bell glyph (a contact badge, a "waiting for the client" counter...). It has its OWN visible key, editable on its own, and is a member of the same family so one
  *    confirmed atomic operation can give them all the same file.
  * Nothing here rewrites a template: it describes what the code does.
+ * NOT a place: the section-title icons of «تفضيلات الإشعارات» (favorite.ts `iconSvg`, incl. a bell): Angular's [innerHTML] sanitiser strips their <path> today, so NO icon is drawn there by default; they are left as they are (the default look is not changed).
  */
 export interface IconPlace { where: string; file: string; needle: string }
 export interface SeparatePlace extends IconPlace { id: string; why: string }
@@ -23,7 +24,6 @@ export const ICON_PLACES: Record<string, IconPlaces> = {
 			{ where: 'الحالة الفارغة في إشعارات مقدّم الخدمة', file: P + 'provider-overview/notifications/notifications.html', needle: 'data-ws-icon="i-bell"' },
 			{ where: 'الحالة الفارغة في إشعارات المسوّق', file: P + 'marketer-overview/notifications/notifications.html', needle: 'data-ws-icon="i-bell"' },
 			{ where: 'عنوان صفحة «تفضيلات الإشعارات» (مقدّم الخدمة)', file: P + 'provider-overview/notifications/favorite/favorite.html', needle: 'href="#i-bell"' },
-			{ where: 'بطاقة «قنوات الإيصال» في تفضيلات الإشعارات (مقدّم الخدمة)', file: P + 'provider-overview/notifications/favorite/favorite.ts', needle: "wsIcon: 'i-bell'" },
 			{ where: 'قسم قنوات الإشعارات في إعداد ملف مقدّم الخدمة (أيقونتان)', file: P + 'provider-overview/profile/profile-setup/profile-setup.html', needle: 'href="#i-bell"' },
 			{ where: 'عنوان «قنوات الإيصال» في إعدادات إشعارات العميل', file: P + 'clients-overview/notifications/notifications-settings/notifications-settings.html', needle: 'href="#i-bell"' },
 			{ where: 'لوحة المدير: تنبيهات عاجلة (العنوان وبنود التنبيه)', file: P + 'supper-admin-overview/supper-admin-overview/supper-admin-overview.html', needle: "'#i-bell'" },
