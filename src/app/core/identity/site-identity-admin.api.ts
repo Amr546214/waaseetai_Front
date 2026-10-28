@@ -9,11 +9,14 @@ import { SiteIdentityService } from './site-identity.service';
 export type IdentityAssetStatus = 'STAGED' | 'PUBLISHED' | 'SUPERSEDED' | 'DISCARDED';
 /** who did it (Round 2): the stable user id and the display name (null = the account no longer exists -> «غير معروف»). Never an e-mail. `null` = the row has no actor at all. */
 export interface IdentityActor { id: string; name: string | null }
+export type IdentitySourceRef = { kind: 'library'; symbolId: string } | { kind: 'upload' };
 export interface IdentityAssetMeta {
 	versionId: string; key: string; version: number; status: IdentityAssetStatus; mime: string; sha256: string;
 	width: number | null; height: number | null; byteSize: number; note: string | null; createdBy: IdentityActor | null; createdAt: string;
 	/** staged drafts only: the draft was uploaded by the caller (a draft of another admin cannot be applied by someone else) */
 	isMine?: boolean;
+	/** Round 8 (icons): where the drawing came from - the library icon the admin picked (metadata only: the stored file is a COPY) or a device upload; null for older versions */
+	sourceRef?: IdentitySourceRef | null;
 	/** design-token sets (kind json) only: the sparse override object this version holds ({} never stored; a default side has none) */
 	value?: Record<string, string>;
 	/** relative to the API root; only PUBLISHED / SUPERSEDED rows have one */
@@ -105,13 +108,13 @@ export class SiteIdentityAdminApi {
 	/** families: list, one family (members with full items), the same file staged under several keys (one transaction), private preview, atomic apply, discard */
 	families(): Observable<Envelope<IconFamilyList>> { return this.http.get<Envelope<IconFamilyList>>(`${base()}/families`); }
 	family(id: string): Observable<Envelope<IconFamilyInfo & { members: (IconFamilyMember & { staged?: IdentityAssetMeta[]; state?: IdentityKeyState })[] }>> { return this.http.get<Envelope<IconFamilyInfo & { members: (IconFamilyMember & { staged?: IdentityAssetMeta[]; state?: IdentityKeyState })[] }>>(`${base()}/families/${encodeURIComponent(id)}`); }
-	familyUpload(id: string, file: File, keys?: string[]): Observable<Envelope<IconFamilyUploadResult>> { const fd = new FormData(); fd.append('file', file, file.name); if (keys) fd.append('keys', JSON.stringify(keys)); return this.http.post<Envelope<IconFamilyUploadResult>>(`${base()}/families/${encodeURIComponent(id)}/upload`, fd); }
+	familyUpload(id: string, file: File, keys?: string[], sourceRef?: IdentitySourceRef): Observable<Envelope<IconFamilyUploadResult>> { const fd = new FormData(); fd.append('file', file, file.name); if (keys) fd.append('keys', JSON.stringify(keys)); if (sourceRef) fd.append('sourceRef', JSON.stringify(sourceRef)); return this.http.post<Envelope<IconFamilyUploadResult>>(`${base()}/families/${encodeURIComponent(id)}/upload`, fd); }
 	familyPreview(id: string, body: IconFamilyPreviewBody): Observable<Envelope<IconFamilyPreview>> { return this.http.post<Envelope<IconFamilyPreview>>(`${base()}/families/${encodeURIComponent(id)}/preview`, body); }
 	familyPublish(id: string, drafts: { key: string; versionId: string }[], expectedVersions: Record<string, number>, previewDigest: string): Observable<Envelope<IconFamilyApplyResult>> { return this.http.post<Envelope<IconFamilyApplyResult>>(`${base()}/families/${encodeURIComponent(id)}/publish`, { drafts, expectedVersions, previewDigest }); }
 	familyRestore(id: string, targets: { key: string; target: string }[] | 'default', expectedVersions: Record<string, number>, previewDigest: string): Observable<Envelope<IconFamilyApplyResult>> { return this.http.post<Envelope<IconFamilyApplyResult>>(`${base()}/families/${encodeURIComponent(id)}/restore`, { targets, expectedVersions, previewDigest }); }
 	familyDiscard(id: string, drafts: { key: string; versionId: string }[]): Observable<Envelope<unknown>> { return this.http.request<Envelope<unknown>>('DELETE', `${base()}/families/${encodeURIComponent(id)}/drafts`, { body: { drafts } }); }
 	/** multipart, field `file`; stores a STAGED version (nothing visible on the site yet) */
-	upload(key: string, file: File): Observable<Envelope<IdentityUploadResult>> { const fd = new FormData(); fd.append('file', file, file.name); return this.http.post<Envelope<IdentityUploadResult>>(`${base()}/${encodeURIComponent(key)}/upload`, fd); }
+	upload(key: string, file: File, sourceRef?: IdentitySourceRef): Observable<Envelope<IdentityUploadResult>> { const fd = new FormData(); fd.append('file', file, file.name); if (sourceRef) fd.append('sourceRef', JSON.stringify(sourceRef)); return this.http.post<Envelope<IdentityUploadResult>>(`${base()}/${encodeURIComponent(key)}/upload`, fd); }
 	/** design-token sets: JSON body `{ value: { '--teal': '#14b8a6' } }` (sparse overrides); stores a STAGED version after the server's strict validation */
 	uploadTokens(key: string, value: Record<string, string>): Observable<Envelope<IdentityUploadResult>> { return this.http.post<Envelope<IdentityUploadResult>>(`${base()}/${encodeURIComponent(key)}/upload`, { value }); }
 	publish(key: string, versionId: string, expectedVersion: number, note?: string): Observable<Envelope<IdentityChangeResult>> {

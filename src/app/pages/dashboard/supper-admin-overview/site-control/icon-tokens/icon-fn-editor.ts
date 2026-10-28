@@ -1,19 +1,21 @@
 import { Component, ViewEncapsulation, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
-import { IconFnItem, IconFnRow, IdentityAssetMeta, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
+import { IconFnItem, IconFnRow, IdentityAssetMeta, IdentitySourceRef, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { ParsedSvgIcon, parseCustomSvg } from '../../../../../core/identity/identity-ai-icon';
 import { SiteIdentityService } from '../../../../../core/identity/site-identity.service';
 import { iconFnKey } from '../../../../../core/identity/identity-icon-symbols';
 import { InlineSvgDirective } from '../identity/inline-svg.directive';
 import { Failure, actorName, bytesText, currentSummary, describeFailure } from '../identity/identity-view';
 import { RealIconsService } from '../core/real-icons.service';
+import { IconsService } from '../core/icons.service';
+import { IconPicker, libraryDrawingSvg } from './icon-picker';
 import { IconFnStore } from './icon-fn.store';
 import { ICON_PLACES, IconPlaces } from './icon-places';
 
 export interface IconNotice { type: 'ok' | 'warn' | 'error' | 'conflict'; text: string; detail?: string }
 interface Draft { meta: IdentityAssetMeta; icon: ParsedSvgIcon | null; removedNote: string | null }
-type Busy = null | 'upload' | 'apply' | 'discard' | 'restore';
+type Busy = null | 'pick' | 'upload' | 'apply' | 'discard' | 'restore';
 const readText = (b: Blob): Promise<string> => (typeof b.text === 'function' ? b.text() : new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result ?? '')); r.onerror = () => rej(r.error); r.readAsText(b); }));
 
 /**
@@ -25,7 +27,7 @@ const readText = (b: Blob): Promise<string> => (typeof b.text === 'function' ? b
 @Component({
 	selector: 'sc-icon-fn-editor',
 	standalone: true,
-	imports: [InlineSvgDirective],
+	imports: [InlineSvgDirective, IconPicker],
 	templateUrl: './icon-fn-editor.html',
 	encapsulation: ViewEncapsulation.ShadowDom,
 	styleUrls: ['../site-control-base.css', './icon-fn-editor.css']
@@ -45,6 +47,7 @@ export class IconFnEditor {
 	private readonly confirmer = inject(ConfirmModalService);
 	readonly store = inject(IconFnStore);
 	private readonly real = inject(RealIconsService);
+	private readonly libs = inject(IconsService);
 
 	readonly phase = signal<'loading' | 'ready' | 'error'>('loading');
 	readonly loadMessage = signal('');
@@ -61,6 +64,12 @@ export class IconFnEditor {
 	readonly restorable = computed<IdentityAssetMeta[]>(() => (this.item()?.history ?? []).filter(v => (v.status === 'PUBLISHED' || v.status === 'SUPERSEDED') && v.versionId !== this.item()!.state.active?.versionId));
 	readonly otherDrafts = computed<IdentityAssetMeta[]>(() => (this.item()?.staged ?? []).filter(v => v.versionId !== this.draft()?.meta.versionId));
 	private seq = 0;
+	/** «تخصيص» opens two ways: choose from the library (default) or upload from the device */
+	readonly mode = signal<'library' | 'upload'>('library');
+	/** the library icon the admin clicked (not staged yet): drawn in the «الجديدة» figure */
+	readonly pickId = signal<string | null>(null);
+	readonly pickIcon = computed<ParsedSvgIcon | null>(() => { const id = this.pickId(); const t = id ? libraryDrawingSvg(this.real, this.libs, id) : null; return t ? parseCustomSvg(t) : null; });
+	readonly pickLabel = computed(() => { const id = this.pickId(); return id ? (this.store.row(id)?.label || id) : ''; });
 
 	constructor() {
 		effect(() => { const id = this.symbolId(); untracked(() => { void this.load(id); }); });
@@ -75,9 +84,18 @@ export class IconFnEditor {
 		return parseCustomSvg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`);
 	});
 
+	/** what the site draws NOW: the published copy, or (no customisation) the built-in drawing - never a dash while an icon exists */
+	readonly actual = computed<ParsedSvgIcon | null>(() => this.published() ?? (this.isCustom() ? null : this.defaultIcon()));
+	/** history line: where a version's drawing came from (metadata only; the stored file is a copy) */
+	sourceText(v: IdentityAssetMeta): string {
+		const r = v.sourceRef;
+		if (!r) return '';
+		return r.kind === 'library' ? `من المكتبة: ${this.store.row(r.symbolId)?.label || r.symbolId} (${r.symbolId})` : 'رفع من الجهاز';
+	}
+
 	async load(id: string, pickDraft = true): Promise<void> {
 		const my = ++this.seq;
-		this.phase.set('loading'); this.draft.set(null); this.notice.set(null); this.published.set(null); this.fileName.set('');
+		this.phase.set('loading'); this.draft.set(null); this.notice.set(null); this.published.set(null); this.fileName.set(''); this.pickId.set(null);
 		try {
 			const r = await firstValueFrom(this.api.iconItem(id));
 			if (my !== this.seq) return;
@@ -115,12 +133,37 @@ export class IconFnEditor {
 		this.fileName.set(file.name);
 		this.busy.set('upload'); this.notice.set(null);
 		try {
-			const r = await firstValueFrom(this.api.upload(this.key(), file));
+			const r = await firstValueFrom(this.api.upload(this.key(), file, { kind: 'upload' }));
 			await this.openDraft(r.data, this.seq, r.data.sanitized?.changed ? 'نظّف الخادم الملف وأزال منه ما لا يسمح به (انظر الملاحظة).' : r.data.note ?? null);
 			this.notice.set({ type: 'ok', text: 'تحقّق الخادم من الملف وحفظه كمسودة. لم يتغيّر الموقع بعد.', detail: r.data.note ?? undefined });
 			await this.reloadItem();
 		} catch (e) { this.fail(e, 'رفع الأيقونة'); }
 		this.busy.set(null);
+	}
+
+	onPick(id: string): void { if (this.canEdit() && !this.busy()) { this.pickId.set(id); this.notice.set(null); } }
+	setMode(m: 'library' | 'upload'): void { this.mode.set(m); }
+
+	/**
+	 * Library pick: the chosen icon's built-in drawing is sent as an ordinary SVG upload (the server sanitises it and stores a STAGED COPY) with `sourceRef = {library, symbolId}` as metadata only.
+	 * No download / re-upload / JSON for the admin. The reference is never resolved: choosing X for Y and then Y for X copies each built-in drawing, so no cycle can exist.
+	 * The stored draft then goes through the same review / confirmation / apply as any upload.
+	 */
+	async stagePick(): Promise<void> {
+		const id = this.pickId(); if (!id || !this.canEdit() || this.busy()) return;
+		const svg = libraryDrawingSvg(this.real, this.libs, id);
+		if (!svg) { this.notice.set({ type: 'error', text: 'لا رسم معروف لهذه الأيقونة في المكتبة، فلا يمكن اختيارها بديلًا.' }); return; }
+		this.busy.set('pick'); this.notice.set(null);
+		let staged = false;
+		try {
+			const ref: IdentitySourceRef = { kind: 'library', symbolId: id };
+			const r = await firstValueFrom(this.api.upload(this.key(), new File([svg], `${id}.svg`, { type: 'image/svg+xml' }), ref));
+			await this.openDraft(r.data, this.seq, r.data.sanitized?.changed ? 'نظّف الخادم الرسم وأزال منه ما لا يسمح به (انظر الملاحظة).' : r.data.note ?? null);
+			await this.reloadItem();
+			staged = true;
+		} catch (e) { this.fail(e, 'اختيار الأيقونة من المكتبة'); }
+		this.busy.set(null);
+		if (staged) await this.apply();
 	}
 
 	async apply(): Promise<void> {

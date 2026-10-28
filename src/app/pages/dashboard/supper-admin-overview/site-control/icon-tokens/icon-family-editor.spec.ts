@@ -54,7 +54,7 @@ describe('icon family editor (one file, several keys, one atomic operation)', ()
 
 	it('upload stages the SAME file for the selected keys only (nothing published), then shows the exact diff', async () => {
 		const t = setup(); await t.settle(); t.q('fam-pick-ws-bell')!.click(); t.f.detectChanges(); await t.pick();
-		expect(t.api['familyUpload']).toHaveBeenCalledWith(FAM.id, expect.any(File), ['i-bell']);
+		expect(t.api['familyUpload']).toHaveBeenCalledWith(FAM.id, expect.any(File), ['i-bell'], { kind: 'upload' });
 		expect(t.api['familyPublish']).not.toHaveBeenCalled();
 		expect(t.q('fam-review')!.textContent).toContain('لم يتغيّر الموقع بعد'); expect(t.q('fam-diff-i-bell')!.getAttribute('data-change')).toBe('replace');
 	});

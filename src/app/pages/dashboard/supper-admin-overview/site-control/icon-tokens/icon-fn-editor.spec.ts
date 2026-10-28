@@ -1,7 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
+import { signal } from '@angular/core';
 import { vi } from 'vitest';
+import { RealIconsService } from '../core/real-icons.service';
+import { IconsService } from '../core/icons.service';
 import { IconFnEditor } from './icon-fn-editor';
 import { IconFnStore } from './icon-fn.store';
 import { IconFnItem, IconFnRow, IdentityAssetMeta, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
@@ -29,17 +32,22 @@ function setup(over: Record<string, unknown> = {}, opts: { canEdit?: boolean; it
 		refreshPublic: vi.fn(async () => true), ...over,
 	};
 	const confirmSvc = { confirm: vi.fn(async () => true) };
-	const store = { load: vi.fn(async () => undefined) };
+	const rows: IconFnRow[] = [ROW, { ...ROW, id: 'i-star', key: 'icon.fn.i-star', label: 'نجمة' }, { ...ROW, id: 'ws-ghost', key: 'icon.fn.ws-ghost', label: 'بلا رسم' }];
+	const store = { load: vi.fn(async () => undefined), rows: () => rows, row: (id: string) => rows.find(r => r.id === id) ?? null, phase: () => 'ready' };
+	const STAR = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2 15 9 22 9 16 14 18 21 12 17 6 21 8 14 2 9 9 9z"/></svg>';
+	const real = { phase: () => 'ready', load: vi.fn(async () => undefined), get: (id: string) => (id === 'i-star' || id === 'i-bell' ? { vb: '0 0 24 24', paint: { fill: 'none', stroke: 'currentColor' }, inner: '<path d="M12 2 15 9 22 9 16 14 18 21 12 17 6 21 8 14 2 9 9 9z"/>', sha256: 'x', defs: 1, variants: 1, files: [] } : null), fullSvg: (id: string) => (id === 'i-star' ? STAR : id === 'i-bell' ? SVG : null) };
+	const libs = { phase: () => 'ready', load: vi.fn(async () => undefined), pristine: signal([]) };
 	const identity = { item: vi.fn(() => ({ sha256: SHA })), manifest: () => ({ items: {} }) };
-	TestBed.configureTestingModule({ imports: [IconFnEditor], providers: [{ provide: SiteIdentityAdminApi, useValue: api }, { provide: ConfirmModalService, useValue: confirmSvc }, { provide: IconFnStore, useValue: store }, { provide: SiteIdentityService, useValue: identity }] });
+	TestBed.configureTestingModule({ imports: [IconFnEditor], providers: [{ provide: SiteIdentityAdminApi, useValue: api }, { provide: ConfirmModalService, useValue: confirmSvc }, { provide: IconFnStore, useValue: store }, { provide: SiteIdentityService, useValue: identity }, { provide: RealIconsService, useValue: real }, { provide: IconsService, useValue: libs }] });
 	const f = TestBed.createComponent(IconFnEditor);
 	f.componentRef.setInput('symbolId', 'i-bell'); f.componentRef.setInput('row', ROW); f.componentRef.setInput('canEdit', opts.canEdit ?? true); f.componentRef.setInput('defaultSvg', '<path d="M18 8"/>');
 	f.detectChanges();
 	const root = () => (f.nativeElement as HTMLElement).shadowRoot!;
 	const q = (id: string) => root().querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
 	const settle = async () => { for (let i = 0; i < 8; i++) { await f.whenStable(); await new Promise(r => setTimeout(r, 0)); f.detectChanges(); } };
-	const pick = async () => { const el = q('fn-file') as HTMLInputElement; Object.defineProperty(el, 'files', { value: [new File([SVG], 'bell.svg', { type: 'image/svg+xml' })], configurable: true }); el.dispatchEvent(new Event('change')); await settle(); };
-	return { f, c: f.componentInstance, api, confirmSvc, store, root, q, settle, pick };
+	const pick = async () => { (q('fn-mode-upload') as HTMLButtonElement).click(); await settle(); const el = q('fn-file') as HTMLInputElement; Object.defineProperty(el, 'files', { value: [new File([SVG], 'bell.svg', { type: 'image/svg+xml' })], configurable: true }); el.dispatchEvent(new Event('change')); await settle(); };
+	const pk = () => root().querySelector('sc-icon-picker')!.shadowRoot!;
+	return { f, c: f.componentInstance, pk, api, confirmSvc, store, root, q, settle, pick };
 }
 
 describe('function-icon editor (icon.fn.<symbolId>, central flow)', () => {
@@ -60,7 +68,7 @@ describe('function-icon editor (icon.fn.<symbolId>, central flow)', () => {
 
 	it('upload stores a DRAFT only (nothing published), then shows the review with the dark/light/size previews', async () => {
 		const t = setup(); await t.settle(); await t.pick();
-		expect(t.api['upload']).toHaveBeenCalledWith('icon.fn.i-bell', expect.any(File)); expect(t.api['publish']).not.toHaveBeenCalled();
+		expect(t.api['upload']).toHaveBeenCalledWith('icon.fn.i-bell', expect.any(File), { kind: 'upload' }); expect(t.api['publish']).not.toHaveBeenCalled();
 		expect(t.q('fn-review')!.textContent).toContain('لم يتغيّر الموقع بعد'); expect(t.q('fn-ctx-dark')!.querySelector('svg polygon')).not.toBeNull(); expect(t.q('fn-ctx-light')!.querySelector('svg polygon')).not.toBeNull();
 		expect(t.q('fn-notice')!.textContent).toContain('مسودة');
 	});
@@ -111,11 +119,61 @@ describe('function-icon editor (icon.fn.<symbolId>, central flow)', () => {
 
 	it('LOAD FAILURE of the icon is an explicit error with a retry, not an empty editor', async () => {
 		const t = setup({ iconItem: vi.fn(() => throwError(() => http(500, {}))) }); await t.settle();
-		expect(t.q('fn-error')).toBeTruthy(); expect(t.q('fn-retry')).toBeTruthy(); expect(t.q('fn-file')).toBeNull();
+		expect(t.q('fn-error')).toBeTruthy(); expect(t.q('fn-retry')).toBeTruthy(); expect(t.q('fn-file')).toBeNull(); expect(t.root().querySelector('sc-icon-picker')).toBeNull();
 	});
 
 	it('read-only viewers see the icon but get no upload / restore', async () => {
 		const t = setup({}, { canEdit: false }); await t.settle();
-		expect(t.q('fn-readonly')).toBeTruthy(); expect(t.q('fn-file')).toBeNull(); expect(t.q('fn-restore-default')).toBeNull();
+		expect(t.q('fn-readonly')).toBeTruthy(); expect(t.q('fn-file')).toBeNull(); expect(t.q('fn-modes')).toBeNull(); expect(t.q('fn-restore-default')).toBeNull();
+	});
+
+	// ---- Round 8: «تخصيص» = choose from the library (the old substitute chooser) or upload from the device
+	it('«تخصيص» opens BOTH ways: the library list first (real drawings, search, categories), upload as the second option', async () => {
+		const t = setup(); await t.settle();
+		expect(t.q('fn-mode-library')!.classList.contains('active')).toBe(true); expect(t.q('fn-mode-upload')).toBeTruthy();
+		const pk = t.pk();
+		expect(pk.querySelector('[data-testid="pick-i-star"] svg path')).not.toBeNull();       // drawn with its real drawing
+		expect(pk.querySelector('[data-testid="pick-i-bell"]')).toBeNull();                    // never its own substitute
+		expect(pk.querySelector('[data-testid="pick-ws-ghost"]')).toBeNull();                  // no drawing -> no empty card
+		expect(pk.querySelector('[data-testid="picker-undrawn"]')!.textContent).toContain('1');
+		expect(pk.querySelector('[data-testid="picker-search"]')).toBeTruthy(); expect(pk.querySelector('[data-testid="picker-cat-__all"]')).toBeTruthy();
+		expect(t.q('fn-file')).toBeNull();
+	});
+
+	it('picking from the library previews current vs new, stages a COPY with sourceRef (no file for the admin), confirms, applies on the server', async () => {
+		const t = setup({}, { item: item({ state: { stateVersion: 4, isDefault: true, active: null, updatedAt: null, updatedBy: null } }) }); await t.settle();
+		const published = t.q('fn-fig-published')!; expect(published.querySelector('svg polygon')).not.toBeNull(); expect(published.textContent).toContain('الأصل');   // the actual icon, never a dash
+		(t.pk().querySelector('[data-testid="pick-i-star"]') as HTMLButtonElement).click(); await t.settle();
+		expect(t.q('fn-fig-draft')!.querySelector('[data-testid="fn-pick-preview"] path')).not.toBeNull(); expect(t.api['upload']).not.toHaveBeenCalled();
+		(t.q('fn-pick-apply') as HTMLButtonElement).click(); await t.settle();
+		const call = t.api['upload'].mock.calls[0]; expect(call[0]).toBe('icon.fn.i-bell'); expect(call[2]).toEqual({ kind: 'library', symbolId: 'i-star' });
+		expect(await new Promise<string>(res => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.readAsText(call[1] as File); })).toContain('<path d="M12 2 15 9');
+		expect(t.confirmSvc.confirm).toHaveBeenCalledTimes(1); expect(t.api['publish']).toHaveBeenCalledWith('icon.fn.i-bell', 'v1', 4);
+		expect(t.q('fn-notice')!.textContent).toContain('طُبّقت');
+	});
+
+	it('a declined confirmation after a library pick leaves a DRAFT, publishes nothing', async () => {
+		const t = setup(); await t.settle(); t.confirmSvc.confirm.mockResolvedValueOnce(false);
+		(t.pk().querySelector('[data-testid="pick-i-star"]') as HTMLButtonElement).click(); await t.settle();
+		(t.q('fn-pick-apply') as HTMLButtonElement).click(); await t.settle();
+		expect(t.api['publish']).not.toHaveBeenCalled(); expect(t.q('fn-review')).toBeTruthy();
+	});
+
+	it('a rejected library pick shows the server reason and publishes nothing', async () => {
+		const t = setup({ upload: vi.fn(() => throwError(() => http(400, { code: 'SITE_IDENTITY_FILE_REJECTED', errors: [{ field: 'sourceRef', reason: 'X', message: 'المصدر غير معروف.' }] }))) }); await t.settle();
+		(t.pk().querySelector('[data-testid="pick-i-star"]') as HTMLButtonElement).click(); await t.settle();
+		(t.q('fn-pick-apply') as HTMLButtonElement).click(); await t.settle();
+		expect(t.q('fn-notice')!.textContent).toContain('المصدر غير معروف'); expect(t.api['publish']).not.toHaveBeenCalled(); expect(t.q('fn-review')).toBeNull();
+	});
+
+	it('the version history shows the reference (library source / device upload) recorded with each version', async () => {
+		const a = meta({ version: 2, status: 'PUBLISHED', versionId: 'a2', sourceRef: { kind: 'library', symbolId: 'i-star' } });
+		const t = setup({}, { item: item({ state: { stateVersion: 2, isDefault: false, active: meta({ version: 3, status: 'PUBLISHED', versionId: 'a3' }), updatedAt: null, updatedBy: null }, history: [a, meta({ version: 1, status: 'SUPERSEDED', versionId: 'a1', sourceRef: { kind: 'upload' } })] }) }); await t.settle();
+		expect(t.q('fn-src-2')!.textContent).toContain('i-star'); expect(t.q('fn-src-1')!.textContent).toContain('رفع من الجهاز');
+	});
+
+	it('the technical text lives in a collapsed «تفاصيل الاستخدام»', async () => {
+		const t = setup(); await t.settle();
+		const d = t.q('fn-usage') as HTMLDetailsElement; expect(d.open).toBe(false); expect(d.querySelector('summary')!.textContent).toContain('تفاصيل الاستخدام'); expect(d.contains(t.q('fn-places'))).toBe(true);
 	});
 });

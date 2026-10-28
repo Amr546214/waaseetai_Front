@@ -17,21 +17,6 @@
     }
     @default {
       @let r = row();
-      <p class="hint" data-testid="fn-where">
-        تُغيَّر هذه الأيقونة في <strong>كل موضع يستعملها في الموقع</strong> (كل صفحة وكل لوحة) لكل الزوّار بعد «تطبيق»، وتبقى بعد التحديث وتسجيل الخروج وعلى أي جهاز.
-        @if (r) { المعرّف مُعرَّف في {{ r.defs }} قالب@if (r.variants > 1) { ، وبه {{ r.variants }} أشكال مختلفة في القوالب: التخصيص يوحّدها كلها في الشكل الجديد } . }
-      </p>
-
-      @if (places(); as pl) {
-        <div class="fe-places" data-testid="fn-places">
-          <h4>أين يظهر هذا الرمز فعلًا</h4>
-          <p class="hint small"><strong>يتغيّر في {{ pl.follows.length }} مواضع:</strong></p>
-          <ul class="plain-list small" data-testid="fn-places-follow">@for (x of pl.follows; track x.where) { <li>{{ x.where }}</li> }</ul>
-          <p class="hint small"><strong>أيقونات مشابهة لها مفاتيحها الخاصة ({{ pl.separate.length }})</strong> — استعمال مختلف لرسم الجرس، تُعدَّل منفردة أو مع العائلة:</p>
-          <ul class="plain-list small" data-testid="fn-places-separate">@for (x of pl.separate; track x.id) { <li>{{ x.where }} — <code class="code" dir="ltr">{{ x.id }}</code> <span class="muted">{{ x.why }}</span></li> }</ul>
-        </div>
-      }
-
       @if (notice(); as n) {
         <div [class]="'note note-' + n.type" role="status" [attr.data-testid]="'fn-notice'">
           <strong>{{ n.text }}</strong> @if (n.detail) { <span>{{ n.detail }}</span> }
@@ -45,26 +30,41 @@
           <figcaption>الأصل</figcaption>
         </figure>
         <figure class="fe-fig" data-testid="fn-fig-published">
-          <div class="fe-glyph">@if (published(); as p) { <svg aria-hidden="true" [scInlineSvg]="p"></svg> } @else if (isCustom()) { <span class="muted small">تعذّر عرضها</span> } @else { <span class="muted small">—</span> }</div>
-          <figcaption>المنشورة الآن</figcaption>
+          <div class="fe-glyph">@if (actual(); as p) { <svg aria-hidden="true" [scInlineSvg]="p"></svg> } @else if (isCustom()) { <span class="muted small">تعذّر عرضها</span> } @else { <span class="muted small">لا رسم معروف</span> }</div>
+          <figcaption>المنشورة الآن@if (!isCustom()) { <small> (الأصل)</small> }</figcaption>
         </figure>
         <figure class="fe-fig fe-fig-new" data-testid="fn-fig-draft">
-          <div class="fe-glyph">@if (draft()?.icon; as d) { <svg aria-hidden="true" [scInlineSvg]="d"></svg> } @else { <span class="muted small">{{ draft() ? 'تعذّر رسم المسودة' : 'اختر ملفًا' }}</span> }</div>
-          <figcaption>الجديدة (مسودة)</figcaption>
+          <div class="fe-glyph">@if (draft()?.icon; as d) { <svg aria-hidden="true" [scInlineSvg]="d"></svg> } @else if (pickIcon(); as p) { <svg aria-hidden="true" [scInlineSvg]="p" data-testid="fn-pick-preview"></svg> } @else { <span class="muted small">{{ draft() ? 'تعذّر رسم المسودة' : 'اختر أيقونة أو ملفًا' }}</span> }</div>
+          <figcaption>الجديدة@if (draft()) { <small> (مسودة)</small> } @else if (pickId()) { <small> ({{ pickLabel() }})</small> }</figcaption>
         </figure>
       </div>
 
       @if (!canEdit()) {
         <p class="note note-warn" role="note" data-testid="fn-readonly"><strong>عرض فقط.</strong> صلاحيتك لا تسمح بتعديل الأيقونات (تحتاج site.manage أو صلاحية «التحكم بالموقع»).</p>
       } @else {
+        <div class="fe-modes" role="tablist" aria-label="طريقة التخصيص" data-testid="fn-modes">
+          <button type="button" role="tab" class="fe-mode" [class.active]="mode() === 'library'" [attr.aria-selected]="mode() === 'library'" (click)="setMode('library')" data-testid="fn-mode-library">اختيار من المكتبة</button>
+          <button type="button" role="tab" class="fe-mode" [class.active]="mode() === 'upload'" [attr.aria-selected]="mode() === 'upload'" (click)="setMode('upload')" data-testid="fn-mode-upload">رفع من الجهاز</button>
+        </div>
+        @if (mode() === 'library') {
+          <p class="hint small" data-testid="fn-library-hint">اختر أيقونة موجودة في الموقع لتكون بديلًا. لا حاجة لتنزيل ملف أو رفعه: تُنسخ الرسمة وتُحفظ على الخادم.</p>
+          <sc-icon-picker [forId]="symbolId()" [selected]="pickId()" [disabled]="busy() !== null" (pick)="onPick($event)" />
+          <div class="fe-actions">
+            <button type="button" class="btn-save" [disabled]="busy() !== null || !pickId()" (click)="stagePick()" data-testid="fn-pick-apply">{{ busy() === 'pick' ? 'جارٍ التجهيز…' : busy() === 'apply' ? 'جارٍ التطبيق…' : 'تطبيق على الموقع' }}</button>
+            @if (pickId()) { <button type="button" class="btn-secondary" [disabled]="busy() !== null" (click)="pickId.set(null)" data-testid="fn-pick-clear">إلغاء الاختيار</button> }
+          </div>
+        } @else {
+          <div class="fe-actions">
+            <label class="btn-save file-btn" [class.is-disabled]="busy() !== null">
+              {{ busy() === 'upload' ? 'جارٍ الرفع والفحص…' : 'رفع أيقونة SVG جديدة' }}
+              <input type="file" accept=".svg,image/svg+xml" hidden [disabled]="busy() !== null" (change)="onFile($event)" data-testid="fn-file" />
+            </label>
+          </div>
+          <p class="hint small">SVG فقط، حتى 64 ك.ب، ويجب أن يحمل الملف <code dir="ltr">viewBox</code>. يفحص الخادم الملف وينظّفه، ولا يتغيّر الموقع قبل أن تضغط «تطبيق».</p>
+        }
         <div class="fe-actions">
-          <label class="btn-save file-btn" [class.is-disabled]="busy() !== null">
-            {{ busy() === 'upload' ? 'جارٍ الرفع والفحص…' : 'رفع أيقونة SVG جديدة' }}
-            <input type="file" accept=".svg,image/svg+xml" hidden [disabled]="busy() !== null" (change)="onFile($event)" data-testid="fn-file" />
-          </label>
           <button type="button" class="btn-secondary" [disabled]="busy() !== null || !isCustom()" (click)="restoreDefault()" data-testid="fn-restore-default">العودة إلى الأصل</button>
         </div>
-        <p class="hint small">SVG فقط، حتى 64 ك.ب، ويجب أن يحمل الملف <code dir="ltr">viewBox</code>. يفحص الخادم الملف وينظّفه، ولا يتغيّر الموقع قبل أن تضغط «تطبيق».</p>
       }
 
       @if (draft(); as d) {
@@ -76,7 +76,7 @@
             <div class="fe-bell fe-bell-light" data-testid="fn-ctx-light">@if (d.icon; as i) { <svg aria-hidden="true" [scInlineSvg]="i"></svg> }<span>رأس فاتح</span></div>
             <div class="fe-sizes">@for (s of [16, 24, 40]; track s) { <span class="fe-sz">@if (d.icon; as i) { <svg aria-hidden="true" [style.width.px]="s" [style.height.px]="s" [scInlineSvg]="i"></svg> }<small>{{ s }}</small></span> }</div>
           </div>
-          <p class="hint small">الملف: {{ bytes(d.meta.byteSize) }} · رُفع بواسطة {{ actor(d.meta.createdBy) }}</p>
+          <p class="hint small">الملف: {{ bytes(d.meta.byteSize) }} · رُفع بواسطة {{ actor(d.meta.createdBy) }}@if (sourceText(d.meta); as st) { · <span data-testid="fn-source">{{ st }}</span> }</p>
           <div class="fe-actions">
             <button type="button" class="btn-save" [disabled]="busy() !== null || !canEdit() || !d.icon" (click)="apply()" data-testid="fn-apply">{{ busy() === 'apply' ? 'جارٍ التطبيق…' : 'تطبيق على الموقع' }}</button>
             <button type="button" class="btn-secondary" [disabled]="busy() !== null" (click)="cancel()" data-testid="fn-cancel">إلغاء المسودة</button>
@@ -96,12 +96,30 @@
           <summary>النسخ السابقة ({{ restorable().length }})</summary>
           <ul class="plain-list small">
             @for (v of restorable(); track v.versionId) {
-              <li><strong>النسخة {{ v.version }}</strong> · {{ actor(v.createdBy) }}
+              <li><strong>النسخة {{ v.version }}</strong> · {{ actor(v.createdBy) }}@if (sourceText(v); as st) { · <span class="muted" [attr.data-testid]="'fn-src-' + v.version">{{ st }}</span> }
                 @if (canEdit()) { <button type="button" class="btn-secondary" [disabled]="busy() !== null" (click)="restoreVersion(v)" [attr.data-testid]="'fn-restore-' + v.version">استعادة</button> }</li>
             }
           </ul>
         </details>
       }
+      <details class="fe-usage" data-testid="fn-usage">
+        <summary>تفاصيل الاستخدام</summary>
+      <p class="hint" data-testid="fn-where">
+        تُغيَّر هذه الأيقونة في <strong>كل موضع يستعملها في الموقع</strong> (كل صفحة وكل لوحة) لكل الزوّار بعد «تطبيق»، وتبقى بعد التحديث وتسجيل الخروج وعلى أي جهاز.
+        @if (r) { المعرّف مُعرَّف في {{ r.defs }} قالب@if (r.variants > 1) { ، وبه {{ r.variants }} أشكال مختلفة في القوالب: التخصيص يوحّدها كلها في الشكل الجديد } . }
+      </p>
+
+      @if (places(); as pl) {
+        <div class="fe-places" data-testid="fn-places">
+          <h4>أين يظهر هذا الرمز فعلًا</h4>
+          <p class="hint small"><strong>يتغيّر في {{ pl.follows.length }} مواضع:</strong></p>
+          <ul class="plain-list small" data-testid="fn-places-follow">@for (x of pl.follows; track x.where) { <li>{{ x.where }}</li> }</ul>
+          <p class="hint small"><strong>أيقونات مشابهة لها مفاتيحها الخاصة ({{ pl.separate.length }})</strong> — استعمال مختلف لرسم الجرس، تُعدَّل منفردة أو مع العائلة:</p>
+          <ul class="plain-list small" data-testid="fn-places-separate">@for (x of pl.separate; track x.id) { <li>{{ x.where }} — <code class="code" dir="ltr">{{ x.id }}</code> <span class="muted">{{ x.why }}</span></li> }</ul>
+        </div>
+      }
+
+      </details>
     }
   }
 </section>
