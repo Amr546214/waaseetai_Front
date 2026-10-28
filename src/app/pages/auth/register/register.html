@@ -337,7 +337,7 @@
         <ws-form-summary [items]="missingFields" />
 
         <div class="btn-group">
-          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting || registerWait().active()">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}@if (registerWait().active()) { <span id="register-wait" data-testid="wait-label"> {{ registerWait().label() }}</span> }</button>
+          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting || (registerWait().active() && !completesWithHeldCode)">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}@if (registerWait().active() && !completesWithHeldCode) { <span id="register-wait" data-testid="wait-label"> {{ registerWait().label() }}</span> }</button>
           <button type="button" class="btn-tertiary" id="btn-back" (click)="currentStep = 1">
             <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
             رجوع
