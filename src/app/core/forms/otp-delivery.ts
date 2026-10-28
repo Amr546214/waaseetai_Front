@@ -16,6 +16,7 @@ export const REGISTER_PROOF_SENT_MESSAGE = 'أرسلنا رمز التحقق إ�
 export const REGISTER_PROOF_RESENT_MESSAGE = 'أرسلنا رمزًا جديدًا إلى بريدك. استخدم أحدث رمز وصلك.';
 export const REGISTER_PROOF_NOT_SENT_MESSAGE = 'تعذر إرسال رمز التحقق الآن. تأكد من البريد وحاول مرة أخرى بعد قليل، أو تواصل مع الدعم.';
 export const REGISTER_DATA_UNAVAILABLE_FALLBACK = 'تعذّر إنشاء حساب بهذه البيانات لأن البريد أو رقم الجوال مرتبط بحساب قائم. صحّح البيانات، أو سجّل الدخول، أو استعد كلمة المرور، أو تواصل مع الدعم';
+export const REGISTER_ACCOUNT_READY_FALLBACK = 'تم إنشاء حسابك وتأكيد بريدك. تعذّر تسجيل الدخول تلقائيًا، سجّل الدخول ببريدك وكلمة مرورك';
 /** Resend from the registration code step is a generic always-200 answer: it claims only a condition. */
 export const REGISTER_RESEND_MESSAGE = 'إن كان هناك حساب بانتظار التفعيل لهذا البريد فسيصله رمز جديد. قد يتأخر وصوله دقيقة أو أكثر.';
 /** Resend is unauthenticated and answers the same for every id: conditional wording as well. */

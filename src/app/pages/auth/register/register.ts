@@ -17,7 +17,7 @@ import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.servi
 import { rateLimitSentence } from '../../../core/wait/wait-format';
 import { formatClock } from '../../../core/wait/wait-format';
 import { RATE_LIMIT_MESSAGE, isRateLimitError, startWaitFromError } from '../../../core/utils/rate-limit.util';
-import { OTP_DELIVERY_HINT, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE, REGISTER_PROOF_SENT_MESSAGE, REGISTER_PROOF_RESENT_MESSAGE, REGISTER_PROOF_NOT_SENT_MESSAGE, REGISTER_DATA_UNAVAILABLE_FALLBACK } from '../../../core/forms/otp-delivery';
+import { OTP_DELIVERY_HINT, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE, REGISTER_PROOF_SENT_MESSAGE, REGISTER_PROOF_RESENT_MESSAGE, REGISTER_PROOF_NOT_SENT_MESSAGE, REGISTER_DATA_UNAVAILABLE_FALLBACK, REGISTER_ACCOUNT_READY_FALLBACK } from '../../../core/forms/otp-delivery';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
@@ -87,6 +87,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	private heldCode = '';
 	/** The proven e-mail's data was refused (it belongs to an existing account): a clear panel with the ways forward, nothing about the other account. */
 	dataUnavailableMessage = '';
+	/** The account was created and the e-mail proven, but the automatic sign-in failed: sign in normally (never register again). */
+	accountReadyMessage = '';
 	private submittedSignature = '';
 	private formSignature(): string { return JSON.stringify(this.basicInfoForm.getRawValue()); }
 
@@ -640,6 +642,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				this.heldCode = '';
 				this.proofTicket = '';
 				this.cdr.markForCheck();
+				if (!res.data?.token) {
+					// the server created the account but could not sign the user in: say so, point to the normal sign-in
+					this.accountReadyMessage = res.message || REGISTER_ACCOUNT_READY_FALLBACK;
+					this.errorMessage = '';
+					this.dataUnavailableMessage = '';
+					return;
+				}
 				const authedUser = res.data?.user || this.authStore.currentUser();
 				this.router.navigate(['/auth/welcome'], {
 					queryParams: { role: getWelcomeRoleKey(authedUser?.accountType), accountType: authedUser?.accountType, activeRole: authedUser?.activeRole }
