@@ -27,4 +27,10 @@ describe('icon places (where a function icon is really seen)', () => {
 		const missing = hits.filter(h => !listed.has(h) && !known.has(h) && !/identity-icon-symbols|settings-section|sidebar\.html|favorite\.html/.test(h));
 		expect(missing, 'unclassified bell copies').toEqual([]);
 	});
+	it('every bell path drawn by the sidebar carries the adapter (a bell entry without ws: "i-bell" would never follow)', () => {
+		const t = readFileSync(join(SRC, 'app/sheards/dashboard/sidebar/sidebar.ts'), 'utf8');
+		const lines = t.split('\n').filter(l => /icon: '(M14\.857|M15 17h5l-1\.405)/.test(l) || /icon: icons\.bell/.test(l));
+		expect(lines.length).toBeGreaterThanOrEqual(5);
+		for (const l of lines) expect(l, l.slice(0, 80)).toContain("ws: 'i-bell'");
+	});
 });
