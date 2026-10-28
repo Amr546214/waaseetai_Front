@@ -1,0 +1,45 @@
+# Identity alias locations (included by default.conf only when WS_IDENTITY_UPSTREAM is set; see docker-entrypoint.d/15-ws-identity.sh).
+# Environment variables: WS_IDENTITY_UPSTREAM (origin serving /api/public/site-identity/*), WS_IDENTITY_HOST (Host header), WS_RESOLVER (DNS resolver for a name-based upstream).
+resolver ${WS_RESOLVER} valid=300s ipv6=off;
+resolver_timeout 2s;
+
+    # /favicon.ico -> backend alias (custom, else its default copy); any failure -> the static file of this image
+    location = /favicon.ico {
+        set $ws_up "${WS_IDENTITY_UPSTREAM}";
+        proxy_pass $ws_up/api/public/site-identity/favicon.ico;
+        proxy_set_header Host "${WS_IDENTITY_HOST}";
+        proxy_set_header Accept-Encoding "";
+        proxy_ssl_server_name on;
+        proxy_connect_timeout 2s;
+        proxy_read_timeout 3s;
+        proxy_next_upstream off;
+        proxy_intercept_errors on;
+        error_page 301 302 303 307 308 400 401 403 404 405 408 429 500 501 502 503 504 = @ws_static_favicon;
+    }
+    location @ws_static_favicon {
+        root /usr/share/nginx/html;
+        try_files /favicon.ico =404;
+        add_header Cache-Control "public, max-age=300";
+        add_header X-Identity-Source "static-fallback" always;
+    }
+
+    # link-share image (index.html og:image / twitter:image keep this exact URL) -> backend alias; any failure -> the static default image of this image
+    location = /assets/social/waseetai-og-v3.jpg {
+        set $ws_up "${WS_IDENTITY_UPSTREAM}";
+        proxy_pass $ws_up/api/public/site-identity/social/og;
+        proxy_set_header Host "${WS_IDENTITY_HOST}";
+        proxy_set_header Accept-Encoding "";
+        proxy_ssl_server_name on;
+        proxy_connect_timeout 2s;
+        proxy_read_timeout 3s;
+        proxy_next_upstream off;
+        proxy_intercept_errors on;
+        error_page 301 302 303 307 308 400 401 403 404 405 408 429 500 501 502 503 504 = @ws_static_og;
+    }
+    location @ws_static_og {
+        root /usr/share/nginx/html;
+        try_files /assets/social/waseetai-og-v3.jpg =404;
+        add_header Cache-Control "public, max-age=300";
+        add_header X-Identity-Source "static-fallback" always;
+    }
+

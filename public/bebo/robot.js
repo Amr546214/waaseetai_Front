@@ -3,26 +3,33 @@
   'use strict';
   if (customElements.get('cute-robot') && customElements.get('khaled-guide-robot')) return;
   const base = document.currentScript?.src || document.baseURI;
-    const classicAssets = {
-    base: new URL('robot-sprites.png', base).href,
-    action: new URL('robot-actions.png', base).href,
-    speech: new URL('robot-speaking.png', base).href,
-    antics: new URL('robot-antics.png', base).href,
-    emotions: new URL('robot-emotions.png', base).href,
-    cat: new URL('kitten-sprites.png', base).href,
-    traffic: new URL('scout/guide-traffic.png', base).href,
-    expressions: new URL('scout/guide-expressions.png', base).href
+  // Site identity: each atlas URL is resolved on use. A custom version published from «التحكم بالموقع > الهوية» is found in window.__wsIdentityUrls (filled by index.html / the identity service);
+  // with none (the default) every getter returns EXACTLY the URL this file always built. Frame coordinates, timing and drawing below are untouched.
+  const identityUrl = (key, rel) => {
+    try { const u = window.__wsIdentityUrls && window.__wsIdentityUrls[key]; if (typeof u === 'string' && u) return u; } catch (e) { /* default */ }
+    return new URL(rel, base).href;
   };
-  const scoutAssets = {
-    base: new URL('scout/guide-sprites.png', base).href,
-    action: new URL('scout/guide-actions.png', base).href,
-    speech: new URL('scout/guide-speaking.png', base).href,
-    antics: new URL('scout/guide-antics.png', base).href,
-    emotions: new URL('scout/guide-emotions.png', base).href,
-    cat: new URL('scout/kitten-sprites.png', base).href,
-    traffic: new URL('scout/guide-traffic.png', base).href,
-    expressions: new URL('scout/guide-expressions.png', base).href
-  };
+  const atlasSet = (specs) => { const o = {}; for (const n in specs) Object.defineProperty(o, n, { enumerable: true, get: () => identityUrl(specs[n][0], specs[n][1]) }); return o; };
+  const classicAssets = atlasSet({
+    base: ['character.bebo.classic.sprites', 'robot-sprites.png'],
+    action: ['character.bebo.classic.actions', 'robot-actions.png'],
+    speech: ['character.bebo.classic.speaking', 'robot-speaking.png'],
+    antics: ['character.bebo.classic.antics', 'robot-antics.png'],
+    emotions: ['character.bebo.classic.emotions', 'robot-emotions.png'],
+    cat: ['character.bebo.classic.kitten', 'kitten-sprites.png'],
+    traffic: ['character.bebo.traffic', 'scout/guide-traffic.png'],
+    expressions: ['character.bebo.expressions', 'scout/guide-expressions.png']
+  });
+  const scoutAssets = atlasSet({
+    base: ['character.bebo.scout.sprites', 'scout/guide-sprites.png'],
+    action: ['character.bebo.scout.actions', 'scout/guide-actions.png'],
+    speech: ['character.bebo.scout.speaking', 'scout/guide-speaking.png'],
+    antics: ['character.bebo.scout.antics', 'scout/guide-antics.png'],
+    emotions: ['character.bebo.scout.emotions', 'scout/guide-emotions.png'],
+    cat: ['character.bebo.scout.kitten', 'scout/kitten-sprites.png'],
+    traffic: ['character.bebo.traffic', 'scout/guide-traffic.png'],
+    expressions: ['character.bebo.expressions', 'scout/guide-expressions.png']
+  });
   const poses = {
     idle: { frames: [0], label: 'مستني معاك' },
     blink: { frames: [1], label: 'بيرمش', duration: 160 },

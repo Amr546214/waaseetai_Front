@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, catchError, of } from 'rxjs';
 import { PersistenceService } from './persistence.service';
-import { sanitizeUploadedSvg } from './svg-sanitize';
+import { sanitizeLibrarySvg } from './svg-sanitize';
 
 export interface IconItem {
   slot: string;
@@ -30,55 +30,119 @@ export interface IconsFile {
   libraries: IconLibrary[];
 }
 
+/** a customisation found in the browser's OLD local copy (before the library was server-backed): shown FOR REVIEW only, never published by itself */
+export interface LegacyIcon { libraryId: string; slot: string; label: string; defaultInner: string; legacyInner: string }
+export type IconsPhase = 'idle' | 'loading' | 'ready' | 'error';
+
 @Injectable({ providedIn: 'root' })
 export class IconsService {
   readonly libraries = signal<IconLibrary[]>([]);
   readonly loadError = signal<string | null>(null);
+  /** حالة التحميل: الفشل لا يُعرض أبدًا كمكتبة فارغة (يُعرض كخطأ مع إعادة محاولة) */
+  readonly phase = signal<IconsPhase>('idle');
+  /** تنبيه غير مانع: نسخة محلية قديمة/معطوبة لم تُستخدم (تبقى في المتصفح كما هي ولا تُمسح) */
+  readonly savedCopyNotice = signal<string | null>(null);
+  /** the library file as shipped (labels, groups, library colours): the icons page uses THIS, never the browser's old copy */
+  readonly pristine = signal<IconLibrary[]>([]);
+  /** old local customisations that differ from the shipped drawing and are valid after sanitising (diff vs default) */
+  readonly legacy = signal<LegacyIcon[]>([]);
+  /** the old local copy exists but cannot be read (kept in the browser untouched) */
+  readonly legacyUnreadable = signal<string | null>(null);
+  /** slots the owner chose to ignore (a separate key; the old copy itself is never deleted) */
+  readonly legacyIgnored = signal<string[]>([]);
 
   private readonly persistence = inject(PersistenceService);
+  private inflight: Promise<void> | null = null;
 
   constructor(private http: HttpClient) {}
 
-  async load(): Promise<void> {
+  /** تحميل idempotent؛ `force` يعيد القراءة (زر «إعادة المحاولة») */
+  load(force = false): Promise<void> {
+    if (this.inflight) return this.inflight;
+    if (!force && this.phase() === 'ready' && this.libraries().length) return Promise.resolve();
+    this.inflight = this.doLoad().finally(() => { this.inflight = null; });
+    return this.inflight;
+  }
+
+  private async doLoad(): Promise<void> {
+    this.phase.set('loading');
     const data = await firstValueFrom(
       this.http.get<IconsFile>('/assets/site-control/icons.json').pipe(catchError(() => of(null)))
     );
-    if (!data) {
-      this.loadError.set('تعذّر تحميل ملف الأيقونات (icons.json).');
+    if (!data || !Array.isArray(data.libraries) || !data.libraries.some(l => Array.isArray(l?.icons) && l.icons.length)) {
+      // فشل أو ملف فارغ: لا نمسّ المكتبات الحالية (إن وُجدت) ولا النسخة المحفوظة، ونُظهر الخطأ بدل مكتبة فارغة
+      this.loadError.set('تعذّر تحميل ملف الأيقونات (icons.json). لم يتغيّر شيء مما حفظته؛ أعد المحاولة.');
+      this.phase.set(this.libraries().length ? 'ready' : 'error');
       return;
     }
-    // إصلاح 2026-08-18: استخدم نسخة محفوظة محليًا إن وُجدت بدل تجاهلها دائمًا لصالح الملف الأصلي.
-    const saved = this.persistence.load<IconLibrary[]>('icons');
-    // إصلاح أمني جذري 2026-08-19: أي نسخة محفوظة بـlocalStorage قد تكون أُنشئت قبل تفعيل
-    // التعقيم بـimportJson (أو عُدِّلت يدويًا بأدوات المطوّر) — تُعقَّم دائمًا عند التحميل أيضًا،
-    // وليس فقط عند الاستيراد، كخط دفاع ثانٍ يمنع أي XSS مخزّن من التفعّل عند فتح الجلسة.
-    // إصلاح 2026-08-20 (حارس هجرة): النسخة المحفوظة محليًا قد تكون أُنشئت قبل دمج مكتبتي
-    // أيقونات الذكاء (كانت 4 مكتبات: general / ai / ai-proposed / ws-site). لو بنية المكتبات
-    // المحفوظة ما عادت تطابق بنية الملف المصدري، تُتجاهل ويُستخدم الملف — وإلا يظل المستخدم
-    // يشوف البنية القديمة للأبد بعد أي تحديث بنيوي، بلا سبب ظاهر له.
-    const savedLibs = saved?.data;
-    const sameShape =
-      Array.isArray(savedLibs) &&
-      savedLibs.length === data.libraries.length &&
-      data.libraries.every(lib => savedLibs.some(s => s?.id === lib.id));
-    this.libraries.set(sameShape ? this.sanitizeLibraries(savedLibs!) : data.libraries);
+    this.loadError.set(null);
+    // النسخة المحفوظة محليًا (قديمة: قبل ربط الأيقونات بالخادم) تُستخدم لكل مكتبة على حدة ولا تُستخدم أبدًا إن أنتجت مكتبة بلا أيقونات.
+    // السبب الجذري للمكتبة الفارغة (2026-10-28): icons.json يخزّن محتوى SVG الداخلي فقط، والتعقيم كان يشترط وسم <svg> كاملاً فيرفض كل الأيقونات
+    // المحفوظة (انظر sanitizeLibrarySvg). كذلك: النسخة التي لا تصلح لا تُحذف من التخزين ولا يُكتب فوقها هنا.
+    const saved = this.persistence.load<IconLibrary[] | { libraries?: IconLibrary[] }>('icons');
+    const savedLibs = Array.isArray(saved?.data) ? saved!.data : Array.isArray((saved?.data as { libraries?: IconLibrary[] } | undefined)?.libraries) ? (saved!.data as { libraries: IconLibrary[] }).libraries : null;
+    this.pristine.set(data.libraries);
+    this.legacyIgnored.set(this.persistence.load<string[]>('icons-legacy-ignored')?.data ?? []);
+    this.legacy.set(this.findLegacy(data.libraries, savedLibs));
+    this.legacyUnreadable.set(this.persistence.hasSaved('icons') && !savedLibs ? 'توجد نسخة محلية قديمة في هذا المتصفح لكن شكلها غير مقروء، فبقيت كما هي دون مسح ولم تُستخدم.' : null);
+    let note: string | null = null;
+    const result = data.libraries.map(lib => {
+      const mine = savedLibs?.find(s => s?.id === lib.id);
+      if (!mine || !Array.isArray(mine.icons)) return lib;
+      const clean = this.sanitizeLibrary(mine);
+      if (!clean.icons.length) { note = 'نسخة محفوظة محليًا من بعض المكتبات غير صالحة فلم تُستخدم، وبقيت كما هي في المتصفح دون مسح.'; return lib; }
+      return clean;
+    });
+    this.savedCopyNotice.set(note);
+    this.libraries.set(result);
+    this.phase.set('ready');
+  }
+
+  private findLegacy(file: IconLibrary[], saved: IconLibrary[] | null): LegacyIcon[] {
+    if (!saved) return [];
+    const norm = (x: string) => x.replace(/\s+/g, ' ').replace(/> </g, '><').trim();
+    const out: LegacyIcon[] = [];
+    for (const lib of file) {
+      const mine = saved.find(s => s?.id === lib.id);
+      if (!mine || !Array.isArray(mine.icons)) continue;
+      for (const ic of lib.icons) {
+        const old = mine.icons.find(i => i?.slot === ic.slot);
+        if (!old || typeof old.svg !== 'string') continue;
+        const clean = sanitizeLibrarySvg(old.svg);
+        if (clean !== null && norm(clean) !== norm(sanitizeLibrarySvg(ic.svg) ?? ic.svg)) out.push({ libraryId: lib.id, slot: ic.slot, label: ic.label, defaultInner: ic.svg, legacyInner: clean });
+      }
+    }
+    return out;
+  }
+
+  /** hide one old customisation from the review list (the old local copy is NOT touched) */
+  ignoreLegacy(slot: string, ignore = true): void {
+    const next = ignore ? [...new Set([...this.legacyIgnored(), slot])] : this.legacyIgnored().filter(s => s !== slot);
+    this.legacyIgnored.set(next);
+    this.persistence.save('icons-legacy-ignored', next);
+  }
+
+  private sanitizeLibrary(lib: IconLibrary): IconLibrary {
+    return {
+      ...lib,
+      icons: (lib.icons ?? [])
+        .map(icon => {
+          const clean = typeof icon?.svg === 'string' ? sanitizeLibrarySvg(icon.svg) : null;
+          return clean === null ? null : { ...icon, svg: clean };
+        })
+        .filter((icon): icon is IconItem => icon !== null),
+    };
   }
 
   /** يعقّم svg كل أيقونة بكل مكتبة — مصدر واحد يُستدعى من load() وimportJson() معًا. */
   private sanitizeLibraries(libraries: IconLibrary[]): IconLibrary[] {
-    return libraries.map(lib => ({
-      ...lib,
-      icons: lib.icons
-        .map(icon => {
-          const clean = sanitizeUploadedSvg(icon.svg);
-          return clean === null ? null : { ...icon, svg: clean };
-        })
-        .filter((icon): icon is IconItem => icon !== null),
-    }));
+    return libraries.map(lib => this.sanitizeLibrary(lib));
   }
 
   /** حفظ حقيقي محليًا — كان غائبًا كليًا (لا استمرارية إطلاقًا قبل هذا التاريخ) */
   save(): boolean {
+    // لا نكتب أبدًا مكتبة فارغة فوق نسخة محفوظة
+    if (!this.libraries().some(l => l.icons.length)) return false;
     return this.persistence.save('icons', this.libraries());
   }
 
@@ -103,6 +167,8 @@ export class IconsService {
     const totalBefore = result.data.libraries.reduce((n, l) => n + l.icons.length, 0);
     const totalAfter = sanitized.reduce((n, l) => n + l.icons.length, 0);
     const rejected = totalBefore - totalAfter;
+    // استيراد لا ينتج أي أيقونة لا يستبدل المكتبة الحالية ولا النسخة المحفوظة
+    if (totalAfter === 0) return { ok: false, error: 'لم تُقبل أي أيقونة من الملف، فبقيت المكتبة كما هي.' };
     this.libraries.set(sanitized);
     this.persistence.save('icons', sanitized);
     if (rejected > 0) {

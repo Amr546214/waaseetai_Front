@@ -24,6 +24,7 @@ import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.servi
 import { isRateLimitError, RATE_LIMIT_MESSAGE, startWaitFromError } from '../../../core/utils/rate-limit.util';
 import { parseRetryAfter } from '../../../core/wait/retry-after.util';
 import { rateLimitSentence } from '../../../core/wait/wait-format';
+import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 
 const LOGIN_LABELS = { email: 'البريد الإلكتروني', password: 'كلمة المرور' };
 
@@ -33,7 +34,7 @@ export const SMS_UNAVAILABLE_MESSAGE = 'التحقق عبر الرسائل ال�
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [BrandNamePipe, CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, GoogleBtnStateDirective, FormSummaryComponent],
+  imports: [IdentityImgDirective, BrandNamePipe, CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, GoogleBtnStateDirective, FormSummaryComponent],
   templateUrl: './login.html',
   styleUrl: './login.css',
   encapsulation: ViewEncapsulation.None,

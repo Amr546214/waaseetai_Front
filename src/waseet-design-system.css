@@ -9,12 +9,13 @@
 :root {
   color-scheme: dark;
   --font-family: 'Tajawal';
-  --font-heading: 'Tajawal', system-ui, sans-serif;
-  --font-body: 'Tajawal', system-ui, sans-serif;
-  --font-numeric: 'Tajawal', system-ui, sans-serif;
+  --font-heading: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+  --font-body: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+  --font-numeric: var(--font-family, 'Tajawal'), system-ui, sans-serif;
 
   --pg: #070d24;
-  --pg-dashboard: #070d24;
+  /* page surface used by the light-mode body rule below: follows --pg (same value in dark), so the central --pg token reaches it */
+  --pg-dashboard: var(--pg);
   --navy: #0b1437;
   --navy-dashboard: rgba(7, 13, 36, .72);
   --surface: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
@@ -158,7 +159,6 @@ html.light-theme body,
 html.theme-light body {
   color-scheme: light;
   --pg: #f6f8fc;
-  --pg-dashboard: #eef2fa;
   --navy: #fff;
   --navy-dashboard: rgba(246,248,252,.96);
   --surface: #fff;
@@ -236,6 +236,11 @@ html.theme-light body {
   --shadow-4: 0 8px 24px rgba(15,23,42,.16);
   --shadow-5: 0 20px 56px rgba(15,23,42,.20);
 }
+
+/* Light page surface = the page --pg of the HTML element (styles.css: #EEF2FA = the former literal #eef2fa). Declared on <html> only: <body> inherits the resolved value, so the
+   body rule below paints the same colour as before in the default state and follows the central --pg token (tokens.colors.light) when it is customised. */
+html.light-theme,
+html.theme-light { --pg-dashboard: var(--pg); }
 
 html, body {
   min-height: 100%;

@@ -29,4 +29,14 @@ describe('admin pages: an explicit rule for each one', () => {
 		expect(r('risk-center')).toEqual({ all: ['finance.read'] });
 		expect(r('withdrawals/abc')).toEqual({ all: ['withdrawals.review'] });
 	});
+	it('site control: identity needs site.view/site.manage (or the legacy permission, which also edits), the local pages keep site_control.manage, the section opens for any of the three', () => {
+		const r = (p: string) => ruleForPath(`/supper-admin-overview/${p}`);
+		expect(r('site-control')).toEqual({ anyOf: ['site_control.manage', 'site.view', 'site.manage'] });
+		// the legacy permission opens «الهوية» too and (Round 5) is the edit capability there; site.view stays read-only
+		expect(r('site-control/identity')).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
+		// Round 5: the two pages with the server-backed token editor follow the identity permissions; the other local pages keep site_control.manage
+		for (const pg of ['tokens', 'typography']) expect(r(`site-control/${pg}`)).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
+		expect(r('site-control/icons')).toEqual({ all: ['site_control.manage'] });
+		expect(r('site-control/something-new')).toEqual({ anyOf: ['site_control.manage', 'site.view', 'site.manage'] });
+	});
 });

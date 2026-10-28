@@ -13,7 +13,7 @@
 </defs></svg>
 @if (!embedded) {
   <a routerLink="/" class="logo-bar">
-    <img src="/images/waseet-mark.png" [attr.alt]="'' | brandName" height="30">
+    <img [wsIdentityImg]="'logo.mark'" src="/images/waseet-mark.png" [attr.alt]="'' | brandName" height="30">
     <span>{{ '' | brandName }}</span>
   </a>
 }

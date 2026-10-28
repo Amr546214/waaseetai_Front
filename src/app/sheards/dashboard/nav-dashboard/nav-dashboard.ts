@@ -17,11 +17,12 @@ import { NotificationBell } from '../../notification-bell/notification-bell';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { AssistantStore } from '../../../core/store/assistant.store';
 import { AdminAccessService } from '../../../core/services/admin-access.service';
+import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 
 @Component({
 	selector: 'app-nav-dashboard',
 	standalone: true,
-	imports: [BrandNamePipe, CommonModule, RouterModule, NotificationBell, NotificationPopupComponent],
+	imports: [IdentityImgDirective, BrandNamePipe, CommonModule, RouterModule, NotificationBell, NotificationPopupComponent],
 	templateUrl: './nav-dashboard.html',
 	styleUrl: './nav-dashboard.css',
 	host: {

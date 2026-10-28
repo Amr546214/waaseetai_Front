@@ -17,11 +17,14 @@ import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../core
 import { isOnboardingAllowedPath } from '../../../core/guards/profile-complete.guard';
 import { AdminAccessService } from '../../../core/services/admin-access.service';
 import { ruleForPath } from '../../../core/config/admin-access-rules';
+import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 
 export interface NavItem {
 	type: 'header' | 'link' | 'accordion' | 'button' | 'divider';
 	label?: string;
 	icon?: string;
+	/** the site icon (icon.fn id) this entry's glyph is the same element as: the drawn <svg> carries data-ws-icon so a customised icon replaces it */
+	ws?: string;
 	route?: string;
 	exact?: boolean;
 	badge?: number;
@@ -36,7 +39,7 @@ export interface NavItem {
 @Component({
 	selector: 'app-sidebar',
 	standalone: true,
-	imports: [BrandNamePipe, CommonModule, RouterModule],
+	imports: [IdentityImgDirective, BrandNamePipe, CommonModule, RouterModule],
 	templateUrl: './sidebar.html',
 	styleUrl: './sidebar.css',
 })
@@ -414,7 +417,7 @@ export class Sidebar implements OnInit {
 			{
 				type: 'accordion', id: 'sa-comm', label: 'التواصل والمحتوى', icon: icons.chat,
 				children: [
-					{ type: 'link', label: 'الإشعارات', route: '/supper-admin-overview/communication/notifications', icon: icons.bell },
+					{ type: 'link', label: 'الإشعارات', route: '/supper-admin-overview/communication/notifications', icon: icons.bell, ws: 'i-bell' },
 					{ type: 'link', label: 'Broadcast', route: '/supper-admin-overview/communication/broadcast', icon: icons.send },
 					{ type: 'link', label: 'إدارة المحتوى', route: '/supper-admin-overview/communication/content', icon: icons.doc }
 				]
@@ -433,9 +436,10 @@ export class Sidebar implements OnInit {
 			{
 				type: 'accordion', id: 'sa-site-control', label: 'التحكم بالموقع', icon: icons.settings,
 					children: [
+						{ type: 'link', label: 'الهوية', route: '/supper-admin-overview/site-control/identity', icon: icons.shield },
 						{ type: 'link', label: 'صحة الهوية', route: '/supper-admin-overview/site-control/health', icon: icons.check },
 						{ type: 'link', label: 'القيم والألوان', route: '/supper-admin-overview/site-control/tokens', icon: icons.settings },
-						{ type: 'link', label: 'الأيقونات', route: '/supper-admin-overview/site-control/icons', icon: icons.star },
+						{ type: 'link', label: 'مكتبة الأيقونات (محلية)', route: '/supper-admin-overview/site-control/icons', icon: icons.star },
 						{ type: 'link', label: 'المستويات والنقاط', route: '/supper-admin-overview/site-control/accounts', icon: icons.chart },
 						{ type: 'link', label: 'القوالب', route: '/supper-admin-overview/site-control/templates', icon: icons.doc },
 						{ type: 'link', label: 'الخطوط', route: '/supper-admin-overview/site-control/typography', icon: icons.edit },
@@ -516,7 +520,7 @@ export class Sidebar implements OnInit {
 				type: 'link',
 				label: 'الإشعارات',
 				route: '/marketer-overview/notifications',
-				icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
+				ws: 'i-bell', icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
 			},
 			{
 				type: 'link',
@@ -652,9 +656,9 @@ export class Sidebar implements OnInit {
 					type: 'accordion',
 					id: 'notif',
 					label: 'الإشعارات',
-					icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
+					ws: 'i-bell', icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
 					children: [
-						{ type: 'link', label: 'مركز الإشعارات', route: '/provider-overview/notifications', icon: 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0' },
+						{ type: 'link', label: 'مركز الإشعارات', route: '/provider-overview/notifications', ws: 'i-bell', icon: 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0' },
 						{ type: 'link', label: 'تفضيلات الإشعارات', route: '/provider-overview/notifications/favorite', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z' }
 					]
 				},
@@ -854,7 +858,7 @@ export class Sidebar implements OnInit {
 				type: 'link',
 				label: 'الإشعارات',
 				route: '/client-overview/notifications',
-				icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
+				ws: 'i-bell', icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'
 			},
 			{
 				type: 'accordion',

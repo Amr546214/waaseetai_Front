@@ -2,6 +2,8 @@ import { Component, computed, inject, signal, ViewEncapsulation } from '@angular
 import { DesignTokensService } from '../core/design-tokens.service';
 import { ThemeMode, ThemeModeService } from '../core/theme-mode.service';
 import { contrastRatio, wcagLevel, WcagLevel } from '../core/contrast';
+import { PlatformTokensStore } from '../platform-tokens/platform-tokens.store';
+import { TokenEditor } from '../platform-tokens/token-editor';
 
 interface PaletteSwatch {
   label: string;
@@ -20,7 +22,7 @@ const DOCUMENTED_ALTERNATES: Record<string, PaletteSwatch[]> = {
 @Component({
   selector: 'sc-color-tokens',
   standalone: true,
-  imports: [],
+  imports: [TokenEditor],
   templateUrl: './color-tokens.html',
   encapsulation: ViewEncapsulation.ShadowDom,
   styleUrls: ['../site-control-base.css', './color-tokens.css']
@@ -28,6 +30,9 @@ const DOCUMENTED_ALTERNATES: Record<string, PaletteSwatch[]> = {
 export class ColorTokens {
   tokensService = inject(DesignTokensService);
   themeModeService = inject(ThemeModeService);
+  private readonly platform = inject(PlatformTokensStore);
+  /** a variable the SERVER manages (design-token keys): its row is locked here, the central editor above is the only editor of it */
+  isPlatform(varName: string): boolean { return this.platform.names().has(varName); }
   saving = false;
   savedMsg = '';
   readonly weightOptions = [400, 500, 600, 700, 800, 900];

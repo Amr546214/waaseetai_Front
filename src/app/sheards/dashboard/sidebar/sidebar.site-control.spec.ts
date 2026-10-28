@@ -26,7 +26,7 @@ describe('Sidebar: التحكم بالموقع', () => {
 	};
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('a super admin sees the section last (before logout) with the nine pages and correct routes', () => {
+	it('a super admin sees the section last (before logout) with «الهوية» first and the nine local pages, correct routes', () => {
 		const nav = items('SUPER_ADMIN', ['site_control.manage']);
 		const i = nav.findIndex(n => n.type === 'header' && n.label === 'التحكم بالموقع');
 		expect(i).toBeGreaterThan(-1);
@@ -34,7 +34,7 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(nav[i + 1].label).toBe('التحكم بالموقع');
 		expect(nav[i + 2].type).toBe('button'); // logout stays the last entry
 		const children = nav[i + 1].children as any[];
-		expect(children.map(c => c.label)).toEqual(['صحة الهوية', 'القيم والألوان', 'الأيقونات', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'دليل الأنماط', 'المعاينة الشاملة', 'تصدير CSS']);
+		expect(children.map(c => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات (محلية)', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'دليل الأنماط', 'المعاينة الشاملة', 'تصدير CSS']);
 		expect(children.every(c => String(c.route).startsWith('/supper-admin-overview/site-control/'))).toBe(true);
 	});
 
@@ -49,6 +49,25 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(isAdminUser({ accountType: 'ADMIN' })).toBe(true);
 		expect(isAdminUser({ accountType: 'SUPER_ADMIN' })).toBe(true);
 		expect(isAdminUser({ accountType: 'CLIENT_INDIVIDUAL' })).toBe(false);
+	});
+
+	it('identity-only staff (site.view / site.manage, no site_control.manage) see «الهوية» and the two pages with the server-backed token editor («القيم والألوان», «الخطوط»); the other local pages stay hidden from them', () => {
+		for (const perm of ['site.view', 'site.manage']) {
+			const nav = items('ADMIN', [perm]);
+			const sec = nav.find(n => n.type === 'accordion' && n.label === 'التحكم بالموقع');
+			expect(sec?.children.map((c: any) => c.label)).toEqual(['الهوية', 'القيم والألوان', 'الخطوط']);
+			TestBed.resetTestingModule();
+		}
+		// a staff member holding none of the three has no section
+		expect(items('ADMIN', ['users.view']).some(n => n.label === 'التحكم بالموقع')).toBe(false);
+	});
+
+	it('Round 5: the legacy site_control.manage keeps the whole section and sees «الهوية» (where it also edits); nobody loses access', () => {
+		const legacy = items('ADMIN', ['site_control.manage']).find(n => n.label === 'التحكم بالموقع' && n.type === 'accordion');
+		expect(legacy.children.map((c: any) => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات (محلية)', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'دليل الأنماط', 'المعاينة الشاملة', 'تصدير CSS']);
+		TestBed.resetTestingModule();
+		const both = items('ADMIN', ['site_control.manage', 'site.manage']).find(n => n.label === 'التحكم بالموقع' && n.type === 'accordion');
+		expect(both.children.length).toBe(10);
 	});
 
 	it('no other role gets the section', () => {

@@ -79,6 +79,17 @@ export function sanitizeUploadedSvg(raw: string): string | null {
 }
 
 /**
+ * يعقّم أيقونة محفوظة بصيغة المكتبة: icons.json (وكل نسخة محفوظة منه) تخزّن **محتوى الـSVG الداخلي فقط**
+ * (`<path d="…"/>`) بلا وسم `<svg>` الخارجي، بينما sanitizeUploadedSvg تشترط وسم `<svg>` كاملاً وتُرجع null غير ذلك.
+ * السبب الجذري لظهور المكتبة فارغة بعد «حفظ» ثم العودة (2026-10-28): كل أيقونة محفوظة محليًا كانت تُرفض عند إعادة التحميل
+ * فتُحذف الأيقونات كلها. هذه الدالة تغلّف المحتوى الداخلي بوسم svg قبل التعقيم، وتعيد المحتوى الداخلي المعقَّم.
+ */
+export function sanitizeLibrarySvg(inner: string): string | null {
+  if (typeof inner !== 'string' || !inner.trim()) return null;
+  return sanitizeUploadedSvg(/<svg[\s>]/i.test(inner) ? inner : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">${inner}</svg>`);
+}
+
+/**
  * دالة موحّدة لقراءة وتعقيم ملف SVG مرفوع — كانت هذي المنطق منسوخة بتنفيذين منفصلين
  * (icon-tokens.ts و accounts.ts) برسائل خطأ مختلفة لنفس الحالة (إصلاح 2026-08-18).
  * أي مكان جديد يحتاج رفع أيقونة (المكوّن المشترك المستقبلي app-icon-picker) يستخدم هذي فقط.

@@ -162,7 +162,7 @@
 				<div style="display:flex;gap:8px;flex-wrap:wrap">
 						<div style="display:flex;flex-direction:column">
 						<select formControlName="platform"
-						style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif;cursor:pointer"
+						style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:var(--font-family,'Tajawal'),sans-serif;cursor:pointer"
 						aria-label="نوع القناة" aria-required="true" class="txt-white">
 						<option value="">اختر القناة</option>
 						<option value="LINKEDIN">LinkedIn</option>
@@ -176,7 +176,7 @@
 						</div>
 						<div style="display:flex;flex-direction:column;flex:1;min-width:160px">
 						<input type="text" formControlName="handle"
-						style="flex:1;min-width:160px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif"
+						style="flex:1;min-width:160px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:var(--font-family,'Tajawal'),sans-serif"
 						placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-label="معرف القناة" aria-required="true" class="txt-white">
 						<ws-field-error [control]="channelForm.get('handle')" [messages]="{ required: 'أدخل معرّف القناة أو رابطها' }" />
 						</div>

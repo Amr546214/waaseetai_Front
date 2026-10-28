@@ -20,11 +20,12 @@ import { ThemeService } from '../../core/services/theme.service';
 import { AssistantSettingsComponent } from '../../sheards/assistant-chat/assistant-settings';
 import { assistantMarkdown, safeAssistantUrl } from '../../core/help/assistant-content';
 import { AssistantReplyAudioComponent } from '../../sheards/assistant-chat/assistant-reply-audio';
+import { IdentityImgDirective } from '../../core/identity/identity-img.directive';
 
 @Component({
 	selector: 'app-assistant-page',
 	standalone: true,
-	imports: [FormsModule, RouterLink, AssistantSettingsComponent, AssistantReplyAudioComponent],
+	imports: [IdentityImgDirective, FormsModule, RouterLink, AssistantSettingsComponent, AssistantReplyAudioComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
 	styleUrl: './assistant-page.css',
@@ -52,7 +53,7 @@ import { AssistantReplyAudioComponent } from '../../sheards/assistant-chat/assis
 						aria-keyshortcuts="Control+Shift+S"
 						[attr.aria-label]="desktopCollapsed() ? 'فتح قائمة المحادثات' : 'طي قائمة المحادثات'"
 					>
-						<img src="/images/waseet-mark.png" alt="وسيط" />
+						<img [wsIdentityImg]="'logo.mark'" src="/images/waseet-mark.png" alt="وسيط" />
 						<svg class="tc-brand-toggle" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<rect width="18" height="18" x="3" y="3" rx="2" />
 							<path d="M9 3v18M16 15l-3-3 3-3" />

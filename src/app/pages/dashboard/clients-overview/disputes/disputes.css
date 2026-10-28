@@ -3,7 +3,7 @@
 }
 
 .disp-page {
-  font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font-family,'Tajawal'), 'Segoe UI', system-ui, sans-serif;
 }
 
 /* ==========================================================================

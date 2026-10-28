@@ -1,0 +1,486 @@
+<!-- one preview tile: `p` = Preview, tone = light|dark background, h = height in px, sq = square (icons) -->
+<ng-template #pv let-p="p" let-tone="tone" let-h="h" let-sq="sq" let-label="label">
+  <span class="pv" [class.pv-light]="tone === 'light'" [class.pv-dark]="tone === 'dark'" [attr.data-tone]="tone" [attr.aria-label]="label">
+    @if (!p) {
+      <span class="pv-none">لا معاينة</span>
+    } @else if (p.kind === 'img') {
+      <img [src]="p.src" alt="" decoding="async" [style.height.px]="h" [style.width.px]="sq ? h : null" [class.pv-sq]="sq" />
+    } @else if (p.kind === 'svg') {
+      <svg [scInlineSvg]="p.icon" [style.width.px]="h" [style.height.px]="h" aria-hidden="true" focusable="false"></svg>
+    } @else {
+      <span class="pv-none">تعذّرت المعاينة</span>
+    }
+  </span>
+</ng-template>
+
+<!-- who did it: the NAME and the stable id (short inline, the full id on hover and copyable); a null name is «غير معروف»; never an e-mail -->
+<ng-template #actor let-a="a" let-tid="tid">
+  @if (a) {
+    <span class="actor" [attr.data-testid]="tid">
+      <span class="actor-name" [attr.data-testid]="tid ? tid + '-name' : null">{{ actorName(a) }}</span>
+      <code class="mono actor-id" dir="ltr" [title]="a.id" [attr.data-testid]="tid ? tid + '-id' : null">{{ who(a.id) }}</code>
+      <button type="button" class="btn-copy" (click)="copyId(a.id)" [title]="'نسخ المعرّف الكامل: ' + a.id" [attr.aria-label]="'نسخ المعرّف الكامل للمستخدم ' + actorName(a)">{{ copied() === a.id ? 'نُسخ' : 'نسخ المعرّف' }}</button>
+    </span>
+  }
+</ng-template>
+
+<!-- a full preview block: big on light and dark, then the small sizes on both -->
+<ng-template #pvBlock let-p="p" let-it="it" let-prefix="prefix">
+  <div class="pv-pair" [attr.data-testid]="prefix + '-big'">
+    <div class="pv-cell"><span class="pv-cap">خلفية فاتحة</span><ng-container *ngTemplateOutlet="pv; context: { p: p, tone: 'light', h: bigSize(it), sq: sizeSet(it).square, label: 'معاينة على خلفية فاتحة' }" /></div>
+    <div class="pv-cell"><span class="pv-cap">خلفية داكنة</span><ng-container *ngTemplateOutlet="pv; context: { p: p, tone: 'dark', h: bigSize(it), sq: sizeSet(it).square, label: 'معاينة على خلفية داكنة' }" /></div>
+  </div>
+  @if (sizeSet(it).list.length) {
+    <div class="pv-sizes" [attr.data-testid]="prefix + '-sizes'">
+      @for (tone of ['light', 'dark']; track tone) {
+        <div class="pv-strip" [class.pv-strip-light]="tone === 'light'" [class.pv-strip-dark]="tone === 'dark'">
+          @for (s of sizeSet(it).list; track s) {
+            <span class="pv-size"><ng-container *ngTemplateOutlet="pv; context: { p: p, tone: 'none', h: s, sq: sizeSet(it).square, label: s + ' بكسل' }" /><small>{{ s }}</small></span>
+          }
+        </div>
+      }
+    </div>
+  }
+</ng-template>
+
+<div class="id-wrap" data-testid="identity-page">
+  <header class="panel-header">
+    <h1>الهوية</h1>
+    <p class="sub">الشعارات وأيقونة التبويب وأيقونة الذكاء الاصطناعي للمنصة: تُحفظ على الخادم بنسخ مرقّمة، وتظهر في الموقع كله بعد «تطبيق». الأصل المنشور اليوم محفوظ دائمًا ويمكن العودة إليه.</p>
+    <div class="actions">
+      <div class="theme-toggle" role="group" aria-label="وضع عرض هذه اللوحة">
+        <button type="button" class="toggle-seg" [class.active]="theme.mode() === 'dark'" (click)="setMode('dark')" data-testid="identity-mode-dark">داكن</button>
+        <button type="button" class="toggle-seg" [class.active]="theme.mode() === 'light'" (click)="setMode('light')" data-testid="identity-mode-light">فاتح</button>
+      </div>
+      @if (phase() === 'ready') {
+        <button type="button" class="btn-secondary" (click)="reload()" data-testid="identity-reload">تحديث من الخادم</button>
+        <span class="chip" data-testid="identity-manifest-version">نسخة بيان الموقع: {{ data()!.manifestVersion }}</span>
+        <span class="chip">{{ wiredCount() }} من {{ items().length }} مفتاحًا مرتبط بالموقع</span>
+      }
+    </div>
+  </header>
+
+  @switch (phase()) {
+    @case ('loading') {
+      <div class="state" role="status" aria-live="polite" data-testid="identity-loading">
+        <span class="spinner" aria-hidden="true"></span> جارٍ تحميل هوية الموقع من الخادم…
+      </div>
+    }
+    @case ('error') {
+      <div class="err-box" role="alert" data-testid="identity-error">
+        <strong>تعذّر تحميل الصفحة.</strong> {{ loadMessage() }}
+        <div class="row"><button type="button" class="btn-secondary" (click)="load()" data-testid="identity-retry">إعادة المحاولة</button></div>
+      </div>
+    }
+    @case ('denied') {
+      <div class="err-box" role="alert" data-testid="identity-denied">
+        <strong>لا صلاحية.</strong> {{ loadMessage() }}
+      </div>
+    }
+    @case ('unavailable') {
+      <div class="err-box" role="alert" data-testid="identity-unavailable">
+        <strong>الخدمة غير جاهزة.</strong> {{ loadMessage() }}
+        <div class="row"><button type="button" class="btn-secondary" (click)="load()" data-testid="identity-retry">إعادة المحاولة</button></div>
+      </div>
+    }
+    @default {
+      @if (!canManage()) {
+        <div class="note note-warn" role="note" data-testid="identity-readonly">
+          <strong>عرض فقط.</strong> صلاحيتك تسمح بالاطلاع على الهوية (site.view) ولا تسمح بالرفع أو التطبيق أو الاستعادة (تحتاج site.manage أو صلاحية «التحكم بالموقع»). لا توجد أزرار تعديل في هذه الصفحة لحسابك.
+        </div>
+      }
+      @if (pageNotice(); as pn) {
+        <div class="note" [class]="'note note-' + pn.type" role="status" data-testid="identity-page-notice"><strong>{{ pn.text }}</strong> {{ pn.detail }}</div>
+      }
+
+      <section class="card platform-name" data-testid="identity-platform-name" aria-labelledby="pn-h">
+        <h2 id="pn-h">اسم المنصة</h2>
+        <p class="val"><strong>{{ platformName() }}</strong> <span class="chip chip-muted">للقراءة فقط هنا</span></p>
+        <p class="hint">الاسم ليس جزءًا من هذه الصفحة: مصدره الوحيد إعداد «اسم النظام» في
+          @if (canOpenSettings()) { <a routerLink="/supper-admin-overview/system-settings" data-testid="identity-settings-link">إعدادات النظام</a> } @else { إعدادات النظام (تحتاج صلاحية الإعدادات) }.
+          لا يوجد مصدر ثانٍ له.</p>
+      </section>
+
+      <section class="card colors-note" data-testid="identity-colors-note">
+        <h2>الألوان والخطوط والقيم العامة</h2>
+        <p class="hint">المتغيّرات المركزية للتصميم (ألوان الوضعين، أبعاد الحواف والحاوية، والخط العام) <strong>مرتبطة بالموقع</strong> وتُدار من صفحتي «القيم والألوان» و«الخطوط» بنفس مسار هذه الصفحة (تحقّق ومعاينة ثم تطبيق، استعادة، تعارض). هذه الصفحة لا تحرّرها ولا تكرّر محرّرها. باقي صفحات القسم: <strong>دليل الأنماط والمعاينة الشاملة وصحة الهوية</strong> أدوات عرض تقرأ هذه الهوية الحالية (الألوان والخط والشعار والأيقونة المنشورة) ولا تحفظ شيئًا على الموقع؛ <strong>القوالب والتصدير والمحرّر المحلي</strong> في صفحتي القيم والخطوط أدوات تجربة تعمل على هذا المتصفح فقط وهي <strong>غير مرتبطة بالموقع</strong>؛ و<strong>المستويات والنقاط</strong> قواعد أعمال المنصة خارج نطاق إدارة الهوية ولا يغيّر هذا القسم منطقها. الألوان المكتوبة مباشرة في الشيفرة لا تتبع هذه المتغيّرات (الأعداد على صفحة «القيم والألوان»).</p>
+      </section>
+
+      @if (tokenItems().length) {
+        <section class="card token-summary" data-testid="identity-tokens" aria-labelledby="tk-h">
+          <h2 id="tk-h">قيم التصميم المرتبطة بالموقع</h2>
+          <ul class="plain-list" data-testid="identity-tokens-list">
+            @for (it of tokenItems(); track it.key) {
+              <li [attr.data-testid]="'token-sum-' + it.key">
+                <strong>{{ it.label }}</strong> <code class="code" dir="ltr">{{ it.key }}</code>
+                — @if (it.state.isDefault) { <span class="chip chip-muted">الأصل الافتراضي</span> } @else { <span class="chip chip-ok">مخصّص: النسخة {{ it.state.active?.version }} ({{ overrideCount(it) }} قيمة)</span> }
+                @if (!it.wired) { <span class="chip chip-off">غير مفعّل بعد</span> }
+                — <a [routerLink]="tokenPage(it.key).link">تحرير من «{{ tokenPage(it.key).text }}»</a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      <section class="card fn-icons-summary" data-testid="identity-fn-icons" aria-labelledby="fn-h">
+        <h2 id="fn-h">الأيقونات الوظيفية في الموقع</h2>
+        <p class="hint">أيقونات الواجهة (الجرس والبحث والإعدادات وغيرها) تُدار كلها من صفحة <a routerLink="/supper-admin-overview/site-control/icons" data-testid="identity-fn-icons-link">«مكتبة الأيقونات»</a> بنفس مسار هذه الصفحة (معاينة وتطبيق وإلغاء واستعادة وتعارض). لا يوجد محرّر ثانٍ لها هنا.
+          المخصّصة الآن: <strong data-testid="identity-fn-icons-custom">{{ fnIcons().custom }}</strong>@if (fnIcons().withDraft) { ، وبها مسودات: {{ fnIcons().withDraft }} }. أيقونة الذكاء الاصطناعي الرسمية وحدها تبقى هنا (المفتاح <code dir="ltr">icon.ai</code>).</p>
+      </section>
+
+      @for (g of groups(); track g.id) {
+        <section class="group" [attr.data-testid]="'identity-group-' + g.id" [attr.aria-labelledby]="'gh-' + g.id">
+          @if (g.id === 'character') {
+            <details class="group-details">
+              <summary><h2 id="gh-character">{{ g.title }} <small>({{ g.items.length }} ملفًا — {{ g.hint }})</small></h2></summary>
+              <ng-container *ngTemplateOutlet="keyList; context: { list: g.items }" />
+            </details>
+          } @else {
+            <h2 [id]="'gh-' + g.id">{{ g.title }}</h2>
+            <p class="hint">{{ g.hint }}</p>
+            <ng-container *ngTemplateOutlet="keyList; context: { list: g.items }" />
+          }
+        </section>
+      }
+
+      <section class="card" data-testid="identity-set-section" aria-labelledby="set-h">
+        <h2 id="set-h">استعادة نسخة هوية كاملة</h2>
+        <p class="hint">كل تطبيق أو استعادة يضيف سطرًا إلى سجل بيان الموقع. من هنا تُرجع <strong>كل المفاتيح معًا</strong> إلى حالتها في نسخة سابقة (أو إلى الأصل الكامل). يظهر لك قبل التنفيذ <strong>الفرق الدقيق</strong> لكل مفتاح (الحالي مقابل ما بعد الاستعادة) ولا يُنفَّذ غيره.</p>
+        @if (setNotice(); as sn) {
+          <div [class]="'note note-' + sn.type" role="status" data-testid="identity-set-notice">
+            <strong>{{ sn.text }}</strong> {{ sn.detail }}
+            @if (sn.type === 'conflict') {
+              <div class="conflict-box" data-testid="identity-set-conflict">
+                الحالة الآن على الخادم: نسخة بيان #{{ setConflictManifest(sn.current) ?? '؟' }}.
+                <button type="button" class="btn-secondary" (click)="reloadAfterSetConflict()" data-testid="identity-set-reload">إعادة تحميل الحالة الحالية</button>
+              </div>
+            }
+          </div>
+        }
+        @switch (setPhase()) {
+          @case ('loading') { @if (!setRows().length) { <p class="state" role="status">جارٍ تحميل السجل…</p> } }
+          @case ('error') { <p class="note note-error" role="alert">تعذّر تحميل سجل البيان. <button type="button" class="btn-secondary" (click)="loadSetHistory()">إعادة المحاولة</button></p> }
+        }
+        @if (setPreview(); as sp) {
+          <div class="set-preview" data-testid="set-preview" [attr.data-phase]="sp.phase" [attr.data-stale]="sp.stale ? 'true' : null" aria-live="polite">
+            <h3>{{ sp.manifestVersion === 0 ? 'معاينة: استعادة الأصل الكامل' : 'معاينة: استعادة نسخة بيان #' + sp.manifestVersion }}</h3>
+            @switch (sp.phase) {
+              @case ('loading') { <p class="state" role="status" data-testid="set-preview-loading"><span class="spinner" aria-hidden="true"></span> جارٍ حساب الفرق الدقيق من الخادم…</p> }
+              @case ('error') {
+                <p class="note note-error" role="alert" data-testid="set-preview-error"><strong>{{ sp.message }}</strong></p>
+                <div class="row"><button type="button" class="btn-secondary" (click)="openSetPreview(sp.manifestVersion, sp.at)">إعادة المحاولة</button> <button type="button" class="btn-link" (click)="closeSetPreview()">إغلاق</button></div>
+              }
+              @case ('ready') {
+                @let pr = sp.data!;
+                @if (sp.stale) { <p class="note note-conflict" role="alert" data-testid="set-preview-stale"><strong>تغيّرت الهوية بعد أن عُرضت عليك المعاينة السابقة، فلم يُنفَّذ أي شيء.</strong> هذه هي المعاينة المحدّثة: راجعها بعناية ثم أكّد من جديد.</p> }
+                <p class="hint" data-testid="set-preview-summary">البيان الحالي <strong>#{{ pr.currentManifestVersion }}</strong> ← الهدف <strong>#{{ pr.targetManifestVersion }}</strong> · {{ pr.changedCount }} {{ pr.changedCount === 1 ? 'مفتاح سيتغيّر' : 'مفاتيح ستتغيّر' }}، {{ unchangedRows(pr).length }} بلا تغيير.</p>
+                @if (!pr.canApply) { <p class="note note-warn" data-testid="set-preview-nochange">لا فرق بين الحالة الحالية وهذه النسخة: لا شيء يُستعاد.</p> }
+                <ul class="diff-list" data-testid="set-preview-changed">
+                  @for (r of changedRows(pr); track r.key) {
+                    <li class="diff-row" [attr.data-testid]="'diff-' + r.key" [attr.data-change]="r.change">
+                      <div class="diff-head"><strong>{{ r.label }}</strong> <code class="code" dir="ltr">{{ r.key }}</code> <span class="chip" [class.chip-ok]="r.change === 'to-default'" [attr.data-testid]="'diff-kind-' + r.key">{{ kindText[r.change] }}</span></div>
+                      <div class="diff-sides">
+                        @for (side of [{ k: 'cur', t: 'الحالي', s: r.current }, { k: 'new', t: 'بعد الاستعادة', s: r.target }]; track side.k) {
+                          <div class="diff-side" [class.diff-side-new]="side.k === 'new'" [attr.data-testid]="'diff-' + side.k + '-' + r.key">
+                            <h5>{{ side.t }}</h5>
+                            @if (r.group !== 'token') {
+                            <div class="diff-pv">
+                              <ng-container *ngTemplateOutlet="pv; context: { p: sidePreview(r, side.s), tone: 'light', h: 40, sq: previewItem(r).group === 'icon' || previewItem(r).group === 'favicon', label: side.t + ' على خلفية فاتحة' }" />
+                              <ng-container *ngTemplateOutlet="pv; context: { p: sidePreview(r, side.s), tone: 'dark', h: 40, sq: previewItem(r).group === 'icon' || previewItem(r).group === 'favicon', label: side.t + ' على خلفية داكنة' }" />
+                            </div>
+                            } @else {
+                              <ul class="plain-list small" [attr.data-testid]="'diff-tokens-' + side.k + '-' + r.key">
+                                @for (d of tokenDiff(r); track d.name) { <li><code dir="ltr">{{ d.name }}</code>: <code dir="ltr">{{ side.k === 'cur' ? d.from : d.to }}</code></li> } @empty { <li class="muted">لا فرق في القيم</li> }
+                              </ul>
+                            }
+                            <p class="small"><span class="chip" [class.chip-muted]="side.s.source === 'default'" [attr.data-testid]="'diff-source-' + side.k + '-' + r.key">{{ sideText(side.s) }}</span></p>
+                            <p class="small muted"><span dir="ltr" class="mono" [title]="side.s.sha256">{{ sha(side.s.sha256) }}</span> · {{ mime(side.s.mime) }} · {{ dim(side.s.width, side.s.height) }}</p>
+                          </div>
+                        }
+                      </div>
+                    </li>
+                  }
+                </ul>
+                @if (unchangedRows(pr).length) {
+                  <details class="diff-unchanged" data-testid="set-preview-unchanged">
+                    <summary>{{ unchangedRows(pr).length }} مفتاحًا بلا تغيير</summary>
+                    <ul class="plain-list small">@for (r of unchangedRows(pr); track r.key) { <li>{{ r.label }} <code class="code" dir="ltr">{{ r.key }}</code> — {{ sideText(r.current) }}</li> }</ul>
+                  </details>
+                }
+                <div class="row">
+                  <button type="button" class="btn-save" [disabled]="setBusy() || !pr.canApply" (click)="confirmSetRestore()" data-testid="set-preview-confirm">{{ setBusy() ? 'جارٍ الاستعادة…' : 'تنفيذ هذا الفرق بالضبط' }}</button>
+                  <button type="button" class="btn-secondary" [disabled]="setBusy()" (click)="closeSetPreview()" data-testid="set-preview-cancel">إلغاء</button>
+                  @if (setBusy()) { <span class="spinner" aria-hidden="true"></span> }
+                </div>
+              }
+            }
+          </div>
+        }
+        <ul class="set-list" data-testid="identity-set-list">
+          @for (r of setRows(); track r.manifestVersion) {
+            <li class="set-row" [attr.data-testid]="'set-row-' + r.manifestVersion">
+              <div class="set-main">
+                <strong>نسخة {{ r.manifestVersion }}</strong>
+                <span class="muted">{{ r.createdAt | wsDate:'datetime' }}</span>
+                @if (r.createdBy) { <span class="muted">بواسطة <ng-container *ngTemplateOutlet="actor; context: { a: r.createdBy, tid: 'set-by-' + r.manifestVersion }" /></span> }
+                @if (r.manifestVersion === data()!.manifestVersion) { <span class="chip">الحالية</span> }
+              </div>
+              <div class="set-keys">{{ r.changedKeys.length ? labelsOf(r.changedKeys) : 'بلا تغيير في المفاتيح' }}</div>
+              @if (canManage() && r.manifestVersion !== data()!.manifestVersion) {
+                <button type="button" class="btn-secondary" [disabled]="setBusy()" (click)="openSetPreview(r.manifestVersion, r.createdAt)" [attr.data-testid]="'set-restore-' + r.manifestVersion">معاينة الاستعادة</button>
+              }
+            </li>
+          } @empty {
+            @if (setPhase() === 'ready') { <li class="muted" data-testid="identity-set-empty">لا سجل بعد: لم يُطبَّق أي تغيير على الهوية، وكل شيء هو الأصل الافتراضي.</li> }
+          }
+        </ul>
+        @if (setHasMore()) { <button type="button" class="btn-secondary" (click)="loadSetHistory(true)" [disabled]="setPhase() === 'loading'">عرض الأقدم</button> }
+        @if (canManage() && data()!.manifestVersion > 0) {
+          <div class="row">
+            <button type="button" class="btn-secondary" [disabled]="setBusy()" (click)="openSetPreview(0)" data-testid="set-restore-0">استعادة الأصل الكامل (كل المفاتيح افتراضية)</button>
+          </div>
+        }
+      </section>
+
+      <section class="card not-identity" data-testid="identity-not-identity" aria-labelledby="ni-h">
+        <h2 id="ni-h">ليس من الهوية</h2>
+        <p class="hint">هذه أشياء تشبه عناصر الهوية لكنها لا تُدار من هنا ولن تتغيّر بأي تعديل في هذه الصفحة:</p>
+        <ul class="plain-list">
+          @for (n of notIdentity(); track $index) { <li>{{ n }}</li> }
+        </ul>
+        @if (unregistered().length) {
+          <details>
+            <summary>ملفات صور موجودة في الموقع ولا تُدار هنا ({{ unregistered().length }})</summary>
+            <ul class="plain-list small">
+              @for (f of unregistered(); track f.path) { <li><code dir="ltr">{{ f.path }}</code> — {{ f.reason }}</li> }
+            </ul>
+          </details>
+        }
+      </section>
+    }
+  }
+</div>
+
+<!-- the cards of a list of keys -->
+<ng-template #keyList let-list="list">
+  <div class="key-list">
+    @for (it of list; track it.key) {
+      <article class="card key" [class.key-off]="!it.wired" [attr.data-testid]="'identity-key-' + it.key" [attr.data-wired]="it.wired" [attr.aria-labelledby]="'k-' + it.key">
+        <header class="key-head">
+          <div>
+            <h3 [id]="'k-' + it.key">{{ it.label }}</h3>
+            <code class="code" dir="ltr">{{ it.key }}</code>
+          </div>
+          <div class="chips">
+            @if (it.wired) { <span class="chip chip-ok" [attr.data-testid]="'status-' + it.key">مرتبط بالموقع</span> } @else { <span class="chip chip-off" [attr.data-testid]="'status-' + it.key">غير مرتبط بالموقع بعد</span> }
+            <span class="chip" [attr.data-testid]="'source-' + it.key">{{ currentFacts(it).source }}</span>
+          </div>
+        </header>
+        <p class="hint">{{ it.description }}</p>
+
+        <div class="key-grid">
+          <div class="col">
+            <h4>الحالي</h4>
+            <ng-container *ngTemplateOutlet="pvBlock; context: { p: currentPreview(it), it: it, prefix: 'cur-' + it.key }" />
+            <dl class="facts" [attr.data-testid]="'facts-' + it.key">
+              <dt>المصدر</dt><dd>{{ currentFacts(it).source }}</dd>
+              <dt>النوع</dt><dd>{{ currentFacts(it).mime }}</dd>
+              <dt>المقاس</dt><dd>{{ currentFacts(it).size }}</dd>
+              <dt>الحجم</dt><dd>{{ currentFacts(it).bytes }}</dd>
+              <dt>البصمة</dt><dd><span dir="ltr" class="mono" [title]="currentFacts(it).sha">{{ sha(currentFacts(it).sha) }}</span></dd>
+              <dt>آخر تعديل</dt>
+              <dd>
+                @if (it.state.updatedAt) { {{ it.state.updatedAt | wsDate:'datetime' }} @if (it.state.updatedBy) { <span class="muted">— بواسطة <ng-container *ngTemplateOutlet="actor; context: { a: it.state.updatedBy, tid: 'updated-by-' + it.key }" /></span> } }
+                @else { لم يُعدَّل بعد (الأصل المنشور) }
+              </dd>
+            </dl>
+          </div>
+
+          <div class="col">
+            <h4>أين تُستخدم</h4>
+            <details class="usages" [attr.data-testid]="'usages-' + it.key">
+              <summary>{{ it.usages.length }} موضع استخدام</summary>
+              <ul class="plain-list small">
+                @for (use of it.usages; track $index) { <li>{{ use.where }}</li> }
+              </ul>
+            </details>
+            @if (rulesOf(it).length) {
+              <h4>شروط الملف البديل</h4>
+              <ul class="plain-list small" [attr.data-testid]="'rules-' + it.key">
+                @for (r of rulesOf(it); track $index) { <li>{{ r }}</li> }
+              </ul>
+            }
+            @for (n of it.notes; track $index) { <p class="hint small">{{ n }}</p> }
+            @if (it.key === 'logo.boot') {
+              <details class="paint-rule" open [attr.data-testid]="'boot-timing-' + it.key">
+                <summary>متى يظهر هذا الشعار بالضبط (التوقيت الفعلي عند تأخّر الخادم)</summary>
+                <ul class="plain-list small">
+                  <li><strong>زائر عاد إلى الموقع:</strong> يظهر الشعار المحفوظ في متصفحه فورًا بلا انتظار (المنشور وقت زيارته الأخيرة، أو الأصلي إن لم يكن قد نُشر شيء). إن غيّرتَ الشعار بعد زيارته الأخيرة فسيرى القديم على شاشة التحميل في هذه الزيارة: يطلب التطبيق البيان الجديد بعد أن يبدأ (حد 8 ثوانٍ) ويتبدّل الشعار إن وصل والشاشة ما زالت معروضة، وإلا يظهر الجديد من الزيارة التالية. لا يُحجَب الشعار ولا يُنتظر الخادم هنا.</li>
+                  <li><strong>أول زيارة والخادم أجاب خلال 1.5 ثانية:</strong> يُحجَب الشعار لحظة (لا يظهر ملف خاطئ) ثم يظهر الملف الصحيح مباشرة.</li>
+                  <li><strong>أول زيارة وتأخّر الجواب أكثر من 1.5 ثانية:</strong> <strong>يظهر الملف الأصلي</strong> عند انقضاء الـ1.5 ثانية (يُلغى الطلب الأول ولا يُستعمل جوابه المتأخر). يطلب التطبيق الجواب مرة ثانية بعد أن يبدأ (حد 8 ثوانٍ)؛ فإن وصل الجواب والشعار ما زال معروضًا حلّ <strong>المخصّص</strong> محل الأصلي، وإن اختفت شاشة التحميل قبل وصوله فلا يُرى المخصّص في هذه الزيارة، ويُحفظ فتظهر النسخة المخصّصة فورًا في الزيارات التالية. ظهور الأصلي في هذه الحالة وارد وليس خطأً.</li>
+                  <li><strong>الخادم لا يُجيب إطلاقًا:</strong> يبقى الشعار الأصلي ولا يُكسر شيء.</li>
+                  <li><strong>صفحات تُخدَم من خادم العرض (SSR):</strong> يقرأ الخادم البيان بحدّ ثانية واحدة (وإلا آخر نسخة سليمة عنده، وإلا الأصلي) ويكتب الملف الصحيح في أول HTML؛ وسكربت الإقلاع لا يفعل شيئًا هناك.</li>
+                </ul>
+              </details>
+            }
+            @if (it.key === 'social.og' || it.key === 'favicon.ico') {
+              <details class="paint-rule" open [attr.data-testid]="'static-host-' + it.key">
+                <summary>كيف يصل هذا الملف إلى الزوّار والمنصّات (يُخدَم من الخادم الثابت لا من التطبيق)</summary>
+                <ul class="plain-list small">
+                  @if (it.key === 'social.og') {
+                    <li>عنوان صورة المشاركة <strong>ثابت</strong> (<code dir="ltr">/assets/social/waseetai-og-v3.jpg</code> في وسوم og:image وtwitter:image)؛ الذي يتغيّر هو الملف خلفه: يطلبه الخادم الثابت من مسار الموقع العام (<code dir="ltr">/api/public/site-identity/social/og</code>) فيُقدَّم الملف المنشور، وإلا الصورة الأصلية بلا أي تغيير.</li>
+                    <li>إن لم يُجب الخادم خلال ثوانٍ قليلة (أو أجاب بغير نجاح) يُقدَّم الملف الأصلي المدمج في صورة الموقع نفسها، فلا تنكسر المعاينة أبدًا.</li>
+                    <li>التخزين المؤقت: المتصفح والخادم يحتفظان بالمسار حتى 5 دقائق. أما <strong>منصّات المعاينة</strong> (واتساب، X، سلاك، تيليجرام...) فتحتفظ بنسختها القديمة من العنوان نفسه حتى تجدّدها هي بنفسها، وقد يستغرق ذلك ساعات أو أيامًا؛ لا يستطيع الموقع إجبارها لأن العنوان لا يحمل رقم نسخة (قيد من المنصّة، وليس عطلًا).</li>
+                    <li>الصورة تُرى فقط حين يطلبها زاحف المنصّة؛ لا يعرضها الموقع داخل صفحاته.</li>
+                  } @else {
+                    <li>المتصفحات تطلب <code dir="ltr">/favicon.ico</code> بنفسها من الخادم الثابت (بلا تشغيل أي سكربت)؛ يُقدَّم الملف المنشور من الخادم، وإلا الملف الأصلي. أيقونة <strong>تبويب</strong> الصفحة المعتادة هي مفتاح «أيقونة التبويب» (favicon.tab) وله محرّره الخاص: هذا الملف للمتصفحات والأدوات التي تطلب العنوان الافتراضي.</li>
+                    <li>إن لم يُجب الخادم (أو أجاب بغير نجاح) يُقدَّم الملف الأصلي المدمج في صورة الموقع نفسها. التخزين المؤقت حتى 5 دقائق؛ المتصفح قد يحتفظ بأيقونته أطول حسب سياسته الخاصة.</li>
+                  }
+                </ul>
+              </details>
+            }
+            @if (it.key === 'icon.ai') {
+              <details class="paint-rule" [attr.data-testid]="'paint-rule-' + it.key">
+                <summary>كيف تُرسَم الأيقونة المخصصة</summary>
+                <ul class="plain-list small">
+                  <li>تُرسَم الأيقونة كما هي في الملف الذي رفعتَه وبعد تنظيفه فقط: <strong>fill</strong> و<strong>stroke</strong> و stroke-width وغيرها، سواء كُتبت على عنصر <code dir="ltr">&lt;svg&gt;</code> الجذر أو على الأشكال أو في style الخاص بالملف، تُحترم كما هي. لا يفرض الموقع لونًا ولا خطًّا ولا تعبئة.</li>
+                  <li>الأيقونة المصمتة تبقى مصمتة بلا حدود مضافة، والأيقونة الخطية (fill=&quot;none&quot; مع stroke) تبقى خطية. ما لا يحدده الملف يأخذ القيمة الأصلية في SVG (تعبئة سوداء، بلا حدود) وليس رسم أيقونات الموقع الخطية.</li>
+                  <li><strong>currentColor</strong> يعمل: استخدمه في fill أو stroke لتأخذ الأيقونة لون المكان الذي تظهر فيه (البنفسجي في أماكن الذكاء الاصطناعي، ويتبدل مع الوضع الفاتح والداكن). الألوان الصريحة تبقى ثابتة في الوضعين.</li>
+                  <li>الأيقونة ذاتها تظهر في كل مكان يستعمل هوية الذكاء الاصطناعي، ومنها أيقونة الثقة في صفحات الموقع (نصوص الثقة وسلوكها لا تتغير)، وأيقونات الوظائف الأخرى (العين، البرق، التنبيه...) لا تتأثر.</li>
+                  <li>تُزال من الملف للأمان السكربتات والمراجع الخارجية وعناصر image وuse؛ قواعد style الداخلية تُنقل إلى الأشكال نفسها، وتبقى الألوان المتدرجة بمعرّفات خاصة بالملف.</li>
+                </ul>
+              </details>
+            }
+          </div>
+        </div>
+
+        @if (!it.wired) {
+          <div class="note note-warn" role="note" [attr.data-testid]="'not-wired-' + it.key">
+            <strong>غير مرتبط بالموقع بعد.</strong> {{ it.notWiredReason }}
+            <div class="small">لا يمكن تعديله من هنا: لا يوجد في الموقع ما يقرأ هذا الملف من الخادم، فاستبداله لن يغيّر شيئًا.</div>
+          </div>
+        } @else {
+          @let u = ui(it.key);
+          @if (u.notice; as n) {
+            <div [class]="'note note-' + n.type" [attr.role]="n.type === 'error' || n.type === 'conflict' ? 'alert' : 'status'" [attr.data-testid]="'notice-' + it.key" [attr.data-type]="n.type">
+              <strong>{{ n.text }}</strong> {{ n.detail }}
+              @if (n.type === 'conflict') {
+                <div class="conflict-box" [attr.data-testid]="'conflict-' + it.key">
+                  حالة الخادم الآن: <strong>{{ currentSummary(n.current) }}</strong>
+                  @if (conflictActor(n.current); as w) { — عدّلها <ng-container *ngTemplateOutlet="actor; context: { a: w, tid: 'conflict-by-' + it.key }" /> }
+                  @if (conflictAt(n.current); as at) { في {{ at | wsDate:'datetime' }} }
+                  <div class="row"><button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="reloadAfterConflict(it.key)" [attr.data-testid]="'conflict-reload-' + it.key">إعادة تحميل الحالة الحالية</button></div>
+                </div>
+              }
+              <div class="row">
+                @if (n.retry) { <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="retry(it.key)" [attr.data-testid]="'retry-' + it.key">{{ n.retry === 'verify' ? 'إعادة التحقق' : 'إعادة المحاولة' }}</button> }
+                <button type="button" class="btn-link" (click)="dismissNotice(it.key)">إخفاء</button>
+              </div>
+            </div>
+          }
+
+          @if (canManage()) {
+            <div class="edit" [attr.data-testid]="'edit-' + it.key" [attr.aria-busy]="!!u.busy">
+              <h4>تغيير {{ it.label }}</h4>
+              <div class="row">
+                <label class="btn-secondary file-btn" [class.is-disabled]="!!u.busy">
+                  اختيار ملف بديل
+                  <input type="file" hidden [accept]="acceptOf(it)" [disabled]="!!u.busy" (change)="onFile(it.key, $event)" [attr.data-testid]="'file-' + it.key" />
+                </label>
+                @if (u.file) {
+                  <span class="file-name" dir="ltr" [attr.data-testid]="'filename-' + it.key">{{ u.file.name }} · {{ bytes(u.file.size) }}</span>
+                  <button type="button" class="btn-save" [disabled]="!!u.busy" (click)="upload(it.key)" [attr.data-testid]="'upload-' + it.key">{{ u.busy === 'upload' ? 'جارٍ الرفع…' : 'رفع للمعاينة' }}</button>
+                  <button type="button" class="btn-link" [disabled]="!!u.busy" (click)="clearFile(it.key)">إزالة الاختيار</button>
+                }
+                @if (u.busy === 'upload') { <span class="spinner" aria-hidden="true"></span> }
+              </div>
+              <p class="hint small">الملف يُرفع إلى الخادم للفحص والتنظيف فقط: <strong>لا يتغيّر الموقع</strong> حتى تضغط «تطبيق» بعد المعاينة.</p>
+
+              @if (u.draft; as d) {
+                <div class="compare" [attr.data-testid]="'compare-' + it.key">
+                  <h4>مقارنة قبل التطبيق</h4>
+                  @if (d.sanitized?.changed) { <p class="note note-warn small" [attr.data-testid]="'sanitized-' + it.key">نظّف الخادم الملف قبل حفظه (أُزيلت عناصر غير آمنة). المعاينة أدناه هي الملف النظيف.</p> }
+                  <div class="compare-grid">
+                    <div class="col">
+                      <h5>الحالي</h5>
+                      <ng-container *ngTemplateOutlet="pvBlock; context: { p: currentPreview(it), it: it, prefix: 'cmpcur-' + it.key }" />
+                      <p class="small muted">{{ currentFacts(it).source }} · {{ currentFacts(it).mime }} · {{ currentFacts(it).size }} · {{ currentFacts(it).bytes }}</p>
+                    </div>
+                    <div class="col col-new">
+                      <h5>الجديد (معاينة الخادم — لا يراها غيرك)</h5>
+                      <ng-container *ngTemplateOutlet="pvBlock; context: { p: previewOf(d.meta), it: it, prefix: 'cmpnew-' + it.key }" />
+                      <p class="small muted" [attr.data-testid]="'newfacts-' + it.key">النسخة {{ d.meta.version }} · {{ mime(d.meta.mime) }} · {{ dim(d.meta.width, d.meta.height) }} · {{ bytes(d.meta.byteSize) }} · <span dir="ltr" class="mono">{{ sha(d.meta.sha256) }}</span></p>
+                      @if (d.meta.note) { <p class="small muted">{{ d.meta.note }}</p> }
+                    </div>
+                  </div>
+                  @if (d.meta.isMine === false) { <p class="note note-warn small" data-testid="draft-notmine-note">هذه المسودة رفعها {{ actorName(d.meta.createdBy) }}؛ لا يطبّقها غير صاحبها. يمكنك معاينتها أو إلغاؤها فقط.</p> }
+                  <div class="row">
+                    @if (d.meta.isMine !== false) { <button type="button" class="btn-save" [disabled]="!!u.busy" (click)="apply(it.key)" [attr.data-testid]="'apply-' + it.key">{{ u.busy === 'apply' ? 'جارٍ التطبيق…' : 'تطبيق' }}</button> }
+                    <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="discard(it.key)" [attr.data-testid]="'cancel-' + it.key">{{ u.busy === 'discard' ? 'جارٍ الإلغاء…' : 'إلغاء' }}</button>
+                    @if (u.busy === 'apply') { <span class="spinner" aria-hidden="true"></span> }
+                  </div>
+                </div>
+              }
+
+              @if (stagedOf(it).length) {
+                <div class="drafts" [attr.data-testid]="'drafts-' + it.key">
+                  <h5>مسودات مرفوعة لم تُطبَّق</h5>
+                  <ul class="ver-list">
+                    @for (s of stagedOf(it); track s.versionId) {
+                      <li class="ver">
+                        <span>النسخة {{ s.version }} · {{ mime(s.mime) }} · {{ bytes(s.byteSize) }} · {{ s.createdAt | wsDate:'datetime' }} @if (s.createdBy) { · رفعها <ng-container *ngTemplateOutlet="actor; context: { a: s.createdBy, tid: 'draft-by-' + s.versionId }" /> }@if (s.isMine === false) { <span class="chip chip-off" [attr.data-testid]="'draft-notmine-' + s.versionId">مسودة غيرك</span> }</span>
+                        <span class="ver-actions">
+                          <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="openDraft(it.key, s)" [attr.data-testid]="'draft-open-' + s.versionId">معاينة</button>
+                          <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="discard(it.key, s)" [attr.data-testid]="'draft-discard-' + s.versionId">إلغاء المسودة</button>
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              <div class="row restore-row">
+                @if (previous(it); as prev) {
+                  <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="restore(it.key, prev)" [attr.data-testid]="'restore-prev-' + it.key">استعادة النسخة السابقة (النسخة {{ prev.version }})</button>
+                }
+                @if (!it.state.isDefault) {
+                  <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="restore(it.key, 'default')" [attr.data-testid]="'restore-default-' + it.key">استعادة الأصل الافتراضي</button>
+                }
+                @if (u.busy === 'restore') { <span class="spinner" aria-hidden="true"></span> <span class="small muted" role="status">جارٍ الاستعادة…</span> }
+              </div>
+            </div>
+          }
+
+          <details class="history" [attr.data-testid]="'history-' + it.key">
+            <summary>سجل النسخ ({{ versions(it).length }}{{ ui(it.key).allVersions ? '' : (it.history.length >= 10 ? '+' : '') }})</summary>
+            @if (versions(it).length) {
+              <ul class="ver-list">
+                @for (v of versions(it); track v.versionId) {
+                  <li class="ver" [class.ver-active]="isActive(it, v)" [attr.data-testid]="'ver-' + v.versionId">
+                    <span class="ver-main">
+                      <strong>النسخة {{ v.version }}</strong>
+                      <span class="chip" [class.chip-ok]="isActive(it, v)">{{ isActive(it, v) ? 'الحالية' : 'سابقة' }}</span>
+                      <span class="muted">{{ v.createdAt | wsDate:'datetime' }}</span>
+                      @if (v.createdBy) { <span class="muted">بواسطة <ng-container *ngTemplateOutlet="actor; context: { a: v.createdBy, tid: 'ver-by-' + v.versionId }" /></span> }
+                      <span class="muted">{{ mime(v.mime) }} · {{ bytes(v.byteSize) }}</span>
+                      <span class="mono muted" dir="ltr" [title]="v.sha256">{{ sha(v.sha256) }}</span>
+                      @if (v.note) { <span class="muted">— {{ v.note }}</span> }
+                    </span>
+                    @if (canManage() && !isActive(it, v)) {
+                      <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="restore(it.key, v)" [attr.data-testid]="'restore-ver-' + v.versionId">استعادة هذه النسخة</button>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="muted small">لا نسخ مخصّصة بعد: الموقع يعرض الأصل الافتراضي.</p>
+            }
+            @if (!ui(it.key).allVersions && it.history.length >= 10) {
+              <button type="button" class="btn-secondary" [disabled]="!!u.busy" (click)="loadAllVersions(it.key)">عرض كل النسخ</button>
+            }
+          </details>
+        }
+      </article>
+    }
+  </div>
+</ng-template>

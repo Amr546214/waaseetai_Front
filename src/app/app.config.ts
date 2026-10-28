@@ -18,6 +18,7 @@ import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { adminAccessInterceptor } from './core/interceptors/admin-access.interceptor';
 import { SOCIAL_AUTH_CONFIG, SocialAuthServiceConfig, GoogleLoginProvider } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment';
+import { provideSiteIdentity } from './core/identity/identity.providers';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -33,6 +34,8 @@ export const appConfig: ApplicationConfig = {
 		// the platform's regional settings are read once at start (never blocks longer than ~1.5 s, never fails the app): every date pipe then shows times in the platform zone
 		// (the provider / marketer areas override this with the user's own saved zone, see app.routes.ts)
 		provideAppInitializer(() => inject(PlatformInfoService).loadOnce()),
+		// the site-identity manifest loads in the background (never awaited); with nothing published every consumer keeps its built-in default
+		provideSiteIdentity(),
 		{ provide: DATE_PIPE_DEFAULT_OPTIONS, useValue: { get timezone() { return platformDateOffset(); } } },
 		{
 			provide: SOCIAL_AUTH_CONFIG,

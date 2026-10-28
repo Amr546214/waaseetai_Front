@@ -6,7 +6,7 @@
 /* Base structural layout for the sidebar */
 .sidebar {
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: 'Tajawal', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-family,'Tajawal'), 'Segoe UI', system-ui, -apple-system, sans-serif;
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.25);
 }
 

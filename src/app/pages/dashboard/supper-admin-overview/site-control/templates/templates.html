@@ -4,6 +4,8 @@
     <p class="sub">تحكّم بقواعد الحجم والزوايا والهالات والمسافات من ملف الهوية، مع عيّنة حية لكل قالب تعكس الإخراج النهائي فورًا</p>
   </header>
 
+  <sc-identity-strip />
+
   <div class="view-tabs">
     <button type="button" class="view-tab" [class.active]="view() === 'tokens'" (click)="setView('tokens')">قواعد التوكنات</button>
     <button type="button" class="view-tab" [class.active]="view() === 'templates'" (click)="setView('templates')">قوالب الصفحات المتكررة (20)</button>

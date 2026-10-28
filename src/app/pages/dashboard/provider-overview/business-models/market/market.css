@@ -14,7 +14,7 @@
   --mkt-input-bg: rgba(255, 255, 255, 0.03);
   --teal-txt: #2BD4C7;
   --ai-txt: #A56BE0;
-  font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
   color: var(--mkt-txt);
   direction: rtl;
   position: relative;

@@ -14,6 +14,7 @@ import { WaitTimerService } from '../../../core/wait/wait-timer.service';
 import { parseRetryAfter } from '../../../core/wait/retry-after.util';
 import { formatClock, rateLimitSentence } from '../../../core/wait/wait-format';
 import { RATE_LIMIT_MESSAGE, isRateLimitError, startWaitFromError } from '../../../core/utils/rate-limit.util';
+import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 
 /** The server's "too many wrong codes" lock (429 without a duration): the answer is a NEW code, not a timer. */
 const ATTEMPTS_LOCKED_CODE = 'OTP_ATTEMPTS_LOCKED';
@@ -21,7 +22,7 @@ const ATTEMPTS_LOCKED_CODE = 'OTP_ATTEMPTS_LOCKED';
 @Component({
   selector: 'app-verify-otp',
   standalone: true,
-  imports: [BrandNamePipe, CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [IdentityImgDirective, BrandNamePipe, CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './verify-otp.html',
   styleUrls: ['./verify-otp.css'],
   encapsulation: ViewEncapsulation.None,

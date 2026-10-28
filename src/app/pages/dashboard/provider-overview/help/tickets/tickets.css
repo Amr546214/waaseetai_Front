@@ -1,4 +1,4 @@
-:host{display:block;width:100%;font-family:'Tajawal',system-ui,sans-serif;animation:ws-fade .2s ease forwards}
+:host{display:block;width:100%;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;animation:ws-fade .2s ease forwards}
 *,*::before,*::after{box-sizing:border-box}
 button{font-family:inherit}
 @keyframes ws-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}

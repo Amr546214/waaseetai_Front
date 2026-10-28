@@ -20,7 +20,7 @@
   --toggle-track:rgba(255,255,255,.14);
   --pdpl-bg:rgba(43,127,255,.07);--pdpl-bd:rgba(43,127,255,.22);
   --table-row-alt:rgba(255,255,255,.02);
-  display:block;font-family:'Tajawal',system-ui,sans-serif;line-height:1.7;direction:rtl;color:var(--txt)
+  display:block;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;line-height:1.7;direction:rtl;color:var(--txt)
 }
 :host-context(.light-theme),:host-context(.theme-light){
   --txt:#070D24;--txt-2:#56607D;--txt-3:#6B7699;

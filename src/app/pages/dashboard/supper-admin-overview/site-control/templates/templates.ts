@@ -1,3 +1,4 @@
+import { IdentityStrip } from '../identity/identity-strip';
 import { Component, OnInit, computed, inject, signal, ViewEncapsulation } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DesignToken, DesignTokensService } from '../core/design-tokens.service';
@@ -259,7 +260,7 @@ const ICON_PICKER_LIBS = ['general', 'ai', 'ws-site'];
 @Component({
     selector: 'sc-templates',
     standalone: true,
-    imports: [],
+    imports: [IdentityStrip],
     templateUrl: './templates.html',
     encapsulation: ViewEncapsulation.ShadowDom,
   styleUrls: ['../site-control-base.css', './templates.css'],

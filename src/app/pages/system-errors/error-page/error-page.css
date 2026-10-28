@@ -11,7 +11,7 @@
   --ai-txt:#A56BE0;
   --grad:linear-gradient(135deg,#2BD4C7,#2B7FFF);
   --ghost-bd:rgba(255,255,255,.15);
-  display:block;min-height:100vh;background:var(--pg);color:var(--txt);font-family:'Tajawal',system-ui,sans-serif;direction:rtl;overflow-x:hidden;position:relative
+  display:block;min-height:100vh;background:var(--pg);color:var(--txt);font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;direction:rtl;overflow-x:hidden;position:relative
 }
 :host-context(.light-theme),:host-context(.theme-light){
   --pg:#F6F8FC;

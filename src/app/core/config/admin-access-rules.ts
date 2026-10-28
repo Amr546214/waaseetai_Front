@@ -49,7 +49,15 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'team-performance': { all: ['performance.view'] },
 	'marketing-assets': { all: ['marketing_assets.manage'] },
 	'system-settings': { anyOf: ['settings.view', 'settings.manage'] },
-	'site-control': { all: ['site_control.manage'] },
+	// «التحكم بالموقع»: the section opens for the identity permissions too; the nine local-only design pages keep the older site_control.manage.
+	// «الهوية» opens for site.view / site.manage AND for the legacy site_control.manage. Round 5: the legacy grant («manage التحكم بالموقع») IS the edit capability of the identity manager
+	// (the server accepts site.manage OR site_control.manage on every write and answers canManage:true for both); site.view alone stays read-only.
+	'site-control': { anyOf: ['site_control.manage', 'site.view', 'site.manage'] },
+	'site-control/identity': { anyOf: ['site.view', 'site.manage', 'site_control.manage'] },
+	// «القيم والألوان» and «الخطوط» hold the SERVER-backed design-token editor above their local sandbox: the identity permissions govern them (site.view reads, site.manage / site_control.manage edit; the page and the server decide)
+	'site-control/tokens': { anyOf: ['site.view', 'site.manage', 'site_control.manage'] },
+	'site-control/typography': { anyOf: ['site.view', 'site.manage', 'site_control.manage'] },
+	...Object.fromEntries(['health', 'icons', 'accounts', 'templates', 'style-guide', 'live-preview', 'export'].map(p => [`site-control/${p}`, { all: ['site_control.manage'] } as AccessRule])),
 	audit: { all: ['audit.view'] }, 'audit-trail': { all: ['audit.view'] },
 	// every remaining page of the console has its own explicit rule (nothing is opened to "any team member" by omission)
 	subscriptions: { all: ['packages.manage'] }, 'subscriptions/invoices': { all: ['finance.read'] },
