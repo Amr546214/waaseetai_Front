@@ -108,11 +108,12 @@ describe('icon library page (server-backed)', () => {
 
 	it('the old browser-only replace / upload / save / import controls are gone and the page says so; export stays as a read-only local copy', () => {
 		const t = setup(); expect(t.root().querySelector('.btn-save')).toBeNull(); expect(t.root().querySelector('input[type=file]')).toBeNull();
-		expect(t.q('icons-local-removed')!.textContent).toContain('أُزيلت'); expect(t.q('icons-export')!.textContent).toContain('للقراءة');
+		expect(t.q('icons-local-removed')!.textContent).toContain('حلّ محلّها'); expect(t.q('icons-export')!.textContent).toContain('للقراءة');
 		t.q('icons-export')!.click(); expect(t.icons.exportJson).toHaveBeenCalled();
 		expect(t.root().textContent).not.toContain('جزئي'); expect(t.q('icon-follows-i-bell')!.textContent).toContain('تتبعها'); expect(t.q('icon-follows-i-check')).toBeNull();
 		expect(t.q('icon-card-i-bell')!.querySelector('svg')!.getAttribute('data-glyph')).toBe('real');
 		expect(t.root().textContent).not.toContain('لا تغيّر هذه المكتبة أيقونات المنصة');
 		expect(AI_ICON_INNER).toContain('circle');
+		expect(t.root().querySelector('.panel-header')!.textContent).not.toContain('محلي'); expect(t.q('icons-limits')!.querySelector('summary')!.textContent).toContain('تفاصيل الاستخدام');
 	});
 });

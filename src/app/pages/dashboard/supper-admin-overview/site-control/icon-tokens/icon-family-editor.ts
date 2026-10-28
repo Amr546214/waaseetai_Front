@@ -87,7 +87,7 @@ export class IconFamilyEditor {
 		if (!file || !this.canEdit() || !this.selectedKeys().length) return;
 		this.fileName.set(file.name); this.busy.set('upload'); this.notice.set(null); this.clearOperation(true);
 		try {
-			const r = await firstValueFrom(this.api.familyUpload(this.familyId(), file, this.selectedKeys()));
+			const r = await firstValueFrom(this.api.familyUpload(this.familyId(), file, this.selectedKeys(), { kind: 'upload' }));
 			this.drafts.set(r.data.drafts.map(d => ({ key: d.key, versionId: d.versionId })));
 			const skipped = r.data.skipped?.length ? ` وتُرك ${r.data.skipped.length} لأن ما فيه مطابق لهذا الملف.` : '';
 			this.notice.set({ type: 'ok', text: `فحص الخادم الملف مرة واحدة وحفظ النسخة نفسها كمسودة خاصة بك لـ${r.data.drafts.length} أيقونة.${skipped} لم يتغيّر الموقع بعد.`, detail: r.data.note ?? undefined });
