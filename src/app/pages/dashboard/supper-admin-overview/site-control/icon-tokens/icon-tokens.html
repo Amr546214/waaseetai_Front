@@ -1,157 +1,104 @@
 <div class="icons-wrap">
   <header class="panel-header">
-    <h1>مكتبة الأيقونات (محلية)</h1>
-    <p class="sub">كل أيقونة تُستبدل باختيار من نفس المكتبة، أو برفع SVG من الجهاز — الفصل بين العامة وAI بنيوي</p>
-    <p class="sub" data-testid="icons-local-only"><strong>لا تغيّر هذه المكتبة أيقونات المنصة:</strong> الاستبدال والحفظ هنا للمعاينة والتصدير على هذا المتصفح فقط. أيقونة الذكاء الاصطناعي الفعلية للموقع تُدار من صفحة «الهوية».</p>
-    <div class="actions">
-      <button type="button" class="btn-save" (click)="save()">حفظ التغييرات</button>
-      <button type="button" class="btn-secondary" (click)="exportJson()">تصدير JSON</button>
-      <label class="btn-secondary import-label">
-        استيراد JSON
-        <input type="file" accept="application/json" hidden (change)="onImportFile($event)" />
-      </label>
-      @if (savedMsg()) {
-        <span class="saved-msg">{{ savedMsg() }}</span>
-      }
-    </div>
+    <h1>مكتبة الأيقونات</h1>
+    <p class="sub" data-testid="icons-server-note">
+      <strong>هذه الصفحة تغيّر أيقونات الموقع فعلًا.</strong> كل أيقونة تُحفظ على الخادم بنسخ مرقّمة، وتتغيّر في كل مكان يستعملها في الموقع لكل الزوّار بعد «تطبيق»، وتبقى بعد التحديث وتسجيل الخروج وعلى أي جهاز، مع معاينة وإلغاء واستعادة وكشف تعارض (نفس مسار صفحة «الهوية»).
+    </p>
+    <details class="limits" data-testid="icons-limits">
+      <summary>ما الذي تصله هذه الصفحة وما الذي لا تصله</summary>
+      <ul class="plain-list">
+        <li><strong>تصله:</strong> كل أيقونة تعريفُها <code dir="ltr">&lt;symbol id="…"&gt;</code> في قوالب الموقع ويستعملها <code dir="ltr">&lt;use href="#…"&gt;</code> (القائمة تُولَّد من الشيفرة الفعلية). تُبدَّل كل نسخ المعرّف الواحد في الصفحة.</li>
+        <li><strong>لا تصله (ولا تُعرض كقابلة للتعديل):</strong> رسومات SVG المكتوبة مباشرة داخل القالب بلا <code dir="ltr">&lt;symbol&gt;</code>، والرسومات التي تبنيها شيفرة TypeScript نصًّا، والأيقونات المرسومة كخلفية/قناع CSS أو كصورة <code dir="ltr">&lt;img&gt;</code>، وأيقونات العلامات الخارجية، وأيقونة الذكاء الاصطناعي الرسمية (تُدار من «الهوية»).</li>
+        <li><strong>التوقيت:</strong> يجري التبديل في المتصفح بعد اكتمال تحميل الصفحة، فقد تظهر الأيقونة الأصلية لحظة قصيرة في أول رسم قبل أن تحلّ المخصّصة محلها. حدّ أقصى 50 أيقونة مخصّصة.</li>
+        <li><strong>الأيقونات ذات الأشكال المتعددة:</strong> إن كان للمعرّف نفسه شكلان مختلفان في قالبين، فالتخصيص يوحّدهما في الشكل الجديد (يُذكر ذلك عند فتح الأيقونة).</li>
+      </ul>
+    </details>
+    @if (store.list(); as l) {
+      <div class="chips" data-testid="icons-counts">
+        <span class="chip chip-ok">مخصّصة: {{ l.counts.custom }} / {{ l.limits.maxCustom }}</span>
+        <span class="chip chip-muted">افتراضية: {{ l.counts.default }}</span>
+        <span class="chip chip-off">غير مربوطة: {{ l.counts.notWired }}</span>
+        @if (l.counts.withDraft) { <span class="chip chip-muted">بها مسودة: {{ l.counts.withDraft }}</span> }
+      </div>
+    }
   </header>
 
-  @if (iconsService.loadError()) {
-    <div class="err-box">{{ iconsService.loadError() }}</div>
-  }
+  @if (iconsService.savedCopyNotice(); as n) { <div class="note note-warn" role="note" data-testid="icons-saved-copy-notice">{{ n }}</div> }
+  @if (store.staleWarning(); as w) { <div class="note note-warn" role="status" data-testid="icons-stale">{{ w }}</div> }
 
-  <div class="lib-tabs">
-    @for (lib of iconsService.libraries(); track lib.id) {
-      <button type="button" class="lib-tab" [class.active]="activeLib()?.id === lib.id" (click)="selectLib(lib.id)">
-        {{ lib.label }}
-      </button>
+  @switch (store.phase()) {
+    @case ('idle') { <p class="state" role="status">جارٍ التحميل…</p> }
+    @case ('loading') { <p class="state" role="status" data-testid="icons-loading"><span class="spinner" aria-hidden="true"></span> جارٍ قراءة مكتبة الأيقونات من الخادم…</p> }
+    @case ('denied') { <p class="note note-error" role="alert" data-testid="icons-denied"><strong>لا صلاحية.</strong> {{ store.message() }}</p> }
+    @case ('error') {
+      <div class="note note-error err-box" role="alert" data-testid="icons-load-error">
+        <strong>تعذّر تحميل مكتبة الأيقونات.</strong> {{ store.message() }}
+        لم يتغيّر شيء في أيقونات الموقع، وما كان مخصّصًا فهو كما هو على الخادم. هذا خطأ في التحميل وليس مكتبة فارغة.
+        <button type="button" class="btn-secondary" (click)="retry()" data-testid="icons-retry">إعادة المحاولة</button>
+      </div>
     }
-  </div>
+    @default {
+      @if (iconsService.loadError() && iconsService.phase() === 'error') {
+        <div class="note note-warn" role="note" data-testid="icons-local-error">{{ iconsService.loadError() }} تُعرض الأيقونات بأسمائها بلا رسم الأصل.</div>
+      }
+      @if (!canManage()) {
+        <p class="note note-warn" role="note" data-testid="icons-readonly"><strong>عرض فقط.</strong> صلاحيتك لا تسمح بتعديل الأيقونات (تحتاج site.manage أو صلاحية «التحكم بالموقع»).</p>
+      }
 
-  @if (activeLib(); as lib) {
-    <section class="lib-section" [class.ai-section]="lib.id === 'ai'">
-      @if (lib.id === 'general') {
-        <h4 class="icon-group-title display-style-heading">اللوحات (i-*) — بدون إطار</h4>
+      @if (editing(); as id) {
+        <sc-icon-fn-editor [symbolId]="id" [row]="editingRow()" [defaultSvg]="defaultSvg(id)" [canEdit]="canManage()" (changed)="store.load(true)" (closed)="close()" />
       }
-      @if (lib.id === 'ws-site') {
-        <h4 class="icon-group-title display-style-heading">الموقع العام (ws-*)</h4>
-      }
-      @if (lib.id === 'ai') {
-        <!-- إصلاح 2026-08-21 (ملاحظة ثانية مباشرة من المالك): كانت "معتمدة نهائياً" و"مقترحة
-             جديدة" تُعرَضان كقسمين منفصلين بعنوانين مستقلين (عبر groupedIcons()) — هذا يخالف
-             طلب المالك الصريح "قسمين فقط بكامل التبويب": (1) الأيقونات كلها بمربع واحد، (2) نفس
-             الأيقونات بإطار زجاجي أسفلها. الآن تُعرض كل أيقونات الذكاء الـ22 بشبكة واحدة بلا
-             فصل بعنوان قسم؛ التمييز بين معتمدة/مقترحة أصبح شارة صغيرة على كل بطاقة على حِدة
-             (مثل نمط proposed-badge نفسه) بدل عنوان قسم كامل — المعلومة لم تُحذف، فقط انتقلت
-             من مستوى القسم لمستوى البطاقة. -->
-        <div class="icon-grid">
-          @for (icon of lib.icons; track icon.slot) {
-            <div class="icon-card">
-              <span class="icon-box" [attr.title]="icon.shape || null" [style.color]="'var(' + lib.colorVar + ')'">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="shown(icon)"></svg>
-              </span>
-              <span class="icon-label">
-                {{ icon.label }}
-                @if (icon.group === 'proposed') {<span class="proposed-badge proposed-badge-inline">مقترح</span>}
-              </span>
-              <code class="icon-slot">{{ icon.slot }}</code>
-              @if (icon.note) {<span class="icon-note">{{ icon.note }}</span>}
-              @if (managed(icon.slot)) {
-                <span class="managed-note" [attr.data-testid]="'managed-' + icon.slot">
-                  <strong>مُدار من صفحة الهوية</strong> — هذه هي أيقونة الذكاء الاصطناعي الرسمية للموقع؛ تُستبدل وتُستعاد من هناك فقط (يُعرض هنا الأصل الافتراضي للمرجع). لا استبدال محلي لها.
-                  <a class="managed-link" routerLink="/supper-admin-overview/site-control/identity" [attr.data-testid]="'managed-link-' + icon.slot">فتح صفحة الهوية</a>
-                </span>
-              } @else {
-              <select class="icon-select" [value]="icon.slot" [attr.data-testid]="'select-' + icon.slot" (change)="onReassign(lib.id, icon.slot, $event)">
-                @for (opt of lib.icons; track opt.slot) {
-                  <option [value]="opt.slot" [disabled]="managed(opt.slot) && opt.slot !== icon.slot">{{ opt.label }}</option>
-                }
-              </select>
-              <label class="upload-mini-btn">
-                رفع من الجهاز
-                <input type="file" accept=".svg,image/svg+xml" (change)="onUploadIcon(lib.id, icon.slot, $event)" hidden />
-              </label>
-              @if (uploadError()[lib.id + ':' + icon.slot]; as err) {
-                <span class="upload-err">{{ err }}</span>
-              }
-              }
-            </div>
+
+      <div class="toolbar">
+        <div class="filters" role="group" aria-label="تصفية الحالة">
+          @for (f of [['all','الكل'],['custom','مخصّصة'],['default','افتراضية'],['not-wired','غير مربوطة'],['draft','بها مسودة']]; track f[0]) {
+            <button type="button" class="chip-btn" [class.active]="filter() === f[0]" (click)="setFilter($any(f[0]))" [attr.data-testid]="'icons-filter-' + f[0]">{{ f[1] }}</button>
           }
         </div>
-      } @else {
-        @for (grp of groupedIcons(); track grp.key) {
-          @if (grp.label) {
-            <h4 class="icon-group-title" [class.proposed-group]="grp.key === 'proposed'">
-              {{ grp.label }}
-              @if (grp.key === 'proposed') {<span class="proposed-badge">مقترح</span>}
-            </h4>
-          }
-          <div class="icon-grid">
-            @for (icon of grp.icons; track icon.slot) {
-              <div class="icon-card">
-                <span class="icon-box" [attr.title]="icon.shape || null" [style.color]="'var(' + lib.colorVar + ')'">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="shown(icon)"></svg>
-                </span>
-                <span class="icon-label">{{ icon.label }}</span>
-                <code class="icon-slot">{{ icon.slot }}</code>
-                @if (icon.note) {<span class="icon-note">{{ icon.note }}</span>}
-                @if (managed(icon.slot)) {
-                  <span class="managed-note" [attr.data-testid]="'managed-' + icon.slot">
-                    <strong>مُدار من صفحة الهوية</strong> — هذه هي أيقونة الذكاء الاصطناعي الرسمية للموقع؛ تُستبدل وتُستعاد من هناك فقط (يُعرض هنا الأصل الافتراضي للمرجع). لا استبدال محلي لها.
-                    <a class="managed-link" routerLink="/supper-admin-overview/site-control/identity" [attr.data-testid]="'managed-link-' + icon.slot">فتح صفحة الهوية</a>
-                  </span>
-                } @else {
-                <select class="icon-select" [value]="icon.slot" [attr.data-testid]="'select-' + icon.slot" (change)="onReassign(lib.id, icon.slot, $event)">
-                  @for (opt of lib.icons; track opt.slot) {
-                    <option [value]="opt.slot" [disabled]="managed(opt.slot) && opt.slot !== icon.slot">{{ opt.label }}</option>
-                  }
-                </select>
-                <label class="upload-mini-btn">
-                  رفع من الجهاز
-                  <input type="file" accept=".svg,image/svg+xml" (change)="onUploadIcon(lib.id, icon.slot, $event)" hidden />
-                </label>
-                @if (uploadError()[lib.id + ':' + icon.slot]; as err) {
-                  <span class="upload-err">{{ err }}</span>
-                }
-                }
-              </div>
-            }
-          </div>
+        <input type="search" class="search" placeholder="ابحث بالاسم أو المعرّف" (input)="setQuery($event)" aria-label="بحث في الأيقونات" data-testid="icons-search" dir="auto" />
+      </div>
+
+      <div class="lib-tabs" role="tablist">
+        @for (t of tabs(); track t.id) {
+          <button type="button" role="tab" class="lib-tab" [class.active]="activeTab() === t.id" [attr.aria-selected]="activeTab() === t.id" (click)="selectLib(t.id)" [attr.data-testid]="'icons-tab-' + t.id">{{ t.label }} <small>({{ t.count }})</small></button>
         }
-      }
-      @if (lib.id === 'general') {
-        <h4 class="icon-group-title display-style-heading framed-heading">اللوحات (i-*) — بإطار (مربع زجاجي)</h4>
-        <div class="icon-grid icon-grid-framed">
-          @for (icon of lib.icons; track icon.slot) {
-            <div class="icon-card icon-card-framed">
-              <span class="icon-box icon-box-framed" [style.color]="'var(--teal)'" [style.background]="'var(--icon-bg)'" [style.borderColor]="'var(--icon-border)'">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="shown(icon)"></svg>
+      </div>
+
+      <section class="lib-section" data-testid="icons-grid-section">
+        @if (query().trim()) { <h4 class="icon-group-title">نتائج البحث في كل المكتبات: {{ filtered().length }}</h4> }
+        @if (!filtered().length) { <p class="state" data-testid="icons-none">لا أيقونات تطابق هذه التصفية.</p> }
+        <div class="icon-grid">
+          @for (r of visible(); track r.id) {
+            <div class="icon-card" [class.is-custom]="r.status === 'custom'" [class.is-notwired]="r.status === 'not-wired'" [attr.data-testid]="'icon-card-' + r.id" [attr.data-status]="r.status">
+              <span class="icon-box" [style.color]="libColor()[libOf(r)] ? 'var(' + libColor()[libOf(r)] + ')' : 'var(--teal)'">
+                @if (r.status === 'custom' && store.customGlyphs()[r.id]; as g) {
+                  <svg viewBox="0 0 24 24" aria-hidden="true" [scInlineSvg]="g"></svg>
+                } @else if (shown(r); as inner) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" [innerHTML]="inner"></svg>
+                } @else {
+                  <span class="noglyph" aria-hidden="true">?</span>
+                }
               </span>
-              <span class="icon-label">{{ icon.label }}</span>
+              <span class="icon-label">{{ r.label || r.id }}</span>
+              <code class="icon-slot">{{ r.id }}</code>
+              <span class="status" [class]="'status st-' + r.status" [attr.data-testid]="'icon-status-' + r.id">{{ statusText(r) }}@if (r.hasDraft) { · مسودة }</span>
+              @if (isManaged(r)) {
+                <span class="managed-note" [attr.data-testid]="'managed-' + r.id">
+                  <strong>مُدار من صفحة الهوية</strong> — أيقونة الذكاء الاصطناعي الرسمية؛ تُستبدل وتُستعاد من هناك فقط.
+                  <a class="managed-link" routerLink="/supper-admin-overview/site-control/identity" [attr.data-testid]="'managed-link-' + r.id">فتح صفحة الهوية</a>
+                </span>
+              } @else if (r.status === 'not-wired') {
+                <span class="notwired" [attr.title]="r.reason?.text || null" [attr.data-testid]="'notwired-' + r.id">{{ reasonShort(r) }}</span>
+              } @else {
+                <button type="button" class="btn-secondary mini" (click)="open(r.id)" [attr.data-testid]="'icon-open-' + r.id">{{ canManage() ? (r.status === 'custom' ? 'تعديل / استعادة' : 'تخصيص') : 'عرض' }}</button>
+              }
             </div>
           }
         </div>
-      }
-      @if (lib.id === 'ai') {
-        <!-- إصلاح 2026-08-21 (ملاحظة مباشرة من المالك): أيقونات الذكاء لم يكن لها قسم "بإطار
-             (مربع زجاجي)" إطلاقًا مقابل مكتبة i-* — أُضيف هنا بنفس الفكرة تمامًا. الفرق الإلزامي:
-             زجاج/حدود المربع هنا مثبّتان على --ai-bg/--ai-border (بنفسجي AI) حصرًا، وليس
-             --icon-bg/--icon-border (فيروزي عام) — لأن أي عنصر يخص الذكاء يجب أن يكون الزجاج
-             بنفس درجة الأيقونة (بنفسجي)، لا لونًا آخر. هذا هو الخلل الذي أبلغ عنه المالك حين
-             استُخدم مربع زجاجي عام بلون غير بنفسجي لعنصر ذكاء (انظر أيضًا إصلاح kp-ico/kpi-ico
-             بتبويبي القوالب والمعاينة الحية لنفس السبب). -->
-        <h4 class="icon-group-title display-style-heading framed-heading">أيقونات الذكاء الاصطناعي — بإطار (مربع زجاجي بنفسجي)</h4>
-        <div class="icon-grid icon-grid-framed">
-          @for (icon of lib.icons; track icon.slot) {
-            <div class="icon-card icon-card-framed">
-              <span class="icon-box icon-box-framed" [style.color]="'var(' + lib.colorVar + ')'" [style.background]="'var(--ai-bg)'" [style.borderColor]="'var(--ai-border)'">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="shown(icon)"></svg>
-              </span>
-              <span class="icon-label">{{ icon.label }}</span>
-            </div>
-          }
-        </div>
-      }
-    </section>
+        @if (filtered().length > visible().length) {
+          <div class="more"><button type="button" class="btn-secondary" (click)="more()" data-testid="icons-more">عرض المزيد ({{ filtered().length - visible().length }})</button></div>
+        }
+      </section>
+    }
   }
 </div>

@@ -123,3 +123,38 @@
 .managed-note { display: block; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--ai-border, rgba(123,47,190,.28)); border-radius: 8px; background: var(--ai-bg, rgba(123,47,190,.10)); color: var(--txt-2, inherit); font-size: 12px; line-height: 1.6; }
 .managed-note strong { color: var(--ai-txt, inherit); }
 .managed-link { display: inline-block; margin-top: 4px; color: var(--teal-txt, var(--teal)); font-weight: 700; text-decoration: underline; }
+
+/* Round 6: server-backed library */
+.limits { margin: 0 0 12px; font-size: 12.5px; color: var(--txt-2); }
+.limits summary { cursor: pointer; font-weight: 800; }
+.plain-list { margin: 6px 0; padding-inline-start: 18px; line-height: 1.9; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 14px; }
+.chip { display: inline-block; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--txt-2); white-space: nowrap; }
+.chip-ok { color: var(--green, #0FA99A); border-color: rgba(var(--teal-rgb, 43,212,199), .45); background: rgba(var(--teal-rgb, 43,212,199), .1); }
+.chip-off { color: var(--kahr, #D98A0B); border-color: rgba(var(--kahr-rgb, 217,138,11), .45); background: rgba(var(--kahr-rgb, 217,138,11), .1); }
+.note { border-radius: 10px; padding: 10px 14px; margin: 10px 0; font-size: 12.5px; line-height: 1.8; border: 1px solid var(--border); background: var(--surface); color: var(--txt); }
+.note-warn { border-color: rgba(var(--kahr-rgb, 217,138,11), .5); background: rgba(var(--kahr-rgb, 217,138,11), .1); }
+.note-error { border-color: rgba(var(--red-rgb, 255,140,105), .45); background: rgba(var(--red-rgb, 255,140,105), .1); }
+.state { padding: 28px; text-align: center; color: var(--txt-2); display: flex; gap: 10px; justify-content: center; align-items: center; }
+.spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--teal, #2BD4C7); display: inline-block; animation: sc-spin .8s linear infinite; }
+@keyframes sc-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip-btn { background: var(--surface); border: 1px solid var(--border); color: var(--txt-2); border-radius: 999px; padding: 6px 14px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit; }
+.chip-btn.active { background: rgba(var(--teal-rgb),.12); border-color: var(--teal, #2BD4C7); color: var(--teal, #2BD4C7); }
+.search { flex: 1 1 200px; min-width: 0; max-width: 340px; background: var(--surface); color: var(--txt); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-family: inherit; font-size: 12.5px; }
+button:focus-visible, summary:focus-visible, .search:focus-visible, a:focus-visible { outline: 2px solid var(--teal, #2BD4C7); outline-offset: 2px; }
+.icon-card .status { font-size: 10px; font-weight: 800; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--txt-2); }
+.icon-card .st-custom { color: var(--green, #0FA99A); border-color: rgba(var(--teal-rgb, 43,212,199), .5); background: rgba(var(--teal-rgb, 43,212,199), .1); }
+.icon-card .st-not-wired { color: var(--kahr, #D98A0B); border-color: rgba(var(--kahr-rgb, 217,138,11), .5); }
+.icon-card.is-notwired { opacity: .8; border-style: dashed; }
+.icon-card.is-custom { border-color: var(--teal, #2BD4C7); }
+.icon-card .notwired { font-size: 9.5px; line-height: 1.6; color: var(--txt-3); text-align: center; }
+.icon-card .mini { padding: 5px 10px; font-size: 11px; margin-top: 2px; }
+.noglyph { width: 24px; height: 24px; border: 1px dashed var(--border); border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; color: var(--txt-3); font-size: 12px; }
+.icon-box svg { width: 18px; height: 18px; }
+.icon-grid { grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); }
+.more { text-align: center; margin-top: 14px; }
+.lib-tab small { color: var(--txt-3); font-weight: 700; }
+@media (max-width: 760px) { .icons-wrap { padding: 16px; } .icon-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); } }

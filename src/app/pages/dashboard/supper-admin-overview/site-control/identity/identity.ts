@@ -66,7 +66,9 @@ export class Identity implements OnInit, OnDestroy {
 	 * permission here. site.view alone only READS. (Round 5: the legacy grant is no longer read-only.)
 	 */
 	readonly canManage = computed(() => this.data()?.canManage === true && (this.access.can('site.manage') || this.access.can('site_control.manage')));
-	readonly items = computed<IdentityItemInfo[]>(() => this.data()?.items ?? []);
+	readonly items = computed<IdentityItemInfo[]>(() => (this.data()?.items ?? []).filter(i => !i.key.startsWith('icon.fn.')));
+	/** the function icons (`icon.fn.*`, one key per symbol) are NOT listed here: ONE editor per element, they live on «مكتبة الأيقونات»; this page only counts them */
+	readonly fnIcons = computed(() => { const l = (this.data()?.items ?? []).filter(i => i.key.startsWith('icon.fn.')); return { custom: l.filter(i => !i.state.isDefault).length, withDraft: l.filter(i => (i.staged ?? []).length).length }; });
 	readonly platformName = computed(() => this.platform.brand());
 	readonly canOpenSettings = computed(() => this.access.allows({ anyOf: ['settings.view', 'settings.manage'] }));
 	readonly notIdentity = computed(() => (Array.isArray(this.data()?.notIdentity) ? (this.data()!.notIdentity as unknown[]).filter((x): x is string => typeof x === 'string') : []));

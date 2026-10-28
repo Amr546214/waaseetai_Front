@@ -2,130 +2,118 @@ import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { AI_ICON_INNER } from '../../../../../core/constants/ai-icon';
-import { IconItem, IconsService } from '../core/icons.service';
-import { readAndSanitizeSvgFile } from '../core/svg-sanitize';
+import { IconFnRow, IconFnStatus } from '../../../../../core/identity/site-identity-admin.api';
+import { IconsService } from '../core/icons.service';
+import { InlineSvgDirective } from '../identity/inline-svg.directive';
+import { IconFnEditor } from './icon-fn-editor';
+import { IconFnStore } from './icon-fn.store';
 
+export type IconFilter = 'all' | IconFnStatus | 'draft';
+const PAGE = 120;
+export const OTHER_LIB = '__other';
+
+/**
+ * «مكتبة الأيقونات»: the SERVER-backed manager of the site's function icons (`icon.fn.<symbolId>`, one key per `<symbol id>`). Every icon shows its real status:
+ *  - default: wired, nothing published (the site draws its built-in symbol);
+ *  - custom: a published version replaces the symbol in every place that uses the id, for all visitors;
+ *  - not wired (with the server's reason): nothing in the site follows a change, so it is never offered as editable.
+ * The old browser-only replace / upload / save / import controls are gone from this page: they changed nothing on the site and, once saved, made the library come back empty.
+ * A failed load is an explicit error with a retry, never an empty library; the last good list stays visible when only a refresh fails.
+ */
 @Component({
   selector: 'sc-icon-tokens',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, InlineSvgDirective, IconFnEditor],
   templateUrl: './icon-tokens.html',
   encapsulation: ViewEncapsulation.ShadowDom,
   styleUrls: ['../site-control-base.css', './icon-tokens.css']
 })
 export class IconTokens implements OnInit {
-  iconsService = inject(IconsService);
-  private sanitizer = inject(DomSanitizer);
+  readonly iconsService = inject(IconsService);
+  readonly store = inject(IconFnStore);
+  private readonly sanitizer = inject(DomSanitizer);
 
-  activeLibId = signal<string>('');
-  uploadError = signal<Record<string, string>>({});
-  savedMsg = signal<string>('');
+  readonly activeLibId = signal<string>('');
+  readonly filter = signal<IconFilter>('all');
+  readonly query = signal('');
+  readonly shownCount = signal(PAGE);
+  readonly editing = signal<string | null>(null);
 
-  readonly activeLib = computed(() => {
-    const libs = this.iconsService.libraries();
-    const id = this.activeLibId();
-    return libs.find(l => l.id === id) ?? libs[0] ?? null;
+  /** the library's own drawing (inner markup) by slot: used for the default glyph and the labels when the id is a library slot */
+  readonly glyphBySlot = computed<Map<string, string>>(() => {
+    const m = new Map<string, string>();
+    for (const lib of this.iconsService.libraries()) for (const ic of lib.icons) if (!m.has(ic.slot)) m.set(ic.slot, ic.svg);
+    return m;
   });
-
-  /**
-   * تقسيم أيقونات المكتبة النشطة لمجموعات فرعية داخل نفس القسم — بنفس أسلوب عرض ملف
-   * الهوية (عنوان قسم واحد، ثم عنوان صغير لكل مجموعة فوق شبكتها). أُضيف 2026-08-20 مع
-   * دمج مكتبتي أيقونات الذكاء (معتمدة نهائياً / مقترحة جديدة) بمكتبة واحدة بدل تبويبين.
-   * أي مكتبة بلا حقل group (المكتبة العامة i-*) تُعاد كمجموعة واحدة بعنوان فارغ، فتُعرض
-   * شبكة واحدة كما كانت بالضبط — بلا أي تغيير على سلوك العرض السابق.
-   */
-  readonly groupedIcons = computed<{ key: string; label: string; icons: IconItem[] }[]>(() => {
-    const lib = this.activeLib();
-    if (!lib) return [];
-    const order: string[] = [];
-    const map = new Map<string, { key: string; label: string; icons: IconItem[] }>();
-    for (const icon of lib.icons) {
-      const key = icon.group ?? '';
-      if (!map.has(key)) {
-        map.set(key, { key, label: icon.groupLabel ?? '', icons: [] });
-        order.push(key);
-      }
-      map.get(key)!.icons.push(icon);
-    }
-    return order.map(k => map.get(k)!);
+  /** the library each slot belongs to; the server only names the library of rows nothing draws, so the page joins the rest through the library file */
+  readonly libBySlot = computed<Map<string, string>>(() => {
+    const m = new Map<string, string>();
+    for (const lib of this.iconsService.libraries()) for (const ic of lib.icons) if (!m.has(ic.slot)) m.set(ic.slot, lib.id);
+    return m;
   });
+  libOf(r: IconFnRow): string { return r.library ?? this.libBySlot().get(r.id) ?? OTHER_LIB; }
+  readonly libLabels = computed<Record<string, string>>(() => Object.fromEntries(this.iconsService.libraries().map(l => [l.id, l.label])));
+  readonly libColor = computed<Record<string, string>>(() => Object.fromEntries(this.iconsService.libraries().map(l => [l.id, l.colorVar])));
 
-  async ngOnInit() {
-    if (this.iconsService.libraries().length === 0) {
-      await this.iconsService.load();
+  /** tabs = the libraries that have rows, then everything else the site draws that no library lists */
+  readonly tabs = computed(() => {
+    const ids = new Set(this.store.rows().map(r => this.libOf(r)));
+    const order = ['general', 'ai', 'ws-site', OTHER_LIB].filter(i => ids.has(i));
+    for (const i of ids) if (!order.includes(i)) order.push(i);
+    return order.map(id => ({ id, label: id === OTHER_LIB ? 'أيقونات أخرى في الموقع' : this.libLabels()[id] ?? id, count: this.store.rows().filter(r => this.libOf(r) === id).length }));
+  });
+  readonly activeTab = computed(() => this.tabs().find(t => t.id === this.activeLibId())?.id ?? this.tabs()[0]?.id ?? '');
+
+  private matches(r: IconFnRow): boolean {
+    const f = this.filter();
+    if (f === 'draft' ? !r.hasDraft : f !== 'all' && r.status !== f) return false;
+    const q = this.query().trim().toLowerCase();
+    return !q || r.id.toLowerCase().includes(q) || (r.label ?? '').toLowerCase().includes(q);
+  }
+  /** rows of the active tab that pass the filter (the search looks in EVERY tab when a text is typed) */
+  readonly filtered = computed<IconFnRow[]>(() => {
+    const searching = !!this.query().trim();
+    const rank: Record<IconFnStatus, number> = { custom: 0, default: 1, 'not-wired': 2 };
+    // the icons that can really change come first (customised, then default), the ones nothing follows last; stable inside a group
+    return this.store.rows().filter(r => (searching || this.libOf(r) === this.activeTab()) && this.matches(r))
+      .map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.status] - rank[b.r.status] || a.i - b.i).map(x => x.r);
+  });
+  readonly visible = computed(() => this.filtered().slice(0, this.shownCount()));
+  readonly editingRow = computed(() => (this.editing() ? this.store.row(this.editing()!) : null));
+  readonly canManage = this.store.canManage;
+
+  ngOnInit(): void {
+    void this.iconsService.load();
+    void this.store.load();
+  }
+
+  retry(): void { void this.iconsService.load(true); void this.store.load(true); }
+  selectLib(id: string): void { this.activeLibId.set(id); this.shownCount.set(PAGE); }
+  setFilter(f: IconFilter): void { this.filter.set(f); this.shownCount.set(PAGE); }
+  setQuery(ev: Event): void { this.query.set((ev.target as HTMLInputElement).value); this.shownCount.set(PAGE); }
+  more(): void { this.shownCount.update(n => n + PAGE); }
+  open(id: string): void { this.editing.set(id); }
+  close(): void { this.editing.set(null); }
+
+  /** the official AI mark's slots (`i-ai`, `ws-trust-ai`, `rp-i-ai` ...) belong to the identity page (key icon.ai), never to this page */
+  managed(slot: string): boolean { return /(^|-)ai$/.test(slot); }
+  isManaged(r: IconFnRow): boolean { return r.managedBy === 'icon.ai' || this.managed(r.id); }
+  editable(r: IconFnRow): boolean { return !!r.key && r.status !== 'not-wired'; }
+  statusText(r: IconFnRow): string { return r.status === 'custom' ? 'مخصّصة' : r.status === 'default' ? 'افتراضية' : 'غير مربوطة'; }
+  /** the short reason shown on a not-wired card; the server's full sentence is the tooltip */
+  reasonShort(r: IconFnRow): string {
+    switch (r.reason?.code) {
+      case 'LIBRARY_ONLY': return 'في المكتبة فقط: لا يرسمها أي مكوّن في الموقع.';
+      case 'NO_CONSUMER': return 'معرّفة في قالب لكن لا شيء يستعملها.';
+      case 'MANAGED_BY_ICON_AI': return 'تُدار من صفحة الهوية.';
+      default: return r.reason?.text || 'لا شيء في الموقع يتبع تغيير هذه الأيقونة.';
     }
   }
+  defaultSvg(id: string): string | null { return this.glyphBySlot().get(id) ?? null; }
 
-  selectLib(id: string) {
-    this.activeLibId.set(id);
-  }
-
-  safeSvg(svg: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(svg);
-  }
-
-  /**
-   * Round 2 (one editor per element): the library slots that ARE the platform's official AI mark (`i-ai`, `ws-trust-ai`: AI-named, same rule as core/identity/identity-ai-icon.ts)
-   * are managed by the server-backed «الهوية» page (key icon.ai). Here they are shown, never replaced: no reassign, no upload, and they are not offered as a copy source for other slots.
-   * Every other slot (functional icons such as ws-ai-eye / ws-ai-bolt / ws-ai-spark, the proposals) stays a local sandbox.
-   */
-  managed(slot: string): boolean {
-    return /(^|-)ai$/.test(slot);
-  }
-
-  /** what a card draws: the official default glyph for a managed slot (so an imported/edited local copy can never pose as the site's icon), the library's own svg otherwise */
-  shown(icon: IconItem): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(this.managed(icon.slot) ? AI_ICON_INNER : icon.svg);
-  }
-
-  /** يُستدعى بـslot الأيقونة المختارة (مو محتوى SVG الخام) — يتفادى مشكلة تكرار قيم select
-   *  المحتملة لو تشابه شكلا أيقونتين حرفيًا مستقبلاً (ملاحظة تدقيق الكود). */
-  onReassign(libraryId: string, slot: string, event: Event) {
-    const select = event.target as HTMLSelectElement;
-    const chosenSlot = select.value;
-    if (this.managed(slot) || this.managed(chosenSlot)) { select.value = slot; return; } // managed from «الهوية»
-    const lib = this.iconsService.libraries().find(l => l.id === libraryId);
-    const chosen = lib?.icons.find(ic => ic.slot === chosenSlot);
-    if (chosen) {
-      this.iconsService.reassignSlot(libraryId, slot, chosen.svg);
-    }
-  }
-
-  save() {
-    const ok = this.iconsService.save();
-    this.savedMsg.set(ok ? 'تم الحفظ محليًا' : 'تعذّر الحفظ');
-    setTimeout(() => this.savedMsg.set(''), 4000);
-  }
-
-  exportJson() {
-    this.iconsService.exportJson();
-  }
-
-  async onImportFile(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
-    const res = await this.iconsService.importJson(file);
-    // إصلاح 2026-08-19: res.error قد يُرفَق مع ok:true الآن (تحذير عدد الأيقونات المرفوضة
-    // أمنيًا أثناء التعقيم) — يجب عرضه دائمًا إن وُجد، وليس فقط عند ok:false.
-    this.savedMsg.set(res.error ?? (res.ok ? 'تم الاستيراد' : 'فشل الاستيراد'));
-    setTimeout(() => this.savedMsg.set(''), 4000);
-  }
-
-  async onUploadIcon(libraryId: string, slot: string, event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
-    if (this.managed(slot)) return; // managed from «الهوية»
-    const key = `${libraryId}:${slot}`;
-    const result = await readAndSanitizeSvgFile(file);
-    this.uploadError.update(m => {
-      const { [key]: _, ...rest } = m;
-      if (!result.ok) return { ...rest, [key]: result.error };
-      this.iconsService.reassignSlot(libraryId, slot, result.svg);
-      return rest;
-    });
+  /** a managed slot draws the official default glyph; any other library drawing is drawn from the library file */
+  shown(r: IconFnRow): SafeHtml | null {
+    const inner = this.isManaged(r) ? AI_ICON_INNER : this.defaultSvg(r.id);
+    return inner ? this.sanitizer.bypassSecurityTrustHtml(inner) : null;
   }
 }

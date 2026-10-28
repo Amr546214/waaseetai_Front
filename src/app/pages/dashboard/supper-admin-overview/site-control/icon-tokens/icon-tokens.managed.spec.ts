@@ -1,66 +1,109 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { vi } from 'vitest';
 import { IconTokens } from './icon-tokens';
+import { IconFnStore } from './icon-fn.store';
 import { IconsService } from '../core/icons.service';
+import { IconFnRow } from '../../../../../core/identity/site-identity-admin.api';
 import { AI_ICON_INNER } from '../../../../../core/constants/ai-icon';
 
-// Round 2, «one editor per element»: the local icon library must not offer to replace/edit an icon the central identity page manages (the official AI mark).
-const OFFICIAL = AI_ICON_INNER;
-const CHANGED = '<circle cx="12" cy="12" r="9"/>';
-const libs = () => [
-	{ id: 'general', label: 'العامة', colorVar: '--teal', icons: [{ slot: 'i-ai', label: 'ذكاء اصطناعي', svg: CHANGED }, { slot: 'i-check', label: 'تحقق', svg: '<path d="M20 6L9 17l-5-5"/>' }] },
-	{ id: 'ai', label: 'الذكاء', colorVar: '--ai', icons: [{ slot: 'ws-trust-ai', label: 'ثقة الذكاء', svg: OFFICIAL }, { slot: 'ws-ai-eye', label: 'عين الذكاء', svg: '<circle cx="12" cy="12" r="3"/>' }, { slot: 'ws-ai-bolt', label: 'صاعقة', svg: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>' }] },
+// Round 6: the icon library is the SERVER-backed manager of the function icons. A load failure is an error state, never an empty library; an icon nothing follows is never offered as editable;
+// the official AI mark stays managed by «الهوية».
+const row = (o: Partial<IconFnRow> & { id: string }): IconFnRow => ({ key: 'icon.fn.' + o.id, label: o.id, library: null, status: 'default', reason: null, hasDraft: false, stateVersion: 0, activeVersion: null, defs: 1, variants: 1, viewBox: '0 0 24 24', ...o });
+const ROWS: IconFnRow[] = [
+	row({ id: 'i-bell', label: 'إشعارات' }),
+	row({ id: 'i-check', label: 'تحقق', status: 'custom', activeVersion: 2, stateVersion: 2 }),
+	row({ id: 'i-coin', label: 'عملة', key: null, library: 'general', status: 'not-wired', reason: { code: 'LIBRARY_ONLY', text: 'موجودة في المكتبة فقط' } }),
+	row({ id: 'i-ai', label: 'ذكاء', key: null, status: 'not-wired', managedBy: 'icon.ai', reason: { code: 'MANAGED_BY_ICON_AI', text: 'تُدار من الهوية' } }),
+	row({ id: 'ws-trust-ai', label: 'ثقة', key: null, library: 'ai', status: 'not-wired', managedBy: 'icon.ai', reason: { code: 'MANAGED_BY_ICON_AI', text: 'تُدار من الهوية' } }),
 ];
-function setup() {
-	const reassign = vi.fn();
-	const svc = { libraries: signal(libs()), loadError: signal(null), load: vi.fn(async () => undefined), reassignSlot: reassign, save: vi.fn(() => true), exportJson: vi.fn(), importJson: vi.fn() };
-	TestBed.configureTestingModule({ imports: [IconTokens], providers: [provideRouter([]), { provide: IconsService, useValue: svc }] });
+function setup(phase: 'loading' | 'ready' | 'error' | 'denied' = 'ready', over: { stale?: string; localError?: boolean; canManage?: boolean } = {}) {
+	const rows = signal(ROWS);
+	const store = {
+		phase: signal(phase), message: signal('تعذّر الاتصال بالخادم'), staleWarning: signal(over.stale ?? ''), rows,
+		list: computed(() => (phase === 'ready' ? { total: ROWS.length, counts: { default: 1, custom: 1, notWired: 3, withDraft: 0 }, limits: { maxCustom: 50, maxDraftsTotal: 60 }, rows: rows() } : null)),
+		canManage: signal(over.canManage ?? true), customGlyphs: signal({}), load: vi.fn(async () => undefined), row: (id: string) => ROWS.find(r => r.id === id) ?? null,
+	};
+	const icons = {
+		libraries: signal([{ id: 'general', label: 'العامة', colorVar: '--teal', icons: [{ slot: 'i-bell', label: 'إشعارات', svg: '<path d="M18 8A6 6 0 0 0 6 8"/>' }, { slot: 'i-check', label: 'تحقق', svg: '<path d="M20 6L9 17l-5-5"/>' }, { slot: 'i-coin', label: 'عملة', svg: '<circle cx="12" cy="12" r="9"/>' }, { slot: 'i-ai', label: 'ذكاء', svg: '<circle cx="12" cy="12" r="9"/>' }] }]),
+		loadError: signal(over.localError ? 'تعذّر تحميل ملف الأيقونات' : null), phase: signal(over.localError ? 'error' : 'ready'), savedCopyNotice: signal<string | null>(null), load: vi.fn(async () => undefined),
+	};
+	TestBed.configureTestingModule({ imports: [IconTokens], providers: [provideRouter([]), { provide: IconFnStore, useValue: store }, { provide: IconsService, useValue: icons }] });
 	const f = TestBed.createComponent(IconTokens); f.detectChanges();
 	const root = () => (f.nativeElement as HTMLElement).shadowRoot!;
-	return { f, c: f.componentInstance, root, reassign, svc, q: (id: string) => root().querySelector(`[data-testid="${id}"]`) as HTMLElement | null };
+	return { f, c: f.componentInstance, store, icons, root, q: (id: string) => root().querySelector(`[data-testid="${id}"]`) as HTMLElement | null };
 }
-describe('local icon library: slots managed by «الهوية»', () => {
+describe('icon library page (server-backed)', () => {
 	afterEach(() => TestBed.resetTestingModule());
-	it('only the official AI-mark slots (i-ai, ws-trust-ai) are managed; functional AI-themed icons stay local', () => {
+
+	it('the official AI-mark slots (i-ai, ws-trust-ai, rp-i-ai) are managed by «الهوية»; functional AI-themed icons are not', () => {
 		const t = setup();
-		expect(t.c.managed('i-ai')).toBe(true); expect(t.c.managed('ws-trust-ai')).toBe(true); expect(t.c.managed('rp-i-ai')).toBe(true);
+		for (const s of ['i-ai', 'ws-trust-ai', 'rp-i-ai']) expect(t.c.managed(s), s).toBe(true);
 		for (const s of ['i-check', 'ws-ai-eye', 'ws-ai-bolt', 'ws-ai-spark', 'ai-chat', 'ws-ai-alert']) expect(t.c.managed(s), s).toBe(false);
 	});
-	it('general tab: i-ai shows «مُدار من صفحة الهوية» with a link, NO replace select and NO upload; other icons keep both', () => {
+
+	it('statuses: default / custom / not-wired; only wired icons get an editor button; the not-wired one shows its reason and NO button', () => {
+		const t = setup();
+		expect(t.q('icon-status-i-bell')!.textContent).toContain('افتراضية'); expect(t.q('icon-open-i-bell')!.textContent).toContain('تخصيص');
+		expect(t.q('icon-status-i-check')!.textContent).toContain('مخصّصة'); expect(t.q('icon-open-i-check')!.textContent).toContain('تعديل');
+		expect(t.q('icon-status-i-coin')!.textContent).toContain('غير مربوطة'); expect(t.q('notwired-i-coin')!.textContent).toContain('لا يرسمها أي مكوّن');
+		expect(t.q('icon-open-i-coin')).toBeNull();
+		expect(t.q('icon-card-i-coin')!.querySelector('input[type=file], select')).toBeNull();
+	});
+
+	it('managed AI slots: a link to «الهوية», the official glyph, no editor, no file input', () => {
 		const t = setup();
 		expect(t.q('managed-i-ai')!.textContent).toContain('مُدار من صفحة الهوية');
 		expect(t.q('managed-link-i-ai')!.getAttribute('href')).toBe('/supper-admin-overview/site-control/identity');
-		expect(t.q('select-i-ai')).toBeNull();
-		expect(t.q('managed-i-check')).toBeNull(); expect(t.q('select-i-check')).toBeTruthy();
-		const card = t.q('managed-i-ai')!.closest('.icon-card')!;
-		expect(card.querySelector('input[type=file]')).toBeNull();
+		expect(t.q('icon-open-i-ai')).toBeNull();
+		expect(t.q('icon-card-i-ai')!.querySelector('svg')!.innerHTML.replace(/\s/g, '')).toContain('r="2"');
+		expect(t.q('icon-card-i-ai')!.querySelector('svg')!.innerHTML).not.toContain('r="9"');
 	});
-	it('the managed card draws the OFFICIAL glyph, never a local (edited/imported) copy', () => {
+
+	it('the icons that can really change are listed first inside a tab, then the ones nothing follows', () => {
 		const t = setup();
-		const card = t.q('managed-i-ai')!.closest('.icon-card')!;
-		expect(card.querySelector('svg')!.innerHTML.replace(/\s/g, '')).toContain('r="2"'); // the 7-circle mark, not the 9-radius circle
-		expect(card.querySelector('svg')!.innerHTML).not.toContain('r="9"');
+		const ids = Array.from(t.root().querySelectorAll('.icon-card')).map(c => c.getAttribute('data-testid'));
+		expect(ids.indexOf('icon-card-i-check')).toBeLessThan(ids.indexOf('icon-card-i-bell'));
+		expect(ids.indexOf('icon-card-i-bell')).toBeLessThan(ids.indexOf('icon-card-i-coin'));
 	});
-	it('AI tab: ws-trust-ai is managed (locked), ws-ai-eye / ws-ai-bolt remain local sandbox with select + upload; managed glyphs are not offered as a copy source', () => {
-		const t = setup(); t.c.selectLib('ai'); t.f.detectChanges();
-		expect(t.q('managed-ws-trust-ai')).toBeTruthy(); expect(t.q('select-ws-trust-ai')).toBeNull();
-		expect(t.q('select-ws-ai-eye')).toBeTruthy(); expect(t.q('select-ws-ai-bolt')).toBeTruthy();
-		const opt = Array.from(t.q('select-ws-ai-eye')!.querySelectorAll('option')) as HTMLOptionElement[];
-		expect(opt.find(o => o.value === 'ws-trust-ai')!.disabled).toBe(true);
-		expect(opt.find(o => o.value === 'ws-ai-bolt')!.disabled).toBe(false);
+
+	it('LOAD FAILURE is an error with a retry and NO grid, NO tabs, NO counts: it never looks like an empty library', () => {
+		const t = setup('error');
+		expect(t.q('icons-load-error')!.textContent).toContain('وليس مكتبة فارغة');
+		expect(t.q('icons-retry')).toBeTruthy(); expect(t.q('icons-grid-section')).toBeNull(); expect(t.root().querySelectorAll('.lib-tab').length).toBe(0);
+		t.q('icons-retry')!.click(); expect(t.store.load).toHaveBeenCalledWith(true); expect(t.icons.load).toHaveBeenCalledWith(true);
 	});
-	it('programmatic replace/upload on a managed slot is refused as well (reassign never reaches the service)', async () => {
-		const t = setup();
-		const fake = { target: { value: 'i-check' } } as unknown as Event;
-		t.c.onReassign('general', 'i-ai', fake);
-		const sel = { target: { value: 'i-ai' } } as unknown as Event;
-		t.c.onReassign('general', 'i-check', sel);
-		expect(t.reassign).not.toHaveBeenCalled();
-		t.c.onReassign('ai', 'ws-ai-eye', { target: { value: 'ws-ai-bolt' } } as unknown as Event);
-		expect(t.reassign).toHaveBeenCalledTimes(1);
-		await t.c.onUploadIcon('general', 'i-ai', { target: { files: [new File(['<svg/>'], 'a.svg')], value: '' } } as unknown as Event);
-		expect(t.reassign).toHaveBeenCalledTimes(1);
+
+	it('LOADING is visible, not an empty grid', () => {
+		const t = setup('loading');
+		expect(t.q('icons-loading')).toBeTruthy(); expect(t.q('icons-grid-section')).toBeNull();
+	});
+
+	it('a failed REFRESH keeps the last good list and says so', () => {
+		const t = setup('ready', { stale: 'تعذّر التحديث. المعروض هو آخر ما قرأناه.' });
+		expect(t.q('icons-stale')!.textContent).toContain('آخر ما قرأناه'); expect(t.q('icon-card-i-bell')).toBeTruthy();
+	});
+
+	it('a failed local icons.json only removes the default drawings, never the server list', () => {
+		const t = setup('ready', { localError: true });
+		expect(t.q('icons-local-error')).toBeTruthy(); expect(t.q('icon-card-i-bell')).toBeTruthy();
+	});
+
+	it('read-only viewers get «عرض» buttons and a read-only note; no upload control exists on the page itself', () => {
+		const t = setup('ready', { canManage: false });
+		expect(t.q('icons-readonly')).toBeTruthy(); expect(t.q('icon-open-i-bell')!.textContent).toContain('عرض');
+		expect(t.root().querySelector('.icon-card input[type=file]')).toBeNull();
+	});
+
+	it('the page states what it cannot reach (inline svg, TS-built svg, CSS, img) and that a swap happens after the page loaded', () => {
+		const t = setup(); const txt = t.q('icons-limits')!.textContent!;
+		for (const w of ['TypeScript', 'CSS', 'img', 'بعد اكتمال تحميل الصفحة']) expect(txt, w).toContain(w);
+	});
+
+	it('the old browser-only controls are gone: no local save / import / export buttons that change nothing on the site', () => {
+		const t = setup(); expect(t.root().querySelector('.btn-save')).toBeNull(); expect(t.root().querySelector('input[type=file]')).toBeNull();
+		expect(t.root().textContent).not.toContain('لا تغيّر هذه المكتبة أيقونات المنصة');
+		expect(AI_ICON_INNER).toContain('circle');
 	});
 });

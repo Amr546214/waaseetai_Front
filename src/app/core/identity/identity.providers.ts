@@ -1,6 +1,7 @@
 import { EnvironmentProviders, inject, provideAppInitializer } from '@angular/core';
 import { FaviconRuntime } from './identity-favicon';
 import { AiIconRuntime } from './identity-ai-icon';
+import { IconSymbolsRuntime } from './identity-icon-symbols';
 import { IdentityTokensRuntime } from './identity-tokens';
 import { SiteIdentityService } from './site-identity.service';
 
@@ -8,6 +9,7 @@ import { SiteIdentityService } from './site-identity.service';
 export function provideSiteIdentity(): EnvironmentProviders {
 	return provideAppInitializer(() => {
 		inject(AiIconRuntime).start();
+		inject(IconSymbolsRuntime).start();
 		inject(FaviconRuntime).start();
 		const identity = inject(SiteIdentityService);
 		identity.start();

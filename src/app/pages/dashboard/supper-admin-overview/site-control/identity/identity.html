@@ -122,6 +122,12 @@
         </section>
       }
 
+      <section class="card fn-icons-summary" data-testid="identity-fn-icons" aria-labelledby="fn-h">
+        <h2 id="fn-h">الأيقونات الوظيفية في الموقع</h2>
+        <p class="hint">أيقونات الواجهة (الجرس والبحث والإعدادات وغيرها) تُدار كلها من صفحة <a routerLink="/supper-admin-overview/site-control/icons" data-testid="identity-fn-icons-link">«مكتبة الأيقونات»</a> بنفس مسار هذه الصفحة (معاينة وتطبيق وإلغاء واستعادة وتعارض). لا يوجد محرّر ثانٍ لها هنا.
+          المخصّصة الآن: <strong data-testid="identity-fn-icons-custom">{{ fnIcons().custom }}</strong>@if (fnIcons().withDraft) { ، وبها مسودات: {{ fnIcons().withDraft }} }. أيقونة الذكاء الاصطناعي الرسمية وحدها تبقى هنا (المفتاح <code dir="ltr">icon.ai</code>).</p>
+      </section>
+
       @for (g of groups(); track g.id) {
         <section class="group" [attr.data-testid]="'identity-group-' + g.id" [attr.aria-labelledby]="'gh-' + g.id">
           @if (g.id === 'character') {
@@ -305,6 +311,18 @@
               </ul>
             }
             @for (n of it.notes; track $index) { <p class="hint small">{{ n }}</p> }
+            @if (it.key === 'logo.boot') {
+              <details class="paint-rule" open [attr.data-testid]="'boot-timing-' + it.key">
+                <summary>متى يظهر هذا الشعار بالضبط (التوقيت الفعلي عند تأخّر الخادم)</summary>
+                <ul class="plain-list small">
+                  <li><strong>زائر عاد إلى الموقع:</strong> يظهر الشعار المنشور (أو الأصلي إن لم يُنشر شيء) فورًا من النسخة المحفوظة في متصفحه، بلا انتظار.</li>
+                  <li><strong>أول زيارة والخادم أجاب خلال 1.5 ثانية:</strong> يُحجَب الشعار لحظة (لا يظهر ملف خاطئ) ثم يظهر الملف الصحيح مباشرة.</li>
+                  <li><strong>أول زيارة وتأخّر الجواب أكثر من 1.5 ثانية:</strong> <strong>يظهر الملف الأصلي</strong> عند انقضاء الـ1.5 ثانية (يُلغى الطلب الأول ولا يُستعمل جوابه المتأخر). يطلب التطبيق الجواب مرة ثانية بعد أن يبدأ (حد 8 ثوانٍ)؛ فإن وصل الجواب والشعار ما زال معروضًا حلّ <strong>المخصّص</strong> محل الأصلي، وإن اختفت شاشة التحميل قبل وصوله فلا يُرى المخصّص في هذه الزيارة، ويُحفظ فتظهر النسخة المخصّصة فورًا في الزيارات التالية. ظهور الأصلي في هذه الحالة وارد وليس خطأً.</li>
+                  <li><strong>الخادم لا يُجيب إطلاقًا:</strong> يبقى الشعار الأصلي ولا يُكسر شيء.</li>
+                  <li><strong>صفحات تُخدَم من خادم العرض (SSR):</strong> يقرأ الخادم البيان بحدّ ثانية واحدة (وإلا آخر نسخة سليمة عنده، وإلا الأصلي) ويكتب الملف الصحيح في أول HTML؛ وسكربت الإقلاع لا يفعل شيئًا هناك.</li>
+                </ul>
+              </details>
+            }
             @if (it.key === 'icon.ai') {
               <details class="paint-rule" [attr.data-testid]="'paint-rule-' + it.key">
                 <summary>كيف تُرسَم الأيقونة المخصصة</summary>

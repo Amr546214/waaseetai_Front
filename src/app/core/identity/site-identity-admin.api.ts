@@ -55,6 +55,15 @@ export type IdentityChangeKind = 'replace' | 'to-default' | 'unchanged';
 export interface IdentityPreviewRow { key: string; label: string; group: string; current: IdentityPreviewSide; target: IdentityPreviewSide; change: IdentityChangeKind }
 /** GET /restore-set/:manifestVersion/preview - the EXACT diff the restore would execute; `previewDigest` binds the confirmation to it */
 export interface IdentityRestoreSetPreview { currentManifestVersion: number; targetManifestVersion: number; previewDigest: string; changedCount: number; canApply: boolean; items: IdentityPreviewRow[] }
+/** one compact row of the function-icon list (BE `GET /admin/site-identity/icons`, contract IDENTITY-ICONS-CONTRACT-2026-10-28 section 4): one row per library / allow-list icon, no versions */
+export type IconFnStatus = 'default' | 'custom' | 'not-wired';
+export interface IconFnRow {
+	id: string; key: string | null; label: string; library: string | null; status: IconFnStatus; reason: { code: string; text: string } | null; managedBy?: string;
+	hasDraft: boolean; stateVersion: number; activeVersion: number | null; defs: number; variants: number; refs?: number; viewBox: string | null;
+}
+export interface IconFnList { total: number; counts: { default: number; custom: number; notWired: number; withDraft: number }; limits: { maxCustom: number; maxDraftsTotal: number }; rows: IconFnRow[] }
+/** the full item of ONE icon (`GET /admin/site-identity/icons/:symbolId`): the shape of `items[]` of the overview plus family fields */
+export type IconFnItem = IdentityItemInfo & { family?: string; symbolId?: string; status?: IconFnStatus; reason?: { code: string; text: string } | null };
 interface Envelope<T> { success: boolean; data: T; message?: string }
 export const SITE_IDENTITY_VERSION_CONFLICT = 'SITE_IDENTITY_VERSION_CONFLICT';
 /** 409 of restore-set when the diff changed after the preview was shown: `current` is the FRESH preview, nothing was executed */
@@ -80,6 +89,9 @@ export class SiteIdentityAdminApi {
 		let p = new HttpParams(); for (const [k, v] of Object.entries(opts)) if (v !== undefined) p = p.set(k, String(v));
 		return this.http.get<Envelope<IdentityHistory>>(`${base()}/history`, { params: p });
 	}
+	/** function icons (`icon.fn.<symbolId>`): the compact list and the full item of one icon */
+	iconList(): Observable<Envelope<IconFnList>> { return this.http.get<Envelope<IconFnList>>(`${base()}/icons`); }
+	iconItem(symbolId: string): Observable<Envelope<IconFnItem>> { return this.http.get<Envelope<IconFnItem>>(`${base()}/icons/${encodeURIComponent(symbolId)}`); }
 	/** multipart, field `file`; stores a STAGED version (nothing visible on the site yet) */
 	upload(key: string, file: File): Observable<Envelope<IdentityUploadResult>> { const fd = new FormData(); fd.append('file', file, file.name); return this.http.post<Envelope<IdentityUploadResult>>(`${base()}/${encodeURIComponent(key)}/upload`, fd); }
 	/** design-token sets: JSON body `{ value: { '--teal': '#14b8a6' } }` (sparse overrides); stores a STAGED version after the server's strict validation */
