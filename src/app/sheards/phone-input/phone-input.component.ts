@@ -79,6 +79,9 @@ let nextPhoneInputId = 0;
 })
 export class PhoneInputComponent implements ControlValueAccessor, Validator, OnChanges, OnInit, DoCheck, AfterViewInit, OnDestroy {
 	@ViewChild('phoneField') private phoneField?: ElementRef<HTMLInputElement>;
+	@ViewChild('countrySearch') private set countrySearch(field: ElementRef<HTMLInputElement> | undefined) {
+		field?.nativeElement.focus({ preventScroll: true });
+	}
 
 	@Input() placeholder = 'رقم الجوال';
 	@Input() preferredCountries: CountryCode[] = ['SA', 'AE', 'KW', 'QA', 'BH', 'OM'];
