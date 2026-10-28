@@ -62,7 +62,7 @@ The UI is Arabic-first (RTL) with a dark/light theme switch.
 ```bash
 git clone https://github.com/Amr546214/waaseetai_Front.git
 cd waaseetai_Front
-npm install --legacy-peer-deps   # required: npm ci / plain npm install fail with ERESOLVE (@ng-select vs Angular 21)
+npm ci --legacy-peer-deps        # uses package-lock.json as is; flag required: plain `npm ci` fails with ERESOLVE (@ng-select vs Angular 21)
 npm run start:local              # http://localhost:4200 → API at http://localhost:5009/api
 ```
 
