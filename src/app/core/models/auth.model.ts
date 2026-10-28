@@ -53,6 +53,8 @@ export interface AuthResponse {
 		verified: boolean;
 		userId?: string | null; // Present if verified: false; POST /auth/register: null when nothing was created for this caller (data already in use)
 		token?: string;  // Present if verified: true
+		/** POST /auth/register/start: the signed ticket that, with the e-mailed code, proves the address (no account exists yet). */
+		ticket?: string;
 		user?: User;     // Present if verified: true
 		// Present when POST /auth/google is called with intent 'register' for a
 		// brand-new email: the identity is verified but no user/session/token is
@@ -100,6 +102,11 @@ export interface RegisterInput {
 	// Omitted entirely (never sent as '' or null) when the user picked none.
 	affiliateIdentifier?: string;
 }
+
+/** E-mail-first registration, step 1: the form data WITHOUT the password. Nothing is created until the code is entered (step 2). */
+export type RegisterStartInput = Omit<RegisterInput, 'password' | 'googleIdToken' | 'affiliateIdentifier'>;
+/** Step 2: the same data + password + the ticket from step 1 + the 6-digit code from the e-mail. The password is only ever sent here, never stored. */
+export type RegisterCompleteInput = Omit<RegisterInput, 'googleIdToken'> & { password: string; ticket: string; code: string };
 
 /** Activation code: by account id (login-while-pending path) OR by the e-mail typed at registration (the public register answer has no id). */
 export type VerifyOtpInput = { code: string } & ({ userId: string; email?: never } | { email: string; userId?: never });

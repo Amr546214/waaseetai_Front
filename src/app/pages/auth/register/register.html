@@ -147,7 +147,9 @@
       </div>
       }
 
-      @if (accountCreated) {
+      @if (proofFlow) {
+      <div class="banner-info" role="status" data-testid="account-created-note">أرسلنا رمز التحقق إلى بريدك ولم يُنشأ حساب بعد. بياناتك محفوظة؛ اضغط «متابعة» للعودة إلى خطوة الرمز، أو صحّح بياناتك (مثل البريد أو الجوال) ثم «متابعة». عند تغيير البريد يُرسل رمز جديد، وعند تغيير بيانات أخرى يُستخدم الرمز الذي أدخلته.</div>
+      } @else if (accountCreated) {
       <div class="banner-info" role="status" data-testid="account-created-note">أُرسل طلب التسجيل. بياناتك محفوظة؛ اضغط «متابعة» للعودة إلى خطوة رمز التحقق، أو صحّح بياناتك (مثل البريد) ثم «متابعة» لإرسال الطلب من جديد.</div>
       }
       <form id="complete-form" novalidate [formGroup]="basicInfoForm" (ngSubmit)="nextStep()">
@@ -428,8 +430,23 @@
     </div>
     }
 
+    @if (dataUnavailableMessage) {
+    <div class="banner-error" id="register-data-unavailable" role="alert" data-testid="register-data-unavailable" style="flex-direction:column;align-items:stretch;gap:8px">
+      <span>{{ dataUnavailableMessage }}</span>
+      <span style="display:flex;gap:16px;flex-wrap:wrap">
+        <button type="button" class="banner-error-link" id="data-unavailable-edit" (click)="prevStep()">تصحيح البيانات</button>
+        <a routerLink="/auth/login" class="banner-error-link" id="data-unavailable-login">تسجيل الدخول</a>
+        <a routerLink="/auth/forget-password" class="banner-error-link" id="data-unavailable-forgot">استعادة كلمة المرور</a>
+      </span>
+    </div>
+    }
+
     <div class="banner-info" role="note" data-testid="code-step-help" style="flex-direction:column;align-items:stretch;gap:8px">
+      @if (proofFlow) {
+      <span data-testid="code-step-help-proof">لم يصلك الرمز؟ تأكد من البريد المعروض أعلاه وصحّحه عند الخطأ، أو اطلب رمزًا جديدًا. لا يُنشأ الحساب إلا بعد إدخال الرمز.</span>
+      } @else {
       <span>لم يصلك رمز؟ قد تكون بياناتك بحاجة إلى تعديل، أو يكون لديك حساب مفعّل بالفعل فلن يصلك رمز هنا.</span>
+      }
       <span data-testid="code-step-spam-hint">{{ deliveryHint }}</span>
       <span style="display:flex;gap:16px;flex-wrap:wrap">
         <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
