@@ -1,15 +1,7 @@
-# Static host of the DEV front-end image (Dockerfile.dev). nginx:alpine renders this file with envsubst at container start
-# (only the WS_* variables below are substituted; $uri etc. stay nginx variables).
-#
-# Identity (Round 7): two URLs that browsers / link-preview crawlers request straight from the static host - /favicon.ico and the link-share image - are answered from the platform's
-# identity source: nginx asks the BACKEND's public alias routes (custom file when one is published, otherwise the backend's copy of the DEFAULT file) and, if the backend does not
-# answer in time or answers anything but 200, serves the static default file that ships in this image (same bytes). Nothing else changes: SPA routing and assets are as before.
-#   WS_IDENTITY_UPSTREAM  origin that serves /api/public/site-identity/* (dev: the site's own public origin, whose edge routes /api to the backend)
-#   WS_IDENTITY_HOST      Host header sent to it
-#   WS_RESOLVER           DNS resolver nginx uses at request time (a variable proxy_pass needs one; nginx still starts when it is unreachable)
-resolver ${WS_RESOLVER} valid=300s ipv6=off;
-resolver_timeout 2s;
-
+# Static host of the DEV front-end image (Dockerfile.dev). nginx:alpine renders this file with envsubst at container start.
+# /favicon.ico and the link-share image are answered from the platform identity source ONLY when WS_IDENTITY_UPSTREAM is set (nginx/identity.inc.template, generated into
+# /etc/nginx/ws-identity.inc by 15-ws-identity.sh). With the variable unset or empty the include is an empty file: static default files only, no proxying, no upstream lookup
+# (identical to the previous behaviour; an ARB / production build of this repo can never call dev).
 server {
     listen 4200;
     server_name localhost;
@@ -21,45 +13,7 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
-    # /favicon.ico -> backend alias (custom, else its default copy); any failure -> the static file of this image
-    location = /favicon.ico {
-        set $ws_up "${WS_IDENTITY_UPSTREAM}";
-        proxy_pass $ws_up/api/public/site-identity/favicon.ico;
-        proxy_set_header Host "${WS_IDENTITY_HOST}";
-        proxy_set_header Accept-Encoding "";
-        proxy_ssl_server_name on;
-        proxy_connect_timeout 2s;
-        proxy_read_timeout 3s;
-        proxy_next_upstream off;
-        proxy_intercept_errors on;
-        error_page 301 302 303 307 308 400 401 403 404 405 408 429 500 501 502 503 504 = @ws_static_favicon;
-    }
-    location @ws_static_favicon {
-        root /usr/share/nginx/html;
-        try_files /favicon.ico =404;
-        add_header Cache-Control "public, max-age=300";
-        add_header X-Identity-Source "static-fallback" always;
-    }
-
-    # link-share image (index.html og:image / twitter:image keep this exact URL) -> backend alias; any failure -> the static default image of this image
-    location = /assets/social/waseetai-og-v3.jpg {
-        set $ws_up "${WS_IDENTITY_UPSTREAM}";
-        proxy_pass $ws_up/api/public/site-identity/social/og;
-        proxy_set_header Host "${WS_IDENTITY_HOST}";
-        proxy_set_header Accept-Encoding "";
-        proxy_ssl_server_name on;
-        proxy_connect_timeout 2s;
-        proxy_read_timeout 3s;
-        proxy_next_upstream off;
-        proxy_intercept_errors on;
-        error_page 301 302 303 307 308 400 401 403 404 405 408 429 500 501 502 503 504 = @ws_static_og;
-    }
-    location @ws_static_og {
-        root /usr/share/nginx/html;
-        try_files /assets/social/waseetai-og-v3.jpg =404;
-        add_header Cache-Control "public, max-age=300";
-        add_header X-Identity-Source "static-fallback" always;
-    }
+    include /etc/nginx/ws-identity.inc;
 
     location ~ \.(js|css|svg|ico|png|jpg|jpeg|woff|woff2|ttf|map)$ {
         root /usr/share/nginx/html;

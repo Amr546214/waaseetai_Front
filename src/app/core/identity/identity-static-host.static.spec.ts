@@ -6,7 +6,9 @@ import { describe, expect, it } from 'vitest';
 // Round 7 (C): /favicon.ico and the link-share image are answered by the static host (crawlers and browsers do not run JS). The dev image asks the backend's public alias routes and falls back to the static default
 // files of the same image; index.html keeps the exact og/twitter URLs (so the default behaviour is unchanged).
 const root = join(__dirname, '../../../..');
-const conf = readFileSync(join(root, 'nginx/dev.conf.template'), 'utf8');
+const main = readFileSync(join(root, 'nginx/dev.conf.template'), 'utf8');
+const conf = readFileSync(join(root, 'nginx/identity.inc.template'), 'utf8') + main;
+const script = readFileSync(join(root, 'nginx/15-ws-identity.sh'), 'utf8');
 const docker = readFileSync(join(root, 'Dockerfile.dev'), 'utf8');
 const index = readFileSync(join(root, 'src/index.html'), 'utf8');
 
@@ -32,9 +34,10 @@ describe('static host: favicon.ico + link-share image through the identity route
 		expect(conf).toContain('try_files $uri $uri/ /index.html;');
 		expect(conf).toContain('location ~ \\.(js|css|svg|ico|png|jpg|jpeg|woff|woff2|ttf|map)$');
 	});
-	it('Dockerfile.dev installs the template with its three WS_* settings; no other deployment file is touched by this', () => {
-		expect(docker).toContain('/etc/nginx/templates/default.conf.template');
-		for (const v of ['WS_IDENTITY_UPSTREAM', 'WS_IDENTITY_HOST', 'WS_RESOLVER']) expect(docker).toContain(v);
+	it('the alias routes are ON only when WS_IDENTITY_UPSTREAM is set; nothing about dev is baked in (no default upstream anywhere)', () => {
+		expect(script).toContain('if [ -n "${WS_IDENTITY_UPSTREAM:-}" ]'); expect(script).toContain(': > "$OUT"');
+		expect(main).toContain('include /etc/nginx/ws-identity.inc;'); expect(main).not.toContain('proxy_pass');
+		expect(docker).toContain('/docker-entrypoint.d/15-ws-identity.sh'); expect(docker).not.toMatch(/ENV\s+WS_/); expect(docker + main + script + conf).not.toContain('dev.waseetai.com');
 		expect(docker).not.toContain("echo 'server {");
 	});
 	it('index.html keeps the exact og / twitter image URL (the static host maps it), 1200x630 jpeg', () => {

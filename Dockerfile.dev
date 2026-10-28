@@ -17,12 +17,12 @@ RUN npm run build -- --configuration=production
 # ---- Serve Stage ----
 FROM nginx:alpine
 
-# Configure Nginx to listen on port 4200, handle SPA routing, and answer /favicon.ico and the link-share image from the platform identity source (backend alias routes,
-# static default files of this image as the fallback). nginx:alpine renders /etc/nginx/templates/*.template with envsubst at start.
-ENV WS_IDENTITY_UPSTREAM=https://dev.waseetai.com \
-    WS_IDENTITY_HOST=dev.waseetai.com \
-    WS_RESOLVER="1.1.1.1 8.8.8.8"
+# Configure Nginx to listen on port 4200 and handle SPA routing. The identity alias routes (/favicon.ico and the link-share image answered from the backend, static default as the fallback)
+# are OFF unless the container is started with WS_IDENTITY_UPSTREAM (+ WS_IDENTITY_HOST, WS_RESOLVER); nothing about dev is baked into the image.
 COPY nginx/dev.conf.template /etc/nginx/templates/default.conf.template
+COPY nginx/identity.inc.template /etc/nginx/identity.inc.template
+COPY nginx/15-ws-identity.sh /docker-entrypoint.d/15-ws-identity.sh
+RUN chmod +x /docker-entrypoint.d/15-ws-identity.sh
 
 # Clean the default Nginx html directory
 RUN rm -rf /usr/share/nginx/html/*
