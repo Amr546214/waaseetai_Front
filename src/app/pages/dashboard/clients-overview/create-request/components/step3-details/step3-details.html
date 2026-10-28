@@ -4,7 +4,7 @@
 		<!-- FIELD 1: عنوان الطلب -->
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
-				<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+				<svg data-ws-icon="i-doc" class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
 				معلومات الطلب الأساسية
 			</div>
 
@@ -154,7 +154,7 @@
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">
 				<span class="flex items-center gap-3">
-					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+					<svg data-ws-icon="ws-check" class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
 					شروط إضافية
 				</span>
 				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
@@ -169,10 +169,10 @@
 				@for (req of parent.requirements(); track req; let idx = $index) {
 				<div class="flex items-center justify-between p-4 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl">
 					<div class="flex items-center gap-3 text-[var(--txt)]">
-						<svg class="w-5 h-5 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+						<svg data-ws-icon="ws-check" class="w-5 h-5 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
 						<span class="font-medium text-sm">{{ req }}</span>
 					</div>
-					<button (click)="parent.removeRequirement(idx)" class="text-[var(--txt-3)] hover:text-red-500 transition-colors"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+					<button (click)="parent.removeRequirement(idx)" class="text-[var(--txt-3)] hover:text-red-500 transition-colors"><svg data-ws-icon="ws-close" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
 				</div>
 				}
 			</div>
@@ -180,7 +180,7 @@
 			<div class="req-add-row flex gap-2">
 				<input type="text" class="req-add-input flex-1 p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] text-sm" id="req-input" placeholder="أضف شرطاً إضافياً محدداً..." maxlength="150" [ngModel]="parent.newRequirement()" (ngModelChange)="parent.newRequirement.set($event)" (keyup.enter)="parent.addRequirement()">
 				<button type="button" class="req-add-btn flex items-center gap-2 bg-[var(--teal)]/10 text-[var(--teal)] px-6 rounded-xl font-bold border border-[var(--teal)]/20 hover:bg-[var(--teal)]/20 transition-colors" (click)="parent.addRequirement()">
-					<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+					<svg data-ws-icon="i-plus" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 					إضافة
 				</button>
 			</div>
@@ -190,7 +190,7 @@
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">
 				<span class="flex items-center gap-3">
-					<svg class="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+					<svg data-ws-icon="i-doc" class="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
 					المخرجات المتوقعة
 				</span>
 				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>

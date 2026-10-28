@@ -15,7 +15,7 @@
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button type="button" data-testid="mark-all-read" [disabled]="unreadCount() === 0 || markingAll()" [style.opacity]="unreadCount() === 0 || markingAll() ? .5 : 1" (click)="markAllRead()" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg data-ws-icon="ws-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
         تعليم الكل كمقروء
       </button>
       <a routerLink="/marketer-overview/ref-links" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px" class="txt-slate">

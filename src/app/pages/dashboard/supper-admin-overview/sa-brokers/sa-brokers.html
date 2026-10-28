@@ -24,7 +24,7 @@
       }
     </div>
     <div class="bk-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="search" placeholder="ابحث بالاسم أو البريد الإلكتروني..." [value]="searchTerm()" (input)="onSearch($any($event.target).value)" />
     </div>
   </div>
@@ -42,7 +42,7 @@
   } @else if (brokers().length === 0) {
     <div class="bk-empty">
       <div class="bk-empty-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+        <svg data-ws-icon="i-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
       </div>
       <div class="bk-empty-ttl">لا توجد بيانات مطابقة</div>
     </div>

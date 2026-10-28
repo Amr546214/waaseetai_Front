@@ -105,9 +105,9 @@
 								<div class="dp-step" [class.done]="step.state === 'done'" [class.active]="step.state === 'active'">
 									<span class="dp-dot">
 										@if (step.state === 'done') {
-											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+											<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
 										} @else if (step.state === 'active') {
-											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4" /><path d="M4 21v-1a8 8 0 0 1 16 0v1" /></svg>
+											<svg data-ws-icon="i-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4" /><path d="M4 21v-1a8 8 0 0 1 16 0v1" /></svg>
 										}
 									</span>
 									{{ step.label }}
@@ -181,7 +181,7 @@
 						<div class="dp-foot">
 							<span class="dp-meta">{{ am.updatedAt | date:'d MMMM' }}</span>
 							<a role="button" tabindex="0" class="dp-cta" [class.dp-cta-gh]="am.status !== 'PENDING_OTHER_PARTY'" (click)="openDiscussion(am)" (keydown.enter)="openDiscussion(am)">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+								<svg data-ws-icon="ws-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 									<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 								</svg>
 								{{ ctaLabel(am) }}

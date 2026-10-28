@@ -589,10 +589,6 @@
 :host-context(body.theme-light),
 :host-context(.light-theme),
 :host-context(.theme-light){
-  --drop-name:#0F172A;
-  --rec-sub:#5B6472;
-  --ai-txt:#6B27A5;
-  --teal-txt:#0F8A7F;
 }
 
 /* Level card — escrow-action light override (exact from P-PR-001 LIGHT_CSS) */

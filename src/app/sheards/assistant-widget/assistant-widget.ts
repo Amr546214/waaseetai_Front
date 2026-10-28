@@ -147,7 +147,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 							</div>
 						}
 						<button type="button" class="aw__close" (click)="store.close()" [attr.aria-label]="'إغلاق ' + characterName()">
-							<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+							<svg data-ws-icon="ws-close" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
 						</button>
 					</div>
 				</header>
@@ -290,7 +290,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 							</button>
 						} @else {
 							<button type="submit" [disabled]="!quickText.trim()" aria-label="إرسال الرسالة">
-								<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+								<svg data-ws-icon="ws-send" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
 							</button>
 						}
 					</form>
@@ -396,7 +396,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 						[attr.aria-label]="'إغلاق ' + characterName()"
 						title="إغلاق"
 					>
-						<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+						<svg data-ws-icon="ws-close" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 					</button>
 				</div>
 			</div>

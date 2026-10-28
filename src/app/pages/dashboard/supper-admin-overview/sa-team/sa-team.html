@@ -7,10 +7,10 @@
     <div class="tm-hdr-actions">
       @if (isSuperAdmin()) {
         <a routerLink="/supper-admin-overview/roles" class="tm-btn tm-btn-ghost" data-testid="team-roles-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>الصلاحيات
+          <svg data-ws-icon="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>الصلاحيات
         </a>
         <button type="button" class="tm-btn tm-btn-primary" (click)="openInvite()" data-testid="team-invite-open">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>دعوة موظف
+          <svg data-ws-icon="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>دعوة موظف
         </button>
       }
     </div>
@@ -38,7 +38,7 @@
 
     <div class="tm-filters">
       <div class="tm-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="search" placeholder="ابحث باسم الموظف..." aria-label="بحث" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="onFilter()" (blur)="onFilter()">
       </div>
       <ws-select class="tm-select" ariaLabel="الدور" [leading]="allRoles" [options]="roleOpts()" [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event); onFilter()" />

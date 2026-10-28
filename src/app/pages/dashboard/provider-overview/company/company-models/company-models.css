@@ -6,7 +6,6 @@
 	--cml-card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
 	--cml-rail-bg: rgba(7, 13, 36, 0.7);
 	--cml-score-bg: #070D24;
-	--teal-txt: #2BD4C7;
 	font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
 	color: var(--cml-txt);
 	direction: rtl;
@@ -25,7 +24,6 @@
 	--cml-card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.75));
 	--cml-rail-bg: rgba(246, 248, 252, 0.94);
 	--cml-score-bg: #ffffff;
-	--teal-txt: #0F8A7F;
 }
 
 .cml-bc { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--cml-txt-muted); margin-bottom: 12px; }

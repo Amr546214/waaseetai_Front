@@ -123,12 +123,12 @@
       <!-- سطر البحث (ثابت مع debounce) -->
       <div class="fr-row" style="background:rgba(255,255,255,.02)">
         <div class="fr-search" style="flex:1;padding:10px 16px;border-inline-end:1px solid rgba(255,255,255,.07)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input type="search" [ngModel]="searchQuery()" (ngModelChange)="onSearchInput($event)" placeholder="ابحث في المستخدمين (الاسم، البريد، الهاتف)..." aria-label="بحث">
         </div>
         <div class="fr-end">
           <button type="button" class="fr-export-btn" (click)="exportCSV()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>تصدير CSV
+            <svg data-ws-icon="ws-filter" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>تصدير CSV
           </button>
         </div>
       </div>

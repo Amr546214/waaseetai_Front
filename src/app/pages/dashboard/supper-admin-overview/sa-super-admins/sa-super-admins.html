@@ -135,7 +135,7 @@
         </div>
         <div class="spa-filter-row">
           <div class="spa-fr-search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input type="search" placeholder="ابحث في السجل..." aria-label="بحث" [value]="auditSearch()" (change)="setAuditSearch($any($event.target).value)" />
           </div>
           <ws-select class="spa-fr-sel" [options]="auditTypeOptions()" [ngModel]="auditTypeFilter()" (ngModelChange)="setAuditType($event)" ariaLabel="نوع الإجراء"></ws-select>
@@ -186,7 +186,7 @@
         <div class="spa-danger-zone">
           <div class="spa-card-ttl spa-card-ttl-danger"><svg><use href="#spa-i-warn"></use></svg>إجراءات حرجة</div>
           <div class="spa-row" data-testid="danger-maintenance">
-            <div><div class="spa-row-lbl spa-row-lbl-danger">{{ maintenanceOn() ? 'إيقاف وضع الصيانة' : 'تفعيل وضع الصيانة الكامل' }}<button type="button" class="spa-help-btn" [attr.data-testid]="'help-btn-maintenance'" aria-label="تفاصيل" [attr.aria-expanded]="dangerHelp().has('maintenance')" (click)="toggleDangerHelp('maintenance')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div><div class="spa-row-sub">{{ maintenanceOn() ? 'يعود الوصول لجميع المستخدمين بعد الإيقاف' : 'يعطل النظام لجميع المستخدمين' }}</div>
+            <div><div class="spa-row-lbl spa-row-lbl-danger">{{ maintenanceOn() ? 'إيقاف وضع الصيانة' : 'تفعيل وضع الصيانة الكامل' }}<button type="button" class="spa-help-btn" [attr.data-testid]="'help-btn-maintenance'" aria-label="تفاصيل" [attr.aria-expanded]="dangerHelp().has('maintenance')" (click)="toggleDangerHelp('maintenance')"><svg data-ws-icon="ws-info" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div><div class="spa-row-sub">{{ maintenanceOn() ? 'يعود الوصول لجميع المستخدمين بعد الإيقاف' : 'يعطل النظام لجميع المستخدمين' }}</div>
               @if (dangerHelp().has('maintenance')) { <div class="spa-help" data-testid="help-maintenance">{{ maintenanceOn() ? 'الصيانة مفعّلة الآن؛ يعود الوصول لجميع المستخدمين بعد الإيقاف.' : 'يعطل النظام لجميع المستخدمين، ويبقى متاحًا: الإدارة والدخول والصحة واستدعاءات الدفع. التفعيل يمرّ بتأكيدين.' }}</div> }
             </div>
             <button type="button" class="spa-btn spa-btn-danger" data-testid="danger-maintenance-btn" [disabled]="store.saving() || !store.item('maintenanceMode')?.canWrite" (click)="toggleMaintenance()">{{ maintenanceOn() ? 'إيقاف' : 'تفعيل' }}</button>
@@ -194,7 +194,7 @@
           @if (dangerError()) { <div class="spa-row spa-row-err" role="alert" data-testid="danger-error">{{ dangerError() }}</div> }
           @for (d of unavailableActions; track d.key) {
             <div class="spa-row" [attr.data-testid]="'danger-' + d.key">
-              <div><div class="spa-row-lbl spa-row-lbl-danger">{{ d.label }} <span class="spa-bdg spa-bdg-role">غير متاح</span><button type="button" class="spa-help-btn" [attr.data-testid]="'help-btn-' + d.key" aria-label="تفاصيل" [attr.aria-expanded]="dangerHelp().has(d.key)" (click)="toggleDangerHelp(d.key)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div><div class="spa-row-sub">{{ d.desc }}</div>
+              <div><div class="spa-row-lbl spa-row-lbl-danger">{{ d.label }} <span class="spa-bdg spa-bdg-role">غير متاح</span><button type="button" class="spa-help-btn" [attr.data-testid]="'help-btn-' + d.key" aria-label="تفاصيل" [attr.aria-expanded]="dangerHelp().has(d.key)" (click)="toggleDangerHelp(d.key)"><svg data-ws-icon="ws-info" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div><div class="spa-row-sub">{{ d.desc }}</div>
                 @if (dangerHelp().has(d.key)) { <div class="spa-help" [attr.data-testid]="'help-' + d.key">{{ d.reason }}</div> }
               </div>
               <button type="button" class="spa-btn spa-btn-danger spa-btn-na" disabled [title]="d.reason">{{ d.buttonLabel }}</button>

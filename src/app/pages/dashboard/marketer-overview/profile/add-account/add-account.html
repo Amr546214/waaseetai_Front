@@ -30,7 +30,7 @@
                'bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.28)] text-[#2BD4C7]': i < stepIdx(),
                'bg-[rgba(255,255,255,.07)] border border-[rgba(255,255,255,.12)] text-[var(--txt-3)]': i > stepIdx()
              }">
-          <svg *ngIf="i < stepIdx()" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg data-ws-icon="ws-check" *ngIf="i < stepIdx()" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           <span *ngIf="i >= stepIdx()">{{ i + 1 }}</span>
         </div>
         <div class="text-xs transition-colors hidden sm:block whitespace-nowrap"
@@ -72,7 +72,7 @@
           <span *ngIf="!isRoleOwned('seeker-ind')" class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">متاح للإضافة</span>
 
           <div class="w-14 h-14 rounded-2xl bg-[rgba(43,212,199,.08)] flex items-center justify-center mb-3.5 shrink-0 text-[#2BD4C7]">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+            <svg data-ws-icon="i-person" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
           </div>
           <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">طالب الخدمة (فرد)</div>
           <p class="text-xs text-[var(--txt-3)] leading-relaxed flex-1 mb-3">للأفراد الذين يطلبون خدمات من مقدمين موثقين بضمان مالي</p>
@@ -107,7 +107,7 @@
           <span *ngIf="!isRoleActive('provider-co') && isRoleUnavailable('provider-co')" class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-slate-500/10 text-slate-400 border border-slate-500/20 rounded-full">غير متاح حاليًا</span>
 
           <div class="w-14 h-14 rounded-2xl bg-[rgba(15,169,154,.1)] flex items-center justify-center mb-3.5 shrink-0 text-[#0FA99A]">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <svg data-ws-icon="ws-users" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
           <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">مقدم الخدمة (شركة)</div>
           <p class="text-xs text-[var(--txt-3)] leading-relaxed flex-1 mb-3">للشركات التي تقدم خدمات احترافية وتريد العمل بعقود رسمية<span *ngIf="isRoleUnavailable('provider-co') && !isRoleActive('provider-co')"> — إنشاء حساب شركة غير متاح من هذه الصفحة حاليًا</span></p>
@@ -140,7 +140,7 @@
           <span *ngIf="!isRoleOwned('affiliate')" class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">متاح للإضافة</span>
 
           <div class="w-14 h-14 rounded-2xl bg-[rgba(255,180,0,.1)] flex items-center justify-center mb-3.5 shrink-0 text-[#D98A0B]">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <svg data-ws-icon="i-zap" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           </div>
           <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">الوسيط التسويقي</div>
           <p class="text-xs text-[var(--txt-3)] leading-relaxed flex-1 mb-3">اكسب عمولة تلقائية عند كل صفقة ناجحة بتقديم عملاء</p>
@@ -166,7 +166,7 @@
         <div class="form-card">
           <div class="flex items-center gap-2.5 mb-4">
             <div class="w-8 h-8 rounded-lg bg-[rgba(43,212,199,.1)] flex items-center justify-center shrink-0 text-[#2BD4C7]">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <svg data-ws-icon="i-doc" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div>
               <div class="text-sm font-bold text-[var(--txt)]">التخصص الرئيسي</div>
@@ -209,7 +209,7 @@
         <div class="form-card">
           <div class="flex items-center gap-2.5 mb-4">
             <div class="w-8 h-8 rounded-lg bg-[rgba(43,127,255,.1)] flex items-center justify-center shrink-0 text-[#5DA0FF]">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <svg data-ws-icon="i-zap" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             </div>
             <div>
               <div class="text-sm font-bold text-[var(--txt)]">المهارات التفصيلية</div>
@@ -230,7 +230,7 @@
         <div class="form-card">
           <div class="flex items-center gap-2.5 mb-4">
             <div class="w-8 h-8 rounded-lg bg-[rgba(43,212,199,.1)] flex items-center justify-center shrink-0 text-[#2BD4C7]">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <svg data-ws-icon="ws-shield" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <div>
               <div class="text-sm font-bold text-[var(--txt)]">محفظة الأعمال</div>
@@ -280,7 +280,7 @@
         <div class="form-card bg-gradient-to-br from-[rgba(43,212,199,.04)] to-[rgba(43,127,255,.03)] border-[rgba(43,212,199,.15)]">
           <div class="flex items-center gap-2.5 mb-4">
             <div class="w-8 h-8 rounded-lg bg-[rgba(43,212,199,.1)] flex items-center justify-center shrink-0 text-[#2BD4C7]">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <svg data-ws-icon="i-zap" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             </div>
             <div>
               <div class="text-sm font-bold text-[var(--txt)]">بيانات القناة</div>
@@ -321,7 +321,7 @@
         <div class="form-card">
           <div class="flex items-center gap-2.5 mb-4">
             <div class="w-8 h-8 rounded-lg bg-[rgba(43,127,255,.12)] flex items-center justify-center shrink-0 text-[#5DA0FF]">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <svg data-ws-icon="i-doc" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div>
               <div class="text-sm font-bold text-[var(--txt)]">معلومات الكيان التجاري</div>
@@ -358,7 +358,7 @@
       <div class="form-card">
         <div class="flex items-center gap-3 mb-4 pb-4 border-b border-[var(--sec-bd)]">
           <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-[rgba(255,255,255,.05)]" [style.color]="getTypeColor(selectedType())">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+            <svg data-ws-icon="i-person" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
           </div>
           <div>
             <div class="text-base font-black text-[var(--txt)]">{{ getTypeLabel(selectedType()) }}</div>
@@ -392,13 +392,13 @@
     <ws-form-summary [items]="missing()" (select)="focusItem($event)" />
     <div *ngIf="stepIdx() > 0" class="flex items-center gap-3 mt-6 animate-[ws-fade_0.2s_ease]">
       <button type="button" (click)="prevStep()" [disabled]="isSubmitting()" class="flex items-center gap-1.5 px-4 py-2.5 bg-[var(--inp-bg,rgba(255,255,255,.05))] border border-[var(--sec-bd)] rounded-xl text-[var(--txt-3)] text-[13px] font-bold hover:bg-[rgba(255,255,255,.09)] hover:text-[var(--txt)] transition-all outline-none disabled:opacity-50">
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg data-ws-icon="ws-chevron" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         السابق
       </button>
       
       <button *ngIf="stepIdx() < flow().length - 1" type="button" (click)="nextStep()" class="flex items-center gap-1.5 px-6 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] rounded-xl text-[#070D24] text-sm font-black hover:opacity-90 transition-opacity outline-none mr-auto">
         التالي
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg data-ws-icon="ws-chevron-l" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       
       <button *ngIf="stepIdx() === flow().length - 1" type="button" (click)="submit()" [disabled]="isSubmitting()" class="flex items-center gap-1.5 px-6 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] rounded-xl text-[#070D24] text-sm font-black hover:opacity-90 transition-opacity outline-none mr-auto disabled:opacity-50">
@@ -407,7 +407,7 @@
           <span class="w-3.5 h-3.5 border-2 border-[#070D24] border-t-transparent rounded-full animate-spin"></span>
           جاري التفعيل...
         </span>
-        <svg *ngIf="!isSubmitting()" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg data-ws-icon="ws-check" *ngIf="!isSubmitting()" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </button>
     </div>
 
@@ -416,14 +416,14 @@
   <!-- === SUCCESS STATE === -->
   <div *ngIf="isSuccess()" class="text-center py-12 px-5 animate-[ws-fade_0.3s_ease]">
     <div class="w-[68px] h-[68px] rounded-[18px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] flex items-center justify-center mx-auto mb-5 shadow-[0_10px_30px_rgba(43,212,199,0.3)]">
-      <svg class="w-8 h-8 text-[#070D24]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg data-ws-icon="ws-check" class="w-8 h-8 text-[#070D24]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <div class="text-xl font-black text-[var(--txt)] mb-2">تم إضافة وتفعيل نوع الحساب بنجاح!</div>
     <div class="text-[13px] text-[var(--txt-3)] leading-relaxed max-w-[420px] mx-auto mb-7">هل تود الانتقال والتبديل إلى لوحة التحكم الخاصة بالحساب الجديد الآن؟</div>
     <div class="flex gap-3 justify-center flex-wrap">
       <button type="button" (click)="switchToRole(createdRole())" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] font-black text-sm hover:opacity-90 transition-opacity">
         الانتقال إلى الحساب الجديد الآن
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg data-ws-icon="ws-chevron-l" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <button type="button" (click)="selectedType.set(null); isSuccess.set(false); stepIdx.set(0)" class="inline-flex items-center px-4 py-3 rounded-xl bg-[var(--inp-bg,rgba(255,255,255,.05))] border border-[var(--sec-bd)] text-[var(--txt-3)] font-bold text-sm hover:bg-[rgba(255,255,255,.1)] hover:text-[var(--txt)] transition-all">إضافة حساب آخر</button>
     </div>

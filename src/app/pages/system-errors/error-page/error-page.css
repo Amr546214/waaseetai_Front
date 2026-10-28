@@ -7,8 +7,7 @@
 :host{
   --pg:#070D24;
   --txt:#FFFFFF; --txt-2:#A8B2D1; --txt-3:#6B7699;
-  --teal:#2BD4C7; --blue-txt:#5DA0FF; --kahr:#D98A0B; --red:#FF8C69;
-  --ai-txt:#A56BE0;
+  --teal:#2BD4C7;   
   --grad:linear-gradient(135deg,#2BD4C7,#2B7FFF);
   --ghost-bd:rgba(255,255,255,.15);
   display:block;min-height:100vh;background:var(--pg);color:var(--txt);font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;direction:rtl;overflow-x:hidden;position:relative
@@ -16,8 +15,6 @@
 :host-context(.light-theme),:host-context(.theme-light){
   --pg:#F6F8FC;
   --txt:#070D24; --txt-2:#56607D; --txt-3:#6B7699;
-  --blue-txt:#1D6FE0; --kahr:#9A6700; --red:#B42318;
-  --ai-txt:#6B27A5;
   /* ws-light-polish.js: vanishing borders -> visible light divider */
   --ghost-bd:#CBD5E1;
 }

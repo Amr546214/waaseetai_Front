@@ -57,9 +57,9 @@
 					<div class="tl-step" [class.done]="step.state === 'done'" [class.active]="step.state === 'active'">
 						<span class="tl-dot">
 							@if (step.state === 'done') {
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+								<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 							} @else if (step.state === 'active') {
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+								<svg data-ws-icon="i-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
 							}
 						</span>
 						{{ step.label }}
@@ -88,7 +88,7 @@
 					<div class="tkm-row" [class.me]="msg.from === 'me'" [class.agent]="msg.from === 'agent'">
 						<div class="tkm-av" [class.me]="msg.from === 'me'" [class.agent]="msg.from === 'agent'" aria-hidden="true">
 							@if (msg.from === 'me') { أنت } @else {
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+								<svg data-ws-icon="i-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
 							}
 						</div>
 						<div class="tkm-msg">
@@ -105,7 +105,7 @@
 			<div class="tkm-composer">
 				<textarea id="tk-reply" name="reply" [(ngModel)]="replyText" rows="1" placeholder="اكتب ردّك للفريق" aria-label="ردّك"></textarea>
 				<div class="tkm-composer-actions">
-					<button type="button" class="tkm-send" [disabled]="sending()" (click)="sendReply()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>{{ sending() ? 'جارٍ الإرسال...' : 'إرسال الرد' }}</button>
+					<button type="button" class="tkm-send" [disabled]="sending()" (click)="sendReply()"><svg data-ws-icon="ws-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>{{ sending() ? 'جارٍ الإرسال...' : 'إرسال الرد' }}</button>
 				</div>
 			</div>
 			}
@@ -114,7 +114,7 @@
 		<!-- Actions -->
 		@if (t.status !== 'CLOSED') {
 		<div class="tkd-actions">
-			<button type="button" class="tkd-act tkd-act-close" [disabled]="closing()" (click)="closeTicket()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>{{ closing() ? 'جارٍ الإغلاق...' : 'إغلاق التذكرة' }}</button>
+			<button type="button" class="tkd-act tkd-act-close" [disabled]="closing()" (click)="closeTicket()"><svg data-ws-icon="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>{{ closing() ? 'جارٍ الإغلاق...' : 'إغلاق التذكرة' }}</button>
 		</div>
 		}
 	}

@@ -12,7 +12,7 @@
 		</div>
 	} @else {
 		<a class="fa-bk" (click)="back()" role="button" tabindex="0">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+			<svg data-ws-icon="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 			العودة إلى المشاريع النشطة
 		</a>
 
@@ -68,9 +68,9 @@
 				<div class="fa-ms-hd">
 					<span class="fa-ms-n" [class.fa-done]="isStageCompleted(stage)" [class.fa-wait]="!isStageCompleted(stage)">
 						@if (isStageCompleted(stage)) {
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+							<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 						} @else {
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>
+							<svg data-ws-icon="pa-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>
 						}
 					</span>
 					<div class="fa-ms-t">
@@ -108,7 +108,7 @@
 
 					<!-- Quality note (no AI source) -->
 					<div class="fa-aicheck">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+						<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 						{{ qualityNote(stage) }}
 					</div>
 
@@ -125,7 +125,7 @@
 						</div>
 						<div class="fa-eval fa-eval-you">
 							<div class="fa-eval-hd">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+								<svg data-ws-icon="i-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
 								تقييمك
 							</div>
 							@if (hasClientRating(stage)) {
@@ -193,7 +193,7 @@
 		<div class="fa-final" data-testid="fa-final">
 			@if (allStagesCompleted()) {
 			<div class="fa-final-t">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+				<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 				اكتملت مراحل المشروع
 			</div>
 			<p>يمكنك الآن تقييم تجربتك مع مقدم الخدمة.</p>
@@ -208,7 +208,7 @@
 				<app-rating-entry side="client" [key]="rateKey()" [showReason]="false" />
 				}
 				<button type="button" class="fa-btn fa-btn-gh" (click)="openConversation()">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+					<svg data-ws-icon="ws-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 					محادثة المشروع
 				</button>
 			</div>

@@ -61,7 +61,7 @@
 						}"
 						[style]="currentStep() === step.num ? 'background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%); border: none;' : ''">
 						@if (currentStep() > step.num) {
-						<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+						<svg data-ws-icon="ws-check" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
 							<polyline points="20 6 9 17 4 12" />
 						</svg>
 						} @else {
@@ -101,7 +101,7 @@
 				<div class="co-req-employee">{{ requesterName() }}</div>
 			</div>
 			<div class="co-req-note">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+				<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 				يُرسل هذا الطلب لاعتماد المدير قبل نشره للسوق — المال يُدار من محفظة الشركة بحسب صلاحياتك
 			</div>
 		</div>
@@ -175,11 +175,11 @@
 				} @else {
 				<span>{{ currentStep() === 6 ? 'نشر الطلب' : 'التالي' }}</span>
 				@if (currentStep() !== 6) {
-				<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<svg data-ws-icon="ws-chevron-l" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 					<polyline points="15 18 9 12 15 6" />
 				</svg>
 				} @else {
-				<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<svg data-ws-icon="ws-check" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 					<polyline points="20 6 9 17 4 12" />
 				</svg>
 				}
@@ -197,7 +197,7 @@
 			<button type="button"
 				class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:text-[var(--txt)] hover:bg-[var(--sec-bg-hover)] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
 				(click)="goBack()">
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+				<svg data-ws-icon="ws-chevron" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 					<polyline points="9 18 15 12 9 6" />
 				</svg>
 				السابق
@@ -212,7 +212,7 @@
 @if (showSuccessOverlay()) {
 <div class="success-overlay open" role="status">
   <div class="success-ring">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    <svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
   @if (alreadyPublishedId()) {
   <h2 class="success-title" data-testid="already-published">طلبك محفوظ ومنشور بالفعل</h2>
@@ -225,7 +225,7 @@
   <p class="success-sub">سيتمكن مقدمو الخدمة المؤهلون من رؤية طلبك الآن، توقع استلام 8-12 عرضا خلال 48 ساعة</p>
   <div class="success-btns">
 	<button routerLink="/client-overview/my-requests" type="button" class="btn-primary">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <svg data-ws-icon="i-doc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       عرض طلباتي
     </button>
     <a routerLink="/client-overview" class="btn-secondary">لوحة التحكم</a>

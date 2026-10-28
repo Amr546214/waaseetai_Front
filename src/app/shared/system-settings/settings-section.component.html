@@ -9,7 +9,7 @@
     <div class="st-row" [class.st-row-col]="isLong(r.key)" [attr.data-testid]="'row-' + r.key" [attr.data-status]="r.status">
       <div class="st-row-left">
         <div class="st-row-lbl">{{ r.label }}@if (r.status === 'readonly') { <span class="st-badge st-badge-ro">للعرض فقط</span> }
-          <button type="button" class="st-help-btn" [attr.data-testid]="'help-btn-' + r.key" [attr.aria-label]="'تفاصيل: ' + r.label" [attr.aria-expanded]="helpOpen().has(r.key)" [attr.aria-controls]="'help-' + r.key" (click)="toggleHelp(r.key)" (keydown.escape)="closeHelp(r.key)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div>
+          <button type="button" class="st-help-btn" [attr.data-testid]="'help-btn-' + r.key" [attr.aria-label]="'تفاصيل: ' + r.label" [attr.aria-expanded]="helpOpen().has(r.key)" [attr.aria-controls]="'help-' + r.key" (click)="toggleHelp(r.key)" (keydown.escape)="closeHelp(r.key)"><svg data-ws-icon="ws-info" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div>
         @if (shortDesc(r)) { <div class="st-row-desc" [attr.data-testid]="'desc-' + r.key">{{ shortDesc(r) }}</div> }
         @if (helpOpen().has(r.key)) {
           <div class="st-help" role="region" [id]="'help-' + r.key" [attr.aria-label]="'تفاصيل: ' + r.label" [attr.data-testid]="'help-' + r.key" (keydown.escape)="closeHelp(r.key)">
@@ -95,7 +95,7 @@
   }
   @if (showSave() && editableKeys().length) {
     <div class="st-save-row">
-      <button type="button" class="st-save" data-testid="settings-save" [disabled]="!dirty().length || store.saving() || !store.storageReady()" (click)="save()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>{{ store.saving() ? 'جارٍ الحفظ…' : saveLabel() }}</button>
+      <button type="button" class="st-save" data-testid="settings-save" [disabled]="!dirty().length || store.saving() || !store.storageReady()" (click)="save()"><svg data-ws-icon="ws-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>{{ store.saving() ? 'جارٍ الحفظ…' : saveLabel() }}</button>
       @if (dirty().length && !store.saving()) { <button type="button" class="st-link" (click)="discard()">تراجع عن التعديل</button> }
       @if (notice(); as n) { <span class="st-ok" role="status" data-testid="settings-saved">{{ n.text }}</span> }
       @if (!store.storageReady()) { <span class="st-row-reason">مخزن الإعدادات غير جاهز على الخادم بعد، فلا يمكن الحفظ الآن.</span> }

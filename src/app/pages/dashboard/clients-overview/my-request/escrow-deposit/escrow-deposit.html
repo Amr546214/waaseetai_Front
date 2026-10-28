@@ -15,7 +15,7 @@
 
     <!-- Note (non-AI) -->
     <div class="ws-note ws-note--info" role="note">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <svg data-ws-icon="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       <div><strong>حماية مالية:</strong> يُخصم مبلغ العقد من رصيد محفظتك داخل معاملة واحدة بعد تأكيد الرمز، ولا يُنشأ الضمان إلا بعد نجاح الخصم</div>
     </div>
 
@@ -30,7 +30,7 @@
       <!-- BLOCKED STATE: the contract cannot be funded now, so no payment form and no pay button -->
       <div id="state-blocked" data-testid="ed-blocked">
         <div class="state-banner error" role="alert">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <svg data-ws-icon="ws-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           <span data-testid="ed-blocked-reason">{{ blockedReason() }}</span>
           <button type="button" (click)="goDashboard()" style="background:none;border:none;font-weight:700;cursor:pointer;font-family:inherit" class="txt-teal">العودة إلى الطلب</button>
         </div>
@@ -39,7 +39,7 @@
       <!-- ERROR STATE -->
       <div id="state-error" data-testid="ed-error">
         <div class="state-banner error" role="alert">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <svg data-ws-icon="ws-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           تعذر تحميل بيانات العقد أو رصيد المحفظة. لم يُخصم أي مبلغ.
           <button type="button" (click)="retryFetch()" style="background:none;border:none;font-weight:700;cursor:pointer;font-family:inherit" class="txt-teal">إعادة المحاولة</button>
         </div>
@@ -51,7 +51,7 @@
         <!-- ORDER SUMMARY -->
         <div class="form-card">
           <h2 class="form-card-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <svg data-ws-icon="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             ملخص الطلب
           </h2>
           <div class="order-row">
@@ -113,7 +113,7 @@
         <!-- TERMS -->
         <div id="ed-terms" data-field-wrap class="terms-row" (click)="toggleTerms()" (keydown.space)="$event.target === $event.currentTarget && toggleTermsKey($event)" (keydown.enter)="$event.target === $event.currentTarget && toggleTerms()" role="checkbox" [attr.aria-checked]="termsAccepted()" tabindex="0">
           <div class="terms-check" [class.checked]="termsAccepted()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <div class="terms-text">
             أوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">شروط حساب الضمان</a> وأقر بأن المبلغ سيحتجز حتى اعتماد التسليم النهائي، لا يمكن الاسترداد بعد الإيداع إلا وفق سياسة النزاعات
@@ -122,9 +122,9 @@
 
         <!-- SECURITY FOOTER -->
         <div class="security-footer">
-          <div class="sec-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>التمويل من رصيد محفظتك</div>
-          <div class="sec-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>تأكيد برمز يصل إلى بريدك</div>
-          <div class="sec-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>خصم ذري بلا تكرار</div>
+          <div class="sec-item"><svg data-ws-icon="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>التمويل من رصيد محفظتك</div>
+          <div class="sec-item"><svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>تأكيد برمز يصل إلى بريدك</div>
+          <div class="sec-item"><svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>خصم ذري بلا تكرار</div>
         </div>
 
       </div>
@@ -135,7 +135,7 @@
 <div class="sticky-bottom" *ngIf="!isLoading() && !blockedReason() && !hasError()">
   <div class="sticky-inner">
     <a (click)="goBack()" class="btn-secondary">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      <svg data-ws-icon="ws-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       السابق
     </a>
     <div style="display:flex;align-items:center;gap:12px">
@@ -144,7 +144,7 @@
         <div style="font-size:16px;font-weight:900" class="txt-amber">{{ formatCurrency(totalAmount()) }}</div>
       </div>
       <button class="btn-primary" data-testid="ed-pay" [disabled]="isSubmitting() || sendWait.active()" (click)="handlePrimaryAction()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <svg data-ws-icon="ws-shield" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         {{ isSubmitting() ? 'جاري المعالجة...' : (hasSufficientBalance() ? 'توقيع وحجز ' + formatCurrency(totalAmount()) : 'شحن ' + formatCurrency(shortfall())) }}
         @if (sendWait.active()) { <span data-testid="ed-send-wait">{{ sendWait.label() }}</span> }
       </button>
@@ -157,10 +157,10 @@
   <div class="modal-overlay open" role="dialog" aria-modal="true" (click)="closeOTP()">
     <div class="modal" (click)="$event.stopPropagation()">
       <button class="modal-close" (click)="closeOTP()" aria-label="إغلاق">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg data-ws-icon="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
       <div class="modal-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <svg data-ws-icon="rp-ws-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       </div>
       <h2 class="modal-title">تأكيد بكود OTP</h2>
       <p class="modal-sub">تم إرسال رمز التحقق إلى بريدك الإلكتروني<br><strong dir="ltr" class="txt-white">{{ clientEmail() }}</strong></p>
@@ -195,14 +195,14 @@
 @if (showSuccessOverlay()) {
   <div class="success-overlay open">
     <div class="success-ring" style="flex-shrink:0">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <div style="font-size:24px;font-weight:900;animation:ws-fade .4s .2s ease both" class="txt-white">تم إيداع الضمان بنجاح</div>
     <div style="font-size:14px;font-weight:700;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.22);border-radius:9px;padding:8px 18px;animation:ws-fade .4s .3s ease both" class="txt-teal">{{ formatCurrency(totalAmount()) }}، {{ requestId() }}</div>
     <div style="font-size:13px;line-height:1.7;max-width:380px;animation:ws-fade .4s .35s ease both;text-align:center" class="txt-muted">المبلغ محفوظ في حساب الضمان. يبدأ التنفيذ بعد توقيع مقدم الخدمة للعقد</div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:ws-fade .4s .4s ease both">
       <button type="button" class="btn-primary" (click)="goDashboard()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <svg data-ws-icon="i-doc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         {{ isCompany() ? 'متابعة طلباتي' : 'متابعة المشروع' }}
       </button>
       <a routerLink="/client-overview/projects/active" class="btn-secondary">المشاريع</a>

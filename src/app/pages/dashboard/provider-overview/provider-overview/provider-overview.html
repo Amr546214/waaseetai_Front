@@ -92,7 +92,7 @@
 		<div class="profile-banner" id="profile-banner" role="note"
 			*ngIf="!data.summary.profileSetupCompleted || !data.summary.setupTestCompleted">
 			<div class="profile-banner-ico">
-				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+				<svg data-ws-icon="i-warn" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
 					stroke-linecap="round" stroke-linejoin="round">
 					<path
 						d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
@@ -107,7 +107,7 @@
 			</div>
 			<a routerLink="/provider-overview/profile/setup" class="profile-banner-btn">استكمال البيانات</a>
 			<button type="button" class="pend-close" id="profile-close" aria-label="إغلاق">
-				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+				<svg data-ws-icon="ws-close" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
 					stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<line x1="18" y1="6" x2="6" y2="18" />
 					<line x1="6" y1="6" x2="18" y2="18" />
@@ -170,7 +170,7 @@
 					<div class="act-num">{{ data.aiMatchingProjects?.length || 0 }}</div>
 					<div class="act-lbl">طلبات جديدة تناسب تخصصك</div>
 				</div>
-				<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				<svg data-ws-icon="ws-chevron-l" class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="15 18 9 12 15 6" />
 				</svg>
@@ -188,7 +188,7 @@
 					<div class="act-num">{{ data.summary?.pendingClientApprovalCount || 0 }}</div>
 					<div class="act-lbl">تسليم بانتظار اعتماد العميل</div>
 				</div>
-				<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				<svg data-ws-icon="ws-chevron-l" class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="15 18 9 12 15 6" />
 				</svg>
@@ -206,7 +206,7 @@
 					<div class="act-num">{{ data.summary?.negotiationOffersCount || 0 }}</div>
 					<div class="act-lbl">عرض في مرحلة التفاوض</div>
 				</div>
-				<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				<svg data-ws-icon="ws-chevron-l" class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="15 18 9 12 15 6" />
 				</svg>
@@ -529,7 +529,7 @@
 		<div class="profile-banner" id="profile-banner" role="note"
 			*ngIf="!data.summary.profileSetupCompleted || !data.summary.setupTestCompleted">
 			<div class="profile-banner-ico">
-				<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+				<svg data-ws-icon="i-warn" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
 					stroke-linecap="round" stroke-linejoin="round">
 					<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
 					<line x1="12" y1="9" x2="12" y2="13" />
@@ -542,7 +542,7 @@
 			</div>
 			<a routerLink="/provider-overview/profile/setup" class="profile-banner-btn">استكمال البيانات</a>
 			<button type="button" class="pend-close" id="profile-close-co" aria-label="إغلاق">
-				<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+				<svg data-ws-icon="ws-close" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
 					stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<line x1="18" y1="6" x2="6" y2="18" />
 					<line x1="6" y1="6" x2="18" y2="18" />
@@ -588,7 +588,7 @@
 					<div class="act-num">{{ data.summary?.pendingClientApprovalCount || 0 }}</div>
 					<div class="act-lbl">تسليمات بانتظار مراجعتك</div>
 				</div>
-				<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+				<svg data-ws-icon="ws-chevron-l" class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="15 18 9 12 15 6" />
 				</svg>
 			</a>
@@ -602,7 +602,7 @@
 					<div class="act-num">{{ data.summary?.negotiationOffersCount || 0 }}</div>
 					<div class="act-lbl">عروض مقدميك في التفاوض</div>
 				</div>
-				<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+				<svg data-ws-icon="ws-chevron-l" class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="15 18 9 12 15 6" />
 				</svg>
 			</a>
@@ -616,7 +616,7 @@
 					<div class="act-num">{{ data.aiMatchingProjects?.length || 0 }}</div>
 					<div class="act-lbl">طلبات سوق بانتظار الرد</div>
 				</div>
-				<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+				<svg data-ws-icon="ws-chevron-l" class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 					<polyline points="15 18 9 12 15 6" />
 				</svg>
 			</a>
@@ -645,7 +645,7 @@
 			<div class="stat-card">
 				<div class="stat-top">
 					<span class="stat-lbl">مقدمو الخدمات النشطون</span>
-					<div class="stat-ico blue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/></svg></div>
+					<div class="stat-ico blue" aria-hidden="true"><svg data-ws-icon="i-add-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/></svg></div>
 				</div>
 				<div class="stat-val">{{ data.summary?.activeProjectsCount || 0 }}</div>
 				<div class="stat-sub">من أصل {{ (data.summary?.activeProjectsCount || 0) + 2 }} مسجلين</div>
@@ -762,7 +762,7 @@
 							<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا يوجد نشاط بعد</div>
 							<div style="font-size:13px;margin-bottom:16px" class="txt-muted">أضف مقدمي الخدمات لشركتك وابدأ إدارة المشاريع</div>
 							<a routerLink="/provider-overview/company/team-management" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none" class="txt-navy">
-								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<svg data-ws-icon="i-add-user" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 									<circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/>
 								</svg>
 								إضافة مقدم خدمة
@@ -780,13 +780,13 @@
 					<h2 class="qa-ttl">إجراءات سريعة</h2>
 					<div class="qa-list">
 						<a routerLink="/provider-overview/company/team-management" class="qa-btn-primary">
-							<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<svg data-ws-icon="i-add-user" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/>
 							</svg>
 							<span>إدارة الفريق والمقدمين</span>
 						</a>
 						<a routerLink="/provider-overview/reports" class="qa-btn">
-							<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<svg data-ws-icon="i-chart" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
 							</svg>
 							<span>تقارير الشركة</span>

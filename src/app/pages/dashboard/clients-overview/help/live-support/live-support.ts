@@ -17,7 +17,7 @@ import { RouterModule } from '@angular/router';
 		<!-- AI Disclosure -->
 		<div class="flex items-center gap-3 p-3.5 bg-gradient-to-br from-[rgba(43,212,199,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(43,212,199,.22)] rounded-2xl mb-5">
 			<div class="w-[30px] h-[30px] rounded-lg bg-[rgba(43,212,199,.16)] flex items-center justify-center shrink-0 text-[var(--teal-txt,#2BD4C7)]">
-				<svg class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+				<svg data-ws-icon="ws-msg" class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
 					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 				</svg>
 			</div>
@@ -30,7 +30,7 @@ import { RouterModule } from '@angular/router';
 		<!-- Chat placeholder -->
 		<div class="bg-[var(--crd-bg,#fff)] border border-[var(--sec-bd,#E7EAF1)] rounded-2xl p-6 text-center">
 			<div class="w-16 h-16 rounded-2xl bg-[rgba(43,212,199,.10)] border border-[rgba(43,212,199,.22)] flex items-center justify-center mx-auto mb-4 text-[var(--teal-txt,#2BD4C7)]">
-				<svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+				<svg data-ws-icon="ws-msg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
 					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 				</svg>
 			</div>

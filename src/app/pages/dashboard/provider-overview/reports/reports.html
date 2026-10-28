@@ -5,10 +5,10 @@
   </div>
   <div class="flex items-center gap-2">
     <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[12px] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="printReport()" data-testid="reports-pdf" title="يفتح نافذة الطباعة — اختر «حفظ كـ PDF»">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>طباعة / حفظ PDF
+      <svg data-ws-icon="i-doc" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>طباعة / حفظ PDF
     </button>
     <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[12px] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="exportCsv()" data-testid="reports-csv" title="تنزيل بيانات الصفحة الحالية">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>CSV
+      <svg data-ws-icon="i-list" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>CSV
     </button>
   </div>
 </div>
@@ -85,7 +85,7 @@
   <div class="flex-1 min-w-[20px] hidden lg:block"></div>
   
   <div class="flex items-center gap-2 px-4 py-3 lg:border-s border-[var(--sec-bd)] w-full lg:w-auto bg-[var(--sec-bg)]/30 lg:bg-transparent">
-    <svg class="w-4 h-4 text-[var(--txt-3)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <svg data-ws-icon="ws-search" class="w-4 h-4 text-[var(--txt-3)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="search" placeholder="ابحث في التقارير..." class="w-full lg:min-w-[160px] lg:max-w-[240px] bg-transparent border-none outline-none text-[13px] text-[var(--txt)] placeholder-[var(--txt-3)]">
   </div>
 </div>
@@ -96,11 +96,11 @@
     <button class="px-4 py-3 text-[13.5px] font-bold flex items-center gap-2 whitespace-nowrap border-b-[2.5px] transition-all -mb-[1px]"
             [class]="currentTab() === tab.id ? 'text-[#2BD4C7] border-[#2BD4C7]' : 'text-[var(--txt-3)] border-transparent hover:text-[var(--txt-2)]'"
             (click)="setTab(tab.id)">
-      @if(tab.icon === 'list'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> }
-      @if(tab.icon === 'doc'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
-      @if(tab.icon === 'wallet'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg> }
+      @if(tab.icon === 'list'){ <svg data-ws-icon="i-list" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> }
+      @if(tab.icon === 'doc'){ <svg data-ws-icon="i-doc" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> }
+      @if(tab.icon === 'wallet'){ <svg data-ws-icon="i-wallet" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg> }
       @if(tab.icon === 'dispute'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> }
-      @if(tab.icon === 'team'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> }
+      @if(tab.icon === 'team'){ <svg data-ws-icon="ws-users" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> }
 
       {{ tab.label }}
       <span class="min-w-[20px] h-[18px] rounded-full text-[10px] font-black inline-flex items-center justify-center px-1.5 transition-colors"
@@ -215,7 +215,7 @@
     <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden shadow-sm">
       <div class="flex items-center justify-between gap-3 px-4 py-3.5 border-b border-[var(--sec-bd)]">
         <div class="text-[13px] font-black text-[var(--txt)] flex items-center gap-2">
-          <svg class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg data-ws-icon="ws-users" class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           أداء الفريق
         </div>
       </div>

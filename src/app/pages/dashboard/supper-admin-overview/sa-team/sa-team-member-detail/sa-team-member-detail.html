@@ -1,5 +1,5 @@
 <section class="tm-page" dir="rtl">
-  <a routerLink="/supper-admin-overview/team" class="tm-bk-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>العودة إلى فريق الإدارة</a>
+  <a routerLink="/supper-admin-overview/team" class="tm-bk-link"><svg data-ws-icon="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>العودة إلى فريق الإدارة</a>
   @if (error()) { <div class="tm-empty" role="alert">{{ error() }} <button type="button" class="tm-btn tm-btn-ghost" (click)="load()">إعادة المحاولة</button></div> }
   @else if (loading() && !member()) { <div class="tm-empty" role="status">جاري التحميل...</div> }
   @else if (!member()) { <div class="tm-empty" data-testid="member-missing">الموظف غير موجود في الفريق</div> }
@@ -14,7 +14,7 @@
       </div>
       @if (isSuperAdmin()) {
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button type="button" class="tm-btn tm-btn-ghost" (click)="tab.set('perms')" data-testid="member-edit-perms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>تعديل الصلاحيات</button>
+          <button type="button" class="tm-btn tm-btn-ghost" (click)="tab.set('perms')" data-testid="member-edit-perms"><svg data-ws-icon="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>تعديل الصلاحيات</button>
           <button type="button" class="tm-btn" [class.tm-btn-warn]="m.status === 'ACTIVE'" [class.tm-btn-primary]="m.status !== 'ACTIVE'" [disabled]="busy()" (click)="toggleAccess()" data-testid="member-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>{{ m.status === 'ACTIVE' ? 'تعليق الحساب' : 'إعادة تفعيل الحساب' }}</button>
         </div>
       }
@@ -38,7 +38,7 @@
         </div>
 
         @if (tab() === 'overview') {
-          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>المعلومات الوظيفية</div>
+          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg data-ws-icon="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>المعلومات الوظيفية</div>
             <div class="tm-info-grid">
               <div class="tm-info-item"><div class="tm-info-lbl">الاسم الكامل</div><div class="tm-info-val">{{ m.name }}</div></div>
               <div class="tm-info-item"><div class="tm-info-lbl">البريد الإداري</div><div class="tm-info-val" dir="ltr" style="text-align:right;font-size:11px">{{ m.email }}</div></div>
@@ -66,7 +66,7 @@
           </div>
         }
         @if (tab() === 'perms') {
-          <div class="tm-sec-card" data-testid="perms-panel"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الصلاحيات الممنوحة</div>
+          <div class="tm-sec-card" data-testid="perms-panel"><div class="tm-sec-ttl"><svg data-ws-icon="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>الصلاحيات الممنوحة</div>
             @if (!isSuperAdmin()) { <div class="tm-pending-note" style="border-top:0;padding-inline:0" data-testid="perms-super-admin-only">عرض الصلاحيات وتعديلها لـSuper Admin وحده.</div> }
             @else {
               <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
@@ -106,10 +106,10 @@
         }
       </div>
       <div>
-        <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>روابط سريعة</div>
-          <a class="tm-quick tm-quick-main" href="javascript:void 0" (click)="tab.set('tasks'); $event.preventDefault()" data-testid="quick-tasks"><span>المهام المكلَّفة ({{ m.openTasks }})</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></a>
-          @if (access.can('performance.view')) { <a class="tm-quick" routerLink="/supper-admin-overview/team-performance"><span>تقرير الأداء</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></a> }
-          @if (isSuperAdmin()) { <a class="tm-quick" routerLink="/supper-admin-overview/roles"><span>إدارة الصلاحيات</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></a> }
+        <div class="tm-sec-card"><div class="tm-sec-ttl"><svg data-ws-icon="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>روابط سريعة</div>
+          <a class="tm-quick tm-quick-main" href="javascript:void 0" (click)="tab.set('tasks'); $event.preventDefault()" data-testid="quick-tasks"><span>المهام المكلَّفة ({{ m.openTasks }})</span><svg data-ws-icon="ws-chevron-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></a>
+          @if (access.can('performance.view')) { <a class="tm-quick" routerLink="/supper-admin-overview/team-performance"><span>تقرير الأداء</span><svg data-ws-icon="ws-chevron-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></a> }
+          @if (isSuperAdmin()) { <a class="tm-quick" routerLink="/supper-admin-overview/roles"><span>إدارة الصلاحيات</span><svg data-ws-icon="ws-chevron-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></a> }
         </div>
       </div>
     </div>

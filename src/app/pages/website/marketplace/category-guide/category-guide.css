@@ -8,19 +8,15 @@
 app-category-guide{
   display:block;
   --surface:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
-  --border:rgba(255,255,255,.08);
   --txt:#FFFFFF; --txt-2:#A8B2D1; --txt-3:#6B7699;
-  --teal:#2BD4C7; --blue-txt:#5DA0FF;
-  --green:#0FA99A; --kahr:#D98A0B; --red:#FF8C69;
-  --ai:#7B2FBE; --ai-txt:#A56BE0; --ai-bg:rgba(123,47,190,.10); --ai-border:rgba(123,47,190,.22);
+  --teal:#2BD4C7; 
+  --ai:#7B2FBE; --ai-bg:rgba(123,47,190,.10); 
   --grad:linear-gradient(135deg,#2BD4C7,#2B7FFF);
 }
 .theme-light app-category-guide,
 .light-theme app-category-guide{
-  --surface:#FFFFFF; --border:#E7EAF1;
+  --surface:#FFFFFF; 
   --txt:#070D24; --txt-2:#56607D; --txt-3:#6B7699;
-  --blue-txt:#1D6FE0; --green:#0A6F64; --kahr:#9A6700; --red:#B42318;
-  --ai-txt:#6B27A5; --ai-border:rgba(123,47,190,.28);
 }
 
 app-category-guide a{text-decoration:none;color:inherit}
