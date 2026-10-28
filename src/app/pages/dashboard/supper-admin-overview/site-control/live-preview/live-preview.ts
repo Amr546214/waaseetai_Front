@@ -1,3 +1,4 @@
+import { IdentityStrip } from '../identity/identity-strip';
 import { Component, OnInit, inject, signal, ViewEncapsulation } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DesignTokensService } from '../core/design-tokens.service';
@@ -31,7 +32,7 @@ import { TemplateOverridesService } from '../core/template-overrides.service';
 @Component({
   selector: 'sc-live-preview',
   standalone: true,
-  imports: [],
+  imports: [IdentityStrip],
   templateUrl: './live-preview.html',
   encapsulation: ViewEncapsulation.ShadowDom,
   styleUrls: ['../site-control-base.css', './live-preview.css']

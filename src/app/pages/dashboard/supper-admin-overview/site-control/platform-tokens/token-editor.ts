@@ -2,13 +2,13 @@ import { NgStyle } from '@angular/common';
 import { Component, ViewEncapsulation, computed, inject, input, signal, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
-import { IdentityAssetMeta, IdentityItemInfo, IdentityTokenDef, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
+import { IdentityAssetMeta, IdentityChangeResult, IdentityItemInfo, IdentityTokenDef, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { Failure, actorName, currentSummary, describeFailure } from '../identity/identity-view';
 import { PlatformTokensStore } from './platform-tokens.store';
 
 export interface TokenNotice { type: 'ok' | 'warn' | 'error' | 'conflict'; text: string; detail?: string; failure?: Failure }
-interface KeyUi { edits: Record<string, string>; busy: null | 'stage' | 'apply' | 'discard' | 'restore'; draft: IdentityAssetMeta | null; notice: TokenNotice | null }
-const FRESH = (): KeyUi => ({ edits: {}, busy: null, draft: null, notice: null });
+interface KeyUi { edits: Record<string, string>; busy: null | 'stage' | 'apply' | 'discard' | 'restore'; draft: IdentityAssetMeta | null; notice: TokenNotice | null; verifyExpect: IdentityChangeResult | null }
+const FRESH = (): KeyUi => ({ edits: {}, busy: null, draft: null, notice: null, verifyExpect: null });
 
 /** `#rrggbb` only: what <input type="color"> can hold (alpha / gradients / shadows are edited as text) */
 export const isHex6 = (v: string): boolean => /^#[0-9a-f]{6}$/i.test(v);
@@ -81,6 +81,13 @@ export class TokenEditor implements OnInit {
 		const from = this.activeValue(it);
 		return (it.tokens ?? []).filter(t => (from[t.name] ?? t.default) !== (to[t.name] ?? t.default)).map(t => ({ name: t.name, label: t.label, type: t.type, from: from[t.name] ?? t.default, to: to[t.name] ?? t.default }));
 	}
+	/** the exact change a confirmation dialog announces: one line per token, both values (capped so the dialog stays readable; the count is always the full one) */
+	diffText(it: IdentityItemInfo, to: Record<string, string>): string {
+		const rows = this.diff(it, to);
+		const lines = rows.slice(0, 12).map(r => `• ${r.label} (${r.name}): ${r.from} ← ${r.to}`);
+		if (rows.length > 12) lines.push(`… و${rows.length - 12} قيمة أخرى`);
+		return lines.length ? lines.join('\n') : 'لا فرق في القيم.';
+	}
 	/** the override object being reviewed: the server's canonical version of the draft */
 	reviewed(it: IdentityItemInfo): Record<string, string> | null { const d = this.state(it.key).draft; return d ? (d.value ?? {}) : null; }
 	/** every token of the key with the reviewed (or pending) values, as inline custom properties: the sample card renders them without touching the site */
@@ -112,15 +119,34 @@ export class TokenEditor implements OnInit {
 		const draft = this.state(it.key).draft; if (!draft) return;
 		const changed = this.diff(it, draft.value ?? {});
 		const ok = await this.confirmer.confirm({ title: 'تطبيق القيم على الموقع كله', type: 'warning', size: 'md', confirmText: 'طبّق على الموقع', cancelText: 'لا تطبّق',
-			message: `ستتغيّر ${changed.length} ${changed.length === 1 ? 'قيمة' : 'قيم'} في ${it.label} لكل زوّار الموقع فور التطبيق. تبقى النسخة الحالية محفوظة ويمكن الرجوع إليها.` });
+			message: `ستتغيّر ${changed.length} ${changed.length === 1 ? 'قيمة' : 'قيم'} في ${it.label} لكل زوّار الموقع فور التطبيق (هي نفس القيم التي عاينتها):\n${this.diffText(it, draft.value ?? {})}\n\nتبقى النسخة الحالية محفوظة ويمكن الرجوع إليها.` });
 		if (!ok) return;
 		this.patch(it.key, { busy: 'apply', notice: null });
 		try {
 			const r = await firstValueFrom(this.api.publish(it.key, draft.versionId, it.state.stateVersion));
-			await this.api.refreshPublic();
-			await this.store.load(true);
-			this.patch(it.key, { busy: null, edits: {}, draft: null, notice: { type: 'ok', text: `طُبّقت النسخة ${r.data.toVersion ?? ''} على الموقع.`.replace('  ', ' '), detail: `النسخة السابقة: ${r.data.fromVersion ? 'النسخة ' + r.data.fromVersion : 'الأصل الافتراضي'}` } });
+			await this.finish(it, r.data, `طُبّقت النسخة ${r.data.toVersion ?? ''} على الموقع.`.replace('  ', ' '), `النسخة السابقة: ${r.data.fromVersion ? 'النسخة ' + r.data.fromVersion : 'الأصل الافتراضي'}`);
 		} catch (e) { await this.fail(it, e, 'تطبيق القيم'); }
+	}
+
+	/** success only when the server committed AND the public manifest (read again now) shows exactly the version it activated; otherwise a warning with a re-check, never a success */
+	private async finish(it: IdentityItemInfo, change: IdentityChangeResult, okText: string, detail?: string): Promise<void> {
+		let live = await this.verifyLive(it.key, change);
+		if (!live) { await new Promise(r => setTimeout(r, 400)); live = await this.verifyLive(it.key, change); }
+		await this.store.load(true);
+		if (live) this.patch(it.key, { busy: null, edits: {}, draft: null, verifyExpect: null, notice: { type: 'ok', text: okText, detail } });
+		else this.patch(it.key, { busy: null, edits: {}, draft: null, verifyExpect: change, notice: { type: 'warn', text: 'حُفظ التغيير على الخادم، لكن لم يظهر بعد في بيان الموقع العام.', detail: 'لا تُعد الحفظ؛ اضغط «إعادة التحقق» ليُقرأ البيان من جديد.' } });
+	}
+	private async verifyLive(key: string, change: IdentityChangeResult): Promise<boolean> {
+		if (!(await this.api.refreshPublic())) return false;
+		const item = this.api.liveManifest().items[key];
+		return change.isDefault || !change.active ? !item : item?.sha256 === change.active.sha256;
+	}
+	async recheck(it: IdentityItemInfo): Promise<void> {
+		const ch = this.state(it.key).verifyExpect; if (!ch) return;
+		this.patch(it.key, { busy: 'stage' });
+		const ok = await this.verifyLive(it.key, ch);
+		this.patch(it.key, ok ? { busy: null, verifyExpect: null, notice: { type: 'ok', text: 'تأكّد الآن: بيان الموقع يعرض النسخة المحفوظة.' } }
+			: { busy: null, notice: { type: 'warn', text: 'ما زال بيان الموقع لا يعرض النسخة المحفوظة.', detail: 'الحفظ على الخادم تمّ. أعد التحقق بعد قليل أو أعد تحميل الصفحة.' } });
 	}
 
 	async cancel(it: IdentityItemInfo): Promise<void> {
@@ -133,13 +159,13 @@ export class TokenEditor implements OnInit {
 	async restoreDefault(it: IdentityItemInfo): Promise<void> {
 		if (it.state.isDefault) return;
 		const ok = await this.confirmer.confirm({ title: 'العودة إلى قيم المنصة الأصلية', type: 'warning', size: 'md', confirmText: 'عُد إلى الأصل', cancelText: 'لا',
-			message: `سيُزال كل تخصيص في «${it.label}» ويعود الموقع إلى قيمه الأصلية. النسخ المخصّصة تبقى محفوظة في السجل.` });
+			message: `سيُزال كل تخصيص في «${it.label}» ويعود الموقع إلى قيمه الأصلية. التغيير بالتحديد:\n${this.diffText(it, {})}\n\nالنسخ المخصّصة تبقى محفوظة في السجل.` });
 		if (!ok) return;
 		await this.restore(it, 'default');
 	}
 	async restoreVersion(it: IdentityItemInfo, v: IdentityAssetMeta): Promise<void> {
 		const ok = await this.confirmer.confirm({ title: `استعادة النسخة ${v.version}`, type: 'warning', size: 'md', confirmText: 'استعد هذه النسخة', cancelText: 'لا',
-			message: `ستُطبَّق قيم النسخة ${v.version} (${Object.keys(v.value ?? {}).length} قيمة) على الموقع كله.` });
+			message: `ستُطبَّق قيم النسخة ${v.version} (${Object.keys(v.value ?? {}).length} قيمة) على الموقع كله. التغيير بالتحديد عن المنشور الآن:\n${this.diffText(it, v.value ?? {})}\n\nتبقى النسخة الحالية في السجل.` });
 		if (!ok) return;
 		await this.restore(it, v.versionId);
 	}
@@ -147,9 +173,7 @@ export class TokenEditor implements OnInit {
 		this.patch(it.key, { busy: 'restore', notice: null });
 		try {
 			const r = await firstValueFrom(this.api.restore(it.key, target, it.state.stateVersion));
-			await this.api.refreshPublic();
-			await this.store.load(true);
-			this.patch(it.key, { busy: null, edits: {}, draft: null, notice: { type: 'ok', text: r.data.isDefault ? 'عاد الموقع إلى القيم الأصلية.' : `استُعيدت النسخة ${r.data.toVersion ?? ''}.`.replace('  ', ' ') } });
+			await this.finish(it, r.data, r.data.isDefault ? 'عاد الموقع إلى القيم الأصلية.' : `استُعيدت النسخة ${r.data.toVersion ?? ''}.`.replace('  ', ' '));
 		} catch (e) { await this.fail(it, e, 'الاستعادة'); }
 	}
 	private async fail(it: IdentityItemInfo, e: unknown, what: string): Promise<void> {

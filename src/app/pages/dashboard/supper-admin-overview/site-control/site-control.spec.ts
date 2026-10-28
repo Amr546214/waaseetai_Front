@@ -87,7 +87,8 @@ describe('site control (التحكم بالموقع)', () => {
 		await router.navigateByUrl('/x/site-control/identity'); f.detectChanges();
 		expect(f.nativeElement.querySelector('[data-testid="site-control-notice"]')).toBeNull();
 		await router.navigateByUrl('/x/site-control/health'); f.detectChanges();
-		expect(f.nativeElement.querySelector('[data-testid="site-control-notice"]')).toBeTruthy();
+		expect(f.nativeElement.querySelector('[data-testid="site-control-notice"]')).toBeNull();
+		expect(f.nativeElement.querySelector('[data-testid="site-control-aid"]').textContent).toContain('تقرأ هوية الموقع الحالية ولا تحفظ شيئًا على الموقع');
 		TestBed.inject(HttpTestingController).match(() => true);
 		f.destroy();
 	});

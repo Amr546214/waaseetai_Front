@@ -1,10 +1,11 @@
 import { SiteControlScope } from './site-control-scope.service';
-import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, computed, effect, inject, signal, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, catchError, of } from 'rxjs';
 import { ThemeModeService } from './theme-mode.service';
 import { PersistenceService } from './persistence.service';
+import { PlatformTokensStore } from '../platform-tokens/platform-tokens.store';
 
 export interface DesignToken {
   var: string;
@@ -36,6 +37,42 @@ export class DesignTokensService {
   private readonly http = inject(HttpClient);
   private readonly scope = inject(SiteControlScope);
   private readonly persistence = inject(PersistenceService);
+  private readonly platform = inject(PlatformTokensStore);
+
+  /**
+   * Design-aid pages (live preview, style guide, templates, CSS export, health) READ the platform's current identity: every variable the SERVER manages (tokens.colors.*, tokens.layout,
+   * tokens.typography) shows the platform's effective value = the published override, else the platform default. Only the panel's own local variables keep their local values.
+   * Runs again whenever the server's state is (re)read (first load, after a publish / restore elsewhere).
+   */
+  constructor() {
+    effect(() => { this.platform.overview(); untracked(() => this.syncPlatformValues()); });
+  }
+
+  /** name -> the value the live site uses right now, for the given panel mode (empty until the server's answer is read) */
+  platformValues(mode: 'dark' | 'light'): Record<string, string> {
+    const out: Record<string, string> = {};
+    for (const key of [`tokens.colors.${mode}`, 'tokens.layout', 'tokens.typography']) {
+      const it = this.platform.item(key);
+      if (!it?.wired) continue;
+      const active = it.state.active?.value ?? {};
+      for (const t of it.tokens ?? []) out[t.name] = active[t.name] ?? t.default;
+    }
+    return out;
+  }
+
+  private syncPlatformValues(): void {
+    if (!this.platform.overview()) return;
+    const patch = (mode: 'dark' | 'light', target: typeof this.darkGroups) => {
+      const pv = this.platformValues(mode);
+      if (!Object.keys(pv).length) return;
+      let changed = false;
+      const next = target().map(g => ({ ...g, tokens: g.tokens.map(t => { const v = pv[t.var]; if (v !== undefined && v !== t.value) { changed = true; return { ...t, value: v }; } return t; }) }));
+      if (changed) target.set(next);
+    };
+    patch('dark', this.darkGroups);
+    patch('light', this.lightGroups);
+    this.applyAll();
+  }
 
   private readonly darkGroups = signal<TokenGroup[]>([]);
   private readonly lightGroups = signal<TokenGroup[]>([]);
@@ -71,8 +108,10 @@ export class DesignTokensService {
       const savedLight = this.persistence.load<TokenGroup[]>('tokens-light');
       this.darkGroups.set(savedDark?.data ?? dark.groups);
       this.lightGroups.set(savedLight?.data ?? light.groups);
+      this.syncPlatformValues();
       this.applyAll();
       this.loaded.set(true);
+      void this.platform.load();
     } catch (err) {
       // لا نرمي الخطأ للأعلى: فشل تحميل توكنات التصميم لا يجب أن يمنع بقية التطبيق من الإقلاع.
       this.loadError.set('خطأ غير متوقع أثناء تحميل التوكنات.');
