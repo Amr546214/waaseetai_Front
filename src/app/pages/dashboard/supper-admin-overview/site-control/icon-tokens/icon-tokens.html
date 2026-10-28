@@ -13,6 +13,12 @@
         <li><strong>الأيقونات ذات الأشكال المتعددة:</strong> إن كان للمعرّف نفسه شكلان مختلفان في قالبين، فالتخصيص يوحّدهما في الشكل الجديد (يُذكر ذلك عند فتح الأيقونة).</li>
       </ul>
     </details>
+    <div class="actions">
+      <div class="theme-toggle" role="group" aria-label="وضع عرض هذه اللوحة">
+        <button type="button" class="toggle-seg" [class.active]="theme.mode() === 'dark'" (click)="setMode('dark')" data-testid="icons-mode-dark">داكن</button>
+        <button type="button" class="toggle-seg" [class.active]="theme.mode() === 'light'" (click)="setMode('light')" data-testid="icons-mode-light">فاتح</button>
+      </div>
+    </div>
     @if (store.list(); as l) {
       <div class="chips" data-testid="icons-counts">
         <span class="chip chip-ok">مخصّصة: {{ l.counts.custom }} / {{ l.limits.maxCustom }}</span>

@@ -14,8 +14,8 @@ describe('admin dropdowns use the site ws-select', () => {
 		const walk = (d: string) => readdirSync(d).forEach(f => { const q = join(d, f); statSync(q).isDirectory() ? walk(q) : (q.endsWith('.html') && readFileSync(q, 'utf8').includes('<select') && offenders.push(q)); });
 		walk(__dirname);
 		// ONE narrow, documented exception: the imported «التحكم بالموقع» panel is a set of shadow-DOM pages whose native <select>s take the PANEL's own token colours (the platform
-		// ws-select directive cannot reach into a shadow root). Exactly these six templates, nothing else: a new native select anywhere else - or a sixth one inside the panel - fails.
-		const PANEL_NATIVE_SELECTS = ['color-tokens/color-tokens.html', 'icon-tokens/icon-tokens.html', 'live-preview/live-preview.html', 'style-guide/style-guide.html', 'templates/templates.html', 'typography/typography.html'].map(f => `/site-control/${f}`);
+		// ws-select directive cannot reach into a shadow root). Exactly these five templates (the icon library no longer has any: Round 6), nothing else: a new native select anywhere else - or a sixth one inside the panel - fails.
+		const PANEL_NATIVE_SELECTS = ['color-tokens/color-tokens.html', 'live-preview/live-preview.html', 'style-guide/style-guide.html', 'templates/templates.html', 'typography/typography.html'].map(f => `/site-control/${f}`);
 		const outside = offenders.filter(f => !f.includes('/site-control/'));
 		const inPanel = offenders.filter(f => f.includes('/site-control/')).map(f => f.slice(f.indexOf('/site-control/'))).sort();
 		expect(outside).toEqual([]);

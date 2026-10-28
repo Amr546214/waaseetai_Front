@@ -69,7 +69,7 @@ export class IconFnEditor {
 		return parseCustomSvg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`);
 	});
 
-	async load(id: string): Promise<void> {
+	async load(id: string, pickDraft = true): Promise<void> {
 		const my = ++this.seq;
 		this.phase.set('loading'); this.draft.set(null); this.notice.set(null); this.published.set(null); this.fileName.set('');
 		try {
@@ -80,7 +80,7 @@ export class IconFnEditor {
 			void this.loadPublished(r.data, my);
 			// an earlier draft of mine is picked up, so leaving and coming back does not lose it
 			const mine = (r.data.staged ?? []).filter(s => s.isMine !== false).sort((a, b) => b.version - a.version)[0];
-			if (mine) void this.openDraft(mine, my);
+			if (mine && pickDraft) void this.openDraft(mine, my);
 		} catch (e) {
 			if (my !== this.seq) return;
 			const f = describeFailure(e, 'قراءة هذه الأيقونة من الخادم');
@@ -174,11 +174,11 @@ export class IconFnEditor {
 	async reloadFromServer(): Promise<void> { await this.afterChange(); this.notice.set({ type: 'ok', text: 'أُعيد تحميل الحالة الحالية من الخادم.' }); }
 
 	private async reloadItem(): Promise<void> {
-		try { const r = await firstValueFrom(this.api.iconItem(this.symbolId())); if (r?.data?.state) this.item.set(r.data); } catch { /* keep what is shown */ }
+		try { const r = await firstValueFrom(this.api.iconItem(this.symbolId())); if (r?.data?.state) { this.item.set(r.data); void this.loadPublished(r.data, this.seq); } } catch { /* keep what is shown */ }
 	}
 	private async afterChange(): Promise<void> {
 		this.draft.set(null); this.fileName.set('');
-		await this.load(this.symbolId());
+		await this.load(this.symbolId(), false); // after an apply / restore the editor starts clean: older drafts stay listed under «مسودات أخرى»
 		await this.store.load(true);
 		this.changed.emit();
 	}

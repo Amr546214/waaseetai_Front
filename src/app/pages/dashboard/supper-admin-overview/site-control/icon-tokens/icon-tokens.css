@@ -158,3 +158,6 @@ button:focus-visible, summary:focus-visible, .search:focus-visible, a:focus-visi
 .more { text-align: center; margin-top: 14px; }
 .lib-tab small { color: var(--txt-3); font-weight: 700; }
 @media (max-width: 760px) { .icons-wrap { padding: 16px; } .icon-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); } }
+.theme-toggle { display: inline-flex; background: var(--toggle-track, rgba(255,255,255,.06)); border-radius: 999px; padding: 3px; gap: 2px; }
+.toggle-seg { border: none; background: transparent; color: var(--txt-2); font-family: inherit; font-size: 12px; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer; }
+.toggle-seg.active { background: var(--toggle-active-bg, #fff); color: var(--toggle-active-text, #070D24); }

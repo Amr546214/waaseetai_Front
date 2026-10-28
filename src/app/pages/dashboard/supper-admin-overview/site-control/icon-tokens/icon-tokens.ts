@@ -3,7 +3,9 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { AI_ICON_INNER } from '../../../../../core/constants/ai-icon';
 import { IconFnRow, IconFnStatus } from '../../../../../core/identity/site-identity-admin.api';
+import { DesignTokensService } from '../core/design-tokens.service';
 import { IconsService } from '../core/icons.service';
+import { ThemeModeService } from '../core/theme-mode.service';
 import { InlineSvgDirective } from '../identity/inline-svg.directive';
 import { IconFnEditor } from './icon-fn-editor';
 import { IconFnStore } from './icon-fn.store';
@@ -32,6 +34,8 @@ export class IconTokens implements OnInit {
   readonly iconsService = inject(IconsService);
   readonly store = inject(IconFnStore);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly designTokens = inject(DesignTokensService);
+  readonly theme = inject(ThemeModeService);
 
   readonly activeLibId = signal<string>('');
   readonly filter = signal<IconFilter>('all');
@@ -87,6 +91,8 @@ export class IconTokens implements OnInit {
     void this.store.load();
   }
 
+  /** the panel's own light / dark view (same switch as «الهوية»): only this panel, never the site */
+  setMode(mode: 'dark' | 'light'): void { this.designTokens.setMode(mode); }
   retry(): void { void this.iconsService.load(true); void this.store.load(true); }
   selectLib(id: string): void { this.activeLibId.set(id); this.shownCount.set(PAGE); }
   setFilter(f: IconFilter): void { this.filter.set(f); this.shownCount.set(PAGE); }
