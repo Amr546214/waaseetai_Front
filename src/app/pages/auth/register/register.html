@@ -454,6 +454,15 @@
       </span>
     </div>
 
+    @if (accountReadyMessage) {
+    <div class="banner-info" id="register-account-ready" role="status" data-testid="register-account-ready" style="flex-direction:column;align-items:stretch;gap:8px">
+      <span>{{ accountReadyMessage }}</span>
+      <span style="display:flex;gap:16px;flex-wrap:wrap">
+        <a routerLink="/auth/login" class="banner-error-link" id="account-ready-login">تسجيل الدخول</a>
+        <a routerLink="/auth/forget-password" class="banner-error-link" id="account-ready-forgot">استعادة كلمة المرور</a>
+      </span>
+    </div>
+    } @else {
     <form [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
       <div class="otp-card">
         <div class="otp-card-title">رمز التحقق <span class="ws-req" aria-hidden="true">*</span></div>
@@ -486,6 +495,7 @@
         </button>
       </div>
     </form>
+    }
 
   </div>
 </section>

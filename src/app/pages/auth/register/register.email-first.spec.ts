@@ -106,4 +106,33 @@ describe('Register (e-mail-first): proof before account', () => {
 		expect(m.c.basicInfoForm.get('password').value).toBe(PASSWORD);
 		expect(m.c.proofFlow).toBe(false);
 	});
+
+	it('account created but the sign-in step failed (no token): a clear "sign in normally" panel, no navigation, no register-again prompt, the form is not shown again', () => {
+		const m = mount((url) => /register\/start$/.test(url) ? of({ success: true, data: { emailSent: true, ticket: 'T' } }) : of({ success: true, message: 'تم إنشاء حسابك وتأكيد بريدك. تعذّر تسجيل الدخول تلقائيًا، سجّل الدخول ببريدك وكلمة مرورك', data: { signInRequired: true, email: 'sara@example.com' } }));
+		const nav = vi.spyOn(TestBed.inject(Router), 'navigate');
+		m.c.nextStep(); type(m.c); m.c.onVerificationSubmit();
+		m.fixture.detectChanges(false);
+		const panel = m.el.querySelector('[data-testid="register-account-ready"]')!;
+		expect(panel.textContent).toContain('سجّل الدخول');
+		expect(panel.querySelector('#account-ready-login')!.getAttribute('href')).toContain('/auth/login');
+		expect(m.el.querySelector('#otp-group')).toBeNull();
+		expect(nav).not.toHaveBeenCalledWith(['/auth/welcome'], expect.anything());
+		expect(m.store.authenticate).not.toHaveBeenCalled();
+	});
+
+	it('registration closed (403) at the code step: the server message is shown, nothing navigates, the login link stays', () => {
+		const m = mount((url) => /register\/start$/.test(url) ? of({ success: true, data: { emailSent: true, ticket: 'T' } }) : throwError(() => ({ status: 403, error: { success: false, code: 'REGISTRATION_CLOSED', message: 'التسجيل بحسابات جديدة مغلق مؤقتًا. إن كان لديك حساب فيمكنك تسجيل الدخول.' } })));
+		m.c.nextStep(); type(m.c); m.c.onVerificationSubmit();
+		m.fixture.detectChanges(false);
+		expect(m.c.errorMessage).toContain('مغلق مؤقتًا');
+		expect(m.el.querySelector('#code-step-login-link')).not.toBeNull();
+	});
+
+	it('registration closed (403) at step 1: stays on the form with the message and the data', () => {
+		const m = mount(() => throwError(() => ({ status: 403, error: { success: false, code: 'REGISTRATION_CLOSED', message: 'التسجيل بحسابات جديدة مغلق مؤقتًا. إن كان لديك حساب فيمكنك تسجيل الدخول.' } })));
+		m.c.nextStep();
+		expect(m.c.currentStep).toBe(2);
+		expect(m.c.errorMessage).toContain('مغلق مؤقتًا');
+		expect(m.c.basicInfoForm.get('email').value).toBe('sara@example.com');
+	});
 });
