@@ -27,8 +27,8 @@
           <h4>أين يظهر هذا الرمز فعلًا</h4>
           <p class="hint small"><strong>يتغيّر في {{ pl.follows.length }} مواضع:</strong></p>
           <ul class="plain-list small" data-testid="fn-places-follow">@for (x of pl.follows; track x.where) { <li>{{ x.where }}</li> }</ul>
-          <p class="hint small"><strong>لا يتغيّر في {{ pl.notFollowed.length }} مواضع</strong> (تبدو كالرمز نفسه لكنها ليست مرسومة عبر هذا المعرّف):</p>
-          <ul class="plain-list small" data-testid="fn-places-not">@for (x of pl.notFollowed; track x.where) { <li>{{ x.where }} — <span class="muted">{{ x.why }}</span></li> }</ul>
+          <p class="hint small"><strong>أيقونات مشابهة لها مفاتيحها الخاصة ({{ pl.separate.length }})</strong> — استعمال مختلف لرسم الجرس، تُعدَّل منفردة أو مع العائلة:</p>
+          <ul class="plain-list small" data-testid="fn-places-separate">@for (x of pl.separate; track x.id) { <li>{{ x.where }} — <code class="code" dir="ltr">{{ x.id }}</code> <span class="muted">{{ x.why }}</span></li> }</ul>
         </div>
       }
 

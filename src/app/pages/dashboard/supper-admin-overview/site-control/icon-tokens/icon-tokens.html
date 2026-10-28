@@ -9,9 +9,9 @@
     <details class="limits" data-testid="icons-limits">
       <summary>ما الذي تصله هذه الصفحة وما الذي لا تصله</summary>
       <ul class="plain-list">
-        <li><strong>تصله:</strong> كل أيقونة تعريفُها <code dir="ltr">&lt;symbol id="…"&gt;</code> في قوالب الموقع ويستعملها <code dir="ltr">&lt;use href="#…"&gt;</code> (القائمة تُولَّد من الشيفرة الفعلية). تُبدَّل كل نسخ المعرّف الواحد في الصفحة.</li>
-        <li><strong>لا تصله (ولا تُعرض كقابلة للتعديل):</strong> رسومات SVG المكتوبة مباشرة داخل القالب بلا <code dir="ltr">&lt;symbol&gt;</code>، والرسومات التي تبنيها شيفرة TypeScript نصًّا، والأيقونات المرسومة كخلفية/قناع CSS أو كصورة <code dir="ltr">&lt;img&gt;</code>، وأيقونات العلامات الخارجية، وأيقونة الذكاء الاصطناعي الرسمية (تُدار من «الهوية»).</li>
-        <li><strong>التوقيت:</strong> يجري التبديل في المتصفح بعد اكتمال تحميل الصفحة، فقد تظهر الأيقونة الأصلية لحظة قصيرة في أول رسم قبل أن تحلّ المخصّصة محلها. حدّ أقصى 50 أيقونة مخصّصة.</li>
+        <li><strong>تصله:</strong> كل أيقونة تعريفُها <code dir="ltr">&lt;symbol id="…"&gt;</code> في قوالب الموقع (الرسومات المعروضة هنا هي رسومات الموقع الفعلية، لا عيّنات)، وكل موضع يتبعها: <code dir="ltr">&lt;use href="#…"&gt;</code>، أو رسم <code dir="ltr">&lt;svg&gt;</code> مضمّن أو يبنيه TypeScript يحمل الوسم <code dir="ltr">data-ws-icon</code> (يبقى حجمه ولونه وحالاته كما هي ويتبدّل رسمه فقط)، أو معرّف بديل لنفس العنصر، أو صورة <code dir="ltr">&lt;img&gt;</code> عبر محوّل الصور. تُبدَّل كل نسخ المعرّف الواحد. في الوضع الافتراضي لا يتغيّر أي بكسل.</li>
+        <li><strong>لا تصله (ولا تُعرض كقابلة للتعديل):</strong> رسومات لم تُربط بمعرّف (لا وسم ولا رمز)، وأسهم القوائم المنسدلة المرسومة كخلفية CSS بألوان خاصة بالثيم (آلية متغيّر CSS جاهزة لكن لا أيقونة وظيفية تستعملها اليوم)، وأيقونات العلامات الخارجية، وأيقونة الذكاء الاصطناعي الرسمية (تُدار من «الهوية»).</li>
+        <li><strong>التوقيت:</strong> يجري التبديل في المتصفح بعد اكتمال تحميل الصفحة، فقد تظهر الأيقونة الأصلية لحظة قصيرة في أول رسم قبل أن تحلّ المخصّصة محلها. @if (store.list(); as lim) { حدّ أقصى {{ lim.limits.maxCustom }} أيقونة مخصّصة (يغطي كل أيقونات الموقع المربوطة). }</li>
         <li><strong>الأيقونات ذات الأشكال المتعددة:</strong> إن كان للمعرّف نفسه شكلان مختلفان في قالبين، فالتخصيص يوحّدهما في الشكل الجديد (يُذكر ذلك عند فتح الأيقونة).</li>
       </ul>
     </details>
@@ -32,6 +32,30 @@
   </header>
 
   @if (iconsService.savedCopyNotice(); as n) { <div class="note note-warn" role="note" data-testid="icons-saved-copy-notice">{{ n }}</div> }
+  @if (iconsService.legacyUnreadable(); as u) { <div class="note note-warn" role="note" data-testid="icons-legacy-unreadable">{{ u }}</div> }
+  @if (iconsService.legacy().length) {
+    <details class="legacy" data-testid="icons-legacy" [open]="legacyOpen()" (toggle)="legacyOpen.set($any($event.target).open)">
+      <summary><strong>تخصيصات قديمة محفوظة في هذا المتصفح للمراجعة ({{ legacyShown().length }})</strong></summary>
+      <p class="hint small">هذه نسخ كنت قد عدّلتها قبل أن تُربط المكتبة بالخادم. لم تُنشر ولن تُنشر تلقائيًا ولا تظهر على الموقع. لكل واحدة: قارن بالأصل، ثم «احفظها كمسودة» (مسودة خاصة بك على الخادم تراجعها وتطبّقها من محرر الأيقونة) أو «تجاهل» (تختفي من هذه القائمة وتبقى النسخة القديمة في المتصفح دون مسح).</p>
+      @if (legacyNotice(); as n) { <div [class]="'note note-' + n.type" role="status" data-testid="icons-legacy-notice">{{ n.text }}</div> }
+      <ul class="legacy-list">
+        @for (l of legacyShown(); track l.slot) {
+          <li [attr.data-testid]="'legacy-' + l.slot">
+            <span class="lg-pair"><span class="lg-side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" [innerHTML]="legacyHtml(l.defaultInner)"></svg><small>الأصل</small></span>
+            <span aria-hidden="true">←</span>
+            <span class="lg-side lg-new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" [innerHTML]="legacyHtml(l.legacyInner)"></svg><small>نسختك القديمة</small></span></span>
+            <span class="lg-name"><strong>{{ l.label }}</strong> <code class="icon-slot">{{ l.slot }}</code></span>
+            <button type="button" class="btn-secondary mini" [disabled]="!canStage(l) || legacyBusy() !== null" (click)="stageLegacy(l)" [attr.title]="stageReason(l) || null" [attr.data-testid]="'legacy-stage-' + l.slot">{{ legacyBusy() === l.slot ? 'جارٍ الحفظ…' : 'احفظها كمسودة' }}</button>
+            <button type="button" class="btn-secondary mini" (click)="ignoreLegacy(l)" [attr.data-testid]="'legacy-ignore-' + l.slot">تجاهل</button>
+          </li>
+        }
+      </ul>
+      @if (legacyIgnoredList().length) {
+        <p class="hint small" data-testid="icons-legacy-ignored">مُتجاهَل: {{ legacyIgnoredList().length }}
+          @for (l of legacyIgnoredList(); track l.slot) { <button type="button" class="btn-link" (click)="ignoreLegacy(l, false)">إعادة «{{ l.label }}»</button> }</p>
+      }
+    </details>
+  }
   @if (store.staleWarning(); as w) { <div class="note note-warn" role="status" data-testid="icons-stale">{{ w }}</div> }
 
   @switch (store.phase()) {
@@ -53,8 +77,26 @@
         <p class="note note-warn" role="note" data-testid="icons-readonly"><strong>عرض فقط.</strong> صلاحيتك لا تسمح بتعديل الأيقونات (تحتاج site.manage أو صلاحية «التحكم بالموقع»).</p>
       }
 
+      @if (families().length || familiesError()) {
+        <section class="fam-panel" data-testid="icons-families">
+          <h3>عائلات الأيقونات</h3>
+          @if (familiesError()) { <p class="note note-warn" role="note" data-testid="icons-families-error">{{ familiesError() }} <button type="button" class="btn-secondary mini" (click)="loadFamilies()">إعادة المحاولة</button></p> }
+          @for (f of families(); track f.id) {
+            <div class="fam-card" [attr.data-testid]="'family-' + f.id">
+              <div><strong>{{ f.label }}</strong> <small class="muted">· {{ f.members.length }} أيقونات · مخصّصة {{ f.counts.custom }}</small>
+                <p class="hint small">{{ f.description }}</p></div>
+              <button type="button" class="btn-secondary mini" (click)="openFamily(f.id)" [attr.data-testid]="'family-open-' + f.id">{{ canManage() ? 'تعديل العائلة كلها' : 'عرض' }}</button>
+            </div>
+          }
+        </section>
+      }
+
+      @if (editingFamily(); as fid) {
+        <sc-icon-family-editor [familyId]="fid" [canEdit]="canManage()" (changed)="onChanged()" (closed)="closeFamily()" (openMember)="openMember($event)" />
+      }
+
       @if (editing(); as id) {
-        <sc-icon-fn-editor [symbolId]="id" [row]="editingRow()" [defaultSvg]="defaultSvg(id)" [canEdit]="canManage()" (changed)="store.load(true)" (closed)="close()" />
+        <sc-icon-fn-editor [symbolId]="id" [row]="editingRow()" [defaultSvg]="defaultSvg(id)" [canEdit]="canManage()" (changed)="onChanged()" (closed)="close()" />
       }
 
       <div class="toolbar">
@@ -81,8 +123,10 @@
               <span class="icon-box" [style.color]="libColor()[libOf(r)] ? 'var(' + libColor()[libOf(r)] + ')' : 'var(--teal)'">
                 @if (r.status === 'custom' && store.customGlyphs()[r.id]; as g) {
                   <svg viewBox="0 0 24 24" aria-hidden="true" [scInlineSvg]="g"></svg>
+                } @else if (glyphKind(r) === 'real' && shown(r); as inner) {
+                  <svg [attr.viewBox]="viewBox(r)" [attr.fill]="paint(r, 'fill')" [attr.stroke]="paint(r, 'stroke')" [attr.stroke-width]="paint(r, 'stroke-width')" [attr.stroke-linecap]="paint(r, 'stroke-linecap')" [attr.stroke-linejoin]="paint(r, 'stroke-linejoin')" aria-hidden="true" data-glyph="real" [innerHTML]="inner"></svg>
                 } @else if (shown(r); as inner) {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" [innerHTML]="inner"></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" [attr.data-glyph]="glyphKind(r)" [innerHTML]="inner"></svg>
                 } @else {
                   <span class="noglyph" aria-hidden="true">?</span>
                 }
@@ -90,7 +134,8 @@
               <span class="icon-label">{{ r.label || r.id }}</span>
               <code class="icon-slot">{{ r.id }}</code>
               <span class="status" [class]="'status st-' + r.status" [attr.data-testid]="'icon-status-' + r.id">{{ statusText(r) }}@if (r.hasDraft) { · مسودة }</span>
-              @if (partial(r); as n) { <span class="partial" [attr.data-testid]="'icon-partial-' + r.id" title="تتغيّر في الأماكن المرسومة عبر هذا المعرّف فقط؛ افتح الأيقونة لرؤية القائمة">جزئي: {{ n }} مواضع لا تتبعه</span> }
+              @if (followCount(r); as n) { <span class="partial follows" [attr.data-testid]="'icon-follows-' + r.id" title="كل هذه المواضع تتبع تغيير الأيقونة؛ افتحها لرؤية القائمة">تتبعها {{ n }} موضعًا</span> }
+              @if (familyOf(r); as fam) { <button type="button" class="chip-btn fam-chip" (click)="openFamily(fam.id)" [attr.data-testid]="'icon-family-' + r.id" title="تعديل العائلة كلها بملف واحد">عائلة: {{ fam.label }}</button> }
               @if (isManaged(r)) {
                 <span class="managed-note" [attr.data-testid]="'managed-' + r.id">
                   <strong>مُدار من صفحة الهوية</strong> — أيقونة الذكاء الاصطناعي الرسمية؛ تُستبدل وتُستعاد من هناك فقط.

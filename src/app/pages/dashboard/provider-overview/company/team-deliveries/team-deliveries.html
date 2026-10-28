@@ -14,7 +14,7 @@
 			<div class="v">{{ kpis().thisMonth }}</div><div class="l">تسليم هذا الشهر</div>
 		</div>
 		<div class="tds-kpi-c">
-			<div class="ic ic-amber"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></div>
+			<div class="ic ic-amber"><svg data-ws-icon="td-pending-bell" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></div>
 			<div class="v">{{ kpis().pending }}</div><div class="l">بانتظار رد العميل</div>
 		</div>
 		<div class="tds-kpi-c">
@@ -112,3 +112,5 @@
 		</div>
 	</div>
 </div>
+<!-- registry of the icon this page draws inline: the key td-pending-bell (data-ws-icon above) follows the site-control icon library -->
+<svg style="display:none" aria-hidden="true"><defs><symbol id="td-pending-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol></defs></svg>

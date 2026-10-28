@@ -5,6 +5,9 @@ import { vi } from 'vitest';
 import { IconTokens } from './icon-tokens';
 import { IconFnStore } from './icon-fn.store';
 import { IconsService } from '../core/icons.service';
+import { RealIconsService } from '../core/real-icons.service';
+import { SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
+import { of } from 'rxjs';
 import { IconFnRow } from '../../../../../core/identity/site-identity-admin.api';
 import { AI_ICON_INNER } from '../../../../../core/constants/ai-icon';
 
@@ -25,11 +28,13 @@ function setup(phase: 'loading' | 'ready' | 'error' | 'denied' = 'ready', over: 
 		list: computed(() => (phase === 'ready' ? { total: ROWS.length, counts: { default: 1, custom: 1, notWired: 3, withDraft: 0 }, limits: { maxCustom: 50, maxDraftsTotal: 60 }, rows: rows() } : null)),
 		canManage: signal(over.canManage ?? true), customGlyphs: signal({}), load: vi.fn(async () => undefined), row: (id: string) => ROWS.find(r => r.id === id) ?? null,
 	};
+	const libs = signal([{ id: 'general', label: 'العامة', colorVar: '--teal', icons: [{ slot: 'i-bell', label: 'إشعارات', svg: '<path d="M18 8A6 6 0 0 0 6 8"/>' }, { slot: 'i-check', label: 'تحقق', svg: '<path d="M20 6L9 17l-5-5"/>' }, { slot: 'i-coin', label: 'عملة', svg: '<circle cx="12" cy="12" r="9"/>' }, { slot: 'i-ai', label: 'ذكاء', svg: '<circle cx="12" cy="12" r="9"/>' }] }]);
 	const icons = {
-		libraries: signal([{ id: 'general', label: 'العامة', colorVar: '--teal', icons: [{ slot: 'i-bell', label: 'إشعارات', svg: '<path d="M18 8A6 6 0 0 0 6 8"/>' }, { slot: 'i-check', label: 'تحقق', svg: '<path d="M20 6L9 17l-5-5"/>' }, { slot: 'i-coin', label: 'عملة', svg: '<circle cx="12" cy="12" r="9"/>' }, { slot: 'i-ai', label: 'ذكاء', svg: '<circle cx="12" cy="12" r="9"/>' }] }]),
+		libraries: libs, pristine: libs, legacy: signal([]), legacyUnreadable: signal<string | null>(null), legacyIgnored: signal<string[]>([]), ignoreLegacy: vi.fn(),
 		loadError: signal(over.localError ? 'تعذّر تحميل ملف الأيقونات' : null), phase: signal(over.localError ? 'error' : 'ready'), savedCopyNotice: signal<string | null>(null), load: vi.fn(async () => undefined), exportJson: vi.fn(),
 	};
-	TestBed.configureTestingModule({ imports: [IconTokens], providers: [provideRouter([]), { provide: IconFnStore, useValue: store }, { provide: IconsService, useValue: icons }] });
+	const real = { load: vi.fn(async () => undefined), get: (id: string) => (id === 'i-bell' ? { vb: '0 0 24 24', paint: { fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8' }, inner: '<path d="M18 8A6 6 0 0 0 6 8"/>', sha256: 'x', defs: 6, variants: 2, files: [] } : null), phase: signal('ready'), fullSvg: () => null };
+	TestBed.configureTestingModule({ imports: [IconTokens], providers: [provideRouter([]), { provide: IconFnStore, useValue: store }, { provide: IconsService, useValue: icons }, { provide: RealIconsService, useValue: real }, { provide: SiteIdentityAdminApi, useValue: { families: () => of({ success: true, data: { families: [], revision: 'x' } }) } }] });
 	const f = TestBed.createComponent(IconTokens); f.detectChanges();
 	const root = () => (f.nativeElement as HTMLElement).shadowRoot!;
 	return { f, c: f.componentInstance, store, icons, root, q: (id: string) => root().querySelector(`[data-testid="${id}"]`) as HTMLElement | null };
@@ -98,14 +103,15 @@ describe('icon library page (server-backed)', () => {
 
 	it('the page states what it cannot reach (inline svg, TS-built svg, CSS, img) and that a swap happens after the page loaded', () => {
 		const t = setup(); const txt = t.q('icons-limits')!.textContent!;
-		for (const w of ['TypeScript', 'CSS', 'img', 'بعد اكتمال تحميل الصفحة']) expect(txt, w).toContain(w);
+		for (const w of ['data-ws-icon', 'CSS', 'img', 'بعد اكتمال تحميل الصفحة']) expect(txt, w).toContain(w);
 	});
 
 	it('the old browser-only replace / upload / save / import controls are gone and the page says so; export stays as a read-only local copy', () => {
 		const t = setup(); expect(t.root().querySelector('.btn-save')).toBeNull(); expect(t.root().querySelector('input[type=file]')).toBeNull();
 		expect(t.q('icons-local-removed')!.textContent).toContain('أُزيلت'); expect(t.q('icons-export')!.textContent).toContain('للقراءة');
 		t.q('icons-export')!.click(); expect(t.icons.exportJson).toHaveBeenCalled();
-		expect(t.q('icon-partial-i-bell')!.textContent).toContain('جزئي'); expect(t.q('icon-partial-i-check')).toBeNull();
+		expect(t.root().textContent).not.toContain('جزئي'); expect(t.q('icon-follows-i-bell')!.textContent).toContain('تتبعها'); expect(t.q('icon-follows-i-check')).toBeNull();
+		expect(t.q('icon-card-i-bell')!.querySelector('svg')!.getAttribute('data-glyph')).toBe('real');
 		expect(t.root().textContent).not.toContain('لا تغيّر هذه المكتبة أيقونات المنصة');
 		expect(AI_ICON_INNER).toContain('circle');
 	});

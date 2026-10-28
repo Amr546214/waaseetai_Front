@@ -7,6 +7,7 @@ import { SiteIdentityService } from '../../../../../core/identity/site-identity.
 import { iconFnKey } from '../../../../../core/identity/identity-icon-symbols';
 import { InlineSvgDirective } from '../identity/inline-svg.directive';
 import { Failure, actorName, bytesText, currentSummary, describeFailure } from '../identity/identity-view';
+import { RealIconsService } from '../core/real-icons.service';
 import { IconFnStore } from './icon-fn.store';
 import { ICON_PLACES, IconPlaces } from './icon-places';
 
@@ -43,6 +44,7 @@ export class IconFnEditor {
 	private readonly identity = inject(SiteIdentityService);
 	private readonly confirmer = inject(ConfirmModalService);
 	readonly store = inject(IconFnStore);
+	private readonly real = inject(RealIconsService);
 
 	readonly phase = signal<'loading' | 'ready' | 'error'>('loading');
 	readonly loadMessage = signal('');
@@ -68,6 +70,7 @@ export class IconFnEditor {
 	bytes = bytesText;
 	/** the default glyph as the library draws it (inner markup wrapped in the site's outline defaults) */
 	readonly defaultIcon = computed<ParsedSvgIcon | null>(() => {
+		const real = this.real.fullSvg(this.symbolId()); if (real) return parseCustomSvg(real);
 		const inner = this.defaultSvg(); if (!inner) return null;
 		return parseCustomSvg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`);
 	});
@@ -123,7 +126,7 @@ export class IconFnEditor {
 	async apply(): Promise<void> {
 		const d = this.draft(), it = this.item(); if (!d || !it || this.busy()) return;
 		const ok = await this.confirmer.confirm({ title: 'تطبيق الأيقونة على الموقع كله', type: 'warning', size: 'md', confirmText: 'طبّق على الموقع', cancelText: 'لا تطبّق',
-			message: `ستتغيّر أيقونة «${this.row()?.label ?? this.symbolId()}» في كل موضع يرسمها عبر <use> في الموقع، لكل الزوّار، فور التطبيق.${this.places()?.notFollowed.length ? ` ولن تتغيّر ${this.places()!.notFollowed.length} مواضع تشبهها (القائمة الجانبية وغيرها) لأنها ليست مرسومة عبر هذا المعرّف، وهي مذكورة في الأعلى.` : ''} تبقى النسخة الحالية محفوظة ويمكن الرجوع إلى الأصل في أي وقت.` });
+			message: `ستتغيّر أيقونة «${this.row()?.label ?? this.symbolId()}» في كل موضع يتبعها في الموقع${this.places() ? ` (${this.places()!.follows.length} موضعًا معروفًا)` : ''}، لكل الزوّار، فور التطبيق.${this.places()?.separate.length ? ` ${this.places()!.separate.length} أيقونات مشابهة لها مفاتيحها الخاصة ولن تتغيّر إلا إن عدّلتها (منفردة أو من «العائلة»).` : ''} تبقى النسخة الحالية محفوظة ويمكن الرجوع إلى الأصل في أي وقت.` });
 		if (!ok) return;
 		this.busy.set('apply'); this.notice.set(null);
 		try {

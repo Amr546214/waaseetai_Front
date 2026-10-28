@@ -36,7 +36,7 @@
     <ng-container *ngFor="let section of sections()">
       <!-- Section Title -->
       <div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
-        <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="section.iconSvg"></svg>
+        <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [attr.data-ws-icon]="section.wsIcon ?? null" [innerHTML]="section.iconSvg"></svg>
         {{ section.title }}
       </div>
 

@@ -1,0 +1,83 @@
+<section class="fe-wrap" [attr.data-testid]="'family-editor-' + familyId()" [attr.aria-label]="'تعديل عائلة الأيقونات ' + (family()?.label || familyId())">
+  <header class="fe-head">
+    <h2>عائلة «{{ family()?.label || familyId() }}»</h2>
+    <code class="code" dir="ltr">{{ familyId() }}</code>
+    @if (family(); as f) {
+      <span class="chip chip-muted" data-testid="fam-counts">{{ f.counts.members }} أيقونات · مخصّصة {{ f.counts.custom }}</span>
+      @if (f.uniform) { <span class="chip chip-ok" data-testid="fam-uniform">موحّدة</span> } @else { <span class="chip chip-muted" data-testid="fam-mixed">غير موحّدة</span> }
+    }
+    <button type="button" class="btn-link close" (click)="closed.emit()" data-testid="fam-close">إغلاق</button>
+  </header>
+
+  @switch (phase()) {
+    @case ('loading') { <p class="state" role="status" data-testid="fam-loading"><span class="spinner" aria-hidden="true"></span> جارٍ قراءة العائلة من الخادم…</p> }
+    @case ('error') {
+      <p class="note note-error" role="alert" data-testid="fam-error"><strong>تعذّر التحميل.</strong> {{ loadMessage() }}
+        <button type="button" class="btn-secondary" (click)="load()" data-testid="fam-retry">إعادة المحاولة</button></p>
+    }
+    @default {
+      @if (family(); as f) {
+        <p class="hint" data-testid="fam-desc">{{ f.description }} اختر الأيقونات التي تريد أن تأخذ الملف نفسه، ارفع ملفًا واحدًا، راجع الفرق الدقيق، ثم أكّد: التطبيق دفعة واحدة (كلها أو لا شيء). كل أيقونة تبقى قابلة للتعديل منفردة.</p>
+
+        @if (notice(); as n) {
+          <div [class]="'note note-' + n.type" role="status" data-testid="fam-notice"><strong>{{ n.text }}</strong> @if (n.detail) { <span>{{ n.detail }}</span> }</div>
+        }
+
+        <table class="fam-members" data-testid="fam-members">
+          <thead><tr>@if (canEdit()) { <th></th> }<th></th><th>الأيقونة</th><th>الحالة</th><th>أين</th><th></th></tr></thead>
+          <tbody>
+            @for (m of members(); track m.symbolId) {
+              <tr [attr.data-testid]="'fam-member-' + m.symbolId">
+                @if (canEdit()) {
+                  <td><input type="checkbox" [checked]="selected().has(m.symbolId)" [disabled]="m.status === 'not-wired' || busy() !== null" (change)="toggle(m.symbolId)" [attr.aria-label]="'تضمين ' + m.label" [attr.data-testid]="'fam-pick-' + m.symbolId" /></td>
+                }
+                <td>@if (defaultIcon(m.symbolId); as d) { <svg class="fam-glyph" aria-hidden="true" [scInlineSvg]="d"></svg> }</td>
+                <td><strong>{{ m.label || m.symbolId }}</strong><br /><code class="code" dir="ltr">{{ m.key }}</code></td>
+                <td>{{ m.status === 'custom' ? 'مخصّصة — النسخة ' + m.activeVersion : m.status === 'default' ? 'الأصل' : 'غير مربوطة' }}@if (m.hasDraft) { · مسودة }</td>
+                <td class="muted small">{{ m.note }} @if (m.role === 'primary') { (الأساسية) }</td>
+                <td><button type="button" class="btn-secondary" (click)="openMember.emit(m.symbolId)" [attr.data-testid]="'fam-edit-' + m.symbolId">تعديل منفرد</button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (!canEdit()) {
+          <p class="note note-warn" role="note" data-testid="fam-readonly"><strong>عرض فقط.</strong> صلاحيتك لا تسمح بتعديل الأيقونات.</p>
+        } @else {
+          <div class="fe-actions">
+            <label class="btn-save file-btn" [class.is-disabled]="busy() !== null || !selectedKeys().length">
+              {{ busy() === 'upload' ? 'جارٍ الرفع والفحص…' : 'رفع ملف SVG واحد لـ' + selectedKeys().length + ' أيقونة' }}
+              <input type="file" accept=".svg,image/svg+xml" hidden [disabled]="busy() !== null || !selectedKeys().length" (change)="onFile($event)" data-testid="fam-file" />
+            </label>
+            <button type="button" class="btn-secondary" (click)="selectAll(true)" [disabled]="busy() !== null" data-testid="fam-all">تحديد الكل</button>
+            <button type="button" class="btn-secondary" (click)="selectAll(false)" [disabled]="busy() !== null" data-testid="fam-none">إلغاء التحديد</button>
+            <button type="button" class="btn-secondary" [disabled]="busy() !== null || !anyCustom()" (click)="previewRestore()" data-testid="fam-restore">إرجاع العائلة إلى الأصل (معاينة)</button>
+          </div>
+          <p class="hint small">SVG فقط، حتى 64 ك.ب، ويجب أن يحمل الملف <code dir="ltr">viewBox</code>. يفحصه الخادم وينظّفه مرة واحدة، والبايتات نفسها تُحفظ لكل أيقونة محدّدة.</p>
+        }
+
+        @if (preview(); as p) {
+          <div class="fe-review" data-testid="fam-review">
+            <h4>{{ mode() === 'publish' ? 'مراجعة قبل التطبيق' : 'مراجعة الإرجاع إلى الأصل' }} — {{ p.changedCount }} من {{ p.items.length }} سيتغيّر · لم يتغيّر الموقع بعد</h4>
+            <div class="fam-diff">
+              @for (i of p.items; track i.key) {
+                <div class="fam-row" [class.is-same]="i.change === 'unchanged'" [attr.data-testid]="'fam-diff-' + i.symbolId" [attr.data-change]="i.change">
+                  <span class="fam-label">{{ i.label }}</span>
+                  <span class="fam-side">@if (glyph(i.key, 'cur'); as g) { <svg aria-hidden="true" [scInlineSvg]="g"></svg> }<small>الآن: {{ sideText(i.current) }}</small></span>
+                  <span class="fam-arrow" aria-hidden="true">←</span>
+                  <span class="fam-side">@if (glyph(i.key, 'tgt'); as g) { <svg aria-hidden="true" [scInlineSvg]="g"></svg> }<small>{{ sideText(i.target) }}</small></span>
+                  <span class="chip" [class.chip-ok]="i.change !== 'unchanged'">{{ changeText(i.change) }}</span>
+                </div>
+              }
+            </div>
+            <div class="fe-actions">
+              <button type="button" class="btn-save" [disabled]="busy() !== null || !p.canApply || !canEdit()" (click)="apply()" data-testid="fam-apply">{{ busy() === 'apply' ? 'جارٍ التطبيق…' : (mode() === 'publish' ? 'تطبيق على الموقع (دفعة واحدة)' : 'إرجاع إلى الأصل (دفعة واحدة)') }}</button>
+              @if (drafts().length) { <button type="button" class="btn-secondary" [disabled]="busy() !== null" (click)="discard()" data-testid="fam-discard">إلغاء المسودات</button> }
+              @else { <button type="button" class="btn-secondary" [disabled]="busy() !== null" (click)="preview.set(null)" data-testid="fam-dismiss">إغلاق المعاينة</button> }
+            </div>
+          </div>
+        }
+      }
+    }
+  }
+</section>

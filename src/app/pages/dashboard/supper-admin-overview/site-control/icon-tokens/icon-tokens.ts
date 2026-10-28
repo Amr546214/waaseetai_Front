@@ -1,12 +1,16 @@
 import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { AI_ICON_INNER } from '../../../../../core/constants/ai-icon';
-import { IconFnRow, IconFnStatus } from '../../../../../core/identity/site-identity-admin.api';
+import { IconFamilyInfo, IconFnRow, IconFnStatus, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { DesignTokensService } from '../core/design-tokens.service';
-import { IconsService } from '../core/icons.service';
+import { IconsService, LegacyIcon } from '../core/icons.service';
+import { RealIconsService } from '../core/real-icons.service';
+import { describeFailure } from '../identity/identity-view';
 import { ThemeModeService } from '../core/theme-mode.service';
 import { InlineSvgDirective } from '../identity/inline-svg.directive';
+import { IconFamilyEditor } from './icon-family-editor';
 import { IconFnEditor } from './icon-fn-editor';
 import { IconFnStore } from './icon-fn.store';
 import { ICON_PLACES } from './icon-places';
@@ -26,7 +30,7 @@ export const OTHER_LIB = '__other';
 @Component({
   selector: 'sc-icon-tokens',
   standalone: true,
-  imports: [RouterLink, InlineSvgDirective, IconFnEditor],
+  imports: [RouterLink, InlineSvgDirective, IconFnEditor, IconFamilyEditor],
   templateUrl: './icon-tokens.html',
   encapsulation: ViewEncapsulation.ShadowDom,
   styleUrls: ['../site-control-base.css', './icon-tokens.css']
@@ -34,6 +38,8 @@ export const OTHER_LIB = '__other';
 export class IconTokens implements OnInit {
   readonly iconsService = inject(IconsService);
   readonly store = inject(IconFnStore);
+  readonly real = inject(RealIconsService);
+  private readonly api = inject(SiteIdentityAdminApi);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly designTokens = inject(DesignTokensService);
   readonly theme = inject(ThemeModeService);
@@ -43,22 +49,32 @@ export class IconTokens implements OnInit {
   readonly query = signal('');
   readonly shownCount = signal(PAGE);
   readonly editing = signal<string | null>(null);
+  readonly editingFamily = signal<string | null>(null);
+  readonly families = signal<IconFamilyInfo[]>([]);
+  readonly familiesError = signal('');
+  /** the notice of the legacy review (what was staged / why not) */
+  readonly legacyNotice = signal<{ type: 'ok' | 'error'; text: string } | null>(null);
+  readonly legacyBusy = signal<string | null>(null);
+  readonly legacyOpen = signal(false);
+  readonly legacyShown = computed<LegacyIcon[]>(() => this.iconsService.legacy().filter(l => !this.iconsService.legacyIgnored().includes(l.slot)));
+  readonly legacyIgnoredList = computed<LegacyIcon[]>(() => this.iconsService.legacy().filter(l => this.iconsService.legacyIgnored().includes(l.slot)));
 
   /** the library's own drawing (inner markup) by slot: used for the default glyph and the labels when the id is a library slot */
+  /** (labels / sample drawings only) */
   readonly glyphBySlot = computed<Map<string, string>>(() => {
     const m = new Map<string, string>();
-    for (const lib of this.iconsService.libraries()) for (const ic of lib.icons) if (!m.has(ic.slot)) m.set(ic.slot, ic.svg);
+    for (const lib of this.iconsService.pristine()) for (const ic of lib.icons) if (!m.has(ic.slot)) m.set(ic.slot, ic.svg);
     return m;
   });
   /** the library each slot belongs to; the server only names the library of rows nothing draws, so the page joins the rest through the library file */
   readonly libBySlot = computed<Map<string, string>>(() => {
     const m = new Map<string, string>();
-    for (const lib of this.iconsService.libraries()) for (const ic of lib.icons) if (!m.has(ic.slot)) m.set(ic.slot, lib.id);
+    for (const lib of this.iconsService.pristine()) for (const ic of lib.icons) if (!m.has(ic.slot)) m.set(ic.slot, lib.id);
     return m;
   });
   libOf(r: IconFnRow): string { return r.library ?? this.libBySlot().get(r.id) ?? OTHER_LIB; }
-  readonly libLabels = computed<Record<string, string>>(() => Object.fromEntries(this.iconsService.libraries().map(l => [l.id, l.label])));
-  readonly libColor = computed<Record<string, string>>(() => Object.fromEntries(this.iconsService.libraries().map(l => [l.id, l.colorVar])));
+  readonly libLabels = computed<Record<string, string>>(() => Object.fromEntries(this.iconsService.pristine().map(l => [l.id, l.label])));
+  readonly libColor = computed<Record<string, string>>(() => Object.fromEntries(this.iconsService.pristine().map(l => [l.id, l.colorVar])));
 
   /** tabs = the libraries that have rows, then everything else the site draws that no library lists */
   readonly tabs = computed(() => {
@@ -89,18 +105,55 @@ export class IconTokens implements OnInit {
 
   ngOnInit(): void {
     void this.iconsService.load();
+    void this.real.load();
     void this.store.load();
+    void this.loadFamilies();
   }
 
   /** the panel's own light / dark view (same switch as «الهوية»): only this panel, never the site */
   setMode(mode: 'dark' | 'light'): void { this.designTokens.setMode(mode); }
-  retry(): void { void this.iconsService.load(true); void this.store.load(true); }
+  retry(): void { void this.iconsService.load(true); void this.real.load(true); void this.store.load(true); void this.loadFamilies(); }
   selectLib(id: string): void { this.activeLibId.set(id); this.shownCount.set(PAGE); }
   setFilter(f: IconFilter): void { this.filter.set(f); this.shownCount.set(PAGE); }
   setQuery(ev: Event): void { this.query.set((ev.target as HTMLInputElement).value); this.shownCount.set(PAGE); }
   more(): void { this.shownCount.update(n => n + PAGE); }
-  open(id: string): void { this.editing.set(id); }
+  open(id: string): void { this.editingFamily.set(null); this.editing.set(id); }
   close(): void { this.editing.set(null); }
+  openFamily(id: string): void { this.editing.set(null); this.editingFamily.set(id); }
+  closeFamily(): void { this.editingFamily.set(null); }
+  /** from the family editor's «تعديل منفرد» */
+  openMember(id: string): void { this.editingFamily.set(null); this.editing.set(id); }
+  async loadFamilies(): Promise<void> {
+    try { const r = await firstValueFrom(this.api.families()); this.families.set(r?.data?.families ?? []); this.familiesError.set(''); }
+    catch (e) { this.familiesError.set(describeFailure(e, 'قراءة عائلات الأيقونات').message); }
+  }
+  familyOf(r: IconFnRow): IconFamilyInfo | null { return r.familyId ? this.families().find(f => f.id === r.familyId) ?? null : null; }
+  /** after any save the list and the families are re-read so counts and chips are the server's */
+  onChanged(): void { void this.store.load(true); void this.loadFamilies(); }
+
+  // ---- legacy local customisations: for review only, never published by themselves
+  legacySvg(inner: string): string { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`; }
+  legacyHtml(inner: string): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(inner); }
+  canStage(l: LegacyIcon): boolean { const r = this.store.row(l.slot); return this.canManage() && !!r?.key && r.status !== 'not-wired'; }
+  stageReason(l: LegacyIcon): string {
+    const r = this.store.row(l.slot);
+    if (!this.canManage()) return 'صلاحيتك لا تسمح بالتعديل.';
+    if (!r) return 'هذه الأيقونة ليست من أيقونات الموقع الحالية.';
+    return r.status === 'not-wired' ? 'لا شيء في الموقع يتبع هذه الأيقونة، فلا تُحفظ كمسودة.' : '';
+  }
+  async stageLegacy(l: LegacyIcon): Promise<void> {
+    const r = this.store.row(l.slot); if (!r?.key || this.legacyBusy()) return;
+    this.legacyBusy.set(l.slot); this.legacyNotice.set(null);
+    try {
+      const file = new File([this.legacySvg(l.legacyInner)], `${l.slot}-legacy.svg`, { type: 'image/svg+xml' });
+      await firstValueFrom(this.api.upload(r.key, file));
+      this.iconsService.ignoreLegacy(l.slot);
+      this.legacyNotice.set({ type: 'ok', text: `حُفظت نسختك القديمة من «${l.label}» كمسودة خاصة بك على الخادم. لم يتغيّر الموقع: افتح الأيقونة لتراجعها ثم تطبّقها أو تلغيها.` });
+      await this.store.load(true);
+    } catch (e) { this.legacyNotice.set({ type: 'error', text: describeFailure(e, 'حفظ النسخة القديمة كمسودة').message }); }
+    this.legacyBusy.set(null);
+  }
+  ignoreLegacy(l: LegacyIcon, ignore = true): void { this.iconsService.ignoreLegacy(l.slot, ignore); }
 
   /** the official AI mark's slots (`i-ai`, `ws-trust-ai`, `rp-i-ai` ...) belong to the identity page (key icon.ai), never to this page */
   managed(slot: string): boolean { return /(^|-)ai$/.test(slot); }
@@ -116,14 +169,18 @@ export class IconTokens implements OnInit {
       default: return r.reason?.text || 'لا شيء في الموقع يتبع تغيير هذه الأيقونة.';
     }
   }
-  /** how many visible places look like this icon but will NOT change (0 = every known place follows) */
-  partial(r: IconFnRow): number { return ICON_PLACES[r.id]?.notFollowed.length ?? 0; }
+  /** how many known places follow this icon (the explicit list is in the editor) */
+  followCount(r: IconFnRow): number { return ICON_PLACES[r.id]?.follows.length ?? 0; }
   exportJson(): void { this.iconsService.exportJson(); }
   defaultSvg(id: string): string | null { return this.glyphBySlot().get(id) ?? null; }
 
   /** a managed slot draws the official default glyph; any other library drawing is drawn from the library file */
   shown(r: IconFnRow): SafeHtml | null {
-    const inner = this.isManaged(r) ? AI_ICON_INNER : this.defaultSvg(r.id);
+    const inner = this.isManaged(r) ? AI_ICON_INNER : (this.real.get(r.id)?.inner ?? this.defaultSvg(r.id));
     return inner ? this.sanitizer.bypassSecurityTrustHtml(inner) : null;
   }
+  /** which drawing the card shows: the REAL symbol the site ships, the official AI mark, or (only for ids nothing draws) the library file's sample */
+  glyphKind(r: IconFnRow): 'real' | 'ai' | 'sample' | 'none' { return this.isManaged(r) ? 'ai' : this.real.get(r.id) ? 'real' : this.defaultSvg(r.id) ? 'sample' : 'none'; }
+  paint(r: IconFnRow, name: string): string | null { if (this.glyphKind(r) !== 'real') return null; return this.real.get(r.id)!.paint[name] ?? null; }
+  viewBox(r: IconFnRow): string { return (this.glyphKind(r) === 'real' && this.real.get(r.id)!.vb) || '0 0 24 24'; }
 }

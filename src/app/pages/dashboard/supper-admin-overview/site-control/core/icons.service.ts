@@ -30,6 +30,8 @@ export interface IconsFile {
   libraries: IconLibrary[];
 }
 
+/** a customisation found in the browser's OLD local copy (before the library was server-backed): shown FOR REVIEW only, never published by itself */
+export interface LegacyIcon { libraryId: string; slot: string; label: string; defaultInner: string; legacyInner: string }
 export type IconsPhase = 'idle' | 'loading' | 'ready' | 'error';
 
 @Injectable({ providedIn: 'root' })
@@ -40,6 +42,14 @@ export class IconsService {
   readonly phase = signal<IconsPhase>('idle');
   /** تنبيه غير مانع: نسخة محلية قديمة/معطوبة لم تُستخدم (تبقى في المتصفح كما هي ولا تُمسح) */
   readonly savedCopyNotice = signal<string | null>(null);
+  /** the library file as shipped (labels, groups, library colours): the icons page uses THIS, never the browser's old copy */
+  readonly pristine = signal<IconLibrary[]>([]);
+  /** old local customisations that differ from the shipped drawing and are valid after sanitising (diff vs default) */
+  readonly legacy = signal<LegacyIcon[]>([]);
+  /** the old local copy exists but cannot be read (kept in the browser untouched) */
+  readonly legacyUnreadable = signal<string | null>(null);
+  /** slots the owner chose to ignore (a separate key; the old copy itself is never deleted) */
+  readonly legacyIgnored = signal<string[]>([]);
 
   private readonly persistence = inject(PersistenceService);
   private inflight: Promise<void> | null = null;
@@ -69,8 +79,12 @@ export class IconsService {
     // النسخة المحفوظة محليًا (قديمة: قبل ربط الأيقونات بالخادم) تُستخدم لكل مكتبة على حدة ولا تُستخدم أبدًا إن أنتجت مكتبة بلا أيقونات.
     // السبب الجذري للمكتبة الفارغة (2026-10-28): icons.json يخزّن محتوى SVG الداخلي فقط، والتعقيم كان يشترط وسم <svg> كاملاً فيرفض كل الأيقونات
     // المحفوظة (انظر sanitizeLibrarySvg). كذلك: النسخة التي لا تصلح لا تُحذف من التخزين ولا يُكتب فوقها هنا.
-    const saved = this.persistence.load<IconLibrary[]>('icons');
-    const savedLibs = Array.isArray(saved?.data) ? saved!.data : null;
+    const saved = this.persistence.load<IconLibrary[] | { libraries?: IconLibrary[] }>('icons');
+    const savedLibs = Array.isArray(saved?.data) ? saved!.data : Array.isArray((saved?.data as { libraries?: IconLibrary[] } | undefined)?.libraries) ? (saved!.data as { libraries: IconLibrary[] }).libraries : null;
+    this.pristine.set(data.libraries);
+    this.legacyIgnored.set(this.persistence.load<string[]>('icons-legacy-ignored')?.data ?? []);
+    this.legacy.set(this.findLegacy(data.libraries, savedLibs));
+    this.legacyUnreadable.set(this.persistence.hasSaved('icons') && !savedLibs ? 'توجد نسخة محلية قديمة في هذا المتصفح لكن شكلها غير مقروء، فبقيت كما هي دون مسح ولم تُستخدم.' : null);
     let note: string | null = null;
     const result = data.libraries.map(lib => {
       const mine = savedLibs?.find(s => s?.id === lib.id);
@@ -82,6 +96,30 @@ export class IconsService {
     this.savedCopyNotice.set(note);
     this.libraries.set(result);
     this.phase.set('ready');
+  }
+
+  private findLegacy(file: IconLibrary[], saved: IconLibrary[] | null): LegacyIcon[] {
+    if (!saved) return [];
+    const norm = (x: string) => x.replace(/\s+/g, ' ').replace(/> </g, '><').trim();
+    const out: LegacyIcon[] = [];
+    for (const lib of file) {
+      const mine = saved.find(s => s?.id === lib.id);
+      if (!mine || !Array.isArray(mine.icons)) continue;
+      for (const ic of lib.icons) {
+        const old = mine.icons.find(i => i?.slot === ic.slot);
+        if (!old || typeof old.svg !== 'string') continue;
+        const clean = sanitizeLibrarySvg(old.svg);
+        if (clean !== null && norm(clean) !== norm(sanitizeLibrarySvg(ic.svg) ?? ic.svg)) out.push({ libraryId: lib.id, slot: ic.slot, label: ic.label, defaultInner: ic.svg, legacyInner: clean });
+      }
+    }
+    return out;
+  }
+
+  /** hide one old customisation from the review list (the old local copy is NOT touched) */
+  ignoreLegacy(slot: string, ignore = true): void {
+    const next = ignore ? [...new Set([...this.legacyIgnored(), slot])] : this.legacyIgnored().filter(s => s !== slot);
+    this.legacyIgnored.set(next);
+    this.persistence.save('icons-legacy-ignored', next);
   }
 
   private sanitizeLibrary(lib: IconLibrary): IconLibrary {
