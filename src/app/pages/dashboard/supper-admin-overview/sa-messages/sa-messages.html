@@ -7,7 +7,7 @@
           <button type="button" class="ms-new-btn" data-testid="new-chat-open" (click)="openNewChat()">محادثة جديدة</button>
         </div>
         <div class="ms-conv-search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="search" placeholder="ابحث في المحادثات" aria-label="ابحث في المحادثات" data-testid="conv-search" [value]="search()" (input)="onSearch($any($event.target).value)" />
         </div>
       </div>
@@ -97,7 +97,7 @@
           <div class="ms-irow">
             <textarea class="ms-itxt" rows="1" maxlength="4000" placeholder="اكتب رسالتك..." aria-label="نص الرسالة" data-testid="composer" [value]="draft()" (input)="draft.set($any($event.target).value)" (keydown)="onKey($event)"></textarea>
             <button type="button" class="ms-sbtn" aria-label="إرسال" data-testid="send" [disabled]="!canSend()" (click)="send()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <svg data-ws-icon="ws-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           </div>
         </div>

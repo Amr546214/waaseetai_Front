@@ -22,7 +22,7 @@ describe('icon places (where a function icon is really seen)', () => {
 		const listed = new Set([...ICON_PLACES['i-bell'].follows, ...ICON_PLACES['i-bell'].separate].map(x => x.file));
 		const known = new Set(['app/layouts/dashboard-layout/dashboard-layout.ts', 'app/pages/dashboard/provider-overview/notifications/favorite/favorite.ts']); // dashboard-layout navLinks / getIconSvg: dead code; favorite.ts section icons: stripped by the [innerHTML] sanitiser, nothing is drawn
 		const hits: string[] = [];
-		const walk = (d: string) => { for (const e of readdirSync(d)) { const p = join(d, e); if (statSync(p).isDirectory()) walk(p); else if (/\.(html|ts)$/.test(e) && !/\.spec\.ts$/.test(e) && !p.includes('/site-control/')) { const t = readFileSync(p, 'utf8'); if (/M18 8A6 6 0 ?0 ?0 ?6 8|M15 17h5l-1\.405|M14\.857 17\.082/.test(t) && !/<symbol\b[^>]*id="(i|ic|ws|hwp|spa-i)-bell2?"/.test(t) || /data-ws-icon|ws: 'i-bell'/.test(t)) hits.push(p.slice(SRC.length)); } } };
+		const walk = (d: string) => { for (const e of readdirSync(d)) { const p = join(d, e); if (statSync(p).isDirectory()) walk(p); else if (/\.(html|ts)$/.test(e) && !/\.spec\.ts$/.test(e) && !p.includes('/site-control/')) { const t = readFileSync(p, 'utf8'); if (/M18 8A6 6 0 ?0 ?0 ?6 8|M15 17h5l-1\.405|M14\.857 17\.082/.test(t) && !/<symbol\b[^>]*id="(i|ic|ws|hwp|spa-i)-bell2?"/.test(t) || /data-ws-icon="[a-z0-9-]*bell|ws: 'i-bell'/.test(t)) hits.push(p.slice(SRC.length)); } } };
 		walk(join(SRC, 'app'));
 		const missing = hits.filter(h => !listed.has(h) && !known.has(h) && !/identity-icon-symbols|settings-section|sidebar\.html|favorite\.html/.test(h));
 		expect(missing, 'unclassified bell copies').toEqual([]);

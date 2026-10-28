@@ -3,7 +3,7 @@
 	<!-- Breadcrumb -->
 	<nav class="cml-bc">
 		<a routerLink="/provider-overview">لوحة التحكم</a>
-		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6" /></svg>
+		<svg data-ws-icon="ws-chevron-l" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6" /></svg>
 		<span>نماذج الشركة</span>
 	</nav>
 
@@ -14,7 +14,7 @@
 			<div class="cml-sub">خدمات شركتك المعروضة في سوق وسيط AI</div>
 		</div>
 		<a routerLink="/provider-overview/business-models/new-project" class="cml-add-btn">
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+			<svg data-ws-icon="i-plus" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
 			إنشاء خدمة
 		</a>
 	</div>
@@ -45,7 +45,7 @@
 		</div>
 		<div class="fr-spacer"></div>
 		<div class="fr-search">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+			<svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
 			<input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="ابحث في نماذج الشركة..." aria-label="بحث" />
 		</div>
 	</div>
@@ -91,7 +91,7 @@
 					@for (chk of checks(m); track chk.text) {
 					<div class="cml-chk" [class.chk-warn]="!chk.ok">
 						@if (chk.ok) {
-						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+						<svg data-ws-icon="ws-check" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
 						} @else {
 						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /></svg>
 						}

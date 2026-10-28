@@ -7,7 +7,6 @@
 	--tds-rail-bg: rgba(7, 13, 36, 0.6);
 	--tds-row-bg: rgba(255, 255, 255, 0.02);
 	--tds-txt3: #4A5568;
-	--teal-txt: #2BD4C7;
 	font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
 	color: var(--tds-txt);
 	direction: rtl;
@@ -26,7 +25,6 @@
 	--tds-rail-bg: rgba(246, 248, 252, 0.94);
 	--tds-row-bg: rgba(15, 23, 42, 0.02);
 	--tds-txt3: #94A3B8;
-	--teal-txt: #0F8A7F;
 }
 
 .tds-hd { margin-bottom: 16px; }

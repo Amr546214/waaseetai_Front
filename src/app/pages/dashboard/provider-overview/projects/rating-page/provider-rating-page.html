@@ -19,11 +19,11 @@
 	} @else if (view() === 'saved' && status(); as st) {
 		<!-- ===== Saved review, READ ONLY (no form, no submit, no skip, no edit) ===== -->
 		<a class="rp-bk" (click)="goToArchived()" role="button" tabindex="0">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+			<svg data-ws-icon="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 			العودة إلى المشاريع المكتملة
 		</a>
 		<div class="rp-hd">
-			<div class="rp-hd-ico rp-hd-ico-rated"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
+			<div class="rp-hd-ico rp-hd-ico-rated"><svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
 			<div class="rp-hd-ttl">{{ st.adminSettled ? 'أُغلق بتسوية نزاع' : 'تقييمك المحفوظ' }}</div>
 			<div class="rp-hd-sub">{{ projectTitle() }} · مع {{ clientName() }}</div>
 		</div>
@@ -44,7 +44,7 @@
 		</div>
 	} @else if (view() === 'blocked') {
 		<a class="rp-bk" (click)="back()" role="button" tabindex="0">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+			<svg data-ws-icon="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 			العودة إلى المشروع
 		</a>
 		<div class="rp-hd"><div class="rp-hd-ttl">{{ status()?.adminSettled ? 'أُغلق بتسوية نزاع' : 'التقييم غير متاح الآن' }}</div><div class="rp-hd-sub">{{ projectTitle() }} · مع {{ clientName() }}</div></div>
@@ -61,7 +61,7 @@
 	} @else {
 		<!-- ===== Editable rating form ===== -->
 		<a class="rp-bk" (click)="back()" role="button" tabindex="0">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+			<svg data-ws-icon="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 			العودة إلى المشروع
 		</a>
 
@@ -73,7 +73,7 @@
 		<!-- Success header (P-PR-013) -->
 		<div class="rp-hd">
 			<div class="rp-hd-ico">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+				<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 			</div>
 			<div class="rp-hd-ttl">اكتمل المشروع بنجاح</div>
 			<div class="rp-hd-sub">{{ projectTitle() }} · مع {{ clientName() }} · أُفرِج كامل المبلغ {{ releasedAmount() | number:'1.0-2' }} $</div>

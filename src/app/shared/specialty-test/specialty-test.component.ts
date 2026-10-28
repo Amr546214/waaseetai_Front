@@ -153,7 +153,7 @@ export interface SpecialtyTestResult {
 					@if (allowReview()) {
 						<div class="test-nav" data-testid="specialty-test-nav">
 							<button type="button" class="btn-prev" (click)="prev.emit()" [disabled]="index() === 0" data-testid="specialty-test-prev">
-								<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+								<svg data-ws-icon="ws-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
 								السابق
 							</button>
 							@if (isLast()) {
@@ -161,7 +161,7 @@ export interface SpecialtyTestResult {
 							} @else {
 								<button type="button" class="btn-next" (click)="next.emit()" data-testid="specialty-test-next">
 									التالي
-									<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+									<svg data-ws-icon="ws-chevron-l" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
 								</button>
 							}
 						</div>

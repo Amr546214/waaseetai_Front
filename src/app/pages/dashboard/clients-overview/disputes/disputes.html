@@ -7,7 +7,7 @@
       <div class="ord-sub">{{ isCompany() ? 'نزاعات الشركة ونزاعات فريقك مع مقدّمي الخدمة، تراجعها الإدارة' : 'النزاعات التي رفعتها أو رُفعت ضدك، تراجعها الإدارة حتى الإقفال' }}</div>
     </div>
     <a class="disp-raise-btn" routerLink="/client-overview/projects/active" data-testid="raise-dispute" title="يُرفع النزاع من صفحة متابعة المشروع">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <svg data-ws-icon="i-plus" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       رفع نزاع جديد
     </a>
   </div>
@@ -26,7 +26,7 @@
   <!-- KPIs -->
   <div class="inv-kpis">
     <div class="inv-kpi">
-      <div class="ic inv-ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="ic inv-ic-amber"><svg data-ws-icon="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
       <div class="v">{{ kpis().activeDisputes }}</div>
       <div class="l">نزاع نشط</div>
     </div>
@@ -36,7 +36,7 @@
       <div class="l">قيد مراجعة الإدارة</div>
     </div>
     <div class="inv-kpi">
-      <div class="ic inv-ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="ic inv-ic-green"><svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
       <div class="v">{{ kpis().resolved }}</div>
       <div class="l">تم حلها</div>
     </div>
@@ -66,9 +66,9 @@
         <div class="dp-top">
           <div class="dp-id">
             <span class="dp-ico" [class.dp-ico-disp]="d.icon === 'shield'" [class.dp-ico-canc]="d.icon === 'hands'" [class.dp-ico-done]="d.icon === 'check'">
-              @if(d.icon === 'shield'){ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
+              @if(d.icon === 'shield'){ <svg data-ws-icon="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
               @if(d.icon === 'hands'){ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l4-2 5 2 5-2 4 2v6l-4 2-5-2-5 2-4-2z"/><path d="M12 9v6"/></svg> }
-              @if(d.icon === 'check'){ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> }
+              @if(d.icon === 'check'){ <svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> }
             </span>
             <div>
               <div class="dp-ttl">{{ d.title }}</div>
@@ -83,9 +83,9 @@
             @for (step of d.timeline; track $index) {
               <div class="dp-step" [class.done]="step.done" [class.active]="step.active">
                 <span class="dp-dot">
-                  @if(step.icon === 'check') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> }
+                  @if(step.icon === 'check') { <svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> }
                   @if(step.icon === 'review') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg> }
-                  @if(step.icon === 'shield') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
+                  @if(step.icon === 'shield') { <svg data-ws-icon="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
                 </span>
                 {{ step.label }}
               </div>
@@ -95,7 +95,7 @@
 
         <div class="dp-ai" [class.dp-ai-done]="d.aiDone">
           @if(d.aiDone) {
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
           } @else {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
           }
@@ -122,7 +122,7 @@
               </button>
             }
             <button type="button" class="dp-cta" [class.dp-cta-gh]="d.status === 'closed'" data-testid="dispute-details-btn" (click)="toggleDetails(d.id)" [attr.aria-expanded]="detailsId() === d.id">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <svg data-ws-icon="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               {{ detailsId() === d.id ? 'إخفاء التفاصيل' : 'عرض التفاصيل' }}
             </button>
           </div>
@@ -168,9 +168,9 @@
       <div class="state-card disp-empty">
         <div class="disp-empty-ico">
           @if (listUnavailable()) {
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+            <svg data-ws-icon="ws-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
           } @else {
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
           }
         </div>
         @if (listUnavailable()) {

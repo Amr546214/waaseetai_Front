@@ -103,7 +103,7 @@
 	<div class="sticky-bar-inner">
 		<!-- Previous/Cancel Button -->
 		<button type="button" *ngIf="currentStep() > 1 && !resubmitId()" (click)="goPrev()" class="btn-cancel">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:16px;height:16px"><polyline points="15 18 9 12 15 6"/></svg>
+			<svg data-ws-icon="ws-chevron-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:16px;height:16px"><polyline points="15 18 9 12 15 6"/></svg>
 			السابق
 		</button>
 		<a *ngIf="currentStep() === 1" routerLink="/provider-overview/business-models/accreditation/list" class="btn-cancel">
@@ -117,7 +117,7 @@
 
 			<button type="button" class="btn-next" [disabled]="currentStep() === 1 && !isCurrentStepValid" (click)="goNext()">
 				<span>{{ currentStep() === 1 ? 'التالي: بيانات المرفقات الفنية' : 'إرسال للمراجعة اليدوية من فريق وسيط' }}</span>
-				<svg *ngIf="currentStep() === 1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				<svg data-ws-icon="ws-chevron" *ngIf="currentStep() === 1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
 					style="width:18px;height:18px">
 					<polyline points="9 18 15 12 9 6" />

@@ -168,9 +168,6 @@ body.theme-light .req-details-page,
 .light-theme .req-details-page,
 .theme-light .req-details-page {
 	color:#1E293B;
-	--teal-txt:#0F8A7F;
-	--ai-txt:#6B27A5;
-	--kahr:#9A6700;
 }
 body.light-theme .od-hd, body.theme-light .od-hd, .light-theme .od-hd, .theme-light .od-hd,
 body.light-theme .od-card, body.theme-light .od-card, .light-theme .od-card, .theme-light .od-card,

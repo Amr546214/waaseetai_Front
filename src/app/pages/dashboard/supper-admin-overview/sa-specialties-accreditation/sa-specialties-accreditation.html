@@ -6,7 +6,7 @@
     </div>
     <div class="sac-bulk">
       <button type="button" class="sac-btn sac-btn-ghost" data-testid="bulk-approve" disabled [attr.title]="bulkDisabledReason">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
         قبول الطلبات الموصى بقبولها
       </button>
       <span class="sac-bulk-why" data-testid="bulk-reason">{{ bulkDisabledReason }}</span>
@@ -39,7 +39,7 @@
       }
     </div>
     <div class="sac-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="search" placeholder="ابحث باسم المقدم أو بريده أو التخصص..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
     </div>
   </div>
@@ -54,7 +54,7 @@
   } @else if (items().length === 0) {
     <div class="sac-empty">
       <div class="sac-empty-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <svg data-ws-icon="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
       </div>
       <div class="sac-empty-ttl">لا توجد طلبات مطابقة</div>
     </div>

@@ -18,7 +18,7 @@
 			<div class="v">{{ kpis().pending }}</div><div class="l">بانتظار رد العميل</div>
 		</div>
 		<div class="tds-kpi-c">
-			<div class="ic ic-ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg></div>
+			<div class="ic ic-ok"><svg data-ws-icon="ws-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg></div>
 			<div class="v">{{ kpis().approved }}</div><div class="l">تسليم مكتمل ومُفرَج</div>
 		</div>
 	</div>
@@ -33,7 +33,7 @@
 		</div>
 		<div class="fr-spacer"></div>
 		<div class="fr-search">
-			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+			<svg data-ws-icon="ws-search" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
 			<input type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="ابحث في التسليمات..." />
 		</div>
 	</div>
@@ -60,7 +60,7 @@
 		<div class="tds-dp-files">
 			@for (f of d.files; track f) {
 			<span class="tds-dp-file">
-				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+				<svg data-ws-icon="i-doc" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 				{{ f }}
 			</span>
 			}

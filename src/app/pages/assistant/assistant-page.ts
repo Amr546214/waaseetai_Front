@@ -350,7 +350,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 								<span>{{ theme.theme() === 'dark' ? 'مظهر فاتح' : 'مظهر داكن' }}</span>
 							</button>
 							<a [routerLink]="links().home" role="menuitem" (click)="accountMenuOpen.set(false)">
-								<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+								<svg data-ws-icon="ud-home" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
 									<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
 									<polyline points="9 22 9 12 15 12 15 22" />
 								</svg>
@@ -373,7 +373,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 						(click)="mobileOpen.set(true)"
 						aria-label="فتح قائمة المحادثات"
 					>
-						<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-icon="i-menu" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<line x1="3" y1="12" x2="21" y2="12" />
 							<line x1="3" y1="6" x2="21" y2="6" />
 							<line x1="3" y1="18" x2="21" y2="18" />
@@ -393,7 +393,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 						[disabled]="!store.messages().length"
 						aria-label="مشاركة المحادثة"
 					>
-						<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-icon="ws-share" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
 							<line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
 						</svg>
@@ -433,7 +433,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 									<span>حفظ TXT</span>
 								</button>
 								<button role="menuitem" type="button" (click)="shareConversation(); topbarMenuOpen.set(false)" [disabled]="!store.messages().length">
-									<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<svg data-ws-icon="ws-share" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 										<circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
 										<line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
 									</svg>

@@ -4,7 +4,7 @@
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between gap-3 mb-2">
 				<span class="flex items-center gap-3">
-					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+					<svg data-ws-icon="ws-upload" class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
 					الملفات الداعمة للطلب
 				</span>
 				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
@@ -15,7 +15,7 @@
 			<div class="drop-zone relative bg-[var(--sec-bg)] border-2 border-dashed border-[var(--sec-bd)] hover:border-[var(--teal)] rounded-[20px] p-10 text-center transition-colors cursor-pointer mb-6 group">
 				<input type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.zip" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" (change)="parent.handleFiles($event)">
 				<div class="w-14 h-14 rounded-full bg-[var(--crd-bg)] border border-[var(--crd-bd)] flex items-center justify-center mx-auto mb-4 text-[var(--txt-3)] group-hover:text-[var(--teal)] transition-colors">
-					<svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+					<svg data-ws-icon="ws-upload" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
 				</div>
 				<div class="text-base font-bold text-[var(--txt)] mb-1">اسحب ملفاتك هنا أو انقر للاختيار</div>
 				<div class="text-xs text-[var(--txt-3)] font-medium mb-4">حجم أقصى 10MB لكل ملف · حتى 5 ملفات</div>
@@ -40,7 +40,7 @@
 						</div>
 					</div>
 					<button type="button" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/10 text-[var(--txt-3)] hover:text-red-500 transition-colors" (click)="parent.files.update(list => list.filter((_, i) => i !== idx))">
-						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+						<svg data-ws-icon="ws-close" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 					</button>
 				</div>
 				}
@@ -53,9 +53,9 @@
 ملفات مقترحة لتحسين وضوح الطلب
 				</div>
 				<div class="flex flex-wrap gap-2">
-					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--teal,#2BD4C7)] hover:text-[var(--teal,#2BD4C7)] transition-colors" (click)="parent.addSuggestedFile('مخطط المشروع أو wireframe')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مخطط المشروع أو wireframe</button>
-					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--teal,#2BD4C7)] hover:text-[var(--teal,#2BD4C7)] transition-colors" (click)="parent.addSuggestedFile('لوجو وهوية بصرية حالية')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>لوجو وهوية بصرية حالية</button>
-					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--teal,#2BD4C7)] hover:text-[var(--teal,#2BD4C7)] transition-colors" (click)="parent.addSuggestedFile('مرجع تصميمي أو منافس')"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مرجع تصميمي أو منافس</button>
+					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--teal,#2BD4C7)] hover:text-[var(--teal,#2BD4C7)] transition-colors" (click)="parent.addSuggestedFile('مخطط المشروع أو wireframe')"><svg data-ws-icon="i-plus" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مخطط المشروع أو wireframe</button>
+					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--teal,#2BD4C7)] hover:text-[var(--teal,#2BD4C7)] transition-colors" (click)="parent.addSuggestedFile('لوجو وهوية بصرية حالية')"><svg data-ws-icon="i-plus" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>لوجو وهوية بصرية حالية</button>
+					<button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-xs font-bold text-[var(--txt-2)] hover:border-[var(--teal,#2BD4C7)] hover:text-[var(--teal,#2BD4C7)] transition-colors" (click)="parent.addSuggestedFile('مرجع تصميمي أو منافس')"><svg data-ws-icon="i-plus" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مرجع تصميمي أو منافس</button>
 				</div>
 			</div>
 

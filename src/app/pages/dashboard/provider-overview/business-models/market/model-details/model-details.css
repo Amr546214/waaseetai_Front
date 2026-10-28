@@ -7,8 +7,6 @@
 	--mdl-border: rgba(255, 255, 255, 0.08);
 	--mdl-card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
 	--mdl-stat-bg: rgba(255, 255, 255, 0.04);
-	--teal-txt: #2BD4C7;
-	--ai-txt: #A56BE0;
 	font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
 	color: var(--mdl-txt);
 	direction: rtl;
@@ -26,8 +24,6 @@
 	--mdl-border: rgba(15, 23, 42, 0.12);
 	--mdl-card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
 	--mdl-stat-bg: rgba(15, 23, 42, 0.04);
-	--teal-txt: #0F8A7F;
-	--ai-txt: #6B27A5;
 }
 
 .mdl-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mdl-txt-muted); margin-bottom: 18px; flex-wrap: wrap; }

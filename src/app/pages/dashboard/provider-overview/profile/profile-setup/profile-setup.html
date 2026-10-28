@@ -762,7 +762,7 @@
                         </div>
                         <label class="pw-add-proof" style="cursor:pointer" tabindex="0" role="button" (keydown.enter)="$any($event.currentTarget).click()" (keydown.space)="$any($event.currentTarget).click(); $event.preventDefault()" aria-label="إضافة وثيقة إثبات ملكية" aria-required="true" [attr.aria-invalid]="fileErr('pf-proof-' + spec + '-' + itemIdx) ? 'true' : null" [attr.aria-describedby]="fileErr('pf-proof-' + spec + '-' + itemIdx) ? 'err-pf-proof-' + specIdx + '-' + itemIdx : null">
                           <input type="file" accept="image/*,.pdf,.zip" multiple style="display:none" (change)="onPortfolioProofsChange($event, spec, itemIdx)">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة وثيقة أخرى
+                          <svg data-ws-icon="i-plus" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة وثيقة أخرى
                         </label>
                         @if (fileErr('pf-proof-' + spec + '-' + itemIdx); as e) { <div class="f-err" id="err-pf-proof-{{ specIdx }}-{{ itemIdx }}" data-testid="pf-proof-error" role="alert">{{ e }}</div> }
                       </div>
@@ -776,7 +776,7 @@
                 }
 
                 <button type="button" class="pw-add-item-btn" (click)="addPortfolioItem(spec)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة نموذج عمل جديد لـ {{ spec }}
+                  <svg data-ws-icon="i-plus" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة نموذج عمل جديد لـ {{ spec }}
                 </button>
               </div>
             }
@@ -931,11 +931,11 @@
       <div class="ws-modal-card" [class]="'type-' + alertModal()?.type" (click)="$event.stopPropagation()">
         <div class="ws-modal-ico-wrap">
           @if (alertModal()?.type === 'warning') {
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <svg data-ws-icon="i-warn" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           } @else if (alertModal()?.type === 'error' || alertModal()?.type === 'banned') {
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           } @else {
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <svg data-ws-icon="i-info" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           }
         </div>
         <h3 class="ws-modal-ttl">{{ alertModal()?.title }}</h3>

@@ -29,7 +29,7 @@
           @if ((sampleDetails()?.aiScore ?? 0) > 0) {<span style="padding:4px 10px;font-size:11px;font-weight:800" class="badge-purple">AI {{ sampleDetails()?.aiScore }}/100</span>}
         </div>
         <div style="position:absolute;bottom:14px;left:14px;font-size:11px;display:flex;align-items:center;gap:5px" class="txt-muted">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg data-ws-icon="i-eye" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           {{ sampleDetails()?.viewsCount || 0 }} مشاهدة
         </div>
       </div>
@@ -60,7 +60,7 @@
           </div>
 
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="#FFB400" stroke="none" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg data-ws-icon="ws-star" width="15" height="15" viewBox="0 0 24 24" fill="#FFB400" stroke="none" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             <span style="font-size:14px;font-weight:800" class="txt-white">{{ sampleDetails()?.rating ?? '—' }}</span>
             <span style="font-size:12px" class="txt-muted">({{ sampleDetails()?.reviewsCount || 0 }} تقييم)</span>
             <span style="margin-inline-start:auto;font-size:11px" class="txt-muted">{{ sampleDetails()?.offersGenerated || 0 }} عروض مُولَّدة</span>
@@ -126,14 +126,14 @@
         <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
           @for(strength of sampleDetails()?.aiStrengths; track $index) {
           <li style="display:flex;align-items:flex-start;gap:7px;font-size:12px" class="txt-slate">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" style="flex-shrink:0;margin-top:1px" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg data-ws-icon="ws-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5" style="flex-shrink:0;margin-top:1px" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
             {{ strength }}
           </li>
           }
 
           @for(rec of sampleDetails()?.aiRecommendations; track $index) {
           <li style="display:flex;align-items:flex-start;gap:7px;font-size:12px" class="txt-slate">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB400" stroke-width="2.5" style="flex-shrink:0;margin-top:1px" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <svg data-ws-icon="i-warn" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFB400" stroke-width="2.5" style="flex-shrink:0;margin-top:1px" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             {{ rec }}
           </li>
           }

@@ -8,7 +8,7 @@
     </div>
     <div class="flex gap-2.5 items-center flex-wrap">
       <button type="button" data-testid="mark-all-read" [disabled]="unreadCount() === 0 || markingAll()" (click)="markAllRead()" class="disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--inp-bg,rgba(255,255,255,.04))] border border-[var(--sec-bd,rgba(255,255,255,.10))] rounded-xl text-[var(--txt-3)] text-xs font-bold hover:bg-[rgba(255,255,255,.08)] hover:text-[var(--txt)] transition-all">
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg data-ws-icon="ws-check" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         تعليم الكل كمقروء
       </button>
       <button type="button" (click)="goToSettings()" class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--inp-bg,rgba(255,255,255,.04))] border border-[var(--sec-bd,rgba(255,255,255,.10))] rounded-xl text-[var(--txt-3)] text-xs font-bold hover:bg-[rgba(255,255,255,.08)] hover:text-[var(--txt)] transition-all">

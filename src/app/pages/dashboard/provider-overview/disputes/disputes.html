@@ -4,7 +4,7 @@
     <div class="text-[12px] font-semibold text-[var(--txt-3)] mt-1">{{ isCompanyMode() ? 'نزاعات مشاريع الفريق — مراقبة، توثيق، وتقديم الأدلة' : 'طلبات النزاع، تراجعها الإدارة حتى الإقفال' }}</div>
   </div>
   <button type="button" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-[#2BD4C7]/15 to-[#2B7FFF]/10 border border-[#2BD4C7]/30 rounded-[10px] text-[#2BD4C7] text-[13px] font-bold transition-all hover:bg-[#2BD4C7]/20" (click)="goToActiveProjects()">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>رفع نزاع جديد
+    <svg data-ws-icon="i-plus" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>رفع نزاع جديد
   </button>
 </div>
 
@@ -23,7 +23,7 @@
 <div class="grid grid-cols-2 gap-3 mb-4">
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4 transition-all hover:border-[var(--sec-bd-hover)] hover:bg-[var(--sec-bg-hover)] shadow-sm">
     <div class="w-7 h-7 rounded-[8px] bg-[#FFB400]/15 text-[#FFB400] flex items-center justify-center mb-2.5">
-      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <svg data-ws-icon="ws-shield" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     </div>
     <div class="text-[20px] font-black text-[var(--txt)] leading-none">{{ kpis().activeDisputes }}</div>
     <div class="text-[11.5px] font-bold text-[var(--txt-3)] mt-2">نزاع نشط</div>
@@ -60,9 +60,9 @@
       <div class="flex items-start justify-between gap-3 flex-wrap mb-4">
         <div class="flex items-center gap-3">
           <div class="w-[38px] h-[38px] rounded-[11px] flex items-center justify-center shrink-0" [ngClass]="d.iconClass">
-            @if(d.icon === 'shield'){ <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
+            @if(d.icon === 'shield'){ <svg data-ws-icon="ws-shield" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
             @if(d.icon === 'hands'){ <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l4-2 5 2 5-2 4 2v6l-4 2-5-2-5 2-4-2z"/><path d="M12 9v6"/></svg> }
-            @if(d.icon === 'check'){ <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
+            @if(d.icon === 'check'){ <svg data-ws-icon="ws-check" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
           </div>
           <div>
             <div class="text-[14.5px] font-black text-[var(--txt)] mb-1">{{ d.title }}</div>
@@ -84,9 +84,9 @@
             <div class="flex items-center gap-2 flex-1 min-w-[120px]" [ngClass]="step.done ? 'text-[#0FA99A]' : step.active ? 'text-[#5DA0FF]' : 'text-[var(--txt-3)]'">
               <div class="w-[22px] h-[22px] rounded-full border flex items-center justify-center shrink-0"
                    [ngClass]="step.done ? 'bg-[#0FA99A]/15 border-transparent text-[#0FA99A]' : step.active ? 'bg-[#5DA0FF]/20 border-transparent text-[#5DA0FF] animate-pulse shadow-[0_0_0_4px_rgba(93,160,255,0.15)]' : 'bg-[var(--sec-bd)] border-[var(--sec-bd)] text-[var(--txt-3)]'">
-                @if(step.icon === 'check') { <svg class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
+                @if(step.icon === 'check') { <svg data-ws-icon="ws-check" class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
                 @if(step.icon === 'review') { <svg class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg> }
-                @if(step.icon === 'shield') { <svg class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
+                @if(step.icon === 'shield') { <svg data-ws-icon="ws-shield" class="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
               </div>
               <span class="text-[11px] font-bold">{{ step.label }}</span>
             </div>
@@ -100,7 +100,7 @@
       <div class="flex items-start gap-2.5 p-3.5 rounded-[12px] border mb-4"
            [ngClass]="d.aiDone ? 'bg-[#0FA99A]/10 border-[#0FA99A]/25' : 'bg-white/5 border-white/10'">
         @if(d.aiDone) {
-          <svg class="w-[15px] h-[15px] text-[#0FA99A] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg data-ws-icon="ws-check" class="w-[15px] h-[15px] text-[#0FA99A] shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         } @else {
           <svg class="w-[15px] h-[15px] text-[#9AA6C4] shrink-0 mt-0.5" aria-hidden="true"><use href="#i-clock"></use></svg>
         }
@@ -125,18 +125,18 @@
 
         <div class="flex items-center gap-2.5 flex-wrap ms-auto">
           <a [routerLink]="['/provider-overview/disputes', d.id]" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-[12.5px] font-black transition-all bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[#2BD4C7]/10 hover:border-[#2BD4C7]/30 hover:text-[#2BD4C7] no-underline">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+            <svg data-ws-icon="i-clock" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
             تفاصيل النزاع
           </a>
           @if(isCompanyMode() && d.teamMember) {
             <button class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#2B7FFF]/10 border border-[#2B7FFF]/25 rounded-[10px] text-[#5DA0FF] text-[12.5px] font-black transition-all hover:bg-[#2B7FFF]/20" (click)="openGuidance(d)">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>توجيه {{ d.teamMember.name }}
+              <svg data-ws-icon="ws-msg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>توجيه {{ d.teamMember.name }}
             </button>
           }
           @if (d.projectId) {
           <button type="button" data-testid="dispute-project-chat" (click)="openProjectChat(d)" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-[12.5px] font-black transition-all"
                   [ngClass]="d.status === 'open' ? 'bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24]' : 'bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt)] hover:bg-[#2BD4C7]/10 hover:border-[#2BD4C7]/30 hover:text-[#2BD4C7]'">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg data-ws-icon="ws-msg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             محادثة المشروع
           </button>
           }
@@ -147,7 +147,7 @@
   @if (filteredDisputes().length === 0) {
     <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[16px] p-10 text-center">
       <div class="w-[54px] h-[54px] rounded-2xl mx-auto mb-4 bg-[#2BD4C7]/10 flex items-center justify-center text-[#2BD4C7]">
-        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg data-ws-icon="ws-check" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
       @if (listUnavailable()) {
         <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">تعذر تحميل سجلّ النزاعات</div>
@@ -166,14 +166,14 @@
     <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[18px] p-5.5 w-full max-w-[420px]" (click)="$event.stopPropagation()">
       <div class="flex items-start gap-2.5 mb-3.5">
         <span class="w-8 h-8 rounded-[8px] bg-[#2B7FFF]/10 text-[#5DA0FF] flex items-center justify-center shrink-0">
-          <svg class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <svg data-ws-icon="ws-msg" class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </span>
         <div>
           <h3 class="text-[14px] font-black text-[var(--txt)]">توجيه {{ gt.teamMember?.name }}</h3>
           <p class="text-[11.5px] text-[var(--txt-3)] mt-0.5">بخصوص {{ gt.title }} · {{ gt.id }}</p>
         </div>
         <button type="button" class="ms-auto w-6.5 h-6.5 rounded-[6px] bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-3)] flex items-center justify-center shrink-0" (click)="closeGuidance()">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg data-ws-icon="ws-close" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <div class="mb-3.5">

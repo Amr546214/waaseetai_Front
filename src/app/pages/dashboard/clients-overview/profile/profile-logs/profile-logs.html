@@ -82,7 +82,7 @@
 			<!-- Tab 2: Profile Completion Requests -->
 			<button type="button" (click)="setTab('complete')" [class.active-tab]="activeTab() === 'complete'"
 				class="flex items-center gap-2 px-2 sm:px-4 py-3 text-[13px] font-semibold text-[var(--txt-3)] border-b-2 border-transparent transition-all mb-[-1px] hover:text-[var(--txt)] group relative outline-none">
-				<svg class="w-4 h-4 transition-colors group-hover:text-[var(--txt)]" viewBox="0 0 24 24" fill="none"
+				<svg data-ws-icon="ws-check" class="w-4 h-4 transition-colors group-hover:text-[var(--txt)]" viewBox="0 0 24 24" fill="none"
 					stroke="currentColor" stroke-width="2.5">
 					<polyline points="20 6 9 17 4 12" />
 				</svg>
@@ -171,7 +171,7 @@
 			<div *ngIf="completeRequests().length === 0" class="text-center py-12 px-6">
 				<div
 					class="w-16 h-16 rounded-2xl bg-[var(--crd-bg)] border border-[var(--sec-bd)] flex items-center justify-center mx-auto mb-4">
-					<svg class="w-7 h-7 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+					<svg data-ws-icon="i-doc" class="w-7 h-7 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 						stroke-width="1.8">
 						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 						<polyline points="14 2 14 8 20 8" />

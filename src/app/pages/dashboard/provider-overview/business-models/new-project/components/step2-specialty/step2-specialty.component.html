@@ -28,7 +28,7 @@
 		<div class="mb-4">
 			<!-- SPEC SECTION TITLE -->
 			<div class="spec-section-title">
-				<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
+				<svg data-ws-icon="ws-check" style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
 					<polyline points="20 6 9 17 4 12" />
 				</svg>
 				{{ cat.categoryName }}@if ($first) { <span class="ws-req" aria-hidden="true">*</span> }
@@ -39,7 +39,7 @@
 				@for (spec of cat.specialties; track spec.id) {
 				<div class="spec-card" [class.selected]="selectedSpecialty === (spec.id || spec.specialtyId)" (click)="selectMainSpecialty(spec)">
 					<div class="spec-check" aria-hidden="true">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 							<polyline points="20 6 9 17 4 12" />
 						</svg>
 					</div>
@@ -62,7 +62,7 @@
 	<!-- SECTION 2: SUB-SPECIALTY SELECTION -->
 	<div *ngIf="selectedMainSpecialtyObj as selectedMain">
 		<div class="spec-section-title">
-			<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
+			<svg data-ws-icon="ws-check" style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
 				<polyline points="20 6 9 17 4 12" />
 			</svg>
 			اختر التخصص الفرعي @if (selectedMain.subSpecialties?.length) { <span class="ws-req" aria-hidden="true">*</span> }
@@ -74,7 +74,7 @@
 			@for (sub of selectedMain.subSpecialties; track sub) {
 			<div class="spec-card" [class.selected]="selectedSubSpecialty === sub" (click)="selectSubSpecialty(sub)">
 				<div class="spec-check" aria-hidden="true">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 						<polyline points="20 6 9 17 4 12" />
 					</svg>
 				</div>
@@ -87,7 +87,7 @@
 	<!-- SECTION 3: SKILLS (catalog of the chosen specialty's field) -->
 	<div *ngIf="selectedMainSpecialtyObj" data-testid="model-skills-section">
 		<div class="spec-section-title">
-			<svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
+			<svg data-ws-icon="ws-check" style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" class="txt-teal">
 				<polyline points="20 6 9 17 4 12" />
 			</svg>
 			المهارات المستخدمة في هذا النموذج

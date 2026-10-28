@@ -47,7 +47,7 @@
     <div class="flex items-start mb-6 overflow-x-auto pb-1 stepper" role="list" aria-label="خطوات تقديم العرض">
       <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 1" [class.done]="activeStep() > 1" role="listitem">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">
-          @if(activeStep() > 1) { <svg style="width:14px;height:14px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
+          @if(activeStep() > 1) { <svg data-ws-icon="i-check" style="width:14px;height:14px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
           @else { 1 }
         </div>
         <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">كتابة العرض</div>
@@ -56,7 +56,7 @@
 
       <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 2" [class.done]="activeStep() > 2" role="listitem">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">
-          @if(activeStep() > 2) { <svg style="width:14px;height:14px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
+          @if(activeStep() > 2) { <svg data-ws-icon="i-check" style="width:14px;height:14px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
           @else { 2 }
         </div>
         <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">المراحل</div>
@@ -65,7 +65,7 @@
 
       <div class="group flex flex-col items-center gap-[5px] shrink-0 min-w-[80px] step-item" [class.active]="activeStep() === 3" [class.done]="activeStep() > 3" role="listitem">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.05)] text-[#6B7699] transition-all duration-200 group-[.active]:bg-gradient-to-br group-[.active]:from-[#2BD4C7] group-[.active]:to-[#2B7FFF] group-[.active]:border-transparent group-[.active]:text-[#070D24] group-[.active]:shadow-[0_4px_14px_rgba(43,127,255,.35)] group-[.done]:bg-[rgba(43,212,199,.14)] group-[.done]:border-[rgba(43,212,199,.35)] group-[.done]:text-[#2BD4C7] step-circle">
-          @if(activeStep() > 3) { <svg style="width:14px;height:14px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
+          @if(activeStep() > 3) { <svg data-ws-icon="i-check" style="width:14px;height:14px" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> }
           @else { 3 }
         </div>
         <div class="text-[11px] font-semibold text-[#6B7699] whitespace-nowrap text-center group-[.active]:text-white group-[.active]:font-extrabold group-[.done]:text-[#2BD4C7] step-label">مراجعة AI</div>
@@ -228,7 +228,7 @@
       <button type="button" (click)="submitProposal()" [disabled]="isSubmitting()" class="inline-flex items-center gap-2 py-[12px] px-[28px] bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-0 rounded-full text-[#070D24] text-[15px] font-extrabold cursor-pointer transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(43,127,255,.35)] disabled:opacity-[.38] disabled:cursor-not-allowed disabled:transform-none btn-next">
         {{ isSubmitting() ? 'جارٍ الإرسال...' : 'إرسال العرض' }}
         @if(!isSubmitting()) {
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <svg data-ws-icon="ws-send" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
             <line x1="22" y1="2" x2="11" y2="13"/>
             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
           </svg>

@@ -144,15 +144,15 @@
           الإقرارات قبل الإرسال
         </div>
         <div class="ack-row" (click)="toggleAck.emit(1)" role="checkbox" aria-required="true" [attr.aria-checked]="ack1" tabindex="0" (keydown.enter)="toggleAck.emit(1)">
-          <div class="ack-chk" [class.on]="ack1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="ack-chk" [class.on]="ack1"><svg data-ws-icon="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="ack-text"><span class="ws-req" aria-hidden="true">*</span> أقر بأن جميع معلومات عرضي صحيحة وتتطابق مع خبرتي الفعلية وملفي المهني</div>
         </div>
         <div class="ack-row" (click)="toggleAck.emit(2)" role="checkbox" aria-required="true" [attr.aria-checked]="ack2" tabindex="0" (keydown.enter)="toggleAck.emit(2)">
-          <div class="ack-chk" [class.on]="ack2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="ack-chk" [class.on]="ack2"><svg data-ws-icon="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="ack-text"><span class="ws-req" aria-hidden="true">*</span> أوافق على شروط تقديم العروض وأدرك أن قبول العميل والتوقيع ينشئان عقدًا ملزمًا قانونيًا، ولا يبدأ التنفيذ إلا بعد تأكيد الدفع ووصول أمر بدء المرحلة أو المشروع.</div>
         </div>
         <div class="ack-row" (click)="toggleAck.emit(3)" role="checkbox" aria-required="true" [attr.aria-checked]="ack3" tabindex="0" (keydown.enter)="toggleAck.emit(3)">
-          <div class="ack-chk" [class.on]="ack3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="ack-chk" [class.on]="ack3"><svg data-ws-icon="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="ack-text"><span class="ws-req" aria-hidden="true">*</span> أدرك أنه بعد الإرسال لن أتمكن من تعديل العرض، وسعري وجدولي الزمني ملزمان</div>
         </div>
       </div>

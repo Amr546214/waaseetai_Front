@@ -50,7 +50,7 @@
 		</div>
 		@if (d.amount) {
 		<div class="dd-escrow-bar">
-			<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+			<svg data-ws-icon="ws-shield" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 				<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
 			</svg>
 			ضمان مجمَّد
@@ -80,7 +80,7 @@
 			<!-- TIMELINE -->
 			<div class="dd-sec">
 				<div class="dd-sec-title">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
+					<svg data-ws-icon="i-list" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
 					سجل النزاع الزمني
 				</div>
 				<div class="dd-tl">
@@ -89,10 +89,10 @@
 						<div class="dd-tl-dot" [ngClass]="'dd-tl-dot-' + h.iconType">
 							@switch (h.iconType) {
 							@case ('doc') {
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+							<svg data-ws-icon="i-doc" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 							}
 							@case ('chat') {
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+							<svg data-ws-icon="ws-msg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
 							}
 							@case ('pending') {
 							<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
@@ -115,7 +115,7 @@
 			<!-- EVIDENCE -->
 			<div class="dd-sec">
 				<div class="dd-sec-title">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+					<svg data-ws-icon="i-doc" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 					الأدلة المقدَّمة
 					<span class="dd-sec-title-count">({{ detail.evidence.length }} {{ detail.evidence.length === 1 ? 'ملف' : 'ملفات' }})</span>
 				</div>
@@ -123,7 +123,7 @@
 				@for (ev of detail.evidence; track ev.name) {
 				<div class="dd-ev-item">
 					<div class="dd-ev-ico">
-						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+						<svg data-ws-icon="i-doc" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
 					</div>
 					<div class="dd-ev-body">
 						<div class="dd-ev-name">{{ ev.name }}</div>
@@ -150,7 +150,7 @@
 				<div class="dd-status-step" [ngClass]="'dd-status-step-' + step.state">
 					<div class="dd-status-dot">
 						@if (step.state === 'done') {
-						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+						<svg data-ws-icon="ws-check" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
 						}
 					</div>
 					{{ step.label }}
@@ -160,7 +160,7 @@
 
 			<div class="dd-sec dd-sec-tight">
 				<div class="dd-sec-title">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+					<svg data-ws-icon="ws-users" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
 					أطراف النزاع
 				</div>
 				@for (p of detail.parties; track p.name; let idx = $index) {
@@ -197,12 +197,12 @@
 			<div class="dd-act-col">
 				@if (isCompanyMode() && d.teamMember; as tm) {
 					<button type="button" class="dd-btn-ghost" style="background:rgba(43,127,255,.09);border-color:rgba(43,127,255,.24);color:#5DA0FF" (click)="openGuidance()">
-						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+						<svg data-ws-icon="ws-msg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
 						توجيه {{ tm.name }}
 					</button>
 				}
 				<a routerLink="/provider-overview/disputes" class="dd-btn-ghost">
-					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
+					<svg data-ws-icon="ws-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
 					العودة للنزاعات
 				</a>
 			</div>
@@ -221,14 +221,14 @@
 			<div style="background:var(--sec-bg, rgba(11,20,55,.97));border:1px solid var(--sec-bd, rgba(255,255,255,.12));border-radius:18px;padding:22px;width:100%;max-width:440px" (click)="$event.stopPropagation()">
 				<div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:14px">
 					<span style="width:32px;height:32px;border-radius:8px;background:rgba(43,127,255,.12);color:#5DA0FF;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+						<svg data-ws-icon="ws-msg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
 					</span>
 					<div>
 						<h3 style="font-size:14px;font-weight:900;color:var(--txt, #fff)">توجيه {{ tm.name }}</h3>
 						<p style="font-size:11.5px;color:var(--txt-2, #A8B2D1);margin-top:2px">بخصوص نزاع {{ d.id }}</p>
 					</div>
 					<button type="button" style="margin-inline-start:auto;width:26px;height:26px;border-radius:6px;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.08));color:var(--txt-3, #6B7699);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" (click)="closeGuidance()">
-						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+						<svg data-ws-icon="ws-close" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
 					</button>
 				</div>
 				<div style="margin-bottom:12px">

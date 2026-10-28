@@ -65,7 +65,7 @@ let nextId = 0;
 						[attr.aria-selected]="o.value === value()" [attr.aria-disabled]="o.disabled ? true : null" data-testid="ws-select-option"
 						(mouseenter)="active.set(i)" (click)="pick(i)">
 						<span>{{ o.label }}</span>
-						@if (o.value === value()) { <svg class="ws-sel-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> }
+						@if (o.value === value()) { <svg data-ws-icon="ws-check" class="ws-sel-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> }
 					</li>
 				}
 			</ul>

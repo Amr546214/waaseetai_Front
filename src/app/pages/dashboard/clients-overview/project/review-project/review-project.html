@@ -5,7 +5,7 @@
 		<!-- Header Nav -->
 		<a [routerLink]="['/client-overview/projects', '1']"
 			class="inline-flex items-center gap-2 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 font-medium text-sm transition-colors group">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+			<svg data-ws-icon="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
 				stroke-linejoin="round" class="w-4 h-4 transform transition-transform group-hover:translate-x-1">
 				<polyline points="9 18 15 12 9 6" />
 			</svg>
@@ -74,7 +74,7 @@
 					@for (file of files; track file.name) {
 					<span
 						class="inline-flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+						<svg data-ws-icon="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
 							class="w-4 h-4 text-slate-400">
 							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 							<polyline points="14 2 14 8 20 8" />
@@ -101,14 +101,14 @@
 				<div class="flex flex-col sm:flex-row gap-3">
 					<button (click)="openAccept()"
 						class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 dark:from-cyan-400 dark:to-blue-500 dark:hover:from-cyan-300 dark:hover:to-blue-400 text-white dark:text-slate-900 font-bold text-sm px-6 py-3.5 rounded-xl transition-all shadow-[0_8px_20px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)]">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4">
+						<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-4 h-4">
 							<polyline points="20 6 9 17 4 12" />
 						</svg>
 						اعتماد التسليم وإفراج الدفعة
 					</button>
 					<a [routerLink]="['/client-overview/messages']"
 						class="sm:w-auto flex items-center justify-center gap-2 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-500 font-bold text-sm px-6 py-3.5 rounded-xl transition-colors">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+						<svg data-ws-icon="ws-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
 							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 						</svg>
 						عندي ملاحظات، فتح نقاش

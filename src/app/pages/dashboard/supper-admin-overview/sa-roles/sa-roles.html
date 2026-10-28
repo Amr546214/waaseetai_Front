@@ -6,7 +6,7 @@
     </div>
     @if (access.isSuperAdmin()) {
       <button type="button" class="rl-btn rl-btn-primary" (click)="openCreate()" data-testid="role-add">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة دور
+        <svg data-ws-icon="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة دور
       </button>
     }
   </div>
@@ -35,7 +35,7 @@
             <div class="rl-role-dot" [style.background]="r.color"></div>
             <span class="rl-role-name">{{ r.name }}</span>
             <button type="button" class="rl-role-edit" (click)="openEdit(r)" data-testid="role-edit">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>تعديل
+              <svg data-ws-icon="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>تعديل
             </button>
           </div>
           <div class="rl-role-desc">{{ r.description || '—' }}</div>
@@ -47,7 +47,7 @@
     @if (catalog(); as c) {
       <div class="rl-matrix-card">
         <div class="rl-matrix-hdr">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>مصفوفة الصلاحيات
+          <svg data-ws-icon="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>مصفوفة الصلاحيات
         </div>
         <div class="rl-table-wrap">
           <table class="rl-table" data-testid="roles-matrix">
@@ -56,9 +56,9 @@
               @for (p of c.permissions; track p.id) {
                 <tr>
                   <td class="rl-td-perm">{{ p.label }}@if (p.sensitive) { <span title="حساسة" style="color:#FFB400"> ●</span> }</td>
-                  <td class="rl-td-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg></td>
+                  <td class="rl-td-check"><svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg></td>
                   @for (r of roles(); track r.id) {
-                    <td class="rl-td-check">@if (has(r, p.id)) { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg> } @else { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="rl-check-no"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> }</td>
+                    <td class="rl-td-check">@if (has(r, p.id)) { <svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="rl-check-yes"><polyline points="20 6 9 17 4 12"/></svg> } @else { <svg data-ws-icon="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="rl-check-no"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> }</td>
                   }
                 </tr>
               }

@@ -9,14 +9,14 @@
 			</div>
 			<div class="ord-head-actions">
 				<div class="ord-search">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 						<circle cx="11" cy="11" r="8" />
 						<line x1="21" y1="21" x2="16.65" y2="16.65" />
 					</svg>
 					<input type="search" placeholder="ابحث برقم أو عنوان أو تخصص أو حالة" aria-label="بحث في الطلبات" [value]="searchText()" (input)="onSearch($event)" />
 				</div>
 				<a [routerLink]="['/client-overview/create-request']" class="ord-cta">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<svg data-ws-icon="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 						<line x1="12" y1="5" x2="12" y2="19" />
 						<line x1="5" y1="12" x2="19" y2="12" />
 					</svg>
@@ -51,7 +51,7 @@
 		<!-- Toolbar -->
 		<div class="ord-toolbar">
 			<button type="button" class="tb-btn" data-testid="filters-toggle" [attr.aria-expanded]="showFilters()" (click)="toggleFilters()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<svg data-ws-icon="ws-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
 				</svg>
 				فلترة
@@ -74,7 +74,7 @@
 				<option value="offers">الأكثر عروضا</option>
 			</select>
 			<button type="button" class="tb-btn" disabled title="الجدول هو طريقة العرض المتاحة حاليًا">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<svg data-ws-icon="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<line x1="8" y1="6" x2="21" y2="6" />
 					<line x1="8" y1="12" x2="21" y2="12" />
 					<line x1="8" y1="18" x2="21" y2="18" />
@@ -148,7 +148,7 @@
 					<button type="button" class="ord-pg" [class.active]="currentPage() === page" (click)="goToPage(page)">{{ page }}</button>
 				}
 				<button type="button" class="ord-pg" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pg-arrow">
+					<svg data-ws-icon="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pg-arrow">
 						<path d="M9 18l6-6-6-6" />
 					</svg>
 				</button>

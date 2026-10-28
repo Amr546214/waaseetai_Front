@@ -4,14 +4,14 @@
 
 		<!-- Note (non-AI) -->
 		<div class="ws-note ws-note--neutral" role="note">
-			<svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+			<svg data-ws-icon="ws-shield" class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
 			<div class="text-xs leading-relaxed text-[var(--txt-2)]">الشروط المخصصة تُرسل كما كتبتها ضمن الطلب، ولا يجري عليها فحص آلي حاليا، الإنسان يحتفظ بالقرار النهائي</div>
 		</div>
 
 		<!-- STRIKE BANNER (conditional) -->
 		@if (parent.showStrikeBanner()) {
 		<div class="strike-banner flex items-center gap-2 mb-4 p-2.5 px-4 rounded-lg text-xs font-bold" id="strikeBanner">
-			<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+			<svg data-ws-icon="ws-shield" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
 			تنبيه: الضربات 1/3، تم رصد محاولة تواصل خارج النظام
 		</div>
 		}
@@ -19,7 +19,7 @@
 		<!-- NDA CARD -->
 		<div class="form-card rounded-2xl p-5 mb-4">
 			<h2 class="form-card-title text-[15px] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
-				<svg class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+				<svg data-ws-icon="i-doc" class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
 				اتفاقية السرية (NDA)
 			</h2>
 			<div class="radio-group flex flex-col gap-2.5" role="radiogroup" aria-label="نوع اتفاقية السرية">
@@ -91,7 +91,7 @@
 		<!-- PROVIDER REQUIREMENTS -->
 		<div class="form-card rounded-2xl p-5 mb-4">
 			<h2 class="form-card-title text-[15px] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
-				<svg class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+				<svg data-ws-icon="ws-users" class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
 				متطلبات مقدم الخدمة
 			</h2>
 			<div class="field-group grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -133,7 +133,7 @@
 		<!-- CUSTOM CONDITIONS -->
 		<div class="form-card rounded-2xl p-5 mb-4">
 			<h2 class="form-card-title text-[15px] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
-				<svg class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+				<svg data-ws-icon="ws-edit" class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
 				شروط مخصصة
 				<span class="text-[11px] font-semibold text-[var(--txt-3)] mr-auto">اختياري</span>
 			</h2>

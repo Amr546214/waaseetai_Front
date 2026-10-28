@@ -178,3 +178,4 @@ button:focus-visible, summary:focus-visible, .search:focus-visible, a:focus-visi
 .fam-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .fam-chip { font-size: 11px; }
 .icon-card .partial.follows { color: var(--txt-2); background: none; }
+.icon-card .notwired.nw-used { color: var(--kahr, #D98A0B); }

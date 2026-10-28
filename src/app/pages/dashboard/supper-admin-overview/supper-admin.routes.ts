@@ -458,7 +458,7 @@ const RAW_ROUTES: Routes = [
             { path: 'identity', loadComponent: () => import('./site-control/identity/identity').then(m => m.Identity), data: { title: 'الهوية' } },
             { path: 'health', loadComponent: () => import('./site-control/health/health').then(m => m.Health), data: { title: 'صحة الهوية' } },
             { path: 'tokens', loadComponent: () => import('./site-control/color-tokens/color-tokens').then(m => m.ColorTokens), data: { title: 'القيم والألوان' } },
-            { path: 'icons', loadComponent: () => import('./site-control/icon-tokens/icon-tokens').then(m => m.IconTokens), data: { title: 'مكتبة الأيقونات (محلية)' } },
+            { path: 'icons', loadComponent: () => import('./site-control/icon-tokens/icon-tokens').then(m => m.IconTokens), data: { title: 'مكتبة الأيقونات' } },
             { path: 'accounts', loadComponent: () => import('./site-control/accounts/accounts').then(m => m.Accounts), data: { title: 'المستويات والنقاط' } },
             { path: 'templates', loadComponent: () => import('./site-control/templates/templates').then(m => m.Templates), data: { title: 'القوالب' } },
             { path: 'typography', loadComponent: () => import('./site-control/typography/typography').then(m => m.Typography), data: { title: 'الخطوط' } },

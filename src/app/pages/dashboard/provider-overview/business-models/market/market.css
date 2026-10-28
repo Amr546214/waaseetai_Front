@@ -12,8 +12,6 @@
   --mkt-rail-bg: rgba(7, 13, 36, 0.6);
   --mkt-pill-bg: rgba(255, 255, 255, 0.05);
   --mkt-input-bg: rgba(255, 255, 255, 0.03);
-  --teal-txt: #2BD4C7;
-  --ai-txt: #A56BE0;
   font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
   color: var(--mkt-txt);
   direction: rtl;
@@ -35,8 +33,6 @@
   --mkt-rail-bg: rgba(246, 248, 252, 0.94);
   --mkt-pill-bg: rgba(15, 23, 42, 0.06);
   --mkt-input-bg: rgba(255, 255, 255, 0.9);
-  --teal-txt: #0F8A7F;
-  --ai-txt: #6B27A5;
 }
 
 @keyframes ws-fade {

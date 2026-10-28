@@ -54,6 +54,13 @@
             <button type="button" class="btn-secondary" [disabled]="busy() !== null || !anyCustom()" (click)="previewRestore()" data-testid="fam-restore">إرجاع العائلة إلى الأصل (معاينة)</button>
           </div>
           <p class="hint small">SVG فقط، حتى 64 ك.ب، ويجب أن يحمل الملف <code dir="ltr">viewBox</code>. يفحصه الخادم وينظّفه مرة واحدة، والبايتات نفسها تُحفظ لكل أيقونة محدّدة.</p>
+          <details class="fe-usage" [open]="pickOpen()" (toggle)="pickOpen.set($any($event.target).open)" data-testid="fam-pick-section">
+            <summary>اختيار الرسم من المكتبة بدل رفع ملف (لكل الأيقونات المحدّدة معًا)</summary>
+            @if (pickOpen()) {
+              <sc-icon-picker forId="" [selected]="pickId()" [disabled]="busy() !== null" (pick)="pickId.set($event)" />
+              <div class="fe-actions"><button type="button" class="btn-save" [disabled]="busy() !== null || !pickId() || !selectedKeys().length" (click)="stagePick()" data-testid="fam-pick-apply">{{ busy() === 'upload' ? 'جارٍ التجهيز…' : 'جهّز المعاينة لـ' + selectedKeys().length + ' أيقونة' }}</button></div>
+            }
+          </details>
         }
 
         @if (preview(); as p) {

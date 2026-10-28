@@ -413,7 +413,7 @@
             <span class="filter-title-ico"><svg><use href="#ws-filter"></use></svg></span>
             تصفية النتائج
           </div>
-          <div style="display:flex;align-items:center;gap:10px"><button class="filter-reset" type="button" (click)="resetDraft()">إعادة ضبط</button><button class="fdrawer-close" type="button" (click)="closeFilters()" aria-label="إغلاق الفلاتر"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+          <div style="display:flex;align-items:center;gap:10px"><button class="filter-reset" type="button" (click)="resetDraft()">إعادة ضبط</button><button class="fdrawer-close" type="button" (click)="closeFilters()" aria-label="إغلاق الفلاتر"><svg data-ws-icon="ws-close" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
         </div>
         <div class="fdrawer-body">
 
@@ -519,7 +519,7 @@
         <div class="results-bar">
           <div class="results-count"><strong>{{ totalResults() | number:'1.0-2' }}</strong> نتيجة @if (activeFilters().length) {بعد الفلترة}</div>
           <div class="sort-row">
-            <button class="filters-btn" type="button" (click)="openFilters()" aria-haspopup="dialog" aria-controls="filters-drawer" [attr.aria-expanded]="filtersOpen()"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>الفلاتر @if (activeFilters().length > 0) {<span class="filters-count">{{ activeFilters().length }}</span>}</button>
+            <button class="filters-btn" type="button" (click)="openFilters()" aria-haspopup="dialog" aria-controls="filters-drawer" [attr.aria-expanded]="filtersOpen()"><svg data-ws-icon="ws-filter" viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>الفلاتر @if (activeFilters().length > 0) {<span class="filters-count">{{ activeFilters().length }}</span>}</button>
             @if (comparedModels().size >= 2) {
             <a routerLink="/compare-services" [queryParams]="{ ids: compareIds() }" class="svc-compare is-compared"><svg><use href="#ws-compare"></use></svg>قارن ({{ comparedModels().size }})</a>
             }

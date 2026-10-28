@@ -21,7 +21,7 @@
         <div class="wz-step" [class.active]="currentStep() === step.id" [class.done]="currentStep() > step.id" (click)="setStep(step.id)" role="listitem">
           <div class="wz-step-node">
             @if (currentStep() > step.id) {
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <svg data-ws-icon="i-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             } @else {
               <span>{{ step.id }}</span>
             }
@@ -74,7 +74,7 @@
     @if (currentStep() === 3) {
       <div class="form-card">
         <div class="form-card-hdr">
-          <div class="form-card-ico" style="background:rgba(43,127,255,.10);color:#5DA0FF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+          <div class="form-card-ico" style="background:rgba(43,127,255,.10);color:#5DA0FF"><svg data-ws-icon="i-link" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
           <div><div class="form-card-title">أضف قناة تسويق واحدة على الأقل <span class="ws-req" aria-hidden="true">*</span></div><div class="form-card-sub">تزيد ثقة العملاء بملفك العام</div></div>
         </div>
         @if (hasChannel()) {

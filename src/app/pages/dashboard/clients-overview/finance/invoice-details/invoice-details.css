@@ -2,9 +2,8 @@
 :host-context(body.light-theme),
 :host-context(body.theme-light),:host-context(.light-theme),:host-context(.theme-light){
 	--txt:#070D24; --txt-2:#56607D; --txt-3:#6B7699;
-	--crd-bg:#FFFFFF; --crd-bd:#E7EAF1;
-	--sec-bg:#FFFFFF; --sec-bd:#E7EAF1;
-	--teal-txt:#0F8A7F; --blue-txt:#1D6FE0;
+ --crd-bd:#E7EAF1;
+ --sec-bd:#E7EAF1;
 }
 
 :host-context(body.light-theme) .bg-white,

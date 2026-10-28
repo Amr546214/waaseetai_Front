@@ -42,7 +42,7 @@
     </div>
     <div class="ord-head-actions">
       <a routerLink="/provider-overview/business-models/accreditation/new" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;text-decoration:none" class="txt-navy">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <svg data-ws-icon="i-plus" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         رفع نموذج جديد
       </a>
     </div>
@@ -92,17 +92,17 @@
     <div class="fr-spacer"></div>
 
     <div class="fr-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="search" placeholder="ابحث في نماذجك..." aria-label="بحث" (input)="setSearch($event)" [value]="searchQuery()">
     </div>
 
     <div class="fr-end" style="gap:6px">
       <div class="fr-active" [class.show]="getActiveFilterCount() > 0" id="fr-active-count" aria-live="polite">
         <span id="fr-cnt-lbl">{{ getActiveFilterCount() }} فلتر نشط</span>
-        <button type="button" class="fr-clear" (click)="resetAllFilters()" aria-label="مسح كل الفلاتر"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+        <button type="button" class="fr-clear" (click)="resetAllFilters()" aria-label="مسح كل الفلاتر"><svg data-ws-icon="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
       </div>
       <button type="button" class="fr-export-btn" (click)="openFilter()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        <svg data-ws-icon="ws-filter" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
         فلترة متقدمة
       </button>
     </div>
