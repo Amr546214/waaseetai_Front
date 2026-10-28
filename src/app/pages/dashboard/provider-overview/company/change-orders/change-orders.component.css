@@ -1,5 +1,5 @@
 :host { display: block; width: 100%; }
-.co-page { font-family: 'Tajawal', system-ui, sans-serif; }
+.co-page { font-family: var(--font-family,'Tajawal'), system-ui, sans-serif; }
 
 /* Breadcrumb */
 .bc { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #6B7699; margin-bottom: 12px; flex-wrap: wrap; }

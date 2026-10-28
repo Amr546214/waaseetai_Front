@@ -25,7 +25,7 @@
 .tlp-sens { background: rgba(255, 180, 0, .14); color: var(--kahr, #D98A0B); border: 1px solid rgba(255, 180, 0, .28); }
 
 .prof-tab-nav { display: flex; gap: 0; border-bottom: 1px solid rgba(255, 255, 255, .08); margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.prof-tab-btn { padding: 10px 16px; border: 0; background: transparent; font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 600; color: #6B7699; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .18s; margin-bottom: -1px; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; }
+.prof-tab-btn { padding: 10px 16px; border: 0; background: transparent; font-family: var(--font-family,'Tajawal'), sans-serif; font-size: 13px; font-weight: 600; color: #6B7699; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .18s; margin-bottom: -1px; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; }
 .prof-tab-btn.active { color: var(--teal-txt, #2BD4C7); border-bottom-color: var(--teal-txt, #2BD4C7); font-weight: 700; }
 .prof-tab-btn:hover:not(.active) { color: #A8B2D1; }
 .tab-tier { font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 5px; line-height: 1.6; display: inline-flex; align-items: center; gap: 3px; }
@@ -72,7 +72,7 @@
 .inp-group { display: flex; flex-direction: column; gap: 5px; }
 .inp-label { font-size: 12px; font-weight: 700; color: #A8B2D1; }
 .req { color: var(--teal-txt, #2BD4C7); margin-inline-start: 3px; }
-.inp-field { background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .10); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: #fff; font-family: 'Tajawal', sans-serif; width: 100%; transition: border-color .15s; }
+.inp-field { background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .10); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: #fff; font-family: var(--font-family,'Tajawal'), sans-serif; width: 100%; transition: border-color .15s; }
 .inp-field:focus { outline: none; border-color: rgba(43, 212, 199, .40); }
 .inp-hint { font-size: 11px; color: #6B7699; margin-top: 3px; }
 .field-error { font-size: 11px; color: #ff8c69; margin-top: 3px; }

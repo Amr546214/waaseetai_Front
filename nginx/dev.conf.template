@@ -1,0 +1,23 @@
+# Static host of the DEV front-end image (Dockerfile.dev). nginx:alpine renders this file with envsubst at container start.
+# /favicon.ico and the link-share image are answered from the platform identity source ONLY when WS_IDENTITY_UPSTREAM is set (nginx/identity.inc.template, generated into
+# /etc/nginx/ws-identity.inc by 15-ws-identity.sh). With the variable unset or empty the include is an empty file: static default files only, no proxying, no upstream lookup
+# (identical to the previous behaviour; an ARB / production build of this repo can never call dev).
+server {
+    listen 4200;
+    server_name localhost;
+    include /etc/nginx/mime.types;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
+
+    include /etc/nginx/ws-identity.inc;
+
+    location ~ \.(js|css|svg|ico|png|jpg|jpeg|woff|woff2|ttf|map)$ {
+        root /usr/share/nginx/html;
+        include /etc/nginx/mime.types;
+        try_files $uri =404;
+    }
+}

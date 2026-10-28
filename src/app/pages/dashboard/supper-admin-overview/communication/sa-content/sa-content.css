@@ -27,7 +27,7 @@
 .sco-toolbar{display:flex;gap:1px;padding:8px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.08)}
 .sco-tb-btn{padding:4px 8px;border-radius:5px;font-size:11px;background:transparent;color:#6B7699;border:none;cursor:pointer;font-family:inherit}
 .sco-tb-btn.active{background:rgba(43,212,199,.10);color:#2BD4C7}
-.sco-textarea{width:100%;min-height:320px;padding:14px;background:rgba(255,255,255,.02);border:none;color:#A8B2D1;font-family:'Tajawal',system-ui,sans-serif;font-size:13px;line-height:1.7;resize:vertical;direction:rtl;outline:none}
+.sco-textarea{width:100%;min-height:320px;padding:14px;background:rgba(255,255,255,.02);border:none;color:#A8B2D1;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;font-size:13px;line-height:1.7;resize:vertical;direction:rtl;outline:none}
 
 .sco-editor-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .sco-local-note{margin:0 0 14px;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,180,0,.4);background:rgba(255,180,0,.08);color:#FFB400;font-size:12.5px;font-weight:700;line-height:1.7}

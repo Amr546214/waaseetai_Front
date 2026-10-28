@@ -12,7 +12,7 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-  font-family: 'Tajawal', system-ui, sans-serif;
+  font-family: var(--font-family,'Tajawal'), system-ui, sans-serif;
   color: #fff;
 }
 

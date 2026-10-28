@@ -16,4 +16,8 @@ describe('logo.boot timing text on the identity page', () => {
 	it('matches the boot script: a 1.5 s limit that aborts the first request and then shows the image', () => {
 		expect(index).toContain('}, 1500);'); expect(index).toContain('ctl.abort()'); expect(index).toContain("img.style.visibility = 'hidden'");
 	});
+	it('states the static-host path and the platform caching limit of the link-share image and favicon.ico', () => {
+		const block = html.slice(html.indexOf("'static-host-'"), html.indexOf("it.key === 'icon.ai'"));
+		expect(block).toContain('/api/public/site-identity/social/og'); expect(block).toContain('منصّات المعاينة'); expect(block).toContain('الملف الأصلي المدمج'); expect(block).toContain('/favicon.ico'); expect(block).toContain('favicon.tab');
+	});
 });

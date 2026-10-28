@@ -20,7 +20,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model, o
 	`,
 	styles: [`
 		.otp-group{display:flex;gap:10px;justify-content:center;direction:ltr;margin:6px 0 12px}
-		.otp-box{width:52px;height:60px;border-radius:12px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--txt);font-size:24px;font-weight:800;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;caret-color:#2BD4C7;font-family:'Tajawal',system-ui,sans-serif;-moz-appearance:textfield;appearance:textfield}
+		.otp-box{width:52px;height:60px;border-radius:12px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--txt);font-size:24px;font-weight:800;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;caret-color:#2BD4C7;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;-moz-appearance:textfield;appearance:textfield}
 		.otp-box::-webkit-outer-spin-button,.otp-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 		.otp-box:focus{border-color:rgba(43,212,199,.45);box-shadow:0 0 0 3px rgba(43,212,199,.10);background:rgba(43,212,199,.04)}
 		.otp-box.filled{border-color:rgba(43,212,199,.35);background:rgba(43,212,199,.06)}

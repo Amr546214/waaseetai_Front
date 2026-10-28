@@ -7,7 +7,7 @@
 	--cml-rail-bg: rgba(7, 13, 36, 0.7);
 	--cml-score-bg: #070D24;
 	--teal-txt: #2BD4C7;
-	font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+	font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
 	color: var(--cml-txt);
 	direction: rtl;
 	width: 100%;

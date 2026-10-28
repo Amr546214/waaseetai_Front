@@ -26,7 +26,7 @@ const http = (status: number, body: unknown = {}) => new HttpErrorResponse({ sta
 function setup(ov: IdentityOverview | HttpErrorResponse, extra: Record<string, unknown> = {}, can: (id: string) => boolean = () => true, keys = ['tokens.colors.dark']) {
 	const api: Record<string, ReturnType<typeof vi.fn>> = {
 		overview: vi.fn(() => (ov instanceof HttpErrorResponse ? throwError(() => ov) : of({ success: true, data: ov }))),
-		uploadTokens: vi.fn(), publish: vi.fn(), restore: vi.fn(), discard: vi.fn(), refreshPublic: vi.fn(async () => true), ...extra,
+		uploadTokens: vi.fn(), publish: vi.fn(), restore: vi.fn(), discard: vi.fn(), refreshPublic: vi.fn(async () => true), liveManifest: vi.fn(() => ({ items: {} })), ...extra,
 	};
 	const confirmSvc = { confirm: vi.fn(async () => true) };
 	TestBed.configureTestingModule({ imports: [TokenEditor], providers: [{ provide: SiteIdentityAdminApi, useValue: api }, { provide: ConfirmModalService, useValue: confirmSvc }, { provide: AdminAccessService, useValue: { allows: () => true, can, access: signal(null) } }] });
@@ -46,7 +46,7 @@ describe('platform design-token editor (central flow)', () => {
 	it('shows the platform defaults from the SERVER, says it is linked to the site and explains the literal colours are not bound', async () => {
 		const t = setup(overview([item()])); await t.settle();
 		expect(t.q('pt-linked')!.textContent).toContain('مرتبط بالموقع');
-		expect(t.q('pt-scope')!.textContent).toContain('17,300'); expect(t.q('pt-scope')!.textContent).toContain('15,000'); expect(t.q('pt-scope')!.textContent).toContain('2,300');
+		expect(t.q('pt-scope')!.textContent).toContain('17,200'); expect(t.q('pt-scope')!.textContent).toContain('15,000'); expect(t.q('pt-scope')!.textContent).toContain('2,300');
 		expect(t.q('pt-pub---teal')!.textContent).toBe('#2bd4c7'); expect(t.q('pt-state')!.textContent).toContain('الأصل الافتراضي');
 		expect(t.q('pt-row---pg')).toBeTruthy();
 	});
@@ -56,6 +56,7 @@ describe('platform design-token editor (central flow)', () => {
 		const t = setup(overview([item()]), {
 			uploadTokens: vi.fn(() => of({ success: true, data: draft })),
 			publish: vi.fn(() => of({ success: true, data: { key: 'tokens.colors.dark', stateVersion: 1, manifestVersion: 3, isDefault: false, active: draft, updatedAt: null, updatedBy: null, previous: null, fromVersion: 0, toVersion: 1 } })),
+			liveManifest: vi.fn(() => ({ items: { 'tokens.colors.dark': { sha256: draft.sha256 } } })),
 		});
 		await t.settle();
 		await t.type('--teal', '#14B8A6 '.trim());
@@ -72,6 +73,34 @@ describe('platform design-token editor (central flow)', () => {
 		expect(t.api['refreshPublic']).toHaveBeenCalled();
 		expect(t.q('pt-review-tokens.colors.dark')).toBeNull();
 		expect(t.q('pt-notice-tokens.colors.dark')!.textContent).toContain('طُبّقت');
+	});
+
+	it('success is declared ONLY when the public manifest shows the new version: otherwise a warning with a re-check, and the re-check turns it into success once the manifest catches up', async () => {
+		const draft = meta({ version: 1, status: 'STAGED', value: { '--teal': '#14b8a6' } });
+		let live = false;
+		const t = setup(overview([item()]), {
+			uploadTokens: vi.fn(() => of({ success: true, data: draft })),
+			publish: vi.fn(() => of({ success: true, data: { key: 'tokens.colors.dark', stateVersion: 1, manifestVersion: 3, isDefault: false, active: draft, updatedAt: null, updatedBy: null, previous: null, fromVersion: 0, toVersion: 1 } })),
+			liveManifest: vi.fn(() => ({ items: live ? { 'tokens.colors.dark': { sha256: draft.sha256 } } : {} })),
+		});
+		await t.settle(); await t.type('--teal', '#14b8a6');
+		t.q('pt-stage-tokens.colors.dark')!.click(); await t.settle();
+		t.q('pt-apply-tokens.colors.dark')!.click(); await new Promise(r => setTimeout(r, 900)); await t.settle();
+		const n = t.q('pt-notice-tokens.colors.dark')!;
+		expect(n.className).toContain('note-warn'); expect(n.textContent).toContain('لم يظهر بعد في بيان الموقع العام'); expect(n.textContent).not.toContain('طُبّقت');
+		live = true;
+		t.q('pt-recheck-tokens.colors.dark')!.click(); await t.settle();
+		expect(t.q('pt-notice-tokens.colors.dark')!.className).toContain('note-ok'); expect(t.q('pt-notice-tokens.colors.dark')!.textContent).toContain('تأكّد الآن');
+		expect(t.api['publish']).toHaveBeenCalledTimes(1); // the re-check never saves again
+	});
+
+	it('the apply / restore confirmations list the exact change (name, old value, new value) that was previewed', async () => {
+		const active = meta({ version: 2, value: { '--teal': '#14b8a6' } }), prev = meta({ version: 1, status: 'SUPERSEDED', value: { '--pg': '#0b1020' } });
+		const t = setup(overview([item({ state: { stateVersion: 2, isDefault: false, active, updatedAt: null, updatedBy: null }, history: [active, prev] })]), { restore: vi.fn(() => of({ success: true, data: { key: 'tokens.colors.dark', stateVersion: 3, manifestVersion: 4, isDefault: true, active: null, updatedAt: null, updatedBy: null, previous: active } })) });
+		await t.settle();
+		t.q('pt-restore-1')!.click(); await t.settle();
+		const msg = (t.confirmSvc.confirm.mock.calls[0] as unknown as [{ message: string }])[0].message;
+		expect(msg).toContain('--teal'); expect(msg).toContain('#14b8a6 ← #2bd4c7'); expect(msg).toContain('--pg'); expect(msg).toContain('#070b15 ← #0b1020');
 	});
 
 	it('a value equal to the platform default is not an override (no check offered); an empty field = back to the platform value', async () => {

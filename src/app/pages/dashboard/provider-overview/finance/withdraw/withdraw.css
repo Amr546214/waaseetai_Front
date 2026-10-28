@@ -1130,7 +1130,7 @@
   width: 100%;
   max-width: 380px;
   text-align: center;
-  font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
   color: #fff;
 }
 

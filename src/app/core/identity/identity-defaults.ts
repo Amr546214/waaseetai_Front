@@ -37,7 +37,12 @@ export const IDENTITY_DEFAULTS: Readonly<Record<string, IdentityDefault>> = {
 
 /** keys whose consumer in THIS front end really reads the identity service (the coordinator mirrors this into the server's WIRED_KEYS) */
 export const BEBO_ATLAS_KEYS: readonly string[] = Object.keys(IDENTITY_DEFAULTS).filter(k => k.startsWith('character.bebo.'));
-export const FE_WIRED_KEYS: readonly string[] = ['logo.mark', 'logo.boot', 'favicon.tab', 'icon.ai', ...BEBO_ATLAS_KEYS];
+/**
+ * `social.og` and `favicon.ico` are read by the STATIC HOST (nginx/Dockerfile.dev template: /favicon.ico and the link-share image path are answered from the server's public alias routes, falling back to the
+ * default file of the image), not by Angular code: the consumer exists in `nginx/dev.conf.template`; guarded by `identity-static-host.static.spec.ts`.
+ */
+export const STATIC_HOST_KEYS: readonly string[] = ['social.og', 'favicon.ico'];
+export const FE_WIRED_KEYS: readonly string[] = ['logo.mark', 'logo.boot', 'favicon.tab', 'icon.ai', ...BEBO_ATLAS_KEYS, ...STATIC_HOST_KEYS];
 
 export const defaultPathOf = (key: string): string => {
 	const d = IDENTITY_DEFAULTS[key];

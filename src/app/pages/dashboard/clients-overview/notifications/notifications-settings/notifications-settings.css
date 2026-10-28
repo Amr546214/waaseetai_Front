@@ -1,7 +1,7 @@
 :host{display:block;width:100%;animation:ws-fade .2s ease forwards}
 @keyframes ws-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes skel-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.notifications-settings-page{width:100%;font-family:'Tajawal',system-ui,sans-serif}
+.notifications-settings-page{width:100%;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .ord-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
 .ord-title{font-size:20px;font-weight:900;color:#fff}.ord-sub{font-size:12px;color:#6B7699;margin-top:3px}
