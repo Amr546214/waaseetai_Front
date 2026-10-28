@@ -8,7 +8,7 @@
 	--tds-row-bg: rgba(255, 255, 255, 0.02);
 	--tds-txt3: #4A5568;
 	--teal-txt: #2BD4C7;
-	font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+	font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
 	color: var(--tds-txt);
 	direction: rtl;
 	width: 100%;

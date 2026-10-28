@@ -9,7 +9,7 @@
 	--mdl-stat-bg: rgba(255, 255, 255, 0.04);
 	--teal-txt: #2BD4C7;
 	--ai-txt: #A56BE0;
-	font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+	font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
 	color: var(--mdl-txt);
 	direction: rtl;
 	width: 100%;

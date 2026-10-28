@@ -19,7 +19,7 @@
   --table-row-alt:rgba(255,255,255,.02);
   --table-th-bg:rgba(255,255,255,.025);
   --table-td-bd:rgba(255,255,255,.04);
-  display:block;font-family:'Tajawal',system-ui,sans-serif;line-height:1.75;direction:rtl
+  display:block;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;line-height:1.75;direction:rtl
 }
 :host-context(.light-theme),:host-context(.theme-light){
   --txt:#070D24;--txt-2:#56607D;--txt-3:#6B7699;

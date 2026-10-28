@@ -345,7 +345,7 @@
       if(document.getElementById('ws-select-style')) return;
       var ss=document.createElement('style');
       ss.id='ws-select-style';
-      ss.textContent='select{-webkit-appearance:none;appearance:none;background-color:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-family:\'Tajawal\',system-ui,sans-serif;font-size:13px;padding:10px 14px;cursor:pointer;outline:none;transition:border-color .15s;width:100%}select:focus{border-color:rgba(43,212,199,.4)!important}select option{background-color:#0B1437;color:#fff}';
+      ss.textContent='select{-webkit-appearance:none;appearance:none;background-color:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-family:var(--font-family,\'Tajawal\'),system-ui,sans-serif;font-size:13px;padding:10px 14px;cursor:pointer;outline:none;transition:border-color .15s;width:100%}select:focus{border-color:rgba(43,212,199,.4)!important}select option{background-color:#0B1437;color:#fff}';
       document.head.appendChild(ss);
     })();
     /* Global filter chips CSS */

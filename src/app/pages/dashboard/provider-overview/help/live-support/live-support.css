@@ -1,4 +1,4 @@
-:host{display:block;width:100%;font-family:'Tajawal',system-ui,sans-serif;animation:ws-fade .2s ease forwards}
+:host{display:block;width:100%;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;animation:ws-fade .2s ease forwards}
 *,*::before,*::after{box-sizing:border-box}
 button{font-family:inherit}
 @keyframes ws-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -73,7 +73,7 @@ button{font-family:inherit}
 .lv-chip{padding:7px 13px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.22);border-radius:20px;font-size:12px;font-weight:600;color:#5DA0FF;cursor:pointer;transition:background .15s;white-space:nowrap}
 .lv-chip:hover{background:rgba(43,127,255,.18)}
 .lv-input-row{display:flex;gap:10px;align-items:flex-end}
-.lv-input-row textarea{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(43,127,255,.3);border-radius:12px;padding:12px 15px;font-size:14px;color:#fff;font-family:'Tajawal',sans-serif;resize:none;max-height:120px;line-height:1.5;transition:border-color .15s}
+.lv-input-row textarea{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(43,127,255,.3);border-radius:12px;padding:12px 15px;font-size:14px;color:#fff;font-family:var(--font-family,'Tajawal'),sans-serif;resize:none;max-height:120px;line-height:1.5;transition:border-color .15s}
 .lv-input-row textarea:focus{outline:none;border-color:rgba(43,212,199,.55)}
 .lv-input-row textarea::placeholder{color:#6B7699}
 .lv-send{width:46px;height:46px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;display:flex;align-items:center;justify-content:center;color:#070D24;cursor:pointer;transition:opacity .15s}

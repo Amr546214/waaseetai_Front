@@ -17,7 +17,7 @@
 	padding: 22px;
 	width: 100%;
 	max-width: 440px;
-	font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+	font-family: var(--font-family,'Tajawal'), system-ui, -apple-system, sans-serif;
 	color: #fff;
 	max-height: calc(100vh - 40px);
 	overflow-y: auto;
