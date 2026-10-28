@@ -448,7 +448,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			// Edited data (e.g. a mistyped e-mail) is a new registration request.
 			if ((this.accountCreated || this.proofTicket) && this.formSignature() === this.submittedSignature) { this.currentStep = 3; this.errorMessage = ''; this.cdr.markForCheck(); return; }
 			// The e-mail is already proven for this ticket and only other data changed (e.g. a corrected phone): complete with the code the user entered, no new mail.
-			if (this.proofTicket && this.heldCode && !this.isGoogleFlow && this.typedEmailKey() === this.registeredEmail) {
+			if (this.completesWithHeldCode) {
 				const attempt = attemptSubmit(this.basicInfoForm, { root: this.host.nativeElement, labels: REGISTER_LABELS });
 				this.missingFields = attempt.missing;
 				if (attempt.valid) this.completeEmailFirst(this.heldCode); else this.cdr.markForCheck();
@@ -616,6 +616,9 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			}
 		});
 	}
+
+	/** Corrected data for an already proven e-mail: it completes with the code already entered, so the send cooldown of the proof mail must not block it. */
+	get completesWithHeldCode(): boolean { return !!(this.proofTicket && this.heldCode && !this.isGoogleFlow && this.typedEmailKey() === this.registeredEmail); }
 
 	/** True while the code step belongs to e-mail-first registration (no account yet); the Google path keeps its own flow. */
 	get proofFlow(): boolean { return !!this.proofTicket; }

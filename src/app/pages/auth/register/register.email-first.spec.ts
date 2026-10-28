@@ -135,4 +135,14 @@ describe('Register (e-mail-first): proof before account', () => {
 		expect(m.c.errorMessage).toContain('مغلق مؤقتًا');
 		expect(m.c.basicInfoForm.get('email').value).toBe('sara@example.com');
 	});
+
+	it('with the proof mail cooldown running (real server answer), the button for corrected data of a proven e-mail stays enabled (the full journey is covered in the browser run)', () => {
+		const at = () => new Date(Date.now() + 60_000).toISOString();
+		const m = mount((url) => /register\/start$/.test(url) ? of({ success: true, resendAvailableAt: at(), data: { emailSent: true, ticket: 'T', resendAvailableAt: at() } }) : CONFLICT());
+		m.c.nextStep(); type(m.c); m.c.onVerificationSubmit();
+		m.c.prevStep(); m.fixture.detectChanges(false);
+		expect(m.c.registerWait().active()).toBe(true);
+		expect(m.c.completesWithHeldCode).toBe(true);
+		expect((m.el.querySelector('#btn-next') as HTMLButtonElement).disabled).toBe(false);
+	});
 });
