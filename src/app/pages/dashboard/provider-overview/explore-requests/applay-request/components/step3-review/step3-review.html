@@ -140,7 +140,7 @@
       <!-- الإقرارات -->
       <div class="ack-card" role="group" aria-labelledby="ackTitle">
         <div class="ack-title" id="ackTitle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <svg data-ws-icon="pl-provider-check-square" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           الإقرارات قبل الإرسال
         </div>
         <div class="ack-row" (click)="toggleAck.emit(1)" role="checkbox" aria-required="true" [attr.aria-checked]="ack1" tabindex="0" (keydown.enter)="toggleAck.emit(1)">

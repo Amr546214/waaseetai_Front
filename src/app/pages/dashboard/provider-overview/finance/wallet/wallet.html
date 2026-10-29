@@ -79,7 +79,7 @@
           </a>
           @if (isCompany()) {
           <button type="button" class="wal-btn wal-btn-sec" (click)="openDepositModal()" data-testid="wallet-topup">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+            <svg data-ws-icon="pl-provider-card" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
               <rect x="2" y="5" width="20" height="14" rx="2"/>
               <line x1="2" y1="10" x2="22" y2="10"/>
             </svg>
@@ -88,7 +88,7 @@
           } @else {
           <!-- An individual provider earns into the wallet and withdraws; there is nothing to top up. The slot now leads to the payout (PayPal) data. -->
           <a routerLink="/provider-overview/finance/withdraw" class="wal-btn wal-btn-sec" data-testid="wallet-payout-data">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+            <svg data-ws-icon="pl-provider-card" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
               <rect x="2" y="5" width="20" height="14" rx="2"/>
               <line x1="2" y1="10" x2="22" y2="10"/>
             </svg>

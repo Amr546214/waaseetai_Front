@@ -1,3 +1,4 @@
+import { spaIconHref } from '../../../../shared/system-settings/spa-icons';
 import { FeePolicyPanel } from '../../../../shared/fee-policy/fee-policy-panel';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { WsDatePipe, formatWsDate } from '../../../../shared/ws-date/ws-date.pipe';
@@ -33,6 +34,8 @@ type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'in
  * each setting is - nothing here keeps its own copy or is stored in the browser.
  */
 export class SaSuperAdmins implements OnInit {
+  /** `#spa-i-<name>` of a nav icon name */
+  readonly spaHref = spaIconHref;
   auditTypeOptions = computed(() => [{ value: '', label: 'كل الإجراءات' }, ...(this.auditTypeOpts().length ? this.auditTypeOpts() : this.auditEventTypes().map((t) => ({ value: t, label: t })))]);
   readonly auditTypeOpts = signal<{ value: string; label: string }[]>([]);
 

@@ -37,7 +37,7 @@ function setup(phase: 'loading' | 'ready' | 'error' | 'denied' = 'ready', over: 
 	};
 	const real = { load: vi.fn(async () => undefined), get: (id: string) => (id === 'i-bell' ? { vb: '0 0 24 24', paint: { fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8' }, inner: '<path d="M18 8A6 6 0 0 0 6 8"/>', sha256: 'x', defs: 6, variants: 2, files: [] } : null), phase: signal('ready'), fullSvg: () => null };
 	const U: Record<string, { status: string; drawnElsewhere?: number }> = { 'i-coin': { status: 'USED_UNBOUND', drawnElsewhere: 3 }, 'i-unused': { status: 'UNUSED' } };
-	const usage = { load: vi.fn(async () => undefined), get: (id: string) => U[id] ?? null, reason: (id: string) => (U[id]?.status === 'USED_UNBOUND' ? 'مستعملة في الموقع (3 موضعًا برسم مطابق) لكن لا موضع يتبع هذا المفتاح تحديدًا' : U[id]?.status === 'UNUSED' ? 'غير مستعملة حاليًا (محفوظة ولا تُحذف).' : null) };
+	const usage = { unboundPlaces: signal([{ file: 'src/a.html', line: 3, reason: 'DYNAMIC', why: 'رسم يُختار وقت التشغيل من بيانات' }]), groupedUnbound: () => [{ reason: 'DYNAMIC', label: 'رسم يُختار وقت التشغيل', items: [{ file: 'src/a.html', line: 3, reason: 'DYNAMIC', why: 'رسم يُختار وقت التشغيل من بيانات' }] }], load: vi.fn(async () => undefined), get: (id: string) => U[id] ?? null, reason: (id: string) => (U[id]?.status === 'USED_UNBOUND' ? 'مستعملة في الموقع (3 موضعًا برسم مطابق) لكن لا موضع يتبع هذا المفتاح تحديدًا' : U[id]?.status === 'UNUSED' ? 'غير مستعملة حاليًا (محفوظة ولا تُحذف).' : null) };
 	TestBed.configureTestingModule({ imports: [IconTokens], providers: [provideRouter([]), { provide: IconUsageService, useValue: usage }, { provide: IconFnStore, useValue: store }, { provide: IconsService, useValue: icons }, { provide: RealIconsService, useValue: real }, { provide: SiteIdentityAdminApi, useValue: { families: () => of({ success: true, data: { families: [], revision: 'x' } }) } }] });
 	const f = TestBed.createComponent(IconTokens); f.detectChanges();
 	const root = () => (f.nativeElement as HTMLElement).shadowRoot!;
@@ -57,7 +57,7 @@ describe('icon library page (server-backed)', () => {
 		expect(t.q('icon-status-i-bell')!.textContent).toContain('افتراضية'); expect(t.q('icon-open-i-bell')!.textContent).toContain('تخصيص');
 		expect(t.q('icon-status-i-check')!.textContent).toContain('مخصّصة'); expect(t.q('icon-open-i-check')!.textContent).toContain('تعديل');
 		expect(t.q('icon-status-i-coin')!.textContent).toContain('غير مربوطة'); expect(t.q('notwired-i-coin')!.textContent).toContain('مستعملة وغير مربوطة'); expect(t.q('notwired-i-coin')!.getAttribute('title')).toContain('لا موضع يتبع هذا المفتاح');
-		expect(t.q('notwired-i-unused')!.textContent).toContain('غير مستعملة'); expect(t.q('notwired-i-unused')!.getAttribute('data-kind')).toBe('unused'); expect(t.q('notwired-i-unused')!.getAttribute('title')).toContain('لا تُحذف');
+		expect(t.c.statusText(ROWS.find(r => r.id === 'i-unused')!)).toBe('غير مستعملة'); expect(t.q('notwired-i-unused')!.textContent).toContain('غير مستعملة'); expect(t.q('notwired-i-unused')!.getAttribute('data-kind')).toBe('unused'); expect(t.q('notwired-i-unused')!.getAttribute('title')).toContain('لا تُحذف');
 		expect(t.q('icon-open-i-coin')).toBeNull();
 		expect(t.q('icon-card-i-coin')!.querySelector('input[type=file], select')).toBeNull();
 	});

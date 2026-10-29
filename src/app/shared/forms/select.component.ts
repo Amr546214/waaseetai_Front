@@ -53,7 +53,7 @@ let nextId = 0;
 			aria-haspopup="listbox" [attr.aria-expanded]="open()" [attr.aria-controls]="listId" [attr.aria-activedescendant]="open() ? optId(active()) : null"
 			data-testid="ws-select-trigger" (click)="toggle()" (keydown)="onKey($event)" (blur)="touch()">
 			<span class="ws-sel-value" [class.is-placeholder]="!selectedLabel()">{{ selectedLabel() || placeholder() }}</span>
-			<svg class="ws-sel-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+			<svg data-ws-icon="pl-shared-chevron-down" class="ws-sel-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
 		</button>
 		@if (open()) {
 			<!-- popover="manual": shown in the browser top layer, so no card/stacking context of the page can paint over or clip the list. -->

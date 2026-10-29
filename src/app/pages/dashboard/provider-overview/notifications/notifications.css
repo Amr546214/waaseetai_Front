@@ -35,10 +35,9 @@
 :host-context(body.theme-light),
 :host-context(.light-theme),
 :host-context(.theme-light) {
-  --txt: #0F172A;
-  --txt-3: #475569;
-  --crd-bg: #FFFFFF;
-  --sec-bd: #E7EAF1;
+  --txt:var(--notif-txt);
+  --txt-3:var(--notif-provider-txt-3);
+  --sec-bd:var(--soft-bd);
   --inp-bg: #F6F8FC;
 }
 

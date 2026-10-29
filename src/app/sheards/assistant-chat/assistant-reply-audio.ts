@@ -13,7 +13,7 @@ import { speakableText } from '../../core/help/assistant-content';
 				<button type="button" class="reply-audio__button" (click)="cancel()" aria-label="إلغاء تجهيز صوت الرد">إلغاء</button>
 			} @else {
 				<button type="button" class="reply-audio__button" (click)="listen()" aria-label="الاستماع إلى هذا الرد">
-					<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14"/></svg>
+					<svg data-ws-icon="pl-assistant-volume" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14"/></svg>
 					{{ clip().status === 'ready' ? 'تشغيل الصوت' : clip().status === 'error' ? 'إعادة تجهيز الصوت' : 'استمع للرد' }}
 				</button>
 			}

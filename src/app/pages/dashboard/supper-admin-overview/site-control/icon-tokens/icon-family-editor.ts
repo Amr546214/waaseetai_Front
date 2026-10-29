@@ -5,7 +5,7 @@ import { IconFamilyDraft, IconFamilyInfo, IdentitySourceRef, IconFamilyPreview, 
 import { ParsedSvgIcon, parseCustomSvg } from '../../../../../core/identity/identity-ai-icon';
 import { SiteIdentityService } from '../../../../../core/identity/site-identity.service';
 import { InlineSvgDirective } from '../identity/inline-svg.directive';
-import { Failure, currentSummary, describeFailure } from '../identity/identity-view';
+import { Failure, currentSummary, describeFailure, sourceText } from '../identity/identity-view';
 import { RealIconsService } from '../core/real-icons.service';
 import { IconsService } from '../core/icons.service';
 import { IconPicker, libraryDrawingSvg } from './icon-picker';
@@ -139,6 +139,8 @@ export class IconFamilyEditor {
 	}
 	glyph(key: string, tag: 'cur' | 'tgt'): ParsedSvgIcon | null { return this.glyphs()[`${key}|${tag}`] ?? null; }
 	sideText(s: IdentityPreviewSide): string { return s.source === 'default' || !s.version ? 'الأصل' : `النسخة ${s.version}`; }
+	/** where a side's drawing came from (library pick named by its label / device upload / built-in original) */
+	sourceOf(s: IdentityPreviewSide): string { return sourceText(s, id => this.store.row(id)?.label); }
 	changeText(c: string): string { return c === 'replace' ? 'سيتغيّر' : c === 'to-default' ? 'سيعود إلى الأصل' : 'بلا تغيير'; }
 
 	// ------------------------------------------------------------ apply (atomic)

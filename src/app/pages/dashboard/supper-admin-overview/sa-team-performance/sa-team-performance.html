@@ -8,8 +8,8 @@
         <button type="button" class="tp-pt" [class.active]="period() === 'year'" (click)="setPeriod('year')">سنة</button>
       </div>
       @if (canExport()) {
-        <button type="button" class="tp-btn tp-btn-gh" (click)="exportPdf()" data-testid="perf-export-pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير PDF</button>
-        <button type="button" class="tp-btn tp-btn-gh" [disabled]="exporting()" (click)="export()" data-testid="perf-export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير CSV</button>
+        <button type="button" class="tp-btn tp-btn-gh" (click)="exportPdf()" data-testid="perf-export-pdf"><svg data-ws-icon="pl-admin-download-tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير PDF</button>
+        <button type="button" class="tp-btn tp-btn-gh" [disabled]="exporting()" (click)="export()" data-testid="perf-export"><svg data-ws-icon="pl-admin-download-tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير CSV</button>
       } @else {
         <button type="button" class="tp-btn tp-btn-gh" disabled title="التصدير يحتاج صلاحية «تصدير الأداء»" data-testid="perf-export-disabled">تصدير PDF</button>
       }
@@ -30,7 +30,7 @@
     </div>
 
     <div class="tp-card">
-      <div class="tp-card-ttl-row"><div class="tp-card-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>المهام المنجزة شهريًا</div>
+      <div class="tp-card-ttl-row"><div class="tp-card-ttl"><svg data-ws-icon="pl-admin-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>المهام المنجزة شهريًا</div>
         <div class="tp-legend"><span class="tp-legend-item"><span class="tp-legend-dot" style="background:#2BD4C7"></span>هذه السنة</span><span class="tp-legend-item"><span class="tp-legend-dot" style="background:rgba(255,255,255,.15)"></span>السنة الماضية</span></div></div>
       @if (hasTrend()) {
         <div class="tp-chart" data-testid="trend">

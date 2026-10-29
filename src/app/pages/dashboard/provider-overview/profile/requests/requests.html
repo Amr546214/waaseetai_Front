@@ -305,7 +305,7 @@
            [class]="req.status === 'REJECTED' ? 'bg-[#FF8C69]/10 border-[#FF8C69]/20' : 'bg-[#5DA0FF]/10 border-[#5DA0FF]/20'">
         <div class="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
              [class]="req.status === 'REJECTED' ? 'bg-[#FF8C69]/15 text-[#FF8C69]' : 'bg-[#5DA0FF]/15 text-[#5DA0FF]'">
-          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          <svg data-ws-icon="pl-provider-shield-check" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
         </div>
         <div class="flex-1">
           <div class="text-[10px] font-black tracking-widest mb-0.5"
@@ -321,7 +321,7 @@
         <div class="flex items-center flex-wrap">
           <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#2BD4C7]">
             <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-[#2BD4C7]/20 border-[#2BD4C7] text-[#2BD4C7]">
-              <svg class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              <svg data-ws-icon="pl-provider-check" class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
             </div>
             إنشاء الطلب
           </div>
@@ -333,9 +333,7 @@
                  [class]="req.status === 'APPROVED' ? 'bg-[#2BD4C7]/20 border-[#2BD4C7] text-[#2BD4C7]' : 
                           req.status === 'REJECTED' ? 'bg-[#FF8C69]/20 border-[#FF8C69] text-[#FF8C69]' :
                           'border-[rgba(255,255,255,0.14)]'">
-              <svg class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path [attr.d]="req.status === 'REJECTED' ? 'M18 6L6 18M6 6l12 12' : (req.status === 'APPROVED' ? 'M20 6L9 17l-5-5' : 'M12 7V12L15 14')"/>
-              </svg>
+              @if (req.status === 'REJECTED') { <svg data-ws-icon="pl-provider-decision-rejected" class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg> } @else if (req.status === 'APPROVED') { <svg data-ws-icon="pl-provider-decision-approved" class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> } @else { <svg data-ws-icon="pl-provider-decision-pending" class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7V12L15 14"/></svg> }
             </div>
             القرار الإداري
           </div>

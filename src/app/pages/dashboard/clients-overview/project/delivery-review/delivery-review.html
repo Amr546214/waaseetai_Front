@@ -97,7 +97,7 @@
 						@for (file of latestThread(stage).files; track $index) {
 							@if (openUrl(file); as url) {
 								<span class="dr-file-wrap">
-									<a class="dr-file" data-testid="dr-file-open" [href]="url" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg><span>{{ file.name || 'ملف' }}</span>@if (file.size) {<span class="dr-file-size">{{ formatFileSize(file.size) }}</span>}</a>
+									<a class="dr-file" data-testid="dr-file-open" [href]="url" target="_blank" rel="noopener noreferrer"><svg data-ws-icon="pl-client-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg><span>{{ file.name || 'ملف' }}</span>@if (file.size) {<span class="dr-file-size">{{ formatFileSize(file.size) }}</span>}</a>
 									@if (downloadUrl(file); as dl) { <a class="dr-file-dl" data-testid="dr-file-download" [href]="dl" download rel="noopener noreferrer">تنزيل</a> }
 								</span>
 							} @else {
@@ -150,7 +150,7 @@
 				}
 				@if (viewState(stage) !== 'decided') {
 					<div class="dr-decision-row" style="margin-top:8px">
-						<button type="button" class="dr-btn-secondary" (click)="openConversation(data)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>فتح نقاش مع مقدم الخدمة</button>
+						<button type="button" class="dr-btn-secondary" (click)="openConversation(data)"><svg data-ws-icon="pl-client-chat-bubble" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>فتح نقاش مع مقدم الخدمة</button>
 					</div>
 				}
 				@if (revisionSent()) {

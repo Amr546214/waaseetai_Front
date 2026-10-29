@@ -64,7 +64,7 @@
 		<div *ngIf="visibleRecommendation() as rec" data-testid="rec-banner"
 			class="flex items-center gap-3 p-4 bg-gradient-to-br from-[rgba(43,212,199,.10)] to-[rgba(43,127,255,.06)] border border-[rgba(43,212,199,.25)] rounded-xl mb-5">
 			<div class="w-9 h-9 rounded-lg bg-[rgba(43,212,199,.16)] flex items-center justify-center shrink-0 text-[#2BD4C7]" aria-hidden="true">
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></svg>
+				<svg data-ws-icon="pl-provider-lightbulb" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></svg>
 			</div>
 			<div class="flex-1">
 				<div class="text-sm font-extrabold text-white mb-1">اقتراح لك</div>
@@ -105,7 +105,7 @@
 			<div *ngFor="let spec of filteredSpecialties()" class="spec-card"
 				[class.selected]="selectedSpecId() === spec.id" (click)="selectSpec(spec.id)">
 				<div class="spec-ico" [style.background]="spec.bg" [style.color]="spec.color">
-					<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+					<svg data-ws-icon="pl-provider-specialty-category" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
 						[innerHTML]="spec.iconHtml"></svg>
 				</div>
 				<div class="text-sm font-bold text-white leading-tight">{{ spec.name }}</div>
@@ -129,7 +129,7 @@
 		<!-- SUBSPECIALTIES -->
 		<div *ngIf="selectedSpecId()" class="state-card animate-[ws-fade_0.25s_ease]">
 			<div class="text-sm font-extrabold text-white mb-1.5 flex items-center gap-2">
-				<svg class="w-3.5 h-3.5 text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				<svg data-ws-icon="pl-provider-shield-check" class="w-3.5 h-3.5 text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="1.8">
 					<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>
 				</svg>
@@ -190,7 +190,7 @@
 		<div class="flex flex-wrap items-center gap-3.5 mb-6">
 			<div
 				class="flex items-center gap-2 px-4 py-2 bg-[rgba(43,212,199,.06)] border border-[rgba(43,212,199,.2)] rounded-xl shadow-sm">
-				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5">
+				<svg data-ws-icon="pl-provider-monitor" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2BD4C7" stroke-width="2.5">
 					<rect x="2" y="3" width="20" height="14" rx="2" />
 					<line x1="8" y1="21" x2="16" y2="21" />
 					<line x1="12" y1="17" x2="12" y2="21" />
@@ -214,7 +214,7 @@
 		<div *ngIf="isSubmittingSamples()" class="upload-screen mb-6" role="status" aria-live="polite">
 			<div class="upload-screen-glow"></div>
 			<div class="upload-cloud">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+				<svg data-ws-icon="pl-provider-cloud-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
 					<path d="M16 16l-4-4-4 4M12 12v9" />
 					<path d="M20.4 17.5A5 5 0 0 0 18 8.2 7 7 0 0 0 4.3 10.5 4.5 4.5 0 0 0 5.5 19H7" />
 				</svg>
@@ -236,7 +236,7 @@
 					<div class="flex items-center gap-3.5">
 						<div
 							class="w-11 h-11 rounded-xl bg-gradient-to-br from-[rgba(43,212,199,.12)] to-[rgba(43,127,255,.12)] border border-[rgba(43,212,199,.25)] text-[#2BD4C7] flex items-center justify-center shadow-inner">
-							<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<svg data-ws-icon="pl-provider-apps" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<rect x="3" y="3" width="7" height="7" rx="1" />
 								<rect x="14" y="3" width="7" height="7" rx="1" />
 								<rect x="3" y="14" width="7" height="7" rx="1" />
@@ -324,7 +324,7 @@
 									class="p-4.5 border-b md:border-b-0 md:border-l border-[rgba(255,255,255,.07)] flex flex-col justify-between">
 									<div>
 										<div class="text-[11px] font-black text-[#2BD4C7] mb-3 flex items-center gap-2">
-											<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+											<svg data-ws-icon="pl-provider-rectangle" width="14" height="14" viewBox="0 0 24 24" fill="none"
 												stroke="currentColor" stroke-width="2.5">
 												<rect x="2" y="3" width="20" height="14" rx="2" />
 											</svg>
@@ -403,7 +403,7 @@
 											</div>
 											<div *ngFor="let proofName of sample.proofFileNames; let proofIndex = index"
 												class="flex items-center gap-2.5 px-3 py-2 bg-[rgba(43,127,255,.1)] border border-[rgba(43,127,255,.25)] rounded-xl shadow-inner">
-												<svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+												<svg data-ws-icon="pl-provider-file" width="13" height="13" viewBox="0 0 24 24" fill="none"
 													stroke="#5DA0FF" stroke-width="2.5">
 													<path
 														d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -437,7 +437,7 @@
 									}} لـ {{ sub }}</span>
 								<button type="button" (click)="removeSampleBlock(sample.id)"
 									class="text-[11px] font-bold text-[#FF6B6B] hover:underline flex items-center gap-1">
-									<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									<svg data-ws-icon="pl-provider-trash" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 										stroke-width="2">
 										<path d="M3 6h18" />
 										<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
@@ -519,7 +519,7 @@
 				<div
 					class="p-4 border-b border-[rgba(255,255,255,.07)] flex items-center justify-between gap-2 bg-[rgba(255,255,255,.02)] flex-wrap">
 					<div class="flex items-center gap-2">
-						<svg class="w-4 h-4 text-[#5DA0FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+						<svg data-ws-icon="pl-provider-check-square" class="w-4 h-4 text-[#5DA0FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 							stroke-width="2">
 							<path d="M9 11l3 3L22 4" />
 							<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
@@ -708,7 +708,7 @@
 				fill="none" stroke="currentColor" stroke-width="2.5">
 				<polyline points="9 18 15 12 9 6" />
 			</svg>
-			<svg *ngIf="currentStep() === 3" width="14" height="14" viewBox="0 0 24 24" fill="none"
+			<svg data-ws-icon="pl-provider-send" *ngIf="currentStep() === 3" width="14" height="14" viewBox="0 0 24 24" fill="none"
 				stroke="currentColor" stroke-width="2">
 				<path d="M22 2L11 13" />
 				<path d="M22 2l-7 20-4-9-9-4 20-7z" />
@@ -742,13 +742,13 @@
 						<line x1="12" y1="9" x2="12" y2="13" />
 						<line x1="12" y1="17" x2="12.01" y2="17" />
 					</svg>
-					<svg *ngIf="cfg.type === 'warning'" class="w-7 h-7 animate-bounce" viewBox="0 0 24 24" fill="none"
+					<svg data-ws-icon="pl-provider-alert-circle" *ngIf="cfg.type === 'warning'" class="w-7 h-7 animate-bounce" viewBox="0 0 24 24" fill="none"
 						stroke="currentColor" stroke-width="2.5">
 						<circle cx="12" cy="12" r="10" />
 						<line x1="12" y1="8" x2="12" y2="12" />
 						<line x1="12" y1="16" x2="12.01" y2="16" />
 					</svg>
-					<svg *ngIf="cfg.type === 'success'" class="w-7 h-7" viewBox="0 0 24 24" fill="none"
+					<svg data-ws-icon="pl-provider-task-done" *ngIf="cfg.type === 'success'" class="w-7 h-7" viewBox="0 0 24 24" fill="none"
 						stroke="currentColor" stroke-width="2.5">
 						<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
 						<polyline points="22 4 12 14.01 9 11.01" />

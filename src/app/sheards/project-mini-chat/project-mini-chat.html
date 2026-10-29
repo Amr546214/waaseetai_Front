@@ -33,11 +33,11 @@
   <footer class="mini-chat__composer">
     <label class="mini-chat__attach" [class.is-disabled]="!conversationId || uploading()" aria-label="إرفاق ملف">
       <input type="file" hidden (change)="onFilePicked($event)" [disabled]="!conversationId || uploading()" data-testid="project-chat-file">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m21.4 11-8.6 8.6a5 5 0 0 1-7-7l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg>
+      <svg data-ws-icon="pl-shared-paperclip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m21.4 11-8.6 8.6a5 5 0 0 1-7-7l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg>
     </label>
     <textarea [(ngModel)]="draft" (keydown)="onKeydown($event)" (input)="onInput()" [disabled]="!conversationId || !currentUserId" rows="1" maxlength="3000" aria-label="اكتب رسالة" placeholder="اكتب رسالة حول المشروع..."></textarea>
     <button type="button" (click)="send()" [disabled]="!draft.trim() || !conversationId || sending()" aria-label="إرسال الرسالة">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+      <svg data-ws-icon="pl-shared-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
     </button>
   </footer>
   <div class="mini-chat__hint">Enter للإرسال · Shift + Enter لسطر جديد</div>

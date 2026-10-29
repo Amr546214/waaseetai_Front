@@ -52,7 +52,7 @@
          فالنص هنا هو إشعار المراجعة الفعلي نفسه الموجود في لوحة الأدمن، دون أي ادعاء مراقبة أو نسبة دقة. -->
     <div class="ws-note ws-note--info chat-note" role="note" data-testid="chat-ai-bar">
       <div class="ws-note-ico" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        <svg data-ws-icon="pl-marketer-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
       </div>
       <div class="ws-note-body ws-note-txt chat-note-txt"><strong>وسيط AI</strong> · قد تُراجع المحادثات من فريق الدعم عند الإبلاغ عنها أو ضمن مراجعة نزاع — لضمان جودة الخدمة وحماية الطرفين.</div>
     </div>
@@ -61,7 +61,7 @@
       <!-- هيدر المحادثة -->
       <div class="msg-hdr">
         <button type="button" class="mob-back-btn" (click)="backToListOnMobile()" aria-label="العودة للقائمة">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg data-ws-icon="pl-marketer-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -104,9 +104,9 @@
                   <div class="audio-msg-card">
                     <button type="button" class="audio-play-btn" (click)="playAudio(msg)" [title]="msg.isPlaying ? 'إيقاف مؤقت' : 'تشغيل الصوتي'">
                       @if (msg.isPlaying) {
-                        <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+                        <svg data-ws-icon="pl-marketer-pause" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
                       } @else {
-                        <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 translate-x-0.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <svg data-ws-icon="pl-marketer-play" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 translate-x-0.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                       }
                     </button>
                     <div class="audio-waveform">
@@ -181,7 +181,7 @@
             <!-- مرفق -->
             <label class="tbtn" title="إرفاق ملف" aria-label="إرفاق ملف" style="cursor:pointer">
               <input type="file" style="display:none" (change)="onFileSelected($event, 'FILE')" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              <svg data-ws-icon="pl-marketer-paperclip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
             </label>
             <!-- صورة -->
             <label class="tbtn" title="إرفاق صورة" aria-label="إرفاق صورة" style="cursor:pointer">
@@ -190,11 +190,11 @@
             </label>
             <!-- إيموجي -->
             <button type="button" class="tbtn" title="رموز تعبيرية" aria-label="رموز تعبيرية" (click)="toggleEmojiPicker($event)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              <svg data-ws-icon="pl-marketer-smile" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
             </button>
             <!-- مايك صوتي -->
             <button type="button" class="tbtn" [class.mic-active]="isRecording()" title="رسالة صوتية" aria-label="رسالة صوتية" (click)="startVoiceRecord()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <svg data-ws-icon="pl-marketer-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
             </button>
             <!-- اجتماع فيديو -->
             <button type="button" class="meet-btn" aria-label="بدء اجتماع" (click)="startMeeting()">

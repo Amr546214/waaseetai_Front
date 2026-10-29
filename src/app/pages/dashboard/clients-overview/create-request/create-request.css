@@ -139,16 +139,6 @@ html.light select {
 .btn-secondary:hover{background:rgba(255,255,255,.09);color:#fff}
 
 /* GLOBALS FOR LIGHT MODE OVERRIDES - handled by existing logic, just adding basics */
-:root {
-  --kahr: #D98A0B;
-  --teal-txt: #2BD4C7;
-  --ai-txt: #A56BE0;
-}
-body.light {
-  --kahr: #9A6700;
-  --teal-txt: #0F8A7F;
-  --ai-txt: #6B27A5;
-}
 
 /* ================== LIGHT THEME OVERRIDES ================== */
 /* Stepper circles — only inactive circles; active keeps gradient, done keeps teal */

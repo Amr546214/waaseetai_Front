@@ -197,16 +197,31 @@ export class IconFnEditor {
 
 	async useDraft(v: IdentityAssetMeta): Promise<void> { this.notice.set(null); await this.openDraft(v); }
 
-	async restoreDefault(): Promise<void> {
+	/**
+	 * RESTORE PREVIEW (Round 9): «العودة إلى الأصل» and «استعادة» no longer jump to a yes/no box. They open a panel that shows, for this icon, what is on the site NOW, what it will BECOME and where each
+	 * drawing came from (library pick / device upload / built-in original). Nothing changes until «تأكيد الاستعادة».
+	 */
+	readonly restorePreview = signal<{ target: string; label: string; icon: ParsedSvgIcon | null; source: string; sha: string; loading: boolean; failed: boolean } | null>(null);
+	/** where the drawing on the site now came from */
+	readonly currentSource = computed(() => { const a = this.item()?.state.active; return a ? (this.sourceText(a) || 'ملف مخصّص') : 'الأصل الافتراضي'; });
+	restoreDefault(): void {
 		const it = this.item(); if (!it || it.state.isDefault) return;
-		const ok = await this.confirmer.confirm({ title: 'العودة إلى الأيقونة الأصلية', type: 'warning', size: 'md', confirmText: 'عُد إلى الأصل', cancelText: 'لا',
-			message: `سيُزال التخصيص عن «${this.row()?.label ?? this.symbolId()}» ويعود الموقع إلى الأيقونة الأصلية في كل موضع. النسخ المخصّصة تبقى محفوظة في السجل.` });
-		if (!ok) return;
-		await this.restore('default');
+		this.notice.set(null);
+		this.restorePreview.set({ target: 'default', label: 'الأصل', icon: this.defaultIcon(), source: 'الأصل الافتراضي المضمَّن في القوالب', sha: '', loading: false, failed: false });
 	}
 	async restoreVersion(v: IdentityAssetMeta): Promise<void> {
-		const ok = await this.confirmer.confirm({ title: `استعادة النسخة ${v.version}`, type: 'warning', size: 'md', confirmText: 'استعد هذه النسخة', cancelText: 'لا', message: `ستُطبَّق النسخة ${v.version} على الموقع كله.` });
-		if (ok) await this.restore(v.versionId);
+		this.notice.set(null);
+		const base = { target: v.versionId, label: `النسخة ${v.version}`, icon: null, source: this.sourceText(v) || 'ملف مخصّص', sha: v.sha256 };
+		this.restorePreview.set({ ...base, loading: true, failed: false });
+		let icon: ParsedSvgIcon | null = null, failed = false;
+		try { icon = parseCustomSvg(await this.textOf(v), v.sha256); failed = !icon; } catch { failed = true; }
+		if (this.restorePreview()?.target === v.versionId) this.restorePreview.set({ ...base, icon, loading: false, failed });
+	}
+	cancelRestore(): void { this.restorePreview.set(null); }
+	async confirmRestore(): Promise<void> {
+		const p = this.restorePreview(); if (!p || p.loading || this.busy()) return;
+		await this.restore(p.target);
+		this.restorePreview.set(null);
 	}
 	private async restore(target: string): Promise<void> {
 		const it = this.item(); if (!it) return;

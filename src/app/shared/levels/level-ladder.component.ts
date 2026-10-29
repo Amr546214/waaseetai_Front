@@ -28,7 +28,7 @@ export interface LevelLadderView {
 		<section class="lad" data-testid="level-ladder">
 			<div class="lad-hero" [style.--lvl-dark]="v.current.color.dark" [style.--lvl-light]="v.current.color.light">
 				<div class="lad-badge lvl-bd" data-testid="level-badge">
-					<svg class="lvl-fill" width="30" height="30" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+					<svg data-ws-icon="pl-shared-level-star" class="lvl-fill" width="30" height="30" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
 					<div class="lad-badge-name lvl-txt" data-testid="level-name">{{ v.current.title }}</div>
 				</div>
 				<div class="lad-main">
@@ -68,7 +68,7 @@ export interface LevelLadderView {
 				<div class="lad-map" data-testid="level-roadmap">
 					@for (l of v.roadmap; track l.index) {
 					<div class="lad-node" [class.cur]="l.isCurrent" [class.up]="l.index > v.current.index" [style.--lvl-dark]="l.color.dark" [style.--lvl-light]="l.color.light" [attr.data-level]="l.index">
-						<div class="lad-node-ic lvl-bd"><svg class="lvl-fill" width="22" height="22" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
+						<div class="lad-node-ic lvl-bd"><svg data-ws-icon="pl-shared-level-star" class="lvl-fill" width="22" height="22" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
 						<div class="lad-node-n lvl-txt">{{ l.title }}</div>
 						<div class="lad-node-p">{{ l.percent }}%</div>
 						@for (line of l.lines; track line) { <div class="lad-node-l">{{ line }}</div> }

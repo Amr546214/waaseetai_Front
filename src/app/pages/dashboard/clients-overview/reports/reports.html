@@ -90,7 +90,7 @@
 	@if (topAcceptance(); as top) {
 	<div class="ws-note ws-note--neutral" data-testid="top-acceptance-stat">
 		<div class="ws-note-ico">
-			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+			<svg data-ws-icon="pl-client-bar-chart" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
 		</div>
 		<div class="ws-note-body">
 			<div class="ws-note-lbl">إحصاء</div>
@@ -143,7 +143,7 @@
 			المالية <span class="tc">{{ tabCount('finance') }}</span>
 		</button>
 		<button type="button" class="rep-tab" [class.active]="activeTab() === 'disputes'" (click)="switchTab('disputes')">
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+			<svg data-ws-icon="pl-client-alert-circle" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
 			النزاعات <span class="tc">{{ tabCount('disputes') }}</span>
 		</button>
 	</div>
@@ -271,7 +271,7 @@
 						<span class="kv-lbl">متوسط التقييم</span>
 						<span class="kv-val kv-val-teal">
 							@if (d.projects.avgRating) {
-								{{ d.projects.avgRating }} <svg width="16" height="16" viewBox="0 0 100 100" fill="#FFB400" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+								{{ d.projects.avgRating }} <svg data-ws-icon="pl-client-rating-star" width="16" height="16" viewBox="0 0 100 100" fill="#FFB400" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
 							} @else { — }
 						</span>
 					</div>
@@ -387,7 +387,7 @@
 
 		<div class="state-card tbl-card">
 			<div class="tbl-head">
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+				<svg data-ws-icon="pl-client-alert-circle" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
 				سجل النزاعات
 			</div>
 			@if (filteredDisputes().length === 0) {

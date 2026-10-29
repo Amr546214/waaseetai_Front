@@ -53,7 +53,7 @@ export interface IdentityRestoreSetResult { manifestVersion: number; snapshot: R
 /** 409 SITE_IDENTITY_VERSION_CONFLICT body of restore-set: `current` = { manifestVersion, snapshot, keys } */
 export interface IdentityHistory { manifest: { manifestVersion: number; reason: string; createdAt: string; createdBy: IdentityActor | null; changedKeys: string[] }[]; hasMore: boolean; nextBefore: number | null; versions: IdentityAssetMeta[] }
 /** one side (current / target) of a set-restore preview row */
-export interface IdentityPreviewSide { source: 'default' | 'custom'; versionId: string | null; version: number; sha256: string; mime: string; width: number | null; height: number | null; previewUrl: string | null; /** token keys: the override object of that side ({} for the default) */ value?: Record<string, string> }
+export interface IdentityPreviewSide { source: 'default' | 'custom'; versionId: string | null; version: number; sha256: string; mime: string; width: number | null; height: number | null; previewUrl: string | null; /** token keys: the override object of that side ({} for the default) */ value?: Record<string, string>; /** Round 8/9: where that side's drawing came from (library pick / device upload); null for the built-in default and for older versions */ sourceRef?: IdentitySourceRef | null }
 export type IdentityChangeKind = 'replace' | 'to-default' | 'unchanged';
 export interface IdentityPreviewRow { key: string; label: string; group: string; current: IdentityPreviewSide; target: IdentityPreviewSide; change: IdentityChangeKind }
 /** GET /restore-set/:manifestVersion/preview - the EXACT diff the restore would execute; `previewDigest` binds the confirmation to it */

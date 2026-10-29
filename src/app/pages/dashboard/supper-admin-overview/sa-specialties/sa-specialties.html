@@ -1,4 +1,4 @@
-<div class="p-6 h-full flex flex-col font-[Tajawal] rtl" dir="rtl">
+<div class="p-6 h-full flex flex-col font-[family-name:var(--font-family,Tajawal)] rtl" dir="rtl">
 
 	<!-- Page Header -->
 	<div class="flex items-center justify-between mb-6 flex-wrap gap-4">
@@ -191,7 +191,7 @@
 						<button type="button" (click)="promptDeleteCategory(cat)"
 							class="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer border border-transparent hover:border-red-500/20"
 							title="حذف القسم">
-							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+							<svg data-ws-icon="pl-admin-trash" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 								<polyline points="3 6 5 6 21 6" />
 								<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
 							</svg>
@@ -258,7 +258,7 @@
 								</button>
 								<button type="button" (click)="promptDeleteSpec(s)"
 									class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#FF8C69]/10 text-[#FF8C69] hover:bg-[#FF8C69]/20 transition-colors cursor-pointer">
-									<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									<svg data-ws-icon="pl-admin-trash" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 										stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 										<polyline points="3 6 5 6 21 6" />
 										<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
@@ -389,7 +389,7 @@
 		<p class="text-sm text-slate-600 dark:text-slate-300 mb-3">{{ confirmMessage() }}</p>
 
 		<div *ngIf="confirmWarning()" class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold mb-6 flex items-start gap-2">
-			<svg class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+			<svg data-ws-icon="pl-admin-alert-circle" class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
 			<span>{{ confirmWarning() }}</span>
 		</div>
 
@@ -403,7 +403,7 @@
 			<button type="button" (click)="executeConfirmAction()" [disabled]="isConfirmLoading()" data-testid="confirm-action"
 				class="px-5 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-red-500/25 cursor-pointer flex items-center gap-2 hover:opacity-90"
 				[style.background]="confirmDanger() ? null : 'linear-gradient(90deg,#0FA99A,#2B7FFF)'">
-				<svg *ngIf="isConfirmLoading()" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+				<svg data-ws-icon="pl-admin-spinner-arc" *ngIf="isConfirmLoading()" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
 				<span>{{ isConfirmLoading() ? confirmBusyLabel() : confirmButtonLabel() }}</span>
 			</button>
 		</div>

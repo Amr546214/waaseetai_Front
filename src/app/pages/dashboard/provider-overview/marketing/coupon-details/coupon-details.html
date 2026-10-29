@@ -9,7 +9,7 @@
 		<div>
 			<div class="pg-title">إحصائيات كوبون
 				<span class="code-chip" title="نسخ الكود" (click)="copyCode()">{{ c.code }}
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+					<svg data-ws-icon="pl-provider-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
 			</div>
 			<div class="pg-sub">{{ subtitle() }}</div>
 		</div>
@@ -81,7 +81,7 @@
 				<div class="prog-hd"><span>{{ c.usedCount }} من {{ c.maxUses }} استخدام</span><span>{{ cons.pct }}%</span></div>
 				<div class="prog-bg"><div class="prog-fill" [class.warn]="cons.pct >= 80" [style.width.%]="cons.pct"></div></div>
 				<div class="mini-row" style="margin-top:10px">
-					<div class="mini-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+					<div class="mini-ic"><svg data-ws-icon="pl-provider-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
 					<div class="mini-b"><div class="mini-t">متبقٍ من الحد الأقصى</div><div class="mini-s">{{ cons.remaining }} استخدام قبل الوصول للحد</div></div>
 					<div class="mini-v">{{ cons.remaining }}</div>
 				</div>
@@ -107,7 +107,7 @@
 				<div class="mini-v">{{ c.maxUsesPerUser }}</div>
 			</div>
 			<div class="mini-row">
-				<div class="mini-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+				<div class="mini-ic"><svg data-ws-icon="pl-provider-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
 				<div class="mini-b"><div class="mini-t">الحد الأدنى لقيمة الطلب</div><div class="mini-s">شرط تطبيق الخصم</div></div>
 				<div class="mini-v">{{ c.minimumAmount ? money(c.minimumAmount) : 'بدون' }}</div>
 			</div>

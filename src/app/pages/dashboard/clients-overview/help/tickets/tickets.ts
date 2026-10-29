@@ -99,13 +99,11 @@ function mapTicket(t: SupportTicket): Ticket {
 		<div *ngIf="!isLoading()">
 			<a *ngFor="let t of filteredTickets()" [routerLink]="['/client-overview/help/tickets', t.id]" class="tk-card">
 				<div class="tk-ico" [class.b]="t.icon === 'doc'">
-					<svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-						<ng-container [ngSwitch]="t.icon">
-							<ng-container *ngSwitchCase="'list'"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></ng-container>
-							<polyline *ngSwitchCase="'check'" points="20 6 9 17 4 12" />
-							<path *ngSwitchCase="'doc'" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline *ngSwitchCase="'doc'" points="14 2 14 8 20 8" />
-						</ng-container>
-					</svg>
+					@switch (t.icon) {
+					@case ('list') { <svg data-ws-icon="pl-client-ticket-list" class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg> }
+					@case ('check') { <svg data-ws-icon="pl-client-ticket-check" class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg> }
+					@case ('doc') { <svg data-ws-icon="pl-client-ticket-doc" class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg> }
+					}
 				</div>
 				<div class="tk-body">
 					<div class="tk-ttl">{{ t.title }}</div>

@@ -194,6 +194,7 @@
                               </ul>
                             }
                             <p class="small"><span class="chip" [class.chip-muted]="side.s.source === 'default'" [attr.data-testid]="'diff-source-' + side.k + '-' + r.key">{{ sideText(side.s) }}</span></p>
+                            <p class="small muted" [attr.data-testid]="'diff-from-' + side.k + '-' + r.key">{{ sourceText(side.s) }}</p>
                             <p class="small muted"><span dir="ltr" class="mono" [title]="side.s.sha256">{{ sha(side.s.sha256) }}</span> · {{ mime(side.s.mime) }} · {{ dim(side.s.width, side.s.height) }}</p>
                           </div>
                         }

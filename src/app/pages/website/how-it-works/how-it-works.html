@@ -45,7 +45,7 @@
             [attr.aria-selected]="activeRole() === role.key"
             (click)="selectRole(role.key)">
             <div class="role-btn-ico">
-              <svg aria-hidden="true"><use [attr.href]="'#hiw-' + role.icon"></use></svg>
+              <svg aria-hidden="true"><use [attr.href]="iconHref(role.icon)"></use></svg>
             </div>
             <div>
               {{ role.label }}
@@ -68,7 +68,7 @@
                [class.label-teal]="active.color === 'teal'"
                [class.label-blue]="active.color === 'blue'"
                [class.label-kahr]="active.color === 'kahr'">
-            <svg aria-hidden="true"><use [attr.href]="'#hiw-' + active.icon"></use></svg>
+            <svg aria-hidden="true"><use [attr.href]="iconHref(active.icon)"></use></svg>
             {{ active.sectionLabel }}
           </div>
           <h2 class="steps-title">{{ active.sectionTitle }}</h2>
@@ -103,7 +103,7 @@
           @for (card of active.details; track card.title) {
             <div class="detail-card">
               <div class="d-ico" [class.ico-teal]="card.color === 'teal'" [class.ico-blue]="card.color === 'blue'" [class.ico-kahr]="card.color === 'kahr'" [class.ico-ai]="card.color === 'ai'">
-                <svg aria-hidden="true"><use [attr.href]="'#hiw-' + card.icon"></use></svg>
+                <svg aria-hidden="true"><use [attr.href]="iconHref(card.icon)"></use></svg>
               </div>
               <div class="d-title">{{ card.title }}</div>
               <div class="d-sub">{{ card.sub }}</div>

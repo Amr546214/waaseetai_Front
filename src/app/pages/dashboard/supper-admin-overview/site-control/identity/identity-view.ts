@@ -34,6 +34,17 @@ export const actorName = (a: IdentityActor | null | undefined): string => (a?.na
 
 /** the four things a set restore can do to one key (the server emits three: «إزالة التخصيص» IS «العودة للأصل») */
 export const CHANGE_KIND_TEXT: Record<IdentityChangeKind, string> = { replace: 'استبدال', 'to-default': 'العودة للأصل (إزالة التخصيص)', unchanged: 'بلا تغيير' };
+/**
+ * SOURCE of a drawing (restore previews): the built-in original, a pick from the library (named when the caller knows the label), a device upload, or an older file whose source was never recorded.
+ * Metadata only: a stored file is always a sanitised COPY.
+ */
+export const sourceText = (s: { source: string; sourceRef?: { kind: string; symbolId?: string } | null }, label?: (symbolId: string) => string | null | undefined): string => {
+	if (s.source === 'default') return 'المصدر: الأصل الافتراضي المضمَّن في الموقع';
+	const r = s.sourceRef;
+	if (r?.kind === 'library' && r.symbolId) { const l = label?.(r.symbolId); return `المصدر: اختيرت من المكتبة — ${l ? l + ' (' + r.symbolId + ')' : r.symbolId}`; }
+	if (r?.kind === 'upload') return 'المصدر: رُفعت من الجهاز';
+	return 'المصدر: ملف مخصّص (لم يُسجَّل مصدره)';
+};
 export const sideText = (s: { source: string; version: number }): string => (s.source === 'default' ? 'الأصل الافتراضي' : `مخصّص — النسخة ${s.version}`);
 /** a strict shape check of a preview body (also of the fresh one inside a 409 PREVIEW_STALE) */
 export function parsePreview(raw: unknown): IdentityRestoreSetPreview | null {

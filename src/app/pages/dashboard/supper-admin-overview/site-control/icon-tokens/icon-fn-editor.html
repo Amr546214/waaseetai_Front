@@ -67,6 +67,28 @@
         </div>
       }
 
+      @if (restorePreview(); as rp) {
+        <div class="fe-review fe-restore" data-testid="fn-restore-preview" role="group" aria-label="معاينة الاستعادة">
+          <h4>معاينة الاستعادة — لم يتغيّر الموقع بعد</h4>
+          <div class="fe-compare">
+            <figure class="fe-fig" data-testid="fn-restore-current">
+              <div class="fe-glyph">@if (actual(); as p) { <svg aria-hidden="true" [scInlineSvg]="p"></svg> } @else { <span class="muted small">تعذّر عرضها</span> }</div>
+              <figcaption>الحالية على الموقع<small data-testid="fn-restore-current-src"> · {{ currentSource() }}</small></figcaption>
+            </figure>
+            <span class="fe-arrow" aria-hidden="true">←</span>
+            <figure class="fe-fig fe-fig-new" data-testid="fn-restore-target">
+              <div class="fe-glyph">@if (rp.loading) { <span class="spinner" aria-hidden="true"></span> } @else if (rp.icon; as i) { <svg aria-hidden="true" [scInlineSvg]="i"></svg> } @else { <span class="muted small">{{ rp.failed ? 'تعذّر تحميل هذه النسخة' : 'لا رسم معروف' }}</span> }</div>
+              <figcaption>المستهدفة: {{ rp.label }}<small data-testid="fn-restore-target-src"> · {{ rp.source }}</small></figcaption>
+            </figure>
+          </div>
+          <p class="hint small" data-testid="fn-restore-scope">ستتغيّر «{{ row()?.label ?? symbolId() }}» في كل موضع يتبعها في الموقع@if (places()) { ({{ places()!.follows.length }} موضعًا معروفًا) } لكل الزوّار فور التأكيد. النسخ المخصّصة تبقى محفوظة في السجل ولا يُحذف شيء.</p>
+          <div class="fe-actions">
+            <button type="button" class="btn-save" [disabled]="busy() !== null || rp.loading || rp.failed" (click)="confirmRestore()" data-testid="fn-restore-confirm">{{ busy() === 'restore' ? 'جارٍ الاستعادة…' : 'تأكيد الاستعادة' }}</button>
+            <button type="button" class="btn-secondary" [disabled]="busy() !== null" (click)="cancelRestore()" data-testid="fn-restore-cancel">إلغاء</button>
+          </div>
+        </div>
+      }
+
       @if (draft(); as d) {
         <div class="fe-review" data-testid="fn-review">
           <h4>المراجعة قبل التطبيق (المسودة {{ d.meta.version }} · لم يتغيّر الموقع بعد)</h4>

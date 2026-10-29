@@ -286,7 +286,7 @@
 				[class.verdict-err]="eval.marketFitRating === 'Low'">
 				<div class="verdict-icon"
 					[ngStyle]="{'background': eval.marketFitRating === 'High' ? 'rgba(15,169,154,.18)' : eval.marketFitRating === 'Medium' ? 'rgba(255,180,0,.18)' : 'rgba(255,80,80,.18)'}">
-					<svg viewBox="0 0 24 24" fill="none"
+					<svg data-ws-icon="pl-provider-check" viewBox="0 0 24 24" fill="none"
 						[attr.stroke]="eval.marketFitRating === 'High' ? '#0FA99A' : eval.marketFitRating === 'Medium' ? '#FFB400' : '#FF8080'"
 						stroke-width="2.5" aria-hidden="true">
 						<polyline points="20 6 9 17 4 12" />

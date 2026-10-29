@@ -1,0 +1,10 @@
+{
+	"note": "Places that draw an icon but are NOT followable (and are therefore never offered as editable), beyond the ones tools/inline-icon-keys.cjs excludes by rule. Each carries the exact reason. Hand-written; guarded by icon-usage.guard.spec.ts (the file must exist and still contain the needle).",
+	"holders": [
+		{ "file": "src/app/pages/dashboard/provider-overview/notifications/favorite/favorite.ts", "line": 119, "reason": "NOTHING_DRAWN", "why": "أيقونات عناوين أقسام «تفضيلات الإشعارات» تُحقن بـ [innerHTML] على svg فيحذف مُعقّم Angular عناصرها (path/circle)، فلا يُرسم شيء افتراضيًا؛ ربطها يضيف أيقونات لم تكن ظاهرة فيتغيّر الشكل.", "needle": "iconSvg:" },
+		{ "file": "src/app/pages/dashboard/clients-overview/profile/profile-logs/profile-logs.ts", "line": 105, "reason": "NOTHING_DRAWN", "why": "أيقونات سجلّ طلبات الملف الشخصي تُحقن بـ [innerHTML] على svg فيحذف مُعقّم Angular عناصرها، فلا يُرسم شيء افتراضيًا؛ ربطها يضيف أيقونات لم تكن ظاهرة.", "needle": "iconSvg" },
+		{ "file": "src/app/pages/dashboard/provider-overview/business-models/accreditation/new/components/step1-specialty/step1-specialty.component.html", "line": 59, "reason": "CONTENT_DRIVEN", "why": "أيقونة كل تخصص رسم يأتي من بيانات التخصص نفسها (محتوى يديره المشرف في التخصصات) وليس أيقونة وظيفية للموقع.", "needle": "spec.icon" },
+		{ "file": "src/app/pages/dashboard/provider-overview/business-models/new-project/components/step2-specialty/step2-specialty.component.html", "line": 48, "reason": "CONTENT_DRIVEN", "why": "أيقونة كل تخصص رسم يأتي من بيانات التخصص نفسها وليس أيقونة وظيفية للموقع.", "needle": "getSanitizedIcon" },
+		{ "file": "src/app/pages/dashboard/supper-admin-overview/sa-system-settings/sa-system-settings.ts", "line": 37, "reason": "AI_MARK", "why": "أيقونة تبويب وبطاقة «الذكاء الاصطناعي» نسخة مسطّحة (مسار واحد) من علامة الذكاء الاصطناعي الرسمية؛ هويتها تُدار من صفحة «الهوية» (المفتاح icon.ai) لا من هذه المكتبة.", "needle": "icon: this.icons.ai" }
+	]
+}

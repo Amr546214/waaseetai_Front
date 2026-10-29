@@ -14,7 +14,7 @@
   <!-- Error Alert -->
   <div *ngIf="errorMessage()" role="alert" data-testid="add-account-error" class="p-4 mb-6 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-400 text-xs font-bold flex items-center justify-between animate-[ws-fade_0.2s_ease]">
     <div class="flex items-center gap-2">
-      <svg class="w-4 h-4 text-red-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <svg data-ws-icon="pl-provider-alert-circle" class="w-4 h-4 text-red-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span>{{ errorMessage() }}</span>
     </div>
     <button type="button" (click)="errorMessage.set(null)" class="text-red-400 hover:text-red-200 text-base font-bold px-1">×</button>
@@ -90,7 +90,7 @@
           <span *ngIf="!isRoleOwned('provider-ind')" class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">متاح للإضافة</span>
 
           <div class="w-14 h-14 rounded-2xl bg-[rgba(43,127,255,.1)] flex items-center justify-center mb-3.5 shrink-0 text-[#5DA0FF]">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            <svg data-ws-icon="pl-provider-user-add" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
           </div>
           <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">مقدم الخدمة (فرد)</div>
           <p class="text-xs text-[var(--txt-3)] leading-relaxed flex-1 mb-3">للمستقلين والمهنيين الذين يقدمون خدماتهم للشركات والأفراد</p>
@@ -123,7 +123,7 @@
           <span *ngIf="!isRoleActive('seeker-co') && isRoleUnavailable('seeker-co')" class="absolute top-3 left-3 text-[10px] font-extrabold px-2 py-0.5 bg-slate-500/10 text-slate-400 border border-slate-500/20 rounded-full">غير متاح حاليًا</span>
 
           <div class="w-14 h-14 rounded-2xl bg-[rgba(43,212,199,.08)] flex items-center justify-center mb-3.5 shrink-0 text-[#2BD4C7]">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            <svg data-ws-icon="pl-provider-briefcase" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
           </div>
           <div class="text-[15px] font-black text-[var(--txt)] mb-1.5">طالب الخدمة (شركة)</div>
           <p class="text-xs text-[var(--txt-3)] leading-relaxed flex-1 mb-3">للشركات التي تحتاج خدمات مهنية موثقة عبر عقود رسمية<span *ngIf="isRoleUnavailable('seeker-co') && !isRoleActive('seeker-co')"> — إنشاء حساب شركة غير متاح من هذه الصفحة حاليًا</span></p>
@@ -259,7 +259,7 @@
         </div>
         
         <div class="ws-note ws-note--info" style="margin:16px 0 0;align-items:flex-start"><div class="ws-note-ico">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+            <svg data-ws-icon="pl-provider-shield-check" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
           </div><div class="ws-note-body"><div class="ws-note-lbl">مراجعة الأهلية</div><div class="ws-note-txt">بعد إرسال الطلب يراجع فريقنا أهليتك وخبرتك في تخصصك، وقد نتواصل معك إن احتجنا لمعلومات إضافية</div>
           </div>
         </div>
@@ -374,7 +374,7 @@
       </div>
       
       <div class="ws-note ws-note--info" style="margin:16px 0 0;align-items:flex-start"><div class="ws-note-ico">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+          <svg data-ws-icon="pl-provider-shield-check" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
         </div><div class="ws-note-body"><div class="ws-note-lbl">آلية المراجعة والتفعيل</div><div class="ws-note-txt">تتم إضافة نوع الحساب فورياً لملفك، وسيكون بإمكانك التبديل إليه مباشرة واستخدامه بحرية</div>
         </div>
       </div>

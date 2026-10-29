@@ -15,7 +15,7 @@
       @if (isSuperAdmin()) {
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button type="button" class="tm-btn tm-btn-ghost" (click)="tab.set('perms')" data-testid="member-edit-perms"><svg data-ws-icon="ws-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>تعديل الصلاحيات</button>
-          <button type="button" class="tm-btn" [class.tm-btn-warn]="m.status === 'ACTIVE'" [class.tm-btn-primary]="m.status !== 'ACTIVE'" [disabled]="busy()" (click)="toggleAccess()" data-testid="member-toggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>{{ m.status === 'ACTIVE' ? 'تعليق الحساب' : 'إعادة تفعيل الحساب' }}</button>
+          <button type="button" class="tm-btn" [class.tm-btn-warn]="m.status === 'ACTIVE'" [class.tm-btn-primary]="m.status !== 'ACTIVE'" [disabled]="busy()" (click)="toggleAccess()" data-testid="member-toggle"><svg data-ws-icon="pl-admin-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>{{ m.status === 'ACTIVE' ? 'تعليق الحساب' : 'إعادة تفعيل الحساب' }}</button>
         </div>
       }
     </div>
@@ -48,7 +48,7 @@
               <div class="tm-info-item"><div class="tm-info-lbl">آخر دخول</div><div class="tm-info-val" data-testid="member-last-login">{{ m.lastLoginAt ? (m.lastLoginAt | wsDate:'datetime':'yyyy/MM/dd HH:mm') : '—' }}</div></div>
             </div>
           </div>
-          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>مؤشرات الأداء الشهرية</div>
+          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg data-ws-icon="pl-admin-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>مؤشرات الأداء الشهرية</div>
             <div style="display:flex;flex-direction:column;gap:8px">
               @for (k of kpiBars; track k) {
                 <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#6B7699;width:160px">{{ k }}</span><div style="flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden"></div><span style="font-size:12px;font-weight:700;color:#6B7699;width:38px;text-align:left">—</span></div>
@@ -58,7 +58,7 @@
           </div>
         }
         @if (tab() === 'tasks') {
-          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>المهام الحالية ({{ tasks().length }} مهام)</div>
+          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg data-ws-icon="pl-admin-check-square" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>المهام الحالية ({{ tasks().length }} مهام)</div>
             <table class="tm-data-tbl"><thead><tr><th>المهمة</th><th>النوع</th><th>الأولوية</th><th>الموعد</th><th>الحالة</th></tr></thead><tbody>
               @for (t of tasks(); track t.id) { <tr><td style="color:#fff">{{ t.title }}</td><td>{{ typeLabel[t.type] }}</td><td>{{ priorityLabel[t.priority] }}</td><td [style.color]="t.overdue ? '#FF8C69' : '#6B7699'">{{ t.dueAt ? (t.dueAt | wsDate:'date':'yyyy/MM/dd') : '—' }}{{ t.overdue ? ' · متأخرة' : '' }}</td><td>{{ statusLabel[t.status] }}</td></tr> }
               @empty { <tr><td colspan="5" style="text-align:center;padding:14px">لا توجد مهام لهذا الموظف، أو ليست لديك صلاحية عرض مهام الفريق.</td></tr> }
@@ -92,14 +92,14 @@
               </div>
               @if (needConfirm().length) { <div class="tm-pending-note" role="alert" style="color:#FFB400" data-testid="confirm-sensitive">منح صلاحية حساسة لهذا الموظف بعينه: {{ confirmText() }}. أكّد لتتمكن من الحفظ. <button type="button" class="tm-btn tm-btn-warn tm-btn-sm" (click)="savePerms(true)" data-testid="confirm-sensitive-btn">أؤكد المنح</button></div> }
               <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-                <button type="button" class="tm-btn tm-btn-primary" [disabled]="busy() || !dirty()" (click)="savePerms()" data-testid="perms-save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>حفظ الصلاحيات</button>
+                <button type="button" class="tm-btn tm-btn-primary" [disabled]="busy() || !dirty()" (click)="savePerms()" data-testid="perms-save"><svg data-ws-icon="pl-admin-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>حفظ الصلاحيات</button>
                 <button type="button" class="tm-btn tm-btn-ghost" [disabled]="busy() || (personalCount() === 0 && !draftScoped() && !(access2()?.overrides?.length) && !access2()?.scoped)" (click)="resetToRole()" data-testid="perms-reset">إعادة الضبط إلى صلاحيات الدور</button>
               </div>
             }
           </div>
         }
         @if (tab() === 'log') {
-          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>سجل النشاط الأخير</div>
+          <div class="tm-sec-card"><div class="tm-sec-ttl"><svg data-ws-icon="pl-admin-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>سجل النشاط الأخير</div>
             @for (a of activity(); track a.id) { <div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)"><div style="width:7px;height:7px;border-radius:50%;background:#2BD4C7;flex-shrink:0;margin-top:4px"></div><div><div style="font-size:12px;font-weight:700;color:#fff">{{ activityText(a) }}</div><div style="font-size:11px;color:#6B7699">{{ a.at | wsDate:'datetime':'yyyy/MM/dd HH:mm' }}</div></div></div> }
             @empty { <div class="tm-empty" data-testid="log-empty">{{ activityDenied() ? 'ليست لديك صلاحية عرض نشاط هذا الموظف.' : 'لا يوجد نشاط مسجَّل بعد. يظهر هنا ما سجّله على المهام فقط.' }}</div> }
           </div>

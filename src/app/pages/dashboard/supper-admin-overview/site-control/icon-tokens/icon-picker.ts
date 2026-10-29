@@ -51,10 +51,15 @@ export class IconPicker {
 	/** every icon that HAS a drawing (the site's real symbol first, the library file's sample when no template draws it) */
 	readonly cards = computed<PickerCard[]>(() => {
 		const out: PickerCard[] = [];
-		for (const r of this.store.rows() as IconFnRow[]) {
-			if (r.id === this.forId() || isAiSlot(r.id) || r.managedBy === 'icon.ai') continue;
+		const seen = new Set<string>();
+		const rows = (this.store.rows() as IconFnRow[]).filter(r => r.id !== this.forId() && !isAiSlot(r.id) && r.managedBy !== 'icon.ai');
+		// the keys `pl-<area>-<glyph>` (one per place of a drawing that had no symbol) repeat drawings the library already offers: they come last and a drawing is offered ONCE, so the picker is not crowded by copies
+		const order = [...rows.filter(r => !r.id.startsWith('pl-')), ...rows.filter(r => r.id.startsWith('pl-'))];
+		for (const r of order) {
 			const ri = this.real.get(r.id), lib = this.libOf().get(r.id);
-			if (ri) out.push({ id: r.id, label: r.label || lib?.label || r.id, cat: r.library ?? lib?.lib ?? OTHER_CAT, vb: ri.vb ?? '0 0 24 24', paint: ri.paint, inner: ri.inner, real: true });
+			const sig = ri ? (ri.vb ?? '0 0 24 24') + '|' + ri.inner : '';
+			if (r.id.startsWith('pl-') && sig && seen.has(sig)) continue;
+			if (ri) { out.push({ id: r.id, label: r.label || lib?.label || r.id, cat: r.library ?? lib?.lib ?? OTHER_CAT, vb: ri.vb ?? '0 0 24 24', paint: ri.paint, inner: ri.inner, real: true }); seen.add(sig); }
 			else if (lib) out.push({ id: r.id, label: r.label || lib.label || r.id, cat: lib.lib, vb: '0 0 24 24', paint: { fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, inner: lib.svg, real: false });
 		}
 		return out;

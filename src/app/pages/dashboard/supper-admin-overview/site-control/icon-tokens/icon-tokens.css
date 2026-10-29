@@ -179,3 +179,12 @@ button:focus-visible, summary:focus-visible, .search:focus-visible, a:focus-visi
 .fam-chip { font-size: 11px; }
 .icon-card .partial.follows { color: var(--txt-2); background: none; }
 .icon-card .notwired.nw-used { color: var(--kahr, #D98A0B); }
+
+/* Round 9: the UNUSED section and the list of non-followable places are collapsed and separate from the main grid */
+.chip-link { cursor: pointer; font-family: inherit; }
+.unused { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); padding: 12px 18px; margin-bottom: 14px; }
+.unused > summary { cursor: pointer; font-size: 13px; color: var(--txt); }
+.unused .muted { color: var(--txt-3); font-weight: 500; font-size: 12px; }
+.unused .icon-grid { margin-top: 10px; }
+.nf-group { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+.nf-files { max-height: 160px; overflow: auto; margin: 4px 0 0; padding-inline-start: 18px; font-size: 11px; color: var(--txt-3); }

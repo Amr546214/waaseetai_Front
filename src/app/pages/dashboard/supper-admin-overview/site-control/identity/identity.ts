@@ -13,7 +13,7 @@ import { WsDatePipe, formatWsDate } from '../../../../../shared/ws-date/ws-date.
 import { DesignTokensService } from '../core/design-tokens.service';
 import { ThemeModeService } from '../core/theme-mode.service';
 import { InlineSvgDirective } from './inline-svg.directive';
-import { CHANGE_KIND_TEXT, Failure, GROUP_TITLES, actorName, actorOf, bytesText, currentSummary, describeFailure, mimeName, parsePreview, previousVersion, restorable, shortId, shortSha, sideText, sizeText, versionName } from './identity-view';
+import { CHANGE_KIND_TEXT, Failure, sourceText, GROUP_TITLES, actorName, actorOf, bytesText, currentSummary, describeFailure, mimeName, parsePreview, previousVersion, restorable, shortId, shortSha, sideText, sizeText, versionName } from './identity-view';
 
 type Phase = 'loading' | 'ready' | 'error' | 'denied' | 'unavailable';
 export type Preview = { kind: 'img'; src: string | SafeUrl } | { kind: 'svg'; icon: ParsedSvgIcon } | { kind: 'err' };
@@ -213,7 +213,7 @@ export class Identity implements OnInit, OnDestroy {
 	rulesOf(it: IdentityItemInfo): string[] { return Array.isArray(it.rules) ? (it.rules as unknown[]).filter((x): x is string => typeof x === 'string') : []; }
 	currentSummary = currentSummary;
 	/** «by whom»: the server's `{ id, name }` (name null = «غير معروف»); never an e-mail */
-	actorName = actorName; sideText = sideText; kindText = CHANGE_KIND_TEXT;
+	actorName = actorName; sideText = sideText; sourceText = sourceText; kindText = CHANGE_KIND_TEXT;
 	conflictActor(c: unknown): IdentityActor | null { return actorOf((c as Partial<IdentityKeyCurrent> | null)?.updatedBy); }
 	async copyId(id: string): Promise<void> {
 		try { await navigator.clipboard.writeText(id); this.copied.set(id); setTimeout(() => { if (this.copied() === id) this.copied.set(''); }, 2500); } catch { this.copied.set(''); }
@@ -310,7 +310,7 @@ export class Identity implements OnInit, OnDestroy {
 		const toName = target === 'default' ? 'الأصل الافتراضي (الشعار/الأيقونة المنشورة قبل أي تعديل)' : `النسخة ${target.version} (البصمة ${shortSha(target.sha256)})`;
 		const ok = await this.confirmer.confirm({
 			title: target === 'default' ? `استعادة الأصل الافتراضي — ${it.label}` : `استعادة نسخة سابقة — ${it.label}`,
-			message: `المفتاح: ${it.label} (${it.key})\nالنسخة الحالية: ${from ? `النسخة ${from.version} (البصمة ${shortSha(from.sha256)})` : 'الأصل الافتراضي'}\nستُستعاد: ${toName}\n\nيتغيّر الموقع لدى جميع الزوار فور التأكيد، وتبقى النسخة الحالية محفوظة في السجل ويمكن العودة إليها.`,
+			message: `المفتاح: ${it.label} (${it.key})\nالنسخة الحالية: ${from ? `النسخة ${from.version} (البصمة ${shortSha(from.sha256)})` : 'الأصل الافتراضي'} — ${sourceText({ source: from ? 'custom' : 'default', sourceRef: from?.sourceRef })}\nستُستعاد: ${toName} — ${sourceText({ source: target === 'default' ? 'default' : 'custom', sourceRef: target === 'default' ? null : target.sourceRef })}\n\nيتغيّر الموقع لدى جميع الزوار فور التأكيد، وتبقى النسخة الحالية محفوظة في السجل ويمكن العودة إليها.`,
 			type: 'warning', confirmText: 'استعادة', cancelText: 'إلغاء', size: 'md'
 		});
 		if (!ok) { this.release(key); return; }
@@ -417,7 +417,7 @@ export class Identity implements OnInit, OnDestroy {
 		const sp = this.setPreview(), d = this.data();
 		if (!sp || sp.phase !== 'ready' || !sp.data || !d || !this.canManage() || this.setBusy() || !sp.data.canApply || !this.claim('set')) return;
 		const pv = sp.data, mv = sp.manifestVersion, when = sp.at ? formatWsDate(sp.at, 'datetime') : '';
-		const lines = this.changedRows(pv).map(r => `• ${r.label}: ${sideText(r.current)} ← ${sideText(r.target)} (${CHANGE_KIND_TEXT[r.change]})`).join('\n');
+		const lines = this.changedRows(pv).map(r => `• ${r.label}: ${sideText(r.current)} (${sourceText(r.current)}) ← ${sideText(r.target)} (${sourceText(r.target)}) — ${CHANGE_KIND_TEXT[r.change]}`).join('\n');
 		const ok = await this.confirmer.confirm({
 			title: mv === 0 ? 'استعادة الهوية الأصلية كاملة' : `استعادة نسخة هوية كاملة (#${mv})`,
 			message: `${mv === 0 ? 'ستعود كل مفاتيح الهوية إلى الأصل الافتراضي المنشور اليوم.' : `ستعود هوية الموقع كلها إلى حالتها عند النسخة #${mv}${when ? ` (${when})` : ''}.`}\nالنسخة الحالية للبيان: #${pv.currentManifestVersion}\n\nالتغيير المعروض عليك بالضبط (${pv.changedCount}):\n${lines}\n\nيتغيّر الموقع لدى جميع الزوار فور التأكيد، وتبقى كل النسخ الحالية محفوظة في السجل. إن تغيّرت الهوية قبل التنفيذ فلن يُنفَّذ شيء وستُعرض عليك المعاينة المحدّثة.`,
