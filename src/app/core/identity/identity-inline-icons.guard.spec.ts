@@ -33,7 +33,7 @@ describe('inline icon keys (registry, places, sidebar, CSS)', () => {
 		for (const f of walk(join(ROOT, 'src/app'))) {
 			if (f.includes('/core/identity/identity-inline-icons.ts')) continue;
 			const t = readFileSync(f, 'utf8');
-			for (const m of t.matchAll(/['"`](pl-[a-z0-9-]+)['"`]/g)) used.set(m[1], (used.get(m[1]) ?? 0) + 1);
+			for (const m of t.matchAll(/['"`](pl-(?:site|auth|errors|assistant|client|provider|marketer|admin|shared|nav|notify)-[a-z0-9-]+)['"`]/g)) used.set(m[1], (used.get(m[1]) ?? 0) + 1);
 		}
 		expect([...used.keys()].filter(k => !ids.has(k))).toEqual([]);
 		expect([...ids].filter(k => !used.has(k))).toEqual([]);

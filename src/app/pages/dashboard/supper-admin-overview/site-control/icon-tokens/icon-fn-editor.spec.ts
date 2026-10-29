@@ -113,7 +113,14 @@ describe('function-icon editor (icon.fn.<symbolId>, central flow)', () => {
 		const t = setup({}, { item: item({ state: { stateVersion: 2, isDefault: false, active, updatedAt: null, updatedBy: null }, history: [active, meta({ version: 1, status: 'SUPERSEDED', versionId: 'a1' })] }) }); await t.settle();
 		expect(t.q('fn-state')!.textContent).toContain('مخصّصة');
 		(t.q('fn-restore-default') as HTMLButtonElement).click(); await t.settle();
-		expect(t.confirmSvc.confirm).toHaveBeenCalled(); expect(t.api['restore']).toHaveBeenCalledWith('icon.fn.i-bell', 'default', 2);
+		// Round 9: a restore PREVIEW (current / target / source) comes first; nothing is restored until it is confirmed
+		expect(t.q('fn-restore-preview')).toBeTruthy(); expect(t.q('fn-restore-current')).toBeTruthy(); expect(t.q('fn-restore-target')).toBeTruthy();
+		expect(t.q('fn-restore-target-src')!.textContent).toContain('الأصل'); expect(t.q('fn-restore-current-src')!.textContent).toBeTruthy();
+		expect(t.api['restore']).not.toHaveBeenCalled();
+		(t.q('fn-restore-cancel') as HTMLButtonElement).click(); await t.settle(); expect(t.q('fn-restore-preview')).toBeNull(); expect(t.api['restore']).not.toHaveBeenCalled();
+		(t.q('fn-restore-default') as HTMLButtonElement).click(); await t.settle();
+		(t.q('fn-restore-confirm') as HTMLButtonElement).click(); await t.settle();
+		expect(t.api['restore']).toHaveBeenCalledWith('icon.fn.i-bell', 'default', 2);
 		expect(t.q('fn-history')).toBeTruthy();
 	});
 
