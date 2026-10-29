@@ -62,7 +62,7 @@ function scan(root = ROOT) {
 			const close = t.indexOf('</svg>', te); if (close < 0) continue;
 			const attrs = t.slice(x.index + 4, te), inner = t.slice(te + 1, close);
 			if (/<use\b|<symbol\b|<defs\b|<svg\b/.test(inner) || !/<(path|circle|rect|line|polyline|polygon|ellipse)\b/.test(inner)) continue;
-			const key = (/(?:data-ws-icon|wsIcon)\s*=\s*"([^"]*)"/.exec(attrs) || [])[1] || null;
+			const key = (/(?:data-ws-icon|wsIcon)\s*=\s*"([^"]*)"/.exec(attrs) || [])[1] || (/\[attr\.data-ws-icon\]\s*=/.test(attrs) ? '(bound by data)' : null);
 			const vb = (/\bviewBox\s*=\s*"([^"]*)"/.exec(attrs) || [])[1] || null;
 			const paint = {}; for (const a of PAINT) { const r = new RegExp('(?:^|\\s)' + a + '\\s*=\\s*"([^"]*)"').exec(attrs); if (r) paint[a] = r[1]; }
 			places.push({
@@ -83,14 +83,15 @@ function decide(p) {
 	if (!g) return { excluded: 'UNNAMED', why: 'رسم جديد لا اسم له في tools/inline-icon-glyphs.json' };
 	if (!g.slug) return { excluded: g.ai ? 'AI_MARK' : 'NOT_AN_ICON', why: g.label };
 	const [area, areaAr] = areaOf(p.f);
-	return { key: KEY_PREFIX + area + '-' + g.slug, label: g.label + ' — ' + areaAr, glyph: g.slug, area, areaAr, glyphAr: g.label };
+	return { key: KEY_PREFIX + area + '-' + g.slug, label: g.label + ' — ' + areaAr, glyph: g.slug, area, areaAr, glyphAr: g.label, native: !!g.native };
 }
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-function symbolMarkup(id, p, label, area, areaAr) {
+function symbolMarkup(id, p, label, area, areaAr, native) {
 	let paint = { fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
 	// the host's own static paint wins; a host with none (classes carry it) draws as the site's outline default
-	if (p.paint.fill === 'currentColor' && !p.paint.stroke) paint = { fill: 'currentColor' };
+	if (native) paint = { fill: p.paint.fill || 'none' }; // a brand mark carries its own colours on its shapes: no outline paint is added
+	else if (p.paint.fill === 'currentColor' && !p.paint.stroke) paint = { fill: 'currentColor' };
 	else for (const k of PAINT) if (p.paint[k] != null) paint[k] = p.paint[k];
 	const inner = p.inner.replace(/\bclass="opacity-(\d+)"/g, (_, n) => `opacity="${(+n / 100).toString().replace(/^0/, '')}"`).replace(/\s(?:class|style)="[^"]*"/g, '');
 	const attrs = Object.entries(paint).map(([k, v]) => ` ${k}="${esc(v)}"`).join('');
@@ -104,7 +105,7 @@ function plan(places = scan()) {
 		const d = decide(p);
 		if (d.key) {
 			assign.push({ p, ...d });
-			const k = keys.get(d.key) || { key: d.key, label: d.label, area: d.area, areaAr: d.areaAr, glyph: d.glyph, variants: new Map(), places: 0 };
+			const k = keys.get(d.key) || { native: d.native, key: d.key, label: d.label, area: d.area, areaAr: d.areaAr, glyph: d.glyph, variants: new Map(), places: 0 };
 			const vk = p.inner + '|' + p.vb; const v = k.variants.get(vk) || { n: 0, p }; v.n++; k.variants.set(vk, v); k.places++; keys.set(d.key, k);
 		} else excluded.push({ p, ...d });
 	}
@@ -159,7 +160,7 @@ function write() {
 	}
 	// 2. registry (keeps earlier entries)
 	const reg = readRegistry();
-	for (const k of pl.keys.values()) { const best = [...k.variants.values()].sort((a, b) => b.n - a.n)[0]; if (!reg.has(k.key)) reg.set(k.key, symbolMarkup(k.key, best.p, k.label, k.area, k.areaAr)); }
+	for (const k of pl.keys.values()) { const best = [...k.variants.values()].sort((a, b) => b.n - a.n)[0]; if (!reg.has(k.key)) reg.set(k.key, symbolMarkup(k.key, best.p, k.label, k.area, k.areaAr, k.native)); }
 	for (const e of JSON.parse(fs.readFileSync(path.join(__dirname, 'extra-icon-keys.json'), 'utf8')).keys) {
 		if (reg.has(e.id)) continue;
 		const paint = e.paint === 'fill' ? { fill: 'currentColor' } : { fill: 'none', stroke: 'currentColor', 'stroke-width': e.paint === 'outline2' ? '2' : e.paint === 'outline25' ? '2.5' : '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };

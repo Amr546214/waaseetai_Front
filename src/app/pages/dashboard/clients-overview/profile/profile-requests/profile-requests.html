@@ -247,11 +247,7 @@
 					<div class="w-4 h-4 rounded-full border-2 flex items-center justify-center" [class]="req.status === 'APPROVED' ? 'bg-[#2BD4C7]/20 border-[#2BD4C7] text-[#2BD4C7]' :
                           req.status === 'REJECTED' ? 'bg-[#FF8C69]/20 border-[#FF8C69] text-[#FF8C69]' :
                           'border-[rgba(255,255,255,0.14)]'">
-						<svg class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-							stroke-linecap="round" stroke-linejoin="round">
-							<path
-								[attr.d]="req.status === 'REJECTED' ? 'M18 6L6 18M6 6l12 12' : (req.status === 'APPROVED' ? 'M20 6L9 17l-5-5' : 'M12 7V12L15 14')" />
-						</svg>
+						@if (req.status === 'REJECTED') { <svg data-ws-icon="pl-client-decision-rejected" class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg> } @else if (req.status === 'APPROVED') { <svg data-ws-icon="pl-client-decision-approved" class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> } @else { <svg data-ws-icon="pl-client-decision-pending" class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7V12L15 14"/></svg> }
 					</div>
 					القرار الإداري
 				</div>

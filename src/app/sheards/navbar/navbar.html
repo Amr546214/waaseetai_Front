@@ -257,18 +257,20 @@
 		<!-- Hamburger -->
 		<button class="menu-btn" id="menu-toggle" (click)="toggleMobileMenu()" aria-label="فتح القائمة"
 			[attr.aria-expanded]="isMobileMenuOpen">
-			<svg aria-hidden="true"
+			@if (!isMobileMenuOpen) {
+			<svg data-ws-icon="pl-shared-navbar-menu" aria-hidden="true"
 				style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
-				<ng-container *ngIf="!isMobileMenuOpen">
-					<line x1="3" y1="12" x2="21" y2="12"></line>
-					<line x1="3" y1="6" x2="21" y2="6"></line>
-					<line x1="3" y1="18" x2="21" y2="18"></line>
-				</ng-container>
-				<ng-container *ngIf="isMobileMenuOpen">
-					<line x1="18" y1="6" x2="6" y2="18"></line>
-					<line x1="6" y1="6" x2="18" y2="18"></line>
-				</ng-container>
+				<line x1="3" y1="12" x2="21" y2="12"></line>
+				<line x1="3" y1="6" x2="21" y2="6"></line>
+				<line x1="3" y1="18" x2="21" y2="18"></line>
 			</svg>
+			} @else {
+			<svg data-ws-icon="pl-shared-navbar-menu-close" aria-hidden="true"
+				style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+				<line x1="18" y1="6" x2="6" y2="18"></line>
+				<line x1="6" y1="6" x2="18" y2="18"></line>
+			</svg>
+			}
 		</button>
 	</div>
 </header>
