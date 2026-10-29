@@ -409,3 +409,9 @@ body.theme-light {
 		color: #94A3B8;
 	}
 }
+
+/* Keep keyboard navigation visible in both themes. */
+.phone-input-container .dropdown-item:focus-visible {
+	outline: 2px solid var(--teal-txt, #2BD4C7);
+	outline-offset: -2px;
+}

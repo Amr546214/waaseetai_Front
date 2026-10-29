@@ -609,7 +609,7 @@ import { AssistantReplyAudioComponent } from '../../sheards/assistant-chat/assis
 								placeholder="اسأل نديم عن خدمات وسيط أو استفسر عن مشروعك..."
 								dir="auto"
 								aria-label="اكتب رسالتك"
-								[disabled]="store.busy()"
+								[readOnly]="store.busy()"
 							></textarea>
 
 							<!-- Column 3: Microphone & circular send button -->
@@ -801,6 +801,7 @@ export class AssistantPageComponent {
 			if (typeof window !== 'undefined' && window.innerWidth < 768) {
 				this.mobileOpen.set(false);
 			}
+			this.composerTextarea?.nativeElement.focus({ preventScroll: true });
 		});
 	}
 
@@ -1044,6 +1045,7 @@ export class AssistantPageComponent {
 		this.promptText.set('');
 		this.resizeComposer();
 		this.scrollToLatest();
+		this.composerTextarea?.nativeElement.focus({ preventScroll: true });
 	}
 
 	sendSuggestion(text: string): void {

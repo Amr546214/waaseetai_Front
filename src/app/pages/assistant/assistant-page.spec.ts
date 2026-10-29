@@ -76,6 +76,33 @@ describe('AssistantPageComponent (ChatGPT-like Redesign R1-R7)', () => {
 
 	const el = () => fixture.nativeElement as HTMLElement;
 
+	it('focuses the composer when the assistant page opens', () => {
+		expect(document.activeElement).toBe(el().querySelector('#user-input'));
+	});
+
+	it('keeps the composer focused through sending and completing a reply', async () => {
+		const textarea = el().querySelector('#user-input') as HTMLTextAreaElement;
+		textarea.focus();
+		textarea.value = 'Hello';
+		textarea.dispatchEvent(new Event('input'));
+		fixture.detectChanges();
+		await fixture.whenStable();
+		const send = el().querySelector('.tc-send-button') as HTMLButtonElement;
+		send.focus();
+		send.click();
+		fixture.detectChanges();
+		await fixture.whenStable();
+		expect(store.busy()).toBe(true);
+		expect(textarea.disabled).toBe(false);
+		expect(textarea.readOnly).toBe(true);
+		expect(document.activeElement).toBe(textarea);
+		events.next({ type: 'complete', clientRequestId: `page-${sequence}` });
+		fixture.detectChanges();
+		await fixture.whenStable();
+		expect(textarea.readOnly).toBe(false);
+		expect(document.activeElement).toBe(textarea);
+	});
+
 	function answer(question: string, text: string) {
 		store.ask(question);
 		const id = `page-${sequence}`;
