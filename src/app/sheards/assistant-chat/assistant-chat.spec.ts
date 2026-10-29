@@ -286,9 +286,7 @@ describe('AssistantChatComponent', () => {
 		fixture.detectChanges();
 	};
 	const enableVoice = () => {
-		const box = el().querySelector('.ac__voice input') as HTMLInputElement;
-		box.checked = true;
-		box.dispatchEvent(new Event('change'));
+		store.setVoiceEnabled(true);
 		fixture.detectChanges();
 	};
 	const answerNow = async (text = 'الإجابة') => {
@@ -306,28 +304,30 @@ describe('AssistantChatComponent', () => {
 		expect(store.ttsDialect()).toBe('gulf');
 	});
 
-	it('voice select appears with voice on, offers exactly the handoff voices, and drives the TTS request', async () => {
-		expect(el().querySelector('.ac__voice-select')).toBeNull();
-		enableVoice();
+	it('voice select offers the handoff voices and manual reply audio button drives the TTS request', async () => {
 		expect([...select('.ac__voice-select').options].map((o) => o.value)).toEqual(['Puck', 'Kore', 'Fenrir', 'Aoede', 'Zephyr', 'Sulafat', 'Charon', 'Leda']);
 		choose('.ac__voice-select', 'Leda');
 		await answerNow();
+		expect(tts.synthesize).not.toHaveBeenCalled();
+		(el().querySelector('.reply-audio__button') as HTMLButtonElement).click();
+		fixture.detectChanges();
 		expect(tts.synthesize).toHaveBeenCalledWith({ text: 'الإجابة', voice: 'Leda', dialect: 'egyptian' });
 	});
 
-	it('playback: stop button while speaking, then replay replays the same clip', async () => {
+	it('playback: stopAudio while speaking, then replay replays the same clip', async () => {
 		enableVoice();
 		await answerNow();
-		expect(el().querySelector('.ac__stop-audio')).toBeTruthy(); // audio loading
+		expect(store.replay()).toBe(true);
+		expect(store.audioLoading()).toBe(true);
 		ttsOut.next(new Blob(['RIFF'], { type: 'audio/wav' }));
 		FakeAudio.instances[0].onplaying!();
 		fixture.detectChanges();
 		expect(store.state()).toBe('speaking');
-		(el().querySelector('.ac__stop-audio') as HTMLButtonElement).click();
+		store.stopAudio();
 		fixture.detectChanges();
 		expect(FakeAudio.instances[0].paused).toBe(true);
 		expect(store.state()).toBe('idle');
-		(el().querySelector('.ac__replay') as HTMLButtonElement).click();
+		expect(store.replay()).toBe(true);
 		expect(FakeAudio.instances[0].plays).toBe(2);
 		expect(tts.synthesize).toHaveBeenCalledTimes(1);
 	});
@@ -335,24 +335,26 @@ describe('AssistantChatComponent', () => {
 	it('TTS error: text answer remains, truthful voice notice shown', async () => {
 		enableVoice();
 		await answerNow('نص الإجابة');
+		store.replay();
 		ttsOut.error(new Error('x'));
 		fixture.detectChanges();
 		expect(el().querySelector('.ac__bubble--ai')!.textContent).toContain('نص الإجابة');
 		expect(el().querySelector('.ac__notice')!.textContent).toContain('الصوت غير متاح');
 	});
 
-	it('logout releases audio: no replay button remains for the next user', async () => {
+	it('logout releases audio: no replay remains for the next user', async () => {
 		enableVoice();
 		await answerNow();
+		store.replay();
 		ttsOut.next(new Blob(['RIFF'], { type: 'audio/wav' }));
 		FakeAudio.instances[0].onended!();
 		fixture.detectChanges();
-		expect(el().querySelector('.ac__replay')).toBeTruthy();
+		expect(store.canReplay()).toBe(true);
 		token.set(null);
 		user.set(null);
 		TestBed.tick();
 		fixture.detectChanges();
-		expect(el().querySelector('.ac__replay')).toBeNull();
+		expect(store.canReplay()).toBe(false);
 		expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:chat');
 	});
 

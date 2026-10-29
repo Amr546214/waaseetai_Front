@@ -281,7 +281,7 @@ describe('7/8. neutral icons and no robot / rocket emoji', () => {
 		expect(src(D + 'clients-overview/project/delivery-review/delivery-review.html')).toMatch(/#i-ai|M12 10V5/);
 		expect(src(D + 'clients-overview/create-request/components/step3-details/step3-details.html')).toContain('تحسين وصياغة AI');
 		expect(src(D + 'clients-overview/project/project-details/project-details.html')).toContain('رؤى الذكاء');
-		expect(src(D + 'clients-overview/my-request/request-details/request-details.html')).toContain('تقييم العرض');
+		expect(src(D + 'clients-overview/my-request/request-details/request-details.html')).toMatch(/تقييم (?:جودة )?العرض/);
 		expect(src(D + 'clients-overview/help/help.html')).toContain('openAssistant()');
 		expect(src(D + 'provider-overview/profile/profile-setup/profile-setup.html').includes('#i-ai')).toBe(true);
 		expect(AI_LINKS.length).toBeGreaterThan(0);

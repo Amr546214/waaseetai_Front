@@ -33,6 +33,7 @@ export interface SetupTestQuestion {
 })
 export class SetupTestService {
   private socket: Socket | null = null;
+  private cachedQuestions: SetupTestQuestion[] = [];
 
   isGenerating = signal<boolean>(false);
   statusMsg = signal<string>('');
@@ -73,6 +74,7 @@ export class SetupTestService {
     this.warningMsg.set(null);
     this.result.set(null);
     this.currentQuestion.set(null);
+    this.cachedQuestions = [];
 
     const socketUrl = environment.url_api.includes('/api') 
       ? environment.url_api.replace('/api', '') 
@@ -93,7 +95,12 @@ export class SetupTestService {
     this.socket.on('setup_test:ready', (data: any) => {
       this.isGenerating.set(false);
       this.totalQuestions.set(data.totalQuestions);
-      this.socket?.emit('setup_test:get_question', { token: this.getToken() });
+      if (Array.isArray(data.questions) && data.questions.length > 0) {
+        this.cachedQuestions = data.questions;
+        this.currentQuestion.set(this.cachedQuestions[0]);
+      } else {
+        this.socket?.emit('setup_test:get_question', { token: this.getToken() });
+      }
     });
 
     this.socket.on('setup_test:question', (data: SetupTestQuestion) => {
@@ -122,12 +129,17 @@ export class SetupTestService {
 
   submitAnswer(questionId: string, selectedIndex: number) {
     const token = this.getToken();
+    const currentIdx = this.cachedQuestions.findIndex(q => q.id === questionId);
+    if (currentIdx >= 0 && currentIdx + 1 < this.cachedQuestions.length) {
+      this.currentQuestion.set(this.cachedQuestions[currentIdx + 1]);
+    } else {
+      this.currentQuestion.set(null);
+    }
     this.socket?.emit('setup_test:answer', {
       token,
       questionId,
       selectedIndex
     });
-    this.currentQuestion.set(null);
   }
 
   triggerAntiCheat(type: string) {

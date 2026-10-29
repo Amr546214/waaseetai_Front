@@ -261,17 +261,18 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 		expect(el().querySelector('#aw-menu')).toBeNull();
 		expect(store.panelOpen()).toBe(true);
 	});
-	it('uses the settings tab to control profile, text model, voice model, dialect, and volume', () => {
+	it('uses the settings tab to control profile, voice, dialect, and volume without exposing raw model selectors', () => {
 		store.capabilities.set({models:[{id:'chat-model',modalities:['text'],available:true},{id:'tts-model',modalities:['tts'],available:true},{id:'recording-model',modalities:['audio'],available:true}],voices:[{id:'Kore',label:'صوت'}]});
 		store.capabilityNotice.set('تنبيه الخيارات');fixture.componentInstance.openTab('settings');fixture.detectChanges();
 		const change=(selector:string,value:string)=>{const input=el().querySelector(selector) as HTMLSelectElement;input.value=value;input.dispatchEvent(new Event('change'));fixture.detectChanges();};
-		change('.pg-profile','deep');change('.pg-text-model','chat-model');
-		expect(store.profile()).toBe('deep');expect(store.effort()).toBe('high');expect(store.textModel()).toBe('chat-model');
+		change('.pg-profile','deep');
+		expect(store.profile()).toBe('deep');expect(store.effort()).toBe('high');
+		expect(el().querySelector('.pg-text-model')).toBeNull();
+		expect(el().querySelector('.pg-speech-model')).toBeNull();
 		expect(el().querySelector('.pg-voice-enabled')).toBeNull();
 		expect(el().querySelector('.pg-manual-audio-help')?.textContent).toContain('تشغيل الصوت يدويًا من زر كل رد');
 		change('.pg-speech-voice','Kore');expect(store.ttsVoice()).toBe('Kore');
 		change('.pg-speech-dialect','gulf');expect(store.ttsDialect()).toBe('gulf');
-		change('.pg-speech-model','tts-model');expect(store.ttsModel()).toBe('tts-model');expect(el().querySelector('.pg-speech-model')?.textContent).not.toContain('recording-model');
 		const volume=el().querySelector('.pg-volume') as HTMLInputElement;volume.value='0.4';volume.dispatchEvent(new Event('input'));expect(store.voiceVolume()).toBe(0.4);
 		expect(el().querySelector('.pg-capability-notice')?.textContent).toBe('تنبيه الخيارات');
 		fixture.componentInstance.openTab('chat');fixture.detectChanges();expect(el().querySelector('.ac__settings-panel,.ac__voice,select')).toBeNull();expect(el().textContent).not.toContain('تنبيه الخيارات');
@@ -281,13 +282,12 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 		store.capabilities.set(null);
 		fixture.componentInstance.openTab('settings');fixture.detectChanges();
 		expect(el().querySelector('.pg-voice-enabled')).toBeNull();
-		for (const selector of ['.pg-speech-voice', '.pg-speech-dialect', '.pg-speech-model', '.pg-volume']) {
+		for (const selector of ['.pg-speech-voice', '.pg-speech-dialect', '.pg-volume']) {
 			const control = el().querySelector(selector) as HTMLElement;
 			expect(control).toBeTruthy();
 			expect(control.closest('label')).toBeTruthy();
 			expect(control.getAttribute('aria-describedby')).toBe('aw-manual-audio-help');
 		}
-		expect(el().querySelector('.pg-speech-model')?.textContent).toContain('اختيار الخادم');
 		store.voiceEnabled.set(true);fixture.detectChanges();
 		expect(el().querySelector('.pg-voice-enabled')).toBeNull();
 		expect(el().querySelector('.pg-volume')).toBeTruthy();

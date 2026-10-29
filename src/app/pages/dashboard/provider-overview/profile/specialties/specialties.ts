@@ -1,6 +1,7 @@
 import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
-import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { AssistantStore } from '../../../../../core/store/assistant.store';
+import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, effect, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -129,7 +130,14 @@ export interface PortfolioReview {
 })
 export class Specialties implements OnInit, OnDestroy {
 	private specialtyService = inject(SpecialtyService);
+	private assistantStore = inject(AssistantStore, { optional: true });
 	private sanitizer = inject(DomSanitizer);
+
+	constructor() {
+		effect(() => {
+			try { this.assistantStore?.setExamActive(this.currentStep() === 4); } catch {}
+		});
+	}
 	// Hardcoded SVG glyph (no user data). Angular's HTML sanitizer strips <circle>/<path> inside [innerHTML] on an <svg>, which left every category icon blank.
 	private readonly categoryIcon: SafeHtml = this.sanitizer.bypassSecurityTrustHtml('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>');
 	private providerApi = inject(ProviderApiService);
@@ -566,15 +574,31 @@ export class Specialties implements OnInit, OnDestroy {
 		return this.selectedSubs().size === 0 ? [{ field: 'sub-chips', message: 'اختر تخصصاً فرعياً واحداً على الأقل.', label: 'التخصصات الفرعية' }] : [];
 	}
 
+	isTechOptional(subSpecialty?: string): boolean {
+		const specName = this.filteredSpecialties().find(s => s.id === this.selectedSpecId())?.name || '';
+		const combined = `${specName} ${subSpecialty || ''}`;
+		return /قانون|ضريب|محام|عقود|استشار|مالي|محاسب|ترجم|كتاب|إدار|موارد|تحكيم|شرعي/i.test(combined);
+	}
+
+	private hasProhibitedSampleContent(s: WorkSampleForm): string | null {
+		const norm = `${s.title || ''} ${s.description || ''}`.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').toLowerCase();
+		if (/تهرب\s*ضريبي|التهرب\s*الضريبي|غسيل\s*اموال|تزوير\s*فواتير|تلاعب\s*ضريبي|اخفاء\s*الارباح|مشروبات\s*روحيه|خمور|تجاره\s*مخدرات|قمار|اختراق\s*حسابات/i.test(norm)) {
+			return `«${s.subSpecialty || 'النموذج'}»: لا يُقبل رفع نماذج أعمال تتعلق بالتهرب الضريبي أو أنشطة مخالفة للأنظمة.`;
+		}
+		return null;
+	}
+
 	/** Step 2 problems per sample, in page order. The description keeps its own live message (descriptionError); the rest are marked here. */
 	private step2Problems(): { problems: FieldProblem[]; descriptionEl: HTMLElement | null } {
 		const problems: FieldProblem[] = [];
 		let descriptionEl: HTMLElement | null = null;
 		for (const s of this.samples()) {
 			const label = s.subSpecialty || 'النموذج';
+			const prohibited = this.hasProhibitedSampleContent(s);
+			if (prohibited) problems.push({ field: `sample-title-${s.id}`, message: prohibited });
 			if (s.title.trim().length < 3) problems.push({ field: `sample-title-${s.id}`, message: `«${label}»: عنوان النموذج 3 أحرف على الأقل.` });
 			if ((s.description || '').trim().length < 20) { const d = this.host.nativeElement.querySelector<HTMLElement>(`#sample-desc-${s.id}`); descriptionEl ??= d; }
-			if (s.technologies.length === 0) problems.push({ field: `sample-tech-${s.id}`, message: `«${label}»: أضف تقنية واحدة على الأقل.` });
+			if (s.technologies.length === 0 && !this.isTechOptional(s.subSpecialty)) problems.push({ field: `sample-tech-${s.id}`, message: `«${label}»: أضف تقنية واحدة على الأقل.` });
 			if (s.publicFile === null) problems.push({ field: `sample-public-${s.id}`, message: `«${label}»: ارفع الملف العام للنموذج.` });
 			if (s.proofFiles.length === 0) problems.push({ field: `sample-proof-${s.id}`, message: `«${label}»: ارفع ملف إثبات واحداً على الأقل.` });
 		}
@@ -747,9 +771,10 @@ export class Specialties implements OnInit, OnDestroy {
 		const currentSamples = this.samples();
 		if (currentSamples.length === 0) return false;
 		return !this.isSubmittingSamples() && currentSamples.every(s =>
+			!this.hasProhibitedSampleContent(s) &&
 			s.title.trim().length >= 3 &&
 			(s.description || '').trim().length >= 20 &&
-			s.technologies.length > 0 &&
+			(s.technologies.length > 0 || this.isTechOptional(s.subSpecialty)) &&
 			s.publicFile !== null && s.proofFiles.length > 0 && !s.isUploading && !s.isProcessingProofs
 		);
 	});
@@ -775,9 +800,11 @@ export class Specialties implements OnInit, OnDestroy {
 		for (const s of list) {
 			const label = s.subSpecialty || 'النموذج';
 			if (s.isUploading || s.isProcessingProofs) return `جارٍ معالجة ملفات «${label}»…`;
+			const prohibited = this.hasProhibitedSampleContent(s);
+			if (prohibited) return prohibited;
 			if (s.title.trim().length < 3) return `«${label}»: عنوان النموذج 3 أحرف على الأقل.`;
 			if ((s.description || '').trim().length < 20) return `«${label}»: الوصف 20 حرفاً على الأقل.`;
-			if (s.technologies.length === 0) return `«${label}»: أضف تقنية واحدة على الأقل.`;
+			if (s.technologies.length === 0 && !this.isTechOptional(s.subSpecialty)) return `«${label}»: أضف تقنية واحدة على الأقل.`;
 			if (s.publicFile === null) return `«${label}»: ارفع الملف العام للنموذج.`;
 			if (s.proofFiles.length === 0) return `«${label}»: ارفع ملف إثبات واحداً على الأقل.`;
 		}
@@ -880,9 +907,37 @@ export class Specialties implements OnInit, OnDestroy {
 		const sample = this.samples().find(s => s.id === sampleId);
 		if (!sample) return;
 		const sub = sample.subSpecialty || 'التخصص المختار';
-		const techs = ['TypeScript', 'Angular', 'Node.js', 'PostgreSQL', 'Docker', 'REST API'];
-		const title = `تطوير منظومة رقمية متكاملة في ${sub}`;
-		const description = `قمت بتصميم وتطوير بنية معمارية متكاملة لمشروع في مجال (${sub}) شملت بناء واجهات تفاعلية سريعة الاستجابة، وربط خدمات الواجهة الخلفية وقواعد البيانات مع تطبيق أعلى معايير الأمان وتحسين الأداء بنسبة 45% وتوثيق الكود المصدري بالكامل.`;
+		const specName = this.filteredSpecialties().find(s => s.id === this.selectedSpecId())?.name || '';
+		const contextText = `${specName} ${sub}`;
+		let techs = ['TypeScript', 'Angular', 'Node.js', 'PostgreSQL', 'Docker', 'REST API'];
+		let title = `تطوير منظومة رقمية متكاملة في ${sub}`;
+		let description = `قمت بتصميم وتطوير بنية معمارية متكاملة لمشروع في مجال (${sub}) شملت بناء واجهات تفاعلية سريعة الاستجابة، وربط خدمات الواجهة الخلفية وقواعد البيانات مع تطبيق أعلى معايير الأمان وتحسين الأداء بنسبة 45% وتوثيق الكود المصدري بالكامل.`;
+
+		if (/قانون|ضريب|محام|عقود|استشارات قانونية|زكاة|قضائ|تحكيم/i.test(contextText)) {
+			techs = ['نظام ضريبة القيمة المضافة', 'نظام الزكاة والدخل', 'صياغة المذكرات القانونية', 'الامتثال الضريبي', 'مراجعة العقود التجارية'];
+			title = `إعداد مذكرة دفاع واستشارة امتثال في ${sub}`;
+			description = `قمت بإعداد دراسة قانونية ومذكرة اعتراض متكاملة في مجال (${sub}) شملت فحص الإقرارات والمستندات المحاسبية، وتحليل الأسانيد النظامية واللوائح التنفيذية لهيئة الزكاة والضريبة والجمارك، وصياغة توصيات الامتثال القانوني وتلافي الغرامات.`;
+		} else if (/ألعاب|العاب|يونيتي|انريل|unity|unreal|game/i.test(contextText)) {
+			techs = ['Unity 3D', 'C#', 'Shader Graph', 'NavMesh AI', 'Addressables', 'Netcode'];
+			title = `تطوير وبرمجة لعبة تفاعلية ثلاثية الأبعاد في ${sub}`;
+			description = `قمت بتصميم وبرمجة أنظمة اللعب الأساسية (Core Gameplay Mechanics) في مجال (${sub}) باستخدام محرك الألعاب، مع بناء الذكاء الاصطناعي للشخصيات، وتحسين معدل الإطارات (FPS) وإدارة الذاكرة على مختلف المنصات.`;
+		} else if (/تصميم|جرافيك|هوية|شعار|واجهات|ui|ux|فيديو|موشن/i.test(contextText)) {
+			techs = ['Figma', 'Adobe Illustrator', 'Adobe Photoshop', 'Design System', 'Prototyping'];
+			title = `تصميم هوية بصرية ونظام واجهات متكامل في ${sub}`;
+			description = `قمت ببناء الهوية البصرية ونظام التصميم المتكامل في مجال (${sub}) شاملاً دراسة تجربة المستخدم، ورسم النماذج التفاعلية، وإعداد دليل الهوية والملفات المصدرية القابلة للتطوير.`;
+		} else if (/تسويق|إعلان|سيو|seo|مبيعات|حملات/i.test(contextText)) {
+			techs = ['Google Analytics 4', 'Meta Ads Manager', 'Google Ads', 'SEMrush', 'تحسين معدل التحويل CRO'];
+			title = `إدارة وتنفيذ حملة نمو رقمي في ${sub}`;
+			description = `قمت بتخطيط وإدارة استراتيجية تسويقية متكاملة في مجال (${sub}) شملت تحليل الجمهور المستهدف، وإطلاق الحملات الإعلانية الممولة، وتحسين معدل التحويل والعائد على الإنفاق الإعلاني (ROAS).`;
+		} else if (/مالي|محاسب|دراسة جدوى|أعمال|إدار/i.test(contextText)) {
+			techs = ['المعايير الدولية IFRS', 'النمذجة المالية Financial Modeling', 'التحليل المالي', 'Power BI', 'Excel المتقدم'];
+			title = `إعداد نموذج مالي ودراسة تحليلية في ${sub}`;
+			description = `قمت بإعداد نموذج مالي متكامل وتقارير مراجعة دقيقة في مجال (${sub}) وفق المعايير المعتمدة، شملت تحليل التدفقات النقدية، وتقييم المخاطر، وبناء لوحات مؤشرات الأداء المالي.`;
+		} else if (/ترجم|كتاب|محتوى|تحرير|تدقيق/i.test(contextText)) {
+			techs = ['الترجمة المعتمدة', 'الصياغة التحريرية', 'التدقيق اللغوي', 'SDL Trados', 'دليل الأسلوب اللغوي'];
+			title = `إعداد وصياغة محتوى تخصصي معتمد في ${sub}`;
+			description = `قمت بإعداد وصياغة ومراجعة نصوص تخصصية في مجال (${sub}) مع الالتزام التام بالمصطلحات المعتمدة، والتدقيق اللغوي والأسلبي الشامل لضمان أعلى درجات الدقة والوضوح.`;
+		}
 		try {
 			const pub = await this.createSyntheticPngFile(`work-sample-${sampleId.slice(-4)}.png`, title, `التقنيات: ${techs.slice(0, 4).join(' · ')}`);
 			const proof = await this.createSyntheticPngFile(`ownership-proof-${sampleId.slice(-4)}.png`, `وثيقة إثبات الملكية والكود المصدري`, `التخصص: ${sub} — ملكية حصرية لمقدم الخدمة`);
@@ -1607,6 +1662,7 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		try { this.assistantStore?.setExamActive(false); } catch {}
 		this.stopTimer();
 		this.clearSubmissionWatchers();
 		this.antiCheatService.stopMonitoring();

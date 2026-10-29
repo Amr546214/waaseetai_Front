@@ -1,9 +1,10 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { AuthStore } from './core/store/auth.store';
+import { AssistantStore } from './core/store/assistant.store';
 import { ConfirmModalComponent } from './sheards/confirm-modal/confirm-modal.component';
 import { NotificationHostComponent } from './shared/forms/notification-host.component';
 import { FormA11ySyncService } from './shared/forms/form-a11y-sync.service';
@@ -44,10 +45,12 @@ import { assistantLiftPx, isAssistantHidden } from './sheards/assistant-widget/a
 })
 export class App implements OnInit {
 	authStore = inject(AuthStore);
+	private readonly assistantStore = inject(AssistantStore);
 	showLoader = signal(true);
 	private readonly router = inject(Router);
-	/** True on routes that opt out of the floating assistant (`data.hideAssistant`). */
-	readonly assistantHidden = signal(false);
+	private readonly routeHidden = signal(false);
+	/** True on routes that opt out of the floating assistant (`data.hideAssistant`) or during active exams. */
+	readonly assistantHidden = computed(() => this.routeHidden() || this.assistantStore.examActive());
 	/** Extra px the assistant floats above the viewport floor on pages with a bottom action bar. */
 	readonly assistantLift = signal(0);
 
@@ -78,7 +81,7 @@ export class App implements OnInit {
 
 	private syncAssistantRoute(): void {
 		const root = this.router.routerState.snapshot.root;
-		this.assistantHidden.set(isAssistantHidden(root));
+		this.routeHidden.set(isAssistantHidden(root));
 		this.assistantLift.set(assistantLiftPx(root));
 	}
 }

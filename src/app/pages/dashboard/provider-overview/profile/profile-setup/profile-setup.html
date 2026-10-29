@@ -445,7 +445,7 @@
               <div class="uploaded-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-file"></use></svg></div>
               <div style="flex:1;min-width:0">
                 <div class="uploaded-name">{{ uploadedFrontIdName() }}</div>
-                <div class="uploaded-size">{{ getUploadState('frontId')?.status === 'uploaded' ? 'تم الرفع' : '...' }}</div>
+                <div class="uploaded-size">{{ getUploadState('frontId')?.status === 'uploaded' ? 'تم الرفع — مستند واضح وجاهز للمراجعة ✓' : '...' }}</div>
               </div>
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('frontId')" aria-label="حذف الملف">&#x2715;</button>
             </div>
@@ -504,7 +504,7 @@
               <div class="uploaded-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-file"></use></svg></div>
               <div style="flex:1;min-width:0">
                 <div class="uploaded-name">{{ uploadedBackIdName() }}</div>
-                <div class="uploaded-size">{{ getUploadState('backId')?.status === 'uploaded' ? 'تم الرفع' : '...' }}</div>
+                <div class="uploaded-size">{{ getUploadState('backId')?.status === 'uploaded' ? 'تم الرفع — مستند واضح وجاهز للمراجعة ✓' : '...' }}</div>
               </div>
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('backId')" aria-label="حذف الملف">&#x2715;</button>
             </div>
@@ -568,7 +568,7 @@
               <div class="uploaded-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-camera"></use></svg></div>
               <div style="flex:1;min-width:0">
                 <div class="uploaded-name">{{ uploadedSelfieName() }}</div>
-                <div class="uploaded-size">{{ getUploadState('selfie')?.status === 'uploaded' ? 'تم الرفع' : '...' }}</div>
+                <div class="uploaded-size">{{ getUploadState('selfie')?.status === 'uploaded' ? 'تم الرفع — مستند واضح وجاهز للمراجعة ✓' : '...' }}</div>
               </div>
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('selfie')" aria-label="حذف الملف">&#x2715;</button>
             </div>

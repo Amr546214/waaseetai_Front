@@ -163,7 +163,6 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 				</select>
 			</label>
 			<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto">تلقائي</option><option value="fast">سريع ومختصر</option><option value="balanced">متوازن</option><option value="deep">شرح وتحليل مفصل</option></select></label>
-			@if (textModels().length) { <label>النموذج<select [value]="store.textModel()" (change)="store.textModel.set($any($event.target).value)"><option value="">اختيار الخادم</option>@for (model of textModels(); track model.id) { <option [value]="model.id">{{ model.label || model.id }}</option> }</select></label> }
 			<label>اللهجة
 				<select class="ac__dialect" [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)">
 					<option value="auto" [selected]="store.ttsDialect() === 'auto'">تلقائي من كلامك</option>
@@ -179,7 +178,6 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 						}
 					</select>
 				</label>
-				@if (speechModels().length) { <label>جودة الصوت<select [value]="store.ttsModel()" (change)="setSpeechModel($any($event.target).value)">@for (model of speechModels(); track model.id) { <option [value]="model.id">{{ model.label || model.id }}</option> }</select></label> }
 				<label>مستوى الصوت<input type="range" min="0" max="1" step="0.1" [value]="store.voiceVolume()" (input)="store.setVolume(+$any($event.target).value)" /></label>
 			<small>شغّل صوت أي رد من زر الاستماع أسفله. الصوت مُولّد آليًا.</small>
 		</div>

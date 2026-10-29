@@ -12,10 +12,8 @@ import { AssistantPositionSettingsComponent } from './assistant-position-setting
 		<label>الشخصية<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)"><option value="scout">نديم — دليل وسيط</option><option value="classic">بيبو — المساعد الكرتوني</option></select></label>
 		<app-assistant-position-settings />
 		<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto">تلقائي</option><option value="fast">سريع ومختصر</option><option value="balanced">متوازن</option><option value="deep">شرح وتحليل مفصل</option></select></label>
-		@if (textModels().length) { <label>النموذج<select [value]="store.textModel()" (change)="store.textModel.set($any($event.target).value)"><option value="">اختيار الخادم</option>@for (model of textModels(); track model.id) { <option [value]="model.id">{{ model.label || model.id }}</option> }</select></label> }
 		<label>اللهجة<select [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)"><option value="auto">تلقائي حسب كلامك</option>@for (dialect of dialects; track dialect.id) { <option [value]="dialect.id">{{ dialect.label }}</option> }</select></label>
 			<label>الصوت<select [value]="store.ttsVoice()" (change)="store.setVoice($any($event.target).value)">@for (voice of voices(); track voice.id) { <option [value]="voice.id">{{ voice.label || voice.id }}</option> }</select></label>
-			@if (speechModels().length) { <label>جودة الصوت<select [value]="store.ttsModel()" (change)="store.setTtsModel($any($event.target).value)">@for (model of speechModels(); track model.id) { <option [value]="model.id">{{ model.label || model.id }}</option> }</select></label> }
 			<label>مستوى الصوت<input type="range" min="0" max="1" step="0.1" [value]="store.voiceVolume()" (input)="store.setVolume(+$any($event.target).value)" /></label>
 		@if (store.capabilityNotice()) { <p role="status">{{ store.capabilityNotice() }}</p> }
 		<small>الصوت مُولّد آليًا.</small>

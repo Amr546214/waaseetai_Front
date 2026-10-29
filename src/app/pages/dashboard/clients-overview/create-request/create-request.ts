@@ -374,6 +374,8 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.isAiStreaming.set(false);
     this.aiPhase.set('idle');
     this.aiMode.set(null);
+    this.lastAiTitle = '';
+    this.lastAiDescription = '';
   }
 
   private shouldResumeDraft(): boolean {
@@ -792,8 +794,37 @@ export class CreateRequest implements OnInit, OnDestroy {
 
   static readonly TITLE_MAX = 80;
   static readonly DESCRIPTION_MAX = 2000;
+  private lastAiTitle = '';
+  private lastAiDescription = '';
+
+  private checkProhibitedContent(text: string): string | null {
+    const norm = (text || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').toLowerCase();
+    if (/مشروبات\s*روحيه|خمور|كحوليات|متجر\s*خمور|بيع\s*خمور|بيع\s*كحول|نبيذ|ويبسايت.*مشروبات\s*روحيه|liquor\s*store|alcohol\s*shop/i.test(norm)) {
+      return 'عذراً، يمنع نشر أو صياغة طلبات تتعلق ببيع المشروبات الروحية أو الكحوليات لمخالفتها سياسات المنصة.';
+    }
+    if (/تهرب\s*ضريبي|التهرب\s*الضريبي|غسيل\s*اموال|تزوير\s*فواتير|تلاعب\s*ضريبي|اخفاء\s*الارباح|tax\s*evasion|money\s*laundering/i.test(norm)) {
+      return 'عذراً، يمنع نشر أو صياغة طلبات تتعلق بالتهرب الضريبي أو التحايل المالي لمخالفتها الأنظمة وسياسات المنصة.';
+    }
+    if (/تجاره\s*مخدرات|بيع\s*مخدرات|قمار|مراهنات|كازينو|اختراق\s*حسابات|سرقه\s*بيانات/i.test(norm)) {
+      return 'عذراً، هذا الطلب يحتوي على نشاط محظور يخالف شروط الاستخدام في منصة وسيط.';
+    }
+    return null;
+  }
+
   /** The fields stop at their limits even when the text arrives by paste/drop (the counter never reads past the maximum). */
-  setTitle(value: string) { this.title.set((value ?? '').slice(0, CreateRequest.TITLE_MAX)); }
+  setTitle(value: string) {
+    const next = (value ?? '').slice(0, CreateRequest.TITLE_MAX);
+    const prev = this.title();
+    this.title.set(next);
+    if (this.lastAiTitle && next.trim() !== this.lastAiTitle && prev.trim() !== next.trim()) {
+      if (this.description().trim() === this.lastAiDescription) {
+        this.description.set('');
+        this.outputs.set('');
+        this.requirements.set([]);
+      }
+      this.showAiSuggest.set(false);
+    }
+  }
   setDescription(value: string) { this.description.set((value ?? '').slice(0, CreateRequest.DESCRIPTION_MAX)); }
 
   /** The extra conditions («شروط إضافية») are free text (not skills): they travel with the request's own conditions text. */
@@ -911,15 +942,24 @@ export class CreateRequest implements OnInit, OnDestroy {
       return;
     }
 
+    const policyError = this.checkProhibitedContent(`${rawTitle} ${rawDesc}`);
+    if (policyError) {
+      this.notify.error(policyError);
+      return;
+    }
+
+    const titleChangedFromLastAi = !!(this.lastAiTitle && rawTitle && rawTitle !== this.lastAiTitle);
+    const effectiveDesc = (titleChangedFromLastAi && rawDesc === this.lastAiDescription) ? '' : rawDesc;
+
     this.isFetchingAiDraft.set(true);
-    if (rawDesc) {
-      this.aiOriginalDescription.set(rawDesc);
+    if (effectiveDesc) {
+      this.aiOriginalDescription.set(effectiveDesc);
     }
 
     this.projectApi.getAiDraftSuggestion({
       fullDraft: true,
       title: rawTitle || undefined,
-      description: rawDesc || undefined,
+      description: effectiveDesc || undefined,
       specialtyId: this.selectedSpec() || undefined,
       specialtyName: specName || 'عام',
       subSpecialties: Array.from(this.selectedSubs()),
@@ -940,6 +980,8 @@ export class CreateRequest implements OnInit, OnDestroy {
         if (d.suggestedDescription) {
           this.setDescription(this.formatClientDraftText(d.suggestedDescription, false));
         }
+        this.lastAiTitle = this.title().trim();
+        this.lastAiDescription = this.description().trim();
 
         // Match requiredSkills against loaded catalog (skillOptions) so backend validation always passes
         const catalog = this.skillOptions();
@@ -1002,6 +1044,11 @@ export class CreateRequest implements OnInit, OnDestroy {
     if (!this.canRefineWithAi()) {
       // No AI call, no socket, nothing written into the form.
       this.notify.warning(REWRITE_INPUT_REQUIRED_MESSAGE);
+      return;
+    }
+    const policyError = this.checkProhibitedContent(`${projTitle} ${this.description()}`);
+    if (policyError) {
+      this.notify.error(policyError);
       return;
     }
 
@@ -1281,7 +1328,7 @@ export class CreateRequest implements OnInit, OnDestroy {
       return true; // All fields have defaults
     }
     if (step === 3) {
-      return this.title().trim().length >= 3 && this.description().trim().length >= 10 && this.deliveryDaysValid();
+      return this.title().trim().length >= 3 && this.description().trim().length >= 10 && this.deliveryDaysValid() && !this.checkProhibitedContent(`${this.title()} ${this.description()} ${this.outputs()}`);
     }
     if (step === 4) {
       // Same predicate as stepProblems(4): a value counts only when it is a finite number above 0.
@@ -1322,6 +1369,8 @@ export class CreateRequest implements OnInit, OnDestroy {
       if (!spec) add('f-specialty-grid', 'اختر تخصصًا واحدًا للمتابعة');
       else if (spec.id === 'other' && this.otherText().trim().length < 5) add('f-other-spec', 'اكتب اسم التخصص بخمسة أحرف على الأقل');
     } else if (step === 3) {
+      const policyError = this.checkProhibitedContent(`${this.title()} ${this.description()} ${this.outputs()}`);
+      if (policyError) add('f-title', policyError);
       if (this.title().trim().length < 3) add('f-title', 'اكتب عنوانًا للطلب (3 أحرف على الأقل)');
       if (this.description().trim().length < 10) add('f-desc', 'اكتب وصفًا للطلب (10 أحرف على الأقل)');
       if (this.deliveryDays() === null) add('f-deadline', 'أدخل أيام التسليم المقترحة');

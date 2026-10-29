@@ -192,14 +192,6 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 								</select>
 							</label>
 							<app-assistant-position-settings />
-							@if (textModels().length) {
-								<label>النموذج
-									<select class="pg-text-model" [value]="store.textModel()" (change)="store.textModel.set($any($event.target).value)">
-										<option value="">اختيار الخادم</option>
-										@for (model of textModels(); track model.id) { <option [value]="model.id">{{ model.label || model.id }}</option> }
-									</select>
-								</label>
-							}
 							<label>
 								اللهجة
 								<select class="pg-speech-dialect" [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)" aria-describedby="aw-manual-audio-help">
@@ -215,12 +207,6 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 									@for (v of availableVoices(); track v.id) {
 										<option [value]="v.id">{{ v.label || v.id }}</option>
 									}
-								</select>
-							</label>
-							<label>نموذج الصوت
-								<select class="pg-speech-model" [value]="store.ttsModel()" (change)="store.setTtsModel($any($event.target).value)" aria-describedby="aw-manual-audio-help">
-									<option value="">اختيار الخادم</option>
-									@for (model of speechModels(); track model.id) { <option [value]="model.id">{{ model.label || model.id }}</option> }
 								</select>
 							</label>
 							<label>مستوى الصوت
