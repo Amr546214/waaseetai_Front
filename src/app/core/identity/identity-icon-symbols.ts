@@ -1,5 +1,6 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { ApplicationRef, Injectable, Injector, PLATFORM_ID, effect, inject } from '@angular/core';
+import { CSS_BOUND_ICONS } from '../../shared/forms/css-bound-icons';
 import { ParsedSvgIcon, paintGroupAttrs, parseCustomSvg } from './identity-ai-icon';
 import { SiteIdentityService } from './site-identity.service';
 
@@ -25,7 +26,7 @@ export const ICON_ALIASES: Readonly<Record<string, string>> = { 'spa-i-bell2': '
  * (the dark / light / form colour each rule already uses). Every stylesheet rule reads `var(--ws-icon-<id>-<hex>, url(<its own default>))`: with no custom property the computed value is the same string as before (default pixels unchanged),
  * and each rule keeps its own per-theme colour and its own size / position / repeat.
  */
-export const CSS_BOUND_ICONS: Readonly<Record<string, readonly string[]>> = { 'pl-shared-select-arrow': ['a8b2d1', '475569', '6b7699'] };
+export { CSS_BOUND_ICONS };
 export const cssVarOf = (id: string, hex: string): string => `--ws-icon-${id}-${hex.toLowerCase()}`;
 const XML_ESC = (s: string): string => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 /** the `<svg>` text of a parsed file as a standalone background image of `size` px, `currentColor` replaced by `#hex` (the file's own colours are kept) */

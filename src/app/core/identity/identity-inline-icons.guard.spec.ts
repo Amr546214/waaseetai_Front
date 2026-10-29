@@ -3,7 +3,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { CSS_BOUND_ICONS } from './identity-icon-symbols';
+import { existsSync } from 'node:fs';
+import { CSS_BOUND_ICONS } from '../../shared/forms/css-bound-icons';
 import { INLINE_ICON_IDS, INLINE_ICON_SYMBOLS } from './identity-inline-icons';
 
 // Round 9 guards: every drawing in a template / sidebar item / TS table that looks like an icon either FOLLOWS a key (data-ws-icon / ws / wsIcon) or is listed with its exact reason; every `pl-*` key written in the code
@@ -72,5 +73,11 @@ describe('inline icon keys (registry, places, sidebar, CSS)', () => {
 		expect(n).toBe(5);
 		// and no stylesheet still draws a select arrow with a bare data URI (it would not follow the published icon)
 		for (const f of walk(join(ROOT, 'src')).filter(p => p.endsWith('.css'))) expect(/background-image:\s*url\(\s*["']?data:image\/svg/.test(readFileSync(f, 'utf8')), f).toBe(false);
+	});
+
+	const BE = join(ROOT, '..', 'wt-be-id', 'src', 'config', 'site-identity-icon-allowlist.generated.json');
+	(existsSync(BE) ? it : it.skip)('every CSS-bound key is WIRED on the BE allow-list (a stylesheet is not scanned: the key must be named by a consumer file)', () => {
+		const al = JSON.parse(readFileSync(BE, 'utf8')) as { symbols: { id: string; reason: string | null }[] };
+		for (const k of Object.keys(CSS_BOUND_ICONS)) expect(al.symbols.find(s => s.id === k)?.reason, k).toBeNull();
 	});
 });
