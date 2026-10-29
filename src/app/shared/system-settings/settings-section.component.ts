@@ -1,3 +1,4 @@
+import { spaIconHref } from './spa-icons';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../forms/select.component';
@@ -48,6 +49,8 @@ const show = (v: unknown) => (typeof v === 'boolean' ? STATE_WORD(v) : v === nul
 	styleUrl: './settings-section.component.css',
 })
 export class SettingsSectionComponent {
+	/** `#spa-i-<name>` of the spa variant's icon name */
+	spaHref = spaIconHref;
 	readonly store = inject(SystemSettingsStore);
 	private confirmModal = inject(ConfirmModalService);
 	private api = inject(SystemSettingsApi);

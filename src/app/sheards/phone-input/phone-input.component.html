@@ -3,9 +3,9 @@
 	<!-- Country Selector Trigger Button -->
 	<div class="country-selector-btn" (click)="toggleDropdown($event)" (keydown.enter)="onTriggerKey($event)" (keydown.space)="onTriggerKey($event)" (keydown.escape)="isOpen = false"
 		role="button" tabindex="0" aria-haspopup="listbox" [attr.aria-expanded]="isOpen" [attr.aria-label]="triggerLabel">
-		<span class="flag" aria-hidden="true">@if (!unresolved && !flagBroken(selectedCountry?.code)) {<img class="flag-img" [src]="flagSrc(selectedCountry.code)" width="24" height="16" alt="" loading="lazy" decoding="async" (error)="onFlagError(selectedCountry.code)" />} @else {<svg class="flag-globe" width="24" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="6.5"/><path d="M5.5 8h13M12 1.5c-2.5 2-2.5 11 0 13M12 1.5c2.5 2 2.5 11 0 13"/></svg>}</span>
+		<span class="flag" aria-hidden="true">@if (!unresolved && !flagBroken(selectedCountry?.code)) {<img class="flag-img" [src]="flagSrc(selectedCountry.code)" width="24" height="16" alt="" loading="lazy" decoding="async" (error)="onFlagError(selectedCountry.code)" />} @else {<svg data-ws-icon="pl-shared-globe" class="flag-globe" width="24" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="6.5"/><path d="M5.5 8h13M12 1.5c-2.5 2-2.5 11 0 13M12 1.5c2.5 2 2.5 11 0 13"/></svg>}</span>
 		<span class="dial-code" dir="ltr" data-testid="phone-dial-code">{{ dialLabel }}</span>
-		<svg class="arrow-icon" [class.open]="isOpen" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+		<svg data-ws-icon="pl-shared-chevron-down" class="arrow-icon" [class.open]="isOpen" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 			<path d="M1 1L5 5L9 1"/>
 		</svg>
 	</div>
@@ -27,7 +27,7 @@
 			<div class="dropdown-item" *ngFor="let item of filteredCountries" role="option" tabindex="0" [class.selected]="!unresolved && item.code === selectedCountry?.code"
 				[attr.aria-selected]="!unresolved && item.code === selectedCountry?.code" [attr.aria-label]="item.name + ' ' + item.dialCode"
 				(click)="selectCountry(item, $event)" (keydown.enter)="selectCountry(item, $event)" (keydown.space)="selectCountry(item, $event)">
-				<span class="flag" aria-hidden="true">@if (!flagBroken(item.code)) {<img class="flag-img" [src]="flagSrc(item.code)" width="24" height="16" alt="" loading="lazy" decoding="async" (error)="onFlagError(item.code)" />} @else {<svg class="flag-globe" width="24" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="6.5"/><path d="M5.5 8h13M12 1.5c-2.5 2-2.5 11 0 13M12 1.5c2.5 2 2.5 11 0 13"/></svg>}</span>
+				<span class="flag" aria-hidden="true">@if (!flagBroken(item.code)) {<img class="flag-img" [src]="flagSrc(item.code)" width="24" height="16" alt="" loading="lazy" decoding="async" (error)="onFlagError(item.code)" />} @else {<svg data-ws-icon="pl-shared-globe" class="flag-globe" width="24" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="8" r="6.5"/><path d="M5.5 8h13M12 1.5c-2.5 2-2.5 11 0 13M12 1.5c2.5 2 2.5 11 0 13"/></svg>}</span>
 				<span class="country-name">{{ item.name }}</span>
 				<span class="dial-badge" dir="ltr">{{ item.dialCode }}</span>
 			</div>

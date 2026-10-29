@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -13,7 +13,19 @@ describe('icon usage report (used vs unused, bound vs unbound)', () => {
 	}, 120_000);
 	it('classifies every real icon exactly once with one of the three statuses', () => {
 		const u = A('icon-usage.json'); const real = A('real-icons.json').icons;
-		for (const id of Object.keys(real)) expect(['BOUND', 'USED_UNBOUND', 'UNUSED'], id).toContain(u.icons[id]?.status);
+		for (const id of Object.keys(real)) expect(['BOUND', 'UNUSED'], id).toContain(u.icons[id]?.status);
+	});
+	it('USED+UNBOUND is empty: no id is drawn without a key, every unused duplicate names the BOUND keys that draw the same picture, every non-followable place has its exact reason', () => {
+		const u = A('icon-usage.json');
+		const all = { ...u.libraryOnly, ...u.icons } as Record<string, { status: string; sameDrawing?: { keys: string[] } }>;
+		expect(Object.entries(all).filter(([, v]) => v.status === 'USED_UNBOUND').map(([k]) => k)).toEqual([]);
+		for (const [id, v] of Object.entries(all)) for (const k of v.sameDrawing?.keys ?? []) expect(all[k]?.status ?? 'BOUND', `${id} -> ${k}`).toBe('BOUND');
+		const known = ['DYNAMIC', 'AI_MARK', 'NOT_AN_ICON', 'NOTHING_DRAWN', 'CONTENT_DRIVEN'];
+		for (const p of u.unboundPlaces as { file: string; line: number; reason: string; why: string }[]) { expect(known, p.file).toContain(p.reason); expect(p.why.length, p.file).toBeGreaterThan(10); expect(existsSync(join(ROOT, p.file)), p.file).toBe(true); }
+	});
+	it('every hand-written non-followable holder still contains its needle (the list cannot rot)', () => {
+		const h = JSON.parse(readFileSync(join(ROOT, 'tools/unbound-holders.json'), 'utf8')).holders as { file: string; needle: string }[];
+		for (const x of h) expect(readFileSync(join(ROOT, x.file), 'utf8'), x.file).toContain(x.needle);
 	});
 	it('no slot is an EMPTY card: every real icon and every library slot has a drawn shape', () => {
 		const shape = /<(path|circle|rect|line|polyline|polygon|ellipse)\b/;

@@ -20,7 +20,7 @@ import { avatarGradient, initials } from '../marketing-utils';
         } @else {
           <span class="assign-av">★</span><span>كل الشركة</span>
         }
-        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        <svg data-ws-icon="pl-provider-chevron-down" class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       @if (open()) {
         <div class="assign-panel">

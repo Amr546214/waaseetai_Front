@@ -119,19 +119,23 @@ export class NotificationEngineService implements OnDestroy {
 	// no new icon dependency introduced.
 	private static readonly ICON_MESSAGE: IconStyle = {
 		bg: 'bg-[rgba(43,212,199,.12)]', color: 'text-[#2BD4C7]',
-		svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'
+		svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+		ws: 'pl-notify-message'
 	};
 	private static readonly ICON_PROJECT: IconStyle = {
 		bg: 'bg-[rgba(43,127,255,.12)]', color: 'text-[#2B7FFF]',
-		svg: '<path d="M3 11h18v11H3zM7 11V7a5 5 0 0 1 10 0v4"/>'
+		svg: '<path d="M3 11h18v11H3zM7 11V7a5 5 0 0 1 10 0v4"/>',
+		ws: 'pl-notify-project'
 	};
 	private static readonly ICON_OFFER: IconStyle = {
 		bg: 'bg-[rgba(43,127,255,.12)]', color: 'text-[#2B7FFF]',
-		svg: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/>'
+		svg: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/>',
+		ws: 'pl-notify-offer'
 	};
 	private static readonly ICON_FINANCE: IconStyle = {
 		bg: 'bg-[rgba(255,180,0,.12)]', color: 'text-[#FFB400]',
-		svg: '<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM16 14a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>'
+		svg: '<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM16 14a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>',
+		ws: 'pl-notify-finance'
 	};
 	private static readonly ICON_AI: IconStyle = {
 		bg: 'bg-[rgba(123,47,190,.16)]', color: 'text-[#7B2FBE]',

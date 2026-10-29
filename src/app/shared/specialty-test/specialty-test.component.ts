@@ -119,7 +119,7 @@ export interface SpecialtyTestResult {
 						<div class="test-progress-bar"><div class="test-progress-fill" [style.width.%]="progressPercent()"></div></div>
 					</div>
 					<div class="timer-wrap" [class.critical]="timerCritical()" aria-live="polite" aria-label="الوقت المتبقي">
-						<svg class="timer-ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+						<svg data-ws-icon="pl-shared-clock" class="timer-ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 						<span class="timer-display" data-testid="specialty-test-timer">{{ timeLabel() }}</span>
 					</div>
 				</div>

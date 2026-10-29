@@ -19,16 +19,28 @@ interface Parsed { sha: string; icon: ParsedSvgIcon; text: string }
 export const WS_ICON_ATTR = 'data-ws-icon';
 /** ids that are THE SAME ELEMENT as another id (a second copy of the picture under another symbol id): while the alias has no key of its own customised it follows the target */
 export const ICON_ALIASES: Readonly<Record<string, string>> = { 'spa-i-bell2': 'i-bell' };
-/** icons that CSS draws as a mask / background: while customised the runtime publishes them as `--ws-icon-<id>: url(data:image/svg+xml,…)` on <html>; the stylesheet keeps its own url() as the fallback of var() */
-export const CSS_BOUND_ICON_IDS = new Set<string>();
-export const cssVarOf = (id: string): string => '--ws-icon-' + id;
+/**
+ * Icons that CSS draws as a background (the arrow of every native `<select>`): key -> the stroke colours the stylesheets give it. The colour is part of the data URI, so a published file cannot simply replace the url():
+ * while the key is customised the runtime publishes ONE custom property PER COLOUR on <html> - `--ws-icon-<id>-<hex>: url("data:image/svg+xml,...")` - built from the published file with its `currentColor` replaced by that exact colour
+ * (the dark / light / form colour each rule already uses). Every stylesheet rule reads `var(--ws-icon-<id>-<hex>, url(<its own default>))`: with no custom property the computed value is the same string as before (default pixels unchanged),
+ * and each rule keeps its own per-theme colour and its own size / position / repeat.
+ */
+export const CSS_BOUND_ICONS: Readonly<Record<string, readonly string[]>> = { 'pl-shared-select-arrow': ['a8b2d1', '475569', '6b7699'] };
+export const cssVarOf = (id: string, hex: string): string => `--ws-icon-${id}-${hex.toLowerCase()}`;
+const XML_ESC = (s: string): string => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+/** the `<svg>` text of a parsed file as a standalone background image of `size` px, `currentColor` replaced by `#hex` (the file's own colours are kept) */
+export function cssIconSvg(icon: ParsedSvgIcon, hex: string, size = 12): string {
+	const attrs = Object.entries(paintGroupAttrs(icon)).map(([k, v]) => ` ${k}="${XML_ESC(v)}"`).join('');
+	const body = icon.children.map(c => new XMLSerializer().serializeToString(c)).join('').replace(/\sxmlns="http:\/\/www\.w3\.org\/2000\/svg"/g, '');
+	return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="${XML_ESC(icon.viewBox)}"${icon.preserveAspectRatio ? ` preserveAspectRatio="${XML_ESC(icon.preserveAspectRatio)}"` : ''}${attrs}>${body}</svg>`.replace(/currentColor/gi, '#' + hex);
+}
 const SELECTOR = 'symbol[id], svg[data-ws-icon]';
 
 /**
  * Makes every place that shows a function icon follow the published file. Adapters (all keep the DEFAULT markup byte-for-byte while the manifest has no `icon.fn.*` item):
  *  1. `<symbol id="x">` drawn through `<use href="#x">` (every copy of the id, any template),
  *  2. an inline / TypeScript-built `<svg data-ws-icon="x">` (the place's own size, classes, colour and states stay on the svg; only its drawing and viewBox are swapped),
- *  3. CSS masks / backgrounds through a custom property (`CSS_BOUND_ICON_IDS`), 4. `<img [wsIdentityImg]="'icon.fn.x'">` (the existing image adapter),
+ *  3. CSS masks / backgrounds through custom properties (`CSS_BOUND_ICONS`, one per colour), 4. `<img [wsIdentityImg]="'icon.fn.x'">` (the existing image adapter),
  *  5. an alias (`ICON_ALIASES`): a second symbol id that is the same element follows its target until it has its own customisation.
  * The drawing sits in a <g> that resets the host's inherited outline paint, then applies what the file declared (same paint rules as the AI icon runtime); `currentColor` follows the colour the place gives it.
  * Efficiency: only icons PRESENT in the document are fetched (a page uses a few dozen of the ~340), parsed once per sha, remembered by sha; new nodes are handled from the mutation records, never by re-scanning the document.
@@ -225,13 +237,13 @@ export class IconSymbolsRuntime {
 		el.innerHTML = s.html;
 	}
 
-	// ---- CSS masks / backgrounds
+	// ---- CSS backgrounds (one custom property per colour, see CSS_BOUND_ICONS)
 	private publishCss(id: string): void {
-		if (!CSS_BOUND_ICON_IDS.has(id)) return;
+		const hexes = CSS_BOUND_ICONS[id]; if (!hexes) return;
 		const p = this.parsed.get(id); if (!p) return;
-		this.doc.documentElement.style.setProperty(cssVarOf(id), `url("data:image/svg+xml,${encodeURIComponent(p.text)}")`);
+		for (const hex of hexes) this.doc.documentElement.style.setProperty(cssVarOf(id, hex), `url("data:image/svg+xml,${encodeURIComponent(cssIconSvg(p.icon, hex))}")`);
 	}
-	private unpublishCss(id: string): void { if (CSS_BOUND_ICON_IDS.has(id)) this.doc.documentElement.style.removeProperty(cssVarOf(id)); }
+	private unpublishCss(id: string): void { for (const hex of CSS_BOUND_ICONS[id] ?? []) this.doc.documentElement.style.removeProperty(cssVarOf(id, hex)); }
 
 	// ---- remembered copies (last good): keyed by sha, so a new version is a new entry and the old one is dropped
 	private storage(): Storage | null { try { return this.doc.defaultView?.localStorage ?? null; } catch { return null; } }

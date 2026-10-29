@@ -49,7 +49,7 @@
 					<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[220px] leading-relaxed mb-2 font-medium transition-colors" id="f-desc" aria-required="true" placeholder="صف مشروعك بالتفصيل، أو اكتب عنوانًا مبدئيًا واضغط «اقتراح وصياغة AI الشامل» ليكتب الذكاء الاصطناعي كافة تفاصيل الطلب..." maxlength="2000" rows="10" [ngModel]="parent.description()" (ngModelChange)="parent.setDescription($event)"></textarea>
 				<div class="field-counter flex items-center justify-between">
 					<div class="ai-quality flex items-center gap-1.5 text-xs font-medium" [class]="parent.description().trim().length >= 30 ? 'text-emerald-600 dark:text-emerald-400' : 'poor text-[var(--txt-3)]'">
-						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+						<svg data-ws-icon="pl-client-pencil-line" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
 						<span id="ai-quality-text">{{ parent.description().trim().length >= 100 ? 'AI: وصف ممتاز ومتكامل ✓' : parent.description().trim().length >= 30 ? 'جاهز للتحسين أو التوليد بالذكاء الاصطناعي' : 'اكتب عنوانًا أو فكرة واضغط «اقتراح وصياغة AI الشامل»' }}</span>
 					</div>
 					<span id="desc-count" dir="ltr" class="field-count text-xs text-[var(--txt-3)]">{{ parent.description().length }} / 2000</span>
@@ -161,7 +161,7 @@
 			</div>
 
 			<div class="flex items-center gap-2 p-3 rounded-xl bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] text-xs font-bold mb-4">
-<svg viewBox="0 0 24 24"  width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+<svg data-ws-icon="pl-client-info-circle" viewBox="0 0 24 24"  width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
 							أضف الشروط الإضافية التي يجب أن يلتزم بها مقدم الخدمة (نص حر، ليست مهارات)؛ ويمكنك تعديلها أو حذفها
 			</div>
 
@@ -208,7 +208,7 @@
 		<!-- FIELD 5 + 6: المدة والتاريخ -->
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
-				<svg class="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+				<svg data-ws-icon="pl-client-clock" class="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 				الجدول الزمني
 			</div>
 

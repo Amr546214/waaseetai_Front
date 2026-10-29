@@ -38,7 +38,7 @@ const OPEN_STATUSES = ['PENDING_OTP', 'IN_AI_REVIEW', 'PENDING_HUMAN_REVIEW'];
 			@case ('failed') {
 				<div class="ws-air" data-testid="ai-review-failed">
 					<span class="ws-air-ico ws-air-neutral" aria-hidden="true">
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 8v5M12 16h.01"/></svg>
+						<svg data-ws-icon="pl-shared-shield-alert" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 8v5M12 16h.01"/></svg>
 					</span>
 					<div class="ws-air-body"><p class="ws-air-txt">تعذر تشغيل الفحص الأولي حاليًا. الطلب بانتظار مراجعة الفريق</p></div>
 				</div>
@@ -46,7 +46,7 @@ const OPEN_STATUSES = ['PENDING_OTP', 'IN_AI_REVIEW', 'PENDING_HUMAN_REVIEW'];
 			@case ('waiting') {
 				<div class="ws-air" data-testid="ai-review-waiting">
 					<span class="ws-air-ico ws-air-neutral" aria-hidden="true">
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+						<svg data-ws-icon="pl-shared-shield-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
 					</span>
 					<div class="ws-air-body"><p class="ws-air-txt">بانتظار مراجعة الفريق</p></div>
 				</div>

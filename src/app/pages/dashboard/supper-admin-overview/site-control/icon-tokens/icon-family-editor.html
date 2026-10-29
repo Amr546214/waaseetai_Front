@@ -70,9 +70,9 @@
               @for (i of p.items; track i.key) {
                 <div class="fam-row" [class.is-same]="i.change === 'unchanged'" [attr.data-testid]="'fam-diff-' + i.symbolId" [attr.data-change]="i.change">
                   <span class="fam-label">{{ i.label }}</span>
-                  <span class="fam-side">@if (glyph(i.key, 'cur'); as g) { <svg aria-hidden="true" [scInlineSvg]="g"></svg> }<small>الآن: {{ sideText(i.current) }}</small></span>
+                  <span class="fam-side">@if (glyph(i.key, 'cur'); as g) { <svg aria-hidden="true" [scInlineSvg]="g"></svg> }<small>الآن: {{ sideText(i.current) }}</small><small class="muted" [attr.data-testid]="'fam-src-cur-' + i.symbolId">{{ sourceOf(i.current) }}</small></span>
                   <span class="fam-arrow" aria-hidden="true">←</span>
-                  <span class="fam-side">@if (glyph(i.key, 'tgt'); as g) { <svg aria-hidden="true" [scInlineSvg]="g"></svg> }<small>{{ sideText(i.target) }}</small></span>
+                  <span class="fam-side">@if (glyph(i.key, 'tgt'); as g) { <svg aria-hidden="true" [scInlineSvg]="g"></svg> }<small>{{ sideText(i.target) }}</small><small class="muted" [attr.data-testid]="'fam-src-tgt-' + i.symbolId">{{ sourceOf(i.target) }}</small></span>
                   <span class="chip" [class.chip-ok]="i.change !== 'unchanged'">{{ changeText(i.change) }}</span>
                 </div>
               }

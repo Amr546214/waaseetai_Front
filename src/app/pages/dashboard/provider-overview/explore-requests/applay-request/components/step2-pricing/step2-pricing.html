@@ -61,14 +61,14 @@
 
   @if (hasMissingPriceOrDuration) {
     <div id="pricing-missing-err" role="alert" class="flex items-center gap-[6px] text-xs mb-4 p-2.5 rounded-lg form-error">
-      <svg aria-hidden="true" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <svg data-ws-icon="pl-provider-alert-circle" aria-hidden="true" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       يرجى تحديد السعر والمدة المطلوبة لكل مرحلة (السعر الإجمالي، اسم المرحلة، الأيام، والنسبة).
     </div>
   }
 
   @if (totalPct !== 100) {
     <div role="alert" class="flex items-center gap-[6px] text-xs mb-4 p-2.5 rounded-lg form-error">
-      <svg aria-hidden="true" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <svg data-ws-icon="pl-provider-alert-circle" aria-hidden="true" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       تنبيه: إجمالي نسب دفعات المراحل يجب أن يساوي بالضبط 100% لتتمكن من الانتقال للخطوة التالية (المجموع الحالي: {{ totalPct }}%).
     </div>
   }

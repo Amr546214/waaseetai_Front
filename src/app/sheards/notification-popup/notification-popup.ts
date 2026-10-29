@@ -24,12 +24,12 @@ import { normalizeLegacyNotificationUrl } from '../../core/routing/notification-
 					@if (nt.actionUrl) {
 						<button type="button" class="np-go" data-testid="notification-popup-go" (click)="go()">
 							<span>الانتقال</span>
-							<svg class="np-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+							<svg data-ws-icon="pl-shared-chevron-left" class="np-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
 						</button>
 					}
 				</div>
 				<button type="button" class="np-x" data-testid="notification-popup-close" aria-label="إغلاق الإشعار" (click)="engine.closeToast()">
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+					<svg data-ws-icon="pl-shared-x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
 				</button>
 			</div>
 		}

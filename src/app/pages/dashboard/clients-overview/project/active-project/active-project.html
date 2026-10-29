@@ -7,7 +7,7 @@
 	}
 
 	<div class="ws-note ws-note--neutral" role="region" aria-label="معلومات الصفحة">
-		<div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+		<div class="ws-note-ico"><svg data-ws-icon="pl-client-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
 		<div class="ws-note-body">
 			<div class="ws-note-lbl">{{ isCompany() ? 'متابعة مشاريع الفريق' : 'متابعة المشاريع' }}</div>
 			<p class="ws-note-txt">{{ isCompany() ? 'تُعرض مشاريع الفريق مرتبةً بما يحتاج مراجعة أو اعتمادًا.' : 'تُرتَّب مشاريعك بما يحتاج إجراءً منك (مراجعة تسليم أو إكمال توقيع). لا يُحتجز أي مبلغ ولا يبدأ التنفيذ قبل توقيع العقد وتمويل الضمان.' }}</p>
@@ -21,7 +21,7 @@
 		<div class="state-card" role="status" aria-label="جاري تحميل المشاريع"><div class="skeleton-row sk-title"></div><div class="skeleton-box sk-card"></div></div>
 	} @else if (hasError()) {
 		<div class="state-card error-state" role="alert">
-			<div class="error-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z"/><path d="M12 10v4.5M12 17.6v.1"/></svg></div>
+			<div class="error-icon"><svg data-ws-icon="pl-client-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z"/><path d="M12 10v4.5M12 17.6v.1"/></svg></div>
 			<div class="state-title">تعذر تحميل المشاريع النشطة</div><div class="state-code">ERR-SK-014</div><button type="button" class="retry-btn" (click)="fetchActiveProjects()">إعادة المحاولة</button>
 		</div>
 	} @else {
@@ -29,10 +29,10 @@
 			@for (kpi of kpis(); track kpi.label) {
 				<div class="pl-kpi">
 					<div [class]="'ic pl-ic-' + kpi.color">
-						@if (kpi.icon === 'list') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg> }
+						@if (kpi.icon === 'list') { <svg data-ws-icon="pl-client-list-bullets" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg> }
 						@else if (kpi.icon === 'lock') { <svg data-ws-icon="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> }
-						@else if (kpi.icon === 'clock') { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> }
-						@else { <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg> }
+						@else if (kpi.icon === 'clock') { <svg data-ws-icon="pl-client-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> }
+						@else { <svg data-ws-icon="pl-client-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg> }
 					</div>
 					<div class="v">{{ formatNumber(kpi.value) }}</div><div class="l">{{ kpi.label }}</div>
 				</div>
@@ -45,7 +45,7 @@
 		<div class="sec-ttl">{{ isCompany() ? 'مشاريع الفريق' : 'المشاريع' }} <span class="cnt">· مرتبة بما يحتاج إجراءً منك</span></div>
 
 		@if (filteredProjects().length === 0) {
-			<div class="state-card empty-state"><div class="empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="m5.45 5.11-3.45 6.9V18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11Z"/></svg></div><div class="state-title">لا توجد مشاريع</div><div class="state-copy">لا توجد مشاريع ضمن هذا التصنيف حالياً</div></div>
+			<div class="state-card empty-state"><div class="empty-ico"><svg data-ws-icon="pl-client-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="m5.45 5.11-3.45 6.9V18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11Z"/></svg></div><div class="state-title">لا توجد مشاريع</div><div class="state-copy">لا توجد مشاريع ضمن هذا التصنيف حالياً</div></div>
 		} @else {
 			<div class="pl-list">
 				@for (project of filteredProjects(); track project.id) {
@@ -53,7 +53,7 @@
 						<div class="pl-ring" [style.--p]="project.progress"><span>{{ project.progress }}<small>٪</small></span></div>
 						<div class="pl-body">
 							<div class="pl-top"><div class="pl-ttl">{{ project.title }}</div><span class="pl-badge" [class.pl-b-wait]="project.status === 'wait' || project.status === 'pending'" [class.pl-b-run]="project.status === 'run'" [class.pl-b-late]="project.status === 'late'">{{ statusLabel(project.status, project) }}</span></div>
-							<div class="pl-prov"><span class="pl-av-wrap"><span class="pl-av">{{ project.provider.initial }}</span>@if (project.provider.isVerified) { <span class="verified-mark" aria-label="حساب نشط"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 61.8 36.7h33.3L68.6 57.1l10.8 31.7L50 70.3 20.6 88.8l10.8-31.7L4.9 36.7h33.3Z"/></svg></span> }</span>{{ project.provider.name }}<span class="pl-dot"></span>عقد {{ project.contract }}</div>
+							<div class="pl-prov"><span class="pl-av-wrap"><span class="pl-av">{{ project.provider.initial }}</span>@if (project.provider.isVerified) { <span class="verified-mark" aria-label="حساب نشط"><svg data-ws-icon="pl-client-star-outline" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 61.8 36.7h33.3L68.6 57.1l10.8 31.7L50 70.3 20.6 88.8l10.8-31.7L4.9 36.7h33.3Z"/></svg></span> }</span>{{ project.provider.name }}<span class="pl-dot"></span>عقد {{ project.contract }}</div>
 							@if (isCompany()) {
 								<div class="pl-emp"><svg data-ws-icon="ws-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
 									@if (project.employeeName) {
@@ -64,7 +64,7 @@
 								</div>
 							}
 							<div class="pl-next"><svg data-ws-icon="pa-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg><b>{{ isAwaitingSignature(project) ? 'الخطوة التالية:' : 'المرحلة القادمة:' }}</b> {{ project.nextStep }}</div>
-							<div class="pl-foot"><span class="pl-esc"><svg data-ws-icon="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>{{ project.heldAmount > 0 ? 'محتجز ' + formatNumber(project.heldAmount) + ' $' : 'لا مبلغ محتجز بعد' }}</span><span class="pl-meta">{{ projectMeta(project) }}</span><span class="pl-cta">{{ needsClientAction(project) ? 'إكمال التوقيع والضمان' : 'متابعة المشروع' }}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></span></div>
+							<div class="pl-foot"><span class="pl-esc"><svg data-ws-icon="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>{{ project.heldAmount > 0 ? 'محتجز ' + formatNumber(project.heldAmount) + ' $' : 'لا مبلغ محتجز بعد' }}</span><span class="pl-meta">{{ projectMeta(project) }}</span><span class="pl-cta">{{ needsClientAction(project) ? 'إكمال التوقيع والضمان' : 'متابعة المشروع' }}<svg data-ws-icon="pl-client-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></span></div>
 						</div>
 					</a>
 				}

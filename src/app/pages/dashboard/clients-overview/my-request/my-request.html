@@ -140,7 +140,7 @@
 			<span class="ord-count">يظهر {{ filteredRequests().length === 0 ? 0 : (currentPage() - 1) * itemsPerPage + 1 }}-{{ (currentPage() * itemsPerPage) > filteredRequests().length ? filteredRequests().length : (currentPage() * itemsPerPage) }} من {{ filteredRequests().length }} نتيجة</span>
 			<div class="ord-pages">
 				<button type="button" class="ord-pg" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pg-arrow">
+					<svg data-ws-icon="pl-client-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pg-arrow">
 						<path d="M15 18l-6-6 6-6" />
 					</svg>
 				</button>

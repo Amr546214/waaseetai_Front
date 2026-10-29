@@ -157,7 +157,7 @@
 
 		<div class="co-hdr">
 			<div class="co-hdr-name">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7"/></svg>
+				<svg data-ws-icon="pl-client-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7"/></svg>
 				{{ c.companyName }}
 				<span class="co-hdr-badge">حساب الشركة</span>
 			</div>
@@ -165,9 +165,9 @@
 		</div>
 
 		<div class="co-kpi-grid">
-			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="co-kpi-val">{{ c.kpis.remainingBudget | number:'1.0-0' }}</div><div class="co-kpi-lbl">الميزانية المتبقية (دولار)</div></div>
+			<div class="co-kpi"><div class="co-kpi-ico"><svg data-ws-icon="pl-client-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="co-kpi-val">{{ c.kpis.remainingBudget | number:'1.0-0' }}</div><div class="co-kpi-lbl">الميزانية المتبقية (دولار)</div></div>
 			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-add-user"></use></svg></div><div class="co-kpi-val">{{ c.kpis.activeEmployees }}</div><div class="co-kpi-lbl">الموظفون النشطون</div></div>
-			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div><div class="co-kpi-val">{{ c.kpis.quarterSpend | number:'1.0-0' }}</div><div class="co-kpi-lbl">إنفاق الربع (دولار)</div></div>
+			<div class="co-kpi"><div class="co-kpi-ico"><svg data-ws-icon="pl-client-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div><div class="co-kpi-val">{{ c.kpis.quarterSpend | number:'1.0-0' }}</div><div class="co-kpi-lbl">إنفاق الربع (دولار)</div></div>
 			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-market"></use></svg></div><div class="co-kpi-val">{{ c.kpis.activeTeamProjects }}</div><div class="co-kpi-lbl">مشاريع الفريق النشطة</div></div>
 			<div class="co-kpi co-kpi-warn"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-check-sm"></use></svg></div><div class="co-kpi-val">{{ c.kpis.pendingYourApproval }}</div><div class="co-kpi-lbl">بانتظار اعتمادك</div></div>
 		</div>
@@ -404,7 +404,7 @@
 				<div class="act-num">{{ dashboardStore.dashboardData()!.topSteps.step3_pendingProposalsCount }}</div>
 				<div class="act-lbl">عروض تنتظر مراجعتك</div>
 			</div>
-			<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+			<svg data-ws-icon="pl-client-chevron-left" class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 				stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 				<polyline points="15 18 9 12 15 6"></polyline>
 			</svg>
@@ -418,7 +418,7 @@
 				<div class="act-num">{{ dashboardStore.dashboardData()!.topSteps.step2_pendingApprovalCount }}</div>
 				<div class="act-lbl">تسليم بانتظار اعتمادك</div>
 			</div>
-			<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+			<svg data-ws-icon="pl-client-chevron-left" class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 				stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 				<polyline points="15 18 9 12 15 6"></polyline>
 			</svg>
@@ -432,7 +432,7 @@
 				<div class="act-num">{{ dashboardStore.dashboardData()!.topSteps.step1_escrowRequiredCount }}</div>
 				<div class="act-lbl">إيداع ضمان مطلوب</div>
 			</div>
-			<svg class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+			<svg data-ws-icon="pl-client-chevron-left" class="act-arrow" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 				stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 				<polyline points="15 18 9 12 15 6"></polyline>
 			</svg>
@@ -505,7 +505,7 @@
 		<div class="stat-card">
 			<div class="stat-top">
 				<span class="stat-lbl">التقييم البشري</span>
-				<div class="stat-ico stat-ico-human" aria-hidden="true"><svg class="ws-star-svg" width="14" height="14"
+				<div class="stat-ico stat-ico-human" aria-hidden="true"><svg data-ws-icon="pl-client-rating-star" class="ws-star-svg" width="14" height="14"
 						viewBox="0 0 100 100" fill="#FFB400">
 						<path
 							d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />

@@ -17,7 +17,7 @@ import { SavedReview, VISIBILITY_LABEL_AR } from '../../core/models/rating.model
 		<div class="rsc-lbl">{{ label() }}</div>
 		<div class="rsc-stars" dir="ltr" [attr.aria-label]="'التقييم المحفوظ ' + review().rating + ' من 5'" data-testid="saved-rating-stars">
 			@for (s of [1, 2, 3, 4, 5]; track s) {
-				<svg [class.on]="s <= review().rating" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+				<svg data-ws-icon="pl-shared-rating-star" [class.on]="s <= review().rating" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
 			}
 			<span class="rsc-val" data-testid="saved-rating-value">{{ review().rating }} / 5</span>
 		</div>

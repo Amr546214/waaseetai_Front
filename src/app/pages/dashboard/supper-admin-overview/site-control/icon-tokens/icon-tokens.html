@@ -24,7 +24,8 @@
       <div class="chips" data-testid="icons-counts">
         <span class="chip chip-ok">مخصّصة: {{ l.counts.custom }} / {{ l.limits.maxCustom }}</span>
         <span class="chip chip-muted">افتراضية: {{ l.counts.default }}</span>
-        <span class="chip chip-off">غير مربوطة: {{ l.counts.notWired }}</span>
+        <button type="button" class="chip chip-off chip-link" (click)="openUnused()" data-testid="icons-unused-chip" title="تُعرض في قسم مستقل مطوي أسفل الصفحة">غير مستعملة: {{ unusedAll().length }}</button>
+        @if (managedCount()) { <span class="chip chip-muted" data-testid="icons-managed-chip">تُدار من «الهوية»: {{ managedCount() }}</span> }
         @if (l.counts.withDraft) { <span class="chip chip-muted">بها مسودة: {{ l.counts.withDraft }}</span> }
       </div>
     }
@@ -103,7 +104,7 @@
 
       <div class="toolbar">
         <div class="filters" role="group" aria-label="تصفية الحالة">
-          @for (f of [['all','الكل'],['custom','مخصّصة'],['default','افتراضية'],['not-wired','غير مربوطة'],['draft','بها مسودة']]; track f[0]) {
+          @for (f of [['all','الكل'],['custom','مخصّصة'],['default','افتراضية'],['draft','بها مسودة']]; track f[0]) {
             <button type="button" class="chip-btn" [class.active]="filter() === f[0]" (click)="setFilter($any(f[0]))" [attr.data-testid]="'icons-filter-' + f[0]">{{ f[1] }}</button>
           }
         </div>
@@ -121,6 +122,46 @@
         @if (!filtered().length) { <p class="state" data-testid="icons-none">لا أيقونات تطابق هذه التصفية.</p> }
         <div class="icon-grid">
           @for (r of visible(); track r.id) {
+            <ng-container *ngTemplateOutlet="cardTpl; context: { $implicit: r }" />
+          }
+        </div>
+        @if (filtered().length > visible().length) {
+          <div class="more"><button type="button" class="btn-secondary" (click)="more()" data-testid="icons-more">عرض المزيد ({{ filtered().length - visible().length }})</button></div>
+        }
+      </section>
+
+      <details class="unused" data-testid="icons-unused" [open]="unusedOpen()" (toggle)="unusedOpen.set($any($event.target).open)">
+        <summary><strong>أيقونات غير مستعملة حاليًا ({{ unusedAll().length }})</strong> <span class="muted">— محفوظة ولا تُحذف، في قسم مستقل لا يزاحم المكتبة</span></summary>
+        <p class="hint small" data-testid="icons-unused-note">هذه المعرّفات لا يرسمها أي مكوّن في الموقع بذاتها (أو هي نماذج في ملف المكتبة). بعضها نسخة احتياطية من رسم يُرسم في مكان آخر بمفتاح مربوط: يُذكر ذلك على بطاقته، ويتم التعديل من المفتاح المربوط. وجودها هنا لا يعني أنها زائدة، ولا تُحذف.</p>
+        @if (!unusedRows().length) { <p class="state" data-testid="icons-unused-none">لا أيقونات غير مستعملة تطابق البحث.</p> }
+        <div class="icon-grid">
+          @for (r of unusedVisible(); track r.id) {
+            <ng-container *ngTemplateOutlet="cardTpl; context: { $implicit: r }" />
+          }
+        </div>
+        @if (unusedRows().length > unusedVisible().length) {
+          <div class="more"><button type="button" class="btn-secondary" (click)="moreUnused()" data-testid="icons-unused-more">عرض المزيد ({{ unusedRows().length - unusedVisible().length }})</button></div>
+        }
+      </details>
+
+      @if (usage.unboundPlaces().length) {
+        <details class="unused" data-testid="icons-nonfollow" [open]="nonFollowOpen()" (toggle)="nonFollowOpen.set($any($event.target).open)">
+          <summary><strong>عناصر في الموقع لا تُعرض كقابلة للتعديل ({{ usage.unboundPlaces().length }})</strong> <span class="muted">— وسبب كل مجموعة</span></summary>
+          <p class="hint small">رسومات لا يمكن ربطها بمفتاح دون تغيير شكلها أو كسر عرضها؛ لا تظهر لها بطاقة «تخصيص» أصلًا. كل عنصر ما عداها مربوط بمفتاح.</p>
+          @for (g of usage.groupedUnbound(); track g.reason) {
+            <div class="nf-group" [attr.data-testid]="'nonfollow-' + g.reason">
+              <strong>{{ g.label }}</strong> <span class="muted">({{ g.items.length }})</span>
+              <p class="hint small">{{ g.items[0].why }}</p>
+              <ul class="plain-list nf-files">@for (p of g.items; track p.file + ':' + p.line) { <li><code dir="ltr">{{ p.file }}:{{ p.line }}</code></li> }</ul>
+            </div>
+          }
+        </details>
+      }
+    }
+  }
+</div>
+
+<ng-template #cardTpl let-r>
             <div class="icon-card" [class.is-custom]="r.status === 'custom'" [class.is-notwired]="r.status === 'not-wired'" [attr.data-testid]="'icon-card-' + r.id" [attr.data-status]="r.status">
               <span class="icon-box" [style.color]="libColor()[libOf(r)] ? 'var(' + libColor()[libOf(r)] + ')' : 'var(--teal)'">
                 @if (r.status === 'custom' && store.customGlyphs()[r.id]; as g) {
@@ -149,12 +190,4 @@
                 <button type="button" class="btn-secondary mini" (click)="open(r.id)" [attr.data-testid]="'icon-open-' + r.id">{{ canManage() ? (r.status === 'custom' ? 'تعديل / استعادة' : 'تخصيص') : 'عرض' }}</button>
               }
             </div>
-          }
-        </div>
-        @if (filtered().length > visible().length) {
-          <div class="more"><button type="button" class="btn-secondary" (click)="more()" data-testid="icons-more">عرض المزيد ({{ filtered().length - visible().length }})</button></div>
-        }
-      </section>
-    }
-  }
-</div>
+</ng-template>

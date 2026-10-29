@@ -21,13 +21,13 @@
         <div class="spa-nav-ttl">الإعدادات</div>
         @for (n of navItems; track n.key) {
           @if (!n.danger) {
-            <button type="button" class="spa-nav-item" [attr.data-testid]="'tab-' + n.key" [class.active]="activeSection() === n.key" (click)="setSection(n.key)"><svg aria-hidden="true"><use [attr.href]="'#spa-i-' + n.icon"></use></svg>{{ n.label }}</button>
+            <button type="button" class="spa-nav-item" [attr.data-testid]="'tab-' + n.key" [class.active]="activeSection() === n.key" (click)="setSection(n.key)"><svg aria-hidden="true"><use [attr.href]="spaHref(n.icon)"></use></svg>{{ n.label }}</button>
           }
         }
         <div class="spa-nav-ttl spa-nav-ttl-danger">خطر</div>
         @for (n of navItems; track n.key) {
           @if (n.danger) {
-            <button type="button" class="spa-nav-item spa-nav-item-danger" [attr.data-testid]="'tab-' + n.key" [class.active]="activeSection() === n.key" (click)="setSection(n.key)"><svg aria-hidden="true"><use [attr.href]="'#spa-i-' + n.icon"></use></svg>{{ n.label }}</button>
+            <button type="button" class="spa-nav-item spa-nav-item-danger" [attr.data-testid]="'tab-' + n.key" [class.active]="activeSection() === n.key" (click)="setSection(n.key)"><svg aria-hidden="true"><use [attr.href]="spaHref(n.icon)"></use></svg>{{ n.label }}</button>
           }
         }
       </div>

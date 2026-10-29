@@ -14,7 +14,7 @@
       طلبات العملاء
     </button>
     <button type="button" class="sk-tab" [class.sk-tab-active]="activeTab() === 'providers'" (click)="switchTab('providers')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9" /><path d="M14 17H5" /><circle cx="17" cy="17" r="3" /><circle cx="7" cy="7" r="3" /></svg>
+      <svg data-ws-icon="pl-admin-slider-toggles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7h-9" /><path d="M14 17H5" /><circle cx="17" cy="17" r="3" /><circle cx="7" cy="7" r="3" /></svg>
       تحقق مقدمي الخدمة
     </button>
   </div>
@@ -78,7 +78,7 @@
     @if (onboardingError() && !onboardingLoading()) {
       <div class="sk-card sk-error">
         <div class="sk-error-ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+          <svg data-ws-icon="pl-admin-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
         </div>
         <div class="sk-error-ttl">تعذر تحميل الطلبات</div>
         <div class="sk-error-sub">{{ onboardingError() }}</div>
@@ -90,7 +90,7 @@
     @if (!onboardingLoading() && !onboardingError() && onboarding().length === 0) {
       <div class="sk-card sk-empty">
         <div class="sk-empty-ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <svg data-ws-icon="pl-admin-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </div>
         <h3 class="sk-empty-ttl">لا توجد طلبات تحقق حالياً</h3>
         <p class="sk-empty-txt">لم يتم العثور على طلبات مطابقة للمرشح الحالي.</p>
@@ -101,7 +101,7 @@
     @if (!onboardingLoading() && !onboardingError() && onboarding().length > 0 && filteredOnboarding().length === 0) {
       <div class="sk-card sk-empty">
         <div class="sk-empty-ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <svg data-ws-icon="pl-admin-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </div>
         <h3 class="sk-empty-ttl">لا نتائج مطابقة للبحث</h3>
         <p class="sk-empty-txt">جرّب مصطلح بحث آخر ضمن العناصر المحمّلة في هذه الصفحة.</p>
@@ -224,7 +224,7 @@
     @if (providersError() && !providersLoading()) {
       <div class="sk-card sk-error">
         <div class="sk-error-ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+          <svg data-ws-icon="pl-admin-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
         </div>
         <div class="sk-error-ttl">تعذر تحميل المقدمين</div>
         <div class="sk-error-sub">{{ providersError() }}</div>
@@ -236,7 +236,7 @@
     @if (!providersLoading() && !providersError() && providers().length === 0) {
       <div class="sk-card sk-empty">
         <div class="sk-empty-ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <svg data-ws-icon="pl-admin-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </div>
         <h3 class="sk-empty-ttl">لا توجد طلبات تحقق حالياً</h3>
         <p class="sk-empty-txt">لم يتم العثور على مقدمي خدمة مطابقين للمرشح الحالي.</p>
@@ -247,7 +247,7 @@
     @if (!providersLoading() && !providersError() && providers().length > 0 && filteredProviders().length === 0) {
       <div class="sk-card sk-empty">
         <div class="sk-empty-ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <svg data-ws-icon="pl-admin-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </div>
         <h3 class="sk-empty-ttl">لا نتائج مطابقة للبحث</h3>
         <p class="sk-empty-txt">جرّب مصطلح بحث آخر ضمن العناصر المحمّلة في هذه الصفحة.</p>
@@ -325,7 +325,7 @@
       <div class="sk-modal-header">
         <div class="sk-modal-httl">
           <div class="sk-modal-hico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <svg data-ws-icon="pl-admin-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 12l2 2 4-4" /><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
             </svg>
           </div>

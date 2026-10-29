@@ -1,7 +1,7 @@
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CSS_BOUND_ICON_IDS, ICON_ALIASES, IconSymbolsRuntime, WS_ICON_ATTR, cssVarOf } from './identity-icon-symbols';
+import { CSS_BOUND_ICONS, ICON_ALIASES, IconSymbolsRuntime, WS_ICON_ATTR, cssVarOf } from './identity-icon-symbols';
 import { SiteIdentityService } from './site-identity.service';
 import { EMPTY_MANIFEST, IdentityManifest } from './site-identity.models';
 
@@ -10,6 +10,7 @@ const BELL_INLINE = '<svg class="w-7 h-7 host" data-ws-icon="i-bell" viewBox="0 
 const SIDEBAR = '<svg aria-hidden="true" data-ws-icon="i-bell" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="w-4 h-4"><path stroke-linecap="round" d="M15 17h5"/></svg>';
 const SPA = '<svg><symbol id="spa-i-bell2" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8"/></symbol></svg>';
 const parsed = (h: string): string => { const d = document.createElement('div'); d.innerHTML = h; return d.innerHTML; };
+const FILE_STROKE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3"><rect x="4" y="4" width="24" height="24"/></svg>';
 const FILE = (n: number) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><rect x="${n}" y="4" width="24" height="24"/></svg>`;
 
 describe('icon adapters (inline svg, alias, CSS variable, lazy fetch)', () => {
@@ -18,7 +19,7 @@ describe('icon adapters (inline svg, alias, CSS variable, lazy fetch)', () => {
 		TestBed.resetTestingModule(); rt = TestBed.inject(IconSymbolsRuntime);
 		host = document.createElement('div'); host.innerHTML = BELL_INLINE + SIDEBAR + SPA; document.body.appendChild(host); snap = host.innerHTML;
 	});
-	afterEach(() => { for (const id of ['i-bell', 'spa-i-bell2', 'x-css']) rt.clear(id); CSS_BOUND_ICON_IDS.clear(); host.remove(); });
+	afterEach(() => { for (const id of ['i-bell', 'spa-i-bell2', 'x-css']) rt.clear(id); delete (CSS_BOUND_ICONS as Record<string, readonly string[]>)['x-css']; host.remove(); });
 
 	it('DEFAULT: an svg that carries data-ws-icon is untouched until a file is published (DOM byte-identical)', () => { expect(host.innerHTML).toBe(snap); expect(WS_ICON_ATTR).toBe('data-ws-icon'); });
 
@@ -66,12 +67,17 @@ describe('icon adapters (inline svg, alias, CSS variable, lazy fetch)', () => {
 		rt.clear('i-bell'); expect(host.innerHTML).toBe(snap);
 	});
 
-	it('CSS variable: a CSS-bound id is published as --ws-icon-<id> on <html> and removed on restore; others never set it', () => {
-		CSS_BOUND_ICON_IDS.add('x-css');
-		rt.applyText('x-css', FILE(2), 'c1');
-		const v = document.documentElement.style.getPropertyValue(cssVarOf('x-css')); expect(v).toContain('data:image/svg+xml,'); expect(decodeURIComponent(v)).toContain('<rect');
-		rt.applyText('i-bell', FILE(2), 'c2'); expect(document.documentElement.style.getPropertyValue(cssVarOf('i-bell'))).toBe('');
-		rt.clear('x-css'); expect(document.documentElement.style.getPropertyValue(cssVarOf('x-css'))).toBe('');
+	it('CSS variables: a CSS-bound key is published ONCE PER COLOUR (the file\'s currentColor replaced by that exact colour, 12px square, the file\'s own paint) and removed on restore; other keys never set them', () => {
+		(CSS_BOUND_ICONS as Record<string, readonly string[]>)['x-css'] = ['a8b2d1', '475569'];
+		rt.applyText('x-css', FILE_STROKE, 'c1');
+		const dark = document.documentElement.style.getPropertyValue(cssVarOf('x-css', 'A8B2D1')), light = document.documentElement.style.getPropertyValue(cssVarOf('x-css', '475569'));
+		expect(dark).toContain('data:image/svg+xml,'); expect(light).toContain('data:image/svg+xml,');
+		const d = decodeURIComponent(dark), l = decodeURIComponent(light);
+		expect(d).toContain('width="12"'); expect(d).toContain('height="12"'); expect(d).toContain('viewBox="0 0 32 32"'); expect(d).toContain('stroke="#a8b2d1"'); expect(d).not.toMatch(/currentColor/i); expect(d).toContain('<rect');
+		expect(l).toContain('stroke="#475569"'); expect(l).not.toContain('a8b2d1');
+		expect(document.documentElement.style.getPropertyValue(cssVarOf('x-css', 'ffffff'))).toBe('');
+		rt.applyText('i-bell', FILE(2), 'c2'); expect(document.documentElement.style.getPropertyValue(cssVarOf('i-bell', 'a8b2d1'))).toBe('');
+		rt.clear('x-css'); expect(document.documentElement.style.getPropertyValue(cssVarOf('x-css', 'a8b2d1'))).toBe(''); expect(document.documentElement.style.getPropertyValue(cssVarOf('x-css', '475569'))).toBe('');
 	});
 });
 

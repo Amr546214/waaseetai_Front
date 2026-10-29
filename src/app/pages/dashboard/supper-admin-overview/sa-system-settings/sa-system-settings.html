@@ -23,9 +23,9 @@
       <div class="ss-content">
         @switch (active()) {
           @case ('general') {
-            <app-settings-section title="الإعدادات العامة" [icon]="icons.settings" [keys]="general" variant="ss" [showSave]="false" />
+            <app-settings-section title="الإعدادات العامة" [icon]="icons.settings" wsIcon="pl-admin-ss-section-general" [keys]="general" variant="ss" [showSave]="false" />
             <app-settings-section title="التواصل وبنر التنبيه" [icon]="icons.bell" wsIcon="ss-alert-bell" [keys]="contacts" variant="ss" [showSave]="false" />
-            <app-settings-section title="الشروط والخصوصية" [icon]="icons.shield" [keys]="legal" [saveKeys]="generalAll" variant="ss" />
+            <app-settings-section title="الشروط والخصوصية" [icon]="icons.shield" wsIcon="pl-admin-ss-section-legal" [keys]="legal" [saveKeys]="generalAll" variant="ss" />
           }
           @case ('ai') {
             <div class="ss-note" role="note">إعدادات الذكاء الاصطناعي والمزوّد والمفاتيح نطاق منفصل؛ تُجرد هنا ولا يُعدَّل تشغيلها من هذه الصفحة.</div>
@@ -36,13 +36,13 @@
               <details class="ss-note-more"><summary>التفاصيل</summary>يشمل البريد الاختياري: نسخ الإشعارات، ملخص الرسائل غير المقروءة، مكافأة إكمال المشروع. عند إيقافه لا يُرسل بريد اختياري حتى لمن اختاره، وعند تفعيله يبقى لكل مستخدم اختياره الخاص. يظهر خيار البريد لدى المستخدمين معطّلًا «بواسطة إدارة المنصة» ويبقى اختيارهم المحفوظ كما هو. الرسائل المستثناة مطلوبة لإتمام العملية: إيصال إيداع الضمان، دعوة المزوّد لتوقيع العقد، رموز تسجيل الدخول والتفعيل وإعادة تعيين كلمة المرور وتأكيد الدفع والتوقيع.</details></div>
             <app-settings-section title="إعدادات الإشعارات" [icon]="icons.bell" wsIcon="i-bell" [keys]="notif" variant="ss" saveLabel="حفظ" />
           }
-          @case ('security') { <app-settings-section title="الأمان والمصادقة" [icon]="icons.shield" [keys]="security" variant="ss" saveLabel="حفظ" /> }
+          @case ('security') { <app-settings-section title="الأمان والمصادقة" [icon]="icons.shield" wsIcon="pl-admin-ss-section-security" [keys]="security" variant="ss" saveLabel="حفظ" /> }
           @case ('finance') {
-            <app-settings-section title="الإعدادات المالية" [icon]="icons.wallet" [keys]="finance" variant="ss" saveLabel="حفظ" />
+            <app-settings-section title="الإعدادات المالية" [icon]="icons.wallet" wsIcon="pl-admin-ss-section-finance" [keys]="finance" variant="ss" saveLabel="حفظ" />
             @if (access.canAny(['fees.view','fees.manage'])) { <app-fee-policy-panel variant="ss" /> }
             @if (access.isSuperAdmin()) {
               <div class="ss-card" data-testid="currency-readiness">
-                <div class="ss-card-ttl"><svg class="ss-ttl-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icons.check"/></svg>العملة الأساسية: تعدد العملات مؤجَّل</div>
+                <div class="ss-card-ttl"><svg data-ws-icon="pl-admin-ss-currency-check" class="ss-ttl-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icons.check"/></svg>العملة الأساسية: تعدد العملات مؤجَّل</div>
                 @if (readinessError()) { <div class="ss-err" role="alert">{{ readinessError() }} <button type="button" class="ss-link" (click)="loadReadiness()">إعادة المحاولة</button></div> }
                 @else if (!readiness()) { <div class="ss-sub" role="status">جارٍ الفحص…</div> }
                 @else if (readiness()!.ready) { <div class="ss-ok">البنية جاهزة لتغيير العملة الأساسية.</div> }
@@ -53,7 +53,7 @@
               </div>
             }
           }
-          @case ('regional') { <app-settings-section title="الإعدادات الإقليمية" [icon]="icons.globe" [keys]="regional" variant="ss" saveLabel="حفظ" /> }
+          @case ('regional') { <app-settings-section title="الإعدادات الإقليمية" [icon]="icons.globe" wsIcon="pl-admin-ss-section-regional" [keys]="regional" variant="ss" saveLabel="حفظ" /> }
           @case ('health') { <app-settings-health /> }
         }
       </div>

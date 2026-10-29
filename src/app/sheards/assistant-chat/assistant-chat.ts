@@ -129,7 +129,7 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 				[attr.aria-label]="store.micActive() ? 'إنهاء التسجيل وإرسال سؤالك' : 'تحدث بسؤالك'"
 				[title]="store.micSupported ? '' : 'الإملاء الصوتي غير متاح هنا؛ جرّب Chrome أو Edge.'"
 			>
-				<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>
+				<svg data-ws-icon="pl-assistant-mic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>
 			</button>
 			<textarea #composer
 				[(ngModel)]="draft"

@@ -46,7 +46,7 @@
 
 	<!-- Info -->
 	<div class="ws-note ws-note--neutral" role="region" aria-label="معلومات الصفحة">
-<div class="ws-note-ico"><svg width="20" height="20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+<div class="ws-note-ico"><svg data-ws-icon="pl-client-shield-check" width="20" height="20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 				stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>
 			</svg></div>
@@ -136,7 +136,7 @@
 
 		<div
 			class="flex items-center gap-3 p-4 bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-100 dark:border-cyan-500/20 rounded-2xl text-cyan-900 dark:text-cyan-100 text-sm font-medium">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			<svg data-ws-icon="pl-client-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 				class="w-5 h-5 flex-shrink-0 text-cyan-500">
 				<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
 			</svg>
@@ -639,7 +639,7 @@
 			<!-- Warning Bar -->
 			<div
 				class="flex items-center gap-3 p-4 bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10 rounded-2xl mb-8">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+				<svg data-ws-icon="pl-client-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 					class="w-5 h-5 flex-shrink-0 text-amber-500">
 					<circle cx="12" cy="12" r="10" />
 					<line x1="12" y1="8" x2="12" y2="12" />
@@ -891,7 +891,7 @@
 			<!-- Warning Bar -->
 			<div
 				class="flex items-center gap-3 p-4 bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10 rounded-2xl mb-8">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+				<svg data-ws-icon="pl-client-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 					class="w-5 h-5 flex-shrink-0 text-amber-500">
 					<circle cx="12" cy="12" r="10" />
 					<line x1="12" y1="8" x2="12" y2="12" />
@@ -1209,7 +1209,7 @@
 			<div class="p-6 overflow-y-auto flex-1 custom-scrollbar flex flex-col gap-4">
 				@if (changeRequests().length === 0) {
 				<div class="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-500">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+					<svg data-ws-icon="pl-client-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
 						class="w-16 h-16 mb-4 opacity-50">
 						<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
 					</svg>
@@ -1236,7 +1236,7 @@
 									<polyline points="12 7 12 12 15 14" />
 								</svg>
 								} @else if (req.status === 'APPROVED') {
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+								<svg data-ws-icon="pl-client-task-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 									class="w-5 h-5">
 									<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
 									<polyline points="22 4 12 14.01 9 11.01" />

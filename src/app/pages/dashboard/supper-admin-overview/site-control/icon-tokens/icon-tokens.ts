@@ -1,6 +1,7 @@
-import { Component, computed, effect, inject, OnInit, signal, untracked, ViewEncapsulation } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, OnInit, signal, untracked, ViewEncapsulation } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AI_ICON_INNER } from '../../../../../core/constants/ai-icon';
 import { IconFamilyInfo, IconFnRow, IconFnStatus, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
@@ -31,7 +32,7 @@ export const OTHER_LIB = '__other';
 @Component({
   selector: 'sc-icon-tokens',
   standalone: true,
-  imports: [RouterLink, InlineSvgDirective, IconFnEditor, IconFamilyEditor],
+  imports: [RouterLink, NgTemplateOutlet, InlineSvgDirective, IconFnEditor, IconFamilyEditor],
   templateUrl: './icon-tokens.html',
   encapsulation: ViewEncapsulation.ShadowDom,
   styleUrls: ['../site-control-base.css', './icon-tokens.css']
@@ -44,6 +45,7 @@ export class IconTokens implements OnInit {
   private readonly api = inject(SiteIdentityAdminApi);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly designTokens = inject(DesignTokensService);
+  private readonly host = inject(ElementRef<HTMLElement>);
   readonly theme = inject(ThemeModeService);
 
   readonly activeLibId = signal<string>('');
@@ -78,12 +80,30 @@ export class IconTokens implements OnInit {
   readonly libLabels = computed<Record<string, string>>(() => Object.fromEntries(this.iconsService.pristine().map(l => [l.id, l.label])));
   readonly libColor = computed<Record<string, string>>(() => Object.fromEntries(this.iconsService.pristine().map(l => [l.id, l.colorVar])));
 
+  /** UNUSED = nothing draws THIS id (kept, never deleted): they live in their own collapsed section so they do not crowd the picker / the main grid */
+  isUnused(r: IconFnRow): boolean { return r.status === 'not-wired' && !this.isManaged(r) && this.usage.get(r.id)?.status !== 'USED_UNBOUND'; }
+  /** the rows of the main grid: used icons (default / custom), the official AI slots (managed from «الهوية») and any not-wired row that IS drawn (must stay empty) */
+  readonly mainRows = computed<IconFnRow[]>(() => this.store.rows().filter(r => !this.isUnused(r)));
+  readonly unusedAll = computed<IconFnRow[]>(() => this.store.rows().filter(r => this.isUnused(r)));
+  readonly unusedOpen = signal(false);
+  readonly unusedShown = signal(PAGE);
+  readonly nonFollowOpen = signal(false);
+  /** the unused icons that match the search text (all libraries; the section is separate from the tabs) */
+  readonly unusedRows = computed<IconFnRow[]>(() => {
+    const q = this.query().trim().toLowerCase();
+    return this.unusedAll().filter(r => !q || r.id.toLowerCase().includes(q) || (r.label ?? '').toLowerCase().includes(q))
+      .map((r, i) => ({ r, i })).sort((a, b) => this.libOf(a.r).localeCompare(this.libOf(b.r)) || a.i - b.i).map(x => x.r);
+  });
+  readonly unusedVisible = computed(() => this.unusedRows().slice(0, this.unusedShown()));
+  readonly managedCount = computed(() => this.store.rows().filter(r => this.isManaged(r)).length);
+  openUnused(): void { this.unusedOpen.set(true); setTimeout(() => (this.host.nativeElement.shadowRoot?.querySelector('[data-testid="icons-unused"]') as HTMLElement | null)?.scrollIntoView?.({ block: 'start' }), 0); }
+
   /** tabs = the libraries that have rows, then everything else the site draws that no library lists */
   readonly tabs = computed(() => {
-    const ids = new Set(this.store.rows().map(r => this.libOf(r)));
+    const ids = new Set(this.mainRows().map(r => this.libOf(r)));
     const order = ['general', 'ai', 'ws-site', OTHER_LIB].filter(i => ids.has(i));
     for (const i of ids) if (!order.includes(i)) order.push(i);
-    return order.map(id => ({ id, label: id === OTHER_LIB ? 'أيقونات أخرى في الموقع' : this.libLabels()[id] ?? id, count: this.store.rows().filter(r => this.libOf(r) === id).length }));
+    return order.map(id => ({ id, label: id === OTHER_LIB ? 'أيقونات أخرى في الموقع' : this.libLabels()[id] ?? id, count: this.mainRows().filter(r => this.libOf(r) === id).length }));
   });
   readonly activeTab = computed(() => this.tabs().find(t => t.id === this.activeLibId())?.id ?? this.tabs()[0]?.id ?? '');
 
@@ -98,7 +118,7 @@ export class IconTokens implements OnInit {
     const searching = !!this.query().trim();
     const rank: Record<IconFnStatus, number> = { custom: 0, default: 1, 'not-wired': 2 };
     // the icons that can really change come first (customised, then default), the ones nothing follows last; stable inside a group
-    return this.store.rows().filter(r => (searching || this.libOf(r) === this.activeTab()) && this.matches(r))
+    return this.mainRows().filter(r => (searching || this.libOf(r) === this.activeTab()) && this.matches(r))
       .map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.status] - rank[b.r.status] || a.i - b.i).map(x => x.r);
   });
   readonly visible = computed(() => this.filtered().slice(0, this.shownCount()));
@@ -123,8 +143,9 @@ export class IconTokens implements OnInit {
   retry(): void { void this.usage.load(); void this.iconsService.load(true); void this.real.load(true); void this.store.load(true); void this.loadFamilies(); }
   selectLib(id: string): void { this.activeLibId.set(id); this.shownCount.set(PAGE); }
   setFilter(f: IconFilter): void { this.filter.set(f); this.shownCount.set(PAGE); }
-  setQuery(ev: Event): void { this.query.set((ev.target as HTMLInputElement).value); this.shownCount.set(PAGE); }
+  setQuery(ev: Event): void { this.query.set((ev.target as HTMLInputElement).value); this.shownCount.set(PAGE); this.unusedShown.set(PAGE); }
   more(): void { this.shownCount.update(n => n + PAGE); }
+  moreUnused(): void { this.unusedShown.update(n => n + PAGE); }
   open(id: string): void { this.editingFamily.set(null); this.editing.set(id); }
   close(): void { this.editing.set(null); }
   openFamily(id: string): void { this.editing.set(null); this.editingFamily.set(id); }
@@ -168,13 +189,13 @@ export class IconTokens implements OnInit {
   isManaged(r: IconFnRow): boolean { return r.managedBy === 'icon.ai' || this.managed(r.id); }
   editable(r: IconFnRow): boolean { return !!r.key && r.status !== 'not-wired'; }
   statusText(r: IconFnRow): string { return r.status === 'custom' ? 'مخصّصة' : r.status === 'default' ? 'افتراضية' : 'غير مربوطة'; }
-  /** not-wired rows split by the usage report: drawn somewhere but this key is not followed (USED_UNBOUND) vs drawn nowhere (UNUSED, kept, never deleted) */
+  /** not-wired rows split by the usage report: USED_UNBOUND (a place draws it with no key: must stay empty) vs UNUSED (kept, never deleted) */
   usageKind(r: IconFnRow): 'used-unbound' | 'unused' | null { const u = this.usage.get(r.id); return r.status !== 'not-wired' || !u || u.status === 'BOUND' ? null : u.status === 'USED_UNBOUND' ? 'used-unbound' : 'unused'; }
-  /** the short label of a not-wired card; the full sentence is the tooltip */
+  /** the short label of a not-wired / unused card; the full sentence is the tooltip */
   reasonShort(r: IconFnRow): string {
     switch (this.usageKind(r)) {
       case 'used-unbound': return 'مستعملة وغير مربوطة بمفتاحها';
-      case 'unused': return 'غير مستعملة في الموقع';
+      case 'unused': { const s = this.usage.get(r.id)?.sameDrawing; return s ? `غير مستعملة بمعرّفها — رسمها نفسه يتبع ${s.keys[0]}` : 'غير مستعملة في الموقع'; }
     }
     switch (r.reason?.code) {
       case 'LIBRARY_ONLY': return 'في المكتبة فقط: لا يرسمها أي مكوّن في الموقع.';

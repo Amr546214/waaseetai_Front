@@ -54,7 +54,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 						[attr.aria-label]="desktopCollapsed() ? 'فتح قائمة المحادثات' : 'طي قائمة المحادثات'"
 					>
 						<img [wsIdentityImg]="'logo.mark'" src="/images/waseet-mark.png" alt="وسيط" />
-						<svg class="tc-brand-toggle" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-icon="pl-assistant-sidebar-collapse" class="tc-brand-toggle" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<rect width="18" height="18" x="3" y="3" rx="2" />
 							<path d="M9 3v18M16 15l-3-3 3-3" />
 						</svg>
@@ -69,7 +69,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 					(click)="toggleDesktopCollapse()"
 					aria-label="طي الشريط الجانبي"
 				>
-					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg data-ws-icon="pl-assistant-sidebar-collapse" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<rect width="18" height="18" x="3" y="3" rx="2" />
 						<path d="M9 3v18M16 15l-3-3 3-3" />
 					</svg>
@@ -80,7 +80,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 					(click)="mobileOpen.set(false)"
 					aria-label="إغلاق الشريط الجانبي"
 				>
-					<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg data-ws-icon="pl-assistant-x" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M18 6 6 18M6 6l12 12" />
 					</svg>
 				</button>
@@ -96,7 +96,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 						aria-keyshortcuts="Control+Shift+O"
 						aria-label="محادثة جديدة"
 					>
-						<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-icon="pl-assistant-edit-square" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
 							<path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z" />
 						</svg>
@@ -113,7 +113,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 						aria-keyshortcuts="Control+K"
 						aria-label="البحث في المحادثات"
 					>
-						<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-icon="pl-assistant-search" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<circle cx="11" cy="11" r="8" />
 							<path d="m21 21-4.3-4.3" />
 						</svg>
@@ -134,7 +134,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 						(click)="toggleRailPopover('pinned', $event.currentTarget)"
 						(keydown.arrowDown)="openRailPopover('pinned', $event.currentTarget, true, true, $event)"
 					>
-						<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-icon="pl-assistant-pin" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<line x1="12" x2="12" y1="17" y2="22" />
 							<path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
 						</svg>
@@ -155,7 +155,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 						(click)="toggleRailPopover('recent', $event.currentTarget)"
 						(keydown.arrowDown)="openRailPopover('recent', $event.currentTarget, true, true, $event)"
 					>
-						<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-icon="pl-assistant-chat-bubble" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
 						</svg>
 						<span>الأخيرة</span>
@@ -174,14 +174,14 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 					[attr.aria-label]="sortOrder() === 'newest' ? 'ترتيب من الأقدم' : 'ترتيب من الأحدث'"
 					[title]="sortOrder() === 'newest' ? 'الأحدث أولًا' : 'الأقدم أولًا'"
 				>
-					<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg data-ws-icon="pl-assistant-arrows-up-down" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16" />
 					</svg>
 				</button>
 			</div>
 
 			<div class="tc-sidebar-filter">
-				<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<svg data-ws-icon="pl-assistant-search" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<circle cx="11" cy="11" r="8" />
 					<path d="m21 21-4.3-4.3" />
 				</svg>
@@ -205,7 +205,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 								[attr.aria-current]="store.activeConversationId() === conversation.id ? 'true' : null"
 							>
 								@if (conversation.pinned) {
-									<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+									<svg data-ws-icon="pl-assistant-pin" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
 										<path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
 									</svg>
 								}
@@ -220,7 +220,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 								aria-haspopup="menu"
 								[attr.aria-expanded]="menuSessionId() === conversation.id"
 							>
-								<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+								<svg data-ws-icon="pl-assistant-more-dots" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
 									<circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" />
 								</svg>
 							</button>
@@ -241,19 +241,19 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 					aria-label="خيارات المحادثة"
 				>
 					<button type="button" role="menuitem" (click)="togglePin(sid); menuSessionId.set(null)">
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+						<svg data-ws-icon="pl-assistant-pin" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
 						</svg>
 						<span>{{ isPinned(sid) ? 'إلغاء التثبيت' : 'تثبيت المحادثة' }}</span>
 					</button>
 					<button type="button" role="menuitem" (click)="promptRename(sid, currentSessionTitle(sid)); menuSessionId.set(null)">
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+						<svg data-ws-icon="pl-assistant-pencil" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
 						</svg>
 						<span>إعادة التسمية</span>
 					</button>
 					<button type="button" class="tc-danger" role="menuitem" (click)="confirmDelete(sid); menuSessionId.set(null)">
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+						<svg data-ws-icon="pl-assistant-trash" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6" />
 						</svg>
 						<span>حذف المحادثة</span>
@@ -295,13 +295,13 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 			<div class="tc-sidebar-footer sidebar-footer">
 				<div class="tc-data-actions">
 					<button type="button" (click)="exportHistory()" aria-label="تصدير نسخة من المحادثات">
-						<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+						<svg data-ws-icon="pl-assistant-download-tray" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
 						</svg>
 						تصدير
 					</button>
 					<button type="button" (click)="importFileInput.click()" aria-label="استيراد المحادثات">
-						<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+						<svg data-ws-icon="pl-assistant-upload-tray" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
 							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
 						</svg>
 						استيراد
@@ -319,7 +319,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 				>
 					<span class="tc-avatar">{{ userInitial() }}</span>
 					<span class="tc-profile-name">{{ userName() }}</span>
-					<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2">
+					<svg data-ws-icon="pl-assistant-more-dots" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2">
 						<circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" />
 					</svg>
 				</button>
@@ -336,14 +336,14 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 						</div>
 						<div class="tc-account-section">
 							<button type="button" role="menuitem" (click)="settingsOpen.set(true); accountMenuOpen.set(false)">
-								<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+								<svg data-ws-icon="pl-assistant-gear" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
 									<circle cx="12" cy="12" r="3" />
 									<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
 								</svg>
 								<span>الإعدادات</span>
 							</button>
 							<button type="button" role="menuitem" (click)="theme.toggleTheme()">
-								<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+								<svg data-ws-icon="pl-assistant-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
 									<circle cx="12" cy="12" r="4" />
 									<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
 								</svg>
@@ -409,7 +409,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 							aria-haspopup="menu"
 							[attr.aria-expanded]="topbarMenuOpen()"
 						>
-							<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+							<svg data-ws-icon="pl-assistant-more-dots" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
 								<circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" />
 							</svg>
 						</button>
@@ -419,7 +419,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 							<div class="tc-popover tc-model-menu" role="menu" aria-label="أدوات المحادثة">
 								<div class="tc-menu-caption">{{ currentTitle() }}</div>
 								<button role="menuitem" type="button" (click)="printConversation(); topbarMenuOpen.set(false)" [disabled]="!store.messages().length">
-									<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<svg data-ws-icon="pl-assistant-printer" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 										<polyline points="6 9 6 2 18 2 18 9" />
 										<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
 										<rect x="6" y="14" width="12" height="8" />
@@ -427,7 +427,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 									<span>طباعة المحادثة</span>
 								</button>
 								<button role="menuitem" type="button" (click)="saveText(); topbarMenuOpen.set(false)" [disabled]="!store.messages().length">
-									<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<svg data-ws-icon="pl-assistant-download-tray" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
 									</svg>
 									<span>حفظ TXT</span>
@@ -440,7 +440,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 									<span>مشاركة المحادثة</span>
 								</button>
 								<button role="menuitem" type="button" (click)="settingsOpen.set(true); topbarMenuOpen.set(false)">
-									<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<svg data-ws-icon="pl-assistant-gear" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 										<circle cx="12" cy="12" r="3" />
 										<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
 									</svg>
@@ -529,7 +529,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 									@if (store.errorMessage()) {
 										<div class="tc-assistant-turn tc-error-turn" role="alert">
 											<div class="tc-error-content">
-												<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="tc-error-icon" aria-hidden="true">
+												<svg data-ws-icon="pl-assistant-alert-circle" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="tc-error-icon" aria-hidden="true">
 													<circle cx="12" cy="12" r="10" />
 													<line x1="12" y1="8" x2="12" y2="12" />
 													<line x1="12" y1="16" x2="12.01" y2="16" />
@@ -572,7 +572,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 										aria-haspopup="menu"
 										[attr.aria-expanded]="toolsOpen()"
 									>
-										<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<svg data-ws-icon="pl-assistant-plus" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 											<path d="M5 12h14M12 5v14" />
 										</svg>
 									</button>
@@ -580,13 +580,13 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 									@if (toolsOpen()) {
 										<div class="tc-popover tc-tools-menu" role="menu" aria-label="أدوات المساعد">
 											<button type="button" role="menuitem" (click)="fileInput.click(); toolsOpen.set(false)" [disabled]="store.busy()">
-												<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+												<svg data-ws-icon="pl-assistant-paperclip" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 													<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
 												</svg>
 												<span>إرفاق ملف</span>
 											</button>
 											<button type="button" role="menuitem" (click)="toggleWebSearch(); toolsOpen.set(false)">
-												<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+												<svg data-ws-icon="pl-assistant-globe" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 													<circle cx="12" cy="12" r="10" />
 													<path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20" />
 												</svg>
@@ -623,7 +623,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 									[attr.aria-pressed]="store.micActive()"
 									aria-label="إملاء صوتي"
 								>
-									<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<svg data-ws-icon="pl-assistant-mic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 										<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
 										<path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" />
 									</svg>
@@ -631,13 +631,13 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 
 								@if (store.busy()) {
 									<button type="button" class="tc-send-button" (click)="store.cancel()" aria-label="إيقاف التوليد">
-										<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+										<svg data-ws-icon="pl-assistant-square" viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
 											<rect width="18" height="18" x="3" y="3" rx="2" />
 										</svg>
 									</button>
 								} @else if (!promptText().trim() && store.micActive()) {
 									<button type="button" class="tc-send-button" (click)="store.toggleListening()" aria-label="إنهاء المحادثة الصوتية">
-										<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<svg data-ws-icon="pl-assistant-waveform" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 											<path d="M2 10v3M6 6v11M10 3v18M14 8v7M18 5v13M22 10v3" />
 										</svg>
 									</button>
@@ -649,7 +649,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 										[disabled]="!promptText().trim()"
 										aria-label="إرسال الرسالة"
 									>
-										<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<svg data-ws-icon="pl-assistant-arrow-up" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 											<path d="m5 12 7-7 7 7M12 19V5" />
 										</svg>
 									</button>

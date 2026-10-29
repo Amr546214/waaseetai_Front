@@ -10,7 +10,8 @@ describe('unified select styling (native + ws-select)', () => {
 	it('every native single select gets one chevron at the inline end (logical via :dir) with room for the text', () => {
 		const rule = css.match(/select:not\(\[multiple\]\):not\(\[size\]\):not\(\.ws-select-plain\)\{[^}]*\}/)![0];
 		expect(rule).toContain('appearance:none');
-		expect(rule).toContain('background-image:url("data:image/svg+xml');
+		// the arrow is a variable with its own data URI as the fallback: with no published icon the computed value is the data URI itself (default pixels unchanged), a published icon replaces it per colour
+		expect(rule).toMatch(/background-image:var\(--ws-icon-pl-shared-select-arrow-a8b2d1, url\("data:image\/svg\+xml/);
 		expect(rule).toContain('padding-inline-end:34px !important');
 		expect(css).toMatch(/:not\(\.ws-select-plain\):dir\(rtl\)\{background-position:left 12px center !important\}/);
 	});

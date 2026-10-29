@@ -2,7 +2,7 @@
   <div class="tk-hdr">
     <div><h1 class="tk-ttl">المهام والتكليفات</h1><p class="tk-sub">{{ canManage() ? 'جميع مهام فريق الإدارة ومتابعتها' : 'مهامك المكلَّف بها' }}</p></div>
     <div class="tk-hdr-actions">
-      @if (access.can('performance.view')) { <a routerLink="/supper-admin-overview/team-performance" class="tk-btn tk-btn-gh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>تقرير الأداء</a> }
+      @if (access.can('performance.view')) { <a routerLink="/supper-admin-overview/team-performance" class="tk-btn tk-btn-gh"><svg data-ws-icon="pl-admin-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>تقرير الأداء</a> }
       @if (canManage()) { <button type="button" class="tk-btn tk-btn-pri" (click)="openCreate()" data-testid="task-new"><svg data-ws-icon="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>مهمة جديدة</button> }
     </div>
   </div>

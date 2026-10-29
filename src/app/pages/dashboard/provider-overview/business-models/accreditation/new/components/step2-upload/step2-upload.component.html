@@ -10,7 +10,7 @@
 						class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold border border-[rgba(43,212,199,.35)] bg-gradient-to-l from-[rgba(43,212,199,.18)] to-[rgba(43,127,255,.15)] text-[#2BD4C7] hover:from-[rgba(43,212,199,.28)] hover:to-[rgba(43,127,255,.25)] disabled:opacity-50 transition-all cursor-pointer shrink-0">
 						<span *ngIf="!isAiSuggesting">✨ {{ (title.trim() || description.trim()) ? 'تحسين بيانات النموذج بالـ AI' : 'كتابة بيانات النموذج بالـ AI' }}</span>
 						<span *ngIf="isAiSuggesting" class="inline-flex items-center gap-2">
-							<svg class="animate-spin w-4 h-4 text-[#2BD4C7]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+							<svg data-ws-icon="pl-provider-spinner" class="animate-spin w-4 h-4 text-[#2BD4C7]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
 							</svg>
