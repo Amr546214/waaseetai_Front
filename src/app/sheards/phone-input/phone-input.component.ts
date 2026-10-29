@@ -231,14 +231,42 @@ export class PhoneInputComponent implements ControlValueAccessor, Validator, OnC
 		}
 	}
 
+	onCountryNavigation(event: KeyboardEvent): void {
+		const host = this.elementRef.nativeElement as HTMLElement;
+		const options = Array.from(host.querySelectorAll<HTMLElement>('.dropdown-item'));
+		const current = options.indexOf(event.target as HTMLElement);
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			event.stopPropagation();
+			this.isOpen = false;
+			host.querySelector<HTMLElement>('.country-selector-btn')?.focus();
+		} else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+			event.preventDefault();
+			if (!options.length) return;
+			if (event.key === 'ArrowUp' && current === 0) {
+				host.querySelector<HTMLInputElement>('.dropdown-search-in')?.focus();
+				return;
+			}
+			const next = event.key === 'ArrowDown'
+				? Math.min(current + 1, options.length - 1)
+				: (current < 0 ? options.length - 1 : current - 1);
+			options[next].focus({ preventScroll: true });
+			options[next].scrollIntoView?.({ block: 'nearest' });
+		} else if (event.key === 'Enter' && current < 0) {
+			event.preventDefault();
+			const first = this.filteredCountries[0];
+			if (first) this.selectCountry(first, event);
+		}
+	}
 	selectCountry(country: CountryOption, event?: Event): void {
-		if (event) event.stopPropagation();
+		if (event) { event.preventDefault(); event.stopPropagation(); }
 		this.selectedCountry = country;
 		this.countryDecided = true;
 		this.unresolved = false;
 		this.unresolvedDial = null;
 		this.isOpen = false;
 		this.emitValue();
+		this.focusField();
 	}
 
 	// ─── ControlValueAccessor ───────────────────────────────────

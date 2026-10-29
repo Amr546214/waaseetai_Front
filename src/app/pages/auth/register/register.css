@@ -146,8 +146,8 @@ app-register .rg-s2 .banner-info .banner-error-link{margin-inline-start:12px}
 @media(max-width:767px){app-register .rg-s2 .auth-section{padding:76px 14px 40px}app-register .rg-s2 .auth-inner{max-width:100%}app-register .rg-s2 .form-card{padding:18px 16px}app-register .rg-s2 .field-2col{grid-template-columns:1fr}app-register .rg-s2 .stepper .step-label{display:none}app-register .rg-s2 .step-connector{margin-top:14px}app-register .rg-s2 .btn-group{gap:8px}}
 
 /* ===== Step 3 — P-AU-009 ===== */
-app-register .rg-s3{--blue:#2B7FFF;--crd-bd:rgba(255,255,255,.08);--crd-bg:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));--cta-shd:0 12px 30px rgba(43,212,199,.4);--cta-shd-hov:0 18px 40px rgba(43,212,199,.6);--gradient-brand:linear-gradient(135deg,#2BD4C7 0%,#2B7FFF 100%);--navy-900:#070D24;--radius-lg:24px;--radius-sm:10px;--teal:#2BD4C7;--txt:#FFFFFF;--txt-2:#A8B2D1;--txt-3:#6B7699}
-:is(.light-theme,.theme-light) app-register .rg-s3{--crd-bd:#E7EAF1;--crd-bg:#FFFFFF;--cta-shd:0 12px 30px rgba(43,127,255,.28);--cta-shd-hov:0 18px 40px rgba(43,127,255,.40);--txt:#070D24;--txt-2:#56607D;--txt-3:#6B7699}
+app-register .rg-s3{--otp-border:rgba(255,255,255,.15);--otp-bg:rgba(255,255,255,.05);--otp-focus-border:rgba(43,212,199,.45);--otp-filled-border:rgba(43,212,199,.35);--otp-caret:#2BD4C7;--blue:#2B7FFF;--crd-bd:rgba(255,255,255,.08);--crd-bg:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));--cta-shd:0 12px 30px rgba(43,212,199,.4);--cta-shd-hov:0 18px 40px rgba(43,212,199,.6);--gradient-brand:linear-gradient(135deg,#2BD4C7 0%,#2B7FFF 100%);--navy-900:#070D24;--radius-lg:24px;--radius-sm:10px;--teal:#2BD4C7;--txt:#FFFFFF;--txt-2:#A8B2D1;--txt-3:#6B7699}
+:is(.light-theme,.theme-light) app-register .rg-s3{--otp-border:#8492A6;--otp-bg:#F8FAFC;--otp-focus-border:#008579;--otp-filled-border:#008579;--otp-caret:#008579;--crd-bd:#E7EAF1;--crd-bg:#FFFFFF;--cta-shd:0 12px 30px rgba(43,127,255,.28);--cta-shd-hov:0 18px 40px rgba(43,127,255,.40);--txt:#070D24;--txt-2:#56607D;--txt-3:#6B7699}
 app-register .rg-s3 .auth-flow-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px}
 app-register .rg-s3 .auth-back-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--txt-2);transition:color .2s;text-decoration:none}
 app-register .rg-s3 .auth-back-link:hover{color:var(--txt)}
@@ -186,10 +186,10 @@ app-register .rg-s3 .masked-type{font-size:11px;color:var(--txt-3);flex-shrink:0
 app-register .rg-s3 .otp-card{background:var(--crd-bg);border:1px solid var(--crd-bd);border-radius:var(--radius-lg);padding:24px 20px 20px;margin-bottom:14px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 app-register .rg-s3 .otp-card-title{font-size:13px;font-weight:800;color:var(--txt-2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:18px;text-align:center}
 app-register .rg-s3 .otp-group{display:flex;gap:10px;justify-content:center;direction:ltr;margin-bottom:20px}
-app-register .rg-s3 .otp-box{width:52px;height:60px;border-radius:12px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--txt);font-size:24px;font-weight:800;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;caret-color:#2BD4C7;font-family:'Tajawal',system-ui,sans-serif;-moz-appearance:textfield;appearance:textfield}
+app-register .rg-s3 .otp-box{width:52px;height:60px;border-radius:12px;border:1.5px solid var(--otp-border);background:var(--otp-bg);color:var(--txt);font-size:24px;font-weight:800;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;caret-color:var(--otp-caret);font-family:'Tajawal',system-ui,sans-serif;-moz-appearance:textfield;appearance:textfield}
 app-register .rg-s3 .otp-box::-webkit-outer-spin-button,app-register .rg-s3 .otp-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-app-register .rg-s3 .otp-box:focus{border-color:rgba(43,212,199,.45);box-shadow:0 0 0 3px rgba(43,212,199,.10);background:rgba(43,212,199,.04)}
-app-register .rg-s3 .otp-box.filled{border-color:rgba(43,212,199,.35);background:rgba(43,212,199,.06)}
+app-register .rg-s3 .otp-box:focus{border-color:var(--otp-focus-border);box-shadow:0 0 0 3px rgba(43,212,199,.10);background:rgba(43,212,199,.04)}
+app-register .rg-s3 .otp-box.filled{border-color:var(--otp-filled-border);background:rgba(43,212,199,.06)}
 app-register .rg-s3 .otp-box.has-error{border-color:color-mix(in srgb,var(--red) 70%,transparent);background:color-mix(in srgb,var(--red) 6%,transparent)}
 app-register .rg-s3 .timer-block{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:4px}
 app-register .rg-s3 .timer-label{font-size:12px;color:var(--txt-3)}
@@ -253,3 +253,26 @@ app-register .rg-s1 .role-soon-overlay{position:absolute;inset:0;z-index:10;disp
 app-register .rg-s1 .role-soon-yellow{display:inline-flex;align-items:center;justify-content:center;padding:10px 24px;font-size:15px;font-weight:900;color:#FFC107;background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.35);border-radius:50px;box-shadow:0 0 24px rgba(255,193,7,.25);letter-spacing:.5px}
 
 app-register .field-hint{font-size:12px;color:var(--text-muted,#94a3b8);margin-top:6px;line-height:1.6}
+
+/* Keep optional referral details beside the main registration fields. */
+@media (min-width: 960px) {
+  app-register .rg-s2.has-referral .auth-inner { max-width: 920px; }
+  app-register .rg-s2.has-referral #complete-form {
+    display: grid;
+    grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+    column-gap: 24px;
+    align-items: start;
+  }
+  app-register .rg-s2.has-referral #complete-form > * { grid-column: 1; min-width: 0; }
+  app-register .rg-s2.has-referral #complete-form > .referral-card {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    position: sticky;
+    top: 96px;
+    align-self: start;
+    margin-bottom: 0;
+    padding: 24px 20px;
+    border-color: rgba(43, 212, 199, .25);
+  }
+  app-register .rg-s2.has-referral .referral-card .form-card-title { letter-spacing: normal; }
+}
