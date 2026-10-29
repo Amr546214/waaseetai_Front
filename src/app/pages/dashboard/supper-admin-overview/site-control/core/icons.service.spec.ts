@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { IconsFile, IconsService } from './icons.service';
 import { sanitizeLibrarySvg, sanitizeUploadedSvg } from './svg-sanitize';
 
@@ -15,8 +15,6 @@ const total = (libs: { icons: unknown[] }[]) => libs.reduce((n, l) => n + l.icon
 const KEY = 'waseetai-dtp:icons';
 
 describe('icon library state (load / save / load failure)', () => {
-	// the shipped library now also lists the ~400 inline-place keys: sanitising every icon on each load takes longer than the 5 s default on a busy machine
-	vi.setConfig({ testTimeout: 40_000 });
 	let svc: IconsService; let http: HttpTestingController;
 	beforeEach(() => {
 		localStorage.clear(); TestBed.resetTestingModule();

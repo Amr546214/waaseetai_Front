@@ -4,6 +4,14 @@ import { firstValueFrom, catchError, of } from 'rxjs';
 import { PersistenceService } from './persistence.service';
 import { sanitizeLibrarySvg } from './svg-sanitize';
 
+/**
+ * sanitizeLibrarySvg parses the markup with a DOM parser. The shipped library lists ~1100 icons and a load sanitised EACH of them up to three times (the saved copy, the saved copy again to compare,
+ * and the shipped icon as the comparison baseline), so a load took seconds and the timing specs that load twice sat at the edge of the test timeout. The function is pure: the same markup always gives
+ * the same result, so each distinct string is sanitised once per page lifetime. Behaviour is unchanged; only the repeated parsing is gone.
+ */
+const SANITIZED = new Map<string, string | null>();
+const cleanSvg = (raw: string): string | null => { if (SANITIZED.has(raw)) return SANITIZED.get(raw)!; const c = sanitizeLibrarySvg(raw); SANITIZED.set(raw, c); return c; };
+
 export interface IconItem {
   slot: string;
   label: string;
@@ -108,8 +116,8 @@ export class IconsService {
       for (const ic of lib.icons) {
         const old = mine.icons.find(i => i?.slot === ic.slot);
         if (!old || typeof old.svg !== 'string') continue;
-        const clean = sanitizeLibrarySvg(old.svg);
-        if (clean !== null && norm(clean) !== norm(sanitizeLibrarySvg(ic.svg) ?? ic.svg)) out.push({ libraryId: lib.id, slot: ic.slot, label: ic.label, defaultInner: ic.svg, legacyInner: clean });
+        const clean = cleanSvg(old.svg);
+        if (clean !== null && norm(clean) !== norm(cleanSvg(ic.svg) ?? ic.svg)) out.push({ libraryId: lib.id, slot: ic.slot, label: ic.label, defaultInner: ic.svg, legacyInner: clean });
       }
     }
     return out;
@@ -127,7 +135,7 @@ export class IconsService {
       ...lib,
       icons: (lib.icons ?? [])
         .map(icon => {
-          const clean = typeof icon?.svg === 'string' ? sanitizeLibrarySvg(icon.svg) : null;
+          const clean = typeof icon?.svg === 'string' ? cleanSvg(icon.svg) : null;
           return clean === null ? null : { ...icon, svg: clean };
         })
         .filter((icon): icon is IconItem => icon !== null),
