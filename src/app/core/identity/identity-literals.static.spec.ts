@@ -61,3 +61,14 @@ describe('admin light-mode overrides: text / border literals that equal a token 
 		expect(block).toMatch(/color: #0F172A/);
 	});
 });
+
+describe('ws-light-polish.js (bell border flip, Round 9)', () => {
+	const js = readFileSync(join(SRC, '..', 'public/assets/ws-light-polish.js'), 'utf8');
+	it('measures and applies with transitions switched off and always switches them back (a transitioned element must not be read mid-transition)', () => {
+		expect(js).toMatch(/function run\(\)\{[^}]*freezeOn\(\)[^}]*doRun\(\)[^}]*getComputedStyle\(document\.body\)[^}]*finally\s*\{[^}]*removeChild\(fz\)/);
+		expect(js).toContain("transition:none!important");
+	});
+	it('does not re-declare registered tokens on <body> (equal to the platform value, dead behind html.theme-light body)', () => {
+		expect(js).not.toMatch(/body\{--(teal-txt|ai-txt|kahr)/);
+	});
+});
