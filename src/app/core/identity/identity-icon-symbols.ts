@@ -120,6 +120,8 @@ export class IconSymbolsRuntime {
 		this.pruneCache(new Set([...next.values()].map(w => w.sha)));
 		// a changed sha: the old drawing stays until the new file is parsed (no flash of the default), then every tracked element is redrawn
 		for (const id of changed) if (this.parsed.get(id)?.sha !== next.get(id)!.sha) this.invalidate(id);
+		// a CSS-bound key has no element in the document to wake the lazy fetch: its published file is fetched here (the stylesheets read the custom properties it publishes)
+		for (const id of Object.keys(CSS_BOUND_ICONS)) if (next.has(id) && this.parsed.get(id)?.sha !== next.get(id)!.sha) void this.need(id);
 		if (this.want.size) { this.rescan(); this.observe(); }
 	}
 
