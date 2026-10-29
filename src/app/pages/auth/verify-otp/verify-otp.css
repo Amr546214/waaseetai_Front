@@ -1,7 +1,7 @@
 /* Ported verbatim from design-reference/extracted/تسليم-نهائي/01-التسجيل-والدخول/P-AU-009.html.
    Dark variables = design :root; light = design LIGHT map. Scoped to app-verify-otp (ViewEncapsulation.None). */
-app-verify-otp{--blue:#2B7FFF;--crd-bd:rgba(255,255,255,.08);--crd-bg:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));--cta-shd:0 12px 30px rgba(43,212,199,.4);--cta-shd-hov:0 18px 40px rgba(43,212,199,.6);--gradient-brand:linear-gradient(135deg,#2BD4C7 0%,#2B7FFF 100%);--navy-900:#070D24;--radius-lg:24px;--radius-sm:10px;--teal:#2BD4C7;--txt:#FFFFFF;--txt-2:#A8B2D1;--txt-3:#6B7699}
-:is(.light-theme,.theme-light) app-verify-otp{--crd-bd:#E7EAF1;--crd-bg:#FFFFFF;--cta-shd:0 12px 30px rgba(43,127,255,.28);--cta-shd-hov:0 18px 40px rgba(43,127,255,.40);--txt:#070D24;--txt-2:#56607D;--txt-3:#6B7699}
+app-verify-otp{--blue:var(--brand-blue);--crd-bd:var(--pub-crd-bd);--crd-bg:var(--pub-crd-bg);--cta-shd:0 12px 30px rgba(43,212,199,.4);--cta-shd-hov:0 18px 40px rgba(43,212,199,.6);--gradient-brand:linear-gradient(135deg,#2BD4C7 0%,#2B7FFF 100%);--navy-900:#070D24;--radius-lg:24px;--teal:var(--brand-teal);--txt:var(--pub-txt);--txt-2:var(--pub-txt-2);--txt-3:var(--pub-txt-3)}
+:is(.light-theme,.theme-light) app-verify-otp{--cta-shd:0 12px 30px rgba(43,127,255,.28);--cta-shd-hov:0 18px 40px rgba(43,127,255,.40);}
 app-verify-otp .auth-flow-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px}
 app-verify-otp .auth-back-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--txt-2);transition:color .2s;text-decoration:none}
 app-verify-otp .auth-back-link:hover{color:var(--txt)}

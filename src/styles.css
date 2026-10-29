@@ -119,6 +119,43 @@ html.light-theme,html.theme-light,body.light-theme,body.theme-light{
   --ai-nte-clr:#475569;
 }
 
+/* ============================================================
+   IDENTITY SEMANTIC VARIABLES (Round 9) - one named setting per intentional difference.
+   Several pages used to re-declare a registered token (--txt, --crd-bg, --teal ...) in their own scope with another value, so an edit of
+   the platform token never reached them. Each such difference is now ONE variable defined here; the page maps its local token to it
+   (`--txt: var(--pub-txt)`). Where a value equals the platform's it is DERIVED (`var(--txt)`), so the page follows the platform token;
+   where it differs it carries its own literal. Defaults are exactly the values the pages rendered before (proved pixel-identical).
+   The list (names, labels, defaults, users) lives in src/app/core/identity/identity-semantic-tokens.json; the guard specs compare both.
+   ============================================================ */
+:root{
+  --pub-txt:var(--txt); --pub-txt-2:var(--txt-2); --pub-txt-3:var(--txt-3);
+  --pub-crd-bg:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+  --pub-crd-bd:var(--crd-bd);
+  --pub-sec-bg:rgba(255,255,255,.05); --pub-sec-bd:rgba(255,255,255,.15);
+  --pub-tint-bd:rgba(43,212,199,.15);
+  --pub-ai-bg:rgba(123,47,190,.1);
+  --brand-teal:var(--teal); --brand-blue:var(--blue); --brand-ai:var(--ai);
+  --home-crd-bg:linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.01));
+  --home-ai-nte-bd:var(--ai-nte-bd); --home-ai-nte-bg:rgba(123,47,190,.07); --home-ai-nte-clr:rgba(232,234,240,.72);
+  --soft-bd:var(--sec-bd);
+  --notif-txt:var(--txt); --notif-client-txt-3:var(--txt-3); --notif-provider-txt-3:var(--txt-3);
+  --aw-txt:var(--txt); --aw-txt-2:#cbd5e1; --aw-txt-3:#94a3b8; --aw-sec-bd:rgba(43,212,199,.2);
+}
+.theme-light,.light-theme{
+  --pub-txt:#070D24; --pub-txt-2:#56607D; --pub-txt-3:#6B7699;
+  --pub-crd-bg:var(--crd-bg);
+  --pub-crd-bd:#E7EAF1;
+  --pub-sec-bg:var(--sec-bg); --pub-sec-bd:rgba(7,13,36,.14);
+  --pub-tint-bd:rgba(43,127,255,.14);
+  --pub-ai-bg:var(--ai-bg);
+  --brand-teal:#2BD4C7; --brand-blue:#2B7FFF; --brand-ai:#7B2FBE;
+  --home-crd-bg:var(--crd-bg);
+  --home-ai-nte-bd:rgba(123,47,190,.2); --home-ai-nte-bg:var(--ai-nte-bg); --home-ai-nte-clr:#56607D;
+  --soft-bd:#E7EAF1;
+  --notif-txt:#0F172A; --notif-client-txt-3:#64748B; --notif-provider-txt-3:#475569;
+  --aw-txt:#ffffff; --aw-txt-2:#cbd5e1; --aw-txt-3:#94a3b8; --aw-sec-bd:rgba(43,212,199,.2);
+}
+
 body{margin:0;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;background:var(--pg);color:var(--txt)}
 
 /* ============================================================

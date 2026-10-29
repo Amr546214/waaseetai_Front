@@ -6,11 +6,11 @@
    website layout owns them).
    ============================================================ */
 :host{
-  --teal:#2BD4C7;
-  --radius-lg:24px;--radius-md:16px;--radius-sm:10px;
-  --txt:#FFFFFF;--txt-2:#A8B2D1;--txt-3:#6B7699;
-  --crd-bg:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
-  --crd-bd:rgba(255,255,255,.08);
+  --teal:var(--brand-teal);
+  --radius-lg:24px;--radius-md:16px;
+  --txt:var(--pub-txt);--txt-2:var(--pub-txt-2);--txt-3:var(--pub-txt-3);
+  --crd-bg:var(--pub-crd-bg);
+  --crd-bd:var(--pub-crd-bd);
   --toc-hov-bg:rgba(255,255,255,.04);
   --sec-hov-bd:rgba(255,255,255,.14);
   --toc-chip-bd:rgba(255,255,255,.10);
@@ -22,8 +22,6 @@
   display:block;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;line-height:1.75;direction:rtl
 }
 :host-context(.light-theme),:host-context(.theme-light){
-  --txt:#070D24;--txt-2:#56607D;--txt-3:#6B7699;
-  --crd-bg:#FFFFFF;--crd-bd:#E7EAF1;
   /* ws-light-polish.js: vanishing borders -> visible light divider */
   --toc-hov-bg:rgba(7,13,36,.04);
   --sec-hov-bd:#CBD5E1;
