@@ -1,8 +1,9 @@
 <h1 class="sec-title text-2xl font-black text-[var(--txt)] mb-2">التفاصيل الأساسية</h1>
 		<p class="sec-sub text-[var(--txt-3)] font-medium mb-8">أدخل عنوان الطلب ووصفه التفصيلي والمهارات المطلوبة وأي شروط إضافية تتوقعها.</p>
 
+		<div class="details-grid">
 		<!-- FIELD 1: عنوان الطلب -->
-		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+		<div class="details-main form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
 				<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
 				معلومات الطلب الأساسية
@@ -136,7 +137,7 @@
 		</div>
 
 		<!-- FIELD 2b: المهارات المطلوبة (من كتالوج مجال التخصص) -->
-		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6" data-testid="required-skills-card">
+		<div class="details-skills form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6" data-testid="required-skills-card">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">
 				<span>المهارات المطلوبة</span>
 				<span class="text-[11px] font-bold text-[var(--txt-3)] bg-[var(--sec-bg)] px-2 py-1 rounded">اختياري</span>
@@ -151,7 +152,7 @@
 		</div>
 
 		<!-- FIELD 3: شروط إضافية (نص حر، ليست مهارات) -->
-		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+		<div class="details-conditions form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">
 				<span class="flex items-center gap-3">
 					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -187,7 +188,7 @@
 		</div>
 
 		<!-- FIELD 4: المخرجات -->
-		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+		<div class="details-outputs form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between mb-4">
 				<span class="flex items-center gap-3">
 					<svg class="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -206,7 +207,7 @@
 		</div>
 
 		<!-- FIELD 5 + 6: المدة والتاريخ -->
-		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
+		<div class="details-timeline form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center gap-3 mb-6">
 				<svg class="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 				الجدول الزمني
@@ -222,4 +223,5 @@
 				</div>
 				<div class="mt-2 text-xs text-[var(--txt-3)] font-medium">المدة تقريبية، يمكن التفاوض مع مقدم الخدمة</div>
 			</div>
+		</div>
 		</div>

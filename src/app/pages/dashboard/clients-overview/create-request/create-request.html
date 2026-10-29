@@ -1,4 +1,4 @@
-<div class="relative z-10 pb-[100px]" (keydown.enter)="onEnterKey($event)">
+<div class="relative z-10 pb-[100px]" [class.details-compact]="currentStep() === 3 || currentStep() === 6" (keydown.enter)="onEnterKey($event)">
 <style>
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
@@ -31,7 +31,7 @@
 	<div class="max-w-6xl mx-auto w-full px-4 lg:px-6 pt-6">
 
 		<!-- BREADCRUMB (TOP RIGHT) -->
-		<div class="flex items-center justify-end mb-8">
+		<div class="request-breadcrumb flex items-center justify-end mb-8">
 			<nav class="breadcrumb flex items-center gap-2 text-[13px] text-[var(--txt-3)] font-medium" aria-label="مسار التنقل">
 				<a routerLink="/client-overview" class="hover:text-[var(--txt)] transition-colors">الرئيسية</a>
 				<span class="breadcrumb-sep text-[var(--txt-3)]" aria-hidden="true">&#8250;</span>
@@ -42,7 +42,7 @@
 		</div>
 
 		<!-- STEPPER CONTAINER -->
-		<div class="w-full max-w-4xl mx-auto mb-14 px-2" role="list">
+		<div class="request-stepper w-full max-w-4xl mx-auto mb-14 px-2" role="list">
 			<div class="flex items-center justify-between relative">
 				@for (step of steps; track step.num; let idx = $index; let isLast = $last) {
 				<!-- STEP ITEM -->
