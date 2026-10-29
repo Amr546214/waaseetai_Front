@@ -188,7 +188,7 @@ export class IconTokens implements OnInit {
   managed(slot: string): boolean { return /(^|-)ai$/.test(slot); }
   isManaged(r: IconFnRow): boolean { return r.managedBy === 'icon.ai' || this.managed(r.id); }
   editable(r: IconFnRow): boolean { return !!r.key && r.status !== 'not-wired'; }
-  statusText(r: IconFnRow): string { return r.status === 'custom' ? 'مخصّصة' : r.status === 'default' ? 'افتراضية' : 'غير مربوطة'; }
+  statusText(r: IconFnRow): string { return r.status === 'custom' ? 'مخصّصة' : r.status === 'default' ? 'افتراضية' : this.isUnused(r) ? 'غير مستعملة' : 'غير مربوطة'; }
   /** not-wired rows split by the usage report: USED_UNBOUND (a place draws it with no key: must stay empty) vs UNUSED (kept, never deleted) */
   usageKind(r: IconFnRow): 'used-unbound' | 'unused' | null { const u = this.usage.get(r.id); return r.status !== 'not-wired' || !u || u.status === 'BOUND' ? null : u.status === 'USED_UNBOUND' ? 'used-unbound' : 'unused'; }
   /** the short label of a not-wired / unused card; the full sentence is the tooltip */

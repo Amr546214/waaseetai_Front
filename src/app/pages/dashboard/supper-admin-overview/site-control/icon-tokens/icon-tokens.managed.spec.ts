@@ -57,7 +57,7 @@ describe('icon library page (server-backed)', () => {
 		expect(t.q('icon-status-i-bell')!.textContent).toContain('افتراضية'); expect(t.q('icon-open-i-bell')!.textContent).toContain('تخصيص');
 		expect(t.q('icon-status-i-check')!.textContent).toContain('مخصّصة'); expect(t.q('icon-open-i-check')!.textContent).toContain('تعديل');
 		expect(t.q('icon-status-i-coin')!.textContent).toContain('غير مربوطة'); expect(t.q('notwired-i-coin')!.textContent).toContain('مستعملة وغير مربوطة'); expect(t.q('notwired-i-coin')!.getAttribute('title')).toContain('لا موضع يتبع هذا المفتاح');
-		expect(t.q('notwired-i-unused')!.textContent).toContain('غير مستعملة'); expect(t.q('notwired-i-unused')!.getAttribute('data-kind')).toBe('unused'); expect(t.q('notwired-i-unused')!.getAttribute('title')).toContain('لا تُحذف');
+		expect(t.c.statusText(ROWS.find(r => r.id === 'i-unused')!)).toBe('غير مستعملة'); expect(t.q('notwired-i-unused')!.textContent).toContain('غير مستعملة'); expect(t.q('notwired-i-unused')!.getAttribute('data-kind')).toBe('unused'); expect(t.q('notwired-i-unused')!.getAttribute('title')).toContain('لا تُحذف');
 		expect(t.q('icon-open-i-coin')).toBeNull();
 		expect(t.q('icon-card-i-coin')!.querySelector('input[type=file], select')).toBeNull();
 	});
