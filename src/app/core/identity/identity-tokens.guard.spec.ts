@@ -9,6 +9,8 @@ const REG = CANDIDATES.find(existsSync);
 const GOLDEN = JSON.parse(readFileSync(join(__dirname, 'identity-tokens.effective.golden.json'), 'utf8')) as { dark: Record<string, string>; light: Record<string, string>; knownBeDrift: string[] };
 const STYLES = readFileSync(join(process.cwd(), 'src/styles.css'), 'utf8');
 const DESIGN_SYSTEM = readFileSync(join(process.cwd(), 'src/waseet-design-system.css'), 'utf8');
+// Round 9: the BE registry may also hold the SEMANTIC variables of identity-semantic-tokens.json (they are not part of the 38 platform tokens; identity-token-copies.guard.spec.ts checks their defaults)
+const SEMANTIC_NAMES = new Set((JSON.parse(readFileSync(join(__dirname, 'identity-semantic-tokens.json'), 'utf8')) as { tokens: { name: string }[] }).tokens.map(t => t.name));
 
 /** same normalisation as the BE guard: lower-case, no whitespace, trailing zeros of decimals dropped (`.10` -> `.1`); `#fff` and `#ffffff` are NOT equal */
 const norm = (v: string): string => v.toLowerCase().replace(/\s+/g, '').replace(/(\.\d*?)0+(?=\D|$)/g, '$1').replace(/\.(?=\D|$)/g, '');
@@ -23,6 +25,9 @@ function block(css: string, selector: string): Record<string, string> {
 }
 interface BeTok { name: string; dark: string; light?: string; scope: string }
 function parseBe(src: string): BeTok[] {
+	return parseBeAll(src).filter(t => !SEMANTIC_NAMES.has(t.name));
+}
+function parseBeAll(src: string): BeTok[] {
 	const out: BeTok[] = [];
 	for (const m of src.matchAll(/\b[cp]\('(--[a-z0-9-]+)',\s*'[^']*',\s*'([^']*)'(?:,\s*'([^']*)')?\)/g)) out.push({ name: m[1], dark: m[2], light: m[3], scope: 'color' });
 	for (const m of src.matchAll(/\{\s*name:\s*'(--[a-z0-9-]+)',\s*type:\s*'[a-z-]+',\s*scope:\s*'(color|layout|typography)',\s*label:\s*'[^']*',\s*dark:\s*(?:'([^']*)'|"([^"]*)")(?:,\s*light:\s*'([^']*)')?/g)) out.push({ name: m[1], dark: m[3] ?? m[4], light: m[5], scope: m[2] });

@@ -1,9 +1,9 @@
 /* === Light mode overrides (P-SK-019 invoice details) === */
 :host-context(body.light-theme),
 :host-context(body.theme-light),:host-context(.light-theme),:host-context(.theme-light){
-	--txt:#070D24; --txt-2:#56607D; --txt-3:#6B7699;
- --crd-bd:#E7EAF1;
- --sec-bd:#E7EAF1;
+	--txt:var(--pub-txt); --txt-2:var(--pub-txt-2); --txt-3:var(--pub-txt-3);
+ --crd-bd:var(--pub-crd-bd);
+ --sec-bd:var(--soft-bd);
 }
 
 :host-context(body.light-theme) .bg-white,

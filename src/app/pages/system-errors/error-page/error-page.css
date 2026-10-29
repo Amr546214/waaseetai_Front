@@ -5,16 +5,12 @@
    light = its .theme-light block.
    ============================================================ */
 :host{
-  --pg:#070D24;
-  --txt:#FFFFFF; --txt-2:#A8B2D1; --txt-3:#6B7699;
-  --teal:#2BD4C7;   
-  --grad:linear-gradient(135deg,#2BD4C7,#2B7FFF);
+  --txt:var(--pub-txt); --txt-2:var(--pub-txt-2); --txt-3:var(--pub-txt-3);
+  --teal:var(--brand-teal);   
   --ghost-bd:rgba(255,255,255,.15);
   display:block;min-height:100vh;background:var(--pg);color:var(--txt);font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;direction:rtl;overflow-x:hidden;position:relative
 }
 :host-context(.light-theme),:host-context(.theme-light){
-  --pg:#F6F8FC;
-  --txt:#070D24; --txt-2:#56607D; --txt-3:#6B7699;
   /* ws-light-polish.js: vanishing borders -> visible light divider */
   --ghost-bd:#CBD5E1;
 }

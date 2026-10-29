@@ -74,7 +74,12 @@
   }
   function revert(){ for(var i=0;i<applied.length;i++){var a=applied[i]; if(a[2]) a[0].style.setProperty(a[1],a[2],a[3]); else a[0].style.removeProperty(a[1]);} applied=[]; }
 
-  function run(){ if(mo) mo.disconnect(); try{ doRun(); } finally { reconnect(); } }
+  /* Round 9 (bell border flip): doRun() reverts its own inline overrides and then READS computed styles. An element with `transition: all .15s` (header buttons, chips, cards)
+     is then read MID-TRANSITION (its start value is the script's own previous override), so the "vanishing border" test flips between runs and the border fades
+     back and forth (the final colour depended on the parity of the number of runs). Transitions are therefore switched off while the script measures and applies, and flushed
+     before they come back: every run sees the settled, un-overridden style and the result is the same on every run. */
+  function freezeOn(){ var f=document.getElementById('ws-polish-freeze'); if(!f){ f=document.createElement('style'); f.id='ws-polish-freeze'; f.textContent='*,*::before,*::after{transition:none!important}'; (document.head||document.documentElement).appendChild(f); } return f; }
+  function run(){ if(mo) mo.disconnect(); var fz=freezeOn(); try{ doRun(); if(document.body) getComputedStyle(document.body).color; } finally { if(fz.parentNode) fz.parentNode.removeChild(fz); reconnect(); } }
   function doRun(){
     revert();
     var light=isLight();
@@ -84,7 +89,7 @@
     var pcss=document.getElementById('ws-polish-css');
     if(light){
       if(!pcss){ pcss=document.createElement('style'); pcss.id='ws-polish-css'; (document.head||document.documentElement).appendChild(pcss); }
-      pcss.textContent='body{--teal-txt:#0F8A7F;--ai-txt:#6B27A5;--kahr:#9A6700;color:#1E293B}'
+      pcss.textContent='body{color:#1E293B}'
         +'.sb-logout:hover{color:#C2410C !important;background:rgba(194,65,12,.07) !important}'
         +'.sf-links a:hover{color:#0F8A7F !important}'
         +'.t-toggle .seg.is-selected,.theme-toggle .seg.is-selected{background:#fff !important;color:#0F172A !important;box-shadow:0 2px 8px rgba(15,23,42,.12) !important}'
