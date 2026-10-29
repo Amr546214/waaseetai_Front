@@ -129,7 +129,7 @@ export class BeboAvatarComponent implements OnDestroy {
 					if (this.destroyed) return;
 					this.robot.set(this.robotRef().nativeElement);
 					this.ready.set(true);
-					preloadBeboAtlases(this.doc);
+					preloadBeboAtlases(this.doc, this.skin());
 				},
 				() => { if (!this.destroyed) this.loadFailed.set(true); },
 			);
@@ -167,6 +167,7 @@ export class BeboAvatarComponent implements OnDestroy {
 			const robot = this.robot();
 			if (robot && robot.getAttribute('skin') !== skin) {
 				robot.setAttribute('skin', skin);
+				preloadBeboAtlases(this.doc, skin); // a skin chosen later is warmed when it is chosen (the first skin was warmed when the element loaded)
 			}
 			if (robot && skin === 'classic' && (BEBO_EXTRA_POSES as readonly string[]).includes(robot.state)) {
 				robot.play('idle');

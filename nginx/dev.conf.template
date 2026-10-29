@@ -7,13 +7,33 @@ server {
     server_name localhost;
     include /etc/nginx/mime.types;
 
+    # Compression. Measured on dev (anonymous HEAD/GET): JS, CSS and the JSON the site-control pages read were served RAW (main 101,848 B, styles 304,684 B, index 39 KB). PNG/JPG/WOFF2 are
+    # already compressed and are not listed; the DIN fonts are .ttf files (no .ttf entry in nginx mime.types -> application/octet-stream) and shrink to ~half. nginx adds `Vary: Accept-Encoding`; the proxy in front passes Accept-Encoding / Content-Encoding through.
+    gzip on;
+    gzip_vary on;
+    gzip_http_version 1.0;   # a host nginx in front talks HTTP/1.0 to this container by default (proxy_http_version 1.0): without this nothing would be compressed on that hop
+    gzip_comp_level 5;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/json application/manifest+json application/xml image/svg+xml image/x-icon font/ttf font/otf application/vnd.ms-fontobject application/octet-stream;
+
     location / {
         root /usr/share/nginx/html;
         index index.html index.htm;
         try_files $uri $uri/ /index.html;
+        # the page shell is revalidated every time (a deploy changes the hashed file names it points to); the 304 costs a few hundred bytes
+        add_header Cache-Control "no-cache";
     }
 
     include /etc/nginx/ws-identity.inc;
+
+    # the build names its bundles by content hash (main-XXXXXXXX.js, chunk-XXXXXXXX.js, styles-XXXXXXXX.css): a file with that name never changes, so it is cached for a year
+    location ~ "^/(main|polyfills|chunk|styles|scripts)-[A-Za-z0-9]{8}\.(js|css)$" {
+        root /usr/share/nginx/html;
+        include /etc/nginx/mime.types;
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
 
     location ~ \.(js|css|svg|ico|png|jpg|jpeg|woff|woff2|ttf|map)$ {
         root /usr/share/nginx/html;
