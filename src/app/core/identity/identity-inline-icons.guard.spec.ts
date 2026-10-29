@@ -29,13 +29,15 @@ describe('inline icon keys (registry, places, sidebar, CSS)', () => {
 	});
 
 	it('every `pl-*` key written in the code is in the registry and every registry key is used at least once', () => {
-		const used = new Map<string, number>();
+		const used = new Map<string, number>(); const asKey = new Set<string>();
 		for (const f of walk(join(ROOT, 'src/app'))) {
 			if (f.includes('/core/identity/identity-inline-icons.ts')) continue;
 			const t = readFileSync(f, 'utf8');
 			for (const m of t.matchAll(/['"`](pl-(?:site|auth|errors|assistant|client|provider|marketer|admin|shared|nav|notify)-[a-z0-9-]+)['"`]/g)) used.set(m[1], (used.get(m[1]) ?? 0) + 1);
+			// only a name written where a KEY is expected must exist (a CSS class such as pl-client-lbl is not one)
+			for (const m of t.matchAll(/(?:data-ws-icon="|wsIcon="|\bws: '|return ')(pl-[a-z0-9-]+)['"]/g)) asKey.add(m[1]);
 		}
-		expect([...used.keys()].filter(k => !ids.has(k))).toEqual([]);
+		expect([...asKey].filter(k => !ids.has(k))).toEqual([]);
 		expect([...ids].filter(k => !used.has(k))).toEqual([]);
 	});
 
