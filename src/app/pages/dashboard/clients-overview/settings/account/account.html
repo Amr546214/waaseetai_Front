@@ -41,24 +41,22 @@
       
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] flex items-center flex-wrap gap-2">التحقق بخطوتين <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-[rgba(148,163,184,.14)] text-[var(--txt-3)] border border-[rgba(148,163,184,.28)]">غير متاح حاليًا</span></div>
+          <div class="text-[13.5px] font-bold text-[var(--txt)]">التحقق بخطوتين <span class="availability-badge">غير متاح</span></div>
           <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">رمز تحقق إضافي عند كل دخول جديد</div>
-          <div class="text-[10.5px] text-[var(--txt-3)] mt-1 opacity-70">الميزة غير متوفرة في المنصة حاليًا، لذلك لا يمكن تفعيلها</div>
         </div>
         <label class="sw" style="opacity:.55;cursor:not-allowed" title="الميزة غير متوفرة حاليًا">
-          <input type="checkbox" [checked]="twoFactorAuth()" disabled>
+          <input type="checkbox" [checked]="twoFactorAuth()" disabled aria-label="التحقق بخطوتين، غير متاح">
           <span class="sw-track"><span class="sw-thumb"></span></span>
         </label>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)]">تنبيه عند دخول جديد</div>
+          <div class="text-[13.5px] font-bold text-[var(--txt)]">تنبيه عند دخول جديد <span class="availability-badge">غير متاح</span></div>
           <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">إشعار عند تسجيل الدخول من جهاز غير معروف</div>
-          <div class="text-[10.5px] text-[var(--txt-3)] mt-1 opacity-70">الميزة غير متوفرة في المنصة حاليًا، لذلك لا يمكن تفعيلها</div>
         </div>
         <label class="sw" style="opacity:.55;cursor:not-allowed" title="الميزة غير متوفرة حاليًا">
-          <input type="checkbox" [checked]="newLoginAlert()" disabled>
+          <input type="checkbox" [checked]="newLoginAlert()" disabled aria-label="تنبيه عند دخول جديد، غير متاح">
           <span class="sw-track"><span class="sw-thumb"></span></span>
         </label>
       </div>
@@ -123,8 +121,8 @@
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة</div>
-          <div class="text-[12px] text-[var(--txt-3)]">تفضيل لغة حسابك، يُحفظ في ملفك ولا يغيّر لغة الموقع حاليًا</div>
+          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة <span class="availability-badge">تفضيل فقط</span></div>
+          <div class="text-[12px] text-[var(--txt-3)]">لا يغيّر لغة الموقع</div>
         </div>
         <ws-select id="set-lang" [options]="languageOptions" [(ngModel)]="language" ariaLabel="اللغة" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
@@ -139,16 +137,14 @@
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">العملة</div>
-          <div class="text-[12px] text-[var(--txt-3)]">تُعرض كل المبالغ في المنصة بالدولار الأمريكي، ولا توجد عملة أخرى للاختيار</div>
+          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">العملة <span class="availability-badge">ثابت</span></div>
         </div>
         <span class="text-[13px] font-bold text-[var(--txt)]" data-testid="currency-fixed">دولار أمريكي (USD)</span>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنسيق التاريخ</div>
-          <div class="text-[12px] text-[var(--txt-3)]">تُعرض التواريخ بالتقويم الميلادي، وخيار التقويم الهجري غير متوفر حاليًا</div>
+          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنسيق التاريخ <span class="availability-badge">ثابت</span></div>
         </div>
         <span class="text-[13px] font-bold text-[var(--txt)]" data-testid="date-format-fixed">ميلادي</span>
       </div>
@@ -170,8 +166,7 @@
       
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)]">ظهور ملفي للمقدّمين</div>
-          <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">التحكم في ظهور ملفك لمقدمي الخدمة غير متوفر حاليًا، لذلك لا يمكن تغيير هذا الخيار</div>
+          <div class="text-[13.5px] font-bold text-[var(--txt)]">ظهور ملفي للمقدّمين <span class="availability-badge">غير متاح</span></div>
         </div>
         <label class="sw" style="opacity:.55;cursor:not-allowed" title="التحكم في الظهور غير متوفر حاليًا">
           <input type="checkbox" [checked]="true" disabled aria-label="ظهور الملف للمقدّمين">
@@ -181,8 +176,7 @@
 
       <div class="flex items-center gap-3.5 py-3.5">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنزيل بياناتي</div>
-          <div class="text-[12px] text-[var(--txt-3)]">لا يوجد تنزيل ذاتي للبيانات حاليًا. افتح تذكرة دعم وسيراجع الفريق طلبك</div>
+          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنزيل بياناتي <span class="availability-badge">عبر الدعم</span></div>
         </div>
         <button type="button" (click)="openSupportTicket()" class="px-3.5 py-2 bg-[rgba(43,127,255,.10)] border border-[rgba(43,127,255,.22)] rounded-lg text-[#5DA0FF] text-xs font-bold hover:bg-[rgba(43,127,255,.18)] transition-all set-edit whitespace-nowrap">طلب نسخة عبر الدعم</button>
       </div>
@@ -193,9 +187,8 @@
     <div class="danger-card">
       <div class="dh">
         <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-        منطقة حسّاسة
+        حذف الحساب <span class="availability-badge">عبر الدعم</span>
       </div>
-      <p>لا يوجد حذف ذاتي للحساب حاليًا. لطلب حذف حسابك افتح تذكرة دعم، وسيراجع فريق الدعم طلبك ويتواصل معك.</p>
       <div class="flex items-center gap-2.5 flex-wrap">
         <button type="button" (click)="contactSupportForDeletion()" class="danger-btn">طلب حذف الحساب عبر الدعم</button>
         <button type="button" (click)="openSupportTicket()" class="danger-btn">تواصل مع الدعم</button>

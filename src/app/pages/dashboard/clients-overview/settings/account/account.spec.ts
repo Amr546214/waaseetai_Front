@@ -80,13 +80,16 @@ describe('client account page', () => {
 		expect(s.el.querySelectorAll('ws-select').length).toBe(2);
 	});
 
-	it('2FA, login alert and profile visibility are visibly unavailable (disabled, with the reason), never a fake toggle', () => {
+	it('2FA, login alert and profile visibility show compact unavailable badges and stay disabled', () => {
 		const s = setup();
 		const disabled = Array.from(s.el.querySelectorAll('input[type="checkbox"]')) as HTMLInputElement[];
 		expect(disabled.length).toBe(3);
 		expect(disabled.every(i => i.disabled)).toBe(true);
-		expect(s.el.textContent).toContain('الميزة غير متوفرة في المنصة حاليًا');
-		expect(s.el.textContent).toContain('التحكم في ظهور ملفك لمقدمي الخدمة غير متوفر حاليًا');
+		for (const input of disabled) {
+			const row = input.closest('label')!.parentElement!;
+			expect(row.querySelector('.availability-badge')?.textContent?.trim()).toBe('غير متاح');
+		}
+		expect(s.el.textContent).not.toContain('الميزة غير متوفرة في المنصة حاليًا، لذلك لا يمكن تفعيلها');
 		expect(s.el.textContent).not.toContain('يمكنك تفعيل المصادقة الثنائية');
 	});
 

@@ -12,7 +12,7 @@ describe('client profile edit: e-mail and phone are display-only', () => {
     expect(ts).not.toContain('PhoneChange');
     expect(html).not.toContain('يتطلب تأكيد رمز');
     expect(html).not.toContain('يتغيّر برمز تحقق');
-    expect(html).toContain('للعرض فقط');
+    expect(html).toContain('(للقراءة فقط)');
   });
 
   it('the e-mail and the phone controls are disabled in both forms; WhatsApp stays editable', () => {
