@@ -354,7 +354,7 @@ describe('client profile-edit: shared validation', () => {
       expect(text).not.toContain('جلسات الدخول النشطة');
       expect(text).not.toMatch(/Chrome|Safari|Windows 11|iPhone|الرياض/);
       expect(text).not.toMatch(/انهاء\s+الجلسات|إنهاء\s+الجلسات|الجلسة\s+الحالية/);
-      expect(el().querySelector('[data-testid="sessions-unavailable"]')!.textContent).toContain('غير متاحة حاليًا.');
+      expect(el().querySelector('[data-testid="sessions-unavailable"] .profile-status-badge')?.textContent?.trim()).toBe('غير متاح');
     });
   });
 
