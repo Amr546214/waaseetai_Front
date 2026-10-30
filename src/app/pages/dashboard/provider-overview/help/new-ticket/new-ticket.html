@@ -1,115 +1,291 @@
+
 <section class="nt-page" dir="rtl">
-	<a routerLink="/provider-overview/help" class="bk-link">
-		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
-		العودة لتذاكر الدعم
-	</a>
+  <a routerLink="/provider-overview/help" class="bk-link">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"/>
+      <polyline points="12 5 5 12 12 19"/>
+    </svg>
+    العودة لتذاكر الدعم
+  </a>
 
-	<div class="nt-head">
-		<h1 class="nt-ttl">{{ isCompanyMode() ? 'فتح تذكرة دعم للشركة' : 'فتح تذكرة دعم' }}</h1>
-		<p class="nt-sub">{{ isCompanyMode() ? 'اشرح المشكلة بدقة وأرفق ما يوضّحها ليصلك رد أسرع' : 'صف مشكلتك بدقة ليصلك رد أسرع من الفريق المختص' }}</p>
-	</div>
+  <div class="nt-head">
+    <h1 class="nt-ttl">{{ isCompanyMode() ? 'فتح تذكرة دعم للشركة' : 'فتح تذكرة دعم' }}</h1>
+    <p class="nt-sub">{{ isCompanyMode() ? 'اشرح المشكلة بدقة وأرفق ما يوضّحها ليصلك رد أسرع' : 'صف مشكلتك بدقة ليصلك رد أسرع من الفريق المختص' }}</p>
+  </div>
 
-	<!-- Tip -->
-	<div class="ai-banner">
-		<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-		<p class="ai-banner-txt">كلما كان وصفك أدق وأوضح، وصلك رد أسرع من فريق الدعم. أرفق رقم الطلب إن وُجد</p>
-	</div>
+  <!-- Tip -->
+  <div class="ai-banner">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-8-9V6z"/>
+      <path d="M9 12l2 2 4-4"/>
+    </svg>
+    <p class="ai-banner-txt">كلما كان وصفك أدق وأوضح، وصلك رد أسرع من فريق الدعم. أرفق رقم الطلب إن وُجد</p>
+  </div>
 
-	<form (ngSubmit)="submit()" class="form-card" novalidate>
-		<!-- Category -->
-		<div class="fld-row">
-			<label class="inp-label" for="tk-cat">{{ isCompanyMode() ? 'نوع الطلب' : 'التصنيف' }}<span class="ws-req" aria-hidden="true">*</span></label>
-			<ws-select id="tk-cat" aria-required="true" [options]="activeCategories" [placeholder]="'اختر ' + (isCompanyMode() ? 'نوع الطلب' : 'التصنيف')" [ariaLabel]="isCompanyMode() ? 'نوع الطلب' : 'التصنيف'" [ngModel]="category()" (ngModelChange)="category.set($event); edited('category')" name="category" data-field-wrap required />
-		</div>
+  <form (ngSubmit)="submit()" class="form-card" novalidate>
 
-		@if (isCompanyMode()) {
-		<!-- Company: Related Project -->
-		<div class="fld-row">
-			<label class="inp-label" for="tk-prj">المشروع المرتبط (اختياري)</label>
-			<ws-select id="tk-prj" [options]="companyProjects" placeholder="اختر المشروع" ariaLabel="المشروع المرتبط" [(ngModel)]="relatedProject" name="project" />
-		</div>
+    <!-- Category -->
+    <div class="fld-row">
+      <label class="inp-label" for="tk-cat">
+        {{ isCompanyMode() ? 'نوع الطلب' : 'التصنيف' }}
+        <span class="ws-req" aria-hidden="true">*</span>
+      </label>
+      <ws-select
+        id="tk-cat"
+        aria-required="true"
+        [options]="activeCategories"
+        [placeholder]="'اختر ' + (isCompanyMode() ? 'نوع الطلب' : 'التصنيف')"
+        [ariaLabel]="isCompanyMode() ? 'نوع الطلب' : 'التصنيف'"
+        [ngModel]="category()"
+        (ngModelChange)="category.set($event); edited('category')"
+        name="category"
+        data-field-wrap
+        required
+      />
+    </div>
 
-		<!-- Company: Related Team Member -->
-		<div class="fld-row">
-			<label class="inp-label" for="tk-mem">عضو الفريق المعني (اختياري)</label>
-			<ws-select id="tk-mem" [options]="companyMembers" placeholder="اختر الموظف" ariaLabel="الموظف المسؤول" [(ngModel)]="relatedMember" name="member" />
-		</div>
-		}
+    @if (isCompanyMode()) {
+      <!-- Company: Related Project -->
+      <div class="fld-row">
+        <label class="inp-label" for="tk-prj">المشروع المرتبط (اختياري)</label>
+        <ws-select
+          id="tk-prj"
+          [options]="companyProjects"
+          placeholder="اختر المشروع"
+          ariaLabel="المشروع المرتبط"
+          [(ngModel)]="relatedProject"
+          name="project"
+        />
+      </div>
 
-		<!-- Priority -->
-		@if (isCompanyMode()) {
-		<div class="fld-row">
-			<label class="inp-label">الأولوية</label>
-			<div class="pri-grid">
-				@for (p of companyPriorities; track p.id) {
-				<div class="pri" [class.sel]="selectedPriorityId() === p.id" (click)="pickPriority(p.id)">
-					<div class="pri-t">{{ p.label }}</div>
-					<div class="pri-d">{{ p.desc }}</div>
-				</div>
-				}
-			</div>
-		</div>
-		} @else {
-		<div class="fld-row">
-			<label class="inp-label" for="tk-priority">الأولوية</label>
-			<ws-select id="tk-priority" [options]="priorities" placeholder="اختر الأولوية" ariaLabel="الأولوية" [(ngModel)]="priority" name="priority" />
-		</div>
-		}
+      <!-- Company: Related Team Member -->
+      <div class="fld-row">
+        <label class="inp-label" for="tk-mem">عضو الفريق المعني (اختياري)</label>
+        <ws-select
+          id="tk-mem"
+          [options]="companyMembers"
+          placeholder="اختر الموظف"
+          ariaLabel="الموظف المسؤول"
+          [(ngModel)]="relatedMember"
+          name="member"
+        />
+      </div>
+    }
 
-		@if (!isCompanyMode()) {
-		<!-- Related Order -->
-		<div class="fld-row">
-			<label class="inp-label" for="tk-order">مرتبطة بطلب (اختياري)</label>
-			<input id="tk-order" type="text" class="inp-field" [(ngModel)]="relatedOrder" name="order" placeholder="ORD-XXXX" />
-		</div>
-		}
+    <!-- Priority -->
+    @if (isCompanyMode()) {
+      <div class="fld-row">
+        <label class="inp-label">الأولوية</label>
+        <div class="pri-grid">
+          @for (p of companyPriorities; track p.id) {
+            <div
+              class="pri"
+              [class.sel]="selectedPriorityId() === p.id"
+              (click)="pickPriority(p.id)"
+            >
+              <div class="pri-t">{{ p.label }}</div>
+              <div class="pri-d">{{ p.desc }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="fld-row">
+        <label class="inp-label" for="tk-priority">الأولوية</label>
+        <ws-select
+          id="tk-priority"
+          [options]="priorities"
+          placeholder="اختر الأولوية"
+          ariaLabel="الأولوية"
+          [(ngModel)]="priority"
+          name="priority"
+        />
+      </div>
+    }
 
-		<!-- Subject -->
-		<div class="fld-row">
-			<label class="inp-label" for="tk-subj">عنوان التذكرة<span class="ws-req" aria-hidden="true">*</span></label>
-			<input id="tk-subj" aria-required="true" type="text" class="inp-field" [ngModel]="subject()" (ngModelChange)="subject.set($event)" name="subject" data-field="subject" placeholder="عنوان موجز يصف المشكلة" required />
-		</div>
+    @if (!isCompanyMode()) {
+      <!-- Related Order -->
+      <div class="fld-row">
+        <label class="inp-label" for="tk-order">مرتبطة بطلب (اختياري)</label>
+        <input
+          id="tk-order"
+          type="text"
+          class="inp-field"
+          [(ngModel)]="relatedOrder"
+          name="order"
+          placeholder="ORD-XXXX"
+        />
+      </div>
+    }
 
-		<!-- Description -->
-		<div class="fld-row">
-			<label class="inp-label" for="tk-desc">وصف المشكلة<span class="ws-req" aria-hidden="true">*</span></label>
-			<textarea id="tk-desc" aria-required="true" class="inp-field" [ngModel]="description()" (ngModelChange)="description.set($event)" name="description" data-field="description" rows="5" placeholder="اشرح المشكلة بالتفصيل: ما الذي حدث، متى، وما الذي توقعه؟" required></textarea>
-			<div class="fld-hint">{{ description().length }} حرف · الحد الأدنى 20</div>
-		</div>
+    <!-- Subject -->
+    <div class="fld-row">
+      <label class="inp-label" for="tk-subj">
+        عنوان التذكرة<span class="ws-req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="tk-subj"
+        aria-required="true"
+        type="text"
+        class="inp-field"
+        [ngModel]="subject()"
+        (ngModelChange)="subject.set($event)"
+        name="subject"
+        data-field="subject"
+        placeholder="عنوان موجز يصف المشكلة"
+        required
+      />
+    </div>
 
-		<!-- Attach -->
-		<div class="fld-row">
-			<label class="inp-label">إرفاق ملف (اختياري)</label>
-			<div class="upload-area">
-				<input type="file" class="upload-inp" multiple />
-				<div class="upload-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-				<div class="upload-ttl">اسحب الملفات هنا أو اضغط للاختيار</div>
-				<div class="upload-sub">صور، PDF · حد أقصى 10MB</div>
-			</div>
-		</div>
+    <!-- Description -->
+    <div class="fld-row">
+      <label class="inp-label" for="tk-desc">
+        وصف المشكلة<span class="ws-req" aria-hidden="true">*</span>
+      </label>
+      <textarea
+        id="tk-desc"
+        aria-required="true"
+        class="inp-field"
+        [ngModel]="description()"
+        (ngModelChange)="description.set($event)"
+        name="description"
+        data-field="description"
+        rows="5"
+        placeholder="اشرح المشكلة بالتفصيل: ما الذي حدث، متى، وما الذي توقعه؟"
+        required
+      ></textarea>
+      <div class="fld-hint">{{ description().length }} حرف · الحد الأدنى 20</div>
+    </div>
 
-		@if (isCompanyMode()) {
-		<!-- Company: CC Email -->
-		<div class="fld-row">
-			<label class="inp-label" for="tk-cc">إشعار نسخة إلى (اختياري)</label>
-			<input id="tk-cc" type="email" class="inp-field" [(ngModel)]="ccEmail" name="cc" placeholder="finance@gulftech.example" />
-		</div>
-		}
+    <!-- Attach -->
+    <div class="fld-row">
+      <label class="inp-label" for="ticket-attachments">إرفاق ملف (اختياري)</label>
 
-		<div class="form-actions">
-			<button type="button" class="btn-ghost" routerLink="/provider-overview/help">إلغاء</button>
-			<button type="submit" class="btn-primary" [disabled]="submitting()">
-				@if (submitting()) {
-					<span class="spinner"></span> جاري الإرسال...
-				} @else {
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg> فتح التذكرة
-				}
-			</button>
-		</div>
-	</form>
+      <div class="upload-area">
+        <input
+          id="ticket-attachments"
+          type="file"
+          class="upload-inp"
+          accept=".jpg,.jpeg,.png,.pdf"
+          multiple
+          (change)="onAttachmentsSelected($event)"
+          aria-label="اختيار ملفات للتذكرة"
+        />
 
-	<div class="inner-foot">
-		<span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span>
-		<div class="inner-foot-links"><a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a><a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a></div>
-	</div>
+        <div class="upload-ico">
+          <svg viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round"
+            aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+
+        <div class="upload-ttl">اسحب الملفات هنا أو اضغط للاختيار</div>
+        <div class="upload-sub">صور، PDF · حد أقصى 10MB</div>
+      </div>
+
+      <!-- Selected attachments -->
+      @if (selectedAttachments.length > 0) {
+        <div class="selected-files" aria-live="polite"
+          style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+
+          @for (file of selectedAttachments; track $index) {
+            <div class="selected-file"
+              style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid rgba(43,212,199,.35);border-radius:10px;background:rgba(43,212,199,.06)">
+
+              <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                <span style="color:#0FA99A;font-size:18px;font-weight:800" aria-hidden="true">✓</span>
+
+                <div style="min-width:0">
+                  <div style="font-size:13px;font-weight:700;overflow-wrap:anywhere">
+                    {{ file.name }}
+                  </div>
+
+                  <div style="font-size:11px;color:#6B7699;margin-top:3px">
+                    {{ (file.size / 1024 / 1024).toFixed(2) }} MB
+                    · تم اختيار الملف
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                (click)="removeAttachment($index)"
+                [attr.aria-label]="'حذف الملف ' + file.name"
+                style="border:1px solid rgba(220,38,38,.2);background:transparent;color:#dc2626;cursor:pointer;border-radius:7px;padding:6px 10px;flex-shrink:0"
+              >
+                ✕
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Attachment validation error -->
+      @if (attachmentError()) {
+        <div
+          class="attachment-error"
+          role="alert"
+          style="color:#dc2626;font-size:12px;margin-top:8px"
+        >
+          {{ attachmentError() }}
+        </div>
+      }
+    </div>
+
+    @if (isCompanyMode()) {
+      <!-- Company: CC Email -->
+      <div class="fld-row">
+        <label class="inp-label" for="tk-cc">إشعار نسخة إلى (اختياري)</label>
+        <input
+          id="tk-cc"
+          type="email"
+          class="inp-field"
+          [(ngModel)]="ccEmail"
+          name="cc"
+          placeholder="finance@gulftech.example"
+        />
+      </div>
+    }
+
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn-ghost"
+        routerLink="/provider-overview/help"
+      >
+        إلغاء
+      </button>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="submitting()"
+      >
+        @if (submitting()) {
+          <span class="spinner"></span> جاري الإرسال...
+        } @else {
+          <svg viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
+            aria-hidden="true">
+            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+            <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+          </svg>
+          فتح التذكرة
+        }
+      </button>
+    </div>
+  </form>
+
+  <div class="inner-foot">
+    <span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span>
+    <div class="inner-foot-links">
+      <a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a>
+      <a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>
+    </div>
+  </div>
 </section>

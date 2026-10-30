@@ -819,6 +819,20 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				}
 				if (event.type === HttpEventType.Response) {
 					const url = event.body?.data?.url || '';
+					if (!url) {
+  this.setUploadState(key, {
+    status: 'error',
+    progress: 0,
+    name: file.name
+  });
+
+  this.uploadFailed(
+    type,
+    file,
+    new Error('Upload response missing file URL')
+  );
+  return;
+}
 					const name = event.body?.data?.name || file.name;
 					this.setUploadState(key, { status: 'uploaded', progress: 100, name });
 					if (type === 'frontId') {

@@ -624,10 +624,27 @@
 					placeholder="أدخل السعر المقترح بالدولار" [value]="negPrice()" (input)="onNegPriceInput($event)">
 				@if (selectedOffer()?.price; as cur) { <div class="neg-lbl" style="margin-top:5px;font-weight:600">سعر العرض الحالي: {{ cur }}</div> }</div>
 			}
-			@if(negType() === 'dur') {
-			<div id="neg-f-dur" class="neg-f"><label class="neg-lbl" for="neg-dur">المدة المقترحة (أيام) <span class="ws-req" aria-hidden="true">*</span></label><input
-					class="neg-inp" id="neg-dur" aria-required="true" type="text" inputmode="numeric" placeholder="أدخل عدد الأيام" [value]="negDuration()" (input)="onNegDurationInput($event)"></div>
-			}
+		@if (negType() === 'dur') {
+  <div id="neg-f-dur" class="neg-f">
+    <label class="neg-lbl" for="neg-dur">
+      المدة المقترحة (أيام)
+      <span class="ws-req" aria-hidden="true">*</span>
+    </label>
+
+    <input
+      class="neg-inp"
+      id="neg-dur"
+      aria-required="true"
+      type="number"
+      inputmode="numeric"
+      min="1"
+      step="1"
+      placeholder="أدخل عدد الأيام"
+      [value]="negDuration()"
+      (input)="onNegDurationInput($event)"
+    />
+  </div>
+}
 			<label class="neg-lbl" for="neg-msg">ملاحظاتك لمقدم الخدمة@if (negType() === 'plan' || negType() === 'other') { <span class="ws-req" aria-hidden="true">*</span> }</label>
 			<textarea class="neg-inp neg-ta" id="neg-msg" [attr.aria-required]="negType() === 'plan' || negType() === 'other' ? 'true' : null"
 				placeholder="اكتب تفاصيل طلبك، سعرا أو مدة أو تعديلا على الخطة أو أي استفسار" [value]="negMessage()"
