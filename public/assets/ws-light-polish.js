@@ -148,7 +148,7 @@
         /* ── modal ── */
         +'.modal{background:#fff !important;border-color:#E7EAF1 !important}'
         /* ── toggle switch ── */
-        +'.sw-track{background:rgba(7,13,36,.18) !important}'
+        +'.sw input:not(:checked) + .sw-track{background:rgba(7,13,36,.18) !important}'
         /* ── set-field rows ── */
         +'.set-field{border-bottom-color:rgba(7,13,36,.08) !important}'
         /* ── chat page ── */
