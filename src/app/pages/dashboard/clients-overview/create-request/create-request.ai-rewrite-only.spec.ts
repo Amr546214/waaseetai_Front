@@ -47,6 +47,22 @@ describe('create-request: AI refine is rewriting only', () => {
 	let fixtureRef: any;
 	const render = () => { c.currentStep.set(3); fixtureRef.detectChanges(); return fixtureRef.nativeElement as HTMLElement; };
 
+	it('shows suggestions in a dismissible dialog and preserves the preview for reopening', () => {
+		c.aiStreamText.set(REWRITE);
+		c.showAiSuggest.set(true);
+		const el = render();
+		const dialog = el.querySelector('dialog.ai-rewrite-dialog')!;
+		expect(dialog.getAttribute('aria-labelledby')).toBe('rewrite-panel-title');
+		expect(dialog.querySelector('.ai-rewrite-panel')).toBeTruthy();
+		dialog.dispatchEvent(new Event('cancel'));
+		render();
+		expect(el.querySelector('dialog')).toBeNull();
+		expect(c.aiStreamText()).toBe(REWRITE);
+		(el.querySelector('.ai-reopen-btn') as HTMLButtonElement).click();
+		render();
+		expect(el.querySelector('dialog.ai-rewrite-dialog')).toBeTruthy();
+	});
+
 	it('empty title and description: no AI call, no socket, nothing written, clear message', () => {
 		c.triggerAiDescription();
 		expect(ioMock).not.toHaveBeenCalled();
@@ -134,6 +150,15 @@ describe('create-request: AI refine is rewriting only', () => {
 		expect(c.description()).toBe(DRAFT);
 		c.editAiDraft('نسخة ثانية عدلتها بنفسي للمتجر والدفع.'); c.useAiSuggest();
 		expect(c.description()).toBe('نسخة ثانية عدلتها بنفسي للمتجر والدفع.');
+		el = render();
+		expect(el.querySelector('[data-testid="ai-modal-approved"]')?.textContent).toContain('تم اعتماد الصياغة');
+		expect(el.querySelector('[data-testid="ai-description-approved"]')).toBeTruthy();
+		expect(el.querySelector('[data-option-id="option-2"] .ai-applied-label')?.textContent).toContain('تم الاعتماد');
+		expect((el.querySelector('.ai-use-btn') as HTMLButtonElement).disabled).toBe(true);
+		c.editAiDraft('صياغة جديدة لم تُعتمد بعد.'); render();
+		expect(el.querySelector('[data-testid="ai-modal-approved"]')).toBeNull();
+		expect((el.querySelector('.ai-use-btn') as HTMLButtonElement).disabled).toBe(false);
+		c.editAiDraft('نسخة ثانية عدلتها بنفسي للمتجر والدفع.');
 		expect(c.showAiSuggest()).toBe(true);
 		expect(c.aiPreview().options).toHaveLength(3);
 		c.selectAiOption('option-3'); c.useAiSuggest();
