@@ -301,6 +301,9 @@ export class CreateRequest implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    // Authenticated request metadata is loaded in the browser, where the session is available.
+    if (!this.isBrowser) return;
+
     // The sessionStorage draft exists to survive a page refresh / reload (and a browser back/forward), NOT to prefill a new request:
     // arriving here through an in-app navigation (menu "إنشاء طلب", "طلب جديد", a dashboard shortcut…) always starts from a clean
     // wizard, so values typed in an earlier attempt never reappear. Resume = the app was (re)loaded on this URL (no navigation has
@@ -688,6 +691,9 @@ export class CreateRequest implements OnInit, OnDestroy {
 
           this.specialties.set(mapped);
         }
+      },
+      error: (err: unknown) => {
+        console.warn('[CreateRequest] Unable to load specialty categories:', err);
       }
     });
   }

@@ -23,7 +23,7 @@
 					<div class="flex items-center gap-2">
 						<button type="button"
 							class="ai-suggest-btn text-xs font-extrabold px-4 py-2 bg-gradient-to-r from-[var(--ai)]/20 to-[var(--teal)]/20 text-[var(--ai)] rounded-xl border border-[var(--ai)]/30 shadow-[0_0_15px_rgba(123,47,190,0.15)] flex items-center gap-2 transition-all hover:bg-[var(--ai)]/30 hover:scale-[1.02] active:scale-95 cursor-pointer"
-							data-testid="ai-refine-btn"
+							data-testid="ai-regenerate-btn"
 							[disabled]="parent.isFetchingAiDraft() || parent.isAiStreaming()"
 							(click)="parent.triggerAiFullSuggest()">
 							@if (parent.isFetchingAiDraft()) {
@@ -36,25 +36,24 @@
 											<span>اقتراح وصياغة AI الشامل</span>
 							}
 						</button>
-						@if (parent.canRefineWithAi()) {
 						<button type="button"
+							data-testid="ai-refine-btn"
 							class="text-xs font-bold px-3 py-2 bg-[var(--sec-bg)] text-[var(--txt-2)] rounded-xl border border-[var(--sec-bd)] hover:border-[var(--teal)] transition-all cursor-pointer"
 							[disabled]="parent.isAiStreaming() || parent.isFetchingAiDraft()"
 							(click)="parent.triggerAiDescription()">
-							{{ parent.isAiStreaming() ? 'جارٍ التوليد...' : '3 صياغات بديلة' }}
+							{{ parent.isAiStreaming() ? 'جارٍ تحسين الوصف...' : 'تحسين وصياغة AI' }}
 						</button>
-						}
 					</div>
 				</div>
-					<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[220px] leading-relaxed mb-2 font-medium transition-colors" id="f-desc" aria-required="true" placeholder="صف مشروعك بالتفصيل، أو اكتب عنوانًا مبدئيًا واضغط «اقتراح وصياغة AI الشامل» ليكتب الذكاء الاصطناعي كافة تفاصيل الطلب..." maxlength="2000" rows="10" [ngModel]="parent.description()" (ngModelChange)="parent.setDescription($event)"></textarea>
+					<textarea class="field-textarea w-full p-4 bg-[var(--sec-bg)] border-[1.5px] border-[var(--sec-bd)] rounded-xl text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[220px] leading-relaxed mb-2 font-medium transition-colors" id="f-desc" aria-required="true" placeholder="صف الخدمة التي تحتاجها وأهداف المشروع ومتطلبات التنفيذ..." maxlength="2000" rows="10" [ngModel]="parent.description()" (ngModelChange)="parent.setDescription($event)"></textarea>
 				<div class="field-counter flex items-center justify-between">
 					<div class="ai-quality flex items-center gap-1.5 text-xs font-medium" [class]="parent.description().trim().length >= 30 ? 'text-emerald-600 dark:text-emerald-400' : 'poor text-[var(--txt-3)]'">
 						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-						<span id="ai-quality-text">{{ parent.description().trim().length >= 100 ? 'AI: وصف ممتاز ومتكامل ✓' : parent.description().trim().length >= 30 ? 'جاهز للتحسين أو التوليد بالذكاء الاصطناعي' : 'اكتب عنوانًا أو فكرة واضغط «اقتراح وصياغة AI الشامل»' }}</span>
+						<span id="ai-quality-text">{{ parent.description().trim().length >= 100 ? 'طول الوصف مناسب' : 'أضف وصفًا أوضح لطلبك' }}</span>
 					</div>
 					<span id="desc-count" dir="ltr" class="field-count text-xs text-[var(--txt-3)]">{{ parent.description().length }} / 2000</span>
 				</div>
-				<p class="mt-2 text-xs text-[var(--txt-3)]" data-testid="ai-refine-hint">زر «اقتراح وصياغة AI الشامل» يحسّن العنوان ويكتب الوصف التفصيلي والمهارات والشروط الإضافية والمخرجات والمدة والميزانية والمراحل تلقائيًا.</p>
+				<p class="mt-2 text-xs text-[var(--txt-3)]" data-testid="ai-refine-hint">مسودة قابلة للتعديل قبل الإرسال. يمكنك استخدام «تحسين وصياغة AI» لاقتراح صياغات بديلة للوصف، ثم اختيار ما يناسبك.</p>
 
 				<!-- AI rewriting: independent choices, explicit apply, and the original draft remains available. -->
 @if (!parent.showAiSuggest() && (parent.aiStreamText() || parent.isAiStreaming())) {

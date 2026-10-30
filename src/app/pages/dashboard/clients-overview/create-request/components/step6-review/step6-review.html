@@ -1,151 +1,62 @@
-<h1 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">مراجعة الطلب قبل النشر</h1>
-<p style="font-size:13px;margin-bottom:22px;line-height:1.6" class="txt-muted">تحقق من جميع التفاصيل قبل نشر طلبك للمزودين</p>
-
-<!-- Note (non-AI) -->
-<div class="ws-note ws-note--neutral" role="note">
-	<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-	<div><strong>مراجعة قبل النشر:</strong> راجع البيانات التي أدخلتها بنفسك، القرار النهائي في النشر لك</div>
-</div>
-
-<!-- DEFAULT STATE -->
+<header class="review-header" dir="rtl">
+  <div><span class="review-eyebrow">الخطوة الأخيرة</span><h1>مراجعة الطلب قبل النشر</h1><p>راجع جميع الأقسام، ثم أكّد الموافقات لنشر طلبك.</p></div>
+  <div class="review-export"><button type="button" class="export-pdf-btn" data-testid="export-review-pdf" [disabled]="isExporting()" (click)="exportPdf()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg>{{ isExporting() ? 'جارٍ تجهيز النسخة...' : 'تصدير PDF' }}</button><span>اختر «حفظ بصيغة PDF» في نافذة الطباعة</span></div>
+</header>
+@if (exportError()) { <p class="export-error" role="alert">{{ exportError() }}</p> }
 <div id="state-default">
+<article id="request-review-document" class="review-document" dir="rtl" aria-label="ملخص الطلب">
+  <header class="review-cover">
+    <div class="review-cover-top"><span class="review-brand">وسيط · ملخص طلب مشروع</span><span class="draft-label">مسودة قبل النشر</span></div>
+    <div class="review-title-row"><h2>{{ parent.title() || 'بدون عنوان' }}</h2><button type="button" class="review-edit" aria-label="تعديل تفاصيل الطلب" (click)="parent.currentStep.set(3)">تعديل التفاصيل</button></div>
+    <p class="review-description" data-testid="review-description">{{ parent.description() || 'لم يُضف وصف للطلب' }}</p>
+    @if (parent.outputs()) { <div class="review-outputs"><h3>المخرجات المتوقعة</h3><p>{{ parent.outputs() }}</p></div> }
+  </header>
+  <div class="review-facts">
+    <div><span>الميزانية</span><strong dir="auto">{{ budgetLabel() }}</strong></div>
+    <div><span>مدة التسليم المقترحة</span><strong>{{ parent.deliveryDays() ?? 'غير محددة' }} @if (parent.deliveryDays() !== null) { يوم }</strong></div>
+    <div><span>المرفقات</span><strong>{{ parent.files().length }} ملفات</strong></div>
+  </div>
+  <div class="review-sections">
+    <section class="review-section" aria-labelledby="review-specialty-title">
+      <div class="review-section-heading"><h3 id="review-specialty-title"><span>١</span> التخصص والمهارات</h3><button type="button" class="review-edit" aria-label="تعديل التخصص" (click)="parent.currentStep.set(1)">تعديل</button></div>
+      <dl><div><dt>المجال</dt><dd>{{ parent.selectedSpec() === 'other' ? parent.otherText() : (parent.currentSpec()?.name || 'غير محدد') }}</dd></div>
+      <div><dt>التخصصات الفرعية</dt><dd data-testid="review-subs">@for (sub of parent.selectedSubs(); track sub; let last = $last) { {{ sub }}{{ last ? '' : '، ' }} } @empty { لا يوجد }</dd></div>
+      <div><dt>المهارات المطلوبة</dt><dd data-testid="review-skills">@for (skill of parent.requiredSkills(); track skill; let last = $last) { {{ skill }}{{ last ? '' : '، ' }} } @empty { لا يوجد }</dd></div></dl>
+    </section>
+    <section class="review-section" aria-labelledby="review-terms-title">
+      <div class="review-section-heading"><h3 id="review-terms-title"><span>٢</span> الشروط ومتطلبات المزود</h3><button type="button" class="review-edit" aria-label="تعديل الشروط" (click)="parent.currentStep.set(2)">تعديل</button></div>
+      <dl><div><dt>اتفاقية السرية</dt><dd>{{ parent.ndaType() === 'standard' ? 'قياسية' : parent.ndaType() === 'custom' ? 'مخصصة' : 'بدون' }}</dd></div>
+      <div><dt>حقوق الملكية</dt><dd>{{ parent.ipRights() === 'client' ? 'كاملة لطالب الخدمة' : parent.ipRights() === 'shared' ? 'حقوق مشتركة' : 'يسمح بإعادة الاستخدام' }}</dd></div>
+      <div><dt>مستوى الخبرة</dt><dd>{{ parent.provLevel() ? 'مستوى ' + parent.provLevel() + ' فأعلى' : 'أي مستوى' }}</dd></div>
+      <div><dt>الحد الأدنى للتقييم</dt><dd>{{ parent.provRating() ? parent.provRating() + ' نجوم فأعلى' : 'بدون حد أدنى' }}</dd></div>
+      <div><dt>لغة التواصل</dt><dd>{{ parent.provLang() === 'ar' ? 'العربية' : parent.provLang() === 'en' ? 'الإنجليزية' : 'العربية والإنجليزية' }}</dd></div>
+      <div><dt>الموقع</dt><dd>{{ parent.provLocation() === 'sa' ? 'السعودية' : parent.provLocation() === 'gcc' ? 'دول الخليج' : parent.provLocation() === 'any' ? 'عالمي' : 'أي موقع' }}</dd></div></dl>
+    </section>
+    <section class="review-section" aria-labelledby="review-budget-title">
+      <div class="review-section-heading"><h3 id="review-budget-title"><span>٣</span> الميزانية والملفات</h3><button type="button" class="review-edit" aria-label="تعديل الميزانية" (click)="parent.currentStep.set(4)">تعديل</button></div>
+      <dl><div><dt>نوع الميزانية</dt><dd>{{ parent.budgetType() === 'range' ? 'نطاق' : parent.budgetType() === 'fixed' ? 'سعر ثابت' : 'بالساعة' }}</dd></div>
+      <div><dt>رسم الضمان (1%)</dt><dd dir="auto">{{ guaranteeFee() | number:'1.0-2' }} $</dd></div>
+      <div><dt>التفاوض</dt><dd>{{ parent.allowNegotiation() ? 'متاح' : 'غير متاح' }}</dd></div></dl>
+      @if (parent.splitMilestones() && parent.milestones().length) {
+        <h4>مراحل الدفع</h4><ul class="review-list">@for (milestone of parent.milestones(); track $index) { <li><span>{{ milestone.name }}</span><b>{{ milestone.pct }}%</b></li> }</ul>
+      }
+      <div class="review-files-heading"><h4>الملفات المرفقة</h4><button type="button" class="review-edit" aria-label="تعديل الملفات" (click)="parent.currentStep.set(5)">تعديل</button></div>
+      <ul class="review-list review-files">@for (file of parent.files(); track $index) { <li><span dir="auto">{{ file.name }}</span><small dir="ltr">{{ file.size / 1024 | number:'1.0-1' }} KB</small></li> } @empty { <li class="review-empty">لا توجد ملفات مرفقة</li> }</ul>
+    </section>
+  </div>
+  @if (parent.customConditions() || parent.requirements().length) {
+    <section class="review-extra"><div class="review-section-heading"><h3>الشروط الإضافية</h3><div class="review-extra-actions">
+      @if (parent.customConditions()) { <button type="button" class="review-edit" (click)="parent.currentStep.set(2)">تعديل الشروط المخصصة</button> }
+      @if (parent.requirements().length) { <button type="button" class="review-edit" (click)="parent.currentStep.set(3)">تعديل الشروط الإضافية</button> }
+    </div></div>
+      @if (parent.customConditions()) { <p class="review-custom-conditions">{{ parent.customConditions() }}</p> }
+      <ul data-testid="review-extra-conditions">@for (requirement of parent.requirements(); track requirement) { <li>{{ requirement }}</li> }</ul>
+    </section>
+  } @else { <span class="review-empty-conditions" data-testid="review-extra-conditions">لا توجد شروط إضافية</span> }
+  <footer class="review-document-note">نسخة للمراجعة قبل النشر. راجع البيانات التي أدخلتها؛ القرار النهائي في النشر لك.</footer>
+</article>
 
-	<!-- 5 SUMMARY CARDS -->
-	<div class="summary-grid">
-
-	<!-- Card 1: التخصص -->
-	<div class="summary-card">
-		<div class="sc-head">
-		<div class="sc-step">
-			<div class="sc-num">1</div>
-			<span class="sc-name">التخصص</span>
-		</div>
-		<button type="button" class="sc-edit" (click)="parent.currentStep.set(1)">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-			تعديل
-		</button>
-		</div>
-		<div class="sc-rows">
-		<div class="sc-row"><span class="sc-row-key">المجال</span><span class="sc-row-val">{{ parent.currentSpec()?.name || 'غير محدد' }}</span></div>
-		<div class="sc-row"><span class="sc-row-key">التخصصات الفرعية</span><span class="sc-row-val" data-testid="review-subs">
-			@for (sub of parent.selectedSubs(); track sub; let isLast = $last) { {{ sub }}{{ !isLast ? ', ' : '' }} }
-			@empty { لا يوجد }
-		</span></div>
-		<div class="sc-row"><span class="sc-row-key">المهارات المطلوبة</span><span class="sc-row-val" data-testid="review-skills">
-			@for (sk of parent.requiredSkills(); track sk; let isLast = $last) { {{ sk }}{{ !isLast ? ', ' : '' }} }
-			@empty { لا يوجد }
-		</span></div>
-		<div class="sc-row"><span class="sc-row-key">شروط إضافية</span><span class="sc-row-val" data-testid="review-extra-conditions">
-			@for (r of parent.requirements(); track r; let isLast = $last) { {{ r }}{{ !isLast ? '، ' : '' }} }
-			@empty { لا يوجد }
-		</span></div>
-		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
-	</div>
-
-	<!-- Card 2: التفاصيل -->
-	<div class="summary-card">
-		<div class="sc-head">
-		<div class="sc-step">
-			<div class="sc-num">2</div>
-			<span class="sc-name">التفاصيل</span>
-		</div>
-		<button type="button" class="sc-edit" (click)="parent.currentStep.set(3)">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-			تعديل
-		</button>
-		</div>
-		<div class="sc-rows">
-		<div class="sc-row"><span class="sc-row-key">العنوان</span><span class="sc-row-val" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ parent.title() || 'بدون عنوان' }}</span></div>
-		<div class="sc-row"><span class="sc-row-key">المدة</span><span class="sc-row-val">{{ parent.deliveryDays() }} يوما</span></div>
-		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
-		
-	</div>
-
-	<!-- Card 3: الميزانية -->
-	<div class="summary-card">
-		<div class="sc-head">
-		<div class="sc-step">
-			<div class="sc-num">3</div>
-			<span class="sc-name">الميزانية</span>
-		</div>
-		<button type="button" class="sc-edit" (click)="parent.currentStep.set(4)">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-			تعديل
-		</button>
-		</div>
-		<div class="sc-rows">
-		<div class="sc-row"><span class="sc-row-key">الميزانية</span><span class="sc-row-val txt-amber" style="font-weight:800">
-			@if (parent.budgetType() === 'range') { {{ parent.budgetMin() | number:'1.0-2' }} - {{ parent.budgetMax() | number:'1.0-2' }} $ }
-			@if (parent.budgetType() === 'fixed') { {{ parent.budgetFixed() | number:'1.0-2' }} $ }
-			@if (parent.budgetType() === 'hourly') { {{ parent.budgetHourly() | number:'1.0-2' }} $/س }
-		</span></div>
-		<div class="sc-row"><span class="sc-row-key">النوع</span><span class="sc-row-val">{{ parent.budgetType() === 'range' ? 'نطاق' : parent.budgetType() === 'fixed' ? 'سعر ثابت' : 'بالساعة' }}</span></div>
-		<div class="sc-row"><span class="sc-row-key">رسم الضمان (1%)</span><span class="sc-row-val">
-			@if (parent.budgetType() === 'range') { {{ (parent.budgetMin() || 0) * 0.01 | number:'1.0-2' }} $ }
-			@if (parent.budgetType() === 'fixed') { {{ (parent.budgetFixed() || 0) * 0.01 | number:'1.0-2' }} $ }
-			@if (parent.budgetType() === 'hourly') { {{ (parent.budgetHourly() || 0) * 0.01 | number:'1.0-2' }} $ }
-		</span></div>
-		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
-		
-	</div>
-
-	<!-- Card 4: الملفات -->
-	<div class="summary-card">
-		<div class="sc-head">
-		<div class="sc-step">
-			<div class="sc-num">4</div>
-			<span class="sc-name">الملفات</span>
-		</div>
-		<button type="button" class="sc-edit" (click)="parent.currentStep.set(5)">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-			تعديل
-		</button>
-		</div>
-		<div class="sc-rows">
-		<div class="sc-row"><span class="sc-row-key">الملفات</span><span class="sc-row-val">{{ parent.files().length }} ملفات</span></div>
-		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
-	</div>
-
-	<!-- Card 5: الشروط، Full width -->
-	<div class="summary-card">
-		<div class="sc-head">
-		<div class="sc-step">
-			<div class="sc-num">5</div>
-			<span class="sc-name">الشروط الإضافية</span>
-		</div>
-		<button type="button" class="sc-edit" (click)="parent.currentStep.set(2)">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-			تعديل
-		</button>
-		</div>
-		<div style="display:flex;gap:24px;flex-wrap:wrap">
-		<div class="sc-rows" style="flex:1;min-width:160px">
-			<div class="sc-row"><span class="sc-row-key">اتفاقية السرية</span><span class="sc-row-val">{{ parent.ndaType() === 'standard' ? 'قياسية' : parent.ndaType() === 'custom' ? 'مخصصة' : 'بدون' }}</span></div>
-			<div class="sc-row"><span class="sc-row-key">حقوق الملكية</span><span class="sc-row-val">{{ parent.ipRights() === 'client' ? 'كاملة للطالب' : parent.ipRights() === 'shared' ? 'حقوق مشتركة' : 'يسمح بإعادة الاستخدام' }}</span></div>
-		</div>
-		<div class="sc-rows" style="flex:1;min-width:160px">
-			<div class="sc-row"><span class="sc-row-key">مستوى المزود</span><span class="sc-row-val">{{ parent.provLevel() ? 'مستوى ' + parent.provLevel() + ' فأعلى' : 'أي مستوى' }}</span></div>
-			<div class="sc-row"><span class="sc-row-key">الموقع</span><span class="sc-row-val">{{ parent.provLocation() === 'sa' ? 'السعودية' : parent.provLocation() === 'gcc' ? 'دول الخليج' : parent.provLocation() === 'any' ? 'عالمي' : 'أي موقع' }}</span></div>
-		</div>
-		</div>
-		<div class="sc-foot"><div class="sc-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>مكتمل</div></div>
-	</div>
-
-	</div>
-
-	<!-- AI Cleanup Batch 2: the per-card AI-verification percentage badges, the overall
-	     request-quality score ring (and its copy in the confirm modal), the fixed market-budget
-	     recommendation with its one-click budget overwrite, the fixed priority row and the
-	     "files scanned clean" row were all hardcoded. No request-quality, verification, market-
-	     pricing or file-scan capability exists (ai-suggest returns specialty/budget/duration
-	     suggestions only; the description socket returns text only), so they were removed
-	     rather than replaced with a computed frontend score. -->
-
-	<!-- ACKNOWLEDGMENTS -->
+<!-- ACKNOWLEDGMENTS -->
 	<div class="ack-card" role="group" aria-labelledby="ackTitle">
 	<div class="ack-title" id="ackTitle">
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
