@@ -44,13 +44,13 @@
 				<button type="button" [attr.data-tab]="item.tab" [attr.data-status]="item.status" (click)="openMissingItem(item)"
 					class="w-full flex items-center gap-3 text-start px-4 py-3 rounded-xl border border-amber-300/60 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/5 hover:bg-amber-100 dark:hover:bg-amber-500/10 transition-colors cursor-pointer">
 					<span class="flex-1 min-w-0 flex flex-col gap-0.5">
-						<span class="text-[13px] font-extrabold text-slate-900 dark:text-white">{{ item.label }}</span>
-						<span class="text-[11.5px] font-medium text-slate-500 dark:text-slate-400">{{ item.hint }}</span>
+						<span class="text-[length:var(--font-size-label)] font-extrabold text-slate-900 dark:text-white">{{ item.label }}</span>
+						<span class="text-[length:var(--font-size-small)] font-medium text-slate-500 dark:text-slate-400">{{ item.hint }}</span>
 					</span>
 					@if (item.status === 'pending_review') {
-					<span class="shrink-0 text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300" data-testid="miss-pending">قيد المراجعة</span>
+					<span class="shrink-0 text-[length:var(--font-size-small)] font-extrabold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300" data-testid="miss-pending">قيد المراجعة</span>
 					} @else {
-					<span class="shrink-0 text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-200/70 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300" data-testid="miss-missing">ناقص · +{{ item.points }}%</span>
+					<span class="shrink-0 text-[length:var(--font-size-small)] font-extrabold px-2 py-0.5 rounded-full bg-amber-200/70 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300" data-testid="miss-missing">ناقص · +{{ item.points }}%</span>
 					}
 					<span class="shrink-0 text-slate-400" aria-hidden="true">←</span>
 				</button>
@@ -636,10 +636,10 @@
 
 				<div role="note" data-testid="basics-note" class="mb-4 text-xs text-slate-500 dark:text-slate-400">تغيير الاسم طلب تعديل للمراجعة. تابع حالته في «طلباتي السابقة».</div>
 				@if (basicsRejection(); as why) {
-				<div data-testid="basics-rejected" role="alert" class="mb-6 rounded-xl border border-red-300 bg-red-50 p-3 text-[12px] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تعديل الاسم. السبب: {{ why }}. يمكنك تعديل الاسم وإرسال طلب جديد.</div>
+				<div data-testid="basics-rejected" role="alert" class="mb-6 rounded-xl border border-red-300 bg-red-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تعديل الاسم. السبب: {{ why }}. يمكنك تعديل الاسم وإرسال طلب جديد.</div>
 				}
 				@if (pendingNameRequest(); as pn) {
-				<div data-testid="basics-pending" role="status" class="mb-6 rounded-xl border border-amber-300 bg-amber-100/60 p-3 text-[12px] font-bold leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">طلب تغيير الاسم{{ pn.requestedValue ? ' إلى «' + pn.requestedValue + '»' : '' }} قيد المراجعة. <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a>.</div>
+				<div data-testid="basics-pending" role="status" class="mb-6 rounded-xl border border-amber-300 bg-amber-100/60 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">طلب تغيير الاسم{{ pn.requestedValue ? ' إلى «' + pn.requestedValue + '»' : '' }} قيد المراجعة. <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a>.</div>
 				}
 				<ws-form-summary [items]="missing()" />
 
@@ -657,9 +657,9 @@
 	@if (activeTab() === 'identity') {
 	<div class="flex flex-col gap-6 animation-fade-in">
 		@if (identityReviewPending()) {
-		<div data-testid="identity-pending" role="status" class="rounded-xl border border-sky-300 bg-sky-50 p-3 text-[13px] font-bold leading-relaxed text-sky-900 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200">طلب التعديل قيد المراجعة. <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a></div>
+		<div data-testid="identity-pending" role="status" class="rounded-xl border border-sky-300 bg-sky-50 p-3 text-[length:var(--font-size-label)] font-bold leading-relaxed text-sky-900 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200">طلب التعديل قيد المراجعة. <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a></div>
 		} @else if (identityRejection(); as why) {
-		<div data-testid="identity-rejected" role="alert" class="rounded-xl border border-red-300 bg-red-50 p-3 text-[13px] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تعديل رقم الهوية. السبب: {{ why }}. يمكنك تعديل البيانات وإرسال طلب جديد.</div>
+		<div data-testid="identity-rejected" role="alert" class="rounded-xl border border-red-300 bg-red-50 p-3 text-[length:var(--font-size-label)] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تعديل رقم الهوية. السبب: {{ why }}. يمكنك تعديل البيانات وإرسال طلب جديد.</div>
 		}
 		@if (getRejectionReason('IDENTITY_UPDATE')) {
 		<div class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3">
@@ -718,7 +718,7 @@
 						<input type="text" dir="ltr" formControlName="idNumber"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
 							placeholder="1XXXXXXXXX" maxlength="10">
-						<span class="text-[10px] font-bold text-slate-400">يبدأ بـ 1 (سعودي) أو 2 (مقيم)</span>
+						<span class="text-[length:var(--font-size-caption)] font-bold text-slate-400">يبدأ بـ 1 (سعودي) أو 2 (مقيم)</span>
 					</div>
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300" for="ce-id-expiry">تاريخ انتهاء الهوية</label>
@@ -921,15 +921,15 @@
 					<!-- PayPal email (the only field) -->
 					<div class="flex flex-col gap-2">
 						<label class="text-sm font-bold text-slate-700 dark:text-slate-300" for="cl-paypal">بريد PayPal
-							<span class="text-[11px] font-medium text-slate-400">(اختياري)</span></label>
+							<span class="text-[length:var(--font-size-small)] font-medium text-slate-400">(اختياري)</span></label>
 						<input type="email" id="cl-paypal" formControlName="paypalEmail" dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
 							placeholder="name@example.com"
 							[attr.aria-invalid]="paypalEmailMsg() ? 'true' : null"
 							class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all">
 						@if (paypalEmailMsg(); as msg) {
-							<span class="field-error text-[11px] font-bold " role="alert">{{ msg }}</span>
+							<span class="field-error text-[length:var(--font-size-small)] font-bold " role="alert">{{ msg }}</span>
 						} @else {
-							<span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">سنستخدم هذا البريد لإرسال مستحقاتك واستردادك عبر PayPal. اتركه فارغًا لإزالته.</span>
+							<span class="text-[length:var(--font-size-small)] font-bold text-slate-500 dark:text-slate-400">سنستخدم هذا البريد لإرسال مستحقاتك واستردادك عبر PayPal. اتركه فارغًا لإزالته.</span>
 						}
 					</div>
 
@@ -991,15 +991,15 @@
 
 					<!-- Pending state: a request already waits for the admin -->
 					@if (passwordRejection(); as why) {
-					<div role="alert" data-testid="pw-rejected" class="rounded-xl border border-red-300 bg-red-50 p-3 text-[13px] font-bold text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تغيير كلمة المرور. السبب: {{ why }}. يمكنك إرسال طلب جديد.</div>
+					<div role="alert" data-testid="pw-rejected" class="rounded-xl border border-red-300 bg-red-50 p-3 text-[length:var(--font-size-label)] font-bold text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تغيير كلمة المرور. السبب: {{ why }}. يمكنك إرسال طلب جديد.</div>
 					}
 					@if (pendingPasswordRequest()) {
-					<div role="status" data-testid="pw-pending" class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[13px] font-bold text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">
+					<div role="status" data-testid="pw-pending" class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[length:var(--font-size-label)] font-bold text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">
 						طلب تغيير كلمة المرور قيد المراجعة. تبقى كلمة مرورك الحالية سارية حتى يعتمد المراجع الطلب. <a routerLink="/client-overview/profile/requests" class="underline">طلبات التعديل</a>
 					</div>
 					}
 					@if (passwordSuccess()) {
-					<div role="status" data-testid="pw-success" class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[13px] font-bold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/5 dark:text-emerald-200">{{ passwordSuccess() }}</div>
+					<div role="status" data-testid="pw-success" class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[length:var(--font-size-label)] font-bold text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/5 dark:text-emerald-200">{{ passwordSuccess() }}</div>
 					}
 
 					<!-- Expanded Form -->
@@ -1015,7 +1015,7 @@
 								[attr.aria-invalid]="passwordFieldError('currentPassword') ? 'true' : null"
 								class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
 								placeholder="ادخل كلمة المرور الحالية">
-							@if (passwordFieldError('currentPassword'); as err) { <span class="field-error text-[11px] font-bold " role="alert" data-testid="pw-current-error">{{ err }}</span> }
+							@if (passwordFieldError('currentPassword'); as err) { <span class="field-error text-[length:var(--font-size-small)] font-bold " role="alert" data-testid="pw-current-error">{{ err }}</span> }
 						</div>
 
 						<!-- New Password Grid -->
@@ -1026,7 +1026,7 @@
 									[attr.aria-invalid]="passwordFieldError('newPassword') ? 'true' : null" aria-describedby="pw-rules"
 									class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
 									placeholder="8 أحرف على الأقل، حرف كبير ورقم">
-								@if (passwordFieldError('newPassword'); as err) { <span class="field-error text-[11px] font-bold " role="alert" data-testid="pw-new-error">{{ err }}</span> }
+								@if (passwordFieldError('newPassword'); as err) { <span class="field-error text-[length:var(--font-size-small)] font-bold " role="alert" data-testid="pw-new-error">{{ err }}</span> }
 							</div>
 							<div class="flex flex-col gap-2">
 								<label class="text-sm font-bold text-slate-700 dark:text-slate-300" for="pw-confirm">تأكيد كلمة المرور الجديدة <span class="ws-req" aria-hidden="true">*</span></label>
@@ -1034,7 +1034,7 @@
 									[attr.aria-invalid]="passwordFieldError('confirmPassword') ? 'true' : null"
 									class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
 									placeholder="أعد إدخال كلمة المرور">
-								@if (passwordFieldError('confirmPassword'); as err) { <span class="field-error text-[11px] font-bold " role="alert" data-testid="pw-confirm-error">{{ err }}</span> }
+								@if (passwordFieldError('confirmPassword'); as err) { <span class="field-error text-[length:var(--font-size-small)] font-bold " role="alert" data-testid="pw-confirm-error">{{ err }}</span> }
 							</div>
 						</div>
 						<label class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 cursor-pointer w-fit"><input type="checkbox" [checked]="showPasswords()" (change)="showPasswords.set(!showPasswords())"> إظهار كلمات المرور</label>
@@ -1049,14 +1049,14 @@
 							</div>
 							<ul id="pw-rules" class="mt-1 flex flex-col gap-1" data-testid="pw-rules">
 								@for (rule of passwordChecks(); track rule.key) {
-								<li class="flex items-center gap-2 text-[12px] font-medium" [attr.data-ok]="rule.ok" [class]="rule.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'">
+								<li class="flex items-center gap-2 text-[length:var(--font-size-small)] font-medium" [attr.data-ok]="rule.ok" [class]="rule.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'">
 									<span aria-hidden="true">{{ rule.ok ? '✓' : '○' }}</span>{{ rule.label }}
 								</li>
 								}
 							</ul>
 						</div>
 
-						@if (passwordError()) { <div role="alert" data-testid="pw-error" class="form-error rounded-xl border p-3 text-[12px] font-bold">{{ passwordError() }}</div> }
+						@if (passwordError()) { <div role="alert" data-testid="pw-error" class="form-error rounded-xl border p-3 text-[length:var(--font-size-small)] font-bold">{{ passwordError() }}</div> }
 
 						<!-- Action -->
 						<button type="submit" data-testid="pw-submit" [disabled]="passwordSubmitting() || !!pendingPasswordRequest()"

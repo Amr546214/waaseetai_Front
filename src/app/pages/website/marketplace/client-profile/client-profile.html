@@ -16,18 +16,18 @@
       <circle cx="25" cy="25" r="20" fill="none" stroke="var(--teal)" stroke-width="4" stroke-dasharray="30 100" stroke-linecap="round"></circle>
     </svg>
   </div>
-  <div style="font-size:14px;font-weight:700;color:var(--txt)">جاري تحميل الملف الشخصي...</div>
+  <div style="font-size:var(--font-size-label);font-weight:700;color:var(--txt)">جاري تحميل الملف الشخصي...</div>
 </div>
 } @else if (notFound()) {
 <div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px">
-  <div style="font-size:18px;font-weight:900;color:var(--txt)">لم يتم العثور على هذا الملف الشخصي</div>
-  <p style="font-size:13px;max-width:360px;color:var(--txt-3)">الرابط غير صحيح أو أن هذا الحساب غير متاح كملف عميل عام حالياً.</p>
+  <div style="font-size:var(--font-size-section);font-weight:900;color:var(--txt)">لم يتم العثور على هذا الملف الشخصي</div>
+  <p style="font-size:var(--font-size-label);max-width:360px;color:var(--txt-3)">الرابط غير صحيح أو أن هذا الحساب غير متاح كملف عميل عام حالياً.</p>
   <a routerLink="/marketplace" class="btn-primary-sm">تصفح السوق</a>
 </div>
 } @else if (error()) {
 <div style="min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px">
-  <div style="font-size:18px;font-weight:900;color:var(--txt)">تعذر تحميل الملف الشخصي</div>
-  <p style="font-size:13px;max-width:360px;color:var(--txt-3)">{{ error() }}</p>
+  <div style="font-size:var(--font-size-section);font-weight:900;color:var(--txt)">تعذر تحميل الملف الشخصي</div>
+  <p style="font-size:var(--font-size-label);max-width:360px;color:var(--txt-3)">{{ error() }}</p>
   <button type="button" (click)="retry()" class="btn-primary-sm">إعادة المحاولة</button>
 </div>
 } @else if (profile(); as p) {
@@ -138,9 +138,9 @@
             </div>
           </div>
           @if (p.bio) {
-            <p style="font-size:13.5px;color:var(--txt-2);line-height:1.9;white-space:pre-line">{{ p.bio }}</p>
+            <p style="font-size:var(--font-size-label);color:var(--txt-2);line-height:1.9;white-space:pre-line">{{ p.bio }}</p>
           } @else {
-            <p style="font-size:13px;color:var(--txt-3)">لم يضف هذا العميل نبذة تعريفية بعد.</p>
+            <p style="font-size:var(--font-size-label);color:var(--txt-3)">لم يضف هذا العميل نبذة تعريفية بعد.</p>
           }
         </div>
 
@@ -156,20 +156,20 @@
           </div>
 
           @if (!p.reviewsFromProviders.length) {
-            <p style="font-size:13px;color:var(--txt-3)">لا توجد تقييمات من مقدمي خدمة بعد.</p>
+            <p style="font-size:var(--font-size-label);color:var(--txt-3)">لا توجد تقييمات من مقدمي خدمة بعد.</p>
           }
           @for (r of p.reviewsFromProviders; track r.createdAt + (r.providerName || '')) {
             <div class="rev-given" data-testid="provider-review">
               <div class="rev-given-hd">
                 <div class="rev-given-av">{{ (r.providerName || 'م').charAt(0) }}</div>
                 <div style="flex:1">
-                  <div style="font-size:13px;font-weight:700;color:var(--txt)">{{ r.providerName || 'مقدم خدمة' }}</div>
-                  <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--txt-3)">
+                  <div style="font-size:var(--font-size-label);font-weight:700;color:var(--txt)">{{ r.providerName || 'مقدم خدمة' }}</div>
+                  <div style="display:flex;align-items:center;gap:4px;font-size:var(--font-size-small);color:var(--txt-3)">
                     <span style="color:#D98A0B">{{ starText(r.rating) }}</span>
                     <span>{{ ratingLabel(r.rating) }}</span>
                   </div>
                 </div>
-                <span style="font-size:11px;color:var(--txt-3)">{{ reviewDate(r.createdAt) }}</span>
+                <span style="font-size:var(--font-size-small);color:var(--txt-3)">{{ reviewDate(r.createdAt) }}</span>
               </div>
               @if (r.comment) {
                 <p class="rev-given-txt">{{ r.comment }}</p>
@@ -211,7 +211,7 @@
             </div>
             تواصل مع {{ displayName(p) }}
           </div>
-          <div style="font-size:12px;color:var(--txt-2);line-height:1.7;margin-bottom:12px">راسله مباشرة بخصوص خدمة تناسب مشروعه</div>
+          <div style="font-size:var(--font-size-small);color:var(--txt-2);line-height:1.7;margin-bottom:12px">راسله مباشرة بخصوص خدمة تناسب مشروعه</div>
           <button class="btn-ghost-sm" style="width:100%;justify-content:center" (click)="sendMessage()">
             <svg aria-hidden="true" style="width:14px;height:14px"><use href="#ws-msg"></use></svg>
             إرسال رسالة

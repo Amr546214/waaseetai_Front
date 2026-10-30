@@ -37,7 +37,7 @@
         <form [formGroup]="reportForm" (ngSubmit)="onSubmit()" novalidate>
           <!-- TYPE SELECTION -->
           <div style="margin-bottom:24px">
-            <div style="font-size:13px;font-weight:800;color:var(--txt);margin-bottom:12px">نوع المشكلة <span class="ws-req" aria-hidden="true">*</span></div>
+            <div style="font-size:var(--font-size-label);font-weight:800;color:var(--txt);margin-bottom:12px">نوع المشكلة <span class="ws-req" aria-hidden="true">*</span></div>
             <div class="type-grid" id="rp-category" data-field="category" tabindex="-1" role="radiogroup" aria-label="نوع المشكلة" aria-required="true" [attr.aria-invalid]="invalid('category') ? 'true' : null" [attr.aria-describedby]="invalid('category') ? 'rp-category-err' : null">
               @for (t of categories; track t.id) {
                 <div class="type-card" role="radio" tabindex="0" [attr.aria-checked]="category === t.id" [class.selected]="category === t.id" (click)="selectType(t.id)" (keydown.enter)="selectType(t.id)" (keydown.space)="$event.preventDefault(); selectType(t.id)">
@@ -124,11 +124,11 @@
         <div class="success-state show" id="success-state">
           <div class="success-ico"><svg aria-hidden="true"><use href="#ws-check"></use></svg></div>
           <div style="font-size:20px;font-weight:900;color:var(--txt);margin-bottom:8px">تم استلام بلاغك</div>
-          <div style="font-size:13px;color:var(--txt-2);margin-bottom:22px;line-height:1.6">سيصلك بريد إلكتروني بتأكيد الاستلام. سيتواصل معك فريقنا.</div>
+          <div style="font-size:var(--font-size-label);color:var(--txt-2);margin-bottom:22px;line-height:1.6">سيصلك بريد إلكتروني بتأكيد الاستلام. سيتواصل معك فريقنا.</div>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-            <a routerLink="/support/help-center" style="padding:9px 20px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--txt-2);text-decoration:none">العودة للمساعدة</a>
-            <button type="button" (click)="resetForm()" style="padding:9px 20px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--txt-2)">إرسال بلاغ آخر</button>
-            <a routerLink="/marketplace" style="padding:9px 20px;border-radius:999px;background:var(--grad);font-size:13px;font-weight:900;color:#070D24;text-decoration:none">تصفح الخدمات</a>
+            <a routerLink="/support/help-center" style="padding:9px 20px;border-radius:999px;border:1px solid var(--border);font-size:var(--font-size-label);font-weight:700;color:var(--txt-2);text-decoration:none">العودة للمساعدة</a>
+            <button type="button" (click)="resetForm()" style="padding:9px 20px;border-radius:999px;border:1px solid var(--border);font-size:var(--font-size-label);font-weight:700;color:var(--txt-2)">إرسال بلاغ آخر</button>
+            <a routerLink="/marketplace" style="padding:9px 20px;border-radius:999px;background:var(--grad);font-size:var(--font-size-label);font-weight:900;color:#070D24;text-decoration:none">تصفح الخدمات</a>
           </div>
         </div>
       }
@@ -158,7 +158,7 @@
 
       <!-- Kept from the app (not in the design): other contact channels. Styled like the design's small side card. -->
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:14px">
-        <div style="font-size:11px;font-weight:900;color:var(--txt);margin-bottom:8px">طرق أخرى للتواصل</div>
+        <div style="font-size:var(--font-size-small);font-weight:900;color:var(--txt);margin-bottom:8px">طرق أخرى للتواصل</div>
         <a href="mailto:support@waseet.ai" class="side-link"><svg aria-hidden="true"><use href="#ws-mail"></use></svg> البريد: support@waseet.ai</a>
         <a routerLink="/support/help-center" class="side-link"><svg aria-hidden="true"><use href="#ws-file"></use></svg> مركز المساعدة</a>
       </div>

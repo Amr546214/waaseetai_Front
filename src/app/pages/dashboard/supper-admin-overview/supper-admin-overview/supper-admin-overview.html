@@ -103,13 +103,13 @@
         <div class="dash-card">
           <div class="dash-card-ttl"><svg aria-hidden="true"><use href="#i-bell"></use></svg>إجراءات عاجلة</div>
           @if (queuesWithWork().length === 0) {
-            <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px">لا توجد طوابير تنتظر إجراءً الآن.</div>
+            <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:var(--font-size-small)">لا توجد طوابير تنتظر إجراءً الآن.</div>
           } @else {
             <div style="display:flex;flex-direction:column;gap:6px">
               @for (q of queuesWithWork(); track q.key) {
                 <a [routerLink]="q.link" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,180,0,.06);border:1px solid rgba(255,180,0,.16);border-radius:8px;text-decoration:none">
-                  <span style="min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#FFB400;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0" class="txt-navy">{{ q.count }}</span>
-                  <span style="font-size:11px;font-weight:700" class="txt-amber">{{ q.label }}</span>
+                  <span style="min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#FFB400;display:flex;align-items:center;justify-content:center;font-size:var(--font-size-caption);font-weight:900;flex-shrink:0" class="txt-navy">{{ q.count }}</span>
+                  <span style="font-size:var(--font-size-small);font-weight:700" class="txt-amber">{{ q.label }}</span>
                 </a>
               }
             </div>
@@ -121,10 +121,10 @@
     <div class="act-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="dash-card-ttl" style="margin-bottom:0"><svg aria-hidden="true"><use href="#i-list"></use></svg>آخر النشاطات</div>
-        <a routerLink="/supper-admin-overview/audit-trail" style="font-size:12px;font-weight:700" class="txt-teal">عرض السجل الكامل</a>
+        <a routerLink="/supper-admin-overview/audit-trail" style="font-size:var(--font-size-small);font-weight:700" class="txt-teal">عرض السجل الكامل</a>
       </div>
       @if (activity().length === 0) {
-        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px">{{ loading() ? 'جاري التحميل...' : 'لا توجد نشاطات بعد.' }}</div>
+        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:var(--font-size-small)">{{ loading() ? 'جاري التحميل...' : 'لا توجد نشاطات بعد.' }}</div>
       } @else {
         <div style="overflow-x:auto">
           <table class="act-tbl">
@@ -147,7 +147,7 @@
 
     <div style="background:var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)));border:1px solid var(--sec-bd,rgba(255,255,255,.08));border-radius:14px;padding:16px 20px;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-        <div style="font-size:13px;font-weight:800" class="txt-white">تسجيلات الحسابات الجديدة</div>
+        <div style="font-size:var(--font-size-label);font-weight:800" class="txt-white">تسجيلات الحسابات الجديدة</div>
         <div class="date-segs" style="margin-inline-start:8px">
           <button type="button" class="ds" [class.active]="chartDays() === 7" (click)="setDays(7)">7 أيام</button>
           <button type="button" class="ds" [class.active]="chartDays() === 30" (click)="setDays(30)">30 يوماً</button>
@@ -156,7 +156,7 @@
       </div>
       @if (charts(); as c) {
         @if (c.registrationsTotal === 0) {
-          <div role="status" class="txt-muted" style="font-size:11.5px">لا توجد تسجيلات في هذه الفترة.</div>
+          <div role="status" class="txt-muted" style="font-size:var(--font-size-small)">لا توجد تسجيلات في هذه الفترة.</div>
         } @else {
           <div style="display:flex;align-items:flex-end;gap:4px;height:56px">
             @for (r of c.registrations; track r.date; let last = $last) {
@@ -167,18 +167,18 @@
           </div>
         }
       } @else {
-        <div role="status" class="txt-muted" style="font-size:11.5px">تعذر تحميل بيانات الرسم.</div>
+        <div role="status" class="txt-muted" style="font-size:var(--font-size-small)">تعذر تحميل بيانات الرسم.</div>
       }
     </div>
 
     @if (charts(); as c) {
       <div style="background:var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)));border:1px solid var(--sec-bd,rgba(255,255,255,.08));border-radius:14px;padding:16px 20px;margin-bottom:14px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-          <div style="font-size:13px;font-weight:800" class="txt-white">عمولة المنصة — آخر 6 أشهر</div>
+          <div style="font-size:var(--font-size-label);font-weight:800" class="txt-white">عمولة المنصة — آخر 6 أشهر</div>
           <div style="margin-right:auto;font-size:20px;font-weight:900" class="txt-teal">{{ money(c.commissionTotal) }} $</div>
         </div>
         @if (c.commissionTotal === 0) {
-          <div role="status" class="txt-muted" style="font-size:11.5px">لا توجد عمولات محققة في هذه الفترة.</div>
+          <div role="status" class="txt-muted" style="font-size:var(--font-size-small)">لا توجد عمولات محققة في هذه الفترة.</div>
         } @else {
           <div style="display:flex;align-items:flex-end;gap:6px;height:56px">
             @for (m of c.commission; track m.month; let last = $last) {
@@ -187,9 +187,9 @@
               </div>
             }
           </div>
-          <div style="display:flex;gap:6px;margin-top:4px">@for (m of c.commission; track m.month) { <span style="flex:1;text-align:center;font-size:10px" class="txt-muted">{{ m.month.slice(5) }}</span> }</div>
+          <div style="display:flex;gap:6px;margin-top:4px">@for (m of c.commission; track m.month) { <span style="flex:1;text-align:center;font-size:var(--font-size-caption)" class="txt-muted">{{ m.month.slice(5) }}</span> }</div>
         }
-        <div class="txt-muted" style="font-size:11px;margin-top:8px">العمولة المسجلة على الضمانات وفق سياسة الرسوم الجديدة، وتُنسب لشهر آخر تحديث للضمان.</div>
+        <div class="txt-muted" style="font-size:var(--font-size-small);margin-top:8px">العمولة المسجلة على الضمانات وفق سياسة الرسوم الجديدة، وتُنسب لشهر آخر تحديث للضمان.</div>
       </div>
     }
 

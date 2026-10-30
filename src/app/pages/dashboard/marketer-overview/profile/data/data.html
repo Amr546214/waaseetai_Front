@@ -1,8 +1,8 @@
 @if (profileLoadError() && !profile()) {
 <div class="main-inner">
 	<div style="text-align:center;padding:80px 20px">
-		<div style="font-size:16px;font-weight:800;margin-bottom:10px" class="txt-white">تعذر تحميل بيانات الملف الشخصي</div>
-		<div style="font-size:13px;margin-bottom:20px" class="txt-muted">حدث خطأ أثناء تحميل ملفك التسويقي، يرجى المحاولة مرة أخرى</div>
+		<div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:10px" class="txt-white">تعذر تحميل بيانات الملف الشخصي</div>
+		<div style="font-size:var(--font-size-label);margin-bottom:20px" class="txt-muted">حدث خطأ أثناء تحميل ملفك التسويقي، يرجى المحاولة مرة أخرى</div>
 		<button type="button" class="btn-primary" [disabled]="loadingProfile()" (click)="loadProfile()">{{ loadingProfile() ? 'جارٍ إعادة المحاولة...' : 'إعادة المحاولة' }}</button>
 	</div>
 </div>
@@ -102,7 +102,7 @@
 							جديدة</button>
 						<button type="button" class="av-btn" [disabled]="savingProfile()" (click)="removeAvatar()">حذف الصورة</button>
 					</div>
-					<div style="font-size:11px;margin-top:4px" class="txt-muted">JPG او PNG، يفضل 400x400 بكسل، حجم اقصى 5MB
+					<div style="font-size:var(--font-size-small);margin-top:4px" class="txt-muted">JPG او PNG، يفضل 400x400 بكسل، حجم اقصى 5MB
 						</div>
 						@if (avatarError(); as avErr) {
 						<span class="field-error" role="alert" data-testid="avatar-error">{{ avErr }}</span>
@@ -150,19 +150,19 @@
 				</div>
 				}
 				@if (channels().length > 0) {
-					<div style="font-size:11px;padding:4px 2px" class="txt-muted" data-testid="channel-edit-note">تعديل القناة غير متاح حاليًا، لتغيير قناة احذفها وأضفها من جديد</div>
+					<div style="font-size:var(--font-size-small);padding:4px 2px" class="txt-muted" data-testid="channel-edit-note">تعديل القناة غير متاح حاليًا، لتغيير قناة احذفها وأضفها من جديد</div>
 					}
 					@if (channels().length === 0) {
-				<div style="font-size:12px;text-align:center;padding:10px" class="txt-muted">لا توجد قنوات تسويقية مضافة
+				<div style="font-size:var(--font-size-small);text-align:center;padding:10px" class="txt-muted">لا توجد قنوات تسويقية مضافة
 				</div>
 				}
 			</div>
 			<div style="margin-top:14px" [formGroup]="channelForm" data-form="channel">
-				<div style="font-size:12px;font-weight:700;margin-bottom:8px" class="txt-slate">اضافة قناة جديدة</div>
+				<div style="font-size:var(--font-size-small);font-weight:700;margin-bottom:8px" class="txt-slate">اضافة قناة جديدة</div>
 				<div style="display:flex;gap:8px;flex-wrap:wrap">
 						<div style="display:flex;flex-direction:column">
 						<select formControlName="platform"
-						style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif;cursor:pointer"
+						style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:var(--font-size-label);font-family:'Tajawal',sans-serif;cursor:pointer"
 						aria-label="نوع القناة" aria-required="true" class="txt-white">
 						<option value="">اختر القناة</option>
 						<option value="LINKEDIN">LinkedIn</option>
@@ -176,12 +176,12 @@
 						</div>
 						<div style="display:flex;flex-direction:column;flex:1;min-width:160px">
 						<input type="text" formControlName="handle"
-						style="flex:1;min-width:160px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:13px;font-family:'Tajawal',sans-serif"
+						style="flex:1;min-width:160px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:9px 12px;font-size:var(--font-size-label);font-family:'Tajawal',sans-serif"
 						placeholder="ادخل معرف القناة او رابطها" dir="ltr" aria-label="معرف القناة" aria-required="true" class="txt-white">
 						<ws-field-error [control]="channelForm.get('handle')" [messages]="{ required: 'أدخل معرّف القناة أو رابطها' }" />
 						</div>
 						<button type="button" (click)="addChannel()"
-						style="padding:9px 16px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap"
+						style="padding:9px 16px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:var(--font-size-small);font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap"
 						[disabled]="addingChannel()" class="txt-teal">{{ addingChannel() ? 'جارٍ الإضافة...' : 'اضافة' }}</button>
 					</div>
 					<ws-form-summary [items]="channelMissing()" />
@@ -246,7 +246,7 @@
 			</div>
 			<ws-form-summary [items]="missing()" />
 				@if (tabNotice(); as notice) {
-				<div class="field-error" role="alert" data-testid="tab-notice" style="font-size:12px;margin:8px 0">{{ notice }}</div>
+				<div class="field-error" role="alert" data-testid="tab-notice" style="font-size:var(--font-size-small);margin:8px 0">{{ notice }}</div>
 				}
 				<div class="actions-row"><button type="button" class="btn-primary" [disabled]="submittingBasics() || identityPending()" (click)="submitBasicsChangeRequest()" data-testid="basics-submit">{{ submittingBasics() ? 'جارٍ الإرسال...' : (identityPending() ? 'طلب قيد المراجعة' : 'إرسال طلب تعديل') }}</button></div>
 		</div>
@@ -291,13 +291,13 @@
 					<div style="display:flex;align-items:center;gap:8px"><input type="text" class="inp-field"
 							[value]="profile()?.referralSlug || ''" dir="ltr" readonly style="opacity:.7;flex:1"><button type="button"
 							class="btn-primary" (click)="copyToClipboard(profile()?.referralSlug || '', 'code')"
-							style="padding:10px 14px;min-width:fit-content;font-size:12px">{{ copiedField() === 'code' ? 'تم النسخ' : 'نسخ' }}</button></div>
+							style="padding:10px 14px;min-width:fit-content;font-size:var(--font-size-small)">{{ copiedField() === 'code' ? 'تم النسخ' : 'نسخ' }}</button></div>
 				</div>
 				<div class="inp-group"><label class="inp-label">رابط الاحالة الكامل</label>
 					<div style="display:flex;align-items:center;gap:8px"><input type="text" class="inp-field"
 							[value]="referralLink()" dir="ltr" readonly
-							style="opacity:.7;font-size:11px;flex:1"><button type="button" class="btn-primary" (click)="copyToClipboard(referralLink(), 'link')"
-							style="padding:10px 14px;min-width:fit-content;font-size:12px">{{ copiedField() === 'link' ? 'تم النسخ' : 'نسخ' }}</button></div>
+							style="opacity:.7;font-size:var(--font-size-small);flex:1"><button type="button" class="btn-primary" (click)="copyToClipboard(referralLink(), 'link')"
+							style="padding:10px 14px;min-width:fit-content;font-size:var(--font-size-small)">{{ copiedField() === 'link' ? 'تم النسخ' : 'نسخ' }}</button></div>
 				</div>
 				<div class="inp-group" style="grid-column:1/-1"><label class="inp-label" for="aff-desc">وصف الحملة /
 						رسالة الاحالة</label><textarea id="aff-desc" class="inp-field"
@@ -323,45 +323,45 @@
 				<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
 					@for (p of referralSocialLinks(); track p.src) {
 				<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-					<span style="min-width:90px;font-size:12px;font-weight:700" class="txt-slate">{{ p.name }}</span>
+					<span style="min-width:90px;font-size:var(--font-size-small);font-weight:700" class="txt-slate">{{ p.name }}</span>
 					<input type="text" class="inp-field" readonly dir="ltr" [value]="p.link"
-						style="flex:1;min-width:160px;font-size:11px;opacity:.8">
-					<button type="button" class="btn-primary" style="padding:9px 14px;font-size:12px"
+						style="flex:1;min-width:160px;font-size:var(--font-size-small);opacity:.8">
+					<button type="button" class="btn-primary" style="padding:9px 14px;font-size:var(--font-size-small)"
 						[disabled]="!p.link" (click)="copyToClipboard(p.link, 'ref-' + p.src)">{{ copiedField() === ('ref-' + p.src) ? 'تم النسخ' : 'نسخ' }}</button>
 				</div>
 				}
 			</div>
-			<div style="font-size:13px;font-weight:700;margin-bottom:10px" class="txt-white">تقرير أداء القنوات</div>
+			<div style="font-size:var(--font-size-label);font-weight:700;margin-bottom:10px" class="txt-white">تقرير أداء القنوات</div>
 			@if (channelPerformance().length > 0) {
 			<div style="overflow-x:auto">
 				<table style="width:100%;border-collapse:collapse;min-width:420px">
 					<thead>
 						<tr>
-							<th style="padding:8px 10px;font-size:11px;text-align:right" class="txt-muted">القناة</th>
-							<th style="padding:8px 10px;font-size:11px;text-align:center" class="txt-muted">الزيارات</th>
-							<th style="padding:8px 10px;font-size:11px;text-align:center" class="txt-muted">التسجيلات</th>
-							<th style="padding:8px 10px;font-size:11px;text-align:center" class="txt-muted">العملاء</th>
-							<th style="padding:8px 10px;font-size:11px;text-align:center" class="txt-muted">التحويل</th>
+							<th style="padding:8px 10px;font-size:var(--font-size-small);text-align:right" class="txt-muted">القناة</th>
+							<th style="padding:8px 10px;font-size:var(--font-size-small);text-align:center" class="txt-muted">الزيارات</th>
+							<th style="padding:8px 10px;font-size:var(--font-size-small);text-align:center" class="txt-muted">التسجيلات</th>
+							<th style="padding:8px 10px;font-size:var(--font-size-small);text-align:center" class="txt-muted">العملاء</th>
+							<th style="padding:8px 10px;font-size:var(--font-size-small);text-align:center" class="txt-muted">التحويل</th>
 						</tr>
 					</thead>
 					<tbody>
 						@for (row of channelPerformance(); track row.channel) {
 						<tr>
-							<td style="padding:8px 10px;font-size:12px;font-weight:700" class="txt-white">{{ row.channel }}</td>
-							<td style="padding:8px 10px;font-size:12px;text-align:center" class="txt-slate">{{ row.visitors }}</td>
-							<td style="padding:8px 10px;font-size:12px;text-align:center" class="txt-muted">—</td>
-							<td style="padding:8px 10px;font-size:12px;font-weight:700;text-align:center" class="txt-teal">{{ row.clients }}</td>
-							<td style="padding:8px 10px;font-size:12px;text-align:center" class="txt-blue">{{ row.conversionPercentage }}%</td>
+							<td style="padding:8px 10px;font-size:var(--font-size-small);font-weight:700" class="txt-white">{{ row.channel }}</td>
+							<td style="padding:8px 10px;font-size:var(--font-size-small);text-align:center" class="txt-slate">{{ row.visitors }}</td>
+							<td style="padding:8px 10px;font-size:var(--font-size-small);text-align:center" class="txt-muted">—</td>
+							<td style="padding:8px 10px;font-size:var(--font-size-small);font-weight:700;text-align:center" class="txt-teal">{{ row.clients }}</td>
+							<td style="padding:8px 10px;font-size:var(--font-size-small);text-align:center" class="txt-blue">{{ row.conversionPercentage }}%</td>
 						</tr>
 						}
 					</tbody>
 				</table>
 			</div>
-			<span style="display:block;font-size:11px;margin-top:8px" class="txt-muted">عمود "التسجيلات" غير متاح حالياً في واجهة البيانات، سيُعرض فور توفره</span>
+			<span style="display:block;font-size:var(--font-size-small);margin-top:8px" class="txt-muted">عمود "التسجيلات" غير متاح حالياً في واجهة البيانات، سيُعرض فور توفره</span>
 			} @else if (loadingChannelPerformance()) {
-			<div style="font-size:12px;text-align:center;padding:14px" class="txt-muted">جارٍ تحميل تقرير الأداء...</div>
+			<div style="font-size:var(--font-size-small);text-align:center;padding:14px" class="txt-muted">جارٍ تحميل تقرير الأداء...</div>
 			} @else {
-			<div style="font-size:12px;text-align:center;padding:14px" class="txt-muted">لا توجد بيانات أداء للقنوات بعد</div>
+			<div style="font-size:var(--font-size-small);text-align:center;padding:14px" class="txt-muted">لا توجد بيانات أداء للقنوات بعد</div>
 			}
 		</div>
 	</div>
@@ -385,34 +385,34 @@
 					style="padding:14px;background:rgba(43,212,199,.05);border:1px solid rgba(43,212,199,.12);border-radius:12px;text-align:center">
 					<div style="font-size:20px;font-weight:900" class="txt-teal">{{
 						summary()?.successfulReferrals || 0 }}</div>
-					<div style="font-size:11px;margin-top:3px" class="txt-muted">احالة ناجحة</div>
+					<div style="font-size:var(--font-size-small);margin-top:3px" class="txt-muted">احالة ناجحة</div>
 				</div>
 				<div
 					style="padding:14px;background:rgba(43,127,255,.05);border:1px solid rgba(43,127,255,.12);border-radius:12px;text-align:center">
 					<div style="font-size:20px;font-weight:900" class="txt-blue">{{ summary()?.totalCommissions || 0 }}
 					</div>
-					<div style="font-size:11px;margin-top:3px" class="txt-muted">دولار عمولات</div>
+					<div style="font-size:var(--font-size-small);margin-top:3px" class="txt-muted">دولار عمولات</div>
 				</div>
 				<div
 					style="padding:14px;background:rgba(155,139,122,.05);border:1px solid rgba(155,139,122,.12);border-radius:12px;text-align:center">
 					<div style="display:flex;justify-content:center"><ws-marketer-level [summary]="summary()" /></div>
-					<div style="font-size:11px;margin-top:3px" class="txt-muted">المستوى الحالي</div>
+					<div style="font-size:var(--font-size-small);margin-top:3px" class="txt-muted">المستوى الحالي</div>
 				</div>
 			</div>
 			<div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px">
-				<div style="font-size:13px;font-weight:700;margin-bottom:8px" class="txt-white">آخر العمولات</div>
+				<div style="font-size:var(--font-size-label);font-weight:700;margin-bottom:8px" class="txt-white">آخر العمولات</div>
 				@if (recentCommissions().length > 0) {
 				@for (log of recentCommissions(); track log.id; let last = $last) {
-				<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:8px 0"
+				<div style="display:flex;align-items:center;justify-content:space-between;font-size:var(--font-size-small);padding:8px 0"
 					[style.border-bottom]="!last ? '1px solid rgba(255,255,255,.05)' : 'none'" class="txt-slate">
 					<span>{{ log.source }}</span>
 					<span style="color:#0FA99A">{{ log.amount | number:'1.0-2' }} دولار</span>
 				</div>
 				}
 				} @else if (loadingRecentCommissions()) {
-				<div style="font-size:12px;text-align:center;padding:8px" class="txt-muted">جارٍ التحميل...</div>
+				<div style="font-size:var(--font-size-small);text-align:center;padding:8px" class="txt-muted">جارٍ التحميل...</div>
 				} @else {
-				<div style="font-size:12px;text-align:center;padding:8px" class="txt-muted">لا توجد عمولات سابقة حالياً</div>
+				<div style="font-size:var(--font-size-small);text-align:center;padding:8px" class="txt-muted">لا توجد عمولات سابقة حالياً</div>
 				}
 			</div>
 		</div>
@@ -443,7 +443,7 @@
 			</div>
 			<ws-form-summary [items]="missing()" />
 				@if (tabNotice(); as notice) {
-				<div class="field-error" role="alert" data-testid="tab-notice" style="font-size:12px;margin:8px 0">{{ notice }}</div>
+				<div class="field-error" role="alert" data-testid="tab-notice" style="font-size:var(--font-size-small);margin:8px 0">{{ notice }}</div>
 				}
 				<div class="actions-row"><button type="button" class="btn-primary" [disabled]="savingPaypal()"
 						(click)="savePaypal()">{{ savingPaypal() ? 'جارٍ الحفظ...' : 'حفظ بريد PayPal' }}</button></div>
@@ -467,17 +467,17 @@
 			<div
 				style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:10px">
 				<div>
-					<div style="font-size:13px;font-weight:700" class="txt-white">المصادقة الثنائية (MFA)</div>
-					<div style="font-size:11px;margin-top:2px" class="txt-muted">تحمي حسابك عند تسجيل الدخول — الميزة قيد التطوير
+					<div style="font-size:var(--font-size-label);font-weight:700" class="txt-white">المصادقة الثنائية (MFA)</div>
+					<div style="font-size:var(--font-size-small);margin-top:2px" class="txt-muted">تحمي حسابك عند تسجيل الدخول — الميزة قيد التطوير
 					</div>
 				</div><span
-					style="font-size:11px;font-weight:700;padding:4px 10px;background:rgba(148,163,184,.14);border:1px solid rgba(148,163,184,.28);color:#94A3B8">غير متاح حاليًا</span>
+					style="font-size:var(--font-size-small);font-weight:700;padding:4px 10px;background:rgba(148,163,184,.14);border:1px solid rgba(148,163,184,.28);color:#94A3B8">غير متاح حاليًا</span>
 			</div>
 			<div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:16px">
 				<div style="display:flex;align-items:center;justify-content:space-between">
 					<div>
-						<div style="font-size:13px;font-weight:700" class="txt-white">تغيير كلمة المرور</div>
-						<div style="font-size:11px;margin-top:2px" class="txt-muted">اختر كلمة مرور قوية لا تستخدمها في موقع آخر</div>
+						<div style="font-size:var(--font-size-label);font-weight:700" class="txt-white">تغيير كلمة المرور</div>
+						<div style="font-size:var(--font-size-small);margin-top:2px" class="txt-muted">اختر كلمة مرور قوية لا تستخدمها في موقع آخر</div>
 					</div><button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px" (click)="passwordFormVisible.set(!passwordFormVisible())">تغيير
 						كلمة المرور</button>
 				</div>
@@ -503,29 +503,29 @@
 				</div>
 				}
 			</div>
-			<div style="font-size:12px;font-weight:700;margin-bottom:10px" class="txt-slate">قنوات الإشعارات وتنبيهاتها</div>
+			<div style="font-size:var(--font-size-small);font-weight:700;margin-bottom:10px" class="txt-slate">قنوات الإشعارات وتنبيهاتها</div>
 				@if (alertsLoadFailed()) {
 				<div class="inp-hint" role="status" data-testid="alerts-load-note" style="margin-bottom:8px">تعذر تحميل تفضيلاتك المحفوظة، تُعرض القيم الافتراضية، وحفظ الإعدادات سيستبدل المحفوظ.</div>
 				}
 			<div style="display:flex;flex-direction:column;gap:8px" data-testid="marketer-settings">
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">الإشعارات داخل التطبيق<input type="checkbox" [(ngModel)]="alertPreferences.inApp"
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:var(--font-size-label)" class="txt-slate">الإشعارات داخل التطبيق<input type="checkbox" [(ngModel)]="alertPreferences.inApp"
 						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-inapp"></label>
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">نسخة من الإشعارات على بريدي الإلكتروني<input type="checkbox" [(ngModel)]="alertPreferences.email"
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:var(--font-size-label)" class="txt-slate">نسخة من الإشعارات على بريدي الإلكتروني<input type="checkbox" [(ngModel)]="alertPreferences.email"
 						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-email"></label>
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه عند احالة جديدة ناجحة<input type="checkbox" [(ngModel)]="alertPreferences.newReferral"
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:var(--font-size-label)" class="txt-slate">تنبيه عند احالة جديدة ناجحة<input type="checkbox" [(ngModel)]="alertPreferences.newReferral"
 						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-referral"></label>
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:13px" class="txt-slate">تنبيه عند وصول عمولة جديدة<input type="checkbox" [(ngModel)]="alertPreferences.newCommission"
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:var(--font-size-label)" class="txt-slate">تنبيه عند وصول عمولة جديدة<input type="checkbox" [(ngModel)]="alertPreferences.newCommission"
 						style="accent-color:#2BD4C7" class="txt-teal" data-testid="set-commission"></label>
 				<label
-					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;font-size:13px;opacity:.7" class="txt-slate" data-testid="set-tier-disabled">تنبيه عند الترقية لمستوى جديد<input type="checkbox" disabled title="غير متاح حاليًا: مستواك يُحدَّد من الإدارة ولا يوجد إشعار تلقائي بتغييره"></label>
+					style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;font-size:var(--font-size-label);opacity:.7" class="txt-slate" data-testid="set-tier-disabled">تنبيه عند الترقية لمستوى جديد<input type="checkbox" disabled title="غير متاح حاليًا: مستواك يُحدَّد من الإدارة ولا يوجد إشعار تلقائي بتغييره"></label>
 				<div class="inp-hint" data-testid="set-tier-note">تنبيه الترقية غير متاح حاليًا لأن المستوى يُحدَّد من الإدارة ولا يصدر إشعار تلقائي بتغييره. تبقى الإشعارات محفوظة دائمًا في صفحة الإشعارات حتى لو أوقفت التنبيه.</div>
 			</div>
 
-			<div style="font-size:12px;font-weight:700;margin:16px 0 10px" class="txt-slate">اللغة والتوقيت</div>
+			<div style="font-size:var(--font-size-small);font-weight:700;margin:16px 0 10px" class="txt-slate">اللغة والتوقيت</div>
 			<div class="form-grid form-col-2">
 				<div class="inp-group"><label class="inp-label" for="mkt-lang">لغة التواصل</label>
 					<select id="mkt-lang" class="inp-field" [(ngModel)]="alertPreferences.communicationLanguage" data-testid="set-language">
@@ -542,14 +542,14 @@
 			</div>
 			<div class="actions-row"><button type="button" class="btn-primary" [disabled]="isSavingAlerts()" (click)="saveAlertPreferences()">{{ isSavingAlerts() ? 'جارٍ الحفظ...' : 'حفظ الإعدادات' }}</button></div>
 
-			<div style="font-size:12px;font-weight:700;margin:20px 0 10px" class="txt-slate">بياناتي وحسابي</div>
+			<div style="font-size:var(--font-size-small);font-weight:700;margin:20px 0 10px" class="txt-slate">بياناتي وحسابي</div>
 			<div style="display:flex;flex-direction:column;gap:8px" data-testid="marketer-data-controls">
 				<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;flex-wrap:wrap">
-					<div><div style="font-size:13px;font-weight:700" class="txt-white">تنزيل بياناتي</div><div style="font-size:11px;margin-top:2px" class="txt-muted">ملف JSON يضم بيانات حسابك وملفك التسويقي وإحالاتك وعمولاتك وطلبات سحبك وإعداداتك</div></div>
+					<div><div style="font-size:var(--font-size-label);font-weight:700" class="txt-white">تنزيل بياناتي</div><div style="font-size:var(--font-size-small);margin-top:2px" class="txt-muted">ملف JSON يضم بيانات حسابك وملفك التسويقي وإحالاتك وعمولاتك وطلبات سحبك وإعداداتك</div></div>
 					<button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px" data-testid="download-data" [disabled]="exportingData()" (click)="downloadMyData()">{{ exportingData() ? 'جارٍ التجهيز...' : 'تنزيل ملف بياناتي' }}</button>
 				</div>
 				<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:9px;flex-wrap:wrap;opacity:.85">
-					<div><div style="font-size:13px;font-weight:700" class="txt-white">حذف الحساب</div><div style="font-size:11px;margin-top:2px" class="txt-muted" data-testid="delete-account-reason">غير متاح من الواجهة حاليًا: لا يُحذف الحساب نهائيًا تلقائيًا. افتح تذكرة دعم لطلب إغلاق حسابك.</div></div>
+					<div><div style="font-size:var(--font-size-label);font-weight:700" class="txt-white">حذف الحساب</div><div style="font-size:var(--font-size-small);margin-top:2px" class="txt-muted" data-testid="delete-account-reason">غير متاح من الواجهة حاليًا: لا يُحذف الحساب نهائيًا تلقائيًا. افتح تذكرة دعم لطلب إغلاق حسابك.</div></div>
 					<button type="button" class="btn-secondary" style="min-width:fit-content;padding:9px 16px" data-testid="delete-account" disabled title="غير متاح حاليًا">حذف الحساب</button>
 				</div>
 			</div>

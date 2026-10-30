@@ -6,12 +6,12 @@
 .topbar{position:fixed;top:0;right:0;left:0;height:56px;background:#0B1437;border-bottom:1px solid rgba(255,255,255,.07);z-index:100;display:flex;align-items:center;padding:0 18px;gap:10px}
 .t-logo{display:flex;align-items:center;gap:8px;flex-shrink:0;text-decoration:none}
 .t-logo img{height:27px}
-.t-page{font-size:13px;font-weight:700;color:#6B7699;flex-shrink:0}
+.t-page{font-size:var(--font-size-label);font-weight:700;color:#6B7699;flex-shrink:0}
 .t-gap{flex:1}
-.t-ai-badge{display:flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(123,47,190,.10);border:1px solid rgba(123,47,190,.20);border-radius:20px;font-size:11px;font-weight:700;color:var(--ai);flex-shrink:0}
+.t-ai-badge{display:flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(123,47,190,.10);border:1px solid rgba(123,47,190,.20);border-radius:20px;font-size:var(--font-size-caption);font-weight:700;color:var(--ai);flex-shrink:0}
 .t-ai-badge svg{width:13px;height:13px}
 .t-toggle{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:50px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);flex-shrink:0}
-.t-toggle .seg{min-width:42px;height:24px;padding:0 9px;border-radius:999px;font-size:11px;font-weight:800;font-family:inherit;color:#6B7699;background:transparent;border:0;opacity:.72;transition:all .2s;cursor:pointer}
+.t-toggle .seg{min-width:48px;min-height:32px;padding:0 9px;border-radius:999px;font-size:var(--font-size-caption);font-weight:800;font-family:inherit;color:#6B7699;background:transparent;border:0;opacity:.72;transition:all .2s;cursor:pointer}
 .t-toggle .seg.is-selected,.t-toggle .seg[aria-pressed="true"]{opacity:1;color:#070D24;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);box-shadow:0 3px 10px rgba(43,127,255,.28)}
 .t-toggle .seg.is-selected::before,.t-toggle .seg[aria-pressed="true"]::before{content:"";display:inline-block;width:5px;height:5px;margin-inline-end:5px;border-radius:50%;background:currentColor;vertical-align:middle}
 .t-toggle .seg[aria-pressed="false"]{background:transparent;color:#6B7699}
@@ -21,8 +21,8 @@
 .t-notif-dot{position:absolute;top:8px;left:8px;width:7px;height:7px;border-radius:50%;background:#2BD4C7;border:2px solid #0B1437}
 .t-user{display:flex;align-items:center;gap:8px;padding:0 10px;height:34px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:all .15s;position:relative}
 .t-user:hover{background:rgba(255,255,255,.10)}
-.t-av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#070D24;flex-shrink:0}
-.t-uname{font-size:13px;font-weight:700;color:#fff}
+.t-av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-caption);font-weight:900;color:#070D24;flex-shrink:0}
+.t-uname{font-size:var(--font-size-label);font-weight:700;color:#fff}
 .t-ham{display:none;width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);align-items:center;justify-content:center;color:#A8B2D1;cursor:pointer;flex-shrink:0}
 .t-ham svg{width:17px;height:17px}
 
@@ -30,13 +30,13 @@
 .udrop-sub-arrow{width:14px;height:14px;margin-inline-start:auto;color:#6B7699;transition:transform .18s;flex-shrink:0}
 .udrop-sub-arrow.rotated{transform:rotate(-90deg)}
 .udrop-dash-sub{padding:4px 0 2px;margin-top:4px}
-.udrop-dash-item{display:flex;align-items:center;gap:9px;padding:7px 10px 7px 10px;margin-inline-start:10px;border-radius:9px;font-size:12px;font-weight:600;color:#A8B2D1;text-decoration:none;transition:background .15s,color .15s;border-inline-start:1px solid rgba(255,255,255,.08);background:transparent;border-top:0;border-right:0;border-bottom:0;cursor:pointer;font-family:inherit;text-align:right;direction:rtl;width:calc(100% - 10px)}
+.udrop-dash-item{display:flex;align-items:center;gap:9px;padding:7px 10px 7px 10px;margin-inline-start:10px;border-radius:9px;font-size:var(--font-size-small);font-weight:600;color:#A8B2D1;text-decoration:none;transition:background .15s,color .15s;border-inline-start:1px solid rgba(255,255,255,.08);background:transparent;border-top:0;border-right:0;border-bottom:0;cursor:pointer;font-family:inherit;text-align:right;direction:rtl;width:calc(100% - 10px)}
 .udrop-dash-item:hover{background:rgba(255,255,255,.06);color:#fff;border-inline-start-color:rgba(43,212,199,.25)}
 .udrop-dash-item.active{background:rgba(43,212,199,.07)}
-.udrop-av-sm{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#070D24;flex-shrink:0}
+.udrop-av-sm{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-caption);font-weight:900;color:#070D24;flex-shrink:0}
 .udrop-dash-info{flex:1;text-align:right;min-width:0}
-.udrop-dash-name{font-size:12px;font-weight:700;color:#fff}
-.udrop-dash-status{font-size:10px;color:#2BD4C7;font-weight:600;margin-top:1px}
+.udrop-dash-name{font-size:var(--font-size-small);font-weight:700;color:#fff}
+.udrop-dash-status{font-size:var(--font-size-caption);color:#2BD4C7;font-weight:600;margin-top:1px}
 .udrop-dash-status.muted{color:#6B7699}
 
 /* Account Header Card */
@@ -44,22 +44,22 @@
 .udrop-account-toggle:hover{background:linear-gradient(135deg,rgba(43,212,199,.12),rgba(43,127,255,.08));border-color:rgba(43,212,199,.28)}
 .udrop-acc-row{display:flex;align-items:center;gap:9px}
 .udrop-av-wrap{position:relative;flex-shrink:0}
-.udrop-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#070D24}
+.udrop-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-caption);font-weight:900;color:#070D24}
 .udrop-av-dot{position:absolute;bottom:-1px;left:-1px;width:9px;height:9px;border-radius:50%;background:#2BD4C7;border:2px solid #0B1437}
 .udrop-acc-info{flex:1;text-align:right;min-width:0}
-.udrop-acc-lbl{font-size:10px;font-weight:700;color:#6B7699;letter-spacing:.04em;margin-bottom:1px}
-.udrop-acc-name{font-size:13px;font-weight:800;color:#fff;line-height:1.4;padding-block:.1em;margin-block:-.1em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.udrop-acc-role{font-size:10px;font-weight:700;color:#2BD4C7;margin-top:2px}
+.udrop-acc-lbl{font-size:var(--font-size-caption);font-weight:700;color:#6B7699;letter-spacing:.04em;margin-bottom:1px}
+.udrop-acc-name{font-size:var(--font-size-label);font-weight:800;color:#fff;line-height:1.4;padding-block:.1em;margin-block:-.1em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.udrop-acc-role{font-size:var(--font-size-caption);font-weight:700;color:#2BD4C7;margin-top:2px}
 
 /* ── User Dropdown ── */
 .t-user-wrap{position:relative;flex-shrink:0}
 .user-dropdown{position:absolute;top:calc(100% + 8px);left:0;min-width:230px;background:rgba(7,13,36,.72);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:6px;box-shadow:0 20px 56px rgba(0,0,0,.6);z-index:300;animation:ws-fade .15s ease both}
-.udrop-section-lbl{font-size:10px;font-weight:800;color:#6B7699;letter-spacing:.07em;padding:6px 10px 4px}
-.udrop-add-account{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border-radius:9px;background:transparent;border:1px dashed rgba(255,255,255,.12);cursor:pointer;transition:all .15s;font-size:12px;font-weight:600;color:#6B7699;font-family:inherit;direction:rtl;text-decoration:none;text-align:right;margin-top:4px}
+.udrop-section-lbl{font-size:var(--font-size-caption);font-weight:800;color:#6B7699;letter-spacing:.07em;padding:6px 10px 4px}
+.udrop-add-account{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border-radius:9px;background:transparent;border:1px dashed rgba(255,255,255,.12);cursor:pointer;transition:all .15s;font-size:var(--font-size-small);font-weight:600;color:#6B7699;font-family:inherit;direction:rtl;text-decoration:none;text-align:right;margin-top:4px}
 .udrop-add-account:hover{border-color:rgba(43,212,199,.3);color:#2BD4C7;background:rgba(43,212,199,.04)}
 .udrop-add-account svg{width:14px;height:14px;flex-shrink:0}
 .udrop-sep{height:1px;background:rgba(255,255,255,.07);margin:5px 0}
-.udrop-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;font-size:13px;font-weight:600;color:#A8B2D1;text-decoration:none;transition:background .15s,color .15s;direction:rtl;cursor:pointer;border:none;background:transparent;width:100%;font-family:inherit;text-align:right}
+.udrop-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;font-size:var(--font-size-label);font-weight:600;color:#A8B2D1;text-decoration:none;transition:background .15s,color .15s;direction:rtl;cursor:pointer;border:none;background:transparent;width:100%;font-family:inherit;text-align:right}
 .udrop-item:hover{background:rgba(255,255,255,.06);color:#fff}
 .udrop-item svg{width:15px;height:15px;flex-shrink:0;color:#6B7699}
 .udrop-item:hover svg{color:#A8B2D1}
@@ -229,13 +229,13 @@
 }
 /* phone-only theme switcher inside the account dropdown (the top-bar one is hidden below 430px) */
 .udrop-theme,.udrop-theme-sep{display:none}
-.udrop-theme-lbl{font-size:12px;font-weight:700;color:var(--txt-2,#9AA6C8)}
+.udrop-theme-lbl{font-size:var(--font-size-small);font-weight:700;color:var(--txt-2,#9AA6C8)}
 @media(max-width:430px){
   .topbar{padding:0 10px;gap:6px}
   .topbar>.t-toggle{display:none}
   .udrop-theme{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px}
   .udrop-theme-sep{display:block}
-  .t-toggle-menu .seg{min-width:64px;min-height:44px;height:44px;font-size:13px}
+  .t-toggle-menu .seg{min-width:64px;min-height:44px;height:44px;font-size:var(--font-size-label)}
   .t-uname{display:none}
   .t-user>svg{display:none}
   .t-user{padding:0 6px}

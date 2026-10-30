@@ -120,7 +120,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 
 .pg-toolbar-caption {
-	font-size: 12px;
+	font-size: var(--font-size-small);
 	font-weight: 600;
 	color: var(--pg-ink);
 	white-space: nowrap;
@@ -183,7 +183,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	background: transparent;
 	color: var(--pg-ink);
 	font: inherit;
-	font-size: 12.5px;
+	font-size: var(--font-size-label);
 	outline: none;
 }
 
@@ -220,7 +220,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	font-size: 11px;
+	font-size: var(--font-size-small);
 	color: var(--pg-muted);
 	padding: 0 8px;
 	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
@@ -240,7 +240,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 
 .pg-status-dialect {
 	margin-inline-start: auto;
-	font-size: 10.5px;
+	font-size: var(--font-size-small);
 	opacity: 0.8;
 }
 
@@ -283,13 +283,13 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 
 .aw__head h2 {
 	margin: 0;
-	font-size: 14px;
+	font-size: var(--font-size-label);
 	font-weight: 800;
 	color: #fff;
 }
 
 .aw__state {
-	font-size: 11px;
+	font-size: var(--font-size-small);
 	color: var(--pg-accent);
 }
 
@@ -321,7 +321,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	text-align: start;
 	padding: 8px 10px;
 	font: inherit;
-	font-size: 12px;
+	font-size: var(--font-size-small);
 	cursor: pointer;
 	text-decoration: none;
 }
@@ -336,7 +336,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	color: var(--pg-muted);
 	padding: 4px 8px;
 	font: inherit;
-	font-size: 11.5px;
+	font-size: var(--font-size-small);
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.15s;
@@ -388,7 +388,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 
 .pg-motions-intro {
-	font-size: 11.5px;
+	font-size: var(--font-size-small);
 	color: var(--pg-muted);
 	margin: 0 0 8px;
 }
@@ -415,7 +415,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	background: rgba(27, 55, 56, 0.6);
 	color: #d5e9dc;
 	font: inherit;
-	font-size: 11px;
+	font-size: var(--font-size-small);
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.2s;
@@ -455,7 +455,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-	font-size: 12.5px;
+	font-size: var(--font-size-label);
 	color: #e2e8f0;
 }
 
@@ -468,7 +468,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	background: #1b3738;
 	color: #d5e9dc;
 	font: inherit;
-	font-size: 11.5px;
+	font-size: var(--font-size-small);
 	outline: none;
 }
 
@@ -491,7 +491,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 
 .pg-settings p {
-	font-size: 11px;
+	font-size: var(--font-size-small);
 	color: var(--pg-muted);
 	line-height: 1.7;
 	margin: 6px 0;
@@ -513,7 +513,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	background: rgba(43, 212, 199, 0.08);
 	color: var(--pg-accent-hover);
 	font: inherit;
-	font-size: 12px;
+	font-size: var(--font-size-small);
 	font-weight: 700;
 	cursor: pointer;
 	transition: background 0.15s, border-color 0.15s;
@@ -558,7 +558,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 
 .pg-tour-title {
-	font-size: 13px;
+	font-size: var(--font-size-label);
 	font-weight: 700;
 	color: #fff;
 	display: flex;
@@ -567,7 +567,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 
 .pg-tour-desc {
-	font-size: 11.5px;
+	font-size: var(--font-size-small);
 	color: var(--pg-muted);
 	line-height: 1.6;
 	margin: 0;
@@ -579,7 +579,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	border: 0;
 	color: var(--pg-accent);
 	font: inherit;
-	font-size: 11.5px;
+	font-size: var(--font-size-small);
 	font-weight: 700;
 	cursor: pointer;
 	text-decoration: underline;
@@ -599,7 +599,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	border: 1px solid var(--pg-border);
 	box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
 	position: relative;
-	font-size: 13px;
+	font-size: var(--font-size-label);
 	line-height: 1.7;
 	backdrop-filter: blur(14px);
 	overflow-y: auto;
@@ -658,7 +658,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 
 .pg-launcher-text {
-	font-size: 12px;
+	font-size: var(--font-size-small);
 	font-weight: 700;
 	color: #fff;
 }
@@ -679,7 +679,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	-webkit-backdrop-filter: blur(16px);
 	cursor: pointer;
 	font-family: inherit;
-	font-size: 13px;
+	font-size: var(--font-size-label);
 	font-weight: 700;
 	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, background 0.2s, border-color 0.2s;
 	user-select: none;
@@ -720,7 +720,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 
 .aw__guest p {
 	margin: 0;
-	font-size: 14px;
+	font-size: var(--font-size-label);
 	font-weight: 700;
 	color: #fff;
 }
@@ -731,7 +731,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	border-radius: 999px;
 	background: linear-gradient(135deg, #2bd4c7, #2b7fff);
 	color: #070d24;
-	font-size: 13px;
+	font-size: var(--font-size-label);
 	font-weight: 800;
 	text-decoration: none;
 }

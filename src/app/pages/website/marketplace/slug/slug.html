@@ -168,7 +168,7 @@
           <div class="filter-lbl">تخصصات مشابهة</div>
           <div class="filter-opts" style="flex-direction:column;gap:0">
             @for (sub of relatedSubs(); track sub.id) {
-            <a [routerLink]="['/marketplace', slug()]" [queryParams]="{ sub: sub.slug }" class="related-link"><span style="font-size:12px;color:var(--txt-2)">{{ sub.name }}</span><span style="font-size:11px;color:var(--txt-3)">{{ getSubCount(sub.slug) | number:'1.0-2' }}</span></a>
+            <a [routerLink]="['/marketplace', slug()]" [queryParams]="{ sub: sub.slug }" class="related-link"><span style="font-size:var(--font-size-small);color:var(--txt-2)">{{ sub.name }}</span><span style="font-size:var(--font-size-small);color:var(--txt-3)">{{ getSubCount(sub.slug) | number:'1.0-2' }}</span></a>
             }
           </div>
         </div>
@@ -286,16 +286,16 @@
               <div class="svc-price">
                 @if (isOwn(model)) {
                 <span data-testid="own-service" class="svc-price-lbl">خدمة منشورة باسمك</span>
-                <span data-testid="own-service" class="svc-price-val" style="font-size:12px">هذه خدمتك</span>
+                <span data-testid="own-service" class="svc-price-val" style="font-size:var(--font-size-small)">هذه خدمتك</span>
                 } @else if (hasActivePurchase(model)) {
                 <span class="svc-price-lbl">لديك طلب قائم</span>
-                <span class="svc-price-val" style="font-size:12px">قيد التنفيذ</span>
+                <span class="svc-price-val" style="font-size:var(--font-size-small)">قيد التنفيذ</span>
                 } @else if (model.totalAmount) {
                 <span class="svc-price-lbl">يبدأ من</span>
                 <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">$</span></span>
                 } @else {
                 <span class="svc-price-lbl">سعر الخدمة</span>
-                <span class="svc-price-val" style="font-size:12px">نشط وقابل للطلب</span>
+                <span class="svc-price-val" style="font-size:var(--font-size-small)">نشط وقابل للطلب</span>
                 }
               </div>
               @if (model.totalDays) {

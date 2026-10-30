@@ -81,7 +81,7 @@
 .cm-icon-danger { background: rgba(255, 140, 105, .12); color: #FF8C69; }
 
 .cm-title {
-	font-size: 16px;
+	font-size: var(--font-size-body);
 	font-weight: 800;
 	margin: 0;
 	line-height: 1.35;
@@ -91,7 +91,7 @@
 }
 
 .cm-msg {
-	font-size: 13px;
+	font-size: var(--font-size-label);
 	line-height: 1.7;
 	color: #A8B2D1;
 	white-space: pre-line;
@@ -111,7 +111,7 @@
 	border-radius: 999px;
 	background: linear-gradient(135deg, #2BD4C7, #2B7FFF);
 	color: #070D24;
-	font-size: 13px;
+	font-size: var(--font-size-label);
 	font-weight: 800;
 	border: none;
 	cursor: pointer;
@@ -125,7 +125,7 @@
 	border-radius: 999px;
 	background: rgba(255, 255, 255, .05);
 	color: #FFFFFF;
-	font-size: 13px;
+	font-size: var(--font-size-label);
 	font-weight: 700;
 	border: 1px solid rgba(255, 255, 255, .14);
 	cursor: pointer;

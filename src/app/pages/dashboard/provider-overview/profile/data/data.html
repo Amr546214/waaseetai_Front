@@ -28,7 +28,7 @@
 
 		<div class="co-card" role="status" data-testid="company-unavailable">
 			<div class="sec-hd"><div class="sec-ttl">تعديل بيانات الشركة غير متاح حاليًا</div></div>
-			<p style="font-size:13px;line-height:1.9" class="txt-slate">نموذج تعديل ملف الشركة (الاسم التجاري، السجل التجاري، التخصصات، بيانات التواصل، المستندات) لم يُفعَّل بعد، لذلك لا يمكن حفظ أي تعديلات من هذه الصفحة، ولن نعرض لك رسالة نجاح وهمية. للتعديل الآن تواصل مع الدعم من <a routerLink="/provider-overview/help" style="text-decoration:underline" class="txt-amber">المساعدة</a>.</p>
+			<p style="font-size:var(--font-size-label);line-height:1.9" class="txt-slate">نموذج تعديل ملف الشركة (الاسم التجاري، السجل التجاري، التخصصات، بيانات التواصل، المستندات) لم يُفعَّل بعد، لذلك لا يمكن حفظ أي تعديلات من هذه الصفحة، ولن نعرض لك رسالة نجاح وهمية. للتعديل الآن تواصل مع الدعم من <a routerLink="/provider-overview/help" style="text-decoration:underline" class="txt-amber">المساعدة</a>.</p>
 		</div>
 
 	<footer class="inner-foot">
@@ -671,17 +671,17 @@
     <div
       style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:12px">
       <div>
-        <div style="font-size:13px;font-weight:700" class="txt-white">تأكيد التغييرات الحساسة برمز تحقق</div>
-        <div style="font-size:11px;margin-top:2px" class="txt-muted">يُرسل رمز إلى بريدك الإلكتروني عند تغيير بيانات التواصل أو المستندات الرسمية</div>
+        <div style="font-size:var(--font-size-label);font-weight:700" class="txt-white">تأكيد التغييرات الحساسة برمز تحقق</div>
+        <div style="font-size:var(--font-size-small);margin-top:2px" class="txt-muted">يُرسل رمز إلى بريدك الإلكتروني عند تغيير بيانات التواصل أو المستندات الرسمية</div>
       </div><span
-        style="font-size:11px;font-weight:700;padding:4px 10px" class="badge-green">مفعّل</span>
+        style="font-size:var(--font-size-small);font-weight:700;padding:4px 10px" class="badge-green">مفعّل</span>
     </div>
     <div
       style="padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;margin-bottom:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
         <div>
-          <div style="font-size:13px;font-weight:700" class="txt-white">تغيير كلمة المرور</div>
-          <div style="font-size:11px;margin-top:2px" class="txt-muted">ينصح بتغييرها كل 90 يوما</div>
+          <div style="font-size:var(--font-size-label);font-weight:700" class="txt-white">تغيير كلمة المرور</div>
+          <div style="font-size:var(--font-size-small);margin-top:2px" class="txt-muted">ينصح بتغييرها كل 90 يوما</div>
         </div><button type="button" class="btn-primary" style="min-width:fit-content;padding:9px 16px"
           id="pwd-toggle-btn" (click)="passwordFormVisible.set(!passwordFormVisible())">تغيير كلمة المرور</button>
       </div>

@@ -71,7 +71,7 @@
 				<div class="dd-recommendation">
 					<strong>قرار الإدارة:</strong> {{ detail.recommendation }}
 					@if (isCompanyMode() && d.teamMember) {
-						<div style="margin-top:8px;font-size:11px;color:var(--txt-3, #6B7699)">موجَّه لعضو الفريق: <strong style="color:var(--txt, #fff)">{{ d.teamMember.name }}</strong></div>
+						<div style="margin-top:8px;font-size:var(--font-size-small);color:var(--txt-3, #6B7699)">موجَّه لعضو الفريق: <strong style="color:var(--txt, #fff)">{{ d.teamMember.name }}</strong></div>
 					}
 				</div>
 			</div>
@@ -171,7 +171,7 @@
 							<div class="dd-party-name">{{ tm.name }}</div>
 							<div class="dd-party-role">{{ tm.role }} — مقدِّم الخدمة</div>
 						</div>
-						<button type="button" class="dd-btn-ghost" style="padding:5px 10px;font-size:11px" (click)="openGuidance()">توجيه</button>
+						<button type="button" class="dd-btn-ghost" style="padding:5px 10px;font-size:var(--font-size-small)" (click)="openGuidance()">توجيه</button>
 					} @else {
 						<div class="dd-party-av" [style.background]="p.gradient">{{ p.initials }}</div>
 						<div>
@@ -224,20 +224,20 @@
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
 					</span>
 					<div>
-						<h3 style="font-size:14px;font-weight:900;color:var(--txt, #fff)">توجيه {{ tm.name }}</h3>
-						<p style="font-size:11.5px;color:var(--txt-2, #A8B2D1);margin-top:2px">بخصوص نزاع {{ d.id }}</p>
+						<h3 style="font-size:var(--font-size-label);font-weight:900;color:var(--txt, #fff)">توجيه {{ tm.name }}</h3>
+						<p style="font-size:var(--font-size-small);color:var(--txt-2, #A8B2D1);margin-top:2px">بخصوص نزاع {{ d.id }}</p>
 					</div>
 					<button type="button" style="margin-inline-start:auto;width:26px;height:26px;border-radius:6px;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.08));color:var(--txt-3, #6B7699);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" (click)="closeGuidance()">
 						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
 					</button>
 				</div>
 				<div style="margin-bottom:12px">
-					<label for="dispute-guidance" style="display:block;font-size:12px;font-weight:700;color:var(--txt, #fff);margin-bottom:5px">توجيهاتك لـ{{ tm.name }} <span class="ws-req" aria-hidden="true">*</span></label>
-					<textarea id="dispute-guidance" aria-required="true" name="dispute-guidance" data-field="dispute-guidance" style="width:100%;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.10));border-radius:9px;padding:9px 12px;font-size:12.5px;color:var(--txt, #fff);font-family:inherit;resize:vertical;min-height:80px;line-height:1.6" placeholder="مثال: أرسل سجل الرفع الأصلي بصيغة PDF..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
+					<label for="dispute-guidance" style="display:block;font-size:var(--font-size-small);font-weight:700;color:var(--txt, #fff);margin-bottom:5px">توجيهاتك لـ{{ tm.name }} <span class="ws-req" aria-hidden="true">*</span></label>
+					<textarea id="dispute-guidance" aria-required="true" name="dispute-guidance" data-field="dispute-guidance" style="width:100%;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.10));border-radius:9px;padding:9px 12px;font-size:var(--font-size-label);color:var(--txt, #fff);font-family:inherit;resize:vertical;min-height:80px;line-height:1.6" placeholder="مثال: أرسل سجل الرفع الأصلي بصيغة PDF..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
 				</div>
 				<div style="display:flex;gap:9px">
-					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid var(--sec-bd, rgba(255,255,255,.12));background:var(--sec-bg, rgba(255,255,255,.05));color:var(--txt, #fff)" (click)="closeGuidance()">إلغاء</button>
-					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid rgba(43,212,199,.26);background:rgba(43,212,199,.10);color:#2BD4C7" (click)="sendGuidance()">إرسال</button>
+					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:var(--font-size-label);font-weight:800;font-family:inherit;cursor:pointer;border:1px solid var(--sec-bd, rgba(255,255,255,.12));background:var(--sec-bg, rgba(255,255,255,.05));color:var(--txt, #fff)" (click)="closeGuidance()">إلغاء</button>
+					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:var(--font-size-label);font-weight:800;font-family:inherit;cursor:pointer;border:1px solid rgba(43,212,199,.26);background:rgba(43,212,199,.10);color:#2BD4C7" (click)="sendGuidance()">إرسال</button>
 				</div>
 			</div>
 		</div>

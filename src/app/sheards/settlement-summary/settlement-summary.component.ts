@@ -29,9 +29,9 @@ import { SettlementDistribution } from '../../core/models/rating.model';
 	styles: [`
 :host{display:block}
 .ss{background:rgba(217,138,11,.08);border:1px solid rgba(217,138,11,.28);border-radius:14px;padding:14px 16px;margin-bottom:16px}
-.ss-ttl{font-size:14px;font-weight:800;margin-bottom:8px}
-.ss-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:13px}
-.ss-txt{font-size:13px;margin:0}
+.ss-ttl{font-size:var(--font-size-label);font-weight:800;margin-bottom:8px}
+.ss-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:var(--font-size-label)}
+.ss-txt{font-size:var(--font-size-label);margin:0}
 `]
 })
 export class SettlementSummary {

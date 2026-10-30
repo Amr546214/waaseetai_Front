@@ -42,7 +42,7 @@
 						<span class="text-base sm:text-lg font-extrabold text-[var(--txt)] truncate" data-testid="selected-spec-name">
 							{{ selectedSpecData()?.name }}
 						</span>
-						<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--teal)]/15 text-[var(--teal)] border border-[var(--teal)]/30 shrink-0">
+						<span class="text-[length:var(--font-size-small)] font-bold px-2.5 py-0.5 rounded-full bg-[var(--teal)]/15 text-[var(--teal)] border border-[var(--teal)]/30 shrink-0">
 							التخصص المختار
 						</span>
 					</div>
@@ -127,10 +127,10 @@
 						</div>
 
 						<div class="flex-1 min-w-0">
-							<div class="text-[13.5px] font-extrabold text-[var(--txt)] truncate leading-tight mb-0.5">
+							<div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt)] truncate leading-tight mb-0.5">
 								{{ spec.name }}
 							</div>
-							<div class="text-[11px] text-[var(--txt-3)] font-medium truncate">
+							<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-medium truncate">
 								{{ spec.count }}
 							</div>
 						</div>
@@ -151,38 +151,38 @@
 
 @if (parent.selectedSpec() === 'other') {
 <div class="rounded-[24px] p-7 mb-8 animate-ws-fade bg-[var(--crd-bg)] border border-[var(--crd-bd)] shadow-lg">
-	<div class="text-[16px] font-extrabold text-[var(--txt)] mb-3 flex items-center gap-2">
+	<div class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] mb-3 flex items-center gap-2">
 		<svg class="w-5 h-5 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 			<path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
 		</svg>
 		اكتب التخصص المقترح <span class="ws-req" aria-hidden="true">*</span>
 	</div>
 	<input type="text" id="f-other-spec" aria-required="true" name="otherSpecialty"
-		class="w-full py-4 px-5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-2xl text-[var(--txt)] text-[15px] outline-none transition-colors focus:border-[var(--teal)] placeholder-[var(--txt-3)]"
+		class="w-full py-4 px-5 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-2xl text-[var(--txt)] text-[length:var(--font-size-body)] outline-none transition-colors focus:border-[var(--teal)] placeholder-[var(--txt-3)]"
 		placeholder="أدخل اسم التخصص بالتفصيل..."
 		[ngModel]="parent.otherText()" (ngModelChange)="parent.otherText.set($event)">
-	<div class="text-[13px] text-[var(--txt-3)] mt-2">يرجى كتابة 5 حروف على الأقل للمتابعة.</div>
+	<div class="text-[length:var(--font-size-label)] text-[var(--txt-3)] mt-2">يرجى كتابة 5 حروف على الأقل للمتابعة.</div>
 </div>
 }
 
 @if (parent.currentSpec() && parent.currentSpec()!.subs && parent.currentSpec()!.subs!.length > 0) {
 <div class="rounded-[24px] p-7 mb-6 animate-ws-fade bg-[var(--crd-bg)] border border-[var(--crd-bd)] shadow-xl">
 	<div class="flex items-center justify-between mb-5 flex-wrap gap-2">
-		<div class="text-[16px] font-extrabold text-[var(--txt)] flex items-center gap-2.5">
+		<div class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] flex items-center gap-2.5">
 			<svg class="w-5 h-5 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 				<use href="#i-shield"></use>
 			</svg>
 			التخصصات الفرعية
-			<span id="subs-count" dir="ltr" class="text-[12px] font-bold px-2.5 py-0.5 rounded-full text-[var(--teal)] bg-[var(--teal)]/15 border border-[var(--teal)]/30">
+			<span id="subs-count" dir="ltr" class="text-[length:var(--font-size-small)] font-bold px-2.5 py-0.5 rounded-full text-[var(--teal)] bg-[var(--teal)]/15 border border-[var(--teal)]/30">
 				{{parent.selectedSubs().size}} / {{parent.MAX_SUBS}}
 			</span>
 		</div>
-		<span class="text-[13px] text-[var(--txt-3)] font-medium">اختر حتى 5 تخصصات فرعية</span>
+		<span class="text-[length:var(--font-size-label)] text-[var(--txt-3)] font-medium">اختر حتى 5 تخصصات فرعية</span>
 	</div>
 	<div class="flex flex-wrap gap-2.5">
 		@for (sub of parent.currentSpec()!.subs; track sub) {
 		<button type="button"
-			class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-bold cursor-pointer transition-all border"
+			class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[length:var(--font-size-label)] font-bold cursor-pointer transition-all border"
 			[ngClass]="parent.isSubSelected(sub) ? 'bg-[var(--teal)]/15 text-[var(--teal)] border-[var(--teal)] ring-1 ring-[var(--teal)]/40' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt-2)] hover:text-[var(--txt)]'"
 			[attr.aria-pressed]="parent.isSubSelected(sub)"
 			(click)="parent.toggleSub(sub)"

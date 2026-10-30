@@ -14,7 +14,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #6B7699;
   margin-bottom: 14px;
   flex-wrap: wrap;
@@ -31,7 +31,7 @@
 }
 
 .wd-crumb-sep {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   color: #4A5568;
 }
 
@@ -86,25 +86,25 @@
 }
 
 .ord-sub {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   color: #6B7699;
   margin-top: 3px;
   max-width: 640px;
   line-height: 1.6;
 }
 
-.wd-header-sub { margin-top: 5px; font-size: 14px; color: var(--txt-2, #A8B2D1); }
+.wd-header-sub { margin-top: 5px; font-size: var(--font-size-label); color: var(--txt-2, #A8B2D1); }
 .wd-review-badge {
   padding: 5px 10px;
   border: 1px solid var(--sec-bd, rgba(148,163,184,.25));
   border-radius: 999px;
   color: var(--txt-2, #A8B2D1);
   background: var(--sec-bg, rgba(148,163,184,.06));
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 700;
 }
 .wd-help { margin-bottom: 14px; color: var(--txt-2, #A8B2D1); }
-.wd-help summary { width: fit-content; font-size: 14px; font-weight: 700; cursor: pointer; padding: 5px 0; }
+.wd-help summary { width: fit-content; font-size: var(--font-size-label); font-weight: 700; cursor: pointer; padding: 5px 0; }
 .wd-help-content {
   margin-top: 8px;
   padding: 14px 16px;
@@ -163,7 +163,7 @@
 }
 
 .ai-disc-lbl {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   color: #A56BE0;
   letter-spacing: .06em;
@@ -178,7 +178,7 @@
 }
 
 .ai-disc-txt {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #A8B2D1;
   margin: 0;
 }
@@ -219,7 +219,7 @@
 }
 
 .wal-main-lbl {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   color: var(--txt-2, #A8B2D1);
   font-weight: 700;
   margin-bottom: 6px;
@@ -247,7 +247,7 @@
 }
 
 .wal-main-cur {
-  font-size: 15px;
+  font-size: var(--font-size-body);
   color: #A8B2D1;
   font-weight: 700;
 }
@@ -260,7 +260,7 @@
 }
 
 .wal-main-sub {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: var(--txt-2, #A8B2D1);
   margin: 8px 0 22px;
   line-height: 1.6;
@@ -285,7 +285,7 @@
 }
 
 .wal-side-lbl {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   color: #6B7699;
   font-weight: 700;
   margin-bottom: 6px;
@@ -305,13 +305,13 @@
 }
 
 .wal-side-sub {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   color: var(--txt-2, #A8B2D1);
 }
 
 /* ── Section title ──────────────────────────────────────────────────── */
 .sec-ttl {
-  font-size: 17px;
+  font-size: var(--font-size-section);
   font-weight: 800;
   color: #fff;
   margin: 6px 0 12px;
@@ -357,7 +357,7 @@
 .wd-payout .wd-method-pill { overflow-wrap: anywhere; }
 .wd-field-hint { line-height: 1.7; }
 .wd-field-hint a, .wd-field-err a { color: var(--teal-txt, #2BD4C7); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
-.wd-summary-title { margin: 0 0 12px; color: var(--txt, #fff); font-size: 16px; font-weight: 800; }
+.wd-summary-title { margin: 0 0 12px; color: var(--txt, #fff); font-size: var(--font-size-body); font-weight: 800; }
 
 .wd-field {
   display: flex;
@@ -366,7 +366,7 @@
 }
 
 .wd-lbl {
-  font-size: 15px;
+  font-size: var(--font-size-body);
   font-weight: 700;
   color: #A8B2D1;
 }
@@ -395,7 +395,7 @@
   border: 1px solid rgba(255, 255, 255, .1);
   border-radius: 10px;
   padding: 11px 14px;
-  font-size: 14px;
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: #fff;
   font-family: inherit;
@@ -440,14 +440,14 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   color: #6B7699;
   pointer-events: none;
 }
 
 .wd-field-err {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #FF8C69;
   font-weight: 600;
 }
@@ -460,7 +460,7 @@
 }
 
 .wd-field-hint {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: var(--txt-2, #A8B2D1);
 }
 
@@ -478,7 +478,7 @@
   border: 1px solid rgba(255, 255, 255, .1);
   background: rgba(7, 13, 36, .4);
   color: #fff;
-  font-size: 14px;
+  font-size: var(--font-size-label);
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
@@ -512,7 +512,7 @@
   border: 1px solid rgba(43, 212, 199, .25);
   background: rgba(43, 212, 199, .08);
   color: #2BD4C7;
-  font-size: 14px;
+  font-size: var(--font-size-label);
   font-weight: 700;
 }
 
@@ -551,7 +551,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: var(--font-size-label);
   padding: 7px 0;
   gap: 16px;
 }
@@ -587,7 +587,7 @@
 }
 
 .wd-sum-row-bold .wd-sum-key {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   font-weight: 800;
   color: var(--txt, #fff);
 }
@@ -613,7 +613,7 @@
 }
 
 .wd-sum-note {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #6B7699;
   margin-top: 8px;
   line-height: 1.7;
@@ -646,7 +646,7 @@
   height: 44px;
   padding: 0 22px;
   border-radius: 11px;
-  font-size: 15px;
+  font-size: var(--font-size-body);
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
@@ -717,7 +717,7 @@
 }
 
 .wd-banner-ttl {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 800;
   color: #fff;
   margin-bottom: 2px;
@@ -731,7 +731,7 @@
 }
 
 .wd-banner-txt {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   color: #A8B2D1;
   margin: 0;
   line-height: 1.5;
@@ -748,7 +748,7 @@
   background: none;
   border: none;
   color: #6B7699;
-  font-size: 18px;
+  font-size: var(--font-size-section);
   cursor: pointer;
   padding: 0;
   line-height: 1;
@@ -802,7 +802,7 @@
 }
 
 .wd-err-ttl {
-  font-size: 16px;
+  font-size: var(--font-size-body);
   font-weight: 800;
   color: #fff;
   margin-bottom: 6px;
@@ -816,7 +816,7 @@
 }
 
 .wd-err-sub {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   color: #6B7699;
   margin-bottom: 14px;
 }
@@ -828,7 +828,7 @@
   border-radius: 50px;
   color: #070D24;
   font-weight: 800;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   cursor: pointer;
   font-family: inherit;
 }
@@ -862,7 +862,7 @@
 }
 
 .wd-empty-ttl {
-  font-size: 16px;
+  font-size: var(--font-size-body);
   font-weight: 800;
   color: #fff;
   margin-bottom: 0;
@@ -876,7 +876,7 @@
 }
 
 .wd-empty-txt {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   color: #6B7699;
   max-width: none;
   margin: 0;
@@ -923,7 +923,7 @@
 }
 
 .wd-item-id {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   color: #6B7699;
   font-family: monospace;
@@ -932,7 +932,7 @@
 .wd-item-amt {
   grid-column: 2;
   grid-row: 2;
-  font-size: 18px;
+  font-size: var(--font-size-section);
   font-weight: 900;
   color: #fff;
   margin-bottom: 0;
@@ -960,7 +960,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #6B7699;
   background: rgba(255, 255, 255, .04);
   border: 1px solid rgba(255, 255, 255, .06);
@@ -1003,7 +1003,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: var(--font-size-label);
 }
 
 .wd-bank-key {
@@ -1023,7 +1023,7 @@
 }
 
 .wd-item-note {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   border-radius: 9px;
   padding: 9px 12px;
   margin-top: 10px;
@@ -1062,7 +1062,7 @@
 
 /* ── Status badges ──────────────────────────────────────────────────── */
 .wd-st {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 800;
   padding: 4px 10px;
   border-radius: 6px;
@@ -1129,7 +1129,7 @@
   border: 1px solid rgba(255, 255, 255, .1);
   background: rgba(7, 13, 36, .4);
   color: #A8B2D1;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -1227,13 +1227,13 @@
 }
 
 .wd-otp-ttl {
-  font-size: 16px;
+  font-size: var(--font-size-body);
   font-weight: 900;
   margin-bottom: 6px;
 }
 
 .wd-otp-txt {
-  font-size: 12.5px;
+  font-size: var(--font-size-label);
   color: #A8B2D1;
   line-height: 1.7;
   margin: 0 0 18px;
@@ -1276,7 +1276,7 @@
 
 .wd-otp-resend {
   margin-top: 12px;
-  font-size: 11.5px;
+  font-size: var(--font-size-small);
   color: #6B7699;
 }
 
@@ -1285,7 +1285,7 @@
   border: none;
   color: #2BD4C7;
   font-weight: 700;
-  font-size: 11.5px;
+  font-size: var(--font-size-small);
   cursor: pointer;
   font-family: inherit;
 }
@@ -1317,5 +1317,5 @@
   .wd-payout { grid-template-columns: minmax(0, 1fr); }
   .wd-form-card { padding: 16px; }
   .wd-form-actions { flex-direction: column-reverse; align-items: stretch; }
-  .wd-item-amt { font-size: 16px; }
+  .wd-item-amt { font-size: var(--font-size-body); }
 }

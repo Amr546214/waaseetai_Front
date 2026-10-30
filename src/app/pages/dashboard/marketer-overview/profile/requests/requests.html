@@ -29,12 +29,12 @@
 
   @if (isLoading()) {
   <div class="empty-wrap" role="status" aria-live="polite" data-testid="requests-loading" style="opacity:.7">
-    <div style="font-size:14px;font-weight:700" class="txt-muted">جاري تحميل طلبات التعديل...</div>
+    <div style="font-size:var(--font-size-label);font-weight:700" class="txt-muted">جاري تحميل طلبات التعديل...</div>
   </div>
   } @else if (loadError()) {
   <div class="empty-wrap" role="alert" data-testid="requests-load-error">
-    <div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل طلبات التعديل حاليًا</div>
-    <div style="font-size:12px;max-width:360px;margin:0 auto 14px" class="txt-muted">لم نتمكن من جلب طلباتك، وهذا لا يعني أنه لا توجد طلبات. حاول مرة أخرى.</div>
+    <div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل طلبات التعديل حاليًا</div>
+    <div style="font-size:var(--font-size-small);max-width:360px;margin:0 auto 14px" class="txt-muted">لم نتمكن من جلب طلباتك، وهذا لا يعني أنه لا توجد طلبات. حاول مرة أخرى.</div>
     <button type="button" class="filter-chip active" (click)="loadRequests()" data-testid="requests-retry">إعادة المحاولة</button>
   </div>
   } @else {
@@ -155,8 +155,8 @@
     @if (filteredRequests.length === 0) {
       <div class="empty-wrap">
         <div class="empty-ico"><svg aria-hidden="true"><use href="#i-inbox"></use></svg></div>
-        <div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد طلبات في هذا التصنيف</div>
-        <div style="font-size:12px;max-width:360px;margin:0 auto" class="txt-muted">تظهر هنا طلبات تعديل البيانات الحساسة فور إنشائها من صفحة الملف الشخصي</div>
+        <div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">لا توجد طلبات في هذا التصنيف</div>
+        <div style="font-size:var(--font-size-small);max-width:360px;margin:0 auto" class="txt-muted">تظهر هنا طلبات تعديل البيانات الحساسة فور إنشائها من صفحة الملف الشخصي</div>
       </div>
     }
   </div>

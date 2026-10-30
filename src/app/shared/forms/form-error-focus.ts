@@ -100,7 +100,7 @@ export function markInvalid(el: HTMLElement, message: string): void {
 	const host = el.closest<HTMLElement>('[data-field-wrap]') ?? el;
 	const msg = doc.createElement('p');
 	msg.id = `ws-field-msg-${++seq}`;
-	msg.className = `${FIELD_MSG_CLASS} mt-1 block text-[11px] font-bold leading-relaxed text-red-500`;
+	msg.className = `${FIELD_MSG_CLASS} mt-1 block text-[length:var(--font-size-small)] font-bold leading-relaxed text-red-500`;
 	msg.setAttribute('role', 'alert');
 	msg.setAttribute('data-testid', 'field-error');
 	msg.textContent = message;

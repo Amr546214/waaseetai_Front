@@ -147,7 +147,7 @@
 					<div class="ud-info-item"><span class="ud-info-lbl">توثيق الهوية (طالب)</span><span class="ud-info-val">{{ label(kycLabels, u.kyc.client) }}</span></div>
 					<div class="ud-info-item"><span class="ud-info-lbl">توثيق الهوية (مقدم)</span><span class="ud-info-val">{{ label(kycLabels, u.kyc.provider) }}</span></div>
 				</div>
-				<a routerLink="/supper-admin-overview/kyc" class="txt-teal" style="font-size:12px">مراجعة طلبات التوثيق</a>
+				<a routerLink="/supper-admin-overview/kyc" class="txt-teal" style="font-size:var(--font-size-small)">مراجعة طلبات التوثيق</a>
 			</div>
 
 			<div class="ud-panel ud-panel-wide" id="audit">
@@ -214,7 +214,7 @@
 		<h3 class="state-ttl">{{ u.statusOriginal === 'ACTIVE' ? 'تأكيد إيقاف الحساب' : 'تأكيد تفعيل الحساب' }}</h3>
 		<p class="state-txt">{{ u.name }} — يُسجَّل الإجراء في سجل التدقيق.</p>
 		@if (u.statusOriginal === 'ACTIVE') {
-		<label for="ud-reason" style="font-size:12px;font-weight:700">سبب الإيقاف (مطلوب)</label>
+		<label for="ud-reason" style="font-size:var(--font-size-small);font-weight:700">سبب الإيقاف (مطلوب)</label>
 		<textarea id="ud-reason" rows="3" style="width:100%" [value]="reason()" (input)="reason.set($any($event.target).value)"></textarea>
 		}
 		}
@@ -226,14 +226,14 @@
 		<label style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" [checked]="rolePick().includes(r.key)" (change)="toggleRole(r.key)" />{{ r.label }}</label>
 		}
 		</div>
-		<div style="font-size:12px;font-weight:700">الدور النشط</div>
+		<div style="font-size:var(--font-size-small);font-weight:700">الدور النشط</div>
 		<ws-select id="ud-active-role" [options]="activeRoleOptions()" [ngModel]="activeRolePick()" (ngModelChange)="activeRolePick.set($event)" ariaLabel="الدور النشط" style="display:block;width:100%"></ws-select>
 		}
 		@if (modal() === 'delete') {
 		<h3 class="state-ttl">تأكيد حذف الحساب نهائياً</h3>
 		<p class="state-txt">سيُحذف الحساب {{ u.name }} وكل بياناته، <strong>ولا يمكن التراجع عن ذلك</strong>. يُسجَّل الإجراء في سجل التدقيق.</p>
 		}
-		@if (modalError()) { <p class="txt-red" style="font-size:12px" role="alert" data-testid="modal-error">{{ modalError() }}</p> }
+		@if (modalError()) { <p class="txt-red" style="font-size:var(--font-size-small)" role="alert" data-testid="modal-error">{{ modalError() }}</p> }
 		<div style="display:flex;gap:8px;margin-top:14px">
 			<button type="button" class="btn btn-primary" [disabled]="busy()" (click)="modal() === 'status' ? confirmStatus() : modal() === 'roles' ? confirmRoles() : confirmDelete()">{{ busy() ? 'جارٍ التنفيذ...' : 'تأكيد' }}</button>
 			<button type="button" class="btn" [disabled]="busy()" (click)="closeModal()">إلغاء</button>

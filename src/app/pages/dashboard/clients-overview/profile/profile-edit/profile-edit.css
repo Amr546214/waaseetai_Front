@@ -7,7 +7,7 @@
 	background: rgba(255, 255, 255, .05);
 	border: 1px solid rgba(255, 255, 255, .10);
 	border-radius: 10px;
-	font-size: 13px;
+	font-size: var(--font-size-label);
 	font-weight: 700;
 	color: #A8B2D1;
 	cursor: pointer;
@@ -50,7 +50,7 @@
   border-radius: 999px;
   background: var(--sec-bg, #f1f5f9);
   color: var(--txt-3, #64748b);
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   line-height: 1.5;
   white-space: nowrap;
@@ -71,7 +71,7 @@
   border-radius: 999px;
   background: #0f766e;
   color: #fff;
-  font-size: 12px;
+  font-size: var(--font-size-small);
 }
 .profile-guide-start:hover { background: #115e59; }
 .profile-guide {
@@ -101,7 +101,7 @@
   padding: 9px 18px;
   border-radius: 10px;
   border: 1px solid var(--sec-bd, #cbd5e1);
-  font-size: 12px;
+  font-size: var(--font-size-small);
 }
 .profile-guide-back { color: var(--txt, #0f172a); background: transparent; }
 .profile-guide-next { color: #070d24; background: #2bd4c7; border-color: #2bd4c7; }

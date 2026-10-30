@@ -32,15 +32,15 @@ button{font-family:inherit;cursor:pointer}
 .err-card{max-width:520px;width:100%;text-align:center}
 .err-code{font-size:clamp(72px,14vw,120px);font-weight:900;line-height:1;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
 .err-title{font-size:clamp(18px,4vw,26px);font-weight:900;color:var(--txt);margin-bottom:10px}
-.err-desc{font-size:14px;color:var(--txt-2);line-height:1.7;margin-bottom:28px}
+.err-desc{font-size:var(--font-size-label);color:var(--txt-2);line-height:1.7;margin-bottom:28px}
 .err-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn-primary{padding:12px 28px;border-radius:999px;background:var(--grad);border:none;font-size:13px;font-weight:900;color:#070D24;text-decoration:none;display:inline-block;cursor:pointer}
+.btn-primary{padding:12px 28px;border-radius:999px;background:var(--grad);border:none;font-size:var(--font-size-label);font-weight:900;color:#070D24;text-decoration:none;display:inline-block;cursor:pointer}
 .btn-primary:hover{color:#070D24}
-.btn-ghost{padding:12px 22px;border-radius:999px;border:1px solid var(--ghost-bd);background:transparent;font-size:13px;font-weight:700;color:var(--txt);text-decoration:none;display:inline-block}
+.btn-ghost{padding:12px 22px;border-radius:999px;border:1px solid var(--ghost-bd);background:transparent;font-size:var(--font-size-label);font-weight:700;color:var(--txt);text-decoration:none;display:inline-block}
 .btn-ghost:hover{border-color:rgba(43,212,199,.35);color:var(--teal)}
 .logo-bar{position:fixed;top:0;left:0;right:0;z-index:10;padding:14px 24px;display:flex;align-items:center;gap:9px;text-decoration:none;width:fit-content}
 .logo-bar img{display:block;height:30px;width:auto;max-width:none}
-.logo-bar span{font-size:16px;font-weight:900;color:var(--teal)}
+.logo-bar span{font-size:var(--font-size-body);font-weight:900;color:var(--teal)}
 /* Inside the dashboard layout: no full-viewport chrome, just the card centred in the content area. */
 :host(.embedded){min-height:0;background:transparent;overflow:visible}
 :host(.embedded) .page-wrap{min-height:calc(100vh - 220px);padding:24px 16px}
@@ -50,6 +50,6 @@ button{font-family:inherit;cursor:pointer}
 .err-ico.t-kahr{background:rgba(217,138,11,.1);border-color:rgba(217,138,11,.25);color:var(--kahr)}
 .err-ico.t-blue{background:rgba(43,127,255,.1);border-color:rgba(43,127,255,.25);color:var(--blue-txt)}
 .err-ico.t-ai{background:rgba(123,47,190,.1);border-color:rgba(123,47,190,.25);color:var(--ai-txt)}
-.err-ref{margin-top:20px;padding:12px 16px;background:rgba(255,140,105,.05);border:1px solid rgba(255,140,105,.15);border-radius:10px;font-size:11px;color:var(--txt-3);direction:ltr;text-align:left}
-.err-eta{margin-top:24px;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(217,138,11,.07);border:1px solid rgba(217,138,11,.2);border-radius:10px;font-size:12px;color:var(--kahr);font-weight:700}
+.err-ref{margin-top:20px;padding:12px 16px;background:rgba(255,140,105,.05);border:1px solid rgba(255,140,105,.15);border-radius:10px;font-size:var(--font-size-small);color:var(--txt-3);direction:ltr;text-align:left}
+.err-eta{margin-top:24px;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(217,138,11,.07);border:1px solid rgba(217,138,11,.2);border-radius:10px;font-size:var(--font-size-small);color:var(--kahr);font-weight:700}
 .err-eta svg{width:12px;height:12px}

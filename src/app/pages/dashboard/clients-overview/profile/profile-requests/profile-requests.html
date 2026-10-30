@@ -1,6 +1,6 @@
 <div class="mb-5">
 	<h1 class="text-[20px] font-black text-[var(--txt)] m-0">طلبات التعديل</h1>
-	<div class="text-[12px] font-semibold text-[var(--txt-3)] mt-1">إدارة ومتابعة طلبات التعديل على البيانات الحساسة
+	<div class="text-[length:var(--font-size-small)] font-semibold text-[var(--txt-3)] mt-1">إدارة ومتابعة طلبات التعديل على البيانات الحساسة
 	</div>
 </div>
 
@@ -27,11 +27,11 @@
 			</svg>
 		</div>
 		<div>
-			<div class="text-[13px] font-black text-[#2BD4C7] mb-1">بيانات حرة، تحديث فوري</div>
-			<div class="text-[11.5px] text-[var(--txt-3)] leading-relaxed mb-2">الصورة والنبذة والاهتمامات والروابط
+			<div class="text-[length:var(--font-size-label)] font-black text-[#2BD4C7] mb-1">بيانات حرة، تحديث فوري</div>
+			<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] leading-relaxed mb-2">الصورة والنبذة والاهتمامات والروابط
 				والتفضيلات تحفظ مباشرة دون مراجعة</div>
 			<span
-				class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-[5px] bg-[#0FA99A]/15 text-[#0FA99A] border border-[#0FA99A]/25">لا
+				class="inline-block text-[length:var(--font-size-caption)] font-bold px-2 py-0.5 rounded-[5px] bg-[#0FA99A]/15 text-[#0FA99A] border border-[#0FA99A]/25">لا
 				تتطلب طلب تعديل</span>
 		</div>
 	</div>
@@ -43,11 +43,11 @@
 			</svg>
 		</div>
 		<div>
-			<div class="text-[13px] font-black text-[#D98A0B] mb-1">بيانات حساسة، تخضع للمراجعة</div>
-			<div class="text-[11.5px] text-[var(--txt-3)] leading-relaxed mb-2">البريد والجوال والهوية وبريد PayPal
+			<div class="text-[length:var(--font-size-label)] font-black text-[#D98A0B] mb-1">بيانات حساسة، تخضع للمراجعة</div>
+			<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] leading-relaxed mb-2">البريد والجوال والهوية وبريد PayPal
 				تنشئ طلب تعديل يخضع للمراجعة ثم يعتمده مراجع بشري</div>
 			<span
-				class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-[5px] bg-[#D98A0B]/15 text-[#D98A0B] border border-[#D98A0B]/25">تتبع
+				class="inline-block text-[length:var(--font-size-caption)] font-bold px-2 py-0.5 rounded-[5px] bg-[#D98A0B]/15 text-[#D98A0B] border border-[#D98A0B]/25">تتبع
 				كل طلب من هنا</span>
 		</div>
 	</div>
@@ -57,9 +57,9 @@
 <div class="h-[220px] mb-10 rounded-[18px] bg-[var(--sec-bg)] border border-[var(--sec-bd)] animate-pulse" role="status" aria-live="polite" aria-label="جاري تحميل طلبات التعديل" data-testid="requests-loading"></div>
 } @else if (loadError()) {
 <div class="flex flex-col items-center text-center gap-3 py-14 px-6 mb-10 rounded-[18px] border border-[#FF8C69]/30 bg-[#FF8C69]/5" role="alert" data-testid="requests-load-error">
-	<div class="text-[16px] font-black text-[var(--txt)]">تعذر تحميل طلبات التعديل حاليًا</div>
-	<div class="text-[12px] text-[var(--txt-3)] max-w-[360px] leading-relaxed">لم نتمكن من جلب طلباتك، وهذا لا يعني أنه لا توجد طلبات. حاول مرة أخرى.</div>
-	<button type="button" (click)="loadRequests()" class="px-5 py-2 rounded-xl border border-[#2BD4C7]/40 bg-[#2BD4C7]/15 text-[#2BD4C7] text-[13px] font-bold cursor-pointer" data-testid="requests-retry">إعادة المحاولة</button>
+	<div class="text-[length:var(--font-size-body)] font-black text-[var(--txt)]">تعذر تحميل طلبات التعديل حاليًا</div>
+	<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] max-w-[360px] leading-relaxed">لم نتمكن من جلب طلباتك، وهذا لا يعني أنه لا توجد طلبات. حاول مرة أخرى.</div>
+	<button type="button" (click)="loadRequests()" class="px-5 py-2 rounded-xl border border-[#2BD4C7]/40 bg-[#2BD4C7]/15 text-[#2BD4C7] text-[length:var(--font-size-label)] font-bold cursor-pointer" data-testid="requests-retry">إعادة المحاولة</button>
 </div>
 } @else {
 <!-- Stats -->
@@ -67,22 +67,22 @@
 	<div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[13px] p-4 backdrop-blur-md">
 		<div class="text-[24px] font-black leading-none mb-1 text-[#5DA0FF]">{{ requestsData()?.kpi?.inAiReviewCount ||
 			0 }}</div>
-		<div class="text-[11px] font-bold text-[var(--txt-3)]">قيد المراجعة</div>
+		<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">قيد المراجعة</div>
 	</div>
 	<div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[13px] p-4 backdrop-blur-md">
 		<div class="text-[24px] font-black leading-none mb-1 text-[#FFB400]">{{ requestsData()?.kpi?.pendingHumanCount
 			|| 0 }}</div>
-		<div class="text-[11px] font-bold text-[var(--txt-3)]">بانتظار اعتماد بشري</div>
+		<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">بانتظار اعتماد بشري</div>
 	</div>
 	<div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[13px] p-4 backdrop-blur-md">
 		<div class="text-[24px] font-black leading-none mb-1 text-[#0FA99A]">{{ requestsData()?.kpi?.approvedCount || 0
 			}}</div>
-		<div class="text-[11px] font-bold text-[var(--txt-3)]">معتمد</div>
+		<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">معتمد</div>
 	</div>
 	<div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[13px] p-4 backdrop-blur-md">
 		<div class="text-[24px] font-black leading-none mb-1 text-[#FF8C69]">{{ requestsData()?.kpi?.rejectedCount || 0
 			}}</div>
-		<div class="text-[11px] font-bold text-[var(--txt-3)]">مرفوض</div>
+		<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">مرفوض</div>
 	</div>
 </div>
 
@@ -96,18 +96,18 @@
 	{id:'REJECTED', lbl:'مرفوض', count: requestsData()?.kpi?.rejectedCount || 0}
 	]; track f.id) {
 	<button (click)="setFilter(f.id)"
-		class="px-3.5 py-1.5 rounded-full text-[12px] font-bold transition-all flex items-center gap-1.5 border"
+		class="px-3.5 py-1.5 rounded-full text-[length:var(--font-size-small)] font-bold transition-all flex items-center gap-1.5 border"
 		[class]="activeFilter() === f.id ? 'bg-[#2BD4C7]/15 border-[#2BD4C7]/30 text-[#2BD4C7]' : 'bg-[var(--sec-bg)] border-[var(--sec-bd)] text-[var(--txt-3)] hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]'">
 		{{ f.lbl }}
 		<span
-			class="min-w-[18px] h-[18px] rounded-full bg-[rgba(255,255,255,0.08)] flex items-center justify-center px-1 text-[10px] font-black">{{
+			class="min-w-[18px] h-[18px] rounded-full bg-[rgba(255,255,255,0.08)] flex items-center justify-center px-1 text-[length:var(--font-size-caption)] font-black">{{
 			f.count }}</span>
 	</button>
 	}
 </div>
 
-<div class="text-[13px] font-black text-[var(--txt)] mb-3 flex items-center gap-2">طلبات التعديل <span
-		class="text-[11px] font-semibold text-[var(--txt-3)]">{{ requestsData()?.requests?.length || 0 }} طلبات</span>
+<div class="text-[length:var(--font-size-label)] font-black text-[var(--txt)] mb-3 flex items-center gap-2">طلبات التعديل <span
+		class="text-[length:var(--font-size-small)] font-semibold text-[var(--txt-3)]">{{ requestsData()?.requests?.length || 0 }} طلبات</span>
 </div>
 
 <!-- Requests List -->
@@ -124,8 +124,8 @@
 					d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
 			</svg>
 		</div>
-		<div class="text-[16px] font-black text-[var(--txt)] mb-1.5">لا توجد طلبات في هذا التصنيف</div>
-		<div class="text-[12px] text-[var(--txt-3)] max-w-xs mx-auto">تظهر هنا طلبات تعديل البيانات الحساسة فور إنشائها
+		<div class="text-[length:var(--font-size-body)] font-black text-[var(--txt)] mb-1.5">لا توجد طلبات في هذا التصنيف</div>
+		<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] max-w-xs mx-auto">تظهر هنا طلبات تعديل البيانات الحساسة فور إنشائها
 			من صفحة الملف الشخصي</div>
 	</div>
 	}
@@ -143,8 +143,8 @@
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="text-[14px] font-black text-[var(--txt)] mb-1">{{ req.fieldLabel }}</div>
-				<div class="flex flex-wrap items-center gap-2 text-[11px] text-[var(--txt-3)]">
+				<div class="text-[length:var(--font-size-label)] font-black text-[var(--txt)] mb-1">{{ req.fieldLabel }}</div>
+				<div class="flex flex-wrap items-center gap-2 text-[length:var(--font-size-small)] text-[var(--txt-3)]">
 					<span
 						class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[5px] bg-[#D98A0B]/15 text-[#D98A0B] font-bold border border-[#D98A0B]/25">
 						<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -162,7 +162,7 @@
 
 			<!-- Status Pill -->
 			<span
-				class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold shrink-0 whitespace-nowrap border"
+				class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[length:var(--font-size-small)] font-bold shrink-0 whitespace-nowrap border"
 				[class]="req.status === 'IN_AI_REVIEW' ? 'bg-[#2B7FFF]/15 text-[#5DA0FF] border-[#2B7FFF]/30' :
                        req.status === 'PENDING_HUMAN_REVIEW' ? 'bg-[#FFB400]/15 text-[#FFB400] border-[#FFB400]/30' :
                        req.status === 'APPROVED' ? 'bg-[#0FA99A]/15 text-[#0FA99A] border-[#0FA99A]/30' :
@@ -183,11 +183,11 @@
 		<div class="flex flex-col md:flex-row items-stretch gap-2.5 mb-3">
 			<div
 				class="flex-1 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)] rounded-[10px] p-2.5 min-w-0">
-				<div class="text-[9.5px] font-black tracking-widest text-[var(--txt-3)] mb-1">
+				<div class="text-[length:var(--font-size-caption)] font-black tracking-widest text-[var(--txt-3)] mb-1">
 					{{ req.status === 'APPROVED' ? 'القيمة السابقة' : req.status === 'REJECTED' ? 'القيمة المرفوضة' :
 					'القيمة الحالية' }}
 				</div>
-				<div class="text-[13px] font-bold text-[var(--txt-3)] break-words"
+				<div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)] break-words"
 					[class.line-through]="req.status !== 'APPROVED'">{{ req.currentValue || 'غير محدد' }}</div>
 			</div>
 			<div class="flex items-center text-[var(--txt-3)] shrink-0 transform md:rotate-0 rotate-90">
@@ -198,10 +198,10 @@
 				</svg>
 			</div>
 			<div class="flex-1 bg-[#2BD4C7]/5 border border-[#2BD4C7]/20 rounded-[10px] p-2.5 min-w-0">
-				<div class="text-[9.5px] font-black tracking-widest text-[#2BD4C7] mb-1">
+				<div class="text-[length:var(--font-size-caption)] font-black tracking-widest text-[#2BD4C7] mb-1">
 					{{ req.status === 'APPROVED' ? 'القيمة المطبقة' : 'القيمة المطلوبة' }}
 				</div>
-				<div class="text-[13px] font-bold text-[var(--txt)] break-words">{{ req.requestedValue }}</div>
+				<div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] break-words">{{ req.requestedValue }}</div>
 			</div>
 		</div>
 
@@ -219,18 +219,18 @@
 					stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
 			</div>
 			<div class="flex-1">
-				<div class="text-[10px] font-black tracking-widest mb-0.5"
+				<div class="text-[length:var(--font-size-caption)] font-black tracking-widest mb-0.5"
 					[class]="req.status === 'REJECTED' ? 'text-[#FF8C69]' : 'text-[#5DA0FF]'">
 					تم تأكيد الهوية عبر الرمز وبانتظار مراجعة الفريق
 				</div>
-				<div class="text-[12px] text-[var(--txt-3)] leading-relaxed">سيراجع فريقنا هذا الطلب يدويًا قبل تطبيقه.</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] leading-relaxed">سيراجع فريقنا هذا الطلب يدويًا قبل تطبيقه.</div>
 			</div>
 		</div>
 
 		<!-- Footer: Timeline & Actions -->
 		<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 flex-wrap">
 			<div class="flex items-center flex-wrap">
-				<div class="flex items-center gap-1.5 text-[11px] font-bold text-[#2BD4C7]">
+				<div class="flex items-center gap-1.5 text-[length:var(--font-size-small)] font-bold text-[#2BD4C7]">
 					<div
 						class="w-4 h-4 rounded-full border-2 flex items-center justify-center bg-[#2BD4C7]/20 border-[#2BD4C7] text-[#2BD4C7]">
 						<svg class="w-2 h-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -242,7 +242,7 @@
 				</div>
 				<div class="w-5 h-[2px] mx-1 rounded-full bg-[#0FA99A]/50"></div>
 
-				<div class="flex items-center gap-1.5 text-[11px] font-bold"
+				<div class="flex items-center gap-1.5 text-[length:var(--font-size-small)] font-bold"
 					[class]="req.status === 'APPROVED' ? 'text-[#2BD4C7]' : req.status === 'REJECTED' ? 'text-[#FF8C69]' : 'text-[var(--txt-3)]'">
 					<div class="w-4 h-4 rounded-full border-2 flex items-center justify-center" [class]="req.status === 'APPROVED' ? 'bg-[#2BD4C7]/20 border-[#2BD4C7] text-[#2BD4C7]' :
                           req.status === 'REJECTED' ? 'bg-[#FF8C69]/20 border-[#FF8C69] text-[#FF8C69]' :
@@ -260,15 +260,15 @@
 			<div class="flex justify-end gap-2">
 				@if(req.status === 'IN_AI_REVIEW' || req.status === 'PENDING_HUMAN_REVIEW') {
 				<button (click)="cancelRequest(req.id)"
-					class="px-3.5 py-2 rounded-lg text-[12px] font-bold bg-[#FF8C69]/10 border border-[#FF8C69]/30 text-[#FF8C69] hover:bg-[#FF8C69]/20 transition-colors">سحب
+					class="px-3.5 py-2 rounded-lg text-[length:var(--font-size-small)] font-bold bg-[#FF8C69]/10 border border-[#FF8C69]/30 text-[#FF8C69] hover:bg-[#FF8C69]/20 transition-colors">سحب
 					الطلب</button>
 				} @else if(req.status === 'APPROVED') {
 				<span
-					class="px-3.5 py-2 rounded-lg text-[12px] font-bold bg-[#0FA99A]/10 border border-[#0FA99A]/30 text-[#0FA99A]">تم
+					class="px-3.5 py-2 rounded-lg text-[length:var(--font-size-small)] font-bold bg-[#0FA99A]/10 border border-[#0FA99A]/30 text-[#0FA99A]">تم
 					التحديث بنجاح</span>
 				} @else if(req.status === 'CANCELLED') {
 				<span
-					class="px-3.5 py-2 rounded-lg text-[12px] font-bold bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[var(--txt-3)]">مسحوب</span>
+					class="px-3.5 py-2 rounded-lg text-[length:var(--font-size-small)] font-bold bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[var(--txt-3)]">مسحوب</span>
 				}
 			</div>
 		</div>

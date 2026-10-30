@@ -12,24 +12,24 @@
   <!-- إحصائيات سريعة -->
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
     <div class="stat-card" style="background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">
-      <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">نماذجي المعتمدة</div>
+      <div style="font-size:var(--font-size-small);font-weight:700;margin-bottom:6px" class="txt-muted">نماذجي المعتمدة</div>
       <div style="font-size:26px;font-weight:900" class="txt-white">{{ accreditedCount }}</div>
-      <div style="font-size:11px;margin-top:3px" class="txt-teal">في {{ distinctSpecialtiesCount }} تخصصات</div>
+      <div style="font-size:var(--font-size-small);margin-top:3px" class="txt-teal">في {{ distinctSpecialtiesCount }} تخصصات</div>
     </div>
     <div class="stat-card" style="background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">
-      <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">إجمالي المشاهدات</div>
+      <div style="font-size:var(--font-size-small);font-weight:700;margin-bottom:6px" class="txt-muted">إجمالي المشاهدات</div>
       <div style="font-size:26px;font-weight:900" class="txt-white">{{ totalViewsCount | number:'1.0-2' }}</div>
-      <div style="font-size:11px;margin-top:3px" class="txt-teal">{{ totalViewsCount > 0 ? '↑ تفاعل ممتاز' : 'نموذج موثق' }}</div>
+      <div style="font-size:var(--font-size-small);margin-top:3px" class="txt-teal">{{ totalViewsCount > 0 ? '↑ تفاعل ممتاز' : 'نموذج موثق' }}</div>
     </div>
     <div class="stat-card" style="background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">
-      <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">متوسط تقييم AI</div>
-      <div style="font-size:26px;font-weight:900" class="txt-white">{{ averageAiScore > 0 ? averageAiScore : '—' }}@if (averageAiScore > 0) {<span style="font-size:14px" class="txt-muted">/100</span>}</div>
-      <div style="font-size:11px;margin-top:3px" class="txt-teal">{{ averageAiScore <= 0 ? 'لا تقييم بعد' : averageAiScore >= 85 ? 'جودة فائقة EXCELLENT' : 'مستوى معتمد ACCEPTABLE' }}</div>
+      <div style="font-size:var(--font-size-small);font-weight:700;margin-bottom:6px" class="txt-muted">متوسط تقييم AI</div>
+      <div style="font-size:26px;font-weight:900" class="txt-white">{{ averageAiScore > 0 ? averageAiScore : '—' }}@if (averageAiScore > 0) {<span style="font-size:var(--font-size-label)" class="txt-muted">/100</span>}</div>
+      <div style="font-size:var(--font-size-small);margin-top:3px" class="txt-teal">{{ averageAiScore <= 0 ? 'لا تقييم بعد' : averageAiScore >= 85 ? 'جودة فائقة EXCELLENT' : 'مستوى معتمد ACCEPTABLE' }}</div>
     </div>
     <div class="stat-card" style="background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px">
-      <div style="font-size:11px;font-weight:700;margin-bottom:6px" class="txt-muted">عروض مُولَّدة من النماذج</div>
+      <div style="font-size:var(--font-size-small);font-weight:700;margin-bottom:6px" class="txt-muted">عروض مُولَّدة من النماذج</div>
       <div style="font-size:26px;font-weight:900" class="txt-white">0</div>
-      <div style="font-size:11px;margin-top:3px" class="txt-teal">جاري التوليد</div>
+      <div style="font-size:var(--font-size-small);margin-top:3px" class="txt-teal">جاري التوليد</div>
     </div>
   </div>
 
@@ -59,14 +59,14 @@
 
   <!-- Empty State if No Accredited Models -->
   <div *ngIf="!isLoadingModels && (!displayedModels || displayedModels.length === 0)" id="np-model" data-field="model" tabindex="-1" style="text-align:center;padding:60px 24px;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-bottom:24px;">
-    <div style="font-size:15px;font-weight:800;margin-bottom:8px">لا توجد نماذج بعد</div>
-    <div style="font-size:13px;margin-bottom:20px" class="txt-muted">لا يوجد نموذج معتمد لهذا التخصص بعد. أرسل نموذج اعتماد وتابع حالته من «إجراءات الحساب».</div>
-    <a routerLink="/provider-overview/business-models/accreditation/new" style="display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none" class="txt-navy">رفع نموذج</a>
+    <div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:8px">لا توجد نماذج بعد</div>
+    <div style="font-size:var(--font-size-label);margin-bottom:20px" class="txt-muted">لا يوجد نموذج معتمد لهذا التخصص بعد. أرسل نموذج اعتماد وتابع حالته من «إجراءات الحساب».</div>
+    <a routerLink="/provider-overview/business-models/accreditation/new" style="display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:var(--font-size-label);text-decoration:none" class="txt-navy">رفع نموذج</a>
   </div>
 
   <!-- Accredited Showcase Grid -->
   <div *ngIf="!isLoadingModels && displayedModels && displayedModels.length > 0">
-    <div style="margin-bottom:8px;font-size:11px;font-weight:800;letter-spacing:.04em" class="txt-blue">النماذج الخاصة بك <span style="font-weight:600" class="txt-muted">({{ displayedModels.length }} نماذج)</span></div>
+    <div style="margin-bottom:8px;font-size:var(--font-size-small);font-weight:800;letter-spacing:.04em" class="txt-blue">النماذج الخاصة بك <span style="font-weight:600" class="txt-muted">({{ displayedModels.length }} نماذج)</span></div>
     
     <div id="np-model" data-field="model" tabindex="-1" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:28px">
       @for (model of displayedModels; track model.id) {
@@ -75,7 +75,7 @@
              [style.border]="selectedModel === model.id ? '2px solid rgba(43,212,199,.6)' : '1px solid rgba(255,255,255,.09)'"
              [style.boxShadow]="selectedModel === model.id ? '0 0 0 3px rgba(43,212,199,.12)' : 'none'">
           
-          <div class="model-sel-badge txt-navy" *ngIf="selectedModel === model.id" style="position:absolute;top:8px;left:8px;z-index:2;align-items:center;gap:4px;padding:3px 8px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:5px;font-size:10px;font-weight:800;display:flex">✓ مختار</div>
+          <div class="model-sel-badge txt-navy" *ngIf="selectedModel === model.id" style="position:absolute;top:8px;left:8px;z-index:2;align-items:center;gap:4px;padding:3px 8px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:5px;font-size:var(--font-size-caption);font-weight:800;display:flex">✓ مختار</div>
           
           <div style="height:160px;background:linear-gradient(135deg,rgba(43,212,199,.12),rgba(43,127,255,.08));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
             <ng-container *ngIf="getFirstImage(model) as coverImg; else noCover">
@@ -85,32 +85,32 @@
                 <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(43,212,199,.4)" stroke-width="1.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
             </ng-template>
 
-            <span style="position:absolute;top:10px;right:10px;padding:3px 9px;background:rgba(43,212,199,.15);border:1px solid rgba(43,212,199,.4);border-radius:20px;font-size:10px;font-weight:800" class="txt-teal">● {{ model.status === 'AI_VERIFIED' || model.status === 'APPROVED' ? 'معتمد' : (model.status === 'REJECTED' ? 'مرفوض' : 'قيد مراجعة الإدارة') }}</span>
+            <span style="position:absolute;top:10px;right:10px;padding:3px 9px;background:rgba(43,212,199,.15);border:1px solid rgba(43,212,199,.4);border-radius:20px;font-size:var(--font-size-caption);font-weight:800" class="txt-teal">● {{ model.status === 'AI_VERIFIED' || model.status === 'APPROVED' ? 'معتمد' : (model.status === 'REJECTED' ? 'مرفوض' : 'قيد مراجعة الإدارة') }}</span>
             @if (model.score != null && model.score > 0) {
-            <div style="position:absolute;bottom:10px;left:12px;width:34px;height:34px;border-radius:50%;background:#070D24;border:2px solid rgba(43,212,199,.5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900" class="txt-teal">{{ model.score }}</div>
+            <div style="position:absolute;bottom:10px;left:12px;width:34px;height:34px;border-radius:50%;background:#070D24;border:2px solid rgba(43,212,199,.5);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-label);font-weight:900" class="txt-teal">{{ model.score }}</div>
             }
           </div>
           
           <div style="padding:13px 15px">
-            <div style="font-size:13.5px;font-weight:800;margin-bottom:3px;line-clamp:1" class="txt-white">{{ model.title }}</div>
-            <div style="font-size:11px;margin-bottom:9px" class="txt-muted">{{ model.specialtyName }}</div>
+            <div style="font-size:var(--font-size-label);font-weight:800;margin-bottom:3px;line-clamp:1" class="txt-white">{{ model.title }}</div>
+            <div style="font-size:var(--font-size-small);margin-bottom:9px" class="txt-muted">{{ model.specialtyName }}</div>
             
-            <div style="font-size:10px;font-weight:800;margin-bottom:5px" class="txt-muted">حالة النموذج</div>
+            <div style="font-size:var(--font-size-caption);font-weight:800;margin-bottom:5px" class="txt-muted">حالة النموذج</div>
             <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:11px">
-              <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal">
+              <div style="font-size:var(--font-size-small);display:flex;align-items:center;gap:5px" class="txt-teal">
                 @if (model.status === 'AI_VERIFIED' || model.status === 'APPROVED') { <span>✓</span>معتمد من فريق وسيط }
                 @else if (model.status === 'REJECTED') { <span>⚠</span>تم رفض النموذج — أعد الإرسال }
                 @else { <span>⏳</span>قيد مراجعة الإدارة }
               </div>
-              <div style="font-size:11px;display:flex;align-items:center;gap:5px" class="txt-teal">
+              <div style="font-size:var(--font-size-small);display:flex;align-items:center;gap:5px" class="txt-teal">
                 @if (model.score > 0) { <span>✓</span>تقييم AI: {{ model.score }}% }
                 @else { <span>—</span>لم يُقيَّم بعد }
               </div>
             </div>
             
             <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.07);padding-top:9px">
-              <span style="font-size:12px;font-weight:700" class="txt-teal">تفاصيل ›</span>
-              <span style="font-size:11px" class="txt-muted">{{ model.views }} مشاهدة</span>
+              <span style="font-size:var(--font-size-small);font-weight:700" class="txt-teal">تفاصيل ›</span>
+              <span style="font-size:var(--font-size-small)" class="txt-muted">{{ model.views }} مشاهدة</span>
             </div>
           </div>
         </div>
@@ -121,14 +121,14 @@
 
   <!-- Batch B T1 (§5): the standalone «معرض الأعمال» upload section is gone from this path. The service is linked to ONE approved approval model;
        images never replace the approval proof, and a model already approved is shown here instead of asking to upload proof again. -->
-  @if (errorMessage) { <p role="alert" class="text-[13px] mt-4 inline-error" data-testid="model-error">{{ errorMessage }}</p> }
+  @if (errorMessage) { <p role="alert" class="text-[length:var(--font-size-label)] mt-4 inline-error" data-testid="model-error">{{ errorMessage }}</p> }
   <div class="mt-8 bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[20px] p-6" data-testid="linked-model">
-    <h3 class="text-[16px] font-black text-white mb-2">نموذج الاعتماد المرتبط بالخدمة</h3>
+    <h3 class="text-[length:var(--font-size-body)] font-black text-white mb-2">نموذج الاعتماد المرتبط بالخدمة</h3>
     @if (linkedModel; as m) {
-      <p class="text-[13px] txt-white" data-testid="linked-model-title">{{ m.title }} <span class="txt-muted">· {{ m.specialtyName }}</span></p>
-      <p class="text-[11px] txt-teal mt-1">✓ معتمد من فريق وسيط، ولا حاجة لرفع إثبات جديد.</p>
+      <p class="text-[length:var(--font-size-label)] txt-white" data-testid="linked-model-title">{{ m.title }} <span class="txt-muted">· {{ m.specialtyName }}</span></p>
+      <p class="text-[length:var(--font-size-small)] txt-teal mt-1">✓ معتمد من فريق وسيط، ولا حاجة لرفع إثبات جديد.</p>
     } @else {
-      <p class="text-[13px] txt-muted" data-testid="linked-model-missing">اختر نموذجًا معتمدًا من القائمة أعلاه لربطه بالخدمة. لا يمكن النشر دون نموذج معتمد من نفس تخصصك.</p>
+      <p class="text-[length:var(--font-size-label)] txt-muted" data-testid="linked-model-missing">اختر نموذجًا معتمدًا من القائمة أعلاه لربطه بالخدمة. لا يمكن النشر دون نموذج معتمد من نفس تخصصك.</p>
     }
   </div>
 </div>

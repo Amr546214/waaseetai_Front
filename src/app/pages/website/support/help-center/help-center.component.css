@@ -9,24 +9,24 @@ a:hover{color:var(--teal)}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
 
 .help-hero{padding:48px 0 36px;border-bottom:1px solid var(--border);text-align:center}
-.help-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:999px;font-size:10px;font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:16px}
+.help-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:999px;font-size:var(--font-size-caption);font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:16px}
 .help-h1{font-size:clamp(24px,4vw,40px);font-weight:900;color:var(--txt);margin-bottom:10px}
-.help-sub{font-size:14px;color:var(--txt-3);max-width:520px;margin:0 auto 24px}
+.help-sub{font-size:var(--font-size-label);color:var(--txt-3);max-width:520px;margin:0 auto 24px}
 .faq-layout{display:grid;grid-template-columns:220px 1fr;gap:40px;padding:40px 0 64px;align-items:start}
 .faq-nav{position:sticky;top:80px;display:flex;flex-direction:column;gap:4px}
-.faq-nav-link{padding:9px 12px;border-radius:9px;font-size:12px;font-weight:600;color:var(--txt-3);text-decoration:none;cursor:pointer;transition:background .15s,color .15s;border:none;background:transparent;text-align:right;font-family:inherit}
+.faq-nav-link{padding:9px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:600;color:var(--txt-3);text-decoration:none;cursor:pointer;transition:background .15s,color .15s;border:none;background:transparent;text-align:right;font-family:inherit}
 .faq-nav-link:hover,.faq-nav-link.active{background:rgba(43,212,199,.07);color:var(--teal)}
 .faq-sections{display:flex;flex-direction:column;gap:36px}
 .faq-section{scroll-margin-top:90px}
 .faq-sec-title{display:flex;align-items:center;gap:10px;margin-bottom:16px}
 .faq-sec-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.faq-sec-h{font-size:16px;font-weight:900;color:var(--txt)}
+.faq-sec-h{font-size:var(--font-size-body);font-weight:900;color:var(--txt)}
 .faq-item{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px;background:rgba(255,255,255,.02)}
-.faq-q{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;font-size:13px;font-weight:700;color:var(--txt);transition:background .15s}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;font-size:var(--font-size-label);font-weight:700;color:var(--txt);transition:background .15s}
 .faq-q:hover{background:rgba(255,255,255,.03)}
 .faq-q svg{width:14px;height:14px;color:var(--txt-3);flex-shrink:0;transition:transform .2s}
 .faq-item.open .faq-q svg{transform:rotate(90deg)}
-.faq-a{display:none;padding:0 16px 14px;font-size:13px;color:var(--txt-2);line-height:1.8;border-top:1px solid rgba(255,255,255,.05)}
+.faq-a{display:none;padding:0 16px 14px;font-size:var(--font-size-label);color:var(--txt-2);line-height:1.8;border-top:1px solid rgba(255,255,255,.05)}
 /* answers are bound via [innerHTML], so their children need ::ng-deep */
 .faq-a ::ng-deep p{margin-top:10px;margin-bottom:6px}
 .faq-a ::ng-deep ul{padding-inline-start:18px;margin-top:6px;list-style:disc}
@@ -34,10 +34,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .faq-a ::ng-deep strong{color:var(--txt)}
 .faq-item.open .faq-a{display:block}
 .help-footer-card{background:rgba(43,212,199,.04);border:1px solid rgba(43,212,199,.15);border-radius:16px;padding:24px;text-align:center;margin-top:32px}
-.help-footer-card h3{font-size:15px;font-weight:900;color:var(--txt);margin-bottom:6px}
-.help-footer-card p{font-size:13px;color:var(--txt-3);margin-bottom:16px}
+.help-footer-card h3{font-size:var(--font-size-body);font-weight:900;color:var(--txt);margin-bottom:6px}
+.help-footer-card p{font-size:var(--font-size-label);color:var(--txt-3);margin-bottom:16px}
 /* app-only: secondary support links kept from the previous page */
-.help-more{display:flex;justify-content:center;gap:18px;margin-top:14px;font-size:12px;font-weight:700}
+.help-more{display:flex;justify-content:center;gap:18px;margin-top:14px;font-size:var(--font-size-small);font-weight:700}
 .help-more a{color:var(--txt-3)}
 .help-more a:hover{color:var(--teal)}
 @media(max-width:900px){.faq-layout{grid-template-columns:1fr}.faq-nav{position:static;flex-direction:row;flex-wrap:wrap;gap:4px;margin-bottom:8px}}

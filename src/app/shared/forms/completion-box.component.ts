@@ -50,7 +50,7 @@ export interface CompletionBoxItem {
 	`,
 	styles: [`
 		.cbx{container-type:inline-size;margin:14px 0 18px;padding:14px 16px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;background:var(--surface,rgba(255,255,255,.03))}
-		.cbx-title{font-size:14px;font-weight:800;color:var(--txt,#fff);margin-bottom:10px}
+		.cbx-title{font-size:var(--font-size-label);font-weight:800;color:var(--txt,#fff);margin-bottom:10px}
 		.cbx-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;align-items:stretch;grid-template-columns:repeat(3,minmax(0,1fr))}
 		@container (max-width:760px){.cbx-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 		@container (max-width:480px){.cbx-list{grid-template-columns:minmax(0,1fr)}}
@@ -62,9 +62,9 @@ export interface CompletionBoxItem {
 		.cbx-item.is-pending .cbx-link:hover{background:rgba(43,127,255,.16);border-color:rgba(43,127,255,.65)}
 		.cbx-main{min-width:0;display:flex;flex-direction:column;gap:3px}
 		.cbx-label,.cbx-hint{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
-		.cbx-label{font-size:13px;font-weight:800;line-height:1.5}
-		.cbx-hint{font-size:11.5px;line-height:1.5;color:var(--txt-3,#94a3b8)}
-		.cbx-badge{justify-self:end;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(245,158,11,.2);color:#FBBF24;white-space:nowrap}
+		.cbx-label{font-size:var(--font-size-label);font-weight:800;line-height:1.5}
+		.cbx-hint{font-size:var(--font-size-small);line-height:1.5;color:var(--txt-3,#94a3b8)}
+		.cbx-badge{justify-self:end;font-size:var(--font-size-small);font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(245,158,11,.2);color:#FBBF24;white-space:nowrap}
 		.cbx-badge.is-pending{background:rgba(43,127,255,.2);color:#8DBBFF}
 		.cbx-go{color:var(--txt-3,#94a3b8)}
 		body.light-theme .cbx-badge,body.theme-light .cbx-badge,.light-theme .cbx-badge,.theme-light .cbx-badge{color:#92400E;background:rgba(245,158,11,.22)}

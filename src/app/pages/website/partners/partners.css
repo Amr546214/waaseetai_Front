@@ -5,7 +5,7 @@
    ws-light-polish.js, exactly as in the design. */
 
 .page-wrap{position:relative;z-index:2}
-.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-3);padding:16px 0;flex-wrap:wrap}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:var(--font-size-small);color:var(--txt-3);padding:16px 0;flex-wrap:wrap}
 .breadcrumb a{color:var(--txt-3);text-decoration:none;transition:color .15s}
 .breadcrumb a:hover{color:var(--teal)}
 .breadcrumb-sep{opacity:.4}
@@ -13,17 +13,17 @@
 /* HERO */
 .page-hero{padding:56px 0 48px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;text-align:center}
 .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(43,212,199,.07),transparent);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);border-radius:999px;font-size:11px;font-weight:800;color:var(--teal);letter-spacing:.05em;margin-bottom:16px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);border-radius:999px;font-size:var(--font-size-small);font-weight:800;color:var(--teal);letter-spacing:.05em;margin-bottom:16px}
 .hero-badge svg{width:12px;height:12px}
 .hero-title{font-size:clamp(24px,4vw,44px);font-weight:900;color:var(--txt);line-height:1.2;margin-bottom:14px;text-wrap:pretty}
-.hero-sub{font-size:15px;color:var(--txt-2);line-height:1.75;max-width:540px;margin:0 auto 28px}
+.hero-sub{font-size:var(--font-size-body);color:var(--txt-2);line-height:1.75;max-width:540px;margin:0 auto 28px}
 
 /* SECTION */
 .sec-hd{text-align:center;margin-bottom:40px}
-.sec-label{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.06em;margin-bottom:10px}
+.sec-label{display:inline-flex;align-items:center;gap:7px;font-size:var(--font-size-small);font-weight:800;letter-spacing:.06em;margin-bottom:10px}
 .sec-label svg{width:13px;height:13px}
 .sec-title{font-size:clamp(20px,3vw,30px);font-weight:900;color:var(--txt);margin-bottom:8px}
-.sec-sub{font-size:14px;color:var(--txt-3);max-width:520px;margin:0 auto}
+.sec-sub{font-size:var(--font-size-label);color:var(--txt-3);max-width:520px;margin:0 auto}
 
 /* PARTNER TYPES */
 .types-section{padding:56px 0}
@@ -32,10 +32,10 @@
 .type-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
 .type-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
 .type-ico svg{width:20px;height:20px}
-.type-name{font-size:16px;font-weight:900;color:var(--txt);margin-bottom:6px}
-.type-desc{font-size:13px;color:var(--txt-3);line-height:1.6;margin-bottom:16px}
+.type-name{font-size:var(--font-size-body);font-weight:900;color:var(--txt);margin-bottom:6px}
+.type-desc{font-size:var(--font-size-label);color:var(--txt-3);line-height:1.6;margin-bottom:16px}
 .type-benefits{display:flex;flex-direction:column;gap:8px}
-.type-benefit{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-2)}
+.type-benefit{display:flex;align-items:center;gap:8px;font-size:var(--font-size-label);color:var(--txt-2)}
 .chk{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .chk svg{width:9px;height:9px}
 
@@ -45,20 +45,20 @@
 .payment-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
 .payment-ico{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center}
 .payment-ico svg{width:22px;height:22px}
-.payment-name{font-size:13px;font-weight:800;color:var(--txt)}
-.payment-desc{font-size:11px;color:var(--txt-3)}
+.payment-name{font-size:var(--font-size-label);font-weight:800;color:var(--txt)}
+.payment-desc{font-size:var(--font-size-small);color:var(--txt-3)}
 
 /* BECOME PARTNER */
 .become-section{padding:0 0 56px}
 .become-card{background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.2);border-radius:20px;padding:48px 40px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center}
 .become-title{font-size:clamp(20px,3vw,28px);font-weight:900;color:var(--txt);margin-bottom:10px}
-.become-sub{font-size:14px;color:var(--txt-2);line-height:1.7;max-width:480px}
-.become-cta{padding:13px 28px;border-radius:999px;background:var(--grad);font-size:14px;font-weight:900;color:#070D24;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:opacity .15s}
+.become-sub{font-size:var(--font-size-label);color:var(--txt-2);line-height:1.7;max-width:480px}
+.become-cta{padding:13px 28px;border-radius:999px;background:var(--grad);font-size:var(--font-size-label);font-weight:900;color:#070D24;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:opacity .15s}
 .become-cta:hover{opacity:.88}
 .become-cta svg{width:13px;height:13px}
 
 /* AI BANNER */
-.ws-note-chip{flex-shrink:0;background:var(--wsn-ico);border:1px solid var(--wsn-bd);border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800;color:var(--wsn-fg)}
+.ws-note-chip{flex-shrink:0;background:var(--wsn-ico);border:1px solid var(--wsn-bd);border-radius:5px;padding:2px 8px;font-size:var(--font-size-caption);font-weight:800;color:var(--wsn-fg)}
 
 /* Trust banner (replaces the design's unsupported "AI monitors every transaction" banner).
    Non-AI content → the design's own teal treatment (as .hero-badge) instead of reserved AI purple. */

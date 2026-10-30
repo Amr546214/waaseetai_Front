@@ -4,29 +4,29 @@
   <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
     <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true"><ws-marketer-level variant="icon" [summary]="summary()" /></div>
     <div style="flex:1;min-width:220px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><ws-marketer-level [summary]="summary()" /><span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ wallet()?.approvedEarnings ?? summary()?.totalCommissions ?? 0 }} $ عمولات مؤكدة</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><ws-marketer-level [summary]="summary()" /><span style="font-size:var(--font-size-small)" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ wallet()?.approvedEarnings ?? summary()?.totalCommissions ?? 0 }} $ عمولات مؤكدة</span></div>
     </div>
   </div>
 
   @if (walletError()) {
-  <div class="ws-note ws-note--warn" style="margin-bottom:14px" role="alert" data-testid="wallet-error"><span style="font-size:12px" class="txt-slate">تعذر تحميل رصيدك. أعد المحاولة بعد قليل. <button type="button" class="txt-teal" style="font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit" (click)="loadData()">إعادة المحاولة</button></span></div>
+  <div class="ws-note ws-note--warn" style="margin-bottom:14px" role="alert" data-testid="wallet-error"><span style="font-size:var(--font-size-small)" class="txt-slate">تعذر تحميل رصيدك. أعد المحاولة بعد قليل. <button type="button" class="txt-teal" style="font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit" (click)="loadData()">إعادة المحاولة</button></span></div>
   }
   <!-- رصيد قابل للسحب -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px" class="resp-grid-3">
     <div class="state-card" style="text-align:center;padding:20px;margin-bottom:0">
-      <div style="font-size:12px;margin-bottom:6px" class="txt-muted">الرصيد القابل للسحب</div>
+      <div style="font-size:var(--font-size-small);margin-bottom:6px" class="txt-muted">الرصيد القابل للسحب</div>
       <div style="font-size:28px;font-weight:900" class="txt-teal">{{ withdrawableBalance() }}</div>
-      <div style="font-size:11px" class="txt-muted">دولار أمريكي</div>
+      <div style="font-size:var(--font-size-small)" class="txt-muted">دولار أمريكي</div>
     </div>
     <div class="state-card" style="text-align:center;padding:20px;margin-bottom:0">
-      <div style="font-size:12px;margin-bottom:6px" class="txt-muted">محجوز</div>
+      <div style="font-size:var(--font-size-small);margin-bottom:6px" class="txt-muted">محجوز</div>
       <div style="font-size:28px;font-weight:900" class="txt-amber">{{ reservedAmount() }}</div>
-      <div style="font-size:11px" class="txt-muted">طلبات سحب بانتظار المراجعة أو التحويل</div>
+      <div style="font-size:var(--font-size-small)" class="txt-muted">طلبات سحب بانتظار المراجعة أو التحويل</div>
     </div>
     <div class="state-card" style="text-align:center;padding:20px;margin-bottom:0">
-      <div style="font-size:12px;margin-bottom:6px" class="txt-muted">مدفوع</div>
+      <div style="font-size:var(--font-size-small);margin-bottom:6px" class="txt-muted">مدفوع</div>
       <div style="font-size:28px;font-weight:900" class="txt-green">{{ completedAmount() }}</div>
-      <div style="font-size:11px" class="txt-muted">دولار أمريكي</div>
+      <div style="font-size:var(--font-size-small)" class="txt-muted">دولار أمريكي</div>
     </div>
   </div>
 
@@ -35,34 +35,34 @@
     <div class="adm-card-ttl"><svg aria-hidden="true"><use href="#i-escrow"></use></svg>طلب سحب عمولات</div>
     <div [formGroup]="withdrawForm" style="max-width:520px">
       <div style="margin-bottom:14px">
-        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px" class="txt-slate">المبلغ ($) <span class="ws-req" aria-hidden="true">*</span></label>
-        <input type="number" formControlName="amount" id="withdraw-amount" aria-required="true" name="amount" inputmode="decimal" placeholder="أدخل مبلغ السحب بالدولار" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-family:inherit;outline:none" class="txt-white">
-        <div style="font-size:11px;margin-top:5px" class="txt-muted" data-testid="withdraw-limits">الحد الأدنى: {{ wallet() ? minimumWithdrawal() : '—' }} $ · الحد الأقصى: {{ withdrawableBalance() }} $ <button type="button" class="txt-teal" style="font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit" data-testid="use-max" [disabled]="withdrawableBalance() <= 0" (click)="useMax()">استخدام الحد الأقصى</button></div>
-        <div style="font-size:11px;margin-top:3px" class="txt-muted" data-testid="balance-after">الرصيد بعد السحب: {{ balanceAfter() }} $</div>
+        <label style="font-size:var(--font-size-small);font-weight:700;display:block;margin-bottom:6px" class="txt-slate">المبلغ ($) <span class="ws-req" aria-hidden="true">*</span></label>
+        <input type="number" formControlName="amount" id="withdraw-amount" aria-required="true" name="amount" inputmode="decimal" placeholder="أدخل مبلغ السحب بالدولار" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:var(--font-size-label);font-family:inherit;outline:none" class="txt-white">
+        <div style="font-size:var(--font-size-small);margin-top:5px" class="txt-muted" data-testid="withdraw-limits">الحد الأدنى: {{ wallet() ? minimumWithdrawal() : '—' }} $ · الحد الأقصى: {{ withdrawableBalance() }} $ <button type="button" class="txt-teal" style="font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit" data-testid="use-max" [disabled]="withdrawableBalance() <= 0" (click)="useMax()">استخدام الحد الأقصى</button></div>
+        <div style="font-size:var(--font-size-small);margin-top:3px" class="txt-muted" data-testid="balance-after">الرصيد بعد السحب: {{ balanceAfter() }} $</div>
       </div>
       <div style="margin-bottom:14px">
-        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px" class="txt-slate">بريد PayPal</label>
+        <label style="font-size:var(--font-size-small);font-weight:700;display:block;margin-bottom:6px" class="txt-slate">بريد PayPal</label>
         @if (hasPaypal()) {
-        <div data-testid="paypal-destination" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px" class="txt-white">
+        <div data-testid="paypal-destination" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:var(--font-size-label)" class="txt-white">
           <span dir="ltr">{{ paypalEmail() }}</span>
         </div>
         } @else {
-        <div data-testid="paypal-none" style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.28);border-radius:10px;font-size:12px" class="txt-slate">
+        <div data-testid="paypal-none" style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.28);border-radius:10px;font-size:var(--font-size-small)" class="txt-slate">
           أضف بريد PayPal لاستلام الأرباح. <a routerLink="/marketer-overview/profile/data" style="font-weight:700" class="txt-teal">أضِف بريد PayPal من الملف الشخصي</a>
         </div>
         }
       </div>
       <div class="ws-note ws-note--warn" style="margin-bottom:16px" data-testid="withdraw-note">
         <svg aria-hidden="true"><use href="#i-clock"></use></svg>
-        <span style="font-size:12px" class="txt-slate">كل طلب سحب تراجعه الإدارة قبل التحويل إلى بريد PayPal المحفوظ، وتتابع حالته من سجل السحوبات أدناه. المبلغ المطلوب يُحجز من رصيدك حتى يُدفع أو يُرفض.</span>
+        <span style="font-size:var(--font-size-small)" class="txt-slate">كل طلب سحب تراجعه الإدارة قبل التحويل إلى بريد PayPal المحفوظ، وتتابع حالته من سجل السحوبات أدناه. المبلغ المطلوب يُحجز من رصيدك حتى يُدفع أو يُرفض.</span>
       </div>
       @if (blockedReason(); as why) {
       <div class="ws-note ws-note--warn" style="margin-bottom:16px" data-testid="withdraw-blocked" role="status">
         <svg aria-hidden="true"><use href="#i-clock"></use></svg>
-        <span style="font-size:12px" class="txt-slate">لا يمكن إرسال طلب سحب الآن: {{ why }}</span>
+        <span style="font-size:var(--font-size-small)" class="txt-slate">لا يمكن إرسال طلب سحب الآن: {{ why }}</span>
       </div>
       }
-      <button type="button" class="btn-primary-gradient txt-navy" [disabled]="submitting() || !!blockedReason() || withdrawWait.active()" (click)="submitWithdrawal()" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:800;font-family:inherit;transition: opacity 0.2s ease-in-out" [style.opacity]="(submitting() || blockedReason()) ? .6 : 1" [style.cursor]="(submitting() || blockedReason()) ? 'not-allowed' : 'pointer'">{{ submitting() ? 'جارٍ الإرسال...' : 'تأكيد طلب السحب' }}@if (withdrawWait.active()) { <span data-testid="withdraw-wait"> {{ withdrawWait.label() }}</span> }</button>
+      <button type="button" class="btn-primary-gradient txt-navy" [disabled]="submitting() || !!blockedReason() || withdrawWait.active()" (click)="submitWithdrawal()" style="padding:12px 28px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:var(--font-size-label);font-weight:800;font-family:inherit;transition: opacity 0.2s ease-in-out" [style.opacity]="(submitting() || blockedReason()) ? .6 : 1" [style.cursor]="(submitting() || blockedReason()) ? 'not-allowed' : 'pointer'">{{ submitting() ? 'جارٍ الإرسال...' : 'تأكيد طلب السحب' }}@if (withdrawWait.active()) { <span data-testid="withdraw-wait"> {{ withdrawWait.label() }}</span> }</button>
       @if (rateLimitText()) { <div class="form-error" role="alert" data-testid="withdraw-rate-limit" style="margin-top:10px">{{ rateLimitText() }}</div> }
     </div>
   </div>
@@ -81,15 +81,15 @@
                 <td style="font-weight:700" class="txt-green">{{ log.amount | number:'1.0-2' }} $</td>
                 <td dir="ltr">{{ log.paypalEmail || '—' }}</td>
                 <td>
-                  <span data-testid="withdrawal-state" [attr.data-status]="log.status" style="padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700"
+                  <span data-testid="withdrawal-state" [attr.data-status]="log.status" style="padding:3px 10px;border-radius:12px;font-size:var(--font-size-small);font-weight:700"
                     [style.background]="stateOf(log.status).tone === 'green' ? 'rgba(15,169,154,.12)' : stateOf(log.status).tone === 'coral' ? 'rgba(255,140,105,.12)' : stateOf(log.status).tone === 'amber' ? 'rgba(255,180,0,.12)' : 'rgba(93,160,255,.12)'"
                     [style.color]="stateOf(log.status).tone === 'green' ? '#0FA99A' : stateOf(log.status).tone === 'coral' ? '#FF8C69' : stateOf(log.status).tone === 'amber' ? '#FFB400' : '#5DA0FF'">{{ stateOf(log.status).label }}</span>
                 </td>
-                <td><button type="button" class="txt-teal" style="font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit;font-size:12px" data-testid="withdrawal-details-btn" (click)="toggleDetails(log)">{{ openId() === log.id ? 'إخفاء' : 'عرض' }}</button></td>
+                <td><button type="button" class="txt-teal" style="font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit;font-size:var(--font-size-small)" data-testid="withdrawal-details-btn" (click)="toggleDetails(log)">{{ openId() === log.id ? 'إخفاء' : 'عرض' }}</button></td>
               </tr>
               @if (openId() === log.id && detail(); as d) {
               <tr data-testid="withdrawal-detail">
-                <td colspan="5" style="font-size:12px;line-height:1.9" class="txt-slate">
+                <td colspan="5" style="font-size:var(--font-size-small);line-height:1.9" class="txt-slate">
                   @if (d['referenceId']) { <div>رقم المرجع: <span dir="ltr">{{ d['referenceId'] }}</span></div> }
                   <div>تاريخ الطلب: {{ d.createdAt | date:'yyyy-MM-dd HH:mm' }}</div>
                   <div>آخر تحديث: {{ d.updatedAt | date:'yyyy-MM-dd HH:mm' }}</div>
@@ -111,8 +111,8 @@
         <div class="w-14 h-14 rounded-2xl bg-white/[0.03] flex items-center justify-center mb-4 text-slate-600">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
         </div>
-        <p class="text-[14px] text-slate-300 font-medium mb-1">لا توجد عمليات سحب مسجّلة بعد</p>
-        <p class="text-[12px] text-slate-500">قدّم أول طلب سحب من النموذج أعلاه</p>
+        <p class="text-[length:var(--font-size-label)] text-slate-300 font-medium mb-1">لا توجد عمليات سحب مسجّلة بعد</p>
+        <p class="text-[length:var(--font-size-small)] text-slate-500">قدّم أول طلب سحب من النموذج أعلاه</p>
       </div>
     }
   </div>

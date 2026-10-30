@@ -33,7 +33,7 @@
 						<input id="acc-title" aria-required="true" type="text" [ngModel]="title" (ngModelChange)="titleChange.emit($event)" [attr.aria-invalid]="err('title') ? 'true' : null" [attr.aria-describedby]="err('title') ? 'acc-title-err' : null" [style.border-color]="flagged('title') ? '#FF6B6B' : null"
 							placeholder="مثال: نظام إدارة المخزون بنظام Microservices و Clean Architecture"
 							class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-4 py-3 text-sm text-[var(--txt)] placeholder-[var(--txt-3)] focus:outline-none focus:border-[#2BD4C7] transition-all dir-rtl" />
-						@if (err('title')) { <p id="acc-title-err" role="alert" class="mt-1 text-[11px] font-bold field-err" data-testid="err-title">{{ err('title') }}</p> }
+						@if (err('title')) { <p id="acc-title-err" role="alert" class="mt-1 text-[length:var(--font-size-small)] font-bold field-err" data-testid="err-title">{{ err('title') }}</p> }
 					</div>
 
 					<!-- Technical Description -->
@@ -44,7 +44,7 @@
 						<textarea id="acc-description" aria-required="true" rows="9" [ngModel]="description" (ngModelChange)="descriptionChange.emit($event)" [attr.aria-invalid]="err('description') ? 'true' : null" [attr.aria-describedby]="err('description') ? 'acc-description-err' : null" [style.border-color]="flagged('description') ? '#FF6B6B' : null"
 							placeholder="اشرح البنية الفنية، أنماط التصميم (Design Patterns)، خوارزميات الأمان والتحكم، وقواعد البيانات المستعملة..."
 							class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl p-4 text-sm text-[var(--txt)] placeholder-[var(--txt-3)] focus:outline-none focus:border-[#2BD4C7] transition-all dir-rtl leading-7 whitespace-pre-wrap"></textarea>
-						@if (err('description')) { <p id="acc-description-err" role="alert" class="mt-1 text-[11px] font-bold field-err" data-testid="err-description">{{ err('description') }}</p> }
+						@if (err('description')) { <p id="acc-description-err" role="alert" class="mt-1 text-[length:var(--font-size-small)] font-bold field-err" data-testid="err-description">{{ err('description') }}</p> }
 					</div>
 
 					<!-- Tech Stack Tags -->
@@ -52,7 +52,7 @@
 						<label for="acc-tech" class="flex items-center justify-between text-xs font-extrabold text-[var(--txt)] mb-2">
 							<span>التقنيات والمكتبات المستخدمة (Tech Stack) <span class="ws-req" aria-hidden="true">*</span></span>
 							@if (technologiesUsed.length > 0) {
-								<span class="px-2.5 py-0.5 rounded-full bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.25)] text-[#2BD4C7] text-[11px] font-bold">
+								<span class="px-2.5 py-0.5 rounded-full bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.25)] text-[#2BD4C7] text-[length:var(--font-size-small)] font-bold">
 									✓ تمت إضافة {{ technologiesUsed.length }} تقنيات
 								</span>
 							}
@@ -88,7 +88,7 @@
 							<input id="acc-projectUrl" type="url" [ngModel]="projectUrl" (ngModelChange)="projectUrlChange.emit($event)" [attr.aria-invalid]="err('projectUrl') ? 'true' : null" [attr.aria-describedby]="err('projectUrl') ? 'acc-projectUrl-err' : null" [style.border-color]="flagged('projectUrl') ? '#FF6B6B' : null"
 								placeholder="https://demo.example.com"
 								class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-4 py-2.5 text-xs text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] dir-ltr text-left" />
-							@if (err('projectUrl')) { <p id="acc-projectUrl-err" role="alert" class="mt-1 text-[11px] font-bold field-err">{{ err('projectUrl') }}</p> }
+							@if (err('projectUrl')) { <p id="acc-projectUrl-err" role="alert" class="mt-1 text-[length:var(--font-size-small)] font-bold field-err">{{ err('projectUrl') }}</p> }
 						</div>
 						<div>
 							<label class="block text-xs font-extrabold text-[var(--txt)] mb-2">رابط المستودع البرمجي
@@ -104,7 +104,7 @@
 						<label class="block text-xs font-extrabold text-[var(--txt)] mb-2">
 							ملفات إثبات نموذج العمل (لقطات شاشة / مخططات / ملفات PDF) <span class="ws-req" aria-hidden="true">*</span>
 						</label>
-						<p class="text-[11px] text-[var(--txt-3)] mb-2" data-testid="proof-requirements">{{ requirementsText }} الروابط وحدها لا تكفي، ولا تغني هذه الملفات عن وثائق الهوية.</p>
+						<p class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mb-2" data-testid="proof-requirements">{{ requirementsText }} الروابط وحدها لا تكفي، ولا تغني هذه الملفات عن وثائق الهوية.</p>
 						<div (dragover)="$event.preventDefault()" (drop)="handleDropEvent($event)"
 							class="border-2 border-dashed border-[rgba(43,212,199,.3)] hover:border-[#2BD4C7] rounded-xl p-6 text-center bg-[rgba(43,212,199,.02)] transition-all cursor-pointer">
 							<input type="file" multiple id="proof-upload" aria-required="true" class="hidden" [attr.aria-invalid]="err('files') ? 'true' : null" [attr.aria-describedby]="err('files') ? 'acc-files-err' : null"
@@ -121,19 +121,19 @@
 								</div>
 								<div class="text-xs font-bold text-[var(--txt)] mb-1">اسحب وأفلت الملفات هنا أو اضغط
 									للاختيار</div>
-								<div class="text-[11px] text-[var(--txt-3)]">يدعم الصور (PNG, JPG, WebP) ووثائق PDF
+								<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">يدعم الصور (PNG, JPG, WebP) ووثائق PDF
 									ومخططات المعمارية (حتى 15MB)</div>
 							</label>
 						</div>
 
-						@if (err('files')) { <p id="acc-files-err" role="alert" class="mt-2 text-[12px] font-bold field-err" data-testid="err-files">{{ err('files') }}</p> }
+						@if (err('files')) { <p id="acc-files-err" role="alert" class="mt-2 text-[length:var(--font-size-small)] font-bold field-err" data-testid="err-files">{{ err('files') }}</p> }
 
 						<!-- Documents already attached to this request (kept) -->
 						@if (existingProofs.length > 0) {
 						<div class="mt-4 space-y-2" data-testid="existing-proofs">
 							@for (p of existingProofs; track p.id) {
 							<div class="flex items-center justify-between p-3 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl text-xs">
-								<div><div class="font-bold text-[var(--txt)]">{{ p.fileName }}</div><div class="text-[10px] text-[var(--txt-3)]">مرفوع سابقًا ومحفوظ</div></div>
+								<div><div class="font-bold text-[var(--txt)]">{{ p.fileName }}</div><div class="text-[length:var(--font-size-caption)] text-[var(--txt-3)]">مرفوع سابقًا ومحفوظ</div></div>
 								<button type="button" (click)="onRemoveExistingProof.emit(p.id)" class="text-[#FF6B6B] font-bold hover:underline cursor-pointer">حذف</button>
 							</div>
 							}
@@ -152,7 +152,7 @@
 									</div>
 									<div>
 										<div class="font-bold text-[var(--txt)]">{{ att.name }}</div>
-										<div class="text-[10px] text-[var(--txt-3)]">{{ att.size }} · لم يُرفع بعد، يُرفع عند الإرسال</div>
+										<div class="text-[length:var(--font-size-caption)] text-[var(--txt-3)]">{{ att.size }} · لم يُرفع بعد، يُرفع عند الإرسال</div>
 									</div>
 								</div>
 								<button type="button" (click)="removeAttachment(att.id)"

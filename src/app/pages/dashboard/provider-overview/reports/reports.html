@@ -1,13 +1,13 @@
 <div class="flex items-start justify-between gap-3.5 flex-wrap mb-4">
   <div>
     <h1 class="text-[20px] font-black text-[var(--txt)] m-0">{{ isCompanyMode() ? 'تقارير الشركة' : 'تقاريري' }}</h1>
-    <div class="text-[12px] font-semibold text-[var(--txt-3)] mt-1">{{ isCompanyMode() ? 'نظرة شاملة على أداء الشركة · الفريق · المشاريع · المالية · السوق' : 'ملخص شامل لنشاطك كمقدم خدمة' }}</div>
+    <div class="text-[length:var(--font-size-small)] font-semibold text-[var(--txt-3)] mt-1">{{ isCompanyMode() ? 'نظرة شاملة على أداء الشركة · الفريق · المشاريع · المالية · السوق' : 'ملخص شامل لنشاطك كمقدم خدمة' }}</div>
   </div>
   <div class="flex items-center gap-2">
-    <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[12px] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="printReport()" data-testid="reports-pdf" title="يفتح نافذة الطباعة — اختر «حفظ كـ PDF»">
+    <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[length:var(--font-size-small)] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="printReport()" data-testid="reports-pdf" title="يفتح نافذة الطباعة — اختر «حفظ كـ PDF»">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>طباعة / حفظ PDF
     </button>
-    <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[12px] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="exportCsv()" data-testid="reports-csv" title="تنزيل بيانات الصفحة الحالية">
+    <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[9px] text-[var(--txt-2)] text-[length:var(--font-size-small)] font-bold transition-all hover:bg-[var(--sec-bg-hover)] hover:text-[var(--txt)]" (click)="exportCsv()" data-testid="reports-csv" title="تنزيل بيانات الصفحة الحالية">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>CSV
     </button>
   </div>
@@ -28,37 +28,37 @@
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
   <!-- KPI 1 -->
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
-    <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">طلبات العملاء المُستلمة</div>
+    <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">طلبات العملاء المُستلمة</div>
     <div class="text-[26px] font-black text-[var(--txt)] leading-none mb-2">{{ reports()?.requests?.total ?? '—' }}</div>
     <div class="flex items-center justify-between mt-3">
-      <span class="text-[11px] font-bold text-[var(--txt-3)]">عروضي في الفترة المحددة</span>
+      <span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">عروضي في الفترة المحددة</span>
       
     </div>
   </div>
   <!-- KPI 2 -->
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
-    <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">مشاريع أكملتها</div>
+    <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">مشاريع أكملتها</div>
     <div class="text-[26px] font-black text-[var(--txt)] leading-none mb-2">{{ reports()?.projects?.completedCount ?? '—' }}</div>
     <div class="flex items-center justify-between mt-3">
-      <span class="text-[11px] font-bold text-[var(--txt-3)]">لا توجد بيانات بعد</span>
+      <span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">لا توجد بيانات بعد</span>
       
     </div>
   </div>
   <!-- KPI 3 -->
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
-    <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">إيرادات الفترة (مُفرَج عنها)</div>
+    <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">إيرادات الفترة (مُفرَج عنها)</div>
     <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ reports()?.payments?.releasedTotal != null ? (reports()!.payments.releasedTotal | number:'1.0-2') : '—' }}</div>
     <div class="flex items-center justify-between mt-3">
-      <span class="text-[11px] font-bold text-[var(--txt-3)]">دولار أمريكي</span>
+      <span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">دولار أمريكي</span>
       
     </div>
   </div>
   <!-- KPI 4 -->
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
-    <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">تقييمي من العملاء</div>
+    <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">تقييمي من العملاء</div>
     <div class="text-[26px] font-black text-[#FFB400] leading-none mb-2 tracking-tight">{{ stats()?.summary?.humanRating != null ? (stats()?.summary?.humanRating | number:'1.1-1') : '—' }}</div>
     <div class="flex items-center justify-between mt-3">
-      <span class="text-[11px] font-bold text-[var(--txt-3)]">من تقييمات العملاء</span>
+      <span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">من تقييمات العملاء</span>
       
     </div>
   </div>
@@ -70,10 +70,10 @@
 
 <!-- GLOBAL FILTER RAIL -->
 <div class="flex items-stretch bg-[var(--sec-bg)]/60 backdrop-blur-[16px] border border-[var(--sec-bd)] rounded-[14px] mb-5 overflow-hidden shadow-sm flex-wrap lg:flex-nowrap">
-  <div class="flex items-center px-4 text-[10.5px] font-black tracking-wider text-[#5DA0FF] bg-[#2B7FFF]/10 border-e border-[#2B7FFF]/20 shrink-0 whitespace-nowrap">الفترة</div>
+  <div class="flex items-center px-4 text-[length:var(--font-size-small)] font-black tracking-wider text-[#5DA0FF] bg-[#2B7FFF]/10 border-e border-[#2B7FFF]/20 shrink-0 whitespace-nowrap">الفترة</div>
   <div class="flex items-center gap-1.5 px-3 py-2 min-w-0 max-w-full flex-wrap">
     @for(p of periods; track p.id) {
-      <button class="px-3 py-1.5 rounded-lg text-[11.5px] font-bold transition-all border"
+      <button class="px-3 py-1.5 rounded-lg text-[length:var(--font-size-small)] font-bold transition-all border"
               [class]="currentPeriod() === p.id ? 'bg-gradient-to-br from-[#2BD4C7]/20 to-[#2B7FFF]/15 border-[#2BD4C7]/50 text-[var(--txt)] shadow-[0_2px_8px_rgba(43,212,199,0.15)]' : 'bg-transparent border-transparent text-[var(--txt-3)] hover:bg-[var(--sec-bd)] hover:text-[var(--txt-2)]'"
               (click)="setPeriod(p.id)">
         {{ p.label }}
@@ -86,14 +86,14 @@
   
   <div class="flex items-center gap-2 px-4 py-3 lg:border-s border-[var(--sec-bd)] w-full lg:w-auto bg-[var(--sec-bg)]/30 lg:bg-transparent">
     <svg class="w-4 h-4 text-[var(--txt-3)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="search" placeholder="ابحث في التقارير..." class="w-full lg:min-w-[160px] lg:max-w-[240px] bg-transparent border-none outline-none text-[13px] text-[var(--txt)] placeholder-[var(--txt-3)]">
+    <input type="search" placeholder="ابحث في التقارير..." class="w-full lg:min-w-[160px] lg:max-w-[240px] bg-transparent border-none outline-none text-[length:var(--font-size-label)] text-[var(--txt)] placeholder-[var(--txt-3)]">
   </div>
 </div>
 
 <!-- MAIN TABS -->
 <div class="flex gap-1 border-b border-[var(--sec-bd)] mb-5 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
   @for(tab of tabs(); track tab.id) {
-    <button class="px-4 py-3 text-[13.5px] font-bold flex items-center gap-2 whitespace-nowrap border-b-[2.5px] transition-all -mb-[1px]"
+    <button class="px-4 py-3 text-[length:var(--font-size-label)] font-bold flex items-center gap-2 whitespace-nowrap border-b-[2.5px] transition-all -mb-[1px]"
             [class]="currentTab() === tab.id ? 'text-[#2BD4C7] border-[#2BD4C7]' : 'text-[var(--txt-3)] border-transparent hover:text-[var(--txt-2)]'"
             (click)="setTab(tab.id)">
       @if(tab.icon === 'list'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> }
@@ -103,7 +103,7 @@
       @if(tab.icon === 'team'){ <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> }
 
       {{ tab.label }}
-      <span class="min-w-[20px] h-[18px] rounded-full text-[10px] font-black inline-flex items-center justify-center px-1.5 transition-colors"
+      <span class="min-w-[20px] h-[18px] rounded-full text-[length:var(--font-size-caption)] font-black inline-flex items-center justify-center px-1.5 transition-colors"
             [class]="currentTab() === tab.id ? 'bg-[#2BD4C7]/15 text-[#2BD4C7]' : 'bg-[var(--sec-bd)] text-[var(--txt-3)]'">{{ tab.count ?? '—' }}</span>
     </button>
   }
@@ -115,16 +115,16 @@
 @if(currentTab() === 'orders') {
   <div class="animate-ws-fade">
     @if (reportsError()) {
-      <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 mb-4 text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsError() }} <button type="button" class="underline" (click)="loadReports()">إعادة المحاولة</button></div>
+      <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 mb-4 text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)]">{{ reportsError() }} <button type="button" class="underline" (click)="loadReports()">إعادة المحاولة</button></div>
     }
     <div class="bg-[var(--sec-bg)]/40 border border-[var(--sec-bd)] rounded-[14px] mb-4 overflow-hidden shadow-sm">
       <div class="flex flex-col lg:flex-row items-stretch min-h-[48px]">
-        <div class="flex items-center justify-center px-4 text-[10.5px] font-black tracking-wider text-[#5DA0FF] bg-[#2B7FFF]/10 border-e border-[#2B7FFF]/15 shrink-0 whitespace-nowrap min-w-[70px]">الحالة</div>
+        <div class="flex items-center justify-center px-4 text-[length:var(--font-size-small)] font-black tracking-wider text-[#5DA0FF] bg-[#2B7FFF]/10 border-e border-[#2B7FFF]/15 shrink-0 whitespace-nowrap min-w-[70px]">الحالة</div>
         <div class="flex items-center gap-2 p-3 flex-wrap flex-1">
           @for (b of orderBuckets; track b.id) {
-            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11.5px] font-bold border transition-all"
+            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[length:var(--font-size-small)] font-bold border transition-all"
                     [ngClass]="orderStatus() === b.id ? 'bg-gradient-to-br from-[#2BD4C7]/30 to-[#2B7FFF]/20 border-[#2BD4C7]/60 text-[var(--txt)] shadow-sm' : 'bg-transparent border-[var(--sec-bd)] text-[var(--txt-3)] hover:bg-[var(--sec-bd)]'"
-                    (click)="orderStatus.set(b.id)">{{ b.label }} <span class="min-w-[18px] h-[18px] rounded-full inline-flex items-center justify-center px-1 text-[10px] font-black bg-white/10">{{ bucketCount(b.id) ?? '—' }}</span></button>
+                    (click)="orderStatus.set(b.id)">{{ b.label }} <span class="min-w-[18px] h-[18px] rounded-full inline-flex items-center justify-center px-1 text-[length:var(--font-size-caption)] font-black bg-white/10">{{ bucketCount(b.id) ?? '—' }}</span></button>
           }
         </div>
       </div>
@@ -132,57 +132,57 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 shadow-sm">
-        <div class="text-[13px] font-black text-[var(--txt)] mb-4">توزيع حالات العروض</div>
+        <div class="text-[length:var(--font-size-label)] font-black text-[var(--txt)] mb-4">توزيع حالات العروض</div>
         <div class="flex flex-col gap-3.5">
           @if (reports(); as r) {
-            @if (r.requests.total === 0) { <div class="text-[12.5px] font-bold text-[var(--txt-3)] py-4 text-center">لا توجد بيانات بعد</div> }
+            @if (r.requests.total === 0) { <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)] py-4 text-center">لا توجد بيانات بعد</div> }
             @for (b of orderBuckets.slice(1); track b.id) {
               <div>
-                <div class="flex justify-between text-[12px] font-bold text-[var(--txt-2)] mb-1"><span>{{ b.label }}</span><span>{{ bucketCount(b.id) }}</span></div>
+                <div class="flex justify-between text-[length:var(--font-size-small)] font-bold text-[var(--txt-2)] mb-1"><span>{{ b.label }}</span><span>{{ bucketCount(b.id) }}</span></div>
                 <div class="h-2 rounded-full bg-[var(--sec-bd)] overflow-hidden"><div class="h-full bg-[#2BD4C7]" [style.width.%]="r.requests.total ? (bucketCount(b.id)! / r.requests.total * 100) : 0"></div></div>
               </div>
             }
-          } @else { <div class="text-[12.5px] font-bold text-[var(--txt-3)] py-4 text-center">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
+          } @else { <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)] py-4 text-center">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
         </div>
       </div>
 
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-5 shadow-sm">
-        <div class="text-[13px] font-black text-[var(--txt)] mb-4">معدل قبول عروضي بالتخصص</div>
+        <div class="text-[length:var(--font-size-label)] font-black text-[var(--txt)] mb-4">معدل قبول عروضي بالتخصص</div>
         <div class="flex flex-col gap-3.5">
           @for (s of reports()?.offersBySpecialty ?? []; track s.specialty) {
             <div>
-              <div class="flex justify-between text-[12px] font-bold text-[var(--txt-2)] mb-1"><span>{{ s.specialty }}</span><span>{{ s.rate != null ? s.rate + '%' : '—' }} · {{ s.accepted }}/{{ s.total }}</span></div>
+              <div class="flex justify-between text-[length:var(--font-size-small)] font-bold text-[var(--txt-2)] mb-1"><span>{{ s.specialty }}</span><span>{{ s.rate != null ? s.rate + '%' : '—' }} · {{ s.accepted }}/{{ s.total }}</span></div>
               <div class="h-2 rounded-full bg-[var(--sec-bd)] overflow-hidden"><div class="h-full bg-[#5DA0FF]" [style.width.%]="s.rate ?? 0"></div></div>
             </div>
-          } @empty { <div class="text-[12.5px] font-bold text-[var(--txt-3)] py-4 text-center">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
+          } @empty { <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)] py-4 text-center">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
         </div>
       </div>
     </div>
 
     <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden shadow-sm">
-      <div class="px-4 py-3.5 border-b border-[var(--sec-bd)] text-[13px] font-black text-[var(--txt)]">تفاصيل العروض</div>
+      <div class="px-4 py-3.5 border-b border-[var(--sec-bd)] text-[length:var(--font-size-label)] font-black text-[var(--txt)]">تفاصيل العروض</div>
       <div class="overflow-x-auto">
         <table class="w-full text-right border-collapse min-w-[640px]">
           <thead>
             <tr class="border-b border-[var(--sec-bd)] bg-[var(--sec-bg)]/40">
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">الطلب</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">التخصص</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">قيمة العرض ($)</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">الحالة</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">التاريخ</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">الطلب</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">التخصص</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">قيمة العرض ($)</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">الحالة</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">التاريخ</th>
             </tr>
           </thead>
           <tbody>
             @for (i of filteredRequests(); track i.id) {
               <tr class="border-b border-[var(--sec-bd)] last:border-b-0">
-                <td class="py-3 px-4 text-[13px] font-black text-[var(--txt)]">{{ i.title ?? '—' }}</td>
-                <td class="py-3 px-4 text-[12.5px] font-bold text-[var(--txt-2)]">{{ i.specialty ?? '—' }}</td>
-                <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ i.price | number:'1.0-2' }}</td>
-                <td class="py-3 px-4 text-[12px] font-bold text-[var(--txt-2)]">{{ bucketLabel(i.bucket) }}</td>
-                <td class="py-3 px-4 text-[12px] font-bold text-[var(--txt-3)]">{{ i.createdAt | date:'yyyy-MM-dd' }}</td>
+                <td class="py-3 px-4 text-[length:var(--font-size-label)] font-black text-[var(--txt)]">{{ i.title ?? '—' }}</td>
+                <td class="py-3 px-4 text-[length:var(--font-size-label)] font-bold text-[var(--txt-2)]">{{ i.specialty ?? '—' }}</td>
+                <td class="py-3 px-4 text-[length:var(--font-size-label)] font-black text-[#2BD4C7]">{{ i.price | number:'1.0-2' }}</td>
+                <td class="py-3 px-4 text-[length:var(--font-size-small)] font-bold text-[var(--txt-2)]">{{ bucketLabel(i.bucket) }}</td>
+                <td class="py-3 px-4 text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">{{ i.createdAt | date:'yyyy-MM-dd' }}</td>
               </tr>
             } @empty {
-              <tr><td colspan="5" class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</td></tr>
+              <tr><td colspan="5" class="py-6 px-4 text-center text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</td></tr>
             }
           </tbody>
         </table>
@@ -196,17 +196,17 @@
     <!-- Team Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
-        <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">مدفوعات للمقدمين</div>
+        <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">مدفوعات للمقدمين</div>
         <div class="text-[26px] font-black text-[#2BD4C7] leading-none mb-2 tracking-tight">{{ providerPayoutsTotal != null ? providerPayoutsTotal + ' $' : '—' }}</div>
         <div class="flex items-center justify-between mt-3">
-          <span class="text-[11px] font-bold text-[var(--txt-3)]">{{ providerPayoutsTrend ?? 'لا توجد بيانات بعد' }}</span>
+          <span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">{{ providerPayoutsTrend ?? 'لا توجد بيانات بعد' }}</span>
         </div>
       </div>
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 transition-all hover:border-[var(--sec-bd-hover)] shadow-sm">
-        <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">نسبة الحل لصالح المقدم</div>
+        <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">نسبة الحل لصالح المقدم</div>
         <div class="text-[26px] font-black text-[var(--txt)] leading-none mb-2 tracking-tight">{{ disputeResolutionProviderRate != null ? disputeResolutionProviderRate + '%' : '—' }}</div>
         <div class="flex items-center justify-between mt-3">
-          <span class="text-[11px] font-bold text-[var(--txt-3)]">من إجمالي النزاعات المحلولة آخر 6 أشهر</span>
+          <span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">من إجمالي النزاعات المحلولة آخر 6 أشهر</span>
         </div>
       </div>
     </div>
@@ -214,7 +214,7 @@
     <!-- Team Performance Table -->
     <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden shadow-sm">
       <div class="flex items-center justify-between gap-3 px-4 py-3.5 border-b border-[var(--sec-bd)]">
-        <div class="text-[13px] font-black text-[var(--txt)] flex items-center gap-2">
+        <div class="text-[length:var(--font-size-label)] font-black text-[var(--txt)] flex items-center gap-2">
           <svg class="w-4 h-4 text-[var(--txt-3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           أداء الفريق
         </div>
@@ -224,35 +224,35 @@
         <table class="w-full text-right border-collapse min-w-[760px]">
           <thead>
             <tr class="border-b border-[var(--sec-bd)] bg-[var(--sec-bg)]/40">
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">المقدم / الموظف</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">التخصص</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">مشاريع</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">تقييم</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">في الوقت</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">الإيراد</th>
-              <th class="py-3 px-4 text-[11px] font-black text-[var(--txt-3)] whitespace-nowrap">الحالة</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">المقدم / الموظف</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">التخصص</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">مشاريع</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">تقييم</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">في الوقت</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">الإيراد</th>
+              <th class="py-3 px-4 text-[length:var(--font-size-small)] font-black text-[var(--txt-3)] whitespace-nowrap">الحالة</th>
             </tr>
           </thead>
           <tbody>
             @for(member of teamPerformance; track member.name) {
               <tr class="border-b border-[var(--sec-bd)] last:border-b-0 hover:bg-[var(--sec-bg-hover)] transition-colors">
                 <td class="py-3 px-4">
-                  <div class="text-[13px] font-black text-[var(--txt)] mb-0.5">{{ member.name }}</div>
-                  <div class="text-[11px] font-bold text-[var(--txt-3)]">{{ member.level }}</div>
+                  <div class="text-[length:var(--font-size-label)] font-black text-[var(--txt)] mb-0.5">{{ member.name }}</div>
+                  <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">{{ member.level }}</div>
                 </td>
-                <td class="py-3 px-4 text-[12.5px] font-bold text-[var(--txt-2)]">{{ member.role }}</td>
-                <td class="py-3 px-4 text-[13px] font-black text-[var(--txt-2)]">{{ member.projects }}</td>
-                <td class="py-3 px-4 text-[13px] font-black text-[#FFB400]">{{ member.rating }} ★</td>
-                <td class="py-3 px-4 text-[13px] font-black"
+                <td class="py-3 px-4 text-[length:var(--font-size-label)] font-bold text-[var(--txt-2)]">{{ member.role }}</td>
+                <td class="py-3 px-4 text-[length:var(--font-size-label)] font-black text-[var(--txt-2)]">{{ member.projects }}</td>
+                <td class="py-3 px-4 text-[length:var(--font-size-label)] font-black text-[#FFB400]">{{ member.rating }} ★</td>
+                <td class="py-3 px-4 text-[length:var(--font-size-label)] font-black"
                     [ngClass]="member.onTime >= 90 ? 'text-[#0FA99A]' : member.onTime >= 75 ? 'text-[#FFB400]' : 'text-[#FF8C69]'">{{ member.onTime }}%</td>
-                <td class="py-3 px-4 text-[13px] font-black text-[#2BD4C7]">{{ member.revenue | number:'1.0-2' }} $</td>
+                <td class="py-3 px-4 text-[length:var(--font-size-label)] font-black text-[#2BD4C7]">{{ member.revenue | number:'1.0-2' }} $</td>
                 <td class="py-3 px-4">
                   @if(member.status === 'active') {
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0FA99A]/10 border border-[#0FA99A]/30 text-[#0FA99A] text-[10px] font-black whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0FA99A]/10 border border-[#0FA99A]/30 text-[#0FA99A] text-[length:var(--font-size-caption)] font-black whitespace-nowrap">
                       <div class="w-1.5 h-1.5 rounded-full bg-[#0FA99A]"></div> نشط
                     </span>
                   } @else {
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFB400]/10 border border-[#FFB400]/30 text-[#FFB400] text-[10px] font-black whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFB400]/10 border border-[#FFB400]/30 text-[#FFB400] text-[length:var(--font-size-caption)] font-black whitespace-nowrap">
                       <div class="w-1.5 h-1.5 rounded-full bg-[#FFB400]"></div> تأخير
                     </span>
                   }
@@ -260,13 +260,13 @@
               </tr>
             }
             @if (!teamPerformance.length) {
-              <tr><td colspan="7" class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">لا توجد بيانات بعد</td></tr>
+              <tr><td colspan="7" class="py-6 px-4 text-center text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)]">لا توجد بيانات بعد</td></tr>
             }
           </tbody>
         </table>
       </div>
 
-      <div class="flex items-center justify-between px-4 py-3 border-t border-[var(--sec-bd)] text-[12px] font-bold text-[var(--txt-3)]">
+      <div class="flex items-center justify-between px-4 py-3 border-t border-[var(--sec-bd)] text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">
         <span>لا توجد بيانات بعد</span>
       </div>
     </div>
@@ -282,7 +282,7 @@
       { l: 'في الموعد المتفق عليه', v: reports() && reports()!.projects.completedWithAgreedDuration ? reports()!.projects.completedOnTime + ' / ' + reports()!.projects.completedWithAgreedDuration : null }
     ]; track c.l) {
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 shadow-sm">
-        <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">{{ c.l }}</div>
+        <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">{{ c.l }}</div>
         <div class="text-[26px] font-black text-[var(--txt)] leading-none">{{ c.v ?? '—' }}</div>
       </div>
     }
@@ -293,23 +293,23 @@
   <div class="animate-ws-fade">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 shadow-sm">
-        <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">مُفرَج عنه في الفترة ($)</div>
+        <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">مُفرَج عنه في الفترة ($)</div>
         <div class="text-[26px] font-black text-[#2BD4C7] leading-none">{{ reports()?.payments?.releasedTotal != null ? (reports()!.payments.releasedTotal | number:'1.0-2') : '—' }}</div>
       </div>
       <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 shadow-sm">
-        <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">محجوز في الضمان ($)</div>
+        <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">محجوز في الضمان ($)</div>
         <div class="text-[26px] font-black text-[var(--txt)] leading-none">{{ reports()?.payments?.heldInEscrow != null ? (reports()!.payments.heldInEscrow | number:'1.0-2') : '—' }}</div>
       </div>
     </div>
     <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden shadow-sm">
-      <div class="px-4 py-3.5 border-b border-[var(--sec-bd)] text-[13px] font-black text-[var(--txt)]">الحركات المالية</div>
+      <div class="px-4 py-3.5 border-b border-[var(--sec-bd)] text-[length:var(--font-size-label)] font-black text-[var(--txt)]">الحركات المالية</div>
       @for (t of reports()?.payments?.transactions ?? []; track t.id) {
-        <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--sec-bd)] last:border-b-0 text-[12.5px] font-bold">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--sec-bd)] last:border-b-0 text-[length:var(--font-size-label)] font-bold">
           <span class="text-[var(--txt-2)]">{{ t.description ?? t.type }}</span>
           <span class="text-[var(--txt-3)]">{{ t.createdAt | date:'yyyy-MM-dd' }}</span>
           <span class="text-[#2BD4C7]">{{ t.amount | number:'1.0-2' }} {{ t.currency }}</span>
         </div>
-      } @empty { <div class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
+      } @empty { <div class="py-6 px-4 text-center text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
     </div>
   </div>
 }
@@ -324,19 +324,19 @@
         { l: 'نسبة النزاعات من مشاريعي', v: reports()?.disputes?.ratioPercent != null ? reports()!.disputes.ratioPercent + '%' : null }
       ]; track c.l) {
         <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] p-4.5 shadow-sm">
-          <div class="text-[11.5px] font-bold text-[var(--txt-3)] mb-2">{{ c.l }}</div>
+          <div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-2">{{ c.l }}</div>
           <div class="text-[26px] font-black text-[var(--txt)] leading-none">{{ c.v ?? '—' }}</div>
         </div>
       }
     </div>
     <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden shadow-sm">
       @for (d of reports()?.disputes?.items ?? []; track d.id) {
-        <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--sec-bd)] last:border-b-0 text-[12.5px] font-bold">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--sec-bd)] last:border-b-0 text-[length:var(--font-size-label)] font-bold">
           <span class="text-[var(--txt-2)]">{{ d.reason }}</span>
           <span class="text-[var(--txt-3)]">{{ d.createdAt | date:'yyyy-MM-dd' }}</span>
           <span class="text-[var(--txt-2)]">{{ d.status }}</span>
         </div>
-      } @empty { <div class="py-6 px-4 text-center text-[12.5px] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
+      } @empty { <div class="py-6 px-4 text-center text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)]">{{ reportsLoading() ? 'جارٍ التحميل…' : 'لا توجد بيانات بعد' }}</div> }
     </div>
   </div>
 }

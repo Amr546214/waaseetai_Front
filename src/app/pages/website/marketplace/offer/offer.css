@@ -19,7 +19,7 @@ app-offer button{font-family:inherit;cursor:pointer;border:none;background:none}
 app-offer .page-wrap{position:relative;z-index:2}
 
 /* BREADCRUMB */
-app-offer .breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-3);padding:16px 0 0;flex-wrap:wrap}
+app-offer .breadcrumb{display:flex;align-items:center;gap:6px;font-size:var(--font-size-small);color:var(--txt-3);padding:16px 0 0;flex-wrap:wrap}
 app-offer .breadcrumb a{color:var(--txt-3);text-decoration:none;transition:color .15s}
 app-offer .breadcrumb a:hover{color:var(--teal)}
 app-offer .breadcrumb-sep{opacity:.4}
@@ -29,32 +29,32 @@ app-offer .svc-detail-layout{display:grid;grid-template-columns:1fr 340px;gap:28
 
 /* SERVICE HEADER */
 app-offer .svc-header{margin-bottom:20px}
-app-offer .svc-category-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);color:var(--teal);margin-bottom:12px}
+app-offer .svc-category-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:var(--font-size-small);font-weight:800;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);color:var(--teal);margin-bottom:12px}
 app-offer .svc-main-title{font-size:clamp(18px,2.5vw,24px);font-weight:900;color:var(--txt);line-height:1.35;margin-bottom:14px;text-wrap:pretty}
 app-offer .svc-meta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 app-offer .svc-rating-big{display:flex;align-items:center;gap:6px}
-app-offer .stars-big{color:var(--kahr);font-size:13px;letter-spacing:1px}
-app-offer .svc-score-big{font-size:15px;font-weight:900;color:var(--txt)}
-app-offer .svc-reviews-big{font-size:12px;color:var(--txt-3)}
-app-offer .svc-orders{font-size:12px;color:var(--txt-3)}
+app-offer .stars-big{color:var(--kahr);font-size:var(--font-size-label);letter-spacing:1px}
+app-offer .svc-score-big{font-size:var(--font-size-body);font-weight:900;color:var(--txt)}
+app-offer .svc-reviews-big{font-size:var(--font-size-small);color:var(--txt-3)}
+app-offer .svc-orders{font-size:var(--font-size-small);color:var(--txt-3)}
 app-offer .svc-orders strong{color:var(--txt-2);font-weight:700}
-app-offer .ai-match-big{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(123,47,190,.15);border:1px solid var(--ai-border);color:var(--ai-txt)}
+app-offer .ai-match-big{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:var(--font-size-small);font-weight:800;background:rgba(123,47,190,.15);border:1px solid var(--ai-border);color:var(--ai-txt)}
 app-offer .ai-match-big svg{width:12px;height:12px}
-app-offer .prov-view-btn{padding:6px 14px;border-radius:999px;border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--txt-2);background:transparent;transition:all .15s;text-decoration:none;white-space:nowrap}
+app-offer .prov-view-btn{padding:6px 14px;border-radius:999px;border:1px solid var(--border);font-size:var(--font-size-small);font-weight:700;color:var(--txt-2);background:transparent;transition:all .15s;text-decoration:none;white-space:nowrap}
 app-offer .prov-view-btn:hover{border-color:rgba(43,212,199,.4);color:var(--teal)}
 
 /* PAGE TABS — the design draws these with inline styles; same values here */
 app-offer .ofr-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0;margin-top:20px}
 app-offer .ofr-tabs.is-sub{margin-bottom:24px}
-app-offer .ofr-tab{padding:11px 20px;font-size:13px;font-weight:700;color:var(--txt-3);border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
+app-offer .ofr-tab{padding:11px 20px;font-size:var(--font-size-label);font-weight:700;color:var(--txt-3);border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
 app-offer .ofr-tab.active{font-weight:800;color:var(--teal);border-bottom-color:var(--teal)}
-app-offer .ofr-tab-count{padding:1px 7px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(255,255,255,.06);color:var(--txt-3)}
+app-offer .ofr-tab-count{padding:1px 7px;border-radius:20px;font-size:var(--font-size-caption);font-weight:800;background:rgba(255,255,255,.06);color:var(--txt-3)}
 app-offer .ofr-tab.active .ofr-tab-count{background:rgba(43,212,199,.12);color:var(--teal)}
 
 /* GALLERY */
 app-offer .gallery-wrap{margin-bottom:24px}
 app-offer .gallery-tabs{display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border)}
-app-offer .gtab{padding:8px 18px;font-size:13px;font-weight:700;color:var(--txt-3);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none}
+app-offer .gtab{padding:8px 18px;font-size:var(--font-size-label);font-weight:700;color:var(--txt-3);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none}
 app-offer .gtab.active{color:var(--teal);border-bottom-color:var(--teal)}
 app-offer .gallery-main{height:360px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#0A1020,#12183C);display:flex;align-items:center;justify-content:center;position:relative;border:1px solid var(--border)}
 app-offer .gallery-main img{width:100%;height:100%;object-fit:contain;display:block}
@@ -69,26 +69,26 @@ app-offer .gthumb img{width:100%;height:100%;object-fit:cover;display:block}
 
 /* PACKAGES / SERVICE DETAILS */
 app-offer .packages-wrap{margin-bottom:28px}
-app-offer .section-title{font-size:16px;font-weight:900;color:var(--txt);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+app-offer .section-title{font-size:var(--font-size-body);font-weight:900;color:var(--txt);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 app-offer .section-title-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 app-offer .section-title-ico svg{width:14px;height:14px}
 app-offer .pkg-content{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:12px}
-app-offer .pkg-desc{font-size:13px;color:var(--txt-2);line-height:1.7;margin-bottom:16px}
+app-offer .pkg-desc{font-size:var(--font-size-label);color:var(--txt-2);line-height:1.7;margin-bottom:16px}
 app-offer .pkg-features{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
-app-offer .pkg-feat{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt-2)}
+app-offer .pkg-feat{display:flex;align-items:center;gap:10px;font-size:var(--font-size-label);color:var(--txt-2)}
 app-offer .pkg-feat-ico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 app-offer .pkg-feat-ico svg{width:10px;height:10px}
 app-offer .pkg-feat-ico.yes{background:rgba(43,212,199,.15);color:var(--teal)}
 app-offer .pkg-feat-ico.no{background:rgba(255,255,255,.05);color:var(--txt-3)}
-app-offer .pkg-order-btn{width:100%;padding:13px;border-radius:12px;background:var(--grad);color:#070D24;font-family:inherit;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:opacity .15s}
+app-offer .pkg-order-btn{width:100%;padding:13px;border-radius:12px;background:var(--grad);color:#070D24;font-family:inherit;font-size:var(--font-size-body);font-weight:800;border:none;cursor:pointer;transition:opacity .15s}
 app-offer .pkg-order-btn:hover{opacity:.9}
 
 /* SERVICE DESCRIPTION */
 app-offer .svc-desc-wrap{margin-bottom:28px}
-app-offer .svc-desc-text{font-size:14px;color:var(--txt-2);line-height:1.85;text-wrap:pretty}
+app-offer .svc-desc-text{font-size:var(--font-size-label);color:var(--txt-2);line-height:1.85;text-wrap:pretty}
 app-offer .svc-desc-text p{margin-bottom:12px}
 app-offer .svc-desc-text p:last-child{margin-bottom:0}
-app-offer .read-more-btn{font-size:13px;font-weight:700;color:var(--teal);background:none;border:none;cursor:pointer;padding:8px 0;display:flex;align-items:center;gap:4px}
+app-offer .read-more-btn{font-size:var(--font-size-label);font-weight:700;color:var(--teal);background:none;border:none;cursor:pointer;padding:8px 0;display:flex;align-items:center;gap:4px}
 app-offer .read-more-btn svg{width:14px;height:14px;transition:transform .2s}
 app-offer .read-more-btn.open svg{transform:rotate(90deg)}
 
@@ -100,7 +100,7 @@ app-offer .ai-analysis-ico svg{width:15px;height:15px;color:var(--ai)}
 app-offer .ai-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 app-offer .ai-metric{text-align:center;padding:10px 8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px}
 app-offer .ai-metric-n{font-size:20px;font-weight:900;margin-bottom:2px}
-app-offer .ai-metric-l{font-size:10px;color:var(--txt-3);font-weight:600}
+app-offer .ai-metric-l{font-size:var(--font-size-caption);color:var(--txt-3);font-weight:600}
 app-offer .ai-metric.m1 .ai-metric-n{color:var(--teal)}
 app-offer .ai-metric.m2 .ai-metric-n{color:var(--green)}
 app-offer .ai-metric.m3 .ai-metric-n{color:var(--kahr)}
@@ -111,24 +111,24 @@ app-offer .reviews-wrap{margin-bottom:28px}
 app-offer .reviews-summary{display:flex;align-items:center;gap:24px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:20px}
 app-offer .rev-big-score{text-align:center;flex-shrink:0}
 app-offer .rev-big-n{font-size:52px;font-weight:900;color:var(--txt);line-height:1}
-app-offer .rev-big-stars{color:var(--kahr);font-size:16px;letter-spacing:2px;margin:4px 0}
-app-offer .rev-big-cnt{font-size:12px;color:var(--txt-3)}
+app-offer .rev-big-stars{color:var(--kahr);font-size:var(--font-size-body);letter-spacing:2px;margin:4px 0}
+app-offer .rev-big-cnt{font-size:var(--font-size-small);color:var(--txt-3)}
 app-offer .rev-bars{flex:1}
 app-offer .rev-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 app-offer .rev-bar-row:last-child{margin-bottom:0}
-app-offer .rev-bar-lbl{font-size:11px;color:var(--txt-3);width:30px;text-align:center;flex-shrink:0}
+app-offer .rev-bar-lbl{font-size:var(--font-size-small);color:var(--txt-3);width:30px;text-align:center;flex-shrink:0}
 app-offer .rev-bar-track{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
 app-offer .rev-bar-fill{height:100%;border-radius:3px;background:var(--kahr)}
-app-offer .rev-bar-cnt{font-size:11px;color:var(--txt-3);width:24px;text-align:left;flex-shrink:0}
+app-offer .rev-bar-cnt{font-size:var(--font-size-small);color:var(--txt-3);width:24px;text-align:left;flex-shrink:0}
 app-offer .rev-card{padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:12px}
 app-offer .rev-card:last-child{margin-bottom:0}
 app-offer .rev-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-app-offer .rev-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0}
+app-offer .rev-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--font-size-label);font-weight:900;flex-shrink:0}
 app-offer .rev-info{flex:1}
-app-offer .rev-name{font-size:13px;font-weight:700;color:var(--txt)}
-app-offer .rev-date{font-size:11px;color:var(--txt-3)}
-app-offer .rev-stars{color:var(--kahr);font-size:12px;letter-spacing:1px}
-app-offer .rev-text{font-size:13px;color:var(--txt-2);line-height:1.7}
+app-offer .rev-name{font-size:var(--font-size-label);font-weight:700;color:var(--txt)}
+app-offer .rev-date{font-size:var(--font-size-small);color:var(--txt-3)}
+app-offer .rev-stars{color:var(--kahr);font-size:var(--font-size-small);letter-spacing:1px}
+app-offer .rev-text{font-size:var(--font-size-label);color:var(--txt-2);line-height:1.7}
 
 /* ─── SIDEBAR ─── */
 app-offer .svc-sidebar{position:static}
@@ -138,22 +138,22 @@ app-offer .sidebar-card{background:var(--surface);border:1px solid var(--border)
 /* ORDER CARD */
 app-offer .order-card-body{padding:16px 18px}
 app-offer .order-includes{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
-app-offer .order-inc{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt-2)}
+app-offer .order-inc{display:flex;align-items:center;gap:8px;font-size:var(--font-size-small);color:var(--txt-2)}
 app-offer .order-inc-ico{width:18px;height:18px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:flex;align-items:center;justify-content:center;color:var(--teal);flex-shrink:0}
 app-offer .order-inc-ico svg{width:10px;height:10px}
-app-offer .btn-order-primary{width:100%;padding:14px;border-radius:12px;background:var(--grad);color:#070D24;font-family:inherit;font-size:15px;font-weight:900;border:none;cursor:pointer;transition:opacity .15s;margin-bottom:8px}
+app-offer .btn-order-primary{width:100%;padding:14px;border-radius:12px;background:var(--grad);color:#070D24;font-family:inherit;font-size:var(--font-size-body);font-weight:900;border:none;cursor:pointer;transition:opacity .15s;margin-bottom:8px}
 app-offer .btn-order-primary:hover{opacity:.9}
-app-offer .btn-order-ghost{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--txt-2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+app-offer .btn-order-ghost{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--txt-2);font-family:inherit;font-size:var(--font-size-label);font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
 app-offer .btn-order-ghost svg{width:14px;height:14px}
 app-offer .btn-order-ghost:hover{border-color:rgba(43,212,199,.3);color:var(--teal)}
-app-offer .neg-tag{padding:7px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#A8B2D1;font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+app-offer .neg-tag{padding:7px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#A8B2D1;font-family:Tajawal,sans-serif;font-size:var(--font-size-label);font-weight:600;cursor:pointer;transition:.15s}
 app-offer .neg-tag.active{background:rgba(43,127,255,.15);border-color:rgba(43,127,255,.4);color:#5DA0FF;font-weight:700}
-app-offer .order-guarantee{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(15,169,154,.06);border:1px solid rgba(15,169,154,.15);border-radius:10px;margin-top:12px;font-size:11px;color:var(--green)}
+app-offer .order-guarantee{display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(15,169,154,.06);border:1px solid rgba(15,169,154,.15);border-radius:10px;margin-top:12px;font-size:var(--font-size-small);color:var(--green)}
 app-offer .order-guarantee svg{width:14px;height:14px;flex-shrink:0}
 
 /* TRUST BADGES */
 app-offer .trust-card{padding:16px 18px}
-app-offer .trust-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--txt-2)}
+app-offer .trust-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:var(--font-size-small);color:var(--txt-2)}
 app-offer .trust-item:last-child{border-bottom:none;padding-bottom:0}
 app-offer .trust-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 app-offer .trust-ico svg{width:13px;height:13px}
@@ -166,54 +166,54 @@ app-offer .rs-big-score{text-align:center;flex-shrink:0}
 app-offer .rs-big-num{font-size:52px;font-weight:900;color:var(--txt);line-height:1}
 app-offer .rs-big-stars{display:flex;gap:3px;justify-content:center;margin:6px 0}
 app-offer .rs-big-stars svg{width:16px;height:16px;color:var(--kahr)}
-app-offer .rs-big-cnt{font-size:12px;color:var(--txt-3)}
+app-offer .rs-big-cnt{font-size:var(--font-size-small);color:var(--txt-3)}
 app-offer .rs-bars{flex:1;display:flex;flex-direction:column;gap:7px}
 app-offer .rs-bar-row{display:flex;align-items:center;gap:8px}
-app-offer .rs-bar-lbl{font-size:11px;color:var(--txt-3);width:30px;text-align:center;flex-shrink:0}
+app-offer .rs-bar-lbl{font-size:var(--font-size-small);color:var(--txt-3);width:30px;text-align:center;flex-shrink:0}
 app-offer .rs-bar-track{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
 app-offer .rs-bar-fill{height:100%;border-radius:3px;background:var(--kahr)}
-app-offer .rs-bar-cnt{font-size:11px;color:var(--txt-3);width:28px;text-align:left;flex-shrink:0}
+app-offer .rs-bar-cnt{font-size:var(--font-size-small);color:var(--txt-3);width:28px;text-align:left;flex-shrink:0}
 app-offer .rs-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 app-offer .rs-metric{padding:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;text-align:center}
-app-offer .rs-metric-n{font-size:18px;font-weight:900;color:var(--txt);margin-bottom:3px}
-app-offer .rs-metric-l{font-size:10px;color:var(--txt-3)}
+app-offer .rs-metric-n{font-size:var(--font-size-section);font-weight:900;color:var(--txt);margin-bottom:3px}
+app-offer .rs-metric-l{font-size:var(--font-size-caption);color:var(--txt-3)}
 app-offer .filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-app-offer .filter-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-3);cursor:pointer;transition:all .15s}
+app-offer .filter-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:var(--font-size-small);font-weight:700;color:var(--txt-3);cursor:pointer;transition:all .15s}
 app-offer .filter-chip:hover{border-color:rgba(43,212,199,.3);color:var(--teal)}
 app-offer .filter-chip.active{border-color:var(--teal);color:var(--teal);background:rgba(43,212,199,.08)}
 app-offer .filter-chip svg{width:10px;height:10px;color:var(--kahr)}
-app-offer .reviews-count{font-size:13px;color:var(--txt-3);margin-inline-start:auto}
+app-offer .reviews-count{font-size:var(--font-size-label);color:var(--txt-3);margin-inline-start:auto}
 app-offer .reviews-count strong{color:var(--txt-2)}
 app-offer .review-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px}
 app-offer .rc-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-app-offer .rc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#070D24;flex-shrink:0}
+app-offer .rc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:var(--font-size-body);font-weight:900;color:#070D24;flex-shrink:0}
 app-offer .rc-info{flex:1}
-app-offer .rc-name{font-size:14px;font-weight:800;color:var(--txt);margin-bottom:3px;display:flex;align-items:center;gap:7px}
-app-offer .rc-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txt-3)}
+app-offer .rc-name{font-size:var(--font-size-label);font-weight:800;color:var(--txt);margin-bottom:3px;display:flex;align-items:center;gap:7px}
+app-offer .rc-meta{display:flex;align-items:center;gap:8px;font-size:var(--font-size-small);color:var(--txt-3)}
 app-offer .rc-stars{display:flex;gap:2px}
 app-offer .rc-stars svg{width:12px;height:12px;color:var(--kahr)}
 app-offer .rc-date{color:var(--txt-3)}
-app-offer .rc-body{font-size:13px;color:var(--txt-2);line-height:1.7;margin-bottom:12px}
+app-offer .rc-body{font-size:var(--font-size-label);color:var(--txt-2);line-height:1.7;margin-bottom:12px}
 
 /* ═══ P-MK-009 — Q&A TAB ═══ */
 app-offer .qa-page-layout{display:grid;grid-template-columns:1fr 340px;gap:28px;padding:20px 0 80px;align-items:start}
 app-offer .ask-box{padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:20px}
-app-offer .ask-box-title{font-size:14px;font-weight:800;color:var(--txt);margin-bottom:4px}
-app-offer .ask-box-sub{font-size:12px;color:var(--txt-3);margin-bottom:14px}
-app-offer .ask-textarea{width:100%;min-height:80px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;color:var(--txt);resize:vertical;transition:border-color .15s;outline:none}
+app-offer .ask-box-title{font-size:var(--font-size-label);font-weight:800;color:var(--txt);margin-bottom:4px}
+app-offer .ask-box-sub{font-size:var(--font-size-small);color:var(--txt-3);margin-bottom:14px}
+app-offer .ask-textarea{width:100%;min-height:80px;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:var(--font-size-label);color:var(--txt);resize:vertical;transition:border-color .15s;outline:none}
 app-offer .ask-textarea:focus{border-color:rgba(43,212,199,.4)}
 app-offer .ask-textarea::placeholder{color:var(--txt-3)}
 app-offer .ask-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:10px}
-app-offer .ask-hint{font-size:11px;color:var(--txt-3)}
-app-offer .ask-btn{padding:9px 20px;border-radius:999px;background:var(--grad);font-size:13px;font-weight:800;color:#070D24;border:none;cursor:pointer;transition:opacity .15s}
+app-offer .ask-hint{font-size:var(--font-size-small);color:var(--txt-3)}
+app-offer .ask-btn{padding:9px 20px;border-radius:999px;background:var(--grad);font-size:var(--font-size-label);font-weight:800;color:#070D24;border:none;cursor:pointer;transition:opacity .15s}
 app-offer .ask-btn:hover{opacity:.9}
 app-offer .ask-btn:disabled{opacity:.5;cursor:not-allowed}
 app-offer .qa-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;transition:border-color .15s}
 app-offer .qa-card:hover{border-color:rgba(43,212,199,.15)}
 app-offer .qa-question{padding:18px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:12px}
-app-offer .qa-q-icon{width:28px;height:28px;border-radius:7px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:900;color:var(--blue-txt);margin-top:1px}
+app-offer .qa-q-icon{width:28px;height:28px;border-radius:7px;background:rgba(43,127,255,.1);border:1px solid rgba(43,127,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:var(--font-size-small);font-weight:900;color:var(--blue-txt);margin-top:1px}
 app-offer .qa-q-body{flex:1}
-app-offer .qa-q-text{font-size:14px;font-weight:700;color:var(--txt);line-height:1.5}
+app-offer .qa-q-text{font-size:var(--font-size-label);font-weight:700;color:var(--txt);line-height:1.5}
 
 /* RESPONSIVE */
 @media(max-width:1100px){app-offer .svc-detail-layout{grid-template-columns:1fr 300px}}
