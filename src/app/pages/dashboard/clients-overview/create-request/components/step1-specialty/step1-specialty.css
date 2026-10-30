@@ -1,4 +1,35 @@
+/* ================== COMPACT SPECIALTY CARDS ================== */
+.spec-card {
+  min-height: 64px;
+  max-height: 80px;
+}
+
 /* ================== LIGHT THEME OVERRIDES ================== */
+:host-context(body.light-theme) .selected-summary-card,
+:host-context(body.theme-light) .selected-summary-card,
+:host-context(.light-theme) .selected-summary-card,
+:host-context(.theme-light) .selected-summary-card {
+  background: #ffffff !important;
+  border-color: rgba(15, 138, 127, 0.35) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
+}
+
+:host-context(body.light-theme) .spec-card:not([aria-pressed="true"]),
+:host-context(body.theme-light) .spec-card:not([aria-pressed="true"]),
+:host-context(.light-theme) .spec-card:not([aria-pressed="true"]),
+:host-context(.theme-light) .spec-card:not([aria-pressed="true"]) {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+:host-context(body.light-theme) .spec-card:not([aria-pressed="true"]):hover,
+:host-context(body.theme-light) .spec-card:not([aria-pressed="true"]):hover,
+:host-context(.light-theme) .spec-card:not([aria-pressed="true"]):hover,
+:host-context(.theme-light) .spec-card:not([aria-pressed="true"]):hover {
+  border-color: var(--teal) !important;
+  background: #f8fafc !important;
+}
+
 /* AI Suggestion Banner — design light: rgba(123,47,190,.06), border rgba(123,47,190,.20) */
 :host-context(body.light-theme) .ai-sug-banner,
 :host-context(body.theme-light) .ai-sug-banner,
