@@ -854,6 +854,10 @@ export class CreateRequest implements OnInit, OnDestroy {
   aiPreview = computed(() => parseDescriptionRewrite(this.aiStreamText()));
   aiSelectedOption = computed(() => this.aiPreview().options.find(option => option.id === this.aiSelectedOptionId()) ?? null);
   aiSelectedDraft = computed(() => { const option = this.aiSelectedOption(); return option ? this.aiDraftEdits()[option.id] ?? option.text : ''; });
+  aiAppliedOption = computed(() => {
+    const option = this.aiPreview().options.find(option => option.id === this.aiAppliedOptionId());
+    return option && this.description().trim() === (this.aiDraftEdits()[option.id] ?? option.text).trim() ? option : null;
+  });
   canApplyAiDraft = computed(() => this.aiReviewStatus() === 'completed' && !this.isAiStreaming() && !!this.aiSelectedDraft().trim() && this.aiSelectedDraft().length <= CreateRequest.DESCRIPTION_MAX);
 
   formatAiPreview(text: string): string { return assistantMarkdown(text.replace(/^\s*(?:---|\*\*\*)\s*$/gm, '')); }

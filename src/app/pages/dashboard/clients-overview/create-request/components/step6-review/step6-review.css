@@ -24,7 +24,7 @@
 .review-outputs h3 { font-size: 12px; font-weight: 800; }
 .review-outputs p { margin-top: 4px; }
 .review-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid var(--sec-bd); background: var(--sec-bg); }
-.review-facts > div { padding: 13px 20px; display: grid; gap: 5px; }
+.review-facts > div { padding: 13px 20px; display: grid; gap: 5px; justify-items: start; }
 .review-facts > div + div { border-inline-start: 1px solid var(--sec-bd); }
 .review-facts span { color: var(--txt-3); font-size: 11px; }
 .review-facts strong { font-size: 16px; font-weight: 800; text-align: start; }
@@ -51,10 +51,11 @@
 .review-extra ul { list-style: disc; padding-inline-start: 18px; color: var(--txt-2); font-size: 12px; line-height: 1.9; overflow-wrap: anywhere; }
 .review-empty-conditions { display: block; border-top: 1px solid var(--sec-bd); padding: 10px 20px; font-size: 11px; color: var(--txt-3); }
 .review-document-note { padding: 10px 20px; background: var(--sec-bg); color: var(--txt-3); font-size: 10px; line-height: 1.8; border-top: 1px solid var(--sec-bd); }
-.ack-card { padding: 15px 18px; margin-bottom: 0; }
+.ack-card { display: block; padding: 15px 18px; margin-bottom: 0; }
 .ack-title { color: var(--txt); font-size: 13px; margin-bottom: 8px; grid-column: 1 / -1; }
 .ack-text { color: var(--txt-2); font-size: 11px; line-height: 1.8; }
 .ack-text a { color: var(--blue-txt, #5da0ff); text-decoration: underline; }
+.ack-text .ack-policy-link { display: inline-block; margin-inline: 4px; font-weight: 800; text-underline-offset: 3px; white-space: nowrap; }
 .ack-row { padding: 8px 0; gap: 9px; }
 .ack-row:last-child { padding-bottom: 8px; }
 .ack-check { width: 17px; height: 17px; border-color: var(--sec-bd); }
@@ -62,7 +63,6 @@
 @container review-step (min-width: 900px) {
   .review-sections { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .review-section + .review-section { border-top: 0; border-inline-start: 1px solid var(--sec-bd); }
-  .ack-card { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
 }
 @media (max-width: 600px) {
   .review-header { align-items: start; flex-direction: column; }

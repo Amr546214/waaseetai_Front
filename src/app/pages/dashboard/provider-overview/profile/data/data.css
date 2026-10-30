@@ -106,9 +106,12 @@ button.sb-item,button.sb-sub-item,button.udrop-item,button.t-notif,button.t-logo
 .gov-bar-link:hover{background:rgba(255,180,0,.20)}
 .modal-ov{position:fixed;inset:0;background:rgba(3,7,20,.72);backdrop-filter:blur(4px);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-ov.show{display:flex}
-.modal-box{width:100%;max-width:480px;background:rgba(11,20,55,.96);border:1px solid rgba(255,180,0,.26);border-radius:18px;padding:24px;box-shadow:0 28px 80px rgba(0,0,0,.6);animation:ws-fade .2s ease both}
+.profile-otp-dialog{width:100%;max-width:480px;background:rgba(11,20,55,.96);border:1px solid rgba(255,180,0,.26);border-radius:18px;padding:24px;box-shadow:0 28px 80px rgba(0,0,0,.6);animation:ws-fade .2s ease both}
 .modal-ico{width:46px;height:46px;border-radius:12px;background:rgba(255,180,0,.16);display:flex;align-items:center;justify-content:center;color:var(--kahr,#D98A0B);margin-bottom:14px}
 .modal-ico svg{width:23px;height:23px}
+.profile-otp-dialog{--otp-text:#F8FAFC;--otp-surface:#19233E;--otp-border:#64748B}
+.profile-otp-dialog .field-error{color:#FDA4AF;font-size:var(--font-size-label,13px)}
+.profile-otp-dialog .modal-btn:focus-visible{outline:3px solid #2BD4C7;outline-offset:3px}
 .modal-title{font-size:17px;font-weight:900;color:#fff;margin-bottom:7px}
 .modal-desc{font-size:13px;color:#A8B2D1;line-height:1.6;margin-bottom:16px}
 .modal-flow{display:flex;align-items:center;gap:0;margin-bottom:18px;flex-wrap:wrap}
@@ -329,14 +332,14 @@ select option{background:#0B1437;color:#fff}select optgroup{background:#0B1437;c
 :host-context(body.theme-light) .pref-val,
 :host-context(.light-theme) .pref-val,
 :host-context(.theme-light) .pref-val,
-:host-context(body.light-theme) .modal-box input,
-:host-context(body.theme-light) .modal-box input,
-:host-context(.light-theme) .modal-box input,
-:host-context(.theme-light) .modal-box input,
-:host-context(body.light-theme) .modal-box textarea,
-:host-context(body.theme-light) .modal-box textarea,
-:host-context(.light-theme) .modal-box textarea,
-:host-context(.theme-light) .modal-box textarea{background:#F8FAFC;border-color:#CBD5E1;color:#0F172A}
+:host-context(body.light-theme) .profile-otp-dialog input,
+:host-context(body.theme-light) .profile-otp-dialog input,
+:host-context(.light-theme) .profile-otp-dialog input,
+:host-context(.theme-light) .profile-otp-dialog input,
+:host-context(body.light-theme) .profile-otp-dialog textarea,
+:host-context(body.theme-light) .profile-otp-dialog textarea,
+:host-context(.light-theme) .profile-otp-dialog textarea,
+:host-context(.theme-light) .profile-otp-dialog textarea{background:#F8FAFC;border-color:#CBD5E1;color:#0F172A}
 
 :host-context(body.light-theme) .skills-add-inp,
 :host-context(body.theme-light) .skills-add-inp,
@@ -415,10 +418,13 @@ select option{background:#0B1437;color:#fff}select optgroup{background:#0B1437;c
 :host-context(.light-theme) .skills-chips,
 :host-context(.theme-light) .skills-chips{border-color:#D8DFEC}
 
-:host-context(body.light-theme) .modal-box,
-:host-context(body.theme-light) .modal-box,
-:host-context(.light-theme) .modal-box,
-:host-context(.theme-light) .modal-box{background:#fff;border-color:#E2E8F4;box-shadow:0 28px 80px rgba(15,23,42,.22)}
+:host-context(body.light-theme) .profile-otp-dialog,
+:host-context(body.theme-light) .profile-otp-dialog,
+:host-context(.light-theme) .profile-otp-dialog,
+:host-context(.theme-light) .profile-otp-dialog{background:#fff;border-color:#E2E8F4;box-shadow:0 28px 80px rgba(15,23,42,.22);--otp-text:#0F172A;--otp-surface:#F8FAFC;--otp-border:#64748B}
+
+:host-context(.light-theme) .profile-otp-dialog .field-error,
+:host-context(.theme-light) .profile-otp-dialog .field-error{color:#BE123C}
 
 :host-context(body.light-theme) .modal-btn-cancel,
 :host-context(body.theme-light) .modal-btn-cancel,

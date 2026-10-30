@@ -56,19 +56,23 @@
 				</div>
 				<p class="mt-2 text-xs text-[var(--txt-3)]" data-testid="ai-refine-hint">زر «اقتراح وصياغة AI الشامل» يحسّن العنوان ويكتب الوصف التفصيلي والمهارات والشروط الإضافية والمخرجات والمدة والميزانية والمراحل تلقائيًا.</p>
 
+				@if (parent.aiAppliedOption()) {
+                  <p class="ai-approval-message" role="status" data-testid="ai-description-approved">✓ تم اعتماد الصياغة في وصف الطلب</p>
+                }
 				<!-- AI rewriting: independent choices, explicit apply, and the original draft remains available. -->
 @if (!parent.showAiSuggest() && (parent.aiStreamText() || parent.isAiStreaming())) {
   <button type="button" class="ai-reopen-btn" (click)="parent.showAiSuggest.set(true)">{{ parent.isAiStreaming() ? 'عرض إعادة الصياغة الجارية' : 'عرض الصياغات المحفوظة' }} <span>{{ parent.aiPreview().options.length || '' }}</span></button>
 }
 @if (parent.showAiSuggest()) {
-  <section class="ai-rewrite-panel" aria-labelledby="rewrite-panel-title" [attr.aria-busy]="parent.isAiStreaming()">
+  <dialog #rewriteDialog class="ai-rewrite-dialog" dir="rtl" aria-labelledby="rewrite-panel-title" (cancel)="parent.dismissAiSuggest()" (click)="$event.target === $event.currentTarget && parent.dismissAiSuggest()">
+  <section class="ai-rewrite-panel" [attr.aria-busy]="parent.isAiStreaming()">
     <header class="ai-rewrite-header">
       <div>
         <span class="ai-rewrite-eyebrow">مساعد الصياغة</span>
         <h2 id="rewrite-panel-title">اختر الوصف الأنسب لطلبك</h2>
         <p>قارن الصياغات، عدّل اختيارك، ثم استخدمه في حقل الوصف.</p>
       </div>
-      <button type="button" class="ai-collapse-btn" aria-label="طي معاينة الصياغات" (click)="parent.dismissAiSuggest()">طي المعاينة</button>
+      <button type="button" class="ai-collapse-btn" autofocus aria-label="إغلاق معاينة الصياغات" (click)="parent.dismissAiSuggest()">إغلاق</button>
     </header>
 
     <div class="ai-rewrite-state" role="status" aria-live="polite">
@@ -101,7 +105,7 @@
             <header class="ai-option-header">
               <span class="ai-option-number" aria-hidden="true">{{ i + 1 }}</span>
               <h3>{{ option.title }}</h3>
-              @if (parent.aiAppliedOptionId() === option.id) { <span class="ai-applied-label">مستخدم حاليًا</span> }
+            @if (parent.aiAppliedOption()?.id === option.id) { <span class="ai-applied-label">✓ تم الاعتماد</span> }
             </header>
             <div class="ai-option-content ai-rewrite-markdown" [innerHTML]="parent.formatAiPreview(option.markdown)"></div>
             <footer class="ai-option-footer">
@@ -119,9 +123,12 @@
           <p id="ai-editor-help">مسودة قابلة للتعديل قبل الإرسال. التعديل هنا لا يغيّر حقل الوصف حتى تستخدم الصياغة.</p>
           @if (parent.aiSelectedDraft().length > 2000) { <p class="ai-editor-warning" role="alert">اختصر الصياغة إلى 2000 حرف قبل استخدامها؛ لم نحذف أي جزء منها.</p> }
           <div class="ai-rewrite-actions">
-            <button type="button" class="ai-use-btn" [disabled]="!parent.canApplyAiDraft()" (click)="parent.useAiSuggest()">استخدم هذا الوصف</button>
+            <button type="button" class="ai-use-btn" [class.is-applied]="parent.aiAppliedOption()?.id === parent.aiSelectedOptionId()" [disabled]="!parent.canApplyAiDraft() || parent.aiAppliedOption()?.id === parent.aiSelectedOptionId()" (click)="parent.useAiSuggest()">{{ parent.aiAppliedOption()?.id === parent.aiSelectedOptionId() ? '✓ تم اعتماد الوصف' : 'استخدم هذا الوصف' }}</button>
             <button type="button" class="ai-original-btn" [disabled]="parent.description() === parent.aiOriginalDescription()" (click)="parent.restoreOriginalDescription()">استعادة وصفي الأصلي</button>
           </div>
+          @if (parent.aiAppliedOption()?.id === parent.aiSelectedOptionId()) {
+            <p class="ai-approval-message" role="status" data-testid="ai-modal-approved">تم اعتماد الصياغة وتحديث وصف الطلب بنجاح.</p>
+          }
         </div>
       }
       @if (parent.aiPreview().advice) {
@@ -130,6 +137,7 @@
     }
     <p class="ai-rewrite-footnote">وصفك الأصلي لا يتغيّر إلا إذا ضغطت «استخدم هذا الوصف». تبقى كل الصياغات محفوظة لتبديل اختيارك لاحقًا. راجع التفاصيل والمتطلبات قبل الإرسال.</p>
   </section>
+  </dialog>
 }
 
 			</div>

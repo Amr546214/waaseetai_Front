@@ -72,13 +72,13 @@
 		<div class="ack-check" [class.checked]="acks.terms()">
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
 		</div>
-		<div class="ack-text">أوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">شروط الاستخدام</a> ومتطلبات نشر الطلب على المنصة</div>
+		<div class="ack-text">أوافق على شروط الاستخدام <a class="ack-policy-link" routerLink="/terms" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" aria-label="عرض شروط الاستخدام في تبويب جديد">عرض الشروط ↗</a> ومتطلبات نشر الطلب على المنصة</div>
 	</div>
 		<div class="ack-row" id="ack-privacy" data-field-wrap (click)="toggleAck('privacy')" (keydown)="toggleAckFromKeyboard($event, 'privacy')" role="checkbox" [attr.aria-checked]="acks.privacy()" tabindex="0">
 		<div class="ack-check" [class.checked]="acks.privacy()">
 		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
 		</div>
-		<div class="ack-text">اطلعت على <a routerLink="/privacy" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">سياسة الخصوصية</a> وأوافق على معالجة بياناتي وفق نظام حماية البيانات</div>
+		<div class="ack-text">اطلعت على سياسة الخصوصية <a class="ack-policy-link" routerLink="/privacy" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" aria-label="عرض سياسة الخصوصية في تبويب جديد">عرض السياسة ↗</a> وأوافق على معالجة بياناتي وفق نظام حماية البيانات</div>
 	</div>
 		<div class="ack-row" id="ack-publish" data-field-wrap (click)="toggleAck('publish')" (keydown)="toggleAckFromKeyboard($event, 'publish')" role="checkbox" [attr.aria-checked]="acks.publish()" tabindex="0">
 		<div class="ack-check" [class.checked]="acks.publish()">
