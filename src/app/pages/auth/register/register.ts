@@ -17,7 +17,7 @@ import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.servi
 import { rateLimitSentence } from '../../../core/wait/wait-format';
 import { formatClock } from '../../../core/wait/wait-format';
 import { RATE_LIMIT_MESSAGE, isRateLimitError, startWaitFromError } from '../../../core/utils/rate-limit.util';
-import { OTP_DELIVERY_HINT, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE } from '../../../core/forms/otp-delivery';
+import { OTP_DELIVERY_HINT, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE, REGISTER_PROOF_SENT_MESSAGE, REGISTER_PROOF_RESENT_MESSAGE, REGISTER_PROOF_NOT_SENT_MESSAGE, REGISTER_DATA_UNAVAILABLE_FALLBACK, REGISTER_ACCOUNT_READY_FALLBACK } from '../../../core/forms/otp-delivery';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../core/forms/form-helpers';
 import { validationMessage } from '../../../core/forms/validation-messages';
 import { matchFieldsValidator, strongPasswordValidator } from '../../../core/forms/password.validator';
@@ -81,6 +81,14 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	/** Registration data was already in use: honest generic note with links to login / password recovery (no code was sent, no code step). */
 	/** The e-mail the registration request was sent for: the code step's key (the register answer carries no account id). */
 	registeredEmail = '';
+	/** E-mail-first registration: the signed ticket of the last proof code request (no account exists until the code is entered). Memory only. */
+	private proofTicket = '';
+	/** The code the user entered for the current ticket, kept in memory only so corrected data can be re-submitted without a new mail. */
+	private heldCode = '';
+	/** The proven e-mail's data was refused (it belongs to an existing account): a clear panel with the ways forward, nothing about the other account. */
+	dataUnavailableMessage = '';
+	/** The account was created and the e-mail proven, but the automatic sign-in failed: sign in normally (never register again). */
+	accountReadyMessage = '';
 	private submittedSignature = '';
 	private formSignature(): string { return JSON.stringify(this.basicInfoForm.getRawValue()); }
 
@@ -438,7 +446,14 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		if (this.currentStep === 2) {
 			// Back from the OTP step shows the saved data again; continuing with the SAME data only returns to the OTP step (no second request).
 			// Edited data (e.g. a mistyped e-mail) is a new registration request.
-			if (this.accountCreated && this.formSignature() === this.submittedSignature) { this.currentStep = 3; this.errorMessage = ''; this.cdr.markForCheck(); return; }
+			if ((this.accountCreated || this.proofTicket) && this.formSignature() === this.submittedSignature) { this.currentStep = 3; this.errorMessage = ''; this.cdr.markForCheck(); return; }
+			// The e-mail is already proven for this ticket and only other data changed (e.g. a corrected phone): complete with the code the user entered, no new mail.
+			if (this.completesWithHeldCode) {
+				const attempt = attemptSubmit(this.basicInfoForm, { root: this.host.nativeElement, labels: REGISTER_LABELS });
+				this.missingFields = attempt.missing;
+				if (attempt.valid) this.completeEmailFirst(this.heldCode); else this.cdr.markForCheck();
+				return;
+			}
 			// a second tap / Enter while the first request is still running must not send a second registration
 			if (this.isSubmitting) return;
 			// the server's send wait for this e-mail is still running: no request, the remaining time is said (the server still has the last word afterwards)
@@ -481,6 +496,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 		this.rateLimitedNoTime = false;
 		this.rateLimitSource = null;
+		if (!this.isGoogleFlow) { this.requestProofCode(false); return; }
 		this.authApi.register(payload).subscribe({
 			next: (res) => {
 				this.isSubmitting = false;
@@ -537,6 +553,136 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		this.showConfirmPassword = !this.showConfirmPassword;
 	}
 
+	/** The registration form data without the password: what step 1 (proof code) needs. */
+	private startPayload() {
+		const val = this.basicInfoForm.value;
+		return {
+			accountType: this.accountTypeMap[this.selectedAccountType],
+			firstName: val.firstName,
+			lastName: val.lastName,
+			email: String(val.email ?? '').trim(),
+			phoneCountryCode: val.phone?.dialCode || '+966',
+			phoneNumber: phoneDigits(val.phone?.number),
+			agreedToTerms: !!(val.agreeData && val.agreeTerms)
+		};
+	}
+
+	/**
+	 * E-mail-first registration, step 1. No account is created: a code goes to the typed address. The code step opens ONLY when the server says the
+	 * mail was accepted (`emailSent === true` with a ticket); otherwise the user stays on the form with the reason, and the data stays.
+	 */
+	private requestProofCode(isResend: boolean) {
+		this.isSubmitting = true;
+		this.errorMessage = '';
+		this.authApi.registerStart(this.startPayload()).subscribe({
+			next: (res) => {
+				this.isSubmitting = false;
+				const ticket = res.data?.ticket;
+				if (res.data?.emailSent === true && ticket) {
+					this.proofTicket = ticket;
+					this.heldCode = '';
+					this.dataUnavailableMessage = '';
+					this.registeredEmail = String(this.basicInfoForm.get('email')?.value ?? '').trim().toLowerCase();
+					this.submittedSignature = this.formSignature();
+					this.currentStep = 3;
+					this.otpNotice = isResend ? REGISTER_PROOF_RESENT_MESSAGE : REGISTER_PROOF_SENT_MESSAGE;
+					this.verificationForm.reset();
+					this.resendWait().startFromResponse(res);
+				} else {
+					this.errorMessage = res.message || REGISTER_PROOF_NOT_SENT_MESSAGE;
+				}
+				this.cdr.markForCheck();
+			},
+			error: (err) => {
+				this.isSubmitting = false;
+				if (isRateLimitError(err)) {
+					this.rateLimitSource = isResend ? 'resend' : 'register';
+					const w = isResend ? this.resendWait() : this.registerWait();
+					const end = startWaitFromError(w, err);
+					this.rateLimitedNoTime = end == null || !w.active();
+					this.errorMessage = '';
+				} else {
+					const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ في التسجيل' });
+					this.accountExistsError = mapped.kind === 'conflict';
+					const unmatched = applyServerFieldErrors(this.basicInfoForm, mapped.fieldErrors, REGISTER_SERVER_FIELD_ALIASES);
+					this.errorMessage = unmatched.length || !Object.keys(mapped.fieldErrors).length ? mapped.message : 'يرجى تصحيح الحقول المحددة أدناه';
+					if (Object.keys(mapped.fieldErrors).length) {
+						this.missingFields = [];
+						setTimeout(() => attemptSubmit(this.basicInfoForm, { root: this.host.nativeElement, labels: REGISTER_LABELS }));
+					}
+					if (isResend) this.currentStep = 3;
+				}
+				this.cdr.markForCheck();
+			}
+		});
+	}
+
+	/** Corrected data for an already proven e-mail: it completes with the code already entered, so the send cooldown of the proof mail must not block it. */
+	get completesWithHeldCode(): boolean { return !!(this.proofTicket && this.heldCode && !this.isGoogleFlow && this.typedEmailKey() === this.registeredEmail); }
+
+	/** True while the code step belongs to e-mail-first registration (no account yet); the Google path keeps its own flow. */
+	get proofFlow(): boolean { return !!this.proofTicket; }
+
+	/** Step 2: the code proves the address; the account is created ACTIVE and the session is committed. The password goes out only in this one request. */
+	private completeEmailFirst(code: string) {
+		if (this.isSubmitting) return;
+		this.isSubmitting = true;
+		this.errorMessage = '';
+		this.codeInvalid = false;
+		this.dataUnavailableMessage = '';
+		this.rateLimitedNoTime = false;
+		const val = this.basicInfoForm.value;
+		const payload = {
+			...this.startPayload(),
+			password: String(val.password ?? ''),
+			ticket: this.proofTicket,
+			code,
+			affiliateIdentifier: this.referralToSend
+		};
+		this.authApi.registerComplete(payload).subscribe({
+			next: (res) => {
+				this.isSubmitting = false;
+				this.heldCode = '';
+				this.proofTicket = '';
+				this.cdr.markForCheck();
+				if (!res.data?.token) {
+					// the server created the account but could not sign the user in: say so, point to the normal sign-in
+					this.accountReadyMessage = res.message || REGISTER_ACCOUNT_READY_FALLBACK;
+					this.errorMessage = '';
+					this.dataUnavailableMessage = '';
+					return;
+				}
+				const authedUser = res.data?.user || this.authStore.currentUser();
+				this.router.navigate(['/auth/welcome'], {
+					queryParams: { role: getWelcomeRoleKey(authedUser?.accountType), accountType: authedUser?.accountType, activeRole: authedUser?.activeRole }
+				});
+			},
+			error: (err) => {
+				this.isSubmitting = false;
+				if (err?.status === 409 && err?.error?.code === 'REGISTRATION_DATA_UNAVAILABLE') {
+					// the e-mail IS proven; the data cannot be used. One generic message (no field, no owner) and the ways forward; the code stays for a corrected retry.
+					this.heldCode = code;
+					this.dataUnavailableMessage = err.error.message || REGISTER_DATA_UNAVAILABLE_FALLBACK;
+					this.currentStep = 3;
+				} else if (err?.error?.code === 'OTP_ATTEMPTS_LOCKED') {
+					this.errorMessage = err.error.message || 'تم تجاوز عدد المحاولات المسموح به، يرجى طلب رمز جديد';
+					this.codeInvalid = true;
+					this.heldCode = '';
+				} else if (isRateLimitError(err)) {
+					this.rateLimitSource = 'verify';
+					const end = startWaitFromError(this.verifyWait(), err);
+					this.rateLimitedNoTime = end == null || !this.verifyWait().active();
+				} else {
+					const mappedCode = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'رمز التحقق غير صحيح' });
+					this.errorMessage = mappedCode.message;
+					this.codeInvalid = mappedCode.kind === 'backend-validation' || mappedCode.kind === 'credentials';
+					this.heldCode = '';
+				}
+				this.cdr.markForCheck();
+			}
+		});
+	}
+
 	onVerificationSubmit() {
 		if (this.verificationForm.invalid) {
 			// Never a silent no-op: say what is needed and put the cursor on the first empty box.
@@ -564,6 +710,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			const val = this.verificationForm.value;
 			const code = `${val.code1}${val.code2}${val.code3}${val.code4}${val.code5}${val.code6}`;
 
+			if (this.proofTicket) { this.isSubmitting = false; this.completeEmailFirst(code); return; }
 			this.authApi.verifyOtp({ email: this.registeredEmail, code }).subscribe({
 				next: (res) => {
 					this.isSubmitting = false;
@@ -702,12 +849,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			return;
 		}
 
-		this.isSubmitting = true;
-		this.errorMessage = '';
-
 		this.otpNotice = '';
 		this.rateLimitedNoTime = false;
 		this.rateLimitSource = null;
+		if (this.proofTicket) { this.requestProofCode(true); return; }
+		this.isSubmitting = true;
+		this.errorMessage = '';
 		this.authApi.resendOtpByEmail(this.registeredEmail).subscribe({
 			next: (res) => {
 				this.isSubmitting = false;
@@ -736,6 +883,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
 	get maskedEmail(): string {
 		const e: string = this.basicInfoForm.get('email')?.value || '';
+		// e-mail-first: the user sees the address exactly as typed, so a typo is spotted and corrected before waiting for a code
+		if (this.proofTicket) return String(e).trim();
 		if (!e || e.indexOf('@') < 0) return '';
 		const [name, domain] = e.split('@');
 		const mn = name.length > 2 ? name[0] + '***' + name.slice(-1) : name[0] + '*';

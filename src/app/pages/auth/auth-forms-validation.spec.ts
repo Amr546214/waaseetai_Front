@@ -191,12 +191,14 @@ describe('Register (shared validation)', () => {
 	});
 
 	it('a valid form sends digits-only phoneNumber and agreedToTerms, and moves to the OTP step', () => {
-		const post = vi.fn(() => of({ success: true, data: { userId: 'u1' } }));
+		const post = vi.fn(() => of({ success: true, data: { emailSent: true, ticket: 'T' } }));
 		const { component } = setup(post);
 		fillValid(component);
 		component.nextStep();
 		expect(post).toHaveBeenCalledTimes(1);
 		const body = (post.mock.calls[0] as any[])[1];
+		expect((post.mock.calls[0] as any[])[0]).toMatch(/\/auth\/register\/start$/);
+		expect(body.password).toBeUndefined();
 		expect(body.phoneNumber).toBe('551234567');
 		expect(body.agreedToTerms).toBe(true);
 		expect(component.currentStep).toBe(3);
