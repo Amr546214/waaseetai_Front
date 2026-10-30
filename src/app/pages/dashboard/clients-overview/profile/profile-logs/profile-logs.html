@@ -51,7 +51,7 @@
 	<!-- Error State -->
 	<div *ngIf="state() === 'error'" class="state-card text-center py-10 px-5 animate-[ws-fade_0.2s_ease]">
 		<div class="text-sm text-[#A8B2D1] mb-2">حدث خطأ في تحميل الطلبات</div>
-		<div class="text-[11px] text-[#6B7699] mb-5">ERR-PR-036</div>
+		<div class="text-[length:var(--font-size-small)] text-[#6B7699] mb-5">ERR-PR-036</div>
 		<button type="button" (click)="state.set('loading')"
 			class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-xl text-[#070D24] text-sm font-black cursor-pointer shadow-[0_4px_14px_rgba(43,127,255,.35)] hover:-translate-y-px transition-all">إعادة
 			المحاولة</button>
@@ -63,7 +63,7 @@
 		<div class="flex flex-wrap gap-2 sm:gap-6 border-b border-[var(--sec-bd)] mb-6">
 			<!-- Tab 1: Add Role Requests -->
 			<button type="button" (click)="setTab('add')" [class.active-tab]="activeTab() === 'add'"
-				class="flex items-center gap-2 px-2 sm:px-4 py-3 text-[13px] font-semibold text-[var(--txt-3)] border-b-2 border-transparent transition-all mb-[-1px] hover:text-[var(--txt)] group relative outline-none">
+				class="flex items-center gap-2 px-2 sm:px-4 py-3 text-[length:var(--font-size-label)] font-semibold text-[var(--txt-3)] border-b-2 border-transparent transition-all mb-[-1px] hover:text-[var(--txt)] group relative outline-none">
 				<svg class="w-4 h-4 transition-colors group-hover:text-[var(--txt)]" viewBox="0 0 24 24" fill="none"
 					stroke="currentColor" stroke-width="1.8">
 					<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -74,14 +74,14 @@
 				طلبات إضافة حساب
 				@if (addRequests().length > 0) {
 				<span
-					class="mr-auto min-w-[18px] h-[18px] rounded-full bg-[rgba(255,180,0,.14)] text-[#D98A0B] text-[10px] font-bold flex items-center justify-center px-1.5 ml-1">{{
+					class="mr-auto min-w-[18px] h-[18px] rounded-full bg-[rgba(255,180,0,.14)] text-[#D98A0B] text-[length:var(--font-size-caption)] font-bold flex items-center justify-center px-1.5 ml-1">{{
 					addRequests().length }}</span>
 				}
 			</button>
 
 			<!-- Tab 2: Profile Completion Requests -->
 			<button type="button" (click)="setTab('complete')" [class.active-tab]="activeTab() === 'complete'"
-				class="flex items-center gap-2 px-2 sm:px-4 py-3 text-[13px] font-semibold text-[var(--txt-3)] border-b-2 border-transparent transition-all mb-[-1px] hover:text-[var(--txt)] group relative outline-none">
+				class="flex items-center gap-2 px-2 sm:px-4 py-3 text-[length:var(--font-size-label)] font-semibold text-[var(--txt-3)] border-b-2 border-transparent transition-all mb-[-1px] hover:text-[var(--txt)] group relative outline-none">
 				<svg class="w-4 h-4 transition-colors group-hover:text-[var(--txt)]" viewBox="0 0 24 24" fill="none"
 					stroke="currentColor" stroke-width="2.5">
 					<polyline points="20 6 9 17 4 12" />
@@ -89,14 +89,14 @@
 				طلبات استكمال وتعديل الملف
 				@if (completeRequests().length > 0) {
 				<span
-					class="mr-auto min-w-[18px] h-[18px] rounded-full bg-[rgba(43,212,199,.14)] text-[#2BD4C7] text-[10px] font-bold flex items-center justify-center px-1.5 ml-1">{{
+					class="mr-auto min-w-[18px] h-[18px] rounded-full bg-[rgba(43,212,199,.14)] text-[#2BD4C7] text-[length:var(--font-size-caption)] font-bold flex items-center justify-center px-1.5 ml-1">{{
 					completeRequests().length }}</span>
 				}
 			</button>
 
 			<!-- Tab 3: Security & Session Logs -->
 			<button type="button" (click)="setTab('security')" [class.active-tab]="activeTab() === 'security'"
-				class="flex items-center gap-2 px-2 sm:px-4 py-3 text-[13px] font-semibold text-[var(--txt-3)] border-b-2 border-transparent transition-all mb-[-1px] hover:text-[var(--txt)] group relative outline-none">
+				class="flex items-center gap-2 px-2 sm:px-4 py-3 text-[length:var(--font-size-label)] font-semibold text-[var(--txt-3)] border-b-2 border-transparent transition-all mb-[-1px] hover:text-[var(--txt)] group relative outline-none">
 				<svg class="w-4 h-4 transition-colors group-hover:text-[var(--txt)]" viewBox="0 0 24 24" fill="none"
 					stroke="currentColor" stroke-width="1.8">
 					<rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -105,7 +105,7 @@
 				سجل الأمان والجلسات
 				@if (securityRequests().length > 0) {
 				<span
-					class="mr-auto min-w-[18px] h-[18px] rounded-full bg-[rgba(43,127,255,.14)] text-[#5DA0FF] text-[10px] font-bold flex items-center justify-center px-1.5 ml-1">{{
+					class="mr-auto min-w-[18px] h-[18px] rounded-full bg-[rgba(43,127,255,.14)] text-[#5DA0FF] text-[length:var(--font-size-caption)] font-bold flex items-center justify-center px-1.5 ml-1">{{
 					securityRequests().length }}</span>
 				}
 			</button>
@@ -122,8 +122,8 @@
 						<circle cx="9" cy="7" r="4" />
 					</svg>
 				</div>
-				<div class="text-[15px] font-extrabold text-[var(--txt)] mb-1.5">لا توجد طلبات لإضافة حسابات حالياً</div>
-				<div class="text-[13px] text-[var(--txt-3)] mb-5">يمكنك إضافة دور مقدم خدمة أو وسيط تسويقي من خلال القائمة المنسدلة في الأعلى.</div>
+				<div class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] mb-1.5">لا توجد طلبات لإضافة حسابات حالياً</div>
+				<div class="text-[length:var(--font-size-label)] text-[var(--txt-3)] mb-5">يمكنك إضافة دور مقدم خدمة أو وسيط تسويقي من خلال القائمة المنسدلة في الأعلى.</div>
 			</div>
 
 			<div *ngFor="let req of addRequests()"
@@ -137,11 +137,11 @@
 				</div>
 
 				<div class="flex-1 min-w-0">
-					<div class="text-[15px] font-extrabold text-[var(--txt)] mb-1">{{ req.type }}</div>
-					<div class="text-[13px] text-[var(--txt-3)]">{{ req.title }}</div>
+					<div class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] mb-1">{{ req.type }}</div>
+					<div class="text-[length:var(--font-size-label)] text-[var(--txt-3)]">{{ req.title }}</div>
 
 					<div class="flex gap-2 flex-wrap mt-2.5">
-						<span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full"
+						<span class="inline-flex items-center gap-1.5 text-[length:var(--font-size-small)] font-bold px-2.5 py-1 rounded-full"
 							[ngClass]="{
                     'bg-[rgba(255,180,0,.1)] text-[#D98A0B] border border-[rgba(255,180,0,.24)]': req.status === 'review' || req.status === 'pending',
                     'bg-[rgba(15,169,154,.12)] text-[#0FA99A] border border-[rgba(15,169,154,.22)]': req.status === 'approved' || req.status === 'completed',
@@ -150,14 +150,14 @@
 							{{ req.statusText }}
 						</span>
 						<span *ngIf="req.statusHint"
-							class="text-[11px] text-[var(--txt-3)] px-2.5 py-1 bg-[var(--crd-bg)] border border-[var(--sec-bd)] rounded-full">{{
+							class="text-[length:var(--font-size-small)] text-[var(--txt-3)] px-2.5 py-1 bg-[var(--crd-bg)] border border-[var(--sec-bd)] rounded-full">{{
 							req.statusHint }}</span>
 					</div>
 				</div>
 
 				<div
 					class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2.5 shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
-					<span class="text-[11px] text-[var(--txt-3)]">{{ req.date }}</span>
+					<span class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">{{ req.date }}</span>
 					<a *ngIf="req.actionText" [routerLink]="req.actionLink"
 						class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[rgba(43,212,199,.1)] border border-[rgba(43,212,199,.22)] rounded-lg text-[#2BD4C7] text-xs font-bold hover:bg-[rgba(43,212,199,.18)] transition-colors">
 						{{ req.actionText }}
@@ -177,8 +177,8 @@
 						<polyline points="14 2 14 8 20 8" />
 					</svg>
 				</div>
-				<div class="text-[15px] font-extrabold text-[var(--txt)] mb-1.5">لا توجد طلبات لاستكمال البيانات</div>
-				<div class="text-[13px] text-[var(--txt-3)] mb-5">ملفاتك مكتملة أو لم تبدأ بعد في استكمال بيانات الحساب.</div>
+				<div class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] mb-1.5">لا توجد طلبات لاستكمال البيانات</div>
+				<div class="text-[length:var(--font-size-label)] text-[var(--txt-3)] mb-5">ملفاتك مكتملة أو لم تبدأ بعد في استكمال بيانات الحساب.</div>
 			</div>
 
 			<div *ngFor="let req of completeRequests()"
@@ -191,23 +191,23 @@
 				</div>
 
 				<div class="flex-1 min-w-0">
-					<div class="text-[15px] font-extrabold text-[var(--txt)] mb-1">{{ req.type }}</div>
-					<div class="text-[13px] text-[var(--txt-3)]">{{ req.title }}</div>
+					<div class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] mb-1">{{ req.type }}</div>
+					<div class="text-[length:var(--font-size-label)] text-[var(--txt-3)]">{{ req.title }}</div>
 
 					<div class="flex gap-2 flex-wrap mt-2.5">
 						<span
-							class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[rgba(15,169,154,.12)] text-[#0FA99A] border border-[rgba(15,169,154,.22)]">
+							class="inline-flex items-center gap-1.5 text-[length:var(--font-size-small)] font-bold px-2.5 py-1 rounded-full bg-[rgba(15,169,154,.12)] text-[#0FA99A] border border-[rgba(15,169,154,.22)]">
 							{{ req.statusText }}
 						</span>
 						<span *ngIf="req.statusHint"
-							class="text-[11px] text-[var(--txt-3)] px-2.5 py-1 bg-[var(--crd-bg)] border border-[var(--sec-bd)] rounded-full">{{
+							class="text-[length:var(--font-size-small)] text-[var(--txt-3)] px-2.5 py-1 bg-[var(--crd-bg)] border border-[var(--sec-bd)] rounded-full">{{
 							req.statusHint }}</span>
 					</div>
 				</div>
 
 				<div
 					class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2.5 shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
-					<span class="text-[11px] text-[var(--txt-3)]">{{ req.date }}</span>
+					<span class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">{{ req.date }}</span>
 					<a *ngIf="req.actionText" [routerLink]="req.actionLink"
 						class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[rgba(43,212,199,.1)] border border-[rgba(43,212,199,.22)] rounded-lg text-[#2BD4C7] text-xs font-bold hover:bg-[rgba(43,212,199,.18)] transition-colors">
 						{{ req.actionText }}
@@ -227,8 +227,8 @@
 						<path d="M7 11V7a5 5 0 0 1 10 0v4" />
 					</svg>
 				</div>
-				<div class="text-[15px] font-extrabold text-[var(--txt)] mb-1.5">لا توجد سجلات أمان مسجلة</div>
-				<div class="text-[13px] text-[var(--txt-3)] mb-5">تظهر هنا عمليات تسجيل الدخول وتغييرات الأمان في حسابك.</div>
+				<div class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] mb-1.5">لا توجد سجلات أمان مسجلة</div>
+				<div class="text-[length:var(--font-size-label)] text-[var(--txt-3)] mb-5">تظهر هنا عمليات تسجيل الدخول وتغييرات الأمان في حسابك.</div>
 			</div>
 
 			<div *ngFor="let req of securityRequests()"
@@ -241,12 +241,12 @@
 				</div>
 
 				<div class="flex-1 min-w-0">
-					<div class="text-[15px] font-extrabold text-[var(--txt)] mb-1">{{ req.type }}</div>
-					<div class="text-[13px] text-[var(--txt-3)]">{{ req.title }}</div>
+					<div class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] mb-1">{{ req.type }}</div>
+					<div class="text-[length:var(--font-size-label)] text-[var(--txt-3)]">{{ req.title }}</div>
 
 					<div class="flex gap-2 flex-wrap mt-2.5">
 						<span
-							class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[rgba(43,212,199,.12)] text-[#2BD4C7] border border-[rgba(43,212,199,.22)]">
+							class="inline-flex items-center gap-1.5 text-[length:var(--font-size-small)] font-bold px-2.5 py-1 rounded-full bg-[rgba(43,212,199,.12)] text-[#2BD4C7] border border-[rgba(43,212,199,.22)]">
 							✓ {{ req.statusText }}
 						</span>
 					</div>
@@ -254,7 +254,7 @@
 
 				<div
 					class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2.5 shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
-					<span class="text-[11px] text-[var(--txt-3)]">{{ req.date }}</span>
+					<span class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">{{ req.date }}</span>
 				</div>
 			</div>
 		</div>

@@ -72,7 +72,7 @@
 							{{ step.id }}
 							}
 						</div>
-						<div class="text-[10px] font-bold text-center max-w-[80px]"
+						<div class="text-[length:var(--font-size-caption)] font-bold text-center max-w-[80px]"
 							[ngClass]="currentStep() === step.id ? 'text-cyan-600 dark:text-[#38BDF8]' : (currentStep() > step.id ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600')">
 							{{ step.label }}
 						</div>
@@ -106,7 +106,7 @@
 								<input type="text" formControlName="idNumber" aria-required="true" placeholder="10XXXXXXXX" maxlength="10"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
 								<ws-field-error [control]="setupForm.get('details.idNumber')" label="رقم الهوية الوطنية" />
-								<span class="text-[10px] text-slate-500 mt-1">10 أرقام، هوية وطنية أو إقامة</span>
+								<span class="text-[length:var(--font-size-caption)] text-slate-500 mt-1">10 أرقام، هوية وطنية أو إقامة</span>
 							</div>
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">تاريخ الميلاد <span class="ws-req" aria-hidden="true">*</span></label>
@@ -115,7 +115,7 @@
 										class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all dark:[&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert">
 								<ws-field-error [control]="setupForm.get('details.dob')" label="تاريخ الميلاد" />
 								</div>
-								<span class="text-[10px] text-slate-500 mt-1">يجب أن يصل العمر إلى 18 سنة</span>
+								<span class="text-[length:var(--font-size-caption)] text-slate-500 mt-1">يجب أن يصل العمر إلى 18 سنة</span>
 							</div>
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">الدولة <span class="ws-req" aria-hidden="true">*</span></label>
@@ -166,21 +166,21 @@
 							<h3 class="text-base font-bold text-slate-900 dark:text-white">رفع وثائق الهوية</h3>
 						</div>
 						@if (kycRejectedReason(); as why) {
-						<div role="alert" data-testid="kyc-rejected-note" class="mb-5 rounded-xl border border-red-300 bg-red-50 p-3 text-[12px] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفضت وثائق الهوية. السبب: {{ why }}. ارفع وثائق جديدة وأرسلها مرة أخرى.</div>
+						<div role="alert" data-testid="kyc-rejected-note" class="mb-5 rounded-xl border border-red-300 bg-red-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفضت وثائق الهوية. السبب: {{ why }}. ارفع وثائق جديدة وأرسلها مرة أخرى.</div>
 						}
 						@if (kycPending()) {
-						<div role="status" data-testid="kyc-pending-note" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر أدناه كما حُفظت.</div>
+						<div role="status" data-testid="kyc-pending-note" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر أدناه كما حُفظت.</div>
 						}
 
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">صورة بطاقة الهوية،
 									الوجه الأمامي <span class="font-normal text-slate-400">(اختياري)</span></label>
-								<span class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
-								@if (fileErrors()['frontId']; as fe) { <span role="alert" class="field-error text-[11px] font-bold ">{{ fe }}</span> }
+								<span class="text-[length:var(--font-size-caption)] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
+								@if (fileErrors()['frontId']; as fe) { <span role="alert" class="field-error text-[length:var(--font-size-small)] font-bold ">{{ fe }}</span> }
 								@if (storedDocs().frontId; as stored) {
 									@if (!setupForm.get('identity.frontId')?.value?.startsWith('data:')) {
-										<div class="flex items-center gap-2 text-[11px] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_front_id" [url]="stored.url" [access]="stored.access" /></div>
+										<div class="flex items-center gap-2 text-[length:var(--font-size-small)] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_front_id" [url]="stored.url" [access]="stored.access" /></div>
 									}
 								}
 								<div
@@ -249,7 +249,7 @@
 										</svg>
 										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">اضغط لرفع
 											الصورة</div>
-										<div class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</div>
+										<div class="text-[length:var(--font-size-caption)] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</div>
 										}
 									</label>
 								</div>
@@ -258,11 +258,11 @@
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">صورة بطاقة الهوية،
 									الوجه الخلفي <span class="font-normal text-slate-400">(اختياري)</span></label>
-								<span class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
-								@if (fileErrors()['backId']; as fe) { <span role="alert" class="field-error text-[11px] font-bold ">{{ fe }}</span> }
+								<span class="text-[length:var(--font-size-caption)] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
+								@if (fileErrors()['backId']; as fe) { <span role="alert" class="field-error text-[length:var(--font-size-small)] font-bold ">{{ fe }}</span> }
 								@if (storedDocs().backId; as stored) {
 									@if (!setupForm.get('identity.backId')?.value?.startsWith('data:')) {
-										<div class="flex items-center gap-2 text-[11px] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_back_id" [url]="stored.url" [access]="stored.access" /></div>
+										<div class="flex items-center gap-2 text-[length:var(--font-size-small)] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_back_id" [url]="stored.url" [access]="stored.access" /></div>
 									}
 								}
 								<div
@@ -331,7 +331,7 @@
 										</svg>
 										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">اضغط لرفع
 											الصورة</div>
-										<div class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</div>
+										<div class="text-[length:var(--font-size-caption)] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</div>
 										}
 									</label>
 								</div>
@@ -352,7 +352,7 @@
 										<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>
 									</svg>
 								</h4>
-								<p class="text-[10px] text-blue-600 dark:text-blue-400/60">التحقق عبر نفاذ غير متاح حاليًا</p>
+								<p class="text-[length:var(--font-size-caption)] text-blue-600 dark:text-blue-400/60">التحقق عبر نفاذ غير متاح حاليًا</p>
 							</div>
 						</div>
 					</div>
@@ -378,7 +378,7 @@
 								class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:outline-none">
 							<ws-field-error [control]="setupForm.get('bank.paypalPayoutEmail')" label="بريد PayPal"
 								[messages]="{ required: 'بريد PayPal مطلوب', email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
-							<span class="text-[11px] text-slate-500 dark:text-slate-400">يُستخدم PayPal فقط للمدفوعات على المنصة.</span>
+							<span class="text-[length:var(--font-size-small)] text-slate-500 dark:text-slate-400">يُستخدم PayPal فقط للمدفوعات على المنصة.</span>
 						</div>
 					</div>
 					}
@@ -410,11 +410,11 @@
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المستندات
 									الداعمة</label>
-								<span class="text-[10px] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 3 ميغابايت</span>
-								@if (fileErrors()['supportingDocs']; as fe) { <span role="alert" class="field-error text-[11px] font-bold ">{{ fe }}</span> }
+								<span class="text-[length:var(--font-size-caption)] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 3 ميغابايت</span>
+								@if (fileErrors()['supportingDocs']; as fe) { <span role="alert" class="field-error text-[length:var(--font-size-small)] font-bold ">{{ fe }}</span> }
 								@if (storedDocs().supportingDocs; as stored) {
 									@if (!setupForm.get('documents.supportingDocs')?.value?.startsWith('data:')) {
-										<div class="flex items-center gap-2 text-[11px] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_supporting_docs" [url]="stored.url" [access]="stored.access" /></div>
+										<div class="flex items-center gap-2 text-[length:var(--font-size-small)] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_supporting_docs" [url]="stored.url" [access]="stored.access" /></div>
 									}
 								}
 								<div
@@ -484,7 +484,7 @@
 										</svg>
 										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">اسحب الملفات
 											هنا أو اضغط للاختيار</div>
-										<div class="text-[10px] text-slate-500">شهادة بنك، ترخيص مهني، وثائق أخرى PDF
+										<div class="text-[length:var(--font-size-caption)] text-slate-500">شهادة بنك، ترخيص مهني، وثائق أخرى PDF
 											PNG JPG</div>
 										}
 									</label>
@@ -525,8 +525,8 @@
 								class="bg-slate-50 dark:bg-[#131C31]/50 border border-slate-200 dark:border-slate-700/80 rounded-xl p-3 flex flex-col gap-3">
 								<div class="flex items-center justify-between">
 									<div class="flex items-center gap-3">@if (stepIsIncomplete(1)) {<span data-testid="summary-step-1-incomplete"
-											class="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 text-[10px] rounded-full font-bold">ناقص</span>} @else {<span data-testid="summary-step-1-done"
-											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span>}<span
+											class="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 text-[length:var(--font-size-caption)] rounded-full font-bold">ناقص</span>} @else {<span data-testid="summary-step-1-done"
+											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[length:var(--font-size-caption)] rounded-full font-bold">مكتمل</span>}<span
 											class="text-sm text-slate-900 dark:text-white font-medium">بيانات طالب
 											الخدمة</span></div>
 									@if (stepIsIncomplete(1)) {<button type="button" data-testid="summary-fix-1" (click)="goToStep(1)" class="text-xs font-bold text-red-600 dark:text-red-300 underline underline-offset-4">أكمل المرحلة 1</button>} @else {<span class="text-xs text-slate-500">المرحلة 1</span>}
@@ -534,8 +534,8 @@
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
 								<div class="flex items-center justify-between">
 									<div class="flex items-center gap-3">@if (identityDocsProvided()) {<span data-testid="summary-step-2-done"
-											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">تم الإرسال</span>} @else {<span data-testid="summary-step-2-optional"
-											class="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] rounded-full font-bold">اختياري</span>}<span
+											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[length:var(--font-size-caption)] rounded-full font-bold">تم الإرسال</span>} @else {<span data-testid="summary-step-2-optional"
+											class="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[length:var(--font-size-caption)] rounded-full font-bold">اختياري</span>}<span
 											class="text-sm text-slate-900 dark:text-white font-medium">الهوية
 											والتوثيق</span></div>
 									<span class="text-xs text-slate-500">المرحلة 2</span>
@@ -543,15 +543,15 @@
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
 								<div class="flex items-center justify-between">
 									<div class="flex items-center gap-3">@if (stepIsIncomplete(3)) {<span data-testid="summary-step-3-incomplete"
-											class="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 text-[10px] rounded-full font-bold">ناقص</span>} @else {<span data-testid="summary-step-3-done"
-											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[10px] rounded-full font-bold">مكتمل</span>}<span
+											class="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 text-[length:var(--font-size-caption)] rounded-full font-bold">ناقص</span>} @else {<span data-testid="summary-step-3-done"
+											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[length:var(--font-size-caption)] rounded-full font-bold">مكتمل</span>}<span
 											class="text-sm text-slate-900 dark:text-white font-medium">بريد PayPal</span></div>
 									@if (stepIsIncomplete(3)) {<button type="button" data-testid="summary-fix-3" (click)="goToStep(3)" class="text-xs font-bold text-red-600 dark:text-red-300 underline underline-offset-4">أكمل المرحلة 3</button>} @else {<span class="text-xs text-slate-500">المرحلة 3</span>}
 								</div>
 								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
 								<div class="flex items-center justify-between">
 									<div class="flex items-center gap-3"><span
-											class="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] rounded-full font-bold">اختياري</span><span
+											class="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[length:var(--font-size-caption)] rounded-full font-bold">اختياري</span><span
 											class="text-sm text-slate-900 dark:text-white font-medium">المستندات عند
 											الحاجة</span></div>
 									<span class="text-xs text-slate-500">المرحلة 4</span>

@@ -29,7 +29,7 @@ import { RatingSavedCard } from '../rating-saved-card/rating-saved-card.componen
 		@if (status()?.counterpart; as other) { <app-rating-saved-card [review]="other" [label]="side() === 'client' ? 'تقييم مقدّم الخدمة لك' : 'تقييم العميل لك'" [commentLabel]="side() === 'client' ? 'تعليق مقدّم الخدمة' : 'تعليق العميل'" data-testid="rs-final-counterpart" /> }
 	}
 }`,
-	styles: [`:host{display:block}.rs-retry{background:none;border:1px dashed currentColor;border-radius:10px;padding:6px 12px;font-size:12px;cursor:pointer;color:inherit}`]
+	styles: [`:host{display:block}.rs-retry{background:none;border:1px dashed currentColor;border-radius:10px;padding:6px 12px;font-size:var(--font-size-small);cursor:pointer;color:inherit}`]
 })
 export class RatingSummary implements OnInit {
 	private api = inject(RatingApiService);

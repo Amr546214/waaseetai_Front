@@ -10,9 +10,9 @@
   } @else if (loadError()) {
     <div role="alert">
       <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)">
-        <div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر تحميل بيانات العقد</div>
-        <div style="font-size:12px;margin-bottom:12px" class="txt-muted">ERR-PR-007</div>
-        <button type="button" (click)="fetchContractDetails(offerId())" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">اعادة المحاولة</button>
+        <div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px">تعذر تحميل بيانات العقد</div>
+        <div style="font-size:var(--font-size-small);margin-bottom:12px" class="txt-muted">ERR-PR-007</div>
+        <button type="button" (click)="fetchContractDetails(offerId())" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:var(--font-size-label);cursor:pointer;font-family:inherit" class="txt-navy">اعادة المحاولة</button>
       </div>
     </div>
   } @else {
@@ -42,8 +42,8 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7"/></svg>
     </div>
     <div>
-      <div style="font-size:13px;font-weight:800" class="txt-teal">التوقيع نيابة عن الشركة</div>
-      <div style="font-size:12px;margin-top:2px" class="txt-slate">
+      <div style="font-size:var(--font-size-label);font-weight:800" class="txt-teal">التوقيع نيابة عن الشركة</div>
+      <div style="font-size:var(--font-size-small);margin-top:2px" class="txt-slate">
         {{ signerName() || 'غير محدد' }}
         @if (signerCommercialRegistration()) {<span> · س.ت {{ signerCommercialRegistration() }}</span>}
       </div>
@@ -61,7 +61,7 @@
 
   <div class="sec-ttl">بنود العقد</div>
   @if (contract(); as c) {
-  <div class="ws-note ws-note--info" style="padding:10px 14px;gap:9px;border-radius:10px;margin-bottom:12px;font-size:12px" data-testid="contract-ready-note">
+  <div class="ws-note ws-note--info" style="padding:10px 14px;gap:9px;border-radius:10px;margin-bottom:12px;font-size:var(--font-size-small)" data-testid="contract-ready-note">
     <svg width="15" height="15" aria-hidden="true"><use href="#i-shield"></use></svg>
     وقّع العميل العقد وموّل الضمان. بتوقيعك يبدأ المشروع وتُفتح مراحل التسليم.
   </div>
@@ -78,7 +78,7 @@
       <li>
         <strong class="txt-white">{{ m.title }}</strong>
         @if (milestoneMeta(m); as meta) {<span class="txt-muted"> — {{ meta }}</span>}
-        @if (m.description) {<div class="txt-muted" style="font-size:12px">{{ m.description }}</div>}
+        @if (m.description) {<div class="txt-muted" style="font-size:var(--font-size-small)">{{ m.description }}</div>}
       </li>
       }
     </ol>
@@ -94,8 +94,8 @@
         <svg width="16" height="16" aria-hidden="true"><use href="#i-escrow"></use></svg>
       </div>
       <div>
-        <div style="font-size:13px;font-weight:800" class="txt-teal">الضمان المالي (Escrow)</div>
-        <div style="font-size:12px;margin-top:2px" class="txt-slate">مبلغ {{ escrowAmount() }} محجوز في حساب الضمان، ولا يُفرَج عنه إلا بعد اعتماد العميل للتسليم</div>
+        <div style="font-size:var(--font-size-label);font-weight:800" class="txt-teal">الضمان المالي (Escrow)</div>
+        <div style="font-size:var(--font-size-small);margin-top:2px" class="txt-slate">مبلغ {{ escrowAmount() }} محجوز في حساب الضمان، ولا يُفرَج عنه إلا بعد اعتماد العميل للتسليم</div>
       </div>
     </div>
   </div>
@@ -114,13 +114,13 @@
     @if (contract()) {
     <label style="display:flex;align-items:flex-start;gap:11px;cursor:pointer;margin-bottom:16px" data-testid="contract-ack">
       <input type="checkbox" aria-required="true" [ngModel]="isAgreed" (ngModelChange)="onAckChange($event)" id="ack-ctr" [attr.aria-invalid]="ackError() ? 'true' : null" [attr.aria-describedby]="ackError() ? 'ack-ctr-err' : null" style="width:20px;height:20px;accent-flex-shrink:0;margin-top:1px" class="txt-teal">
-      <span style="font-size:13px;line-height:1.6" class="txt-slate"><span class="ws-req" aria-hidden="true">*</span> أقرّ بمراجعة بيانات العقد ومراحله وقيمة الضمان الممولة من العميل، وأوافق على توقيع العقد والبدء وفق البنود المعروضة و<a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="txt-teal">شروط الاستخدام</a>.</span>
+      <span style="font-size:var(--font-size-label);line-height:1.6" class="txt-slate"><span class="ws-req" aria-hidden="true">*</span> أقرّ بمراجعة بيانات العقد ومراحله وقيمة الضمان الممولة من العميل، وأوافق على توقيع العقد والبدء وفق البنود المعروضة و<a routerLink="/terms" target="_blank" rel="noopener noreferrer" class="txt-teal">شروط الاستخدام</a>.</span>
     </label>
     @if (ackError()) { <div class="field-error" id="ack-ctr-err" role="alert" data-testid="ack-error" style="margin:-8px 0 14px">يجب الموافقة على بنود العقد أولًا للمتابعة</div> }
     }
     <div class="actions-row" style="display:flex;gap:12px;flex-wrap:wrap">
-      <button type="button" [disabled]="!contract()" (click)="signContract()" class="btn-primary txt-navy" style="flex:1;min-width:180px;padding:13px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center">توقيع العقد</button>
-      <button type="button" (click)="openProjectConversation()" data-testid="contract-edit-terms" class="btn-secondary txt-slate" style="padding:13px 20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px">
+      <button type="button" [disabled]="!contract()" (click)="signContract()" class="btn-primary txt-navy" style="flex:1;min-width:180px;padding:13px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:var(--font-size-label);font-weight:900;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center">توقيع العقد</button>
+      <button type="button" (click)="openProjectConversation()" data-testid="contract-edit-terms" class="btn-secondary txt-slate" style="padding:13px 20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:var(--font-size-label);font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px">
         <svg width="16" height="16" aria-hidden="true"><use href="#i-chat"></use></svg>تعديل البنود عبر المحادثة
       </button>
     </div>

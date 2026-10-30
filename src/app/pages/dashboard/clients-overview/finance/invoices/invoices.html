@@ -21,7 +21,7 @@
 			<div class="text-sm font-black text-[var(--wsn-fg)]">اكتمال البيانات</div>
 			<p class="ws-note-txt text-xs font-bold leading-relaxed">
 				<span data-testid="invoices-completeness"
-					class="inline-block px-1.5 py-0.5 ml-1 text-[10px] rounded-md font-black bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/15 text-[var(--wsn-fg)]">اكتمال البيانات
+					class="inline-block px-1.5 py-0.5 ml-1 text-[length:var(--font-size-caption)] rounded-md font-black bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/15 text-[var(--wsn-fg)]">اكتمال البيانات
 					{{ verificationScore() }}%</span>
 				نسبة الحقول المتوفرة في الفواتير: العقد الموقّع، اسم مقدم الخدمة، المستند التجاري، المبلغ، وتاريخ الإصدار.
 			</p>
@@ -89,7 +89,7 @@
 			[class.dark:border-blue-400]="activeTab() === 'all'" [class.text-slate-500]="activeTab() !== 'all'"
 			[class.border-transparent]="activeTab() !== 'all'"
 			class="flex items-center gap-2 px-4 py-3 border-b-2 font-bold text-sm transition-colors whitespace-nowrap hover:text-slate-800 dark:hover:text-slate-200 outline-none">
-			الكل <span class="px-1.5 py-0.5 rounded text-[10px]" [class.bg-blue-100]="activeTab() === 'all'"
+			الكل <span class="px-1.5 py-0.5 rounded text-[length:var(--font-size-caption)]" [class.bg-blue-100]="activeTab() === 'all'"
 				[class.dark:bg-blue-500/20]="activeTab() === 'all'" [class.bg-slate-100]="activeTab() !== 'all'"
 				[class.dark:bg-slate-800]="activeTab() !== 'all'">{{ totalInvoices() }}</span>
 		</button>
@@ -98,7 +98,7 @@
 			[class.dark:border-blue-400]="activeTab() === 'paid'" [class.text-slate-500]="activeTab() !== 'paid'"
 			[class.border-transparent]="activeTab() !== 'paid'"
 			class="flex items-center gap-2 px-4 py-3 border-b-2 font-bold text-sm transition-colors whitespace-nowrap hover:text-slate-800 dark:hover:text-slate-200 outline-none">
-			مدفوعة <span class="px-1.5 py-0.5 rounded text-[10px]" [class.bg-blue-100]="activeTab() === 'paid'"
+			مدفوعة <span class="px-1.5 py-0.5 rounded text-[length:var(--font-size-caption)]" [class.bg-blue-100]="activeTab() === 'paid'"
 				[class.dark:bg-blue-500/20]="activeTab() === 'paid'" [class.bg-slate-100]="activeTab() !== 'paid'"
 				[class.dark:bg-slate-800]="activeTab() !== 'paid'">{{ paidInvoices() }}</span>
 		</button>
@@ -107,7 +107,7 @@
 			[class.dark:border-blue-400]="activeTab() === 'due'" [class.text-slate-500]="activeTab() !== 'due'"
 			[class.border-transparent]="activeTab() !== 'due'"
 			class="flex items-center gap-2 px-4 py-3 border-b-2 font-bold text-sm transition-colors whitespace-nowrap hover:text-slate-800 dark:hover:text-slate-200 outline-none">
-			بانتظار الدفع <span class="px-1.5 py-0.5 rounded text-[10px]" [class.bg-blue-100]="activeTab() === 'due'"
+			بانتظار الدفع <span class="px-1.5 py-0.5 rounded text-[length:var(--font-size-caption)]" [class.bg-blue-100]="activeTab() === 'due'"
 				[class.dark:bg-blue-500/20]="activeTab() === 'due'" [class.bg-slate-100]="activeTab() !== 'due'"
 				[class.dark:bg-slate-800]="activeTab() !== 'due'">{{ dueInvoices() }}</span>
 		</button>
@@ -124,7 +124,7 @@
 				<table class="w-full text-right whitespace-nowrap">
 					<thead>
 						<tr
-							class="bg-slate-50 dark:bg-slate-800/50 text-[11px] font-black text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+							class="bg-slate-50 dark:bg-slate-800/50 text-[length:var(--font-size-small)] font-black text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
 							<th class="py-4 px-5">الفاتورة</th>
 							<th class="py-4 px-5">مقدم الخدمة</th>
 							<th class="py-4 px-5">التاريخ</th>
@@ -159,7 +159,7 @@
 										<div
 											class="text-sm font-black text-slate-900 dark:text-white group-hover:text-blue-500 transition-colors">
 											{{ inv.id }}</div>
-										<div class="text-[11px] font-bold text-slate-500">{{ inv.project }}</div>
+										<div class="text-[length:var(--font-size-small)] font-bold text-slate-500">{{ inv.project }}</div>
 									</div>
 								</div>
 							</td>
@@ -171,7 +171,7 @@
 									<div class="text-sm font-black text-slate-900 dark:text-white">{{ inv.total | number:'1.0-2'
 										}} $</div>
 									@if ((inv.discount || 0) > 0) {
-									<div class="text-[10px] font-bold text-emerald-600" data-testid="invoice-row-discount">بعد خصم كوبون {{ inv.discount | number:'1.0-2' }} $</div>
+									<div class="text-[length:var(--font-size-caption)] font-bold text-emerald-600" data-testid="invoice-row-discount">بعد خصم كوبون {{ inv.discount | number:'1.0-2' }} $</div>
 									}
 								</div>
 							</td>

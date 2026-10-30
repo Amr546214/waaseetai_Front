@@ -79,7 +79,7 @@
       } @else if (hasActivePurchase(model)) {
       <div class="svc-foot"><div><div class="svc-price-lbl">لديك طلب قائم</div><div class="svc-price">قيد التنفيذ — متابعة</div></div></div>
       } @else if (mode === 'flash') {
-      <div class="svc-foot"><div><div class="svc-price-lbl">بعد الخصم</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $ <span style="font-size:10px;text-decoration:line-through;color:var(--txt-3);font-weight:400">{{ originalPrice(model) | number:'1.0-0' }}</span></div></div></div>
+      <div class="svc-foot"><div><div class="svc-price-lbl">بعد الخصم</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $ <span style="font-size:var(--font-size-caption);text-decoration:line-through;color:var(--txt-3);font-weight:400">{{ originalPrice(model) | number:'1.0-0' }}</span></div></div></div>
       } @else if (mode === 'ai') {
       <div class="svc-foot"><div><div class="svc-price-lbl">يبدأ من</div><div class="svc-price">{{ model.totalAmount | number:'1.0-0' }} $</div></div>@if (model.totalDays) {<div class="svc-del">{{ model.totalDays }} أيام</div>}</div>
       } @else {
@@ -219,7 +219,7 @@
         <div class="flash-timer">
           <svg aria-hidden="true"><use href="#ws-clock"></use></svg>
           <div>
-            <div style="font-size:9px;font-weight:600;opacity:.7;line-height:1">تنتهي خلال</div>
+            <div style="font-size:var(--font-size-caption);font-weight:600;opacity:.7;line-height:1">تنتهي خلال</div>
             <span class="countdown-timer" style="font-variant-numeric:tabular-nums;letter-spacing:.5px">{{ cd }}</span>
           </div>
         </div>
@@ -318,7 +318,7 @@
       </div>
       @if (allModels().length > 8) {
       <div style="display:flex;justify-content:center;margin-top:28px">
-        <a routerLink="/marketplace" [queryParams]="{ page: 1 }" class="btn-ghost" style="padding:12px 40px;font-size:14px;font-weight:700">تصفح المزيد من الخدمات</a>
+        <a routerLink="/marketplace" [queryParams]="{ page: 1 }" class="btn-ghost" style="padding:12px 40px;font-size:var(--font-size-label);font-weight:700">تصفح المزيد من الخدمات</a>
       </div>
       }
     </div>
@@ -326,8 +326,8 @@
     <!-- CUSTOM REQUEST -->
     <div class="custom-cta">
       <div>
-        <div style="font-size:18px;font-weight:900;color:var(--txt);margin-bottom:6px">ما وجدت الخدمة المناسبة؟</div>
-        <div style="font-size:14px;color:var(--txt-2)">أنشئ طلباً مخصصاً وستصلك عروض من مقدمي الخدمة</div>
+        <div style="font-size:var(--font-size-section);font-weight:900;color:var(--txt);margin-bottom:6px">ما وجدت الخدمة المناسبة؟</div>
+        <div style="font-size:var(--font-size-label);color:var(--txt-2)">أنشئ طلباً مخصصاً وستصلك عروض من مقدمي الخدمة</div>
       </div>
       <a routerLink="/custom-request" class="btn-primary">أنشئ طلباً مخصصاً</a>
     </div>
@@ -498,20 +498,20 @@
         <div class="no-results-cta">
           <div class="no-results-ico"><svg><use href="#ws-person"></use></svg></div>
           <div style="flex:1">
-            <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px">ما وجدت ما تبحث عنه بالضبط؟</div>
-            <div style="font-size:12px;color:var(--txt-3)">أنشئ طلباً مخصصاً وستصلك عروض من مقدمي الخدمة</div>
+            <div style="font-size:var(--font-size-label);font-weight:700;color:var(--txt);margin-bottom:3px">ما وجدت ما تبحث عنه بالضبط؟</div>
+            <div style="font-size:var(--font-size-small);color:var(--txt-3)">أنشئ طلباً مخصصاً وستصلك عروض من مقدمي الخدمة</div>
           </div>
-          <a routerLink="/custom-request" style="padding:8px 16px;border-radius:999px;background:var(--grad);color:#070D24;font-size:12px;font-weight:800;white-space:nowrap;text-decoration:none;flex-shrink:0">أنشئ طلباً</a>
+          <a routerLink="/custom-request" style="padding:8px 16px;border-radius:999px;background:var(--grad);color:#070D24;font-size:var(--font-size-small);font-weight:800;white-space:nowrap;text-decoration:none;flex-shrink:0">أنشئ طلباً</a>
         </div>
 
         <!-- ACTIVE FILTERS -->
         @if (activeFilters().length > 0) {
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-          <span style="font-size:11px;font-weight:800;color:var(--txt-3);white-space:nowrap">فلاتر نشطة:</span>
+          <span style="font-size:var(--font-size-small);font-weight:800;color:var(--txt-3);white-space:nowrap">فلاتر نشطة:</span>
           @for (chip of activeFilters(); track chip.key) {
-          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.25);font-size:12px;font-weight:700;color:var(--teal)">{{ chip.label }} <button type="button" (click)="removeFilter(chip.key)" [attr.aria-label]="'إزالة ' + chip.label" style="display:inline-flex;align-items:center;color:var(--teal);opacity:.7;margin-inline-start:2px;font-size:14px;line-height:1">×</button></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.25);font-size:var(--font-size-small);font-weight:700;color:var(--teal)">{{ chip.label }} <button type="button" (click)="removeFilter(chip.key)" [attr.aria-label]="'إزالة ' + chip.label" style="display:inline-flex;align-items:center;color:var(--teal);opacity:.7;margin-inline-start:2px;font-size:var(--font-size-label);line-height:1">×</button></span>
           }
-          <button type="button" (click)="resetFilters()" style="font-size:11px;font-weight:700;color:var(--red);background:none;border:none;cursor:pointer;padding:4px 8px">مسح الكل</button>
+          <button type="button" (click)="resetFilters()" style="font-size:var(--font-size-small);font-weight:700;color:var(--red);background:none;border:none;cursor:pointer;padding:4px 8px">مسح الكل</button>
         </div>
         }
 
@@ -648,7 +648,7 @@
           <button class="pg-btn" type="button" aria-label="الصفحة السابقة" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)"><svg><use href="#ws-chevron-r"></use></svg></button>
           @for (page of pageItems(); track $index) {
           @if (page === null) {
-          <span style="color:var(--txt-3);font-size:13px;padding:0 4px">...</span>
+          <span style="color:var(--txt-3);font-size:var(--font-size-label);padding:0 4px">...</span>
           } @else {
           <button class="pg-btn" type="button" [class.active]="currentPage() === page" [attr.aria-current]="currentPage() === page ? 'page' : null" (click)="goToPage(page)">{{ page }}</button>
           }

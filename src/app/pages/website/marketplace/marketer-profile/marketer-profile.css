@@ -11,7 +11,7 @@
 
 /* the website layout's <main> already reserves the design's 64px fixed-header offset */
 .page-wrap{position:relative;z-index:2}
-.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-3);padding:16px 0 0;flex-wrap:wrap}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:var(--font-size-small);color:var(--txt-3);padding:16px 0 0;flex-wrap:wrap}
 .breadcrumb a{color:var(--txt-3);text-decoration:none;transition:color .15s;cursor:pointer}
 .breadcrumb a:hover{color:var(--teal)}
 .breadcrumb-sep{opacity:.4}
@@ -24,42 +24,42 @@
 .identity-info{flex:1;padding-bottom:4px}
 .identity-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .identity-name{font-size:24px;font-weight:900;color:var(--txt)}
-.broker-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;display:inline-flex;align-items:center;gap:5px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.3);color:var(--teal)}
-.verified-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);color:var(--teal)}
+.broker-badge{padding:4px 12px;border-radius:20px;font-size:var(--font-size-small);font-weight:800;display:inline-flex;align-items:center;gap:5px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.3);color:var(--teal)}
+.verified-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:var(--font-size-small);font-weight:800;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);color:var(--teal)}
 .identity-actions{padding-bottom:4px;display:flex;gap:8px;flex-shrink:0}
-.btn-primary-sm{padding:10px 22px;border-radius:999px;background:var(--grad);font-size:13px;font-weight:800;color:#070D24;border:none;cursor:pointer}
-.btn-ghost-sm{padding:10px 16px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--txt-2);background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+.btn-primary-sm{padding:10px 22px;border-radius:999px;background:var(--grad);font-size:var(--font-size-label);font-weight:800;color:#070D24;border:none;cursor:pointer}
+.btn-ghost-sm{padding:10px 16px;border-radius:999px;border:1px solid var(--border);font-size:var(--font-size-label);font-weight:700;color:var(--txt-2);background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
 .btn-ghost-sm:hover{border-color:rgba(43,212,199,.3);color:var(--teal)}
 /* favourite toggled — same values the design's fav-btn click handler sets */
 .btn-ghost-sm.is-fav{color:var(--red);border-color:rgba(255,140,105,.3)}
 .niche-tags-row{display:flex;gap:6px;flex-wrap:wrap;padding:10px 0 16px}
-.niche-tag{padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.14);color:var(--teal)}
+.niche-tag{padding:4px 12px;border-radius:8px;font-size:var(--font-size-small);font-weight:700;background:rgba(43,212,199,.06);border:1px solid rgba(43,212,199,.14);color:var(--teal)}
 /* STATS (P-MK-014/015 stats bar; cells bound to real profile data, column count follows the cell count) */
 .stats-bar{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .stat-cell{text-align:center;padding:15px;border-inline-start:1px solid var(--border)}
 .stat-cell:first-child{border-inline-start:none}
 .stat-n{font-size:21px;font-weight:900;color:var(--txt)}
-.stat-sub{font-size:10px;color:var(--txt-3);margin-top:3px}
+.stat-sub{font-size:var(--font-size-caption);color:var(--txt-3);margin-top:3px}
 /* TABS */
 .profile-tabs{display:flex;gap:2px;padding:4px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);border-inline:1px solid var(--border)}
-.ptab{padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;color:var(--txt-3);cursor:pointer;transition:all .15s;text-decoration:none;display:block}
+.ptab{padding:9px 22px;border-radius:8px;font-size:var(--font-size-label);font-weight:700;color:var(--txt-3);cursor:pointer;transition:all .15s;text-decoration:none;display:block}
 .ptab:hover{color:var(--txt-2)}
 .ptab.active{background:rgba(43,212,199,.09);color:var(--teal);border:1px solid rgba(43,212,199,.18)}
 /* LAYOUT */
 .profile-layout{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start}
 /* CARDS */
 .section-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
-.section-title{font-size:13px;font-weight:800;color:var(--txt);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title{font-size:var(--font-size-label);font-weight:800;color:var(--txt);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 /* CHANNEL MINI CARDS */
 .channel-mini{display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;transition:border-color .15s;cursor:pointer}
 .channel-mini:hover{border-color:rgba(43,212,199,.2)}
 .channel-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 /* "عرض جميع القنوات" link — the design's inline style + onmouseover/onmouseout values */
-.view-all-channels{display:block;text-align:center;padding:11px;border-radius:9px;border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--txt-3);text-decoration:none;transition:all .15s;margin-top:4px;cursor:pointer}
+.view-all-channels{display:block;text-align:center;padding:11px;border-radius:9px;border:1px solid var(--border);font-size:var(--font-size-small);font-weight:700;color:var(--txt-3);text-decoration:none;transition:all .15s;margin-top:4px;cursor:pointer}
 .view-all-channels:hover{border-color:rgba(43,212,199,.3);color:var(--teal)}
 /* HOW TO WORK */
 .step-row{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
-.step-num{width:28px;height:28px;border-radius:8px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--teal);flex-shrink:0;margin-top:1px}
+.step-num{width:28px;height:28px;border-radius:8px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-small);font-weight:900;color:var(--teal);flex-shrink:0;margin-top:1px}
 /* SIDEBAR */
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
 /* CHANNELS GRID (P-MK-015) */

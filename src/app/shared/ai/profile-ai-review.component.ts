@@ -59,10 +59,10 @@ const OPEN_STATUSES = ['PENDING_OTP', 'IN_AI_REVIEW', 'PENDING_HUMAN_REVIEW'];
 		.ws-air-ico { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(123,47,190,.15); color: #A56BE0; }
 		.ws-air-neutral { background: rgba(255,255,255,.06); color: var(--txt-3, #8892b0); }
 		.ws-air-body { flex: 1; min-width: 0; }
-		.ws-air-ttl { font-size: 10.5px; font-weight: 900; letter-spacing: .04em; color: #A56BE0; margin-bottom: 4px; }
-		.ws-air-txt { margin: 0 0 4px; font-size: 12px; line-height: 1.7; color: var(--txt-3, #8892b0); }
-		.ws-air-list { margin: 4px 0; padding-inline-start: 18px; font-size: 12px; line-height: 1.7; color: var(--txt-3, #8892b0); list-style: disc; }
-		.ws-air-note { font-size: 10.5px; font-weight: 700; color: var(--txt-3, #8892b0); opacity: .8; }
+		.ws-air-ttl { font-size: var(--font-size-small); font-weight: 900; letter-spacing: .04em; color: #A56BE0; margin-bottom: 4px; }
+		.ws-air-txt { margin: 0 0 4px; font-size: var(--font-size-small); line-height: 1.7; color: var(--txt-3, #8892b0); }
+		.ws-air-list { margin: 4px 0; padding-inline-start: 18px; font-size: var(--font-size-small); line-height: 1.7; color: var(--txt-3, #8892b0); list-style: disc; }
+		.ws-air-note { font-size: var(--font-size-small); font-weight: 700; color: var(--txt-3, #8892b0); opacity: .8; }
 	`],
 })
 export class ProfileAiReviewComponent {

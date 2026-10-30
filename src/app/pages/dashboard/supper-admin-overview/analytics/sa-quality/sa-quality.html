@@ -9,7 +9,7 @@
     <button type="button" class="sq-cbtn" data-testid="sq-print" (click)="print()">طباعة / حفظ PDF</button>
   </div>
   @if (failed()) {
-    <div role="alert" class="sq-card" data-testid="sq-error"><div class="sq-card-ttl">تعذّر تحميل البيانات</div><p style="font-size:12px">لا تُعرض أرقام بديلة. <button type="button" class="sq-cbtn" (click)="reload()">إعادة المحاولة</button></p></div>
+    <div role="alert" class="sq-card" data-testid="sq-error"><div class="sq-card-ttl">تعذّر تحميل البيانات</div><p style="font-size:var(--font-size-small)">لا تُعرض أرقام بديلة. <button type="button" class="sq-cbtn" (click)="reload()">إعادة المحاولة</button></p></div>
   }
 
   <app-reviews-summary />
@@ -32,7 +32,7 @@
         </svg>
       </div>
     } @else {
-      <p class="txt-muted" style="font-size:12px" data-testid="sq-trend-empty">لا توجد تقييمات في هذه الفترة لرسم الاتجاه.</p>
+      <p class="txt-muted" style="font-size:var(--font-size-small)" data-testid="sq-trend-empty">لا توجد تقييمات في هذه الفترة لرسم الاتجاه.</p>
     }
   </div>
 
@@ -52,9 +52,9 @@
           <span class="sq-score-val" [style.color]="s.color">{{ s.display }}</span>
         </div>
       } @empty {
-        <p class="txt-muted" style="font-size:12px">لا توجد بيانات كافية في هذه الفترة.</p>
+        <p class="txt-muted" style="font-size:var(--font-size-small)">لا توجد بيانات كافية في هذه الفترة.</p>
       }
-      <p class="txt-muted" style="font-size:11px;margin-top:10px" role="status">رضا طالبي ومقدمي الخدمة وNPS ومعدل العودة ووقت رد الدعم غير متاحة — لا توجد استبيانات أو قياسات مسجّلة لها.</p>
+      <p class="txt-muted" style="font-size:var(--font-size-small);margin-top:10px" role="status">رضا طالبي ومقدمي الخدمة وNPS ومعدل العودة ووقت رد الدعم غير متاحة — لا توجد استبيانات أو قياسات مسجّلة لها.</p>
     </div>
     <div>
       <div class="sq-card">
@@ -67,13 +67,13 @@
               <div class="sq-review-time">{{ r.createdAt | date:'yyyy-MM-dd HH:mm' }}</div>
             </div>
           } @empty {
-            <p class="txt-muted" style="font-size:12px" data-testid="sq-reviews-empty">لا توجد تقييمات في هذه الفترة.</p>
+            <p class="txt-muted" style="font-size:var(--font-size-small)" data-testid="sq-reviews-empty">لا توجد تقييمات في هذه الفترة.</p>
           }
         </div>
       </div>
       <div class="sq-card">
         <div class="sq-card-ttl">تنبيهات الجودة</div>
-        <div role="status" class="txt-muted" style="font-size:12px">غير متاح — لا توجد قواعد تنبيه آلية مسجّلة. المقدمون الأقل تقييمًا معروضون بالأسفل.</div>
+        <div role="status" class="txt-muted" style="font-size:var(--font-size-small)">غير متاح — لا توجد قواعد تنبيه آلية مسجّلة. المقدمون الأقل تقييمًا معروضون بالأسفل.</div>
       </div>
     </div>
   </div>
@@ -87,7 +87,7 @@
           <div class="sq-prov-body"><div class="sq-prov-name">{{ p.name }}</div><div class="sq-prov-meta">{{ p.averageRating }}★ · {{ p.reviewCount }} تقييم · {{ p.completedProjects }} مشروع مكتمل</div></div>
         </div>
       } @empty {
-        <p class="txt-muted" style="font-size:12px">لا يوجد مقدمون تقييمهم أقل من 3.5 في هذه الفترة.</p>
+        <p class="txt-muted" style="font-size:var(--font-size-small)">لا يوجد مقدمون تقييمهم أقل من 3.5 في هذه الفترة.</p>
       }
     </div>
     <div class="sq-card">
@@ -99,9 +99,9 @@
             @if (c.comment) { <div class="sq-contested-text">{{ c.comment }}</div> }
           </div>
         } @empty {
-          <p style="font-size:12px" class="txt-muted">لا توجد تقييمات منخفضة في هذه الفترة.</p>
+          <p style="font-size:var(--font-size-small)" class="txt-muted">لا توجد تقييمات منخفضة في هذه الفترة.</p>
         }
-        <p class="txt-muted" style="font-size:11px" role="status" data-testid="sq-moderation-note">إبقاء/حذف التقييمات غير متاح حاليًا — لا توجد واجهة خلفية لإدارة التقييمات أو الاعتراض عليها.</p>
+        <p class="txt-muted" style="font-size:var(--font-size-small)" role="status" data-testid="sq-moderation-note">إبقاء/حذف التقييمات غير متاح حاليًا — لا توجد واجهة خلفية لإدارة التقييمات أو الاعتراض عليها.</p>
       </div>
     </div>
   </div>

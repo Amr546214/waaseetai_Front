@@ -23,16 +23,16 @@ import { RouterModule } from '@angular/router';
 
     .help-answer { margin-top: 16px; border-top: 1px solid rgba(123,47,190,.2); padding-top: 16px; animation: ws-fade .3s ease both; }
     .ha-q { display: flex; justify-content: flex-start; margin-bottom: 13px; }
-    .ha-q span { background: linear-gradient(135deg,#2BD4C7,#2B7FFF); color: #070D24; font-weight: 700; font-size: 13px; padding: 10px 15px; border-radius: 14px; border-top-right-radius: 5px; max-width: 80%; line-height: 1.5; }
+    .ha-q span { background: linear-gradient(135deg,#2BD4C7,#2B7FFF); color: #070D24; font-weight: 700; font-size: var(--font-size-label); padding: 10px 15px; border-radius: 14px; border-top-right-radius: 5px; max-width: 80%; line-height: 1.5; }
 
     .ha-ai { display: flex; gap: 11px; align-items: flex-start; }
     .ha-orb { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; background: radial-gradient(circle at 35% 30%,#A56BE0,#7B2FBE 70%); box-shadow: 0 0 16px rgba(123,47,190,.4); }
 
     .ha-body { flex: 1; min-width: 0; }
-    .ha-text { background: linear-gradient(135deg,rgba(123,47,190,.15),rgba(165,107,224,.05)); border: 1px solid rgba(123,47,190,.26); border-radius: 14px; border-top-right-radius: 5px; padding: 13px 16px; font-size: 14px; line-height: 1.75; color: #fff; }
+    .ha-text { background: linear-gradient(135deg,rgba(123,47,190,.15),rgba(165,107,224,.05)); border: 1px solid rgba(123,47,190,.26); border-radius: 14px; border-top-right-radius: 5px; padding: 13px 16px; font-size: var(--font-size-label); line-height: 1.75; color: #fff; }
 
     .ha-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
-    .ha-link { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: rgba(123,47,190,.10); border: 1px solid rgba(123,47,190,.26); border-radius: 9px; font-size: 12px; font-weight: 700; color: var(--ai-txt,#A56BE0); text-decoration: none; transition: background .15s; }
+    .ha-link { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: rgba(123,47,190,.10); border: 1px solid rgba(123,47,190,.26); border-radius: 9px; font-size: var(--font-size-small); font-weight: 700; color: var(--ai-txt,#A56BE0); text-decoration: none; transition: background .15s; }
     .ha-link:hover { background: rgba(123,47,190,.2); }
 
     .faq-a { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
@@ -44,7 +44,7 @@ import { RouterModule } from '@angular/router';
 
     .faq-item { background: linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
     .faq-q { display: flex; align-items: center; gap: 12px; width: 100%; padding: 15px 18px; background: transparent; border: 0; cursor: pointer; font-family: inherit; text-align: right; direction: rtl; }
-    .faq-q-txt { flex: 1; font-size: 13.5px; font-weight: 700; color: #fff; }
+    .faq-q-txt { flex: 1; font-size: var(--font-size-label); font-weight: 700; color: #fff; }
     .faq-q-arrow { width: 16px; height: 16px; color: #6B7699; flex-shrink: 0; transition: transform .2s; }
 
     .tk-card { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 13px; padding: 15px 18px; margin-bottom: 10px; transition: border-color .15s; cursor: pointer; text-decoration: none; }

@@ -31,7 +31,7 @@
 					<div class="tkd-id">{{ t.code }} · فُتحت {{ t.createdAt }}</div>
 				</div>
 				<span class="tk-status tks-human" data-testid="ticket-status">{{ t.statusLabel }}</span>
-				<button type="button" class="retry-btn" style="padding:6px 14px;font-size:12px" [disabled]="isLoading()" (click)="retry()" data-testid="ticket-refresh">تحديث</button>
+				<button type="button" class="retry-btn" style="padding:6px 14px;font-size:var(--font-size-small)" [disabled]="isLoading()" (click)="retry()" data-testid="ticket-refresh">تحديث</button>
 			</div>
 			<div class="tkd-meta">
 				<div class="tkd-meta-item"><div class="tkd-meta-lbl">التصنيف</div><div class="tkd-meta-val">{{ t.category }}</div></div>

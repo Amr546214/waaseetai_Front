@@ -14,7 +14,7 @@
     <div style="flex:1;min-width:220px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <ws-marketer-level [summary]="summary()" />
-        <span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals ?? 0 }} إحالة ناجحة · {{ summary()?.totalCommissions ?? 0 }} دولار عمولات</span>
+        <span style="font-size:var(--font-size-small)" class="txt-muted">· {{ summary()?.successfulReferrals ?? 0 }} إحالة ناجحة · {{ summary()?.totalCommissions ?? 0 }} دولار عمولات</span>
       </div>
     </div>
   </div>
@@ -59,19 +59,19 @@
         <svg aria-hidden="true"><use href="#i-add-user"></use></svg>قائمة الإحالات
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="filter-chip" [class.active]="filterStatus() === 'all'" (click)="setFilter('all')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">الكل</button>
-        <button class="filter-chip" [class.active]="filterStatus() === ReferralStatus.PENDING" (click)="setFilter(ReferralStatus.PENDING)" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">معلقة</button>
-        <button class="filter-chip" [class.active]="filterStatus() === ReferralStatus.QUALIFIED" (click)="setFilter(ReferralStatus.QUALIFIED)" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">مؤهلة</button>
-        <button class="filter-chip" [class.active]="filterStatus() === ReferralStatus.CONVERTED" (click)="setFilter(ReferralStatus.CONVERTED)" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">محولة</button>
+        <button class="filter-chip" [class.active]="filterStatus() === 'all'" (click)="setFilter('all')" style="padding:5px 12px;border-radius:20px;font-size:var(--font-size-small);font-weight:700;cursor:pointer;font-family:inherit;">الكل</button>
+        <button class="filter-chip" [class.active]="filterStatus() === ReferralStatus.PENDING" (click)="setFilter(ReferralStatus.PENDING)" style="padding:5px 12px;border-radius:20px;font-size:var(--font-size-small);font-weight:700;cursor:pointer;font-family:inherit;">معلقة</button>
+        <button class="filter-chip" [class.active]="filterStatus() === ReferralStatus.QUALIFIED" (click)="setFilter(ReferralStatus.QUALIFIED)" style="padding:5px 12px;border-radius:20px;font-size:var(--font-size-small);font-weight:700;cursor:pointer;font-family:inherit;">مؤهلة</button>
+        <button class="filter-chip" [class.active]="filterStatus() === ReferralStatus.CONVERTED" (click)="setFilter(ReferralStatus.CONVERTED)" style="padding:5px 12px;border-radius:20px;font-size:var(--font-size-small);font-weight:700;cursor:pointer;font-family:inherit;">محولة</button>
       </div>
     </div>
 
     <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" class="inp-field" placeholder="بحث بالاسم" style="margin-bottom:14px">
 
     @if (isLoading()) {
-      <p style="text-align:center;font-size:12px;padding:18px 0" class="txt-muted">جاري تحميل الإحالات...</p>
+      <p style="text-align:center;font-size:var(--font-size-small);padding:18px 0" class="txt-muted">جاري تحميل الإحالات...</p>
     } @else if (errorMessage()) {
-      <p style="text-align:center;font-size:12px;padding:18px 0" class="txt-coral">{{ errorMessage() }}</p>
+      <p style="text-align:center;font-size:var(--font-size-small);padding:18px 0" class="txt-coral">{{ errorMessage() }}</p>
     } @else {
     <div style="overflow-x:auto">
       <table class="act-tbl">
@@ -89,7 +89,7 @@
               <td>{{ item.referredUserDisplayName }}</td>
               <td>{{ item.joinedAt | date:'yyyy-MM-dd' }}</td>
               <td>
-                <span [style.background]="getStatusBg(item.status)" style="padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700" [class]="getStatusClass(item.status)">{{ getStatusLabel(item.status) }}</span>
+                <span [style.background]="getStatusBg(item.status)" style="padding:3px 10px;border-radius:12px;font-size:var(--font-size-small);font-weight:700" [class]="getStatusClass(item.status)">{{ getStatusLabel(item.status) }}</span>
               </td>
               <td [class]="getStatusClass(item.status)" style="font-weight:700">
                 {{ formatCommission(item.commissionEarned) }}
@@ -101,7 +101,7 @@
     </div>
 
     @if (filteredReferrals().length === 0) {
-      <p style="text-align:center;font-size:12px;padding:18px 0" class="txt-muted">لا توجد إحالات مطابقة</p>
+      <p style="text-align:center;font-size:var(--font-size-small);padding:18px 0" class="txt-muted">لا توجد إحالات مطابقة</p>
     }
 
     @if (totalPages() > 1) {

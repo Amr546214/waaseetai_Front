@@ -1,8 +1,8 @@
 <div class="tm-page" dir="rtl">
 	@if (!isCompany()) {
 	<div style="padding:40px 20px;text-align:center;border-radius:16px;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.08)">
-		<div style="font-size:15px;font-weight:800;margin-bottom:6px;color:#fff">هذه الصفحة متاحة لحسابات الشركات فقط</div>
-		<div style="font-size:13px;color:#6B7699">إدارة الفريق خاصة بحسابات "عميل - شركة"</div>
+		<div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px;color:#fff">هذه الصفحة متاحة لحسابات الشركات فقط</div>
+		<div style="font-size:var(--font-size-label);color:#6B7699">إدارة الفريق خاصة بحسابات "عميل - شركة"</div>
 	</div>
 	} @else {
 	<div class="page-hd">
@@ -20,12 +20,12 @@
 
 	@if (showInviteForm()) {
 	<div style="background:rgba(255,255,255,.03);border:1px solid rgba(43,212,199,.2);border-radius:14px;padding:18px;margin-bottom:20px">
-		<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:12px">دعوة موظف جديد</div>
+		<div style="font-size:var(--font-size-label);font-weight:800;color:#fff;margin-bottom:12px">دعوة موظف جديد</div>
 		<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px">
-			<div style="display:flex;flex-direction:column;gap:4px"><label for="invite-name" style="font-size:12px;font-weight:700;color:var(--txt-3)">الاسم الكامل <span class="ws-req" aria-hidden="true">*</span></label><input id="invite-name" name="invite-name" aria-required="true" [attr.aria-invalid]="inviteFieldErrors().name ? 'true' : null" [attr.aria-describedby]="inviteFieldErrors().name ? 'invite-name-err' : null" type="text" [(ngModel)]="inviteName" placeholder="الاسم الكامل" style="padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:13px" />@if (inviteFieldErrors().name) { <div class="field-error" id="invite-name-err" role="alert">{{ inviteFieldErrors().name }}</div> }</div>
-			<div style="display:flex;flex-direction:column;gap:4px"><label for="invite-email" style="font-size:12px;font-weight:700;color:var(--txt-3)">البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></label><input id="invite-email" name="invite-email" aria-required="true" [attr.aria-invalid]="inviteFieldErrors().email ? 'true' : null" [attr.aria-describedby]="inviteFieldErrors().email ? 'invite-email-err' : null" type="email" [(ngModel)]="inviteEmail" placeholder="البريد الإلكتروني" style="padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:13px;direction:ltr;text-align:right" />@if (inviteFieldErrors().email) { <div class="field-error" id="invite-email-err" role="alert">{{ inviteFieldErrors().email }}</div> }</div>
-			<div style="display:flex;flex-direction:column;gap:4px"><label for="invite-phone" style="font-size:12px;font-weight:700;color:var(--txt-3)">رقم الهاتف (اختياري)</label><input id="invite-phone" name="invite-phone" [attr.aria-invalid]="inviteFieldErrors().phone ? 'true' : null" [attr.aria-describedby]="inviteFieldErrors().phone ? 'invite-phone-err' : null" type="text" [(ngModel)]="invitePhone" placeholder="رقم الهاتف (اختياري)" style="padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:13px;direction:ltr;text-align:right" />@if (inviteFieldErrors().phone) { <div class="field-error" id="invite-phone-err" role="alert">{{ inviteFieldErrors().phone }}</div> }</div>
-			<div style="display:flex;flex-direction:column;gap:4px"><label for="invite-job" style="font-size:12px;font-weight:700;color:var(--txt-3)">المسمى الوظيفي <span class="ws-req" aria-hidden="true">*</span></label><input id="invite-job" name="invite-job" aria-required="true" [attr.aria-invalid]="inviteFieldErrors().jobTitle ? 'true' : null" [attr.aria-describedby]="inviteFieldErrors().jobTitle ? 'invite-job-err' : null" type="text" [(ngModel)]="inviteJobTitle" placeholder="المسمى الوظيفي" style="padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:13px" />@if (inviteFieldErrors().jobTitle) { <div class="field-error" id="invite-job-err" role="alert">{{ inviteFieldErrors().jobTitle }}</div> }</div>
+			<div style="display:flex;flex-direction:column;gap:4px"><label for="invite-name" style="font-size:var(--font-size-small);font-weight:700;color:var(--txt-3)">الاسم الكامل <span class="ws-req" aria-hidden="true">*</span></label><input id="invite-name" name="invite-name" aria-required="true" [attr.aria-invalid]="inviteFieldErrors().name ? 'true' : null" [attr.aria-describedby]="inviteFieldErrors().name ? 'invite-name-err' : null" type="text" [(ngModel)]="inviteName" placeholder="الاسم الكامل" style="padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:var(--font-size-label)" />@if (inviteFieldErrors().name) { <div class="field-error" id="invite-name-err" role="alert">{{ inviteFieldErrors().name }}</div> }</div>
+			<div style="display:flex;flex-direction:column;gap:4px"><label for="invite-email" style="font-size:var(--font-size-small);font-weight:700;color:var(--txt-3)">البريد الإلكتروني <span class="ws-req" aria-hidden="true">*</span></label><input id="invite-email" name="invite-email" aria-required="true" [attr.aria-invalid]="inviteFieldErrors().email ? 'true' : null" [attr.aria-describedby]="inviteFieldErrors().email ? 'invite-email-err' : null" type="email" [(ngModel)]="inviteEmail" placeholder="البريد الإلكتروني" style="padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:var(--font-size-label);direction:ltr;text-align:right" />@if (inviteFieldErrors().email) { <div class="field-error" id="invite-email-err" role="alert">{{ inviteFieldErrors().email }}</div> }</div>
+			<div style="display:flex;flex-direction:column;gap:4px"><label for="invite-phone" style="font-size:var(--font-size-small);font-weight:700;color:var(--txt-3)">رقم الهاتف (اختياري)</label><input id="invite-phone" name="invite-phone" [attr.aria-invalid]="inviteFieldErrors().phone ? 'true' : null" [attr.aria-describedby]="inviteFieldErrors().phone ? 'invite-phone-err' : null" type="text" [(ngModel)]="invitePhone" placeholder="رقم الهاتف (اختياري)" style="padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:var(--font-size-label);direction:ltr;text-align:right" />@if (inviteFieldErrors().phone) { <div class="field-error" id="invite-phone-err" role="alert">{{ inviteFieldErrors().phone }}</div> }</div>
+			<div style="display:flex;flex-direction:column;gap:4px"><label for="invite-job" style="font-size:var(--font-size-small);font-weight:700;color:var(--txt-3)">المسمى الوظيفي <span class="ws-req" aria-hidden="true">*</span></label><input id="invite-job" name="invite-job" aria-required="true" [attr.aria-invalid]="inviteFieldErrors().jobTitle ? 'true' : null" [attr.aria-describedby]="inviteFieldErrors().jobTitle ? 'invite-job-err' : null" type="text" [(ngModel)]="inviteJobTitle" placeholder="المسمى الوظيفي" style="padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:inherit;font-size:var(--font-size-label)" />@if (inviteFieldErrors().jobTitle) { <div class="field-error" id="invite-job-err" role="alert">{{ inviteFieldErrors().jobTitle }}</div> }</div>
 		</div>
 		@if (inviteError()) {
 		<div class="form-error" id="invite-err" role="alert" data-testid="invite-general-error" style="margin-bottom:10px">{{ inviteError() }}</div>
@@ -64,16 +64,16 @@
 	<div class="sec-ttl" style="margin-bottom:14px">الموظفون <span class="cnt">· {{ totalEmployees() }}</span></div>
 
 	@if (isLoading()) {
-	<div style="text-align:center;padding:40px 20px;color:#6B7699;font-size:13px">جارٍ تحميل بيانات الموظفين...</div>
+	<div style="text-align:center;padding:40px 20px;color:#6B7699;font-size:var(--font-size-label)">جارٍ تحميل بيانات الموظفين...</div>
 	} @else if (loadError()) {
 	<div style="text-align:center;padding:40px 20px;border-radius:14px;background:rgba(255,107,107,.05);border:1px dashed rgba(255,107,107,.2)">
-		<div style="font-size:13px;color:#FF6B6B;margin-bottom:10px">{{ loadError() }}</div>
+		<div style="font-size:var(--font-size-label);color:#FF6B6B;margin-bottom:10px">{{ loadError() }}</div>
 		<button type="button" class="emp-btn emp-btn-sec" (click)="fetchEmployees()">إعادة المحاولة</button>
 	</div>
 	} @else if (employees().length === 0) {
 	<div style="text-align:center;padding:40px 20px;border-radius:14px;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.08)">
-		<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:6px">لا يوجد موظفون بعد</div>
-		<div style="font-size:13px;color:#6B7699">ابدأ بدعوة أول موظف في فريق شركتك</div>
+		<div style="font-size:var(--font-size-label);font-weight:800;color:#fff;margin-bottom:6px">لا يوجد موظفون بعد</div>
+		<div style="font-size:var(--font-size-label);color:#6B7699">ابدأ بدعوة أول موظف في فريق شركتك</div>
 	</div>
 	} @else {
 	<div class="emp-list">

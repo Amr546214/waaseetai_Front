@@ -16,19 +16,19 @@ import { AdminConsoleApiService, AdminSelfProfile, AdminSession } from '../../..
   styles: [`
     .ma{padding:22px 24px;direction:rtl;max-width:880px}
     .ma h1{font-size:22px;font-weight:900;margin:0 0 4px}
-    .ma-sub{font-size:12px;opacity:.7;margin:0 0 18px}
+    .ma-sub{font-size:var(--font-size-small);opacity:.7;margin:0 0 18px}
     .ma-card{border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 18px;margin-bottom:16px}
-    .ma-ttl{font-size:14px;font-weight:800;margin-bottom:12px}
+    .ma-ttl{font-size:var(--font-size-label);font-weight:800;margin-bottom:12px}
     .ma-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-    .ma-f{display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;font-size:11px;font-weight:700}
-    .ma-f input{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;font-family:inherit;font-size:13px}
-    .ma-btn{padding:8px 16px;border-radius:9px;border:1px solid rgba(255,255,255,.15);background:rgba(43,212,199,.15);color:inherit;font-weight:700;font-family:inherit;cursor:pointer;font-size:12px}
+    .ma-f{display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;font-size:var(--font-size-small);font-weight:700}
+    .ma-f input{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;font-family:inherit;font-size:var(--font-size-label)}
+    .ma-btn{padding:8px 16px;border-radius:9px;border:1px solid rgba(255,255,255,.15);background:rgba(43,212,199,.15);color:inherit;font-weight:700;font-family:inherit;cursor:pointer;font-size:var(--font-size-small)}
     .ma-btn:disabled{opacity:.5;cursor:not-allowed}
     .ma-btn-danger{background:rgba(255,107,107,.15)}
-    .ma-msg{font-size:12px;margin-top:8px;font-weight:700}
+    .ma-msg{font-size:var(--font-size-small);margin-top:8px;font-weight:700}
     .ma-err{color:#FF8C69}.ma-ok{color:#2BD4C7}
-    .ma-sess{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:12.5px}
-    .ma-note{font-size:11.5px;opacity:.7}
+    .ma-sess{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:var(--font-size-label)}
+    .ma-note{font-size:var(--font-size-small);opacity:.7}
     .ma-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:50}
     .ma-modal{background:#0B1437;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:20px;max-width:380px;width:90%}
     :host-context(.light-theme) .ma-modal,:host-context(body.theme-light) .ma-modal{background:#fff}

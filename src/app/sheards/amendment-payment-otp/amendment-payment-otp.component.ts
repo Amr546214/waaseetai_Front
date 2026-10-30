@@ -49,14 +49,14 @@ import { rateLimitSentence } from '../../core/wait/wait-format';
 </div>`,
 	styles: [`
 		.apo { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-		.apo-txt { margin: 0; font-size: 13px; line-height: 1.7; color: var(--txt-2, inherit); }
-		.apo-sent { font-size: 12px; color: var(--txt-2, inherit); }
-		.apo-in { width: 100%; max-width: 220px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border, #444); background: transparent; color: inherit; font-size: 18px; letter-spacing: 6px; text-align: center; }
+		.apo-txt { margin: 0; font-size: var(--font-size-label); line-height: 1.7; color: var(--txt-2, inherit); }
+		.apo-sent { font-size: var(--font-size-small); color: var(--txt-2, inherit); }
+		.apo-in { width: 100%; max-width: 220px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border, #444); background: transparent; color: inherit; font-size: var(--font-size-section); letter-spacing: 6px; text-align: center; }
 		.apo-row { display: flex; gap: 8px; flex-wrap: wrap; }
 		.apo-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border, #444); background: transparent; color: inherit; cursor: pointer; font: inherit; }
 		.apo-pri { background: var(--blue, #2563eb); border-color: var(--blue, #2563eb); color: #fff; }
 		.apo-btn:disabled { opacity: .5; cursor: not-allowed; }
-		.apo-err { font-size: 12.5px; color: var(--red, #dc2626); }
+		.apo-err { font-size: var(--font-size-label); color: var(--red, #dc2626); }
 		.apo-err a { color: inherit; text-decoration: underline; font-weight: 600; }
 	`]
 })

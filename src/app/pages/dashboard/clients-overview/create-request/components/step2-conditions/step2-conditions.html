@@ -18,7 +18,7 @@
 
 		<!-- NDA CARD -->
 		<div class="form-card rounded-2xl p-5 mb-4">
-			<h2 class="form-card-title text-[15px] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
+			<h2 class="form-card-title text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
 				<svg class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
 				اتفاقية السرية (NDA)
 			</h2>
@@ -37,14 +37,14 @@
 						@if (parent.ndaType() === 'standard') { <div class="radio-dot-inner w-2 h-2 rounded-full bg-[var(--teal)]"></div> }
 					</div>
 					<div class="radio-content flex-1">
-						<div class="radio-label text-sm font-bold text-[var(--txt)] mb-0.5">اتفاقية السرية القياسية <span class="radio-badge badge-default inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold mr-2">افتراضي</span></div>
+						<div class="radio-label text-sm font-bold text-[var(--txt)] mb-0.5">اتفاقية السرية القياسية <span class="radio-badge badge-default inline-flex items-center px-2 py-0.5 rounded text-[length:var(--font-size-caption)] font-extrabold mr-2">افتراضي</span></div>
 						<div class="radio-sub text-xs text-[var(--txt-3)] leading-relaxed">اتفاقية موحدة تُطبَّق افتراضيًا على المعلومات المتبادلة في المشروع</div>
 					</div>
 				</label>
 				<label class="radio-opt flex items-start gap-3 p-3.5 px-4 rounded-xl border cursor-not-allowed transition-all" style="opacity: 0.55" aria-disabled="true">
 					<div class="radio-dot w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 border-[var(--txt-3)]"></div>
 					<div class="radio-content flex-1">
-						<div class="radio-label text-sm font-bold text-[var(--txt)] mb-0.5">اتفاقية سرية مخصصة <span class="radio-badge badge-warn inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold mr-2">غير متاح حاليًا</span></div>
+						<div class="radio-label text-sm font-bold text-[var(--txt)] mb-0.5">اتفاقية سرية مخصصة <span class="radio-badge badge-warn inline-flex items-center px-2 py-0.5 rounded text-[length:var(--font-size-caption)] font-extrabold mr-2">غير متاح حاليًا</span></div>
 						<div class="radio-sub text-xs text-[var(--txt-3)] leading-relaxed">رفع ملف PDF للاتفاقية الخاصة: هذه الميزة غير متاحة حاليًا</div>
 					</div>
 				</label>
@@ -53,7 +53,7 @@
 
 		<!-- IP RIGHTS CARD -->
 		<div class="form-card rounded-2xl p-5 mb-4">
-			<h2 class="form-card-title text-[15px] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
+			<h2 class="form-card-title text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
 				<svg class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>
 				حقوق الملكية الفكرية
 			</h2>
@@ -63,7 +63,7 @@
 						@if (parent.ipRights() === 'client') { <div class="radio-dot-inner w-2 h-2 rounded-full bg-[var(--teal)]"></div> }
 					</div>
 					<div class="radio-content flex-1">
-						<div class="radio-label text-sm font-bold text-[var(--txt)] mb-0.5">كاملة لطالب الخدمة <span class="radio-badge badge-default inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold mr-2">افتراضي</span></div>
+						<div class="radio-label text-sm font-bold text-[var(--txt)] mb-0.5">كاملة لطالب الخدمة <span class="radio-badge badge-default inline-flex items-center px-2 py-0.5 rounded text-[length:var(--font-size-caption)] font-extrabold mr-2">افتراضي</span></div>
 						<div class="radio-sub text-xs text-[var(--txt-3)] leading-relaxed">جميع المخرجات والأعمال المنتجة ملكية حصرية لطالب الخدمة</div>
 					</div>
 				</label>
@@ -90,7 +90,7 @@
 
 		<!-- PROVIDER REQUIREMENTS -->
 		<div class="form-card rounded-2xl p-5 mb-4">
-			<h2 class="form-card-title text-[15px] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
+			<h2 class="form-card-title text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
 				<svg class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
 				متطلبات مقدم الخدمة
 			</h2>
@@ -132,13 +132,13 @@
 
 		<!-- CUSTOM CONDITIONS -->
 		<div class="form-card rounded-2xl p-5 mb-4">
-			<h2 class="form-card-title text-[15px] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
+			<h2 class="form-card-title text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] flex items-center gap-2.5 mb-4">
 				<svg class="w-4 h-4 text-[var(--teal)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
 				شروط مخصصة
-				<span class="text-[11px] font-semibold text-[var(--txt-3)] mr-auto">اختياري</span>
+				<span class="text-[length:var(--font-size-small)] font-semibold text-[var(--txt-3)] mr-auto">اختياري</span>
 			</h2>
-				<textarea class="cond-textarea w-full px-3.5 py-3 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl text-[13px] font-medium text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[100px] leading-relaxed resize-y transition-colors" id="condText" placeholder="اكتب أي شروط إضافية تريد فرضها على مقدم الخدمة..." maxlength="2000" [ngModel]="parent.customConditions()" (ngModelChange)="parent.customConditions.set($event)" aria-label="الشروط المخصصة"></textarea>
-			<div class="char-count text-[11px] text-left mt-1 text-[var(--txt-3)] font-medium"><span id="charCount">{{ parent.customConditions().length }}</span> / 2000</div>
+				<textarea class="cond-textarea w-full px-3.5 py-3 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl text-[length:var(--font-size-label)] font-medium text-[var(--txt)] outline-none focus:border-[var(--teal)] min-h-[100px] leading-relaxed resize-y transition-colors" id="condText" placeholder="اكتب أي شروط إضافية تريد فرضها على مقدم الخدمة..." maxlength="2000" [ngModel]="parent.customConditions()" (ngModelChange)="parent.customConditions.set($event)" aria-label="الشروط المخصصة"></textarea>
+			<div class="char-count text-[length:var(--font-size-small)] text-left mt-1 text-[var(--txt-3)] font-medium"><span id="charCount">{{ parent.customConditions().length }}</span> / 2000</div>
 			<!-- AI Cleanup Batch 2: a fixed "no conflict with system policies" verdict used to
 			     appear whenever this text exceeded 10 characters. No policy check exists on the
 			     frontend or backend (customConditions is stored as-is), so the verdict was removed. -->

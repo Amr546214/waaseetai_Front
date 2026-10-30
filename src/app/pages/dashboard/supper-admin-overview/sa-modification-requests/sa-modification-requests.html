@@ -159,12 +159,12 @@
                 <button type="button" class="mr-btn mr-btn-warn" [disabled]="processingId() === r.id" (click)="reject(r)">رفض</button>
               }
             </div>
-            @if (cardError()?.id === r.id) { <p role="alert" data-testid="card-action-error" style="color:#FF8C69;font-size:12px;margin:8px 0 0">{{ cardError()!.message }}</p> }
+            @if (cardError()?.id === r.id) { <p role="alert" data-testid="card-action-error" style="color:#FF8C69;font-size:var(--font-size-small);margin:8px 0 0">{{ cardError()!.message }}</p> }
             @if (rejectingId() === r.id) {
               <div class="mr-reject-panel" data-testid="reject-panel" style="margin-top:10px">
-                <label for="mr-reject-reason" style="display:block;font-size:12px;font-weight:700;margin-bottom:6px">سبب الرفض <span style="color:#FF8C69">*</span> (يصل إلى صاحب الطلب)</label>
+                <label for="mr-reject-reason" style="display:block;font-size:var(--font-size-small);font-weight:700;margin-bottom:6px">سبب الرفض <span style="color:#FF8C69">*</span> (يصل إلى صاحب الطلب)</label>
                 <textarea id="mr-reject-reason" rows="3" style="width:100%" [value]="rejectReason()" (input)="rejectReason.set($any($event.target).value)" placeholder="اكتب سبب الرفض"></textarea>
-                @if (rejectError()) { <p role="alert" data-testid="reject-error" style="color:#FF8C69;font-size:12px;margin:6px 0 0">{{ rejectError() }}</p> }
+                @if (rejectError()) { <p role="alert" data-testid="reject-error" style="color:#FF8C69;font-size:var(--font-size-small);margin:6px 0 0">{{ rejectError() }}</p> }
                 <div class="mr-actions" style="margin-top:8px">
                   <button type="button" class="mr-btn mr-btn-warn" data-testid="reject-confirm" [disabled]="processingId() === r.id" (click)="confirmReject(r)">{{ processingId() === r.id ? 'جارٍ الرفض...' : 'تأكيد الرفض' }}</button>
                   <button type="button" class="mr-btn mr-btn-ghost" [disabled]="processingId() === r.id" (click)="cancelReject()">إلغاء</button>

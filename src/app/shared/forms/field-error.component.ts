@@ -14,7 +14,7 @@ import { validationMessage } from '../../core/forms/validation-messages';
 	standalone: true,
 	template: `
 		@if (message(); as msg) {
-			<span role="alert" data-testid="field-error" class="mt-1 block text-[11px] font-bold leading-relaxed text-red-500">{{ msg }}</span>
+			<span role="alert" data-testid="field-error" class="mt-1 block text-[length:var(--font-size-small)] font-bold leading-relaxed text-red-500">{{ msg }}</span>
 		}
 	`,
 })

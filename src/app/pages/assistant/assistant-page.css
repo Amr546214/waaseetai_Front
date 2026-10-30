@@ -140,7 +140,7 @@ a {
 }
 
 .tc-sidebar-brand strong {
-  font-size: 17px;
+  font-size: var(--font-size-section);
   white-space: nowrap;
 }
 
@@ -223,7 +223,7 @@ a {
   color: var(--tc-text);
   border: 0;
   border-radius: 9px;
-  font-size: 14px;
+  font-size: var(--font-size-label);
   text-align: right;
   cursor: pointer;
   width: 100%;
@@ -284,7 +284,7 @@ a {
   gap: 8px;
   border-radius: 22px;
   padding: 7px 12px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 600;
   background: #303030;
   color: #efefef;
@@ -299,7 +299,7 @@ a {
   padding: 1px 5px;
   background: #5a5a5a;
   color: #eee;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-family: inherit;
 }
 
@@ -331,7 +331,7 @@ a {
 
 .tc-rail-popover-caption {
   display: inline-block;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 600;
   border: 1px solid var(--tc-line);
   border-radius: 19px;
@@ -352,7 +352,7 @@ a {
   border: 0;
   background: none;
   padding: 9px 12px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   border-radius: 10px;
   cursor: pointer;
   color: inherit;
@@ -370,7 +370,7 @@ a {
 .tc-rail-session-list p {
   padding: 10px 14px;
   color: var(--tc-muted);
-  font-size: 13px;
+  font-size: var(--font-size-label);
 }
 
 /* History list expanded view */
@@ -380,7 +380,7 @@ a {
   justify-content: space-between;
   padding: 4px 10px;
   color: var(--tc-muted);
-  font-size: 12px;
+  font-size: var(--font-size-small);
 }
 
 .tc-sidebar-filter {
@@ -400,7 +400,7 @@ a {
   color: var(--tc-text);
   min-width: 0;
   width: 100%;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   outline: none;
 }
 
@@ -416,7 +416,7 @@ a {
 
 .tc-history-empty {
   padding: 16px 10px;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: var(--tc-muted);
   text-align: center;
 }
@@ -446,7 +446,7 @@ a {
   gap: 7px;
   text-align: start;
   padding: 9px 10px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   cursor: pointer;
 }
 
@@ -493,7 +493,7 @@ a {
   text-align: start;
   color: var(--tc-text);
   text-decoration: none;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   cursor: pointer;
 }
 
@@ -539,7 +539,7 @@ a {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   cursor: pointer;
 }
 
@@ -571,7 +571,7 @@ a {
   place-items: center;
   border-radius: 50%;
   font-weight: 700;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   flex-shrink: 0;
 }
 
@@ -581,7 +581,7 @@ a {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
+  font-size: var(--font-size-label);
 }
 
 .tc-account-menu {
@@ -621,7 +621,7 @@ a {
 .tc-account-heading .tc-avatar {
   width: 34px;
   height: 34px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   flex-shrink: 0;
 }
 
@@ -632,7 +632,7 @@ a {
 }
 
 .tc-account-heading strong {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   font-weight: 600;
   display: block;
   line-height: 1.3;
@@ -643,7 +643,7 @@ a {
 }
 
 .tc-account-heading small {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: var(--tc-muted);
   display: block;
   margin-top: 2px;
@@ -671,7 +671,7 @@ a {
   background: none;
   text-decoration: none;
   text-align: start;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 500;
   color: var(--tc-text);
   cursor: pointer;
@@ -757,7 +757,7 @@ a {
 .tc-workspace-tabs :is(span, button).is-selected {
   border-radius: 20px;
   padding: 8px 20px;
-  font-size: 14px;
+  font-size: var(--font-size-label);
   font-weight: 600;
   background: var(--tc-surface);
   color: var(--tc-text);
@@ -779,7 +779,7 @@ a {
   color: var(--tc-text);
   border-radius: 20px;
   padding: 6px 14px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   cursor: pointer;
 }
 
@@ -826,7 +826,7 @@ a {
   text-align: start;
   color: var(--tc-text);
   text-decoration: none;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   cursor: pointer;
   direction: rtl;
   transition: background 120ms ease;
@@ -847,7 +847,7 @@ a {
 
 .tc-menu-caption {
   padding: 9px 11px;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: var(--tc-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -926,7 +926,7 @@ a {
   padding: 10px 14px;
   border: 1px solid var(--tc-line);
   border-radius: 16px;
-  font-size: 15px;
+  font-size: var(--font-size-body);
   text-align: right;
   cursor: pointer;
   transition: all 140ms ease;
@@ -939,7 +939,7 @@ a {
 }
 
 .tc-welcome-suggestions button .icon {
-  font-size: 18px;
+  font-size: var(--font-size-section);
   flex-shrink: 0;
 }
 
@@ -981,7 +981,7 @@ a {
   border-radius: 20px;
   background: var(--tc-surface);
   color: var(--tc-text);
-  font-size: 12px;
+  font-size: var(--font-size-small);
 }
 
 .tc-message-column {
@@ -1015,7 +1015,7 @@ a {
 .tc-user-bubble {
   background: #193e73 !important;
   color: #fff !important;
-  font-size: 16px;
+  font-size: var(--font-size-body);
   line-height: 1.6;
   padding: 12px 18px;
   border-radius: 24px;
@@ -1040,7 +1040,7 @@ a {
   background: none;
   border: 0;
   color: var(--tc-muted);
-  font-size: 12px;
+  font-size: var(--font-size-small);
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 6px;
@@ -1079,7 +1079,7 @@ a {
 }
 
 .tc-assistant-content {
-  font-size: 16px;
+  font-size: var(--font-size-body);
   line-height: 1.7;
   color: var(--tc-text);
 }
@@ -1109,7 +1109,7 @@ a {
   background: none;
   border: 0;
   color: var(--tc-muted);
-  font-size: 12px;
+  font-size: var(--font-size-small);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 6px;
@@ -1156,7 +1156,7 @@ a {
   align-items: flex-start;
   gap: 10px;
   color: var(--tc-text);
-  font-size: 14px;
+  font-size: var(--font-size-label);
   line-height: 1.6;
 }
 
@@ -1185,7 +1185,7 @@ a {
   border: 0;
   border-radius: 8px;
   padding: 6px 14px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 500;
   cursor: pointer;
   transition: opacity 120ms ease;
@@ -1199,7 +1199,7 @@ a {
 
 .tc-support-link {
   color: var(--tc-accent);
-  font-size: 13px;
+  font-size: var(--font-size-label);
   text-decoration: underline;
   cursor: pointer;
 }
@@ -1263,7 +1263,7 @@ a {
   outline: none;
   background: none;
   color: var(--tc-text);
-  font-size: 15px;
+  font-size: var(--font-size-body);
   line-height: 1.5;
   padding: 4px 6px;
   min-height: 28px;
@@ -1305,7 +1305,7 @@ a {
 .tc-composer-caption {
   order: -1;
   margin: 0 0 8px;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: var(--tc-muted);
   text-align: center;
 }
@@ -1344,7 +1344,7 @@ a {
   border-radius: 10px;
   padding: 8px 12px;
   color: var(--tc-text);
-  font-size: 13px;
+  font-size: var(--font-size-label);
   cursor: pointer;
 }
 
@@ -1389,7 +1389,7 @@ a {
 }
 
 .modal h2 {
-  font-size: 18px;
+  font-size: var(--font-size-section);
   margin: 0;
   font-weight: 600;
 }
@@ -1414,7 +1414,7 @@ a {
 }
 
 .dialog-actions button {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   border: 1px solid var(--tc-line);
   background: transparent;
   border-radius: 10px;
@@ -1440,11 +1440,11 @@ a {
   color: inherit;
   border-radius: 8px;
   padding: 6px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
 }
 
 .rename button {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   background: transparent;
   border: 1px solid var(--tc-line);
   border-radius: 6px;
@@ -1460,7 +1460,7 @@ a {
   color: #eee;
   padding: 8px 16px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   z-index: 200;
   box-shadow: 0 4px 12px rgba(0,0,0,.2);
 }

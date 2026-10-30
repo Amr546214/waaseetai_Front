@@ -27,7 +27,7 @@
   <div *ngIf="hasError()" class="text-center p-10 bg-[var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)))] border border-[rgba(43,127,255,.25)] rounded-2xl">
     <div class="text-base font-extrabold text-[var(--txt)] mb-1.5">تعذر تحميل تفضيلات الإشعارات</div>
     <div class="text-xs text-[var(--txt-3)] mb-3">ERR-PR-021</div>
-    <button type="button" (click)="retry()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[13px] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
+    <button type="button" (click)="retry()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[length:var(--font-size-label)] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
   </div>
 
   <!-- Preferences Content -->
@@ -35,7 +35,7 @@
     
     <ng-container *ngFor="let section of sections()">
       <!-- Section Title -->
-      <div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+      <div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
         <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" [innerHTML]="section.iconSvg"></svg>
         {{ section.title }}
       </div>
@@ -47,8 +47,8 @@
              class="flex items-center gap-3.5 py-3.5 border-[var(--sec-bd,rgba(255,255,255,.05))]"
              [ngClass]="{'border-b': !last}">
           <div class="flex-1">
-            <div class="text-[13.5px] font-bold text-[var(--txt)]">{{ item.title }}</div>
-            <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">{{ item.subtitle }}</div>
+            <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]">{{ item.title }}</div>
+            <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-0.5">{{ item.subtitle }}</div>
           </div>
           <label class="sw">
             <input type="checkbox" [(ngModel)]="item.enabled">

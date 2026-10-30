@@ -10,7 +10,7 @@
   </div>
 
   @if (failed()) {
-    <div role="alert" class="sap-card" data-testid="sap-error"><div class="sap-card-ttl">تعذّر تحميل البيانات</div><p style="font-size:12px">لا تُعرض أرقام بديلة. <button type="button" class="sap-btn sap-btn-gh" (click)="reload()">إعادة المحاولة</button></p></div>
+    <div role="alert" class="sap-card" data-testid="sap-error"><div class="sap-card-ttl">تعذّر تحميل البيانات</div><p style="font-size:var(--font-size-small)">لا تُعرض أرقام بديلة. <button type="button" class="sap-btn sap-btn-gh" (click)="reload()">إعادة المحاولة</button></p></div>
   }
 
   <div class="sap-kpis">
@@ -25,7 +25,7 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         أعلى مقدمين تقييمًا
       </div>
-      <p style="font-size:11px;opacity:.7;margin:0 0 8px">الترتيب بحسب متوسط التقييمات في الفترة. إيراد كل مقدم غير متاح في هذه الصفحة.</p>
+      <p style="font-size:var(--font-size-small);opacity:.7;margin:0 0 8px">الترتيب بحسب متوسط التقييمات في الفترة. إيراد كل مقدم غير متاح في هذه الصفحة.</p>
       @for (e of topRated(); track e.providerId) {
         <div class="sap-prov">
           <div class="sap-prov-rank">{{ e.rank }}</div>
@@ -38,7 +38,7 @@
           <div class="sap-prov-revenue">{{ e.averageRating }}★</div>
         </div>
       } @empty {
-        <p style="font-size:12px" data-testid="sap-empty">لا توجد تقييمات لمقدمي الخدمة في هذه الفترة.</p>
+        <p style="font-size:var(--font-size-small)" data-testid="sap-empty">لا توجد تقييمات لمقدمي الخدمة في هذه الفترة.</p>
       }
     </div>
 
@@ -51,12 +51,12 @@
             <div class="sap-risk-meta">متوسط {{ r.averageRating }}★ من {{ r.reviewCount }} تقييم</div>
           </div>
         } @empty {
-          <p style="font-size:12px">لا يوجد مقدمون تقييمهم أقل من 3.5 في هذه الفترة.</p>
+          <p style="font-size:var(--font-size-small)">لا يوجد مقدمون تقييمهم أقل من 3.5 في هذه الفترة.</p>
         }
       </div>
       <div class="sap-card">
         <div class="sap-card-ttl">مرشحون للترقية</div>
-        <div role="status" style="font-size:12px;opacity:.75">غير متاح — لا توجد معايير ترقية مسجّلة في النظام لاحتساب المرشحين تلقائيًا.</div>
+        <div role="status" style="font-size:var(--font-size-small);opacity:.75">غير متاح — لا توجد معايير ترقية مسجّلة في النظام لاحتساب المرشحين تلقائيًا.</div>
       </div>
       <div class="sap-card">
         <div class="sap-card-ttl">فجوات التخصص (Gap)</div>
@@ -64,7 +64,7 @@
           @for (g of gaps(); track g.name) {
             <div class="sap-gap-row"><span class="sap-gap-name">{{ g.name }}</span><span class="sap-gap-status" [style.color]="g.color">{{ g.status }}</span></div>
           } @empty {
-            <p style="font-size:12px">لا توجد مشاريع في هذه الفترة لتحليل الفجوات.</p>
+            <p style="font-size:var(--font-size-small)">لا توجد مشاريع في هذه الفترة لتحليل الفجوات.</p>
           }
         </div>
       </div>

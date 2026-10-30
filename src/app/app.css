@@ -45,7 +45,7 @@
 
 .loader-text {
   font-family: var(--font-sans, "Tajawal", sans-serif);
-  font-size: 18px;
+  font-size: var(--font-size-section);
   font-weight: 700;
   color: var(--txt, #FFFFFF);
   letter-spacing: 0.5px;

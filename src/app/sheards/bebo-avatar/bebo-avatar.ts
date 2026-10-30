@@ -82,7 +82,7 @@ const LOOPING_ACTIONS: readonly BeboAction[] = ['typing', 'sleep', 'rest', 'idle
 	styles: [`
 		:host { display: inline-block; line-height: 0; }
 		cute-robot { pointer-events: auto; }
-		.bebo-avatar__fallback { pointer-events: auto; padding: 10px 14px; border-radius: 999px; border: 0; font: inherit; font-size: 13px; font-weight: 800; line-height: 1.4; color: #fff; background: linear-gradient(135deg, #7B2FBE, #A56BE0); cursor: pointer; }
+		.bebo-avatar__fallback { pointer-events: auto; padding: 10px 14px; border-radius: 999px; border: 0; font: inherit; font-size: var(--font-size-label); font-weight: 800; line-height: 1.4; color: #fff; background: linear-gradient(135deg, #7B2FBE, #A56BE0); cursor: pointer; }
 	`],
 })
 export class BeboAvatarComponent implements OnDestroy {

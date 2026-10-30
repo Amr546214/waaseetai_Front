@@ -57,7 +57,7 @@
 	</div>
 
 	<ng-container *ngIf="currentStep() === 1">
-		<div *ngIf="returnToAccreditation" data-testid="return-to-accreditation-note" class="mb-4 px-4 py-3 rounded-xl text-[12.5px] font-bold leading-relaxed bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.25)] text-[var(--txt-2)]">أنت هنا لإضافة تخصص جديد واختباره. بعد الاختبار تعود إلى صفحة رفع نموذج الاعتماد، ويظهر التخصص هناك إن اجتزت الاختبار. اجتياز الاختبار لا يعني الاعتماد.</div>
+		<div *ngIf="returnToAccreditation" data-testid="return-to-accreditation-note" class="mb-4 px-4 py-3 rounded-xl text-[length:var(--font-size-label)] font-bold leading-relaxed bg-[rgba(43,212,199,.08)] border border-[rgba(43,212,199,.25)] text-[var(--txt-2)]">أنت هنا لإضافة تخصص جديد واختباره. بعد الاختبار تعود إلى صفحة رفع نموذج الاعتماد، ويظهر التخصص هناك إن اجتزت الاختبار. اجتياز الاختبار لا يعني الاعتماد.</div>
 		<ws-specialty-status [registered]="registeredSpecialties()" />
 		<!-- Specialty suggestion: real data only (the backend says what it is based on); hidden when there is none or the request failed -->
 		<div *ngIf="recommendationLoading()" class="h-[68px] rounded-xl mb-5 bg-[rgba(255,255,255,.04)] animate-pulse" data-testid="rec-loading" aria-hidden="true"></div>
@@ -135,7 +135,7 @@
 				</svg>
 				{{ selectedSpecId() === 'other' ? 'اقتراح تخصص' : 'التخصصات الفرعية' }}
 				<span *ngIf="selectedSpecId() !== 'other'"
-					class="text-[11px] font-bold text-[#2BD4C7] bg-[rgba(43,212,199,.12)] px-2 py-0.5 rounded">{{
+					class="text-[length:var(--font-size-small)] font-bold text-[#2BD4C7] bg-[rgba(43,212,199,.12)] px-2 py-0.5 rounded">{{
 					selectedSubs().size }} / 5</span>
 			</div>
 
@@ -196,7 +196,7 @@
 					<line x1="12" y1="17" x2="12" y2="21" />
 				</svg>
 				<span class="text-xs font-extrabold text-[#2BD4C7]">نموذج العمل</span>
-				<span class="text-[11px] text-[var(--txt-3)] font-medium">يُعرض في السوق العام — ملف واحد لكل
+				<span class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-medium">يُعرض في السوق العام — ملف واحد لكل
 					نموذج</span>
 			</div>
 			<div
@@ -205,7 +205,7 @@
 					<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
 				</svg>
 				<span class="text-xs font-extrabold text-[#5DA0FF]">وثيقة الإثبات</span>
-				<span class="text-[11px] text-[var(--txt-3)] font-medium">للمراجعة من الإدارة فقط — تثبت ملكيتك
+				<span class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-medium">للمراجعة من الإدارة فقط — تثبت ملكيتك
 					الحصرية للعمل</span>
 			</div>
 		</div>
@@ -271,46 +271,46 @@
 								<div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
 									<div>
 										<div class="text-sm font-black sample-card-text">بيانات نموذج العمل</div>
-										<div class="text-[11px] text-[var(--txt-3)] mt-1">كلما كانت المعلومات دقيقة، كانت مراجعة الإدارة أسرع</div>
+										<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-1">كلما كانت المعلومات دقيقة، كانت مراجعة الإدارة أسرع</div>
 									</div>
 									<div class="flex items-center gap-2">
 										<button type="button" (click)="autoFillSample(sample.id)"
-											class="px-3 py-1 rounded-full bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.35)] text-[11px] font-black text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors cursor-pointer">
+											class="px-3 py-1 rounded-full bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.35)] text-[length:var(--font-size-small)] font-black text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors cursor-pointer">
 											✨ ملء ذكي لهذا النموذج
 										</button>
-										<span class="px-2.5 py-1 rounded-full bg-[rgba(43,127,255,.12)] border border-[rgba(43,127,255,.28)] text-[10px] font-black text-[#5DA0FF]">معلومات مطلوبة</span>
+										<span class="px-2.5 py-1 rounded-full bg-[rgba(43,127,255,.12)] border border-[rgba(43,127,255,.28)] text-[length:var(--font-size-caption)] font-black text-[#5DA0FF]">معلومات مطلوبة</span>
 									</div>
 								</div>
 								<div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
 									<label class="flex flex-col gap-1.5">
-										<span class="text-[11px] font-black sample-card-label">عنوان المشروع <span class="ws-req" aria-hidden="true">*</span></span>
+										<span class="text-[length:var(--font-size-small)] font-black sample-card-label">عنوان المشروع <span class="ws-req" aria-hidden="true">*</span></span>
 										<input type="text" aria-required="true" [attr.id]="'sample-title-' + sample.id" name="sampleTitle" [ngModel]="sample.title" (ngModelChange)="sample.title = $event; touchSamples()" maxlength="150"
 											placeholder="مثال: تصميم هوية بصرية لمشروع تقني"
 											class="sample-meta-input" />
 									</label>
 									<label class="flex flex-col gap-1.5">
-										<span class="text-[11px] font-black sample-card-label">التقنيات والأدوات <span class="ws-req" aria-hidden="true">*</span></span>
+										<span class="text-[length:var(--font-size-small)] font-black sample-card-label">التقنيات والأدوات <span class="ws-req" aria-hidden="true">*</span></span>
 										<input type="text" aria-required="true" [attr.id]="'sample-tech-' + sample.id" name="sampleTechnologies" [value]="sample.technologiesInput"
 											(input)="updateTechnologies(sample.id, $any($event.target).value)"
 											placeholder="After Effects، Illustrator، Figma"
 											class="sample-meta-input" />
-										<span class="text-[10px] text-[var(--txt-3)]">افصل بين التقنيات بفاصلة</span>
+										<span class="text-[length:var(--font-size-caption)] text-[var(--txt-3)]">افصل بين التقنيات بفاصلة</span>
 									</label>
 									<label class="md:col-span-2 flex flex-col gap-1.5">
 										<div class="flex items-center justify-between">
-											<span class="text-[11px] font-black sample-card-label">وصف العمل ودورك فيه <span class="ws-req" aria-hidden="true">*</span></span>
-											<span class="text-[10px] font-mono" [class.text-[#2BD4C7]]="(sample.description?.length || 0) >= 20" [class.text-[#FFB400]]="(sample.description?.length || 0) < 20">{{ sample.description?.length || 0 }}/20 على الأقل</span>
+											<span class="text-[length:var(--font-size-small)] font-black sample-card-label">وصف العمل ودورك فيه <span class="ws-req" aria-hidden="true">*</span></span>
+											<span class="text-[length:var(--font-size-caption)] font-mono" [class.text-[#2BD4C7]]="(sample.description?.length || 0) >= 20" [class.text-[#FFB400]]="(sample.description?.length || 0) < 20">{{ sample.description?.length || 0 }}/20 على الأقل</span>
 										</div>
 										<textarea aria-required="true" [attr.id]="'sample-desc-' + sample.id" name="sampleDescription" [attr.aria-describedby]="descriptionError(sample) ? 'sample-desc-err-' + sample.id : null" [ngModel]="sample.description" (ngModelChange)="sample.description = $event; touchSamples()" rows="3" maxlength="1200"
 											placeholder="اشرح فكرة المشروع، دورك، التحديات التي عالجتها، والنتيجة النهائية..."
 											[attr.aria-invalid]="descriptionError(sample) ? 'true' : null"
 											[class.!border-[#FF6B6B]]="descriptionError(sample)"
 											class="sample-meta-input resize-y min-h-[82px]"></textarea>
-										<span *ngIf="descriptionError(sample) as derr" [attr.id]="'sample-desc-err-' + sample.id" role="alert" data-testid="sample-description-error" class="field-err text-[12px] font-bold">{{ derr }}</span>
+										<span *ngIf="descriptionError(sample) as derr" [attr.id]="'sample-desc-err-' + sample.id" role="alert" data-testid="sample-description-error" class="field-err text-[length:var(--font-size-small)] font-bold">{{ derr }}</span>
 									</label>
 								</div>
 								<div *ngIf="sample.technologies.length" class="flex flex-wrap gap-1.5 mt-3">
-									<span *ngFor="let technology of sample.technologies" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgba(43,212,199,.09)] border border-[rgba(43,212,199,.22)] text-[10px] font-bold text-[#2BD4C7]">
+									<span *ngFor="let technology of sample.technologies" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgba(43,212,199,.09)] border border-[rgba(43,212,199,.22)] text-[length:var(--font-size-caption)] font-bold text-[#2BD4C7]">
 										{{ technology }}
 										<button type="button" (click)="removeTechnology(sample.id, technology)" [attr.aria-label]="'حذف تقنية ' + technology" class="text-[#8FA0C5] hover:text-[#FF6B6B] transition-colors">&times;</button>
 									</span>
@@ -323,7 +323,7 @@
 									[attr.id]="'sample-public-' + sample.id" role="group" tabindex="-1" aria-label="ملف النموذج العام"
 									class="p-4.5 border-b md:border-b-0 md:border-l border-[rgba(255,255,255,.07)] flex flex-col justify-between">
 									<div>
-										<div class="text-[11px] font-black text-[#2BD4C7] mb-3 flex items-center gap-2">
+										<div class="text-[length:var(--font-size-small)] font-black text-[#2BD4C7] mb-3 flex items-center gap-2">
 											<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
 												stroke="currentColor" stroke-width="2.5">
 												<rect x="2" y="3" width="20" height="14" rx="2" />
@@ -335,7 +335,7 @@
 											class="relative h-36 rounded-xl mb-3 overflow-hidden border border-[rgba(43,212,199,.35)] bg-[rgba(43,212,199,.06)] flex flex-col items-center justify-center gap-3">
 											<div class="upload-orbit"><span></span><span></span><span></span></div>
 											<div class="text-xs font-black text-[#2BD4C7]">جاري تجهيز الملف وإضافة العلامة المائية...</div>
-											<div class="text-[10px] text-[var(--txt-3)]">المرجو عدم إغلاق الصفحة</div>
+											<div class="text-[length:var(--font-size-caption)] text-[var(--txt-3)]">المرجو عدم إغلاق الصفحة</div>
 										</div>
 
 										<div *ngIf="sample.publicFileName && !sample.isUploading"
@@ -343,18 +343,18 @@
 											<div *ngIf="sample.previewUrl" class="relative h-40 bg-[#070D24]">
 												<img [src]="sample.previewUrl" [alt]="sample.publicFileName"
 													class="w-full h-full object-contain" />
-												<div class="absolute bottom-2 left-2 px-2 py-1 rounded-lg bg-[rgba(7,13,36,.82)] border border-white/15 text-[10px] font-black text-white backdrop-blur-sm">وسيط AI · نسخة محمية</div>
+												<div class="absolute bottom-2 left-2 px-2 py-1 rounded-lg bg-[rgba(7,13,36,.82)] border border-white/15 text-[length:var(--font-size-caption)] font-black text-white backdrop-blur-sm">وسيط AI · نسخة محمية</div>
 											</div>
 											<div *ngIf="!sample.previewUrl" class="h-28 flex flex-col items-center justify-center gap-2">
 												<svg class="w-9 h-9 text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
 													<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 													<polyline points="14 2 14 8 20 8" />
 												</svg>
-												<span class="text-[10px] font-bold text-[var(--txt-3)]">{{ sample.publicFileType || 'ملف مرفق' }}</span>
+												<span class="text-[length:var(--font-size-caption)] font-bold text-[var(--txt-3)]">{{ sample.publicFileType || 'ملف مرفق' }}</span>
 											</div>
 											<div class="flex items-center gap-2.5 px-3.5 py-2.5 border-t border-[rgba(255,255,255,.08)]">
 												<span class="text-xs font-bold sample-card-text flex-1 truncate">{{ sample.publicFileName }}</span>
-												<span class="text-[10px] font-black text-[#2BD4C7]">✓ جاهز</span>
+												<span class="text-[length:var(--font-size-caption)] font-black text-[#2BD4C7]">✓ جاهز</span>
 												<button type="button" (click)="removePublicFile(sample.id)" aria-label="حذف الملف"
 													class="w-7 h-7 rounded-lg text-[#FF6B6B] hover:bg-red-500/15 flex items-center justify-center transition-colors">&times;</button>
 											</div>
@@ -378,7 +378,7 @@
 								<div [attr.id]="'sample-proof-' + sample.id" role="group" tabindex="-1" aria-label="وثائق إثبات الملكية" class="p-4.5 bg-[rgba(43,127,255,.03)] flex flex-col justify-between">
 									<div>
 										<div
-											class="text-[11px] font-black mb-3 flex items-center justify-between gap-1.5 flex-wrap">
+											class="text-[length:var(--font-size-small)] font-black mb-3 flex items-center justify-between gap-1.5 flex-wrap">
 											<div class="flex items-center gap-2 text-[#5DA0FF]">
 												<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
 													stroke="currentColor" stroke-width="2.5">
@@ -388,11 +388,11 @@
 											</div>
 
 											<span *ngIf="sample.proofFileNames.length === 0"
-												class="px-2 py-0.5 bg-[rgba(255,180,0,.15)] border border-[rgba(255,180,0,.35)] rounded-full text-[10px] text-[#FFB400] font-black flex items-center gap-1 animate-pulse">
+												class="px-2 py-0.5 bg-[rgba(255,180,0,.15)] border border-[rgba(255,180,0,.35)] rounded-full text-[length:var(--font-size-caption)] text-[#FFB400] font-black flex items-center gap-1 animate-pulse">
 												⚠️ يحتاج وثيقة إثبات
 											</span>
 											<span *ngIf="sample.proofFileNames.length > 0"
-												class="px-2 py-0.5 bg-[rgba(43,212,199,.15)] border border-[rgba(43,212,199,.3)] rounded-full text-[10px] text-[#2BD4C7] font-extrabold">
+												class="px-2 py-0.5 bg-[rgba(43,212,199,.15)] border border-[rgba(43,212,199,.3)] rounded-full text-[length:var(--font-size-caption)] text-[#2BD4C7] font-extrabold">
 												مكتمل الشرط
 											</span>
 										</div>
@@ -433,10 +433,10 @@
 
 							<div
 								class="px-4.5 py-2.5 border-t border-[rgba(255,255,255,.05)] bg-[rgba(0,0,0,0.2)] flex items-center justify-between">
-								<span class="text-[11px] font-bold text-[var(--txt-3)]">النموذج رقم {{ sampleIndex + 1
+								<span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">النموذج رقم {{ sampleIndex + 1
 									}} لـ {{ sub }}</span>
 								<button type="button" (click)="removeSampleBlock(sample.id)"
-									class="text-[11px] font-bold text-[#FF6B6B] hover:underline flex items-center gap-1">
+									class="text-[length:var(--font-size-small)] font-bold text-[#FF6B6B] hover:underline flex items-center gap-1">
 									<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 										stroke-width="2">
 										<path d="M3 6h18" />
@@ -498,7 +498,7 @@
 			<div *ngIf="!portfolioReviewLoading() && portfolioReview()?.status === 'NOT_ENOUGH_DATA' && hasReviewableSamples()" data-testid="specialty-ai-review-empty" class="text-xs text-[var(--txt-2)]">أضف نماذج أعمال كافية ليتم تحليلها</div>
 
 			<div *ngIf="!portfolioReviewLoading() && portfolioReview()?.status === 'READY' && portfolioReview()?.details as d" data-testid="specialty-ai-review-ready" class="flex flex-col gap-3">
-				<div class="flex items-center gap-2 text-[11px] font-bold text-[#A56BE0]">
+				<div class="flex items-center gap-2 text-[length:var(--font-size-small)] font-bold text-[#A56BE0]">
 					<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-ai"></use></svg>
 					<span>مراجعة استشارية بالذكاء الاصطناعي</span>
 					<span *ngIf="portfolioReview()?.score != null" data-testid="specialty-ai-review-score">· {{ portfolioReview()?.score }}/100</span>
@@ -510,7 +510,7 @@
 				<button *ngIf="hasReviewableSamples()" type="button" data-testid="specialty-ai-review-again" (click)="requestPortfolioReview()" class="self-start py-1.5 px-3 rounded-lg text-xs font-bold border border-white/20 text-white">مراجعة جديدة</button>
 			</div>
 
-			<p data-testid="specialty-ai-review-note" class="text-[11px] text-[var(--txt-3)] leading-relaxed">مراجعة استشارية فقط: لا تقبل التخصص ولا تمنح شارة ولا تغيّر مستواك. القرار النهائي لمراجعة الفريق.</p>
+			<p data-testid="specialty-ai-review-note" class="text-[length:var(--font-size-small)] text-[var(--txt-3)] leading-relaxed">مراجعة استشارية فقط: لا تقبل التخصص ولا تمنح شارة ولا تغيّر مستواك. القرار النهائي لمراجعة الفريق.</p>
 		</div>
 
 		<!-- DECLARATIONS BEFORE TESTING — always shown, so step 3 never depends on the AI review -->
@@ -528,7 +528,7 @@
 							التمهيدي</span>
 					</div>
 					<button *ngIf="!allDeclarationsChecked()" type="button" (click)="checkAllDeclarations()"
-						class="px-3 py-1 rounded-full bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.35)] text-[11px] font-black text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors cursor-pointer">
+						class="px-3 py-1 rounded-full bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.35)] text-[length:var(--font-size-small)] font-black text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors cursor-pointer">
 						✓ تحديد جميع الإقرارات
 					</button>
 				</div>
@@ -681,7 +681,7 @@
 	<div *ngIf="stepError() as err" role="alert" data-testid="step-error"
 		class="mt-4 form-error">{{ err }}</div>
 	<div *ngIf="currentStep() === 2 && step2Blocker() as why" data-testid="step2-blocker"
-		class="mt-4 px-4 py-2 rounded-xl text-[12px] font-bold" [class.form-error]="step2Attempted()" [class.text-[var(--txt-3)]]="!step2Attempted()" [attr.role]="step2Attempted() ? 'alert' : null">{{ why }}</div>
+		class="mt-4 px-4 py-2 rounded-xl text-[length:var(--font-size-small)] font-bold" [class.form-error]="step2Attempted()" [class.text-[var(--txt-3)]]="!step2Attempted()" [attr.role]="step2Attempted() ? 'alert' : null">{{ why }}</div>
 
 	<!-- BOTTOM MAIN NAVIGATION FOR STEPS 1 to 3 -->
 	<div *ngIf="currentStep() < 4"

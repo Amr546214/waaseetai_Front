@@ -235,7 +235,7 @@
 			</div>
 			<div class="flex-1 min-w-0">
 				<div class="flex items-center justify-between mb-1">
-					<span class="text-[11px] font-black text-[#2BD4C7] tracking-wider flex items-center gap-1.5">
+					<span class="text-[length:var(--font-size-small)] font-black text-[#2BD4C7] tracking-wider flex items-center gap-1.5">
 						<span class="w-2 h-2 rounded-full bg-[#2BD4C7] animate-pulse"></span>
 						رسالة جديدة
 					</span>
@@ -247,10 +247,10 @@
 						</svg>
 					</button>
 				</div>
-				<h4 class="text-[13.5px] font-extrabold text-white mb-1 truncate">{{ chatToast().senderName }}</h4>
-				<p class="text-[12px] text-slate-300 leading-relaxed mb-3 line-clamp-2">{{ chatToast().text }}</p>
+				<h4 class="text-[length:var(--font-size-label)] font-extrabold text-white mb-1 truncate">{{ chatToast().senderName }}</h4>
+				<p class="text-[length:var(--font-size-small)] text-slate-300 leading-relaxed mb-3 line-clamp-2">{{ chatToast().text }}</p>
 				<button type="button" (click)="goToMessageFromToast()"
-					class="inline-flex items-center justify-between w-full px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#2BD4C7]/20 to-[#2B7FFF]/20 border border-[#2BD4C7]/40 text-[#2BD4C7] hover:text-white hover:bg-[#2BD4C7]/30 text-[12px] font-bold transition-all shadow-sm cursor-pointer border-none">
+					class="inline-flex items-center justify-between w-full px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#2BD4C7]/20 to-[#2B7FFF]/20 border border-[#2BD4C7]/40 text-[#2BD4C7] hover:text-white hover:bg-[#2BD4C7]/30 text-[length:var(--font-size-small)] font-bold transition-all shadow-sm cursor-pointer border-none">
 					<span>فتح المحادثة والرد</span>
 					<svg class="w-4 h-4 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"
 						stroke-width="2">

@@ -46,9 +46,9 @@ const METRIC_LABELS: Record<string, string> = {
 	styles: [`
 		.an-wrap { margin-bottom: 16px; }
 		.an-data { padding: 14px; border-radius: 12px; border: 1px solid var(--sec-bd, rgba(255,255,255,.08)); }
-		.an-ttl { font-size: 12px; font-weight: 800; margin-bottom: 8px; }
-		.an-count { margin: 0 0 8px; font-size: 12.5px; font-weight: 700; }
-		.an-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+		.an-ttl { font-size: var(--font-size-small); font-weight: 800; margin-bottom: 8px; }
+		.an-count { margin: 0 0 8px; font-size: var(--font-size-label); font-weight: 700; }
+		.an-tbl { width: 100%; border-collapse: collapse; font-size: var(--font-size-label); }
 		.an-tbl th, .an-tbl td { text-align: start; padding: 6px 8px; border-bottom: 1px solid var(--sec-bd, rgba(255,255,255,.08)); vertical-align: top; }
 	`],
 })

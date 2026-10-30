@@ -10,7 +10,7 @@
 }
 
 .card-title {
-    font-size: 14px;
+    font-size: var(--font-size-label);
     font-weight: 900;
     color: #fff;
     margin-bottom: 16px;
@@ -45,7 +45,7 @@
 }
 
 .scan-txt {
-    font-size: 13px;
+    font-size: var(--font-size-label);
     color: var(--ai-txt, #A56BE0);
     font-weight: 700;
     margin-top: 8px;
@@ -135,20 +135,20 @@
 }
 
 .check-label {
-    font-size: 12.5px;
+    font-size: var(--font-size-label);
     font-weight: 800;
     color: #fff;
     margin-bottom: 3px;
 }
 
 .check-sub {
-    font-size: 12px;
+    font-size: var(--font-size-small);
     color: #A8B2D1;
     line-height: 1.65;
 }
 
 .check-score {
-    font-size: 11px;
+    font-size: var(--font-size-small);
     font-weight: 800;
     padding: 2px 8px;
     border-radius: 5px;
@@ -189,7 +189,7 @@
 }
 
 .cmp-head-cell {
-    font-size: 11px;
+    font-size: var(--font-size-small);
     font-weight: 800;
     color: #6B7699;
     text-align: center;
@@ -217,7 +217,7 @@
 }
 
 .cmp-cell {
-    font-size: 13px;
+    font-size: var(--font-size-label);
     font-weight: 700;
     color: #A8B2D1;
     text-align: center;
@@ -241,7 +241,7 @@
 }
 
 .cmp-row-label {
-    font-size: 11px;
+    font-size: var(--font-size-small);
     color: #6B7699;
     margin-bottom: 2px;
 }
@@ -320,12 +320,12 @@
 }
 
 .score-denom {
-    font-size: 10px;
+    font-size: var(--font-size-caption);
     color: #6B7699;
 }
 
 .score-label {
-    font-size: 11px;
+    font-size: var(--font-size-small);
     font-weight: 700;
     color: var(--ai-txt, #A56BE0);
     text-align: center;
@@ -346,7 +346,7 @@
 }
 
 .metric-label {
-    font-size: 12px;
+    font-size: var(--font-size-small);
     color: #A8B2D1;
     width: 110px;
     flex-shrink: 0;
@@ -368,7 +368,7 @@
 }
 
 .metric-val {
-    font-size: 11px;
+    font-size: var(--font-size-small);
     font-weight: 800;
     width: 34px;
     text-align: left;
@@ -447,7 +447,7 @@
 }
 
 .ai-disc-lbl {
-    font-size: 10px;
+    font-size: var(--font-size-caption);
     font-weight: 800;
     color: var(--ai-txt, #A56BE0);
     letter-spacing: .06em;
@@ -455,7 +455,7 @@
 }
 
 .ai-disc-txt {
-    font-size: 12px;
+    font-size: var(--font-size-small);
     color: #A8B2D1;
     line-height: 1.6;
 }
@@ -466,7 +466,7 @@
     border: 1px solid rgba(123, 47, 190, .28);
     border-radius: 4px;
     padding: 1px 7px;
-    font-size: 10px;
+    font-size: var(--font-size-caption);
     font-weight: 700;
     color: var(--ai-txt, #A56BE0);
     margin-inline-end: 4px;

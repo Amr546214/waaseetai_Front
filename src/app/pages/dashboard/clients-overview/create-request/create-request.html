@@ -32,7 +32,7 @@
 
 		<!-- BREADCRUMB (TOP RIGHT) -->
 		<div class="flex items-center justify-end mb-8">
-			<nav class="breadcrumb flex items-center gap-2 text-[13px] text-[var(--txt-3)] font-medium" aria-label="مسار التنقل">
+			<nav class="breadcrumb flex items-center gap-2 text-[length:var(--font-size-label)] text-[var(--txt-3)] font-medium" aria-label="مسار التنقل">
 				<a routerLink="/client-overview" class="hover:text-[var(--txt)] transition-colors">الرئيسية</a>
 				<span class="breadcrumb-sep text-[var(--txt-3)]" aria-hidden="true">&#8250;</span>
 				<a routerLink="/client-overview/my-requests" class="hover:text-[var(--txt)] transition-colors">{{ isCompany() ? 'طلبات الشركة' : 'طلباتي' }}</a>
@@ -53,7 +53,7 @@
 					(click)="currentStep() > step.num && currentStep.set(step.num)">
 
 					<!-- CIRCLE -->
-					<div class="step-circle w-11 h-11 rounded-full flex items-center justify-center text-[15px] font-black transition-all duration-300 shrink-0"
+					<div class="step-circle w-11 h-11 rounded-full flex items-center justify-center text-[length:var(--font-size-body)] font-black transition-all duration-300 shrink-0"
 						[ngClass]="{
 							'text-[#070d24] scale-110 shadow-[0_0_22px_rgba(43,212,199,0.55),0_0_12px_rgba(43,127,255,0.45)]': currentStep() === step.num,
 							'bg-[var(--sec-bg)] border-2 border-[var(--teal)] text-[var(--teal-txt)]': currentStep() > step.num,
@@ -70,9 +70,9 @@
 					</div>
 
 					<!-- LABEL -->
-					<div class="step-label text-[13px] transition-colors duration-200 text-center whitespace-nowrap"
+					<div class="step-label text-[length:var(--font-size-label)] transition-colors duration-200 text-center whitespace-nowrap"
 						[ngClass]="{
-							'text-[var(--txt)] font-black text-[14px]': currentStep() === step.num,
+							'text-[var(--txt)] font-black text-[length:var(--font-size-label)]': currentStep() === step.num,
 							'text-[var(--teal-txt)] font-bold': currentStep() > step.num,
 							'text-[var(--txt-3)] font-bold': currentStep() < step.num
 						}">
@@ -160,13 +160,13 @@
 		<!-- RIGHT SIDE: Next Button + Selected Specialty Summary -->
 		<div class="flex items-center gap-4">
 			@if (currentSpec()) {
-			<span class="selection-status text-[13px] text-[var(--txt-3)] font-medium hidden sm:inline-block">
+			<span class="selection-status text-[length:var(--font-size-label)] text-[var(--txt-3)] font-medium hidden sm:inline-block">
 				{{ currentSpec()?.name }} <span class="opacity-40">•</span> {{ selectedSubs().size }} فرعي
 			</span>
 			}
 
 			<button type="button"
-				class="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[#070d24] text-[15px] font-black cursor-pointer transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not(:disabled):-translate-y-0.5 shadow-[0_4px_18px_rgba(43,212,199,0.35)] hover:not(:disabled):shadow-[0_6px_22px_rgba(43,212,199,0.5)]"
+				class="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[#070d24] text-[length:var(--font-size-body)] font-black cursor-pointer transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not(:disabled):-translate-y-0.5 shadow-[0_4px_18px_rgba(43,212,199,0.35)] hover:not(:disabled):shadow-[0_6px_22px_rgba(43,212,199,0.5)]"
 				style="background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%);"
 				[disabled]="isSubmitting()" data-testid="wizard-next" (click)="goNext()">
 				@if (isSubmitting()) {
@@ -191,11 +191,11 @@
 		<div>
 			@if (currentStep() === 1) {
 			<button type="button"
-				class="px-6 py-2.5 rounded-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:text-[var(--txt)] hover:bg-[var(--sec-bg-hover)] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
+				class="px-6 py-2.5 rounded-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:text-[var(--txt)] hover:bg-[var(--sec-bg-hover)] text-[length:var(--font-size-label)] font-bold transition-all cursor-pointer shadow-sm"
 				(click)="handleCancel()">إلغاء</button>
 			} @else {
 			<button type="button"
-				class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:text-[var(--txt)] hover:bg-[var(--sec-bg-hover)] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
+				class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] text-[var(--txt-2)] hover:text-[var(--txt)] hover:bg-[var(--sec-bg-hover)] text-[length:var(--font-size-label)] font-bold transition-all cursor-pointer shadow-sm"
 				(click)="goBack()">
 				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 					<polyline points="9 18 15 12 9 6" />
