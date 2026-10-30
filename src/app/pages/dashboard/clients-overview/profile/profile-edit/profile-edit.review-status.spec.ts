@@ -43,7 +43,7 @@ describe('client profile-edit: review status', () => {
 	it('PENDING identity (after a refresh): the waiting banner shows and the send button is disabled', async () => {
 		await mount({ basicInfo: NONE, identity: entry('PENDING_REVIEW', { category: 'CLIENT_IDENTITY' }), password: NONE, documents: NONE });
 		tab('identity');
-		expect(q('[data-testid=identity-pending]')!.textContent).toContain('قيد مراجعة الإدارة');
+		expect(q('[data-testid=identity-pending]')!.textContent).toContain('طلب التعديل قيد المراجعة');
 		expect((q('[data-testid=identity-submit]') as HTMLButtonElement).disabled).toBe(true);
 		expect(q('[data-testid=identity-rejected]')).toBeNull();
 	});

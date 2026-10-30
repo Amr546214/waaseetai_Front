@@ -1,4 +1,20 @@
-<div class="flex flex-col gap-6 w-full max-w-full mx-auto pb-10" dir="rtl">
+<div class="flex flex-col gap-6 w-full max-w-full mx-auto pb-10" dir="rtl" (keydown.escape)="closeProfileGuide()">
+	@if (guideOpen()) {
+		<section id="profile-guide" class="profile-guide" role="region" aria-labelledby="profile-guide-title" data-testid="profile-guide">
+			<div class="flex items-center justify-between gap-3 mb-3">
+				<span class="text-xs font-bold text-[var(--txt-3)]">جولة إرشادية <bdi>{{ guideIndex() + 1 }} / {{ guideSteps.length }}</bdi></span>
+				<button type="button" class="profile-guide-close" (click)="closeProfileGuide()" aria-label="إغلاق الدليل">×</button>
+			</div>
+			<div aria-live="polite" aria-atomic="true">
+				<h2 id="profile-guide-title" tabindex="-1" class="text-base font-extrabold text-[var(--txt)] outline-none mb-2">{{ guideStep().title }}</h2>
+				<p class="text-sm leading-7 text-[var(--txt-2)] mb-4">{{ guideStep().text }}</p>
+			</div>
+			<div class="flex items-center justify-between gap-3">
+				<button type="button" class="profile-guide-back" [disabled]="guideIndex() === 0" (click)="showProfileGuideStep(guideIndex() - 1)">السابق</button>
+				<button type="button" class="profile-guide-next" (click)="guideIndex() === guideSteps.length - 1 ? closeProfileGuide() : showProfileGuideStep(guideIndex() + 1)">{{ guideIndex() === guideSteps.length - 1 ? 'إنهاء الجولة' : 'التالي' }}</button>
+			</div>
+		</section>
+	}
 	<!-- Progress card: client accounts see it only while the profile is incomplete (hidden at 100%); other roles are unchanged -->
 	@if (!isClient || (completionLoaded() && completionPercentage() < 100)) {
 	<!-- Progress Bar -->
@@ -21,7 +37,7 @@
 	@if (missingItems().length) {
 	<!-- What the backend still needs for 100% (same source as the percentage above) -->
 	<div class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-5 shadow-sm dark:shadow-none" data-testid="missing-items" role="region" aria-label="ما ينقص ملفك">
-		<h3 class="text-sm font-black text-slate-900 dark:text-white mb-3">لإكمال ملفك إلى 100%، أكمل التالي:</h3>
+		<h3 class="text-sm font-black text-slate-900 dark:text-white mb-3">بيانات غير مكتملة</h3>
 		<ul class="grid gap-2 sm:grid-cols-2 list-none p-0 m-0">
 			@for (item of missingItems(); track item.key) {
 			<li [attr.data-key]="item.key">
@@ -44,26 +60,16 @@
 	</div>
 	}
 
-	<!-- Info -->
-	<div class="ws-note ws-note--neutral" role="region" aria-label="معلومات الصفحة">
-<div class="ws-note-ico"><svg width="20" height="20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-				stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-				<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>
-			</svg></div>
-<div class="ws-note-body">
-<div class="ws-note-lbl">نبذة ومهارات ملفك</div>
-<p class="ws-note-txt">اكتب نبذتك ومهاراتك بنفسك — تُحفظ ضمن بيانات ملفك ويمكنك تعديلها في أي وقت</p>
-</div>
-</div>
-
 	<!-- Legend & Tabs -->
 	<div class="flex flex-col gap-4">
-		<div class="flex items-center gap-4 text-xs font-bold text-slate-500 dark:text-slate-400">
+		<div class="flex items-center flex-wrap gap-4 text-xs font-bold text-slate-500 dark:text-slate-400">
 			<span class="text-slate-900 dark:text-white">نوع التعديل:</span>
-			<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> فوري (تحفظ
-				مباشرة)</div>
-			<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> بمراجعة (تُراجع
-				من الفريق قبل الاعتماد)</div>
+			<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> حفظ مباشر</div>
+			<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> يتطلب مراجعة</div>
+			<button type="button" class="profile-guide-start" data-testid="profile-guide-start" (click)="startProfileGuide()" [attr.aria-expanded]="guideOpen()" aria-controls="profile-guide">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4M12 16h.01"/></svg>
+				ابدأ جولة إرشادية
+			</button>
 		</div>
 
 		<!-- Tabs -->
@@ -134,15 +140,6 @@
 			<span class="loader" style="border-color: #0d9488; border-top-color: transparent;"></span>
 		</div>
 
-		<div
-			class="flex items-center gap-3 p-4 bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-100 dark:border-cyan-500/20 rounded-2xl text-cyan-900 dark:text-cyan-100 text-sm font-medium">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-				class="w-5 h-5 flex-shrink-0 text-cyan-500">
-				<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-			</svg>
-			بيانات هذا القسم تحفظ فوراً وتحدث ملفك الشخصي
-		</div>
-
 		<!-- Card: Avatar -->
 		<div
 			class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
@@ -158,7 +155,6 @@
 				</div>
 				<div class="flex-grow">
 					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الصورة الشخصية</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400 mb-4">صورة دائرية للوجه، خاصة بشكل افتراضي</p>
 
 					<div class="flex flex-wrap items-center gap-3 mb-3">
 						<input type="file" #avatarInput class="hidden" accept=".jpg,.jpeg,.png"
@@ -235,7 +231,6 @@
 					</div>
 					<div class="flex-grow">
 						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الاهتمامات والمهارات</h3>
-						<p class="text-sm text-slate-500 dark:text-slate-400">أضف اهتماماتك ومهاراتك لتُحفظ في ملفك</p>
 					</div>
 				</div>
 				<div class="flex flex-wrap gap-2 mb-4">
@@ -274,7 +269,6 @@
 					</div>
 					<div class="flex-grow">
 						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الروابط الشخصية</h3>
-						<p class="text-sm text-slate-500 dark:text-slate-400">أضف روابط أعمالك وحساباتك المهنية</p>
 					</div>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -312,7 +306,7 @@
 					</div>
 					<div class="flex-grow">
 						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">تفضيلات العرض والإشعارات</h3>
-						<p class="text-sm text-slate-500 dark:text-slate-400" data-testid="prefs-hint">تفضيلات حسابك: لغة الواجهة والمنطقة الزمنية تُحفظان في ملفك، وقنوات الإشعارات تتحكم في الإشعار اللحظي ونسخة البريد الإلكتروني للإشعارات الجديدة. لا تغيّر لغة الموقع، ولا توقف إرسال الإشعارات إلى مركز الإشعارات.</p>
+						<details class="mt-1 text-xs text-slate-500 dark:text-slate-400"><summary class="cursor-pointer w-fit">تفاصيل التفضيلات</summary><p class="text-sm text-slate-500 dark:text-slate-400" data-testid="prefs-hint">تفضيلات حسابك: لغة الواجهة والمنطقة الزمنية تُحفظان في ملفك، وقنوات الإشعارات تتحكم في الإشعار اللحظي ونسخة البريد الإلكتروني للإشعارات الجديدة. لا تغيّر لغة الموقع، ولا توقف إرسال الإشعارات إلى مركز الإشعارات.</p></details>
 					</div>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -338,9 +332,8 @@
 				<div class="flex flex-col gap-2">
 					<label class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">قنوات الإشعارات</label>
 					@if (prefsState() === 'error') {
-					<p data-testid="prefs-load-error" role="alert" class="text-xs font-bold text-red-600 dark:text-red-400">تعذر تحميل تفضيلات الإشعارات الحالية، لذلك لن تُعدَّل عند الحفظ. أعد تحميل الصفحة للمحاولة مرة أخرى.</p>
+					<p data-testid="prefs-load-error" role="alert" class="text-xs font-bold text-red-600 dark:text-red-400">تعذر تحميل تفضيلات الإشعارات. أعد تحميل الصفحة.</p>
 					}
-					<p class="text-xs font-medium text-slate-500 dark:text-slate-400">قناتا Telegram وWhatsApp غير مدعومتين في المنصة حاليًا، لذلك لا تظهران هنا.</p>
 					<div class="flex flex-wrap gap-4 pt-1">
 						<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300">
 							<input type="checkbox" data-testid="notif-email" [disabled]="prefsState() !== 'ready'" [checked]="notifEmail()" (change)="notifEmail.set($any($event.target).checked)"
@@ -426,7 +419,6 @@
 					</div>
 					<div class="flex-grow">
 						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الاهتمامات والمهارات</h3>
-						<p class="text-sm text-slate-500 dark:text-slate-400">أضف اهتماماتك لتظهر في ملفك الشخصي</p>
 					</div>
 				</div>
 				<div class="flex flex-wrap gap-2 mb-4">
@@ -465,7 +457,6 @@
 					</div>
 					<div class="flex-grow">
 						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الروابط الشخصية</h3>
-						<p class="text-sm text-slate-500 dark:text-slate-400">أضف روابط أعمالك وحساباتك المهنية</p>
 					</div>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -503,7 +494,6 @@
 					</div>
 					<div class="flex-grow">
 						<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">تفضيلات العرض والإشعارات</h3>
-						<p class="text-sm text-slate-500 dark:text-slate-400">تحكم في لغة الواجهة وقنوات التواصل معك</p>
 					</div>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -595,7 +585,7 @@
 			</div>
 			<div>
 				<h4 class="text-amber-500 font-bold mb-1">قيد الانتظار</h4>
-				<p class="text-sm text-amber-400 font-medium">⚠️ هذه البيانات قيد مراجعة الفريق حاليًا. سيتم فتح التعديل فور الانتهاء.</p>
+				<p class="text-sm text-amber-400 font-medium">قيد المراجعة، التعديل متاح بعد الانتهاء.</p>
 			</div>
 		</div>
 		}
@@ -614,38 +604,10 @@
 				</div>
 				<div class="flex-grow">
 					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">البيانات الأساسية للحساب</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">البريد الإلكتروني ورقم الجوال للعرض فقط ولا يمكن تعديلهما من الواجهة</p>
 				</div>
 			</div>
 
-			<!-- Governed Bar -->
-			<div
-				class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl mb-4">
-				<div class="flex items-center gap-3">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-						class="w-5 h-5 flex-shrink-0 text-amber-500">
-						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-					</svg>
-					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل هذه البيانات الحساسة ينشئ
-						طلباً يخضع للمراجعة ثم يعتمده مراجع بشري قبل التطبيق</span>
-				</div>
-				<a routerLink="/client-overview/profile/requests"
-					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
-					السابقة</a>
-			</div>
-
-			<!-- Warning Bar -->
-			<div
-				class="flex items-center gap-3 p-4 bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10 rounded-2xl mb-8">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-					class="w-5 h-5 flex-shrink-0 text-amber-500">
-					<circle cx="12" cy="12" r="10" />
-					<line x1="12" y1="8" x2="12" y2="12" />
-					<line x1="12" y1="16" x2="12.01" y2="16" />
-				</svg>
-				<span class="text-sm font-medium text-amber-800 dark:text-amber-300/80">البريد الإلكتروني ورقم الجوال للعرض فقط. رقم WhatsApp فقط يُحفظ مباشرة</span>
-			</div>
-
+			<div class="flex items-center justify-between gap-3 mb-4 text-xs"><span class="profile-status-badge">يتطلب مراجعة</span><a routerLink="/client-overview/profile/requests" class="font-bold text-cyan-700 dark:text-cyan-400 hover:underline">طلباتي السابقة</a></div>
 			<!-- Form Grid -->
 			<form [formGroup]="basicsForm" (ngSubmit)="saveTab('basics')">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -672,12 +634,12 @@
 					</div>
 				</div>
 
-				<div role="note" data-testid="basics-note" class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">تغيير الاسم يُرسَل كطلب تعديل يراجعه مراجع بشري قبل تطبيقه، وستجد حالته في «طلباتي السابقة». البريد الإلكتروني ورقم الجوال للقراءة فقط ولا يمكن تغييرهما من هنا.</div>
+				<div role="note" data-testid="basics-note" class="mb-4 text-xs text-slate-500 dark:text-slate-400">تغيير الاسم طلب تعديل للمراجعة. تابع حالته في «طلباتي السابقة».</div>
 				@if (basicsRejection(); as why) {
 				<div data-testid="basics-rejected" role="alert" class="mb-6 rounded-xl border border-red-300 bg-red-50 p-3 text-[12px] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تعديل الاسم. السبب: {{ why }}. يمكنك تعديل الاسم وإرسال طلب جديد.</div>
 				}
 				@if (pendingNameRequest(); as pn) {
-				<div data-testid="basics-pending" role="status" class="mb-6 rounded-xl border border-amber-300 bg-amber-100/60 p-3 text-[12px] font-bold leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">طلب تغيير الاسم{{ pn.requestedValue ? ' إلى «' + pn.requestedValue + '»' : '' }} قيد المراجعة، ولا تحتاج إلى إعادة الإرسال. سيظهر الاسم الجديد بعد موافقة المراجع، وتجد حالة الطلب في <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a>.</div>
+				<div data-testid="basics-pending" role="status" class="mb-6 rounded-xl border border-amber-300 bg-amber-100/60 p-3 text-[12px] font-bold leading-relaxed text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">طلب تغيير الاسم{{ pn.requestedValue ? ' إلى «' + pn.requestedValue + '»' : '' }} قيد المراجعة. <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a>.</div>
 				}
 				<ws-form-summary [items]="missing()" />
 
@@ -695,7 +657,7 @@
 	@if (activeTab() === 'identity') {
 	<div class="flex flex-col gap-6 animation-fade-in">
 		@if (identityReviewPending()) {
-		<div data-testid="identity-pending" role="status" class="rounded-xl border border-sky-300 bg-sky-50 p-3 text-[13px] font-bold leading-relaxed text-sky-900 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200">تم استلام طلب التعديل وهو الآن قيد مراجعة الإدارة. لا تحتاج إلى إعادة الإرسال. <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a></div>
+		<div data-testid="identity-pending" role="status" class="rounded-xl border border-sky-300 bg-sky-50 p-3 text-[13px] font-bold leading-relaxed text-sky-900 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200">طلب التعديل قيد المراجعة. <a routerLink="/client-overview/profile/requests" class="underline">طلباتي السابقة</a></div>
 		} @else if (identityRejection(); as why) {
 		<div data-testid="identity-rejected" role="alert" class="rounded-xl border border-red-300 bg-red-50 p-3 text-[13px] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفض طلب تعديل رقم الهوية. السبب: {{ why }}. يمكنك تعديل البيانات وإرسال طلب جديد.</div>
 		}
@@ -724,7 +686,7 @@
 			</div>
 			<div>
 				<h4 class="text-amber-500 font-bold mb-1">قيد الانتظار</h4>
-				<p class="text-sm text-amber-400 font-medium">⚠️ هذه البيانات قيد مراجعة الفريق حاليًا. سيتم فتح التعديل فور الانتهاء.</p>
+				<p class="text-sm text-amber-400 font-medium">قيد المراجعة، التعديل متاح بعد الانتهاء.</p>
 			</div>
 		</div>
 		}
@@ -741,29 +703,13 @@
 				</div>
 				<div class="flex-grow">
 					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">بيانات الهوية والتوثيق</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">التحقق يرفع مستوى الثقة ويفتح الاجراءات
-						الرسمية</p>
+
 				</div>
 			</div>
 
-			<!-- Governed Bar -->
-			<div
-				class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl mb-8">
-				<div class="flex items-center gap-3">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-						class="w-5 h-5 flex-shrink-0 text-amber-500">
-						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-					</svg>
-					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل هذه البيانات الحساسة ينشئ
-						طلباً يخضع للمراجعة ثم يعتمده مراجع بشري قبل التطبيق</span>
-				</div>
-				<a routerLink="/client-overview/profile/requests"
-					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
-					السابقة</a>
-			</div>
-
+			<div class="flex items-center justify-between gap-3 mb-4 text-xs"><span class="profile-status-badge">يتطلب مراجعة</span><a routerLink="/client-overview/profile/requests" class="font-bold text-cyan-700 dark:text-cyan-400 hover:underline">طلباتي السابقة</a></div>
 			<!-- Form Grid -->
-			<div role="note" data-testid="identity-note" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">الدولة والمدينة تُحفظ فورًا. رقم الهوية يُرسَل كطلب تعديل يراجعه مراجع بشري قبل تطبيقه، وستجد حالته في «طلباتي السابقة». الجنسية وتاريخ الانتهاء غير متاحَين للتعديل حاليًا.</div>
+			<div role="note" data-testid="identity-note" class="mb-4 text-xs text-slate-500 dark:text-slate-400">رقم الهوية: طلب تعديل للمراجعة. الدولة والمدينة: حفظ مباشر.</div>
 			<form [formGroup]="identityForm" (ngSubmit)="saveTab('identity')" data-testid="identity-form">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 					<div class="flex flex-col gap-2">
@@ -808,7 +754,7 @@
 
 				<!-- Identity documents: uploaded and reviewed in the setup wizard (the zone that used to be here only showed a file name and never sent it) -->
 				<div role="note" data-testid="identity-docs-pointer" class="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 mb-8 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-900/50">
-					<div class="text-sm font-medium text-slate-700 dark:text-slate-300">لرفع صور الهوية الرسمية وتوثيق الحساب استخدم «استكمال البيانات».</div>
+					<div class="text-sm font-medium text-slate-700 dark:text-slate-300">مستندات الهوية</div>
 					<a routerLink="/client-overview/profile-setup" class="px-4 py-2 bg-cyan-100 dark:bg-cyan-500/10 text-cyan-800 dark:text-cyan-300 text-xs font-bold rounded-xl whitespace-nowrap">استكمال البيانات</a>
 				</div>
 
@@ -848,7 +794,7 @@
 			</div>
 			<div>
 				<h4 class="text-amber-500 font-bold mb-1">قيد الانتظار</h4>
-				<p class="text-sm text-amber-400 font-medium">⚠️ هذه البيانات قيد مراجعة الفريق حاليًا. سيتم فتح التعديل فور الانتهاء.</p>
+				<p class="text-sm text-amber-400 font-medium">قيد المراجعة، التعديل متاح بعد الانتهاء.</p>
 			</div>
 		</div>
 		}
@@ -866,38 +812,10 @@
 				</div>
 				<div class="flex-grow">
 					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">بيانات التواصل</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">البريد الإلكتروني ورقم الجوال للعرض فقط ولا يمكن تعديلهما من الواجهة</p>
 				</div>
 			</div>
 
-			<!-- Governed Bar -->
-			<div
-				class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl mb-4">
-				<div class="flex items-center gap-3">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-						class="w-5 h-5 flex-shrink-0 text-amber-500">
-						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-					</svg>
-					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">تعديل هذه البيانات الحساسة ينشئ
-						طلباً يخضع للمراجعة ثم يعتمده مراجع بشري قبل التطبيق</span>
-				</div>
-				<a routerLink="/client-overview/profile/requests"
-					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
-					السابقة</a>
-			</div>
-
-			<!-- Warning Bar -->
-			<div
-				class="flex items-center gap-3 p-4 bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10 rounded-2xl mb-8">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-					class="w-5 h-5 flex-shrink-0 text-amber-500">
-					<circle cx="12" cy="12" r="10" />
-					<line x1="12" y1="8" x2="12" y2="12" />
-					<line x1="12" y1="16" x2="12.01" y2="16" />
-				</svg>
-				<span class="text-sm font-medium text-amber-800 dark:text-amber-300/80">البريد الإلكتروني ورقم الجوال للعرض فقط. رقم WhatsApp فقط يُحفظ مباشرة</span>
-			</div>
-
+			<div class="flex items-center justify-between gap-3 mb-4 text-xs"><span class="profile-status-badge">حفظ مباشر</span><a routerLink="/client-overview/profile/requests" class="font-bold text-cyan-700 dark:text-cyan-400 hover:underline">طلباتي السابقة</a></div>
 			<!-- Form Grid -->
 			<form [formGroup]="contactForm" (ngSubmit)="saveTab('contact')">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -935,7 +853,7 @@
 					</div>
 				</div>
 
-				<div role="note" data-testid="contact-note" class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">المحفوظ من هذه الصفحة: رقم WhatsApp ومدينة الإقامة فقط. البريد والجوال للقراءة، والدولة تحدد قائمة المدن ولا تُحفظ من هنا.</div>
+				<div role="note" data-testid="contact-note" class="mb-4 text-xs text-slate-500 dark:text-slate-400">يُحفظ رقم WhatsApp ومدينة الإقامة فقط.</div>
 				<ws-form-summary [items]="missing()" />
 
 				<!-- Action -->
@@ -975,7 +893,7 @@
 			</div>
 			<div>
 				<h4 class="text-amber-500 font-bold mb-1">قيد الانتظار</h4>
-				<p class="text-sm text-amber-400 font-medium">⚠️ هذه البيانات قيد مراجعة الفريق حاليًا. سيتم فتح التعديل فور الانتهاء.</p>
+				<p class="text-sm text-amber-400 font-medium">قيد المراجعة، التعديل متاح بعد الانتهاء.</p>
 			</div>
 		</div>
 		}
@@ -993,25 +911,10 @@
 				</div>
 				<div class="flex-grow">
 					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">بريد PayPal</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">يُستخدم PayPal فقط للمدفوعات على المنصة</p>
 				</div>
 			</div>
 
-			<!-- Governed Bar -->
-			<div
-				class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-2xl mb-8">
-				<div class="flex items-center gap-3">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-						class="w-5 h-5 flex-shrink-0 text-amber-500">
-						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-					</svg>
-					<span class="text-sm font-medium text-amber-900 dark:text-amber-200">يُحفظ بريد PayPal مباشرة دون مراجعة إدارة</span>
-				</div>
-				<a routerLink="/client-overview/profile/requests"
-					class="px-4 py-2 bg-amber-100 dark:bg-amber-500/10 hover:bg-amber-200 dark:hover:bg-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-bold rounded-xl transition-colors whitespace-nowrap">طلباتي
-					السابقة</a>
-			</div>
-
+			<div class="flex items-center justify-between gap-3 mb-4 text-xs"><span class="profile-status-badge">حفظ مباشر</span><a routerLink="/client-overview/profile/requests" class="font-bold text-cyan-700 dark:text-cyan-400 hover:underline">طلباتي السابقة</a></div>
 			<!-- Form Area -->
 			<form [formGroup]="bankingForm" (ngSubmit)="saveTab('banking')">
 				<div class="flex flex-col gap-6 mb-8">
@@ -1064,34 +967,24 @@
 				</div>
 				<div class="flex-grow">
 					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">الامان والمصادقة</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">إدارة أمان الحساب وكلمة المرور</p>
 				</div>
 			</div>
 
-						<div role="note" data-testid="security-unsupported" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">المصادقة الثنائية المعروضة هنا للعرض التوضيحي فقط ولا تعكس حالة حسابك الفعلية. تغيير كلمة المرور فعّال ويمر بمراجعة المراجع.</div>
 			<div class="flex flex-col">
 				<!-- MFA -->
-				<div class="flex items-center justify-between py-5 border-b border-slate-200 dark:border-slate-700/50">
-					<div>
-						<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">المصادقة الثنائية (MFA) <span class="font-normal text-slate-400">(عرض توضيحي)</span></h4>
-						<p class="text-xs text-slate-500 dark:text-slate-400">مفعلة، تحمي الحساب عند تسجيل الدخول وتغيير
-							البيانات الحساسة</p>
-					</div>
-					<div
-						class="px-4 py-1.5 bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 rounded-full text-[11px] font-bold text-cyan-700 dark:text-cyan-400">
-						مفعلة
-					</div>
+				<div class="flex items-center flex-wrap gap-2 py-5 border-b border-slate-200 dark:border-slate-700/50">
+					<h4 class="text-base font-bold text-slate-900 dark:text-white">المصادقة الثنائية (MFA)</h4>
+					<span class="profile-status-badge" data-testid="security-unsupported">غير متاح</span>
 				</div>
 
 				<!-- Change Password -->
 				<div class="flex flex-col py-5 border-b border-slate-200 dark:border-slate-700/50 gap-4">
 					<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
 						<div>
-							<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">تغيير كلمة المرور</h4>
-							<p class="text-xs text-slate-500 dark:text-slate-400">ينصح بتغييرها كل 90 يوما</p>
+							<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">تغيير كلمة المرور <span class="profile-status-badge">يتطلب مراجعة</span></h4>
 						</div>
 						<button type="button" (click)="togglePasswordChange()"
-							[class]="isChangingPassword() ? 'w-full cursor-pointer px-12 py-3 bg-cyan-500 hover:bg-cyan-400 text-white text-sm font-bold rounded-xl transition-all' : 'w-full cursor-pointer md:w-auto px-12 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-md transition-all'">
+							[class]="isChangingPassword() ? 'password-close w-full md:w-auto cursor-pointer px-12 py-3 text-sm font-bold rounded-xl transition-all' : 'w-full cursor-pointer md:w-auto px-12 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-md transition-all'">
 							{{ isChangingPassword() ? 'إغلاق' : 'تغيير كلمة المرور' }}
 						</button>
 					</div>
@@ -1113,7 +1006,7 @@
 					@if (isChangingPassword()) {
 					<form [formGroup]="passwordForm" (ngSubmit)="submitPasswordChange()" novalidate autocomplete="off"
 						class="flex flex-col gap-6 mt-4 animation-fade-in bg-slate-50/50 dark:bg-slate-900/20 p-6 rounded-2xl border border-slate-200 dark:border-slate-700/50">
-						<p class="text-xs font-medium text-slate-600 dark:text-slate-400">تغيير كلمة المرور يمر بمراجعة المراجع قبل التطبيق، ولا تتغير كلمة مرورك قبل اعتماده.</p>
+						<p class="text-xs font-medium text-slate-600 dark:text-slate-400">تُطبّق كلمة المرور بعد اعتماد الطلب.</p>
 
 						<!-- Current Password -->
 						<div class="flex flex-col gap-2">
@@ -1168,7 +1061,7 @@
 						<!-- Action -->
 						<button type="submit" data-testid="pw-submit" [disabled]="passwordSubmitting() || !!pendingPasswordRequest()"
 							class="w-full mt-2 py-4 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold rounded-xl shadow-[0_4px_15px_rgba(43,127,255,0.2)] dark:shadow-[0_0_15px_rgba(43,212,199,0.3)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">{{ passwordSubmitting() ? 'جارٍ إرسال الطلب...' : 'إرسال طلب تغيير كلمة المرور' }}</button>
-						@if (pendingPasswordRequest()) { <p data-testid="pw-submit-disabled-reason" class="text-xs font-medium text-slate-600 dark:text-slate-400">الإرسال معطّل لأن لديك طلب تغيير كلمة مرور قيد المراجعة.</p> }
+						@if (pendingPasswordRequest()) { <p data-testid="pw-submit-disabled-reason" class="text-xs font-medium text-slate-600 dark:text-slate-400">لديك طلب قيد المراجعة.</p> }
 					</form>
 					}
 				</div>
@@ -1176,7 +1069,7 @@
 				<!-- Login sessions: there is no real session tracking to show, so no device / location / browser is ever displayed -->
 				<div class="flex flex-col py-5 gap-1" data-testid="sessions-unavailable">
 					<h4 class="text-base font-bold text-slate-900 dark:text-white mb-1">جلسات الدخول</h4>
-					<p class="text-xs text-slate-500 dark:text-slate-400">إدارة جلسات الدخول غير متاحة حاليًا. يمكنك تسجيل الخروج من هذا الجهاز من زر تسجيل الخروج.</p>
+					<p class="text-xs text-slate-500 dark:text-slate-400">غير متاحة حاليًا.</p>
 				</div>
 			</div>
 
