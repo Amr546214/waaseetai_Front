@@ -31,6 +31,22 @@ export interface AccountSession {
       width: 100%;
       animation: ws-fade 0.2s ease forwards;
     }
+    .availability-badge {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      margin-inline-start: 8px;
+      padding: 2px 8px;
+      border: 1px solid var(--sec-bd);
+      border-radius: 999px;
+      background: var(--sec-bg);
+      color: var(--txt-3);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.6;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
     @keyframes ws-fade {
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
@@ -138,8 +154,9 @@ export interface AccountSession {
 
     /* Danger Card */
     .danger-card {
-      background: rgba(255,140,105,.05);
-      border: 1px solid rgba(255,140,105,.22);
+      --account-danger: #f87171;
+      background: rgba(239,68,68,.05);
+      border: 1px solid rgba(239,68,68,.22);
       border-radius: 14px;
       padding: 18px;
       margin-bottom: 16px;
@@ -150,7 +167,7 @@ export interface AccountSession {
       gap: 8px;
       font-size: 14px;
       font-weight: 900;
-      color: #FF8C69;
+      color: var(--account-danger);
       margin-bottom: 6px;
     }
     .danger-card p {
@@ -161,10 +178,10 @@ export interface AccountSession {
     }
     .danger-btn {
       padding: 10px 18px;
-      background: rgba(255,140,105,.12);
-      border: 1px solid rgba(255,140,105,.3);
+      background: rgba(239,68,68,.10);
+      border: 1px solid rgba(239,68,68,.3);
       border-radius: 9px;
-      color: #FF8C69;
+      color: var(--account-danger);
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
@@ -172,14 +189,20 @@ export interface AccountSession {
       transition: background 0.15s;
     }
     .danger-btn:hover {
-      background: rgba(255,140,105,.2);
+      background: rgba(239,68,68,.18);
+    }
+    .danger-card .availability-badge {
+      color: var(--account-danger);
+      background: rgba(239,68,68,.06);
+      border-color: rgba(239,68,68,.25);
     }
     :host-context(body.light-theme) .danger-card,
     :host-context(body.theme-light) .danger-card,
     :host-context(.light-theme) .danger-card,
     :host-context(.theme-light) .danger-card {
-      background: rgba(255,140,105,.06);
-      border-color: rgba(255,140,105,.3);
+      --account-danger: #b42318;
+      background: rgba(239,68,68,.04);
+      border-color: rgba(239,68,68,.3);
     }
     :host-context(body.light-theme) .danger-card p,
     :host-context(body.theme-light) .danger-card p,
@@ -201,7 +224,7 @@ export class Account implements OnInit {
   isLoading = signal<boolean>(true);
   hasError = signal<boolean>(false);
 
-  // No 2FA / login-alert capability exists in the backend: both stay visibly unavailable (disabled, with the reason in the template).
+  // No 2FA / login-alert capability exists in the backend: both stay disabled with an availability badge.
   twoFactorAuth = signal<boolean>(false);
   newLoginAlert = signal<boolean>(false);
 

@@ -268,7 +268,9 @@ describe('client profile-edit: shared validation', () => {
     });
 
     it('the notification / display text says these are account preferences only, and does not claim they stop sending', () => {
-      const hint = el().querySelector('[data-testid="prefs-hint"]')?.textContent || '';
+      const hintElement = el().querySelector('[data-testid="prefs-hint"]')!;
+      const hint = hintElement.textContent || '';
+      expect(hintElement.closest('details')?.open).toBe(false);
       expect(hint).toContain('تفضيلات حساب');
       expect(hint).toContain('لا توقف إرسال الإشعارات إلى مركز الإشعارات');
       expect(el().textContent).not.toMatch(/توقف(ها)? الإشعارات فورًا|لن تصلك إشعارات|سيتوقف/);
@@ -278,12 +280,15 @@ describe('client profile-edit: shared validation', () => {
       const t = el().textContent || '';
       expect(t).not.toContain('تظهر في ملفك العام');
       expect(t).not.toContain('لتظهر في ملفك الشخصي');
-      expect(t).toContain('تُحفظ ضمن بيانات ملفك');
-      expect(t).toContain('لتُحفظ في ملفك');
+      expect(el().querySelector('textarea[formControlName="bio"]')).not.toBeNull();
+      expect(el().querySelector('input[placeholder="أضف اهتمام جديد"]')).not.toBeNull();
+      expect(el().querySelector('[aria-label="معلومات الصفحة"]')).toBeNull();
     });
 
-    it('Telegram and WhatsApp (no such channel in the platform) are not offered, with the reason', () => {
-      expect(el().textContent).toContain('غير مدعومتين');
+    it('only supported notification channels are offered without an unsupported-channel explanation', () => {
+      expect(el().querySelector('[data-testid="notif-email"]')).not.toBeNull();
+      expect(el().querySelector('[data-testid="notif-inapp"]')).not.toBeNull();
+      expect(el().textContent).not.toContain('قناتا Telegram وWhatsApp');
       expect(el().querySelector('input[type="checkbox"]:not([data-testid])')).toBeNull();
     });
   });
@@ -335,10 +340,10 @@ describe('client profile-edit: shared validation', () => {
   });
 
   describe('security tab', () => {
-    it('MFA stays (labelled demo) and the password form is a real form with an enabled submit', () => {
+    it('MFA shows an unavailable badge and the password form has an enabled submit', () => {
       goTab('security');
       component.isChangingPassword.set(true); render();
-      expect(el().querySelector('[data-testid="security-unsupported"]')?.textContent).toContain('للعرض التوضيحي');
+      expect(el().querySelector('[data-testid="security-unsupported"]')?.textContent?.trim()).toBe('غير متاح');
       expect((el().querySelector('[data-testid="pw-submit"]') as HTMLButtonElement).disabled).toBe(false);
       expect(el().textContent).toContain('المصادقة الثنائية (MFA)');
     });
@@ -349,7 +354,66 @@ describe('client profile-edit: shared validation', () => {
       expect(text).not.toContain('جلسات الدخول النشطة');
       expect(text).not.toMatch(/Chrome|Safari|Windows 11|iPhone|الرياض/);
       expect(text).not.toMatch(/انهاء\s+الجلسات|إنهاء\s+الجلسات|الجلسة\s+الحالية/);
-      expect(el().querySelector('[data-testid="sessions-unavailable"]')!.textContent).toContain('إدارة جلسات الدخول غير متاحة حاليًا. يمكنك تسجيل الخروج من هذا الجهاز من زر تسجيل الخروج.');
+      expect(el().querySelector('[data-testid="sessions-unavailable"]')!.textContent).toContain('غير متاحة حاليًا.');
+    });
+  });
+
+  describe('optional profile guide', () => {
+    const clickGuideButton = (text: string) => {
+      const button = Array.from(el().querySelectorAll<HTMLButtonElement>('[data-testid="profile-guide"] button'))
+        .find(b => b.textContent?.trim() === text)!;
+      button.click();
+      render();
+    };
+
+    it('stays closed until requested, highlights each section, and preserves unsaved edits without API writes', async () => {
+      component.clientForm.patchValue({ bio: 'نبذة لم تُحفظ بعد' });
+      expect(el().querySelector('[data-testid="profile-guide"]')).toBeNull();
+      el().querySelector<HTMLButtonElement>('[data-testid="profile-guide-start"]')!.click();
+      render();
+      await fixture.whenStable();
+      expect(el().querySelector('#profile-guide-title')?.textContent).toContain('الصورة الشخصية');
+      expect(el().querySelector('[data-guide-active] input[type="file"]')).not.toBeNull();
+      expect(el().querySelector<HTMLButtonElement>('.profile-guide-back')!.disabled).toBe(true);
+      clickGuideButton('التالي');
+      await fixture.whenStable();
+      expect(el().querySelector('#profile-guide-title')?.textContent).toContain('نبذة عنك');
+      expect(el().querySelector('[data-guide-active] textarea[formcontrolname="bio"]')).not.toBeNull();
+      clickGuideButton('السابق');
+      expect(el().querySelector('#profile-guide-title')?.textContent).toContain('الصورة الشخصية');
+      // The guide walks all tabs without submitting any form or changing draft values.
+      for (let i = 1; i < component.guideSteps.length; i++) {
+        clickGuideButton('التالي');
+        expect(component.activeTab()).toBe(component.guideStep().tab);
+      }
+      expect(el().querySelector('#profile-guide-title')?.textContent).toContain('أمان الحساب');
+      clickGuideButton('إنهاء الجولة');
+      expect(el().querySelector('[data-testid="profile-guide"]')).toBeNull();
+      expect(el().querySelector('[data-guide-active]')).toBeNull();
+      expect(component.clientForm.get('bio')!.value).toBe('نبذة لم تُحفظ بعد');
+      expect(updateProfile).not.toHaveBeenCalled();
+      expect(updateTab).not.toHaveBeenCalled();
+      expect(updatePrefs).not.toHaveBeenCalled();
+    });
+
+    it('closes with Escape, restores focus, and can be restarted', async () => {
+      const start = el().querySelector<HTMLButtonElement>('[data-testid="profile-guide-start"]')!;
+      start.click(); render(); await fixture.whenStable();
+      el().querySelector('[data-testid="profile-guide"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      render();
+      expect(el().querySelector('[data-testid="profile-guide"]')).toBeNull();
+      expect(el().querySelector('[data-guide-active]')).toBeNull();
+      expect(document.activeElement).toBe(start);
+      start.click(); render();
+      expect(component.guideIndex()).toBe(0);
+      expect(el().querySelector('[data-testid="profile-guide"]')).not.toBeNull();
+    });
+
+    it('closes when the user navigates to another tab independently', () => {
+      el().querySelector<HTMLButtonElement>('[data-testid="profile-guide-start"]')!.click(); render();
+      component.switchTab('contact'); render();
+      expect(component.activeTab()).toBe('contact');
+      expect(el().querySelector('[data-testid="profile-guide"]')).toBeNull();
     });
   });
 
