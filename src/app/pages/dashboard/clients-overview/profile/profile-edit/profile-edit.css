@@ -7,7 +7,7 @@
 	background: rgba(255, 255, 255, .05);
 	border: 1px solid rgba(255, 255, 255, .10);
 	border-radius: 10px;
-	font-size: 13px;
+	font-size: var(--font-size-label);
 	font-weight: 700;
 	color: #A8B2D1;
 	cursor: pointer;

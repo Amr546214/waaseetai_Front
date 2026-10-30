@@ -20,17 +20,17 @@ import { isRateLimitError } from '../../core/utils/rate-limit.util';
 		<div class="paypal-confirm" data-testid="paypal-confirm" role="group" aria-label="تأكيد بريد PayPal"
 			style="margin-top:14px;padding:16px;border:1px solid rgba(255,255,255,.12);border-radius:12px">
 			<div style="font-weight:800;margin-bottom:8px;text-align:center" data-testid="paypal-confirm-title">تأكيد بريد PayPal</div>
-			<p style="font-size:13px;margin-bottom:6px;text-align:center" data-testid="paypal-confirm-sent">
+			<p style="font-size:var(--font-size-label);margin-bottom:6px;text-align:center" data-testid="paypal-confirm-sent">
 				أرسلنا رمزًا إلى بريد حسابك: <span dir="ltr" data-testid="paypal-account-email">{{ accountEmailHint() || 'بريد حسابك' }}</span>
 			</p>
-			<p style="font-size:12.5px;margin-bottom:4px;text-align:center;opacity:.85" data-testid="paypal-confirm-target">
+			<p style="font-size:var(--font-size-label);margin-bottom:4px;text-align:center;opacity:.85" data-testid="paypal-confirm-target">
 				@if (mode() === 'add') { لتأكيد إضافة بريد PayPal } @else { لتأكيد تغيير بريد PayPal إلى }
 				<span dir="ltr" data-testid="paypal-pending-email">{{ email() }}</span>
 			</p>
-			<p style="font-size:12.5px;margin-bottom:8px;text-align:center;opacity:.85" data-testid="paypal-confirm-freeze">بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.</p>
+			<p style="font-size:var(--font-size-label);margin-bottom:8px;text-align:center;opacity:.85" data-testid="paypal-confirm-freeze">بعد التأكيد، يتوقف السحب لمدة 24 ساعة لحماية الحساب.</p>
 			<ws-otp-input idPrefix="pp-code" [(value)]="code" [invalid]="!!error()" describedBy="pp-code-err" [disabled]="busy()" (complete)="confirm()" />
-			@if (error()) { <div id="pp-code-err" role="alert" data-testid="paypal-confirm-error" class="form-error" style="font-size:13px;margin-top:2px;text-align:center">{{ error() }}</div> }
-			@if (notice()) { <div role="status" data-testid="paypal-confirm-notice" style="font-size:13px;margin-top:2px;text-align:center">{{ notice() }}</div> }
+			@if (error()) { <div id="pp-code-err" role="alert" data-testid="paypal-confirm-error" class="form-error" style="font-size:var(--font-size-label);margin-top:2px;text-align:center">{{ error() }}</div> }
+			@if (notice()) { <div role="status" data-testid="paypal-confirm-notice" style="font-size:var(--font-size-label);margin-top:2px;text-align:center">{{ notice() }}</div> }
 			<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px">
 				<button type="button" class="btn-primary" data-testid="paypal-confirm-btn" [disabled]="busy() || confirmWait.active()" (click)="confirm()">{{ busy() ? 'جارٍ التأكيد...' : 'تأكيد البريد' }} @if (confirmWait.active()) { <span data-testid="paypal-confirm-wait">{{ confirmWait.label() }}</span> }</button>
 				<button type="button" class="btn-secondary pp-sec" data-testid="paypal-resend-btn" [disabled]="busy() || resendWait.active()" (click)="resend()">إعادة إرسال الرمز @if (resendWait.active()) { <span data-testid="paypal-resend-wait">{{ resendWait.label() }}</span> }</button>
@@ -39,7 +39,7 @@ import { isRateLimitError } from '../../core/utils/rate-limit.util';
 		</div>
 	`,
 	styles: [`
-		.pp-sec{background:none;border:1px solid rgba(43,212,199,.30);color:var(--teal);font-family:inherit;font-size:13px;font-weight:700;padding:9px 18px;border-radius:20px;cursor:pointer;transition:background .2s,opacity .2s}
+		.pp-sec{background:none;border:1px solid rgba(43,212,199,.30);color:var(--teal);font-family:inherit;font-size:var(--font-size-label);font-weight:700;padding:9px 18px;border-radius:20px;cursor:pointer;transition:background .2s,opacity .2s}
 		.pp-sec:hover:not(:disabled){background:rgba(43,212,199,.08)}
 		.pp-sec:disabled{opacity:.4;cursor:default}
 	`]

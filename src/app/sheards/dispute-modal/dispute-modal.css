@@ -14,7 +14,7 @@
 	border-radius:10px;
 	color:#fff;
 	padding:10px 12px;
-	font:12.5px/1.6 inherit;
+	font:var(--font-size-label)/1.6 inherit;
 	outline:none;
 	transition:border-color .15s;
 }
@@ -22,7 +22,7 @@
 .dp-input:disabled{opacity:.55;cursor:not-allowed}
 
 /* Optional label hint */
-.dp-optional{font-weight:400;color:#6B7699;font-size:11px}
+.dp-optional{font-weight:400;color:#6B7699;font-size:var(--font-size-small)}
 
 /* Field-level error */
 .dp-field-error{
@@ -32,7 +32,7 @@
 	color:#FCA5A5;
 	background:rgba(248,113,113,.1);
 	border:1px solid rgba(248,113,113,.25);
-	font-size:11.5px;
+	font-size:var(--font-size-small);
 }
 
 /* Form-level error */
@@ -43,7 +43,7 @@
 	color:#FCA5A5;
 	background:rgba(248,113,113,.1);
 	border:1px solid rgba(248,113,113,.25);
-	font-size:12px;
+	font-size:var(--font-size-small);
 	text-align:center;
 }
 
@@ -62,7 +62,7 @@
 .dp-evidence-url{
 	flex:1;
 	min-width:0;
-	font-size:11.5px;
+	font-size:var(--font-size-small);
 	color:#A8B2D1;
 	overflow:hidden;
 	text-overflow:ellipsis;
@@ -95,7 +95,7 @@
 	background:rgba(43,212,199,.12);
 	border:1px solid rgba(43,212,199,.24);
 	color:#2BD4C7;
-	font-size:12px;
+	font-size:var(--font-size-small);
 	font-weight:800;
 	font-family:inherit;
 	cursor:pointer;
@@ -105,7 +105,7 @@
 
 /* Hint text */
 .dp-hint{
-	font-size:10.5px;
+	font-size:var(--font-size-small);
 	color:#6B7699;
 	margin-top:7px;
 	line-height:1.5;

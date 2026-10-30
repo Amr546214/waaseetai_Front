@@ -29,16 +29,16 @@
 				<div class="rk-n lvl-txt" data-testid="level-name">{{ levelData()?.currentLevel?.title ?? '—' }}</div>
 				<div class="rk-s">{{ levelData() ? 'المستوى ' + levelData()!.currentLevel.index + ' من ' + levelData()!.roadmap.length : 'لا توجد بيانات بعد' }}</div>
 				<div class="rk-bar"><div class="rk-f" [style.width.%]="levelData()?.nextLevelProgress?.pointsPercent ?? 0"></div></div>
-				<div style="font-size:11px;margin-top:6px" class="txt-slate">{{ levelData()?.currentStats?.points ?? '—' }} نقطة · {{ levelData()?.nextLevelProgress?.pointsGap ?? '—' }} نقطة للمستوى التالي</div>
+				<div style="font-size:var(--font-size-small);margin-top:6px" class="txt-slate">{{ levelData()?.currentStats?.points ?? '—' }} نقطة · {{ levelData()?.nextLevelProgress?.pointsGap ?? '—' }} نقطة للمستوى التالي</div>
 			</div>
 			<div style="display:flex;gap:8px;flex-shrink:0">
 				<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 16px">
 					<div style="font-size:20px;font-weight:900" class="txt-amber">{{ levelData()?.currentStats?.avgRating != null ? (levelData()!.currentStats.avgRating | number:'1.1-1') : '—' }}</div>
-					<div style="font-size:10px;margin-top:2px" class="txt-slate">التقييم</div>
+					<div style="font-size:var(--font-size-caption);margin-top:2px" class="txt-slate">التقييم</div>
 				</div>
 				<div style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:10px 16px">
 					<div style="font-size:20px;font-weight:900" class="txt-teal">{{ levelData()?.currentStats?.completedProjects ?? '—' }}</div>
-					<div style="font-size:10px;margin-top:2px" class="txt-slate">مشاريع مكتملة</div>
+					<div style="font-size:var(--font-size-caption);margin-top:2px" class="txt-slate">مشاريع مكتملة</div>
 				</div>
 			</div>
 		</div>
@@ -130,7 +130,7 @@
   <div class="flex items-start justify-between gap-3 flex-wrap mb-4">
     <div>
       <h1 class="text-[20px] font-black text-[var(--txt)] m-0">مستوى التصنيف</h1>
-      <div class="text-[12px] text-[var(--txt-3)] mt-1" data-testid="level-subtitle">{{ ladderSubtitle() }}</div>
+      <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-1" data-testid="level-subtitle">{{ ladderSubtitle() }}</div>
     </div>
   </div>
 </div>
@@ -156,11 +156,11 @@
     
     <!-- Info -->
     <div class="flex-1 min-w-[160px]">
-      <div class="text-[11px] font-bold text-[#2BD4C7] tracking-widest mb-1 uppercase">مستواك الحالي</div>
+      <div class="text-[length:var(--font-size-small)] font-bold text-[#2BD4C7] tracking-widest mb-1 uppercase">مستواك الحالي</div>
       <div class="text-[32px] font-black text-white leading-none mb-1.5">{{ data.currentLevel.title }}</div>
       <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-[11px] bg-[#2BD4C7]/15 border border-[#2BD4C7]/30 text-[#2BD4C7] rounded-full px-2.5 py-0.5 font-bold">عمولة منصة {{ data.currentStats.commissionRate }}%</span>
-        <span class="text-[11px] text-[var(--txt-3)]">{{ data.currentLevel.index }} من {{ data.roadmap.length }} مستوى</span>
+        <span class="text-[length:var(--font-size-small)] bg-[#2BD4C7]/15 border border-[#2BD4C7]/30 text-[#2BD4C7] rounded-full px-2.5 py-0.5 font-bold">عمولة منصة {{ data.currentStats.commissionRate }}%</span>
+        <span class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">{{ data.currentLevel.index }} من {{ data.roadmap.length }} مستوى</span>
       </div>
     </div>
     
@@ -168,19 +168,19 @@
     <div class="grid grid-cols-2 gap-3 shrink-0">
       <div class="text-center bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[12px] p-3">
         <div class="text-[22px] font-black text-[#2BD4C7] leading-none">{{ data.currentStats.points }}</div>
-        <div class="text-[10px] text-[var(--txt-3)] font-bold mt-1">نقطة حالية</div>
+        <div class="text-[length:var(--font-size-caption)] text-[var(--txt-3)] font-bold mt-1">نقطة حالية</div>
       </div>
       <div class="text-center bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[12px] p-3">
         <div class="text-[22px] font-black text-white leading-none">{{ data.currentStats.completedProjects }}</div>
-        <div class="text-[10px] text-[var(--txt-3)] font-bold mt-1">مشروع مكتمل</div>
+        <div class="text-[length:var(--font-size-caption)] text-[var(--txt-3)] font-bold mt-1">مشروع مكتمل</div>
       </div>
       <div class="text-center bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[12px] p-3">
         <div class="text-[22px] font-black text-[#FFB400] leading-none">{{ data.currentStats.avgRating | number:'1.1-1' }}</div>
-        <div class="text-[10px] text-[var(--txt-3)] font-bold mt-1">متوسط التقييم</div>
+        <div class="text-[length:var(--font-size-caption)] text-[var(--txt-3)] font-bold mt-1">متوسط التقييم</div>
       </div>
       <div class="text-center bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[12px] p-3">
         <div class="text-[22px] font-black text-[#0FA99A] leading-none">{{ data.currentStats.commissionRate }}%</div>
-        <div class="text-[10px] text-[var(--txt-3)] font-bold mt-1">عمولة فعلية</div>
+        <div class="text-[length:var(--font-size-caption)] text-[var(--txt-3)] font-bold mt-1">عمولة فعلية</div>
       </div>
     </div>
   </div>
@@ -189,11 +189,11 @@
 <!-- Progress to Next Level -->
 <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[16px] p-5 mb-5 backdrop-blur-md">
   <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
-    <div class="text-[14px] font-black text-white flex items-center gap-2">
+    <div class="text-[length:var(--font-size-label)] font-black text-white flex items-center gap-2">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
       التقدم نحو المستوى {{ data.currentLevel.index + 1 }} — <span class="text-[#2BD4C7]">{{ data.nextLevelProgress.title }}</span>
     </div>
-    <span class="text-[11px] text-[var(--txt-3)] font-bold bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] px-3 py-1 rounded-full">عمولة: {{ data.currentStats.commissionRate }}% → {{ data.nextLevelProgress.nextCommission }}%</span>
+    <span class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-bold bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] px-3 py-1 rounded-full">عمولة: {{ data.currentStats.commissionRate }}% → {{ data.nextLevelProgress.nextCommission }}%</span>
   </div>
   
   <div class="flex flex-col gap-3.5">
@@ -202,9 +202,9 @@
       <div class="flex justify-between mb-1.5">
         <div class="flex items-center gap-1.5">
           <div class="w-1.5 h-1.5 rounded-full bg-[#2BD4C7]"></div>
-          <span class="text-[12px] font-bold text-[var(--txt-2)]">النقاط</span>
+          <span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-2)]">النقاط</span>
         </div>
-        <div class="text-[12px] font-bold"><span class="text-[#2BD4C7]">{{ data.currentStats.points }}</span><span class="text-[var(--txt-3)]"> نقطة · ينقصك </span><span class="text-[#FFB400] font-black">{{ data.nextLevelProgress.pointsGap }} نقطة</span></div>
+        <div class="text-[length:var(--font-size-small)] font-bold"><span class="text-[#2BD4C7]">{{ data.currentStats.points }}</span><span class="text-[var(--txt-3)]"> نقطة · ينقصك </span><span class="text-[#FFB400] font-black">{{ data.nextLevelProgress.pointsGap }} نقطة</span></div>
       </div>
       <div class="h-2 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
         <div [style.width.%]="data.nextLevelProgress.pointsPercent" class="h-full bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF] rounded-full shadow-[0_0_8px_rgba(43,212,199,0.35)]"></div>
@@ -215,9 +215,9 @@
       <div class="flex justify-between mb-1.5">
         <div class="flex items-center gap-1.5">
           <div class="w-1.5 h-1.5 rounded-full bg-[#5DA0FF]"></div>
-          <span class="text-[12px] font-bold text-[var(--txt-2)]">المشاريع المكتملة</span>
+          <span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-2)]">المشاريع المكتملة</span>
         </div>
-        <div class="text-[12px] font-bold"><span class="text-[#5DA0FF]">{{ data.currentStats.completedProjects }}</span><span class="text-[var(--txt-3)]"> مشروع · ينقصك </span><span class="text-[#FFB400] font-black">{{ data.nextLevelProgress.projectsGap }} مشاريع</span></div>
+        <div class="text-[length:var(--font-size-small)] font-bold"><span class="text-[#5DA0FF]">{{ data.currentStats.completedProjects }}</span><span class="text-[var(--txt-3)]"> مشروع · ينقصك </span><span class="text-[#FFB400] font-black">{{ data.nextLevelProgress.projectsGap }} مشاريع</span></div>
       </div>
       <div class="h-2 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
         <div [style.width.%]="data.nextLevelProgress.projectsPercent" class="h-full bg-gradient-to-r from-[#5DA0FF] to-[#2BD4C7] rounded-full"></div>
@@ -228,9 +228,9 @@
       <div class="flex justify-between mb-1.5">
         <div class="flex items-center gap-1.5">
           <div class="w-1.5 h-1.5 rounded-full bg-[#FFB400]"></div>
-          <span class="text-[12px] font-bold text-[var(--txt-2)]">متوسط التقييم</span>
+          <span class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-2)]">متوسط التقييم</span>
         </div>
-        <div class="text-[12px] font-bold"><span class="text-[#FFB400]">{{ data.currentStats.avgRating | number:'1.1-1' }}</span><span class="text-[var(--txt-3)]"> نجمة · ينقصك </span><span class="text-[#0FA99A] font-black">{{ data.nextLevelProgress.ratingGap }} نجمة</span></div>
+        <div class="text-[length:var(--font-size-small)] font-bold"><span class="text-[#FFB400]">{{ data.currentStats.avgRating | number:'1.1-1' }}</span><span class="text-[var(--txt-3)]"> نجمة · ينقصك </span><span class="text-[#0FA99A] font-black">{{ data.nextLevelProgress.ratingGap }} نجمة</span></div>
       </div>
       <div class="h-2 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
         <div [style.width.%]="data.nextLevelProgress.ratingPercent" class="h-full bg-gradient-to-r from-[#FFB400] to-[#0FA99A] rounded-full"></div>
@@ -246,7 +246,7 @@
 </div>
 
 <!-- 15 Levels Map -->
-<div class="flex items-center gap-2 text-[13px] font-black text-[var(--txt-2)] mb-3">
+<div class="flex items-center gap-2 text-[length:var(--font-size-label)] font-black text-[var(--txt-2)] mb-3">
   <svg class="w-4 h-4 text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
   خريطة المستويات — {{ data.roadmap.length }} مستوى
 </div>
@@ -264,7 +264,7 @@
     <!-- Roadmap Map Loop -->
     <ng-container *ngFor="let level of data.roadmap; let i = index">
       <div class="flex-1 flex flex-col items-center relative z-10" [class.opacity-40]="level.index > data.currentLevel.index" [attr.data-level]="level.index" [style.--lvl-dark]="level.color?.dark || '#9B8B7A'" [style.--lvl-light]="level.color?.light || '#7A6B5A'">
-        <div *ngIf="level.isCurrent" class="absolute -top-4 text-[9px] font-black bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] px-2.5 py-1 rounded-full whitespace-nowrap shadow-[0_2px_8px_rgba(43,212,199,0.3)]">▲ أنت هنا</div>
+        <div *ngIf="level.isCurrent" class="absolute -top-4 text-[length:var(--font-size-caption)] font-black bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] px-2.5 py-1 rounded-full whitespace-nowrap shadow-[0_2px_8px_rgba(43,212,199,0.3)]">▲ أنت هنا</div>
         
         <div [class]="level.isCurrent ? 'relative w-[72px] h-[72px] mb-2' : 'lvl-badge w-14 h-14 rounded-full border-2 flex items-center justify-center mb-2'">
           
@@ -286,9 +286,9 @@
           </ng-container>
 
         </div>
-        <div class="text-[11px] font-black text-center" [ngClass]="level.isCurrent ? 'text-white text-[12px]' : 'text-[var(--txt-2)]'">{{ level.title }}</div>
-        <div class="text-[9px] mt-0.5" [ngClass]="level.isCurrent ? 'text-[#2BD4C7] font-bold' : 'text-[var(--txt-3)]'">{{ level.reqPoints }} نقطة</div>
-        <div class="text-[9px]" [ngClass]="level.isCurrent ? 'text-[#2BD4C7]' : 'text-[var(--txt-3)]'">{{ level.reqProjects }} مشروع</div>
+        <div class="text-[length:var(--font-size-small)] font-black text-center" [ngClass]="level.isCurrent ? 'text-white text-[length:var(--font-size-small)]' : 'text-[var(--txt-2)]'">{{ level.title }}</div>
+        <div class="text-[length:var(--font-size-caption)] mt-0.5" [ngClass]="level.isCurrent ? 'text-[#2BD4C7] font-bold' : 'text-[var(--txt-3)]'">{{ level.reqPoints }} نقطة</div>
+        <div class="text-[length:var(--font-size-caption)]" [ngClass]="level.isCurrent ? 'text-[#2BD4C7]' : 'text-[var(--txt-3)]'">{{ level.reqProjects }} مشروع</div>
       </div>
     </ng-container>
   </div>
@@ -299,38 +299,38 @@
   
   <!-- Points Gain -->
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden backdrop-blur-md">
-    <div class="px-4 py-3 border-b border-[rgba(255,255,255,0.07)] flex items-center gap-2 text-[13px] font-black text-[#0FA99A]">
+    <div class="px-4 py-3 border-b border-[rgba(255,255,255,0.07)] flex items-center gap-2 text-[length:var(--font-size-label)] font-black text-[#0FA99A]">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
       كسب النقاط
     </div>
     <div class="flex flex-col">
       <div *ngFor="let rule of data.pointRules.gainRules" class="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(255,255,255,0.04)]">
-        <span class="text-[12px] text-[var(--txt-2)]">{{ rule.label }}</span>
-        <span class="text-[12px] font-black text-[#0FA99A]">{{ rule.points }}</span>
+        <span class="text-[length:var(--font-size-small)] text-[var(--txt-2)]">{{ rule.label }}</span>
+        <span class="text-[length:var(--font-size-small)] font-black text-[#0FA99A]">{{ rule.points }}</span>
       </div>
     </div>
   </div>
 
   <!-- Points Loss -->
   <div class="bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] overflow-hidden backdrop-blur-md">
-    <div class="px-4 py-3 border-b border-[rgba(255,255,255,0.07)] flex items-center gap-2 text-[13px] font-black text-[#FF8C69]">
+    <div class="px-4 py-3 border-b border-[rgba(255,255,255,0.07)] flex items-center gap-2 text-[length:var(--font-size-label)] font-black text-[#FF8C69]">
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
       خسارة النقاط
     </div>
     <div class="flex flex-col">
       <div *ngFor="let rule of data.pointRules.lossRules" class="flex items-center justify-between px-4 py-2.5 border-b border-[rgba(255,255,255,0.04)]">
-        <div class="text-[12px] text-[var(--txt-2)]">{{ rule.label }}</div>
-        <span class="text-[12px] font-black text-[#FF8C69]">{{ rule.points }}</span>
+        <div class="text-[length:var(--font-size-small)] text-[var(--txt-2)]">{{ rule.label }}</div>
+        <span class="text-[length:var(--font-size-small)] font-black text-[#FF8C69]">{{ rule.points }}</span>
       </div>
     </div>
     
     <!-- Current Level Benefits -->
-    <div class="px-4 py-3 border-t border-[rgba(255,255,255,0.07)] border-b border-[rgba(255,255,255,0.07)] text-[12px] font-black text-[#2BD4C7]">مزايا مستوى {{ data.currentLevel.title }} — مقدم خدمة</div>
+    <div class="px-4 py-3 border-t border-[rgba(255,255,255,0.07)] border-b border-[rgba(255,255,255,0.07)] text-[length:var(--font-size-small)] font-black text-[#2BD4C7]">مزايا مستوى {{ data.currentLevel.title }} — مقدم خدمة</div>
     <div class="px-4 py-2.5 flex flex-col gap-2">
-      <div class="flex items-center gap-2 text-[12px] text-[var(--txt-2)]">
+      <div class="flex items-center gap-2 text-[length:var(--font-size-small)] text-[var(--txt-2)]">
         <div class="w-1 h-1 rounded-full bg-[#2BD4C7] shrink-0"></div>عمولة منصة {{ data.currentStats.commissionRate }}% الأساسية
       </div>
-      <div class="flex items-center gap-2 text-[12px] text-[var(--txt-2)]">
+      <div class="flex items-center gap-2 text-[length:var(--font-size-small)] text-[var(--txt-2)]">
         <div class="w-1 h-1 rounded-full bg-[#2BD4C7] shrink-0"></div>شارة المستوى تظهر في ملفك وخدماتك
       </div>
     </div>

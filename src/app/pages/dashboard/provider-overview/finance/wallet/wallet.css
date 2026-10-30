@@ -30,7 +30,7 @@
 }
 
 .ord-sub {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   margin-top: 3px;
 }
@@ -77,7 +77,7 @@
 }
 
 .ai-disc-lbl {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   color: #A56BE0;
   letter-spacing: .06em;
@@ -92,7 +92,7 @@
 }
 
 .ai-disc-txt {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #A8B2D1;
 }
 
@@ -108,7 +108,7 @@
   border: 1px solid rgba(123, 47, 190, .28);
   border-radius: 4px;
   padding: 1px 7px;
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   color: #A56BE0;
 }
@@ -145,7 +145,7 @@
 }
 
 .wal-main-lbl {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #9FD9CF;
   font-weight: 600;
   margin-bottom: 8px;
@@ -173,7 +173,7 @@
 }
 
 .wal-main-cur {
-  font-size: 15px;
+  font-size: var(--font-size-body);
   color: #A8B2D1;
   font-weight: 700;
 }
@@ -198,7 +198,7 @@
   gap: 6px;
   padding: 9px 16px;
   border-radius: 9px;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
@@ -246,7 +246,7 @@
 }
 
 .wal-side-lbl {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   font-weight: 600;
   margin-bottom: 7px;
@@ -266,13 +266,13 @@
 }
 
 .wal-side-sub {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   margin-top: 5px;
 }
 
 .sec-ttl {
-  font-size: 15px;
+  font-size: var(--font-size-body);
   font-weight: 800;
   color: #fff;
   margin: 6px 0 12px;
@@ -312,7 +312,7 @@
 }
 
 .tx-tbl th {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   text-align: right;
   padding: 11px 14px;
@@ -329,7 +329,7 @@
 }
 
 .tx-tbl td {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #A8B2D1;
   padding: 13px 14px;
   border-bottom: 1px solid rgba(255, 255, 255, .05);
@@ -429,7 +429,7 @@
 }
 
 .tx-st {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   padding: 3px 9px;
   border-radius: 6px;
@@ -536,7 +536,7 @@
 .wal-emp-top {
   display: flex;
   justify-content: space-between;
-  font-size: 12.5px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   color: #fff;
   margin-bottom: 6px;

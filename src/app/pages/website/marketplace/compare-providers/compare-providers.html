@@ -34,12 +34,12 @@
     </div>
 
     @if (loading()) {
-      <div style="text-align:center;padding:60px 0;font-size:13px" class="txt-muted">جاري تحميل بيانات المقارنة...</div>
+      <div style="text-align:center;padding:60px 0;font-size:var(--font-size-label)" class="txt-muted">جاري تحميل بيانات المقارنة...</div>
     } @else if (!providers().length) {
       <div class="empty-compare">
         <div class="empty-compare-ico"><svg aria-hidden="true" style="width:28px;height:28px"><use href="#ws-compare"></use></svg></div>
-        <div style="font-size:15px;font-weight:800;margin-bottom:6px" class="txt-white">لا يوجد مقدمو خدمة للمقارنة بعد</div>
-        <p style="font-size:13px;margin-bottom:16px" class="txt-muted">تصفح السوق واختر مقدمَي خدمة أو ثلاثة لمقارنتهم جنباً إلى جنب</p>
+        <div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">لا يوجد مقدمو خدمة للمقارنة بعد</div>
+        <p style="font-size:var(--font-size-label);margin-bottom:16px" class="txt-muted">تصفح السوق واختر مقدمَي خدمة أو ثلاثة لمقارنتهم جنباً إلى جنب</p>
         <a routerLink="/marketplace" class="empty-cta">تصفح مقدمي الخدمة</a>
       </div>
     } @else {

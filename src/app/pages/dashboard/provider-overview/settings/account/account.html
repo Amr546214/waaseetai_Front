@@ -38,11 +38,11 @@
 				</div>
 				@if (passwordFormVisible()) {
 					<div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
-						<div class="fld" style="margin-bottom:0"><label for="pw-current">كلمة المرور الحالية <span class="ws-req" aria-hidden="true">*</span></label><input type="password" id="pw-current" aria-required="true" name="currentPassword" [ngModel]="currentPasswordValue()" (ngModelChange)="currentPasswordValue.set($event); clearPwFieldError('current')" [attr.aria-invalid]="pwFieldErrors().current ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().current ? 'pw-current-err' : null" [style.border-color]="pwFieldErrors().current ? 'var(--red)' : null" autocomplete="current-password">@if (pwFieldErrors().current; as fe) { <div id="pw-current-err" role="alert" data-testid="field-error" class="text-[11.5px] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }</div>
-						<div class="fld" style="margin-bottom:0"><label for="pw-new">كلمة المرور الجديدة <span class="ws-req" aria-hidden="true">*</span></label><input type="password" id="pw-new" aria-required="true" name="newPassword" [ngModel]="newPasswordValue()" (ngModelChange)="newPasswordValue.set($event); clearPwFieldError('next')" [attr.aria-invalid]="pwFieldErrors().next ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().next ? 'pw-new-err' : null" [style.border-color]="pwFieldErrors().next ? 'var(--red)' : null" autocomplete="new-password">@if (pwFieldErrors().next; as fe) { <div id="pw-new-err" role="alert" data-testid="field-error" class="text-[11.5px] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }</div>
-						<div class="fld" style="margin-bottom:0"><label for="pw-confirm">تأكيد كلمة المرور الجديدة <span class="ws-req" aria-hidden="true">*</span></label><input type="password" id="pw-confirm" aria-required="true" name="confirmPassword" [ngModel]="confirmPasswordValue()" (ngModelChange)="confirmPasswordValue.set($event); clearPwFieldError('confirm')" [attr.aria-invalid]="pwFieldErrors().confirm ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().confirm ? 'pw-confirm-err' : null" [style.border-color]="pwFieldErrors().confirm ? 'var(--red)' : null" autocomplete="new-password">@if (pwFieldErrors().confirm; as fe) { <div id="pw-confirm-err" role="alert" data-testid="field-error" class="text-[11.5px] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }</div>
+						<div class="fld" style="margin-bottom:0"><label for="pw-current">كلمة المرور الحالية <span class="ws-req" aria-hidden="true">*</span></label><input type="password" id="pw-current" aria-required="true" name="currentPassword" [ngModel]="currentPasswordValue()" (ngModelChange)="currentPasswordValue.set($event); clearPwFieldError('current')" [attr.aria-invalid]="pwFieldErrors().current ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().current ? 'pw-current-err' : null" [style.border-color]="pwFieldErrors().current ? 'var(--red)' : null" autocomplete="current-password">@if (pwFieldErrors().current; as fe) { <div id="pw-current-err" role="alert" data-testid="field-error" class="text-[length:var(--font-size-small)] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }</div>
+						<div class="fld" style="margin-bottom:0"><label for="pw-new">كلمة المرور الجديدة <span class="ws-req" aria-hidden="true">*</span></label><input type="password" id="pw-new" aria-required="true" name="newPassword" [ngModel]="newPasswordValue()" (ngModelChange)="newPasswordValue.set($event); clearPwFieldError('next')" [attr.aria-invalid]="pwFieldErrors().next ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().next ? 'pw-new-err' : null" [style.border-color]="pwFieldErrors().next ? 'var(--red)' : null" autocomplete="new-password">@if (pwFieldErrors().next; as fe) { <div id="pw-new-err" role="alert" data-testid="field-error" class="text-[length:var(--font-size-small)] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }</div>
+						<div class="fld" style="margin-bottom:0"><label for="pw-confirm">تأكيد كلمة المرور الجديدة <span class="ws-req" aria-hidden="true">*</span></label><input type="password" id="pw-confirm" aria-required="true" name="confirmPassword" [ngModel]="confirmPasswordValue()" (ngModelChange)="confirmPasswordValue.set($event); clearPwFieldError('confirm')" [attr.aria-invalid]="pwFieldErrors().confirm ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().confirm ? 'pw-confirm-err' : null" [style.border-color]="pwFieldErrors().confirm ? 'var(--red)' : null" autocomplete="new-password">@if (pwFieldErrors().confirm; as fe) { <div id="pw-confirm-err" role="alert" data-testid="field-error" class="text-[length:var(--font-size-small)] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }</div>
 						@if (passwordError() && !pwFieldErrors().current && !pwFieldErrors().next && !pwFieldErrors().confirm) {
-							<div role="alert" data-testid="form-error" class="form-error" style="font-size:11.5px;font-weight:700">{{ passwordError() }}</div>
+							<div role="alert" data-testid="form-error" class="form-error" style="font-size:var(--font-size-small);font-weight:700">{{ passwordError() }}</div>
 						}
 						<button type="button" class="btn btn-pri" style="align-self:flex-start" [disabled]="isChangingPassword()" [attr.aria-busy]="isChangingPassword() ? 'true' : null" (click)="changePassword()">{{ isChangingPassword() ? 'جارٍ الحفظ...' : 'حفظ كلمة المرور الجديدة' }}</button>
 					</div>
@@ -58,7 +58,7 @@
 				<div class="skeleton-row h-10" style="margin-bottom:8px"></div>
 				<div class="skeleton-row h-10"></div>
 			} @else if (sessionsError()) {
-				<div style="color:#FF8C69;font-size:12px;font-weight:700">{{ sessionsError() }}</div>
+				<div style="color:#FF8C69;font-size:var(--font-size-small);font-weight:700">{{ sessionsError() }}</div>
 			} @else {
 				@for (s of sessions(); track s.id) {
 					<div class="ses-row"><div class="ses-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div class="ses-b"><div class="ses-t">{{ sessionLabel(s) }}</div><div class="ses-d">{{ sessionActivityLabel(s) }}</div></div>
@@ -69,7 +69,7 @@
 						}
 					</div>
 				} @empty {
-					<div style="font-size:12px" class="txt-slate">لا توجد أجهزة أخرى نشطة</div>
+					<div style="font-size:var(--font-size-small)" class="txt-slate">لا توجد أجهزة أخرى نشطة</div>
 				}
 			}
 			<div class="fld" style="margin-top:14px;margin-bottom:0"><label for="s-idle">إنهاء الجلسة تلقائياً بعد خمول</label><ws-select [options]="[{value: '15 دقيقة', label: '15 دقيقة'}, {value: '30 دقيقة', label: '30 دقيقة'}, {value: 'ساعة', label: 'ساعة'}, {value: 'لا تُنهِ الجلسة', label: 'لا تُنهِ الجلسة'}]" id="s-idle" [ngModel]="coIdleTimeout()" (ngModelChange)="coIdleTimeout.set($event)" style="min-width:200px;max-width:100%;display:block"></ws-select></div>
@@ -85,7 +85,7 @@
 	</div>
 
 	<div class="save-bar">
-		<div style="font-size:12px" class="txt-slate">الإعدادات تُطبَّق على حساب الشركة الرئيسي · أعضاء الفريق لهم إعداداتهم الخاصة</div>
+		<div style="font-size:var(--font-size-small)" class="txt-slate">الإعدادات تُطبَّق على حساب الشركة الرئيسي · أعضاء الفريق لهم إعداداتهم الخاصة</div>
 		<div style="display:flex;gap:8px">
 			<button type="button" class="btn btn-sec" (click)="coResetDefaults()">استعادة الافتراضي</button>
 			<button type="button" class="btn btn-pri" (click)="coSaveSettings()">
@@ -134,13 +134,13 @@
   <div *ngIf="hasError()" class="text-center p-10 bg-[var(--crd-bg)] border border-[rgba(43,127,255,.25)] rounded-2xl">
     <div class="text-base font-extrabold text-[var(--txt)] mb-1.5">تعذر تحميل إعدادات الحساب</div>
     <div class="text-xs text-[var(--txt-3)] mb-3">ERR-PR-023</div>
-    <button type="button" (click)="retry()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[13px] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
+    <button type="button" (click)="retry()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[length:var(--font-size-label)] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
   </div>
 
   <div *ngIf="!isLoading() && !hasError()">
 
     <!-- Security Section -->
-    <div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+    <div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
       <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       الأمان والحماية
     </div>
@@ -148,44 +148,44 @@
       
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] flex items-center flex-wrap gap-2">التحقق بخطوتين <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-[rgba(148,163,184,.14)] text-[var(--txt-3)] border border-[rgba(148,163,184,.28)]">{{ securityFeatureUnavailableLabel }}</span></div>
-          <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">رمز تحقق إضافي عند كل دخول جديد — الميزة قيد التطوير</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] flex items-center flex-wrap gap-2">التحقق بخطوتين <span class="inline-flex items-center gap-1 text-[length:var(--font-size-small)] font-extrabold px-2.5 py-1 rounded-full bg-[rgba(148,163,184,.14)] text-[var(--txt-3)] border border-[rgba(148,163,184,.28)]">{{ securityFeatureUnavailableLabel }}</span></div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-0.5">رمز تحقق إضافي عند كل دخول جديد — الميزة قيد التطوير</div>
         </div>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] flex items-center flex-wrap gap-2">تنبيه عند دخول جديد <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-[rgba(148,163,184,.14)] text-[var(--txt-3)] border border-[rgba(148,163,184,.28)]">{{ securityFeatureUnavailableLabel }}</span></div>
-          <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">إشعار عند تسجيل الدخول من جهاز غير معروف — الميزة قيد التطوير</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] flex items-center flex-wrap gap-2">تنبيه عند دخول جديد <span class="inline-flex items-center gap-1 text-[length:var(--font-size-small)] font-extrabold px-2.5 py-1 rounded-full bg-[rgba(148,163,184,.14)] text-[var(--txt-3)] border border-[rgba(148,163,184,.28)]">{{ securityFeatureUnavailableLabel }}</span></div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-0.5">إشعار عند تسجيل الدخول من جهاز غير معروف — الميزة قيد التطوير</div>
         </div>
       </div>
 
       <div class="py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex items-center gap-3.5">
           <div class="flex-1 min-w-0">
-            <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">كلمة المرور</div>
-            <div class="text-[12px] text-[var(--txt-3)]">غيّر كلمة مرور حسابك</div>
+            <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">كلمة المرور</div>
+            <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">غيّر كلمة مرور حسابك</div>
           </div>
           <button type="button" (click)="togglePasswordForm()" class="px-3.5 py-2 bg-[rgba(43,127,255,.10)] border border-[rgba(43,127,255,.22)] rounded-lg text-[#5DA0FF] text-xs font-bold hover:bg-[rgba(43,127,255,.18)] transition-all set-edit whitespace-nowrap">{{ passwordFormVisible() ? 'إلغاء' : 'تغيير كلمة المرور' }}</button>
         </div>
         @if (passwordFormVisible()) {
           <div class="mt-3.5 flex flex-col gap-3">
             <div>
-              <label for="pw-current" class="block text-[11.5px] font-bold text-[var(--txt-3)] mb-1">كلمة المرور الحالية <span class="ws-req" aria-hidden="true">*</span></label>
-              <input type="password" id="pw-current" aria-required="true" name="currentPassword" [ngModel]="currentPasswordValue()" (ngModelChange)="currentPasswordValue.set($event); clearPwFieldError('current')" [attr.aria-invalid]="pwFieldErrors().current ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().current ? 'pw-current-err' : null" [style.border-color]="pwFieldErrors().current ? 'var(--red)' : null" autocomplete="current-password" class="w-full rounded-lg px-3 py-2 text-[13px] bg-[rgba(255,255,255,.04)] border border-[var(--sec-bd)] text-[var(--txt)] focus:outline-none focus:border-[rgba(43,127,255,.5)]">@if (pwFieldErrors().current; as fe) { <div id="pw-current-err" role="alert" data-testid="field-error" class="text-[11.5px] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }
+              <label for="pw-current" class="block text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-1">كلمة المرور الحالية <span class="ws-req" aria-hidden="true">*</span></label>
+              <input type="password" id="pw-current" aria-required="true" name="currentPassword" [ngModel]="currentPasswordValue()" (ngModelChange)="currentPasswordValue.set($event); clearPwFieldError('current')" [attr.aria-invalid]="pwFieldErrors().current ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().current ? 'pw-current-err' : null" [style.border-color]="pwFieldErrors().current ? 'var(--red)' : null" autocomplete="current-password" class="w-full rounded-lg px-3 py-2 text-[length:var(--font-size-label)] bg-[rgba(255,255,255,.04)] border border-[var(--sec-bd)] text-[var(--txt)] focus:outline-none focus:border-[rgba(43,127,255,.5)]">@if (pwFieldErrors().current; as fe) { <div id="pw-current-err" role="alert" data-testid="field-error" class="text-[length:var(--font-size-small)] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }
             </div>
             <div>
-              <label for="pw-new" class="block text-[11.5px] font-bold text-[var(--txt-3)] mb-1">كلمة المرور الجديدة <span class="ws-req" aria-hidden="true">*</span></label>
-              <input type="password" id="pw-new" aria-required="true" name="newPassword" [ngModel]="newPasswordValue()" (ngModelChange)="newPasswordValue.set($event); clearPwFieldError('next')" [attr.aria-invalid]="pwFieldErrors().next ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().next ? 'pw-new-err' : null" [style.border-color]="pwFieldErrors().next ? 'var(--red)' : null" autocomplete="new-password" class="w-full rounded-lg px-3 py-2 text-[13px] bg-[rgba(255,255,255,.04)] border border-[var(--sec-bd)] text-[var(--txt)] focus:outline-none focus:border-[rgba(43,127,255,.5)]">@if (pwFieldErrors().next; as fe) { <div id="pw-new-err" role="alert" data-testid="field-error" class="text-[11.5px] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }
+              <label for="pw-new" class="block text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-1">كلمة المرور الجديدة <span class="ws-req" aria-hidden="true">*</span></label>
+              <input type="password" id="pw-new" aria-required="true" name="newPassword" [ngModel]="newPasswordValue()" (ngModelChange)="newPasswordValue.set($event); clearPwFieldError('next')" [attr.aria-invalid]="pwFieldErrors().next ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().next ? 'pw-new-err' : null" [style.border-color]="pwFieldErrors().next ? 'var(--red)' : null" autocomplete="new-password" class="w-full rounded-lg px-3 py-2 text-[length:var(--font-size-label)] bg-[rgba(255,255,255,.04)] border border-[var(--sec-bd)] text-[var(--txt)] focus:outline-none focus:border-[rgba(43,127,255,.5)]">@if (pwFieldErrors().next; as fe) { <div id="pw-new-err" role="alert" data-testid="field-error" class="text-[length:var(--font-size-small)] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }
             </div>
             <div>
-              <label for="pw-confirm" class="block text-[11.5px] font-bold text-[var(--txt-3)] mb-1">تأكيد كلمة المرور الجديدة <span class="ws-req" aria-hidden="true">*</span></label>
-              <input type="password" id="pw-confirm" aria-required="true" name="confirmPassword" [ngModel]="confirmPasswordValue()" (ngModelChange)="confirmPasswordValue.set($event); clearPwFieldError('confirm')" [attr.aria-invalid]="pwFieldErrors().confirm ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().confirm ? 'pw-confirm-err' : null" [style.border-color]="pwFieldErrors().confirm ? 'var(--red)' : null" autocomplete="new-password" class="w-full rounded-lg px-3 py-2 text-[13px] bg-[rgba(255,255,255,.04)] border border-[var(--sec-bd)] text-[var(--txt)] focus:outline-none focus:border-[rgba(43,127,255,.5)]">@if (pwFieldErrors().confirm; as fe) { <div id="pw-confirm-err" role="alert" data-testid="field-error" class="text-[11.5px] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }
+              <label for="pw-confirm" class="block text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-1">تأكيد كلمة المرور الجديدة <span class="ws-req" aria-hidden="true">*</span></label>
+              <input type="password" id="pw-confirm" aria-required="true" name="confirmPassword" [ngModel]="confirmPasswordValue()" (ngModelChange)="confirmPasswordValue.set($event); clearPwFieldError('confirm')" [attr.aria-invalid]="pwFieldErrors().confirm ? 'true' : null" [attr.aria-describedby]="pwFieldErrors().confirm ? 'pw-confirm-err' : null" [style.border-color]="pwFieldErrors().confirm ? 'var(--red)' : null" autocomplete="new-password" class="w-full rounded-lg px-3 py-2 text-[length:var(--font-size-label)] bg-[rgba(255,255,255,.04)] border border-[var(--sec-bd)] text-[var(--txt)] focus:outline-none focus:border-[rgba(43,127,255,.5)]">@if (pwFieldErrors().confirm; as fe) { <div id="pw-confirm-err" role="alert" data-testid="field-error" class="text-[length:var(--font-size-small)] font-bold text-[var(--red)]" style="margin-top:4px">{{ fe }}</div> }
             </div>
             @if (passwordError() && !pwFieldErrors().current && !pwFieldErrors().next && !pwFieldErrors().confirm) {
-              <div role="alert" data-testid="form-error" class="form-error text-[11.5px] font-bold">{{ passwordError() }}</div>
+              <div role="alert" data-testid="form-error" class="form-error text-[length:var(--font-size-small)] font-bold">{{ passwordError() }}</div>
             }
-            <button type="button" [disabled]="isChangingPassword()" [attr.aria-busy]="isChangingPassword() ? 'true' : null" (click)="changePassword()" class="self-start px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-lg text-[#070D24] text-[13px] font-extrabold hover:opacity-90 transition-opacity disabled:opacity-60">{{ isChangingPassword() ? 'جارٍ الحفظ...' : 'حفظ كلمة المرور الجديدة' }}</button>
+            <button type="button" [disabled]="isChangingPassword()" [attr.aria-busy]="isChangingPassword() ? 'true' : null" (click)="changePassword()" class="self-start px-4 py-2 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-lg text-[#070D24] text-[length:var(--font-size-label)] font-extrabold hover:opacity-90 transition-opacity disabled:opacity-60">{{ isChangingPassword() ? 'جارٍ الحفظ...' : 'حفظ كلمة المرور الجديدة' }}</button>
           </div>
         }
       </div>
@@ -193,8 +193,8 @@
       <div class="py-3.5">
         <div class="flex items-center gap-3.5">
           <div class="flex-1 min-w-0">
-            <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">الأجهزة النشطة</div>
-            <div class="text-[12px] text-[var(--txt-3)]">
+            <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">الأجهزة النشطة</div>
+            <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">
               @if (sessionsLoading() && devicesExpanded()) { جارٍ التحميل... }
               @else if (sessions().length > 0) { {{ sessions().length }} جهاز نشط }
               @else { الأجهزة المسجّلة دخولها حاليًا على حسابك }
@@ -207,22 +207,22 @@
             @if (sessionsLoading()) {
               <div class="skeleton-row h-10"></div>
             } @else if (sessionsError()) {
-              <div class="text-[12px] font-bold text-[#FF8C69]">{{ sessionsError() }}</div>
+              <div class="text-[length:var(--font-size-small)] font-bold text-[#FF8C69]">{{ sessionsError() }}</div>
             } @else {
               @for (s of sessions(); track s.id) {
                 <div class="flex items-center gap-2.5 py-2 px-3 bg-[rgba(255,255,255,.03)] border border-[var(--sec-bd)] rounded-lg">
                   <div class="flex-1 min-w-0">
-                    <div class="text-[12.5px] font-bold text-[var(--txt)]">{{ sessionLabel(s) }}</div>
-                    <div class="text-[11px] text-[var(--txt-3)]">{{ sessionActivityLabel(s) }}</div>
+                    <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]">{{ sessionLabel(s) }}</div>
+                    <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">{{ sessionActivityLabel(s) }}</div>
                   </div>
                   @if (s.isCurrent) {
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[rgba(15,169,154,.14)] text-[#0FA99A] border border-[rgba(15,169,154,.28)] whitespace-nowrap">حالية</span>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[length:var(--font-size-caption)] font-extrabold bg-[rgba(15,169,154,.14)] text-[#0FA99A] border border-[rgba(15,169,154,.28)] whitespace-nowrap">حالية</span>
                   } @else {
-                    <button type="button" [disabled]="revokingSessionId() === s.id" (click)="endSession(s.id)" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#FF8C69] bg-[rgba(255,140,105,.1)] border border-[rgba(255,140,105,.25)] hover:bg-[rgba(255,140,105,.18)] transition-all whitespace-nowrap disabled:opacity-60">{{ revokingSessionId() === s.id ? 'جارٍ الإنهاء...' : 'إنهاء' }}</button>
+                    <button type="button" [disabled]="revokingSessionId() === s.id" (click)="endSession(s.id)" class="px-2.5 py-1.5 rounded-lg text-[length:var(--font-size-small)] font-bold text-[#FF8C69] bg-[rgba(255,140,105,.1)] border border-[rgba(255,140,105,.25)] hover:bg-[rgba(255,140,105,.18)] transition-all whitespace-nowrap disabled:opacity-60">{{ revokingSessionId() === s.id ? 'جارٍ الإنهاء...' : 'إنهاء' }}</button>
                   }
                 </div>
               } @empty {
-                <div class="text-[12px] text-[var(--txt-3)]">لا توجد أجهزة أخرى نشطة</div>
+                <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">لا توجد أجهزة أخرى نشطة</div>
               }
             }
           </div>
@@ -232,7 +232,7 @@
     </div>
 
     <!-- Region & Language -->
-    <div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+    <div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
       <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       اللغة والمنطقة
     </div>
@@ -240,32 +240,32 @@
       
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة</div>
-          <div class="text-[12px] text-[var(--txt-3)]">لغة واجهة الحساب</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">لغة واجهة الحساب</div>
         </div>
         <ws-select [options]="[{value: 'العربية', label: 'العربية'}, {value: 'English', label: 'English'}]" [(ngModel)]="language" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">المنطقة الزمنية</div>
-          <div class="text-[12px] text-[var(--txt-3)]">يُحتسب عليها مواعيد المشاريع</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">المنطقة الزمنية</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">يُحتسب عليها مواعيد المشاريع</div>
         </div>
         <ws-select [options]="[{value: 'توقيت الرياض (GMT+3)', label: 'توقيت الرياض (GMT+3)'}, {value: 'توقيت جدة (GMT+3)', label: 'توقيت جدة (GMT+3)'}]" [(ngModel)]="timezone" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">العملة</div>
-          <div class="text-[12px] text-[var(--txt-3)]">عملة عرض المبالغ</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">العملة</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">عملة عرض المبالغ</div>
         </div>
         <ws-select [options]="[{value: 'دولار أمريكي (USD)', label: 'دولار أمريكي (USD)'}, {value: 'دولار أمريكي (USD)', label: 'دولار أمريكي (USD)'}]" [(ngModel)]="currency" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنسيق التاريخ</div>
-          <div class="text-[12px] text-[var(--txt-3)]">طريقة عرض التواريخ في حسابك</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنسيق التاريخ</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">طريقة عرض التواريخ في حسابك</div>
         </div>
         <ws-select [options]="[{value: 'هجري وميلادي', label: 'هجري وميلادي'}, {value: 'ميلادي فقط', label: 'ميلادي فقط'}, {value: 'هجري فقط', label: 'هجري فقط'}]" [(ngModel)]="dateFormat" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
@@ -273,7 +273,7 @@
     </div>
 
     <!-- Privacy Section -->
-    <div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+    <div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
       <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       الخصوصية والبيانات
     </div>
@@ -281,8 +281,8 @@
       
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)]">ظهور ملفي للمقدّمين</div>
-          <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">السماح لمقدّمي الخدمة برؤية اسمك وتقييمك</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]">ظهور ملفي للمقدّمين</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-0.5">السماح لمقدّمي الخدمة برؤية اسمك وتقييمك</div>
         </div>
         <label class="sw">
           <input type="checkbox" [(ngModel)]="showProfile">
@@ -292,8 +292,8 @@
 
       <div class="flex items-center gap-3.5 py-3.5">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنزيل بياناتي</div>
-          <div class="text-[12px] text-[var(--txt-3)]">نسخة من بياناتك — {{ securityFeatureUnavailableLabel }}</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنزيل بياناتي</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">نسخة من بياناتك — {{ securityFeatureUnavailableLabel }}</div>
         </div>
         <button type="button" disabled class="px-3.5 py-2 bg-[rgba(148,163,184,.08)] border border-[rgba(148,163,184,.2)] rounded-lg text-[var(--txt-3)] text-xs font-bold set-edit whitespace-nowrap opacity-60 cursor-not-allowed">طلب نسخة</button>
       </div>

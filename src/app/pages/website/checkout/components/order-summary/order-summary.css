@@ -15,14 +15,14 @@
 }
 
 .summary-title {
-  font-size: 16px;
+  font-size: var(--font-size-body);
   font-weight: 700;
   color: var(--txt);
   margin: 0;
 }
 
 .summary-count {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: var(--txt-2);
   background: rgba(255, 255, 255, 0.06);
   padding: 3px 10px;
@@ -67,7 +67,7 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   color: var(--teal-txt);
 }
@@ -81,7 +81,7 @@
 }
 
 .item-title {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--txt);
   white-space: nowrap;
@@ -90,12 +90,12 @@
 }
 
 .item-provider {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: var(--txt-2);
 }
 
 .item-package {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   color: var(--teal-txt);
   background: rgba(43, 212, 199, 0.08);
   padding: 1px 6px;
@@ -104,7 +104,7 @@
 }
 
 .item-price {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   color: var(--txt);
   white-space: nowrap;
@@ -125,7 +125,7 @@
 }
 
 .total-label {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: var(--txt-2);
   display: flex;
   align-items: center;
@@ -133,7 +133,7 @@
 }
 
 .total-value {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--txt);
 }
@@ -147,7 +147,7 @@
 }
 
 .coupon-badge {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   background: rgba(43, 212, 199, 0.12);
   color: var(--teal-txt);
@@ -163,13 +163,13 @@
 }
 
 .total-final .total-label {
-  font-size: 15px;
+  font-size: var(--font-size-body);
   font-weight: 700;
   color: var(--txt);
 }
 
 .final-value {
-  font-size: 18px;
+  font-size: var(--font-size-section);
   font-weight: 800;
   color: var(--teal-txt);
 }
@@ -191,14 +191,14 @@
 }
 
 .empty-text {
-  font-size: 14px;
+  font-size: var(--font-size-label);
   font-weight: 600;
   color: var(--txt-2);
   margin: 0 0 4px;
 }
 
 .empty-subtext {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: var(--txt-3);
   margin: 0;
 }
@@ -213,7 +213,7 @@
 }
 
 .order-summary.compact .summary-title {
-  font-size: 14px;
+  font-size: var(--font-size-label);
 }
 
 /* ── Responsive ── */

@@ -74,12 +74,12 @@
 					<use href="#i-warn"></use>
 				</svg>
 			</div>
-			<div style="font-size:18px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل لوحة التحكم
+			<div style="font-size:var(--font-size-section);font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل لوحة التحكم
 			</div>
-			<div style="font-size:13px;margin-bottom:20px" class="txt-slate">{{ error() }}</div>
+			<div style="font-size:var(--font-size-label);margin-bottom:20px" class="txt-slate">{{ error() }}</div>
 			<div style="display:flex;gap:10px;justify-content:center">
 				<button type="button" (click)="retryFetch()"
-					style="padding:10px 24px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(43,212,199,.2)" class="txt-navy">إعادة
+					style="padding:10px 24px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:var(--font-size-label);cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(43,212,199,.2)" class="txt-navy">إعادة
 					المحاولة</button>
 			</div>
 		</div>
@@ -231,7 +231,7 @@
 						aria-valuemax="100">
 						<div class="prog-fill" [style.width.%]="data.summary?.profileCompletionPercent || 0"></div>
 					</div>
-					<span class="lvl-prog-hint txt-muted" style="font-size:10px;white-space:nowrap">اكتمال الملف {{ data.summary?.profileCompletionPercent || 0 }}%</span>
+					<span class="lvl-prog-hint txt-muted" style="font-size:var(--font-size-caption);white-space:nowrap">اكتمال الملف {{ data.summary?.profileCompletionPercent || 0 }}%</span>
 				</div>
 			</div>
 			<button class="escrow-action cursor-pointer" routerLink="/provider-overview/profile/level">تفاصيل
@@ -362,12 +362,12 @@
 									<use href="#i-doc"></use>
 								</svg>
 							</div>
-							<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا
+							<div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">لا
 								توجد مشاريع أو عروض نشطة</div>
-							<div style="font-size:13px;margin-bottom:16px" class="txt-muted">لم تبدأ بتنفيذ أي مشروع أو
+							<div style="font-size:var(--font-size-label);margin-bottom:16px" class="txt-muted">لم تبدأ بتنفيذ أي مشروع أو
 								إرسال عروض حتى الآن</div>
 							<a routerLink="/provider-overview/explore-requests"
-								style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.14));border:1px solid rgba(43,212,199,.35);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none;transition:all .2s" class="txt-teal">
+								style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,rgba(43,212,199,.18),rgba(43,127,255,.14));border:1px solid rgba(43,212,199,.35);border-radius:50px;font-weight:800;font-size:var(--font-size-label);text-decoration:none;transition:all .2s" class="txt-teal">
 								<!-- <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 									stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
 									aria-hidden="true">
@@ -465,19 +465,19 @@
 								</div>
 							</div>
 							<div>
-								<div class="offer-name txt-white" style="font-weight:700;font-size:14px">{{ m.title }}
+								<div class="offer-name txt-white" style="font-weight:700;font-size:var(--font-size-label)">{{ m.title }}
 									<span class="txt-green-br"
-										style="font-size:9px;font-weight:800;background:rgba(46,204,138,.12);border:1px solid rgba(46,204,138,.25);border-radius:7px;padding:1px 6px;margin-inline-start:4px">ضمن
+										style="font-size:var(--font-size-caption);font-weight:800;background:rgba(46,204,138,.12);border:1px solid rgba(46,204,138,.25);border-radius:7px;padding:1px 6px;margin-inline-start:4px">ضمن
 										تخصصك</span>
 								</div>
-								<div class="offer-type txt-slate" style="font-size:11px;margin-top:2px">{{
+								<div class="offer-type txt-slate" style="font-size:var(--font-size-small);margin-top:2px">{{
 									m.category || m.specialty || 'خدمة تخصصية' }}</div>
 							</div>
 						</div>
 						<!-- A percentage is shown only when the backend actually provides one (the rule
 						     engine sends none). Its label says what produced it. -->
 						<div *ngIf="m.aiMatchScore !== null && m.aiMatchScore !== undefined" class="offer-ai-match match-chip" [class.match-chip-ai]="m.generationSource !== 'DETERMINISTIC'"
-							style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:12px;font-weight:800;white-space:nowrap">
+							style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:var(--font-size-small);font-weight:800;white-space:nowrap">
 							<ng-container *ngIf="m.generationSource !== 'DETERMINISTIC'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 								stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 								<use href="#i-ai"></use>
@@ -487,15 +487,15 @@
 					</div>
 					<div *ngIf="m.matchReasons?.length" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
 						<span *ngFor="let reason of m.matchReasons"
-							style="font-size:10px;padding:2px 8px" class="badge-teal">
+							style="font-size:var(--font-size-caption);padding:2px 8px" class="badge-teal">
 							✓ {{ reason }}
 						</span>
 					</div>
 					<div class="offer-price"
 						style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
-						<span style="font-size:11px" *ngIf="m.deliveryDays" class="txt-muted">المدة: {{ m.deliveryDays }}
+						<span style="font-size:var(--font-size-small)" *ngIf="m.deliveryDays" class="txt-muted">المدة: {{ m.deliveryDays }}
 							أيام</span>
-						<div *ngIf="m.budget">{{ m.budget | number:'1.0-2' }} <span style="font-size:11px;">$</span></div>
+						<div *ngIf="m.budget">{{ m.budget | number:'1.0-2' }} <span style="font-size:var(--font-size-small);">$</span></div>
 					</div>
 				</button>
 
@@ -509,9 +509,9 @@
 								<use href="#i-shield"></use>
 							</svg>
 						</div>
-						<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد
+						<div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">لا توجد
 							طلبات مطابقة لتخصصاتك حالياً</div>
-						<div style="font-size:13px;max-width:380px;margin:0 auto" class="txt-muted">ستظهر هنا الطلبات
+						<div style="font-size:var(--font-size-label);max-width:380px;margin:0 auto" class="txt-muted">ستظهر هنا الطلبات
 							المفتوحة الجديدة ضمن تخصصاتك المعتمدة فور نشرها</div>
 					</div>
 				</ng-container>
@@ -553,7 +553,7 @@
 		<!-- Greeting -->
 		<div class="dash-head">
 			<div class="dash-greet">
-				<div class="dash-hello">{{ companyDisplayName() }} <span style="font-size:14px;font-weight:700;margin-inline-start:6px" class="txt-muted">مالك الشركة</span></div>
+				<div class="dash-hello">{{ companyDisplayName() }} <span style="font-size:var(--font-size-label);font-weight:700;margin-inline-start:6px" class="txt-muted">مالك الشركة</span></div>
 				<div class="dash-sub" *ngIf="data.summary.hasApprovedSpecialties">
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<use href="#i-shield"></use>
@@ -759,9 +759,9 @@
 									<use href="#i-brief"></use>
 								</svg>
 							</div>
-							<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا يوجد نشاط بعد</div>
-							<div style="font-size:13px;margin-bottom:16px" class="txt-muted">أضف مقدمي الخدمات لشركتك وابدأ إدارة المشاريع</div>
-							<a routerLink="/provider-overview/company/team-management" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none" class="txt-navy">
+							<div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">لا يوجد نشاط بعد</div>
+							<div style="font-size:var(--font-size-label);margin-bottom:16px" class="txt-muted">أضف مقدمي الخدمات لشركتك وابدأ إدارة المشاريع</div>
+							<a routerLink="/provider-overview/company/team-management" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:var(--font-size-label);text-decoration:none" class="txt-navy">
 								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 									<circle cx="9" cy="7" r="4"/><path d="M3 21v-1a7 7 0 0 1 11.5-5.38"/><line x1="19" y1="12" x2="19" y2="18"/><line x1="16" y1="15" x2="22" y2="15"/>
 								</svg>

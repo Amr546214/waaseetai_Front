@@ -11,7 +11,7 @@
     </div>
   </div>
   @if (!storageReady()) {
-  <div class="ss-toast-warn" role="status" data-testid="settings-storage-pending" style="margin:10px 0;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,140,105,.4);font-size:12.5px;font-weight:700">مخزن الإعدادات لم يُفعَّل بعد على الخادم، لذلك تظهر القيم الافتراضية للمنصة والحفظ معطّل إلى حين تطبيق تحديث قاعدة البيانات.</div>
+  <div class="ss-toast-warn" role="status" data-testid="settings-storage-pending" style="margin:10px 0;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,140,105,.4);font-size:var(--font-size-label);font-weight:700">مخزن الإعدادات لم يُفعَّل بعد على الخادم، لذلك تظهر القيم الافتراضية للمنصة والحفظ معطّل إلى حين تطبيق تحديث قاعدة البيانات.</div>
   }
 
   @if (loading()) {

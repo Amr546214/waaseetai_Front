@@ -12,6 +12,12 @@
   --font-heading: 'Tajawal', system-ui, sans-serif;
   --font-body: 'Tajawal', system-ui, sans-serif;
   --font-numeric: 'Tajawal', system-ui, sans-serif;
+  --font-size-caption: .8125rem;
+  --font-size-small: .875rem;
+  --font-size-label: 1rem;
+  --font-size-body: 1.125rem;
+  --font-size-section: 1.25rem;
+  --font-size-page: 1.625rem;
 
   --pg: #070d24;
   --pg-dashboard: #070d24;
@@ -237,6 +243,9 @@ html.theme-light body {
   --shadow-5: 0 20px 56px rgba(15,23,42,.20);
 }
 
+/* Scale rem-based text while respecting the browser's preferred font size. */
+html { font-size: 100%; }
+
 html, body {
   min-height: 100%;
   font-family: var(--font-body);
@@ -246,6 +255,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+
+body { font-size: var(--font-size-body); }
 
 body.light-theme,
 body.theme-light { background-color: var(--pg-dashboard) !important; color: var(--txt) !important; }
@@ -271,8 +282,26 @@ select, select option, select optgroup {
 
 /* Shared semantic utilities used by old and new screens. */
 .ws-surface { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--card-shadow); }
-.ws-page-title { color: var(--txt); font-size: 19px; font-weight: 900; line-height: 1.35; }
-.ws-section-title { color: var(--txt); font-size: 14px; font-weight: 800; line-height: 1.4; }
+.ws-page-title { color: var(--txt); font-size: var(--font-size-page); font-weight: 900; line-height: 1.45; }
+.ws-section-title { color: var(--txt); font-size: var(--font-size-section); font-weight: 800; line-height: 1.5; }
+/* Keep legacy shared text roles on the same scale as rem-based components.
+   Component styles often hard-code these roles to 10–13px. */
+:is(.sec-title, .page-title, .ord-title) {
+  font-size: var(--font-size-page) !important;
+  line-height: 1.5;
+}
+:is(.form-card-title, .modal-title, .card-title) {
+  font-size: var(--font-size-section) !important;
+  line-height: 1.5;
+}
+:is(.field-label, .inp-label, .pref-label, .ack-text) {
+  font-size: var(--font-size-label) !important;
+  line-height: 1.7;
+}
+:is(.sec-sub, .ord-sub, .page-subtitle, .inp-hint, .field-hint, .modal-desc) {
+  font-size: var(--font-size-small) !important;
+  line-height: 1.7;
+}
 .ws-kpi { direction: ltr; unicode-bidi: isolate; font-family: var(--font-numeric); font-size: 26px; font-weight: 900; line-height: 1.1; }
 
 .btn-primary:not(:disabled) { transition: opacity .15s ease, transform .15s ease, box-shadow .15s ease; }
@@ -298,7 +327,7 @@ select, select option, select optgroup {
 .filter-rail :is(.fr-lbl, .fr-period-lbl) {
   display: flex; align-items: center; gap: 5px;
   padding: 0 10px;
-  font-size: 11px; font-weight: 900; white-space: nowrap;
+  font-size: var(--font-size-caption); font-weight: 900; white-space: nowrap;
   color: var(--teal-txt);
   background: var(--icon-bg);
 }
@@ -311,10 +340,10 @@ select, select option, select optgroup {
 .filter-rail .fr-ico { width: 11px; height: 11px; flex-shrink: 0; color: var(--txt-3); }
 .filter-rail .ds {
   display: inline-flex; align-items: center; gap: 4px;
-  height: 18px; padding: 0 5px;
+  min-height: 28px; padding: 4px 7px;
   border: 0; border-radius: 6px;
   background: transparent;
-  font: inherit; font-size: 11px; font-weight: 600; line-height: 1; white-space: nowrap;
+  font: inherit; font-size: var(--font-size-caption); font-weight: 600; line-height: 1; white-space: nowrap;
   color: var(--txt-3);
   cursor: pointer;
   transition: color var(--dur-fast) var(--ease-fast), background var(--dur-fast) var(--ease-fast);
@@ -334,7 +363,7 @@ select, select option, select optgroup {
 .filter-rail .fr-search input {
   width: 100%; min-width: 0;
   background: none; border: 0; outline: none;
-  font: inherit; font-size: 11px; color: var(--txt);
+  font: inherit; font-size: var(--font-size-caption); color: var(--txt);
 }
 .filter-rail .fr-search input::placeholder { color: var(--txt-3); }
 .filter-rail .fr-end {
@@ -345,7 +374,7 @@ select, select option, select optgroup {
 .filter-rail .fr-active {
   display: none; align-items: center; gap: 4px;
   padding: 3px 8px; border-radius: 6px;
-  font-size: 10px; font-weight: 700; white-space: nowrap;
+  font-size: var(--font-size-caption); font-weight: 700; white-space: nowrap;
   color: var(--teal-txt); background: var(--icon-bg);
 }
 .filter-rail .fr-active.show { display: inline-flex; }
@@ -357,7 +386,7 @@ select, select option, select optgroup {
 .filter-rail .fr-export-btn {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 0; border: 0; background: none;
-  font: inherit; font-size: 11px; font-weight: 700; white-space: nowrap;
+  font: inherit; font-size: var(--font-size-caption); font-weight: 700; white-space: nowrap;
   color: var(--txt-2); cursor: pointer;
   transition: color var(--dur-fast) var(--ease-fast);
 }
@@ -365,7 +394,7 @@ select, select option, select optgroup {
 .filter-rail .fr-export-btn svg { width: 10px; height: 10px; }
 .filter-rail .fr-sort select {
   background: none; border: 0; outline: none;
-  font: inherit; font-size: 11px; font-weight: 700; color: var(--txt-2); cursor: pointer;
+  font: inherit; font-size: var(--font-size-caption); font-weight: 700; color: var(--txt-2); cursor: pointer;
 }
 
 /* Phone: search first as a 32px field, pills scroll sideways, bar chrome drops away. */

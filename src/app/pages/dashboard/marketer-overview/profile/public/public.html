@@ -3,7 +3,7 @@
   <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
     <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true"><svg class="ws-star-svg" width="26" height="26" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
     <div style="flex:1;min-width:220px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><ws-marketer-level [summary]="summary()" /><span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} دولار عمولات</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><ws-marketer-level [summary]="summary()" /><span style="font-size:var(--font-size-small)" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} دولار عمولات</span></div>
     </div>
   </div>
 
@@ -17,18 +17,18 @@
           {{ (profile()?.user?.firstName?.[0] || 'و') + (profile()?.user?.lastName?.[0] || 'س') }}
         }
       </div>
-      <div style="font-size:18px;font-weight:900;margin-bottom:4px" class="txt-white">{{ profile()?.user?.firstName }} {{ profile()?.user?.lastName }}</div>
+      <div style="font-size:var(--font-size-section);font-weight:900;margin-bottom:4px" class="txt-white">{{ profile()?.user?.firstName }} {{ profile()?.user?.lastName }}</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px">
         <ws-marketer-level [summary]="summary()" />
         <svg class="ws-star-svg" width="14" height="14" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
       </div>
-      <div style="font-size:12px;margin-bottom:16px" class="txt-muted">وسيط تسويقي{{ memberSince() }}</div>
+      <div style="font-size:var(--font-size-small);margin-bottom:16px" class="txt-muted">وسيط تسويقي{{ memberSince() }}</div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-teal">{{ summary()?.successfulReferrals || 0 }}</div><div style="font-size:10px" class="txt-muted">إحالة</div></div>
-        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-green">{{ summary()?.overallConversionRate || 0 }}%</div><div style="font-size:10px" class="txt-muted">تحويل</div></div>
-        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:18px;font-weight:900" class="txt-amber">—</div><div style="font-size:10px" class="txt-muted">تقييم</div></div>
+        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:var(--font-size-section);font-weight:900" class="txt-teal">{{ summary()?.successfulReferrals || 0 }}</div><div style="font-size:var(--font-size-caption)" class="txt-muted">إحالة</div></div>
+        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:var(--font-size-section);font-weight:900" class="txt-green">{{ summary()?.overallConversionRate || 0 }}%</div><div style="font-size:var(--font-size-caption)" class="txt-muted">تحويل</div></div>
+        <div style="text-align:center;flex:1;min-width:60px"><div style="font-size:var(--font-size-section);font-weight:900" class="txt-amber">—</div><div style="font-size:var(--font-size-caption)" class="txt-muted">تقييم</div></div>
       </div>
-      <a routerLink="/marketer-overview/profile/data" style="display:block;margin-top:16px;padding:9px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:12px;font-weight:700;text-decoration:none;text-align:center" class="txt-teal">تعديل الملف</a>
+      <a routerLink="/marketer-overview/profile/data" style="display:block;margin-top:16px;padding:9px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:var(--font-size-small);font-weight:700;text-decoration:none;text-align:center" class="txt-teal">تعديل الملف</a>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:16px">
@@ -36,11 +36,11 @@
       <div class="state-card">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <div style="width:32px;height:32px;border-radius:8px;background:rgba(43,212,199,.14);display:flex;align-items:center;justify-content:center" class="txt-teal"><svg width="15" height="15" aria-hidden="true"><use href="#i-check"></use></svg></div>
-          <div style="font-size:13px;font-weight:800" class="txt-white">اكتمال الملف الشخصي</div>
+          <div style="font-size:var(--font-size-label);font-weight:800" class="txt-white">اكتمال الملف الشخصي</div>
           <div style="margin-inline-start:auto;font-size:20px;font-weight:900" class="txt-teal">{{ profile()?.completionPercentage || 0 }}/100</div>
         </div>
         <div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:8px"><div [style.width]="(profile()?.completionPercentage || 0) + '%'" style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:4px;transition:width .4s"></div></div>
-        <div style="font-size:12px" class="txt-slate" data-testid="public-completion-copy">الملف مكتمل {{ profile()?.completionPercentage || 0 }}%@if ((profile()?.completionPercentage || 0) < 100) { · <a routerLink="/marketer-overview/profile/data" style="font-weight:700" class="txt-teal">أكمل ملفك</a> }</div>
+        <div style="font-size:var(--font-size-small)" class="txt-slate" data-testid="public-completion-copy">الملف مكتمل {{ profile()?.completionPercentage || 0 }}%@if ((profile()?.completionPercentage || 0) < 100) { · <a routerLink="/marketer-overview/profile/data" style="font-weight:700" class="txt-teal">أكمل ملفك</a> }</div>
       </div>
       }
 
@@ -49,20 +49,20 @@
         <div style="display:flex;flex-direction:column;gap:8px">
           @for (channel of channels(); track channel.id) {
             <div style="display:flex;align-items:center;gap:8px">
-              <span style="width:70px;font-size:12px" class="txt-slate">{{ channel.platform }}</span>
-              <span style="font-size:12px" dir="ltr" class="txt-teal">{{ channel.handle }}</span>
-              <span style="margin-inline-start:auto;font-size:11px" [class.txt-green]="getChannelStatusClass(channel.platform) === 'status-verified'" [class.txt-amber]="getChannelStatusClass(channel.platform) === 'status-pending'">{{ getChannelStatus(channel.platform) }}</span>
+              <span style="width:70px;font-size:var(--font-size-small)" class="txt-slate">{{ channel.platform }}</span>
+              <span style="font-size:var(--font-size-small)" dir="ltr" class="txt-teal">{{ channel.handle }}</span>
+              <span style="margin-inline-start:auto;font-size:var(--font-size-small)" [class.txt-green]="getChannelStatusClass(channel.platform) === 'status-verified'" [class.txt-amber]="getChannelStatusClass(channel.platform) === 'status-pending'">{{ getChannelStatus(channel.platform) }}</span>
             </div>
           }
           @if (channels().length === 0) {
-            <div style="font-size:12px;padding:10px" class="txt-muted">لا توجد قنوات تسويقية مضافة</div>
+            <div style="font-size:var(--font-size-small);padding:10px" class="txt-muted">لا توجد قنوات تسويقية مضافة</div>
           }
         </div>
       </div>
 
       <div class="state-card">
         <div class="adm-card-ttl" style="margin-bottom:10px"><svg aria-hidden="true"><use href="#i-person"></use></svg>الوصف التسويقي</div>
-        <p style="font-size:13px;line-height:1.6" class="txt-slate">
+        <p style="font-size:var(--font-size-label);line-height:1.6" class="txt-slate">
           {{ profile()?.bio || 'لا يوجد وصف تسويقي.' }}
         </p>
       </div>

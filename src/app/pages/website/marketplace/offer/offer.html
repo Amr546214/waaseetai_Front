@@ -38,11 +38,11 @@
         جودة AI {{ model()?.aiScore }}%
       </span>
     }
-    <button (click)="toggleFavorite()" [style.color]="isFavorite() ? 'var(--red)' : 'var(--txt-3)'" [style.border-color]="isFavorite() ? 'rgba(255,140,105,.3)' : 'var(--border)'" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s" id="fav-btn" type="button">
+    <button (click)="toggleFavorite()" [style.color]="isFavorite() ? 'var(--red)' : 'var(--txt-3)'" [style.border-color]="isFavorite() ? 'rgba(255,140,105,.3)' : 'var(--border)'" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:var(--font-size-small);font-weight:700;cursor:pointer;transition:all .15s" id="fav-btn" type="button">
       <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-heart"></use></svg>
       حفظ
     </button>
-    <button (click)="shareOffer()" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-3);cursor:pointer;transition:all .15s" type="button">
+    <button (click)="shareOffer()" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:var(--font-size-small);font-weight:700;color:var(--txt-3);cursor:pointer;transition:all .15s" type="button">
       <svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-share"></use></svg>
       مشاركة
     </button>
@@ -51,7 +51,7 @@
   <!-- PROVIDER BANNER -->
   <div style="display:flex;align-items:center;gap:0;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;margin-top:14px">
     <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;flex:1">
-      <div [style.background]="model()?.levelBg || 'linear-gradient(135deg,#2BD4C7,#2B7FFF)'" style="width:46px;height:46px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0;overflow:hidden">
+      <div [style.background]="model()?.levelBg || 'linear-gradient(135deg,#2BD4C7,#2B7FFF)'" style="width:46px;height:46px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:var(--font-size-body);font-weight:900;flex-shrink:0;overflow:hidden">
         @if (model()?.provider?.avatar) {
           <img [src]="model()?.provider?.avatar" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover" />
         } @else {
@@ -59,20 +59,20 @@
         }
       </div>
       <div>
-        <div style="font-size:14px;font-weight:800;color:#fff">{{ model()?.provider?.name || 'مزود معتمد' }}</div>
+        <div style="font-size:var(--font-size-label);font-weight:800;color:#fff">{{ model()?.provider?.name || 'مزود معتمد' }}</div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap">
           <ws-level-badge [title]="model()?.level" surface="overlay" />
           @if (model()?.isVerified) {
-            <span style="font-size:11px;color:#0FA99A;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#0FA99A;flex-shrink:0"></span>موثّق</span>
+            <span style="font-size:var(--font-size-small);color:#0FA99A;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#0FA99A;flex-shrink:0"></span>موثّق</span>
           }
         </div>
       </div>
     </div>
     <div style="width:1px;background:rgba(255,255,255,.08);align-self:stretch"></div>
     <div style="display:flex;gap:24px;align-items:center;padding:14px 24px;background:rgba(43,212,199,.04);border-right:1px solid rgba(43,212,199,.1)">
-      <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#2BD4C7">{{ model()?.rating ?? 0 }}</div><div style="font-size:10px;color:#6B7699;margin-top:1px">التقييم</div></div>
-      <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#2BD4C7">{{ model()?.salesCount ?? 0 }}</div><div style="font-size:10px;color:#6B7699;margin-top:1px">مشروع</div></div>
-      <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#2BD4C7">{{ model()?.viewsCount ?? 0 }}</div><div style="font-size:10px;color:#6B7699;margin-top:1px">مشاهدة</div></div>
+      <div style="text-align:center"><div style="font-size:var(--font-size-section);font-weight:900;color:#2BD4C7">{{ model()?.rating ?? 0 }}</div><div style="font-size:var(--font-size-caption);color:#6B7699;margin-top:1px">التقييم</div></div>
+      <div style="text-align:center"><div style="font-size:var(--font-size-section);font-weight:900;color:#2BD4C7">{{ model()?.salesCount ?? 0 }}</div><div style="font-size:var(--font-size-caption);color:#6B7699;margin-top:1px">مشروع</div></div>
+      <div style="text-align:center"><div style="font-size:var(--font-size-section);font-weight:900;color:#2BD4C7">{{ model()?.viewsCount ?? 0 }}</div><div style="font-size:var(--font-size-caption);color:#6B7699;margin-top:1px">مشاهدة</div></div>
     </div>
     <div style="width:1px;background:rgba(255,255,255,.08);align-self:stretch"></div>
     <div style="padding:14px 18px;display:flex;align-items:center">
@@ -97,13 +97,13 @@
       <div class="ai-analysis-header">
         <div class="ai-analysis-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
         <div>
-          <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تقييم AI الاسترشادي للخدمة</div>
-          <div style="font-size:11px;color:var(--txt-2)">{{ model()?.aiScore != null ? 'درجة استرشادية مسجّلة من خدمة الذكاء الاصطناعي' : 'لم تخضع هذه الخدمة لتقييم AI الاسترشادي بعد' }}</div>
+          <div style="font-size:var(--font-size-caption);font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تقييم AI الاسترشادي للخدمة</div>
+          <div style="font-size:var(--font-size-small);color:var(--txt-2)">{{ model()?.aiScore != null ? 'درجة استرشادية مسجّلة من خدمة الذكاء الاصطناعي' : 'لم تخضع هذه الخدمة لتقييم AI الاسترشادي بعد' }}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-inline-start:auto;flex-shrink:0">
-          <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:var(--ai-txt)">{{ model()?.aiScore != null ? 'تقييم AI' : 'غير مُقيَّمة' }}</span>
+          <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:var(--font-size-caption);font-weight:800;color:var(--ai-txt)">{{ model()?.aiScore != null ? 'تقييم AI' : 'غير مُقيَّمة' }}</span>
           <span style="font-size:20px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore != null ? model()?.aiScore + '%' : 'غير متاح' }}</span>
-          <span style="font-size:9px;color:var(--txt-3)">جودة AI</span>
+          <span style="font-size:var(--font-size-caption);color:var(--txt-3)">جودة AI</span>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
@@ -111,15 +111,15 @@
              no real price-fairness computation exists anywhere in the backend
              (ServiceCatalog has no such field). -->
         <div style="display:grid;grid-template-columns:1fr;gap:7px">
-          <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--txt-3);margin-bottom:4px">سعر المقدم</div><div style="font-size:20px;font-weight:900;color:var(--txt);line-height:1">{{ model()?.totalAmount ?? 0 }} <span style="font-size:10px;color:var(--txt-3)">$</span></div></div>
+          <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:var(--font-size-caption);font-weight:800;color:var(--txt-3);margin-bottom:4px">سعر المقدم</div><div style="font-size:20px;font-weight:900;color:var(--txt);line-height:1">{{ model()?.totalAmount ?? 0 }} <span style="font-size:var(--font-size-caption);color:var(--txt-3)">$</span></div></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
-          <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--txt-3);margin-bottom:4px">مدة التسليم</div><div style="font-size:18px;font-weight:900;color:var(--txt);line-height:1">{{ model()?.totalDays ?? 0 }} <span style="font-size:10px;color:var(--txt-3)">أيام</span></div></div>
-          <div style="padding:10px 12px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.18);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--teal);margin-bottom:4px">المسجلة</div><div style="font-size:14px;font-weight:900;color:var(--teal);line-height:1.2">{{ model()?.totalDays ?? 0 }} <span style="font-size:9px;color:var(--txt-3)">أيام</span></div></div>
+          <div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:var(--font-size-caption);font-weight:800;color:var(--txt-3);margin-bottom:4px">مدة التسليم</div><div style="font-size:var(--font-size-section);font-weight:900;color:var(--txt);line-height:1">{{ model()?.totalDays ?? 0 }} <span style="font-size:var(--font-size-caption);color:var(--txt-3)">أيام</span></div></div>
+          <div style="padding:10px 12px;background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.18);border-radius:10px"><div style="font-size:var(--font-size-caption);font-weight:800;color:var(--teal);margin-bottom:4px">المسجلة</div><div style="font-size:var(--font-size-label);font-weight:900;color:var(--teal);line-height:1.2">{{ model()?.totalDays ?? 0 }} <span style="font-size:var(--font-size-caption);color:var(--txt-3)">أيام</span></div></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
-          @if (model()?.aiClarityScore != null) {<div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--txt-3);margin-bottom:5px">جودة الوصف</div><div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden"><div [style.width.%]="model()?.aiClarityScore" style="height:100%;border-radius:2px;background:var(--grad)"></div></div><span style="font-size:11px;font-weight:800;color:var(--txt)">{{ model()?.aiClarityScore }}%</span></div></div>}
-          @if (model()?.aiFeasibilityScore != null) {<div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:9px;font-weight:800;color:var(--txt-3);margin-bottom:5px">توافق المجال</div><div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden"><div [style.width.%]="model()?.aiFeasibilityScore" style="height:100%;border-radius:2px;background:var(--grad)"></div></div><span style="font-size:11px;font-weight:800;color:var(--txt)">{{ model()?.aiFeasibilityScore }}%</span></div></div>}
+          @if (model()?.aiClarityScore != null) {<div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:var(--font-size-caption);font-weight:800;color:var(--txt-3);margin-bottom:5px">جودة الوصف</div><div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden"><div [style.width.%]="model()?.aiClarityScore" style="height:100%;border-radius:2px;background:var(--grad)"></div></div><span style="font-size:var(--font-size-small);font-weight:800;color:var(--txt)">{{ model()?.aiClarityScore }}%</span></div></div>}
+          @if (model()?.aiFeasibilityScore != null) {<div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px"><div style="font-size:var(--font-size-caption);font-weight:800;color:var(--txt-3);margin-bottom:5px">توافق المجال</div><div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden"><div [style.width.%]="model()?.aiFeasibilityScore" style="height:100%;border-radius:2px;background:var(--grad)"></div></div><span style="font-size:var(--font-size-small);font-weight:800;color:var(--txt)">{{ model()?.aiFeasibilityScore }}%</span></div></div>}
         </div>
       </div>
       <ng-container *ngTemplateOutlet="aiMetrics"></ng-container>
@@ -134,7 +134,7 @@
     <div class="ai-metric m4"><div class="ai-metric-n">{{ model()?.reviewsCount ?? 0 }}</div><div class="ai-metric-l">عدد التقييمات</div></div>
     <div class="ai-metric m1"><div class="ai-metric-n">{{ model()?.salesCount ?? 0 }}</div><div class="ai-metric-l">مشروع مكتمل</div></div>
   </div>
-  @if (model()?.aiRecommendationReason) {<div style="margin-top:10px;padding:9px 11px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.12);border-radius:8px;font-size:11px;color:var(--txt-2);line-height:1.55"><strong style="color:var(--ai-txt)">ملخص التقييم الاسترشادي (AI):</strong> {{ model()?.aiRecommendationReason }}</div>}
+  @if (model()?.aiRecommendationReason) {<div style="margin-top:10px;padding:9px 11px;background:rgba(123,47,190,.06);border:1px solid rgba(123,47,190,.12);border-radius:8px;font-size:var(--font-size-small);color:var(--txt-2);line-height:1.55"><strong style="color:var(--ai-txt)">ملخص التقييم الاسترشادي (AI):</strong> {{ model()?.aiRecommendationReason }}</div>}
 </ng-template>
 
 <!-- ORDER INCLUDES (real delivery stages) + cart feedback -->
@@ -149,11 +149,11 @@
 </ng-template>
 
 <ng-template #ownServiceNote>
-  <div data-testid="own-service" role="status" style="margin:0 0 8px;padding:10px 12px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.25);border-radius:10px;font-size:13px;font-weight:800;text-align:center">هذه خدمتك</div>
+  <div data-testid="own-service" role="status" style="margin:0 0 8px;padding:10px 12px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.25);border-radius:10px;font-size:var(--font-size-label);font-weight:800;text-align:center">هذه خدمتك</div>
 </ng-template>
 
 <ng-template #buyBlocked>
-  <div data-testid="buy-blocked" style="margin:0 0 8px;padding:10px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:10px;font-size:12.5px;text-align:center">
+  <div data-testid="buy-blocked" style="margin:0 0 8px;padding:10px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:10px;font-size:var(--font-size-label);text-align:center">
     <div style="margin-bottom:8px">أنت تتصفح كمقدم خدمة، والشراء متاح من حساب طالب الخدمة فقط.</div>
     @if (hasClientRole()) {
       <button type="button" data-testid="switch-to-client" [disabled]="switching()" (click)="switchToClient()" style="padding:8px 14px;border-radius:9px;border:1px solid rgba(43,212,199,.4);background:rgba(43,212,199,.12);cursor:pointer;font-weight:800;font-family:inherit">{{ switching() ? 'جارٍ التبديل…' : 'بدّل إلى طالب خدمة للشراء' }}</button>
@@ -165,13 +165,13 @@
 
 <ng-template #cartFeedback>
   @if (activePurchase()) {
-    <div style="margin:0 0 8px;padding:8px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:10px;font-size:12px;text-align:center;color:var(--txt-2)">اشتريت هذه الخدمة ومشروعك ما زال قيد التنفيذ — لا يمكن شراؤها مرة أخرى قبل اكتماله</div>
+    <div style="margin:0 0 8px;padding:8px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:10px;font-size:var(--font-size-small);text-align:center;color:var(--txt-2)">اشتريت هذه الخدمة ومشروعك ما زال قيد التنفيذ — لا يمكن شراؤها مرة أخرى قبل اكتماله</div>
   }
   @if (alreadyInCart()) {
-    <div style="margin:0 0 8px;padding:8px 12px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);border-radius:10px;font-size:12px;text-align:center;color:var(--teal)">الخدمة موجودة بالفعل في السلة</div>
+    <div style="margin:0 0 8px;padding:8px 12px;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);border-radius:10px;font-size:var(--font-size-small);text-align:center;color:var(--teal)">الخدمة موجودة بالفعل في السلة</div>
   }
   @if (cartError()) {
-    <div style="margin:0 0 8px;padding:8px 12px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.2);border-radius:10px;font-size:12px;text-align:center;color:var(--red)">{{ cartError() }}</div>
+    <div style="margin:0 0 8px;padding:8px 12px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.2);border-radius:10px;font-size:var(--font-size-small);text-align:center;color:var(--red)">{{ cartError() }}</div>
   }
 </ng-template>
 
@@ -179,7 +179,7 @@
 <ng-template #trustCard>
   <div class="sidebar-card">
     <div class="trust-card">
-      <div style="font-size:11px;font-weight:800;color:var(--txt-3);letter-spacing:.06em;margin-bottom:10px">ضمانات وسيط AI</div>
+      <div style="font-size:var(--font-size-small);font-weight:800;color:var(--txt-3);letter-spacing:.06em;margin-bottom:10px">ضمانات وسيط AI</div>
       <div class="trust-item">
         <span class="trust-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)"><svg><use href="#ws-shield"></use></svg></span>
         ضمان استرداد المدفوعات كاملاً
@@ -240,11 +240,11 @@
               <div class="gallery-main">
                 @if (model()?.gallery && model()!.gallery!.length > 0) {
                   <img [src]="model()!.gallery![activeImageIndex()]" alt="" />
-                  <div style="position:absolute;top:12px;right:12px;padding:4px 10px;background:rgba(7,13,36,.8);border:1px solid rgba(43,212,199,.2);border-radius:8px;font-size:11px;font-weight:700;color:var(--teal)" dir="ltr">{{ activeImageIndex() + 1 }} / {{ model()!.gallery!.length }}</div>
+                  <div style="position:absolute;top:12px;right:12px;padding:4px 10px;background:rgba(7,13,36,.8);border:1px solid rgba(43,212,199,.2);border-radius:8px;font-size:var(--font-size-small);font-weight:700;color:var(--teal)" dir="ltr">{{ activeImageIndex() + 1 }} / {{ model()!.gallery!.length }}</div>
                 } @else {
                   <div class="gallery-placeholder">
                     <svg aria-hidden="true"><use href="#ws-image"></use></svg>
-                    <span style="font-size:13px">لا يوجد معرض أعمال متاح حالياً</span>
+                    <span style="font-size:var(--font-size-label)">لا يوجد معرض أعمال متاح حالياً</span>
                   </div>
                 }
               </div>
@@ -301,7 +301,7 @@
               <div class="section-title">
                 <span class="section-title-ico" style="background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)"><svg><use href="#ws-milestone"></use></svg></span>
                 مراحل التسليم
-                <span style="font-size:11px;font-weight:600;color:var(--txt-3);margin-inline-start:4px">{{ model()?.stages?.length || 0 }} مراحل · إجمالي {{ model()?.totalDays || 0 }} أيام</span>
+                <span style="font-size:var(--font-size-small);font-weight:600;color:var(--txt-3);margin-inline-start:4px">{{ model()?.stages?.length || 0 }} مراحل · إجمالي {{ model()?.totalDays || 0 }} أيام</span>
               </div>
               <div style="position:relative;padding-right:16px">
                 <!-- vertical line -->
@@ -312,18 +312,18 @@
                       <div [style.background]="isLast ? 'rgba(15,169,154,.12)' : (i === 0 ? 'rgba(43,212,199,.12)' : 'rgba(43,127,255,.12)')"
                            [style.border]="isLast ? '2px solid rgba(15,169,154,.35)' : (i === 0 ? '2px solid rgba(43,212,199,.4)' : '2px solid rgba(43,127,255,.3)')"
                            [style.color]="isLast ? '#0FA99A' : (i === 0 ? 'var(--teal)' : 'var(--blue-txt)')"
-                           style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:900;z-index:1">{{ stage.stepOrder || (i + 1) }}</div>
+                           style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:var(--font-size-small);font-weight:900;z-index:1">{{ stage.stepOrder || (i + 1) }}</div>
                       <div [style.background]="isLast ? 'rgba(15,169,154,.04)' : 'rgba(255,255,255,.03)'"
                            [style.border]="isLast ? '1px solid rgba(15,169,154,.15)' : '1px solid var(--border)'"
                            style="flex:1;border-radius:12px;padding:14px 16px">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                          <span style="font-size:13px;font-weight:800;color:var(--txt)">{{ stage.title }}</span>
+                          <span style="font-size:var(--font-size-label);font-weight:800;color:var(--txt)">{{ stage.title }}</span>
                           <span [style.color]="isLast ? '#0FA99A' : 'var(--txt-3)'"
                                 [style.background]="isLast ? 'rgba(15,169,154,.1)' : 'rgba(255,255,255,.05)'"
                                 [style.border]="isLast ? '1px solid rgba(15,169,154,.2)' : 'none'"
-                                style="font-size:11px;padding:2px 8px;border-radius:6px">{{ stage.deliveryDays }} أيام</span>
+                                style="font-size:var(--font-size-small);padding:2px 8px;border-radius:6px">{{ stage.deliveryDays }} أيام</span>
                         </div>
-                        <p style="font-size:12px;color:var(--txt-2);margin:0;line-height:1.7">{{ stage.description }}</p>
+                        <p style="font-size:var(--font-size-small);color:var(--txt-2);margin:0;line-height:1.7">{{ stage.description }}</p>
                       </div>
                     </div>
                   }
@@ -340,11 +340,11 @@
               @if (model()?.skills?.length) {
                 <div style="display:flex;flex-wrap:wrap;gap:8px">
                   @for (skill of model()!.skills!; track skill) {
-                    <span data-testid="offer-skill" style="padding:6px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:8px;font-size:12px;color:var(--txt-2)">{{ skill }}</span>
+                    <span data-testid="offer-skill" style="padding:6px 12px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.2);border-radius:8px;font-size:var(--font-size-small);color:var(--txt-2)">{{ skill }}</span>
                   }
                 </div>
               } @else {
-                <p data-testid="offer-skills-empty" style="font-size:12px;color:var(--txt-3);margin:0">لم يحدد مقدّم الخدمة مهارات لهذه الخدمة بعد.</p>
+                <p data-testid="offer-skills-empty" style="font-size:var(--font-size-small);color:var(--txt-3);margin:0">لم يحدد مقدّم الخدمة مهارات لهذه الخدمة بعد.</p>
               }
             </div>
 
@@ -357,7 +357,7 @@
                 </div>
                 <div style="display:flex;flex-wrap:wrap;gap:8px">
                   @for (tag of model()!.tags!; track tag) {
-                    <span style="padding:6px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--txt-2)">{{ tag }}</span>
+                    <span style="padding:6px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;font-size:var(--font-size-small);color:var(--txt-2)">{{ tag }}</span>
                   }
                 </div>
               </div>
@@ -368,7 +368,7 @@
               <div class="section-title">
                 <span class="section-title-ico" style="background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);color:var(--kahr)"><svg><use href="#ws-star"></use></svg></span>
                 التقييمات
-                <span style="font-size:12px;font-weight:600;color:var(--txt-3);margin-inline-start:4px">({{ model()?.reviewsCount ?? 0 }} تقييم)</span>
+                <span style="font-size:var(--font-size-small);font-weight:600;color:var(--txt-3);margin-inline-start:4px">({{ model()?.reviewsCount ?? 0 }} تقييم)</span>
               </div>
 
               <div class="reviews-summary">
@@ -399,7 +399,7 @@
               }
 
               @if ((model()?.reviewsCount ?? 0) > 3) {
-                <button (click)="setTab('reviews')" style="width:100%;margin-top:14px;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;font-family:inherit;font-size:13px;font-weight:700;color:var(--txt-2);cursor:pointer;transition:all .15s" type="button">عرض كل التقييمات ({{ model()?.reviewsCount ?? 0 }})</button>
+                <button (click)="setTab('reviews')" style="width:100%;margin-top:14px;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;font-family:inherit;font-size:var(--font-size-label);font-weight:700;color:var(--txt-2);cursor:pointer;transition:all .15s" type="button">عرض كل التقييمات ({{ model()?.reviewsCount ?? 0 }})</button>
               }
             </div>
 
@@ -613,8 +613,8 @@
               <div class="ask-box-title">اسأل سؤالاً عن هذه الخدمة <span class="ws-req" aria-hidden="true">*</span></div>
               <div class="ask-box-sub">يصل سؤالك إلى مقدم الخدمة مباشرة في المحادثة</div>
               <textarea class="ask-textarea" id="ask-message" aria-required="true" name="ask-message" [class.ws-invalid]="questionError()" [attr.aria-invalid]="questionError() ? 'true' : null" [attr.aria-describedby]="questionError() ? 'ask-message-err' : null" [value]="questionMessage()" (input)="updateQuestionMessage($event)" placeholder="مثال: هل تدعم تصاميم ثنائية اللغة؟ هل يمكن تعديل الألوان بعد التسليم؟"></textarea>
-              @if (questionError()) { <p class="ws-field-msg" id="ask-message-err" role="alert" data-testid="field-error" style="color:var(--red);font-size:11px;font-weight:700;margin:4px 0">{{ questionError() }}</p> }
-              @if (requestError() && !showNegotiation()) { <p id="ask-request-err" class="field-error" role="alert" style="color:var(--red);font-size:12px;font-weight:700;margin:4px 0">{{ requestError() }}</p> }
+              @if (questionError()) { <p class="ws-field-msg" id="ask-message-err" role="alert" data-testid="field-error" style="color:var(--red);font-size:var(--font-size-small);font-weight:700;margin:4px 0">{{ questionError() }}</p> }
+              @if (requestError() && !showNegotiation()) { <p id="ask-request-err" class="field-error" role="alert" style="color:var(--red);font-size:var(--font-size-small);font-weight:700;margin:4px 0">{{ requestError() }}</p> }
               <div class="ask-footer">
                 <span class="ask-hint">
                   <svg aria-hidden="true" style="width:11px;height:11px;color:var(--teal);vertical-align:middle"><use href="#ws-shield"></use></svg>
@@ -646,18 +646,18 @@
                 <div class="ai-analysis-header">
                   <div class="ai-analysis-ico"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg></div>
                   <div>
-                    <div style="font-size:10px;font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تقييم AI الاسترشادي للخدمة</div>
-                    <div style="font-size:11px;color:var(--txt-2)">{{ model()?.aiScore != null ? 'درجة استرشادية مسجّلة من خدمة الذكاء الاصطناعي' : 'لم تخضع هذه الخدمة لتقييم AI الاسترشادي بعد' }}</div>
+                    <div style="font-size:var(--font-size-caption);font-weight:800;color:var(--ai-txt);letter-spacing:.06em;margin-bottom:2px">تقييم AI الاسترشادي للخدمة</div>
+                    <div style="font-size:var(--font-size-small);color:var(--txt-2)">{{ model()?.aiScore != null ? 'درجة استرشادية مسجّلة من خدمة الذكاء الاصطناعي' : 'لم تخضع هذه الخدمة لتقييم AI الاسترشادي بعد' }}</div>
                   </div>
                   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin-inline-start:auto;flex-shrink:0">
-                    <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:9px;font-weight:800;color:var(--ai-txt)">{{ model()?.aiScore != null ? 'تقييم AI' : 'غير مُقيَّمة' }}</span>
+                    <span style="background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:6px;padding:2px 7px;font-size:var(--font-size-caption);font-weight:800;color:var(--ai-txt)">{{ model()?.aiScore != null ? 'تقييم AI' : 'غير مُقيَّمة' }}</span>
                     <span style="font-size:20px;font-weight:900;color:var(--ai-txt);line-height:1">{{ model()?.aiScore != null ? model()?.aiScore + '%' : 'غير متاح' }}</span>
-                    <span style="font-size:9px;color:var(--txt-3)">جودة AI</span>
+                    <span style="font-size:var(--font-size-caption);color:var(--txt-3)">جودة AI</span>
                   </div>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:10px">
-                  <div style="padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;text-align:center"><div style="font-size:9px;color:var(--txt-3);margin-bottom:2px">سعر المقدم</div><div style="font-size:15px;font-weight:900;color:var(--txt)">{{ model()?.totalAmount ?? 0 }} <span style="font-size:9px;color:var(--txt-3)">$</span></div></div>
-                  <div style="padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;text-align:center"><div style="font-size:9px;color:var(--txt-3);margin-bottom:2px">مدة التسليم</div><div style="font-size:15px;font-weight:900;color:var(--txt)">{{ model()?.totalDays ?? 0 }} <span style="font-size:9px;color:var(--txt-3)">أيام</span></div></div>
+                  <div style="padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;text-align:center"><div style="font-size:var(--font-size-caption);color:var(--txt-3);margin-bottom:2px">سعر المقدم</div><div style="font-size:var(--font-size-body);font-weight:900;color:var(--txt)">{{ model()?.totalAmount ?? 0 }} <span style="font-size:var(--font-size-caption);color:var(--txt-3)">$</span></div></div>
+                  <div style="padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;text-align:center"><div style="font-size:var(--font-size-caption);color:var(--txt-3);margin-bottom:2px">مدة التسليم</div><div style="font-size:var(--font-size-body);font-weight:900;color:var(--txt)">{{ model()?.totalDays ?? 0 }} <span style="font-size:var(--font-size-caption);color:var(--txt-3)">أيام</span></div></div>
                 </div>
                 <ng-container *ngTemplateOutlet="aiMetrics"></ng-container>
               </div>
@@ -668,12 +668,12 @@
               @if (isOwnService()) {
                 <ng-container *ngTemplateOutlet="ownServiceNote"></ng-container>
                 } @else if (canPurchase()) {
-              <button [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()" type="button" style="width:100%;padding:11px;border-radius:999px;background:var(--grad);color:#070D24;font-family:inherit;font-size:13px;font-weight:900;border:none;cursor:pointer;margin-bottom:10px">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
+              <button [disabled]="isSubmitting()" (click)="activePurchase() ? openActiveProject() : addToCart()" type="button" style="width:100%;padding:11px;border-radius:999px;background:var(--grad);color:#070D24;font-family:inherit;font-size:var(--font-size-label);font-weight:900;border:none;cursor:pointer;margin-bottom:10px">{{ activePurchase() ? 'قيد التنفيذ — متابعة المشروع' : 'اطلب الآن' }}</button>
               } @else {
               <ng-container *ngTemplateOutlet="buyBlocked"></ng-container>
               }
               <ng-container *ngTemplateOutlet="cartFeedback"></ng-container>
-              <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--green);padding:8px 10px;background:rgba(15,169,154,.05);border:1px solid rgba(15,169,154,.13);border-radius:8px">
+              <div style="display:flex;align-items:center;gap:7px;font-size:var(--font-size-small);color:var(--green);padding:8px 10px;background:rgba(15,169,154,.05);border:1px solid rgba(15,169,154,.13);border-radius:8px">
                 <svg aria-hidden="true" style="width:12px;height:12px;flex-shrink:0"><use href="#ws-shield"></use></svg>
                 ضمان مالي وفق سياسة الإلغاء والاسترداد
               </div>
@@ -694,9 +694,9 @@
       <svg aria-hidden="true" style="width:16px;height:16px;color:#5DA0FF"><use href="#ws-msg"></use></svg>
     </div>
     <h2 style="font-size:20px;font-weight:800;color:#fff;margin:0 0 6px;text-align:right">طلب تفاوض مع {{ model()?.provider?.name || 'مقدم الخدمة' }}</h2>
-    <p style="font-size:13px;color:#A8B2D1;margin:0 0 20px;text-align:right">حدد ما تريد التفاوض عليه واكتب ملاحظاتك، تصل لمقدم الخدمة فإما يقبلها مباشرة أو يحولها للنقاش في الدردشة</p>
+    <p style="font-size:var(--font-size-label);color:#A8B2D1;margin:0 0 20px;text-align:right">حدد ما تريد التفاوض عليه واكتب ملاحظاتك، تصل لمقدم الخدمة فإما يقبلها مباشرة أو يحولها للنقاش في الدردشة</p>
     <div style="margin-bottom:16px">
-      <div style="font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:8px;text-align:right">على ماذا تتفاوض</div>
+      <div style="font-size:var(--font-size-small);font-weight:700;color:#A8B2D1;margin-bottom:8px;text-align:right">على ماذا تتفاوض</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
         <button class="neg-tag active" type="button" (click)="toggleNegTag($event)">السعر</button>
         <button class="neg-tag" type="button" (click)="toggleNegTag($event)">المدة</button>
@@ -705,22 +705,22 @@
       </div>
     </div>
     <div style="margin-bottom:16px">
-      <div style="font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:8px;text-align:right">ملاحظاتك لمقدم الخدمة <span class="ws-req" aria-hidden="true">*</span></div>
-      <textarea id="neg-message" aria-required="true" name="neg-message" [class.ws-invalid]="negotiationError()" [attr.aria-invalid]="negotiationError() ? 'true' : null" [attr.aria-describedby]="negotiationError() ? 'neg-message-err' : null" [value]="negotiationMessage()" (input)="updateNegotiationMessage($event)" placeholder="اكتب تفاصيل طلبك، سعراً أو مدة أو تعديلاً على الخطة أو أي استفسار" style="width:100%;min-height:100px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;color:#fff;font-family:Tajawal,sans-serif;font-size:13px;resize:vertical;outline:none;box-sizing:border-box;text-align:right" dir="rtl"></textarea>
-      @if (negotiationError()) { <p class="ws-field-msg" id="neg-message-err" role="alert" data-testid="field-error" style="color:var(--red);font-size:11px;font-weight:700;margin:4px 0;text-align:right">{{ negotiationError() }}</p> }
-      @if (requestError() && showNegotiation()) { <p id="neg-request-err" class="field-error" role="alert" style="color:var(--red);font-size:12px;font-weight:700;margin:4px 0;text-align:right">{{ requestError() }}</p> }
+      <div style="font-size:var(--font-size-small);font-weight:700;color:#A8B2D1;margin-bottom:8px;text-align:right">ملاحظاتك لمقدم الخدمة <span class="ws-req" aria-hidden="true">*</span></div>
+      <textarea id="neg-message" aria-required="true" name="neg-message" [class.ws-invalid]="negotiationError()" [attr.aria-invalid]="negotiationError() ? 'true' : null" [attr.aria-describedby]="negotiationError() ? 'neg-message-err' : null" [value]="negotiationMessage()" (input)="updateNegotiationMessage($event)" placeholder="اكتب تفاصيل طلبك، سعراً أو مدة أو تعديلاً على الخطة أو أي استفسار" style="width:100%;min-height:100px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;color:#fff;font-family:Tajawal,sans-serif;font-size:var(--font-size-label);resize:vertical;outline:none;box-sizing:border-box;text-align:right" dir="rtl"></textarea>
+      @if (negotiationError()) { <p class="ws-field-msg" id="neg-message-err" role="alert" data-testid="field-error" style="color:var(--red);font-size:var(--font-size-small);font-weight:700;margin:4px 0;text-align:right">{{ negotiationError() }}</p> }
+      @if (requestError() && showNegotiation()) { <p id="neg-request-err" class="field-error" role="alert" style="color:var(--red);font-size:var(--font-size-small);font-weight:700;margin:4px 0;text-align:right">{{ requestError() }}</p> }
     </div>
     <div style="background:rgba(43,127,255,.06);border:1px solid rgba(43,127,255,.15);border-radius:12px;padding:14px 16px;margin-bottom:20px">
-      <div style="font-size:11px;font-weight:800;color:#5DA0FF;margin-bottom:8px;display:flex;align-items:center;gap:6px;justify-content:flex-end"><svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-ai-spark"></use></svg>ماذا يحدث بعد الإرسال</div>
-      <div style="font-size:12px;color:#A8B2D1;display:flex;flex-direction:column;gap:5px;text-align:right">
+      <div style="font-size:var(--font-size-small);font-weight:800;color:#5DA0FF;margin-bottom:8px;display:flex;align-items:center;gap:6px;justify-content:flex-end"><svg aria-hidden="true" style="width:13px;height:13px"><use href="#ws-ai-spark"></use></svg>ماذا يحدث بعد الإرسال</div>
+      <div style="font-size:var(--font-size-small);color:#A8B2D1;display:flex;flex-direction:column;gap:5px;text-align:right">
         <span><span style="color:#2BD4C7;font-weight:700">1</span> يصل طلبك للمقدم</span>
         <span><span style="color:#2BD4C7;font-weight:700">2</span> يقبل طلبك مباشرة أو يحوله للدردشة</span>
         <span><span style="color:#2BD4C7;font-weight:700">3</span> تقبل الحوار أو تعلقه أو ترفضه</span>
       </div>
     </div>
     <div style="display:flex;gap:10px">
-      <button (click)="closeNegotiation()" type="button" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#A8B2D1;font-family:Tajawal,sans-serif;font-size:14px;font-weight:600;cursor:pointer">إلغاء</button>
-      <button [disabled]="isSubmitting()" (click)="sendNegotiation()" type="button" style="flex:2;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer">إرسال طلب التفاوض</button>
+      <button (click)="closeNegotiation()" type="button" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#A8B2D1;font-family:Tajawal,sans-serif;font-size:var(--font-size-label);font-weight:600;cursor:pointer">إلغاء</button>
+      <button [disabled]="isSubmitting()" (click)="sendNegotiation()" type="button" style="flex:2;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;font-family:Tajawal,sans-serif;font-size:var(--font-size-label);font-weight:800;cursor:pointer">إرسال طلب التفاوض</button>
     </div>
   </div>
 </div>

@@ -108,7 +108,7 @@ export interface AccountSession {
       border: 1px solid rgba(255,255,255,.10);
       border-radius: 9px;
       padding: 9px 13px;
-      font-size: 13px;
+      font-size: var(--font-size-label);
       color: #fff;
       font-family: inherit;
       cursor: pointer;
@@ -148,13 +148,13 @@ export interface AccountSession {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
+      font-size: var(--font-size-label);
       font-weight: 900;
       color: #FF8C69;
       margin-bottom: 6px;
     }
     .danger-card p {
-      font-size: 12.5px;
+      font-size: var(--font-size-label);
       color: #A8B2D1;
       line-height: 1.6;
       margin-bottom: 14px;
@@ -165,7 +165,7 @@ export interface AccountSession {
       border: 1px solid rgba(255,140,105,.3);
       border-radius: 9px;
       color: #FF8C69;
-      font-size: 13px;
+      font-size: var(--font-size-label);
       font-weight: 800;
       cursor: pointer;
       font-family: inherit;

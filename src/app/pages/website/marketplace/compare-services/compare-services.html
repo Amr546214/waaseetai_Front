@@ -36,12 +36,12 @@
     </div>
 
     @if (loading()) {
-      <div style="text-align:center;padding:60px 0;font-size:13px" class="txt-muted">جاري تحميل بيانات المقارنة...</div>
+      <div style="text-align:center;padding:60px 0;font-size:var(--font-size-label)" class="txt-muted">جاري تحميل بيانات المقارنة...</div>
     } @else if (!models().length) {
       <div class="empty-compare">
         <div class="empty-compare-ico"><svg aria-hidden="true" style="width:28px;height:28px"><use href="#ws-compare"></use></svg></div>
-        <div style="font-size:15px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد خدمات للمقارنة بعد</div>
-        <p style="font-size:13px;margin-bottom:16px" class="txt-muted">تصفح السوق واختر خدمتين أو ثلاثة لمقارنتها جنباً إلى جنب</p>
+        <div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">لا توجد خدمات للمقارنة بعد</div>
+        <p style="font-size:var(--font-size-label);margin-bottom:16px" class="txt-muted">تصفح السوق واختر خدمتين أو ثلاثة لمقارنتها جنباً إلى جنب</p>
         <a routerLink="/marketplace" class="empty-cta">تصفح الخدمات</a>
       </div>
     } @else {
@@ -93,7 +93,7 @@
                 <div class="pcard-prov-info">
                   <div class="name">{{ m.provider.name }}</div>
                   @if (m.isVerified) {
-                    <div class="verified" style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--teal)"><svg aria-hidden="true" style="width:9px;height:9px"><use href="#ws-check"></use></svg> معتمد</div>
+                    <div class="verified" style="display:flex;align-items:center;gap:3px;font-size:var(--font-size-caption);color:var(--teal)"><svg aria-hidden="true" style="width:9px;height:9px"><use href="#ws-check"></use></svg> معتمد</div>
                   }
                 </div>
               </div>
@@ -116,7 +116,7 @@
                 </div>
                 @if (m.stages?.length) {
                   <div>
-                    <div class="feat-group-title">المحتوى المسلّم <span style="font-size:9px;color:var(--blue-txt)">• حسب التخصص</span></div>
+                    <div class="feat-group-title">المحتوى المسلّم <span style="font-size:var(--font-size-caption);color:var(--blue-txt)">• حسب التخصص</span></div>
                     @for (stage of m.stages; track $index) {
                       <div class="feat-row"><div class="feat-ico yes" [style]="isWinner ? winnerYesStyle : ''"><svg aria-hidden="true"><use href="#ws-check"></use></svg></div> {{ stage.title }}</div>
                     }

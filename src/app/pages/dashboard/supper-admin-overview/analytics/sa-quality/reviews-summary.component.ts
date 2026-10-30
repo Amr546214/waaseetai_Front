@@ -34,9 +34,9 @@ import { AiResultCardComponent } from '../../../../../shared/ai/ai-result-card.c
 	styles: [`
 		.rs-wrap { margin-bottom: 16px; }
 		.rs-data { padding: 14px; border-radius: 12px; border: 1px solid var(--sec-bd, rgba(255,255,255,.08)); }
-		.rs-ttl { font-size: 12px; font-weight: 800; margin-bottom: 8px; }
-		.rs-kpis { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; margin-bottom: 10px; }
-		.rs-row { display: flex; align-items: center; gap: 8px; font-size: 12px; margin: 4px 0; }
+		.rs-ttl { font-size: var(--font-size-small); font-weight: 800; margin-bottom: 8px; }
+		.rs-kpis { display: flex; flex-wrap: wrap; gap: 14px; font-size: var(--font-size-label); margin-bottom: 10px; }
+		.rs-row { display: flex; align-items: center; gap: 8px; font-size: var(--font-size-small); margin: 4px 0; }
 		.rs-lbl { width: 32px; }
 		.rs-track { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,.08); overflow: hidden; }
 		.rs-fill { height: 100%; background: #2BD4C7; }

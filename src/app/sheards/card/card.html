@@ -72,7 +72,7 @@
 					<img [src]="model.provider.avatar" [alt]="model.provider.name"
 						style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />
 					} @else {
-					<span style="font-size:10px;font-weight:700" class="txt-white">{{ model.provider?.initials || 'م'
+					<span style="font-size:var(--font-size-caption);font-weight:700" class="txt-white">{{ model.provider?.initials || 'م'
 						}}</span>
 					}
 				</div>
@@ -98,7 +98,7 @@
 			<!-- Card Footer -->
 			<div class="svc-footer">
 				<div>
-					<div style="font-size:11px" class="txt-muted">{{ isOwn(model) ? 'خدمة منشورة باسمك' : (hasActivePurchase(model) ? 'لديك طلب قائم على هذه الخدمة' : 'سعر الخدمة') }}</div>
+					<div style="font-size:var(--font-size-small)" class="txt-muted">{{ isOwn(model) ? 'خدمة منشورة باسمك' : (hasActivePurchase(model) ? 'لديك طلب قائم على هذه الخدمة' : 'سعر الخدمة') }}</div>
 					@if (isOwn(model)) {
 					<div class="svc-price">{{ ownLabel }}</div>
 					} @else if (hasActivePurchase(model)) {

@@ -126,7 +126,7 @@
                 <div style="width:48px;height:48px;border-radius:13px;background:rgba(255,140,105,.1);border:1px solid rgba(255,140,105,.25);display:flex;align-items:center;justify-content:center">
                   <svg aria-hidden="true" style="width:24px;height:24px;color:var(--red)"><use href="#ws-tag"></use></svg>
                 </div>
-                <div style="font-size:11px;font-weight:800;color:var(--red);margin-top:6px;letter-spacing:.04em">SALE</div>
+                <div style="font-size:var(--font-size-small);font-weight:800;color:var(--red);margin-top:6px;letter-spacing:.04em">SALE</div>
               </div>
             </div>
           }
@@ -305,7 +305,7 @@
               <div class="stitle-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
               الخدمات المميزة الأبرز
             </div>
-            <span style="font-size:12px;color:var(--txt-3)">مختارة بعناية من الفريق</span>
+            <span style="font-size:var(--font-size-small);color:var(--txt-3)">مختارة بعناية من الفريق</span>
           </div>
           <div class="featured-grid">
             @for (m of showcase(); track m.id; let first = $first) {
@@ -341,7 +341,7 @@
                     <div>
                       <span class="fc-price-lbl">يبدأ من</span>
                       <span class="fc-price-val">{{ m.totalAmount | number:'1.0-2' }}</span>
-                      <span style="font-size:11px;color:var(--txt-3)"> $</span>
+                      <span style="font-size:var(--font-size-small);color:var(--txt-3)"> $</span>
                       <div class="fc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
                     </div>
                     <button class="fc-btn" type="button" [routerLink]="cardLink(m)">{{ isOwn(m) ? 'هذه خدمتك' : (hasActivePurchase(m) ? 'قيد التنفيذ' : (first ? 'اطلب الآن' : 'عرض')) }}</button>
@@ -550,7 +550,7 @@
                     <div class="svc-body">
                       @if (m.aiScore != null) { <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
                       <div class="svc-title">{{ m.title }}</div>
-                      <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><span>{{ m.provider.name }}</span>@if (m.isVerified) {<span style="font-size:9px;color:var(--teal);display:flex;align-items:center;gap:2px"><svg aria-hidden="true" style="width:8px;height:8px"><use href="#ws-check"></use></svg> معتمد</span>}</div>
+                      <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><span>{{ m.provider.name }}</span>@if (m.isVerified) {<span style="font-size:var(--font-size-caption);color:var(--teal);display:flex;align-items:center;gap:2px"><svg aria-hidden="true" style="width:8px;height:8px"><use href="#ws-check"></use></svg> معتمد</span>}</div>
                       @if (offerCountdown(m); as cd) {
                         <div class="svc-cd"><svg aria-hidden="true"><use href="#ws-clock"></use></svg><span class="svc-cd-lbl">ينتهي خلال</span><span class="svc-cd-time">{{ cd }}</span></div>
                       }
@@ -629,7 +629,7 @@
                       <span class="svc-rank-badge">#{{ i + rankOffset() }}</span>
                       @if (m.aiScore != null) { <div class="svc-ai"><svg aria-hidden="true"><use href="#ws-trust-ai"></use></svg> جودة AI {{ m.aiScore }}</div> }
                     </div>
-                    <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px">{{ m.title }}</div>
+                    <div style="font-size:var(--font-size-label);font-weight:800;color:var(--txt);margin-bottom:8px">{{ m.title }}</div>
                     <div class="svc-prov"><div class="svc-av">{{ m.provider.initials }}</div><div><div class="svc-pname">{{ m.provider.name }}</div>@if (m.isVerified) {<div class="svc-v"><svg aria-hidden="true"><use href="#ws-check"></use></svg> معتمد</div>}</div></div>
                     @if (mode() === 'most-ordered') {
                       <div class="svc-demand"><div style="width:16px;height:16px;border-radius:4px;background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);display:flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:9px;height:9px;color:var(--teal)"><use href="#ws-chart"></use></svg></div><span class="svc-demand-val">{{ (m.salesCount || 0) | number:'1.0-2' }}</span><span>طلب</span></div>
@@ -646,7 +646,7 @@
                       <div class="list-price">{{ m.totalAmount | number:'1.0-2' }} <span>$</span></div>
                     }
                     <div class="svc-days"><svg aria-hidden="true"><use href="#ws-clock"></use></svg> {{ daysLabel(m.totalDays) }}</div>
-                    <button type="button" style="padding:8px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:12px;font-weight:700;color:var(--txt-2);cursor:pointer;font-family:inherit;white-space:nowrap">{{ isOwn(m) ? 'هذه خدمتك' : (hasActivePurchase(m) ? 'متابعة المشروع' : 'عرض الخدمة') }}</button>
+                    <button type="button" style="padding:8px 20px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:var(--font-size-small);font-weight:700;color:var(--txt-2);cursor:pointer;font-family:inherit;white-space:nowrap">{{ isOwn(m) ? 'هذه خدمتك' : (hasActivePurchase(m) ? 'متابعة المشروع' : 'عرض الخدمة') }}</button>
                   </div>
                 </div>
               </a>

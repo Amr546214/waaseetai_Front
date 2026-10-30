@@ -1,27 +1,27 @@
 <div
 	class="bg-[var(--crd-bg)] backdrop-blur-md border border-[var(--crd-bd)] rounded-[16px] p-6 mb-5 shadow-sm w-full max-w-full mx-auto">
-	<div class="text-[14px] font-extrabold text-[var(--txt)] mb-4 flex items-center justify-between">
+	<div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt)] mb-4 flex items-center justify-between">
 		<span>بيانات مشروعك المهني</span>
-		<span class="text-[11px] font-bold text-[#2BD4C7] bg-[rgba(43,212,199,0.1)] px-3 py-1 rounded-full">الخطوة
+		<span class="text-[length:var(--font-size-small)] font-bold text-[#2BD4C7] bg-[rgba(43,212,199,0.1)] px-3 py-1 rounded-full">الخطوة
 			الأساسية</span>
 	</div>
 
 	<div class="flex flex-col gap-5">
 		<div>
-			<label for="np-name" class="block text-[13px] font-bold text-[var(--txt-2)] mb-2">اسم المشروع <span
+			<label for="np-name" class="block text-[length:var(--font-size-label)] font-bold text-[var(--txt-2)] mb-2">اسم المشروع <span
 					class="ws-req" aria-hidden="true">*</span></label>
 			<input type="text" id="np-name" aria-required="true" name="projectName" data-field="projectName" [value]="projectName" (input)="updateName($event)"
 				placeholder="مثال: تصميم هوية بصرية متكاملة أو تطوير تطبيق ذكاء اصطناعي"
-				class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] px-4 py-[13px] text-[14px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors placeholder:text-[var(--txt-3)]">
+				class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[10px] px-4 py-[13px] text-[length:var(--font-size-label)] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors placeholder:text-[var(--txt-3)]">
 		</div>
 
 		<div>
 			<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2.5">
-				<label for="np-desc" class="text-[13px] font-bold text-[var(--txt-2)] flex items-center gap-2">
+				<label for="np-desc" class="text-[length:var(--font-size-label)] font-bold text-[var(--txt-2)] flex items-center gap-2">
 					<span>وصف المشروع</span> <span class="ws-req" aria-hidden="true">*</span>
 					@if (isStreamingText) {
 					<span
-						class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[rgba(43,212,199,.15)] border border-[#2BD4C7] text-[#2BD4C7] text-[11px] font-black shadow-sm">
+						class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[rgba(43,212,199,.15)] border border-[#2BD4C7] text-[#2BD4C7] text-[length:var(--font-size-small)] font-black shadow-sm">
 						<span class="w-2 h-2 rounded-full bg-[#2BD4C7] animate-ping"></span>
 						<span>بث حي مباشر من المستشار الذكي ...</span>
 						<span class="typing-cursor"></span>
@@ -32,7 +32,7 @@
 					<!-- ONE AI action: empty/short field -> generate from the title; a field with text -> improve it. -->
 					<button type="button" (click)="aiAssist()" data-testid="ai-assist-btn"
 						[disabled]="isStreamingText || isAiEnhancing || isAiSuggesting"
-						class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[12px] font-extrabold transition-all disabled:opacity-50 cursor-pointer"
+						class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[length:var(--font-size-small)] font-extrabold transition-all disabled:opacity-50 cursor-pointer"
 						[ngClass]="improveMode
 							? 'bg-[rgba(123,47,190,.15)] border border-[rgba(123,47,190,.35)] text-[#A56BE0] hover:bg-[rgba(123,47,190,.25)] shadow-[0_2px_8px_rgba(123,47,190,0.2)]'
 							: 'bg-gradient-to-r from-[rgba(43,212,199,.15)] to-[rgba(43,127,255,.15)] border border-[rgba(43,212,199,.4)] text-[#2BD4C7] hover:border-[#2BD4C7] shadow-[0_2px_8px_rgba(43,212,199,0.15)]'">
@@ -53,45 +53,45 @@
 				<textarea id="np-desc" aria-required="true" name="projectDesc" data-field="projectDesc" [value]="projectDesc" (input)="updateDesc($event)"
 					placeholder="اشرح بدقة ماذا يتضمن المشروع، المخرجات المستهدفة، ومراحل العمل لتعزيز نسبة الفوز..."
 					rows="8" [attr.maxlength]="descMax"
-					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] px-4 py-3.5 text-[14px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-all resize-y leading-[1.8] placeholder:text-[var(--txt-3)] custom-scrollbar"></textarea>
+					class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-[14px] px-4 py-3.5 text-[length:var(--font-size-label)] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-all resize-y leading-[1.8] placeholder:text-[var(--txt-3)] custom-scrollbar"></textarea>
 			</div>
 			@if (aiStreamError) {
-			<div class="flex items-center justify-between gap-3 text-[12px] mt-2 p-3 rounded-[10px] bg-[rgba(255,107,107,.10)] border border-[rgba(255,107,107,.30)]" role="alert" data-testid="ai-error">
+			<div class="flex items-center justify-between gap-3 text-[length:var(--font-size-small)] mt-2 p-3 rounded-[10px] bg-[rgba(255,107,107,.10)] border border-[rgba(255,107,107,.30)]" role="alert" data-testid="ai-error">
 				<span class="text-[#FF6B6B] font-bold">{{ aiStreamError }}@if (aiOriginalPreserved) { <span data-testid="ai-original-preserved"> نصّك الأصلي محفوظ كما كتبته.</span> }</span>
-				<button type="button" (click)="onRetryAi.emit()" [disabled]="isStreamingText" class="px-3 py-1.5 bg-[#2BD4C7] text-[#070D24] text-[12px] font-extrabold rounded-lg hover:opacity-90 disabled:opacity-50">إعادة المحاولة</button>
+				<button type="button" (click)="onRetryAi.emit()" [disabled]="isStreamingText" class="px-3 py-1.5 bg-[#2BD4C7] text-[#070D24] text-[length:var(--font-size-small)] font-extrabold rounded-lg hover:opacity-90 disabled:opacity-50">إعادة المحاولة</button>
 			</div>
 			}
 			@if (isStreamingText) {
 			<section class="mt-2 p-3 rounded-[12px] border border-[rgba(123,47,190,.35)] bg-[rgba(123,47,190,.08)]" data-testid="ai-live" aria-live="polite" aria-busy="true">
-				<div class="text-[12px] font-extrabold text-[#A56BE0] mb-1.5">جارٍ كتابة الاقتراح... لن يُدرج في حقل الوصف قبل أن تختاره.</div>
-				<div class="text-[13px] text-[var(--txt-2)] leading-[1.8] whitespace-pre-wrap max-h-[180px] overflow-auto" data-testid="ai-live-text">{{ aiStreamPreview }}</div>
+				<div class="text-[length:var(--font-size-small)] font-extrabold text-[#A56BE0] mb-1.5">جارٍ كتابة الاقتراح... لن يُدرج في حقل الوصف قبل أن تختاره.</div>
+				<div class="text-[length:var(--font-size-label)] text-[var(--txt-2)] leading-[1.8] whitespace-pre-wrap max-h-[180px] overflow-auto" data-testid="ai-live-text">{{ aiStreamPreview }}</div>
 			</section>
 			} @else if (aiSuggestions.length) {
 			<section class="mt-2 grid gap-2.5" data-testid="ai-suggestions" aria-label="الاقتراحات">
-				<div class="flex items-center justify-between text-[12px] font-extrabold text-[var(--txt-2)]">
+				<div class="flex items-center justify-between text-[length:var(--font-size-small)] font-extrabold text-[var(--txt-2)]">
 					<span>{{ aiSuggestions.length === 1 ? 'اقتراح جاهز للمراجعة' : aiSuggestions.length + ' اقتراحات جاهزة للمراجعة' }}</span>
-					<button type="button" (click)="onDismissSuggestions.emit()" class="text-[11px] font-bold text-[var(--txt-3)] hover:text-[var(--txt)]">إخفاء الاقتراحات</button>
+					<button type="button" (click)="onDismissSuggestions.emit()" class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] hover:text-[var(--txt)]">إخفاء الاقتراحات</button>
 				</div>
 				@for (s of aiSuggestions; track s.id; let i = $index) {
 				<article class="p-3 rounded-[12px] border bg-[var(--sec-bg)]" [ngClass]="aiAppliedId === s.id ? 'border-[#2BD4C7]' : 'border-[var(--sec-bd)]'" [attr.data-suggestion-id]="s.id">
-					<div class="flex items-center justify-between mb-1.5 text-[11px] font-bold">
+					<div class="flex items-center justify-between mb-1.5 text-[length:var(--font-size-small)] font-bold">
 						<span class="text-[#A56BE0]">اقتراح {{ i + 1 }}@if (s.label) { <span data-testid="ai-suggestion-label" class="mx-1 px-2 py-0.5 rounded-full bg-[rgba(123,47,190,.15)] text-[#A56BE0]">{{ s.label }}</span> }</span>
 						<span dir="ltr" data-testid="ai-suggestion-count" [ngClass]="s.length > descMax ? 'text-[#FF6B6B]' : 'text-[var(--txt-3)]'">{{ s.length }} / {{ descMax }}</span>
 					</div>
-					<div class="text-[13px] text-[var(--txt)] leading-[1.8] whitespace-pre-wrap max-h-[200px] overflow-auto" data-testid="ai-suggestion-text">{{ s.text }}</div>
-					@if (aiFromContext) { <p class="mt-1 text-[11px] text-[var(--txt-3)]" data-testid="ai-honesty-note">{{ honestyNote }}</p> }
-					@if (s.unmentioned?.length) { <p class="mt-1 text-[11px] font-bold text-[#E8A33D]" data-testid="ai-unmentioned">يتضمن تفاصيل غير مذكورة في بياناتك ({{ s.unmentioned!.join('، ') }}) — تأكد منها أو احذفها قبل الاعتماد.</p> }
-					@if (s.trimmed) { <p class="mt-1 text-[11px] text-[var(--txt-3)]">اختُصر الاقتراح عند آخر جملة كاملة ليلائم الحد.</p> }
+					<div class="text-[length:var(--font-size-label)] text-[var(--txt)] leading-[1.8] whitespace-pre-wrap max-h-[200px] overflow-auto" data-testid="ai-suggestion-text">{{ s.text }}</div>
+					@if (aiFromContext) { <p class="mt-1 text-[length:var(--font-size-small)] text-[var(--txt-3)]" data-testid="ai-honesty-note">{{ honestyNote }}</p> }
+					@if (s.unmentioned?.length) { <p class="mt-1 text-[length:var(--font-size-small)] font-bold text-[#E8A33D]" data-testid="ai-unmentioned">يتضمن تفاصيل غير مذكورة في بياناتك ({{ s.unmentioned!.join('، ') }}) — تأكد منها أو احذفها قبل الاعتماد.</p> }
+					@if (s.trimmed) { <p class="mt-1 text-[length:var(--font-size-small)] text-[var(--txt-3)]">اختُصر الاقتراح عند آخر جملة كاملة ليلائم الحد.</p> }
 					<div class="mt-2 flex items-center gap-2">
 						<button type="button" (click)="onUseSuggestion.emit(s.id)" [disabled]="s.length > descMax || !s.text.trim()" data-testid="ai-use-suggestion"
-							class="px-3 py-1.5 bg-[#2BD4C7] text-[#070D24] text-[12px] font-extrabold rounded-lg hover:opacity-90 disabled:opacity-50">استخدام هذا الاقتراح</button>
-						@if (aiAppliedId === s.id) { <span class="text-[11px] font-bold text-[#2BD4C7]">مستخدم حاليًا</span> }
+							class="px-3 py-1.5 bg-[#2BD4C7] text-[#070D24] text-[length:var(--font-size-small)] font-extrabold rounded-lg hover:opacity-90 disabled:opacity-50">استخدام هذا الاقتراح</button>
+						@if (aiAppliedId === s.id) { <span class="text-[length:var(--font-size-small)] font-bold text-[#2BD4C7]">مستخدم حاليًا</span> }
 					</div>
 				</article>
 				}
 			</section>
 			}
-			<div class="flex items-center justify-between text-[12px] mt-1.5 font-bold">
+			<div class="flex items-center justify-between text-[length:var(--font-size-small)] mt-1.5 font-bold">
 				<span class="text-[#2BD4C7]">{{ isStreamingText ? '💡 تظهر الصياغة أدناه أثناء كتابتها، ولا تدخل حقل الوصف إلا بعد أن تختارها.' : '✓ جاهز لكتابة أو تعديل تفاصيل العرض' }}</span>
 				<span class="text-[var(--txt-3)]">{{descCount}} / {{ descMax }}</span>
 			</div>
@@ -108,11 +108,11 @@
 		</svg>
 	</div>
 	<div class="flex-1">
-		<div class="text-[13px] font-extrabold text-[#A56BE0] tracking-wider mb-1">وسيط AI — إفصاح الذكاء
+		<div class="text-[length:var(--font-size-label)] font-extrabold text-[#A56BE0] tracking-wider mb-1">وسيط AI — إفصاح الذكاء
 			الاصطناعي والبث الحي</div>
-		<div class="text-[13px] text-[var(--txt-2)] leading-[1.6]">
+		<div class="text-[length:var(--font-size-label)] text-[var(--txt-2)] leading-[1.6]">
 			الذكاء الاصطناعي في منصة وسيط يتيح لك رؤية العرض أثناء صياغته كلمة بكلمة في الوقت الحقيقي <span
-				class="inline-flex bg-[rgba(43,212,199,.18)] border border-[rgba(43,212,199,.35)] rounded px-2 py-0.5 text-[11px] font-bold text-[#2BD4C7] mx-1">بث
+				class="inline-flex bg-[rgba(43,212,199,.18)] border border-[rgba(43,212,199,.35)] rounded px-2 py-0.5 text-[length:var(--font-size-small)] font-bold text-[#2BD4C7] mx-1">بث
 				مباشر فوري</span> مع احتفاظك التام بالقرار النهائي للتعديل والنشر.
 		</div>
 	</div>

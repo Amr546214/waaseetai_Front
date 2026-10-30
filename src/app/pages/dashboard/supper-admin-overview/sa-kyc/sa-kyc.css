@@ -33,7 +33,7 @@
 :host-context(.theme-light) .sk-title { color: #1E293B !important; }
 
 .sk-sub {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #6B7699;
   margin-top: 4px;
   line-height: 1.6;
@@ -65,7 +65,7 @@
   border: none;
   background: transparent;
   color: #6B7699;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -116,7 +116,7 @@
 }
 
 .sk-stat-lbl {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   color: #6B7699;
   margin-bottom: 8px;
@@ -139,7 +139,7 @@
 .sk-stat-cyan { color: #2BD4C7; }
 
 .sk-stat-sub {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   margin-top: 5px;
 }
@@ -163,7 +163,7 @@
   border: 1px solid rgba(255, 255, 255, .1);
   background: rgba(255, 255, 255, .04);
   color: #A8B2D1;
-  font-size: 12.5px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -210,7 +210,7 @@
   border: 1px solid rgba(255, 255, 255, .1);
   border-radius: 999px;
   padding: 8px 38px 8px 16px;
-  font-size: 12.5px;
+  font-size: var(--font-size-label);
   color: #fff;
   font-family: inherit;
 }
@@ -271,7 +271,7 @@
   gap: 12px;
   padding: 60px 20px;
   color: #6B7699;
-  font-size: 13px;
+  font-size: var(--font-size-label);
 }
 
 .sk-spinner {
@@ -320,7 +320,7 @@
 .sk-error-ico svg { width: 26px; height: 26px; }
 
 .sk-error-ttl {
-  font-size: 16px;
+  font-size: var(--font-size-body);
   font-weight: 800;
   color: #fff;
 }
@@ -331,7 +331,7 @@
 :host-context(.theme-light) .sk-error-ttl { color: #1E293B !important; }
 
 .sk-error-sub {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   max-width: 320px;
 }
@@ -344,7 +344,7 @@
   border-radius: 50px;
   color: #070D24;
   font-weight: 800;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   cursor: pointer;
   font-family: inherit;
 }
@@ -373,7 +373,7 @@
 .sk-empty-ico svg { width: 30px; height: 30px; color: #2BD4C7; }
 
 .sk-empty-ttl {
-  font-size: 17px;
+  font-size: var(--font-size-section);
   font-weight: 800;
   color: #fff;
   margin: 0 0 6px;
@@ -385,7 +385,7 @@
 :host-context(.theme-light) .sk-empty-ttl { color: #1E293B !important; }
 
 .sk-empty-txt {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #6B7699;
   max-width: 340px;
   margin: 0;
@@ -417,7 +417,7 @@
 }
 
 .sk-table th {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   text-align: right;
   padding: 12px 10px;
@@ -432,7 +432,7 @@
 :host-context(.theme-light) .sk-table th { color: #475569 !important; border-bottom-color: #E7EAF1 !important; }
 
 .sk-table td {
-  font-size: 12.5px;
+  font-size: var(--font-size-label);
   color: #A8B2D1;
   padding: 12px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, .05);
@@ -487,7 +487,7 @@
 
 /* ── Table cells ────────────────────────────────────────────────────── */
 .sk-cell-id {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   color: #6B7699;
   font-family: monospace;
@@ -496,7 +496,7 @@
 .sk-cell-user { display: flex; flex-direction: column; gap: 2px; }
 
 .sk-user-name {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   color: #fff;
 }
@@ -506,11 +506,11 @@
 :host-context(.light-theme) .sk-user-name,
 :host-context(.theme-light) .sk-user-name { color: #1E293B !important; }
 
-.sk-user-email { font-size: 11px; color: #6B7699; }
+.sk-user-email { font-size: var(--font-size-small); color: #6B7699; }
 
 .sk-type-pill {
   display: inline-block;
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   padding: 3px 9px;
   border-radius: 6px;
@@ -519,44 +519,44 @@
   border: 1px solid rgba(43, 127, 255, .2);
 }
 
-.sk-cell-doc { font-size: 12px; color: #A8B2D1; }
+.sk-cell-doc { font-size: var(--font-size-small); color: #A8B2D1; }
 
 :host-context(body.light-theme) .sk-cell-doc,
 :host-context(body.theme-light) .sk-cell-doc,
 :host-context(.light-theme) .sk-cell-doc,
 :host-context(.theme-light) .sk-cell-doc { color: #475569 !important; }
 
-.sk-cell-docs { font-size: 11px; color: #6B7699; }
+.sk-cell-docs { font-size: var(--font-size-small); color: #6B7699; }
 
 .sk-cell-bank { display: flex; flex-direction: column; gap: 2px; }
-.sk-bank-name { font-size: 12px; font-weight: 600; color: #fff; }
+.sk-bank-name { font-size: var(--font-size-small); font-weight: 600; color: #fff; }
 
 :host-context(body.light-theme) .sk-bank-name,
 :host-context(body.theme-light) .sk-bank-name,
 :host-context(.light-theme) .sk-bank-name,
 :host-context(.theme-light) .sk-bank-name { color: #1E293B !important; }
-.sk-bank-iban { font-size: 11px; color: #6B7699; letter-spacing: .5px; }
+.sk-bank-iban { font-size: var(--font-size-small); color: #6B7699; letter-spacing: .5px; }
 
 .sk-cell-date {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   white-space: nowrap;
   direction: ltr;
   text-align: right;
 }
 
-.sk-cell-wait { font-size: 12px; color: #6B7699; white-space: nowrap; }
+.sk-cell-wait { font-size: var(--font-size-small); color: #6B7699; white-space: nowrap; }
 .sk-wait-long { color: #FFB400; font-weight: 700; }
 
-.sk-yes { color: #0FA99A; font-weight: 700; font-size: 12px; }
-.sk-no { color: #6B7699; font-weight: 700; font-size: 12px; }
+.sk-yes { color: #0FA99A; font-weight: 700; font-size: var(--font-size-small); }
+.sk-no { color: #6B7699; font-weight: 700; font-size: var(--font-size-small); }
 
 /* ── Status badges ──────────────────────────────────────────────────── */
 .sk-st {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   padding: 4px 10px;
   border-radius: 999px;
@@ -592,7 +592,7 @@
   border: 1px solid rgba(255, 255, 255, .1);
   background: rgba(255, 255, 255, .04);
   color: #2BD4C7;
-  font-size: 11.5px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -628,7 +628,7 @@
   border: 1px solid rgba(255, 255, 255, .1);
   background: rgba(255, 255, 255, .04);
   color: #A8B2D1;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -723,7 +723,7 @@
 .sk-modal-hico svg { width: 18px; height: 18px; color: #2BD4C7; }
 
 .sk-modal-header h2 {
-  font-size: 16px;
+  font-size: var(--font-size-body);
   font-weight: 900;
   color: #fff;
   margin: 0;
@@ -735,7 +735,7 @@
 :host-context(.theme-light) .sk-modal-header h2 { color: #1E293B !important; }
 
 .sk-modal-header p {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #A8B2D1;
   margin: 3px 0 0;
   line-height: 1.5;
@@ -774,7 +774,7 @@
   gap: 12px;
   padding: 48px 20px;
   color: #6B7699;
-  font-size: 13px;
+  font-size: var(--font-size-label);
 }
 
 .sk-modal-error {
@@ -804,7 +804,7 @@
 
 .sk-detail-key {
   min-width: 110px;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   color: #6B7699;
   flex-shrink: 0;
@@ -816,7 +816,7 @@
 :host-context(.theme-light) .sk-detail-key { color: #475569 !important; }
 
 .sk-detail-val {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #fff;
   flex: 1;
 }
@@ -849,7 +849,7 @@
 /* ── Document links ─────────────────────────────────────────────────── */
 .sk-doc-link {
   display: inline-block;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #2BD4C7;
   text-decoration: none;
   font-weight: 600;
@@ -876,7 +876,7 @@
   padding: 11px 16px;
   border-radius: 11px;
   border: 1px solid transparent;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
@@ -923,7 +923,7 @@
 
 .sk-form-lbl {
   display: block;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   color: #A8B2D1;
   margin-bottom: 8px;
@@ -942,7 +942,7 @@
   border: 1px solid rgba(255, 255, 255, .1);
   border-radius: 10px;
   padding: 11px 14px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #fff;
   font-family: inherit;
   resize: vertical;
@@ -1079,7 +1079,7 @@
   .sk-table td:last-child { border-bottom: none; }
   .sk-table td::before {
     content: attr(data-label);
-    font-size: 11px;
+    font-size: var(--font-size-small);
     font-weight: 700;
     color: #6B7699;
     flex-shrink: 0;

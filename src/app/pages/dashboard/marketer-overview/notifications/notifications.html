@@ -3,7 +3,7 @@
   <div style="display:flex;align-items:center;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,180,0,.08),rgba(43,127,255,.05));border:1px solid rgba(255,180,0,.22);border-radius:14px;margin-bottom:18px;flex-wrap:wrap">
     <div style="width:46px;height:46px;border-radius:12px;background:rgba(155,139,122,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0" aria-hidden="true"><svg class="ws-star-svg" width="26" height="26" viewBox="0 0 100 100" fill="#9B8B7A"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg></div>
     <div style="flex:1;min-width:220px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><ws-marketer-level [summary]="summary()" /><span style="font-size:11px" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} دولار عمولات</span></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><ws-marketer-level [summary]="summary()" /><span style="font-size:var(--font-size-small)" class="txt-muted">· {{ summary()?.successfulReferrals || 0 }} إحالة ناجحة · {{ summary()?.totalCommissions || 0 }} دولار عمولات</span></div>
     </div>
   </div>
 
@@ -11,14 +11,14 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
     <div>
       <h2 style="font-size:22px;font-weight:900" class="txt-white">الإشعارات</h2>
-      <p style="font-size:13px" class="txt-muted">{{ unreadLabel() }}</p>
+      <p style="font-size:var(--font-size-label)" class="txt-muted">{{ unreadLabel() }}</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button type="button" data-testid="mark-all-read" [disabled]="unreadCount() === 0 || markingAll()" [style.opacity]="unreadCount() === 0 || markingAll() ? .5 : 1" (click)="markAllRead()" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
+      <button type="button" data-testid="mark-all-read" [disabled]="unreadCount() === 0 || markingAll()" [style.opacity]="unreadCount() === 0 || markingAll() ? .5 : 1" (click)="markAllRead()" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:var(--font-size-small);font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
         تعليم الكل كمقروء
       </button>
-      <a routerLink="/marketer-overview/ref-links" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
+      <a routerLink="/marketer-overview/ref-links" style="padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;font-size:var(--font-size-small);font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px" class="txt-slate">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-settings"></use></svg>
         تفضيلات
       </a>
@@ -38,12 +38,12 @@
     <div class="adm-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
   } @else if (hasError()) {
     <div class="adm-card" style="text-align:center;padding:40px 24px">
-      <div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل الإشعارات</div>
-      <button type="button" (click)="retry()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit">اعادة المحاولة</button>
+      <div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل الإشعارات</div>
+      <button type="button" (click)="retry()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;color:#070D24;font-weight:800;font-size:var(--font-size-label);cursor:pointer;font-family:inherit">اعادة المحاولة</button>
     </div>
   } @else {
     @for (group of groupedNotifications(); track group.date) {
-      <div style="font-size:11px;font-weight:800;letter-spacing:.06em;margin-bottom:10px;margin-top:18px" class="txt-muted">{{ group.date }}</div>
+      <div style="font-size:var(--font-size-small);font-weight:800;letter-spacing:.06em;margin-bottom:10px;margin-top:18px" class="txt-muted">{{ group.date }}</div>
       @for (nt of group.items; track nt.id) {
         <div class="state-card notif-row" [class.unread]="nt.isUnread" [style.border-inline-start]="'3px solid ' + (nt.filterGroup === 'finance' ? '#0FA99A' : nt.filterGroup === 'ai' ? '#7B2FBE' : '#2BD4C7')" (click)="onNotificationClick(nt)">
           <div style="display:flex;align-items:flex-start;gap:12px">
@@ -51,14 +51,14 @@
             <div style="flex:1;min-width:0">
               <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
                 @if (nt.isUnread) { <span class="notif-dot"></span> }
-                <span style="font-size:14px;font-weight:800" class="txt-white">{{ nt.title }}</span>
+                <span style="font-size:var(--font-size-label);font-weight:800" class="txt-white">{{ nt.title }}</span>
               </div>
-              <div style="font-size:12px" class="txt-muted">
+              <div style="font-size:var(--font-size-small)" class="txt-muted">
                 {{ nt.message }}
                 @if (nt.actionText && nt.target) { <span data-testid="nt-cta" style="color:#2BD4C7;font-weight:700"> {{ nt.actionText }} »</span> }
               </div>
             </div>
-            <span style="font-size:10px;white-space:nowrap" class="txt-muted">{{ nt.timeLabel }}</span>
+            <span style="font-size:var(--font-size-caption);white-space:nowrap" class="txt-muted">{{ nt.timeLabel }}</span>
           </div>
         </div>
       }

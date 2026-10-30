@@ -9,7 +9,7 @@
 .page-wrap{position:relative;z-index:2}
 
 /* BREADCRUMB */
-.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-3);padding:16px 0 0;flex-wrap:wrap}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:var(--font-size-small);color:var(--txt-3);padding:16px 0 0;flex-wrap:wrap}
 .breadcrumb a{color:var(--txt-3);text-decoration:none;transition:color .15s}
 .breadcrumb a:hover{color:var(--teal)}
 .breadcrumb-sep{opacity:.4}
@@ -21,7 +21,7 @@
 .cover-glow2{position:absolute;bottom:-60px;left:60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(43,127,255,.07),transparent 70%)}
 
 /* TYPE BADGE */
-.client-type-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);color:var(--teal)}
+.client-type-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:var(--font-size-small);font-weight:800;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);color:var(--teal)}
 
 /* IDENTITY */
 .profile-identity{background:var(--pg);padding:0 32px;border-inline:1px solid var(--border)}
@@ -30,12 +30,12 @@
 .identity-info{flex:1;padding-bottom:4px;min-width:200px}
 .identity-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .identity-name{font-size:22px;font-weight:900;color:var(--txt)}
-.verified-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);color:var(--teal)}
-.identity-title{font-size:13px;color:var(--txt-2)}
+.verified-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:var(--font-size-small);font-weight:800;background:rgba(43,212,199,.08);border:1px solid rgba(43,212,199,.2);color:var(--teal)}
+.identity-title{font-size:var(--font-size-label);color:var(--txt-2)}
 .identity-actions{padding-bottom:4px;display:flex;gap:8px;flex-shrink:0}
-.btn-primary-sm{padding:10px 22px;border-radius:999px;background:var(--grad);font-size:13px;font-weight:800;color:#070D24;border:none;cursor:pointer;transition:opacity .15s}
+.btn-primary-sm{padding:10px 22px;border-radius:999px;background:var(--grad);font-size:var(--font-size-label);font-weight:800;color:#070D24;border:none;cursor:pointer;transition:opacity .15s}
 .btn-primary-sm:hover{opacity:.9}
-.btn-ghost-sm{padding:10px 16px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--txt-2);background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+.btn-ghost-sm{padding:10px 16px;border-radius:999px;border:1px solid var(--border);font-size:var(--font-size-label);font-weight:700;color:var(--txt-2);background:transparent;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
 .btn-ghost-sm:hover{border-color:rgba(43,212,199,.3);color:var(--teal)}
 
 /* STATS BAR */
@@ -43,7 +43,7 @@
 .stat-cell{text-align:center;padding:15px;border-inline-start:1px solid var(--border)}
 .stat-cell:first-child{border-inline-start:none}
 .stat-n{font-size:20px;font-weight:900;color:var(--txt)}
-.stat-sub{font-size:10px;color:var(--txt-3);margin-top:3px}
+.stat-sub{font-size:var(--font-size-caption);color:var(--txt-3);margin-top:3px}
 /* 4 real counters instead of the design's 5 (two design cells have no data source) */
 .stats-bar-4{grid-template-columns:repeat(4,1fr)}
 
@@ -51,21 +51,21 @@
 .profile-layout{display:grid;grid-template-columns:1fr 280px;gap:0;border-inline:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:80px}
 .content-col{padding:24px 28px;border-inline-start:1px solid var(--border);display:flex;flex-direction:column;gap:20px}
 .section-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px}
-.section-title{font-size:13px;font-weight:800;color:var(--txt);margin-bottom:12px;display:flex;align-items:center;gap:8px;justify-content:space-between}
+.section-title{font-size:var(--font-size-label);font-weight:800;color:var(--txt);margin-bottom:12px;display:flex;align-items:center;gap:8px;justify-content:space-between}
 .section-title-left{display:flex;align-items:center;gap:8px}
 .section-ico{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
 /* REVIEWS */
 .rev-given{padding:14px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:12px;margin-bottom:10px}
 .rev-given-hd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.rev-given-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2B7FFF,#2BD4C7);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#070D24;flex-shrink:0}
-.rev-given-txt{font-size:12px;color:var(--txt-2);line-height:1.7}
+.rev-given-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2B7FFF,#2BD4C7);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-small);font-weight:900;color:#070D24;flex-shrink:0}
+.rev-given-txt{font-size:var(--font-size-small);color:var(--txt-2);line-height:1.7}
 
 /* SIDEBAR */
 .sidebar-col{padding:20px;display:flex;flex-direction:column;gap:14px}
 .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px}
-.sidebar-title{font-size:12px;font-weight:800;color:var(--txt);margin-bottom:12px;display:flex;align-items:center;gap:7px}
-.info-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+.sidebar-title{font-size:var(--font-size-small);font-weight:800;color:var(--txt);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.info-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:var(--font-size-small)}
 .info-row:last-child{border-bottom:none}
 .info-label{color:var(--txt-3)}
 .info-val{font-weight:700;color:var(--txt)}

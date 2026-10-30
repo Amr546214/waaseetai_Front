@@ -1,5 +1,5 @@
 <h1 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">مراجعة الطلب قبل النشر</h1>
-<p style="font-size:13px;margin-bottom:22px;line-height:1.6" class="txt-muted">تحقق من جميع التفاصيل قبل نشر طلبك للمزودين</p>
+<p style="font-size:var(--font-size-label);margin-bottom:22px;line-height:1.6" class="txt-muted">تحقق من جميع التفاصيل قبل نشر طلبك للمزودين</p>
 
 <!-- Note (non-AI) -->
 <div class="ws-note ws-note--neutral" role="note">
@@ -182,7 +182,7 @@
 <!-- STICKY BOTTOM -->
 <div class="sticky-bottom" style="right:0;">
   @if (parent.publishCandidates(); as found) {
-    <div role="alert" data-testid="publish-candidates" class="text-[13px] leading-[1.8] px-4 py-3 text-center" style="color:#ffd27a">
+    <div role="alert" data-testid="publish-candidates" class="text-[length:var(--font-size-label)] leading-[1.8] px-4 py-3 text-center" style="color:#ffd27a">
       <p class="m-0">محاولة النشر السابقة لم نعرف نتيجتها، ووجدنا طلبات أُنشئت بعدها. افتح الطلب وراجعه أولًا؛ لا ننشئ طلبًا جديدًا قبل أن تقرر.</p>
       <ul class="list-none p-0 my-2">
         @for (r of found; track r.id) { <li class="my-1"><span>{{ r.title }}</span> <button type="button" class="font-bold underline bg-transparent border-0 cursor-pointer text-inherit" data-testid="publish-candidate-open" (click)="parent.openPublishCandidate(r.id)">فتح</button></li> }
@@ -190,11 +190,11 @@
       <button type="button" class="font-semibold underline bg-transparent border-0 cursor-pointer text-inherit" data-testid="publish-anyway" (click)="parent.publishAnyway()">ليس أيٌّ منها طلبي، انشر طلبًا جديدًا</button>
     </div>
   }
-  @if (parent.publishError()) { <p role="alert" class="text-[13px] leading-[1.7] text-[#ff8a8a] m-0 px-4 py-2 text-center" data-testid="publish-error">{{ parent.publishError() }}</p> }
+  @if (parent.publishError()) { <p role="alert" class="text-[length:var(--font-size-label)] leading-[1.7] text-[#ff8a8a] m-0 px-4 py-2 text-center" data-testid="publish-error">{{ parent.publishError() }}</p> }
   <div class="sticky-inner max-w-6xl mx-auto px-4 lg:px-6 flex items-center justify-between gap-4 flex-row-reverse" style="margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-direction:row-reverse;">
 	<div class="flex items-center gap-4">
 		<button type="button"
-			class="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[#070d24] text-[15px] font-black cursor-pointer transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not(:disabled):-translate-y-0.5 shadow-[0_4px_18px_rgba(43,212,199,0.35)] hover:not(:disabled):shadow-[0_6px_22px_rgba(43,212,199,0.5)]"
+			class="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-[#070d24] text-[length:var(--font-size-body)] font-black cursor-pointer transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:not(:disabled):-translate-y-0.5 shadow-[0_4px_18px_rgba(43,212,199,0.35)] hover:not(:disabled):shadow-[0_6px_22px_rgba(43,212,199,0.5)]"
 			style="background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%);"
 			[disabled]="parent.isSubmitting()" data-testid="wizard-publish" (click)="openModal()">
 			@if (parent.isSubmitting()) {
@@ -210,7 +210,7 @@
 	</div>
 	<div>
 		<button type="button"
-			class="step6-back-btn inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#111936] border border-[#1e2952] text-[#8a99c4] hover:text-white hover:bg-[#182348] text-[14px] font-bold transition-all cursor-pointer shadow-sm"
+			class="step6-back-btn inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#111936] border border-[#1e2952] text-[#8a99c4] hover:text-white hover:bg-[#182348] text-[length:var(--font-size-label)] font-bold transition-all cursor-pointer shadow-sm"
 			(click)="parent.goBack()">
 			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 				<polyline points="9 18 15 12 9 6" />

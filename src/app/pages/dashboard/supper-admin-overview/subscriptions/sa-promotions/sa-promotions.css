@@ -2,45 +2,45 @@
 
 .page-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 12px; flex-wrap: wrap; }
 .page-ttl { font-size: 20px; font-weight: 900; color: #fff; margin: 0 0 3px; }
-.page-sub { font-size: 12px; color: #6B7699; margin: 0; }
+.page-sub { font-size: var(--font-size-small); color: #6B7699; margin: 0; }
 .hdr-actions { display: flex; gap: 8px; }
 
-.btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; height: 34px; border-radius: 9px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .15s; border: 1px solid transparent; white-space: nowrap; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; height: 34px; border-radius: 9px; font-size: var(--font-size-small); font-weight: 700; font-family: inherit; cursor: pointer; transition: all .15s; border: 1px solid transparent; white-space: nowrap; }
 .btn-ghost { background: rgba(255, 255, 255, .05); border-color: rgba(255, 255, 255, .10); color: #A8B2D1; }
 .btn-ghost:hover { background: rgba(255, 255, 255, .10); color: #fff; }
 .btn-primary { background: linear-gradient(135deg, #2BD4C7, #2B7FFF); color: #070D24; }
 
 .ai-disc { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: linear-gradient(135deg, rgba(123, 47, 190, .09), rgba(43, 127, 255, .06)); border: 1px solid rgba(123, 47, 190, .22); border-radius: 14px; margin-bottom: 18px; }
 .ai-disc-ico { width: 30px; height: 30px; border-radius: 8px; background: rgba(123, 47, 190, .16); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color:var(--ai); }
-.ai-disc-lbl { font-size: 10px; font-weight: 800; color: #A56BE0; letter-spacing: .06em; margin-bottom: 2px; }
-.ai-disc-txt { font-size: 13px; color: #A8B2D1; margin: 0; }
-.ai-disc-bdg { background: rgba(123, 47, 190, .16); border: 1px solid rgba(123, 47, 190, .28); border-radius: 4px; padding: 1px 7px; font-size: 10px; font-weight: 700; color: #A56BE0; margin-inline-start: 4px; }
+.ai-disc-lbl { font-size: var(--font-size-caption); font-weight: 800; color: #A56BE0; letter-spacing: .06em; margin-bottom: 2px; }
+.ai-disc-txt { font-size: var(--font-size-label); color: #A8B2D1; margin: 0; }
+.ai-disc-bdg { background: rgba(123, 47, 190, .16); border: 1px solid rgba(123, 47, 190, .28); border-radius: 4px; padding: 1px 7px; font-size: var(--font-size-caption); font-weight: 700; color: #A56BE0; margin-inline-start: 4px; }
 
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
 .kpi-card { background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)); border: 1px solid rgba(255, 255, 255, .08); border-radius: 14px; padding: 16px 18px; }
 .kpi-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .kpi-ic { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.kpi-lbl { font-size: 11px; color: #6B7699; font-weight: 600; }
+.kpi-lbl { font-size: var(--font-size-small); color: #6B7699; font-weight: 600; }
 .kpi-val { font-size: 26px; font-weight: 900; line-height: 1; }
-.kpi-unit { font-size: 11px; color: #6B7699; margin-top: 2px; }
-.kpi-sub { font-size: 11px; font-weight: 700; margin-top: 5px; }
+.kpi-unit { font-size: var(--font-size-small); color: #6B7699; margin-top: 2px; }
+.kpi-sub { font-size: var(--font-size-small); font-weight: 700; margin-top: 5px; }
 
 .svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .svc-card { background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)); border: 1px solid rgba(255, 255, 255, .08); border-radius: 14px; padding: 18px 20px; }
-.svc-name { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
-.svc-desc { font-size: 12px; color: #6B7699; margin-bottom: 12px; line-height: 1.5; }
+.svc-name { font-size: var(--font-size-body); font-weight: 800; margin-bottom: 6px; }
+.svc-desc { font-size: var(--font-size-small); color: #6B7699; margin-bottom: 12px; line-height: 1.5; }
 .svc-price { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
-.svc-period { font-size: 12px; color: #6B7699; font-weight: 700; }
+.svc-period { font-size: var(--font-size-small); color: #6B7699; font-weight: 700; }
 .svc-stats { display: flex; gap: 16px; margin-bottom: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .06); }
 .svc-stat { display: flex; flex-direction: column; gap: 2px; }
-.svc-stat-val { font-size: 16px; font-weight: 800; }
-.svc-stat-lbl { font-size: 10px; color: #6B7699; }
+.svc-stat-val { font-size: var(--font-size-body); font-weight: 800; }
+.svc-stat-lbl { font-size: var(--font-size-caption); color: #6B7699; }
 .svc-actions { display: flex; gap: 8px; }
-.svc-btn { flex: 1; padding: 7px 0; border-radius: 8px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .15s; border: 1px solid rgba(255, 255, 255, .1); background: rgba(255, 255, 255, .05); color: #A8B2D1; text-align: center; }
+.svc-btn { flex: 1; padding: 7px 0; border-radius: 8px; font-size: var(--font-size-small); font-weight: 700; font-family: inherit; cursor: pointer; transition: all .15s; border: 1px solid rgba(255, 255, 255, .1); background: rgba(255, 255, 255, .05); color: #A8B2D1; text-align: center; }
 .svc-btn:hover { background: rgba(255, 255, 255, .1); }
 .svc-btn.primary { background: linear-gradient(135deg, rgba(43, 212, 199, .2), rgba(43, 127, 255, .2)); border-color: rgba(43, 212, 199, .3); color: #2BD4C7; }
 
-.inner-foot { margin-top: 20px; padding: 10px 0; display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: #6B7699; border-top: 1px solid rgba(255, 255, 255, .05); flex-wrap: wrap; gap: 6px; }
+.inner-foot { margin-top: 20px; padding: 10px 0; display: flex; align-items: center; justify-content: space-between; font-size: var(--font-size-caption); color: #6B7699; border-top: 1px solid rgba(255, 255, 255, .05); flex-wrap: wrap; gap: 6px; }
 
 @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } .svc-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 767px) { .svc-grid { grid-template-columns: 1fr; } .page-hdr { flex-direction: column; align-items: flex-start; } }

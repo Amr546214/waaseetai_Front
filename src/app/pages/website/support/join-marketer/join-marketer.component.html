@@ -16,7 +16,7 @@
 
 <div class="container">
   <div class="join-hero">
-    <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(217,138,11,.08);border:1px solid rgba(217,138,11,.25);border-radius:999px;font-size:10px;font-weight:800;color:var(--kahr);letter-spacing:.06em;margin-bottom:14px">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(217,138,11,.08);border:1px solid rgba(217,138,11,.25);border-radius:999px;font-size:var(--font-size-caption);font-weight:800;color:var(--kahr);letter-spacing:.06em;margin-bottom:14px">
       <span style="width:28px;height:28px;border-radius:8px;background:rgba(217,138,11,.1);border:1px solid rgba(217,138,11,.2);display:inline-flex;align-items:center;justify-content:center"><svg aria-hidden="true" style="width:13px;height:13px;color:var(--kahr)"><use href="#ws-broker"></use></svg></span>
       الوسيط التسويقي
     </div>
@@ -27,25 +27,25 @@
   <!-- COMMISSION BANNER -->
   <div class="comm-banner">
     <div>
-      <div style="font-size:11px;font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:4px">عمولتك</div>
+      <div style="font-size:var(--font-size-small);font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:4px">عمولتك</div>
       <div class="comm-big">{{ commissionRange() }}</div>
-      <div style="font-size:11px;color:var(--txt-3);margin-top:4px">من قيمة كل بيع</div>
+      <div style="font-size:var(--font-size-small);color:var(--txt-3);margin-top:4px">من قيمة كل بيع</div>
     </div>
     <div style="flex:1">
       <div class="comm-desc"><strong>لا سقف للأرباح</strong> — كلما ارتفع مستواك ارتفعت نسبتك. الوسطاء في المستوى الأعلى يكسبون النسبة الأعلى في الجدول. ليس لديك قيود على الفئات أو عدد الخدمات التي تروّج لها.</div>
     </div>
     <div style="background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:12px;padding:16px;text-align:center;min-width:130px">
-      <div style="font-size:11px;color:var(--txt-3);margin-bottom:2px">مثال</div>
+      <div style="font-size:var(--font-size-small);color:var(--txt-3);margin-bottom:2px">مثال</div>
       @if (example(); as ex) {
-      <div style="font-size:18px;font-weight:900;color:var(--teal)">+{{ ex.amount }} ر</div>
-      <div style="font-size:10px;color:var(--txt-3)">عمولة {{ ex.percent }}٪ على خدمة 5000 ر</div>
+      <div style="font-size:var(--font-size-section);font-weight:900;color:var(--teal)">+{{ ex.amount }} ر</div>
+      <div style="font-size:var(--font-size-caption);color:var(--txt-3)">عمولة {{ ex.percent }}٪ على خدمة 5000 ر</div>
       }
     </div>
   </div>
 
   <!-- HOW IT WORKS -->
   <div style="margin:36px 0">
-    <div style="font-size:16px;font-weight:900;color:var(--txt);margin-bottom:16px">كيف تعمل؟</div>
+    <div style="font-size:var(--font-size-body);font-weight:900;color:var(--txt);margin-bottom:16px">كيف تعمل؟</div>
     <div class="how-grid">
       <div class="how-card">
         <div class="how-num-bg">01</div>
@@ -84,7 +84,7 @@
   </div>
 
   <!-- TIERS -->
-  <div style="font-size:16px;font-weight:900;color:var(--txt);margin-bottom:16px;text-align:center">مستويات الوسيط</div>
+  <div style="font-size:var(--font-size-body);font-weight:900;color:var(--txt);margin-bottom:16px;text-align:center">مستويات الوسيط</div>
   <div class="tiers-grid">
     @for (t of tiers(); track t.name) {
       <div class="tier-card" [class.featured]="t.featured">
@@ -102,7 +102,7 @@
   </div>
 
   <!-- FAQ -->
-  <div style="font-size:16px;font-weight:900;color:var(--txt);margin:36px 0 14px;text-align:center">أسئلة شائعة</div>
+  <div style="font-size:var(--font-size-body);font-weight:900;color:var(--txt);margin:36px 0 14px;text-align:center">أسئلة شائعة</div>
   <div class="faq-list">
     @for (f of faqs; track f.q; let i = $index) {
       <div class="faq-item" [class.open]="isOpen(i)">

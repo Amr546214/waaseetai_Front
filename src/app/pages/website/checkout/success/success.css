@@ -12,38 +12,38 @@
 .success-icon-inner{width:56px;height:56px;border-radius:50%;background:rgba(43,212,199,.2);display:flex;align-items:center;justify-content:center}
 .success-icon-inner svg{width:26px;height:26px;color:var(--teal)}
 .success-title{font-size:26px;font-weight:900;color:var(--txt);margin-bottom:8px;animation:fade-up .4s .2s both}
-.success-sub{font-size:14px;color:var(--txt-2);line-height:1.7;margin-bottom:28px;animation:fade-up .4s .3s both}
+.success-sub{font-size:var(--font-size-label);color:var(--txt-2);line-height:1.7;margin-bottom:28px;animation:fade-up .4s .3s both}
 
 /* ORDER NUMBER */
 .order-num-card{background:linear-gradient(135deg,rgba(43,212,199,.08),rgba(43,127,255,.04));border:1px solid rgba(43,212,199,.25);border-radius:16px;padding:20px 24px;margin-bottom:24px;animation:fade-up .4s .35s both}
-.order-num-label{font-size:11px;font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:6px}
+.order-num-label{font-size:var(--font-size-small);font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:6px}
 .order-num-val{font-size:22px;font-weight:900;color:var(--txt);letter-spacing:.08em;direction:ltr}
-.order-num-sub{font-size:11px;color:var(--txt-3);margin-top:4px}
+.order-num-sub{font-size:var(--font-size-small);color:var(--txt-3);margin-top:4px}
 
 /* SUMMARY CARD */
 .summary-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;animation:fade-up .4s .4s both;text-align:right}
-.summary-card-title{font-size:13px;font-weight:900;color:var(--txt);padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.summary-card-title{font-size:var(--font-size-label);font-weight:900;color:var(--txt);padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
 .s-ico{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .s-ico svg{width:12px;height:12px}
 .sum-rows{padding:14px 16px;display:flex;flex-direction:column;gap:9px}
-.sum-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--txt-2)}
+.sum-row{display:flex;align-items:center;justify-content:space-between;font-size:var(--font-size-label);color:var(--txt-2)}
 .sum-row-label{color:var(--txt-3)}
 .sum-row.total{padding-top:10px;border-top:1px solid var(--border)}
-.sum-row.total .sum-row-label{color:var(--txt);font-weight:800;font-size:14px}
-.sum-row.total .sum-row-val{color:var(--txt);font-weight:900;font-size:17px}
+.sum-row.total .sum-row-label{color:var(--txt);font-weight:800;font-size:var(--font-size-label)}
+.sum-row.total .sum-row-val{color:var(--txt);font-weight:900;font-size:var(--font-size-section)}
 
 /* WHAT NEXT */
 .next-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;animation:fade-up .4s .45s both}
 .next-step-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
-.next-step-num{width:28px;height:28px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#070D24;margin:0 auto 10px}
-.next-step-title{font-size:12px;font-weight:800;color:var(--txt);margin-bottom:4px}
-.next-step-sub{font-size:10px;color:var(--txt-3);line-height:1.6}
+.next-step-num{width:28px;height:28px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:var(--font-size-small);font-weight:900;color:#070D24;margin:0 auto 10px}
+.next-step-title{font-size:var(--font-size-small);font-weight:800;color:var(--txt);margin-bottom:4px}
+.next-step-sub{font-size:var(--font-size-caption);color:var(--txt-3);line-height:1.6}
 
 /* ACTIONS */
 .actions-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fade-up .4s .5s both}
-.btn-primary{padding:12px 28px;border-radius:999px;background:var(--grad);font-size:14px;font-weight:900;color:#070D24;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:opacity .15s}
+.btn-primary{padding:12px 28px;border-radius:999px;background:var(--grad);font-size:var(--font-size-label);font-weight:900;color:#070D24;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:opacity .15s}
 .btn-primary:hover{opacity:.88}
-.btn-ghost{padding:12px 28px;border-radius:999px;border:1px solid var(--border);font-size:14px;font-weight:700;color:var(--txt-2);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+.btn-ghost{padding:12px 28px;border-radius:999px;border:1px solid var(--border);font-size:var(--font-size-label);font-weight:700;color:var(--txt-2);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
 .btn-ghost:hover{border-color:rgba(43,212,199,.35);color:var(--teal)}
 .btn-primary svg,.btn-ghost svg{width:15px;height:15px}
 
@@ -53,7 +53,7 @@
 
 /* ── App states the design does not draw ── */
 /* non-AI tracking note in the AI-note slot: teal, not AI purple */
-.track-note{margin-bottom:24px;text-align:right;animation:fade-up .4s .42s both;font-size:12px;line-height:1.5}
+.track-note{margin-bottom:24px;text-align:right;animation:fade-up .4s .42s both;font-size:var(--font-size-small);line-height:1.5}
 /* loading / no-order hero ring: neutral instead of success teal */
 .state-ring{background:rgba(255,255,255,.04);border-color:var(--border)}
 .state-ring .success-icon-inner{background:rgba(255,255,255,.05)}

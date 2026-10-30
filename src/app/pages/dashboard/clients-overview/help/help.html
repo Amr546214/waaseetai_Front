@@ -36,20 +36,20 @@
 				</svg>
 			</div>
 			<div>
-				<div class="help-hero-ttl text-[17px] font-black text-[var(--txt,#fff)]">كيف يمكنني مساعدتك؟</div>
-				<div class="text-[12.5px] text-[var(--ai-txt,#A56BE0)] mt-0.5">اختر موضوعًا ويعرض لك بيبو رد مختصرًا من مركز المساعدة</div>
+				<div class="help-hero-ttl text-[length:var(--font-size-section)] font-black text-[var(--txt,#fff)]">كيف يمكنني مساعدتك؟</div>
+				<div class="text-[length:var(--font-size-label)] text-[var(--ai-txt,#A56BE0)] mt-0.5">اختر موضوعًا ويعرض لك بيبو رد مختصرًا من مركز المساعدة</div>
 			</div>
 		</div>
 
-		<div class="help-search flex items-center gap-2.5 flex-wrap" data-testid="help-guided-hero"><span class="text-[13px] text-[var(--txt-2,#A8B2D1)] flex-1 min-w-[200px]">اختر موضوعًا ويعرض لك بيبو رد مختصرًا من مركز المساعدة.</span><button type="button" class="px-[22px] py-[11px] bg-gradient-to-br from-[#7B2FBE] to-[#A56BE0] border-none rounded-[9px] text-white text-[13px] font-extrabold cursor-pointer font-inherit whitespace-nowrap transition-opacity hover:opacity-90" data-testid="ask-assistant-btn" (click)="openAssistant()">اسأل المساعد</button></div>
+		<div class="help-search flex items-center gap-2.5 flex-wrap" data-testid="help-guided-hero"><span class="text-[length:var(--font-size-label)] text-[var(--txt-2,#A8B2D1)] flex-1 min-w-[200px]">اختر موضوعًا ويعرض لك بيبو رد مختصرًا من مركز المساعدة.</span><button type="button" class="px-[22px] py-[11px] bg-gradient-to-br from-[#7B2FBE] to-[#A56BE0] border-none rounded-[9px] text-white text-[length:var(--font-size-label)] font-extrabold cursor-pointer font-inherit whitespace-nowrap transition-opacity hover:opacity-90" data-testid="ask-assistant-btn" (click)="openAssistant()">اسأل المساعد</button></div>
 
-		<div class="flex flex-wrap gap-2 mt-3" data-testid="help-chips">@for (c of choices; track c.id) {<button type="button" class="help-sg px-[13px] py-1.5 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.10)] rounded-[20px] text-[12px] font-semibold text-[var(--txt-2,#A8B2D1)] hover:bg-[rgba(123,47,190,.12)] hover:border-[rgba(123,47,190,.26)] hover:text-[#A56BE0] transition-all" data-testid="help-chip" [attr.data-id]="c.id" (click)="askGuided(c.id)">{{ c.question }}</button>}</div>
+		<div class="flex flex-wrap gap-2 mt-3" data-testid="help-chips">@for (c of choices; track c.id) {<button type="button" class="help-sg px-[13px] py-1.5 bg-[rgba(255,255,255,.05)] border border-[rgba(255,255,255,.10)] rounded-[20px] text-[length:var(--font-size-small)] font-semibold text-[var(--txt-2,#A8B2D1)] hover:bg-[rgba(123,47,190,.12)] hover:border-[rgba(123,47,190,.26)] hover:text-[#A56BE0] transition-all" data-testid="help-chip" [attr.data-id]="c.id" (click)="askGuided(c.id)">{{ c.question }}</button>}</div>
 
 		
 	</section>
 
 	<!-- Topics -->
-	<div class="text-[13px] font-extrabold text-[var(--txt-2)] mt-2 mb-2.5 flex items-center gap-2">
+	<div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-2)] mt-2 mb-2.5 flex items-center gap-2">
 		<svg class="w-[15px] h-[15px] text-[var(--teal-txt,#2BD4C7)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 			stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 			<circle cx="12" cy="12" r="10" />
@@ -73,8 +73,8 @@
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="qcat-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">الطلبات والعروض</div>
-				<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-normal">إنشاء الطلب، استقبال العروض، اختيار المقدّم</div>
+				<div class="qcat-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-[3px]">الطلبات والعروض</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-normal">إنشاء الطلب، استقبال العروض، اختيار المقدّم</div>
 			</div>
 			<span class="text-[var(--txt-3,#4A5568)] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
 					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -93,8 +93,8 @@
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="qcat-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">العقود والضمان</div>
-				<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-normal">توقيع العقد، تمويل الضمان، الإفراج عن المبالغ
+				<div class="qcat-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-[3px]">العقود والضمان</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-normal">توقيع العقد، تمويل الضمان، الإفراج عن المبالغ
 				</div>
 			</div>
 			<span class="text-[var(--txt-3,#4A5568)] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
@@ -113,8 +113,8 @@
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="qcat-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">المدفوعات والمحفظة</div>
-				<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-normal">الإيداع، تسويات الرصيد، الكاش باك، الفواتير</div>
+				<div class="qcat-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-[3px]">المدفوعات والمحفظة</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-normal">الإيداع، تسويات الرصيد، الكاش باك، الفواتير</div>
 			</div>
 			<span class="text-[var(--txt-3,#4A5568)] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
 					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -133,8 +133,8 @@
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="qcat-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">النزاعات والشكاوى</div>
-				<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-normal">فتح نزاع، الأدلة، قرار الفريق المختص</div>
+				<div class="qcat-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-[3px]">النزاعات والشكاوى</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-normal">فتح نزاع، الأدلة، قرار الفريق المختص</div>
 			</div>
 			<span class="text-[var(--txt-3,#4A5568)] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
 					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -151,8 +151,8 @@
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="qcat-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">الحساب والأمان</div>
-				<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-normal">التحقق بخطوتين، الأجهزة، الخصوصية والبيانات</div>
+				<div class="qcat-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-[3px]">الحساب والأمان</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-normal">التحقق بخطوتين، الأجهزة، الخصوصية والبيانات</div>
 			</div>
 			<span class="text-[var(--txt-3,#4A5568)] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
 					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -170,8 +170,8 @@
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="qcat-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">تعديل بياناتي</div>
-				<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-normal">المسار المحكوم لتعديل البريد والجوال والملف</div>
+				<div class="qcat-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-[3px]">تعديل بياناتي</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-normal">المسار المحكوم لتعديل البريد والجوال والملف</div>
 			</div>
 			<span class="text-[var(--txt-3,#4A5568)] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
 					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -183,7 +183,7 @@
 	</div>
 
 	<!-- Support Tickets -->
-	<div class="text-[13px] font-extrabold text-[var(--txt-2)] mt-2 mb-2.5 flex items-center gap-2">
+	<div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-2)] mt-2 mb-2.5 flex items-center gap-2">
 		<svg class="w-[15px] h-[15px] text-[var(--teal-txt,#2BD4C7)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 			stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
 			<polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
@@ -191,7 +191,7 @@
 				d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
 		</svg>
 		تذاكر الدعم
-		<a routerLink="/client-overview/help/tickets" class="mr-auto text-[12px] font-bold text-[var(--teal-txt,#2BD4C7)] no-underline">عرض الكل</a>
+		<a routerLink="/client-overview/help/tickets" class="mr-auto text-[length:var(--font-size-small)] font-bold text-[var(--teal-txt,#2BD4C7)] no-underline">عرض الكل</a>
 	</div>
 	<div class="mb-5">
 
@@ -207,8 +207,8 @@
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="tk-ttl text-[13.5px] font-extrabold text-[var(--txt,#fff)] mb-[3px]">تصفّح تذاكر الدعم الخاصة بك</div>
-				<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-normal">عرض التذاكر المفتوحة والسابقة ومتابعة ردود فريق الدعم</div>
+				<div class="tk-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-[3px]">تصفّح تذاكر الدعم الخاصة بك</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-normal">عرض التذاكر المفتوحة والسابقة ومتابعة ردود فريق الدعم</div>
 			</div>
 			<span class="text-[var(--txt-3,#4A5568)] shrink-0 mt-0.5"><svg class="w-[15px] h-[15px] -scale-x-100" viewBox="0 0 24 24"
 					fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -220,7 +220,7 @@
 	</div>
 
 	<!-- FAQs -->
-	<div class="text-[13px] font-extrabold text-[var(--txt-2)] mt-2 mb-2.5 flex items-center gap-2">
+	<div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-2)] mt-2 mb-2.5 flex items-center gap-2">
 		<svg class="w-[15px] h-[15px] text-[var(--teal-txt,#2BD4C7)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 			stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 			<circle cx="12" cy="12" r="10" />
@@ -240,7 +240,7 @@
 				</svg>
 			</button>
 			<div class="faq-a">
-				<div class="faq-a-inner text-[12.5px] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">يُحتجز المبلغ في حساب
+				<div class="faq-a-inner text-[length:var(--font-size-label)] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">يُحتجز المبلغ في حساب
 					ضمان فور توقيع العقد، ولا يصل إلى مقدّم الخدمة إلا بعد قبولك للتسليم. إن لم يكتمل العمل تستردّ
 					مبلغك وفق شروط العقد ومراجعة الفريق المختص</div>
 			</div>
@@ -255,7 +255,7 @@
 				</svg>
 			</button>
 			<div class="faq-a">
-				<div class="faq-a-inner text-[12.5px] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">تُعرض العروض
+				<div class="faq-a-inner text-[length:var(--font-size-label)] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">تُعرض العروض
 					من الأحدث إلى الأقدم، ويظهر بجانب كل عرض «تقييم العرض» عند توفره (تقييم AI لجودة نص العرض مع قرب السعر
 					من ميزانيتك)، ويبقى اختيار العرض قرارك أنت في كل الأحوال</div>
 			</div>
@@ -270,7 +270,7 @@
 				</svg>
 			</button>
 			<div class="faq-a">
-				<div class="faq-a-inner text-[12.5px] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">تظهر تسوية الرصيد في
+				<div class="faq-a-inner text-[length:var(--font-size-label)] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">تظهر تسوية الرصيد في
 					محفظتك خلال مدة العقد المتّفق عليها بعد اعتماد الإلغاء، ثم يمكنك استخدام الرصيد في طلب جديد. تظهر كل
 					الحركات في سجلّ محفظتك</div>
 			</div>
@@ -285,7 +285,7 @@
 				</svg>
 			</button>
 			<div class="faq-a">
-				<div class="faq-a-inner text-[12.5px] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">افتح نزاعًا من صفحة
+				<div class="faq-a-inner text-[length:var(--font-size-label)] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">افتح نزاعًا من صفحة
 					النزاعات وأرفق الأدلة. يبقى المبلغ محتجزًا في الضمان حتى يصدر الفريق المختص قراره بعد مراجعة الطرفين
 					والأدلة</div>
 			</div>
@@ -300,7 +300,7 @@
 				</svg>
 			</button>
 			<div class="faq-a">
-				<div class="faq-a-inner text-[12.5px] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">البيانات الحسّاسة
+				<div class="faq-a-inner text-[length:var(--font-size-label)] text-[var(--txt-2,#A8B2D1)] leading-[1.7] px-[18px] pb-4">البيانات الحسّاسة
 					كالبريد والجوال وكلمة المرور تُعدّل عبر مسار محكوم من صفحة طلبات تعديل الملف، ليراجعها الفريق المختص
 					قبل تطبيقها حفاظًا على أمان حسابك</div>
 			</div>
@@ -309,7 +309,7 @@
 	</div>
 
 	<!-- Contact Us -->
-	<div class="text-[13px] font-extrabold text-[var(--txt-2)] mt-2 mb-2.5 flex items-center gap-2">
+	<div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-2)] mt-2 mb-2.5 flex items-center gap-2">
 		<svg class="w-[15px] h-[15px] text-[var(--teal-txt,#2BD4C7)]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 			stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 			<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -333,8 +333,8 @@
 						d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5" />
 				</svg>
 			</div>
-			<div class="chan-ttl text-[14px] font-extrabold text-[var(--txt,#fff)] mb-1">المساعد الذكي</div>
-			<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-[1.55]">اختيارات جاهزة وإجابات من مركز المساعدة</div>
+			<div class="chan-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-1">المساعد الذكي</div>
+			<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-[1.55]">اختيارات جاهزة وإجابات من مركز المساعدة</div>
 		</a>
 
 		<a routerLink="/client-overview/help/tickets" class="chan">
@@ -344,8 +344,8 @@
 					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 				</svg>
 			</div>
-			<div class="chan-ttl text-[14px] font-extrabold text-[var(--txt,#fff)] mb-1">تذاكري</div>
-			<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-[1.55]">متابعة ردود فريق الدعم على تذاكرك وحالاتها</div>
+			<div class="chan-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-1">تذاكري</div>
+			<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-[1.55]">متابعة ردود فريق الدعم على تذاكرك وحالاتها</div>
 		</a>
 
 		<a routerLink="/client-overview/help/tickets/new" class="chan">
@@ -357,8 +357,8 @@
 						d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
 				</svg>
 			</div>
-			<div class="chan-ttl text-[14px] font-extrabold text-[var(--txt,#fff)] mb-1">فتح تذكرة دعم</div>
-			<div class="text-[11.5px] text-[var(--txt-3,#6B7699)] leading-[1.55]">طلب متتبَّع برقم وحالة يراجعه الفريق المختص</div>
+			<div class="chan-ttl text-[length:var(--font-size-label)] font-extrabold text-[var(--txt,#fff)] mb-1">فتح تذكرة دعم</div>
+			<div class="text-[length:var(--font-size-small)] text-[var(--txt-3,#6B7699)] leading-[1.55]">طلب متتبَّع برقم وحالة يراجعه الفريق المختص</div>
 		</a>
 
 	</div>

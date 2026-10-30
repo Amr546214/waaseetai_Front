@@ -250,6 +250,24 @@ The application uses socket.io-client for conversations and real-time updates. C
 
 ### Shared UI
 
+Typography is defined in `src/waseet-design-system.css` and shared by public,
+authentication, and dashboard pages. Use these tokens in component CSS and inline
+styles, or `text-[length:var(--font-size-label)]` in Tailwind templates, instead of
+fixed pixel font sizes.
+
+| Token | Size at the default browser setting | Use |
+| --- | --- | --- |
+| `--font-size-caption` | 13px | Badges and compact metadata |
+| `--font-size-small` | 14px | Supporting text and hints |
+| `--font-size-label` | 16px | Labels, navigation, and controls |
+| `--font-size-body` | 18px | Main reading text |
+| `--font-size-section` | 20px | Section headings |
+| `--font-size-page` | 26px | Page headings |
+
+Keep the root font size at 100% so browser font preferences remain effective.
+Adjust the shared tokens to change the system scale. Standalone print documents
+have their own typography because they do not load the application styles.
+
 src/app/sheards/ contains navbar, footer, card, phone-input, not-found, robot-avatar, and project-mini-chat, as well as dashboard components such as sidebar, nav-dashboard, and video-call-modal.
 
 Design rules:

@@ -41,9 +41,9 @@
   @if (error() && !loading()) {
     <div id="state-error" role="alert">
       <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)">
-        <div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر تحميل المحفظة</div>
-        <div style="font-size:12px;margin-bottom:12px" class="txt-muted" data-testid="wallet-error-text">{{ error() === providerOnlyMessage ? error() : 'ERR-PR-014' }}</div>
-        @if (error() !== providerOnlyMessage) {<button type="button" (click)="load()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">اعادة المحاولة</button>}
+        <div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px">تعذر تحميل المحفظة</div>
+        <div style="font-size:var(--font-size-small);margin-bottom:12px" class="txt-muted" data-testid="wallet-error-text">{{ error() === providerOnlyMessage ? error() : 'ERR-PR-014' }}</div>
+        @if (error() !== providerOnlyMessage) {<button type="button" (click)="load()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:var(--font-size-label);cursor:pointer;font-family:inherit" class="txt-navy">اعادة المحاولة</button>}
       </div>
     </div>
   }
@@ -135,13 +135,13 @@
         @for(escrow of wallet.escrows; track escrow.id){
           <a [routerLink]="['/provider-overview/projects/active/progress', escrow.projectId]" class="wal-side" style="display:block;text-decoration:none;transition:border-color .15s">
             <div class="flex justify-between items-center gap-3">
-              <b style="font-size:13px;font-weight:700" class="txt-white">{{ escrow.projectTitle }}</b>
-              <span style="font-size:13px;font-weight:800" class="txt-amber">{{ escrow.held | number:'1.0-2' }} $ محتجز</span>
+              <b style="font-size:var(--font-size-label);font-weight:700" class="txt-white">{{ escrow.projectTitle }}</b>
+              <span style="font-size:var(--font-size-label);font-weight:800" class="txt-amber">{{ escrow.held | number:'1.0-2' }} $ محتجز</span>
             </div>
             <div style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-top:10px">
               <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)" [style.width.%]="escrow.total ? (escrow.released / escrow.total * 100) : 0"></div>
             </div>
-            <div class="flex justify-between items-center text-[10px] text-[#6B7699] mt-2">
+            <div class="flex justify-between items-center text-[length:var(--font-size-caption)] text-[#6B7699] mt-2">
               <span>مفرج {{ escrow.released | number:'1.0-2' }} $</span>
               <span>الإجمالي {{ escrow.total | number:'1.0-2' }} $</span>
             </div>
@@ -189,8 +189,8 @@
                       <svg aria-hidden="true"><use [attr.href]="tx.type === 'credit' ? '#i-wallet' : '#i-escrow'"></use></svg>
                     </span>
                     <div>
-                      <div style="font-weight:700;font-size:13px" class="txt-white">{{ tx.title }}</div>
-                      <div style="font-size:11px" class="txt-muted">{{ tx.projectTitle || tx.description }}</div>
+                      <div style="font-weight:700;font-size:var(--font-size-label)" class="txt-white">{{ tx.title }}</div>
+                      <div style="font-size:var(--font-size-small)" class="txt-muted">{{ tx.projectTitle || tx.description }}</div>
                     </div>
                   </div>
                 </td>

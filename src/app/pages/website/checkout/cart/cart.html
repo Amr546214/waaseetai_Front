@@ -137,7 +137,7 @@
             </div>
             <div class="cart-actions">
               <div>
-                <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">$</span></div>
+                <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:var(--font-size-small);color:var(--txt-3);font-weight:500">$</span></div>
               </div>
 @if (!item.ownService) {
               <button class="cart-save-btn" type="button" (click)="toggleSaveForLater(item.id)">
@@ -191,7 +191,7 @@
               </div>
               <div class="cart-actions">
                 <div>
-                  <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:11px;color:var(--txt-3);font-weight:500">$</span></div>
+                  <div class="cart-price">{{ formatPrice(item.totalAmount) }} <span style="font-size:var(--font-size-small);color:var(--txt-3);font-weight:500">$</span></div>
                 </div>
                 @if (item.ownService) {
                   <span class="cart-conflict-alert" data-testid="cart-own-service-saved">هذه خدمتك — لا يمكن شراؤها</span>

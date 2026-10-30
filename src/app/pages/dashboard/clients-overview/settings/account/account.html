@@ -27,13 +27,13 @@
   <div *ngIf="hasError()" class="text-center p-10 bg-[var(--crd-bg)] border border-[rgba(43,127,255,.25)] rounded-2xl">
     <div class="text-base font-extrabold text-[var(--txt)] mb-1.5">تعذر تحميل إعدادات الحساب</div>
     <div class="text-xs text-[var(--txt-3)] mb-3">ERR-PR-023</div>
-    <button type="button" (click)="load()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[13px] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
+    <button type="button" (click)="load()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[length:var(--font-size-label)] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
   </div>
 
   <div *ngIf="!isLoading() && !hasError()">
 
     <!-- Security Section -->
-    <div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+    <div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
       <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       الأمان والحماية
     </div>
@@ -41,9 +41,9 @@
       
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] flex items-center flex-wrap gap-2">التحقق بخطوتين <span class="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-1 rounded-full bg-[rgba(148,163,184,.14)] text-[var(--txt-3)] border border-[rgba(148,163,184,.28)]">غير متاح حاليًا</span></div>
-          <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">رمز تحقق إضافي عند كل دخول جديد</div>
-          <div class="text-[10.5px] text-[var(--txt-3)] mt-1 opacity-70">الميزة غير متوفرة في المنصة حاليًا، لذلك لا يمكن تفعيلها</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] flex items-center flex-wrap gap-2">التحقق بخطوتين <span class="inline-flex items-center gap-1 text-[length:var(--font-size-small)] font-extrabold px-2.5 py-1 rounded-full bg-[rgba(148,163,184,.14)] text-[var(--txt-3)] border border-[rgba(148,163,184,.28)]">غير متاح حاليًا</span></div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-0.5">رمز تحقق إضافي عند كل دخول جديد</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-1 opacity-70">الميزة غير متوفرة في المنصة حاليًا، لذلك لا يمكن تفعيلها</div>
         </div>
         <label class="sw" style="opacity:.55;cursor:not-allowed" title="الميزة غير متوفرة حاليًا">
           <input type="checkbox" [checked]="twoFactorAuth()" disabled>
@@ -53,9 +53,9 @@
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)]">تنبيه عند دخول جديد</div>
-          <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">إشعار عند تسجيل الدخول من جهاز غير معروف</div>
-          <div class="text-[10.5px] text-[var(--txt-3)] mt-1 opacity-70">الميزة غير متوفرة في المنصة حاليًا، لذلك لا يمكن تفعيلها</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]">تنبيه عند دخول جديد</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-0.5">إشعار عند تسجيل الدخول من جهاز غير معروف</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-1 opacity-70">الميزة غير متوفرة في المنصة حاليًا، لذلك لا يمكن تفعيلها</div>
         </div>
         <label class="sw" style="opacity:.55;cursor:not-allowed" title="الميزة غير متوفرة حاليًا">
           <input type="checkbox" [checked]="newLoginAlert()" disabled>
@@ -66,8 +66,8 @@
       <div class="py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex items-center gap-3.5">
           <div class="flex-1 min-w-0">
-            <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">كلمة المرور</div>
-            <div class="text-[12px] text-[var(--txt-3)]">تغيير كلمة المرور يتم من صفحة تعديل الملف الشخصي</div>
+            <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">كلمة المرور</div>
+            <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">تغيير كلمة المرور يتم من صفحة تعديل الملف الشخصي</div>
           </div>
           <a routerLink="/client-overview/profile/edit" class="px-3.5 py-2 bg-[rgba(43,127,255,.10)] border border-[rgba(43,127,255,.22)] rounded-lg text-[#5DA0FF] text-xs font-bold hover:bg-[rgba(43,127,255,.18)] transition-all set-edit whitespace-nowrap">تعديل الملف</a>
         </div>
@@ -76,8 +76,8 @@
       <div class="py-3.5">
         <div class="flex items-center gap-3.5">
           <div class="flex-1 min-w-0">
-            <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">الأجهزة النشطة</div>
-            <div class="text-[12px] text-[var(--txt-3)]" data-testid="devices-summary">
+            <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">الأجهزة النشطة</div>
+            <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]" data-testid="devices-summary">
               @if (sessionsLoading() && devicesExpanded()) { جارٍ التحميل... }
               @else if (devicesExpanded() && !sessionsError()) { {{ sessions().length }} جهاز نشط }
               @else { الأجهزة المسجّلة دخولها حاليًا على حسابك }
@@ -90,22 +90,22 @@
             @if (sessionsLoading()) {
               <div class="skeleton-row h-10"></div>
             } @else if (sessionsError()) {
-              <div class="text-[12px] font-bold text-[#FF8C69]" role="alert">{{ sessionsError() }}</div>
+              <div class="text-[length:var(--font-size-small)] font-bold text-[#FF8C69]" role="alert">{{ sessionsError() }}</div>
             } @else {
               @for (sess of sessions(); track sess.id) {
                 <div class="flex items-center gap-2.5 py-2 px-3 bg-[rgba(255,255,255,.03)] border border-[var(--sec-bd)] rounded-lg">
                   <div class="flex-1 min-w-0">
-                    <div class="text-[12.5px] font-bold text-[var(--txt)]">{{ sessionLabel(sess) }}</div>
-                    <div class="text-[11px] text-[var(--txt-3)]">{{ sessionActivityLabel(sess) }}</div>
+                    <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]">{{ sessionLabel(sess) }}</div>
+                    <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">{{ sessionActivityLabel(sess) }}</div>
                   </div>
                   @if (sess.isCurrent) {
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[rgba(15,169,154,.14)] text-[#0FA99A] border border-[rgba(15,169,154,.28)] whitespace-nowrap">حالية</span>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[length:var(--font-size-caption)] font-extrabold bg-[rgba(15,169,154,.14)] text-[#0FA99A] border border-[rgba(15,169,154,.28)] whitespace-nowrap">حالية</span>
                   } @else {
-                    <button type="button" [disabled]="revokingSessionId() === sess.id" (click)="endSession(sess.id)" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#FF8C69] bg-[rgba(255,140,105,.1)] border border-[rgba(255,140,105,.25)] hover:bg-[rgba(255,140,105,.18)] transition-all whitespace-nowrap disabled:opacity-60">{{ revokingSessionId() === sess.id ? 'جارٍ الإنهاء...' : 'إنهاء' }}</button>
+                    <button type="button" [disabled]="revokingSessionId() === sess.id" (click)="endSession(sess.id)" class="px-2.5 py-1.5 rounded-lg text-[length:var(--font-size-small)] font-bold text-[#FF8C69] bg-[rgba(255,140,105,.1)] border border-[rgba(255,140,105,.25)] hover:bg-[rgba(255,140,105,.18)] transition-all whitespace-nowrap disabled:opacity-60">{{ revokingSessionId() === sess.id ? 'جارٍ الإنهاء...' : 'إنهاء' }}</button>
                   }
                 </div>
               } @empty {
-                <div class="text-[12px] text-[var(--txt-3)]">لا توجد أجهزة نشطة</div>
+                <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">لا توجد أجهزة نشطة</div>
               }
             }
           </div>
@@ -115,7 +115,7 @@
     </div>
 
     <!-- Region & Language -->
-    <div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+    <div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
       <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       اللغة والمنطقة
     </div>
@@ -123,46 +123,46 @@
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة</div>
-          <div class="text-[12px] text-[var(--txt-3)]">تفضيل لغة حسابك، يُحفظ في ملفك ولا يغيّر لغة الموقع حاليًا</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">اللغة</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">تفضيل لغة حسابك، يُحفظ في ملفك ولا يغيّر لغة الموقع حاليًا</div>
         </div>
         <ws-select id="set-lang" [options]="languageOptions" [(ngModel)]="language" ariaLabel="اللغة" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">المنطقة الزمنية</div>
-          <div class="text-[12px] text-[var(--txt-3)]">تُحفظ في ملفك الشخصي</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">المنطقة الزمنية</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">تُحفظ في ملفك الشخصي</div>
         </div>
         <ws-select id="set-tz" [options]="timezoneOptions" [(ngModel)]="timezone" ariaLabel="المنطقة الزمنية" style="min-width:200px;max-width:100%;display:block"></ws-select>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))] flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">العملة</div>
-          <div class="text-[12px] text-[var(--txt-3)]">تُعرض كل المبالغ في المنصة بالدولار الأمريكي، ولا توجد عملة أخرى للاختيار</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">العملة</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">تُعرض كل المبالغ في المنصة بالدولار الأمريكي، ولا توجد عملة أخرى للاختيار</div>
         </div>
-        <span class="text-[13px] font-bold text-[var(--txt)]" data-testid="currency-fixed">دولار أمريكي (USD)</span>
+        <span class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]" data-testid="currency-fixed">دولار أمريكي (USD)</span>
       </div>
 
       <div class="flex items-center gap-3.5 py-3.5 flex-wrap">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنسيق التاريخ</div>
-          <div class="text-[12px] text-[var(--txt-3)]">تُعرض التواريخ بالتقويم الميلادي، وخيار التقويم الهجري غير متوفر حاليًا</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنسيق التاريخ</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">تُعرض التواريخ بالتقويم الميلادي، وخيار التقويم الهجري غير متوفر حاليًا</div>
         </div>
-        <span class="text-[13px] font-bold text-[var(--txt)]" data-testid="date-format-fixed">ميلادي</span>
+        <span class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]" data-testid="date-format-fixed">ميلادي</span>
       </div>
 
     </div>
 
     <div class="flex items-center gap-3 flex-wrap mb-5">
-      <button type="button" data-testid="save-prefs" [disabled]="!isDirty() || isSaving()" (click)="savePreferences()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[13px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">{{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التفضيلات' }}</button>
-      @if (!isDirty() && !isSaving()) { <span class="text-[12px] font-bold text-slate-500" role="status" data-testid="no-changes">لا توجد تغييرات للحفظ</span> }
-      @if (saveError()) { <span class="field-error text-[12px] font-bold" role="alert" data-testid="save-error">{{ saveError() }}</span> }
+      <button type="button" data-testid="save-prefs" [disabled]="!isDirty() || isSaving()" (click)="savePreferences()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[length:var(--font-size-label)] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">{{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التفضيلات' }}</button>
+      @if (!isDirty() && !isSaving()) { <span class="text-[length:var(--font-size-small)] font-bold text-slate-500" role="status" data-testid="no-changes">لا توجد تغييرات للحفظ</span> }
+      @if (saveError()) { <span class="field-error text-[length:var(--font-size-small)] font-bold" role="alert" data-testid="save-error">{{ saveError() }}</span> }
     </div>
 
     <!-- Privacy Section -->
-    <div class="text-[13px] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
+    <div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt-3)] my-3.5 flex items-center gap-2">
       <svg class="w-[15px] h-[15px] text-[#2BD4C7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       الخصوصية والبيانات
     </div>
@@ -170,8 +170,8 @@
       
       <div class="flex items-center gap-3.5 py-3.5 border-b border-[var(--sec-bd,rgba(255,255,255,.05))]">
         <div class="flex-1">
-          <div class="text-[13.5px] font-bold text-[var(--txt)]">ظهور ملفي للمقدّمين</div>
-          <div class="text-[11.5px] text-[var(--txt-3)] mt-0.5">التحكم في ظهور ملفك لمقدمي الخدمة غير متوفر حاليًا، لذلك لا يمكن تغيير هذا الخيار</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]">ظهور ملفي للمقدّمين</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-0.5">التحكم في ظهور ملفك لمقدمي الخدمة غير متوفر حاليًا، لذلك لا يمكن تغيير هذا الخيار</div>
         </div>
         <label class="sw" style="opacity:.55;cursor:not-allowed" title="التحكم في الظهور غير متوفر حاليًا">
           <input type="checkbox" [checked]="true" disabled aria-label="ظهور الملف للمقدّمين">
@@ -181,8 +181,8 @@
 
       <div class="flex items-center gap-3.5 py-3.5">
         <div class="flex-1 min-w-0">
-          <div class="text-[13.5px] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنزيل بياناتي</div>
-          <div class="text-[12px] text-[var(--txt-3)]">لا يوجد تنزيل ذاتي للبيانات حاليًا. افتح تذكرة دعم وسيراجع الفريق طلبك</div>
+          <div class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)] set-sel-lbl mb-0.5">تنزيل بياناتي</div>
+          <div class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">لا يوجد تنزيل ذاتي للبيانات حاليًا. افتح تذكرة دعم وسيراجع الفريق طلبك</div>
         </div>
         <button type="button" (click)="openSupportTicket()" class="px-3.5 py-2 bg-[rgba(43,127,255,.10)] border border-[rgba(43,127,255,.22)] rounded-lg text-[#5DA0FF] text-xs font-bold hover:bg-[rgba(43,127,255,.18)] transition-all set-edit whitespace-nowrap">طلب نسخة عبر الدعم</button>
       </div>
