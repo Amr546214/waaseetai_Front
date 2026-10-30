@@ -12,14 +12,4 @@ import type { CreateRequest } from '../../create-request';
 })
 export class Step1Specialty {
 	@Input({ required: true }) parent!: CreateRequest;
-
-	chooseCategory(id: string, detailPanel: HTMLElement): void {
-		if (this.parent.selectedSpec() !== id) this.parent.selectSpec(id);
-		if (window.innerWidth < 768) {
-			detailPanel.scrollIntoView({
-				behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
-				block: 'start',
-			});
-		}
-	}
 }

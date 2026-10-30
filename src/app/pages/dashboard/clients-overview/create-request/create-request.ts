@@ -292,9 +292,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   filteredSpecs = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
     if (!q) return this.specialties();
-    return this.specialties().filter(s =>
-      s.name.toLowerCase().includes(q) || s.subs?.some(sub => sub.toLowerCase().includes(q))
-    );
+    return this.specialties().filter(s => s.name.toLowerCase().includes(q));
   });
 
   currentSpec = computed(() => {

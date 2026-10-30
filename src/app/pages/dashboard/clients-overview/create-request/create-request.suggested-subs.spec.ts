@@ -36,29 +36,6 @@ describe('create request — sub-specialty chips vs the counter (R10-003)', () =
 
 	const chips = () => Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button[aria-pressed]')) as HTMLButtonElement[];
 
-	it('finds a category by a service name and lets the client recover from an empty search', () => {
-		component.onSearchInput('سحابة');
-		fixture.detectChanges();
-		expect(fixture.nativeElement.querySelectorAll('.category-card').length).toBe(1);
-		expect(fixture.nativeElement.querySelector('.category-name').textContent).toContain('تقنية');
-		component.onSearchInput('خدمة غير موجودة');
-		fixture.detectChanges();
-		expect(fixture.nativeElement.querySelectorAll('.category-card').length).toBe(0);
-		(fixture.nativeElement.querySelector('.no-results button') as HTMLButtonElement).click();
-		fixture.detectChanges();
-		expect(component.searchQuery()).toBe('');
-		expect(fixture.nativeElement.querySelectorAll('.category-card').length).toBe(1);
-	});
-
-	it('keeps chosen services when the current category is clicked again', () => {
-		component.toggleSub('واجهات');
-		fixture.detectChanges();
-		(fixture.nativeElement.querySelector('.category-card') as HTMLButtonElement).click();
-		fixture.detectChanges();
-		expect(component.selectedSubs().has('واجهات')).toBe(true);
-		expect(chips().filter(c => c.getAttribute('aria-pressed') === 'true').length).toBe(1);
-	});
-
 	it('only the chips of the chosen specialty exist, and a chip is aria-pressed and visibly different exactly when it is counted', () => {
 		expect(chips().map(c => c.textContent?.trim())).toEqual(['واجهات', 'خلفيات', 'جوال', 'أمن', 'بيانات', 'سحابة']);
 		component.toggleSub('خلفيات');

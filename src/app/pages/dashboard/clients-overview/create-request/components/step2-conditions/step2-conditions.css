@@ -1,35 +1,3 @@
-:host {
-  display: block;
-  container: conditions-step / inline-size;
-}
-
-.conditions-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.conditions-grid > .form-card {
-  min-width: 0;
-  margin-bottom: 0;
-}
-
-.radio-content {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-@container conditions-step (min-width: 960px) {
-  .conditions-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .conditions-grid .field-group {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 /* ================== BASE STYLES (matching design) ================== */
 .form-card {
   background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
