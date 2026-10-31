@@ -134,6 +134,28 @@ export interface ProviderSession {
     :host-context(.theme-light) .set-edit {
       background: rgba(43,127,255,.08);
       border-color: #C9D6F0;
+      color: #1D6FE0;
+    }
+
+    .disabled-btn-neutral {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: not-allowed;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #94A3B8;
+      transition: all 0.15s;
+    }
+    :host-context(body.light-theme) .disabled-btn-neutral,
+    :host-context(body.theme-light) .disabled-btn-neutral,
+    :host-context(.light-theme) .disabled-btn-neutral,
+    :host-context(.theme-light) .disabled-btn-neutral {
+      background: #F1F5F9;
+      border-color: #CBD5E1;
+      color: #475569;
     }
 
     /* Danger Card */
@@ -186,6 +208,14 @@ export interface ProviderSession {
     :host-context(.light-theme) .danger-card p,
     :host-context(.theme-light) .danger-card p {
       color: #5B6472;
+    }
+    :host-context(body.light-theme) .danger-btn,
+    :host-context(body.theme-light) .danger-btn,
+    :host-context(.light-theme) .danger-btn,
+    :host-context(.theme-light) .danger-btn {
+      background: rgba(255, 140, 105, 0.14);
+      border-color: rgba(255, 140, 105, 0.35);
+      color: #B42318;
     }
 
 
