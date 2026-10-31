@@ -128,7 +128,7 @@
         +'.od-card{background:#fff !important;border-color:#E7EAF1 !important}'
         /* ── lc-ring / pl-ring donut chart ── */
         +'.lc-ring::before,.pl-ring::before{background:#EEF2FA !important}'
-        +'.lc-ring{background:conic-gradient(#0F8A7F 60%,rgba(7,13,36,.12) 0) !important}'
+        +'.lc-ring{background:conic-gradient(#0F8A7F calc(var(--progress,0)*1%),rgba(7,13,36,.12) 0) !important}'
         /* ── lc-proginfo headings ── */
         +'.lc-proginfo .t{color:#0F172A !important}'
         /* ── misc white text CSS classes ── */
@@ -252,7 +252,10 @@
     for(var q=0;q<us.length;q++){ var hh=us[q].getAttribute('href')||us[q].getAttribute('xlink:href')||''; if(/#(i-ai|ws-trust-ai|ws-ai-)/.test(hh)){ var sv=us[q].closest('svg'); if(sv) setP(sv,'color',AIC); } }
     var all=document.body.getElementsByTagName('*');
     for(var i=0;i<all.length;i++){
-      var el=all[i], cs=getComputedStyle(el);
+      var el=all[i];
+      // Components with their own complete theme styling must not be repainted as generic cards.
+      if(el.closest && el.closest('[data-ws-theme-owned]')) continue;
+      var cs=getComputedStyle(el);
       var cls=(typeof el.className==='string')?el.className:'';
       // --- glass for dropdowns / modals (light only; dark is glassy by design) ---
       if(light && /\b(user-dropdown|modal-box|modal-ov|modal-overlay|spec-modal)\b/.test(cls)){

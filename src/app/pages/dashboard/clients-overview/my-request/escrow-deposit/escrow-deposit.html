@@ -111,13 +111,11 @@
         </div>
 
         <!-- TERMS -->
-        <div id="ed-terms" data-field-wrap class="terms-row" (click)="toggleTerms()" (keydown.space)="$event.target === $event.currentTarget && toggleTermsKey($event)" (keydown.enter)="$event.target === $event.currentTarget && toggleTerms()" role="checkbox" [attr.aria-checked]="termsAccepted()" tabindex="0">
-          <div class="terms-check" [class.checked]="termsAccepted()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <div class="terms-text">
+        <div data-field-wrap class="terms-row">
+          <input id="ed-terms" class="terms-check" type="checkbox" required aria-required="true" [checked]="termsAccepted()" (change)="toggleTerms()">
+          <label class="terms-text" for="ed-terms">
             أوافق على <a routerLink="/terms" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">شروط حساب الضمان</a> وأقر بأن المبلغ سيحتجز حتى اعتماد التسليم النهائي، لا يمكن الاسترداد بعد الإيداع إلا وفق سياسة النزاعات
-          </div>
+          </label>
         </div>
 
         <!-- SECURITY FOOTER -->

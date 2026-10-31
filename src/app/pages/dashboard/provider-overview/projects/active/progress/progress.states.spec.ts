@@ -22,6 +22,12 @@ describe('provider progress: contract / revision states', () => {
 	const q = (el: HTMLElement, sel: string) => el.querySelectorAll(sel);
 	const uploadBtns = (el: HTMLElement) => Array.from(el.querySelectorAll('button')).filter(b => /رفع تسليم المرحلة|إعادة التسليم|رفع جديد/.test(b.textContent || ''));
 
+	it.each([0, 25, 100])('binds the provider ring and bar to workspace progress %s', async (progress) => {
+		const s = await setup(data({ progress }));
+		expect(s.el.querySelector<HTMLElement>('.lc-ring')!.style.getPropertyValue('--progress')).toBe(String(progress));
+		expect(s.el.querySelector<HTMLElement>('.lc-track i')!.style.width).toBe(`${progress}%`);
+	});
+
 	it('pending-signature contract: no upload button, the server reason is shown, nothing is called "held"', async () => {
 		const reason = 'العقد بانتظار توقيعك، ولا يمكن التسليم قبل بدء العقد';
 		const s = await setup(data({ contractStatus: 'PENDING_PROVIDER_SIGNATURE', statusLabel: 'بانتظار توقيعك على العقد', status: 'PENDING_PROVIDER_SIGNATURE', escrowHeld: 0 },

@@ -352,13 +352,16 @@ body.light-theme .cmp-pick-btn.best, body.theme-light .cmp-pick-btn.best, .light
 }
 
 #neg-modal .neg-dialog {
+	width:100%;
 	max-width:640px;
 	max-height:calc(100dvh - 40px);
 	overflow-y:auto;
 	overscroll-behavior:contain;
 	padding:28px;
-	background:var(--crd-bg);
-	border-color:var(--sec-bd);
+	background:var(--pop-bg);
+	border:1px solid var(--sec-bd);
+	border-radius:20px;
+	box-shadow:0 24px 80px rgba(3,7,20,.3);
 	color:var(--txt);
 }
 #neg-modal .neg-dialog-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
@@ -378,10 +381,13 @@ body.light-theme .cmp-pick-btn.best, body.theme-light .cmp-pick-btn.best, .light
 #neg-modal .neg-inp{width:100%;padding:12px 14px;margin-bottom:20px;border:1px solid var(--sec-bd);border-radius:10px;background:var(--crd-bg);color:var(--txt);font-size:var(--font-size-label);line-height:1.6}
 #neg-modal .neg-inp::placeholder{color:var(--txt-3);opacity:1}
 #neg-modal .neg-inp:focus{border-color:var(--blue-txt);outline:2px solid color-mix(in srgb,var(--blue) 18%,transparent);outline-offset:1px}
-#neg-modal .neg-price-control{position:relative}
-#neg-modal #neg-price{min-height:54px;margin:0;padding-right:90px;font-size:var(--font-size-body);font-weight:700}
+#neg-modal .neg-price-control{display:flex;direction:ltr;align-items:stretch;overflow:hidden;border:1px solid var(--sec-bd);border-radius:10px;background:var(--crd-bg)}
+#neg-modal .neg-price-control:focus-within{border-color:var(--blue-txt);outline:2px solid color-mix(in srgb,var(--blue) 18%,transparent);outline-offset:1px}
+#neg-modal .neg-price-control:has([aria-invalid="true"]){border-color:var(--red)}
+#neg-modal #neg-price{flex:1;min-width:0;min-height:54px;margin:0;border:0;border-radius:0;padding:12px 14px;font-size:var(--font-size-body);font-weight:700;background:transparent}
+#neg-modal #neg-price:focus{outline:none}
 #neg-modal #neg-price::placeholder{font-size:var(--font-size-small);font-weight:400}
-#neg-modal .neg-currency{position:absolute;right:36px;top:50%;transform:translateY(-50%);font-size:var(--font-size-small);font-weight:800;color:var(--txt-3);pointer-events:none}
+#neg-modal .neg-currency{display:flex;align-items:center;justify-content:center;flex-shrink:0;min-width:68px;padding:0 14px;border-left:1px solid var(--sec-bd);background:var(--sec-bg);font-size:var(--font-size-small);font-weight:800;color:var(--txt-2);pointer-events:none}
 #neg-modal .neg-price-unit{display:block;margin-top:8px;font-size:var(--font-size-caption);color:var(--txt-3)}
 #neg-modal .neg-ta{min-height:110px;resize:vertical}
 #neg-modal .neg-next{padding:16px;margin-bottom:20px;border:1px solid var(--sec-bd);border-radius:12px;background:var(--sec-bg)}

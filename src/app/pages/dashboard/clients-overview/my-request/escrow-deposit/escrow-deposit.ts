@@ -188,12 +188,6 @@ export class EscrowDeposit implements OnInit {
 		this.termsAccepted.set(!this.termsAccepted());
 	}
 
-	/** Space on the focused checkbox row toggles it (and must not scroll the page). */
-	toggleTermsKey(e: Event) {
-		e.preventDefault();
-		this.toggleTerms();
-	}
-
 	// Format helpers
 	formatCurrency(val: number): string {
 		return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
