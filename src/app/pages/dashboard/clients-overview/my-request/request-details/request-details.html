@@ -128,7 +128,7 @@
 	@if (!isLoading() && !offers().length) { <div class="offers-empty" role="status"><h3>لم تصلك عروض بعد</h3><p>ستظهر عروض مقدمي الخدمة هنا لتراجعها وتقارنها. لا يوجد ترشيح قبل وصول العروض ومراجعتها.</p></div> }
 
 	<!-- Offers List -->
-	<div [class.cmp-mode]="isCompareMode()">
+	<div class="offers-list" [class.cmp-mode]="isCompareMode()">
 		@for(offer of displayedOffers(); track offer.id) {
 		<div class="v1" [class.best]="offer.isBestMatch" [class.sel]="isSelected(offer.providerName)"
 			(click)="toggleSelectOffer(offer.providerName)">
@@ -186,32 +186,16 @@
 							{{ offer.specialty }} · {{ offer.projectsCount }} مشروعا ·
 							<span style="display:inline-flex;align-items:center;gap:2px"
 								[style.color]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor">
+								@for (star of [1, 2, 3, 4, 5]; track star) {
 								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									[attr.fill]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor" aria-hidden="true">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									[attr.fill]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor" aria-hidden="true">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									[attr.fill]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor" aria-hidden="true">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									[attr.fill]="offer.isBestMatch ? '#2ECC8A' : offer.levelColor" aria-hidden="true">
-									<path
-										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
-								</svg>
-								<svg class="ws-star-svg" width="10" height="10" viewBox="0 0 100 100"
-									[attr.fill]="(offer.isBestMatch ? 'rgba(46,204,138,.3)' : offer.levelColor + '4D')"
+									[attr.fill]="(offer.rating ?? 0) >= star - 0.5
+										? (offer.isBestMatch ? '#2ECC8A' : offer.levelColor)
+										: (offer.isBestMatch ? 'rgba(46,204,138,.3)' : offer.levelColor + '4D')"
 									aria-hidden="true">
 									<path
 										d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z" />
 								</svg>
+								}
 								{{ offer.rating !== null ? offer.rating : 'غير متاح' }}
 							</span>
 						</div>
@@ -243,8 +227,8 @@
 						</div>
 					} @else { <p class="fit-review-summary is-unknown">لا توجد مراجعة محفوظة لملاءمة الملف مع هذا الطلب حتى الآن. راجع خبرة المقدم وعرضه مباشرة.</p> }
 					<div class="fit-constraints">
-						<div><span>الميزانية</span><strong [attr.data-status]="offer.budgetSuitability?.status || 'UNKNOWN'">{{ suitabilityLabel(offer.budgetSuitability) }}</strong><p>{{ offer.budgetSuitability?.summary || 'بيانات غير متوفرة للمقارنة.' }}</p></div>
-						<div><span>مدة التنفيذ</span><strong [attr.data-status]="offer.deadlineSuitability?.status || 'UNKNOWN'">{{ suitabilityLabel(offer.deadlineSuitability) }}</strong><p>{{ offer.deadlineSuitability?.summary || 'بيانات غير متوفرة للمقارنة.' }}</p></div>
+						<div><span>الميزانية</span><strong [attr.data-status]="offer.budgetSuitability?.status || 'UNKNOWN'">{{ suitabilityLabel(offer.budgetSuitability) }}</strong></div>
+						<div><span>مدة التنفيذ</span><strong [attr.data-status]="offer.deadlineSuitability?.status || 'UNKNOWN'">{{ suitabilityLabel(offer.deadlineSuitability) }}</strong></div>
 					</div>
 					@if (offer.recommendationRank != null) {
 						<details class="fit-recommendation-basis" (click)="$event.stopPropagation()"><summary>ترتيب استرشادي #{{ offer.recommendationRank }} · لماذا رُشّح هذا العرض؟</summary><ul>@for (basis of offer.recommendationBasis || []; track $index) { <li>{{ basis }}</li> }</ul></details>
@@ -333,14 +317,12 @@
 					@if (isOfferSelectionClosed()) {
 						@if (closedStateAction(); as act) {
 							<button type="button" (click)="act.run()" data-testid="closed-state-action"
-								style="background: rgba(18, 25, 44, 0.7); border: 1px solid rgba(48, 64, 94, 0.8); color:#2BD4C7; cursor:pointer"
-								class="w-full col-span-3 py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center">
+								class="request-state-banner w-full col-span-3 py-2.5 px-3 rounded-lg text-[length:var(--font-size-label,1rem)] font-semibold flex items-center justify-center text-center">
 								<span>{{ requestStateMessage() }} — {{ act.label }}</span>
 							</button>
 						} @else {
 							<div data-testid="closed-state-note"
-								style="background: rgba(18, 25, 44, 0.7); border: 1px solid rgba(48, 64, 94, 0.8); color:#64748b"
-								class="w-full col-span-3 py-2.5 px-3 rounded-lg text-[13px] font-semibold flex items-center justify-center text-center">
+								class="request-state-banner w-full col-span-3 py-2.5 px-3 rounded-lg text-[length:var(--font-size-label,1rem)] font-semibold flex items-center justify-center text-center">
 								<span>{{ requestStateMessage() }}</span>
 							</div>
 						}
@@ -599,30 +581,36 @@
 	@if (showNegModal()) {
 	<div class="modal-ov show" id="neg-modal" role="dialog" aria-modal="true" aria-labelledby="neg-t"
 		(click)="closeNegotiation()">
-		<div class="modal-box" (click)="$event.stopPropagation()">
+		<div class="modal-box neg-dialog" (click)="$event.stopPropagation()">
+			<div class="neg-dialog-head">
 			<div class="modal-ico2"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 					stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M7 8h10M7 12h6M3 20l1.5-4A8 8 0 1 1 9 19l-6 1z" />
 				</svg></div>
 			<div class="modal-t" id="neg-t">طلب تفاوض مع <span id="neg-name">{{ negProvider() }}</span></div>
+			<button type="button" class="neg-close" aria-label="إغلاق طلب التفاوض" (click)="closeNegotiation()"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
+			</div>
 			<p class="modal-d">حدد ما تريد التفاوض عليه واكتب ملاحظتك، تصل لمقدم الخدمة فيرد بعرض مضاد أو يعتذر. لا يتغير
 				سعر العرض ولا مدته ولا العقد إلا إذا أرسل عرضًا مضادًا وقبلته رسميًا، والدردشة وحدها لا تغيّر شيئًا</p>
 			<label class="neg-lbl">على ماذا تتفاوض <span class="ws-req" aria-hidden="true">*</span></label>
-			<div id="neg-chips" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px">
+			<div id="neg-chips" class="neg-options" role="group" aria-label="موضوع التفاوض">
 				<button type="button" class="neg-chip" [class.on]="negType() === 'price'"
-					(click)="setNegType('price')">السعر</button>
+					[attr.aria-pressed]="negType() === 'price'" (click)="setNegType('price')">السعر</button>
 				<button type="button" class="neg-chip" [class.on]="negType() === 'dur'"
-					(click)="setNegType('dur')">المدة</button>
+					[attr.aria-pressed]="negType() === 'dur'" (click)="setNegType('dur')">المدة</button>
 				<button type="button" class="neg-chip" [class.on]="negType() === 'plan'"
-					(click)="setNegType('plan')">الخطة</button>
+					[attr.aria-pressed]="negType() === 'plan'" (click)="setNegType('plan')">الخطة</button>
 				<button type="button" class="neg-chip" [class.on]="negType() === 'other'"
-					(click)="setNegType('other')">أخرى</button>
+					[attr.aria-pressed]="negType() === 'other'" (click)="setNegType('other')">أخرى</button>
 			</div>
 			@if(negType() === 'price') {
-			<div id="neg-f-price" class="neg-f"><label class="neg-lbl" for="neg-price">السعر المقترح
-					($) <span class="ws-req" aria-hidden="true">*</span></label><input class="neg-inp" id="neg-price" aria-required="true" type="text" inputmode="numeric"
-					placeholder="أدخل السعر المقترح بالدولار" [value]="negPrice()" (input)="onNegPriceInput($event)">
-				@if (selectedOffer()?.price; as cur) { <div class="neg-lbl" style="margin-top:5px;font-weight:600">سعر العرض الحالي: {{ cur }}</div> }</div>
+			<div id="neg-f-price" class="neg-f neg-price-card">
+				<div class="neg-price-heading"><label class="neg-lbl" for="neg-price">السعر المقترح <span class="ws-req" aria-hidden="true">*</span></label>
+				@if (selectedOffer()?.price; as cur) { <span class="neg-current-price">سعر العرض الحالي: <b>{{ cur }}</b></span> }</div>
+				<div class="neg-price-control"><input class="neg-inp" id="neg-price" aria-required="true" type="number" inputmode="decimal" min="0.01" step="0.01" dir="ltr"
+					placeholder="أدخل السعر المقترح" [value]="negPrice()" (input)="onNegPriceInput($event)"><span class="neg-currency" aria-hidden="true">USD</span></div>
+				<span class="neg-price-unit">بالدولار الأمريكي</span>
+			</div>
 			}
 			@if(negType() === 'dur') {
 			<div id="neg-f-dur" class="neg-f"><label class="neg-lbl" for="neg-dur">المدة المقترحة (أيام) <span class="ws-req" aria-hidden="true">*</span></label><input
@@ -632,42 +620,30 @@
 			<textarea class="neg-inp neg-ta" id="neg-msg" [attr.aria-required]="negType() === 'plan' || negType() === 'other' ? 'true' : null"
 				placeholder="اكتب تفاصيل طلبك، سعرا أو مدة أو تعديلا على الخطة أو أي استفسار" [value]="negMessage()"
 				(input)="onNegMessageInput($event)"></textarea>
-			<div
-				style="margin:4px 0 16px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:11px">
-				<div
-					style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;margin-bottom:9px" class="txt-slate">
+			<div class="neg-next">
+				<div class="neg-next-title">
 					<svg width="13" height="13" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></svg>ماذا يحدث بعد الإرسال
 				</div>
-				<div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;font-size:11px" class="txt-slate">
-					<span style="display:inline-flex;align-items:center;gap:5px"><span
-							style="width:18px;height:18px;border-radius:6px;background:rgba(43,212,199,.16);display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:10px" class="txt-teal">1</span>يصل
-						طلبك للمقدم</span>
-					<span style="margin:0 8px" class="txt-muted">←</span>
-					<span style="display:inline-flex;align-items:center;gap:5px"><span
-							style="width:18px;height:18px;border-radius:6px;background:rgba(43,212,199,.16);display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:10px" class="txt-teal">2</span>يرد
-						بعرض مضاد أو يعتذر</span>
-					<span style="margin:0 8px" class="txt-muted">←</span>
-					<span style="display:inline-flex;align-items:center;gap:5px"><span
-							style="width:18px;height:18px;border-radius:6px;background:rgba(43,212,199,.16);display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:10px" class="txt-teal">3</span>تقبل
-						العرض المضاد أو ترفضه</span>
-				</div>
+				<ol class="neg-next-steps">
+					<li><span aria-hidden="true">1</span>يصل طلبك للمقدم</li>
+					<li><span aria-hidden="true">2</span>يرد بعرض مضاد أو يعتذر</li>
+					<li><span aria-hidden="true">3</span>تقبل العرض المضاد أو ترفضه</li>
+				</ol>
 			</div>
 			@if (negFound()) { <div role="alert" data-testid="neg-found" class="field-error" style="margin-top:10px" (click)="$event.stopPropagation()">وجدنا طلب تفاوض قائم على هذا العرض (غالبًا الذي انقطع الاتصال أثناء إرساله). افتح المحادثة وراجعه أولًا؛ أو أرسل طلبًا آخر إن كنت تريد ذلك فعلًا.
 				<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button type="button" class="py-2 px-4 rounded-lg text-[13px] font-bold txt-navy" style="background: linear-gradient(135deg, #2BD4C7, #2B7FFF)" data-testid="neg-open-existing" (click)="openExistingNegotiation()">فتح المحادثة</button><button type="button" class="py-2 px-4 rounded-lg text-[13px] font-semibold txt-slate" style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12)" data-testid="neg-send-another" (click)="sendAnotherNegotiation()">إرسال طلب آخر</button></div></div> }
 			@if (negError()) { <div role="alert" data-testid="neg-error" class="field-error" style="margin-top:10px" (click)="$event.stopPropagation()">{{ negError() }}</div> }
-			<div class="grid grid-cols-2 gap-3 mt-4 w-full" dir="rtl" (click)="$event.stopPropagation()">
+			<div class="neg-dialog-actions" dir="rtl" (click)="$event.stopPropagation()">
 				<!-- إلغاء (يمين) -->
 				<button type="button"
-					style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12)"
-					class="w-full py-2.5 px-4 rounded-xl text-[13px] font-semibold flex items-center justify-center text-center leading-none hover:border-slate-500 hover:text-white active:scale-[0.98] transition-all txt-slate"
+					class="neg-cancel"
 					(click)="closeNegotiation()">
 					<span>إلغاء</span>
 				</button>
 
 				<!-- إرسال طلب التفاوض (يسار) -->
 				<button type="button"
-					style="background: linear-gradient(135deg, #2BD4C7, #2B7FFF)"
-					class="w-full py-2.5 px-4 rounded-xl text-[13px] font-bold shadow-sm flex items-center justify-center text-center leading-none hover:brightness-110 active:scale-[0.98] transition-all txt-navy"
+					class="neg-submit"
 					[disabled]="isSendingNegotiation() || negVerifying()" (click)="sendNegotiation()">
 					<span>{{ isSendingNegotiation() ? 'جارٍ الإرسال...' : 'إرسال طلب التفاوض' }}</span>
 				</button>

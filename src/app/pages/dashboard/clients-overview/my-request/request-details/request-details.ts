@@ -205,6 +205,8 @@ export class RequestDetails implements OnInit {
 							formattedBudget = `${formatMoney(data.budget.min)} - ${formatMoney(data.budget.max)} $`;
 						} else if (data.budget.type === 'FIXED' && data.budget.min) {
 							formattedBudget = `${formatMoney(data.budget.min)} $`;
+						} else if (data.budget.type === 'HOURLY' && data.budget.min) {
+							formattedBudget = `${formatMoney(data.budget.min)} $/ساعة`;
 						} else {
 							formattedBudget = 'غير محدد';
 						}
