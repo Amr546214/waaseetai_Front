@@ -35,7 +35,7 @@
 .lc-qa-disp .qi{background:rgba(255,180,0,.14);color:#FFB400}
 .lc-qa-canc .qi{background:rgba(255,255,255,.06);color:#A8B2D1}
 .lc-qa-edit .qi{background:rgba(43,127,255,.14);color:#5DA0FF}
-.lc-sel{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:10px 13px;font-size:13px;color:#fff;font-family:inherit;cursor:pointer}
+.lc-sel{width:100%;background-color:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:10px 13px;font-size:13px;color:#fff;font-family:inherit;cursor:pointer}
 .lc-sel:focus{outline:none;border-color:rgba(255,180,0,.4)}
 .lc-fld label .rq{color:#FFB400;margin-inline-start:3px;font-size:10px}
 .lc-mhd-disp .mi{background:rgba(255,180,0,.14);color:#FFB400}
@@ -139,7 +139,7 @@
 :host-context(.light-theme) .lc-mbox,:host-context(.theme-light) .lc-mbox{background:#fff;border-color:#E7EAF1;box-shadow:0 25px 80px rgba(15,23,42,.15)}
 :host-context(.light-theme) .lc-mclose,:host-context(.theme-light) .lc-mclose{background:#EEF2FA;border-color:#D8DFEC;color:#0F172A}
 :host-context(.light-theme) .lc-sel,:host-context(.theme-light) .lc-sel,
-:host-context(.light-theme) .lc-inp,:host-context(.theme-light) .lc-inp{background:#f5f7fc;border-color:#C9D0E3;color:#0F172A}
+:host-context(.light-theme) .lc-inp,:host-context(.theme-light) .lc-inp{background-color:#f5f7fc;border-color:#C9D0E3;color:#0F172A}
 :host-context(.light-theme) .lc-evi,:host-context(.theme-light) .lc-evi{color:#5B6472;border-color:#C9D0E3}
 /* Thread and delivery cards */
 :host-context(.light-theme) .lc-deliv,:host-context(.theme-light) .lc-deliv{background:rgba(43,127,255,.04);border-color:#D6E2F7}

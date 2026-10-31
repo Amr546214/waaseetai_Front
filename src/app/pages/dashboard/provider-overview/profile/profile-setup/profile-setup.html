@@ -133,9 +133,9 @@
             </div>
             <div class="f-wrap">
               <label class="f-lbl" for="pr-dob">تاريخ الميلاد <span class="card-optional">اختياري</span></label>
-              <input type="date" class="f-inp" id="pr-dob" formControlName="dob" dir="ltr" [max]="todayIso" min="1900-01-01" data-testid="setup-dob" autocomplete="bday">
-              <p class="f-hint">خاص بك فقط، لا يظهر في ملفك العام.</p>
-              @if (setupForm.get('profData.dob')?.invalid) { <p class="f-err" role="alert">تاريخ الميلاد غير صالح</p> }
+              <input type="date" class="f-inp" id="pr-dob" formControlName="dob" dir="ltr" [max]="maxDobIso" min="1900-01-01" data-testid="setup-dob" autocomplete="bday">
+              <p class="f-hint">خاص بك فقط، لا يظهر في ملفك العام (يجب ألا يقل العمر عن 18 عاماً).</p>
+              <ws-field-error [control]="setupForm.get('profData.dob')" label="تاريخ الميلاد" />
             </div>
             <div class="f-wrap f-full" data-testid="my-skills-step1">
               <label class="f-lbl" id="my-skills-lbl-1">مهاراتي <span class="card-optional">اختياري</span></label>
@@ -824,8 +824,14 @@
       <div class="step-panel" [class.active]="currentStep() === 7" role="tabpanel">
 
         @if (pendingPaypalEmail(); as pending) {
-          <ws-paypal-email-confirm [email]="pending" [mode]="paypalConfirmMode()" [accountEmailHint]="paypalAccountEmailHint()" (confirmed)="pendingPaypalEmail.set(null)" (dismissed)="pendingPaypalEmail.set(null)" />
-        }
+          <div class="test-intro paypal-confirm-panel" style="margin-bottom: 24px;">
+            <div style="margin-bottom:16px">
+              <h2 style="font-size:22px;font-weight:900;margin-bottom:6px" class="txt-white">التحقق من حسابك</h2>
+              <p style="font-size:14px" class="txt-muted">يرجى تأكيد بريد PayPal قبل بدء اختبار التصنيف الأولي</p>
+            </div>
+            <ws-paypal-email-confirm [email]="pending" [mode]="paypalConfirmMode()" [accountEmailHint]="paypalAccountEmailHint()" (confirmed)="onPaypalConfirmed($event)" (dismissed)="onPaypalDismissed()" />
+          </div>
+        } @else {
 
         @if (paypalSendError()) { <div role="alert" data-testid="paypal-send-error" class="inline-error">{{ paypalSendError() }}</div> }
 
@@ -917,6 +923,7 @@
             (answer)="submitAnswer($event)"
             (back)="backToIntro()"
             (primary)="finishTestProcess()" />
+        }
         }
       </div>
 

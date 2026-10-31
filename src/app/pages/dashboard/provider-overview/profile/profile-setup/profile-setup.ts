@@ -25,7 +25,7 @@ import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
-import { birthDateValidator, dobInputValue } from '../../../../../core/forms/birth-date';
+import { birthDateValidator, dobInputValue, maxDobIso } from '../../../../../core/forms/birth-date';
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
@@ -201,6 +201,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private storedAvatarUrl = '';
 	avatarError = signal('');
 	readonly todayIso = new Date().toISOString().slice(0, 10);
+	readonly maxDobIso = maxDobIso();
 	/** The skills offered for the chosen main specialty (the backend catalog): the only skills that can be picked. */
 	skillOptions = signal<string[]>([]);
 	skillsNotice = signal('');
@@ -1175,7 +1176,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							if (r.emailSent === true) {
 								this.paypalAccountEmailHint.set(r.emailHint || '');
 								this.paypalConfirmMode.set(r.mode ?? (this.storedPaypalEmail ? 'change' : 'add'));
-								this.pendingPaypalEmail.set(paypalEmail);
+								this.isTestStarted.set(false); this.pendingPaypalEmail.set(paypalEmail);
 							} else this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.');
 						},
 						error: (err) => {
@@ -1276,7 +1277,20 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		return typeof server === 'string' ? server : paypalEmailError(c.errors);
 	}
 
+	onPaypalConfirmed(email?: string) {
+		if (email) {
+			this.storedPaypalEmail = email;
+			this.setupForm.get('payout.paypalEmail')?.setValue(email);
+		}
+		this.pendingPaypalEmail.set(null);
+	}
+
+	onPaypalDismissed() {
+		this.pendingPaypalEmail.set(null);
+	}
+
 	startTest() {
+		if (this.pendingPaypalEmail()) return;
 		this.isTestStarted.set(true);
 		this.setupTestService.startTest();
 

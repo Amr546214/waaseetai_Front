@@ -29,7 +29,7 @@
   --assistant-text: #171717;
   --assistant-muted: #727272;
   display: flex !important;
-  direction: ltr;
+  direction: rtl !important;
   height: 100dvh;
   min-height: 0;
   width: 100%;
@@ -95,7 +95,8 @@ a {
   flex-direction: column;
   background: var(--tc-sidebar) !important;
   color: var(--tc-text) !important;
-  border-right: 1px solid var(--tc-line) !important;
+  border-left: 1px solid var(--tc-line) !important;
+  border-right: none !important;
   padding: 8px;
   direction: rtl;
   min-height: 0;
@@ -113,7 +114,7 @@ a {
 }
 
 .tc-sidebar-head {
-  direction: ltr;
+  direction: rtl;
   height: 48px;
   display: flex;
   align-items: center;
@@ -218,7 +219,7 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-direction: row-reverse;
+  flex-direction: row;
   background: none;
   color: var(--tc-text);
   border: 0;
@@ -276,7 +277,8 @@ a {
 .tc-rail-tooltip {
   display: none;
   position: absolute;
-  left: calc(100% + 9px);
+  right: calc(100% + 9px);
+  left: auto;
   top: 50%;
   transform: translateY(-50%);
   white-space: nowrap;
@@ -311,7 +313,8 @@ a {
 /* Floating rail popover (Pinned / Recent) */
 .tc-rail-session-popover {
   position: fixed;
-  left: 44px;
+  right: 64px;
+  left: auto;
   width: 286px;
   padding: 8px 8px 10px;
   border-radius: 22px;
@@ -602,8 +605,8 @@ a {
 
 .is-desktop-collapsed .tc-account-menu {
   position: fixed;
-  left: 62px;
-  right: auto;
+  right: 64px;
+  left: auto;
   bottom: 12px;
   width: 252px;
 }
@@ -718,7 +721,7 @@ a {
   justify-content: space-between;
   padding: 5px 14px;
   border-bottom: 1px solid var(--tc-line);
-  direction: ltr;
+  direction: rtl;
   position: relative;
   background: var(--tc-bg);
   z-index: 35;
@@ -733,8 +736,9 @@ a {
 }
 
 .tc-topbar-actions {
-  margin-left: auto;
-  direction: ltr;
+  margin-inline-start: auto;
+  margin-left: 0;
+  direction: rtl;
 }
 
 .tc-workspace-tabs {
@@ -800,8 +804,8 @@ a {
 .tc-model-menu {
   position: absolute;
   top: calc(100% + 6px);
-  right: 0;
-  left: auto;
+  left: 0;
+  right: auto;
   width: min(265px, calc(100vw - 24px));
   direction: rtl;
   background: var(--tc-surface);
@@ -917,8 +921,8 @@ a {
 
 .tc-welcome-suggestions button {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-end;
+  flex-direction: row;
+  justify-content: flex-start;
   align-items: center;
   gap: 14px;
   background: none;
@@ -1002,13 +1006,13 @@ a {
 
 .tc-user-turn {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 
 .tc-user-turn-inner {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   max-width: 75%;
 }
 
@@ -1222,7 +1226,7 @@ a {
 }
 
 .tc-composer {
-  direction: ltr;
+  direction: rtl;
   min-height: 58px;
   display: grid;
   grid-template-columns: 36px minmax(0, 1fr) auto;
@@ -1270,6 +1274,8 @@ a {
   max-height: 190px;
   resize: none;
   overflow-y: auto;
+  direction: rtl;
+  text-align: right;
 }
 
 .tc-composer-actions {
@@ -1474,9 +1480,9 @@ a {
   .chat-page.chatgpt-shell .tc-sidebar,
   .tc-sidebar {
     position: fixed !important;
-    inset: 0 auto 0 0 !important;
+    inset: 0 0 0 auto !important;
     width: min(320px, 86vw) !important;
-    transform: translateX(-105%) !important;
+    transform: translateX(105%) !important;
     z-index: 100;
     transition: transform 180ms ease;
   }

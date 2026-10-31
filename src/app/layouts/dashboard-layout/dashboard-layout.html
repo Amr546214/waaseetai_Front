@@ -205,8 +205,8 @@
 	</div>
 
 	<!-- MAIN CONTENT -->
-	<main class="main">
-		<div class="main-inner" [hidden]="!!roleRedirectLabel()">
+	<main class="main" [class.chat-main]="isChatRoute()">
+		<div class="main-inner" [class.chat-inner]="isChatRoute()" [hidden]="!!roleRedirectLabel()">
 			<router-outlet></router-outlet>
 		</div>
 		@if (roleRedirectLabel(); as label) {
@@ -216,9 +216,11 @@
 		}
 
 		<!-- FOOTER -->
-		<div class="inner-foot">
-			<span>&#169; {{ currentYear }} وسيط AI &middot; v{{ appVersion }}</span>
-		</div>
+		@if (!isChatRoute()) {
+			<div class="inner-foot">
+				<span>&#169; {{ currentYear }} وسيط AI &middot; v{{ appVersion }}</span>
+			</div>
+		}
 	</main>
 
 	<!-- Real-Time Chat Message Toast Notification -->

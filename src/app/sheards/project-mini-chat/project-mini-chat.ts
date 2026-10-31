@@ -169,6 +169,67 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
     return new Intl.DateTimeFormat('ar-SA', { hour: '2-digit', minute: '2-digit' }).format(date);
   }
 
+  isNegotiationMsg(message: MiniChatMessage): boolean {
+    if (!message?.content) return false;
+    return message.content.startsWith('WS_NEGOTIATION::') || message.content.includes('"isNegotiation":true') || message.content.includes('طلب تفاوض');
+  }
+
+  getNegData(message: MiniChatMessage): any {
+    if (!message?.content) return null;
+    let data = null;
+    const text = message.content;
+    if (text.startsWith('WS_NEGOTIATION::')) {
+      const parts = text.split('::');
+      const jsonStr = parts.length >= 3 ? parts.slice(2).join('::') : parts[1] || '';
+      try {
+        data = JSON.parse(jsonStr);
+      } catch {
+        try {
+          data = JSON.parse(text.replace('WS_NEGOTIATION::', ''));
+        } catch {
+          data = null;
+        }
+      }
+    } else if (text.includes('"isNegotiation":true')) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = null;
+      }
+    }
+    if (data) return data;
+
+    const lines = text.split('\n');
+    let typeName = 'السعر';
+    let price = '';
+    let notes = '';
+    lines.forEach(l => {
+      if (l.includes('نوع التفاوض:')) typeName = l.replace(/.*نوع التفاوض:\s*/, '').replace(/[*_]/g, '').trim();
+      if (l.includes('السعر المقترح:')) price = l.replace(/.*السعر المقترح:\s*/, '').replace(/[*_]/g, '').trim();
+      if (l.includes('ملاحظات:')) notes = l.replace(/.*ملاحظات:\s*/, '').replace(/[*_]/g, '').trim();
+    });
+    return { isNegotiation: true, negTypeName: typeName, price, notes, status: 'PENDING' };
+  }
+
+  getNegTitle(neg: any): string {
+    if (!neg) return 'رسالة تفاوض';
+    if (neg.kind === 'CLIENT_ACCEPT_COUNTER' || neg.status === 'ACCEPTED' || neg.negType === 'counter_accept') {
+      return 'تم قبول العرض المضاد';
+    }
+    if (neg.kind === 'COUNTER_OFFER' || neg.negType === 'counter') {
+      return 'عرض مضاد';
+    }
+    if (neg.kind === 'PROVIDER_REJECT' || neg.status === 'REJECTED') {
+      return 'اعتذار عن التفاوض';
+    }
+    return neg.negTypeName || 'طلب تفاوض';
+  }
+
+  isImage(url?: string, name?: string): boolean {
+    const target = (name || url || '').toLowerCase();
+    return /\.(jpg|jpeg|png|webp|gif|svg|avif)$/i.test(target);
+  }
+
   private loadHistory(): void {
     this.loading.set(true);
     this.subscriptions.add(this.chatService.getMessages(this.conversationId!, 1, 50).subscribe({

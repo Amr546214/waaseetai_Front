@@ -789,8 +789,8 @@ export class ProfileEdit {
 			form.markAllAsTouched();
 			const raw = this.identityForm.getRawValue();
 			const idNumber = String(raw.idNumber || '').trim();
-			if (idNumber && !/^[12]\d{9}$/.test(idNumber)) {
-				this.errorMsg.set('رقم الهوية يجب أن يكون 10 أرقام ويبدأ بـ 1 أو 2');
+			if (idNumber && !/^\d{7,20}$/.test(idNumber)) {
+				this.errorMsg.set('رقم الهوية غير صحيح: يجب أن يتكون من 7 إلى 20 رقماً');
 				return;
 			}
 			this.errorMsg.set('');

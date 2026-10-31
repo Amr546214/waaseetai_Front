@@ -18,7 +18,7 @@ import { UiNotificationService } from '../../../../../core/services/ui-notificat
 import { OtpInputComponent } from '../../../../../shared/forms/otp-input.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import { birthDateValidator, dobInputValue } from '../../../../../core/forms/birth-date';
+import { birthDateValidator, dobInputValue, maxDobIso } from '../../../../../core/forms/birth-date';
 import { canonicalStoredPhone, parseStoredPhone, phoneCountryView, type PhoneCountryView } from '../../../../../core/forms/phone-countries';
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
@@ -32,7 +32,7 @@ import { BioFieldDirective } from '../../../../../shared/directives/bio-field.di
 
 /** Arabic names of the fields, used by the "what is missing" summary. */
 const PROFILE_LABELS: Record<string, string> = {
-  firstName: 'الاسم الأول', lastName: 'اسم العائلة', headline: 'المسمى المهني', specialty: 'التخصص الرئيسي',
+  firstName: 'الاسم الأول', lastName: 'اسم العائلة', headline: 'المسمى المهني', specialty: 'التخصص الرئيسي', dob: 'تاريخ الميلاد',
   country: 'الدولة', city: 'المدينة', bio: 'الوصف المهني',
   websiteUrl: 'رابط معرض الأعمال', linkedinUrl: 'LinkedIn', githubUrl: 'GitHub',
 };
@@ -42,7 +42,7 @@ const PASSWORD_LABELS: Record<string, string> = { currentPassword: 'كلمة ا�
 
 /** DOM id of the control that carries each field (focus target for summary rows and server errors). Documents use `doc-card-<name>`. */
 const FIELD_IDS: Record<string, string> = {
-  firstName: 'pr-fname', lastName: 'pr-lname', headline: 'pr-title', specialty: 'pr-spec', country: 'pr-country', city: 'pr-city',
+  firstName: 'pr-fname', lastName: 'pr-lname', headline: 'pr-title', specialty: 'pr-spec', dob: 'pr-dob', country: 'pr-country', city: 'pr-city',
   bio: 'bio', websiteUrl: 'portfolio-url', linkedinUrl: 'linkedin-url', githubUrl: 'website-url',
   email: 'ct-email', phoneNumber: 'ct-phone', alternativePhone: 'ct-whatsapp',
   paypalPayoutEmail: 'pp-email', currentPassword: 'pwd-old', newPassword: 'pwd-new', confirmPassword: 'pwd-conf',
@@ -212,6 +212,7 @@ export class Data implements OnInit {
   currentProfileData: any = null;
   dobLocked = signal(false);
   readonly todayIso = new Date().toISOString().slice(0, 10);
+  readonly maxDobIso = maxDobIso();
   /** Contact details are DISPLAY-ONLY (the e-mail and the phone cannot be changed from the interface: no code, no request, no review). */
   contactEmail = signal('');
   contactPhone = signal<PhoneCountryView | null>(null);
@@ -260,33 +261,8 @@ export class Data implements OnInit {
     return `waseet_provider_profile_draft_${uid}`;
   }
 
-  isFieldDraft(field: string): boolean {
-    this.formTick();
-    const snap = this.savedSnapshot();
-    if (!this.currentProfileData || !snap || !Object.keys(snap).length) return false;
-    if (field === 'avatarUrl') {
-      return this.avatarDirty && (this.avatarUrl() ?? null) !== (snap['avatarUrl'] ?? null);
-    }
-    if (field === 'subSpecialties') {
-      const curr = [...this.selectedSubSpecs()].map(s => s.trim()).filter(Boolean).sort();
-      const orig = [...(snap['subSpecialties'] || [])].map((s: string) => s.trim()).filter(Boolean).sort();
-      return JSON.stringify(curr) !== JSON.stringify(orig);
-    }
-    if (field === 'specialty') {
-      const currRaw = String(this.profileForm?.get('specialty')?.value ?? '').trim();
-      const origRaw = String(snap['specialty'] ?? '').trim();
-      const currNorm = this.categoryOf(currRaw)?.slug || currRaw;
-      const origNorm = this.categoryOf(origRaw)?.slug || origRaw;
-      return currNorm !== origNorm;
-    }
-    if (field === 'country') {
-      const curr = normalizeCountry(this.profileForm?.get('country')?.value) || '';
-      const orig = normalizeCountry(snap['country']) || '';
-      return curr !== orig;
-    }
-    const curr = String(this.profileForm?.get(field)?.value ?? '').trim();
-    const orig = String(snap[field] ?? '').trim();
-    return curr !== orig;
+  isFieldDraft(_field: string): boolean {
+    return false;
   }
 
   originalFieldDisplay(field: string): string {
@@ -368,54 +344,8 @@ export class Data implements OnInit {
     this.ui.info('تم إرجاع الخانة إلى الأصل المحفوظ');
   }
 
-  saveDraft(notify = true) {
-    if (!isPlatformBrowser(this.platformId) || !this.profileForm) return;
-    this.formTick.update(n => n + 1);
-    if (!notify && Object.keys(this.savedSnapshot()).length && !this.trackedDraftFields.some(f => this.isFieldDraft(f))) {
-      this.clearDraftStorage();
-      return;
-    }
-    try {
-      const raw = this.profileForm.getRawValue();
-      const now = new Date();
-      const label = new Intl.DateTimeFormat('ar', { hour: '2-digit', minute: '2-digit' }).format(now);
-      const payload = {
-        values: {
-          firstName: raw.firstName,
-          lastName: raw.lastName,
-          headline: raw.headline,
-          specialty: raw.specialty,
-          dob: raw.dob,
-          country: raw.country,
-          city: raw.city,
-          address: raw.address,
-          bio: raw.bio,
-          websiteUrl: raw.websiteUrl,
-          linkedinUrl: raw.linkedinUrl,
-          twitterUrl: raw.twitterUrl,
-          githubUrl: raw.githubUrl,
-          uiLanguage: raw.uiLanguage,
-          timezone: raw.timezone,
-          notifyEmail: raw.notifyEmail,
-          notifySms: raw.notifySms,
-          notifyInApp: raw.notifyInApp,
-          notifyWhatsapp: raw.notifyWhatsapp,
-        },
-        selectedSubSpecs: this.selectedSubSpecs(),
-        avatarDirty: this.avatarDirty,
-        avatarUrl: this.avatarDirty ? this.avatarUrl() : undefined,
-        savedAt: now.toISOString(),
-        savedAtLabel: label,
-      };
-      localStorage.setItem(this.draftStorageKey(), JSON.stringify(payload));
-      this.hasDraft.set(true);
-      this.draftSavedAt.set(label);
-      if (notify) {
-        this.ui.success('تم حفظ التعديلات في المسودة — لن تضيع عند إعادة التحميل');
-      }
-    } catch {
-      if (notify) this.ui.warning('تعذر حفظ المسودة محلياً');
-    }
+  saveDraft(_notify = false) {
+    this.clearDraftStorage();
   }
 
   clearDraftStorage() {
@@ -436,60 +366,28 @@ export class Data implements OnInit {
   }
 
   private restoreDraftIfPresent() {
-    if (!isPlatformBrowser(this.platformId) || !this.profileForm) return;
-    try {
-      const rawJson = localStorage.getItem(this.draftStorageKey()) || localStorage.getItem('waseet_provider_profile_draft_current');
-      if (!rawJson) return;
-      const draft = JSON.parse(rawJson);
-      if (!draft || typeof draft !== 'object' || !draft.values) return;
-      this.isPatchingProfile = true;
-      this.profileForm.patchValue(draft.values, { emitEvent: false });
-      const countryVal = normalizeCountry(draft.values.country);
-      if (countryVal) {
-        this.profileForm.get('country')?.setValue(countryVal, { emitEvent: false });
-        this.profileForm.get('city')?.enable({ emitEvent: false });
-        if (draft.values.city) {
-          this.profileForm.get('city')?.setValue(draft.values.city, { emitEvent: false });
-        }
-      }
-      if (Array.isArray(draft.selectedSubSpecs)) {
-        this.selectedSubSpecs.set(draft.selectedSubSpecs);
-      }
-      if (draft.values.specialty) {
-        this.storedMainSpecialty = String(draft.values.specialty);
-      }
-      if (draft.avatarDirty) {
-        this.avatarUrl.set(draft.avatarUrl ?? null);
-        this.avatarDirty = true;
-      }
-      this.hasDraft.set(true);
-      this.draftSavedAt.set(draft.savedAtLabel || null);
-    } catch {
-      // ignore malformed draft
-    } finally {
-      this.isPatchingProfile = false;
-      this.formTick.update(n => n + 1);
-    }
+    this.clearDraftStorage();
   }
 
   ngOnInit() {
+    this.clearDraftStorage();
     // e.g. the withdraw page links to ?tab=payout to add the PayPal email.
     const tab = this.route.snapshot.queryParamMap.get('tab');
     // ?tab= opens the matching tab (the withdraw page -> payout; "edit and send again" on a rejected request -> docs / contact)
     if (tab === 'payout' || tab === 'docs' || tab === 'contact') this.currentTab.set(tab);
 
     this.profileForm = this.fb.group({
-      firstName: ['', [maxTrim(60)]],
-      lastName: ['', [maxTrim(60)]],
-      headline: ['', [maxTrim(100)]],
+      firstName: ['', [requiredTrim, maxTrim(60)]],
+      lastName: ['', [requiredTrim, maxTrim(60)]],
+      headline: ['', [requiredTrim, maxTrim(100)]],
       hourlyRate: [null as number | null, Validators.min(0)],
       yearsOfExperience: [null as number | null, Validators.min(0)],
-      availabilityStatus: ['AVAILABLE'],
-      specialty: [''],
+      availabilityStatus: ['AVAILABLE', Validators.required],
+      specialty: ['', requiredTrim],
       // Date of birth: private to the owner, optional, frozen once the account is verified.
       dob: ['', birthDateValidator],
-      country: [''],
-      city: [''],
+      country: ['', Validators.required],
+      city: ['', Validators.required],
       address: [''],
       bio: ['', Validators.maxLength(500)],
       websiteUrl: ['', httpUrl],
@@ -847,6 +745,7 @@ export class Data implements OnInit {
     } else {
       this.legacySpecialty.set(this.storedMainSpecialty);
       this.profileForm.get('specialty')?.setValue('', { emitEvent: false });
+      this.profileForm.get('specialty')?.setErrors({ legacy: true });
       this.subSpecOptions.set([]);
       this.skillOptions.set([]);
     }

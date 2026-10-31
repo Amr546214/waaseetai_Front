@@ -605,7 +605,7 @@
 .lc-fld{margin-bottom:14px}
 .lc-fld label{display:block;font-size:12px;font-weight:700;color:#A8B2D1;margin-bottom:6px}
 .lc-fld label .rq{color:#FFB400;margin-inline-start:3px;font-size:10px}
-.lc-sel{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:10px 13px;font-size:13px;color:#fff;font-family:inherit;cursor:pointer}
+.lc-sel{width:100%;background-color:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:10px 13px;font-size:13px;color:#fff;font-family:inherit;cursor:pointer}
 .lc-sel:focus{outline:none;border-color:rgba(255,180,0,.4)}
 .lc-ta{width:100%;min-height:90px;resize:vertical;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:10px;color:#fff;padding:10px 13px;font:13px/1.6 inherit;outline:none}
 .lc-ta:focus{outline:none;border-color:rgba(255,180,0,.4)}
@@ -617,7 +617,7 @@
 :host-context(body.light-theme) .lc-mhd h3,:host-context(body.theme-light) .lc-mhd h3,:host-context(.light-theme) .lc-mhd h3,:host-context(.theme-light) .lc-mhd h3{color:#0F172A}
 :host-context(body.light-theme) .lc-mhd p,:host-context(body.theme-light) .lc-mhd p,:host-context(.light-theme) .lc-mhd p,:host-context(.theme-light) .lc-mhd p{color:#475569}
 :host-context(body.light-theme) .lc-mclose,:host-context(body.theme-light) .lc-mclose,:host-context(.light-theme) .lc-mclose,:host-context(.theme-light) .lc-mclose{background:#EEF2FA;border-color:#D8DFEC;color:#475569}
-:host-context(body.light-theme) .lc-sel,:host-context(body.theme-light) .lc-sel,:host-context(.light-theme) .lc-sel,:host-context(.theme-light) .lc-sel{background:#F5F7FC;border-color:#C9D0E3;color:#0F172A}
+:host-context(body.light-theme) .lc-sel,:host-context(body.theme-light) .lc-sel,:host-context(.light-theme) .lc-sel,:host-context(.theme-light) .lc-sel{background-color:#F5F7FC;border-color:#C9D0E3;color:#0F172A}
 :host-context(body.light-theme) .lc-ta,:host-context(body.theme-light) .lc-ta,:host-context(.light-theme) .lc-ta,:host-context(.theme-light) .lc-ta{background:#F5F7FC;border-color:#C9D0E3;color:#0F172A}
 :host-context(body.light-theme) .lc-fld label,:host-context(body.theme-light) .lc-fld label,:host-context(.light-theme) .lc-fld label,:host-context(.theme-light) .lc-fld label{color:#475569}
 :host-context(body.light-theme) .lc-mhd-canc .mi,:host-context(body.theme-light) .lc-mhd-canc .mi,:host-context(.light-theme) .lc-mhd-canc .mi,:host-context(.theme-light) .lc-mhd-canc .mi{background:rgba(255,140,105,.06);color:#C25B43}

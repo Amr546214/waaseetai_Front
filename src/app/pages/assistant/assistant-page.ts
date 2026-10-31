@@ -29,7 +29,7 @@ import { AssistantReplyAudioComponent } from '../../sheards/assistant-chat/assis
 	encapsulation: ViewEncapsulation.None,
 	styleUrl: './assistant-page.css',
 	template: `
-	<div class="chat-page chatgpt-shell workspace" [class.workspace--dark]="theme.theme() === 'dark'" [class.dark]="theme.theme() === 'dark'">
+	<div class="chat-page chatgpt-shell workspace" [class.workspace--dark]="theme.theme() === 'dark'" [class.dark]="theme.theme() === 'dark'" dir="rtl" lang="ar">
 		@if (mobileOpen()) {
 			<button type="button" class="tc-sidebar-scrim" (click)="mobileOpen.set(false)" aria-label="إغلاق الشريط الجانبي"></button>
 		}
@@ -184,7 +184,7 @@ import { AssistantReplyAudioComponent } from '../../sheards/assistant-chat/assis
 					<circle cx="11" cy="11" r="8" />
 					<path d="m21 21-4.3-4.3" />
 				</svg>
-				<input #searchInput [(ngModel)]="query" placeholder="تصفية المحادثات" aria-label="تصفية المحادثات" />
+				<input #searchInput [(ngModel)]="query" placeholder="تصفية المحادثات" aria-label="تصفية المحادثات" dir="rtl" />
 			</div>
 
 			<div class="tc-history-list" tabindex="0">
@@ -192,7 +192,7 @@ import { AssistantReplyAudioComponent } from '../../sheards/assistant-chat/assis
 					<div class="tc-history-row" [class.is-active]="store.activeConversationId() === conversation.id">
 						@if (renamingId() === conversation.id) {
 							<form (ngSubmit)="saveRename(conversation.id)" class="rename">
-								<input name="title" [(ngModel)]="renameDraft" maxlength="70" aria-label="اسم المحادثة" />
+								<input name="title" [(ngModel)]="renameDraft" maxlength="70" aria-label="اسم المحادثة" dir="rtl" />
 								<button type="submit">حفظ</button>
 								<button type="button" (click)="renamingId.set(null)">إلغاء</button>
 							</form>
@@ -474,7 +474,7 @@ import { AssistantReplyAudioComponent } from '../../sheards/assistant-chat/assis
 													@if (editingIndex() === $index) {
 														<div class="tc-user-edit">
 															<div class="tc-edit-card">
-																<textarea [(ngModel)]="editDraft" rows="3" aria-label="تعديل رسالتك"></textarea>
+																<textarea [(ngModel)]="editDraft" rows="3" aria-label="تعديل رسالتك" dir="rtl"></textarea>
 																<div class="dialog-actions">
 																	<button type="button" (click)="submitEdit()" [disabled]="!editDraft.trim() || store.busy()">حفظ وإعادة الإرسال</button>
 																	<button type="button" (click)="editingIndex.set(-1)">إلغاء</button>

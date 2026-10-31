@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
-import { Dispute } from '../disputes.model';
+import { Dispute, DisputeEvidenceItem } from '../disputes.model';
 import { mapDispute } from '../disputes.mapper';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { reportProblems } from '../../../../../shared/forms/form-error-focus';
@@ -32,6 +32,50 @@ export class DisputeDetails implements OnInit {
 		const user = this.authStore.currentUser();
 		return user?.accountType === AccountType.PROVIDER_COMPANY;
 	});
+
+	// Evidence modal
+	evidenceOpen = signal<boolean>(false);
+	evidenceType = signal<string>('سجل التواصل');
+	evidenceDesc = signal<string>('');
+	evidenceFileName = signal<string>('');
+
+	openEvidenceModal(): void {
+		this.evidenceDesc.set('');
+		this.evidenceFileName.set('');
+		this.evidenceOpen.set(true);
+	}
+
+	closeEvidenceModal(): void {
+		this.evidenceOpen.set(false);
+	}
+
+	onEvidenceFileSelected(event: Event): void {
+		const input = event.target as HTMLInputElement;
+		if (input.files && input.files.length > 0) {
+			this.evidenceFileName.set(input.files[0].name);
+		}
+	}
+
+	submitEvidence(): void {
+		const desc = this.evidenceDesc().trim();
+		const file = this.evidenceFileName().trim();
+		if (!desc && !file) {
+			this.notify.error('يرجى كتابة وصف أو اختيار ملف للدليل الإضافي');
+			return;
+		}
+		const currentDispute = this.dispute();
+		if (currentDispute?.detail?.evidence) {
+			const newItem: DisputeEvidenceItem = {
+				name: file || `دليل إضافي — ${this.evidenceType()}`,
+				meta: `الآن · ${this.evidenceType()}`,
+				source: 'company',
+				iconType: 'doc'
+			};
+			currentDispute.detail.evidence.push(newItem);
+		}
+		this.closeEvidenceModal();
+		this.notify.success('تم رفع الدليل بنجاح');
+	}
 
 	// Company mode: sends written guidance to the assigned team member. No
 	// backend "dispute guidance" endpoint exists yet — this just confirms via
@@ -64,6 +108,20 @@ export class DisputeDetails implements OnInit {
 		const d = this.dispute();
 		if (!d) return '';
 		return d.status === 'open' ? 'نشط' : 'مُغلق';
+	});
+
+	providerPartyName = computed(() => {
+		const d = this.dispute();
+		if (!d) return 'مقدم الخدمة';
+		if (this.isCompanyMode() && d.teamMember?.name) return d.teamMember.name;
+		const me = d.detail?.parties?.[0];
+		return me?.name && me.name !== 'أنت' ? me.name : 'مقدم الخدمة';
+	});
+
+	clientPartyName = computed(() => {
+		const d = this.dispute();
+		const client = d?.detail?.parties?.[1];
+		return client?.name && client.name !== '—' ? client.name : 'العميل';
 	});
 
 	ngOnInit(): void {

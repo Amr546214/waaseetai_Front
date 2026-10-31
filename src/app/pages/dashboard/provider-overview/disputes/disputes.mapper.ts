@@ -67,9 +67,12 @@ function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 	const other: DisputeParty = { name: otherName || '—', role: 'طالب الخدمة', initials: initials(otherName), gradient: 'linear-gradient(135deg,#0FA99A,#2BD4C7)' };
 
 	const statusSteps: DisputeStatusStep[] = [
-		{ label: 'رُفع النزاع', state: 'done' },
-		{ label: 'قيد مراجعة الإدارة', state: closed ? 'done' : 'active' },
-		{ label: d.status === 'REJECTED' ? 'تم رفض النزاع' : 'القرار النهائي', state: closed ? 'done' : 'pending' },
+		{ label: 'رفع النزاع', state: 'done' },
+		{ label: 'جمع الأدلة والوثائق', state: 'done' },
+		{ label: mine ? 'تقديم أدلة مقدم الخدمة' : 'تقديم أدلة العميل', state: 'done' },
+		{ label: 'مراجعة فريق الدعم', state: closed ? 'done' : 'active' },
+		{ label: d.status === 'REJECTED' ? 'تم رفض النزاع' : 'صدور القرار', state: closed ? 'done' : 'pending' },
+		{ label: 'تسوية الضمان', state: closed ? 'done' : 'pending' },
 	];
 
 	return {
@@ -119,8 +122,7 @@ export function mapDispute(d: ApiDispute, currentUserId: string | undefined): Di
 		timeline: buildTimeline(d.status),
 		aiText: closed ? ([disputeResolutionText(d), d.resolutionNote].filter(Boolean).join(' — ') || 'تم إغلاق النزاع') : d.description,
 		aiDone: closed,
-		// No escrow-amount field exists on a Dispute row — omit rather than fabricate.
-		amount: '',
+		amount: d.heldEscrowAmount !== undefined && d.heldEscrowAmount !== null ? String(d.heldEscrowAmount) : '',
 		date: dateLabel(d.createdAt),
 		detail: buildDetail(d, mine),
 		// No backend concept of a company team-member assignment on a dispute.

@@ -2125,14 +2125,38 @@ button.btn-outline-sm {
 :host-context(body.theme-light) .timer-display,
 :host-context(.light-theme) .timer-display,
 :host-context(.theme-light) .timer-display{color:#070D24}
+:host-context(body.light-theme) ::ng-deep .result-score-circle::before,
+:host-context(body.theme-light) ::ng-deep .result-score-circle::before,
+:host-context(.light-theme) ::ng-deep .result-score-circle::before,
+:host-context(.theme-light) ::ng-deep .result-score-circle::before,
 :host-context(body.light-theme) .result-score-circle::before,
 :host-context(body.theme-light) .result-score-circle::before,
 :host-context(.light-theme) .result-score-circle::before,
-:host-context(.theme-light) .result-score-circle::before{background:#F0F4FA}
+:host-context(.theme-light) .result-score-circle::before{background:#FFFFFF !important}
+:host-context(body.light-theme) ::ng-deep .result-score-circle,
+:host-context(body.theme-light) ::ng-deep .result-score-circle,
+:host-context(.light-theme) ::ng-deep .result-score-circle,
+:host-context(.theme-light) ::ng-deep .result-score-circle,
+:host-context(body.light-theme) .result-score-circle,
+:host-context(body.theme-light) .result-score-circle,
+:host-context(.light-theme) .result-score-circle,
+:host-context(.theme-light) .result-score-circle{background:conic-gradient(#2B7FFF var(--score-deg, 259deg), #E2E8F4 0deg) !important}
+:host-context(body.light-theme) ::ng-deep .result-score-num,
+:host-context(body.theme-light) ::ng-deep .result-score-num,
+:host-context(.light-theme) ::ng-deep .result-score-num,
+:host-context(.theme-light) ::ng-deep .result-score-num,
 :host-context(body.light-theme) .result-score-num,
 :host-context(body.theme-light) .result-score-num,
 :host-context(.light-theme) .result-score-num,
-:host-context(.theme-light) .result-score-num{color:#070D24}
+:host-context(.theme-light) .result-score-num{color:#070D24 !important}
+:host-context(body.light-theme) ::ng-deep .result-score-lbl,
+:host-context(body.theme-light) ::ng-deep .result-score-lbl,
+:host-context(.light-theme) ::ng-deep .result-score-lbl,
+:host-context(.theme-light) ::ng-deep .result-score-lbl,
+:host-context(body.light-theme) .result-score-lbl,
+:host-context(body.theme-light) .result-score-lbl,
+:host-context(.light-theme) .result-score-lbl,
+:host-context(.theme-light) .result-score-lbl{color:#64748B !important}
 :host-context(body.light-theme) .stat-box,
 :host-context(body.theme-light) .stat-box,
 :host-context(.light-theme) .stat-box,
@@ -2177,4 +2201,23 @@ button.btn-outline-sm {
 @media (max-width: 640px) {
   .pw-item-cols { display: flex !important; flex-direction: column; gap: 12px; }
   .pw-item-cols > .pw-col { width: 100%; min-width: 0; border-inline-start-width: 1px; }
+}
+
+:host-context(body.light-theme) .paypal-confirm-panel,
+:host-context(body.theme-light) .paypal-confirm-panel,
+:host-context(.light-theme) .paypal-confirm-panel,
+:host-context(.theme-light) .paypal-confirm-panel {
+	color: #0F172A;
+}
+:host-context(body.light-theme) .paypal-confirm-panel .txt-white,
+:host-context(body.theme-light) .paypal-confirm-panel .txt-white,
+:host-context(.light-theme) .paypal-confirm-panel .txt-white,
+:host-context(.theme-light) .paypal-confirm-panel .txt-white {
+	color: #0F172A !important;
+}
+:host-context(body.light-theme) .paypal-confirm-panel .txt-muted,
+:host-context(body.theme-light) .paypal-confirm-panel .txt-muted,
+:host-context(.light-theme) .paypal-confirm-panel .txt-muted,
+:host-context(.theme-light) .paypal-confirm-panel .txt-muted {
+	color: #475569 !important;
 }

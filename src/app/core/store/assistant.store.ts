@@ -173,6 +173,7 @@ export class AssistantStore {
 	readonly textModel = signal('');
 	readonly ttsModel = signal('');
 	readonly capabilities = signal<AssistantCapabilities | null>(null);
+	readonly capabilitiesLoading = signal(false);
 	readonly capabilityNotice = signal('');
 	readonly progress = signal<Array<{ stage: string; message: string; status?: string; runId?: string }>>([]);
 	readonly lastAssistant = computed(() => this.messages().filter(m => m.role === 'assistant' && m.text).at(-1) ?? null);
@@ -281,7 +282,10 @@ export class AssistantStore {
 		// for the old identity before this effect runs.
 		effect(() => {
 			this.identity();
-			untracked(() => this.ensureSessionIdentity());
+			untracked(() => {
+				this.ensureSessionIdentity();
+				if (this.authStore.token()) this.loadCapabilities();
+			});
 		});
 		inject(DestroyRef).onDestroy(() => {
 			sub.unsubscribe();
@@ -378,13 +382,14 @@ export class AssistantStore {
 	runMotion(action: BeboCommandAction): void { if (!this.busy()) this.runCommand(action, ''); }
 	loadCapabilities(): void {
 		if (!this.isBrowser || !this.authStore.token() || this.capabilities() || this.capabilitiesSub) return;
+		this.capabilitiesLoading.set(true);
 		try {
 			this.capabilitiesSub = this.injector.get(AssistantCapabilitiesService).get().subscribe({
-				next: (data) => { if (data && Array.isArray(data.models) && Array.isArray(data.voices)) { this.capabilities.set(data); this.capabilityNotice.set(''); const preferred = data.voices.find(v => v.id === this.ttsVoice()) ?? data.voices[0]; if (preferred) this.ttsVoice.set(preferred.id as BeboVoice); if (data.defaultTtsModel) this.ttsModel.set(data.defaultTtsModel); } },
-				error: () => { this.capabilitiesSub = null; this.capabilityNotice.set('تعذر تحميل خيارات النماذج؛ سيستخدم الخادم الإعداد الافتراضي.'); },
-				complete: () => { this.capabilitiesSub = null; },
+				next: (data) => { this.capabilitiesLoading.set(false); if (data && Array.isArray(data.models) && Array.isArray(data.voices)) { this.capabilities.set(data); this.capabilityNotice.set(''); const preferred = data.voices.find(v => v.id === this.ttsVoice()) ?? data.voices[0]; if (preferred) this.ttsVoice.set(preferred.id as BeboVoice); if (data.defaultTtsModel) this.ttsModel.set(data.defaultTtsModel); } },
+				error: () => { this.capabilitiesLoading.set(false); this.capabilitiesSub = null; this.capabilityNotice.set('تعذر تحميل خيارات النماذج والأصوات من الخادم.'); },
+				complete: () => { this.capabilitiesLoading.set(false); this.capabilitiesSub = null; },
 			});
-		} catch { this.capabilitiesSub = null; }
+		} catch { this.capabilitiesLoading.set(false); this.capabilitiesSub = null; }
 	}
 	/** Live is hidden unless the authenticated server advertises the capability. */
 	toggleLive(): void {
@@ -459,7 +464,9 @@ export class AssistantStore {
 
 	/** Only voices from the handoff list are accepted. Releases cached audio. */
 	setVoice(voice: string): void {
-		if (!(this.capabilities()?.voices.some(v => v.id === voice) ?? isBeboVoice(voice)) || voice === this.ttsVoice()) return;
+		const supported = this.capabilities()?.voices;
+		const allowed = supported && supported.length > 0 ? supported.some(v => v.id === voice) : isBeboVoice(voice);
+		if (!allowed || voice === this.ttsVoice()) return;
 		this.ttsVoice.set(voice as BeboVoice);
 		this.stopLive();
 		this.releaseAudio();
@@ -645,7 +652,7 @@ export class AssistantStore {
 		this.clearWatchdog();
 		this.cancelListening();
 		this.stopLive(); this.liveNotice.set('');
-		this.cancelRecording(); this.capabilitiesSub?.unsubscribe(); this.capabilitiesSub = null; this.capabilities.set(null); this.progress.set([]); this.textModel.set(''); this.ttsModel.set('');
+		this.cancelRecording(); this.capabilitiesSub?.unsubscribe(); this.capabilitiesSub = null; this.capabilities.set(null); this.capabilitiesLoading.set(false); this.progress.set([]); this.textModel.set(''); this.ttsModel.set('');
 		this.releaseAudio();
 		this.lastReply.set(null);
 		this.messages.set([]);

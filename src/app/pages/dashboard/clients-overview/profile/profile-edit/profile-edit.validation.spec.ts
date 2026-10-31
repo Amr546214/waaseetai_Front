@@ -318,7 +318,7 @@ describe('client profile-edit: shared validation', () => {
       component.identityForm.patchValue({ idNumber: '123' });
       component.saveTab('identity');
       expect(updateTab).not.toHaveBeenCalled();
-      expect(component.errorMsg()).toContain('10 أرقام');
+      expect(component.errorMsg()).toContain('7 إلى 20');
     });
 
     it('a rejected save (409 pending request / 400) shows the error and NO success', () => {

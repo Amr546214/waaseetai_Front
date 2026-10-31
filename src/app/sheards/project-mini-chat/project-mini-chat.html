@@ -10,13 +10,60 @@
     @for (message of messages(); track message.id) {
       @if (message.isEvent) {
         <div class="mini-chat__event" role="note" data-testid="project-event"><span>{{ message.content }}</span><small>{{ formatTime(message.time) }}</small></div>
+      } @else if (isNegotiationMsg(message)) {
+        @if (getNegData(message); as neg) {
+          <article class="mini-chat__row" [class.is-me]="message.isMe">
+            @if (!message.isMe) { <span class="mini-chat__small-avatar">{{ message.senderInitial }}</span> }
+            <div class="mini-chat__bubble mini-chat__bubble--neg">
+              <div class="mini-chat__neg-hdr">
+                <span class="mini-chat__neg-ico">🤝</span>
+                <span class="mini-chat__neg-title">{{ getNegTitle(neg) }}</span>
+                @if (neg.kind === 'CLIENT_ACCEPT_COUNTER' || neg.status === 'ACCEPTED' || neg.negType === 'counter_accept') {
+                  <span class="mini-chat__neg-badge is-accepted">مقبول</span>
+                } @else {
+                  <span class="mini-chat__neg-badge is-pending">تفاوض</span>
+                }
+              </div>
+              <div class="mini-chat__neg-body">
+                @if (neg.negTypeName && neg.negTypeName !== 'السعر') {
+                  <div class="mini-chat__neg-row"><span>نوع التفاوض:</span> <b>{{ neg.negTypeName }}</b></div>
+                }
+                @if (neg.price || neg.priceValue) {
+                  <div class="mini-chat__neg-row"><span>السعر المقترح:</span> <b class="mini-chat__neg-price">{{ neg.price || neg.priceValue }} $</b></div>
+                }
+                @if (neg.deliveryDays || neg.duration) {
+                  <div class="mini-chat__neg-row"><span>المدة المقترحة:</span> <b>{{ neg.deliveryDays ? (neg.deliveryDays + ' يوم') : neg.duration }}</b></div>
+                }
+                @if (neg.notes) {
+                  <div class="mini-chat__neg-notes">{{ neg.notes }}</div>
+                }
+              </div>
+              <small>{{ formatTime(message.time) }}</small>
+            </div>
+          </article>
+        }
       } @else {
       <article class="mini-chat__row" [class.is-me]="message.isMe">
         @if (!message.isMe) { <span class="mini-chat__small-avatar">{{ message.senderInitial }}</span> }
         <div class="mini-chat__bubble">
           @if (!message.isMe) { <b>{{ message.senderName }}</b> }
           @if (message.content) { <p>{{ message.content }}</p> }
-          @if (message.fileUrl) { <a [href]="message.fileUrl" target="_blank" rel="noopener noreferrer">▤ {{ message.fileName || 'فتح المرفق' }}</a> }
+          @if (message.fileUrl) {
+            @if (isImage(message.fileUrl, message.fileName)) {
+              <a [href]="message.fileUrl" target="_blank" rel="noopener noreferrer" class="mini-chat__img-wrap">
+                <img [src]="message.fileUrl" [alt]="message.fileName || 'صورة مرفقة'" class="mini-chat__img-preview" loading="lazy">
+              </a>
+            } @else {
+              <a [href]="message.fileUrl" target="_blank" rel="noopener noreferrer" class="mini-chat__file-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mini-chat__file-ico" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <div class="mini-chat__file-text">
+                  <span class="mini-chat__file-name">{{ message.fileName || 'ملف مرفق' }}</span>
+                  <span class="mini-chat__file-sub">تحميل الملف</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mini-chat__file-dl" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </a>
+            }
+          }
           <small>{{ formatTime(message.time) }} @if(message.status === 'PENDING'){ · جارٍ الإرسال }</small>
         </div>
       </article>

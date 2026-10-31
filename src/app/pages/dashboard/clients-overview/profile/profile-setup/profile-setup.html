@@ -103,19 +103,19 @@
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">رقم الهوية الوطنية
 									<span class="ws-req" aria-hidden="true">*</span></label>
-								<input type="text" formControlName="idNumber" aria-required="true" placeholder="10XXXXXXXX" maxlength="10"
+								<input type="text" formControlName="idNumber" aria-required="true" placeholder="رقم الهوية الوطنية أو الإقامة" maxlength="20"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
 								<ws-field-error [control]="setupForm.get('details.idNumber')" label="رقم الهوية الوطنية" />
-								<span class="text-[10px] text-slate-500 mt-1">10 أرقام، هوية وطنية أو إقامة</span>
+								<span class="text-[10px] text-slate-500 mt-1">من 7 إلى 20 رقماً</span>
 							</div>
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">تاريخ الميلاد <span class="ws-req" aria-hidden="true">*</span></label>
 								<div class="relative">
-									<input type="date" formControlName="dob" aria-required="true"
+									<input type="date" formControlName="dob" aria-required="true" [max]="maxDobIso" min="1900-01-01"
 										class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all dark:[&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert">
 								<ws-field-error [control]="setupForm.get('details.dob')" label="تاريخ الميلاد" />
 								</div>
-								<span class="text-[10px] text-slate-500 mt-1">يجب أن يصل العمر إلى 18 سنة</span>
+								<span class="text-[10px] text-slate-500 mt-1">يجب ألا يقل العمر عن 18 عاماً</span>
 							</div>
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">الدولة <span class="ws-req" aria-hidden="true">*</span></label>

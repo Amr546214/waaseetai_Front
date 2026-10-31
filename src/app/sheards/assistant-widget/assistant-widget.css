@@ -281,6 +281,39 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 
 .aw__panel:has(.aw__menu) { overflow: visible; }
 
+.aw__head-title-wrap {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+
+.aw__back-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid var(--pg-border);
+	border-radius: 8px;
+	color: var(--pg-ink);
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.aw__back-btn:hover {
+	background: rgba(43, 212, 199, 0.2);
+	border-color: var(--pg-accent);
+	color: var(--pg-accent-hover);
+}
+
+.aw__back-btn:active {
+	transform: scale(0.95);
+}
+
 .aw__head h2 {
 	margin: 0;
 	font-size: 14px;
@@ -517,6 +550,56 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	font-weight: 700;
 	cursor: pointer;
 	transition: background 0.15s, border-color 0.15s;
+}
+
+
+
+.pg-return-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	padding: 9px 14px;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 700;
+	color: #0b1924;
+	background: linear-gradient(135deg, #2bd4c7 0%, #17b8aa 100%);
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+	box-shadow: 0 2px 8px rgba(43, 212, 199, 0.25);
+}
+
+.pg-return-btn:hover {
+	filter: brightness(1.08);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(43, 212, 199, 0.35);
+}
+
+.pg-return-btn:active {
+	transform: translateY(0);
+}
+
+.pg-return-btn svg {
+	flex-shrink: 0;
+}
+
+.pg-return-btn--footer {
+	background: transparent;
+	color: var(--pg-accent);
+	border: 1px solid var(--pg-accent);
+	box-shadow: none;
+	margin-top: 4px;
+}
+
+.pg-return-btn--footer:hover {
+	background: rgba(43, 212, 199, 0.12);
+	filter: none;
+	box-shadow: none;
+	transform: none;
 }
 
 .pg-secondary:hover {

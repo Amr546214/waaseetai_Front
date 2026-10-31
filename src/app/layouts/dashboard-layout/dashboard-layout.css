@@ -176,3 +176,32 @@
 
 .main-inner[hidden] { display: none !important; }
 .ws-role-redirect { padding: 48px 16px; text-align: center; color: var(--text-secondary, #64748b); font-weight: 600; }
+
+
+/* Full-bleed Chat View matching P-SK-CM-002 design reference */
+.main.chat-main {
+  padding: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: calc(100vh - 56px) !important;
+  min-height: calc(100vh - 56px) !important;
+  max-height: calc(100vh - 56px) !important;
+}
+
+.main.chat-main .main-inner.chat-inner {
+  height: 100% !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+}
+
+@media (max-width: 767px) {
+  .main.chat-main {
+    padding: 0 !important;
+    height: calc(100vh - 56px) !important;
+    max-height: calc(100vh - 56px) !important;
+  }
+}

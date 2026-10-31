@@ -95,3 +95,267 @@
 @media(max-width:767px){
   .co-hero{flex-direction:column}
 }
+
+/* ===== Work Domains & AI Assessments (Skills Tab) ===== */
+.sub-spec-pill {
+  background: #142347;
+  border: 1px solid #233561;
+  color: #93c5fd;
+}
+.spec-score-box {
+  background: #0a142c;
+  border: 1px solid #1d2d54;
+}
+.spec-scorecard,
+.spec-feedback-col {
+  background: rgba(9, 17, 36, 0.7);
+  border: 1px solid #1a2748;
+}
+.spec-row {
+  border-bottom: 1px solid #182544;
+}
+.spec-row-k {
+  color: #7e8eb5;
+}
+.spec-row-v {
+  color: #ffffff;
+}
+.spec-ai-audit {
+  color: #38bdf8;
+}
+.spec-prog-foot {
+  border-top: 1px solid #182544;
+}
+.spec-prog-label {
+  color: #8899b8;
+}
+.spec-prog-track {
+  background: #121f3d;
+}
+.spec-feedback-quote {
+  background: #0e1832;
+  border: 1px solid #1d2d54;
+  color: #b0c0e0;
+}
+.spec-strengths-box {
+  background: #0e1c2e;
+  border: 1px solid #18344e;
+}
+.spec-strength-item {
+  color: #cbd5e1;
+}
+.spec-weaknesses-box {
+  background: #1a172c;
+  border: 1px solid #34244a;
+}
+.spec-weakness-item {
+  color: #cbd5e1;
+}
+.spec-sample-card {
+  background: #0a1329;
+  border: 1px solid #1b2848;
+}
+.spec-sample-card:hover {
+  border-color: rgba(43, 212, 199, 0.4);
+}
+.spec-sample-img-wrap {
+  border: 1px solid #1e2d4a;
+  background: #070d24;
+}
+.spec-sample-overlay {
+  background: linear-gradient(to top, #0a1329, transparent, transparent);
+  opacity: 0.7;
+}
+.spec-sample-badge {
+  background: rgba(10, 19, 41, 0.85);
+  border: 1px solid rgba(43, 212, 199, 0.4);
+  color: #2bd4c7;
+}
+.spec-sample-tech {
+  background: #13203f;
+  border: 1px solid #1e305e;
+  color: #60a5fa;
+}
+.spec-sample-feedback {
+  background: #14122b;
+  border: 1px solid #281f4f;
+  color: #a56be0;
+}
+
+/* Light Theme Overrides */
+:host-context(body.light-theme) .sub-spec-pill,
+:host-context(body.theme-light) .sub-spec-pill,
+:host-context(.light-theme) .sub-spec-pill,
+:host-context(.theme-light) .sub-spec-pill {
+  background: #EEF4FF;
+  border-color: #D3E2FE;
+  color: #1D6FE0;
+}
+
+:host-context(body.light-theme) .spec-score-box,
+:host-context(body.theme-light) .spec-score-box,
+:host-context(.light-theme) .spec-score-box,
+:host-context(.theme-light) .spec-score-box {
+  background: #FFFFFF;
+  border-color: #E2E8F4;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+:host-context(body.light-theme) .spec-scorecard,
+:host-context(body.theme-light) .spec-scorecard,
+:host-context(.light-theme) .spec-scorecard,
+:host-context(.theme-light) .spec-scorecard,
+:host-context(body.light-theme) .spec-feedback-col,
+:host-context(body.theme-light) .spec-feedback-col,
+:host-context(.light-theme) .spec-feedback-col,
+:host-context(.theme-light) .spec-feedback-col {
+  background: #F8FAFC;
+  border-color: #E2E8F4;
+}
+
+:host-context(body.light-theme) .spec-row,
+:host-context(body.theme-light) .spec-row,
+:host-context(.light-theme) .spec-row,
+:host-context(.theme-light) .spec-row {
+  border-color: #E2E8F4;
+}
+
+:host-context(body.light-theme) .spec-row-k,
+:host-context(body.theme-light) .spec-row-k,
+:host-context(.light-theme) .spec-row-k,
+:host-context(.theme-light) .spec-row-k {
+  color: #5B6472;
+}
+
+:host-context(body.light-theme) .spec-row-v,
+:host-context(body.theme-light) .spec-row-v,
+:host-context(.light-theme) .spec-row-v,
+:host-context(.theme-light) .spec-row-v {
+  color: #0F172A;
+}
+
+:host-context(body.light-theme) .spec-ai-audit,
+:host-context(body.theme-light) .spec-ai-audit,
+:host-context(.light-theme) .spec-ai-audit,
+:host-context(.theme-light) .spec-ai-audit {
+  color: #1D6FE0;
+}
+
+:host-context(body.light-theme) .spec-prog-foot,
+:host-context(body.theme-light) .spec-prog-foot,
+:host-context(.light-theme) .spec-prog-foot,
+:host-context(.theme-light) .spec-prog-foot {
+  border-color: #E2E8F4;
+}
+
+:host-context(body.light-theme) .spec-prog-label,
+:host-context(body.theme-light) .spec-prog-label,
+:host-context(.light-theme) .spec-prog-label,
+:host-context(.theme-light) .spec-prog-label {
+  color: #5B6472;
+}
+
+:host-context(body.light-theme) .spec-prog-track,
+:host-context(body.theme-light) .spec-prog-track,
+:host-context(.light-theme) .spec-prog-track,
+:host-context(.theme-light) .spec-prog-track {
+  background: #E2E8F4;
+}
+
+:host-context(body.light-theme) .spec-feedback-quote,
+:host-context(body.theme-light) .spec-feedback-quote,
+:host-context(.light-theme) .spec-feedback-quote,
+:host-context(.theme-light) .spec-feedback-quote {
+  background: #FFFFFF;
+  border-color: #E2E8F4;
+  color: #334155;
+}
+
+:host-context(body.light-theme) .spec-strengths-box,
+:host-context(body.theme-light) .spec-strengths-box,
+:host-context(.light-theme) .spec-strengths-box,
+:host-context(.theme-light) .spec-strengths-box {
+  background: rgba(15, 169, 154, 0.05);
+  border-color: rgba(15, 169, 154, 0.2);
+}
+
+:host-context(body.light-theme) .spec-strength-item,
+:host-context(body.theme-light) .spec-strength-item,
+:host-context(.light-theme) .spec-strength-item,
+:host-context(.theme-light) .spec-strength-item {
+  color: #334155;
+}
+
+:host-context(body.light-theme) .spec-weaknesses-box,
+:host-context(body.theme-light) .spec-weaknesses-box,
+:host-context(.light-theme) .spec-weaknesses-box,
+:host-context(.theme-light) .spec-weaknesses-box {
+  background: rgba(123, 47, 190, 0.05);
+  border-color: rgba(123, 47, 190, 0.2);
+}
+
+:host-context(body.light-theme) .spec-weakness-item,
+:host-context(body.theme-light) .spec-weakness-item,
+:host-context(.light-theme) .spec-weakness-item,
+:host-context(.theme-light) .spec-weakness-item {
+  color: #334155;
+}
+
+:host-context(body.light-theme) .spec-sample-card,
+:host-context(body.theme-light) .spec-sample-card,
+:host-context(.light-theme) .spec-sample-card,
+:host-context(.theme-light) .spec-sample-card {
+  background: #FFFFFF;
+  border-color: #E2E8F4;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+:host-context(body.light-theme) .spec-sample-card:hover,
+:host-context(body.theme-light) .spec-sample-card:hover,
+:host-context(.light-theme) .spec-sample-card:hover,
+:host-context(.theme-light) .spec-sample-card:hover {
+  border-color: rgba(15, 138, 127, 0.4);
+}
+
+:host-context(body.light-theme) .spec-sample-img-wrap,
+:host-context(body.theme-light) .spec-sample-img-wrap,
+:host-context(.light-theme) .spec-sample-img-wrap,
+:host-context(.theme-light) .spec-sample-img-wrap {
+  background: #F1F5F9;
+  border-color: #E2E8F4;
+}
+
+:host-context(body.light-theme) .spec-sample-overlay,
+:host-context(body.theme-light) .spec-sample-overlay,
+:host-context(.light-theme) .spec-sample-overlay,
+:host-context(.theme-light) .spec-sample-overlay {
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent, transparent);
+  opacity: 0.8;
+}
+
+:host-context(body.light-theme) .spec-sample-badge,
+:host-context(body.theme-light) .spec-sample-badge,
+:host-context(.light-theme) .spec-sample-badge,
+:host-context(.theme-light) .spec-sample-badge {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(15, 138, 127, 0.35);
+  color: #0F8A7F;
+}
+
+:host-context(body.light-theme) .spec-sample-tech,
+:host-context(body.theme-light) .spec-sample-tech,
+:host-context(.light-theme) .spec-sample-tech,
+:host-context(.theme-light) .spec-sample-tech {
+  background: #F1F5F9;
+  border-color: #E2E8F0;
+  color: #1D6FE0;
+}
+
+:host-context(body.light-theme) .spec-sample-feedback,
+:host-context(body.theme-light) .spec-sample-feedback,
+:host-context(.light-theme) .spec-sample-feedback,
+:host-context(.theme-light) .spec-sample-feedback {
+  background: rgba(123, 47, 190, 0.05);
+  border-color: rgba(123, 47, 190, 0.18);
+  color: #6B27A5;
+}

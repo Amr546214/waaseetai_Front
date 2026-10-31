@@ -18,7 +18,7 @@ import { isRateLimitError } from '../../core/utils/rate-limit.util';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<div class="paypal-confirm" data-testid="paypal-confirm" role="group" aria-label="تأكيد بريد PayPal"
-			style="margin-top:14px;padding:16px;border:1px solid rgba(255,255,255,.12);border-radius:12px">
+			>
 			<div style="font-weight:800;margin-bottom:8px;text-align:center" data-testid="paypal-confirm-title">تأكيد بريد PayPal</div>
 			<p style="font-size:13px;margin-bottom:6px;text-align:center" data-testid="paypal-confirm-sent">
 				أرسلنا رمزًا إلى بريد حسابك: <span dir="ltr" data-testid="paypal-account-email">{{ accountEmailHint() || 'بريد حسابك' }}</span>
@@ -39,9 +39,54 @@ import { isRateLimitError } from '../../core/utils/rate-limit.util';
 		</div>
 	`,
 	styles: [`
+		.paypal-confirm {
+			margin-top: 14px;
+			padding: 20px;
+			border: 1px solid rgba(255, 255, 255, .12);
+			border-radius: 14px;
+			background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));
+			backdrop-filter: blur(12px);
+		}
 		.pp-sec{background:none;border:1px solid rgba(43,212,199,.30);color:var(--teal);font-family:inherit;font-size:13px;font-weight:700;padding:9px 18px;border-radius:20px;cursor:pointer;transition:background .2s,opacity .2s}
 		.pp-sec:hover:not(:disabled){background:rgba(43,212,199,.08)}
 		.pp-sec:disabled{opacity:.4;cursor:default}
+
+		:host-context(body.light-theme) .paypal-confirm,
+		:host-context(body.theme-light) .paypal-confirm,
+		:host-context(.light-theme) .paypal-confirm,
+		:host-context(.theme-light) .paypal-confirm {
+			background: #FFFFFF !important;
+			border-color: #E2E8F4 !important;
+			box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+		}
+		:host-context(body.light-theme) [data-testid="paypal-confirm-title"],
+		:host-context(body.theme-light) [data-testid="paypal-confirm-title"],
+		:host-context(.light-theme) [data-testid="paypal-confirm-title"],
+		:host-context(.theme-light) [data-testid="paypal-confirm-title"] {
+			color: #0F172A !important;
+		}
+		:host-context(body.light-theme) [data-testid="paypal-confirm-sent"],
+		:host-context(body.light-theme) [data-testid="paypal-confirm-target"],
+		:host-context(body.light-theme) [data-testid="paypal-confirm-freeze"],
+		:host-context(body.theme-light) [data-testid="paypal-confirm-sent"],
+		:host-context(body.theme-light) [data-testid="paypal-confirm-target"],
+		:host-context(body.theme-light) [data-testid="paypal-confirm-freeze"] {
+			color: #475569 !important;
+		}
+		:host-context(body.light-theme) .pp-sec,
+		:host-context(body.theme-light) .pp-sec,
+		:host-context(.light-theme) .pp-sec,
+		:host-context(.theme-light) .pp-sec {
+			border-color: #CBD5E1;
+			color: #475569;
+		}
+		:host-context(body.light-theme) .pp-sec:hover:not(:disabled),
+		:host-context(body.theme-light) .pp-sec:hover:not(:disabled),
+		:host-context(.light-theme) .pp-sec:hover:not(:disabled),
+		:host-context(.theme-light) .pp-sec:hover:not(:disabled) {
+			background: #F1F5F9;
+			color: #0F172A;
+		}
 	`]
 })
 export class PaypalEmailConfirmComponent {

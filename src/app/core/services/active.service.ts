@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpEvent } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpEvent } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -41,7 +42,7 @@ export class ActiveProjectsService {
 		const form = new FormData();
 		form.append('files', file, file.name);
 		return this.http.post<{ success: boolean; data: { files: DeliveryFileDescriptor[] } }>(
-			`${environment.url_api}/provider/projects/${projectId}/stages/${stageId}/deliveries/files`, form, { observe: 'events', reportProgress: true });
+			`${environment.url_api}/provider/projects/${projectId}/stages/${stageId}/deliveries/files`, form, { observe: 'events', reportProgress: true, context: new HttpContext().set(SKIP_LOADING, true) });
 	}
 
 	/** `files` = uploaded-file descriptors returned by uploadDeliveryFile and/or https links. File names alone are refused by the server. */

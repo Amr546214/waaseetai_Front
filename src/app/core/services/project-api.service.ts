@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse, ClientRequestPayload } from '../models/api.model';
@@ -56,7 +57,7 @@ export class ProjectApiService {
 		files.forEach(file => {
 			formData.append('attachments', file, file.name);
 		});
-		return this.http.post<ApiResponse<UploadedAttachment[]>>(`${this.apiUrl}/upload`, formData);
+		return this.http.post<ApiResponse<UploadedAttachment[]>>(`${this.apiUrl}/upload`, formData, { context: new HttpContext().set(SKIP_LOADING, true) });
 	}
 
 	/**

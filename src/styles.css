@@ -179,6 +179,7 @@ select:not([multiple]):not([size]):not(.ws-select-plain){
   padding-inline-end:34px !important;text-overflow:ellipsis;cursor:pointer;
 }
 select:not([multiple]):not([size]):not(.ws-select-plain):dir(rtl){background-position:left 12px center !important}
+[dir="rtl"] select:not([multiple]):not([size]):not(.ws-select-plain){background-position:left 12px center !important}
 select:not([multiple]):not([size]):not(.ws-select-plain):disabled{cursor:not-allowed}
 html.light-theme select:not([multiple]):not([size]):not(.ws-select-plain),
 html.theme-light select:not([multiple]):not([size]):not(.ws-select-plain),
@@ -870,26 +871,27 @@ html.light-theme, html.theme-light, body.light-theme, body.theme-light, .light-t
 
   /* Standalone filter selects (the filter-rail itself is token-driven in waseet-design-system.css) */
   .fr-sel {
-    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     border-color: #D8DFEC !important;
     color: #475569 !important;
   }
   .fr-sel:hover {
-    background: #F3F5FA !important;
+    background-color: #F3F5FA !important;
     color: #0F172A !important;
   }
 
   /* Modals */
-  .modal, .modal-bg {
+  .modal, .modal-bg, .lc-mbox, .modal-box {
     background: #FFFFFF !important;
-    border-color: #E7EAF1 !important;
-    box-shadow: 0 20px 60px rgba(15, 23, 42, .15) !important;
+    border-color: #E2E8F4 !important;
+    box-shadow: 0 25px 70px rgba(15, 23, 42, .16) !important;
+    color: #0F172A !important;
   }
-  .modal-overlay { background: rgba(15, 23, 42, .55) !important; }
-  .modal-ttl { color: #070D24 !important; }
-  .modal-lbl { color: #475569 !important; }
-  .modal-inp, .modal-sel {
-    background: #F8FAFC !important;
+  .modal-overlay, .lc-mov { background: rgba(15, 23, 42, .55) !important; }
+  .modal-ttl, .lc-mhd h3 { color: #0F172A !important; }
+  .modal-lbl, .lc-fld label { color: #334155 !important; }
+  .modal-inp, .modal-sel, .lc-mbox .dp-input, .lc-mbox .lc-sel, .lc-mbox .lc-ta, .lc-mbox select, .lc-mbox textarea, .lc-mbox input {
+    background-color: #FFFFFF !important;
     border-color: #CBD5E1 !important;
     color: #0F172A !important;
   }

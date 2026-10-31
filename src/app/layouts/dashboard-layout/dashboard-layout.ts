@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal, effect, AfterViewInit, OnInit, OnDestroy, PLATFORM_ID, Renderer2 } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthStore } from '../../core/store/auth.store';
 import { NavDashboard } from '../../sheards/dashboard/nav-dashboard/nav-dashboard';
@@ -69,6 +69,8 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
     targetRoute: '/client-overview/messages'
   });
 
+  isChatRoute = signal<boolean>(false);
+
   constructor() {
     effect(() => {
       if (isPlatformBrowser(this.platformId)) {
@@ -88,6 +90,16 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
   }
 
   ngOnInit() {
+    const checkChat = () => {
+      const u = this.router.url || '';
+      this.isChatRoute.set(u.includes('/messages'));
+    };
+    checkChat();
+    this.sub.add(
+      this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
+        checkChat();
+      })
+    );
     if (isPlatformBrowser(this.platformId)) {
       const user = this.currentUser();
       let userId = user?.id;

@@ -25,7 +25,6 @@ import {
 	BEBO_CORE_MOTIONS,
 	NADEEM_GUIDE_MOTIONS,
 	BEBO_DIALECTS,
-	BEBO_VOICES,
 	BeboAction,
 	BeboDialect,
 } from '../bebo-avatar/bebo-commands';
@@ -126,7 +125,16 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 			<section class="aw__panel" [ngStyle]="panelStyle()" [class.aw__panel--guest]="isGuest() && panelTab() === 'chat'" role="dialog" aria-modal="false" aria-labelledby="aw-title">
 				<header class="aw__head">
 					<div>
-						<h2 id="aw-title">{{ panelTitle() }}</h2>
+						<div class="aw__head-title-wrap">
+							@if (panelTab() !== 'chat') {
+								<button type="button" class="aw__back-btn" (click)="selectTab('chat')" [attr.aria-label]="'العودة إلى المحادثة مع ' + characterName()" title="العودة للمحادثة">
+									<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+										<polyline points="9 18 15 12 9 6"></polyline>
+									</svg>
+								</button>
+							}
+							<h2 id="aw-title">{{ panelTitle() }}</h2>
+						</div>
 						@if (!isGuest() && (store.state() !== 'idle' || store.audioLoading())) {
 							<span class="aw__state" aria-live="polite">{{ stateLabel() }}</span>
 						}
@@ -174,6 +182,12 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 						</div>
 					} @else if (panelTab() === 'settings') {
 						<div class="pg-settings">
+							<button type="button" class="pg-return-btn" (click)="selectTab('chat')">
+								<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+									<polyline points="9 18 15 12 9 6"></polyline>
+								</svg>
+								العودة إلى المحادثة
+							</button>
 							<p id="aw-manual-audio-help" class="pg-manual-audio-help">تشغيل الصوت يدويًا من زر كل رد. يمكنك ضبط الصوت واللهجة ومستواه هنا.</p>
 							<label>
 								مظهر الروبوت
@@ -211,7 +225,12 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 							</label>
 							<label>
 								الصوت
-								<select class="pg-speech-voice" [value]="store.ttsVoice()" (change)="store.setVoice($any($event.target).value)" aria-describedby="aw-manual-audio-help">
+								<select class="pg-speech-voice" [value]="store.ttsVoice()" (change)="store.setVoice($any($event.target).value)" aria-describedby="aw-manual-audio-help" [disabled]="!availableVoices().length">
+									@if (store.capabilitiesLoading()) {
+										<option value="" disabled selected>جاري تحميل الأصوات المدعومة...</option>
+									} @else if (!availableVoices().length) {
+										<option value="" disabled selected>لا توجد أصوات مدعومة من الخادم</option>
+									}
 									@for (v of availableVoices(); track v.id) {
 										<option [value]="v.id">{{ v.label || v.id }}</option>
 									}
@@ -232,6 +251,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 								<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
 								رجّع الشخصية لمكانها
 							</button>
+							<button type="button" class="pg-return-btn pg-return-btn--footer" (click)="selectTab('chat')">العودة إلى المحادثة</button>
 						</div>
 					} @else if (panelTab() === 'tour') {
 						<div class="pg-tour-container">
@@ -491,7 +511,7 @@ export class AssistantWidgetComponent {
 	});
 
 	readonly dialectLabel = computed(() => BEBO_DIALECTS[this.store.detectedDialect()]?.label ?? 'مصري');
-	readonly availableVoices = computed(() => this.store.capabilities()?.voices ?? BEBO_VOICES.map(v => ({ id: v, label: v })));
+	readonly availableVoices = computed(() => this.store.capabilities()?.voices ?? []);
 	readonly textModels = computed(() => (this.store.capabilities()?.models ?? []).filter(model => model.available !== false && model.modalities?.some(mode => ['text', 'chat'].includes(mode.toLowerCase()))));
 	readonly speechModels = computed(() => (this.store.capabilities()?.models ?? []).filter(model => model.available !== false && model.modalities?.some(mode => ['tts', 'speech'].includes(mode.toLowerCase()))));
 
@@ -749,6 +769,7 @@ export class AssistantWidgetComponent {
 	selectTab(tab: 'chat' | 'motions' | 'settings' | 'tour'): void {
 		this.panelTab.set(tab);
 		this.menuOpen.set(false);
+		if (tab === 'settings') this.store.loadCapabilities();
 	}
 
 	exportConversation(): void {

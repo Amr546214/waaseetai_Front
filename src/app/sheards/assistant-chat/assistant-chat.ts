@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AssistantStore, MAX_QUESTION_LENGTH } from '../../core/store/assistant.store';
 import { guidedCatalog, guidedSupport } from '../../core/help/help-guided';
-import { BEBO_CORE_MOTIONS, NADEEM_GUIDE_MOTIONS, BEBO_ALL_MOTIONS, BEBO_DIALECTS, BEBO_DIALECT_IDS, BEBO_VOICES } from '../bebo-avatar/bebo-commands';
+import { BEBO_CORE_MOTIONS, NADEEM_GUIDE_MOTIONS, BEBO_ALL_MOTIONS, BEBO_DIALECTS, BEBO_DIALECT_IDS } from '../bebo-avatar/bebo-commands';
 import { assistantMarkdown, safeAssistantUrl } from '../../core/help/assistant-content';
 import { BeboAction } from '../bebo-avatar/bebo-commands';
 import { cleanMessages } from '../../core/help/assistant-history';
@@ -173,7 +173,12 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 				</select>
 			</label>
 				<label>الصوت
-					<select class="ac__voice-select" [value]="store.ttsVoice()" (change)="store.setVoice($any($event.target).value)">
+					<select class="ac__voice-select" [value]="store.ttsVoice()" (change)="store.setVoice($any($event.target).value)" [disabled]="!availableVoices().length">
+						@if (store.capabilitiesLoading()) {
+							<option value="" disabled selected>جاري تحميل الأصوات المدعومة...</option>
+						} @else if (!availableVoices().length) {
+							<option value="" disabled selected>لا توجد أصوات مدعومة من الخادم</option>
+						}
 						@for (v of availableVoices(); track v.id) {
 							<option [value]="v.id" [selected]="store.ttsVoice() === v.id">{{ v.label || v.id }}</option>
 						}
@@ -283,8 +288,7 @@ export class AssistantChatComponent implements OnDestroy {
 	readonly maxLength = MAX_QUESTION_LENGTH;
 	/** Handoff option lists (bebo-core.mjs DIALECTS, bebo-chat.js voices). */
 	readonly dialects = BEBO_DIALECT_IDS.map((id) => ({ id, label: BEBO_DIALECTS[id].label }));
-	readonly voices = BEBO_VOICES;
-	readonly availableVoices = computed(() => this.store.capabilities()?.voices ?? this.voices.map(id => ({ id, label: id })));
+	readonly availableVoices = computed(() => this.store.capabilities()?.voices ?? []);
 	readonly textModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['text','chat'].includes(v.toLowerCase()))));
 	readonly speechModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['tts','speech'].includes(v.toLowerCase()))));
 	readonly motions = computed(() => {
