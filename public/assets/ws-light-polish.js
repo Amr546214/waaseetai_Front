@@ -83,6 +83,39 @@
     }
     return acc===null?base:over(acc,base);
   }
+  var BG_SUBPROPS = ['background', 'background-color', 'background-image', 'background-position', 'background-size', 'background-repeat', 'background-origin', 'background-clip', 'background-attachment'];
+
+  function cleanElementStyles(el) {
+    if (!el || !el.style) return;
+    if (el._ws_orig) {
+      for (var p in el._ws_orig) {
+        var o = el._ws_orig[p];
+        if (o && o[0]) {
+          el.style.setProperty(p, o[0], o[1]);
+        } else {
+          el.style.removeProperty(p);
+          if (p === 'background' || p === 'background-color') {
+            for (var b = 0; b < BG_SUBPROPS.length; b++) el.style.removeProperty(BG_SUBPROPS[b]);
+          }
+        }
+      }
+      delete el._ws_orig;
+    } else {
+      for (var b2 = 0; b2 < BG_SUBPROPS.length; b2++) el.style.removeProperty(BG_SUBPROPS[b2]);
+      el.style.removeProperty('box-shadow');
+      el.style.removeProperty('color');
+      el.style.removeProperty('border-top-color');
+      el.style.removeProperty('border-right-color');
+      el.style.removeProperty('border-bottom-color');
+      el.style.removeProperty('border-left-color');
+      el.style.removeProperty('backdrop-filter');
+      el.style.removeProperty('-webkit-backdrop-filter');
+    }
+    if (el.removeAttribute) el.removeAttribute('data-ws-polished');
+    var curStyle = el.getAttribute ? el.getAttribute('style') : null;
+    if (curStyle !== null && curStyle.trim() === '') el.removeAttribute('style');
+  }
+
   function setP(el,prop,val){
     if(!el || !el.style) return;
     if(!el._ws_orig){
@@ -91,45 +124,22 @@
       applied.push(el);
     }
     if(!(prop in el._ws_orig)){
+      if(prop === 'background'){
+        el._ws_orig['background-color'] = [el.style.getPropertyValue('background-color'), el.style.getPropertyPriority('background-color')];
+        el._ws_orig['background-image'] = [el.style.getPropertyValue('background-image'), el.style.getPropertyPriority('background-image')];
+      }
       el._ws_orig[prop] = [el.style.getPropertyValue(prop), el.style.getPropertyPriority(prop)];
     }
     el.style.setProperty(prop,val,'important');
   }
   function revert(){
     for(var i=0;i<applied.length;i++){
-      var el=applied[i];
-      if(el && el._ws_orig){
-        for(var p in el._ws_orig){
-          var o=el._ws_orig[p];
-          if(o && o[0]) el.style.setProperty(p,o[0],o[1]);
-          else el.style.removeProperty(p);
-        }
-        delete el._ws_orig;
-      }
-      if(el && el.removeAttribute) el.removeAttribute('data-ws-polished');
+      cleanElementStyles(applied[i]);
     }
     applied=[];
     var polished=document.querySelectorAll('[data-ws-polished]');
     for(var j=0;j<polished.length;j++){
-      var pel=polished[j];
-      pel.removeAttribute('data-ws-polished');
-      if(pel._ws_orig){
-        for(var p2 in pel._ws_orig){
-          var o2=pel._ws_orig[p2];
-          if(o2 && o2[0]) pel.style.setProperty(p2,o2[0],o2[1]);
-          else pel.style.removeProperty(p2);
-        }
-        delete pel._ws_orig;
-      }
-      pel.style.removeProperty('background');
-      pel.style.removeProperty('box-shadow');
-      pel.style.removeProperty('color');
-      pel.style.removeProperty('border-top-color');
-      pel.style.removeProperty('border-right-color');
-      pel.style.removeProperty('border-bottom-color');
-      pel.style.removeProperty('border-left-color');
-      pel.style.removeProperty('backdrop-filter');
-      pel.style.removeProperty('-webkit-backdrop-filter');
+      cleanElementStyles(polished[j]);
     }
   }
 

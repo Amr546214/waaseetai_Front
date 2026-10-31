@@ -147,9 +147,10 @@ export interface ProviderSession {
       white-space: nowrap !important;
       cursor: not-allowed !important;
       opacity: 1 !important;
-      background: rgba(255, 255, 255, 0.06) !important;
+      background: rgba(255, 255, 255, 0.08) !important;
       border: 1px solid rgba(255, 255, 255, 0.16) !important;
       color: #E2E8F0 !important;
+      -webkit-text-fill-color: #E2E8F0 !important;
       transition: all 0.15s ease;
     }
     :host-context(body.light-theme) button.disabled-btn-neutral,
@@ -160,10 +161,12 @@ export interface ProviderSession {
     :host-context(.light-theme) button.disabled-btn-neutral:disabled,
     :host-context(.theme-light) button.disabled-btn-neutral,
     :host-context(.theme-light) button.disabled-btn-neutral:disabled {
-      background: #F1F5F9 !important;
+      background: #E2E8F0 !important;
       border: 1px solid #CBD5E1 !important;
       color: #0F172A !important;
+      -webkit-text-fill-color: #0F172A !important;
       opacity: 1 !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
     }
 
     /* Danger Card */

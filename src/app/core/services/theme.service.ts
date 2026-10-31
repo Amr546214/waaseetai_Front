@@ -36,21 +36,21 @@ export class ThemeService {
 			const html = document.documentElement;
 			const body = document.body;
 			if (newTheme === 'dark') {
-				body.classList.remove('light-theme', 'theme-light', 'light');
-				html.classList.remove('light-theme', 'theme-light', 'light');
-				html.classList.add('dark');
-				body.classList.add('dark');
 				html.setAttribute('data-theme', 'dark');
 				body.setAttribute('data-theme', 'dark');
+				html.classList.add('dark');
+				body.classList.add('dark');
+				body.classList.remove('light-theme', 'theme-light', 'light');
+				html.classList.remove('light-theme', 'theme-light', 'light');
 				html.style.background = '#070D24';
 				body.style.background = '#070D24';
 			} else {
+				html.setAttribute('data-theme', 'light');
+				body.setAttribute('data-theme', 'light');
 				body.classList.remove('dark');
 				html.classList.remove('dark');
 				body.classList.add('light-theme', 'theme-light');
 				html.classList.add('light-theme', 'theme-light');
-				html.setAttribute('data-theme', 'light');
-				body.setAttribute('data-theme', 'light');
 				html.style.background = '#EEF2FA';
 				body.style.background = '#EEF2FA';
 			}

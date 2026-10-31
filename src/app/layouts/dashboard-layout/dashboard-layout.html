@@ -217,9 +217,13 @@
 
 		<!-- FOOTER -->
 		@if (!isChatRoute()) {
-			<div class="inner-foot">
+			<footer class="inner-foot" role="contentinfo">
 				<span>&#169; {{ currentYear }} وسيط AI &middot; v{{ appVersion }}</span>
-			</div>
+				<div class="inner-foot-links">
+					<a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a>
+					<a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>
+				</div>
+			</footer>
 		}
 	</main>
 

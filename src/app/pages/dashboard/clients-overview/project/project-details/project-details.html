@@ -204,8 +204,6 @@
 			<div class="lc-panel active">@for(group of data.files;track group.groupTitle){<div class="lc-fgrp"><div class="lc-fgrp-hd"><span class="lc-fgrp-n" [class.lc-nd-done]="group.isDone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span>{{ group.groupTitle }}</div><div class="lc-filegrid">@for(file of group.files;track $index){<a class="lc-fcard" [href]="openUrl(file)" target="_blank" rel="noopener"><span class="lc-fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg></span><span class="fn">{{ file.name }}</span><span class="fm">{{ file.size || 'ملف مرفق' }}</span></a>}</div></div>}@empty{<div class="state-card empty-state">لا توجد ملفات مرفوعة</div>}</div>
 		}
 	}
-
-	<div class="inner-foot"><span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span><div class="inner-foot-links"><a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a><a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a></div></div>
 </section>
 
 @if(amendOpen()){<div class="lc-mov show" role="dialog" aria-modal="true" aria-labelledby="amend-ttl" (click)="closeAmendments()" data-testid="amend-modal"><div class="lc-mbox" (click)="$event.stopPropagation()">

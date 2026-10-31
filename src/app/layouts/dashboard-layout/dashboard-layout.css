@@ -54,30 +54,34 @@
   position: relative; /* no z-index: a stacking context here traps every toast/modal under the fixed header (z 100) */
   margin-top: 56px;
   margin-right: 260px;
-  /* --ws-assistant-reserve is set by the floating assistant while it is visible: the end of every page can scroll clear of it */
-  padding: 22px 24px calc(22px + var(--ws-assistant-reserve, 0px));
+  padding: 0;
   min-height: calc(100vh - 56px);
   transition: margin-right 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-sizing: border-box;
 }
 
 .main-inner {
   width: 100%;
   flex: 1;
+  /* --ws-assistant-reserve is set by the floating assistant while it is visible: the end of every page can scroll clear of it */
+  padding: 22px 24px calc(22px + var(--ws-assistant-reserve, 0px));
+  box-sizing: border-box;
 }
 
 /* Footer */
 .inner-foot {
-  margin-top: 30px;
-  padding: 14px 0;
+  margin-top: auto;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 11px;
   color: #6B7699;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+  box-sizing: border-box;
 }
 .inner-foot-links {
   display: flex;
@@ -160,14 +164,15 @@
   .main {
     margin-right: 0;
     max-width: 100vw;
-    min-height: unset;
+    min-height: calc(100vh - 56px);
   }
 }
 @media (max-width: 767px) {
-  .main {
+  .main-inner {
     padding: 14px 16px calc(14px + var(--ws-assistant-reserve, 0px));
   }
   .inner-foot {
+    padding: 14px 16px;
     flex-direction: column;
     gap: 10px;
     text-align: center;
@@ -196,6 +201,7 @@
   flex-direction: column !important;
   overflow: hidden !important;
   min-height: 0 !important;
+  padding: 0 !important;
 }
 
 @media (max-width: 767px) {
