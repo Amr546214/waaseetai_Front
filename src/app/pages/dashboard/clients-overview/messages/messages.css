@@ -1367,14 +1367,16 @@ body.theme-light .image-modal-overlay, body.theme-light .image-modal-overlay {
 }
 
 /* ── Negotiation Card Styles ── */
-.neg-card-box {
+app-client-messages .neg-card-box {
   background: rgba(15, 23, 42, 0.95);
   border: 1px solid rgba(93, 160, 255, 0.3);
   border-radius: 14px;
   padding: 14px 16px;
   margin-top: 4px;
-  min-width: 290px;
-  max-width: 380px;
+  min-width: 0;
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   color: #E2E8F0;
 }
@@ -1387,6 +1389,8 @@ body.theme-light .image-modal-overlay, body.theme-light .image-modal-overlay {
   padding-bottom: 10px;
   margin-bottom: 10px;
 }
+app-client-messages .neg-card-hdr { flex-wrap: wrap; }
+app-client-messages .neg-card-badge { max-width: 100%; margin-inline-start: auto; }
 
 .neg-card-icon {
   font-size: var(--font-size-section);
@@ -1433,6 +1437,7 @@ body.theme-light .image-modal-overlay, body.theme-light .image-modal-overlay {
   justify-content: space-between;
   align-items: center;
 }
+app-client-messages .neg-card-row { gap: 8px 16px; flex-wrap: wrap; }
 
 .neg-card-lbl {
   color: #94A3B8;
@@ -1459,16 +1464,19 @@ body.theme-light .image-modal-overlay, body.theme-light .image-modal-overlay {
   line-height: 1.5;
 }
 
-.neg-card-actions {
-  display: flex;
+app-client-messages .neg-card-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
   gap: 8px;
   margin-top: 12px;
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.neg-act-btn {
-  flex: 1;
+app-client-messages .neg-act-btn {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1480,10 +1488,28 @@ body.theme-light .image-modal-overlay, body.theme-light .image-modal-overlay {
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  line-height: 1.6;
 }
 
-.neg-act-btn.counter-accept {
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+app-client-messages .neg-card-actions.neg-counter-confirm {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+app-client-messages .neg-counter-confirm .neg-card-decided {
+  margin: 0 0 4px;
+  padding: 14px;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  line-height: 1.8;
+  text-align: start;
+  word-break: normal;
+}
+
+app-client-messages .neg-act-btn.counter-accept {
+  background: linear-gradient(135deg, #047857 0%, #065F46 100%);
   color: #FFFFFF;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }

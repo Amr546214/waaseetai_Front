@@ -83,12 +83,10 @@
 
 /* TERMS */
 .terms-row { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; background: rgba(43,127,255,.04); border: 1px solid rgba(43,127,255,.14); border-radius: 12px; cursor: pointer; margin-bottom: 16px; outline: none; }
-.terms-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid rgba(255,255,255,.20); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
-.terms-check.checked { background: #2B7FFF; border-color: #2B7FFF; }
-.terms-check svg { width: 10px; height: 10px; color: #fff; opacity: 0; }
-.terms-check.checked svg { opacity: 1; }
-.terms-text { font-size: var(--font-size-small); color: var(--text-secondary, #A8B2D1); line-height: 1.6; }
-.terms-text button { color: var(--teal-txt, #2BD4C7); background: none; border: none; font-weight: 700; cursor: pointer; font-family: inherit; padding: 0; text-decoration: underline; }
+.escrow-deposit-page input.terms-check { appearance: auto; -webkit-appearance: auto; width: 20px; height: 20px; flex: 0 0 20px; margin: 2px 0 0; padding: 0; accent-color: var(--blue, #2B7FFF); cursor: pointer; }
+.escrow-deposit-page input.terms-check:focus-visible { outline: 2px solid var(--blue-txt, #5DA0FF); outline-offset: 3px; }
+.escrow-deposit-page .terms-text { flex: 1; min-width: 0; font-size: var(--font-size-small); color: var(--txt-2); line-height: 1.8; cursor: pointer; }
+.escrow-deposit-page .terms-text a { color: var(--blue-txt); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 
 /* SECURITY FOOTER */
 .security-footer { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 14px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; margin-bottom: 16px; flex-wrap: wrap; }

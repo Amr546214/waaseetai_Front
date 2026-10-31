@@ -74,25 +74,27 @@
   </div>
 
   <div class="od-card" data-testid="cs-terms">
-    <p class="od-desc">
-      <strong>القيمة:</strong> {{ price() }}.<br>
-      <strong>مدة التنفيذ:</strong> {{ duration() || 'غير محددة' }}.
-    </p>
+    <dl class="cs-terms-summary">
+      <div><dt>القيمة</dt><dd><bdi>{{ price() }}</bdi></dd></div>
+      <div><dt>مدة التنفيذ</dt><dd>{{ duration() || 'غير محددة' }}</dd></div>
+    </dl>
     @if (milestones().length) {
-    <table class="cs-ms" data-testid="cs-milestones" style="width:100%;margin-top:12px;border-collapse:collapse;font-size:var(--font-size-small)">
-      <thead><tr style="text-align:right"><th>#</th><th>المرحلة</th><th>الدفعة</th><th>النسبة</th><th>المدة</th></tr></thead>
-      <tbody>
-        @for (m of milestones(); track m.order) {
-        <tr data-testid="cs-milestone">
-          <td>{{ m.order }}</td>
-          <td>{{ m.title }}@if (m.description) {<div class="txt-muted" style="font-size:var(--font-size-small)">{{ m.description }}</div>}</td>
-          <td>{{ m.amount | number:'1.0-2' }} $</td>
-          <td>{{ m.percentage | number:'1.0-1' }}٪</td>
-          <td>{{ m.days }} يوم</td>
-        </tr>
-        }
-      </tbody>
-    </table>
+    <div class="cs-milestones" data-testid="cs-milestones" aria-label="مراحل العقد والدفعات والمدد المتفق عليها">
+      @for (m of milestones(); track m.order) {
+      <article class="cs-stage" data-testid="cs-milestone">
+        <header class="cs-stage-heading">
+          <span class="cs-stage-number">المرحلة {{ m.order }}</span>
+          <h3>{{ m.title }}</h3>
+        </header>
+        @if (m.description) { <p class="cs-stage-description">{{ m.description }}</p> }
+        <dl class="cs-stage-facts">
+          <div><dt>الدفعة</dt><dd><bdi>{{ m.amount | number:'1.0-2' }} $</bdi></dd></div>
+          <div><dt>النسبة من قيمة العقد</dt><dd><bdi>{{ m.percentage | number:'1.0-1' }}٪</bdi></dd></div>
+          <div><dt>مدة المرحلة</dt><dd>{{ m.days }} يوم</dd></div>
+        </dl>
+      </article>
+      }
+    </div>
     } @else {
     <p class="od-desc txt-muted" data-testid="cs-no-milestones" style="margin-top:10px">لا مراحل مفصّلة في هذا العقد: تسليم واحد نهائي بقيمة العقد كاملة.</p>
     }

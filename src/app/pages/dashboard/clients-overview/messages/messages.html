@@ -201,7 +201,7 @@
                         }
                       }
                       @if (canAcceptCounter(msg)) {
-                        <div class="neg-card-actions">
+                        <div class="neg-card-actions" [class.neg-counter-confirm]="counterConfirmId() === (msg.id + '')">
                           @if (counterConfirmId() !== (msg.id + '')) {
                             <button type="button" class="neg-act-btn counter-accept" data-testid="neg-counter-accept" (click)="askAcceptCounter(msg)">قبول العرض المضاد</button>
                             <button type="button" class="neg-act-btn decline-counter" data-testid="neg-counter-decline" [disabled]="!!counterBusyId()" (click)="declineCounter(msg)">رفض العرض المضاد</button>

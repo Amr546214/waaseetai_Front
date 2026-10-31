@@ -121,14 +121,14 @@
 			<div class="level-label">مستوى الولاء</div>
 			<div class="level-row">
 				<ws-level-badge [level]="levelDisplay()" [showIndex]="true" />
-				<span class="level-pts">{{ profileData()?.currentPoints || 0 }} نقطة · كاش باك الولاء حسب مستواك</span>
+				<span class="level-pts">{{ profileData()?.currentPoints ?? '—' }} نقطة · كاش باك الولاء حسب مستواك</span>
 			</div>
 		</div>
 		<button type="button" class="level-btn" routerLink="/client-overview/profile/level">تفاصيل</button>
 	</div>
 
 	<!-- Completion Banner -->
-	@if (completionPercent < 100) { <div class="completion-banner" id="completion-banner" role="note">
+	@if (completionPercent !== null && completionPercent < 100) { <div class="completion-banner" id="completion-banner" role="note">
 		<div class="completion-ico">
 			<svg width="19" height="19" aria-hidden="true">
 				<use href="#ic-warn"></use>
@@ -164,11 +164,11 @@
 						{{ getInitials() }}
 						}
 					</div>
-					<div class="avatar-level-badge">
+					@if (levelDisplay()) { <div class="avatar-level-badge">
 						<svg width="11" height="11" aria-hidden="true" class="txt-navy">
 							<use href="#ic-star"></use>
 						</svg>
-					</div>
+					</div> }
 				</div>
 
 				<!-- Info -->
@@ -187,10 +187,10 @@
 						</svg>
 						}
 						<span class="rating-num">{{ humanRating | number:'1.1-1' }}</span>
-						<span class="rating-count">({{ profileData()?.reviewsCount || 0 }} تقييم)</span>
+						@if (profileData()?.reviewsCount != null) { <span class="rating-count">({{ profileData().reviewsCount }} تقييم)</span> }
 					</div>
 					} @else {
-					<div class="profile-stars" data-testid="profile-rating-empty"><span class="rating-count">لا توجد تقييمات من مقدمي الخدمة بعد</span></div>
+					<div class="profile-stars" data-testid="profile-rating-empty"><span class="rating-count">{{ profileData()?.reviewsCount === 0 ? 'لا توجد تقييمات من مقدمي الخدمة بعد' : 'التقييمات غير متاحة' }}</span></div>
 					}
 
 					<div class="profile-badges">
@@ -231,11 +231,11 @@
 			<!-- Stats -->
 			<div class="stats-grid">
 				<div class="stat-cell">
-					<div class="stat-num">{{ profileData()?.totalRequests || 0 }}</div>
+					<div class="stat-num">{{ profileData()?.totalRequests ?? '—' }}</div>
 					<div class="stat-lbl">طلب منشور</div>
 				</div>
 				<div class="stat-cell" style="border-inline: 1px solid rgba(255,255,255,.06)">
-					<div class="stat-num">{{ profileData()?.completedProjects || 0 }}</div>
+					<div class="stat-num">{{ profileData()?.completedProjects ?? '—' }}</div>
 					<div class="stat-lbl">مشروع مكتمل</div>
 				</div>
 				<div class="stat-cell" style="border-inline-end: 1px solid rgba(255,255,255,.06)">
@@ -243,7 +243,7 @@
 					<div class="stat-lbl">تقييم متوسط</div>
 				</div>
 				<div class="stat-cell">
-					<div class="stat-num">{{ profileData()?.reviewsCount || 0 }}</div>
+					<div class="stat-num">{{ profileData()?.reviewsCount ?? '—' }}</div>
 					<div class="stat-lbl">تقييم من مقدمي الخدمة</div>
 				</div>
 			</div>
@@ -318,7 +318,7 @@
 				<div class="info-row">
 					<span class="info-key">رقم الجوال</span>
 					@if (profileData()?.phoneNumber) {
-					<span class="info-val" dir="ltr">{{ profileData()?.phoneCountryCode || '+966' }} {{
+					<span class="info-val" dir="ltr">{{ profileData()?.phoneCountryCode || '' }} {{
 						profileData().phoneNumber }}</span>
 					} @else {
 					<span class="info-val missing">غير مُضاف</span>
@@ -452,11 +452,6 @@
 			</div>
 			}
 			} @else {
-			<!-- Fallback placeholder activity -->
-			<div class="activity-row">
-				<span class="activity-title">انضمام للمنصة</span>
-				<span class="activity-time">{{ getMemberSince() }}</span>
-			</div>
 			<div style="text-align:center;padding:20px;font-size:var(--font-size-small);margin-top:8px" class="txt-muted">
 				لا توجد أنشطة حديثة للعرض
 			</div>
