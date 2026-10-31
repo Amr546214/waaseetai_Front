@@ -1176,3 +1176,30 @@ select.ng-invalid.ng-dirty,
 :is(button, a, [role="button"]).bg-gradient-to-r.from-cyan-500.to-blue-600:not([class*="dark:from-"]):disabled {
   cursor: not-allowed;
 }
+
+button.disabled-btn-neutral:disabled,
+button.disabled-btn-neutral,
+.disabled-btn-neutral {
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #E2E8F0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+:is(.light-theme, .theme-light, body.light-theme, body.theme-light) button.disabled-btn-neutral:disabled,
+:is(.light-theme, .theme-light, body.light-theme, body.theme-light) button.disabled-btn-neutral,
+:is(.light-theme, .theme-light, body.light-theme, body.theme-light) .disabled-btn-neutral {
+  background: #E2E8F0 !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #0F172A !important;
+  opacity: 1 !important;
+}

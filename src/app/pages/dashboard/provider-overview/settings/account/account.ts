@@ -137,25 +137,33 @@ export interface ProviderSession {
       color: #1D6FE0;
     }
 
+    button.disabled-btn-neutral,
+    button.disabled-btn-neutral:disabled,
     .disabled-btn-neutral {
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      white-space: nowrap;
-      cursor: not-allowed;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #94A3B8;
-      transition: all 0.15s;
+      padding: 8px 16px !important;
+      border-radius: 8px !important;
+      font-size: 12.5px !important;
+      font-weight: 800 !important;
+      white-space: nowrap !important;
+      cursor: not-allowed !important;
+      opacity: 1 !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      color: #E2E8F0 !important;
+      transition: all 0.15s ease;
     }
-    :host-context(body.light-theme) .disabled-btn-neutral,
-    :host-context(body.theme-light) .disabled-btn-neutral,
-    :host-context(.light-theme) .disabled-btn-neutral,
-    :host-context(.theme-light) .disabled-btn-neutral {
-      background: #F1F5F9;
-      border-color: #CBD5E1;
-      color: #475569;
+    :host-context(body.light-theme) button.disabled-btn-neutral,
+    :host-context(body.light-theme) button.disabled-btn-neutral:disabled,
+    :host-context(body.theme-light) button.disabled-btn-neutral,
+    :host-context(body.theme-light) button.disabled-btn-neutral:disabled,
+    :host-context(.light-theme) button.disabled-btn-neutral,
+    :host-context(.light-theme) button.disabled-btn-neutral:disabled,
+    :host-context(.theme-light) button.disabled-btn-neutral,
+    :host-context(.theme-light) button.disabled-btn-neutral:disabled {
+      background: #F1F5F9 !important;
+      border: 1px solid #CBD5E1 !important;
+      color: #0F172A !important;
+      opacity: 1 !important;
     }
 
     /* Danger Card */
