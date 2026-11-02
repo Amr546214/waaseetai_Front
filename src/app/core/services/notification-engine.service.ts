@@ -78,6 +78,8 @@ interface IconStyle {
 	svg: string;
 	/** the site icon (icon.fn id) this glyph is the same element as: the drawn <svg> carries data-ws-icon so a customised icon replaces it */
 	ws?: string;
+	/** the glyph IS the official AI mark: the drawn <svg> carries data-ws-ai-mark and follows the key icon.ai (identity page) */
+	aiMark?: boolean;
 }
 
 @Injectable({
@@ -139,7 +141,8 @@ export class NotificationEngineService implements OnDestroy {
 	};
 	private static readonly ICON_AI: IconStyle = {
 		bg: 'bg-[rgba(123,47,190,.16)]', color: 'text-[#7B2FBE]',
-		svg: '<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>'
+		svg: '<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>',
+		aiMark: true
 	};
 	private static readonly ICON_GENERAL: IconStyle = {
 		bg: 'bg-[rgba(160,178,209,.12)]', color: 'text-[var(--txt-3)]',
@@ -594,7 +597,7 @@ export class NotificationEngineService implements OnDestroy {
 			metadata: raw?.metadata ?? null,
 			iconColorClass: iconStyle.color,
 			iconBgClass: iconStyle.bg,
-			svgIcon: this.buildIconHtml(iconStyle.svg, iconStyle.ws),
+			svgIcon: this.buildIconHtml(iconStyle.svg, iconStyle.ws, iconStyle.aiMark),
 		};
 	}
 
@@ -772,12 +775,12 @@ export class NotificationEngineService implements OnDestroy {
 	 * markup always comes from this service's own static icon maps, never
 	 * from backend/user-controlled content.
 	 */
-	buildIconHtml(innerMarkup: string, wsIcon?: string): SafeHtml {
-		const cacheKey = wsIcon ? wsIcon + '|' + innerMarkup : innerMarkup;
+	buildIconHtml(innerMarkup: string, wsIcon?: string, aiMark = false): SafeHtml {
+		const cacheKey = (aiMark ? 'ai|' : '') + (wsIcon ? wsIcon + '|' + innerMarkup : innerMarkup);
 		const cached = this.iconHtmlCache.get(cacheKey);
 		if (cached) return cached;
 		const html = this.sanitizer.bypassSecurityTrustHtml(
-			`<svg${wsIcon ? ` data-ws-icon="${wsIcon}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${innerMarkup}</svg>`
+			`<svg${wsIcon ? ` data-ws-icon="${wsIcon}"` : ''}${aiMark ? ' data-ws-ai-mark' : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${innerMarkup}</svg>`
 		);
 		this.iconHtmlCache.set(cacheKey, html);
 		return html;

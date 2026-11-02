@@ -15,6 +15,7 @@ Several Karim PRs contain equivalent cherry-picked changes. Their combined desce
 ## Integration baseline
 
 - Dev integration branch at review start: `0941da2ed3f9903b7b67571dbca700e5004b3c28` (includes performance head `b3d8fbf7`).
+- Latest integration update merged during review: `3516962a89e54d192e69e035d1f7327e8827a96c` (#318, explicit AI-mark bindings and constant illustration keys). Four generated/template conflicts were resolved while retaining the team typography. The generated usage report was rebuilt.
 - Main at review start: `488dac5e52c695f194c6552f72e71ecbd3f77f6a`. Its README-only changes are preserved.
 - Team heads: `f9ad876206f6049d320b6fd84dbfa452f4cdfb09`, `50bbf4e9489ccad3e6e96127d4e743e2a64ba0f7`, `e89be27247e1aa6ae264fc54bc7c39836d3969a2`.
 
@@ -56,3 +57,7 @@ Final checks: `inline-icon-keys`, `icon-real-library` and `icon-usage-report` mu
 ## Review and deployment
 
 Review this PR against the integration branch, not against the much older main. Preserve `fe-swap-env.sh`, `WS_IDENTITY_UPSTREAM` and `WS_IDENTITY_HOST` when a connected deployment environment releases it. Check the actual deployed heads immediately before release and run the identity deployment check afterward. Do not overwrite newer registration or site-control changes. No migration is required for this frontend branch.
+
+## Latest-base verification after #318
+
+The complete integrated suite was repeated after the late upstream merge and the budget helper correction: **5,096 total, 5,026 passed, 61 failed, 9 skipped**. A separate full run on latest base `3516962a` has **5,040 total, 4,959 passed, 72 failed, 9 skipped**. Comparing full names and relative source files gives **zero added failures**, with 11 base failures absent. These are not all claimed as fixes. A concurrent comparison attempt exited 137 due resource pressure; the completed comparison was run sequentially. All three identity generators match; the seven Node tests pass. Production compilation is repeated on this latest merged tree. No browser or deployment claim is added.

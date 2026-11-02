@@ -62,14 +62,14 @@ function scan(root = ROOT) {
 			const close = t.indexOf('</svg>', te); if (close < 0) continue;
 			const attrs = t.slice(x.index + 4, te), inner = t.slice(te + 1, close);
 			if (/<use\b|<symbol\b|<defs\b|<svg\b/.test(inner) || !/<(path|circle|rect|line|polyline|polygon|ellipse)\b/.test(inner)) continue;
-			const key = (/(?:data-ws-icon|wsIcon)\s*=\s*"([^"]*)"/.exec(attrs) || [])[1] || (/\[attr\.data-ws-icon\]\s*=/.test(attrs) ? '(bound by data)' : null);
+			const key = (/(?:data-ws-icon|wsIcon)\s*=\s*"([^"]*)"/.exec(attrs) || [])[1] || (/\[attr\.data-ws-icon\]\s*=/.test(attrs) ? '(bound by data)' : null) || (/\bdata-ws-ai-mark\b|\[attr\.data-ws-ai-mark\]/.test(attrs) ? '(icon.ai)' : null);
 			const vb = (/\bviewBox\s*=\s*"([^"]*)"/.exec(attrs) || [])[1] || null;
 			const paint = {}; for (const a of PAINT) { const r = new RegExp('(?:^|\\s)' + a + '\\s*=\\s*"([^"]*)"').exec(attrs); if (r) paint[a] = r[1]; }
 			places.push({
 				f, idx: x.index, line: t.slice(0, x.index).split('\n').length, kind: !isTs ? 'html' : hasTemplate ? 'ts-template' : 'ts-string', key, vb, paint, cls: (/class="([^"]*)"/.exec(attrs) || [])[1] || '',
 				inner: norm(inner),
 				// drawn by data or by template state: the children are Angular's, replacing them would break the view
-				dynamic: /\{\{|\[attr\.|\[ngClass|@if|@for|@switch|\*ng|ngSwitch|<animate|<style|<text|\$\{/.test(inner),
+				dynamic: /\{\{|\[attr\.|\[ngClass|@if|@for|@switch|\*ng|ngSwitch|<animate|<style|\$\{/.test(inner),
 			});
 		}
 	}
@@ -81,7 +81,8 @@ function decide(p) {
 	if (p.dynamic) return { excluded: 'DYNAMIC', why: 'الرسم يُختار وقت التشغيل من بيانات أو حالة قالب (@switch / @if / [attr.d] / نص)، واستبدال محتواه يكسر عرض Angular' };
 	const g = GLYPHS[p.inner + '|' + p.vb];
 	if (!g) return { excluded: 'UNNAMED', why: 'رسم جديد لا اسم له في tools/inline-icon-glyphs.json' };
-	if (!g.slug) return { excluded: g.ai ? 'AI_MARK' : 'NOT_AN_ICON', why: g.label };
+	if (g.ai) return { aiMark: true, why: g.label };
+	if (!g.slug) return { excluded: 'NOT_AN_ICON', why: g.label };
 	const [area, areaAr] = areaOf(p.f);
 	return { key: KEY_PREFIX + area + '-' + g.slug, label: g.label + ' — ' + areaAr, glyph: g.slug, area, areaAr, glyphAr: g.label, native: !!g.native };
 }
@@ -99,17 +100,18 @@ function symbolMarkup(id, p, label, area, areaAr, native) {
 }
 
 function plan(places = scan()) {
-	const keys = new Map(); const assign = []; const excluded = [];
+	const keys = new Map(); const assign = []; const excluded = []; const aiAssign = [];
 	for (const p of places) {
 		if (p.key) continue;
 		const d = decide(p);
+		if (d.aiMark) { aiAssign.push({ p }); continue; }
 		if (d.key) {
 			assign.push({ p, ...d });
 			const k = keys.get(d.key) || { native: d.native, key: d.key, label: d.label, area: d.area, areaAr: d.areaAr, glyph: d.glyph, variants: new Map(), places: 0 };
 			const vk = p.inner + '|' + p.vb; const v = k.variants.get(vk) || { n: 0, p }; v.n++; k.variants.set(vk, v); k.places++; keys.set(d.key, k);
 		} else excluded.push({ p, ...d });
 	}
-	return { assign, excluded, keys };
+	return { assign, excluded, keys, aiAssign };
 }
 
 /** existing registry entries: id -> symbol markup (kept: a key never loses its default drawing) */
@@ -141,7 +143,7 @@ function librariesFor(keys) {
 
 function summary(pl) {
 	const by = {}; for (const e of pl.excluded) by[e.excluded] = (by[e.excluded] || 0) + 1;
-	return { toBind: pl.assign.length, keys: pl.keys.size, excluded: pl.excluded.length, excludedBy: by };
+	return { toBind: pl.assign.length, aiMarks: pl.aiAssign.length, keys: pl.keys.size, excluded: pl.excluded.length, excludedBy: by };
 }
 
 function write() {
@@ -149,12 +151,12 @@ function write() {
 	const unnamed = pl.excluded.filter(e => e.excluded === 'UNNAMED');
 	if (unnamed.length) { console.error('UNNAMED glyphs (add them to tools/inline-icon-glyphs.json):\n' + unnamed.map(u => u.p.f + ':' + u.p.line + ' ' + u.p.inner.slice(0, 100)).join('\n')); process.exit(1); }
 	// 1. templates: add the attribute right after `<svg` (back to front so offsets stay valid)
-	const byFile = new Map(); for (const a of pl.assign) (byFile.get(a.p.f) || byFile.set(a.p.f, []).get(a.p.f)).push(a);
+	const byFile = new Map(); for (const a of [...pl.assign, ...pl.aiAssign.map(x => ({ ...x, attr: ' data-ws-ai-mark' }))]) (byFile.get(a.p.f) || byFile.set(a.p.f, []).get(a.p.f)).push(a);
 	for (const [f, list] of byFile) {
 		let t = fs.readFileSync(path.join(ROOT, f), 'utf8');
 		for (const a of list.sort((x, y) => y.p.idx - x.p.idx)) {
 			if (t.slice(a.p.idx, a.p.idx + 4) !== '<svg') throw new Error('offset drift in ' + f);
-			t = t.slice(0, a.p.idx + 4) + ` data-ws-icon="${a.key}"` + t.slice(a.p.idx + 4);
+			t = t.slice(0, a.p.idx + 4) + (a.attr ?? ` data-ws-icon="${a.key}"`) + t.slice(a.p.idx + 4);
 		}
 		fs.writeFileSync(path.join(ROOT, f), t);
 	}
@@ -196,7 +198,7 @@ if (require.main === module) {
 		const pl = plan(); const s = summary(pl);
 		if (mode === 'print') console.log(JSON.stringify(s), '\n' + pl.excluded.map(e => e.excluded + ' ' + e.p.f + ':' + e.p.line).join('\n'));
 		else {
-			const bad = pl.assign.length + pl.excluded.filter(e => e.excluded === 'UNNAMED').length;
+			const bad = pl.assign.length + pl.aiAssign.length + pl.excluded.filter(e => e.excluded === 'UNNAMED').length;
 			if (bad) { console.error('DRIFT: ' + bad + ' inline <svg> drawing(s) have no key (run: node tools/inline-icon-keys.cjs --write)'); process.exit(1); }
 			console.log('every inline drawing is bound or excluded with a reason', JSON.stringify(s.excludedBy));
 		}

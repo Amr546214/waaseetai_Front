@@ -200,7 +200,9 @@ export class AiIconRuntime {
 		this.prune();
 		const targets: Element[] = [];
 		root.querySelectorAll('symbol[id]').forEach(s => { if (AI_ID_RULE.test(s.id) && !this.saved.has(s) && geometrySignature(s) === want) targets.push(s); });
-		root.querySelectorAll('svg').forEach(s => { if (!this.saved.has(s) && s.children.length >= 8 && geometrySignature(s) === want) targets.push(s); });
+		// an svg that DECLARES itself the official mark (`data-ws-ai-mark`, written on every place that draws it) follows icon.ai whatever its drawing (a flattened single-path copy included);
+		// the geometry signature stays as the net for copies nobody marked (TypeScript-built strings, future templates)
+		root.querySelectorAll('svg').forEach(s => { if (!this.saved.has(s) && (s.hasAttribute('data-ws-ai-mark') || (s.children.length >= 8 && geometrySignature(s) === want))) targets.push(s); });
 		for (const t of targets) this.replace(t, icon);
 	}
 
