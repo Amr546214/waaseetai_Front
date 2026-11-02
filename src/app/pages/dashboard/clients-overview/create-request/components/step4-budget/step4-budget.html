@@ -5,7 +5,7 @@
 		<div class="form-card bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[24px] p-6 mb-6">
 			<div class="form-card-title text-lg font-bold text-[var(--txt)] flex items-center justify-between gap-3 mb-6 flex-wrap">
 				<span class="flex items-center gap-3">
-					<svg class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
+					<svg data-ws-icon="i-wallet" class="w-6 h-6 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
 					نوع الميزانية
 				</span>
 				<button type="button"
@@ -23,7 +23,7 @@
 					</div>
 					<div>
 						<div class="font-bold text-[var(--txt)] mb-1">نطاق</div>
-						<div class="text-[12px] text-[var(--txt-3)] font-medium">من X إلى Y، يشجع على عروض متنوعة</div>
+						<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-medium">من X إلى Y، يشجع على عروض متنوعة</div>
 					</div>
 				</div>
 				<div class="budget-type-card flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.budgetType() === 'fixed' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" role="radio" [attr.aria-checked]="parent.budgetType() === 'fixed'" tabindex="0" (click)="parent.budgetType.set('fixed')">
@@ -32,7 +32,7 @@
 					</div>
 					<div>
 						<div class="font-bold text-[var(--txt)] mb-1">ثابت</div>
-						<div class="text-[12px] text-[var(--txt-3)] font-medium">مبلغ محدد، للمشاريع ذات التكلفة المعروفة</div>
+						<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-medium">مبلغ محدد، للمشاريع ذات التكلفة المعروفة</div>
 					</div>
 				</div>
 				<div class="budget-type-card flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors" [ngClass]="parent.budgetType() === 'hourly' ? 'border-[var(--teal)] bg-[var(--bggrid-3)]' : 'border-[var(--sec-bd)] bg-[var(--sec-bg)] hover:border-[var(--teal)]'" role="radio" [attr.aria-checked]="parent.budgetType() === 'hourly'" tabindex="0" (click)="parent.budgetType.set('hourly')">
@@ -41,7 +41,7 @@
 					</div>
 					<div>
 						<div class="font-bold text-[var(--txt)] mb-1">بالساعة</div>
-						<div class="text-[12px] text-[var(--txt-3)] font-medium">معدل / ساعة، للمشاريع المفتوحة</div>
+						<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-medium">معدل / ساعة، للمشاريع المفتوحة</div>
 					</div>
 				</div>
 			</div>
@@ -123,7 +123,7 @@
 			<div id="ms-section" tabindex="-1" class="milestones-section outline-none mt-4 p-5 rounded-xl border border-[var(--teal)]/30 bg-[var(--teal)]/5">
 				<div class="flex items-center justify-between mb-4">
 					<span class="flex items-center gap-2 font-bold text-sm text-[var(--txt)]">
-						<svg class="w-4 h-4 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+						<svg data-ws-icon="i-chart" class="w-4 h-4 text-[var(--teal)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
 						مراحل الدفع
 					</span>
 					<span class="text-xs font-bold" [ngClass]="parent.milestoneTotalPct === 100 ? 'text-[var(--teal)]' : 'text-amber-500'">الإجمالي: {{ parent.milestoneTotalPct }}%</span>
@@ -141,21 +141,21 @@
 							<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--txt-3)]">%</span>
 						</div>
 						<button type="button" class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center hover:bg-red-500/20 transition-colors shrink-0" (click)="parent.removeMilestone(idx)">
-							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+							<svg data-ws-icon="ws-close" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 						</button>
 					</div>
-					@if (parent.milestoneFieldError(idx, 'name'); as err) { <span class="field-error text-[11px] font-bold  pr-11" role="alert" data-testid="ms-name-error">{{ err }}</span> }
-					@if (parent.milestoneFieldError(idx, 'pct'); as err) { <span class="field-error text-[11px] font-bold  pr-11" role="alert" data-testid="ms-pct-error">{{ err }}</span> }
+					@if (parent.milestoneFieldError(idx, 'name'); as err) { <span class="field-error text-[length:var(--font-size-small)] font-bold  pr-11" role="alert" data-testid="ms-name-error">{{ err }}</span> }
+					@if (parent.milestoneFieldError(idx, 'pct'); as err) { <span class="field-error text-[length:var(--font-size-small)] font-bold  pr-11" role="alert" data-testid="ms-pct-error">{{ err }}</span> }
 					</div>
 					}
 				</div>
 
 				<div class="flex items-center justify-between mt-4">
 					<button type="button" class="flex items-center gap-2 px-4 py-2 bg-[var(--teal)]/10 text-[var(--teal)] border border-[var(--teal)]/30 rounded-lg text-xs font-bold hover:bg-[var(--teal)]/20 transition-colors" (click)="parent.addMilestone()">
-						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+						<svg data-ws-icon="i-plus" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 						إضافة مرحلة
 					</button>
-					<span class="text-[11px] text-[var(--txt-3)] font-medium">الحد الأدنى مرحلتان</span>
+					<span class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-medium">الحد الأدنى مرحلتان</span>
 				</div>
 
 				@if (parent.milestoneCapMessage(); as cap) {

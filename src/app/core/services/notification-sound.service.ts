@@ -1,11 +1,13 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { SiteIdentityService } from '../identity/site-identity.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationSoundService {
   private platformId = inject(PLATFORM_ID);
+  private identity = inject(SiteIdentityService);
   private isBrowser = isPlatformBrowser(this.platformId);
   private audio: HTMLAudioElement | null = null;
   private permissionRequested = false;
@@ -115,7 +117,7 @@ export class NotificationSoundService {
       try {
         const n = new Notification(title, {
           body,
-          icon: '/images/waseet-mark.png',
+          icon: this.identity.resolve('logo.mark'),
           tag: msg.conversationId || 'waseet_chat_msg'
         });
         n.onclick = () => {

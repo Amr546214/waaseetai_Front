@@ -40,11 +40,11 @@ import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.comp
 	styles: [`
 		.fs-wrap { margin-bottom: 16px; }
 		.fs-data { padding: 14px; border-radius: 12px; border: 1px solid var(--sec-bd, rgba(255,255,255,.08)); }
-		.fs-ttl { font-size: 12px; font-weight: 800; margin-bottom: 8px; }
-		.fs-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+		.fs-ttl { font-size: var(--font-size-small); font-weight: 800; margin-bottom: 8px; }
+		.fs-tbl { width: 100%; border-collapse: collapse; font-size: var(--font-size-label); }
 		.fs-tbl th, .fs-tbl td { text-align: start; padding: 6px 8px; border-bottom: 1px solid var(--sec-bd, rgba(255,255,255,.08)); }
-		.fs-mixed { margin: 0 0 8px; font-size: 12px; font-weight: 700; color: #D98A0B; }
-		.fs-est { margin: 10px 0 0; font-size: 12px; color: var(--txt-3, #8892b0); }
+		.fs-mixed { margin: 0 0 8px; font-size: var(--font-size-small); font-weight: 700; color: #D98A0B; }
+		.fs-est { margin: 10px 0 0; font-size: var(--font-size-small); color: var(--txt-3, #8892b0); }
 	`],
 })
 export class ForecastSummaryComponent implements OnInit {

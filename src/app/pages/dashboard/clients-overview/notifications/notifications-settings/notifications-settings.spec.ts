@@ -45,6 +45,29 @@ describe('client notification preferences page', () => {
 		expect(s.c.isSaving()).toBe(false);
 	});
 
+	it('channel switches show their saved state and update the visible status when clicked without saving', async () => {
+		const s = setup({ settings: { channel_in_app: true, channel_email: false } });
+		await s.fixture.whenStable();
+		s.fixture.detectChanges();
+		const app = s.el.querySelector<HTMLInputElement>('input[aria-label="الإشعارات اللحظية داخل وسيط AI"]')!;
+		const email = s.el.querySelector<HTMLInputElement>('input[aria-label="البريد الإلكتروني"]')!;
+		expect(app.checked).toBe(true);
+		expect(app.closest('.pref-row')!.querySelector('.sw-state')!.textContent).toBe('مفعّل');
+		expect(email.checked).toBe(false);
+		expect(email.closest('.pref-row')!.querySelector('.sw-state')!.textContent).toBe('متوقف');
+		email.click();
+		s.fixture.detectChanges();
+		await s.fixture.whenStable();
+		expect(email.checked).toBe(true);
+		expect(email.closest('.pref-row')!.querySelector('.sw-state')!.textContent).toBe('مفعّل');
+		email.click();
+		s.fixture.detectChanges();
+		await s.fixture.whenStable();
+		expect(email.checked).toBe(false);
+		expect(email.closest('.pref-row')!.querySelector('.sw-state')!.textContent).toBe('متوقف');
+		expect(s.updatePreferences).not.toHaveBeenCalled();
+	});
+
 	it('a failed load shows the error state with a working retry', () => {
 		const s = setup({ getError: true });
 		expect(s.c.hasError()).toBe(true);

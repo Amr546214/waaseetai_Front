@@ -51,7 +51,7 @@
           }
           <div class="sum-row total"><span class="sum-row-label">الإجمالي المدفوع</span><span class="sum-row-val">{{ formatPrice(orderTotal()) }} $</span></div>
         </div>
-        <div style="padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--txt-3);display:flex;align-items:center;gap:6px">
+        <div style="padding:12px 16px;border-top:1px solid var(--border);font-size:var(--font-size-small);color:var(--txt-3);display:flex;align-items:center;gap:6px">
           <svg aria-hidden="true" style="width:11px;height:11px;color:var(--teal)"><use href="#ws-check"></use></svg>
           @if (userEmail()) {
             تم إرسال نسخة من الفاتورة إلى {{ userEmail() }}

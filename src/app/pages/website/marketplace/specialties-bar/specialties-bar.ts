@@ -21,7 +21,9 @@ const ICON_NAMES: Record<string, string> = {
 	building: 'business', 'building-2': 'business',
 	smartphone: 'mobile',
 };
-const KNOWN = new Set(['code', 'mobile', 'design', 'writing', 'marketing', 'video', 'translate', 'consult', 'data', 'photo', 'audio', 'sound', 'legal', 'training', 'admin', 'business']);
+/** every symbol the bar can draw through `#spb-<name>` (the 16 known names + the generic tag fallback), written out in full so the icon tools and the library see them */
+export const SPB_SYMBOL_IDS = ['spb-code', 'spb-mobile', 'spb-design', 'spb-writing', 'spb-marketing', 'spb-video', 'spb-translate', 'spb-consult', 'spb-data', 'spb-photo', 'spb-audio', 'spb-sound', 'spb-legal', 'spb-training', 'spb-admin', 'spb-business', 'spb-tag'] as const;
+const KNOWN = new Set<string>(SPB_SYMBOL_IDS.map(i => i.slice(4)));
 
 /**
  * Specialties bar of the marketplace (design P-MK-001): a sticky horizontal strip with "كل التخصصات" + one chip per

@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed, ElementRef } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,6 +31,22 @@ export interface AccountSession {
       display: block;
       width: 100%;
       animation: ws-fade 0.2s ease forwards;
+    }
+    .availability-badge {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      margin-inline-start: 8px;
+      padding: 2px 8px;
+      border: 1px solid var(--sec-bd);
+      border-radius: 999px;
+      background: var(--sec-bg);
+      color: var(--txt-3);
+      font-size: var(--font-size-caption);
+      font-weight: 700;
+      line-height: 1.6;
+      vertical-align: middle;
+      white-space: nowrap;
     }
     @keyframes ws-fade {
       from { opacity: 0; transform: translateY(6px); }
@@ -108,7 +125,7 @@ export interface AccountSession {
       border: 1px solid rgba(255,255,255,.10);
       border-radius: 9px;
       padding: 9px 13px;
-      font-size: 13px;
+      font-size: var(--font-size-label);
       color: #fff;
       font-family: inherit;
       cursor: pointer;
@@ -138,8 +155,9 @@ export interface AccountSession {
 
     /* Danger Card */
     .danger-card {
-      background: rgba(255,140,105,.05);
-      border: 1px solid rgba(255,140,105,.22);
+      --account-danger: #f87171;
+      background: rgba(239,68,68,.05);
+      border: 1px solid rgba(239,68,68,.22);
       border-radius: 14px;
       padding: 18px;
       margin-bottom: 16px;
@@ -148,38 +166,44 @@ export interface AccountSession {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
+      font-size: var(--font-size-label);
       font-weight: 900;
-      color: #FF8C69;
+      color: var(--account-danger);
       margin-bottom: 6px;
     }
     .danger-card p {
-      font-size: 12.5px;
+      font-size: var(--font-size-label);
       color: #A8B2D1;
       line-height: 1.6;
       margin-bottom: 14px;
     }
     .danger-btn {
       padding: 10px 18px;
-      background: rgba(255,140,105,.12);
-      border: 1px solid rgba(255,140,105,.3);
+      background: rgba(239,68,68,.10);
+      border: 1px solid rgba(239,68,68,.3);
       border-radius: 9px;
-      color: #FF8C69;
-      font-size: 13px;
+      color: var(--account-danger);
+      font-size: var(--font-size-label);
       font-weight: 800;
       cursor: pointer;
       font-family: inherit;
       transition: background 0.15s;
     }
     .danger-btn:hover {
-      background: rgba(255,140,105,.2);
+      background: rgba(239,68,68,.18);
+    }
+    .danger-card .availability-badge {
+      color: var(--account-danger);
+      background: rgba(239,68,68,.06);
+      border-color: rgba(239,68,68,.25);
     }
     :host-context(body.light-theme) .danger-card,
     :host-context(body.theme-light) .danger-card,
     :host-context(.light-theme) .danger-card,
     :host-context(.theme-light) .danger-card {
-      background: rgba(255,140,105,.06);
-      border-color: rgba(255,140,105,.3);
+      --account-danger: #b42318;
+      background: rgba(239,68,68,.04);
+      border-color: rgba(239,68,68,.3);
     }
     :host-context(body.light-theme) .danger-card p,
     :host-context(body.theme-light) .danger-card p,
@@ -201,7 +225,7 @@ export class Account implements OnInit {
   isLoading = signal<boolean>(true);
   hasError = signal<boolean>(false);
 
-  // No 2FA / login-alert capability exists in the backend: both stay visibly unavailable (disabled, with the reason in the template).
+  // No 2FA / login-alert capability exists in the backend: both stay disabled with an availability badge.
   twoFactorAuth = signal<boolean>(false);
   newLoginAlert = signal<boolean>(false);
 
@@ -307,7 +331,7 @@ export class Account implements OnInit {
   sessionActivityLabel(s: AccountSession): string {
     if (s.isCurrent) return 'الجلسة الحالية · نشطة الآن';
     const d = new Date(s.lastActiveAt);
-    return Number.isNaN(d.getTime()) ? '' : 'آخر نشاط: ' + d.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return Number.isNaN(d.getTime()) ? '' : 'آخر نشاط: ' + d.toLocaleString('ar-SA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
   }
 
   // Data copy and account deletion have no self-service endpoint: both open the real support-ticket flow (a human channel), and nothing here claims the request was made.

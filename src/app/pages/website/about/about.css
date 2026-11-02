@@ -9,32 +9,32 @@ app-about .page-wrap{position:relative;z-index:2}
 /* HERO */
 app-about .about-hero{padding:72px 0 64px;text-align:center;position:relative;border-bottom:1px solid var(--border)}
 app-about .about-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(43,212,199,.07),transparent);pointer-events:none}
-app-about .hero-label{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:999px;font-size:11px;font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:20px}
+app-about .hero-label{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;background:rgba(43,212,199,.07);border:1px solid rgba(43,212,199,.18);border-radius:999px;font-size:var(--font-size-small);font-weight:800;color:var(--teal);letter-spacing:.06em;margin-bottom:20px}
 app-about .hero-label svg{width:12px;height:12px}
 app-about .about-hero h1{font-size:clamp(32px,5vw,56px);font-weight:900;color:var(--txt);line-height:1.2;margin-bottom:18px;text-wrap:pretty}
 app-about .about-hero h1 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 app-about .about-hero p{font-size:clamp(14px,2vw,17px);color:var(--txt-2);line-height:1.75;max-width:620px;margin:0 auto 32px;text-wrap:pretty}
 app-about .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-app-about .btn-grad{padding:13px 28px;border-radius:999px;background:var(--grad);font-size:14px;font-weight:900;color:#070D24;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:opacity .15s}
+app-about .btn-grad{padding:13px 28px;border-radius:999px;background:var(--grad);font-size:var(--font-size-label);font-weight:900;color:#070D24;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:opacity .15s}
 app-about .btn-grad:hover{opacity:.88}
 app-about .btn-grad svg{width:15px;height:15px}
-app-about .btn-ghost-lg{padding:12px 28px;border-radius:999px;border:1px solid var(--border);font-size:14px;font-weight:700;color:var(--txt-2);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+app-about .btn-ghost-lg{padding:12px 28px;border-radius:999px;border:1px solid var(--border);font-size:var(--font-size-label);font-weight:700;color:var(--txt-2);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
 app-about .btn-ghost-lg:hover{border-color:rgba(43,212,199,.35);color:var(--teal)}
 app-about .btn-ghost-lg svg{width:14px;height:14px}
 
 /* MISSION */
 app-about .section{padding:64px 0}
-app-about .section-label{font-size:11px;font-weight:800;color:var(--teal);letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+app-about .section-label{font-size:var(--font-size-small);font-weight:800;color:var(--teal);letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 app-about .section-label svg{width:11px;height:11px}
 app-about .section-title{font-size:clamp(22px,3.5vw,34px);font-weight:900;color:var(--txt);line-height:1.3;margin-bottom:14px;text-wrap:pretty}
-app-about .section-sub{font-size:15px;color:var(--txt-2);line-height:1.75;max-width:600px;text-wrap:pretty}
+app-about .section-sub{font-size:var(--font-size-body);color:var(--txt-2);line-height:1.75;max-width:600px;text-wrap:pretty}
 app-about .mission-layout{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
 app-about .mission-visual{background:linear-gradient(135deg,rgba(43,212,199,.06),rgba(43,127,255,.03));border:1px solid rgba(43,212,199,.15);border-radius:20px;padding:32px;display:flex;flex-direction:column;gap:14px}
 app-about .mission-point{display:flex;align-items:flex-start;gap:12px}
 app-about .mission-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 app-about .mission-ico svg{width:16px;height:16px}
-app-about .mission-point-title{font-size:13px;font-weight:800;color:var(--txt);margin-bottom:3px}
-app-about .mission-point-sub{font-size:12px;color:var(--txt-3);line-height:1.6}
+app-about .mission-point-title{font-size:var(--font-size-label);font-weight:800;color:var(--txt);margin-bottom:3px}
+app-about .mission-point-sub{font-size:var(--font-size-small);color:var(--txt-3);line-height:1.6}
 
 /* VALUES */
 app-about .values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
@@ -42,8 +42,8 @@ app-about .value-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rg
 app-about .value-card:hover{border-color:rgba(43,212,199,.22);transform:translateY(-3px)}
 app-about .value-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
 app-about .value-ico svg{width:20px;height:20px}
-app-about .value-title{font-size:15px;font-weight:900;color:var(--txt);margin-bottom:6px}
-app-about .value-sub{font-size:12px;color:var(--txt-3);line-height:1.7}
+app-about .value-title{font-size:var(--font-size-body);font-weight:900;color:var(--txt);margin-bottom:6px}
+app-about .value-sub{font-size:var(--font-size-small);color:var(--txt-3);line-height:1.7}
 
 /* AI SECTION */
 app-about .ai-section{background:linear-gradient(135deg,rgba(123,47,190,.07),rgba(43,127,255,.04));border:1px solid var(--ai-border);border-radius:20px;padding:48px;margin:0 0 64px;position:relative;overflow:hidden}
@@ -57,17 +57,17 @@ app-about .ai-feat-ico{width:28px;height:28px;border-radius:7px;background:var(-
 app-about .ai-feat-ico svg{width:12px;height:12px;color:var(--ai)}
 app-about .ai-feat-ico--plain{background:rgba(43,127,255,.1);border-color:rgba(43,127,255,.25)}
 app-about .ai-feat-ico--plain svg{color:var(--blue-txt,#5DA0FF)}
-app-about .ai-feat-title{font-size:13px;font-weight:800;color:var(--txt);margin-bottom:2px}
-app-about .ai-feat-sub{font-size:11px;color:var(--txt-3);line-height:1.5}
+app-about .ai-feat-title{font-size:var(--font-size-label);font-weight:800;color:var(--txt);margin-bottom:2px}
+app-about .ai-feat-sub{font-size:var(--font-size-small);color:var(--txt-3);line-height:1.5}
 
 /* TEAM */
 app-about .team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px}
 app-about .team-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;transition:border-color .2s}
 app-about .team-card:hover{border-color:rgba(43,212,199,.2)}
 app-about .team-av{width:64px;height:64px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#070D24}
-app-about .team-name{font-size:14px;font-weight:800;color:var(--txt);margin-bottom:3px}
-app-about .team-role{font-size:11px;color:var(--teal);font-weight:700;margin-bottom:6px}
-app-about .team-sub{font-size:11px;color:var(--txt-3);line-height:1.5}
+app-about .team-name{font-size:var(--font-size-label);font-weight:800;color:var(--txt);margin-bottom:3px}
+app-about .team-role{font-size:var(--font-size-small);color:var(--teal);font-weight:700;margin-bottom:6px}
+app-about .team-sub{font-size:var(--font-size-small);color:var(--txt-3);line-height:1.5}
 app-about .team-socials{display:flex;gap:6px;justify-content:center;margin-top:10px}
 app-about .team-social{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;transition:all .15s;color:var(--txt-3)}
 app-about .team-social:hover{border-color:rgba(43,212,199,.3);color:var(--teal)}
@@ -77,7 +77,7 @@ app-about .team-social svg{width:11px;height:11px}
 app-about .cta-section{background:linear-gradient(135deg,rgba(43,212,199,.08),rgba(43,127,255,.05));border:1px solid rgba(43,212,199,.18);border-radius:20px;padding:56px;text-align:center;margin-bottom:64px;position:relative;overflow:hidden}
 app-about .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(43,212,199,.12),transparent 60%);pointer-events:none}
 app-about .cta-section h2{font-size:clamp(24px,4vw,36px);font-weight:900;color:var(--txt);margin-bottom:12px;position:relative;text-wrap:pretty}
-app-about .cta-section p{font-size:15px;color:var(--txt-2);margin-bottom:28px;position:relative;line-height:1.7}
+app-about .cta-section p{font-size:var(--font-size-body);color:var(--txt-2);margin-bottom:28px;position:relative;line-height:1.7}
 app-about .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
 
 /* DIVIDER */

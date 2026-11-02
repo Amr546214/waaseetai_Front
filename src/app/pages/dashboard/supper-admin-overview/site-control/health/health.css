@@ -1,0 +1,43 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--pg);
+  color: var(--txt);
+  font-family: var(--font-family, 'Tajawal'), system-ui, sans-serif;
+  direction: rtl;
+}
+.health-wrap { max-width: 1240px; margin: 0 auto; padding: 24px; }
+.panel-header h1 { margin: 0 0 4px; font-size: 22px; font-weight: 900; }
+.panel-header .sub { margin: 0 0 20px; color: var(--txt-2); font-size: 13px; }
+
+.stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 18px; display: flex; flex-direction: column; gap: 6px;
+}
+.stat-card.error { border-color: rgba(var(--red-rgb),.4); }
+.stat-card.warn { border-color: rgba(var(--kahr-rgb),.4); }
+.stat-num { font-size: 28px; font-weight: 900; color: var(--teal, #2BD4C7); }
+.stat-card.error .stat-num { color: var(--red, #FF8C69); }
+.stat-card.warn .stat-num { color: var(--kahr, #D98A0B); }
+.stat-label { font-size: 11.5px; color: var(--txt-3); }
+
+section h2 { font-size: 15px; font-weight: 900; margin: 0 0 12px; }
+.issues-section { margin-bottom: 28px; }
+.ok-msg { color: var(--green, #0FA99A); font-size: 13px; }
+.issues-list { display: flex; flex-direction: column; gap: 6px; }
+.issue-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px;
+  background: rgba(var(--kahr-rgb),.08); border: 1px solid rgba(var(--kahr-rgb),.25); font-size: 12.5px;
+}
+.issue-row.error { background: rgba(var(--red-rgb),.08); border-color: rgba(var(--red-rgb),.3); }
+.issue-severity { font-weight: 900; }
+.issue-area { font-weight: 800; color: var(--txt-2); min-width: 70px; }
+.issue-msg { color: var(--txt); }
+
+.persist-grid { display: flex; flex-direction: column; gap: 6px; }
+.persist-row {
+  display: flex; justify-content: space-between; padding: 10px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px; font-size: 12.5px; color: var(--txt-3);
+}
+.persist-row span.saved { color: var(--teal, #2BD4C7); }

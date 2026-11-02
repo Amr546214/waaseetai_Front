@@ -1,4 +1,6 @@
-import { Injectable, InjectionToken, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Injectable, InjectionToken, Injector, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { providerTimeZone } from './provider-prefs.store';
+import { AdminAccessService } from './admin-access.service';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -74,6 +76,10 @@ interface IconStyle {
 	bg: string;
 	color: string;
 	svg: string;
+	/** the site icon (icon.fn id) this glyph is the same element as: the drawn <svg> carries data-ws-icon so a customised icon replaces it */
+	ws?: string;
+	/** the glyph IS the official AI mark: the drawn <svg> carries data-ws-ai-mark and follows the key icon.ai (identity page) */
+	aiMark?: boolean;
 }
 
 @Injectable({
@@ -81,6 +87,7 @@ interface IconStyle {
 })
 export class NotificationEngineService implements OnDestroy {
 	private http = inject(HttpClient);
+	private injector = inject(Injector);
 	private soundService = inject(NotificationSoundService);
 	private platformId = inject(PLATFORM_ID);
 	private isBrowser = isPlatformBrowser(this.platformId);
@@ -114,27 +121,33 @@ export class NotificationEngineService implements OnDestroy {
 	// no new icon dependency introduced.
 	private static readonly ICON_MESSAGE: IconStyle = {
 		bg: 'bg-[rgba(43,212,199,.12)]', color: 'text-[#2BD4C7]',
-		svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'
+		svg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+		ws: 'pl-notify-message'
 	};
 	private static readonly ICON_PROJECT: IconStyle = {
 		bg: 'bg-[rgba(43,127,255,.12)]', color: 'text-[#2B7FFF]',
-		svg: '<path d="M3 11h18v11H3zM7 11V7a5 5 0 0 1 10 0v4"/>'
+		svg: '<path d="M3 11h18v11H3zM7 11V7a5 5 0 0 1 10 0v4"/>',
+		ws: 'pl-notify-project'
 	};
 	private static readonly ICON_OFFER: IconStyle = {
 		bg: 'bg-[rgba(43,127,255,.12)]', color: 'text-[#2B7FFF]',
-		svg: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/>'
+		svg: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/>',
+		ws: 'pl-notify-offer'
 	};
 	private static readonly ICON_FINANCE: IconStyle = {
 		bg: 'bg-[rgba(255,180,0,.12)]', color: 'text-[#FFB400]',
-		svg: '<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM16 14a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>'
+		svg: '<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM16 14a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>',
+		ws: 'pl-notify-finance'
 	};
 	private static readonly ICON_AI: IconStyle = {
 		bg: 'bg-[rgba(123,47,190,.16)]', color: 'text-[#7B2FBE]',
-		svg: '<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>'
+		svg: '<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>',
+		aiMark: true
 	};
 	private static readonly ICON_GENERAL: IconStyle = {
 		bg: 'bg-[rgba(160,178,209,.12)]', color: 'text-[var(--txt-3)]',
-		svg: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>'
+		svg: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>',
+		ws: 'i-bell'
 	};
 
 	// type is the primary icon signal (e.g. a CHAT notification should always
@@ -314,6 +327,11 @@ export class NotificationEngineService implements OnDestroy {
 		// The server cut this connection because the account is no longer active (admin suspension), or refused it at the handshake.
 		this.socket.on('account_not_active', (payload: { message?: string }) => {
 			this.ui.showBanner('error', accountBlockedText(payload?.message), { title: 'الحساب غير نشط' });
+		});
+		// staff access was suspended / re-roled / reduced: the server cut this connection on purpose. Read the access again (open pages leave at once if it no longer allows them) and reconnect with what is held now.
+		this.socket.on('admin_access_changed', () => {
+			void this.injector.get(AdminAccessService).refresh();
+			setTimeout(() => { try { this.socket?.connect(); } catch { /* offline */ } }, 500);
 		});
 		this.socket.on('connect_error', (err: Error & { data?: { code?: string } }) => {
 			if (err?.data?.code === ACCOUNT_NOT_ACTIVE_CODE) this.ui.showBanner('error', accountBlockedText(undefined), { title: 'الحساب غير نشط' });
@@ -579,7 +597,7 @@ export class NotificationEngineService implements OnDestroy {
 			metadata: raw?.metadata ?? null,
 			iconColorClass: iconStyle.color,
 			iconBgClass: iconStyle.bg,
-			svgIcon: this.buildIconHtml(iconStyle.svg),
+			svgIcon: this.buildIconHtml(iconStyle.svg, iconStyle.ws, iconStyle.aiMark),
 		};
 	}
 
@@ -757,13 +775,14 @@ export class NotificationEngineService implements OnDestroy {
 	 * markup always comes from this service's own static icon maps, never
 	 * from backend/user-controlled content.
 	 */
-	buildIconHtml(innerMarkup: string): SafeHtml {
-		const cached = this.iconHtmlCache.get(innerMarkup);
+	buildIconHtml(innerMarkup: string, wsIcon?: string, aiMark = false): SafeHtml {
+		const cacheKey = (aiMark ? 'ai|' : '') + (wsIcon ? wsIcon + '|' + innerMarkup : innerMarkup);
+		const cached = this.iconHtmlCache.get(cacheKey);
 		if (cached) return cached;
 		const html = this.sanitizer.bypassSecurityTrustHtml(
-			`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${innerMarkup}</svg>`
+			`<svg${wsIcon ? ` data-ws-icon="${wsIcon}"` : ''}${aiMark ? ' data-ws-ai-mark' : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${innerMarkup}</svg>`
 		);
-		this.iconHtmlCache.set(innerMarkup, html);
+		this.iconHtmlCache.set(cacheKey, html);
 		return html;
 	}
 
@@ -774,7 +793,7 @@ export class NotificationEngineService implements OnDestroy {
 		if (diffMin < 60) return `منذ ${diffMin} د`;
 		const diffHr = Math.floor(diffMin / 60);
 		if (diffHr < 24) return `منذ ${diffHr} س`;
-		return date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+		return date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short', timeZone: providerTimeZone() });
 	}
 
 	private resolveDateCategory(date: Date): 'اليوم' | 'أمس' | 'أقدم' {

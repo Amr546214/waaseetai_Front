@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -57,5 +58,5 @@ export function relativeTimeAr(iso: string, now = Date.now()): string {
 	if (h < 24) return `قبل ${h} ${h === 1 ? 'ساعة' : h === 2 ? 'ساعتين' : 'ساعات'}`;
 	if (d === 1) return 'أمس';
 	if (d < 30) return `قبل ${d} أيام`;
-	return new Date(iso).toLocaleDateString('ar-SA');
+	return new Date(iso).toLocaleDateString('ar-SA', { timeZone: providerTimeZone() });
 }

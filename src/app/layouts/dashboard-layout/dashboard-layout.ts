@@ -1,7 +1,8 @@
 import { Component, computed, inject, signal, effect, AfterViewInit, OnInit, OnDestroy, PLATFORM_ID, Renderer2 } from '@angular/core';
+import { BrandNamePipe } from '../../shared/brand/brand-name.pipe';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthStore } from '../../core/store/auth.store';
 import { NavDashboard } from '../../sheards/dashboard/nav-dashboard/nav-dashboard';
@@ -16,7 +17,7 @@ import { PageLoader } from '../../sheards/page-loader/page-loader';
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavDashboard, Sidebar, VideoCallModalComponent, PageLoader],
+  imports: [BrandNamePipe, CommonModule, RouterModule, NavDashboard, Sidebar, VideoCallModalComponent, PageLoader],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css'
 })
@@ -34,6 +35,10 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
   currentYear = new Date().getFullYear();
   // Real build value from the active environment file (no hardcoded literal in the component).
   readonly appVersion = environment.appVersion;
+
+  /** The admin console follows the identity file's sidebar width (220px, DESIGN_SYSTEM.md «Layout»); the other dashboards keep their own 260px. */
+  isAdminShell = signal(false);
+  private syncAdminShell = () => this.isAdminShell.set((this.router.url ?? '').startsWith('/supper-admin-overview'));
 
   // Responsive Sidebar Toggle
   isSidebarOpen = signal(false);
@@ -69,6 +74,8 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
     targetRoute: '/client-overview/messages'
   });
 
+  isChatRoute = signal<boolean>(false);
+
   constructor() {
     effect(() => {
       if (isPlatformBrowser(this.platformId)) {
@@ -88,6 +95,18 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
   }
 
   ngOnInit() {
+    this.syncAdminShell();
+    const checkChat = () => {
+      const u = this.router.url || '';
+      this.isChatRoute.set(u.includes('/messages'));
+    };
+    checkChat();
+    this.sub.add(
+      this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
+        checkChat();
+        this.syncAdminShell();
+      })
+    );
     if (isPlatformBrowser(this.platformId)) {
       const user = this.currentUser();
       let userId = user?.id;

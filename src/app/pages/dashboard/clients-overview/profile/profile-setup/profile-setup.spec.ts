@@ -54,11 +54,12 @@ describe('client profile-setup: shared validation', () => {
 		el().remove();
 	});
 
-	it('the ID number rule matches the backend (10 digits starting with 1 or 2) and says so', () => {
+	it('the ID number rule matches the allowed format (7 to 20 digits) and says so', () => {
 		const c = component.setupForm.get('details.idNumber')!;
-		c.setValue('3234567890'); c.markAsTouched(); render();
+		c.setValue('12345'); c.markAsTouched(); render();
 		expect(c.invalid).toBe(true);
 		expect(el().querySelector('[data-testid="field-error"]')?.textContent).toContain('غير صحيح');
+		c.setValue('303030925'); expect(c.valid).toBe(true);
 		c.setValue('1234567890'); expect(c.valid).toBe(true);
 	});
 
@@ -186,7 +187,7 @@ describe('client profile-setup: shared validation', () => {
 			settle();
 			render();
 			expect(component.currentStep()).toBe(1);
-			expect(component.setupForm.get('details.idNumber')!.errors?.['server']).toContain('10 أرقام');
+			expect(component.setupForm.get('details.idNumber')!.errors?.['server']).toContain('7 إلى 20');
 			expect(summary()).toContain('رقم الهوية الوطنية');
 			expect(component.isSubmitting()).toBe(false);
 		});

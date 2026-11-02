@@ -84,7 +84,7 @@
         <div class="rq-timeline">
           @for (step of d.timeline; track $index) {
             <div class="rq-tl-step done">
-              <div class="rq-tl-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="rq-tl-dot"><svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
               <div>
                 <div class="rq-tl-name">{{ step.text }}</div>
                 <div class="rq-tl-note">{{ step.at | date: 'yyyy-MM-dd HH:mm' }}</div>

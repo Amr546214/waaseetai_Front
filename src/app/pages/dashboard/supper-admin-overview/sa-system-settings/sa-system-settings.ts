@@ -1,218 +1,71 @@
-import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { WsSelectComponent } from '../../../../shared/forms/select.component';
-import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import { UiNotificationService } from '../../../../core/services/ui-notification.service';
-import { ConfirmModalService } from '../../../../core/services/confirm-modal.service';
+import { FeePolicyPanel } from '../../../../shared/fee-policy/fee-policy-panel';
+import { ChangeDetectionStrategy, Component, OnInit, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { mapHttpError } from '../../../../core/forms/http-error';
-import { FieldProblem, reportBackendError, reportProblems, SubmitGuard } from '../../../../shared/forms/form-error-focus';
-import { genericBanner } from '../../../../shared/forms/submit-feedback';
-import { PlatformSettings, SaSystemSettingsService, SettingsHistoryRow } from './sa-system-settings.service';
+import { AdminAccessService } from '../../../../core/services/admin-access.service';
+import { Blocker, SystemSettingsApi, SystemSettingsStore } from '../../../../core/services/system-settings.store';
+import { SettingsSectionComponent } from '../../../../shared/system-settings/settings-section.component';
+import { SettingsChangelogComponent } from './settings-changelog.component';
+import { SettingsHealthComponent } from './settings-health.component';
 
-type SettingsSection = 'general' | 'legal' | 'notifications' | 'security' | 'finance' | 'localization' | 'health';
+type Tab = 'general' | 'ai' | 'notifications' | 'security' | 'finance' | 'regional' | 'health';
 
-interface ToggleRow {
-  key: string;
-  label: string;
-  desc: string;
-  on: boolean;
-}
-
-interface HealthRow {
-  name: string;
-  value: string;
-  color: string;
-}
-
-/** Shown on every control that is not backed by a stored/enforced setting (nothing is faked as saved). */
-export const NOT_WIRED_REASON = 'غير مفعّل حالياً: هذا الخيار غير مرتبط بإعداد محفوظ في النظام، لذا لا يمكن تعديله من هنا.';
-
+/**
+ * P-AD-020 «إعدادات النظام». Every row comes from the server's settings registry (one source shared with «Super Admin»): what is enforced is editable and saved with a version check and an audit entry,
+ * what is only a value the system really uses is shown read-only with its source, and what has no implementation yet says so and why. Nothing here is stored in the browser.
+ */
 @Component({
-  selector: 'app-sa-system-settings',
-  standalone: true,
-  imports: [CommonModule, WsSelectComponent, FormsModule],
-  templateUrl: './sa-system-settings.html',
-  styleUrl: './sa-system-settings.css',
+	selector: 'app-sa-system-settings',
+	standalone: true,
+	imports: [FeePolicyPanel, SettingsSectionComponent, SettingsHealthComponent, SettingsChangelogComponent],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	templateUrl: './sa-system-settings.html',
+	styleUrl: './sa-system-settings.css',
 })
 export class SaSystemSettings implements OnInit {
-  private api = inject(SaSystemSettingsService);
-  private confirmModal = inject(ConfirmModalService);
-  private notify = inject(UiNotificationService);
-  private host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private guard = new SubmitGuard();
+	readonly store = inject(SystemSettingsStore);
+	private api = inject(SystemSettingsApi);
+	readonly access = inject(AdminAccessService);
+	readonly appVersion = environment.appVersion;
+	private changelog = viewChild(SettingsChangelogComponent);
 
-  readonly notWiredReason = NOT_WIRED_REASON;
-  readonly appVersion = environment.appVersion;
+	/** the icons are the reference's own symbols (P-AD-020 #i-settings / #i-ai / #i-bell / #i-shield / #i-wallet / #i-globe / #i-check) flattened to one path each */
+	readonly icons = { settings: 'M12 9a3 3 0 1 0 0 6 3 3 0 1 0 0-6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z', ai: 'M10 12a2 2 0 1 0 4 0 2 2 0 1 0-4 0zM2.5 6a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM18.5 6a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM2.5 18a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM18.5 18a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM10.5 3a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM10.5 21a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5', bell: 'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0', shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', wallet: 'M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM14.5 14a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0z', globe: 'M2 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0zM2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z', check: 'M20 6L9 17l-5-5' };
+	readonly tabs: Array<{ key: Tab; label: string; icon: string; ws?: string }> = [
+		{ key: 'general', label: 'عام', icon: this.icons.settings, ws: 'pl-admin-ss-tab-general' },
+		{ key: 'ai', label: 'الذكاء الاصطناعي', icon: this.icons.ai },
+		{ key: 'notifications', label: 'الإشعارات', icon: this.icons.bell, ws: 'i-bell' },
+		{ key: 'security', label: 'الأمان', icon: this.icons.shield, ws: 'pl-admin-ss-tab-security' },
+		{ key: 'finance', label: 'المالية', icon: this.icons.wallet, ws: 'pl-admin-ss-tab-finance' },
+		{ key: 'regional', label: 'الإقليمية', icon: this.icons.globe, ws: 'pl-admin-ss-tab-regional' },
+		{ key: 'health', label: 'صحة النظام', icon: this.icons.check, ws: 'pl-admin-ss-tab-health' },
+	];
+	readonly active = signal<Tab>('general');
+	readonly readiness = signal<{ ready: boolean; blockers: Blocker[] } | null>(null);
+	readonly readinessError = signal('');
+	/** the technical requirement list sits behind a toggle (the long text is not part of the compact card) */
+	readonly readyOpen = signal(false);
 
-  readonly sections: { key: SettingsSection; label: string }[] = [
-    { key: 'general', label: 'عام' },
-    { key: 'legal', label: 'الشروط والخصوصية' },
-    { key: 'notifications', label: 'الإشعارات' },
-    { key: 'security', label: 'الأمان' },
-    { key: 'finance', label: 'المالية' },
-    { key: 'localization', label: 'الإقليمية' },
-    { key: 'health', label: 'صحة النظام' },
-  ];
+	readonly general = ['platformName', 'maintenanceMode', 'registrationOpen', 'liveSupportAssistant'];
+	readonly contacts = ['supportEmail', 'supportPhone', 'maintenanceBannerEnabled', 'maintenanceBannerText'];
+	readonly legal = ['termsVersion', 'privacyVersion', 'termsContent', 'privacyContent'];
+	readonly generalAll = [...this.general, ...this.contacts, ...this.legal];
+	readonly ai = ['aiEngineEnabled', 'aiConfidenceThreshold', 'aiDisputeArbitration', 'aiFraudDetection', 'aiDisclosureBanner'];
+	readonly notif = ['channelEmail', 'channelPush', 'adminDisputeAlerts', 'adminNotificationEmail'];
+	readonly security = ['adminTwoFactor', 'sessionIdleMinutes', 'sessionMaxHours', 'auditLogging', 'loginProtection'];
+	readonly finance = ['baseCurrency', 'paymentGateway', 'escrowHoldHours', 'futureBilling'];
+	readonly regional = ['defaultTimezone', 'dateFormat', 'calendarSystem'];
 
-  readonly activeSection = signal<SettingsSection>('general');
+	constructor() {
+		// the change log follows every successful save (the server's own record, not a local echo)
+		effect(() => { const n = this.store.notice(); if (n) untracked(() => void this.changelog()?.refresh()); });
+	}
 
-  // ── Real, saved settings (GET/PUT /admin/settings) ──
-  readonly loading = signal(true);
-  readonly loadError = signal('');
-  readonly saving = signal(false);
-  /** false until the platform_settings table exists on the server: the page opens with the built-in values and saving is disabled with a visible reason. */
-  readonly storageReady = signal(true);
-  readonly error = signal('');
-  readonly saved = signal<PlatformSettings | null>(null);
-  readonly form = signal<PlatformSettings>({
-    platformName: '', supportEmail: '', supportPhone: '', maintenanceBannerEnabled: false, maintenanceBannerText: '',
-    termsVersion: '', privacyVersion: '', termsContent: '', privacyContent: '', adminNotificationEmail: '',
-  });
-  readonly history = signal<SettingsHistoryRow[]>([]);
-  readonly historyError = signal('');
-
-  // ── Display-only values: not stored, not enforced. Rendered disabled with a visible reason. ──
-  readonly generalToggles = signal<ToggleRow[]>([
-    { key: 'maintenance', label: 'وضع الصيانة', desc: 'إيقاف الوصول لجميع المستخدمين مؤقتاً', on: false },
-    { key: 'registration', label: 'تسجيل حسابات جديدة', desc: 'السماح بإنشاء حسابات جديدة', on: true },
-    { key: 'liveSupport', label: 'الدعم الفوري', desc: 'تفعيل مساعد الأسئلة الشائعة للدعم الفوري', on: true },
-  ]);
-  readonly notificationToggles = signal<ToggleRow[]>([
-    { key: 'emailNotif', label: 'إشعارات البريد الإلكتروني', desc: 'إرسال إيميلات للمستخدمين عند الأحداث المهمة', on: true },
-    { key: 'pushNotif', label: 'إشعارات الجوال (Push)', desc: 'إرسال إشعارات للتطبيق المحمول', on: true },
-    { key: 'disputeNotif', label: 'إشعارات النزاعات للإدارة', desc: 'تنبيه عند فتح نزاع جديد', on: true },
-  ]);
-  readonly sessionDuration = signal('24');
-  readonly securityToggles = signal<ToggleRow[]>([
-    { key: '2fa', label: 'التحقق الثنائي (2FA)', desc: 'لحسابات الإدارة', on: true },
-    { key: 'auditLog', label: 'تسجيل سجلات التدقيق', desc: 'حفظ كل إجراء إداري في السجل', on: true },
-    { key: 'ipBlock', label: 'حظر IP عند الفشل المتكرر', desc: 'حظر تلقائي بعد محاولات فاشلة', on: true },
-  ]);
-  readonly currency = signal('USD');
-  readonly paymentGateway = signal('PayPal');
-  readonly financeToggles = signal<ToggleRow[]>([
-    { key: 'autoRelease', label: 'الإفراج التلقائي عن الضمان', desc: 'إفراج تلقائي بعد قبول التسليم', on: true },
-  ]);
-  readonly timezone = signal('Asia/Riyadh (GMT+3)');
-  readonly dateFormat = signal('DD/MM/YYYY');
-  readonly calendarSystem = signal('ميلادي');
-
-  readonly healthRows: HealthRow[] = [
-    { name: 'خوادم التطبيق', value: 'غير متاح: لا يوجد مصدر مراقبة مرتبط', color: '#6B7699' },
-    { name: 'قاعدة البيانات', value: 'غير متاح: لا يوجد مصدر مراقبة مرتبط', color: '#6B7699' },
-    { name: 'بوابة الدفع', value: 'غير متاح: لا يوجد مصدر مراقبة مرتبط', color: '#6B7699' },
-    { name: 'خدمة البريد الإلكتروني', value: 'غير متاح: لا يوجد مصدر مراقبة مرتبط', color: '#6B7699' },
-    { name: 'النسخ الاحتياطي', value: 'غير متاح: لا يوجد مصدر مراقبة مرتبط', color: '#6B7699' },
-  ];
-
-  ngOnInit(): void {
-    this.loadSettings();
-    this.loadHistory();
-  }
-
-  private errMsg(e: unknown, fallback: string): string {
-    const err = e as HttpErrorResponse;
-    return err?.error?.message || err?.error?.error || fallback;
-  }
-
-  loadSettings(): void {
-    this.loading.set(true);
-    this.loadError.set('');
-    this.api.get().subscribe({
-      next: (r) => { this.saved.set(r.data); this.form.set({ ...r.data }); this.storageReady.set(r.storageReady !== false); this.loading.set(false); },
-      error: (e) => { this.loadError.set(this.errMsg(e, 'تعذر تحميل الإعدادات.')); this.loading.set(false); },
-    });
-  }
-
-  loadHistory(): void {
-    this.api.history().subscribe({
-      next: (r) => { this.history.set(r.data); this.historyError.set(''); },
-      error: (e) => this.historyError.set(this.errMsg(e, 'تعذر تحميل سجل التغييرات.')),
-    });
-  }
-
-  setSection(s: SettingsSection) {
-    this.activeSection.set(s);
-    this.error.set('');
-  }
-
-  setField<K extends keyof PlatformSettings>(key: K, value: PlatformSettings[K]) {
-    this.form.update((f) => ({ ...f, [key]: value }));
-  }
-
-  /** Keys of the given group that differ from what is stored. */
-  private changed(keys: (keyof PlatformSettings)[]): Partial<PlatformSettings> {
-    const saved = this.saved();
-    const f = this.form();
-    const patch: Record<string, unknown> = {};
-    for (const k of keys) if (!saved || saved[k] !== f[k]) patch[k] = f[k];
-    return patch as Partial<PlatformSettings>;
-  }
-
-  hasChanges(keys: (keyof PlatformSettings)[]): boolean {
-    return Object.keys(this.changed(keys)).length > 0;
-  }
-
-  /** Field id on the page for each stored setting (the server names fields the same as the keys). */
-  private static readonly FIELD_ID: Partial<Record<keyof PlatformSettings, string>> = {
-    platformName: 'ss-platformName', supportEmail: 'ss-supportEmail', supportPhone: 'ss-supportPhone', maintenanceBannerText: 'ss-maintenanceBannerText',
-    termsVersion: 'ss-termsVersion', privacyVersion: 'ss-privacyVersion', termsContent: 'ss-termsContent', privacyContent: 'ss-privacyContent',
-    adminNotificationEmail: 'ss-adminNotificationEmail',
-  };
-  private static readonly EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  /** Problems among the keys being saved, in form order (the same rules the server applies: well-formed e-mail when one is typed). */
-  private problems(keys: (keyof PlatformSettings)[], patch: Partial<PlatformSettings>): FieldProblem[] {
-    const out: FieldProblem[] = [];
-    for (const k of ['supportEmail', 'adminNotificationEmail'] as const) {
-      const v = String(patch[k] ?? '').trim();
-      if (keys.includes(k) && k in patch && v && !SaSystemSettings.EMAIL.test(v)) out.push({ field: SaSystemSettings.FIELD_ID[k], message: 'اكتب بريدًا إلكترونيًا صحيحًا، مثل name@domain.com' });
-    }
-    return out;
-  }
-
-  /** Validate (message under the field), confirm, then PUT only the changed keys of the visible section. */
-  async save(keys: (keyof PlatformSettings)[]) {
-    const patch = this.changed(keys);
-    if (!Object.keys(patch).length || this.saving() || this.guard.busy) return;
-    const problems = this.problems(keys, patch);
-    if (problems.length) {
-      this.error.set('');
-      await reportProblems(this.host.nativeElement, problems);
-      return;
-    }
-    const ok = await this.confirmModal.confirm({
-      title: 'حفظ الإعدادات',
-      message: 'سيتم تطبيق هذه التغييرات على المنصة وتسجيلها في سجل التدقيق. هل تريد المتابعة؟',
-      type: 'warning',
-      confirmText: 'حفظ التغييرات',
-    });
-    if (!ok || !this.guard.enter()) return;
-    this.saving.set(true);
-    this.error.set('');
-    this.api.save(patch).subscribe({
-      next: (r) => {
-        this.guard.release();
-        this.saved.set(r.data);
-        this.form.set({ ...r.data });
-        this.saving.set(false);
-        this.notify.success('تم حفظ الإعدادات');
-        this.loadHistory();
-      },
-      error: async (e) => {
-        this.guard.release();
-        this.saving.set(false);
-        const mapped = mapHttpError(e, { fallback: 'تعذر حفظ الإعدادات.' });
-        const resolve: Record<string, string> = {};
-        for (const [k, id] of Object.entries(SaSystemSettings.FIELD_ID)) resolve[k] = id!;
-        const gen = genericBanner(mapped);
-        if (gen !== null) { this.error.set(gen || this.errMsg(e, 'تعذر حفظ الإعدادات.')); return; }
-        const res = await reportBackendError(this.host.nativeElement, mapped, { resolve });
-        // Only a 400/422 that names a stored setting lands on its field; everything else is one honest message in the banner.
-        if (!res.handled) this.error.set(mapped.message || this.errMsg(e, 'تعذر حفظ الإعدادات.'));
-      },
-    });
-  }
+	ngOnInit() { void this.store.load(); }
+	setTab(t: Tab) { this.active.set(t); if (t === 'finance' && this.access.isSuperAdmin() && !this.readiness()) void this.loadReadiness(); }
+	async loadReadiness() {
+		this.readinessError.set('');
+		try { this.readiness.set((await firstValueFrom(this.api.readiness())).data); } catch (e) { this.readinessError.set(mapHttpError(e, { fallback: 'تعذّر فحص جاهزية العملة.' }).message); }
+	}
 }

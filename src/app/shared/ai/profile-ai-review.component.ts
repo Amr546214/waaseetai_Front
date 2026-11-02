@@ -17,7 +17,7 @@ const OPEN_STATUSES = ['PENDING_OTP', 'IN_AI_REVIEW', 'PENDING_HUMAN_REVIEW'];
 			@case ('ai') {
 				<div class="ws-air ws-air-ai" data-testid="ai-review-ready">
 					<span class="ws-air-ico" aria-hidden="true">
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-ai-mark viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 							<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/>
 							<path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>
 						</svg>
@@ -38,7 +38,7 @@ const OPEN_STATUSES = ['PENDING_OTP', 'IN_AI_REVIEW', 'PENDING_HUMAN_REVIEW'];
 			@case ('failed') {
 				<div class="ws-air" data-testid="ai-review-failed">
 					<span class="ws-air-ico ws-air-neutral" aria-hidden="true">
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 8v5M12 16h.01"/></svg>
+						<svg data-ws-icon="pl-shared-shield-alert" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 8v5M12 16h.01"/></svg>
 					</span>
 					<div class="ws-air-body"><p class="ws-air-txt">تعذر تشغيل الفحص الأولي حاليًا. الطلب بانتظار مراجعة الفريق</p></div>
 				</div>
@@ -46,7 +46,7 @@ const OPEN_STATUSES = ['PENDING_OTP', 'IN_AI_REVIEW', 'PENDING_HUMAN_REVIEW'];
 			@case ('waiting') {
 				<div class="ws-air" data-testid="ai-review-waiting">
 					<span class="ws-air-ico ws-air-neutral" aria-hidden="true">
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+						<svg data-ws-icon="pl-shared-shield-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
 					</span>
 					<div class="ws-air-body"><p class="ws-air-txt">بانتظار مراجعة الفريق</p></div>
 				</div>
@@ -59,10 +59,10 @@ const OPEN_STATUSES = ['PENDING_OTP', 'IN_AI_REVIEW', 'PENDING_HUMAN_REVIEW'];
 		.ws-air-ico { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(123,47,190,.15); color: #A56BE0; }
 		.ws-air-neutral { background: rgba(255,255,255,.06); color: var(--txt-3, #8892b0); }
 		.ws-air-body { flex: 1; min-width: 0; }
-		.ws-air-ttl { font-size: 10.5px; font-weight: 900; letter-spacing: .04em; color: #A56BE0; margin-bottom: 4px; }
-		.ws-air-txt { margin: 0 0 4px; font-size: 12px; line-height: 1.7; color: var(--txt-3, #8892b0); }
-		.ws-air-list { margin: 4px 0; padding-inline-start: 18px; font-size: 12px; line-height: 1.7; color: var(--txt-3, #8892b0); list-style: disc; }
-		.ws-air-note { font-size: 10.5px; font-weight: 700; color: var(--txt-3, #8892b0); opacity: .8; }
+		.ws-air-ttl { font-size: var(--font-size-small); font-weight: 900; letter-spacing: .04em; color: #A56BE0; margin-bottom: 4px; }
+		.ws-air-txt { margin: 0 0 4px; font-size: var(--font-size-small); line-height: 1.7; color: var(--txt-3, #8892b0); }
+		.ws-air-list { margin: 4px 0; padding-inline-start: 18px; font-size: var(--font-size-small); line-height: 1.7; color: var(--txt-3, #8892b0); list-style: disc; }
+		.ws-air-note { font-size: var(--font-size-small); font-weight: 700; color: var(--txt-3, #8892b0); opacity: .8; }
 	`],
 })
 export class ProfileAiReviewComponent {

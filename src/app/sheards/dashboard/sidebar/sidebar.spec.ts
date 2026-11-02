@@ -381,7 +381,7 @@ describe('End-to-end: clicking a real CHAT notification in the bell dropdown act
 
 	// Regression coverage for the confirmed 1px inconsistency: accordion
 	// sub-items rendered at text-xs (12px) while every flat top-level item
-	// and accordion parent rendered at text-[13px] — same sidebar, same
+	// and accordion parent rendered at text-[length:var(--font-size-label)] — same sidebar, same
 	// visual level, two different sizes. Rendering a route that opens an
 	// accordion puts both kinds of items in the DOM at once.
 	describe('typography consistency (flat items vs. accordion sub-items)', () => {
@@ -400,7 +400,7 @@ describe('End-to-end: clicking a real CHAT notification in the bell dropdown act
 			expect(anyTextXs).toBe(false);
 		});
 
-		it('an accordion sub-item link uses the same text-[13px] size as a flat top-level item', async () => {
+		it('an accordion sub-item link uses the same text-[length:var(--font-size-label)] size as a flat top-level item', async () => {
 			const { fixture, router } = setup('CLIENT_INDIVIDUAL');
 			fixture.detectChanges();
 			await router.navigateByUrl('/client-overview/projects/active');
@@ -412,8 +412,8 @@ describe('End-to-end: clicking a real CHAT notification in the bell dropdown act
 
 			expect(subItem).toBeTruthy();
 			expect(flatTopLevelItem).toBeTruthy();
-			expect((subItem as HTMLElement).classList.contains('text-[13px]')).toBe(true);
-			expect((flatTopLevelItem as HTMLElement).classList.contains('text-[13px]')).toBe(true);
+			expect((subItem as HTMLElement).classList.contains('text-[length:var(--font-size-label)]')).toBe(true);
+			expect((flatTopLevelItem as HTMLElement).classList.contains('text-[length:var(--font-size-label)]')).toBe(true);
 		});
 	});
 });

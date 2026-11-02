@@ -1,4 +1,5 @@
 import { mapHttpError } from '../../../../../core/forms/http-error';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { LevelBadgeComponent } from '../../../../../shared/levels/level-badge.component';
 import { Component, signal, computed, inject, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -205,6 +206,8 @@ export class RequestDetails implements OnInit {
 							formattedBudget = `${formatMoney(data.budget.min)} - ${formatMoney(data.budget.max)} $`;
 						} else if (data.budget.type === 'FIXED' && data.budget.min) {
 							formattedBudget = `${formatMoney(data.budget.min)} $`;
+						} else if (data.budget.type === 'HOURLY' && data.budget.min) {
+							formattedBudget = `${formatMoney(data.budget.min)} $/ساعة`;
 						} else {
 							formattedBudget = 'غير محدد';
 						}
@@ -213,7 +216,7 @@ export class RequestDetails implements OnInit {
 					let formattedDate = '';
 					if (data.createdAt) {
 						const d = new Date(data.createdAt);
-						formattedDate = d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+						formattedDate = d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', timeZone: providerTimeZone() });
 					}
 
 					let formattedSpecialty = data.specialty?.nameAr || data.category?.nameAr || '';
@@ -470,9 +473,22 @@ export class RequestDetails implements OnInit {
 		this.negPrice.set(val);
 	}
 
-	onNegDurationInput(event: Event) {
-		this.negDuration.set((event.target as HTMLInputElement).value);
-	}
+onNegDurationInput(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const value = input.value;
+
+  if (value === '') {
+    this.negDuration.set('');
+    return;
+  }
+
+  if (!/^[1-9]\d*$/.test(value)) {
+    input.value = this.negDuration();
+    return;
+  }
+
+  this.negDuration.set(value);
+}
 
 	onNegMessageInput(event: Event) {
 		const val = (event.target as HTMLTextAreaElement).value;

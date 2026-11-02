@@ -1,17 +1,15 @@
 <ng-template #icon let-name="name">
-  <svg width="100%" height="100%" viewBox="0 0 24 24">
-    @switch (name) {
-      @case ('wallet') { <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/> }
-      @case ('person') { <circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/> }
-      @case ('escrow') { <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/> }
-      @case ('star') { <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/> }
-      @case ('warn') { <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/> }
-      @case ('check') { <polyline points="20 6 9 17 4 12"/> }
-      @case ('clock') { <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/> }
-      @case ('chart') { <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/> }
-      @case ('market') { <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5h14M9 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0M17 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/> }
-    }
-  </svg>
+  @switch (name) {
+    @case ('wallet') { <svg data-ws-icon="pl-admin-kpi-wallet" width="100%" height="100%" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg> }
+    @case ('person') { <svg data-ws-icon="pl-admin-kpi-person" width="100%" height="100%" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg> }
+    @case ('escrow') { <svg data-ws-icon="pl-admin-kpi-escrow" width="100%" height="100%" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> }
+    @case ('star') { <svg data-ws-icon="pl-admin-kpi-star" width="100%" height="100%" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> }
+    @case ('warn') { <svg data-ws-icon="pl-admin-kpi-warn" width="100%" height="100%" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> }
+    @case ('check') { <svg data-ws-icon="pl-admin-kpi-check" width="100%" height="100%" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> }
+    @case ('clock') { <svg data-ws-icon="pl-admin-kpi-clock" width="100%" height="100%" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> }
+    @case ('chart') { <svg data-ws-icon="pl-admin-kpi-chart" width="100%" height="100%" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> }
+    @case ('market') { <svg data-ws-icon="pl-admin-kpi-market" width="100%" height="100%" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5h14M9 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0M17 21a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/></svg> }
+  }
 </ng-template>
 
 <section class="ah-page" dir="rtl">
@@ -40,7 +38,7 @@
       مقارنة بالفترة السابقة
     </label>
     <div class="ah-updated">
-      @if (loading()) { جارٍ التحميل… } @else if (loadedAt(); as t) { آخر تحديث: {{ t | date:'yyyy-MM-dd HH:mm' }} }
+      @if (loading()) { جارٍ التحميل… } @else if (loadedAt(); as t) { آخر تحديث: {{ t | wsDate:'datetime':'yyyy-MM-dd HH:mm' }} }
     </div>
   </div>
 
@@ -51,7 +49,7 @@
   </div>
 
   @if (failed()) {
-    <div role="alert" class="ah-card" data-testid="ah-error"><div class="ah-card-ttl">تعذّر تحميل البيانات</div><p class="txt-muted" style="font-size:12px">لم يتم الاتصال بخدمة التحليلات. لا تُعرض أرقام بديلة. حاول مرة أخرى.</p><button type="button" class="ah-btn ah-btn-ghost" (click)="reload()">إعادة المحاولة</button></div>
+    <div role="alert" class="ah-card" data-testid="ah-error"><div class="ah-card-ttl">تعذّر تحميل البيانات</div><p class="txt-muted" style="font-size:var(--font-size-small)">لم يتم الاتصال بخدمة التحليلات. لا تُعرض أرقام بديلة. حاول مرة أخرى.</p><button type="button" class="ah-btn ah-btn-ghost" (click)="reload()">إعادة المحاولة</button></div>
   }
 
   <div class="ah-kpi-row">
@@ -84,13 +82,13 @@
             }
           </div>
         } @else {
-          <p class="txt-muted" style="font-size:12px">لا توجد حسابات جديدة في هذه الفترة.</p>
+          <p class="txt-muted" style="font-size:var(--font-size-small)">لا توجد حسابات جديدة في هذه الفترة.</p>
         }
       </div>
 
       <div class="ah-card">
         <div class="ah-card-ttl">الإيرادات الشهرية ومعدل التحويل</div>
-        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px">غير متاح هنا — الإيرادات الشهرية تُعرض في صفحة «التقارير المالية»، ولا توجد بيانات زيارات أو قمع تحويل مسجّلة في النظام.</div>
+        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:var(--font-size-small)">غير متاح هنا — الإيرادات الشهرية تُعرض في صفحة «التقارير المالية»، ولا توجد بيانات زيارات أو قمع تحويل مسجّلة في النظام.</div>
       </div>
     </div>
 
@@ -109,12 +107,12 @@
             </table>
           </div>
         } @else {
-          <p class="txt-muted" style="font-size:12px">لا توجد بيانات تخصصات في هذه الفترة.</p>
+          <p class="txt-muted" style="font-size:var(--font-size-small)">لا توجد بيانات تخصصات في هذه الفترة.</p>
         }
       </div>
       <div class="ah-card">
         <div class="ah-card-ttl">التنبيهات والتوزيع الجغرافي</div>
-        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px">غير متاح حاليًا — لا يوجد مصدر بيانات متصل للتنبيهات الآلية أو للتوزيع الجغرافي.</div>
+        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:var(--font-size-small)">غير متاح حاليًا — لا يوجد مصدر بيانات متصل للتنبيهات الآلية أو للتوزيع الجغرافي.</div>
       </div>
     </div>
   }
@@ -148,7 +146,7 @@
             }
           </div>
         } @else {
-          <p class="txt-muted" style="font-size:12px">لا توجد حسابات جديدة في هذه الفترة.</p>
+          <p class="txt-muted" style="font-size:var(--font-size-small)">لا توجد حسابات جديدة في هذه الفترة.</p>
         }
       </div>
     </div>
@@ -163,7 +161,7 @@
             <div class="ah-table-wrap"><table class="ah-table"><thead><tr><th>الحالة</th><th>العدد</th></tr></thead><tbody>
               @for (r of statusRows(blk.r); track r.status) { <tr><td>{{ r.label }}</td><td class="strong">{{ r.count }}</td></tr> }
             </tbody></table></div>
-          } @else { <p class="txt-muted" style="font-size:12px">لا توجد بيانات في هذه الفترة.</p> }
+          } @else { <p class="txt-muted" style="font-size:var(--font-size-small)">لا توجد بيانات في هذه الفترة.</p> }
         </div>
       }
     </div>
@@ -176,8 +174,8 @@
         <div class="ah-table-wrap"><table class="ah-table"><thead><tr><th>الحالة</th><th>العدد</th></tr></thead><tbody>
           @for (r of statusRows(d.orders.byStatus); track r.status) { <tr><td>{{ r.label }}</td><td class="strong">{{ r.count }}</td></tr> }
         </tbody></table></div>
-      } @else { <p class="txt-muted" style="font-size:12px">لا توجد طلبات شراء في هذه الفترة.</p> }
-      <div role="status" class="txt-muted" style="margin-top:10px;font-size:11.5px">الإيرادات والأرباح والمصروفات لا تُحتسب في هذه الصفحة — راجع صفحة «التقارير المالية».</div>
+      } @else { <p class="txt-muted" style="font-size:var(--font-size-small)">لا توجد طلبات شراء في هذه الفترة.</p> }
+      <div role="status" class="txt-muted" style="margin-top:10px;font-size:var(--font-size-small)">الإيرادات والأرباح والمصروفات لا تُحتسب في هذه الصفحة — راجع صفحة «التقارير المالية».</div>
     </div>
   }
 
@@ -194,7 +192,7 @@
           <span class="ah-gap-vals">{{ g.projects }} مشروع / {{ g.providers }} مقدم</span>
         </div>
       } @empty {
-        <p class="txt-muted" style="font-size:12px">لا توجد بيانات تخصصات في هذه الفترة.</p>
+        <p class="txt-muted" style="font-size:var(--font-size-small)">لا توجد بيانات تخصصات في هذه الفترة.</p>
       }
       <div class="ah-gap-legend">
         <span><i class="ah-gap-demand"></i>الطلب (مشاريع)</span>
@@ -211,11 +209,11 @@
           <div class="ah-table-wrap"><table class="ah-table"><thead><tr><th>الحالة</th><th>العدد</th></tr></thead><tbody>
             @for (r of statusRows(d.referrals.byStatus); track r.status) { <tr><td>{{ r.label }}</td><td class="strong">{{ r.count }}</td></tr> }
           </tbody></table></div>
-        } @else { <p class="txt-muted" style="font-size:12px">لا توجد إحالات في هذه الفترة.</p> }
+        } @else { <p class="txt-muted" style="font-size:var(--font-size-small)">لا توجد إحالات في هذه الفترة.</p> }
       </div>
       <div class="ah-card">
         <div class="ah-card-ttl">أفضل الوسطاء وعمولاتهم</div>
-        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px">غير متاح هنا — ترتيب الوسطاء والعمولات لم يُربط بهذه الصفحة بعد. العمولة مؤجلة ولا تُعرض أرقام تقديرية.</div>
+        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:var(--font-size-small)">غير متاح هنا — ترتيب الوسطاء والعمولات لم يُربط بهذه الصفحة بعد. العمولة مؤجلة ولا تُعرض أرقام تقديرية.</div>
       </div>
     </div>
   }
@@ -232,12 +230,12 @@
               <span class="ah-funnel-val">{{ b.count }} ({{ b.percent }}%)</span>
             </div>
           }
-        } @else { <p class="txt-muted" style="font-size:12px">لا توجد تقييمات في هذه الفترة.</p> }
-        <div role="status" class="txt-muted" style="margin-top:10px;font-size:11.5px">رضا العملاء ومعدل الشكاوى المتكررة غير متاحَين — لا توجد استبيانات رضا مسجّلة.</div>
+        } @else { <p class="txt-muted" style="font-size:var(--font-size-small)">لا توجد تقييمات في هذه الفترة.</p> }
+        <div role="status" class="txt-muted" style="margin-top:10px;font-size:var(--font-size-small)">رضا العملاء ومعدل الشكاوى المتكررة غير متاحَين — لا توجد استبيانات رضا مسجّلة.</div>
       </div>
       <div class="ah-card">
         <div class="ah-card-ttl">تقارير محفوظة</div>
-        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:11.5px">لا توجد تقارير محفوظة — حفظ التقارير وجدولتها غير متاح حاليًا.</div>
+        <div role="status" class="txt-muted" style="padding:10px 14px;border:1px dashed var(--sec-bd,rgba(255,255,255,.14));border-radius:10px;font-size:var(--font-size-small)">لا توجد تقارير محفوظة — حفظ التقارير وجدولتها غير متاح حاليًا.</div>
       </div>
     </div>
   }

@@ -1,4 +1,5 @@
-import { resolveActiveRole, roleLinks } from '../../../core/routing/role-routes';
+import { adminRoleOf, resolveActiveRole, roleLinks } from '../../../core/routing/role-routes';
+import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, Output, EventEmitter, ChangeDetectorRef, effect, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -15,11 +16,13 @@ import { NotificationPopupComponent } from '../../notification-popup/notificatio
 import { NotificationBell } from '../../notification-bell/notification-bell';
 import { getDefaultDashboard } from '../../../core/guards/auth.guards';
 import { AssistantStore } from '../../../core/store/assistant.store';
+import { AdminAccessService } from '../../../core/services/admin-access.service';
+import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 
 @Component({
 	selector: 'app-nav-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, NotificationBell, NotificationPopupComponent],
+	imports: [IdentityImgDirective, BrandNamePipe, CommonModule, RouterModule, NotificationBell, NotificationPopupComponent],
 	templateUrl: './nav-dashboard.html',
 	styleUrl: './nav-dashboard.css',
 	host: {
@@ -34,6 +37,7 @@ export class NavDashboard {
 	public accountService = inject(AccountService);
 	public router = inject(Router);
 	public notifEngine = inject(NotificationEngineService);
+	private adminAccess = inject(AdminAccessService);
 	private notificationNavigator = inject(NotificationNavigator);
 	private notify = inject(UiNotificationService);
 	public themeService = inject(ThemeService);
@@ -106,15 +110,21 @@ export class NavDashboard {
 
 	activeRole = computed<UserRole>(() => resolveActiveRole(this.currentUser()));
 
+	/** An admin account has ONE experience, the admin panel: no role list, no role switch (the server refuses it too), just a direct link. */
+	isAdminAccount = computed(() => adminRoleOf(this.currentUser()) !== null);
+
 	/** Messages / profile / settings / add-account of the ACTIVE role (a marketer never gets client links). */
 	links = computed(() => roleLinks(this.activeRole()));
 
+	/** An admin account shows its REAL administrative role (Super Admin, or the team role a SUPER_ADMIN gave it, or «غير مُسند»), never a generic title that suggests authority it was not given. */
 	accountTypeLabel = computed(() => {
+		if (this.isAdminAccount()) return this.adminAccess.displayRole() || 'حساب إداري';
 		const role = this.activeRole();
 		return this.getRoleLabel(role);
 	});
 
 	accountEntityLabel = computed(() => {
+		if (this.isAdminAccount()) return '';
 		const type = this.currentUser()?.accountType;
 		if (type?.includes('COMPANY')) return 'شركة';
 		if (type?.includes('INDIVIDUAL')) return 'فرد';
@@ -123,6 +133,10 @@ export class NavDashboard {
 
 	getRoleLabel(role: UserRole): string {
 		switch (role) {
+			case UserRole.SUPER_ADMIN:
+				return 'مدير النظام';
+			case UserRole.ADMIN:
+				return 'مشرف النظام';
 			case UserRole.PROVIDER:
 				return 'مقدم الخدمة';
 			case UserRole.AFFILIATE:

@@ -74,6 +74,17 @@ describe('preloadBeboAtlases (first-click flicker fix)', () => {
 		expect(created.map((i) => i.src)).toContain('https://app.example/bebo/robot-actions.png');
 	});
 
+	it('warms only the skin on screen; the other skin is fetched when it is chosen (once)', () => {
+		const { doc, created } = docWithImages();
+		preloadBeboAtlases(doc, 'classic');
+		expect(created.map((i) => i.src)).toEqual(BEBO_PRELOAD_ATLASES.filter((p) => !p.startsWith('bebo/scout/')).map((p) => 'https://app.example/' + p));
+		expect(created.some((i) => i.src.includes('/scout/'))).toBe(false);
+		preloadBeboAtlases(doc, 'scout');
+		preloadBeboAtlases(doc, 'scout');
+		expect(created.length).toBe(BEBO_PRELOAD_ATLASES.length);
+		expect(created.filter((i) => i.src.includes('/scout/')).length).toBe(3);
+	});
+
 	it('is a no-op without a window (SSR)', () => {
 		expect(() => preloadBeboAtlases({ baseURI: 'x', defaultView: null } as unknown as Document)).not.toThrow();
 	});

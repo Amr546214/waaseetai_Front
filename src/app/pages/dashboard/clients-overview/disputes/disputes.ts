@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
@@ -91,7 +92,7 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
     showEscalate: false,
     // No dispute-messaging endpoint exists yet.
     messages: 0,
-    date: new Date(d.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),
+    date: new Date(d.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: providerTimeZone() }),
   };
 }
 

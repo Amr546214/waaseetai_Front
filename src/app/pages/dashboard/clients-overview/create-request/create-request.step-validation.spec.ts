@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ChangeDetectorRef } from '@angular/core';
 import { provideRouter } from '@angular/router';
@@ -16,6 +17,7 @@ describe('create-request: red validation on every step', () => {
   const flush = () => new Promise<void>(r => setTimeout(() => setTimeout(r, 0), 0));
   const press = async () => { next().click(); await flush(); render(); };
   const type = (id: string, v: string) => { const i = q('#' + id) as HTMLInputElement; i.value = v; i.dispatchEvent(new Event('input')); render(); };
+  const waitInvalid = (selector: string) => vi.waitFor(() => { render(); expect(q(selector)?.getAttribute('aria-invalid')).toBe('true'); });
   const errors = () => Array.from(el().querySelectorAll('[data-testid="field-error"]')).map(e => e.textContent!.trim());
 
   beforeEach(async () => {
@@ -149,10 +151,10 @@ describe('create-request: red validation on every step', () => {
     fixture.autoDetectChanges(true);
     c.currentStep.set(4); c.budgetType.set('fixed'); fixture.detectChanges();
     (c as any).handlePublishError({ status: 400, error: { message: 'x', errors: [{ path: 'minBudget', message: 'أدخل ميزانية الطلب' }] } });
-    await new Promise(r => setTimeout(r, 80)); render();
+    await waitInvalid('#f-budget-fixed');
     expect(q('#f-budget-fixed')!.getAttribute('aria-invalid')).toBe('true');
     (c as any).handlePublishError({ status: 400, error: { message: 'x', errors: [{ path: 'title', message: 'عنوان الطلب يجب أن يكون 3 أحرف على الأقل' }] } });
-    await new Promise(r => setTimeout(r, 80)); render();
+    await waitInvalid('#f-title');
     expect(c.currentStep()).toBe(3);
     expect(q('#f-title')!.getAttribute('aria-invalid')).toBe('true');
     expect(q('#f-desc')!.getAttribute('aria-invalid')).toBeNull();
@@ -162,7 +164,7 @@ describe('create-request: red validation on every step', () => {
     fixture.autoDetectChanges(true);
     c.currentStep.set(6); fixture.detectChanges();
     (c as any).handlePublishError({ status: 400, error: { message: 'x', errors: [{ path: 'minBudget', message: 'أدخل ميزانية الطلب' }, { path: 'title', message: 'عنوان الطلب يجب أن يكون 3 أحرف على الأقل' }] } });
-    await new Promise(r => setTimeout(r, 80)); render();
+    await waitInvalid('#f-title');
     expect(c.currentStep()).toBe(3);
     expect(q('#f-title')!.getAttribute('aria-invalid')).toBe('true');
   });

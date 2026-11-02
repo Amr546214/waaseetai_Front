@@ -278,7 +278,7 @@ describe('ClientOverviewComponent — stats row (5 cards, AI offer rating)', () 
 		const { readFileSync } = await import('node:fs');
 		const { join } = await import('node:path');
 		const css = readFileSync(join(__dirname, 'client-overview.component.css'), 'utf8');
-		expect(css).toMatch(/\.stat-val\.stat-val-empty\{font-size:15px/);
+		expect(css).toMatch(/\.stat-val\.stat-val-empty\{font-size:var\(--font-size-body\)/);
 	});
 
 	it('an old/partial API response without the AI fields is handled as "no data"', () => {

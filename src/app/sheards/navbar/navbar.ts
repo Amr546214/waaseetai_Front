@@ -1,4 +1,6 @@
-import { resolveActiveRole, roleHome, roleLinks } from '../../core/routing/role-routes';
+import { AdminAccessService } from '../../core/services/admin-access.service';
+import { BrandNamePipe } from '../../shared/brand/brand-name.pipe';
+import { adminRoleOf, resolveActiveRole, roleHome, roleLinks } from '../../core/routing/role-routes';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, ChangeDetectorRef, effect, ElementRef, HostListener, PLATFORM_ID } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -14,11 +16,12 @@ import { getDefaultDashboard } from '../../core/guards/auth.guards';
 import { NotificationPopupComponent } from '../notification-popup/notification-popup';
 import { NotificationBell } from '../notification-bell/notification-bell';
 import { AssistantStore } from '../../core/store/assistant.store';
+import { IdentityImgDirective } from '../../core/identity/identity-img.directive';
 
 @Component({
 	selector: 'app-navbar',
 	standalone: true,
-	imports: [RouterModule, CommonModule, NotificationBell, NotificationPopupComponent],
+	imports: [IdentityImgDirective, BrandNamePipe, RouterModule, CommonModule, NotificationBell, NotificationPopupComponent],
 	templateUrl: './navbar.html',
 	styleUrl: './navbar.css',
 	host: {
@@ -31,6 +34,7 @@ export class Navbar {
 	public authStore = inject(AuthStore);
 	public accountService = inject(AccountService);
 	public router = inject(Router);
+	private adminAccess = inject(AdminAccessService);
 	public notifEngine = inject(NotificationEngineService);
 	private notify = inject(UiNotificationService);
 	public chatState = inject(ChatStateService);
@@ -91,6 +95,9 @@ export class Navbar {
 
 	activeRole = computed<UserRole>(() => resolveActiveRole(this.currentUser()));
 
+	/** An admin account has ONE experience, the admin panel: no role list, no role switch (the server refuses it too), just a direct link. */
+	isAdminAccount = computed(() => adminRoleOf(this.currentUser()) !== null);
+
 	/** Profile / settings / add-account of the ACTIVE role. */
 	links = computed(() => roleLinks(this.activeRole()));
 
@@ -100,6 +107,7 @@ export class Navbar {
 	});
 
 	accountEntityLabel = computed(() => {
+		if (this.isAdminAccount()) return '';
 		const type = this.currentUser()?.accountType;
 		if (type?.includes('COMPANY')) return 'شركة';
 		if (type?.includes('INDIVIDUAL')) return 'فرد';
@@ -142,6 +150,11 @@ export class Navbar {
 
 	getRoleLabel(role: UserRole): string {
 		switch (role) {
+			case UserRole.SUPER_ADMIN:
+				return 'مدير النظام';
+			case UserRole.ADMIN:
+				// the account TYPE is ADMIN for every staff member; what is shown is the member's real job role (never «مدير النظام» / «Super Admin», which is the SUPER_ADMIN account only)
+				return this.adminAccess.displayRole() || 'موظف إدارة';
 			case UserRole.PROVIDER:
 				return 'مقدم الخدمة';
 			case UserRole.AFFILIATE:

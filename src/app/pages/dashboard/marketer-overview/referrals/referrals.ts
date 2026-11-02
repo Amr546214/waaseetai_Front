@@ -1,4 +1,5 @@
 import { MarketerLevelTagComponent } from '../../../../shared/levels/marketer-level-tag.component';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,7 +9,7 @@ import { handleLoadError, rateLimitToastMessage } from '../../../../core/utils/r
 @Component({
   selector: 'app-referrals',
   standalone: true,
-  imports: [MarketerLevelTagComponent, CommonModule, FormsModule],
+  imports: [WsDatePipe, MarketerLevelTagComponent, CommonModule, FormsModule],
   templateUrl: './referrals.html',
   styleUrl: './referrals.css',
 })

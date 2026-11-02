@@ -61,6 +61,18 @@ describe('client project details: project closed by a dispute settlement', () =>
     expect(s.el.querySelector('.lc-ring')?.getAttribute('style') ?? '').not.toContain('100');
   });
 
+  it('keeps the ring, percentage label and bar on the same workspace progress after updates', async () => {
+    const s = await setup();
+    for (const progress of [0, 25, 100]) {
+      s.c.project.set({ ...DATA, progress });
+      s.f.detectChanges();
+      const ring = s.el.querySelector<HTMLElement>('.lc-ring')!;
+      expect(ring.style.getPropertyValue('--progress')).toBe(String(progress));
+      expect(ring.querySelector('b')!.textContent).toContain(String(progress));
+      expect(s.el.querySelector<HTMLElement>('.lc-track i')!.style.width).toBe(`${progress}%`);
+    }
+  });
+
   it('a pending amendment of the closed contract: the reason is shown and «إلغاء الطلب» is disabled; nothing is posted', async () => {
     const s = await setup([AM()]);
     s.c.openAmendments(); s.f.detectChanges();

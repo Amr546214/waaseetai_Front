@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit, signal, inject, PLATFORM_ID } from '@angular/core';
+import { WsDatePipe } from '../../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ProviderApiService } from '../../../../../../core/services/provider-api.service';
@@ -6,7 +7,7 @@ import { ProviderApiService } from '../../../../../../core/services/provider-api
 @Component({
 	selector: 'app-accreditation-details',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [WsDatePipe, CommonModule, RouterLink],
 	templateUrl: './accreditation-details.html',
 	styleUrl: './accreditation-details.css'
 })

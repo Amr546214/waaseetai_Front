@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, inject, signal, computed } from '@angular/core';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
 import { ProfileAiReview } from '../../../../core/models/ai-result.model';
@@ -42,6 +43,28 @@ interface ModificationRequest {
   aiReview?: ProfileAiReview | null;
   rawStatus?: string;
   category?: string;
+}
+
+/** Labels of the document keys a DOCUMENTS request carries (the server sends them as a JSON object whose values are already safe words, never a link). */
+const DOC_KEY_LABELS: Record<string, string> = {
+  idDocumentUrl: 'مستند الهوية', commercialRegistration: 'السجل التجاري', vatCertificateUrl: 'شهادة الضريبة', certificateUrls: 'الشهادات',
+};
+
+/** A value the server sent as a JSON object is shown as readable lines, never as raw JSON; any other text is shown as it is. */
+export function readableValue(value: string | null | undefined): string {
+  if (!value) return '';
+  const t = String(value).trim();
+  if (!t.startsWith('{') && !t.startsWith('[')) return value;
+  try {
+    const parsed = JSON.parse(t);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return Object.entries(parsed as Record<string, unknown>)
+        .map(([k, v]) => `${DOC_KEY_LABELS[k] ?? k}: ${Array.isArray(v) ? (v.length ? v.join('، ') : 'غير محدد') : typeof v === 'object' && v !== null ? 'غير محدد' : String(v ?? 'غير محدد')}`)
+        .join('\n');
+    }
+    if (Array.isArray(parsed)) return parsed.join('، ');
+  } catch { /* not JSON: show it as it is */ }
+  return value;
 }
 
 @Component({
@@ -248,9 +271,9 @@ export class SaModificationRequests implements OnInit {
       requesterType: 'وسيط تسويقي',
       sensitive: true,
       status,
-      oldValue: r.currentValue || 'لا يوجد',
-      newValue: r.requestedValue,
-      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
+      oldValue: readableValue(r.currentValue) || 'لا يوجد',
+      newValue: readableValue(r.requestedValue),
+      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA', { timeZone: providerTimeZone() }),
       verdictLabel: status === 'ai' ? 'قيد المراجعة'
         : status === 'human' ? 'تم تأكيد الهوية عبر الرمز وبانتظار مراجعة الفريق'
         : status === 'ok' ? 'اعتمده المراجع'
@@ -285,9 +308,9 @@ export class SaModificationRequests implements OnInit {
       rawStatus: r.status,
       category: r.category,
       identityDocAccess: r.documentsAccess?.idDocumentUrl === true,
-      oldValue: r.currentValue || 'لا يوجد',
-      newValue: r.requestedValue,
-      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA'),
+      oldValue: readableValue(r.currentValue) || 'لا يوجد',
+      newValue: readableValue(r.requestedValue),
+      timeAgo: new Date(r.createdAt).toLocaleString('ar-SA', { timeZone: providerTimeZone() }),
       verdictLabel: status === 'human' ? 'بانتظار قرار المراجع' : status === 'ok' ? 'اعتمده المراجع' : 'مرفوض',
       verdictText: r.rejectionReason || (status === 'ok' ? 'تم تطبيق التعديل بعد اعتماد الفريق' : 'بانتظار مراجعة الفريق'),
       verdictScore: status === 'rejected' ? 'تعارض' : '',

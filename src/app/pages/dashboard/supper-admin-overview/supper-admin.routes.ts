@@ -1,6 +1,14 @@
-import { Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
+import { adminAccessGuard } from '../../../core/guards/admin-access.guard';
+import { ruleForPath } from '../../../core/config/admin-access-rules';
+import { siteControlLandingGuard } from './site-control/site-control-landing.guard';
 
-export const SUPPER_ADMIN_ROUTES: Routes = [
+const RAW_ROUTES: Routes = [
+    {
+        path: 'no-access',
+        loadComponent: () => import('./sa-no-access/sa-no-access').then(m => m.SaNoAccess),
+        data: { title: 'الوصول' }
+    },
     {
         path: '',
         loadComponent: () => import('./supper-admin-overview/supper-admin-overview').then(m => m.SupperAdminOverview),
@@ -230,10 +238,12 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
         path: 'sub-finance',
         children: [
             {
-        path: 'sub-finance',
+        // the group's own page: the child path was 'sub-finance' (=> /sub-finance/sub-finance), so /sub-finance - the sidebar link «لوحة المالية» - rendered an empty page
+        path: '',
+        pathMatch: 'full',
         loadComponent: () => import('./sa-sub-finance/sa-sub-finance').then(m => m.SaSubFinance),
         data: { title: 'لوحة المالية الإدارية' }
-    }, // Base route for sub-finance
+    },
     {
         path: 'invoices-out',
         loadComponent: () => import('./sub-finance/sa-invoices-out/sa-invoices-out').then(m => m.SaInvoicesOut),
@@ -436,9 +446,49 @@ export const SUPPER_ADMIN_ROUTES: Routes = [
     },
         ]
     },
-	{
+    {
+        // «التحكم بالموقع»: «الهوية» is real (server-backed, site.view / site.manage); the nine pages imported from pmo stay local-only and keep site_control.manage.
+        path: 'site-control',
+        loadComponent: () => import('./site-control/shell/site-control-shell').then(m => m.SiteControlShell),
+        data: { title: 'التحكم بالموقع' },
+        children: [
+            // the section link opens the FIRST page the account may open (identity for most, a local page for a legacy-only holder), never blindly «الهوية»
+            { path: '', pathMatch: 'full', canActivate: [siteControlLandingGuard], children: [] },
+            // the only server-backed page of the section: the platform's visual identity (logos, favicon, AI icon). Needs site.view / site.manage (core/config/admin-access-rules.ts); the server enforces the same.
+            { path: 'identity', loadComponent: () => import('./site-control/identity/identity').then(m => m.Identity), data: { title: 'الهوية' } },
+            { path: 'health', loadComponent: () => import('./site-control/health/health').then(m => m.Health), data: { title: 'صحة الهوية' } },
+            { path: 'tokens', loadComponent: () => import('./site-control/color-tokens/color-tokens').then(m => m.ColorTokens), data: { title: 'القيم والألوان' } },
+            { path: 'icons', loadComponent: () => import('./site-control/icon-tokens/icon-tokens').then(m => m.IconTokens), data: { title: 'مكتبة الأيقونات' } },
+            { path: 'accounts', loadComponent: () => import('./site-control/accounts/accounts').then(m => m.Accounts), data: { title: 'المستويات والنقاط' } },
+            { path: 'templates', loadComponent: () => import('./site-control/templates/templates').then(m => m.Templates), data: { title: 'القوالب' } },
+            { path: 'typography', loadComponent: () => import('./site-control/typography/typography').then(m => m.Typography), data: { title: 'الخطوط' } },
+            { path: 'style-guide', loadComponent: () => import('./site-control/style-guide/style-guide').then(m => m.StyleGuide), data: { title: 'دليل الأنماط' } },
+            { path: 'live-preview', loadComponent: () => import('./site-control/live-preview/live-preview').then(m => m.LivePreview), data: { title: 'المعاينة الشاملة' } },
+            { path: 'export', loadComponent: () => import('./site-control/export-css/export-css').then(m => m.ExportCss), data: { title: 'تصدير CSS' } }
+        ]
+    },
+		{
 		path: '**',
 		loadComponent: () => import('../../../sheards/not-found/not-found').then(m => m.NotFoundComponent),
 		data: { title: "الصفحة غير موجودة", hideAssistant: true, embedded: true }
 	}
 ];
+
+/**
+ * Every page gets the access guard with the rule of its path (core/config/admin-access-rules.ts). The server still decides every request: this only keeps a direct link, a refresh or
+ * a bookmark from showing a page the signed-in account has no permission for.
+ */
+function withAccess(routes: Routes, prefix = ''): Routes {
+    return routes.map((r: Route) => {
+        const full = [prefix, r.path ?? ''].filter(Boolean).join('/');
+        if (r.path === '**' || r.redirectTo !== undefined) return r;
+        return {
+            ...r,
+            canActivate: [...(r.canActivate ?? []), adminAccessGuard],
+            data: { ...(r.data ?? {}), access: ruleForPath(full) },
+            ...(r.children ? { children: withAccess(r.children, full) } : {}),
+        };
+    });
+}
+
+export const SUPPER_ADMIN_ROUTES: Routes = withAccess(RAW_ROUTES);

@@ -59,6 +59,14 @@ export class ConfirmModalComponent {
 		this.modal.reject();
 	}
 
+	/** the icon key of the glyph this dialog type draws (success / info / every other type = the alert glyph): the svg carries it so a published icon replaces the drawing */
+	iconKey(type: string): string {
+		switch (type) {
+			case 'success': return 'pl-shared-confirm-success';
+			case 'info': return 'pl-shared-confirm-info';
+			default: return 'pl-shared-confirm-alert';
+		}
+	}
 	iconPath(type: string): string {
 		switch (type) {
 			case 'success': return 'M8.5 12l2.5 2.5 4.5-4.5';

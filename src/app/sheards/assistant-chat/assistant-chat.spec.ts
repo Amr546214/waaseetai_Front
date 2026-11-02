@@ -304,7 +304,10 @@ describe('AssistantChatComponent', () => {
 		expect(store.ttsDialect()).toBe('gulf');
 	});
 
-	it('voice select offers the handoff voices and manual reply audio button drives the TTS request', async () => {
+	it('voice select offers the server-supported voices and manual reply audio button drives the TTS request', async () => {
+		store.capabilitiesLoading.set(false);
+		store.capabilities.set({models:[],voices:['Puck','Kore','Fenrir','Aoede','Zephyr','Sulafat','Charon','Leda'].map(id => ({id}))});
+		fixture.detectChanges();
 		expect([...select('.ac__voice-select').options].map((o) => o.value)).toEqual(['Puck', 'Kore', 'Fenrir', 'Aoede', 'Zephyr', 'Sulafat', 'Charon', 'Leda']);
 		choose('.ac__voice-select', 'Leda');
 		await answerNow();

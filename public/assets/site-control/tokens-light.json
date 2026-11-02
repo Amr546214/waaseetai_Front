@@ -1,0 +1,1338 @@
+{
+  "version": 1,
+  "updatedAt": "2026-08-17",
+  "groups": [
+    {
+      "id": "backgrounds",
+      "label": "خلفيات وأسطح",
+      "tokens": [
+        {
+          "var": "--pg",
+          "label": "خلفية الصفحة",
+          "value": "#F6F8FC",
+          "type": "color"
+        },
+        {
+          "var": "--navy",
+          "label": "خلفية الشريط العلوي/السايدبار",
+          "value": "#FFFFFF",
+          "type": "color"
+        },
+        {
+          "var": "--pg-dashboard",
+          "label": "خلفية الصفحة — بديل لوحات الإدارة (dashboard) بالوضع الفاتح فقط — الأساسي --pg لسياق الموقع العام",
+          "value": "#EEF2FA",
+          "type": "color"
+        },
+        {
+          "var": "--navy-dashboard",
+          "label": "خلفية الشريط العلوي/السايدبار — بديل لوحات الإدارة (dashboard) بالوضع الفاتح فقط — الأساسي --navy لسياق الموقع العام",
+          "value": "rgba(246,248,252,.96)",
+          "type": "color"
+        },
+        {
+          "var": "--surface",
+          "label": "السطح (بطاقات)",
+          "value": "#FFFFFF",
+          "type": "color"
+        },
+        {
+          "var": "--border",
+          "label": "الحدود",
+          "value": "#E7EAF1",
+          "type": "color"
+        },
+        {
+          "var": "--border-strong",
+          "label": "حدود قوية",
+          "value": "#CBD5E1",
+          "type": "color"
+        },
+        {
+          "var": "--divider",
+          "label": "الفواصل",
+          "value": "#E2E8F4",
+          "type": "color"
+        },
+        {
+          "var": "--card-shadow",
+          "label": "ظل البطاقة",
+          "value": "0 2px 10px rgba(15,23,42,.08),0 1px 3px rgba(15,23,42,.05)",
+          "type": "text"
+        },
+        {
+          "var": "--glass-blur",
+          "label": "ضبابية القوائم/المودال",
+          "value": "blur(22px)",
+          "type": "text"
+        },
+        {
+          "var": "--sidebar-blur",
+          "label": "ضبابية خلفية السايدبار باللوحات (مذكورة بالهوية بلا اسم متغير رسمي — نفس القيمة بالوضعين)",
+          "value": "blur(22px)",
+          "type": "text"
+        },
+        {
+          "var": "--card-blur",
+          "label": "ضبابية خلفية البطاقات (backdrop-filter)",
+          "value": "none",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "background",
+      "label": "الخلفية المتحركة (قسم 0 بالهوية)",
+      "tokens": [
+        {
+          "var": "--bg-particle-count-desktop",
+          "label": "عدد الجزيئات العائمة — ديسكتوب (لا يقل عن هذا)",
+          "value": "25",
+          "type": "text"
+        },
+        {
+          "var": "--bg-particle-count-mobile",
+          "label": "عدد الجزيئات العائمة — جوال (لا يقل عن هذا)",
+          "value": "11",
+          "type": "text"
+        },
+        {
+          "var": "--bg-grid-spacing",
+          "label": "تباعد شبكة النقاط الخلفية",
+          "value": "60px",
+          "type": "size"
+        },
+        {
+          "var": "--bg-grid-dot-opacity",
+          "label": "شفافية نقاط الشبكة (تلوّن أزرق بدل التيركواز بالفاتح) — مشتقة من نص المصدر العام 'شفافية أخف (.07)'",
+          "value": ".07",
+          "type": "opacity"
+        },
+        {
+          "var": "--bg-radial-opacity",
+          "label": "شفافية التدرجات الراديالية العلوية/السفلية",
+          "value": ".07",
+          "type": "opacity"
+        }
+      ]
+    },
+    {
+      "id": "text",
+      "label": "النصوص",
+      "tokens": [
+        {
+          "var": "--txt",
+          "label": "نص أساسي",
+          "value": "#1E293B",
+          "type": "color"
+        },
+        {
+          "var": "--txt-2",
+          "label": "نص ثانوي",
+          "value": "#475569",
+          "type": "color"
+        },
+        {
+          "var": "--txt-site",
+          "label": "نص أساسي — بديل الموقع العام (site) بالوضع الفاتح فقط — الأساسي --txt لسياق لوحات الإدارة (dashboard)",
+          "value": "#070D24",
+          "type": "color"
+        },
+        {
+          "var": "--txt-2-site",
+          "label": "نص ثانوي — بديل الموقع العام (site) بالوضع الفاتح فقط — الأساسي --txt-2 لسياق لوحات الإدارة (dashboard)",
+          "value": "#56607D",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3",
+          "label": "نص ثالثي",
+          "value": "#5B6472",
+          "type": "color"
+        },
+        {
+          "var": "--txt-4",
+          "label": "نص رابعي (خافت جداً)",
+          "value": "#94A3B8",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "id": "brand",
+      "label": "العلامة التجارية",
+      "tokens": [
+        {
+          "var": "--teal",
+          "label": "فيروزي أساسي",
+          "value": "#0F8A7F",
+          "type": "color"
+        },
+        {
+          "var": "--teal-rgb",
+          "label": "فيروزي أساسي — قنوات RGB (لخلفيات rgba الشفافة)",
+          "value": "15,138,127",
+          "type": "text"
+        },
+        {
+          "var": "--blue",
+          "label": "أزرق ثانوي",
+          "value": "#1D6FE0",
+          "type": "color"
+        },
+        {
+          "var": "--blue-rgb",
+          "label": "أزرق ثانوي — قنوات RGB (لخلفيات rgba الشفافة)",
+          "value": "29,111,224",
+          "type": "text"
+        },
+        {
+          "var": "--blue-txt",
+          "label": "أزرق فاتح (نص/أفاتار)",
+          "value": "#1D6FE0",
+          "type": "color"
+        },
+        {
+          "var": "--grad",
+          "label": "التدرج الأساسي (فيروزي→أزرق)",
+          "value": "linear-gradient(135deg,#2BD4C7,#2B7FFF)",
+          "type": "gradient"
+        }
+      ]
+    },
+    {
+      "id": "ai",
+      "label": "الذكاء الاصطناعي",
+      "tokens": [
+        {
+          "var": "--ai",
+          "label": "بنفسجي AI",
+          "value": "#6B27A5",
+          "type": "color"
+        },
+        {
+          "var": "--ai-rgb",
+          "label": "بنفسجي AI — قنوات RGB (لخلفيات rgba الشفافة)",
+          "value": "107,39,165",
+          "type": "text"
+        },
+        {
+          "var": "--ai-txt",
+          "label": "نص AI",
+          "value": "#6B27A5",
+          "type": "color"
+        },
+        {
+          "var": "--ai-bg",
+          "label": "خلفية أيقونة/شارة AI",
+          "value": "rgba(123,47,190,.1)",
+          "type": "color"
+        },
+        {
+          "var": "--ai-border",
+          "label": "حدود بطاقة/شارة AI",
+          "value": "rgba(123,47,190,.28)",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "id": "status",
+      "label": "حالات ودلالات",
+      "tokens": [
+        {
+          "var": "--green",
+          "label": "أخضر نجاح",
+          "value": "#0A6F64",
+          "type": "color"
+        },
+        {
+          "var": "--green-rgb",
+          "label": "أخضر نجاح — قنوات RGB (لخلفيات rgba الشفافة)",
+          "value": "10,111,100",
+          "type": "text"
+        },
+        {
+          "var": "--kahr",
+          "label": "كهرماني تحذير",
+          "value": "#9A6700",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-rgb",
+          "label": "كهرماني تحذير — قنوات RGB (لخلفيات rgba الشفافة)",
+          "value": "154,103,0",
+          "type": "text"
+        },
+        {
+          "var": "--red",
+          "label": "أحمر خطأ",
+          "value": "#B42318",
+          "type": "color"
+        },
+        {
+          "var": "--red-rgb",
+          "label": "أحمر خطأ — قنوات RGB (لخلفيات rgba الشفافة)",
+          "value": "180,35,24",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "typography",
+      "label": "الخطوط",
+      "tokens": [
+        {
+          "var": "--font-family",
+          "label": "عائلة الخط",
+          "value": "Tajawal",
+          "type": "font"
+        },
+        {
+          "var": "--fs-h1",
+          "label": "H1 — الحجم",
+          "value": "38px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-h1",
+          "label": "H1 — الوزن",
+          "value": "900",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-h2",
+          "label": "H2 — الحجم",
+          "value": "27px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-h2",
+          "label": "H2 — الوزن",
+          "value": "900",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-h3",
+          "label": "H3 — الحجم",
+          "value": "19px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-h3",
+          "label": "H3 — الوزن",
+          "value": "800",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-h4",
+          "label": "H4 — الحجم",
+          "value": "16px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-h4",
+          "label": "H4 — الوزن",
+          "value": "800",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-h5",
+          "label": "H5 — الحجم",
+          "value": "14px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-h5",
+          "label": "H5 — الوزن",
+          "value": "700",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-h6",
+          "label": "H6 — الحجم",
+          "value": "13px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-h6",
+          "label": "H6 — الوزن",
+          "value": "700",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-body-lg",
+          "label": "نص كبير — الحجم",
+          "value": "15px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-body-lg",
+          "label": "نص كبير — الوزن",
+          "value": "400",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-body-md",
+          "label": "نص أساسي — الحجم",
+          "value": "14px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-body-md",
+          "label": "نص أساسي — الوزن",
+          "value": "400",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-body-sm",
+          "label": "نص صغير — الحجم",
+          "value": "12.5px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-body-sm",
+          "label": "نص صغير — الوزن",
+          "value": "500",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-caption",
+          "label": "شرح مصغّر — الحجم",
+          "value": "11px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-caption",
+          "label": "شرح مصغّر — الوزن",
+          "value": "600",
+          "type": "weight"
+        },
+        {
+          "var": "--fs-overline",
+          "label": "نص فوقي — الحجم",
+          "value": "9.5px",
+          "type": "size"
+        },
+        {
+          "var": "--fw-overline",
+          "label": "نص فوقي — الوزن",
+          "value": "800",
+          "type": "weight"
+        },
+        {
+          "var": "--lh-h1",
+          "label": "H1 — تباعد الأسطر",
+          "value": "1.2",
+          "type": "text"
+        },
+        {
+          "var": "--ls-h1",
+          "label": "H1 — تباعد الأحرف",
+          "value": "-0.01em",
+          "type": "text"
+        },
+        {
+          "var": "--lh-h2",
+          "label": "H2 — تباعد الأسطر",
+          "value": "1.25",
+          "type": "text"
+        },
+        {
+          "var": "--ls-h2",
+          "label": "H2 — تباعد الأحرف",
+          "value": "-0.01em",
+          "type": "text"
+        },
+        {
+          "var": "--lh-h3",
+          "label": "H3 — تباعد الأسطر",
+          "value": "1.3",
+          "type": "text"
+        },
+        {
+          "var": "--ls-h3",
+          "label": "H3 — تباعد الأحرف",
+          "value": "normal",
+          "type": "text"
+        },
+        {
+          "var": "--lh-h4",
+          "label": "H4 — تباعد الأسطر",
+          "value": "1.35",
+          "type": "text"
+        },
+        {
+          "var": "--ls-h4",
+          "label": "H4 — تباعد الأحرف",
+          "value": "normal",
+          "type": "text"
+        },
+        {
+          "var": "--lh-h5",
+          "label": "H5 — تباعد الأسطر",
+          "value": "1.4",
+          "type": "text"
+        },
+        {
+          "var": "--ls-h5",
+          "label": "H5 — تباعد الأحرف",
+          "value": "normal",
+          "type": "text"
+        },
+        {
+          "var": "--lh-h6",
+          "label": "H6 — تباعد الأسطر",
+          "value": "1.4",
+          "type": "text"
+        },
+        {
+          "var": "--ls-h6",
+          "label": "H6 — تباعد الأحرف",
+          "value": "0.02em",
+          "type": "text"
+        },
+        {
+          "var": "--lh-body-lg",
+          "label": "نص كبير — تباعد الأسطر",
+          "value": "1.7",
+          "type": "text"
+        },
+        {
+          "var": "--ls-body-lg",
+          "label": "نص كبير — تباعد الأحرف",
+          "value": "normal",
+          "type": "text"
+        },
+        {
+          "var": "--lh-body-md",
+          "label": "نص أساسي — تباعد الأسطر",
+          "value": "1.7",
+          "type": "text"
+        },
+        {
+          "var": "--ls-body-md",
+          "label": "نص أساسي — تباعد الأحرف",
+          "value": "normal",
+          "type": "text"
+        },
+        {
+          "var": "--lh-body-sm",
+          "label": "نص صغير — تباعد الأسطر",
+          "value": "1.6",
+          "type": "text"
+        },
+        {
+          "var": "--ls-body-sm",
+          "label": "نص صغير — تباعد الأحرف",
+          "value": "normal",
+          "type": "text"
+        },
+        {
+          "var": "--lh-caption",
+          "label": "شرح مصغّر — تباعد الأسطر",
+          "value": "1.5",
+          "type": "text"
+        },
+        {
+          "var": "--ls-caption",
+          "label": "شرح مصغّر — تباعد الأحرف",
+          "value": "0.01em",
+          "type": "text"
+        },
+        {
+          "var": "--lh-overline",
+          "label": "نص فوقي — تباعد الأسطر",
+          "value": "1.4",
+          "type": "text"
+        },
+        {
+          "var": "--ls-overline",
+          "label": "نص فوقي — تباعد الأحرف",
+          "value": "0.08em",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "sizes",
+      "label": "المقاسات والزوايا والظلال",
+      "tokens": [
+        {
+          "var": "--radius-sm",
+          "label": "زاوية صغيرة (بطاقات/حقول صغيرة)",
+          "value": "9px",
+          "type": "size"
+        },
+        {
+          "var": "--radius-md",
+          "label": "زاوية متوسطة (أزرار/حقول لوحات)",
+          "value": "14px",
+          "type": "size"
+        },
+        {
+          "var": "--radius-lg",
+          "label": "زاوية كبيرة (بطاقات كبيرة)",
+          "value": "16px",
+          "type": "size"
+        },
+        {
+          "var": "--radius-dashboard",
+          "label": "زاوية أزرار/حقول اللوحات (مختلفة عن --radius-md المستخدم بجداول التوكنات — قيمة مستقلة موثّقة بالهوية)",
+          "value": "10px",
+          "type": "size"
+        },
+        {
+          "var": "--radius-pill",
+          "label": "شارة/pill صغيرة",
+          "value": "20px",
+          "type": "size"
+        },
+        {
+          "var": "--radius-full",
+          "label": "شارات دائرية كاملة",
+          "value": "999px",
+          "type": "size"
+        },
+        {
+          "var": "--shadow-1",
+          "label": "ظل تقليدي أسود — مستوى 1",
+          "value": "0 1px 3px rgba(15,23,42,.06)",
+          "type": "shadow"
+        },
+        {
+          "var": "--shadow-2",
+          "label": "ظل تقليدي أسود — مستوى 2",
+          "value": "0 2px 10px rgba(15,23,42,.08)",
+          "type": "shadow"
+        },
+        {
+          "var": "--shadow-3",
+          "label": "ظل تقليدي أسود — مستوى 3",
+          "value": "0 4px 16px rgba(15,23,42,.12)",
+          "type": "shadow"
+        },
+        {
+          "var": "--shadow-4",
+          "label": "ظل تقليدي أسود — مستوى 4",
+          "value": "0 8px 24px rgba(15,23,42,.16)",
+          "type": "shadow"
+        },
+        {
+          "var": "--shadow-5",
+          "label": "ظل تقليدي أسود — مستوى 5",
+          "value": "0 20px 56px rgba(15,23,42,.20)",
+          "type": "shadow"
+        },
+        {
+          "var": "--space-1",
+          "label": "مسافة 1",
+          "value": "4px",
+          "type": "size"
+        },
+        {
+          "var": "--space-2",
+          "label": "مسافة 2",
+          "value": "8px",
+          "type": "size"
+        },
+        {
+          "var": "--space-3",
+          "label": "مسافة 3",
+          "value": "12px",
+          "type": "size"
+        },
+        {
+          "var": "--space-4",
+          "label": "مسافة 4",
+          "value": "16px",
+          "type": "size"
+        },
+        {
+          "var": "--space-5",
+          "label": "مسافة 5",
+          "value": "24px",
+          "type": "size"
+        },
+        {
+          "var": "--space-6",
+          "label": "مسافة 6",
+          "value": "32px",
+          "type": "size"
+        },
+        {
+          "var": "--space-7",
+          "label": "مسافة 7",
+          "value": "48px",
+          "type": "size"
+        },
+        {
+          "var": "--space-8",
+          "label": "مسافة 8",
+          "value": "64px",
+          "type": "size"
+        },
+        {
+          "var": "--container-w",
+          "label": "عرض الحاوية الأقصى",
+          "value": "1240px",
+          "type": "size"
+        },
+        {
+          "var": "--sidebar-w",
+          "label": "عرض السايدبار",
+          "value": "220px",
+          "type": "size"
+        },
+        {
+          "var": "--topbar-h",
+          "label": "ارتفاع الشريط العلوي",
+          "value": "56px",
+          "type": "size"
+        },
+        {
+          "var": "--breakpoint-mobile",
+          "label": "نقطة كسر الموبايل",
+          "value": "767px",
+          "type": "size"
+        },
+        {
+          "var": "--content-padding",
+          "label": "حشوة المحتوى الرئيسي",
+          "value": "20px 22px",
+          "type": "text"
+        },
+        {
+          "var": "--card-gap",
+          "label": "فجوة بين البطاقات",
+          "value": "14px",
+          "type": "size"
+        },
+        {
+          "var": "--icon-sm",
+          "label": "مقاس أيقونة sm",
+          "value": "16px",
+          "type": "size"
+        },
+        {
+          "var": "--icon-md",
+          "label": "مقاس أيقونة md",
+          "value": "20px",
+          "type": "size"
+        },
+        {
+          "var": "--icon-lg",
+          "label": "مقاس أيقونة lg",
+          "value": "24px",
+          "type": "size"
+        },
+        {
+          "var": "--icon-xl",
+          "label": "مقاس أيقونة xl",
+          "value": "32px",
+          "type": "size"
+        },
+        {
+          "var": "--logo-min-size",
+          "label": "الحد الأدنى لحجم الشعار بالشريط العلوي (تقريبي من المصدر)",
+          "value": "28-32px",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "components",
+      "label": "حالات المكوّنات",
+      "tokens": [
+        {
+          "var": "--warn-text",
+          "label": "نص شارة/بطاقة التحذير والخطأ",
+          "value": "#B42318",
+          "type": "color"
+        },
+        {
+          "var": "--warn-border",
+          "label": "حدود شارة/بطاقة التحذير والخطأ",
+          "value": "rgba(180,35,24,.22)",
+          "type": "color"
+        },
+        {
+          "var": "--warn-bg",
+          "label": "خلفية شارة/بطاقة التحذير والخطأ",
+          "value": "rgba(180,35,24,.08)",
+          "type": "color"
+        },
+        {
+          "var": "--ai-card-bg",
+          "label": "خلفية بطاقة AI (تدرّج مختلف عن --ai-bg)",
+          "value": "linear-gradient(135deg,rgba(123,47,190,.06),rgba(43,127,255,.04))",
+          "type": "gradient"
+        },
+        {
+          "var": "--icon-border",
+          "label": "حدود مربع الأيقونة الزجاجي",
+          "value": "rgba(15,138,127,.2)",
+          "type": "color"
+        },
+        {
+          "var": "--icon-bg",
+          "label": "خلفية مربع الأيقونة الزجاجي",
+          "value": "rgba(15,138,127,.08)",
+          "type": "color"
+        },
+        {
+          "var": "--badge-active-bg",
+          "label": "نشط/مقبول — خلفية",
+          "value": "rgba(15,169,154,.12)",
+          "type": "color"
+        },
+        {
+          "var": "--badge-active-text",
+          "label": "نشط/مقبول — نص",
+          "value": "#0A6F64",
+          "type": "color"
+        },
+        {
+          "var": "--badge-draft-bg",
+          "label": "مسودة — خلفية",
+          "value": "rgba(127,127,127,.06)",
+          "type": "color"
+        },
+        {
+          "var": "--badge-draft-text",
+          "label": "مسودة — نص",
+          "value": "#475569",
+          "type": "color"
+        },
+        {
+          "var": "--badge-done-bg",
+          "label": "مكتمل — خلفية",
+          "value": "rgba(43,127,255,.10)",
+          "type": "color"
+        },
+        {
+          "var": "--badge-done-text",
+          "label": "مكتمل — نص",
+          "value": "#1A5FCC",
+          "type": "color"
+        },
+        {
+          "var": "--badge-cancel-bg",
+          "label": "ملغى — خلفية",
+          "value": "rgba(127,127,127,.06)",
+          "type": "color"
+        },
+        {
+          "var": "--badge-cancel-text",
+          "label": "ملغى — نص",
+          "value": "#475569",
+          "type": "color"
+        },
+        {
+          "var": "--badge-dispute-bg",
+          "label": "نزاع — خلفية",
+          "value": "rgba(255,140,105,.10)",
+          "type": "color"
+        },
+        {
+          "var": "--badge-dispute-text",
+          "label": "نزاع — نص",
+          "value": "#B34000",
+          "type": "color"
+        },
+        {
+          "var": "--btn-hover-opacity",
+          "label": "شفافية الزر عند التحويم",
+          "value": "0.92",
+          "type": "opacity"
+        },
+        {
+          "var": "--btn-active-opacity",
+          "label": "شفافية الزر عند الضغط",
+          "value": "0.85",
+          "type": "opacity"
+        },
+        {
+          "var": "--btn-disabled-opacity",
+          "label": "شفافية الزر المعطّل",
+          "value": "0.4",
+          "type": "opacity"
+        },
+        {
+          "var": "--field-disabled-opacity",
+          "label": "شفافية الحقل المعطّل",
+          "value": "0.5",
+          "type": "opacity"
+        },
+        {
+          "var": "--field-focus-border-opacity",
+          "label": "شفافية حدود الحقل عند التركيز",
+          "value": "0.4",
+          "type": "opacity"
+        },
+        {
+          "var": "--card-hover-border-opacity",
+          "label": "شفافية حدود البطاقة عند التحويم",
+          "value": "0.3",
+          "type": "opacity"
+        },
+        {
+          "var": "--toggle-track",
+          "label": "مسار مبدّل الوضع",
+          "value": "#EEF2FA",
+          "type": "color"
+        },
+        {
+          "var": "--toggle-active-bg",
+          "label": "خلفية القطعة النشطة بالمبدّل",
+          "value": "#FFFFFF",
+          "type": "color"
+        },
+        {
+          "var": "--toggle-active-text",
+          "label": "نص القطعة النشطة بالمبدّل",
+          "value": "#0F172A",
+          "type": "color"
+        },
+        {
+          "var": "--select-bg",
+          "label": "خلفية القائمة المنسدلة",
+          "value": "rgba(7,13,36,.06)",
+          "type": "color"
+        },
+        {
+          "var": "--select-border",
+          "label": "حدود القائمة المنسدلة",
+          "value": "rgba(7,13,36,.20)",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "id": "ramps",
+      "label": "سلالم الألوان الممتدة (50-900)",
+      "tokens": [
+        {
+          "var": "--teal-50",
+          "label": "Primary — درجة 50",
+          "value": "#E8FCFB",
+          "type": "color"
+        },
+        {
+          "var": "--teal-100",
+          "label": "Primary — درجة 100",
+          "value": "#D1FAF7",
+          "type": "color"
+        },
+        {
+          "var": "--teal-200",
+          "label": "Primary — درجة 200",
+          "value": "#ACF6F0",
+          "type": "color"
+        },
+        {
+          "var": "--teal-300",
+          "label": "Primary — درجة 300",
+          "value": "#7EF1E7",
+          "type": "color"
+        },
+        {
+          "var": "--teal-400",
+          "label": "Primary — درجة 400",
+          "value": "#47EBDD",
+          "type": "color"
+        },
+        {
+          "var": "--teal-500",
+          "label": "Primary — درجة 500",
+          "value": "#18DCCC",
+          "type": "color"
+        },
+        {
+          "var": "--teal-600",
+          "label": "Primary — درجة 600",
+          "value": "#13AEA2",
+          "type": "color"
+        },
+        {
+          "var": "--teal-700",
+          "label": "Primary — درجة 700 (نقطة الإرساء الأساسية)",
+          "value": "#0F8A7F",
+          "type": "color"
+        },
+        {
+          "var": "--teal-800",
+          "label": "Primary — درجة 800",
+          "value": "#0B655E",
+          "type": "color"
+        },
+        {
+          "var": "--teal-900",
+          "label": "Primary — درجة 900",
+          "value": "#07403C",
+          "type": "color"
+        },
+        {
+          "var": "--blue-50",
+          "label": "Secondary — درجة 50",
+          "value": "#D2E2F9",
+          "type": "color"
+        },
+        {
+          "var": "--blue-100",
+          "label": "Secondary — درجة 100",
+          "value": "#B7D1F6",
+          "type": "color"
+        },
+        {
+          "var": "--blue-200",
+          "label": "Secondary — درجة 200",
+          "value": "#93BAF1",
+          "type": "color"
+        },
+        {
+          "var": "--blue-300",
+          "label": "Secondary — درجة 300",
+          "value": "#669DEB",
+          "type": "color"
+        },
+        {
+          "var": "--blue-400",
+          "label": "Secondary — درجة 400",
+          "value": "#4186E6",
+          "type": "color"
+        },
+        {
+          "var": "--blue-500",
+          "label": "Secondary — درجة 500 (نقطة الإرساء الأساسية)",
+          "value": "#1D6FE0",
+          "type": "color"
+        },
+        {
+          "var": "--blue-600",
+          "label": "Secondary — درجة 600",
+          "value": "#195DBE",
+          "type": "color"
+        },
+        {
+          "var": "--blue-700",
+          "label": "Secondary — درجة 700",
+          "value": "#144C99",
+          "type": "color"
+        },
+        {
+          "var": "--blue-800",
+          "label": "Secondary — درجة 800",
+          "value": "#0F3A75",
+          "type": "color"
+        },
+        {
+          "var": "--blue-900",
+          "label": "Secondary — درجة 900",
+          "value": "#092448",
+          "type": "color"
+        },
+        {
+          "var": "--ai-50",
+          "label": "Accent — درجة 50",
+          "value": "#E7D6F5",
+          "type": "color"
+        },
+        {
+          "var": "--ai-100",
+          "label": "Accent — درجة 100",
+          "value": "#D8BDEF",
+          "type": "color"
+        },
+        {
+          "var": "--ai-200",
+          "label": "Accent — درجة 200",
+          "value": "#C49CE8",
+          "type": "color"
+        },
+        {
+          "var": "--ai-300",
+          "label": "Accent — درجة 300",
+          "value": "#AC73DE",
+          "type": "color"
+        },
+        {
+          "var": "--ai-400",
+          "label": "Accent — درجة 400",
+          "value": "#9349D4",
+          "type": "color"
+        },
+        {
+          "var": "--ai-500",
+          "label": "Accent — درجة 500",
+          "value": "#7F2FC6",
+          "type": "color"
+        },
+        {
+          "var": "--ai-600",
+          "label": "Accent — درجة 600 (نقطة الإرساء الأساسية)",
+          "value": "#6B27A5",
+          "type": "color"
+        },
+        {
+          "var": "--ai-700",
+          "label": "Accent — درجة 700",
+          "value": "#551F84",
+          "type": "color"
+        },
+        {
+          "var": "--ai-800",
+          "label": "Accent — درجة 800",
+          "value": "#401763",
+          "type": "color"
+        },
+        {
+          "var": "--ai-900",
+          "label": "Accent — درجة 900",
+          "value": "#250E3A",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-50",
+          "label": "Neutral — درجة 50",
+          "value": "#DDE0E4",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-100",
+          "label": "Neutral — درجة 100",
+          "value": "#CCD0D6",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-200",
+          "label": "Neutral — درجة 200",
+          "value": "#B5BBC4",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-300",
+          "label": "Neutral — درجة 300",
+          "value": "#99A1AD",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-400",
+          "label": "Neutral — درجة 400",
+          "value": "#7D8797",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-500",
+          "label": "Neutral — درجة 500",
+          "value": "#6B7585",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-600",
+          "label": "Neutral — درجة 600 (نقطة الإرساء الأساسية)",
+          "value": "#5B6472",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-700",
+          "label": "Neutral — درجة 700",
+          "value": "#4B525D",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-800",
+          "label": "Neutral — درجة 800",
+          "value": "#393E47",
+          "type": "color"
+        },
+        {
+          "var": "--txt-3-900",
+          "label": "Neutral — درجة 900",
+          "value": "#22252A",
+          "type": "color"
+        },
+        {
+          "var": "--green-50",
+          "label": "Success — درجة 50",
+          "value": "#BDF9F3",
+          "type": "color"
+        },
+        {
+          "var": "--green-100",
+          "label": "Success — درجة 100",
+          "value": "#98F6ED",
+          "type": "color"
+        },
+        {
+          "var": "--green-200",
+          "label": "Success — درجة 200",
+          "value": "#69F2E4",
+          "type": "color"
+        },
+        {
+          "var": "--green-300",
+          "label": "Success — درجة 300",
+          "value": "#3AEEDC",
+          "type": "color"
+        },
+        {
+          "var": "--green-400",
+          "label": "Success — درجة 400",
+          "value": "#14E1CD",
+          "type": "color"
+        },
+        {
+          "var": "--green-500",
+          "label": "Success — درجة 500",
+          "value": "#10BCAB",
+          "type": "color"
+        },
+        {
+          "var": "--green-600",
+          "label": "Success — درجة 600",
+          "value": "#0D9688",
+          "type": "color"
+        },
+        {
+          "var": "--green-700",
+          "label": "Success — درجة 700",
+          "value": "#0B7A6F",
+          "type": "color"
+        },
+        {
+          "var": "--green-800",
+          "label": "Success — درجة 800 (نقطة الإرساء الأساسية)",
+          "value": "#0A6F64",
+          "type": "color"
+        },
+        {
+          "var": "--green-900",
+          "label": "Success — درجة 900",
+          "value": "#06423C",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-50",
+          "label": "Warning — درجة 50",
+          "value": "#FFF1D6",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-100",
+          "label": "Warning — درجة 100",
+          "value": "#FFE4AD",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-200",
+          "label": "Warning — درجة 200",
+          "value": "#FFD37A",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-300",
+          "label": "Warning — درجة 300",
+          "value": "#FFC247",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-400",
+          "label": "Warning — درجة 400",
+          "value": "#FFB114",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-500",
+          "label": "Warning — درجة 500",
+          "value": "#EB9C00",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-600",
+          "label": "Warning — درجة 600",
+          "value": "#C28100",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-700",
+          "label": "Warning — درجة 700",
+          "value": "#AD7400",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-800",
+          "label": "Warning — درجة 800 (نقطة الإرساء الأساسية)",
+          "value": "#9A6700",
+          "type": "color"
+        },
+        {
+          "var": "--kahr-900",
+          "label": "Warning — درجة 900",
+          "value": "#664400",
+          "type": "color"
+        },
+        {
+          "var": "--red-50",
+          "label": "Error — درجة 50",
+          "value": "#F9D4D2",
+          "type": "color"
+        },
+        {
+          "var": "--red-100",
+          "label": "Error — درجة 100",
+          "value": "#F4B2AE",
+          "type": "color"
+        },
+        {
+          "var": "--red-200",
+          "label": "Error — درجة 200",
+          "value": "#EF8881",
+          "type": "color"
+        },
+        {
+          "var": "--red-300",
+          "label": "Error — درجة 300",
+          "value": "#E95D53",
+          "type": "color"
+        },
+        {
+          "var": "--red-400",
+          "label": "Error — درجة 400",
+          "value": "#E33326",
+          "type": "color"
+        },
+        {
+          "var": "--red-500",
+          "label": "Error — درجة 500",
+          "value": "#D0271B",
+          "type": "color"
+        },
+        {
+          "var": "--red-600",
+          "label": "Error — درجة 600 (نقطة الإرساء الأساسية)",
+          "value": "#B42318",
+          "type": "color"
+        },
+        {
+          "var": "--red-700",
+          "label": "Error — درجة 700",
+          "value": "#901B13",
+          "type": "color"
+        },
+        {
+          "var": "--red-800",
+          "label": "Error — درجة 800",
+          "value": "#6C140E",
+          "type": "color"
+        },
+        {
+          "var": "--red-900",
+          "label": "Error — درجة 900",
+          "value": "#3F0C08",
+          "type": "color"
+        }
+      ]
+    }
+  ]
+}

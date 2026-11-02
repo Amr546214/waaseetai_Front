@@ -66,6 +66,20 @@ export class DisputeDetails implements OnInit {
 		return d.status === 'open' ? 'نشط' : 'مُغلق';
 	});
 
+	providerPartyName = computed(() => {
+		const d = this.dispute();
+		if (!d) return 'مقدم الخدمة';
+		if (this.isCompanyMode() && d.teamMember?.name) return d.teamMember.name;
+		const me = d.detail?.parties?.[0];
+		return me?.name && me.name !== 'أنت' ? me.name : 'مقدم الخدمة';
+	});
+
+	clientPartyName = computed(() => {
+		const d = this.dispute();
+		const client = d?.detail?.parties?.[1];
+		return client?.name && client.name !== '—' ? client.name : 'العميل';
+	});
+
 	ngOnInit(): void {
 		this.load();
 	}

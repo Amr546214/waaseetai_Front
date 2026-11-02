@@ -1,6 +1,6 @@
 import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
-import { AssistantStore } from '../../../../../core/store/assistant.store';
+import { AssistantExamState } from '../../../../../core/store/assistant-exam-state.service';
 import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, effect, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { genericBanner } from '../../../../../shared/forms/submit-feedback';
 import { clearAllInvalid, FieldProblem, reportBackendError, reportProblems, scrollFocus, SubmitGuard } from '../../../../../shared/forms/form-error-focus';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { HttpEventType } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
 import { SpecialtyStatusComponent } from '../../../../../shared/forms/specialty-status.component';
 import { ACCREDITATION_NEW_PAGE, type RegisteredSpecialty, type SpecialtyApprovalInfo } from '../../../../../core/utils/specialty-states';
@@ -130,12 +130,12 @@ export interface PortfolioReview {
 })
 export class Specialties implements OnInit, OnDestroy {
 	private specialtyService = inject(SpecialtyService);
-	private assistantStore = inject(AssistantStore, { optional: true });
+	private assistantStore = inject(AssistantExamState);
 	private sanitizer = inject(DomSanitizer);
 
 	constructor() {
 		effect(() => {
-			try { this.assistantStore?.setExamActive(this.currentStep() === 4); } catch {}
+			this.assistantStore.setExamActive(this.currentStep() === 4);
 		});
 	}
 	// Hardcoded SVG glyph (no user data). Angular's HTML sanitizer strips <circle>/<path> inside [innerHTML] on an <svg>, which left every category icon blank.
@@ -872,92 +872,37 @@ export class Specialties implements OnInit, OnDestroy {
 		this.samples.update(s => s.filter(x => x.id !== id));
 	}
 
-	private async createSyntheticPngFile(fileName: string, titleText: string, subtitleText: string): Promise<{ file: File; dataUrl: string }> {
-		const canvas = document.createElement('canvas');
-		canvas.width = 960;
-		canvas.height = 540;
-		const ctx = canvas.getContext('2d');
-		if (!ctx) throw new Error('Canvas unavailable');
-		const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-		grad.addColorStop(0, '#070D24');
-		grad.addColorStop(0.55, '#0F1E45');
-		grad.addColorStop(1, '#123B52');
-		ctx.fillStyle = grad;
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.strokeStyle = 'rgba(43,212,199,0.45)';
-		ctx.lineWidth = 4;
-		ctx.strokeRect(24, 24, canvas.width - 48, canvas.height - 48);
-		ctx.fillStyle = '#2BD4C7';
-		ctx.font = '800 32px Arial';
-		ctx.textAlign = 'center';
-		ctx.fillText(titleText.slice(0, 48), canvas.width / 2, canvas.height / 2 - 20);
-		ctx.fillStyle = '#E8ECFF';
-		ctx.font = '600 22px Arial';
-		ctx.fillText(subtitleText.slice(0, 64), canvas.width / 2, canvas.height / 2 + 28);
-		ctx.fillStyle = 'rgba(255,255,255,0.22)';
-		ctx.font = '800 24px Arial';
-		ctx.fillText('وسيط AI · نموذج عمل موثق', canvas.width / 2, canvas.height - 56);
-		const dataUrl = canvas.toDataURL('image/png');
-		const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('Blob failed')), 'image/png'));
-		const file = new File([blob], fileName, { type: 'image/png', lastModified: Date.now() });
-		return { file, dataUrl };
-	}
+	readonly draftingSamples = signal<Set<string>>(new Set());
 
 	async autoFillSample(sampleId: string) {
 		const sample = this.samples().find(s => s.id === sampleId);
-		if (!sample) return;
-		const sub = sample.subSpecialty || 'التخصص المختار';
-		const specName = this.filteredSpecialties().find(s => s.id === this.selectedSpecId())?.name || '';
-		const contextText = `${specName} ${sub}`;
-		let techs = ['TypeScript', 'Angular', 'Node.js', 'PostgreSQL', 'Docker', 'REST API'];
-		let title = `تطوير منظومة رقمية متكاملة في ${sub}`;
-		let description = `قمت بتصميم وتطوير بنية معمارية متكاملة لمشروع في مجال (${sub}) شملت بناء واجهات تفاعلية سريعة الاستجابة، وربط خدمات الواجهة الخلفية وقواعد البيانات مع تطبيق أعلى معايير الأمان وتحسين الأداء بنسبة 45% وتوثيق الكود المصدري بالكامل.`;
-
-		if (/قانون|ضريب|محام|عقود|استشارات قانونية|زكاة|قضائ|تحكيم/i.test(contextText)) {
-			techs = ['نظام ضريبة القيمة المضافة', 'نظام الزكاة والدخل', 'صياغة المذكرات القانونية', 'الامتثال الضريبي', 'مراجعة العقود التجارية'];
-			title = `إعداد مذكرة دفاع واستشارة امتثال في ${sub}`;
-			description = `قمت بإعداد دراسة قانونية ومذكرة اعتراض متكاملة في مجال (${sub}) شملت فحص الإقرارات والمستندات المحاسبية، وتحليل الأسانيد النظامية واللوائح التنفيذية لهيئة الزكاة والضريبة والجمارك، وصياغة توصيات الامتثال القانوني وتلافي الغرامات.`;
-		} else if (/ألعاب|العاب|يونيتي|انريل|unity|unreal|game/i.test(contextText)) {
-			techs = ['Unity 3D', 'C#', 'Shader Graph', 'NavMesh AI', 'Addressables', 'Netcode'];
-			title = `تطوير وبرمجة لعبة تفاعلية ثلاثية الأبعاد في ${sub}`;
-			description = `قمت بتصميم وبرمجة أنظمة اللعب الأساسية (Core Gameplay Mechanics) في مجال (${sub}) باستخدام محرك الألعاب، مع بناء الذكاء الاصطناعي للشخصيات، وتحسين معدل الإطارات (FPS) وإدارة الذاكرة على مختلف المنصات.`;
-		} else if (/تصميم|جرافيك|هوية|شعار|واجهات|ui|ux|فيديو|موشن/i.test(contextText)) {
-			techs = ['Figma', 'Adobe Illustrator', 'Adobe Photoshop', 'Design System', 'Prototyping'];
-			title = `تصميم هوية بصرية ونظام واجهات متكامل في ${sub}`;
-			description = `قمت ببناء الهوية البصرية ونظام التصميم المتكامل في مجال (${sub}) شاملاً دراسة تجربة المستخدم، ورسم النماذج التفاعلية، وإعداد دليل الهوية والملفات المصدرية القابلة للتطوير.`;
-		} else if (/تسويق|إعلان|سيو|seo|مبيعات|حملات/i.test(contextText)) {
-			techs = ['Google Analytics 4', 'Meta Ads Manager', 'Google Ads', 'SEMrush', 'تحسين معدل التحويل CRO'];
-			title = `إدارة وتنفيذ حملة نمو رقمي في ${sub}`;
-			description = `قمت بتخطيط وإدارة استراتيجية تسويقية متكاملة في مجال (${sub}) شملت تحليل الجمهور المستهدف، وإطلاق الحملات الإعلانية الممولة، وتحسين معدل التحويل والعائد على الإنفاق الإعلاني (ROAS).`;
-		} else if (/مالي|محاسب|دراسة جدوى|أعمال|إدار/i.test(contextText)) {
-			techs = ['المعايير الدولية IFRS', 'النمذجة المالية Financial Modeling', 'التحليل المالي', 'Power BI', 'Excel المتقدم'];
-			title = `إعداد نموذج مالي ودراسة تحليلية في ${sub}`;
-			description = `قمت بإعداد نموذج مالي متكامل وتقارير مراجعة دقيقة في مجال (${sub}) وفق المعايير المعتمدة، شملت تحليل التدفقات النقدية، وتقييم المخاطر، وبناء لوحات مؤشرات الأداء المالي.`;
-		} else if (/ترجم|كتاب|محتوى|تحرير|تدقيق/i.test(contextText)) {
-			techs = ['الترجمة المعتمدة', 'الصياغة التحريرية', 'التدقيق اللغوي', 'SDL Trados', 'دليل الأسلوب اللغوي'];
-			title = `إعداد وصياغة محتوى تخصصي معتمد في ${sub}`;
-			description = `قمت بإعداد وصياغة ومراجعة نصوص تخصصية في مجال (${sub}) مع الالتزام التام بالمصطلحات المعتمدة، والتدقيق اللغوي والأسلبي الشامل لضمان أعلى درجات الدقة والوضوح.`;
+		if (!sample || this.draftingSamples().has(sampleId)) return;
+		if (sample.title.trim().length < 3 || (sample.description || '').trim().length < 10) {
+			this.stepError.set('اكتب عنواناً ووصفاً لعملك الفعلي أولاً لتحسين الصياغة. ارفع ملفات العمل وإثبات الملكية بنفسك.');
+			return;
 		}
+		const selected = this.selectedSpecId();
+		const title = sample.title; const description = sample.description || '';
+		this.draftingSamples.update(ids => new Set([...ids, sampleId]));
+		this.stepError.set(null);
 		try {
-			const pub = await this.createSyntheticPngFile(`work-sample-${sampleId.slice(-4)}.png`, title, `التقنيات: ${techs.slice(0, 4).join(' · ')}`);
-			const proof = await this.createSyntheticPngFile(`ownership-proof-${sampleId.slice(-4)}.png`, `وثيقة إثبات الملكية والكود المصدري`, `التخصص: ${sub} — ملكية حصرية لمقدم الخدمة`);
-			this.patchSample(sampleId, {
-				title,
-				description,
-				technologies: techs,
-				technologiesInput: techs.join(', '),
-				publicFile: pub.file,
-				publicFileName: pub.file.name,
-				publicFileType: 'image/png',
-				previewUrl: pub.dataUrl,
-				proofFiles: [proof.file],
-				proofFileNames: [proof.file.name],
-				isUploading: false,
-				isProcessingProofs: false
-			});
-			this.stepError.set(null);
+			const response = await firstValueFrom(this.specialtyService.suggestSampleDraft({
+				specialtyName: this.filteredSpecialties().find(s => s.id === selected)?.name || sample.subSpecialty,
+				subSpecialties: [sample.subSpecialty], title, description, technologiesUsed: sample.technologies,
+			}));
+			const current = this.samples().find(s => s.id === sampleId);
+			if (!current || current.title !== title || (current.description || '') !== description || this.selectedSpecId() !== selected) {
+				this.stepError.set('تغيّرت بيانات النموذج أثناء التحليل؛ لم يُطبّق المقترح القديم.');
+				return;
+			}
+			const data = response?.data;
+			if (typeof data?.title !== 'string' || !data.title.trim() || typeof data?.description !== 'string' || !data.description.trim() || !Array.isArray(data.technologiesUsed)) throw new Error('INVALID_DRAFT');
+			const technologies = data.technologiesUsed.filter((t: unknown): t is string => typeof t === 'string' && !!t.trim()).map((t: string) => t.trim()).slice(0, 15);
+			this.patchSample(sampleId, { title: data.title.trim(), description: data.description.trim(), technologies, technologiesInput: technologies.join(', ') });
 		} catch {
-			this.stepError.set('تعذّر تجهيز الملفات التجريبية تلقائياً.');
+			this.stepError.set('تعذر تحسين الصياغة حالياً. بياناتك وملفاتك كما هي؛ يمكنك المتابعة يدوياً.');
+		} finally {
+			this.draftingSamples.update(ids => { const next = new Set(ids); next.delete(sampleId); return next; });
 		}
 	}
 
@@ -1662,7 +1607,7 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		try { this.assistantStore?.setExamActive(false); } catch {}
+		this.assistantStore.setExamActive(false);
 		this.stopTimer();
 		this.clearSubmissionWatchers();
 		this.antiCheatService.stopMonitoring();

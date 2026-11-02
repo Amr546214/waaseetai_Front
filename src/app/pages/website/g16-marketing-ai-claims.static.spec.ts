@@ -39,8 +39,9 @@ const pricingHtml = readSrc('pricing/pricing.html');
 // monetary threshold — confirmed by reading the actual backend code).
 const helpArticleTs = readSrc('support/help-article/help-article.component.ts');
 const helpCenterTs = readSrc('support/help-center/help-center.component.ts');
-const termsHtml = readSrc('terms/terms.component.html');
-const privacyHtml = readSrc('privacy/privacy.component.html');
+const legalText = readFileSync(join(__dirname, '..', '..', 'core', 'constants', 'legal-text.ts'), 'utf8'); // the static text of both pages now lives in this shared constant
+const termsHtml = readSrc('terms/terms.component.html') + legalText;
+const privacyHtml = readSrc('privacy/privacy.component.html') + legalText;
 const legalPageTs = readSrc('legal/legal-page.component.ts');
 const policyHubTs = readSrc('legal/policy-hub/policy-hub.ts');
 const pressHtml = readSrc('press/press.html');

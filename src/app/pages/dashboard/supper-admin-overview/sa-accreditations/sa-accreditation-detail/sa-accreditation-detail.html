@@ -150,7 +150,7 @@
         @for (p of proofs(); track p.key; let i = $index) {
           <div class="acc-doc" data-testid="proof-row" [attr.data-source]="p.source">
             <div class="acc-doc-head">
-              <div class="acc-doc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div class="acc-doc-ic"><svg data-ws-icon="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
               <span class="acc-doc-name" data-testid="proof-name">{{ p.fileName }}</span>
               @if (sizeText(p.bytes)) { <span class="acc-doc-meta" dir="ltr">{{ sizeText(p.bytes) }}</span> }
               @if (p.available === false) {

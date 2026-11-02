@@ -1,3 +1,4 @@
+import { installTestNetworkGuard } from './test-network-guard';
 // Shared vitest setup (registered in angular.json -> test.options.setupFiles). Test environment only; no production code reads this.
 //
 // Node >= 25 ships an experimental global `localStorage` that has no methods unless the process is started with `--localstorage-file`
@@ -81,3 +82,5 @@ beforeEach(clearSharedBrowserState);
 //     file starts (this setup file runs before each spec file's own body) and when it ends.
 vi.unstubAllGlobals();
 afterAll(() => { vi.unstubAllGlobals(); });
+
+installTestNetworkGuard();

@@ -34,6 +34,7 @@ export interface SetupTestQuestion {
 export class SetupTestService {
   private socket: Socket | null = null;
   private cachedQuestions: SetupTestQuestion[] = [];
+  private nextQuestionIndex = 0;
 
   isGenerating = signal<boolean>(false);
   statusMsg = signal<string>('');
@@ -75,6 +76,7 @@ export class SetupTestService {
     this.result.set(null);
     this.currentQuestion.set(null);
     this.cachedQuestions = [];
+    this.nextQuestionIndex = 0;
 
     const socketUrl = environment.url_api.includes('/api') 
       ? environment.url_api.replace('/api', '') 
@@ -104,6 +106,7 @@ export class SetupTestService {
     });
 
     this.socket.on('setup_test:question', (data: SetupTestQuestion) => {
+      if (this.cachedQuestions.length && data.index < this.nextQuestionIndex) return;
       this.currentQuestion.set(data);
     });
 
@@ -128,8 +131,14 @@ export class SetupTestService {
   }
 
   submitAnswer(questionId: string, selectedIndex: number) {
-    const token = this.getToken();
+    if (this.cachedQuestions.length && this.currentQuestion()?.id !== questionId) return;
     const currentIdx = this.cachedQuestions.findIndex(q => q.id === questionId);
+    if (currentIdx >= 0) {
+      const question = this.cachedQuestions[currentIdx];
+      if (!Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= question.options.length) return;
+      this.nextQuestionIndex = currentIdx + 1;
+    }
+    const token = this.getToken();
     if (currentIdx >= 0 && currentIdx + 1 < this.cachedQuestions.length) {
       this.currentQuestion.set(this.cachedQuestions[currentIdx + 1]);
     } else {

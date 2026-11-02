@@ -88,15 +88,16 @@ describe('provider FE package 1 — operate, do not delete', () => {
 		expect(t).toContain('prefs.notifChannels');
 		expect(h).not.toContain('30 يوم');
 	});
-	it('footers: neutral wording + terms/privacy links; no SAMA / PDPL compliance claim anywhere in the provider area', () => {
+	it('the shared dashboard footer owns terms/privacy links; provider pages make no regulatory compliance claims', () => {
+		const footer = read('../../../layouts/dashboard-layout/dashboard-layout.html');
+		expect(footer).toContain('role="contentinfo"');
+		expect(footer).toContain('الشروط والأحكام');
+		expect(footer).toContain('سياسة الخصوصية');
 		for (const f of ['offers/sign-contract/sign-contract.html', 'projects/archived/archived.html', 'disputes/dispute-details/dispute-details.html', 'business-models/market/model-details/model-details.html', 'help/ticket-detail/ticket-detail.html', 'help/new-ticket/new-ticket.html']) {
-			const h = read(f);
-			expect(h, f).toContain('وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة');
-			expect(h, f).toContain('الشروط والأحكام');
-			expect(h, f).toContain('سياسة الخصوصية');
-			expect(h, f).not.toMatch(/SAMA|PDPL|v1\.0\.0/);
+			expect(read(f), f).not.toMatch(/SAMA|PDPL|v1\.0\.0/);
 		}
 	});
+
 	it('level benefits: the invented search-priority benefit is replaced by the real level badge', () => {
 		const h = read('profile/level/level.html');
 		expect(h).not.toContain('أولوية ظهور');

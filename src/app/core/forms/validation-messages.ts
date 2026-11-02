@@ -36,6 +36,7 @@ export function validationMessage(errors: ValidationErrors | null | undefined, l
 	if (errors['iban']) return 'أدخل رقم IBAN صالحًا';
 	if (errors['url']) return 'أدخل رابطًا صالحًا يبدأ بـ http:// أو https://';
 	if (errors['pattern']) return name ? `صيغة ${name} غير صحيحة` : 'الصيغة غير صحيحة';
+	if (errors['birthDate']) return 'تاريخ الميلاد غير صالح (لا يقبل تاريخًا في المستقبل)';
 	return name ? `${name} غير صالح` : 'القيمة غير صالحة';
 }
 

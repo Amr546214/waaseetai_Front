@@ -23,13 +23,14 @@ export class JoinMarketerComponent {
 	 * The broker ladder shown on the page comes from the backend table (GET /levels): level 1, level 8 and level 15 with THEIR real commission.
 	 * Until it answers (or if it fails) no percentage is shown: nothing is typed here.
 	 */
+	private minMarketerText = computed(() => { const m = this.levels.minMarketerPayout(); return m && m > 0 ? `${m} دولار` : ''; });
 	tiers = computed<Tier[]>(() => {
 		const pick = (n: number, perks: string[], featured = false): Tier | null => {
 			const l = this.levels.level('MARKETER', n);
 			return l ? { name: l.name, comm: l.percent + '٪', req: `المستوى ${n} من 15`, perks, featured } : null;
 		};
 		return [
-			pick(1, ['رابط تتبع شخصي', 'لوحة أرباح', 'سحب أسبوعي بحد أدنى 300 دولار']),
+			pick(1, ['رابط تتبع شخصي', 'لوحة أرباح', this.minMarketerText() ? `سحب أسبوعي بحد أدنى ${this.minMarketerText()}` : 'سحب أسبوعي']),
 			pick(8, ['كل مزايا المستويات السابقة', 'نسبة أعلى مع كل مستوى', 'حذف عميل لا ينقص مستواك']),
 			pick(15, ['أعلى عمولة', 'كل مزايا المستويات السابقة', 'ارتباط إحالة مدى الحياة'], true),
 		].filter((t): t is Tier => !!t);
@@ -47,13 +48,16 @@ export class JoinMarketerComponent {
 		return l ? { percent: l.percent, amount: Math.round(5000 * l.percent) / 100 } : null;
 	});
 
-	faqs = [
+	get faqs(): Array<{ q: string; a: string }> {
+		const m = this.minMarketerText();
+		return [
 		{ q: 'هل أحتاج متابعين كثيرين للانضمام؟', a: 'لا — يمكن لأي شخص الانضمام بصرف النظر عن حجم متابعيه. المهم هو جودة الترويج والقدرة على إقناع الآخرين.' },
 		{ q: 'كيف يُتتبع البيع الذي جاء عن طريقي؟', a: 'كل وسيط يحصل على رابط فريد. أول وسيط موثق يجلب المستخدم يبقى صاحب ارتباط الإحالة مدى الحياة (قاعدة First-Touch) ما لم يُبطَل لسبب موثق.' },
 		{ q: 'هل يمكنني أن أكون وسيطاً ومقدم خدمة في آن واحد؟', a: 'نعم — الحسابان منفصلان في اللوحة لكن يمكن تفعيل كليهما من حساب واحد.' },
-		{ q: 'متى أستلم عمولتي؟', a: 'العمولة تُضاف إلى محفظتك عند إفراج المرحلة. يمكنك سحبها أسبوعياً بحد أدنى 300 دولار.' },
+		{ q: 'متى أستلم عمولتي؟', a: 'العمولة تُضاف إلى محفظتك عند إفراج المرحلة. يمكنك سحبها أسبوعياً' + (m ? ` بحد أدنى ${m}` : '') + '.' },
 		{ q: 'هل يمكنني إحالة نفسي؟', a: 'لا. الإحالة الذاتية والحسابات المرتبطة مرفوضة وعند ثبوتها تُلغى العمولة.' }
-	];
+		];
+	}
 
 	isOpen(i: number): boolean { return this.open.has(i); }
 

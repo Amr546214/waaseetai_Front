@@ -1,6 +1,7 @@
 <div class="dd-container" dir="rtl">
 
-	<nav class="dd-breadcrumb">
+	<!-- BREADCRUMB -->
+	<nav class="dd-breadcrumb" aria-label="مسار التنقل">
 		<a routerLink="/provider-overview">لوحة التحكم</a>
 		<span class="sep">&#8249;</span>
 		<a routerLink="/provider-overview/disputes">النزاعات</a>
@@ -15,7 +16,7 @@
 	@if (loadError()) {
 	<div class="dd-error">
 		<div class="dd-error-title">تعذّر تحميل تفاصيل النزاع</div>
-		<button type="button" class="dd-btn-ghost" (click)="load()">إعادة المحاولة</button>
+		<button type="button" class="act-btn act-ghost" style="width:auto;display:inline-flex;margin-top:12px" (click)="load()">إعادة المحاولة</button>
 	</div>
 	}
 
@@ -23,89 +24,111 @@
 	<div class="dd-error">
 		<div class="dd-error-title">تعذر العثور على هذا النزاع</div>
 		<div class="dd-error-code">ERR-PR-027-D-404</div>
-		<a routerLink="/provider-overview/disputes" class="dd-btn-ghost">العودة للنزاعات</a>
+		<a routerLink="/provider-overview/disputes" class="act-btn act-ghost" style="width:auto;display:inline-flex;margin-top:12px">العودة للنزاعات</a>
 	</div>
 	}
 
 	@if (dispute(); as d) {
 
-	<!-- HEADER -->
-	<div class="dd-header">
-		<div class="dd-header-top">
-			<div class="dd-header-ico">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+	<!-- DISPUTE HEADER -->
+	<div class="dp-header">
+		<div class="dph-top">
+			<div class="dph-ico">
+				<svg data-ws-icon="pl-provider-warning" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 					<path d="M12 3.5l9.5 16.5h-19z" />
 					<path d="M12 10v4.5M12 17.6v.1" />
 				</svg>
 			</div>
-			<div class="dd-header-body">
-				<span class="dd-header-id">{{ d.id }}</span>
-				<div class="dd-header-title">{{ d.title }}</div>
-				<div class="dd-header-meta">
+			<div class="dph-body">
+				<span class="dph-id">{{ d.id }} · {{ d.project }}</span>
+				<div class="dph-title">{{ d.title }}</div>
+				<div class="dph-meta">
 					<span>{{ d.project }}</span>
-					<span class="dot"></span>
-					<span class="dd-pill" [class.dd-pill-open]="d.status === 'open'" [class.dd-pill-closed]="d.status === 'closed'">{{ statusLabel() }}</span>
+					<span class="dph-dot"></span>
+					<span>رُفع {{ d.date }}</span>
+					<span class="dph-dot"></span>
+					<span class="pill" [class.pill-open]="d.status === 'open'" [class.pill-ok]="d.status === 'closed'">{{ statusLabel() }}</span>
 				</div>
 			</div>
 		</div>
-		@if (d.amount) {
-		<div class="dd-escrow-bar">
-			<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-				<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-			</svg>
-			ضمان مجمَّد
-			<span class="dd-escrow-val">{{ d.amount | number:'1.0-2' }} دولار</span>
-			<span class="dd-escrow-lbl">محتجزة حتى صدور القرار النهائي</span>
-		</div>
-		}
+
 	</div>
 
-	<div class="dd-layout">
-		<!-- MAIN -->
-		<div class="dd-main">
+	<!-- TWO-COLUMN LAYOUT -->
+	<div class="layout">
+
+		<!-- RIGHT: MAIN CONTENT -->
+		<div class="main-col">
 
 			@if (d.detail; as detail) {
+
+			<!-- RESOLUTION / REVIEW STATUS -->
 			@if (detail.recommendation) {
-			<!-- PROPOSED RESOLUTION (administrative, not AI-generated) -->
-			<div class="dd-ai-sec">
-				<div class="dd-recommendation">
-					<strong>قرار الإدارة:</strong> {{ detail.recommendation }}
-					@if (isCompanyMode() && d.teamMember) {
-						<div style="margin-top:8px;font-size:11px;color:var(--txt-3, #6B7699)">موجَّه لعضو الفريق: <strong style="color:var(--txt, #fff)">{{ d.teamMember.name }}</strong></div>
-					}
+			<div class="resolution-card">
+				<div class="resolution-hd">
+					<div class="resolution-ico">
+						<svg data-ws-icon="pl-provider-task-done" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+					</div>
+					<div>
+						<div class="resolution-ttl">قرار إدارة المنصة</div>
+						<div class="resolution-sub">القرار النهائي الصادر في هذا النزاع</div>
+					</div>
+					<span class="resolution-badge">معتمد</span>
+				</div>
+				<div class="resolution-body">
+					{{ detail.recommendation }}
+				</div>
+			</div>
+			} @else {
+			<div class="review-status-card">
+				<div class="review-status-hd">
+					<div class="review-status-ico">
+						<svg data-ws-icon="pl-provider-clock" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+					</div>
+					<div>
+						<div class="review-status-ttl">النزاع قيد مراجعة فريق الإدارة</div>
+						<div class="review-status-sub">مراجعة يدوية للأدلة والمستندات لضمان حقوق الطرفين</div>
+					</div>
+					<span class="review-status-badge">قيد الإجراء</span>
+				</div>
+				<div class="review-status-body">
+					يقوم فريق الدعم والتحكيم بمراجعة تفاصيل العقد، والتواصل المتبادل، والأدلة المرفوعة من الطرفين للبت في النزاع وإصدار القرار الرسمي وفق الشروط والأحكام.
 				</div>
 			</div>
 			}
 
 			<!-- TIMELINE -->
-			<div class="dd-sec">
-				<div class="dd-sec-title">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
+			<div class="sec">
+				<div class="sec-ttl">
+					<svg data-ws-icon="i-list" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+						<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+						<line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+					</svg>
 					سجل النزاع الزمني
 				</div>
-				<div class="dd-tl">
+				<div class="tl">
 					@for (h of detail.history; track h.title) {
-					<div class="dd-tl-item">
-						<div class="dd-tl-dot" [ngClass]="'dd-tl-dot-' + h.iconType">
+					<div class="tl-item">
+						<div class="tl-dot" [ngClass]="'tl-' + h.iconType">
 							@switch (h.iconType) {
 							@case ('doc') {
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+							<svg data-ws-icon="i-doc" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
 							}
 							@case ('chat') {
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+							<svg data-ws-icon="ws-msg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 							}
 							@case ('pending') {
-							<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
+							<svg data-ws-icon="pl-provider-more-dots" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
 							}
 							@default {
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3.5l9.5 16.5h-19z" /><path d="M12 10v4.5M12 17.6v.1" /></svg>
+							<svg data-ws-icon="pl-provider-warning" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.6v.1"/></svg>
 							}
 							}
 						</div>
-						<div class="dd-tl-body">
-							<div class="dd-tl-ttl" [class.dd-tl-ttl-pending]="h.iconType === 'pending'">{{ h.title }}</div>
-							<div class="dd-tl-sub">{{ h.sub }}</div>
-							<div class="dd-tl-time" [class.dd-tl-time-pending]="h.iconType === 'pending'">{{ h.time }}</div>
+						<div class="tl-body">
+							<div class="tl-ttl" [class.tl-ttl-pending]="h.iconType === 'pending'">{{ h.title }}</div>
+							<div class="tl-sub">{{ h.sub }}</div>
+							<div class="tl-time" [class.tl-time-pending]="h.iconType === 'pending'">{{ h.time }}</div>
 						</div>
 					</div>
 					}
@@ -113,135 +136,168 @@
 			</div>
 
 			<!-- EVIDENCE -->
-			<div class="dd-sec">
-				<div class="dd-sec-title">
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
-					الأدلة المقدَّمة
-					<span class="dd-sec-title-count">({{ detail.evidence.length }} {{ detail.evidence.length === 1 ? 'ملف' : 'ملفات' }})</span>
+			<div class="sec">
+				<div class="sec-ttl">
+					<svg data-ws-icon="i-doc" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+					الأدلة المقدَّمة <span class="sec-ttl-sub">({{ detail.evidence.length }} {{ detail.evidence.length === 1 ? 'ملف' : 'ملفات' }})</span>
 				</div>
-				@if (detail.evidence.length > 0) {
+
 				@for (ev of detail.evidence; track ev.name) {
-				<div class="dd-ev-item">
-					<div class="dd-ev-ico">
-						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+				<div class="ev-item">
+					<div class="ev-ico" [style.background]="ev.source === 'client' ? 'rgba(255,140,105,.10)' : 'rgba(43,127,255,.10)'">
+						<svg data-ws-icon="i-doc" [style.color]="ev.source === 'client' ? 'var(--red, #FF8C69)' : '#5DA0FF'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+						</svg>
 					</div>
-					<div class="dd-ev-body">
-						<div class="dd-ev-name">{{ ev.name }}</div>
-						<div class="dd-ev-meta">{{ ev.meta }}</div>
+					<div style="flex:1;min-width:0;overflow-wrap:anywhere;word-break:break-word">
+						<div class="ev-name">{{ ev.name }}</div>
+						<div class="ev-meta">{{ ev.meta }}</div>
 					</div>
-					<span class="dd-ev-src" [ngClass]="'dd-ev-src-' + ev.source">{{ ev.source === 'company' ? 'أنت' : 'العميل' }}</span>
+					<span class="ev-src" [ngClass]="ev.source === 'client' ? 'ev-src-cl' : 'ev-src-co'">{{ ev.source === 'client' ? 'العميل' : 'مقدم الخدمة' }}</span>
 				</div>
 				}
-				} @else {
-				<div class="dd-ev-empty">لا توجد أدلة إضافية مرفوعة على هذا النزاع</div>
+				@if (detail.evidence.length === 0) {
+				<div class="ev-empty">لا توجد أدلة إضافية مرفوعة على هذا النزاع حالياً</div>
 				}
+
+				<p class="ev-empty" role="note">إضافة أدلة بعد فتح النزاع غير متاحة حاليًا. يمكنك التواصل مع الدعم من صفحة التذاكر.</p>
 			</div>
+
 			}
 
 		</div>
 
-		<!-- SIDEBAR -->
-		<div class="dd-sidebar">
+		<!-- LEFT: SIDEBAR ACTIONS -->
+		<div class="sidebar-col">
 
 			@if (d.detail; as detail) {
-			<div class="dd-status-card">
-				<div class="dd-status-lbl">مسار النزاع</div>
+
+			<!-- STATUS TRACKER -->
+			<div class="status-card">
+				<div class="sc-lbl">مسار النزاع</div>
 				@for (step of detail.statusSteps; track step.label) {
-				<div class="dd-status-step" [ngClass]="'dd-status-step-' + step.state">
-					<div class="dd-status-dot">
-						@if (step.state === 'done') {
-						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
-						}
+				<div class="sc-step" [class.done]="step.state === 'done'" [class.active]="step.state === 'active'">
+					@if (step.state === 'done') {
+					<div class="sc-dot-done">
+						<svg data-ws-icon="ws-check" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 					</div>
+					} @else if (step.state === 'active') {
+					<div class="sc-dot-active"></div>
+					} @else {
+					<div class="sc-dot-pending"></div>
+					}
 					{{ step.label }}
 				</div>
 				}
 			</div>
 
-			<div class="dd-sec dd-sec-tight">
-				<div class="dd-sec-title">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+			<!-- PARTIES -->
+			<div class="sec" style="margin-bottom:12px">
+				<div class="sec-ttl">
+					<svg data-ws-icon="ws-users" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
 					أطراف النزاع
 				</div>
-				@for (p of detail.parties; track p.name; let idx = $index) {
-				<div class="dd-party-row">
-					@if (idx === 0 && isCompanyMode() && d.teamMember; as tm) {
-						<div class="dd-party-av" [style.background]="tm.gradient">{{ tm.initials }}</div>
-						<div style="flex:1;min-width:0">
-							<div class="dd-party-name">{{ tm.name }}</div>
-							<div class="dd-party-role">{{ tm.role }} — مقدِّم الخدمة</div>
-						</div>
-						<button type="button" class="dd-btn-ghost" style="padding:5px 10px;font-size:11px" (click)="openGuidance()">توجيه</button>
-					} @else {
-						<div class="dd-party-av" [style.background]="p.gradient">{{ p.initials }}</div>
-						<div>
-							<div class="dd-party-name">{{ p.name }}</div>
-							<div class="dd-party-role">{{ p.role }}</div>
-						</div>
+				@for (p of detail.parties; track p.name; let idx = $index; let isLast = $last) {
+				<div class="par-row" [style.border-bottom]="isLast ? 'none' : null">
+					<div class="par-av" [style.background]="p.gradient">{{ p.initials }}</div>
+					<div style="flex:1;min-width:0">
+						<div class="par-name">{{ idx === 0 && isCompanyMode() && d.teamMember ? d.teamMember.name : p.name }}</div>
+						<div class="par-role">{{ idx === 0 && isCompanyMode() && d.teamMember ? (d.teamMember.role + ' — مقدِّم الخدمة') : p.role }}</div>
+					</div>
+					@if (idx === 0 && isCompanyMode()) {
+					<button type="button" class="act-btn act-blue" style="width:auto;padding:5px 10px;font-size:var(--font-size-small)" (click)="openGuidance()">توجيه</button>
 					}
 				</div>
 				}
 			</div>
 
-			<div class="dd-info-card">
-				<div class="dd-info-title">معلومات النزاع</div>
-				@for (info of detail.info; track info.label) {
-				<div class="dd-info-row">
-					<span class="dd-info-key">{{ info.label }}</span>
-					<span class="dd-info-val" [ngClass]="info.valueClass ? 'dd-info-val-' + info.valueClass : ''">{{ info.value }}</span>
-				</div>
+			<!-- ACTIONS -->
+			<div class="act-col">
+				<p class="ev-empty" role="note">إضافة أدلة بعد فتح النزاع غير متاحة حاليًا. يمكنك التواصل مع الدعم من صفحة التذاكر.</p>
+				@if (isCompanyMode()) {
+				<button type="button" class="act-btn act-blue" (click)="openGuidance()">
+					<svg data-ws-icon="ws-msg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+					توجيه {{ d.teamMember?.name || providerPartyName() }}
+				</button>
 				}
-			</div>
-			}
-
-			<div class="dd-act-col">
-				@if (isCompanyMode() && d.teamMember; as tm) {
-					<button type="button" class="dd-btn-ghost" style="background:rgba(43,127,255,.09);border-color:rgba(43,127,255,.24);color:#5DA0FF" (click)="openGuidance()">
-						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-						توجيه {{ tm.name }}
-					</button>
-				}
-				<a routerLink="/provider-overview/disputes" class="dd-btn-ghost">
-					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
+				<a [routerLink]="d.projectId ? ['/provider-overview/projects/active/progress', d.projectId] : ['/provider-overview/projects/active']" class="act-btn act-ghost">
+					<svg data-ws-icon="pl-provider-layers" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+					فتح مساحة العمل
+				</a>
+				<a routerLink="/provider-overview/disputes" class="act-btn act-ghost">
+					<svg data-ws-icon="pl-provider-arrow-left" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
 					العودة للنزاعات
 				</a>
 			</div>
 
-		</div>
-	</div>
+			<!-- INFO CARD -->
+			<div class="info-card">
+				<div class="info-card-ttl">معلومات النزاع</div>
+				<div class="info-list">
+					<div class="info-row">
+						<span class="info-key">رقم النزاع</span>
+						<span class="info-val" style="direction:ltr">{{ d.id }}</span>
+					</div>
+					<div class="info-row">
+						<span class="info-key">تاريخ الرفع</span>
+						<span class="info-val">{{ d.date }}</span>
+					</div>
+					<div class="info-row">
+						<span class="info-key">المبلغ المتنازع عليه</span>
+						<span class="info-val info-val-teal">{{ d.amount || '—' }}</span>
+					</div>
+					<div class="info-row">
+						<span class="info-key">مسؤول الدعم</span>
+						<span class="info-val">بانتظار التعيين</span>
+					</div>
+					<div class="info-row">
+						<span class="info-key">الموعد المتوقع</span>
+						<span class="info-val info-val-amber">غير محدد</span>
+					</div>
+					@for (info of detail.info; track info.label) {
+						@if (info.label !== 'السبب' && info.label !== 'تاريخ الفتح' && info.label !== 'المشروع' && info.label !== 'المتبقي من مستحقاتك في الضمان') {
+						<div class="info-row">
+							<span class="info-key">{{ info.label }}</span>
+							<span class="info-val" [class.info-val-amber]="info.valueClass === 'amber'" [class.info-val-teal]="info.valueClass === 'teal'">{{ info.value }}</span>
+						</div>
+						}
+					}
+				</div>
+			</div>
 
-	<div class="dd-inner-foot">
-		<span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span>
-		<div class="inner-foot-links"><a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a><a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a></div>
+			}
+
+		</div>
+
 	</div>
 
 	<!-- GUIDANCE MODAL (company mode) -->
-	@if (guidanceOpen() && isCompanyMode() && d.teamMember; as tm) {
-		<div style="position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(7,13,36,.7);backdrop-filter:blur(6px)" (click)="closeGuidance()">
-			<div style="background:var(--sec-bg, rgba(11,20,55,.97));border:1px solid var(--sec-bd, rgba(255,255,255,.12));border-radius:18px;padding:22px;width:100%;max-width:440px" (click)="$event.stopPropagation()">
-				<div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:14px">
-					<span style="width:32px;height:32px;border-radius:8px;background:rgba(43,127,255,.12);color:#5DA0FF;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-					</span>
-					<div>
-						<h3 style="font-size:14px;font-weight:900;color:var(--txt, #fff)">توجيه {{ tm.name }}</h3>
-						<p style="font-size:11.5px;color:var(--txt-2, #A8B2D1);margin-top:2px">بخصوص نزاع {{ d.id }}</p>
-					</div>
-					<button type="button" style="margin-inline-start:auto;width:26px;height:26px;border-radius:6px;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.08));color:var(--txt-3, #6B7699);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" (click)="closeGuidance()">
-						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-					</button>
+	@if (guidanceOpen()) {
+	<div class="modal-ov show" role="dialog" aria-modal="true" (click)="closeGuidance()">
+		<div class="modal-box" (click)="$event.stopPropagation()">
+			<div class="modal-hd">
+				<span class="modal-mi modal-mi-blue">
+					<svg data-ws-icon="ws-msg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+				</span>
+				<div>
+					<h3>توجيه {{ d.teamMember?.name || providerPartyName() }}</h3>
+					<p>بخصوص نزاع {{ d.id }}</p>
 				</div>
-				<div style="margin-bottom:12px">
-					<label for="dispute-guidance" style="display:block;font-size:12px;font-weight:700;color:var(--txt, #fff);margin-bottom:5px">توجيهاتك لـ{{ tm.name }} <span class="ws-req" aria-hidden="true">*</span></label>
-					<textarea id="dispute-guidance" aria-required="true" name="dispute-guidance" data-field="dispute-guidance" style="width:100%;background:var(--sec-bg, rgba(255,255,255,.05));border:1px solid var(--sec-bd, rgba(255,255,255,.10));border-radius:9px;padding:9px 12px;font-size:12.5px;color:var(--txt, #fff);font-family:inherit;resize:vertical;min-height:80px;line-height:1.6" placeholder="مثال: أرسل سجل الرفع الأصلي بصيغة PDF..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
-				</div>
-				<div style="display:flex;gap:9px">
-					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid var(--sec-bd, rgba(255,255,255,.12));background:var(--sec-bg, rgba(255,255,255,.05));color:var(--txt, #fff)" (click)="closeGuidance()">إلغاء</button>
-					<button type="button" style="flex:1;padding:10px;border-radius:8px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;border:1px solid rgba(43,212,199,.26);background:rgba(43,212,199,.10);color:#2BD4C7" (click)="sendGuidance()">إرسال</button>
-				</div>
+				<button type="button" class="modal-close" (click)="closeGuidance()">
+					<svg data-ws-icon="ws-close" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+			</div>
+			<div class="modal-fld">
+				<label for="dispute-guidance">توجيهاتك لـ{{ d.teamMember?.name || providerPartyName() }} <span class="ws-req" aria-hidden="true">*</span></label>
+				<textarea id="dispute-guidance" name="dispute-guidance" data-field="dispute-guidance" aria-required="true" class="modal-ta" placeholder="مثال: أرسل سجل الرفع الأصلي بصيغة PDF..." [value]="guidanceText()" (input)="guidanceText.set($any($event.target).value)"></textarea>
+			</div>
+			<div class="modal-acts">
+				<button type="button" class="modal-btn m-gh" (click)="closeGuidance()">إلغاء</button>
+				<button type="button" class="modal-btn m-teal" (click)="sendGuidance()">إرسال</button>
 			</div>
 		</div>
+	</div>
 	}
+
 	}
 </div>
-

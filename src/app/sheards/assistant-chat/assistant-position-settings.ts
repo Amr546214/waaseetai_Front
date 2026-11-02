@@ -22,13 +22,13 @@ import { AssistantPositionService } from '../assistant-widget/assistant-position
 	</fieldset>`,
 	styles: [`
 		:host { display:block; }
-		.position-settings { display:flex;flex-direction:column;gap:10px;min-width:0;margin:0;padding:12px;border:1px solid var(--assistant-input-border,var(--tc-line,var(--pg-border,#ccc)));border-radius:12px;color:inherit;font-size:12px; }
-		legend { padding:0 6px;font-weight:700;font-size:13px; }
+		.position-settings { display:flex;flex-direction:column;gap:10px;min-width:0;margin:0;padding:12px;border:1px solid var(--assistant-input-border,var(--tc-line,var(--pg-border,#ccc)));border-radius:12px;color:inherit;font-size:var(--font-size-small); }
+		legend { padding:0 6px;font-weight:700;font-size:var(--font-size-label); }
 		label { display:flex;align-items:center;justify-content:space-between;gap:8px;font:inherit;color:inherit; }
-		output { font-size:11px;white-space:nowrap;opacity:.75; }
+		output { font-size:var(--font-size-small);white-space:nowrap;opacity:.75; }
 		input { width:100%;min-width:0;accent-color:var(--pg-accent,var(--tc-accent,#2f68c9)); }
-		.position-directions { display:flex;justify-content:space-between;direction:ltr;font-size:11px;opacity:.8; }
-		p { margin:0;font-size:11px;line-height:1.6;opacity:.8; }
+		.position-directions { display:flex;justify-content:space-between;direction:ltr;font-size:var(--font-size-small);opacity:.8; }
+		p { margin:0;font-size:var(--font-size-small);line-height:1.6;opacity:.8; }
 		.position-edges { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px; }
 		.position-edges label { display:flex;flex-wrap:wrap; }
 		.position-edges input { flex-basis:100%; }

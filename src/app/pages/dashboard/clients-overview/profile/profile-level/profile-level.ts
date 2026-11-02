@@ -115,13 +115,13 @@ export class ProfileLevel implements OnInit, OnDestroy {
     const cur = d.roadmap.find(l => l.isCurrent) ?? d.roadmap[0];
     const next = isTop ? null : { title: d.nextLevelProgress.title, percent: d.nextLevelProgress.nextCashbackRate };
     return {
-      percentLabel: 'نسبة الكاش باك',
+      percentLabel: 'نسبة الكاش باك (للعرض فقط — غير مطبّقة ماليًا حاليًا)',
       current: { index: d.currentLevel.index, title: d.currentLevel.title, percent: d.currentStats.cashbackRate, color: cur?.color ?? { dark: '#9B8B7A', light: '#7A6B5A' } },
       next,
       stats: [
         { label: 'نقاطك', value: String(d.currentStats.points) },
         { label: 'مشاريع مكتملة', value: String(d.currentStats.completedProjects) },
-        { label: 'نسبة الكاش باك', value: d.currentStats.cashbackRate + '%' },
+        { label: 'نسبة الكاش باك (للعرض فقط)', value: d.currentStats.cashbackRate + '%' },
       ],
       progress: isTop ? [] : [
         { key: 'points', label: 'النقاط', have: String(d.currentStats.points), need: String(d.currentStats.points + d.nextLevelProgress.pointsGap), percent: d.nextLevelProgress.pointsPercent },

@@ -119,7 +119,7 @@ export function mapDispute(d: ApiDispute, currentUserId: string | undefined): Di
 		timeline: buildTimeline(d.status),
 		aiText: closed ? ([disputeResolutionText(d), d.resolutionNote].filter(Boolean).join(' — ') || 'تم إغلاق النزاع') : d.description,
 		aiDone: closed,
-		// No escrow-amount field exists on a Dispute row — omit rather than fabricate.
+		// The API has no proven disputed-amount/currency contract.
 		amount: '',
 		date: dateLabel(d.createdAt),
 		detail: buildDetail(d, mine),

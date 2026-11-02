@@ -4,26 +4,29 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { AuthStore } from './core/store/auth.store';
-import { AssistantStore } from './core/store/assistant.store';
+import { AssistantExamState } from './core/store/assistant-exam-state.service';
 import { ConfirmModalComponent } from './sheards/confirm-modal/confirm-modal.component';
 import { NotificationHostComponent } from './shared/forms/notification-host.component';
 import { FormA11ySyncService } from './shared/forms/form-a11y-sync.service';
 import { AssistantWidgetComponent } from './sheards/assistant-widget/assistant-widget';
+import { PlatformBannerComponent } from './shared/platform-banner/platform-banner.component';
 import { assistantLiftPx, isAssistantHidden } from './sheards/assistant-widget/assistant-visibility';
+import { IdentityImgDirective } from './core/identity/identity-img.directive';
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent],
+	imports: [IdentityImgDirective, RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent, PlatformBannerComponent],
 	styleUrl: './app.css',
 	template: `
 		<ng-container *ngIf="authStore.isInitialized$ | async">
+			<app-platform-banner />
 			<router-outlet />
 		</ng-container>
 
 		<div *ngIf="showLoader()" class="global-app-loader" [class.fade-out]="authStore.isInitialized$ | async">
 			<div class="loader-content">
-				<img src="/images/waseet-mark.png" alt="Waseet AI Logo" class="loader-logo" />
+				<img [wsIdentityImg]="'logo.boot'" src="/assets/brand/waseet-mark.png" alt="Waseet AI Logo" class="loader-logo" />
 				<div class="waseet-spinner"></div>
 				<h2 class="loader-text">جاري تهيئة بيئة العمل...</h2>
 			</div>
@@ -45,7 +48,7 @@ import { assistantLiftPx, isAssistantHidden } from './sheards/assistant-widget/a
 })
 export class App implements OnInit {
 	authStore = inject(AuthStore);
-	private readonly assistantStore = inject(AssistantStore);
+	private readonly assistantStore = inject(AssistantExamState);
 	showLoader = signal(true);
 	private readonly router = inject(Router);
 	private readonly routeHidden = signal(false);

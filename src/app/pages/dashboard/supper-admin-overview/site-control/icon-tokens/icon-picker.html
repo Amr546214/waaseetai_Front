@@ -1,0 +1,29 @@
+<div class="pk" data-testid="icon-picker">
+  <div class="pk-bar">
+    <input type="search" class="pk-search" placeholder="ابحث في المكتبة بالاسم أو المعرّف" (input)="setQuery($event)" aria-label="بحث في مكتبة الأيقونات" data-testid="picker-search" dir="auto" />
+    <div class="pk-cats" role="tablist" aria-label="أقسام المكتبة">
+      @for (c of cats(); track c.id) {
+        <button type="button" role="tab" class="pk-cat" [class.active]="cat() === c.id" [attr.aria-selected]="cat() === c.id" (click)="setCat(c.id)" [attr.data-testid]="'picker-cat-' + c.id">{{ c.label }} <small>({{ c.count }})</small></button>
+      }
+    </div>
+  </div>
+  @if (loading() && !cards().length) {
+    <p class="pk-state" role="status" data-testid="picker-loading"><span class="spinner" aria-hidden="true"></span> جارٍ تحميل رسومات المكتبة…</p>
+  } @else if (failed()) {
+    <p class="pk-err" role="alert" data-testid="picker-error">تعذّر تحميل رسومات المكتبة، ولم يتغيّر شيء في الموقع. <button type="button" class="pk-btn" (click)="retry()" data-testid="picker-retry">إعادة المحاولة</button></p>
+  } @else if (!filtered().length) {
+    <p class="pk-state" data-testid="picker-none">لا أيقونات تطابق هذا البحث.</p>
+  } @else {
+    <div class="pk-grid" role="listbox" aria-label="أيقونات المكتبة" data-testid="picker-grid">
+      @for (c of visible(); track c.id) {
+        <button type="button" role="option" class="pk-card" [class.sel]="selected() === c.id" [attr.aria-selected]="selected() === c.id" [disabled]="disabled()" (click)="choose(c)" [attr.data-testid]="'pick-' + c.id" [attr.title]="c.label + ' · ' + c.id">
+          <span class="pk-box"><svg [attr.viewBox]="c.vb" [attr.fill]="c.paint['fill'] ?? null" [attr.stroke]="c.paint['stroke'] ?? null" [attr.stroke-width]="c.paint['stroke-width'] ?? null" [attr.stroke-linecap]="c.paint['stroke-linecap'] ?? null" [attr.stroke-linejoin]="c.paint['stroke-linejoin'] ?? null" aria-hidden="true" [innerHTML]="html(c.inner)"></svg></span>
+          <span class="pk-label">{{ c.label }}</span>
+          <code class="pk-id">{{ c.id }}</code>
+        </button>
+      }
+    </div>
+    @if (filtered().length > visible().length) { <div class="pk-more"><button type="button" class="pk-btn" (click)="more()" data-testid="picker-more">عرض المزيد ({{ filtered().length - visible().length }})</button></div> }
+  }
+  @if (undrawn()) { <p class="pk-hint" data-testid="picker-undrawn">{{ undrawn() }} معرّفًا بلا رسم في الموقع ولا في ملف المكتبة لا يُعرض هنا (لا بطاقات فارغة).</p> }
+</div>

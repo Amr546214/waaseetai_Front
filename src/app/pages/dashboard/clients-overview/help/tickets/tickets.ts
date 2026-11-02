@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TicketApiService, SupportTicket } from '../../../../../core/services/ticket-api.service';
@@ -24,7 +25,7 @@ function formatRelative(iso: string): string {
 	const days = Math.floor(hours / 24);
 	if (days === 1) return 'أمس';
 	if (days < 7) return `قبل ${days} أيام`;
-	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: providerTimeZone() });
 }
 
 function mapTicket(t: SupportTicket): Ticket {
@@ -61,8 +62,8 @@ function mapTicket(t: SupportTicket): Ticket {
 				<p class="text-xs text-[var(--txt-3)]">طلبات دعم متتبَّعة برقم وحالة، يتابعها فريق الدعم</p>
 			</div>
 			<a routerLink="/client-overview/help/tickets/new"
-				class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] rounded-full text-[#070D24] font-extrabold text-[13px] no-underline hover:opacity-90 transition-opacity">
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] rounded-full text-[#070D24] font-extrabold text-[length:var(--font-size-label)] no-underline hover:opacity-90 transition-opacity">
+				<svg data-ws-icon="i-plus" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
 				</svg>
 				فتح تذكرة
@@ -73,15 +74,15 @@ function mapTicket(t: SupportTicket): Ticket {
 		<div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
 			<div class="bg-[var(--crd-bg,#fff)] border border-[var(--sec-bd,#E7EAF1)] rounded-2xl p-4 text-center">
 				<div class="text-2xl font-black text-[var(--blue-txt,#5DA0FF)]">{{ stats().openCount }}</div>
-				<div class="text-[11px] text-[var(--txt-3)] font-bold mt-1">مفتوحة وقيد المعالجة</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-bold mt-1">مفتوحة وقيد المعالجة</div>
 			</div>
 			<div class="bg-[var(--crd-bg,#fff)] border border-[var(--sec-bd,#E7EAF1)] rounded-2xl p-4 text-center">
 				<div class="text-2xl font-black text-[var(--kahr,#D98A0B)]">{{ stats().waitCount }}</div>
-				<div class="text-[11px] text-[var(--txt-3)] font-bold mt-1">بانتظار ردّك</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-bold mt-1">بانتظار ردّك</div>
 			</div>
 			<div class="bg-[var(--crd-bg,#fff)] border border-[var(--sec-bd,#E7EAF1)] rounded-2xl p-4 text-center">
 				<div class="text-2xl font-black text-[var(--green,#0FA99A)]">{{ stats().solvedCount }}</div>
-				<div class="text-[11px] text-[var(--txt-3)] font-bold mt-1">محلولة</div>
+				<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] font-bold mt-1">محلولة</div>
 			</div>
 		</div>
 
@@ -98,13 +99,11 @@ function mapTicket(t: SupportTicket): Ticket {
 		<div *ngIf="!isLoading()">
 			<a *ngFor="let t of filteredTickets()" [routerLink]="['/client-overview/help/tickets', t.id]" class="tk-card">
 				<div class="tk-ico" [class.b]="t.icon === 'doc'">
-					<svg class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-						<ng-container [ngSwitch]="t.icon">
-							<ng-container *ngSwitchCase="'list'"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></ng-container>
-							<polyline *ngSwitchCase="'check'" points="20 6 9 17 4 12" />
-							<path *ngSwitchCase="'doc'" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline *ngSwitchCase="'doc'" points="14 2 14 8 20 8" />
-						</ng-container>
-					</svg>
+					@switch (t.icon) {
+					@case ('list') { <svg data-ws-icon="pl-client-ticket-list" class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg> }
+					@case ('check') { <svg data-ws-icon="pl-client-ticket-check" class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg> }
+					@case ('doc') { <svg data-ws-icon="pl-client-ticket-doc" class="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg> }
+					}
 				</div>
 				<div class="tk-body">
 					<div class="tk-ttl">{{ t.title }}</div>
@@ -142,10 +141,10 @@ function mapTicket(t: SupportTicket): Ticket {
 		:host { display: block; width: 100%; animation: ws-fade 0.2s ease forwards; }
 		@keyframes ws-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-		.filter-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.10); border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--txt-2,#A8B2D1); cursor: pointer; font-family: inherit; transition: all .15s; }
+		.filter-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.10); border-radius: 20px; font-size: var(--font-size-small); font-weight: 700; color: var(--txt-2,#A8B2D1); cursor: pointer; font-family: inherit; transition: all .15s; }
 		.filter-chip:hover { background: rgba(43,212,199,.08); border-color: rgba(43,212,199,.22); color: var(--teal-txt,#2BD4C7); }
 		.filter-chip.active { background: rgba(43,212,199,.14); border-color: rgba(43,212,199,.30); color: var(--teal-txt,#2BD4C7); }
-		.fc-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; background: rgba(255,255,255,.08); border-radius: 10px; font-size: 10px; font-weight: 800; }
+		.fc-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; background: rgba(255,255,255,.08); border-radius: 10px; font-size: var(--font-size-caption); font-weight: 800; }
 		.filter-chip.active .fc-count { background: rgba(43,212,199,.20); color: var(--teal-txt,#2BD4C7); }
 
 		.tk-card { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 13px; padding: 15px 18px; margin-bottom: 10px; transition: border-color .15s; cursor: pointer; text-decoration: none; }
@@ -163,12 +162,12 @@ function mapTicket(t: SupportTicket): Ticket {
 		.tk-ico.b { background: rgba(43,212,199,.10); color: var(--teal-txt,#2BD4C7); }
 
 		.tk-body { flex: 1; min-width: 0; }
-		.tk-ttl { font-size: 13.5px; font-weight: 800; color: var(--txt,#fff); margin-bottom: 3px; }
-		.tk-meta { font-size: 11px; color: var(--txt-3,#6B7699); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+		.tk-ttl { font-size: var(--font-size-label); font-weight: 800; color: var(--txt,#fff); margin-bottom: 3px; }
+		.tk-meta { font-size: var(--font-size-small); color: var(--txt-3,#6B7699); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 		.tk-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--txt-3,#4A5568); }
 		.tk-id { direction: ltr; font-style: italic; }
 
-		.tk-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; flex-shrink: 0; white-space: nowrap; }
+		.tk-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: var(--font-size-small); font-weight: 700; flex-shrink: 0; white-space: nowrap; }
 		.tk-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 		.tk-status .dot { display: none; }
 		.tks-review { background: rgba(255,180,0,.10); color: var(--kahr,#D98A0B); border: 1px solid rgba(255,180,0,.26); }

@@ -25,7 +25,7 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 900;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.04);
@@ -48,7 +48,7 @@
 
 .step-label {
   margin-inline-start: 10px;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   color: var(--txt-3);
   white-space: nowrap;
@@ -97,7 +97,7 @@
   .step-circle {
     width: 32px;
     height: 32px;
-    font-size: 13px;
+    font-size: var(--font-size-label);
   }
 }
 

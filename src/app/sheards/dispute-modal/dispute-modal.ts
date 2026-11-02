@@ -134,6 +134,17 @@ export class DisputeModal {
 		this.evidenceError.set('');
 	}
 
+
+	onPresetReasonChange(event: Event): void {
+		const select = event.target as HTMLSelectElement;
+		const val = select.value;
+		if (val && val !== 'other') {
+			this.reason.set(val);
+			if (this.reasonError()) this.reasonError.set('');
+		} else if (val === 'other') {
+			this.reason.set('');
+		}
+	}
 	onReasonInput(event: Event): void {
 		const value = (event.target as HTMLTextAreaElement | HTMLInputElement).value;
 		this.reason.set(value);

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { LevelsService } from '../../../../core/levels/levels.service';
 import { RouterModule } from '@angular/router';
 
 /** One FAQ entry. `a` is static, trusted markup (paragraphs / lists / <strong>) written in this file. */
@@ -12,6 +13,14 @@ interface FaqSection {
 	/** Inline style of the section icon tile, verbatim from the design. */
 	icoStyle: string;
 	items: FaqItem[];
+}
+
+/** Payout minimums come from the active fee policy (served by /levels); nothing is typed here. */
+let levelsRef: LevelsService | null = null;
+function withdrawLimitsHtml(): string {
+	const p = levelsRef?.minProviderPayout() ?? null, m = levelsRef?.minMarketerPayout() ?? null;
+	if (p === null || m === null) return '<p>تظهر حدود السحب الحالية بعد تحميل السياسة المالية.</p>';
+	return `<p>حد سحب مقدم الخدمة: <strong>${p > 0 ? p + ' دولار' : 'لا يوجد حد أدنى'}</strong>. حد سحب الوسيط التسويقي: <strong>${m > 0 ? m + ' دولار' : 'لا يوجد حد أدنى'}</strong>.</p>`;
 }
 
 const ICO_TEAL = 'background:rgba(43,212,199,.1);border:1px solid rgba(43,212,199,.2);color:var(--teal)';
@@ -35,6 +44,8 @@ export class HelpCenterComponent {
 	// backend does not have (AI dispute verdicts/appeals, AI review as a release
 	// condition, 10,000 USD threshold, anti-manipulation weights, "no tax on invoices"),
 	// the app's accurate wording is kept instead.
+	constructor() { levelsRef = inject(LevelsService); levelsRef.ensureLoaded(); }
+
 	sections: FaqSection[] = [
 		{
 			id: 's1', nav: 'الضمان المالي', title: 'كيف يعمل الضمان المالي', icon: 'shield', icoStyle: ICO_TEAL,
@@ -79,7 +90,7 @@ export class HelpCenterComponent {
 			id: 's6', nav: 'السحب والفواتير', title: 'السحب والفواتير', icon: 'clock', icoStyle: ICO_TEAL,
 			items: [
 				{ q: 'متى تتم معالجة طلبات السحب؟', a: '<p>الطلبات تُستقبل في أي وقت وتُعالج ضمن دفعة أسبوعية يوم الأربعاء. وصول المبلغ عبر PayPal يكون غالباً خلال 1 إلى 3 أيام عمل.</p>' },
-				{ q: 'ما الحد الأدنى للسحب؟', a: '<p>حد سحب مقدم الخدمة: <strong>500 دولار</strong>. حد سحب الوسيط التسويقي: <strong>300 دولار</strong>.</p>' },
+				{ q: 'ما الحد الأدنى للسحب؟', get a() { return withdrawLimitsHtml(); } },
 				{ q: 'متى يُعلَّق السحب؟', a: '<p>يُعلَّق السحب عند: وجود نزاع مفتوح، شبهة احتيال، نقص بيانات التحقق، أو مراجعة امتثال نشطة.</p>' },
 				{ q: 'هل تصدر فواتير ضريبية؟', a: '<p>نعم، تُصدر فواتير ضريبية تلقائياً لكل معاملة مالية مستقرة وتظهر في صفحة الفواتير بحسابك.</p>' }
 			]

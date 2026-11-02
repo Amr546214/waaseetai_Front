@@ -126,15 +126,14 @@ export const verificationGuard: CanActivateFn = () => {
  * accountType-only chains.
  */
 export const getDefaultDashboard = (accountType?: AccountType, activeRole?: UserRole): string => {
+  // an admin account opens the admin area whatever its stored active role says (that is often CLIENT)
+  if (String(accountType) === 'ADMIN' || accountType === AccountType.SUPER_ADMIN) return '/supper-admin-overview';
   if (activeRole === UserRole.SUPER_ADMIN || activeRole === UserRole.ADMIN) return '/supper-admin-overview';
   if (activeRole === UserRole.PROVIDER) return '/provider-overview';
   if (activeRole === UserRole.AFFILIATE) return '/marketer-overview';
   if (activeRole === UserRole.CLIENT) return '/client-overview';
 
-  if (String(accountType) === 'ADMIN') return '/supper-admin-overview';
   switch (accountType) {
-    case AccountType.SUPER_ADMIN:
-      return '/supper-admin-overview';
     case AccountType.PROVIDER_INDIVIDUAL:
     case AccountType.PROVIDER_COMPANY:
       return '/provider-overview';

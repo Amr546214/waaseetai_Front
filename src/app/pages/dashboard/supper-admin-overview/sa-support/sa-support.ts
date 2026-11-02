@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminTicketListData, AdminTicketListItem, TicketApiService, TicketStatus } from '../../../../core/services/ticket-api.service';
@@ -105,6 +106,6 @@ export class SaSupport implements OnInit {
   }
 
   timeAgo(iso: string): string {
-    return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+    return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: providerTimeZone() });
   }
 }

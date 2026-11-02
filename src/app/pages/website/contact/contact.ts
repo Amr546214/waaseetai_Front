@@ -2,6 +2,7 @@ import { Component, ElementRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { PlatformInfoService } from '../../../core/services/platform-info.service';
 import { FieldProblem, reportProblems } from '../../../shared/forms/form-error-focus';
 
 @Component({
@@ -13,6 +14,8 @@ import { FieldProblem, reportProblems } from '../../../shared/forms/form-error-f
 })
 export class Contact {
   private readonly host = inject(ElementRef<HTMLElement>);
+  /** the WhatsApp card shows the `supportPhone` setting (the built-in number while it is empty) */
+  readonly platform = inject(PlatformInfoService);
   submitted = signal(false);
   sending = signal(false);
 
