@@ -59,6 +59,8 @@ export class SettingsSectionComponent {
 	readonly icon = input<string>('');
 	/** ss variant: the icon.fn id this card icon is the same element as (data-ws-icon): a customised site icon replaces the path */
 	readonly wsIcon = input<string>('');
+	/** this title icon is the official AI mark (a flattened copy): it follows the key icon.ai (identity page), not a function icon */
+	readonly aiMark = input<boolean>(false);
 	readonly keys = input.required<string[]>();
 	/** 'ss' = P-AD-020 look, 'spa' = P-AD-021 look */
 	readonly variant = input<'ss' | 'spa'>('ss');

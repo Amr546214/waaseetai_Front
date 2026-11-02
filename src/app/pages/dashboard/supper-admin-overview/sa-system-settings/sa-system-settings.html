@@ -17,7 +17,7 @@
     <div class="ss-layout">
       <div class="ss-nav" role="tablist">
         @for (t of tabs; track t.key) {
-          <button type="button" role="tab" class="ss-nav-item" [attr.data-testid]="'tab-' + t.key" [attr.aria-selected]="active() === t.key" [class.active]="active() === t.key" (click)="setTab(t.key)"><svg class="ss-nav-ico" [attr.data-ws-icon]="t.ws ?? null" viewBox="0 0 24 24" fill="none" stroke="currentColor" [attr.stroke-width]="t.key === 'health' ? 2.5 : 1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="t.icon"/></svg><span class="ss-nav-lbl">{{ t.label }}</span></button>
+          <button type="button" role="tab" class="ss-nav-item" [attr.data-testid]="'tab-' + t.key" [attr.aria-selected]="active() === t.key" [class.active]="active() === t.key" (click)="setTab(t.key)"><svg class="ss-nav-ico" [attr.data-ws-icon]="t.ws ?? null" [attr.data-ws-ai-mark]="t.key === 'ai' ? '' : null" viewBox="0 0 24 24" fill="none" stroke="currentColor" [attr.stroke-width]="t.key === 'health' ? 2.5 : 1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="t.icon"/></svg><span class="ss-nav-lbl">{{ t.label }}</span></button>
         }
       </div>
       <div class="ss-content">
@@ -29,7 +29,7 @@
           }
           @case ('ai') {
             <div class="ss-note" role="note">إعدادات الذكاء الاصطناعي والمزوّد والمفاتيح نطاق منفصل؛ تُجرد هنا ولا يُعدَّل تشغيلها من هذه الصفحة.</div>
-            <app-settings-section title="إعدادات الذكاء الاصطناعي" [icon]="icons.ai" [keys]="ai" variant="ss" saveLabel="حفظ" [showSave]="false" />
+            <app-settings-section title="إعدادات الذكاء الاصطناعي" [icon]="icons.ai" [aiMark]="true" [keys]="ai" variant="ss" saveLabel="حفظ" [showSave]="false" />
           }
           @case ('notifications') {
             <div class="ss-note" role="note" data-testid="email-channel-note">يوقف هذا المفتاح كل بريد اختياري ولا يتجاوزه تفضيل أي مستخدم. <strong data-testid="email-channel-transactional-note">إيصالات العمليات ودعوات العقود ورموز الدخول والتفعيل والاستعادة تصل دائمًا.</strong>

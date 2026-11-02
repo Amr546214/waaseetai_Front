@@ -30,7 +30,7 @@ function build() {
 	const inline = new Map();
 	for (const p of places) {
 		const e = inline.get(p.inner) || { unbound: 0, keys: new Map() };
-		if (p.key) e.keys.set(p.key, (e.keys.get(p.key) || 0) + 1);
+		if (p.key && !p.key.startsWith('(')) e.keys.set(p.key, (e.keys.get(p.key) || 0) + 1);
 		else if (!p.dynamic) { const d = inl.decide(p); if (d.key || d.excluded === 'UNNAMED') e.unbound++; }
 		inline.set(p.inner, e);
 	}

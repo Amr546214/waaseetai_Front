@@ -21,7 +21,8 @@ describe('inline icon keys (registry, places, sidebar, CSS)', () => {
 		const pl = inline.plan();
 		expect(pl.assign.map((a: { p: { f: string; line: number } }) => `${a.p.f}:${a.p.line}`)).toEqual([]);
 		expect(pl.excluded.filter((e: { excluded: string }) => e.excluded === 'UNNAMED').map((e: { p: { f: string; line: number } }) => `${e.p.f}:${e.p.line}`)).toEqual([]);
-		for (const e of pl.excluded as { excluded: string; why: string }[]) { expect(['DYNAMIC', 'AI_MARK', 'NOT_AN_ICON']).toContain(e.excluded); expect(e.why.length).toBeGreaterThan(10); }
+		expect(pl.aiAssign.map((a: { p: { f: string; line: number } }) => `${a.p.f}:${a.p.line}`), 'every official-AI-mark svg declares data-ws-ai-mark').toEqual([]);
+		for (const e of pl.excluded as { excluded: string; why: string }[]) { expect(['DYNAMIC']).toContain(e.excluded); expect(e.why.length).toBeGreaterThan(10); }
 	}, 120_000);
 
 	it('every sidebar item that has an icon has a ws key (run: node tools/nav-icon-keys.cjs --write)', () => {
