@@ -30,7 +30,7 @@ describe('create request stepper on phones', () => {
 
 	it('leaves the desktop markup untouched (44px circles, nowrap labels) - the compact rules live only in the mobile media query', () => {
 		expect(html).toContain('step-circle w-11 h-11');
-		expect(html).toContain('step-label text-[13px]');
+		expect(html).toContain('step-label text-[length:var(--font-size-label)]');
 		const beforeMedia = css.slice(0, css.lastIndexOf('@media (max-width: 767px)'));
 		expect(beforeMedia).not.toMatch(/\.step-item \.step-label\s*\{\s*display:\s*none/);
 	});

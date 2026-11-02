@@ -3,7 +3,7 @@
 .co-rp-page { display: block; }
 
 /* Breadcrumb */
-.bc { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--txt-2, #A8B2D1); margin-bottom: 12px; }
+.bc { display: flex; align-items: center; gap: 6px; font-size: var(--font-size-small); color: var(--txt-2, #A8B2D1); margin-bottom: 12px; }
 .bc a { color: var(--txt-2, #A8B2D1); text-decoration: none; cursor: pointer; }
 .bc a:hover { color: var(--teal-txt, #2BD4C7); }
 .bc svg { width: 10px; height: 10px; opacity: .5; }
@@ -11,18 +11,18 @@
 /* Page Header */
 .pg-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .pg-title { font-size: 19px; font-weight: 900; color: #fff; }
-.pg-sub { font-size: 12px; color: var(--txt-2, #A8B2D1); margin-top: 3px; }
+.pg-sub { font-size: var(--font-size-small); color: var(--txt-2, #A8B2D1); margin-top: 3px; }
 
 /* KPIs */
 .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
 .kpi-c { background: linear-gradient(135deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01)); border: 1px solid rgba(255, 255, 255, .08); border-radius: 13px; padding: 13px 15px; }
 .kpi-v { font-size: 22px; font-weight: 900; }
-.kpi-l { font-size: 11px; color: var(--txt-2, #A8B2D1); margin-top: 3px; }
+.kpi-l { font-size: var(--font-size-small); color: var(--txt-2, #A8B2D1); margin-top: 3px; }
 
 /* Tabs */
 .rp-tabs { display: flex; gap: 0; margin-bottom: 16px; background: rgba(255, 255, 255, .03); border: 1px solid rgba(255, 255, 255, .07); border-radius: 12px; padding: 4px; width: fit-content; }
-.rp-tab { padding: 8px 20px; background: transparent; border: 1px solid transparent; border-radius: 9px; color: #6B7699; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all .18s; }
-.tab-count { min-width: 18px; height: 17px; border-radius: 9px; background: rgba(255, 255, 255, .08); font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px; }
+.rp-tab { padding: 8px 20px; background: transparent; border: 1px solid transparent; border-radius: 9px; color: #6B7699; font-family: inherit; font-size: var(--font-size-label); font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all .18s; }
+.tab-count { min-width: 18px; height: 17px; border-radius: 9px; background: rgba(255, 255, 255, .08); font-size: var(--font-size-caption); font-weight: 800; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px; }
 .rp-tab:first-child.active { background: linear-gradient(135deg, rgba(43, 212, 199, .14), rgba(43, 127, 255, .08)); border-color: rgba(43, 212, 199, .30); color: #fff; }
 .rp-tab:first-child.active .tab-count { background: rgba(43, 212, 199, .18); color: #2BD4C7; }
 .rp-tab:last-child.active { background: linear-gradient(135deg, rgba(43, 127, 255, .14), rgba(43, 127, 255, .08)); border-color: rgba(43, 127, 255, .30); color: #fff; }
@@ -31,13 +31,13 @@
 /* Notice */
 .notice { display: flex; align-items: flex-start; gap: 10px; padding: 12px 15px; background: rgba(217, 138, 11, .07); border: 1px solid rgba(217, 138, 11, .20); border-radius: 12px; margin-bottom: 14px; }
 .notice svg { width: 14px; height: 14px; color: #D98A0B; flex-shrink: 0; margin-top: 1px; }
-.notice p { font-size: 12px; color: #D98A0B; line-height: 1.6; margin: 0; }
+.notice p { font-size: var(--font-size-small); color: #D98A0B; line-height: 1.6; margin: 0; }
 
 /* Roles Layout */
 .roles-layout { display: grid; grid-template-columns: 280px 1fr; gap: 14px; align-items: start; }
 .role-list-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.role-list-hd > div:first-child { font-size: 13px; font-weight: 800; color: #fff; }
-.role-list-hd > span { font-size: 11px; color: var(--txt-2, #A8B2D1); }
+.role-list-hd > div:first-child { font-size: var(--font-size-label); font-weight: 800; color: #fff; }
+.role-list-hd > span { font-size: var(--font-size-small); color: var(--txt-2, #A8B2D1); }
 
 /* Role Cards */
 .role-list { display: flex; flex-direction: column; gap: 6px; }
@@ -46,8 +46,8 @@
 .role-card.selected { border-color: rgba(43, 212, 199, .45); background: linear-gradient(135deg, rgba(43, 212, 199, .07), rgba(43, 127, 255, .04)); }
 .role-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
 .role-ico { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.role-name { font-size: 13px; font-weight: 800; color: #fff; }
-.pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 700; border: 1px solid; }
+.role-name { font-size: var(--font-size-label); font-weight: 800; color: #fff; }
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: var(--font-size-small); font-weight: 700; border: 1px solid; }
 .pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
 .pill-sys { background: rgba(93, 160, 255, .10); color: #5DA0FF; border-color: rgba(93, 160, 255, .22); }
 .pill-sys::before { background: #5DA0FF; }
@@ -55,12 +55,12 @@
 .pill-ok::before { background: #0FA99A; }
 .pill-custom { background: rgba(217, 138, 11, .10); color: #D98A0B; border-color: rgba(217, 138, 11, .22); }
 .pill-custom::before { background: #D98A0B; }
-.role-desc { font-size: 11px; color: var(--txt-2, #A8B2D1); line-height: 1.5; margin-bottom: 8px; }
+.role-desc { font-size: var(--font-size-small); color: var(--txt-2, #A8B2D1); line-height: 1.5; margin-bottom: 8px; }
 .role-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-.role-users { font-size: 10.5px; color: var(--txt-2, #A8B2D1); }
+.role-users { font-size: var(--font-size-small); color: var(--txt-2, #A8B2D1); }
 .role-users span { font-weight: 700; color: #fff; }
 .role-actions { display: flex; gap: 4px; flex-shrink: 0; }
-.r-btn { padding: 3px 9px; border-radius: 6px; font-size: 10.5px; font-weight: 700; cursor: pointer; font-family: inherit; border: 1px solid; transition: all .15s; }
+.r-btn { padding: 3px 9px; border-radius: 6px; font-size: var(--font-size-small); font-weight: 700; cursor: pointer; font-family: inherit; border: 1px solid; transition: all .15s; }
 .r-btn-edit { background: rgba(255, 255, 255, .05); border-color: rgba(255, 255, 255, .09); color: var(--txt-2, #A8B2D1); }
 .r-btn-edit:hover { background: rgba(255, 255, 255, .09); color: #fff; }
 .r-btn-del { background: rgba(255, 140, 105, .05); border-color: rgba(255, 140, 105, .15); color: #FF8C69; }
@@ -71,32 +71,32 @@
 .perm-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
 .perm-title-wrap { display: flex; align-items: center; gap: 10px; }
 .perm-ico { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.perm-role-name { font-size: 15px; font-weight: 900; color: #fff; }
-.perm-role-desc { font-size: 11.5px; color: var(--txt-2, #A8B2D1); margin-top: 2px; }
+.perm-role-name { font-size: var(--font-size-body); font-weight: 900; color: #fff; }
+.perm-role-desc { font-size: var(--font-size-small); color: var(--txt-2, #A8B2D1); margin-top: 2px; }
 .perm-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.perm-btn { display: flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 9px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; border: 1px solid; }
+.perm-btn { display: flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 9px; font-size: var(--font-size-small); font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; border: 1px solid; }
 .perm-btn-save { background: linear-gradient(135deg, rgba(43, 212, 199, .16), rgba(43, 127, 255, .12)); border-color: rgba(43, 212, 199, .38); color: #fff; }
 .perm-btn-save:hover { background: linear-gradient(135deg, rgba(43, 212, 199, .24), rgba(43, 127, 255, .18)); }
 
 /* Readonly Notice */
 .perm-readonly { text-align: center; padding: 28px 20px; color: var(--txt-2, #A8B2D1); }
-.perm-readonly-title { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 5px; }
-.perm-readonly-text { font-size: 11.5px; line-height: 1.7; max-width: 280px; margin: 0 auto; }
+.perm-readonly-title { font-size: var(--font-size-label); font-weight: 800; color: #fff; margin-bottom: 5px; }
+.perm-readonly-text { font-size: var(--font-size-small); line-height: 1.7; max-width: 280px; margin: 0 auto; }
 
 /* Permission Categories */
 .perm-cats { display: flex; flex-direction: column; gap: 12px; }
 .perm-cat { background: rgba(255, 255, 255, .02); border: 1px solid rgba(255, 255, 255, .06); border-radius: 11px; overflow: hidden; }
 .perm-cat-hdr { display: flex; align-items: center; gap: 10px; padding: 11px 15px; background: rgba(255, 255, 255, .02); border-bottom: 1px solid rgba(255, 255, 255, .06); }
 .perm-cat-ico { width: 24px; height: 24px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.perm-cat-lbl { font-size: 12.5px; font-weight: 800; color: #fff; flex: 1; }
-.perm-cat-count { font-size: 10.5px; color: var(--txt-2, #A8B2D1); }
+.perm-cat-lbl { font-size: var(--font-size-label); font-weight: 800; color: #fff; flex: 1; }
+.perm-cat-count { font-size: var(--font-size-small); color: var(--txt-2, #A8B2D1); }
 .perm-items { display: grid; grid-template-columns: repeat(2, 1fr); }
 @media (max-width: 700px) { .perm-items { grid-template-columns: 1fr; } }
 .perm-item { display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-bottom: 1px solid rgba(255, 255, 255, .04); transition: background .15s; cursor: pointer; }
 .perm-item:nth-child(odd) { border-inline-end: 1px solid rgba(255, 255, 255, .04); }
 .perm-item:last-child, .perm-item:nth-last-child(2):nth-child(odd) { border-bottom: none; }
 .perm-item:hover { background: rgba(255, 255, 255, .03); }
-.perm-item-lbl { flex: 1; font-size: 12px; color: var(--txt-2, #A8B2D1); }
+.perm-item-lbl { flex: 1; font-size: var(--font-size-small); color: var(--txt-2, #A8B2D1); }
 
 /* Toggle Switch */
 .tog { position: relative; display: inline-block; width: 36px; height: 20px; cursor: pointer; flex-shrink: 0; }

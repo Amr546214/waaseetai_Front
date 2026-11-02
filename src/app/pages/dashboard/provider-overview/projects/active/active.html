@@ -72,7 +72,7 @@
 @if(isLoading()){
   <div class="state-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
 } @else if(error()) {
-  <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)"><div style="font-size:16px;font-weight:800;margin-bottom:6px">تعذر تحميل المشاريع النشطة</div><div style="font-size:12px;margin-bottom:12px" class="txt-muted">{{error()}}</div><button type="button" (click)="loadProjects()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;font-family:inherit" class="txt-navy">إعادة المحاولة</button></div>
+  <div class="state-card" style="text-align:center;padding:40px 24px;border-color:rgba(43,127,255,.25)"><div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px">تعذر تحميل المشاريع النشطة</div><div style="font-size:var(--font-size-small);margin-bottom:12px" class="txt-muted">{{error()}}</div><button type="button" (click)="loadProjects()" style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:var(--font-size-label);font-family:inherit" class="txt-navy">إعادة المحاولة</button></div>
 } @else {
   <div class="pl-list">
     @for(p of filteredProjects(); track p.id){
@@ -101,7 +101,7 @@
       </a>
     }
     @empty {
-      <div class="state-card" style="text-align:center;padding:44px 24px"><div class="empty-ico"><svg><use href="#pa-inbox"></use></svg></div><div style="font-size:15px;font-weight:800;margin-bottom:6px">لا توجد مشاريع في هذا التصنيف</div><div style="font-size:12px" class="txt-muted">ستظهر المشاريع هنا فور بدء عقد ممول ونشط</div></div>
+      <div class="state-card" style="text-align:center;padding:44px 24px"><div class="empty-ico"><svg><use href="#pa-inbox"></use></svg></div><div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px">لا توجد مشاريع في هذا التصنيف</div><div style="font-size:var(--font-size-small)" class="txt-muted">ستظهر المشاريع هنا فور بدء عقد ممول ونشط</div></div>
     }
   </div>
 }

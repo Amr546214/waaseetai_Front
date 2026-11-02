@@ -19,7 +19,7 @@ let nextId = 0;
 	styles: [`
 		:host { display: block; position: relative; }
 		.ws-sel-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: start; cursor: pointer;
-			background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: 14px; color: #fff;
+			background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: var(--font-size-label); color: #fff;
 			outline: none; transition: border-color .15s; }
 		.ws-sel-trigger:focus-visible, .ws-sel-trigger[aria-expanded="true"] { border-color: rgba(43,212,199,.55); }
 		.ws-sel-trigger[disabled] { opacity: .5; cursor: not-allowed; }
@@ -28,12 +28,12 @@ let nextId = 0;
 		.ws-sel-trigger[aria-expanded="true"] .ws-sel-caret { transform: rotate(180deg); }
 		.ws-sel-panel { position: fixed; z-index: 2000; inset: auto; margin: 0; overflow-y: auto; padding: 6px; list-style: none; box-sizing: border-box; color: inherit;
 			background: #0B1437; border: 1px solid rgba(43,212,199,.25); border-radius: 12px; box-shadow: 0 14px 32px rgba(0,0,0,.45); }
-		.ws-sel-opt { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 12px; border-radius: 8px; font-size: 14px; color: #E6ECFF; cursor: pointer; }
+		.ws-sel-opt { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 12px; border-radius: 8px; font-size: var(--font-size-label); color: #E6ECFF; cursor: pointer; }
 		.ws-sel-opt.is-active { background: rgba(43,212,199,.12); }
 		.ws-sel-opt.is-selected { color: #2BD4C7; font-weight: 800; background: rgba(43,212,199,.18); }
 		.ws-sel-opt.is-disabled { opacity: .45; cursor: not-allowed; }
 		.ws-sel-opt:not(.is-disabled):not(.is-active):hover { background: rgba(255,255,255,.06); }
-		.ws-sel-empty { padding: 10px 12px; font-size: 13px; color: #6B7699; text-align: center; }
+		.ws-sel-empty { padding: 10px 12px; font-size: var(--font-size-label); color: #6B7699; text-align: center; }
 		.ws-sel-panel { color-scheme: dark; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent; }
 		.ws-sel-check { width: 14px; height: 14px; flex: none; }
 		:host-context(.light-theme) .ws-sel-trigger, :host-context(.theme-light) .ws-sel-trigger { background: #F8FAFC; border-color: #CBD5E1; color: #0F172A; }

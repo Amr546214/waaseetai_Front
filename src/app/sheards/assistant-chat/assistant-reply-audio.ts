@@ -29,7 +29,7 @@ import { speakableText } from '../../core/help/assistant-content';
 	}`,
 	styles: [`
 		:host { display:block;max-width:100%;width:100%; }
-		.reply-audio { display:flex;align-items:center;flex-wrap:wrap;gap:8px;max-width:100%;margin-top:6px;color:var(--assistant-muted,var(--tc-muted,var(--txt-3,#94a3b8)));font-size:12px; }
+		.reply-audio { display:flex;align-items:center;flex-wrap:wrap;gap:8px;max-width:100%;margin-top:6px;color:var(--assistant-muted,var(--tc-muted,var(--txt-3,#94a3b8)));font-size:var(--font-size-small); }
 		.reply-audio__button { display:inline-flex;align-items:center;gap:6px;border:1px solid var(--assistant-input-border,var(--sec-bd,rgba(165,107,224,.35)));border-radius:999px;background:rgba(123,47,190,.08);padding:5px 12px;color:inherit;font:inherit;font-weight:600;line-height:1.3;cursor:pointer;transition:background .15s,border-color .15s; }
 		.reply-audio__button svg { width:15px;height:15px;flex-shrink:0; }
 		.reply-audio__button:hover { color:var(--assistant-text,var(--tc-text,inherit));background:var(--assistant-input-bg,rgba(123,47,190,.16));border-color:rgba(165,107,224,.55); }
@@ -38,7 +38,7 @@ import { speakableText } from '../../core/help/assistant-content';
 		.reply-audio__spinner { width:12px;height:12px;border:2px solid currentColor;border-inline-end-color:transparent;border-radius:50%;animation:reply-audio-spin .8s linear infinite; }
 		.reply-audio__player { display:flex;flex-direction:column;gap:4px;flex-basis:100%;width:100%;max-width:100%;min-width:0;margin-top:2px; }
 		audio { width:100%;max-width:280px;height:34px;border-radius:999px;color-scheme:light dark; }
-		.reply-audio__time,.reply-audio__notice,.reply-audio__error { font-size:11px;line-height:1.5;opacity:.85; }
+		.reply-audio__time,.reply-audio__notice,.reply-audio__error { font-size:var(--font-size-small);line-height:1.5;opacity:.85; }
 		.reply-audio__error { flex-basis:100%;color:var(--assistant-muted,var(--tc-muted,inherit)); }
 		@keyframes reply-audio-spin { to { transform:rotate(360deg); } }
 		@media(prefers-reduced-motion:reduce) { .reply-audio__spinner { animation:none; } }

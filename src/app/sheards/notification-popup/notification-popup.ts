@@ -49,13 +49,13 @@ import { normalizeLegacyNotificationUrl } from '../../core/routing/notification-
 		.np-ico { flex: none; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
 		.np-ico :is(svg) { width: 22px; height: 22px; }
 		.np-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-		.np-title { font-size: 15px; font-weight: 800; line-height: 1.5; overflow-wrap: anywhere; padding-inline-end: 4px; }
-		.np-msg { font-size: 14px; line-height: 1.7; color: var(--txt-2, #a8b2d1); overflow-wrap: anywhere; white-space: pre-line;
+		.np-title { font-size: var(--font-size-body); font-weight: 800; line-height: 1.5; overflow-wrap: anywhere; padding-inline-end: 4px; }
+		.np-msg { font-size: var(--font-size-label); line-height: 1.7; color: var(--txt-2, #a8b2d1); overflow-wrap: anywhere; white-space: pre-line;
 			display: -webkit-box; -webkit-line-clamp: 5; line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
 		.np-go {
 			margin-top: 6px; align-self: stretch; min-height: 44px; padding: 0 16px;
 			display: inline-flex; align-items: center; justify-content: space-between; gap: 8px;
-			font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+			font: inherit; font-size: var(--font-size-label); font-weight: 700; cursor: pointer;
 			color: var(--teal-txt, #2bd4c7); background: rgba(var(--teal-rgb, 43, 212, 199), .12);
 			border: 1px solid rgba(var(--teal-rgb, 43, 212, 199), .4); border-radius: 12px;
 		}

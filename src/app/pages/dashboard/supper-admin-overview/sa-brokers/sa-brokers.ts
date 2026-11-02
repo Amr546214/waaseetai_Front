@@ -138,10 +138,17 @@ export class SaBrokers implements OnInit {
     this.fetchBrokers();
   }
 
+  private searchTimer: any = null;
+
   onSearch(value: string) {
     this.searchTerm.set(value);
-    this.currentPage.set(1);
-    this.fetchBrokers();
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+    this.searchTimer = setTimeout(() => {
+      this.currentPage.set(1);
+      this.fetchBrokers();
+    }, 300);
   }
 
   nextPage() {

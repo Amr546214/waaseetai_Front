@@ -28,8 +28,8 @@ import { AssistantChatComponent } from '../../../../../sheards/assistant-chat/as
 				</svg>
 			</div>
 			<div class="flex-1">
-				<div class="text-[10px] font-extrabold text-[var(--ai-txt,#A56BE0)] tracking-wider mb-0.5">وسيط، المساعد الذكي</div>
-				<p class="text-[13px] text-[var(--txt-2,#A8B2D1)]">يجيب فقط عن معلومات موثقة عن المنصة. لن تُشارَك بياناتك الحسّاسة، والقرار النهائي والإجراءات المالية تبقى بيدك أو لدى الفريق المختص</p>
+				<div class="text-[length:var(--font-size-caption)] font-extrabold text-[var(--ai-txt,#A56BE0)] tracking-wider mb-0.5">وسيط، المساعد الذكي</div>
+				<p class="text-[length:var(--font-size-label)] text-[var(--txt-2,#A8B2D1)]">يجيب فقط عن معلومات موثقة عن المنصة. لن تُشارَك بياناتك الحسّاسة، والقرار النهائي والإجراءات المالية تبقى بيدك أو لدى الفريق المختص</p>
 			</div>
 		</div>
 

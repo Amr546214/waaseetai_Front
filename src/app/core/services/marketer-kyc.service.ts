@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -36,7 +37,7 @@ export class MarketerKycService {
 	upload(file: File): Observable<{ status: MarketerKycStatus }> {
 		const form = new FormData();
 		form.append('file', file, file.name);
-		return this.http.post<{ data: { status: MarketerKycStatus } }>(`${this.marketerUrl}/kyc-document`, form).pipe(map(r => r.data));
+		return this.http.post<{ data: { status: MarketerKycStatus } }>(`${this.marketerUrl}/kyc-document`, form, { context: new HttpContext().set(SKIP_LOADING, true) }).pipe(map(r => r.data));
 	}
 
 	// ── admin ──

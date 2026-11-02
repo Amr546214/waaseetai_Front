@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit, effect, inject } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProviderApiService } from '../../../../core/services/provider-api.service';
 import { RouterLink } from '@angular/router';
@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 	templateUrl: './explore-requests.html',
 	styleUrl: './explore-requests.css',
 })
-export class ExploreRequests implements OnInit {
+export class ExploreRequests implements OnInit, OnDestroy {
 	private providerApi = inject(ProviderApiService);
 
 	// Batch 7: PROVIDER_COMPANY accounts previously saw a fictional
@@ -290,7 +290,7 @@ export class ExploreRequests implements OnInit {
 						// request id). Only the real, deterministic specialty
 						// relevance tier is shown, as words, when there is one.
 						relevanceLabel: ExploreRequests.relevanceLabel(p.specialtyRelevance),
-						aiPriceRange: p.aiSuggestedBudget,
+						aiPriceRange: p.aiSuggestedBudget ? ExploreRequests.cleanBudget(p.aiSuggestedBudget) : (p.budgetMin && p.budgetMax ? `${p.budgetMin} - ${p.budgetMax} $` : ''),
 						aiPriceEval: p.aiPriceEval || '',
 						aiDurationRange: p.aiSuggestedDuration,
 						aiDurationEval: p.aiDurationEval || '',
@@ -326,6 +326,19 @@ export class ExploreRequests implements OnInit {
 		});
 	}
 
+	static cleanBudget(val: unknown): string {
+		if (typeof val !== 'string') return '';
+		const text = val.trim();
+		if (!text) return '';
+		// Format only a complete numeric USD range. Preserve unknown text/currencies verbatim.
+		const m = text.match(/^\$?\s*(\d[\d,]*(?:\.\d+)?)\s*[-–]\s*\$?\s*(\d[\d,]*(?:\.\d+)?)\s*\$?$/);
+		if (!m) return text;
+		const first = Number(m[1].replace(/,/g, ''));
+		const second = Number(m[2].replace(/,/g, ''));
+		if (!Number.isFinite(first) || !Number.isFinite(second)) return text;
+		return `${Math.min(first, second)} - ${Math.max(first, second)} $`;
+	}
+
 	/** Words for the backend's real specialty-relevance tier; null = show nothing. */
 	static relevanceLabel(tier: unknown): string | null {
 		if (tier === 'REQUIREMENTS') return 'متطلباته تتقاطع مع تخصصاتك';
@@ -345,9 +358,31 @@ export class ExploreRequests implements OnInit {
 		this.activeTab.set(id);
 	}
 
+	private searchDebounceTimer: any = null;
+
 	onSearch(event: Event) {
 		const input = event.target as HTMLInputElement;
+		const val = input.value;
+		if (this.searchDebounceTimer) {
+			clearTimeout(this.searchDebounceTimer);
+		}
+		this.searchDebounceTimer = setTimeout(() => {
+			this.searchQuery.set(val);
+		}, 300);
+	}
+
+	onSearchEnter(event: Event) {
+		if (this.searchDebounceTimer) {
+			clearTimeout(this.searchDebounceTimer);
+		}
+		const input = event.target as HTMLInputElement;
 		this.searchQuery.set(input.value);
+	}
+
+	ngOnDestroy() {
+		if (this.searchDebounceTimer) {
+			clearTimeout(this.searchDebounceTimer);
+		}
 	}
 
 	resetFilters() {

@@ -23,3 +23,9 @@ export function dobDisplay(stored: unknown): string {
 	const [y, m, day] = v.split('-');
 	return `${day}/${m}/${y}`;
 }
+
+/** Maximum selectable birth date follows the API contract: no future date. This does not introduce an age policy. */
+export function maxDobIso(): string {
+	const d = new Date();
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}

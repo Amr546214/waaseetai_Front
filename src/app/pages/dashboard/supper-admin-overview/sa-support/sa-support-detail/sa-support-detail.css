@@ -1,7 +1,7 @@
 .sup-detail-crumb{margin-bottom:14px}
-.sup-detail-crumb a{color:#A8B2D1;font-size:13px;text-decoration:none}
+.sup-detail-crumb a{color:#A8B2D1;font-size:var(--font-size-label);text-decoration:none}
 .sup-detail-crumb a:hover{color:#2BD4C7}
 .sup-detail-nf{display:flex;flex-direction:column;align-items:center;gap:12px}
-.sup-detail-nf a{color:#2BD4C7;font-size:13px;text-decoration:none}
+.sup-detail-nf a{color:#2BD4C7;font-size:var(--font-size-label);text-decoration:none}
 .sup-select{width:100%;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.06);color:inherit;border:1px solid rgba(255,255,255,.12);margin-bottom:8px}
 .sup-note-item{padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.04);margin-bottom:6px}

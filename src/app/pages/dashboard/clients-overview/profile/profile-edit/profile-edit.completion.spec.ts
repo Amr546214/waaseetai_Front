@@ -52,7 +52,7 @@ describe('client profile-edit: backend completion + missing items', () => {
   it('shows the backend percentage and the "لإكمال ملفك إلى 100%" box with every missing item and its points', () => {
     setup({ profileCompletionPercent: 35, missingItems: ITEMS });
     expect(el().textContent).toContain('35%');
-    expect(q('[data-testid="missing-items"] h3')!.textContent).toContain('لإكمال ملفك إلى 100%، أكمل التالي:');
+    expect(q('[data-testid="missing-items"] h3')!.textContent).toContain('بيانات غير مكتملة');
     expect(all('[data-testid="missing-items"] li').map(li => li.getAttribute('data-key'))).toEqual(['avatar', 'name', 'industry', 'payout']);
     expect(all('[data-testid="miss-missing"]').map(b => b.textContent!.trim())).toEqual(['ناقص · +15%', 'ناقص · +15%', 'ناقص · +15%', 'ناقص · +20%']);
   });

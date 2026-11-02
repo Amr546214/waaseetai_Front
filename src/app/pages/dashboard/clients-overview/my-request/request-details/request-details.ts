@@ -206,6 +206,8 @@ export class RequestDetails implements OnInit {
 							formattedBudget = `${formatMoney(data.budget.min)} - ${formatMoney(data.budget.max)} $`;
 						} else if (data.budget.type === 'FIXED' && data.budget.min) {
 							formattedBudget = `${formatMoney(data.budget.min)} $`;
+						} else if (data.budget.type === 'HOURLY' && data.budget.min) {
+							formattedBudget = `${formatMoney(data.budget.min)} $/ساعة`;
 						} else {
 							formattedBudget = 'غير محدد';
 						}
@@ -471,9 +473,22 @@ export class RequestDetails implements OnInit {
 		this.negPrice.set(val);
 	}
 
-	onNegDurationInput(event: Event) {
-		this.negDuration.set((event.target as HTMLInputElement).value);
-	}
+onNegDurationInput(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const value = input.value;
+
+  if (value === '') {
+    this.negDuration.set('');
+    return;
+  }
+
+  if (!/^[1-9]\d*$/.test(value)) {
+    input.value = this.negDuration();
+    return;
+  }
+
+  this.negDuration.set(value);
+}
 
 	onNegMessageInput(event: Event) {
 		const val = (event.target as HTMLTextAreaElement).value;

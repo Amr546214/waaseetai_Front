@@ -28,7 +28,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 50px;
   color: #A8B2D1;
-  font-size: 14px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -48,7 +48,7 @@
   border: none;
   border-radius: 50px;
   color: #070D24;
-  font-size: 15px;
+  font-size: var(--font-size-body);
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;

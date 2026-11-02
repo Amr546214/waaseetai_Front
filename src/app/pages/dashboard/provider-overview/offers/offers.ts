@@ -183,10 +183,17 @@ export class Offers implements OnInit {
 		this.fetchOffers();
 	}
 
+	private searchDebounceTimer: any = null;
+
 	onSearch(event: Event) {
 		const input = event.target as HTMLInputElement;
 		this.searchQuery.set(input.value);
-		this.fetchOffers();
+		if (this.searchDebounceTimer) {
+			clearTimeout(this.searchDebounceTimer);
+		}
+		this.searchDebounceTimer = setTimeout(() => {
+			this.fetchOffers();
+		}, 300);
 	}
 
 	getStatusClasses(status: string): string {

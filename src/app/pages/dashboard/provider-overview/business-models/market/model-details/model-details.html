@@ -47,7 +47,7 @@
 				}
 			</div>
 			@if (m.marketNotice) {
-			<div role="status" data-testid="market-notice" style="position:absolute;inset-inline:12px;bottom:12px;padding:8px 10px;border-radius:8px;font-size:11.5px;font-weight:700;line-height:1.6;color:#FFB400;background:rgba(7,13,36,.85);border:1px solid rgba(255,180,0,.45)">{{ m.marketNotice }}</div>
+			<div role="status" data-testid="market-notice" style="position:absolute;inset-inline:12px;bottom:12px;padding:8px 10px;border-radius:8px;font-size:var(--font-size-small);font-weight:700;line-height:1.6;color:#FFB400;background:rgba(7,13,36,.85);border:1px solid rgba(255,180,0,.45)">{{ m.marketNotice }}</div>
 			}
 			<div class="mdl-preview-views">
 				<svg data-ws-icon="i-eye" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -189,11 +189,6 @@
 		} @else {
 		<div class="mdl-reviews-empty">لا توجد تقييمات على هذا النموذج بعد</div>
 		}
-	</div>
-
-	<div class="mdl-inner-foot">
-		<span>وسيط، منصة وساطة رقمية لإدارة المشاريع والمدفوعات بين العميل ومقدم الخدمة</span>
-		<div class="inner-foot-links"><a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a><a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a></div>
 	</div>
 	}
 </div>

@@ -41,11 +41,9 @@ describe('client disputes page', () => {
 		expect(labels.some(l => /حل|رفض النزاع|قرار/.test(l) && !/تفاصيل/.test(l))).toBe(false);
 	});
 
-	it('the "raise a dispute" button is a real link to the projects (where the dialog lives), not a toast', async () => {
+	it('no standalone "raise a dispute" button: raising a dispute is done in the context of a project', async () => {
 		const s = await setup([]);
-		const a = s.q('raise-dispute') as HTMLAnchorElement;
-		expect(a.tagName).toBe('A');
-		expect(a.getAttribute('href')).toBe('/client-overview/projects/active');
+		expect(s.q('raise-dispute')).toBeNull();
 	});
 
 	it('details are loaded from the server on demand: reason, description, the held escrow and the project link; read-only', async () => {

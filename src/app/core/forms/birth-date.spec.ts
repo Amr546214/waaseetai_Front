@@ -1,4 +1,4 @@
-import { birthDateValidator, dobDisplay, dobInputValue } from './birth-date';
+import { birthDateValidator, dobDisplay, dobInputValue, maxDobIso } from './birth-date';
 import { FormControl } from '@angular/forms';
 
 describe('date of birth helpers', () => {
@@ -15,5 +15,14 @@ describe('date of birth helpers', () => {
     expect(v('2999-01-01')).toEqual({ birthDate: true });
     expect(v('1800-01-01')).toEqual({ birthDate: true });
     expect(v('not-a-date')).toEqual({ birthDate: true });
+  });
+});
+
+describe('maximum date of birth follows the server contract', () => {
+  it('allows past dates without inventing a minimum-age restriction', () => {
+    const now = new Date();
+    expect(maxDobIso()).toBe(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
+    expect(birthDateValidator({ value: `${now.getFullYear() - 10}-01-01` } as any)).toBeNull();
+    expect(birthDateValidator({ value: `${now.getFullYear() + 1}-01-01` } as any)).toEqual({ birthDate: true });
   });
 });
