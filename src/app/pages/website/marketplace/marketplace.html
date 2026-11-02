@@ -37,10 +37,10 @@
 <!-- Card thumbnail artwork, cycled from the P-MK-001 cards (used when the service has no image) -->
 <ng-template #thumbArt let-i>
   @switch (i % 4) {
-    @case (0) { <svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><rect x="10" y="10" width="40" height="40" rx="6" stroke="rgba(43,127,255,.6)" stroke-width="1.5" fill="none"/><rect x="18" y="18" width="24" height="24" rx="3" stroke="rgba(43,127,255,.3)" stroke-width="1" fill="rgba(43,127,255,.06)"/></svg> }
-    @case (1) { <svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><circle cx="30" cy="30" r="22" stroke="rgba(43,212,199,.5)" stroke-width="1.5" fill="none"/><line x1="8" y1="30" x2="52" y2="30" stroke="rgba(43,212,199,.3)" stroke-width="1"/></svg> }
-    @case (2) { <svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><circle cx="30" cy="30" r="20" stroke="rgba(15,169,154,.6)" stroke-width="1.5"/><path d="M18 30 Q30 18 42 30 Q30 42 18 30Z" stroke="rgba(15,169,154,.4)" stroke-width="1" fill="rgba(15,169,154,.07)"/></svg> }
-    @default { <svg width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><rect x="10" y="10" width="40" height="40" rx="3" stroke="rgba(217,138,11,.6)" stroke-width="1.5" fill="none"/><line x1="18" y1="22" x2="42" y2="22" stroke="rgba(217,138,11,.4)" stroke-width="1"/><line x1="18" y1="30" x2="38" y2="30" stroke="rgba(217,138,11,.3)" stroke-width="1"/></svg> }
+    @case (0) { <svg data-ws-icon="pl-site-art-card-1" width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><rect x="10" y="10" width="40" height="40" rx="6" stroke="rgba(43,127,255,.6)" stroke-width="1.5" fill="none"/><rect x="18" y="18" width="24" height="24" rx="3" stroke="rgba(43,127,255,.3)" stroke-width="1" fill="rgba(43,127,255,.06)"/></svg> }
+    @case (1) { <svg data-ws-icon="pl-site-art-card-2" width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><circle cx="30" cy="30" r="22" stroke="rgba(43,212,199,.5)" stroke-width="1.5" fill="none"/><line x1="8" y1="30" x2="52" y2="30" stroke="rgba(43,212,199,.3)" stroke-width="1"/></svg> }
+    @case (2) { <svg data-ws-icon="pl-site-art-card-3" width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><circle cx="30" cy="30" r="20" stroke="rgba(15,169,154,.6)" stroke-width="1.5"/><path d="M18 30 Q30 18 42 30 Q30 42 18 30Z" stroke="rgba(15,169,154,.4)" stroke-width="1" fill="rgba(15,169,154,.07)"/></svg> }
+    @default { <svg data-ws-icon="pl-site-art-card-4" width="44" height="44" viewBox="0 0 60 60" fill="none" aria-hidden="true"><rect x="10" y="10" width="40" height="40" rx="3" stroke="rgba(217,138,11,.6)" stroke-width="1.5" fill="none"/><line x1="18" y1="22" x2="42" y2="22" stroke="rgba(217,138,11,.4)" stroke-width="1"/><line x1="18" y1="30" x2="38" y2="30" stroke="rgba(217,138,11,.3)" stroke-width="1"/></svg> }
   }
 </ng-template>
 
@@ -125,7 +125,7 @@
         <a [routerLink]="slideLink('design')" class="slide-cta">تصفح خدمات التصميم</a>
       </div>
       <div class="slide-visual" aria-hidden="true">
-        <svg width="260" height="260" viewBox="0 0 260 260" fill="none"><circle cx="130" cy="130" r="100" stroke="rgba(43,127,255,.2)" stroke-width="1"/><circle cx="130" cy="130" r="70" stroke="rgba(43,127,255,.15)" stroke-width="1"/><rect x="90" y="90" width="80" height="80" rx="12" fill="rgba(43,127,255,.08)" stroke="rgba(43,127,255,.4)" stroke-width="1.5"/><rect x="105" y="105" width="50" height="50" rx="8" fill="rgba(43,127,255,.12)" stroke="rgba(43,127,255,.3)" stroke-width="1"/><circle cx="155" cy="105" r="14" fill="rgba(165,107,224,.3)" stroke="rgba(165,107,224,.6)" stroke-width="1.5"/><circle cx="130" cy="130" r="6" fill="rgba(43,127,255,.6)"/></svg>
+        <svg data-ws-icon="pl-site-art-slide-design" width="260" height="260" viewBox="0 0 260 260" fill="none"><circle cx="130" cy="130" r="100" stroke="rgba(43,127,255,.2)" stroke-width="1"/><circle cx="130" cy="130" r="70" stroke="rgba(43,127,255,.15)" stroke-width="1"/><rect x="90" y="90" width="80" height="80" rx="12" fill="rgba(43,127,255,.08)" stroke="rgba(43,127,255,.4)" stroke-width="1.5"/><rect x="105" y="105" width="50" height="50" rx="8" fill="rgba(43,127,255,.12)" stroke="rgba(43,127,255,.3)" stroke-width="1"/><circle cx="155" cy="105" r="14" fill="rgba(165,107,224,.3)" stroke="rgba(165,107,224,.6)" stroke-width="1.5"/><circle cx="130" cy="130" r="6" fill="rgba(43,127,255,.6)"/></svg>
       </div>
     </div>
 
@@ -144,7 +144,7 @@
         <a [routerLink]="slideLink('code')" class="slide-cta">تصفح خدمات البرمجة</a>
       </div>
       <div class="slide-visual" aria-hidden="true">
-        <svg width="260" height="260" viewBox="0 0 260 260" fill="none" style="direction:ltr"><rect x="50" y="70" width="160" height="120" rx="10" fill="rgba(43,212,199,.05)" stroke="rgba(43,212,199,.3)" stroke-width="1.5"/><rect x="50" y="70" width="160" height="28" rx="10" fill="rgba(43,212,199,.1)" stroke="rgba(43,212,199,.3)" stroke-width="1.5"/><circle cx="68" cy="84" r="5" fill="rgba(255,140,105,.6)"/><circle cx="84" cy="84" r="5" fill="rgba(217,138,11,.6)"/><circle cx="100" cy="84" r="5" fill="rgba(15,169,154,.6)"/><text x="62" y="120" fill="rgba(43,212,199,.6)" font-size="12" font-family="monospace">const app = () =&gt; &#123;</text><text x="72" y="136" fill="rgba(43,127,255,.5)" font-size="12" font-family="monospace">return &lt;UI/&gt;;</text><text x="62" y="152" fill="rgba(43,212,199,.6)" font-size="12" font-family="monospace">&#125;</text></svg>
+        <svg data-ws-icon="pl-site-art-slide-code" width="260" height="260" viewBox="0 0 260 260" fill="none" style="direction:ltr"><rect x="50" y="70" width="160" height="120" rx="10" fill="rgba(43,212,199,.05)" stroke="rgba(43,212,199,.3)" stroke-width="1.5"/><rect x="50" y="70" width="160" height="28" rx="10" fill="rgba(43,212,199,.1)" stroke="rgba(43,212,199,.3)" stroke-width="1.5"/><circle cx="68" cy="84" r="5" fill="rgba(255,140,105,.6)"/><circle cx="84" cy="84" r="5" fill="rgba(217,138,11,.6)"/><circle cx="100" cy="84" r="5" fill="rgba(15,169,154,.6)"/><text x="62" y="120" fill="rgba(43,212,199,.6)" font-size="12" font-family="monospace">const app = () =&gt; &#123;</text><text x="72" y="136" fill="rgba(43,127,255,.5)" font-size="12" font-family="monospace">return &lt;UI/&gt;;</text><text x="62" y="152" fill="rgba(43,212,199,.6)" font-size="12" font-family="monospace">&#125;</text></svg>
       </div>
     </div>
 
@@ -163,7 +163,7 @@
         <a routerLink="/exclusive" class="slide-cta">تصفح كل العروض</a>
       </div>
       <div class="slide-visual" aria-hidden="true">
-        <svg width="240" height="240" viewBox="0 0 240 240" fill="none"><circle cx="120" cy="120" r="90" fill="rgba(217,138,11,.06)" stroke="rgba(217,138,11,.2)" stroke-width="1.5"/><circle cx="120" cy="120" r="60" fill="rgba(217,138,11,.08)" stroke="rgba(217,138,11,.25)" stroke-width="1.5"/><text x="120" y="136" fill="rgba(217,138,11,.8)" font-size="40" font-weight="900" style="font-family:var(--font-family,Tajawal),sans-serif" text-anchor="middle">%60</text><text x="120" y="162" fill="rgba(217,138,11,.5)" font-size="14" style="font-family:var(--font-family,Tajawal),sans-serif" text-anchor="middle">توفير</text></svg>
+        <svg data-ws-icon="pl-site-art-slide-discount" width="240" height="240" viewBox="0 0 240 240" fill="none"><circle cx="120" cy="120" r="90" fill="rgba(217,138,11,.06)" stroke="rgba(217,138,11,.2)" stroke-width="1.5"/><circle cx="120" cy="120" r="60" fill="rgba(217,138,11,.08)" stroke="rgba(217,138,11,.25)" stroke-width="1.5"/><text x="120" y="136" fill="rgba(217,138,11,.8)" font-size="40" font-weight="900" style="font-family:var(--font-family,Tajawal),sans-serif" text-anchor="middle">%60</text><text x="120" y="162" fill="rgba(217,138,11,.5)" font-size="14" style="font-family:var(--font-family,Tajawal),sans-serif" text-anchor="middle">توفير</text></svg>
       </div>
     </div>
 
