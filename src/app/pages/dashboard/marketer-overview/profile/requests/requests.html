@@ -164,10 +164,10 @@
 </div>
 
 @if (selectedRequest(); as req) {
-<div class="modal-ov show" role="dialog" aria-modal="true" (click)="closeRequestDetails()">
-  <div class="modal-box" (click)="$event.stopPropagation()">
+<div class="modal-ov show" (click)="closeRequestDetails()">
+  <div #requestDialog class="modal-box" role="dialog" aria-modal="true" aria-labelledby="request-dialog-title" tabindex="-1" (click)="$event.stopPropagation()">
     <div class="modal-ico"><svg aria-hidden="true"><use href="#i-doc"></use></svg></div>
-    <div class="modal-title">تفاصيل طلب التعديل</div>
+    <div class="modal-title" id="request-dialog-title">تفاصيل طلب التعديل</div>
     <div class="modal-info-list">
       <div class="modal-info-row"><span class="modal-info-lbl">رقم الطلب</span><span class="modal-info-val" dir="ltr">{{ req.requestNumber }}</span></div>
       <div class="modal-info-row"><span class="modal-info-lbl">الحقل</span><span class="modal-info-val">{{ req.fieldLabel }}</span></div>
@@ -183,7 +183,7 @@
       }
     </div>
     <div class="modal-actions">
-      <button type="button" class="modal-btn modal-btn-cancel" (click)="closeRequestDetails()">إغلاق</button>
+      <button #requestDialogClose type="button" class="modal-btn modal-btn-cancel" (click)="closeRequestDetails()">إغلاق</button>
     </div>
   </div>
 </div>

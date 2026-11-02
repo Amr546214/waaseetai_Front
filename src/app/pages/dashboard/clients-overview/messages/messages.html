@@ -41,7 +41,7 @@
         </div>
       } @empty {
         <div class="empty-list-state">
-          <p>لا توجد محادثات تطابق البحث.</p>
+          <p>{{ searchQuery().trim() ? 'لا توجد محادثات تطابق البحث.' : 'لا توجد محادثات بعد.' }}</p>
         </div>
       }
     </div>
@@ -347,6 +347,11 @@
       </div>
     } @else {
       <div class="msg-empty-state">
+        <div class="empty-icon-wrap" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
         <div class="state-title">لا توجد محادثات بعد</div>
         <div class="state-copy">عندما تبدأ محادثة مع مقدم خدمة، ستظهر هنا.</div>
       </div>

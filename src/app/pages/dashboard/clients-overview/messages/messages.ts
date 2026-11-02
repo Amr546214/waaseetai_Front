@@ -127,7 +127,7 @@ export class ClientMessages implements OnInit, OnDestroy {
     }
 
     // Read discussion context from router state (passed by project/stage pages)
-    const navState = (window as any).history?.state || {};
+    const navState = (typeof window !== 'undefined' ? (window as any).history?.state : {}) || {};
     if (navState?.messageContext) {
       this.messageContext.set(navState.messageContext as MessageContext);
     } else if (navState?.context) {

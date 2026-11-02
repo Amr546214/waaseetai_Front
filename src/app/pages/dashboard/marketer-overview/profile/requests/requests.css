@@ -260,9 +260,9 @@
 @keyframes ws-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Request details modal */
-.modal-ov { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, .55); z-index: 85; align-items: center; justify-content: center; }
+.modal-ov { display: none; position: fixed; inset: 0; overflow-y: auto; overscroll-behavior: contain; background: rgba(0, 0, 0, .55); z-index: 400; align-items: center; justify-content: center; padding: 16px; }
 .modal-ov.show { display: flex; }
-.modal-box { width: 100%; max-width: 480px; background: rgba(11, 20, 55, .96); border: 1px solid rgba(43, 212, 199, .20); border-radius: 18px; padding: 24px; box-shadow: 0 28px 80px rgba(0, 0, 0, .6); animation: ws-fade .2s ease both; }
+.modal-box { width: min(480px, 100%); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; background: rgba(11, 20, 55, .96); border: 1px solid rgba(43, 212, 199, .20); border-radius: 18px; padding: 24px; box-shadow: 0 28px 80px rgba(0, 0, 0, .6); animation: ws-fade .2s ease both; }
 .modal-ico { width: 46px; height: 46px; border-radius: 12px; background: rgba(43, 212, 199, .14); display: flex; align-items: center; justify-content: center; color: var(--teal-txt, #2BD4C7); margin-bottom: 14px; }
 .modal-ico svg { width: 23px; height: 23px; }
 .modal-title { font-size: 17px; font-weight: 900; color: #fff; margin-bottom: 14px; }
