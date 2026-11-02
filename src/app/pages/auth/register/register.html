@@ -87,7 +87,7 @@
 
 <!-- ===== STEP 2 — basic data (P-AU-004) ===== -->
 @if (currentStep === 2) {
-<div class="rg-s2">
+<div class="rg-s2" [class.has-referral]="!isMarketerAccount">
 <section class="auth-section" aria-labelledby="page-h1">
   <div class="auth-inner">
 
@@ -294,7 +294,7 @@
         </div>
 
         @if (!isMarketerAccount) {
-        <div class="form-card">
+        <aside class="form-card referral-card" aria-label="وسيط الإحالة">
           <div class="form-card-title">
             <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-user"></use></svg>
             @if (lockedAffiliate()) { الوسيط المُحيل } @else { وسيط الإحالة (اختياري) }
@@ -312,7 +312,7 @@
           @if (referralInvalid()) { <p class="affiliate-invalid" role="status" data-testid="referral-invalid">رابط الإحالة غير صالح أو منتهي، يمكنك إكمال التسجيل بدون إحالة.</p> }
           <app-affiliate-picker [(value)]="affiliateIdentifier"></app-affiliate-picker>
           }
-        </div>
+        </aside>
         }
 
         <div class="terms-card">

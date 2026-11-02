@@ -33,7 +33,7 @@
     @if (targetEmail) {
     <p class="auth-sub" data-testid="otp-target" style="margin-top:-6px">أرسلنا الرمز إلى <bdi dir="ltr">{{ targetEmail }}</bdi></p>
     }
-    <p class="inp-hint" data-testid="otp-delivery-hint" style="text-align:center;margin:0 0 12px;font-size:12.5px;line-height:1.7;opacity:.8">{{ deliveryHint }}</p>
+    <p class="inp-hint" data-testid="otp-delivery-hint" style="text-align:center;margin:0 0 12px;font-size:var(--font-size-label);line-height:1.7;opacity:.8">{{ deliveryHint }}</p>
 
     @if (!loginMode) {
     <div class="stepper" role="list" aria-label="خطوات التسجيل">

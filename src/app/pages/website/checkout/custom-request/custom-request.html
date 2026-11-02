@@ -149,7 +149,7 @@
               (drop)="onDrop($event)">
               <svg aria-hidden="true"><use href="#ws-upload"></use></svg>
               <div class="file-upload-txt"><strong>اضغط لرفع الملفات</strong> أو اسحبها هنا</div>
-              <div style="font-size:10px;color:var(--txt-3);margin-top:4px">PDF, PNG, JPG, DOCX — حجم أقصى 10MB لكل ملف (حتى 5 ملفات)</div>
+              <div style="font-size:var(--font-size-caption);color:var(--txt-3);margin-top:4px">PDF, PNG, JPG, DOCX — حجم أقصى 10MB لكل ملف (حتى 5 ملفات)</div>
               <input #fileInp type="file" id="file-inp" multiple accept=".pdf,.png,.jpg,.jpeg,.docx" style="display:none" (change)="handleFiles($event)">
             </div>
             @if (attachments().length > 0) {

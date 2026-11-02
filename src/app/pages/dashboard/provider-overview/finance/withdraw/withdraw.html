@@ -22,7 +22,15 @@
   <!-- Header -->
   <div class="ord-head">
     <div>
-      <div class="ord-title">{{ isCompany() ? 'سحب أرباح الشركة' : 'سحب الأرباح' }}</div>
+      <h1 class="ord-title">{{ isCompany() ? 'سحب أرباح الشركة' : 'سحب الأرباح' }}</h1>
+      <div class="wd-header-sub">{{ isCompany() ? 'إلى حساب PayPal المسجل للشركة' : 'إلى حساب PayPal المسجل في ملفك' }}</div>
+    </div>
+    <span class="wd-review-badge">مراجعة الإدارة قبل التحويل</span>
+  </div>
+
+  <details class="wd-help">
+    <summary>كيف يعمل السحب؟</summary>
+    <div class="wd-help-content">
       <div class="ord-sub">
         @if (isCompany()) {
           اسحب أرباح الشركة المتراكمة إلى حساب PayPal المسجل للشركة. يُنشأ الطلب قيد المراجعة ويُحجز مبلغه من رصيد الشركة المتاح فور إرساله، ويُحرَّر الحجز إن رُفض الطلب، ويُحوَّل المبلغ عبر PayPal بعد اعتماد الإدارة.
@@ -30,22 +38,21 @@
           اسحب أرباحك المتراكمة إلى حساب PayPal الخاص بك. يُنشأ الطلب قيد المراجعة ويُحجز مبلغه من رصيدك المتاح فور إرساله، ويُحرَّر الحجز إن رُفض الطلب، ويُحوَّل المبلغ عبر PayPal بعد اعتماد الإدارة.
         }
       </div>
+      <!-- Withdrawal review details -->
+      <div class="wd-protection" role="region" aria-label="حماية مالية">
+        <div class="ws-note-ico"><svg aria-hidden="true"><use href="#wd-shield"></use></svg></div>
+        <div class="ws-note-body">
+          @if (isCompany()) {
+            <div class="ws-note-lbl">حماية مالية للشركة</div>
+            <p class="ws-note-txt">جميع طلبات سحب الشركة تمر بمراجعة الإدارة قبل التنفيذ. تحويل عبر PayPal بعد الموافقة.</p>
+          } @else {
+            <div class="ws-note-lbl">حماية مالية</div>
+            <p class="ws-note-txt">جميع طلبات السحب تمر بمراجعة الإدارة قبل التنفيذ. تحويل عبر PayPal بعد الموافقة.</p>
+          }
+        </div>
+      </div>
     </div>
-  </div>
-
-  <!-- AI Disclosure -->
-  <div class="ws-note ws-note--info" role="region" aria-label="حماية مالية">
-    <div class="ws-note-ico"><svg aria-hidden="true"><use href="#wd-shield"></use></svg></div>
-    <div class="ws-note-body">
-      @if (isCompany()) {
-        <div class="ws-note-lbl">حماية مالية للشركة</div>
-        <p class="ws-note-txt">جميع طلبات سحب الشركة تمر بمراجعة الإدارة قبل التنفيذ. تحويل عبر PayPal بعد الموافقة.</p>
-      } @else {
-        <div class="ws-note-lbl">حماية مالية</div>
-        <p class="ws-note-txt">جميع طلبات السحب تمر بمراجعة الإدارة قبل التنفيذ. تحويل عبر PayPal بعد الموافقة.</p>
-      }
-    </div>
-  </div>
+  </details>
 
   <!-- Wallet summary -->
   @if (walletLoading()) {
@@ -67,11 +74,10 @@
     <div class="wal-grid">
       <div class="wal-main">
         <div class="wal-main-lbl">الرصيد المتاح للسحب</div>
-        <div>
+        <div class="wal-number">
           <span class="wal-main-val">{{ availableBalance() | number:'1.0-2' }}</span>
           <span class="wal-main-cur"> {{ currency() }}</span>
         </div>
-        <div class="wal-main-sub">الحد الأقصى المتاح للسحب في هذه العملية@if (pendingWithdrawals() > 0) { <span data-testid="wd-pending-note"> · طلبات سحب قيد المعالجة: {{ pendingWithdrawals() | number:'1.0-2' }} {{ currency() }}</span> }</div>
       </div>
 
       <div class="wal-side">
@@ -79,8 +85,10 @@
           <svg aria-hidden="true"><use href="#wd-earn"></use></svg>
           إجمالي الأرباح
         </div>
-        <div class="wal-side-val txt-teal">{{ totalEarnings() | number:'1.0-2' }}</div>
-        <div class="wal-side-sub">{{ currency() }}</div>
+        <div class="wal-number">
+          <span class="wal-side-val txt-teal">{{ totalEarnings() | number:'1.0-2' }}</span>
+          <span class="wal-side-sub">{{ currency() }}</span>
+        </div>
       </div>
 
       <div class="wal-side">
@@ -88,10 +96,13 @@
           <svg aria-hidden="true"><use href="#wd-escrow"></use></svg>
           محجوز بالضمان
         </div>
-        <div class="wal-side-val txt-amber">{{ escrowBalance() | number:'1.0-2' }}</div>
-        <div class="wal-side-sub">{{ currency() }}</div>
+        <div class="wal-number">
+          <span class="wal-side-val txt-amber">{{ escrowBalance() | number:'1.0-2' }}</span>
+          <span class="wal-side-sub">{{ currency() }}</span>
+        </div>
       </div>
     </div>
+    <div class="wal-main-sub">الحد الأقصى المتاح للسحب في هذه العملية@if (pendingWithdrawals() > 0) { <span data-testid="wd-pending-note"> · طلبات سحب قيد المعالجة: {{ pendingWithdrawals() | number:'1.0-2' }} {{ currency() }}</span> }</div>
   }
 
   <!-- Submit form -->
@@ -120,6 +131,7 @@
       </div>
     }
 
+    <div class="wd-form-layout">
     <div class="wd-form-grid">
       <!-- Amount -->
       <div class="wd-field">
@@ -148,6 +160,7 @@
         </div>
       </div>
 
+      <div class="wd-payout">
       <!-- Method (read-only display) -->
       <div class="wd-field">
         <label class="wd-lbl">طريقة السحب</label>
@@ -174,10 +187,12 @@
           @if (paypalEmail()) { <div class="wd-field-err" role="alert">{{ err }}</div> }
         }
       </div>
+      </div>
     </div>
 
     <!-- Summary -->
     <div class="wd-summary">
+      <h2 class="wd-summary-title">ملخص الطلب</h2>
       <div class="wd-sum-row">
         <span class="wd-sum-key">الرصيد المتاح للسحب</span>
         <span class="wd-sum-val">{{ availableBalance() | number:'1.0-2' }} {{ currency() }}</span>
@@ -192,6 +207,7 @@
         <span class="wd-sum-val wd-sum-remain">{{ remainingBalance() | number:'1.0-2' }} {{ currency() }}</span>
       </div>
       <div class="wd-sum-note">ملاحظة: المبلغ المطلوب يُحجز من رصيدك المتاح للسحب فور إرسال الطلب، ويُحرَّر إن رُفض الطلب.</div>
+    </div>
     </div>
 
     <div class="wd-form-actions">

@@ -8,9 +8,9 @@
 			</svg>
 		</div>
 		<div>
-			<div class="text-[14px] font-extrabold text-[#A56BE0] mb-1">توجيه الذكاء الاصطناعي — البناء
+			<div class="text-[length:var(--font-size-label)] font-extrabold text-[#A56BE0] mb-1">توجيه الذكاء الاصطناعي — البناء
 				المرن والتوزيع التلقائي للمراحل</div>
-			<div class="text-[13px] text-[var(--txt-2)] leading-[1.6]">
+			<div class="text-[length:var(--font-size-label)] text-[var(--txt-2)] leading-[1.6]">
 				يمكنك صياغة المراحل وتحديد المدد بنفسك، أو <strong class="text-[#2BD4C7]">الضغط على زر إنشاء
 					المراحل بالذكاء الاصطناعي</strong> ليقوم المستشار الذكي بقراءة عنوان ووصف مشروعك وتصميم
 				مراحل متسلسلة ومخصصة تماماً لمجالك مع توزيع النسب بشكل دقيق.
@@ -22,25 +22,25 @@
 	<div
 		class="bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[16px] p-6 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
 		<div>
-			<h3 class="text-[16px] font-extrabold text-[var(--txt)] mb-1">الميزانية الإجمالية التقديرية
+			<h3 class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)] mb-1">الميزانية الإجمالية التقديرية
 				للمشروع <span class="ws-req" aria-hidden="true">*</span></h3>
-			<p class="text-[13px] text-[var(--txt-3)]">حدد القيمة الإجمالية بالدولار الأمريكي وسيتم حساب
+			<p class="text-[length:var(--font-size-label)] text-[var(--txt-3)]">حدد القيمة الإجمالية بالدولار الأمريكي وسيتم حساب
 				توزيعات المراحل تلقائياً.</p>
 		</div>
 		<div class="flex items-center gap-3 shrink-0">
 			<input type="number" id="np-total-amount" aria-required="true" name="totalAmount" data-field="totalAmount" min="0" inputmode="decimal" placeholder="أدخل المبلغ بالدولار" aria-label="الميزانية الإجمالية بالدولار" [value]="totalAmount ?? ''" (input)="updateTotalAmount($event)"
 				class="w-[180px] text-center bg-[var(--sec-bg)] border-2 border-[#2BD4C7] rounded-xl px-4 py-2.5 text-[22px] font-black text-[#2BD4C7] outline-none shadow-[0_0_15px_rgba(43,212,199,.2)]">
-			<span class="text-[16px] font-extrabold text-[var(--txt)]">$</span>
+			<span class="text-[length:var(--font-size-body)] font-extrabold text-[var(--txt)]">$</span>
 		</div>
 	</div>
 
 	<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 px-1">
-		<div class="text-[16px] font-black text-[var(--txt)] flex items-center gap-2">
+		<div class="text-[length:var(--font-size-body)] font-black text-[var(--txt)] flex items-center gap-2">
 			<span>📋</span> <span>مراحل تنفيذ العمل والدفعات</span>
 		</div>
 		<div class="flex flex-wrap items-center gap-2.5">
 			<button type="button" (click)="onSuggestMilestones.emit()" [disabled]="isAiSuggestingMilestones"
-				class="flex items-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-[rgba(123,47,190,.28)] to-[rgba(43,127,255,.22)] border border-[#A56BE0] rounded-xl text-white text-[13px] font-black hover:opacity-90 transition-all shadow-[0_4px_15px_rgba(123,47,190,0.35)] disabled:opacity-50">
+				class="flex items-center gap-2 px-4.5 py-2.5 bg-gradient-to-r from-[rgba(123,47,190,.28)] to-[rgba(43,127,255,.22)] border border-[#A56BE0] rounded-xl text-white text-[length:var(--font-size-label)] font-black hover:opacity-90 transition-all shadow-[0_4px_15px_rgba(123,47,190,0.35)] disabled:opacity-50">
 				@if (isAiSuggestingMilestones) {
 				<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
 				<span>جارٍ هندسة المراحل بذكاء...</span>
@@ -53,7 +53,7 @@
 			</button>
 
 			<button type="button" (click)="onAddStage.emit()" [disabled]="isAiSuggestingMilestones"
-				class="flex items-center gap-1.5 px-4 py-2.5 bg-[rgba(43,212,199,.15)] border border-[#2BD4C7] rounded-xl text-[#2BD4C7] text-[13px] font-black hover:bg-[#2BD4C7] hover:text-[#070D24] transition-all shadow-[0_4px_12px_rgba(43,212,199,.2)] disabled:opacity-50">
+				class="flex items-center gap-1.5 px-4 py-2.5 bg-[rgba(43,212,199,.15)] border border-[#2BD4C7] rounded-xl text-[#2BD4C7] text-[length:var(--font-size-label)] font-black hover:bg-[#2BD4C7] hover:text-[#070D24] transition-all shadow-[0_4px_12px_rgba(43,212,199,.2)] disabled:opacity-50">
 				<span>+</span> <span>إضافة مرحلة جديدة يدوياً</span>
 			</button>
 		</div>
@@ -64,60 +64,60 @@
 		<div
 			class="bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[16px] p-5 shadow-sm hover:border-[var(--sec-hov)] transition-all">
 			<div class="flex items-center justify-between mb-4 border-b border-[var(--sec-bd)] pb-3">
-				<div class="text-[14px] font-black text-[var(--txt)] flex items-center gap-2.5">
+				<div class="text-[length:var(--font-size-label)] font-black text-[var(--txt)] flex items-center gap-2.5">
 					<span
-						class="bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-black shadow-sm">{{$index
+						class="bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] w-7 h-7 rounded-full flex items-center justify-center text-[length:var(--font-size-small)] font-black shadow-sm">{{$index
 						+ 1}}</span>
 					<span>المرحلة {{ ['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة'][$index] ||
 						($index+1) }}</span>
 				</div>
 				@if (stages.length > 1) {
 				<button type="button" (click)="onRemoveStage.emit($index)"
-					class="text-[#FF8080] text-[12px] font-bold px-3 py-1 bg-[rgba(255,80,80,.08)] border border-[rgba(255,80,80,.18)] rounded-lg hover:bg-[rgba(255,80,80,.15)] transition-colors">حذف
+					class="text-[#FF8080] text-[length:var(--font-size-small)] font-bold px-3 py-1 bg-[rgba(255,80,80,.08)] border border-[rgba(255,80,80,.18)] rounded-lg hover:bg-[rgba(255,80,80,.15)] transition-colors">حذف
 					المرحلة ✕</button>
 				}
 			</div>
 
 			<div class="grid grid-cols-1 md:grid-cols-[1fr_150px] gap-4 mb-4">
 				<div>
-					<label class="block text-[12px] text-[var(--txt-2)] font-bold mb-1.5">عنوان المرحلة
+					<label class="block text-[length:var(--font-size-small)] text-[var(--txt-2)] font-bold mb-1.5">عنوان المرحلة
 						<span class="ws-req" aria-hidden="true">*</span></label>
 					<input type="text" aria-required="true" [attr.id]="'np-stage-title-' + $index" [attr.name]="'stageTitle' + $index" [attr.data-field]="'stageTitle' + $index" [value]="stage.title" placeholder="مثال: التصميم الأولي ومناقشة المقترح"
 						(input)="updateStage($index, 'title', $event)"
-						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-3.5 py-2.5 text-[13px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors">
+						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-3.5 py-2.5 text-[length:var(--font-size-label)] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors">
 				</div>
 				<div>
-					<label class="block text-[12px] text-[var(--txt-2)] font-bold mb-1.5">مدة التسليم
+					<label class="block text-[length:var(--font-size-small)] text-[var(--txt-2)] font-bold mb-1.5">مدة التسليم
 						(بالأيام) <span class="ws-req" aria-hidden="true">*</span></label>
 					<input type="number" aria-required="true" min="1" placeholder="عدد الأيام" [attr.id]="'np-stage-days-' + $index" [attr.name]="'stageDays' + $index" [attr.data-field]="'stageDays' + $index" [value]="stage.days ?? ''" (input)="updateStage($index, 'days', $event)"
-						class="w-full text-center bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-3.5 py-2.5 text-[14px] font-bold text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors">
+						class="w-full text-center bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-3.5 py-2.5 text-[length:var(--font-size-label)] font-bold text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors">
 				</div>
 			</div>
 
 			<div class="grid grid-cols-1 md:grid-cols-[1fr_120px_160px] gap-4 items-end">
 				<div>
-					<label class="block text-[12px] text-[var(--txt-2)] font-bold mb-1.5">وصف مخرجات
+					<label class="block text-[length:var(--font-size-small)] text-[var(--txt-2)] font-bold mb-1.5">وصف مخرجات
 						المرحلة</label>
 					<input type="text" [value]="stage.desc"
 						placeholder="اشرح للعميل ما الذي سيتم تسليمه عند إتمام هذه المرحلة..."
 						(input)="updateStage($index, 'desc', $event)"
-						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-3.5 py-2.5 text-[13px] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors">
+						class="w-full bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-3.5 py-2.5 text-[length:var(--font-size-label)] text-[var(--txt)] outline-none focus:border-[#2BD4C7] transition-colors">
 				</div>
 				<div>
-					<label class="block text-[12px] text-[var(--txt-2)] font-bold mb-1.5">النسبة (%) <span
+					<label class="block text-[length:var(--font-size-small)] text-[var(--txt-2)] font-bold mb-1.5">النسبة (%) <span
 							class="ws-req" aria-hidden="true">*</span></label>
 					<div class="relative">
 						<input type="number" aria-required="true" min="1" max="100" placeholder="النسبة" [attr.id]="'np-stage-percentage-' + $index" [attr.name]="'stagePercentage' + $index" [attr.data-field]="'stagePercentage' + $index" [value]="stage.percentage ?? ''"
 							(input)="updateStage($index, 'percentage', $event)"
-							class="w-full text-center bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-3 py-2.5 text-[14px] font-black text-[#2BD4C7] outline-none focus:border-[#2BD4C7] transition-colors">
-						<span class="absolute left-3 top-3 text-[12px] font-bold text-[#2BD4C7]">%</span>
+							class="w-full text-center bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-3 py-2.5 text-[length:var(--font-size-label)] font-black text-[#2BD4C7] outline-none focus:border-[#2BD4C7] transition-colors">
+						<span class="absolute left-3 top-3 text-[length:var(--font-size-small)] font-bold text-[#2BD4C7]">%</span>
 					</div>
 				</div>
 				<div>
-					<label class="block text-[12px] text-[var(--txt-3)] font-bold mb-1.5">القيمة المقابلة
+					<label class="block text-[length:var(--font-size-small)] text-[var(--txt-3)] font-bold mb-1.5">القيمة المقابلة
 						للمرحلة</label>
 					<div
-						class="w-full bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.35)] rounded-xl px-3 py-2.5 text-[14px] text-[#2BD4C7] font-black text-center shadow-inner">
+						class="w-full bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.35)] rounded-xl px-3 py-2.5 text-[length:var(--font-size-label)] text-[#2BD4C7] font-black text-center shadow-inner">
 						{{ getAmountForStage(stage.percentage) | number:'1.0-0' }} $
 					</div>
 				</div>
@@ -128,10 +128,10 @@
 
 	<div class="bg-[var(--crd-bg)] border border-[var(--crd-bd)] rounded-[18px] p-6 shadow-md">
 		<div class="flex items-center justify-between mb-3">
-			<div class="text-[15px] font-black text-[var(--txt)] flex items-center gap-2">
+			<div class="text-[length:var(--font-size-body)] font-black text-[var(--txt)] flex items-center gap-2">
 				<span>📊</span> <span>ملخص توزيع الدفعات والمدد الزمنية</span>
 			</div>
-			<div class="text-[14px] font-black" [class]="totalPercentage === 100 ? 'text-[#2BD4C7]' : 'text-[var(--red)]'">
+			<div class="text-[length:var(--font-size-label)] font-black" [class]="totalPercentage === 100 ? 'text-[#2BD4C7]' : 'text-[var(--red)]'">
 				المجموع: {{totalPercentage}}% {{ totalPercentage !== 100 ? '(يجب أن يساوي 100%)' : '✓
 				صحيح' }}
 			</div>
@@ -143,7 +143,7 @@
 		</div>
 
 		<div
-			class="text-[12px] font-bold text-[var(--txt-3)] mb-3 border-b border-[var(--sec-bd)] pb-2 grid grid-cols-[1fr_100px_100px_130px] text-center">
+			class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)] mb-3 border-b border-[var(--sec-bd)] pb-2 grid grid-cols-[1fr_100px_100px_130px] text-center">
 			<div class="text-right pr-2">اسم المرحلة</div>
 			<div>المدة الزمنية</div>
 			<div>النسبة المئوية</div>
@@ -155,13 +155,13 @@
 			<div
 				class="grid grid-cols-[1fr_100px_100px_130px] items-center py-2 px-2 rounded-xl bg-[var(--sec-bg)]/50 border border-[var(--sec-bd)]/60 text-center">
 				<div class="text-right">
-					<div class="text-[13px] font-extrabold text-[var(--txt)]">{{$index + 1}}. {{stage.title || 'بدون
+					<div class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt)]">{{$index + 1}}. {{stage.title || 'بدون
 						اسم'}}</div>
-					<div class="text-[11px] text-[var(--txt-3)] truncate">{{stage.desc}}</div>
+					<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] truncate">{{stage.desc}}</div>
 				</div>
-				<div class="text-[12px] font-bold text-[var(--txt)]">{{stage.days || 0}} يوم</div>
-				<div class="text-[13px] text-[#2BD4C7] font-black">{{stage.percentage || 0}}%</div>
-				<div class="text-[13px] text-[#2BD4C7] font-black">{{ getAmountForStage(stage.percentage) |
+				<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt)]">{{stage.days || 0}} يوم</div>
+				<div class="text-[length:var(--font-size-label)] text-[#2BD4C7] font-black">{{stage.percentage || 0}}%</div>
+				<div class="text-[length:var(--font-size-label)] text-[#2BD4C7] font-black">{{ getAmountForStage(stage.percentage) |
 					number:'1.0-0' }} $</div>
 			</div>
 			}
@@ -169,11 +169,11 @@
 
 		<div
 			class="grid grid-cols-[1fr_100px_100px_130px] items-center py-4 px-2 mt-4 border-t-2 border-[var(--sec-bd)] text-center bg-[var(--sec-bg)] rounded-xl font-black">
-			<div class="text-[15px] text-[var(--txt)] text-right pr-2">الإجمالي النهائي</div>
-			<div class="text-[14px] text-[var(--txt)]">{{totalDays}} يوم</div>
-			<div class="text-[14px]" [class]="totalPercentage === 100 ? 'text-[#2BD4C7]' : 'text-[var(--red)]'">
+			<div class="text-[length:var(--font-size-body)] text-[var(--txt)] text-right pr-2">الإجمالي النهائي</div>
+			<div class="text-[length:var(--font-size-label)] text-[var(--txt)]">{{totalDays}} يوم</div>
+			<div class="text-[length:var(--font-size-label)]" [class]="totalPercentage === 100 ? 'text-[#2BD4C7]' : 'text-[var(--red)]'">
 				{{totalPercentage}}%</div>
-			<div class="text-[15px] text-[#2BD4C7]">{{ totalAmount === null ? '—' : (totalAmount | number:'1.0-0') + ' $' }}</div>
+			<div class="text-[length:var(--font-size-body)] text-[#2BD4C7]">{{ totalAmount === null ? '—' : (totalAmount | number:'1.0-0') + ' $' }}</div>
 		</div>
 	</div>
 </div>

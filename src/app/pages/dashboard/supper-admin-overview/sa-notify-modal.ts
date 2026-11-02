@@ -14,8 +14,8 @@ import { environment } from '../../../../environments/environment';
 	template: `
 		<div class="modal-overlay" (click)="close()" style="position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:950">
 			<div class="modal-card" (click)="$event.stopPropagation()" style="background:var(--crd-bg,#0f1530);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:20px;max-width:440px;width:92%" role="dialog" aria-modal="true">
-				<h3 style="margin:0 0 6px;font-size:16px">إرسال رسالة إلى {{ userName }}</h3>
-				<p style="font-size:12px;opacity:.75;margin:0 0 10px">تصل الرسالة كإشعار داخل المنصة (وعبر قنوات المستخدم المفعّلة) ويُسجَّل الإرسال في سجل التدقيق.</p>
+				<h3 style="margin:0 0 6px;font-size:var(--font-size-body)">إرسال رسالة إلى {{ userName }}</h3>
+				<p style="font-size:var(--font-size-small);opacity:.75;margin:0 0 10px">تصل الرسالة كإشعار داخل المنصة (وعبر قنوات المستخدم المفعّلة) ويُسجَّل الإرسال في سجل التدقيق.</p>
 				<textarea id="sa-notify-message" rows="4" style="width:100%" maxlength="500" aria-label="نص الرسالة" placeholder="اكتب الرسالة (5 أحرف على الأقل)" [value]="message()" (input)="message.set($any($event.target).value)"></textarea>
 				@if (error()) { <p role="alert" style="color:#FF6B6B;font-size:12px" data-testid="notify-error">{{ error() }}</p> }
 				@if (unconfirmed()) { <p role="status" style="font-size:12px" data-testid="notify-unconfirmed">انقطع الاتصال قبل وصول الرد، فقد تكون الرسالة أُرسلت. لتجنّب إرسالها مرتين لا يمكن إعادة الإرسال من هذه النافذة: تحقق من <a href="/supper-admin-overview/audit-trail" target="_blank" rel="noopener">سجل التدقيق</a> ثم أغلقها وافتحها من جديد إن لم تجد الرسالة.</p> }

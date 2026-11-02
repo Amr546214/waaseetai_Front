@@ -1,3 +1,4 @@
+<h1 class="sr-only">الرسائل</h1>
 @if (isCompanyMode()) {
 <!-- ===== Company Messages (P-CO-AC-008) ===== -->
 <nav class="co-msg-bc" dir="rtl">
@@ -110,7 +111,7 @@
               {{ msg.senderInitials }}
             </div>
             <div class="mcontent">
-              <div class="bbl" [class.mine]="msg.sender === 'me'" [class.other]="msg.sender === 'other'">
+              <div class="bbl" [class.mine]="msg.sender === 'me'" [class.other]="msg.sender === 'other'" [class.bbl-card]="isNegotiationMsg(msg)">
                 @if (msg.context) {
                   <div class="msg-ctx-preview" (click)="contextClick(msg.context)">
                     <div class="msg-ctx-label">{{ contextLabel(msg.context) }}</div>
@@ -128,7 +129,7 @@
                     <img [src]="msg.fileUrl" alt="صورة مرفقة" />
                   </div>
                   @if (msg.text && msg.text !== 'مرفق صورة') {
-                    <div class="mt-1 text-[13px]">{{ msg.text }}</div>
+                    <div class="mt-1 text-[length:var(--font-size-label)]">{{ msg.text }}</div>
                   }
                 } 
                 <!-- 2) Audio Voice Note Message -->
@@ -149,7 +150,7 @@
                     <span class="audio-duration-txt">{{ formatDuration(msg.audioDuration) }}</span>
                   </div>
                   @if (msg.text && msg.text !== '🎤 رسالة صوتية') {
-                    <div class="mt-1 text-[12px] opacity-80 px-2">{{ msg.text }}</div>
+                    <div class="mt-1 text-[length:var(--font-size-small)] opacity-80 px-2">{{ msg.text }}</div>
                   }
                 } 
                 <!-- 3) File Document Message -->
@@ -290,7 +291,7 @@
           <div class="rec-toolbar">
             <div class="rec-indicator">
               <span class="rec-dot"></span>
-              <span class="text-[13px] font-bold text-white">جارٍ تسجيل مقطع صوتي...</span>
+              <span class="text-[length:var(--font-size-label)] font-bold text-white">جارٍ تسجيل مقطع صوتي...</span>
               <span class="rec-timer">{{ formattedRecordingTime() }}</span>
             </div>
             <div class="rec-actions">

@@ -58,13 +58,13 @@ import { AiResult, MetricSummaryDetails, isRealAi } from '../../core/models/ai-r
 		.ws-arc-ico { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(123,47,190,.15); color: #A56BE0; }
 		.ws-arc-neutral { background: rgba(255,255,255,.06); color: var(--txt-3, #8892b0); }
 		.ws-arc-body { flex: 1; min-width: 0; }
-		.ws-arc-ttl { font-size: 11px; font-weight: 900; letter-spacing: .04em; margin-bottom: 4px; color: var(--txt, inherit); }
+		.ws-arc-ttl { font-size: var(--font-size-small); font-weight: 900; letter-spacing: .04em; margin-bottom: 4px; color: var(--txt, inherit); }
 		.ws-arc-ai .ws-arc-ttl { color: #A56BE0; }
-		.ws-arc-txt { margin: 0 0 4px; font-size: 12.5px; line-height: 1.75; color: var(--txt-3, #8892b0); }
-		.ws-arc-list { margin: 4px 0; padding-inline-start: 18px; font-size: 12.5px; line-height: 1.75; color: var(--txt-3, #8892b0); list-style: disc; }
-		.ws-arc-sub { margin-top: 6px; font-size: 11px; font-weight: 800; color: var(--txt, inherit); }
-		.ws-arc-note { margin-top: 6px; font-size: 10.5px; font-weight: 700; color: var(--txt-3, #8892b0); opacity: .8; }
-		.ws-arc-retry { margin-top: 4px; font-size: 11.5px; font-weight: 800; padding: 4px 12px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.15)); background: transparent; color: inherit; cursor: pointer; }
+		.ws-arc-txt { margin: 0 0 4px; font-size: var(--font-size-label); line-height: 1.75; color: var(--txt-3, #8892b0); }
+		.ws-arc-list { margin: 4px 0; padding-inline-start: 18px; font-size: var(--font-size-label); line-height: 1.75; color: var(--txt-3, #8892b0); list-style: disc; }
+		.ws-arc-sub { margin-top: 6px; font-size: var(--font-size-small); font-weight: 800; color: var(--txt, inherit); }
+		.ws-arc-note { margin-top: 6px; font-size: var(--font-size-small); font-weight: 700; color: var(--txt-3, #8892b0); opacity: .8; }
+		.ws-arc-retry { margin-top: 4px; font-size: var(--font-size-small); font-weight: 800; padding: 4px 12px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.15)); background: transparent; color: inherit; cursor: pointer; }
 	`],
 })
 export class AiResultCardComponent {

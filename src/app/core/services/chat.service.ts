@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, PLATFORM_ID, NgZone } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, Subject, tap } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
@@ -237,7 +238,7 @@ export class ChatService {
   }
 
   public uploadAttachment(payload: { conversationId?: string; fileData: string; fileName: string; fileType: 'IMAGE' | 'FILE' | 'AUDIO'; fileSize?: number; audioDuration?: number }): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/upload`, payload);
+    return this.http.post<any>(`${this.apiUrl}/upload`, payload, { context: new HttpContext().set(SKIP_LOADING, true) });
   }
 
   /**

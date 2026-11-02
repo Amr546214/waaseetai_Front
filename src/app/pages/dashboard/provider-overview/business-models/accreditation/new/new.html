@@ -2,10 +2,10 @@
 	<!-- Breadcrumb -->
 	<nav class="flex items-center justify-center gap-2 text-xs text-[var(--txt-3)] mb-6 dir-rtl">
 		<a routerLink="/provider-overview" class="hover:text-[var(--txt-2)] transition-colors">لوحة التحكم</a>
-		<span class="text-[10px] opacity-70">‹</span>
+		<span class="text-[length:var(--font-size-caption)] opacity-70">‹</span>
 			<a routerLink="/provider-overview/business-models/accreditation/list"
 			class="hover:text-[var(--txt-2)] transition-colors">نماذج الاعتماد الفني</a>
-		<span class="text-[10px] opacity-70">‹</span>
+		<span class="text-[length:var(--font-size-caption)] opacity-70">‹</span>
 		<span class="text-[var(--txt-2)] font-semibold">
 			{{ currentStep() === 1 ? 'اختيار التخصص' : currentStep() === 2 ? 'رفع النموذج والمرفقات' : 'المراجعة اليدوية' }}
 		</span>
@@ -112,7 +112,7 @@
 
 		<!-- Next Action -->
 		<div style="display:flex;align-items:center;gap:12px">
-			<span *ngIf="currentStep() === 1 && !isCurrentStepValid" style="font-size:12px" class="txt-muted">اختر تخصصاً
+			<span *ngIf="currentStep() === 1 && !isCurrentStepValid" style="font-size:var(--font-size-small)" class="txt-muted">اختر تخصصاً
 				واحداً على الأقل</span>
 
 			<button type="button" class="btn-next" [disabled]="currentStep() === 1 && !isCurrentStepValid" (click)="goNext()">

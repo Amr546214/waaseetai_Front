@@ -16,7 +16,7 @@
 }
 
 .featured-subtitle {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: var(--txt-2);
   margin-top: 2px;
 }

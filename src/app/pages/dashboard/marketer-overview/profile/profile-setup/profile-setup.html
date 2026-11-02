@@ -9,7 +9,7 @@
   </div>
 
   <h2 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">استكمال بياناتك</h2>
-  <p style="font-size:13px;margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — الوصف التسويقي وقناة تسويق واحدة مطلوبان لإتمام الإعداد، أما بريد PayPal فيمكن إضافته لاحقًا من صفحة ملفي التسويقي</p>
+  <p style="font-size:var(--font-size-label);margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — الوصف التسويقي وقناة تسويق واحدة مطلوبان لإتمام الإعداد، أما بريد PayPal فيمكن إضافته لاحقًا من صفحة ملفي التسويقي</p>
 
   @if (isLoading()) {
     <div class="adm-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
@@ -133,8 +133,8 @@
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.07)">
           <div style="width:44px;height:44px;border-radius:12px;background:rgba(43,212,199,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#2BD4C7"><svg width="20" height="20" aria-hidden="true"><use href="#i-check"></use></svg></div>
           <div>
-            <div style="font-size:16px;font-weight:900" class="txt-white">ملخص استكمال الملف</div>
-            <div style="font-size:12px" class="txt-muted">نسبة اكتمال الملف: {{ completionPercentage() }}%</div>
+            <div style="font-size:var(--font-size-body);font-weight:900" class="txt-white">ملخص استكمال الملف</div>
+            <div style="font-size:var(--font-size-small)" class="txt-muted">نسبة اكتمال الملف: {{ completionPercentage() }}%</div>
           </div>
         </div>
         <ws-completion-box [items]="missingItems()" (select)="openMissingItem($event)" />

@@ -23,7 +23,7 @@
   color: #fff;
 }
 .ord-sub {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   margin-top: 3px;
 }
@@ -42,7 +42,7 @@
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 9px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   color: #A8B2D1;
   cursor: pointer;
@@ -86,14 +86,14 @@
   flex: 1;
 }
 .ai-disc-lbl {
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   color: var(--ai-txt, #A56BE0);
   letter-spacing: 0.06em;
   margin-bottom: 2px;
 }
 .ai-disc-txt {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #A8B2D1;
   margin: 0;
   display: flex;
@@ -106,7 +106,7 @@
   border: 1px solid rgba(123, 47, 190, 0.28);
   border-radius: 4px;
   padding: 1px 7px;
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   color: var(--ai-txt, #A56BE0);
 }
@@ -136,7 +136,7 @@
   padding: 16px 18px;
 }
 .kpi-lbl {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   margin-bottom: 5px;
 }
@@ -162,12 +162,12 @@
   justify-content: space-between;
 }
 .kpi-trend {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   color: #0FA99A;
 }
 .kpi-unit {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #6B7699;
 }
 
@@ -215,13 +215,13 @@
   flex: 1;
 }
 .ai-insight-lbl {
-  font-size: 11.5px;
+  font-size: var(--font-size-small);
   font-weight: 800;
   color: #A56BE0;
   margin-bottom: 3px;
 }
 .ai-insight-txt {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #A8B2D1;
   line-height: 1.6;
 }
@@ -249,7 +249,7 @@
   border: none;
   border-bottom: 2.5px solid transparent;
   padding: 12px 18px;
-  font-size: 13.5px;
+  font-size: var(--font-size-label);
   font-weight: 700;
   color: #6B7699;
   cursor: pointer;
@@ -269,7 +269,7 @@
   height: 18px;
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.07);
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   display: inline-flex;
   align-items: center;
@@ -311,7 +311,7 @@
   align-items: center;
   justify-content: center;
   padding: 0 6px;
-  font-size: 9.5px;
+  font-size: var(--font-size-caption);
   font-weight: 900;
   letter-spacing: 0.5px;
   text-align: center;
@@ -339,7 +339,7 @@
   margin: 0 5px;
 }
 .tf-sub-lbl {
-  font-size: 9.5px;
+  font-size: var(--font-size-caption);
   font-weight: 900;
   color: #4A80CC;
   letter-spacing: 0.4px;
@@ -354,7 +354,7 @@
   gap: 5px;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 11.5px;
+  font-size: var(--font-size-small);
   font-weight: 600;
   border: 1px solid rgba(255, 255, 255, 0.09);
   background: rgba(255, 255, 255, 0.04);
@@ -382,7 +382,7 @@
   height: 17px;
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.12);
-  font-size: 10px;
+  font-size: var(--font-size-caption);
   font-weight: 800;
   display: inline-flex;
   align-items: center;
@@ -404,7 +404,7 @@
 
 /* Results badge + sort */
 .results-badge {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   padding: 3px 10px;
   border-radius: 20px;
@@ -418,7 +418,7 @@
   gap: 5px;
   padding: 4px 11px;
   border-radius: 9px;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -446,7 +446,7 @@
   padding: 18px;
 }
 .chart-ttl {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 800;
   margin-bottom: 14px;
   display: flex;
@@ -470,7 +470,7 @@
 }
 .bar-label {
   width: 88px;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #A8B2D1;
   white-space: nowrap;
 }
@@ -486,14 +486,14 @@
   border-radius: 4px;
 }
 .bar-num {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   min-width: 28px;
   text-align: end;
   color: #fff;
 }
 .bar-pct {
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 800;
   min-width: 36px;
   text-align: end;
@@ -509,7 +509,7 @@
   gap: 5px;
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -565,7 +565,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 800;
   color: #fff;
 }
@@ -577,12 +577,12 @@
   width: 100%;
   min-width: 500px;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--font-size-label);
 }
 .rep-tbl th {
   text-align: start;
   padding: 10px 12px;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 800;
   color: #6B7699;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
@@ -605,7 +605,7 @@
   font-weight: 700;
 }
 .td-sub {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: #6B7699;
   margin-top: 2px;
 }
@@ -624,7 +624,7 @@
   justify-content: space-between;
   padding: 10px 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #6B7699;
 }
 .pg-btns {
@@ -638,7 +638,7 @@
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #6B7699;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -669,11 +669,11 @@
   align-items: center;
 }
 .kv-lbl {
-  font-size: 13px;
+  font-size: var(--font-size-label);
   color: #A8B2D1;
 }
 .kv-val {
-  font-size: 18px;
+  font-size: var(--font-size-section);
   font-weight: 900;
   color: #fff;
   display: inline-flex;
@@ -691,7 +691,7 @@
   padding: 32px;
   text-align: center;
   color: #6B7699;
-  font-size: 13px;
+  font-size: var(--font-size-label);
   font-weight: 700;
 }
 
@@ -722,7 +722,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  font-size: 15px;
+  font-size: var(--font-size-body);
   font-weight: 900;
   color: #fff;
 }
@@ -740,7 +740,7 @@
 .dp-body {
   text-align: center;
   color: #6B7699;
-  font-size: 13px;
+  font-size: var(--font-size-label);
 }
 .dp-apply {
   margin-top: 18px;

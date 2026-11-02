@@ -77,7 +77,7 @@ import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.c
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 9px;
-      font-size: 13px;
+      font-size: var(--font-size-label);
       font-weight: 800;
       color: var(--txt, #fff);
       cursor: pointer;
@@ -118,7 +118,7 @@ import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.c
       border: 1px solid var(--sec-bd, rgba(255,255,255,.10));
       border-radius: 10px;
       padding: 10px 14px;
-      font-size: 14px;
+      font-size: var(--font-size-label);
       color: var(--txt, #fff);
       font-family: inherit;
       width: 100%;

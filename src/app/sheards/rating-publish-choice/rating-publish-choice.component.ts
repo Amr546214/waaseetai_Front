@@ -24,8 +24,8 @@ import { PUBLISH_EXPLAIN_AR } from '../../core/models/rating.model';
 	styles: [`
 :host{display:block}
 .rpc{margin:8px 0 14px}
-.rpc-row{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:700;cursor:pointer}
-.rpc-explain{list-style:none;margin:8px 0 0;padding:0;font-size:12px;line-height:1.7;opacity:.75}
+.rpc-row{display:flex;gap:8px;align-items:center;font-size:var(--font-size-label);font-weight:700;cursor:pointer}
+.rpc-explain{list-style:none;margin:8px 0 0;padding:0;font-size:var(--font-size-small);line-height:1.7;opacity:.75}
 .rpc-explain li{padding-inline-start:4px}
 .rpc-explain li.rpc-on{opacity:1;font-weight:700;color:#2BD4C7}
 `]

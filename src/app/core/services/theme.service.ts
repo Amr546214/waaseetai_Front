@@ -32,21 +32,31 @@ export class ThemeService {
 		this.theme.set(newTheme);
 		if (isPlatformBrowser(this.platformId)) {
 			localStorage.setItem(this.THEME_KEY, newTheme);
+			try { localStorage.setItem('ws-theme', newTheme); } catch {}
 			const html = document.documentElement;
 			const body = document.body;
 			if (newTheme === 'dark') {
-				body.classList.remove('light-theme', 'theme-light');
-				html.classList.remove('light-theme', 'theme-light');
-				html.classList.add('dark');
 				html.setAttribute('data-theme', 'dark');
-				html.style.background = '#070D24';
+				body.setAttribute('data-theme', 'dark');
+				html.classList.add('dark');
+				body.classList.add('dark');
+				body.classList.remove('light-theme', 'theme-light', 'light');
+				html.classList.remove('light-theme', 'theme-light', 'light');
+				html.style.background = 'var(--pg)';
+				body.style.background = 'var(--pg)';
 			} else {
+				html.setAttribute('data-theme', 'light');
+				body.setAttribute('data-theme', 'light');
+				body.classList.remove('dark');
+				html.classList.remove('dark');
 				body.classList.add('light-theme', 'theme-light');
 				html.classList.add('light-theme', 'theme-light');
-				html.classList.remove('dark');
-				html.setAttribute('data-theme', 'light');
-				html.style.background = '#EEF2FA';
+				html.style.background = 'var(--pg)';
+				body.style.background = 'var(--pg)';
 			}
+			try {
+				window.dispatchEvent(new CustomEvent('ws-theme-change', { detail: newTheme }));
+			} catch {}
 		}
 	}
 

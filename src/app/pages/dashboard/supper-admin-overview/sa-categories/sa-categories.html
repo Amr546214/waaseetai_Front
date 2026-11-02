@@ -50,7 +50,7 @@
         </table>
       </div>
       <button type="button" class="cat-tier-edit-btn" disabled [title]="readOnlyReason" style="opacity:.5;cursor:not-allowed;margin-top:10px">تعديل الشروط</button>
-      <div class="txt-muted" style="font-size:11.5px;margin-top:6px">{{ readOnlyReason }}.</div>
+      <div class="txt-muted" style="font-size:var(--font-size-small);margin-top:6px">{{ readOnlyReason }}.</div>
     </div>
 
     <div class="cat-card">
@@ -85,7 +85,7 @@
 
     <div class="cat-card">
       <div class="cat-card-ttl">محاكاة تغيير الشروط</div>
-      <div class="txt-muted" style="font-size:11.5px">معطّلة: لا يوجد مصدر لحساب عدد المؤهلين بشروط افتراضية، ولا يمكن تعديل الشروط من الواجهة. {{ readOnlyReason }}.</div>
+      <div class="txt-muted" style="font-size:var(--font-size-small)">معطّلة: لا يوجد مصدر لحساب عدد المؤهلين بشروط افتراضية، ولا يمكن تعديل الشروط من الواجهة. {{ readOnlyReason }}.</div>
     </div>
   }
 </section>

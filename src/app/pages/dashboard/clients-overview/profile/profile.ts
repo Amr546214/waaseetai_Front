@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, DestroyRef, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../core/services/profile-api.service';
+import { Subscription } from 'rxjs';
 
 import { levelDisplayFromInfo } from '../../../../core/levels/level-display';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
@@ -16,9 +17,16 @@ type ProfileTab = 'info' | 'interests' | 'links' | 'activity';
 	templateUrl: './profile.html',
 	styleUrl: './profile.css',
 })
-export class Profile implements OnInit {
+export class Profile {
 	authStore = inject(AuthStore);
 	profileApi = inject(ProfileApiService);
+	private destroyRef = inject(DestroyRef);
+	private profileRequest?: Subscription;
+	private requestVersion = 0;
+	private sessionKey = computed(() => {
+		const user = this.authStore.currentUser();
+		return JSON.stringify([user?.id, user?.activeRole, user?.accountType, this.authStore.token()]);
+	});
 
 	activeTab = signal<ProfileTab>('info');
 	isLoading = signal<boolean>(true);
@@ -29,17 +37,32 @@ export class Profile implements OnInit {
 	// The full merged profile data from the backend
 	profileData = signal<any>(null);
 
-	ngOnInit() {
-		this.loadProfile();
+	constructor() {
+		this.destroyRef.onDestroy(() => this.profileRequest?.unsubscribe());
+		effect(() => {
+			this.sessionKey();
+			untracked(() => this.loadProfile());
+		});
 	}
 
 	loadProfile() {
+		const sessionKey = this.sessionKey();
+		const requestVersion = ++this.requestVersion;
+		this.profileRequest?.unsubscribe();
+		this.profileData.set(null);
 		this.isLoading.set(true);
 		this.errorMsg.set(null);
 		this.avatarError.set(false);
+		this.activeTab.set('info');
+		this.showBanner = true;
+		if (!this.authStore.currentUser() || !this.authStore.token()) {
+			this.isLoading.set(false);
+			return;
+		}
 
-		this.profileApi.getMyProfile().subscribe({
+		this.profileRequest = this.profileApi.getMyProfile().subscribe({
 			next: (res) => {
+				if (requestVersion !== this.requestVersion || sessionKey !== this.sessionKey()) return;
 				this.isLoading.set(false);
 				if (res.success && res.data) {
 					const data = res.data.currentProfileData || res.data;
@@ -47,7 +70,7 @@ export class Profile implements OnInit {
 
 					// Update completion percent in auth store
 					const currentUser = this.authStore.currentUser();
-					if (currentUser && data.profileCompletionPercent !== undefined) {
+					if (currentUser && typeof data.profileCompletionPercent === 'number' && Number.isFinite(data.profileCompletionPercent)) {
 						this.authStore.authenticate(this.authStore.token()!, {
 							...currentUser,
 							profileCompletionPercent: data.profileCompletionPercent
@@ -58,6 +81,7 @@ export class Profile implements OnInit {
 				}
 			},
 			error: (err) => {
+				if (requestVersion !== this.requestVersion || sessionKey !== this.sessionKey()) return;
 				this.isLoading.set(false);
 				this.errorMsg.set('تعذر تحميل بيانات الملف الشخصي. حدث خطأ في الخادم.');
 			}
@@ -69,43 +93,45 @@ export class Profile implements OnInit {
 	}
 
 	getInitials(): string {
-		const f = this.profileData()?.firstName || this.authStore.currentUser()?.firstName || '';
-		const l = this.profileData()?.lastName || this.authStore.currentUser()?.lastName || '';
+		const f = this.profileData()?.firstName || '';
+		const l = this.profileData()?.lastName || '';
 		if (f && l) return (f.charAt(0) + l.charAt(0)).toUpperCase();
 		if (f) return f.charAt(0).toUpperCase();
 		return 'م';
 	}
 
 	getFullName(): string {
-		const f = this.profileData()?.firstName || this.authStore.currentUser()?.firstName || '';
-		const l = this.profileData()?.lastName || this.authStore.currentUser()?.lastName || '';
-		return `${f} ${l}`.trim() || 'مستخدم غير معروف';
+		const f = this.profileData()?.firstName || '';
+		const l = this.profileData()?.lastName || '';
+		return `${f} ${l}`.trim() || 'الاسم غير مضاف';
 	}
 
 	getAvatar(): string | null {
 		if (this.avatarError()) return null;
-		return this.profileData()?.avatarUrl || this.authStore.currentUser()?.avatarUrl || null;
+		return this.profileData()?.avatarUrl || null;
 	}
 
 	getMemberSince(): string {
-		const createdAt = this.profileData()?.createdAt || (this.authStore.currentUser() as any)?.createdAt;
+		const createdAt = this.profileData()?.createdAt;
 		if (!createdAt) return '';
 		const d = new Date(createdAt);
+		if (!Number.isFinite(d.getTime())) return '';
 		const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 		return `عضو منذ ${months[d.getMonth()]} ${d.getFullYear()}`;
 	}
 
 	getAccountTypeLabel(): string {
-		const accType = this.profileData()?.accountType || this.authStore.currentUser()?.accountType || '';
+		const accType = this.profileData()?.accountType || '';
 		if (accType.includes('CLIENT')) return 'طالب خدمة';
 		if (accType.includes('PROVIDER')) return 'مقدم خدمة';
-		return 'مستخدم';
+		return 'غير متاح';
 	}
 
 	getEntityLabel(): string {
-		const accType = this.profileData()?.accountType || this.authStore.currentUser()?.accountType || '';
+		const accType = this.profileData()?.accountType || '';
 		if (accType.includes('COMPANY')) return 'شركة';
-		return 'فرد';
+		if (accType.includes('INDIVIDUAL')) return 'فرد';
+		return 'غير متاح';
 	}
 
 	/**
@@ -117,11 +143,9 @@ export class Profile implements OnInit {
 		return id[0] + 'x'.repeat(id.length - 2) + id[id.length - 1];
 	}
 
-	get completionPercent(): number {
-		// The backend value (a real 0 included) wins; the auth-store copy is only a fallback while the profile loads.
-		return this.profileData()?.profileCompletionPercent
-			?? this.authStore.currentUser()?.profileCompletionPercent
-			?? 0;
+	get completionPercent(): number | null {
+		const value = this.profileData()?.profileCompletionPercent;
+		return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100 ? value : null;
 	}
 
 	/** What the backend still needs for 100% (GET /profiles/me -> missingItems). */
@@ -133,7 +157,7 @@ export class Profile implements OnInit {
 	/** The average of the provider reviews about this client; null until there is one (never a default). */
 	get humanRating(): number | null {
 		const r = this.profileData()?.humanRating;
-		return typeof r === 'number' && Number.isFinite(r) ? r : null;
+		return this.profileData()?.reviewsCount !== 0 && typeof r === 'number' && Number.isFinite(r) && r >= 1 && r <= 5 ? r : null;
 	}
 
 	get roundedRating(): number {
@@ -144,9 +168,7 @@ export class Profile implements OnInit {
 	levelDisplay = computed(() => levelDisplayFromInfo(this.profileData()?.levelInfo));
 
 	get level(): string {
-		return this.profileData()?.currentLevel
-			|| this.authStore.currentUser()?.currentLevel
-			|| 'مستكشف';
+		return this.profileData()?.currentLevel || '';
 	}
 
 	get skills(): string[] {

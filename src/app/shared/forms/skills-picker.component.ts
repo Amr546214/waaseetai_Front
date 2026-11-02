@@ -45,16 +45,16 @@ export const SKILLS_PICKER_MAX = 30;
 	styles: [`
 		.skp{display:flex;flex-direction:column;gap:10px}
 		.skp-chips{display:flex;flex-wrap:wrap;gap:8px}
-		.skp-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 6px 5px 12px;border-radius:999px;font-size:12.5px;font-weight:700;background:rgba(43,127,255,.14);border:1px solid rgba(43,127,255,.35);color:var(--txt,#fff)}
-		.skp-x{border:0;background:transparent;color:inherit;cursor:pointer;font-size:16px;line-height:1;padding:0 4px;border-radius:50%}
+		.skp-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 6px 5px 12px;border-radius:999px;font-size:var(--font-size-label);font-weight:700;background:rgba(43,127,255,.14);border:1px solid rgba(43,127,255,.35);color:var(--txt,#fff)}
+		.skp-x{border:0;background:transparent;color:inherit;cursor:pointer;font-size:var(--font-size-body);line-height:1;padding:0 4px;border-radius:50%}
 		.skp-x:hover{background:rgba(255,255,255,.14)}
 		.skp-search{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--border,rgba(255,255,255,.14));background:var(--surface,rgba(255,255,255,.04));color:var(--txt,#fff);font-family:inherit}
-		.skp-batch-btn{padding:9px 14px;border-radius:10px;border:1px solid rgba(43,127,255,.45);background:rgba(43,127,255,.15);color:var(--txt,#fff);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+		.skp-batch-btn{padding:9px 14px;border-radius:10px;border:1px solid rgba(43,127,255,.45);background:rgba(43,127,255,.15);color:var(--txt,#fff);font-size:var(--font-size-label);font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
 		.skp-batch-btn:hover{background:rgba(43,127,255,.26)}
 		.skp-list{display:flex;flex-wrap:wrap;gap:8px;max-height:210px;overflow:auto;padding:2px}
-		.skp-opt{padding:6px 12px;border-radius:999px;border:1px dashed var(--border,rgba(255,255,255,.25));background:transparent;color:var(--txt,#fff);font-size:12.5px;cursor:pointer;font-family:inherit}
+		.skp-opt{padding:6px 12px;border-radius:999px;border:1px dashed var(--border,rgba(255,255,255,.25));background:transparent;color:var(--txt,#fff);font-size:var(--font-size-label);cursor:pointer;font-family:inherit}
 		.skp-opt:hover,.skp-opt:focus-visible{border-style:solid;border-color:#2B7FFF;background:rgba(43,127,255,.12);outline:none}
-		.skp-empty,.skp-none,.skp-hint{margin:0;font-size:12.5px;color:var(--txt-3,#94a3b8)}
+		.skp-empty,.skp-none,.skp-hint{margin:0;font-size:var(--font-size-label);color:var(--txt-3,#94a3b8)}
 	`],
 })
 export class SkillsPickerComponent {

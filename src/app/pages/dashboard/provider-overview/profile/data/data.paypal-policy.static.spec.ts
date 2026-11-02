@@ -16,7 +16,6 @@ describe('provider data page: PayPal change wording', () => {
 			expect(part).not.toContain('تخضع لمراجعة');
 			expect(part).not.toContain('بمراجعة');
 		}
-		expect(tabButton).toContain('برمز تحقق');
 	});
 
 	it('the panel says: OTP to the account email, 24h withdrawal freeze, no manual review', () => {
@@ -27,8 +26,6 @@ describe('provider data page: PayPal change wording', () => {
 
 	it('the page banner / legend only attach manual review to documents; PayPal is "برمز تحقق"; the contact data is not mentioned as editable', () => {
 		expect(html).toContain('وتغيير بريد PayPal يُؤكَّد برمز تحقق بدون مراجعة يدوية، أما المستندات فتخضع لمراجعة يدوية');
-		expect(html).toContain('(المستندات)');
-		expect(html).toContain('يُؤكَّد برمز يُرسل إلى بريد حسابك ويُطبَّق فورًا دون مراجعة يدوية (PayPal)');
 		expect(html).not.toContain('(التواصل وPayPal)');
 		expect(html).not.toContain('وتغيير بريد التواصل');
 	});

@@ -39,25 +39,25 @@
   <div *ngIf="hasError() && !rateLimited()" class="text-center p-10 bg-[var(--crd-bg,linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)))] border border-[rgba(43,127,255,.25)] rounded-2xl">
     <div class="text-base font-extrabold text-[var(--txt)] mb-1.5">تعذر تحميل الإشعارات</div>
     <div class="text-xs text-[var(--txt-3)] mb-3">ERR-PR-020</div>
-    <button type="button" (click)="retry()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[13px] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
+    <button type="button" (click)="retry()" class="px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] border-none rounded-full text-[#070D24] font-extrabold text-[length:var(--font-size-label)] hover:opacity-90 transition-opacity">اعادة المحاولة</button>
   </div>
 
   @if (rateLimitKept()) { <app-rate-limit-note [showRetry]="true" (retry)="retry()" /> }
   <!-- List -->
   <div *ngIf="!isLoading() && !hasError()">
     <ng-container *ngFor="let group of groupedNotifications(); let first = first">
-      <div class="text-[11px] font-extrabold text-[var(--txt-3)] tracking-[0.04em] mt-[18px] mb-[10px]" [class.mt-0]="first">{{ group.date }}</div>
+      <div class="text-[length:var(--font-size-small)] font-extrabold text-[var(--txt-3)] tracking-[0.04em] mt-[18px] mb-[10px]" [class.mt-0]="first">{{ group.date }}</div>
       
       <div *ngFor="let nt of group.items" class="nt" [class.unread]="nt.isUnread" (click)="onNotificationClick(nt)">
         <div class="nt-ico" [ngClass]="nt.iconBgClass + ' ' + nt.iconColorClass" [innerHTML]="nt.svgIcon"></div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
             <span *ngIf="nt.isUnread" class="nt-dot"></span>
-            <span class="text-[13.5px] font-extrabold text-[var(--txt)]">{{ nt.title }}</span>
-            <span class="text-[11px] text-[var(--txt-3)] mr-auto whitespace-nowrap">{{ nt.time }}</span>
+            <span class="text-[length:var(--font-size-label)] font-extrabold text-[var(--txt)]">{{ nt.title }}</span>
+            <span class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mr-auto whitespace-nowrap">{{ nt.time }}</span>
           </div>
-          <div class="text-[12.5px] text-[var(--txt-3)] leading-relaxed">{{ nt.message }}</div>
-          <span *ngIf="nt.actionText && nt.actionUrl" data-testid="nt-cta" class="text-[11px] font-bold text-[var(--teal-txt,#2BD4C7)] mt-1.5 inline-block">{{ nt.actionText }}</span>
+          <div class="text-[length:var(--font-size-label)] text-[var(--txt-3)] leading-relaxed">{{ nt.message }}</div>
+          <span *ngIf="nt.actionText && nt.actionUrl" data-testid="nt-cta" class="text-[length:var(--font-size-small)] font-bold text-[var(--teal-txt,#2BD4C7)] mt-1.5 inline-block">{{ nt.actionText }}</span>
         </div>
       </div>
     </ng-container>

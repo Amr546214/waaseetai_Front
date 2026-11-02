@@ -27,13 +27,13 @@ type Row = RegisteredSpecialty & SpecialtyApprovalInfo;
 	`,
 	styles: [`
 		.wss{display:flex;flex-direction:column;gap:8px;margin:0 0 18px;padding:14px 16px;border-radius:16px;background:var(--crd-bg);border:1px solid var(--crd-bd)}
-		.wss-title{margin:0 0 2px;font-size:13px;font-weight:900;color:var(--txt)}
+		.wss-title{margin:0 0 2px;font-size:var(--font-size-label);font-weight:900;color:var(--txt)}
 		.wss-row{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:12px;border:1px solid var(--crd-bd);background:rgba(255,255,255,.03)}
-		.wss-main{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--txt)}
-		.wss-tag{font-size:11px;font-weight:800;padding:2px 10px;border-radius:999px;border:1px solid currentColor}
+		.wss-main{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:var(--font-size-label);color:var(--txt)}
+		.wss-tag{font-size:var(--font-size-small);font-weight:800;padding:2px 10px;border-radius:999px;border:1px solid currentColor}
 		.wss-row[data-tone="ok"] .wss-tag{color:#2ECC8A}.wss-row[data-tone="wait"] .wss-tag{color:#FFB400}.wss-row[data-tone="bad"] .wss-tag{color:#FF8C69}.wss-row[data-tone="todo"] .wss-tag{color:#2BD4C7}
-		.wss-detail{margin:0;font-size:12px;line-height:1.7;color:var(--txt-2)}
-		.wss-cta{align-self:flex-start;font-size:11.5px;font-weight:800;color:#2BD4C7;text-decoration:none}
+		.wss-detail{margin:0;font-size:var(--font-size-small);line-height:1.7;color:var(--txt-2)}
+		.wss-cta{align-self:flex-start;font-size:var(--font-size-small);font-weight:800;color:#2BD4C7;text-decoration:none}
 	`],
 })
 export class SpecialtyStatusComponent {

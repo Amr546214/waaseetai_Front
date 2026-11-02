@@ -29,7 +29,7 @@ describe('inline icon keys (registry, places, sidebar, CSS)', () => {
 		expect(nav.plan().filter((p: { excluded?: string }) => p.excluded).length).toBe(0);
 	});
 
-	it('every `pl-*` key written in the code is in the registry and every registry key is used at least once', () => {
+	it('every `pl-*` consumer is registered; removed UI consumers remain explicitly classified as unused', () => {
 		const used = new Map<string, number>(); const asKey = new Set<string>();
 		for (const f of walk(join(ROOT, 'src/app'))) {
 			if (f.includes('/core/identity/identity-inline-icons.ts')) continue;
@@ -39,7 +39,14 @@ describe('inline icon keys (registry, places, sidebar, CSS)', () => {
 			for (const m of t.matchAll(/(?:data-ws-icon="|wsIcon="|\bws: '|return ')(pl-[a-z0-9-]+)['"]/g)) asKey.add(m[1]);
 		}
 		expect([...asKey].filter(k => !ids.has(k))).toEqual([]);
-		expect([...ids].filter(k => !used.has(k))).toEqual([]);
+		const retired = JSON.parse(readFileSync(join(ROOT, 'tools/retired-inline-icons.json'), 'utf8')).icons as { id: string; reason: string }[];
+		expect([...ids].filter(k => !used.has(k)).sort()).toEqual(retired.map(item => item.id).sort());
+		const usage = JSON.parse(readFileSync(join(ROOT, 'public/assets/site-control/icon-usage.json'), 'utf8')); // The separate usage guard checks this generated report against the sources.
+		for (const item of retired) {
+			expect(item.reason.length).toBeGreaterThan(40);
+			expect(ids.has(item.id)).toBe(true);
+			expect(usage.icons[item.id]?.status).toBe('UNUSED');
+		}
 	});
 
 	it('the registry is well formed: unique valid ids (never the AI rule), a drawn shape and a viewBox each, an Arabic label, one library slot each', () => {

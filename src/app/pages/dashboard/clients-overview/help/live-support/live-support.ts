@@ -22,8 +22,8 @@ import { RouterModule } from '@angular/router';
 				</svg>
 			</div>
 			<div class="flex-1">
-				<div class="text-[10px] font-extrabold text-[var(--teal-txt,#2BD4C7)] tracking-wider mb-0.5">فريق الدعم البشري</div>
-				<p class="text-[13px] text-[var(--txt-2,#A8B2D1)]">محادثة مباشرة مع موظف دعم بشري. للحالات المعقّدة التي يحتاج فيها مراجعة فريق الدعم المختص</p>
+				<div class="text-[length:var(--font-size-caption)] font-extrabold text-[var(--teal-txt,#2BD4C7)] tracking-wider mb-0.5">فريق الدعم البشري</div>
+				<p class="text-[length:var(--font-size-label)] text-[var(--txt-2,#A8B2D1)]">محادثة مباشرة مع موظف دعم بشري. للحالات المعقّدة التي يحتاج فيها مراجعة فريق الدعم المختص</p>
 			</div>
 		</div>
 
@@ -36,7 +36,7 @@ import { RouterModule } from '@angular/router';
 			</div>
 			<div class="text-base font-extrabold text-[var(--txt)] mb-1.5">الدعم المباشر</div>
 			<div class="text-sm text-[var(--txt-3)] mb-4">واجهة المحادثة المباشرة قيد التطوير وفق التصميم المرجعي P-SK-024-الدعم المباشر</div>
-			<a routerLink="/client-overview/help" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] rounded-full text-[#070D24] font-extrabold text-[13px] no-underline hover:opacity-90 transition-opacity">
+			<a routerLink="/client-overview/help" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-[#2BD4C7] to-[#2B7FFF] rounded-full text-[#070D24] font-extrabold text-[length:var(--font-size-label)] no-underline hover:opacity-90 transition-opacity">
 				العودة لمركز المساعدة
 			</a>
 		</div>

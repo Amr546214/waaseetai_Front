@@ -184,7 +184,7 @@ describe('required asterisks (client + marketer)', () => {
 	});
 
 	it('settings save error is red', () => {
-		expect(read(C + 'settings/account/account.html')).toMatch(/class="field-error text-\[12px\] font-bold" role="alert" data-testid="save-error"/);
+		expect(read(C + 'settings/account/account.html')).toMatch(/class="field-error text-\[(?:12px|length:var\(--font-size-small\))\] font-bold" role="alert" data-testid="save-error"/);
 	});
 
 	it('shared dispute + deposit modals', () => {

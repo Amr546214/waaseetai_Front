@@ -1,0 +1,12 @@
+{
+  "icons": [
+    {
+      "id": "pl-assistant-chevron-down",
+      "reason": "The assistant settings disclosure was replaced by the team UI. Keep its saved assets and library entry; there is no longer a consumer."
+    },
+    {
+      "id": "pl-client-bolt",
+      "reason": "The request review summary was redesigned by the team. Keep the old bolt drawing and saved customisations in the unused library."
+    }
+  ]
+}

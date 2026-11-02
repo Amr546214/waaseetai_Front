@@ -131,10 +131,10 @@
 			<div style="width:64px;height:64px;border-radius:16px;background:rgba(43,127,255,.08);border:1px solid rgba(43,127,255,.22);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
 				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5DA0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-escrow"></use></svg>
 			</div>
-			<div style="font-size:18px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل لوحة الشركة</div>
-			<div style="font-size:12px;margin-bottom:4px" class="txt-muted">{{ companyError() }}</div>
+			<div style="font-size:var(--font-size-section);font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل لوحة الشركة</div>
+			<div style="font-size:var(--font-size-small);margin-bottom:4px" class="txt-muted">{{ companyError() }}</div>
 			<button type="button" (click)="retryCompanyDashboard()"
-				style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit"
+				style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:var(--font-size-label);cursor:pointer;font-family:inherit"
 				class="txt-navy">إعادة المحاولة</button>
 		</div>
 	</div>
@@ -317,13 +317,13 @@
 					<use href="#i-dispute"></use>
 				</svg>
 			</div>
-			<div style="font-size:18px;font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل لوحتك</div>
-			<div style="font-size:12px;margin-bottom:4px" class="txt-muted">{{ dashboardStore.error() }}</div>
-			<div style="font-size:13px;margin-bottom:20px" class="txt-slate">حدث خطأ في الخادم. يرجى المحاولة مجدداً
+			<div style="font-size:var(--font-size-section);font-weight:800;margin-bottom:6px" class="txt-white">تعذر تحميل لوحتك</div>
+			<div style="font-size:var(--font-size-small);margin-bottom:4px" class="txt-muted">{{ dashboardStore.error() }}</div>
+			<div style="font-size:var(--font-size-label);margin-bottom:20px" class="txt-slate">حدث خطأ في الخادم. يرجى المحاولة مجدداً
 			</div>
 			<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
 				<button type="button" (click)="dashboardStore.fetchDashboardStats()"
-					style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit" class="txt-navy">إعادة
+					style="padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:var(--font-size-label);cursor:pointer;font-family:inherit" class="txt-navy">إعادة
 					المحاولة</button>
 			</div>
 		</div>
@@ -448,9 +448,9 @@
 		</div>
 		<div style="flex:1;min-width:0">
 			<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-				<span style="font-size:12px;font-weight:700" class="txt-muted">مستواك الحالي</span>
+				<span style="font-size:var(--font-size-small);font-weight:700" class="txt-muted">مستواك الحالي</span>
 				<ws-level-badge [level]="levelDisplay()" [showPercent]="true" />
-				<span style="font-size:11px;margin-inline-start:auto" class="txt-muted">{{
+				<span style="font-size:var(--font-size-small);margin-inline-start:auto" class="txt-muted">{{
 					dashboardStore.dashboardData()!.summary.currentPoints || 0 }} نقطة</span>
 			</div>
 			<div style="display:flex;align-items:center;gap:8px">
@@ -461,12 +461,12 @@
 					<div [style.width.%]="(dashboardStore.dashboardData()!.summary.currentPoints / (dashboardStore.dashboardData()!.summary.currentPoints + dashboardStore.dashboardData()!.summary.pointsToNextLevel)) * 100"
 						style="height:100%;background:linear-gradient(90deg,#2BD4C7,#2B7FFF);border-radius:3px"></div>
 				</div>
-				<span style="font-size:10px;white-space:nowrap" class="txt-muted">{{
+				<span style="font-size:var(--font-size-caption);white-space:nowrap" class="txt-muted">{{
 					dashboardStore.dashboardData()!.summary.pointsToNextLevel }} نقطة للمستوى التالي</span>
 			</div>
 		</div>
 		<button type="button" routerLink="/client-overview/profile/level"
-			style="flex-shrink:0;padding:7px 14px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap" class="txt-teal">تفاصيل
+			style="flex-shrink:0;padding:7px 14px;background:rgba(43,212,199,.10);border:1px solid rgba(43,212,199,.22);border-radius:9px;font-size:var(--font-size-small);font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap" class="txt-teal">تفاصيل
 			المستوى</button>
 	</div>
 
@@ -558,12 +558,12 @@
 							<use href="#i-list"></use>
 						</svg>
 					</div>
-					<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا طلبات
+					<div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">لا طلبات
 						نشطة حالياً</div>
-					<div style="font-size:13px;margin-bottom:16px" class="txt-muted">انشئ طلبك الأول وابدأ في إيجاد مقدم
+					<div style="font-size:var(--font-size-label);margin-bottom:16px" class="txt-muted">انشئ طلبك الأول وابدأ في إيجاد مقدم
 						الخدمة المناسب لمشروعك</div>
 					<a routerLink="/client-overview/create-request"
-						style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none;transition:all .2s" class="txt-navy">
+						style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:var(--font-size-label);text-decoration:none;transition:all .2s" class="txt-navy">
 						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 							stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 							<use href="#i-plus"></use>
@@ -642,7 +642,7 @@
 			<div class="eb-card">
 				<div class="eb-lbl">رصيد الضمان</div>
 				<div class="eb-val">{{ dashboardStore.dashboardData()!.summary.totalEscrowAmount | number:'1.0-2' }} <span
-						style="font-size:14px;font-weight:700">$</span></div>
+						style="font-size:var(--font-size-label);font-weight:700">$</span></div>
 				<div class="eb-sub">مبلغ محجوز بأمان عبر منصة وسيط</div>
 			</div>
 
@@ -706,9 +706,9 @@
 						<use href="#i-doc"></use>
 					</svg>
 				</div>
-				<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد عروض
+				<div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">لا توجد عروض
 					جديدة حالياً</div>
-				<div style="font-size:13px;max-width:380px;margin:0 auto" class="txt-muted">سيصلك إشعار فور تقديم أحد مقدمي
+				<div style="font-size:var(--font-size-label);max-width:380px;margin:0 auto" class="txt-muted">سيصلك إشعار فور تقديم أحد مقدمي
 					الخدمات عرضاً على طلباتك المفتوحة</div>
 			</div>
 			}
