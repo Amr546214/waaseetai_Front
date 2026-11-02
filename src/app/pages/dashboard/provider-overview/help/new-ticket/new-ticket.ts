@@ -139,6 +139,7 @@ export class NewTicketComponent {
   // =========================================
 
   selectedAttachments: File[] = [];
+  private submissionKey = crypto.randomUUID();
 
   attachmentError = signal<string>('');
 
@@ -159,6 +160,9 @@ export class NewTicketComponent {
       return;
     }
 
+    if (this.selectedAttachments.length + files.length > 5) {
+      this.attachmentError.set('الحد الأقصى خمسة مرفقات'); input.value = ''; return;
+    }
     for (const file of files) {
 
       if (!this.allowedAttachmentTypes.includes(file.type)) {
@@ -169,7 +173,7 @@ export class NewTicketComponent {
         return;
       }
 
-      if (file.size > this.maxAttachmentSize) {
+      if (!file.size || file.size > this.maxAttachmentSize) {
         this.attachmentError.set(
           `حجم الملف «${file.name}» أكبر من 10MB.`
         );
@@ -240,14 +244,8 @@ export class NewTicketComponent {
       return;
     }
 
-    // Do not create a ticket silently without its selected attachments.
-    // TicketApiService currently has no confirmed attachments contract.
-    if (this.selectedAttachments.length > 0) {
-      const message =
-        'تم اختيار المرفقات، لكن إرسال الملفات إلى السيرفر غير مربوط بعد. لن يتم فتح التذكرة بدون المرفقات المختارة.';
-
-      this.attachmentError.set(message);
-      this.notify.error(message);
+    if (this.selectedAttachments.length > 5) {
+      this.attachmentError.set('الحد الأقصى خمسة مرفقات');
       return;
     }
 
@@ -260,6 +258,7 @@ export class NewTicketComponent {
     this.submitting.set(true);
 
     this.ticketApi.createTicket('provider', {
+      submissionKey: this.submissionKey,
       subject: this.subject().trim(),
       category: this.category(),
       priority: this.priority(),
@@ -272,7 +271,7 @@ export class NewTicketComponent {
         this.relatedMember() || undefined,
       ccEmail:
         this.ccEmail().trim() || undefined
-    }).subscribe({
+    }, this.selectedAttachments).subscribe({
       next: (res) => {
         this.submitting.set(false);
         this.guard.release();

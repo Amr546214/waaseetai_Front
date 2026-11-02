@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 
@@ -29,7 +31,7 @@ describe('DisputeDetails', () => {
 	async function setup(id: string, api: any = { getProviderDispute: () => of({ success: true, data: REAL }) }) {
 		await TestBed.configureTestingModule({
 			imports: [DisputeDetails],
-			providers: [
+			providers: [provideHttpClient(), provideHttpClientTesting(),
 				provideRouter([]),
 				{ provide: DisputeApiService, useValue: api },
 				{ provide: AuthStore, useValue: { currentUser: () => ({ id: 'me' }) } },
@@ -62,8 +64,9 @@ describe('DisputeDetails', () => {
 		expect(text).not.toContain('4,500');
 		expect(text).not.toContain('7,000');
 		expect(text).not.toContain('24–48');
-		expect(text).toContain('إضافة أدلة بعد فتح النزاع غير متاحة');
-		expect(fixture.nativeElement.querySelector('input[type="file"]')).toBeNull();
+		expect(text).toContain('حفظ الأدلة');
+		expect(text).not.toContain('تم حفظ الأدلة في النزاع');
+		expect(fixture.nativeElement.querySelector('input[type="file"]')).not.toBeNull();
 		expect(component.dispute()?.detail?.statusSteps.filter(step => step.state === 'done').map(step => step.label)).toEqual(['رُفع النزاع']);
 	});
 

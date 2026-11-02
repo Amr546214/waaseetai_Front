@@ -72,6 +72,19 @@ export class NewTicketComponent {
 	memberOptions = (): WsSelectOption[] => this.teamMembers.length ? this.teamMembers.map(m => ({ value: m, label: m })) : this.noData;
 
 	errors = signal<{ [k: string]: string }>({});
+  selectedAttachments: File[] = [];
+  attachmentError = signal('');
+  private submissionKey = crypto.randomUUID();
+  selectAttachments(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files = [...this.selectedAttachments, ...Array.from(input.files || [])]; input.value = '';
+    if (files.length > 5 || files.some(f => !['image/jpeg','image/png','application/pdf'].includes(f.type) || !f.size || f.size > 10485760)) {
+      this.attachmentError.set('اختر حتى خمسة ملفات JPG أو PNG أو PDF، بحد أقصى 10 ميجابايت لكل ملف'); return;
+    }
+    this.selectedAttachments = files; this.attachmentError.set('');
+  }
+  removeAttachment(index: number) { this.selectedAttachments = this.selectedAttachments.filter((_, i) => i !== index); this.attachmentError.set(''); }
+
 
 	submit() {
 		const errs: { [k: string]: string } = {};
@@ -92,6 +105,7 @@ export class NewTicketComponent {
 		if (!this.guard.enter()) return;
 		this.submitting.set(true);
 		this.ticketApi.createTicket('client', {
+      submissionKey: this.submissionKey,
 			subject: this.subject().trim(),
 			category: this.category(),
 			priority: this.priority(),
@@ -99,7 +113,7 @@ export class NewTicketComponent {
 			relatedOrder: this.relatedOrder().trim() || undefined,
 			relatedProject: this.relatedProject() || undefined,
 			relatedMember: this.teamMember() || undefined,
-		}).subscribe({
+		}, this.selectedAttachments).subscribe({
 			next: (res) => {
 				this.submitting.set(false);
 				this.guard.release();

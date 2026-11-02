@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
@@ -16,7 +18,7 @@ describe('provider ticket detail: reply form', () => {
 		reply = vi.fn(replyImpl);
 		TestBed.configureTestingModule({
 			imports: [TicketDetailComponent],
-			providers: [provideRouter([]),
+			providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
 				{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 't1' }) } } },
 				{ provide: AuthStore, useValue: { currentUser: () => ({ id: 'me', accountType: 'PROVIDER_INDIVIDUAL' }) } },
 				{ provide: TicketApiService, useValue: { getTicket: () => of({ success: true, data: { ticket: T, messages: [] } }), replyToTicket: reply, closeTicket: vi.fn() } }],

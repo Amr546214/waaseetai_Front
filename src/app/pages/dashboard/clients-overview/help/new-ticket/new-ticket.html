@@ -65,10 +65,14 @@
 		<!-- Attach -->
 		<div class="fld-row">
 			<label class="inp-label">إرفاق ملف (اختياري)</label>
-			<div class="upload-area upload-area--off" aria-disabled="true">
+			<div class="upload-area">
 				<div class="upload-ico"><svg data-ws-icon="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-				<div class="upload-ttl">المرفقات غير متاحة في التذاكر حاليًا</div>
-				<div class="upload-sub">اذكر التفاصيل في وصف التذكرة، وسيطلب الفريق ما يلزم في الرد</div>
+				<div class="upload-ttl">JPG، PNG، PDF — حتى خمسة ملفات</div>
+				<div class="upload-sub">10 ميجابايت لكل ملف؛ تُحفظ الملفات مع التذكرة</div>
+        <input type="file" multiple accept="image/jpeg,image/png,application/pdf" aria-label="اختيار مرفقات التذكرة" [disabled]="submitting()" (change)="selectAttachments($event)" />
+        @for (file of selectedAttachments; track $index) { <div>{{ file.name }} <button type="button" [disabled]="submitting()" (click)="removeAttachment($index)">إزالة</button></div> }
+        @if (attachmentError()) { <p role="alert">{{ attachmentError() }}</p> }
+
 			</div>
 		</div>
 

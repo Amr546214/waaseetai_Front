@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Route } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -20,7 +22,7 @@ describe('client ticket detail', () => {
 	async function mount(getTicket: any) {
 		TestBed.configureTestingModule({
 			imports: [TicketDetailComponent],
-			providers: [
+			providers: [provideHttpClient(), provideHttpClientTesting(),
 				provideRouter([]),
 				{ provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 't1' } } } },
 				{ provide: AuthStore, useValue: { currentUser: () => ({ id: 'me', accountType: 'CLIENT_INDIVIDUAL' }) } },
@@ -96,6 +98,8 @@ describe('client support routes, copy and notification deep link', () => {
 		for (const bad of ['متاح الآن', 'غير متاح حاليًا', 'خلال 24', 'شات مباشر', 'دردشة فورية', 'مرخّص', 'رد أسرع', 'SAMA']) {
 			expect(html.replace(/\s+/g, ' ')).not.toContain(bad);
 		}
-		expect(html).not.toContain('type="file"');
+		expect(html).toContain('type="file"');
+		expect(html).toContain('selectAttachments($event)');
+		expect(html).not.toContain('المرفقات غير متاحة في التذاكر');
 	});
 });

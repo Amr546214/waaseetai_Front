@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -15,7 +17,7 @@ function setup(getTicket: any, reply: any) {
 	const api = { adminGetTicket: vi.fn(getTicket), adminReply: vi.fn(reply), adminListTickets: () => of({ success: true, data: { items: [] } }) };
 	TestBed.configureTestingModule({
 		imports: [SaSupportDetail],
-		providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: UiNotificationService, useValue: notify },
+		providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: UiNotificationService, useValue: notify },
 			{ provide: ActivatedRoute, useValue: { paramMap: of(new Map([['id', 't1']]) as any) } }],
 	});
 	const f = TestBed.createComponent(SaSupportDetail); f.detectChanges();

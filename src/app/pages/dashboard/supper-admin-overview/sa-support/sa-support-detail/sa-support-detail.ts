@@ -1,3 +1,4 @@
+import { CaseAttachments } from '../../../../../shared/case-attachments/case-attachments';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { FormsModule } from '@angular/forms';
@@ -14,7 +15,7 @@ import { TICKET_STATUS_LABELS, ticketStatusClass } from '../sa-support';
 @Component({
   selector: 'app-sa-support-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, WsSelectComponent],
+  imports: [CaseAttachments, CommonModule, RouterLink, FormsModule, WsSelectComponent],
   templateUrl: './sa-support-detail.html',
   styleUrls: ['../sa-support.css', './sa-support-detail.css'],
 })
@@ -45,7 +46,7 @@ export class SaSupportDetail implements OnInit {
   noteDraft = signal('');
   readonly noSla = 'يتطلب جدولاً لقياس زمن الاستجابة';
   readonly noEscalation = 'غير متوفر حالياً';
-  readonly noAttachments = 'المرفقات غير مدعومة في تذاكر الدعم حالياً';
+  readonly noAttachments = 'إرفاق ملفات في رد الموظف غير متاح حاليًا؛ يمكنك فتح مرفقات التذكرة أعلاه';
   readonly priorities = ['منخفضة', 'عادية', 'عالية', 'عاجلة'];
 
   readonly statusLabels = TICKET_STATUS_LABELS;

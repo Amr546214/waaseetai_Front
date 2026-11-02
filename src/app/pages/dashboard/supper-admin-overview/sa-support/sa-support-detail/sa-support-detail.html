@@ -6,6 +6,8 @@
   @if (loading()) {
     <div class="sup-empty">جارٍ التحميل...</div>
   } @else if (data(); as d) {
+<app-case-attachments [path]="'admin/tickets/' + d.ticket.id" />
+
     <div class="sup-detail">
       <div class="sup-main">
         <div class="sup-meta-card">
@@ -47,7 +49,7 @@
             <button type="button" class="sup-ca-btn" disabled [title]="noAttachments">إرفاق ملف</button>
           </div>
           @if (actionError()) { <div class="sup-notes-empty" role="alert" data-testid="action-error" style="color:#ff6b6b">{{ actionError() }}</div> }
-          <div class="sup-notes-empty">التصعيد: {{ noEscalation }} · {{ noAttachments }}</div>
+          <div class="sup-notes-empty">التصعيد: {{ noEscalation }} · المرفقات المعتمدة معروضة أعلاه</div>
           @if (d.ticket.status !== 'CLOSED') {
             <div class="sup-notes-empty">ردك يظهر لصاحب التذكرة ويصله كإشعار.</div>
             <div class="sup-chat-input-area">

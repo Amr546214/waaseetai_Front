@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, BehaviorSubject, Subject, throwError } from 'rxjs';
@@ -15,7 +17,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 
 	it('list renders API tickets and counts (no mock data)', async () => {
 		const api = { adminListTickets: vi.fn(() => of({ success: true, data: { items: [{ ...ticket, user }], counts: { OPEN: 1, RESOLVED: 2 }, pagination: { page: 1, limit: 50, total: 3, pages: 1 } } })) };
-		TestBed.configureTestingModule({ imports: [SaSupport], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }] });
+		TestBed.configureTestingModule({ imports: [SaSupport], providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), { provide: TicketApiService, useValue: api }] });
 		const f = TestBed.createComponent(SaSupport);
 		f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
@@ -101,7 +103,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 			expect(el.textContent).toContain('ردك يظهر لصاحب التذكرة');
 			const attach = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('إرفاق ملف')) as HTMLButtonElement;
 			expect(attach.disabled).toBe(true);
-			expect(attach.title).toBe('المرفقات غير مدعومة في تذاكر الدعم حالياً');
+			expect(attach.title).toContain('إرفاق ملفات في رد الموظف غير متاح');
 			const esc = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.trim() === 'تصعيد') as HTMLButtonElement;
 			expect(esc.disabled).toBe(true);
 			expect(el.textContent).toContain('يتطلب جدولاً لقياس زمن الاستجابة');
