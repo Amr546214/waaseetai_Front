@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, BehaviorSubject } from 'rxjs';
@@ -26,7 +28,7 @@ function setup(over: any = {}) {
     assignAdminDispute: vi.fn(ok), addAdminDisputeNote: vi.fn(ok), setAdminDisputeStatus: vi.fn(ok), resolveAdminDispute: vi.fn(ok),
   };
   TestBed.configureTestingModule({
-    providers: [
+    providers: [provideHttpClient(), provideHttpClientTesting(),
       provideRouter([]),
       { provide: DisputeApiService, useValue: api },
       { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } },

@@ -1,3 +1,4 @@
+import { CaseAttachments } from '../../../../../shared/case-attachments/case-attachments';
 import { Component, ElementRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -12,7 +13,7 @@ import { reportProblems } from '../../../../../shared/forms/form-error-focus';
 @Component({
 	selector: 'app-dispute-details',
 	standalone: true,
-	imports: [CommonModule, RouterLink],
+	imports: [CaseAttachments, CommonModule, RouterLink],
 	templateUrl: './dispute-details.html',
 	styleUrl: './dispute-details.css'
 })

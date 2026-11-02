@@ -8,6 +8,7 @@ export interface CreateDisputePayload {
   reason: string;
   description: string;
   evidence?: string[];
+  _count?: { attachments: number };
 }
 
 export interface DisputePartyRef {
@@ -24,6 +25,7 @@ export interface Dispute {
   reason: string;
   description: string;
   evidence?: string[];
+  _count?: { attachments: number };
   resolution?: string | null;
   resolutionNote?: string | null;
   createdAt: string;

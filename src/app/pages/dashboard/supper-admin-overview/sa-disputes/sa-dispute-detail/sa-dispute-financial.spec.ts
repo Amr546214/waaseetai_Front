@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, throwError, BehaviorSubject } from 'rxjs';
@@ -28,7 +30,7 @@ function setup(over: any = {}, financialImpl?: () => any, accountType: string = 
     resolveAdminDisputeFinancial: vi.fn(financialImpl ?? (() => of({ success: true, data: base }))),
   };
   TestBed.configureTestingModule({
-    providers: [
+    providers: [provideHttpClient(), provideHttpClientTesting(),
       provideRouter([]),
       { provide: DisputeApiService, useValue: api },
       { provide: AuthStore, useValue: { currentUser: () => ({ accountType }) } },

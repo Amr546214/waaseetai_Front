@@ -8,6 +8,8 @@
   } @else if (failed()) {
   <div class="adm-card" role="alert" data-testid="ticket-error"><div style="color:#FF8C69;font-size:var(--font-size-label);font-weight:700">تعذر تحميل التذكرة</div><button type="button" class="btn-primary" style="margin-top:10px" (click)="load(ticket()?.id || '')">إعادة المحاولة</button></div>
   } @else if (ticket(); as t) {
+<app-case-attachments [path]="'marketer-overview/tickets/' + t.id" />
+
   <div class="adm-card" data-testid="ticket-head">
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">
       <div>

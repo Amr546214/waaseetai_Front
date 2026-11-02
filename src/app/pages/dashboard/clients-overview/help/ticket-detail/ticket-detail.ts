@@ -1,3 +1,4 @@
+import { CaseAttachments } from '../../../../../shared/case-attachments/case-attachments';
 import { Component, ChangeDetectionStrategy, OnInit, signal, computed, inject, ElementRef } from '@angular/core';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
@@ -61,7 +62,7 @@ function buildTimeline(status: TicketStatus): TimelineStep[] {
 @Component({
 	selector: 'app-ticket-detail',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule],
+	imports: [CaseAttachments, CommonModule, FormsModule, RouterModule],
 	templateUrl: './ticket-detail.html',
 	styleUrls: ['./ticket-detail.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush

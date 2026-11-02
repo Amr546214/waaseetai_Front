@@ -19,6 +19,8 @@
       <button type="button" class="dp-btn dp-btn-pri" (click)="retry()">إعادة المحاولة</button>
     </div>
   } @else if (selectedDispute(); as d) {
+<app-case-attachments [path]="'admin/disputes/' + d.id" />
+
     <div class="dp-mbox dp-detail-box">
       <div class="dp-md-hdr">
         <div>

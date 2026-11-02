@@ -133,6 +133,7 @@
             } @else if (detail(); as x) {
               <div><b>السبب:</b> {{ x.reason }}</div>
               <div><b>الوصف:</b> {{ x.description }}</div>
+              <app-case-attachments [path]="'client/disputes/' + x.id" [writable]="x.status === 'OPEN' || x.status === 'UNDER_REVIEW'" />
               @if (x.evidence?.length) {
                 <div><b>الأدلة:</b> @for (url of x.evidence; track url) { <a [href]="url" target="_blank" rel="noopener noreferrer">رابط {{ $index + 1 }}</a>{{ $last ? '' : ' · ' }} }</div>
               }

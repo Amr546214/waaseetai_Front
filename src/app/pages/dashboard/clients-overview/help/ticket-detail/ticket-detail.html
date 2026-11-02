@@ -24,6 +24,8 @@
 
 	<!-- Content -->
 	@if (!isLoading() && !hasError() && ticket(); as t) {
+<app-case-attachments [path]="'client/tickets/' + t.id" />
+
 		<div class="tkd-head">
 			<div class="tkd-head-top">
 				<div>

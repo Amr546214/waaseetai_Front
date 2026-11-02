@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -55,7 +57,7 @@ describe('SaDisputeDetail — advisory AI summary panel', () => {
     });
     postSpy = vi.fn(postImpl);
     TestBed.configureTestingModule({
-      providers: [
+      providers: [provideHttpClient(), provideHttpClientTesting(),
         provideRouter([{ path: 'disputes/:id', component: SaDisputeDetail }]),
         { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), post: (...args: any[]) => postSpy(...args) } },
       ],

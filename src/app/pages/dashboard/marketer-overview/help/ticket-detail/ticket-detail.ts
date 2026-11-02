@@ -1,3 +1,4 @@
+import { CaseAttachments } from '../../../../../shared/case-attachments/case-attachments';
 import { Component, ChangeDetectionStrategy, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -25,7 +26,7 @@ const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ar-SA', { 
 @Component({
 	selector: 'app-marketer-ticket-detail',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterLink],
+	imports: [CaseAttachments, CommonModule, FormsModule, RouterLink],
 	templateUrl: './ticket-detail.html',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })

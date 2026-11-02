@@ -36,6 +36,7 @@ export interface SupportTicketMessage {
 }
 
 export interface CreateTicketPayload {
+	submissionKey?: string;
 	subject: string;
 	category: string;
 	priority?: string;
@@ -101,8 +102,12 @@ export class TicketApiService {
 		return role === 'marketer' ? `${environment.url_api}/marketer-overview/tickets` : `${environment.url_api}/${role}/tickets`;
 	}
 
-	createTicket(role: TicketRole, payload: CreateTicketPayload): Observable<ApiResponse<SupportTicket>> {
-		return this.http.post<ApiResponse<SupportTicket>>(this.baseFor(role), payload);
+	createTicket(role: TicketRole, payload: CreateTicketPayload, attachments: File[] = []): Observable<ApiResponse<SupportTicket>> {
+		if (!attachments.length) return this.http.post<ApiResponse<SupportTicket>>(this.baseFor(role), payload);
+		const body = new FormData();
+		Object.entries(payload).forEach(([key, value]) => { if (value !== undefined) body.append(key, value); });
+		attachments.forEach(file => body.append('attachments', file));
+		return this.http.post<ApiResponse<SupportTicket>>(this.baseFor(role), body);
 	}
 
 	listTickets(role: TicketRole, status?: TicketStatus): Observable<ApiResponse<TicketListData>> {

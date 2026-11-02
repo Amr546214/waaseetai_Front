@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
@@ -21,7 +23,7 @@ describe('marketer ticket detail', () => {
 
 	async function mount(getTicket: any, id = 't1') {
 		api = { getTicket: vi.fn(() => getTicket), replyToTicket: vi.fn(() => of({ success: true })), closeTicket: vi.fn(() => of({ success: true })) };
-		await TestBed.configureTestingModule({ imports: [MarketerTicketDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AuthStore, useValue: { currentUser: () => ({ id: 'me' }) } }, { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => id } } } }] }).compileComponents();
+		await TestBed.configureTestingModule({ imports: [MarketerTicketDetail], providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AuthStore, useValue: { currentUser: () => ({ id: 'me' }) } }, { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => id } } } }] }).compileComponents();
 		fixture = TestBed.createComponent(MarketerTicketDetail);
 		fixture.detectChanges(); render();
 	}

@@ -118,4 +118,22 @@ describe('provider new ticket: invalid submit, backend errors, double submit', (
 		expect(m.submitBtn().disabled).toBe(true);
 		pending.next({ success: true, data: { id: 't1' } }); pending.complete();
 	});
+  it('sends selected files, waits for confirmation and preserves the draft and retry key on upload failure', async () => {
+    const response = new Subject<any>(); const m = await mount(() => response);
+    await validDraft(m);
+    const file = new File(['%PDF-1.4'], 'proof.pdf', { type: 'application/pdf' });
+    m.c.selectedAttachments = [file];
+    await m.c.submit(); await m.c.submit();
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(create.mock.calls[0][2]).toEqual([file]);
+    const key = create.mock.calls[0][1].submissionKey;
+    const success = vi.spyOn(m.notify, 'success'); expect(success).not.toHaveBeenCalled();
+    response.error(httpFail(503, { message: 'تعذر حفظ المرفق' }));
+    await settleForm();
+    expect(m.c.selectedAttachments).toEqual([file]); expect(m.c.description()).toBe(long);
+    create.mockReturnValue(of({ success: false, message: 'تعذر الحفظ' }));
+    await m.c.submit();
+    expect(create.mock.calls[1][1].submissionKey).toBe(key); expect(success).not.toHaveBeenCalled();
+  });
+
 });

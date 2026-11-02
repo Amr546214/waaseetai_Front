@@ -185,5 +185,5 @@ export class DisputeApiService {
   // ── Remaining backend gaps (not in Swagger) ─────────────────────────
   //
   // No dispute messages / conversation endpoints (no POST /disputes/:id/messages).
-  // No dedicated evidence upload endpoint — use existing upload routes and pass URIs.
+  // Case files are handled by CaseAttachments, using the scoped /:id/attachments endpoints.
 }
