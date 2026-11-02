@@ -46,6 +46,22 @@ function setup(phase: 'loading' | 'ready' | 'error' | 'denied' = 'ready', over: 
 describe('icon library page (server-backed)', () => {
 	afterEach(() => TestBed.resetTestingModule());
 
+	// perf1: shown() used to build a NEW SafeHtml wrapper per call, so every change-detection pass re-wrote [innerHTML] of every card (measured: ~140 DOM mutations per no-op pass on the 120-card grid)
+	it('a change-detection pass that changes nothing does not rewrite the drawings (same SafeHtml object per drawing, the DOM nodes stay)', () => {
+		const t = setup();
+		const row = ROWS.find(r => r.id === 'i-bell')!;
+		expect(t.c.shown(row)).toBe(t.c.shown(row));
+		const svg = t.q('icon-card-i-bell')!.querySelector('svg')!;
+		const child = svg.firstElementChild;
+		expect(child).toBeTruthy();
+		const seen: MutationRecord[] = [];
+		const mo = new MutationObserver(r => seen.push(...r)); mo.observe(t.root(), { subtree: true, childList: true, characterData: true });
+		for (let i = 0; i < 3; i++) t.f.detectChanges();
+		seen.push(...mo.takeRecords()); mo.disconnect();
+		expect(seen.length).toBe(0);
+		expect(t.q('icon-card-i-bell')!.querySelector('svg')!.firstElementChild).toBe(child);
+	});
+
 	it('the official AI-mark slots (i-ai, ws-trust-ai, rp-i-ai) are managed by «الهوية»; functional AI-themed icons are not', () => {
 		const t = setup();
 		for (const s of ['i-ai', 'ws-trust-ai', 'rp-i-ai']) expect(t.c.managed(s), s).toBe(true);

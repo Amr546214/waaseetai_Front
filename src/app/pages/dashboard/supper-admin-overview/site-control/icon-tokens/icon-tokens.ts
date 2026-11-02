@@ -162,7 +162,7 @@ export class IconTokens implements OnInit {
 
   // ---- legacy local customisations: for review only, never published by themselves
   legacySvg(inner: string): string { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`; }
-  legacyHtml(inner: string): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(inner); }
+  legacyHtml(inner: string): SafeHtml { return this.trusted(inner); }
   canStage(l: LegacyIcon): boolean { const r = this.store.row(l.slot); return this.canManage() && !!r?.key && r.status !== 'not-wired'; }
   stageReason(l: LegacyIcon): string {
     const r = this.store.row(l.slot);
@@ -213,7 +213,17 @@ export class IconTokens implements OnInit {
   /** a managed slot draws the official default glyph; any other library drawing is drawn from the library file */
   shown(r: IconFnRow): SafeHtml | null {
     const inner = this.isManaged(r) ? AI_ICON_INNER : (this.real.get(r.id)?.inner ?? this.defaultSvg(r.id));
-    return inner ? this.sanitizer.bypassSecurityTrustHtml(inner) : null;
+    return inner ? this.trusted(inner) : null;
+  }
+  /**
+   * ONE SafeHtml object per distinct markup string. The cards call shown() from the template, so a fresh bypassSecurityTrustHtml() wrapper on every change-detection pass made Angular see a new
+   * [innerHTML] value for every card each time (measured: every card's svg children were destroyed and re-parsed on each pass). Same strings, same trust call, just not repeated.
+   */
+  private readonly trustedMemo = new Map<string, SafeHtml>();
+  private trusted(inner: string): SafeHtml {
+    let v = this.trustedMemo.get(inner);
+    if (!v) { v = this.sanitizer.bypassSecurityTrustHtml(inner); this.trustedMemo.set(inner, v); }
+    return v;
   }
   /** which drawing the card shows: the REAL symbol the site ships, the official AI mark, or (only for ids nothing draws) the library file's sample */
   glyphKind(r: IconFnRow): 'real' | 'ai' | 'sample' | 'none' { return this.isManaged(r) ? 'ai' : this.real.get(r.id) ? 'real' : this.defaultSvg(r.id) ? 'sample' : 'none'; }

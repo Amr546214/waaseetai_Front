@@ -84,7 +84,13 @@ export class IconPicker {
 	setQuery(ev: Event): void { this.query.set((ev.target as HTMLInputElement).value); this.shown.set(PAGE); }
 	setCat(id: string): void { this.cat.set(id); this.shown.set(PAGE); }
 	more(): void { this.shown.update(n => n + PAGE); }
-	html(inner: string): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(inner); }
+	/** one SafeHtml per distinct markup (a new wrapper per change-detection pass re-parsed every card's drawing each time) */
+	private readonly trustedMemo = new Map<string, SafeHtml>();
+	html(inner: string): SafeHtml {
+		let v = this.trustedMemo.get(inner);
+		if (!v) { v = this.sanitizer.bypassSecurityTrustHtml(inner); this.trustedMemo.set(inner, v); }
+		return v;
+	}
 	retry(): void { void this.real.load(true); void this.icons.load(true); }
 	/** `key` of the chosen card, for the parent */
 	choose(c: PickerCard): void { if (!this.disabled()) this.pick.emit(c.id); }

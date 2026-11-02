@@ -4,7 +4,7 @@
     @if (!p) {
       <span class="pv-none">لا معاينة</span>
     } @else if (p.kind === 'img') {
-      <img [src]="p.src" alt="" decoding="async" [style.height.px]="h" [style.width.px]="sq ? h : null" [class.pv-sq]="sq" />
+      <img [src]="p.src" alt="" decoding="async" loading="lazy" [style.height.px]="h" [style.width.px]="sq ? h : null" [class.pv-sq]="sq" />
     } @else if (p.kind === 'svg') {
       <svg [scInlineSvg]="p.icon" [style.width.px]="h" [style.height.px]="h" aria-hidden="true" focusable="false"></svg>
     } @else {
