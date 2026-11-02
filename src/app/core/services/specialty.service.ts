@@ -50,6 +50,11 @@ export class SpecialtyService {
 		return this.http.get(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/ai-evaluation`);
 	}
 
+	/** Improves the user's own sample text; never uploads or fabricates proof files. */
+	suggestSampleDraft(body: { specialtyName: string; subSpecialties: string[]; title: string; description: string; technologiesUsed: string[] }): Observable<any> {
+		return this.http.post(`${this.apiUrl}/provider/accreditation/ai-suggest`, body);
+	}
+
 	getSpecialtyStatus(providerSpecialtyId: string): Observable<any> {
 		return this.http.get(`${this.apiUrl}/provider/specialties/${providerSpecialtyId}/status`);
 	}

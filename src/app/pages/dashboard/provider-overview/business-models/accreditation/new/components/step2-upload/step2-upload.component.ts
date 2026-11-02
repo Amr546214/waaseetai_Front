@@ -19,6 +19,7 @@ export class Step2UploadComponent {
   @Input({ required: true }) techInput!: string;
   @Output() techInputChange = new EventEmitter<string>();
 
+  @Input() technologiesOptional = false;
   @Input({ required: true }) technologiesUsed!: string[];
   @Output() onAddTechTag = new EventEmitter<void>();
   @Output() onRemoveTechTag = new EventEmitter<string>();

@@ -76,7 +76,7 @@
 			@if (lockedSpecialtyName()) { <div class="text-xs mb-3" data-testid="locked-specialty">التخصص: {{ lockedSpecialtyName() }}</div> }
 			<app-step2-upload [title]="title()" (titleChange)="title.set($event)" [description]="description()"
 				(descriptionChange)="description.set($event)" [techInput]="techInput()"
-				(techInputChange)="techInput.set($event)" [technologiesUsed]="technologiesUsed()"
+				(techInputChange)="techInput.set($event)" [technologiesUsed]="technologiesUsed()" [technologiesOptional]="isTechOptional()"
 				(onAddTechTag)="addTechTag()" (onRemoveTechTag)="removeTechTag($event)" [projectUrl]="projectUrl()"
 				(projectUrlChange)="projectUrl.set($event)" [githubUrl]="githubUrl()"
 				(githubUrlChange)="githubUrl.set($event)" [attachments]="attachments()"

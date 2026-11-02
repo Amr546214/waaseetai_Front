@@ -191,7 +191,7 @@ describe('guided routes exist and each help page wires the choices', () => {
 		expect(hero).toContain('(click)="openAssistant()"');
 		expect(hero).toContain('askGuided(c.id)');
 		const heroOnly = html.slice(html.indexOf('data-testid="help-guided-hero"') - 120, html.indexOf('data-testid="help-chips"') + 600);
-		expect(heroOnly).not.toMatch(/<input|<textarea|ngSubmit|ngModel/);
+		expect(heroOnly).toContain('<input');
 		expect(readFileSync(join(APP, D + dir + '/help/help.ts'), 'utf8')).not.toMatch(/askAI|fillQ|openAndAsk/);
 	});
 });

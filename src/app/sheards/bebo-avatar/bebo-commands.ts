@@ -24,8 +24,8 @@ export type BeboDialectChoice = BeboDialect | 'auto';
 export const BEBO_DIALECT_IDS = Object.keys(BEBO_DIALECTS) as BeboDialect[];
 export const DEFAULT_DIALECT: BeboDialect = 'egyptian';
 
-export const BEBO_VOICES = ['Puck', 'Kore', 'Fenrir', 'Aoede', 'Zephyr', 'Sulafat', 'Charon', 'Leda'] as const;
-export type BeboVoice = (typeof BEBO_VOICES)[number];
+export const BEBO_VOICES = ['Puck', 'Kore', 'Fenrir', 'Aoede', 'Zephyr', 'Sulafat', 'Charon', 'Leda'] as const; export const BEBO_EXTENDED_VOICES = [...BEBO_VOICES, 'Orus', 'Callirrhoe'] as const;
+export type BeboVoice = (typeof BEBO_EXTENDED_VOICES)[number];
 export const DEFAULT_VOICE: BeboVoice = 'Puck';
 
 import { BEBO_EXTRA_POSES, type BeboPose } from './bebo-loader';
@@ -80,7 +80,7 @@ export const NADEEM_GUIDE_MOTIONS: readonly BeboMotionItem[] = [
 export const BEBO_ALL_MOTIONS = NADEEM_GUIDE_MOTIONS;
 
 export const isBeboDialect = (v: unknown): v is BeboDialect => typeof v === 'string' && Object.hasOwn(BEBO_DIALECTS, v);
-export const isBeboVoice = (v: unknown): v is BeboVoice => typeof v === 'string' && (BEBO_VOICES as readonly string[]).includes(v);
+export const isBeboVoice = (v: unknown): v is BeboVoice => typeof v === 'string' && (BEBO_EXTENDED_VOICES as readonly string[]).includes(v);
 
 export function normalize(text: string): string {
 	return String(text || '')

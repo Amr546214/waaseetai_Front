@@ -166,9 +166,9 @@
 				<div class="text-xs text-[var(--txt-3)] mt-1 font-medium">أضف نماذج أعمالك لكل تخصص فرعي اخترته مع وثائق
 					إثبات الملكية السرية للمراجعة من قبل الإدارة</div>
 			</div>
-			<button type="button" (click)="autoFillAllSamples()"
+			<button type="button" (click)="autoFillAllSamples()" [disabled]="draftingSamples().size > 0"
 				class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2BD4C7] to-[#2B7FFF] text-[#070D24] text-xs font-black shadow-lg hover:opacity-95 transition-all cursor-pointer shrink-0">
-				✨ ملء ذكي للنماذج وإرفاق ملفات تجريبية
+				✨ تحسين صياغة نماذجي بالذكاء الاصطناعي
 			</button>
 		</div>
 
@@ -274,9 +274,9 @@
 										<div class="text-[length:var(--font-size-small)] text-[var(--txt-3)] mt-1">كلما كانت المعلومات دقيقة، كانت مراجعة الإدارة أسرع</div>
 									</div>
 									<div class="flex items-center gap-2">
-										<button type="button" (click)="autoFillSample(sample.id)"
+										<button type="button" (click)="autoFillSample(sample.id)" [disabled]="draftingSamples().has(sample.id)"
 											class="px-3 py-1 rounded-full bg-[rgba(43,212,199,.14)] border border-[rgba(43,212,199,.35)] text-[length:var(--font-size-small)] font-black text-[#2BD4C7] hover:bg-[rgba(43,212,199,.24)] transition-colors cursor-pointer">
-											✨ ملء ذكي لهذا النموذج
+											✨ تحسين صياغة هذا النموذج
 										</button>
 										<span class="px-2.5 py-1 rounded-full bg-[rgba(43,127,255,.12)] border border-[rgba(43,127,255,.28)] text-[length:var(--font-size-caption)] font-black text-[#5DA0FF]">معلومات مطلوبة</span>
 									</div>
@@ -289,12 +289,12 @@
 											class="sample-meta-input" />
 									</label>
 									<label class="flex flex-col gap-1.5">
-										<span class="text-[length:var(--font-size-small)] font-black sample-card-label">التقنيات والأدوات <span class="ws-req" aria-hidden="true">*</span></span>
-										<input type="text" aria-required="true" [attr.id]="'sample-tech-' + sample.id" name="sampleTechnologies" [value]="sample.technologiesInput"
+										<span class="text-[length:var(--font-size-small)] font-black sample-card-label">الأدوات والتقنيات <span *ngIf="!isTechOptional(sample.subSpecialty)" class="ws-req" aria-hidden="true">*</span><span *ngIf="isTechOptional(sample.subSpecialty)"> (اختياري)</span></span>
+										<input type="text" [attr.aria-required]="!isTechOptional(sample.subSpecialty) ? 'true' : null" [attr.id]="'sample-tech-' + sample.id" name="sampleTechnologies" [value]="sample.technologiesInput"
 											(input)="updateTechnologies(sample.id, $any($event.target).value)"
-											placeholder="After Effects، Illustrator، Figma"
+											placeholder="أضف الأدوات أو التقنيات أو المنهجيات المستخدمة فعلياً"
 											class="sample-meta-input" />
-										<span class="text-[length:var(--font-size-caption)] text-[var(--txt-3)]">افصل بين التقنيات بفاصلة</span>
+										<span class="text-[length:var(--font-size-caption)] text-[var(--txt-3)]">افصل بين الأدوات أو التقنيات بفاصلة</span>
 									</label>
 									<label class="md:col-span-2 flex flex-col gap-1.5">
 										<div class="flex items-center justify-between">

@@ -34,7 +34,7 @@ export const BAR_CLEARANCE_PX = 12;
 export function detectBottomBarHeight(doc: Document, win: Window, ignore: (el: Element) => boolean): number {
 	const height = win.innerHeight;
 	const width = win.innerWidth;
-	if (!height || !width) return 0;
+	if (!height || !width || typeof doc.elementsFromPoint !== 'function') return 0;
 	let best = 0;
 	for (const fraction of [0.1, 0.3, 0.5, 0.7, 0.9]) {
 		const stack = doc.elementsFromPoint(Math.round(width * fraction), height - 2);

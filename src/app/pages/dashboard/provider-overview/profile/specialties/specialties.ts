@@ -1,6 +1,7 @@
 import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
-import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { AssistantExamState } from '../../../../../core/store/assistant-exam-state.service';
+import { Component, ChangeDetectionStrategy, ElementRef, signal, computed, effect, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +10,7 @@ import { genericBanner } from '../../../../../shared/forms/submit-feedback';
 import { clearAllInvalid, FieldProblem, reportBackendError, reportProblems, scrollFocus, SubmitGuard } from '../../../../../shared/forms/form-error-focus';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { HttpEventType } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
 import { SpecialtyStatusComponent } from '../../../../../shared/forms/specialty-status.component';
 import { ACCREDITATION_NEW_PAGE, type RegisteredSpecialty, type SpecialtyApprovalInfo } from '../../../../../core/utils/specialty-states';
@@ -129,7 +130,14 @@ export interface PortfolioReview {
 })
 export class Specialties implements OnInit, OnDestroy {
 	private specialtyService = inject(SpecialtyService);
+	private assistantStore = inject(AssistantExamState);
 	private sanitizer = inject(DomSanitizer);
+
+	constructor() {
+		effect(() => {
+			this.assistantStore.setExamActive(this.currentStep() === 4);
+		});
+	}
 	// Hardcoded SVG glyph (no user data). Angular's HTML sanitizer strips <circle>/<path> inside [innerHTML] on an <svg>, which left every category icon blank.
 	private readonly categoryIcon: SafeHtml = this.sanitizer.bypassSecurityTrustHtml('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>');
 	private providerApi = inject(ProviderApiService);
@@ -566,15 +574,31 @@ export class Specialties implements OnInit, OnDestroy {
 		return this.selectedSubs().size === 0 ? [{ field: 'sub-chips', message: 'اختر تخصصاً فرعياً واحداً على الأقل.', label: 'التخصصات الفرعية' }] : [];
 	}
 
+	isTechOptional(subSpecialty?: string): boolean {
+		const specName = this.filteredSpecialties().find(s => s.id === this.selectedSpecId())?.name || '';
+		const combined = `${specName} ${subSpecialty || ''}`;
+		return /قانون|ضريب|محام|عقود|استشار|مالي|محاسب|ترجم|كتاب|إدار|موارد|تحكيم|شرعي/i.test(combined);
+	}
+
+	private hasProhibitedSampleContent(s: WorkSampleForm): string | null {
+		const norm = `${s.title || ''} ${s.description || ''}`.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').toLowerCase();
+		if (/تهرب\s*ضريبي|التهرب\s*الضريبي|غسيل\s*اموال|تزوير\s*فواتير|تلاعب\s*ضريبي|اخفاء\s*الارباح|مشروبات\s*روحيه|خمور|تجاره\s*مخدرات|قمار|اختراق\s*حسابات/i.test(norm)) {
+			return `«${s.subSpecialty || 'النموذج'}»: لا يُقبل رفع نماذج أعمال تتعلق بالتهرب الضريبي أو أنشطة مخالفة للأنظمة.`;
+		}
+		return null;
+	}
+
 	/** Step 2 problems per sample, in page order. The description keeps its own live message (descriptionError); the rest are marked here. */
 	private step2Problems(): { problems: FieldProblem[]; descriptionEl: HTMLElement | null } {
 		const problems: FieldProblem[] = [];
 		let descriptionEl: HTMLElement | null = null;
 		for (const s of this.samples()) {
 			const label = s.subSpecialty || 'النموذج';
+			const prohibited = this.hasProhibitedSampleContent(s);
+			if (prohibited) problems.push({ field: `sample-title-${s.id}`, message: prohibited });
 			if (s.title.trim().length < 3) problems.push({ field: `sample-title-${s.id}`, message: `«${label}»: عنوان النموذج 3 أحرف على الأقل.` });
 			if ((s.description || '').trim().length < 20) { const d = this.host.nativeElement.querySelector<HTMLElement>(`#sample-desc-${s.id}`); descriptionEl ??= d; }
-			if (s.technologies.length === 0) problems.push({ field: `sample-tech-${s.id}`, message: `«${label}»: أضف تقنية واحدة على الأقل.` });
+			if (s.technologies.length === 0 && !this.isTechOptional(s.subSpecialty)) problems.push({ field: `sample-tech-${s.id}`, message: `«${label}»: أضف تقنية واحدة على الأقل.` });
 			if (s.publicFile === null) problems.push({ field: `sample-public-${s.id}`, message: `«${label}»: ارفع الملف العام للنموذج.` });
 			if (s.proofFiles.length === 0) problems.push({ field: `sample-proof-${s.id}`, message: `«${label}»: ارفع ملف إثبات واحداً على الأقل.` });
 		}
@@ -747,9 +771,10 @@ export class Specialties implements OnInit, OnDestroy {
 		const currentSamples = this.samples();
 		if (currentSamples.length === 0) return false;
 		return !this.isSubmittingSamples() && currentSamples.every(s =>
+			!this.hasProhibitedSampleContent(s) &&
 			s.title.trim().length >= 3 &&
 			(s.description || '').trim().length >= 20 &&
-			s.technologies.length > 0 &&
+			(s.technologies.length > 0 || this.isTechOptional(s.subSpecialty)) &&
 			s.publicFile !== null && s.proofFiles.length > 0 && !s.isUploading && !s.isProcessingProofs
 		);
 	});
@@ -775,9 +800,11 @@ export class Specialties implements OnInit, OnDestroy {
 		for (const s of list) {
 			const label = s.subSpecialty || 'النموذج';
 			if (s.isUploading || s.isProcessingProofs) return `جارٍ معالجة ملفات «${label}»…`;
+			const prohibited = this.hasProhibitedSampleContent(s);
+			if (prohibited) return prohibited;
 			if (s.title.trim().length < 3) return `«${label}»: عنوان النموذج 3 أحرف على الأقل.`;
 			if ((s.description || '').trim().length < 20) return `«${label}»: الوصف 20 حرفاً على الأقل.`;
-			if (s.technologies.length === 0) return `«${label}»: أضف تقنية واحدة على الأقل.`;
+			if (s.technologies.length === 0 && !this.isTechOptional(s.subSpecialty)) return `«${label}»: أضف تقنية واحدة على الأقل.`;
 			if (s.publicFile === null) return `«${label}»: ارفع الملف العام للنموذج.`;
 			if (s.proofFiles.length === 0) return `«${label}»: ارفع ملف إثبات واحداً على الأقل.`;
 		}
@@ -845,64 +872,37 @@ export class Specialties implements OnInit, OnDestroy {
 		this.samples.update(s => s.filter(x => x.id !== id));
 	}
 
-	private async createSyntheticPngFile(fileName: string, titleText: string, subtitleText: string): Promise<{ file: File; dataUrl: string }> {
-		const canvas = document.createElement('canvas');
-		canvas.width = 960;
-		canvas.height = 540;
-		const ctx = canvas.getContext('2d');
-		if (!ctx) throw new Error('Canvas unavailable');
-		const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-		grad.addColorStop(0, '#070D24');
-		grad.addColorStop(0.55, '#0F1E45');
-		grad.addColorStop(1, '#123B52');
-		ctx.fillStyle = grad;
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.strokeStyle = 'rgba(43,212,199,0.45)';
-		ctx.lineWidth = 4;
-		ctx.strokeRect(24, 24, canvas.width - 48, canvas.height - 48);
-		ctx.fillStyle = '#2BD4C7';
-		ctx.font = '800 32px Arial';
-		ctx.textAlign = 'center';
-		ctx.fillText(titleText.slice(0, 48), canvas.width / 2, canvas.height / 2 - 20);
-		ctx.fillStyle = '#E8ECFF';
-		ctx.font = '600 22px Arial';
-		ctx.fillText(subtitleText.slice(0, 64), canvas.width / 2, canvas.height / 2 + 28);
-		ctx.fillStyle = 'rgba(255,255,255,0.22)';
-		ctx.font = '800 24px Arial';
-		ctx.fillText('وسيط AI · نموذج عمل موثق', canvas.width / 2, canvas.height - 56);
-		const dataUrl = canvas.toDataURL('image/png');
-		const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('Blob failed')), 'image/png'));
-		const file = new File([blob], fileName, { type: 'image/png', lastModified: Date.now() });
-		return { file, dataUrl };
-	}
+	readonly draftingSamples = signal<Set<string>>(new Set());
 
 	async autoFillSample(sampleId: string) {
 		const sample = this.samples().find(s => s.id === sampleId);
-		if (!sample) return;
-		const sub = sample.subSpecialty || 'التخصص المختار';
-		const techs = ['TypeScript', 'Angular', 'Node.js', 'PostgreSQL', 'Docker', 'REST API'];
-		const title = `تطوير منظومة رقمية متكاملة في ${sub}`;
-		const description = `قمت بتصميم وتطوير بنية معمارية متكاملة لمشروع في مجال (${sub}) شملت بناء واجهات تفاعلية سريعة الاستجابة، وربط خدمات الواجهة الخلفية وقواعد البيانات مع تطبيق أعلى معايير الأمان وتحسين الأداء بنسبة 45% وتوثيق الكود المصدري بالكامل.`;
+		if (!sample || this.draftingSamples().has(sampleId)) return;
+		if (sample.title.trim().length < 3 || (sample.description || '').trim().length < 10) {
+			this.stepError.set('اكتب عنواناً ووصفاً لعملك الفعلي أولاً لتحسين الصياغة. ارفع ملفات العمل وإثبات الملكية بنفسك.');
+			return;
+		}
+		const selected = this.selectedSpecId();
+		const title = sample.title; const description = sample.description || '';
+		this.draftingSamples.update(ids => new Set([...ids, sampleId]));
+		this.stepError.set(null);
 		try {
-			const pub = await this.createSyntheticPngFile(`work-sample-${sampleId.slice(-4)}.png`, title, `التقنيات: ${techs.slice(0, 4).join(' · ')}`);
-			const proof = await this.createSyntheticPngFile(`ownership-proof-${sampleId.slice(-4)}.png`, `وثيقة إثبات الملكية والكود المصدري`, `التخصص: ${sub} — ملكية حصرية لمقدم الخدمة`);
-			this.patchSample(sampleId, {
-				title,
-				description,
-				technologies: techs,
-				technologiesInput: techs.join(', '),
-				publicFile: pub.file,
-				publicFileName: pub.file.name,
-				publicFileType: 'image/png',
-				previewUrl: pub.dataUrl,
-				proofFiles: [proof.file],
-				proofFileNames: [proof.file.name],
-				isUploading: false,
-				isProcessingProofs: false
-			});
-			this.stepError.set(null);
+			const response = await firstValueFrom(this.specialtyService.suggestSampleDraft({
+				specialtyName: this.filteredSpecialties().find(s => s.id === selected)?.name || sample.subSpecialty,
+				subSpecialties: [sample.subSpecialty], title, description, technologiesUsed: sample.technologies,
+			}));
+			const current = this.samples().find(s => s.id === sampleId);
+			if (!current || current.title !== title || (current.description || '') !== description || this.selectedSpecId() !== selected) {
+				this.stepError.set('تغيّرت بيانات النموذج أثناء التحليل؛ لم يُطبّق المقترح القديم.');
+				return;
+			}
+			const data = response?.data;
+			if (typeof data?.title !== 'string' || !data.title.trim() || typeof data?.description !== 'string' || !data.description.trim() || !Array.isArray(data.technologiesUsed)) throw new Error('INVALID_DRAFT');
+			const technologies = data.technologiesUsed.filter((t: unknown): t is string => typeof t === 'string' && !!t.trim()).map((t: string) => t.trim()).slice(0, 15);
+			this.patchSample(sampleId, { title: data.title.trim(), description: data.description.trim(), technologies, technologiesInput: technologies.join(', ') });
 		} catch {
-			this.stepError.set('تعذّر تجهيز الملفات التجريبية تلقائياً.');
+			this.stepError.set('تعذر تحسين الصياغة حالياً. بياناتك وملفاتك كما هي؛ يمكنك المتابعة يدوياً.');
+		} finally {
+			this.draftingSamples.update(ids => { const next = new Set(ids); next.delete(sampleId); return next; });
 		}
 	}
 
@@ -1607,6 +1607,7 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.assistantStore.setExamActive(false);
 		this.stopTimer();
 		this.clearSubmissionWatchers();
 		this.antiCheatService.stopMonitoring();

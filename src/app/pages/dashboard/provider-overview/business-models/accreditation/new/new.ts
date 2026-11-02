@@ -384,15 +384,30 @@ export class New implements OnInit, OnDestroy {
 		});
 	}
 
+	isTechOptional(): boolean {
+		const spec = this.getSelectedSpecialty();
+		const text = [spec?.name, this.lockedSpecialtyName(), ...this.selectedSubSpecialties()].filter(Boolean).join(' ');
+		return /قانون|ضريب|محام|عقود|استشار|مالي|محاسب|ترجم|كتاب|إدار|موارد|تحكيم|شرعي/i.test(text);
+	}
+
+	private hasProhibitedContent(): string | null {
+		const norm = `${this.title()} ${this.description()}`.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').toLowerCase();
+		if (/تهرب\s*ضريبي|التهرب\s*الضريبي|غسيل\s*اموال|تزوير\s*فواتير|تلاعب\s*ضريبي|اخفاء\s*الارباح|مشروبات\s*روحيه|خمور|تجاره\s*مخدرات|قمار|اختراق\s*حسابات/i.test(norm)) {
+			return 'لا يُقبل رفع نماذج أعمال تتعلق بالتهرب الضريبي أو أنشطة مخالفة للأنظمة وسياسات المنصة.';
+		}
+		return null;
+	}
+
 	// Step Validations
 	get isValidStep1() {
 		return this.selectedSpecialtyId() !== null;
 	}
 
 	get isValidStep2() {
-			return this.title().trim().length >= 3 &&
+			return !this.hasProhibitedContent() &&
+				this.title().trim().length >= 3 &&
 				this.description().trim().length >= 10 &&
-				this.technologiesUsed().length > 0 &&
+				(this.technologiesUsed().length > 0 || this.isTechOptional()) &&
 				// Batch B T1 (§3): a proof FILE is mandatory (a link alone is not a document)
 				(this.attachments().length + this.existingProofs().length > 0);
 		}
@@ -468,9 +483,11 @@ export class New implements OnInit, OnDestroy {
 
 	private showStep2Errors() {
 		const e: Record<string, string> = {};
-		if (this.title().trim().length < 3) e['title'] = 'عنوان النموذج مطلوب (3 أحرف على الأقل)';
+		const prohibited = this.hasProhibitedContent();
+		if (prohibited) e['title'] = prohibited;
+		else if (this.title().trim().length < 3) e['title'] = 'عنوان النموذج مطلوب (3 أحرف على الأقل)';
 		if (this.description().trim().length < 10) e['description'] = 'الوصف الفني مطلوب (10 أحرف على الأقل)';
-		if (this.technologiesUsed().length === 0) e['technologiesUsed'] = 'أضف تقنية واحدة على الأقل';
+		if (this.technologiesUsed().length === 0 && !this.isTechOptional()) e['technologiesUsed'] = 'أضف تقنية واحدة على الأقل';
 		if (this.attachments().length + this.existingProofs().length === 0) e['files'] = this.proofMissingMessage;
 		this.fieldErrors.set(e);
 		this.focusInvalidSoon();

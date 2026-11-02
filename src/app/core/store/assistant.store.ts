@@ -1,3 +1,4 @@
+import { AssistantExamState } from './assistant-exam-state.service';
 import { DestroyRef, Injectable, Injector, NgZone, PLATFORM_ID, computed, effect, inject, signal, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
@@ -34,8 +35,9 @@ import {
 	commandFor,
 	isBeboDialect,
 	isBeboVoice,
+	normalize,
 } from '../../sheards/bebo-avatar/bebo-commands';
-import { HelpRole, helpRoleOfUrl } from '../help/help-guided';
+import { HelpRole, guidedCatalog, helpRoleOfUrl } from '../help/help-guided';
 import { AuthStore } from './auth.store';
 import { AssistantConversation, AssistantHistory, cleanMessages, conversationTitle, emptyHistory, mergeHistory, newConversationId, readHistory } from '../help/assistant-history';
 
@@ -163,6 +165,8 @@ export class AssistantStore {
 	readonly lastQuestion = signal('');
 	readonly panelOpen = signal(false);
 	readonly dismissed = signal(false);
+	private readonly examState = inject(AssistantExamState);
+	readonly examActive = this.examState.examActive;
 	readonly skin = signal<BeboSkin>(this.loadSkinPref());
 	readonly characterName = computed(() => (this.skin() === 'scout' ? 'نديم' : 'بيبو'));
 	readonly characterRole = computed(() => (this.skin() === 'scout' ? 'دليل وسيط' : 'المساعد الذكي'));
@@ -264,6 +268,7 @@ export class AssistantStore {
 	private sessionIdentity = untracked(() => this.identity());
 
 	constructor() {
+		effect(() => { if (this.examActive()) this.close(); });
 		this.micSupported = !!this.Recognition;
 		this.readTtsPrefs();
 		const sub = this.socket.events$.subscribe((e) => this.onEvent(e));
@@ -309,6 +314,10 @@ export class AssistantStore {
 	dismiss(): void { this.close(); this.dismissed.set(true); }
 	restore(): void { this.dismissed.set(false); }
 	toggleDismissed(): void { this.dismissed() ? this.restore() : this.dismiss(); }
+	setExamActive(active: boolean): void {
+		this.examState.setExamActive(active);
+		if (active) this.close();
+	}
 
 	setProfile(profile: string): void {
 		if (!['auto', 'fast', 'balanced', 'deep'].includes(profile)) return;
@@ -432,7 +441,8 @@ export class AssistantStore {
 				stream.getTracks().forEach(t => t.stop()); this.mediaRecorder = null; this.mediaStream = null; this.recording.set(false); this.stopListening();
 				if (seq !== this.recordingSeq || !parts.length) return;
 				const blob = new Blob(parts, { type: recorder.mimeType }); const reader = new FileReader(); this.sttLoading.set(true);
-				reader.onload = () => { if (seq !== this.recordingSeq) return; const audioBase64 = String(reader.result).split(',')[1]; this.sttSub = this.injector.get(AssistantCapabilitiesService).transcribe(audioBase64, blob.type, BEBO_DIALECTS[this.effectiveDialect()].language).subscribe({ next: result => { if (seq !== this.recordingSeq) return; const text = result.text ?? result.transcript ?? result.data?.text ?? result.data?.transcript ?? ''; this.sttLoading.set(false); if (text) this.ask(text.slice(0, MAX_QUESTION_LENGTH)); else this.micNotice.set('لم يظهر كلام واضح في التسجيل.'); }, error: () => { if (seq === this.recordingSeq) { this.sttLoading.set(false); this.micNotice.set('تعذر تفريغ التسجيل. يمكنك استخدام الإملاء أو الكتابة.'); } } }); };
+				const cleanMime = (blob.type || 'audio/webm').split(';')[0].trim() || 'audio/webm';
+				reader.onload = () => { if (seq !== this.recordingSeq) return; const audioBase64 = String(reader.result).split(',')[1]; this.sttSub = this.injector.get(AssistantCapabilitiesService).transcribe(audioBase64, cleanMime, BEBO_DIALECTS[this.effectiveDialect()].language).subscribe({ next: result => { if (seq !== this.recordingSeq) return; const text = result.text ?? result.transcript ?? result.data?.text ?? result.data?.transcript ?? ''; this.sttLoading.set(false); if (text) this.ask(text.slice(0, MAX_QUESTION_LENGTH)); else this.micNotice.set('لم يظهر كلام واضح في التسجيل.'); }, error: () => { if (seq === this.recordingSeq) { this.sttLoading.set(false); this.micNotice.set('تعذر تفريغ التسجيل. يمكنك استخدام الإملاء أو الكتابة.'); } } }); };
 				reader.onerror = () => { this.sttLoading.set(false); this.micNotice.set('تعذر قراءة التسجيل.'); };
 				reader.readAsDataURL(blob);
 			};
@@ -442,9 +452,32 @@ export class AssistantStore {
 	}
 	cancelRecording(): void { this.recordingSeq++; this.sttSub?.unsubscribe(); this.sttSub = null; if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') { this.mediaRecorder.onstop = null; this.mediaRecorder.stop(); } this.mediaRecorder = null; this.mediaStream?.getTracks().forEach(t => t.stop()); this.mediaStream = null; this.recording.set(false); this.sttLoading.set(false); this.stopListening(); }
 
-	/** Help page chips / the "اسأل المساعد" button: opens Bebo on a ready question (or on the list when no id). */
+	/** Help page chips / the "اسأل المساعد" button: opens Bebo on a ready question (or matches a typed query). */
 	openGuided(id: string | null = null): void {
 		this.updateSupportRoute();
+		const role = this.guidedRole();
+		const q = (id ?? '').trim();
+		if (q && role) {
+			const catalog = guidedCatalog(role);
+			const exact = catalog.find(c => c.id === q);
+			if (exact) {
+				this.guidedPick.set(exact.id);
+				this.open();
+				return;
+			}
+			const normQ = normalize(q);
+			const matched = catalog.find(c => normalize(c.question).includes(normQ) || normalize(c.answer).includes(normQ) || normQ.includes(normalize(c.question)));
+			if (matched) {
+				this.guidedPick.set(matched.id);
+				this.open();
+				return;
+			}
+			this.guidedRole.set(null);
+			this.guidedPick.set(null);
+			this.open();
+			this.ask(q);
+			return;
+		}
 		this.guidedPick.set(id);
 		this.open();
 	}

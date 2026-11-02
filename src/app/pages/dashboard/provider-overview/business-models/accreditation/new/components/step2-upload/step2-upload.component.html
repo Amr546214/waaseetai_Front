@@ -50,7 +50,7 @@
 					<!-- Tech Stack Tags -->
 					<div>
 						<label for="acc-tech" class="flex items-center justify-between text-xs font-extrabold text-[var(--txt)] mb-2">
-							<span>التقنيات والمكتبات المستخدمة (Tech Stack) <span class="ws-req" aria-hidden="true">*</span></span>
+							<span>الأدوات والمنهجيات أو التقنيات المستخدمة <span *ngIf="!technologiesOptional" class="ws-req" aria-hidden="true">*</span><span *ngIf="technologiesOptional"> (اختياري)</span></span>
 							@if (technologiesUsed.length > 0) {
 								<span class="px-2.5 py-0.5 rounded-full bg-[rgba(43,212,199,.12)] border border-[rgba(43,212,199,.25)] text-[#2BD4C7] text-[length:var(--font-size-small)] font-bold">
 									✓ تمت إضافة {{ technologiesUsed.length }} تقنيات
@@ -70,7 +70,7 @@
 						</div>
 						}
 						<div class="flex items-center gap-2">
-							<input type="text" id="acc-tech" [attr.aria-required]="technologiesUsed.length === 0 ? 'true' : null" [ngModel]="techInput" (ngModelChange)="techInputChange.emit($event)"
+							<input type="text" id="acc-tech" [attr.aria-required]="!technologiesOptional && technologiesUsed.length === 0 ? 'true' : null" [ngModel]="techInput" (ngModelChange)="techInputChange.emit($event)"
 								(keyup.enter)="addTechTag()" [placeholder]="technologiesUsed.length > 0 ? 'أضف تقنية أخرى اختيارياً واضغط Enter...' : 'أدخل اسم التقنية (مثال: Angular) واضغط Enter'"
 								class="flex-1 bg-[var(--sec-bg)] border border-[var(--sec-bd)] rounded-xl px-4 py-2.5 text-xs text-[var(--txt)] focus:outline-none focus:border-[#2BD4C7] dir-rtl" />
 							<button type="button" (click)="addTechTag()"

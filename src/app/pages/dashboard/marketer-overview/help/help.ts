@@ -140,7 +140,9 @@ export class Help implements OnInit {
 	readonly choices = guidedCatalog('marketer');
 
 	openAssistant(): void {
-		this.assistant.openGuided();
+		const q = this.searchQuery().trim();
+		this.assistant.openGuided(q || null);
+		if (q) this.searchQuery.set('');
 	}
 
 	askGuided(id: string): void {

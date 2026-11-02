@@ -7,6 +7,7 @@ import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { AssistantExamState } from '../../../../../core/store/assistant-exam-state.service';
 import { ProviderPrefsStore } from '../../../../../core/services/provider-prefs.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
@@ -90,6 +91,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private access = inject(ProviderAccessService);
 	private uiNotify = inject(UiNotificationService);
 	private authStore = inject(AuthStore);
+	private assistantStore = inject(AssistantExamState);
 	private waitTimers = inject(WaitTimerService);
 	private profileApi = inject(ProfileApiService);
 	/** the provider's stored choice (not the page default): while the platform has optional e-mail off, 'email' is only ever sent back if it was already stored */
@@ -241,6 +243,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	constructor() {
 		linkCountryCity(this.setupForm.get('profData'), this.destroyRef);
 		effect(() => {
+			this.assistantStore.setExamActive(this.currentStep() === 7);
+		});
+		effect(() => {
 			const w = this.setupTestService.warningMsg();
 			if (w) {
 				this.alertModal.set({
@@ -391,6 +396,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
+		this.assistantStore.setExamActive(false);
 		if (this.testTimer) clearInterval(this.testTimer);
 		if (typeof document !== 'undefined') {
 			document.removeEventListener('visibilitychange', this.onVisibilityChange);
@@ -739,12 +745,23 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					return;
 				}
 				const existing = new Set(this.skillsList().map(s => s.trim().normalize('NFKC').toLowerCase()));
-				this.aiSuggestedSkills.set(res.data.suggestedSkills.filter(s => {
+				const filtered = res.data.suggestedSkills.filter(s => {
 					const key = s.trim().normalize('NFKC').toLowerCase();
 					if (!key || existing.has(key)) return false;
 					existing.add(key);
 					return true;
-				}));
+				});
+				if (filtered.length < 6 && this.skillOptions().length > 0) {
+					for (const opt of this.skillOptions()) {
+						if (filtered.length >= 6) break;
+						const key = opt.trim().normalize('NFKC').toLowerCase();
+						if (key && !existing.has(key)) {
+							existing.add(key);
+							filtered.push(opt);
+						}
+					}
+				}
+				this.aiSuggestedSkills.set(filtered);
 				this.skillsSuggestionReady.set(true);
 			},
 			error: (err) => {
