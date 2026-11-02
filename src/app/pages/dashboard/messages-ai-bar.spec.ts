@@ -65,9 +65,9 @@ describe('messages pages: وسيط AI bar', () => {
 			expect(panel.lastElementChild?.classList.contains('msg-empty-state')).toBe(true);
 		});
 	}
-	it('admin messages page is an honest unavailable state (no conversations, so no AI bar and no review notice)', () => {
+	it('admin messages page is internal staff messaging: no AI bar and no customer-chat review notice', () => {
 		const html = readFileSync(join(__dirname, 'supper-admin-overview/sa-messages/sa-messages.html'), 'utf-8');
-		expect(html).toContain('app-sa-unavailable');
-		expect(html).not.toContain(BAR_TEXT);
+		expect(html).not.toContain('app-sa-unavailable');
+		expect(html).not.toContain(BAR_TEXT); expect(html).not.toContain('ws-note');
 	});
 });

@@ -1,0 +1,254 @@
+import { DOCUMENT } from '@angular/common';
+import { Injectable, PLATFORM_ID, TransferState, computed, inject, makeStateKey, signal } from '@angular/core';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+import { environment } from '../../../environments/environment';
+import { defaultPathOf } from './identity-defaults';
+import { EMPTY_MANIFEST, IdentityManifest, IdentityManifestItem, parseManifest } from './site-identity.models';
+
+export const IDENTITY_CACHE_KEY = 'ws-site-identity-manifest-v1';
+export const IDENTITY_CHANNEL = 'ws-site-identity';
+const REFRESH_EVERY_MS = 5 * 60_000;
+const FOCUS_THROTTLE_MS = 5_000;
+const FETCH_TIMEOUT_MS = 8_000;
+/** server render: how long a page render waits for the manifest before using the last good one (or the defaults), and how long a fetched manifest is reused */
+export const SSR_FETCH_TIMEOUT_MS = 1_000;
+export const SSR_REUSE_MS = 15_000;
+/** the manifest the server rendered the HTML with, handed to the browser through the page's transfer state (so the first client render == the server HTML, no storage involved) */
+export const IDENTITY_STATE_KEY = makeStateKey<IdentityManifest>('ws-identity-manifest');
+
+/** server process memory: the last good manifest (shared by all renders of this process) */
+const serverMemory: { manifest: IdentityManifest | null; at: number; inflight: Promise<void> | null } = { manifest: null, at: 0, inflight: null };
+/** test hook */
+export function resetServerIdentityMemory(): void { serverMemory.manifest = null; serverMemory.at = 0; serverMemory.inflight = null; }
+
+/**
+ * The single front-end source of the platform's visual identity (design 2026-10-27, decision 9).
+ *  - `resolve(key)` / `url(key)` = the published custom URL, else the built-in default path (identity-defaults.ts). Reading them inside a template/effect tracks the manifest signal.
+ *  - Loads GET /public/site-identity at app start WITHOUT blocking render; the last good manifest is remembered in localStorage and read synchronously, so a returning visitor never flashes the default.
+ *  - ANY failure (network, 5xx, bad JSON, bad shape, storage blocked) keeps the last good manifest, or the built-in default: icons never disappear.
+ *  - Refreshes on window focus / tab visible / every few minutes / when another tab announces a new version (BroadcastChannel + `storage` event).
+ *  - Asset URLs carry the sha256, so a new version simply changes the URL: no manual cache clearing. An asset URL that 404s is reported by its consumer (reportBroken) and falls back to the default.
+ * Nothing here runs on the server (SSR): there the manifest stays empty = built-in defaults.
+ */
+@Injectable({ providedIn: 'root' })
+export class SiteIdentityService {
+	private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
+	private readonly server = isPlatformServer(inject(PLATFORM_ID));
+	private readonly doc = inject(DOCUMENT);
+	private readonly transfer = inject(TransferState);
+	private started = false;
+	private lastFetch = 0;
+	private inflight: Promise<boolean> | null = null;
+	private channel: BroadcastChannel | null = null;
+
+	readonly manifest = signal<IdentityManifest>(EMPTY_MANIFEST);
+	readonly version = computed(() => this.manifest().version);
+	/** the CSS of the active design-token overrides ('' = none): applied by IdentityTokensRuntime */
+	readonly tokensCss = computed(() => this.manifest().tokensCss);
+	/** asset URLs that failed to load (404 / decode error): treated as "no custom version" for their key until the manifest changes */
+	private readonly broken = signal<ReadonlySet<string>>(new Set());
+	/** last failed refresh (null = last attempt fine / none yet); informational only, never shown to visitors */
+	readonly lastError = signal<string | null>(null);
+
+	constructor() {
+		// first client render == server HTML: the manifest the server rendered with (transfer state) wins over an older remembered one; the boot script's answer (first visit, static host) too
+		const best = [this.transfer.get(IDENTITY_STATE_KEY, null), this.readBoot(), this.readCache()]
+			.filter((m): m is IdentityManifest => !!m)
+			.reduce<IdentityManifest | null>((a, m) => (!a || m.version > a.version ? m : a), null);
+		if (best) this.manifest.set(best);
+		this.syncGlobals();
+	}
+
+	/** the answer index.html's boot script fetched on a first visit (window.__wsIdentityBoot), or null */
+	private readBoot(): IdentityManifest | null {
+		if (!this.browser) return null;
+		try { return parseManifest((this.doc.defaultView as (Window & { __wsIdentityBoot?: unknown }) | null)?.__wsIdentityBoot); } catch { return null; }
+	}
+
+	/**
+	 * Browser, app start: when index.html's boot script is still fetching the manifest (first visit, nothing remembered) wait for it (it has its own 1.5 s limit) so the first
+	 * Angular render already uses the right asset. Resolves at once when nothing is pending. Never rejects.
+	 */
+	async awaitBoot(): Promise<void> {
+		if (!this.browser) return;
+		try {
+			const win = this.doc.defaultView as (Window & { __wsIdentityBootPromise?: Promise<unknown> }) | null;
+			if (win?.__wsIdentityBootPromise) await win.__wsIdentityBootPromise;
+			const b = this.readBoot();
+			if (b) this.apply(b, false);
+		} catch { /* keep what we have */ }
+	}
+
+	/**
+	 * Server render, before the app renders: the public manifest with a short timeout; any failure = the last good manifest of this process, else the built-in defaults.
+	 * The result is rendered into the HTML (consumers resolve through it) and handed to the browser via transfer state. Needs SITE_IDENTITY_SSR_API_BASE (e.g. http://backend:5000/api)
+	 * unless url_api is absolute; otherwise the server cannot reach the API and renders the defaults.
+	 */
+	async loadForServer(): Promise<void> {
+		if (!this.server) return;
+		const now = Date.now();
+		if (!serverMemory.manifest || now - serverMemory.at > SSR_REUSE_MS) {
+			if (!serverMemory.inflight) {
+				serverMemory.inflight = this.fetchOnServer().finally(() => { serverMemory.inflight = null; });
+			}
+			await serverMemory.inflight;
+		}
+		const m = serverMemory.manifest;
+		if (m) { this.manifest.set(m); this.transfer.set(IDENTITY_STATE_KEY, m); }
+	}
+
+	private serverApiBase(): string {
+		const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.['SITE_IDENTITY_SSR_API_BASE'];
+		const base = (env && /^https?:\/\//i.test(env) ? env : /^https?:\/\//i.test(this.apiBase) ? this.apiBase : '').replace(/\/+$/, '');
+		return base;
+	}
+
+	private async fetchOnServer(): Promise<void> {
+		const base = this.serverApiBase();
+		if (!base) return;
+		const ctl = new AbortController();
+		const timer = setTimeout(() => ctl.abort(), SSR_FETCH_TIMEOUT_MS);
+		try {
+			const res = await fetch(`${base}/public/site-identity`, { headers: { Accept: 'application/json' }, signal: ctl.signal });
+			if (!res.ok) throw new Error('HTTP ' + res.status);
+			const m = parseManifest(await res.json());
+			if (!m) throw new Error('bad manifest');
+			serverMemory.manifest = m;
+			serverMemory.at = Date.now();
+		} catch (e) {
+			this.lastError.set(String((e as Error)?.message ?? e).slice(0, 120));
+			// keep serverMemory.manifest (last good). Retry soon, not after the full reuse window
+			if (serverMemory.manifest) serverMemory.at = Date.now() - SSR_REUSE_MS + 3_000;
+		} finally { clearTimeout(timer); }
+	}
+
+	/**
+	 * Plain (non-Angular) scripts cannot inject this service: bebo/robot.js looks custom sprite URLs up in `window.__wsIdentityUrls` ({ key: absolute URL }, ONLY keys with a custom version).
+	 * index.html fills the same map from the cache before any script runs; this keeps it current afterwards (publish, rollback, another tab, a broken URL).
+	 */
+	private syncGlobals(): void {
+		if (!this.browser) return;
+		try {
+			const win = this.doc.defaultView as (Window & { __wsIdentityUrls?: Record<string, string> }) | null;
+			if (!win) return;
+			const urls: Record<string, string> = {};
+			for (const k of Object.keys(this.manifest().items)) { const u = this.customUrl(k); if (u) urls[k] = u; }
+			win.__wsIdentityUrls = urls;
+		} catch { /* ignore */ }
+	}
+
+	/** the API base the manifest and the (relative) asset URLs hang on */
+	private get apiBase(): string { return String(environment.url_api || '/api').replace(/\/+$/, ''); }
+	private get apiOrigin(): string { try { return /^https?:\/\//i.test(this.apiBase) ? new URL(this.apiBase).origin : ''; } catch { return ''; } }
+
+	/**
+	 * absolute-or-site-relative URL a browser can request for a manifest item. The server's URLs are relative to the API root ("/public/site-identity/assets/<key>/<sha>");
+	 * a URL that already carries the API prefix ("/api/public/...") or is absolute is used as is.
+	 */
+	absoluteUrl(url: string): string {
+		if (/^https?:\/\//i.test(url) || url.startsWith('//')) return url;
+		let prefix = '/api';
+		try { prefix = (/^https?:\/\//i.test(this.apiBase) ? new URL(this.apiBase).pathname : this.apiBase).replace(/\/+$/, '') || ''; } catch { /* keep default */ }
+		if (url.startsWith('/')) return prefix && (url === prefix || url.startsWith(prefix + '/')) ? this.apiOrigin + url : this.apiBase + url;
+		return this.apiBase + '/' + url;
+	}
+
+	/** the active custom item of a key, or null (default / not published / known broken) */
+	item(key: string): IdentityManifestItem | null {
+		const it = this.manifest().items[key];
+		if (!it) return null;
+		return this.broken().has(this.absoluteUrl(it.url)) ? null : it;
+	}
+	/** the custom URL, or null when the key shows its built-in default */
+	customUrl(key: string): string | null { const it = this.item(key); return it ? this.absoluteUrl(it.url) : null; }
+	isCustom(key: string): boolean { return this.item(key) !== null; }
+	/** custom URL, else the built-in default file path ('' for an inline-symbol default) */
+	resolve(key: string): string { return this.customUrl(key) ?? defaultPathOf(key); }
+	url(key: string): string { return this.resolve(key); }
+
+	/** a consumer's asset failed to load: every consumer of that URL falls back to the default; cleared when the manifest changes */
+	reportBroken(absoluteUrl: string): void {
+		if (!absoluteUrl || this.broken().has(absoluteUrl)) return;
+		this.broken.set(new Set([...this.broken(), absoluteUrl]));
+		this.syncGlobals();
+	}
+
+	/** start loading + listening; idempotent; never throws, never awaited by the app */
+	start(): void {
+		if (!this.browser || this.started) return;
+		this.started = true;
+		void this.refresh(true);
+		try {
+			const win = this.doc.defaultView;
+			win?.addEventListener('focus', () => this.refreshThrottled());
+			this.doc.addEventListener('visibilitychange', () => { if (this.doc.visibilityState === 'visible') this.refreshThrottled(); });
+			win?.addEventListener('storage', (e: StorageEvent) => { if (e.key === IDENTITY_CACHE_KEY) { const m = this.readCache(); if (m) this.apply(m, false); } });
+			win?.setInterval(() => { if (this.doc.visibilityState !== 'hidden') void this.refresh(false); }, REFRESH_EVERY_MS);
+			if (typeof BroadcastChannel !== 'undefined') {
+				this.channel = new BroadcastChannel(IDENTITY_CHANNEL);
+				this.channel.onmessage = (e: MessageEvent) => { const v = Number((e.data as { version?: unknown } | null)?.version); if (Number.isFinite(v) && v !== this.manifest().version) void this.refresh(true); };
+			}
+		} catch { /* a blocked/unsupported API only removes the live refresh */ }
+	}
+
+	private refreshThrottled(): void { if (Date.now() - this.lastFetch >= FOCUS_THROTTLE_MS) void this.refresh(false); }
+
+	/** fetch the public manifest; resolves true when the answer was applied (or already current), false on any failure (last good stays) */
+	refresh(force = false): Promise<boolean> {
+		if (!this.browser) return Promise.resolve(false);
+		if (this.inflight) return this.inflight;
+		if (!force && Date.now() - this.lastFetch < 1_000) return Promise.resolve(true);
+		this.lastFetch = Date.now();
+		this.inflight = this.fetchManifest().finally(() => { this.inflight = null; });
+		return this.inflight;
+	}
+
+	private async fetchManifest(): Promise<boolean> {
+		const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+		const timer = ctl ? setTimeout(() => ctl.abort(), FETCH_TIMEOUT_MS) : null;
+		try {
+			// plain fetch on purpose: the app's HTTP interceptors (auth, 401 logout, error toasts, cache) must never see this background call
+			const res = await fetch(`${this.apiBase}/public/site-identity`, { headers: { Accept: 'application/json' }, cache: 'no-cache', credentials: 'omit', signal: ctl?.signal });
+			if (!res.ok) throw new Error('HTTP ' + res.status);
+			const m = parseManifest(await res.json());
+			if (!m) throw new Error('bad manifest');
+			this.lastError.set(null);
+			this.apply(m, true);
+			return true;
+		} catch (e) {
+			this.lastError.set(String((e as Error)?.message ?? e).slice(0, 120));
+			return false;
+		} finally { if (timer) clearTimeout(timer); }
+	}
+
+	/** swap in a manifest (from the server, another tab, or the admin page right after a save) */
+	apply(m: IdentityManifest, announce: boolean): void {
+		const cur = this.manifest();
+		if (cur.version === m.version && cur.tokensCss === m.tokensCss && JSON.stringify(cur.items) === JSON.stringify(m.items)) { this.ensureCache(m); return; }
+		this.manifest.set(m);
+		this.broken.set(new Set());
+		this.writeCache(m);
+		this.syncGlobals();
+		if (announce) { try { this.channel?.postMessage({ version: m.version }); } catch { /* ignore */ } }
+	}
+
+	/** the admin page calls this after a publish/restore so the very tab that changed it switches at once */
+	adopt(m: IdentityManifest): void { this.apply(m, true); }
+
+	/** an unchanged answer still has to be remembered once (a first visit with nothing published must not look like a first visit again, the boot script reads it) */
+	private ensureCache(m: IdentityManifest): void {
+		if (!this.browser) return;
+		try { const raw = this.doc.defaultView?.localStorage.getItem(IDENTITY_CACHE_KEY); const c = raw ? JSON.parse(raw) as { version?: number; abs?: unknown } : null; if (!c || c.version !== m.version || !c.abs) this.writeCache(m); } catch { /* ignore */ }
+	}
+
+	private readCache(): IdentityManifest | null {
+		if (!this.browser) return null;
+		try { const raw = this.doc.defaultView?.localStorage.getItem(IDENTITY_CACHE_KEY); return raw ? parseManifest(JSON.parse(raw)) : null; } catch { return null; }
+	}
+	private writeCache(m: IdentityManifest): void {
+		try { // `abs` = every item's URL already resolved against the API base: index.html (before any JS) reads it to swap the boot logo / fill window.__wsIdentityUrls; parseManifest ignores it
+			const abs: Record<string, string> = {};
+			for (const [k, it] of Object.entries(m.items)) abs[k] = this.absoluteUrl(it.url);
+			this.doc.defaultView?.localStorage.setItem(IDENTITY_CACHE_KEY, JSON.stringify({ ...m, abs })); } catch { /* storage blocked/full: the in-memory manifest still works */ }
+	}
+}

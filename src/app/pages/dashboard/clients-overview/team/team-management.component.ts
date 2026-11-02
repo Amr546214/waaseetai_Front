@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -28,7 +29,7 @@ import { fieldErrorsFromBody } from '../../../../core/forms/http-error';
 @Component({
 	selector: 'app-team-management',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule],
+	imports: [WsDatePipe, CommonModule, FormsModule, RouterModule],
 	templateUrl: './team-management.component.html',
 	styleUrls: ['./team-management.component.css']
 })

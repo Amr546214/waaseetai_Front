@@ -1,6 +1,8 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, Input, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
+import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 
 export type ErrorType = '404' | '500' | '403' | 'maintenance' | 'session-expired';
 
@@ -65,7 +67,7 @@ const CONFIGS: Record<ErrorType, ErrorConfig> = {
 @Component({
 	selector: 'app-error-page',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [IdentityImgDirective, BrandNamePipe, CommonModule, RouterModule],
 	templateUrl: './error-page.html',
 	styleUrls: ['./error-page.css']
 })

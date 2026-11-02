@@ -16,24 +16,24 @@
 .flt-drawer{position:fixed;top:0;left:-340px;width:300px;height:100%;background:rgba(7,13,36,.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-right:1px solid rgba(255,255,255,.10);z-index:201;padding:22px 20px;overflow-y:auto;transition:left .25s cubic-bezier(.4,0,.2,1)}
 .flt-drawer.open{left:0}
 .flt-drawer-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
-.flt-drawer-ttl{font-size:16px;font-weight:900;color:#fff}
-.flt-close-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:8px;cursor:pointer;color:#A8B2D1;padding:6px 10px;font-family:inherit;font-size:13px;font-weight:700;transition:all .15s}
+.flt-drawer-ttl{font-size:var(--font-size-body);font-weight:900;color:#fff}
+.flt-close-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:8px;cursor:pointer;color:#A8B2D1;padding:6px 10px;font-family:inherit;font-size:var(--font-size-label);font-weight:700;transition:all .15s}
 .flt-close-btn:hover{color:#fff;background:rgba(255,255,255,.10)}
 .flt-sec{margin-bottom:20px}
-.flt-sec-ttl{font-size:10px;font-weight:800;color:#6B7699;letter-spacing:.6px;text-transform:uppercase;margin-bottom:9px}
+.flt-sec-ttl{font-size:var(--font-size-caption);font-weight:800;color:#6B7699;letter-spacing:.6px;text-transform:uppercase;margin-bottom:9px}
 .flt-opts{display:flex;flex-direction:column;gap:6px}
-.flt-opt{display:flex;align-items:center;gap:9px;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:12px;font-weight:600;color:#A8B2D1;font-family:inherit;transition:all .15s;text-align:right}
+.flt-opt{display:flex;align-items:center;gap:9px;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;cursor:pointer;font-size:var(--font-size-small);font-weight:600;color:#A8B2D1;font-family:inherit;transition:all .15s;text-align:right}
 .flt-opt:hover{background:rgba(43,212,199,.06);border-color:rgba(43,212,199,.18);color:var(--teal-txt,#2BD4C7)}
 .flt-opt.active{background:rgba(43,212,199,.10);border-color:rgba(43,212,199,.28);color:var(--teal-txt,#2BD4C7)}
-.flt-check{width:15px;height:15px;min-width:15px;border-radius:4px;border:1.5px solid rgba(255,255,255,.20);display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:9px;font-weight:900}
+.flt-check{width:15px;height:15px;min-width:15px;border-radius:4px;border:1.5px solid rgba(255,255,255,.20);display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:var(--font-size-caption);font-weight:900}
 .flt-opt.active .flt-check{background:var(--teal-txt,#2BD4C7);border-color:var(--teal-txt,#2BD4C7);color:#070D24}
 .flt-actions{display:flex;gap:10px;margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)}
-.flt-apply-btn{flex:1;padding:11px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:13px;font-weight:800;color:#070D24;cursor:pointer;font-family:inherit}
-.flt-reset-btn{padding:11px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:10px;font-size:13px;font-weight:700;color:#A8B2D1;cursor:pointer;font-family:inherit}
+.flt-apply-btn{flex:1;padding:11px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:10px;font-size:var(--font-size-label);font-weight:800;color:#070D24;cursor:pointer;font-family:inherit}
+.flt-reset-btn{padding:11px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:10px;font-size:var(--font-size-label);font-weight:700;color:#A8B2D1;cursor:pointer;font-family:inherit}
 
 .ord-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
 .ord-title{font-size:20px;font-weight:900;color:#fff}
-.ord-sub{font-size:12px;color:#6B7699;margin-top:3px}
+.ord-sub{font-size:var(--font-size-small);color:#6B7699;margin-top:3px}
 .ord-head-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
 :host-context(body.light-theme) .ord-title,

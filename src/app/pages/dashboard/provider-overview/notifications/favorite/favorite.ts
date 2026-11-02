@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
+import { EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, emailDisabledByPlatform, isEmailDisabledError, NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 export interface PreferenceItem {
@@ -106,6 +106,10 @@ export class Favorite implements OnInit {
   private notify = inject(UiNotificationService);
 
   isLoading = signal<boolean>(false);
+  /** the platform switched optional e-mail off: the e-mail row shows the stored choice, disabled */
+  emailDisabled = signal<boolean>(false);
+  readonly emailDisabledText = EMAIL_DISABLED_BY_PLATFORM;
+  readonly codeMailNote = CODE_MAIL_ALWAYS_NOTE;
   hasError = signal<boolean>(false);
   isSaving = signal<boolean>(false);
 
@@ -160,6 +164,8 @@ export class Favorite implements OnInit {
     const map: Record<string, boolean> = {};
     for (const section of this.sections()) {
       for (const item of section.items) {
+        // while the platform has optional e-mail off the option is not editable and not sent (the stored choice is untouched)
+        if (item.id === 'channel_email' && this.emailDisabled()) continue;
         map[item.id] = item.enabled;
       }
     }
@@ -183,6 +189,7 @@ export class Favorite implements OnInit {
       next: (res) => {
         this.isLoading.set(false);
         if (res.success) {
+          this.emailDisabled.set(emailDisabledByPlatform(res));
           this.applySettingsMap(res.data?.settings || {});
         } else {
           this.hasError.set(true);
@@ -204,8 +211,9 @@ export class Favorite implements OnInit {
         if (res.success) this.notify.success('تم حفظ تفضيلات الإشعارات بنجاح');
         else this.notify.error(res.message || 'تعذر حفظ التفضيلات');
       },
-      error: () => {
+      error: (err) => {
         this.isSaving.set(false);
+        if (isEmailDisabledError(err)) { this.emailDisabled.set(true); this.notify.error(EMAIL_DISABLED_BY_PLATFORM); return; }
         this.notify.error('تعذر حفظ التفضيلات، حاول مرة أخرى');
       }
     });

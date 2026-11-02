@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -260,8 +261,7 @@ export class ArchivedProjects implements OnInit {
 		if (rawDate) {
 			try {
 				dateStr = new Date(rawDate).toLocaleDateString('ar-SA-u-nu-latn', {
-					year: 'numeric', month: 'short', day: 'numeric',
-				});
+					year: 'numeric', month: 'short', day: 'numeric', timeZone: providerTimeZone() });
 			} catch {
 				dateStr = String(rawDate);
 			}

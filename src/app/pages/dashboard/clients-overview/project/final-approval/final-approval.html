@@ -12,7 +12,7 @@
 		</div>
 	} @else {
 		<a class="fa-bk" (click)="back()" role="button" tabindex="0">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+			<svg data-ws-icon="ws-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 			العودة إلى المشاريع النشطة
 		</a>
 
@@ -52,7 +52,7 @@
 		     (AI Cleanup Batch 1). -->
 		<div class="ws-note ws-note--neutral" role="region" aria-label="خلاصة المشروع">
 			<div class="ws-note-ico">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+				<svg data-ws-icon="pl-client-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
 			</div>
 			<div class="ws-note-body">
 				<div class="ws-note-lbl">ملخص الإنجاز</div>
@@ -68,9 +68,9 @@
 				<div class="fa-ms-hd">
 					<span class="fa-ms-n" [class.fa-done]="isStageCompleted(stage)" [class.fa-wait]="!isStageCompleted(stage)">
 						@if (isStageCompleted(stage)) {
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+							<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 						} @else {
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>
+							<svg data-ws-icon="pa-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>
 						}
 					</span>
 					<div class="fa-ms-t">
@@ -82,7 +82,7 @@
 				<div class="fa-ms-body">
 					<!-- Delivery note + file chips -->
 					<div class="fa-deliv">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>
+						<svg data-ws-icon="pl-client-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>
 						@if (latestThread(stage)?.note) { {{ latestThread(stage).note }} }
 						@else { تسليم المرحلة }
 						<span class="fa-files">{{ stageFileCount(stage) }} {{ stageFileCount(stage) === 1 ? 'ملف' : 'ملفات' }}</span>
@@ -95,7 +95,7 @@
 							@for (file of stageFiles(stage); track $index) {
 								@if (openUrl(file); as url) {
 									<a class="fa-file-chip" [href]="url" target="_blank" rel="noopener noreferrer" data-testid="fa-file-open">
-										<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>
+										<svg data-ws-icon="pl-client-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>
 										{{ file.name || 'ملف' }}
 									</a>
 									@if (downloadUrl(file); as dl) { <a class="fa-file-chip" [href]="dl" download rel="noopener noreferrer" data-testid="fa-file-download">تنزيل</a> }
@@ -108,7 +108,7 @@
 
 					<!-- Quality note (no AI source) -->
 					<div class="fa-aicheck">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+						<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 						{{ qualityNote(stage) }}
 					</div>
 
@@ -116,7 +116,7 @@
 					<div class="fa-evals">
 						<div class="fa-eval fa-eval-match">
 							<div class="fa-eval-hd">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>
+								<svg data-ws-icon="pl-client-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>
 								<!-- Formerly labelled as an "AI evaluation": no backend AI evaluation is produced per stage
 								     (matchPercentage is always null), so the label is neutral now. -->
 								نسبة التطابق
@@ -125,14 +125,14 @@
 						</div>
 						<div class="fa-eval fa-eval-you">
 							<div class="fa-eval-hd">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+								<svg data-ws-icon="i-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
 								تقييمك
 							</div>
 							@if (hasClientRating(stage)) {
 								<div class="fa-eval-sc">
 									<span class="fa-stars">
 										@for (s of starsArray(); track s) {
-											<svg [class.fa-star-on]="s <= clientRating(stage)" [class.fa-star-off]="s > clientRating(stage)" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
+											<svg data-ws-icon="pl-client-rating-star" [class.fa-star-on]="s <= clientRating(stage)" [class.fa-star-off]="s > clientRating(stage)" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M50 5 L61.8 36.7 L95.1 36.7 L68.6 57.1 L79.4 88.8 L50 70.3 L20.6 88.8 L31.4 57.1 L4.9 36.7 L38.2 36.7 Z"/></svg>
 										}
 									</span>
 									{{ clientRating(stage) }}.0
@@ -152,7 +152,7 @@
 		@if (settled() && settlement(); as st) {
 		<div class="fa-settle" data-testid="fa-settlement">
 			<div class="fa-settle-hd">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 14.5h4a2 2 0 0 0 0-4h-3a2 2 0 0 1 0-4h4"/><path d="M12 6.2v1.4M12 16.4v1.4"/></svg>
+				<svg data-ws-icon="pl-client-dollar-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 14.5h4a2 2 0 0 0 0-4h-3a2 2 0 0 1 0-4h4"/><path d="M12 6.2v1.4M12 16.4v1.4"/></svg>
 				أُغلق بتسوية نزاع: الخلاصة المالية
 			</div>
 			<div class="fa-settle-rows">
@@ -168,7 +168,7 @@
 		} @else {
 		<div class="fa-settle">
 			<div class="fa-settle-hd">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 14.5h4a2 2 0 0 0 0-4h-3a2 2 0 0 1 0-4h4"/><path d="M12 6.2v1.4M12 16.4v1.4"/></svg>
+				<svg data-ws-icon="pl-client-dollar-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 14.5h4a2 2 0 0 0 0-4h-3a2 2 0 0 1 0-4h4"/><path d="M12 6.2v1.4M12 16.4v1.4"/></svg>
 				الخلاصة المالية للمشروع
 			</div>
 			<div class="fa-settle-rows">
@@ -193,7 +193,7 @@
 		<div class="fa-final" data-testid="fa-final">
 			@if (allStagesCompleted()) {
 			<div class="fa-final-t">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+				<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
 				اكتملت مراحل المشروع
 			</div>
 			<p>يمكنك الآن تقييم تجربتك مع مقدم الخدمة.</p>
@@ -208,7 +208,7 @@
 				<app-rating-entry side="client" [key]="rateKey()" [showReason]="false" />
 				}
 				<button type="button" class="fa-btn fa-btn-gh" (click)="openConversation()">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+					<svg data-ws-icon="ws-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 					محادثة المشروع
 				</button>
 			</div>

@@ -1,4 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
+import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AccountType, UserRole } from '../../../core/models/auth.model';
@@ -95,7 +96,7 @@ const ROLE_ACCOUNT_TYPES: Record<string, AccountType> = {
 @Component({
   selector: 'app-welcome',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [BrandNamePipe, CommonModule, RouterLink],
   templateUrl: './welcome.html',
   styleUrl: './welcome.css',
   encapsulation: ViewEncapsulation.None,

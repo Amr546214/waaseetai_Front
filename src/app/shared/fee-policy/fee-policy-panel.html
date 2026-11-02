@@ -1,0 +1,74 @@
+<section class="fp" [class.fp-ss]="variant() === 'ss'" [class.fp-spa]="variant() === 'spa'" dir="rtl" data-testid="fee-policy">
+  <h2 class="fp-h">@if (variant() === 'spa') { <svg class="fp-ico" aria-hidden="true"><use href="#spa-i-wallet"></use></svg> } @else { <svg data-ws-icon="pl-shared-wallet" class="fp-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM14.5 14a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0z"/></svg> }سياسة الرسوم والعمولات@if (true) { <button type="button" class="fp-help-btn" data-testid="fp-help-btn" aria-label="تفاصيل سياسة الرسوم" [attr.aria-expanded]="help()" (click)="help.set(!help())"><svg data-ws-icon="ws-info" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button> }</h2>
+  @if (variant() === 'ss') { <p class="fp-sub">النسب والحدود الدنيا نسخ ثابتة؛ التعديل يُجدول ولا يمسّ العمليات القائمة.</p> }
+  <p class="fp-sub" [hidden]="!help()" data-testid="fp-sub-full">النسب والحدود الدنيا تُحفظ كنسخ ثابتة. التعديل يُجدول لوقت لاحق ويسري على العمليات الجديدة فقط؛ العقود وطلبات الإيداع والسحب القائمة تحتفظ بشروطها.</p>
+
+  @if (loading()) { <div class="fp-note" role="status">جارٍ التحميل…</div> }
+  @else if (loadError()) { <div class="fp-err" role="alert" data-testid="fp-load-error">{{ loadError() }} @if (!forbidden()) { <button type="button" class="fp-btn" data-testid="fp-retry" (click)="load()">إعادة المحاولة</button> }</div> }
+  @else if (view(); as v) {
+    <div class="fp-active" data-testid="fp-active"><span class="fp-dot fp-dot-ok" aria-hidden="true"></span><span class="fp-line">
+      النسخة السارية: <b>{{ v.active.version }}</b> — منذ {{ v.active.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}
+      <span class="fp-src" data-testid="fp-source" [hidden]="!help()">— المصدر: {{ v.activeSource === 'built-in fallback' ? 'قيم مدمجة في الخادم (لا نسخة محفوظة قابلة للقراءة في قاعدة البيانات)' : 'نسخة محفوظة في قاعدة البيانات' }}@if (v.active.note) { — {{ v.active.note }} }</span></span>
+    </div>
+
+    @for (u of pending(); track u.id) {
+      <div class="fp-pending" data-testid="fp-pending"><span class="fp-dot fp-dot-warn" aria-hidden="true"></span><span class="fp-line">
+        نسخة مجدولة <b>{{ u.version }}</b> تسري من {{ u.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</span>
+        @if (canManage()) { <button type="button" class="fp-btn" [disabled]="saving()" (click)="cancel(u)">إلغاء النسخة المجدولة</button> }
+      </div>
+    }
+
+    @if (draft(); as d) {
+      @if (!editable() && canManage()) { <div class="fp-note">توجد نسخة مجدولة؛ ألغِها أو انتظر سريانها قبل جدولة تعديل جديد.</div> }
+      <div class="fp-note" role="note" data-testid="fp-display-only" [hidden]="!help()">الكاش باك ورسوم سحب الوسيط <b>لا تُطبَّق ماليًا حاليًا</b> (لا يوجد قيد يمنح الكاش باك ولا خصم يطبّق رسم السحب)، لذلك تُعرض للاطلاع ولا يمكن تعديلها حتى يُنفَّذ مسارها كاملًا. المطبّق فعليًا: عمولة مقدم الخدمة، عمولة الوسيط، رسوم الإيداع والحدّان الأدنيان للسحب.</div>
+      <div class="fp-tbl-wrap">
+        <table class="fp-tbl" data-testid="fp-ladders">
+          <thead><tr><th>المستوى</th><th>عمولة مقدم الخدمة %</th><th>كاش باك طالب الخدمة % <span class="fp-tag">للعرض فقط</span></th><th>عمولة الوسيط %</th></tr></thead>
+          <tbody>
+            @for (l of levels; track l; let i = $index) {
+              <tr>
+                <td>{{ l }}</td>
+                <td><input class="fp-in" type="number" step="0.01" [value]="d.providerCommissionByLevel[i]" [disabled]="!editable()" (input)="setLadder('providerCommissionByLevel', i, $any($event.target).value)" [attr.aria-label]="'عمولة مقدم الخدمة المستوى ' + l" /></td>
+                <td><input class="fp-in" type="number" step="0.01" [value]="d.clientCashbackByLevel[i]" disabled [attr.aria-label]="'كاش باك المستوى ' + l" /></td>
+                <td><input class="fp-in" type="number" step="0.01" [value]="d.marketerCommissionByLevel[i]" [disabled]="!editable()" (input)="setLadder('marketerCommissionByLevel', i, $any($event.target).value)" [attr.aria-label]="'عمولة الوسيط المستوى ' + l" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="fp-grid">
+        <fieldset class="fp-fs"><legend>رسوم الإيداع % <span class="fp-lg-sub">حسب وسيلة الدفع</span></legend>
+          @for (k of depositKeys; track k) { <label class="fp-row">{{ depositLabels[k] }}<input class="fp-in" type="number" step="0.01" [value]="d.depositFeePercent[k]" [disabled]="!editable()" (input)="setTable('depositFeePercent', k, $any($event.target).value)" /></label> }
+        </fieldset>
+        <fieldset class="fp-fs"><legend>رسوم سحب الوسيط % <span class="fp-tag">للعرض فقط</span></legend>
+          @for (k of withdrawKeys; track k) { <label class="fp-row">{{ withdrawLabels[k] }}<input class="fp-in" type="number" step="0.01" [value]="d.marketerWithdrawalFeePercent[k]" disabled /></label> }
+        </fieldset>
+        <fieldset class="fp-fs"><legend>الحد الأدنى للسحب</legend>
+          <label class="fp-row">الوسيط<input class="fp-in" type="number" step="0.01" [value]="d.minMarketerPayout" [disabled]="!editable()" (input)="setMin('minMarketerPayout', $any($event.target).value)" /></label>
+          <label class="fp-row">مقدم الخدمة (0 = بلا حد)<input class="fp-in" type="number" step="0.01" [value]="d.minProviderPayout" [disabled]="!editable()" (input)="setMin('minProviderPayout', $any($event.target).value)" /></label>
+        </fieldset>
+      </div>
+
+      @if (editable()) {
+        <div class="fp-form">
+          <label class="fp-row">وقت السريان (بتوقيت {{ zoneLabel() }})<input class="fp-in" type="datetime-local" [value]="effectiveFrom()" (input)="effectiveFrom.set($any($event.target).value)" data-testid="fp-effective" /></label>
+          <label class="fp-row">سبب التعديل<input class="fp-in" type="text" maxlength="500" [value]="note()" (input)="note.set($any($event.target).value)" data-testid="fp-note" /></label>
+          <div class="fp-count" data-testid="fp-diff-count">{{ diff().length }} تغييرًا</div>
+          @if (formError()) { <div class="fp-err" role="alert" data-testid="fp-form-error">{{ formError() }}</div> }
+          @for (m of fieldErrors(); track m) { <div class="fp-err" role="alert">{{ m }}</div> }
+          @if (notice()) { <div class="fp-ok" role="status">{{ notice() }}</div> }
+          <div class="fp-actions">
+            <button type="button" class="fp-btn fp-btn-primary" [disabled]="saving() || !diff().length" (click)="submit()" data-testid="fp-submit"><svg data-ws-icon="ws-check" class="fp-chk" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>جدولة التعديل</button>
+            <button type="button" class="fp-btn" [disabled]="saving() || !diff().length" (click)="reset()">تراجع</button>
+          </div>
+        </div>
+      }
+    }
+
+    <h3 class="fp-h3">سجل النسخ</h3>
+    <ul class="fp-hist" data-testid="fp-history">
+      @for (h of v.history; track h.id) { <li class="fp-h-{{ h.state === 'EFFECTIVE' ? 'ok' : h.state === 'SCHEDULED' ? 'warn' : 'off' }}"><span class="fp-dot" aria-hidden="true"></span><span class="fp-h-name">النسخة {{ h.version }} — {{ h.effectiveFrom | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}@if (h.note) { — {{ h.note }} }</span><span class="fp-h-val">{{ stateLabel(h.state) }}</span></li> }
+    </ul>
+  }
+</section>

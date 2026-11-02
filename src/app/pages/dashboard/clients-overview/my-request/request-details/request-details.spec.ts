@@ -67,6 +67,33 @@ describe('RequestDetails — Compare Offers', () => {
 		expect(component).toBeTruthy();
 	});
 
+	it.each([
+		{ rating: 5, filled: 5, bestMatch: false },
+		{ rating: 5, filled: 5, bestMatch: true },
+		{ rating: 4, filled: 4, bestMatch: false },
+		{ rating: 4.4, filled: 4, bestMatch: false },
+		{ rating: 4.5, filled: 5, bestMatch: false },
+		{ rating: 0, filled: 0, bestMatch: false },
+		{ rating: null, filled: 0, bestMatch: true },
+	])('renders stars from the endpoint rating $rating, recommended=$bestMatch', async ({ rating, filled, bestMatch }) => {
+		const proposal = proposalFixture();
+		vi.spyOn(TestBed.inject(HttpClient), 'get').mockReturnValue(of({ success: true, data: {
+			status: 'OPEN', proposals: [{ ...proposal, provider: { ...proposal.provider, rating },
+				aiRecommendationRank: bestMatch ? 1 : null,
+				aiProviderFit: bestMatch ? { source: 'LLM', overallFit: 'HIGH', summary: 'Relevant experience', matchPoints: [], gaps: [] } : null,
+			}],
+		} }));
+		component.fetchRequestDetails('req-1');
+		fixture.detectChanges();
+		await fixture.whenStable();
+		const stars = Array.from(fixture.nativeElement.querySelectorAll('.v1-meta span svg')) as SVGElement[];
+		expect(component.offers()[0].isBestMatch).toBe(bestMatch);
+		expect(stars).toHaveLength(5);
+		const color = bestMatch ? '#2ECC8A' : component.offers()[0].levelColor;
+		expect(stars.filter(star => star.getAttribute('fill') === color)).toHaveLength(filled);
+		expect(fixture.nativeElement.querySelector('.v1-meta span').textContent.trim()).toBe(rating === null ? 'غير متاح' : String(rating));
+	});
+
 	it('hides the compare button when there are 0 offers', async () => {
 		component.offers.set([]);
 		fixture.detectChanges();

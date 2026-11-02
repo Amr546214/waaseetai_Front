@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
@@ -6,6 +7,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AdminTicketDetailData, AdminTicketListItem, SupportTicketMessage, TicketApiService, TicketStatus } from '../../../../../core/services/ticket-api.service';
 import { AdminOpsApiService, AdminStaffMember } from '../../../../../core/services/admin-ops-api.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 import { handleAdminError, reportAdminProblems, SubmitGuard } from '../../shared/admin-form-report';
 import { TICKET_STATUS_LABELS, ticketStatusClass } from '../sa-support';
 
@@ -99,7 +101,7 @@ export class SaSupportDetail implements OnInit {
   }
 
   formatTime(iso: string): string {
-    return new Date(iso).toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return new Date(iso).toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
   }
 
   goBack(): void {
@@ -129,7 +131,39 @@ export class SaSupportDetail implements OnInit {
           this.replyError.set(res.message || 'تعذر إرسال الرد');
         }
       },
-      error: (err) => { this.guard.release(); this.busy.set(false); this.fail(err, 'تعذر إرسال الرد', { message: 'sup-reply', body: 'sup-reply' }, (m) => this.replyError.set(m)); },
+      error: (err) => {
+        this.guard.release();
+        if (mapHttpError(err).outcomeUnknown) { this.verifyReplyAfterUncertainFailure(text, err); return; }
+        this.busy.set(false);
+        this.fail(err, 'تعذر إرسال الرد', { message: 'sup-reply', body: 'sup-reply' }, (m) => this.replyError.set(m));
+      },
+    });
+  }
+
+  /**
+   * The reply may have reached the server although the answer was lost (network drop / 5xx): read the ticket before allowing another send, so the
+   * customer never gets the same reply twice. The draft stays in the box in every outcome except "it was delivered".
+   */
+  private verifyReplyAfterUncertainFailure(text: string, err: unknown) {
+    this.replyError.set('انقطع الاتصال أثناء الإرسال. نتحقق الآن إن كان الرد وصل قبل السماح بإرساله مجددًا…');
+    this.api.adminGetTicket(this.ticketId()).subscribe({
+      next: (res) => {
+        this.busy.set(false);
+        const messages = res.data?.messages ?? [];
+        const delivered = messages.some((m) => this.isStaff(m) && m.body.trim() === text && Date.now() - new Date(m.createdAt).getTime() < 5 * 60_000);
+        if (res.success && res.data) { this.data.set(res.data); }
+        if (delivered) {
+          this.draftReply.set('');
+          this.replyError.set('');
+          this.notify.success('وصل الرد إلى صاحب التذكرة رغم انقطاع الاتصال، ولم يُرسل مرة ثانية');
+        } else {
+          this.replyError.set('لم يصل الرد. نصّك محفوظ في الصندوق، ويمكنك إرساله مجددًا.');
+        }
+      },
+      error: () => {
+        this.busy.set(false);
+        this.fail(err, 'تعذر إرسال الرد', { message: 'sup-reply', body: 'sup-reply' }, (m) => this.replyError.set(m));
+      },
     });
   }
 

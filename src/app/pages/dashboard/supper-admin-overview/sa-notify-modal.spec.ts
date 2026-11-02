@@ -43,13 +43,30 @@ describe('SaNotifyModal form', () => {
 		expectFieldProblem(ta, 'غير مسموح');
 		expect(c.error()).toBe('');
 		expect(c.message()).toBe('رسالة صالحة');
-		for (const st of [429, 500, 0]) {
+		for (const st of [429]) {
 			type('رسالة صالحة'); send.click();
 			http.expectOne((r) => r.method === 'POST').flush({ message: 'x' }, { status: st, statusText: 'x' });
 			await settleForm(); f.detectChanges();
 			expect(c.error(), String(st)).toBeTruthy();
 			expectNoFieldProblem(el);
 			expect(el.querySelector('p[role="alert"]')).toBeTruthy();
+		}
+	});
+
+	it('a lost answer (network drop or 5xx) blocks a second send and points to the audit log, keeping the typed message', async () => {
+		for (const st of [0, 500]) {
+			const { f, c, http, el, send, type } = setup();
+			type('رسالة صالحة');
+			send.click();
+			http.expectOne((r) => r.method === 'POST').flush({ message: 'x' }, { status: st, statusText: 'x' });
+			await settleForm(); f.detectChanges();
+			expect(c.unconfirmed(), String(st)).toBe(true);
+			expect(c.message()).toBe('رسالة صالحة');
+			expect(el.querySelector('[data-testid="notify-unconfirmed"]')).toBeTruthy();
+			expect((el.querySelector('button.btn-primary') as HTMLButtonElement).disabled).toBe(true);
+			c.send();
+			http.expectNone((r) => r.method === 'POST');
+			TestBed.resetTestingModule();
 		}
 	});
 });

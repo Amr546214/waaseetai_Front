@@ -1,3 +1,4 @@
+import { birthDateValidator, maxDobIso } from '../../../../../core/forms/birth-date';
 import { Component, DestroyRef, ElementRef, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -83,12 +84,13 @@ export class ProfileSetupDashboard implements OnInit {
 	readonly countryNames = COUNTRY_NAMES;
 	readonly citiesOf = citiesOf;
 	readonly cityPlaceholder = cityPlaceholder;
+	readonly maxDobIso = maxDobIso();
 	private destroyRef = inject(DestroyRef);
 
 	setupForm: FormGroup = this.fb.group({
 		details: this.fb.group({
-			idNumber: ['', [Validators.required, Validators.pattern(/^[12]\d{9}$/)]],
-			dob: ['', Validators.required],
+			idNumber: ['', [Validators.required, Validators.pattern(/^\d{7,20}$/)]],
+			dob: ['', [Validators.required, birthDateValidator]],
 			country: ['', Validators.required],
 			city: ['', Validators.required],
 			occupation: ['', Validators.required],
@@ -442,7 +444,7 @@ export class ProfileSetupDashboard implements OnInit {
 	private handleSaveError(err: any) {
 		const raw: string = err?.error?.message || '';
 		const fieldFix: [RegExp, string, string, string][] = [
-			[/ID Number/i, 'details.idNumber', 'رقم الهوية غير صحيح: يجب أن يتكون من 10 أرقام ويبدأ بـ 1 أو 2', 'details'],
+			[/ID Number/i, 'details.idNumber', 'رقم الهوية غير صحيح: يجب أن يتكون من 7 إلى 20 رقماً', 'details'],
 			[/PayPal/i, 'bank.paypalPayoutEmail', 'بريد PayPal غير صحيح', 'bank'],
 		];
 		for (const [re, path, message, groupName] of fieldFix) {

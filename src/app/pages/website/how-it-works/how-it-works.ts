@@ -42,6 +42,9 @@ interface FaqItem {
   a: string;
 }
 
+/** every symbol the page can draw through `#hiw-<name>` (the page's own `<symbol>` list), written out in full so the icon tools and the library see them */
+export const HIW_SYMBOL_IDS = ['hiw-broker', 'hiw-building', 'hiw-client', 'hiw-file', 'hiw-info', 'hiw-lock', 'hiw-provider', 'hiw-shield'] as const;
+
 @Component({
   selector: 'app-how-it-works',
   standalone: true,
@@ -50,6 +53,8 @@ interface FaqItem {
   styleUrl: './how-it-works.css'
 })
 export class HowItWorks {
+  /** `#hiw-<name>` of a data icon name (same string as before; the full ids above are what the tools read) */
+  iconHref(name: string): string { const id = 'hiw-' + name; return '#' + (HIW_SYMBOL_IDS.find(i => i === id) ?? id); }
   activeRole = signal<RoleKey>('client-ind');
   openFaq = signal<number | null>(null);
 

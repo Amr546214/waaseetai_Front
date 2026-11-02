@@ -102,19 +102,37 @@ export const BEBO_PRELOAD_ATLASES = [
 	'bebo/scout/guide-speaking.png',
 ] as const;
 
+/** identity key of each warmed-up atlas (core/identity/identity-defaults.ts): a custom version published from «الهوية» is preloaded instead of the built-in file */
+const PRELOAD_KEYS: Record<string, string> = {
+	'bebo/robot-sprites.png': 'character.bebo.classic.sprites',
+	'bebo/robot-actions.png': 'character.bebo.classic.actions',
+	'bebo/robot-speaking.png': 'character.bebo.classic.speaking',
+	'bebo/scout/guide-sprites.png': 'character.bebo.scout.sprites',
+	'bebo/scout/guide-actions.png': 'character.bebo.scout.actions',
+	'bebo/scout/guide-speaking.png': 'character.bebo.scout.speaking',
+};
+
 const preloaded = new Set<string>();
 /** Held so the decoded bitmaps stay alive until robot.js first paints them. */
 const keepAlive: HTMLImageElement[] = [];
 
-export function preloadBeboAtlases(doc: Document): void {
+/**
+ * Warms the atlases of ONE skin (the one on screen): the other skin's three ~1 MB files are fetched only if that skin is chosen (a later call with it). Measured on the admin dashboard: preloading
+ * both skins cost 3.3 MB of the 6.7 MB of images on every page for pictures nobody sees. Without `skin` every atlas is warmed (previous behaviour).
+ */
+export function preloadBeboAtlases(doc: Document, skin?: 'classic' | 'scout'): void {
 	const win = doc.defaultView;
 	if (!win || typeof win.Image !== 'function') return;
 	for (const path of BEBO_PRELOAD_ATLASES) {
-		const href = new URL(path, doc.baseURI).href;
+		if (skin && path.startsWith('bebo/scout/') !== (skin === 'scout')) continue;
+		const custom = (win as unknown as { __wsIdentityUrls?: Record<string, string> }).__wsIdentityUrls?.[PRELOAD_KEYS[path]];
+		const href = typeof custom === 'string' && custom ? custom : new URL(path, doc.baseURI).href;
 		if (preloaded.has(href)) continue;
 		preloaded.add(href);
 		const img = new win.Image();
 		img.decoding = 'async';
+		// the warm-up must never compete with the page's own data and scripts
+		(img as HTMLImageElement & { fetchPriority?: string }).fetchPriority = 'low';
 		img.src = href;
 		img.decode?.().catch(() => preloaded.delete(href));
 		keepAlive.push(img);

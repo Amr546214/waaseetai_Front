@@ -7,7 +7,7 @@
   </div>
 
   <div class="ws-note ws-note--neutral">
-    <div class="ws-note-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+    <div class="ws-note-ico"><svg data-ws-icon="pl-admin-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
     <div class="ws-note-body">
       <div class="ws-note-lbl">وسيط: نظام التصنيف</div>
       <p class="ws-note-txt">تُعرض المستويات المعتمدة وأعداد المقدمين الفعلية في كل مستوى</p>
@@ -50,14 +50,14 @@
         </table>
       </div>
       <button type="button" class="cat-tier-edit-btn" disabled [title]="readOnlyReason" style="opacity:.5;cursor:not-allowed;margin-top:10px">تعديل الشروط</button>
-      <div class="txt-muted" style="font-size:11.5px;margin-top:6px">{{ readOnlyReason }}.</div>
+      <div class="txt-muted" style="font-size:var(--font-size-small);margin-top:6px">{{ readOnlyReason }}.</div>
     </div>
 
     <div class="cat-card">
       <div class="cat-card-ttl-row">
         <span class="cat-card-ttl">أعلى مقدمي الخدمة بالنقاط</span>
         <div class="cat-search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input type="search" placeholder="ابحث باسم المقدم..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
         </div>
       </div>
@@ -85,7 +85,7 @@
 
     <div class="cat-card">
       <div class="cat-card-ttl">محاكاة تغيير الشروط</div>
-      <div class="txt-muted" style="font-size:11.5px">معطّلة: لا يوجد مصدر لحساب عدد المؤهلين بشروط افتراضية، ولا يمكن تعديل الشروط من الواجهة. {{ readOnlyReason }}.</div>
+      <div class="txt-muted" style="font-size:var(--font-size-small)">معطّلة: لا يوجد مصدر لحساب عدد المؤهلين بشروط افتراضية، ولا يمكن تعديل الشروط من الواجهة. {{ readOnlyReason }}.</div>
     </div>
   }
 </section>

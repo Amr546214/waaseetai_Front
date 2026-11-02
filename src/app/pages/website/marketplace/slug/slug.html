@@ -116,7 +116,7 @@
             <span class="filter-title-ico"><svg><use href="#ws-filter"></use></svg></span>
             تصفية النتائج
           </div>
-          <div style="display:flex;align-items:center;gap:10px"><button class="filter-reset" type="button" (click)="resetDraft()">إعادة ضبط</button><button class="fdrawer-close" type="button" (click)="closeFilters()" aria-label="إغلاق الفلاتر"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+          <div style="display:flex;align-items:center;gap:10px"><button class="filter-reset" type="button" (click)="resetDraft()">إعادة ضبط</button><button class="fdrawer-close" type="button" (click)="closeFilters()" aria-label="إغلاق الفلاتر"><svg data-ws-icon="pl-site-x" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
         </div>
         <div class="fdrawer-body">
 
@@ -168,7 +168,7 @@
           <div class="filter-lbl">تخصصات مشابهة</div>
           <div class="filter-opts" style="flex-direction:column;gap:0">
             @for (sub of relatedSubs(); track sub.id) {
-            <a [routerLink]="['/marketplace', slug()]" [queryParams]="{ sub: sub.slug }" class="related-link"><span style="font-size:12px;color:var(--txt-2)">{{ sub.name }}</span><span style="font-size:11px;color:var(--txt-3)">{{ getSubCount(sub.slug) | number:'1.0-2' }}</span></a>
+            <a [routerLink]="['/marketplace', slug()]" [queryParams]="{ sub: sub.slug }" class="related-link"><span style="font-size:var(--font-size-small);color:var(--txt-2)">{{ sub.name }}</span><span style="font-size:var(--font-size-small);color:var(--txt-3)">{{ getSubCount(sub.slug) | number:'1.0-2' }}</span></a>
             }
           </div>
         </div>
@@ -206,7 +206,7 @@
         <div class="results-bar">
           <div class="results-count"><strong>{{ totalResults() | number:'1.0-2' }}</strong> خدمة في {{ heroName() }}</div>
           <div class="sort-row">
-            <button class="filters-btn" type="button" (click)="openFilters()" aria-haspopup="dialog" aria-controls="filters-drawer" [attr.aria-expanded]="filtersOpen()"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>الفلاتر @if (activeFilterCount() > 0) {<span class="filters-count">{{ activeFilterCount() }}</span>}</button>
+            <button class="filters-btn" type="button" (click)="openFilters()" aria-haspopup="dialog" aria-controls="filters-drawer" [attr.aria-expanded]="filtersOpen()"><svg data-ws-icon="pl-site-filter" viewBox="0 0 24 24" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>الفلاتر @if (activeFilterCount() > 0) {<span class="filters-count">{{ activeFilterCount() }}</span>}</button>
             <span class="sort-lbl">ترتيب:</span>
             <select class="sort-sel" [value]="sortBy()" (change)="setSort($event)" aria-label="ترتيب">
               <option value="relevance">الأكثر صلة</option>
@@ -286,16 +286,16 @@
               <div class="svc-price">
                 @if (isOwn(model)) {
                 <span data-testid="own-service" class="svc-price-lbl">خدمة منشورة باسمك</span>
-                <span data-testid="own-service" class="svc-price-val" style="font-size:12px">هذه خدمتك</span>
+                <span data-testid="own-service" class="svc-price-val" style="font-size:var(--font-size-small)">هذه خدمتك</span>
                 } @else if (hasActivePurchase(model)) {
                 <span class="svc-price-lbl">لديك طلب قائم</span>
-                <span class="svc-price-val" style="font-size:12px">قيد التنفيذ</span>
+                <span class="svc-price-val" style="font-size:var(--font-size-small)">قيد التنفيذ</span>
                 } @else if (model.totalAmount) {
                 <span class="svc-price-lbl">يبدأ من</span>
                 <span class="svc-price-val">{{ model.totalAmount | number:'1.0-0' }} <span class="svc-price-unit">$</span></span>
                 } @else {
                 <span class="svc-price-lbl">سعر الخدمة</span>
-                <span class="svc-price-val" style="font-size:12px">نشط وقابل للطلب</span>
+                <span class="svc-price-val" style="font-size:var(--font-size-small)">نشط وقابل للطلب</span>
                 }
               </div>
               @if (model.totalDays) {

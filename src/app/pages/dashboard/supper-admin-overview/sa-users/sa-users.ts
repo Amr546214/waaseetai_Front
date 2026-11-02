@@ -47,6 +47,7 @@ export class SaUsers implements OnInit {
 
   users = signal<AdminUser[]>([]);
   usersStats = signal<AdminUsersStats | null>(null);
+  statsError = signal(false);
   totalUsersCount = signal<number>(0);
   totalPages = signal<number>(1);
   loading = signal<boolean>(false);
@@ -91,11 +92,13 @@ export class SaUsers implements OnInit {
     const NA = 'غير متاح';
 
     if (!stats) {
+      // No stats yet (loading) or they failed: show a dash, never a fake "0".
+      const sub = this.statsError() ? 'تعذر تحميل الإحصاءات' : 'جاري التحميل...';
       return [
-        { ic: 'i-person', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'إجمالي المستخدمين', val: '0', sub: 'جاري التحميل...', subCl: '#0FA99A' },
-        { ic: 'i-check', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'نشطون هذا الشهر', val: '0', sub: '0% من الإجمالي', subCl: '#6B7699' },
-        { ic: 'i-pause', bg: 'rgba(255,140,105,.12)', cl: '#FF8C69', lbl: 'موقوفون', val: '0', sub: '0 بانتظار مراجعة', subCl: '#D98A0B' },
-        { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'جدد هذا الأسبوع', val: '0', sub: '0% من الأسبوع الماضي', subCl: '#0FA99A' }
+        { ic: 'i-person', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'إجمالي المستخدمين', val: '—', sub, subCl: '#6B7699' },
+        { ic: 'i-check', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'نشطون هذا الشهر', val: '—', sub, subCl: '#6B7699' },
+        { ic: 'i-pause', bg: 'rgba(255,140,105,.12)', cl: '#FF8C69', lbl: 'موقوفون', val: '—', sub, subCl: '#6B7699' },
+        { ic: 'su-stat-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'جدد هذا الأسبوع', val: '—', sub, subCl: '#6B7699' }
       ];
     }
 
@@ -104,41 +107,41 @@ export class SaUsers implements OnInit {
         { ic: 'i-person', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'طلاب الخدمة الفرد', val: formatNumber(stats.tabCounts['sk-ind']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
         { ic: 'i-list', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'إجمالي الطلبات', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
         { ic: 'i-wallet', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'إجمالي الإنفاق', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
-        { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'جدد هذا الأسبوع', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
+        { ic: 'su-stat-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'جدد هذا الأسبوع', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
       ];
     } else if (tab === 'sk-co') {
       return [
         { ic: 'i-person', bg: 'rgba(255,180,0,.12)', cl: '#D98A0B', lbl: 'شركات طالبة', val: formatNumber(stats.tabCounts['sk-co']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
         { ic: 'i-wallet', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'إجمالي الميزانيات', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
         { ic: 'i-check', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'المستخدمون النشطون', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#6B7699' },
-        { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'شركات جديدة', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
+        { ic: 'su-stat-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'شركات جديدة', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
       ];
     } else if (tab === 'pr-ind') {
       return [
         { ic: 'i-person', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'مقدمو الخدمة الفرد', val: formatNumber(stats.tabCounts['pr-ind']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
         { ic: 'i-wallet', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'نشطون هذا الشهر', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#0FA99A' },
         { ic: 'i-check', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'متوسط التقييم', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
-        { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'مقدمون جدد', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
+        { ic: 'su-stat-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'مقدمون جدد', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
       ];
     } else if (tab === 'pr-co') {
       return [
         { ic: 'i-person', bg: 'rgba(89,193,245,.12)', cl: '#59C1F5', lbl: 'شركات مقدمة', val: formatNumber(stats.tabCounts['pr-co']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
         { ic: 'i-wallet', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'نشطون هذا الشهر', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#0FA99A' },
         { ic: 'i-escrow', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'الموقوفون والمراجعة', val: formatNumber(stats.suspendedCount.count), sub: `${stats.suspendedCount.pendingReview} بانتظار مراجعة`, subCl: '#6B7699' },
-        { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'شركات جديدة', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
+        { ic: 'su-stat-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'شركات جديدة', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
       ];
     } else if (tab === 'affiliate') {
       return [
         { ic: 'i-market', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'وسطاء تسويقيون', val: formatNumber(stats.tabCounts['affiliate']), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
         { ic: 'i-check', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'نشطون هذا الشهر', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#6B7699' },
         { ic: 'i-wallet', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'عمولات مستحقة', val: NA, sub: 'غير متوفر في الإحصائيات الحالية', subCl: '#6B7699' },
-        { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'وسطاء جدد', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
+        { ic: 'su-stat-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'وسطاء جدد', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
       ];
     } else if (tab === 'admin') {
       return [
         { ic: 'i-person', bg: 'rgba(255,180,0,.12)', cl: '#FFB400', lbl: 'موظفو الإدارة', val: formatNumber(stats.tabCounts['admin']), sub: 'كل الأدوار', subCl: '#6B7699' },
         { ic: 'i-check', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'نشطون هذا الشهر', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#6B7699' },
-        { ic: 'i-bell', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'جدد هذا الأسبوع', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' },
+        { ic: 'su-stat-bell', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'جدد هذا الأسبوع', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' },
         { ic: 'i-shield', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'حالات المراجعة', val: formatNumber(stats.suspendedCount.pendingReview), sub: 'بانتظار الحل', subCl: '#D98A0B' }
       ];
     }
@@ -147,7 +150,7 @@ export class SaUsers implements OnInit {
       { ic: 'i-person', bg: 'rgba(43,212,199,.12)', cl: '#2BD4C7', lbl: 'إجمالي المستخدمين', val: formatNumber(stats.totalUsers.count), sub: stats.totalUsers.growth, subCl: '#0FA99A' },
       { ic: 'i-check', bg: 'rgba(15,169,154,.12)', cl: '#0FA99A', lbl: 'نشطون هذا الشهر', val: formatNumber(stats.activeThisMonth.count), sub: stats.activeThisMonth.ratio, subCl: '#6B7699' },
       { ic: 'i-pause', bg: 'rgba(255,140,105,.12)', cl: '#FF8C69', lbl: 'موقوفون', val: formatNumber(stats.suspendedCount.count), sub: `${stats.suspendedCount.pendingReview} بانتظار مراجعة`, subCl: '#D98A0B' },
-      { ic: 'i-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'جدد هذا الأسبوع', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
+      { ic: 'su-stat-bell', bg: 'rgba(43,127,255,.12)', cl: '#5DA0FF', lbl: 'جدد هذا الأسبوع', val: formatNumber(stats.newThisWeek.count), sub: stats.newThisWeek.growth, subCl: '#0FA99A' }
     ];
   }
 
@@ -171,13 +174,16 @@ export class SaUsers implements OnInit {
   }
 
   fetchStats() {
+    this.statsError.set(false);
     this.usersService.getStats().subscribe({
       next: (res) => {
         if (res.success) {
           this.usersStats.set(res.data);
+        } else {
+          this.statsError.set(true);
         }
       },
-      error: (err) => console.error('Failed to load user stats:', err)
+      error: () => this.statsError.set(true)
     });
   }
 

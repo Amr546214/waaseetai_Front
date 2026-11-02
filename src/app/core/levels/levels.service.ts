@@ -17,7 +17,7 @@ export interface LevelsPayload {
 	thresholdRule: 'GREATER_OR_EQUAL';
 	roles: { PROVIDER: RoleLevels; CLIENT: RoleLevels; MARKETER: RoleLevels };
 	/** نسب الدفع.xlsx: the client's deposit fee by method and the marketer's withdrawal fee by method (percent) */
-	payments: { clientDeposit: Record<string, number>; marketerWithdrawal: Record<string, number> };
+	payments: { clientDeposit: Record<string, number>; marketerWithdrawal: Record<string, number>; minMarketerPayout?: number; minProviderPayout?: number };
 }
 
 export const DEPOSIT_METHOD_LABELS: Record<string, string> = { mada: 'مدى', visa_mastercard: 'فيزا/ماستر', paypal: 'PayPal', international_transfer: 'تحويل دولي', other: 'غير ذلك' };
@@ -46,6 +46,10 @@ export class LevelsService {
 	load(): Observable<{ success: boolean; data: LevelsPayload }> {
 		return this.http.get<{ success: boolean; data: LevelsPayload }>(`${environment.url_api}/levels`).pipe(tap(r => { if (r?.success && r.data) this.payload.set(r.data); }));
 	}
+
+	/** Minimum payout from the ACTIVE fee policy (null until loaded); 0 provider minimum = none. */
+	readonly minMarketerPayout = computed(() => this.payload()?.payments?.minMarketerPayout ?? null);
+	readonly minProviderPayout = computed(() => this.payload()?.payments?.minProviderPayout ?? null);
 
 	/** { min, max } percentage of a role's ladder, or null when not loaded. */
 	range(role: 'PROVIDER' | 'CLIENT' | 'MARKETER') {

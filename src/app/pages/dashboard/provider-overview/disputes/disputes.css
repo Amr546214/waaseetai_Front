@@ -22,23 +22,10 @@
 :host-context(.theme-light) {
   --pg: #F6F8FC;
   --surface: #FFFFFF;
-  --border: #E7EAF1;
   --crd-bd: #E7EAF1;
-  --crd-bg: #FFFFFF;
   --tint-bd: #E7EAF1;
-  --sec-bg: #FFFFFF;
   --sec-bd: #E7EAF1;
   --sec-bd-hover: rgba(29, 111, 224, .35);
-  --sec-bg-hover: #FAFBFF;
-  --txt: #0F172A;
-  --txt-2: #475569;
   --txt-3: #6B7699;
-  --teal-txt: #0F8A7F;
-  --blue-txt: #1D6FE0;
-  --green: #0A6F64;
-  --ai-txt: #6B27A5;
-  --ai-border: rgba(123, 47, 190, .28);
-  --ai-nte-bd: rgba(123, 47, 190, .28);
-  --ai-nte-bg: rgba(123, 47, 190, .06);
   --ai-nte-clr: #56607D;
 }

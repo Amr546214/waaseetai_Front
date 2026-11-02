@@ -1,3 +1,4 @@
+import { adminRoleOf } from '../routing/role-routes';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, InjectionToken, PLATFORM_ID } from '@angular/core';
@@ -33,6 +34,8 @@ export const serverActiveRoleGuard: CanActivateFn = (_route, state) => {
   if (!isPlatformBrowser(platformId)) return true;
   const requiredRole = roleAreaOfUrl(state.url);
   if (!requiredRole) return true;
+  // an admin account never acts in the client / provider / marketer areas (and has no role to reconcile): its own area, no server read
+  if (adminRoleOf(auth.currentUser())) return of(router.createUrlTree(['/supper-admin-overview']));
 
   return auth.isInitialized$.pipe(
     filter(Boolean), take(1),

@@ -39,6 +39,16 @@ async function setup(res: any, over: { chat?: any; post?: any } = {}) {
 afterEach(() => TestBed.resetTestingModule());
 
 describe('RequestDetails - states and actions come from the server', () => {
+	it.each([
+		{ budget: { type: 'HOURLY', min: 45, max: 45 }, expected: '45 $/ساعة' },
+		{ budget: { type: 'FIXED', min: 500 }, expected: '500 $' },
+		{ budget: { type: 'RANGE', min: 500, max: 1000 }, expected: '500 - 1,000 $' },
+	])('shows the $budget.type budget amount in the header', async ({ budget, expected }) => {
+		const s = await setup(details({ budget }));
+		expect(s.c.request().budget).toBe(expected);
+		expect(s.el.querySelector('.od-meta-item .od-meta-val')!.textContent).toContain(expected);
+	});
+
 	it('shows the server stage label and no invented duration ("غير محدد")', async () => {
 		const s = await setup(details());
 		expect(s.el.querySelector('.od-hd .opill')!.textContent).toContain('وصلتك عروض');
@@ -157,6 +167,22 @@ describe('RequestDetails - states and actions come from the server', () => {
 		s.c.negPrice.set('4,000 $');
 		s.c.sendNegotiation();
 		expect((s.chat.initiateConversation as any).mock.calls[0][0].negotiationPayload).toMatchObject({ negType: 'price', price: '4000', duration: '' });
+	});
+
+	it('accepts a decimal suggested price through the number input and sends it', async () => {
+		const s = await setup(details());
+		s.c.openNegotiation(s.c.offers()[0]);
+		s.f.detectChanges();
+		const input = s.el.querySelector<HTMLInputElement>('#neg-price')!;
+		expect(input.type).toBe('number');
+		expect(input.min).toBe('0.01');
+		expect(input.step).toBe('0.01');
+		input.value = '1250.5';
+		input.dispatchEvent(new Event('input', { bubbles: true }));
+		expect(input.validity.valid).toBe(true);
+		expect(s.c.negPrice()).toBe('1250.5');
+		s.c.sendNegotiation();
+		expect(s.chat.initiateConversation.mock.calls[0][0].negotiationPayload).toMatchObject({ negType: 'price', price: '1250.5', duration: '' });
 	});
 
 	it('negotiation on a closed offer: the server\'s refusal is shown, NO fake conversation is opened', async () => {

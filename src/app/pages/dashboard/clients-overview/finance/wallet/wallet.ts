@@ -1,4 +1,5 @@
 import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -135,8 +136,7 @@ export class Wallet implements OnInit {
         const formattedDate = new Date(tx.createdAt).toLocaleDateString('ar-EG', {
           year: 'numeric',
           month: '2-digit',
-          day: '2-digit'
-        });
+          day: '2-digit', timeZone: providerTimeZone() });
 
         // A failed attempt moved no money: no sign. A recorded payment is stored negative (ORDER_PAYMENT), so the sign is shown once, from the direction.
         const sign = isFailed ? '' : (direction === 'in' ? '+' : '-');

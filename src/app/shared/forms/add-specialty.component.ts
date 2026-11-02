@@ -32,9 +32,9 @@ type Row = RegisteredSpecialty & SpecialtyApprovalInfo;
 	styles: [`
 		.wsa{display:flex;flex-direction:column;gap:12px;margin:18px 0;padding:16px 18px;border-radius:16px;background:var(--crd-bg);border:1px dashed rgba(43,212,199,.35)}
 		.wsa-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-		.wsa-title{margin:0 0 4px;font-size:14px;font-weight:900;color:var(--txt)}
-		.wsa-text{margin:0;max-width:640px;font-size:12.5px;line-height:1.8;color:var(--txt-2)}
-		.wsa-cta{padding:11px 24px;border-radius:999px;font-size:13px;font-weight:800;text-decoration:none;color:#070D24;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);white-space:nowrap}
+		.wsa-title{margin:0 0 4px;font-size:var(--font-size-label);font-weight:900;color:var(--txt)}
+		.wsa-text{margin:0;max-width:640px;font-size:var(--font-size-label);line-height:1.8;color:var(--txt-2)}
+		.wsa-cta{padding:11px 24px;border-radius:999px;font-size:var(--font-size-label);font-weight:800;text-decoration:none;color:#070D24;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);white-space:nowrap}
 	`],
 })
 export class AddSpecialtyComponent {

@@ -70,7 +70,8 @@ export class Notifications implements OnInit {
 		{ id: 'all', label: 'الكل' },
 		{ id: 'finance', label: 'عمولات' },
 		{ id: 'general', label: 'عام' },
-		{ id: 'ai', label: 'ذكاء AI' },
+		{ id: 'ai',
+				label: 'ذكاء AI' },
 	];
 	filters = computed(() => this.allFilters.filter(f => f.id !== 'ai' || this.notifications().some(n => n.filterGroup === 'ai') || this.activeFilter() === 'ai'));
 
@@ -219,11 +220,12 @@ export class Notifications implements OnInit {
 		return typeof url === 'string' && url.startsWith('/marketer-overview/') ? url : undefined;
 	}
 
-	private iconFor(group: FilterGroup): { bg: string; color: string; svg: string; label: string } {
+	private iconFor(group: FilterGroup): { bg: string; color: string; svg: string; label: string; ws?: string; aiMark?: boolean } {
 		if (group === 'finance') {
 			return {
 				bg: 'bg-[rgba(15,169,154,.14)]', color: 'text-[#0FA99A]',
 				svg: '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>',
+				ws: 'pl-notify-commission',
 				label: 'عمولات'
 			};
 		}
@@ -231,12 +233,14 @@ export class Notifications implements OnInit {
 			return {
 				bg: 'bg-[rgba(123,47,190,.14)]', color: 'text-[#A56BE0]',
 				svg: '<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>',
+				aiMark: true,
 				label: 'ذكاء AI'
 			};
 		}
 		return {
 			bg: 'bg-[rgba(160,178,209,.12)]', color: 'text-[var(--txt-3)]',
 			svg: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>',
+			ws: 'i-bell',
 			label: 'عام'
 		};
 	}
@@ -252,7 +256,7 @@ export class Notifications implements OnInit {
 			iconBgClass: icon.bg,
 			iconColorClass: icon.color,
 			svgIcon: icon.svg,
-			iconHtml: this.notificationEngine.buildIconHtml(icon.svg),
+			iconHtml: this.notificationEngine.buildIconHtml(icon.svg, icon.ws, icon.aiMark),
 			categoryLabel: icon.label,
 			filterGroup: group,
 			target: this.resolveTarget(raw),

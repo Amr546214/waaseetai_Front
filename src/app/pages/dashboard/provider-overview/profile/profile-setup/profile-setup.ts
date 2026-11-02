@@ -25,13 +25,14 @@ import { MB, validateFile } from '../../../../../core/forms/file-validation';
 import { PaypalEmailConfirmComponent } from '../../../../../shared/forms/paypal-email-confirm.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
-import { birthDateValidator, dobInputValue } from '../../../../../core/forms/birth-date';
+import { birthDateValidator, dobInputValue, maxDobIso } from '../../../../../core/forms/birth-date';
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
 import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSetup } from './provider-setup-state';
 import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../core/services/provider-access.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, isEmailDisabledError } from '../../../../../core/services/notification-preferences.service';
 
 const SETUP_LABELS: Record<string, string> = {
 	jobTitle: 'المسمى الوظيفي',
@@ -91,6 +92,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private authStore = inject(AuthStore);
 	private waitTimers = inject(WaitTimerService);
 	private profileApi = inject(ProfileApiService);
+	/** the provider's stored choice (not the page default): while the platform has optional e-mail off, 'email' is only ever sent back if it was already stored */
+	private storedEmailChannel = false;
 	private prefsStore = inject(ProviderPrefsStore);
 	private providerProfileService = inject(ProviderProfileService);
 	private specialtyService = inject(SpecialtyService);
@@ -201,6 +204,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private storedAvatarUrl = '';
 	avatarError = signal('');
 	readonly todayIso = new Date().toISOString().slice(0, 10);
+	readonly maxDobIso = maxDobIso();
 	/** The skills offered for the chosen main specialty (the backend catalog): the only skills that can be picked. */
 	skillOptions = signal<string[]>([]);
 	skillsNotice = signal('');
@@ -208,6 +212,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	skillsList = signal<string[]>([]);
 	isSuggestingSkills = signal<boolean>(false);
 	notifChannels = signal<string[]>(['email']);
+	/** the platform switched optional e-mail off: the e-mail channel is shown with its stored state but cannot be toggled */
+	emailDisabledByPlatform = signal(false);
+	readonly emailDisabledText = EMAIL_DISABLED_BY_PLATFORM;
+	readonly codeMailNote = CODE_MAIL_ALWAYS_NOTE;
 	aiSuggestedSkills = signal<string[]>([]);
 	skillsSuggestionError = signal('');
 	skillsSuggestionReady = signal(false);
@@ -314,6 +322,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					const prefs = d.preferences && typeof d.preferences === 'object' ? d.preferences : {};
 					if (prefs.preferredCommunicationLanguage === 'ar' || prefs.preferredCommunicationLanguage === 'en') this.setupForm.get('uiLanguage')?.setValue(prefs.preferredCommunicationLanguage);
 					if (typeof prefs.timezone === 'string' && prefs.timezone) this.setupForm.get('profData.timezone')?.setValue(prefs.timezone);
+					// the setup answer carries the platform's optional-e-mail state (false = switched off by the platform)
+					this.emailDisabledByPlatform.set(d.emailEnabledByPlatform === false);
+					this.storedEmailChannel = Array.isArray(prefs.notifChannels) && prefs.notifChannels.includes('email');
 					if (Array.isArray(prefs.notifChannels)) this.notifChannels.set(prefs.notifChannels.filter((c: unknown) => c === 'push' || c === 'email'));
 					this.setupForm.patchValue({
 						profData: {
@@ -772,10 +783,13 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.profileApi.saveProviderPreferences({
 			preferredCommunicationLanguage: lang,
 			timezone: this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh',
-			notifChannels: this.notifChannels()
+			notifChannels: this.emailDisabledByPlatform() && !this.storedEmailChannel ? this.notifChannels().filter(c => c !== 'email') : this.notifChannels()
 		}).subscribe({
 			next: () => { this.prefsStatus.set('saved'); this.prefsStore.setTimezone(this.setupForm.get('profData.timezone')?.value || 'Asia/Riyadh'); },
-			error: () => this.prefsStatus.set('error')
+			error: (err) => {
+				if (isEmailDisabledError(err)) { this.emailDisabledByPlatform.set(true); this.prefsStatus.set('error'); return; }
+				this.prefsStatus.set('error');
+			}
 		});
 	}
 
@@ -796,6 +810,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	toggleNotifChannel(channel: string) {
+		if (channel === 'email' && this.emailDisabledByPlatform()) return;
 		this.notifChannels.update(list =>
 			list.includes(channel) ? list.filter(c => c !== channel) : [...list, channel]
 		);
@@ -819,6 +834,20 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				}
 				if (event.type === HttpEventType.Response) {
 					const url = event.body?.data?.url || '';
+					if (!url) {
+  this.setUploadState(key, {
+    status: 'error',
+    progress: 0,
+    name: file.name
+  });
+
+  this.uploadFailed(
+    type,
+    file,
+    new Error('Upload response missing file URL')
+  );
+  return;
+}
 					const name = event.body?.data?.name || file.name;
 					this.setUploadState(key, { status: 'uploaded', progress: 100, name });
 					if (type === 'frontId') {
@@ -1175,7 +1204,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							if (r.emailSent === true) {
 								this.paypalAccountEmailHint.set(r.emailHint || '');
 								this.paypalConfirmMode.set(r.mode ?? (this.storedPaypalEmail ? 'change' : 'add'));
-								this.pendingPaypalEmail.set(paypalEmail);
+								this.isTestStarted.set(false); this.pendingPaypalEmail.set(paypalEmail);
 							} else this.paypalSendError.set('تعذر إرسال رمز التحقق، حاول مرة أخرى من صفحة بيانات الملف المهني.');
 						},
 						error: (err) => {
@@ -1276,7 +1305,20 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		return typeof server === 'string' ? server : paypalEmailError(c.errors);
 	}
 
+	onPaypalConfirmed(email?: string) {
+		if (email) {
+			this.storedPaypalEmail = email;
+			this.setupForm.get('payout.paypalEmail')?.setValue(email);
+		}
+		this.pendingPaypalEmail.set(null);
+	}
+
+	onPaypalDismissed() {
+		this.pendingPaypalEmail.set(null);
+	}
+
 	startTest() {
+		if (this.pendingPaypalEmail()) return;
 		this.isTestStarted.set(true);
 		this.setupTestService.startTest();
 

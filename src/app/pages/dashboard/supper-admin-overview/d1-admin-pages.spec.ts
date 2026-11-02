@@ -7,7 +7,6 @@ import { signal } from '@angular/core';
 
 import { SupperAdminOverview } from './supper-admin-overview/supper-admin-overview';
 import { SaUsers } from './sa-users/sa-users';
-import { SaRoles } from './sa-roles/sa-roles';
 import { SaCategories } from './sa-categories/sa-categories';
 import { SaSuperAdmins } from './sa-super-admins/sa-super-admins';
 import { SaNotifyModal } from './sa-notify-modal';
@@ -59,14 +58,7 @@ describe('D1 admin pages read the real endpoints', () => {
 		expect((f.nativeElement as HTMLElement).querySelector('#status-reason')?.getAttribute('aria-invalid')).toBe('true');
 	});
 
-	it('roles: renders the real roles overview and keeps create/edit disabled with the reason', () => {
-		const get = vi.fn(() => of(ok({ roles: [{ role: 'CLIENT', label: 'طالب خدمة', description: 'د', members: 3 }], accountTypes: [{ accountType: 'ADMIN', count: 1 }], suspendedAccounts: 0, adminCapabilities: [{ key: 'user-delete', label: 'حذف', admin: false, superAdmin: true }] })));
-		const f = mount(SaRoles, get);
-		const el: HTMLElement = f.nativeElement;
-		expect(el.textContent).toContain('3 عضو');
-		expect(el.textContent).toContain('الأدوار ثابتة في النظام');
-		expect(el.querySelector('.rl-btn-primary')?.hasAttribute('disabled')).toBe(true);
-	});
+	// roles: the old read-only overview was replaced by the real roles editor (sa-roles.spec.ts, admin-team-pages.spec.ts).
 
 	it('provider levels: real ladder and empty top list', () => {
 		const levels = Array.from({ length: 15 }, (_, i) => ({ level: i + 1, name: `L${i + 1}`, commissionPercent: 12, color: '#fff', thresholds: { points: 0, projects: 0, rating: 0 }, providers: i === 1 ? 3 : 0 }));
@@ -76,14 +68,14 @@ describe('D1 admin pages read the real endpoints', () => {
 		expect((f.nativeElement as HTMLElement).textContent).not.toContain('824');
 	});
 
-	it('super-admins page: settings are read-only (no save), audit reads real events', () => {
+	it('super-admins page: no sample settings, audit reads real events', () => {
 		// D3: the page reads /admin/console/admins (roster) and /admin/console/audit-log (items + pagination + eventTypes)
 		const entry = { id: 'e1', category: 'SECURITY_CHANGE', eventType: 'X', title: 'حدث حقيقي', summary: 's', severity: 'INFO', source: 'ADMIN', status: 'COMPLETED', occurredAt: new Date().toISOString(), ipAddress: null, device: null, actorLabel: null, account: { id: 'a', name: 'م', accountType: 'ADMIN' } };
 		const get = vi.fn((url: string) => of(url.includes('/audit-log') ? ok({ items: [entry], pagination: { page: 1, limit: 20, total: 1, pages: 1 }, eventTypes: ['X'] }) : ok([])));
 		const f = mount(SaSuperAdmins, get);
 		const el: HTMLElement = f.nativeElement;
 		expect(el.textContent).not.toContain('smtp.sendgrid.net');
-		expect(el.textContent).not.toContain('حفظ التغييرات');
+		expect(el.textContent).not.toContain('•••'); expect(el.textContent).not.toContain('300xxxxxxxxx003'); // no sample secrets / ids from the design
 		(f.componentInstance as any).setSection('audit');
 		f.detectChanges();
 		expect(el.textContent).toContain('حدث حقيقي');
@@ -91,7 +83,7 @@ describe('D1 admin pages read the real endpoints', () => {
 	});
 
 	it('notify modal: needs 5+ chars, posts to /admin/users/:id/notify with the request context, shows the BE error', () => {
-		const post = vi.fn().mockReturnValueOnce(throwError(() => ({ error: { message: 'هذا الطلب لا يخص المستخدم المحدد' } }))).mockReturnValueOnce(of({ success: true }));
+		const post = vi.fn().mockReturnValueOnce(throwError(() => ({ status: 400, error: { message: 'هذا الطلب لا يخص المستخدم المحدد' } }))).mockReturnValueOnce(of({ success: true }));
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule({ imports: [SaNotifyModal], providers: [{ provide: HttpClient, useValue: { post } }] });
 		const f = TestBed.createComponent(SaNotifyModal);

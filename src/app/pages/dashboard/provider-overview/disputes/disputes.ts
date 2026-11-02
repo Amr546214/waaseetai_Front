@@ -107,9 +107,6 @@ export class Disputes implements OnInit {
   // -> submitDispute() -> disputeApi.createProviderDispute). This page has no
   // project in scope, so instead of a dead-end notification we send the user to the
   // active-projects list to pick a project and open a dispute for real.
-  goToActiveProjects() {
-    this.router.navigate(['/provider-overview/projects/active']);
-  }
 
   /** "محادثة المشروع": the messages page opens ONLY this project's conversation (or says there is none) — the dispute itself has no message thread. */
   openProjectChat(d: Dispute) {

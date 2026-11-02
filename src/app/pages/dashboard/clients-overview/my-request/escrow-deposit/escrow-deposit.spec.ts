@@ -40,6 +40,24 @@ describe('client escrow deposit page', () => {
 	}
 	afterEach(() => { TestBed.resetTestingModule(); vi.restoreAllMocks(); });
 
+	it('uses a native checkbox that toggles once from its control or label without accepting when opening the terms link', async () => {
+		const s = await setup();
+		const input = s.el.querySelector<HTMLInputElement>('#ed-terms')!;
+		expect(input.type).toBe('checkbox');
+		expect(input.checked).toBe(false);
+		input.click(); s.f.detectChanges();
+		expect(input.checked).toBe(true);
+		expect(s.c.termsAccepted()).toBe(true);
+		s.el.querySelector<HTMLLabelElement>('label[for="ed-terms"]')!.click(); s.f.detectChanges();
+		expect(input.checked).toBe(false);
+		expect(s.c.termsAccepted()).toBe(false);
+		const link = s.el.querySelector<HTMLAnchorElement>('.terms-text a')!;
+		link.addEventListener('click', event => event.preventDefault(), { once: true });
+		link.click(); s.f.detectChanges();
+		expect(s.c.termsAccepted()).toBe(false);
+		expect(s.post).not.toHaveBeenCalled();
+	});
+
 	it('the amount to fund is the contract price from the contract endpoint', async () => {
 		const s = await setup();
 		expect(s.get.mock.calls[0][0]).toContain('/client/my-requests/req-1/contract?offerId=offer-1');

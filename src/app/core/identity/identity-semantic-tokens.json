@@ -1,0 +1,478 @@
+{
+ "_doc": "Round 9 (idfe7b): semantic variables that replace component-local copies of registered tokens. dark/light = the EFFECTIVE computed value on <html> of the production build (canonical form); derivedDark/derivedLight = the platform token the CSS derives the value from (so the page follows the platform token while the setting is not overridden). Mirrored by the BE registry addition list in IDENTITY-ROUND9-VALUES-NOTES.md. Guard: identity-token-copies.guard.spec.ts.",
+ "tokens": [
+  {
+   "name": "--pub-txt",
+   "type": "color",
+   "label": "النص الأساسي في الصفحات العامة وصفحات الدخول",
+   "dark": "#fff",
+   "light": "#070d24",
+   "derivedDark": "--txt",
+   "derivedLight": null,
+   "usedBy": [
+    "login",
+    "register",
+    "verify-otp",
+    "welcome",
+    "privacy",
+    "terms",
+    "cookies",
+    "home",
+    "category-guide",
+    "slug",
+    "favorites",
+    "curated",
+    "checkout-*",
+    "error-page",
+    "invoice-details"
+   ],
+   "replaces": [
+    "--txt"
+   ],
+   "reason": "light ink of the public/auth pages is the navy #070D24, not the platform #0f172a / #1e293b"
+  },
+  {
+   "name": "--pub-txt-2",
+   "type": "color",
+   "label": "النص الثانوي في الصفحات العامة وصفحات الدخول",
+   "dark": "#a8b2d1",
+   "light": "#56607d",
+   "derivedDark": "--txt-2",
+   "derivedLight": null,
+   "usedBy": [
+    "login",
+    "register",
+    "verify-otp",
+    "welcome",
+    "privacy",
+    "terms",
+    "cookies",
+    "home",
+    "category-guide",
+    "slug",
+    "favorites",
+    "curated",
+    "checkout-*",
+    "error-page",
+    "invoice-details"
+   ],
+   "replaces": [
+    "--txt-2"
+   ],
+   "reason": "light secondary ink #56607D (platform #475569)"
+  },
+  {
+   "name": "--pub-txt-3",
+   "type": "color",
+   "label": "النص الخافت في الصفحات العامة وصفحات الدخول",
+   "dark": "#6b7699",
+   "light": "#6b7699",
+   "derivedDark": "--txt-3",
+   "derivedLight": null,
+   "usedBy": [
+    "login",
+    "register",
+    "verify-otp",
+    "welcome",
+    "privacy",
+    "terms",
+    "cookies",
+    "category-guide",
+    "slug",
+    "favorites",
+    "curated",
+    "checkout-*",
+    "error-page",
+    "invoice-details"
+   ],
+   "replaces": [
+    "--txt-3"
+   ],
+   "reason": "muted ink keeps the dark value #6B7699 in light (platform #5b6472)"
+  },
+  {
+   "name": "--pub-crd-bg",
+   "type": "paint",
+   "label": "خلفية البطاقات في صفحات الدخول والصفحات القانونية",
+   "dark": "linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01))",
+   "light": "#ffffff",
+   "derivedDark": null,
+   "derivedLight": "--crd-bg",
+   "usedBy": [
+    "login",
+    "register",
+    "verify-otp",
+    "welcome",
+    "privacy",
+    "terms"
+   ],
+   "replaces": [
+    "--crd-bg"
+   ],
+   "reason": "dark glass card is a .04/.01 gradient (platform rgba(255,255,255,.03))"
+  },
+  {
+   "name": "--pub-crd-bd",
+   "type": "color",
+   "label": "حدود البطاقات في الصفحات العامة",
+   "dark": "rgba(255,255,255,.08)",
+   "light": "#e7eaf1",
+   "derivedDark": "--crd-bd",
+   "derivedLight": null,
+   "usedBy": [
+    "login",
+    "register",
+    "verify-otp",
+    "welcome",
+    "privacy",
+    "terms",
+    "home",
+    "invoice-details"
+   ],
+   "replaces": [
+    "--crd-bd"
+   ],
+   "reason": "light card border #E7EAF1 (platform #e2e8f4)"
+  },
+  {
+   "name": "--pub-sec-bg",
+   "type": "color",
+   "label": "خلفية الأقسام والأزرار الثانوية في الصفحات العامة",
+   "dark": "rgba(255,255,255,.05)",
+   "light": "#ffffff",
+   "derivedDark": null,
+   "derivedLight": "--sec-bg",
+   "usedBy": [
+    "login",
+    "cookies",
+    "home"
+   ],
+   "replaces": [
+    "--sec-bg"
+   ],
+   "reason": "dark ghost-button/section fill rgba(255,255,255,.05) (platform rgba(13,27,42,.55))"
+  },
+  {
+   "name": "--pub-sec-bd",
+   "type": "color",
+   "label": "حدود الأقسام والأزرار الثانوية في الصفحات العامة",
+   "dark": "rgba(255,255,255,.15)",
+   "light": "rgba(7,13,36,.14)",
+   "derivedDark": null,
+   "derivedLight": null,
+   "usedBy": [
+    "login",
+    "cookies",
+    "home"
+   ],
+   "replaces": [
+    "--sec-bd"
+   ],
+   "reason": "ghost-button border rgba(255,255,255,.15) / rgba(7,13,36,.14)"
+  },
+  {
+   "name": "--pub-tint-bd",
+   "type": "color",
+   "label": "حدود المقاطع الملوّنة في الصفحات العامة",
+   "dark": "rgba(43,212,199,.15)",
+   "light": "rgba(43,127,255,.14)",
+   "derivedDark": null,
+   "derivedLight": null,
+   "usedBy": [
+    "welcome",
+    "home"
+   ],
+   "replaces": [
+    "--tint-bd"
+   ],
+   "reason": "tinted section border is teal/blue tinted, not neutral"
+  },
+  {
+   "name": "--pub-ai-bg",
+   "type": "color",
+   "label": "خلفية عناصر الذكاء الاصطناعي في صفحات السوق والدفع",
+   "dark": "rgba(123,47,190,.1)",
+   "light": "rgba(123,47,190,.1)",
+   "derivedDark": null,
+   "derivedLight": "--ai-bg",
+   "usedBy": [
+    "category-guide",
+    "slug",
+    "favorites",
+    "curated",
+    "checkout-*"
+   ],
+   "replaces": [
+    "--ai-bg"
+   ],
+   "reason": "dark AI chip fill .10 (platform .15)"
+  },
+  {
+   "name": "--brand-teal",
+   "type": "color",
+   "label": "لون العلامة التيل الثابت (تدرّجات وأزرار الصفحات العامة)",
+   "dark": "#2bd4c7",
+   "light": "#2bd4c7",
+   "derivedDark": "--teal",
+   "derivedLight": null,
+   "usedBy": [
+    "login",
+    "register",
+    "verify-otp",
+    "welcome",
+    "privacy",
+    "terms",
+    "cookies",
+    "home",
+    "category-guide",
+    "slug",
+    "favorites",
+    "curated",
+    "checkout-*",
+    "error-page"
+   ],
+   "replaces": [
+    "--teal"
+   ],
+   "reason": "public pages keep the bright brand teal in light (platform light --teal #0f8a7f)"
+  },
+  {
+   "name": "--brand-blue",
+   "type": "color",
+   "label": "لون العلامة الأزرق الثابت (تدرّجات وأزرار الصفحات العامة)",
+   "dark": "#2b7fff",
+   "light": "#2b7fff",
+   "derivedDark": "--blue",
+   "derivedLight": null,
+   "usedBy": [
+    "login",
+    "register",
+    "verify-otp",
+    "welcome",
+    "cookies",
+    "home",
+    "checkout-*"
+   ],
+   "replaces": [
+    "--blue"
+   ],
+   "reason": "bright brand blue in light (platform light --blue #1d6fe0)"
+  },
+  {
+   "name": "--brand-ai",
+   "type": "color",
+   "label": "لون الذكاء الاصطناعي الثابت في الصفحات العامة",
+   "dark": "#7b2fbe",
+   "light": "#7b2fbe",
+   "derivedDark": "--ai",
+   "derivedLight": null,
+   "usedBy": [
+    "home",
+    "category-guide",
+    "slug",
+    "favorites",
+    "curated",
+    "checkout-*"
+   ],
+   "replaces": [
+    "--ai"
+   ],
+   "reason": "AI purple #7B2FBE in light (platform light --ai #6b27a5)"
+  },
+  {
+   "name": "--home-crd-bg",
+   "type": "paint",
+   "label": "خلفية بطاقات الصفحة الرئيسية",
+   "dark": "linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.01))",
+   "light": "#ffffff",
+   "derivedDark": null,
+   "derivedLight": "--crd-bg",
+   "usedBy": [
+    "home"
+   ],
+   "replaces": [
+    "--crd-bg"
+   ],
+   "reason": "home glass card .03/.01 gradient"
+  },
+  {
+   "name": "--home-ai-nte-bd",
+   "type": "color",
+   "label": "حدود ملاحظة الذكاء الاصطناعي في الصفحة الرئيسية",
+   "dark": "rgba(123,47,190,.22)",
+   "light": "rgba(123,47,190,.2)",
+   "derivedDark": "--ai-nte-bd",
+   "derivedLight": null,
+   "usedBy": [
+    "home"
+   ],
+   "replaces": [
+    "--ai-nte-bd"
+   ],
+   "reason": "light .20 (platform .28)"
+  },
+  {
+   "name": "--home-ai-nte-bg",
+   "type": "paint",
+   "label": "خلفية ملاحظة الذكاء الاصطناعي في الصفحة الرئيسية",
+   "dark": "rgba(123,47,190,.07)",
+   "light": "rgba(123,47,190,.06)",
+   "derivedDark": null,
+   "derivedLight": "--ai-nte-bg",
+   "usedBy": [
+    "home"
+   ],
+   "replaces": [
+    "--ai-nte-bg"
+   ],
+   "reason": "dark flat .07 (platform gradient)"
+  },
+  {
+   "name": "--home-ai-nte-clr",
+   "type": "color",
+   "label": "نص ملاحظة الذكاء الاصطناعي في الصفحة الرئيسية",
+   "dark": "rgba(232,234,240,.72)",
+   "light": "#56607d",
+   "derivedDark": null,
+   "derivedLight": null,
+   "usedBy": [
+    "home"
+   ],
+   "replaces": [
+    "--ai-nte-clr"
+   ],
+   "reason": "dark rgba(232,234,240,.72) / light #56607D (platform #a8b2d1 / #475569)"
+  },
+  {
+   "name": "--soft-bd",
+   "type": "color",
+   "label": "حدود ناعمة لأقسام اللوحات (الفاتح)",
+   "dark": "rgba(255,255,255,.07)",
+   "light": "#e7eaf1",
+   "derivedDark": "--sec-bd",
+   "derivedLight": null,
+   "usedBy": [
+    "invoice-details",
+    "notifications-center",
+    "provider-overview/notifications"
+   ],
+   "replaces": [
+    "--sec-bd"
+   ],
+   "reason": "dashboard section border #E7EAF1 in light (platform #e2e8f4)"
+  },
+  {
+   "name": "--notif-txt",
+   "type": "color",
+   "label": "النص الأساسي في صفحات الإشعارات",
+   "dark": "#fff",
+   "light": "#0f172a",
+   "derivedDark": "--txt",
+   "derivedLight": null,
+   "usedBy": [
+    "notifications-center",
+    "provider-overview/notifications"
+   ],
+   "replaces": [
+    "--txt"
+   ],
+   "reason": "notification pages use #0F172A (the rendered platform text is #1e293b)"
+  },
+  {
+   "name": "--notif-client-txt-3",
+   "type": "color",
+   "label": "النص الخافت في إشعارات العميل",
+   "dark": "#6b7699",
+   "light": "#64748b",
+   "derivedDark": "--txt-3",
+   "derivedLight": null,
+   "usedBy": [
+    "notifications-center"
+   ],
+   "replaces": [
+    "--txt-3"
+   ],
+   "reason": "#64748B"
+  },
+  {
+   "name": "--notif-provider-txt-3",
+   "type": "color",
+   "label": "النص الخافت في إشعارات المزوّد",
+   "dark": "#6b7699",
+   "light": "#475569",
+   "derivedDark": "--txt-3",
+   "derivedLight": null,
+   "usedBy": [
+    "provider-overview/notifications"
+   ],
+   "replaces": [
+    "--txt-3"
+   ],
+   "reason": "#475569"
+  },
+  {
+   "name": "--aw-txt",
+   "type": "color",
+   "label": "نص لوحة المساعد (لوحة داكنة دائماً)",
+   "dark": "#fff",
+   "light": "#ffffff",
+   "derivedDark": "--txt",
+   "derivedLight": null,
+   "usedBy": [
+    "assistant-widget"
+   ],
+   "replaces": [
+    "--txt"
+   ],
+   "reason": "the assistant panel stays dark in light mode"
+  },
+  {
+   "name": "--aw-txt-2",
+   "type": "color",
+   "label": "النص الثانوي في لوحة المساعد",
+   "dark": "#cbd5e1",
+   "light": "#cbd5e1",
+   "derivedDark": null,
+   "derivedLight": null,
+   "usedBy": [
+    "assistant-widget"
+   ],
+   "replaces": [
+    "--txt-2"
+   ],
+   "reason": ""
+  },
+  {
+   "name": "--aw-txt-3",
+   "type": "color",
+   "label": "النص الخافت في لوحة المساعد",
+   "dark": "#94a3b8",
+   "light": "#94a3b8",
+   "derivedDark": null,
+   "derivedLight": null,
+   "usedBy": [
+    "assistant-widget"
+   ],
+   "replaces": [
+    "--txt-3"
+   ],
+   "reason": ""
+  },
+  {
+   "name": "--aw-sec-bd",
+   "type": "color",
+   "label": "حدود لوحة المساعد",
+   "dark": "rgba(43,212,199,.2)",
+   "light": "rgba(43,212,199,.2)",
+   "derivedDark": null,
+   "derivedLight": null,
+   "usedBy": [
+    "assistant-widget"
+   ],
+   "replaces": [
+    "--sec-bd"
+   ],
+   "reason": ""
+  }
+ ]
+}

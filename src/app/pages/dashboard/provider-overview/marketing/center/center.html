@@ -89,7 +89,7 @@
 				<div class="sec-hd"><div class="sec-title">طلبات معلّقة</div></div>
 				<a class="pending-card" routerLink="/provider-overview/marketing/approvals">
 					<div class="pending-ico">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+						<svg data-ws-icon="pl-provider-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
 					</div>
 					<div class="pending-b">
 						<div class="pending-v">{{ co.pendingApprovals.count }}</div>
@@ -154,12 +154,12 @@
 
 	<div class="qc-grid">
 		<a class="qc" routerLink="/provider-overview/marketing/coupons">
-			<div class="qc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82zM7 7h.01"/></svg></div>
+			<div class="qc-ico"><svg data-ws-icon="pl-provider-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82zM7 7h.01"/></svg></div>
 			<div class="qc-t">كوبونات الخصم</div>
 			<div class="qc-d">{{ summaryText(d.toolSummaries.coupons, 'coupon') }}{{ d.toolSummaries.coupons.total ? (isCompanyMode() ? ' — على مستوى الشركة كاملة' : ' — أنشئ، فعّل، أوقِف، أو عدّل أي كوبون في أي وقت.') : '' }}</div>
 		</a>
 		<a class="qc" routerLink="/provider-overview/marketing/offers">
-			<div class="qc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+			<div class="qc-ico"><svg data-ws-icon="pl-provider-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
 			<div class="qc-t">العروض الخاصة</div>
 			<div class="qc-d">{{ summaryText(d.toolSummaries.offers, 'offer') }}{{ d.toolSummaries.offers.total ? ' — باقات مرتبطة أو خصم مباشر يظهر كشارة على النموذج في السوق.' : '' }}</div>
 		</a>

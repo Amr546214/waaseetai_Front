@@ -1,0 +1,198 @@
+:host{display:block}
+.st-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.st-card-ttl{font-size:14px;font-weight:800;color:#fff;margin-bottom:16px}
+.st-danger{border-color:rgba(255,140,105,.25)}
+.st-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);gap:16px}
+.st-row:last-of-type{border-bottom:0}
+.st-row:first-child,.st-card-ttl + .st-row{padding-top:0}
+.st-row-col{flex-direction:column;align-items:stretch}
+.st-row-left{flex:1;min-width:0}
+.st-row-lbl{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.st-row-desc{font-size:11px;color:#6B7699;line-height:1.5}
+.st-row-eff{font-size:10.5px;color:#5DA0FF}
+.st-row-reason{font-size:11px;color:#A8B2D1;line-height:1.6;margin-top:4px}
+.st-badge{font-size:9.5px;font-weight:800;padding:1px 8px;border-radius:20px;white-space:nowrap}
+.st-badge-off{background:rgba(255,140,105,.12);color:#FF8C69;border:1px solid rgba(255,140,105,.25)}
+.st-badge-ro{background:rgba(93,160,255,.12);color:#5DA0FF;border:1px solid rgba(93,160,255,.25)}
+.st-err{font-size:11.5px;color:#FF8C69;margin-top:5px;line-height:1.5}
+
+.st-sw{width:42px;height:24px;border-radius:12px;background:rgba(255,255,255,.10);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;display:inline-block}
+.st-sw::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;right:3px;transition:transform .2s}
+.v-ss .st-sw.on{background:rgba(43,212,199,.35);box-shadow:inset 0 0 0 1px rgba(43,212,199,.5)}
+.v-spa .st-sw{width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,.12)}
+.v-spa .st-sw::after{width:16px;height:16px;top:3px;right:3px}
+.v-spa .st-sw.on{background:linear-gradient(135deg,#2BD4C7,#2B7FFF)}
+.st-sw.on::after{transform:translateX(-18px)}
+.st-sw:disabled,.st-sw-off{opacity:.4;cursor:not-allowed}
+
+.st-input{height:34px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:8px;padding:0 10px;font-size:13px;color:#fff;font-family:inherit;outline:none;min-width:min(260px,100%)}
+.st-input:focus{border-color:rgba(43,212,199,.30)}
+.st-input:disabled{opacity:.55;cursor:not-allowed}
+.st-input-sm{width:84px;min-width:0}
+.st-area{height:auto;padding:10px;line-height:1.6;resize:vertical;width:100%}
+.st-inline{display:flex;align-items:center;gap:6px}
+.st-unit{font-size:12px;color:#6B7699}
+.st-sel{min-width:160px}
+.st-ro{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:end;max-width:46%}
+.st-ro-val{font-size:12.5px;font-weight:700;color:#E7EAF1}
+.st-ro-src{font-size:10.5px;color:#6B7699}
+.st-empty{font-size:12px;color:#6B7699;padding:6px 0}
+
+.st-fail{margin:-6px 0 12px;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,140,105,.35);background:rgba(255,140,105,.08);color:#FFB29C;font-size:12.5px;line-height:1.6}
+.st-blockers{margin:8px 0 0;padding-inline-start:18px;font-size:12px;color:#E7EAF1}
+.st-fail-actions{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.st-save-row{display:flex;align-items:center;gap:14px;margin:0 0 14px;flex-wrap:wrap}
+.st-save{display:inline-flex;align-items:center;padding:0 18px;height:36px;border-radius:9px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24;font-size:13px;font-weight:800;border:none;cursor:pointer;font-family:inherit}
+.st-save:disabled{opacity:.45;cursor:not-allowed}
+.st-link{background:none;border:none;color:#2BD4C7;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
+.st-ok{font-size:12px;font-weight:700;color:#0FA99A}
+
+:host-context(.light-theme) .st-card,:host-context(.theme-light) .st-card{background:#fff;border-color:#E2E8F0}
+:host-context(.light-theme) .st-card-ttl,:host-context(.theme-light) .st-card-ttl,:host-context(.light-theme) .st-row-lbl,:host-context(.theme-light) .st-row-lbl{color:#0F172A}
+:host-context(.light-theme) .st-row,:host-context(.theme-light) .st-row{border-bottom-color:#F1F5F9}
+:host-context(.light-theme) .st-row-desc,:host-context(.theme-light) .st-row-desc,:host-context(.light-theme) .st-unit,:host-context(.theme-light) .st-unit,:host-context(.light-theme) .st-ro-src,:host-context(.theme-light) .st-ro-src{color:#64748B}
+:host-context(.light-theme) .st-row-reason,:host-context(.theme-light) .st-row-reason{color:#475569}
+:host-context(.light-theme) .st-ro-val,:host-context(.theme-light) .st-ro-val{color:#0F172A}
+:host-context(.light-theme) .st-input,:host-context(.theme-light) .st-input{background:#fff;border-color:#D8DFEC;color:#0F172A}
+:host-context(.light-theme) .st-sw,:host-context(.theme-light) .st-sw{background:#CBD5E1}
+:host-context(.light-theme) .v-ss .st-sw.on,:host-context(.theme-light) .v-ss .st-sw.on{background:rgba(15,138,127,.35)}
+:host-context(.light-theme) .v-spa .st-sw.on,:host-context(.theme-light) .v-spa .st-sw.on{background:linear-gradient(135deg,#2BD4C7,#2B7FFF)}
+:host-context(.light-theme) .st-link,:host-context(.theme-light) .st-link{color:#0F8A7F}
+:host-context(.light-theme) .st-err,:host-context(.theme-light) .st-err{color:#C2410C}
+:host-context(.light-theme) .st-fail,:host-context(.theme-light) .st-fail{color:#9A3412;background:rgba(194,65,12,.07);border-color:rgba(194,65,12,.3)}
+:host-context(.light-theme) .st-blockers,:host-context(.theme-light) .st-blockers{color:#0F172A}
+@media(max-width:700px){.st-row{flex-direction:column;align-items:stretch;gap:10px}.st-ro{align-items:flex-start;text-align:start;max-width:100%}.st-card{padding:16px 14px}.st-input{width:100%}}
+
+.st-conf{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}.st-conf th,.st-conf td{text-align:start;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.08)}.st-conf th{color:#A8B2D1;font-weight:700}
+:host-context(.light-theme) .st-conf th,:host-context(.theme-light) .st-conf th{color:#475569}:host-context(.light-theme) .st-conf td,:host-context(.theme-light) .st-conf td{border-bottom-color:#E2E8F0}
+.st-inuse{display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:6px;font-size:12px;line-height:1.6;color:#9FB0D6}
+.st-inuse-lbl{font-weight:600}
+.st-inuse-val{font-weight:600;color:inherit;overflow-wrap:anywhere}
+.st-inuse-note,.st-inuse-use{flex-basis:100%}
+.st-skel{height:34px;border-radius:8px;background:rgba(127,140,180,.18);margin:6px 0 10px}
+
+/* ===== P-AD-020 («ss») — tokens copied from the reference: .sec-card .sec-ttl .setting-row .sr-lbl .sr-desc .sw .setting-input .save-btn ===== */
+.v-ss .st-card-ttl{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:#fff;margin-bottom:16px}
+.v-ss .st-ttl-ico{width:15px;height:15px;color:#2BD4C7;flex-shrink:0}
+.v-ss .st-row:first-child,.v-ss .st-card-ttl + .st-row{padding-top:12px}
+.v-ss .st-row:last-child{border-bottom:0;padding-bottom:0}
+.v-ss .st-row-lbl{display:block;margin-bottom:3px}
+.v-ss .st-row-lbl .st-badge{margin-inline-start:8px}
+.v-ss .st-sw{border:0}
+.v-ss .st-sw.on{background:rgba(43,212,199,.35);border:1px solid rgba(43,212,199,.5);box-shadow:none}
+.v-ss .st-sw:disabled{opacity:.5}
+.v-ss .st-input{width:160px;min-width:120px;direction:rtl;transition:border-color .15s}
+.v-ss .st-input-sm{width:120px;min-width:120px}
+.v-ss .st-input.st-input-w{width:200px}
+.v-ss .st-row-reason{color:#6B7699}
+.v-ss .st-inuse{font-size:11px;line-height:1.5;color:#6B7699;margin-top:5px}
+.v-ss .st-inuse-val{color:#A8B2D1}
+/* readonly and unavailable values use the input's own box, muted, so the row keeps the reference's shape and nothing looks operable */
+.v-ss .st-ro{align-items:flex-end;max-width:46%;gap:4px}
+.v-ss .st-ro-val{display:inline-flex;align-items:center;min-height:34px;padding:0 10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);font-size:13px;font-weight:600;color:#A8B2D1;max-width:100%;overflow-wrap:anywhere}
+.v-ss .st-ro-src{font-size:10.5px;color:#6B7699}
+.v-ss .st-na{flex-direction:row;align-items:center;gap:8px;max-width:none}
+.v-ss .st-na .st-ro-val{min-width:60px;justify-content:center;direction:ltr}
+.v-ss .st-na-pill{display:inline-flex;align-items:center;height:24px;padding:0 12px;border-radius:20px;font-size:12px;font-weight:700;color:#6B7699;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);white-space:nowrap}
+.v-ss.st-card + .st-fail,.st-fail{margin:-6px 0 14px}
+.st-save-row{margin:4px 0 14px}
+.st-save{gap:6px;padding:0 16px;transition:opacity .15s}
+.st-save:hover:not(:disabled){opacity:.88}
+:host-context(.light-theme) .v-ss.st-card,:host-context(.theme-light) .v-ss.st-card{background:#fff;border-color:#E7EAF1}
+:host-context(.light-theme) .v-ss .st-card-ttl,:host-context(.theme-light) .v-ss .st-card-ttl,:host-context(.light-theme) .v-ss .st-row-lbl,:host-context(.theme-light) .v-ss .st-row-lbl{color:#1E293B}
+:host-context(.light-theme) .v-ss .st-ttl-ico,:host-context(.theme-light) .v-ss .st-ttl-ico{color:#0F8A7F}
+:host-context(.light-theme) .v-ss .st-row,:host-context(.theme-light) .v-ss .st-row{border-bottom-color:#E7EAF1}
+:host-context(.light-theme) .v-ss .st-row:last-child,:host-context(.theme-light) .v-ss .st-row:last-child{border-bottom:0}
+:host-context(.light-theme) .v-ss .st-input,:host-context(.theme-light) .v-ss .st-input{background:#fff;border-color:#E2E8F0;color:#1E293B}
+:host-context(.light-theme) .v-ss .st-ro-val,:host-context(.theme-light) .v-ss .st-ro-val{background:#F8FAFC;border-color:#E7EAF1;color:#475569}
+:host-context(.light-theme) .v-ss .st-na-pill,:host-context(.theme-light) .v-ss .st-na-pill{background:#F1F5F9;border-color:#E2E8F0;color:#64748B}
+:host-context(.light-theme) .v-ss .st-inuse-val,:host-context(.theme-light) .v-ss .st-inuse-val{color:#475569}
+:host-context(.light-theme) .v-ss .st-row-reason,:host-context(.theme-light) .v-ss .st-row-reason,:host-context(.light-theme) .v-ss .st-inuse,:host-context(.theme-light) .v-ss .st-inuse{color:#64748B}
+/* ===== P-AD-021 («Super Admin») variant: tokens of the original design (.sec-card / .srow / .sw / .s-inp) ===== */
+.st-card.v-spa{border-radius:14px;padding:18px 20px;margin-bottom:12px;line-height:normal}
+.v-spa .st-card-ttl{font-size:14px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:#fff}
+.v-spa .st-ttl-ico{width:14px;height:14px;color:#2BD4C7;flex-shrink:0}
+.v-spa .st-row{padding:11px 0;gap:12px;border-bottom:1px solid rgba(255,255,255,.05)}
+.v-spa .st-row:last-of-type{border-bottom:0;padding-bottom:0}
+.v-spa .st-row:first-child{padding-top:0}
+.v-spa .st-card-ttl + .st-row{padding-top:11px}
+.v-spa .st-row-lbl{font-size:13px;font-weight:700;margin-bottom:2px;gap:8px}
+.v-spa .st-row-desc{font-size:11px;color:#6B7699;line-height:normal}
+.v-spa .st-row-eff{font-size:11px;color:#6B7699}
+.v-spa .st-row-reason{font-size:11px;color:#6B7699;line-height:normal;margin-top:3px}
+.v-spa .st-inuse{font-size:11px;line-height:normal;color:#6B7699;margin-top:3px;gap:2px 8px}
+.v-spa .st-inuse-val{color:#A8B2D1}
+.v-spa .st-badge{font-size:11px;font-weight:700;padding:3px 9px}
+.v-spa .st-err{font-size:11px;margin-top:3px;line-height:normal}
+.v-spa .st-sw::after{box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.v-spa .st-input{width:160px;min-width:160px;height:34px;border-radius:9px;padding:0 12px;font-size:12.5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);direction:rtl;transition:border-color .15s}
+.v-spa .st-input:focus{border-color:rgba(43,212,199,.30)}
+.v-spa .st-input-sm{width:80px;min-width:80px}
+.v-spa .st-inline{gap:6px}
+.v-spa .st-unit{font-size:13px;color:#6B7699}
+.v-spa .st-sel{width:160px;min-width:160px}
+.v-spa .st-sel ::ng-deep .ws-sel-trigger{height:34px;padding:0 12px;border-radius:9px;font-size:12.5px;color:#fff;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.05);gap:8px}
+:host-context(.light-theme) .v-spa .st-sel ::ng-deep .ws-sel-trigger,:host-context(.theme-light) .v-spa .st-sel ::ng-deep .ws-sel-trigger{background:#fff;border-color:#CBD5E1;color:#1E293B}
+.v-spa .st-na{display:inline-flex;align-items:center;justify-content:flex-start;width:160px;min-width:160px;max-width:160px;height:34px;padding:0 12px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);font-size:12.5px;color:#6B7699;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;cursor:not-allowed}
+.v-spa .st-row-entry{padding-top:11px}
+:host-context(.light-theme) .st-card.v-spa,:host-context(.theme-light) .st-card.v-spa{background:#fff;border-color:#E7EAF1}
+:host-context(.light-theme) .v-spa .st-card-ttl,:host-context(.theme-light) .v-spa .st-card-ttl,:host-context(.light-theme) .v-spa .st-row-lbl,:host-context(.theme-light) .v-spa .st-row-lbl{color:#1E293B}
+:host-context(.light-theme) .v-spa .st-row,:host-context(.theme-light) .v-spa .st-row{border-bottom-color:rgba(7,13,36,.08)}
+:host-context(.light-theme) .v-spa .st-row:last-of-type,:host-context(.theme-light) .v-spa .st-row:last-of-type{border-bottom:0}
+:host-context(.light-theme) .v-spa .st-row-desc,:host-context(.theme-light) .v-spa .st-row-desc,:host-context(.light-theme) .v-spa .st-row-reason,:host-context(.theme-light) .v-spa .st-row-reason,:host-context(.light-theme) .v-spa .st-inuse,:host-context(.theme-light) .v-spa .st-inuse,:host-context(.light-theme) .v-spa .st-unit,:host-context(.theme-light) .v-spa .st-unit,:host-context(.light-theme) .v-spa .st-row-eff,:host-context(.theme-light) .v-spa .st-row-eff{color:#64748B}
+:host-context(.light-theme) .v-spa .st-inuse-val,:host-context(.theme-light) .v-spa .st-inuse-val{color:#475569}
+:host-context(.light-theme) .v-spa .st-input,:host-context(.theme-light) .v-spa .st-input,:host-context(.light-theme) .v-spa .st-na,:host-context(.theme-light) .v-spa .st-na{background:#fff;border-color:#CBD5E1}
+:host-context(.light-theme) .v-spa .st-input,:host-context(.theme-light) .v-spa .st-input{color:#1E293B}
+:host-context(.light-theme) .v-spa .st-na,:host-context(.theme-light) .v-spa .st-na{color:#64748B}
+:host-context(.light-theme) .v-spa .st-sw,:host-context(.theme-light) .v-spa .st-sw{background:#CBD5E1}
+@media(max-width:700px){.v-spa .st-row{flex-direction:row;flex-wrap:nowrap;align-items:center}.v-spa .st-row-left{flex:1 1 0;min-width:0}.v-spa .st-input,.v-spa .st-na{width:160px}}
+
+/* per-row help (ⓘ) - added by the logic pass; the design pass restyles freely but keeps the class names */
+.st-help-btn { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-inline-start: 6px; padding: 2px; border: 0; background: transparent; color: var(--txt-3, #8b93a1); cursor: pointer; border-radius: 50%; }
+.st-help-btn:hover, .st-help-btn[aria-expanded="true"] { color: var(--teal, #2bd4c7); }
+.st-help-btn:focus-visible { outline: 2px solid var(--teal, #2bd4c7); outline-offset: 2px; }
+.st-help { margin-top: 8px; padding: 10px 12px; border: 1px solid var(--border, rgba(127,127,127,.28)); border-radius: 8px; background: var(--bg-2, rgba(127,127,127,.08)); font-size: 12px; line-height: 1.7; color: var(--txt-2, inherit); }
+.st-help-desc { margin-bottom: 6px; }
+.st-help-k { font-weight: 700; }
+
+/* spa (round 2): one visible sub-line per row like the design (.srow-sub); reasons / sources / permission notes live behind the ⓘ help; the last card of a tab has no bottom margin (.sec-card:last-child) */
+.v-spa .st-row-left > .st-row-desc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the read-only badge must not make its row taller than the design's (label line box) */
+.v-spa .st-row-lbl .st-badge{padding:1px 9px;line-height:1.3;white-space:nowrap;flex-shrink:0}
+@media(max-width:700px){.v-spa .st-row-lbl .st-badge{display:none}.v-spa .st-row-lbl{flex-wrap:nowrap}.v-spa .st-help-btn{flex-shrink:0;margin-inline-start:0}}
+/* ===== round 2 («ss»): compact rows exactly as the reference (label + one short line + control); every long text lives in the ⓘ help ===== */
+.v-ss .st-row-lbl{display:block;line-height:normal}
+.v-ss .st-help-btn{width:14px;height:14px;padding:0;margin-block:-1px;line-height:1;vertical-align:-2px}
+.v-ss .st-help-btn svg{width:14px;height:14px;display:block}
+.v-ss .st-row-desc{overflow:hidden;text-overflow:ellipsis}
+.v-ss .st-help{margin-top:8px;padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:11px;line-height:1.7;color:#A8B2D1}
+.v-ss .st-help-k{color:#fff;font-weight:700}
+.v-ss .st-help-btn{color:#6B7699}
+.v-ss .st-help-btn:hover,.v-ss .st-help-btn[aria-expanded="true"]{color:#2BD4C7}
+:host-context(.light-theme) .v-ss .st-help,:host-context(.theme-light) .v-ss .st-help{background:#F8FAFC;border-color:#E7EAF1;color:#475569}
+:host-context(.light-theme) .v-ss .st-help-k,:host-context(.theme-light) .v-ss .st-help-k{color:#1E293B}
+:host-context(.light-theme) .v-ss .st-help-btn,:host-context(.theme-light) .v-ss .st-help-btn{color:#64748B}
+:host-context(.light-theme) .v-ss .st-help-btn:hover,:host-context(.theme-light) .v-ss .st-help-btn:hover,:host-context(.light-theme) .v-ss .st-help-btn[aria-expanded="true"],:host-context(.theme-light) .v-ss .st-help-btn[aria-expanded="true"]{color:#0F8A7F}
+
+/* round 2: selects take the reference's .setting-input box (34h, r8, pad 0 10, 13px) */
+.v-ss .st-sel{min-width:120px;width:auto}
+.v-ss .st-sel ::ng-deep .ws-sel-trigger{height:34px;padding:0 10px;border-radius:8px;font-size:13px;color:#fff;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);gap:8px}
+:host-context(.light-theme) .v-ss .st-sel ::ng-deep .ws-sel-trigger,:host-context(.theme-light) .v-ss .st-sel ::ng-deep .ws-sel-trigger{background:#fff;border-color:#CBD5E1;color:#1E293B}
+/* light values measured on the reference (P-AD-020 with its light polish): input border #CBD5E1, helper text #6B7699, title icon teal */
+:host-context(.light-theme) .v-ss .st-input,:host-context(.theme-light) .v-ss .st-input{border-color:#CBD5E1}
+:host-context(.light-theme) .v-ss .st-row-desc,:host-context(.theme-light) .v-ss .st-row-desc{color:#6B7699}
+:host-context(.light-theme) .v-ss .st-ttl-ico,:host-context(.theme-light) .v-ss .st-ttl-ico{color:#2BD4C7}
+
+/* round 2, phones: the reference keeps label and control on ONE line (row h 63) and the card padding 18/20; only the long-text rows (textareas) stack */
+@media(max-width:700px){
+  .v-ss.st-card{padding:18px 20px}
+  .v-ss .st-row:not(.st-row-col){flex-direction:row;align-items:center;gap:16px}
+  .v-ss .st-row-left{min-width:0}
+  .v-ss .st-input{width:160px;min-width:120px}
+  .v-ss .st-input-sm{width:120px}
+  .v-ss .st-input.st-input-w{width:200px;max-width:55%}
+  .v-ss .st-ro{align-items:flex-end;text-align:end;max-width:50%}
+}
+.v-ss .st-row-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* long text editors (terms / privacy texts) use the whole row, not the 160px control cell */
+.v-ss .st-input.st-area,.v-spa .st-input.st-area{width:100%;min-width:0;max-width:none;height:auto;min-height:160px;padding:10px 12px;line-height:1.7;direction:rtl}

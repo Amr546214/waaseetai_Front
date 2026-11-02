@@ -40,7 +40,7 @@ describe('finance copy matches what the backend charges', () => {
 	});
 	it('legal + terms: no 1% client fee at escrow, no provider minimum of 500; the deposit fee and the commission-at-release are stated', () => {
 		const legal = read('pages/website/legal/legal-page.component.ts');
-		const terms = read('pages/website/terms/terms.component.html');
+		const terms = read('pages/website/terms/terms.component.html') + read('core/constants/legal-text.ts'); // the page text moved into the shared legal-text constant
 		expect(legal).not.toContain('رسوم إدارية ثابتة قدرها <strong>1%</strong>');
 		expect(legal).not.toContain('حد سحب مقدم الخدمة: <strong>500</strong>');
 		expect(legal).toContain('قيمة العقد فقط');

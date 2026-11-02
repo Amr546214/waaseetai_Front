@@ -47,7 +47,7 @@ describe('ProfileLevel (client)', () => {
 	it('renders the client ladder: name, cashback %, level N of 15, and the 15 level names with their cashback', () => {
 		const el = render(payload(1));
 		expect(q(el, 'level-name')!.textContent).toContain('زائر');
-		expect(q(el, 'level-percent')!.textContent).toContain('نسبة الكاش باك 1%');
+		expect(q(el, 'level-percent')!.textContent).toMatch(/نسبة الكاش باك.*1%/);
 		expect(q(el, 'level-index')!.textContent).toContain('المستوى 1 من 15');
 		const nodes = Array.from(el.querySelectorAll('[data-testid="level-roadmap"] [data-level]'));
 		expect(nodes.length).toBe(15);

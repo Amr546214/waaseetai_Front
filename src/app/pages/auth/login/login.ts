@@ -1,4 +1,6 @@
+import { PlatformInfoService } from '../../../core/services/platform-info.service';
 import { consumeReturnUrl } from '../../../core/routing/return-url';
+import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { Component, ElementRef, AfterViewInit, ChangeDetectorRef, DestroyRef, ViewEncapsulation, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -22,6 +24,7 @@ import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.servi
 import { isRateLimitError, RATE_LIMIT_MESSAGE, startWaitFromError } from '../../../core/utils/rate-limit.util';
 import { parseRetryAfter } from '../../../core/wait/retry-after.util';
 import { rateLimitSentence } from '../../../core/wait/wait-format';
+import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 
 const LOGIN_LABELS = { email: 'البريد الإلكتروني', password: 'كلمة المرور' };
 
@@ -31,7 +34,7 @@ export const SMS_UNAVAILABLE_MESSAGE = 'التحقق عبر الرسائل ال�
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, GoogleBtnStateDirective, FormSummaryComponent],
+  imports: [IdentityImgDirective, BrandNamePipe, CommonModule, ReactiveFormsModule, RouterLink, GoogleSigninButtonModule, GoogleBtnStateDirective, FormSummaryComponent],
   templateUrl: './login.html',
   styleUrl: './login.css',
   encapsulation: ViewEncapsulation.None,
@@ -44,6 +47,7 @@ export class Login implements AfterViewInit {
   /** What is missing after a failed submit attempt (shown by <ws-form-summary>). */
   missingFields: InvalidField[] = [];
   private readonly host = inject(ElementRef<HTMLElement>);
+  readonly platform = inject(PlatformInfoService);
   private readonly notify = inject(UiNotificationService);
   private readonly otpHandoff = inject(OtpHandoffService);
   isSubmitting = false;

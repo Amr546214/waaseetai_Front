@@ -1,5 +1,5 @@
 <app-page-loader></app-page-loader>
-<div class="ws-dashboard-root" dir="rtl">
+<div class="ws-dashboard-root" [class.admin-shell]="isAdminShell()" dir="rtl">
 	<!-- Icons sprite (Hidden) -->
 	<svg style="display:none" aria-hidden="true">
 		<defs>
@@ -205,8 +205,8 @@
 	</div>
 
 	<!-- MAIN CONTENT -->
-	<main class="main">
-		<div class="main-inner" [hidden]="!!roleRedirectLabel()">
+	<main class="main" [class.chat-main]="isChatRoute()">
+		<div class="main-inner" [class.chat-inner]="isChatRoute()" [hidden]="!!roleRedirectLabel()">
 			<router-outlet></router-outlet>
 		</div>
 		@if (roleRedirectLabel(); as label) {
@@ -216,9 +216,15 @@
 		}
 
 		<!-- FOOTER -->
-		<div class="inner-foot">
-			<span>&#169; {{ currentYear }} وسيط AI &middot; v{{ appVersion }}</span>
-		</div>
+		@if (!isChatRoute()) {
+			<footer class="inner-foot" role="contentinfo">
+				<span>&#169; {{ currentYear }} {{ '' | brandName }} &middot; v{{ appVersion }}</span>
+				<div class="inner-foot-links">
+					<a routerLink="/terms" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a>
+					<a routerLink="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>
+				</div>
+			</footer>
+		}
 	</main>
 
 	<!-- Real-Time Chat Message Toast Notification -->
@@ -228,31 +234,31 @@
 		<div class="flex items-start gap-3.5">
 			<div
 				class="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-[#2BD4C7]/20 to-[#2B7FFF]/15 border border-[#2BD4C7]/40 flex items-center justify-center text-[#2BD4C7] shadow-[0_0_15px_rgba(43,212,199,0.25)]">
-				<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+				<svg data-ws-icon="pl-shared-chat-typing" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 					<path stroke-linecap="round" stroke-linejoin="round"
 						d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
 				</svg>
 			</div>
 			<div class="flex-1 min-w-0">
 				<div class="flex items-center justify-between mb-1">
-					<span class="text-[11px] font-black text-[#2BD4C7] tracking-wider flex items-center gap-1.5">
+					<span class="text-[length:var(--font-size-small)] font-black text-[#2BD4C7] tracking-wider flex items-center gap-1.5">
 						<span class="w-2 h-2 rounded-full bg-[#2BD4C7] animate-pulse"></span>
 						رسالة جديدة
 					</span>
 					<button type="button" (click)="closeChatToast()"
 						class="text-slate-400 hover:text-white transition-colors p-1" aria-label="إغلاق التنبيه">
-						<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<svg data-ws-icon="pl-shared-x" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 								d="M6 18L18 6M6 6l12 12" />
 						</svg>
 					</button>
 				</div>
-				<h4 class="text-[13.5px] font-extrabold text-white mb-1 truncate">{{ chatToast().senderName }}</h4>
-				<p class="text-[12px] text-slate-300 leading-relaxed mb-3 line-clamp-2">{{ chatToast().text }}</p>
+				<h4 class="text-[length:var(--font-size-label)] font-extrabold text-white mb-1 truncate">{{ chatToast().senderName }}</h4>
+				<p class="text-[length:var(--font-size-small)] text-slate-300 leading-relaxed mb-3 line-clamp-2">{{ chatToast().text }}</p>
 				<button type="button" (click)="goToMessageFromToast()"
-					class="inline-flex items-center justify-between w-full px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#2BD4C7]/20 to-[#2B7FFF]/20 border border-[#2BD4C7]/40 text-[#2BD4C7] hover:text-white hover:bg-[#2BD4C7]/30 text-[12px] font-bold transition-all shadow-sm cursor-pointer border-none">
+					class="inline-flex items-center justify-between w-full px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#2BD4C7]/20 to-[#2B7FFF]/20 border border-[#2BD4C7]/40 text-[#2BD4C7] hover:text-white hover:bg-[#2BD4C7]/30 text-[length:var(--font-size-small)] font-bold transition-all shadow-sm cursor-pointer border-none">
 					<span>فتح المحادثة والرد</span>
-					<svg class="w-4 h-4 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+					<svg data-ws-icon="pl-shared-chevron-left" class="w-4 h-4 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"
 						stroke-width="2">
 						<path d="M15 19l-7-7 7-7" />
 					</svg>

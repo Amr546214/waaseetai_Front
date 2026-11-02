@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, signal, computed, inject, ElementRef } from '@angular/core';
+import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -36,11 +37,11 @@ const STATUS_LABELS: Record<TicketStatus, string> = {
 };
 
 function formatDate(iso: string): string {
-	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+	return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric', timeZone: providerTimeZone() });
 }
 
 function formatTime(iso: string): string {
-	return new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+	return new Date(iso).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
 }
 
 function buildTimeline(status: TicketStatus): TimelineStep[] {

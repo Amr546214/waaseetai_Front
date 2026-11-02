@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Tajawal', system-ui, sans-serif;
+  font-family: var(--font-family,'Tajawal'), system-ui, sans-serif;
   animation: vc-fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: auto;
 }

@@ -7,11 +7,10 @@ const read = (p: string) => readFileSync(`src/app/pages/dashboard/${p}`, 'utf8')
 describe('storage-not-ready banners', () => {
 	it('admin settings: banner + every save button disabled while the store is missing', () => {
 		const html = read('supper-admin-overview/sa-system-settings/sa-system-settings.html');
-		expect(html).toContain('settings-storage-pending');
-		const saves = html.match(/class="ss-save-btn" \[disabled\]="[^"]*"/g) ?? [];
-		expect(saves.length).toBeGreaterThanOrEqual(3);
-		for (const s of saves) expect(s).toContain('!storageReady()');
-		expect(read('supper-admin-overview/sa-system-settings/sa-system-settings.ts')).toContain('r.storageReady !== false');
+		expect(html).toContain('settings-storage-pending'); expect(html).toContain('!store.storageReady()');
+		const section = readFileSync('src/app/shared/system-settings/settings-section.component.html', 'utf8');
+		expect(section).toMatch(/data-testid="settings-save" \[disabled\]="[^"]*!store\.storageReady\(\)"/);
+		expect(readFileSync('src/app/core/services/system-settings.store.ts', 'utf8')).toContain('r.data.storageReady !== false');
 	});
 	it('admin marketing assets: banner + add button disabled while the store is missing', () => {
 		const html = read('supper-admin-overview/sa-marketing-assets/sa-marketing-assets.html');

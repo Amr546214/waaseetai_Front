@@ -249,3 +249,63 @@ describe('PhoneInputComponent: showing a stored number', () => {
     expect(q(open(null), '.dial-code').textContent!.trim()).toBe('+966');
   });
 });
+
+describe('Phone country dropdown keyboard navigation', () => {
+  function open(search = '') {
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('.country-selector-btn').click();
+    fixture.detectChanges();
+    const component = fixture.debugElement.query(By.directive(PhoneInputComponent)).componentInstance as PhoneInputComponent;
+    const input = fixture.nativeElement.querySelector('.dropdown-search-in') as HTMLInputElement;
+    input.value = search;
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    return { fixture, component, input };
+  }
+  function key(target: HTMLElement, value: string) {
+    const event = new KeyboardEvent('keydown', { key: value, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+  }
+  it('focuses search, then selects Egypt with ArrowDown and Enter after searching Eg', () => {
+    const { fixture, component, input } = open('Eg');
+    expect(document.activeElement).toBe(input);
+    key(input, 'ArrowDown');
+    const option = fixture.nativeElement.querySelector('.dropdown-item') as HTMLElement;
+    expect(document.activeElement).toBe(option);
+    key(option, 'Enter');
+    fixture.detectChanges();
+    expect(component.selectedCountry.code).toBe('EG');
+    expect(fixture.nativeElement.querySelector('.country-dropdown-panel')).toBeNull();
+    expect(document.activeElement).toBe(fixture.nativeElement.querySelector('.phone-number-input'));
+  });
+  it('moves between options and returns to search with ArrowUp', () => {
+    const { fixture, input } = open();
+    const options = fixture.nativeElement.querySelectorAll('.dropdown-item');
+    key(input, 'ArrowDown');
+    key(options[0], 'ArrowDown');
+    expect(document.activeElement).toBe(options[1]);
+    key(options[1], 'ArrowUp');
+    expect(document.activeElement).toBe(options[0]);
+    key(options[0], 'ArrowUp');
+    expect(document.activeElement).toBe(input);
+  });
+  it('closes with Escape and returns focus to the trigger', () => {
+    const { fixture, input } = open();
+    key(input, 'Escape');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.country-dropdown-panel')).toBeNull();
+    expect(document.activeElement).toBe(fixture.nativeElement.querySelector('.country-selector-btn'));
+  });
+  it('prevents form submission and handles arrows when the search has no results', () => {
+    const { fixture, component, input } = open('no-such-country');
+    key(input, 'ArrowDown');
+    key(input, 'ArrowUp');
+    key(input, 'Enter');
+    fixture.detectChanges();
+    expect(component.isOpen).toBe(true);
+    expect(component.selectedCountry.code).toBe('SA');
+    expect(document.activeElement).toBe(input);
+  });
+});

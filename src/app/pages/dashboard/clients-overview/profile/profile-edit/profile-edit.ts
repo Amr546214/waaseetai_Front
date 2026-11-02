@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, DestroyRef, ElementRef, inject, signal, computed } from '@angular/core';
+import { afterNextRender, ChangeDetectorRef, Component, DestroyRef, ElementRef, Injector, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
+import { EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, emailDisabledByPlatform, isEmailDisabledError, NotificationPreferencesService } from '../../../../../core/services/notification-preferences.service';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
 import { phoneToE164, parseStoredPhone } from '../../../../../core/forms/phone-countries';
 import type { CountryCode } from 'libphonenumber-js/mobile';
@@ -57,12 +57,57 @@ export class ProfileEdit {
 	private cdr = inject(ChangeDetectorRef);
 	private skillsCatalog = inject(SkillsCatalogService);
 	fb = inject(FormBuilder);
-	private readonly host = inject(ElementRef<HTMLElement>);
+	private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 	private readonly router = inject(Router);
 	/** What is missing after a failed save attempt (shown by <ws-form-summary>). */
 	missing = signal<InvalidField[]>([]);
 
 	activeTab = signal<Tab>('profile');
+	readonly guideOpen = signal(false);
+	readonly guideIndex = signal(0);
+	readonly guideSteps: ReadonlyArray<{ tab: Tab; target: string; title: string; text: string }> = [
+		{ tab: 'profile', target: 'input[type="file"]', title: 'الصورة الشخصية', text: 'ارفع صورة بصيغة JPG أو PNG بحجم أقصى 5MB. يمكنك استبدالها أو حذفها من هنا.' },
+		{ tab: 'profile', target: 'textarea[formcontrolname="bio"]', title: 'نبذة عنك', text: 'اكتب نبذة لا تتجاوز 1000 حرف. تُحفظ ضمن بيانات ملفك ويمكنك تعديلها لاحقًا، ثم اضغط حفظ التحديثات.' },
+		{ tab: 'profile', target: 'input[placeholder="أضف اهتمام جديد"]', title: 'الاهتمامات والمهارات', text: 'اكتب اهتمامًا واضغط إضافة أو Enter. احذف أي عنصر من علامة الإزالة، ثم احفظ التغييرات لتُحفظ في ملفك.' },
+		{ tab: 'profile', target: 'input[formcontrolname="portfolioUrl"]', title: 'الروابط الشخصية', text: 'أضف روابط أعمالك وحساباتك المهنية. ابدأ الرابط بـ https:// أو http://، واترك الحقول الاختيارية فارغة إذا لم تحتجها.' },
+		{ tab: 'profile', target: 'select[formcontrolname="interfaceLanguage"]', title: 'تفضيلات العرض والإشعارات', text: 'اللغة والمنطقة الزمنية تفضيلات محفوظة في ملفك ولا تغيّر لغة الموقع. اختر البريد أو الإشعار اللحظي؛ تظل الإشعارات محفوظة في مركز الإشعارات. Telegram وWhatsApp غير مدعومين كقنوات إشعار.' },
+		{ tab: 'basics', target: 'input[formcontrolname="firstName"]', title: 'البيانات الأساسية', text: 'تغيير الاسم يُرسل للمراجعة ويُطبّق بعد الاعتماد. البريد الإلكتروني ورقم الجوال للقراءة فقط. تابع حالة الطلب من طلباتي السابقة.' },
+		{ tab: 'identity', target: '[data-testid="identity-form"]', title: 'الهوية والتوثيق', text: 'الدولة والمدينة تُحفظان مباشرة، ورقم الهوية يُرسل للمراجعة. الجنسية وتاريخ الانتهاء للقراءة فقط. لرفع مستندات الهوية افتح استكمال البيانات.' },
+		{ tab: 'contact', target: 'app-phone-input[formcontrolname="alternativePhone"]', title: 'بيانات التواصل', text: 'يُحفظ رقم WhatsApp ومدينة الإقامة فقط. اختيار الدولة يحدد قائمة المدن، ولا يغيّر دولة حسابك من هذا القسم. البريد والجوال للقراءة فقط.' },
+		{ tab: 'banking', target: '#cl-paypal', title: 'بريد PayPal', text: 'يُستخدم PayPal للمدفوعات والاسترداد. يُحفظ البريد مباشرة دون مراجعة، ويمكنك ترك الحقل فارغًا لإزالته.' },
+		{ tab: 'security', target: '[data-testid="security-unsupported"]', title: 'أمان الحساب', text: 'تغيير كلمة المرور يتطلب مراجعة؛ تبقى الحالية سارية حتى اعتماد الطلب. المصادقة الثنائية وإدارة الجلسات غير متاحتين هنا. يمكنك تسجيل الخروج من قائمة حسابك.' },
+	];
+	readonly guideStep = computed(() => this.guideSteps[this.guideIndex()]);
+	private readonly guideInjector = inject(Injector);
+	private guideHighlight?: HTMLElement;
+
+	startProfileGuide(): void {
+		this.guideOpen.set(true);
+		this.showProfileGuideStep(0);
+	}
+
+	showProfileGuideStep(index: number): void {
+		if (index < 0 || index >= this.guideSteps.length) return;
+		this.guideHighlight?.removeAttribute('data-guide-active');
+		this.guideIndex.set(index);
+		this.switchTab(this.guideSteps[index].tab);
+		afterNextRender(() => {
+			if (!this.guideOpen() || this.guideIndex() !== index) return;
+			const field = this.host.nativeElement.querySelector<HTMLElement>(this.guideStep().target);
+			this.guideHighlight = field?.closest<HTMLElement>('.rounded-3xl') ?? field ?? undefined;
+			this.guideHighlight?.setAttribute('data-guide-active', 'true');
+			this.guideHighlight?.scrollIntoView?.({ block: 'center' });
+			this.host.nativeElement.querySelector<HTMLElement>('#profile-guide-title')?.focus({ preventScroll: true });
+		}, { injector: this.guideInjector });
+	}
+
+	closeProfileGuide(): void {
+		if (!this.guideOpen()) return;
+		this.guideOpen.set(false);
+		this.guideHighlight?.removeAttribute('data-guide-active');
+		this.guideHighlight = undefined;
+		this.host.nativeElement.querySelector<HTMLButtonElement>('[data-testid="profile-guide-start"]')?.focus({ preventScroll: true });
+	}
 	isChangingPassword = signal(false);
 
 	completionPercentage = signal<number>(0);
@@ -88,6 +133,10 @@ export class ProfileEdit {
 
 	// Notification channel toggles
 	notifEmail = signal(false);
+	/** the platform switched optional e-mail off: shown disabled, stored choice kept */
+	emailDisabled = signal(false);
+	readonly emailDisabledText = EMAIL_DISABLED_BY_PLATFORM;
+	readonly codeMailNote = CODE_MAIL_ALWAYS_NOTE;
 	notifSms = signal(false);
 	notifInApp = signal(true);
 	notifTelegram = signal(false);
@@ -433,6 +482,7 @@ export class ProfileEdit {
 	}
 
 	switchTab(tab: Tab) {
+		if (this.guideOpen() && this.guideStep().tab !== tab) this.closeProfileGuide();
 		this.missing.set([]);
 		this.errorMsg.set('');
 		this.successMsg.set('');
@@ -642,6 +692,7 @@ export class ProfileEdit {
 				const settings = (res?.success && res.data?.settings) ? res.data.settings : null;
 				if (!settings) { this.prefsState.set('error'); return; }
 				// e-mail copies are opt-in (nothing saved = no e-mail), exactly what delivery does with an unsaved account
+				this.emailDisabled.set(emailDisabledByPlatform(res));
 				this.notifEmail.set(settings['channel_email'] === true);
 				this.notifInApp.set(settings['channel_in_app'] !== false);
 				this.prefsRef = { email: this.notifEmail(), inApp: this.notifInApp() };
@@ -716,9 +767,10 @@ export class ProfileEdit {
 						if (pr?.success) { this.prefsRef = next; this.finishSave(); }
 						else this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
 					},
-					error: () => {
+					error: (err) => {
 						this.isSaving.set(false);
-						this.errorMsg.set('تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
+						if (isEmailDisabledError(err)) { this.emailDisabled.set(true); this.notifEmail.set(this.prefsRef?.email ?? false); }
+						this.errorMsg.set(isEmailDisabledError(err) ? `تم حفظ بيانات الملف، لكن خيار البريد ${EMAIL_DISABLED_BY_PLATFORM}.` : 'تم حفظ بيانات الملف، لكن تعذر حفظ تفضيلات الإشعارات. حاول مرة أخرى.');
 					}
 				});
 				return;
@@ -789,8 +841,8 @@ export class ProfileEdit {
 			form.markAllAsTouched();
 			const raw = this.identityForm.getRawValue();
 			const idNumber = String(raw.idNumber || '').trim();
-			if (idNumber && !/^[12]\d{9}$/.test(idNumber)) {
-				this.errorMsg.set('رقم الهوية يجب أن يكون 10 أرقام ويبدأ بـ 1 أو 2');
+			if (idNumber && !/^\d{7,20}$/.test(idNumber)) {
+				this.errorMsg.set('رقم الهوية غير صحيح: يجب أن يتكون من 7 إلى 20 رقماً');
 				return;
 			}
 			this.errorMsg.set('');

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, isEmailDisabledError } from '../../../../../core/services/notification-preferences.service';
 import { MarketerOverviewService, MarketerSummary, ChannelPerformance, CommissionLog, MarketerSettings } from '../../../../../core/services/marketer-overview.service';
 import { MarketerProfileService, MarketerProfile, AffiliateChannelHandle } from '../../../../../core/services/marketer-profile.service';
 import { MarketerPrefsStore } from '../../../../../core/services/marketer-prefs.store';
@@ -128,6 +129,10 @@ export class Data implements OnInit {
 	isChangingPassword = signal<boolean>(false);
 	/** The marketer's saved settings: channels, per-event alerts, communication language, timezone. */
 	alertPreferences: MarketerSettings = { ...DEFAULT_MARKETER_SETTINGS };
+	/** the platform switched optional e-mail off: the option shows the stored choice but cannot be edited */
+	readonly emailDisabledByPlatform = signal(false);
+	readonly emailDisabledText = EMAIL_DISABLED_BY_PLATFORM;
+	readonly codeMailNote = CODE_MAIL_ALWAYS_NOTE;
 	readonly timezoneOptions = MARKETER_TIMEZONE_OPTIONS;
 	exportingData = signal<boolean>(false);
 	isSavingAlerts = signal<boolean>(false);
@@ -234,8 +239,10 @@ export class Data implements OnInit {
 		this.overviewService.getSettings().subscribe({
 			next: (res) => {
 				if (res.success && res.data) {
-					this.alertPreferences = { ...DEFAULT_MARKETER_SETTINGS, ...res.data };
-					this.prefsStore.apply(res.data);
+					const { emailEnabledByPlatform, ...stored } = res.data;
+					this.emailDisabledByPlatform.set(emailEnabledByPlatform === false);
+					this.alertPreferences = { ...DEFAULT_MARKETER_SETTINGS, ...stored };
+					this.prefsStore.apply(stored);
 					this.alertsLoadFailed.set(false);
 				}
 			},
@@ -672,7 +679,7 @@ export class Data implements OnInit {
 			next: (res) => {
 				this.isSavingAlerts.set(false);
 				if (res.success) {
-					if (res.data) { this.alertPreferences = { ...DEFAULT_MARKETER_SETTINGS, ...res.data }; this.prefsStore.apply(res.data); }
+					if (res.data) { const { emailEnabledByPlatform, ...stored } = res.data; this.emailDisabledByPlatform.set(emailEnabledByPlatform === false); this.alertPreferences = { ...DEFAULT_MARKETER_SETTINGS, ...stored }; this.prefsStore.apply(stored); }
 					this.alertsLoadFailed.set(false);
 					this.notify.success('تم حفظ الإعدادات بنجاح');
 				} else {
@@ -681,6 +688,7 @@ export class Data implements OnInit {
 			},
 			error: (err) => {
 				this.isSavingAlerts.set(false);
+				if (isEmailDisabledError(err)) { this.emailDisabledByPlatform.set(true); this.notify.error(EMAIL_DISABLED_BY_PLATFORM); return; }
 				this.notify.httpError(err, { fallback: 'تعذر حفظ الإعدادات، حاول مرة أخرى' });
 			}
 		});

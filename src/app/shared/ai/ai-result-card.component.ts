@@ -18,12 +18,12 @@ import { AiResult, MetricSummaryDetails, isRealAi } from '../../core/models/ai-r
 			<section class="ws-arc" [class.ws-arc-ai]="mode() === 'ai'" [attr.data-testid]="'ai-card-' + mode()" [attr.aria-busy]="mode() === 'loading' ? 'true' : null">
 				<span class="ws-arc-ico" [class.ws-arc-neutral]="mode() !== 'ai'" aria-hidden="true">
 					@if (mode() === 'ai') {
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-ai-mark viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 							<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/>
 							<path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>
 						</svg>
 					} @else {
-						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+						<svg data-ws-icon="pl-shared-bar-chart" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
 					}
 				</span>
 				<div class="ws-arc-body">
@@ -58,13 +58,13 @@ import { AiResult, MetricSummaryDetails, isRealAi } from '../../core/models/ai-r
 		.ws-arc-ico { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(123,47,190,.15); color: #A56BE0; }
 		.ws-arc-neutral { background: rgba(255,255,255,.06); color: var(--txt-3, #8892b0); }
 		.ws-arc-body { flex: 1; min-width: 0; }
-		.ws-arc-ttl { font-size: 11px; font-weight: 900; letter-spacing: .04em; margin-bottom: 4px; color: var(--txt, inherit); }
+		.ws-arc-ttl { font-size: var(--font-size-small); font-weight: 900; letter-spacing: .04em; margin-bottom: 4px; color: var(--txt, inherit); }
 		.ws-arc-ai .ws-arc-ttl { color: #A56BE0; }
-		.ws-arc-txt { margin: 0 0 4px; font-size: 12.5px; line-height: 1.75; color: var(--txt-3, #8892b0); }
-		.ws-arc-list { margin: 4px 0; padding-inline-start: 18px; font-size: 12.5px; line-height: 1.75; color: var(--txt-3, #8892b0); list-style: disc; }
-		.ws-arc-sub { margin-top: 6px; font-size: 11px; font-weight: 800; color: var(--txt, inherit); }
-		.ws-arc-note { margin-top: 6px; font-size: 10.5px; font-weight: 700; color: var(--txt-3, #8892b0); opacity: .8; }
-		.ws-arc-retry { margin-top: 4px; font-size: 11.5px; font-weight: 800; padding: 4px 12px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.15)); background: transparent; color: inherit; cursor: pointer; }
+		.ws-arc-txt { margin: 0 0 4px; font-size: var(--font-size-label); line-height: 1.75; color: var(--txt-3, #8892b0); }
+		.ws-arc-list { margin: 4px 0; padding-inline-start: 18px; font-size: var(--font-size-label); line-height: 1.75; color: var(--txt-3, #8892b0); list-style: disc; }
+		.ws-arc-sub { margin-top: 6px; font-size: var(--font-size-small); font-weight: 800; color: var(--txt, inherit); }
+		.ws-arc-note { margin-top: 6px; font-size: var(--font-size-small); font-weight: 700; color: var(--txt-3, #8892b0); opacity: .8; }
+		.ws-arc-retry { margin-top: 4px; font-size: var(--font-size-small); font-weight: 800; padding: 4px 12px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.15)); background: transparent; color: inherit; cursor: pointer; }
 	`],
 })
 export class AiResultCardComponent {

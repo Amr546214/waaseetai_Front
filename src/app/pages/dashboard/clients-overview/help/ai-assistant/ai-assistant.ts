@@ -20,7 +20,7 @@ import { AssistantChatComponent } from '../../../../../sheards/assistant-chat/as
 		<!-- Disclosure -->
 		<div class="flex items-center gap-3 p-3.5 bg-gradient-to-br from-[rgba(123,47,190,.09)] to-[rgba(43,127,255,.06)] backdrop-blur-md border border-[rgba(123,47,190,.22)] rounded-2xl mb-5">
 			<div class="w-[30px] h-[30px] rounded-lg bg-[rgba(123,47,190,.16)] flex items-center justify-center shrink-0 text-[var(--ai-txt,#7B2FBE)]">
-				<svg class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+				<svg data-ws-ai-mark class="w-[15px] h-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
 					<circle cx="12" cy="12" r="2" /><circle cx="4" cy="6" r="1.5" /><circle cx="20" cy="6" r="1.5" />
 					<circle cx="4" cy="18" r="1.5" /><circle cx="20" cy="18" r="1.5" /><circle cx="12" cy="3" r="1.5" />
 					<circle cx="12" cy="21" r="1.5" />
@@ -28,8 +28,8 @@ import { AssistantChatComponent } from '../../../../../sheards/assistant-chat/as
 				</svg>
 			</div>
 			<div class="flex-1">
-				<div class="text-[10px] font-extrabold text-[var(--ai-txt,#A56BE0)] tracking-wider mb-0.5">وسيط، المساعد الذكي</div>
-				<p class="text-[13px] text-[var(--txt-2,#A8B2D1)]">يجيب فقط عن معلومات موثقة عن المنصة. لن تُشارَك بياناتك الحسّاسة، والقرار النهائي والإجراءات المالية تبقى بيدك أو لدى الفريق المختص</p>
+				<div class="text-[length:var(--font-size-caption)] font-extrabold text-[var(--ai-txt,#A56BE0)] tracking-wider mb-0.5">وسيط، المساعد الذكي</div>
+				<p class="text-[length:var(--font-size-label)] text-[var(--txt-2,#A8B2D1)]">يجيب فقط عن معلومات موثقة عن المنصة. لن تُشارَك بياناتك الحسّاسة، والقرار النهائي والإجراءات المالية تبقى بيدك أو لدى الفريق المختص</p>
 			</div>
 		</div>
 

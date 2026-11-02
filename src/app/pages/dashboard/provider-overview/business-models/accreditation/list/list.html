@@ -31,7 +31,7 @@
 		</div>
 		<div class="ord-head-actions">
 			<a routerLink="/provider-overview/business-models/accreditation/new"
-				style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:13px;text-decoration:none" class="txt-navy">
+				style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-radius:50px;font-weight:800;font-size:var(--font-size-label);text-decoration:none" class="txt-navy">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
 					aria-hidden="true">
 					<use href="#i-plus"></use>
@@ -63,14 +63,14 @@
 			<button class="ds" type="button">محتوى</button>
 		</div>
 		<div class="date-segs fr-sort" role="group" aria-label="ترتيب">
-			<svg class="fr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/></svg>
+			<svg data-ws-icon="pl-provider-sort-lines" class="fr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/></svg>
 			<button class="ds active" type="button">الأحدث</button>
 			<button class="ds" type="button">الأقدم</button>
 			<button class="ds" type="button">الأطول انتظاراً</button>
 		</div>
 		<div class="fr-spacer"></div>
 		<div class="fr-search">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+			<svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
 				<circle cx="11" cy="11" r="8" />
 				<line x1="21" y1="21" x2="16.65" y2="16.65" />
 			</svg>
@@ -90,23 +90,23 @@
 
 	@if (isLoading()) {
 	<div class="state-card" style="text-align:center;padding:40px 24px">
-		<svg class="animate-spin w-8 h-8 mx-auto mb-4 text-[#2BD4C7]" xmlns="http://www.w3.org/2000/svg" fill="none"
+		<svg data-ws-icon="pl-provider-spinner" class="animate-spin w-8 h-8 mx-auto mb-4 text-[#2BD4C7]" xmlns="http://www.w3.org/2000/svg" fill="none"
 			viewBox="0 0 24 24">
 			<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 			<path class="opacity-75" fill="currentColor"
 				d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
 			</path>
 		</svg>
-		<div style="font-size:14px" class="txt-muted">جاري تحميل طلبات الاعتماد...</div>
+		<div style="font-size:var(--font-size-label)" class="txt-muted">جاري تحميل طلبات الاعتماد...</div>
 	</div>
 	} @else if (samples().length === 0) {
 	<div class="state-card" style="text-align:center;padding:40px 24px">
-		<div style="font-size:16px;font-weight:800;margin-bottom:6px" class="txt-white">لا توجد نماذج اعتماد مرفوعة حتى الآن
+		<div style="font-size:var(--font-size-body);font-weight:800;margin-bottom:6px" class="txt-white">لا توجد نماذج اعتماد مرفوعة حتى الآن
 		</div>
-		<p style="font-size:12px;margin-bottom:20px" class="txt-muted">قم برفع نموذج عمل فني ليراجعه فريق وسيط يدوياً
+		<p style="font-size:var(--font-size-small);margin-bottom:20px" class="txt-muted">قم برفع نموذج عمل فني ليراجعه فريق وسيط يدوياً
 			وتأكيد جدارتك المهنية للحصول على شارة الاعتماد.</p>
 		<a routerLink="/provider-overview/business-models/accreditation/new"
-			style="display:inline-block;padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;text-decoration:none" class="txt-navy">رفع
+			style="display:inline-block;padding:10px 20px;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border:none;border-radius:50px;font-weight:800;font-size:var(--font-size-label);cursor:pointer;font-family:inherit;text-decoration:none" class="txt-navy">رفع
 			أول نموذج اعتماد</a>
 	</div>
 	} @else {
@@ -130,7 +130,7 @@
 							<span class="ord-id">#ACC-{{ sample.id.substring(0,8).toUpperCase() }}</span>
 						</td>
 						<td>{{ sample.providerSpecialty?.specialty?.nameAr || 'اعتماد فني' }}</td>
-						<td style="font-size:12px" class="txt-muted">{{ sample.createdAt | date:'d MMMM yyyy' }}</td>
+						<td style="font-size:var(--font-size-small)" class="txt-muted">{{ sample.createdAt | date:'d MMMM yyyy' }}</td>
 						<td>
 							@if (sample.status === 'PENDING_AI_AUDIT' || sample.status === 'MANUAL_REVIEW') {
 							<span class="opill op-active">قيد المراجعة اليدوية</span>
@@ -138,8 +138,8 @@
 							<span class="opill op-done">معتمد من الإدارة</span>
 							} @else if (sample.status === 'REJECTED') {
 							<span class="opill op-cancel">مرفوض</span>
-							@if (rejectionReason(sample); as why) { <div data-testid="sample-rejection-reason" style="font-size:11px;margin-top:4px" class="txt-muted">سبب الرفض: {{ why }}</div> }
-							<a routerLink="/provider-overview/business-models/accreditation/new" style="font-size:11px;font-weight:800" class="txt-teal">إعادة الإرسال</a>
+							@if (rejectionReason(sample); as why) { <div data-testid="sample-rejection-reason" style="font-size:var(--font-size-small);margin-top:4px" class="txt-muted">سبب الرفض: {{ why }}</div> }
+							<a routerLink="/provider-overview/business-models/accreditation/new" style="font-size:var(--font-size-small);font-weight:800" class="txt-teal">إعادة الإرسال</a>
 							}
 						</td>
 						<td>

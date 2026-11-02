@@ -12,30 +12,30 @@
 .fail-icon-inner{width:56px;height:56px;border-radius:50%;background:rgba(255,140,105,.15);display:flex;align-items:center;justify-content:center}
 .fail-icon-inner svg{width:26px;height:26px;color:var(--red)}
 .fail-title{font-size:22px;font-weight:900;color:var(--txt);margin-bottom:8px;animation:fade-up .4s .2s both}
-.fail-sub{font-size:13px;color:var(--txt-2);line-height:1.7;margin-bottom:24px;animation:fade-up .4s .3s both}
+.fail-sub{font-size:var(--font-size-label);color:var(--txt-2);line-height:1.7;margin-bottom:24px;animation:fade-up .4s .3s both}
 
 /* ERROR CODE */
-.error-code{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.2);border-radius:20px;font-size:11px;font-weight:800;color:var(--red);margin-bottom:24px;animation:fade-up .4s .35s both}
+.error-code{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,140,105,.08);border:1px solid rgba(255,140,105,.2);border-radius:20px;font-size:var(--font-size-small);font-weight:800;color:var(--red);margin-bottom:24px;animation:fade-up .4s .35s both}
 .error-code svg{width:11px;height:11px}
 
 /* REASONS */
 .reasons-card{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:24px;text-align:right;animation:fade-up .4s .4s both}
-.reasons-title{font-size:12px;font-weight:800;color:var(--txt-2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.reasons-title{font-size:var(--font-size-small);font-weight:800;color:var(--txt-2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .reasons-title svg{width:12px;height:12px;color:var(--kahr)}
-.reason-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-top:1px solid rgba(255,255,255,.04);font-size:12px;color:var(--txt-2);line-height:1.5}
+.reason-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-top:1px solid rgba(255,255,255,.04);font-size:var(--font-size-small);color:var(--txt-2);line-height:1.5}
 .reason-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,140,105,.5);flex-shrink:0;margin-top:5px}
 
 /* ACTIONS */
 .actions-col{display:flex;flex-direction:column;gap:10px;animation:fade-up .4s .45s both}
-.btn-retry{padding:13px 28px;border-radius:999px;background:var(--grad);font-size:14px;font-weight:900;color:#070D24;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s}
+.btn-retry{padding:13px 28px;border-radius:999px;background:var(--grad);font-size:var(--font-size-label);font-weight:900;color:#070D24;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s}
 .btn-retry:hover{opacity:.88}
 .btn-retry svg{width:15px;height:15px}
-.btn-alt{padding:11px 28px;border-radius:999px;border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--txt-2);text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
+.btn-alt{padding:11px 28px;border-radius:999px;border:1px solid var(--border);font-size:var(--font-size-label);font-weight:700;color:var(--txt-2);text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
 .btn-alt:hover{border-color:rgba(43,212,199,.35);color:var(--teal)}
 .btn-alt svg{width:14px;height:14px}
 
 /* SUPPORT */
-.support-note{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;font-size:11px;color:var(--txt-3);animation:fade-up .4s .5s both}
+.support-note{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;font-size:var(--font-size-small);color:var(--txt-3);animation:fade-up .4s .5s both}
 .support-note a{color:var(--teal);font-weight:700}
 
 /* ── App states the design does not draw ── */

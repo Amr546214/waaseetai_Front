@@ -1,0 +1,18 @@
+/* The source panel's global styles (reset, font, direction, select colours) re-targeted to each page's own shadow root: the platform's global CSS cannot reach into the page,
+   and the page cannot leak out. `all: initial` removes everything the platform would otherwise hand down by inheritance; CSS custom properties (the panel's own tokens, set on
+   the section host) still flow in. */
+:host {
+  all: initial;
+  display: block;
+  font-family: var(--font-family, 'Tajawal'), system-ui, -apple-system, sans-serif;
+  color: var(--txt, #FFFFFF);
+  direction: rtl;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+*, *::before, *::after { box-sizing: border-box; }
+a { color: inherit; }
+select, select option {
+  background: var(--navy, #0B1437);
+  color: var(--txt, #FFFFFF);
+}

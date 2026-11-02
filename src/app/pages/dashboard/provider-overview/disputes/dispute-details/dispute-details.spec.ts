@@ -55,6 +55,18 @@ describe('DisputeDetails', () => {
 		expect(d.teamMember).toBeUndefined();
 	});
 
+	it('does not invent escrow amounts, completed evidence steps, or a successful upload', async () => {
+		await setup('real-uuid-1');
+		fixture.detectChanges();
+		const text = fixture.nativeElement.textContent as string;
+		expect(text).not.toContain('4,500');
+		expect(text).not.toContain('7,000');
+		expect(text).not.toContain('24–48');
+		expect(text).toContain('إضافة أدلة بعد فتح النزاع غير متاحة');
+		expect(fixture.nativeElement.querySelector('input[type="file"]')).toBeNull();
+		expect(component.dispute()?.detail?.statusSteps.filter(step => step.state === 'done').map(step => step.label)).toEqual(['رُفع النزاع']);
+	});
+
 	it('a 404 shows "not found", a server error shows a retryable error — never a mock dispute', async () => {
 		await setup('DSP-2026-014', { getProviderDispute: () => throwError(() => ({ status: 404 })) });
 		expect(component.notFound()).toBe(true);

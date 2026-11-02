@@ -34,6 +34,7 @@
             @if (a.fileUrl) { <a class="ma-link" [href]="a.fileUrl" target="_blank" rel="noopener noreferrer" download>{{ a.fileName || 'تنزيل الملف' }}</a> }
           </div>
           <button type="button" class="ma-btn" [disabled]="busyId() === a.id" (click)="toggle(a)">{{ a.active ? 'تعطيل' : 'تفعيل' }}</button>
+          @if (rowErrors()[a.id]; as re) { <div class="ma-item-desc" style="color:var(--red,#FF8C69);width:100%" role="alert" [attr.data-testid]="'ma-row-error-' + a.id">{{ re }}</div> }
         </div>
       }
     </div>

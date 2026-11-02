@@ -1,0 +1,10 @@
+{
+ "_doc": "Round 9 (idfe7b). The ONLY places where a component stylesheet may declare a registered design token (the 38 of identity-tokens.effective.golden.json or a semantic variable of identity-semantic-tokens.json) with a literal value or an alias other than var(--<semantic variable that replaces it>). identity-token-copies.guard.spec.ts fails for any other declaration, and for an entry here that no longer matches a real declaration. Every entry needs a reason; adding one is a design decision, not a fix.",
+ "entries": [],
+ "orphanCss": [
+  {
+   "file": "src/app/pages/dashboard/provider-overview/disputes/disputes.css",
+   "reason": "Not loaded by any component (provider disputes.ts has no styleUrl and the file is not in angular.json or an @import): its 8 light-mode token copies have no effect at runtime. Kept (nothing is deleted without an explicit per-item decision); the guard re-checks it the moment a component starts loading it."
+  }
+ ]
+}

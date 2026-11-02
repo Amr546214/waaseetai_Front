@@ -26,6 +26,9 @@ interface FaqItem {
   a: string;
 }
 
+/** every symbol the plan cards can draw through `#pr-<name>`, written out in full so the icon tools and the library see them */
+export const PRICING_PLAN_SYMBOL_IDS = ['pr-building', 'pr-provider', 'pr-star', 'pr-user'] as const;
+
 @Component({
   selector: 'app-pricing',
   standalone: true,
@@ -34,6 +37,8 @@ interface FaqItem {
   styleUrl: './pricing.css'
 })
 export class Pricing {
+  /** `#pr-<name>` of a plan icon name (same string as before) */
+  planIconHref(name: string): string { const id = 'pr-' + name; return '#' + (PRICING_PLAN_SYMBOL_IDS.find(i => i === id) ?? id); }
   accountType = signal<AccountType>('ind');
   openFaq = signal<number | null>(0);
 
