@@ -50,7 +50,6 @@ export class ChatService {
 
   // Real-time signals & observables
   public newMessage$ = new Subject<any>();
-  public onlineStatus$ = new Subject<{ conversationId: string; userId: string; isOnline: boolean }>();
   public typingIndicator$ = new Subject<{ conversationId: string; userId: string; userName: string; isTyping: boolean }>();
   public conversationUpdated$ = new Subject<any>();
   public projectEvent$ = new Subject<any>();
@@ -127,11 +126,6 @@ export class ChatService {
         }
         this.newMessage$.next(msg);
       });
-    });
-
-    this.socket.on('user_online_status', (data: any) => {
-      if (typeof data?.conversationId !== 'string' || typeof data.userId !== 'string' || typeof data.isOnline !== 'boolean') return;
-      this.ngZone.run(() => this.onlineStatus$.next(data));
     });
 
     this.socket.on('typing_indicator', (data: any) => {

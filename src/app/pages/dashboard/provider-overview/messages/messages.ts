@@ -318,15 +318,10 @@ export class ProviderMessages implements OnInit, OnDestroy {
       })
     );
 
-    this.sub.add(this.chatService.onlineStatus$?.subscribe(data => {
-      if (data.userId === this.currentUserId) return;
-      this.conversations.update(list => list.map(c => c.id === data.conversationId ? { ...c, online: data.isOnline } : c));
-    }));
-
     // Listen for real-time typing indicators
     this.sub.add(
       this.chatService.typingIndicator$.subscribe((data) => {
-        if (data && data.userId !== this.currentUserId && data.conversationId === this.activeConvId()) {
+        if (data && data.conversationId === this.activeConvId()) {
           this.partnerIsTyping.set(data.isTyping);
           if (data.userName) this.typingUserName.set(data.userName);
         }
@@ -358,7 +353,6 @@ export class ProviderMessages implements OnInit, OnDestroy {
     if (oldId && oldId !== id) {
       this.chatService.leaveRoom(oldId, this.currentUserId);
     }
-    if (this.activeConvId() !== id) this.partnerIsTyping.set(false);
     this.activeConvId.set(id);
     this.contextConversationMissing.set(false);
     this.showChatOnMobile.set(true);

@@ -69,6 +69,8 @@ npm run start:local              # http://localhost:4200 → API at http://local
 Run the [backend](https://github.com/Amr546214/waaseetai_Back) on port `5009` first, or most pages after the public site will not load data.
 
 > `npm start` uses the `development` configuration, which points at the **shared dev server** (`https://dev.waseetai.com/api`), not at localhost. Use `start:local` for a local backend.
+>
+> Opening `http://localhost:4200` does **not** mean a local backend: `npm start` talks to the shared dev backend **and its database** with the same rules as the deployed dev site (registration, e-mail proof, phone/e-mail uniqueness, rate limits). Only `url_api` differs between configurations; no flow is switched on or off by the environment.
 
 ```bash
 npm run build                 # production build → dist/frontend (browser + server bundles)
