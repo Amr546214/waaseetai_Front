@@ -83,3 +83,5 @@ button:focus-visible, summary:focus-visible, a:focus-visible, label.file-btn:foc
   .pt-name { grid-column: 1 / -1; }
   .pt-edit { grid-column: 1 / -1; }
 }
+
+.font-choices{display:flex;flex-wrap:wrap;gap:6px;margin-block:8px;max-height:180px;overflow:auto}.font-choices button{max-width:100%;white-space:normal;overflow-wrap:anywhere}

@@ -1,3 +1,4 @@
+import {IdentityPreviewStyles} from '../core/identity-preview-styles.directive';
 import { IdentityStrip } from '../identity/identity-strip';
 import { Component, OnInit, computed, inject, ViewEncapsulation } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -14,6 +15,7 @@ import { ThemeModeService } from '../core/theme-mode.service';
 @Component({
   selector: 'sc-style-guide',
   standalone: true,
+  hostDirectives: [IdentityPreviewStyles],
   imports: [IdentityStrip],
   templateUrl: './style-guide.html',
   encapsulation: ViewEncapsulation.ShadowDom,

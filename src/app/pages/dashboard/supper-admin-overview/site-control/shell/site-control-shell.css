@@ -21,3 +21,10 @@
 	font-weight: 700;
 }
 @media (max-width: 640px) { .sc-root { margin: -16px; } .sc-notice { margin: 12px 12px 0; } }
+
+/* Navigation follows pmobs2030/pmo's compact RTL pill bar. It is scoped to site control. */
+.admin-nav { display:flex; flex-wrap:wrap; gap:4px; background:var(--pg,#070D24); padding:10px 24px; border-bottom:1px solid var(--border,rgba(255,255,255,.08)); font-family:var(--font-family,'Tajawal'),system-ui,sans-serif; direction:rtl; }
+.admin-nav a { color:var(--txt-2,#A8B2D1); text-decoration:none; font-size:12px; font-weight:700; padding:6px 14px; border-radius:999px; }
+.admin-nav a.active { background:var(--grad,linear-gradient(135deg,#2BD4C7,#2B7FFF)); color:#070D24; }
+.admin-nav a:focus-visible { outline:2px solid var(--teal,#2BD4C7); outline-offset:2px; }
+@media(max-width:640px) { .admin-nav { padding:10px 12px; gap:4px; }.admin-nav a { padding:7px 10px; } }

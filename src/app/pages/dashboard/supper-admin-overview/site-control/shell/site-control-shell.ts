@@ -1,8 +1,10 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, computed, inject, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { SiteControlScope } from '../core/site-control-scope.service';
+import { AdminAccessService } from '../../../../../core/services/admin-access.service';
+import { ruleForPath } from '../../../../../core/config/admin-access-rules';
 import { DesignTokensService } from '../core/design-tokens.service';
 
 /**
@@ -13,12 +15,18 @@ import { DesignTokensService } from '../core/design-tokens.service';
  */
 @Component({
 	selector: 'app-site-control-shell',
-	imports: [RouterOutlet],
+	imports: [RouterOutlet, RouterLink, RouterLinkActive],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './site-control-shell.html',
 	styleUrl: './site-control-shell.css'
 })
 export class SiteControlShell implements AfterViewInit, OnDestroy {
+ private readonly access = inject(AdminAccessService);
+ readonly navigation = computed(() => [
+  ['identity', 'الهوية'], ['health', 'صحة النظام'], ['tokens', 'القيم والألوان'], ['icons', 'الأيقونات'],
+  ['typography', 'الخطوط'], ['accounts', 'هوية المستويات'], ['style-guide', 'دليل الأنماط'], ['live-preview', 'المعاينة'], ['templates', 'القوالب'], ['export', 'تصدير CSS'],
+ ].map(([path, title]) => ({ title, url: '/supper-admin-overview/site-control/' + path }))
+  .filter(link => this.access.allows(ruleForPath(link.url))));
 	private readonly scope = inject(SiteControlScope);
 	private readonly tokens = inject(DesignTokensService);
 	private readonly host = viewChild.required<ElementRef<HTMLElement>>('host');
@@ -35,10 +43,9 @@ export class SiteControlShell implements AfterViewInit, OnDestroy {
 	readonly kind = computed<'server' | 'mixed' | 'aid' | 'rules' | 'local'>(() => {
 		const m = /\/site-control\/([^/?#]+)/.exec(this.url());
 		switch (m?.[1]) {
-			case 'identity': case 'icons': return 'server';
-			case 'tokens': case 'typography': return 'mixed';
+			case 'tokens': case 'identity': case 'icons': case 'typography': case 'templates': case 'accounts': case 'export': return 'server';
 			case 'style-guide': case 'live-preview': case 'health': return 'aid';
-			case 'accounts': return 'rules';
+			
 			default: return 'local';
 		}
 	});

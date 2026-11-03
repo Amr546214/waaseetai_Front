@@ -1,0 +1,27 @@
+:host { display:block; margin-block:0 28px; min-width:0; }
+.guide { border:1px solid var(--border); border-radius:16px; overflow:hidden; background:var(--surface); }
+header { padding:24px; }
+.eyebrow { color:var(--teal); font:700 10px/1.5 ui-monospace,monospace; letter-spacing:.14em; }
+h2 { margin:8px 0; font-size:clamp(20px,2.2vw,28px); font-weight:900; color:var(--txt); }
+p { margin:0; color:var(--txt-2); font-size:13px; line-height:1.9; }
+.guide-actions { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:16px; }
+button,a { font-family:inherit; font-size:12px; font-weight:800; }
+button { cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--txt-2); border-radius:999px; padding:9px 16px; }
+a { color:var(--teal); text-underline-offset:4px; }
+button:hover { color:var(--txt); border-color:var(--teal); }
+button:focus-visible,a:focus-visible { outline:2px solid var(--teal); outline-offset:3px; }
+.tabs { display:flex; flex-wrap:wrap; gap:6px; padding:12px 24px; border-block:1px solid var(--border); background:var(--pg); }
+.tabs button { border-color:transparent; background:transparent; }
+.tabs button.active { background:var(--grad); color:#070D24; }
+.reference-note { padding:16px 24px; font-size:12px; }
+.open-reference { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:calc(100% - 48px); min-height:150px; margin:0 24px 24px; border-radius:12px; border-style:dashed; color:var(--txt); }
+.open-reference span { font-size:11px; font-weight:500; color:var(--txt-2); }
+iframe { display:block; width:100%; height:760px; border:0; background:var(--pg); }
+.frame-status { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 16px; border-block:1px solid var(--border); color:var(--txt-3); font-size:11px; }
+.editor { scroll-margin-top:24px; }
+.icon-link { padding:24px; }
+.icon-link h3 { margin:0 0 8px; font-size:16px; }.icon-link a { display:inline-block; margin-top:14px; }
+[hidden] { display:none!important; }
+@media(max-width:640px) { header,.icon-link { padding:16px; }.tabs { padding:10px 12px; }.tabs button { padding:8px 12px; }.reference-note { padding:12px 16px; }.open-reference { width:calc(100% - 32px); margin:0 16px 16px; }iframe { height:600px; } }
+
+.guide.expanded { position:fixed; inset:16px; z-index:1000; overflow:auto; background:var(--pg); box-shadow:0 24px 80px rgba(0,0,0,.35); }.guide.expanded iframe { height:calc(100vh - 300px); min-height:400px; }

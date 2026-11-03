@@ -1,3 +1,5 @@
+import {SiteIdentityService} from '../../../../../core/identity/site-identity.service';
+import {effect,untracked} from '@angular/core';
 import { SiteControlScope } from './site-control-scope.service';
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
@@ -75,6 +77,9 @@ export class TypographyService {
   private readonly scope = inject(SiteControlScope);
   private readonly persistence = inject(PersistenceService);
 
+  private readonly identity=inject(SiteIdentityService);
+  private readonly source=signal<TypographyFile|null>(null);
+  constructor(){effect(()=>{const source=this.source();const values=this.identity.manifest().items['tokens.typography']?.value??{};if(!source)return;untracked(()=>{this.families.set(source.families.map(f=>values['--font-family']?{...f,value:values['--font-family'],stack:values['--font-family']}:f));this.roles.set(source.roles.map(r=>({...r,fontSize:values['--type-'+r.id+'-size']??r.fontSize,fontWeight:Number(values['--type-'+r.id+'-weight']??r.fontWeight),lineHeight:Number(values['--type-'+r.id+'-height']??r.lineHeight),letterSpacing:values['--type-'+r.id+'-spacing']??r.letterSpacing})));this.applyAll();});});}
   readonly families = signal<FontFamily[]>([]);
   readonly roles = signal<TypeRole[]>([]);
   readonly loadError = signal<string | null>(null);
@@ -93,16 +98,8 @@ export class TypographyService {
       return;
     }
     this.fontLibrary.set(library?.fonts ?? []);
-    const saved = this.persistence.load<{ families: FontFamily[]; roles: TypeRole[] }>('typography');
-    this.families.set(saved?.data.families ?? data.families);
-    this.roles.set(saved?.data.roles ?? data.roles);
-    this.applyAll();
-    // تحميل الخط الفعلي فورًا لأي عائلة محفوظة سابقًا لا تطابق الافتراضي (Tajawal) —
-    // بدون هذا، عائلة مختارة من جلسة سابقة تُطبَّق كاسم CSS بدون أن يكون ملف الخط محمَّلاً.
-    for (const fam of this.families()) {
-      const entry = this.fontLibrary().find(f => f.googleFamily === fam.value);
-      if (entry) this.loadGoogleFont(entry);
-    }
+    this.source.set(data);
+    this.loadError.set(null);
   }
 
   /** إصلاح 2026-08-19 (طلب مباشر من المالك): يحقن رابط Google Fonts فعليًا لخط من المكتبة —

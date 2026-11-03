@@ -1,9 +1,11 @@
+import {APPROVED_FONTS,IdentityFontsRuntime} from '../../../../../core/identity/identity-fonts.runtime';
 import { NgStyle } from '@angular/common';
-import { Component, ViewEncapsulation, computed, inject, input, signal, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, computed, inject, input, signal, OnInit, effect } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 import { IdentityAssetMeta, IdentityChangeResult, IdentityItemInfo, IdentityTokenDef, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { Failure, actorName, currentSummary, describeFailure } from '../identity/identity-view';
+import { PRESENTATION_GROUPS,presentationInline } from '../../../../../core/identity/presentation-controls';
 import { PlatformTokensStore } from './platform-tokens.store';
 
 export interface TokenNotice { type: 'ok' | 'warn' | 'error' | 'conflict'; text: string; detail?: string; failure?: Failure }
@@ -23,6 +25,7 @@ export const isSwatch = (t: IdentityTokenDef): boolean => t.type === 'color' || 
 @Component({
 	selector: 'sc-token-editor',
 	standalone: true,
+ providers: [IdentityFontsRuntime],
 	imports: [NgStyle],
 	templateUrl: './token-editor.html',
 	encapsulation: ViewEncapsulation.ShadowDom,
@@ -32,7 +35,17 @@ export class TokenEditor implements OnInit {
 	/** the registry keys this instance edits, in display order */
 	readonly keys = input.required<string[]>();
 	readonly title = input('قيم التصميم المرتبطة بالموقع');
-	readonly store = inject(PlatformTokensStore);
+ readonly fontChoices=APPROVED_FONTS;
+ fontStack(font:{googleFamily:string;latinPartner:string}):string{return [...new Set([font.googleFamily,font.latinPartner])].map(n=>"'"+n+"'").join(',')+',system-ui,sans-serif';}
+ readonly tokenPrefix=input('');readonly query=signal('');readonly limit=signal(50);
+ displayValue(value:string):string{return value==='inherit'?'الأصل حسب موضعه':value;}
+ filteredTokens(it:IdentityItemInfo):IdentityTokenDef[]{const q=this.query().trim().toLowerCase();return(it.tokens??[]).filter(t=>(!this.tokenPrefix()||t.name.startsWith(this.tokenPrefix()))&&(!q||[t.name,t.label,t.default].some(v=>v.toLowerCase().includes(q))));}
+ visibleTokens(it:IdentityItemInfo):IdentityTokenDef[]{return this.filteredTokens(it).slice(0,this.limit());}
+ samples(it:IdentityItemInfo){return PRESENTATION_GROUPS.filter(g=>g.key===it.key&&(!this.tokenPrefix()||g.fields.some(f=>f.name.startsWith(this.tokenPrefix())))).slice(0,20);}
+ sampleStyle(it:IdentityItemInfo,id:string){return presentationInline(id,this.reviewed(it)??this.desired(it));}
+
+	readonly previewFonts=inject(IdentityFontsRuntime);
+ readonly store = inject(PlatformTokensStore);
 	private readonly api = inject(SiteIdentityAdminApi);
 	private readonly confirmer = inject(ConfirmModalService);
 
@@ -41,6 +54,8 @@ export class TokenEditor implements OnInit {
 	readonly shown = computed(() => this.keys().map(k => this.store.item(k)).filter((i): i is IdentityItemInfo => !!i));
 	readonly current = computed(() => this.shown().find(i => i.key === this.active()) ?? this.shown()[0] ?? null);
 
+ constructor(){effect(()=>{const values=this.ui()['tokens.typography']?.draft?.value;this.previewFonts.setItems(values?{'tokens.typography':{value:values}}:{});});}
+ ngOnDestroy(){this.previewFonts.setItems({});}
 	ngOnInit(): void { void this.store.load(); }
 
 	state(key: string): KeyUi { return this.ui()[key] ?? FRESH(); }

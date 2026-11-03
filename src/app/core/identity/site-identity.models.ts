@@ -25,7 +25,7 @@ const TOKEN_SELECTORS = String.raw`(?::root|:root:not\(\.theme-light\):not\(\.li
 const TOKEN_DECL = String.raw`--[a-z0-9][a-z0-9-]{0,39}:[^;{}<>@\\/*]{1,220}`;
 const TOKENS_CSS_RE = new RegExp(`^(?:${TOKEN_SELECTORS}\\{${TOKEN_DECL}(?:;${TOKEN_DECL})*;?\\}\\s*){1,3}$`);
 export function safeTokensCss(raw: unknown): string {
-	if (typeof raw !== 'string' || !raw.trim() || raw.length > 20_000) return '';
+	if (typeof raw !== 'string' || !raw.trim() || raw.length > 300_000) return '';
 	if (/url\s*\(|expression|import|javascript:|<\/?style|\\/i.test(raw)) return '';
 	return TOKENS_CSS_RE.test(raw.trim()) ? raw.trim() : '';
 }

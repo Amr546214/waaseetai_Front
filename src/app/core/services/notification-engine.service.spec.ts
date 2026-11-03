@@ -14,6 +14,7 @@ const fakeSocket = {
 const ioSpy = vi.fn<(...args: any[]) => any>(() => fakeSocket);
 (globalThis as any).__socketIoModule = () => ({ default: (...args: any[]) => ioSpy(...args), io: (...args: any[]) => ioSpy(...args) });
 
+import { AiIconRuntime } from '../identity/identity-ai-icon';
 import { NotificationEngineService } from './notification-engine.service';
 
 // svgIcon is a pre-trusted SafeHtml block (see buildIconHtml()), not a plain
@@ -41,6 +42,23 @@ describe('NotificationEngineService — mapToAppNotification (undefined-field fi
 
 	afterEach(() => {
 		vi.unstubAllGlobals();
+	});
+
+	it('real AI notification HTML follows the identity icon and restores without changing the notification text', () => {
+		const mapped = service.mapToAppNotification({ id: 'identity-ai', title: 'تمت المراجعة', message: 'نتيجة محفوظة', category: 'AI', type: 'MODEL_APPROVED' });
+		const host = document.createElement('div');
+		host.innerHTML = unwrapSafeHtml(mapped.svgIcon);
+		document.body.appendChild(host);
+		const original = host.innerHTML;
+		const runtime = TestBed.inject(AiIconRuntime);
+		try {
+			expect(host.querySelector('svg')!.hasAttribute('data-ws-ai-mark')).toBe(true);
+			expect(runtime.applyText('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><rect width="32" height="32"/></svg>', 'notification-proof')).toBe(true);
+			expect(host.querySelector('rect')).not.toBeNull();
+			expect(mapped.title).toBe('تمت المراجعة');
+			runtime.applyText(null);
+			expect(host.innerHTML).toBe(original);
+		} finally { runtime.applyText(null); host.remove(); }
 	});
 
 	it('never leaves time/dateCategory/icon fields undefined, even for a bare raw payload', () => {

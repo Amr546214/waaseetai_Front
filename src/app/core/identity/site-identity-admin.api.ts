@@ -27,7 +27,7 @@ export interface IdentityAssetMeta {
 export interface IdentityKeyState { stateVersion: number; isDefault: boolean; active: IdentityAssetMeta | null; updatedAt: string | null; updatedBy: IdentityActor | null }
 export interface IdentityDimensionRule { minWidth?: number; minHeight?: number; maxWidth?: number; maxHeight?: number; aspectMin?: number; aspectMax?: number; exact?: { width: number; height: number } }
 /** one design token of a token key (BE TOKEN_REGISTRY entry, `default` already resolved for THAT key: light key -> light value) */
-export interface IdentityTokenDef { name: string; type: 'color' | 'paint' | 'shadow' | 'length' | 'font-family'; label: string; default: string; sharedWithDark?: boolean; min?: number; max?: number }
+export interface IdentityTokenDef { name: string; type: 'color' | 'paint' | 'shadow' | 'length' | 'font-family' | 'number' | 'spacing'; preservesDefault?:boolean; label: string; default: string; sharedWithDark?: boolean; min?: number; max?: number }
 export interface IdentityItemInfo {
 	key: string; group: 'logo' | 'favicon' | 'icon' | 'character' | 'token'; label: string; description: string; kind: 'raster' | 'svg' | 'ico' | 'json';
 	allowedMimes: string[]; maxBytes: number; dimensions: IdentityDimensionRule; rules: unknown;

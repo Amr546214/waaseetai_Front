@@ -47,6 +47,7 @@ export class SiteIdentityService {
 	readonly tokensCss = computed(() => this.manifest().tokensCss);
 	/** asset URLs that failed to load (404 / decode error): treated as "no custom version" for their key until the manifest changes */
 	private readonly broken = signal<ReadonlySet<string>>(new Set());
+	readonly failedAssetUrls = computed(() => [...this.broken()]);
 	/** last failed refresh (null = last attempt fine / none yet); informational only, never shown to visitors */
 	readonly lastError = signal<string | null>(null);
 
