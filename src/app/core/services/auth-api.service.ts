@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginInput, RegisterInput, VerifyOtpInput, ForgotPasswordInput, VerifyResetCodeInput, ResetPasswordInput, GenericMessageResponse } from '../models/auth.model';
+import { AuthResponse, LoginInput, RegisterInput, RegisterStartInput, RegisterCompleteInput, VerifyOtpInput, ForgotPasswordInput, VerifyResetCodeInput, ResetPasswordInput, GenericMessageResponse } from '../models/auth.model';
 import { AuthStore } from '../store/auth.store';
 import { ApiResponse } from '../models/api.model';
 
@@ -38,6 +38,23 @@ export class AuthApiService {
 				// The register answer is identical for every outcome and carries no account id: the code step is keyed by the typed e-mail
 				// (see verifyOtp / resendOtpByEmail), so no pending id is stored here. Only the activation (not login) endpoints apply.
 				if (res.success) this.markLoginOtp(false);
+			})
+		);
+	}
+
+	/** E-mail-first registration, step 1: a proof code goes to the typed e-mail. No account exists afterwards; `data.emailSent` says whether the mail was really accepted. */
+	public registerStart(payload: RegisterStartInput): Observable<AuthResponse> {
+		return this.http.post<AuthResponse>(`${this.baseUrl}/register/start`, payload);
+	}
+
+	/** Step 2: ticket + code prove the address, the account is created ACTIVE and the session is committed (same as a code activation). */
+	public registerComplete(payload: RegisterCompleteInput): Observable<AuthResponse> {
+		return this.http.post<AuthResponse>(`${this.baseUrl}/register/complete`, payload).pipe(
+			tap((res) => {
+				if (res.success && res.data?.token && res.data?.user) {
+					this.markLoginOtp(false);
+					this.authStore.authenticate(res.data.token, res.data.user);
+				}
 			})
 		);
 	}

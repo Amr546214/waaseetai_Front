@@ -147,7 +147,9 @@
       </div>
       }
 
-      @if (accountCreated) {
+      @if (proofFlow) {
+      <div class="banner-info" role="status" data-testid="account-created-note">أرسلنا رمز التحقق إلى بريدك ولم يُنشأ حساب بعد. بياناتك محفوظة؛ اضغط «متابعة» للعودة إلى خطوة الرمز، أو صحّح بياناتك (مثل البريد أو الجوال) ثم «متابعة». عند تغيير البريد يُرسل رمز جديد، وعند تغيير بيانات أخرى يُستخدم الرمز الذي أدخلته.</div>
+      } @else if (accountCreated) {
       <div class="banner-info" role="status" data-testid="account-created-note">أُرسل طلب التسجيل. بياناتك محفوظة؛ اضغط «متابعة» للعودة إلى خطوة رمز التحقق، أو صحّح بياناتك (مثل البريد) ثم «متابعة» لإرسال الطلب من جديد.</div>
       }
       <form id="complete-form" novalidate [formGroup]="basicInfoForm" (ngSubmit)="nextStep()">
@@ -335,7 +337,7 @@
         <ws-form-summary [items]="missingFields" />
 
         <div class="btn-group">
-          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting || registerWait().active()">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}@if (registerWait().active()) { <span id="register-wait" data-testid="wait-label"> {{ registerWait().label() }}</span> }</button>
+          <button type="submit" class="btn-primary" id="btn-next" [disabled]="isSubmitting || (registerWait().active() && !completesWithHeldCode)">{{ isSubmitting ? 'جاري التسجيل...' : 'التالي: التحقق' }}@if (registerWait().active() && !completesWithHeldCode) { <span id="register-wait" data-testid="wait-label"> {{ registerWait().label() }}</span> }</button>
           <button type="button" class="btn-tertiary" id="btn-back" (click)="currentStep = 1">
             <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
             رجوع
@@ -428,8 +430,23 @@
     </div>
     }
 
+    @if (dataUnavailableMessage) {
+    <div class="banner-error" id="register-data-unavailable" role="alert" data-testid="register-data-unavailable" style="flex-direction:column;align-items:stretch;gap:8px">
+      <span>{{ dataUnavailableMessage }}</span>
+      <span style="display:flex;gap:16px;flex-wrap:wrap">
+        <button type="button" class="banner-error-link" id="data-unavailable-edit" (click)="prevStep()">تصحيح البيانات</button>
+        <a routerLink="/auth/login" class="banner-error-link" id="data-unavailable-login">تسجيل الدخول</a>
+        <a routerLink="/auth/forget-password" class="banner-error-link" id="data-unavailable-forgot">استعادة كلمة المرور</a>
+      </span>
+    </div>
+    }
+
     <div class="banner-info" role="note" data-testid="code-step-help" style="flex-direction:column;align-items:stretch;gap:8px">
+      @if (proofFlow) {
+      <span data-testid="code-step-help-proof">لم يصلك الرمز؟ تأكد من البريد المعروض أعلاه وصحّحه عند الخطأ، أو اطلب رمزًا جديدًا. لا يُنشأ الحساب إلا بعد إدخال الرمز.</span>
+      } @else {
       <span>لم يصلك رمز؟ قد تكون بياناتك بحاجة إلى تعديل، أو يكون لديك حساب مفعّل بالفعل فلن يصلك رمز هنا.</span>
+      }
       <span data-testid="code-step-spam-hint">{{ deliveryHint }}</span>
       <span style="display:flex;gap:16px;flex-wrap:wrap">
         <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
@@ -437,6 +454,15 @@
       </span>
     </div>
 
+    @if (accountReadyMessage) {
+    <div class="banner-info" id="register-account-ready" role="status" data-testid="register-account-ready" style="flex-direction:column;align-items:stretch;gap:8px">
+      <span>{{ accountReadyMessage }}</span>
+      <span style="display:flex;gap:16px;flex-wrap:wrap">
+        <a routerLink="/auth/login" class="banner-error-link" id="account-ready-login">تسجيل الدخول</a>
+        <a routerLink="/auth/forget-password" class="banner-error-link" id="account-ready-forgot">استعادة كلمة المرور</a>
+      </span>
+    </div>
+    } @else {
     <form [formGroup]="verificationForm" (ngSubmit)="onVerificationSubmit()">
       <div class="otp-card">
         <div class="otp-card-title">رمز التحقق <span class="ws-req" aria-hidden="true">*</span></div>
@@ -469,6 +495,7 @@
         </button>
       </div>
     </form>
+    }
 
   </div>
 </section>
