@@ -45,8 +45,8 @@ export class TemplateOverridesService {
         this.loadError.set('تعذّر تحميل ملف overrides القوالب (template-overrides.json).');
         return;
       }
-      const saved = this.persistence.load<Record<string, TemplateOverrideMap>>('template-overrides');
-      this.state.set(saved?.data ?? file.overrides);
+      // Legacy local template experiments are not published platform state.
+      this.state.set(file.overrides);
       this.loaded.set(true);
     } catch (err) {
       this.loadError.set('خطأ غير متوقع أثناء تحميل overrides القوالب.');

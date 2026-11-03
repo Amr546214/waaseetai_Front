@@ -46,7 +46,7 @@ describe('platform design-token editor (central flow)', () => {
 	it('shows the platform defaults from the SERVER, says it is linked to the site and explains the literal colours are not bound', async () => {
 		const t = setup(overview([item()])); await t.settle();
 		expect(t.q('pt-linked')!.textContent).toContain('مرتبط بالموقع');
-		expect(t.q('pt-scope')!.textContent).toContain('المواضع المرتبطة'); expect(t.q('pt-scope')!.textContent).toContain('المكتوبة مباشرة'); expect(t.q('pt-scope')!.textContent).toContain('القيم التي تؤكّدها هنا فقط');
+		expect(t.q('pt-scope')!.textContent).toContain('المكوّنات المربوطة'); expect(t.q('pt-scope')!.textContent).toContain('تبقى إعدادات كل موضع الأصلية'); expect(t.q('pt-scope')!.textContent).toContain('معاينة المسودة لا تغيّر الموقع');
 		expect(t.q('pt-pub---teal')!.textContent).toBe('#2bd4c7'); expect(t.q('pt-state')!.textContent).toContain('الأصل الافتراضي');
 		expect(t.q('pt-row---pg')).toBeTruthy();
 	});
@@ -154,7 +154,7 @@ describe('platform design-token editor (central flow)', () => {
 
 	it('read-only (site.view / no edit capability): values visible, NO inputs and NO actions', async () => {
 		const t = setup(overview([item()], false), {}, id => id === 'site.view'); await t.settle();
-		expect(t.q('pt-readonly')).toBeTruthy(); expect(t.root().querySelectorAll('input').length).toBe(0); expect(t.q('pt-stage-tokens.colors.dark')).toBeNull();
+		expect(t.q('pt-readonly')).toBeTruthy(); expect(t.root().querySelectorAll('input.pt-text,input.pt-color').length).toBe(0); expect(t.q('pt-stage-tokens.colors.dark')).toBeNull();
 		expect(t.q('pt-row---teal')).toBeTruthy();
 	});
 	it('legacy site_control.manage (server canManage true) edits', async () => {

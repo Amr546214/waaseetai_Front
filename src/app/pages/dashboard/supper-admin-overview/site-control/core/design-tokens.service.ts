@@ -104,10 +104,10 @@ export class DesignTokensService {
       }
       // إصلاح 2026-08-18: لو فيه نسخة محفوظة محليًا (تعديلات سابقة للمستخدم لم تُصدَّر بعد)،
       // نستخدمها بدل نسخة الملف الأصلي — بدون هذا كان أي تعديل يضيع فورًا عند أي تحديث للصفحة.
-      const savedDark = this.persistence.load<TokenGroup[]>('tokens-dark');
-      const savedLight = this.persistence.load<TokenGroup[]>('tokens-light');
-      this.darkGroups.set(savedDark?.data ?? dark.groups);
-      this.lightGroups.set(savedLight?.data ?? light.groups);
+      // Published server values win; legacy local experiments are not silently applied.
+      
+      this.darkGroups.set(dark.groups);
+      this.lightGroups.set(light.groups);
       this.syncPlatformValues();
       this.applyAll();
       this.loaded.set(true);

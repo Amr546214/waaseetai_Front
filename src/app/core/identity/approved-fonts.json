@@ -1,0 +1,222 @@
+[
+  {
+    "id": "tajawal",
+    "label": "Tajawal — المعتمد حاليًا بالهوية",
+    "googleFamily": "Tajawal",
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      700,
+      800,
+      900
+    ],
+    "latinPartner": "Inter",
+    "latinPartnerWeights": [
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ]
+  },
+  {
+    "id": "cairo",
+    "label": "Cairo",
+    "googleFamily": "Cairo",
+    "weights": [
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "latinPartner": "Inter",
+    "latinPartnerWeights": [
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ]
+  },
+  {
+    "id": "ibm-plex-sans-arabic",
+    "label": "IBM Plex Sans Arabic",
+    "googleFamily": "IBM Plex Sans Arabic",
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "latinPartner": "IBM Plex Sans",
+    "latinPartnerWeights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ]
+  },
+  {
+    "id": "almarai",
+    "label": "Almarai",
+    "googleFamily": "Almarai",
+    "weights": [
+      300,
+      400,
+      700,
+      800
+    ],
+    "latinPartner": "Poppins",
+    "latinPartnerWeights": [
+      400,
+      500,
+      600,
+      700,
+      800
+    ]
+  },
+  {
+    "id": "noto-kufi-arabic",
+    "label": "Noto Kufi Arabic",
+    "googleFamily": "Noto Kufi Arabic",
+    "weights": [
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "latinPartner": "Noto Sans",
+    "latinPartnerWeights": [
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ]
+  },
+  {
+    "id": "rubik",
+    "label": "Rubik",
+    "googleFamily": "Rubik",
+    "weights": [
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "latinPartner": "Rubik",
+    "latinPartnerWeights": [
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ]
+  },
+  {
+    "id": "el-messiri",
+    "label": "El Messiri",
+    "googleFamily": "El Messiri",
+    "weights": [
+      400,
+      500,
+      600,
+      700
+    ],
+    "latinPartner": "El Messiri",
+    "latinPartnerWeights": [
+      400,
+      500,
+      600,
+      700
+    ]
+  },
+  {
+    "id": "changa",
+    "label": "Changa",
+    "googleFamily": "Changa",
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800
+    ],
+    "latinPartner": "Changa",
+    "latinPartnerWeights": [
+      400,
+      500,
+      600,
+      700,
+      800
+    ]
+  },
+  {
+    "id": "readex-pro",
+    "label": "Readex Pro",
+    "googleFamily": "Readex Pro",
+    "weights": [
+      200,
+      300,
+      400,
+      500,
+      600,
+      700
+    ],
+    "latinPartner": "Readex Pro",
+    "latinPartnerWeights": [
+      400,
+      500,
+      600,
+      700
+    ]
+  },
+  {
+    "id": "alexandria",
+    "label": "Alexandria",
+    "googleFamily": "Alexandria",
+    "weights": [
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ],
+    "latinPartner": "Alexandria",
+    "latinPartnerWeights": [
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+    ]
+  }
+]

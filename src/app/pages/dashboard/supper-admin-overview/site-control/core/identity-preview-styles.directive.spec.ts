@@ -1,0 +1,11 @@
+import {Component,ViewEncapsulation,signal} from '@angular/core';
+import {TestBed} from '@angular/core/testing';
+import {IdentityPreviewStyles} from './identity-preview-styles.directive';
+import {SiteIdentityService} from '../../../../../core/identity/site-identity.service';
+import {ThemeModeService} from './theme-mode.service';
+@Component({template:'<h1>Preview</h1>',encapsulation:ViewEncapsulation.ShadowDom,hostDirectives:[IdentityPreviewStyles]})class Preview{}
+describe('published identity in isolated previews',()=>{
+ afterEach(()=>TestBed.resetTestingModule());
+ it('applies current typography only inside the shadow root and removes it on restore',async()=>{const m=signal<any>({items:{},tokensCss:''});TestBed.configureTestingModule({imports:[Preview],providers:[{provide:SiteIdentityService,useValue:{manifest:m}}]});const f=TestBed.createComponent(Preview);f.detectChanges();await f.whenStable();expect(f.nativeElement.shadowRoot.querySelector('[data-identity-preview]')).toBeNull();m.set({items:{'tokens.typography':{value:{'--type-h1-size':'40px'}}},tokensCss:':root{--type-h1-size:40px}'});f.detectChanges();await f.whenStable();expect(f.nativeElement.shadowRoot.querySelector('style[data-identity-preview]').textContent).toContain(':host h1{font-size:40px!important}');expect(document.head.querySelector('[data-identity-preview]')).toBeNull();m.set({items:{},tokensCss:''});f.detectChanges();await f.whenStable();expect(f.nativeElement.shadowRoot.querySelector('[data-identity-preview]')).toBeNull();f.destroy();});
+ it('uses the selected preview theme without leaking the other theme',async()=>{const m=signal<any>({items:{},tokensCss:':root:not(.theme-light):not(.light-theme){--txt:#fff}html.theme-light.theme-light{--txt:#000}'});TestBed.configureTestingModule({imports:[Preview],providers:[{provide:SiteIdentityService,useValue:{manifest:m}}]});const f=TestBed.createComponent(Preview);f.detectChanges();await f.whenStable();expect(f.nativeElement.shadowRoot.querySelector('[data-identity-preview]').textContent).toBe(':host{--txt:#fff}');TestBed.inject(ThemeModeService).setMode('light');f.detectChanges();await f.whenStable();expect(f.nativeElement.shadowRoot.querySelector('[data-identity-preview]').textContent).toBe(':host{--txt:#000}');f.destroy();});
+});

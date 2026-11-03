@@ -3,8 +3,8 @@ import { RouterLink } from '@angular/router';
 import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { TokenEditor } from '../platform-tokens/token-editor';
 
-type Editor = 'reference' | 'colors' | 'typography' | 'layout' | 'icons';
-const SECTIONS = new Set(['colors', 'typography', 'layout', 'icons', 'assets']);
+type Editor = 'reference' | 'colors' | 'typography' | 'layout' | 'components' | 'icons';
+const SECTIONS = new Set(['colors', 'typography', 'layout', 'components', 'icons', 'assets']);
 
 /** The owner's original guide is isolated from the authenticated application.
  * Messages select an editor only: no frame message may upload, save or publish.
@@ -28,7 +28,7 @@ export class IdentityGuide {
  readonly access = inject(AdminAccessService);
  readonly tabs: { id: Editor; label: string }[] = [
   { id: 'reference', label: 'ملف الهوية الأصلي' }, { id: 'colors', label: 'الألوان' },
-  { id: 'typography', label: 'الخطوط' }, { id: 'layout', label: 'المقاسات والزوايا' }, { id: 'icons', label: 'الأيقونات' },
+  { id: 'typography', label: 'الخطوط' }, { id: 'layout', label: 'المقاسات والزوايا' }, {id:'components',label:'المكوّنات'}, { id: 'icons', label: 'الأيقونات' },
  ];
  select(section: Editor): void { this.visited.update(current => new Set([...current, section])); this.selected.set(section); }
  openReference(): void { this.opened.set(true); }

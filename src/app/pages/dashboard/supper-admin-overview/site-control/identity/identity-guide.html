@@ -24,9 +24,10 @@
   }
  </div>
  <div #editor class="editor">
-  @if (visited().has('colors')) { <div [hidden]="selected() !== 'colors'"><sc-token-editor [keys]="['tokens.colors.dark', 'tokens.colors.light']" title="الألوان الفعلية للموقع — الداكن والفاتح" /></div> }
+  @if (visited().has('colors')) { <div [hidden]="selected() !== 'colors'"><sc-token-editor [keys]="['tokens.colors.dark', 'tokens.colors.light', 'tokens.palette.dark', 'tokens.palette.light']" title="الألوان الفعلية للموقع — الداكن والفاتح" /></div> }
   @if (visited().has('typography')) { <div [hidden]="selected() !== 'typography'"><sc-token-editor [keys]="['tokens.typography']" title="الخط العام المنشور على الموقع" /></div> }
   @if (visited().has('layout')) { <div [hidden]="selected() !== 'layout'"><sc-token-editor [keys]="['tokens.layout']" title="المقاسات والزوايا المرتبطة بالموقع" /></div> }
+  @if (visited().has('components')) { <div [hidden]="selected() !== 'components'"><sc-token-editor [keys]="['tokens.components']" title="مظهر المكوّنات المنشور" /></div> }
   @switch (selected()) {
    @case ('icons') {
     <section class="icon-link"><h3>الأيقونات الفعلية في الموقع</h3><p>اختر من المكتبة أو ارفع من الجهاز، ثم عاين وطبّق. نستخدم محرّر الأيقونات الحالي حتى تبقى المسودات والصلاحيات والاستعادة في مكان واحد.</p>

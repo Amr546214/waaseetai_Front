@@ -15,9 +15,9 @@ import { LEVEL_STAR_PATH, PERCENT_LABEL, providerLevelDisplayFromTitle, type Lev
 	template: `
 		@if (display(); as l) {
 		@if (variant() === 'icon') {
-		<span class="wlb wlb-icon" [style.--lvl-dark]="l.color.dark" [style.--lvl-light]="l.color.light" data-testid="level-icon" [attr.data-level-index]="l.index"><svg data-ws-icon="pl-shared-level-star" width="22" height="22" viewBox="0 0 100 100" aria-hidden="true" class="wlb-star"><path [attr.d]="star" /></svg></span>
+		<span class="wlb wlb-icon" [style.--lvl-dark]="l.color.dark" [style.--lvl-light]="l.color.light" data-testid="level-icon" [attr.data-level-index]="l.index" [attr.data-role]="l.role"><svg data-ws-icon="pl-shared-level-star" width="22" height="22" viewBox="0 0 100 100" aria-hidden="true" class="wlb-star"><path [attr.d]="star" /></svg></span>
 		} @else if (variant() === 'hero') {
-		<span class="wlb wlb-hero" [style.--lvl-dark]="l.color.dark" [style.--lvl-light]="l.color.light" data-testid="level-badge" [attr.data-level-index]="l.index">
+		<span class="wlb wlb-hero" [style.--lvl-dark]="l.color.dark" [style.--lvl-light]="l.color.light" data-testid="level-badge" [attr.data-level-index]="l.index" [attr.data-role]="l.role">
 			<svg data-ws-icon="pl-shared-level-star" class="wlb-star" width="30" height="30" viewBox="0 0 100 100" aria-hidden="true"><path [attr.d]="star" /></svg>
 			<span class="wlb-name" data-testid="level-name">{{ l.name }}</span>
 		</span>

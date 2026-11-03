@@ -1,8 +1,11 @@
+import {IdentityFontsRuntime} from './identity-fonts.runtime';
 import { DOCUMENT } from '@angular/common';
 import { Injectable, Injector, effect, inject } from '@angular/core';
 import { ApplicationRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
+import { LiteralColoursRuntime } from './literal-colours.runtime';
+import { PRESENTATION_STYLE_ID,buildPresentationCss } from './presentation-controls';
 import { SiteIdentityService } from './site-identity.service';
 
 export const TOKENS_STYLE_ID = 'ws-identity-tokens';
@@ -19,6 +22,8 @@ export const TOKENS_STYLE_ID = 'ws-identity-tokens';
 @Injectable({ providedIn: 'root' })
 export class IdentityTokensRuntime {
 	private readonly identity = inject(SiteIdentityService);
+ private readonly literals=inject(LiteralColoursRuntime);
+ private readonly fonts=inject(IdentityFontsRuntime);
 	private readonly doc = inject(DOCUMENT);
 	private readonly injector = inject(Injector);
 	private started = false;
@@ -40,7 +45,13 @@ export class IdentityTokensRuntime {
 	private write(css: string): void {
 		const head = this.doc.head;
 		if (!head) return;
-		let el = this.doc.getElementById(TOKENS_STYLE_ID);
+		this.literals.setItems(css?this.identity.manifest().items:{});
+  this.fonts.setItems(css?this.identity.manifest().items:{});
+  const presentation=css?buildPresentationCss(this.identity.manifest().items):'';
+  let extra=this.doc.getElementById(PRESENTATION_STYLE_ID);
+  if(!presentation)extra?.remove();
+  else{if(!extra){extra=this.doc.createElement('style');extra.id=PRESENTATION_STYLE_ID;head.appendChild(extra);}if(extra.textContent!==presentation)extra.textContent=presentation;}
+  let el = this.doc.getElementById(TOKENS_STYLE_ID);
 		if (!css) { el?.remove(); return; }
 		if (!el) { el = this.doc.createElement('style'); el.id = TOKENS_STYLE_ID; }
 		if (el.textContent !== css) el.textContent = css;

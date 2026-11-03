@@ -24,7 +24,7 @@ export class SiteControlShell implements AfterViewInit, OnDestroy {
  private readonly access = inject(AdminAccessService);
  readonly navigation = computed(() => [
   ['identity', 'الهوية'], ['health', 'صحة النظام'], ['tokens', 'القيم والألوان'], ['icons', 'الأيقونات'],
-  ['typography', 'الخطوط'], ['accounts', 'المستويات والنقاط'], ['style-guide', 'دليل الأنماط'], ['live-preview', 'المعاينة'], ['templates', 'القوالب'], ['export', 'تصدير CSS'],
+  ['typography', 'الخطوط'], ['accounts', 'هوية المستويات'], ['style-guide', 'دليل الأنماط'], ['live-preview', 'المعاينة'], ['templates', 'القوالب'], ['export', 'تصدير CSS'],
  ].map(([path, title]) => ({ title, url: '/supper-admin-overview/site-control/' + path }))
   .filter(link => this.access.allows(ruleForPath(link.url))));
 	private readonly scope = inject(SiteControlScope);
@@ -43,10 +43,9 @@ export class SiteControlShell implements AfterViewInit, OnDestroy {
 	readonly kind = computed<'server' | 'mixed' | 'aid' | 'rules' | 'local'>(() => {
 		const m = /\/site-control\/([^/?#]+)/.exec(this.url());
 		switch (m?.[1]) {
-			case 'identity': case 'icons': return 'server';
-			case 'tokens': case 'typography': return 'mixed';
+			case 'tokens': case 'identity': case 'icons': case 'typography': case 'templates': case 'accounts': case 'export': return 'server';
 			case 'style-guide': case 'live-preview': case 'health': return 'aid';
-			case 'accounts': return 'rules';
+			
 			default: return 'local';
 		}
 	});
