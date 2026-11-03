@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, RouterLink } from '@angular/router';
+import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { Public } from './public';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
@@ -37,5 +38,24 @@ describe('provider public page: completion banner', () => {
 	});
 	it('an individual provider with an unknown value keeps the previous behaviour', async () => {
 		expect(await render(undefined)).toContain('ملفي المهني مكتمل');
+	});
+
+	it('the level badge "تفاصيل" button links to /provider-overview/profile/level', async () => {
+		await TestBed.configureTestingModule({
+			imports: [Public],
+			providers: [
+				provideRouter([]),
+				{ provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'PROVIDER_INDIVIDUAL' }) } },
+				{ provide: SpecialtyService, useValue: { getPublicSpecialties: () => of({ success: true, data: [] }) } },
+				{ provide: ProviderProfileService, useValue: { getPublicProfile: () => of({ success: true, data: data(50) }) } },
+			],
+		}).compileComponents();
+		const f = TestBed.createComponent(Public);
+		f.detectChanges();
+		const linkDes = f.debugElement.queryAll(By.directive(RouterLink));
+		const detailsLink = linkDes.find((de) => de.nativeElement.textContent?.trim() === 'تفاصيل');
+		expect(detailsLink).toBeTruthy();
+		const rl = detailsLink!.injector.get(RouterLink);
+		expect(rl.urlTree?.toString()).toContain('/provider-overview/profile/level');
 	});
 });

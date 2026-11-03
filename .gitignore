@@ -46,3 +46,8 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Agent workspaces & audit reports
+.agents/
+UI_UX_AUDIT_FULL_REPORT.md
+UI_UX_VERIFICATION_REPORT.md
