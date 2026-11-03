@@ -1,0 +1,39 @@
+<section class="guide" [class.expanded]="expanded()" aria-labelledby="guide-title" data-testid="identity-guide">
+ <header>
+  <span class="eyebrow">WASEET AI · DESIGN SYSTEM</span>
+  <h2 id="guide-title">هوية واحدة. تحكّم من مكان واحد.</h2>
+  <p>ملف الهوية الأصلي كما أُرسل، بالوضعين الداكن والفاتح. افتح القسم الذي تريده ثم عدّل القيم الفعلية من محرّره المرتبط بالموقع.</p>
+  <div class="guide-actions">
+   <button type="button" (click)="assetsRequested.emit()">الشعارات والصور وأيقونة AI</button>
+   <button type="button" (click)="expanded.set(!expanded()); select('reference'); openReference()">{{ expanded() ? 'إنهاء التكبير' : 'تكبير الدليل' }}</button>
+  </div>
+ </header>
+ <nav class="tabs" aria-label="أقسام الهوية">
+  @for (tab of tabs; track tab.id) {
+   <button type="button" [class.active]="selected() === tab.id" [attr.aria-pressed]="selected() === tab.id" (click)="select(tab.id)" [attr.data-testid]="'guide-tab-' + tab.id">{{ tab.label }}</button>
+  }
+ </nav>
+ <!-- Keep the frame mounted when an editor is selected: preserve the reader's position. -->
+ <div [hidden]="selected() !== 'reference'">
+  <p class="reference-note">هذا هو المرجع الأصلي، وليس معاينة القيم المنشورة الآن. أزرار «تعديل على الموقع» تفتح المحرّر الفعلي؛ لا يُنشر أي تغيير قبل المعاينة والتأكيد. عينات المكوّنات والقواعد في الدليل لا تغيّر منطق المنصة.</p>
+  @if (!opened()) {
+   <button class="open-reference" type="button" (click)="openReference()" data-testid="guide-open">عرض ملف الهوية كاملًا <span>الألوان · الخطوط · الأيقونات · المكوّنات · الشعار</span></button>
+  } @else {
+   <div class="frame-status"><span>{{ loaded() ? 'ملف الهوية الأصلي' : 'جارٍ فتح ملف الهوية…' }}</span><button type="button" (click)="retry()">إعادة تحميل الدليل</button></div>
+   <iframe #frame src="/assets/site-control/identity-guide/index.html" title="ملف هوية وسيط AI الأصلي — الداكن والفاتح" sandbox="allow-scripts" referrerpolicy="no-referrer" data-testid="guide-frame"></iframe>
+  }
+ </div>
+ <div #editor class="editor">
+  @if (visited().has('colors')) { <div [hidden]="selected() !== 'colors'"><sc-token-editor [keys]="['tokens.colors.dark', 'tokens.colors.light']" title="الألوان الفعلية للموقع — الداكن والفاتح" /></div> }
+  @if (visited().has('typography')) { <div [hidden]="selected() !== 'typography'"><sc-token-editor [keys]="['tokens.typography']" title="الخط العام المنشور على الموقع" /></div> }
+  @if (visited().has('layout')) { <div [hidden]="selected() !== 'layout'"><sc-token-editor [keys]="['tokens.layout']" title="المقاسات والزوايا المرتبطة بالموقع" /></div> }
+  @switch (selected()) {
+   @case ('icons') {
+    <section class="icon-link"><h3>الأيقونات الفعلية في الموقع</h3><p>اختر من المكتبة أو ارفع من الجهاز، ثم عاين وطبّق. نستخدم محرّر الأيقونات الحالي حتى تبقى المسودات والصلاحيات والاستعادة في مكان واحد.</p>
+     @if (access.can('site_control.manage')) { <a routerLink="/supper-admin-overview/site-control/icons">فتح مكتبة الأيقونات ←</a> }
+     @else { <p role="note">فتح مكتبة الأيقونات يحتاج صلاحية التحكم بالموقع.</p> }
+    </section>
+   }
+  }
+ </div>
+</section>

@@ -1,4 +1,9 @@
 <div #host class="sc-root" dir="rtl" data-testid="site-control-root">
+ <nav class="admin-nav" aria-label="التحكم بالموقع" data-testid="site-control-navigation">
+  @for (link of navigation(); track link.url) {
+   <a [routerLink]="link.url" routerLinkActive="active" ariaCurrentWhenActive="page">{{ link.title }}</a>
+  }
+ </nav>
 	@switch (kind()) {
 	@case ('mixed') {
 	<p class="sc-notice" role="note" data-testid="site-control-notice-mixed">
