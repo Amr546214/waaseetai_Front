@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, OnDestroy, OnInit, ViewEncapsulation, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -12,6 +12,7 @@ import { ParsedSvgIcon, parseCustomSvg } from '../../../../../core/identity/iden
 import { WsDatePipe, formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
 import { DesignTokensService } from '../core/design-tokens.service';
 import { ThemeModeService } from '../core/theme-mode.service';
+import { IdentityGuide } from './identity-guide';
 import { InlineSvgDirective } from './inline-svg.directive';
 import { CHANGE_KIND_TEXT, Failure, sourceText, GROUP_TITLES, actorName, actorOf, bytesText, currentSummary, describeFailure, mimeName, parsePreview, previousVersion, restorable, shortId, shortSha, sideText, sizeText, versionName } from './identity-view';
 
@@ -41,12 +42,14 @@ const readText = (b: Blob): Promise<string> => (typeof b.text === 'function' ? b
 @Component({
 	selector: 'sc-identity',
 	standalone: true,
-	imports: [RouterLink, NgTemplateOutlet, WsDatePipe, InlineSvgDirective],
+	imports: [RouterLink, NgTemplateOutlet, WsDatePipe, InlineSvgDirective, IdentityGuide],
 	templateUrl: './identity.html',
 	encapsulation: ViewEncapsulation.ShadowDom,
 	styleUrls: ['../site-control-base.css', './identity.css']
 })
 export class Identity implements OnInit, OnDestroy {
+ private readonly element = inject(ElementRef<HTMLElement>);
+ showAssets(): void { this.element.nativeElement.shadowRoot?.querySelector('[data-testid="identity-assets-start"]')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }); }
 	private readonly api = inject(SiteIdentityAdminApi);
 	private readonly confirmer = inject(ConfirmModalService);
 	private readonly sanitizer = inject(DomSanitizer);

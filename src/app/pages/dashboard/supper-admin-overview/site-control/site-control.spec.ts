@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { SUPPER_ADMIN_ROUTES } from '../supper-admin.routes';
+import { AdminAccessService, AdminAccess } from '../../../../core/services/admin-access.service';
 import { SiteControlScope } from './core/site-control-scope.service';
 import { DesignTokensService } from './core/design-tokens.service';
 import { SiteControlShell } from './shell/site-control-shell';
@@ -24,6 +25,18 @@ describe('site control (التحكم بالموقع)', () => {
 		const landing = SUPPER_ADMIN_ROUTES[idx].children!.find(c => c.path === '');
 		expect(landing?.redirectTo).toBeUndefined();
 		expect(landing?.canActivate?.length).toBe(2);
+	});
+
+	it('the PMO-style section bar only offers pages allowed by the central permission rules', () => {
+		TestBed.configureTestingModule({ imports: [SiteControlShell], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
+		const access = TestBed.inject(AdminAccessService);
+		const reader: AdminAccess = { userId: 'reader', isSuperAdmin: false, staffStatus: 'ACTIVE', roleName: 'قارئ', permissions: ['site.view'], hasAnyPermission: true, state: 'ACTIVE', displayRole: 'قارئ' };
+		access.access.set(reader);
+		const f = TestBed.createComponent(SiteControlShell);
+		expect(f.componentInstance.navigation().map(link => link.url.split('/').pop())).toEqual(['identity', 'tokens', 'typography']);
+		access.access.set({ ...reader, permissions: [], hasAnyPermission: false, state: 'NO_PERMISSIONS' });
+		expect(f.componentInstance.navigation()).toEqual([]);
+		f.destroy();
 	});
 
 	it('access: «الهوية» needs site.view or site.manage (or the legacy permission, which also edits), the local pages keep site_control.manage, the section opens for any of them', () => {

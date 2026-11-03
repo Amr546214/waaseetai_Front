@@ -46,7 +46,7 @@ describe('platform design-token editor (central flow)', () => {
 	it('shows the platform defaults from the SERVER, says it is linked to the site and explains the literal colours are not bound', async () => {
 		const t = setup(overview([item()])); await t.settle();
 		expect(t.q('pt-linked')!.textContent).toContain('مرتبط بالموقع');
-		expect(t.q('pt-scope')!.textContent).toContain('17,200'); expect(t.q('pt-scope')!.textContent).toContain('15,000'); expect(t.q('pt-scope')!.textContent).toContain('2,300');
+		expect(t.q('pt-scope')!.textContent).toContain('المواضع المرتبطة'); expect(t.q('pt-scope')!.textContent).toContain('المكتوبة مباشرة'); expect(t.q('pt-scope')!.textContent).toContain('القيم التي تؤكّدها هنا فقط');
 		expect(t.q('pt-pub---teal')!.textContent).toBe('#2bd4c7'); expect(t.q('pt-state')!.textContent).toContain('الأصل الافتراضي');
 		expect(t.q('pt-row---pg')).toBeTruthy();
 	});
