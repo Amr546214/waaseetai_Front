@@ -78,7 +78,12 @@ function scan(root = ROOT) {
 
 /** the decision for one unbound place: { key } or { excluded: reason } */
 function decide(p) {
-	if (p.dynamic) return { excluded: 'DYNAMIC', why: 'الرسم يُختار وقت التشغيل من بيانات أو حالة قالب (@switch / @if / [attr.d] / نص)، واستبدال محتواه يكسر عرض Angular' };
+	if (p.dynamic) {
+		const specialty = p.f.includes('/step1-specialty/');
+		return { excluded: 'DYNAMIC', why: specialty
+			? 'الرسم يأتي من بيانات التخصص المختار؛ يُعدَّل من إدارة التخصصات، وليس باستبدال أيقونة ثابتة لكل التخصصات.'
+			: 'الرسم أو لونه أو نصه يتغيّر مع بيانات الصفحة، مثل النسب والتقييمات والحالات؛ استبداله برسم ثابت قد يخفي هذه البيانات.' };
+	}
 	const g = GLYPHS[p.inner + '|' + p.vb];
 	if (!g) return { excluded: 'UNNAMED', why: 'رسم جديد لا اسم له في tools/inline-icon-glyphs.json' };
 	if (g.ai) return { aiMark: true, why: g.label };

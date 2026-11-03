@@ -1,3 +1,6 @@
+/// <reference types="node" />
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -19,7 +22,7 @@ describe('icon adapters (inline svg, alias, CSS variable, lazy fetch)', () => {
 		TestBed.resetTestingModule(); rt = TestBed.inject(IconSymbolsRuntime);
 		host = document.createElement('div'); host.innerHTML = BELL_INLINE + SIDEBAR + SPA; document.body.appendChild(host); snap = host.innerHTML;
 	});
-	afterEach(() => { for (const id of ['i-bell', 'spa-i-bell2', 'x-css']) rt.clear(id); delete (CSS_BOUND_ICONS as Record<string, readonly string[]>)['x-css']; host.remove(); });
+	afterEach(() => { for (const id of ['i-bell', 'spa-i-bell2', 'x-css', 'pl-shared-select-arrow', 'pl-site-art-card-1', 'pl-site-art-card-2', 'pl-site-art-card-3', 'pl-site-art-card-4', 'pl-site-art-network-bg']) rt.clear(id); delete (CSS_BOUND_ICONS as Record<string, readonly string[]>)['x-css']; host.remove(); });
 
 	it('DEFAULT: an svg that carries data-ws-icon is untouched until a file is published (DOM byte-identical)', () => { expect(host.innerHTML).toBe(snap); expect(WS_ICON_ATTR).toBe('data-ws-icon'); });
 
@@ -65,6 +68,44 @@ describe('icon adapters (inline svg, alias, CSS variable, lazy fetch)', () => {
 		rt.applyText('spa-i-bell2', FILE(9), 'own'); expect(sym.querySelector('rect')!.getAttribute('x')).toBe('9');
 		rt.clear('spa-i-bell2'); expect(sym.querySelector('rect')!.getAttribute('x')).toBe('4');
 		rt.clear('i-bell'); expect(host.innerHTML).toBe(snap);
+	});
+
+	it('the real marketplace card variants and marketer background swap independently and restore their exact source DOM', () => {
+		const root = join(__dirname, '../../../../');
+		const templates = [
+			['src/app/pages/website/marketplace/marketplace.html', ['pl-site-art-card-1', 'pl-site-art-card-2', 'pl-site-art-card-3', 'pl-site-art-card-4']],
+			['src/app/pages/website/marketplace/marketer-profile/marketer-profile.html', ['pl-site-art-network-bg']],
+		] as const;
+		for (const [file, keys] of templates) {
+			const source = readFileSync(join(root, file), 'utf8');
+			for (const key of keys) {
+				const markup = source.match(new RegExp(`<svg\\b[^>]*data-ws-icon="${key}"[\\s\\S]*?</svg>`))?.[0];
+				expect(markup, key).toBeTruthy();
+				host.innerHTML = markup!;
+				const original = host.cloneNode(true);
+				const svg = host.querySelector('svg')!;
+				const layout = ['width', 'height', 'style', 'class'].map(a => svg.getAttribute(a));
+				rt.applyText(key, FILE_STROKE, key);
+				expect(svg.querySelector('rect')).not.toBeNull();
+				expect(svg.getAttribute('viewBox')).toBe('0 0 32 32');
+				expect(svg.getAttribute('preserveAspectRatio') ?? 'xMidYMid meet').toBe('xMidYMid meet');
+				expect(['width', 'height', 'style', 'class'].map(a => svg.getAttribute(a))).toEqual(layout);
+				rt.clear(key);
+				expect(host.isEqualNode(original)).toBe(true);
+			}
+		}
+	});
+
+	it('the actual select-arrow key publishes all three theme colours and removes them on restore', () => {
+		const key = 'pl-shared-select-arrow';
+		expect(CSS_BOUND_ICONS[key]).toEqual(['a8b2d1', '475569', '6b7699']);
+		rt.applyText(key, FILE_STROKE, 'three-theme-colours');
+		for (const colour of CSS_BOUND_ICONS[key]) {
+			const value = document.documentElement.style.getPropertyValue(cssVarOf(key, colour));
+			expect(decodeURIComponent(value)).toContain(`stroke="#${colour}"`);
+		}
+		rt.clear(key);
+		for (const colour of CSS_BOUND_ICONS[key]) expect(document.documentElement.style.getPropertyValue(cssVarOf(key, colour))).toBe('');
 	});
 
 	it('CSS variables: a CSS-bound key is published ONCE PER COLOUR (the file\'s currentColor replaced by that exact colour, 12px square, the file\'s own paint) and removed on restore; other keys never set them', () => {
