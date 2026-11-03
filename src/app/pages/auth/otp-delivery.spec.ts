@@ -14,7 +14,7 @@ import { AuthStore } from '../../core/store/auth.store';
 import { OtpHandoffService } from '../../core/services/otp-handoff.service';
 import { WaitTimerService, waitScope } from '../../core/wait/wait-timer.service';
 import { mapHttpError } from '../../core/forms/http-error';
-import { resendNotice, unverifiedLoginNotice, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE, RESEND_SENT_MESSAGE } from '../../core/forms/otp-delivery';
+import { resendNotice, unverifiedLoginNotice, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE, REGISTER_PROOF_SENT_MESSAGE, REGISTER_PROOF_RESENT_MESSAGE, RESEND_SENT_MESSAGE } from '../../core/forms/otp-delivery';
 
 @Component({ selector: 'app-test-blank', template: '' })
 class BlankTestComponent {}
@@ -91,10 +91,10 @@ describe('OTP delivery: pure notices and error mapping', () => {
 	});
 });
 
-describe('Register: uniform answer, e-mail keyed code step', () => {
+describe('Register: e-mail-first, proof code step (no account until the code is entered)', () => {
 	// `extra` = top-level fields of the answer (the server adds resendAvailableAt to register and resend answers alike)
 	const run = (data: any, extra: any = {}) => {
-		const post = vi.fn((url: string, ...rest: any[]) => /\/auth\/register$/.test(String(url)) ? of({ success: true, message: 'x', data, ...extra }) : of({ success: true, data: {}, ...extra }));
+		const post = vi.fn((url: string, ...rest: any[]) => /\/auth\/register\/start$/.test(String(url)) ? of({ success: true, message: 'x', data: { verified: false, emailSent: true, ticket: 'TICKET', ...data }, ...extra }) : of({ success: true, data: {}, ...extra }));
 		const { list } = providers(post);
 		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
 		TestBed.configureTestingModule({ imports: [Register], providers: list });
@@ -108,11 +108,12 @@ describe('Register: uniform answer, e-mail keyed code step', () => {
 	};
 	afterEach(() => { vi.unstubAllGlobals(); TestBed.resetTestingModule(); });
 
-	it('the answer carries no id and no flags: the code step opens with the neutral notice, never claims "sent", keyed by the typed e-mail', () => {
+	it('the code step opens ONLY after the server confirmed the mail (emailSent + ticket), says no account exists yet, and is keyed by the typed e-mail', () => {
 		const { c, el } = run({}, { resendAvailableAt: new Date(Date.now() + 60_000).toISOString() });
 		expect(c.currentStep).toBe(3);
 		expect(c.registeredEmail).toBe('sara@example.com');
-		expect(c.otpNotice).toBe(REGISTER_CODE_STEP_MESSAGE);
+		expect(c.otpNotice).toBe(REGISTER_PROOF_SENT_MESSAGE);
+		expect(c.otpNotice).toContain('لم يُنشأ حساب بعد');
 		expect(el.textContent).not.toContain(SENT);
 		// the resend wait is the SERVER's resendAvailableAt (same for every address); no validity timer (register returns no expiresAt)
 		expect(c.countdown).toBeGreaterThan(55);
@@ -125,27 +126,34 @@ describe('Register: uniform answer, e-mail keyed code step', () => {
 		expect((el.querySelector('#btn-resend') as HTMLButtonElement).disabled).toBe(false);
 	});
 
-	it('page behaviour is identical whatever the answer data holds (nothing in it is read)', () => {
-		const a = run({}); const stateA = [a.c.currentStep, a.c.otpNotice, a.c.errorMessage, a.c.registeredEmail]; TestBed.resetTestingModule();
-		const b = run({ userId: 'u1', emailSent: false, accountCreated: false }); const stateB = [b.c.currentStep, b.c.otpNotice, b.c.errorMessage, b.c.registeredEmail];
-		expect(stateB).toEqual(stateA);
+	it('no ticket or emailSent=false: the code step does NOT open, the form and its data stay, and the reason is said (never "sent")', () => {
+		for (const data of [{ emailSent: false, ticket: undefined }, { ticket: undefined }]) {
+			const a = run(data);
+			expect(a.c.currentStep).not.toBe(3);
+			expect(a.c.errorMessage).toBeTruthy();
+			expect(a.c.otpNotice).toBe('');
+			expect(a.c.basicInfoForm.get('email').value).toContain('Sara@Example.com');
+			TestBed.resetTestingModule();
+		}
 	});
 
-	it('the code is verified BY E-MAIL (POST /auth/verify-otp {email, code}), not by an id', () => {
+	it('the code completes the registration (POST /auth/register/complete with the ticket); no account id, no verify-otp', () => {
 		const { c, post } = run({});
 		for (let i = 0; i < 6; i++) c.verificationForm.get(`code${i + 1}`).setValue(String(i + 1));
 		c.onVerificationSubmit();
-		const call = post.mock.calls.find(x => /\/verify-otp$/.test(String(x[0])))!;
-		expect(call[1]).toEqual({ email: 'sara@example.com', code: '123456' });
+		const call = post.mock.calls.find(x => /\/register\/complete$/.test(String(x[0])))!;
+		expect(call[1]).toEqual(expect.objectContaining({ email: 'Sara@Example.com'.trim().toLowerCase() === 'sara@example.com' ? call[1].email : '', ticket: 'TICKET', code: '123456' }));
+		expect(post.mock.calls.some(x => /\/verify-otp$/.test(String(x[0])))).toBe(false);
 	});
 
-	it('resend is by e-mail, generic, and its wait comes from the server answer; a 429 locks until the Retry-After end', () => {
+	it('resend asks for a NEW proof code (POST /register/start), its wait comes from the server answer; a 429 locks until the Retry-After end', () => {
 		const { c, post } = run({}, { resendAvailableAt: new Date(Date.now() + 60_000).toISOString() });
 		c.resendWait().clear();
 		c.resendOtp();
-		const call = post.mock.calls.find(x => /\/resend-otp$/.test(String(x[0])))!;
-		expect(call[1]).toEqual({ email: 'sara@example.com' });
-		expect(c.otpNotice).toBe(REGISTER_RESEND_MESSAGE);
+		const starts = () => post.mock.calls.filter(x => /\/register\/start$/.test(String(x[0])));
+		expect(starts().length).toBe(2);
+		expect(post.mock.calls.some(x => /\/resend-otp$/.test(String(x[0])))).toBe(false);
+		expect(c.otpNotice).toBe(REGISTER_PROOF_RESENT_MESSAGE);
 		expect(c.countdown).toBeGreaterThan(55);
 		c.resendWait().clear();
 		post.mockReturnValueOnce(rateLimited(75) as any);
@@ -154,7 +162,7 @@ describe('Register: uniform answer, e-mail keyed code step', () => {
 		expect(c.rateLimitText).toContain('بعد 1:15');
 		expect(c.errorMessage).toBe('');
 		c.resendOtp(); // locked: no further request
-		expect(post.mock.calls.filter(x => /\/resend-otp$/.test(String(x[0]))).length).toBe(2);
+		expect(starts().length).toBe(3);
 	});
 
 	it('a wrong code starts no UI wait; the attempts lock shows its message and no timer; a 429 with a wait disables only confirm', () => {
@@ -172,9 +180,9 @@ describe('Register: uniform answer, e-mail keyed code step', () => {
 		const n = post.mock.calls.length; c.onVerificationSubmit(); expect(post.mock.calls.length).toBe(n);
 	});
 
-	it('Back keeps the data and Continue (unchanged) returns to the code step without a second POST /register; an edited form waits for the server\'s send wait, then is free again', () => {
+	it('Back keeps the data and Continue (unchanged) returns to the code step without a second POST /register/start; an edited form waits for the server\'s send wait, then is free again', () => {
 		const { c, post } = run({}, { resendAvailableAt: new Date(Date.now() + 60_000).toISOString() });
-		const registers = () => post.mock.calls.filter(x => /\/auth\/register$/.test(String(x[0]))).length;
+		const registers = () => post.mock.calls.filter(x => /\/auth\/register\/start$/.test(String(x[0]))).length;
 		expect(registers()).toBe(1);
 		c.prevStep(); expect(c.currentStep).toBe(2);
 		c.nextStep(); expect(c.currentStep).toBe(3); expect(registers()).toBe(1);
@@ -201,7 +209,7 @@ describe('Register: uniform answer, e-mail keyed code step', () => {
 describe('Register: first registration, double submit and failed attempts', () => {
 	const mount = (registerReply: (...a: any[]) => any, spy?: (...a: any[]) => void) => {
 		// the page also POSTs referral-cookie/clear when it opens: only POST /auth/register goes to `registerReply`
-		const post = (url: string, ...rest: any[]) => { if (/\/auth\/register$/.test(String(url))) { spy?.(url, ...rest); return registerReply(); } return of({ success: true, data: { cleared: true } }); };
+		const post = (url: string, ...rest: any[]) => { if (/\/auth\/register\/start$/.test(String(url))) { spy?.(url, ...rest); return registerReply(); } return of({ success: true, data: { cleared: true } }); };
 		const { list } = providers(post);
 		vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} });
 		TestBed.configureTestingModule({ imports: [Register], providers: list });
@@ -219,7 +227,7 @@ describe('Register: first registration, double submit and failed attempts', () =
 		expect(el.textContent).not.toMatch(/انتظر|بعد \d+ ثانية|استخدم الرمز/);
 	});
 
-	it('double tap: while the first request runs a second submit sends nothing (ONE POST /register)', () => {
+	it('double tap: while the first request runs a second submit sends nothing (ONE POST /register/start)', () => {
 		const spy = vi.fn();
 		const { c } = mount(() => new Subject(), spy);
 		c.submitRegistration(); c.submitRegistration(); c.submitRegistration();
@@ -235,12 +243,11 @@ describe('Register: first registration, double submit and failed attempts', () =
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 
-	it('a failed attempt (409 duplicate) stays on the form: no verify step, no "sent", no countdown', () => {
-		const reply409 = () => throwError(() => ({ status: 409, error: { success: false, message: 'البريد الإلكتروني أو رقم الجوال مسجل بالفعل، يرجى تسجيل الدخول' } }));
-		const { c, el } = mount(reply409);
+	it('mail not accepted (emailSent=false): stays on the form, says so, opens no code step, no "sent", no countdown', () => {
+		const { c, el } = mount(() => of({ success: false, message: 'تعذر إرسال رمز التحقق الآن', data: { verified: false, emailSent: false } }));
 		c.currentStep = 2; c.submitRegistration();
 		expect(c.currentStep).toBe(2);
-		expect(c.errorMessage).toContain('مسجل بالفعل');
+		expect(c.errorMessage).toContain('تعذر إرسال');
 		expect(c.countdown).toBe(0); expect(c.otpNotice).toBe('');
 		expect(el.textContent).not.toContain(SENT);
 	});

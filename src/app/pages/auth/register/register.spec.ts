@@ -63,6 +63,14 @@ function setup(opts: { ref?: boolean; refValue?: string; refInvalid?: boolean } 
 	return { fixture, component, postSpy, getSpy, authState };
 }
 
+/** E-mail-first registration: step 1 (proof code) then step 2 (the code completes it); the affiliate id and the password travel only in step 2. */
+function submitAndComplete(component: any) {
+	if (!component.basicInfoForm.get('email').value) component.basicInfoForm.patchValue({ email: 'sara@example.com' });
+	component.submitRegistration();
+	for (let i = 0; i < 6; i++) component.verificationForm.get(`code${i + 1}`).setValue(String(i + 1));
+	component.onVerificationSubmit();
+}
+
 describe('Register', () => {
 	afterEach(() => {
 		vi.unstubAllGlobals();
@@ -152,12 +160,13 @@ describe('Register', () => {
 			component.selectedAccountType = 'service_provider_ind';
 			component.currentStep = 2;
 			component.basicInfoForm.patchValue(valid);
-			postSpy.mockImplementation((url: string) => /register/.test(String(url)) ? of({ success: true, data: {}, message: 'ok' }) : of({ success: true }));
+			postSpy.mockImplementation((url: string) => /register\/start/.test(String(url)) ? of({ success: true, data: { emailSent: true, ticket: 'T' }, message: 'ok' }) : of({ success: true }));
 			component.nextStep();
-			const registerCalls = () => postSpy.mock.calls.filter(c => /\/register/.test(String(c[0]))).length;
+			const registerCalls = () => postSpy.mock.calls.filter(c => /\/register\/start/.test(String(c[0]))).length;
 			expect(registerCalls()).toBe(1);
 			expect(component.currentStep).toBe(3);
-			expect(component.accountCreated).toBe(true);
+			expect(component.accountCreated).toBe(false); // e-mail-first: no account exists yet
+			expect(component.proofFlow).toBe(true);
 			expect(component.registeredEmail).toBe('sara@example.com');
 
 			component.prevStep(); // back to step 2: data is still there
@@ -194,12 +203,12 @@ describe('Register', () => {
 			fixture.detectChanges();
 
 			component.affiliateIdentifier = 'AFF-CODE-1';
-			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1', emailSent: true, ticket: 'T' } }));
 
-			(component as any).submitRegistration();
+			submitAndComplete(component);
 
 			expect(postSpy).toHaveBeenCalledWith(
-				expect.stringContaining('/register'),
+				expect.stringContaining('/register/complete'),
 				expect.objectContaining({ affiliateIdentifier: 'AFF-CODE-1' })
 			);
 		});
@@ -216,11 +225,11 @@ describe('Register', () => {
 
 			expect(component.affiliateIdentifier).toBe('marketer-sara');
 
-			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
-			(component as any).submitRegistration();
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1', emailSent: true, ticket: 'T' } }));
+			submitAndComplete(component);
 
 			expect(postSpy).toHaveBeenCalledWith(
-				expect.stringContaining('/register'),
+				expect.stringContaining('/register/complete'),
 				expect.objectContaining({ affiliateIdentifier: 'marketer-sara' })
 			);
 		});
@@ -239,8 +248,8 @@ describe('Register', () => {
 			fixture.detectChanges();
 			expect(component.affiliateIdentifier).toBeNull();
 
-			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
-			(component as any).submitRegistration();
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1', emailSent: true, ticket: 'T' } }));
+			submitAndComplete(component);
 
 			const lastCall = postSpy.mock.calls[postSpy.mock.calls.length - 1];
 			expect(lastCall[1].affiliateIdentifier).toBeUndefined();
@@ -324,8 +333,8 @@ describe('Register', () => {
 			// affiliateIdentifier, even though a lock is in effect.
 			expect(component.affiliateIdentifier).toBeNull();
 
-			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
-			(component as any).submitRegistration();
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1', emailSent: true, ticket: 'T' } }));
+			submitAndComplete(component);
 
 			// Same convention as the "clearing the selection" test above: the payload
 			// literal always structurally defines the key, but with value
@@ -447,9 +456,9 @@ describe('Register', () => {
 			expect(sectionText(el)).not.toContain('الوسيط المُحيل');
 			// even if a value was picked earlier (e.g. before switching the account type), it is not sent
 			component.affiliateIdentifier = 'marketer-sara';
-			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
-			(component as any).submitRegistration();
-			const payload = postSpy.mock.calls.find(c => String(c[0]).includes('/register'))![1];
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1', emailSent: true, ticket: 'T' } }));
+			submitAndComplete(component);
+			const payload = postSpy.mock.calls.find(c => String(c[0]).includes('/register/complete'))![1];
 			expect(payload.accountType).toBe('MARKETING_BROKER');
 			expect(payload.affiliateIdentifier).toBeUndefined();
 			expect(JSON.stringify(payload)).not.toContain('marketer-sara');
@@ -506,9 +515,9 @@ describe('Register', () => {
 			getSpy.mockReturnValue(of(RESOLVED));
 			component.currentStep = 2;
 			fixture.detectChanges();
-			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
-			(component as any).submitRegistration();
-			const payload = postSpy.mock.calls.find(c => /\/register/.test(String(c[0])))![1];
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1', emailSent: true, ticket: 'T' } }));
+			submitAndComplete(component);
+			const payload = postSpy.mock.calls.find(c => /\/register\/complete/.test(String(c[0])))![1];
 			expect(payload.affiliateIdentifier).toBe('user90a8');
 		});
 
@@ -518,9 +527,9 @@ describe('Register', () => {
 			component.selectedAccountType = 'marketing_broker';
 			component.currentStep = 2;
 			fixture.detectChanges();
-			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
-			(component as any).submitRegistration();
-			const payload = postSpy.mock.calls.find(c => /\/register/.test(String(c[0])))![1];
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1', emailSent: true, ticket: 'T' } }));
+			submitAndComplete(component);
+			const payload = postSpy.mock.calls.find(c => /\/register\/complete/.test(String(c[0])))![1];
 			expect(payload.affiliateIdentifier).toBeUndefined();
 		});
 
@@ -532,9 +541,9 @@ describe('Register', () => {
 			expect(fixture.nativeElement.querySelector('[data-testid="referral-invalid"]')!.textContent).toContain('غير صالح أو منتهي');
 			expect(component.lockedAffiliate()).toBeNull();
 			expect(fixture.debugElement.query(By.directive(AffiliatePicker))).toBeTruthy();
-			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
-			(component as any).submitRegistration();
-			const payload = postSpy.mock.calls.find(c => /\/register/.test(String(c[0])))![1];
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1', emailSent: true, ticket: 'T' } }));
+			submitAndComplete(component);
+			const payload = postSpy.mock.calls.find(c => /\/register\/complete/.test(String(c[0])))![1];
 			expect(payload.affiliateIdentifier).toBeUndefined();
 		});
 
@@ -626,9 +635,9 @@ describe('Register', () => {
 			component.currentStep = 2;
 			fixture.detectChanges();
 			component.affiliateIdentifier = 'AFF-CODE-1';
-			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1' } }));
-			(component as any).submitRegistration();
-			const register = postSpy.mock.calls.find(c => /\/register/.test(String(c[0])))!;
+			postSpy.mockReturnValue(of({ success: true, data: { userId: 'u1', emailSent: true, ticket: 'T' } }));
+			submitAndComplete(component);
+			const register = postSpy.mock.calls.find(c => /\/register\/complete/.test(String(c[0])))!;
 			expect(register[1].affiliateIdentifier).toBe('AFF-CODE-1');
 		});
 
@@ -669,25 +678,26 @@ describe('Register: the server refuses the request because of the send interval 
 	});
 });
 
-describe('Register: the code step after the (uniform) answer', () => {
+describe('Register: the code step after the server confirmed the proof mail', () => {
 	const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
 	afterEach(() => vi.unstubAllGlobals());
 
-	it('is a neutral notice (not a success banner), claims no send, conditions completion on valid data, and offers edit / login / recovery', () => {
+	it('says a code was sent only because the server confirmed it, says no account exists yet, and offers edit / login / recovery', () => {
 		const { fixture, component, postSpy } = setup();
 		fixture.detectChanges();
 		component.selectedAccountType = 'service_provider_ind';
 		component.currentStep = 2;
 		component.basicInfoForm.patchValue(valid);
-		postSpy.mockImplementation((url: string) => /register/.test(String(url)) ? of({ success: true, data: {}, message: 'ok' }) : of({ success: true }));
+		postSpy.mockImplementation((url: string) => /register\/start/.test(String(url)) ? of({ success: true, data: { emailSent: true, ticket: 'T' }, message: 'ok' }) : of({ success: true }));
 		component.nextStep();
 		fixture.detectChanges(false);
 		const el = fixture.nativeElement as HTMLElement;
 		const notice = el.querySelector('[data-testid="otp-notice"]')!;
 		expect(notice.classList.contains('banner-info')).toBe(true);
 		expect(el.querySelector('.banner-success')).toBeNull();
-		expect(notice.textContent).toContain('مشروط بصحة البيانات');
-		expect(notice.textContent).not.toMatch(/أرسلنا|تم إرسال|تم الإرسال/);
+		expect(notice.textContent).toContain('أرسلنا رمز التحقق');
+		expect(notice.textContent).toContain('لم يُنشأ حساب بعد');
+		expect(notice.textContent).not.toContain('تم إنشاء');
 		expect(el.querySelector('[data-testid="code-step-spam-hint"]')!.textContent).not.toContain('لا نضمن');
 		expect(el.textContent).toContain('تعديل البريد أو الجوال');
 		expect(el.querySelector('#code-step-login-link')).not.toBeNull();
