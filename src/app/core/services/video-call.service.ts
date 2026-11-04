@@ -274,6 +274,11 @@ export class VideoCallService {
 
       // 4. Create offer SDP
       if (this.peerConnection) {
+        // Reserve a video sender even for an audio call so screen sharing
+        // can replace its empty track without a second signaling exchange.
+        if (!this.localStream?.getVideoTracks().length) {
+          this.peerConnection.addTransceiver('video', { direction: 'sendrecv' });
+        }
         const offer = await this.peerConnection.createOffer();
         await this.peerConnection.setLocalDescription(offer);
 
@@ -325,6 +330,9 @@ export class VideoCallService {
         await this.peerConnection.setRemoteDescription(new RTCSessionDescription(info.offer));
         this.isRemoteDescriptionSet = true;
         await this.processQueuedIceCandidates();
+
+        const video = this.peerConnection.getTransceivers().find(t => t.receiver.track.kind === 'video');
+        if (video && !video.sender.track) video.direction = 'sendrecv';
 
         // 5. Create SDP Answer
         const answer = await this.peerConnection.createAnswer();
@@ -439,48 +447,40 @@ export class VideoCallService {
    * Toggle Screen Sharing with proper RTC Track Sender Replacement & Local PIP updates
    */
   async toggleScreenShare(): Promise<void> {
-    if (!this.peerConnection) return;
+    const connection = this.peerConnection;
+    if (!connection || connection.signalingState !== 'stable') return;
+    const sender = connection.getTransceivers().find(t =>
+      t.receiver.track.kind === 'video' && (t.currentDirection === 'sendrecv' || t.currentDirection === 'sendonly')
+    )?.sender;
+    if (!sender) return;
 
-    if (this.isScreenSharing()) {
-      // Revert back to original camera track
-      if (this.screenStream) {
-        this.screenStream.getTracks().forEach((t) => t.stop());
+    let pending: MediaStream | null = null;
+    try {
+      if (this.isScreenSharing()) {
+        await sender.replaceTrack(this.localStream?.getVideoTracks()[0] ?? null);
+        this.screenStream?.getTracks().forEach(t => t.stop());
         this.screenStream = null;
+        this.isScreenSharing.set(false);
+        this.localStreamSignal.set(this.localStream);
+        return;
       }
-      if (this.localStream) {
-        const videoTrack = this.localStream.getVideoTracks()[0];
-        const senders = this.peerConnection.getSenders();
-        const sender = senders.find((s) => s.track?.kind === 'video' || s.track === null);
-        if (sender && videoTrack) {
-          await sender.replaceTrack(videoTrack);
-        }
-      }
-      this.isScreenSharing.set(false);
-      this.localStreamSignal.set(this.localStream);
-    } else {
-      try {
-        this.screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-        const screenTrack = this.screenStream.getVideoTracks()[0];
 
-        const senders = this.peerConnection.getSenders();
-        const sender = senders.find((s) => s.track?.kind === 'video' || s.track === null);
-
-        if (sender) {
-          await sender.replaceTrack(screenTrack);
-        } else {
-          this.peerConnection.addTrack(screenTrack, this.screenStream);
-        }
-
-        screenTrack.onended = () => {
-          this.toggleScreenShare();
-        };
-
-        this.isScreenSharing.set(true);
-        // Show screen preview in local stream PIP container
-        this.localStreamSignal.set(this.screenStream);
-      } catch (err) {
-        console.warn('[VideoCallService] Screen sharing cancelled or failed:', err);
-      }
+      pending = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const screenTrack = pending.getVideoTracks()[0];
+      if (!screenTrack || connection !== this.peerConnection) return;
+      await sender.replaceTrack(screenTrack);
+      if (connection !== this.peerConnection) return;
+      this.screenStream = pending;
+      pending = null;
+      screenTrack.onended = () => {
+        if (this.screenStream?.getVideoTracks()[0] === screenTrack) void this.toggleScreenShare();
+      };
+      this.isScreenSharing.set(true);
+      this.localStreamSignal.set(this.screenStream);
+    } catch (err) {
+      console.warn('[VideoCallService] Screen sharing cancelled or failed:', err);
+    } finally {
+      pending?.getTracks().forEach(t => t.stop());
     }
   }
 
