@@ -24,6 +24,19 @@ export class DisputeApiService {
   private http = inject(HttpClient);
   private readonly baseUrl = environment.url_api;
 
+  /** Multipart body: fields + the supporting files, saved by the server in ONE request (dispute and evidence together, idempotent by `submissionKey`). */
+  private disputeBody(payload: CreateDisputePayload): FormData {
+    const body = new FormData();
+    body.append('reason', payload.reason);
+    body.append('description', payload.description);
+    if (payload.stageId) body.append('stageId', payload.stageId);
+    if (payload.requestedResolution) body.append('requestedResolution', payload.requestedResolution);
+    if (payload.submissionKey) body.append('submissionKey', payload.submissionKey);
+    for (const url of payload.evidence ?? []) body.append('evidence', url);
+    for (const file of payload.files ?? []) body.append('attachments', file, file.name);
+    return body;
+  }
+
   // ── Client ──────────────────────────────────────────────────────────
 
   /**
@@ -33,7 +46,7 @@ export class DisputeApiService {
   createClientDispute(requestId: string, payload: CreateDisputePayload): Observable<CreateDisputeApiResponse> {
     return this.http.post<CreateDisputeApiResponse>(
       `${this.baseUrl}/client/requests/${requestId}/disputes`,
-      payload,
+      this.disputeBody(payload),
     );
   }
 
@@ -82,7 +95,7 @@ export class DisputeApiService {
   createProviderDispute(requestId: string, payload: CreateDisputePayload): Observable<CreateDisputeApiResponse> {
     return this.http.post<CreateDisputeApiResponse>(
       `${this.baseUrl}/provider/requests/${requestId}/disputes`,
-      payload,
+      this.disputeBody(payload),
     );
   }
 

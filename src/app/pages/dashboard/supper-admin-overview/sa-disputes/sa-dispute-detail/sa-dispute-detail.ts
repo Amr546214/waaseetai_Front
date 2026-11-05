@@ -11,6 +11,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { FieldProblem } from '../../../../../shared/forms/form-error-focus';
 import { clearAllInvalid, handleAdminError, reportAdminProblems } from '../../shared/admin-form-report';
 import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, ResolveFinancialPayload, FinancialOutcomeCode, DisputeAiSummary } from '../../../../../core/models/dispute.model';
+import { stageHeading } from '../../../../../core/utils/stage-title.util';
 import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionText } from '../../../../../core/utils/dispute-labels.util';
 
 @Component({
@@ -21,6 +22,8 @@ import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionT
   styleUrls: ['../sa-disputes.css', './sa-dispute-detail.css'],
 })
 export class SaDisputeDetail implements OnInit {
+  /** «المرحلة 2: التصميم» from the stage the dispute row carries. */
+  stageText(stage: { stepOrder: number; title: string }): string { return stageHeading(stage.stepOrder, stage.title); }
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private disputeApi = inject(DisputeApiService);

@@ -11,7 +11,7 @@ import { ActiveProjectsService, DeliveryFileDescriptor, ProviderAmendment, Creat
 import { ProjectMiniChat } from '../../../../../../sheards/project-mini-chat/project-mini-chat';
 import { DisputeModal } from '../../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../../core/services/dispute-api.service';
-import { CreateDisputePayload } from '../../../../../../core/models/dispute.model';
+import { CreateDisputePayload, DisputeFieldError, DisputeStageOption } from '../../../../../../core/models/dispute.model';
 import { ChatService, MessageContext } from '../../../../../../core/services/chat.service';
 import { sortAmendments, upsertAmendment } from '../../../../../../core/utils/amendment-list';
 import { AuthStore } from '../../../../../../core/store/auth.store';
@@ -115,6 +115,7 @@ export class Progress implements OnInit {
   disputeSuccess = signal('');
   disputeError = signal('');
   disputeSubmitted = signal(false);
+  disputeFieldErrors = signal<DisputeFieldError[]>([]);
   // P-PR-009 change-order request / mutual-cancellation modal state.
   // NOTE (anti-fabrication): there is no backend endpoint anywhere in this
   // app for creating a project change-order or a mutual-cancellation request
@@ -592,9 +593,15 @@ export class Progress implements OnInit {
     return parts.join(' · ');
   }
 
+  /** The project's stages with the SERVER's own dispute eligibility (canDispute / disputeBlockedReason): nothing is recomputed here. */
+  disputeStages(data: any): DisputeStageOption[] {
+    return (data?.stages ?? []).map((s: any) => ({ id: s.id, label: stageHeading(s.stageNumber, s.title), canDispute: s.canDispute === true, blockedReason: s.disputeBlockedReason ?? null }));
+  }
+
   openDisputeModal() {
     if (this.disputeSubmitted()) return;
     this.disputeError.set('');
+    this.disputeFieldErrors.set([]);
     this.showDisputeModal.set(true);
   }
 
@@ -608,16 +615,22 @@ export class Progress implements OnInit {
     if (this.isSubmittingDispute()) return;
     this.isSubmittingDispute.set(true);
     this.disputeError.set('');
+    this.disputeFieldErrors.set([]);
     this.disputeApi.createProviderDispute(this.projectId, payload).subscribe({
-      next: () => {
+      next: (res) => {
         this.isSubmittingDispute.set(false);
         this.showDisputeModal.set(false);
         this.disputeSubmitted.set(true);
         this.disputeSuccess.set('تم فتح النزاع بنجاح، سيقوم فريق وسيط بمراجعة الحالة');
+        // The recorded case itself (not a toast): the same page the disputes list opens.
+        const id = res?.data?.id;
+        if (id) void this.router.navigate(['/provider-overview/disputes', id]);
       },
       error: (err: any) => {
         this.isSubmittingDispute.set(false);
-        this.disputeError.set(err?.error?.message || 'تعذر فتح النزاع، حاول مرة أخرى');
+        const fields: DisputeFieldError[] = Array.isArray(err?.error?.errors) ? err.error.errors.filter((e: any) => e?.field && e?.message) : [];
+        this.disputeFieldErrors.set(fields);
+        this.disputeError.set(fields.length ? '' : (err?.error?.message || 'تعذر فتح النزاع، حاول مرة أخرى'));
       },
     });
   }
