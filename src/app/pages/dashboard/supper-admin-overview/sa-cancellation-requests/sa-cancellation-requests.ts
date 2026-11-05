@@ -14,8 +14,8 @@ import { CancelRequest, MutualCancelService } from '../../../../core/services/mu
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 <section class="cr" dir="rtl">
-	<div class="cr-hd"><div><h1>طلبات الإلغاء بالتراضي</h1><p>طلبات يفتحها أحد طرفي العقد النشط ويرد عليها الطرف الآخر. للاطلاع فقط: لم يُفعَّل بعد أي نقل للمبالغ.</p></div><a routerLink="/supper-admin-overview/disputes" class="cr-btn">النزاعات</a></div>
-	<div class="cr-note" role="note" data-testid="cr-admin-note">اعتماد الإدارة وتسوية المبالغ لهذا النوع من الإلغاء غير مُفعَّلين حتى يُقرَّ القرار المالي؛ الموافقة بين الطرفين تُسجَّل فقط ولا تغيّر العقد أو الضمان.</div>
+	<div class="cr-hd"><div><h1>طلبات الإلغاء بالتراضي</h1><p>طلبات يفتحها أحد طرفي العقد النشط ويرد عليها الطرف الآخر. بعد اتفاق الطرفين تُنفَّذ التسوية من هذه الصفحة لمن يملك صلاحيتي «حل النزاعات» و«إرسال الصرف».</p></div><a routerLink="/supper-admin-overview/disputes" class="cr-btn">النزاعات</a></div>
+	<div class="cr-note" role="note" data-testid="cr-admin-note">الاتفاق وحده لا ينقل أي مبلغ: يوقف اعتماد المراحل الجديدة فقط. عند تنفيذ التسوية يُصرف نصيب مقدم الخدمة من المبلغ المتبقي في الضمان ويعود الباقي للعميل، ويُغلق العقد والمشروع في خطوة واحدة. ما صُرف سابقًا لا يتغيّر.</div>
 	<div class="cr-tabs">@for (f of filters; track f.key) { <button type="button" class="cr-tab" [class.on]="status() === f.key" (click)="setStatus(f.key)">{{ f.label }}@if (counts()[f.key] !== undefined) { <b>{{ counts()[f.key] }}</b> }</button> }</div>
 	@if (loading()) { <p class="cr-muted" data-testid="cr-loading">جارٍ التحميل...</p> }
 	@else if (error()) { <div class="cr-err" role="alert">{{ error() }} <button type="button" class="cr-btn" (click)="load()">إعادة المحاولة</button></div> }
@@ -23,7 +23,7 @@ import { CancelRequest, MutualCancelService } from '../../../../core/services/mu
 	@else {
 		<div class="cr-list">@for (r of items(); track r.id) {
 			<button type="button" class="cr-card" [class.sel]="selected()?.id === r.id" [attr.data-testid]="'cr-item'" (click)="open(r.id)">
-				<div class="cr-top"><b>{{ r.projectTitle || r.contractRef }}</b><span class="cr-badge" [class.ok]="r.status === 'ACCEPTED'">{{ r.statusLabel }}</span></div>
+				<div class="cr-top"><b>{{ r.projectTitle || r.contractRef }}</b><span class="cr-badge" [class.ok]="r.status === 'AGREED_PENDING_SETTLEMENT' || r.status === 'SETTLED'">{{ r.statusLabel }}</span></div>
 				<div class="cr-meta">{{ r.clientName }} ↔ {{ r.providerName }} · {{ r.createdAt | date:'yyyy/MM/dd HH:mm' }}</div>
 			</button> }
 		</div>
@@ -38,11 +38,45 @@ import { CancelRequest, MutualCancelService } from '../../../../core/services/mu
 			<div class="cr-row"><span>حالة العقد</span><b>{{ r.contractStatus }}</b></div>
 			<div class="cr-blk"><span>السبب</span><p>{{ r.reason }}</p></div>@if (r.note) { <div class="cr-blk"><span>ملاحظة</span><p>{{ r.note }}</p></div> }@if (r.responseNote) { <div class="cr-blk"><span>رد الطرف الآخر</span><p>{{ r.responseNote }}</p></div> }
 			@if (r.respondedAt) { <div class="cr-row"><span>تاريخ الرد</span><b>{{ r.respondedAt | date:'yyyy/MM/dd HH:mm' }}</b></div> }
-			@if (r.financial; as f) {
-				<div class="cr-fin" data-testid="cr-financial"><div class="cr-row"><span>قيمة العقد</span><b>{{ f.contractPrice }} $</b></div>
-				@if (f.escrowAmount !== null) { <div class="cr-row"><span>إجمالي الضمان</span><b>{{ f.escrowAmount }} $</b></div><div class="cr-row"><span>أُفرج</span><b>{{ f.escrowReleased }} $</b></div><div class="cr-row"><span>محتجز</span><b>{{ f.escrowHeld }} $</b></div> } @else { <p class="cr-muted">لا يوجد ضمان مسجّل لهذا العقد</p> }</div>
+			@if (r.settlementPreview; as sp) {
+				<div class="cr-fin" data-testid="cr-financial">
+					<h3>المراحل والضمان</h3>
+					@for (s of sp.stages; track s.id) { <div class="cr-row" data-testid="cr-stage"><span>المرحلة {{ s.stepOrder }}: {{ s.title }}</span><b>{{ s.amount }} $ · {{ s.paid ? 'صُرفت' : 'غير معتمدة' }}</b></div> }
+					<div class="cr-row"><span>قيمة العقد</span><b>{{ sp.contractPrice }} $</b></div>
+					<div class="cr-row" data-testid="cr-paid"><span>مراحل صُرفت سابقًا (لا تتغيّر)</span><b>{{ sp.paidStagesTotal }} $</b></div>
+					<div class="cr-row" data-testid="cr-unapproved"><span>مراحل غير معتمدة</span><b>{{ sp.unapprovedStagesTotal }} $</b></div>
+					<div class="cr-row"><span>إجمالي الضمان / المُفرَج</span><b>{{ sp.escrowAmount }} / {{ sp.escrowReleased }} $</b></div>
+					<div class="cr-row cr-held" data-testid="cr-held"><span>المتبقي الفعلي في الضمان</span><b>{{ sp.heldAmount }} $</b></div>
+					@if (sp.commissionRatePercent !== null) { <div class="cr-row"><span>عمولة المنصة على ما يُصرف لمقدم الخدمة</span><b>{{ sp.commissionRatePercent }}%</b></div> }
+				</div>
+			}
+			@if (r.settlement; as st) {
+				<div class="cr-fin" data-testid="cr-result"><h3>نتيجة التسوية</h3>
+					<div class="cr-row"><span>عاد إلى العميل</span><b>{{ st.refundToClient }} $</b></div><div class="cr-row"><span>نصيب مقدم الخدمة (إجمالي)</span><b>{{ st.releaseToProvider }} $</b></div>
+					<div class="cr-row"><span>عمولة المنصة / صافي مقدم الخدمة</span><b>{{ st.platformCommission }} / {{ st.providerNet }} $</b></div>
+					@if (r.settlementReason) { <div class="cr-blk"><span>السبب المسجّل</span><p>{{ r.settlementReason }}</p></div> }</div>
 			}
 			@if (r.settlementLabel) { <div class="cr-note" data-testid="cr-settlement">{{ r.settlementLabel }}</div> }
+			@if (r.settlementPreview; as sp) {
+				@if (r.status === 'AGREED_PENDING_SETTLEMENT') {
+					<div class="cr-form" data-testid="cr-settle-form">
+						<h3>تنفيذ التسوية</h3>
+						@if (sp.blockedReason) { <div class="cr-err" role="note" data-testid="cr-blocked">{{ sp.blockedReason }}</div> }
+						<label for="cr-share">نصيب مقدم الخدمة من المتبقي ({{ sp.heldAmount }} $) — إجمالي قبل العمولة</label>
+						<input id="cr-share" type="number" min="0" [max]="sp.heldAmount" step="0.01" inputmode="decimal" data-testid="cr-share" [value]="share()" (input)="share.set($any($event.target).value)" [disabled]="!sp.canSettle || busy()">
+						<div class="cr-row cr-refund" data-testid="cr-refund"><span>يعود إلى العميل</span><b>{{ refundText(sp) }}</b></div>
+						<label for="cr-reason">سبب القرار (يُسجَّل)</label>
+						<textarea id="cr-reason" rows="3" maxlength="2000" data-testid="cr-reason" [value]="reason()" (input)="reason.set($any($event.target).value)" [disabled]="!sp.canSettle || busy()"></textarea>
+						@if (formError()) { <div class="cr-err" role="alert" data-testid="cr-form-error">{{ formError() }}</div> }
+						@if (!confirming()) {
+							<button type="button" class="cr-btn cr-pri" data-testid="cr-review" [disabled]="!sp.canSettle || busy()" (click)="review(sp)">مراجعة وتأكيد التسوية</button>
+						} @else {
+							<div class="cr-note" role="alert" data-testid="cr-confirm-text">سيُنفَّذ الآن: {{ share() }} $ لمقدم الخدمة (قبل العمولة) و{{ refundText(sp) }} للعميل، ويُغلق العقد والمشروع. لا يمكن التراجع.</div>
+							<div class="cr-act"><button type="button" class="cr-btn cr-pri" data-testid="cr-confirm" [disabled]="busy()" (click)="confirm(r, sp)">{{ busy() ? 'جارٍ التنفيذ...' : 'تأكيد التنفيذ' }}</button><button type="button" class="cr-btn" [disabled]="busy()" (click)="confirming.set(false)">رجوع</button></div>
+						}
+					</div>
+				}
+			}
 			<p class="cr-muted">{{ r.moneyNote }}</p>
 		</div>
 	}
@@ -55,6 +89,7 @@ import { CancelRequest, MutualCancelService } from '../../../../core/services/mu
 .cr-top{display:flex;justify-content:space-between;gap:8px}.cr-meta{color:var(--txt-2);font-size:var(--font-size-small);margin-top:4px}.cr-badge{font-size:var(--font-size-small);padding:2px 9px;border-radius:99px;background:rgba(255,180,0,.14)}.cr-badge.ok{background:rgba(43,212,199,.16);color:var(--teal-txt)}
 .cr-detail{margin-top:14px;padding:14px;border-radius:14px;border:1px solid var(--sec-bd);background:var(--sec-bg)}.cr-detail h2{margin:0 0 8px;font-size:var(--font-size-body)}.cr-detail small{color:var(--txt-2)}
 .cr-row{display:flex;justify-content:space-between;gap:10px;padding:4px 0;font-size:var(--font-size-small)}.cr-row span{color:var(--txt-2)}.cr-blk{padding:6px 0;font-size:var(--font-size-small)}.cr-blk span{color:var(--txt-2)}.cr-blk p{margin:3px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.cr-form{margin-top:12px;padding-top:10px;border-top:1px solid var(--sec-bd);display:flex;flex-direction:column;gap:8px}.cr-form label{font-size:var(--font-size-small);font-weight:800}.cr-form input,.cr-form textarea{padding:10px;border-radius:10px;border:1px solid var(--sec-bd);background:var(--sec-bg);color:var(--txt);font:inherit}.cr-held b,.cr-refund b{color:var(--teal-txt)}.cr-pri{background:linear-gradient(135deg,#2BD4C7,#2B7FFF);border-color:transparent;color:#04101f}.cr-act{display:flex;gap:8px}.cr-btn:disabled{opacity:.55;cursor:not-allowed}.cr-fin h3,.cr-form h3{margin:0 0 6px;font-size:var(--font-size-body)}
 .cr-fin{margin:8px 0;padding-top:6px;border-top:1px solid var(--sec-bd)}.cr-err{margin:8px 0;padding:9px 11px;border-radius:9px;border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.08);font-size:var(--font-size-small)}
 `]
 })
@@ -64,7 +99,8 @@ export class SaCancellationRequests implements OnInit {
 	private router = inject(Router);
 	status = signal(''); items = signal<CancelRequest[]>([]); counts = signal<Record<string, number>>({}); loading = signal(true); error = signal('');
 	selected = signal<CancelRequest | null>(null); detailError = signal('');
-	readonly filters = [{ key: '', label: 'الكل' }, { key: 'PENDING_OTHER_PARTY', label: 'بانتظار الرد' }, { key: 'ACCEPTED', label: 'متفق عليها' }, { key: 'REJECTED', label: 'مرفوضة' }, { key: 'WITHDRAWN', label: 'مسحوبة' }];
+	share = signal('0'); reason = signal(''); busy = signal(false); confirming = signal(false); formError = signal('');
+	readonly filters = [{ key: '', label: 'الكل' }, { key: 'PENDING_OTHER_PARTY', label: 'بانتظار الرد' }, { key: 'AGREED_PENDING_SETTLEMENT', label: 'بانتظار التسوية' }, { key: 'SETTLED', label: 'تمت التسوية' }, { key: 'REJECTED', label: 'مرفوضة' }, { key: 'WITHDRAWN', label: 'مسحوبة' }];
 	ngOnInit() { this.load(); const id = this.route.snapshot.paramMap.get('id'); if (id) this.open(id, false); }
 	setStatus(s: string) { this.status.set(s); this.load(); }
 	load() {
@@ -75,7 +111,24 @@ export class SaCancellationRequests implements OnInit {
 		});
 	}
 	open(id: string, navigate = true) {
-		this.detailError.set('');
-		this.api.adminGet(id).subscribe({ next: r => { this.selected.set(r.data); if (navigate) void this.router.navigate(['/supper-admin-overview/cancellation-requests', id], { replaceUrl: true }); }, error: e => this.detailError.set(e?.error?.message || 'تعذر فتح الطلب') });
+		this.detailError.set(''); this.confirming.set(false); this.formError.set('');
+		this.api.adminGet(id).subscribe({ next: r => { this.selected.set(r.data); this.share.set('0'); this.reason.set(''); if (navigate) void this.router.navigate(['/supper-admin-overview/cancellation-requests', id], { replaceUrl: true }); }, error: e => this.detailError.set(e?.error?.message || 'تعذر فتح الطلب') });
+	}
+
+	private shareNum(): number { return Math.round(Number(this.share()) * 100) / 100; }
+	/** display of the refund the server will compute (held - share); the server result is what is shown after confirming */
+	refundText(sp: { heldAmount: number }): string { const s = this.shareNum(); return Number.isFinite(s) && s >= 0 && s <= sp.heldAmount ? `${Math.round((sp.heldAmount - s) * 100) / 100} $` : '—'; }
+	review(sp: { heldAmount: number }) {
+		const s = this.shareNum(); this.formError.set('');
+		if (!Number.isFinite(s) || s < 0 || s > sp.heldAmount) { this.formError.set(`أدخل نصيبًا بين 0 و${sp.heldAmount} $`); return; }
+		if (this.reason().trim().length < 10) { this.formError.set('سجّل سبب القرار (10 أحرف على الأقل)'); return; }
+		this.confirming.set(true);
+	}
+	confirm(r: CancelRequest, sp: { heldAmount: number }) {
+		if (this.busy()) return; this.busy.set(true); this.formError.set('');
+		this.api.adminSettle(r.id, { releaseToProvider: this.shareNum(), expectedHeldAmount: sp.heldAmount, reason: this.reason().trim() }).subscribe({
+			next: () => { this.busy.set(false); this.confirming.set(false); this.open(r.id, false); this.load(); },
+			error: e => { this.busy.set(false); this.confirming.set(false); this.formError.set(e?.error?.message || 'تعذر تنفيذ التسوية؛ لم يتحرك أي مبلغ'); if (e?.status === 409 || e?.status === 423) this.api.adminGet(r.id).subscribe({ next: x => this.selected.set(x.data) }); }
+		});
 	}
 }
