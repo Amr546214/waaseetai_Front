@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { Progress, AMENDMENT_SUCCESS_TEXT } from './progress';
 
 // "طلب تعديل" is a REAL request (POST /provider/projects/:projectId/amendments) that waits for the client; it never opens the chat instead and
-// never claims the contract changes by itself. "إلغاء بالتراضي" is gone (no backend).
+// never claims the contract changes by itself. "إلغاء بالتراضي" is the shared app-mutual-cancel component (its own spec).
 const DATA = { projectId: 'project-9', conversationId: 'conv-9', title: 'مشروع', stages: [], edits: [], messages: [], files: [], deliveries: [] };
 const AM = (o: Record<string, unknown> = {}) => ({ id: 'a1', projectId: 'project-9', projectTitle: 'مشروع', type: 'BUDGET', title: 'زيادة الميزانية', description: null, budgetDelta: 200, durationDeltaDays: null, status: 'PENDING_OTHER_PARTY', requestedByRole: 'PROVIDER', createdAt: '2026-10-01T00:00:00Z', respondedAt: null, conversationId: null, ...o });
 
@@ -28,15 +28,14 @@ describe('provider project progress: change request', () => {
 	}
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('"إلغاء بالتراضي" is gone from the quick actions, the modal and the whole page', async () => {
+	it('"إلغاء بالتراضي" is the REAL shared component (a recorded request); the old fake modal that only opened the chat is gone', async () => {
 		const s = await setup();
 		expect(s.el.querySelector('.lc-qa-canc')).toBeNull();
-		expect(s.el.textContent).not.toContain('بالتراضي');
-		s.c.openAmendments(); s.f.detectChanges();
-		expect(s.el.textContent).not.toContain('بالتراضي');
+		expect(s.q('open-mutual-cancel')).not.toBeNull();
 		const html = readFileSync(join(__dirname, 'progress.html'), 'utf8');
 		const ts = readFileSync(join(__dirname, 'progress.ts'), 'utf8');
-		for (const gone of ['بالتراضي', 'lc-qa-canc', "openSupport('cancel')", 'continueInConversation']) { expect(html).not.toContain(gone); expect(ts).not.toContain(gone); }
+		expect(html).toContain('<app-mutual-cancel');
+		for (const gone of ['lc-qa-canc', "openSupport('cancel')", 'continueInConversation']) { expect(html).not.toContain(gone); expect(ts).not.toContain(gone); }
 	});
 
 	it('"طلب تعديل" opens the request form (with the note that nothing changes by itself) and loads the provider\'s previous requests for the REAL project', async () => {

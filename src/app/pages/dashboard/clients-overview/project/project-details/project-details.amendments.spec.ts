@@ -27,10 +27,11 @@ describe('client project details: change request', () => {
 	}
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('«إلغاء بالتراضي» and the support/cancel modal are gone from the source', () => {
+	it('«إلغاء بالتراضي» is the REAL shared component; the old fake support/cancel modal is gone from the source', () => {
 		const html = readFileSync(join(__dirname, 'project-details.html'), 'utf8');
 		const ts = readFileSync(join(__dirname, 'project-details.ts'), 'utf8');
-		for (const gone of ['بالتراضي', 'lc-qa-canc', "openSupport(", 'supportAction', 'supportNote', 'continueInConversation', 'إرسال الطلب وفتح الشات', 'ملاحظة لمقدم الخدمة']) { expect(html).not.toContain(gone); expect(ts).not.toContain(gone); }
+		expect(html).toContain('<app-mutual-cancel');
+		for (const gone of ['lc-qa-canc', "openSupport(", 'supportAction', 'supportNote', 'continueInConversation']) { expect(html).not.toContain(gone); expect(ts).not.toContain(gone); }
 		expect(html).toContain('openDisputeModal()'); // the real channel stays
 	});
 

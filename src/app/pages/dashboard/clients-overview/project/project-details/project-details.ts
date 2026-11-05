@@ -1,3 +1,4 @@
+import { MutualCancelComponent } from '../../../../../sheards/mutual-cancel/mutual-cancel.component';
 import { isRateLimitError } from '../../../../../core/utils/rate-limit.util';
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal, ElementRef } from '@angular/core';
@@ -37,7 +38,7 @@ export const CLIENT_AMENDMENT_TYPE_LABEL: Record<string, string> = { SCOPE: 'ØªØ
 
 @Component({
 	selector: 'app-project-details', standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule, RatingSummary, ProjectMiniChat, DisputeModal, AmendmentPaymentOtpComponent],
+	imports: [CommonModule, FormsModule, RouterModule, RatingSummary, ProjectMiniChat, DisputeModal, AmendmentPaymentOtpComponent, MutualCancelComponent],
 	templateUrl: './project-details.html', styleUrl: './project-details.css',
 })
 export class ProjectDetails implements OnInit {
