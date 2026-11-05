@@ -270,3 +270,8 @@ body.light-theme .od-meta-lbl,
 body.theme-light .od-meta-lbl,
 .light-theme .od-meta-lbl,
 .theme-light .od-meta-lbl{color:#64748B}
+
+.cs-offer-block { margin-top: 12px; }
+.cs-offer-lbl { font-size: var(--font-size-small); font-weight: 800; margin-bottom: 4px; }
+.cs-offer-txt { white-space: pre-line; overflow-wrap: anywhere; }
+.cs-offer-list { margin: 0; padding-inline-start: 18px; font-size: var(--font-size-label); line-height: 1.7; }

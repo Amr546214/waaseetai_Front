@@ -73,6 +73,15 @@
     هذه شروط العقد كما ثبّتّها باختيارك للعرض (السعر والمدة والمراحل). عند الموافقة تنتقل لإيداع الضمان وتأكيد التوقيع برمز يصلك على بريدك.
   </div>
 
+  @if (offerTerms(); as ot) {
+  <div class="od-card" data-testid="cs-offer-terms">
+    <div class="sec-ttl" style="margin-top:0">ما كتبه مقدم الخدمة في عرضه</div>
+    @if (ot.summary) { <div class="cs-offer-block"><div class="cs-offer-lbl">نطاق العمل</div><p class="od-desc cs-offer-txt" data-testid="cs-offer-summary">{{ ot.summary }}</p></div> }
+    @if (ot.deliverables) { <div class="cs-offer-block"><div class="cs-offer-lbl">المخرجات</div><p class="od-desc cs-offer-txt" data-testid="cs-offer-deliverables">{{ ot.deliverables }}</p></div> }
+    @if (ot.advantages.length) { <div class="cs-offer-block"><div class="cs-offer-lbl">مميزات العرض</div><ul class="cs-offer-list" data-testid="cs-offer-advantages">@for (a of ot.advantages; track $index) { <li>{{ a }}</li> }</ul></div> }
+  </div>
+  }
+
   <div class="od-card" data-testid="cs-terms">
     <dl class="cs-terms-summary">
       <div><dt>القيمة</dt><dd><bdi>{{ price() }}</bdi></dd></div>
