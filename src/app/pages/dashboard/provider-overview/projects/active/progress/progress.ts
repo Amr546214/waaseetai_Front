@@ -1,3 +1,4 @@
+import { MutualCancelComponent } from '../../../../../../sheards/mutual-cancel/mutual-cancel.component';
 import { providerTimeZone } from '../../../../../../core/services/provider-prefs.store';
 import { Component, DestroyRef, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -53,7 +54,7 @@ export function isHttpsLink(value: string): boolean {
 
 @Component({
   selector: 'app-progress', standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RatingSummary, ProjectMiniChat, DisputeModal], templateUrl: './progress.html', styleUrl: './progress.css'
+  imports: [CommonModule, FormsModule, RouterLink, RatingSummary, ProjectMiniChat, DisputeModal, MutualCancelComponent], templateUrl: './progress.html', styleUrl: './progress.css'
 })
 export class Progress implements OnInit {
   private service = inject(ActiveProjectsService);
@@ -107,7 +108,7 @@ export class Progress implements OnInit {
   private uploadSubs = new Map<string, Subscription>();
   private uploadSeq = 0;
   deliveryFileInput = viewChild<ElementRef<HTMLInputElement>>('deliveryFileInput');
-  private projectId = '';
+  protected projectId = '';
   providerRatingSuccess = signal('');
   providerRatingSubmitted = signal(false);
   showDisputeModal = signal(false);

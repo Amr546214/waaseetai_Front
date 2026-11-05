@@ -31,6 +31,7 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'business-models': { all: ['business_models.review'] },
 	requests: { superAdmin: true }, offers: { superAdmin: true }, projects: { superAdmin: true }, contracts: { superAdmin: true },
 	disputes: { all: ['disputes.view'] },
+	'cancellation-requests': { all: ['disputes.view'] },
 	reports: { all: ['reports.view'] },
 	support: { all: ['support.review'] },
 	'modification-requests': { all: ['identity.review'] },
