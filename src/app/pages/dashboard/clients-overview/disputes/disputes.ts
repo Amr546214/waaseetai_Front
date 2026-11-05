@@ -9,6 +9,7 @@ import { DisputeApiService } from '../../../../core/services/dispute-api.service
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { Dispute } from '../../../../core/models/dispute.model';
 import { disputeResolutionText } from '../../../../core/utils/dispute-labels.util';
+import { stageHeading } from '../../../../core/utils/stage-title.util';
 
 interface DisputeTimelineStep {
   label: string;
@@ -159,6 +160,9 @@ export class Disputes implements OnInit {
 
   /** Text of the admin decision (Arabic label for a code, the admin's own text verbatim) for the details panel. */
   resolutionText = disputeResolutionText;
+
+  /** «المرحلة 2: التصميم» from the stage the dispute row carries. */
+  stageText(stage: { stepOrder: number; title: string }): string { return stageHeading(stage.stepOrder, stage.title); }
 
   setTab(t: string) {
     this.currentTab.set(t);

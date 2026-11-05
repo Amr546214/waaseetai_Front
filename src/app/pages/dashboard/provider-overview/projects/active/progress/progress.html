@@ -354,6 +354,8 @@
 <app-dispute-modal
   [open]="showDisputeModal()"
   [errorMessage]="disputeError()"
+  [fieldErrors]="disputeFieldErrors()"
+  [stages]="disputeStages(projectData())"
   [isSubmitting]="isSubmittingDispute()"
   actor="provider"
   (close)="closeDisputeModal()"

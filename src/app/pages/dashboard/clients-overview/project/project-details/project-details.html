@@ -231,6 +231,8 @@
 <app-dispute-modal
 	[open]="showDisputeModal()"
 	[errorMessage]="disputeError()"
+	[fieldErrors]="disputeFieldErrors()"
+	[stages]="disputeStages(project())"
 	[isSubmitting]="isSubmittingDispute()"
 	actor="client"
 	(close)="closeDisputeModal()"

@@ -1,6 +1,7 @@
 import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { Dispute as ApiDispute } from '../../../../core/models/dispute.model';
 import { disputeResolutionText } from '../../../../core/utils/dispute-labels.util';
+import { stageHeading } from '../../../../core/utils/stage-title.util';
 import { Dispute, DisputeDetail, DisputeEvidenceItem, DisputeHistoryEntry, DisputeParty, DisputeStatusStep, DisputeTimelineStep } from './disputes.model';
 
 const dateLabel = (iso?: string | null): string =>
@@ -41,7 +42,7 @@ function financialSummary(d: ApiDispute): string {
 function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 	const closed = d.status === 'RESOLVED' || d.status === 'REJECTED';
 	const history: DisputeHistoryEntry[] = [
-		{ title: 'رُفع النزاع', sub: d.reason, time: dateLabel(d.createdAt), iconType: 'open' },
+		{ title: 'رُفع النزاع', sub: [d.reason, d.description].filter(Boolean).join(' — '), time: dateLabel(d.createdAt), iconType: 'open' },
 	];
 	if (closed) {
 		history.push({
@@ -83,6 +84,8 @@ function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 			{ label: 'السبب', value: d.reason },
 			{ label: 'تاريخ الفتح', value: dateLabel(d.createdAt) },
 			{ label: 'المشروع', value: d.request?.title || d.project?.title || '—' },
+			...(d.stage ? [{ label: 'المرحلة المعنية', value: stageHeading(d.stage.stepOrder, d.stage.title) }] : []),
+			...(d.requestedResolutionLabel ? [{ label: 'الحل المطلوب', value: `${d.requestedResolutionLabel} (طلب فقط، والقرار للإدارة)` }] : []),
 			...(d.resolvedAt ? [{ label: 'تاريخ القرار', value: dateLabel(d.resolvedAt) }] : []),
 			// heldEscrowAmount: null/absent -> 'غير متاح'; 0 is a real value and is shown as '0'.
 			{ label: 'المتبقي من مستحقاتك في الضمان', value: d.heldEscrowAmount === null || d.heldEscrowAmount === undefined ? 'غير متاح' : String(d.heldEscrowAmount) },
