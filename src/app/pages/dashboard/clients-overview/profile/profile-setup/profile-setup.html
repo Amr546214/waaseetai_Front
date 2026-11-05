@@ -169,7 +169,7 @@
 						<div role="alert" data-testid="kyc-rejected-note" class="mb-5 rounded-xl border border-red-300 bg-red-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفضت وثائق الهوية. السبب: {{ why }}. ارفع وثائق جديدة وأرسلها مرة أخرى.</div>
 						}
 						@if (kycPending()) {
-						<div role="status" data-testid="kyc-pending-note" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر أدناه كما حُفظت.</div>
+						<div role="status" data-testid="kyc-pending-note" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">@if (identityInReview()) {<strong data-testid="identity-in-review">الهوية قيد الفحص.</strong>&nbsp;}وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر أدناه كما حُفظت.</div>
 						}
 
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
