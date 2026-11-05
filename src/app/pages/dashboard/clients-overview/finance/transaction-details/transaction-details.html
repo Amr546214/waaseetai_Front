@@ -14,7 +14,11 @@
   } @else if (error()) {
     <div class="state-card error-card" role="alert">
       <div class="error-title">{{ error() }}</div>
-      <button type="button" class="retry-btn" (click)="goBack()">العودة إلى المحفظة</button>
+      @if (notFound()) {
+        <button type="button" class="retry-btn" (click)="goBack()">العودة إلى المحفظة</button>
+      } @else {
+        <button type="button" class="retry-btn" (click)="retry()">إعادة المحاولة</button>
+      }
     </div>
   } @else if (transaction(); as tx) {
     <div class="txn-hero">
@@ -27,22 +31,24 @@
       </div>
       <div class="txn-hero-title">{{ title() }}</div>
       <div class="txn-hero-amount" [class.amt-out]="direction() === 'out'" [class.amt-in]="direction() === 'in'">
-        {{ sign() }}{{ amountAbs() | number:'1.0-2' }} {{ tx.currency === 'USD' ? '$' : (tx.currency === 'USD' ? 'دولار' : tx.currency) }}
+        {{ sign() }}{{ amountAbs() | number:'1.0-2' }} {{ currencyLabel() }}
       </div>
       <span class="txn-pill" [class.st-hold]="isHeld()" [class.st-done]="isDone()" [class.st-fail]="isFailed()" [class.st-pending]="!isHeld() && !isDone() && !isFailed()">
         {{ statusLabel() }}
       </span>
     </div>
 
-    <div class="ws-note ws-note--neutral" role="region" aria-label="معلومات الصفحة">
-      <div class="ws-note-ico">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-shield"></use></svg>
+    @if (tx.escrow; as esc) {
+      <div class="ws-note ws-note--neutral" role="region" aria-label="حالة الضمان" data-testid="txn-escrow-note">
+        <div class="ws-note-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-shield"></use></svg>
+        </div>
+        <div class="ws-note-body">
+          <div class="ws-note-lbl">حالة الضمان</div>
+          <p class="ws-note-txt">المحجوز {{ esc.amount | number:'1.0-2' }} {{ currencyLabel() }}، المُفرَج عنه {{ esc.releasedAmount | number:'1.0-2' }} {{ currencyLabel() }}، المتبقي في الضمان {{ escrowRemaining() | number:'1.0-2' }} {{ currencyLabel() }}</p>
+        </div>
       </div>
-      <div class="ws-note-body">
-        <div class="ws-note-lbl">وسيط، تفاصيل المعاملة</div>
-        <p class="ws-note-txt">تُحسب بيانات هذه المعاملة تلقائياً من قيمة العقد ومراحله</p>
-      </div>
-    </div>
+    }
 
     <div class="sec-ttl">بيانات المعاملة</div>
     <div class="txn-data-card">
@@ -56,7 +62,17 @@
       </div>
       <div class="txn-row">
         <span class="txn-row-lbl">المبلغ</span>
-        <span class="txn-row-val" [class.amt-out]="direction() === 'out'" [class.amt-in]="direction() === 'in'">{{ amountAbs() | number:'1.0-2' }} {{ tx.currency === 'USD' ? '$' : (tx.currency === 'USD' ? 'دولار' : tx.currency) }}</span>
+        <span class="txn-row-val" [class.amt-out]="direction() === 'out'" [class.amt-in]="direction() === 'in'">{{ amountAbs() | number:'1.0-2' }} {{ currencyLabel() }}</span>
+      </div>
+      @if (tx.project; as project) {
+        <div class="txn-row">
+          <span class="txn-row-lbl">المشروع</span>
+          <span class="txn-row-val"><a [routerLink]="['/client-overview/projects', project.id]" data-testid="txn-project-link">{{ project.title }}</a></span>
+        </div>
+      }
+      <div class="txn-row">
+        <span class="txn-row-lbl">الحالة</span>
+        <span class="txn-row-val">{{ statusLabel() }}</span>
       </div>
       <div class="txn-row">
         <span class="txn-row-lbl">التاريخ والوقت</span>
@@ -64,7 +80,7 @@
       </div>
       <div class="txn-row txn-row-last">
         <span class="txn-row-lbl">طريقة الدفع</span>
-        <span class="txn-row-val">{{ tx.paymentMethod || 'محفظة وسيط AI' }}</span>
+        <span class="txn-row-val">{{ paymentMethodLabel() }}</span>
       </div>
 
       @if (isEscrow()) {
@@ -75,14 +91,16 @@
       }
 
       <div class="txn-actions">
-        <button type="button" class="txn-btn txn-btn-ghost" disabled title="غير متاح حاليًا">
-          <svg data-ws-icon="pl-client-download" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 11l5 5 5-5M5 20h14" /></svg>
-          تحميل الإيصال
-        </button>
-        <a routerLink="/client-overview/messages" class="txn-btn txn-btn-link">
+        @if (canPrintReceipt()) {
+          <button type="button" class="txn-btn txn-btn-link" (click)="printReceipt()" data-testid="txn-receipt">
+            <svg data-ws-icon="pl-client-download" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 11l5 5 5-5M5 20h14" /></svg>
+            تحميل الإيصال
+          </button>
+        }
+        <button type="button" class="txn-btn txn-btn-link" (click)="inquire()" data-testid="txn-inquiry">
           <svg data-ws-icon="ws-msg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
           استفسار عن المعاملة
-        </a>
+        </button>
       </div>
     </div>
   }

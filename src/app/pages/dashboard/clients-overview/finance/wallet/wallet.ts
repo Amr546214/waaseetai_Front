@@ -128,7 +128,7 @@ export class Wallet implements OnInit {
         const isFailed = tx.status === 'FAILED';
 
         // A refund returns money to the wallet, like a deposit.
-        const direction: 'in' | 'out' = isDeposit || tx.type === 'REFUND' ? 'in' : 'out';
+        const direction: 'in' | 'out' = isDeposit || tx.type === 'REFUND' || tx.type === 'AMENDMENT_REFUND' ? 'in' : 'out';
         const statusType: 'done' | 'hold' | 'pending' | 'failed' = isFailed ? 'failed' : (isDone ? 'done' : (isHeld ? 'hold' : 'pending'));
         const statusText = isFailed ? 'فشلت' : (isDone ? 'مكتمل' : (isHeld ? 'محجوز' : 'قيد المعالجة'));
         const icon: 'escrow' | 'wallet' = isEscrow ? 'escrow' : 'wallet';
@@ -184,7 +184,7 @@ export class Wallet implements OnInit {
     this.loadWalletData(() => {
       const tx = this.transactions().find(t => t.referenceId === payment.reference);
       if (tx) {
-        this.router.navigate(['/client-overview/finance/transactions', tx.id]);
+        this.router.navigate(['/client-overview/finance/wallet', tx.id]);
       }
     });
   }

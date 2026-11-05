@@ -103,7 +103,7 @@
           <thead><tr><th>المعاملة</th>@if (isCompany()) {<th>الموظف</th>}<th>التاريخ</th><th>المبلغ</th><th>الحالة</th></tr></thead>
           <tbody>
             @for (transaction of transactions(); track transaction.id) {
-              <tr [routerLink]="['/client-overview/finance/transactions', transaction.id]">
+              <tr [routerLink]="['/client-overview/finance/wallet', transaction.id]">
                 <td>
                   <div class="transaction-cell">
                     <span class="tx-ico" [class.tx-in]="transaction.direction === 'in'" [class.tx-out]="transaction.direction === 'out'">

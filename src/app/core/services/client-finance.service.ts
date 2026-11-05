@@ -28,6 +28,13 @@ export interface ClientWalletTransaction {
 	employeeName?: string;
 }
 
+/** One transaction read by id (GET /client/finance/wallet/transactions/:id): the list row plus what the backend really has about it. */
+export interface ClientWalletTransactionDetail extends ClientWalletTransaction {
+	project: { id: string; title: string } | null;
+	/** Only for an escrow funding row. */
+	escrow: { amount: number; releasedAmount: number; status: string } | null;
+}
+
 export interface ClientWalletEmployeeSpend {
 	employeeName: string;
 	department?: string;
@@ -91,6 +98,10 @@ export class ClientFinanceService {
 
 	getWallet(): Observable<{ success: boolean; data: ClientWalletData }> {
 		return this.http.get<{ success: boolean; data: ClientWalletData }>(`${this.baseUrl}/wallet`);
+	}
+
+	getTransaction(id: string): Observable<{ success: boolean; data: ClientWalletTransactionDetail }> {
+		return this.http.get<{ success: boolean; data: ClientWalletTransactionDetail }>(`${this.baseUrl}/wallet/transactions/${encodeURIComponent(id)}`);
 	}
 
 	getInvoices(): Observable<{ success: boolean; data: ClientInvoicesData }> {
