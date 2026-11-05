@@ -1,3 +1,4 @@
+import { IdentityCheckService } from '../../../../../core/services/identity-check.service';
 import { birthDateValidator, maxDobIso } from '../../../../../core/forms/birth-date';
 import { Component, DestroyRef, ElementRef, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -57,6 +58,12 @@ export class ProfileSetupDashboard implements OnInit {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private profileApi = inject(ProfileApiService);
+	private identityCheck = inject(IdentityCheckService);
+	/** Neutral owner state of the automatic ID check: only «in review» or nothing, never a field result. An old backend without the endpoint just leaves it off. */
+	identityInReview = signal<boolean>(false);
+	private refreshIdentityInReview() {
+		this.identityCheck.getMyState('CLIENT').subscribe({ next: (st) => this.identityInReview.set(st === 'IN_REVIEW'), error: () => this.identityInReview.set(false) });
+	}
 
 	isSubmitting = signal<boolean>(false);
 	currentStep = signal<number>(1);
@@ -155,6 +162,7 @@ export class ProfileSetupDashboard implements OnInit {
 					// Agreements that were already accepted stay accepted (the wizard saves them with the rest).
 					this.setupForm.get('agreements')?.patchValue({ accurate: !!data.accurateAgreed, terms: !!data.termsAgreed, privacy: !!data.privacyAgreed });
 					this.kycPending.set(data.kycStatus === 'PENDING');
+					if (data.kycStatus === 'PENDING') this.refreshIdentityInReview();
 					this.kycRejectedReason.set(data.kycStatus === 'REJECTED' ? (data.kycRejectionReason || 'لم تستوفِ الوثائق متطلبات التحقق') : null);
 
 					// Open where the work really is (first missing step from the saved data), not always on step 1; nothing left for the wizard = go to the edit page.
@@ -317,7 +325,7 @@ export class ProfileSetupDashboard implements OnInit {
 			next: (res: any) => {
 				this.isSavingStep.set(false);
 				// new identity files after a rejection start a new review: the reason goes away and the step shows "under review"
-				if (payload.step === 2 && this.kycRejectedReason()) { this.kycRejectedReason.set(null); this.kycPending.set(true); }
+				if (payload.step === 2 && this.kycRejectedReason()) { this.kycRejectedReason.set(null); this.kycPending.set(true); this.refreshIdentityInReview(); }
 				const pct = Number(res?.data?.completionPercentage);
 				const user = this.authStore.currentUser();
 				if (user && Number.isFinite(pct)) this.authStore.authenticate(this.authStore.token()!, { ...user, profileCompletionPercent: pct });
