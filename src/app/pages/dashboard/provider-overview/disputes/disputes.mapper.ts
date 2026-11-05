@@ -85,7 +85,7 @@ function buildDetail(d: ApiDispute, mine: boolean): DisputeDetail {
 			{ label: 'تاريخ الفتح', value: dateLabel(d.createdAt) },
 			{ label: 'المشروع', value: d.request?.title || d.project?.title || '—' },
 			...(d.stage ? [{ label: 'المرحلة المعنية', value: stageHeading(d.stage.stepOrder, d.stage.title) }] : []),
-			...(d.requestedResolutionLabel ? [{ label: 'الحل المطلوب', value: `${d.requestedResolutionLabel} (طلب فقط، والقرار للإدارة)` }] : []),
+			...(d.requestedResolutionLabel ? [{ label: 'الحل المطلوب', value: `${d.requestedResolutionLabel} (اختيار منك وليس وعدًا بنتيجة، والقرار للإدارة وحدها)` }] : []),
 			...(d.resolvedAt ? [{ label: 'تاريخ القرار', value: dateLabel(d.resolvedAt) }] : []),
 			// heldEscrowAmount: null/absent -> 'غير متاح'; 0 is a real value and is shown as '0'.
 			{ label: 'المتبقي من مستحقاتك في الضمان', value: d.heldEscrowAmount === null || d.heldEscrowAmount === undefined ? 'غير متاح' : String(d.heldEscrowAmount) },

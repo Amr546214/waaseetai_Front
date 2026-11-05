@@ -125,4 +125,22 @@ describe('DisputeModal stage dispute (case 2)', () => {
 		expect(el.querySelector('h3')?.textContent).toContain('فتح نزاع على المشروع');
 		expect(el.querySelector('[data-testid="dispute-counter"]')?.textContent?.trim()).toBe('0 / 10 حرف');
 	});
+
+	it('wording promises no chat and no outcome: every resolution reads as a request and the note says the decision is the admin\'s', () => {
+		const { el, cmp } = setup();
+		expect(el.textContent).not.toContain('الشات');
+		expect(el.textContent).not.toContain('بالود');
+		cmp.stageId.set('s2'); cmp.requested.set('');
+		const fixture = (cmp as any);
+		for (const actor of ['client', 'provider'] as const) {
+			cmp.actor = actor;
+			for (const o of cmp.resolutionOptions()) expect(o.label.startsWith('أطلب')).toBe(true);
+		}
+		cmp.actor = 'client';
+		const f2 = TestBed.createComponent(DisputeModal);
+		f2.componentRef.setInput('stages', stages); f2.componentRef.setInput('open', true); f2.detectChanges();
+		f2.componentInstance.stageId.set('s2'); f2.detectChanges();
+		expect((f2.nativeElement as HTMLElement).textContent).toContain('القرار للإدارة وحدها');
+		void fixture;
+	});
 });

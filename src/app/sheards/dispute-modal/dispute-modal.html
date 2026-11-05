@@ -10,7 +10,7 @@
 			</span>
 			<div>
 				<h3>{{ hasStages() ? 'فتح نزاع على المرحلة' : 'فتح نزاع على المشروع' }}</h3>
-				<p>يُفتح طلب نزاع ويتحوّل للشات وللإدارة للإقفال بالود</p>
+				<p>يُسجَّل النزاع ويُبلَّغ به الطرف الآخر والإدارة، وتقرّر الإدارة بعد المراجعة</p>
 			</div>
 			<button type="button" class="lc-mclose" (click)="closeModal()" aria-label="إغلاق" [disabled]="isSubmitting">
 				<svg data-ws-icon="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -22,11 +22,11 @@
 
 		<!-- Flow Steps Note (P-PR-009.html) -->
 		<div class="lc-flow-note">
-			<div class="lc-flow-s"><span>1</span>يُفتح طلب نزاع</div>
+			<div class="lc-flow-s"><span>1</span>يُسجَّل النزاع</div>
 			<svg data-ws-icon="pl-shared-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-			<div class="lc-flow-s"><span>2</span>يتحوّل للشات والإدارة</div>
+			<div class="lc-flow-s"><span>2</span>يُبلَّغ الطرف الآخر والإدارة</div>
 			<svg data-ws-icon="pl-shared-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-			<div class="lc-flow-s"><span>3</span>إقفال بالود</div>
+			<div class="lc-flow-s"><span>3</span>تقرّر الإدارة</div>
 		</div>
 
 		<!-- Escrow Warning Banner (P-PR-009.html) -->
@@ -163,7 +163,7 @@
 					<option [value]="o.code" [selected]="o.code === requested()">{{ o.label }}</option>
 				}
 			</select>
-			<div class="dp-hint">طلبك يُعرض على الإدارة فقط: لا يُصرف أو يُسترد أي مبلغ إلا بقرارها.</div>
+			<div class="dp-hint">هذا اختيارك أنت فقط وليس وعدًا بأي نتيجة: القرار للإدارة وحدها، ولا يتحرك أي مبلغ من هذا النموذج.</div>
 			@if (requestedError()) {
 				<div class="dp-field-error" id="dp-requested-err" role="alert" data-testid="field-error">{{ requestedError() }}</div>
 			}

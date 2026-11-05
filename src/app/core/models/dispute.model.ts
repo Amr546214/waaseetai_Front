@@ -24,16 +24,16 @@ export type RequestedResolutionCode = 'REDELIVER_WITH_FIXES' | 'PARTIAL_REFUND' 
 /** The codes are the server's; the wording is shown to the opener. These are requests, never settlements. */
 export const REQUESTED_RESOLUTIONS: Record<'client' | 'provider', { code: RequestedResolutionCode; label: string }[]> = {
   client: [
-    { code: 'REDELIVER_WITH_FIXES', label: 'إعادة التسليم بالتعديلات المطلوبة' },
-    { code: 'PARTIAL_REFUND', label: 'استرداد جزئي من الضمان' },
-    { code: 'FULL_REFUND', label: 'استرداد كامل للمرحلة' },
-    { code: 'OTHER', label: 'حل آخر تقترحه الإدارة' },
+    { code: 'REDELIVER_WITH_FIXES', label: 'أطلب إعادة التسليم بالتعديلات المطلوبة' },
+    { code: 'PARTIAL_REFUND', label: 'أطلب استردادًا جزئيًا' },
+    { code: 'FULL_REFUND', label: 'أطلب استردادًا كاملًا للمرحلة' },
+    { code: 'OTHER', label: 'أطلب حلًّا آخر تقرره الإدارة' },
   ],
   provider: [
-    { code: 'ACCEPT_DELIVERY', label: 'اعتماد التسليم وصرف المرحلة' },
-    { code: 'EXTEND_DEADLINE', label: 'تمديد مدة المرحلة' },
-    { code: 'CLARIFY_SCOPE', label: 'توضيح نطاق العمل المتفق عليه' },
-    { code: 'OTHER', label: 'حل آخر تقترحه الإدارة' },
+    { code: 'ACCEPT_DELIVERY', label: 'أطلب اعتماد التسليم' },
+    { code: 'EXTEND_DEADLINE', label: 'أطلب تمديد مدة المرحلة' },
+    { code: 'CLARIFY_SCOPE', label: 'أطلب توضيح نطاق العمل المتفق عليه' },
+    { code: 'OTHER', label: 'أطلب حلًّا آخر تقرره الإدارة' },
   ],
 };
 
