@@ -52,7 +52,7 @@ describe('Client transaction details', () => {
 		expect(a.el.querySelector('[data-testid="txn-inquiry"]')).toBeTruthy();
 		TestBed.resetTestingModule();
 		const b = setup('escrow-e1');
-		b.http.expectOne(() => true).flush({ success: true, data: { ...base, id: 'escrow-e1', type: 'ESCROW_LOCK', status: 'HELD', project: { id: 'p1', title: 'مشروع' }, escrow: { amount: 300, releasedAmount: 100, status: 'HELD' } } });
+		b.http.expectOne(() => true).flush({ success: true, data: { ...base, id: 'escrow-e1', type: 'ESCROW_LOCK', status: 'HELD', project: { id: "p1", title: "مشروع", providerName: "سارة م" }, escrow: { amount: 300, releasedAmount: 100, status: 'HELD' } } });
 		b.fixture.detectChanges();
 		const note = b.el.querySelector('[data-testid="txn-escrow-note"]')!.textContent!;
 		expect(note).toContain('300'); expect(note).toContain('100'); expect(note).toContain('200');

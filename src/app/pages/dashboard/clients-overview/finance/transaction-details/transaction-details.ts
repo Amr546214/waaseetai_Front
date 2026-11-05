@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AuthStore } from '../../../../../core/store/auth.store';
 import { MessageContext } from '../../../../../core/services/chat.service';
 import { ClientFinanceService, ClientWalletTransactionDetail } from '../../../../../core/services/client-finance.service';
 
@@ -15,6 +16,7 @@ export class TransactionDetails implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private financeService = inject(ClientFinanceService);
+  private authStore = inject(AuthStore);
 
   transaction = signal<ClientWalletTransactionDetail | null>(null);
   loading = signal(true);
@@ -141,7 +143,11 @@ export class TransactionDetails implements OnInit {
       ['التاريخ والوقت', this.formatDateTime(tx.createdAt)],
       ['طريقة الدفع', this.paymentMethodLabel()],
     ];
-    if (tx.project) rows.splice(3, 0, ['المشروع', tx.project.title]);
+    const u = this.authStore.currentUser();
+    const clientName = `${u?.firstName || ''} ${u?.lastName || ''}`.trim();
+    if (clientName) rows.splice(1, 0, ['صاحب الحساب (طالب الخدمة)', clientName]);
+    if (tx.project) rows.splice(rows.length - 2, 0, ['المشروع', tx.project.title]);
+    if (tx.project?.providerName) rows.splice(rows.length - 2, 0, ['مقدم الخدمة', tx.project.providerName]);
     const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>إيصال معاملة</title>
 <style>body{font-family:system-ui,Tahoma,sans-serif;margin:32px;color:#111}h1{font-size:20px;margin:0 0 4px}p{color:#555;margin:0 0 20px}table{width:100%;border-collapse:collapse}td{padding:10px 8px;border-bottom:1px solid #ddd}td:first-child{color:#555;width:35%}</style></head><body>
 <h1>إيصال معاملة مالية</h1><p>${esc(this.title())}</p><table>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></body></html>`;

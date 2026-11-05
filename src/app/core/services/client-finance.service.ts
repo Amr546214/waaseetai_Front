@@ -30,7 +30,7 @@ export interface ClientWalletTransaction {
 
 /** One transaction read by id (GET /client/finance/wallet/transactions/:id): the list row plus what the backend really has about it. */
 export interface ClientWalletTransactionDetail extends ClientWalletTransaction {
-	project: { id: string; title: string } | null;
+	project: { id: string; title: string; providerName?: string | null } | null;
 	/** Only for an escrow funding row. */
 	escrow: { amount: number; releasedAmount: number; status: string } | null;
 }

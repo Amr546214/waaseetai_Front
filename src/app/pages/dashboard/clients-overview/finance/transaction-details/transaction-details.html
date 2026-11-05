@@ -70,6 +70,12 @@
           <span class="txn-row-val"><a [routerLink]="['/client-overview/projects', project.id]" data-testid="txn-project-link">{{ project.title }}</a></span>
         </div>
       }
+      @if (tx.project?.providerName; as pn) {
+        <div class="txn-row">
+          <span class="txn-row-lbl">مقدم الخدمة</span>
+          <span class="txn-row-val" data-testid="txn-provider">{{ pn }}</span>
+        </div>
+      }
       <div class="txn-row">
         <span class="txn-row-lbl">الحالة</span>
         <span class="txn-row-val">{{ statusLabel() }}</span>
