@@ -47,6 +47,8 @@ export class ContractSignature implements OnInit {
 	milestones = signal<{ order: number; title: string; description: string; percentage: number; amount: number; days: number }[]>([]);
 	/** True when the frozen contract has no stages: one final delivery for the whole price. */
 	singleDelivery = signal(false);
+	/** What the provider wrote in the offer (scope / deliverables / strengths) as frozen with the contract; null when the server has none: no template text is ever shown instead. */
+	offerTerms = signal<{ summary: string | null; deliverables: string | null; advantages: string[] } | null>(null);
 
 	ngOnInit() {
 		const id = this.route.snapshot.paramMap.get('id');
@@ -84,6 +86,12 @@ export class ContractSignature implements OnInit {
 					days: Number(m.days) || 0,
 				})));
 				this.singleDelivery.set(!!c.singleDelivery);
+				const ot = c.offerTerms;
+				this.offerTerms.set(ot && typeof ot === 'object' ? {
+					summary: typeof ot.summary === 'string' && ot.summary.trim() ? ot.summary : null,
+					deliverables: typeof ot.deliverables === 'string' && ot.deliverables.trim() ? ot.deliverables : null,
+					advantages: Array.isArray(ot.advantages) ? ot.advantages.filter((a: unknown) => typeof a === 'string' && a.trim()) : []
+				} : null);
 				if (c.offerMatches === false || this.requiredAmount() <= 0) {
 					this.blockedReason.set(c.message || 'هذا العقد غير جاهز للتوقيع حالياً.');
 					this.view.set('blocked');
