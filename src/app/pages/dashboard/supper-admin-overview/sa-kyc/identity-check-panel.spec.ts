@@ -36,8 +36,8 @@ describe('identity-check-panel (advisory)', () => {
 		load(of({ ...base, autoCheckEnabled: false, state: 'NOT_CHECKED', stateReason: 'FLAG_OFF' }));
 		expect(q('id-check-state')!.textContent).toContain('راجعها يدويًا');
 	});
-	it('QUEUED / RUNNING show «قيد الفحص الآلي»', () => {
-		load(of({ ...base, state: 'RUNNING' }));
+	it('QUEUED / RUNNING show «قيد الفحص الآلي» (keyed on state, not on the informational flag)', () => {
+		load(of({ ...base, autoCheckEnabled: false, state: 'RUNNING' }));
 		expect(q('id-check-state')!.textContent).toContain('قيد الفحص الآلي');
 	});
 	it('request failure never blocks the review: manual message; 403 explains the permission', () => {

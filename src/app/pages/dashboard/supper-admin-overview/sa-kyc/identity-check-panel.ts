@@ -71,7 +71,7 @@ export class IdentityCheckPanel {
 	c = signal<IdentityCheckAdmin | null>(null);
 	loading = signal(false);
 	error = signal('');
-	inProgress = computed(() => { const s = this.c(); return !!s && s.autoCheckEnabled && (s.state === 'QUEUED' || s.state === 'RUNNING'); });
+	inProgress = computed(() => { const s = this.c(); return !!s && (s.state === 'QUEUED' || s.state === 'RUNNING'); });
 	rows = computed(() => {
 		const f = this.c()?.fields;
 		if (!f) return [];
