@@ -8,7 +8,7 @@ import { MutualCancelComponent } from './mutual-cancel.component';
 const REQ = (o: Record<string, unknown> = {}) => ({ id: 'r1', contractId: 'c1', contractRef: 'CT-C1', projectId: 'p1', projectTitle: 'مشروع', contractStatus: 'ACTIVE', clientName: 'عميل', providerName: 'مزود', requestedByRole: 'CLIENT', reason: 'تغيّرت احتياجات المشروع', note: null,
 	status: 'PENDING_OTHER_PARTY', statusLabel: 'بانتظار موافقة الطرف الآخر', settlementStatus: 'NOT_APPLICABLE', settlementLabel: null, respondedAt: null, responseNote: null, withdrawnAt: null, createdAt: '2026-11-05T10:00:00Z', updatedAt: '2026-11-05T10:00:00Z',
 	myRole: 'CLIENT', mine: true, canRespond: false, canWithdraw: true, moneyNote: 'لا يُنقل أو يُردّ أي مبلغ', moneyMoved: false, ...o });
-const LIST = (requests: any[], eligibility = { canRequest: true, reason: null as string | null }) => ({ success: true, data: { requests, eligibility, financial: { contractPrice: 20, escrowStatus: 'HELD', escrowAmount: 20, escrowReleased: 0, escrowHeld: 20 }, moneyNote: 'لا يُنقل أو يُردّ أي مبلغ' } });
+const LIST = (requests: any[], eligibility = { canRequest: true, reason: null as string | null }) => ({ success: true, data: { requests, eligibility, financial: { contractPrice: 20, escrowStatus: 'HELD', escrowAmount: 20, escrowReleased: 0, escrowHeld: 20 }, moneyNote: 'قبل اتفاق الطرفين تستمر المراحل. بعد اتفاق الطرفين يتوقف اعتماد المراحل الجديدة. ما صُرف سابقًا لا يتغيّر.' } });
 
 describe('MutualCancelComponent («الإلغاء بالتراضي»)', () => {
 	async function setup(list: any, side: 'client' | 'provider' = 'client', post?: (url: string, body: any) => any, variant: 'tile' | 'card' = 'tile') {
@@ -32,8 +32,8 @@ describe('MutualCancelComponent («الإلغاء بالتراضي»)', () => {
 		s.click('open-mutual-cancel');
 		expect(s.q('mutual-cancel-modal')).not.toBeNull();
 		expect(s.el.textContent).toContain('إلغاء المشروع بالتراضي');
-		expect(s.q('mutual-cancel-money-note')!.textContent).toContain('لا يُنقل أو يُردّ أي مبلغ');
-		expect(s.el.textContent).not.toMatch(/يُعاد المبلغ|يُعاد إليك/);
+		
+		expect(s.q('mutual-cancel-money-note')!.textContent).toContain('يتوقف اعتماد المراحل الجديدة'); expect(s.q('mutual-cancel-money-note')!.textContent).toContain('ما صُرف سابقًا لا يتغيّر');
 	});
 
 	it('provider side uses the provider URLs (project routes and request-id routes match the backend)', async () => {
@@ -81,11 +81,11 @@ describe('MutualCancelComponent («الإلغاء بالتراضي»)', () => {
 	});
 
 	it('accept posts the decision once and shows the AGREED state with the settlement-pending line (still no money)', async () => {
-		const post = vi.fn(() => of({ success: true, data: REQ({ status: 'ACCEPTED', statusLabel: 'وافق الطرفان على الإلغاء', canRespond: false, canWithdraw: false, settlementStatus: 'PENDING_ADMIN_DECISION', settlementLabel: 'التسوية المالية بانتظار قرار الإدارة ولم يُنقل أي مبلغ' }) }));
+		const post = vi.fn(() => of({ success: true, data: REQ({ status: 'AGREED_PENDING_SETTLEMENT', statusLabel: 'تم الاتفاق — بانتظار التسوية', frozen: true, canRespond: false, canWithdraw: false, settlementStatus: 'PENDING_ADMIN_DECISION', settlementLabel: 'التسوية المالية بانتظار قرار الإدارة ولم يُنقل أي مبلغ' }) }));
 		const s = await setup(LIST([REQ({ requestedByRole: 'PROVIDER', mine: false, canRespond: true, canWithdraw: false })]), 'client', post);
 		s.click('open-mutual-cancel'); s.click('mutual-cancel-accept'); (s.q('mutual-cancel-accept') as HTMLButtonElement | null)?.click();
 		expect(post).toHaveBeenCalledTimes(1); expect(post.mock.calls[0]).toEqual([expect.stringContaining('/client/projects/cancellation-requests/r1/respond'), { decision: 'accept' }]);
-		expect(s.q('mutual-cancel-status')!.textContent).toContain('وافق الطرفان'); expect(s.q('mutual-cancel-settlement')!.textContent).toContain('لم يُنقل أي مبلغ'); expect(s.q('mutual-cancel-accept')).toBeNull();
+		expect(s.q('mutual-cancel-status')!.textContent).toContain('تم الاتفاق — بانتظار التسوية'); expect(s.q('mutual-cancel-settlement')!.textContent).toContain('لم يُنقل أي مبلغ'); expect(s.q('mutual-cancel-accept')).toBeNull();
 	});
 
 	it('a conflict on answer (already answered elsewhere) shows the server message and reloads the real state', async () => {
@@ -117,5 +117,17 @@ describe('MutualCancelComponent («الإلغاء بالتراضي»)', () => {
 		await TestBed.configureTestingModule({ imports: [MutualCancelComponent], providers: [provideRouter([]), { provide: HttpClient, useValue: http }] }).compileComponents();
 		const f = TestBed.createComponent(MutualCancelComponent); f.componentRef.setInput('side', 'client'); f.componentRef.setInput('projectKey', 'x'); f.componentRef.setInput('blockedReason', 'العقد غير نشط'); f.detectChanges();
 		const b = f.nativeElement.querySelector('[data-testid="open-mutual-cancel"]') as HTMLButtonElement; expect(b.disabled).toBe(true); expect(b.title).toBe('العقد غير نشط');
+	});
+
+	it('settled: both parties see what the administration executed (refund, provider share, net, reason) and no action buttons', async () => {
+		const settled = REQ({ status: 'SETTLED', statusLabel: 'تمت التسوية وأُغلق العقد', canRespond: false, canWithdraw: false, frozen: false, settlementStatus: 'SETTLED', settlementLabel: 'نُفّذت التسوية المالية وأُغلق العقد والمشروع', settlementReason: 'قرار الإدارة بعد مراجعة المراحل', settlement: { heldBefore: 10, refundToClient: 7.5, releaseToProvider: 2.5, platformCommission: 0.32, providerNet: 2.18 } });
+		const s = await setup(LIST([settled], { canRequest: false, reason: 'الإلغاء بالتراضي متاح للعقود النشطة فقط' }), 'provider'); s.click('open-mutual-cancel');
+		expect(s.q('mutual-cancel-status')!.textContent).toContain('تمت التسوية'); expect(s.q('mutual-cancel-result-client')!.textContent).toContain('7.5'); expect(s.q('mutual-cancel-result-provider')!.textContent).toContain('2.5 / 2.18');
+		expect(s.el.textContent).toContain('قرار الإدارة بعد مراجعة المراحل'); expect(s.q('mutual-cancel-accept')).toBeNull(); expect(s.q('mutual-cancel-withdraw')).toBeNull(); expect(s.q('mutual-cancel-submit')).toBeNull();
+	});
+
+	it('agreed (frozen): the state card says approvals of new stages are stopped while the administration settles', async () => {
+		const s = await setup(LIST([REQ({ status: 'AGREED_PENDING_SETTLEMENT', statusLabel: 'تم الاتفاق — بانتظار التسوية', canRespond: false, canWithdraw: false, frozen: true })]), 'client', undefined, 'card');
+		expect(s.q('mutual-cancel-card')!.textContent).toContain('تم الاتفاق — بانتظار التسوية'); expect(s.q('mutual-cancel-card')!.textContent).toContain('اعتماد المراحل الجديدة متوقف');
 	});
 });

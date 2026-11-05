@@ -267,7 +267,7 @@ export class ProjectDetails implements OnInit {
 	}
 	// P-SK-015: navigate to the full delivery review page (no modal).
 	/** Dispute freeze reason (Arabic) while approvals / releases are frozen by an open dispute; null otherwise. */
-	freezeReason(data: any): string | null { const f = data?.disputeFreeze; return f?.frozen ? (f.reason || 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع') : null; }
+	freezeReason(data: any): string | null { const f = data?.disputeFreeze; if (f?.frozen) return f.reason || 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع'; const c = data?.cancellationFreeze; return c?.frozen ? (c.reason || 'اعتماد المراحل الجديدة متوقف بعد اتفاق الطرفين على الإلغاء بالتراضي') : null; }
 	openReview(stage: any, decision: 'approve' | 'revision') {
 		this.error.set('');
 		if (decision === 'approve' && this.freezeReason(this.project())) { this.error.set(this.freezeReason(this.project())!); return; }

@@ -6,7 +6,7 @@ import { CancelRequest, CancelSide, MutualCancelService } from '../../core/servi
 /**
  * «الإلغاء بالتراضي» — the tile (in the project's quick-action row), the request modal and the state card, shared by the client and the provider project pages.
  * Everything shown comes from the server (POST/GET /…/cancellation-requests): the state is stored, visible to both parties and to the administration.
- * MONEY IS OFF: accepting records the agreement only; the text says so on purpose (no refund / settlement rule is approved yet).
+ * Approved policy: agreement alone moves NO money (it freezes new stage approvals); the administration then settles the REMAINING escrow and closes the contract.
  * Variants (`variant`): 'tile' = the button + the modal; 'card' = the state card (only while a request is open or agreed), which opens the same modal.
  */
 @Component({
@@ -36,12 +36,17 @@ import { CancelRequest, CancelSide, MutualCancelService } from '../../core/servi
 				@else if (loadError()) { <div class="mc-err" role="alert" data-testid="mutual-cancel-load-error">{{ loadError() }} <button type="button" class="mc-btn mc-gh" (click)="reload()">إعادة المحاولة</button></div> }
 				@else if (openRequest(); as r) {
 					<div class="mc-state" data-testid="mutual-cancel-state">
-						<div class="mc-row"><span>الحالة</span><b data-testid="mutual-cancel-status" [class.ok]="r.status === 'ACCEPTED'">{{ r.statusLabel }}</b></div>
+						<div class="mc-row"><span>الحالة</span><b data-testid="mutual-cancel-status" [class.ok]="r.status === 'AGREED_PENDING_SETTLEMENT' || r.status === 'SETTLED'">{{ r.statusLabel }}</b></div>
 						<div class="mc-row"><span>طلبه</span><b>{{ r.requestedByRole === 'CLIENT' ? r.clientName : r.providerName }} ({{ r.requestedByRole === 'CLIENT' ? 'العميل' : 'مقدم الخدمة' }})</b></div>
 						<div class="mc-row"><span>التاريخ</span><b>{{ r.createdAt | date:'yyyy/MM/dd HH:mm' }}</b></div>
 						<div class="mc-blk"><span>سبب الإلغاء</span><p data-testid="mutual-cancel-reason">{{ r.reason }}</p></div>
 						@if (r.note) { <div class="mc-blk"><span>ملاحظة</span><p>{{ r.note }}</p></div> }
 						@if (r.responseNote) { <div class="mc-blk"><span>رد الطرف الآخر</span><p>{{ r.responseNote }}</p></div> }
+						@if (r.settlement; as st) {
+							<div class="mc-row" data-testid="mutual-cancel-result-client"><span>عاد إلى العميل</span><b>{{ st.refundToClient }} $</b></div>
+							<div class="mc-row" data-testid="mutual-cancel-result-provider"><span>نصيب مقدم الخدمة (إجمالي / صافٍ)</span><b>{{ st.releaseToProvider }} / {{ st.providerNet }} $</b></div>
+							@if (r.settlementReason) { <div class="mc-blk"><span>سبب قرار الإدارة</span><p>{{ r.settlementReason }}</p></div> }
+						}
 						@if (r.settlementLabel) { <div class="mc-warn" role="note" data-testid="mutual-cancel-settlement">{{ r.settlementLabel }}</div> }
 					</div>
 					@if (error()) { <div class="mc-err" role="alert" data-testid="mutual-cancel-error">{{ error() }}</div> }
@@ -71,7 +76,7 @@ import { CancelRequest, CancelSide, MutualCancelService } from '../../core/servi
 @if (variant() === 'card') {
 	@if (openRequest(); as r) {
 		<div class="mc-card" dir="rtl" role="status" data-testid="mutual-cancel-card">
-			<div><b>إلغاء بالتراضي — {{ r.statusLabel }}</b><span>{{ r.canRespond ? 'بانتظار ردك على الطلب' : (r.status === 'ACCEPTED' ? 'اتفق الطرفان؛ لم يُنقل أي مبلغ' : 'بانتظار رد الطرف الآخر') }}</span></div>
+			<div><b>إلغاء بالتراضي — {{ r.statusLabel }}</b><span>{{ r.canRespond ? 'بانتظار ردك على الطلب' : (r.status === 'SETTLED' ? 'نُفّذت التسوية وأُغلق العقد' : r.status === 'AGREED_PENDING_SETTLEMENT' ? 'اعتماد المراحل الجديدة متوقف بانتظار تسوية الإدارة' : 'بانتظار رد الطرف الآخر') }}</span></div>
 			<button type="button" class="mc-btn mc-gh" data-testid="mutual-cancel-card-open" (click)="open()">عرض الطلب</button>
 		</div>
 	}
@@ -128,13 +133,13 @@ export class MutualCancelComponent implements OnInit {
 	modal = signal(false); loading = signal(true); loadError = signal(''); busy = signal(false); error = signal('');
 	requests = signal<CancelRequest[]>([]);
 	eligibility = signal<{ canRequest: boolean; reason: string | null }>({ canRequest: true, reason: null });
-	moneyNote = signal('لا يُنقل أو يُردّ أي مبلغ بمجرد الموافقة، ولا يتغيّر العقد أو الضمان أو المراحل. تسوية المبالغ في الإلغاء بالتراضي لم تُفعَّل بعد.');
+	moneyNote = signal('قبل اتفاق الطرفين تستمر المراحل كما هي: اعتماد العميل لمرحلة يصرف دفعتها لمقدم الخدمة وما صُرف سابقًا لا يتغيّر. بعد اتفاق الطرفين يتوقف اعتماد المراحل الجديدة، ولا يتحرك أي مبلغ بالاتفاق وحده؛ تحدد الإدارة نصيب مقدم الخدمة من المبلغ المتبقي في الضمان ويعود الباقي إلى العميل، ثم يُغلق العقد والمشروع.');
 	reason = signal(''); note = signal(''); responseNote = signal(''); reasonError = signal('');
 	/** one key per opened form: a double click or a retry after a timeout can never create a second request */
 	private requestKey = '';
-	openRequest = computed(() => this.requests().find(r => r.status === 'PENDING_OTHER_PARTY' || r.status === 'ACCEPTED') ?? null);
+	openRequest = computed(() => this.requests().find(r => r.status === 'PENDING_OTHER_PARTY' || r.status === 'AGREED_PENDING_SETTLEMENT' || r.status === 'SETTLED') ?? null);
 	last = computed(() => this.requests().find(r => r.status === 'REJECTED' || r.status === 'WITHDRAWN') ?? null);
-	step = computed(() => { const r = this.openRequest(); return !r ? 1 : r.status === 'ACCEPTED' ? 3 : 2; });
+	step = computed(() => { const r = this.openRequest(); return !r ? 1 : r.status === 'AGREED_PENDING_SETTLEMENT' || r.status === 'SETTLED' ? 3 : 2; });
 
 	ngOnInit() { this.reload(); const t = setInterval(() => { if (!this.modal() && !this.busy()) this.reload(true); }, 30000); this.destroy.onDestroy(() => clearInterval(t)); }
 

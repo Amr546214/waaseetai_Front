@@ -4,16 +4,25 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export type CancelSide = 'client' | 'provider';
-export type CancelStatus = 'PENDING_OTHER_PARTY' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN';
+export type CancelStatus = 'PENDING_OTHER_PARTY' | 'AGREED_PENDING_SETTLEMENT' | 'SETTLED' | 'REJECTED' | 'WITHDRAWN';
 
 /** One «الإلغاء بالتراضي» request as the backend returns it (every value is stored or derived on the server; nothing is computed here). */
 export interface CancelRequest {
 	id: string; contractId: string; contractRef: string; projectId: string; projectTitle: string | null; contractStatus: string | null;
 	clientName: string; providerName: string; requestedByRole: 'CLIENT' | 'PROVIDER'; reason: string; note: string | null;
-	status: CancelStatus; statusLabel: string; settlementStatus: 'NOT_APPLICABLE' | 'PENDING_ADMIN_DECISION'; settlementLabel: string | null;
+	status: CancelStatus; statusLabel: string; settlementStatus: 'NOT_APPLICABLE' | 'PENDING_ADMIN_DECISION' | 'SETTLED'; settlementLabel: string | null;
 	respondedAt: string | null; responseNote: string | null; withdrawnAt: string | null; createdAt: string; updatedAt: string;
 	myRole: 'CLIENT' | 'PROVIDER' | null; mine: boolean | null; canRespond: boolean; canWithdraw: boolean; moneyNote: string; moneyMoved: boolean;
+	agreedAt?: string | null; frozen?: boolean; settledAt?: string | null; settlementReason?: string | null;
+	settlement?: { heldBefore: number; refundToClient: number; releaseToProvider: number; platformCommission: number; providerNet: number } | null;
+	settlementPreview?: CancelSettlementPreview;
 	financial?: CancelFinancial; replayed?: boolean;
+}
+/** What the administrator's settlement screen shows (all computed on the server from stages + escrow). */
+export interface CancelSettlementPreview {
+	stages: { id: string; stepOrder: number; title: string; amount: number; status: string; paid: boolean }[];
+	paidStagesTotal: number; unapprovedStagesTotal: number; contractPrice: number | null; escrowAmount: number | null; escrowReleased: number | null; heldAmount: number;
+	commissionRatePercent: number | null; canSettle: boolean; blockedReason: string | null; viewerHoldsFinancialPermission: boolean;
 }
 export interface CancelFinancial { contractPrice: number; escrowStatus: string | null; escrowAmount: number | null; escrowReleased: number | null; escrowHeld: number | null }
 export interface CancelList { requests: CancelRequest[]; eligibility: { canRequest: boolean; reason: string | null }; financial: CancelFinancial; moneyNote: string }
@@ -31,5 +40,7 @@ export class MutualCancelService {
 	withdraw(s: CancelSide, id: string): Observable<{ success: boolean; data: CancelRequest }> { return this.http.post<any>(`${this.byId(s)}/${id}/withdraw`, {}); }
 	/** Administration (read-only). */
 	adminList(status?: string, page = 1): Observable<any> { return this.http.get<any>(`${environment.url_api}/admin/cancellation-requests`, { params: { ...(status ? { status } : {}), page } }); }
+	/** Executes the agreed settlement (needs disputes.resolve + payouts.send). `releaseToProvider` = the provider's gross share of the remaining escrow; the refund is the rest. */
+	adminSettle(id: string, body: { releaseToProvider: number; expectedHeldAmount: number; reason: string }): Observable<any> { return this.http.post<any>(`${environment.url_api}/admin/cancellation-requests/${id}/settle`, body); }
 	adminGet(id: string): Observable<any> { return this.http.get<any>(`${environment.url_api}/admin/cancellation-requests/${id}`); }
 }
