@@ -89,3 +89,10 @@ button:focus-visible, summary:focus-visible, a:focus-visible, label.file-btn:foc
 .pt-wallet-preview { display:flex; flex-wrap:wrap; gap:1rem; margin-block:1rem; }
 .pt-wallet-preview > div { display:grid; gap:.5rem; align-content:start; }
 .pt-wallet-button { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:9px; border:0; font:inherit; font-weight:800; background:linear-gradient(135deg,#2BD4C7,#2B7FFF); color:#070D24; }
+.visual-editor { margin-block: 1rem; }
+.visual-pair { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr)); gap:.75rem; }
+.visual-pane { border:1px solid var(--sec-bd,#475569); border-radius:12px; padding:1rem; min-width:0; }
+.visual-object { display:grid; justify-items:start; align-items:center; min-height:5rem; margin-top:.75rem; overflow:auto; }
+.visual-box { display:block; border:1px solid var(--sec-bd,#475569); border-radius:10px; padding:.75rem; }
+.visual-fields { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr)); gap:.75rem; margin-block:1rem; }
+.visual-fields label { display:grid; gap:.35rem; min-width:0; }
