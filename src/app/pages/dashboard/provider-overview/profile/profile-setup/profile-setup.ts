@@ -31,7 +31,7 @@ import { birthDateValidator, dobInputValue, maxDobIso } from '../../../../../cor
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
-import { IdentityGateService, isIdentityNotApproved } from '../../../../../core/services/identity-gate.service';
+import { IdentityGateService, identityRefusalMessage, isIdentityNotApproved } from '../../../../../core/services/identity-gate.service';
 import { IdentityGateStatusComponent } from '../../../../../shared/identity-gate/identity-gate-status.component';
 import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSetup } from './provider-setup-state';
 import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../core/services/provider-access.service';
@@ -253,6 +253,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	/** Why the identity could not be sent / the next step did not open. */
 	gateProblem = signal<string | null>(null);
 	/** Refs uploaded in THIS session and not yet sent through the identity save (a stored ref is never re-sent as a "new" image). */
+	/** The back side is required for every document except a passport (the backend's identity gate «missing» list follows the same rule). */
+	backRequired(): boolean { return this.setupForm.get('docs.idDocumentType')?.value !== 'PASSPORT'; }
 	private pendingRefs: { frontId?: string; backId?: string } = {};
 	private gateFresh = false;
 
@@ -1326,7 +1328,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					// the server refused a submission that skipped the identity: back to the identity step with the real state
 					this.currentStep.set(4);
 					this.gate.refusedByServer();
-					this.gateProblem.set(error?.error?.message || 'وثيقة الهوية غير معتمدة بعد؛ لا يمكن المتابعة قبل اعتمادها.');
+					this.gateProblem.set(identityRefusalMessage(error));
 					return;
 				}
 				const mapped = mapHttpError(error, { fallback: 'تعذر حفظ البيانات. يرجى المحاولة مجدداً.' });

@@ -61,6 +61,26 @@ describe('provider profile-setup: identity gate behaviour', { timeout: 30000 }, 
     expect(c.currentStep()).toBe(4);
   });
 
+  it('the back side label says when it is required: national ID yes, passport no', async () => {
+    await mount('NOT_SUBMITTED', { country: 'مصر', idNumber: 'A1', idDocumentType: 'NATIONAL_ID' });
+    fixture.detectChanges();
+    const label = () => (fixture.nativeElement.querySelector('[data-testid="back-id-label"]') as HTMLElement).textContent;
+    expect(label()).toContain('إلزامي');
+    c.setupForm.get('docs.idDocumentType').setValue('PASSPORT'); fixture.detectChanges();
+    expect(label()).toContain('غير مطلوب لجواز السفر');
+  });
+
+  it('a final submission that changes approved evidence (EVIDENCE_CHANGED_IN_SUBMISSION) returns to step 4 with a clear message', async () => {
+    const err = new HttpErrorResponse({ status: 409, error: { success: false, code: 'IDENTITY_NOT_APPROVED', message: 'x', errors: [{ code: 'IDENTITY_NOT_APPROVED', status: 'APPROVED', reason: 'EVIDENCE_CHANGED_IN_SUBMISSION' }] } });
+    await mount('APPROVED', {});
+    c.currentStep.set(6);
+    (c as any).profileApi.saveProviderProfileSetup = () => ({ subscribe: (o: any) => o.error(err) });
+    (c as any).validateStep = () => true;
+    c.saveAndGoToTest();
+    expect(c.currentStep()).toBe(4);
+    expect(c.gateProblem()).toContain('تختلف عن الوثيقة المعتمدة');
+  });
+
   it('final submission refused by the server (409 IDENTITY_NOT_APPROVED) returns to the identity step', async () => {
     const err = new HttpErrorResponse({ status: 409, error: { success: false, code: 'IDENTITY_NOT_APPROVED', message: 'وثيقة الهوية غير معتمدة بعد' } });
     await mount('UNDER_REVIEW', {}, vi.fn(() => { throw err; }));

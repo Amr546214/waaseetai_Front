@@ -122,12 +122,15 @@ describe('provider profile-setup: shared validation', () => {
     expect(el().querySelector('[data-testid="doc-file-error-frontId"]')?.textContent).toContain('مطلوبة');
   });
 
-  it('the back-ID and selfie slots are labelled optional (only the front ID is enforced)', () => {
+  // Updated for the identity gate: the back side is required for every document except a passport (the selfie stays optional).
+  it('the back-ID is required unless the document is a passport; the selfie slot stays optional', () => {
     component.currentStep.set(4); render();
     const text = el().textContent || '';
     const back = Array.from(el().querySelectorAll('.doc-name')).find(n => n.textContent?.includes('الظهر'))!;
     const selfie = Array.from(el().querySelectorAll('.doc-name')).find(n => n.textContent?.includes('Selfie'))!;
-    expect(back.textContent).toContain('اختياري');
+    expect(back.textContent).toContain('إلزامي');
+    component.setupForm.get('docs.idDocumentType')!.setValue('PASSPORT'); render();
+    expect(back.textContent).toContain('غير مطلوب لجواز السفر');
     expect(selfie.textContent).toContain('اختياري');
     expect(text).toContain('إلزامي'); // the front ID
   });

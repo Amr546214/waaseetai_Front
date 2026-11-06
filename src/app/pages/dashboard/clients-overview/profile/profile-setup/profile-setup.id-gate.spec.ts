@@ -91,6 +91,21 @@ describe('client profile-setup: identity gate behaviour', () => {
 		expect(fixture.componentInstance.currentStep()).toBe(2);
 	});
 
+	it('a final submission that changes approved evidence (409 EVIDENCE_CHANGED_IN_SUBMISSION) returns to the identity step with a clear message', () => {
+		const err = new HttpErrorResponse({ status: 409, error: { success: false, code: 'IDENTITY_NOT_APPROVED', message: 'x', errors: [{ code: 'IDENTITY_NOT_APPROVED', status: 'APPROVED', reason: 'EVIDENCE_CHANGED_IN_SUBMISSION' }] } });
+		mount('APPROVED', (s) => s === 0 ? throwError(() => err) : of({ success: true, data: {} }));
+		c.currentStep.set(5); c.submitForm(); // invalid form -> jumps; make it valid first
+		c.setupForm.patchValue({ details: { idDocumentType: 'PASSPORT', idNumber: 'A1234567', dob: '1990-01-01', country: 'مصر', city: 'القاهرة', occupation: 'x', address: 'y' }, bank: { paypalPayoutEmail: 'a@b.co' }, agreements: { accurate: true, terms: true, privacy: true } });
+		c.currentStep.set(5); c.submitForm(); fixture.detectChanges();
+		expect(c.currentStep()).toBe(2);
+		expect(c.gateProblem()).toContain('تختلف عن الوثيقة المعتمدة');
+	});
+
+	it('the back side is not required for a passport', () => {
+		mount(); c.setupForm.get('details.idDocumentType').setValue('PASSPORT'); expect(c.backRequired()).toBe(false);
+		c.setupForm.get('details.idDocumentType').setValue('NATIONAL_ID'); expect(c.backRequired()).toBe(true);
+	});
+
 	it('legacy VERIFIED/APPROVED + step 1 re-save re-reads the state', () => {
 		mount('APPROVED'); fillId(); c.setupForm.get('details.city').setValue('القاهرة'); c.currentStep.set(1);
 		const spy = vi.spyOn(c.gate, 'load');

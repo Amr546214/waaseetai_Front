@@ -18,7 +18,7 @@ import { paypalEmailValidators } from '../../../../../core/validators/paypal-ema
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
-import { IdentityGateService, isIdentityNotApproved } from '../../../../../core/services/identity-gate.service';
+import { IdentityGateService, identityRefusalMessage, isIdentityNotApproved } from '../../../../../core/services/identity-gate.service';
 import { IdentityGateStatusComponent } from '../../../../../shared/identity-gate/identity-gate-status.component';
 import { CLIENT_EDIT_PAGE, SETUP_REDIRECT_MESSAGE, resolveClientSetup } from './profile-setup-state';
 
@@ -70,6 +70,8 @@ export class ProfileSetupDashboard implements OnInit {
 	readonly gate = inject(IdentityGateService).use('CLIENT');
 	/** Why the identity could not be sent from step 2 (data of step 1 incomplete / refused by the server). */
 	gateProblem = signal<string | null>(null);
+	/** The back side is required for every document except a passport. */
+	backRequired(): boolean { return this.setupForm.get('details.idDocumentType')?.value !== 'PASSPORT'; }
 	constructor() {
 		// entering the identity step always reads the real state from the server
 		effect(() => { if (this.currentStep() === 2) untracked(() => this.gate.load().subscribe({ error: () => { /* the state stays unknown: nothing opens */ } })); });
@@ -537,7 +539,7 @@ export class ProfileSetupDashboard implements OnInit {
 			// the server refused a step that skipped the identity: go back to it and show the real state
 			this.currentStep.set(2);
 			this.gate.refusedByServer();
-			this.gateProblem.set(err?.error?.message || 'وثيقة الهوية غير معتمدة بعد؛ لا يمكن المتابعة قبل اعتمادها.');
+			this.gateProblem.set(identityRefusalMessage(err));
 			return;
 		}
 		const raw: string = err?.error?.message || '';

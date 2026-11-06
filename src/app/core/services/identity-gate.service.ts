@@ -31,6 +31,20 @@ export function isIdentityNotApproved(err: any): boolean {
 	return err?.status === 409 && (e?.code === 'IDENTITY_NOT_APPROVED' || (Array.isArray(e?.errors) && e.errors.some((x: any) => x?.code === 'IDENTITY_NOT_APPROVED')));
 }
 
+/** errors[0].reason of a 409 IDENTITY_NOT_APPROVED (e.g. EVIDENCE_CHANGED_IN_SUBMISSION), or null. */
+export function identityRefusalReason(err: any): string | null {
+	const list = err?.error?.errors;
+	const r = Array.isArray(list) ? list.find((x: any) => x?.code === 'IDENTITY_NOT_APPROVED')?.reason : null;
+	return typeof r === 'string' ? r : null;
+}
+
+/** The sentence shown on the identity step after the server refused a submission. */
+export function identityRefusalMessage(err: any): string {
+	if (identityRefusalReason(err) === 'EVIDENCE_CHANGED_IN_SUBMISSION')
+		return 'الصورة أو بيانات الهوية في هذا الإرسال تختلف عن الوثيقة المعتمدة، فلم يُحفظ شيء. أرسل أي تغيير من خطوة الهوية هذه وانتظر اعتماده الجديد قبل المتابعة.';
+	return err?.error?.message || 'وثيقة الهوية غير معتمدة بعد؛ لا يمكن المتابعة قبل اعتمادها.';
+}
+
 const POLL_FIRST_MS = 15_000;
 const POLL_MAX_MS = 60_000;
 

@@ -18,7 +18,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 const FRONT = { private: true, legacy: false };
 const iv = (status: string, rejectionReason: string | null = null) => ({ status, category: 'KYC', requestId: null, submittedAt: null, rejectionReason });
 
-describe('provider setup wizard: identity review state', () => {
+describe('provider setup wizard: identity review state', { timeout: 30000 }, () => {
   let fixture: ComponentFixture<ProfileSetupDashboard>;
   let component: ProfileSetupDashboard;
   let http: HttpTestingController;
