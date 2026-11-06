@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, retry, throwError, timer } from 'rxjs';
 import { UiNotificationService } from '../services/ui-notification.service';
@@ -7,6 +7,8 @@ import { LAST_RATE_LIMIT_SCOPE, WaitTimerService, httpWaitScope } from '../wait/
 import { AUTH_ATTEMPT_URLS } from './auth.interceptor';
 
 export const RATE_LIMIT_TOAST_GAP_MS = 10_000;
+/** Background reads the page can do without (assistant options, side widgets): a 429 on them records its wait but raises no toast, so the user is not told to stop navigating for something they never asked for. */
+export const SKIP_RATE_LIMIT_TOAST = new HttpContextToken<boolean>(() => false);
 export const RATE_LIMIT_MAX_AUTO_RETRY_SECONDS = 3;
 let lastToastAt = 0;
 /** test hook */
@@ -39,7 +41,7 @@ export const rateLimitInterceptor: HttpInterceptorFn = (req, next) => {
 				const end = rateLimitEndsAt(err);
 				if (end != null) { waits.setEnd(httpWaitScope(req.method, req.url), end); if (req.method === 'GET') waits.setEnd(LAST_RATE_LIMIT_SCOPE, end); }
 			}
-			if (err instanceof HttpErrorResponse && isRateLimitError(err) && !isAuthAttempt) {
+			if (err instanceof HttpErrorResponse && isRateLimitError(err) && !isAuthAttempt && !req.context.get(SKIP_RATE_LIMIT_TOAST)) {
 				const now = Date.now();
 				if (now - lastToastAt >= RATE_LIMIT_TOAST_GAP_MS) {
 					lastToastAt = now;
