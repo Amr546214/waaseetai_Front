@@ -398,6 +398,28 @@
         </div>
 
         <!-- Card 1: هوية وطنية وجه -->
+        @if (!kycPending() && !kycVerified()) {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="flex flex-col gap-2">
+  <label for="identity-issuer">بلد إصدار الوثيقة</label>
+  <select id="identity-issuer" formControlName="idIssuingCountry" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
+    <option value="">اختر البلد</option>
+    @for (country of identityIssuers; track country.code) { <option [value]="country.code">{{ country.label }}</option> }
+  </select>
+</div>
+<div class="flex flex-col gap-2">
+  <label for="identity-document-type">نوع وثيقة الهوية</label>
+  <select id="identity-document-type" formControlName="idDocumentType" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
+    <option value="">اختر نوع الوثيقة</option>
+    @for (type of identityDocumentTypes; track type.code) { <option [value]="type.code">{{ type.label }}</option> }
+  </select>
+</div>
+<div class="flex flex-col gap-2">
+  <label for="identity-document-number">رقم الوثيقة</label>
+  <input id="identity-document-number" formControlName="idNumber" maxlength="40" dir="ltr" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
+</div>
+        </div>
+        }
         <div class="doc-card" [class.verified]="getUploadState('frontId')?.status === 'uploaded'" [class.has-error]="!!fileErr('frontId')">
           <div class="doc-header">
             <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-id-card"></use></svg></div>

@@ -1,3 +1,4 @@
+import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, IDENTITY_ISSUERS } from '../../../../../shared/data/identity-documents';
 import { IdentityCheckService } from '../../../../../core/services/identity-check.service';
 import { birthDateValidator, maxDobIso } from '../../../../../core/forms/birth-date';
 import { Component, DestroyRef, ElementRef, inject, signal, OnInit } from '@angular/core';
@@ -52,6 +53,9 @@ const FILE_RULES: Record<string, { maxBytes: number; mimeTypes: string[]; typesL
 	templateUrl: './profile-setup.html'
 })
 export class ProfileSetupDashboard implements OnInit {
+	readonly identityIssuers = IDENTITY_ISSUERS;
+	readonly identityDocumentTypes = IDENTITY_DOCUMENT_TYPES;
+
 	/** Documents already stored for this client (legacy public URL or private marker); shown with a "view" link. */
 	storedDocs = signal<Record<'frontId' | 'backId' | 'supportingDocs', { url: string | null; access: KycAccess | null } | null>>({ frontId: null, backId: null, supportingDocs: null });
 	private fb = inject(FormBuilder);
@@ -96,7 +100,9 @@ export class ProfileSetupDashboard implements OnInit {
 
 	setupForm: FormGroup = this.fb.group({
 		details: this.fb.group({
-			idNumber: ['', [Validators.required, Validators.pattern(/^\d{7,20}$/)]],
+			idIssuingCountry: [''],
+			idDocumentType: [''],
+			idNumber: ['', [Validators.required, Validators.pattern(DOCUMENT_NUMBER_PATTERN)]],
 			dob: ['', [Validators.required, birthDateValidator]],
 			country: ['', Validators.required],
 			city: ['', Validators.required],
@@ -136,6 +142,8 @@ export class ProfileSetupDashboard implements OnInit {
 					// Patch details
 					this.setupForm.get('details')?.patchValue({
 						idNumber: data.idNumber || '',
+						idIssuingCountry: data.idIssuingCountry || '',
+						idDocumentType: data.idDocumentType || '',
 						dob: data.dob ? new Date(data.dob).toISOString().split('T')[0] : '',
 						country: normalizeCountry(data.country),
 						city: data.city || '',
@@ -177,6 +185,8 @@ export class ProfileSetupDashboard implements OnInit {
 					// Disable verified fields to prevent tampering
 					if (data.kycStatus === 'VERIFIED') {
 						if (data.idNumber) this.setupForm.get('details.idNumber')?.disable();
+						this.setupForm.get('details.idIssuingCountry')?.disable();
+						this.setupForm.get('details.idDocumentType')?.disable();
 						if (data.dob) this.setupForm.get('details.dob')?.disable();
 					}
 				}
@@ -206,6 +216,12 @@ export class ProfileSetupDashboard implements OnInit {
 	private validateStep(step: number): boolean {
 		const group = this.setupForm.get(STEP_GROUPS[step]);
 		if (!group) return true;
+		if (step === 1 && !group.get('idIssuingCountry')?.disabled) {
+			const d = this.setupForm.getRawValue().details;
+			const problem = documentInputProblem(d.idNumber, d.idIssuingCountry, d.idDocumentType);
+			if (problem) { this.missing.set([{ ...problem, path: 'details.' + problem.key }]); return false; }
+		}
+
 		if (step === 2) {
 			const problem = this.identitySidesProblem();
 			if (problem) { this.missing.set([problem]); return false; }
@@ -302,7 +318,7 @@ export class ProfileSetupDashboard implements OnInit {
 		const raw = this.setupForm.getRawValue();
 		if (step === 1) {
 			const d = raw.details;
-			return { step: 1, body: { details: { idNumber: d.idNumber, dob: d.dob ? new Date(d.dob).toISOString() : '', country: d.country, city: d.city, occupation: d.occupation, address: d.address } } };
+			return { step: 1, body: { details: { idNumber: d.idNumber, idIssuingCountry: d.idIssuingCountry || undefined, idDocumentType: d.idDocumentType || undefined, dob: d.dob ? new Date(d.dob).toISOString() : '', country: d.country, city: d.city, occupation: d.occupation, address: d.address } } };
 		}
 		if (step === 2) {
 			const frontId = this.newUpload(raw.identity.frontId), backId = this.newUpload(raw.identity.backId);
@@ -404,6 +420,8 @@ export class ProfileSetupDashboard implements OnInit {
 		const payload: any = {
 			details: {
 				idNumber: formVal.details.idNumber,
+				idIssuingCountry: formVal.details.idIssuingCountry || undefined,
+				idDocumentType: formVal.details.idDocumentType || undefined,
 				dob: formVal.details.dob ? new Date(formVal.details.dob).toISOString() : null,
 				country: formVal.details.country,
 				city: formVal.details.city,
