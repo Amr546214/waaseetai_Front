@@ -60,17 +60,17 @@ const ROLE_CONFIG: Record<'client' | 'marketer', RoleConfig> = {
 							<tbody>
 								@for (it of items(); track it.id) {
 									<tr data-testid="history-row">
-										<td><a class="wh-open" [routerLink]="[cfg().detailBase, it.id]"><b>{{ it.breakdown?.operationLabel || it.title || it.description || 'معاملة مالية' }}</b></a>@if (it.description && it.description !== (it.breakdown?.operationLabel || it.title)) { <div class="wh-d">{{ it.description }}</div> }</td>
-										<td>{{ dateText(it.createdAt) }}</td>
+										<td><a class="wh-open" [routerLink]="[cfg().detailBase, it.id]"><b>{{ it.breakdown?.operationLabel || it.title || it.description || 'معاملة مالية' }}</b></a>@if (it.description && it.description !== (it.breakdown?.operationLabel || it.title)) { <div class="wh-d">{{ it.description }}</div> }@if (it['employeeName']) { <div class="wh-d" data-testid="history-employee">الموظف: {{ it['employeeName'] }}</div> }</td>
+										<td data-label="التاريخ">{{ dateText(it.createdAt) }}</td>
 										@if (it.breakdown?.detailsRecorded) {
-											<td>{{ it.breakdown!.gross != null ? ((it.breakdown!.gross | number:'1.2-2') + ' ' + cur(it.breakdown!.currency)) : '—' }}</td>
-											<td>{{ dedText(it) }}</td>
-											<td class="wh-net"><b>{{ it.breakdown!.net != null ? ((it.breakdown!.net | number:'1.2-2') + ' ' + cur(it.breakdown!.currency)) : '—' }}</b><div class="wh-d">{{ meaning(it) }}</div></td>
+											<td data-label="قبل الخصم">{{ it.breakdown!.gross != null ? ((it.breakdown!.gross | number:'1.2-2') + ' ' + cur(it.breakdown!.currency)) : '—' }}</td>
+											<td data-label="الخصومات">{{ dedText(it) }}</td>
+											<td class="wh-net" data-label="الصافي"><b>{{ it.breakdown!.net != null ? ((it.breakdown!.net | number:'1.2-2') + ' ' + cur(it.breakdown!.currency)) : '—' }}</b><div class="wh-d">{{ meaning(it) }}</div></td>
 										} @else {
-											<td colspan="2" class="wh-missing" data-testid="history-missing">{{ missing }}</td>
-											<td class="wh-net"><b>{{ abs(it.amount) | number:'1.2-2' }} {{ cur(it.currency) }}</b><div class="wh-d">المبلغ المسجّل</div></td>
+											<td colspan="2" class="wh-missing" data-label="الخصومات" data-testid="history-missing">{{ missing }}</td>
+											<td class="wh-net" data-label="الصافي"><b>{{ shown(it) | number:'1.2-2' }} {{ cur(it.currency) }}</b><div class="wh-d">المبلغ المسجّل</div></td>
 										}
-										<td><span class="wh-st">{{ statusText(it.status) }}</span></td>
+										<td data-label="الحالة"><span class="wh-st">{{ statusText(it.status) }}</span></td>
 									</tr>
 								} @empty {
 									<tr><td colspan="6" class="wh-empty" data-testid="history-empty">لا توجد معاملات مالية بعد</td></tr>
@@ -119,6 +119,16 @@ const ROLE_CONFIG: Record<'client' | 'marketer', RoleConfig> = {
 		.wh-state{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;text-align:center;color:var(--txt-2)}
 		.wh-error{color:var(--red)}
 		.wh-retry{font-family:inherit;margin-inline-start:10px;padding:6px 14px;border-radius:9px;border:none;cursor:pointer;font-weight:800;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24}
+		@media(max-width:700px){
+			.wh-tbl{min-width:0;display:block}.wh-tbl thead{display:none}.wh-tbl tbody{display:block}
+			.wh-tbl tr{display:block;padding:12px 14px;border-bottom:1px solid var(--border)}
+			.wh-tbl tbody tr:last-child{border-bottom:none}
+			.wh-tbl td{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:none;text-align:left}
+			.wh-tbl td[data-label]::before{content:attr(data-label);color:var(--txt-3);font-size:var(--font-size-small);flex-shrink:0}
+			.wh-tbl td:first-child{display:block;text-align:right;padding-bottom:8px}
+			.wh-tbl td.wh-missing{text-align:left}
+			.wh-empty{display:block !important}
+		}
 		.wh-pager{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-size:var(--font-size-small);color:var(--txt-3)}
 	`],
 })
@@ -135,7 +145,8 @@ export class WalletHistoryComponent implements OnInit {
 	summaryCards = signal<Record<string, WalletCard> | null>(null);
 	missing = MISSING_DETAILS_TEXT;
 	cur = currencySymbol;
-	abs = Math.abs;
+	/** the server's displayAmount (absolute, direction aside) when present, else the absolute stored amount */
+	shown = (it: WalletHistoryItem) => Math.abs(typeof it['displayAmount'] === 'number' ? (it['displayAmount'] as number) : it.amount);
 
 	cards = computed<WalletCardItem[]>(() => {
 		const c = this.summaryCards();
