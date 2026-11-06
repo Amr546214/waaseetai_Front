@@ -39,20 +39,20 @@ describe('client profile-setup: identity approval needs both sides of the ID', (
 	});
 	afterEach(() => { fixture?.destroy(); TestBed.resetTestingModule(); });
 
-	it('front only: the step is refused, the missing back side is named and nothing is sent', () => {
+	// Updated: which sides are needed is the server's call (a passport needs only the front). The step opens only when the gate is APPROVED.
+	it('front only while the gate is not approved: the step stays (nothing opens), nothing is sent by the generic step save', () => {
+		FakeIdentityGate.reset('NOT_SUBMITTED');
 		c.setupForm.get('identity.frontId').setValue(PNG);
 		c.nextStep(); fixture.detectChanges();
 		expect(saveStep).not.toHaveBeenCalled();
 		expect(c.currentStep()).toBe(2);
-		expect(c.fileErrors()['backId']).toContain('الوجه الخلفي');
-		expect(c.identityDocsProvided()).toBe(false); // never "تم الإرسال" for half a pair
+		expect(c.identityDocsProvided()).toBe(false);
 	});
 
-	it('back only: the missing front side is named', () => {
-		c.setupForm.get('identity.backId').setValue(PNG);
-		c.nextStep();
-		expect(saveStep).not.toHaveBeenCalled();
-		expect(c.fileErrors()['frontId']).toContain('الوجه الأمامي');
+	it('front only for a document the server approved (passport): the wizard moves on', () => {
+		c.setupForm.get('identity.frontId').setValue(PNG);
+		c.nextStep(); fixture.detectChanges();
+		expect(c.currentStep()).toBe(3);
 	});
 
 	it('both sides + APPROVED by the server: the generic step save sends nothing (the gate saved it) and the wizard moves on', () => {

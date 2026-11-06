@@ -211,21 +211,6 @@ export class ProfileSetupDashboard implements OnInit {
 	}
 
 	/** Validates one step: marks it touched, builds the summary, focuses the first missing field. */
-	/**
-	 * The identity step is optional, but an identity approval request needs BOTH sides of the ID (the server opens the review only with the id number
-	 * + front + back). Sending one side would look submitted and never reach the reviewers, so a half pair is refused here, at the missing side.
-	 */
-	private identitySidesProblem(): InvalidField | null {
-		const v = this.setupForm.getRawValue().identity;
-		const has = (side: 'frontId' | 'backId') => !!v[side] || !!this.storedDocs()[side];
-		if (has('frontId') === has('backId')) return null;
-		const missing = has('frontId') ? 'backId' : 'frontId';
-		const label = missing === 'frontId' ? 'صورة الهوية (الوجه الأمامي)' : 'صورة الهوية (الوجه الخلفي)';
-		const message = 'طلب توثيق الهوية يحتاج الوجهين الأمامي والخلفي؛ ارفع ' + (missing === 'frontId' ? 'الوجه الأمامي' : 'الوجه الخلفي') + ' أو أزل الملف المرفوع';
-		this.fileErrors.update(e => ({ ...e, [missing]: message }));
-		return { path: 'identity.' + missing, label, message };
-	}
-
 	documentError(key: 'idNumber' | 'idDocumentType'): string | null {
 		const number = this.setupForm.get('details.idNumber');
 		const type = this.setupForm.get('details.idDocumentType');
@@ -248,10 +233,7 @@ export class ProfileSetupDashboard implements OnInit {
 			if (problem) { this.missing.set([]); return false; }
 		}
 
-		if (step === 2) {
-			const problem = this.identitySidesProblem();
-			if (problem) { this.missing.set([problem]); return false; }
-		}
+		// step 2 (identity): which sides are needed is decided by the identity gate (the server's «missing» list: a passport needs only the front), not here
 		const attempt = attemptSubmit(group, { root: this.host.nativeElement, labels: SETUP_LABELS });
 		this.missing.set(attempt.missing.filter(issue => issue.path !== 'idNumber' && issue.path !== 'details.idNumber'));
 		return attempt.valid;
