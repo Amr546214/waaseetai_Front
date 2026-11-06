@@ -402,3 +402,7 @@ button{font-family:inherit}
 .wal-emp-dept{color:var(--txt-3,#6B7699);font-weight:600}
 .wal-emp-track{height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
 .wal-emp-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#2BD4C7,#2B7FFF)}
+
+.wal-sec-row{justify-content:space-between}
+.wal-all-link{font-size:var(--font-size-small);font-weight:700;color:var(--teal-txt);text-decoration:none}
+.wal-all-link:hover{text-decoration:underline}

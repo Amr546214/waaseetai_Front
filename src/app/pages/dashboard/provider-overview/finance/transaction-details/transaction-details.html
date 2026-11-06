@@ -36,6 +36,11 @@
         </div>
       </div>
 
+      <div class="mt-5 text-right">
+        <div class="mb-2 text-[length:var(--font-size-body)] font-black text-[var(--txt)]">تفصيل المبالغ والخصومات</div>
+        <app-wallet-breakdown [rows]="breakdownRows()" />
+      </div>
+
       <div class="mt-5 rounded-xl border border-[var(--sec-bd)] p-1 text-right">
         <div class="flex justify-between border-b border-white/5 px-3 py-3"><span class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">رقم المعاملة</span><span dir="ltr" class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]">{{ t.id }}</span></div>
         <div class="flex justify-between border-b border-white/5 px-3 py-3"><span class="text-[length:var(--font-size-small)] text-[var(--txt-3)]">النوع</span><span class="text-[length:var(--font-size-label)] font-bold text-[var(--txt)]">{{ typeLabel(t) }}</span></div>

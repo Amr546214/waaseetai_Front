@@ -24,6 +24,16 @@ const MARKETER_PAGES: Routes = [
 		data: { title: "العمولات" }
 	},
 	{
+		path: 'commissions/history',
+		loadComponent: () => import('./commissions/history/history').then(m => m.MarketerHistory),
+		data: { title: "سجل العمولات والسحوبات" }
+	},
+	{
+		path: 'commissions/history/:id',
+		loadComponent: () => import('./commissions/history-detail/history-detail').then(m => m.MarketerHistoryDetail),
+		data: { title: "تفاصيل العملية" }
+	},
+	{
 		path: 'withdraw',
 		loadComponent: () => import('./withdraw/withdraw').then(m => m.Withdraw),
 		data: { title: "السحب" }

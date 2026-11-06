@@ -617,3 +617,7 @@
   .wal-main-act { width: 100%; }
   .wal-main-act .wal-btn { justify-content: center; flex: 1; }
 }
+
+.wal-sec-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.wal-all-link{font-size:var(--font-size-small);font-weight:700;color:var(--teal-txt,#2BD4C7);text-decoration:none}
+.wal-all-link:hover{text-decoration:underline}
