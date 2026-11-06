@@ -19,6 +19,14 @@ export function identityCountryCode(country: string | null | undefined): string 
   return country && Object.hasOwn(countryCodes, country) ? countryCodes[country] : null;
 }
 
+// National ID formats: UAE ICP, Kuwait CSB, Qatar MCIT, Bahrain SIO.
+const nationalIdFormats: Readonly<Record<string, { pattern: RegExp; message: string }>> = {
+  AE: { pattern: /^(?:784\d{12}|784-\d{4}-\d{7}-\d)$/, message: 'رقم الهوية الإماراتية لازم يكون 15 رقمًا ويبدأ بـ 784' },
+  KW: { pattern: /^\d{12}$/, message: 'الرقم المدني الكويتي لازم يكون 12 رقمًا' },
+  QA: { pattern: /^\d{11}$/, message: 'رقم الهوية القطرية لازم يكون 11 رقمًا' },
+  BH: { pattern: /^\d{9}$/, message: 'الرقم الشخصي البحريني لازم يكون 9 أرقام' },
+};
+
 export function documentInputProblem(number: string | null, issuer: string | null, type: string | null) {
   const value = number?.trim() ?? '';
   const numberError = (message: string) => ({ key: 'idNumber', label: 'رقم الوثيقة', message });
@@ -26,6 +34,8 @@ export function documentInputProblem(number: string | null, issuer: string | nul
     if (!issuer) return { key: 'idDocumentType', label: 'نوع وثيقة الهوية', message: 'اختر دولة محددة من حقل الدولة لاستخدام هذا النوع من الوثائق' };
     if (!value) return numberError('أدخل رقم الوثيقة');
     const normalized = value.replace(/[٠-٩۰-۹]/g, digit => String(digit.charCodeAt(0) & 15));
+    const format = type === 'NATIONAL_ID' ? nationalIdFormats[issuer] : undefined;
+    if (format && !format.pattern.test(normalized)) return numberError(format.message);
     if (issuer === 'EG' && type === 'NATIONAL_ID') {
       if (!/^\d+$/.test(normalized)) return numberError('رقم الهوية المصرية لازم يحتوي على أرقام فقط');
       if (normalized.length !== 14) return numberError('رقم الهوية المصرية لازم يكون 14 رقمًا');
