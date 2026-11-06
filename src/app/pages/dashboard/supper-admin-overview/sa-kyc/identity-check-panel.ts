@@ -4,7 +4,7 @@ import { IdentityCheckAdmin, IdentityCheckService, IdentityFieldResult, Identity
 const FIELD_LABELS: { key: 'fullName' | 'birthDate' | 'nationalId'; label: string }[] = [
 	{ key: 'fullName', label: 'الاسم الكامل' },
 	{ key: 'birthDate', label: 'تاريخ الميلاد' },
-	{ key: 'nationalId', label: 'الرقم القومي' },
+	{ key: 'nationalId', label: 'رقم الوثيقة' },
 ];
 const STATUS_LABELS: Record<string, string> = { MATCH: 'مطابق', MISMATCH: 'غير مطابق', COULD_NOT_VERIFY: 'تعذّر التحقق' };
 const STATUS_CLASS: Record<string, string> = { MATCH: 'ok', MISMATCH: 'bad', COULD_NOT_VERIFY: 'unk' };
