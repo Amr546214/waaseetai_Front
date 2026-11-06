@@ -29,6 +29,12 @@ export function documentInputProblem(number: string | null, issuer: string | nul
     if (issuer === 'EG' && type === 'NATIONAL_ID') {
       if (!/^\d+$/.test(normalized)) return numberError('رقم الهوية المصرية لازم يحتوي على أرقام فقط');
       if (normalized.length !== 14) return numberError('رقم الهوية المصرية لازم يكون 14 رقمًا');
+    } else if (issuer === 'SA' && (type === 'NATIONAL_ID' || type === 'RESIDENCE_PERMIT')) {
+      if (!/^\d+$/.test(normalized)) return numberError('رقم الوثيقة السعودية لازم يحتوي على أرقام فقط');
+      if (normalized.length !== 10) return numberError('رقم الوثيقة السعودية لازم يكون 10 أرقام');
+      if (!normalized.startsWith(type === 'NATIONAL_ID' ? '1' : '2')) {
+        return numberError(type === 'NATIONAL_ID' ? 'رقم الهوية السعودية لازم يبدأ بـ 1' : 'رقم الإقامة السعودية لازم يبدأ بـ 2');
+      }
     } else {
       if (Array.from(value).length > 40) return numberError('رقم الوثيقة لازم يكون 40 حرفًا أو رقمًا كحد أقصى');
       if (!/^[\p{L}\p{Nd}]/u.test(value)) return numberError('رقم الوثيقة لازم يبدأ بحرف أو رقم');
