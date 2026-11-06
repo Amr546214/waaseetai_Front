@@ -9,6 +9,9 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { handleLoadError, rateLimitToastMessage } from '../../../../../core/utils/rate-limit.util';
+import { WalletBreakdown, WalletCard } from '../../../../../core/models/wallet-unify.model';
+import { WalletBreakdownComponent, WalletBreakdownRow } from '../../../../../shared/wallet/wallet-breakdown.component';
+import { WalletCardItem, WalletExtraCardsComponent } from '../../../../../shared/wallet/wallet-cards.component';
 
 export const PROVIDER_ONLY_FINANCE_MESSAGE = 'هذه الصفحة متاحة لحساب مقدم الخدمة فقط. بدّل إلى دورك كمقدم خدمة لعرض المحفظة.';
 
@@ -29,6 +32,8 @@ export interface WalletTransaction {
   // this transaction is attributed to. Optional because the backend does not
   // populate it yet — the UI falls back to "—" when it's absent.
   providerName?: string;
+  /** Wallet unification: the stored deduction details of this operation */
+  breakdown?: WalletBreakdown;
 }
 
 // Company-mode only (P-CO-FN-001/002 "أداء مقدمي الخدمة"): per-provider
@@ -55,6 +60,10 @@ export interface WalletData {
     fundedProjectsCount: number;
     completedProjectsCount: number;
     currency: string; // backend sends 'USD'
+    /** Wallet unification (absent on an older server) */
+    cards?: { availableToWithdraw?: WalletCard; pendingWithdrawals?: WalletCard; grossBeforeDeductions?: WalletCard; heldInEscrow?: WalletCard; cashback?: WalletCard };
+    minimumWithdrawal?: number;
+    canWithdraw?: boolean;
   };
   transactions: WalletTransaction[];
   escrows: Array<{ id: string; projectId: string; projectTitle: string; total: number; released: number; held: number; status: string; updatedAt: string }>;
@@ -65,7 +74,7 @@ export interface WalletData {
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [WsDatePipe, RouterLink, CommonModule, ProviderDepositModal],
+  imports: [WsDatePipe, RouterLink, CommonModule, ProviderDepositModal, WalletBreakdownComponent, WalletExtraCardsComponent],
   templateUrl: './wallet.html',
   styleUrl: './wallet.css'
 })
@@ -79,6 +88,29 @@ export class Wallet implements OnInit {
   error = signal('');
 
   readonly isCompany = () => this.authStore.currentUser()?.accountType === AccountType.PROVIDER_COMPANY;
+
+  /** the withdraw button exists only where the server says the role withdraws */
+  canWithdraw = computed(() => this.data()?.summary?.canWithdraw !== false);
+  minimumWithdrawal = computed(() => this.data()?.summary?.minimumWithdrawal ?? 0);
+
+  extraCards = computed<WalletCardItem[]>(() => {
+    const c = this.data()?.summary?.cards;
+    return [
+      { key: 'gross', title: 'المبلغ قبل الخصومات (الإفراجات)', card: c?.grossBeforeDeductions, tone: 'teal' },
+      { key: 'pending', title: 'سحوبات قيد المعالجة', card: c?.pendingWithdrawals, tone: 'blue', sub: 'مخصومة من المتاح للسحب' },
+    ];
+  });
+
+  /** the latest operations in «تفصيل المبالغ والخصومات»; the full list is the history page */
+  breakdownRows = computed<WalletBreakdownRow[]>(() => (this.data()?.transactions ?? []).slice(0, 8).map(t => ({
+    id: t.id,
+    title: [t.projectTitle || t.title, this.isCompany() ? t.providerName : ''].filter(Boolean).join(' · '),
+    date: t.createdAt ? t.createdAt.slice(0, 10) : undefined,
+    link: ['/provider-overview/finance/transactions', t.id],
+    breakdown: t.breakdown ?? null,
+    storedAmount: t.amount,
+    storedCurrency: t.currency,
+  })));
 
   providerSpending = computed(() => this.data()?.providerSpending ?? []);
 

@@ -6,16 +6,21 @@ import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { WalletUnifyService } from '../../../../../core/services/wallet-unify.service';
+import { MISSING_DETAILS_TEXT, WalletBreakdown, WalletPagination, currencySymbol } from '../../../../../core/models/wallet-unify.model';
+import { WalletCardItem, WalletExtraCardsComponent } from '../../../../../shared/wallet/wallet-cards.component';
 
 interface FinancialEvent {
-  id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED';
+  id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED' | 'CANCELLATION_SETTLEMENT';
+  breakdown?: WalletBreakdown;
   amount: number; currency: string; title: string; description: string; projectId: string;
   projectTitle: string; stageId: string | null; status: 'COMPLETED' | 'HELD' | 'RELEASED' | 'REFUNDED'; createdAt: string;
 }
 
-@Component({ selector: 'app-transactions', standalone: true, imports: [CommonModule, RouterModule], templateUrl: './transactions.html' })
+@Component({ selector: 'app-transactions', standalone: true, imports: [CommonModule, RouterModule, WalletExtraCardsComponent], templateUrl: './transactions.html' })
 export class Transactions implements OnInit {
   private http = inject(HttpClient);
+  private walletApi = inject(WalletUnifyService);
   private authStore = inject(AuthStore);
   private notify = inject(UiNotificationService);
 
@@ -44,12 +49,37 @@ export class Transactions implements OnInit {
   });
 
   ngOnInit() { this.load(); }
-  load() { this.loading.set(true); this.error.set(''); this.http.get<any>(`${environment.url_api}/provider/finance/transactions`).subscribe({ next: res => { this.summary.set(res.data.summary); this.transactions.set(res.data.events); this.loading.set(false); }, error: err => { this.error.set(err.error?.message || 'تعذر تحميل المعاملات'); this.loading.set(false); } }); }
+  pagination = signal<WalletPagination | null>(null);
+  loadingMore = signal(false);
+  readonly missingText = MISSING_DETAILS_TEXT;
+  readonly cur = currencySymbol;
+  extraCards = computed<WalletCardItem[]>(() => {
+    const c = this.summary()?.cards;
+    return c ? [{ key: 'gross', title: 'المبلغ قبل الخصومات (الإفراجات)', card: c.grossBeforeDeductions, tone: 'teal' }, { key: 'pending', title: 'سحوبات قيد المعالجة', card: c.pendingWithdrawals, tone: 'blue' }] : [];
+  });
+
+  /** the full history, paged by the server (newest first); "more" appends the next page */
+  load(page = 1) {
+    if (page === 1) { this.loading.set(true); } else { this.loadingMore.set(true); }
+    this.error.set('');
+    this.walletApi.history('provider', page, 50).subscribe({
+      next: res => {
+        const d = res.data;
+        this.summary.set(d.summary);
+        this.pagination.set(d.pagination);
+        this.transactions.set(page === 1 ? (d.items as any) : [...this.transactions(), ...(d.items as any)]);
+        this.loading.set(false); this.loadingMore.set(false);
+      },
+      error: err => { this.error.set(err.error?.message || 'تعذر تحميل المعاملات'); this.loading.set(false); this.loadingMore.set(false); }
+    });
+  }
+  loadMore() { const p = this.pagination(); if (p && p.page < p.totalPages) this.load(p.page + 1); }
   setPeriod(value: string) { this.currentPeriod.set(value); }
   setType(value: string) { this.currentType.set(value); }
   setSearch(event: Event) { this.searchQuery.set((event.target as HTMLInputElement).value.trim().toLowerCase()); }
 
   statusLabel(t: FinancialEvent) {
+    if (t.category === 'CANCELLATION_SETTLEMENT') return 'تسوية إلغاء متبادل';
     if (t.type === 'credit') return 'مفرج ومكتمل';
     if (t.status === 'HELD') return 'محتجز في الضمان';
     if (t.status === 'REFUNDED') return 'مسترد';

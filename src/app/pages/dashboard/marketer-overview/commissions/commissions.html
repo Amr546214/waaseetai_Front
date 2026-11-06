@@ -25,6 +25,17 @@
     <div class="kpi-card"><div class="kpi-top"><div class="kpi-ic ic-blue-lt"><svg aria-hidden="true"><use href="#i-check"></use></svg></div><span class="kpi-lbl">مسحوبة</span></div><div class="kpi-val txt-blue" data-testid="kpi-paid">{{ withdrawnAmount() }}</div><div class="kpi-delta txt-muted">دولار سحوبات مدفوعة</div></div>
   </div>
 
+  @if (extraCards().length) { <app-wallet-extra-cards [items]="extraCards()" /> }
+
+  <div class="adm-card" data-testid="marketer-breakdown">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div class="adm-card-ttl" style="margin-bottom:0"><svg aria-hidden="true"><use href="#i-wallet"></use></svg>تفصيل المبالغ والخصومات</div>
+      <a routerLink="/marketer-overview/commissions/history" class="filter-chip" style="text-decoration:none" data-testid="marketer-history-link">سجل العمولات والسحوبات الكامل ←</a>
+    </div>
+    @if (historyFailed()) { <p class="txt-muted" role="alert">تعذر تحميل التفصيل الآن، أعد تحديث الصفحة.</p> }
+    @else { <app-wallet-breakdown [rows]="historyRows()" emptyText="لا توجد عمولات أو سحوبات بعد" /> }
+  </div>
+
   <div class="adm-card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
       <div class="adm-card-ttl" style="margin-bottom:0"><svg aria-hidden="true"><use href="#i-wallet"></use></svg>سجل العمولات</div>

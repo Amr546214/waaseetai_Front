@@ -150,9 +150,11 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		loadComponent: () => import('./finance/wallet/wallet').then(m => m.Wallet),
 		data: { title: "Wallet" }
 	},
+	// Full transaction history (standalone page, linked from the wallet and the finance menu); a single transaction opens at finance/wallet/:id.
 	{
 		path: 'finance/transactions',
-		redirectTo: 'finance/wallet'
+		loadComponent: () => import('./finance/transactions/transactions').then(m => m.Transactions),
+		data: { title: "سجل المعاملات" }
 	},
 	// One transaction page, reached from the wallet list and by direct URL. The old /finance/transactions/:id link lands on the same page.
 	{

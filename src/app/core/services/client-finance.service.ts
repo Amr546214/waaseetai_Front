@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { WalletBreakdown, WalletCard } from '../models/wallet-unify.model';
 
 export interface ClientWalletSummary {
 	availableBalance: number;
@@ -12,6 +13,9 @@ export interface ClientWalletSummary {
 	/** Company-mode only (P-SK-018-شركة): this quarter's total spend and the quarter's budget cap. */
 	quarterSpend?: number;
 	quarterBudget?: number;
+	/** Wallet unification: amount before deductions, held in escrow, cashback state (null on an older server) */
+	cards?: { availableBalance?: WalletCard; grossBeforeDeductions?: WalletCard; heldInEscrow?: WalletCard; cashback?: WalletCard };
+	canWithdraw?: boolean;
 }
 
 export interface ClientWalletTransaction {
@@ -26,6 +30,8 @@ export interface ClientWalletTransaction {
 	createdAt: string;
 	/** Company-mode only: which employee made/triggered this transaction. */
 	employeeName?: string;
+	/** The stored deduction details of this operation (absent on an older server). */
+	breakdown?: WalletBreakdown;
 }
 
 /** One transaction read by id (GET /client/finance/wallet/transactions/:id): the list row plus what the backend really has about it. */

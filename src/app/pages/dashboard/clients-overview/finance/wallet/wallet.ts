@@ -10,6 +10,9 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { AccountType } from '../../../../../core/models/auth.model';
 import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
 import { formatMoney } from '../../../../../core/utils/money.util';
+import { WalletBreakdown, WalletCard } from '../../../../../core/models/wallet-unify.model';
+import { WalletBreakdownComponent, WalletBreakdownRow } from '../../../../../shared/wallet/wallet-breakdown.component';
+import { WalletCardItem, WalletExtraCardsComponent } from '../../../../../shared/wallet/wallet-cards.component';
 
 export interface DisplayTransaction {
   id: string;
@@ -23,12 +26,16 @@ export interface DisplayTransaction {
   statusType: 'done' | 'hold' | 'pending' | 'failed';
   icon: 'escrow' | 'wallet';
   employeeName?: string;
+  breakdown?: WalletBreakdown;
+  rawAmount: number;
+  currency: string;
+  createdAt: string;
 }
 
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [CommonModule, RouterLink, DepositModal, LoadRetryComponent, RateLimitNoteComponent],
+  imports: [CommonModule, RouterLink, DepositModal, LoadRetryComponent, RateLimitNoteComponent, WalletBreakdownComponent, WalletExtraCardsComponent],
   templateUrl: './wallet.html',
   styleUrl: './wallet.css',
 })
@@ -48,6 +55,20 @@ export class Wallet implements OnInit {
   escrowBalance = signal(0);
   activeProjectsCount = signal(0);
   transactions = signal<DisplayTransaction[]>([]);
+
+  /** the cards of the stored wallet (null on an older server: the page then shows the states, not zeros) */
+  cards = signal<{ grossBeforeDeductions?: WalletCard; cashback?: WalletCard } | null>(null);
+  /** the extra row: amount before deductions, and the cashback state (an individual client; a company shows its quarter spend in the main grid) */
+  extraCards = computed<WalletCardItem[]>(() => {
+    const c = this.cards();
+    const items: WalletCardItem[] = [{ key: 'gross', title: 'المبلغ قبل الخصومات (إيداعات)', card: c?.grossBeforeDeductions, tone: 'teal' }];
+    if (this.isCompany()) items.push({ key: 'cashback', title: 'كاش باك الولاء', card: c?.cashback, tone: 'teal' });
+    return items;
+  });
+  /** the latest operations in «تفصيل المبالغ والخصومات»; the full list is the history page */
+  breakdownRows = computed<WalletBreakdownRow[]>(() => this.transactions().slice(0, 8).map(t => ({
+    id: t.id, title: t.title, date: t.date, link: ['/client-overview/finance/wallet', t.id], breakdown: t.breakdown ?? null, storedAmount: Math.abs(t.rawAmount), storedCurrency: t.currency,
+  })));
 
   quarterSpend = signal(0);
   quarterBudget = signal(0);
@@ -118,6 +139,7 @@ export class Wallet implements OnInit {
     this.quarterSpend.set(data.summary?.quarterSpend ?? 0);
     this.quarterBudget.set(data.summary?.quarterBudget ?? 0);
     this.employeeSpending.set(data.employeeSpending ?? []);
+    this.cards.set(data.summary?.cards ?? null);
 
     if (data.transactions && data.transactions.length > 0) {
       const mapped = data.transactions.map(tx => {
@@ -155,7 +177,11 @@ export class Wallet implements OnInit {
           status: statusText,
           statusType,
           icon,
-          employeeName: tx.employeeName
+          employeeName: tx.employeeName,
+          breakdown: tx.breakdown,
+          rawAmount: tx.amount,
+          currency: tx.currency,
+          createdAt: tx.createdAt
         } as DisplayTransaction;
       });
 
