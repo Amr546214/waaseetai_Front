@@ -211,13 +211,26 @@ export class ProfileSetupDashboard implements OnInit {
 		return { path: 'identity.' + missing, label, message };
 	}
 
+	documentError(key: 'idNumber' | 'idDocumentType'): string | null {
+		const number = this.setupForm.get('details.idNumber');
+		const type = this.setupForm.get('details.idDocumentType');
+		if (!number || number.disabled || type?.disabled) return null;
+		if (!number.touched && !type?.touched) return null;
+		const problem = documentInputProblem(number.value, identityCountryCode(this.setupForm.get('details.country')?.value), type?.value ?? null);
+		if (problem?.key === key) return problem.message;
+		if (key === 'idNumber') return number.getError('server') ?? (number.hasError('required') ? 'أدخل رقم الوثيقة' : null);
+		return type?.getError('server') ?? null;
+	}
+
 	private validateStep(step: number): boolean {
 		const group = this.setupForm.get(STEP_GROUPS[step]);
 		if (!group) return true;
 		if (step === 1 && !group.get('idNumber')?.disabled) {
 			const d = this.setupForm.getRawValue().details;
+			this.setupForm.get('details.idNumber')?.markAsTouched();
+			this.setupForm.get('details.idDocumentType')?.markAsTouched();
 			const problem = documentInputProblem(d.idNumber, identityCountryCode(d.country), d.idDocumentType);
-			if (problem) { this.missing.set([{ ...problem, path: 'details.' + problem.key }]); return false; }
+			if (problem) { this.missing.set([]); return false; }
 		}
 
 		if (step === 2) {
@@ -225,7 +238,7 @@ export class ProfileSetupDashboard implements OnInit {
 			if (problem) { this.missing.set([problem]); return false; }
 		}
 		const attempt = attemptSubmit(group, { root: this.host.nativeElement, labels: SETUP_LABELS });
-		this.missing.set(attempt.missing);
+		this.missing.set(attempt.missing.filter(issue => issue.path !== 'idNumber' && issue.path !== 'details.idNumber'));
 		return attempt.valid;
 	}
 
@@ -468,7 +481,7 @@ export class ProfileSetupDashboard implements OnInit {
 	private handleSaveError(err: any) {
 		const raw: string = err?.error?.message || '';
 		const fieldFix: [RegExp, string, string, string][] = [
-			[/ID Number/i, 'details.idNumber', 'رقم الهوية غير صحيح: يجب أن يتكون من 7 إلى 20 رقماً', 'details'],
+			[/ID Number/i, 'details.idNumber', 'رقم الوثيقة غير مقبول؛ راجع الرقم ونوع الوثيقة', 'details'],
 			[/PayPal/i, 'bank.paypalPayoutEmail', 'بريد PayPal غير صحيح', 'bank'],
 		];
 		for (const [re, path, message, groupName] of fieldFix) {

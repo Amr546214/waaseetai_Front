@@ -465,6 +465,17 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	/** One wizard step: marks touched, builds the summary, focuses the first missing field. */
+	documentError(key: 'idNumber' | 'idDocumentType'): string | null {
+		const number = this.setupForm.get('docs.idNumber');
+		const type = this.setupForm.get('docs.idDocumentType');
+		if (!number || number.disabled || type?.disabled || this.kycPending() || this.kycVerified()) return null;
+		if (!number.touched && !type?.touched) return null;
+		const problem = documentInputProblem(number.value, identityCountryCode(this.setupForm.get('profData.country')?.value), type?.value ?? null);
+		if (problem?.key === key) return problem.message;
+		if (key === 'idNumber') return number.getError('server') ?? null;
+		return type?.getError('server') ?? null;
+	}
+
 	private validateStep(step: number): boolean {
 		switch (step) {
 			case 1:
@@ -481,6 +492,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				const items: InvalidField[] = [];
 				if (!this.kycVerified() && !this.kycPending()) {
 					const d = this.setupForm.getRawValue().docs;
+					this.setupForm.get('docs.idNumber')?.markAsTouched();
+					this.setupForm.get('docs.idDocumentType')?.markAsTouched();
 					const problem = documentInputProblem(d.idNumber, identityCountryCode(this.setupForm.get('profData.country')?.value), d.idDocumentType);
 					if (problem) items.push({ ...problem, path: 'docs.' + problem.key });
 				}
@@ -502,7 +515,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					items.push({ path: 'docs.frontId', label: labels['frontId'], message });
 					this.setFileError('frontId', message);
 				}
-				this.missing.set(items);
+				this.missing.set(items.filter(issue => issue.path !== 'docs.idNumber' && issue.path !== 'docs.idDocumentType'));
 				return items.length === 0;
 			}
 			case 5: {
