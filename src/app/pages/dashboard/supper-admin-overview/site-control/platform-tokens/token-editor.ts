@@ -10,7 +10,7 @@ import { PRESENTATION_GROUPS,PRESENTATION_STYLE_ID,buildPresentationCss,presenta
 import { PlatformTokensStore } from './platform-tokens.store';
 
 export interface TokenNotice { type: 'ok' | 'warn' | 'error' | 'conflict'; text: string; detail?: string; failure?: Failure }
-interface KeyUi { edits: Record<string, string>; busy: null | 'stage' | 'apply' | 'discard' | 'restore'; draft: IdentityAssetMeta | null; notice: TokenNotice | null; verifyExpect: IdentityChangeResult | null }
+interface KeyUi { edits: Record<string, string>; busy: null | 'stage' | 'apply' | 'discard' | 'restore'; draft: IdentityAssetMeta | null; stale?: boolean; notice: TokenNotice | null; verifyExpect: IdentityChangeResult | null }
 const FRESH = (): KeyUi => ({ edits: {}, busy: null, draft: null, notice: null, verifyExpect: null });
 
 /** `#rrggbb` only: what <input type="color"> can hold (alpha / gradients / shadows are edited as text) */
@@ -48,9 +48,6 @@ export class TokenEditor implements OnInit {
  readonly livePreview = input(false);
  readonly previewPages = [
    {path:'/marketplace', label:'السوق'},
-   {path:'/client-overview/finance/wallet', label:'محفظة طالب الخدمة'},
-   {path:'/provider-overview/finance/wallet', label:'محفظة مقدّم الخدمة'},
-   {path:'/supper-admin-overview', label:'لوحة الإدارة'},
  ];
  readonly previewPage = signal('');
  private readonly sanitizer = inject(DomSanitizer);
@@ -84,9 +81,13 @@ export class TokenEditor implements OnInit {
      this.previewStatus.set('المتصفح لم يسمح بمعاينة هذه الصفحة.');
    }
  }
+ visualStyle(it:IdentityItemInfo,id:string,preview:boolean) {
+   const values = preview ? this.desired(it) : this.activeValue(it);
+   return presentationInline(id,values);
+ }
  readonly walletButtons: Record<string,string> = {'client-wallet-deposit':'إيداع رصيد','provider-wallet-withdraw':'سحب الأرباح'};
  walletButtonStyle(it:IdentityItemInfo,id:string,preview:boolean){
-   const values=preview?(this.reviewed(it)??this.desired(it)):this.activeValue(it);
+   const values=preview?this.desired(it):this.activeValue(it);
    return {...presentationInline('button',values),...presentationInline(id,values)};
  }
  sampleStyle(it:IdentityItemInfo,id:string){return presentationInline(id,this.reviewed(it)??this.desired(it));}
@@ -131,8 +132,9 @@ export class TokenEditor implements OnInit {
 	overrideCount(it: IdentityItemInfo): number { return Object.keys(this.activeValue(it)).length; }
 
 	edit(it: IdentityItemInfo, t: IdentityTokenDef, value: string): void {
+		if (this.state(it.key).busy || !this.canEdit(it)) return;
 		const s = this.state(it.key);
-		this.patch(it.key, { edits: { ...s.edits, [t.name]: value }, draft: null, notice: s.draft ? { type: 'warn', text: 'تغيّرت القيم بعد التحقق: أعد «تحقّق وعاين» قبل التطبيق.' } : s.notice });
+		this.patch(it.key, { edits: { ...s.edits, [t.name]: value }, stale: !!s.draft, notice: s.draft ? { type: 'warn', text: 'تغيّرت القيم بعد التحقق: أعد «تحقّق وعاين» قبل التطبيق.' } : s.notice });
 	}
 	resetRow(it: IdentityItemInfo, t: IdentityTokenDef): void { this.edit(it, t, ''); }
 	pickColor(it: IdentityItemInfo, t: IdentityTokenDef, ev: Event): void { this.edit(it, t, (ev.target as HTMLInputElement).value.toLowerCase()); }
@@ -151,7 +153,7 @@ export class TokenEditor implements OnInit {
 		return lines.length ? lines.join('\n') : 'لا فرق في القيم.';
 	}
 	/** the override object being reviewed: the server's canonical version of the draft */
-	reviewed(it: IdentityItemInfo): Record<string, string> | null { const d = this.state(it.key).draft; return d ? (d.value ?? {}) : null; }
+	reviewed(it: IdentityItemInfo): Record<string, string> | null { const d = this.state(it.key).draft; return d && !this.state(it.key).stale ? (d.value ?? {}) : null; }
 	/** every token of the key with the reviewed (or pending) values, as inline custom properties: the sample card renders them without touching the site */
 	sampleVars(it: IdentityItemInfo): Record<string, string> {
 		const o = this.reviewed(it) ?? this.desired(it);
@@ -166,23 +168,30 @@ export class TokenEditor implements OnInit {
 	canEdit(it: IdentityItemInfo): boolean { return this.store.canManage() && it.wired; }
 
 	async stage(it: IdentityItemInfo): Promise<void> {
+		if (this.state(it.key).busy || !this.canEdit(it)) return;
 		const want = this.desired(it);
 		if (!this.dirty(it)) { this.patch(it.key, { notice: { type: 'warn', text: 'لا تغيير لتتحقق منه: عدّل قيمة واحدة على الأقل.' } }); return; }
 		if (!Object.keys(want).length) { this.patch(it.key, { notice: { type: 'warn', text: 'كل القيم أصبحت مساوية للقيم الافتراضية للمنصة. للعودة إلى الأصل استعمل «العودة إلى الأصل».' } }); return; }
 		this.patch(it.key, { busy: 'stage', notice: null });
 		try {
+			const previous = this.state(it.key).draft;
+			if (previous && !this.state(it.key).stale) { this.patch(it.key, { busy: null }); return; }
+			if (previous) {
+				await firstValueFrom(this.api.discard(it.key, previous.versionId));
+				this.patch(it.key, { draft: null });
+			}
 			const r = await firstValueFrom(this.api.uploadTokens(it.key, want));
 			const draft = r.data as IdentityAssetMeta;
-			this.patch(it.key, { busy: null, draft, notice: { type: 'ok', text: 'تحقّق الخادم من القيم وحفظها كمسودة. لم يتغيّر الموقع بعد.', detail: draft.note ?? undefined } });
+			this.patch(it.key, { busy: null, draft, stale: false, notice: { type: 'ok', text: 'تحقّق الخادم من القيم وحفظها كمسودة. لم يتغيّر الموقع بعد.', detail: draft.note ?? undefined } });
 		} catch (e) { const f = describeFailure(e, 'التحقق من القيم'); this.patch(it.key, { busy: null, notice: { type: f.kind === 'conflict' ? 'conflict' : 'error', text: f.message, failure: f } }); }
 	}
 
 	async apply(it: IdentityItemInfo): Promise<void> {
-		const draft = this.state(it.key).draft; if (!draft) return;
+		const draft = this.state(it.key).draft; if (!draft || this.state(it.key).stale || this.state(it.key).busy || !this.canEdit(it)) return;
 		const changed = this.diff(it, draft.value ?? {});
 		const ok = await this.confirmer.confirm({ title: 'تطبيق القيم على الموقع كله', type: 'warning', size: 'md', confirmText: 'طبّق على الموقع', cancelText: 'لا تطبّق',
 			message: `ستتغيّر ${changed.length} ${changed.length === 1 ? 'قيمة' : 'قيم'} في ${it.label} لكل زوّار الموقع فور التطبيق (هي نفس القيم التي عاينتها):\n${this.diffText(it, draft.value ?? {})}\n\nتبقى النسخة الحالية محفوظة ويمكن الرجوع إليها.` });
-		if (!ok) return;
+		if (!ok || this.state(it.key).draft !== draft || this.state(it.key).stale || this.state(it.key).busy) return;
 		this.patch(it.key, { busy: 'apply', notice: null });
 		try {
 			const r = await firstValueFrom(this.api.publish(it.key, draft.versionId, it.state.stateVersion));
@@ -214,7 +223,10 @@ export class TokenEditor implements OnInit {
 	async cancel(it: IdentityItemInfo): Promise<void> {
 		const draft = this.state(it.key).draft;
 		this.patch(it.key, { busy: draft ? 'discard' : null });
-		if (draft) { try { await firstValueFrom(this.api.discard(it.key, draft.versionId)); } catch { /* a draft that cannot be discarded harms nothing: it is never live */ } }
+		if (draft) {
+			try { await firstValueFrom(this.api.discard(it.key, draft.versionId)); }
+			catch (e) { const f = describeFailure(e, 'حذف المسودة'); this.patch(it.key, { busy: null, notice: { type: 'error', text: f.message } }); return; }
+		}
 		this.patch(it.key, { busy: null, edits: {}, draft: null, notice: { type: 'ok', text: 'أُلغيت التعديلات والمسودة. الموقع كما هو.' } });
 	}
 
@@ -243,7 +255,7 @@ export class TokenEditor implements OnInit {
 		this.patch(it.key, { busy: null, notice: { type: f.kind === 'conflict' || f.kind === 'stale' ? 'conflict' : 'error', text: f.message, detail: f.kind === 'conflict' ? `الحالة الآن على الخادم: ${currentSummary(f.current)}` : undefined, failure: f } });
 		if (f.kind === 'conflict') await this.store.load(true);
 	}
-	async reloadFromServer(it: IdentityItemInfo): Promise<void> { await this.store.load(true); this.patch(it.key, { edits: {}, draft: null, notice: { type: 'ok', text: 'أُعيد تحميل الحالة الحالية من الخادم.' } }); }
+	async reloadFromServer(it: IdentityItemInfo): Promise<void> { if (this.state(it.key).draft) { await this.cancel(it); if (this.state(it.key).draft) return; } await this.store.load(true); this.patch(it.key, { edits: {}, draft: null, notice: { type: 'ok', text: 'أُعيد تحميل الحالة الحالية من الخادم.' } }); }
 
 	/** versions that were live once and can be restored */
 	restorable(it: IdentityItemInfo): IdentityAssetMeta[] { return (it.history ?? []).filter(v => (v.status === 'PUBLISHED' || v.status === 'SUPERSEDED') && v.versionId !== it.state.active?.versionId); }
