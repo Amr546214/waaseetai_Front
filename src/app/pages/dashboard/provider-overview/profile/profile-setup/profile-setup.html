@@ -371,6 +371,11 @@
 
       <!-- STEP 4: المستندات الرسمية (P-AU-010) -->
       <div class="step-panel" [class.active]="currentStep() === 4" role="tabpanel" formGroupName="docs">
+        <ws-identity-gate-status [state]="gate.state()" />
+        @if (gateProblem(); as gp) {
+        <div role="alert" data-testid="identity-gate-problem" class="notice-banner"><div><div class="notice-ttl">لا يمكن المتابعة</div><p class="notice-txt">{{ gp }}</p></div></div>
+        }
+        @if (!gate.state()) {
         @if (kycRejectedReason(); as why) {
         <div role="alert" data-testid="kyc-rejected-note" class="notice-banner"><div><div class="notice-ttl">رُفضت وثائق الهوية</div><p class="notice-txt">السبب: {{ why }}. ارفع وثائق جديدة وأرسلها مرة أخرى.</p></div></div>
         }
@@ -379,6 +384,8 @@
         }
         @if (kycPending()) {
         <div role="status" data-testid="kyc-pending-note" class="notice-banner"><div><div class="notice-ttl">مستندات الهوية قيد المراجعة</div><p class="notice-txt">وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر كما حُفظت.</p></div></div>
+        }
+
         }
 
         <!-- Notice Banner -->
@@ -398,7 +405,7 @@
         </div>
 
         <!-- Card 1: هوية وطنية وجه -->
-        @if (!kycPending() && !kycVerified()) {
+        @if (true) {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 <div class="flex flex-col gap-2">
   <label for="identity-document-type">نوع وثيقة الهوية</label>
@@ -420,7 +427,7 @@
           <div class="doc-header">
             <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-id-card"></use></svg></div>
             <div class="doc-info">
-              <div class="doc-name">هوية وطنية، الوجه @if (!kycPending() && !kycVerified()) {<span class="ws-req" aria-hidden="true">*</span>} <span class="doc-required">إلزامي</span></div>
+              <div class="doc-name">هوية وطنية، الوجه @if (true) {<span class="ws-req" aria-hidden="true">*</span>} <span class="doc-required">إلزامي</span></div>
               <div class="doc-desc">الوجه الأمامي للهوية الوطنية أو الإقامة، JPG/PNG/PDF حد أقصى 10MB</div>
             </div>
             <span class="ai-status-badge" [class.pending]="!getUploadState('frontId')" [class.scanning]="getUploadState('frontId')?.status === 'uploading'" [class.verified]="getUploadState('frontId')?.status === 'uploaded'" [class.rejected]="getUploadState('frontId')?.status === 'error'" aria-live="polite">
@@ -444,7 +451,7 @@
           }
           @if (!uploadedFrontIdName()) {
             <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة الوجه الأمامي للهوية">
-              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، وجه" [disabled]="kycPending() || kycVerified()" (change)="onFileSelected($event, 'frontId')">
+              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، وجه" (change)="onFileSelected($event, 'frontId')">
               <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg></div>
               <div class="upload-ttl">اسحب الملف هنا أو اضغط للاختيار</div>
               <div class="upload-sub">JPG, PNG, PDF &middot; حد أقصى 10MB</div>
@@ -503,7 +510,7 @@
           }
           @if (!uploadedBackIdName()) {
             <div class="upload-area" role="button" tabindex="0" aria-label="اسحب أو اختر صورة الظهر">
-              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، ظهر" [disabled]="kycPending() || kycVerified()" (change)="onFileSelected($event, 'backId')">
+              <input type="file" class="upload-file-inp" accept="image/*,.pdf" aria-label="رفع صورة الهوية، ظهر" (change)="onFileSelected($event, 'backId')">
               <div class="upload-ico"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-upload"></use></svg></div>
               <div class="upload-ttl">اسحب الملف هنا أو اضغط للاختيار</div>
               <div class="upload-sub">JPG, PNG, PDF &middot; حد أقصى 10MB</div>
@@ -681,11 +688,15 @@
           </div>
         </div>
 
+        <div class="identity-gate-actions" style="margin:12px 0">
+          <button type="button" class="btn-wz-next" data-testid="identity-gate-send" (click)="sendIdentity()" [disabled]="gate.saving() || isUploading()">{{ gate.saving() ? 'جاري حفظ الوثيقة...' : (gate.status() === 'REJECTED' ? 'حفظ التصحيح وإعادة الإرسال للمراجعة' : 'حفظ وإرسال للمراجعة') }}</button>
+        </div>
+
         <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(3)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 4 من 7</span>
-          <button type="button" class="btn-wz-next" (click)="goToStep(5)" [disabled]="isUploading()">{{ isUploading() ? 'جاري الرفع...' : 'التالي' }}<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+          <button type="button" class="btn-wz-next" (click)="goToStep(5)" [disabled]="isUploading() || !gate.canAdvance()" data-testid="identity-next">{{ isUploading() ? 'جاري الرفع...' : 'التالي' }}<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
         </div>
       </div>
 

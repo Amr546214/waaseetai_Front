@@ -1,6 +1,6 @@
 import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, identityCountryCode } from '../../../../../shared/data/identity-documents';
 import { requiredText } from '../../../../../core/forms/required-text.validator';
-import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
+import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -31,6 +31,8 @@ import { birthDateValidator, dobInputValue, maxDobIso } from '../../../../../cor
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
+import { IdentityGateService, isIdentityNotApproved } from '../../../../../core/services/identity-gate.service';
+import { IdentityGateStatusComponent } from '../../../../../shared/identity-gate/identity-gate-status.component';
 import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSetup } from './provider-setup-state';
 import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../core/services/provider-access.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
@@ -81,7 +83,8 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent, IdentityGateStatusComponent],
+	providers: [IdentityGateService],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
 })
@@ -245,8 +248,17 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	alertModal = signal<SetupAlertModal | null>(null);
 
+	/** The identity gate: step 5+ opens only while the backend says the CURRENT image + data are APPROVED. */
+	readonly gate = inject(IdentityGateService).use('PROVIDER');
+	/** Why the identity could not be sent / the next step did not open. */
+	gateProblem = signal<string | null>(null);
+	/** Refs uploaded in THIS session and not yet sent through the identity save (a stored ref is never re-sent as a "new" image). */
+	private pendingRefs: { frontId?: string; backId?: string } = {};
+	private gateFresh = false;
+
 	constructor() {
 		linkCountryCity(this.setupForm.get('profData'), this.destroyRef);
+		effect(() => { if (this.currentStep() === 4) untracked(() => this.gate.load().subscribe({ error: () => { /* unknown: nothing opens */ } })); });
 		effect(() => {
 			this.assistantStore.setExamActive(this.currentStep() === 7);
 		});
@@ -468,7 +480,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	documentError(key: 'idNumber' | 'idDocumentType'): string | null {
 		const number = this.setupForm.get('docs.idNumber');
 		const type = this.setupForm.get('docs.idDocumentType');
-		if (!number || number.disabled || type?.disabled || this.kycPending() || this.kycVerified()) return null;
+		if (!number || number.disabled || type?.disabled) return null;
 		if (!number.touched && !type?.touched) return null;
 		const problem = documentInputProblem(number.value, identityCountryCode(this.setupForm.get('profData.country')?.value), type?.value ?? null);
 		if (problem?.key === key) return problem.message;
@@ -490,7 +502,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				return this.checkGroup('payout');
 			case 4: {
 				const items: InvalidField[] = [];
-				if (!this.kycVerified() && !this.kycPending()) {
+				{
 					const d = this.setupForm.getRawValue().docs;
 					this.setupForm.get('docs.idNumber')?.markAsTouched();
 					this.setupForm.get('docs.idDocumentType')?.markAsTouched();
@@ -614,6 +626,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				}
 			}
 		}
+		if (step > 4 && this.currentStep() <= 4 && !this.gateFresh) {
+			// leaving the identity step forward: the server's CURRENT answer decides
+			this.checkGate(() => { this.gateFresh = true; try { this.goToStep(step); } finally { this.gateFresh = false; } });
+			return;
+		}
 		this.missing.set([]);
 
 		// Auto-init portfolio when reaching step 5
@@ -621,6 +638,39 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 		this.currentStep.set(step);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
+
+	private checkGate(proceed: () => void) {
+		this.gate.load().subscribe({
+			next: g => {
+				if (g.canAdvance) { this.gateProblem.set(null); proceed(); return; }
+				this.currentStep.set(4);
+				this.gateProblem.set(g.status === 'UNDER_REVIEW' ? 'الوثيقة قيد المراجعة؛ تُفتح الخطوة التالية بعد اعتمادها.' : g.status === 'REJECTED' ? 'الوثيقة مرفوضة؛ صحّح البيانات أو أعد رفع الصورة.' : 'ارفع صورة الوثيقة وأكمل بيانات الهوية لتبدأ المراجعة.');
+			},
+			error: () => { this.currentStep.set(4); this.gateProblem.set('تعذّر التحقق من حالة الوثيقة، حاول مرة أخرى.'); }
+		});
+	}
+
+	/** The identity step save: ID data + the images uploaded now go to the server, which stores them and STARTS the review. The user stays here; nothing is erased. */
+	sendIdentity() {
+		const d = this.setupForm.getRawValue();
+		const issuer = identityCountryCode(d.profData.country);
+		const problem = documentInputProblem(d.docs.idNumber, issuer, d.docs.idDocumentType || null);
+		this.setupForm.get('docs.idNumber')?.markAsTouched();
+		this.setupForm.get('docs.idDocumentType')?.markAsTouched();
+		if (problem || !d.docs.idDocumentType || !issuer || !d.docs.idNumber) {
+			this.gateProblem.set(problem?.message ?? 'أكمل الدولة (الخطوة الأولى) ونوع الوثيقة ورقمها ثم احفظ.');
+			return;
+		}
+		this.gateProblem.set(null);
+		const { frontId, backId } = this.pendingRefs;
+		this.gate.save({
+			idIssuingCountry: issuer, idDocumentType: d.docs.idDocumentType, idNumber: String(d.docs.idNumber).trim(),
+			...(d.profData.dob ? { dob: String(d.profData.dob).slice(0, 10) } : {}), ...(frontId ? { frontId } : {}), ...(backId ? { backId } : {})
+		}).subscribe({
+			next: () => { this.pendingRefs = {}; },
+			error: (err) => this.gateProblem.set(mapHttpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى.' }).message)
+		});
 	}
 
 	toggleSpec(spec: string) {
@@ -897,10 +947,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						this.uploadedFrontId.set(url);
 						this.uploadedFrontIdName.set(name);
 						this.setupForm.get('docs.frontId')?.setValue(url);
+						this.pendingRefs.frontId = url; this.sendIdentity();
 					}
 					if (type === 'backId') {
 						this.setupForm.get('docs.backId')?.setValue(url);
 						this.uploadedBackIdName.set(name);
+						this.pendingRefs.backId = url; this.sendIdentity();
 					}
 					if (type === 'selfie') {
 						this.setupForm.get('docs.selfie')?.setValue(url);
@@ -1268,6 +1320,13 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			},
 			error: (error) => {
 				this.isSubmitting.set(false);
+				if (isIdentityNotApproved(error)) {
+					// the server refused a submission that skipped the identity: back to the identity step with the real state
+					this.currentStep.set(4);
+					this.gate.refusedByServer();
+					this.gateProblem.set(error?.error?.message || 'وثيقة الهوية غير معتمدة بعد؛ لا يمكن المتابعة قبل اعتمادها.');
+					return;
+				}
 				const mapped = mapHttpError(error, { fallback: 'تعذر حفظ البيانات. يرجى المحاولة مجدداً.' });
 				// Server field messages (zod-style `errors[]`, names as the backend calls them) go to the matching inputs;
 				// the wizard returns to the step that holds the first one and focuses it.

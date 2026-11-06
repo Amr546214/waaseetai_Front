@@ -1,7 +1,7 @@
 import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, identityCountryCode } from '../../../../../shared/data/identity-documents';
 import { IdentityCheckService } from '../../../../../core/services/identity-check.service';
 import { birthDateValidator, maxDobIso } from '../../../../../core/forms/birth-date';
-import { Component, DestroyRef, ElementRef, inject, signal, OnInit } from '@angular/core';
+import { Component, DestroyRef, ElementRef, effect, inject, signal, untracked, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -18,6 +18,8 @@ import { paypalEmailValidators } from '../../../../../core/validators/paypal-ema
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
+import { IdentityGateService, isIdentityNotApproved } from '../../../../../core/services/identity-gate.service';
+import { IdentityGateStatusComponent } from '../../../../../shared/identity-gate/identity-gate-status.component';
 import { CLIENT_EDIT_PAGE, SETUP_REDIRECT_MESSAGE, resolveClientSetup } from './profile-setup-state';
 
 const SETUP_LABELS: Record<string, string> = {
@@ -49,7 +51,8 @@ const FILE_RULES: Record<string, { maxBytes: number; mimeTypes: string[]; typesL
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, FormSummaryComponent, KycDocumentLink],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, IdentityGateStatusComponent],
+	providers: [IdentityGateService],
 	templateUrl: './profile-setup.html'
 })
 export class ProfileSetupDashboard implements OnInit {
@@ -63,6 +66,14 @@ export class ProfileSetupDashboard implements OnInit {
 	private authStore = inject(AuthStore);
 	private profileApi = inject(ProfileApiService);
 	private identityCheck = inject(IdentityCheckService);
+	/** The identity gate: the next step opens only while the backend says the CURRENT image + data are APPROVED. */
+	readonly gate = inject(IdentityGateService).use('CLIENT');
+	/** Why the identity could not be sent from step 2 (data of step 1 incomplete / refused by the server). */
+	gateProblem = signal<string | null>(null);
+	constructor() {
+		// entering the identity step always reads the real state from the server
+		effect(() => { if (this.currentStep() === 2) untracked(() => this.gate.load().subscribe({ error: () => { /* the state stays unknown: nothing opens */ } })); });
+	}
 	/** Neutral owner state of the automatic ID check: only «in review» or nothing, never a field result. An old backend without the endpoint just leaves it off. */
 	identityInReview = signal<boolean>(false);
 	private refreshIdentityInReview() {
@@ -312,10 +323,26 @@ export class ProfileSetupDashboard implements OnInit {
 		if (step >= target) { this.missing.set([]); return; }
 		if (this.isSavingStep()) return;
 		if (!this.validateStep(step)) { this.focusSoon(); return; }
-		this.persistStep(step, () => {
-			this.missing.set([]);
-			this.currentStep.set(step + 1);
-			this.advanceTo(target);
+		if (step === 2) { this.checkGate(() => this.afterStep(step, target)); return; }
+		this.persistStep(step, () => this.afterStep(step, target));
+	}
+
+	private afterStep(step: number, target: number) {
+		this.missing.set([]);
+		this.currentStep.set(step + 1);
+		this.advanceTo(target);
+	}
+
+	/** Leaving the identity step: the server's CURRENT answer decides, not the local state. */
+	private checkGate(proceed: () => void) {
+		this.isSavingStep.set(true);
+		this.gate.load().subscribe({
+			next: g => {
+				this.isSavingStep.set(false);
+				if (g.canAdvance) { this.gateProblem.set(null); proceed(); return; }
+				this.gateProblem.set(g.status === 'UNDER_REVIEW' ? 'الوثيقة قيد المراجعة؛ تُفتح الخطوة التالية بعد اعتمادها.' : g.status === 'REJECTED' ? 'الوثيقة مرفوضة؛ صحّح البيانات أو أعد رفع الصورة.' : 'ارفع صورة الوثيقة وأكمل بيانات الهوية لتبدأ المراجعة.');
+			},
+			error: () => { this.isSavingStep.set(false); this.gateProblem.set('تعذّر التحقق من حالة الوثيقة، حاول مرة أخرى.'); }
 		});
 	}
 
@@ -332,8 +359,7 @@ export class ProfileSetupDashboard implements OnInit {
 			return { step: 1, body: { details: { idNumber: d.idNumber, idIssuingCountry: this.setupForm.get('details.idDocumentType')?.disabled ? this.verifiedIssuer : (d.idDocumentType && identityCountryCode(d.country)) || undefined, idDocumentType: d.idDocumentType || undefined, dob: d.dob ? new Date(d.dob).toISOString() : '', country: d.country, city: d.city, occupation: d.occupation, address: d.address } } };
 		}
 		if (step === 2) {
-			const frontId = this.newUpload(raw.identity.frontId), backId = this.newUpload(raw.identity.backId);
-			return frontId || backId ? { step: 2, body: { identity: { frontId, backId } } } : null;
+			return null; // the identity step is saved (and its review started) by sendIdentity(), right after the photo is chosen
 		}
 		if (step === 3) return { step: 3, body: { paypalPayoutEmail: String(raw.bank.paypalPayoutEmail || '').trim() } };
 		if (step === 4) {
@@ -351,8 +377,8 @@ export class ProfileSetupDashboard implements OnInit {
 		this.profileApi.saveClientSetupStep(payload.step, payload.body).subscribe({
 			next: (res: any) => {
 				this.isSavingStep.set(false);
-				// new identity files after a rejection start a new review: the reason goes away and the step shows "under review"
-				if (payload.step === 2 && this.kycRejectedReason()) { this.kycRejectedReason.set(null); this.kycPending.set(true); this.refreshIdentityInReview(); }
+				// the details save re-evaluates the identity review on the server (a changed number/type/country cancels an old approval): re-read it
+				if (payload.step === 1) this.gate.load().subscribe({ error: () => { /* keeps the previous state */ } });
 				const pct = Number(res?.data?.completionPercentage);
 				const user = this.authStore.currentUser();
 				if (user && Number.isFinite(pct)) this.authStore.authenticate(this.authStore.token()!, { ...user, profileCompletionPercent: pct });
@@ -398,6 +424,30 @@ export class ProfileSetupDashboard implements OnInit {
 			this.fileErrors.update(e => ({ ...e, [controlName]: 'تعذّرت قراءة الملف، حاول مرة أخرى أو اختر ملفًا آخر' }));
 		};
 		reader.readAsDataURL(file);
+	}
+
+	/**
+	 * The identity step save: the ID data of step 1 + the new photo(s) go to the server, which stores them and STARTS the review. A successful
+	 * upload never opens the next step; only the server's APPROVED does. The user stays here and the form keeps everything (no data loss).
+	 */
+	sendIdentity() {
+		const raw = this.setupForm.getRawValue();
+		const d = raw.details;
+		const issuer = this.setupForm.get('details.idDocumentType')?.disabled ? this.verifiedIssuer : identityCountryCode(d.country);
+		const problem = documentInputProblem(d.idNumber, issuer ?? null, d.idDocumentType || null);
+		if (problem || !d.idDocumentType || !issuer || !d.idNumber) {
+			this.gateProblem.set('أكمل بيانات الهوية في الخطوة الأولى (الدولة ونوع الوثيقة ورقمها) ثم أعد رفع الصورة؛ الصورة محفوظة في النموذج.' + (problem ? ' ' + problem.message : ''));
+			return;
+		}
+		const frontId = this.newUpload(raw.identity.frontId), backId = this.newUpload(raw.identity.backId);
+		this.gateProblem.set(null);
+		this.gate.save({
+			idIssuingCountry: issuer, idDocumentType: d.idDocumentType, idNumber: String(d.idNumber).trim(),
+			...(d.dob ? { dob: String(d.dob).slice(0, 10) } : {}), ...(frontId ? { frontId } : {}), ...(backId ? { backId } : {})
+		}).subscribe({
+			next: () => { /* the status panel shows the new state; polling follows while it is under review */ },
+			error: (err: any) => { this.gateProblem.set(this.notify.httpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى' }).message || 'تعذّر حفظ الوثيقة، حاول مرة أخرى'); }
+		});
 	}
 
 	/** The saved data may have just taken the profile to 100%: update the completion the sidebar / banners read (best effort). */
@@ -479,6 +529,13 @@ export class ProfileSetupDashboard implements OnInit {
 	 * ("Invalid ID Number format."), so those are matched here and placed on the right field and step.
 	 */
 	private handleSaveError(err: any) {
+		if (isIdentityNotApproved(err)) {
+			// the server refused a step that skipped the identity: go back to it and show the real state
+			this.currentStep.set(2);
+			this.gate.refusedByServer();
+			this.gateProblem.set(err?.error?.message || 'وثيقة الهوية غير معتمدة بعد؛ لا يمكن المتابعة قبل اعتمادها.');
+			return;
+		}
 		const raw: string = err?.error?.message || '';
 		const fieldFix: [RegExp, string, string, string][] = [
 			[/ID Number/i, 'details.idNumber', 'رقم الوثيقة غير مقبول؛ راجع الرقم ونوع الوثيقة', 'details'],

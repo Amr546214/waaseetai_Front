@@ -1,3 +1,5 @@
+import { IdentityGateService } from '../../../../../core/services/identity-gate.service';
+import { FakeIdentityGate } from '../../../../../core/services/identity-gate.testing';
 import { ChangeDetectorRef, signal } from '@angular/core';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
@@ -31,7 +33,7 @@ describe('provider profile-setup: shared validation', () => {
         { provide: SetupTestService, useValue: { warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
       ],
     }).compileComponents();
-    fixture = TestBed.createComponent(ProfileSetupDashboard);
+    fixture = (TestBed.overrideComponent(ProfileSetupDashboard, { set: { providers: [{ provide: IdentityGateService, useClass: FakeIdentityGate }] } }), TestBed.createComponent(ProfileSetupDashboard));
     component = fixture.componentInstance;
     http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
