@@ -38,10 +38,17 @@ export class TokenEditor implements OnInit {
  readonly fontChoices=APPROVED_FONTS;
  fontStack(font:{googleFamily:string;latinPartner:string}):string{return [...new Set([font.googleFamily,font.latinPartner])].map(n=>"'"+n+"'").join(',')+',system-ui,sans-serif';}
  readonly tokenPrefix=input('');readonly query=signal('');readonly limit=signal(50);
- displayValue(value:string):string{return value==='inherit'?'الأصل حسب موضعه':value;}
+ displayValue(value:string):string{return value==='inherit'?'افتراضي لكل موضع':value;}
+ readonly scopesByToken = new Map(PRESENTATION_GROUPS.flatMap(group =>
+   group.fields.map(field => [field.name, group] as const)));
  filteredTokens(it:IdentityItemInfo):IdentityTokenDef[]{const q=this.query().trim().toLowerCase();return(it.tokens??[]).filter(t=>(!this.tokenPrefix()||t.name.startsWith(this.tokenPrefix()))&&(!q||[t.name,t.label,t.default].some(v=>v.toLowerCase().includes(q))));}
  visibleTokens(it:IdentityItemInfo):IdentityTokenDef[]{return this.filteredTokens(it).slice(0,this.limit());}
  samples(it:IdentityItemInfo){return PRESENTATION_GROUPS.filter(g=>g.key===it.key&&(!this.tokenPrefix()||g.fields.some(f=>f.name.startsWith(this.tokenPrefix())))).slice(0,20);}
+ readonly walletButtons: Record<string,string> = {'client-wallet-deposit':'إيداع رصيد','provider-wallet-withdraw':'سحب الأرباح'};
+ walletButtonStyle(it:IdentityItemInfo,id:string,preview:boolean){
+   const values=preview?(this.reviewed(it)??this.desired(it)):this.activeValue(it);
+   return {...presentationInline('button',values),...presentationInline(id,values)};
+ }
  sampleStyle(it:IdentityItemInfo,id:string){return presentationInline(id,this.reviewed(it)??this.desired(it));}
 
 	readonly previewFonts=inject(IdentityFontsRuntime);
