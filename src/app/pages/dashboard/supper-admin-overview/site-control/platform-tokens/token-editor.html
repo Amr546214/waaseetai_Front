@@ -52,6 +52,57 @@
             </div>
           }
 
+          @if (livePreview()) {
+            @for (group of samples(it); track group.id) {
+              <section class="visual-editor" aria-label="محرّر المكوّن">
+                <h4>{{group.label}}</h4>
+                <p class="hint">معاينة بالقيم الحالية والمسودة. عناصر العرض لا تنفّذ أي إجراء.</p>
+                <div class="visual-pair">
+                  @for (after of [false,true]; track after) {
+                    <div class="visual-pane">
+                      <strong>{{after ? 'بعد التعديل' : 'قبل التعديل'}}</strong>
+                      <div class="visual-object" inert>
+                        @if (walletButtons[group.id]; as label) {
+                          <button type="button" class="pt-wallet-button" [ngStyle]="walletButtonStyle(it,group.id,after)">＋ {{label}}</button>
+                        } @else {
+                          @let style = visualStyle(it,group.id,after);
+                          @switch (group.id) {
+                            @case ('button') { <button type="button" class="btn-save" [ngStyle]="style">حفظ التغييرات</button> }
+                            @case ('button-disabled') { <button type="button" class="btn-save" disabled [ngStyle]="style">حفظ التغييرات</button> }
+                            @case ('field') { <input class="pt-text" value="اسم المشروع" [ngStyle]="style"> }
+                            @case ('field-disabled') { <input class="pt-text" value="اسم المشروع" disabled [ngStyle]="style"> }
+                            @case ('card') { <article class="visual-box" [ngStyle]="style"><b>تصميم هوية بصرية</b><p>تفاصيل المشروع</p></article> }
+                            @case ('modal') { <div class="visual-box" role="dialog" aria-label="تأكيد التعديل" [ngStyle]="style"><b>تأكيد التعديل</b><p>هل تريد حفظ التغييرات؟</p></div> }
+                            @case ('dropdown') { <div class="visual-box" role="listbox" aria-label="ترتيب النتائج" [ngStyle]="style"><div role="option">الأحدث</div><div role="option">الأقدم</div></div> }
+                            @case ('badge') { <span class="chip chip-ok" [ngStyle]="style">مكتمل</span> }
+                            @case ('table-cell') { <table><tbody><tr><td class="visual-box" [ngStyle]="style">اسم المشروع</td><td class="visual-box" [ngStyle]="style">قيد التنفيذ</td></tr></tbody></table> }
+                            @case ('tabs') { <div role="tablist"><button type="button" role="tab" aria-selected="true" class="btn-secondary" [ngStyle]="style">نظرة عامة</button></div> }
+                            @case ('tooltip') { <span class="visual-box" role="tooltip" [ngStyle]="style">عرض التفاصيل</span> }
+                            @case ('sidebar') { <aside class="visual-box" [ngStyle]="style"><b>لوحة التحكم</b><p>الطلبات</p><p>المشاريع</p></aside> }
+                          }
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+                @if (canEdit(it)) {
+                  <div class="visual-fields">
+                    @for (t of filteredTokens(it); track t.name) {
+                      <label>{{t.label}}
+                        @if (isHex6(shownValue(it,t)) && isSwatch(t)) {
+                          <input type="color" [value]="shownValue(it,t)" (input)="pickColor(it,t,$event)" [disabled]="state(it.key).busy !== null">
+                        }
+                        <input class="pt-text" dir="ltr" [value]="state(it.key).edits[t.name] ?? ''" [placeholder]="displayValue(published(it,t))" (input)="onText(it,t,$event)" [disabled]="state(it.key).busy !== null">
+                      </label>
+                    }
+                  </div>
+                }
+              </section>
+            }
+          }
+
+          <details [open]="!livePreview()">
+            <summary>القيم التفصيلية</summary>
           <label class="hint">بحث في القيم <input type="search" [value]="query()" (input)="query.set($any($event.target).value);limit.set(50)" placeholder="الاسم أو اللون أو القيمة" /></label>
           @if(!filteredTokens(it).length){<p role="status">لا توجد حقول مطابقة في السجل المقروء من الخادم.</p>}
           <div class="pt-grid" role="table" [attr.aria-label]="'قيم ' + it.label">
@@ -92,6 +143,7 @@
           </div>
 
           @if(filteredTokens(it).length>limit()){<button type="button" (click)="limit.set(limit()+50)">عرض 50 قيمة أخرى</button>}
+          </details>
           @if (canEdit(it)) {
             <div class="pt-actions">
               <button type="button" class="btn-save" [disabled]="!dirty(it) || state(it.key).busy !== null" (click)="stage(it)" [attr.data-testid]="'pt-stage-' + it.key">{{ state(it.key).busy === 'stage' ? 'جارٍ التحقق…' : 'تحقّق وعاين' }}</button>
@@ -100,7 +152,7 @@
             </div>
           }
 
-          @if (state(it.key).draft; as d) {
+          @if (!state(it.key).stale && state(it.key).draft; as d) {
             <div class="pt-review" [attr.data-testid]="'pt-review-' + it.key">
               <h4>المراجعة قبل التطبيق (المسودة {{ d.version }} · لم يتغيّر الموقع بعد)</h4>
               @let ch = diff(it, d.value ?? {});
@@ -114,7 +166,7 @@
                   }
                 </ul>
               } @else { <p class="hint">لا فرق بين هذه المسودة وما هو منشور.</p> }
-              @if (livePreview()) {
+              @if (livePreview() && !walletButtons[samples(it).at(0)?.id ?? '']) {
                 <section aria-label="معاينة صفحة فعلية">
                   <h4>معاينة على صفحة من الموقع</h4>
                   <p>اختَر صفحة وشوف التغيير على المكوّنات الظاهرة فيها. المعاينة للعرض فقط.</p>
