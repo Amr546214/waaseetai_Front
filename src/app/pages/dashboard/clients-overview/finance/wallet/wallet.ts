@@ -67,9 +67,11 @@ export class Wallet implements OnInit {
   });
   /** the latest operations in «تفصيل المبالغ والخصومات»; the full list is the history page */
   breakdownRows = computed<WalletBreakdownRow[]>(() => this.transactions().slice(0, 8).map(t => ({
-    id: t.id, title: t.title, date: t.date, link: ['/client-overview/finance/wallet', t.id], breakdown: t.breakdown ?? null, storedAmount: Math.abs(t.rawAmount), storedCurrency: t.currency,
+    id: t.id, title: t.employeeName ? `${t.title} · ${t.employeeName}` : t.title, date: t.date, link: ['/client-overview/finance/wallet', t.id], breakdown: t.breakdown ?? null, storedAmount: Math.abs(t.rawAmount), storedCurrency: t.currency,
   })));
 
+  /** the company quarter figures exist only when the server sends them: otherwise the card says so instead of 0 */
+  quarterKnown = signal(false);
   quarterSpend = signal(0);
   quarterBudget = signal(0);
   employeeSpending = signal<ClientWalletEmployeeSpend[]>([]);
@@ -136,6 +138,7 @@ export class Wallet implements OnInit {
     this.balance.set(data.summary?.availableBalance ?? 0);
     this.escrowBalance.set(data.summary?.escrowBalance ?? 0);
     this.activeProjectsCount.set(data.summary?.activeProjectsCount ?? 0);
+    this.quarterKnown.set(data.summary?.quarterSpend != null && data.summary?.quarterBudget != null);
     this.quarterSpend.set(data.summary?.quarterSpend ?? 0);
     this.quarterBudget.set(data.summary?.quarterBudget ?? 0);
     this.employeeSpending.set(data.employeeSpending ?? []);

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
@@ -86,7 +87,21 @@ export class Transactions implements OnInit {
     return 'تم الإفراج';
   }
 
-  exportCSV() {
+  /** the export covers the whole history (the filters applied), not only the pages loaded so far */
+  async exportCSV() {
+    let p = this.pagination();
+    try {
+      while (p && p.page < p.totalPages) {
+        const res = await firstValueFrom(this.walletApi.history('provider', p.page + 1, 50));
+        this.transactions.set([...this.transactions(), ...(res.data.items as any)]);
+        this.pagination.set(res.data.pagination);
+        p = res.data.pagination;
+      }
+    } catch { this.notify.error('تعذر تجهيز كامل السجل للتصدير'); return; }
+    this.writeCSV();
+  }
+
+  private writeCSV() {
     const rows = [['رقم المعاملة','النوع','المشروع','الوصف','المبلغ','العملة','الحالة','التاريخ'], ...this.filteredTransactions().map(t => [t.id,t.title,t.projectTitle,t.description,String(t.amount),t.currency || 'USD',t.status,new Date(t.createdAt).toISOString()])];
     const csv = '\ufeff' + rows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
