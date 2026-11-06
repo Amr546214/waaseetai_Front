@@ -104,7 +104,7 @@ export class TokenEditor implements OnInit {
 
  constructor(){effect(()=>{const values=this.ui()['tokens.typography']?.draft?.value;this.previewFonts.setItems(values?{'tokens.typography':{value:values}}:{});});}
  ngOnDestroy(){this.previewFonts.setItems({});}
-	ngOnInit(): void { void this.store.load().then(() => this.adoptStaged()); }
+	ngOnInit(): void { void Promise.resolve(this.store.load()).then(() => this.adoptStaged()); }
 
 	/**
 	 * A check («تحقّق وعاين») stores a STAGED draft on the server; the page's own copy of it used to be lost on Refresh / leaving the tab, so drafts piled up with no way to apply or cancel them.
