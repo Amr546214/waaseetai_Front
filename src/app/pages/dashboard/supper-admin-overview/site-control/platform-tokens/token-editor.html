@@ -89,7 +89,7 @@
                   <div class="visual-fields">
                     @for (t of filteredTokens(it); track t.name) {
                       <label>{{t.label}}
-                        @if (isHex6(shownValue(it,t)) && isSwatch(t)) {
+                        @if (isHex6(shownValue(it,t)) && (t.type === 'color' || t.type === 'paint')) {
                           <input type="color" [value]="shownValue(it,t)" (input)="pickColor(it,t,$event)" [disabled]="state(it.key).busy !== null">
                         }
                         <input class="pt-text" dir="ltr" [value]="state(it.key).edits[t.name] ?? ''" [placeholder]="displayValue(published(it,t))" (input)="onText(it,t,$event)" [disabled]="state(it.key).busy !== null">
