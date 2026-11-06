@@ -40,7 +40,7 @@ export interface WalletBreakdownRow {
 							<div class="wb-line"><span>{{ grossLabel(b) }}</span><b data-testid="bd-gross">{{ b.gross != null ? ((b.gross | number:'1.2-2') + ' ' + cur(b.currency)) : '—' }}</b></div>
 							@for (d of b.deductions; track d.code) {
 								<div class="wb-line wb-ded" data-testid="bd-deduction">
-									<span>{{ d.label }}@if (rateText(d)) { <small> ({{ rateText(d) }})</small> }<small class="wb-reason">{{ d.reason }}</small></span>
+									<span>{{ d.label }}@if (rateText(d)) { <small class="wb-reason" data-testid="bd-rate">{{ rateText(d) }}</small> }<small class="wb-reason">{{ d.reason }}</small></span>
 									<b>- {{ d.amount | number:'1.2-2' }} {{ cur(b.currency) }}</b>
 								</div>
 							}
@@ -70,7 +70,7 @@ export interface WalletBreakdownRow {
 		.wb-meta{font-size:var(--font-size-small);color:var(--txt-3);margin-top:2px;overflow-wrap:anywhere}
 		.wb-link{font-size:var(--font-size-small);font-weight:700;color:var(--teal-txt);text-decoration:none;white-space:nowrap}
 		.wb-line{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:var(--font-size-label);color:var(--txt-2);border-top:1px dashed var(--border)}
-		.wb-line b{color:var(--txt);white-space:nowrap}
+		.wb-line b{color:var(--txt);white-space:nowrap;direction:ltr;unicode-bidi:isolate}
 		.wb-ded b{color:var(--red)}
 		.wb-ded small{color:var(--txt-3);font-size:var(--font-size-small);font-weight:400}
 		.wb-ded small.wb-reason{display:block;margin-top:2px}

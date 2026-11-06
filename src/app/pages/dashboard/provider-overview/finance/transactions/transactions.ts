@@ -29,7 +29,7 @@ export class Transactions implements OnInit {
     return user?.accountType === AccountType.PROVIDER_COMPANY;
   });
 
-  currentPeriod = signal('month'); currentType = signal('all'); searchQuery = signal('');
+  currentPeriod = signal('all'); currentType = signal('all'); searchQuery = signal('');
   loading = signal(true); error = signal('');
   summary = signal<any>(null); transactions = signal<FinancialEvent[]>([]);
 
@@ -79,7 +79,7 @@ export class Transactions implements OnInit {
   setSearch(event: Event) { this.searchQuery.set((event.target as HTMLInputElement).value.trim().toLowerCase()); }
 
   statusLabel(t: FinancialEvent) {
-    if (t.category === 'CANCELLATION_SETTLEMENT') return 'تسوية إلغاء متبادل';
+    if (t.category === 'CANCELLATION_SETTLEMENT' || t.id.startsWith('cancellation-settlement-')) return 'تسوية إلغاء متبادل';
     if (t.type === 'credit') return 'مفرج ومكتمل';
     if (t.status === 'HELD') return 'محتجز في الضمان';
     if (t.status === 'REFUNDED') return 'مسترد';
