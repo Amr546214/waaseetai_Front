@@ -58,7 +58,16 @@
             <div class="pt-row pt-row-head" role="row"><span role="columnheader">القيمة</span><span role="columnheader">الأصل</span><span role="columnheader">المنشورة الآن</span><span role="columnheader">القيمة الجديدة</span></div>
             @for (t of visibleTokens(it); track t.name) {
               <div class="pt-row" role="row" [class.pt-edited]="isEdited(it, t)" [attr.data-testid]="'pt-row-' + t.name">
-                <span class="pt-name" role="cell"><strong>{{ t.label }}</strong><code class="code" dir="ltr">{{ t.name }}</code>@if(t.type==='font-family' && store.canManage()){<div class="font-choices">@for(font of fontChoices;track font.id){<button type="button" class="btn-secondary" (click)="edit(it,t,fontStack(font))">{{font.label}}</button>}</div><small>خطوط المكتبة تُحمّل من Google Fonts لكل زائر بعد النشر؛ عند تعذّر التحميل يُستخدم الخط الاحتياطي. الاسم المخصص يحتاج ملف خط متاحًا للزائر.</small>} @if (t.sharedWithDark) { <small class="muted">تشاركها قيمة الوضع الداكن</small> }</span>
+                <span class="pt-name" role="cell"><strong>{{ t.label }}</strong>
+                  @if (scopesByToken.get(t.name); as scope) {
+                    <small>يتأثر كل عنصر مطابق لفئة «{{ scope.label }}»؛ التعديل مش لعنصر واحد.</small>
+                    <details>
+                      <summary>نطاق التطبيق</summary>
+                      <code dir="ltr">{{ scope.selector }}</code>
+                      <small>من غير تخصيص منشور، كل عنصر يحتفظ بقيمته الأصلية في صفحته.</small>
+                    </details>
+                  }
+                  <code class="code" dir="ltr">{{ t.name }}</code>@if(t.type==='font-family' && store.canManage()){<div class="font-choices">@for(font of fontChoices;track font.id){<button type="button" class="btn-secondary" (click)="edit(it,t,fontStack(font))">{{font.label}}</button>}</div><small>خطوط المكتبة تُحمّل من Google Fonts لكل زائر بعد النشر؛ عند تعذّر التحميل يُستخدم الخط الاحتياطي. الاسم المخصص يحتاج ملف خط متاحًا للزائر.</small>} @if (t.sharedWithDark) { <small class="muted">تشاركها قيمة الوضع الداكن</small> }</span>
                 <span class="pt-val" role="cell">
                   @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="t.default" [attr.aria-hidden]="true"></i> }
                   <code dir="ltr">{{ displayValue(t.default) }}</code>
@@ -108,7 +117,16 @@
               <div class="pt-sample-wrap">
                 <span class="pt-cap">عيّنة بقيم المسودة ({{ sampleMode(it) === 'light' ? 'الوضع الفاتح' : sampleMode(it) === 'dark' ? 'الوضع الداكن' : 'كما في الموقع' }}) — لا تمسّ الموقع:</span>
                 <div class="pt-sample" [ngStyle]="sampleVars(it)" [attr.data-mode]="sampleMode(it)" [attr.data-testid]="'pt-sample-' + it.key">
-                  @for(group of samples(it);track group.id){<section style="margin:12px 0;overflow:auto;max-height:300px"><strong>{{group.label}}</strong><p [ngStyle]="sampleStyle(it,group.id)" [attr.data-testid]="'pt-presentation-'+group.id">وسيط AI — نص تجريبي 123</p></section>}
+                  @for(group of samples(it);track group.id){<section style="margin:12px 0;overflow:auto;max-height:300px"><strong>{{group.label}}</strong>@if (walletButtons[group.id]; as label) {
+                    <div class="pt-wallet-preview">
+                      <div><small>قبل التغيير</small><button type="button" class="pt-wallet-button" [ngStyle]="walletButtonStyle(it,group.id,false)">＋ {{label}}</button></div>
+                      <div><small>بعد التغيير</small><button type="button" class="pt-wallet-button" [ngStyle]="walletButtonStyle(it,group.id,true)">＋ {{label}}</button></div>
+                    </div>
+                  } @else if (group.id === 'button'  || group.id === 'button-disabled') {
+                    <button type="button" [disabled]="group.id === 'button-disabled'" [ngStyle]="sampleStyle(it,group.id)" [attr.data-testid]="'pt-presentation-'+group.id">زر تجريبي</button>
+                  } @else {
+                    <p [ngStyle]="sampleStyle(it,group.id)" [attr.data-testid]="'pt-presentation-'+group.id">وسيط AI — نص تجريبي 123</p>
+                  }</section>}
                   <h5>عنوان تجريبي</h5>
                   <p [style.font-family]="(reviewed(it) ?? desired(it))['--font-family'] || null">نص أساسي لمعاينة الألوان والخط معًا على محتوى المنصة.</p>@if(previewFonts.failed().length){<p role="alert">تعذّر تحميل خط المعاينة؛ المعروض خط احتياطي. لم يُنشر هذا التغيير.</p>}
                   <p class="s2">نص ثانوي توضيحي.</p>
