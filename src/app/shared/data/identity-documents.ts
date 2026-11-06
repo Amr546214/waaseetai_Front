@@ -21,14 +21,21 @@ export function identityCountryCode(country: string | null | undefined): string 
 
 export function documentInputProblem(number: string | null, issuer: string | null, type: string | null) {
   const value = number?.trim() ?? '';
+  const numberError = (message: string) => ({ key: 'idNumber', label: 'رقم الوثيقة', message });
   if (type) {
     if (!issuer) return { key: 'idDocumentType', label: 'نوع وثيقة الهوية', message: 'اختر دولة محددة من حقل الدولة لاستخدام هذا النوع من الوثائق' };
+    if (!value) return numberError('أدخل رقم الوثيقة');
     const normalized = value.replace(/[٠-٩۰-۹]/g, digit => String(digit.charCodeAt(0) & 15));
-    if (!(issuer === 'EG' && type === 'NATIONAL_ID' ? /^\d{14}$/.test(normalized) : DOCUMENT_NUMBER_PATTERN.test(value))) {
-      return { key: 'idNumber', label: 'رقم الوثيقة', message: issuer === 'EG' && type === 'NATIONAL_ID' ? 'رقم الهوية المصرية لازم يكون 14 رقمًا' : 'رقم الوثيقة غير صالح: اكتب الرقم كما يظهر في الوثيقة' };
+    if (issuer === 'EG' && type === 'NATIONAL_ID') {
+      if (!/^\d+$/.test(normalized)) return numberError('رقم الهوية المصرية لازم يحتوي على أرقام فقط');
+      if (normalized.length !== 14) return numberError('رقم الهوية المصرية لازم يكون 14 رقمًا');
+    } else {
+      if (Array.from(value).length > 40) return numberError('رقم الوثيقة لازم يكون 40 حرفًا أو رقمًا كحد أقصى');
+      if (!/^[\p{L}\p{Nd}]/u.test(value)) return numberError('رقم الوثيقة لازم يبدأ بحرف أو رقم');
+      if (!DOCUMENT_NUMBER_PATTERN.test(value)) return numberError('رقم الوثيقة فيه رمز غير مسموح');
     }
   } else if (value && !/^[12]\d{9}$/.test(value)) {
-    return { key: 'idNumber', label: 'رقم الوثيقة', message: 'رقم الهوية لازم يكون 10 أرقام ويبدأ بـ 1 أو 2، أو اختر نوع الوثيقة المناسب' };
+    return { key: 'idDocumentType', label: 'نوع وثيقة الهوية', message: 'اختر نوع الوثيقة للتحقق من صيغة الرقم' };
   }
   return null;
 }
