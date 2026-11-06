@@ -174,17 +174,23 @@
 							</svg>
 							<h3 class="text-base font-bold text-slate-900 dark:text-white">رفع وثائق الهوية</h3>
 						</div>
+						<ws-identity-gate-status [state]="gate.state()" />
+						@if (gateProblem(); as gp) {
+						<div role="alert" data-testid="identity-gate-problem" class="mb-5 rounded-xl border border-red-300 bg-red-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">{{ gp }}</div>
+						}
+						@if (!gate.state()) {
 						@if (kycRejectedReason(); as why) {
 						<div role="alert" data-testid="kyc-rejected-note" class="mb-5 rounded-xl border border-red-300 bg-red-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">رُفضت وثائق الهوية. السبب: {{ why }}. ارفع وثائق جديدة وأرسلها مرة أخرى.</div>
 						}
 						@if (kycPending()) {
 						<div role="status" data-testid="kyc-pending-note" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-200">@if (identityInReview()) {<strong data-testid="identity-in-review">الهوية قيد الفحص.</strong>&nbsp;}وثائق الهوية المرسلة قيد المراجعة. لا حاجة لإعادة إرسالها، وتظهر أدناه كما حُفظت.</div>
 						}
+						}
 
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">صورة بطاقة الهوية،
-									الوجه الأمامي <span class="font-normal text-slate-400">(اختياري)</span></label>
+									الوجه الأمامي <span class="ws-req" aria-hidden="true">*</span></label>
 								<span class="text-[length:var(--font-size-caption)] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
 								@if (fileErrors()['frontId']; as fe) { <span role="alert" class="field-error text-[length:var(--font-size-small)] font-bold ">{{ fe }}</span> }
 								@if (storedDocs().frontId; as stored) {
@@ -266,7 +272,7 @@
 
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">صورة بطاقة الهوية،
-									الوجه الخلفي <span class="font-normal text-slate-400">(اختياري)</span></label>
+									الوجه الخلفي @if (backRequired()) {<span class="ws-req" aria-hidden="true">*</span>} @else {<span class="font-normal text-slate-400">(غير مطلوب لجواز السفر)</span>}</label>
 								<span class="text-[length:var(--font-size-caption)] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</span>
 								@if (fileErrors()['backId']; as fe) { <span role="alert" class="field-error text-[length:var(--font-size-small)] font-bold ">{{ fe }}</span> }
 								@if (storedDocs().backId; as stored) {
@@ -628,7 +634,7 @@
 						السابق
 					</button>
 
-					@if (currentStep() < 5) { <button type="button" (click)="nextStep()" [disabled]="isSavingStep()" data-testid="setup-next"
+					@if (currentStep() < 5) { <button type="button" (click)="nextStep()" [disabled]="isSavingStep() || (currentStep() === 2 && !gate.canAdvance())" data-testid="setup-next"
 						class="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold shadow-lg shadow-cyan-500/30 transition-colors">
 						التالي
 						<svg data-ws-icon="ws-chevron-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
