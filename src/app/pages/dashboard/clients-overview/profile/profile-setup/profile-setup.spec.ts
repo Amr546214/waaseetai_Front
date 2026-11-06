@@ -54,12 +54,11 @@ describe('client profile-setup: shared validation', () => {
 		el().remove();
 	});
 
-	it('the ID number rule matches the allowed format (7 to 20 digits) and says so', () => {
+	it('accepts a passport number and rejects characters not supported by the identity service', () => {
 		const c = component.setupForm.get('details.idNumber')!;
-		c.setValue('12345'); c.markAsTouched(); render();
+		c.setValue('A@123'); c.markAsTouched(); render();
 		expect(c.invalid).toBe(true);
-		expect(el().querySelector('[data-testid="field-error"]')?.textContent).toContain('غير صحيح');
-		c.setValue('303030925'); expect(c.valid).toBe(true);
+		c.setValue('AB0123-4'); expect(c.valid).toBe(true);
 		c.setValue('1234567890'); expect(c.valid).toBe(true);
 	});
 

@@ -101,12 +101,26 @@
 
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div class="flex flex-col gap-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">رقم الهوية الوطنية
+  <label for="identity-issuer">بلد إصدار الوثيقة</label>
+  <select id="identity-issuer" formControlName="idIssuingCountry" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
+    <option value="">اختر البلد</option>
+    @for (country of identityIssuers; track country.code) { <option [value]="country.code">{{ country.label }}</option> }
+  </select>
+</div>
+<div class="flex flex-col gap-2">
+  <label for="identity-document-type">نوع وثيقة الهوية</label>
+  <select id="identity-document-type" formControlName="idDocumentType" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
+    <option value="">اختر نوع الوثيقة</option>
+    @for (type of identityDocumentTypes; track type.code) { <option [value]="type.code">{{ type.label }}</option> }
+  </select>
+</div>
+<div class="flex flex-col gap-2">
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">رقم الوثيقة
 									<span class="ws-req" aria-hidden="true">*</span></label>
-								<input type="text" formControlName="idNumber" aria-required="true" placeholder="رقم الهوية الوطنية أو الإقامة" maxlength="20"
+								<input type="text" formControlName="idNumber" aria-required="true" placeholder="الرقم كما هو مكتوب في الوثيقة" maxlength="40"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
-								<ws-field-error [control]="setupForm.get('details.idNumber')" label="رقم الهوية الوطنية" />
-								<span class="text-[length:var(--font-size-caption)] text-slate-500 mt-1">من 7 إلى 20 رقماً</span>
+								<ws-field-error [control]="setupForm.get('details.idNumber')" label="رقم الوثيقة" />
+								<span class="text-[length:var(--font-size-caption)] text-slate-500 mt-1">اكتب الرقم كما هو ظاهر في الوثيقة</span>
 							</div>
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">تاريخ الميلاد <span class="ws-req" aria-hidden="true">*</span></label>
