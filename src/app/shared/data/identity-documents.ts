@@ -27,6 +27,16 @@ const nationalIdFormats: Readonly<Record<string, { pattern: RegExp; message: str
   BH: { pattern: /^\d{9}$/, message: 'الرقم الشخصي البحريني لازم يكون 9 أرقام' },
 };
 
+function egyptianIdStructure(value: string): 'CENTURY' | 'DATE' | null {
+  if (!/^[23]/.test(value)) return 'CENTURY';
+  const year = (value[0] === '2' ? 1900 : 2000) + Number(value.slice(1, 3));
+  const month = Number(value.slice(3, 5));
+  const day = Number(value.slice(5, 7));
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day && date.getTime() <= Date.now() ? null : 'DATE';
+}
+
 export function documentInputProblem(number: string | null, issuer: string | null, type: string | null) {
   const value = number?.trim() ?? '';
   const numberError = (message: string) => ({ key: 'idNumber', label: 'رقم الوثيقة', message });
@@ -39,6 +49,9 @@ export function documentInputProblem(number: string | null, issuer: string | nul
     if (issuer === 'EG' && type === 'NATIONAL_ID') {
       if (!/^\d+$/.test(normalized)) return numberError('رقم الهوية المصرية لازم يحتوي على أرقام فقط');
       if (normalized.length !== 14) return numberError('رقم الهوية المصرية لازم يكون 14 رقمًا');
+      const structure = egyptianIdStructure(normalized);
+      if (structure === 'CENTURY') return numberError('رقم الهوية المصرية لازم يبدأ بـ 2 أو 3');
+      if (structure === 'DATE') return numberError('تاريخ الميلاد داخل رقم الهوية المصرية غير صالح');
     } else if (issuer === 'SA' && (type === 'NATIONAL_ID' || type === 'RESIDENCE_PERMIT')) {
       if (!/^\d+$/.test(normalized)) return numberError('رقم الوثيقة السعودية لازم يحتوي على أرقام فقط');
       if (normalized.length !== 10) return numberError('رقم الوثيقة السعودية لازم يكون 10 أرقام');
