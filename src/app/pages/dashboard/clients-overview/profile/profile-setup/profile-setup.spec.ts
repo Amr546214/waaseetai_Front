@@ -16,6 +16,7 @@ import { MB } from '../../../../../core/forms/file-validation';
 
 // Client onboarding (5 steps): Next validates the current step with the shared validation kit.
 describe('client profile-setup: shared validation', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
 	let fixture: ComponentFixture<ProfileSetupDashboard>;
 	let component: ProfileSetupDashboard;
 	let save: ReturnType<typeof vi.fn>;

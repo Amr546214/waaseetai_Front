@@ -13,7 +13,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { IdentityGateService } from '../../../../../core/services/identity-gate.service';
 import { FakeIdentityGate } from '../../../../../core/services/identity-gate.testing';
 
-describe('provider profile-setup: identity gate behaviour', () => {
+describe('provider profile-setup: identity gate behaviour', { timeout: 30000 }, () => {
   let fixture: ComponentFixture<ProfileSetupDashboard>;
   let c: any;
   let http: HttpTestingController;

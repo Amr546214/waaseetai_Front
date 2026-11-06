@@ -14,6 +14,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 // C4 (updated for the identity gate): the identity step is now required and reviewed from the step itself; the identity is saved by the gate (sendIdentity), never by the generic step save. A half pair is still refused here.
 // An identity approval request needs BOTH sides (the server opens the review only with id number + front + back).
 describe('client profile-setup: identity approval needs both sides of the ID', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
 	let fixture: ComponentFixture<ProfileSetupDashboard>;
 	let c: any;
 	let saveStep: ReturnType<typeof vi.fn>;

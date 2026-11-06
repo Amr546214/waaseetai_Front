@@ -17,6 +17,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 // / reused-file proofs block both the step and the final submit, each with its own message UNDER the attachment; a stored proof counts through its marker.
 const SPEC = 'تطوير مواقع';
 describe('provider setup step 5: proof of ownership is required', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
   let fixture: ComponentFixture<ProfileSetupDashboard>;
   let c: ProfileSetupDashboard;
   let http: HttpTestingController;

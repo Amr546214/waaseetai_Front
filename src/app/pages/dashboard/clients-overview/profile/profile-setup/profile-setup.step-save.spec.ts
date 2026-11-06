@@ -15,6 +15,7 @@ const DATA_URI = 'data:image/png;base64,iVBORw0KGgo=';
 
 // "التالي" stores the step it leaves (database only) and advances only when the save succeeded.
 describe('client setup wizard: each Next stores its step', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
 	let fixture: ComponentFixture<ProfileSetupDashboard>;
 	let c: ProfileSetupDashboard;
 	let saveStep: ReturnType<typeof vi.fn>;

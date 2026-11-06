@@ -16,6 +16,7 @@ import { MB } from '../../../../../core/forms/file-validation';
 
 // Provider onboarding (7 steps): Next / step bar / final submit use the shared validation kit.
 describe('provider profile-setup: shared validation', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
   let fixture: ComponentFixture<ProfileSetupDashboard>;
   let component: ProfileSetupDashboard;
   let http: HttpTestingController;
