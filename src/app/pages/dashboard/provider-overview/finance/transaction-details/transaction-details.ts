@@ -74,9 +74,9 @@ export class TransactionDetails implements OnInit {
   });
 
   typeLabel(t: FinancialEvent) {
+    if (t.category === 'CANCELLATION_SETTLEMENT' || t.id.startsWith('cancellation-settlement-')) return 'تسوية إلغاء متبادل';
     if (t.category === 'ESCROW_FUNDED') return 'تمويل حساب الضمان';
     if (t.category === 'ESCROW_RELEASE') return 'إفراج من حساب الضمان';
-    if (t.category === 'CANCELLATION_SETTLEMENT') return 'تسوية إلغاء متبادل';
     return 'إفراج أرباح مرحلة';
   }
 

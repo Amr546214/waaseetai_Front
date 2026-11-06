@@ -68,7 +68,7 @@ const ROLE_CONFIG: Record<'client' | 'marketer', RoleConfig> = {
 											<td class="wh-net"><b>{{ it.breakdown!.net != null ? ((it.breakdown!.net | number:'1.2-2') + ' ' + cur(it.breakdown!.currency)) : '—' }}</b><div class="wh-d">{{ meaning(it) }}</div></td>
 										} @else {
 											<td colspan="2" class="wh-missing" data-testid="history-missing">{{ missing }}</td>
-											<td class="wh-net"><b>{{ it.amount | number:'1.2-2' }} {{ cur(it.currency) }}</b><div class="wh-d">المبلغ المسجّل</div></td>
+											<td class="wh-net"><b>{{ abs(it.amount) | number:'1.2-2' }} {{ cur(it.currency) }}</b><div class="wh-d">المبلغ المسجّل</div></td>
 										}
 										<td><span class="wh-st">{{ statusText(it.status) }}</span></td>
 									</tr>
@@ -135,6 +135,7 @@ export class WalletHistoryComponent implements OnInit {
 	summaryCards = signal<Record<string, WalletCard> | null>(null);
 	missing = MISSING_DETAILS_TEXT;
 	cur = currencySymbol;
+	abs = Math.abs;
 
 	cards = computed<WalletCardItem[]>(() => {
 		const c = this.summaryCards();
