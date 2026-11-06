@@ -5,16 +5,35 @@ import { CommonModule } from '@angular/common';
 import { commissionTypeLabel } from '../../../../core/utils/marketer-labels.util';
 import { MarketerOverviewService, MarketerSummary, CommissionLog, MarketerWallet } from '../../../../core/services/marketer-overview.service';
 import { handleLoadError } from '../../../../core/utils/rate-limit.util';
+import { RouterLink } from '@angular/router';
+import { WalletUnifyService } from '../../../../core/services/wallet-unify.service';
+import { WalletBreakdownComponent, WalletBreakdownRow } from '../../../../shared/wallet/wallet-breakdown.component';
+import { WalletCardItem, WalletExtraCardsComponent } from '../../../../shared/wallet/wallet-cards.component';
 
 @Component({
   selector: 'app-commissions',
   standalone: true,
-  imports: [WsDatePipe, MarketerLevelTagComponent, CommonModule],
+  imports: [WsDatePipe, MarketerLevelTagComponent, CommonModule, RouterLink, WalletBreakdownComponent, WalletExtraCardsComponent],
   templateUrl: './commissions.html',
   styleUrl: './commissions.css',
 })
 export class Commissions implements OnInit {
   private service = inject(MarketerOverviewService);
+  private walletApi = inject(WalletUnifyService);
+
+  /** the latest lines of «تفصيل المبالغ والخصومات» (commissions + withdrawals); the full list is the history page */
+  historyRows = signal<WalletBreakdownRow[]>([]);
+  historyFailed = signal(false);
+  extraCards = computed<WalletCardItem[]>(() => {
+    const c = this.wallet()?.cards;
+    if (!c) return [];
+    const pending = c.pendingWithdrawals?.state === 'AVAILABLE' && (c.pendingWithdrawals.value ?? 0) > 0 ? `بعد خصم سحوبات قيد المعالجة ${c.pendingWithdrawals.value}` : undefined;
+    return [
+      { key: 'gross', title: 'المبلغ قبل الخصومات', card: c.grossBeforeDeductions, tone: 'teal' },
+      { key: 'available', title: 'المتاح للسحب', card: c.availableToWithdraw, tone: 'teal', sub: pending },
+      { key: 'held', title: 'محجوز بالضمان', card: c.heldInEscrow, tone: 'amber' },
+    ];
+  });
 
   summary = signal<MarketerSummary | null>(null);
   commissions = signal<CommissionLog[]>([]);
@@ -85,6 +104,16 @@ export class Commissions implements OnInit {
     this.service.getWallet().subscribe({
       next: (res) => { if (res.success && res.data) this.wallet.set(res.data); },
       error: () => {}
+    });
+
+    this.walletApi.history('marketer', 1, 8).subscribe({
+      next: res => {
+        this.historyRows.set((res?.data?.items ?? []).map(it => ({
+          id: it.id, title: it.title || '', date: it.createdAt?.slice(0, 10), link: ['/marketer-overview/commissions/history', it.id],
+          breakdown: it.breakdown ?? null, storedAmount: it.amount, storedCurrency: it.currency,
+        })));
+      },
+      error: () => this.historyFailed.set(true),
     });
 
     // Fetch up to 100 recent commissions for the log page

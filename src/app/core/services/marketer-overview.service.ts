@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api.model';
 import { Withdrawal, WithdrawalListData } from '../models/withdrawal.model';
+import { WalletCard } from '../models/wallet-unify.model';
 
 export interface MarketerSummary {
 	/** the level's NAME, level number, commission % and colour pair: all from the backend ladder */
@@ -45,6 +46,9 @@ export interface CommissionLog {
 /** GET /marketer-overview/wallet: the marketer's money as the server enforces it (never derived in the browser). */
 export interface MarketerWallet {
 	currency: string;
+	/** Wallet unification (absent on an older server) */
+	cards?: { availableToWithdraw?: WalletCard; pendingWithdrawals?: WalletCard; grossBeforeDeductions?: WalletCard; heldInEscrow?: WalletCard; cashback?: WalletCard };
+	canWithdraw?: boolean;
 	/** Approved commissions in total. */
 	approvedEarnings: number;
 	/** Commissions not yet approved. */

@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { MessageContext } from '../../../../../core/services/chat.service';
+import { WalletBreakdownComponent, WalletBreakdownRow } from '../../../../../shared/wallet/wallet-breakdown.component';
 import { ClientFinanceService, ClientWalletTransactionDetail } from '../../../../../core/services/client-finance.service';
 
 @Component({
   selector: 'app-transaction-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, WalletBreakdownComponent],
   templateUrl: './transaction-details.html',
   styleUrl: './transaction-details.css',
 })
@@ -23,6 +24,12 @@ export class TransactionDetails implements OnInit {
   error = signal('');
   /** 404: not this account's transaction (or no such id); anything else is a load failure the user can retry */
   notFound = signal(false);
+
+  /** «تفصيل المبالغ والخصومات» of this operation, from its stored record */
+  breakdownRows = computed<WalletBreakdownRow[]>(() => {
+    const tx = this.transaction();
+    return tx ? [{ id: tx.id, title: this.title(), breakdown: tx.breakdown ?? null, storedAmount: Math.abs(tx.amount), storedCurrency: tx.currency }] : [];
+  });
 
   isEscrow = computed(() => this.transaction()?.type === 'ESCROW_LOCK');
   isDeposit = computed(() => this.transaction()?.type === 'DEPOSIT');

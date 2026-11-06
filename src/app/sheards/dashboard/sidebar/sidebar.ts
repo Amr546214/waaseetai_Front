@@ -829,6 +829,7 @@ export class Sidebar implements OnInit {
 				ws: 'pl-nav-client-finance', icon: 'M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z',
 				children: [
 					{ type: 'link', label: isCompanyClient ? 'محفظة الشركة' : 'محفظتي', route: '/client-overview/finance/wallet', ws: 'pl-nav-client-finance-wallet', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+					{ type: 'link', label: 'سجل المعاملات', route: '/client-overview/finance/transactions', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
 					{ type: 'link', label: 'الفواتير المستلمة', route: '/client-overview/finance/invoices', ws: 'pl-nav-client-finance-invoices', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' }
 				]
 			},

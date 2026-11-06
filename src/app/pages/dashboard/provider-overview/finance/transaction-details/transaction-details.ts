@@ -5,9 +5,13 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { environment } from '../../../../../../environments/environment';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { MessageContext } from '../../../../../core/services/chat.service';
+import { WalletUnifyService } from '../../../../../core/services/wallet-unify.service';
+import { WalletBreakdown } from '../../../../../core/models/wallet-unify.model';
+import { WalletBreakdownComponent, WalletBreakdownRow } from '../../../../../shared/wallet/wallet-breakdown.component';
 
 interface FinancialEvent {
-  id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED';
+  id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED' | 'CANCELLATION_SETTLEMENT';
+  breakdown?: WalletBreakdown;
   amount: number; currency: 'USD'; title: string; description: string; projectId: string;
   projectTitle: string; stageId: string | null; status: 'COMPLETED' | 'HELD' | 'RELEASED' | 'REFUNDED'; createdAt: string;
 }
@@ -17,9 +21,10 @@ interface FinancialEvent {
 // (transactions.ts) — there is no dedicated GET-by-id endpoint for provider
 // finance transactions, so, like the client-side transaction-details page,
 // this fetches the full list and finds the matching id client-side.
-@Component({ selector: 'app-transaction-details', standalone: true, imports: [CommonModule, RouterModule], templateUrl: './transaction-details.html' })
+@Component({ selector: 'app-transaction-details', standalone: true, imports: [CommonModule, RouterModule, WalletBreakdownComponent], templateUrl: './transaction-details.html' })
 export class TransactionDetails implements OnInit {
   private http = inject(HttpClient);
+  private walletApi = inject(WalletUnifyService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authStore = inject(AuthStore);
@@ -45,26 +50,33 @@ export class TransactionDetails implements OnInit {
     }
     this.loading.set(true);
     this.error.set('');
-    this.http.get<any>(`${environment.url_api}/provider/finance/transactions`).subscribe({
+    // One read by id (owner only on the server: another provider's record answers 404 like an unknown id).
+    this.walletApi.detail('provider', id).subscribe({
       next: res => {
-        const found = (res?.data?.events || []).find((t: FinancialEvent) => t.id === id) || null;
-        if (found) {
-          this.txn.set(found);
+        const d = res?.data;
+        if (res?.success && d) {
+          this.txn.set({ ...d, projectId: d.projectId ?? d.project?.id, projectTitle: d.projectTitle ?? d.project?.title ?? '' } as FinancialEvent);
         } else {
           this.error.set('تعذر العثور على هذه المعاملة');
         }
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(err.error?.message || 'تعذر تحميل بيانات المعاملة');
+        this.error.set(err?.status === 404 ? 'تعذر العثور على هذه المعاملة' : (err.error?.message || 'تعذر تحميل بيانات المعاملة'));
         this.loading.set(false);
       }
     });
   }
 
+  breakdownRows = computed<WalletBreakdownRow[]>(() => {
+    const t = this.txn();
+    return t ? [{ id: t.id, title: t.title || t.projectTitle || '', breakdown: t.breakdown ?? null, storedAmount: t.amount, storedCurrency: t.currency }] : [];
+  });
+
   typeLabel(t: FinancialEvent) {
     if (t.category === 'ESCROW_FUNDED') return 'تمويل حساب الضمان';
     if (t.category === 'ESCROW_RELEASE') return 'إفراج من حساب الضمان';
+    if (t.category === 'CANCELLATION_SETTLEMENT') return 'تسوية إلغاء متبادل';
     return 'إفراج أرباح مرحلة';
   }
 

@@ -108,14 +108,19 @@
         @if ((wallet.summary.pendingWithdrawals ?? 0) > 0) {
         <div class="wal-main-sub" data-testid="wallet-pending-note">طلبات سحب قيد المعالجة: {{ wallet.summary.pendingWithdrawals | number:'1.0-2' }} $</div>
         }
+        @if (minimumWithdrawal() > 0 && canWithdraw()) {
+        <div class="wal-main-sub" data-testid="wallet-minimum">الحد الأدنى للسحب: {{ minimumWithdrawal() | number:'1.0-2' }} $</div>
+        }
         <div class="wal-main-act">
-          <a routerLink="/provider-overview/finance/withdraw" class="wal-btn wal-btn-pri">
+          @if (canWithdraw()) {
+          <a routerLink="/provider-overview/finance/withdraw" class="wal-btn wal-btn-pri" data-testid="wallet-withdraw">
             <svg data-ws-icon="i-plus" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
               <line x1="12" y1="5" x2="12" y2="19"/>
               <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
             سحب الأرباح
           </a>
+          }
           @if (isCompany()) {
           <button type="button" class="wal-btn wal-btn-sec" (click)="openDepositModal()" data-testid="wallet-topup">
             <svg data-ws-icon="pl-provider-card" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
@@ -124,7 +129,7 @@
             </svg>
             شحن رصيد
           </button>
-          } @else {
+          } @else if (canWithdraw()) {
           <!-- An individual provider earns into the wallet and withdraws; there is nothing to top up. The slot now leads to the payout (PayPal) data. -->
           <a routerLink="/provider-overview/finance/withdraw" class="wal-btn wal-btn-sec" data-testid="wallet-payout-data">
             <svg data-ws-icon="pl-provider-card" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
@@ -177,57 +182,13 @@
       </div>
     }
 
-    <!-- Transactions List -->
-    <div class="sec-ttl">سجلّ المعاملات</div>
-    <div class="ord-tbl-wrap">
-      <div style="overflow-x:auto">
-        <table class="tx-tbl">
-          <thead>
-            <tr>
-              <th>المعاملة</th>
-              @if (isCompany()) {<th>المقدم</th>}
-              <th>التاريخ</th>
-              <th>المبلغ</th>
-              <th>الحالة</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for(tx of wallet.transactions; track tx.id){
-              <tr>
-                <td>
-                  <div style="display:flex;align-items:center;gap:11px">
-                    <span class="tx-ico" [ngClass]="tx.type === 'credit' ? 'tx-in' : 'tx-out'" [style.background]="tx.type === 'credit' ? 'rgba(15,169,154,.12)' : 'rgba(255,140,105,.12)'">
-                      <svg aria-hidden="true"><use [attr.href]="tx.type === 'credit' ? '#i-wallet' : '#i-escrow'"></use></svg>
-                    </span>
-                    <div>
-                      <div style="font-weight:700;font-size:var(--font-size-label)" class="txt-white">{{ tx.title }}</div>
-                      <div style="font-size:var(--font-size-small)" class="txt-muted">{{ tx.projectTitle || tx.description }}</div>
-                    </div>
-                  </div>
-                </td>
-                @if (isCompany()) {<td>{{ tx.providerName || '—' }}</td>}
-                <td>{{ tx.createdAt | wsDate:'date':'yyyy-MM-dd' }}</td>
-                <td>
-                  <span [ngClass]="tx.type === 'credit' ? 'tx-amt-in' : 'tx-amt-out'">
-                    {{ tx.type === 'credit' ? '+' : '-' }} {{ tx.amount | number:'1.0-2' }} $
-                  </span>
-                </td>
-                <td>
-                  <span class="tx-st" [ngClass]="{'tx-done': tx.status === 'COMPLETED', 'tx-hold': tx.status === 'HELD', 'tx-pend': tx.status === 'PENDING'}">
-                    {{ tx.status === 'COMPLETED' ? 'مكتمل' : (tx.status === 'HELD' ? 'محجوز' : 'قيد المعالجة') }}
-                  </span>
-                </td>
-              </tr>
-            }
-            @empty {
-              <tr>
-                <td [attr.colspan]="isCompany() ? 5 : 4" style="text-align:center;padding:32px 12px" class="txt-muted">لا توجد معاملات مالية بعد</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+    <app-wallet-extra-cards [items]="extraCards()" />
+
+    <div class="sec-ttl wal-sec-row">
+      <span>تفصيل المبالغ والخصومات</span>
+      <a class="wal-all-link" routerLink="/provider-overview/finance/transactions" data-testid="wallet-history-link">سجل المعاملات الكامل ←</a>
     </div>
+    <app-wallet-breakdown [rows]="breakdownRows()" />
 
     @if (showDepositModal()) {
       <app-provider-deposit-modal
