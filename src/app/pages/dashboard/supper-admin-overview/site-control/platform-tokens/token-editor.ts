@@ -104,7 +104,30 @@ export class TokenEditor implements OnInit {
 
  constructor(){effect(()=>{const values=this.ui()['tokens.typography']?.draft?.value;this.previewFonts.setItems(values?{'tokens.typography':{value:values}}:{});});}
  ngOnDestroy(){this.previewFonts.setItems({});}
-	ngOnInit(): void { void this.store.load(); }
+	ngOnInit(): void { void this.store.load().then(() => this.adoptStaged()); }
+
+	/**
+	 * A check («تحقّق وعاين») stores a STAGED draft on the server; the page's own copy of it used to be lost on Refresh / leaving the tab, so drafts piled up with no way to apply or cancel them.
+	 * On load the newest draft of THIS admin per key is taken back (nothing is changed on the site), older ones are counted and discarded with it. Another admin's draft is never touched.
+	 */
+	private adoptStaged(): void {
+		for (const it of this.shown()) {
+			const s = this.state(it.key);
+			if (s.draft || s.busy || Object.keys(s.edits).length) continue;
+			const mine = this.stagedOf(it);
+			if (!mine.length) continue;
+			const [newest, ...older] = mine;
+			this.patch(it.key, { draft: newest, stale: false, notice: { type: 'warn', text: `وُجدت مسودة محفوظة من تحقق سابق (النسخة ${newest.version}) لم تُطبَّق على الموقع.`, detail: `راجع الفروق ثم طبّقها أو ألغها.${older.length ? ` وهناك ${older.length} ${older.length === 1 ? 'مسودة أقدم' : 'مسودات أقدم'} تُلغى معها.` : ''}` } });
+		}
+	}
+	/** this admin's STAGED drafts of the key, newest first */
+	private stagedOf(it: IdentityItemInfo): IdentityAssetMeta[] { return (it.staged ?? []).filter(d => d.status === 'STAGED' && d.isMine !== false).sort((a, b) => b.version - a.version); }
+	/** one draft per key: drop every other draft of this admin (best effort; the one we keep is never touched). Returns how many were discarded. */
+	private async discardOthers(it: IdentityItemInfo, keepId: string | null): Promise<number> {
+		let n = 0;
+		for (const d of this.stagedOf(it)) { if (d.versionId === keepId) continue; try { await firstValueFrom(this.api.discard(it.key, d.versionId)); n++; } catch { /* already gone / not ours: leave it */ } }
+		return n;
+	}
 
 	state(key: string): KeyUi { return this.ui()[key] ?? FRESH(); }
 	private patch(key: string, p: Partial<KeyUi>): void { this.ui.update(m => ({ ...m, [key]: { ...(m[key] ?? FRESH()), ...p } })); }
@@ -182,6 +205,7 @@ export class TokenEditor implements OnInit {
 			}
 			const r = await firstValueFrom(this.api.uploadTokens(it.key, want));
 			const draft = r.data as IdentityAssetMeta;
+			await this.discardOthers(it, draft.versionId);
 			this.patch(it.key, { busy: null, draft, stale: false, notice: { type: 'ok', text: 'تحقّق الخادم من القيم وحفظها كمسودة. لم يتغيّر الموقع بعد.', detail: draft.note ?? undefined } });
 		} catch (e) { const f = describeFailure(e, 'التحقق من القيم'); this.patch(it.key, { busy: null, notice: { type: f.kind === 'conflict' ? 'conflict' : 'error', text: f.message, failure: f } }); }
 	}
@@ -195,6 +219,7 @@ export class TokenEditor implements OnInit {
 		this.patch(it.key, { busy: 'apply', notice: null });
 		try {
 			const r = await firstValueFrom(this.api.publish(it.key, draft.versionId, it.state.stateVersion));
+			await this.discardOthers(it, draft.versionId);
 			await this.finish(it, r.data, `طُبّقت النسخة ${r.data.toVersion ?? ''} على الموقع.`.replace('  ', ' '), `النسخة السابقة: ${r.data.fromVersion ? 'النسخة ' + r.data.fromVersion : 'الأصل الافتراضي'}`);
 		} catch (e) { await this.fail(it, e, 'تطبيق القيم'); }
 	}
@@ -223,11 +248,14 @@ export class TokenEditor implements OnInit {
 	async cancel(it: IdentityItemInfo): Promise<void> {
 		const draft = this.state(it.key).draft;
 		this.patch(it.key, { busy: draft ? 'discard' : null });
+		let older = 0;
 		if (draft) {
 			try { await firstValueFrom(this.api.discard(it.key, draft.versionId)); }
 			catch (e) { const f = describeFailure(e, 'حذف المسودة'); this.patch(it.key, { busy: null, notice: { type: 'error', text: f.message } }); return; }
+			older = await this.discardOthers(it, draft.versionId);
+			await this.store.load(true);
 		}
-		this.patch(it.key, { busy: null, edits: {}, draft: null, notice: { type: 'ok', text: 'أُلغيت التعديلات والمسودة. الموقع كما هو.' } });
+		this.patch(it.key, { busy: null, edits: {}, draft: null, notice: { type: 'ok', text: `أُلغيت التعديلات والمسودة${older ? ` و${older} ${older === 1 ? 'مسودة أقدم' : 'مسودات أقدم'}` : ''}. الموقع كما هو.` } });
 	}
 
 	async restoreDefault(it: IdentityItemInfo): Promise<void> {
