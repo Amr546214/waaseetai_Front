@@ -156,4 +156,27 @@ describe('client contract signature page: real terms only', () => {
 			expect(s.nav).not.toHaveBeenCalled();
 		});
 	});
+
+	describe('offer terms, AI check and discount: only what the server really holds', () => {
+		it('renders the offer\'s own written terms when the server returns them', async () => {
+			const s = await setup(CONTRACT(2, { offerTerms: { summary: 'نطاق العمل المتفق عليه', deliverables: 'شعار ودليل هوية', advantages: ['تسليم سريع'] } }));
+			expect(s.q('cs-offer-summary')!.textContent).toContain('نطاق العمل المتفق عليه');
+			expect(s.q('cs-offer-deliverables')!.textContent).toContain('شعار ودليل هوية');
+			expect(s.q('cs-offer-advantages')!.textContent).toContain('تسليم سريع');
+		});
+
+		it('shows no offer-terms card (and no template clauses) when the server has none', async () => {
+			const s = await setup(CONTRACT(2, { offerTerms: null }));
+			expect(s.q('cs-offer-terms')).toBeNull();
+			expect(s.text()).not.toContain('الملكية الفكرية');
+			expect(s.text()).not.toContain('الضمان: 30');
+		});
+
+		it('never renders an AI accuracy percentage or a discount field (no stored value / no backend rule)', async () => {
+			const s = await setup(CONTRACT(2, { aiCheck: { accuracy: 95 } }));
+			expect(s.text()).not.toMatch(/دقة\s*%?\s*95|95\s*%/);
+			expect(s.text()).not.toContain('كود الخصم');
+			expect(s.el.querySelector('input[type="text"]')).toBeNull();
+		});
+	});
 });

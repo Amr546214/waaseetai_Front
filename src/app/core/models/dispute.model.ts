@@ -8,8 +8,48 @@ export interface CreateDisputePayload {
   reason: string;
   description: string;
   evidence?: string[];
+  /** The stage the dispute is about (required by the server whenever the project has a disputable stage). */
+  stageId?: string;
+  /** What the opener asks for (a request only: the admin decides). */
+  requestedResolution?: RequestedResolutionCode;
+  /** Supporting files (JPG/PNG/PDF, up to 5, 10 MB each), sent in the same request so the dispute and its evidence are saved together. */
+  files?: File[];
+  /** One UUID per submit: a repeated submit with it returns the dispute it already created instead of a second one. */
+  submissionKey?: string;
   _count?: { attachments: number };
 }
+
+export type RequestedResolutionCode = 'REDELIVER_WITH_FIXES' | 'PARTIAL_REFUND' | 'FULL_REFUND' | 'ACCEPT_DELIVERY' | 'EXTEND_DEADLINE' | 'CLARIFY_SCOPE' | 'OTHER';
+
+/** The codes are the server's; the wording is shown to the opener. These are requests, never settlements. */
+export const REQUESTED_RESOLUTIONS: Record<'client' | 'provider', { code: RequestedResolutionCode; label: string }[]> = {
+  client: [
+    { code: 'REDELIVER_WITH_FIXES', label: 'أطلب إعادة التسليم بالتعديلات المطلوبة' },
+    { code: 'PARTIAL_REFUND', label: 'أطلب استردادًا جزئيًا' },
+    { code: 'FULL_REFUND', label: 'أطلب استردادًا كاملًا للمرحلة' },
+    { code: 'OTHER', label: 'أطلب حلًّا آخر تقرره الإدارة' },
+  ],
+  provider: [
+    { code: 'ACCEPT_DELIVERY', label: 'أطلب اعتماد التسليم' },
+    { code: 'EXTEND_DEADLINE', label: 'أطلب تمديد مدة المرحلة' },
+    { code: 'CLARIFY_SCOPE', label: 'أطلب توضيح نطاق العمل المتفق عليه' },
+    { code: 'OTHER', label: 'أطلب حلًّا آخر تقرره الإدارة' },
+  ],
+};
+
+/** A stage offered by the dispute dialog: `canDispute` / `blockedReason` come from the server's own stage rule. */
+export interface DisputeStageOption {
+  id: string;
+  label: string;
+  canDispute: boolean;
+  blockedReason?: string | null;
+}
+
+/** Field problems the server reports (`errors: [{ field, message }]`), shown under the matching field. */
+export interface DisputeFieldError { field: string; message: string }
+
+/** Smallest description the server accepts for a dispute about a stage (the dialog shows the same counter). */
+export const STAGE_DISPUTE_MIN_DESCRIPTION = 100;
 
 export interface DisputePartyRef {
   id: string;
@@ -26,6 +66,12 @@ export interface Dispute {
   description: string;
   evidence?: string[];
   _count?: { attachments: number };
+  /** The stage the dispute is about (null for a project-level dispute). */
+  stage?: { id: string; stepOrder: number; title: string; status: string; amount: number } | null;
+  stageId?: string | null;
+  requestedResolution?: RequestedResolutionCode | null;
+  /** Detail endpoints: Arabic wording of `requestedResolution`. */
+  requestedResolutionLabel?: string | null;
   resolution?: string | null;
   resolutionNote?: string | null;
   createdAt: string;

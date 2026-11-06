@@ -1,3 +1,4 @@
+import { MutualCancelComponent } from '../../../../../sheards/mutual-cancel/mutual-cancel.component';
 import { isRateLimitError } from '../../../../../core/utils/rate-limit.util';
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal, ElementRef } from '@angular/core';
@@ -9,7 +10,8 @@ import { environment } from '../../../../../../environments/environment';
 import { ProjectMiniChat } from '../../../../../sheards/project-mini-chat/project-mini-chat';
 import { DisputeModal } from '../../../../../sheards/dispute-modal/dispute-modal';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
-import { CreateDisputePayload } from '../../../../../core/models/dispute.model';
+import { CreateDisputePayload, DisputeFieldError, DisputeStageOption } from '../../../../../core/models/dispute.model';
+import { stageHeading } from '../../../../../core/utils/stage-title.util';
 import { ChatService, MessageContext } from '../../../../../core/services/chat.service';
 import { RatingSummary } from '../../../../../sheards/rating-summary/rating-summary.component';
 import { sortAmendments, upsertAmendment } from '../../../../../core/utils/amendment-list';
@@ -36,7 +38,7 @@ export const CLIENT_AMENDMENT_TYPE_LABEL: Record<string, string> = { SCOPE: 'ت�
 
 @Component({
 	selector: 'app-project-details', standalone: true,
-	imports: [CommonModule, FormsModule, RouterModule, RatingSummary, ProjectMiniChat, DisputeModal, AmendmentPaymentOtpComponent],
+	imports: [CommonModule, FormsModule, RouterModule, RatingSummary, ProjectMiniChat, DisputeModal, AmendmentPaymentOtpComponent, MutualCancelComponent],
 	templateUrl: './project-details.html', styleUrl: './project-details.css',
 })
 export class ProjectDetails implements OnInit {
@@ -87,6 +89,7 @@ export class ProjectDetails implements OnInit {
 	disputeSuccess = signal('');
 	disputeError = signal('');
 	disputeSubmitted = signal(false);
+	disputeFieldErrors = signal<DisputeFieldError[]>([]);
 	// Rating status — fetched from completed-projects endpoint (server-side Review table).
 	hasRated = signal(false);
 	ratingStatus = signal<RatingStatus | null>(null);
@@ -264,7 +267,7 @@ export class ProjectDetails implements OnInit {
 	}
 	// P-SK-015: navigate to the full delivery review page (no modal).
 	/** Dispute freeze reason (Arabic) while approvals / releases are frozen by an open dispute; null otherwise. */
-	freezeReason(data: any): string | null { const f = data?.disputeFreeze; return f?.frozen ? (f.reason || 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع') : null; }
+	freezeReason(data: any): string | null { const f = data?.disputeFreeze; if (f?.frozen) return f.reason || 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع'; const c = data?.cancellationFreeze; return c?.frozen ? (c.reason || 'اعتماد المراحل الجديدة متوقف بعد اتفاق الطرفين على الإلغاء بالتراضي') : null; }
 	openReview(stage: any, decision: 'approve' | 'revision') {
 		this.error.set('');
 		if (decision === 'approve' && this.freezeReason(this.project())) { this.error.set(this.freezeReason(this.project())!); return; }
@@ -381,9 +384,15 @@ export class ProjectDetails implements OnInit {
 		return parts.join(' · ');
 	}
 
+	/** The project's stages with the SERVER's own dispute eligibility (canDispute / disputeBlockedReason): nothing is recomputed here. */
+	disputeStages(data: any): DisputeStageOption[] {
+		return (data?.stages ?? []).map((s: any) => ({ id: s.id, label: stageHeading(s.stageNumber, s.title), canDispute: s.canDispute === true, blockedReason: s.disputeBlockedReason ?? null }));
+	}
+
 	openDisputeModal() {
 		if (this.disputeSubmitted() || (this.project() && this.actionBlockedReason(this.project()))) return;
 		this.disputeError.set('');
+		this.disputeFieldErrors.set([]);
 		this.showDisputeModal.set(true);
 	}
 
@@ -397,16 +406,22 @@ export class ProjectDetails implements OnInit {
 		if (this.isSubmittingDispute()) return;
 		this.isSubmittingDispute.set(true);
 		this.disputeError.set('');
+		this.disputeFieldErrors.set([]);
 		this.disputeApi.createClientDispute(this.projectId, payload).subscribe({
-			next: () => {
+			next: (res) => {
 				this.isSubmittingDispute.set(false);
 				this.showDisputeModal.set(false);
 				this.disputeSubmitted.set(true);
 				this.disputeSuccess.set('تم فتح النزاع بنجاح، وهو الآن بانتظار مراجعة الإدارة. تابع حالته من صفحة النزاعات.');
+				// The recorded case itself (not a toast): the disputes page opens it expanded.
+				const id = res?.data?.id;
+				if (id) void this.router.navigate(['/client-overview/disputes'], { queryParams: { dispute: id } });
 			},
 			error: (err: any) => {
 				this.isSubmittingDispute.set(false);
-				this.disputeError.set(err?.error?.message || 'تعذر فتح النزاع، حاول مرة أخرى');
+				const fields: DisputeFieldError[] = Array.isArray(err?.error?.errors) ? err.error.errors.filter((e: any) => e?.field && e?.message) : [];
+				this.disputeFieldErrors.set(fields);
+				this.disputeError.set(fields.length ? '' : (err?.error?.message || 'تعذر فتح النزاع، حاول مرة أخرى'));
 			},
 		});
 	}

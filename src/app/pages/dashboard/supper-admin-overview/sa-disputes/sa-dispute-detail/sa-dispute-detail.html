@@ -53,6 +53,18 @@
           <label>الوصف</label>
           <p>{{ d.description }}</p>
         </div>
+        @if (d.stage; as st) {
+        <div class="dp-md-field" data-testid="sa-dispute-stage">
+          <label>المرحلة المعنية</label>
+          <p>{{ stageText(st) }}</p>
+        </div>
+        }
+        @if (d.requestedResolutionLabel) {
+        <div class="dp-md-field" data-testid="sa-dispute-requested">
+          <label>الحل الذي اختاره فاتح النزاع (اختيار وليس قرارًا ولا يلزم الإدارة)</label>
+          <p>{{ d.requestedResolutionLabel }}</p>
+        </div>
+        }
         <div class="dp-md-row">
           <div class="dp-md-field">
             <label>الطلب</label>

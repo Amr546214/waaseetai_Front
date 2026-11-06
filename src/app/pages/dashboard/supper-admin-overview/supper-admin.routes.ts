@@ -135,6 +135,16 @@ const RAW_ROUTES: Routes = [
         data: { title: 'تفاصيل النزاع' }
     },
     {
+        path: 'cancellation-requests',
+        loadComponent: () => import('./sa-cancellation-requests/sa-cancellation-requests').then(m => m.SaCancellationRequests),
+        data: { title: 'طلبات الإلغاء بالتراضي' }
+    },
+    {
+        path: 'cancellation-requests/:id',
+        loadComponent: () => import('./sa-cancellation-requests/sa-cancellation-requests').then(m => m.SaCancellationRequests),
+        data: { title: 'طلب إلغاء بالتراضي' }
+    },
+    {
         path: 'reports',
         loadComponent: () => import('./sa-reports/sa-reports').then(m => m.SaReports),
         data: { title: 'البلاغات' }

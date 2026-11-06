@@ -1,5 +1,5 @@
 @if (open) {
-<div class="lc-mov show" role="dialog" aria-modal="true" [attr.aria-label]="actor === 'provider' ? 'فتح نزاع على المرحلة' : 'فتح نزاع على المشروع'" dir="rtl" (click)="closeModal()">
+<div class="lc-mov show" role="dialog" aria-modal="true" [attr.aria-label]="hasStages() ? 'فتح نزاع على المرحلة' : 'فتح نزاع على المشروع'" dir="rtl" (click)="closeModal()">
 	<div class="lc-mbox dp-mbox" (click)="$event.stopPropagation()">
 		<!-- Header -->
 		<div class="lc-mhd lc-mhd-disp">
@@ -9,8 +9,8 @@
 				</svg>
 			</span>
 			<div>
-				<h3>{{ actor === 'provider' ? 'فتح نزاع على المرحلة' : 'فتح نزاع على المشروع' }}</h3>
-				<p>يُفتح طلب نزاع ويتحوّل للشات وللإدارة للإقفال بالود</p>
+				<h3>{{ hasStages() ? 'فتح نزاع على المرحلة' : 'فتح نزاع على المشروع' }}</h3>
+				<p>يُسجَّل النزاع ويُبلَّغ به الطرف الآخر والإدارة، وتقرّر الإدارة بعد المراجعة</p>
 			</div>
 			<button type="button" class="lc-mclose" (click)="closeModal()" aria-label="إغلاق" [disabled]="isSubmitting">
 				<svg data-ws-icon="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -22,11 +22,11 @@
 
 		<!-- Flow Steps Note (P-PR-009.html) -->
 		<div class="lc-flow-note">
-			<div class="lc-flow-s"><span>1</span>يُفتح طلب نزاع</div>
+			<div class="lc-flow-s"><span>1</span>يُسجَّل النزاع</div>
 			<svg data-ws-icon="pl-shared-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-			<div class="lc-flow-s"><span>2</span>يتحوّل للشات والإدارة</div>
+			<div class="lc-flow-s"><span>2</span>يُبلَّغ الطرف الآخر والإدارة</div>
 			<svg data-ws-icon="pl-shared-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-			<div class="lc-flow-s"><span>3</span>إقفال بالود</div>
+			<div class="lc-flow-s"><span>3</span>تقرّر الإدارة</div>
 		</div>
 
 		<!-- Escrow Warning Banner (P-PR-009.html) -->
@@ -42,6 +42,22 @@
 		}
 		@if (errorMessage) {
 			<div class="form-error" role="alert" data-testid="dispute-server-error">{{ errorMessage }}</div>
+		}
+
+		<!-- المرحلة المعنية -->
+		@if (hasStages()) {
+		<div class="lc-fld">
+			<label for="dp-stage">المرحلة المعنية <span class="ws-req" aria-hidden="true">*</span></label>
+			<select class="lc-sel" id="dp-stage" data-testid="dispute-stage" aria-required="true" (change)="onStageChange($event)" [disabled]="isSubmitting || eligibleCount() === 0" [class.ws-invalid]="stageError()" [attr.aria-invalid]="stageError() ? 'true' : null" [attr.aria-describedby]="stageError() ? 'dp-stage-err' : null">
+				<option value="" [selected]="!stageId()">{{ eligibleCount() === 0 ? 'لا توجد مرحلة يمكن فتح نزاع عليها' : 'اختر المرحلة' }}</option>
+				@for (s of stages; track s.id) {
+					<option [value]="s.id" [disabled]="!s.canDispute" [selected]="s.id === stageId()" [attr.title]="s.canDispute ? null : s.blockedReason">{{ s.label }}{{ s.canDispute ? '' : ' (غير متاحة)' }}</option>
+				}
+			</select>
+			@if (stageError()) {
+				<div class="dp-field-error" id="dp-stage-err" role="alert" data-testid="field-error">{{ stageError() }}</div>
+			}
+		</div>
 		}
 
 		<!-- سبب النزاع -->
@@ -79,7 +95,7 @@
 			}
 		</div>
 
-		<!-- تفاصيل النزاع / وصف المشكلة -->
+		<!-- وصف المشكلة -->
 		<div class="lc-fld">
 			<label for="dp-desc">وصف المشكلة <span class="ws-req" aria-hidden="true">*</span></label>
 			<textarea
@@ -89,33 +105,32 @@
 				[value]="description()"
 				(input)="onDescriptionInput($event)"
 				rows="4"
-				placeholder="اشرح المشكلة بتفصيل كافٍ ليتمكن فريق وسيط والدعم من فهم موقفك وحل المشكلة"
+				[placeholder]="'اشرح المشكلة بتفصيل كافٍ، لا يقل عن ' + minDescription() + ' حرف، ليتمكّن فريق وسيط والدعم من فهم موقفك'"
 				maxlength="10000"
 				[disabled]="isSubmitting"
 				[class.ws-invalid]="descriptionError()"
 				[attr.aria-invalid]="descriptionError() ? 'true' : null"
 				[attr.aria-describedby]="descriptionError() ? 'dp-desc-err' : null"
 			></textarea>
-			<div class="lc-cc">{{ description().length }} / 10000 حرف</div>
+			<div class="lc-cc" dir="ltr" data-testid="dispute-counter">{{ description().trim().length }} / {{ minDescription() }} حرف</div>
 			@if (descriptionError()) {
 				<div class="dp-field-error" id="dp-desc-err" role="alert" data-testid="field-error">{{ descriptionError() }}</div>
 			}
 		</div>
 
-		<!-- روابط الأدلة الداعمة -->
+		<!-- الأدلة الداعمة (ملفات تُحفظ مع النزاع في الطلب نفسه) -->
 		<div class="lc-fld">
-			<label>روابط الأدلة الداعمة <span class="dp-optional">(اختياري)</span></label>
-
-			@if (evidenceUrls().length > 0) {
+			<label for="dp-evidence">الأدلة الداعمة <span class="dp-optional">(اختياري)</span></label>
+			@if (files().length > 0) {
 				<div class="dp-evidence-list">
-					@for (url of evidenceUrls(); track url; let i = $index) {
-						<div class="dp-evidence-item">
+					@for (f of files(); track $index; let i = $index) {
+						<div class="dp-evidence-item" data-testid="dispute-file">
 							<svg data-ws-icon="pl-shared-link" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 								<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
 								<path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
 							</svg>
-							<span class="dp-evidence-url" [title]="url">{{ url }}</span>
-							<button type="button" class="dp-evidence-remove" (click)="removeEvidenceUrl(i)" [disabled]="isSubmitting" aria-label="إزالة الرابط">
+							<span class="dp-evidence-url" [title]="f.name">{{ f.name }} · {{ sizeLabel(f) }}</span>
+							<button type="button" class="dp-evidence-remove" (click)="removeFile(i)" [disabled]="isSubmitting" aria-label="إزالة الملف">
 								<svg data-ws-icon="ws-close" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
 									<line x1="18" y1="6" x2="6" y2="18"/>
 									<line x1="6" y1="6" x2="18" y2="18"/>
@@ -125,38 +140,35 @@
 					}
 				</div>
 			}
-
-			@if (evidenceUrls().length < 10) {
-				<div class="dp-evidence-add">
-					<input
-						id="dp-evidence"
-						type="url"
-						class="dp-input"
-						[class.ws-invalid]="evidenceError()"
-						[attr.aria-invalid]="evidenceError() ? 'true' : null"
-						[attr.aria-describedby]="evidenceError() ? 'dp-evidence-err' : null"
-						[value]="newEvidenceUrl()"
-						(input)="onNewEvidenceInput($event)"
-						(keydown.enter)="$event.preventDefault(); addEvidenceUrl()"
-						placeholder="أضف رابط ملف أو صورة أو مستند (https://...)"
-						[disabled]="isSubmitting"
-					/>
-					<button type="button" class="dp-add-btn" (click)="addEvidenceUrl()" [disabled]="isSubmitting">
-						<svg data-ws-icon="i-plus" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-							<line x1="12" y1="5" x2="12" y2="19"/>
-							<line x1="5" y1="12" x2="19" y2="12"/>
-						</svg>
-						إضافة
-					</button>
-				</div>
+			@if (files().length < MAX_FILES) {
+				<label class="dp-upload" for="dp-evidence" [class.dp-upload-off]="isSubmitting">
+					<svg data-ws-icon="pl-shared-paperclip" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.4 11-8.6 8.6a5 5 0 0 1-7-7l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg>
+					<span>ارفع حتى خمسة ملفات بحد عشرة ميجابايت لكل ملف</span>
+					<input id="dp-evidence" type="file" multiple accept="image/jpeg,image/png,application/pdf" class="dp-upload-input" data-testid="dispute-file-input" (change)="onFilesPicked($event)" [disabled]="isSubmitting" />
+				</label>
 			}
-
 			@if (evidenceError()) {
 				<div class="dp-field-error" id="dp-evidence-err" role="alert" data-testid="field-error">{{ evidenceError() }}</div>
 			}
-
-			<div class="dp-hint">الحد الأقصى 10 روابط. أضف روابط مباشرة للملفات أو الصور أو المستندات.</div>
+			<div class="dp-hint">JPG أو PNG أو PDF. تُحفظ الملفات مع النزاع ويراها الطرفان والإدارة فقط.</div>
 		</div>
+
+		<!-- الحل الذي تطلبه -->
+		@if (stageId()) {
+		<div class="lc-fld">
+			<label for="dp-requested">الحل الذي تطلبه <span class="ws-req" aria-hidden="true">*</span></label>
+			<select class="lc-sel" id="dp-requested" data-testid="dispute-requested" aria-required="true" (change)="onRequestedChange($event)" [disabled]="isSubmitting" [class.ws-invalid]="requestedError()" [attr.aria-invalid]="requestedError() ? 'true' : null" [attr.aria-describedby]="requestedError() ? 'dp-requested-err' : null">
+				<option value="" [selected]="!requested()">اختر الحل الذي تطلبه</option>
+				@for (o of resolutionOptions(); track o.code) {
+					<option [value]="o.code" [selected]="o.code === requested()">{{ o.label }}</option>
+				}
+			</select>
+			<div class="dp-hint">هذا اختيارك أنت فقط وليس وعدًا بأي نتيجة: القرار للإدارة وحدها، ولا يتحرك أي مبلغ من هذا النموذج.</div>
+			@if (requestedError()) {
+				<div class="dp-field-error" id="dp-requested-err" role="alert" data-testid="field-error">{{ requestedError() }}</div>
+			}
+		</div>
+		}
 
 		<div class="lc-mact">
 			<button type="button" class="lc-btn lc-btn-gh" (click)="closeModal()" [disabled]="isSubmitting">إلغاء</button>

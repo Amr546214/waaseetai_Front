@@ -154,10 +154,15 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 		path: 'finance/transactions',
 		redirectTo: 'finance/wallet'
 	},
+	// One transaction page, reached from the wallet list and by direct URL. The old /finance/transactions/:id link lands on the same page.
 	{
-		path: 'finance/transactions/:id',
+		path: 'finance/wallet/:id',
 		loadComponent: () => import('./finance/transaction-details/transaction-details').then(m => m.TransactionDetails),
 		data: { title: "تفاصيل المعاملة" }
+	},
+	{
+		path: 'finance/transactions/:id',
+		redirectTo: 'finance/wallet/:id'
 	},
 	{
 		path: 'finance/invoices',
