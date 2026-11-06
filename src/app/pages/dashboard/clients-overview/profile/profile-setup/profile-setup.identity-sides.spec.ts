@@ -1,3 +1,5 @@
+import { IdentityGateService } from '../../../../../core/services/identity-gate.service';
+import { FakeIdentityGate } from '../../../../../core/services/identity-gate.testing';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -9,8 +11,10 @@ import { ProfileApiService } from '../../../../../core/services/profile-api.serv
 import { KycDocumentService } from '../../../../../core/services/kyc-document.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 
-// C4: the client identity step is optional, but an identity approval request needs BOTH sides (the server opens the review only with id number + front + back).
+// C4 (updated for the identity gate): the identity step is now required and reviewed from the step itself; the identity is saved by the gate (sendIdentity), never by the generic step save. A half pair is still refused here.
+// An identity approval request needs BOTH sides (the server opens the review only with id number + front + back).
 describe('client profile-setup: identity approval needs both sides of the ID', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
 	let fixture: ComponentFixture<ProfileSetupDashboard>;
 	let c: any;
 	let saveStep: ReturnType<typeof vi.fn>;
@@ -27,7 +31,7 @@ describe('client profile-setup: identity approval needs both sides of the ID', (
 				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data: {} }), saveClientProfileSetup: vi.fn(() => of({ success: true })), saveClientSetupStep: saveStep } },
 			],
 		});
-		fixture = TestBed.createComponent(ProfileSetupDashboard);
+		fixture = (TestBed.overrideComponent(ProfileSetupDashboard, { set: { providers: [{ provide: IdentityGateService, useClass: FakeIdentityGate }] } }), TestBed.createComponent(ProfileSetupDashboard));
 		c = fixture.componentInstance;
 		fixture.detectChanges();
 		c.currentStep.set(2);
@@ -35,28 +39,28 @@ describe('client profile-setup: identity approval needs both sides of the ID', (
 	});
 	afterEach(() => { fixture?.destroy(); TestBed.resetTestingModule(); });
 
-	it('front only: the step is refused, the missing back side is named and nothing is sent', () => {
+	// Updated: which sides are needed is the server's call (a passport needs only the front). The step opens only when the gate is APPROVED.
+	it('front only while the gate is not approved: the step stays (nothing opens), nothing is sent by the generic step save', () => {
+		FakeIdentityGate.reset('NOT_SUBMITTED');
 		c.setupForm.get('identity.frontId').setValue(PNG);
 		c.nextStep(); fixture.detectChanges();
 		expect(saveStep).not.toHaveBeenCalled();
 		expect(c.currentStep()).toBe(2);
-		expect(c.fileErrors()['backId']).toContain('الوجه الخلفي');
-		expect(c.identityDocsProvided()).toBe(false); // never "تم الإرسال" for half a pair
+		expect(c.identityDocsProvided()).toBe(false);
 	});
 
-	it('back only: the missing front side is named', () => {
-		c.setupForm.get('identity.backId').setValue(PNG);
-		c.nextStep();
-		expect(saveStep).not.toHaveBeenCalled();
-		expect(c.fileErrors()['frontId']).toContain('الوجه الأمامي');
+	it('front only for a document the server approved (passport): the wizard moves on', () => {
+		c.setupForm.get('identity.frontId').setValue(PNG);
+		c.nextStep(); fixture.detectChanges();
+		expect(c.currentStep()).toBe(3);
 	});
 
-	it('both sides: the step is saved and counts as submitted; neither side: the optional step is skipped as before', () => {
+	it('both sides + APPROVED by the server: the generic step save sends nothing (the gate saved it) and the wizard moves on', () => {
 		c.setupForm.get('identity.frontId').setValue(PNG);
 		c.setupForm.get('identity.backId').setValue(PNG);
 		expect(c.identityDocsProvided()).toBe(true);
 		c.nextStep();
-		expect(saveStep).toHaveBeenCalledTimes(1);
+		expect(saveStep).not.toHaveBeenCalled();
 		expect(c.currentStep()).toBe(3);
 	});
 
@@ -65,6 +69,7 @@ describe('client profile-setup: identity approval needs both sides of the ID', (
 		c.setupForm.get('identity.backId').setValue(PNG);
 		expect(c.identityDocsProvided()).toBe(true);
 		c.nextStep();
-		expect(saveStep).toHaveBeenCalledTimes(1);
+		expect(saveStep).not.toHaveBeenCalled();
+		expect(c.currentStep()).toBe(3);
 	});
 });

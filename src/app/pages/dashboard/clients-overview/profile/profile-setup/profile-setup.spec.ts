@@ -1,3 +1,5 @@
+import { IdentityGateService } from '../../../../../core/services/identity-gate.service';
+import { FakeIdentityGate } from '../../../../../core/services/identity-gate.testing';
 import { ChangeDetectorRef } from '@angular/core';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -14,6 +16,7 @@ import { MB } from '../../../../../core/forms/file-validation';
 
 // Client onboarding (5 steps): Next validates the current step with the shared validation kit.
 describe('client profile-setup: shared validation', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
 	let fixture: ComponentFixture<ProfileSetupDashboard>;
 	let component: ProfileSetupDashboard;
 	let save: ReturnType<typeof vi.fn>;
@@ -28,7 +31,7 @@ describe('client profile-setup: shared validation', () => {
 				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data: {} }), saveClientProfileSetup: save, saveClientSetupStep: vi.fn(() => of({ success: true, data: {} })) } },
 			],
 		});
-		fixture = TestBed.createComponent(ProfileSetupDashboard);
+		fixture = (TestBed.overrideComponent(ProfileSetupDashboard, { set: { providers: [{ provide: IdentityGateService, useClass: FakeIdentityGate }] } }), TestBed.createComponent(ProfileSetupDashboard));
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
@@ -46,10 +49,11 @@ describe('client profile-setup: shared validation', () => {
 		component.nextStep();
 		render();
 		expect(component.currentStep()).toBe(1);
-		for (const label of ['رقم الهوية الوطنية', 'تاريخ الميلاد', 'الدولة', 'المهنة الحالية', 'العنوان التفصيلي']) {
+		// Updated (stale since PR #335): the document number / type message now sits UNDER the field (documentError), not in the summary list.
+		for (const label of ['تاريخ الميلاد', 'الدولة', 'المهنة الحالية', 'العنوان التفصيلي']) {
 			expect(summary(), label).toContain(label);
 		}
-		expect(el().querySelectorAll('[data-testid="field-error"]').length).toBeGreaterThanOrEqual(5);
+		expect(el().querySelectorAll('[data-testid="field-error"]').length).toBeGreaterThanOrEqual(4); // the document-number message is shown by documentError() under its own field since PR #335
 		expect(document.activeElement?.getAttribute('formcontrolname')).toBe('idNumber');
 		el().remove();
 	});
@@ -62,6 +66,8 @@ describe('client profile-setup: shared validation', () => {
 		number.setValue('ABC123');
 		expect(component.documentError('idNumber')).toContain('أرقام فقط');
 		component.setupForm.get('details.country')!.setValue('السعودية');
+		// Saudi national IDs became digits-only with their own prefix rule (country-specific validators of PR #335); the free letters+digits format of this step belongs to a passport.
+		component.setupForm.get('details.idDocumentType')!.setValue('PASSPORT');
 		expect(component.documentError('idNumber')).toBeNull();
 		number.setValue('AB@123');
 		expect(component.documentError('idNumber')).toContain('رمز غير مسموح');
@@ -172,9 +178,10 @@ describe('client profile-setup: shared validation', () => {
 			await vi.waitFor(() => expect(String(component.setupForm.get('identity.backId')!.value)).toContain('data:image/png'));
 		});
 
-		it('the ID uploads are labelled optional (they are not required by the form or the backend)', () => {
+		it('the ID uploads are required marked: the identity gate needs both sides before the next step opens', () => {
 			component.currentStep.set(2); render();
-			expect(el().textContent).toContain('(اختياري)');
+			expect(el().textContent).not.toContain('(اختياري)');
+			expect(el().querySelectorAll('.ws-req').length).toBeGreaterThanOrEqual(2);
 			expect(el().querySelector('#frontIdFile')).toBeTruthy();
 		});
 	});
@@ -185,7 +192,9 @@ describe('client profile-setup: shared validation', () => {
 		const settle = () => { vi.advanceTimersByTime(500); };
 		const failWith = (status: number, body: any) => save.mockReturnValue(throwError(() => new HttpErrorResponse({ status, error: body })));
 
-		it('the English "Invalid ID Number format." (400) becomes an Arabic field error on step 1', () => {
+		// Updated for PR #335: the number rule is no longer "7 to 20 digits". It depends on country + document type (Egyptian national ID = 14 digits; other
+		// documents = letters/digits/space/slash/dot/dash, up to 40), so the server's generic 400 is shown as «رقم الوثيقة غير مقبول؛ راجع الرقم ونوع الوثيقة».
+		it('the English "Invalid ID Number format." (400) becomes an Arabic field error on step 1 (country + type rules, not 7 to 20 digits)', () => {
 			fillStep1(); fillBank(); fillAgreements();
 			failWith(400, { success: false, message: 'Invalid ID Number format.' });
 			component.currentStep.set(5);
@@ -193,7 +202,7 @@ describe('client profile-setup: shared validation', () => {
 			settle();
 			render();
 			expect(component.currentStep()).toBe(1);
-			expect(component.setupForm.get('details.idNumber')!.errors?.['server']).toContain('7 إلى 20');
+			expect(component.setupForm.get('details.idNumber')!.errors?.['server']).toContain('راجع الرقم ونوع الوثيقة');
 			expect(summary()).toContain('رقم الهوية الوطنية');
 			expect(component.isSubmitting()).toBe(false);
 		});

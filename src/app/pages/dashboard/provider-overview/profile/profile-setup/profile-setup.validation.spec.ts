@@ -1,3 +1,5 @@
+import { IdentityGateService } from '../../../../../core/services/identity-gate.service';
+import { FakeIdentityGate } from '../../../../../core/services/identity-gate.testing';
 import { ChangeDetectorRef, signal } from '@angular/core';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
@@ -14,6 +16,7 @@ import { MB } from '../../../../../core/forms/file-validation';
 
 // Provider onboarding (7 steps): Next / step bar / final submit use the shared validation kit.
 describe('provider profile-setup: shared validation', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
   let fixture: ComponentFixture<ProfileSetupDashboard>;
   let component: ProfileSetupDashboard;
   let http: HttpTestingController;
@@ -31,7 +34,7 @@ describe('provider profile-setup: shared validation', () => {
         { provide: SetupTestService, useValue: { warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
       ],
     }).compileComponents();
-    fixture = TestBed.createComponent(ProfileSetupDashboard);
+    fixture = (TestBed.overrideComponent(ProfileSetupDashboard, { set: { providers: [{ provide: IdentityGateService, useClass: FakeIdentityGate }] } }), TestBed.createComponent(ProfileSetupDashboard));
     component = fixture.componentInstance;
     http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
@@ -119,12 +122,15 @@ describe('provider profile-setup: shared validation', () => {
     expect(el().querySelector('[data-testid="doc-file-error-frontId"]')?.textContent).toContain('مطلوبة');
   });
 
-  it('the back-ID and selfie slots are labelled optional (only the front ID is enforced)', () => {
+  // Updated for the identity gate: the back side is required for every document except a passport (the selfie stays optional).
+  it('the back-ID is required unless the document is a passport; the selfie slot stays optional', () => {
     component.currentStep.set(4); render();
     const text = el().textContent || '';
     const back = Array.from(el().querySelectorAll('.doc-name')).find(n => n.textContent?.includes('الظهر'))!;
     const selfie = Array.from(el().querySelectorAll('.doc-name')).find(n => n.textContent?.includes('Selfie'))!;
-    expect(back.textContent).toContain('اختياري');
+    expect(back.textContent).toContain('إلزامي');
+    component.setupForm.get('docs.idDocumentType')!.setValue('PASSPORT'); render();
+    expect(back.textContent).toContain('غير مطلوب لجواز السفر');
     expect(selfie.textContent).toContain('اختياري');
     expect(text).toContain('إلزامي'); // the front ID
   });

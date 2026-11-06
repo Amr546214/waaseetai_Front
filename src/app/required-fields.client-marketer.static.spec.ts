@@ -70,8 +70,9 @@ describe('required asterisks (client + marketer)', () => {
 		for (const n of ['idNumber', 'dob', 'country', 'city', 'occupation', 'address', 'paypalPayoutEmail', 'accurate', 'terms', 'privacy']) {
 			expect(tagWith(html, 'formControlName="' + n + '"'), n).toContain('aria-required="true"');
 		}
-		// ID photos are optional (pair only)
-		expect(html).toContain('(اختياري)</span></label>');
+		// updated for the identity gate: the ID photos are required now (the next step opens only after the document is approved), so they carry the star, not «اختياري»
+		expect(html).not.toContain('(اختياري)</span></label>');
+		expect(html).toContain('الوجه الأمامي <span class="ws-req"');
 	});
 
 	it('client profile edit: password trio starred, identity country not starred', () => {
