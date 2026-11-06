@@ -54,13 +54,19 @@ describe('client profile-setup: shared validation', () => {
 		el().remove();
 	});
 
-	it('the ID number rule matches the allowed format (7 to 20 digits) and says so', () => {
-		const c = component.setupForm.get('details.idNumber')!;
-		c.setValue('12345'); c.markAsTouched(); render();
-		expect(c.invalid).toBe(true);
-		expect(el().querySelector('[data-testid="field-error"]')?.textContent).toContain('غير صحيح');
-		c.setValue('303030925'); expect(c.valid).toBe(true);
-		c.setValue('1234567890'); expect(c.valid).toBe(true);
+	it('updates the document error after editing the number or changing country', () => {
+		component.setupForm.get('details.country')!.setValue('مصر');
+		component.setupForm.get('details.idDocumentType')!.setValue('NATIONAL_ID');
+		const number = component.setupForm.get('details.idNumber')!;
+		number.markAsTouched();
+		number.setValue('ABC123');
+		expect(component.documentError('idNumber')).toContain('أرقام فقط');
+		component.setupForm.get('details.country')!.setValue('السعودية');
+		expect(component.documentError('idNumber')).toBeNull();
+		number.setValue('AB@123');
+		expect(component.documentError('idNumber')).toContain('رمز غير مسموح');
+		number.setValue('AB123');
+		expect(component.documentError('idNumber')).toBeNull();
 	});
 
 	it('the address field now carries a required marker (it is required by the form)', () => {
