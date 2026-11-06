@@ -401,22 +401,21 @@
         @if (!kycPending() && !kycVerified()) {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 <div class="flex flex-col gap-2">
-  <label for="identity-issuer">بلد إصدار الوثيقة</label>
-  <select id="identity-issuer" formControlName="idIssuingCountry" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
-    <option value="">اختر البلد</option>
-    @for (country of identityIssuers; track country.code) { <option [value]="country.code">{{ country.label }}</option> }
-  </select>
-</div>
-<div class="flex flex-col gap-2">
   <label for="identity-document-type">نوع وثيقة الهوية</label>
   <select id="identity-document-type" formControlName="idDocumentType" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
     <option value="">اختر نوع الوثيقة</option>
     @for (type of identityDocumentTypes; track type.code) { <option [value]="type.code">{{ type.label }}</option> }
   </select>
+  @for (issue of missing(); track $index) {
+    @if (issue.path === 'docs.idDocumentType') { <p class="text-sm text-red-400" role="alert">{{ issue.message }}</p> }
+  }
 </div>
 <div class="flex flex-col gap-2">
   <label for="identity-document-number">رقم الوثيقة</label>
   <input id="identity-document-number" formControlName="idNumber" maxlength="40" dir="ltr" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
+  @for (issue of missing(); track $index) {
+    @if (issue.path === 'docs.idNumber') { <p class="text-sm text-red-400" role="alert">{{ issue.message }}</p> }
+  }
 </div>
         </div>
         }

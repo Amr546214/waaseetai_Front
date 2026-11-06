@@ -1,4 +1,4 @@
-import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, IDENTITY_ISSUERS } from '../../../../../shared/data/identity-documents';
+import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, identityCountryCode } from '../../../../../shared/data/identity-documents';
 import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -86,7 +86,6 @@ export interface SetupAlertModal {
 	styleUrls: ['./profile-setup.css']
 })
 export class ProfileSetupDashboard implements OnInit, OnDestroy {
-	readonly identityIssuers = IDENTITY_ISSUERS;
 	readonly identityDocumentTypes = IDENTITY_DOCUMENT_TYPES;
 
 	private fb = inject(FormBuilder);
@@ -173,7 +172,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		}),
 		docs: this.fb.group({
 			idNumber: ['', Validators.pattern(DOCUMENT_NUMBER_PATTERN)],
-			idIssuingCountry: [''],
 			idDocumentType: [''],
 			frontId: [''],
 			backId: [''],
@@ -360,7 +358,6 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						},
 						docs: {
 							idNumber: d.idNumber || '',
-							idIssuingCountry: d.idIssuingCountry || '',
 							idDocumentType: d.idDocumentType || '',
 							frontId: d.frontIdUrl || '',
 							backId: d.backIdUrl || ''
@@ -484,7 +481,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				const items: InvalidField[] = [];
 				if (!this.kycVerified() && !this.kycPending()) {
 					const d = this.setupForm.getRawValue().docs;
-					const problem = documentInputProblem(d.idNumber, d.idIssuingCountry, d.idDocumentType);
+					const problem = documentInputProblem(d.idNumber, identityCountryCode(this.setupForm.get('profData.country')?.value), d.idDocumentType);
 					if (problem) items.push({ ...problem, path: 'docs.' + problem.key });
 				}
 
@@ -1197,7 +1194,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			// Only a photo that was uploaded in this session is sent; the stored one (own storage URL or the Google sign-in picture) is kept by the server and never re-posted as a "new link".
 			...(this.avatarUrl() && this.avatarUrl() !== this.storedAvatarUrl ? { avatarUrl: this.avatarUrl() } : {}),
 			details: {
-				...(!this.kycVerified() && !this.kycPending() ? { idNumber: this.setupForm.get('docs.idNumber')?.value || undefined, idIssuingCountry: this.setupForm.get('docs.idIssuingCountry')?.value || undefined, idDocumentType: this.setupForm.get('docs.idDocumentType')?.value || undefined } : {}),
+				...(!this.kycVerified() && !this.kycPending() ? { idNumber: this.setupForm.get('docs.idNumber')?.value || undefined, idIssuingCountry: (this.setupForm.get('docs.idDocumentType')?.value && identityCountryCode(this.setupForm.get('profData.country')?.value)) || undefined, idDocumentType: this.setupForm.get('docs.idDocumentType')?.value || undefined } : {}),
 				occupation: this.setupForm.get('profData.jobTitle')?.value,
 				country: this.setupForm.get('profData.country')?.value,
 				city: this.setupForm.get('profData.city')?.value,
