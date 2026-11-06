@@ -66,6 +66,8 @@ describe('client profile-setup: shared validation', () => {
 		number.setValue('ABC123');
 		expect(component.documentError('idNumber')).toContain('أرقام فقط');
 		component.setupForm.get('details.country')!.setValue('السعودية');
+		// Saudi national IDs became digits-only with their own prefix rule (country-specific validators of PR #335); the free letters+digits format of this step belongs to a passport.
+		component.setupForm.get('details.idDocumentType')!.setValue('PASSPORT');
 		expect(component.documentError('idNumber')).toBeNull();
 		number.setValue('AB@123');
 		expect(component.documentError('idNumber')).toContain('رمز غير مسموح');
