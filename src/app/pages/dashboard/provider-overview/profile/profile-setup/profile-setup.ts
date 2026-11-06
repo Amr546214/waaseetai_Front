@@ -409,6 +409,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					}
 					this.currentStep.set(start.step);
 					if (start.step === 5) this.initPortfolioCards();
+					// a resumed wizard never stands past an identity that is not approved (the server would refuse those steps anyway)
+					if (start.step > 4) this.gate.load().subscribe({ next: g => { if (!g.canAdvance && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
 				}
 			}
 		});

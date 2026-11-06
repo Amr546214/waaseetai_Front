@@ -190,6 +190,8 @@ export class ProfileSetupDashboard implements OnInit {
 						return;
 					}
 					this.currentStep.set(start.step);
+					// a resumed wizard never stands past an identity that is not approved (the server would refuse those steps anyway)
+					if (start.step > 2) this.gate.load().subscribe({ next: g => { if (!g.canAdvance && this.currentStep() > 2) this.currentStep.set(2); }, error: () => this.currentStep.set(2) });
 
 					// Disable verified fields to prevent tampering
 					if (data.kycStatus === 'VERIFIED') {
@@ -418,6 +420,8 @@ export class ProfileSetupDashboard implements OnInit {
 				group.patchValue({ [controlName]: base64Str });
 			}
 			this.isUploading.update(s => ({ ...s, [controlName]: false }));
+			// choosing the photo saves the identity (data + image) and starts the review right here; it never moves to another step
+			if (groupName === 'identity') this.sendIdentity();
 		};
 		reader.onerror = () => {
 			this.isUploading.update(s => ({ ...s, [controlName]: false }));

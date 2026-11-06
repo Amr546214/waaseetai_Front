@@ -42,6 +42,16 @@ describe('client profile-setup: identity gate behaviour', () => {
 		expect(c.setupForm.get('details.idNumber').value).toBe('A1234567'); // nothing erased
 	});
 
+	it('choosing the photo file itself (onFileSelected) saves through the gate and starts the review', async () => {
+		mount(); fillId(); c.currentStep.set(2); fixture.detectChanges();
+		const input = document.createElement('input'); input.type = 'file';
+		Object.defineProperty(input, 'files', { value: [new File([new Uint8Array([137, 80, 78, 71])], 'id.png', { type: 'image/png' })] });
+		await c.onFileSelected({ target: input } as any, 'identity', 'frontId');
+		await vi.waitFor(() => expect(FakeIdentityGate.saved).toHaveLength(1));
+		expect(FakeIdentityGate.saved[0].frontId).toContain('data:image/png');
+		expect(c.currentStep()).toBe(2);
+	});
+
 	it('incomplete identity data: nothing is sent, the problem is shown, the image stays in the form', () => {
 		mount(); c.currentStep.set(2); c.setupForm.get('identity.frontId').setValue(PNG);
 		c.sendIdentity();
@@ -67,6 +77,18 @@ describe('client profile-setup: identity gate behaviour', () => {
 		c.nextStep(); fixture.detectChanges();
 		expect(c.currentStep()).toBe(2);
 		expect(c.gateProblem()).toContain('غير معتمدة');
+	});
+
+	it('a wizard resumed past the identity (details + PayPal saved) opens on the identity step while it is not approved', () => {
+		FakeIdentityGate.reset('UNDER_REVIEW');
+		TestBed.configureTestingModule({ imports: [ProfileSetupDashboard], providers: [
+			provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
+			{ provide: AuthStore, useValue: { currentUser: () => null } },
+			{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data: { idNumber: 'A1234567', dob: '1990-01-01T00:00:00.000Z', country: 'مصر', city: 'القاهرة', industry: 'x', address: 'y', paypalPayoutEmail: 'a@b.co' } }), saveClientProfileSetup: vi.fn(), saveClientSetupStep: vi.fn() } },
+		] });
+		TestBed.overrideComponent(ProfileSetupDashboard, { set: { providers: [{ provide: IdentityGateService, useClass: FakeIdentityGate }] } });
+		fixture = TestBed.createComponent(ProfileSetupDashboard); fixture.detectChanges();
+		expect(fixture.componentInstance.currentStep()).toBe(2);
 	});
 
 	it('legacy VERIFIED/APPROVED + step 1 re-save re-reads the state', () => {
