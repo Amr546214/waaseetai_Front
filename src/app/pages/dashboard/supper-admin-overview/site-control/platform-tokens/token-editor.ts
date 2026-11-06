@@ -1,3 +1,4 @@
+import { DomSanitizer } from "@angular/platform-browser";
 import {APPROVED_FONTS,IdentityFontsRuntime} from '../../../../../core/identity/identity-fonts.runtime';
 import { NgStyle } from '@angular/common';
 import { Component, ViewEncapsulation, computed, inject, input, signal, OnInit, effect } from '@angular/core';
@@ -5,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 import { IdentityAssetMeta, IdentityChangeResult, IdentityItemInfo, IdentityTokenDef, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { Failure, actorName, currentSummary, describeFailure } from '../identity/identity-view';
-import { PRESENTATION_GROUPS,presentationInline } from '../../../../../core/identity/presentation-controls';
+import { PRESENTATION_GROUPS,PRESENTATION_STYLE_ID,buildPresentationCss,presentationInline } from '../../../../../core/identity/presentation-controls';
 import { PlatformTokensStore } from './platform-tokens.store';
 
 export interface TokenNotice { type: 'ok' | 'warn' | 'error' | 'conflict'; text: string; detail?: string; failure?: Failure }
@@ -38,10 +39,56 @@ export class TokenEditor implements OnInit {
  readonly fontChoices=APPROVED_FONTS;
  fontStack(font:{googleFamily:string;latinPartner:string}):string{return [...new Set([font.googleFamily,font.latinPartner])].map(n=>"'"+n+"'").join(',')+',system-ui,sans-serif';}
  readonly tokenPrefix=input('');readonly query=signal('');readonly limit=signal(50);
- displayValue(value:string):string{return value==='inherit'?'الأصل حسب موضعه':value;}
+ displayValue(value:string):string{return value==='inherit'?'افتراضي لكل موضع':value;}
+ readonly scopesByToken = new Map(PRESENTATION_GROUPS.flatMap(group =>
+   group.fields.map(field => [field.name, group] as const)));
  filteredTokens(it:IdentityItemInfo):IdentityTokenDef[]{const q=this.query().trim().toLowerCase();return(it.tokens??[]).filter(t=>(!this.tokenPrefix()||t.name.startsWith(this.tokenPrefix()))&&(!q||[t.name,t.label,t.default].some(v=>v.toLowerCase().includes(q))));}
  visibleTokens(it:IdentityItemInfo):IdentityTokenDef[]{return this.filteredTokens(it).slice(0,this.limit());}
  samples(it:IdentityItemInfo){return PRESENTATION_GROUPS.filter(g=>g.key===it.key&&(!this.tokenPrefix()||g.fields.some(f=>f.name.startsWith(this.tokenPrefix())))).slice(0,20);}
+ readonly livePreview = input(false);
+ readonly previewPages = [
+   {path:'/marketplace', label:'السوق'},
+   {path:'/client-overview/finance/wallet', label:'محفظة طالب الخدمة'},
+   {path:'/provider-overview/finance/wallet', label:'محفظة مقدّم الخدمة'},
+   {path:'/supper-admin-overview', label:'لوحة الإدارة'},
+ ];
+ readonly previewPage = signal('');
+ private readonly sanitizer = inject(DomSanitizer);
+ readonly previewSrc = computed(() => {
+   const path = this.previewPage();
+   return this.previewPages.some(p => p.path === path) ? this.sanitizer.bypassSecurityTrustResourceUrl(path) : null;
+ });
+ readonly previewCount = signal<number|null>(null);
+ readonly previewStatus = signal('');
+ updatePagePreview(frame: HTMLIFrameElement, it: IdentityItemInfo, draft: boolean): void {
+   this.previewCount.set(null);
+   try {
+     const doc = frame.contentDocument;
+     if (!doc?.head || frame.contentWindow?.location.pathname !== this.previewPage()) {
+       this.previewStatus.set('تعذّر عرض الصفحة المطلوبة. قد تحتاج صلاحية الدور المناسب.');
+       return;
+     }
+     const values = Object.fromEntries(this.store.items().map(item => [item.key, {value:this.activeValue(item)}]));
+     if (draft) values[it.key] = {value:this.reviewed(it) ?? this.desired(it)};
+     let style = doc.getElementById(PRESENTATION_STYLE_ID);
+     if (!style) {
+       style = doc.createElement('style');
+       style.id = PRESENTATION_STYLE_ID;
+       doc.head.appendChild(style);
+     }
+     style.textContent = buildPresentationCss(values);
+     const group = this.samples(it)[0];
+     this.previewCount.set(group ? doc.querySelectorAll(group.selector).length : 0);
+     this.previewStatus.set(draft ? 'المسودة في المعاينة فقط' : 'القيم المنشورة');
+   } catch {
+     this.previewStatus.set('المتصفح لم يسمح بمعاينة هذه الصفحة.');
+   }
+ }
+ readonly walletButtons: Record<string,string> = {'client-wallet-deposit':'إيداع رصيد','provider-wallet-withdraw':'سحب الأرباح'};
+ walletButtonStyle(it:IdentityItemInfo,id:string,preview:boolean){
+   const values=preview?(this.reviewed(it)??this.desired(it)):this.activeValue(it);
+   return {...presentationInline('button',values),...presentationInline(id,values)};
+ }
  sampleStyle(it:IdentityItemInfo,id:string){return presentationInline(id,this.reviewed(it)??this.desired(it));}
 
 	readonly previewFonts=inject(IdentityFontsRuntime);

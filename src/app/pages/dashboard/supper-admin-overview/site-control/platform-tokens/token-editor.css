@@ -85,3 +85,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, label.file-btn:foc
 }
 
 .font-choices{display:flex;flex-wrap:wrap;gap:6px;margin-block:8px;max-height:180px;overflow:auto}.font-choices button{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+
+.pt-wallet-preview { display:flex; flex-wrap:wrap; gap:1rem; margin-block:1rem; }
+.pt-wallet-preview > div { display:grid; gap:.5rem; align-content:start; }
+.pt-wallet-button { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:9px; border:0; font:inherit; font-weight:800; background:linear-gradient(135deg,#2BD4C7,#2B7FFF); color:#070D24; }
