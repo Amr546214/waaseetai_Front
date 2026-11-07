@@ -68,6 +68,8 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	analytics: { all: ['finance.read'] }, 'analytics/coupons': { all: ['packages.manage'] },
 	'risk-center': { all: ['finance.read'] },
 	'my-account': { self: true },
+	// Bebo's tools (the same bar that used to float on every page): every admin account had them, so every admin account keeps them
+	bebo: { self: true },
 	'no-access': { self: true },
 };
 
