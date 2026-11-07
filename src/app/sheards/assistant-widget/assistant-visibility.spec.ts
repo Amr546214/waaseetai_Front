@@ -2,7 +2,7 @@ import type { ActivatedRouteSnapshot } from '@angular/router';
 import { routes } from '../../app.routes';
 import { CLIENT_OVERVIEW_ROUTES } from '../../pages/dashboard/clients-overview/client.routes';
 import { PROVIDER_OVERVIEW_ROUTES } from '../../pages/dashboard/provider-overview/provider.routes';
-import { ASSISTANT_LIFT_PX, assistantLiftPx, isAssistantHidden } from './assistant-visibility';
+import { ASSISTANT_LIFT_PX, assistantLiftPx, isAssistantHidden, isAssistantToolbarInSidebar } from './assistant-visibility';
 
 /** Minimal snapshot chain: each entry is the `data` of one route level, root first. */
 function chain(...levels: Array<Record<string, unknown>>): ActivatedRouteSnapshot {
@@ -71,5 +71,21 @@ describe('assistantLiftPx (clears fixed bottom action bars)', () => {
 		for (const path of ['explore-requests/:id/apply', 'business-models/new-project', 'business-models/accreditation/new']) expect(lifted(PROVIDER_OVERVIEW_ROUTES, path), path).toBe(true);
 		expect(lifted(CLIENT_OVERVIEW_ROUTES, 'my-requests')).toBe(false);
 		expect(lifted(PROVIDER_OVERVIEW_ROUTES, 'explore-requests')).toBe(false);
+	});
+});
+
+describe('Bebo tool bar in the admin sidebar (route flag)', () => {
+	it('only the admin panel route carries the flag; no other area does', () => {
+		const flagged = routes.filter(r => r.data?.['beboToolbarInSidebar'] === true).map(r => r.path);
+		expect(flagged).toEqual(['supper-admin-overview']);
+		for (const area of [CLIENT_OVERVIEW_ROUTES, PROVIDER_OVERVIEW_ROUTES]) expect(area.some(r => r.data?.['beboToolbarInSidebar'] === true)).toBe(false);
+	});
+	it('the flag on any level of the active branch counts; without it the floating bar stays', () => {
+		expect(isAssistantToolbarInSidebar(chain({}, { beboToolbarInSidebar: true }, {}))).toBe(true);
+		expect(isAssistantToolbarInSidebar(chain({}, {}, { title: 'x' }))).toBe(false);
+		expect(isAssistantToolbarInSidebar(null)).toBe(false);
+	});
+	it('the admin panel keeps the robot: the flag is not hideAssistant', () => {
+		expect(isAssistantHidden(chain({}, { beboToolbarInSidebar: true }))).toBe(false);
 	});
 });

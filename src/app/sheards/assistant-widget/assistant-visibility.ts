@@ -14,6 +14,17 @@ export function isAssistantHidden(root: ActivatedRouteSnapshot | null | undefine
 }
 
 /**
+ * Areas whose route data says `beboToolbarInSidebar: true` (the admin panel) show Bebo's tool bar in their own sidebar tab instead of floating it; the robot itself stays.
+ * Checked over the whole active branch, like the other flags, and nowhere else: the rest of the site keeps the floating bar.
+ */
+export function isAssistantToolbarInSidebar(root: ActivatedRouteSnapshot | null | undefined): boolean {
+	for (let r: ActivatedRouteSnapshot | null | undefined = root; r; r = r.firstChild) {
+		if (r.data?.['beboToolbarInSidebar'] === true) return true;
+	}
+	return false;
+}
+
+/**
  * Pages with a fixed/sticky bottom action bar ("التالي / السابق / إلغاء") opt in with
  * `data: { assistantLift: true }`. The assistant then floats ASSISTANT_LIFT_PX above the
  * viewport floor (robot.js `floor-offset`), clearing the bar. Measured bar heights with the
