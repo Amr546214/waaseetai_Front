@@ -44,7 +44,23 @@ export class SaSupportDetail implements OnInit {
   staffOptions = computed(() => this.staff().map(s => ({ value: s.id, label: s.name })));
   selectedAssigneeId = signal('');
   noteDraft = signal('');
-  readonly noSla = 'يتطلب جدولاً لقياس زمن الاستجابة';
+  readonly firstStaffReply = computed(() => {
+    const detail = this.data();
+    if (!detail) return null;
+    const openedAt = Date.parse(detail.ticket.createdAt);
+    if (!Number.isFinite(openedAt)) return null;
+    let first: { at: string; timestamp: number } | null = null;
+    for (const message of detail.messages) {
+      if (message.senderId === detail.ticket.userId || !this.isStaff(message)) continue;
+      const timestamp = Date.parse(message.createdAt);
+      if (Number.isFinite(timestamp) && timestamp >= openedAt && (!first || timestamp < first.timestamp)) {
+        first = { at: message.createdAt, timestamp };
+      }
+    }
+    if (!first) return null;
+    const minutes = Math.floor((first.timestamp - openedAt) / 60_000);
+    return { at: first.at, hours: Math.floor(minutes / 60), minutes: minutes % 60 };
+  });
   readonly noEscalation = 'غير متوفر حالياً';
   readonly noAttachments = 'إرفاق ملفات في رد الموظف غير متاح حاليًا؛ يمكنك فتح مرفقات التذكرة أعلاه';
   readonly priorities = ['منخفضة', 'عادية', 'عالية', 'عاجلة'];
