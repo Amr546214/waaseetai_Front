@@ -56,7 +56,15 @@ export class SaDisputeDetail implements OnInit {
   noteDraft = signal('');
   opBusy = signal(false);
 
-  readonly noEscalationBackend = 'يحتاج قرار منتج/جدول بيانات غير متوفر';
+  // Same open statuses and strict seven-day threshold as the dashboard's overdue-dispute alert.
+  readonly openAge = computed(() => {
+    const dispute = this.selectedDispute();
+    if (!dispute || (dispute.status !== 'OPEN' && dispute.status !== 'UNDER_REVIEW')) return null;
+    const elapsed = Date.now() - Date.parse(dispute.createdAt);
+    if (!Number.isFinite(elapsed) || elapsed < 0) return null;
+    const dayMs = 86_400_000;
+    return { days: Math.floor(elapsed / dayMs), overSevenDays: elapsed > 7 * dayMs };
+  });
 
   // Advisory-only AI summary — entirely separate from the manual
   // resolve/reject state above. Never pre-fills resolutionText/resolutionNote.

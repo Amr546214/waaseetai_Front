@@ -111,12 +111,18 @@
         <app-dispute-chat [path]="'admin/disputes/' + d.id" />
 
         <div class="dp-md-field">
-          <label>التصعيد ومؤشرات SLA</label>
-          <div class="dp-ops-row">
-            <button type="button" class="dp-btn dp-btn-gh" disabled [title]="noEscalationBackend">تصعيد النزاع</button>
-            <button type="button" class="dp-btn dp-btn-gh" disabled [title]="noEscalationBackend">مؤشر SLA</button>
-          </div>
-          <p class="dp-disabled-note">{{ noEscalationBackend }}</p>
+          <label>متابعة النزاع</label>
+          @if (openAge(); as age) {
+            <p class="dp-disabled-note">
+              مدة بقاء النزاع مفتوحًا:
+              <strong>{{ age.days === 0 ? 'أقل من يوم' : (age.days | number) + ' يوم' }}</strong>.
+              @if (age.overSevenDays) { <strong>تجاوز ٧ أيام — يحتاج متابعة.</strong> }
+            </p>
+          } @else if (d.status === 'OPEN' || d.status === 'UNDER_REVIEW') {
+            <p class="dp-disabled-note">مدة بقاء النزاع مفتوحًا غير متوفرة.</p>
+          } @else {
+            <p class="dp-disabled-note">النزاع مغلق.</p>
+          }
         </div>
 
         <!-- Dispute log: opening entry + the real admin audit-log timeline from the API -->
