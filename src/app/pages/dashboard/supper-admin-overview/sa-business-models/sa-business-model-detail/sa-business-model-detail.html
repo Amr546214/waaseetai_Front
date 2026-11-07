@@ -1,1 +1,45 @@
-<app-sa-unavailable title="تفاصيل نموذج العمل" subtitle="مراجعة نموذج عمل مرفوع" heading="تفاصيل النموذج غير متاحة" reason="لا توجد واجهة خلفية للإدارة تعرض نموذج العمل أو تعتمده أو ترفضه، لذلك لا يُعرض محتوى ولا أزرار قرار." linkLabel="فتح نماذج الأعمال" linkTo="/supper-admin-overview/business-models" />
+<section class="bm-page">
+  <a routerLink="..">العودة إلى نماذج الأعمال</a>
+  <h1 class="bm-ttl">تفاصيل نموذج العمل</h1>
+  @if (saved()) { <p role="status">تم حفظ القرار.</p> }
+  @if (decisionError()) { <p role="alert">{{ decisionError() }}</p> }
+  @if (loading()) { <p role="status">جاري تحميل النموذج…</p> }
+  @else if (error()) { <p role="alert">{{ error() }}</p> <button type="button" (click)="load()">إعادة المحاولة</button> }
+  @else if (model(); as item) {
+    <article class="review-panel">
+      <h2>{{ item.title }}</h2>
+      <p>{{ states[item.status] }} · {{ item.provider.firstName }} {{ item.provider.lastName }}</p>
+      <p>{{ item.specialty?.nameAr || 'بلا تخصص' }} · مدة التنفيذ: {{ item.totalDays }} يوم</p>
+      <p class="review-description">{{ item.description }}</p>
+      @if (item.auditRejectionReason) { <p>سبب الرفض: {{ item.auditRejectionReason }}</p> }
+      <h3>مراحل العمل</h3>
+      @if (item.stages.length) {
+        <ol>
+          @for (stage of item.stages; track stage.id) {
+            <li><strong>{{ stage.title }}</strong> · {{ stage.deliveryDays }} يوم
+              @if (stage.description) { <p class="review-description">{{ stage.description }}</p> }
+            </li>
+          }
+        </ol>
+      } @else { <p>لا توجد مراحل مسجلة.</p> }
+    </article>
+    @if (access.can('content.manage')) {
+      @if (selected(); as action) {
+        <form class="review-panel" (ngSubmit)="confirm()">
+          <h3>تأكيد {{ labels[action] }}</h3>
+          <label>السبب {{ action === 'REJECT' ? '(مطلوب)' : '(اختياري)' }}
+            <textarea name="reason" [(ngModel)]="reason" [required]="action === 'REJECT'" [disabled]="busy()" rows="3" maxlength="1000"></textarea>
+          </label>
+          <div class="review-filters">
+            <button type="submit" [disabled]="busy() || (action === 'REJECT' && !reason.trim())">تأكيد القرار</button>
+            <button type="button" [disabled]="busy()" (click)="choose(null)">إلغاء</button>
+          </div>
+        </form>
+      } @else {
+        <div class="review-filters">
+          @for (action of item.actions; track action) { <button type="button" (click)="choose(action)">{{ labels[action] }}</button> }
+        </div>
+      }
+    } @else { <p>يمكنك الاطلاع على النموذج. اتخاذ القرار يحتاج صلاحية إدارة المحتوى.</p> }
+  }
+</section>
