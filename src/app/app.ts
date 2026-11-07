@@ -56,7 +56,7 @@ export class App implements OnInit {
 	readonly assistantHidden = computed(() => this.routeHidden() || this.assistantStore.examActive());
 	/** Extra px the assistant floats above the viewport floor on pages with a bottom action bar. */
 	readonly assistantLift = signal(0);
-	/** In the admin panel Bebo's tool bar is the «بيبو» sidebar tab, so the widget does not float it. */
+	/** In dashboards Bebo's tool bar is the «بيبو» sidebar tab, so the widget does not float it. */
 	readonly assistantToolbarInSidebar = signal(false);
 
 	constructor() {

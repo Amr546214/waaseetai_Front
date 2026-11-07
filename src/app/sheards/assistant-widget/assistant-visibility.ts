@@ -14,8 +14,8 @@ export function isAssistantHidden(root: ActivatedRouteSnapshot | null | undefine
 }
 
 /**
- * Areas whose route data says `beboToolbarInSidebar: true` (the admin panel) show Bebo's tool bar in their own sidebar tab instead of floating it; the robot itself stays.
- * Checked over the whole active branch, like the other flags, and nowhere else: the rest of the site keeps the floating bar.
+ * Areas whose route data says `beboToolbarInSidebar: true` (the authenticated dashboards) show Bebo's tool bar in their own sidebar tab instead of floating it; the robot itself stays.
+ * Checked over the whole active branch, like the other flags, and nowhere else: public pages keep the floating bar.
  */
 export function isAssistantToolbarInSidebar(root: ActivatedRouteSnapshot | null | undefined): boolean {
 	for (let r: ActivatedRouteSnapshot | null | undefined = root; r; r = r.firstChild) {
