@@ -1,3 +1,4 @@
+import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { CaseAttachments } from '../../../../../shared/case-attachments/case-attachments';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
@@ -43,6 +44,9 @@ export class SaSupportDetail implements OnInit {
   staff = signal<AdminStaffMember[]>([]);
   staffOptions = computed(() => this.staff().map(s => ({ value: s.id, label: s.name })));
   selectedAssigneeId = signal('');
+  readonly escalationReason = signal('');
+  private readonly adminAccess = inject(AdminAccessService);
+  readonly canEscalate = computed(() => this.adminAccess.can('support.reply') && this.adminAccess.can('tasks.manage'));
   noteDraft = signal('');
   readonly firstStaffReply = computed(() => {
     const detail = this.data();
@@ -61,7 +65,6 @@ export class SaSupportDetail implements OnInit {
     const minutes = Math.floor((first.timestamp - openedAt) / 60_000);
     return { at: first.at, hours: Math.floor(minutes / 60), minutes: minutes % 60 };
   });
-  readonly noEscalation = 'غير متوفر حالياً';
   readonly noAttachments = 'إرفاق ملفات في رد الموظف غير متاح حاليًا؛ يمكنك فتح مرفقات التذكرة أعلاه';
   readonly priorities = ['منخفضة', 'عادية', 'عالية', 'عاجلة'];
 
@@ -77,6 +80,7 @@ export class SaSupportDetail implements OnInit {
     this.route.paramMap.subscribe((params) => {
       this.ticketId.set(params.get('id') ?? '');
       this.draftReply.set('');
+      this.escalationReason.set('');
       this.load();
     });
   }
@@ -215,6 +219,22 @@ export class SaSupportDetail implements OnInit {
       },
       error: (err) => { this.guard.release(); this.busy.set(false); this.fail(err, fail, resolve, show); },
     });
+  }
+
+  escalate() {
+    if (!this.canEscalate()) return;
+    const assigneeId = this.selectedAssigneeId();
+    const reason = this.escalationReason().trim();
+    const problems = [
+      ...(!assigneeId ? [{ field: 'sup-assignee', message: 'اختر المسؤول الذي سيستلم الحالة' }] : []),
+      ...(!reason || reason.length > 1000 ? [{ field: 'sup-escalation-reason', message: 'اكتب سبب التصعيد في حدود ١٠٠٠ حرف' }] : []),
+    ];
+    if (problems.length) {
+      void reportAdminProblems(this.host.nativeElement, problems);
+      return;
+    }
+    const fields = { assigneeId: 'sup-assignee', escalationReason: 'sup-escalation-reason' };
+    this.run(() => this.api.adminAssign(this.ticketId(), assigneeId, reason), 'تم تصعيد التذكرة', 'تعذر تصعيد التذكرة', (m) => this.assignError.set(m), fields, () => this.escalationReason.set(''));
   }
 
   assign() {
