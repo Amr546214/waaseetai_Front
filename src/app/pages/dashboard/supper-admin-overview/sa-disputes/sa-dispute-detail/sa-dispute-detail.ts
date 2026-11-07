@@ -56,7 +56,10 @@ export class SaDisputeDetail implements OnInit {
   selectedAssigneeId = signal('');
   readonly escalationReason = signal('');
   private readonly adminAccess = inject(AdminAccessService);
-  readonly canEscalate = computed(() => this.adminAccess.can('disputes.assign'));
+  readonly canEscalate = computed(() => {
+    const status = this.selectedDispute()?.status;
+    return (status === 'OPEN' || status === 'UNDER_REVIEW') && this.adminAccess.can('disputes.assign');
+  });
   noteDraft = signal('');
   opBusy = signal(false);
 
