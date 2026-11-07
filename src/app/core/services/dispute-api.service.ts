@@ -169,8 +169,8 @@ export class DisputeApiService {
     return this.http.post<ResolveFinancialApiResponse>(`${this.baseUrl}/admin/disputes/${id}/resolve-financial`, payload);
   }
 
-  assignAdminDispute(id: string, assigneeId: string): Observable<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>> {
-    return this.http.post<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>>(`${this.baseUrl}/admin/disputes/${id}/assign`, { assigneeId });
+  assignAdminDispute(id: string, assigneeId: string, escalationReason?: string): Observable<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>> {
+    return this.http.post<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>>(`${this.baseUrl}/admin/disputes/${id}/assign`, { assigneeId, ...(escalationReason ? { escalationReason } : {}) });
   }
 
   /** POST /api/admin/disputes/:id/notes — internal note, never shown to the parties. */

@@ -51,11 +51,9 @@
             @for (s of statuses; track s) {
               <button type="button" class="sup-ca-btn" [class.sup-ca-close]="s === d.ticket.status" [disabled]="busy() || s === d.ticket.status" (click)="setStatus(s)">{{ statusLabels[s] }}</button>
             }
-            <button type="button" class="sup-ca-btn sup-ca-escalate" disabled [title]="noEscalation">تصعيد</button>
             <button type="button" class="sup-ca-btn" disabled [title]="noAttachments">إرفاق ملف</button>
           </div>
           @if (actionError()) { <div class="sup-notes-empty" role="alert" data-testid="action-error" style="color:#ff6b6b">{{ actionError() }}</div> }
-          <div class="sup-notes-empty">التصعيد: {{ noEscalation }} · المرفقات المعتمدة معروضة أعلاه</div>
           @if (d.ticket.status !== 'CLOSED') {
             <div class="sup-notes-empty">ردك يظهر لصاحب التذكرة ويصله كإشعار.</div>
             <div class="sup-chat-input-area">
@@ -93,6 +91,14 @@
           <div class="sup-assign-current">مُكلَّف: <strong>{{ d.assignedTo?.name || 'غير مُكلَّف' }}</strong></div>
           <ws-select id="sup-assignee" [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للتكليف" style="min-width:160px;max-width:100%;display:block"></ws-select>
           <button type="button" class="sup-side-btn" [disabled]="busy()" (click)="assign()">تكليف</button>
+          @if (d.assignedTo?.escalationReason; as reason) { <p>سبب التصعيد الداخلي: {{ reason }}</p> }
+          @if (canEscalate() && d.ticket.status !== 'CLOSED' && d.ticket.status !== 'RESOLVED') {
+            <div>
+              <label for="sup-escalation-reason">سبب التصعيد الداخلي إلى الموظف المختار</label>
+              <textarea id="sup-escalation-reason" rows="2" maxlength="1000" [ngModel]="escalationReason()" (ngModelChange)="escalationReason.set($event)"></textarea>
+              <button type="button" class="sup-side-btn" [disabled]="busy()" (click)="escalate()">تصعيد التذكرة</button>
+            </div>
+          }
           @if (assignError()) { <div class="sup-notes-empty" role="alert" data-testid="assign-error" style="color:#ff6b6b">{{ assignError() }}</div> }
         </div>
 

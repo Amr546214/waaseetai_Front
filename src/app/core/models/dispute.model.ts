@@ -88,7 +88,7 @@ export interface Dispute {
   /** Escrow still held for the dispute's project (own-disputes endpoints only; null = none/unknown, absent on an older backend). */
   heldEscrowAmount?: number | null;
   /** Admin endpoints only: current assignee (from the admin audit store). */
-  assignedTo?: { id: string; name: string } | null;
+  assignedTo?: { id: string; name: string; escalationReason?: string } | null;
   /** Admin detail only: escrow of the dispute's project, straight from the database. */
   escrow?: { status: 'HELD' | 'RELEASED' | 'REFUNDED'; amount: number; releasedAmount: number; fundedAt: string | null } | null;
   contractStatus?: string | null;

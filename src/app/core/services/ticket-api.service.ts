@@ -65,7 +65,7 @@ export interface AdminTicketUser {
 	accountType?: string;
 }
 
-export interface AdminAssignee { id: string; name: string }
+export interface AdminAssignee { id: string; name: string; escalationReason?: string }
 
 export interface AdminTicketListItem extends SupportTicket {
 	user?: AdminTicketUser;
@@ -154,8 +154,8 @@ export class TicketApiService {
 		return this.http.patch<ApiResponse<SupportTicket>>(`${environment.url_api}/admin/tickets/${id}/priority`, { priority });
 	}
 
-	adminAssign(id: string, assigneeId: string): Observable<ApiResponse<{ id: string; assignedTo: AdminAssignee }>> {
-		return this.http.post<ApiResponse<{ id: string; assignedTo: AdminAssignee }>>(`${environment.url_api}/admin/tickets/${id}/assign`, { assigneeId });
+	adminAssign(id: string, assigneeId: string, escalationReason?: string): Observable<ApiResponse<{ id: string; assignedTo: AdminAssignee }>> {
+		return this.http.post<ApiResponse<{ id: string; assignedTo: AdminAssignee }>>(`${environment.url_api}/admin/tickets/${id}/assign`, { assigneeId, ...(escalationReason ? { escalationReason } : {}) });
 	}
 
 	adminAddNote(id: string, body: string): Observable<ApiResponse<AdminInternalNote>> {

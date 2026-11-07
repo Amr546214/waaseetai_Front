@@ -1,3 +1,4 @@
+import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { CaseAttachments } from '../../../../../shared/case-attachments/case-attachments';
 import { DisputeChat } from '../../../../../shared/dispute-chat/dispute-chat';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
@@ -53,6 +54,12 @@ export class SaDisputeDetail implements OnInit {
   staff = signal<AdminStaffMember[]>([]);
   staffOptions = computed(() => this.staff().map(s => ({ value: s.id, label: s.name })));
   selectedAssigneeId = signal('');
+  readonly escalationReason = signal('');
+  private readonly adminAccess = inject(AdminAccessService);
+  readonly canEscalate = computed(() => {
+    const status = this.selectedDispute()?.status;
+    return (status === 'OPEN' || status === 'UNDER_REVIEW') && this.adminAccess.can('disputes.assign');
+  });
   noteDraft = signal('');
   opBusy = signal(false);
 
@@ -255,6 +262,22 @@ export class SaDisputeDetail implements OnInit {
         handleAdminError(this.host.nativeElement, err, { fallback: fail, resolve }, (m) => this.opError.set(m));
       },
     });
+  }
+
+  escalate() {
+    if (!this.canEscalate()) return;
+    const assigneeId = this.selectedAssigneeId();
+    const reason = this.escalationReason().trim();
+    const problems = [
+      ...(!assigneeId ? [{ field: 'dp-assignee', message: 'اختر المسؤول الذي سيستلم الحالة' }] : []),
+      ...(!reason || reason.length > 1000 ? [{ field: 'dp-escalation-reason', message: 'اكتب سبب التصعيد في حدود ١٠٠٠ حرف' }] : []),
+    ];
+    if (problems.length) {
+      void reportAdminProblems(this.host.nativeElement, problems);
+      return;
+    }
+    const fields = { assigneeId: 'dp-assignee', escalationReason: 'dp-escalation-reason' };
+    this.runOp((id) => this.disputeApi.assignAdminDispute(id, assigneeId, reason), 'تم تصعيد النزاع', 'تعذر تصعيد النزاع', () => this.escalationReason.set(''), fields);
   }
 
   assign() {
