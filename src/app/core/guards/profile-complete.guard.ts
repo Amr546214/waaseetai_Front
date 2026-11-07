@@ -38,6 +38,7 @@ export const ONBOARDING_ALLOWED_PATHS: readonly string[] = [
   'business-models/accreditation',
   'business-models/center/accreditation-details',
   'help',
+  'bebo', // Existing assistant tools remain available during onboarding.
   'notifications',
   'settings/account',
 ];

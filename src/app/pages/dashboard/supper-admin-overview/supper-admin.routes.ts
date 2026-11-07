@@ -236,7 +236,7 @@ const RAW_ROUTES: Routes = [
     },
     {
         path: 'bebo',
-        loadComponent: () => import('./sa-bebo/sa-bebo').then(m => m.SaBebo),
+        loadComponent: () => import('../../../sheards/assistant-widget/dashboard-bebo').then(m => m.DashboardBebo),
         data: { title: 'بيبو' }
     },
     {
