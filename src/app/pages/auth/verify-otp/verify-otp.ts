@@ -138,9 +138,10 @@ export class VerifyOtp implements OnInit {
           this.errorMsg = '';
           this.errorIsAboutCode = false;
     this.errorIsAboutCode = false;
-          this.successMsg = 'تم التحقق من الرمز. جارٍ فتح لوحتك...';
+          this.successMsg = 'جارٍ فتح لوحتك...';
           this.cdr.markForCheck();
-          this.openDashboard(consumeReturnUrl(user) ?? getDefaultDashboard(user?.accountType, user?.activeRole));
+          const dashboard = getDefaultDashboard(user?.accountType, user?.activeRole);
+          void this.openDashboard(consumeReturnUrl(user) ?? dashboard, dashboard);
         } else {
           this.isLoading = false;
           this.errorMsg = res.message || 'لم يتم قبول الرمز. تحقق منه وحاول مرة أخرى، أو اطلب رمزًا جديدًا.';
@@ -175,17 +176,20 @@ export class VerifyOtp implements OnInit {
     });
   }
 
-  /** Navigate to the dashboard; the form stays locked until it ends. If it does not happen the code is already used: offer a navigation-only retry. */
-  private openDashboard(url: string) {
-    const failed = () => {
-      this.entryFailedUrl = url;
-      this.isEntering = false;
-      this.isLoading = false;
-      this.successMsg = '';
-      this.errorMsg = 'تم التحقق من الرمز لكن تعذر فتح لوحتك. اضغط «إعادة فتح لوحتي» (لا حاجة إلى رمز جديد).'; this.errorIsAboutCode = false;
-      this.cdr.markForCheck();
+  /** A stale return link must not strand an authenticated user on the OTP page. */
+  private async openDashboard(url: string, dashboard = url) {
+    const navigate = async (target: string) => {
+      try { return await this.router.navigateByUrl(target); } catch { return false; }
     };
-    this.router.navigateByUrl(url).then((ok) => { if (!ok) failed(); }, failed);
+    if (await navigate(url) || (url !== dashboard && await navigate(dashboard))) return;
+
+    this.entryFailedUrl = dashboard;
+    this.isEntering = false;
+    this.isLoading = false;
+    this.successMsg = '';
+    this.errorMsg = 'تعذر فتح لوحتك. اضغط «إعادة فتح لوحتي» (لا حاجة إلى رمز جديد).';
+    this.errorIsAboutCode = false;
+    this.cdr.markForCheck();
   }
 
   /** Retries ONLY the navigation: no code is sent or verified. */
@@ -292,7 +296,7 @@ export class VerifyOtp implements OnInit {
   }
 
   resendOtp() {
-    if (this.entryFailedUrl) return;
+    if (this.entryFailedUrl || this.isLoading || this.isEntering) return;
     if (this.resendWait().active()) return;
 
     const userId = this.authStore.pendingUserId();
@@ -315,7 +319,11 @@ export class VerifyOtp implements OnInit {
         // The answer says when the next send is allowed (resendAvailableAt after a send, retryAfterSeconds after a throttled one) and when the new code expires.
         this.resendWait().startFromResponse(res);
         const exp = parseRetryAfter({ resendAvailableAt: (res as any)?.expiresAt ?? res?.data?.expiresAt });
-        if (notice.sent && exp != null) { this.codeExpiryKnown = true; this.validWait().start(exp); }
+        if (notice.sent && exp != null) {
+          this.codeExpiryKnown = true;
+          this.validWait().start(exp);
+          if (this.loginMode) this.setDigits(this.otpIndexes.map(() => ''));
+        }
         if (notice.sent) {
           this.successMsg = notice.message;
         } else {
