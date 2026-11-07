@@ -1,0 +1,19 @@
+.review-filters { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; margin: 1rem 0; }
+label { display: grid; gap: .3rem; }
+input, select, textarea, button {
+  font: inherit; color: inherit; background: var(--card, transparent);
+  border: 1px solid var(--border, #64748b); border-radius: .45rem; padding: .45rem .65rem;
+}
+option { color: var(--text, #111827); background: var(--card, #fff); }
+button { cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.review-list { display: grid; gap: .5rem; padding: 0; list-style: none; }
+.review-list li, .review-panel {
+  padding: .85rem; border-radius: .65rem; border: 1px solid var(--border, #64748b);
+  overflow-wrap: anywhere;
+}
+.review-list li { display: grid; gap: .5rem; grid-template-columns: 2fr repeat(3, 1fr); }
+.review-panel { margin-block: .75rem; }
+.review-description { white-space: pre-wrap; }
+[role=alert] { color: var(--red, #c2410c); }
+@media (max-width: 680px) { .review-list li { grid-template-columns: 1fr; } }
