@@ -449,6 +449,9 @@ export class Sidebar implements OnInit {
 					]
 			},
 
+			// Bebo's tool bar (moved here from the floating bar): directly above the logout button
+			{ type: 'header', label: 'المساعد' },
+			{ type: 'link', label: 'بيبو', route: '/supper-admin-overview/bebo', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' },
 			{
 				type: 'button',
 				label: 'تسجيل الخروج',
