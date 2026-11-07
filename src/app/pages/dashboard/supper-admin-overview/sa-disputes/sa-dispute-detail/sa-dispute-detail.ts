@@ -1,4 +1,5 @@
 import { CaseAttachments } from '../../../../../shared/case-attachments/case-attachments';
+import { DisputeChat } from '../../../../../shared/dispute-chat/dispute-chat';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
@@ -17,7 +18,7 @@ import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionT
 @Component({
   selector: 'app-sa-dispute-detail',
   standalone: true,
-  imports: [CaseAttachments, CommonModule, RouterLink, FormsModule, WsSelectComponent],
+  imports: [CaseAttachments, DisputeChat, CommonModule, RouterLink, FormsModule, WsSelectComponent],
   templateUrl: './sa-dispute-detail.html',
   styleUrls: ['../sa-disputes.css', './sa-dispute-detail.css'],
 })
