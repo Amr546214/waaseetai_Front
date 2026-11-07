@@ -1,4 +1,5 @@
 import { CaseAttachments } from '../../../../shared/case-attachments/case-attachments';
+import { DisputeChat } from '../../../../shared/dispute-chat/dispute-chat';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
@@ -101,7 +102,7 @@ function mapDispute(d: Dispute, currentUserId: string | undefined): DisputeItem 
 @Component({
   selector: 'app-disputes',
   standalone: true,
-  imports: [CaseAttachments, CommonModule, RouterModule],
+  imports: [CaseAttachments, DisputeChat, CommonModule, RouterModule],
   templateUrl: './disputes.html',
   styleUrl: './disputes.css'
 })

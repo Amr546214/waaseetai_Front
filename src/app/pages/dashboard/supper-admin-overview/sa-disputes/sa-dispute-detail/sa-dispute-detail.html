@@ -108,10 +108,7 @@
           </div>
         }
 
-        <div class="dp-md-field">
-          <label>محادثة النزاع</label>
-          <p class="dp-disabled-note">غير متاحة حالياً: لا توجد خدمة رسائل خاصة بالنزاعات.</p>
-        </div>
+        <app-dispute-chat [path]="'admin/disputes/' + d.id" />
 
         <div class="dp-md-field">
           <label>التصعيد ومؤشرات SLA</label>
