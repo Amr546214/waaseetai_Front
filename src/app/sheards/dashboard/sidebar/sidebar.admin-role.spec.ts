@@ -78,3 +78,21 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 		}
 	});
 });
+
+describe('Bebo in non-admin dashboards', () => {
+	afterEach(() => TestBed.resetTestingModule());
+
+	it.each([
+		['CLIENT_INDIVIDUAL', 'CLIENT', 'client-overview'],
+		['CLIENT_COMPANY', 'CLIENT', 'client-overview'],
+		['PROVIDER_INDIVIDUAL', 'PROVIDER', 'provider-overview'],
+		['PROVIDER_COMPANY', 'PROVIDER', 'provider-overview'],
+		['MARKETING_BROKER', 'AFFILIATE', 'marketer-overview'],
+	])('puts Bebo directly above logout for %s', (accountType, activeRole, area) => {
+		const list = setup({ accountType, activeRole, roles: [activeRole] }).items();
+		const logout = list.findIndex(i => i.type === 'button' && i.action === 'logout');
+		expect(logout).toBeGreaterThan(0);
+		expect(list[logout - 1]).toMatchObject({ type: 'link', label: 'بيبو', route: '/' + area + '/bebo' });
+		expect(list.filter(item => item.route === '/' + area + '/bebo')).toHaveLength(1);
+	});
+});
