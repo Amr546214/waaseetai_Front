@@ -68,6 +68,7 @@ export interface AdminTicketUser {
 export interface AdminAssignee { id: string; name: string; escalationReason?: string }
 
 export interface AdminTicketListItem extends SupportTicket {
+	isEscalated?: boolean;
 	user?: AdminTicketUser;
 	assignedTo?: AdminAssignee | null;
 }
@@ -77,6 +78,7 @@ export interface AdminInternalNote { id: string; body: string; createdAt: string
 export interface AdminTicketListData {
 	items: AdminTicketListItem[];
 	counts: Partial<Record<TicketStatus, number>>;
+	escalationCount?: number;
 	pagination: { page: number; limit: number; total: number; pages: number };
 }
 
@@ -129,9 +131,10 @@ export class TicketApiService {
 	}
 
 	// Staff/admin endpoints (ADMIN / SUPER_ADMIN only).
-	adminListTickets(opts: { status?: TicketStatus; q?: string; page?: number; userId?: string } = {}): Observable<ApiResponse<AdminTicketListData>> {
+	adminListTickets(opts: { escalated?: boolean; status?: TicketStatus; q?: string; page?: number; userId?: string } = {}): Observable<ApiResponse<AdminTicketListData>> {
 		let params = new HttpParams().set('limit', 50);
 		if (opts.status) params = params.set('status', opts.status);
+		if (opts.escalated) params = params.set('escalated', 'true');
 		if (opts.q) params = params.set('q', opts.q);
 		if (opts.userId) params = params.set('userId', opts.userId);
 		if (opts.page) params = params.set('page', opts.page);

@@ -57,6 +57,7 @@
             <span class="sup-bdg sup-bdg-cat">{{ t.category }}</span>
             <span class="sup-bdg" [class.sup-bdg-high]="t.priority === 'عالية' || t.priority === 'عاجلة'">الأولوية: {{ t.priority }}</span>
             <span class="sup-bdg sup-bdg-cat">المُكلَّف: {{ t.assignedTo?.name || 'غير مُكلَّف' }}</span>
+            @if (t.isEscalated) { <span class="sup-bdg sup-st-pending">مصعّدة</span> }
           </div>
           <div class="sup-tc-user">
             <div class="sup-tc-av">{{ userName(t).charAt(0) }}</div>

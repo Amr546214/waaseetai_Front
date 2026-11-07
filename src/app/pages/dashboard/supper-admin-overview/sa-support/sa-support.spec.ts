@@ -31,6 +31,25 @@ describe('SaSupport (admin tickets, real API)', () => {
 		expect(api.adminListTickets).toHaveBeenLastCalledWith({ status: 'RESOLVED', q: undefined, page: 1 });
 	});
 
+	it('escalated tab uses the server filter and keeps its count separate from all tickets', () => {
+		const api = { adminListTickets: vi.fn(() => of({ success: true, data: {
+			items: [{ ...ticket, user, isEscalated: true }], counts: { OPEN: 3, RESOLVED: 2 }, escalationCount: 1,
+			pagination: { page: 1, pages: 1, limit: 20, total: 1 },
+		} })) };
+		TestBed.configureTestingModule({ imports: [SaSupport], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }] });
+		const f = TestBed.createComponent(SaSupport);
+		f.detectChanges();
+		const c = f.componentInstance;
+		c.page.set(2);
+		c.searchTerm.set('تحويل');
+		c.setFilter('escalated');
+		expect(api.adminListTickets).toHaveBeenLastCalledWith({ escalated: true, status: undefined, q: 'تحويل', page: 1 });
+		expect(c.countFor('escalated')).toBe(1);
+		expect(c.countFor('all')).toBe(5);
+		f.detectChanges();
+		expect(f.nativeElement.textContent).toContain('مصعّدة');
+	});
+
 	it('detail: reply and status change call the admin endpoints and reload', async () => {
 		const detail = { success: true, data: { ticket, user, messages: [{ id: 'm1', ticketId: 't1', senderId: 'u1', body: 'original', createdAt: '2026-10-01T00:00:00Z', sender: { id: 'u1', firstName: 'م', lastName: 'ق', accountType: 'PROVIDER_INDIVIDUAL' } }, { id: 'm2', ticketId: 't1', senderId: 'a', body: 'رد الدعم', createdAt: '2026-10-02T00:00:00Z', sender: { id: 'a', firstName: 'A', lastName: 'B', accountType: 'ADMIN' } }] } };
 		const api = {
