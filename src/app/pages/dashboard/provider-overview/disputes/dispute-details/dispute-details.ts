@@ -1,4 +1,5 @@
 import { CaseAttachments } from '../../../../../shared/case-attachments/case-attachments';
+import { DisputeChat } from '../../../../../shared/dispute-chat/dispute-chat';
 import { Component, ElementRef, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -13,7 +14,7 @@ import { reportProblems } from '../../../../../shared/forms/form-error-focus';
 @Component({
 	selector: 'app-dispute-details',
 	standalone: true,
-	imports: [CaseAttachments, CommonModule, RouterLink],
+	imports: [CaseAttachments, DisputeChat, CommonModule, RouterLink],
 	templateUrl: './dispute-details.html',
 	styleUrl: './dispute-details.css'
 })
