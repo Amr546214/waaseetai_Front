@@ -1,3 +1,4 @@
+import { AdminAccessService } from '../../../../core/services/admin-access.service';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -96,7 +97,22 @@ describe('SaSupport (admin tickets, real API)', () => {
 			expect(c.noteDraft()).toBe('');
 		});
 
-		it('renders note label, notes, assignee and disabled controls with reasons', () => {
+		it('escalates only with permission and a reason', async () => {
+			const { f, api } = setup();
+			const access = TestBed.inject(AdminAccessService);
+			const cmp = f.componentInstance;
+			cmp.selectedAssigneeId.set('s2');
+			cmp.escalationReason.set('متابعة');
+			cmp.escalate();
+			expect(api.adminAssign).not.toHaveBeenCalled();
+			access.access.set({ userId: 'qa-admin', isSuperAdmin: false, staffStatus: 'ACTIVE', roleName: null, permissions: ['support.reply', 'tasks.manage'], hasAnyPermission: true, state: 'ACTIVE', displayRole: 'الدعم' });
+			cmp.escalationReason.set('  متابعة  ');
+			cmp.escalate();
+			expect(api.adminAssign).toHaveBeenCalledWith('t1', 's2', 'متابعة');
+			expect(cmp.escalationReason()).toBe('');
+		});
+
+		it('renders note label, notes, assignee and attachment guidance with reasons', () => {
 			const { f } = setup();
 			const el = f.nativeElement as HTMLElement;
 			expect(el.textContent).toContain('ملاحظات داخلية — لا تراها صاحب التذكرة');
@@ -106,8 +122,6 @@ describe('SaSupport (admin tickets, real API)', () => {
 			const attach = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('إرفاق ملف')) as HTMLButtonElement;
 			expect(attach.disabled).toBe(true);
 			expect(attach.title).toContain('إرفاق ملفات في رد الموظف غير متاح');
-			const esc = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.trim() === 'تصعيد') as HTMLButtonElement;
-			expect(esc.disabled).toBe(true);
 			expect(el.textContent).toContain('لا يوجد رد مسجّل من فريق الدعم.');
 		});
 	});

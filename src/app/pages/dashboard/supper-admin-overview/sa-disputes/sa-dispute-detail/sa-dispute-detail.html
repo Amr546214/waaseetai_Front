@@ -181,10 +181,18 @@
         <div class="dp-md-field">
           <label>الإسناد</label>
           <p>المُسنَد إليه: <strong>{{ d.assignedTo?.name || 'غير مُسنَد' }}</strong></p>
+          @if (d.assignedTo?.escalationReason; as reason) { <p>سبب التصعيد الداخلي: {{ reason }}</p> }
           <div class="dp-ops-row">
             <ws-select id="dp-assignee" [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للإسناد" style="min-width:180px;max-width:100%;display:block"></ws-select>
             <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="assign()">إسناد</button>
           </div>
+          @if (canEscalate()) {
+            <div>
+              <label for="dp-escalation-reason">سبب التصعيد الداخلي إلى الموظف المختار</label>
+              <textarea id="dp-escalation-reason" rows="2" maxlength="1000" [ngModel]="escalationReason()" (ngModelChange)="escalationReason.set($event)"></textarea>
+              <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="escalate()">تصعيد النزاع</button>
+            </div>
+          }
         </div>
 
         @if (canChangeStatus(d.status)) {
