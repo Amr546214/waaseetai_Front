@@ -132,6 +132,7 @@ export interface DisputePagination {
 
 export interface DisputeListData {
   items: Dispute[];
+  followUpCount?: number;
   /** Admin list only: number of disputes per status over the whole table. */
   counts?: Partial<Record<DisputeStatus, number>>;
   pagination: DisputePagination;
@@ -154,6 +155,7 @@ export interface ResolveFinancialPayload {
 }
 
 export interface AdminDisputesQuery {
+  followUp?: boolean;
   status?: DisputeStatus;
   page?: number;
   limit?: number;

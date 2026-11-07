@@ -138,6 +138,7 @@ export class DisputeApiService {
    */
   getAdminDisputes(query?: AdminDisputesQuery): Observable<DisputeListApiResponse> {
     let params = new HttpParams();
+    if (query?.followUp) params = params.set('followUp', 'true');
     if (query?.status) params = params.set('status', query.status);
     if (query?.page) params = params.set('page', query.page);
     if (query?.limit) params = params.set('limit', query.limit);
