@@ -138,9 +138,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 			expect(el.textContent).toContain('ملاحظة سرية');
 			expect(el.textContent).toContain('سارة');
 			expect(el.textContent).toContain('ردك يظهر لصاحب التذكرة');
-			const attach = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('إرفاق ملف')) as HTMLButtonElement;
-			expect(attach.disabled).toBe(true);
-			expect(attach.title).toContain('إرفاق ملفات في رد الموظف غير متاح');
+			expect(el.querySelector('input[type="file"][aria-label="مرفقات الرد"]')).toBeTruthy();
 			expect(el.textContent).toContain('لا يوجد رد مسجّل من فريق الدعم.');
 		});
 	});

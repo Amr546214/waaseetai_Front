@@ -1,12 +1,30 @@
-<section class="rp-page" dir="rtl">
-  <div class="rp-detail-crumb">
-    <a routerLink="/supper-admin-overview/reports">&rarr; العودة إلى البلاغات</a>
-  </div>
-
-  <!-- AI Cleanup Batch 3: see sa-report-detail.ts — no user-report backend exists. -->
-  <div class="na-card" role="status">
-    <div class="na-ttl">تفاصيل البلاغ غير متاحة</div>
-    <div class="na-sub">نظام البلاغات غير مفعّل بعد، لذلك لا توجد بيانات بلاغ لعرضها.</div>
-    <a class="na-link" routerLink="/supper-admin-overview/reports">العودة إلى البلاغات</a>
-  </div>
+<section class="report-workspace" dir="rtl">
+  <a routerLink="/supper-admin-overview/reports">رجوع للبلاغات</a>
+  <h1>تفاصيل البلاغ</h1>
+  @if (busy()) { <p role="status">جاري التحميل…</p> }
+  @if (error()) { <p role="alert">{{ error() }}</p><button type="button" (click)="load()" [disabled]="busy()">تحديث التفاصيل</button> }
+  @if (report(); as r) {
+    <article class="report-card">
+      <h2>{{ r.targetLabel }}</h2>
+      <p>{{ targets[r.targetType] }} · {{ statuses[r.status] }}</p>
+      <a [routerLink]="[r.targetType === 'ACCOUNT' ? '/supper-admin-overview/users' : '/supper-admin-overview/business-models', r.targetId]">فتح العنصر المبلّغ عنه</a>
+      <p>مقدّم البلاغ: {{ r.reporter.firstName }} {{ r.reporter.lastName }}</p>
+      <h3>السبب</h3>
+      <p class="report-text">{{ r.reason }}</p>
+      @if (r.resolution) {
+        <h3>سبب القرار</h3><p class="report-text">{{ r.resolution }}</p>
+        @if (r.reviewer) { <p>المراجع: {{ r.reviewer.firstName }} {{ r.reviewer.lastName }}</p> }
+      }
+    </article>
+    @if (r.status === 'OPEN' && access.can('reports.manage')) {
+      <form class="report-card" (ngSubmit)="confirm()">
+        <p>القرار يغلق البلاغ. أي إجراء على الحساب أو الخدمة يتم من صفحتها.</p>
+        <label>القرار <select name="decision" [(ngModel)]="decision" required [disabled]="busy()">
+          <option value="">اختر القرار</option><option value="RESOLVED">تمت المعالجة</option><option value="DISMISSED">رفض البلاغ</option>
+        </select></label>
+        <label>سبب القرار <textarea name="resolution" [(ngModel)]="resolution" minlength="5" maxlength="2000" rows="3" required [disabled]="busy()"></textarea></label>
+        <button type="submit" [disabled]="busy() || !decision || resolution.trim().length < 5">حفظ القرار</button>
+      </form>
+    }
+  }
 </section>

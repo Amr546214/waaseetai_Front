@@ -36,6 +36,28 @@ export class SaSupportDetail implements OnInit {
 
   ticketId = signal('');
   draftReply = signal('');
+  readonly replyFiles = signal<File[]>([]);
+  readonly fileError = signal('');
+  private replyAttempt?: { text: string; files: File[]; key: string };
+  readonly slaLabels = { MET: 'تم الرد في المهلة', LATE: 'تم الرد بعد المهلة', CLOSED: 'أُغلقت قبل الرد', OVERDUE: 'تجاوزت مهلة الرد', PENDING: 'ضمن مهلة الرد' };
+
+  pickReplyFiles(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const chosen = [...(input.files ?? [])];
+    input.value = '';
+    const combined = [...this.replyFiles(), ...chosen];
+    if (combined.length > 5 || chosen.some(f => !['image/jpeg', 'image/png', 'application/pdf'].includes(f.type) || f.size === 0 || f.size > 10 * 1024 * 1024)) {
+      this.fileError.set('ارفع حتى ٥ ملفات JPG أو PNG أو PDF، كل ملف بحد ١٠ ميجابايت.');
+      return;
+    }
+    this.fileError.set('');
+    this.replyFiles.set(combined);
+  }
+
+  removeReplyFile(index: number) {
+    this.replyFiles.update(files => files.filter((_, i) => i !== index));
+    this.fileError.set('');
+  }
   loading = signal(true);
   notFound = signal(false);
   busy = signal(false);
@@ -65,7 +87,6 @@ export class SaSupportDetail implements OnInit {
     const minutes = Math.floor((first.timestamp - openedAt) / 60_000);
     return { at: first.at, hours: Math.floor(minutes / 60), minutes: minutes % 60 };
   });
-  readonly noAttachments = 'إرفاق ملفات في رد الموظف غير متاح حاليًا؛ يمكنك فتح مرفقات التذكرة أعلاه';
   readonly priorities = ['منخفضة', 'عادية', 'عالية', 'عاجلة'];
 
   readonly statusLabels = TICKET_STATUS_LABELS;
@@ -79,6 +100,9 @@ export class SaSupportDetail implements OnInit {
     });
     this.route.paramMap.subscribe((params) => {
       this.ticketId.set(params.get('id') ?? '');
+      this.replyFiles.set([]);
+      this.fileError.set('');
+      this.replyAttempt = undefined;
       this.draftReply.set('');
       this.escalationReason.set('');
       this.load();
@@ -140,12 +164,21 @@ export class SaSupportDetail implements OnInit {
     if (!text) { void reportAdminProblems(this.host.nativeElement, [{ field: 'sup-reply', message: 'اكتب نص الرد قبل الإرسال' }]); return; }
     if (!this.guard.enter()) return;
     this.busy.set(true);
-    this.api.adminReply(this.ticketId(), text).subscribe({
+    const files = this.replyFiles();
+    if (files.length && (this.replyAttempt?.text !== text || this.replyAttempt?.files !== files)) {
+      this.replyAttempt = { text, files, key: crypto.randomUUID() };
+    }
+    const id = this.ticketId();
+    const send = files.length ? this.api.adminReply(id, text, undefined, files, this.replyAttempt?.key) : this.api.adminReply(id, text);
+    send.subscribe({
       next: (res) => {
         this.guard.release();
         this.busy.set(false);
         if (res.success) {
           this.draftReply.set('');
+          this.replyFiles.set([]);
+          this.fileError.set('');
+          this.replyAttempt = undefined;
           this.notify.success('تم إرسال الرد وإشعار صاحب التذكرة');
           this.load();
         } else {
@@ -154,7 +187,7 @@ export class SaSupportDetail implements OnInit {
       },
       error: (err) => {
         this.guard.release();
-        if (mapHttpError(err).outcomeUnknown) { this.verifyReplyAfterUncertainFailure(text, err); return; }
+        if (!files.length && mapHttpError(err).outcomeUnknown) { this.verifyReplyAfterUncertainFailure(text, err); return; }
         this.busy.set(false);
         this.fail(err, 'تعذر إرسال الرد', { message: 'sup-reply', body: 'sup-reply' }, (m) => this.replyError.set(m));
       },

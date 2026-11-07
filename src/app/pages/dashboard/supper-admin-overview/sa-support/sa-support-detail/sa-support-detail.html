@@ -51,12 +51,19 @@
             @for (s of statuses; track s) {
               <button type="button" class="sup-ca-btn" [class.sup-ca-close]="s === d.ticket.status" [disabled]="busy() || s === d.ticket.status" (click)="setStatus(s)">{{ statusLabels[s] }}</button>
             }
-            <button type="button" class="sup-ca-btn" disabled [title]="noAttachments">إرفاق ملف</button>
+
           </div>
           @if (actionError()) { <div class="sup-notes-empty" role="alert" data-testid="action-error" style="color:#ff6b6b">{{ actionError() }}</div> }
           @if (d.ticket.status !== 'CLOSED') {
             <div class="sup-notes-empty">ردك يظهر لصاحب التذكرة ويصله كإشعار.</div>
             <div class="sup-chat-input-area">
+              <label>مرفقات الرد
+                <input type="file" aria-label="مرفقات الرد" accept="image/jpeg,image/png,application/pdf" multiple [disabled]="busy()" (change)="pickReplyFiles($event)" />
+              </label>
+              @for (file of replyFiles(); track $index) {
+                <span>{{ file.name }} <button type="button" [disabled]="busy()" (click)="removeReplyFile($index)">إزالة</button></span>
+              }
+              @if (fileError()) { <span role="alert">{{ fileError() }}</span> }
               <textarea id="sup-reply" aria-label="نص الرد" class="sup-chat-input" rows="1" placeholder="اكتب ردك هنا..." [value]="draftReply()" (input)="draftReply.set($any($event.target).value)"></textarea>
               <button type="button" class="sup-chat-send" [disabled]="busy()" aria-label="إرسال الرد" (click)="sendReply()">
                 <svg data-ws-icon="ws-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -104,6 +111,10 @@
 
         <div class="sup-side-card">
           <div class="sup-side-ttl">زمن الاستجابة</div>
+          @if (d.sla; as sla) {
+            <div class="sup-sla-row"><span>مهلة أول رد</span><span>{{ sla.hours }} ساعة · {{ slaLabels[sla.status] }}</span></div>
+            <div class="sup-sla-row"><span>موعد انتهاء المهلة</span><span>{{ formatTime(sla.dueAt) }}</span></div>
+          }
           <div class="sup-sla-row"><span>تاريخ فتح التذكرة</span><span>{{ formatTime(d.ticket.createdAt) }}</span></div>
           @if (firstStaffReply(); as reply) {
             <div class="sup-sla-row"><span>أول رد من الدعم</span><span>{{ formatTime(reply.at) }}</span></div>
