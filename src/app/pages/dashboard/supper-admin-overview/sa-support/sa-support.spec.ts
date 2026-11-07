@@ -38,12 +38,14 @@ describe('SaSupport (admin tickets, real API)', () => {
 			adminReply: vi.fn(() => of({ success: true, data: {} })),
 			adminSetStatus: vi.fn(() => of({ success: true, data: {} })),
 		};
-		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
 		const f = TestBed.createComponent(SaSupportDetail);
 		f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
 		expect(el.textContent).toContain('رد الدعم');
 		expect(el.textContent).toContain('فريق الدعم');
+		expect(f.componentInstance.firstStaffReply()).toEqual({ at: '2026-10-02T00:00:00Z', hours: 24, minutes: 0 });
+		expect(el.querySelector('[data-testid="first-staff-reply-time"]')).toBeTruthy();
 		f.componentInstance.draftReply.set('مرحبا');
 		f.componentInstance.sendReply();
 		expect(api.adminReply).toHaveBeenCalledWith('t1', 'مرحبا');
@@ -74,7 +76,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 				adminListTickets: vi.fn(() => of({ success: true, data: { items: [], counts: {}, pagination: {} } })),
 				adminAssign: vi.fn(ok), adminSetPriority: vi.fn(ok), adminAddNote: vi.fn(ok),
 			};
-			TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+			TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
 			const f = TestBed.createComponent(SaSupportDetail);
 			f.detectChanges();
 			return { f, api };
@@ -106,7 +108,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 			expect(attach.title).toContain('إرفاق ملفات في رد الموظف غير متاح');
 			const esc = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.trim() === 'تصعيد') as HTMLButtonElement;
 			expect(esc.disabled).toBe(true);
-			expect(el.textContent).toContain('يتطلب جدولاً لقياس زمن الاستجابة');
+			expect(el.textContent).toContain('لا يوجد رد مسجّل من فريق الدعم.');
 		});
 	});
 });
@@ -121,7 +123,7 @@ describe('SaSupportDetail form validation UX', () => {
 			adminReply: vi.fn(() => of({ success: true, data: {} })), adminAssign: vi.fn(() => of({ success: true })), adminAddNote: vi.fn(() => of({ success: true })),
 			adminSetPriority: vi.fn(() => of({ success: true })), adminSetStatus: vi.fn(() => of({ success: true })),
 		};
-		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
 		const f = TestBed.createComponent(SaSupportDetail);
 		f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
