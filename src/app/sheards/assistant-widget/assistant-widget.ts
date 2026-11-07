@@ -32,7 +32,7 @@ import { AssistantViewport, dockPlacement, popupPlacement } from './assistant-pl
 import { AssistantPositionSettingsComponent } from '../assistant-chat/assistant-position-settings';
 import { AssistantPositionService } from './assistant-position.service';
 import { avatarMovementBounds } from './assistant-position';
-import { BAR_CLEARANCE_PX, SidebarInset, assistantReservePx, detectBottomBarHeight, detectSidebarInset, isTextEntryElement } from './assistant-avoidance';
+import { BAR_CLEARANCE_PX, SidebarInset, detectBottomBarHeight, detectSidebarInset, isTextEntryElement } from './assistant-avoidance';
 
 const STATE_LABELS = {
 	idle: 'جاهز أساعدك',
@@ -622,7 +622,7 @@ export class AssistantWidgetComponent {
 		window.addEventListener('orientationchange', onResize);
 		timers.push(setTimeout(() => this.probeBars(), 400));
 		const reserve = effect(() => {
-			const px = this.dismissed() ? 0 : assistantReservePx(this.beboSize()) + this.safeBottom();
+			const px = this.dismissed() ? 0 : this.safeBottom();
 			document.documentElement.style.setProperty('--ws-assistant-reserve', `${px}px`);
 		});
 		destroyRef.onDestroy(() => {
