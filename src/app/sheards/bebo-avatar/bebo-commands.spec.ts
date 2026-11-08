@@ -1,4 +1,17 @@
-import { BEBO_ACTIONS, BEBO_DIALECTS, BEBO_VOICES, acknowledge, chooseDialect, commandFor, normalize } from './bebo-commands';
+import {
+	BEBO_ACTIONS,
+	BEBO_ARABIC_VOICES,
+	BEBO_DIALECTS,
+	BEBO_VOICES,
+	DEFAULT_ARABIC_VOICE,
+	acknowledge,
+	beboVoiceLabel,
+	chooseDialect,
+	commandFor,
+	isArabicCompatibleVoice,
+	isArabicScript,
+	normalize,
+} from './bebo-commands';
 import { BEBO_ALL_POSES } from './bebo-loader';
 
 // Local Bebo command routing (port of the Bebo v4 handoff bebo-core.mjs).
@@ -106,5 +119,28 @@ describe('Bebo dialects / voices (handoff lists)', () => {
 		expect(commandFor('stand still')).toBe('idle');
 		expect(commandFor('stop roaming')).toBe('roam_off');
 		expect(commandFor('كل الدبانة')).toBe('fly');
+	});
+
+	it('Arabic voice compatibility filters only reliable multilingual voices', () => {
+		expect([...BEBO_ARABIC_VOICES]).toEqual(['Puck', 'Kore', 'Sulafat', 'Charon']);
+		expect(DEFAULT_ARABIC_VOICE).toBe('Puck');
+		expect(isArabicCompatibleVoice('Puck')).toBe(true);
+		expect(isArabicCompatibleVoice('Sulafat')).toBe(true);
+		expect(isArabicCompatibleVoice('ar-XA-Standard-A')).toBe(true);
+		expect(isArabicCompatibleVoice('Fenrir')).toBe(false);
+		expect(isArabicCompatibleVoice('Aoede')).toBe(false);
+	});
+
+	it('isArabicScript detects Arabic script accurately', () => {
+		expect(isArabicScript('مرحباً بك')).toBe(true);
+		expect(isArabicScript('Hello world')).toBe(false);
+		expect(isArabicScript('Mix عربي and English')).toBe(true);
+		expect(isArabicScript('')).toBe(false);
+	});
+
+	it('beboVoiceLabel provides friendly Arabic labels for voices', () => {
+		expect(beboVoiceLabel('Puck')).toContain('بيك');
+		expect(beboVoiceLabel('Sulafat')).toContain('سلحفاة');
+		expect(beboVoiceLabel('custom-voice', 'صوت مخصص')).toBe('صوت مخصص');
 	});
 });

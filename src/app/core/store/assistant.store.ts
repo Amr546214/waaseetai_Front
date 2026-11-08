@@ -28,11 +28,14 @@ import {
 	BeboDialect,
 	BeboDialectChoice,
 	BeboVoice,
+	DEFAULT_ARABIC_VOICE,
 	DEFAULT_DIALECT,
 	DEFAULT_VOICE,
 	acknowledge,
 	chooseDialect,
 	commandFor,
+	isArabicCompatibleVoice,
+	isArabicScript,
 	isBeboDialect,
 	isBeboVoice,
 	normalize,
@@ -515,6 +518,9 @@ export class AssistantStore {
 		if (isBeboDialect(dialect)) this.detectedDialect.set(dialect);
 		const reply = this.lastReply();
 		if (reply && isBeboDialect(dialect)) this.lastReply.set({ ...reply, dialect });
+		if (dialect !== 'english' && !isArabicCompatibleVoice(this.ttsVoice())) {
+			this.ttsVoice.set(DEFAULT_ARABIC_VOICE);
+		}
 		this.releaseAudio();
 		this.saveTtsPrefs();
 	}
@@ -909,21 +915,34 @@ export class AssistantStore {
 		const cached = this.speechCache.get(this.speechPart); if (cached) { prepare(cached); return; }
 		this.tts ??= this.injector.get(AssistantTtsService);
 		this.audioLoading.set(true);
-		this.ttsSub = this.tts.synthesize({ text: this.speechParts[this.speechPart], voice: this.ttsVoice(), dialect: reply.dialect, ...(this.ttsModel() ? { model: this.ttsModel() } : {}) }).subscribe({
-			next: (blob) => {
-				if (stale()) return;
-				this.ttsSub = null;
-				this.audioLoading.set(false);
-				prepare(blob);
-			},
-			error: (err: unknown) => {
-				if (stale()) return;
-				this.ttsSub = null;
-				this.audioLoading.set(false);
-				const code = err instanceof AssistantTtsError ? err.code : 'UNAVAILABLE';
-				this.voiceNotice.set(code === 'RATE_LIMITED' ? VOICE_RATE_LIMITED : VOICE_UNAVAILABLE);
-			},
-		});
+		const text = this.speechParts[this.speechPart];
+		const isArabic = isArabicScript(text) || reply.dialect !== 'english';
+		const voice = this.ttsVoice();
+		const dialect = reply.dialect;
+
+		const trySynthesize = (attemptVoice: BeboVoice, attemptDialect: BeboDialect, isRetry = false) => {
+			this.ttsSub = this.tts!.synthesize({ text, voice: attemptVoice, dialect: attemptDialect, ...(this.ttsModel() ? { model: this.ttsModel() } : {}) }).subscribe({
+				next: (blob) => {
+					if (stale()) return;
+					this.ttsSub = null;
+					this.audioLoading.set(false);
+					prepare(blob);
+				},
+				error: (err: unknown) => {
+					if (stale()) return;
+					if (!isRetry && isArabic && (attemptVoice !== DEFAULT_ARABIC_VOICE || attemptDialect !== 'msa')) {
+						trySynthesize(DEFAULT_ARABIC_VOICE, 'msa', true);
+						return;
+					}
+					this.ttsSub = null;
+					this.audioLoading.set(false);
+					const code = err instanceof AssistantTtsError ? err.code : 'UNAVAILABLE';
+					this.voiceNotice.set(code === 'RATE_LIMITED' ? VOICE_RATE_LIMITED : VOICE_UNAVAILABLE);
+				},
+			});
+		};
+
+		trySynthesize(voice, dialect);
 	}
 
 	private playAudio(audio: HTMLAudioElement): void {
@@ -1195,7 +1214,14 @@ export class AssistantStore {
 		try {
 			const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(TTS_PREF_KEY) : null;
 			const prefs = raw ? JSON.parse(raw) : null;
-			if (isBeboVoice(prefs?.voice)) this.ttsVoice.set(prefs.voice);
+			if (isBeboVoice(prefs?.voice)) {
+				const isArabic = prefs?.dialect !== 'english';
+				if (isArabic && !isArabicCompatibleVoice(prefs.voice)) {
+					this.ttsVoice.set(DEFAULT_ARABIC_VOICE);
+				} else {
+					this.ttsVoice.set(prefs.voice);
+				}
+			}
 			if (prefs?.dialect === 'auto' || isBeboDialect(prefs?.dialect)) this.ttsDialect.set(prefs.dialect);
 			if (isBeboDialect(prefs?.dialect)) this.detectedDialect.set(prefs.dialect);
 		} catch { /* storage unavailable / malformed — defaults */ }

@@ -27,6 +27,8 @@ import {
 	BEBO_DIALECTS,
 	BeboAction,
 	BeboDialect,
+	beboVoiceLabel,
+	isArabicCompatibleVoice,
 } from '../bebo-avatar/bebo-commands';
 import { AssistantViewport, dockPlacement, popupPlacement } from './assistant-placement';
 import { AssistantPositionSettingsComponent } from '../assistant-chat/assistant-position-settings';
@@ -224,7 +226,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 										<option value="" disabled selected>لا توجد أصوات مدعومة من الخادم</option>
 									}
 									@for (v of availableVoices(); track v.id) {
-										<option [value]="v.id">{{ v.label || v.id }}</option>
+										<option [value]="v.id">{{ voiceLabel(v) }}</option>
 									}
 								</select>
 							</label>
@@ -497,7 +499,13 @@ export class AssistantWidgetComponent {
 	});
 
 	readonly dialectLabel = computed(() => BEBO_DIALECTS[this.store.detectedDialect()]?.label ?? 'مصري');
-	readonly availableVoices = computed(() => this.store.capabilities()?.voices ?? []);
+	readonly voiceLabel = (v: { id: string; label?: string }): string => beboVoiceLabel(v.id, v.label);
+	readonly availableVoices = computed(() => {
+		const all = this.store.capabilities()?.voices ?? [];
+		if (this.store.ttsDialect() === 'english') return all;
+		const arabicOnly = all.filter((v) => isArabicCompatibleVoice(v.id));
+		return arabicOnly.length > 0 ? arabicOnly : all;
+	});
 	readonly textModels = computed(() => (this.store.capabilities()?.models ?? []).filter(model => model.available !== false && model.modalities?.some(mode => ['text', 'chat'].includes(mode.toLowerCase()))));
 	readonly speechModels = computed(() => (this.store.capabilities()?.models ?? []).filter(model => model.available !== false && model.modalities?.some(mode => ['tts', 'speech'].includes(mode.toLowerCase()))));
 
