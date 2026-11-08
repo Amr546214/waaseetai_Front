@@ -11,7 +11,7 @@ const view = (over: Record<string, unknown> = {}) => ({ id: 'b1', sender: { id: 
 const previewBody = (over: Record<string, unknown> = {}) => ({ draftId: 'd1', version: 1, audience: 'CLIENTS', count: 3, checkedAt: '2026-11-08T12:00:00Z', canSend: true, previewToken: 'tok-1', ...over });
 
 let confirmAnswer = true; let confirmArgs: any = null;
-function setup(latest: unknown = null, active: unknown = null) {
+function setup(latest: unknown = null, active: unknown = null, delivery: boolean | null = true) {
   confirmAnswer = true; confirmArgs = null;
   TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
     { provide: ConfirmModalService, useValue: { confirm: async (c: unknown) => { confirmArgs = c; return confirmAnswer; } } }] });
@@ -21,6 +21,7 @@ function setup(latest: unknown = null, active: unknown = null) {
   fixture.detectChanges();
   http.expectOne(r => r.url.endsWith('/admin/notification-templates')).flush({ data: { page: 1, hasNext: false, items: [{ id: 'qa', name: 'ترحيب', title: 'أهلًا', message: '<b>نص فقط</b>' }] } });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+  http.expectOne(r => r.url.endsWith('/admin/broadcasts/status')).flush({ data: { deliveryEnabled: delivery } });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts/active')).flush({ data: active });
   http.expectOne(r => r.url.endsWith('/broadcasts/drafts/latest')).flush({ data: latest });
   return { fixture, c, http, el: fixture.nativeElement as HTMLElement };
@@ -245,6 +246,48 @@ describe('SaBroadcast', () => {
       route(http, 'POST', '/broadcasts/drafts/d1/send').flush({ data: { broadcast: running('QUEUED', 0) } }, { status: 202, statusText: 'Accepted' }); await a; await b;
       http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
       http.expectNone(r => r.url.endsWith('/send')); c.stopPolling();
+    });
+  });
+
+  describe('delivery disabled on this environment', () => {
+    it('disables the send button with a clear message, never opens the confirm modal; save, preview and history still work', async () => {
+      const { c, http, fixture, el } = setup(draft(), null, false);
+      const p = c.requestPreview(); await flushAsync();
+      route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody({ deliveryEnabled: false }) }); await p;
+      fixture.detectChanges();
+      expect(c.preview()?.count).toBe(3); // preview works
+      expect(el.querySelector('[aria-label="الإرسال غير مفعّل"]')!.textContent).toContain('غير مفعّل في هذه البيئة');
+      const btn = Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('مراجعة وإرسال')) as HTMLButtonElement;
+      expect(btn.disabled).toBe(true);
+      await c.confirmAndSend();
+      expect(confirmArgs).toBeNull(); http.expectNone(r => r.url.endsWith('/send'));
+      c.title = 'تعديل'; c.edited(); vi.advanceTimersByTime(60); // autosave still works
+      route(http, 'PATCH', '/broadcasts/drafts/d1').flush({ data: draft({ version: 2, title: 'تعديل' }) }); await flushAsync();
+      expect(c.saveState()).toBe('saved');
+      c.loadHistory(1); http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [view()] } });
+      http.verify();
+    });
+
+    it('a server refusal after the flag flipped shows the same message and leaves the draft and preview untouched', async () => {
+      const { c, http, fixture, el } = setup(draft(), null, true);
+      const p = c.requestPreview(); await flushAsync(); route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody() }); await p;
+      const s = c.confirmAndSend(); await flushAsync();
+      route(http, 'POST', '/broadcasts/drafts/d1/send').flush({ code: 'BROADCAST_WORKER_DISABLED' }, { status: 503, statusText: 'Service Unavailable' }); await s;
+      fixture.detectChanges();
+      expect(c.deliveryEnabled()).toBe(false); expect(c.result()).toBeNull(); expect(c.draft()?.version).toBe(1); expect(c.title).toBe('عنوان');
+      expect(el.querySelector('[aria-label="الإرسال غير مفعّل"]')).not.toBeNull(); expect(c.hasPendingAttempt).toBe(false);
+      http.verify();
+    });
+
+    it('retry-remaining is disabled the same way; enabled flow is unchanged', async () => {
+      const { c, http, fixture, el } = setup(null, view({ status: 'PARTIAL', totals: { audience: 5, sent: 3, failed: 2, pending: 0 } }), false);
+      fixture.detectChanges();
+      const btn = Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('إعادة إرسال المتبقي')) as HTMLButtonElement;
+      expect(btn.disabled).toBe(true); expect(el.textContent).toContain('غير مفعّل في هذه البيئة');
+      await c.retryRemaining(); http.expectNone(r => r.url.endsWith('/retry'));
+      c.deliveryEnabled.set(true); fixture.detectChanges();
+      expect((Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('إعادة إرسال المتبقي')) as HTMLButtonElement).disabled).toBe(false);
+      http.verify();
     });
   });
 });

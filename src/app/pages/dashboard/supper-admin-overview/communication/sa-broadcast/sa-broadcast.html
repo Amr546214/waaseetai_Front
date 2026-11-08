@@ -20,7 +20,8 @@
       </ul>
       @if (!isRunning(r.status) && (r.totals.failed || r.totals.pending)) {
         <p role="alert">لم يصل الإشعار لبعض المستلمين. إعادة المحاولة تكمل المتبقين فقط ولا تكرر من وصلهم.</p>
-        <button type="button" (click)="retryRemaining()" [disabled]="retrying()">{{ retrying() ? 'جاري الإعادة…' : 'إعادة إرسال المتبقي' }}</button>
+        @if (deliveryEnabled() === false) { <p role="alert" aria-label="الإرسال غير مفعّل">{{ deliveryOffText }}</p> }
+        <button type="button" (click)="retryRemaining()" [disabled]="retrying() || deliveryEnabled() === false">{{ retrying() ? 'جاري الإعادة…' : 'إعادة إرسال المتبقي' }}</button>
       }
       @if (sendError()) { <p role="alert">{{ sendError() }}</p> }
       @if (!isRunning(r.status)) { <button type="button" (click)="newMessage()">رسالة جديدة</button> }
@@ -97,12 +98,13 @@
     <section class="broadcast-card" aria-label="المعاينة والإرسال">
       <h2>المعاينة والإرسال</h2>
       <button type="button" (click)="requestPreview()" [disabled]="!canPreview">{{ previewing() ? 'جاري حساب الجمهور…' : 'معاينة الجمهور' }}</button>
+      @if (deliveryEnabled() === false) { <p role="alert" aria-label="الإرسال غير مفعّل">{{ deliveryOffText }}</p> }
       @if (previewError()) { <p role="alert">{{ previewError() }}</p> }
       @if (previewStale()) { <p role="alert" aria-label="معاينة قديمة">{{ previewStale() }}</p> }
       @if (preview(); as p) {
         <p role="status">الحسابات المؤهلة الآن: <strong>{{ p.count }}</strong> (وقت المعاينة <time [attr.datetime]="p.checkedAt">{{ p.checkedAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time>)</p>
         @if (p.canSend) {
-          <button type="button" (click)="confirmAndSend()" [disabled]="sending() || !!conflict()">{{ sending() ? 'جاري الإرسال…' : 'مراجعة وإرسال' }}</button>
+          <button type="button" (click)="confirmAndSend()" [disabled]="sending() || !!conflict() || deliveryEnabled() === false">{{ sending() ? 'جاري الإرسال…' : 'مراجعة وإرسال' }}</button>
         } @else {
           <p role="alert">لا يوجد مستلمون مؤهلون في هذا الجمهور، ولا يمكن الإرسال.</p>
         }

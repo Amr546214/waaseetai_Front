@@ -24,7 +24,7 @@ const STATUS_LABELS: Record<string, string> = { QUEUED: 'في قائمة الا�
 export type Audience = typeof AUDIENCES[number]['value'];
 export type Category = typeof CATEGORIES[number]['value'];
 export type Draft = { id: string; title: string; message: string; category: Category; audience: Audience | null; version: number; updatedAt: string };
-export type Preview = { draftId: string; version: number; audience: Audience; count: number; checkedAt: string; canSend: boolean; previewToken: string };
+export type Preview = { deliveryEnabled?: boolean; draftId: string; version: number; audience: Audience; count: number; checkedAt: string; canSend: boolean; previewToken: string };
 export type Totals = { audience: number; sent: number; failed: number; pending: number };
 export type BroadcastView = { id: string; sender: { id: string; name: string }; title: string; category: Category; audience: Audience; status: string; totals: Totals; createdAt: string; completedAt: string | null; lastProgressAt: string | null };
 export type BroadcastDetail = BroadcastView & { message: string; failureCodes: { code: string; count: number }[] };
@@ -63,6 +63,9 @@ export class SaBroadcast implements OnInit {
   readonly previewStale = signal('');
   readonly previewing = signal(false);
   readonly previewError = signal('');
+  /** null = not known yet (never blocks); false = the server will refuse confirm/retry on this environment */
+  readonly deliveryEnabled = signal<boolean | null>(null);
+  readonly deliveryOffText = 'الإرسال الجماعي غير مفعّل في هذه البيئة، لذلك زر الإرسال وإعادة إرسال المتبقي معطّلان ولن يُنشأ أي إرسال. الحفظ والمعاينة وسجل البث تعمل كالمعتاد، وتبقى المسودة جاهزة للإرسال عند التفعيل.';
   readonly sending = signal(false);
   readonly sendError = signal('');
   readonly result = signal<BroadcastView | null>(null);
@@ -95,6 +98,9 @@ export class SaBroadcast implements OnInit {
   ngOnInit() {
     this.loadTemplates(1);
     this.loadHistory(1);
+    this.http.get<{ data: { deliveryEnabled: boolean } }>(`${this.api}/status`).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: ({ data }) => this.deliveryEnabled.set(data.deliveryEnabled), error: () => undefined,
+    });
     // a refresh while a broadcast is queued or running brings its progress screen back
     this.http.get<{ data: BroadcastView | null }>(`${this.api}/active`).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: ({ data }) => { if (data && !this.result()) { this.result.set(data); this.startPolling(); } }, error: () => undefined,
@@ -190,7 +196,7 @@ export class SaBroadcast implements OnInit {
       if (!(await this.save())) { this.previewError.set('احفظ المسودة أولًا ثم أعد المعاينة.'); return; }
       const d = this.draft()!;
       const res = await firstValueFrom(this.http.post<{ data: Preview }>(`${this.api}/drafts/${d.id}/preview`, {}));
-      this.preview.set(res.data); this.attemptKey = null;
+      this.preview.set(res.data); this.attemptKey = null; if (typeof res.data.deliveryEnabled === 'boolean') this.deliveryEnabled.set(res.data.deliveryEnabled);
     } catch { this.previewError.set('تعذّر حساب الجمهور. حاول مرة أخرى.'); }
     finally { this.previewing.set(false); }
   }
@@ -206,7 +212,7 @@ export class SaBroadcast implements OnInit {
 
   async confirmAndSend() {
     const p = this.preview();
-    if (this.sending() || !p || !p.canSend || this.conflict() || this.dirty) return;
+    if (this.sending() || !p || !p.canSend || this.conflict() || this.dirty || this.deliveryEnabled() === false) return;
     this.sending.set(true);
     try {
       const ok = await this.confirmModal.confirm({ title: 'تأكيد إرسال الإشعار الجماعي', type: 'warning', size: 'md', confirmText: 'إرسال الآن', message: this.confirmText });
@@ -223,7 +229,8 @@ export class SaBroadcast implements OnInit {
       this.result.set(res.data.broadcast); this.startPolling(); this.preview.set(null); this.attemptKey = null; this.draft.set(null); this.dirty = false; this.loadHistory(1);
     } catch (e) {
       const body = errorBody(e); const status = e instanceof HttpErrorResponse ? e.status : 0;
-      if (body?.code === 'PREVIEW_STALE') {
+      if (body?.code === 'BROADCAST_WORKER_DISABLED') { this.attemptKey = null; this.deliveryEnabled.set(false); this.sendError.set(''); }
+      else if (body?.code === 'PREVIEW_STALE') {
         this.attemptKey = null; this.preview.set(null);
         this.previewStale.set('تغيّر الجمهور أو المسودة منذ المعاينة، ولم يُرسل شيء. اعمل معاينة جديدة وراجع العدد.');
       } else if (body?.code === 'AUDIENCE_EMPTY') { this.attemptKey = null; this.sendError.set('لا يوجد مستلمون مؤهلون الآن. لم يُرسل شيء.'); this.preview.set(null); }
@@ -244,12 +251,15 @@ export class SaBroadcast implements OnInit {
 
   async retryRemaining() {
     const r = this.result();
-    if (this.retrying() || !r) return;
+    if (this.retrying() || !r || this.deliveryEnabled() === false) return;
     this.retrying.set(true); this.sendError.set('');
     try {
       const res = await firstValueFrom(this.http.post<{ data: BroadcastView }>(`${this.api}/${r.id}/retry`, {}));
       this.result.set(res.data); this.startPolling(); this.loadHistory(1);
-    } catch { this.sendError.set('تعذّرت إعادة إرسال المتبقي. حاول مرة أخرى.'); }
+    } catch (e) {
+      if (errorBody(e)?.code === 'BROADCAST_WORKER_DISABLED') this.deliveryEnabled.set(false);
+      else this.sendError.set('تعذّرت إعادة إرسال المتبقي. حاول مرة أخرى.');
+    }
     finally { this.retrying.set(false); }
   }
 
