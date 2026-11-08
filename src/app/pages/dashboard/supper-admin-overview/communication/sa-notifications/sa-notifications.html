@@ -1,5 +1,13 @@
 <section class="notification-history" dir="rtl">
-  <h1>سجل الإشعارات</h1>
+  <h1>إدارة الإشعارات</h1>
+  <nav class="history-filters" aria-label="أقسام إدارة الإشعارات">
+    <button type="button" [attr.aria-pressed]="!showTemplates()" (click)="showTemplates.set(false)">السجل</button>
+    <button type="button" [attr.aria-pressed]="showTemplates()" (click)="showTemplates.set(true)">القوالب</button>
+  </nav>
+  @if (showTemplates()) {
+    <app-notification-templates />
+  } @else {
+  <h2>سجل الإشعارات</h2>
   <p>إشعارات محفوظة داخل المنصة. «مقروء» يعبّر عن حالة القراءة داخل الحساب؛ السجل لا يؤكد وصول بريد أو إشعار فوري.</p>
   <form class="history-filters" (ngSubmit)="applyFilters()">
     <label>الفترة<select name="range" [(ngModel)]="range" [disabled]="busy()"><option value="24h">آخر ٢٤ ساعة</option><option value="7d">آخر ٧ أيام</option></select></label>
@@ -33,6 +41,7 @@
         <button type="button" [disabled]="!result.nextCursor" (click)="next()">التالي</button>
       </nav>
     }
+  }
   }
   <a routerLink="/supper-admin-overview/communication/broadcast">صفحة البث الجماعي</a>
 </section>

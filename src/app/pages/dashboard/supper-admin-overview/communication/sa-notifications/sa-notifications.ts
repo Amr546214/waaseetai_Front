@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { NotificationTemplates } from './notification-templates';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { AdminNotificationHistoryApi, Category, HistoryCursor, HistoryFilters, HistoryPage, NOTIFICATION_CATEGORIES } from './admin-notification-history.api';
 
@@ -12,13 +13,14 @@ const TYPES: Record<string, string> = {
 
 @Component({
   selector: 'app-sa-notifications',
-  imports: [FormsModule, RouterLink, WsDatePipe],
+  imports: [FormsModule, RouterLink, WsDatePipe, NotificationTemplates],
   templateUrl: './sa-notifications.html',
   styleUrl: './sa-notifications.css',
 })
 export class SaNotifications implements OnInit {
   private readonly api = inject(AdminNotificationHistoryApi);
   private readonly destroyRef = inject(DestroyRef);
+  readonly showTemplates = signal(false);
   readonly categories = NOTIFICATION_CATEGORIES;
   readonly categoryKeys = Object.keys(NOTIFICATION_CATEGORIES) as Category[];
   readonly page = signal<HistoryPage | null>(null);

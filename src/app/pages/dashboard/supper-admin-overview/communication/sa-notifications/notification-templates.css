@@ -1,0 +1,13 @@
+:host { display: block; }
+.template-workspace :is(h2,h3,p) { margin-block: 0 .6rem; }
+.template-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 1rem; }
+.template-form, .template-form label { display: grid; gap: .4rem; }
+.template-form { gap: .75rem; }
+.template-workspace :is(button,input,textarea), .template-preview { font: inherit; color: inherit; background: transparent; border: 1px solid var(--border, #64748b); border-radius: .45rem; padding: .45rem .65rem; }
+.template-list { display: grid; gap: .5rem; list-style: none; padding: 0; }
+.template-list li, nav { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+.template-preview p { white-space: pre-wrap; overflow-wrap: anywhere; margin-block: .3rem 0; }
+button + button { margin-inline-start: .5rem; }
+button:disabled { opacity: .55; }
+[role="alert"] { color: var(--red, #b84444); }
+@media (max-width: 42rem) { .template-layout { grid-template-columns: minmax(0, 1fr); } }
