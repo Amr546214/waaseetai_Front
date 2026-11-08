@@ -9,12 +9,14 @@ import { AssistantPositionSettingsComponent } from './assistant-position-setting
 	template: `
 	<div class="settings" dir="rtl">
 		<p>شغّل صوت أي رد من زر الاستماع أسفله، ثم تحكّم في التشغيل والوقت من مشغّل الصوت.</p>
-		<label>الشخصية<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)"><option value="scout">نديم — دليل وسيط</option><option value="classic">بيبو — المساعد الكرتوني</option></select></label>
+		<label>الشخصية<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)"><option value="scout" [selected]="store.skin() === 'scout'">{{ store.skin() === 'scout' ? '✓ ' : '' }}نديم — دليل وسيط</option><option value="classic" [selected]="store.skin() === 'classic'">{{ store.skin() === 'classic' ? '✓ ' : '' }}بيبو — المساعد الكرتوني</option></select></label>
 		<app-assistant-position-settings />
-		<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto">تلقائي</option><option value="fast">سريع ومختصر</option><option value="balanced">متوازن</option><option value="deep">شرح وتحليل مفصل</option></select></label>
-		<label>اللهجة<select [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)"><option value="auto">تلقائي حسب كلامك</option>@for (dialect of dialects; track dialect.id) { <option [value]="dialect.id">{{ dialect.label }}</option> }</select></label>
-			<label>الصوت<select [value]="store.ttsVoice()" (change)="store.setVoice($any($event.target).value)" [disabled]="!voices().length">@if (store.capabilitiesLoading()) { <option value="" disabled selected>جاري تحميل الأصوات المدعومة...</option> } @else if (!voices().length) { <option value="" disabled selected>لا توجد أصوات مدعومة من الخادم</option> }@for (voice of voices(); track voice.id) { <option [value]="voice.id">{{ voiceLabel(voice) }}</option> }</select></label>
-			<label>مستوى الصوت<input type="range" min="0" max="1" step="0.1" [value]="store.voiceVolume()" (input)="store.setVolume(+$any($event.target).value)" /></label>
+		<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto" [selected]="store.profile() === 'auto'">{{ store.profile() === 'auto' ? '✓ ' : '' }}تلقائي</option><option value="fast" [selected]="store.profile() === 'fast'">{{ store.profile() === 'fast' ? '✓ ' : '' }}سريع ومختصر</option><option value="balanced" [selected]="store.profile() === 'balanced'">{{ store.profile() === 'balanced' ? '✓ ' : '' }}متوازن</option><option value="deep" [selected]="store.profile() === 'deep'">{{ store.profile() === 'deep' ? '✓ ' : '' }}شرح وتحليل مفصل</option></select></label>
+		<label>اللهجة<select [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)"><option value="auto" [selected]="store.ttsDialect() === 'auto'">{{ store.ttsDialect() === 'auto' ? '✓ ' : '' }}تلقائي حسب كلامك</option>@for (dialect of dialects; track dialect.id) { <option [value]="dialect.id" [selected]="store.ttsDialect() === dialect.id">{{ store.ttsDialect() === dialect.id ? '✓ ' + dialect.label : dialect.label }}</option> }</select></label>
+		<label>الصوت<select [value]="store.ttsVoice()" (change)="store.setVoice($any($event.target).value)" [disabled]="!voices().length">@if (store.capabilitiesLoading()) { <option value="" disabled selected>جاري تحميل الأصوات المدعومة...</option> } @else if (!voices().length) { <option value="" disabled selected>لا توجد أصوات مدعومة من الخادم</option> }@for (voice of voices(); track voice.id) { <option [value]="voice.id" [selected]="store.ttsVoice() === voice.id">{{ store.ttsVoice() === voice.id ? '✓ ' + voiceLabel(voice) : voiceLabel(voice) }}</option> }</select></label>
+		<div class="settings-badge" data-testid="settings-voice-badge"><span>الصوت المختار:</span> <strong>{{ store.ttsVoice() }}</strong></div>
+		<div class="settings-badge settings-model-badge" data-testid="settings-model-badge"><span>النموذج الذكي:</span> <strong>{{ activeModelLabel() }}</strong></div>
+		<label>مستوى الصوت<input type="range" min="0" max="1" step="0.1" [value]="store.voiceVolume()" (input)="store.setVolume(+$any($event.target).value)" /></label>
 		@if (store.capabilityNotice()) { <p role="status">{{ store.capabilityNotice() }}</p> }
 		<small>الصوت مُولّد آليًا.</small>
 	</div>`,
@@ -24,6 +26,9 @@ import { AssistantPositionSettingsComponent } from './assistant-position-setting
 		.settings select { min-width: 140px; max-width: 65%; background-color: var(--assistant-input-bg, var(--tc-surface, #fff)); color: var(--assistant-text, var(--tc-text, inherit)); border: 1px solid var(--assistant-input-border, var(--tc-line, var(--sec-bd, #e5e5e5))); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: var(--font-size-label); color-scheme: light dark; }
 		.settings select option { background-color: var(--assistant-input-bg, var(--tc-surface, #fff)); color: var(--assistant-text, var(--tc-text, #171717)); }
 		.settings input { accent-color: #2f68c9; }
+		.settings-badge { display: inline-flex; align-items: center; gap: 6px; font-size: var(--font-size-small); color: var(--assistant-muted, #727272); padding: 4px 10px; border-radius: 8px; background: rgba(0, 0, 0, 0.04); border: 1px solid var(--assistant-input-border, #e5e5e5); width: fit-content; }
+		.settings-badge strong { color: var(--tc-accent, #2f68c9); }
+		.settings-model-badge strong { color: #8b5cf6; }
 		.settings small, .settings p { color: var(--assistant-muted, var(--tc-muted, var(--txt-3, #727272))); font-size: var(--font-size-small); line-height: 1.5; }
 		.settings select:focus-visible, .settings input:focus-visible { outline: 2px solid var(--tc-accent, #2f68c9); outline-offset: 2px; }
 
@@ -46,6 +51,24 @@ import { AssistantPositionSettingsComponent } from './assistant-position-setting
 			background-color: #262626;
 			color: #f3f3f3;
 		}
+		:host-context(.workspace--dark) .settings-badge,
+		:host-context(.dark) .settings-badge,
+		:host-context([data-theme="dark"]) .settings-badge {
+			background-color: rgba(255, 255, 255, 0.05);
+			border-color: rgba(255, 255, 255, 0.1);
+			color: #a5a5a5;
+		}
+		:host-context(.workspace--dark) .settings-badge strong,
+		:host-context(.dark) .settings-badge strong,
+		:host-context([data-theme="dark"]) .settings-badge strong {
+			color: #55dace;
+		}
+		:host-context(.workspace--dark) .settings-model-badge strong,
+		:host-context(.dark) .settings-model-badge strong,
+		:host-context([data-theme="dark"]) .settings-model-badge strong {
+			color: #c084fc;
+		}
+
 		:host-context(.workspace--dark) .settings small,
 		:host-context(.workspace--dark) .settings p,
 		:host-context(.dark) .settings small,
@@ -87,5 +110,6 @@ export class AssistantSettingsComponent implements OnInit {
 	});
 	readonly textModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['text','chat'].includes(v.toLowerCase()))));
 	readonly speechModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['tts','speech'].includes(v.toLowerCase()))));
+	readonly activeModelLabel = computed(() => this.store.textModel() || this.store.capabilities()?.defaultTextModel || 'WaseetAI Gemini');
 	ngOnInit(): void { this.store.loadCapabilities(); }
 }

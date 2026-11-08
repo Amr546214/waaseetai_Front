@@ -34,16 +34,16 @@ export type BeboArabicVoice = (typeof BEBO_ARABIC_VOICES)[number];
 export const DEFAULT_ARABIC_VOICE: BeboVoice = 'Puck';
 
 export const BEBO_VOICE_LABELS: Record<string, string> = {
-	Puck: 'بيك (متوازن - يدعم العربية)',
-	Kore: 'كوري (هادئ - يدعم العربية)',
-	Sulafat: 'سلحفاة (دافئ - نطق عربي دقيق)',
-	Charon: 'شارون (وقور - يدعم العربية)',
-	Fenrir: 'فينرير (إنجليزي)',
-	Aoede: 'أويدي (إنجليزي)',
-	Zephyr: 'زفير (إنجليزي)',
-	Leda: 'ليدا (إنجليزي)',
-	Orus: 'أوروس (إنجليزي)',
-	Callirrhoe: 'كاليرهوي (إنجليزي)',
+	Puck: 'Puck',
+	Kore: 'Kore',
+	Sulafat: 'Sulafat',
+	Charon: 'Charon',
+	Fenrir: 'Fenrir',
+	Aoede: 'Aoede',
+	Zephyr: 'Zephyr',
+	Leda: 'Leda',
+	Orus: 'Orus',
+	Callirrhoe: 'Callirrhoe',
 };
 
 export function beboVoiceLabel(voiceId: string, customLabel?: string): string {

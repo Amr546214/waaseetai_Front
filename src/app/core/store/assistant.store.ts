@@ -930,7 +930,7 @@ export class AssistantStore {
 				},
 				error: (err: unknown) => {
 					if (stale()) return;
-					if (!isRetry && isArabic && (attemptVoice !== DEFAULT_ARABIC_VOICE || attemptDialect !== 'msa')) {
+					if (!isRetry && isArabic && !isArabicCompatibleVoice(attemptVoice)) {
 						trySynthesize(DEFAULT_ARABIC_VOICE, 'msa', true);
 						return;
 					}

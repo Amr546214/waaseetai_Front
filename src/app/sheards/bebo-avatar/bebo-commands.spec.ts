@@ -138,9 +138,9 @@ describe('Bebo dialects / voices (handoff lists)', () => {
 		expect(isArabicScript('')).toBe(false);
 	});
 
-	it('beboVoiceLabel provides friendly Arabic labels for voices', () => {
-		expect(beboVoiceLabel('Puck')).toContain('بيك');
-		expect(beboVoiceLabel('Sulafat')).toContain('سلحفاة');
-		expect(beboVoiceLabel('custom-voice', 'صوت مخصص')).toBe('صوت مخصص');
+	it('beboVoiceLabel provides clean English labels for voices', () => {
+		expect(beboVoiceLabel('Puck')).toBe('Puck');
+		expect(beboVoiceLabel('Sulafat')).toBe('Sulafat');
+		expect(beboVoiceLabel('custom-voice', 'Custom Voice')).toBe('Custom Voice');
 	});
 });

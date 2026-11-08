@@ -510,6 +510,30 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	color: #fff;
 }
 
+.pg-selected-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: var(--font-size-small, 12px);
+	color: #94a3b8;
+	margin-top: 2px;
+	margin-bottom: 4px;
+	padding: 4px 10px;
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	width: fit-content;
+}
+
+.pg-selected-badge .pg-selected-value {
+	color: var(--teal, #55dace);
+	font-weight: 700;
+}
+
+.pg-model-badge .pg-selected-value {
+	color: #a56be0;
+}
+
 .pg-settings .pg-toggle {
 	justify-content: flex-start;
 	gap: 8px;
