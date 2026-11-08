@@ -7,11 +7,11 @@ import { ConfirmModalService } from '../../../../../core/services/confirm-modal.
 import { SaBroadcast } from './sa-broadcast';
 
 const draft = (over: Record<string, unknown> = {}) => ({ id: 'd1', title: 'عنوان', message: 'نص', category: 'ALL', audience: 'CLIENTS', version: 1, updatedAt: '2026-11-08T12:00:00Z', ...over });
-const view = (over: Record<string, unknown> = {}) => ({ id: 'b1', sender: { id: 'u', name: 'مدير' }, title: 'عنوان', category: 'ALL', audience: 'CLIENTS', status: 'COMPLETED', totals: { audience: 3, sent: 3, failed: 0, pending: 0 }, createdAt: '2026-11-08T12:00:00Z', completedAt: null, ...over });
+const view = (over: Record<string, unknown> = {}) => ({ id: 'b1', sender: { id: 'u', name: 'مدير' }, title: 'عنوان', category: 'ALL', audience: 'CLIENTS', status: 'COMPLETED', totals: { audience: 3, sent: 3, failed: 0, pending: 0 }, createdAt: '2026-11-08T12:00:00Z', completedAt: null, lastProgressAt: null, ...over });
 const previewBody = (over: Record<string, unknown> = {}) => ({ draftId: 'd1', version: 1, audience: 'CLIENTS', count: 3, checkedAt: '2026-11-08T12:00:00Z', canSend: true, previewToken: 'tok-1', ...over });
 
 let confirmAnswer = true; let confirmArgs: any = null;
-function setup(latest: unknown = null) {
+function setup(latest: unknown = null, active: unknown = null) {
   confirmAnswer = true; confirmArgs = null;
   TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
     { provide: ConfirmModalService, useValue: { confirm: async (c: unknown) => { confirmArgs = c; return confirmAnswer; } } }] });
@@ -21,6 +21,7 @@ function setup(latest: unknown = null) {
   fixture.detectChanges();
   http.expectOne(r => r.url.endsWith('/admin/notification-templates')).flush({ data: { page: 1, hasNext: false, items: [{ id: 'qa', name: 'ترحيب', title: 'أهلًا', message: '<b>نص فقط</b>' }] } });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+  http.expectOne(r => r.url.endsWith('/admin/broadcasts/active')).flush({ data: active });
   http.expectOne(r => r.url.endsWith('/broadcasts/drafts/latest')).flush({ data: latest });
   return { fixture, c, http, el: fixture.nativeElement as HTMLElement };
 }
@@ -177,5 +178,73 @@ describe('SaBroadcast', () => {
     const shown = el.querySelector('[aria-label="معاينة الرسالة"]')!;
     expect(shown.textContent).toContain('<b>نص فقط</b>'); expect(shown.querySelector('b')).toBeNull();
     http.expectNone(r => r.url.endsWith('/send'));
+  });
+
+  describe('background progress', () => {
+    const running = (status: string, sent: number, over: Record<string, unknown> = {}) => view({ status, totals: { audience: 10, sent, failed: 0, pending: 10 - sent }, lastProgressAt: sent ? '2026-11-08T12:01:00Z' : null, ...over });
+    const confirmed = async (c: SaBroadcast, http: HttpTestingController, body: unknown) => {
+      const p = c.requestPreview(); await flushAsync(); route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody() }); await p;
+      const s = c.confirmAndSend(); await flushAsync();
+      const req = route(http, 'POST', '/broadcasts/drafts/d1/send'); req.flush({ data: { broadcast: body } }, { status: 202, statusText: 'Accepted' }); await s;
+      http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [body] } });
+    };
+    const poll = async (http: HttpTestingController, body: unknown) => {
+      vi.advanceTimersByTime(3000); await flushAsync();
+      http.expectOne(r => r.method === 'GET' && r.url.endsWith('/admin/broadcasts/b1')).flush({ data: { ...(body as object), message: 'x', failureCodes: [] } }); await flushAsync();
+    };
+
+    it('shows QUEUED right after confirm, polls every 3s, shows progress, and stops at COMPLETED', async () => {
+      const { c, http, fixture, el } = setup(draft());
+      await confirmed(c, http, running('QUEUED', 0));
+      fixture.detectChanges();
+      let card = el.querySelector('[aria-label="نتيجة الإرسال"]')!.textContent!;
+      expect(card).toContain('في قائمة الانتظار'); expect(c.isPolling).toBe(true); expect(el.querySelector('progress')).not.toBeNull();
+      vi.advanceTimersByTime(2000); http.expectNone(r => r.url.endsWith('/admin/broadcasts/b1')); // not faster than 3s
+      await poll(http, running('SENDING', 4)); // 1s later => total 3s
+      fixture.detectChanges();
+      card = el.querySelector('[aria-label="نتيجة الإرسال"]')!.textContent!;
+      expect(card).toContain('جارٍ الإرسال'); expect(card).toContain('40%'); expect(card).toContain('أُرسل: 4'); expect(card).toContain('متبقٍ: 6'); expect(c.isPolling).toBe(true);
+      expect(el.querySelector('.broadcast-history-item')!.textContent).toContain('جارٍ الإرسال'); // history shows the live status
+      await poll(http, running('COMPLETED', 10));
+      http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [running('COMPLETED', 10)] } });
+      fixture.detectChanges();
+      expect(c.isPolling).toBe(false); expect(el.querySelector('[aria-label="نتيجة الإرسال"]')!.textContent).toContain('اكتمل');
+      vi.advanceTimersByTime(10000); http.expectNone(r => r.url.endsWith('/admin/broadcasts/b1'));
+      http.verify();
+    });
+
+    it('ends as PARTIAL with a retry button; retry re-queues and polling starts again', async () => {
+      const { c, http, fixture, el } = setup(draft());
+      await confirmed(c, http, running('SENDING', 3));
+      await poll(http, running('PARTIAL', 8, { totals: { audience: 10, sent: 8, failed: 2, pending: 0 } }));
+      http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+      fixture.detectChanges();
+      expect(c.isPolling).toBe(false); expect(el.querySelector('[aria-label="نتيجة الإرسال"]')!.textContent).toContain('اكتمل جزئيًا');
+      const r = c.retryRemaining(); await flushAsync();
+      route(http, 'POST', '/broadcasts/b1/retry').flush({ data: running('QUEUED', 8, { totals: { audience: 10, sent: 8, failed: 0, pending: 2 } }) }); await r;
+      http.expectOne(r2 => r2.url.endsWith('/admin/broadcasts') && r2.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+      expect(c.isPolling).toBe(true); expect(c.result()?.status).toBe('QUEUED');
+      c.stopPolling();
+    });
+
+    it('a refresh restores the running broadcast and resumes polling; leaving the page stops it', async () => {
+      const { c, http, fixture, el } = setup(null, running('SENDING', 5));
+      fixture.detectChanges();
+      expect(c.result()?.id).toBe('b1'); expect(c.isPolling).toBe(true);
+      expect(el.querySelector('[aria-label="نتيجة الإرسال"]')!.textContent).toContain('جارٍ الإرسال');
+      fixture.destroy();
+      vi.advanceTimersByTime(20000); http.expectNone(r => r.url.endsWith('/admin/broadcasts/b1'));
+      expect(c.isPolling).toBe(false);
+      http.verify();
+    });
+
+    it('a double click on confirm while pending sends the job once', async () => {
+      const { c, http } = setup(draft());
+      const p = c.requestPreview(); await flushAsync(); route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody() }); await p;
+      const a = c.confirmAndSend(); const b = c.confirmAndSend(); await flushAsync();
+      route(http, 'POST', '/broadcasts/drafts/d1/send').flush({ data: { broadcast: running('QUEUED', 0) } }, { status: 202, statusText: 'Accepted' }); await a; await b;
+      http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+      http.expectNone(r => r.url.endsWith('/send')); c.stopPolling();
+    });
   });
 });

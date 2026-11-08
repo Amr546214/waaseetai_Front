@@ -4,20 +4,26 @@
 
   @if (result(); as r) {
     <section class="broadcast-card" aria-label="نتيجة الإرسال">
-      <h2>نتيجة الإرسال: {{ statusLabel(r.status) }}</h2>
+      <h2>حالة الإرسال: <span aria-label="الحالة">{{ statusLabel(r.status) }}</span></h2>
       <p><strong>{{ r.title }}</strong> إلى {{ audienceLabel(r.audience) }}</p>
+      @if (isRunning(r.status)) {
+        <progress aria-label="تقدّم الإرسال" [max]="r.totals.audience" [value]="r.totals.sent + r.totals.failed"></progress>
+        <p role="status">{{ progressPercent(r) }}% ({{ r.totals.sent + r.totals.failed }} من {{ r.totals.audience }})</p>
+        @if (r.status === 'QUEUED') { <p>الإرسال في قائمة الانتظار وسيبدأ تلقائيًا. تقدر تغلق الصفحة، وستجده في السجل.</p> }
+        @else if (r.lastProgressAt) { <p>آخر تقدّم: <time [attr.datetime]="r.lastProgressAt">{{ r.lastProgressAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time></p> }
+      }
       <ul>
         <li>الجمهور: {{ r.totals.audience }}</li>
         <li>أُرسل: {{ r.totals.sent }}</li>
         <li>فشل: {{ r.totals.failed }}</li>
-        @if (r.totals.pending) { <li>متبقٍ: {{ r.totals.pending }}</li> }
+        <li>متبقٍ: {{ r.totals.pending }}</li>
       </ul>
-      @if (r.totals.failed || r.totals.pending) {
+      @if (!isRunning(r.status) && (r.totals.failed || r.totals.pending)) {
         <p role="alert">لم يصل الإشعار لبعض المستلمين. إعادة المحاولة تكمل المتبقين فقط ولا تكرر من وصلهم.</p>
         <button type="button" (click)="retryRemaining()" [disabled]="retrying()">{{ retrying() ? 'جاري الإعادة…' : 'إعادة إرسال المتبقي' }}</button>
       }
       @if (sendError()) { <p role="alert">{{ sendError() }}</p> }
-      <button type="button" (click)="newMessage()">رسالة جديدة</button>
+      @if (!isRunning(r.status)) { <button type="button" (click)="newMessage()">رسالة جديدة</button> }
     </section>
   } @else {
     @if (draftLoading()) { <p role="status">جاري استرجاع المسودة…</p> }

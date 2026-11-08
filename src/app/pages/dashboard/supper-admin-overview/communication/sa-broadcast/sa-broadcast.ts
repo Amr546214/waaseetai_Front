@@ -20,13 +20,13 @@ const CATEGORIES = [
   { value: 'FINANCIAL', label: 'المالية' },
   { value: 'AI', label: 'الذكاء الاصطناعي' },
 ] as const;
-const STATUS_LABELS: Record<string, string> = { SENDING: 'جاري الإرسال', PARTIAL: 'اكتمل جزئيًا', COMPLETED: 'اكتمل', FAILED: 'فشل' };
+const STATUS_LABELS: Record<string, string> = { QUEUED: 'في قائمة الانتظار', SENDING: 'جارٍ الإرسال', PARTIAL: 'اكتمل جزئيًا', COMPLETED: 'اكتمل', FAILED: 'فشل' };
 export type Audience = typeof AUDIENCES[number]['value'];
 export type Category = typeof CATEGORIES[number]['value'];
 export type Draft = { id: string; title: string; message: string; category: Category; audience: Audience | null; version: number; updatedAt: string };
 export type Preview = { draftId: string; version: number; audience: Audience; count: number; checkedAt: string; canSend: boolean; previewToken: string };
 export type Totals = { audience: number; sent: number; failed: number; pending: number };
-export type BroadcastView = { id: string; sender: { id: string; name: string }; title: string; category: Category; audience: Audience; status: string; totals: Totals; createdAt: string; completedAt: string | null };
+export type BroadcastView = { id: string; sender: { id: string; name: string }; title: string; category: Category; audience: Audience; status: string; totals: Totals; createdAt: string; completedAt: string | null; lastProgressAt: string | null };
 export type BroadcastDetail = BroadcastView & { message: string; failureCodes: { code: string; count: number }[] };
 type Template = { id: string; name: string; title: string; message: string };
 type TemplatePage = { page: number; items: Template[]; hasNext: boolean };
@@ -75,6 +75,10 @@ export class SaBroadcast implements OnInit {
   readonly templatesLoading = signal(false);
   readonly templatesError = signal('');
   private templatePage = 1;
+  /** polling period for a running broadcast (never below 3 s in production) */
+  pollMs = 3000;
+  private poller: ReturnType<typeof setInterval> | null = null;
+  private polling = false;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private saving: Promise<boolean> | null = null;
   private dirty = false;
@@ -86,11 +90,15 @@ export class SaBroadcast implements OnInit {
   category: Category = 'ALL';
   audience: Audience | '' = '';
 
-  constructor() { this.destroyRef.onDestroy(() => this.clearTimer()); }
+  constructor() { this.destroyRef.onDestroy(() => { this.clearTimer(); this.stopPolling(); }); }
 
   ngOnInit() {
     this.loadTemplates(1);
     this.loadHistory(1);
+    // a refresh while a broadcast is queued or running brings its progress screen back
+    this.http.get<{ data: BroadcastView | null }>(`${this.api}/active`).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: ({ data }) => { if (data && !this.result()) { this.result.set(data); this.startPolling(); } }, error: () => undefined,
+    });
     this.http.get<{ data: Draft | null }>(`${this.api}/drafts/latest`).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: ({ data }) => { if (data) this.adopt(data); this.draftLoading.set(false); },
       error: () => { this.draftLoading.set(false); this.saveError.set('تعذّر استرجاع المسودة المحفوظة. ما تكتبه الآن سيُحفظ كمسودة جديدة.'); },
@@ -158,7 +166,7 @@ export class SaBroadcast implements OnInit {
   keepMine() { const c = this.conflict(); if (!c) return Promise.resolve(false); this.draft.set(c); this.conflict.set(null); this.dirty = true; return this.save(); }
 
   newMessage() {
-    this.clearTimer(); this.draft.set(null); this.result.set(null); this.preview.set(null); this.previewStale.set(''); this.attemptKey = null;
+    this.clearTimer(); this.stopPolling(); this.draft.set(null); this.result.set(null); this.preview.set(null); this.previewStale.set(''); this.attemptKey = null;
     this.title = ''; this.message = ''; this.category = 'ALL'; this.audience = ''; this.dirty = false; this.saveState.set('idle'); this.savedAt.set(null);
     this.sendError.set(''); this.previewError.set('');
   }
@@ -212,7 +220,7 @@ export class SaBroadcast implements OnInit {
     this.sendError.set('');
     try {
       const res = await firstValueFrom(this.http.post<{ data: { broadcast: BroadcastView } }>(`${this.api}/drafts/${p.draftId}/send`, { previewToken: p.previewToken }, { headers: { 'Idempotency-Key': key } }));
-      this.result.set(res.data.broadcast); this.preview.set(null); this.attemptKey = null; this.draft.set(null); this.dirty = false; this.loadHistory(1);
+      this.result.set(res.data.broadcast); this.startPolling(); this.preview.set(null); this.attemptKey = null; this.draft.set(null); this.dirty = false; this.loadHistory(1);
     } catch (e) {
       const body = errorBody(e); const status = e instanceof HttpErrorResponse ? e.status : 0;
       if (body?.code === 'PREVIEW_STALE') {
@@ -240,9 +248,32 @@ export class SaBroadcast implements OnInit {
     this.retrying.set(true); this.sendError.set('');
     try {
       const res = await firstValueFrom(this.http.post<{ data: BroadcastView }>(`${this.api}/${r.id}/retry`, {}));
-      this.result.set(res.data); this.loadHistory(1);
+      this.result.set(res.data); this.startPolling(); this.loadHistory(1);
     } catch { this.sendError.set('تعذّرت إعادة إرسال المتبقي. حاول مرة أخرى.'); }
     finally { this.retrying.set(false); }
+  }
+
+  // ---- live progress -------------------------------------------------------------------------------------------------------------------------
+  isRunning(status: string | undefined) { return status === 'QUEUED' || status === 'SENDING'; }
+  progressPercent(r: BroadcastView) { return r.totals.audience ? Math.min(100, Math.round(((r.totals.sent + r.totals.failed) / r.totals.audience) * 100)) : 0; }
+  startPolling() {
+    if (this.poller || !this.isRunning(this.result()?.status)) return;
+    this.poller = setInterval(() => { void this.pollOnce(); }, Math.max(3000, this.pollMs));
+  }
+  stopPolling() { if (this.poller) { clearInterval(this.poller); this.poller = null; } }
+  get isPolling() { return !!this.poller; }
+  async pollOnce() {
+    const r = this.result();
+    if (!r || this.polling) return;
+    this.polling = true;
+    try {
+      const res = await firstValueFrom(this.http.get<{ data: BroadcastDetail }>(`${this.api}/${r.id}`));
+      const { message: _m, failureCodes: _f, ...view } = res.data;
+      this.result.set(view);
+      this.history.update(h => h && { ...h, items: h.items.map(i => (i.id === view.id ? view : i)) });
+      if (!this.isRunning(view.status)) { this.stopPolling(); this.loadHistory(this.history()?.page ?? 1); }
+    } catch { /* keep the last known state; the next tick tries again */ }
+    finally { this.polling = false; }
   }
 
   // ---- history -------------------------------------------------------------------------------------------------------------------------------
