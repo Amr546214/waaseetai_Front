@@ -1,0 +1,37 @@
+<section class="smp-page" dir="rtl">
+  <header class="smp-hdr">
+    <div>
+      <h1>{{ title() }}</h1>
+      @if (subtitle()) { <p>{{ subtitle() }}</p> }
+    </div>
+    <div class="smp-actions">
+      <button type="button" [disabled]="busy()" (click)="retry()">تحديث الآن</button>
+      <button type="button" [attr.aria-pressed]="automaticEnabled()" (click)="toggleAutomatic()">
+        {{ automaticEnabled() ? 'إيقاف التحديث التلقائي' : 'تفعيل التحديث كل دقيقة' }}
+      </button>
+    </div>
+  </header>
+
+  @if (busy()) { <p role="status">جاري قراءة المؤشرات…</p> }
+  @if (error()) {
+    <p class="smp-error" role="alert">{{ error() }}
+      <button type="button" class="smp-retry" (click)="retry()">إعادة المحاولة</button>
+      @if (data()) { النتائج المعروضة من آخر قراءة ناجحة. }
+    </p>
+  }
+
+  @if (data(); as d) {
+    @if (!items().length) { <p>لا توجد مؤشرات لهذه الصفحة في الرد.</p> }
+    @if (unavailableCount()) { <p class="smp-note">{{ unavailableCount() }} من المؤشرات غير متاحة؛ سبب كل منها مذكور في بطاقته. لا تُعرض أرقام بلا قياس حقيقي.</p> }
+    <ul class="smp-cards" aria-label="المؤشرات">
+      @for (i of items(); track i.key) {
+        <li [attr.data-status]="i.status" [attr.data-key]="i.key">
+          <app-sa-indicator-card [indicator]="i" />
+        </li>
+      }
+    </ul>
+    @if (d.instance) { <p class="smp-meta" data-testid="instance-note">{{ d.instance.note }}</p> }
+    <p class="smp-meta">قد تُخدَم القراءة من ذاكرة مؤقتة في الخادم لمدة {{ d.cacheSeconds }} ثانية، ووقت كل مؤشر هو وقت قراءته الفعلية.</p>
+  }
+  <ng-content />
+</section>

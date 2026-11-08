@@ -1,19 +1,10 @@
-<section class="it-page" dir="rtl">
-  <h1 class="sr-only">الخوادم والصحة</h1>
-
-  <div class="it-hdr">
-    <div>
-      <h2 class="it-ttl">لوحة البنية التقنية</h2>
-      <p class="it-sub">صحة الأنظمة وحالة الخوادم</p>
-    </div>
-  </div>
-
-  <!-- AI Cleanup Batch 3: uptime, response time, error rate, request rate and every
-       server card (CPU/memory/disk/queue values, regions, uptime days) were
-       hardcoded, and "refresh" randomly nudged them to look live. No infrastructure
-       metrics source is connected, so nothing is shown here until one exists. -->
-  <div class="na-card" role="status">
-    <div class="na-ttl">مراقبة الخوادم غير متاحة بعد</div>
-    <div class="na-sub">لا يوجد حاليا مصدر متصل لقياسات الخوادم (المعالج، الذاكرة، زمن التشغيل، معدل الطلبات)، لذلك لا تُعرض أي أرقام هنا. هذه اللوحة غير متاحة حاليًا.</div>
-  </div>
-</section>
+<app-sa-metrics-panel title="الخوادم والصحة" subtitle="كل قراءة تذكر نطاقها: العملية أو الحاوية أو المضيف حسب المصدر"
+  [keys]="['api_uptime','api_rss','api_heap','api_loop_p99','ctr_mem_used','ctr_mem_limit_pct','ctr_cpu','ctr_disk_used_pct','ctr_disk_free','host_cpu','host_mem_pct','host_disk_pct','ctr_running','ctr_not_running','ctr_restarts','waf_blocked']">
+  <section class="sa-host-na" data-testid="host-metrics-na" aria-label="ما لا يغطيه القياس">
+    <h2>غير متاح</h2>
+    <ul>
+      <li>التجميع بين نسخ الخادم والسجل التاريخي لمقاييس API: يلزم مخزن سلاسل زمنية خارجي؛ كل رقم أعلاه يخص النسخة المذكورة في نطاقه فقط.</li>
+      <li>أي مؤشر مضيف أو حاويات أو جدار حماية يظهر «غير متاح» حتى يوفّر فريق البنية المصدر؛ سبب كل مؤشر ومتغير الإعداد المطلوب مذكوران في بطاقته.</li>
+    </ul>
+  </section>
+</app-sa-metrics-panel>

@@ -16,7 +16,19 @@ export interface SettingItem {
 export interface SettingEffective { value: unknown; /** the value written for people (e.g. «USD — دولار أمريكي») */ label?: string; source: 'setting' | 'built-in default' | 'static page text' | 'not consumed'; note?: string; uses?: Array<{ where: string; value: unknown }> }
 export interface SettingsView { storageReady: boolean; items: SettingItem[] }
 export interface SettingsHistoryItem { id: string; at: string; severity: string | null; ip: string | null; actor: string | null; changes: Array<{ key: string; label: string; from: unknown; to: unknown }> }
-export interface HealthItem { key: string; label: string; status: 'ok' | 'down' | 'configured' | 'unconfigured' | 'unavailable'; detail: string }
+export interface HealthItem { key: string; label: string; status: 'ok' | 'down' | 'configured' | 'unconfigured' | 'unavailable'; detail: string; deprecated?: boolean; readAt?: string }
+export interface TechIndicator { key: string; group: 'api' | 'database' | 'backup' | 'cdn' | 'infra'; label: string; value: number | null; unit: string; status: 'measured' | 'unavailable' | 'error'; readAt: string; source: string; scope?: string; reason?: string; valueText?: string | null; kind?: 'datetime'; state?: string; detail?: string }
+export interface TechMetrics { generatedAt: string; cacheSeconds: number; windowMinutes: number; instance?: { id: string; startedAt: string; note: string }; indicators: TechIndicator[] }
+export interface EscalationAssignee { state: string; reason: string; missingPermissions: string[] }
+export interface EscalationReadiness {
+	readAt: string; automaticEscalation: 'closed' | 'configured_on'; enabled: boolean; schedulerRunning?: boolean; summary: string; statement?: string; ready: boolean;
+	preconditions: Array<{ key: string; label: string; met: boolean | null; detail: string }>;
+	assignees?: { support: EscalationAssignee; disputes: EscalationAssignee };
+	startDate?: { valid: boolean; utc: string | null };
+	rules?: { supportFirstReply: { source: 'explicit' | 'default' | 'invalid'; hours: { low: number; normal: number; high: number; urgent: number }; note: string }; disputes: { hours: number; fixed: boolean; note: string } };
+	decisions?: Array<{ key: string; label: string; status: 'open' }>;
+	supportPermissions: string[]; disputePermissions: string[]; source: string;
+}
 export interface Blocker { code: string; message: string }
 interface Envelope<T> { success: boolean; data: T }
 
@@ -45,6 +57,8 @@ export class SystemSettingsApi {
 	save(changes: Record<string, unknown>, expected: Record<string, number>): Observable<Envelope<{ changed: string[]; items: SettingItem[] }>> { return this.http.put<Envelope<{ changed: string[]; items: SettingItem[] }>>(base(), { changes, expected }); }
 	history(limit = 20): Observable<Envelope<SettingsHistoryItem[]>> { return this.http.get<Envelope<SettingsHistoryItem[]>>(`${base()}/history`, { params: { limit } }); }
 	health(): Observable<Envelope<{ checkedAt: string; items: HealthItem[] }>> { return this.http.get<Envelope<{ checkedAt: string; items: HealthItem[] }>>(`${base()}/health`); }
+	technicalMetrics(): Observable<Envelope<TechMetrics>> { return this.http.get<Envelope<TechMetrics>>(`${base()}/technical-metrics`); }
+	escalationReadiness(): Observable<Envelope<EscalationReadiness>> { return this.http.get<Envelope<EscalationReadiness>>(`${base()}/escalation-readiness`); }
 	sessionsImpact(idleMinutes: number): Observable<Envelope<{ idleMinutes: number; activeSessions: number; wouldEndNow: number }>> { return this.http.get<Envelope<{ idleMinutes: number; activeSessions: number; wouldEndNow: number }>>(`${base()}/sessions-impact`, { params: { idleMinutes } }); }
 	readiness(): Observable<Envelope<{ ready: boolean; blockers: Blocker[] }>> { return this.http.get<Envelope<{ ready: boolean; blockers: Blocker[] }>>(`${base()}/currency-readiness`); }
 }

@@ -196,7 +196,7 @@ describe('AI Cleanup Batch 3 — no random / fake-live metric refresh in super a
 		expect(serversHtml).not.toContain('تحديث تلقائي كل 30 ثانية');
 		expect(serversHtml).not.toContain('99.98%');
 		expect(serversHtml).not.toContain('في الوقت الفعلي');
-		expect(serversHtml).toContain('na-card');
+		expect(serversHtml).toContain('host-metrics-na');
 	});
 
 	it('the Batch 3 screens contain no Math.random at all', () => {

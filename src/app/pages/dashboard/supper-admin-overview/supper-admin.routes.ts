@@ -360,6 +360,11 @@ const RAW_ROUTES: Routes = [
         data: { title: 'Monitoring' }
     },
     {
+        path: 'escalation-readiness',
+        loadComponent: () => import('./it/sa-escalation-readiness/sa-escalation-readiness').then(m => m.SaEscalationReadiness),
+        data: { title: 'جاهزية التصعيد' }
+    },
+    {
         path: 'security',
         loadComponent: () => import('./it/sa-security/sa-security').then(m => m.SaSecurity),
         data: { title: 'الأمان' }
