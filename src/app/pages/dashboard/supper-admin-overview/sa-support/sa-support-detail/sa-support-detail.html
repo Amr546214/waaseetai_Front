@@ -15,7 +15,11 @@
           <div class="sup-meta-grid">
             <div class="sup-meta-item"><div class="sup-meta-lbl">الفئة</div><div class="sup-meta-val">{{ d.ticket.category }}</div></div>
             <div class="sup-meta-item"><div class="sup-meta-lbl">الأولوية</div><div class="sup-meta-val">
-              <ws-select [options]="priorities" [ngModel]="d.ticket.priority" (ngModelChange)="setPriority($event)" ariaLabel="تغيير الأولوية" style="min-width:120px;max-width:100%;display:block"></ws-select>
+              @if (canReply()) {
+                <ws-select [options]="priorities" [ngModel]="d.ticket.priority" (ngModelChange)="setPriority($event)" ariaLabel="تغيير الأولوية" style="min-width:120px;max-width:100%;display:block"></ws-select>
+              } @else {
+                <span data-testid="priority-readonly">{{ d.ticket.priority }}</span>
+              }
             </div></div>
             <div class="sup-meta-item"><div class="sup-meta-lbl">الحالة</div><div class="sup-meta-val"><span class="sup-bdg" [class]="'sup-bdg ' + statusClass(d.ticket.status)">{{ statusLabels[d.ticket.status] }}</span></div></div>
             <div class="sup-meta-item"><div class="sup-meta-lbl">فُتحت</div><div class="sup-meta-val">{{ formatTime(d.ticket.createdAt) }}</div></div>
@@ -48,13 +52,17 @@
           </div>
 
           <div class="sup-chat-actions">
-            @for (s of statuses; track s) {
-              <button type="button" class="sup-ca-btn" [class.sup-ca-close]="s === d.ticket.status" [disabled]="busy() || s === d.ticket.status" (click)="setStatus(s)">{{ statusLabels[s] }}</button>
+            @if (canReply()) {
+              @for (s of statuses; track s) {
+                <button type="button" class="sup-ca-btn" [class.sup-ca-close]="s === d.ticket.status" [disabled]="busy() || s === d.ticket.status" (click)="setStatus(s)">{{ statusLabels[s] }}</button>
+              }
             }
 
           </div>
           @if (actionError()) { <div class="sup-notes-empty" role="alert" data-testid="action-error" style="color:#ff6b6b">{{ actionError() }}</div> }
-          @if (d.ticket.status !== 'CLOSED') {
+          @if (!canReply()) {
+            <div class="sup-notes-empty" data-testid="reply-readonly">عرض فقط: الرد ومعالجة التذكرة يحتاجان صلاحية «الرد على الدعم ومعالجة التذكرة».</div>
+          } @else if (d.ticket.status !== 'CLOSED') {
             <div class="sup-notes-empty">ردك يظهر لصاحب التذكرة ويصله كإشعار.</div>
             <div class="sup-chat-input-area">
               <label>مرفقات الرد
@@ -96,8 +104,10 @@
         <div class="sup-side-card">
           <div class="sup-side-ttl">التكليف</div>
           <div class="sup-assign-current">مُكلَّف: <strong>{{ d.assignedTo?.name || 'غير مُكلَّف' }}</strong></div>
+          @if (canReply()) {
           <ws-select id="sup-assignee" [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للتكليف" style="min-width:160px;max-width:100%;display:block"></ws-select>
           <button type="button" class="sup-side-btn" [disabled]="busy()" (click)="assign()">تكليف</button>
+          }
           @if (d.assignedTo?.escalationReason; as reason) { <p>سبب التصعيد الداخلي: {{ reason }}</p> }
           @if (canEscalate() && d.ticket.status !== 'CLOSED' && d.ticket.status !== 'RESOLVED') {
             <div>
@@ -142,10 +152,12 @@
             <div class="sup-notes-empty">لا توجد ملاحظات داخلية بعد</div>
           }
         </div>
+        @if (canReply()) {
         <div class="sup-note-input-row">
           <input id="sup-note" aria-label="ملاحظة داخلية" type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
           <button type="button" [disabled]="busy()" (click)="addNote()">إضافة</button>
         </div>
+        }
         @if (noteError()) { <div class="sup-notes-empty" role="alert" data-testid="note-error" style="color:#ff6b6b">{{ noteError() }}</div> }
       </div>
       <div class="sup-extra-card">

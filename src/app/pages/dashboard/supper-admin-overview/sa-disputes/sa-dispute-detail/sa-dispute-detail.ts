@@ -61,6 +61,10 @@ export class SaDisputeDetail implements OnInit {
     const status = this.selectedDispute()?.status;
     return (status === 'OPEN' || status === 'UNDER_REVIEW') && this.adminAccess.can('disputes.assign');
   });
+  /** Same keys the server enforces: assign = disputes.assign, notes = disputes.note, decide / resolve / reject / review status = disputes.resolve (the financial decision also needs payouts.send). */
+  readonly canAssign = computed(() => this.adminAccess.can('disputes.assign'));
+  readonly canNote = computed(() => this.adminAccess.can('disputes.note'));
+  readonly canDecide = computed(() => this.adminAccess.can('disputes.resolve'));
   noteDraft = signal('');
   opBusy = signal(false);
 

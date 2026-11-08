@@ -9,6 +9,7 @@ import { TicketApiService } from '../../../../core/services/ticket-api.service';
 import { AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { SaSupport } from './sa-support';
 import { SaSupportDetail } from './sa-support-detail/sa-support-detail';
+const grant = (permissions: string[]) => TestBed.inject(AdminAccessService).access.set({ userId: 'qa-admin', isSuperAdmin: false, staffStatus: 'ACTIVE', roleName: null, permissions, hasAnyPermission: true, state: 'ACTIVE', displayRole: 'الدعم' });
 
 const ticket: any = { id: 't1', ticketNumber: 'TK-1', userId: 'u1', subject: 'مشكلة في التحويل', category: 'مالية', priority: 'عادية', description: 'وصف طويل للمشكلة هنا', status: 'OPEN', createdAt: '2026-10-01T00:00:00Z', updatedAt: '2026-10-01T00:00:00Z' };
 const user = { id: 'u1', firstName: 'م', lastName: 'ق', email: 'p@x', accountType: 'PROVIDER_INDIVIDUAL' };
@@ -59,7 +60,8 @@ describe('SaSupport (admin tickets, real API)', () => {
 			adminSetStatus: vi.fn(() => of({ success: true, data: {} })),
 		};
 		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
-		const f = TestBed.createComponent(SaSupportDetail);
+		grant(['support.review', 'support.reply']);
+			const f = TestBed.createComponent(SaSupportDetail);
 		f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
 		expect(el.textContent).toContain('رد الدعم');
@@ -97,6 +99,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 				adminAssign: vi.fn(ok), adminSetPriority: vi.fn(ok), adminAddNote: vi.fn(ok),
 			};
 			TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+			grant(['support.review', 'support.reply']);
 			const f = TestBed.createComponent(SaSupportDetail);
 			f.detectChanges();
 			return { f, api };
@@ -105,6 +108,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 		it('assign, priority and internal note call the right API methods', () => {
 			const { f, api } = setup();
 			const c = f.componentInstance;
+			grant(['support.review', 'support.reply', 'tasks.manage']); // handing a ticket to somebody else needs tasks.manage (the server rule)
 			c.selectedAssigneeId.set('s2');
 			c.assign();
 			expect(api.adminAssign).toHaveBeenCalledWith('t1', 's2');
@@ -155,7 +159,8 @@ describe('SaSupportDetail form validation UX', () => {
 			adminSetPriority: vi.fn(() => of({ success: true })), adminSetStatus: vi.fn(() => of({ success: true })),
 		};
 		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
-		const f = TestBed.createComponent(SaSupportDetail);
+		grant(['support.review', 'support.reply']);
+			const f = TestBed.createComponent(SaSupportDetail);
 		f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
 		return { f, c: f.componentInstance, api, el, byId: (id: string) => el.querySelector('#' + id) as HTMLElement };
