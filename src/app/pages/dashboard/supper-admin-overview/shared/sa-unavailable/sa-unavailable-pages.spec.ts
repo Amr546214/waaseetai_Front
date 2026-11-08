@@ -29,7 +29,7 @@ const PAGES: [string, any][] = [
   ['sa-performance', SaPerformance], ['sa-plans', SaPlans],
   ['sa-upgrade', SaUpgrade], ['sa-active-subs', SaActiveSubs], ['sa-sub-invoices', SaSubInvoices],
   ['sa-boost', SaBoost], ['sa-ads', SaAds], ['sa-promotions', SaPromotions], ['sa-plan-details', SaPlanDetails],
-  ['sa-broadcast', SaBroadcast], 
+  ['sa-broadcast', SaBroadcast],
   ['sa-business-models', SaBusinessModels], ['sa-business-model-detail', SaBusinessModelDetail],
 ];
 
