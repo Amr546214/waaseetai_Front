@@ -2,13 +2,19 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { BehaviorSubject, EMPTY, Subject, catchError, exhaustMap, map, merge, of, switchMap, timeout, timer } from 'rxjs';
-import { EscalationReadiness, HealthItem, SystemSettingsApi } from '../../../../../core/services/system-settings.store';
+import { EscalationReadiness, HealthItem, TechIndicator, SystemSettingsApi } from '../../../../../core/services/system-settings.store';
+import { SaIndicatorCard } from '../../shared/sa-metrics-panel/sa-indicator-card';
+import { TechnicalMetricsStore } from '../../shared/sa-metrics-panel/technical-metrics.store';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 
 const LABELS: Record<HealthItem['status'], string> = {
   ok: 'يستجيب', down: 'لا يستجيب', configured: 'مُهيّأ',
   unconfigured: 'غير مُهيّأ', unavailable: 'غير مراقَب',
 };
+const SUMMARY = [
+  { key: 'api_p95', link: 'apis' }, { key: 'api_5xx_rate', link: 'apis' }, { key: 'db_latency', link: 'database' }, { key: 'db_conn_usage', link: 'database' },
+  { key: 'cdn_storage', link: 'cdn' }, { key: 'backup_last_success', link: 'backups' },
+];
 const CHECK_EVERY_MS = 60_000;
 const HISTORY_LIMIT = 10;
 type Snapshot = { checkedAt: string; items: HealthItem[] };
@@ -16,7 +22,7 @@ type Check = { id: number; checkedAt: string; status: string };
 
 @Component({
   selector: 'app-sa-monitoring',
-  imports: [RouterLink, WsDatePipe],
+  imports: [RouterLink, WsDatePipe, SaIndicatorCard],
   templateUrl: './sa-monitoring.html',
   styleUrl: './sa-monitoring.css',
 })
@@ -34,11 +40,18 @@ export class SaMonitoring implements OnInit {
   readonly escalation = signal<EscalationReadiness | null>(null);
   readonly escalationError = signal('');
   readonly labels = LABELS;
+  readonly metrics = inject(TechnicalMetricsStore);
+  /** key indicators shown on the home: the SAME indicator objects the detail pages render (one store, one fetch) */
+  readonly summary = computed(() => {
+    const all = this.metrics.data()?.indicators ?? [];
+    return SUMMARY.map(s => ({ ...s, item: all.find(i => i.key === s.key) })).filter(s => !!s.item) as Array<{ key: string; link: string; item: TechIndicator }>;
+  });
   readonly measured = computed(() => this.snapshot()?.items.filter(i => i.key === 'app' || i.key === 'database') ?? []);
   readonly configured = computed(() => this.snapshot()?.items.filter(i => i.key !== 'app' && i.key !== 'database') ?? []);
 
   ngOnInit() {
     this.loadEscalation();
+    this.metrics.load();
     merge(of(undefined), this.refresh, this.automatic.pipe(
       switchMap(enabled => enabled ? timer(CHECK_EVERY_MS, CHECK_EVERY_MS) : EMPTY),
     )).pipe(
@@ -74,7 +87,7 @@ export class SaMonitoring implements OnInit {
     });
   }
 
-  refreshNow() { this.refresh.next(); }
+  refreshNow() { this.refresh.next(); this.metrics.load(true); }
 
   loadEscalation() {
     this.escalationError.set('');

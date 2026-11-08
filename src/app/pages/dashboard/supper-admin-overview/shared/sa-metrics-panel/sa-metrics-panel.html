@@ -26,17 +26,7 @@
     <ul class="smp-cards" aria-label="المؤشرات">
       @for (i of items(); track i.key) {
         <li [attr.data-status]="i.status" [attr.data-key]="i.key">
-          <h3>{{ i.label }}</h3>
-          @if (i.status === 'measured') {
-            <strong class="smp-val">{{ display(i) }} <span class="smp-unit">{{ i.unit }}</span></strong>
-          } @else if (i.status === 'error') {
-            <strong class="smp-na smp-bad">تعذّرت القراءة</strong>
-          } @else {
-            <strong class="smp-na">غير متاح</strong>
-          }
-          @if (i.reason) { <p class="smp-reason">{{ i.reason }}</p> }
-          <p class="smp-meta">المصدر: {{ i.source }}</p>
-          <p class="smp-meta">آخر قراءة: <time [attr.datetime]="i.readAt">{{ i.readAt | wsDate:'datetime':'yyyy-MM-dd HH:mm:ss' }}</time></p>
+          <app-sa-indicator-card [indicator]="i" />
         </li>
       }
     </ul>

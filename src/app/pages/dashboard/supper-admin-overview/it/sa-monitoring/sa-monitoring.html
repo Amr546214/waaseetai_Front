@@ -37,6 +37,16 @@
     </ul>
   }
 
+  <section aria-labelledby="monitoring-metrics-title" data-testid="home-metrics">
+    <h2 id="monitoring-metrics-title">المؤشرات الفنية</h2>
+    <p>القيم نفسها في صفحات التفاصيل؛ كل مؤشر بوقت قراءته. @if (metrics.error()) { <span role="alert" class="monitoring-error">{{ metrics.error() }} <button type="button" (click)="metrics.load(true)">إعادة المحاولة</button></span> }</p>
+    <ul class="monitoring-cards" aria-label="المؤشرات الفنية">
+      @for (s of summary(); track s.key) {
+        <li [attr.data-key]="s.key"><app-sa-indicator-card [indicator]="s.item" /><a [routerLink]="'/supper-admin-overview/it/' + s.link">التفاصيل</a></li>
+      }
+    </ul>
+  </section>
+
   <section aria-labelledby="monitoring-escalation-title" class="monitoring-escalation" data-testid="escalation-readiness">
     <h2 id="monitoring-escalation-title">جاهزية التصعيد الآلي للدعم والنزاعات</h2>
     @if (escalationError()) {

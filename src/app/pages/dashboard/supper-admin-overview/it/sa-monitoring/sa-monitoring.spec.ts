@@ -31,11 +31,14 @@ const escalation = (over: Record<string, unknown> = {}) => ({
     ], ...over,
   },
 });
+const isMetrics = (request: { url: string; method: string }) => request.method === 'GET' && request.url.endsWith('/admin/system-settings/technical-metrics');
+const metricsBody = { success: true, data: { generatedAt: '2026-11-08T09:00:00Z', cacheSeconds: 15, windowMinutes: 15, indicators: [] } };
 function mount(escalationReply: unknown = escalation()) {
   TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
   const fixture = TestBed.createComponent(SaMonitoring);
   const http = TestBed.inject(HttpTestingController);
   fixture.detectChanges();
+  http.expectOne(isMetrics).flush(metricsBody);
   const esc = http.expectOne(isEsc);
   if (escalationReply === 'fail') esc.flush({}, { status: 500, statusText: 'x' }); else esc.flush(escalationReply as object);
   return { fixture, http, el: fixture.nativeElement as HTMLElement };
@@ -63,13 +66,16 @@ describe('platform monitoring', () => {
     const { fixture, http, el } = mount();
     http.expectOne(isHealth).flush(health());
     fixture.componentInstance.refreshNow();
+    http.match(isMetrics).forEach(r => r.flush(metricsBody));
     fixture.componentInstance.refreshNow();
+    http.match(isMetrics).forEach(r => r.flush(metricsBody));
     http.expectOne(isHealth).flush({}, { status: 503, statusText: 'Unavailable' });
     fixture.detectChanges();
     expect(el.querySelector('[role="alert"]')?.textContent).toContain('آخر فحص ناجح');
     expect(el.textContent).toContain('استجابة 4 ms');
     expect(el.textContent).not.toContain('قاعدة البيانات لم تستجب');
     fixture.componentInstance.refreshNow();
+    http.match(isMetrics).forEach(r => r.flush(metricsBody));
     http.expectOne(isHealth).flush(health('down'));
     fixture.detectChanges();
     expect(el.querySelector('[role="alert"]')).toBeNull();
