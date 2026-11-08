@@ -2,7 +2,7 @@
   <header class="monitoring-header">
     <div>
       <h1>مراقبة صحة المنصة</h1>
-      <p>فحص مباشر من التطبيق. لا يتضمن استخدام المعالج أو الذاكرة أو قواعد التنبيه.</p>
+      <p>فحص مباشر من التطبيق. قياسات الذاكرة وزمن الاستجابة في صفحة APIs، وأداء القاعدة في صفحة قاعدة البيانات. لا تتضمن هذه الصفحة قواعد تنبيه.</p>
     </div>
     <div class="monitoring-actions">
       <button type="button" [disabled]="busy()" (click)="refreshNow()">فحص الآن</button>
@@ -36,6 +36,23 @@
       }
     </ul>
   }
+
+  <section aria-labelledby="monitoring-escalation-title" class="monitoring-escalation" data-testid="escalation-readiness">
+    <h2 id="monitoring-escalation-title">جاهزية التصعيد الآلي للدعم والنزاعات</h2>
+    @if (escalationError()) {
+      <p class="monitoring-error" role="alert">{{ escalationError() }} <button type="button" (click)="loadEscalation()">إعادة المحاولة</button></p>
+    }
+    @if (escalation(); as e) {
+      <p><strong data-testid="escalation-state">{{ e.summary }}</strong> — للعرض فقط؛ لا يوجد زر لتفعيله من هذه الصفحة، وتغيير حالته قرار تشغيلي خارج التطبيق.</p>
+      <p>آخر قراءة: <time [attr.datetime]="e.readAt">{{ e.readAt | wsDate:'datetime':'yyyy-MM-dd HH:mm:ss' }}</time></p>
+      <ul class="monitoring-cards" aria-label="شروط التصعيد">
+        @for (p of e.preconditions; track p.key) {
+          <li [attr.data-met]="p.met === null ? 'unknown' : p.met"><h3>{{ p.label }}</h3><strong>{{ p.met === true ? 'متحقق' : p.met === false ? 'ناقص' : 'غير معروف' }}</strong><p>{{ p.detail }}</p></li>
+        }
+      </ul>
+      <p>الصلاحيات المطلوبة لمسؤول الدعم: {{ e.supportPermissions.join('، ') }}. لمسؤول النزاعات: {{ e.disputePermissions.join('، ') }}.</p>
+    }
+  </section>
 
   @if (history().length) {
     <section aria-labelledby="monitoring-history-title">

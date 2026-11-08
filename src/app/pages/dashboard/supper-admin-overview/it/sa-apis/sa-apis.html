@@ -1,16 +1,10 @@
-<app-sa-unavailable
-  title="إدارة APIs + التكاملات"
-  subtitle="نقاط API والتكاملات الخارجية"
-  heading="إحصاءات الـ API والتكاملات غير متاحة بعد"
-  reason="لا يوجد مصدر متصل يقيس عدد الطلبات أو زمن الاستجابة أو نسب الأخطاء أو حالة التكاملات الخارجية، لذلك لا تُعرض أي أرقام. المتاح فعليا هو فحص حياة الخادم أدناه وسجل الأحداث الأمنية."
-  linkLabel="فتح الأمان وسجل الأحداث"
-  linkTo="/supper-admin-overview/it/security"
->
-  <div class="sa-apis-health" data-testid="api-health" role="status">
+<app-sa-metrics-panel title="إدارة APIs + التكاملات" subtitle="قياسات داخلية لعملية الخادم الحالية، مع فحص الحياة" group="api">
+  <p class="sa-apis-health" data-testid="api-health" role="status">
     @switch (health()) {
       @case ('checking') { <span>جارٍ فحص حياة الخادم…</span> }
       @case ('ok') { <span>فحص حياة الخادم (GET /api/health): يعمل</span> }
       @default { <span>فحص حياة الخادم (GET /api/health): تعذر الوصول إلى الخادم</span> }
     }
-  </div>
-</app-sa-unavailable>
+  </p>
+  <p class="sa-apis-note">الأرقام مأخوذة من هذه العملية فقط ولا تشمل نسخًا أخرى من الخادم. حالة التكاملات الخارجية (الدفع، البريد) في صفحة مراقبة الصحة، وهي حالة تهيئة وليست قياس استجابة.</p>
+</app-sa-metrics-panel>

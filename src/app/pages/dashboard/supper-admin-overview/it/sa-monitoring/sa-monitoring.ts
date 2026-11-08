@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { BehaviorSubject, EMPTY, Subject, catchError, exhaustMap, map, merge, of, switchMap, timeout, timer } from 'rxjs';
-import { HealthItem, SystemSettingsApi } from '../../../../../core/services/system-settings.store';
+import { EscalationReadiness, HealthItem, SystemSettingsApi } from '../../../../../core/services/system-settings.store';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 
 const LABELS: Record<HealthItem['status'], string> = {
@@ -31,11 +31,14 @@ export class SaMonitoring implements OnInit {
   readonly busy = signal(false);
   readonly error = signal('');
   readonly history = signal<Check[]>([]);
+  readonly escalation = signal<EscalationReadiness | null>(null);
+  readonly escalationError = signal('');
   readonly labels = LABELS;
   readonly measured = computed(() => this.snapshot()?.items.filter(i => i.key === 'app' || i.key === 'database') ?? []);
   readonly configured = computed(() => this.snapshot()?.items.filter(i => i.key !== 'app' && i.key !== 'database') ?? []);
 
   ngOnInit() {
+    this.loadEscalation();
     merge(of(undefined), this.refresh, this.automatic.pipe(
       switchMap(enabled => enabled ? timer(CHECK_EVERY_MS, CHECK_EVERY_MS) : EMPTY),
     )).pipe(
@@ -72,6 +75,14 @@ export class SaMonitoring implements OnInit {
   }
 
   refreshNow() { this.refresh.next(); }
+
+  loadEscalation() {
+    this.escalationError.set('');
+    this.api.escalationReadiness().pipe(timeout(12_000), takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: r => { if (r.success && r.data && Array.isArray(r.data.preconditions)) this.escalation.set(r.data); else this.escalationError.set('تعذّر قراءة جاهزية التصعيد.'); },
+      error: () => this.escalationError.set('تعذّر قراءة جاهزية التصعيد.'),
+    });
+  }
 
   toggleAutomatic() {
     const enabled = !this.automaticEnabled();
