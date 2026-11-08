@@ -357,7 +357,7 @@ const RAW_ROUTES: Routes = [
     {
         path: 'monitoring',
         loadComponent: () => import('./it/sa-monitoring/sa-monitoring').then(m => m.SaMonitoring),
-        data: { title: 'Monitoring' }
+        data: { title: 'مراقبة صحة المنصة' }
     },
     {
         path: 'security',
