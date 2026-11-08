@@ -1,19 +1,12 @@
-<section class="it-page" dir="rtl">
-  <h1 class="sr-only">الخوادم والصحة</h1>
-
-  <div class="it-hdr">
-    <div>
-      <h2 class="it-ttl">لوحة البنية التقنية</h2>
-      <p class="it-sub">صحة الأنظمة وحالة الخوادم</p>
-    </div>
-  </div>
-
-  <!-- AI Cleanup Batch 3: uptime, response time, error rate, request rate and every
-       server card (CPU/memory/disk/queue values, regions, uptime days) were
-       hardcoded, and "refresh" randomly nudged them to look live. No infrastructure
-       metrics source is connected, so nothing is shown here until one exists. -->
-  <div class="na-card" role="status">
-    <div class="na-ttl">مراقبة الخوادم غير متاحة بعد</div>
-    <div class="na-sub">لا يوجد حاليا مصدر متصل لقياسات الخوادم (المعالج، الذاكرة، زمن التشغيل، معدل الطلبات)، لذلك لا تُعرض أي أرقام هنا. هذه اللوحة غير متاحة حاليًا.</div>
-  </div>
-</section>
+<app-sa-metrics-panel title="الخوادم والصحة" subtitle="قياسات عملية الخادم الحالية فقط" [keys]="['api_uptime','api_rss','api_heap','api_loop_p99']">
+  <section class="sa-host-na" data-testid="host-metrics-na" aria-label="مؤشرات غير متاحة">
+    <h2>غير متاح</h2>
+    <ul>
+      <li>استخدام المعالج والذاكرة والقرص للمضيف: يلزم وكيل قياس على الخادم المضيف (مثل node exporter) يوفّره فريق البنية.</li>
+      <li>حالة الحاويات وإعادة التشغيل: يلزم قراءة إحصاءات بيئة تشغيل الحاويات من فريق البنية.</li>
+      <li>مدة التوفر (uptime) عبر الزمن وتنبيهاته: يلزم مراقب توفّر خارجي.</li>
+      <li>الشبكة وموازن الحمل والمناطق: لا يوجد مصدر قياس لها في المنصة.</li>
+    </ul>
+    <p>الأرقام أعلاه تخص هذه العملية فقط ولا تمثل المضيف.</p>
+  </section>
+</app-sa-metrics-panel>

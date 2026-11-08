@@ -134,4 +134,19 @@ describe('platform monitoring', () => {
     expect(block.textContent).toContain('التصعيد الآلي مقفول');
     http.verify();
   });
+
+  it('ignores the deprecated cdn/backup items of /health: no duplicate cards next to the technical indicators', () => {
+    const { fixture, http, el } = mount();
+    http.expectOne(isHealth).flush({ success: true, data: { checkedAt: '2026-11-08T09:00:00Z', items: [
+      { key: 'database', label: 'قاعدة البيانات', status: 'ok', detail: 'استجابة 4 ms' },
+      { key: 'mail', label: 'البريد الإلكتروني', status: 'configured', detail: 'تهيئة فقط' },
+      { key: 'cdn', label: 'CDN وتسليم الملفات', status: 'unavailable', detail: 'DEPRECATED-CDN', deprecated: true },
+      { key: 'backup', label: 'النسخ الاحتياطي', status: 'unavailable', detail: 'DEPRECATED-BACKUP', deprecated: true },
+    ] } });
+    fixture.detectChanges();
+    expect(el.textContent).not.toContain('DEPRECATED-CDN');
+    expect(el.textContent).not.toContain('DEPRECATED-BACKUP');
+    expect(el.textContent).toContain('البريد الإلكتروني');
+    http.verify();
+  });
 });

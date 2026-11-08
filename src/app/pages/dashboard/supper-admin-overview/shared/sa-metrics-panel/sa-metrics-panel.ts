@@ -23,7 +23,9 @@ type Group = TechIndicator['group'];
 export class SaMetricsPanel implements OnInit {
   readonly title = input.required<string>();
   readonly subtitle = input<string>('');
-  readonly group = input.required<Group>();
+  readonly group = input<Group | null>(null);
+  /** explicit indicator keys (in this order) for pages that mix groups; otherwise every indicator of `group` */
+  readonly keys = input<string[] | null>(null);
 
   private readonly store = inject(TechnicalMetricsStore);
   private readonly destroyRef = inject(DestroyRef);
@@ -32,7 +34,10 @@ export class SaMetricsPanel implements OnInit {
   readonly busy = this.store.busy;
   readonly error = this.store.error;
   readonly data = this.store.data;
-  readonly items = computed(() => (this.data()?.indicators ?? []).filter(i => i.group === this.group()));
+  readonly items = computed(() => {
+    const all = this.data()?.indicators ?? [], keys = this.keys();
+    return keys ? keys.map(k => all.find(i => i.key === k)).filter((i): i is TechIndicator => !!i) : all.filter(i => i.group === this.group());
+  });
   readonly unavailableCount = computed(() => this.items().filter(i => i.status !== 'measured').length);
 
   ngOnInit() {

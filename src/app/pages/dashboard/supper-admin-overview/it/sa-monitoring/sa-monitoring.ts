@@ -46,8 +46,8 @@ export class SaMonitoring implements OnInit {
     const all = this.metrics.data()?.indicators ?? [];
     return SUMMARY.map(s => ({ ...s, item: all.find(i => i.key === s.key) })).filter(s => !!s.item) as Array<{ key: string; link: string; item: TechIndicator }>;
   });
-  readonly measured = computed(() => this.snapshot()?.items.filter(i => i.key === 'app' || i.key === 'database') ?? []);
-  readonly configured = computed(() => this.snapshot()?.items.filter(i => i.key !== 'app' && i.key !== 'database') ?? []);
+  readonly measured = computed(() => this.snapshot()?.items.filter(i => !i.deprecated && (i.key === 'app' || i.key === 'database')) ?? []);
+  readonly configured = computed(() => this.snapshot()?.items.filter(i => !i.deprecated && i.key !== 'app' && i.key !== 'database') ?? []);
 
   ngOnInit() {
     this.loadEscalation();

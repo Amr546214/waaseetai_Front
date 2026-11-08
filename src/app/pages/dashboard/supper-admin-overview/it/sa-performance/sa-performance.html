@@ -1,1 +1,11 @@
-<app-sa-unavailable title="إدارة Performance" subtitle="أداء التطبيق والخوادم" heading="قياس الأداء غير متاح بعد" reason="لا يوجد مصدر متصل يقيس أداء التطبيق أو زمن الاستجابة في المنصة حاليا، لذلك لا تُعرض أي أرقام أو رسوم بيانية هنا. المتاح فعليا هو سجل الأحداث الأمنية." linkLabel="فتح الأمان وسجل الأحداث" linkTo="/supper-admin-overview/it/security" />
+<app-sa-metrics-panel title="الأداء" subtitle="زمن الاستجابة والأخطاء من عدّاد داخلي، وزمن قاعدة البيانات من قياس مباشر"
+  [keys]="['api_p50','api_p95','api_p99','api_5xx_rate','api_requests','api_429','db_latency','db_conn_usage','db_cache_hit']">
+  <section class="sa-perf-na" data-testid="perf-na">
+    <h2>غير متاح</h2>
+    <ul>
+      <li>أبطأ نقاط API بالتفصيل: لا يُخزَّن أي مسار في العدّاد عمدًا؛ يلزم قرار خصوصية وأداة تتبّع (APM).</li>
+      <li>أداء المتصفح عند المستخدم (Web Vitals): يلزم جمع قياسات من الواجهة غير موجود.</li>
+      <li>الاتجاه التاريخي: العدّاد يحتفظ بآخر ١٥ دقيقة فقط؛ يلزم مخزن سلاسل زمنية خارجي.</li>
+    </ul>
+  </section>
+</app-sa-metrics-panel>
