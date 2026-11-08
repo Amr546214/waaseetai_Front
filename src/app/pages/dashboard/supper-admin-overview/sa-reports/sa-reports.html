@@ -6,7 +6,7 @@
       <button type="button" [attr.aria-pressed]="query().status === tab.key" (click)="setFilter(tab.key)">{{ tab.label }}</button>
     }
   </div>
-  <form class="report-controls" (ngSubmit)="applyFilters()">
+  <form class="report-controls" #filters="ngForm" (ngSubmit)="applyFilters()">
     <label>البحث بالاسم أو المعرّف
       <input name="search" type="search" [(ngModel)]="search" maxlength="100" placeholder="اسم الحساب أو الخدمة، أو معرّف البلاغ">
     </label>
@@ -16,7 +16,7 @@
       </select>
     </label>
     <button type="submit">بحث</button>
-    <button type="button" (click)="resetFilters()">إعادة ضبط الفلاتر</button>
+    <button type="button" (click)="resetFilters(filters)">إعادة ضبط الفلاتر</button>
   </form>
   @if (busy()) { <p role="status">جاري تحميل البلاغات…</p> }
   @else if (error()) {

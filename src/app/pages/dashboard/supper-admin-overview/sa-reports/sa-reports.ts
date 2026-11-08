@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { Subject, catchError, map, merge, of, switchMap } from 'rxjs';
 import { PlatformReportsApi, REPORT_STATUSES, REPORT_TARGETS, ReportPage, ReportQuery, ReportTarget } from './platform-reports.api';
@@ -67,9 +67,10 @@ export class SaReports implements OnInit {
 
   setFilter(status: ReportQuery['status']) { this.navigate({ ...this.query(), status, page: 1 }); }
   applyFilters() { this.navigate({ ...this.query(), search: this.search.trim().slice(0, 100), targetType: this.targetType || undefined, page: 1 }); }
-  resetFilters() {
+  resetFilters(form: NgForm) {
     this.search = '';
     this.targetType = '';
+    form.resetForm({ search: '', targetType: '' });
     this.navigate({ status: 'OPEN', page: 1 });
   }
   load(page: number) { this.navigate({ ...this.query(), page }); }
