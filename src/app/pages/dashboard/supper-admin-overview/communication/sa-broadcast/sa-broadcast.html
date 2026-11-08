@@ -1,1 +1,219 @@
-<app-sa-unavailable title="Broadcast — رسائل جماعية" subtitle="إرسال رسائل مستهدفة لشرائح المستخدمين" heading="الإرسال الجماعي غير متاح بعد" reason="لا يوجد نظام حملات أو رسائل جماعية في المنصة بعد، لذلك لا يمكن إرسال رسائل ولا تُعرض حملات سابقة أو أعداد مستلمين." disabledLabel="إرسال رسالة جماعية" disabledReason="لا يوجد نظام إرسال جماعي" />
+<section class="broadcast-workspace" dir="rtl">
+  <h1>البث الجماعي</h1>
+  <p>الرسالة تُحفظ كمسودة على الخادم وتظهر لك بعد تحديث الصفحة. المعاينة لا ترسل شيئًا، والإرسال يصل كإشعار داخل المنصة فقط.</p>
+  @if (stuckCount > 0) {
+    <p class="broadcast-alert" role="alert" aria-label="تنبيه إرسال عالق">يوجد {{ stuckCount }} إرسال عالق أو متوقف أثناء التنفيذ. راجع «طابور البث» أدناه وألغِ ما لم يعد مطلوبًا قبل تفعيل العامل.</p>
+  } @else if (queue()?.summary; as qs) {
+    @if (qs.waitingDisabled > 0) { <p class="broadcast-notice" role="status" aria-label="إرسال بانتظار العامل">يوجد {{ qs.waitingDisabled }} إرسال في الانتظار والعامل مقفول. راجعها في «طابور البث» قبل تفعيل العامل.</p> }
+  }
+
+  @if (result(); as r) {
+    <section class="broadcast-card" aria-label="نتيجة الإرسال">
+      <h2>حالة الإرسال: <span aria-label="الحالة">{{ statusLabel(r.status) }}</span></h2>
+      <p><strong>{{ r.title }}</strong> إلى {{ audienceLabel(r.audience) }}</p>
+      @if (isRunning(r.status)) {
+        <progress aria-label="تقدّم الإرسال" [max]="r.totals.audience" [value]="r.totals.sent + r.totals.failed"></progress>
+        <p role="status">{{ progressPercent(r) }}% ({{ r.totals.sent + r.totals.failed }} من {{ r.totals.audience }})</p>
+        @if (r.status === 'QUEUED') { <p>الإرسال في قائمة الانتظار وسيبدأ تلقائيًا. تقدر تغلق الصفحة، وستجده في السجل.</p> }
+        @else if (r.lastProgressAt) { <p>آخر تقدّم: <time [attr.datetime]="r.lastProgressAt">{{ r.lastProgressAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time></p> }
+      }
+      <ul>
+        <li>الجمهور: {{ r.totals.audience }}</li>
+        <li>أُرسل: {{ r.totals.sent }}</li>
+        <li>فشل: {{ r.totals.failed }}</li>
+        @if (r.totals.skipped) { <li>تخطّي (لم يعد مؤهلًا): {{ r.totals.skipped }}</li> }
+        <li>متبقٍ: {{ r.totals.pending }}</li>
+      </ul>
+      @if (!isRunning(r.status) && (r.totals.failed || r.totals.pending)) {
+        <p role="alert">لم يصل الإشعار لبعض المستلمين. إعادة المحاولة تكمل المتبقين فقط ولا تكرر من وصلهم.</p>
+        @if (deliveryEnabled() === false) { <p role="alert" aria-label="الإرسال غير مفعّل">{{ deliveryOffText }}</p> }
+        <button type="button" (click)="retryRemaining()" [disabled]="retrying() || deliveryEnabled() === false">{{ retrying() ? 'جاري الإعادة…' : 'إعادة إرسال المتبقي' }}</button>
+      }
+      @if (sendError()) { <p role="alert">{{ sendError() }}</p> }
+      @if (!isRunning(r.status)) { <button type="button" (click)="newMessage()">رسالة جديدة</button> }
+    </section>
+  } @else {
+    @if (draftLoading()) { <p role="status">جاري استرجاع المسودة…</p> }
+
+    <section class="broadcast-card" aria-label="مسودة الرسالة">
+      <h2>الرسالة</h2>
+      <a routerLink="/supper-admin-overview/communication/notifications">إدارة قوالب الإشعارات</a>
+      @if (templatesLoading()) { <p role="status">جاري تحميل القوالب…</p> }
+      @else if (templatesError()) {
+        <p role="alert">{{ templatesError() }}</p><button type="button" (click)="retryTemplates()">إعادة المحاولة</button>
+      }
+      @else if (templates(); as list) {
+        @if (list.items.length) {
+          <label>قالب اختياري
+            <select [(ngModel)]="selectedTemplateId">
+              <option value="">اختر قالبًا</option>
+              @for (item of list.items; track item.id) { <option [value]="item.id">{{ item.name }}</option> }
+            </select>
+          </label>
+          <button type="button" (click)="useTemplate()" [disabled]="!selectedTemplateId">نسخ محتوى القالب للمسودة</button>
+        }
+        @if (list.page > 1 || list.hasNext) {
+          <nav aria-label="صفحات القوالب">
+            <button type="button" [disabled]="list.page === 1" (click)="loadTemplates(list.page - 1)">السابق</button>
+            <span>صفحة {{ list.page }}</span>
+            <button type="button" [disabled]="!list.hasNext" (click)="loadTemplates(list.page + 1)">التالي</button>
+          </nav>
+        }
+      }
+      <label>العنوان<input type="text" maxlength="150" [(ngModel)]="title" (ngModelChange)="edited()"></label>
+      <label>النص<textarea rows="5" maxlength="2000" [(ngModel)]="message" (ngModelChange)="edited()"></textarea></label>
+      <label>الفئة
+        <select [(ngModel)]="category" (ngModelChange)="edited()">
+          @for (option of categories; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
+        </select>
+      </label>
+      <label>الجمهور (الحسابات النشطة وغير المحظورة حسب نوع الحساب الأساسي)
+        <select [ngModel]="audience" (ngModelChange)="setAudience($event)">
+          <option value="">اختر الفئة</option>
+          @for (option of audiences; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
+        </select>
+      </label>
+      <div class="broadcast-preview" aria-label="معاينة الرسالة">
+        <strong>{{ title.trim() || 'عنوان الإشعار' }}</strong>
+        <p>{{ message.trim() || 'نص الإشعار' }}</p>
+      </div>
+
+      <div class="broadcast-row">
+        <button type="button" (click)="save()" [disabled]="saveState() === 'saving' || !!conflict()">حفظ المسودة</button>
+        <button type="button" (click)="discardDraft()" [disabled]="saveState() === 'saving'">حذف المسودة</button>
+        <span role="status" aria-label="حالة الحفظ">
+          @switch (saveState()) {
+            @case ('saving') { جاري الحفظ… }
+            @case ('saved') { تم الحفظ في <time [attr.datetime]="savedAt()">{{ savedAt() | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time> }
+            @case ('error') { لم يُحفظ }
+            @default { {{ draft() ? 'محفوظة' : 'لم تُحفظ بعد' }} }
+          }
+        </span>
+      </div>
+      @if (saveError()) { <p role="alert">{{ saveError() }}</p> }
+      @if (conflict(); as c) {
+        <div role="alert" aria-label="تعارض في المسودة">
+          <p>المسودة اتعدّلت من جلسة أخرى أو تبويب آخر (النسخة {{ c.version }}). لم نكتب فوقها.</p>
+          <p>نسخة الخادم: <strong>{{ c.title || 'بدون عنوان' }}</strong></p>
+          <button type="button" (click)="useServerCopy()">استخدم نسخة الخادم</button>
+          <button type="button" (click)="keepMine()">احتفظ بنسختي واحفظ فوقها</button>
+        </div>
+      }
+    </section>
+
+    <section class="broadcast-card" aria-label="المعاينة والإرسال">
+      <h2>المعاينة والإرسال</h2>
+      <button type="button" (click)="requestPreview()" [disabled]="!canPreview">{{ previewing() ? 'جاري حساب الجمهور…' : 'معاينة الجمهور' }}</button>
+      @if (deliveryEnabled() === false) { <p role="alert" aria-label="الإرسال غير مفعّل">{{ deliveryOffText }}</p> }
+      @if (previewError()) { <p role="alert">{{ previewError() }}</p> }
+      @if (previewStale()) { <p role="alert" aria-label="معاينة قديمة">{{ previewStale() }}</p> }
+      @if (preview(); as p) {
+        <p role="status">الحسابات المؤهلة الآن: <strong>{{ p.count }}</strong> (وقت المعاينة <time [attr.datetime]="p.checkedAt">{{ p.checkedAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time>)</p>
+        @if (p.canSend) {
+          <button type="button" (click)="confirmAndSend()" [disabled]="sending() || !!conflict() || deliveryEnabled() === false">{{ sending() ? 'جاري الإرسال…' : 'مراجعة وإرسال' }}</button>
+        } @else {
+          <p role="alert">لا يوجد مستلمون مؤهلون في هذا الجمهور، ولا يمكن الإرسال.</p>
+        }
+      }
+      @if (sendError()) {
+        <p role="alert">{{ sendError() }}</p>
+        @if (hasPendingAttempt) { <button type="button" (click)="retrySend()" [disabled]="sending()">إعادة المحاولة</button> }
+      }
+    </section>
+  }
+
+  <section class="broadcast-card" aria-label="طابور البث">
+    <h2>طابور البث</h2>
+    <p>الإرسالات في الانتظار أو الجارية أو العالقة. لا تُعرض نصوص الرسائل هنا. لا يُرسل شيء من الطابور طالما العامل مقفول.</p>
+    @if (preflight(); as pf) {
+      @if (pf.canEnableSafely) { <p class="preflight ok" role="status" aria-label="الفحص قبل التفعيل">جاهز للتفعيل: لا توجد إرسالات قديمة أو عالقة أو غير مُراجَعة.</p> }
+      @else {
+        <div class="preflight bad" role="alert" aria-label="الفحص قبل التفعيل">
+          <strong>غير آمن للتفعيل بعد:</strong>
+          <ul>@for (b of pf.blockers; track b.code) { <li>{{ b.count }} — {{ b.message }}</li> }</ul>
+        </div>
+      }
+    }
+    @if (queueError()) { <p role="alert">{{ queueError() }}</p> }
+    @if (queue(); as q) {
+      <p role="status">العامل: {{ q.summary.workerEnabled ? 'مفعّل' : 'مقفول' }} · في الانتظار {{ q.summary.waitingDisabled + q.summary.waitingForWorker }} · يعمل {{ q.summary.running }} · عالقة {{ q.summary.stuckMidRun + q.summary.stuckNoProgress }}</p>
+      @if (!q.items.length) { <p>الطابور فارغ.</p> }
+      @for (job of q.items; track job.id) {
+        <article class="broadcast-history-item" [attr.data-state]="job.queueState">
+          <strong>{{ job.title }}</strong>
+          <span class="queue-state" [class]="'queue-state s-' + job.queueState">{{ queueLabel(job.queueState) }}</span>
+          <span>المرسل: {{ job.sender.name }}</span>
+          <span>{{ audienceLabel(job.audience) }} · {{ categoryLabel(job.category) }}</span>
+          <span>الانتظار: {{ waitText(job.waitingSeconds) }}</span>
+          <span>آخر تحديث: @if (job.lastProgressAt) { <time [attr.datetime]="job.lastProgressAt">{{ job.lastProgressAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time> } @else { لا يوجد }</span>
+          <span>الجمهور {{ job.totals.audience }} · أُرسل {{ job.totals.sent }} · فشل {{ job.totals.failed }} · متبقٍ {{ job.totals.pending }}</span>
+          <span>العمر: {{ waitText(job.ageSeconds ?? null) }} · {{ job.reviewed ? 'تمت المراجعة' : 'لم تُراجَع' }}</span>
+          @if (canReview(job)) { <button type="button" (click)="openReview(job)">تمت المراجعة</button> }
+          @if (canApprove(job)) { <button type="button" (click)="openApprove(job)">اعتماد الإرسال</button> }
+          @if (canCancel(job)) { <button type="button" (click)="openCancel(job)">إلغاء</button> }
+        </article>
+      }
+    }
+    @if (cancelTarget(); as t) {
+      <div class="broadcast-preview" aria-label="إلغاء إرسال">
+        <strong>{{ actionKind() === 'cancel' ? 'إلغاء' : actionKind() === 'review' ? 'مراجعة' : 'إعادة اعتماد' }}: {{ t.title }}</strong>
+        @if (actionKind() !== 'review') {
+        <label>{{ actionKind() === 'approve' ? 'السبب (مطلوب)' : 'السبب (اختياري)' }}<input type="text" maxlength="200" [(ngModel)]="cancelReason"></label>
+        }
+        @if (actionKind() === 'approve') {
+          <p>لا يُضاف أي مستلم خارج الجمهور الأصلي ولا يصل الإشعار لأحد مرتين. الاعتماد يعلّم الإرسال فقط؛ لا يُرسل شيء طالما العامل مقفول.</p>
+          <button type="button" (click)="reviewRecipients()" [disabled]="reapprovalBusy() || cancelBusy()">{{ reapprovalBusy() ? 'جاري المراجعة…' : 'مراجعة المستلمين' }}</button>
+          @if (reapprovalStale()) { <p role="alert" aria-label="تغيّر المستلمون">{{ reapprovalStale() }}</p> }
+          @if (reapproval(); as ra) {
+            <ul aria-label="أرقام المراجعة">
+              <li>الجمهور الأصلي: {{ ra.originalAudienceCount }}</li>
+              <li>وصلهم الإشعار فعلًا: {{ ra.alreadyDelivered }}</li>
+              <li>ما زالوا مؤهلين الآن (لم يصلهم بعد): {{ ra.pendingEligibleCount }}</li>
+              <li>لم يعودوا مؤهلين: {{ ra.ineligibleNow.total }}@for (r of reasonEntries(ra); track r[0]) { · {{ reasonLabel(r[0]) }} {{ r[1] }} }</li>
+              @if (ra.ageSeconds !== undefined) { <li>العمر: {{ waitText(ra.ageSeconds) }}</li> }
+            </ul>
+          }
+        }
+        @if (cancelError()) { <p role="alert">{{ cancelError() }}</p> }
+        <button type="button" (click)="confirmAction()" [disabled]="cancelBusy() || (actionKind() === 'approve' && !reapproval()?.reapprovalToken)">متابعة</button>
+        <button type="button" (click)="closeCancel()" [disabled]="cancelBusy()">تراجع</button>
+      </div>
+    }
+  </section>
+
+  <section class="broadcast-card" aria-label="سجل البث">
+    <h2>سجل البث</h2>
+    @if (historyError()) { <p role="alert">{{ historyError() }}</p><button type="button" (click)="loadHistory(history()?.page ?? 1)">إعادة المحاولة</button> }
+    @if (history(); as h) {
+      @if (!h.items.length) { <p>لم يُرسل أي بث بعد.</p> }
+      @for (item of h.items; track item.id) {
+        <article class="broadcast-history-item">
+          <strong>{{ item.title }}</strong>
+          <span>{{ statusLabel(item.status) }}</span>
+          <span>{{ audienceLabel(item.audience) }} · {{ categoryLabel(item.category) }}</span>
+          <span>المرسل: {{ item.sender.name }}</span>
+          <time [attr.datetime]="item.createdAt">{{ item.createdAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time>
+          <span>الجمهور {{ item.totals.audience }} · أُرسل {{ item.totals.sent }} · فشل {{ item.totals.failed }}@if (item.totals.skipped) { · تخطّي {{ item.totals.skipped }} }</span>
+          <button type="button" (click)="openDetail(item.id)">التفاصيل</button>
+        </article>
+      }
+      @if (h.page > 1 || h.hasNext) {
+        <nav aria-label="صفحات السجل">
+          <button type="button" [disabled]="h.page === 1" (click)="loadHistory(h.page - 1)">السابق</button>
+          <span>صفحة {{ h.page }}</span>
+          <button type="button" [disabled]="!h.hasNext" (click)="loadHistory(h.page + 1)">التالي</button>
+        </nav>
+      }
+    }
+    @if (detailError()) { <p role="alert">{{ detailError() }}</p> }
+    @if (detail(); as d) {
+      <div class="broadcast-preview" aria-label="تفاصيل الإرسال">
+        <strong>{{ d.title }}</strong>
+        <p>{{ d.message }}</p>
+        <p>الحالة: {{ statusLabel(d.status) }} · الجمهور {{ d.totals.audience }} · أُرسل {{ d.totals.sent }} · فشل {{ d.totals.failed }} · متبقٍ {{ d.totals.pending }}</p>
+        @for (f of d.failureCodes; track f.code) { <p>سبب الفشل {{ f.code }}: {{ f.count }}</p> }
+        <button type="button" (click)="closeDetail()">إغلاق</button>
+      </div>
+    }
+  </section>
+</section>
