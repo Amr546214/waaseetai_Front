@@ -384,13 +384,53 @@ describe('SaBroadcast', () => {
       c.openReview(expired as any); let p = c.confirmAction(); await flushAsync();
       let text = confirmArgs.message as string; expect(text).toContain('المرسل: مدير'); expect(text).toContain('3 يوم'); expect(text).toContain('أُرسل 0'); expect(text).not.toContain('SECRET-BODY'); expect(confirmArgs.title).toContain('مراجعة');
       await done('/broadcasts/e1/review', {}); await p;
-      c.openApprove(expired as any); c.cancelReason = 'ab'; await c.confirmAction(); expect(c.cancelError()).toContain('3 أحرف'); http.expectNone(r => r.url.endsWith('/approve-send'));
+      c.openApprove(expired as any); await c.confirmAction(); expect(c.cancelError()).toContain('راجِع المستلمين أولًا'); http.expectNone(r => r.url.endsWith('/approve-send'));
+      const rv = c.reviewRecipients(); await flushAsync();
+      route(http, 'GET', '/broadcasts/e1/reapproval-preview').flush({ data: { originalAudienceCount: 10, alreadyDelivered: 3, pendingEligibleCount: 5, ineligibleNow: { total: 2, byReason: { BANNED: 1, NOT_ACTIVE: 1 } }, ageSeconds: 259200, reapprovalToken: 'tok.sig' } }); await rv;
+      c.cancelReason = 'ab'; await c.confirmAction(); expect(c.cancelError()).toContain('3 أحرف'); http.expectNone(r => r.url.endsWith('/approve-send'));
       c.cancelReason = 'ما زالت مطلوبة'; p = c.confirmAction(); await flushAsync();
       expect(confirmArgs.message).toContain('ما زالت مطلوبة'); expect(confirmArgs.message).toContain('لا يُرسل شيء طالما العامل مقفول');
-      await done('/broadcasts/e1/approve-send', { reason: 'ما زالت مطلوبة' }); await p;
+      expect(confirmArgs.message).toContain('ما زالوا مؤهلين الآن 5'); expect(confirmArgs.message).toContain('لن يُضاف أي مستلم'); expect(confirmArgs.message).toContain('3 يوم');
+      await done('/broadcasts/e1/approve-send', { reason: 'ما زالت مطلوبة', reapprovalToken: 'tok.sig' }); await p;
       c.openCancel(expired as any); c.cancelReason = 'قديمة'; p = c.confirmAction(); await flushAsync();
       await done('/broadcasts/e1/cancel', { reason: 'قديمة' }); await p;
       confirmAnswer = false; c.openReview(expired as any); await c.confirmAction(); http.expectNone(r => r.url.endsWith('/review'));
+    });
+  });
+
+  describe('re-approval review', () => {
+    const expiredJob = job('EXPIRED_NEEDS_REVIEW', { id: 'e1', ageSeconds: 3 * 86400, reviewed: false });
+    const facts = (over: Record<string, unknown> = {}) => ({ originalAudienceCount: 10, alreadyDelivered: 3, pendingEligibleCount: 5, ineligibleNow: { total: 2, byReason: { BANNED: 1, NOT_ACTIVE: 1 } }, ageSeconds: 259200, reapprovalToken: 'tok-1', ...over });
+    it('step 1 shows the live numbers by reason and the guarantees; confirm stays disabled until reviewed', async () => {
+      const { c, http, fixture, el } = setup(null, null, true, { items: [expiredJob], summary: summaryOf({ expiredNeedsReview: 1 }) });
+      c.openApprove(expiredJob as any); fixture.detectChanges();
+      const confirmBtn = () => Array.from(el.querySelectorAll('[aria-label="إلغاء إرسال"] button')).find(b => b.textContent!.includes('متابعة')) as HTMLButtonElement;
+      expect(confirmBtn().disabled).toBe(true); expect(el.textContent).toContain('لا يُضاف أي مستلم خارج الجمهور الأصلي'); expect(el.textContent).toContain('لا يُرسل شيء طالما العامل مقفول');
+      const rv = c.reviewRecipients(); await flushAsync(); route(http, 'GET', '/broadcasts/e1/reapproval-preview').flush({ data: facts() }); await rv; fixture.detectChanges();
+      const t = el.querySelector('[aria-label="أرقام المراجعة"]')!.textContent!;
+      expect(t).toContain('الجمهور الأصلي: 10'); expect(t).toContain('وصلهم الإشعار فعلًا: 3'); expect(t).toContain('ما زالوا مؤهلين الآن (لم يصلهم بعد): 5'); expect(t).toContain('لم يعودوا مؤهلين: 2'); expect(t).toContain('محظور 1'); expect(t).toContain('غير نشط 1'); expect(t).toContain('3 يوم');
+      expect(confirmBtn().disabled).toBe(false);
+    });
+    it('a stale answer shows the Arabic message with the fresh numbers and requires a new review', async () => {
+      const { c, http, fixture, el } = setup(null, null, true, { items: [expiredJob], summary: summaryOf() });
+      c.openApprove(expiredJob as any);
+      let rv = c.reviewRecipients(); await flushAsync(); route(http, 'GET', '/broadcasts/e1/reapproval-preview').flush({ data: facts() }); await rv;
+      c.cancelReason = 'سبب كاف'; const p = c.confirmAction(); await flushAsync();
+      route(http, 'POST', '/broadcasts/e1/approve-send').flush({ code: 'REAPPROVAL_STALE', data: { fresh: facts({ pendingEligibleCount: 4, ineligibleNow: { total: 3, byReason: { BANNED: 2, NOT_ACTIVE: 1 } }, reapprovalToken: undefined }) } }, { status: 409, statusText: 'Conflict' }); await flushAsync();
+      http.expectOne(r => r.url.endsWith('/queue/preflight')).flush({ data: pfOf() }); http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: { items: [expiredJob], summary: summaryOf() } }); await p;
+      fixture.detectChanges();
+      expect(el.querySelector('[aria-label="تغيّر المستلمون"]')!.textContent).toContain('تغيّر المستلمون بعد المراجعة — راجِع من جديد');
+      expect(el.querySelector('[aria-label="أرقام المراجعة"]')!.textContent).toContain('ما زالوا مؤهلين الآن (لم يصلهم بعد): 4'); expect(c.reapproval()?.reapprovalToken).toBeNull();
+      await c.confirmAction(); http.expectNone(r => r.url.endsWith('/approve-send')); expect(c.cancelError()).toContain('راجِع المستلمين أولًا');
+      rv = c.reviewRecipients(); await flushAsync(); route(http, 'GET', '/broadcasts/e1/reapproval-preview').flush({ data: facts({ pendingEligibleCount: 4, reapprovalToken: 'tok-2' }) }); await rv;
+      expect(c.reapproval()?.reapprovalToken).toBe('tok-2'); expect(c.reapprovalStale()).toBe('');
+    });
+    it('shows skipped recipients apart from failed in history', () => {
+      const { c, http, fixture, el } = setup();
+      c.loadHistory(1);
+      http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [view({ totals: { audience: 7, sent: 5, failed: 0, pending: 0, cancelled: 0, skipped: 2 } })] } });
+      fixture.detectChanges();
+      expect(el.querySelector('.broadcast-history-item')!.textContent).toContain('فشل 0 · تخطّي 2');
     });
   });
 });

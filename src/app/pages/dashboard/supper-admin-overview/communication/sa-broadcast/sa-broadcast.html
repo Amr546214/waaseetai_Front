@@ -21,6 +21,7 @@
         <li>الجمهور: {{ r.totals.audience }}</li>
         <li>أُرسل: {{ r.totals.sent }}</li>
         <li>فشل: {{ r.totals.failed }}</li>
+        @if (r.totals.skipped) { <li>تخطّي (لم يعد مؤهلًا): {{ r.totals.skipped }}</li> }
         <li>متبقٍ: {{ r.totals.pending }}</li>
       </ul>
       @if (!isRunning(r.status) && (r.totals.failed || r.totals.pending)) {
@@ -159,8 +160,22 @@
         @if (actionKind() !== 'review') {
         <label>{{ actionKind() === 'approve' ? 'السبب (مطلوب)' : 'السبب (اختياري)' }}<input type="text" maxlength="200" [(ngModel)]="cancelReason"></label>
         }
+        @if (actionKind() === 'approve') {
+          <p>لا يُضاف أي مستلم خارج الجمهور الأصلي ولا يصل الإشعار لأحد مرتين. الاعتماد يعلّم الإرسال فقط؛ لا يُرسل شيء طالما العامل مقفول.</p>
+          <button type="button" (click)="reviewRecipients()" [disabled]="reapprovalBusy() || cancelBusy()">{{ reapprovalBusy() ? 'جاري المراجعة…' : 'مراجعة المستلمين' }}</button>
+          @if (reapprovalStale()) { <p role="alert" aria-label="تغيّر المستلمون">{{ reapprovalStale() }}</p> }
+          @if (reapproval(); as ra) {
+            <ul aria-label="أرقام المراجعة">
+              <li>الجمهور الأصلي: {{ ra.originalAudienceCount }}</li>
+              <li>وصلهم الإشعار فعلًا: {{ ra.alreadyDelivered }}</li>
+              <li>ما زالوا مؤهلين الآن (لم يصلهم بعد): {{ ra.pendingEligibleCount }}</li>
+              <li>لم يعودوا مؤهلين: {{ ra.ineligibleNow.total }}@for (r of reasonEntries(ra); track r[0]) { · {{ reasonLabel(r[0]) }} {{ r[1] }} }</li>
+              @if (ra.ageSeconds !== undefined) { <li>العمر: {{ waitText(ra.ageSeconds) }}</li> }
+            </ul>
+          }
+        }
         @if (cancelError()) { <p role="alert">{{ cancelError() }}</p> }
-        <button type="button" (click)="confirmAction()" [disabled]="cancelBusy()">متابعة</button>
+        <button type="button" (click)="confirmAction()" [disabled]="cancelBusy() || (actionKind() === 'approve' && !reapproval()?.reapprovalToken)">متابعة</button>
         <button type="button" (click)="closeCancel()" [disabled]="cancelBusy()">تراجع</button>
       </div>
     }
@@ -178,7 +193,7 @@
           <span>{{ audienceLabel(item.audience) }} · {{ categoryLabel(item.category) }}</span>
           <span>المرسل: {{ item.sender.name }}</span>
           <time [attr.datetime]="item.createdAt">{{ item.createdAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time>
-          <span>الجمهور {{ item.totals.audience }} · أُرسل {{ item.totals.sent }} · فشل {{ item.totals.failed }}</span>
+          <span>الجمهور {{ item.totals.audience }} · أُرسل {{ item.totals.sent }} · فشل {{ item.totals.failed }}@if (item.totals.skipped) { · تخطّي {{ item.totals.skipped }} }</span>
           <button type="button" (click)="openDetail(item.id)">التفاصيل</button>
         </article>
       }

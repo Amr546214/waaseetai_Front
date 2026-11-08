@@ -25,7 +25,9 @@ export type Audience = typeof AUDIENCES[number]['value'];
 export type Category = typeof CATEGORIES[number]['value'];
 export type Draft = { id: string; title: string; message: string; category: Category; audience: Audience | null; version: number; updatedAt: string };
 export type Preview = { deliveryEnabled?: boolean; draftId: string; version: number; audience: Audience; count: number; checkedAt: string; canSend: boolean; previewToken: string };
-export type Totals = { audience: number; sent: number; failed: number; pending: number; cancelled?: number };
+export type Totals = { audience: number; sent: number; failed: number; pending: number; cancelled?: number; skipped?: number };
+export type Reapproval = { originalAudienceCount: number; alreadyDelivered: number; pendingEligibleCount: number; ineligibleNow: { total: number; byReason: Record<string, number> }; ageSeconds?: number; checkedAt?: string; reapprovalToken?: string | null };
+export const REASON_LABELS: Record<string, string> = { USER_MISSING: 'الحساب لم يعد موجودًا', BANNED: 'محظور', NOT_ACTIVE: 'غير نشط', WRONG_AUDIENCE: 'لم يعد ضمن الفئة' };
 export type BroadcastView = { id: string; sender: { id: string; name: string }; title: string; category: Category; audience: Audience; status: string; totals: Totals; createdAt: string; completedAt: string | null; lastProgressAt: string | null };
 export type BroadcastDetail = BroadcastView & { message: string; failureCodes: { code: string; count: number }[] };
 export type QueueState = 'WAITING_WORKER_DISABLED' | 'WAITING_FOR_WORKER' | 'RUNNING' | 'STUCK_STOPPED_MID_RUN' | 'STUCK_NO_PROGRESS' | 'EXPIRED_NEEDS_REVIEW';
@@ -95,6 +97,9 @@ export class SaBroadcast implements OnInit {
   readonly queue = signal<{ items: QueueItem[]; summary: QueueSummary } | null>(null);
   readonly queueError = signal('');
   readonly preflight = signal<Preflight | null>(null);
+  readonly reapproval = signal<Reapproval | null>(null);
+  readonly reapprovalStale = signal('');
+  readonly reapprovalBusy = signal(false);
   readonly actionKind = signal<'cancel' | 'review' | 'approve'>('cancel');
   readonly cancelTarget = signal<QueueItem | null>(null);
   readonly cancelBusy = signal(false);
@@ -286,7 +291,7 @@ export class SaBroadcast implements OnInit {
 
   // ---- live progress -------------------------------------------------------------------------------------------------------------------------
   isRunning(status: string | undefined) { return status === 'QUEUED' || status === 'SENDING'; }
-  progressPercent(r: BroadcastView) { return r.totals.audience ? Math.min(100, Math.round(((r.totals.sent + r.totals.failed) / r.totals.audience) * 100)) : 0; }
+  progressPercent(r: BroadcastView) { return r.totals.audience ? Math.min(100, Math.round(((r.totals.sent + r.totals.failed + (r.totals.skipped ?? 0)) / r.totals.audience) * 100)) : 0; }
   startPolling() {
     if (this.poller || !this.isRunning(this.result()?.status)) return;
     this.poller = setInterval(() => { void this.pollOnce(); }, Math.max(3000, this.pollMs));
@@ -335,32 +340,51 @@ export class SaBroadcast implements OnInit {
   openAction(kind: 'cancel' | 'review' | 'approve', i: QueueItem) { this.actionKind.set(kind); this.cancelTarget.set(i); this.cancelReason = ''; this.cancelError.set(''); }
   openCancel(i: QueueItem) { this.openAction('cancel', i); }
   openReview(i: QueueItem) { this.openAction('review', i); }
-  openApprove(i: QueueItem) { this.openAction('approve', i); }
+  openApprove(i: QueueItem) { this.openAction('approve', i); this.reapproval.set(null); this.reapprovalStale.set(''); }
+  reasonLabel(code: string) { return REASON_LABELS[code] ?? code; }
+  reasonEntries(r: Reapproval) { return Object.entries(r.ineligibleNow.byReason); }
+  /** step 1 of re-approval: live facts about who would still receive it */
+  async reviewRecipients() {
+    const t = this.cancelTarget();
+    if (!t || this.reapprovalBusy()) return;
+    this.reapprovalBusy.set(true); this.cancelError.set(''); this.reapprovalStale.set(''); this.reapproval.set(null);
+    try { this.reapproval.set((await firstValueFrom(this.http.get<{ data: Reapproval }>(`${this.api}/${t.id}/reapproval-preview`))).data); }
+    catch { this.cancelError.set('تعذّرت مراجعة المستلمين. حاول مرة أخرى.'); }
+    finally { this.reapprovalBusy.set(false); }
+  }
   closeCancel() { this.cancelTarget.set(null); }
   confirmCancel() { return this.confirmAction(); }
   async confirmAction() {
     const t = this.cancelTarget(); const kind = this.actionKind();
     if (!t || this.cancelBusy()) return;
     const reason = this.cancelReason.trim().slice(0, 200);
+    if (kind === 'approve' && !this.reapproval()?.reapprovalToken) { this.cancelError.set('راجِع المستلمين أولًا (مراجعة المستلمين) ثم أكّد.'); return; }
     if (kind === 'approve' && reason.length < 3) { this.cancelError.set('اكتب سبب إعادة الاعتماد (3 أحرف على الأقل).'); return; }
     this.cancelBusy.set(true); this.cancelError.set('');
     const texts = {
       cancel: { title: 'تأكيد إلغاء الإرسال', type: 'danger' as const, confirmText: 'إلغاء الإرسال', note: 'سيُلغى المتبقون فقط، ومن وصلهم الإشعار يبقى كما هو، ولا يمكن التراجع.', path: 'cancel', body: reason ? { reason } : {} },
       review: { title: 'تأكيد مراجعة الإرسال', type: 'info' as const, confirmText: 'تمت المراجعة', note: 'تعني أنك راجعته وتقبل إرساله عند تفعيل العامل. لا يُرسل شيء الآن.', path: 'review', body: {} },
-      approve: { title: 'تأكيد إعادة اعتماد إرسال منتهي الصلاحية', type: 'warning' as const, confirmText: 'اعتماد الإرسال', note: 'سيصبح قابلًا للإرسال بعد تفعيل العامل رغم قِدمه. لا يُرسل شيء طالما العامل مقفول.', path: 'approve-send', body: { reason } },
+      approve: { title: 'تأكيد إعادة اعتماد إرسال منتهي الصلاحية', type: 'warning' as const, confirmText: 'اعتماد الإرسال', note: 'سيصبح قابلًا للإرسال بعد تفعيل العامل رغم قِدمه. لا يُرسل شيء طالما العامل مقفول.', path: 'approve-send', body: { reason, reapprovalToken: this.reapproval()?.reapprovalToken } },
     }[kind];
     try {
       const ok = await this.confirmModal.confirm({ title: texts.title, type: texts.type, size: 'md', confirmText: texts.confirmText, message: [
         `العنوان: ${t.title}`, `المرسل: ${t.sender.name}`, `الفئة: ${this.categoryLabel(t.category)} — الجمهور: ${this.audienceLabel(t.audience)}`,
         `العمر في الطابور: ${this.waitText(t.ageSeconds ?? t.waitingSeconds)}`,
         `الجمهور ${t.totals.audience} · أُرسل ${t.totals.sent} · فشل ${t.totals.failed} · متبقٍ ${t.totals.pending}`,
+        ...(kind === 'approve' && this.reapproval() ? [`الأصلي ${this.reapproval()!.originalAudienceCount} · وصلهم ${this.reapproval()!.alreadyDelivered} · ما زالوا مؤهلين الآن ${this.reapproval()!.pendingEligibleCount} · لم يعودوا مؤهلين ${this.reapproval()!.ineligibleNow.total}`, 'لن يُضاف أي مستلم خارج الجمهور الأصلي ولن يصل الإشعار لأحد مرتين.'] : []),
         ...(reason ? [`السبب: ${reason}`] : []), texts.note].join('\n') });
       if (!ok) return;
       await firstValueFrom(this.http.post(`${this.api}/${t.id}/${texts.path}`, texts.body));
       this.cancelTarget.set(null); await this.loadQueue(); this.loadHistory(this.history()?.page ?? 1);
     } catch (e) {
       const code = errorBody(e)?.code;
-      this.cancelError.set(code === 'BROADCAST_RUNNING' ? 'الإرسال يعمل الآن ولا يمكن إلغاؤه أثناء التنفيذ.' : code === 'BROADCAST_NOT_CANCELLABLE' || code === 'BROADCAST_NOT_APPROVABLE' || code === 'BROADCAST_NOT_REVIEWABLE' ? 'هذا الإرسال انتهى أو أُلغي ولا يمكن تنفيذ الإجراء عليه.' : code === 'BROADCAST_NOT_EXPIRED' ? 'هذا الإرسال لم تنتهِ صلاحيته.' : 'تعذّر تنفيذ الإجراء. حاول مرة أخرى.');
+      if (code === 'REAPPROVAL_STALE') {
+        const fresh = (errorBody(e) as { data?: { fresh?: Reapproval } } | null)?.data?.fresh;
+        this.reapproval.set(fresh ? { ...fresh, reapprovalToken: null } : null);
+        this.reapprovalStale.set('تغيّر المستلمون بعد المراجعة — راجِع من جديد');
+        this.cancelBusy.set(false); await this.loadQueue(); return;
+      }
+      this.cancelError.set(code === 'REAPPROVAL_TOKEN_INVALID' ? 'رمز المراجعة غير صالح. راجِع المستلمين من جديد.' : code === 'BROADCAST_RUNNING' ? 'الإرسال يعمل الآن ولا يمكن إلغاؤه أثناء التنفيذ.' : code === 'BROADCAST_NOT_CANCELLABLE' || code === 'BROADCAST_NOT_APPROVABLE' || code === 'BROADCAST_NOT_REVIEWABLE' ? 'هذا الإرسال انتهى أو أُلغي ولا يمكن تنفيذ الإجراء عليه.' : code === 'BROADCAST_NOT_EXPIRED' ? 'هذا الإرسال لم تنتهِ صلاحيته.' : 'تعذّر تنفيذ الإجراء. حاول مرة أخرى.');
       await this.loadQueue();
     } finally { this.cancelBusy.set(false); }
   }
