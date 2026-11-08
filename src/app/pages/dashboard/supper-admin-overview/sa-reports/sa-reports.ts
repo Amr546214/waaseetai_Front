@@ -67,7 +67,11 @@ export class SaReports implements OnInit {
 
   setFilter(status: ReportQuery['status']) { this.navigate({ ...this.query(), status, page: 1 }); }
   applyFilters() { this.navigate({ ...this.query(), search: this.search.trim().slice(0, 100), targetType: this.targetType || undefined, page: 1 }); }
-  resetFilters() { this.navigate({ status: 'OPEN', page: 1 }); }
+  resetFilters() {
+    this.search = '';
+    this.targetType = '';
+    this.navigate({ status: 'OPEN', page: 1 });
+  }
   load(page: number) { this.navigate({ ...this.query(), page }); }
   retry() { this.reload.next(); }
 

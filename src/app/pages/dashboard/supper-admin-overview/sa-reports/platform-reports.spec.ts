@@ -46,6 +46,14 @@ describe('platform reporting UI', () => {
     const harness = await RouterTestingHarness.create(queue);
     const http = TestBed.inject(HttpTestingController);
     const old = http.expectOne(r => r.url.endsWith('/admin/reports') && r.params.get('status') === 'OPEN');
+    const filterForm = harness.routeNativeElement!.querySelector('form')!;
+    const search = filterForm.querySelector('input')!;
+    search.value = 'unsaved';
+    search.dispatchEvent(new Event('input'));
+    filterForm.querySelector<HTMLButtonElement>('button[type="button"]')!.click();
+    harness.detectChanges();
+    await harness.fixture.whenStable();
+    expect(search.value).toBe('');
     await harness.navigateByUrl(queue + filters);
     expect(old.cancelled).toBe(true);
     const req = http.expectOne(r => r.url.endsWith('/admin/reports'));
