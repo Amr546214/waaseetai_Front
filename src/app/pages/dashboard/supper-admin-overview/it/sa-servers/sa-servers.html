@@ -1,12 +1,10 @@
-<app-sa-metrics-panel title="الخوادم والصحة" subtitle="قياسات عملية الخادم الحالية فقط" [keys]="['api_uptime','api_rss','api_heap','api_loop_p99']">
-  <section class="sa-host-na" data-testid="host-metrics-na" aria-label="مؤشرات غير متاحة">
+<app-sa-metrics-panel title="الخوادم والصحة" subtitle="كل قراءة تذكر نطاقها: العملية أو الحاوية أو المضيف حسب المصدر"
+  [keys]="['api_uptime','api_rss','api_heap','api_loop_p99','ctr_mem_used','ctr_mem_limit_pct','ctr_cpu','ctr_disk_used_pct','ctr_disk_free','host_cpu','host_mem_pct','host_disk_pct','ctr_running','ctr_not_running','ctr_restarts','waf_blocked']">
+  <section class="sa-host-na" data-testid="host-metrics-na" aria-label="ما لا يغطيه القياس">
     <h2>غير متاح</h2>
     <ul>
-      <li>استخدام المعالج والذاكرة والقرص للمضيف: يلزم وكيل قياس على الخادم المضيف (مثل node exporter) يوفّره فريق البنية.</li>
-      <li>حالة الحاويات وإعادة التشغيل: يلزم قراءة إحصاءات بيئة تشغيل الحاويات من فريق البنية.</li>
-      <li>مدة التوفر (uptime) عبر الزمن وتنبيهاته: يلزم مراقب توفّر خارجي.</li>
-      <li>الشبكة وموازن الحمل والمناطق: لا يوجد مصدر قياس لها في المنصة.</li>
+      <li>التجميع بين نسخ الخادم والسجل التاريخي لمقاييس API: يلزم مخزن سلاسل زمنية خارجي؛ كل رقم أعلاه يخص النسخة المذكورة في نطاقه فقط.</li>
+      <li>أي مؤشر مضيف أو حاويات أو جدار حماية يظهر «غير متاح» حتى يوفّر فريق البنية المصدر؛ سبب كل مؤشر ومتغير الإعداد المطلوب مذكوران في بطاقته.</li>
     </ul>
-    <p>الأرقام أعلاه تخص هذه العملية فقط ولا تمثل المضيف.</p>
   </section>
 </app-sa-metrics-panel>

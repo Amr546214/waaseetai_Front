@@ -49,6 +49,7 @@
 
   <section aria-labelledby="monitoring-escalation-title" class="monitoring-escalation" data-testid="escalation-readiness">
     <h2 id="monitoring-escalation-title">جاهزية التصعيد الآلي للدعم والنزاعات</h2>
+    <p><a routerLink="/supper-admin-overview/it/escalation-readiness" data-testid="escalation-link">فتح شاشة الجاهزية الكاملة</a></p>
     @if (escalationError()) {
       <p class="monitoring-error" role="alert">{{ escalationError() }} <button type="button" (click)="loadEscalation()">إعادة المحاولة</button></p>
     }

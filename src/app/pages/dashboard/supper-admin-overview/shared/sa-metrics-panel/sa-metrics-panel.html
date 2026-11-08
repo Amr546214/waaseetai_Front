@@ -30,6 +30,7 @@
         </li>
       }
     </ul>
+    @if (d.instance) { <p class="smp-meta" data-testid="instance-note">{{ d.instance.note }}</p> }
     <p class="smp-meta">قد تُخدَم القراءة من ذاكرة مؤقتة في الخادم لمدة {{ d.cacheSeconds }} ثانية، ووقت كل مؤشر هو وقت قراءته الفعلية.</p>
   }
   <ng-content />

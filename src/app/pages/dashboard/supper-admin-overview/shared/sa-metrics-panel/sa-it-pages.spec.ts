@@ -10,7 +10,7 @@ import { SaPerformance } from '../../it/sa-performance/sa-performance';
 
 const isMetrics = (r: { url: string; method: string }) => r.method === 'GET' && r.url.endsWith('/admin/system-settings/technical-metrics');
 const ind = (key: string, group: string, over: Record<string, unknown> = {}) => ({ key, group, label: `L-${key}`, value: 7, unit: 'ms', status: 'measured', readAt: '2026-11-08T09:00:00Z', source: 'src', ...over });
-const payload = (indicators: unknown[]) => ({ success: true, data: { generatedAt: '2026-11-08T09:00:00Z', cacheSeconds: 15, windowMinutes: 15, indicators } });
+const payload = (indicators: unknown[]) => ({ success: true, data: { generatedAt: '2026-11-08T09:00:00Z', cacheSeconds: 15, windowMinutes: 15, instance: { id: 'a1b2c3', startedAt: '2026-11-08T08:00:00Z', note: 'قراءات API والحاوية تخص هذه النسخة وحدها' }, indicators } });
 const setup = () => { TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] }); return TestBed.inject(HttpTestingController); };
 
 describe('servers / performance pages and the shared pieces', () => {
@@ -23,7 +23,7 @@ describe('servers / performance pages and the shared pieces', () => {
     expect(el.querySelector('[data-key="api_rss"]')?.textContent).toContain('90');
     expect(el.querySelector('[data-key="db_latency"]')).toBeNull();
     expect(el.querySelector('[data-testid="host-metrics-na"]')?.textContent).toContain('غير متاح');
-    expect(el.querySelector('[data-testid="host-metrics-na"]')?.textContent).toContain('node exporter');
+    expect(el.querySelector('[data-testid="host-metrics-na"]')?.textContent).toContain('سلاسل زمنية');
     http.verify();
   });
 
@@ -63,5 +63,31 @@ describe('servers / performance pages and the shared pieces', () => {
     store.load(true); http.expectOne(isMetrics).flush({}, { status: 403, statusText: 'x' });
     expect(store.error()).toContain('صلاحية');
     http.verify();
+  });
+
+  it('servers: container, host and waf readings show their scope; an unconfigured host source shows «غير متاح» with the variable the infra team must provide', () => {
+    const http = setup(); const f = TestBed.createComponent(SaServers); f.detectChanges();
+    http.expectOne(isMetrics).flush(payload([
+      ind('ctr_mem_used', 'infra', { value: 256, unit: 'MB', scope: 'حاوية الباك فقط (ليس المضيف ولا بقية الخدمات)' }),
+      ind('host_cpu', 'infra', { value: null, status: 'unavailable', unit: '%', scope: 'المضيف (المصدر غير مهيأ)', reason: 'المصدر غير مهيأ؛ يلزم من فريق البنية توفير HOST_METRICS_URL (نقطة JSON لمقاييس المضيف)' }),
+    ]));
+    f.detectChanges(); const el = f.nativeElement as HTMLElement;
+    expect(el.querySelector('[data-key="ctr_mem_used"]')?.textContent).toContain('حاوية الباك فقط');
+    expect(el.querySelector('[data-key="host_cpu"]')?.textContent).toContain('غير متاح');
+    expect(el.querySelector('[data-key="host_cpu"]')?.textContent).toContain('HOST_METRICS_URL');
+    expect(el.querySelector('[data-key="host_cpu"] .smp-val')).toBeNull();
+    expect(el.querySelector('[data-testid="instance-note"]')?.textContent).toContain('هذه النسخة وحدها');
+    http.verify();
+  });
+
+  it('backup indicators: a state card, a datetime card with the reading time, detail and scope', () => {
+    setup();
+    const mk = (i: any) => { const f = TestBed.createComponent(SaIndicatorCard); f.componentRef.setInput('indicator', i); f.detectChanges(); return f.nativeElement as HTMLElement; };
+    const st = mk(ind('backup_status', 'backup', { value: null, unit: '', valueText: 'قديمة', state: 'STALE', detail: 'آخر نجاح أقدم من 36 ساعة', scope: 'آخر ما سجّلته مهمة النسخ في ملف الحالة' }));
+    expect(st.textContent).toContain('قديمة'); expect(st.textContent).toContain('أقدم من 36 ساعة'); expect(st.textContent).toContain('النطاق'); expect(st.querySelector('[data-state="STALE"]')).not.toBeNull();
+    const dt = mk(ind('backup_last_success', 'backup', { value: null, unit: '', valueText: '2026-11-08T07:30:00Z', kind: 'datetime' }));
+    expect(dt.querySelectorAll('time').length).toBe(2); expect(dt.querySelector('.smp-val time')?.getAttribute('datetime')).toBe('2026-11-08T07:30:00Z');
+    const na = mk(ind('backup_status', 'backup', { value: null, unit: '', valueText: null, status: 'unavailable', state: 'NO_DATA', reason: 'مهمة النسخ لا تنشر حالتها بعد' }));
+    expect(na.textContent).toContain('غير متاح'); expect(na.textContent).toContain('مهمة النسخ لا تنشر'); expect(na.querySelector('.smp-val')).toBeNull();
   });
 });

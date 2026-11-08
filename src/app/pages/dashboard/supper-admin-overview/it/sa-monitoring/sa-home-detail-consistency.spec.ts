@@ -31,7 +31,7 @@ describe('monitoring home and detail pages read the same reading', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   it('CDN measured: home card equals the detail card (value, unit, readAt) and the detail page makes no second request', () => {
-    const { http, el } = open([ind('cdn_storage', 'cdn', { value: 42.5, readAt: '2026-11-08T09:00:07Z' }), ind('backup_last_success', 'backup', { value: null, status: 'unavailable', unit: 'تاريخ', reason: 'يلزم ملف حالة من مهمة النسخ' })]);
+    const { http, el } = open([ind('cdn_storage', 'cdn', { value: 42.5, readAt: '2026-11-08T09:00:07Z' }), ind('backup_status', 'backup', { value: null, status: 'unavailable', unit: '', state: 'NO_DATA', reason: 'يلزم ملف حالة من مهمة النسخ' })]);
     const detail = TestBed.createComponent(SaCdn); detail.detectChanges();
     http.expectNone(isMetrics);
     const homeCard = el.querySelector('[data-key="cdn_storage"]')!, detailCard = (detail.nativeElement as HTMLElement).querySelector('[data-key="cdn_storage"]')!;
@@ -45,18 +45,26 @@ describe('monitoring home and detail pages read the same reading', () => {
   it('CDN not configured: both show «غير متاح» with the same reason; backups show the missing integration on both; no «لا يوجد مصدر» wording', () => {
     const { http, el } = open([
       ind('cdn_storage', 'cdn', { value: null, status: 'unavailable', reason: 'تكامل Cloudinary غير مهيأ في هذه البيئة' }),
-      ind('backup_last_success', 'backup', { value: null, status: 'unavailable', unit: 'تاريخ', reason: 'يلزم ملف حالة من مهمة النسخ' }),
+      ind('backup_status', 'backup', { value: null, status: 'unavailable', unit: '', state: 'NO_DATA', reason: 'يلزم ملف حالة من مهمة النسخ' }),
     ]);
     const cdn = TestBed.createComponent(SaCdn); cdn.detectChanges();
     const bk = TestBed.createComponent(SaBackups); bk.detectChanges();
     http.expectNone(isMetrics);
-    const pairs: Array<[string, HTMLElement, string]> = [['cdn_storage', cdn.nativeElement, 'غير مهيأ'], ['backup_last_success', bk.nativeElement, 'ملف حالة']];
+    const pairs: Array<[string, HTMLElement, string]> = [['cdn_storage', cdn.nativeElement, 'غير مهيأ'], ['backup_status', bk.nativeElement, 'ملف حالة']];
     for (const [key, detailEl, reason] of pairs) {
       const h = el.querySelector(`[data-key="${key}"]`)!, d = detailEl.querySelector(`[data-key="${key}"]`)!;
       expect(norm(h)).toContain('غير متاح'); expect(norm(h)).toContain(reason); expect(norm(h)).toBe(norm(d));
       expect(norm(h)).not.toMatch(/\b0\b/);
     }
     expect(el.textContent).not.toContain('لا يوجد مصدر');
+    http.verify();
+  });
+
+  it('backup measured (STALE with detail and scope): home card equals the detail card', () => {
+    const { http, el } = open([ind('backup_status', 'backup', { value: null, unit: '', valueText: 'قديمة', state: 'STALE', detail: 'آخر نجاح أقدم من 36 ساعة', scope: 'آخر ما سجّلته مهمة النسخ في ملف الحالة' })]);
+    const bk = TestBed.createComponent(SaBackups); bk.detectChanges(); http.expectNone(isMetrics);
+    const h = el.querySelector('[data-key="backup_status"]')!, d = (bk.nativeElement as HTMLElement).querySelector('[data-key="backup_status"]')!;
+    expect(norm(h)).toContain('قديمة'); expect(norm(h)).toContain('أقدم من 36 ساعة'); expect(norm(h)).toBe(norm(d));
     http.verify();
   });
 });

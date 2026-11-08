@@ -13,7 +13,7 @@ const LABELS: Record<HealthItem['status'], string> = {
 };
 const SUMMARY = [
   { key: 'api_p95', link: 'apis' }, { key: 'api_5xx_rate', link: 'apis' }, { key: 'db_latency', link: 'database' }, { key: 'db_conn_usage', link: 'database' },
-  { key: 'cdn_storage', link: 'cdn' }, { key: 'backup_last_success', link: 'backups' },
+  { key: 'cdn_storage', link: 'cdn' }, { key: 'backup_status', link: 'backups' }, { key: 'ctr_mem_limit_pct', link: 'servers' },
 ];
 const CHECK_EVERY_MS = 60_000;
 const HISTORY_LIMIT = 10;
