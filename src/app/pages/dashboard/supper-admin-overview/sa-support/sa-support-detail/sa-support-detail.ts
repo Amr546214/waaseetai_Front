@@ -60,6 +60,8 @@ export class SaSupportDetail implements OnInit {
   }
   loading = signal(true);
   notFound = signal(false);
+  /** A failed load that is NOT a missing ticket (network / 5xx / 403): says so and offers a retry. */
+  readonly loadError = signal('');
   busy = signal(false);
   data = signal<AdminTicketDetailData | null>(null);
   related = signal<AdminTicketListItem[]>([]);
@@ -114,12 +116,17 @@ export class SaSupportDetail implements OnInit {
     if (!id) { this.notFound.set(true); this.loading.set(false); return; }
     this.loading.set(true);
     this.notFound.set(false);
+    this.loadError.set('');
     this.api.adminGetTicket(id).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res.success && res.data) { this.data.set(res.data); this.selectedAssigneeId.set(res.data.assignedTo?.id ?? ''); this.loadRelated(res.data.user?.id); } else this.notFound.set(true);
       },
-      error: () => { this.loading.set(false); this.notFound.set(true); },
+      error: (err) => {
+        this.loading.set(false);
+        if (err?.status === 404) this.notFound.set(true);
+        else this.loadError.set(mapHttpError(err, { fallback: 'تعذر تحميل التذكرة' }).message);
+      },
     });
   }
 
@@ -150,7 +157,7 @@ export class SaSupportDetail implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/supper-admin-overview/support']);
+    this.router.navigate(['/supper-admin-overview/support'], { queryParamsHandling: 'preserve' });
   }
 
   private fail(err: unknown, fallback: string, resolve: Record<string, string>, show: (m: string) => void) {

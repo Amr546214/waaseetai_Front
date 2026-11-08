@@ -1,6 +1,6 @@
 <section class="sup-page" dir="rtl">
   <div class="sup-detail-crumb">
-    <a routerLink="/supper-admin-overview/support">&rarr; العودة إلى تذاكر الدعم</a>
+    <a routerLink="/supper-admin-overview/support" queryParamsHandling="preserve">&rarr; العودة إلى تذاكر الدعم</a>
   </div>
 
   @if (loading()) {
@@ -152,7 +152,7 @@
         <div class="sup-extra-ttl">تذاكر ذات صلة (نفس المستخدم)</div>
         <div class="sup-related-list">
           @for (r of related(); track r.id) {
-            <a class="sup-related-item" [routerLink]="['/supper-admin-overview/support', r.id]">
+            <a class="sup-related-item" [routerLink]="['/supper-admin-overview/support', r.id]" queryParamsHandling="preserve">
               <span class="sup-related-id">{{ r.ticketNumber }}</span>
               <span class="sup-related-label">{{ r.subject }} · {{ statusLabels[r.status] }}</span>
             </a>
@@ -162,10 +162,16 @@
         </div>
       </div>
     </div>
+  } @else if (loadError()) {
+    <div class="sup-empty sup-detail-nf" role="alert" data-testid="load-error">
+      <span>{{ loadError() }}</span>
+      <button type="button" class="sup-tab" (click)="load()">إعادة المحاولة</button>
+      <a routerLink="/supper-admin-overview/support" queryParamsHandling="preserve">العودة للقائمة</a>
+    </div>
   } @else if (notFound()) {
     <div class="sup-empty sup-detail-nf">
       <span>لم يتم العثور على التذكرة المطلوبة</span>
-      <a routerLink="/supper-admin-overview/support">العودة للقائمة</a>
+      <a routerLink="/supper-admin-overview/support" queryParamsHandling="preserve">العودة للقائمة</a>
     </div>
   }
 

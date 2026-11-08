@@ -1,6 +1,6 @@
 <section class="dp-page" dir="rtl">
   <div class="dp-detail-crumb">
-    <a routerLink="/supper-admin-overview/disputes">&rarr; العودة إلى النزاعات</a>
+    <a routerLink="/supper-admin-overview/disputes" queryParamsHandling="preserve">&rarr; العودة إلى النزاعات</a>
   </div>
 
   @if (loading()) {
@@ -11,7 +11,7 @@
   } @else if (notFound()) {
     <div class="dp-error">
       <p class="dp-error-msg">لم يتم العثور على النزاع المطلوب</p>
-      <a routerLink="/supper-admin-overview/disputes" class="dp-btn dp-btn-gh">العودة للقائمة</a>
+      <a routerLink="/supper-admin-overview/disputes" queryParamsHandling="preserve" class="dp-btn dp-btn-gh">العودة للقائمة</a>
     </div>
   } @else if (error()) {
     <div class="dp-error">
