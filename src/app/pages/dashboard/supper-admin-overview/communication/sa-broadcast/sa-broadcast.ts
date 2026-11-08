@@ -28,12 +28,13 @@ export type Preview = { deliveryEnabled?: boolean; draftId: string; version: num
 export type Totals = { audience: number; sent: number; failed: number; pending: number; cancelled?: number };
 export type BroadcastView = { id: string; sender: { id: string; name: string }; title: string; category: Category; audience: Audience; status: string; totals: Totals; createdAt: string; completedAt: string | null; lastProgressAt: string | null };
 export type BroadcastDetail = BroadcastView & { message: string; failureCodes: { code: string; count: number }[] };
-export type QueueState = 'WAITING_WORKER_DISABLED' | 'WAITING_FOR_WORKER' | 'RUNNING' | 'STUCK_STOPPED_MID_RUN' | 'STUCK_NO_PROGRESS';
-export type QueueItem = BroadcastView & { queueState: QueueState; stale: boolean; waitingSeconds: number | null; heartbeatAt: string | null; leaseUntil: string | null };
-export type QueueSummary = { waitingDisabled: number; waitingForWorker: number; running: number; stuckMidRun: number; stuckNoProgress: number; oldestWaitingSeconds: number | null; workerEnabled: boolean };
+export type QueueState = 'WAITING_WORKER_DISABLED' | 'WAITING_FOR_WORKER' | 'RUNNING' | 'STUCK_STOPPED_MID_RUN' | 'STUCK_NO_PROGRESS' | 'EXPIRED_NEEDS_REVIEW';
+export type QueueItem = BroadcastView & { queueState: QueueState; stale: boolean; waitingSeconds: number | null; heartbeatAt: string | null; leaseUntil: string | null; ageSeconds?: number; reviewed?: boolean; approved?: boolean };
+export type Preflight = { canEnableSafely: boolean; blockers: { code: string; count: number; message: string }[]; counts: Record<string, number>; jobs: number; oldestAgeSeconds: number | null; thresholds: { maxQueueAgeSeconds: number }; workerEnabled: boolean };
+export type QueueSummary = { waitingDisabled: number; waitingForWorker: number; running: number; stuckMidRun: number; stuckNoProgress: number; expiredNeedsReview?: number; oldestWaitingSeconds: number | null; workerEnabled: boolean };
 export const QUEUE_LABELS: Record<QueueState, string> = {
   WAITING_WORKER_DISABLED: 'في الانتظار — العامل مقفول', WAITING_FOR_WORKER: 'في الانتظار — بانتظار العامل', RUNNING: 'يعمل الآن',
-  STUCK_STOPPED_MID_RUN: 'توقفت أثناء التنفيذ', STUCK_NO_PROGRESS: 'عالقة بلا تقدّم',
+  STUCK_STOPPED_MID_RUN: 'توقفت أثناء التنفيذ', STUCK_NO_PROGRESS: 'عالقة بلا تقدّم', EXPIRED_NEEDS_REVIEW: 'منتهية الصلاحية — تحتاج مراجعة',
 };
 type Template = { id: string; name: string; title: string; message: string };
 type TemplatePage = { page: number; items: Template[]; hasNext: boolean };
@@ -93,6 +94,8 @@ export class SaBroadcast implements OnInit {
   queuePollMs = 15000;
   readonly queue = signal<{ items: QueueItem[]; summary: QueueSummary } | null>(null);
   readonly queueError = signal('');
+  readonly preflight = signal<Preflight | null>(null);
+  readonly actionKind = signal<'cancel' | 'review' | 'approve'>('cancel');
   readonly cancelTarget = signal<QueueItem | null>(null);
   readonly cancelBusy = signal(false);
   readonly cancelError = signal('');
@@ -319,6 +322,7 @@ export class SaBroadcast implements OnInit {
   loadQueue(): Promise<void> {
     if (this.queueLoading) return Promise.resolve();
     this.queueLoading = true;
+    this.http.get<{ data: Preflight }>(`${this.api}/queue/preflight`).subscribe({ next: ({ data }) => this.preflight.set(data), error: () => undefined });
     return new Promise<void>(resolve => {
       this.http.get<{ data: { items: QueueItem[]; summary: QueueSummary } }>(`${this.api}/queue`).subscribe({
         next: ({ data }) => { this.queue.set(data); this.queueError.set(''); this.queueLoading = false; resolve(); },
@@ -326,24 +330,37 @@ export class SaBroadcast implements OnInit {
       });
     });
   }
-  openCancel(i: QueueItem) { this.cancelTarget.set(i); this.cancelReason = ''; this.cancelError.set(''); }
+  canReview(i: QueueItem) { return !i.reviewed && i.queueState !== 'RUNNING'; }
+  canApprove(i: QueueItem) { return i.queueState === 'EXPIRED_NEEDS_REVIEW'; }
+  openAction(kind: 'cancel' | 'review' | 'approve', i: QueueItem) { this.actionKind.set(kind); this.cancelTarget.set(i); this.cancelReason = ''; this.cancelError.set(''); }
+  openCancel(i: QueueItem) { this.openAction('cancel', i); }
+  openReview(i: QueueItem) { this.openAction('review', i); }
+  openApprove(i: QueueItem) { this.openAction('approve', i); }
   closeCancel() { this.cancelTarget.set(null); }
-  async confirmCancel() {
-    const t = this.cancelTarget();
+  confirmCancel() { return this.confirmAction(); }
+  async confirmAction() {
+    const t = this.cancelTarget(); const kind = this.actionKind();
     if (!t || this.cancelBusy()) return;
+    const reason = this.cancelReason.trim().slice(0, 200);
+    if (kind === 'approve' && reason.length < 3) { this.cancelError.set('اكتب سبب إعادة الاعتماد (3 أحرف على الأقل).'); return; }
     this.cancelBusy.set(true); this.cancelError.set('');
+    const texts = {
+      cancel: { title: 'تأكيد إلغاء الإرسال', type: 'danger' as const, confirmText: 'إلغاء الإرسال', note: 'سيُلغى المتبقون فقط، ومن وصلهم الإشعار يبقى كما هو، ولا يمكن التراجع.', path: 'cancel', body: reason ? { reason } : {} },
+      review: { title: 'تأكيد مراجعة الإرسال', type: 'info' as const, confirmText: 'تمت المراجعة', note: 'تعني أنك راجعته وتقبل إرساله عند تفعيل العامل. لا يُرسل شيء الآن.', path: 'review', body: {} },
+      approve: { title: 'تأكيد إعادة اعتماد إرسال منتهي الصلاحية', type: 'warning' as const, confirmText: 'اعتماد الإرسال', note: 'سيصبح قابلًا للإرسال بعد تفعيل العامل رغم قِدمه. لا يُرسل شيء طالما العامل مقفول.', path: 'approve-send', body: { reason } },
+    }[kind];
     try {
-      const reason = this.cancelReason.trim().slice(0, 200);
-      const ok = await this.confirmModal.confirm({ title: 'تأكيد إلغاء الإرسال', type: 'danger', size: 'md', confirmText: 'إلغاء الإرسال', message: [
+      const ok = await this.confirmModal.confirm({ title: texts.title, type: texts.type, size: 'md', confirmText: texts.confirmText, message: [
         `العنوان: ${t.title}`, `المرسل: ${t.sender.name}`, `الفئة: ${this.categoryLabel(t.category)} — الجمهور: ${this.audienceLabel(t.audience)}`,
+        `العمر في الطابور: ${this.waitText(t.ageSeconds ?? t.waitingSeconds)}`,
         `الجمهور ${t.totals.audience} · أُرسل ${t.totals.sent} · فشل ${t.totals.failed} · متبقٍ ${t.totals.pending}`,
-        ...(reason ? [`السبب: ${reason}`] : []), 'سيُلغى المتبقون فقط، ومن وصلهم الإشعار يبقى كما هو، ولا يمكن التراجع.'].join('\n') });
+        ...(reason ? [`السبب: ${reason}`] : []), texts.note].join('\n') });
       if (!ok) return;
-      await firstValueFrom(this.http.post(`${this.api}/${t.id}/cancel`, reason ? { reason } : {}));
+      await firstValueFrom(this.http.post(`${this.api}/${t.id}/${texts.path}`, texts.body));
       this.cancelTarget.set(null); await this.loadQueue(); this.loadHistory(this.history()?.page ?? 1);
     } catch (e) {
       const code = errorBody(e)?.code;
-      this.cancelError.set(code === 'BROADCAST_RUNNING' ? 'الإرسال يعمل الآن ولا يمكن إلغاؤه أثناء التنفيذ.' : code === 'BROADCAST_NOT_CANCELLABLE' ? 'هذا الإرسال انتهى ولا يمكن إلغاؤه.' : 'تعذّر الإلغاء. حاول مرة أخرى.');
+      this.cancelError.set(code === 'BROADCAST_RUNNING' ? 'الإرسال يعمل الآن ولا يمكن إلغاؤه أثناء التنفيذ.' : code === 'BROADCAST_NOT_CANCELLABLE' || code === 'BROADCAST_NOT_APPROVABLE' || code === 'BROADCAST_NOT_REVIEWABLE' ? 'هذا الإرسال انتهى أو أُلغي ولا يمكن تنفيذ الإجراء عليه.' : code === 'BROADCAST_NOT_EXPIRED' ? 'هذا الإرسال لم تنتهِ صلاحيته.' : 'تعذّر تنفيذ الإجراء. حاول مرة أخرى.');
       await this.loadQueue();
     } finally { this.cancelBusy.set(false); }
   }

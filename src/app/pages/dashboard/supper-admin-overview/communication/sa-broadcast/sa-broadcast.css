@@ -20,3 +20,7 @@
 .queue-state.s-RUNNING { color: #2f855a; }
 .queue-state.s-STUCK_STOPPED_MID_RUN { color: #c05621; }
 .queue-state.s-STUCK_NO_PROGRESS { color: #b84444; }
+.queue-state.s-EXPIRED_NEEDS_REVIEW { color: #805ad5; }
+.preflight { border-radius: .4rem; padding: .5rem .7rem; border: 1px solid currentColor; }
+.preflight.ok { color: #2f855a; }
+.preflight.bad { color: #b84444; }

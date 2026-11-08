@@ -123,7 +123,16 @@
 
   <section class="broadcast-card" aria-label="طابور البث">
     <h2>طابور البث</h2>
-    <p>الإرسالات في الانتظار أو الجارية أو العالقة. لا تُعرض نصوص الرسائل هنا.</p>
+    <p>الإرسالات في الانتظار أو الجارية أو العالقة. لا تُعرض نصوص الرسائل هنا. لا يُرسل شيء من الطابور طالما العامل مقفول.</p>
+    @if (preflight(); as pf) {
+      @if (pf.canEnableSafely) { <p class="preflight ok" role="status" aria-label="الفحص قبل التفعيل">جاهز للتفعيل: لا توجد إرسالات قديمة أو عالقة أو غير مُراجَعة.</p> }
+      @else {
+        <div class="preflight bad" role="alert" aria-label="الفحص قبل التفعيل">
+          <strong>غير آمن للتفعيل بعد:</strong>
+          <ul>@for (b of pf.blockers; track b.code) { <li>{{ b.count }} — {{ b.message }}</li> }</ul>
+        </div>
+      }
+    }
     @if (queueError()) { <p role="alert">{{ queueError() }}</p> }
     @if (queue(); as q) {
       <p role="status">العامل: {{ q.summary.workerEnabled ? 'مفعّل' : 'مقفول' }} · في الانتظار {{ q.summary.waitingDisabled + q.summary.waitingForWorker }} · يعمل {{ q.summary.running }} · عالقة {{ q.summary.stuckMidRun + q.summary.stuckNoProgress }}</p>
@@ -137,16 +146,21 @@
           <span>الانتظار: {{ waitText(job.waitingSeconds) }}</span>
           <span>آخر تحديث: @if (job.lastProgressAt) { <time [attr.datetime]="job.lastProgressAt">{{ job.lastProgressAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time> } @else { لا يوجد }</span>
           <span>الجمهور {{ job.totals.audience }} · أُرسل {{ job.totals.sent }} · فشل {{ job.totals.failed }} · متبقٍ {{ job.totals.pending }}</span>
+          <span>العمر: {{ waitText(job.ageSeconds ?? null) }} · {{ job.reviewed ? 'تمت المراجعة' : 'لم تُراجَع' }}</span>
+          @if (canReview(job)) { <button type="button" (click)="openReview(job)">تمت المراجعة</button> }
+          @if (canApprove(job)) { <button type="button" (click)="openApprove(job)">اعتماد الإرسال</button> }
           @if (canCancel(job)) { <button type="button" (click)="openCancel(job)">إلغاء</button> }
         </article>
       }
     }
     @if (cancelTarget(); as t) {
       <div class="broadcast-preview" aria-label="إلغاء إرسال">
-        <strong>إلغاء: {{ t.title }}</strong>
-        <label>السبب (اختياري)<input type="text" maxlength="200" [(ngModel)]="cancelReason"></label>
+        <strong>{{ actionKind() === 'cancel' ? 'إلغاء' : actionKind() === 'review' ? 'مراجعة' : 'إعادة اعتماد' }}: {{ t.title }}</strong>
+        @if (actionKind() !== 'review') {
+        <label>{{ actionKind() === 'approve' ? 'السبب (مطلوب)' : 'السبب (اختياري)' }}<input type="text" maxlength="200" [(ngModel)]="cancelReason"></label>
+        }
         @if (cancelError()) { <p role="alert">{{ cancelError() }}</p> }
-        <button type="button" (click)="confirmCancel()" [disabled]="cancelBusy()">متابعة الإلغاء</button>
+        <button type="button" (click)="confirmAction()" [disabled]="cancelBusy()">متابعة</button>
         <button type="button" (click)="closeCancel()" [disabled]="cancelBusy()">تراجع</button>
       </div>
     }

@@ -11,9 +11,10 @@ const view = (over: Record<string, unknown> = {}) => ({ id: 'b1', sender: { id: 
 const previewBody = (over: Record<string, unknown> = {}) => ({ draftId: 'd1', version: 1, audience: 'CLIENTS', count: 3, checkedAt: '2026-11-08T12:00:00Z', canSend: true, previewToken: 'tok-1', ...over });
 
 let confirmAnswer = true; let confirmArgs: any = null;
+const pfOf = (over: Record<string, unknown> = {}) => ({ canEnableSafely: true, blockers: [], counts: {}, jobs: 0, oldestAgeSeconds: null, thresholds: { maxQueueAgeSeconds: 86400 }, workerEnabled: false, ...over });
 const summaryOf = (over: Record<string, unknown> = {}) => ({ waitingDisabled: 0, waitingForWorker: 0, running: 0, stuckMidRun: 0, stuckNoProgress: 0, oldestWaitingSeconds: null, workerEnabled: true, ...over });
 const job = (state: string, over: Record<string, unknown> = {}) => ({ ...view({ status: state === 'RUNNING' ? 'SENDING' : 'QUEUED', totals: { audience: 10, sent: 0, failed: 0, pending: 10 } }), queueState: state, stale: state.startsWith('STUCK'), waitingSeconds: 7200, heartbeatAt: null, leaseUntil: null, ...over });
-function setup(latest: unknown = null, active: unknown = null, delivery: boolean | null = true, queue: { items: unknown[]; summary: unknown } = { items: [], summary: summaryOf() }, keepQueuePoll = false) {
+function setup(latest: unknown = null, active: unknown = null, delivery: boolean | null = true, queue: { items: unknown[]; summary: unknown } = { items: [], summary: summaryOf() }, keepQueuePoll = false, pf: unknown = pfOf()) {
   confirmAnswer = true; confirmArgs = null;
   TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
     { provide: ConfirmModalService, useValue: { confirm: async (c: unknown) => { confirmArgs = c; return confirmAnswer; } } }] });
@@ -23,6 +24,7 @@ function setup(latest: unknown = null, active: unknown = null, delivery: boolean
   fixture.detectChanges();
   http.expectOne(r => r.url.endsWith('/admin/notification-templates')).flush({ data: { page: 1, hasNext: false, items: [{ id: 'qa', name: 'ترحيب', title: 'أهلًا', message: '<b>نص فقط</b>' }] } });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+  http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue/preflight')).flush({ data: pf });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: queue });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts/status')).flush({ data: { deliveryEnabled: delivery } });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts/active')).flush({ data: active });
@@ -326,6 +328,7 @@ describe('SaBroadcast', () => {
       expect(text).toContain('المرسل: مدير'); expect(text).toContain('أُرسل 4'); expect(text).toContain('رسالة قديمة'); expect(text).not.toContain('message');
       const req = route(http, 'POST', '/broadcasts/q4/cancel'); expect(req.request.body).toEqual({ reason: 'رسالة قديمة' });
       req.flush({ data: view({ status: 'CANCELLED' }) }); await flushAsync();
+      http.expectOne(r => r.url.endsWith('/queue/preflight')).flush({ data: pfOf() });
       http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: { items: [], summary: summaryOf() } }); await flushAsync();
       http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } }); await p;
       expect(c.cancelTarget()).toBeNull(); expect(c.queue()?.items.length).toBe(0);
@@ -335,6 +338,7 @@ describe('SaBroadcast', () => {
       c.openCancel(all[3] as any); confirmAnswer = false; await c.confirmCancel(); http.expectNone(r => r.url.endsWith('/cancel'));
       confirmAnswer = true; const p = c.confirmCancel(); await flushAsync();
       route(http, 'POST', '/broadcasts/q4/cancel').flush({ code: 'BROADCAST_RUNNING' }, { status: 409, statusText: 'Conflict' }); await flushAsync();
+      http.expectOne(r => r.url.endsWith('/queue/preflight')).flush({ data: pfOf() });
       http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: { items: [all[2]], summary: summaryOf({ running: 1 }) } }); await p;
       expect(c.cancelError()).toContain('يعمل الآن');
     });
@@ -343,10 +347,50 @@ describe('SaBroadcast', () => {
       expect(c.isQueuePolling).toBe(true);
       vi.advanceTimersByTime(14000); http.expectNone(r => r.url.endsWith('/admin/broadcasts/queue'));
       vi.advanceTimersByTime(1500); await flushAsync();
+      http.expectOne(r => r.url.endsWith('/queue/preflight')).flush({ data: pfOf() });
       http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: { items: [all[1]], summary: summaryOf({ waitingForWorker: 1 }) } }); await flushAsync();
       expect(c.queue()?.items.length).toBe(1);
       fixture.destroy(); expect(c.isQueuePolling).toBe(false);
       vi.advanceTimersByTime(60000); http.expectNone(r => r.url.endsWith('/admin/broadcasts/queue'));
+    });
+  });
+
+  describe('pre-activation check and expired jobs', () => {
+    const expired = job('EXPIRED_NEEDS_REVIEW', { id: 'e1', ageSeconds: 3 * 86400, reviewed: false, approved: false, message: 'SECRET-BODY' });
+    const fresh = job('WAITING_WORKER_DISABLED', { id: 'f1', ageSeconds: 600, reviewed: false });
+    const mk = (pf: unknown = pfOf()) => setup(null, null, true, { items: [expired, fresh], summary: summaryOf({ expiredNeedsReview: 1, waitingDisabled: 1 }) }, false, pf);
+    it('green only when safe; otherwise the Arabic blockers with counts', () => {
+      const a = mk(); a.fixture.detectChanges();
+      expect(a.el.querySelector('[aria-label="الفحص قبل التفعيل"]')!.className).toContain('ok'); expect(a.el.textContent).toContain('جاهز للتفعيل'); expect(a.el.textContent).toContain('لا يُرسل شيء من الطابور طالما العامل مقفول');
+      TestBed.resetTestingModule();
+      const b = mk(pfOf({ canEnableSafely: false, blockers: [{ code: 'EXPIRED_JOBS', count: 1, message: 'إرسالات أقدم من 24 ساعة' }, { code: 'UNREVIEWED_JOBS', count: 2, message: 'إرسالات لم تُراجَع' }] })); b.fixture.detectChanges();
+      const panel = b.el.querySelector('[aria-label="الفحص قبل التفعيل"]')!;
+      expect(panel.className).toContain('bad'); expect(panel.textContent).toContain('1 — إرسالات أقدم من 24 ساعة'); expect(panel.textContent).toContain('2 — إرسالات لم تُراجَع'); expect(panel.textContent).not.toContain('جاهز للتفعيل');
+    });
+    it('shows the expired label and age, the three actions only where allowed, and never a body', () => {
+      const { el, fixture } = mk(); fixture.detectChanges();
+      const rows = Array.from(el.querySelectorAll('[aria-label="طابور البث"] article')) as HTMLElement[];
+      expect(rows[0].textContent).toContain('منتهية الصلاحية — تحتاج مراجعة'); expect(rows[0].textContent).toContain('3 يوم');
+      const labels = (r: HTMLElement) => Array.from(r.querySelectorAll('button')).map(b => b.textContent!.trim());
+      expect(labels(rows[0])).toEqual(['تمت المراجعة', 'اعتماد الإرسال', 'إلغاء']); expect(labels(rows[1])).toEqual(['تمت المراجعة', 'إلغاء']);
+      expect(el.textContent).not.toContain('SECRET-BODY');
+    });
+    it('review, approve (reason required) and cancel each confirm with title, sender, category, counters and age (no body)', async () => {
+      const { c, http } = mk(); const done = async (path: string, body: unknown) => {
+        const req = route(http, 'POST', path); expect(req.request.body).toEqual(body); req.flush({ data: view() }); await flushAsync();
+        http.expectOne(r => r.url.endsWith('/queue/preflight')).flush({ data: pfOf() }); http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: { items: [], summary: summaryOf() } }); await flushAsync();
+        http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } }); await flushAsync();
+      };
+      c.openReview(expired as any); let p = c.confirmAction(); await flushAsync();
+      let text = confirmArgs.message as string; expect(text).toContain('المرسل: مدير'); expect(text).toContain('3 يوم'); expect(text).toContain('أُرسل 0'); expect(text).not.toContain('SECRET-BODY'); expect(confirmArgs.title).toContain('مراجعة');
+      await done('/broadcasts/e1/review', {}); await p;
+      c.openApprove(expired as any); c.cancelReason = 'ab'; await c.confirmAction(); expect(c.cancelError()).toContain('3 أحرف'); http.expectNone(r => r.url.endsWith('/approve-send'));
+      c.cancelReason = 'ما زالت مطلوبة'; p = c.confirmAction(); await flushAsync();
+      expect(confirmArgs.message).toContain('ما زالت مطلوبة'); expect(confirmArgs.message).toContain('لا يُرسل شيء طالما العامل مقفول');
+      await done('/broadcasts/e1/approve-send', { reason: 'ما زالت مطلوبة' }); await p;
+      c.openCancel(expired as any); c.cancelReason = 'قديمة'; p = c.confirmAction(); await flushAsync();
+      await done('/broadcasts/e1/cancel', { reason: 'قديمة' }); await p;
+      confirmAnswer = false; c.openReview(expired as any); await c.confirmAction(); http.expectNone(r => r.url.endsWith('/review'));
     });
   });
 });
