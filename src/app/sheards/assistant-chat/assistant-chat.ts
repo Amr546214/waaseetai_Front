@@ -179,12 +179,10 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 							<option value="" disabled selected>لا توجد أصوات مدعومة من الخادم</option>
 						}
 						@for (v of availableVoices(); track v.id) {
-							<option [value]="v.id" [selected]="store.ttsVoice() === v.id">{{ store.ttsVoice() === v.id ? '✓ ' + voiceLabel(v) : voiceLabel(v) }}</option>
+							<option [value]="v.id" [selected]="store.ttsVoice() === v.id">{{ voiceLabel(v) }}</option>
 						}
 					</select>
 				</label>
-				<div class="ac__selected-badge" data-testid="ac-voice-badge"><span>الصوت المختار:</span> <strong>{{ store.ttsVoice() }}</strong></div>
-				<div class="ac__selected-badge ac__model-badge" data-testid="ac-model-badge"><span>النموذج الذكي:</span> <strong>{{ activeModelLabel() }}</strong></div>
 				<label>مستوى الصوت<input type="range" min="0" max="1" step="0.1" [value]="store.voiceVolume()" (input)="store.setVolume(+$any($event.target).value)" /></label>
 			<small>شغّل صوت أي رد من زر الاستماع أسفله. الصوت مُولّد آليًا.</small>
 		</div>
@@ -203,9 +201,6 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		@media(max-width:767px) { .ac--workspace .ac__log { padding:20px 16px;gap:28px; }.ac--workspace .ac__bubble--user { max-width:90%; }.ac--workspace .ac__bubble { font-size:var(--font-size-body); }.ac--workspace .ac__input,.ac--workspace .ac__tools,.ac--workspace .ac__meta,.ac--workspace .ac__disclaimer,.ac--workspace .ac__notice,.ac--workspace .ac__error,.ac--workspace .ac__progress { width:calc(100% - 24px); }.ac--workspace .ac__input { gap:4px; }.ac--workspace .ac__btn { padding:8px 10px; } }
 		@media print { .ac__input,.ac__tools,.ac__meta,.ac__disclaimer,.ac__jump,.ac__message-actions { display:none!important; }.ac--workspace,.ac--workspace .ac__log { height:auto;max-height:none;overflow:visible;display:block; }.ac__row { break-inside:avoid;margin-bottom:24px; }.ac--workspace .ac__bubble--ai { color:#000; }.ac--workspace .ac__log { padding:10px; } }
 		.ac__settings-panel { font-size:var(--font-size-small); }.ac__settings-panel > summary { cursor:pointer;color:var(--txt-3,#94a3b8); }.ac__settings-panel[open] > summary { margin-bottom:8px; }.ac:not(.ac--compact) .ac__settings-panel > summary { display:none; }
-		.ac__selected-badge { display:inline-flex;align-items:center;gap:6px;font-size:var(--font-size-small);color:var(--txt-3,#94a3b8);padding:3px 8px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);width:fit-content;margin-top:2px; }
-		.ac__selected-badge strong { color:var(--assistant-link,#55dace); }
-		.ac__model-badge strong { color:#c084fc; }
 		.ac__toolbar { display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:var(--font-size-small); }
 		.ac__toolbar button,.ac__motions summary { color:var(--txt,#fff);background:transparent;border:1px solid var(--sec-bd,#aaa);border-radius:12px;padding:6px 9px;cursor:pointer; }
 		.ac__motions { position:relative; }.ac__motions>div { display:flex;flex-wrap:wrap;gap:6px;padding:8px;max-height:180px;overflow:auto;background:var(--assistant-surface,#17233b);border-radius:12px; }
@@ -265,7 +260,8 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		.ac__mic:disabled { opacity: .4; cursor: not-allowed; }
 		.ac__settings { display: flex; flex-wrap: wrap; gap: 10px; font-size: var(--font-size-small); color: var(--txt-3, #8892B0); }
 		.ac__settings label { display: inline-flex; align-items: center; gap: 6px; }
-		.ac__settings select { min-width: 0; padding: 3px 6px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.12)); background: transparent; color: var(--txt, #fff); font: inherit; }
+		.ac__settings select { min-width: 0; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.12)); background: rgba(0,0,0,0.25); color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font: inherit; font-weight: 600; color-scheme: dark !important; }
+		.ac__settings select option { background-color: #0b1a20; color: #ffffff; }
 		.ac__listening { color: #ffb1c1; }
 		.ac__chips { display: flex; flex-wrap: wrap; gap: 8px; }
 		.ac__chip { padding: 7px 13px; border-radius: 999px; border: 1px solid rgba(165,107,224,.4); background: rgba(123,47,190,.1); color: var(--txt, #fff); font: inherit; font-size: var(--font-size-label); font-weight: 700; cursor: pointer; }
@@ -295,7 +291,6 @@ export class AssistantChatComponent implements OnDestroy {
 	readonly availableVoices = computed(() => this.store.capabilities()?.voices ?? []);
 	readonly textModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['text','chat'].includes(v.toLowerCase()))));
 	readonly speechModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['tts','speech'].includes(v.toLowerCase()))));
-	readonly activeModelLabel = computed(() => this.store.textModel() || this.store.capabilities()?.defaultTextModel || 'WaseetAI Gemini');
 	readonly motions = computed(() => {
 		const list = this.store.skin() === 'scout' ? NADEEM_GUIDE_MOTIONS : BEBO_CORE_MOTIONS;
 		return list.map((m) => ({ id: m.action, label: `${m.icon} ${m.label}` }));

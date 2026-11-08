@@ -194,26 +194,26 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 							<label>
 								مظهر الروبوت
 								<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)">
-									<option value="scout" [selected]="store.skin() === 'scout'">{{ store.skin() === 'scout' ? '✓ ' : '' }}نديم (دليل وسيط)</option>
-									<option value="classic" [selected]="store.skin() === 'classic'">{{ store.skin() === 'classic' ? '✓ ' : '' }}بيبو (المساعد الكرتوني)</option>
+									<option value="scout" [selected]="store.skin() === 'scout'">نديم (دليل وسيط)</option>
+									<option value="classic" [selected]="store.skin() === 'classic'">بيبو (المساعد الكرتوني)</option>
 								</select>
 							</label>
 							<label>
 								طريقة الرد
 								<select class="pg-profile" [value]="store.profile()" (change)="store.setProfile($any($event.target).value)">
-									<option value="auto" [selected]="store.profile() === 'auto'">{{ store.profile() === 'auto' ? '✓ ' : '' }}تلقائي</option>
-									<option value="fast" [selected]="store.profile() === 'fast'">{{ store.profile() === 'fast' ? '✓ ' : '' }}سريع ومختصر</option>
-									<option value="balanced" [selected]="store.profile() === 'balanced'">{{ store.profile() === 'balanced' ? '✓ ' : '' }}متوازن</option>
-									<option value="deep" [selected]="store.profile() === 'deep'">{{ store.profile() === 'deep' ? '✓ ' : '' }}شرح وتحليل مفصل</option>
+									<option value="auto" [selected]="store.profile() === 'auto'">تلقائي</option>
+									<option value="fast" [selected]="store.profile() === 'fast'">سريع ومختصر</option>
+									<option value="balanced" [selected]="store.profile() === 'balanced'">متوازن</option>
+									<option value="deep" [selected]="store.profile() === 'deep'">شرح وتحليل مفصل</option>
 								</select>
 							</label>
 							<app-assistant-position-settings />
 							<label>
 								اللهجة
 								<select class="pg-speech-dialect" [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)" aria-describedby="aw-manual-audio-help">
-									<option value="auto" [selected]="store.ttsDialect() === 'auto'">{{ store.ttsDialect() === 'auto' ? '✓ ' : '' }}تلقائي حسب كلامك</option>
+									<option value="auto" [selected]="store.ttsDialect() === 'auto'">تلقائي حسب كلامك</option>
 									@for (d of dialects; track d.id) {
-										<option [value]="d.id" [selected]="store.ttsDialect() === d.id">{{ store.ttsDialect() === d.id ? '✓ ' + d.label : d.label }}</option>
+										<option [value]="d.id" [selected]="store.ttsDialect() === d.id">{{ d.label }}</option>
 									}
 								</select>
 							</label>
@@ -226,18 +226,10 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 										<option value="" disabled selected>لا توجد أصوات مدعومة من الخادم</option>
 									}
 									@for (v of availableVoices(); track v.id) {
-										<option [value]="v.id" [selected]="store.ttsVoice() === v.id">{{ store.ttsVoice() === v.id ? '✓ ' + voiceLabel(v) : voiceLabel(v) }}</option>
+										<option [value]="v.id" [selected]="store.ttsVoice() === v.id">{{ voiceLabel(v) }}</option>
 									}
 								</select>
 							</label>
-							<div class="pg-selected-badge" data-testid="active-voice-badge">
-								<span class="pg-selected-label">الصوت المختار:</span>
-								<span class="pg-selected-value">{{ store.ttsVoice() }}</span>
-							</div>
-							<div class="pg-selected-badge pg-model-badge" data-testid="active-model-badge">
-								<span class="pg-selected-label">النموذج الذكي:</span>
-								<span class="pg-selected-value">{{ activeModelLabel() }}</span>
-							</div>
 							<label>مستوى الصوت
 								<input class="pg-volume" type="range" min="0" max="1" step="0.1" [value]="store.voiceVolume()" (input)="store.setVolume(+$any($event.target).value)" aria-describedby="aw-manual-audio-help" [attr.aria-valuetext]="(store.voiceVolume() * 100) + '%'" />
 							</label>
@@ -516,7 +508,6 @@ export class AssistantWidgetComponent {
 	});
 	readonly textModels = computed(() => (this.store.capabilities()?.models ?? []).filter(model => model.available !== false && model.modalities?.some(mode => ['text', 'chat'].includes(mode.toLowerCase()))));
 	readonly speechModels = computed(() => (this.store.capabilities()?.models ?? []).filter(model => model.available !== false && model.modalities?.some(mode => ['tts', 'speech'].includes(mode.toLowerCase()))));
-	readonly activeModelLabel = computed(() => this.store.textModel() || this.store.capabilities()?.defaultTextModel || 'WaseetAI Gemini');
 
 	private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 	private readonly avatar = viewChild(BeboAvatarComponent);

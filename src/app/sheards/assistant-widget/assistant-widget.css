@@ -495,43 +495,38 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .pg-settings select {
 	min-width: 140px;
 	max-width: 60%;
-	padding: 6px 10px;
-	border: 1px solid var(--pg-border);
+	padding: 8px 12px;
+	border: 1.5px solid rgba(43, 212, 199, 0.35) !important;
 	border-radius: 10px;
-	background: #1b3738;
-	color: #d5e9dc;
+	background-color: #0b1a20 !important;
+	color: #ffffff !important;
+	-webkit-text-fill-color: #ffffff !important;
 	font: inherit;
-	font-size: var(--font-size-small);
+	font-size: var(--font-size-small, 13px);
+	font-weight: 700 !important;
 	outline: none;
+	color-scheme: dark !important;
+}
+
+.pg-settings select:focus,
+.pg-settings select:focus-visible {
+	border-color: #2bd4c7 !important;
+	box-shadow: 0 0 0 2px rgba(43, 212, 199, 0.25) !important;
 }
 
 .pg-settings select option {
-	background: #0d232b;
-	color: #fff;
+	background-color: #0b1a20 !important;
+	color: #ffffff !important;
+	-webkit-text-fill-color: #ffffff !important;
+	font-weight: 500;
 }
 
-.pg-selected-badge {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	font-size: var(--font-size-small, 12px);
-	color: #94a3b8;
-	margin-top: 2px;
-	margin-bottom: 4px;
-	padding: 4px 10px;
-	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	width: fit-content;
-}
-
-.pg-selected-badge .pg-selected-value {
-	color: var(--teal, #55dace);
+.pg-settings select option:checked,
+.pg-settings select option:focus {
+	background-color: #16363d !important;
+	color: #2bd4c7 !important;
+	-webkit-text-fill-color: #2bd4c7 !important;
 	font-weight: 700;
-}
-
-.pg-model-badge .pg-selected-value {
-	color: #a56be0;
 }
 
 .pg-settings .pg-toggle {
