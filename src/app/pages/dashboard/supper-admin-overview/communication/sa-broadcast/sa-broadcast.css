@@ -10,3 +10,5 @@
 .broadcast-card nav { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
 .broadcast-preview p { white-space: pre-wrap; overflow-wrap: anywhere; margin-block-start: .3rem; }
 [role="alert"] { color: var(--red, #b84444); }
+.broadcast-row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.broadcast-history-item { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; border-block-start: 1px solid var(--border, #64748b); padding-block: .5rem; }

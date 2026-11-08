@@ -1,56 +1,146 @@
 <section class="broadcast-workspace" dir="rtl">
-  <h1>تجهيز البث الجماعي</h1>
-  <p>هنا تجهّز رسالة وتعاين الجمهور. المسودة بتفضل في الصفحة دي لحد ما تخرج منها، والمعاينة لا ترسل أي إشعار.</p>
+  <h1>البث الجماعي</h1>
+  <p>الرسالة تُحفظ كمسودة على الخادم وتظهر لك بعد تحديث الصفحة. المعاينة لا ترسل شيئًا، والإرسال يصل كإشعار داخل المنصة فقط.</p>
 
-  <section class="broadcast-card" aria-label="اختيار الجمهور">
-    <h2>الجمهور</h2>
-    <p>الحسابات النشطة وغير المحظورة حسب نوع الحساب الأساسي.</p>
-    <label>الفئة
-      <select [ngModel]="audience()" (ngModelChange)="setAudience($event)" [disabled]="counting()">
-        <option value="">اختر الفئة</option>
-        @for (option of audiences; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
-      </select>
-    </label>
-    <button type="button" (click)="countAudience()" [disabled]="!audience() || counting()">احسب الجمهور</button>
-    @if (counting()) { <p role="status">جاري حساب الجمهور…</p> }
-    @if (countError()) { <p role="alert">{{ countError() }}</p> }
-    @if (preview(); as result) {
-      <p role="status">الحسابات المؤهلة الآن: <strong>{{ result.count }}</strong></p>
-      <p>وقت المعاينة: <time [attr.datetime]="result.checkedAt">{{ result.checkedAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time></p>
-      <p>العدد معاينة للحسابات الحالية، وقد يتغير قبل الإرسال الفعلي.</p>
-    }
-  </section>
-
-  <section class="broadcast-card" aria-label="مسودة الرسالة">
-    <h2>الرسالة</h2>
-    <a routerLink="/supper-admin-overview/communication/notifications">إدارة قوالب الإشعارات</a>
-    @if (templatesLoading()) { <p role="status">جاري تحميل القوالب…</p> }
-    @else if (templatesError()) {
-      <p role="alert">{{ templatesError() }}</p><button type="button" (click)="retryTemplates()">إعادة المحاولة</button>
-    }
-    @else if (templates(); as result) {
-      @if (result.items.length) {
-        <label>قالب اختياري
-          <select [(ngModel)]="selectedTemplateId">
-            <option value="">اختر قالبًا</option>
-            @for (item of result.items; track item.id) { <option [value]="item.id">{{ item.name }}</option> }
-          </select>
-        </label>
-        <button type="button" (click)="useTemplate()" [disabled]="!selectedTemplateId">نسخ محتوى القالب للمسودة</button>
+  @if (result(); as r) {
+    <section class="broadcast-card" aria-label="نتيجة الإرسال">
+      <h2>نتيجة الإرسال: {{ statusLabel(r.status) }}</h2>
+      <p><strong>{{ r.title }}</strong> إلى {{ audienceLabel(r.audience) }}</p>
+      <ul>
+        <li>الجمهور: {{ r.totals.audience }}</li>
+        <li>أُرسل: {{ r.totals.sent }}</li>
+        <li>فشل: {{ r.totals.failed }}</li>
+        @if (r.totals.pending) { <li>متبقٍ: {{ r.totals.pending }}</li> }
+      </ul>
+      @if (r.totals.failed || r.totals.pending) {
+        <p role="alert">لم يصل الإشعار لبعض المستلمين. إعادة المحاولة تكمل المتبقين فقط ولا تكرر من وصلهم.</p>
+        <button type="button" (click)="retryRemaining()" [disabled]="retrying()">{{ retrying() ? 'جاري الإعادة…' : 'إعادة إرسال المتبقي' }}</button>
       }
-      @if (result.page > 1 || result.hasNext) {
-        <nav aria-label="صفحات القوالب">
-          <button type="button" [disabled]="result.page === 1" (click)="loadTemplates(result.page - 1)">السابق</button>
-          <span>صفحة {{ result.page }}</span>
-          <button type="button" [disabled]="!result.hasNext" (click)="loadTemplates(result.page + 1)">التالي</button>
+      @if (sendError()) { <p role="alert">{{ sendError() }}</p> }
+      <button type="button" (click)="newMessage()">رسالة جديدة</button>
+    </section>
+  } @else {
+    @if (draftLoading()) { <p role="status">جاري استرجاع المسودة…</p> }
+
+    <section class="broadcast-card" aria-label="مسودة الرسالة">
+      <h2>الرسالة</h2>
+      <a routerLink="/supper-admin-overview/communication/notifications">إدارة قوالب الإشعارات</a>
+      @if (templatesLoading()) { <p role="status">جاري تحميل القوالب…</p> }
+      @else if (templatesError()) {
+        <p role="alert">{{ templatesError() }}</p><button type="button" (click)="retryTemplates()">إعادة المحاولة</button>
+      }
+      @else if (templates(); as list) {
+        @if (list.items.length) {
+          <label>قالب اختياري
+            <select [(ngModel)]="selectedTemplateId">
+              <option value="">اختر قالبًا</option>
+              @for (item of list.items; track item.id) { <option [value]="item.id">{{ item.name }}</option> }
+            </select>
+          </label>
+          <button type="button" (click)="useTemplate()" [disabled]="!selectedTemplateId">نسخ محتوى القالب للمسودة</button>
+        }
+        @if (list.page > 1 || list.hasNext) {
+          <nav aria-label="صفحات القوالب">
+            <button type="button" [disabled]="list.page === 1" (click)="loadTemplates(list.page - 1)">السابق</button>
+            <span>صفحة {{ list.page }}</span>
+            <button type="button" [disabled]="!list.hasNext" (click)="loadTemplates(list.page + 1)">التالي</button>
+          </nav>
+        }
+      }
+      <label>العنوان<input type="text" maxlength="150" [(ngModel)]="title" (ngModelChange)="edited()"></label>
+      <label>النص<textarea rows="5" maxlength="2000" [(ngModel)]="message" (ngModelChange)="edited()"></textarea></label>
+      <label>الفئة
+        <select [(ngModel)]="category" (ngModelChange)="edited()">
+          @for (option of categories; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
+        </select>
+      </label>
+      <label>الجمهور (الحسابات النشطة وغير المحظورة حسب نوع الحساب الأساسي)
+        <select [ngModel]="audience" (ngModelChange)="setAudience($event)">
+          <option value="">اختر الفئة</option>
+          @for (option of audiences; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
+        </select>
+      </label>
+      <div class="broadcast-preview" aria-label="معاينة الرسالة">
+        <strong>{{ title.trim() || 'عنوان الإشعار' }}</strong>
+        <p>{{ message.trim() || 'نص الإشعار' }}</p>
+      </div>
+
+      <div class="broadcast-row">
+        <button type="button" (click)="save()" [disabled]="saveState() === 'saving' || !!conflict()">حفظ المسودة</button>
+        <button type="button" (click)="discardDraft()" [disabled]="saveState() === 'saving'">حذف المسودة</button>
+        <span role="status" aria-label="حالة الحفظ">
+          @switch (saveState()) {
+            @case ('saving') { جاري الحفظ… }
+            @case ('saved') { تم الحفظ في <time [attr.datetime]="savedAt()">{{ savedAt() | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time> }
+            @case ('error') { لم يُحفظ }
+            @default { {{ draft() ? 'محفوظة' : 'لم تُحفظ بعد' }} }
+          }
+        </span>
+      </div>
+      @if (saveError()) { <p role="alert">{{ saveError() }}</p> }
+      @if (conflict(); as c) {
+        <div role="alert" aria-label="تعارض في المسودة">
+          <p>المسودة اتعدّلت من جلسة أخرى أو تبويب آخر (النسخة {{ c.version }}). لم نكتب فوقها.</p>
+          <p>نسخة الخادم: <strong>{{ c.title || 'بدون عنوان' }}</strong></p>
+          <button type="button" (click)="useServerCopy()">استخدم نسخة الخادم</button>
+          <button type="button" (click)="keepMine()">احتفظ بنسختي واحفظ فوقها</button>
+        </div>
+      }
+    </section>
+
+    <section class="broadcast-card" aria-label="المعاينة والإرسال">
+      <h2>المعاينة والإرسال</h2>
+      <button type="button" (click)="requestPreview()" [disabled]="!canPreview">{{ previewing() ? 'جاري حساب الجمهور…' : 'معاينة الجمهور' }}</button>
+      @if (previewError()) { <p role="alert">{{ previewError() }}</p> }
+      @if (previewStale()) { <p role="alert" aria-label="معاينة قديمة">{{ previewStale() }}</p> }
+      @if (preview(); as p) {
+        <p role="status">الحسابات المؤهلة الآن: <strong>{{ p.count }}</strong> (وقت المعاينة <time [attr.datetime]="p.checkedAt">{{ p.checkedAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time>)</p>
+        @if (p.canSend) {
+          <button type="button" (click)="confirmAndSend()" [disabled]="sending() || !!conflict()">{{ sending() ? 'جاري الإرسال…' : 'مراجعة وإرسال' }}</button>
+        } @else {
+          <p role="alert">لا يوجد مستلمون مؤهلون في هذا الجمهور، ولا يمكن الإرسال.</p>
+        }
+      }
+      @if (sendError()) {
+        <p role="alert">{{ sendError() }}</p>
+        @if (hasPendingAttempt) { <button type="button" (click)="retrySend()" [disabled]="sending()">إعادة المحاولة</button> }
+      }
+    </section>
+  }
+
+  <section class="broadcast-card" aria-label="سجل البث">
+    <h2>سجل البث</h2>
+    @if (historyError()) { <p role="alert">{{ historyError() }}</p><button type="button" (click)="loadHistory(history()?.page ?? 1)">إعادة المحاولة</button> }
+    @if (history(); as h) {
+      @if (!h.items.length) { <p>لم يُرسل أي بث بعد.</p> }
+      @for (item of h.items; track item.id) {
+        <article class="broadcast-history-item">
+          <strong>{{ item.title }}</strong>
+          <span>{{ statusLabel(item.status) }}</span>
+          <span>{{ audienceLabel(item.audience) }} · {{ categoryLabel(item.category) }}</span>
+          <span>المرسل: {{ item.sender.name }}</span>
+          <time [attr.datetime]="item.createdAt">{{ item.createdAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time>
+          <span>الجمهور {{ item.totals.audience }} · أُرسل {{ item.totals.sent }} · فشل {{ item.totals.failed }}</span>
+          <button type="button" (click)="openDetail(item.id)">التفاصيل</button>
+        </article>
+      }
+      @if (h.page > 1 || h.hasNext) {
+        <nav aria-label="صفحات السجل">
+          <button type="button" [disabled]="h.page === 1" (click)="loadHistory(h.page - 1)">السابق</button>
+          <span>صفحة {{ h.page }}</span>
+          <button type="button" [disabled]="!h.hasNext" (click)="loadHistory(h.page + 1)">التالي</button>
         </nav>
       }
     }
-    <label>العنوان<input type="text" maxlength="150" [(ngModel)]="title"></label>
-    <label>النص<textarea rows="5" maxlength="2000" [(ngModel)]="message"></textarea></label>
-    <div class="broadcast-preview" aria-label="معاينة الرسالة">
-      <strong>{{ title.trim() || 'عنوان الإشعار' }}</strong>
-      <p>{{ message.trim() || 'نص الإشعار' }}</p>
-    </div>
+    @if (detailError()) { <p role="alert">{{ detailError() }}</p> }
+    @if (detail(); as d) {
+      <div class="broadcast-preview" aria-label="تفاصيل الإرسال">
+        <strong>{{ d.title }}</strong>
+        <p>{{ d.message }}</p>
+        <p>الحالة: {{ statusLabel(d.status) }} · الجمهور {{ d.totals.audience }} · أُرسل {{ d.totals.sent }} · فشل {{ d.totals.failed }} · متبقٍ {{ d.totals.pending }}</p>
+        @for (f of d.failureCodes; track f.code) { <p>سبب الفشل {{ f.code }}: {{ f.count }}</p> }
+        <button type="button" (click)="closeDetail()">إغلاق</button>
+      </div>
+    }
   </section>
 </section>

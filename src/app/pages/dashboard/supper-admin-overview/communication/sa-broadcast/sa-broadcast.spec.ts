@@ -2,36 +2,180 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 import { SaBroadcast } from './sa-broadcast';
 
-it('counts the chosen audience, clears stale counts and copies a template into a plain-text draft without sending', () => {
-  TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
+const draft = (over: Record<string, unknown> = {}) => ({ id: 'd1', title: 'عنوان', message: 'نص', category: 'ALL', audience: 'CLIENTS', version: 1, updatedAt: '2026-11-08T12:00:00Z', ...over });
+const view = (over: Record<string, unknown> = {}) => ({ id: 'b1', sender: { id: 'u', name: 'مدير' }, title: 'عنوان', category: 'ALL', audience: 'CLIENTS', status: 'COMPLETED', totals: { audience: 3, sent: 3, failed: 0, pending: 0 }, createdAt: '2026-11-08T12:00:00Z', completedAt: null, ...over });
+const previewBody = (over: Record<string, unknown> = {}) => ({ draftId: 'd1', version: 1, audience: 'CLIENTS', count: 3, checkedAt: '2026-11-08T12:00:00Z', canSend: true, previewToken: 'tok-1', ...over });
+
+let confirmAnswer = true; let confirmArgs: any = null;
+function setup(latest: unknown = null) {
+  confirmAnswer = true; confirmArgs = null;
+  TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
+    { provide: ConfirmModalService, useValue: { confirm: async (c: unknown) => { confirmArgs = c; return confirmAnswer; } } }] });
   const fixture = TestBed.createComponent(SaBroadcast);
-  const c = fixture.componentInstance;
-  const http = TestBed.inject(HttpTestingController);
+  const c = fixture.componentInstance; const http = TestBed.inject(HttpTestingController);
+  c.autosaveMs = 50;
   fixture.detectChanges();
-  http.expectOne(r => r.url.endsWith('/admin/notification-templates') && r.method === 'GET').flush({
-    data: { page: 1, hasNext: false, items: [{ id: 'qa', name: 'ترحيب', title: 'أهلًا', message: '<b>نص فقط</b>' }] },
+  http.expectOne(r => r.url.endsWith('/admin/notification-templates')).flush({ data: { page: 1, hasNext: false, items: [{ id: 'qa', name: 'ترحيب', title: 'أهلًا', message: '<b>نص فقط</b>' }] } });
+  http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+  http.expectOne(r => r.url.endsWith('/broadcasts/drafts/latest')).flush({ data: latest });
+  return { fixture, c, http, el: fixture.nativeElement as HTMLElement };
+}
+const flushAsync = async () => { for (let i = 0; i < 6; i++) await Promise.resolve(); };
+const route = (http: HttpTestingController, method: string, suffix: string) => http.expectOne(r => r.method === method && r.url.endsWith(suffix));
+
+describe('SaBroadcast', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => { vi.useRealTimers(); });
+
+  it('restores the latest server draft after a reload and shows no fake numbers', () => {
+    const { c, fixture, el, http } = setup(draft({ title: 'مسودة محفوظة', message: 'من الخادم', audience: 'PROVIDERS', category: 'OFFERS', version: 4 }));
+    fixture.detectChanges();
+    expect(c.title).toBe('مسودة محفوظة'); expect(c.message).toBe('من الخادم'); expect(c.audience).toBe('PROVIDERS'); expect(c.category).toBe('OFFERS'); expect(c.draft()?.version).toBe(4);
+    expect(el.textContent).toContain('لم يُرسل أي بث بعد');
+    expect(c.preview()).toBeNull();
+    http.verify();
   });
-  const preview = () => http.expectOne(r => r.url.endsWith('/admin/broadcast-preview') && r.method === 'GET');
-  c.setAudience('CLIENTS');
-  c.countAudience();
-  const clients = preview();
-  expect(clients.request.params.get('audience')).toBe('CLIENTS');
-  clients.flush({ data: { audience: 'CLIENTS', count: 3, checkedAt: '2026-11-08T12:00:00Z' } });
-  expect(c.preview()?.count).toBe(3);
-  c.setAudience('PROVIDERS');
-  expect(c.preview()).toBeNull();
-  c.countAudience();
-  preview().flush({ data: { audience: 'PROVIDERS', count: 0, checkedAt: '2026-11-08T12:00:00Z' } });
-  c.selectedTemplateId = 'qa';
-  c.useTemplate();
-  fixture.detectChanges();
-  const el = fixture.nativeElement as HTMLElement;
-  expect(el.textContent).toContain('الحسابات المؤهلة الآن: 0');
-  const draft = el.querySelector('[aria-label="معاينة الرسالة"]')!;
-  expect(draft.textContent).toContain('<b>نص فقط</b>');
-  expect(draft.querySelector('b')).toBeNull();
-  http.verify();
+
+  it('autosaves once after the debounce (create, then patch with the version) and shows the saved state', async () => {
+    const { c, http, fixture, el } = setup();
+    c.title = 'أول'; c.message = 'نص'; c.audience = 'CLIENTS'; c.edited(); c.title = 'أول ثاني'; c.edited();
+    http.expectNone(r => r.url.endsWith('/broadcasts/drafts'));
+    vi.advanceTimersByTime(60);
+    const create = route(http, 'POST', '/broadcasts/drafts');
+    expect(create.request.body).toEqual({ title: 'أول ثاني', message: 'نص', category: 'ALL', audience: 'CLIENTS' });
+    create.flush({ data: draft({ id: 'd9', title: 'أول ثاني' }) });
+    await flushAsync(); fixture.detectChanges();
+    expect(c.saveState()).toBe('saved'); expect(el.querySelector('[aria-label="حالة الحفظ"]')!.textContent).toContain('تم الحفظ');
+    c.message = 'تعديل'; c.edited(); vi.advanceTimersByTime(60);
+    const patch = route(http, 'PATCH', '/broadcasts/drafts/d9');
+    expect(patch.request.body.version).toBe(1);
+    patch.flush({ data: draft({ id: 'd9', version: 2, message: 'تعديل' }) });
+    await flushAsync();
+    expect(c.draft()?.version).toBe(2);
+    http.verify();
+  });
+
+  it('on a 409 shows the newer server copy, stops autosaving and never overwrites; the user decides', async () => {
+    const { c, http, fixture, el } = setup(draft());
+    c.title = 'من تبويبي'; c.edited(); vi.advanceTimersByTime(60);
+    route(http, 'PATCH', '/broadcasts/drafts/d1').flush({ code: 'BROADCAST_DRAFT_CHANGED', data: { current: draft({ title: 'من تبويب آخر', version: 3 }) } }, { status: 409, statusText: 'Conflict' });
+    await flushAsync(); fixture.detectChanges();
+    expect(c.conflict()?.version).toBe(3); expect(c.title).toBe('من تبويبي');
+    expect(el.querySelector('[aria-label="تعارض في المسودة"]')!.textContent).toContain('من تبويب آخر');
+    c.edited(); vi.advanceTimersByTime(100);
+    http.expectNone(r => r.method === 'PATCH'); // no silent retry while the conflict is open
+    const kept = c.keepMine(); await flushAsync();
+    const patch = route(http, 'PATCH', '/broadcasts/drafts/d1');
+    expect(patch.request.body.version).toBe(3); // explicit choice: rebased on the newer version
+    patch.flush({ data: draft({ version: 4, title: 'من تبويبي' }) }); await kept;
+    expect(c.conflict()).toBeNull();
+    // the other choice: take the server copy
+    c.title = 'x'; c.edited(); vi.advanceTimersByTime(60);
+    route(http, 'PATCH', '/broadcasts/drafts/d1').flush({ code: 'BROADCAST_DRAFT_CHANGED', data: { current: draft({ title: 'الخادم', version: 9 }) } }, { status: 409, statusText: 'Conflict' });
+    await flushAsync(); c.useServerCopy();
+    expect(c.title).toBe('الخادم'); expect(c.conflict()).toBeNull(); expect(c.draft()?.version).toBe(9);
+    http.verify();
+  });
+
+  it('confirm step shows title, body, category, audience count and in-platform-only; an edit after preview forces a new preview', async () => {
+    const { c, http, fixture, el } = setup(draft({ category: 'OFFERS' }));
+    const p = c.requestPreview(); await flushAsync();
+    route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody() }); await p;
+    fixture.detectChanges();
+    expect(c.preview()?.count).toBe(3); expect(el.textContent).toContain('الحسابات المؤهلة الآن: 3');
+    c.title = 'تعديل بعد المعاينة'; c.edited(); fixture.detectChanges();
+    expect(c.preview()).toBeNull(); expect(el.querySelector('[aria-label="معاينة قديمة"]')!.textContent).toContain('اعمل معاينة جديدة');
+    await c.confirmAndSend();
+    expect(confirmArgs).toBeNull(); http.expectNone(r => r.url.endsWith('/send'));
+    vi.advanceTimersByTime(60); route(http, 'PATCH', '/broadcasts/drafts/d1').flush({ data: draft({ version: 2, title: 'تعديل بعد المعاينة', category: 'OFFERS' }) }); await flushAsync();
+    const p2 = c.requestPreview(); await flushAsync();
+    route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody({ version: 2 }) }); await p2;
+    c.confirmAndSend(); await flushAsync();
+    const text = confirmArgs.message as string;
+    expect(text).toContain('تعديل بعد المعاينة'); expect(text).toContain('نص'); expect(text).toContain('العروض'); expect(text).toContain('طالبي الخدمة'); expect(text).toContain('3'); expect(text).toContain('داخل المنصة فقط');
+    route(http, 'POST', '/broadcasts/drafts/d1/send').flush({ data: { broadcast: view() } }); await flushAsync();
+    http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [view()] } });
+    http.verify();
+  });
+
+  it('cancelling the confirmation sends nothing; a stale-preview answer clears the preview and asks for a new one', async () => {
+    const { c, http, fixture, el } = setup(draft());
+    let p = c.requestPreview(); await flushAsync(); route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody() }); await p;
+    confirmAnswer = false; await c.confirmAndSend(); http.expectNone(r => r.url.endsWith('/send'));
+    confirmAnswer = true; const s = c.confirmAndSend(); await flushAsync();
+    route(http, 'POST', '/broadcasts/drafts/d1/send').flush({ code: 'PREVIEW_STALE' }, { status: 409, statusText: 'Conflict' }); await s;
+    fixture.detectChanges();
+    expect(c.preview()).toBeNull(); expect(c.result()).toBeNull(); expect(el.querySelector('[aria-label="معاينة قديمة"]')!.textContent).toContain('ولم يُرسل شيء');
+    http.verify();
+  });
+
+  it('double click sends once; a lost response is retried with the SAME idempotency key; a new confirm attempt gets a new key', async () => {
+    const { c, http } = setup(draft());
+    const p = c.requestPreview(); await flushAsync(); route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody() }); await p;
+    const first = c.confirmAndSend(); const second = c.confirmAndSend(); await flushAsync(); // double click while the confirmation is open
+    const req = route(http, 'POST', '/broadcasts/drafts/d1/send');
+    const key = req.request.headers.get('Idempotency-Key')!;
+    expect(key).toMatch(/^bc-/); expect(req.request.body).toEqual({ previewToken: 'tok-1' });
+    expect(c.sending()).toBe(true);
+    req.error(new ProgressEvent('error'), { status: 0 }); await first; await second;
+    expect(c.sending()).toBe(false); expect(c.hasPendingAttempt).toBe(true);
+    const retry = c.retrySend(); const retry2 = c.retrySend(); await flushAsync();
+    const again = route(http, 'POST', '/broadcasts/drafts/d1/send');
+    expect(again.request.headers.get('Idempotency-Key')).toBe(key);
+    again.flush({ data: { broadcast: view() } }); await retry; await retry2;
+    expect(c.result()?.id).toBe('b1'); expect(c.hasPendingAttempt).toBe(false);
+    http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+    http.verify();
+  });
+
+  it('result screen shows sent/failed counts and retry-remaining calls the retry endpoint once even on double click', async () => {
+    const { c, http, fixture, el } = setup(draft());
+    const p = c.requestPreview(); await flushAsync(); route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody() }); await p;
+    const s = c.confirmAndSend(); await flushAsync();
+    route(http, 'POST', '/broadcasts/drafts/d1/send').flush({ data: { broadcast: view({ status: 'PARTIAL', totals: { audience: 7, sent: 5, failed: 2, pending: 0 } }) } }); await s;
+    http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+    fixture.detectChanges();
+    const text = el.querySelector('[aria-label="نتيجة الإرسال"]')!.textContent!;
+    expect(text).toContain('أُرسل: 5'); expect(text).toContain('فشل: 2'); expect(text).toContain('اكتمل جزئيًا');
+    const a = c.retryRemaining(); const b = c.retryRemaining(); await flushAsync();
+    route(http, 'POST', '/broadcasts/b1/retry').flush({ data: view({ totals: { audience: 7, sent: 7, failed: 0, pending: 0 } }) }); await a; await b;
+    http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+    fixture.detectChanges();
+    expect(c.result()?.totals.sent).toBe(7); expect(el.querySelector('[aria-label="نتيجة الإرسال"]')!.textContent).not.toContain('إعادة إرسال المتبقي');
+    http.verify();
+  });
+
+  it('empty audience: preview says so and offers no send button', async () => {
+    const { c, http, fixture, el } = setup(draft());
+    const p = c.requestPreview(); await flushAsync(); route(http, 'POST', '/broadcasts/drafts/d1/preview').flush({ data: previewBody({ count: 0, canSend: false }) }); await p;
+    fixture.detectChanges();
+    expect(el.textContent).toContain('لا يوجد مستلمون مؤهلون'); expect(el.textContent).not.toContain('مراجعة وإرسال');
+    http.verify();
+  });
+
+  it('history lists sender, audience, totals and status, and opens a detail with failure codes', () => {
+    const { c, http, fixture, el } = setup();
+    c.loadHistory(1);
+    http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: true, items: [view({ status: 'PARTIAL', totals: { audience: 7, sent: 5, failed: 2, pending: 0 } })] } });
+    fixture.detectChanges();
+    const t = el.querySelector('.broadcast-history-item')!.textContent!;
+    expect(t).toContain('مدير'); expect(t).toContain('طالبي الخدمة'); expect(t).toContain('أُرسل 5'); expect(t).toContain('فشل 2'); expect(t).toContain('اكتمل جزئيًا');
+    c.openDetail('b1');
+    http.expectOne(r => r.url.endsWith('/admin/broadcasts/b1')).flush({ data: { ...view(), message: 'نص كامل', failureCodes: [{ code: 'INJECTED_FAULT', count: 2 }] } });
+    fixture.detectChanges();
+    expect(el.querySelector('[aria-label="تفاصيل الإرسال"]')!.textContent).toContain('INJECTED_FAULT');
+    http.verify();
+  });
+
+  it('copies a template into a plain-text draft without sending', () => {
+    const { c, http, fixture, el } = setup();
+    c.selectedTemplateId = 'qa'; c.useTemplate(); fixture.detectChanges();
+    const shown = el.querySelector('[aria-label="معاينة الرسالة"]')!;
+    expect(shown.textContent).toContain('<b>نص فقط</b>'); expect(shown.querySelector('b')).toBeNull();
+    http.expectNone(r => r.url.endsWith('/send'));
+  });
 });
