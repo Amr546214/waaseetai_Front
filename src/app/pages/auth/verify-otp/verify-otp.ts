@@ -328,7 +328,8 @@ export class VerifyOtp implements OnInit {
           this.successMsg = notice.message;
         } else {
           // Nothing went out: say so; the button stays usable unless the server stated a wait.
-          this.errorMsg = notice.message; this.errorIsAboutCode = false;
+          this.errorMsg = this.loginMode && res.message ? res.message : notice.message;
+          this.errorIsAboutCode = false;
         }
         this.cdr.markForCheck();
       },

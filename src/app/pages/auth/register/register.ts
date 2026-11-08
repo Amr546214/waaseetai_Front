@@ -15,7 +15,7 @@ import { AffiliatePicker } from './affiliate-picker/affiliate-picker';
 import { AffiliateApiService } from '../../../core/services/affiliate-api.service';
 import { mapHttpError } from '../../../core/forms/http-error';
 import { WaitTimerService, waitScope } from '../../../core/wait/wait-timer.service';
-import { rateLimitSentence } from '../../../core/wait/wait-format';
+import { rateLimitSentence, waitLabel } from '../../../core/wait/wait-format';
 import { formatClock } from '../../../core/wait/wait-format';
 import { RATE_LIMIT_MESSAGE, isRateLimitError, startWaitFromError } from '../../../core/utils/rate-limit.util';
 import { OTP_DELIVERY_HINT, REGISTER_CODE_STEP_MESSAGE, REGISTER_RESEND_MESSAGE, REGISTER_PROOF_SENT_MESSAGE, REGISTER_PROOF_RESENT_MESSAGE, REGISTER_PROOF_NOT_SENT_MESSAGE, REGISTER_DATA_UNAVAILABLE_FALLBACK, REGISTER_ACCOUNT_READY_FALLBACK } from '../../../core/forms/otp-delivery';
@@ -573,7 +573,10 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	 * E-mail-first registration, step 1. No account is created: a code goes to the typed address. The code step opens ONLY when the server says the
 	 * mail was accepted (`emailSent === true` with a ticket); otherwise the user stays on the form with the reason, and the data stays.
 	 */
+	private proofSendLimitLabel = '';
+
 	private requestProofCode(isResend: boolean) {
+		this.proofSendLimitLabel = '';
 		this.isSubmitting = true;
 		this.errorMessage = '';
 		this.authApi.registerStart(this.startPayload()).subscribe({
@@ -599,10 +602,19 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 				this.isSubmitting = false;
 				if (isRateLimitError(err)) {
 					this.rateLimitSource = isResend ? 'resend' : 'register';
+					const reason = err?.error?.errors?.find((item: { code?: string }) => item.code === 'OTP_RATE_LIMITED')?.reason;
+					this.proofSendLimitLabel = reason === 'recipient-hour' ? 'تجاوزت حد إرسال الرموز لهذا البريد.' : reason === 'ip-hour' ? 'تجاوزت حد طلب الرموز من هذا الاتصال.' : '';
 					const w = isResend ? this.resendWait() : this.registerWait();
 					const end = startWaitFromError(w, err);
 					this.rateLimitedNoTime = end == null || !w.active();
 					this.errorMessage = '';
+				} else if (err?.status === 409 && err?.error?.code === 'REGISTRATION_DATA_UNAVAILABLE') {
+					this.accountExistsError = true;
+					this.errorMessage = err.error.message || REGISTER_DATA_UNAVAILABLE_FALLBACK;
+					this.otpNotice = '';
+					this.proofTicket = '';
+					this.heldCode = '';
+					this.currentStep = 2;
 				} else {
 					const mapped = mapHttpError(err, { unauthorizedIs: 'credentials', fallback: 'حدث خطأ في التسجيل' });
 					this.accountExistsError = mapped.kind === 'conflict';
@@ -838,7 +850,10 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 	get rateLimitText(): string {
 		if (this.rateLimitSource === 'google' && this.googleWait.active()) return rateLimitSentence(this.googleWait.remainingSeconds(), true);
 		const w = this.rateLimitSource === 'verify' ? this.verifyWait() : this.rateLimitSource === 'register' ? this.registerWait() : this.rateLimitSource === 'resend' ? this.resendWait() : null;
-		if (w?.active()) return rateLimitSentence(w.remainingSeconds(), true);
+		if (w?.active()) {
+			const label = this.rateLimitSource === 'register' || this.rateLimitSource === 'resend' ? this.proofSendLimitLabel : '';
+			return label ? `${label} يمكنك إعادة المحاولة ${waitLabel(w.remainingSeconds())}.` : rateLimitSentence(w.remainingSeconds(), true);
+		}
 		return this.rateLimitedNoTime ? RATE_LIMIT_MESSAGE : '';
 	}
 

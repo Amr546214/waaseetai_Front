@@ -24,14 +24,14 @@
       <div class="auth-logo"><img [wsIdentityImg]="'logo.mark'" src="/images/waseet-mark.png" [attr.alt]="'' | brandName"></div>
       <h1 class="auth-h1" id="page-h1">{{ loginMode ? 'تأكيد تسجيل الدخول' : 'تأكيد البريد الإلكتروني' }}</h1>
       @if (loginMode) {
-      <p class="auth-sub" data-testid="login-otp-sub">أدخل رمز التحقق المرسل إلى بريدك الإلكتروني لإكمال تسجيل الدخول</p>
+      <p class="auth-sub" data-testid="login-otp-sub">أدخل رمز التحقق لإكمال تسجيل الدخول</p>
       } @else {
       <p class="auth-sub">الخطوة 3 من 3 في رحلة التسجيل في {{ '' | brandName }}</p>
       }
     </div>
 
     @if (targetEmail) {
-    <p class="auth-sub" data-testid="otp-target" style="margin-top:-6px">أرسلنا الرمز إلى <bdi dir="ltr">{{ targetEmail }}</bdi></p>
+    <p class="auth-sub" data-testid="otp-target" style="margin-top:-6px">البريد الإلكتروني: <bdi dir="ltr">{{ targetEmail }}</bdi></p>
     }
     <p class="inp-hint" data-testid="otp-delivery-hint" style="text-align:center;margin:0 0 12px;font-size:var(--font-size-label);line-height:1.7;opacity:.8">{{ deliveryHint }}</p>
 
@@ -103,7 +103,7 @@
           <span class="timer-val" id="timer-val" aria-live="polite" dir="ltr">{{ formattedCountdown }}</span>
         </div>
         }
-        @if (rateLimitText) { <div class="timer-block" id="rate-limit-msg" role="alert" data-testid="rate-limit-msg">{{ rateLimitText }}</div> }
+        @if (rateLimitText) { <div class="banner-error" id="rate-limit-msg" role="alert" data-testid="rate-limit-msg">{{ rateLimitText }}</div> }
         <div style="text-align:center;margin-top:8px">
           <button class="btn-resend" id="btn-resend" type="button" aria-label="اعادة ارسال الرمز" [disabled]="resendWait().active() || isLoading || isEntering" (click)="resendOtp()">اعادة الارسال</button>
         </div>
