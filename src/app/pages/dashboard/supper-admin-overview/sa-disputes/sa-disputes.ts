@@ -2,7 +2,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { mapHttpError } from '../../../../core/forms/http-error';
 import { DisputeApiService } from '../../../../core/services/dispute-api.service';
 import { Dispute, DisputeStatus, DisputePagination } from '../../../../core/models/dispute.model';
 
@@ -18,6 +19,7 @@ type StatusFilter = 'all' | 'followUp' | DisputeStatus;
 export class SaDisputes implements OnInit {
   private disputeApi = inject(DisputeApiService);
   private readonly route = inject(ActivatedRoute, { optional: true });
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private listRequest?: Subscription;
   readonly followUpCount = signal<number | null>(null);
@@ -55,11 +57,25 @@ export class SaDisputes implements OnInit {
   ];
 
   ngOnInit() {
-    if (this.route?.snapshot?.queryParamMap?.get('followUp') === 'true') this.activeFilter.set('followUp');
+    // The queue state lives in the URL, so coming back from a case (or a refresh) lands on the same filter and page.
+    const q = this.route?.snapshot?.queryParamMap;
+    const filter = q?.get('filter');
+    if (this.filters.some(f => f.key === filter)) this.activeFilter.set(filter as StatusFilter);
+    else if (q?.get('followUp') === 'true') this.activeFilter.set('followUp');
+    const page = Number(q?.get('page'));
+    if (Number.isSafeInteger(page) && page > 0 && page <= 100_000) this.currentPage.set(page);
     this.fetchDisputes();
   }
 
+  private syncUrl() {
+    const f = this.activeFilter();
+    void this.router.navigate([], { replaceUrl: true, queryParams: {
+      filter: f === 'all' ? null : f, followUp: null, page: this.currentPage() === 1 ? null : this.currentPage(),
+    } });
+  }
+
   fetchDisputes() {
+    this.syncUrl();
     this.listRequest?.unsubscribe();
     this.loading.set(true);
     this.error.set('');
@@ -83,7 +99,7 @@ export class SaDisputes implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err?.error?.message || 'تعذر تحميل النزاعات');
+        this.error.set(mapHttpError(err, { fallback: 'تعذر تحميل النزاعات' }).message);
         this.loading.set(false);
       },
     });

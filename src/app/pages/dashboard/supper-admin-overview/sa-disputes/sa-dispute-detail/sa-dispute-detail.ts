@@ -13,6 +13,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { FieldProblem } from '../../../../../shared/forms/form-error-focus';
 import { clearAllInvalid, handleAdminError, reportAdminProblems } from '../../shared/admin-form-report';
 import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, ResolveFinancialPayload, FinancialOutcomeCode, DisputeAiSummary } from '../../../../../core/models/dispute.model';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 import { stageHeading } from '../../../../../core/utils/stage-title.util';
 import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionText } from '../../../../../core/utils/dispute-labels.util';
 
@@ -60,6 +61,10 @@ export class SaDisputeDetail implements OnInit {
     const status = this.selectedDispute()?.status;
     return (status === 'OPEN' || status === 'UNDER_REVIEW') && this.adminAccess.can('disputes.assign');
   });
+  /** Same keys the server enforces: assign = disputes.assign, notes = disputes.note, decide / resolve / reject / review status = disputes.resolve (the financial decision also needs payouts.send). */
+  readonly canAssign = computed(() => this.adminAccess.can('disputes.assign'));
+  readonly canNote = computed(() => this.adminAccess.can('disputes.note'));
+  readonly canDecide = computed(() => this.adminAccess.can('disputes.resolve'));
   noteDraft = signal('');
   opBusy = signal(false);
 
@@ -164,7 +169,7 @@ export class SaDisputeDetail implements OnInit {
         if (err?.status === 404) {
           this.notFound.set(true);
         } else {
-          this.error.set(err?.error?.message || 'تعذر تحميل تفاصيل النزاع');
+          this.error.set(mapHttpError(err, { fallback: 'تعذر تحميل تفاصيل النزاع' }).message);
         }
       },
     });
@@ -176,7 +181,7 @@ export class SaDisputeDetail implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/supper-admin-overview/disputes']);
+    this.router.navigate(['/supper-admin-overview/disputes'], { queryParamsHandling: 'preserve' });
   }
 
   private fullName(u?: { firstName?: string; lastName?: string } | null): string {

@@ -31,7 +31,7 @@
     </div>
     <div class="sup-search">
       <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" placeholder="ابحث برقم التذكرة أو العنوان ثم Enter..." [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" (keyup.enter)="search()" />
+      <input type="search" placeholder="ابحث برقم التذكرة أو العنوان ثم Enter..." [value]="searchTerm()" maxlength="100" (input)="searchTerm.set($any($event.target).value)" (keyup.enter)="search()" />
     </div>
   </div>
 
@@ -44,7 +44,7 @@
       <div class="sup-empty">لا توجد تذاكر مطابقة</div>
     } @else {
       @for (t of tickets(); track t.id) {
-        <div class="sup-tcard" [routerLink]="[t.id]">
+        <div class="sup-tcard" [routerLink]="[t.id]" queryParamsHandling="preserve">
           <div class="sup-tc-hdr">
             <div>
               <div class="sup-tc-id">{{ t.ticketNumber }}</div>

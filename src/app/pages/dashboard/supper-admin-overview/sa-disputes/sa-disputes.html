@@ -54,7 +54,7 @@
               <span>أدلة: {{ (d.evidence?.length || 0) + (d._count?.attachments || 0) }}</span>
             </div>
           </div>
-          <button type="button" class="dp-btn dp-btn-gh" [routerLink]="[d.id]">عرض التفاصيل</button>
+          <button type="button" class="dp-btn dp-btn-gh" [routerLink]="[d.id]" queryParamsHandling="preserve">عرض التفاصيل</button>
         </div>
       }
     </div>

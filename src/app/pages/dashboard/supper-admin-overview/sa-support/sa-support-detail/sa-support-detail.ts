@@ -60,15 +60,25 @@ export class SaSupportDetail implements OnInit {
   }
   loading = signal(true);
   notFound = signal(false);
+  /** A failed load that is NOT a missing ticket (network / 5xx / 403): says so and offers a retry. */
+  readonly loadError = signal('');
   busy = signal(false);
   data = signal<AdminTicketDetailData | null>(null);
   related = signal<AdminTicketListItem[]>([]);
   staff = signal<AdminStaffMember[]>([]);
-  staffOptions = computed(() => this.staff().map(s => ({ value: s.id, label: s.name })));
   selectedAssigneeId = signal('');
   readonly escalationReason = signal('');
   private readonly adminAccess = inject(AdminAccessService);
+  /** reply, status, priority, internal notes and assignment all need support.reply on the server. */
+  readonly canReply = computed(() => this.adminAccess.can('support.reply'));
   readonly canEscalate = computed(() => this.adminAccess.can('support.reply') && this.adminAccess.can('tasks.manage'));
+  /** The server lets a member hand a ticket to SOMEBODY ELSE only with tasks.manage; taking it for himself needs support.reply only (and the staff list itself needs team.view). */
+  staffOptions = computed(() => {
+    const self = this.adminAccess.access()?.userId;
+    if (this.adminAccess.can('tasks.manage')) return this.staff().map(s => ({ value: s.id, label: s.name }));
+    const own = this.staff().find(s => s.id === self);
+    return self ? [{ value: self, label: own?.name ? `${own.name} (أنا)` : 'أنا (تكليف لنفسي)' }] : [];
+  });
   noteDraft = signal('');
   readonly firstStaffReply = computed(() => {
     const detail = this.data();
@@ -114,12 +124,17 @@ export class SaSupportDetail implements OnInit {
     if (!id) { this.notFound.set(true); this.loading.set(false); return; }
     this.loading.set(true);
     this.notFound.set(false);
+    this.loadError.set('');
     this.api.adminGetTicket(id).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res.success && res.data) { this.data.set(res.data); this.selectedAssigneeId.set(res.data.assignedTo?.id ?? ''); this.loadRelated(res.data.user?.id); } else this.notFound.set(true);
       },
-      error: () => { this.loading.set(false); this.notFound.set(true); },
+      error: (err) => {
+        this.loading.set(false);
+        if (err?.status === 404) this.notFound.set(true);
+        else this.loadError.set(mapHttpError(err, { fallback: 'تعذر تحميل التذكرة' }).message);
+      },
     });
   }
 
@@ -150,7 +165,7 @@ export class SaSupportDetail implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/supper-admin-overview/support']);
+    this.router.navigate(['/supper-admin-overview/support'], { queryParamsHandling: 'preserve' });
   }
 
   private fail(err: unknown, fallback: string, resolve: Record<string, string>, show: (m: string) => void) {
@@ -158,6 +173,7 @@ export class SaSupportDetail implements OnInit {
   }
 
   sendReply() {
+    if (!this.canReply()) return;
     if (this.busy()) return;
     const text = this.draftReply().trim();
     this.replyError.set('');
@@ -222,6 +238,7 @@ export class SaSupportDetail implements OnInit {
   }
 
   setStatus(status: TicketStatus) {
+    if (!this.canReply()) return;
     if (this.busy() || this.data()?.ticket.status === status) return;
     if (!this.guard.enter()) return;
     this.actionError.set('');
@@ -273,17 +290,21 @@ export class SaSupportDetail implements OnInit {
   assign() {
     const assigneeId = this.selectedAssigneeId();
     this.assignError.set('');
+    if (!this.canReply()) return;
+    if (assigneeId && !this.staffOptions().some(o => o.value === assigneeId)) { void reportAdminProblems(this.host.nativeElement, [{ field: 'sup-assignee', message: 'تكليف تذكرة لموظف آخر يحتاج صلاحية توزيع مهام الفريق. يمكنك تكليفها لنفسك.' }]); return; }
     if (!assigneeId) { void reportAdminProblems(this.host.nativeElement, [{ field: 'sup-assignee', message: 'اختر الموظف الذي ستُكلَّف إليه التذكرة' }]); return; }
     this.run(() => this.api.adminAssign(this.ticketId(), assigneeId), 'تم تكليف التذكرة', 'تعذر تكليف التذكرة', (m) => this.assignError.set(m), { assigneeId: 'sup-assignee' });
   }
 
   setPriority(priority: string) {
+    if (!this.canReply()) return;
     if (!priority || this.data()?.ticket.priority === priority) return;
     this.actionError.set('');
     this.run(() => this.api.adminSetPriority(this.ticketId(), priority), `تم تغيير الأولوية إلى: ${priority}`, 'تعذر تغيير الأولوية', (m) => this.actionError.set(m), {});
   }
 
   addNote() {
+    if (!this.canReply()) return;
     if (this.busy()) return;
     const body = this.noteDraft().trim();
     this.noteError.set('');
