@@ -32,7 +32,7 @@ function setup(over: any = {}, canEscalate = false) {
     providers: [provideHttpClient(), provideHttpClientTesting(),
       provideRouter([]),
       { provide: DisputeApiService, useValue: api },
-      { provide: AdminAccessService, useValue: { can: (permission: string) => canEscalate && permission === 'disputes.assign' } },
+      { provide: AdminAccessService, useValue: { can: (permission: string) => permission !== 'disputes.assign' || canEscalate } },
       { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } },
       { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 'd1' })), snapshot: { paramMap: convertToParamMap({ id: 'd1' }) } } },
     ],

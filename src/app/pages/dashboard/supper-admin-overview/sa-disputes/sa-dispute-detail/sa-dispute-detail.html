@@ -182,10 +182,12 @@
           <label>الإسناد</label>
           <p>المُسنَد إليه: <strong>{{ d.assignedTo?.name || 'غير مُسنَد' }}</strong></p>
           @if (d.assignedTo?.escalationReason; as reason) { <p>سبب التصعيد الداخلي: {{ reason }}</p> }
+          @if (canAssign()) {
           <div class="dp-ops-row">
             <ws-select id="dp-assignee" [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للإسناد" style="min-width:180px;max-width:100%;display:block"></ws-select>
             <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="assign()">إسناد</button>
           </div>
+          }
           @if (canEscalate()) {
             <div>
               <label for="dp-escalation-reason">سبب التصعيد الداخلي إلى الموظف المختار</label>
@@ -195,7 +197,7 @@
           }
         </div>
 
-        @if (canChangeStatus(d.status)) {
+        @if (canChangeStatus(d.status) && canDecide()) {
           <div class="dp-md-field">
             <label>حالة المراجعة</label>
             <div class="dp-ops-row">
@@ -220,10 +222,12 @@
               <p class="dp-disabled-note">لا توجد ملاحظات داخلية بعد.</p>
             }
           </div>
+          @if (canNote()) {
           <div class="dp-ops-row">
             <input id="dp-note" aria-label="ملاحظة داخلية" class="dp-rf-input" type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
             <button type="button" class="dp-btn dp-btn-gh" [disabled]="opBusy()" (click)="addNote()">إضافة</button>
           </div>
+          }
           @if (opError()) { <p class="dp-rf-err" role="alert" data-testid="op-error">{{ opError() }}</p> }
         </div>
 
@@ -268,7 +272,7 @@
         </div>
 
         <!-- The two kinds of decision, explained before any form opens -->
-        @if (canResolve(d.status)) {
+        @if (canResolve(d.status) && canDecide()) {
           <div class="dp-split-panel" data-testid="decision-kinds">
             <div class="dp-split-hdr">نوعا القرار الإداري</div>
             <p class="dp-disabled-note"><b>قرار نصي (حل / رفض):</b> يُسجَّل القرار ويُبلَّغ به الطرفان ولا ينقل أي مبلغ مالي. مثل: الإغلاق بالتراضي، أو لا تغيير مالي.</p>
@@ -278,7 +282,7 @@
 
       </div>
 
-      @if (canResolve(d.status) && !showResolveForm() && !showFinancialForm()) {
+      @if (canResolve(d.status) && canDecide() && !showResolveForm() && !showFinancialForm()) {
         <div class="dp-md-actions">
           <button type="button" class="dp-btn dp-btn-pri" (click)="openResolveForm('resolve')" data-testid="open-text-resolve">حل النزاع (قرار نصي)</button>
           <button type="button" class="dp-btn dp-btn-reject" (click)="openResolveForm('reject')">رفض النزاع</button>
