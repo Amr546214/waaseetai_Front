@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
-import { SaUnavailable } from '../../shared/sa-unavailable/sa-unavailable';
+import { SaMetricsPanel } from '../../shared/sa-metrics-panel/sa-metrics-panel';
 
-// Admin sweep (D3): this page used to render hardcoded mock data with no backend source.
-// It now shows an honest "not available" state (see shared/sa-unavailable); the route and
-// component are kept so the page can be wired to real data once a backend exists.
+// Wired to GET /admin/system-settings/technical-metrics: only measured values are shown, each with its reading time; the rest say «غير متاح» with the reason.
 @Component({
   selector: 'app-sa-database',
   standalone: true,
-  imports: [SaUnavailable],
+  imports: [SaMetricsPanel],
   templateUrl: './sa-database.html',
 })
 export class SaDatabase {}

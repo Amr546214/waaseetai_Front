@@ -18,11 +18,29 @@ const health = (dbStatus: 'ok' | 'down' = 'ok') => ({
     ],
   },
 });
-function mount() {
+const isEsc = (request: { url: string; method: string }) => request.method === 'GET' && request.url.endsWith('/admin/system-settings/escalation-readiness');
+const escalation = (over: Record<string, unknown> = {}) => ({
+  success: true,
+  data: {
+    readAt: '2026-11-08T09:00:05Z', automaticEscalation: 'closed', enabled: false, summary: 'التصعيد الآلي مقفول', ready: false, source: 's',
+    supportPermissions: ['support.review', 'support.reply'], disputePermissions: ['disputes.view', 'disputes.resolve'],
+    preconditions: [
+      { key: 'support_owner', label: 'مسؤول تذاكر الدعم معرّف', met: false, detail: 'غير معرّف (SUPPORT_SLA_TARGET_ADMIN_ID)' },
+      { key: 'disputes_perms', label: 'مسؤول النزاعات يملك الصلاحيات المطلوبة', met: true, detail: 'نشط ويملك الصلاحيات المطلوبة' },
+      { key: 'hours', label: 'مهل أول رد', met: null, detail: 'تعذّر' },
+    ], ...over,
+  },
+});
+const isMetrics = (request: { url: string; method: string }) => request.method === 'GET' && request.url.endsWith('/admin/system-settings/technical-metrics');
+const metricsBody = { success: true, data: { generatedAt: '2026-11-08T09:00:00Z', cacheSeconds: 15, windowMinutes: 15, indicators: [] } };
+function mount(escalationReply: unknown = escalation()) {
   TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
   const fixture = TestBed.createComponent(SaMonitoring);
   const http = TestBed.inject(HttpTestingController);
   fixture.detectChanges();
+  http.expectOne(isMetrics).flush(metricsBody);
+  const esc = http.expectOne(isEsc);
+  if (escalationReply === 'fail') esc.flush({}, { status: 500, statusText: 'x' }); else esc.flush(escalationReply as object);
   return { fixture, http, el: fixture.nativeElement as HTMLElement };
 }
 
@@ -48,13 +66,16 @@ describe('platform monitoring', () => {
     const { fixture, http, el } = mount();
     http.expectOne(isHealth).flush(health());
     fixture.componentInstance.refreshNow();
+    http.match(isMetrics).forEach(r => r.flush(metricsBody));
     fixture.componentInstance.refreshNow();
+    http.match(isMetrics).forEach(r => r.flush(metricsBody));
     http.expectOne(isHealth).flush({}, { status: 503, statusText: 'Unavailable' });
     fixture.detectChanges();
     expect(el.querySelector('[role="alert"]')?.textContent).toContain('آخر فحص ناجح');
     expect(el.textContent).toContain('استجابة 4 ms');
     expect(el.textContent).not.toContain('قاعدة البيانات لم تستجب');
     fixture.componentInstance.refreshNow();
+    http.match(isMetrics).forEach(r => r.flush(metricsBody));
     http.expectOne(isHealth).flush(health('down'));
     fixture.detectChanges();
     expect(el.querySelector('[role="alert"]')).toBeNull();
@@ -81,6 +102,51 @@ describe('platform monitoring', () => {
     expect(pending.cancelled).toBe(true);
     vi.advanceTimersByTime(60_000);
     http.expectNone(isHealth);
+    http.verify();
+  });
+
+  it('shows the escalation readiness read-only: closed label, which preconditions are missing, last-read time and no enabling control', () => {
+    const { fixture, http, el } = mount();
+    http.expectOne(isHealth).flush(health());
+    fixture.detectChanges();
+    const block = el.querySelector('[data-testid="escalation-readiness"]') as HTMLElement;
+    expect(block.querySelector('[data-testid="escalation-state"]')?.textContent).toContain('التصعيد الآلي مقفول');
+    expect(block.textContent).toContain('غير معرّف (SUPPORT_SLA_TARGET_ADMIN_ID)');
+    expect(block.querySelector('li[data-met="false"]')?.textContent).toContain('ناقص');
+    expect(block.querySelector('li[data-met="true"]')?.textContent).toContain('متحقق');
+    expect(block.querySelector('li[data-met="unknown"]')?.textContent).toContain('غير معروف');
+    expect(block.textContent).toContain('support.review');
+    expect(block.querySelector('time')?.getAttribute('datetime')).toBe('2026-11-08T09:00:05Z');
+    expect(block.querySelector('button')).toBeNull();
+    http.verify();
+  });
+
+  it('shows an error with retry when the readiness cannot be read', () => {
+    const { fixture, http, el } = mount('fail');
+    http.expectOne(isHealth).flush(health());
+    fixture.detectChanges();
+    const block = el.querySelector('[data-testid="escalation-readiness"]') as HTMLElement;
+    expect(block.querySelector('[role="alert"]')?.textContent).toContain('تعذّر قراءة جاهزية التصعيد');
+    block.querySelector('button')!.click();
+    http.expectOne(isEsc).flush(escalation());
+    fixture.detectChanges();
+    expect(block.querySelector('[role="alert"]')).toBeNull();
+    expect(block.textContent).toContain('التصعيد الآلي مقفول');
+    http.verify();
+  });
+
+  it('ignores the deprecated cdn/backup items of /health: no duplicate cards next to the technical indicators', () => {
+    const { fixture, http, el } = mount();
+    http.expectOne(isHealth).flush({ success: true, data: { checkedAt: '2026-11-08T09:00:00Z', items: [
+      { key: 'database', label: 'قاعدة البيانات', status: 'ok', detail: 'استجابة 4 ms' },
+      { key: 'mail', label: 'البريد الإلكتروني', status: 'configured', detail: 'تهيئة فقط' },
+      { key: 'cdn', label: 'CDN وتسليم الملفات', status: 'unavailable', detail: 'DEPRECATED-CDN', deprecated: true },
+      { key: 'backup', label: 'النسخ الاحتياطي', status: 'unavailable', detail: 'DEPRECATED-BACKUP', deprecated: true },
+    ] } });
+    fixture.detectChanges();
+    expect(el.textContent).not.toContain('DEPRECATED-CDN');
+    expect(el.textContent).not.toContain('DEPRECATED-BACKUP');
+    expect(el.textContent).toContain('البريد الإلكتروني');
     http.verify();
   });
 });

@@ -1,0 +1,18 @@
+:host { display: block; }
+.smp-page { padding: clamp(1rem, 3vw, 1.5rem); display: grid; gap: .9rem; }
+.smp-page :is(h1,h3,p) { margin: 0; }
+.smp-hdr, .smp-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.smp-hdr { align-items: start; justify-content: space-between; }
+.smp-hdr p { margin-block-start: .35rem; }
+.smp-actions button, .smp-retry { background: transparent; color: inherit; border: 1px solid var(--border, #64748b); border-radius: .45rem; padding: .5rem .75rem; font: inherit; cursor: pointer; }
+.smp-actions button[aria-pressed="true"] { border-color: var(--primary, #0e9384); font-weight: 700; }
+.smp-actions button:disabled { opacity: .55; }
+.smp-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .65rem; list-style: none; padding: 0; margin: 0; }
+.smp-cards li, .smp-error { border: 1px solid var(--border, #64748b); border-radius: .5rem; padding: .75rem; display: grid; gap: .3rem; align-content: start; }
+.smp-val { font-size: 1.4rem; }
+.smp-unit { font-size: .85rem; font-weight: 500; opacity: .8; }
+.smp-na { opacity: .85; }
+.smp-bad, .smp-error { color: var(--red, #d24646); }
+.smp-reason { font-size: .9rem; }
+.smp-meta, .smp-note { font-size: .8rem; opacity: .8; }
+time { direction: ltr; unicode-bidi: isolate; }

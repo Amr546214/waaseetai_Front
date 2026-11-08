@@ -1,15 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { SaUnavailable } from '../../shared/sa-unavailable/sa-unavailable';
+import { SaMetricsPanel } from '../../shared/sa-metrics-panel/sa-metrics-panel';
 import { environment } from '../../../../../../environments/environment';
 
-// Admin sweep (D3): the endpoint list, request rates, latencies, error rates and
-// integration statuses on this page were hardcoded. The only real signal the backend
-// exposes is the liveness probe GET /api/health, which is kept below as a real check.
+// Wired to GET /admin/system-settings/technical-metrics (process readings and a rolling request window; measured only) plus the liveness probe GET /api/health.
 @Component({
   selector: 'app-sa-apis',
   standalone: true,
-  imports: [SaUnavailable],
+  imports: [SaMetricsPanel],
   templateUrl: './sa-apis.html',
 })
 export class SaApis implements OnInit {

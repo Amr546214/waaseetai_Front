@@ -1,0 +1,55 @@
+<section class="monitoring-page" dir="rtl" data-testid="escalation-screen">
+  <header class="monitoring-header">
+    <div>
+      <h1>جاهزية التصعيد الآلي للدعم والنزاعات</h1>
+      <p>شاشة قراءة فقط. لا يوجد هنا أي زر لتفعيل التصعيد، ولا يُسند شيء ولا يُرسل أي إشعار منها.</p>
+    </div>
+    <div class="monitoring-actions"><button type="button" [disabled]="busy()" (click)="load()">تحديث القراءة</button></div>
+  </header>
+
+  @if (busy() && !data()) { <p role="status">جاري القراءة…</p> }
+  @if (error()) { <p class="monitoring-error" role="alert">{{ error() }} <button type="button" data-testid="retry" (click)="load()">إعادة المحاولة</button></p> }
+
+  @if (data(); as d) {
+    <p><strong data-testid="escalation-state">{{ d.summary }}</strong></p>
+    @if (d.statement) { <p data-testid="escalation-statement">{{ d.statement }}</p> }
+    <p>آخر قراءة: <time [attr.datetime]="d.readAt">{{ d.readAt | wsDate:'datetime':'yyyy-MM-dd HH:mm:ss' }}</time> — {{ d.source }}</p>
+
+    <h2>الإعدادات المطلوبة وما ينقص منها</h2>
+    <ul class="monitoring-cards" aria-label="شروط التصعيد">
+      @for (p of d.preconditions; track p.key) {
+        <li [attr.data-met]="p.met === null ? 'unknown' : p.met" [attr.data-key]="p.key"><h3>{{ p.label }}</h3><strong>{{ p.met === true ? 'متحقق' : p.met === false ? 'ناقص' : 'غير معروف' }}</strong><p>{{ p.detail }}</p></li>
+      }
+    </ul>
+
+    @if (d.assignees; as a) {
+      <h2>فحص المسؤولين</h2>
+      <ul class="monitoring-cards" aria-label="المسؤولون">
+        <li data-testid="assignee-support" [attr.data-state]="a.support.state"><h3>مسؤول الدعم</h3><strong>{{ state[a.support.state] || a.support.state }}</strong><p>{{ a.support.reason }}</p><p>المطلوب: {{ d.supportPermissions.join('، ') }}</p></li>
+        <li data-testid="assignee-disputes" [attr.data-state]="a.disputes.state"><h3>مسؤول النزاعات</h3><strong>{{ state[a.disputes.state] || a.disputes.state }}</strong><p>{{ a.disputes.reason }}</p><p>المطلوب: {{ d.disputePermissions.join('، ') }}</p></li>
+      </ul>
+    }
+
+    @if (d.rules; as r) {
+      <h2>القواعد الحالية</h2>
+      <ul class="monitoring-cards" aria-label="القواعد الحالية">
+        <li data-testid="rule-support">
+          <h3>أول رد على تذاكر الدعم</h3>
+          <p>منخفضة {{ r.supportFirstReply.hours.low }} ساعة · عادية {{ r.supportFirstReply.hours.normal }} · عالية {{ r.supportFirstReply.hours.high }} · عاجلة {{ r.supportFirstReply.hours.urgent }}</p>
+          <p>المصدر: {{ source[r.supportFirstReply.source] }}</p>
+        </li>
+        <li data-testid="rule-disputes"><h3>النزاعات</h3><p>{{ r.disputes.hours }} ساعة (7 أيام)، {{ r.disputes.note }}</p></li>
+        <li data-testid="rule-start"><h3>تاريخ البدء (UTC)</h3>
+          @if (d.startDate?.utc; as u) { <p><time [attr.datetime]="u">{{ u }}</time></p> } @else { <p>غير محدد</p> }</li>
+      </ul>
+    }
+
+    @if (d.decisions; as ds) {
+      <h2>قرارات مطلوبة</h2>
+      <ol data-testid="decisions">
+        @for (q of ds; track q.key) { <li [attr.data-key]="q.key">{{ q.label }} — <strong>مفتوح</strong></li> }
+      </ol>
+    }
+  }
+  <a routerLink="/supper-admin-overview/it/monitoring">العودة إلى مراقبة الصحة</a>
+</section>

@@ -62,7 +62,7 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	audit: { all: ['audit.view'] }, 'audit-trail': { all: ['audit.view'] },
 	// every remaining page of the console has its own explicit rule (nothing is opened to "any team member" by omission)
 	subscriptions: { all: ['packages.manage'] }, 'subscriptions/invoices': { all: ['finance.read'] },
-	it: { superAdmin: true }, 'it/security': { all: ['audit.view'] },
+	it: { superAdmin: true }, 'it/escalation-readiness': { superAdmin: true }, 'it/security': { all: ['audit.view'] },
 	ai: { superAdmin: true },
 	communication: { superAdmin: true },
 	analytics: { all: ['finance.read'] }, 'analytics/coupons': { all: ['packages.manage'] },
