@@ -1,10 +1,12 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { providerTimeZone } from '../../../../core/services/provider-prefs.store';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminTicketListData, AdminTicketListItem, TicketApiService, TicketStatus } from '../../../../core/services/ticket-api.service';
 
-type FilterKey = 'all' | TicketStatus;
+type FilterKey = 'all' | 'escalated' | TicketStatus;
 
 export const TICKET_STATUS_LABELS: Record<TicketStatus, string> = {
   OPEN: 'مفتوحة',
@@ -30,6 +32,9 @@ export function ticketStatusClass(s: TicketStatus): string {
 })
 export class SaSupport implements OnInit {
   private api = inject(TicketApiService);
+  private readonly destroyRef = inject(DestroyRef);
+  private listRequest?: Subscription;
+  readonly escalationCount = signal(0);
 
   activeFilter = signal<FilterKey>('all');
   searchTerm = signal('');
@@ -45,6 +50,7 @@ export class SaSupport implements OnInit {
 
   readonly filters: { key: FilterKey; label: string }[] = [
     { key: 'all', label: 'الكل' },
+    { key: 'escalated', label: 'مصعّدة' },
     { key: 'OPEN', label: 'مفتوحة' },
     { key: 'IN_PROGRESS', label: 'قيد المراجعة' },
     { key: 'AWAITING_CUSTOMER', label: 'بانتظار رد المستخدم' },
@@ -57,15 +63,21 @@ export class SaSupport implements OnInit {
   ngOnInit() { this.load(); }
 
   load() {
+    this.listRequest?.unsubscribe();
     this.loading.set(true);
     this.error.set(false);
     const f = this.activeFilter();
-    this.api.adminListTickets({ status: f === 'all' ? undefined : f, q: this.searchTerm().trim() || undefined, page: this.page() }).subscribe({
+    this.listRequest = this.api.adminListTickets({
+      status: f === 'all' || f === 'escalated' ? undefined : f,
+      ...(f === 'escalated' ? { escalated: true } : {}),
+      q: this.searchTerm().trim() || undefined, page: this.page(),
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res.success && res.data) {
           this.tickets.set(res.data.items);
           this.statusCounts.set(res.data.counts);
+          this.escalationCount.set(res.data.escalationCount ?? 0);
           this.pagination.set(res.data.pagination ?? null);
         } else {
           this.error.set(true);
@@ -76,7 +88,7 @@ export class SaSupport implements OnInit {
   }
 
   countFor(key: FilterKey): number {
-    return key === 'all' ? this.total() : (this.statusCounts()[key] ?? 0);
+    return key === 'all' ? this.total() : key === 'escalated' ? this.escalationCount() : (this.statusCounts()[key] ?? 0);
   }
 
   setFilter(key: FilterKey) {

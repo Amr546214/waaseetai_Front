@@ -1,0 +1,42 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { describe, expect, it } from 'vitest';
+import { SaNotifications } from './sa-notifications';
+import { NotificationTemplates } from './notification-templates';
+
+describe('notification templates', () => {
+  it('opens the templates tab, previews plain text and saves without making a send request', () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
+    const fixture = TestBed.createComponent(SaNotifications);
+    const http = TestBed.inject(HttpTestingController);
+    fixture.detectChanges();
+    http.expectOne(r => r.url.endsWith('/admin/notification-history')).flush({ data: { items: [], nextCursor: null } });
+    fixture.componentInstance.showTemplates.set(true);
+    fixture.detectChanges();
+    const list = () => http.expectOne(r => r.url.endsWith('/admin/notification-templates') && r.method === 'GET');
+    list().flush({ data: { page: 1, items: [], hasNext: false } });
+    const c = fixture.debugElement.query(n => n.componentInstance instanceof NotificationTemplates).componentInstance as NotificationTemplates;
+    c.draft = { name: '  ترحيب  ', title: 'عنوان', message: '<b>نص فقط</b>' };
+    fixture.detectChanges();
+    const preview = (fixture.nativeElement as HTMLElement).querySelector('[aria-label="معاينة الإشعار"]')!;
+    expect(preview.textContent).toContain('<b>نص فقط</b>');
+    expect(preview.querySelector('b')).toBeNull();
+    c.save();
+    const post = http.expectOne(r => r.url.endsWith('/admin/notification-templates') && r.method === 'POST');
+    expect(post.request.body).toEqual({ name: 'ترحيب', title: 'عنوان', message: '<b>نص فقط</b>' });
+    const row = { id: 'qa', ...post.request.body, version: 1, updatedAt: '2026-11-08T10:00:00Z' };
+    post.flush({ data: row });
+    list().flush({ data: { page: 1, items: [row], hasNext: false } });
+    c.draft.message = 'مسودة جديدة';
+    c.save();
+    const patch = http.expectOne(r => r.url.endsWith('/admin/notification-templates/qa') && r.method === 'PATCH');
+    expect(patch.request.body.version).toBe(1);
+    patch.flush({ code: 'NOTIFICATION_TEMPLATE_CHANGED', message: 'القالب اتعدّل من جلسة أخرى.' }, { status: 409, statusText: 'Conflict' });
+    list().flush({ data: { page: 1, items: [{ ...row, version: 2 }], hasNext: false } });
+    expect(c.draft.message).toBe('مسودة جديدة');
+    expect(c.saveError()).toContain('جلسة أخرى');
+    http.verify();
+  });
+});

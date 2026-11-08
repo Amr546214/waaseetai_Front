@@ -91,7 +91,10 @@
                 </span>
               </div>
               <div class="at-action">{{ e.title }}</div>
-              <div class="at-detail">{{ e.summary }}</div>
+              <div class="at-detail">{{ e.detail || e.summary }}</div>
+              @if (e.target?.type === 'PLATFORM_REPORT' && e.target?.id && access.can('reports.view')) {
+                <a class="at-foot-link" [routerLink]="['/supper-admin-overview/reports', e.target?.id]">فتح البلاغ</a>
+              }
               <div class="at-time">{{ e.eventType }} · {{ sourceLabels[e.source] || e.source }}@if (e.ipAddress) { · IP: {{ e.ipAddress }} }@if (e.device) { · {{ e.device }} } · {{ e.occurredAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</div>
             </div>
           </div>

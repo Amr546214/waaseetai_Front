@@ -1,10 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DisputeApiService } from '../../../../core/services/dispute-api.service';
 import { Dispute, DisputeStatus, DisputePagination } from '../../../../core/models/dispute.model';
 
-type StatusFilter = 'all' | DisputeStatus;
+type StatusFilter = 'all' | 'followUp' | DisputeStatus;
 
 @Component({
   selector: 'app-sa-disputes',
@@ -15,6 +17,10 @@ type StatusFilter = 'all' | DisputeStatus;
 })
 export class SaDisputes implements OnInit {
   private disputeApi = inject(DisputeApiService);
+  private readonly route = inject(ActivatedRoute, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
+  private listRequest?: Subscription;
+  readonly followUpCount = signal<number | null>(null);
 
   disputes = signal<Dispute[]>([]);
   loading = signal(false);
@@ -41,6 +47,7 @@ export class SaDisputes implements OnInit {
 
   readonly filters: { key: StatusFilter; label: string }[] = [
     { key: 'all', label: 'الكل' },
+    { key: 'followUp', label: 'تحتاج متابعة' },
     { key: 'OPEN', label: 'مفتوح' },
     { key: 'UNDER_REVIEW', label: 'قيد المراجعة' },
     { key: 'RESOLVED', label: 'تم الحل' },
@@ -48,23 +55,27 @@ export class SaDisputes implements OnInit {
   ];
 
   ngOnInit() {
+    if (this.route?.snapshot?.queryParamMap?.get('followUp') === 'true') this.activeFilter.set('followUp');
     this.fetchDisputes();
   }
 
   fetchDisputes() {
+    this.listRequest?.unsubscribe();
     this.loading.set(true);
     this.error.set('');
     const filter = this.activeFilter();
-    this.disputeApi.getAdminDisputes({
-      status: filter === 'all' ? undefined : filter,
+    this.listRequest = this.disputeApi.getAdminDisputes({
+      status: filter === 'all' || filter === 'followUp' ? undefined : filter,
+      ...(filter === 'followUp' ? { followUp: true } : {}),
       page: this.currentPage(),
       limit: this.pageSize(),
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         if (res.success && res.data) {
           this.disputes.set(res.data.items || []);
           this.pagination.set(res.data.pagination || null);
           this.counts.set(res.data.counts ?? {});
+          this.followUpCount.set(res.data.followUpCount ?? null);
         } else {
           this.disputes.set([]);
           this.pagination.set(null);
@@ -100,6 +111,7 @@ export class SaDisputes implements OnInit {
   }
 
   countFor(key: StatusFilter): number | null {
+    if (key === 'followUp') return this.followUpCount();
     const c = this.counts();
     if (key === 'all') {
       const vals = Object.values(c);

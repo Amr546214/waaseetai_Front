@@ -1,19 +1,42 @@
-<section class="rp-page" dir="rtl">
-  <div class="rp-hdr">
-    <div>
-      <h1 class="rp-ttl">البلاغات</h1>
-      <p class="rp-sub">بلاغات المستخدمين ضد الحسابات والمحتوى والسلوك المخالف</p>
-    </div>
+<section class="report-workspace" dir="rtl">
+  <h1>البلاغات</h1>
+  <p>بلاغات المستخدمين عن الحسابات والخدمات.</p>
+  <div class="report-controls" aria-label="فلترة البلاغات">
+    @for (tab of tabs; track tab.label) {
+      <button type="button" [attr.aria-pressed]="query().status === tab.key" (click)="setFilter(tab.key)">{{ tab.label }}</button>
+    }
   </div>
-
-  <!-- AI Cleanup Batch 3: every report, party name, fraud label, risk score,
-       "suggested action", piece of evidence, linked-account network and IP history
-       on this page was hardcoded mock data, and the moderation buttons only changed
-       local state. The backend has no user-report/complaint model or endpoint, so
-       nothing is shown here until that capability exists. -->
-  <div class="na-card" role="status">
-    <div class="na-ttl">نظام البلاغات غير متاح بعد</div>
-    <div class="na-sub">لا يستقبل النظام حاليا بلاغات من المستخدمين ولا يخزّنها، لذلك لا توجد بلاغات لعرضها أو اتخاذ إجراء بشأنها. لمراجعة الخلافات الفعلية بين الأطراف استخدم صفحة النزاعات.</div>
-    <a class="na-link" routerLink="/supper-admin-overview/disputes">فتح النزاعات</a>
-  </div>
+  <form class="report-controls" #filters="ngForm" (ngSubmit)="applyFilters()">
+    <label>البحث بالاسم أو المعرّف
+      <input name="search" type="search" [(ngModel)]="search" maxlength="100" placeholder="اسم الحساب أو الخدمة، أو معرّف البلاغ">
+    </label>
+    <label>نوع البلاغ
+      <select name="targetType" [(ngModel)]="targetType">
+        <option value="">كل الأنواع</option><option value="ACCOUNT">حساب</option><option value="SERVICE">خدمة</option>
+      </select>
+    </label>
+    <button type="submit">بحث</button>
+    <button type="button" (click)="resetFilters(filters)">إعادة ضبط الفلاتر</button>
+  </form>
+  @if (busy()) { <p role="status">جاري تحميل البلاغات…</p> }
+  @else if (error()) {
+    <p role="alert">{{ error() }}</p><button type="button" (click)="retry()">إعادة المحاولة</button>
+  } @else if (page(); as result) {
+    <p role="status">عدد البلاغات المطابقة: {{ result.total }}</p>
+    @if (!result.items.length) { <p>لا توجد بلاغات مطابقة.</p> }
+    @for (report of result.items; track report.id) {
+      <article class="report-card">
+        <a [routerLink]="[report.id]" queryParamsHandling="preserve">{{ report.targetLabel }}</a>
+        <p>معرّف البلاغ: <bdi dir="ltr">{{ report.id }}</bdi></p>
+        <p>{{ targets[report.targetType] }} · {{ statuses[report.status] }} · {{ report.createdAt | date:'short' }}</p>
+      </article>
+    }
+    @if (result.pages > 1 || result.page > 1) {
+      <nav class="report-controls" aria-label="صفحات البلاغات">
+        <button type="button" [disabled]="result.page <= 1" (click)="load(result.page - 1)">السابق</button>
+        <span>{{ result.page }} / {{ result.pages }}</span>
+        <button type="button" [disabled]="result.page >= result.pages" (click)="load(result.page + 1)">التالي</button>
+      </nav>
+    }
+  }
 </section>

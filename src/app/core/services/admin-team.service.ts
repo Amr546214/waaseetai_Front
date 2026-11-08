@@ -8,7 +8,7 @@ export interface RoleTemplate { key: string; name: string; description: string; 
 export const ADMIN_DEPARTMENTS: ReadonlyArray<{ key: string; label: string; permissions: string[] }> = [
 	{ key: 'users', label: 'المستخدمون', permissions: ['users.view', 'users.suspend', 'users.delete'] },
 	{ key: 'disputes', label: 'النزاعات', permissions: ['disputes.view', 'disputes.note', 'disputes.assign', 'disputes.resolve'] },
-	{ key: 'reports', label: 'البلاغات', permissions: ['reports.view'] },
+	{ key: 'reports', label: 'البلاغات', permissions: ['reports.view', 'reports.manage'] },
 	{ key: 'support', label: 'الدعم الفني', permissions: ['support.review', 'support.reply'] },
 	{ key: 'specialties', label: 'التخصصات', permissions: ['specialties.approve', 'content.manage', 'business_models.review'] },
 ];
