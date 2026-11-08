@@ -62,4 +62,10 @@ describe('escalation readiness screen', () => {
     expect(el.querySelectorAll('button').length).toBe(1);
     http.verify();
   });
+
+  it('uses the same state names as the decision sheet (docs/escalation-decision-sheet.md in the backend repo)', () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
+    const c = TestBed.createComponent(SaEscalationReadiness).componentInstance;
+    expect(c.state).toEqual({ ELIGIBLE: 'مؤهَّل', MISSING: 'لم يُحدَّد', NOT_FOUND: 'غير موجود', INACTIVE: 'حساب غير نشط', NOT_STAFF: 'ليس عضو فريق إداري', STAFF_INACTIVE: 'عضو فريق غير نشط', LACKS_PERMISSION: 'تنقصه صلاحيات', UNKNOWN: 'تعذّر التحقق' });
+  });
 });
