@@ -10,3 +10,17 @@
 .broadcast-card nav { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
 .broadcast-preview p { white-space: pre-wrap; overflow-wrap: anywhere; margin-block-start: .3rem; }
 [role="alert"] { color: var(--red, #b84444); }
+.broadcast-row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.broadcast-history-item { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; border-block-start: 1px solid var(--border, #64748b); padding-block: .5rem; }
+.broadcast-alert { border: 1px solid var(--red, #b84444); color: var(--red, #b84444); border-radius: .4rem; padding: .5rem .7rem; }
+.broadcast-notice { border: 1px solid var(--amber, #b7791f); color: var(--amber, #b7791f); border-radius: .4rem; padding: .5rem .7rem; }
+.queue-state { border-radius: .8rem; padding: .1rem .6rem; border: 1px solid currentColor; font-size: .85em; }
+.queue-state.s-WAITING_WORKER_DISABLED { color: #64748b; }
+.queue-state.s-WAITING_FOR_WORKER { color: #b7791f; }
+.queue-state.s-RUNNING { color: #2f855a; }
+.queue-state.s-STUCK_STOPPED_MID_RUN { color: #c05621; }
+.queue-state.s-STUCK_NO_PROGRESS { color: #b84444; }
+.queue-state.s-EXPIRED_NEEDS_REVIEW { color: #805ad5; }
+.preflight { border-radius: .4rem; padding: .5rem .7rem; border: 1px solid currentColor; }
+.preflight.ok { color: #2f855a; }
+.preflight.bad { color: #b84444; }
