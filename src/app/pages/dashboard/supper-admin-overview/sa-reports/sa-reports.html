@@ -3,21 +3,35 @@
   <p>بلاغات المستخدمين عن الحسابات والخدمات.</p>
   <div class="report-controls" aria-label="فلترة البلاغات">
     @for (tab of tabs; track tab.label) {
-      <button type="button" [disabled]="busy()" [attr.aria-pressed]="filter() === tab.key" (click)="setFilter(tab.key)">{{ tab.label }}</button>
+      <button type="button" [attr.aria-pressed]="query().status === tab.key" (click)="setFilter(tab.key)">{{ tab.label }}</button>
     }
   </div>
+  <form class="report-controls" (ngSubmit)="applyFilters()">
+    <label>البحث بالاسم أو المعرّف
+      <input name="search" type="search" [(ngModel)]="search" maxlength="100" placeholder="اسم الحساب أو الخدمة، أو معرّف البلاغ">
+    </label>
+    <label>نوع البلاغ
+      <select name="targetType" [(ngModel)]="targetType">
+        <option value="">كل الأنواع</option><option value="ACCOUNT">حساب</option><option value="SERVICE">خدمة</option>
+      </select>
+    </label>
+    <button type="submit">بحث</button>
+    <button type="button" (click)="resetFilters()">إعادة ضبط الفلاتر</button>
+  </form>
   @if (busy()) { <p role="status">جاري تحميل البلاغات…</p> }
   @else if (error()) {
-    <p role="alert">{{ error() }}</p><button type="button" (click)="load(1)">إعادة المحاولة</button>
+    <p role="alert">{{ error() }}</p><button type="button" (click)="retry()">إعادة المحاولة</button>
   } @else if (page(); as result) {
+    <p role="status">عدد البلاغات المطابقة: {{ result.total }}</p>
     @if (!result.items.length) { <p>لا توجد بلاغات مطابقة.</p> }
     @for (report of result.items; track report.id) {
       <article class="report-card">
-        <a [routerLink]="[report.id]">{{ report.targetLabel }}</a>
+        <a [routerLink]="[report.id]" queryParamsHandling="preserve">{{ report.targetLabel }}</a>
+        <p>معرّف البلاغ: <bdi dir="ltr">{{ report.id }}</bdi></p>
         <p>{{ targets[report.targetType] }} · {{ statuses[report.status] }} · {{ report.createdAt | date:'short' }}</p>
       </article>
     }
-    @if (result.pages > 1) {
+    @if (result.pages > 1 || result.page > 1) {
       <nav class="report-controls" aria-label="صفحات البلاغات">
         <button type="button" [disabled]="result.page <= 1" (click)="load(result.page - 1)">السابق</button>
         <span>{{ result.page }} / {{ result.pages }}</span>

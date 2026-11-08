@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -7,7 +8,7 @@ import { PlatformReportsApi, REPORT_STATUSES, REPORT_TARGETS, ReportDetail } fro
 
 @Component({
   selector: 'app-sa-report-detail',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, DatePipe],
   templateUrl: './sa-report-detail.html',
   styleUrls: ['../sa-reports.css', '../platform-reports.css'],
 })
