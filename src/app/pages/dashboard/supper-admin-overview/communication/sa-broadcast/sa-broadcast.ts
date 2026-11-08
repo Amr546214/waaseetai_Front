@@ -20,14 +20,21 @@ const CATEGORIES = [
   { value: 'FINANCIAL', label: 'المالية' },
   { value: 'AI', label: 'الذكاء الاصطناعي' },
 ] as const;
-const STATUS_LABELS: Record<string, string> = { QUEUED: 'في قائمة الانتظار', SENDING: 'جارٍ الإرسال', PARTIAL: 'اكتمل جزئيًا', COMPLETED: 'اكتمل', FAILED: 'فشل' };
+const STATUS_LABELS: Record<string, string> = { CANCELLED: 'أُلغي', QUEUED: 'في قائمة الانتظار', SENDING: 'جارٍ الإرسال', PARTIAL: 'اكتمل جزئيًا', COMPLETED: 'اكتمل', FAILED: 'فشل' };
 export type Audience = typeof AUDIENCES[number]['value'];
 export type Category = typeof CATEGORIES[number]['value'];
 export type Draft = { id: string; title: string; message: string; category: Category; audience: Audience | null; version: number; updatedAt: string };
 export type Preview = { deliveryEnabled?: boolean; draftId: string; version: number; audience: Audience; count: number; checkedAt: string; canSend: boolean; previewToken: string };
-export type Totals = { audience: number; sent: number; failed: number; pending: number };
+export type Totals = { audience: number; sent: number; failed: number; pending: number; cancelled?: number };
 export type BroadcastView = { id: string; sender: { id: string; name: string }; title: string; category: Category; audience: Audience; status: string; totals: Totals; createdAt: string; completedAt: string | null; lastProgressAt: string | null };
 export type BroadcastDetail = BroadcastView & { message: string; failureCodes: { code: string; count: number }[] };
+export type QueueState = 'WAITING_WORKER_DISABLED' | 'WAITING_FOR_WORKER' | 'RUNNING' | 'STUCK_STOPPED_MID_RUN' | 'STUCK_NO_PROGRESS';
+export type QueueItem = BroadcastView & { queueState: QueueState; stale: boolean; waitingSeconds: number | null; heartbeatAt: string | null; leaseUntil: string | null };
+export type QueueSummary = { waitingDisabled: number; waitingForWorker: number; running: number; stuckMidRun: number; stuckNoProgress: number; oldestWaitingSeconds: number | null; workerEnabled: boolean };
+export const QUEUE_LABELS: Record<QueueState, string> = {
+  WAITING_WORKER_DISABLED: 'في الانتظار — العامل مقفول', WAITING_FOR_WORKER: 'في الانتظار — بانتظار العامل', RUNNING: 'يعمل الآن',
+  STUCK_STOPPED_MID_RUN: 'توقفت أثناء التنفيذ', STUCK_NO_PROGRESS: 'عالقة بلا تقدّم',
+};
 type Template = { id: string; name: string; title: string; message: string };
 type TemplatePage = { page: number; items: Template[]; hasNext: boolean };
 type HistoryPage = { page: number; items: BroadcastView[]; hasNext: boolean };
@@ -82,6 +89,16 @@ export class SaBroadcast implements OnInit {
   pollMs = 3000;
   private poller: ReturnType<typeof setInterval> | null = null;
   private polling = false;
+  /** queue screen refresh (one shared fetch for list + banner); never faster than 15 s */
+  queuePollMs = 15000;
+  readonly queue = signal<{ items: QueueItem[]; summary: QueueSummary } | null>(null);
+  readonly queueError = signal('');
+  readonly cancelTarget = signal<QueueItem | null>(null);
+  readonly cancelBusy = signal(false);
+  readonly cancelError = signal('');
+  cancelReason = '';
+  private queueTimer: ReturnType<typeof setInterval> | null = null;
+  private queueLoading = false;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private saving: Promise<boolean> | null = null;
   private dirty = false;
@@ -93,11 +110,12 @@ export class SaBroadcast implements OnInit {
   category: Category = 'ALL';
   audience: Audience | '' = '';
 
-  constructor() { this.destroyRef.onDestroy(() => { this.clearTimer(); this.stopPolling(); }); }
+  constructor() { this.destroyRef.onDestroy(() => { this.clearTimer(); this.stopPolling(); this.stopQueuePolling(); }); }
 
   ngOnInit() {
     this.loadTemplates(1);
     this.loadHistory(1);
+    void this.loadQueue(); this.queueTimer = setInterval(() => { void this.loadQueue(); }, Math.max(15000, this.queuePollMs));
     this.http.get<{ data: { deliveryEnabled: boolean } }>(`${this.api}/status`).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: ({ data }) => this.deliveryEnabled.set(data.deliveryEnabled), error: () => undefined,
     });
@@ -284,6 +302,50 @@ export class SaBroadcast implements OnInit {
       if (!this.isRunning(view.status)) { this.stopPolling(); this.loadHistory(this.history()?.page ?? 1); }
     } catch { /* keep the last known state; the next tick tries again */ }
     finally { this.polling = false; }
+  }
+
+  // ---- queue review --------------------------------------------------------------------------------------------------------------------------
+  stopQueuePolling() { if (this.queueTimer) { clearInterval(this.queueTimer); this.queueTimer = null; } }
+  get isQueuePolling() { return !!this.queueTimer; }
+  queueLabel(state: QueueState) { return QUEUE_LABELS[state]; }
+  get stuckCount() { const s = this.queue()?.summary; return s ? s.stuckMidRun + s.stuckNoProgress : 0; }
+  canCancel(i: QueueItem) { return i.status === 'QUEUED' || (i.status === 'SENDING' && i.queueState !== 'RUNNING'); }
+  waitText(seconds: number | null) {
+    if (seconds === null) return '—';
+    if (seconds < 60) return 'أقل من دقيقة';
+    const m = Math.floor(seconds / 60); if (m < 60) return `${m} دقيقة`;
+    const h = Math.floor(m / 60); return h < 48 ? `${h} ساعة` : `${Math.floor(h / 24)} يوم`;
+  }
+  loadQueue(): Promise<void> {
+    if (this.queueLoading) return Promise.resolve();
+    this.queueLoading = true;
+    return new Promise<void>(resolve => {
+      this.http.get<{ data: { items: QueueItem[]; summary: QueueSummary } }>(`${this.api}/queue`).subscribe({
+        next: ({ data }) => { this.queue.set(data); this.queueError.set(''); this.queueLoading = false; resolve(); },
+        error: () => { this.queueError.set('تعذّر تحميل طابور البث.'); this.queueLoading = false; resolve(); },
+      });
+    });
+  }
+  openCancel(i: QueueItem) { this.cancelTarget.set(i); this.cancelReason = ''; this.cancelError.set(''); }
+  closeCancel() { this.cancelTarget.set(null); }
+  async confirmCancel() {
+    const t = this.cancelTarget();
+    if (!t || this.cancelBusy()) return;
+    this.cancelBusy.set(true); this.cancelError.set('');
+    try {
+      const reason = this.cancelReason.trim().slice(0, 200);
+      const ok = await this.confirmModal.confirm({ title: 'تأكيد إلغاء الإرسال', type: 'danger', size: 'md', confirmText: 'إلغاء الإرسال', message: [
+        `العنوان: ${t.title}`, `المرسل: ${t.sender.name}`, `الفئة: ${this.categoryLabel(t.category)} — الجمهور: ${this.audienceLabel(t.audience)}`,
+        `الجمهور ${t.totals.audience} · أُرسل ${t.totals.sent} · فشل ${t.totals.failed} · متبقٍ ${t.totals.pending}`,
+        ...(reason ? [`السبب: ${reason}`] : []), 'سيُلغى المتبقون فقط، ومن وصلهم الإشعار يبقى كما هو، ولا يمكن التراجع.'].join('\n') });
+      if (!ok) return;
+      await firstValueFrom(this.http.post(`${this.api}/${t.id}/cancel`, reason ? { reason } : {}));
+      this.cancelTarget.set(null); await this.loadQueue(); this.loadHistory(this.history()?.page ?? 1);
+    } catch (e) {
+      const code = errorBody(e)?.code;
+      this.cancelError.set(code === 'BROADCAST_RUNNING' ? 'الإرسال يعمل الآن ولا يمكن إلغاؤه أثناء التنفيذ.' : code === 'BROADCAST_NOT_CANCELLABLE' ? 'هذا الإرسال انتهى ولا يمكن إلغاؤه.' : 'تعذّر الإلغاء. حاول مرة أخرى.');
+      await this.loadQueue();
+    } finally { this.cancelBusy.set(false); }
   }
 
   // ---- history -------------------------------------------------------------------------------------------------------------------------------

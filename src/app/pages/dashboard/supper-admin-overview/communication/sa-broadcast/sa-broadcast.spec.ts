@@ -11,7 +11,9 @@ const view = (over: Record<string, unknown> = {}) => ({ id: 'b1', sender: { id: 
 const previewBody = (over: Record<string, unknown> = {}) => ({ draftId: 'd1', version: 1, audience: 'CLIENTS', count: 3, checkedAt: '2026-11-08T12:00:00Z', canSend: true, previewToken: 'tok-1', ...over });
 
 let confirmAnswer = true; let confirmArgs: any = null;
-function setup(latest: unknown = null, active: unknown = null, delivery: boolean | null = true) {
+const summaryOf = (over: Record<string, unknown> = {}) => ({ waitingDisabled: 0, waitingForWorker: 0, running: 0, stuckMidRun: 0, stuckNoProgress: 0, oldestWaitingSeconds: null, workerEnabled: true, ...over });
+const job = (state: string, over: Record<string, unknown> = {}) => ({ ...view({ status: state === 'RUNNING' ? 'SENDING' : 'QUEUED', totals: { audience: 10, sent: 0, failed: 0, pending: 10 } }), queueState: state, stale: state.startsWith('STUCK'), waitingSeconds: 7200, heartbeatAt: null, leaseUntil: null, ...over });
+function setup(latest: unknown = null, active: unknown = null, delivery: boolean | null = true, queue: { items: unknown[]; summary: unknown } = { items: [], summary: summaryOf() }, keepQueuePoll = false) {
   confirmAnswer = true; confirmArgs = null;
   TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
     { provide: ConfirmModalService, useValue: { confirm: async (c: unknown) => { confirmArgs = c; return confirmAnswer; } } }] });
@@ -21,9 +23,11 @@ function setup(latest: unknown = null, active: unknown = null, delivery: boolean
   fixture.detectChanges();
   http.expectOne(r => r.url.endsWith('/admin/notification-templates')).flush({ data: { page: 1, hasNext: false, items: [{ id: 'qa', name: 'ترحيب', title: 'أهلًا', message: '<b>نص فقط</b>' }] } });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } });
+  http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: queue });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts/status')).flush({ data: { deliveryEnabled: delivery } });
   http.expectOne(r => r.url.endsWith('/admin/broadcasts/active')).flush({ data: active });
   http.expectOne(r => r.url.endsWith('/broadcasts/drafts/latest')).flush({ data: latest });
+  if (!keepQueuePoll) c.stopQueuePolling();
   return { fixture, c, http, el: fixture.nativeElement as HTMLElement };
 }
 const flushAsync = async () => { for (let i = 0; i < 6; i++) await Promise.resolve(); };
@@ -288,6 +292,61 @@ describe('SaBroadcast', () => {
       c.deliveryEnabled.set(true); fixture.detectChanges();
       expect((Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('إعادة إرسال المتبقي')) as HTMLButtonElement).disabled).toBe(false);
       http.verify();
+    });
+  });
+
+  describe('queue review', () => {
+    const all = [job('WAITING_WORKER_DISABLED', { id: 'q1', waitingSeconds: 30 }), job('WAITING_FOR_WORKER', { id: 'q2', waitingSeconds: 400 }), job('RUNNING', { id: 'q3', waitingSeconds: null, totals: { audience: 10, sent: 4, failed: 0, pending: 6 } }), job('STUCK_STOPPED_MID_RUN', { id: 'q4', status: 'SENDING', waitingSeconds: null, lastProgressAt: '2026-11-08T11:00:00Z', totals: { audience: 10, sent: 4, failed: 0, pending: 6 } }), job('STUCK_NO_PROGRESS', { id: 'q5', waitingSeconds: 7200 })];
+    it('lists every state with its own Arabic label, wait time, counters and a stuck banner; cancel only where allowed', () => {
+      const { el, fixture, c } = setup(null, null, true, { items: all, summary: summaryOf({ waitingDisabled: 1, waitingForWorker: 1, running: 1, stuckMidRun: 1, stuckNoProgress: 1, oldestWaitingSeconds: 7200 }) });
+      fixture.detectChanges();
+      const rows = Array.from(el.querySelectorAll('[aria-label="طابور البث"] article')) as HTMLElement[];
+      expect(rows.map(r => r.dataset['state'])).toEqual(['WAITING_WORKER_DISABLED', 'WAITING_FOR_WORKER', 'RUNNING', 'STUCK_STOPPED_MID_RUN', 'STUCK_NO_PROGRESS']);
+      for (const [i, label] of ['في الانتظار — العامل مقفول', 'في الانتظار — بانتظار العامل', 'يعمل الآن', 'توقفت أثناء التنفيذ', 'عالقة بلا تقدّم'].entries()) expect(rows[i].textContent).toContain(label);
+      expect(rows[0].textContent).toContain('أقل من دقيقة'); expect(rows[1].textContent).toContain('6 دقيقة'); expect(rows[4].textContent).toContain('2 ساعة');
+      expect(rows[2].textContent).toContain('أُرسل 4'); expect(rows[2].textContent).toContain('متبقٍ 6');
+      expect(rows.map(r => !!r.querySelector('button'))).toEqual([true, true, false, true, true]); // a running job cannot be cancelled
+      expect(new Set(rows.map(r => r.querySelector('.queue-state')!.className)).size).toBe(5); // distinct styling per state
+      expect(el.querySelector('[aria-label="تنبيه إرسال عالق"]')!.textContent).toContain('2 إرسال عالق');
+      expect(c.stuckCount).toBe(2);
+    });
+    it('shows a notice (not an alert) when only waiting-with-worker-off jobs exist, and an empty queue message otherwise', () => {
+      const a = setup(null, null, true, { items: [all[0]], summary: summaryOf({ waitingDisabled: 1, workerEnabled: false }) });
+      a.fixture.detectChanges();
+      expect(a.el.querySelector('[aria-label="تنبيه إرسال عالق"]')).toBeNull(); expect(a.el.querySelector('[aria-label="إرسال بانتظار العامل"]')!.textContent).toContain('العامل مقفول');
+      TestBed.resetTestingModule();
+      const b = setup(); b.fixture.detectChanges();
+      expect(b.el.textContent).toContain('الطابور فارغ'); expect(b.el.querySelector('[role="alert"][aria-label="تنبيه إرسال عالق"]')).toBeNull();
+    });
+    it('cancel opens a confirmation with sender, category, counters (no body), posts the reason, refreshes the queue', async () => {
+      const { c, http } = setup(null, null, true, { items: [all[3]], summary: summaryOf({ stuckMidRun: 1 }) });
+      c.openCancel(all[3] as any); c.cancelReason = 'رسالة قديمة';
+      const p = c.confirmCancel(); await flushAsync();
+      const text = confirmArgs.message as string;
+      expect(text).toContain('المرسل: مدير'); expect(text).toContain('أُرسل 4'); expect(text).toContain('رسالة قديمة'); expect(text).not.toContain('message');
+      const req = route(http, 'POST', '/broadcasts/q4/cancel'); expect(req.request.body).toEqual({ reason: 'رسالة قديمة' });
+      req.flush({ data: view({ status: 'CANCELLED' }) }); await flushAsync();
+      http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: { items: [], summary: summaryOf() } }); await flushAsync();
+      http.expectOne(r => r.url.endsWith('/admin/broadcasts') && r.method === 'GET').flush({ data: { page: 1, hasNext: false, items: [] } }); await p;
+      expect(c.cancelTarget()).toBeNull(); expect(c.queue()?.items.length).toBe(0);
+    });
+    it('declining the confirmation cancels nothing; a refusal from the server is explained', async () => {
+      const { c, http } = setup(null, null, true, { items: [all[3]], summary: summaryOf({ stuckMidRun: 1 }) });
+      c.openCancel(all[3] as any); confirmAnswer = false; await c.confirmCancel(); http.expectNone(r => r.url.endsWith('/cancel'));
+      confirmAnswer = true; const p = c.confirmCancel(); await flushAsync();
+      route(http, 'POST', '/broadcasts/q4/cancel').flush({ code: 'BROADCAST_RUNNING' }, { status: 409, statusText: 'Conflict' }); await flushAsync();
+      http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: { items: [all[2]], summary: summaryOf({ running: 1 }) } }); await p;
+      expect(c.cancelError()).toContain('يعمل الآن');
+    });
+    it('polls the queue every 15 s with one shared fetch and stops on leaving the page', async () => {
+      const { c, http, fixture } = setup(null, null, true, { items: [], summary: summaryOf() }, true);
+      expect(c.isQueuePolling).toBe(true);
+      vi.advanceTimersByTime(14000); http.expectNone(r => r.url.endsWith('/admin/broadcasts/queue'));
+      vi.advanceTimersByTime(1500); await flushAsync();
+      http.expectOne(r => r.url.endsWith('/admin/broadcasts/queue')).flush({ data: { items: [all[1]], summary: summaryOf({ waitingForWorker: 1 }) } }); await flushAsync();
+      expect(c.queue()?.items.length).toBe(1);
+      fixture.destroy(); expect(c.isQueuePolling).toBe(false);
+      vi.advanceTimersByTime(60000); http.expectNone(r => r.url.endsWith('/admin/broadcasts/queue'));
     });
   });
 });

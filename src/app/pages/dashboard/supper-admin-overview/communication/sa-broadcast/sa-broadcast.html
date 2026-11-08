@@ -1,6 +1,11 @@
 <section class="broadcast-workspace" dir="rtl">
   <h1>البث الجماعي</h1>
   <p>الرسالة تُحفظ كمسودة على الخادم وتظهر لك بعد تحديث الصفحة. المعاينة لا ترسل شيئًا، والإرسال يصل كإشعار داخل المنصة فقط.</p>
+  @if (stuckCount > 0) {
+    <p class="broadcast-alert" role="alert" aria-label="تنبيه إرسال عالق">يوجد {{ stuckCount }} إرسال عالق أو متوقف أثناء التنفيذ. راجع «طابور البث» أدناه وألغِ ما لم يعد مطلوبًا قبل تفعيل العامل.</p>
+  } @else if (queue()?.summary; as qs) {
+    @if (qs.waitingDisabled > 0) { <p class="broadcast-notice" role="status" aria-label="إرسال بانتظار العامل">يوجد {{ qs.waitingDisabled }} إرسال في الانتظار والعامل مقفول. راجعها في «طابور البث» قبل تفعيل العامل.</p> }
+  }
 
   @if (result(); as r) {
     <section class="broadcast-card" aria-label="نتيجة الإرسال">
@@ -115,6 +120,37 @@
       }
     </section>
   }
+
+  <section class="broadcast-card" aria-label="طابور البث">
+    <h2>طابور البث</h2>
+    <p>الإرسالات في الانتظار أو الجارية أو العالقة. لا تُعرض نصوص الرسائل هنا.</p>
+    @if (queueError()) { <p role="alert">{{ queueError() }}</p> }
+    @if (queue(); as q) {
+      <p role="status">العامل: {{ q.summary.workerEnabled ? 'مفعّل' : 'مقفول' }} · في الانتظار {{ q.summary.waitingDisabled + q.summary.waitingForWorker }} · يعمل {{ q.summary.running }} · عالقة {{ q.summary.stuckMidRun + q.summary.stuckNoProgress }}</p>
+      @if (!q.items.length) { <p>الطابور فارغ.</p> }
+      @for (job of q.items; track job.id) {
+        <article class="broadcast-history-item" [attr.data-state]="job.queueState">
+          <strong>{{ job.title }}</strong>
+          <span class="queue-state" [class]="'queue-state s-' + job.queueState">{{ queueLabel(job.queueState) }}</span>
+          <span>المرسل: {{ job.sender.name }}</span>
+          <span>{{ audienceLabel(job.audience) }} · {{ categoryLabel(job.category) }}</span>
+          <span>الانتظار: {{ waitText(job.waitingSeconds) }}</span>
+          <span>آخر تحديث: @if (job.lastProgressAt) { <time [attr.datetime]="job.lastProgressAt">{{ job.lastProgressAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time> } @else { لا يوجد }</span>
+          <span>الجمهور {{ job.totals.audience }} · أُرسل {{ job.totals.sent }} · فشل {{ job.totals.failed }} · متبقٍ {{ job.totals.pending }}</span>
+          @if (canCancel(job)) { <button type="button" (click)="openCancel(job)">إلغاء</button> }
+        </article>
+      }
+    }
+    @if (cancelTarget(); as t) {
+      <div class="broadcast-preview" aria-label="إلغاء إرسال">
+        <strong>إلغاء: {{ t.title }}</strong>
+        <label>السبب (اختياري)<input type="text" maxlength="200" [(ngModel)]="cancelReason"></label>
+        @if (cancelError()) { <p role="alert">{{ cancelError() }}</p> }
+        <button type="button" (click)="confirmCancel()" [disabled]="cancelBusy()">متابعة الإلغاء</button>
+        <button type="button" (click)="closeCancel()" [disabled]="cancelBusy()">تراجع</button>
+      </div>
+    }
+  </section>
 
   <section class="broadcast-card" aria-label="سجل البث">
     <h2>سجل البث</h2>
