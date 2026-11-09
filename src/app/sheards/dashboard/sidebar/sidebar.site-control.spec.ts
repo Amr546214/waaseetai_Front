@@ -32,7 +32,8 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(i).toBeGreaterThan(-1);
 		expect(nav[i + 1].type).toBe('accordion');
 		expect(nav[i + 1].label).toBe('التحكم بالموقع');
-		expect(nav[i + 2].type).toBe('button'); // logout stays the last entry
+		expect(nav[nav.length - 1].type).toBe('button'); // logout stays the last entry
+		expect(nav.slice(i + 2).map((n: any) => n.label)).toEqual(['المساعد', 'بيبو', 'تسجيل الخروج']); // only the Bebo tab sits between the section and logout
 		const children = nav[i + 1].children as any[];
 		expect(children.map(c => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'دليل الأنماط', 'المعاينة الشاملة', 'تصدير CSS']);
 		expect(children.every(c => String(c.route).startsWith('/supper-admin-overview/site-control/'))).toBe(true);

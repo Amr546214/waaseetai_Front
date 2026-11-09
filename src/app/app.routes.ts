@@ -71,6 +71,7 @@ export const routes: Routes = [
 	// supper admin
 	{
 		path: 'supper-admin-overview',
+		data: { beboToolbarInSidebar: true },
 		canActivate: [authGuard, superAdminGuard],
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),
 		children: SUPPER_ADMIN_ROUTES
