@@ -1,13 +1,15 @@
-import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { reportAdminProblems } from '../shared/admin-form-report';
-import { AdminAnalyticsService, AnalyticsOverview, ACCOUNT_TYPE_LABELS, STATUS_LABELS } from '../../../../core/services/admin-analytics.service';
+import { AdminAnalyticsService, AnalyticsOverview, SavedAnalyticsReport, SavedAnalyticsReportInput, ACCOUNT_TYPE_LABELS, STATUS_LABELS } from '../../../../core/services/admin-analytics.service';
 import { CsvColumn, exportCsv, printPage } from '../../../../core/utils/export.util';
 
-type SectionKey = 'overview' | 'users' | 'projects' | 'finance' | 'specialties' | 'affiliates' | 'performance';
-type PeriodKey = '7d' | '30d' | '3m' | '6m' | '1y' | 'custom';
+type SectionKey = SavedAnalyticsReportInput['section'];
+type PeriodKey = SavedAnalyticsReportInput['period'];
 
 interface KpiCard { icon: string; color: string; bg: string; val: string; lbl: string; sub: string; }
 interface ExportSet { filename: string; columns: CsvColumn<any>[]; rows: any[]; }
@@ -27,6 +29,19 @@ const DAY = 86400000;
 export class SaAnalyticsHub implements OnInit {
   private readonly api = inject(AdminAnalyticsService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  private readonly destroyRef = inject(DestroyRef);
+  private analyticsRequests = new Subscription();
+  readonly savedOpen = signal(false);
+  readonly savedLoading = signal(false);
+  readonly savedMutating = signal(false);
+  readonly savedError = signal('');
+  readonly savedNotice = signal('');
+  readonly savedItems = signal<SavedAnalyticsReport[]>([]);
+  readonly savedPage = signal(1);
+  readonly savedHasNext = signal(false);
+  readonly deleteCandidate = signal<SavedAnalyticsReport | null>(null);
+  reportName = '';
 
   activeSection = signal<SectionKey>('overview');
   activePeriod = signal<PeriodKey>('30d');
@@ -62,15 +77,91 @@ export class SaAnalyticsHub implements OnInit {
   readonly statusLabels = STATUS_LABELS;
 
   /** The window actually requested (undefined bounds are sent as no filter). */
-  readonly range = computed(() => {
+  readonly range = () => {
     const p = this.activePeriod();
     if (p === 'custom') return { from: this.customFrom() || undefined, to: this.customTo() || undefined };
     const now = new Date();
     return { from: iso(new Date(now.getTime() - PERIOD_DAYS[p] * DAY)), to: iso(now) };
-  });
+  };
 
   ngOnInit(): void {
     this.reload();
+  }
+
+  toggleSavedReports() {
+    this.savedOpen.update(open => !open);
+    this.deleteCandidate.set(null);
+    if (this.savedOpen()) this.loadSavedReports();
+  }
+
+  loadSavedReports(page = this.savedPage()) {
+    if (this.savedLoading() || page < 1) return;
+    this.savedLoading.set(true);
+    this.savedError.set('');
+    this.api.listSavedReports(page).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: result => {
+        this.savedPage.set(page);
+        this.savedItems.set(result.items);
+        this.savedHasNext.set(result.hasNext);
+        this.savedLoading.set(false);
+      },
+      error: () => { this.savedLoading.set(false); this.savedError.set('تعذّر تحميل التقارير المحفوظة.'); },
+    });
+  }
+
+  validSavedRange(): boolean {
+    if (this.activePeriod() !== 'custom') return true;
+    const from = this.customFrom();
+    const to = this.customTo();
+    return !!(from || to) && (!from || !to || from <= to);
+  }
+
+  saveReport() {
+    const name = this.reportName.trim();
+    if (this.savedMutating() || this.savedLoading() || !name || name.length > 80 || !this.validSavedRange()) return;
+    const period = this.activePeriod();
+    this.savedMutating.set(true);
+    this.savedError.set('');
+    this.savedNotice.set('');
+    this.api.createSavedReport({
+      name, period, section: this.activeSection(), compare: this.compareEnabled(),
+      from: period === 'custom' ? this.customFrom() || null : null,
+      to: period === 'custom' ? this.customTo() || null : null,
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.savedMutating.set(false);
+        this.reportName = '';
+        this.savedNotice.set('تم حفظ إعدادات التقرير.');
+        this.loadSavedReports(1);
+      },
+      error: () => { this.savedMutating.set(false); this.savedError.set('تعذّر حفظ التقرير. حاول مرة أخرى.'); },
+    });
+  }
+
+  openReport(report: SavedAnalyticsReport) {
+    this.activeSection.set(report.section);
+    this.customFrom.set(report.from ?? '');
+    this.customTo.set(report.to ?? '');
+    this.activePeriod.set(report.period);
+    this.compareEnabled.set(report.compare);
+    this.savedNotice.set('تم تطبيق إعدادات التقرير المحفوظ.');
+    this.reload();
+  }
+
+  deleteReport(report: SavedAnalyticsReport) {
+    if (this.savedMutating() || this.savedLoading() || this.deleteCandidate()?.id !== report.id) return;
+    this.savedMutating.set(true);
+    this.savedError.set('');
+    this.savedNotice.set('');
+    this.api.deleteSavedReport(report.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.savedMutating.set(false);
+        this.deleteCandidate.set(null);
+        this.savedNotice.set('تم حذف التقرير المحفوظ.');
+        this.loadSavedReports(this.savedItems().length === 1 ? Math.max(1, this.savedPage() - 1) : this.savedPage());
+      },
+      error: () => { this.savedMutating.set(false); this.savedError.set('تعذّر حذف التقرير. حاول مرة أخرى.'); },
+    });
   }
 
   setSection(s: SectionKey) { this.activeSection.set(s); }
@@ -98,19 +189,23 @@ export class SaAnalyticsHub implements OnInit {
   }
 
   reload() {
+    this.analyticsRequests.unsubscribe();
+    this.analyticsRequests = new Subscription();
     const r = this.range();
+    this.data.set(null);
+    this.loadedAt.set(null);
     this.loading.set(true);
     this.failed.set(false);
-    this.api.getOverview(r).subscribe((res) => {
+    this.analyticsRequests.add(this.api.getOverview(r).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.data.set(res.data);
       this.failed.set(res.failed);
       this.loading.set(false);
       if (res.data) this.loadedAt.set(new Date());
-    });
+    }));
     this.previous.set(null);
     const prev = this.previousRange();
     if (this.compareEnabled() && prev) {
-      this.api.getOverview(prev).subscribe((res) => this.previous.set(res.data));
+      this.analyticsRequests.add(this.api.getOverview(prev).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => this.previous.set(res.data)));
     }
   }
 
