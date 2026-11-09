@@ -139,7 +139,7 @@ export class Login implements AfterViewInit {
 
             // Google proved the identity but the session still needs the e-mailed login code (never SMS).
             if (res.data && !res.data.token && res.data.loginOtpRequired && res.data.userId) {
-              this.goToLoginOtp(res.data);
+              this.goToLoginOtp(res.data, res.message);
               return;
             }
 
@@ -248,7 +248,7 @@ export class Login implements AfterViewInit {
           this.showSmsUnavailable();
         } else if (res.data?.loginOtpRequired) {
           // Correct password: the login code was e-mailed (never SMS). The shared OTP screen finishes the login.
-          this.goToLoginOtp(res.data);
+          this.goToLoginOtp(res.data, res.message);
         } else {
           // Registered but never verified: the backend has just e-mailed a fresh code (and authApi.login
           // stored the pending user id), so continue at the verification step instead of the sign-up page.
@@ -291,11 +291,12 @@ export class Login implements AfterViewInit {
   }
 
   /** Active account (password or Google): the mandatory login code was e-mailed, finish at the shared OTP screen. */
-  private goToLoginOtp(data?: AuthResponse['data']) {
+  private goToLoginOtp(data?: AuthResponse['data'], message?: string) {
     this.handOffResendWait(data);
     const notice = { ...loginOtpNotice(data), to: maskEmailAddress(this.loginForm.value.email) };
+    if (!notice.sent && message) notice.message = message;
     this.otpHandoff.set(notice);
-    this.notify.info(notice.message, { duration: 8000 });
+    if (notice.sent) this.notify.info(notice.message, { duration: 8000 });
     this.router.navigate(['/auth/verify-otp']);
   }
 
