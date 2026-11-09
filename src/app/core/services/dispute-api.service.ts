@@ -140,6 +140,10 @@ export class DisputeApiService {
     let params = new HttpParams();
     if (query?.followUp) params = params.set('followUp', 'true');
     if (query?.status) params = params.set('status', query.status);
+    if (query?.q) params = params.set('q', query.q);
+    if (query?.assignee) params = params.set('assignee', query.assignee);
+    if (query?.createdFrom) params = params.set('createdFrom', query.createdFrom);
+    if (query?.createdTo) params = params.set('createdTo', query.createdTo);
     if (query?.page) params = params.set('page', query.page);
     if (query?.limit) params = params.set('limit', query.limit);
     return this.http.get<DisputeListApiResponse>(`${this.baseUrl}/admin/disputes`, { params });

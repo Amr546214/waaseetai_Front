@@ -157,6 +157,13 @@ export interface ResolveFinancialPayload {
 export interface AdminDisputesQuery {
   followUp?: boolean;
   status?: DisputeStatus;
+  /** Admin queue search: dispute number (full or the short `#3f6fa186` prefix) or a request / project reference. */
+  q?: string;
+  /** `me`, `unassigned` or a staff user id. */
+  assignee?: string;
+  /** Creation period, `YYYY-MM-DD` (UTC, inclusive). */
+  createdFrom?: string;
+  createdTo?: string;
   page?: number;
   limit?: number;
 }
