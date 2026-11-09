@@ -1,0 +1,48 @@
+<section class="template-workspace" aria-label="قوالب الإشعارات">
+  <h2>قوالب الإشعارات</h2>
+  <p>احفظ عنوانًا ونصًا لإعادة استخدامهما. حفظ القالب لا يرسل إشعارًا.</p>
+  <div class="template-layout">
+    <div>
+      <h3>القوالب المحفوظة</h3>
+      @if (loading()) { <p role="status">جاري تحميل القوالب…</p> }
+      @else if (loadError()) {
+        <p role="alert">{{ loadError() }}</p>
+        <button type="button" (click)="retry()">إعادة المحاولة</button>
+      }
+      @else if (page(); as result) {
+        @if (!result.items.length) { <p>لا توجد قوالب في هذه الصفحة.</p> }
+        <ul class="template-list">
+          @for (item of result.items; track item.id) {
+            <li>
+              <button type="button" [disabled]="saving()" (click)="edit(item)">{{ item.name }}</button>
+              <time [attr.datetime]="item.updatedAt">{{ item.updatedAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time>
+            </li>
+          }
+        </ul>
+        @if (result.page > 1 || result.hasNext) {
+          <nav aria-label="صفحات القوالب">
+            <button type="button" [disabled]="result.page === 1 || saving()" (click)="load(result.page - 1)">السابق</button>
+            <span>صفحة {{ result.page }}</span>
+            <button type="button" [disabled]="!result.hasNext || saving()" (click)="load(result.page + 1)">التالي</button>
+          </nav>
+        }
+      }
+    </div>
+    <form class="template-form" (ngSubmit)="save()">
+      <h3>{{ editing() ? 'تعديل القالب' : 'قالب جديد' }}</h3>
+      <label>اسم القالب (حتى ٨٠ حرفًا)<input name="name" [(ngModel)]="draft.name" maxlength="80" required [disabled]="saving()"></label>
+      <label>العنوان (حتى ١٥٠ حرفًا)<input name="title" [(ngModel)]="draft.title" maxlength="150" required [disabled]="saving()"></label>
+      <label>النص (حتى ٢٠٠٠ حرف)<textarea name="message" [(ngModel)]="draft.message" maxlength="2000" rows="5" required [disabled]="saving()"></textarea></label>
+      <div class="template-preview" aria-label="معاينة الإشعار">
+        <strong>{{ draft.title.trim() || 'عنوان الإشعار' }}</strong>
+        <p>{{ draft.message.trim() || 'نص الإشعار' }}</p>
+      </div>
+      @if (saveError()) { <p role="alert">{{ saveError() }}</p> }
+      @if (success()) { <p role="status">{{ success() }}</p> }
+      <div>
+        <button type="submit" [disabled]="saving() || loading()">{{ saving() ? 'جاري الحفظ…' : 'حفظ القالب' }}</button>
+        <button type="button" [disabled]="saving()" (click)="edit(null)">قالب جديد</button>
+      </div>
+    </form>
+  </div>
+</section>

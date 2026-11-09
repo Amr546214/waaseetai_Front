@@ -138,6 +138,7 @@ export class DisputeApiService {
    */
   getAdminDisputes(query?: AdminDisputesQuery): Observable<DisputeListApiResponse> {
     let params = new HttpParams();
+    if (query?.followUp) params = params.set('followUp', 'true');
     if (query?.status) params = params.set('status', query.status);
     if (query?.page) params = params.set('page', query.page);
     if (query?.limit) params = params.set('limit', query.limit);
@@ -169,8 +170,8 @@ export class DisputeApiService {
     return this.http.post<ResolveFinancialApiResponse>(`${this.baseUrl}/admin/disputes/${id}/resolve-financial`, payload);
   }
 
-  assignAdminDispute(id: string, assigneeId: string): Observable<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>> {
-    return this.http.post<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>>(`${this.baseUrl}/admin/disputes/${id}/assign`, { assigneeId });
+  assignAdminDispute(id: string, assigneeId: string, escalationReason?: string): Observable<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>> {
+    return this.http.post<ApiResponse<{ id: string; assignedTo: { id: string; name: string } }>>(`${this.baseUrl}/admin/disputes/${id}/assign`, { assigneeId, ...(escalationReason ? { escalationReason } : {}) });
   }
 
   /** POST /api/admin/disputes/:id/notes — internal note, never shown to the parties. */

@@ -9,6 +9,7 @@ import { SaDisputeDetail } from './sa-dispute-detail';
 import { SaDisputes } from '../sa-disputes';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { AdminOpsApiService } from '../../../../../core/services/admin-ops-api.service';
 
 const dispute: any = {
@@ -21,7 +22,7 @@ const dispute: any = {
   timeline: [{ id: 't1', eventType: 'ASSIGN', title: 'إسناد النزاع', summary: 'إلى سارة', occurredAt: '2026-01-02T09:00:00.000Z', admin: { id: 's1', name: 'سارة' } }],
 };
 
-function setup(over: any = {}) {
+function setup(over: any = {}, canEscalate = false) {
   const ok = () => of({ success: true, data: dispute });
   const api = {
     getAdminDispute: vi.fn(() => of({ success: true, data: { ...dispute, ...over } })),
@@ -31,6 +32,7 @@ function setup(over: any = {}) {
     providers: [provideHttpClient(), provideHttpClientTesting(),
       provideRouter([]),
       { provide: DisputeApiService, useValue: api },
+      { provide: AdminAccessService, useValue: { can: (permission: string) => permission !== 'disputes.assign' || canEscalate } },
       { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } },
       { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 'd1' })), snapshot: { paramMap: convertToParamMap({ id: 'd1' }) } } },
     ],
@@ -88,16 +90,30 @@ describe('SaDisputeDetail — staff operations', () => {
     expect(api.getAdminDispute).toHaveBeenCalledTimes(2);
   });
 
-  it('renders the API timeline, real escrow, evidence link and disabled escalation reason', () => {
-    const { el } = setup();
+  it('renders the API timeline, real escrow and evidence, with no escalation controls for a viewer', () => {
+    const { el, c, api } = setup();
     expect(el.textContent).toContain('إسناد النزاع');
     expect(el.textContent).not.toContain('غير مؤرَّخ');
     expect(el.textContent).toContain('محتجز');
     expect(el.textContent).toContain('500.00');
     expect(el.textContent).toContain('تصميم شعار');
     expect((el.querySelector('a.dp-ev-link') as HTMLAnchorElement).textContent).toContain('proof.pdf');
-    expect(el.textContent).toContain('يحتاج قرار منتج/جدول بيانات غير متوفر');
+    expect(el.querySelector('#dp-escalation-reason')).toBeNull();
+    c.selectedAssigneeId.set('s2');
+    c.escalationReason.set('سبب خاص');
+    c.escalate();
+    expect(api.assignAdminDispute).not.toHaveBeenCalled();
   });
+  it('sends the selected staff member and a trimmed private reason when escalation is allowed', () => {
+    const { c, api, el } = setup({}, true);
+    expect(el.querySelector('#dp-escalation-reason')).not.toBeNull();
+    c.selectedAssigneeId.set('s2');
+    c.escalationReason.set('  يحتاج مراجعة مسؤول المناوبة  ');
+    c.escalate();
+    expect(api.assignAdminDispute).toHaveBeenCalledExactlyOnceWith('d1', 's2', 'يحتاج مراجعة مسؤول المناوبة');
+    expect(c.escalationReason()).toBe('');
+  });
+
 });
 
 describe('SaDisputes list', () => {

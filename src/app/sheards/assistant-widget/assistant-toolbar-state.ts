@@ -8,8 +8,8 @@ export type AssistantPanelTab = 'chat' | 'motions' | 'settings' | 'tour';
 export const TOOLBAR_COLLAPSED_PREF_KEY = 'waseet_assistant_toolbar_collapsed';
 
 /**
- * What Bebo's tool bar shows and does, in ONE place, so the same tools work wherever the bar is drawn: floating next to the robot (every area except the admin panel) or inside the
- * admin panel's «بيبو» tab. The robot, its quick composer and its panel stay in the floating widget; the bar only drives them through this state and the assistant store.
+ * What Bebo's tool bar shows and does, in ONE place, so the same tools work wherever the bar is drawn: floating next to the robot (public pages) or inside the
+ * dashboard's «بيبو» tab. The robot, its quick composer and its panel stay in the floating widget; the bar only drives them through this state and the assistant store.
  */
 @Injectable({ providedIn: 'root' })
 export class AssistantToolbarState {

@@ -74,10 +74,10 @@ describe('assistantLiftPx (clears fixed bottom action bars)', () => {
 	});
 });
 
-describe('Bebo tool bar in the admin sidebar (route flag)', () => {
-	it('only the admin panel route carries the flag; no other area does', () => {
+describe('Bebo tool bar in dashboard sidebars (route flag)', () => {
+	it('only the four authenticated dashboard roots carry the flag', () => {
 		const flagged = routes.filter(r => r.data?.['beboToolbarInSidebar'] === true).map(r => r.path);
-		expect(flagged).toEqual(['supper-admin-overview']);
+		expect(flagged).toEqual(['client-overview', 'provider-overview', 'marketer-overview', 'supper-admin-overview']);
 		for (const area of [CLIENT_OVERVIEW_ROUTES, PROVIDER_OVERVIEW_ROUTES]) expect(area.some(r => r.data?.['beboToolbarInSidebar'] === true)).toBe(false);
 	});
 	it('the flag on any level of the active branch counts; without it the floating bar stays', () => {

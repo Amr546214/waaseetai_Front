@@ -3,6 +3,7 @@ import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AdminAccessService } from '../../../../core/services/admin-access.service';
 import { RouterLink } from '@angular/router';
 import { reportAdminProblems } from '../shared/admin-form-report';
 import { AnomalySummaryComponent } from './anomaly-summary.component';
@@ -26,10 +27,11 @@ const SEV_STYLE: Record<string, { color: string; bg: string }> = {
 })
 export class SaAuditTrail implements OnInit {
   readonly scopeOptions = [{ value: 'admin', label: 'أحداث الإدارة فقط' }, { value: 'all', label: 'كل المنصة' }];
-  eventTypeOptions = computed(() => [{ value: '', label: 'كل الأحداث' }, ...this.eventTypes().map((t) => ({ value: t, label: t }))]);
+  eventTypeOptions = computed(() => [{ value: '', label: 'كل الأحداث' }, ...(this.serverEventOptions() ?? this.eventTypes().map((t) => ({ value: t, label: t })))]);
   actorOptions = computed(() => [{ value: '', label: 'كل الحسابات الإدارية' }, ...this.admins().map((a) => ({ value: a.id, label: a.name }))]);
   get severityWsOptions() { return this.severityOptions.map((o) => ({ value: o.v, label: o.l })); }
 
+  readonly access = inject(AdminAccessService);
   private readonly api = inject(AdminConsoleApiService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -49,6 +51,7 @@ export class SaAuditTrail implements OnInit {
   readonly total = signal(0);
   readonly pages = signal(1);
   readonly eventTypes = signal<string[]>([]);
+  readonly serverEventOptions = signal<{ value: string; label: string }[] | null>(null);
   readonly admins = signal<AdminRosterItem[]>([]);
   readonly loading = signal(false);
   readonly failed = signal(false);
@@ -71,6 +74,7 @@ export class SaAuditTrail implements OnInit {
         this.total.set(r.data.pagination.total);
         this.pages.set(r.data.pagination.pages);
         this.eventTypes.set(r.data.eventTypes);
+        this.serverEventOptions.set(r.data.eventTypeOptions ?? null);
         this.loading.set(false);
       },
       error: () => { this.entries.set([]); this.total.set(0); this.failed.set(true); this.loading.set(false); },
@@ -94,7 +98,7 @@ export class SaAuditTrail implements OnInit {
 
   sev(e: AdminAuditEntry) { return SEV_STYLE[e.severity] ?? SEV_STYLE['INFO']; }
   sevLabel(e: AdminAuditEntry) { return AUDIT_SEVERITY_LABELS[e.severity] ?? e.severity; }
-  actorName(e: AdminAuditEntry) { return e.account.name || e.actorLabel || '—'; }
+  actorName(e: AdminAuditEntry) { return e.actor ? e.actor.name || '—' : e.account.name || e.actorLabel || '—'; }
 
   /** Exports the rows currently on screen (the filtered page) — not the whole log. */
   exportCsv() {
