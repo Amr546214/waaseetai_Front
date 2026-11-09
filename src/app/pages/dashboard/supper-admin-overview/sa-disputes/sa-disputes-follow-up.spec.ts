@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
+import { AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { DisputeApiService } from '../../../../core/services/dispute-api.service';
 import { SaDisputes } from './sa-disputes';
 
@@ -12,7 +13,7 @@ describe('admin dispute follow-up queue', () => {
     })) };
     TestBed.configureTestingModule({
       imports: [SaDisputes],
-      providers: [provideRouter([]), { provide: DisputeApiService, useValue: api }, {
+      providers: [provideRouter([]), { provide: DisputeApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, {
         provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({ followUp: 'true' }) } },
       }],
     });

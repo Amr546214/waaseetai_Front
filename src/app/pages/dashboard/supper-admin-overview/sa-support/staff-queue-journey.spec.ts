@@ -39,7 +39,7 @@ describe('staff queue journey: context survives opening a case', () => {
     const api = { getAdminDisputes: vi.fn(() => of({ success: true, data: { items: [], counts: {}, pagination: { page: 3, totalPages: 4, total: 40, limit: 10 } } })) };
     const setup = (params: Record<string, string>) => {
       TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ imports: [SaDisputes], providers: [provideRouter([]), { provide: DisputeApiService, useValue: api },
+      TestBed.configureTestingModule({ imports: [SaDisputes], providers: [provideRouter([]), { provide: DisputeApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, 
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(params) } } }] });
       const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
       TestBed.createComponent(SaDisputes).detectChanges();
@@ -47,14 +47,14 @@ describe('staff queue journey: context survives opening a case', () => {
     };
     const navigate = setup({ filter: 'UNDER_REVIEW', page: '3' });
     expect(api.getAdminDisputes).toHaveBeenLastCalledWith({ status: 'UNDER_REVIEW', page: 3, limit: 10 });
-    expect(navigate).toHaveBeenLastCalledWith([], { replaceUrl: true, queryParams: { filter: 'UNDER_REVIEW', followUp: null, page: 3 } });
+    expect(navigate).toHaveBeenLastCalledWith([], { replaceUrl: true, queryParams: { filter: 'UNDER_REVIEW', followUp: null, q: null, assignee: null, from: null, to: null, page: 3 } });
     setup({ followUp: 'true' });
     expect(api.getAdminDisputes).toHaveBeenLastCalledWith({ followUp: true, status: undefined, page: 1, limit: 10 });
   });
 
   it('dispute queue shows an Arabic message, not the server English text, when loading fails', () => {
     const api = { getAdminDisputes: vi.fn(() => throwError(() => ({ status: 500, error: { message: 'Internal Server Error' } }))) };
-    TestBed.configureTestingModule({ imports: [SaDisputes], providers: [provideRouter([]), { provide: DisputeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [SaDisputes], providers: [provideRouter([]), { provide: DisputeApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }] });
     const f = TestBed.createComponent(SaDisputes);
     f.detectChanges();
     expect(f.componentInstance.error()).toMatch(/[؀-ۿ]/);

@@ -121,7 +121,7 @@ describe('SaDisputes list', () => {
 
   it('uses pagination.totalPages, counts and shows parties/assignee/title', () => {
     const api = { getAdminDisputes: vi.fn(() => of({ success: true, data: { items: [dispute], counts: { OPEN: 3, RESOLVED: 2 }, pagination: { page: 1, limit: 10, total: 25, pages: 3, totalPages: 3 } } })) };
-    TestBed.configureTestingModule({ imports: [SaDisputes], providers: [provideRouter([]), { provide: DisputeApiService, useValue: api }] });
+    TestBed.configureTestingModule({ imports: [SaDisputes], providers: [provideRouter([]), { provide: DisputeApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }] });
     const f = TestBed.createComponent(SaDisputes);
     f.detectChanges();
     const el = f.nativeElement as HTMLElement;
