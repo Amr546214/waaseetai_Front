@@ -1,3 +1,4 @@
+﻿import { IpLocationService } from '../../../../../core/services/ip-location.service';
 import { birthDateValidator, maxDobIso } from '../../../../../core/forms/birth-date';
 import { Component, DestroyRef, ElementRef, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -51,6 +52,7 @@ const FILE_RULES: Record<string, { maxBytes: number; mimeTypes: string[]; typesL
 	templateUrl: './profile-setup.html'
 })
 export class ProfileSetupDashboard implements OnInit {
+    private readonly ipLocation = inject(IpLocationService);
 	/** Documents already stored for this client (legacy public URL or private marker); shown with a "view" link. */
 	storedDocs = signal<Record<'frontId' | 'backId' | 'supportingDocs', { url: string | null; access: KycAccess | null } | null>>({ frontId: null, backId: null, supportingDocs: null });
 	private fb = inject(FormBuilder);
@@ -165,6 +167,7 @@ export class ProfileSetupDashboard implements OnInit {
 						return;
 					}
 					this.currentStep.set(start.step);
+                        this.autoFillClientLocation();
 
 					// Disable verified fields to prevent tampering
 					if (data.kycStatus === 'VERIFIED') {
@@ -184,7 +187,103 @@ export class ProfileSetupDashboard implements OnInit {
 	 * The identity step is optional, but an identity approval request needs BOTH sides of the ID (the server opens the review only with the id number
 	 * + front + back). Sending one side would look submitted and never reach the reviewers, so a half pair is refused here, at the missing side.
 	 */
-	private identitySidesProblem(): InvalidField | null {
+	    private autoFillClientLocation(): void {
+        const countryControl = this.setupForm.get('details.country');
+        const cityControl = this.setupForm.get('details.city');
+
+        if (!countryControl || !cityControl) return;
+
+        const countryMap: Record<string, string> = {
+            EG: 'مصر',
+            SA: 'السعودية',
+            AE: 'الإمارات',
+            KW: 'الكويت',
+            QA: 'قطر',
+            BH: 'البحرين',
+            OM: 'عمان',
+            JO: 'الأردن',
+            IQ: 'العراق',
+            SY: 'سوريا',
+            LB: 'لبنان',
+            PS: 'فلسطين',
+            YE: 'اليمن',
+            LY: 'ليبيا',
+            TN: 'تونس',
+            DZ: 'الجزائر',
+            MA: 'المغرب',
+            SD: 'السودان',
+            MR: 'موريتانيا',
+            TR: 'تركيا',
+            GB: 'المملكة المتحدة',
+            US: 'الولايات المتحدة',
+            CA: 'كندا',
+            DE: 'ألمانيا',
+            FR: 'فرنسا'
+        };
+
+        const cityMap: Record<string, string> = {
+            'EG:cairo': 'القاهرة',
+            'EG:giza': 'الجيزة',
+            'EG:alexandria': 'الإسكندرية',
+            'EG:hurghada': 'الغردقة',
+            'EG:luxor': 'الأقصر',
+            'EG:aswan': 'أسوان',
+            'EG:mansoura': 'المنصورة',
+            'EG:tanta': 'طنطا',
+            'SA:riyadh': 'الرياض',
+            'SA:jeddah': 'جدة',
+            'SA:dammam': 'الدمام',
+            'AE:dubai': 'دبي',
+            'AE:abu dhabi': 'أبوظبي',
+            'AE:sharjah': 'الشارقة',
+            'QA:doha': 'الدوحة',
+            'BH:manama': 'المنامة',
+            'OM:muscat': 'مسقط'
+        };
+
+        
+
+        this.ipLocation.getLocation().subscribe(location => {
+            if (!location) return;
+
+            if (
+                countryControl.disabled ||
+                cityControl.disabled ||
+                countryControl.dirty ||
+                cityControl.dirty
+            ) return;
+
+            const code = location.countryCode.toUpperCase();
+            const detectedCountry = countryMap[code];
+
+            if (
+                !detectedCountry ||
+                !COUNTRY_NAMES.includes(detectedCountry)
+            ) return;
+
+            const savedCountry =
+                String(countryControl.value ?? '').trim();
+
+            
+
+            if (savedCountry !== detectedCountry) { countryControl.setValue(detectedCountry); }
+
+            const cityKey =
+                code + ':' + location.city.trim().toLowerCase();
+
+            const detectedCity = cityMap[cityKey];
+
+            if (
+                
+                detectedCity &&
+                citiesOf(detectedCountry).includes(detectedCity)
+            ) {
+                cityControl.setValue(detectedCity);
+            }
+        });
+    }
+
+    private identitySidesProblem(): InvalidField | null {
 		const v = this.setupForm.getRawValue().identity;
 		const has = (side: 'frontId' | 'backId') => !!v[side] || !!this.storedDocs()[side];
 		if (has('frontId') === has('backId')) return null;
@@ -493,3 +592,5 @@ export class ProfileSetupDashboard implements OnInit {
 		return null;
 	}
 }
+
+

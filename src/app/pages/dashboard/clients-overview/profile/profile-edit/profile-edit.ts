@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectorRef, Component, DestroyRef, ElementRef, Injector, inject, signal, computed } from '@angular/core';
+﻿import { afterNextRender, ChangeDetectorRef, Component, DestroyRef, ElementRef, Injector, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -25,6 +25,7 @@ import { SkillsCatalogService } from '../../../../../core/services/skills-catalo
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { IpLocationService } from '../../../../../core/services/ip-location.service';
 
 const PROFILE_LABELS: Record<string, string> = {
 	firstName: 'الاسم الأول',
@@ -46,6 +47,7 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 	styleUrl: './profile-edit.css',
 })
 export class ProfileEdit {
+	private readonly ipLocation = inject(IpLocationService);
 	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
 	readonly countryNames = COUNTRY_NAMES;
 	readonly citiesOf = citiesOf;
@@ -472,6 +474,7 @@ export class ProfileEdit {
 						});
 					}
 					this.tabRef = { identity: JSON.stringify(this.identityForm.getRawValue()), banking: JSON.stringify(this.bankingForm.getRawValue()) };
+					this.applyIpLocationIfEmpty();
 				}
 			},
 			error: (err) => {
@@ -480,6 +483,146 @@ export class ProfileEdit {
 			}
 		});
 	}
+
+	    private applyIpLocationIfEmpty(): void {
+        const countries: Record<string, string> = {
+            EG: 'مصر',
+            SA: 'السعودية',
+            AE: 'الإمارات',
+            KW: 'الكويت',
+            QA: 'قطر',
+            BH: 'البحرين',
+            OM: 'عمان',
+            JO: 'الأردن',
+            IQ: 'العراق',
+            SY: 'سوريا',
+            LB: 'لبنان',
+            PS: 'فلسطين',
+            YE: 'اليمن',
+            LY: 'ليبيا',
+            TN: 'تونس',
+            DZ: 'الجزائر',
+            MA: 'المغرب',
+            SD: 'السودان',
+            MR: 'موريتانيا',
+            TR: 'تركيا',
+            GB: 'المملكة المتحدة',
+            US: 'الولايات المتحدة',
+            CA: 'كندا',
+            DE: 'ألمانيا',
+            FR: 'فرنسا',
+        };
+
+        const cities: Record<string, Record<string, string>> = {
+            EG: {
+                cairo: 'القاهرة',
+                giza: 'الجيزة',
+                alexandria: 'الإسكندرية',
+                hurghada: 'الغردقة',
+                luxor: 'الأقصر',
+                aswan: 'أسوان',
+                mansoura: 'المنصورة',
+                'port said': 'بورسعيد',
+                suez: 'السويس',
+            },
+            SA: {
+                riyadh: 'الرياض',
+                jeddah: 'جدة',
+                makkah: 'مكة المكرمة',
+                mecca: 'مكة المكرمة',
+                medina: 'المدينة المنورة',
+                dammam: 'الدمام',
+                khobar: 'الخبر',
+            },
+            AE: {
+                dubai: 'دبي',
+                'abu dhabi': 'أبوظبي',
+                sharjah: 'الشارقة',
+                ajman: 'عجمان',
+            },
+            KW: {
+                'kuwait city': 'مدينة الكويت',
+            },
+            QA: {
+                doha: 'الدوحة',
+            },
+            BH: {
+                manama: 'المنامة',
+            },
+            OM: {
+                muscat: 'مسقط',
+            },
+            JO: {
+                amman: 'عمّان',
+            },
+            TR: {
+                istanbul: 'إسطنبول',
+                ankara: 'أنقرة',
+            },
+            GB: {
+                london: 'لندن',
+                manchester: 'مانشستر',
+            },
+            US: {
+                'new york': 'نيويورك',
+            },
+            CA: {
+                toronto: 'تورنتو',
+            },
+            DE: {
+                berlin: 'برلين',
+            },
+            FR: {
+                paris: 'باريس',
+            },
+        };
+
+        const forms = [this.identityForm, this.contactForm];
+
+        // Avoid an unnecessary request if no editable country is empty.
+        
+
+        this.ipLocation.getLocation().subscribe(location => {
+            if (!location) return;
+
+            const code = location.countryCode?.toUpperCase();
+            const country = countries[code];
+
+            if (!country || !COUNTRY_NAMES.includes(country)) {
+                return;
+            }
+
+            const cityKey = location.city?.trim().toLowerCase() ?? '';
+            const detectedCity = cities[code]?.[cityKey] ?? '';
+
+            for (const form of forms) {
+                const countryControl = form.get('country');
+                const cityControl = form.get('city');
+
+                if (!countryControl || !cityControl) continue;
+
+                // Never overwrite saved or manually edited data.
+                if (countryControl.disabled || countryControl.dirty) continue;
+                
+
+                // Changing country updates the available cities.
+                if (countryControl.value !== country) { if (countryControl.value !== country) countryControl.setValue(country); }
+
+                // Only use a city that exists in the local list.
+                if (
+                    cityControl.enabled &&
+                    !cityControl.dirty &&
+                    
+                    detectedCity &&
+                    citiesOf(country).includes(detectedCity)
+                ) {
+                    cityControl.setValue(detectedCity);
+                }
+            }
+
+            this.cdr.markForCheck();
+        });
+    }
 
 	switchTab(tab: Tab) {
 		if (this.guideOpen() && this.guideStep().tab !== tab) this.closeProfileGuide();
@@ -943,3 +1086,6 @@ export class ProfileEdit {
 		});
 	}
 }
+
+
+
