@@ -87,6 +87,23 @@ describe('admin team pages (real data, honest states, SUPER_ADMIN-only actions)'
 		req.flush({ message: 'x', errors: [{ field: 'assigneeId', message: 'الموظف المكلَّف لا يملك الصلاحية اللازمة' }] }, { status: 400, statusText: 'Bad' }); await flush(f);
 		expect(el.querySelector('[data-testid="create-error"]')?.textContent).toContain('لا يملك الصلاحية اللازمة');
 	});
+	it('tasks page: a task created from another tab or with a search typed shows at once in «مفتوحة»; list, tab count and KPI agree after the refresh', async () => {
+		setAccess(false, ['tasks.manage', 'team.view']);
+		const f = TestBed.createComponent(SaTasks); await flush(f);
+		const summary = (open: number, pending: number) => ({ success: true, data: { byStatus: {}, open, inProgress: 0, pending, overdue: 0, doneThisMonth: 0, onTimeThisMonth: null, avgCompletionHoursThisMonth: null } });
+		http.expectOne(`${B}/tasks/summary`).flush(summary(0, 0)); http.expectOne(r => r.url === `${B}/tasks`).flush({ success: true, data: [] }); http.expectOne(r => r.url === `${B}/staff`).flush(staffList()); await flush(f);
+		const c = f.componentInstance as any; const el = f.nativeElement as HTMLElement;
+		c.setTab('done'); c.search.set('xyz'); http.expectOne(`${B}/tasks/summary`).flush(summary(0, 0)); http.expectOne(r => r.url === `${B}/tasks` && r.params.get('tab') === 'done').flush({ success: true, data: [] }); await flush(f);
+		(el.querySelector('[data-testid="task-new"]') as HTMLButtonElement).click(); await flush(f);
+		c.form.title = 'مهمة جديدة للمتابعة'; c.create();
+		http.expectOne(r => r.method === 'POST' && r.url === `${B}/tasks`).flush({ success: true, data: { id: 't9' } }); await flush(f);
+		expect(c.tab()).toBe('open'); expect(c.search()).toBe('');
+		http.expectOne(`${B}/tasks/summary`).flush(summary(1, 1));
+		const list = http.expectOne(r => r.url === `${B}/tasks`); expect(list.request.params.get('tab')).toBe('open'); expect(list.request.params.get('search')).toBeNull();
+		list.flush({ success: true, data: [{ id: 't9', number: 9, code: 'T-0009', title: 'مهمة جديدة للمتابعة', description: null, type: 'SUPPORT', priority: 'NORMAL', status: 'NEW', dueAt: null, overdue: false, assignee: null, version: 1 }] }); await flush(f);
+		expect(el.querySelectorAll('[data-testid="task-row"]').length).toBe(1); expect(el.querySelector('[data-testid="tab-open"]')?.textContent).toContain('1');
+		expect(el.querySelector('[data-testid="tab-open"]')?.classList.contains('active')).toBe(true); expect(el.textContent).toContain('المهام المفتوحة');
+	});
 	it('performance page: unavailable measures show «—» with the decision needed (never 0 % or a sample); export is disabled without performance.export', async () => {
 		setAccess(false, ['performance.view']);
 		const f = TestBed.createComponent(SaTeamPerformance); await flush(f);
