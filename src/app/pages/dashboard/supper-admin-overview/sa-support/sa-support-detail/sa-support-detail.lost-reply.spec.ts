@@ -7,6 +7,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { SaSupportDetail } from './sa-support-detail';
 import { TicketApiService } from '../../../../../core/services/ticket-api.service';
 import { AdminOpsApiService } from '../../../../../core/services/admin-ops-api.service';
+import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 const ticket = (messages: any[]) => ({ success: true, data: { ticket: { id: 't1', ticketNumber: 'TK-1', status: 'OPEN', priority: 'عادية', subject: 's', category: 'c', description: 'd', createdAt: new Date().toISOString() }, messages, user: { id: 'u1', firstName: 'a', lastName: 'b' }, internalNotes: [] } });
@@ -17,7 +18,7 @@ function setup(getTicket: any, reply: any) {
 	const api = { adminGetTicket: vi.fn(getTicket), adminReply: vi.fn(reply), adminListTickets: () => of({ success: true, data: { items: [] } }) };
 	TestBed.configureTestingModule({
 		imports: [SaSupportDetail],
-		providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: UiNotificationService, useValue: notify },
+		providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: UiNotificationService, useValue: notify }, { provide: AdminAccessService, useValue: { can: () => true, access: () => ({ userId: 'me' }) } },
 			{ provide: ActivatedRoute, useValue: { paramMap: of(new Map([['id', 't1']]) as any) } }],
 	});
 	const f = TestBed.createComponent(SaSupportDetail); f.detectChanges();

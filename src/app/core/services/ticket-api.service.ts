@@ -65,9 +65,10 @@ export interface AdminTicketUser {
 	accountType?: string;
 }
 
-export interface AdminAssignee { id: string; name: string }
+export interface AdminAssignee { id: string; name: string; escalationReason?: string }
 
 export interface AdminTicketListItem extends SupportTicket {
+	isEscalated?: boolean;
 	user?: AdminTicketUser;
 	assignedTo?: AdminAssignee | null;
 }
@@ -77,10 +78,12 @@ export interface AdminInternalNote { id: string; body: string; createdAt: string
 export interface AdminTicketListData {
 	items: AdminTicketListItem[];
 	counts: Partial<Record<TicketStatus, number>>;
+	escalationCount?: number;
 	pagination: { page: number; limit: number; total: number; pages: number };
 }
 
 export interface AdminTicketDetailData extends TicketDetailData {
+	sla?: { hours: number; dueAt: string; status: 'MET' | 'LATE' | 'CLOSED' | 'OVERDUE' | 'PENDING' } | null;
 	user: AdminTicketUser | null;
 	assignedTo?: AdminAssignee | null;
 	/** Staff-only notes: the ticket owner's own endpoints never return them. */
@@ -129,9 +132,10 @@ export class TicketApiService {
 	}
 
 	// Staff/admin endpoints (ADMIN / SUPER_ADMIN only).
-	adminListTickets(opts: { status?: TicketStatus; q?: string; page?: number; userId?: string } = {}): Observable<ApiResponse<AdminTicketListData>> {
+	adminListTickets(opts: { escalated?: boolean; status?: TicketStatus; q?: string; page?: number; userId?: string } = {}): Observable<ApiResponse<AdminTicketListData>> {
 		let params = new HttpParams().set('limit', 50);
 		if (opts.status) params = params.set('status', opts.status);
+		if (opts.escalated) params = params.set('escalated', 'true');
 		if (opts.q) params = params.set('q', opts.q);
 		if (opts.userId) params = params.set('userId', opts.userId);
 		if (opts.page) params = params.set('page', opts.page);
@@ -142,7 +146,15 @@ export class TicketApiService {
 		return this.http.get<ApiResponse<AdminTicketDetailData>>(`${environment.url_api}/admin/tickets/${id}`);
 	}
 
-	adminReply(id: string, body: string, status?: TicketStatus): Observable<ApiResponse<{ message: SupportTicketMessage; status: TicketStatus }>> {
+	adminReply(id: string, body: string, status?: TicketStatus, files: File[] = [], replyKey?: string): Observable<ApiResponse<{ message: SupportTicketMessage; status: TicketStatus }>> {
+		if (files.length) {
+			const data = new FormData();
+			data.append('body', body);
+			if (status) data.append('status', status);
+			if (replyKey) data.append('replyKey', replyKey);
+			for (const file of files) data.append('attachments', file, file.name);
+			return this.http.post<ApiResponse<{ message: SupportTicketMessage; status: TicketStatus }>>(`${environment.url_api}/admin/tickets/${id}/reply`, data);
+		}
 		return this.http.post<ApiResponse<{ message: SupportTicketMessage; status: TicketStatus }>>(`${environment.url_api}/admin/tickets/${id}/reply`, status ? { body, status } : { body });
 	}
 
@@ -154,8 +166,8 @@ export class TicketApiService {
 		return this.http.patch<ApiResponse<SupportTicket>>(`${environment.url_api}/admin/tickets/${id}/priority`, { priority });
 	}
 
-	adminAssign(id: string, assigneeId: string): Observable<ApiResponse<{ id: string; assignedTo: AdminAssignee }>> {
-		return this.http.post<ApiResponse<{ id: string; assignedTo: AdminAssignee }>>(`${environment.url_api}/admin/tickets/${id}/assign`, { assigneeId });
+	adminAssign(id: string, assigneeId: string, escalationReason?: string): Observable<ApiResponse<{ id: string; assignedTo: AdminAssignee }>> {
+		return this.http.post<ApiResponse<{ id: string; assignedTo: AdminAssignee }>>(`${environment.url_api}/admin/tickets/${id}/assign`, { assigneeId, ...(escalationReason ? { escalationReason } : {}) });
 	}
 
 	adminAddNote(id: string, body: string): Observable<ApiResponse<AdminInternalNote>> {

@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, HttpErrorResponse, HttpHeaders, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse, HttpHeaders, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { PLATFORM_ID, signal } from '@angular/core';
 import { Router, UrlTree, provideRouter } from '@angular/router';
 import { BehaviorSubject, Observable, firstValueFrom, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { RATE_LIMIT_MESSAGE, handleLoadError, isRateLimitError, retryAfterSeconds } from './utils/rate-limit.util';
-import { rateLimitInterceptor, resetRateLimitToastClock } from './interceptors/rate-limit.interceptor';
+import { SKIP_RATE_LIMIT_TOAST, rateLimitInterceptor, resetRateLimitToastClock } from './interceptors/rate-limit.interceptor';
 import { UiNotificationService } from './services/ui-notification.service';
 import { AuthStore } from './store/auth.store';
 import { ProviderAccessService, ProviderAccessState } from './services/provider-access.service';
@@ -94,6 +94,16 @@ describe('rateLimitInterceptor', () => {
 		http.get('/api/auth/login').subscribe({ error: () => {} });
 		ctl.expectOne('/api/auth/login').flush({}, { status: 429, statusText: 'x', headers: { 'Retry-After': '1' } });
 		expect(warning).not.toHaveBeenCalled();
+	});
+	it('a background read marked SKIP_RATE_LIMIT_TOAST raises no toast, still reaches the caller as a 429, and a normal read after it still toasts', () => {
+		const { warning, http, ctl } = setup();
+		const errs: any[] = [];
+		http.get('/api/help-assistant/capabilities', { context: new HttpContext().set(SKIP_RATE_LIMIT_TOAST, true) }).subscribe({ error: e => errs.push(e) });
+		ctl.expectOne('/api/help-assistant/capabilities').flush({ message: 'm' }, { status: 429, statusText: 'Too Many' });
+		expect(errs.length).toBe(1); expect(errs[0].status).toBe(429); expect(warning).not.toHaveBeenCalled();
+		http.post('/api/x', {}).subscribe({ error: () => undefined });
+		ctl.expectOne('/api/x').flush({ message: 'm' }, { status: 429, statusText: 'Too Many' });
+		expect(warning).toHaveBeenCalledTimes(1);
 	});
 	it('non-429 errors pass untouched (no toast)', () => {
 		const { warning, http, ctl } = setup();

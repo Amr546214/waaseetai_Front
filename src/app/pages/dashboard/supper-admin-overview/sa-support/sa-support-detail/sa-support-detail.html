@@ -1,6 +1,6 @@
 <section class="sup-page" dir="rtl">
   <div class="sup-detail-crumb">
-    <a routerLink="/supper-admin-overview/support">&rarr; العودة إلى تذاكر الدعم</a>
+    <a routerLink="/supper-admin-overview/support" queryParamsHandling="preserve">&rarr; العودة إلى تذاكر الدعم</a>
   </div>
 
   @if (loading()) {
@@ -15,12 +15,22 @@
           <div class="sup-meta-grid">
             <div class="sup-meta-item"><div class="sup-meta-lbl">الفئة</div><div class="sup-meta-val">{{ d.ticket.category }}</div></div>
             <div class="sup-meta-item"><div class="sup-meta-lbl">الأولوية</div><div class="sup-meta-val">
-              <ws-select [options]="priorities" [ngModel]="d.ticket.priority" (ngModelChange)="setPriority($event)" ariaLabel="تغيير الأولوية" style="min-width:120px;max-width:100%;display:block"></ws-select>
+              @if (canReply()) {
+                <ws-select [options]="priorities" [ngModel]="d.ticket.priority" (ngModelChange)="setPriority($event)" ariaLabel="تغيير الأولوية" style="min-width:120px;max-width:100%;display:block"></ws-select>
+              } @else {
+                <span data-testid="priority-readonly">{{ d.ticket.priority }}</span>
+              }
             </div></div>
             <div class="sup-meta-item"><div class="sup-meta-lbl">الحالة</div><div class="sup-meta-val"><span class="sup-bdg" [class]="'sup-bdg ' + statusClass(d.ticket.status)">{{ statusLabels[d.ticket.status] }}</span></div></div>
             <div class="sup-meta-item"><div class="sup-meta-lbl">فُتحت</div><div class="sup-meta-val">{{ formatTime(d.ticket.createdAt) }}</div></div>
             <div class="sup-meta-item"><div class="sup-meta-lbl">المُكلَّف به</div><div class="sup-meta-val">{{ d.assignedTo?.name || 'غير مُكلَّف' }}</div></div>
-            <div class="sup-meta-item" [title]="noSla"><div class="sup-meta-lbl">وقت الاستجابة</div><div class="sup-meta-val">— <small>({{ noSla }})</small></div></div>
+            <div class="sup-meta-item">
+              <div class="sup-meta-lbl">وقت الاستجابة</div>
+              <div class="sup-meta-val">
+                @if (firstStaffReply(); as reply) { {{ reply.hours | number }} س و{{ reply.minutes | number }} د }
+                @else { لم يُسجَّل رد }
+              </div>
+            </div>
             @if (d.ticket.relatedOrder) {
               <div class="sup-meta-item"><div class="sup-meta-lbl">مرتبطة بـ</div><div class="sup-meta-val">{{ d.ticket.relatedOrder }}</div></div>
             }
@@ -42,17 +52,26 @@
           </div>
 
           <div class="sup-chat-actions">
-            @for (s of statuses; track s) {
-              <button type="button" class="sup-ca-btn" [class.sup-ca-close]="s === d.ticket.status" [disabled]="busy() || s === d.ticket.status" (click)="setStatus(s)">{{ statusLabels[s] }}</button>
+            @if (canReply()) {
+              @for (s of statuses; track s) {
+                <button type="button" class="sup-ca-btn" [class.sup-ca-close]="s === d.ticket.status" [disabled]="busy() || s === d.ticket.status" (click)="setStatus(s)">{{ statusLabels[s] }}</button>
+              }
             }
-            <button type="button" class="sup-ca-btn sup-ca-escalate" disabled [title]="noEscalation">تصعيد</button>
-            <button type="button" class="sup-ca-btn" disabled [title]="noAttachments">إرفاق ملف</button>
+
           </div>
           @if (actionError()) { <div class="sup-notes-empty" role="alert" data-testid="action-error" style="color:#ff6b6b">{{ actionError() }}</div> }
-          <div class="sup-notes-empty">التصعيد: {{ noEscalation }} · المرفقات المعتمدة معروضة أعلاه</div>
-          @if (d.ticket.status !== 'CLOSED') {
+          @if (!canReply()) {
+            <div class="sup-notes-empty" data-testid="reply-readonly">عرض فقط: الرد ومعالجة التذكرة يحتاجان صلاحية «الرد على الدعم ومعالجة التذكرة».</div>
+          } @else if (d.ticket.status !== 'CLOSED') {
             <div class="sup-notes-empty">ردك يظهر لصاحب التذكرة ويصله كإشعار.</div>
             <div class="sup-chat-input-area">
+              <label>مرفقات الرد
+                <input type="file" aria-label="مرفقات الرد" accept="image/jpeg,image/png,application/pdf" multiple [disabled]="busy()" (change)="pickReplyFiles($event)" />
+              </label>
+              @for (file of replyFiles(); track $index) {
+                <span>{{ file.name }} <button type="button" [disabled]="busy()" (click)="removeReplyFile($index)">إزالة</button></span>
+              }
+              @if (fileError()) { <span role="alert">{{ fileError() }}</span> }
               <textarea id="sup-reply" aria-label="نص الرد" class="sup-chat-input" rows="1" placeholder="اكتب ردك هنا..." [value]="draftReply()" (input)="draftReply.set($any($event.target).value)"></textarea>
               <button type="button" class="sup-chat-send" [disabled]="busy()" aria-label="إرسال الرد" (click)="sendReply()">
                 <svg data-ws-icon="ws-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -85,18 +104,37 @@
         <div class="sup-side-card">
           <div class="sup-side-ttl">التكليف</div>
           <div class="sup-assign-current">مُكلَّف: <strong>{{ d.assignedTo?.name || 'غير مُكلَّف' }}</strong></div>
+          @if (canReply()) {
           <ws-select id="sup-assignee" [leading]="[{value: '', label: 'اختر موظفاً'}]" [options]="staffOptions()" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)" ariaLabel="اختيار موظف للتكليف" style="min-width:160px;max-width:100%;display:block"></ws-select>
           <button type="button" class="sup-side-btn" [disabled]="busy()" (click)="assign()">تكليف</button>
+          }
+          @if (d.assignedTo?.escalationReason; as reason) { <p>سبب التصعيد الداخلي: {{ reason }}</p> }
+          @if (canEscalate() && d.ticket.status !== 'CLOSED' && d.ticket.status !== 'RESOLVED') {
+            <div>
+              <label for="sup-escalation-reason">سبب التصعيد الداخلي إلى الموظف المختار</label>
+              <textarea id="sup-escalation-reason" rows="2" maxlength="1000" [ngModel]="escalationReason()" (ngModelChange)="escalationReason.set($event)"></textarea>
+              <button type="button" class="sup-side-btn" [disabled]="busy()" (click)="escalate()">تصعيد التذكرة</button>
+            </div>
+          }
           @if (assignError()) { <div class="sup-notes-empty" role="alert" data-testid="assign-error" style="color:#ff6b6b">{{ assignError() }}</div> }
         </div>
 
         <div class="sup-side-card">
-          <div class="sup-side-ttl">مؤشرات SLA</div>
-          <div class="sup-sla-row"><span>الاستجابة الأولى</span><span>—</span></div>
-          <div class="sup-sla-bar"><div class="sup-sla-bar-fill" style="width:0"></div></div>
-          <div class="sup-sla-row"><span>مفتوحة منذ</span><span>{{ formatTime(d.ticket.createdAt) }}</span></div>
-          <div class="sup-sla-row sup-sla-row-last"><span>حالة SLA</span><span>—</span></div>
-          <div class="sup-notes-empty">قياس SLA: {{ noSla }}</div>
+          <div class="sup-side-ttl">زمن الاستجابة</div>
+          @if (d.sla; as sla) {
+            <div class="sup-sla-row"><span>مهلة أول رد</span><span>{{ sla.hours }} ساعة · {{ slaLabels[sla.status] }}</span></div>
+            <div class="sup-sla-row"><span>موعد انتهاء المهلة</span><span>{{ formatTime(sla.dueAt) }}</span></div>
+          }
+          <div class="sup-sla-row"><span>تاريخ فتح التذكرة</span><span>{{ formatTime(d.ticket.createdAt) }}</span></div>
+          @if (firstStaffReply(); as reply) {
+            <div class="sup-sla-row"><span>أول رد من الدعم</span><span>{{ formatTime(reply.at) }}</span></div>
+            <div class="sup-sla-row sup-sla-row-last">
+              <span>الوقت حتى أول رد</span>
+              <span data-testid="first-staff-reply-time">{{ reply.hours | number }} س و{{ reply.minutes | number }} د</span>
+            </div>
+          } @else {
+            <div class="sup-notes-empty">لا يوجد رد مسجّل من فريق الدعم.</div>
+          }
         </div>
       </div>
     </div>
@@ -114,17 +152,19 @@
             <div class="sup-notes-empty">لا توجد ملاحظات داخلية بعد</div>
           }
         </div>
+        @if (canReply()) {
         <div class="sup-note-input-row">
           <input id="sup-note" aria-label="ملاحظة داخلية" type="text" placeholder="أضف ملاحظة داخلية..." [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)" />
           <button type="button" [disabled]="busy()" (click)="addNote()">إضافة</button>
         </div>
+        }
         @if (noteError()) { <div class="sup-notes-empty" role="alert" data-testid="note-error" style="color:#ff6b6b">{{ noteError() }}</div> }
       </div>
       <div class="sup-extra-card">
         <div class="sup-extra-ttl">تذاكر ذات صلة (نفس المستخدم)</div>
         <div class="sup-related-list">
           @for (r of related(); track r.id) {
-            <a class="sup-related-item" [routerLink]="['/supper-admin-overview/support', r.id]">
+            <a class="sup-related-item" [routerLink]="['/supper-admin-overview/support', r.id]" queryParamsHandling="preserve">
               <span class="sup-related-id">{{ r.ticketNumber }}</span>
               <span class="sup-related-label">{{ r.subject }} · {{ statusLabels[r.status] }}</span>
             </a>
@@ -134,10 +174,16 @@
         </div>
       </div>
     </div>
+  } @else if (loadError()) {
+    <div class="sup-empty sup-detail-nf" role="alert" data-testid="load-error">
+      <span>{{ loadError() }}</span>
+      <button type="button" class="sup-tab" (click)="load()">إعادة المحاولة</button>
+      <a routerLink="/supper-admin-overview/support" queryParamsHandling="preserve">العودة للقائمة</a>
+    </div>
   } @else if (notFound()) {
     <div class="sup-empty sup-detail-nf">
       <span>لم يتم العثور على التذكرة المطلوبة</span>
-      <a routerLink="/supper-admin-overview/support">العودة للقائمة</a>
+      <a routerLink="/supper-admin-overview/support" queryParamsHandling="preserve">العودة للقائمة</a>
     </div>
   }
 

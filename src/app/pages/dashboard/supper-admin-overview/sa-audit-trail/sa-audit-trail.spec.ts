@@ -5,16 +5,17 @@ import { describe, it, expect, vi } from 'vitest';
 import { SaAuditTrail } from './sa-audit-trail';
 import { AdminConsoleApiService } from '../../../../core/services/admin-console-api.service';
 import { expectFieldProblem, expectFocused, settleForm } from '../../../../shared/forms/form-spec-utils';
+import { AdminAccessService } from '../../../../core/services/admin-access.service';
 import { AdminAiService } from '../../../../core/services/admin-ai.service';
 
-function setup(items: any[]) {
+function setup(items: any[], canReadReport = false) {
 	const api = {
 		getAdmins: vi.fn(() => of({ success: true, data: [{ id: 'a1', name: 'مدير حقيقي', email: 'x@y.z', accountType: 'ADMIN', status: 'ACTIVE', lastActiveAt: null, createdAt: '' }] })),
-		getAuditLog: vi.fn(() => of({ success: true, data: { items, pagination: { page: 1, limit: 20, total: items.length, pages: 1 }, eventTypes: ['LOGIN_REJECTED'] } })),
+		getAuditLog: vi.fn(() => of({ success: true, data: { items, pagination: { page: 1, limit: 20, total: items.length, pages: 1 }, eventTypes: ['LOGIN_REJECTED', 'PLATFORM_REPORT_DECIDED'], eventTypeOptions: [{ value: 'LOGIN_REJECTED', label: 'محاولة دخول مرفوضة' }, { value: 'PLATFORM_REPORT_DECIDED', label: 'قرار في بلاغ' }] } })),
 	};
 	TestBed.configureTestingModule({
 		imports: [SaAuditTrail],
-		providers: [provideRouter([]), { provide: AdminConsoleApiService, useValue: api }, { provide: AdminAiService, useValue: { getAnomalySummary: () => of({ result: null, failed: true }) } }],
+		providers: [provideRouter([]), { provide: AdminAccessService, useValue: { can: (permission: string) => canReadReport && permission === 'reports.view' } }, { provide: AdminConsoleApiService, useValue: api }, { provide: AdminAiService, useValue: { getAnomalySummary: () => of({ result: null, failed: true }) } }],
 	});
 	const fixture = TestBed.createComponent(SaAuditTrail);
 	fixture.detectChanges();
@@ -30,6 +31,23 @@ describe('SaAuditTrail', () => {
 		expect(text).not.toContain('8,241');
 		expect(el.querySelectorAll('[data-testid="at-row"]').length).toBe(1);
 	});
+
+	for (const allowed of [false, true]) {
+		it(`shows the report link only with reports.view (${allowed})`, () => {
+			const id = '22222222-2222-4222-8222-222222222222';
+			const { el, c } = setup([{
+				id: 'event-1', eventType: 'PLATFORM_REPORT_DECIDED', title: 'قرار في بلاغ', summary: 'تمت معالجة البلاغ',
+				severity: 'INFO', source: 'ADMIN', occurredAt: '2026-11-08T09:00:00Z',
+				actor: { name: 'المراجع الفعلي' }, account: { name: 'صاحب السجل' },
+				target: { type: 'PLATFORM_REPORT', id },
+			}], allowed);
+			expect(el.textContent).toContain('المراجع الفعلي');
+			expect(el.textContent).not.toContain('صاحب السجل');
+			expect(c.eventTypeOptions()).toContainEqual({ value: 'PLATFORM_REPORT_DECIDED', label: 'قرار في بلاغ' });
+			expect(el.querySelector('[data-testid="at-row"] a')?.getAttribute('href') ?? null)
+				.toBe(allowed ? '/supper-admin-overview/reports/' + id : null);
+		});
+	}
 
 	it('shows an honest empty state', () => {
 		const { el } = setup([]);

@@ -1,1 +1,53 @@
-<app-sa-unavailable title="إدارة Monitoring" subtitle="مراقبة الموارد وقواعد التنبيه" heading="المراقبة غير متاحة بعد" reason="لا يوجد مصدر متصل يقيس موارد الخوادم ولا يملك قواعد تنبيه في المنصة حاليا، لذلك لا تُعرض أي أرقام أو رسوم بيانية هنا. المتاح فعليا هو سجل الأحداث الأمنية." linkLabel="فتح الأمان وسجل الأحداث" linkTo="/supper-admin-overview/it/security" />
+<section class="monitoring-page" dir="rtl">
+  <header class="monitoring-header">
+    <div>
+      <h1>مراقبة صحة المنصة</h1>
+      <p>فحص مباشر من التطبيق. لا يتضمن استخدام المعالج أو الذاكرة أو قواعد التنبيه.</p>
+    </div>
+    <div class="monitoring-actions">
+      <button type="button" [disabled]="busy()" (click)="refreshNow()">فحص الآن</button>
+      <button type="button" [attr.aria-pressed]="automaticEnabled()" (click)="toggleAutomatic()">
+        {{ automaticEnabled() ? 'إيقاف التحديث التلقائي' : 'تفعيل التحديث كل دقيقة' }}
+      </button>
+    </div>
+  </header>
+
+  @if (busy()) { <p role="status">جاري فحص صحة المنصة…</p> }
+  @if (error()) {
+    <p class="monitoring-error" role="alert">{{ error() }} @if (snapshot()) { النتائج المعروضة من آخر فحص ناجح. }</p>
+  }
+
+  @if (snapshot(); as data) {
+    <p>آخر نتيجة وصلت من السيرفر: <time [attr.datetime]="data.checkedAt">{{ data.checkedAt | wsDate:'datetime':'yyyy-MM-dd HH:mm:ss' }}</time></p>
+    <h2>نتائج الفحص المباشر</h2>
+    @if (!measured().length) { <p>لا توجد نتائج فحص مباشرة في الرد.</p> }
+    <ul class="monitoring-cards" aria-label="نتائج الفحص المباشر">
+      @for (item of measured(); track item.key) {
+        <li><h3>{{ item.label }}</h3><strong [attr.data-status]="item.status">{{ labels[item.status] || 'غير معروف' }}</strong><p>{{ item.detail }}</p></li>
+      }
+    </ul>
+
+    <h2>حالة الإعداد والتكاملات</h2>
+    <p>حالة التهيئة لا تعني أن الخدمة استجابت أو أن رسالة أو دفعة وصلت.</p>
+    @if (!configured().length) { <p>لا توجد حالة إعداد أو تكاملات في الرد.</p> }
+    <ul class="monitoring-cards" aria-label="حالة الإعداد والتكاملات">
+      @for (item of configured(); track item.key) {
+        <li><h3>{{ item.label }}</h3><strong [attr.data-status]="item.status">{{ labels[item.status] || 'غير معروف' }}</strong><p>{{ item.detail }}</p></li>
+      }
+    </ul>
+  }
+
+  @if (history().length) {
+    <section aria-labelledby="monitoring-history-title">
+      <h2 id="monitoring-history-title">آخر الفحوصات في هذه الصفحة</h2>
+      <p>آخر ١٠ محاولات فقط. القائمة بتبدأ من جديد عند مغادرة الصفحة.</p>
+      <ol class="monitoring-history">
+        @for (check of history(); track check.id) {
+          <li><time [attr.datetime]="check.checkedAt">{{ check.checkedAt | wsDate:'datetime':'yyyy-MM-dd HH:mm:ss' }}</time><span>{{ check.status }}</span></li>
+        }
+      </ol>
+    </section>
+  }
+
+  <a routerLink="/supper-admin-overview/it/security">فتح سجل الأحداث الأمنية</a>
+</section>

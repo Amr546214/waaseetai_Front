@@ -8,7 +8,6 @@ import { SaApis } from '../../it/sa-apis/sa-apis';
 import { SaBackups } from '../../it/sa-backups/sa-backups';
 import { SaCdn } from '../../it/sa-cdn/sa-cdn';
 import { SaDatabase } from '../../it/sa-database/sa-database';
-import { SaMonitoring } from '../../it/sa-monitoring/sa-monitoring';
 import { SaPerformance } from '../../it/sa-performance/sa-performance';
 import { SaPlans } from '../../subscriptions/sa-plans/sa-plans';
 import { SaUpgrade } from '../../subscriptions/sa-upgrade/sa-upgrade';
@@ -19,17 +18,16 @@ import { SaAds } from '../../subscriptions/sa-ads/sa-ads';
 import { SaPromotions } from '../../subscriptions/sa-promotions/sa-promotions';
 import { SaPlanDetails } from '../../subscriptions/sa-plan-details/sa-plan-details';
 import { SaBroadcast } from '../../communication/sa-broadcast/sa-broadcast';
-import { SaNotifications } from '../../communication/sa-notifications/sa-notifications';
 
 // The team / tasks / performance pages are real now (admin-team-pages.spec.ts covers their honest unavailable measures).
 // Admin sweep (D3): every converted page must render the honest "not available"
 // state (status card with a reason) and no fabricated numeric KPIs.
 const PAGES: [string, any][] = [
   ['sa-apis', SaApis], ['sa-backups', SaBackups], ['sa-cdn', SaCdn], ['sa-database', SaDatabase],
-  ['sa-monitoring', SaMonitoring], ['sa-performance', SaPerformance], ['sa-plans', SaPlans],
+  ['sa-performance', SaPerformance], ['sa-plans', SaPlans],
   ['sa-upgrade', SaUpgrade], ['sa-active-subs', SaActiveSubs], ['sa-sub-invoices', SaSubInvoices],
   ['sa-boost', SaBoost], ['sa-ads', SaAds], ['sa-promotions', SaPromotions], ['sa-plan-details', SaPlanDetails],
-  ['sa-broadcast', SaBroadcast], ['sa-notifications', SaNotifications], 
+  ['sa-broadcast', SaBroadcast],
 ];
 
 describe('converted admin pages show an honest unavailable state', () => {

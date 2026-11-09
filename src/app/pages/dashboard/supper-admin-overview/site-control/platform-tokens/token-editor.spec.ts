@@ -179,4 +179,48 @@ describe('platform design-token editor (central flow)', () => {
 		const t = setup(overview([item(), item({ key: 'tokens.colors.light', label: 'فاتح', tokens: [{ name: '--surface', type: 'paint', label: 's', default: '#ffffff' }] })])); await t.settle();
 		expect(t.store.names().has('--teal')).toBe(true); expect(t.store.names().has('--surface')).toBe(true); expect(t.store.names().has('--nonsense')).toBe(false);
 	});
+
+	describe('server drafts survive a refresh (no invisible STAGED pile)', () => {
+		const staged = (version: number, value: Record<string, string>, isMine = true): IdentityAssetMeta => meta({ version, status: 'STAGED', value, isMine, versionId: 'st-' + version });
+		const withDrafts = (...d: IdentityAssetMeta[]) => overview([item({ staged: d })]);
+
+		it('after a refresh the newest draft of this admin comes back for review (apply / cancel), the older ones are counted, and the published value is untouched', async () => {
+			const t = setup(withDrafts(staged(6, { '--pg': '#070d26' }), staged(5, { '--pg': '#070d25' }), staged(2, { '--pg': '#070d25' }))); await t.settle();
+			expect(t.c.state('tokens.colors.dark').draft?.version).toBe(6);
+			expect(t.q('pt-review-tokens.colors.dark')).toBeTruthy();
+			expect(t.q('pt-notice-tokens.colors.dark')!.textContent).toContain('النسخة 6'); expect(t.q('pt-notice-tokens.colors.dark')!.textContent).toContain('2 مسودات أقدم');
+			expect(t.q('pt-pub---pg')!.textContent).toBe('#070b15');
+			expect(t.api['publish']).not.toHaveBeenCalled(); expect(t.api['discard']).not.toHaveBeenCalled(); expect(t.api['uploadTokens']).not.toHaveBeenCalled();
+		});
+		it('cancel discards the draft AND the older ones through the API, reloads, and never changes the published value', async () => {
+			const t = setup(withDrafts(staged(6, { '--pg': '#070d26' }), staged(5, { '--pg': '#070d25' }), staged(2, { '--pg': '#070d25' })), { discard: vi.fn(() => of({ success: true, data: {} })) }); await t.settle();
+			await t.c.cancel(t.store.item('tokens.colors.dark')!); await t.settle();
+			expect(t.api['discard'].mock.calls.map(c => c[1]).sort()).toEqual(['st-2', 'st-5', 'st-6']);
+			expect(t.api['publish']).not.toHaveBeenCalled(); expect(t.c.state('tokens.colors.dark').draft).toBeNull();
+			expect(t.q('pt-notice-tokens.colors.dark')!.textContent).toContain('2 مسودات أقدم'); expect(t.q('pt-pub---pg')!.textContent).toBe('#070b15');
+		});
+		it('apply publishes exactly the restored draft (bound to the state seen) and drops the leftovers', async () => {
+			const d6 = staged(6, { '--pg': '#070d26' });
+			const t = setup(withDrafts(d6, staged(5, { '--pg': '#070d25' })), {
+				discard: vi.fn(() => of({ success: true, data: {} })),
+				publish: vi.fn(() => of({ success: true, data: { key: 'tokens.colors.dark', stateVersion: 1, manifestVersion: 3, isDefault: false, active: { ...d6, status: 'PUBLISHED' }, updatedAt: null, updatedBy: null, previous: null } })),
+				liveManifest: vi.fn(() => ({ items: { 'tokens.colors.dark': { sha256: d6.sha256 } } })),
+			}); await t.settle();
+			await t.c.apply(t.store.item('tokens.colors.dark')!); await t.settle();
+			expect(t.api['publish']).toHaveBeenCalledWith('tokens.colors.dark', 'st-6', 0);
+			expect(t.api['discard'].mock.calls.map(c => c[1])).toEqual(['st-5']);
+		});
+		it('a new check keeps ONE draft: it discards this admin\'s older drafts, never another admin\'s', async () => {
+			const fresh = staged(7, { '--pg': '#111111' });
+			const t = setup(withDrafts(staged(5, { '--pg': '#070d25' }), staged(4, { '--pg': '#222222' }, false)), { uploadTokens: vi.fn(() => of({ success: true, data: fresh })), discard: vi.fn(() => of({ success: true, data: {} })) }); await t.settle();
+			await t.c.cancel(t.store.item('tokens.colors.dark')!); t.api['discard'].mockClear(); await t.settle();
+			await t.type('--pg', '#111111'); await (t.q('pt-stage-tokens.colors.dark') as HTMLButtonElement).click(); await t.settle();
+			expect(t.api['uploadTokens']).toHaveBeenCalledTimes(1);
+			expect(t.api['discard'].mock.calls.map(c => c[1])).toEqual(['st-5']);
+		});
+		it('another admin\'s draft is not adopted and not touched', async () => {
+			const t = setup(withDrafts(staged(4, { '--pg': '#222222' }, false))); await t.settle();
+			expect(t.c.state('tokens.colors.dark').draft).toBeNull(); expect(t.q('pt-review-tokens.colors.dark')).toBeNull(); expect(t.api['discard']).not.toHaveBeenCalled();
+		});
+	});
 });
