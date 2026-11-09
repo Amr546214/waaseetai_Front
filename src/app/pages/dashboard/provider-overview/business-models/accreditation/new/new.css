@@ -2,7 +2,7 @@
 .sticky-bar {
   position: fixed;
   bottom: 0;
-  right: 220px;
+  right: 260px;
   left: 0;
   background: rgba(7, 13, 36, 0.92);
   backdrop-filter: blur(16px);
@@ -78,7 +78,7 @@
   border-color: #D8DFEC;
   color: #475569;
 }
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .sticky-bar {
     right: 0;
   }
