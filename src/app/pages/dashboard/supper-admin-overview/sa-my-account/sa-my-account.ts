@@ -1,4 +1,5 @@
-import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -36,6 +37,7 @@ import { AdminConsoleApiService, AdminSelfProfile, AdminSession } from '../../..
   `],
 })
 export class SaMyAccount implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly api = inject(AdminConsoleApiService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly profileGuard = new SubmitGuard();
@@ -60,8 +62,63 @@ export class SaMyAccount implements OnInit {
   readonly confirming = signal<string | null>(null);
   readonly busy = signal(false);
 
-  readonly twoFaReason = 'غير متاح: لا يوجد دعم للمصادقة الثنائية (2FA) في الخادم حاليًا';
-  readonly avatarReason = 'غير متاح حاليًا: رفع الصورة الشخصية للحسابات الإدارية غير مدعوم';
+  readonly avatarBusy = signal(false);
+  readonly avatarMessage = signal<{ ok: boolean; text: string } | null>(null);
+  readonly securityLoading = signal(false);
+  readonly securityMessage = signal('');
+  readonly securityChecked = signal(false);
+  private avatarSequence = 0;
+
+  checkSecurityPolicy() {
+    if (this.securityLoading()) return;
+    this.securityLoading.set(true); this.securityMessage.set(''); this.securityChecked.set(false);
+    this.api.securityPolicy().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: r => {
+        this.securityLoading.set(false); this.securityChecked.set(true);
+        this.securityMessage.set(r.data.emailCodeRequired
+          ? 'رمز البريد مطلوب عند تسجيل الدخول بكلمة المرور أو Google، ولا يمكن إلغاؤه من هنا. تطبيق المصادقة TOTP غير مدعوم حاليًا.'
+          : 'تعذّر تحديد سياسة تأكيد الدخول.');
+      },
+      error: () => { this.securityLoading.set(false); this.securityMessage.set('تعذّر قراءة إعدادات الدخول. حاول مرة أخرى.'); },
+    });
+  }
+
+  chooseAvatar(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file || this.avatarBusy()) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
+      this.avatarMessage.set({ ok: false, text: 'ارفع صورة PNG أو JPEG أو WebP لا تتجاوز 2 ميجا.' }); return;
+    }
+    this.avatarBusy.set(true); this.avatarMessage.set(null);
+    const request = ++this.avatarSequence;
+    const reader = new FileReader();
+    reader.onload = () => { if (request === this.avatarSequence) this.saveAvatar(String(reader.result)); };
+    reader.onerror = () => { if (request === this.avatarSequence) {
+      this.avatarBusy.set(false); this.avatarMessage.set({ ok: false, text: 'تعذّر قراءة الصورة.' });
+    } };
+    reader.readAsDataURL(file);
+  }
+
+  removeAvatar() {
+    if (this.avatarBusy()) return;
+    this.avatarBusy.set(true); this.avatarMessage.set(null); this.saveAvatar(null);
+  }
+
+  private saveAvatar(image: string | null) {
+    this.api.updateAvatar(image).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: r => {
+        // Updating a photo never overwrites unsaved name or phone edits.
+        this.profile.set(r.data); this.avatarBusy.set(false);
+        this.avatarMessage.set({ ok: true, text: image === null ? 'تم حذف الصورة الشخصية.' : 'تم حفظ الصورة الشخصية.' });
+      },
+      error: () => {
+        this.avatarBusy.set(false);
+        this.avatarMessage.set({ ok: false, text: 'تعذّر حفظ الصورة. تأكد من نوعها وحجمها وحاول مرة أخرى.' });
+      },
+    });
+  }
 
   ngOnInit(): void {
     this.api.getMe().subscribe({ next: (r) => this.applyProfile(r.data), error: () => this.profileMsg.set({ ok: false, text: 'تعذّر تحميل بيانات الحساب' }) });
