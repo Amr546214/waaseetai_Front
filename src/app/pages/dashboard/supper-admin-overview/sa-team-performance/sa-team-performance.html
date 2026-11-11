@@ -8,8 +8,8 @@
         <button type="button" class="tp-pt" [class.active]="period() === 'year'" (click)="setPeriod('year')">سنة</button>
       </div>
       @if (canExport()) {
-        <button type="button" class="tp-btn tp-btn-gh" (click)="exportPdf()" data-testid="perf-export-pdf"><svg data-ws-icon="pl-admin-download-tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير PDF</button>
-        <button type="button" class="tp-btn tp-btn-gh" [disabled]="exporting()" (click)="export()" data-testid="perf-export"><svg data-ws-icon="pl-admin-download-tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير CSV</button>
+        <button type="button" class="tp-btn tp-btn-gh" (click)="exportPdf()" data-testid="perf-export-pdf"><svg data-ws-icon="pl-admin-download-tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير المهام PDF</button>
+        <button type="button" class="tp-btn tp-btn-gh" [disabled]="exporting()" (click)="export()" data-testid="perf-export"><svg data-ws-icon="pl-admin-download-tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير المهام CSV</button>
       } @else {
         <button type="button" class="tp-btn tp-btn-gh" disabled title="التصدير يحتاج صلاحية «تصدير الأداء»" data-testid="perf-export-disabled">تصدير PDF</button>
       }
@@ -87,5 +87,20 @@
       </table></div>
     </div>
   }
+  <section class="tp-card" aria-labelledby="support-response-title">
+    <h2 class="tp-card-ttl" id="support-response-title">أوقات الرد الأول على تذاكر الدعم</h2>
+    <p class="tp-sub">قراءة مستقلة عن مؤشرات المهام، ولا تدخل في تصدير المهام أعلاه.</p>
+    <button type="button" class="tp-btn tp-btn-gh" (click)="loadSupport()" [disabled]="supportLoading()">عرض أوقات الرد للفترة المختارة</button>
+    @if (supportLoading()) { <p role="status">جارٍ تحميل أوقات الرد…</p> }
+    @if (supportError()) { <p role="alert">{{ supportError() }}</p> }
+    @if (support(); as s) {
+      <p>تذاكر الفترة: {{ s.tickets }} · تم الرد عليها: {{ s.answered }} · بلا رد إداري: {{ s.withoutStaffReply }}</p>
+      <p>متوسط أول رد: {{ s.averageFirstReplyHours === null ? 'لا توجد ردود مسجلة' : s.averageFirstReplyHours + ' ساعة' }}</p>
+      <p>الالتزام بسياسة الرد المفعّلة: {{ s.slaRate === null ? 'غير متاح — لا توجد تذاكر قابلة للقياس وفق سياسة مفعّلة' : s.slaRate + '%' }}</p>
+      <p>عدد التذاكر التي تدخل في النسبة: {{ s.measured }} · داخل المهلة وبلا رد: {{ s.pending }} · أُغلقت بلا رد: {{ s.closedWithoutReply }}</p>
+      @if (s.truncated) { <p role="status">القراءة محدودة بأحدث عشرة آلاف تذكرة في الفترة، وليست إحصاءً كاملًا.</p> }
+      <p class="tp-sub">{{ s.definition }}</p>
+    }
+  </section>
   <div class="tp-foot">© 2026 وسيط AI · v2.0.0</div>
 </section>
