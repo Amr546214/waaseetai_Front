@@ -10,7 +10,7 @@ import { WalletBreakdown } from '../../../../../core/models/wallet-unify.model';
 import { WalletBreakdownComponent, WalletBreakdownRow } from '../../../../../shared/wallet/wallet-breakdown.component';
 
 interface FinancialEvent {
-  id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED' | 'CANCELLATION_SETTLEMENT';
+  id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED' | 'CANCELLATION_SETTLEMENT' | 'ADMIN_RELEASE';
   breakdown?: WalletBreakdown;
   amount: number; currency: 'USD'; title: string; description: string; projectId: string;
   projectTitle: string; stageId: string | null; status: 'COMPLETED' | 'HELD' | 'RELEASED' | 'REFUNDED'; createdAt: string;
@@ -75,6 +75,7 @@ export class TransactionDetails implements OnInit {
 
   typeLabel(t: FinancialEvent) {
     if (t.category === 'CANCELLATION_SETTLEMENT' || t.id.startsWith('cancellation-settlement-')) return 'تسوية إلغاء متبادل';
+    if (t.category === 'ADMIN_RELEASE' || t.id.startsWith('admin-release-')) return 'صرف إداري للضمان';
     if (t.category === 'ESCROW_FUNDED') return 'تمويل حساب الضمان';
     if (t.category === 'ESCROW_RELEASE') return 'إفراج من حساب الضمان';
     return 'إفراج أرباح مرحلة';

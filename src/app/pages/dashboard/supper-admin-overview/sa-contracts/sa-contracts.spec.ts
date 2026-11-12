@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 import { SaContracts } from './sa-contracts';
 import { SaContractDetail } from './sa-contract-detail/sa-contract-detail';
 import { AdminContractDetail, AdminContractListData, AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
+import { AdminOrderControlsApiService } from '../../../../core/services/admin-order-controls-api.service';
 
 const party = (id: string, name: string) => ({ id, name, email: null });
 const escrow = (v: number | null) => ({ status: 'HELD' as const, amount: 900, releasedAmount: 0, heldAmount: 900, fundedAt: null, platformCommissionAmount: 9, providerNetReleasedAmount: 0, feePolicyVersion: v });
@@ -35,11 +36,24 @@ function detailData(fee: number | null = 2): AdminContractDetail {
   };
 }
 
+const controlsStub = (over: Record<string, any> = {}) => ({
+  controls: vi.fn(() => of({ success: true, data: { version: 'v1', status: 'ACTIVE', frozen: false, actions: {
+    CONTRACT_FREEZE: { allowed: true, code: null, message: null, requiresSuperAdmin: false },
+    CONTRACT_UNFREEZE: { allowed: false, code: 'CONTRACT_NOT_FROZEN', message: null, requiresSuperAdmin: false },
+    CONTRACT_CANCEL: { allowed: true, code: null, message: null, requiresSuperAdmin: false },
+    ESCROW_REFUND: { allowed: false, code: 'ADMIN_SUPER_ADMIN_REQUIRED', message: null, requiresSuperAdmin: true },
+    ESCROW_RELEASE: { allowed: false, code: 'ACTIVE_DISPUTE', message: null, requiresSuperAdmin: false },
+    ...over } } })),
+  quote: vi.fn(), run: vi.fn(),
+});
+
 describe('SaContracts (real data)', () => {
+  let ctl = controlsStub();
   let api: { listContracts: ReturnType<typeof vi.fn>; getContract: ReturnType<typeof vi.fn> };
 
   async function setup(listImpl: () => any, getImpl: () => any = () => of({ success: true, data: detailData() })) {
     api = { listContracts: vi.fn(listImpl), getContract: vi.fn(getImpl) };
+    ctl = controlsStub();
     TestBed.configureTestingModule({
       providers: [
         provideRouter([
@@ -47,6 +61,7 @@ describe('SaContracts (real data)', () => {
           { path: 'contracts/:id', component: SaContractDetail },
         ]),
         { provide: AdminOpsApiService, useValue: api },
+        { provide: AdminOrderControlsApiService, useValue: ctl },
       ],
     });
     return RouterTestingHarness.create();
@@ -85,21 +100,29 @@ describe('SaContracts (real data)', () => {
     expect(harness.routeNativeElement!.textContent).toContain('نور خالد');
   });
 
-  it('detail shows real data and all financial buttons are disabled with a reason and call no API', async () => {
+  it('detail shows real data; the financial buttons come from the server controls with a SPECIFIC reason (never a generic «غير متاح»)', async () => {
     const harness = await setup(() => of({ success: true, data: listData() }));
     await harness.navigateByUrl('/contracts/ct-1', SaContractDetail);
     harness.detectChanges();
     const el: HTMLElement = harness.routeNativeElement!;
     expect(api.getContract).toHaveBeenCalledWith('ct-1');
+    expect(ctl.controls).toHaveBeenCalledWith('contract', 'ct-1');
     expect(el.textContent).toContain('تعديل الميزانية');
     expect(el.textContent).toContain('عمولة المنصة');
-    const btns = Array.from(el.querySelectorAll('.ct-escrow-actions button')) as HTMLButtonElement[];
-    expect(btns.length).toBe(3);
-    expect(btns.every((b) => b.disabled)).toBe(true);
-    expect(el.querySelector('[data-testid="finance-disabled-reason"]')!.textContent).toContain('يحتاج قرار سياسة مالية');
-    api.getContract.mockClear();
-    btns.forEach((b) => b.click());
-    expect(api.getContract).not.toHaveBeenCalled();
+    const btn = (a: string) => el.querySelector(`[data-action="${a}"]`) as HTMLButtonElement;
+    expect(btn('CONTRACT_FREEZE').disabled).toBe(false);
+    expect(btn('CONTRACT_CANCEL').disabled).toBe(false);
+    expect(btn('ESCROW_REFUND').disabled).toBe(true);
+    expect(btn('ESCROW_RELEASE').disabled).toBe(true);
+    expect(btn('CONTRACT_UNFREEZE')).toBeNull(); // the opposite of the current state is not offered
+    const reasons = Array.from(el.querySelectorAll('[data-testid="oc-reason"]')).map((n) => n.textContent!.trim());
+    expect(reasons.some((t) => t.includes('مدير النظام (Super Admin) وحده'))).toBe(true);
+    expect(reasons.some((t) => t.includes('نزاع مفتوح'))).toBe(true);
+    expect(el.textContent).not.toContain('غير متاح حاليًا');
+    expect(el.textContent).not.toContain('يحتاج قرار سياسة مالية');
+    // opening nothing, clicking disabled buttons calls no write API
+    btn('ESCROW_REFUND').click(); btn('ESCROW_RELEASE').click();
+    expect(ctl.run).not.toHaveBeenCalled();
     expect(api.listContracts).toHaveBeenCalledTimes(0);
   });
 

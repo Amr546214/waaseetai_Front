@@ -18,6 +18,7 @@
     <div class="pj-kpi"><span class="pj-kpi-lbl">مشاريع جارية</span><div class="pj-kpi-val txt-blue">{{ data() ? (counts()['IN_PROGRESS'] ?? 0) : '-' }}</div></div>
     <div class="pj-kpi"><span class="pj-kpi-lbl">مكتملة</span><div class="pj-kpi-val txt-green">{{ data() ? (counts()['COMPLETED'] ?? 0) : '-' }}</div></div>
     <div class="pj-kpi"><span class="pj-kpi-lbl">متنازع عليها</span><div class="pj-kpi-val txt-coral">{{ data() ? (counts()['DISPUTED'] ?? 0) : '-' }}</div></div>
+    <div class="pj-kpi" data-testid="pj-kpi-cancelled"><span class="pj-kpi-lbl">ملغاة بقرار إداري</span><div class="pj-kpi-val txt-coral">{{ data() ? (counts()['CANCELLED'] ?? 0) : '-' }}</div></div>
     <div class="pj-kpi">
       <span class="pj-kpi-lbl">إجمالي المبالغ المحتجزة في الضمان</span>
       <div class="pj-kpi-val txt-teal">

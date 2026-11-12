@@ -3,6 +3,7 @@ import { UiNotificationService } from '../../../../../core/services/ui-notificat
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SaNotifyModal } from '../../sa-notify-modal';
+import { SaOrderControls } from '../../order-controls/sa-order-controls';
 import {
   AdminRequestDetail,
   REQUEST_STATUS_LABELS,
@@ -17,7 +18,7 @@ import {
 @Component({
   selector: 'app-sa-request-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, SaNotifyModal],
+  imports: [CommonModule, RouterLink, SaNotifyModal, SaOrderControls],
   templateUrl: './sa-request-detail.html',
   styleUrls: ['../sa-requests.css', './sa-request-detail.css'],
 })
@@ -31,7 +32,6 @@ export class SaRequestDetail implements OnInit {
   readonly offerLabels = OFFER_STATUS_LABELS;
   readonly contractLabels = CONTRACT_STATUS_LABELS;
 
-  readonly stateChangeReason = 'غير متاح حاليًا — لا يوجد مسار إداري لتغيير حالة الطلب، ويحتاج قرارًا من المنتج (أثره على العروض والضمان)';
   notifyOpen = signal(false);
   selected = signal<AdminRequestDetail | null>(null);
   loading = signal(true);

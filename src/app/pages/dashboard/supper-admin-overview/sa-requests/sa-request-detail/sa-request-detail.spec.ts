@@ -44,6 +44,14 @@ describe('SaRequestDetail (live)', () => {
     expect(t).toContain('سبب');
   });
 
+  it('carries the real admin controls (no disabled placeholder buttons, no generic «غير متاح»)', () => {
+    const f = make(of(detail()));
+    const el: HTMLElement = f.nativeElement;
+    expect(el.querySelector('sa-order-controls')).toBeTruthy();
+    expect(el.textContent).not.toContain('غير متاح حاليًا');
+    expect(el.textContent).not.toContain('يحتاج قرارًا من المنتج');
+  });
+
   it('404 and error states', () => {
     expect(make(throwError(() => ({ status: 404 }))).componentInstance.notFound()).toBe(true);
   });

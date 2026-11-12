@@ -47,7 +47,7 @@ export interface WalletPagination { page: number; limit: number; total: number; 
 export const MISSING_DETAILS_TEXT = 'تفاصيل الخصم غير مسجّلة';
 
 const OPERATION_COVERS_LABEL: Record<string, string> = {
-	DEPOSIT: 'الإيداعات', STAGE_RELEASE: 'إفراج دفعات المراحل', ESCROW_RELEASE: 'إفراج الضمان', CANCELLATION_SETTLEMENT: 'تسوية الإلغاء المتبادل', COMMISSION: 'العمولات المؤكدة والمدفوعة', ESCROW_LOCK: 'تمويل الضمان', ESCROW_FUNDED: 'تمويل الضمان',
+	DEPOSIT: 'الإيداعات', STAGE_RELEASE: 'إفراج دفعات المراحل', ESCROW_RELEASE: 'إفراج الضمان', CANCELLATION_SETTLEMENT: 'تسوية الإلغاء المتبادل', ADMIN_RELEASE: 'الصرف الإداري للضمان', CASHBACK: 'الكاش باك', COMMISSION: 'العمولات المؤكدة والمدفوعة', ESCROW_LOCK: 'تمويل الضمان', ESCROW_FUNDED: 'تمويل الضمان',
 };
 export function coversLabel(covers: string[] | undefined): string {
 	return (covers ?? []).map(c => OPERATION_COVERS_LABEL[c] ?? c).join('، ');

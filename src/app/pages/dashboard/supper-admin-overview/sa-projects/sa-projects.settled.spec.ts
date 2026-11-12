@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { SaProjects } from './sa-projects';
 import { SaProjectDetail } from './sa-project-detail/sa-project-detail';
+import { AdminOrderControlsApiService } from '../../../../core/services/admin-order-controls-api.service';
 import { AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 
 // Admin project pages for a project closed by a dispute settlement: the escrow status RELEASED is shown as the settlement's result (never «مُفرَج» = all paid),
@@ -16,7 +17,7 @@ const FIN = { contractValue: 25, contractValueNote: 'قيمة العقد الت�
 describe('admin project pages: settled project', () => {
 	async function setup(list: any, detail: any) {
 		const api = { listProjects: vi.fn(() => of({ success: true, data: list })), getProject: vi.fn(() => of({ success: true, data: detail })) };
-		TestBed.configureTestingModule({ providers: [provideRouter([{ path: 'projects', component: SaProjects }, { path: 'projects/:id', component: SaProjectDetail }]), { provide: AdminOpsApiService, useValue: api }] });
+		TestBed.configureTestingModule({ providers: [provideRouter([{ path: 'projects', component: SaProjects }, { path: 'projects/:id', component: SaProjectDetail }]), { provide: AdminOpsApiService, useValue: api }, { provide: AdminOrderControlsApiService, useValue: { controls: () => of({ success: true, data: { version: 'v', actions: {} } }), quote: () => of(), run: () => of() } }] });
 		return RouterTestingHarness.create();
 	}
 	const row = { id: 'p-1', title: 'مشروع مُسوّى', status: 'COMPLETED', statusLabel: 'أُغلق بتسوية نزاع', adminSettled: { disputeId: 'd', outcome: 'SPLIT', label: 'أُغلق بتسوية نزاع' }, lifecycle: { closedBySettlement: true }, createdAt: '2026-01-01T00:00:00Z', deliveryDays: 14, client: party('c'), provider: party('v'), contract: { id: 'ct', price: 25, status: 'COMPLETED' }, escrow: ESCROW, progress: { totalStages: 3, approvedStages: 0, percent: 0 } };
