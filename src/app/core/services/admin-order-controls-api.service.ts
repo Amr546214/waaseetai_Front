@@ -31,12 +31,13 @@ export interface ControlQuote {
   amounts: { heldBefore: number; refundToClient: number; releaseToProvider: number; platformCommission: number; providerNet: number };
   beneficiary: { kind: 'CLIENT' | 'PROVIDER' | 'NONE'; userId: string | null; name: string | null };
   commission: { feePolicyVersion: number | null; ratePercent: number | null; appliesTo: 'RELEASE' | 'NONE' };
-  settlement: { options: string[]; partial: { available: boolean; code: string } } | null;
+  /** a cancellation never decides held money: when it would, `blocked` carries the reason code (CANCELLATION_SETTLEMENT_NOT_APPROVED) */
+  settlement: { options: string[]; blocked?: { code: string } } | null;
   after: { contractStatus: string | null; requestStatus: string | null; escrowStatus: string | null };
   effects: string[];
   offersToClose?: number;
 }
-export interface ControlPayload { reason?: string; expectedVersion: string; confirm?: boolean; expectedHeldAmount?: number; settlement?: string }
+export interface ControlPayload { reason?: string; expectedVersion: string; confirm?: boolean; expectedHeldAmount?: number }
 
 /** Admin controls over requests / offers / contracts / escrow. Every mutation carries an Idempotency-Key (one per user attempt) and the version the admin saw. */
 @Injectable({ providedIn: 'root' })

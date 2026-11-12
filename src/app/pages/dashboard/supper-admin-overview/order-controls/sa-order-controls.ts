@@ -1,4 +1,5 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { AdminOrderControlsApiService, ControlAction, ControlKind, ControlPayload, ControlQuote, ControlsData } from '../../../../core/services/admin-order-controls-api.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
@@ -81,12 +82,6 @@ const newKey = (): string => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()
               <ul class="oc-effects">
                 @for (e of q.effects; track e) { @if (effect(e)) { <li>{{ effect(e) }}</li> } }
               </ul>
-              @if (q.settlement) {
-                <div class="oc-note" data-testid="oc-settlement">
-                  <label><input type="radio" name="oc-settlement" checked disabled /> إعادة كامل المبلغ المحتجز إلى الطالب (التسوية المتاحة)</label><br />
-                  <span>تقسيم المبلغ بين الطرفين غير معتمد بعد وبانتظار قرار المنتج.</span>
-                </div>
-              }
             }
           }
 
@@ -111,7 +106,7 @@ const newKey = (): string => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()
     }
   `,
 })
-export class SaOrderControls implements OnChanges {
+export class SaOrderControls implements OnChanges, OnDestroy {
   private api = inject(AdminOrderControlsApiService);
   private notify = inject(UiNotificationService);
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -131,6 +126,11 @@ export class SaOrderControls implements OnChanges {
   readonly forbiddenCopy = REASON_COPY['ADMIN_PERMISSION_DENIED'];
   dialog = signal<ActionDef | null>(null);
   quote = signal<ControlQuote | null>(null);
+  /** WHO the loaded preview belongs to: the action + the entity it was requested for. A preview is only ever usable for exactly that operation. */
+  private quoteOwner = signal<{ action: ControlAction; targetId: string } | null>(null);
+  private controlsSub?: Subscription;
+  private contractControlsSub?: Subscription;
+  private quoteSub?: Subscription;
   quoteLoading = signal(false);
   reason = signal('');
   confirmed = signal(false);
@@ -158,23 +158,45 @@ export class SaOrderControls implements OnChanges {
     if (!d || this.busy()) return false;
     if (d.reasonRequired && this.reason().trim().length < 5) return false;
     if (d.needsConfirm && !this.confirmed()) return false;
-    if (d.hasQuote) { const q = this.quote(); if (!q || q.blocked) return false; }
+    if (d.hasQuote) {
+      const q = this.quote(); const owner = this.quoteOwner();
+      if (!q || q.blocked || this.quoteLoading()) return false;
+      // the preview must belong to THIS action on THIS entity and to the CURRENT version of it, never to another operation or a stale state
+      if (!owner || owner.action !== d.action || owner.targetId !== this.targetId(d.action)) return false;
+      if (q.version !== this.versionOf(d.action)) return false;
+    }
     return true;
   });
 
   ngOnChanges(ch: SimpleChanges): void {
-    if (ch['id'] || ch['kind'] || ch['extraContractId']) this.reload();
+    if (ch['id'] || ch['kind'] || ch['extraContractId']) {
+      // another entity (navigation / input change): everything that belonged to the previous one is dropped and its in-flight answers are ignored
+      this.cancelAll();
+      this.controls.set(null); this.contractControls.set(null); this.dialog.set(null); this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(false);
+      this.busy.set(false); this.error.set(''); this.unknown.set(false); this.attempt = null;
+      this.reload();
+    }
   }
+
+  ngOnDestroy(): void { this.cancelAll(); }
+  private cancelAll(): void { this.controlsSub?.unsubscribe(); this.contractControlsSub?.unsubscribe(); this.quoteSub?.unsubscribe(); }
 
   reload(): void {
     if (!this.id) return;
     this.loadFailed.set(false); this.forbidden.set(false);
-    this.api.controls(this.kind, this.id).subscribe({
-      next: (res) => this.controls.set(res?.data?.actions ? res.data : null),
-      error: (err) => { this.controls.set(null); if (err?.status === 403) this.forbidden.set(true); else this.loadFailed.set(true); },
+    // only the LATEST request counts: a slower, older answer can never overwrite a newer one (the older subscription is cancelled), and an answer for another entity is ignored
+    const kind = this.kind, id = this.id, contractId = this.extraContractId;
+    this.controlsSub?.unsubscribe();
+    this.controlsSub = this.api.controls(kind, id).subscribe({
+      next: (res) => { if (kind === this.kind && id === this.id) this.controls.set(res?.data?.actions ? res.data : null); },
+      error: (err) => { if (kind !== this.kind || id !== this.id) return; this.controls.set(null); if (err?.status === 403) this.forbidden.set(true); else this.loadFailed.set(true); },
     });
-    if (this.kind === 'offer' && this.extraContractId) {
-      this.api.controls('contract', this.extraContractId).subscribe({ next: (res) => this.contractControls.set(res?.data?.actions ? res.data : null), error: () => this.contractControls.set(null) });
+    this.contractControlsSub?.unsubscribe();
+    if (kind === 'offer' && contractId) {
+      this.contractControlsSub = this.api.controls('contract', contractId).subscribe({
+        next: (res) => { if (contractId === this.extraContractId) this.contractControls.set(res?.data?.actions ? res.data : null); },
+        error: () => { if (contractId === this.extraContractId) this.contractControls.set(null); },
+      });
     }
   }
 
@@ -182,16 +204,21 @@ export class SaOrderControls implements OnChanges {
   private versionOf(a: ControlAction): string { return ((this.kind === 'offer' && a.startsWith('CONTRACT_')) ? this.contractControls() : this.controls())?.version ?? ''; }
 
   open(def: ActionDef): void {
-    this.dialog.set(def); this.reason.set(''); this.confirmed.set(false); this.error.set(''); this.unknown.set(false); this.attempt = null; this.quote.set(null);
+    this.quoteSub?.unsubscribe(); // opening another action: the previous preview (and its pending answer) is dropped
+    this.dialog.set(def); this.reason.set(''); this.confirmed.set(false); this.error.set(''); this.unknown.set(false); this.attempt = null; this.quote.set(null); this.quoteOwner.set(null);
     if (def.hasQuote) this.loadQuote(def);
   }
-  close(): void { if (!this.busy()) { this.dialog.set(null); this.quote.set(null); } }
+  close(): void { if (!this.busy()) { this.quoteSub?.unsubscribe(); this.dialog.set(null); this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(false); } }
 
   private loadQuote(def: ActionDef): void {
-    this.quoteLoading.set(true);
-    this.api.quote(def.action, this.targetId(def.action)).subscribe({
-      next: (res) => { this.quote.set(res?.data ?? null); this.quoteLoading.set(false); },
-      error: (err) => { this.quote.set(null); this.quoteLoading.set(false); this.error.set(controlErrorCopy(err, 'تعذّر تحميل تفاصيل الأثر المالي، لن يُنفَّذ شيء.')); },
+    const action = def.action, targetId = this.targetId(action);
+    // previous data is cleared while loading: a confirmation is impossible until THIS operation's preview has arrived
+    this.quoteSub?.unsubscribe();
+    this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(true);
+    const stillCurrent = () => this.dialog()?.action === action && this.targetId(action) === targetId;
+    this.quoteSub = this.api.quote(action, targetId).subscribe({
+      next: (res) => { if (!stillCurrent()) return; this.quote.set(res?.data ?? null); this.quoteOwner.set(res?.data ? { action, targetId } : null); this.quoteLoading.set(false); },
+      error: (err) => { if (!stillCurrent()) return; this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(false); this.error.set(controlErrorCopy(err, 'تعذّر تحميل تفاصيل الأثر المالي، لن يُنفَّذ شيء.')); },
     });
   }
 
@@ -201,13 +228,12 @@ export class SaOrderControls implements OnChanges {
     const def = this.dialog();
     if (!def || !this.canSubmit()) return;
     const q = this.quote();
-    const body: ControlPayload = { expectedVersion: (def.hasQuote && q?.version) || this.versionOf(def.action) };
+    const body: ControlPayload = { expectedVersion: this.versionOf(def.action) };
     const reason = this.reason().trim();
     if (reason) body.reason = reason;
     if (def.needsConfirm) body.confirm = true;
     if (def.hasQuote && q) {
       if (q.expectedHeldAmount > 0) body.expectedHeldAmount = q.expectedHeldAmount;
-      if (def.action === 'REQUEST_CANCEL' || def.action === 'CONTRACT_CANCEL') { if (q.settlement) body.settlement = q.settlement.options[0]; }
     }
     const sig = JSON.stringify([def.action, this.targetId(def.action), body]);
     if (!this.attempt || this.attempt.sig !== sig) this.attempt = { sig, key: newKey() };
@@ -226,7 +252,7 @@ export class SaOrderControls implements OnChanges {
         if (mapHttpError(err).outcomeUnknown) this.unknown.set(true); // same key stays: pressing again is safe
         else this.attempt = null;
         // the screen moved under the admin's feet: show the new numbers before the next confirmation
-        if (code === 'STALE_VERSION' || code === 'HELD_BALANCE_CHANGED' || code === 'ESCROW_CHANGED') { this.confirmed.set(false); this.reload(); if (def.hasQuote) this.loadQuote(def); }
+        if (code === 'STALE_VERSION' || code === 'HELD_BALANCE_CHANGED' || code === 'ESCROW_CHANGED') { this.confirmed.set(false); this.reload(); if (def.hasQuote && this.dialog()?.action === def.action) this.loadQuote(def); }
       },
     });
   }

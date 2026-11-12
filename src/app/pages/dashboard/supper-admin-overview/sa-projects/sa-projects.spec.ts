@@ -107,6 +107,15 @@ describe('SaProjects (real data)', () => {
     expect(harness.routeNativeElement!.textContent).toContain('لا توجد مشاريع مطابقة');
   });
 
+  it('an admin-cancelled project has its own explicit state: label, filter tab and KPI (never shown as disputed / draft)', async () => {
+    const harness = await setup(() => of({ success: true, data: listData({ counts: { IN_PROGRESS: 1, CANCELLED: 3 } }) }));
+    await harness.navigateByUrl('/projects', SaProjects);
+    harness.detectChanges();
+    const el: HTMLElement = harness.routeNativeElement!;
+    expect(el.querySelector('[data-testid="pj-kpi-cancelled"]')!.textContent).toContain('3');
+    expect(el.textContent).toContain('ملغى بقرار إداري');
+  });
+
   it('shows an error and retries', async () => {
     let fail = true;
     const harness = await setup(() => (fail ? throwError(() => ({ status: 500 })) : of({ success: true, data: listData() })));

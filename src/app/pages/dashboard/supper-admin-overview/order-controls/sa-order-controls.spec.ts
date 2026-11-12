@@ -6,16 +6,16 @@ import { vi } from 'vitest';
 import { SaOrderControls } from './sa-order-controls';
 import { AdminOrderControlsApiService } from '../../../../core/services/admin-order-controls-api.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
-import { REASON_COPY, controlErrorCopy } from './order-controls.copy';
+import { ACTION_DEFS, REASON_COPY, controlErrorCopy } from './order-controls.copy';
 
 const allow = { allowed: true, code: null, message: null, requiresSuperAdmin: false };
 const deny = (code: string, su = false) => ({ allowed: false, code, message: null, requiresSuperAdmin: su });
 const reqControls = (over: any = {}) => ({ success: true, data: { version: 'rv1', status: 'OPEN', suspended: false, actions: { REQUEST_SUSPEND: allow, REQUEST_RESUME: deny('REQUEST_NOT_SUSPENDED'), REQUEST_CANCEL: allow, ...over } } });
 const quote = (over: any = {}) => ({ success: true, data: {
-  action: 'CONTRACT_CANCEL', version: 'qv9', currency: 'USD', blocked: null, expectedHeldAmount: 20,
+  action: 'CONTRACT_CANCEL', version: 'rv1', currency: 'USD', blocked: null, expectedHeldAmount: 20,
   amounts: { heldBefore: 20, refundToClient: 20, releaseToProvider: 0, platformCommission: 0, providerNet: 0 },
   beneficiary: { kind: 'CLIENT', userId: 'c1', name: 'نور خالد' }, commission: { feePolicyVersion: 2, ratePercent: 12.75, appliesTo: 'NONE' },
-  settlement: { options: ['REFUND_ALL_TO_CLIENT'], partial: { available: false, code: 'PARTIAL_SETTLEMENT_NOT_DEFINED' } },
+  settlement: null,
   after: { contractStatus: 'CANCELLED', requestStatus: 'CANCELLED', escrowStatus: 'REFUNDED' }, effects: ['HELD_REFUNDED_TO_CLIENT', 'CONTRACT_CANCELLED', 'ALREADY_RELEASED_UNCHANGED'], offersToClose: 2, ...over } });
 
 @Component({ standalone: true, imports: [SaOrderControls], template: `<sa-order-controls [kind]="kind" [id]="id" (changed)="n = n + 1"></sa-order-controls>` })
@@ -87,14 +87,14 @@ describe('SaOrderControls', () => {
     expect(t).toContain('20.00 $'); expect(t).toContain('نور خالد'); expect(t).toContain('12.75%');
     expect(el.textContent).toContain('يُعاد كامل المبلغ المحتجز إلى رصيد الطالب');
     expect(el.textContent).toContain('ما صُرف سابقًا لمقدم الخدمة لا يتغيّر');
-    expect(el.querySelector('[data-testid="oc-settlement"]')!.textContent).toContain('بانتظار قرار المنتج');
+    expect(el.querySelector('[data-testid="oc-settlement"]')).toBeNull(); // no settlement is offered or assumed by a cancellation
     const submit = () => el.querySelector('[data-testid="oc-submit"]') as HTMLButtonElement;
     type(f, el, 'مخالفة جسيمة للسياسة'); expect(submit().disabled).toBe(true); // not confirmed yet
     const cb = el.querySelector('[data-testid="oc-confirm"]') as HTMLInputElement; cb.checked = true; cb.dispatchEvent(new Event('change')); f.detectChanges();
     expect(submit().disabled).toBe(false);
     submit().click(); f.detectChanges(); await tick(f);
     const [, , body] = api.run.mock.calls[0] as any[];
-    expect(body).toEqual({ expectedVersion: 'qv9', reason: 'مخالفة جسيمة للسياسة', confirm: true, expectedHeldAmount: 20, settlement: 'REFUND_ALL_TO_CLIENT' });
+    expect(body).toEqual({ expectedVersion: 'rv1', reason: 'مخالفة جسيمة للسياسة', confirm: true, expectedHeldAmount: 20 });
   });
 
   it('a blocked quote disables the confirmation and shows the specific reason', async () => {
@@ -140,7 +140,7 @@ describe('SaOrderControls', () => {
   it('offer page: the linked contract can be cancelled through the contract controls with the contract version', async () => {
     const api = {
       controls: vi.fn((kind: string) => of(kind === 'offer' ? { success: true, data: { version: 'ov1', actions: { OFFER_SUSPEND: deny('OFFER_LINKED_TO_CONTRACT'), OFFER_RESUME: deny('OFFER_NOT_SUSPENDED') } } } : { success: true, data: { version: 'cv1', actions: { CONTRACT_CANCEL: allow } } })),
-      quote: vi.fn(() => of(quote({ version: 'cv2' }))), run: vi.fn(() => of({ success: true, data: {} })),
+      quote: vi.fn(() => of(quote({ version: 'cv1' }))), run: vi.fn(() => of({ success: true, data: {} })),
     };
     TestBed.configureTestingModule({ imports: [SaOrderControls], providers: [{ provide: AdminOrderControlsApiService, useValue: api }, { provide: UiNotificationService, useValue: { success: vi.fn() } }] });
     const f = TestBed.createComponent(SaOrderControls);
@@ -161,13 +161,88 @@ describe('SaOrderControls', () => {
   });
 });
 
+describe('SaOrderControls: stale / out-of-order responses', () => {
+  const open = (el: HTMLElement, a: string, f: any) => { (el.querySelector(`[data-action="${a}"]`) as HTMLButtonElement).click(); f.detectChanges(); };
+  const confirm = (f: any, el: HTMLElement) => { type(f, el, 'سبب كافٍ للقرار'); const cb = el.querySelector('[data-testid="oc-confirm"]') as HTMLInputElement | null; if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change')); } f.detectChanges(); };
+  const both = { REQUEST_SUSPEND: allow, REQUEST_RESUME: deny('REQUEST_NOT_SUSPENDED'), REQUEST_CANCEL: allow };
+
+  it('the confirmation is impossible while the preview is loading, and after it arrives only for the SAME action, entity and version', async () => {
+    const { Subject } = await import('rxjs'); const q = new Subject<any>();
+    const api = { controls: vi.fn(() => of(reqControls(both))), quote: vi.fn(() => q), run: vi.fn(() => of({ success: true, data: {} })) };
+    const { f, el } = make(api);
+    open(el, 'REQUEST_CANCEL', f); confirm(f, el);
+    expect((el.querySelector('[data-testid="oc-submit"]') as HTMLButtonElement).disabled).toBe(true); // preview still loading
+    q.next(quote({ version: 'OTHER' })); f.detectChanges(); confirm(f, el);
+    expect((el.querySelector('[data-testid="oc-submit"]') as HTMLButtonElement).disabled).toBe(true); // a preview of another version
+    expect(api.run).not.toHaveBeenCalled();
+  });
+
+  it('reversed quote responses: opening another action drops the first preview; its LATE answer never replaces the second', async () => {
+    const { Subject } = await import('rxjs'); const qCancel = new Subject<any>(); const qOther = new Subject<any>();
+    const api = { controls: vi.fn(() => of({ success: true, data: { version: 'rv1', actions: { REQUEST_SUSPEND: allow, REQUEST_RESUME: deny('REQUEST_NOT_SUSPENDED'), REQUEST_CANCEL: allow, CONTRACT_CANCEL: allow } } })), quote: vi.fn((a: string) => (a === 'REQUEST_CANCEL' ? qCancel : qOther)), run: vi.fn() };
+    const { f, el } = make(api);
+    open(el, 'REQUEST_CANCEL', f);
+    // the admin closes it and opens a different previewed action before the first answer arrived
+    const cmp: any = f.debugElement.children[0].componentInstance;
+    cmp.open(ACTION_DEFS.CONTRACT_CANCEL); f.detectChanges();
+    qOther.next(quote({ action: 'CONTRACT_CANCEL', amounts: { heldBefore: 5, refundToClient: 5, releaseToProvider: 0, platformCommission: 0, providerNet: 0 }, expectedHeldAmount: 5 })); f.detectChanges();
+    qCancel.next(quote({ expectedHeldAmount: 99, amounts: { heldBefore: 99, refundToClient: 99, releaseToProvider: 0, platformCommission: 0, providerNet: 0 } })); f.detectChanges(); // late, stale
+    expect(el.querySelector('[data-testid="oc-quote"]')!.textContent).toContain('5.00 $');
+    expect(el.querySelector('[data-testid="oc-quote"]')!.textContent).not.toContain('99.00');
+    expect(qCancel.observed).toBe(false); // the old request was cancelled
+  });
+
+  it('closing the dialog cancels the pending preview: a late answer is ignored and a reopened dialog starts clean', async () => {
+    const { Subject } = await import('rxjs'); const q1 = new Subject<any>(); const q2 = new Subject<any>(); let n = 0;
+    const api = { controls: vi.fn(() => of(reqControls(both))), quote: vi.fn(() => (n++ === 0 ? q1 : q2)), run: vi.fn() };
+    const { f, el } = make(api);
+    open(el, 'REQUEST_CANCEL', f);
+    (Array.from(el.querySelectorAll('.oc-row button')).find(b => b.textContent!.trim() === 'إلغاء') as HTMLButtonElement).click(); f.detectChanges();
+    expect(el.querySelector('[data-testid="oc-dialog"]')).toBeNull();
+    q1.next(quote({ expectedHeldAmount: 77 })); f.detectChanges();
+    open(el, 'REQUEST_CANCEL', f);
+    expect(el.querySelector('[data-testid="oc-quote"]')).toBeNull(); // nothing from the first preview leaks in
+    q2.next(quote()); f.detectChanges();
+    expect(el.querySelector('[data-testid="oc-quote"]')!.textContent).toContain('20.00 $');
+  });
+
+  it('reversed controls responses: the latest reload wins; navigation to another entity drops the old data and ignores its late answer', async () => {
+    const { Subject } = await import('rxjs'); const a = new Subject<any>(); const b = new Subject<any>(); const c = new Subject<any>(); const subs = [a, b, c]; let i = 0;
+    const api = { controls: vi.fn(() => subs[i++]), quote: vi.fn(), run: vi.fn() };
+    TestBed.configureTestingModule({ imports: [SaOrderControls], providers: [{ provide: AdminOrderControlsApiService, useValue: api }, { provide: UiNotificationService, useValue: { success: vi.fn() } }] });
+    const f = TestBed.createComponent(SaOrderControls);
+    f.componentRef.setInput('kind', 'request'); f.componentRef.setInput('id', 'r1'); f.detectChanges();
+    (f.componentInstance as any).reload(); // a second load while the first is pending
+    b.next(reqControls({ REQUEST_CANCEL: deny('ACTIVE_DISPUTE') })); f.detectChanges();
+    a.next(reqControls()); f.detectChanges(); // the OLDER answer arrives last
+    const el = f.nativeElement as HTMLElement;
+    expect(el.querySelector('[data-reason-code="ACTIVE_DISPUTE"]')).toBeTruthy();
+    expect(a.observed).toBe(false);
+    // navigation to another request: the previous controls are cleared at once and a late answer for the old one is ignored
+    f.componentRef.setInput('id', 'r2'); f.detectChanges();
+    expect(el.querySelector('[data-action]')).toBeNull();
+    c.next(reqControls()); f.detectChanges();
+    expect(el.querySelector('[data-action="REQUEST_CANCEL"]')).toBeTruthy();
+    expect(b.observed).toBe(false);
+  });
+
+  it('after the component is destroyed a late answer does nothing (no error)', async () => {
+    const { Subject } = await import('rxjs'); const a = new Subject<any>();
+    const api = { controls: vi.fn(() => a), quote: vi.fn(), run: vi.fn() };
+    const { f } = make(api);
+    f.destroy();
+    expect(() => a.next(reqControls())).not.toThrow();
+    expect(a.observed).toBe(false);
+  });
+});
+
 describe('order-controls copy', () => {
   // every stable reason code the backend can answer with (src/constants/admin-controls.ts) has its own Arabic sentence
   const BACKEND_CODES = ['SUPER_ADMIN_REQUIRED', 'PERMISSION_DENIED', 'NOT_FOUND', 'IDEMPOTENCY_KEY_REQUIRED', 'IDEMPOTENCY_KEY_CONFLICT', 'REASON_REQUIRED', 'REASON_TOO_LONG', 'CONFIRMATION_REQUIRED', 'VERSION_REQUIRED', 'STALE_VERSION',
     'REQUEST_DRAFT', 'REQUEST_NOT_OPEN', 'REQUEST_HAS_CONTRACT', 'REQUEST_ALREADY_SUSPENDED', 'REQUEST_NOT_SUSPENDED', 'REQUEST_ALREADY_CANCELLED', 'REQUEST_COMPLETED', 'REQUEST_SETTLED',
     'OFFER_ALREADY_SUSPENDED', 'OFFER_NOT_SUSPENDED', 'OFFER_STATE_NOT_SUSPENDABLE', 'OFFER_LINKED_TO_CONTRACT', 'OFFER_REQUEST_CLOSED',
     'NO_CONTRACT', 'CONTRACT_CLOSED', 'CONTRACT_ALREADY_FROZEN', 'CONTRACT_NOT_FROZEN', 'CONTRACT_FROZEN', 'ACTIVE_DISPUTE', 'CANCELLATION_AGREED_PENDING_SETTLEMENT', 'NO_ESCROW', 'ESCROW_ALREADY_RELEASED', 'ESCROW_ALREADY_REFUNDED',
-    'NO_HELD_BALANCE', 'EXPECTED_AMOUNT_REQUIRED', 'HELD_BALANCE_CHANGED', 'RELEASE_REQUIRES_ACTIVE_CONTRACT', 'SETTLEMENT_CHOICE_REQUIRED', 'PARTIAL_SETTLEMENT_NOT_DEFINED', 'ESCROW_CHANGED', 'ADMIN_PERMISSION_DENIED', 'ADMIN_SUPER_ADMIN_REQUIRED'];
+    'NO_HELD_BALANCE', 'EXPECTED_AMOUNT_REQUIRED', 'HELD_BALANCE_CHANGED', 'RELEASE_REQUIRES_ACTIVE_CONTRACT', 'SETTLEMENT_CHOICE_REQUIRED', 'PARTIAL_SETTLEMENT_NOT_DEFINED', 'CANCELLATION_SETTLEMENT_NOT_APPROVED', 'ESCROW_CHANGED', 'ADMIN_PERMISSION_DENIED', 'ADMIN_SUPER_ADMIN_REQUIRED'];
   it('maps every backend reason code to Arabic copy', () => {
     for (const c of BACKEND_CODES) { expect(REASON_COPY[c], c).toBeTruthy(); expect(/[؀-ۿ]/.test(REASON_COPY[c]), c).toBe(true); }
   });

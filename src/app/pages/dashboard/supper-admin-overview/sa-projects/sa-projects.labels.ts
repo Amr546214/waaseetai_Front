@@ -12,6 +12,7 @@ export const PROJECT_STATUS_LABELS: Record<string, string> = {
   PENDING_APPROVAL: 'بانتظار اعتماد العميل',
   COMPLETED: 'مكتمل',
   DISPUTED: 'متنازع عليه',
+  CANCELLED: 'ملغى بقرار إداري',
 };
 
 export const PROJECT_STATUS_CLASSES: Record<string, string> = {
@@ -24,6 +25,7 @@ export const PROJECT_STATUS_CLASSES: Record<string, string> = {
   PENDING_APPROVAL: 'pj-st-review',
   COMPLETED: 'pj-st-completed',
   DISPUTED: 'pj-st-late',
+  CANCELLED: 'pj-st-cancelled',
 };
 
 export const CONTRACT_STATUS_LABELS: Record<string, string> = {
