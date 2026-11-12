@@ -102,11 +102,8 @@ export const AMENDMENT_STATUS_LABELS: Record<string, string> = {
 };
 
 /** Shown next to every disabled financial control: the backend has no such operation. */
-export const FINANCE_ACTION_DISABLED_REASON =
-  'الاسترداد/التحرير اليدوي غير مفعّل: يحتاج قرار سياسة مالية';
-
 export const FINANCE_ACTION_NOTE =
-  'تنتقل الأموال فقط عند اعتماد العميل للمرحلة. الإجراءات المالية اليدوية (تحرير / تجميد / استرداد / إلغاء) غير متاحة لأن سياسة الرسوم لم تحدد دلالاتها بعد.';
+  'تنتقل الأموال عادةً عند اعتماد العميل للمرحلة. الإجراءات الإدارية (تجميد / فكّ التجميد / إلغاء / إعادة / إفراج) تُنفَّذ بقرار مسجّل بسبب وبمفتاح منع التكرار؛ القرار المالي لمدير النظام وحده، وبحدّ أقصى المبلغ المحتجز فعليًا في الضمان.';
 
 /** Initials of a real name (first letters of the first two words). Empty when there is no name. */
 export function initials(name: string | null | undefined): string {

@@ -1,0 +1,240 @@
+import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AdminOrderControlsApiService, ControlAction, ControlKind, ControlPayload, ControlQuote, ControlsData } from '../../../../core/services/admin-order-controls-api.service';
+import { UiNotificationService } from '../../../../core/services/ui-notification.service';
+import { formatMoney } from '../../../../core/utils/money.util';
+import { mapHttpError } from '../../../../core/forms/http-error';
+import { ACTIONS_BY_KIND, ACTION_DEFS, ActionDef, NOOP_CODES, REASON_COPY, controlErrorCopy, effectCopy, reasonCopy } from './order-controls.copy';
+
+const newKey = (): string => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`);
+
+/**
+ * The admin controls of a request / offer / contract (suspend, resume, cancel, freeze, refund, release). The buttons come from the server's controls read model, so a refused action shows
+ * the server's SPECIFIC reason (stable code -> Arabic copy) instead of a generic «غير متاح». Money actions open a confirmation dialog that first loads the QUOTE (amount, beneficiary,
+ * commission, effect) and only then lets the admin confirm. Every submit carries an Idempotency-Key (one per distinct attempt: a retry of the same attempt reuses it) and the version the admin
+ * saw; the submit button is locked while a call is in flight (no double click). On success the parent reloads its details and the controls reload themselves.
+ */
+@Component({
+  selector: 'sa-order-controls',
+  standalone: true,
+  imports: [CommonModule],
+  styles: [`
+    .oc-wrap{display:flex;flex-direction:column;gap:8px}
+    .oc-btn{padding:9px 16px;border-radius:9px;font-size:var(--font-size-label);font-weight:700;font-family:inherit;cursor:pointer;border:1px solid transparent;transition:all .15s}
+    .oc-btn[disabled]{opacity:.5;cursor:not-allowed}
+    .oc-ghost{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#A8B2D1}
+    .oc-warn{background:rgba(255,140,105,.08);border-color:rgba(255,140,105,.24);color:#FF8C69}
+    .oc-danger{background:rgba(255,107,107,.10);border-color:rgba(255,107,107,.28);color:#FF6B6B}
+    .oc-note{font-size:var(--font-size-small);color:#A8B2D1;line-height:1.7;margin:0}
+    .oc-badge{font-size:var(--font-size-small);padding:6px 10px;border-radius:8px;background:rgba(255,180,0,.10);border:1px solid rgba(255,180,0,.3);color:#FFB400}
+    .oc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:950}
+    .oc-card{background:var(--crd-bg,#0f1530);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:20px;max-width:520px;width:92%;max-height:90vh;overflow:auto}
+    .oc-card h3{margin:0 0 6px;font-size:var(--font-size-body)}
+    .oc-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:var(--font-size-small)}
+    .oc-table td{padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .oc-table td:last-child{text-align:left;font-weight:700}
+    .oc-effects{margin:6px 0 10px;padding-inline-start:18px;font-size:var(--font-size-small);line-height:1.8}
+    .oc-error{color:#FF6B6B;font-size:12px}
+    .oc-row{display:flex;gap:8px;margin-top:12px}
+  `],
+  template: `
+    <div class="oc-wrap" dir="rtl" data-testid="order-controls">
+      @if (forbidden()) { <p class="oc-note" data-testid="oc-forbidden">{{ forbiddenCopy }}</p> }
+      @if (loadFailed()) {
+        <p class="oc-note" data-testid="oc-load-failed">تعذّر تحميل إجراءات الإدارة لهذا العنصر.
+          <button type="button" class="oc-btn oc-ghost" (click)="reload()">إعادة المحاولة</button></p>
+      }
+      @if (controls(); as c) {
+        @if (c.suspended) { <div class="oc-badge" data-testid="oc-suspended">معلّق مؤقتًا{{ c.suspendReason ? ' — ' + c.suspendReason : '' }}</div> }
+        @if (c.frozen) { <div class="oc-badge" data-testid="oc-frozen">مجمّد{{ c.freezeReason ? ' — ' + c.freezeReason : '' }}</div> }
+        @for (d of visible(); track d.def.action) {
+          <button type="button" class="oc-btn" [ngClass]="'oc-' + d.def.tone" [disabled]="!d.state.allowed" [attr.data-action]="d.def.action" (click)="open(d.def)">{{ d.def.label }}</button>
+          @if (!d.state.allowed) { <p class="oc-note" [attr.data-reason-code]="d.state.code" data-testid="oc-reason">{{ d.reason }}</p> }
+        }
+      }
+    </div>
+
+    @if (dialog(); as dlg) {
+      <div class="oc-overlay" (click)="close()">
+        <div class="oc-card" dir="rtl" role="dialog" aria-modal="true" [attr.aria-label]="dlg.title" (click)="$event.stopPropagation()" data-testid="oc-dialog">
+          <h3>{{ dlg.title }}</h3>
+          <p class="oc-note">{{ dlg.hint }}</p>
+
+          @if (dlg.hasQuote) {
+            @if (quoteLoading()) { <p class="oc-note">جارٍ تحميل تفاصيل الأثر المالي...</p> }
+            @if (quote(); as q) {
+              @if (q.blocked) { <p class="oc-error" data-testid="oc-quote-blocked">{{ blockedCopy(q) }}</p> }
+              <table class="oc-table" data-testid="oc-quote">
+                @if (q.expectedHeldAmount > 0 || q.escrow) {
+                  <tr><td>المبلغ المحتجز في الضمان</td><td>{{ money(q.expectedHeldAmount) }} $</td></tr>
+                  <tr><td>يعود إلى رصيد الطالب</td><td>{{ money(q.amounts.refundToClient) }} $</td></tr>
+                  <tr><td>يُصرف لمقدم الخدمة (إجمالي)</td><td>{{ money(q.amounts.releaseToProvider) }} $</td></tr>
+                  <tr><td>عمولة المنصة@if (q.commission.ratePercent !== null) { ({{ q.commission.ratePercent }}%) }</td><td>{{ money(q.amounts.platformCommission) }} $</td></tr>
+                  <tr><td>صافي مقدم الخدمة</td><td>{{ money(q.amounts.providerNet) }} $</td></tr>
+                  <tr><td>المستفيد</td><td>{{ beneficiary(q) }}</td></tr>
+                } @else {
+                  <tr><td>الأثر المالي</td><td>لا يوجد مبلغ محتجز: لن تتحرك أي أموال</td></tr>
+                }
+                @if (q.offersToClose !== undefined) { <tr><td>عروض ستُغلق</td><td>{{ q.offersToClose }}</td></tr> }
+              </table>
+              <div class="oc-note">الأثر:</div>
+              <ul class="oc-effects">
+                @for (e of q.effects; track e) { @if (effect(e)) { <li>{{ effect(e) }}</li> } }
+              </ul>
+              @if (q.settlement) {
+                <div class="oc-note" data-testid="oc-settlement">
+                  <label><input type="radio" name="oc-settlement" checked disabled /> إعادة كامل المبلغ المحتجز إلى الطالب (التسوية المتاحة)</label><br />
+                  <span>تقسيم المبلغ بين الطرفين غير معتمد بعد وبانتظار قرار المنتج.</span>
+                </div>
+              }
+            }
+          }
+
+          <label class="oc-note" for="oc-reason-input">السبب{{ dlg.reasonRequired ? ' (إلزامي، 5 أحرف على الأقل)' : ' (اختياري)' }}</label>
+          <textarea id="oc-reason-input" rows="3" maxlength="500" style="width:100%" [value]="reason()" (input)="onReason($any($event.target).value)" aria-label="سبب القرار"></textarea>
+
+          @if (dlg.needsConfirm) {
+            <label class="oc-note" style="display:flex;gap:8px;align-items:flex-start;margin-top:8px">
+              <input type="checkbox" data-testid="oc-confirm" [checked]="confirmed()" (change)="confirmed.set($any($event.target).checked)" />
+              <span>أؤكد أنني راجعت الأثر أعلاه وأوافق على تنفيذ هذا القرار.</span>
+            </label>
+          }
+
+          @if (error()) { <p role="alert" class="oc-error" data-testid="oc-error">{{ error() }}</p> }
+          @if (unknown()) { <p role="status" class="oc-note" data-testid="oc-unknown">انقطع الاتصال قبل وصول الرد، وقد يكون القرار نُفّذ. الضغط على «{{ dlg.submit }}» مرة أخرى آمن: لن يُنفَّذ مرتين.</p> }
+          <div class="oc-row">
+            <button type="button" class="oc-btn" [ngClass]="'oc-' + (dlg.tone === 'ghost' ? 'warn' : dlg.tone)" data-testid="oc-submit" [disabled]="!canSubmit()" (click)="submit()">{{ busy() ? 'جارٍ التنفيذ...' : dlg.submit }}</button>
+            <button type="button" class="oc-btn oc-ghost" [disabled]="busy()" (click)="close()">إلغاء</button>
+          </div>
+        </div>
+      </div>
+    }
+  `,
+})
+export class SaOrderControls implements OnChanges {
+  private api = inject(AdminOrderControlsApiService);
+  private notify = inject(UiNotificationService);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  @Input({ required: true }) kind!: ControlKind;
+  @Input({ required: true }) id!: string;
+  /** limits the buttons to some actions (e.g. the offer page also carries «إلغاء العقد المرتبط»); default = every action of the kind */
+  @Input() only: ControlAction[] | null = null;
+  /** when the controls of `kind` live on another id (the offer page cancels the LINKED CONTRACT) */
+  @Input() extraContractId: string | null = null;
+  @Output() changed = new EventEmitter<void>();
+
+  controls = signal<ControlsData | null>(null);
+  contractControls = signal<ControlsData | null>(null);
+  loadFailed = signal(false);
+  forbidden = signal(false);
+  readonly forbiddenCopy = REASON_COPY['ADMIN_PERMISSION_DENIED'];
+  dialog = signal<ActionDef | null>(null);
+  quote = signal<ControlQuote | null>(null);
+  quoteLoading = signal(false);
+  reason = signal('');
+  confirmed = signal(false);
+  busy = signal(false);
+  error = signal('');
+  unknown = signal(false);
+  /** one key per distinct attempt: a retry of the SAME payload reuses it (idempotent), a changed payload gets a new one */
+  private attempt: { sig: string; key: string } | null = null;
+
+  visible = computed(() => {
+    const out: Array<{ def: ActionDef; state: { allowed: boolean; code: string | null; message: string | null }; reason: string }> = [];
+    const list = this.only ?? ACTIONS_BY_KIND[this.kind];
+    for (const a of list) {
+      const src = (this.kind === 'offer' && a.startsWith('CONTRACT_')) ? this.contractControls() : this.controls();
+      const state = src?.actions?.[a];
+      if (!state) continue;
+      if (!state.allowed && state.code && NOOP_CODES.has(state.code)) continue;
+      out.push({ def: ACTION_DEFS[a], state, reason: state.allowed ? '' : reasonCopy(state.code, state.message) });
+    }
+    return out;
+  });
+
+  canSubmit = computed(() => {
+    const d = this.dialog();
+    if (!d || this.busy()) return false;
+    if (d.reasonRequired && this.reason().trim().length < 5) return false;
+    if (d.needsConfirm && !this.confirmed()) return false;
+    if (d.hasQuote) { const q = this.quote(); if (!q || q.blocked) return false; }
+    return true;
+  });
+
+  ngOnChanges(ch: SimpleChanges): void {
+    if (ch['id'] || ch['kind'] || ch['extraContractId']) this.reload();
+  }
+
+  reload(): void {
+    if (!this.id) return;
+    this.loadFailed.set(false); this.forbidden.set(false);
+    this.api.controls(this.kind, this.id).subscribe({
+      next: (res) => this.controls.set(res?.data?.actions ? res.data : null),
+      error: (err) => { this.controls.set(null); if (err?.status === 403) this.forbidden.set(true); else this.loadFailed.set(true); },
+    });
+    if (this.kind === 'offer' && this.extraContractId) {
+      this.api.controls('contract', this.extraContractId).subscribe({ next: (res) => this.contractControls.set(res?.data?.actions ? res.data : null), error: () => this.contractControls.set(null) });
+    }
+  }
+
+  private targetId(a: ControlAction): string { return a.startsWith('CONTRACT_') || a.startsWith('ESCROW_') ? (this.kind === 'offer' ? this.extraContractId ?? this.id : this.id) : this.id; }
+  private versionOf(a: ControlAction): string { return ((this.kind === 'offer' && a.startsWith('CONTRACT_')) ? this.contractControls() : this.controls())?.version ?? ''; }
+
+  open(def: ActionDef): void {
+    this.dialog.set(def); this.reason.set(''); this.confirmed.set(false); this.error.set(''); this.unknown.set(false); this.attempt = null; this.quote.set(null);
+    if (def.hasQuote) this.loadQuote(def);
+  }
+  close(): void { if (!this.busy()) { this.dialog.set(null); this.quote.set(null); } }
+
+  private loadQuote(def: ActionDef): void {
+    this.quoteLoading.set(true);
+    this.api.quote(def.action, this.targetId(def.action)).subscribe({
+      next: (res) => { this.quote.set(res?.data ?? null); this.quoteLoading.set(false); },
+      error: (err) => { this.quote.set(null); this.quoteLoading.set(false); this.error.set(controlErrorCopy(err, 'تعذّر تحميل تفاصيل الأثر المالي، لن يُنفَّذ شيء.')); },
+    });
+  }
+
+  onReason(v: string): void { this.reason.set(v); }
+
+  submit(): void {
+    const def = this.dialog();
+    if (!def || !this.canSubmit()) return;
+    const q = this.quote();
+    const body: ControlPayload = { expectedVersion: (def.hasQuote && q?.version) || this.versionOf(def.action) };
+    const reason = this.reason().trim();
+    if (reason) body.reason = reason;
+    if (def.needsConfirm) body.confirm = true;
+    if (def.hasQuote && q) {
+      if (q.expectedHeldAmount > 0) body.expectedHeldAmount = q.expectedHeldAmount;
+      if (def.action === 'REQUEST_CANCEL' || def.action === 'CONTRACT_CANCEL') { if (q.settlement) body.settlement = q.settlement.options[0]; }
+    }
+    const sig = JSON.stringify([def.action, this.targetId(def.action), body]);
+    if (!this.attempt || this.attempt.sig !== sig) this.attempt = { sig, key: newKey() };
+    this.busy.set(true); this.error.set(''); this.unknown.set(false);
+    this.api.run(def.action, this.targetId(def.action), body, this.attempt.key).subscribe({
+      next: () => {
+        this.busy.set(false); this.dialog.set(null); this.quote.set(null); this.attempt = null;
+        this.notify.success(def.done);
+        this.reload();
+        this.changed.emit();
+      },
+      error: (err) => {
+        this.busy.set(false);
+        const code = err?.error?.code;
+        this.error.set(controlErrorCopy(err));
+        if (mapHttpError(err).outcomeUnknown) this.unknown.set(true); // same key stays: pressing again is safe
+        else this.attempt = null;
+        // the screen moved under the admin's feet: show the new numbers before the next confirmation
+        if (code === 'STALE_VERSION' || code === 'HELD_BALANCE_CHANGED' || code === 'ESCROW_CHANGED') { this.confirmed.set(false); this.reload(); if (def.hasQuote) this.loadQuote(def); }
+      },
+    });
+  }
+
+  money(n: number | null | undefined): string { return formatMoney(n ?? 0, 2); }
+  effect(code: string): string { return effectCopy(code); }
+  beneficiary(q: ControlQuote): string {
+    return q.beneficiary.kind === 'CLIENT' ? `الطالب${q.beneficiary.name ? ' — ' + q.beneficiary.name : ''}` : q.beneficiary.kind === 'PROVIDER' ? `مقدم الخدمة${q.beneficiary.name ? ' — ' + q.beneficiary.name : ''}` : '—';
+  }
+  blockedCopy(q: ControlQuote): string { return reasonCopy(q.blocked?.code, q.blocked?.message); }
+}

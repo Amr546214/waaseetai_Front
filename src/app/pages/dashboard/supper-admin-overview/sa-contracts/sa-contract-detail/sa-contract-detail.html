@@ -100,12 +100,9 @@
         <div class="ct-log-time">لا يوجد ضمان مسجّل لهذا العقد</div>
       }
 
-      <div class="ct-escrow-actions">
-        <button type="button" class="ct-btn ct-btn-release" disabled [attr.title]="financeReason">إفراج يدوي عن الضمان</button>
-        <button type="button" class="ct-btn ct-btn-refund" disabled [attr.title]="financeReason">إعادة المبلغ للطالب</button>
-        <button type="button" class="ct-btn ct-btn-cancel" disabled [attr.title]="financeReason">إلغاء العقد</button>
+      <div class="ct-escrow-actions" style="flex-direction:column;align-items:stretch">
+        <sa-order-controls kind="contract" [id]="d.contractId" (changed)="load()"></sa-order-controls>
       </div>
-      <p class="ct-disabled-note" data-testid="finance-disabled-reason">{{ financeReason }}</p>
       <p class="ct-disabled-note">{{ financeNote }}</p>
 
       <div class="ct-section-ttl">المراحل والتسليمات</div>

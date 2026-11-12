@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 import { SaProjects } from './sa-projects';
 import { SaProjectDetail } from './sa-project-detail/sa-project-detail';
 import { AdminOpsApiService, AdminProjectDetail, AdminProjectListData } from '../../../../core/services/admin-ops-api.service';
+import { AdminOrderControlsApiService } from '../../../../core/services/admin-order-controls-api.service';
 
 const party = (id: string, name: string) => ({ id, name, email: `${id}@x.test` });
 
@@ -45,11 +46,24 @@ function detailData(overrides: Partial<AdminProjectDetail> = {}): AdminProjectDe
   };
 }
 
+const controlsStub = (over: Record<string, any> = {}) => ({
+  controls: vi.fn(() => of({ success: true, data: { version: 'v1', status: 'ACTIVE', frozen: false, actions: {
+    CONTRACT_FREEZE: { allowed: true, code: null, message: null, requiresSuperAdmin: false },
+    CONTRACT_UNFREEZE: { allowed: false, code: 'CONTRACT_NOT_FROZEN', message: null, requiresSuperAdmin: false },
+    CONTRACT_CANCEL: { allowed: true, code: null, message: null, requiresSuperAdmin: false },
+    ESCROW_REFUND: { allowed: false, code: 'ADMIN_SUPER_ADMIN_REQUIRED', message: null, requiresSuperAdmin: true },
+    ESCROW_RELEASE: { allowed: false, code: 'ACTIVE_DISPUTE', message: null, requiresSuperAdmin: false },
+    ...over } } })),
+  quote: vi.fn(), run: vi.fn(),
+});
+
 describe('SaProjects (real data)', () => {
   let api: { listProjects: ReturnType<typeof vi.fn>; getProject: ReturnType<typeof vi.fn> };
+  let ctl = controlsStub();
 
   async function setup(listImpl: () => any, getImpl: () => any = () => of({ success: true, data: detailData() })) {
     api = { listProjects: vi.fn(listImpl), getProject: vi.fn(getImpl) };
+    ctl = controlsStub();
     TestBed.configureTestingModule({
       providers: [
         provideRouter([
@@ -57,6 +71,7 @@ describe('SaProjects (real data)', () => {
           { path: 'projects/:id', component: SaProjectDetail },
         ]),
         { provide: AdminOpsApiService, useValue: api },
+        { provide: AdminOrderControlsApiService, useValue: ctl },
       ],
     });
     return RouterTestingHarness.create();
@@ -104,21 +119,25 @@ describe('SaProjects (real data)', () => {
     expect(harness.routeNativeElement!.textContent).toContain('مشروع حقيقي أول');
   });
 
-  it('detail renders real stages, escrow and the disabled finance control without calling any API', async () => {
+  it('detail renders real stages, escrow and the server-driven finance controls (specific reasons, no generic text)', async () => {
     const harness = await setup(() => of({ success: true, data: listData() }));
     await harness.navigateByUrl('/projects/p-1', SaProjectDetail);
     harness.detectChanges();
     const el: HTMLElement = harness.routeNativeElement!;
     expect(api.getProject).toHaveBeenCalledWith('p-1');
+    expect(ctl.controls).toHaveBeenCalledWith('contract', 'ct-1');
     expect(el.textContent).toContain('مرحلة التحليل');
     expect(el.textContent).toContain('ملاحظة التسليم');
     expect(el.textContent).toContain('عمولة المنصة');
     expect(el.querySelector('a[href="/disputes/dsp-1"], a[href$="/disputes/dsp-1"]')).toBeTruthy();
-    const btn = el.querySelector('.pj-md-actions button') as HTMLButtonElement;
-    expect(btn.disabled).toBe(true);
-    expect(el.querySelector('[data-testid="finance-disabled-reason"]')!.textContent).toContain('غير مفعّل');
+    const refund = el.querySelector('[data-action="ESCROW_REFUND"]') as HTMLButtonElement;
+    expect(refund.disabled).toBe(true);
+    expect(el.querySelector('[data-reason-code="ADMIN_SUPER_ADMIN_REQUIRED"]')!.textContent).toContain('مدير النظام (Super Admin) وحده');
+    expect(el.textContent).not.toContain('غير مفعّل');
+    expect((el.querySelector('[data-action="CONTRACT_FREEZE"]') as HTMLButtonElement).disabled).toBe(false);
     api.listProjects.mockClear(); api.getProject.mockClear();
-    btn.click();
+    refund.click();
+    expect(ctl.run).not.toHaveBeenCalled();
     expect(api.listProjects).not.toHaveBeenCalled();
     expect(api.getProject).not.toHaveBeenCalled();
   });

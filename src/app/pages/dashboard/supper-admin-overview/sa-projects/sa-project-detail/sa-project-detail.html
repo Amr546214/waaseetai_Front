@@ -196,10 +196,9 @@
         }
       </div>
 
-      <div class="pj-md-actions">
-        <button type="button" class="pj-btn pj-btn-warn" disabled [attr.title]="financeReason">إجراءات مالية يدوية</button>
+      <div class="pj-md-actions" style="flex-direction:column;align-items:stretch">
+        <sa-order-controls kind="contract" [id]="d.contract?.id ?? d.id" (changed)="load()"></sa-order-controls>
       </div>
-      <p class="pj-disabled-note" data-testid="finance-disabled-reason">{{ financeReason }}</p>
     </div>
   }
 </section>
