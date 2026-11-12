@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, of } from 'rxjs';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { Observable, catchError, map, of, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AiResult, MetricSummaryDetails } from '../models/ai-result.model';
 
@@ -61,7 +62,8 @@ export class AdminAiService {
 	getSentimentSummary(): Observable<AdminAiLoad<SentimentSummary>> { return this.get<SentimentSummary>('sentiment-summary'); }
 
 	private get<T>(path: string): Observable<AdminAiLoad<T>> {
-		return this.http.get<{ success: boolean; data: T }>(`${this.baseUrl}/admin/ai/${path}`).pipe(
+		return this.http.get<{ success: boolean; data: T }>(`${this.baseUrl}/admin/ai/${path}`, { context: new HttpContext().set(SKIP_LOADING, true) }).pipe(
+			timeout(30_000),
 			map((res): AdminAiLoad<T> => (res?.success && res.data ? { result: res.data, failed: false } : { result: null, failed: true })),
 			catchError(() => of<AdminAiLoad<T>>({ result: null, failed: true })),
 		);
@@ -74,6 +76,7 @@ export function createAdminAiState<T>(fetch: () => Observable<AdminAiLoad<T>>) {
 	const result = signal<T | null>(null);
 	const failed = signal(false);
 	const load = () => {
+		if (loading()) return;
 		loading.set(true);
 		failed.set(false);
 		fetch().subscribe(r => { result.set(r.result); failed.set(r.failed); loading.set(false); });

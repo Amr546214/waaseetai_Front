@@ -1,6 +1,8 @@
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
-import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminAccessService } from '../../../../core/services/admin-access.service';
@@ -32,6 +34,8 @@ export class SaAuditTrail implements OnInit {
   get severityWsOptions() { return this.severityOptions.map((o) => ({ value: o.v, label: o.l })); }
 
   readonly access = inject(AdminAccessService);
+  private readonly destroyRef = inject(DestroyRef);
+  private request?: Subscription;
   private readonly api = inject(AdminConsoleApiService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -58,17 +62,18 @@ export class SaAuditTrail implements OnInit {
   readonly filteredCount = computed(() => this.total());
 
   ngOnInit(): void {
-    this.api.getAdmins().subscribe({ next: (r) => this.admins.set(r.data ?? []), error: () => this.admins.set([]) });
+    this.api.getAdmins().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: (r) => this.admins.set(r.data ?? []), error: () => this.admins.set([]) });
     this.load();
   }
 
   load(): void {
+    this.request?.unsubscribe();
     this.loading.set(true);
     this.failed.set(false);
-    this.api.getAuditLog({
+    this.request = this.api.getAuditLog({
       page: this.page(), limit: 20, q: this.searchQuery().trim(), eventType: this.eventTypeFilter(), severity: this.severityFilter(),
       actorId: this.actorFilter(), from: this.fromDate(), to: this.toDate(), scope: this.scope(),
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.entries.set(r.data.items);
         this.total.set(r.data.pagination.total);

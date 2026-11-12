@@ -1,7 +1,8 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminFinanceOverview, AdminOpsApiService, AdminTransaction, saveBlob } from '../../../../core/services/admin-ops-api.service';
+import { financialReportHtml, printFinancialReport } from '../sub-finance/financial-report';
 import { bucket, errMsg, fmtDate, pct, seriesBars, txParty, txStatusLabel, txTypeLabel, usd } from '../sub-finance/finance-ui';
 
 @Component({
@@ -11,8 +12,12 @@ import { bucket, errMsg, fmtDate, pct, seriesBars, txParty, txStatusLabel, txTyp
   templateUrl: './sa-sub-finance.html',
   styleUrl: './sa-sub-finance.css',
 })
-export class SaSubFinance implements OnInit {
+export class SaSubFinance implements OnInit, OnDestroy {
   private api = inject(AdminOpsApiService);
+  private readonly document = inject(DOCUMENT);
+  private printFrame?: HTMLIFrameElement;
+  readonly printing = signal(false);
+  readonly printError = signal('');
 
   readonly usd = usd;
   readonly fmtDate = fmtDate;
@@ -63,9 +68,19 @@ export class SaSubFinance implements OnInit {
     });
   }
 
-  print() {
-    window.print();
+  async print() {
+    const overview = this.overview(), at = this.updatedAt();
+    if (!overview || !at || this.loading() || this.error() || this.txLoading() || this.txError() || this.printing()) return;
+    this.printing.set(true); this.printError.set('');
+    try {
+      this.printFrame?.remove();
+      const font = new URL('/assets/fonts/DINNextLTArabic-Regular-3.ttf', this.document.baseURI).href;
+      await printFinancialReport(this.document, financialReportHtml(overview, this.transactions(), at, font), frame => this.printFrame = frame);
+    } catch { this.printFrame?.remove(); this.printError.set('تعذّر تجهيز التقرير المالي. حاول مرة أخرى.'); }
+    finally { this.printing.set(false); }
   }
+
+  ngOnDestroy() { this.printFrame?.remove(); }
 
   downloadCsv() {
     if (this.downloading()) return;

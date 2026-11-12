@@ -1,13 +1,15 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminCommissionsData, AdminOpsApiService, saveBlob } from '../../../../../core/services/admin-ops-api.service';
+import { FeePolicyPanel } from '../../../../../shared/fee-policy/fee-policy-panel';
+import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { LevelsService } from '../../../../../core/levels/levels.service';
 import { errMsg, fmtDate, usd } from '../finance-ui';
 
 @Component({
   selector: 'app-sa-commissions',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FeePolicyPanel],
   templateUrl: './sa-commissions.html',
   styleUrl: './sa-commissions.css',
 })
@@ -17,7 +19,9 @@ export class SaCommissions implements OnInit {
 
   readonly usd = usd;
   readonly fmtDate = fmtDate;
-  readonly editReason = 'نسب العمولة تُدار من جداول المستويات في النظام ولا تُعدَّل من هذه الصفحة';
+  readonly access = inject(AdminAccessService);
+  readonly editingStructure = signal(false);
+  readonly editReason = 'تُجدول تعديلات الهيكل من خلال سياسة الرسوم، وتسري على العمليات الجديدة فقط.';
   readonly escrowLabels: Record<string, string> = { HELD: 'محجوز', RELEASED: 'محرَّر', REFUNDED: 'مُسترد' };
 
   data = signal<AdminCommissionsData | null>(null);
