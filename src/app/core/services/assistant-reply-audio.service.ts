@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { AssistantTtsService, type TtsFailure } from './assistant-tts.service';
 import { AuthStore } from '../store/auth.store';
 import { speakableText, speechChunks } from '../help/assistant-content';
-import { DEFAULT_ARABIC_VOICE, isArabicCompatibleVoice, isArabicScript, type BeboDialect, type BeboVoice } from '../../sheards/bebo-avatar/bebo-commands';
+import type { BeboDialect, BeboVoice } from '../../sheards/bebo-avatar/bebo-commands';
 
 export interface ReplyAudioRequest {
   text: string;
@@ -79,30 +79,40 @@ export class AssistantReplyAudioService implements OnDestroy {
     this.updateClip(k, { status: 'loading' });
     const startTime = performance.now();
 
-    const trySynthesize = (attemptReq: ReplyAudioRequest, isRetry = false) => {
-      const sub = this.tts.synthesize({ ...attemptReq, text: spokenText }).subscribe({
-        next: (blob) => {
-          const generationMs = Math.round(performance.now() - startTime);
-          const url = URL.createObjectURL(blob);
-          this.activeUrls.add(url);
-          this.updateClip(k, { status: 'ready', url, generationMs });
-          this.pendingSubs.delete(k);
-        },
-        error: (err) => {
-          const isArabic = isArabicScript(spokenText) || attemptReq.dialect !== 'english';
-          if (!isRetry && isArabic && (attemptReq.voice !== DEFAULT_ARABIC_VOICE || attemptReq.dialect !== 'msa')) {
-            trySynthesize({ ...attemptReq, voice: DEFAULT_ARABIC_VOICE, dialect: 'msa' }, true);
-            return;
-          }
-          const errorCode = err?.code ?? 'UNAVAILABLE';
-          this.updateClip(k, { status: 'error', error: errorCode });
-          this.pendingSubs.delete(k);
-        },
-      });
-      this.pendingSubs.set(k, sub);
-    };
+    const sub = this.tts.synthesize({ ...req, text: spokenText }).subscribe({
+      next: (blob) => {
+        const generationMs = Math.round(performance.now() - startTime);
+        const url = URL.createObjectURL(blob);
+        this.activeUrls.add(url);
+        this.updateClip(k, { status: 'ready', url, generationMs });
+        this.pendingSubs.delete(k);
+      },
+      error: (err) => {
+        const errorCode = err?.code ?? 'UNAVAILABLE';
+        const isArabic = /[\u0600-\u06FF]/.test(spokenText) || req.dialect !== 'english';
+        if (isArabic && (errorCode === 'UNAVAILABLE' || errorCode === 'INVALID_AUDIO') && (req.voice !== 'Puck' || req.dialect !== 'msa')) {
+          const retrySub = this.tts.synthesize({ ...req, text: spokenText, voice: 'Puck', dialect: 'msa' }).subscribe({
+            next: (blob) => {
+              const generationMs = Math.round(performance.now() - startTime);
+              const url = URL.createObjectURL(blob);
+              this.activeUrls.add(url);
+              this.updateClip(k, { status: 'ready', url, generationMs });
+              this.pendingSubs.delete(k);
+            },
+            error: (retryErr) => {
+              this.updateClip(k, { status: 'error', error: retryErr?.code ?? errorCode });
+              this.pendingSubs.delete(k);
+            },
+          });
+          this.pendingSubs.set(k, retrySub);
+          return;
+        }
+        this.updateClip(k, { status: 'error', error: errorCode });
+        this.pendingSubs.delete(k);
+      },
+    });
 
-    trySynthesize(req);
+    this.pendingSubs.set(k, sub);
   }
 
   public cancel(req: ReplyAudioRequest): void {

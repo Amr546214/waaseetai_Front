@@ -100,6 +100,11 @@ const MARKETER_PAGES: Routes = [
 		data: { title: "تفاصيل التذكرة" }
 	},
 	{
+		path: 'bebo',
+		loadComponent: () => import('../../../sheards/assistant-widget/dashboard-bebo').then(m => m.DashboardBebo),
+		data: { title: 'بيبو' },
+	},
+	{
 		path: '**',
 		loadComponent: () => import('../../../sheards/not-found/not-found').then(m => m.NotFoundComponent),
 		data: { title: "الصفحة غير موجودة", hideAssistant: true, embedded: true }

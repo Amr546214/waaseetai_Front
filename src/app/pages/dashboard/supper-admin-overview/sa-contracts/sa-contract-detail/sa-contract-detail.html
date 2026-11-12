@@ -81,6 +81,20 @@
         }
       </div>
 
+      @if (d.closure; as cl) {
+        <div class="ct-section-ttl" data-testid="ct-closure-ttl">إغلاق المشروع</div>
+        <div class="ct-escrow-block" data-testid="ct-closure">
+          <div class="ct-escrow-row"><span>نوع الإغلاق</span><strong>{{ cl.label }}</strong></div>
+          <div class="ct-escrow-row"><span>المصدر</span><strong>{{ cl.sourceLabel }}</strong></div>
+          @if (cl.reason) { <div class="ct-escrow-row"><span>السبب</span><strong>{{ cl.reason }}</strong></div> }
+          <div class="ct-escrow-row"><span>المحتجز قبل القرار</span><strong>{{ cl.heldBefore | number:'1.0-2' }} $</strong></div>
+          <div class="ct-escrow-row"><span>أُعيد للطالب</span><strong>{{ cl.refundToClient | number:'1.0-2' }} $</strong></div>
+          <div class="ct-escrow-row"><span>صُرف للمقدم (إجمالي)</span><strong>{{ cl.releaseToProvider | number:'1.0-2' }} $</strong></div>
+          <div class="ct-escrow-row"><span>عمولة المنصة / صافي المقدم</span><strong>{{ cl.platformCommission | number:'1.0-2' }} $ / {{ cl.providerNet | number:'1.0-2' }} $</strong></div>
+          @if (cl.note) { <p class="ct-disabled-note">{{ cl.note }}</p> }
+        </div>
+      }
+
       <div class="ct-section-ttl">بيانات الضمان</div>
       @if (d.escrow; as e) {
         <div class="ct-escrow-block">
@@ -100,12 +114,9 @@
         <div class="ct-log-time">لا يوجد ضمان مسجّل لهذا العقد</div>
       }
 
-      <div class="ct-escrow-actions">
-        <button type="button" class="ct-btn ct-btn-release" disabled [attr.title]="financeReason">إفراج يدوي عن الضمان</button>
-        <button type="button" class="ct-btn ct-btn-refund" disabled [attr.title]="financeReason">إعادة المبلغ للطالب</button>
-        <button type="button" class="ct-btn ct-btn-cancel" disabled [attr.title]="financeReason">إلغاء العقد</button>
+      <div class="ct-escrow-actions" style="flex-direction:column;align-items:stretch">
+        <sa-order-controls kind="contract" [id]="d.contractId" (changed)="load()"></sa-order-controls>
       </div>
-      <p class="ct-disabled-note" data-testid="finance-disabled-reason">{{ financeReason }}</p>
       <p class="ct-disabled-note">{{ financeNote }}</p>
 
       <div class="ct-section-ttl">المراحل والتسليمات</div>

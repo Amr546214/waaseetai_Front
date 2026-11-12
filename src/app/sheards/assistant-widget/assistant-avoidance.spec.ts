@@ -34,7 +34,8 @@ describe('assistant stacking and reserved space (D-CM1)', () => {
 	});
 
 	it('small screens start with the compact pill and collapse it on an outside tap', () => {
-		expect(ts).toContain("window.matchMedia('(max-width: 640px)').matches");
+		// the initial compact state now lives in the shared tool bar state (the same bar is drawn by the widget or by the admin «بيبو» tab)
+		expect(read('assistant-toolbar-state.ts')).toContain("window.matchMedia('(max-width: 640px)').matches");
 		expect(ts).toContain('onDocumentPointerDown');
 	});
 

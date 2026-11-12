@@ -270,8 +270,10 @@ describe('create-request: AI refine is rewriting only', () => {
 		for (const gone of ['applyAISuggestion', 'showAIBanner', 'aiSuggest', '/ai-suggest', 'project-description']) expect(all).not.toContain(gone);
 		// the only AI call left is the rewrite socket event
 		expect(all.match(/ai:generate_description/g)?.length).toBe(1);
+		expect(step1).not.toContain('triggerAiFullSuggest');
+		expect(step1).not.toContain('triggerAiBudgetSuggest');
 		const api = readFileSync('src/app/core/services/project-api.service.ts', 'utf8');
-		expect(api).not.toContain('ai-suggest');
+		expect(api).not.toContain('project-description');
 	});
 
 	describe('step 3 UI: counters and the refine button state', () => {

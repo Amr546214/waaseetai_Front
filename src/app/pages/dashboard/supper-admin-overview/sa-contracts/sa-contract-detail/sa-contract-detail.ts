@@ -1,4 +1,5 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { SaOrderControls } from '../../order-controls/sa-order-controls';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -13,7 +14,6 @@ import {
   DISPUTE_STATUS_LABELS,
   ESCROW_STATUS_CLASSES,
   ESCROW_STATUS_LABELS,
-  FINANCE_ACTION_DISABLED_REASON,
   FINANCE_ACTION_NOTE,
   STAGE_STATUS_LABELS,
   initials,
@@ -23,7 +23,7 @@ import {
 @Component({
   selector: 'app-sa-contract-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SaOrderControls],
   templateUrl: './sa-contract-detail.html',
   styleUrls: ['../sa-contracts.css', './sa-contract-detail.css'],
 })
@@ -43,7 +43,6 @@ export class SaContractDetail implements OnInit {
   readonly amendmentLabels = AMENDMENT_STATUS_LABELS;
   readonly amendmentEffectNote = AMENDMENT_EFFECT_NOTE;
   readonly amendmentRecordedBadge = AMENDMENT_RECORDED_BADGE;
-  readonly financeReason = FINANCE_ACTION_DISABLED_REASON;
   readonly financeNote = FINANCE_ACTION_NOTE;
   readonly initials = initials;
   readonly label = label;

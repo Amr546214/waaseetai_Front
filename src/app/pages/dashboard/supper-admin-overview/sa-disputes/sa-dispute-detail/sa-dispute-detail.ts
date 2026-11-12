@@ -1,4 +1,6 @@
+import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { CaseAttachments } from '../../../../../shared/case-attachments/case-attachments';
+import { DisputeChat } from '../../../../../shared/dispute-chat/dispute-chat';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
@@ -11,13 +13,14 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 import { FieldProblem } from '../../../../../shared/forms/form-error-focus';
 import { clearAllInvalid, handleAdminError, reportAdminProblems } from '../../shared/admin-form-report';
 import { Dispute, DisputeStatus, DisputeAction, ResolveDisputePayload, ResolveFinancialPayload, FinancialOutcomeCode, DisputeAiSummary } from '../../../../../core/models/dispute.model';
+import { mapHttpError } from '../../../../../core/forms/http-error';
 import { stageHeading } from '../../../../../core/utils/stage-title.util';
 import { FINANCIAL_OUTCOME_LABELS_AR, TEXT_CLOSURE_LABELS_AR, disputeResolutionText } from '../../../../../core/utils/dispute-labels.util';
 
 @Component({
   selector: 'app-sa-dispute-detail',
   standalone: true,
-  imports: [CaseAttachments, CommonModule, RouterLink, FormsModule, WsSelectComponent],
+  imports: [CaseAttachments, DisputeChat, CommonModule, RouterLink, FormsModule, WsSelectComponent],
   templateUrl: './sa-dispute-detail.html',
   styleUrls: ['../sa-disputes.css', './sa-dispute-detail.css'],
 })
@@ -52,10 +55,28 @@ export class SaDisputeDetail implements OnInit {
   staff = signal<AdminStaffMember[]>([]);
   staffOptions = computed(() => this.staff().map(s => ({ value: s.id, label: s.name })));
   selectedAssigneeId = signal('');
+  readonly escalationReason = signal('');
+  private readonly adminAccess = inject(AdminAccessService);
+  readonly canEscalate = computed(() => {
+    const status = this.selectedDispute()?.status;
+    return (status === 'OPEN' || status === 'UNDER_REVIEW') && this.adminAccess.can('disputes.assign');
+  });
+  /** Same keys the server enforces: assign = disputes.assign, notes = disputes.note, decide / resolve / reject / review status = disputes.resolve (the financial decision also needs payouts.send). */
+  readonly canAssign = computed(() => this.adminAccess.can('disputes.assign'));
+  readonly canNote = computed(() => this.adminAccess.can('disputes.note'));
+  readonly canDecide = computed(() => this.adminAccess.can('disputes.resolve'));
   noteDraft = signal('');
   opBusy = signal(false);
 
-  readonly noEscalationBackend = 'يحتاج قرار منتج/جدول بيانات غير متوفر';
+  // Same open statuses and strict seven-day threshold as the dashboard's overdue-dispute alert.
+  readonly openAge = computed(() => {
+    const dispute = this.selectedDispute();
+    if (!dispute || (dispute.status !== 'OPEN' && dispute.status !== 'UNDER_REVIEW')) return null;
+    const elapsed = Date.now() - Date.parse(dispute.createdAt);
+    if (!Number.isFinite(elapsed) || elapsed < 0) return null;
+    const dayMs = 86_400_000;
+    return { days: Math.floor(elapsed / dayMs), overSevenDays: elapsed > 7 * dayMs };
+  });
 
   // Advisory-only AI summary — entirely separate from the manual
   // resolve/reject state above. Never pre-fills resolutionText/resolutionNote.
@@ -148,7 +169,7 @@ export class SaDisputeDetail implements OnInit {
         if (err?.status === 404) {
           this.notFound.set(true);
         } else {
-          this.error.set(err?.error?.message || 'تعذر تحميل تفاصيل النزاع');
+          this.error.set(mapHttpError(err, { fallback: 'تعذر تحميل تفاصيل النزاع' }).message);
         }
       },
     });
@@ -160,7 +181,7 @@ export class SaDisputeDetail implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/supper-admin-overview/disputes']);
+    this.router.navigate(['/supper-admin-overview/disputes'], { queryParamsHandling: 'preserve' });
   }
 
   private fullName(u?: { firstName?: string; lastName?: string } | null): string {
@@ -246,6 +267,22 @@ export class SaDisputeDetail implements OnInit {
         handleAdminError(this.host.nativeElement, err, { fallback: fail, resolve }, (m) => this.opError.set(m));
       },
     });
+  }
+
+  escalate() {
+    if (!this.canEscalate()) return;
+    const assigneeId = this.selectedAssigneeId();
+    const reason = this.escalationReason().trim();
+    const problems = [
+      ...(!assigneeId ? [{ field: 'dp-assignee', message: 'اختر المسؤول الذي سيستلم الحالة' }] : []),
+      ...(!reason || reason.length > 1000 ? [{ field: 'dp-escalation-reason', message: 'اكتب سبب التصعيد في حدود ١٠٠٠ حرف' }] : []),
+    ];
+    if (problems.length) {
+      void reportAdminProblems(this.host.nativeElement, problems);
+      return;
+    }
+    const fields = { assigneeId: 'dp-assignee', escalationReason: 'dp-escalation-reason' };
+    this.runOp((id) => this.disputeApi.assignAdminDispute(id, assigneeId, reason), 'تم تصعيد النزاع', 'تعذر تصعيد النزاع', () => this.escalationReason.set(''), fields);
   }
 
   assign() {

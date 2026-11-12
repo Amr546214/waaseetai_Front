@@ -55,9 +55,11 @@ export class SaTasks implements OnInit {
 		});
 	}
 	setTab(t: string) { this.tab.set(t); this.load(); }
+	/** A new task is NEW and open: show it at once in «مفتوحة» with no search / staff / type filter that could hide it, and refresh the counters with the list. */
+	private showNewTask() { this.tab.set('open'); this.search.set(''); this.assigneeFilter.set(''); this.typeFilter.set(''); this.load(); }
 	pStyle(p: string) { const [c, b] = PRIORITY_STYLE[p] ?? PRIORITY_STYLE['NORMAL']; return { color: c, background: b }; }
 	sStyle(s: string) { const [c, b] = STATUS_STYLE[s] ?? STATUS_STYLE['NEW']; return { color: c, background: b }; }
-	title = computed(() => ({ open: 'المهام الجارية', pending: 'المهام المعلقة', done: 'المهام المكتملة', all: 'كل المهام' } as Record<string, string>)[this.tab()]);
+	title = computed(() => ({ open: 'المهام المفتوحة', active: 'المهام الجارية', pending: 'المهام المعلقة', done: 'المهام المكتملة', all: 'كل المهام' } as Record<string, string>)[this.tab()]);
 
 	open(t: TaskRow) { this.detailError.set(''); this.api.task(t.id).subscribe({ next: r => this.detail.set(r.data), error: e => this.error.set(errText(e, 'تعذّر فتح المهمة')) }); }
 	closeDetail() { this.detail.set(null); }
@@ -75,6 +77,6 @@ export class SaTasks implements OnInit {
 		if (this.busy()) return; this.busy.set(true); this.createError.set('');
 		const b: Record<string, string> = { title: this.form.title, type: this.form.type, priority: this.form.priority };
 		if (this.form.description) b['description'] = this.form.description; if (this.form.dueAt) b['dueAt'] = new Date(this.form.dueAt).toISOString(); if (this.form.assigneeId) b['assigneeId'] = this.form.assigneeId;
-		this.api.createTask(b as any).subscribe({ next: () => { this.busy.set(false); this.creating.set(false); this.load(); }, error: e => { this.busy.set(false); this.createError.set(errText(e, 'تعذّر إنشاء المهمة')); } });
+		this.api.createTask(b as any).subscribe({ next: () => { this.busy.set(false); this.creating.set(false); this.showNewTask(); }, error: e => { this.busy.set(false); this.createError.set(errText(e, 'تعذّر إنشاء المهمة')); } });
 	}
 }

@@ -8,7 +8,7 @@ export interface RoleTemplate { key: string; name: string; description: string; 
 export const ADMIN_DEPARTMENTS: ReadonlyArray<{ key: string; label: string; permissions: string[] }> = [
 	{ key: 'users', label: 'المستخدمون', permissions: ['users.view', 'users.suspend', 'users.delete'] },
 	{ key: 'disputes', label: 'النزاعات', permissions: ['disputes.view', 'disputes.note', 'disputes.assign', 'disputes.resolve'] },
-	{ key: 'reports', label: 'البلاغات', permissions: ['reports.view'] },
+	{ key: 'reports', label: 'البلاغات', permissions: ['reports.view', 'reports.manage'] },
 	{ key: 'support', label: 'الدعم الفني', permissions: ['support.review', 'support.reply'] },
 	{ key: 'specialties', label: 'التخصصات', permissions: ['specialties.approve', 'content.manage', 'business_models.review'] },
 ];
@@ -22,6 +22,11 @@ export interface StaffList { members: StaffMember[]; pendingInvites: PendingInvi
 export interface TaskRow { id: string; number: number; code: string; title: string; description: string | null; type: string; priority: string; status: string; overdue: boolean; dueAt: string | null; completedAt: string | null; version: number; createdAt: string; assignee: { id: string; name: string } | null; link: { type: string; id: string } | null }
 export interface TaskSummary { byStatus: Record<string, number>; open: number; inProgress: number; pending: number; overdue: number; doneThisMonth: number; onTimeThisMonth: { onTime: number; of: number } | null; avgCompletionHoursThisMonth: number | null }
 export interface PerformanceMember { userId: string; name: string; role: string | null; roleColor: string | null; status: string; openTasks: number; completed: number; avgCompletionHours: number | null; onTimeRate: number | null; onTimeOf: number; slaRate: null; userRating: null; overallScore: null }
+export interface SupportResponseMetrics {
+  tickets: number; answered: number; withoutStaffReply: number; averageFirstReplyHours: number | null;
+  slaRate: number | null; measured: number; pending: number; closedWithoutReply: number;
+  truncated: boolean; definition: string; from: string; to: string;
+}
 export interface PerformanceReport { period: string; from: string; to: string; team: { members: number; completed: number; avgCompletionHours: number | null; onTimeRate: number | null; onTimeOf: number }; members: PerformanceMember[]; trend: Array<{ month: number; thisYear: number; lastYear: number }>; definitions: { completed: string; completionTime: string; onTime: string; unavailable: string[]; decisionsNeeded: string[] } }
 export interface AccessAuditRow { id: string; at: string; action: string; actor: string | null; subject: string | null; roleId: string | null; before: unknown; after: unknown }
 export interface Envelope<T> { success: boolean; data: T; message?: string }
@@ -62,6 +67,7 @@ export class AdminTeamService {
 	createTask(b: { title: string; description?: string; type: string; priority?: string; dueAt?: string; assigneeId?: string; linkType?: string; linkId?: string }) { return this.http.post<Envelope<TaskRow>>(`${base()}/tasks`, b); }
 	updateTask(id: string, b: Record<string, unknown>) { return this.http.patch<Envelope<TaskRow>>(`${base()}/tasks/${id}`, b); }
 	setTaskStatus(id: string, status: string, expectedVersion: number) { return this.http.post<Envelope<TaskRow>>(`${base()}/tasks/${id}/status`, { status, expectedVersion }); }
+	supportPerformance(period: string) { return this.http.get<Envelope<SupportResponseMetrics>>(`${base()}/performance/support-response`, { params: { period } }); }
 	performance(period: string) { return this.http.get<Envelope<PerformanceReport>>(`${base()}/performance`, { params: { period } }); }
 	performanceExportUrl(period: string) { return `${base()}/performance/export?period=${encodeURIComponent(period)}`; }
 	exportPerformance(period: string) { return this.http.get(`${base()}/performance/export`, { params: { period }, responseType: 'blob' }); }

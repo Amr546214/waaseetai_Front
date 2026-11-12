@@ -1252,3 +1252,116 @@ button.disabled-btn-neutral,
   opacity: 1 !important;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
 }
+
+/* Shared project status filters: active and archived views, client and provider roles. */
+app-active-project .pl-tabs.pl-tabs,
+app-active .pl-tabs.pl-tabs,
+app-active .ord-tabs.ord-tabs,
+app-archived-projects .pl-tabs.pl-tabs,
+app-archived .filter-row.filter-row,
+app-archived .co-st-tabs.co-st-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  border: 0;
+  overflow-x: visible;
+}
+
+app-active-project .pl-tabs .pl-tab,
+app-active .pl-tabs .pl-tab,
+app-active .ord-tabs .ord-tab,
+app-archived-projects .pl-tabs .pl-tab,
+app-archived .filter-row .filter-chip,
+app-archived .co-st-tabs .co-st-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  gap: 6px;
+  margin: 0;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--sec-bg);
+  color: var(--txt-2, #A8B2D1);
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+app-active-project .pl-tabs .pl-tab:hover,
+app-active .pl-tabs .pl-tab:hover,
+app-active .ord-tabs .ord-tab:hover,
+app-archived-projects .pl-tabs .pl-tab:hover,
+app-archived .filter-row .filter-chip:hover,
+app-archived .co-st-tabs .co-st-tab:hover {
+  border-color: var(--sec-bd-hover);
+  background: var(--sec-bg-hover);
+  color: var(--txt, #fff);
+}
+
+app-active-project .pl-tabs .pl-tab.active,
+app-active .pl-tabs .pl-tab.active,
+app-active .ord-tabs .ord-tab.active,
+app-archived-projects .pl-tabs .pl-tab.active,
+app-archived .filter-row .filter-chip.active,
+app-archived .co-st-tabs .co-st-tab.active {
+  border-color: color-mix(in srgb,var(--teal) 30%,transparent);
+  background: color-mix(in srgb,var(--teal) 12%,transparent);
+  color: var(--teal-txt, #2BD4C7);
+}
+
+app-active-project .pl-tabs .pl-tab .c,
+app-active .pl-tabs .pl-tab .c,
+app-active .ord-tabs .ord-tab span,
+app-archived-projects .pl-tabs .pl-tab .c,
+app-archived .filter-row .filter-chip .fc-count,
+app-archived .co-st-tabs .co-st-tab span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--sec-bg-hover);
+  color: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: 800;
+  line-height: 1;
+}
+
+app-active-project .pl-tabs .pl-tab.active .c,
+app-active .pl-tabs .pl-tab.active .c,
+app-active .ord-tabs .ord-tab.active span,
+app-archived-projects .pl-tabs .pl-tab.active .c,
+app-archived .filter-row .filter-chip.active .fc-count,
+app-archived .co-st-tabs .co-st-tab.active span {
+  background: color-mix(in srgb,var(--teal) 20%,transparent);
+  color: var(--teal-txt, #2BD4C7);
+}
+
+app-active .pl-tabs .pl-tab .late-count,
+app-active .pl-tabs .pl-tab.active .late-count,
+app-active .ord-tabs .ord-tab .txt-red,
+app-active .ord-tabs .ord-tab.active .txt-red {
+  background: color-mix(in srgb,var(--red) 14%,transparent);
+  color: var(--red);
+}
+
+app-active-project .pl-tabs .pl-tab:focus-visible,
+app-active .pl-tabs .pl-tab:focus-visible,
+app-active .ord-tabs .ord-tab:focus-visible,
+app-archived-projects .pl-tabs .pl-tab:focus-visible,
+app-archived .filter-row .filter-chip:focus-visible,
+app-archived .co-st-tabs .co-st-tab:focus-visible {
+  outline: 2px solid var(--teal, #2BD4C7);
+  outline-offset: 2px;
+}

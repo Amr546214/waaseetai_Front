@@ -66,7 +66,7 @@
 						<span>{{ u.email }}</span>
 						@if (u.phoneNumber) {<span>·</span><span dir="ltr">{{ u.phoneNumber }}</span>}
 						<span>·</span><span>{{ u.id }}</span>
-						<span>·</span><span>منذ {{ u.createdAt }}</span>
+						@if (memberSince(u.createdAt); as since) {<span>·</span><span data-testid="member-since">{{ since }}</span>}
 					</div>
 				</div>
 			</div>
@@ -169,8 +169,8 @@
 					<div class="ud-info-item"><span class="ud-info-lbl">الاسم الكامل</span><span class="ud-info-val">{{ u.personalInfo.fullName }}</span></div>
 					<div class="ud-info-item"><span class="ud-info-lbl">البريد الإلكتروني</span><span class="ud-info-val">{{ u.personalInfo.email }}</span></div>
 					<div class="ud-info-item"><span class="ud-info-lbl">رقم الجوال</span><span class="ud-info-val" dir="ltr">{{ u.personalInfo.phoneNumber || '—' }}</span></div>
-					<div class="ud-info-item"><span class="ud-info-lbl">تاريخ التسجيل</span><span class="ud-info-val">{{ u.personalInfo.registeredAt }}</span></div>
-					<div class="ud-info-item"><span class="ud-info-lbl">آخر دخول</span><span class="ud-info-val">{{ u.personalInfo.lastLoginAt || '—' }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">تاريخ التسجيل</span><span class="ud-info-val">{{ arabicDate(u.personalInfo.registeredAt) || '—' }}</span></div>
+					<div class="ud-info-item"><span class="ud-info-lbl">آخر دخول</span><span class="ud-info-val">{{ arabicDate(u.personalInfo.lastLoginAt, true) || '—' }}</span></div>
 					<div class="ud-info-item"><span class="ud-info-lbl">المدينة</span><span class="ud-info-val">{{ u.personalInfo.city || '—' }}</span></div>
 					<div class="ud-info-item"><span class="ud-info-lbl">الجهاز</span><span class="ud-info-val">{{ u.personalInfo.device || '—' }}</span></div>
 					<div class="ud-info-item"><span class="ud-info-lbl">رقم الهوية</span><span class="ud-info-val">{{ u.personalInfo.nationalIdLast4 ? ('xxxxxxx' + u.personalInfo.nationalIdLast4) : '—' }} @if (u.personalInfo.nationalIdVerified) {<svg class="ud-verified" aria-hidden="true"><use href="#ud-check"></use></svg>}</span></div>

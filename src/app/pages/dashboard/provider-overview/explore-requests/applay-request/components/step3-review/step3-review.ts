@@ -20,4 +20,5 @@ export class Step3Review {
 
   @Output() prevStep = new EventEmitter<void>();
   @Output() toggleAck = new EventEmitter<number>();
+  @Output() retryAudit = new EventEmitter<void>();
 }

@@ -138,12 +138,12 @@ describe('create-request: red validation on every step', () => {
     const btn = q('[data-testid="wizard-publish"]') as HTMLButtonElement;
     expect(btn.disabled).toBe(false);
     btn.click(); await flush(); render();
-    for (const k of ['data', 'terms', 'privacy', 'publish']) expect(q('#ack-' + k)!.getAttribute('aria-invalid'), k).toBe('true');
+    for (const k of ['data', 'termsPrivacy', 'publish']) expect(q('#ack-' + k)!.getAttribute('aria-invalid'), k).toBe('true');
     expect(document.activeElement).toBe(q('#ack-data'));
-    q('#ack-terms')!.click(); render();
-    expect(q('#ack-terms')!.getAttribute('aria-invalid')).toBeNull();
+    q('#ack-termsPrivacy')!.click(); render();
+    expect(q('#ack-termsPrivacy')!.getAttribute('aria-invalid')).toBeNull();
     expect(q('#ack-data')!.getAttribute('aria-invalid')).toBe('true');
-    expect(errors().length).toBe(3);
+    expect(errors().length).toBe(2);
     expect(q('app-step6-review .modal-overlay')).toBeNull();
   });
 

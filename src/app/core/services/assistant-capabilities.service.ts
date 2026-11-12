@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthStore } from '../store/auth.store';
 import { SKIP_LOADING } from '../interceptors/loading.interceptor';
+import { SKIP_RATE_LIMIT_TOAST } from '../interceptors/rate-limit.interceptor';
 
 export interface AssistantCapabilities {
 	models: Array<{ id: string; label?: string; modalities?: string[]; efforts?: string[]; available?: boolean }>;
@@ -32,7 +33,8 @@ export class AssistantCapabilitiesService {
 	private readonly http = inject(HttpClient);
 	private readonly auth = inject(AuthStore);
 	private options() { return { headers: new HttpHeaders({ Authorization: `Bearer ${this.auth.token() ?? ''}` }), context: new HttpContext().set(SKIP_LOADING, true) }; }
-	get(): Observable<AssistantCapabilities> { return this.http.get<AssistantCapabilities | {data:AssistantCapabilities}>(`${environment.url_api}/help-assistant/capabilities`, this.options()).pipe(map(assistantData<AssistantCapabilities>)); }
+	/** Background fetch: the assistant panel shows its own «تعذر تحميل الخيارات» note, so a 429 here must not raise the global rate-limit toast. */
+	get(): Observable<AssistantCapabilities> { return this.http.get<AssistantCapabilities | {data:AssistantCapabilities}>(`${environment.url_api}/help-assistant/capabilities`, { ...this.options(), context: new HttpContext().set(SKIP_LOADING, true).set(SKIP_RATE_LIMIT_TOAST, true) }).pipe(map(assistantData<AssistantCapabilities>)); }
 	transcribe(audioBase64: string, mimeType: string, language: string): Observable<{ text?: string; transcript?: string; data?: { text?: string; transcript?: string } }> { return this.http.post<any>(`${environment.url_api}/help-assistant/stt`, { audioBase64, mimeType, languageCodes: [language], mode: 'verbatim' }, this.options()); }
 	liveToken(options: { model?: string; voice?: string; language?: string } = {}): Observable<AssistantLiveToken> { return this.http.post<AssistantLiveToken | {data:AssistantLiveToken}>(`${environment.url_api}/help-assistant/live-token`, options, this.options()).pipe(map(assistantData<AssistantLiveToken>)); }
 }

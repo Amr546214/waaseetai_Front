@@ -28,9 +28,15 @@ const readBlob = (b: Blob) => new Promise<string>((res) => { const fr = new File
 
 describe('SaAnalyticsHub', () => {
   let getOverview: any;
+  let listSavedReports: ReturnType<typeof vi.fn>;
+  let createSavedReport: ReturnType<typeof vi.fn>;
+  let deleteSavedReport: ReturnType<typeof vi.fn>;
   beforeEach(() => {
     getOverview = vi.fn((_r?: any) => of({ data: overview(), failed: false }));
-    TestBed.configureTestingModule({ providers: [{ provide: AdminAnalyticsService, useValue: { getOverview } }] });
+    listSavedReports = vi.fn(() => of({ items: [], hasNext: false }));
+    createSavedReport = vi.fn(() => of({ id: 'report' }));
+    deleteSavedReport = vi.fn(() => of(undefined));
+    TestBed.configureTestingModule({ providers: [{ provide: AdminAnalyticsService, useValue: { getOverview, listSavedReports, createSavedReport, deleteSavedReport } }] });
   });
   afterEach(() => vi.restoreAllMocks());
 
@@ -96,5 +102,29 @@ describe('SaAnalyticsHub', () => {
     getOverview.mockReturnValue(of({ data: null, failed: true }));
     const f = make();
     expect(f.nativeElement.querySelector('[data-testid="ah-error"]')).toBeTruthy();
+  });
+
+  it('saves a relative preset without freezing dates and restores a named custom preset', () => {
+    const component = make().componentInstance;
+    component.toggleSavedReports();
+    expect(listSavedReports).toHaveBeenCalledWith(1);
+    component.setSection('projects');
+    component.setPeriod('7d');
+    component.toggleCompare();
+    component.reportName = '  مشاريع الأسبوع  ';
+    component.saveReport();
+    expect(createSavedReport).toHaveBeenCalledWith({
+      name: 'مشاريع الأسبوع', section: 'projects', period: '7d', from: null, to: null, compare: false,
+    });
+    getOverview.mockClear();
+    const saved = { id: 'custom', name: 'فبراير', section: 'users', period: 'custom', from: '2026-02-01', to: '2026-02-28', compare: false } as const;
+    component.openReport(saved);
+    expect(component.activeSection()).toBe('users');
+    expect(getOverview).toHaveBeenCalledExactlyOnceWith({ from: '2026-02-01', to: '2026-02-28' });
+    component.deleteReport(saved);
+    expect(deleteSavedReport).not.toHaveBeenCalled();
+    component.deleteCandidate.set(saved);
+    component.deleteReport(saved);
+    expect(deleteSavedReport).toHaveBeenCalledWith('custom');
   });
 });

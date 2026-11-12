@@ -17,7 +17,8 @@
   }
 
   <div class="tk-tabs" role="tablist" id="task-tabs">
-    <button class="tk-tab" [class.active]="tab() === 'open'" type="button" (click)="setTab('open')">جارية @if (summary()) { <span class="tk-pill tk-pill-amber">{{ summary()!.inProgress }}</span> }</button>
+    <button class="tk-tab" [class.active]="tab() === 'open'" type="button" (click)="setTab('open')" data-testid="tab-open">مفتوحة @if (summary()) { <span class="tk-pill tk-pill-teal">{{ summary()!.open }}</span> }</button>
+    <button class="tk-tab" [class.active]="tab() === 'active'" type="button" (click)="setTab('active')" data-testid="tab-active">جارية @if (summary()) { <span class="tk-pill tk-pill-amber">{{ summary()!.inProgress }}</span> }</button>
     <button class="tk-tab" [class.active]="tab() === 'pending'" type="button" (click)="setTab('pending')">معلقة @if (summary()) { <span class="tk-pill tk-pill-blue">{{ summary()!.pending }}</span> }</button>
     <button class="tk-tab" [class.active]="tab() === 'done'" type="button" (click)="setTab('done')">مكتملة</button>
     <button class="tk-tab" [class.active]="tab() === 'all'" type="button" (click)="setTab('all')">الكل</button>

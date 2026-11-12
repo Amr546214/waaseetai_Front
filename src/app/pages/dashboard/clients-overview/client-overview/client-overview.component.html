@@ -591,9 +591,8 @@
 					</div>
 					<div class="req-right">
 						<span class="req-status"
-							[ngClass]="{'s-active': project.status === 'IN_PROGRESS', 's-offers': project.status === 'OPEN', 's-done': project.status === 'COMPLETED', 's-deposit': project.status === 'DISPUTED'}">
-							{{ project.status === 'OPEN' ? 'مفتوح للعروض' : (project.status === 'IN_PROGRESS' ? 'قيد
-							التنفيذ' : (project.status === 'COMPLETED' ? 'مكتمل' : 'متنازع عليه')) }}
+							[ngClass]="{'s-active': project.status === 'IN_PROGRESS', 's-offers': project.status === 'OPEN', 's-done': project.status === 'COMPLETED' && project.closureKind !== 'ADMIN_RELEASE', 's-deposit': project.status === 'DISPUTED'}">
+							{{ projectStatusLabel(project) }}
 						</span>
 						<span class="req-budget">{{ project.budget | number:'1.0-2' }} $</span>
 					</div>

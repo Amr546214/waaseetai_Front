@@ -43,6 +43,19 @@ function failureFor(status: number): TtsFailure {
 	return 'UNAVAILABLE';
 }
 
+const ARABIC_VOICE_FALLBACKS: Partial<Record<BeboVoice, BeboVoice>> = {
+	Callirrhoe: 'Kore',
+	Leda: 'Kore',
+	Zephyr: 'Puck',
+	Orus: 'Puck',
+};
+
+export function resolveCompatibleTtsVoice(voice: BeboVoice, text: string, dialect: BeboDialect): BeboVoice {
+	const hasArabicScript = /[\u0600-\u06FF]/.test(text);
+	if (!hasArabicScript && dialect === 'english') return voice;
+	return ARABIC_VOICE_FALLBACKS[voice] ?? voice;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AssistantTtsService {
 	private readonly http = inject(HttpClient);
@@ -52,8 +65,9 @@ export class AssistantTtsService {
 	synthesize(req: TtsRequest): Observable<Blob> {
 		const token = this.authStore.token();
 		if (!token) return throwError(() => new AssistantTtsError('AUTH_REQUIRED'));
+		const resolvedVoice = resolveCompatibleTtsVoice(req.voice, req.text, req.dialect);
 		return this.http
-			.post(`${environment.url_api}${ASSISTANT_TTS_PATH}`, { text: req.text, voice: req.voice, dialect: req.dialect, ...(req.model ? { model: req.model } : {}) }, {
+			.post(`${environment.url_api}${ASSISTANT_TTS_PATH}`, { text: req.text, voice: resolvedVoice, dialect: req.dialect, ...(req.model ? { model: req.model } : {}) }, {
 				responseType: 'blob',
 				headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
 				context: new HttpContext().set(SKIP_LOADING, true),

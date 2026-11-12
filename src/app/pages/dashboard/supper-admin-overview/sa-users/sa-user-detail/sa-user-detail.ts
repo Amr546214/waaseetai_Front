@@ -1,3 +1,4 @@
+import { arabicDate, memberSince } from './member-since';
 import { Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
@@ -30,6 +31,8 @@ export class SaUserDetail implements OnInit {
 	private guard = new SubmitGuard();
 
 	readonly isSuperAdmin = computed(() => this.authStore.currentUser()?.accountType === AccountType.SUPER_ADMIN);
+	readonly memberSince = memberSince;
+	readonly arabicDate = arabicDate;
 	readonly isSelf = computed(() => this.authStore.currentUser()?.id === this.user()?.id);
 
 	// ── status / roles / delete modals (every one confirms; the server enforces the rules and writes the audit row)

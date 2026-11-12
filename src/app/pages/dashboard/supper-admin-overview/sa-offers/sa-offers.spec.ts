@@ -66,6 +66,14 @@ describe('SaOfferDetail (live)', () => {
     expect(t).toContain('لا توجد جولات تفاوض مسجلة');
   });
 
+  it('carries the real admin controls instead of the disabled placeholders', () => {
+    const f = make(of(detail(null, { state: 'NONE', entriesCount: 0, entries: [] })));
+    const el: HTMLElement = f.nativeElement;
+    expect(el.querySelector('sa-order-controls')).toBeTruthy();
+    expect(el.textContent).not.toContain('غير متاح حاليًا');
+    expect(el.textContent).not.toContain('يحتاج قرارًا من المنتج');
+  });
+
   it('shows AI panel only when aiReview exists', () => {
     const f = make(of(detail({ matchScore: 80, qualityTag: 'GOOD', priceTag: null, feedback: { summary: 'ملخص' } }, { state: 'COUNTER_PENDING', entriesCount: 0, entries: [] })));
     const t = f.nativeElement.textContent;

@@ -1,3 +1,4 @@
+import { PlatformReportButton } from '../../../../shared/platform-report-button/platform-report-button';
 import { resolveLevelDisplay } from '../../../../core/levels/level-display';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, HostListener, OnDestroy, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
@@ -15,7 +16,7 @@ type ReviewSort = 'newest' | 'oldest';
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
-  imports: [LevelBadgeComponent, CommonModule, RouterLink],
+  imports: [PlatformReportButton, LevelBadgeComponent, CommonModule, RouterLink],
   templateUrl: './provider-profile.html',
   styleUrl: './provider-profile.css'
 })
@@ -26,6 +27,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   private authStore = inject(AuthStore);
 
   provider = signal<any>(null);
+  readonly reportTargetId = signal<string | null>(null);
 
   /** The signed-in user (any acting role) is this profile's owner, so every service card is «هذه خدمتك» (services' providerId is the owner USER id). */
   isOwnProfile = computed(() => {
@@ -136,6 +138,7 @@ export class ProviderProfileComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
+      this.reportTargetId.set(id);
       if (!id) {
         this.notFound.set(true);
         this.loading.set(false);

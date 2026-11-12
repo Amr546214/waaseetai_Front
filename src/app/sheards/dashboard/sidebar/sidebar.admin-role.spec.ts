@@ -27,7 +27,7 @@ function setup(user: any, perms: string[] = ['users.view', 'specialties.approve'
 	const f = TestBed.createComponent(Sidebar);
 	f.detectChanges();
 	const flat = () => (f.componentInstance.navItems() as NavItem[]).flatMap(i => [i, ...(i.children ?? [])]);
-	return { routes: () => flat().map(i => i.route).filter(Boolean) as string[], title: () => f.componentInstance.sidebarTitle() };
+	return { routes: () => flat().map(i => i.route).filter(Boolean) as string[], title: () => f.componentInstance.sidebarTitle(), items: () => f.componentInstance.navItems() as NavItem[] };
 }
 
 describe('sidebar for an ADMIN account (not a super admin)', () => {
@@ -45,7 +45,7 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 	});
 	it('an account with NO permission sees only its own account page (nothing that suggests authority)', () => {
 		const { routes } = setup(ADMIN, []);
-		expect(routes()).toEqual(['/supper-admin-overview/my-account']);
+		expect(routes()).toEqual(['/supper-admin-overview/my-account', '/supper-admin-overview/bebo']); // own account + Bebo's tools (every admin account had the bar)
 	});
 	it('does not list the super-admin-only page', () => {
 		expect(setup(ADMIN).routes()).not.toContain('/supper-admin-overview/super-admins');
@@ -66,5 +66,33 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 			expect(routes()).toContain('/supper-admin-overview/users');
 			TestBed.resetTestingModule();
 		}
+	});
+
+	it('«بيبو» is a tab directly above «تسجيل الخروج» for every admin account', () => {
+		for (const [perms, isSuper] of [[[], false], [['users.view'], false], [[], true]] as const) {
+			TestBed.resetTestingModule();
+			const { items } = setup(ADMIN, [...perms], isSuper);
+			const list = items(); const logout = list.findIndex(i => i.type === 'button' && i.action === 'logout');
+			expect(logout).toBeGreaterThan(0);
+			expect(list[logout - 1]).toMatchObject({ type: 'link', label: 'بيبو', route: '/supper-admin-overview/bebo' });
+		}
+	});
+});
+
+describe('Bebo in non-admin dashboards', () => {
+	afterEach(() => TestBed.resetTestingModule());
+
+	it.each([
+		['CLIENT_INDIVIDUAL', 'CLIENT', 'client-overview'],
+		['CLIENT_COMPANY', 'CLIENT', 'client-overview'],
+		['PROVIDER_INDIVIDUAL', 'PROVIDER', 'provider-overview'],
+		['PROVIDER_COMPANY', 'PROVIDER', 'provider-overview'],
+		['MARKETING_BROKER', 'AFFILIATE', 'marketer-overview'],
+	])('puts Bebo directly above logout for %s', (accountType, activeRole, area) => {
+		const list = setup({ accountType, activeRole, roles: [activeRole] }).items();
+		const logout = list.findIndex(i => i.type === 'button' && i.action === 'logout');
+		expect(logout).toBeGreaterThan(0);
+		expect(list[logout - 1]).toMatchObject({ type: 'link', label: 'بيبو', route: '/' + area + '/bebo' });
+		expect(list.filter(item => item.route === '/' + area + '/bebo')).toHaveLength(1);
 	});
 });

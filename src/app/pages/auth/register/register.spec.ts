@@ -682,6 +682,55 @@ describe('Register: the code step after the server confirmed the proof mail', ()
 	const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
 	afterEach(() => vi.unstubAllGlobals());
 
+	it('stays on the details step with a red message when the contact data is already in use', () => {
+		const { fixture, component, postSpy } = setup();
+		fixture.detectChanges();
+		component.selectedAccountType = 'service_provider_ind';
+		component.currentStep = 2;
+		component.basicInfoForm.patchValue(valid);
+		postSpy.mockReturnValue(throwError(() => ({ status: 409, error: { code: 'REGISTRATION_DATA_UNAVAILABLE', message: 'البريد الإلكتروني أو رقم الجوال مرتبط بحساب قائم' } })));
+		component.nextStep();
+		fixture.detectChanges(false);
+		const el = fixture.nativeElement as HTMLElement;
+		expect(component.currentStep).toBe(2);
+		expect(component.proofFlow).toBe(false);
+		expect(el.querySelector('.banner-error')?.textContent).toContain('مرتبط بحساب قائم');
+		expect(el.querySelector('#banner-error-login-link')).not.toBeNull();
+	});
+
+	it('shows the five-attempt lock in red with no invented countdown', () => {
+		const { fixture, component, postSpy } = setup();
+		fixture.detectChanges();
+		component.selectedAccountType = 'service_provider_ind';
+		component.currentStep = 2;
+		component.basicInfoForm.patchValue(valid);
+		postSpy.mockImplementation((url: string) => url.includes('/register/start')
+			? of({ success: true, data: { emailSent: true, ticket: 'T' } })
+			: throwError(() => ({ status: 429, error: { code: 'OTP_ATTEMPTS_LOCKED', message: 'تجاوزت ٥ محاولات لإدخال رمز التحقق. اطلب رمزًا جديدًا.' } })));
+		component.nextStep();
+		for (let i = 1; i <= 6; i++) component.verificationForm.get('code' + i)?.setValue(String(i));
+		component.onVerificationSubmit();
+		fixture.detectChanges(false);
+		const el = fixture.nativeElement as HTMLElement;
+		expect(component.currentStep).toBe(3);
+		expect(el.querySelector('.banner-error')?.textContent).toContain('تجاوزت ٥ محاولات');
+		expect(el.querySelector('[data-testid="rate-limit-msg"]')).toBeNull();
+	});
+
+	it('shows the hourly send cap with its wait in a red alert without opening the code step', () => {
+		const { fixture, component, postSpy } = setup();
+		fixture.detectChanges();
+		component.selectedAccountType = 'service_provider_ind';
+		component.currentStep = 2;
+		component.basicInfoForm.patchValue(valid);
+		postSpy.mockReturnValue(throwError(() => ({ status: 429, error: { retryAfterSeconds: 300, errors: [{ code: 'OTP_RATE_LIMITED', reason: 'recipient-hour' }] } })));
+		component.nextStep();
+		fixture.detectChanges(false);
+		const el = fixture.nativeElement as HTMLElement;
+		expect(component.currentStep).toBe(2);
+		expect(el.querySelector('.banner-error[data-testid="rate-limit-msg"]')?.textContent).toContain('تجاوزت حد إرسال الرموز لهذا البريد');
+	});
+
 	it('says a code was sent only because the server confirmed it, says no account exists yet, and offers edit / login / recovery', () => {
 		const { fixture, component, postSpy } = setup();
 		fixture.detectChanges();

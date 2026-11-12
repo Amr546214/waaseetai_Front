@@ -161,6 +161,7 @@
 				}
 
 				<app-case-attachments [path]="'provider/disputes/' + dispute()!.id" [writable]="dispute()!.status === 'open'" />
+              <app-dispute-chat [path]="'provider/disputes/' + dispute()!.id" />
 			</div>
 
 			}

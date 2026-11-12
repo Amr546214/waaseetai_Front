@@ -10,7 +10,7 @@ import { NotificationHostComponent } from './shared/forms/notification-host.comp
 import { FormA11ySyncService } from './shared/forms/form-a11y-sync.service';
 import { AssistantWidgetComponent } from './sheards/assistant-widget/assistant-widget';
 import { PlatformBannerComponent } from './shared/platform-banner/platform-banner.component';
-import { assistantLiftPx, isAssistantHidden } from './sheards/assistant-widget/assistant-visibility';
+import { assistantLiftPx, isAssistantHidden, isAssistantToolbarInSidebar } from './sheards/assistant-widget/assistant-visibility';
 import { IdentityImgDirective } from './core/identity/identity-img.directive';
 
 @Component({
@@ -41,7 +41,7 @@ import { IdentityImgDirective } from './core/identity/identity-img.directive';
 		     Lazy-loaded after the page is idle; browser-only. -->
 		@if ((authStore.isInitialized$ | async) && !assistantHidden()) {
 			@defer (on idle) {
-				<app-assistant-widget [lift]="assistantLift()" />
+				<app-assistant-widget [lift]="assistantLift()" [hideToolbar]="assistantToolbarInSidebar()" />
 			}
 		}
 	`,
@@ -56,6 +56,8 @@ export class App implements OnInit {
 	readonly assistantHidden = computed(() => this.routeHidden() || this.assistantStore.examActive());
 	/** Extra px the assistant floats above the viewport floor on pages with a bottom action bar. */
 	readonly assistantLift = signal(0);
+	/** In dashboards Bebo's tool bar is the «بيبو» sidebar tab, so the widget does not float it. */
+	readonly assistantToolbarInSidebar = signal(false);
 
 	constructor() {
 		// aria-invalid / aria-describedby for every invalid form control, site wide (browser only).
@@ -86,5 +88,6 @@ export class App implements OnInit {
 		const root = this.router.routerState.snapshot.root;
 		this.routeHidden.set(isAssistantHidden(root));
 		this.assistantLift.set(assistantLiftPx(root));
+		this.assistantToolbarInSidebar.set(isAssistantToolbarInSidebar(root));
 	}
 }

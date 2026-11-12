@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AssistantStore, MAX_QUESTION_LENGTH } from '../../core/store/assistant.store';
 import { guidedCatalog, guidedSupport } from '../../core/help/help-guided';
-import { BEBO_CORE_MOTIONS, NADEEM_GUIDE_MOTIONS, BEBO_ALL_MOTIONS, BEBO_DIALECTS, BEBO_DIALECT_IDS, beboVoiceLabel } from '../bebo-avatar/bebo-commands';
+import { BEBO_CORE_MOTIONS, NADEEM_GUIDE_MOTIONS, BEBO_ALL_MOTIONS, BEBO_DIALECTS, BEBO_DIALECT_IDS } from '../bebo-avatar/bebo-commands';
 import { assistantMarkdown, safeAssistantUrl } from '../../core/help/assistant-content';
 import { BeboAction } from '../bebo-avatar/bebo-commands';
 import { cleanMessages } from '../../core/help/assistant-history';
@@ -158,11 +158,11 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		<div class="ac__settings">
 			<label>مظهر الروبوت
 				<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)">
-					<option value="scout">نديم (دليل وسيط)</option>
-					<option value="classic">بيبو (المساعد الكرتوني)</option>
+					<option value="scout" [selected]="store.skin() === 'scout'">نديم (دليل وسيط)</option>
+					<option value="classic" [selected]="store.skin() === 'classic'">بيبو (المساعد الكرتوني)</option>
 				</select>
 			</label>
-			<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto">تلقائي</option><option value="fast">سريع ومختصر</option><option value="balanced">متوازن</option><option value="deep">شرح وتحليل مفصل</option></select></label>
+			<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto" [selected]="store.profile() === 'auto'">تلقائي</option><option value="fast" [selected]="store.profile() === 'fast'">سريع ومختصر</option><option value="balanced" [selected]="store.profile() === 'balanced'">متوازن</option><option value="deep" [selected]="store.profile() === 'deep'">شرح وتحليل مفصل</option></select></label>
 			<label>اللهجة
 				<select class="ac__dialect" [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)">
 					<option value="auto" [selected]="store.ttsDialect() === 'auto'">تلقائي من كلامك</option>
@@ -179,7 +179,7 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 							<option value="" disabled selected>لا توجد أصوات مدعومة من الخادم</option>
 						}
 						@for (v of availableVoices(); track v.id) {
-							<option [value]="v.id" [selected]="store.ttsVoice() === v.id">{{ voiceLabel(v) }}</option>
+							<option [value]="v.id" [selected]="store.ttsVoice() === v.id">{{ v.label || v.id }}</option>
 						}
 					</select>
 				</label>
@@ -260,8 +260,8 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		.ac__mic:disabled { opacity: .4; cursor: not-allowed; }
 		.ac__settings { display: flex; flex-wrap: wrap; gap: 10px; font-size: var(--font-size-small); color: var(--txt-3, #8892B0); }
 		.ac__settings label { display: inline-flex; align-items: center; gap: 6px; }
-		.ac__settings select { min-width: 0; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.12)); background: rgba(0,0,0,0.25); color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font: inherit; font-weight: 600; color-scheme: dark !important; }
-		.ac__settings select option { background-color: #0b1a20; color: #ffffff; }
+		.ac__settings select { min-width: 0; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.12)); background: var(--assistant-input-bg, var(--pop-bg)); color: var(--assistant-text, var(--txt, #fff)); -webkit-text-fill-color: currentColor; font: inherit; font-weight: 600; }
+		.ac__settings select option { background: var(--assistant-input-bg, var(--pop-bg)); color: var(--assistant-text, var(--txt, #fff)); }
 		.ac__listening { color: #ffb1c1; }
 		.ac__chips { display: flex; flex-wrap: wrap; gap: 8px; }
 		.ac__chip { padding: 7px 13px; border-radius: 999px; border: 1px solid rgba(165,107,224,.4); background: rgba(123,47,190,.1); color: var(--txt, #fff); font: inherit; font-size: var(--font-size-label); font-weight: 700; cursor: pointer; }
@@ -287,7 +287,6 @@ export class AssistantChatComponent implements OnDestroy {
 	readonly maxLength = MAX_QUESTION_LENGTH;
 	/** Handoff option lists (bebo-core.mjs DIALECTS, bebo-chat.js voices). */
 	readonly dialects = BEBO_DIALECT_IDS.map((id) => ({ id, label: BEBO_DIALECTS[id].label }));
-	readonly voiceLabel = (v: { id: string; label?: string }): string => beboVoiceLabel(v.id, v.label);
 	readonly availableVoices = computed(() => this.store.capabilities()?.voices ?? []);
 	readonly textModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['text','chat'].includes(v.toLowerCase()))));
 	readonly speechModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['tts','speech'].includes(v.toLowerCase()))));

@@ -496,37 +496,20 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 	min-width: 140px;
 	max-width: 60%;
 	padding: 8px 12px;
-	border: 1.5px solid rgba(43, 212, 199, 0.35) !important;
+	border: 1px solid var(--pg-border);
 	border-radius: 10px;
-	background-color: #0b1a20 !important;
-	color: #ffffff !important;
-	-webkit-text-fill-color: #ffffff !important;
+	background: var(--pg-surface-panel);
+	color: var(--pg-ink);
+	-webkit-text-fill-color: currentColor;
+	font-weight: 700;
 	font: inherit;
-	font-size: var(--font-size-small, 13px);
-	font-weight: 700 !important;
+	font-size: var(--font-size-small);
 	outline: none;
-	color-scheme: dark !important;
-}
-
-.pg-settings select:focus,
-.pg-settings select:focus-visible {
-	border-color: #2bd4c7 !important;
-	box-shadow: 0 0 0 2px rgba(43, 212, 199, 0.25) !important;
 }
 
 .pg-settings select option {
-	background-color: #0b1a20 !important;
-	color: #ffffff !important;
-	-webkit-text-fill-color: #ffffff !important;
-	font-weight: 500;
-}
-
-.pg-settings select option:checked,
-.pg-settings select option:focus {
-	background-color: #16363d !important;
-	color: #2bd4c7 !important;
-	-webkit-text-fill-color: #2bd4c7 !important;
-	font-weight: 700;
+	background: var(--pg-surface-panel);
+	color: var(--pg-ink);
 }
 
 .pg-settings .pg-toggle {

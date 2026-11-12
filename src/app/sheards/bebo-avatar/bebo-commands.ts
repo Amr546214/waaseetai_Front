@@ -28,39 +28,6 @@ export const BEBO_VOICES = ['Puck', 'Kore', 'Fenrir', 'Aoede', 'Zephyr', 'Sulafa
 export type BeboVoice = (typeof BEBO_EXTENDED_VOICES)[number];
 export const DEFAULT_VOICE: BeboVoice = 'Puck';
 
-/** Voices that reliably support Arabic speech synthesis without upstream phoneme failure. */
-export const BEBO_ARABIC_VOICES = ['Puck', 'Kore', 'Sulafat', 'Charon'] as const;
-export type BeboArabicVoice = (typeof BEBO_ARABIC_VOICES)[number];
-export const DEFAULT_ARABIC_VOICE: BeboVoice = 'Puck';
-
-export const BEBO_VOICE_LABELS: Record<string, string> = {
-	Puck: 'Puck',
-	Kore: 'Kore',
-	Sulafat: 'Sulafat',
-	Charon: 'Charon',
-	Fenrir: 'Fenrir',
-	Aoede: 'Aoede',
-	Zephyr: 'Zephyr',
-	Leda: 'Leda',
-	Orus: 'Orus',
-	Callirrhoe: 'Callirrhoe',
-};
-
-export function beboVoiceLabel(voiceId: string, customLabel?: string): string {
-	if (customLabel && customLabel !== voiceId) return customLabel;
-	return BEBO_VOICE_LABELS[voiceId] || customLabel || voiceId;
-}
-
-export function isArabicCompatibleVoice(voice: string): boolean {
-	if (!voice) return false;
-	if (voice.startsWith('ar-') || voice.toLowerCase().includes('arabic')) return true;
-	return (BEBO_ARABIC_VOICES as readonly string[]).includes(voice as BeboArabicVoice);
-}
-
-export function isArabicScript(text: string): boolean {
-	return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(text || '');
-}
-
 import { BEBO_EXTRA_POSES, type BeboPose } from './bebo-loader';
 
 export const BEBO_ACTIONS = [

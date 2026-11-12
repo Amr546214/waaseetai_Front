@@ -13,6 +13,8 @@ const sessions = [
 
 function setup() {
 	const api = {
+    updateAvatar: vi.fn((image: string | null) => of({ success: true, data: { ...me, avatarUrl: image === null ? null : 'https://example.test/avatar.png' } })),
+    securityPolicy: vi.fn(() => of({ success: true, data: { emailCodeRequired: true, authenticatorAppAvailable: false, editable: false } })),
 		getMe: vi.fn(() => of({ success: true, data: me })),
 		updateMe: vi.fn((b: any) => of({ success: true, data: { ...me, ...b } })),
 		getSessions: vi.fn(() => of({ success: true, data: sessions })),
@@ -57,11 +59,31 @@ describe('SaMyAccount', () => {
 		expect(api.terminateOtherSessions).toHaveBeenCalled();
 	});
 
-	it('2FA control is disabled with a visible honest reason', () => {
-		const { el } = setup();
-		expect((el.querySelector('[data-testid="twofa-toggle"]') as HTMLButtonElement).disabled).toBe(true);
-		expect(el.querySelector('[data-testid="twofa-card"]')?.textContent).toContain('لا يوجد دعم للمصادقة الثنائية');
-	});
+	it('loads the real login policy without offering an ineffective enable switch', () => {
+    const { fixture, api, el } = setup();
+    (el.querySelector('[data-testid="twofa-policy"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(api.securityPolicy).toHaveBeenCalledOnce();
+    expect(el.querySelector('[data-testid="twofa-card"]')?.textContent).toContain('رمز البريد مطلوب');
+    expect(el.querySelector('[data-testid="twofa-toggle"]')).toBeNull();
+  });
+
+  it('removes the own avatar without losing unsaved profile edits', () => {
+    const { api, c } = setup();
+    c.firstName.set('اسم غير محفوظ');
+    c.removeAvatar();
+    expect(api.updateAvatar).toHaveBeenCalledWith(null);
+    expect(c.firstName()).toBe('اسم غير محفوظ');
+    expect(c.avatarMessage().ok).toBe(true);
+  });
+
+  it('rejects an unsupported avatar without making an upload request', () => {
+    const { api, c } = setup();
+    const input = { files: [new File(['<svg/>'], 'a.svg', { type: 'image/svg+xml' })], value: 'fake' };
+    c.chooseAvatar({ target: input } as unknown as Event);
+    expect(api.updateAvatar).not.toHaveBeenCalled();
+    expect(c.avatarMessage().ok).toBe(false);
+  });
 
 	it('password mismatch is rejected client-side without calling the API', () => {
 		const { fixture, api, c, el } = setup();

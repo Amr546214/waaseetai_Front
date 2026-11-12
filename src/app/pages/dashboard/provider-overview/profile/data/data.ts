@@ -626,11 +626,52 @@ export class Data implements OnInit {
   aiSuggestedSkills = signal<string[]>([]);
 
   private suggestionInput() {
+    const subs = this.selectedSubSpecs();
     return {
       jobTitle: String(this.profileForm?.get('headline')?.value || '').trim() || undefined,
       mainSpecialty: String(this.profileForm?.get('specialty')?.value || '').trim() || undefined,
+      ...(subs.length ? { subSpecialties: subs } : {}),
       existingSkills: this.skillNames(),
     };
+  }
+
+  hasBioText(): boolean {
+    return String(this.profileForm?.get('bio')?.value || '').trim().length >= 15;
+  }
+
+  triggerBioAi() {
+    if (this.hasBioText() && typeof this.profileService.enhanceBio === 'function') {
+      this.enhanceBio();
+      return;
+    }
+    this.suggestBio();
+  }
+
+  enhanceBio() {
+    if (this.isSuggestingBio()) return;
+    const currentBio = String(this.profileForm?.get('bio')?.value || '').trim();
+    if (currentBio.length < 15) {
+      this.suggestBio();
+      return;
+    }
+    this.isSuggestingBio.set(true);
+    this.profileService.enhanceBio({ ...this.suggestionInput(), bio: currentBio }).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.isSuggestingBio.set(false))
+    ).subscribe({
+      next: (res) => {
+        const bio = (res?.data?.enhancedBio || res?.data?.suggestedBio || '').trim();
+        if (bio) {
+          this.profileForm.get('bio')?.setValue(bio);
+          this.profileForm.get('bio')?.markAsDirty();
+          this.saveDraft(false);
+          this.ui.success('تم تحسين الوصف المهني وحفظه في المسودة — اضغط حفظ التعديلات لاعتماده');
+        } else {
+          this.ui.warning('تعذر تحسين الوصف المهني حالياً');
+        }
+      },
+      error: (err) => this.ui.httpError(err, { fallback: 'تعذر تحسين الوصف المهني بالذكاء الاصطناعي حالياً' })
+    });
   }
 
   suggestBio() {

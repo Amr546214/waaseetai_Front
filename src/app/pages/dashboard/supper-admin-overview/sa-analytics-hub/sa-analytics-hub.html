@@ -19,11 +19,50 @@
       <p class="ah-sub">لوحة تحليلات من بيانات المنصة الفعلية — تتغير الأرقام حسب الفترة الزمنية المختارة</p>
     </div>
     <div class="ah-hdr-actions">
-      <button type="button" class="ah-btn ah-btn-ghost" disabled title="حفظ إعدادات التقرير غير متاح حاليًا — لا يوجد مكان لتخزين التقارير المحفوظة">حفظ التقرير (غير متاح)</button>
+      <button type="button" class="ah-btn ah-btn-ghost" (click)="toggleSavedReports()" [attr.aria-expanded]="savedOpen()" aria-controls="ah-saved-reports">حفظ التقرير والتقارير المحفوظة</button>
       <button type="button" class="ah-btn ah-btn-ghost" data-testid="ah-print" (click)="print()">طباعة / حفظ PDF</button>
       <button type="button" class="ah-btn ah-btn-primary" data-testid="ah-csv" [disabled]="!canExport()" [title]="canExport() ? 'تنزيل ملف CSV بالبيانات المعروضة' : 'لا توجد بيانات معروضة للتصدير'" (click)="exportCsv()">تصدير CSV</button>
     </div>
   </div>
+
+  @if (savedOpen()) {
+    <section class="ah-card" id="ah-saved-reports" aria-labelledby="ah-saved-title">
+      <h2 class="ah-card-ttl" id="ah-saved-title">تقاريري المحفوظة</h2>
+      <p>احفظ القسم والفترة وإعداد المقارنة لاستخدامها لاحقًا. عند فتح التقرير تُحمَّل أحدث البيانات.</p>
+      <form class="ah-controls" (ngSubmit)="saveReport()">
+        <label class="ah-compare">اسم التقرير <input name="reportName" type="text" maxlength="80" [(ngModel)]="reportName"></label>
+        <button type="submit" class="ah-btn ah-btn-primary" [disabled]="savedMutating() || savedLoading() || !reportName.trim() || !validSavedRange()">حفظ الإعدادات الحالية</button>
+      </form>
+      @if (!validSavedRange()) { <p>اختر فترة مخصصة صالحة قبل الحفظ.</p> }
+      @if (savedNotice()) { <p role="status">{{ savedNotice() }}</p> }
+      @if (savedError()) {
+        <p role="alert">{{ savedError() }}</p>
+        <button type="button" class="ah-btn ah-btn-ghost" (click)="loadSavedReports()" [disabled]="savedMutating()">تحديث القائمة</button>
+      }
+      @if (savedLoading()) { <p role="status">جارٍ تحميل التقارير…</p> }
+      @else {
+        @for (report of savedItems(); track report.id) {
+          <div class="ah-controls">
+            <strong>{{ report.name }}</strong>
+            <button type="button" class="ah-btn ah-btn-ghost" (click)="openReport(report)" [disabled]="savedMutating()">فتح</button>
+            @if (deleteCandidate()?.id === report.id) {
+              <button type="button" class="ah-btn ah-btn-ghost" (click)="deleteReport(report)" [disabled]="savedMutating()">تأكيد الحذف</button>
+              <button type="button" class="ah-btn ah-btn-ghost" (click)="deleteCandidate.set(null)" [disabled]="savedMutating()">إلغاء</button>
+            } @else {
+              <button type="button" class="ah-btn ah-btn-ghost" (click)="deleteCandidate.set(report)" [disabled]="savedMutating()">حذف</button>
+            }
+          </div>
+        } @empty { @if (!savedError()) { <p>مفيش تقارير محفوظة.</p> } }
+        @if (savedPage() > 1 || savedHasNext()) {
+          <div class="ah-controls">
+            <button type="button" class="ah-btn ah-btn-ghost" (click)="loadSavedReports(savedPage() - 1)" [disabled]="savedPage() === 1 || savedMutating()">السابق</button>
+            <span>صفحة {{ savedPage() }}</span>
+            <button type="button" class="ah-btn ah-btn-ghost" (click)="loadSavedReports(savedPage() + 1)" [disabled]="!savedHasNext() || savedMutating()">التالي</button>
+          </div>
+        }
+      }
+    </section>
+  }
 
   <div class="ah-controls">
     <div class="ah-period-btns">
