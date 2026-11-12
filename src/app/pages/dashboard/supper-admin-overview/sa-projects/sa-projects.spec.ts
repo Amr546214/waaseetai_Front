@@ -116,6 +116,15 @@ describe('SaProjects (real data)', () => {
     expect(el.textContent).toContain('ملغى بقرار إداري');
   });
 
+  it('detail shows the stored closure (kind, source, reason, money) separately from the dispute list, and the administrative-release note', async () => {
+    const d = detailData({ closure: { kind: 'ADMIN_RELEASE', label: 'أُغلق بصرف إداري', source: 'ADMIN_DECISION', sourceLabel: 'قرار إداري', reason: 'سبب القرار الموثّق', heldBefore: 10, refundToClient: 0, releaseToProvider: 10, platformCommission: 1.27, providerNet: 8.73, createdAt: '2026-01-07T00:00:00Z', note: 'أُغلق المشروع بصرف إداري للمبلغ المحتجز، لا باعتماد العميل للمراحل.' } as any });
+    const harness = await setup(() => of({ success: true, data: listData() }), () => of({ success: true, data: d }));
+    await harness.navigateByUrl('/projects/p-1', SaProjectDetail);
+    harness.detectChanges();
+    const t = (harness.routeNativeElement as HTMLElement).querySelector('[data-testid="pj-closure"]')!.textContent!;
+    expect(t).toContain('أُغلق بصرف إداري'); expect(t).toContain('قرار إداري'); expect(t).toContain('سبب القرار الموثّق'); expect(t).toContain('لا باعتماد العميل للمراحل');
+  });
+
   it('shows an error and retries', async () => {
     let fail = true;
     const harness = await setup(() => (fail ? throwError(() => ({ status: 500 })) : of({ success: true, data: listData() })));

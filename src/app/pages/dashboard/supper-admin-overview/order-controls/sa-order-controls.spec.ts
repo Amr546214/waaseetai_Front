@@ -238,6 +238,16 @@ describe('SaOrderControls: stale / out-of-order responses', () => {
   });
 });
 
+describe('SaOrderControls: commission impact in the preview', () => {
+  it('shows already-accrued partner commissions, that no clawback rule exists, and that a release commissions only the newly released share', async () => {
+    const api = { controls: vi.fn(() => of(reqControls())), quote: vi.fn(() => of(quote({ commissionImpact: { alreadyAccrued: { amount: 0.1, count: 1 }, clawback: { code: 'COMMISSION_CLAWBACK_POLICY_UNDEFINED', applied: false }, onThisDecision: 'ACCRUES_ON_PROVIDER_SHARE_IF_REFERRED_CLIENT' } }))), run: vi.fn() };
+    const { f, el } = make(api);
+    (el.querySelector('[data-action="REQUEST_CANCEL"]') as HTMLButtonElement).click(); f.detectChanges(); await tick(f);
+    const t = el.querySelector('[data-testid="oc-commission-impact"]')!.textContent!;
+    expect(t).toContain('0.10 $'); expect(t).toContain('لا توجد قاعدة معتمدة لاسترجاعها'); expect(t).toContain('حصة المقدم المصروفة الآن فقط');
+  });
+});
+
 describe('SaOrderControls: run() replies bound to their own entity / action / attempt', () => {
   const mount = async (api: any) => {
     const notify = { success: vi.fn() };

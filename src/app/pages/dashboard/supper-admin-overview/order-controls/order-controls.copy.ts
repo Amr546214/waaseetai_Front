@@ -80,7 +80,7 @@ export const EFFECT_COPY: Record<string, string> = {
   OFFERS_CLOSED: 'تُغلق العروض المفتوحة على الطلب',
   PARTIES_NOTIFIED: 'يُشعَر الطرفان المعنيان بعد التنفيذ',
   CONTRACT_CANCELLED: 'يُلغى العقد',
-  CONTRACT_COMPLETED: 'يُغلق العقد كمكتمل',
+  CONTRACT_COMPLETED: 'يُغلق العقد والمشروع «بصرف إداري» (ليس اكتمالًا بالتسليم): لا تُعتمد المراحل غير المعتمدة ولا يُحتسب تسليمًا ولا يُفتح تقييم',
   PROJECT_CLOSED: 'يُغلق المشروع المرتبط',
   REQUEST_CLOSED: 'يُغلق الطلب المرتبط',
   HELD_REFUNDED_TO_CLIENT: 'يُعاد كامل المبلغ المحتجز إلى رصيد الطالب',
@@ -88,6 +88,7 @@ export const EFFECT_COPY: Record<string, string> = {
   OPEN_CANCELLATION_REQUESTS_CLOSED: 'تُغلق طلبات الإلغاء بالتراضي غير المجابة',
   OPEN_AMENDMENTS_CANCELLED: 'تُلغى طلبات التعديل المعلّقة',
   FREEZE_CLEARED: 'يُرفع تجميد العقد لأن العقد أُغلق',
+  CLOSURE_RECORDED: 'يُسجَّل نوع الإغلاق ومصدره وسببه ونتيجته المالية منفصلةً عن أي نزاع',
   ALREADY_RELEASED_UNCHANGED: 'ما صُرف سابقًا لمقدم الخدمة لا يتغيّر ولا يُسترد',
 };
 

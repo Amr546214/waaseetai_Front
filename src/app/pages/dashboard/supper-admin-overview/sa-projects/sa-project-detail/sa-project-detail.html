@@ -84,6 +84,20 @@
         }
       </div>
 
+      @if (d.closure; as cl) {
+        <div class="pj-section-ttl" data-testid="pj-closure-ttl">إغلاق المشروع</div>
+        <div class="pj-escrow-row" data-testid="pj-closure">
+          <div class="pj-escrow-item"><span>نوع الإغلاق</span><strong>{{ cl.label }}</strong></div>
+          <div class="pj-escrow-item"><span>المصدر</span><strong>{{ cl.sourceLabel }}</strong></div>
+          @if (cl.reason) { <div class="pj-escrow-item"><span>السبب</span><strong>{{ cl.reason }}</strong></div> }
+          <div class="pj-escrow-item"><span>المحتجز قبل القرار</span><strong>{{ cl.heldBefore | number:'1.0-2' }} $</strong></div>
+          <div class="pj-escrow-item"><span>أُعيد للطالب</span><strong>{{ cl.refundToClient | number:'1.0-2' }} $</strong></div>
+          <div class="pj-escrow-item"><span>صُرف للمقدم (إجمالي)</span><strong>{{ cl.releaseToProvider | number:'1.0-2' }} $</strong></div>
+          <div class="pj-escrow-item"><span>عمولة المنصة / صافي المقدم</span><strong>{{ cl.platformCommission | number:'1.0-2' }} $ / {{ cl.providerNet | number:'1.0-2' }} $</strong></div>
+          @if (cl.note) { <p class="pj-disabled-note">{{ cl.note }}</p> }
+        </div>
+      }
+
       <div class="pj-section-ttl">الضمان المالي (Escrow)</div>
       @if (d.escrow; as e) {
         <div class="pj-md-tags"><span class="ct-escrow" [ngClass]="escrowClasses[e.status]">{{ label(escrowLabels, e.status) }}</span></div>

@@ -35,6 +35,8 @@ export interface ControlQuote {
   settlement: { options: string[]; blocked?: { code: string } } | null;
   after: { contractStatus: string | null; requestStatus: string | null; escrowStatus: string | null };
   effects: string[];
+  /** partner commissions already accrued on the project and what this decision does about them (no clawback rule is approved: nothing is deducted) */
+  commissionImpact?: { alreadyAccrued: { amount: number; count: number }; clawback: { code: string; applied: boolean } | null; onThisDecision: string };
   offersToClose?: number;
 }
 export interface ControlPayload { reason?: string; expectedVersion: string; confirm?: boolean; expectedHeldAmount?: number }

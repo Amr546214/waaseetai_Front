@@ -81,6 +81,20 @@
         }
       </div>
 
+      @if (d.closure; as cl) {
+        <div class="ct-section-ttl" data-testid="ct-closure-ttl">إغلاق المشروع</div>
+        <div class="ct-escrow-block" data-testid="ct-closure">
+          <div class="ct-escrow-row"><span>نوع الإغلاق</span><strong>{{ cl.label }}</strong></div>
+          <div class="ct-escrow-row"><span>المصدر</span><strong>{{ cl.sourceLabel }}</strong></div>
+          @if (cl.reason) { <div class="ct-escrow-row"><span>السبب</span><strong>{{ cl.reason }}</strong></div> }
+          <div class="ct-escrow-row"><span>المحتجز قبل القرار</span><strong>{{ cl.heldBefore | number:'1.0-2' }} $</strong></div>
+          <div class="ct-escrow-row"><span>أُعيد للطالب</span><strong>{{ cl.refundToClient | number:'1.0-2' }} $</strong></div>
+          <div class="ct-escrow-row"><span>صُرف للمقدم (إجمالي)</span><strong>{{ cl.releaseToProvider | number:'1.0-2' }} $</strong></div>
+          <div class="ct-escrow-row"><span>عمولة المنصة / صافي المقدم</span><strong>{{ cl.platformCommission | number:'1.0-2' }} $ / {{ cl.providerNet | number:'1.0-2' }} $</strong></div>
+          @if (cl.note) { <p class="ct-disabled-note">{{ cl.note }}</p> }
+        </div>
+      }
+
       <div class="ct-section-ttl">بيانات الضمان</div>
       @if (d.escrow; as e) {
         <div class="ct-escrow-block">

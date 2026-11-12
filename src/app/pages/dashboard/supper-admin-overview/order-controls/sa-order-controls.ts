@@ -92,6 +92,13 @@ const attemptFor = (slot: string, sig: string): { sig: string; key: string; at: 
                 }
                 @if (q.offersToClose !== undefined) { <tr><td>عروض ستُغلق</td><td>{{ q.offersToClose }}</td></tr> }
               </table>
+              @if (q.commissionImpact; as ci) {
+                <p class="oc-note" data-testid="oc-commission-impact">
+                  @if (ci.alreadyAccrued.count > 0) { عمولات المسوّقين المستحقة سابقًا على المشروع: {{ money(ci.alreadyAccrued.amount) }} $ ({{ ci.alreadyAccrued.count }}). }
+                  @if (ci.clawback) { لا توجد قاعدة معتمدة لاسترجاعها عند الاسترداد أو الإلغاء: لا يُخصم منها شيء. }
+                  @if (ci.onThisDecision !== 'NONE') { تُحتسب عمولة المسوّق (إن وُجدت إحالة للطالب) على حصة المقدم المصروفة الآن فقط، لا على ما صُرف سابقًا. }
+                </p>
+              }
               <div class="oc-note">الأثر:</div>
               <ul class="oc-effects">
                 @for (e of q.effects; track e) { @if (effect(e)) { <li>{{ effect(e) }}</li> } }
