@@ -24,10 +24,10 @@ describe('QA Round 2 Frontend Fixes', () => {
 			of({
 				success: true,
 				data: {
-					recommendedMinBudget: 1200,
-					recommendedMaxBudget: 2400,
-					suggestedDurationDays: 21,
-					suggestedMilestones: [
+					minBudget: 1200,
+					maxBudget: 2400,
+					expectedDurationDays: 21,
+					milestones: [
 						{ name: 'تحليل وتصميم قاعدة البيانات', pct: 30, days: 6, desc: 'تصميم الجداول' },
 						{ name: 'بناء الواجهة الخلفية والربط', pct: 45, days: 9, desc: 'تطوير APIs' },
 						{ name: 'الاختبار والتسليم النهائي', pct: 25, days: 6, desc: 'فحص شامل' },
@@ -60,6 +60,9 @@ describe('QA Round 2 Frontend Fixes', () => {
 		c.triggerAiBudgetSuggest();
 
 		expect(spy).toHaveBeenCalledTimes(1);
+		expect(spy.mock.calls[0][0]).toMatchObject({ skills: ['Node.js', 'Angular'] });
+		expect(spy.mock.calls[0][0]).not.toHaveProperty('requiredSkills');
+		expect(c.deliveryDays()).toBe(21);
 		// Step 3 fields remain untouched
 		expect(c.title()).toBe('بناء منصة تجارة إلكترونية مخصصة');
 		expect(c.description()).toBe('أحتاج إلى تطوير متجر إلكتروني يدعم بوابات الدفع وإدارة المخزون وتقارير المبيعات التفصيلية.');

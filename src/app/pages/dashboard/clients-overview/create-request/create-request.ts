@@ -967,7 +967,7 @@ export class CreateRequest implements OnInit, OnDestroy {
           this.deliveryDays.set(Math.min(365, Math.round(d.expectedDurationDays)));
         }
 
-        if (Array.isArray(d.milestones) && d.milestones.length >= 2) {
+        if (Array.isArray(d.milestones) && d.milestones.length >= 2 && d.milestones.length <= 100) {
           const rawRows = d.milestones.map((m: any) => ({
             name: this.formatClientDraftText(m.name, true).slice(0, 120) || 'مرحلة تنفيذ',
             pct: Math.max(1, Math.round(Number(m.pct) || 0))
@@ -979,7 +979,7 @@ export class CreateRequest implements OnInit, OnDestroy {
               if (idx === rawRows.length - 1) {
                 item.pct = Math.max(1, 100 - allocated);
               } else {
-                item.pct = Math.max(1, Math.round((item.pct / sum) * 100));
+                item.pct = Math.min(100 - allocated - (rawRows.length - idx - 1), Math.max(1, Math.round((item.pct / sum) * 100)));
                 allocated += item.pct;
               }
             });

@@ -15,8 +15,8 @@ console.log('PASS: backend identity contract, mismatch, side and warnings');
 const source=read(root+'clients-overview/create-request/create-request.ts');
 const method=source.slice(source.indexOf('  triggerAiBudgetSuggest()'),source.indexOf('\n  private formatClientDraftText'));
 const C=vm.runInNewContext(stripTypeScriptTypes('class Harness {'+method+'}; Harness'),{});
-const c=new C(); let sent;
-Object.assign(c,{isFetchingAiBudget:signal(false),isFetchingAiDraft:signal(false),title:signal('عنوان الطلب'),description:signal('وصف الطلب الأصلي هنا'),selectedSpec:signal('web'),otherText:signal(''),currentSpec:()=>({name:'Web'}),selectedSubs:()=>new Set(['API']),requiredSkills:()=>['Node'],outputs:()=>'',deliveryDays:signal(null),budgetMin:signal(0),budgetMax:signal(0),budgetFixed:signal(0),budgetType:()=> 'fixed',splitMilestones:signal(false),milestones:signal([]),checkProhibitedContent:()=>null,formatClientDraftText:s=>s,notify:{warning:s=>{throw Error(s)},error:s=>{throw Error(s)},success:()=>{}},projectApi:{getAiBudgetSuggestion:p=>{sent=p;return {subscribe:({next})=>next({data:{minBudget:500,maxBudget:900,expectedDurationDays:12,milestones:[{name:'أ',pct:40},{name:'ب',pct:60}]}})}}}});
+const c=new C(); let sent; let result={minBudget:500,maxBudget:900,expectedDurationDays:12,milestones:[{name:'أ',pct:40},{name:'ب',pct:60}]};
+Object.assign(c,{isFetchingAiBudget:signal(false),isFetchingAiDraft:signal(false),title:signal('عنوان الطلب'),description:signal('وصف الطلب الأصلي هنا'),selectedSpec:signal('web'),otherText:signal(''),currentSpec:()=>({name:'Web'}),selectedSubs:()=>new Set(['API']),requiredSkills:()=>['Node'],outputs:()=>'',deliveryDays:signal(null),budgetMin:signal(0),budgetMax:signal(0),budgetFixed:signal(0),budgetType:()=> 'fixed',splitMilestones:signal(false),milestones:signal([]),checkProhibitedContent:()=>null,formatClientDraftText:s=>s,notify:{warning:s=>{throw Error(s)},error:s=>{throw Error(s)},success:()=>{}},projectApi:{getAiBudgetSuggestion:p=>{sent=p;return {subscribe:({next})=>next({data:result})}}}});
 c.triggerAiBudgetSuggest();
 assert.deepEqual(sent.skills,['Node']);assert.equal('requiredSkills' in sent,false);assert.equal('expectedDurationDays' in sent,true);
 assert.equal(c.budgetMin(),500);assert.equal(c.budgetMax(),900);assert.equal(c.deliveryDays(),12);assert.equal(c.milestones().length,2);assert.equal(c.title(),'عنوان الطلب');assert.equal(c.description(),'وصف الطلب الأصلي هنا');
@@ -33,3 +33,9 @@ callbacks[1].next({data:clear});callbacks[0].next({data:{...clear,status:'NOT_ID
 assert.equal(p.idDocInspections().frontId.status,'valid');assert.equal(p.idDocInspections().frontId.message,'واضحة');
 p.idInspectionVersions.frontId++;p.idDocInspections.set({});callbacks[1].next({data:clear});assert.deepEqual(p.idDocInspections(),{});
 console.log('PASS: actual provider handler ignores stale response and removed image response');
+
+result={...result,milestones:[{name:'A',pct:199},{name:'B',pct:1},{name:'C',pct:1}]};
+c.triggerAiBudgetSuggest();
+assert.equal(c.milestones().reduce((s,m)=>s+m.pct,0),100);
+assert.ok(c.milestones().every(m=>m.pct>=1));
+console.log('PASS: skewed backend milestone weights normalize to exactly 100%');
