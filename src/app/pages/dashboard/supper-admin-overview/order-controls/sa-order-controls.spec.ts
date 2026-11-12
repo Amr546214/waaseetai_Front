@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
-import { SaOrderControls } from './sa-order-controls';
+import { SaOrderControls, __resetOrderControlAttempts } from './sa-order-controls';
 import { AdminOrderControlsApiService } from '../../../../core/services/admin-order-controls-api.service';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { ACTION_DEFS, REASON_COPY, controlErrorCopy } from './order-controls.copy';
@@ -31,6 +31,8 @@ function make(api: Partial<Record<'controls' | 'quote' | 'run', any>>, kind: Hos
 }
 const type = (f: any, el: HTMLElement, text: string) => { const ta = el.querySelector('#oc-reason-input') as HTMLTextAreaElement; ta.value = text; ta.dispatchEvent(new Event('input')); f.detectChanges(); };
 const tick = async (f: any) => { await f.whenStable(); f.detectChanges(); };
+
+beforeEach(() => __resetOrderControlAttempts());
 
 describe('SaOrderControls', () => {
   it('shows only the buttons that make sense, enabled by the server, and a specific reason for a refused one', () => {
@@ -233,6 +235,132 @@ describe('SaOrderControls: stale / out-of-order responses', () => {
     f.destroy();
     expect(() => a.next(reqControls())).not.toThrow();
     expect(a.observed).toBe(false);
+  });
+});
+
+describe('SaOrderControls: run() replies bound to their own entity / action / attempt', () => {
+  const mount = async (api: any) => {
+    const notify = { success: vi.fn() };
+    TestBed.configureTestingModule({ imports: [SaOrderControls], providers: [{ provide: AdminOrderControlsApiService, useValue: api }, { provide: UiNotificationService, useValue: notify }] });
+    const f = TestBed.createComponent(SaOrderControls); let changed = 0;
+    f.componentInstance.changed.subscribe(() => changed++);
+    f.componentRef.setInput('kind', 'request'); f.componentRef.setInput('id', 'A'); f.detectChanges(); await f.whenStable(); f.detectChanges();
+    return { f, el: f.nativeElement as HTMLElement, notify, changed: () => changed };
+  };
+  const submitSuspend = (f: any, el: HTMLElement, reason: string) => {
+    (el.querySelector('[data-action="REQUEST_SUSPEND"]') as HTMLButtonElement).click(); f.detectChanges();
+    const ta = el.querySelector('#oc-reason-input') as HTMLTextAreaElement; ta.value = reason; ta.dispatchEvent(new Event('input')); f.detectChanges();
+    (el.querySelector('[data-testid="oc-submit"]') as HTMLButtonElement).click(); f.detectChanges();
+  };
+  const goto = async (f: any, id: string) => { f.componentRef.setInput('id', id); f.detectChanges(); await f.whenStable(); f.detectChanges(); };
+
+  it('a LATE success of entity A never closes / clears / notifies inside entity B (B stays busy until its own reply)', async () => {
+    const { Subject } = await import('rxjs'); const runs: Record<string, any> = { A: new Subject(), B: new Subject() };
+    const api = { controls: vi.fn(() => of(reqControls())), quote: vi.fn(), run: vi.fn((_a: string, id: string) => runs[id]) };
+    const m = await mount(api);
+    submitSuspend(m.f, m.el, 'سبب لتعليق الطلب أ');
+    await goto(m.f, 'B');
+    submitSuspend(m.f, m.el, 'سبب لتعليق الطلب ب');
+    expect((m.el.querySelector('[data-testid="oc-submit"]') as HTMLButtonElement).disabled).toBe(true); // B is busy
+    runs['A'].next({ success: true, data: {} }); runs['A'].complete(); m.f.detectChanges();
+    expect(m.el.querySelector('[data-testid="oc-dialog"]')).toBeTruthy();          // B's dialog was not closed by A's reply
+    expect(m.el.textContent).toContain('جارٍ التنفيذ');                              // B is still busy
+    expect(m.notify.success).not.toHaveBeenCalled(); expect(m.changed()).toBe(0);
+    runs['B'].next({ success: true, data: {} }); runs['B'].complete(); m.f.detectChanges();
+    expect(m.el.querySelector('[data-testid="oc-dialog"]')).toBeNull(); expect(m.notify.success).toHaveBeenCalledTimes(1); expect(m.changed()).toBe(1);
+  });
+
+  it('a LATE failure of entity A shows no error inside B and does not clear B\'s attempt', async () => {
+    const { Subject } = await import('rxjs'); const runs: Record<string, any> = { A: new Subject(), B: new Subject() };
+    const api = { controls: vi.fn(() => of(reqControls())), quote: vi.fn(), run: vi.fn((_a: string, id: string) => runs[id]) };
+    const m = await mount(api);
+    submitSuspend(m.f, m.el, 'سبب لتعليق الطلب أ'); await goto(m.f, 'B'); submitSuspend(m.f, m.el, 'سبب لتعليق الطلب ب');
+    runs['A'].error({ status: 409, error: { code: 'REQUEST_NOT_OPEN' } }); m.f.detectChanges();
+    expect(m.el.querySelector('[data-testid="oc-error"]')).toBeNull();
+    expect(m.el.textContent).toContain('جارٍ التنفيذ');
+    // B's own transient failure then retry still reuses B's key (its attempt survived A's reply)
+    runs['B'].error({ status: 0, error: null }); m.f.detectChanges();
+    expect(m.el.querySelector('[data-testid="oc-unknown"]')).toBeTruthy();
+    runs['B'] = of({ success: true, data: {} });
+    (m.el.querySelector('[data-testid="oc-submit"]') as HTMLButtonElement).click(); m.f.detectChanges();
+    const calls = api.run.mock.calls as any[][]; const bCalls = calls.filter(c => c[1] === 'B'); expect(bCalls.length).toBe(2); expect(bCalls[0][3]).toBe(bCalls[1][3]);
+  });
+
+  it('A\'s unresolved attempt is KEPT when the admin leaves A: coming back and repeating the same payload reuses the same Idempotency-Key (server replays it)', async () => {
+    const { Subject } = await import('rxjs'); const a1 = new Subject<any>(); let call = 0;
+    const api = { controls: vi.fn(() => of(reqControls())), quote: vi.fn(), run: vi.fn(() => (call++ === 0 ? a1 : of({ success: true, data: {} }))) };
+    const m = await mount(api);
+    submitSuspend(m.f, m.el, 'سبب لتعليق الطلب أ');
+    await goto(m.f, 'B'); await goto(m.f, 'A');
+    a1.error({ status: 0, error: null }); // the answer was lost while away: outcome unknown, the attempt must stay
+    submitSuspend(m.f, m.el, 'سبب لتعليق الطلب أ');
+    const calls = api.run.mock.calls as any[][]; expect(calls.length).toBe(2); expect(calls[0][3]).toBe(calls[1][3]);
+    expect(calls[0][1]).toBe('A'); expect(calls[1][1]).toBe('A');
+  });
+
+  it('a reply that arrives after the component was destroyed does nothing', async () => {
+    const { Subject } = await import('rxjs'); const a = new Subject<any>();
+    const api = { controls: vi.fn(() => of(reqControls())), quote: vi.fn(), run: vi.fn(() => a) };
+    const m = await mount(api);
+    submitSuspend(m.f, m.el, 'سبب لتعليق الطلب أ'); m.f.destroy();
+    expect(() => { a.next({ success: true, data: {} }); a.complete(); }).not.toThrow();
+    expect(m.notify.success).not.toHaveBeenCalled(); expect(m.changed()).toBe(0);
+  });
+});
+
+describe('SaOrderControls: controls / quote version mismatch recovers visibly', () => {
+  const both = { REQUEST_SUSPEND: allow, REQUEST_RESUME: deny('REQUEST_NOT_SUSPENDED'), REQUEST_CANCEL: allow };
+  const ctrl = (v: string) => ({ success: true, data: { version: v, status: 'OPEN', suspended: false, actions: both } });
+  const check = (f: any, el: HTMLElement) => { type(f, el, 'سبب كافٍ للقرار'); const cb = el.querySelector('[data-testid="oc-confirm"]') as HTMLInputElement | null; if (cb) { cb.checked = true; cb.dispatchEvent(new Event('change')); } f.detectChanges(); };
+  const submitBtn = (el: HTMLElement) => el.querySelector('[data-testid="oc-submit"]') as HTMLButtonElement;
+
+  it('controls v1 + quote v2: a visible message, controls AND quote are refreshed together, the confirmation is cleared, reversed replies are tolerated, and only the new data can be confirmed', async () => {
+    const { Subject } = await import('rxjs'); const controlsReplies: any[] = []; const quoteReplies: any[] = [];
+    const api = { controls: vi.fn(() => { const s = new Subject<any>(); controlsReplies.push(s); return s; }), quote: vi.fn(() => { const s = new Subject<any>(); quoteReplies.push(s); return s; }), run: vi.fn(() => of({ success: true, data: {} })) };
+    const { f, el } = make(api);
+    controlsReplies[0].next(ctrl('v1')); f.detectChanges();
+    (el.querySelector('[data-action="REQUEST_CANCEL"]') as HTMLButtonElement).click(); f.detectChanges();
+    quoteReplies[0].next(quote({ version: 'v2' })); f.detectChanges();
+    expect(el.querySelector('[data-testid="oc-version-note"]')!.textContent).toContain('تغيّر');
+    expect(submitBtn(el).disabled).toBe(true);
+    // a refresh of BOTH was issued
+    expect(api.controls).toHaveBeenCalledTimes(2); expect(api.quote).toHaveBeenCalledTimes(2);
+    // reversed order: the NEW quote arrives before the NEW controls; the first (older) quote reply has already been dropped
+    quoteReplies[1].next(quote({ version: 'v2' })); f.detectChanges();
+    expect(submitBtn(el).disabled).toBe(true); // controls still v1 -> still not confirmable
+    controlsReplies[1].next(ctrl('v2')); f.detectChanges();
+    expect(el.querySelector('[data-testid="oc-version-note"]')).toBeNull();
+    // the confirmation must be given again on the new data
+    const cb = el.querySelector('[data-testid="oc-confirm"]') as HTMLInputElement; expect(cb.checked).toBe(false);
+    check(f, el); expect(submitBtn(el).disabled).toBe(false);
+    submitBtn(el).click(); f.detectChanges();
+    expect((api.run.mock.calls as any[][])[0][2].expectedVersion).toBe('v2');
+  });
+
+  it('an older controls reply arriving after the newer one cannot re-open a mismatch', async () => {
+    const { Subject } = await import('rxjs'); const cs: any[] = []; const qs: any[] = [];
+    const api = { controls: vi.fn(() => { const s = new Subject<any>(); cs.push(s); return s; }), quote: vi.fn(() => { const s = new Subject<any>(); qs.push(s); return s; }), run: vi.fn() };
+    const { f, el } = make(api);
+    cs[0].next(ctrl('v1')); f.detectChanges();
+    (el.querySelector('[data-action="REQUEST_CANCEL"]') as HTMLButtonElement).click(); f.detectChanges();
+    qs[0].next(quote({ version: 'v2' })); f.detectChanges();
+    cs[1].next(ctrl('v2')); qs[1].next(quote({ version: 'v2' })); f.detectChanges();
+    expect(el.querySelector('[data-testid="oc-version-note"]')).toBeNull();
+    cs[0].next(ctrl('v1')); f.detectChanges(); // stale (its subscription was cancelled)
+    expect(el.querySelector('[data-testid="oc-version-note"]')).toBeNull();
+    check(f, el); expect(submitBtn(el).disabled).toBe(false);
+  });
+
+  it('after the automatic refresh budget is spent the message stays with a manual refresh button (no silent block)', async () => {
+    const api = { controls: vi.fn(() => of(ctrl('v1'))), quote: vi.fn(() => of(quote({ version: 'vX' }))), run: vi.fn() };
+    const { f, el } = make(api);
+    (el.querySelector('[data-action="REQUEST_CANCEL"]') as HTMLButtonElement).click(); f.detectChanges(); await tick(f);
+    expect(el.querySelector('[data-testid="oc-version-note"]')).toBeTruthy();
+    expect(el.querySelector('[data-testid="oc-version-refresh"]')).toBeTruthy();
+    expect(submitBtn(el).disabled).toBe(true);
+    const before = api.controls.mock.calls.length;
+    (el.querySelector('[data-testid="oc-version-refresh"]') as HTMLButtonElement).click(); f.detectChanges();
+    expect(api.controls.mock.calls.length).toBeGreaterThan(before);
   });
 });
 

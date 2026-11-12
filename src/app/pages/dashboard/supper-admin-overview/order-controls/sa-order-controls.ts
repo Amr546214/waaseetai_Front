@@ -10,6 +10,20 @@ import { ACTIONS_BY_KIND, ACTION_DEFS, ActionDef, NOOP_CODES, REASON_COPY, contr
 const newKey = (): string => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`);
 
 /**
+ * Unresolved attempts survive navigation (and a destroyed component): the Idempotency-Key of a call whose answer was lost, or that was still in flight when the admin left, stays here, so
+ * repeating the SAME payload on the same entity + action sends the SAME key and the server replays the stored result (unsubscribing an HTTP call never rolls the server transaction back).
+ * An entry is dropped only when its answer was definite (success or a refusal), or after 30 minutes.
+ */
+const ATTEMPT_TTL_MS = 30 * 60 * 1000;
+const ATTEMPTS = new Map<string, { sig: string; key: string; at: number }>();
+export const __resetOrderControlAttempts = (): void => ATTEMPTS.clear();
+const attemptFor = (slot: string, sig: string): { sig: string; key: string; at: number } => {
+  const now = Date.now(); const cur = ATTEMPTS.get(slot);
+  if (cur && cur.sig === sig && now - cur.at < ATTEMPT_TTL_MS) return cur;
+  const fresh = { sig, key: newKey(), at: now }; ATTEMPTS.set(slot, fresh); return fresh;
+};
+
+/**
  * The admin controls of a request / offer / contract (suspend, resume, cancel, freeze, refund, release). The buttons come from the server's controls read model, so a refused action shows
  * the server's SPECIFIC reason (stable code -> Arabic copy) instead of a generic «غير متاح». Money actions open a confirmation dialog that first loads the QUOTE (amount, beneficiary,
  * commission, effect) and only then lets the admin confirm. Every submit carries an Idempotency-Key (one per distinct attempt: a retry of the same attempt reuses it) and the version the admin
@@ -95,6 +109,11 @@ const newKey = (): string => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()
             </label>
           }
 
+          @if (versionNote()) {
+            <p role="status" class="oc-note" data-testid="oc-version-note">{{ versionNote() }}
+              @if (manualRefresh()) { <button type="button" class="oc-btn oc-ghost" data-testid="oc-version-refresh" (click)="refreshNow()">تحديث الآن</button> }
+            </p>
+          }
           @if (error()) { <p role="alert" class="oc-error" data-testid="oc-error">{{ error() }}</p> }
           @if (unknown()) { <p role="status" class="oc-note" data-testid="oc-unknown">انقطع الاتصال قبل وصول الرد، وقد يكون القرار نُفّذ. الضغط على «{{ dlg.submit }}» مرة أخرى آمن: لن يُنفَّذ مرتين.</p> }
           <div class="oc-row">
@@ -137,8 +156,13 @@ export class SaOrderControls implements OnChanges, OnDestroy {
   busy = signal(false);
   error = signal('');
   unknown = signal(false);
-  /** one key per distinct attempt: a retry of the SAME payload reuses it (idempotent), a changed payload gets a new one */
-  private attempt: { sig: string; key: string } | null = null;
+  /** the attempts live in the module-level ATTEMPTS map (see above): a retry of the SAME payload reuses its key, a changed payload gets a new one */
+  private epoch = 0;
+  private attemptSeq = 0;
+  versionNote = signal('');
+  manualRefresh = signal(false);
+  private autoRefreshes = 0;
+  private controlsPending = false;
 
   visible = computed(() => {
     const out: Array<{ def: ActionDef; state: { allowed: boolean; code: string | null; message: string | null }; reason: string }> = [];
@@ -155,7 +179,7 @@ export class SaOrderControls implements OnChanges, OnDestroy {
 
   canSubmit = computed(() => {
     const d = this.dialog();
-    if (!d || this.busy()) return false;
+    if (!d || this.busy() || this.controlsPending) return false;
     if (d.reasonRequired && this.reason().trim().length < 5) return false;
     if (d.needsConfirm && !this.confirmed()) return false;
     if (d.hasQuote) {
@@ -173,12 +197,13 @@ export class SaOrderControls implements OnChanges, OnDestroy {
       // another entity (navigation / input change): everything that belonged to the previous one is dropped and its in-flight answers are ignored
       this.cancelAll();
       this.controls.set(null); this.contractControls.set(null); this.dialog.set(null); this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(false);
-      this.busy.set(false); this.error.set(''); this.unknown.set(false); this.attempt = null;
+      this.busy.set(false); this.error.set(''); this.unknown.set(false);
+      this.epoch++; this.versionNote.set(''); this.manualRefresh.set(false); this.autoRefreshes = 0; this.controlsPending = false;
       this.reload();
     }
   }
 
-  ngOnDestroy(): void { this.cancelAll(); }
+  ngOnDestroy(): void { this.epoch++; this.cancelAll(); }
   private cancelAll(): void { this.controlsSub?.unsubscribe(); this.contractControlsSub?.unsubscribe(); this.quoteSub?.unsubscribe(); }
 
   reload(): void {
@@ -188,14 +213,14 @@ export class SaOrderControls implements OnChanges, OnDestroy {
     const kind = this.kind, id = this.id, contractId = this.extraContractId;
     this.controlsSub?.unsubscribe();
     this.controlsSub = this.api.controls(kind, id).subscribe({
-      next: (res) => { if (kind === this.kind && id === this.id) this.controls.set(res?.data?.actions ? res.data : null); },
-      error: (err) => { if (kind !== this.kind || id !== this.id) return; this.controls.set(null); if (err?.status === 403) this.forbidden.set(true); else this.loadFailed.set(true); },
+      next: (res) => { if (kind !== this.kind || id !== this.id) return; this.controls.set(res?.data?.actions ? res.data : null); this.controlsPending = false; this.checkConsistency(); },
+      error: (err) => { if (kind !== this.kind || id !== this.id) return; this.controlsPending = false; this.controls.set(null); if (err?.status === 403) this.forbidden.set(true); else this.loadFailed.set(true); },
     });
     this.contractControlsSub?.unsubscribe();
     if (kind === 'offer' && contractId) {
       this.contractControlsSub = this.api.controls('contract', contractId).subscribe({
-        next: (res) => { if (contractId === this.extraContractId) this.contractControls.set(res?.data?.actions ? res.data : null); },
-        error: () => { if (contractId === this.extraContractId) this.contractControls.set(null); },
+        next: (res) => { if (contractId === this.extraContractId) { this.contractControls.set(res?.data?.actions ? res.data : null); this.controlsPending = false; this.checkConsistency(); } },
+        error: () => { if (contractId === this.extraContractId) { this.controlsPending = false; this.contractControls.set(null); } },
       });
     }
   }
@@ -204,8 +229,10 @@ export class SaOrderControls implements OnChanges, OnDestroy {
   private versionOf(a: ControlAction): string { return ((this.kind === 'offer' && a.startsWith('CONTRACT_')) ? this.contractControls() : this.controls())?.version ?? ''; }
 
   open(def: ActionDef): void {
+    if (this.busy()) return; // a call is in flight: the dialog (its action and entity) cannot change under it
     this.quoteSub?.unsubscribe(); // opening another action: the previous preview (and its pending answer) is dropped
-    this.dialog.set(def); this.reason.set(''); this.confirmed.set(false); this.error.set(''); this.unknown.set(false); this.attempt = null; this.quote.set(null); this.quoteOwner.set(null);
+    this.versionNote.set(''); this.manualRefresh.set(false); this.autoRefreshes = 0;
+    this.dialog.set(def); this.reason.set(''); this.confirmed.set(false); this.error.set(''); this.unknown.set(false); this.quote.set(null); this.quoteOwner.set(null);
     if (def.hasQuote) this.loadQuote(def);
   }
   close(): void { if (!this.busy()) { this.quoteSub?.unsubscribe(); this.dialog.set(null); this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(false); } }
@@ -217,7 +244,7 @@ export class SaOrderControls implements OnChanges, OnDestroy {
     this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(true);
     const stillCurrent = () => this.dialog()?.action === action && this.targetId(action) === targetId;
     this.quoteSub = this.api.quote(action, targetId).subscribe({
-      next: (res) => { if (!stillCurrent()) return; this.quote.set(res?.data ?? null); this.quoteOwner.set(res?.data ? { action, targetId } : null); this.quoteLoading.set(false); },
+      next: (res) => { if (!stillCurrent()) return; this.quote.set(res?.data ?? null); this.quoteOwner.set(res?.data ? { action, targetId } : null); this.quoteLoading.set(false); this.checkConsistency(); },
       error: (err) => { if (!stillCurrent()) return; this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(false); this.error.set(controlErrorCopy(err, 'تعذّر تحميل تفاصيل الأثر المالي، لن يُنفَّذ شيء.')); },
     });
   }
@@ -235,27 +262,58 @@ export class SaOrderControls implements OnChanges, OnDestroy {
     if (def.hasQuote && q) {
       if (q.expectedHeldAmount > 0) body.expectedHeldAmount = q.expectedHeldAmount;
     }
-    const sig = JSON.stringify([def.action, this.targetId(def.action), body]);
-    if (!this.attempt || this.attempt.sig !== sig) this.attempt = { sig, key: newKey() };
+    const targetId = this.targetId(def.action), action = def.action, epoch = this.epoch, attemptId = ++this.attemptSeq;
+    const slot = `${action}|${targetId}`;
+    const attempt = attemptFor(slot, JSON.stringify([action, targetId, body]));
     this.busy.set(true); this.error.set(''); this.unknown.set(false);
-    this.api.run(def.action, this.targetId(def.action), body, this.attempt.key).subscribe({
+    // The reply is bound to ITS context (this component instance's entity epoch + this attempt): when the admin has moved to another entity (or the component is gone) the reply only settles the
+    // stored attempt (a definite answer drops it, an unknown one keeps it for a safe replay) and touches no screen state, toast or parent event.
+    const live = () => epoch === this.epoch && attemptId === this.attemptSeq;
+    this.api.run(action, targetId, body, attempt.key).subscribe({
       next: () => {
-        this.busy.set(false); this.dialog.set(null); this.quote.set(null); this.attempt = null;
+        ATTEMPTS.delete(slot);
+        if (!live()) return;
+        this.busy.set(false); this.dialog.set(null); this.quote.set(null); this.quoteOwner.set(null);
         this.notify.success(def.done);
         this.reload();
         this.changed.emit();
       },
       error: (err) => {
+        const unknown = !!mapHttpError(err).outcomeUnknown;
+        if (!unknown) ATTEMPTS.delete(slot); // a definite refusal: the key is spent; an unknown outcome keeps it so pressing again is a safe replay
+        if (!live()) return;
         this.busy.set(false);
         const code = err?.error?.code;
         this.error.set(controlErrorCopy(err));
-        if (mapHttpError(err).outcomeUnknown) this.unknown.set(true); // same key stays: pressing again is safe
-        else this.attempt = null;
-        // the screen moved under the admin's feet: show the new numbers before the next confirmation
-        if (code === 'STALE_VERSION' || code === 'HELD_BALANCE_CHANGED' || code === 'ESCROW_CHANGED') { this.confirmed.set(false); this.reload(); if (def.hasQuote && this.dialog()?.action === def.action) this.loadQuote(def); }
+        if (unknown) this.unknown.set(true);
+        // the screen moved under the admin's feet: refresh controls + preview TOGETHER and require a new confirmation
+        if (code === 'STALE_VERSION' || code === 'HELD_BALANCE_CHANGED' || code === 'ESCROW_CHANGED') this.refreshPair('تغيّر العنصر منذ عرضه عليك. حدّثنا البيانات، راجع الأرقام الجديدة ثم أكّد من جديد.');
       },
     });
   }
+
+  /** controls and the preview must describe the SAME version of the entity; when they do not, both are re-fetched together (bounded), the confirmation is cleared and the admin is told why. */
+  private checkConsistency(): void {
+    const d = this.dialog();
+    if (!d || !d.hasQuote || this.quoteLoading() || this.controlsPending) return;
+    const q = this.quote(), owner = this.quoteOwner(), cv = this.versionOf(d.action);
+    if (!q || !owner || owner.action !== d.action || !cv) return;
+    if (q.version === cv) { this.versionNote.set(''); this.manualRefresh.set(false); this.autoRefreshes = 0; return; }
+    if (this.autoRefreshes < 2) { this.autoRefreshes++; this.refreshPair('تغيّر العنصر أثناء المراجعة، فجرى تحديث البيانات والمعاينة معًا. راجع الأرقام الجديدة وأكّد من جديد.'); }
+    else { this.confirmed.set(false); this.manualRefresh.set(true); this.versionNote.set('ما زالت بيانات العنصر والمعاينة غير متطابقتين (يتغيّر العنصر باستمرار). لا يمكن التأكيد قبل تحديثها: اضغط «تحديث الآن».'); }
+  }
+
+  private refreshPair(note: string): void {
+    const d = this.dialog();
+    this.confirmed.set(false); this.versionNote.set(note); this.manualRefresh.set(false);
+    if (!d) { this.reload(); return; }
+    this.quoteSub?.unsubscribe(); this.quote.set(null); this.quoteOwner.set(null);
+    this.controlsPending = true;
+    this.reload();
+    if (d.hasQuote && this.dialog()?.action === d.action) this.loadQuote(d);
+  }
+
+  refreshNow(): void { this.autoRefreshes = 0; const d = this.dialog(); if (d) this.refreshPair('جارٍ تحديث البيانات والمعاينة معًا. راجع الأرقام وأكّد من جديد.'); }
 
   money(n: number | null | undefined): string { return formatMoney(n ?? 0, 2); }
   effect(code: string): string { return effectCopy(code); }
