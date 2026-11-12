@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { of } from 'rxjs';
@@ -84,9 +85,9 @@ describe('SaAnalyticsHub', () => {
     expect(box.name).toMatch(/^analytics-users-.*\.csv$/);
   });
 
-  it('print button calls window.print', () => {
+  it('print button builds an isolated report', () => {
     const f = make();
-    const spy = vi.spyOn(window, 'print').mockImplementation(() => {});
+    const spy = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => {});
     (f.nativeElement.querySelector('[data-testid="ah-print"]') as HTMLButtonElement).click();
     expect(spy).toHaveBeenCalled();
   });

@@ -8,7 +8,7 @@
         <button type="button" class="tp-pt" [class.active]="period() === 'year'" (click)="setPeriod('year')">سنة</button>
       </div>
       @if (canExport()) {
-        <button type="button" class="tp-btn tp-btn-gh" (click)="exportPdf()" data-testid="perf-export-pdf"><svg data-ws-icon="pl-admin-download-tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير المهام PDF</button>
+        <button type="button" class="tp-btn tp-btn-gh" (click)="exportPdf()" data-testid="perf-export-pdf" [disabled]="loading() || !!error() || !report()"><svg data-ws-icon="pl-admin-download-tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير المهام PDF</button>
         <button type="button" class="tp-btn tp-btn-gh" [disabled]="exporting()" (click)="export()" data-testid="perf-export"><svg data-ws-icon="pl-admin-download-tray" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>تصدير المهام CSV</button>
       } @else {
         <button type="button" class="tp-btn tp-btn-gh" disabled title="التصدير يحتاج صلاحية «تصدير الأداء»" data-testid="perf-export-disabled">تصدير PDF</button>

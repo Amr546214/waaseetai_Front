@@ -1,3 +1,5 @@
+import { adminFinanceDocument } from '../financial-report';
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -15,6 +17,7 @@ type ExportName = 'transactions' | 'commissions' | 'invoices' | 'withdrawals';
   styleUrl: './sa-sub-finance-reports.css',
 })
 export class SaSubFinanceReports implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private api = inject(AdminOpsApiService);
 
   readonly usd = usd;
@@ -62,6 +65,6 @@ export class SaSubFinanceReports implements OnInit {
   }
 
   print() {
-    window.print();
+    const overview=this.overview(); if(!overview||this.loading()||this.error())return; this.reportPrinter.print(adminFinanceDocument(overview,undefined,'التقارير المالية الإدارية'));
   }
 }

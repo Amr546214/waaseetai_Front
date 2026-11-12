@@ -1,8 +1,9 @@
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { CommonModule } from '@angular/common';
 import { AdminAnalyticsService, AnalyticsOverview } from '../../../../../core/services/admin-analytics.service';
-import { exportCsv, printPage } from '../../../../../core/utils/export.util';
+import { exportCsv } from '../../../../../core/utils/export.util';
 import { ReviewsSummaryComponent } from './reviews-summary.component';
 
 interface ScoreItem { label: string; value: number; display: string; color: string; }
@@ -19,6 +20,7 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
   styleUrl: './sa-quality.css',
 })
 export class SaQuality implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private readonly api = inject(AdminAnalyticsService);
 
   readonly periods: { key: string; label: string; days: number | null }[] = [
@@ -48,10 +50,13 @@ export class SaQuality implements OnInit {
     return { from: iso(new Date(now.getTime() - days * DAY)), to: iso(now) };
   }
 
+  private reportSeq = 0;
   reload() {
+    const seq=++this.reportSeq;
     this.loading.set(true);
     this.failed.set(false);
     this.api.getOverview(this.range()).subscribe((r) => {
+      if(seq!==this.reportSeq)return;
       this.data.set(r.data);
       this.failed.set(r.failed);
       this.loading.set(false);
@@ -120,6 +125,7 @@ export class SaQuality implements OnInit {
   }
 
   print() {
-    printPage('لوحة جودة الخدمة');
+    if(!this.data()||this.loading()||this.failed())return;
+    this.reportPrinter.print({title:'تقرير جودة الخدمة',metadata:[['الفترة',this.periods.find(p=>p.key===this.period())?.label??this.period()]],sections:[{title:'المؤشرات الفعلية',facts:this.kpis().map(k=>[k.label,k.value])},{title:'مقاييس الجودة',columns:['المقياس','القيمة'],rows:this.scoreItems().map(r=>[r.label,r.display])},{title:'التقييمات الشهرية',columns:['الشهر','المتوسط'],rows:this.trend().map(r=>[r.month,r.average])},{title:'التقييمات المحمّلة',columns:['التاريخ','مقدم الخدمة','العميل','التقييم','التعليق'],rows:this.recent().map(r=>[r.createdAt,r.providerName,r.clientName,r.rating,r.comment])}]});
   }
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { buildCsv, csvCell, exportCsv, printPage } from './export.util';
+import { buildCsv, csvCell, exportCsv } from './export.util';
 
 describe('export.util', () => {
 	afterEach(() => vi.restoreAllMocks());
@@ -36,11 +36,4 @@ describe('export.util', () => {
 		expect(blob?.type).toContain('text/csv');
 	});
 
-	it('printPage calls window.print and restores the title', () => {
-		const print = vi.spyOn(window, 'print').mockImplementation(() => {});
-		const before = document.title;
-		printPage('تقرير');
-		expect(print).toHaveBeenCalled();
-		expect(document.title).toBe(before);
-	});
 });

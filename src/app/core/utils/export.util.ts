@@ -1,4 +1,4 @@
-/** Shared admin export plumbing: a real CSV file download and a print (save-as-PDF) helper. */
+/** Shared CSV export plumbing. Printable documents use core/reports. */
 
 export interface CsvColumn<T> {
 	header: string;
@@ -33,15 +33,4 @@ export function exportCsv<T>(filename: string, columns: CsvColumn<T>[], rows: T[
 	a.click();
 	a.remove();
 	URL.revokeObjectURL(url);
-}
-
-/** Opens the browser print dialog (the user can choose "Save as PDF"); optionally sets the document title for the printed header/file name. */
-export function printPage(printTitle?: string): void {
-	const previous = document.title;
-	if (printTitle) document.title = printTitle;
-	try {
-		window.print();
-	} finally {
-		if (printTitle) document.title = previous;
-	}
 }

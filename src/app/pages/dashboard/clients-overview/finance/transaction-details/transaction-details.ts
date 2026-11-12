@@ -1,3 +1,5 @@
+import { walletReportSections } from '../../../../../core/reports/wallet-report';
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -14,6 +16,7 @@ import { ClientFinanceService, ClientWalletTransactionDetail } from '../../../..
   styleUrl: './transaction-details.css',
 })
 export class TransactionDetails implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private financeService = inject(ClientFinanceService);
@@ -142,7 +145,6 @@ export class TransactionDetails implements OnInit {
   printReceipt() {
     const tx = this.transaction();
     if (!tx || this.isFailed()) return;
-    const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
     const rows: Array<[string, string]> = [
       ['رقم المعاملة', tx.referenceId || tx.id],
       ['النوع', this.typeLabel()],
@@ -156,12 +158,6 @@ export class TransactionDetails implements OnInit {
     if (clientName) rows.splice(1, 0, ['صاحب الحساب (طالب الخدمة)', clientName]);
     if (tx.project) rows.splice(rows.length - 2, 0, ['المشروع', tx.project.title]);
     if (tx.project?.providerName) rows.splice(rows.length - 2, 0, ['مقدم الخدمة', tx.project.providerName]);
-    const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>إيصال معاملة</title>
-<style>body{font-family:system-ui,Tahoma,sans-serif;margin:32px;color:#111}h1{font-size:20px;margin:0 0 4px}p{color:#555;margin:0 0 20px}table{width:100%;border-collapse:collapse}td{padding:10px 8px;border-bottom:1px solid #ddd}td:first-child{color:#555;width:35%}</style></head><body>
-<h1>إيصال معاملة مالية</h1><p>${esc(this.title())}</p><table>${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></body></html>`;
-    const w = window.open('', '_blank', 'width=720,height=800');
-    if (!w) return;
-    w.document.open(); w.document.write(html); w.document.close();
-    w.focus(); w.print();
+    this.reportPrinter.print({title:'إيصال معاملة مالية',subtitle:this.title(),sections:[{title:'بيانات المعاملة',facts:rows},...walletReportSections(tx.breakdown)]});
   }
 }

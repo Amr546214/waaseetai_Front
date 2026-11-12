@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
@@ -84,7 +85,7 @@ describe('Reports (provider) — real data only', () => {
 		(URL as any).createObjectURL = vi.fn(() => 'blob:x');
 		(URL as any).revokeObjectURL = vi.fn();
 		const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
-		const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+		const print = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => {});
 		const el = fixture.nativeElement as HTMLElement;
 		(el.querySelector('[data-testid="reports-csv"]') as HTMLButtonElement).click();
 		expect(click).toHaveBeenCalled();

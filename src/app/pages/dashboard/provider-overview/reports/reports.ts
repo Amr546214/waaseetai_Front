@@ -1,3 +1,5 @@
+import { reportMoney } from '../../../../core/reports/report-document';
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { isRateLimitError } from '../../../../core/utils/rate-limit.util';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
@@ -14,6 +16,7 @@ import { UiNotificationService } from '../../../../core/services/ui-notification
   templateUrl: './reports.html'
 })
 export class Reports implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private authStore = inject(AuthStore);
   private providerApi = inject(ProviderApiService);
   private notify = inject(UiNotificationService);
@@ -34,12 +37,14 @@ export class Reports implements OnInit {
     this.loadReports();
   }
 
+  private reportSeq = 0;
   loadReports() {
+    const seq=++this.reportSeq;
     this.reportsLoading.set(true);
     this.reportsError.set('');
     this.providerApi.getProviderReports(this.currentPeriod() as ProviderReportRange).subscribe({
-      next: res => { this.reports.set(res?.success ? res.data ?? null : null); this.reportsLoading.set(false); },
-      error: err => { this.reports.set(null); this.reportsLoading.set(false); this.reportsError.set(err?.error?.message || 'تعذّر تحميل التقارير'); }
+      next: res => { if(seq!==this.reportSeq)return; this.reports.set(res?.success ? res.data ?? null : null); this.reportsLoading.set(false); },
+      error: err => { if(seq!==this.reportSeq)return; this.reports.set(null); this.reportsLoading.set(false); this.reportsError.set(err?.error?.message || 'تعذّر تحميل التقارير'); }
     });
   }
 
@@ -155,6 +160,9 @@ export class Reports implements OnInit {
 
   /** PDF = the browser's print dialog ("Save as PDF"); a server-generated PDF would need a dedicated endpoint. */
   printReport() {
-    window.print();
+    const r=this.reports();if(!r||this.reportsLoading()||this.reportsError()||r.range!==this.currentPeriod())return;
+    const tab=this.currentTab();
+    const section=tab==='orders'?{title:'طلبات العملاء المطابقة للفلتر',columns:['العنوان','التخصص','القيمة','الحالة','التاريخ'],rows:this.filteredRequests().map(i=>[i.title,i.specialty,i.price,this.bucketLabel(i.bucket),i.createdAt])}:tab==='projects'?{title:'إحصاءات المشاريع',facts:[['إجمالي المشاريع',r.projects.totalCount],['المشاريع النشطة',r.projects.activeCount],['المكتملة',r.projects.completedCount],['متوسط المدة بالأيام',r.projects.avgDurationDays]] as Array<[string,unknown]>}:tab==='finance'?{title:'الحركات المالية المحمّلة',columns:['الوصف','النوع','المبلغ والعملة','الحالة','التاريخ'],rows:r.payments.transactions.map(t=>[t.description,t.type,reportMoney(t.amount,t.currency),t.status,t.createdAt])}:tab==='disputes'?{title:'النزاعات المحمّلة',columns:['السبب','الحالة','التاريخ'],rows:r.disputes.items.map(d=>[d.reason,d.status,d.createdAt])}:{title:'أداء الفريق',text:'لا توجد بيانات أداء فريق مسجلة متاحة في هذا التقرير.'};
+    this.reportPrinter.print({title:'تقرير مقدم الخدمة',metadata:[['الفترة',this.periods.find(p=>p.id===r.range)?.label??r.range]],sections:[section],note:'بيانات القسم المحمّل من الخادم، وليست كشفًا شاملًا لجميع السجلات.'});
   }
 }

@@ -1,3 +1,5 @@
+import { adminFinanceDocument } from '../sub-finance/financial-report';
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ForecastSummaryComponent } from './forecast-summary.component';
@@ -14,6 +16,7 @@ type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit';
   styleUrl: './sa-finance-reports.css',
 })
 export class SaFinanceReports implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private api = inject(AdminOpsApiService);
 
   readonly usd = usd;
@@ -73,7 +76,12 @@ export class SaFinanceReports implements OnInit {
   }
 
   print() {
-    window.print();
+    const overview=this.overview(); if(!overview||this.loading()||this.error())return;
+    const report=adminFinanceDocument(overview,undefined,'التقارير المالية');
+    report.metadata!.push(['التبويب',this.tabs.find(t=>t.key===this.activeTab())?.label??this.activeTab()]);
+    if(this.activeTab()==='expenses')report.sections=[{title:'المصروفات',text:this.noExpensesMsg,facts:[['رسوم بوابة الدفع (تكلفة مدفوعات)',usd(overview.totals.paymentGatewayFees)]]}];
+    if(this.activeTab()==='profit')report.sections=[{title:'بيانات الأرباح المتاحة',text:'لا يمكن احتساب صافي الربح دون سجل كامل للمصروفات. عمولة المنصة ليست صافي الربح.',facts:[['عمولة المنصة',usd(overview.totals.platformCommission)],['رسوم بوابة الدفع',usd(overview.totals.paymentGatewayFees)]]}];
+    this.reportPrinter.print(report);
   }
 
   exportCsv() {

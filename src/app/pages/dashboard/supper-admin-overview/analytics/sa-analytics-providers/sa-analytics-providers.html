@@ -6,7 +6,7 @@
     </div>
     <ws-select [options]="periods" [ngModel]="period()" (ngModelChange)="setPeriod($event)" style="min-width:160px;max-width:100%;display:block"></ws-select>
     <button type="button" class="sap-btn sap-btn-gh" data-testid="sap-csv" [disabled]="!topRated().length" [title]="topRated().length ? 'تنزيل ملف CSV بالبيانات المعروضة' : 'لا توجد بيانات للتصدير'" (click)="exportCsv()">تصدير CSV</button>
-    <button type="button" class="sap-btn sap-btn-gh" data-testid="sap-print" (click)="print()">طباعة / حفظ PDF</button>
+    <button type="button" class="sap-btn sap-btn-gh" data-testid="sap-print" [disabled]="loading() || failed() || !data()" (click)="print()">طباعة / حفظ PDF</button>
   </div>
 
   @if (failed()) {

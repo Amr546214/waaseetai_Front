@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { Component, DestroyRef, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { WsDatePipe } from '../../../../shared/ws-date/ws-date.pipe';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -6,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { reportAdminProblems } from '../shared/admin-form-report';
 import { AdminAnalyticsService, AnalyticsOverview, SavedAnalyticsReport, SavedAnalyticsReportInput, ACCOUNT_TYPE_LABELS, STATUS_LABELS } from '../../../../core/services/admin-analytics.service';
-import { CsvColumn, exportCsv, printPage } from '../../../../core/utils/export.util';
+import { CsvColumn, exportCsv } from '../../../../core/utils/export.util';
 
 type SectionKey = SavedAnalyticsReportInput['section'];
 type PeriodKey = SavedAnalyticsReportInput['period'];
@@ -27,6 +28,7 @@ const DAY = 86400000;
   styleUrl: './sa-analytics-hub.css',
 })
 export class SaAnalyticsHub implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private readonly api = inject(AdminAnalyticsService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -359,6 +361,7 @@ export class SaAnalyticsHub implements OnInit {
   }
 
   print() {
-    printPage('التقارير والتحليلات');
+    const data=this.exportSet();if(!data||this.loading()||this.failed())return;
+    this.reportPrinter.print({title:'التقارير والتحليلات',metadata:[['القسم',this.sections.find(s=>s.key===this.activeSection())?.label??this.activeSection()],['بداية الفترة',this.range().from??'كل الفترات'],['نهاية الفترة',this.range().to??'غير محدد']],sections:[{title:'مؤشرات القسم المحدد',columns:data.columns.map(c=>c.header),rows:data.rows.map(row=>data.columns.map(c=>typeof c.value==='function'?c.value(row):row[c.value]))}]});
   }
 }

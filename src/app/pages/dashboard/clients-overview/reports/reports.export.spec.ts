@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -40,10 +41,13 @@ describe('client reports — export and period', () => {
 		expect(body).toContain('2026-10-02');
 	});
 
-	it('PDF is the browser print dialog', () => {
-		const print = vi.spyOn(window, 'print').mockImplementation(() => {});
-		mount().c.exportRpt('pdf');
+	it('PDF contains only the active section and its filtered rows', () => {
+		const print = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => {});
+		const {c}=mount();
+		c.exportRpt('pdf');
 		expect(print).toHaveBeenCalledTimes(1);
+		expect(print.mock.calls[0][0].sections[0].rows?.[0]?.[0]).toBe('طلب "تصميم", شعار');
+		expect(JSON.stringify(print.mock.calls[0][0])).not.toContain('إيداع');
 	});
 
 	it('the "مخصص" placeholder calendar is gone: the fifth period is the real "all periods" range', () => {

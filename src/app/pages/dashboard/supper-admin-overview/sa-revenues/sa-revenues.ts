@@ -1,3 +1,5 @@
+import { adminFinanceDocument } from '../sub-finance/financial-report';
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminFinanceOverview, AdminOpsApiService, AdminPagination, AdminTransaction, saveBlob } from '../../../../core/services/admin-ops-api.service';
@@ -13,6 +15,7 @@ type Months = 3 | 6 | 12;
   styleUrl: './sa-revenues.css',
 })
 export class SaRevenues implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private api = inject(AdminOpsApiService);
 
   readonly periods: { key: Months; label: string }[] = [
@@ -92,16 +95,21 @@ export class SaRevenues implements OnInit {
     this.loadOverview();
   }
 
+  private overviewSeq=0;
+  private transactionSeq=0;
   loadOverview() {
+    const seq=++this.overviewSeq;
     this.overviewLoading.set(true);
     this.overviewError.set('');
     this.api.financeOverview(this.months()).subscribe({
       next: (res) => {
+        if(seq!==this.overviewSeq)return;
         this.overview.set(res.data ?? null);
         this.updatedAt.set(new Date());
         this.overviewLoading.set(false);
       },
       error: (err) => {
+        if(seq!==this.overviewSeq)return;
         this.overviewError.set(errMsg(err, 'تعذر تحميل الملخص المالي'));
         this.overviewLoading.set(false);
       },
@@ -109,16 +117,19 @@ export class SaRevenues implements OnInit {
   }
 
   loadTransactions() {
+    const seq=++this.transactionSeq;
     this.txLoading.set(true);
     this.txError.set('');
     this.api.financeTransactions({ type: this.txType() || undefined, page: this.txPage(), limit: 10 }).subscribe({
       next: (res) => {
+        if(seq!==this.transactionSeq)return;
         this.txItems.set(res.data?.items ?? []);
         this.typeCounts.set(res.data?.typeCounts ?? {});
         this.txPagination.set(res.data?.pagination ?? null);
         this.txLoading.set(false);
       },
       error: (err) => {
+        if(seq!==this.transactionSeq)return;
         this.txError.set(errMsg(err, 'تعذر تحميل المعاملات'));
         this.txLoading.set(false);
       },
@@ -153,6 +164,9 @@ export class SaRevenues implements OnInit {
   }
 
   print() {
-    window.print();
+    const overview=this.overview(); if(!overview||this.overviewLoading()||this.overviewError()||this.txLoading()||this.txError())return;
+    const report=adminFinanceDocument(overview,this.txItems(),'تقرير الإيرادات');
+    report.metadata!.push(['الحركة الشهرية',`آخر ${this.months()} أشهر`],['فلتر المعاملات',this.txType()?txTypeLabel(this.txType()):'كل الأنواع'],['صفحة المعاملات',this.txPage()]);
+    this.reportPrinter.print(report);
   }
 }

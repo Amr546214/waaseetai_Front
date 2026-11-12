@@ -20,7 +20,7 @@
     </div>
     <div class="ah-hdr-actions">
       <button type="button" class="ah-btn ah-btn-ghost" (click)="toggleSavedReports()" [attr.aria-expanded]="savedOpen()" aria-controls="ah-saved-reports">حفظ التقرير والتقارير المحفوظة</button>
-      <button type="button" class="ah-btn ah-btn-ghost" data-testid="ah-print" (click)="print()">طباعة / حفظ PDF</button>
+      <button type="button" class="ah-btn ah-btn-ghost" data-testid="ah-print" [disabled]="loading() || failed()" (click)="print()">طباعة / حفظ PDF</button>
       <button type="button" class="ah-btn ah-btn-primary" data-testid="ah-csv" [disabled]="!canExport()" [title]="canExport() ? 'تنزيل ملف CSV بالبيانات المعروضة' : 'لا توجد بيانات معروضة للتصدير'" (click)="exportCsv()">تصدير CSV</button>
     </div>
   </div>
