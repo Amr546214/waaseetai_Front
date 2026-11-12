@@ -5,6 +5,6 @@ export const environment = {
 	production: false,
 	url_api: 'http://localhost:5033/api',
 	socketUrl: 'http://localhost:5033',
-	google_client_id: '45082682655-hprdmb9ghriv95b0dahukgh72paah08j.apps.googleusercontent.com',
+	google_client_id: '1041761245251-0remq3eevcvkp8f6n4q81e7i8g7tpsr7.apps.googleusercontent.com',
 	paypal_client_id: '',
 };
