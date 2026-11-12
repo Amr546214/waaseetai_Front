@@ -1,3 +1,4 @@
+import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { birthDateValidator, maxDobIso } from '../../../../../core/forms/birth-date';
 import { Component, DestroyRef, ElementRef, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -70,6 +71,7 @@ export class ProfileSetupDashboard implements OnInit {
 	/** Arabic file errors (size/type) per upload control. */
 	fileErrors = signal<Record<string, string>>({});
 	/** Advisory live AI document inspection results for Step 2 (frontId / backId). */
+	private idInspectionVersions: Record<string, number> = {};
 	idDocInspections = signal<Record<string, { status: 'scanning' | 'valid' | 'warning'; message: string }>>({});
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private readonly notify = inject(UiNotificationService);
@@ -349,10 +351,15 @@ export class ProfileSetupDashboard implements OnInit {
 		}
 		this.fileErrors.update(e => { const { [controlName]: _gone, ...rest } = e; return rest; });
 
+		const inspectionVersion = (this.idInspectionVersions[controlName] || 0) + 1;
+		this.idInspectionVersions[controlName] = inspectionVersion;
+		const isCurrent = () => this.idInspectionVersions[controlName] === inspectionVersion;
+		this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
 		this.isUploading.update(s => ({ ...s, [controlName]: true }));
 
 		const reader = new FileReader();
 		reader.onload = () => {
+			if (!isCurrent()) return;
 			const base64Str = reader.result as string;
 			const group = this.setupForm.get(groupName) as FormGroup;
 			if (group) {
@@ -363,7 +370,7 @@ export class ProfileSetupDashboard implements OnInit {
 			if (
 				groupName === 'identity' &&
 				(controlName === 'frontId' || controlName === 'backId') &&
-				file.type?.startsWith('image/') &&
+				(file.type?.startsWith('image/') || file.type === 'application/pdf') &&
 				file.size >= 512 &&
 				typeof this.profileApi.verifyIdentityDocument === 'function'
 			) {
@@ -386,21 +393,22 @@ export class ProfileSetupDashboard implements OnInit {
 					}
 				}).subscribe({
 					next: (res: any) => {
+						if (!isCurrent()) return;
 						const d = res?.data;
 						if (!d) {
 							this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
 							return;
 						}
-						const isOk = d.status === 'VALID_READABLE_ID' && d.isOfficialIdDocument && d.isReadable;
+						const inspection = identityInspectionResult(d);
 						this.idDocInspections.update(curr => ({
 							...curr,
 							[controlName]: {
-								status: isOk ? 'valid' : 'warning',
-								message: d.advisoryMessageAr || (isOk ? 'وثيقة هوية واضحة وجاهزة للمراجعة البشرية ✓' : 'تنبيه استشاري: الصورة قد لا تبدو وثيقة هوية واضحة؛ يفضّل استبدالها بصورة أوضح لتجنّب الرفض.')
+								...inspection
 							}
 						}));
 					},
 					error: () => {
+						if (!isCurrent()) return;
 						this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
 					}
 				});
@@ -409,6 +417,7 @@ export class ProfileSetupDashboard implements OnInit {
 			}
 		};
 		reader.onerror = () => {
+			if (!isCurrent()) return;
 			this.isUploading.update(s => ({ ...s, [controlName]: false }));
 			this.fileErrors.update(e => ({ ...e, [controlName]: 'تعذّرت قراءة الملف، حاول مرة أخرى أو اختر ملفًا آخر' }));
 		};

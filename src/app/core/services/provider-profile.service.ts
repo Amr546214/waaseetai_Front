@@ -15,13 +15,15 @@ export interface ProfileSuggestionInput {
 }
 
 export interface IdentityDocumentInspection {
-  isOfficialIdDocument: boolean;
-  isReadable: boolean;
+  status: 'CLEAR_VALID' | 'NEEDS_ATTENTION' | 'NOT_ID_DOCUMENT' | 'UNREADABLE';
+  isIdentityDocument: boolean;
   detectedSide: 'FRONT' | 'BACK' | 'UNKNOWN';
-  matchesExpectedSide: boolean;
-  status: 'VALID_READABLE_ID' | 'SIDE_MISMATCH' | 'UNREADABLE_OR_BLURRY' | 'NOT_ID_DOCUMENT';
-  advisoryMessageAr: string;
-  advisoryOnly: boolean;
+  sideMatchesExpected: boolean;
+  readability: 'CLEAR' | 'BLURRY' | 'PARTIAL' | 'UNREADABLE';
+  summaryAr: string;
+  warningsAr: string[];
+  fields?: { fullName?: string; birthDate?: string; nationalId?: string };
+  advisoryOnly: true;
 }
 
 /** One thing still needed to reach 100% (computed by the backend, so the percentage and this list always agree). */

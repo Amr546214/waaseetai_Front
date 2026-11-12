@@ -1,3 +1,4 @@
+import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -828,10 +829,15 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.savePreferences();
 	}
 
+	private idInspectionVersions: Record<string, number> = {};
 	idDocInspections = signal<Record<string, { status: 'scanning' | 'valid' | 'warning'; message: string }>>({});
 
 	private runAdvisoryIdInspection(file: File, slot: 'frontId' | 'backId') {
-		if (!file.type?.startsWith('image/') || file.size < 512 || typeof this.providerProfileService.verifyIdentityDocument !== 'function') {
+		const version = (this.idInspectionVersions[slot] || 0) + 1;
+		this.idInspectionVersions[slot] = version;
+		const isCurrent = () => this.idInspectionVersions[slot] === version;
+		this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
+		if ((!file.type?.startsWith('image/') && file.type !== 'application/pdf') || file.size < 512 || typeof this.providerProfileService.verifyIdentityDocument !== 'function') {
 			return;
 		}
 		this.idDocInspections.update(curr => ({
@@ -840,6 +846,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		}));
 		const reader = new FileReader();
 		reader.onload = () => {
+			if (!isCurrent()) return;
 			const dataUrl = typeof reader.result === 'string' ? reader.result : '';
 			if (!dataUrl) {
 				this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
@@ -857,26 +864,28 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				}
 			}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
 				next: res => {
+					if (!isCurrent()) return;
 					const d = res?.data;
 					if (!d) {
 						this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
 						return;
 					}
-					const isOk = d.status === 'VALID_READABLE_ID' && d.isOfficialIdDocument && d.isReadable;
+					const inspection = identityInspectionResult(d);
 					this.idDocInspections.update(curr => ({
 						...curr,
 						[slot]: {
-							status: isOk ? 'valid' : 'warning',
-							message: d.advisoryMessageAr || (isOk ? 'وثيقة هوية واضحة وجاهزة للمراجعة البشرية ✓' : 'تنبيه استشاري: الصورة قد لا تبدو وثيقة هوية واضحة؛ يفضّل استبدالها بصورة واضحة لتجنّب الرفض.')
+							...inspection
 						}
 					}));
 				},
 				error: () => {
+					if (!isCurrent()) return;
 					this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
 				}
 			});
 		};
 		reader.onerror = () => {
+			if (!isCurrent()) return;
 			this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
 		};
 		reader.readAsDataURL(file);
@@ -992,6 +1001,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	removeUploadedFile(type: string) {
+		this.idInspectionVersions[type] = (this.idInspectionVersions[type] || 0) + 1;
 		const states = { ...this.uploadStates() };
 		delete states[type];
 		this.uploadStates.set(states);

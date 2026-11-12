@@ -918,7 +918,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     const rawDesc = this.description().trim();
     const specName = this.selectedSpec() === 'other' ? this.otherText().trim() : (this.currentSpec()?.name || '');
 
-    if (rawTitle.length < 3 && rawDesc.length < 10) {
+    if (rawTitle.length < 3 || rawDesc.length < 10) {
       this.notify.warning('أدخل عنوان الطلب ووصفه في خطوة التفاصيل أولًا لتقدير الميزانية والمراحل.');
       return;
     }
@@ -937,9 +937,9 @@ export class CreateRequest implements OnInit, OnDestroy {
       description: rawDesc || undefined,
       specialtyName: specName || 'عام',
       subSpecialties: Array.from(this.selectedSubs()),
-      requiredSkills: this.requiredSkills(),
+      skills: this.requiredSkills(),
       outputs: this.outputs().trim() || undefined,
-      deliveryDays: this.deliveryDays()
+      expectedDurationDays: this.deliveryDays() ? Number(this.deliveryDays()) : undefined
     }).subscribe({
       next: (res: any) => {
         this.isFetchingAiBudget.set(false);
@@ -948,14 +948,14 @@ export class CreateRequest implements OnInit, OnDestroy {
           return;
         }
         const d = res?.data || res;
-        if (!d || (typeof d.recommendedMinBudget !== 'number' && !Array.isArray(d.suggestedMilestones))) {
+        if (!d || (typeof d.minBudget !== 'number' && !Array.isArray(d.milestones))) {
           this.notify.warning('تعذر تقدير الميزانية والمراحل حاليًا، حاول مرة أخرى.');
           return;
         }
 
-        if (typeof d.recommendedMinBudget === 'number' && d.recommendedMinBudget > 0) {
-          const minB = Math.max(100, Math.round(d.recommendedMinBudget));
-          const maxB = Math.max(minB, Math.round(d.recommendedMaxBudget || minB * 2));
+        if (typeof d.minBudget === 'number' && d.minBudget > 0) {
+          const minB = Math.max(100, Math.round(d.minBudget));
+          const maxB = Math.max(minB, Math.round(d.maxBudget || minB * 2));
           this.budgetMin.set(minB);
           this.budgetMax.set(maxB);
           if (this.budgetType() === 'fixed' || !this.budgetFixed()) {
@@ -963,12 +963,12 @@ export class CreateRequest implements OnInit, OnDestroy {
           }
         }
 
-        if (!this.deliveryDays() && typeof d.suggestedDurationDays === 'number' && d.suggestedDurationDays >= 1) {
-          this.deliveryDays.set(Math.min(365, Math.round(d.suggestedDurationDays)));
+        if (!this.deliveryDays() && typeof d.expectedDurationDays === 'number' && d.expectedDurationDays >= 1) {
+          this.deliveryDays.set(Math.min(365, Math.round(d.expectedDurationDays)));
         }
 
-        if (Array.isArray(d.suggestedMilestones) && d.suggestedMilestones.length >= 2) {
-          const rawRows = d.suggestedMilestones.map((m: any) => ({
+        if (Array.isArray(d.milestones) && d.milestones.length >= 2) {
+          const rawRows = d.milestones.map((m: any) => ({
             name: this.formatClientDraftText(m.name, true).slice(0, 120) || 'مرحلة تنفيذ',
             pct: Math.max(1, Math.round(Number(m.pct) || 0))
           }));
