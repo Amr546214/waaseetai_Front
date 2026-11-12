@@ -136,10 +136,10 @@
       <svg data-ws-icon="ws-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       السابق
     </a>
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="text-align:left">
-        <div style="font-size:var(--font-size-small);font-weight:600" class="txt-muted">الإجمالي</div>
-        <div style="font-size:var(--font-size-body);font-weight:900" class="txt-amber">{{ formatCurrency(totalAmount()) }}</div>
+    <div class="sticky-actions">
+      <div class="sticky-total">
+        <div class="sticky-total-label txt-muted">الإجمالي</div>
+        <div class="sticky-total-value txt-amber" dir="ltr">{{ formatCurrency(totalAmount()) }}</div>
       </div>
       <button class="btn-primary" data-testid="ed-pay" [disabled]="isSubmitting() || sendWait.active()" (click)="handlePrimaryAction()">
         <svg data-ws-icon="ws-shield" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>

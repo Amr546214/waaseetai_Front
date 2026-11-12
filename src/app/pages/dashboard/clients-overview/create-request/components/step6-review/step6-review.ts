@@ -53,21 +53,19 @@ export class Step6Review implements OnDestroy {
 	// Acknowledgments state
 	acks = {
 		data: signal(false),
-		terms: signal(false),
-		privacy: signal(false),
+		termsPrivacy: signal(false),
 		publish: signal(false)
 	};
 
 	allAcksChecked = computed(() => {
-		return this.acks.data() && this.acks.terms() && this.acks.privacy() && this.acks.publish();
+		return this.acks.data() && this.acks.termsPrivacy() && this.acks.publish();
 	});
 
 	private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
 	private static readonly ACK_MESSAGES: Record<string, string> = {
 		data: 'أكّد صحة البيانات المدخلة للمتابعة',
-		terms: 'وافق على شروط الاستخدام للمتابعة',
-		privacy: 'أكّد اطلاعك على سياسة الخصوصية للمتابعة',
+		termsPrivacy: 'وافق على شروط الاستخدام وسياسة الخصوصية للمتابعة',
 		publish: 'وافق على نشر الطلب للمزودين المؤهلين للمتابعة',
 	};
 
