@@ -375,6 +375,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.aiReviewError.set('');
     this.aiPreviewOverflow.set(false);
     this.isAiStreaming.set(false);
+    this.isFetchingAiBudget.set(false);
     this.aiPhase.set('idle');
     this.aiMode.set(null);
     this.lastAiTitle = '';
@@ -905,6 +906,96 @@ export class CreateRequest implements OnInit, OnDestroy {
   /** Rewriting only: the AI restates a title + description the client already wrote, it never writes them. */
   canRefineWithAi = computed(() => canRewrite(this.title(), this.description()));
   isFetchingAiDraft = signal(false);
+  isFetchingAiBudget = signal(false);
+
+  /**
+   * Step 4 isolated AI estimator: suggests ONLY budget range, delivery duration (if empty),
+   * and 100%-sum payment milestones based on the client's Step 3 details — NEVER modifies Step 3 text fields.
+   */
+  triggerAiBudgetSuggest() {
+    if (this.isFetchingAiBudget() || this.isFetchingAiDraft()) return;
+    const rawTitle = this.title().trim();
+    const rawDesc = this.description().trim();
+    const specName = this.selectedSpec() === 'other' ? this.otherText().trim() : (this.currentSpec()?.name || '');
+
+    if (rawTitle.length < 3 && rawDesc.length < 10) {
+      this.notify.warning('أدخل عنوان الطلب ووصفه في خطوة التفاصيل أولًا لتقدير الميزانية والمراحل.');
+      return;
+    }
+
+    const policyError = this.checkProhibitedContent(`${rawTitle} ${rawDesc}`);
+    if (policyError) {
+      this.notify.error(policyError);
+      return;
+    }
+
+    const requestedSpec = this.selectedSpec();
+    this.isFetchingAiBudget.set(true);
+
+    this.projectApi.getAiBudgetSuggestion({
+      title: rawTitle || undefined,
+      description: rawDesc || undefined,
+      specialtyName: specName || 'عام',
+      subSpecialties: Array.from(this.selectedSubs()),
+      requiredSkills: this.requiredSkills(),
+      outputs: this.outputs().trim() || undefined,
+      deliveryDays: this.deliveryDays()
+    }).subscribe({
+      next: (res: any) => {
+        this.isFetchingAiBudget.set(false);
+        if (this.title().trim() !== rawTitle || this.description().trim() !== rawDesc || this.selectedSpec() !== requestedSpec) {
+          this.notify.warning('تغيّرت تفاصيل الطلب أثناء التقدير؛ لم يُطبّق التقدير القديم.');
+          return;
+        }
+        const d = res?.data || res;
+        if (!d || (typeof d.recommendedMinBudget !== 'number' && !Array.isArray(d.suggestedMilestones))) {
+          this.notify.warning('تعذر تقدير الميزانية والمراحل حاليًا، حاول مرة أخرى.');
+          return;
+        }
+
+        if (typeof d.recommendedMinBudget === 'number' && d.recommendedMinBudget > 0) {
+          const minB = Math.max(100, Math.round(d.recommendedMinBudget));
+          const maxB = Math.max(minB, Math.round(d.recommendedMaxBudget || minB * 2));
+          this.budgetMin.set(minB);
+          this.budgetMax.set(maxB);
+          if (this.budgetType() === 'fixed' || !this.budgetFixed()) {
+            this.budgetFixed.set(Math.round((minB + maxB) / 2));
+          }
+        }
+
+        if (!this.deliveryDays() && typeof d.suggestedDurationDays === 'number' && d.suggestedDurationDays >= 1) {
+          this.deliveryDays.set(Math.min(365, Math.round(d.suggestedDurationDays)));
+        }
+
+        if (Array.isArray(d.suggestedMilestones) && d.suggestedMilestones.length >= 2) {
+          const rawRows = d.suggestedMilestones.map((m: any) => ({
+            name: this.formatClientDraftText(m.name, true).slice(0, 120) || 'مرحلة تنفيذ',
+            pct: Math.max(1, Math.round(Number(m.pct) || 0))
+          }));
+          const sum = rawRows.reduce((acc: number, item: { pct: number }) => acc + item.pct, 0);
+          if (sum > 0 && sum !== 100) {
+            let allocated = 0;
+            rawRows.forEach((item: { pct: number }, idx: number) => {
+              if (idx === rawRows.length - 1) {
+                item.pct = Math.max(1, 100 - allocated);
+              } else {
+                item.pct = Math.max(1, Math.round((item.pct / sum) * 100));
+                allocated += item.pct;
+              }
+            });
+          }
+          this.splitMilestones.set(true);
+          this.milestones.set(rawRows);
+        }
+
+        this.notify.success('تم تقدير الميزانية وتوزيع مراحل الدفع بناءً على تفاصيل طلبك، راجعها قبل اعتمادها.');
+      },
+      error: (err: any) => {
+        this.isFetchingAiBudget.set(false);
+        this.notify.error(err?.error?.message || 'تعذر تقدير الميزانية والمراحل حاليًا. حاول مرة أخرى.');
+      }
+    });
+  }
 
   private formatClientDraftText(text: string | null | undefined, isSingleLine = false): string {
     if (!text) return '';

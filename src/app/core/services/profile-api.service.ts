@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { ClientProfileInput, ProfileResponse, ProviderProfileInput } from '../models/profile.model';
 import { AuthStore } from '../store/auth.store';
 import { UserStatus } from '../models/auth.model';
@@ -117,5 +118,19 @@ export class ProfileApiService {
    */
   public saveProviderProfileSetup(payload: ProviderSetupPayload): Observable<any> {
     return this.http.post<any>(`${environment.url_api}/provider/profile/setup`, payload);
+  }
+
+  /** Advisory live AI clarity & document-type inspection for client KYC Step 2 uploads. */
+  public verifyIdentityDocument(input: {
+    side: 'FRONT' | 'BACK';
+    image: string;
+    imageMimeType?: string;
+    declared?: { fullName?: string; birthDate?: string; nationalId?: string };
+  }): Observable<any> {
+    return this.http.post<any>(
+      `${environment.url_api}/client/profile/verify-id-document`,
+      input,
+      { context: new HttpContext().set(SKIP_LOADING, true) }
+    );
   }
 }

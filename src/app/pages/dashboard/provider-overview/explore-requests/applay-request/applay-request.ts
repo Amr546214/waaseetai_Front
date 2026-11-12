@@ -14,6 +14,7 @@ import { Step3Review } from './components/step3-review/step3-review';
 import { Step4Success } from './components/step4-success/step4-success';
 import { aiSuggestInputError } from './ai-suggest-input';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
+import { SOCKET_BACKOFF } from '../../../../../core/utils/socket-backoff';
 
 export interface Milestone {
 	id: string;
@@ -80,6 +81,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	private providerApi = inject(ProviderApiService);
 	private notify = inject(UiNotificationService);
 	private socket?: Socket;
+	private auditTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
 	reqId = signal<string | null>(null);
 	activeStep = signal<number>(1);
@@ -470,26 +472,14 @@ export class ApplayRequest implements OnInit, OnDestroy {
 						const refinedMsg = this.formatProposalText(res.data.suggestedMessage || this.proposal().message, false);
 						const suggestedAdvs = (res.data.suggestedAdvantages || []).map((a: string) => this.formatProposalText(a, true));
 						const suggestedOutputs = res.data.suggestedOutputs ? this.formatProposalText(res.data.suggestedOutputs, true) : '';
-						if (typeof res.data.suggestedTotalPrice === 'number' && res.data.suggestedTotalPrice > 0 && !(this.totalBudget() > 0)) {
-							this.totalBudget.set(res.data.suggestedTotalPrice);
-						}
-						const aiMilestones: Milestone[] = Array.isArray(res.data.suggestedMilestones) && res.data.suggestedMilestones.length > 0
-							? res.data.suggestedMilestones.map((m: any, idx: number) => ({
-								id: String(idx + 1),
-								name: this.formatProposalText(m.name, true),
-								desc: this.formatProposalText(m.desc, true),
-								days: Math.max(1, Number(m.days) || 1),
-								pct: Math.max(1, Number(m.pct) || 100)
-							}))
-							: this.buildSynchronizedMilestones(refinedMsg, this.projectDetails()?.deliveryDays);
 
 						this.proposal.update(p => ({
 							...p,
 							title: refinedTitle,
 							message: refinedMsg,
-							outputs: suggestedOutputs || p.outputs || aiMilestones.map((m, i) => `${i + 1}. ${m.name}`).join(' — '),
+							outputs: suggestedOutputs || p.outputs,
 							advantages: Array.from(new Set([...p.advantages, ...suggestedAdvs])),
-							milestones: aiMilestones
+							milestones: p.milestones
 						}));
 						this.saveDraft();
 					}
@@ -500,6 +490,20 @@ export class ApplayRequest implements OnInit, OnDestroy {
 					this.notify.error(err.error?.message || 'تعذر تشغيل اقتراح AI ولم يتم تغيير عرضك.');
 				}
 			});
+	}
+
+	distributeMilestonesFromProposal() {
+		const current = this.proposal();
+		if (!current.message?.trim()) {
+			this.notify.warning('اكتب رسالة العرض أولاً في الخطوة الأولى ليتم توزيع المراحل بناءً عليها');
+			return;
+		}
+		const synced = this.buildSynchronizedMilestones(current.message, this.projectDetails()?.deliveryDays);
+		this.proposal.update(p => ({
+			...p,
+			milestones: synced
+		}));
+		this.saveDraft();
 	}
 
 	// Advantages / Requirements
@@ -678,6 +682,11 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	}
 
 	triggerAiAudit() {
+		if (this.auditTimeoutId) {
+			clearTimeout(this.auditTimeoutId);
+			this.auditTimeoutId = null;
+		}
+
 		// Real values only — no placeholder project/provider/price/duration is ever sent.
 		const projectId = this.reqId();
 		const providerId = this.authStore.currentUser()?.id;
@@ -694,15 +703,26 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		this.isScanning.set(true);
 		this.auditProgressMessage.set('جاري مراجعة جودة العرض...');
 
-		if (!this.socket) {
-			let token: string | null = null;
-			if (typeof window !== 'undefined') {
-				token = localStorage.getItem('waseet_token') || localStorage.getItem('access_token') || localStorage.getItem('token');
-				if (!token && typeof document !== 'undefined') {
-					token = document.cookie.match(/(?:^|;\s*)waseet_token=([^;]+)/)?.[1] || null;
-				}
+		let token: string | null = this.authStore.token?.() || null;
+		if (!token && typeof window !== 'undefined') {
+			token = localStorage.getItem('waseet_token') || localStorage.getItem('access_token') || localStorage.getItem('token');
+			if (!token && typeof document !== 'undefined') {
+				const rawCookie = document.cookie.match(/(?:^|;\s*)waseet_token=([^;]+)/)?.[1] || null;
+				token = rawCookie ? decodeURIComponent(rawCookie) : null;
 			}
-			this.socket = io(environment.socketUrl, { withCredentials: true, auth: { token } });
+		}
+
+		if (!this.socket) {
+			this.socket = io(environment.socketUrl, {
+				withCredentials: true,
+				...SOCKET_BACKOFF,
+				auth: { token }
+			});
+		} else {
+			(this.socket as any).auth = { token };
+			if (!this.socket.connected) {
+				this.socket.connect();
+			}
 		}
 
 		const payload = {
@@ -720,6 +740,13 @@ export class ApplayRequest implements OnInit, OnDestroy {
 
 		this.socket.off('ai_audit_progress');
 		this.socket.off('ai_audit_result');
+		this.socket.off('connect_error');
+
+		this.socket.on('connect_error', () => {
+			if (this.isScanning() && !this.auditResult()) {
+				this.auditProgressMessage.set('جاري إعادة الاتصال بخدمة مراجعة الجودة...');
+			}
+		});
 
 		this.socket.on('ai_audit_progress', (data: { status: string; message?: string }) => {
 			if (data.message) {
@@ -728,12 +755,20 @@ export class ApplayRequest implements OnInit, OnDestroy {
 				this.auditProgressMessage.set(`حالة المراجعة: ${data.status}`);
 			}
 			if (data.status === 'COMPLETED') {
+				if (this.auditTimeoutId) {
+					clearTimeout(this.auditTimeoutId);
+					this.auditTimeoutId = null;
+				}
 				this.isScanning.set(false);
 			}
 			// Honest failure — the backend never sends a fabricated ai_audit_result
 			// in this case; show the existing empty/unavailable state immediately
-			// instead of waiting out the 4.5s safety timeout below.
+			// instead of waiting out the safety timeout below.
 			if (data.status === 'FAILED') {
+				if (this.auditTimeoutId) {
+					clearTimeout(this.auditTimeoutId);
+					this.auditTimeoutId = null;
+				}
 				this.isScanning.set(false);
 				if (!this.auditResult()) {
 					this.auditResult.set(this.getUnavailableAudit());
@@ -742,6 +777,10 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		});
 
 		this.socket.once('ai_audit_result', (result: AiAuditResult) => {
+			if (this.auditTimeoutId) {
+				clearTimeout(this.auditTimeoutId);
+				this.auditTimeoutId = null;
+			}
 			this.auditResult.set(result);
 			this.isScanning.set(false);
 			this.saveDraft();
@@ -750,7 +789,8 @@ export class ApplayRequest implements OnInit, OnDestroy {
 		this.socket.emit('trigger_ai_audit', payload);
 
 		// Safety fallback if WebSocket takes too long or offline
-		setTimeout(() => {
+		this.auditTimeoutId = setTimeout(() => {
+			this.auditTimeoutId = null;
 			if (this.isScanning()) {
 				this.isScanning.set(false);
 				if (!this.auditResult()) {
@@ -881,6 +921,10 @@ export class ApplayRequest implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
+		if (this.auditTimeoutId) {
+			clearTimeout(this.auditTimeoutId);
+			this.auditTimeoutId = null;
+		}
 		if (this.socket) {
 			this.socket.disconnect();
 		}

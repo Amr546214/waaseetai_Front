@@ -253,6 +253,14 @@
 										}
 									</label>
 								</div>
+								<div role="status" aria-live="polite" aria-atomic="true">
+									@if (idDocInspections()['frontId']; as insp) {
+										<div data-testid="client-ai-id-inspection-frontId" class="mt-2 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border" [ngClass]="insp.status === 'warning' ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/60 text-amber-800 dark:text-amber-300' : (insp.status === 'valid' ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700/60 text-emerald-700 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800/60 border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300')">
+											<span role="img" [attr.aria-label]="insp.status === 'warning' ? 'تنبيه' : (insp.status === 'valid' ? 'تم الفحص' : 'قيد الفحص')">{{ insp.status === 'warning' ? '⚠️' : (insp.status === 'valid' ? '✓' : '⏳') }}</span>
+											<span>{{ insp.message }}</span>
+										</div>
+									}
+								</div>
 							</div>
 
 							<div class="flex flex-col gap-2">
@@ -334,6 +342,14 @@
 										<div class="text-[length:var(--font-size-caption)] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 2 ميغابايت</div>
 										}
 									</label>
+								</div>
+								<div role="status" aria-live="polite" aria-atomic="true">
+									@if (idDocInspections()['backId']; as insp) {
+										<div data-testid="client-ai-id-inspection-backId" class="mt-2 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border" [ngClass]="insp.status === 'warning' ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/60 text-amber-800 dark:text-amber-300' : (insp.status === 'valid' ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700/60 text-emerald-700 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800/60 border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300')">
+											<span role="img" [attr.aria-label]="insp.status === 'warning' ? 'تنبيه' : (insp.status === 'valid' ? 'تم الفحص' : 'قيد الفحص')">{{ insp.status === 'warning' ? '⚠️' : (insp.status === 'valid' ? '✓' : '⏳') }}</span>
+											<span>{{ insp.message }}</span>
+										</div>
+									}
 								</div>
 							</div>
 						</div>

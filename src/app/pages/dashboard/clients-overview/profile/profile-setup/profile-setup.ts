@@ -69,6 +69,8 @@ export class ProfileSetupDashboard implements OnInit {
 	missing = signal<InvalidField[]>([]);
 	/** Arabic file errors (size/type) per upload control. */
 	fileErrors = signal<Record<string, string>>({});
+	/** Advisory live AI document inspection results for Step 2 (frontId / backId). */
+	idDocInspections = signal<Record<string, { status: 'scanning' | 'valid' | 'warning'; message: string }>>({});
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private readonly notify = inject(UiNotificationService);
 
@@ -357,6 +359,54 @@ export class ProfileSetupDashboard implements OnInit {
 				group.patchValue({ [controlName]: base64Str });
 			}
 			this.isUploading.update(s => ({ ...s, [controlName]: false }));
+
+			if (
+				groupName === 'identity' &&
+				(controlName === 'frontId' || controlName === 'backId') &&
+				file.type?.startsWith('image/') &&
+				file.size >= 512 &&
+				typeof this.profileApi.verifyIdentityDocument === 'function'
+			) {
+				this.idDocInspections.update(curr => ({
+					...curr,
+					[controlName]: { status: 'scanning', message: '⏳ جاري فحص وضوح الوثيقة ونوعها بالذكاء الاصطناعي...' }
+				}));
+				const u = this.authStore.currentUser();
+				const fullName = u ? `${u.firstName || ''} ${u.lastName || ''}`.trim() : '';
+				const idNumber = String(this.setupForm.get('details.idNumber')?.value || '').trim();
+				const dob = String(this.setupForm.get('details.dob')?.value || '').trim();
+				this.profileApi.verifyIdentityDocument({
+					side: controlName === 'frontId' ? 'FRONT' : 'BACK',
+					image: base64Str,
+					imageMimeType: file.type,
+					declared: {
+						...(fullName ? { fullName } : {}),
+						...(idNumber ? { nationalId: idNumber } : {}),
+						...(dob ? { birthDate: dob } : {})
+					}
+				}).subscribe({
+					next: (res: any) => {
+						const d = res?.data;
+						if (!d) {
+							this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+							return;
+						}
+						const isOk = d.status === 'VALID_READABLE_ID' && d.isOfficialIdDocument && d.isReadable;
+						this.idDocInspections.update(curr => ({
+							...curr,
+							[controlName]: {
+								status: isOk ? 'valid' : 'warning',
+								message: d.advisoryMessageAr || (isOk ? 'وثيقة هوية واضحة وجاهزة للمراجعة البشرية ✓' : 'تنبيه استشاري: الصورة قد لا تبدو وثيقة هوية واضحة؛ يفضّل استبدالها بصورة أوضح لتجنّب الرفض.')
+							}
+						}));
+					},
+					error: () => {
+						this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+					}
+				});
+			} else if (controlName === 'frontId' || controlName === 'backId') {
+				this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+			}
 		};
 		reader.onerror = () => {
 			this.isUploading.update(s => ({ ...s, [controlName]: false }));

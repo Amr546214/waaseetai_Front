@@ -722,9 +722,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	private suggestionInput() {
+		const subs = this.selectedSpecs();
 		return {
 			jobTitle: this.setupForm.get('profData.jobTitle')?.value || undefined,
 			mainSpecialty: this.setupForm.get('specialties.mainSpec')?.value || undefined,
+			...(subs.length ? { subSpecialties: subs } : {}),
 			experienceRange: this.setupForm.get('profData.expYears')?.value || undefined,
 			existingSkills: this.skillsList()
 		};
@@ -745,22 +747,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					return;
 				}
 				const existing = new Set(this.skillsList().map(s => s.trim().normalize('NFKC').toLowerCase()));
+				const allowed = this.skillOptions();
 				const filtered = res.data.suggestedSkills.filter(s => {
 					const key = s.trim().normalize('NFKC').toLowerCase();
 					if (!key || existing.has(key)) return false;
+					if (allowed.length && !allowed.includes(s)) return false;
 					existing.add(key);
 					return true;
 				});
-				if (filtered.length < 6 && this.skillOptions().length > 0) {
-					for (const opt of this.skillOptions()) {
-						if (filtered.length >= 6) break;
-						const key = opt.trim().normalize('NFKC').toLowerCase();
-						if (key && !existing.has(key)) {
-							existing.add(key);
-							filtered.push(opt);
-						}
-					}
-				}
 				this.aiSuggestedSkills.set(filtered);
 				this.skillsSuggestionReady.set(true);
 			},
@@ -834,6 +828,60 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.savePreferences();
 	}
 
+	idDocInspections = signal<Record<string, { status: 'scanning' | 'valid' | 'warning'; message: string }>>({});
+
+	private runAdvisoryIdInspection(file: File, slot: 'frontId' | 'backId') {
+		if (!file.type?.startsWith('image/') || file.size < 512 || typeof this.providerProfileService.verifyIdentityDocument !== 'function') {
+			return;
+		}
+		this.idDocInspections.update(curr => ({
+			...curr,
+			[slot]: { status: 'scanning', message: '⏳ جاري فحص وضوح الوثيقة ونوعها بالذكاء الاصطناعي...' }
+		}));
+		const reader = new FileReader();
+		reader.onload = () => {
+			const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+			if (!dataUrl) {
+				this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
+				return;
+			}
+			const u = this.authStore.currentUser();
+			const fullName = u ? `${u.firstName || ''} ${u.lastName || ''}`.trim() : '';
+			this.providerProfileService.verifyIdentityDocument({
+				side: slot === 'frontId' ? 'FRONT' : 'BACK',
+				image: dataUrl,
+				imageMimeType: file.type,
+				declared: {
+					...(fullName ? { fullName } : {}),
+					...(this.setupForm.get('profData.dob')?.value ? { birthDate: String(this.setupForm.get('profData.dob')?.value) } : {})
+				}
+			}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+				next: res => {
+					const d = res?.data;
+					if (!d) {
+						this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
+						return;
+					}
+					const isOk = d.status === 'VALID_READABLE_ID' && d.isOfficialIdDocument && d.isReadable;
+					this.idDocInspections.update(curr => ({
+						...curr,
+						[slot]: {
+							status: isOk ? 'valid' : 'warning',
+							message: d.advisoryMessageAr || (isOk ? 'وثيقة هوية واضحة وجاهزة للمراجعة البشرية ✓' : 'تنبيه استشاري: الصورة قد لا تبدو وثيقة هوية واضحة؛ يفضّل استبدالها بصورة واضحة لتجنّب الرفض.')
+						}
+					}));
+				},
+				error: () => {
+					this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
+				}
+			});
+		};
+		reader.onerror = () => {
+			this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
+		};
+		reader.readAsDataURL(file);
+	}
+
 	private uploadSingleDoc(file: File, type: string) {
 		this.clearFileError(type);
 		const key = type;
@@ -842,6 +890,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		if (type === 'frontId') this.uploadedFrontIdName.set(file.name);
 		if (type === 'backId') this.uploadedBackIdName.set(file.name);
 		if (type === 'selfie') this.uploadedSelfieName.set(file.name);
+		if (type === 'frontId' || type === 'backId') {
+			this.runAdvisoryIdInspection(file, type);
+		}
 
 		this.providerProfileService.uploadDocument(file).subscribe({
 			next: (event: any) => {
@@ -944,6 +995,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		const states = { ...this.uploadStates() };
 		delete states[type];
 		this.uploadStates.set(states);
+		if (type === 'frontId' || type === 'backId') {
+			this.idDocInspections.update(curr => { const next = { ...curr }; delete next[type]; return next; });
+		}
 		if (type === 'frontId') {
 			this.uploadedFrontId.set('');
 			this.uploadedFrontIdName.set('');

@@ -89,6 +89,24 @@ export class AssistantReplyAudioService implements OnDestroy {
       },
       error: (err) => {
         const errorCode = err?.code ?? 'UNAVAILABLE';
+        const isArabic = /[\u0600-\u06FF]/.test(spokenText) || req.dialect !== 'english';
+        if (isArabic && (errorCode === 'UNAVAILABLE' || errorCode === 'INVALID_AUDIO') && (req.voice !== 'Puck' || req.dialect !== 'msa')) {
+          const retrySub = this.tts.synthesize({ ...req, text: spokenText, voice: 'Puck', dialect: 'msa' }).subscribe({
+            next: (blob) => {
+              const generationMs = Math.round(performance.now() - startTime);
+              const url = URL.createObjectURL(blob);
+              this.activeUrls.add(url);
+              this.updateClip(k, { status: 'ready', url, generationMs });
+              this.pendingSubs.delete(k);
+            },
+            error: (retryErr) => {
+              this.updateClip(k, { status: 'error', error: retryErr?.code ?? errorCode });
+              this.pendingSubs.delete(k);
+            },
+          });
+          this.pendingSubs.set(k, retrySub);
+          return;
+        }
         this.updateClip(k, { status: 'error', error: errorCode });
         this.pendingSubs.delete(k);
       },
