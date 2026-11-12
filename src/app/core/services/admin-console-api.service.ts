@@ -1,6 +1,7 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { environment } from '../../../environments/environment';
 
 export interface AdminAuditEntry {
@@ -50,9 +51,9 @@ export class AdminConsoleApiService {
 	getAuditLog(q: AdminAuditQuery): Observable<Envelope<AdminAuditLogPage>> {
 		let params = new HttpParams();
 		for (const [k, v] of Object.entries(q)) if (v !== undefined && v !== '' && v !== null) params = params.set(k, String(v));
-		return this.http.get<Envelope<AdminAuditLogPage>>(`${this.base}/audit-log`, { params });
+		return this.http.get<Envelope<AdminAuditLogPage>>(`${this.base}/audit-log`, { params, context: new HttpContext().set(SKIP_LOADING, true) });
 	}
-	getAdmins(): Observable<Envelope<AdminRosterItem[]>> { return this.http.get<Envelope<AdminRosterItem[]>>(`${this.base}/admins`); }
+	getAdmins(): Observable<Envelope<AdminRosterItem[]>> { return this.http.get<Envelope<AdminRosterItem[]>>(`${this.base}/admins`, { context: new HttpContext().set(SKIP_LOADING, true) }); }
 	updateAvatar(image: string | null) { return this.http.post<Envelope<AdminSelfProfile>>(`${this.base}/account/avatar`, { image }); }
 	securityPolicy() { return this.http.get<Envelope<{ emailCodeRequired: boolean; authenticatorAppAvailable: boolean; editable: boolean }>>(`${this.base}/account/security-policy`); }
 	getMe(): Observable<Envelope<AdminSelfProfile>> { return this.http.get<Envelope<AdminSelfProfile>>(`${this.base}/account/me`); }

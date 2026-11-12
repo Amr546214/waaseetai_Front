@@ -1,42 +1,32 @@
-<section class="bm-page">
+<section class="bm-page" dir="rtl">
   <header class="bm-hdr">
-    <h1 class="bm-ttl">نماذج الأعمال</h1>
-    <p class="bm-sub">مراجعة النماذج التي يقدّمها مزوّدو الخدمة للسوق.</p>
+    <div><h1 class="bm-ttl">نماذج الأعمال</h1><p class="bm-sub">راجع تفاصيل النماذج وتخصصاتها وحالتها قبل اتخاذ قرار الاعتماد أو النشر.</p></div>
+    @if (result(); as page) { <span class="bm-count">{{ page.pagination.total }} <span>نتيجة مطابقة</span></span> }
   </header>
-
-  <form class="review-filters" (ngSubmit)="applyFilters()">
-    <label>عنوان النموذج <input name="search" [(ngModel)]="search" maxlength="150" type="search" /></label>
-    <label>الحالة
-      <select name="status" [(ngModel)]="status">
-        <option value="">كل الحالات</option>
-        @for (state of statuses; track state[0]) { <option [value]="state[0]">{{ state[1] }}</option> }
-      </select>
-    </label>
-    <button [disabled]="loading()" type="submit">بحث</button>
+  <form class="bm-toolbar" (ngSubmit)="applyFilters()" aria-label="تصفية نماذج الأعمال">
+    <label class="bm-search">البحث عن نموذج<input name="search" [(ngModel)]="search" maxlength="150" type="search" placeholder="اكتب عنوان النموذج…" /></label>
+    <label class="bm-status-filter">حالة النموذج<ws-select name="status" [(ngModel)]="status" [options]="statusOptions" ariaLabel="حالة النموذج" /></label>
+    <button class="bm-btn bm-primary" [disabled]="loading()" type="submit">بحث</button>
+    <button class="bm-btn" [disabled]="loading() || (!search && !status)" type="button" (click)="clearFilters()">مسح الفلاتر</button>
   </form>
-
-  @if (loading()) { <p role="status">جاري تحميل النماذج…</p> }
-  @else if (error()) { <p role="alert">{{ error() }}</p> <button type="button" (click)="applyFilters()">إعادة المحاولة</button> }
-  @else if (result(); as page) {
-    @if (!page.items.length) { <p>لا توجد نماذج مطابقة.</p> }
-    @else {
-      <ul class="review-list">
-        @for (item of page.items; track item.id) {
-          <li>
-            <a [routerLink]="[item.id]">{{ item.title }}</a>
-            <span>{{ item.provider.firstName }} {{ item.provider.lastName }}</span>
-            <span>{{ item.specialty?.nameAr || 'بلا تخصص' }}</span>
-            <span>{{ labels[item.status] }}</span>
-          </li>
-        }
-      </ul>
+  <div class="bm-results" [attr.aria-busy]="loading()">
+    @if (loading()) { <div class="bm-state" role="status">جارٍ تحميل نماذج الأعمال…</div> }
+    @else if (error()) { <div class="bm-state"><p role="alert">{{ error() }}</p><button class="bm-btn" type="button" (click)="applyFilters()">إعادة المحاولة</button></div> }
+    @else if (result(); as page) {
+      @if (!page.items.length) { <div class="bm-state"><h2>لا توجد نماذج مطابقة</h2><p>جرّب عنوانًا آخر أو غيّر حالة النموذج.</p></div> }
+      @else {
+        <table class="bm-table"><caption class="sr-only">نماذج الأعمال المطابقة للفلاتر</caption>
+          <thead><tr><th scope="col">النموذج والتخصص</th><th scope="col">مقدم الخدمة</th><th scope="col">مدة التنفيذ</th><th scope="col">الحالة</th><th scope="col"><span class="sr-only">المراجعة</span></th></tr></thead>
+          <tbody>@for (item of page.items; track item.id) {
+            <tr><td data-label="النموذج"><a class="bm-title-link" [routerLink]="[item.id]">{{ item.title }}</a><span class="bm-specialty">{{ item.specialty?.nameAr || 'بلا تخصص' }}</span></td>
+              <td data-label="مقدم الخدمة"><span class="bm-provider">{{ item.provider.firstName }} {{ item.provider.lastName }}</span></td>
+              <td data-label="مدة التنفيذ">{{ item.totalDays }} يوم</td>
+              <td data-label="الحالة"><span class="bm-status" [attr.data-status]="item.status">{{ labels[item.status] }}</span></td>
+              <td class="bm-action"><a class="bm-btn" [routerLink]="[item.id]" [attr.aria-label]="'مراجعة نموذج ' + item.title">عرض ومراجعة ←</a></td></tr>
+          }</tbody>
+        </table>
+      }
+      <nav class="bm-pagination" aria-label="صفحات نماذج الأعمال"><span>{{ page.pagination.total }} نتيجة · صفحة {{ page.pagination.page }} من {{ page.pagination.pages || 1 }}</span><div><button class="bm-btn" type="button" [disabled]="page.pagination.page <= 1" (click)="load(page.pagination.page - 1)">السابق</button><button class="bm-btn" type="button" [disabled]="page.pagination.page >= page.pagination.pages" (click)="load(page.pagination.page + 1)">التالي</button></div></nav>
     }
-    @if (page.pagination.page > 1 || page.pagination.pages > 1) {
-      <nav class="review-filters" aria-label="صفحات نماذج الأعمال">
-        <button type="button" [disabled]="page.pagination.page <= 1" (click)="load(page.pagination.page - 1)">السابق</button>
-        <span>صفحة {{ page.pagination.page }} من {{ page.pagination.pages }}</span>
-        <button type="button" [disabled]="page.pagination.page >= page.pagination.pages" (click)="load(page.pagination.page + 1)">التالي</button>
-      </nav>
-    }
-  }
+  </div>
 </section>

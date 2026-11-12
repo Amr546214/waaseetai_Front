@@ -18,6 +18,8 @@
     <div class="rc-kpi"><div class="rc-kpi-v txt-amber">{{ kpis().withOpenDisputes }}</div><div class="rc-kpi-l">لديه نزاع مفتوح</div></div>
   </div>
 
+  @if (actionError()) { <p class="rc-action-error" role="alert">{{ actionError() }} <button class="rc-btn rc-btn-gh" type="button" (click)="load()">تحديث القائمة</button></p> }
+  @if (actionNotice()) { <p class="rc-action-notice" role="status">{{ actionNotice() }}</p> }
   <div class="rc-grid">
     <div class="rc-card">
       <div class="rc-card-ttl"><svg><use href="#rc-i-warn"></use></svg>الحسابات الموقوفة</div>
@@ -40,6 +42,7 @@
                 }
               </div>
             </div>
+            @if (access.can('users.suspend')) { <button class="rc-btn rc-btn-primary" type="button" data-testid="rc-reactivate" [disabled]="busyUserId() !== null" (click)="reactivate(a)">{{ busyUserId() === a.userId ? 'جارٍ التأكيد…' : 'إعادة تفعيل الحساب' }}</button> }
           </div>
         } @empty {
           <div class="rc-risk-item">لا توجد حسابات موقوفة حالياً</div>

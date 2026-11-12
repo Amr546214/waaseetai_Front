@@ -6,10 +6,11 @@
     </div>
     <div class="fcm-actions">
       <button type="button" class="fcm-btn fcm-btn-ghost" data-testid="cm-export" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : 'تصدير CSV' }}</button>
-      <button type="button" class="fcm-btn fcm-btn-primary" data-testid="cm-edit" disabled [attr.title]="editReason">تعديل الهيكل</button>
+      @if (access.can('fees.manage')) { <button type="button" class="fcm-btn fcm-btn-primary" data-testid="cm-edit" [attr.aria-expanded]="editingStructure()" aria-controls="commission-policy-editor" (click)="editingStructure.set(!editingStructure())">{{ editingStructure() ? 'إغلاق تعديل الهيكل' : 'تعديل الهيكل' }}</button> }
     </div>
   </div>
   <p class="fcm-sub" data-testid="cm-edit-reason">{{ editReason }}</p>
+  @if (editingStructure()) { <div id="commission-policy-editor"><app-fee-policy-panel /></div> }
   @if (exportError()) { <p class="fcm-sub" role="alert">{{ exportError() }}</p> }
 
   @if (loading()) {
