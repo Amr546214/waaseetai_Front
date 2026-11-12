@@ -1,3 +1,4 @@
+import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { birthDateValidator, maxDobIso } from '../../../../../core/forms/birth-date';
 import { Component, DestroyRef, ElementRef, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -69,6 +70,9 @@ export class ProfileSetupDashboard implements OnInit {
 	missing = signal<InvalidField[]>([]);
 	/** Arabic file errors (size/type) per upload control. */
 	fileErrors = signal<Record<string, string>>({});
+	/** Advisory live AI document inspection results for Step 2 (frontId / backId). */
+	private idInspectionVersions: Record<string, number> = {};
+	idDocInspections = signal<Record<string, { status: 'scanning' | 'valid' | 'warning'; message: string }>>({});
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private readonly notify = inject(UiNotificationService);
 
@@ -347,18 +351,73 @@ export class ProfileSetupDashboard implements OnInit {
 		}
 		this.fileErrors.update(e => { const { [controlName]: _gone, ...rest } = e; return rest; });
 
+		const inspectionVersion = (this.idInspectionVersions[controlName] || 0) + 1;
+		this.idInspectionVersions[controlName] = inspectionVersion;
+		const isCurrent = () => this.idInspectionVersions[controlName] === inspectionVersion;
+		this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
 		this.isUploading.update(s => ({ ...s, [controlName]: true }));
 
 		const reader = new FileReader();
 		reader.onload = () => {
+			if (!isCurrent()) return;
 			const base64Str = reader.result as string;
 			const group = this.setupForm.get(groupName) as FormGroup;
 			if (group) {
 				group.patchValue({ [controlName]: base64Str });
 			}
 			this.isUploading.update(s => ({ ...s, [controlName]: false }));
+
+			if (
+				groupName === 'identity' &&
+				(controlName === 'frontId' || controlName === 'backId') &&
+				(file.type?.startsWith('image/') || file.type === 'application/pdf') &&
+				file.size >= 512 &&
+				typeof this.profileApi.verifyIdentityDocument === 'function'
+			) {
+				this.idDocInspections.update(curr => ({
+					...curr,
+					[controlName]: { status: 'scanning', message: '⏳ جاري فحص وضوح الوثيقة ونوعها بالذكاء الاصطناعي...' }
+				}));
+				const u = this.authStore.currentUser();
+				const fullName = u ? `${u.firstName || ''} ${u.lastName || ''}`.trim() : '';
+				const idNumber = String(this.setupForm.get('details.idNumber')?.value || '').trim();
+				const dob = String(this.setupForm.get('details.dob')?.value || '').trim();
+				this.profileApi.verifyIdentityDocument({
+					side: controlName === 'frontId' ? 'FRONT' : 'BACK',
+					image: base64Str,
+					imageMimeType: file.type,
+					declared: {
+						...(fullName ? { fullName } : {}),
+						...(idNumber ? { nationalId: idNumber } : {}),
+						...(dob ? { birthDate: dob } : {})
+					}
+				}).subscribe({
+					next: (res: any) => {
+						if (!isCurrent()) return;
+						const d = res?.data;
+						if (!d) {
+							this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+							return;
+						}
+						const inspection = identityInspectionResult(d);
+						this.idDocInspections.update(curr => ({
+							...curr,
+							[controlName]: {
+								...inspection
+							}
+						}));
+					},
+					error: () => {
+						if (!isCurrent()) return;
+						this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+					}
+				});
+			} else if (controlName === 'frontId' || controlName === 'backId') {
+				this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+			}
 		};
 		reader.onerror = () => {
+			if (!isCurrent()) return;
 			this.isUploading.update(s => ({ ...s, [controlName]: false }));
 			this.fileErrors.update(e => ({ ...e, [controlName]: 'تعذّرت قراءة الملف، حاول مرة أخرى أو اختر ملفًا آخر' }));
 		};

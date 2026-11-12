@@ -132,7 +132,12 @@
             </div>
           </div>
         } @else {
-          <div style="font-size:var(--font-size-label);line-height:1.7;margin-bottom:8px" class="txt-slate">لم تكتمل مراجعة الجودة، ولا توجد درجة لعرضها. يمكنك المتابعة وتقديم العرض بشكل طبيعي.</div>
+          <div style="font-size:var(--font-size-label);line-height:1.7;margin-bottom:10px" class="txt-slate">لم تكتمل مراجعة الجودة، ولا توجد درجة لعرضها. يمكنك إعادة المحاولة أو المتابعة وتقديم العرض بشكل طبيعي.</div>
+          <div style="margin-bottom:10px">
+            <button type="button" data-testid="retry-ai-audit" (click)="retryAudit.emit()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(123,47,190,.16);border:1px solid rgba(123,47,190,.35);border-radius:9px;font-size:var(--font-size-small);font-weight:700;cursor:pointer" class="txt-purple">
+              <svg width="13" height="13" aria-hidden="true"><use href="#i-ai"></use></svg>إعادة فحص الجودة بـ AI
+            </button>
+          </div>
         }
         <div style="font-size:var(--font-size-small);line-height:1.7" class="txt-muted">{{ currentAudit.triPartyNote }}</div>
       </div>

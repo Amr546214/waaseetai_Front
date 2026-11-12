@@ -207,8 +207,8 @@
           <div class="form-card-sub">عرّف العملاء بخبرتك وما تقدمه من خدمات</div>
         </div>
       </div>
-      <button type="button" class="ai-banner-btn" (click)="suggestBio()" [disabled]="isSuggestingBio()" data-testid="suggest-bio-btn">
-        {{ isSuggestingBio() ? '⏳ جاري صياغة الوصف...' : '✨ اقتراح وصف بالذكاء الاصطناعي' }}
+      <button type="button" class="ai-banner-btn" (click)="triggerBioAi()" [disabled]="isSuggestingBio()" data-testid="suggest-bio-btn">
+        {{ isSuggestingBio() ? (hasBioText() ? '⏳ جاري تحسين الوصف...' : '⏳ جاري صياغة الوصف...') : (hasBioText() ? '✨ تحسين الوصف بالذكاء الاصطناعي' : '✨ اقتراح وصف بالذكاء الاصطناعي') }}
       </button>
     </div>
     <div class="inp-group">

@@ -170,7 +170,7 @@
         [totalPct]="totalPct()"
         [totalAmount]="totalAmount"
         [isFetchingAiSuggest]="isFetchingAiSuggest()"
-        (useAISuggest)="useAISuggest()"
+        (useAISuggest)="distributeMilestonesFromProposal()"
         (addMilestone)="addMilestone()"
         (removeMilestone)="removeMilestone($event)"
         (updateMilestone)="updateMilestone($event.id, $event.updates)">
@@ -188,7 +188,8 @@
         [ack2]="ack2()"
         [ack3]="ack3()"
         (prevStep)="prevStep()"
-        (toggleAck)="toggleAck($event)">
+        (toggleAck)="toggleAck($event)"
+        (retryAudit)="triggerAiAudit()">
       </app-step3-review>
     }
     <!-- STEP 4: Final Confirmation -->
