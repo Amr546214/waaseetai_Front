@@ -4,13 +4,14 @@ import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { vi } from 'vitest';
 import { AssistantChatComponent } from '../../sheards/assistant-chat/assistant-chat';
 import { AssistantStore } from '../store/assistant.store';
 import { AuthStore } from '../store/auth.store';
 import { HelpAssistantSocketService } from '../services/help-assistant-socket.service';
 import { AssistantTtsService } from '../services/assistant-tts.service';
+import { AssistantCapabilitiesService } from '../services/assistant-capabilities.service';
 import { SECURE_CONTEXT, SPEECH_RECOGNITION } from '../services/speech-recognition';
 import { CLIENT_HELP_ROUTES, MARKETER_HELP_ROUTES, PROVIDER_HELP_ROUTES, guidedCatalog, guidedSupport, helpRoleOfUrl, type HelpRole } from './help-guided';
 
@@ -35,6 +36,8 @@ describe('help page assistant: guided only (provider help)', () => {
 				{ provide: HelpAssistantSocketService, useValue: socket },
 				{ provide: AuthStore, useValue: { token, currentUser: user } },
 				{ provide: AssistantTtsService, useValue: { synthesize: vi.fn() } },
+				// the store asks for the model / voice list once a token exists; without this double the spec called the REAL dev API (GET /help-assistant/capabilities) and `whenStable()` waited ~5 s for that network call
+				{ provide: AssistantCapabilitiesService, useValue: { get: vi.fn(() => of({ models: [], voices: [] })) } },
 				{ provide: SPEECH_RECOGNITION, useValue: class { start() {} stop() {} abort() {} } },
 				{ provide: SECURE_CONTEXT, useValue: () => true },
 			],
