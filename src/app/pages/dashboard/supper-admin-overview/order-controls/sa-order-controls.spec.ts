@@ -374,6 +374,80 @@ describe('SaOrderControls: controls / quote version mismatch recovers visibly', 
   });
 });
 
+describe('linked requests and funded cancellation choices', () => {
+  const contract = (extra: any = {}) => ({ success: true, data: {version: 'cv1', status: 'ACTIVE', frozen: false,
+    escrow: {status:'HELD',amount:12000,releasedAmount:0,heldAmount:12000},
+    actions: {CONTRACT_FREEZE:allow,CONTRACT_UNFREEZE:deny('CONTRACT_NOT_FROZEN'),CONTRACT_CANCEL:deny('CANCELLATION_SETTLEMENT_NOT_APPROVED'),ESCROW_REFUND:allow,ESCROW_RELEASE:allow},...extra} });
+  const linked = () => ({...reqControls(),data:{...reqControls({REQUEST_SUSPEND:deny('REQUEST_HAS_CONTRACT'),REQUEST_CANCEL:deny('CANCELLATION_SETTLEMENT_NOT_APPROVED')}).data,status:'IN_PROGRESS',contract:{id:'linked-contract',status:'ACTIVE',frozen:false}}});
+  const moneyQuote = (action: string, extra: any = {}) => quote({action,version:'cv1',expectedHeldAmount:12000,
+    amounts:{heldBefore:12000,refundToClient:action==='ESCROW_REFUND'?12000:0,releaseToProvider:action==='ESCROW_RELEASE'?12000:0,platformCommission:0,providerNet:action==='ESCROW_RELEASE'?12000:0},...extra});
+  function setup(kind: Host['kind']='request', c=contract()) {
+    const api={controls:vi.fn((k:string)=>of(k==='request'?linked():c)),quote:vi.fn((a:string)=>of(moneyQuote(a))),run:vi.fn(()=>of({success:true,data:{}}))};
+    return {...make(api,kind),api};
+  }
+  function confirm(f:any,el:HTMLElement) {
+    type(f,el,'قرار إداري بعد مراجعة الحالة');
+    const cb=el.querySelector<HTMLInputElement>('[data-testid=oc-confirm]')!;cb.checked=true;cb.dispatchEvent(new Event('change'));f.detectChanges();
+  }
+
+  it('a request with a contract freezes the linked contract using its own version',()=>{
+    const {f,el,api}=setup();
+    const button=el.querySelector<HTMLButtonElement>('[data-action=CONTRACT_FREEZE]')!;
+    expect(button.disabled).toBe(false);expect(button.textContent).toContain('تعليق الطلب والعقد');
+    button.click();f.detectChanges();type(f,el,'سبب تعليق الطلب والعقد');
+    el.querySelector<HTMLButtonElement>('[data-testid=oc-submit]')!.click();
+    expect(api.run.mock.calls[0].slice(0,3)).toEqual(['CONTRACT_FREEZE','linked-contract',{expectedVersion:'cv1',reason:'سبب تعليق الطلب والعقد'}]);
+  });
+
+  it('a frozen linked request exposes resume instead of a permanently disabled suspend button',()=>{
+    const c=contract({frozen:true,actions:{...contract().data.actions,CONTRACT_FREEZE:deny('CONTRACT_ALREADY_FROZEN'),CONTRACT_UNFREEZE:allow,ESCROW_REFUND:deny('CONTRACT_FROZEN'),ESCROW_RELEASE:deny('CONTRACT_FROZEN')}});
+    const {f,el,api}=setup('request',c);
+    const resume=el.querySelector<HTMLButtonElement>('[data-action=CONTRACT_UNFREEZE]')!;
+    expect(resume.textContent).toContain('استئناف الطلب والعقد');resume.click();f.detectChanges();
+    el.querySelector<HTMLButtonElement>('[data-testid=oc-submit]')!.click();
+    expect(api.run.mock.calls[0].slice(0,3)).toEqual(['CONTRACT_UNFREEZE','linked-contract',{expectedVersion:'cv1'}]);
+  });
+
+  for (const kind of ['request','contract'] as const) it(`${kind}: funded cancellation requires an explicit refund choice, preview, reason and confirmation`,()=>{
+    const {f,el,api}=setup(kind);const cancel=kind==='request'?'REQUEST_CANCEL':'CONTRACT_CANCEL';
+    const button=el.querySelector<HTMLButtonElement>(`[data-action=${cancel}]`)!;expect(button.disabled).toBe(false);button.click();f.detectChanges();
+    expect(el.querySelector('[data-testid=oc-closing-choice]')).not.toBeNull();expect(api.quote).not.toHaveBeenCalled();expect(api.run).not.toHaveBeenCalled();
+    el.querySelector<HTMLButtonElement>('[data-testid=oc-choice-refund]')!.click();f.detectChanges();
+    const target=kind==='request'?'linked-contract':'r1';expect(api.quote).toHaveBeenCalledWith('ESCROW_REFUND',target);
+    expect(el.querySelector('[data-testid=oc-quote]')!.textContent).toContain('12,000.00');
+    expect(el.querySelector<HTMLButtonElement>('[data-testid=oc-submit]')!.disabled).toBe(true);
+    confirm(f,el);el.querySelector<HTMLButtonElement>('[data-testid=oc-submit]')!.click();
+    expect(api.run.mock.calls[0].slice(0,3)).toEqual(['ESCROW_REFUND',target,{expectedVersion:'cv1',reason:'قرار إداري بعد مراجعة الحالة',confirm:true,expectedHeldAmount:12000}]);
+    expect(api.run.mock.calls).toHaveLength(1);
+  });
+
+  it('choosing payout previews an administrative closure instead of pretending it is a cancellation',()=>{
+    const {f,el,api}=setup();el.querySelector<HTMLButtonElement>('[data-action=REQUEST_CANCEL]')!.click();f.detectChanges();
+    expect(el.querySelector('[data-testid=oc-closing-choice]')!.textContent).toContain('ولا يُسجَّل إلغاءً');
+    el.querySelector<HTMLButtonElement>('[data-testid=oc-choice-release]')!.click();f.detectChanges();
+    expect(api.quote).toHaveBeenCalledWith('ESCROW_RELEASE','linked-contract');expect(api.run).not.toHaveBeenCalled();
+  });
+
+  it('closing the choice sends no mutation and selects no financial decision by default',()=>{
+    const {f,el,api}=setup();el.querySelector<HTMLButtonElement>('[data-action=REQUEST_CANCEL]')!.click();f.detectChanges();
+    el.querySelector<HTMLButtonElement>('[data-testid=oc-choice-close]')!.click();f.detectChanges();
+    expect(api.run).not.toHaveBeenCalled();expect(api.quote).not.toHaveBeenCalled();expect(el.querySelector('[data-testid=oc-closing-choice]')).toBeNull();
+  });
+
+  it('permissions and open disputes cannot be bypassed by the cancellation choice',()=>{
+    const {el}=setup('contract',contract({actions:{...contract().data.actions,CONTRACT_CANCEL:deny('ACTIVE_DISPUTE'),ESCROW_REFUND:deny('ACTIVE_DISPUTE'),ESCROW_RELEASE:deny('ACTIVE_DISPUTE')}}));
+    expect(el.querySelector<HTMLButtonElement>('[data-action=CONTRACT_CANCEL]')!.disabled).toBe(true);
+    expect(el.querySelector('[data-reason-code=ACTIVE_DISPUTE]')).not.toBeNull();
+  });
+
+  it('a frozen funded cancellation offers an explicit unfreeze, without moving money',()=>{
+    const {f,el,api}=setup('contract',contract({frozen:true,actions:{...contract().data.actions,CONTRACT_UNFREEZE:allow,CONTRACT_FREEZE:deny('CONTRACT_ALREADY_FROZEN'),ESCROW_REFUND:deny('CONTRACT_FROZEN'),ESCROW_RELEASE:deny('CONTRACT_FROZEN')}}));
+    el.querySelector<HTMLButtonElement>('[data-action=CONTRACT_CANCEL]')!.click();f.detectChanges();
+    expect(el.querySelector('[data-testid=oc-choice-refund]')).toBeNull();el.querySelector<HTMLButtonElement>('[data-testid=oc-choice-unfreeze]')!.click();f.detectChanges();
+    expect(api.run).not.toHaveBeenCalled();expect(api.quote).not.toHaveBeenCalled();expect(el.querySelector('[data-testid=oc-dialog]')!.textContent).toContain('فكّ تجميد العقد');
+  });
+});
+
 describe('order-controls copy', () => {
   // every stable reason code the backend can answer with (src/constants/admin-controls.ts) has its own Arabic sentence
   const BACKEND_CODES = ['SUPER_ADMIN_REQUIRED', 'PERMISSION_DENIED', 'NOT_FOUND', 'IDEMPOTENCY_KEY_REQUIRED', 'IDEMPOTENCY_KEY_CONFLICT', 'REASON_REQUIRED', 'REASON_TOO_LONG', 'CONFIRMATION_REQUIRED', 'VERSION_REQUIRED', 'STALE_VERSION',

@@ -13,7 +13,7 @@ function setup() {
 	f.detectChanges();
 	const el = f.nativeElement as HTMLElement;
 	const ta = el.querySelector('#sa-notify-message') as HTMLTextAreaElement;
-	const send = el.querySelector('button.btn-primary') as HTMLButtonElement;
+	const send = el.querySelector('[data-testid=notify-submit]') as HTMLButtonElement;
 	const type = (v: string) => { ta.value = v; ta.dispatchEvent(new Event('input')); f.detectChanges(); };
 	return { f, c: f.componentInstance, http, el, ta, send, type };
 }
@@ -49,7 +49,7 @@ describe('SaNotifyModal form', () => {
 			await settleForm(); f.detectChanges();
 			expect(c.error(), String(st)).toBeTruthy();
 			expectNoFieldProblem(el);
-			expect(el.querySelector('p[role="alert"]')).toBeTruthy();
+			expect(el.querySelector('[data-testid="notify-error"]')).toBeTruthy();
 		}
 	});
 
@@ -63,7 +63,7 @@ describe('SaNotifyModal form', () => {
 			expect(c.unconfirmed(), String(st)).toBe(true);
 			expect(c.message()).toBe('رسالة صالحة');
 			expect(el.querySelector('[data-testid="notify-unconfirmed"]')).toBeTruthy();
-			expect((el.querySelector('button.btn-primary') as HTMLButtonElement).disabled).toBe(true);
+			expect((el.querySelector('[data-testid=notify-submit]') as HTMLButtonElement).disabled).toBe(true);
 			c.send();
 			http.expectNone((r) => r.method === 'POST');
 			TestBed.resetTestingModule();

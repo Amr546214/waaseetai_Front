@@ -83,6 +83,25 @@ describe('SaRevenues', () => {
 		f.detectChanges();
 	});
 
+  it('the revenues PDF button prints an independent financial statement, without the account navbar or dashboard widgets', async () => {
+    const sourceNav=document.createElement('nav');sourceNav.textContent='حساب الأدمن — قائمة الموقع';document.body.append(sourceNav);
+    const print=vi.fn();const parentPrint=vi.spyOn(window,'print').mockImplementation(()=>{});
+    const append=document.body.append.bind(document.body);let frame!:HTMLIFrameElement;
+    vi.spyOn(document.body,'append').mockImplementation((...nodes)=>{
+      append(...nodes);
+      for(const node of nodes)if(node instanceof HTMLIFrameElement){
+        frame=node;vi.spyOn(node.contentWindow!,'print').mockImplementation(print);vi.spyOn(node.contentWindow!,'focus').mockImplementation(()=>{});
+      }
+    });
+    const {f,el}=mount(SaRevenues);q(el,'rev-print')!.click();await f.whenStable();f.detectChanges();
+    expect(print).toHaveBeenCalledOnce();expect(parentPrint).not.toHaveBeenCalled();
+    const doc=frame.contentDocument!;
+    expect(doc.querySelector('h1')!.textContent).toBe('تقرير الإيرادات');expect(doc.body.textContent).toContain('777.77 USD');expect(doc.body.textContent).toContain('4,242.42 USD');
+    expect(doc.querySelector('nav,button,svg,canvas,app-root')).toBeNull();expect(doc.body.textContent).not.toContain(sourceNav.textContent);
+    expect(doc.querySelector('thead')).not.toBeNull();expect(doc.querySelector('style')!.textContent).toContain('@page');
+    frame.contentWindow!.dispatchEvent(new Event('afterprint'));sourceNav.remove();expect(frame.isConnected).toBe(false);
+  });
+
 	it('shows an error with retry and an empty chart state', () => {
 		const empty = { ...OVERVIEW, series: [] };
 		const { el } = mount(SaRevenues, api({ financeOverview: () => of({ success: true, data: empty }), financeTransactions: () => of({ success: true, data: { items: [], typeCounts: {}, pagination: PAG } }) }));
