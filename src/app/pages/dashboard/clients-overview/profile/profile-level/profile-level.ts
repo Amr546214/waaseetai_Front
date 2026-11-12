@@ -139,6 +139,7 @@ export class ProfileLevel implements OnInit, OnDestroy {
   private notices(limitations: string[]): string[] {
     const text: Record<string, string> = {
       CLIENT_POINTS_NOT_AWARDED: 'نقاط طالب الخدمة لا تُحتسب تلقائيًا بعد، لذلك يبقى تقدمك كما هو إلى حين تفعيلها.',
+      CLIENT_NO_RATINGS_YET: 'لا توجد تقييمات من مقدمي الخدمة لك بعد: شرط التقييم في المستويات الأعلى لا يتحقق قبل أن يقيّمك مقدم خدمة، ولا يُفترض لك تقييم.',
       CLIENT_RATING_NOT_AVAILABLE: 'تقييم طالب الخدمة غير متاح بعد، فلا يُحتسب شرط التقييم.',
       CASHBACK_NOT_CREDITED_YET: 'الكاش باك يظهر هنا حسب مستواك لكنه لا يُضاف إلى محفظتك تلقائيًا بعد.',
     };

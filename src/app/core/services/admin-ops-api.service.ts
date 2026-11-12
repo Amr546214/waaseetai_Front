@@ -49,6 +49,8 @@ export interface AdminProjectDetail {
   progress: AdminProgress;
   disputes: { id: string; status: string; reason: string; createdAt: string; resolvedAt: string | null }[];
   openDisputes: number; currency: string;
+  /** how a NEW decision closed the engagement (administrative release / refund / cancel, or a consensual cancellation), stored apart from the dispute and the cancellation request */
+  closure?: { kind: string; label: string; source: string; sourceLabel: string; reason: string | null; heldBefore: number; refundToClient: number; releaseToProvider: number; platformCommission: number; providerNet: number; createdAt: string; note: string | null } | null;
 }
 export interface AdminContractRow {
   id: string; projectId: string; projectTitle: string; price: number; durationDays: number; status: string; signedAt: string | null; createdAt: string;

@@ -8,6 +8,7 @@ import { expectFieldProblem, expectFocused, expectNoFieldProblem, httpFail, sett
 
 import { SaDisputeDetail } from './sa-dispute-detail';
 import { DisputeApiService } from '../../../../../core/services/dispute-api.service';
+import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { AdminOpsApiService } from '../../../../../core/services/admin-ops-api.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 
@@ -34,6 +35,7 @@ function setup(over: any = {}, financialImpl?: () => any, accountType: string = 
       provideRouter([]),
       { provide: DisputeApiService, useValue: api },
       { provide: AuthStore, useValue: { currentUser: () => ({ accountType }) } },
+      { provide: AdminAccessService, useValue: { can: () => true } },
       { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } },
       { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 'd1' })), snapshot: { paramMap: convertToParamMap({ id: 'd1' }) } } },
     ],

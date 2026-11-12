@@ -33,6 +33,17 @@ export interface AnalyticsOverview {
 	specialties: { specialty: string; projects: number; providers: number }[];
 }
 
+export interface SavedAnalyticsReportInput {
+	name: string;
+	section: 'overview' | 'users' | 'projects' | 'finance' | 'specialties' | 'affiliates' | 'performance';
+	period: '7d' | '30d' | '3m' | '6m' | '1y' | 'custom';
+	from: string | null;
+	to: string | null;
+	compare: boolean;
+}
+export interface SavedAnalyticsReport extends SavedAnalyticsReportInput { id: string; }
+export interface SavedAnalyticsPage { items: SavedAnalyticsReport[]; hasNext: boolean; }
+
 export interface AnalyticsRangeParams { from?: string; to?: string; }
 /** null result means the request failed (the page shows an honest error, never fallback numbers). */
 export type AnalyticsLoad = { data: AnalyticsOverview | null; failed: boolean };
@@ -41,6 +52,18 @@ export type AnalyticsLoad = { data: AnalyticsOverview | null; failed: boolean };
 export class AdminAnalyticsService {
 	private readonly http = inject(HttpClient);
 	private readonly baseUrl = environment.url_api;
+
+	listSavedReports(page: number) {
+		return this.http.get<{ data: SavedAnalyticsPage }>(`${this.baseUrl}/admin/analytics/saved-reports`, { params: { page } }).pipe(map(res => res.data));
+	}
+
+	createSavedReport(input: SavedAnalyticsReportInput) {
+		return this.http.post<{ data: SavedAnalyticsReport }>(`${this.baseUrl}/admin/analytics/saved-reports`, input).pipe(map(res => res.data));
+	}
+
+	deleteSavedReport(id: string) {
+		return this.http.delete<void>(`${this.baseUrl}/admin/analytics/saved-reports/${encodeURIComponent(id)}`);
+	}
 
 	getOverview(range: AnalyticsRangeParams): Observable<AnalyticsLoad> {
 		let params = new HttpParams();

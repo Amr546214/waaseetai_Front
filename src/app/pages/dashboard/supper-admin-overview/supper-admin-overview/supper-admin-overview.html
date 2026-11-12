@@ -34,7 +34,7 @@
         <div class="alerts-sec" role="region" aria-label="تنبيهات تحتاج انتباهك">
           @for (a of s.alerts; track a.key) {
             <div class="alert-item" [class.al-high]="a.severity === 'high'" [class.al-warn]="a.severity === 'warn'" [class.al-info]="a.severity === 'info'">
-              <svg aria-hidden="true"><use [attr.href]="a.severity === 'high' ? '#i-shield' : '#i-bell'"></use></svg>{{ a.text }}<a [routerLink]="a.link">راجع الآن</a>
+              <svg aria-hidden="true"><use [attr.href]="a.severity === 'high' ? '#i-shield' : '#i-bell'"></use></svg>{{ a.text }}<a [routerLink]="a.link" [queryParams]="a.key === 'disputesOver7Days' ? { followUp: 'true' } : null">راجع الآن</a>
             </div>
           }
         </div>

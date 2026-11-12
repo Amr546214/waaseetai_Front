@@ -13,6 +13,21 @@
     }
   </div>
 
+  <div class="dp-bar" data-testid="dispute-filter-bar">
+    <div class="dp-search">
+      <svg data-ws-icon="ws-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="search" data-testid="dispute-search" placeholder="ابحث برقم النزاع أو مرجع الطلب/المشروع ثم Enter..." aria-label="بحث في النزاعات" maxlength="40" dir="ltr" [value]="searchDraft()" (input)="searchDraft.set($any($event.target).value)" (keyup.enter)="applySearch()" />
+    </div>
+    <ws-select class="dp-sel" ariaLabel="المسؤول" [options]="assigneeOptions()" [ngModel]="assignee()" (ngModelChange)="setAssignee($event)" data-testid="dispute-assignee" />
+    <label class="dp-date"><span>من</span><input type="date" data-testid="dispute-from" aria-label="من تاريخ الإنشاء" dir="ltr" [value]="createdFrom()" [max]="createdTo() || null" (change)="setPeriod('from', $any($event.target).value)" /></label>
+    <label class="dp-date"><span>إلى</span><input type="date" data-testid="dispute-to" aria-label="إلى تاريخ الإنشاء" dir="ltr" [value]="createdTo()" [min]="createdFrom() || null" (change)="setPeriod('to', $any($event.target).value)" /></label>
+    @if (hasSearchFilters() || activeFilter() !== 'all') {
+      <button type="button" class="dp-btn dp-btn-gh dp-reset" data-testid="dispute-reset" (click)="resetFilters()">إعادة ضبط المرشحات</button>
+    }
+  </div>
+  @if (searchHint()) { <p class="dp-hint" role="alert" data-testid="dispute-search-hint">{{ searchHint() }}</p> }
+  @if (filterError()) { <p class="dp-hint" role="alert" data-testid="dispute-filter-error">{{ filterError() }}</p> }
+
   @if (loading()) {
     <div class="dp-loading">
       <div class="dp-spinner"></div>
@@ -28,7 +43,12 @@
       <div class="dp-empty-ico">
         <svg data-ws-icon="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
       </div>
-      <p class="dp-empty-ttl">لا توجد نزاعات في هذا التصنيف</p>
+      @if (hasSearchFilters()) {
+        <p class="dp-empty-ttl" data-testid="dispute-no-results">لا توجد نتائج لهذه المرشحات</p>
+        <button type="button" class="dp-btn dp-btn-gh" data-testid="dispute-empty-reset" (click)="resetFilters()">إعادة ضبط المرشحات</button>
+      } @else {
+        <p class="dp-empty-ttl">لا توجد نزاعات في هذا التصنيف</p>
+      }
     </div>
   } @else {
     <div class="dp-list">
@@ -54,7 +74,7 @@
               <span>أدلة: {{ (d.evidence?.length || 0) + (d._count?.attachments || 0) }}</span>
             </div>
           </div>
-          <button type="button" class="dp-btn dp-btn-gh" [routerLink]="[d.id]">عرض التفاصيل</button>
+          <button type="button" class="dp-btn dp-btn-gh" [routerLink]="[d.id]" queryParamsHandling="preserve">عرض التفاصيل</button>
         </div>
       }
     </div>

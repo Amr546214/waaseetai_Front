@@ -17,6 +17,16 @@ import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.compo
 	styleUrl: './client-overview.component.css'
 })
 export class ClientOverviewComponent implements OnInit {
+	/**
+	 * The wording of a project card from its REAL stored state: a cancelled project is «ملغى» (never «متنازع عليه»), a project closed by an administrative release is «أُغلق بصرف إداري» (never «مكتمل»,
+	 * it was not completed by delivery), and «متنازع عليه» is only for a project whose status really is DISPUTED. An unknown status is shown as «قيد المعالجة», never as a dispute.
+	 */
+	projectStatusLabel(project: { status?: string; closureKind?: string | null }): string {
+		if (project.status === 'COMPLETED' && project.closureKind === 'ADMIN_RELEASE') return 'أُغلق بصرف إداري';
+		const labels: Record<string, string> = { OPEN: 'مفتوح للعروض', IN_PROGRESS: 'قيد التنفيذ', COMPLETED: 'مكتمل', CANCELLED: 'ملغى', DISPUTED: 'متنازع عليه', PENDING_SIGNATURE: 'بانتظار التوقيع', DRAFT: 'مسودة', PENDING_REVIEW: 'قيد المراجعة', AWAITING_DELIVERY: 'بانتظار التسليم', PENDING_APPROVAL: 'بانتظار اعتمادك' };
+		return labels[project.status ?? ''] ?? 'قيد المعالجة';
+	}
+
 	public dashboardStore = inject(DashboardStore);
 
 	/** The client's level as the shared display (backend levelInfo; no label parsing, no invented fallback level). */

@@ -172,9 +172,7 @@
           <button type="button" class="rq-btn rq-btn-ghost" (click)="notifyOpen.set(true)">إشعار صاحب الطلب</button>
         }
         <a class="rq-btn rq-btn-ghost" [routerLink]="['/supper-admin-overview/projects', d.id]">فتح المشروع</a>
-        <button type="button" class="rq-btn rq-btn-warn" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">تعليق الطلب مؤقتاً</button>
-        <button type="button" class="rq-btn rq-btn-danger" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">إلغاء الطلب</button>
-        <div class="rq-ro-note">{{ stateChangeReason }}</div>
+        <sa-order-controls kind="request" [id]="d.id" (changed)="load()"></sa-order-controls>
       </div>
     </div>
   }

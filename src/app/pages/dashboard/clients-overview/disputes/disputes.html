@@ -136,6 +136,7 @@
               <div><b>الوصف:</b> {{ x.description }}</div>
               @if (x.requestedResolutionLabel) { <div data-testid="dispute-requested"><b>الحل المطلوب:</b> {{ x.requestedResolutionLabel }} <small>(اختيار منك وليس وعدًا بنتيجة، والقرار للإدارة وحدها)</small></div> }
               <app-case-attachments [path]="'client/disputes/' + x.id" [writable]="x.status === 'OPEN' || x.status === 'UNDER_REVIEW'" />
+              <app-dispute-chat [path]="'client/disputes/' + x.id" />
               @if (x.evidence?.length) {
                 <div><b>الأدلة:</b> @for (url of x.evidence; track url) { <a [href]="url" target="_blank" rel="noopener noreferrer">رابط {{ $index + 1 }}</a>{{ $last ? '' : ' · ' }} }</div>
               }

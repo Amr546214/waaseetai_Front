@@ -235,6 +235,11 @@ const RAW_ROUTES: Routes = [
         data: { title: 'إعدادات النظام' }
     },
     {
+        path: 'bebo',
+        loadComponent: () => import('../../../sheards/assistant-widget/dashboard-bebo').then(m => m.DashboardBebo),
+        data: { title: 'بيبو' }
+    },
+    {
         path: 'my-account',
         loadComponent: () => import('./sa-my-account/sa-my-account').then(m => m.SaMyAccount),
         data: { title: 'حسابي وأمان الدخول' }

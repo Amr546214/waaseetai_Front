@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { CommonModule } from '@angular/common';
 import { SaNotifyModal } from '../../sa-notify-modal';
+import { SaOrderControls } from '../../order-controls/sa-order-controls';
+import { ControlAction } from '../../../../../core/services/admin-order-controls-api.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   CONTRACT_STATUS_LABELS,
@@ -21,7 +23,7 @@ import {
 @Component({
   selector: 'app-sa-offer-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, SaNotifyModal],
+  imports: [CommonModule, RouterLink, SaNotifyModal, SaOrderControls],
   templateUrl: './sa-offer-detail.html',
   styleUrls: ['../sa-offers.css', './sa-offer-detail.css'],
 })
@@ -37,7 +39,8 @@ export class SaOfferDetail implements OnInit {
   readonly negotiationLabels = NEGOTIATION_STATE_LABELS;
   readonly toList = toList;
 
-  readonly stateChangeReason = 'غير متاح حاليًا — لا يوجد مسار إداري لتعليق العرض أو إلغاء العقد المرتبط، ويحتاج قرارًا من المنتج (أثره المالي على الضمان)';
+  /** an offer linked to a contract is managed through the contract: the page also carries «إلغاء العقد المرتبط» */
+  readonly offerAndContractActions: ControlAction[] = ['OFFER_SUSPEND', 'OFFER_RESUME', 'CONTRACT_CANCEL'];
   notifyOpen = signal(false);
   selected = signal<AdminOfferDetail | null>(null);
   loading = signal(true);

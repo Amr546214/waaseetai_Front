@@ -46,6 +46,8 @@ export interface DashboardStatsPayload {
     title: string;
     budget: number;
     status: ProjectStatus;
+    /** how a NEW decision closed the project (ADMIN_RELEASE | ADMIN_REFUND | ADMIN_CANCEL | CONSENSUAL_CANCEL), null otherwise */
+    closureKind?: string | null;
     createdAt: Date;
   }>;
   aiMatchingProjects?: Array<{

@@ -31,8 +31,10 @@ import {
 import { AssistantViewport, dockPlacement, popupPlacement } from './assistant-placement';
 import { AssistantPositionSettingsComponent } from '../assistant-chat/assistant-position-settings';
 import { AssistantPositionService } from './assistant-position.service';
+import { AssistantToolbarState, AssistantPanelTab } from './assistant-toolbar-state';
+import { BeboToolbarComponent } from './bebo-toolbar';
 import { avatarMovementBounds } from './assistant-position';
-import { BAR_CLEARANCE_PX, SidebarInset, detectBottomBarHeight, detectSidebarInset, isTextEntryElement } from './assistant-avoidance';
+import { BAR_CLEARANCE_PX, SidebarInset, assistantReservePx, detectBottomBarHeight, detectSidebarInset, isTextEntryElement } from './assistant-avoidance';
 
 const STATE_LABELS = {
 	idle: 'جاهز أساعدك',
@@ -44,7 +46,6 @@ const STATE_LABELS = {
 
 const BEBO_SIZE = 96;
 const BEBO_SIZE_MOBILE = 72;
-const TOOLBAR_COLLAPSED_PREF_KEY = 'waseet_assistant_toolbar_collapsed';
 
 export interface GuidedTopic {
 	title: string;
@@ -89,7 +90,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 @Component({
 	selector: 'app-assistant-widget',
 	standalone: true,
-	imports: [FormsModule, RouterLink, NgStyle, BeboAvatarComponent, AssistantChatComponent, AssistantPositionSettingsComponent],
+	imports: [FormsModule, RouterLink, NgStyle, BeboAvatarComponent, AssistantChatComponent, AssistantPositionSettingsComponent, BeboToolbarComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	styleUrl: './assistant-widget.css',
 	host: {
@@ -276,6 +277,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 				<span class="pg-reopen-text">إظهار {{ characterName() }}</span>
 			</button>
 		} @else if (!minimized()) {
+			@if (!hideToolbar() || (expanded() && !store.panelOpen())) {
 			<div class="pg-dock" [ngStyle]="dockStyle()">
 				<!-- Quick Composer input bar when expanded & panel is closed -->
 				@if (expanded() && !store.panelOpen()) {
@@ -307,105 +309,10 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 					</div>
 				}
 
-				<!-- Toolbar order from ai-traffic-safety, with a persistent collapse toggle:
-				     [Compass] [Mic] [Divider] [History] [Map/Tour] [Smile/Motions] [Settings] [ChevronDown] [Close] -->
-				<div class="pg-toolbar" role="group" [class.pg-toolbar--collapsed]="toolbarCollapsed()" [attr.aria-label]="'أدوات ' + characterFullName()">
-					<div id="aw-toolbar-tools" class="pg-toolbar-tools" [hidden]="toolbarCollapsed()">
-					<button
-						type="button"
-						class="pg-btn"
-						[class.is-active]="expanded() || (store.panelOpen() && panelTab() === 'chat')"
-						(click)="toggleComposerOrChat()"
-						[attr.aria-label]="'اكتب لـ ' + characterName()"
-						[title]="'اكتب لـ ' + characterName()"
-					>
-						<svg data-ws-icon="pl-assistant-compass" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-					</button>
-
-					<button
-						type="button"
-						class="pg-btn"
-						[class.is-listening]="store.micActive()"
-						(click)="toggleListening()"
-						[attr.aria-pressed]="store.micActive()"
-						[attr.aria-label]="store.micActive() ? 'إيقاف المايك' : ('تحدث لـ ' + characterName())"
-						title="الميكروفون"
-					>
-						<svg data-ws-icon="pl-assistant-mic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>
-					</button>
-
-					<span class="pg-toolbar-divider"></span>
-
-					<button
-						type="button"
-						class="pg-btn"
-						[class.is-active]="store.panelOpen() && panelTab() === 'chat'"
-						(click)="openChatPage()"
-						aria-label="المحادثة الكاملة"
-						title="المحادثة الكاملة"
-					>
-						<svg data-ws-icon="pl-assistant-clock" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
-					</button>
-
-					<button
-						type="button"
-						class="pg-btn"
-						[class.is-active]="store.panelOpen() && panelTab() === 'tour'"
-						(click)="openTab('tour')"
-						aria-label="دليل وسيط"
-						title="دليل وسيط"
-					>
-						<svg data-ws-icon="pl-assistant-map" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-					</button>
-
-					<button
-						type="button"
-						class="pg-btn"
-						[class.is-active]="store.panelOpen() && panelTab() === 'motions'"
-						(click)="openTab('motions')"
-						aria-label="حركات الشخصية"
-						title="حركات الشخصية"
-					>
-						<svg data-ws-icon="pl-assistant-smile" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-					</button>
-
-					<button
-						type="button"
-						class="pg-btn"
-						[class.is-active]="store.panelOpen() && panelTab() === 'settings'"
-						(click)="openTab('settings')"
-						[attr.aria-label]="'إعدادات ' + characterName()"
-						[title]="'إعدادات ' + characterName()"
-					>
-						<svg data-ws-icon="pl-assistant-sliders" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-					</button>
-
-					</div>
-					<span class="pg-toolbar-caption" [hidden]="!toolbarCollapsed()">أدوات {{ characterName() }}</span>
-					<button
-						type="button"
-						class="pg-btn pg-toolbar-toggle"
-						(click)="toggleToolbar()"
-						[attr.aria-expanded]="!toolbarCollapsed()"
-						aria-controls="aw-toolbar-tools"
-						[attr.aria-label]="(toolbarCollapsed() ? 'فتح أدوات ' : 'طي أدوات ') + characterName()"
-						[title]="toolbarCollapsed() ? 'فتح قائمة الأدوات' : 'طي قائمة الأدوات'"
-					>
-						<svg data-ws-icon="ws-chevron-right" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [style.transform]="toolbarCollapsed() ? 'rotate(180deg)' : null"><polyline points="6 9 12 15 18 9"/></svg>
-					</button>
-
-					<button
-						type="button"
-						class="pg-btn"
-						[hidden]="toolbarCollapsed()"
-						(click)="dismissAssistant()"
-						[attr.aria-label]="'إغلاق ' + characterName()"
-						title="إغلاق"
-					>
-						<svg data-ws-icon="ws-close" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-					</button>
-				</div>
+				<!-- Bebo's tool bar (shared component). In the admin panel it lives in the «بيبو» tab instead, so it is not drawn here. -->
+				@if (!hideToolbar()) { <app-bebo-toolbar /> }
 			</div>
+			}
 		} @else {
 			<!-- Minimized Launcher Pill -->
 			<div class="pg-launcher" [ngStyle]="launcherStyle()" (click)="minimized.set(false)" [title]="'افتح ' + characterFullName()">
@@ -439,16 +346,20 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 export class AssistantWidgetComponent {
 	/** Extra px above the viewport floor (pages with a fixed bottom action bar). */
 	readonly lift = input(0);
+	/** The tool bar lives somewhere else (the admin panel's «بيبو» tab): the robot, quick composer and panel stay, the floating bar is not drawn. */
+	readonly hideToolbar = input(false);
+	/** Shared with the tool bar component: what the bar shows and does is in AssistantToolbarState, whichever place draws it. */
+	readonly ui = inject(AssistantToolbarState);
 	readonly store = inject(AssistantStore);
 	readonly positionSettings = inject(AssistantPositionService);
 	private readonly router = inject(Router);
-	openChatPage(): void { this.store.panelOpen.set(false); void this.router.navigateByUrl('/assistant'); }
+	openChatPage(): void { this.ui.openChatPage(); }
 	readonly dismissed = computed(() => this.store.dismissed());
-	readonly bubbleDismissed = signal(false);
+	readonly bubbleDismissed = this.ui.bubbleDismissed;
 	readonly minimized = signal(false);
-	readonly toolbarCollapsed = signal(false);
-	readonly expanded = signal(false);
-	readonly panelTab = signal<'chat' | 'motions' | 'settings' | 'tour'>('chat');
+	readonly toolbarCollapsed = this.ui.toolbarCollapsed;
+	readonly expanded = this.ui.expanded;
+	readonly panelTab = this.ui.panelTab;
 	readonly menuOpen = signal(false);
 	readonly toggleMenu = (open: boolean) => !open;
 	readonly maxQuestionLength = MAX_QUESTION_LENGTH;
@@ -537,19 +448,16 @@ export class AssistantWidgetComponent {
 		return { ...(this.robotPos() ?? { x: fallbackX, y: bounds.maxY }), size };
 	});
 
-	readonly dockStyle = computed(() => dockPlacement(this.viewport(), this.anchor(), this.positionLift(), this.toolbarCollapsed() && (!this.expanded() || this.store.panelOpen()) ? 126 : 348));
+	readonly dockStyle = computed(() => dockPlacement(this.viewport(), this.anchor(), this.positionLift(), (this.toolbarCollapsed() || this.hideToolbar()) && (!this.expanded() || this.store.panelOpen()) ? 126 : 348));
 	readonly panelStyle = computed(() => popupPlacement(this.viewport(), this.anchor()));
 	readonly bubbleStyle = computed(() => popupPlacement(this.viewport(), this.anchor(), 320, 240));
 	readonly launcherStyle = computed(() => dockPlacement(this.viewport(), this.anchor(), this.positionLift(), 190));
 
 	constructor() {
 		const destroyRef = inject(DestroyRef);
-		if (this.isBrowser) {
-			// No saved choice: small screens start with the compact pill so the toolbar never covers the page's bottom actions.
-			let saved: string | null = null;
-			try { saved = localStorage.getItem(TOOLBAR_COLLAPSED_PREF_KEY); } catch { /* storage unavailable */ }
-			this.toolbarCollapsed.set(saved === null ? typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 640px)').matches : saved === '1');
-		}
+		// closes the tab menu whenever a tool of the bar opens / closes a panel tab
+		let tabTick = this.ui.tabActionTick();
+		effect(() => { const t = this.ui.tabActionTick(); if (t === tabTick) return; tabTick = t; untracked(() => this.menuOpen.set(false)); });
 		this.updateViewport();
 		if (this.isBrowser) this.initAvoidance(destroyRef);
 		let positionResetTick = this.positionSettings.resetTick();
@@ -622,7 +530,7 @@ export class AssistantWidgetComponent {
 		window.addEventListener('orientationchange', onResize);
 		timers.push(setTimeout(() => this.probeBars(), 400));
 		const reserve = effect(() => {
-			const px = this.dismissed() ? 0 : this.safeBottom();
+			const px = this.dismissed() ? 0 : assistantReservePx(this.beboSize()) + this.safeBottom();
 			document.documentElement.style.setProperty('--ws-assistant-reserve', `${px}px`);
 		});
 		destroyRef.onDestroy(() => {
@@ -661,10 +569,10 @@ export class AssistantWidgetComponent {
 	/** Collapse the open toolbar on small screens when the user taps the page (never persisted). */
 	onDocumentPointerDown(event: Event): void {
 		this.refreshSidebarInset();
-		if (!this.compact() || this.toolbarCollapsed() || this.store.panelOpen() || this.expanded()) return;
+		if (this.hideToolbar() || !this.compact() || this.toolbarCollapsed() || this.store.panelOpen() || this.expanded()) return;
 		const target = event.target as Node | null;
 		if (target && this.hostElement.nativeElement.contains(target)) return;
-		if (target instanceof Element && target.closest('cute-robot, .pg-dock')) return;
+		if (target instanceof Element && target.closest('cute-robot, .pg-dock, app-bebo-toolbar')) return;
 		this.toolbarCollapsed.set(true);
 	}
 
@@ -739,17 +647,9 @@ export class AssistantWidgetComponent {
 		}
 	}
 
-	openTab(tab: 'chat' | 'motions' | 'settings' | 'tour'): void {
+	openTab(tab: AssistantPanelTab): void {
 		this.menuOpen.set(false);
-		if (this.store.panelOpen() && this.panelTab() === tab) {
-			this.store.close();
-		} else {
-			this.panelTab.set(tab);
-			this.expanded.set(false);
-			if (!this.store.panelOpen()) {
-				this.store.open();
-			}
-		}
+		this.ui.openTab(tab);
 	}
 
 	selectTab(tab: 'chat' | 'motions' | 'settings' | 'tour'): void {
@@ -763,32 +663,11 @@ export class AssistantWidgetComponent {
 		this.menuOpen.set(false);
 	}
 
-	toggleComposerOrChat(): void {
-		if (this.isGuest()) {
-			this.openTab('chat');
-			return;
-		}
-		if (this.store.panelOpen()) {
-			this.store.close();
-		} else {
-			this.expanded.update(v => !v);
-		}
-	}
+	toggleComposerOrChat(): void { this.ui.toggleComposerOrChat(); }
 
-	toggleListening(): void {
-		if (this.isGuest()) {
-			this.openTab('chat');
-			return;
-		}
-		this.store.toggleListening();
-	}
+	toggleListening(): void { this.ui.toggleListening(); }
 
-	toggleToolbar(): void {
-		this.toolbarCollapsed.update(collapsed => !collapsed);
-		if (this.isBrowser) {
-			try { localStorage.setItem(TOOLBAR_COLLAPSED_PREF_KEY, this.toolbarCollapsed() ? '1' : '0'); } catch { /* storage unavailable */ }
-		}
-	}
+	toggleToolbar(): void { this.ui.toggleToolbar(); }
 
 	toggleMinimize(): void {
 		this.minimized.update(v => !v);
@@ -798,11 +677,7 @@ export class AssistantWidgetComponent {
 		}
 	}
 
-	dismissAssistant(): void {
-		this.store.dismiss();
-		this.expanded.set(false);
-		this.bubbleDismissed.set(true);
-	}
+	dismissAssistant(): void { this.ui.dismissAssistant(); }
 
 	restoreAssistant(): void {
 		this.store.restore();

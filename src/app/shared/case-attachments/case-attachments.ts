@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-interface CaseFile { id: string; name: string; mimeType: string; bytes: number; ownerId: string; createdAt: string }
+interface CaseFile { id: string; name: string; mimeType: string; bytes: number; ownerId: string; messageId?: string | null; createdAt: string }
 interface Reply<T> { success: boolean; data?: T; message?: string }
 
 @Component({
@@ -13,7 +13,7 @@ interface Reply<T> { success: boolean; data?: T; message?: string }
     @if (loading()) { <p role="status">جارٍ تحميل المرفقات…</p> }
     @if (loadError()) { <p role="alert">{{ loadError() }}</p><button type="button" (click)="load()">إعادة تحميل المرفقات</button> }
     @for (file of files(); track file.id) {
-      <div class="file"><button type="button" [disabled]="opening()" (click)="open(file)">{{ file.name }}</button><small>{{ (file.bytes / 1024).toFixed(1) }} KB</small></div>
+      <div class="file"><button type="button" [disabled]="opening()" (click)="open(file)">{{ file.name }}</button>@if (file.messageId) { <small>مرفق رد الدعم</small> }<small>{{ (file.bytes / 1024).toFixed(1) }} KB</small></div>
     }
     @if (!loading() && !loadError() && !files().length) { <p>لا توجد مرفقات إضافية</p> }
     @if (writable) {

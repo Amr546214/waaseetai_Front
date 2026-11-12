@@ -156,12 +156,8 @@
 
           <div class="of-actions" style="display:flex;flex-direction:column;gap:8px">
             <button type="button" class="of-btn of-btn-ghost of-btn-block" (click)="notifyOpen.set(true)">إشعار مقدم الخدمة</button>
-            <button type="button" class="of-btn of-btn-warn of-btn-block" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">تعليق العرض</button>
-            @if (d.contract) {
-              <button type="button" class="of-btn of-btn-danger of-btn-block" disabled style="opacity:.5;cursor:not-allowed" [title]="stateChangeReason">إلغاء العقد المرتبط</button>
-            }
+            <sa-order-controls kind="offer" [id]="d.id" [extraContractId]="d.contract?.id ?? null" [only]="d.contract ? offerAndContractActions : null" (changed)="load()"></sa-order-controls>
             <a class="of-btn of-btn-ghost of-btn-block" [routerLink]="['/supper-admin-overview/projects', d.requestId]">فتح المشروع</a>
-            <div class="of-ro-note">{{ stateChangeReason }}</div>
           </div>
         </div>
       </div>

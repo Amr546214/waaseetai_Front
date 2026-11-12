@@ -10,9 +10,9 @@
 				</span>
 				<button type="button"
 					class="text-xs font-extrabold px-4 py-2 bg-gradient-to-r from-[var(--ai)]/20 to-[var(--teal)]/20 text-[var(--ai)] rounded-xl border border-[var(--ai)]/30 flex items-center gap-2 transition-all hover:bg-[var(--ai)]/30 cursor-pointer"
-					[disabled]="parent.isFetchingAiDraft()"
-					(click)="parent.triggerAiFullSuggest()">
-					<span>✨ {{ parent.isFetchingAiDraft() ? 'جارٍ اقتراح الميزانية والمراحل...' : 'اقتراح الميزانية والمراحل بـ AI' }}</span>
+					[disabled]="parent.isFetchingAiBudget() || parent.isFetchingAiDraft()"
+					(click)="parent.triggerAiBudgetSuggest()">
+					<span>✨ {{ parent.isFetchingAiBudget() ? 'جارٍ اقتراح الميزانية والمراحل...' : 'اقتراح الميزانية والمراحل بـ AI' }}</span>
 				</button>
 			</div>
 

@@ -1,9 +1,10 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { printPage } from '../../../../core/utils/export.util';
 import { AdminAccessService } from '../../../../core/services/admin-access.service';
-import { AdminTeamService, PerformanceReport } from '../../../../core/services/admin-team.service';
+import { AdminTeamService, PerformanceReport, SupportResponseMetrics } from '../../../../core/services/admin-team.service';
 
 const MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 const PERIOD_LABEL: Record<string, string> = { month: 'هذا الشهر', quarter: 'هذا الربع', year: 'هذه السنة' };
@@ -18,10 +19,23 @@ const COLORS = ['#A56BE0', '#2BD4C7', '#FF8C69', '#FFB400', '#5DA0FF', '#0FA99A'
 	styleUrl: './sa-team-performance.css',
 })
 export class SaTeamPerformance implements OnInit {
+	private readonly destroyRef = inject(DestroyRef);
 	private api = inject(AdminTeamService);
 	readonly access = inject(AdminAccessService);
 	readonly months = MONTHS; readonly periodLabel = PERIOD_LABEL;
 
+	readonly support = signal<SupportResponseMetrics | null>(null);
+	readonly supportLoading = signal(false);
+	readonly supportError = signal('');
+	private supportRequest = 0;
+	loadSupport() {
+		const request = ++this.supportRequest;
+		this.supportLoading.set(true); this.supportError.set(''); this.support.set(null);
+		this.api.supportPerformance(this.period()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+			next: r => { if (request !== this.supportRequest) return; this.support.set(r.data); this.supportLoading.set(false); },
+			error: () => { if (request !== this.supportRequest) return; this.supportError.set('تعذّر تحميل أوقات الرد.'); this.supportLoading.set(false); },
+		});
+	}
 	loading = signal(true); error = signal(''); report = signal<PerformanceReport | null>(null); period = signal<'month' | 'quarter' | 'year'>('month'); exporting = signal(false); exportError = signal('');
 	canExport = computed(() => this.access.can('performance.export'));
 	trend = computed(() => {
@@ -35,7 +49,7 @@ export class SaTeamPerformance implements OnInit {
 		this.loading.set(true); this.error.set('');
 		this.api.performance(this.period()).subscribe({ next: r => { this.report.set(r.data); this.loading.set(false); }, error: e => { this.error.set(e?.error?.message || 'تعذّر تحميل التقرير، حاول مرة أخرى'); this.loading.set(false); } });
 	}
-	setPeriod(p: 'month' | 'quarter' | 'year') { this.period.set(p); this.load(); }
+	setPeriod(p: 'month' | 'quarter' | 'year') { ++this.supportRequest; this.support.set(null); this.supportLoading.set(false); this.supportError.set(''); this.period.set(p); this.load(); }
 	color(i: number) { return COLORS[i % COLORS.length]; }
 	initial(n: string) { return (n || '?').trim().charAt(0); }
 	/** PDF = the browser's print dialog (Save as PDF) on exactly what this page shows, i.e. the same data, scope and permission as the CSV; the same helper the other admin reports use. */

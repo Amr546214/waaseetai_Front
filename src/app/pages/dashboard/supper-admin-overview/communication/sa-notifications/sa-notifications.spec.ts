@@ -1,0 +1,54 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { describe, expect, it } from 'vitest';
+import { SaNotifications } from './sa-notifications';
+
+const at = '2026-11-08T12:00:00Z';
+const id = '11111111-1111-4111-8111-111111111111';
+const isHistory = (r: { url: string; method: string }) => r.method === 'GET' && r.url.endsWith('/admin/notification-history');
+const item = { id, category: 'ALL', type: 'PLATFORM_REPORT_DECIDED', isRead: false, createdAt: at };
+const page = { data: { items: [item], nextCursor: { beforeAt: at, beforeId: id } } };
+
+describe('admin notification history', () => {
+  it('shows stored metadata, applies filters and returns to the correct page after a failed request', () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
+    const fixture = TestBed.createComponent(SaNotifications);
+    const c = fixture.componentInstance;
+    const http = TestBed.inject(HttpTestingController);
+    const el = fixture.nativeElement as HTMLElement;
+    fixture.detectChanges();
+    const initial = http.expectOne(isHistory);
+    expect(initial.request.params.get('range')).toBe('24h');
+    initial.flush(page);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('قرار في بلاغ');
+    expect(el.textContent).toContain('غير مقروء');
+    expect(el.textContent).toContain('السجل لا يؤكد وصول بريد');
+    c.range = '7d'; c.category = 'ALL'; c.read = 'unread'; c.applyFilters();
+    const filtered = http.expectOne(isHistory);
+    expect(filtered.request.params.keys()).toEqual(['range', 'category', 'read']);
+    expect(filtered.request.params.get('read')).toBe('unread');
+    filtered.flush(page);
+    c.next();
+    const failed = http.expectOne(isHistory);
+    expect(failed.request.params.get('beforeId')).toBe(id);
+    failed.flush({}, { status: 503, statusText: 'Unavailable' });
+    fixture.detectChanges();
+    expect(el.querySelector('[role="alert"]')?.textContent).toContain('تعذّر تحميل');
+    expect(c.pageNumber()).toBe(1);
+    c.retry();
+    const retry = http.expectOne(isHistory);
+    expect(retry.request.params.get('beforeAt')).toBe(at);
+    expect(retry.request.params.get('range')).toBe('7d');
+    retry.flush({ data: { items: [], nextCursor: null } });
+    expect(c.pageNumber()).toBe(2);
+    c.previous();
+    const previous = http.expectOne(isHistory);
+    expect(previous.request.params.has('beforeAt')).toBe(false);
+    previous.flush(page);
+    expect(c.pageNumber()).toBe(1);
+    http.verify();
+  });
+});

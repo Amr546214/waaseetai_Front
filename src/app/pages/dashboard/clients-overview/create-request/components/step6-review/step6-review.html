@@ -1,6 +1,6 @@
 <header class="review-header" dir="rtl">
   <div><span class="review-eyebrow">الخطوة الأخيرة</span><h1>مراجعة الطلب قبل النشر</h1><p>راجع جميع الأقسام، ثم أكّد الموافقات لنشر طلبك.</p></div>
-  <div class="review-export"><button type="button" class="export-pdf-btn" data-testid="export-review-pdf" [disabled]="isExporting()" (click)="exportPdf()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg>{{ isExporting() ? 'جارٍ تجهيز النسخة...' : 'تصدير PDF' }}</button><span>اختر «حفظ بصيغة PDF» في نافذة الطباعة</span></div>
+  <div class="review-export"><button type="button" class="export-pdf-btn" data-testid="export-review-pdf" [disabled]="isExporting()" (click)="exportPdf()"><svg data-ws-icon="pl-client-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg>{{ isExporting() ? 'جارٍ تجهيز النسخة...' : 'تصدير PDF' }}</button><span>اختر «حفظ بصيغة PDF» في نافذة الطباعة</span></div>
 </header>
 @if (exportError()) { <p class="export-error" role="alert">{{ exportError() }}</p> }
 <div id="state-default">
@@ -59,24 +59,24 @@
 <!-- ACKNOWLEDGMENTS -->
 	<div class="ack-card" role="group" aria-labelledby="ackTitle">
 	<div class="ack-title" id="ackTitle">
-		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+		<svg data-ws-icon="pl-client-check-square" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
 		الإقرارات والموافقات
 	</div>
 		<div class="ack-row" id="ack-data" data-field-wrap (click)="toggleAck('data')" (keydown)="toggleAckFromKeyboard($event, 'data')" role="checkbox" [attr.aria-checked]="acks.data()" tabindex="0">
 		<div class="ack-check" [class.checked]="acks.data()">
-		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+		<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
 		</div>
 		<div class="ack-text">أقر بأن جميع المعلومات المدخلة في هذا الطلب صحيحة ودقيقة، وأتحمل المسؤولية الكاملة عن صحة البيانات</div>
 	</div>
 		<div class="ack-row" id="ack-termsPrivacy" data-field-wrap (click)="toggleAck('termsPrivacy')" (keydown)="toggleAckFromKeyboard($event, 'termsPrivacy')" role="checkbox" [attr.aria-checked]="acks.termsPrivacy()" tabindex="0">
 		<div class="ack-check" [class.checked]="acks.termsPrivacy()">
-		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+		<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
 		</div>
 		<div class="ack-text">أوافق على <a class="ack-policy-link" routerLink="/terms" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">شروط الاستخدام</a> و<a class="ack-policy-link" routerLink="/privacy" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">سياسة الخصوصية</a>، وأوافق على معالجة بياناتي وفق نظام حماية البيانات ومتطلبات نشر الطلب على المنصة</div>
 	</div>
 		<div class="ack-row" id="ack-publish" data-field-wrap (click)="toggleAck('publish')" (keydown)="toggleAckFromKeyboard($event, 'publish')" role="checkbox" [attr.aria-checked]="acks.publish()" tabindex="0">
 		<div class="ack-check" [class.checked]="acks.publish()">
-		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+		<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
 		</div>
 		<div class="ack-text">أوافق على نشر هذا الطلب للمزودين المؤهلين، وأدرك أنه بعد النشر سيتمكن مقدمو الخدمة من تقديم عروضهم</div>
 	</div>
@@ -103,11 +103,11 @@
 			style="background: linear-gradient(135deg, #2bd4c7 0%, #2b7fff 100%);"
 			[disabled]="parent.isSubmitting()" data-testid="wizard-publish" (click)="openModal()">
 			@if (parent.isSubmitting()) {
-			<svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-[#070d24]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+			<svg data-ws-icon="pl-client-spinner" class="animate-spin -ml-1 mr-2 h-5 w-5 text-[#070d24]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
 			جاري النشر...
 			} @else {
 			<span>نشر الطلب</span>
-			<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+			<svg data-ws-icon="ws-check" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 				<polyline points="20 6 9 17 4 12" />
 			</svg>
 			}
@@ -117,7 +117,7 @@
 		<button type="button"
 			class="step6-back-btn inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#111936] border border-[#1e2952] text-[#8a99c4] hover:text-white hover:bg-[#182348] text-[length:var(--font-size-label)] font-bold transition-all cursor-pointer shadow-sm"
 			(click)="parent.goBack()">
-			<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+			<svg data-ws-icon="ws-chevron" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 				<polyline points="9 18 15 12 9 6" />
 			</svg>
 			السابق
@@ -131,10 +131,10 @@
 <div class="modal-overlay open" role="dialog" aria-modal="true">
   <div class="modal">
     <button class="modal-close" (click)="closeModal()" aria-label="إغلاق">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <svg data-ws-icon="ws-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <div class="modal-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <svg data-ws-icon="ws-cat-marketing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
     </div>
     <h2 class="modal-title">تأكيد نشر الطلب</h2>
     <p class="modal-sub">بعد النشر، سيتمكن مقدمو الخدمة المؤهلون من رؤية طلبك وتقديم عروضهم. الطلب سيكون نشطا لمدة 30 يوما</p>
@@ -153,7 +153,7 @@
     </div>
     <div class="modal-btns">
       <button class="btn-primary" style="width:100%;justify-content:center" (click)="confirmPublish()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg data-ws-icon="ws-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
         تأكيد النشر
       </button>
       <button class="btn-secondary" style="width:100%;justify-content:center" (click)="closeModal()">تعديل</button>

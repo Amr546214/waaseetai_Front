@@ -50,6 +50,17 @@ export class ProjectApiService {
 	}
 
 	/**
+	 * Suggest ONLY budget range, duration, and 100%-sum milestones for Step 4 without touching Step 3 text fields.
+	 */
+	getAiBudgetSuggestion(payload: Record<string, unknown>): Observable<ApiResponse<any>> {
+		return this.http.post<ApiResponse<any>>(
+			`${this.apiUrl}/ai-suggest-budget`,
+			payload,
+			{ context: new HttpContext().set(SKIP_LOADING, true) }
+		);
+	}
+
+	/**
 	 * Upload files/attachments via multipart FormData
 	 */
 	uploadAttachments(files: File[]): Observable<ApiResponse<UploadedAttachment[]>> {

@@ -9,8 +9,21 @@ import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 export interface ProfileSuggestionInput {
   jobTitle?: string;
   mainSpecialty?: string;
+  subSpecialties?: string[];
   experienceRange?: string;
   existingSkills?: string[];
+}
+
+export interface IdentityDocumentInspection {
+  status: 'CLEAR_VALID' | 'NEEDS_ATTENTION' | 'NOT_ID_DOCUMENT' | 'UNREADABLE';
+  isIdentityDocument: boolean;
+  detectedSide: 'FRONT' | 'BACK' | 'UNKNOWN';
+  sideMatchesExpected: boolean;
+  readability: 'CLEAR' | 'BLURRY' | 'PARTIAL' | 'UNREADABLE';
+  summaryAr: string;
+  warningsAr: string[];
+  fields?: { fullName?: string; birthDate?: string; nationalId?: string };
+  advisoryOnly: true;
 }
 
 /** One thing still needed to reach 100% (computed by the backend, so the percentage and this list always agree). */
@@ -94,9 +107,30 @@ export class ProviderProfileService {
     );
   }
 
+  enhanceBio(input: ProfileSuggestionInput & { bio: string }): Observable<{ success: boolean; data: { enhancedBio: string; suggestedBio?: string } }> {
+    return this.http.post<{ success: boolean; data: { enhancedBio: string; suggestedBio?: string } }>(
+      `${this.apiUrl}/enhance-bio`,
+      input,
+      { context: new HttpContext().set(SKIP_LOADING, true) }
+    );
+  }
+
   suggestSkills(input: ProfileSuggestionInput): Observable<{ success: boolean; data: { suggestedSkills: string[] } }> {
     return this.http.post<{ success: boolean; data: { suggestedSkills: string[] } }>(
       `${this.apiUrl}/suggest-skills`,
+      input,
+      { context: new HttpContext().set(SKIP_LOADING, true) }
+    );
+  }
+
+  verifyIdentityDocument(input: {
+    side: 'FRONT' | 'BACK';
+    image: string;
+    imageMimeType?: string;
+    declared?: { fullName?: string; birthDate?: string; nationalId?: string };
+  }): Observable<{ success: boolean; data: IdentityDocumentInspection }> {
+    return this.http.post<{ success: boolean; data: IdentityDocumentInspection }>(
+      `${this.apiUrl}/verify-id-document`,
       input,
       { context: new HttpContext().set(SKIP_LOADING, true) }
     );

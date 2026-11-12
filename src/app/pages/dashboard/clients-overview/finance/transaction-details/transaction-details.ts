@@ -34,7 +34,7 @@ export class TransactionDetails implements OnInit {
   isEscrow = computed(() => this.transaction()?.type === 'ESCROW_LOCK');
   isDeposit = computed(() => this.transaction()?.type === 'DEPOSIT');
   // A refund returns money to the wallet, like a deposit.
-  direction = computed<'in' | 'out'>(() => this.isDeposit() || this.transaction()?.type === 'REFUND' || this.transaction()?.type === 'AMENDMENT_REFUND' ? 'in' : 'out');
+  direction = computed<'in' | 'out'>(() => this.isDeposit() || this.transaction()?.type === 'REFUND' || this.transaction()?.type === 'AMENDMENT_REFUND' || this.transaction()?.type === 'CASHBACK' ? 'in' : 'out');
   isFailed = computed(() => this.transaction()?.status === 'FAILED');
   // payments are stored negative: the sign is shown once, from the direction; a failed attempt moved no money, so it has no sign
   amountAbs = computed(() => Math.abs(this.transaction()?.amount ?? 0));
@@ -58,6 +58,7 @@ export class TransactionDetails implements OnInit {
     if (tx.type === 'REFUND') return 'استرداد إلى المحفظة';
     if (tx.type === 'AMENDMENT_TOPUP') return 'زيادة ميزانية عقد من المحفظة';
     if (tx.type === 'AMENDMENT_REFUND') return 'استرداد خفض ميزانية عقد إلى المحفظة';
+    if (tx.type === 'CASHBACK') return 'كاش باك مشروع مكتمل في المحفظة';
     return tx.type;
   });
 

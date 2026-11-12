@@ -1,3 +1,4 @@
+import { AdminAccessService } from '../../../../core/services/admin-access.service';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -8,6 +9,7 @@ import { TicketApiService } from '../../../../core/services/ticket-api.service';
 import { AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { SaSupport } from './sa-support';
 import { SaSupportDetail } from './sa-support-detail/sa-support-detail';
+const grant = (permissions: string[]) => TestBed.inject(AdminAccessService).access.set({ userId: 'qa-admin', isSuperAdmin: false, staffStatus: 'ACTIVE', roleName: null, permissions, hasAnyPermission: true, state: 'ACTIVE', displayRole: 'الدعم' });
 
 const ticket: any = { id: 't1', ticketNumber: 'TK-1', userId: 'u1', subject: 'مشكلة في التحويل', category: 'مالية', priority: 'عادية', description: 'وصف طويل للمشكلة هنا', status: 'OPEN', createdAt: '2026-10-01T00:00:00Z', updatedAt: '2026-10-01T00:00:00Z' };
 const user = { id: 'u1', firstName: 'م', lastName: 'ق', email: 'p@x', accountType: 'PROVIDER_INDIVIDUAL' };
@@ -30,6 +32,25 @@ describe('SaSupport (admin tickets, real API)', () => {
 		expect(api.adminListTickets).toHaveBeenLastCalledWith({ status: 'RESOLVED', q: undefined, page: 1 });
 	});
 
+	it('escalated tab uses the server filter and keeps its count separate from all tickets', () => {
+		const api = { adminListTickets: vi.fn(() => of({ success: true, data: {
+			items: [{ ...ticket, user, isEscalated: true }], counts: { OPEN: 3, RESOLVED: 2 }, escalationCount: 1,
+			pagination: { page: 1, pages: 1, limit: 20, total: 1 },
+		} })) };
+		TestBed.configureTestingModule({ imports: [SaSupport], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }] });
+		const f = TestBed.createComponent(SaSupport);
+		f.detectChanges();
+		const c = f.componentInstance;
+		c.page.set(2);
+		c.searchTerm.set('تحويل');
+		c.setFilter('escalated');
+		expect(api.adminListTickets).toHaveBeenLastCalledWith({ escalated: true, status: undefined, q: 'تحويل', page: 1 });
+		expect(c.countFor('escalated')).toBe(1);
+		expect(c.countFor('all')).toBe(5);
+		f.detectChanges();
+		expect(f.nativeElement.textContent).toContain('مصعّدة');
+	});
+
 	it('detail: reply and status change call the admin endpoints and reload', async () => {
 		const detail = { success: true, data: { ticket, user, messages: [{ id: 'm1', ticketId: 't1', senderId: 'u1', body: 'original', createdAt: '2026-10-01T00:00:00Z', sender: { id: 'u1', firstName: 'م', lastName: 'ق', accountType: 'PROVIDER_INDIVIDUAL' } }, { id: 'm2', ticketId: 't1', senderId: 'a', body: 'رد الدعم', createdAt: '2026-10-02T00:00:00Z', sender: { id: 'a', firstName: 'A', lastName: 'B', accountType: 'ADMIN' } }] } };
 		const api = {
@@ -38,12 +59,15 @@ describe('SaSupport (admin tickets, real API)', () => {
 			adminReply: vi.fn(() => of({ success: true, data: {} })),
 			adminSetStatus: vi.fn(() => of({ success: true, data: {} })),
 		};
-		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
-		const f = TestBed.createComponent(SaSupportDetail);
+		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+		grant(['support.review', 'support.reply']);
+			const f = TestBed.createComponent(SaSupportDetail);
 		f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
 		expect(el.textContent).toContain('رد الدعم');
 		expect(el.textContent).toContain('فريق الدعم');
+		expect(f.componentInstance.firstStaffReply()).toEqual({ at: '2026-10-02T00:00:00Z', hours: 24, minutes: 0 });
+		expect(el.querySelector('[data-testid="first-staff-reply-time"]')).toBeTruthy();
 		f.componentInstance.draftReply.set('مرحبا');
 		f.componentInstance.sendReply();
 		expect(api.adminReply).toHaveBeenCalledWith('t1', 'مرحبا');
@@ -74,7 +98,8 @@ describe('SaSupport (admin tickets, real API)', () => {
 				adminListTickets: vi.fn(() => of({ success: true, data: { items: [], counts: {}, pagination: {} } })),
 				adminAssign: vi.fn(ok), adminSetPriority: vi.fn(ok), adminAddNote: vi.fn(ok),
 			};
-			TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+			TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+			grant(['support.review', 'support.reply']);
 			const f = TestBed.createComponent(SaSupportDetail);
 			f.detectChanges();
 			return { f, api };
@@ -83,6 +108,7 @@ describe('SaSupport (admin tickets, real API)', () => {
 		it('assign, priority and internal note call the right API methods', () => {
 			const { f, api } = setup();
 			const c = f.componentInstance;
+			grant(['support.review', 'support.reply', 'tasks.manage']); // handing a ticket to somebody else needs tasks.manage (the server rule)
 			c.selectedAssigneeId.set('s2');
 			c.assign();
 			expect(api.adminAssign).toHaveBeenCalledWith('t1', 's2');
@@ -94,19 +120,30 @@ describe('SaSupport (admin tickets, real API)', () => {
 			expect(c.noteDraft()).toBe('');
 		});
 
-		it('renders note label, notes, assignee and disabled controls with reasons', () => {
+		it('escalates only with permission and a reason', async () => {
+			const { f, api } = setup();
+			const access = TestBed.inject(AdminAccessService);
+			const cmp = f.componentInstance;
+			cmp.selectedAssigneeId.set('s2');
+			cmp.escalationReason.set('متابعة');
+			cmp.escalate();
+			expect(api.adminAssign).not.toHaveBeenCalled();
+			access.access.set({ userId: 'qa-admin', isSuperAdmin: false, staffStatus: 'ACTIVE', roleName: null, permissions: ['support.reply', 'tasks.manage'], hasAnyPermission: true, state: 'ACTIVE', displayRole: 'الدعم' });
+			cmp.escalationReason.set('  متابعة  ');
+			cmp.escalate();
+			expect(api.adminAssign).toHaveBeenCalledWith('t1', 's2', 'متابعة');
+			expect(cmp.escalationReason()).toBe('');
+		});
+
+		it('renders note label, notes, assignee and attachment guidance with reasons', () => {
 			const { f } = setup();
 			const el = f.nativeElement as HTMLElement;
 			expect(el.textContent).toContain('ملاحظات داخلية — لا تراها صاحب التذكرة');
 			expect(el.textContent).toContain('ملاحظة سرية');
 			expect(el.textContent).toContain('سارة');
 			expect(el.textContent).toContain('ردك يظهر لصاحب التذكرة');
-			const attach = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.includes('إرفاق ملف')) as HTMLButtonElement;
-			expect(attach.disabled).toBe(true);
-			expect(attach.title).toContain('إرفاق ملفات في رد الموظف غير متاح');
-			const esc = Array.from(el.querySelectorAll('button')).find(b => b.textContent?.trim() === 'تصعيد') as HTMLButtonElement;
-			expect(esc.disabled).toBe(true);
-			expect(el.textContent).toContain('يتطلب جدولاً لقياس زمن الاستجابة');
+			expect(el.querySelector('input[type="file"][aria-label="مرفقات الرد"]')).toBeTruthy();
+			expect(el.textContent).toContain('لا يوجد رد مسجّل من فريق الدعم.');
 		});
 	});
 });
@@ -121,8 +158,9 @@ describe('SaSupportDetail form validation UX', () => {
 			adminReply: vi.fn(() => of({ success: true, data: {} })), adminAssign: vi.fn(() => of({ success: true })), adminAddNote: vi.fn(() => of({ success: true })),
 			adminSetPriority: vi.fn(() => of({ success: true })), adminSetStatus: vi.fn(() => of({ success: true })),
 		};
-		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
-		const f = TestBed.createComponent(SaSupportDetail);
+		TestBed.configureTestingModule({ imports: [SaSupportDetail], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: TicketApiService, useValue: api }, { provide: AdminOpsApiService, useValue: { listStaff: () => of({ success: true, data: [{ id: 's2', name: 'خالد', email: 'k@x', accountType: 'ADMIN' }] }) } }, { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 't1' })) } }] });
+		grant(['support.review', 'support.reply']);
+			const f = TestBed.createComponent(SaSupportDetail);
 		f.detectChanges();
 		const el = f.nativeElement as HTMLElement;
 		return { f, c: f.componentInstance, api, el, byId: (id: string) => el.querySelector('#' + id) as HTMLElement };

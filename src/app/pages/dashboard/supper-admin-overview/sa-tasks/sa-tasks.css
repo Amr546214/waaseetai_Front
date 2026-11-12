@@ -273,6 +273,7 @@
 
 .tk-pill{padding:1px 6px;border-radius:20px;font-size:10px;margin-inline-start:3px}
 .tk-pill-amber{background:rgba(255,180,0,.18);color:#D98A0B}
+.tk-pill-teal{background:rgba(15,169,154,.16);color:#0FA99A}
 .tk-pill-blue{background:rgba(43,127,255,.15);color:#5DA0FF}
 .tk-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 .tk-box{padding:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:10px;text-align:center}

@@ -7,6 +7,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
+import { AdminAccessService } from '../../../../../core/services/admin-access.service';
 import { SaDisputeDetail } from './sa-dispute-detail';
 import { Dispute } from '../../../../../core/models/dispute.model';
 
@@ -59,6 +60,7 @@ describe('SaDisputeDetail — advisory AI summary panel', () => {
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting(),
         provideRouter([{ path: 'disputes/:id', component: SaDisputeDetail }]),
+        { provide: AdminAccessService, useValue: { can: () => true } },
         { provide: HttpClient, useValue: { get: (...args: any[]) => getSpy(...args), post: (...args: any[]) => postSpy(...args) } },
       ],
     });

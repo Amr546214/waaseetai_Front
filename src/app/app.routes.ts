@@ -29,6 +29,7 @@ export const routes: Routes = [
 
 	{
 		path: 'client-overview',
+		data: { beboToolbarInSidebar: true },
 		canActivate: [authGuard, clientGuard, serverActiveRoleGuard],
 		// K-5: re-check the acting role on every in-app navigation under the area (a tab whose role changed must not keep opening this area's pages)
 		runGuardsAndResolvers: 'always',
@@ -37,6 +38,7 @@ export const routes: Routes = [
 	},
 	{
 		path: 'provider-overview',
+		data: { beboToolbarInSidebar: true },
 		canActivate: [authGuard, providerGuard, serverActiveRoleGuard],
 		canActivateChild: [providerProfileCompleteGuard],
 		// re-ask the backend on every navigation under the provider area, in-app ones (after login/logout/role switch) included
@@ -55,6 +57,7 @@ export const routes: Routes = [
 	},
 	{
 		path: 'marketer-overview',
+		data: { beboToolbarInSidebar: true },
 		canActivate: [authGuard, marketerGuard, serverActiveRoleGuard],
 		// K-5: same as the client area
 		runGuardsAndResolvers: 'always',
@@ -71,6 +74,7 @@ export const routes: Routes = [
 	// supper admin
 	{
 		path: 'supper-admin-overview',
+		data: { beboToolbarInSidebar: true },
 		canActivate: [authGuard, superAdminGuard],
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),
 		children: SUPPER_ADMIN_ROUTES

@@ -53,6 +53,8 @@ export class AdminConsoleApiService {
 		return this.http.get<Envelope<AdminAuditLogPage>>(`${this.base}/audit-log`, { params });
 	}
 	getAdmins(): Observable<Envelope<AdminRosterItem[]>> { return this.http.get<Envelope<AdminRosterItem[]>>(`${this.base}/admins`); }
+	updateAvatar(image: string | null) { return this.http.post<Envelope<AdminSelfProfile>>(`${this.base}/account/avatar`, { image }); }
+	securityPolicy() { return this.http.get<Envelope<{ emailCodeRequired: boolean; authenticatorAppAvailable: boolean; editable: boolean }>>(`${this.base}/account/security-policy`); }
 	getMe(): Observable<Envelope<AdminSelfProfile>> { return this.http.get<Envelope<AdminSelfProfile>>(`${this.base}/account/me`); }
 	updateMe(body: { firstName?: string; lastName?: string; phoneCountryCode?: string; phoneNumber?: string | null }): Observable<Envelope<AdminSelfProfile>> {
 		return this.http.patch<Envelope<AdminSelfProfile>>(`${this.base}/account/me`, body);

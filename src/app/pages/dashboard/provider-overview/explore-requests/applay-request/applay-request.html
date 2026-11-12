@@ -170,7 +170,7 @@
         [totalPct]="totalPct()"
         [totalAmount]="totalAmount"
         [isFetchingAiSuggest]="isFetchingAiSuggest()"
-        (useAISuggest)="useAISuggest()"
+        (useAISuggest)="distributeMilestonesFromProposal()"
         (addMilestone)="addMilestone()"
         (removeMilestone)="removeMilestone($event)"
         (updateMilestone)="updateMilestone($event.id, $event.updates)">
@@ -188,7 +188,8 @@
         [ack2]="ack2()"
         [ack3]="ack3()"
         (prevStep)="prevStep()"
-        (toggleAck)="toggleAck($event)">
+        (toggleAck)="toggleAck($event)"
+        (retryAudit)="triggerAiAudit()">
       </app-step3-review>
     }
     <!-- STEP 4: Final Confirmation -->
@@ -203,8 +204,11 @@
         [portfolioOptions]="portfolioOptions()">
       </app-step4-success>
     }
+  </div>
+</main>
+
 <!-- STICKY BOTTOM -->
-<div class="fixed bottom-0 right-0 min-[1024px]:right-[220px] left-0 backdrop-blur-[16px] py-[14px] ps-4 pe-4 min-[1024px]:ps-6 min-[1024px]:pe-8 z-50 flex items-center justify-between gap-3 transition-[right] duration-200 sticky-bar">
+<div class="fixed bottom-0 right-0 min-[1024px]:right-[260px] left-0 backdrop-blur-[16px] py-[14px] ps-4 pe-4 min-[1024px]:ps-6 min-[1024px]:pe-6 z-50 flex items-center justify-between gap-3 transition-[right] duration-200 sticky-bar">
   <div class="w-full flex items-center justify-between gap-3 sticky-bar-inner">
     @if(activeStep() === 1) {
       <a routerLink="/provider-overview/explore-requests" class="inline-flex items-center gap-[7px] py-[11px] px-[22px] rounded-full text-[length:var(--font-size-label)] font-bold cursor-pointer transition-all duration-150 btn-back">

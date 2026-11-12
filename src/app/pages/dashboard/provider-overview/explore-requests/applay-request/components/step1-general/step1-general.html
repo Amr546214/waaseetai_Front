@@ -43,7 +43,7 @@
         <label class="text-[length:var(--font-size-label)] font-bold text-[#A8B2D1] field-label" for="f-desc">رسالة عرضك <span class="ws-req" aria-hidden="true">*</span></label>
         <button type="button" [disabled]="isFetchingAiSuggest" title="يعيد صياغة عنوان العرض ورسالته من النص الذي كتبته فقط؛ لا يستخدم ميزانية المشروع ولا يحدد سعرًا عادلًا" class="inline-flex items-center justify-center gap-[5px] py-[5px] px-[11px] whitespace-nowrap bg-[rgba(123,47,190,.10)] border border-[rgba(123,47,190,.22)] rounded-lg text-xs font-bold text-[#A56BE0] cursor-pointer transition-all duration-150 hover:bg-[rgba(123,47,190,.18)] ai-suggest-btn disabled:opacity-50 disabled:cursor-not-allowed" (click)="useAISuggest.emit()">
           <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg>
-          <span>{{ isFetchingAiSuggest ? 'جاري الصياغة...' : 'اقتراح AI' }}</span>
+          <span>{{ isFetchingAiSuggest ? 'جاري تحسين الصياغة...' : 'تحسين وصياغة AI' }}</span>
         </button>
       </div>
       <textarea class="w-full py-[12px] px-[14px] bg-[rgba(255,255,255,.05)] border-[1.5px] border-[rgba(255,255,255,.10)] rounded-[10px] text-white text-sm outline-none transition-colors duration-150 resize-y leading-relaxed min-h-[180px] whitespace-pre-wrap focus:border-[rgba(43,212,199,.45)] placeholder:text-[#6B7699] field-textarea"

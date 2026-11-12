@@ -12,7 +12,7 @@ import { MISSING_DETAILS_TEXT, WalletBreakdown, WalletPagination, currencySymbol
 import { WalletCardItem, WalletExtraCardsComponent } from '../../../../../shared/wallet/wallet-cards.component';
 
 interface FinancialEvent {
-  id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED' | 'CANCELLATION_SETTLEMENT';
+  id: string; type: 'credit' | 'hold'; category: 'STAGE_RELEASE' | 'ESCROW_RELEASE' | 'ESCROW_FUNDED' | 'CANCELLATION_SETTLEMENT' | 'ADMIN_RELEASE';
   breakdown?: WalletBreakdown;
   amount: number; currency: string; title: string; description: string; projectId: string;
   projectTitle: string; stageId: string | null; status: 'COMPLETED' | 'HELD' | 'RELEASED' | 'REFUNDED'; createdAt: string;
@@ -81,6 +81,7 @@ export class Transactions implements OnInit {
 
   statusLabel(t: FinancialEvent) {
     if (t.category === 'CANCELLATION_SETTLEMENT' || t.id.startsWith('cancellation-settlement-')) return 'تسوية إلغاء متبادل';
+    if (t.category === 'ADMIN_RELEASE' || t.id.startsWith('admin-release-')) return 'صرف إداري للضمان';
     if (t.type === 'credit') return 'مفرج ومكتمل';
     if (t.status === 'HELD') return 'محتجز في الضمان';
     if (t.status === 'REFUNDED') return 'مسترد';

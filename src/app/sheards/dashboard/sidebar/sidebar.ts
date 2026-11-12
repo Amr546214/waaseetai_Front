@@ -226,15 +226,22 @@ export class Sidebar implements OnInit {
 		}
 
 		if (role === UserRole.AFFILIATE) {
-			return this.getMarketerNavItems();
+			return this.withBeboTab(this.getMarketerNavItems(), 'marketer-overview');
 		}
 
 		if (role === UserRole.PROVIDER) {
-			return this.getProviderNavItems();
+			return this.withBeboTab(this.getProviderNavItems(), 'provider-overview');
 		}
 
-		return this.getClientNavItems();
+		return this.withBeboTab(this.getClientNavItems(), 'client-overview');
 	});
+
+	private withBeboTab(items: NavItem[], area: string): NavItem[] {
+		const logout = items.findIndex(item => item.type === 'button' && item.action === 'logout');
+		if (logout < 0) return items;
+		const bebo: NavItem = { type: 'link', label: 'بيبو', route: '/' + area + '/bebo', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' };
+		return [...items.slice(0, logout), bebo, ...items.slice(logout)];
+	}
 
 	/**
 	 * The admin menu shows only what the account's PERMISSIONS allow (read from the server, core/services/admin-access.service). While they are not known, or when they cannot be read, only the
@@ -449,6 +456,9 @@ export class Sidebar implements OnInit {
 					]
 			},
 
+			// Bebo's tool bar (moved here from the floating bar): directly above the logout button
+			{ type: 'header', label: 'المساعد' },
+			{ type: 'link', label: 'بيبو', route: '/supper-admin-overview/bebo', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' },
 			{
 				type: 'button',
 				label: 'تسجيل الخروج',

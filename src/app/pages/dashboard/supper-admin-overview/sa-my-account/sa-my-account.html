@@ -13,9 +13,17 @@
       <label class="ma-f">رقم الجوال ({{ profile()?.phoneCountryCode || '+966' }})<input type="tel" inputmode="numeric" [ngModel]="phoneNumber()" (ngModelChange)="phoneNumber.set($event)" style="direction:ltr" id="ma-phone" data-testid="phone" /></label>
     </div>
     <div class="ma-row">
-      <label class="ma-f">الصورة الشخصية<input type="text" disabled [title]="avatarReason" [value]="avatarReason" /></label>
+      <label class="ma-f">الصورة الشخصية — PNG أو JPEG أو WebP، حتى 2 ميجا
+        <input type="file" accept="image/png,image/jpeg,image/webp" [disabled]="avatarBusy() || savingProfile() || !profile()" (change)="chooseAvatar($event)" />
+      </label>
+      @if (profile()?.avatarUrl; as url) {
+        <img [src]="url" alt="صورتك الشخصية الحالية" width="64" height="64" style="border-radius:50%;object-fit:cover" />
+        <button type="button" class="ma-btn" [disabled]="avatarBusy()" (click)="removeAvatar()">حذف الصورة</button>
+      }
+      @if (avatarBusy()) { <p role="status">جارٍ حفظ الصورة…</p> }
+      @if (avatarMessage(); as m) { <p [attr.role]="m.ok ? 'status' : 'alert'" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok">{{ m.text }}</p> }
     </div>
-    <button type="button" class="ma-btn" (click)="saveProfile()" [disabled]="savingProfile()" data-testid="save-profile">{{ savingProfile() ? 'جارٍ الحفظ…' : 'حفظ البيانات' }}</button>
+    <button type="button" class="ma-btn" (click)="saveProfile()" [disabled]="savingProfile() || avatarBusy()" data-testid="save-profile">{{ savingProfile() ? 'جارٍ الحفظ…' : 'حفظ البيانات' }}</button>
     @if (profileMsg(); as m) { <div class="ma-msg" [class.ma-ok]="m.ok" [class.ma-err]="!m.ok" [attr.role]="m.ok ? 'status' : 'alert'">{{ m.text }}</div> }
   </div>
 
@@ -32,9 +40,10 @@
   </div>
 
   <div class="ma-card" data-testid="twofa-card">
-    <div class="ma-ttl">المصادقة الثنائية (2FA)</div>
-    <button type="button" class="ma-btn" disabled [title]="twoFaReason" data-testid="twofa-toggle">تفعيل</button>
-    <div class="ma-note" style="margin-top:8px">{{ twoFaReason }}</div>
+    <div class="ma-ttl">تأكيد البريد عند تسجيل الدخول</div>
+    <p class="ma-note">اعرض السياسة المطبّقة من الخادم. هذه الصفحة لا تغيّر طريقة تسجيل الدخول ولا ترسل رمزًا.</p>
+    <button type="button" class="ma-btn" [disabled]="securityLoading()" (click)="checkSecurityPolicy()" data-testid="twofa-policy">عرض إعدادات الدخول</button>
+    @if (securityMessage()) { <p [attr.role]="securityChecked() ? 'status' : 'alert'">{{ securityMessage() }}</p> }
   </div>
 
   <div class="ma-card" data-testid="sessions-card">
