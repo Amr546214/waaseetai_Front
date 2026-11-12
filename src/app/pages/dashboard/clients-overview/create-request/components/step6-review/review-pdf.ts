@@ -1,3 +1,4 @@
+import { printHtmlDocument } from '../../../../../../core/reports/report-document';
 /** Print an isolated snapshot so dashboard navigation and publish/consent controls never enter the PDF. */
 export async function printReviewDocument(
   source: HTMLElement,
@@ -5,22 +6,8 @@ export async function printReviewDocument(
   onFrame: (frame: HTMLIFrameElement) => void,
 ): Promise<void> {
   const owner = source.ownerDocument;
-  const frame = owner.createElement('iframe');
-  frame.title = 'نسخة الطلب للتصدير';
-  frame.setAttribute('aria-hidden', 'true');
-  frame.tabIndex = -1;
-  frame.style.cssText = 'position:fixed;inset:0;width:0;height:0;border:0;visibility:hidden';
-  owner.body.append(frame);
-  onFrame(frame);
-  const doc = frame.contentDocument;
-  const printWindow = frame.contentWindow;
-  if (!doc || !printWindow) throw new Error('Print preview is unavailable');
-  doc.documentElement.lang = 'ar';
-  doc.documentElement.dir = 'rtl';
-  doc.title = title;
   const fontUrl = new URL('/assets/fonts/DINNextLTArabic-Regular-3.ttf', owner.baseURI).href;
-  const style = doc.createElement('style');
-  style.textContent = `
+  const style = `
     @font-face { font-family: ReviewArabic; src: url(${JSON.stringify(fontUrl)}) format('truetype'); font-weight: 100 900; }
     @page { size: A4; margin: 12mm; }
     * { box-sizing: border-box; }
@@ -52,17 +39,8 @@ export async function printReviewDocument(
     .review-document-note { border-top: 1px solid #ccd5df; padding-top: 8px; color: #52647a; font-size: 10px; }
     h2,h3,h4 { break-after: avoid; } p,li { orphans: 3; widows: 3; }
   `;
-  doc.head.append(style);
   const snapshot = source.cloneNode(true) as HTMLElement;
-  snapshot.querySelectorAll('button').forEach(button => button.remove());
-  doc.body.append(doc.adoptNode(snapshot));
-  // Arabic shaping and mixed RTL/LTR text are handled by the browser's print engine.
-  if (doc.fonts) {
-    await doc.fonts.load('12px ReviewArabic');
-    await doc.fonts.ready;
-  }
-  if (!frame.isConnected) return;
-  printWindow.addEventListener('afterprint', () => frame.remove(), { once: true });
-  printWindow.focus();
-  printWindow.print();
+  snapshot.querySelectorAll('button,script,form,nav').forEach(node => node.remove());
+  const escape = (value: string) => value.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]!));
+  await printHtmlDocument(owner, `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escape(title)}</title><style>${style.replaceAll('ReviewArabic','ReportArabic')}</style></head><body>${snapshot.outerHTML}</body></html>`, onFrame);
 }

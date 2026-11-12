@@ -1,3 +1,5 @@
+import { reportMoney } from '../../../../../core/reports/report-document';
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { LoadRetryComponent } from '../../../../../sheards/load-retry/load-retry';
 import { RateLimitNoteComponent } from '../../../../../sheards/load-retry/rate-limit-note';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
@@ -16,6 +18,7 @@ import { handleLoadError } from '../../../../../core/utils/rate-limit.util';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InvoicesComponent implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
 	private providerApi = inject(ProviderApiService);
 	summary = signal<ProviderInvoicesResponse['summary'] | null>(null);
 	isLoading = signal<boolean>(true);
@@ -66,9 +69,10 @@ export class InvoicesComponent implements OnInit {
 	}
 
 	/** PDF = the browser's print dialog ("Save as PDF") until a server-generated document exists. */
-	downloadInvoice(_inv: ProviderInvoice, event: Event): void {
+	downloadInvoice(inv: ProviderInvoice, event: Event): void {
 		event.stopPropagation();
-		window.print();
+		if(this.isLoading()||this.hasError())return;
+    this.reportPrinter.print({title:'تفاصيل فاتورة مقدم الخدمة',metadata:[['رقم الفاتورة',inv.id],['تاريخ الفاتورة',this.formatDate(inv.date)]],sections:[{title:'بيانات الدفعة',facts:[['المشروع',inv.projectTitle||inv.project],['المرحلة',inv.stageTitle],['العميل',inv.clientName],['قيمة المرحلة',reportMoney(inv.stageValue,inv.currency)],['عمولة المنصة',reportMoney(inv.platformCommission,inv.currency)],['صافي المستحق',reportMoney(inv.net,inv.currency)],['الحالة',inv.status==='paid'?'مدفوعة':'مستحقة'],['تاريخ الدفع',inv.paymentDate?this.formatDate(inv.paymentDate):'—']]}],note:'تفاصيل دفعة مستخرجة من السجلات، وليست فاتورة ضريبية معتمدة.'});
 	}
 
 	retry() {

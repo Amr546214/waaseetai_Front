@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { of } from 'rxjs';
@@ -56,7 +57,7 @@ describe('SaAnalyticsProviders', () => {
     d.providers.topRated = [{ providerId: 'p1', name: 'مزود حقيقي', accountType: 'PROVIDER_INDIVIDUAL', averageRating: 4.5, reviewCount: 2, completedProjects: 1 }];
     const { f } = setup(d);
     const box = captureDownload();
-    const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+    const print = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => {});
     (f.nativeElement.querySelector('[data-testid="sap-csv"]') as HTMLButtonElement).click();
     expect(await readBlob(box.blob!)).toContain('مزود حقيقي');
     (f.nativeElement.querySelector('[data-testid="sap-print"]') as HTMLButtonElement).click();

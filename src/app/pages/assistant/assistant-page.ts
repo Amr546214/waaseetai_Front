@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../core/reports/report-print.service';
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -717,6 +718,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 	`
 })
 export class AssistantPageComponent {
+  private readonly reportPrinter = inject(ReportPrintService);
 	readonly store = inject(AssistantStore);
 	readonly auth = inject(AuthStore);
 	readonly theme = inject(ThemeService);
@@ -1147,9 +1149,9 @@ export class AssistantPageComponent {
 	}
 
 	printConversation(): void {
-		if (typeof window !== 'undefined') {
-			window.print();
-		}
+		const messages=this.store.messages().filter(m=>m.text?.trim()&&!m.streaming);
+    if(!messages.length)return;
+    this.reportPrinter.print({title:'سجل محادثة المساعد',sections:messages.map(m=>({title:m.role==='user'?'المستخدم':'المساعد',text:m.text})),note:'نسخة من المحادثة المختارة. إجابات المساعد لا تمثل قرارات أو عمليات منفّذة.'});
 	}
 
 	exportHistory(): void {

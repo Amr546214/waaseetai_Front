@@ -5,7 +5,7 @@
       <p class="frp-sub">تنزيل ملفات CSV الفعلية من الخادم — بالدولار الأمريكي ($)</p>
     </div>
     <div class="frp-actions">
-      <button type="button" class="frp-btn frp-btn-ghost" data-testid="sfr-print" (click)="print()">طباعة / حفظ PDF</button>
+      <button type="button" class="frp-btn frp-btn-ghost" data-testid="sfr-print" [disabled]="loading() || !!error() || !overview()" (click)="print()">طباعة / حفظ PDF</button>
     </div>
   </div>
   @if (exportError()) { <p class="frp-sub" role="alert">{{ exportError() }}</p> }

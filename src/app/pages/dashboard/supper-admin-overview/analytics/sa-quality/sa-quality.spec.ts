@@ -1,6 +1,7 @@
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { SaQuality } from './sa-quality';
 import { AdminAnalyticsService, AnalyticsOverview } from '../../../../../core/services/admin-analytics.service';
 import { AdminAiService } from '../../../../../core/services/admin-ai.service';
@@ -37,6 +38,16 @@ const readBlob = (b: Blob) => new Promise<string>((res) => { const fr = new File
 describe('SaQuality', () => {
   afterEach(() => vi.restoreAllMocks());
 
+  it('does not export the previous period while loading or after its late response', () => {
+    const first=new Subject<any>(),second=new Subject<any>();
+    const getOverview=vi.fn().mockReturnValueOnce(first).mockReturnValueOnce(second);
+    TestBed.configureTestingModule({providers:[{provide:AdminAnalyticsService,useValue:{getOverview}},{provide:AdminAiService,useValue:{getSentimentSummary:()=>of({result:null,failed:true})}}]});
+    const f=TestBed.createComponent(SaQuality);f.detectChanges();const c=f.componentInstance;
+    const print=vi.spyOn(ReportPrintService.prototype,'print').mockImplementation(()=>{});
+    c.setPeriod('all');first.next({data:base(),failed:false});c.print();expect(print).not.toHaveBeenCalled();expect(c.loading()).toBe(true);
+    second.next({data:base(),failed:false});c.print();expect(print).toHaveBeenCalledOnce();
+  });
+
   it('period filter refetches with a different window', () => {
     const { f, getOverview } = setup(base());
     const first = (getOverview.mock.calls[0] as any[])[0];
@@ -63,7 +74,7 @@ describe('SaQuality', () => {
     d.reviews.recent = [{ id: 'r1', rating: 5, comment: 'ممتاز', createdAt: '2026-09-01T00:00:00Z', providerName: 'م', clientName: 'ع' }];
     const { f } = setup(d);
     const box = captureDownload();
-    const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+    const print = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => {});
     (f.nativeElement.querySelector('[data-testid="sq-csv"]') as HTMLButtonElement).click();
     expect(await readBlob(box.blob!)).toContain('ممتاز');
     (f.nativeElement.querySelector('[data-testid="sq-print"]') as HTMLButtonElement).click();

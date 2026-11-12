@@ -6,7 +6,7 @@
     </div>
     <div class="frp-hdr-actions">
       <button type="button" class="frp-btn frp-btn-ghost" data-testid="frp-csv" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : 'تصدير CSV (العمولات)' }}</button>
-      <button type="button" class="frp-btn frp-btn-ghost" data-testid="frp-print" (click)="print()">طباعة / حفظ PDF</button>
+      <button type="button" class="frp-btn frp-btn-ghost" data-testid="frp-print" [disabled]="loading() || !!error() || !overview()" (click)="print()">طباعة / حفظ PDF</button>
     </div>
   </div>
   @if (exportError()) { <p class="frp-sub" role="alert">{{ exportError() }}</p> }

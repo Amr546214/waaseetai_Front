@@ -1,3 +1,5 @@
+import { OfficialInvoicesComponent } from '../../company/official-invoices/official-invoices.component';
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -39,14 +41,28 @@ describe('provider invoices: no local toast, feedback flows through the central 
 	});
 
 	it('downloading an invoice opens the print dialog and does not raise a local toast', async () => {
-		const print = vi.spyOn(window, 'print').mockImplementation(() => undefined);
-		const { page, host, service } = await mount(() => of({ success: true, data: { summary: { totalCount: 1, paidCount: 1, dueCount: 0, paidNetTotal: 90, dueNetTotal: 0, platformCommissionTotal: 10, currency: 'USD' }, invoices: [invoice] } }));
+		const print = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => undefined);
+		const { page, host, service } = await mount(() => of({ success: true, data: { summary: { totalCount: 1, paidCount: 1, dueCount: 0, paidNetTotal: 90, dueNetTotal: 0, platformCommissionTotal: 10, currency: 'USD' }, invoices: [invoice, {...invoice, id: 'i2', projectTitle: 'مشروع آخر'}] } }));
 		(page.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button.inv-dl')!.click();
 		page.detectChanges(); host.detectChanges();
 		expect(print).toHaveBeenCalledTimes(1);
+		const report=print.mock.calls[0][0];
+		expect(JSON.stringify(report)).toContain('i1');
+		expect(JSON.stringify(report)).not.toContain('مشروع آخر');
+		expect(JSON.stringify(report)).toContain('100.00 USD');
 		expect((page.nativeElement as HTMLElement).querySelector('.inv-toast')).toBeNull();
 		expect(service.toasts()).toEqual([]);
 	});
+
+  it('company invoices use actual provider records and the same selected-invoice report', async () => {
+    const print=vi.spyOn(ReportPrintService.prototype,'print').mockImplementation(()=>{});
+    const getProviderInvoices=vi.fn(()=>of({success:true,data:{summary:null,invoices:[invoice]}}));
+    TestBed.configureTestingModule({imports:[OfficialInvoicesComponent],providers:[provideRouter([]),{provide:ProviderApiService,useValue:{getProviderInvoices}}]});
+    const f=TestBed.createComponent(OfficialInvoicesComponent);f.detectChanges();await f.whenStable();f.detectChanges();
+    const el=f.nativeElement as HTMLElement;
+    expect(getProviderInvoices).toHaveBeenCalledOnce();expect(el.textContent).toContain('مشروع');expect(el.textContent).not.toContain('INV-2026-0488');
+    el.querySelector<HTMLButtonElement>('button.inv-dl')!.click();expect(print.mock.calls[0][0].metadata).toContainEqual(['رقم الفاتورة','i1']);
+  });
 
 	it('a failed load keeps the inline error state with retry (not a toast)', async () => {
 		const { page, service } = await mount(() => throwError(() => new Error('500')));

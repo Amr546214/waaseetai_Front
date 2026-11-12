@@ -1,9 +1,10 @@
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { WsSelectComponent } from '../../../../../shared/forms/select.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminAnalyticsService, AnalyticsOverview, ACCOUNT_TYPE_LABELS } from '../../../../../core/services/admin-analytics.service';
-import { exportCsv, printPage } from '../../../../../core/utils/export.util';
+import { exportCsv } from '../../../../../core/utils/export.util';
 
 const DAY = 86400000;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -17,6 +18,7 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
   styleUrl: './sa-analytics-providers.css',
 })
 export class SaAnalyticsProviders implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private readonly api = inject(AdminAnalyticsService);
 
   private readonly periodDays: Record<string, number | null> = { 'آخر 30 يوم': 30, 'آخر 90 يوم': 90, 'آخر سنة': 365, 'كل الفترات': null };
@@ -43,10 +45,13 @@ export class SaAnalyticsProviders implements OnInit {
     return { from: iso(new Date(now.getTime() - days * DAY)), to: iso(now) };
   }
 
+  private reportSeq = 0;
   reload() {
+    const seq=++this.reportSeq;
     this.loading.set(true);
     this.failed.set(false);
     this.api.getOverview(this.range()).subscribe((r) => {
+      if(seq!==this.reportSeq)return;
       this.data.set(r.data);
       this.failed.set(r.failed);
       this.loading.set(false);
@@ -104,6 +109,7 @@ export class SaAnalyticsProviders implements OnInit {
   }
 
   print() {
-    printPage('تحليلات مقدمي الخدمة');
+    if(!this.data()||this.loading()||this.failed())return;
+    this.reportPrinter.print({title:'تحليلات مقدمي الخدمة',metadata:[['الفترة',this.period()]],sections:[{title:'المؤشرات',facts:this.kpis().map(k=>[k.label,k.value])},{title:'مقدمو الخدمة الأعلى تقييمًا',columns:['الترتيب','مقدم الخدمة','نوع الحساب','متوسط التقييم','عدد التقييمات','مشاريع مكتملة'],rows:this.topRated().map(r=>[r.rank,r.name,r.typeLabel,r.averageRating,r.reviewCount,r.completedProjects])},{title:'العرض والطلب حسب التخصص',columns:['التخصص','الحالة'],rows:this.gaps().map(g=>[g.name,g.status])}]});
   }
 }
