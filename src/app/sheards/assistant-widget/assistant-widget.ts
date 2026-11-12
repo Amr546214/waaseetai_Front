@@ -193,26 +193,26 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 							<label>
 								مظهر الروبوت
 								<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)">
-									<option value="scout">نديم (دليل وسيط)</option>
-									<option value="classic">بيبو (المساعد الكرتوني)</option>
+									<option value="scout" [selected]="store.skin() === 'scout'">نديم (دليل وسيط)</option>
+									<option value="classic" [selected]="store.skin() === 'classic'">بيبو (المساعد الكرتوني)</option>
 								</select>
 							</label>
 							<label>
 								طريقة الرد
 								<select class="pg-profile" [value]="store.profile()" (change)="store.setProfile($any($event.target).value)">
-									<option value="auto">تلقائي</option>
-									<option value="fast">سريع ومختصر</option>
-									<option value="balanced">متوازن</option>
-									<option value="deep">شرح وتحليل مفصل</option>
+									<option value="auto" [selected]="store.profile() === 'auto'">تلقائي</option>
+									<option value="fast" [selected]="store.profile() === 'fast'">سريع ومختصر</option>
+									<option value="balanced" [selected]="store.profile() === 'balanced'">متوازن</option>
+									<option value="deep" [selected]="store.profile() === 'deep'">شرح وتحليل مفصل</option>
 								</select>
 							</label>
 							<app-assistant-position-settings />
 							<label>
 								اللهجة
 								<select class="pg-speech-dialect" [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)" aria-describedby="aw-manual-audio-help">
-									<option value="auto">تلقائي حسب كلامك</option>
+									<option value="auto" [selected]="store.ttsDialect() === 'auto'">تلقائي حسب كلامك</option>
 									@for (d of dialects; track d.id) {
-										<option [value]="d.id">{{ d.label }}</option>
+										<option [value]="d.id" [selected]="store.ttsDialect() === d.id">{{ d.label }}</option>
 									}
 								</select>
 							</label>
@@ -225,7 +225,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 										<option value="" disabled selected>لا توجد أصوات مدعومة من الخادم</option>
 									}
 									@for (v of availableVoices(); track v.id) {
-										<option [value]="v.id">{{ v.label || v.id }}</option>
+										<option [value]="v.id" [selected]="store.ttsVoice() === v.id">{{ v.label || v.id }}</option>
 									}
 								</select>
 							</label>

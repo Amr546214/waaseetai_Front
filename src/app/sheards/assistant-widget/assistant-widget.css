@@ -495,19 +495,21 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .pg-settings select {
 	min-width: 140px;
 	max-width: 60%;
-	padding: 6px 10px;
+	padding: 8px 12px;
 	border: 1px solid var(--pg-border);
 	border-radius: 10px;
-	background: #1b3738;
-	color: #d5e9dc;
+	background: var(--pg-surface-panel);
+	color: var(--pg-ink);
+	-webkit-text-fill-color: currentColor;
+	font-weight: 700;
 	font: inherit;
 	font-size: var(--font-size-small);
 	outline: none;
 }
 
 .pg-settings select option {
-	background: #0d232b;
-	color: #fff;
+	background: var(--pg-surface-panel);
+	color: var(--pg-ink);
 }
 
 .pg-settings .pg-toggle {

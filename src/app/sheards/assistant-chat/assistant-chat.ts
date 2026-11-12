@@ -158,11 +158,11 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		<div class="ac__settings">
 			<label>مظهر الروبوت
 				<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)">
-					<option value="scout">نديم (دليل وسيط)</option>
-					<option value="classic">بيبو (المساعد الكرتوني)</option>
+					<option value="scout" [selected]="store.skin() === 'scout'">نديم (دليل وسيط)</option>
+					<option value="classic" [selected]="store.skin() === 'classic'">بيبو (المساعد الكرتوني)</option>
 				</select>
 			</label>
-			<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto">تلقائي</option><option value="fast">سريع ومختصر</option><option value="balanced">متوازن</option><option value="deep">شرح وتحليل مفصل</option></select></label>
+			<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto" [selected]="store.profile() === 'auto'">تلقائي</option><option value="fast" [selected]="store.profile() === 'fast'">سريع ومختصر</option><option value="balanced" [selected]="store.profile() === 'balanced'">متوازن</option><option value="deep" [selected]="store.profile() === 'deep'">شرح وتحليل مفصل</option></select></label>
 			<label>اللهجة
 				<select class="ac__dialect" [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)">
 					<option value="auto" [selected]="store.ttsDialect() === 'auto'">تلقائي من كلامك</option>
@@ -260,7 +260,8 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		.ac__mic:disabled { opacity: .4; cursor: not-allowed; }
 		.ac__settings { display: flex; flex-wrap: wrap; gap: 10px; font-size: var(--font-size-small); color: var(--txt-3, #8892B0); }
 		.ac__settings label { display: inline-flex; align-items: center; gap: 6px; }
-		.ac__settings select { min-width: 0; padding: 3px 6px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.12)); background: transparent; color: var(--txt, #fff); font: inherit; }
+		.ac__settings select { min-width: 0; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--sec-bd, rgba(255,255,255,.12)); background: var(--assistant-input-bg, var(--pop-bg)); color: var(--assistant-text, var(--txt, #fff)); -webkit-text-fill-color: currentColor; font: inherit; font-weight: 600; }
+		.ac__settings select option { background: var(--assistant-input-bg, var(--pop-bg)); color: var(--assistant-text, var(--txt, #fff)); }
 		.ac__listening { color: #ffb1c1; }
 		.ac__chips { display: flex; flex-wrap: wrap; gap: 8px; }
 		.ac__chip { padding: 7px 13px; border-radius: 999px; border: 1px solid rgba(165,107,224,.4); background: rgba(123,47,190,.1); color: var(--txt, #fff); font: inherit; font-size: var(--font-size-label); font-weight: 700; cursor: pointer; }

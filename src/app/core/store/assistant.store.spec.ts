@@ -328,6 +328,33 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 			expect(store.canReplay()).toBe(true);
 		});
 
+		it('reviewed Arabic fallback: retries transient audio failure once and keeps the selected voice', () => {
+			store.setVoice('Fenrir'); store.setDialect('egyptian');
+			store.ask('سؤال'); answer(); store.replay();
+			tts.failLast('INVALID_AUDIO');
+			expect(tts.requests).toHaveLength(2);
+			expect(tts.requests[1].req).toMatchObject({ voice: 'Puck', dialect: 'msa' });
+			expect(store.ttsVoice()).toBe('Fenrir');
+			tts.resolveLast();
+			expect(FakeAudio.instances).toHaveLength(1);
+			expect(store.audioLoading()).toBe(false);
+		});
+
+		it('reviewed Arabic fallback: a rate limit never causes a second request', () => {
+			store.ask('سؤال'); answer(); store.replay(); tts.failLast('RATE_LIMITED');
+			expect(tts.requests).toHaveLength(1);
+			expect(store.audioLoading()).toBe(false);
+		});
+
+		it('reviewed Arabic fallback: stop cancels the fallback and ignores its late response', () => {
+			store.ask('سؤال'); answer(); store.replay(); tts.failLast('UNAVAILABLE');
+			expect(tts.requests).toHaveLength(2);
+			store.stopAudio();
+			expect(tts.requests[1].unsubscribed).toBe(true);
+			tts.requests[1].subject.next(new Blob(['x'], {type:'audio/wav'}));
+			expect(FakeAudio.instances).toHaveLength(0);
+		});
+
 		it('reads a long answer in bounded chunks and preserves the full text', () => {
 			store.ask('سؤال');
 			answer('req-1', ['x'.repeat(MAX_TTS_CHARS + 1)]);

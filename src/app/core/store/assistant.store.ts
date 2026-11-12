@@ -2,7 +2,7 @@ import { AssistantExamState } from './assistant-exam-state.service';
 import { DestroyRef, Injectable, Injector, NgZone, PLATFORM_ID, computed, effect, inject, signal, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, catchError, throwError } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { HelpAssistantSocketService, HelpChatHistoryTurn, HelpCitation, HelpStreamEvent } from '../services/help-assistant-socket.service';
 import { AssistantTtsError, AssistantTtsService } from '../services/assistant-tts.service';
@@ -909,7 +909,17 @@ export class AssistantStore {
 		const cached = this.speechCache.get(this.speechPart); if (cached) { prepare(cached); return; }
 		this.tts ??= this.injector.get(AssistantTtsService);
 		this.audioLoading.set(true);
-		this.ttsSub = this.tts.synthesize({ text: this.speechParts[this.speechPart], voice: this.ttsVoice(), dialect: reply.dialect, ...(this.ttsModel() ? { model: this.ttsModel() } : {}) }).subscribe({
+		const request = { text: this.speechParts[this.speechPart], voice: this.ttsVoice(), dialect: reply.dialect, ...(this.ttsModel() ? { model: this.ttsModel() } : {}) };
+		this.ttsSub = this.tts.synthesize(request).pipe(catchError((err: unknown) => {
+			const code = err instanceof AssistantTtsError ? err.code : 'UNAVAILABLE';
+			const isArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(request.text) || request.dialect !== 'english';
+			const supported = this.capabilities()?.voices;
+			const fallbackAvailable = !supported?.length || supported.some(v => v.id === DEFAULT_VOICE);
+			if (!stale() && isArabic && fallbackAvailable && (code === 'UNAVAILABLE' || code === 'INVALID_AUDIO') && (request.voice !== DEFAULT_VOICE || request.dialect !== 'msa')) {
+				return this.tts!.synthesize({ ...request, voice: DEFAULT_VOICE, dialect: 'msa' });
+			}
+			return throwError(() => err);
+		})).subscribe({
 			next: (blob) => {
 				if (stale()) return;
 				this.ttsSub = null;
