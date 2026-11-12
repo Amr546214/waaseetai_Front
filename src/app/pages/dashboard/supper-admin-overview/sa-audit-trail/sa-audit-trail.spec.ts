@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { describe, it, expect, vi } from 'vitest';
 import { SaAuditTrail } from './sa-audit-trail';
@@ -75,4 +75,14 @@ describe('SaAuditTrail', () => {
 		expectFocused(to);
 		expect(api.getAuditLog).toHaveBeenCalledTimes(1);   // only the valid first date change reloaded
 	});
+  it('cancels an older filter request so a late response cannot replace the latest result', () => {
+    const {c,api}=setup([]), old=new Subject<any>(), latest=new Subject<any>();
+    api.getAuditLog.mockReturnValueOnce(old as any).mockReturnValueOnce(latest as any);
+    c.setFilter(c.eventTypeFilter,'LOGIN_REJECTED'); c.setFilter(c.eventTypeFilter,'PLATFORM_REPORT_DECIDED');
+    expect(old.observed).toBe(false);
+    latest.next({data:{items:[{id:'new'}],pagination:{total:1,pages:1},eventTypes:[]}});
+    old.next({data:{items:[{id:'old'}],pagination:{total:1,pages:1},eventTypes:[]}});
+    expect(c.entries()[0].id).toBe('new');
+  });
+
 });

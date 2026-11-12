@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { AdminAiService, createAdminAiState } from '../../../../core/services/admin-ai.service';
 import { AiResultCardComponent } from '../../../../shared/ai/ai-result-card.component';
@@ -45,7 +46,7 @@ const METRIC_LABELS: Record<string, string> = {
 	`,
 	styles: [`
 		.an-wrap { margin-bottom: 16px; }
-		.an-data { padding: 14px; border-radius: 12px; border: 1px solid var(--sec-bd, rgba(255,255,255,.08)); }
+		.an-data { overflow-x: auto; padding: 14px; border-radius: 12px; border: 1px solid var(--sec-bd, rgba(255,255,255,.08)); }
 		.an-ttl { font-size: var(--font-size-small); font-weight: 800; margin-bottom: 8px; }
 		.an-count { margin: 0 0 8px; font-size: var(--font-size-label); font-weight: 700; }
 		.an-tbl { width: 100%; border-collapse: collapse; font-size: var(--font-size-label); }
@@ -54,7 +55,8 @@ const METRIC_LABELS: Record<string, string> = {
 })
 export class AnomalySummaryComponent implements OnInit {
 	private readonly api = inject(AdminAiService);
-	protected readonly st = createAdminAiState(() => this.api.getAnomalySummary());
+	private readonly destroyRef = inject(DestroyRef);
+	protected readonly st = createAdminAiState(() => this.api.getAnomalySummary().pipe(takeUntilDestroyed(this.destroyRef)));
 	protected label(key: string): string { return METRIC_LABELS[key] ?? key; }
 	ngOnInit(): void { this.st.load(); }
 }

@@ -1,8 +1,8 @@
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { printPage } from '../../../../core/utils/export.util';
 import { AdminAccessService } from '../../../../core/services/admin-access.service';
 import { AdminTeamService, PerformanceReport, SupportResponseMetrics } from '../../../../core/services/admin-team.service';
 
@@ -19,6 +19,7 @@ const COLORS = ['#A56BE0', '#2BD4C7', '#FF8C69', '#FFB400', '#5DA0FF', '#0FA99A'
 	styleUrl: './sa-team-performance.css',
 })
 export class SaTeamPerformance implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
 	private readonly destroyRef = inject(DestroyRef);
 	private api = inject(AdminTeamService);
 	readonly access = inject(AdminAccessService);
@@ -45,15 +46,20 @@ export class SaTeamPerformance implements OnInit {
 	hasTrend = computed(() => this.trend().some(t => t.cur > 0 || t.prev > 0));
 
 	ngOnInit() { this.load(); }
+  private reportSeq=0;
 	load() {
+    const seq=++this.reportSeq;
 		this.loading.set(true); this.error.set('');
-		this.api.performance(this.period()).subscribe({ next: r => { this.report.set(r.data); this.loading.set(false); }, error: e => { this.error.set(e?.error?.message || 'تعذّر تحميل التقرير، حاول مرة أخرى'); this.loading.set(false); } });
+		this.api.performance(this.period()).subscribe({ next: r => { if(seq!==this.reportSeq)return; this.report.set(r.data); this.loading.set(false); }, error: e => { if(seq!==this.reportSeq)return; this.error.set(e?.error?.message || 'تعذّر تحميل التقرير، حاول مرة أخرى'); this.loading.set(false); } });
 	}
 	setPeriod(p: 'month' | 'quarter' | 'year') { ++this.supportRequest; this.support.set(null); this.supportLoading.set(false); this.supportError.set(''); this.period.set(p); this.load(); }
 	color(i: number) { return COLORS[i % COLORS.length]; }
 	initial(n: string) { return (n || '?').trim().charAt(0); }
 	/** PDF = the browser's print dialog (Save as PDF) on exactly what this page shows, i.e. the same data, scope and permission as the CSV; the same helper the other admin reports use. */
-	exportPdf() { printPage(`أداء الفريق — ${this.periodLabel[this.period()]}`); }
+	exportPdf() {
+    const r=this.report();if(!this.canExport()||!r||this.loading()||this.error())return;
+    this.reportPrinter.print({title:'تقرير أداء الفريق',metadata:[['الفترة',this.periodLabel[this.period()]],['من',r.from],['إلى',r.to]],sections:[{title:'المؤشرات المسجلة',facts:[['عدد الأعضاء',r.team.members],['المهام المنجزة',r.team.completed],['متوسط الإنجاز بالساعات',r.team.avgCompletionHours],['الإنجاز في الموعد %',r.team.onTimeRate]]},{title:'أداء الأعضاء',columns:['الاسم','الدور','المهام المنجزة','المهام المفتوحة','متوسط ساعات الإنجاز','الإنجاز في الموعد %','الالتزام بـ SLA %','تقييم المستخدمين','الدرجة الكلية'],rows:r.members.map(m=>[m.name,m.role,m.completed,m.openTasks,m.avgCompletionHours,m.onTimeRate,m.slaRate,m.userRating,m.overallScore])},{title:'حدود البيانات',text:(r.definitions.unavailable??[]).join('\n')}]});
+  }
 	export() {
 		if (this.exporting()) return; this.exporting.set(true); this.exportError.set('');
 		this.api.exportPerformance(this.period()).subscribe({

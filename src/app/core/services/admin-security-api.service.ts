@@ -60,6 +60,10 @@ export class AdminSecurityApiService {
 	// Batch 7: real replacement for sa-risk-center.ts's hardcoded
 	// riskAccounts/fraudPatterns/blockedIps — real suspended accounts and
 	// their real open-dispute counts, never a fabricated risk score.
+	reactivateAccount(userId: string): Observable<{ success: boolean; data: { id: string; status: string } }> {
+		return this.http.patch<{ success: boolean; data: { id: string; status: string } }>(`${this.baseUrl}/admin/users/${encodeURIComponent(userId)}/status`, { status: 'ACTIVE' });
+	}
+
 	getFlaggedAccounts(): Observable<FlaggedAccountsResponse> {
 		return this.http.get<FlaggedAccountsResponse>(`${this.baseUrl}/admin/security/flagged-accounts`);
 	}

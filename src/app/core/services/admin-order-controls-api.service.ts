@@ -16,6 +16,7 @@ export interface ControlsData {
   version: string;
   status?: string | null;
   suspended?: boolean;
+  contract?: { id: string; status?: string; frozen?: boolean } | null;
   frozen?: boolean;
   suspendReason?: string | null;
   freezeReason?: string | null;

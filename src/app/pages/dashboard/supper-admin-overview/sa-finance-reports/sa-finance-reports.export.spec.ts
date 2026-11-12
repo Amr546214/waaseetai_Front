@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { of, throwError } from 'rxjs';
@@ -6,7 +7,7 @@ import { AdminOpsApiService } from '../../../../core/services/admin-ops-api.serv
 
 const readBlob = (b: Blob) => new Promise<string>((res) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result)); fr.readAsText(b); });
 
-// D2: the export is the server-produced commissions CSV (real data), and "طباعة / حفظ PDF" prints the page (no fake PDF file).
+// CSV uses the server export; PDF uses only the loaded report data.
 function make(api: any) {
   TestBed.configureTestingModule({ providers: [{ provide: AdminOpsApiService, useValue: api }] });
   const f = TestBed.createComponent(SaFinanceReports);
@@ -17,15 +18,15 @@ function make(api: any) {
 describe('SaFinanceReports export/print buttons', () => {
   afterEach(() => { vi.restoreAllMocks(); TestBed.resetTestingModule(); });
 
-  it('CSV downloads the server commissions file and print calls window.print', async () => {
+  it('CSV downloads the server commissions file and print builds an isolated report', async () => {
     let blob: Blob | undefined;
     let name = '';
     (URL as any).createObjectURL = vi.fn((b: Blob) => { blob = b; return 'blob:x'; });
     (URL as any).revokeObjectURL = vi.fn();
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) { name = this.download; });
-    const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+    const print = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => {});
     const downloadCsv = vi.fn(() => of(new Blob(['id,amount\n1,9'], { type: 'text/csv' })));
-    const f = make({ financeOverview: () => of({ success: true, data: null }), downloadCsv });
+    const f = make({ financeOverview: () => of({ success: true, data: { currency: 'USD', totals: {paymentGatewayFees: 2}, series: [], withdrawals: {}, affiliateCommissions: {} } }), downloadCsv });
     f.componentInstance.setTab('expenses');
     f.detectChanges();
     (f.nativeElement.querySelector('[data-testid="frp-csv"]') as HTMLButtonElement).click();

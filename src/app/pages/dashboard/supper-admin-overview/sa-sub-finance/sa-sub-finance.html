@@ -5,10 +5,11 @@
       <p class="fd-sub">نظرة على الوضع المالي للمنصة من السجلات الفعلية — بالدولار الأمريكي ($)</p>
     </div>
     <div class="fd-actions">
-      <button type="button" class="fd-btn fd-btn-ghost" data-testid="sf-print" (click)="print()">طباعة / حفظ PDF</button>
+      <button type="button" class="fd-btn fd-btn-ghost" data-testid="sf-print" [disabled]="loading() || !!error() || txLoading() || !!txError() || printing()" (click)="print()">{{ printing() ? 'جارٍ تجهيز التقرير…' : 'تقرير مالي / PDF' }}</button>
       <button type="button" class="fd-btn fd-btn-primary" data-testid="sf-csv" [disabled]="downloading()" (click)="downloadCsv()">{{ downloading() ? 'جارٍ التنزيل…' : 'تنزيل CSV' }}</button>
     </div>
   </div>
+  @if (printError()) { <div class="fd-notice" role="alert">{{ printError() }}</div> }
   @if (downloadError()) { <div class="fd-notice" role="alert">{{ downloadError() }}</div> }
 
   @if (loading()) {
@@ -82,7 +83,7 @@
   <div class="fd-tbl-card">
     <div class="fd-tbl-hdr">
       <span class="fd-tbl-ttl">آخر الحركات المالية</span>
-      <a routerLink="../invoices-out" class="fd-btn fd-btn-ghost fd-btn-sm">عرض الفواتير</a>
+      <a routerLink="/supper-admin-overview/sub-finance/invoices-out" data-testid="sf-invoices-link" class="fd-btn fd-btn-ghost fd-btn-sm">عرض الفواتير</a>
     </div>
     @if (txLoading()) {
       <p class="fd-sub">جاري التحميل…</p>

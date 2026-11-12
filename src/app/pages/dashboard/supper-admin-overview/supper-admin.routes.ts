@@ -249,6 +249,8 @@ const RAW_ROUTES: Routes = [
         loadComponent: () => import('./sa-super-admins/sa-super-admins').then(m => m.SaSuperAdmins),
         data: { title: 'Super Admin' }
     },
+    // Keep old invoice bookmarks on the guarded canonical finance route.
+    { path: 'invoices-out', pathMatch: 'full', redirectTo: 'sub-finance/invoices-out' },
     {
         path: 'sub-finance',
         children: [

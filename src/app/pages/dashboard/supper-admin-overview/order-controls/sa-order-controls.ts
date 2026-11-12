@@ -61,13 +61,32 @@ const attemptFor = (slot: string, sig: string): { sig: string; key: string; at: 
       }
       @if (controls(); as c) {
         @if (c.suspended) { <div class="oc-badge" data-testid="oc-suspended">معلّق مؤقتًا{{ c.suspendReason ? ' — ' + c.suspendReason : '' }}</div> }
-        @if (c.frozen) { <div class="oc-badge" data-testid="oc-frozen">مجمّد{{ c.freezeReason ? ' — ' + c.freezeReason : '' }}</div> }
+        @if (c.frozen || (kind === 'request' && contractControls()?.frozen)) { <div class="oc-badge" data-testid="oc-frozen">مجمّد{{ (c.freezeReason || contractControls()?.freezeReason) ? ' — ' + (c.freezeReason || contractControls()?.freezeReason) : '' }}</div> }
         @for (d of visible(); track d.def.action) {
-          <button type="button" class="oc-btn" [ngClass]="'oc-' + d.def.tone" [disabled]="!d.state.allowed" [attr.data-action]="d.def.action" (click)="open(d.def)">{{ d.def.label }}</button>
+          <button type="button" class="oc-btn" [ngClass]="'oc-' + d.def.tone" [disabled]="!d.state.allowed || busy()" [attr.data-action]="d.def.action" (click)="open(d.def)">{{ d.def.label }}</button>
           @if (!d.state.allowed) { <p class="oc-note" [attr.data-reason-code]="d.state.code" data-testid="oc-reason">{{ d.reason }}</p> }
         }
       }
     </div>
+
+    @if (closingChoice(); as choice) {
+      <div class="oc-overlay" (click)="closeChoice()">
+        <div class="oc-card" dir="rtl" role="dialog" aria-modal="true" aria-label="قرار إغلاق العقد الممول" (click)="$event.stopPropagation()" data-testid="oc-closing-choice">
+          <h3>{{ choice === 'REQUEST_CANCEL' ? 'إلغاء الطلب والعقد المرتبط' : 'إلغاء العقد' }}</h3>
+          <p class="oc-note">يوجد مبلغ محتجز في الضمان. اختر القرار المالي صراحةً، ثم راجع المبلغ والمستفيد وأكّد التنفيذ في الخطوة التالية. فتح هذه النافذة لا ينفّذ أي إجراء.</p>
+          @if (closingFrozen()) {
+            <p class="oc-note">العقد مجمّد. فُكّ التجميد أولًا ثم أعد اختيار الإلغاء لمراجعة الاسترداد أو الصرف.</p>
+            <button type="button" class="oc-btn oc-warn" data-testid="oc-choice-unfreeze" [disabled]="!closingAllowed('CONTRACT_UNFREEZE')" (click)="chooseClosing('CONTRACT_UNFREEZE')">فكّ التجميد</button>
+          } @else {
+            <button type="button" class="oc-btn oc-danger" data-testid="oc-choice-refund" [disabled]="!closingAllowed('ESCROW_REFUND')" (click)="chooseClosing('ESCROW_REFUND')">إلغاء وإعادة المتبقي المحتجز للطالب</button>
+            <p class="oc-note">يُلغى الطلب والمشروع والعقد، ويعود المتبقي المحتجز فقط لرصيد الطالب. ما صُرف سابقًا لا يُسترد.</p>
+            <button type="button" class="oc-btn oc-danger" data-testid="oc-choice-release" [disabled]="!closingAllowed('ESCROW_RELEASE')" (click)="chooseClosing('ESCROW_RELEASE')">بديل: إغلاق بصرف إداري لمقدم الخدمة</button>
+            <p class="oc-note">الصرف يُغلق العقد بصرف إداري، ولا يُسجَّل إلغاءً أو تسليمًا مكتملًا. تظهر العمولة والصافي في المعاينة التالية.</p>
+          }
+          <button type="button" class="oc-btn oc-ghost" data-testid="oc-choice-close" (click)="closeChoice()">رجوع دون تنفيذ</button>
+        </div>
+      </div>
+    }
 
     @if (dialog(); as dlg) {
       <div class="oc-overlay" (click)="close()">
@@ -146,6 +165,7 @@ export class SaOrderControls implements OnChanges, OnDestroy {
   @Output() changed = new EventEmitter<void>();
 
   controls = signal<ControlsData | null>(null);
+  closingChoice = signal<ControlAction | null>(null);
   contractControls = signal<ControlsData | null>(null);
   loadFailed = signal(false);
   forbidden = signal(false);
@@ -169,24 +189,55 @@ export class SaOrderControls implements OnChanges, OnDestroy {
   versionNote = signal('');
   manualRefresh = signal(false);
   private autoRefreshes = 0;
-  private controlsPending = false;
+  private controlsPending = signal(false);
+
+  private linkedContractId(): string | null {
+    return this.kind === 'offer' ? this.extraContractId : this.kind === 'request' ? this.controls()?.contract?.id ?? null : this.id;
+  }
+
+  private contractSource(): ControlsData | null {
+    return this.kind === 'contract' ? this.controls() : this.contractControls();
+  }
+
+  closingFrozen(): boolean { return !!this.contractSource()?.frozen; }
+  closingAllowed(action: ControlAction): boolean { return !!this.contractSource()?.actions?.[action]?.allowed; }
+
+  private canChooseClosing(code: string | null | undefined): boolean {
+    return code === 'CANCELLATION_SETTLEMENT_NOT_APPROVED' && !!this.linkedContractId() &&
+      (this.closingAllowed('ESCROW_REFUND') || this.closingAllowed('ESCROW_RELEASE') ||
+       (this.closingFrozen() && this.closingAllowed('CONTRACT_UNFREEZE') &&
+        this.contractSource()?.actions?.ESCROW_REFUND?.code === 'CONTRACT_FROZEN'));
+  }
 
   visible = computed(() => {
     const out: Array<{ def: ActionDef; state: { allowed: boolean; code: string | null; message: string | null }; reason: string }> = [];
-    const list = this.only ?? ACTIONS_BY_KIND[this.kind];
-    for (const a of list) {
-      const src = (this.kind === 'offer' && a.startsWith('CONTRACT_')) ? this.contractControls() : this.controls();
-      const state = src?.actions?.[a];
+    for (const action of this.only ?? ACTIONS_BY_KIND[this.kind]) {
+      const src = this.kind !== 'contract' && action.startsWith('CONTRACT_') ? this.contractControls() : this.controls();
+      let state = src?.actions?.[action];
       if (!state) continue;
       if (!state.allowed && state.code && NOOP_CODES.has(state.code)) continue;
-      out.push({ def: ACTION_DEFS[a], state, reason: state.allowed ? '' : reasonCopy(state.code, state.message) });
+      let def = ACTION_DEFS[action];
+      if (action === 'REQUEST_SUSPEND' && state.code === 'REQUEST_HAS_CONTRACT' && this.contractSource()) {
+        const target = this.closingFrozen() ? 'CONTRACT_UNFREEZE' : 'CONTRACT_FREEZE';
+        const linkedState = this.contractSource()?.actions?.[target];
+        if (linkedState) {
+          state = linkedState;
+          def = { ...ACTION_DEFS[target], label: target === 'CONTRACT_FREEZE' ? 'تعليق الطلب والعقد مؤقتًا' : 'استئناف الطلب والعقد',
+            title: target === 'CONTRACT_FREEZE' ? 'تعليق الطلب والعقد المرتبط' : 'استئناف الطلب والعقد المرتبط',
+            hint: 'الطلب مرتبط بعقد؛ يُطبَّق التعليق على العقد لوقف حركاته المالية. ' + ACTION_DEFS[target].hint };
+        }
+      }
+      if ((action === 'REQUEST_CANCEL' || action === 'CONTRACT_CANCEL') && this.canChooseClosing(state.code)) {
+        state = { ...state, allowed: true };
+      }
+      out.push({ def, state, reason: state.allowed ? '' : reasonCopy(state.code, state.message) });
     }
     return out;
   });
 
   canSubmit = computed(() => {
     const d = this.dialog();
-    if (!d || this.busy() || this.controlsPending) return false;
+    if (!d || this.busy() || this.controlsPending()) return false;
     if (d.reasonRequired && this.reason().trim().length < 5) return false;
     if (d.needsConfirm && !this.confirmed()) return false;
     if (d.hasQuote) {
@@ -203,9 +254,9 @@ export class SaOrderControls implements OnChanges, OnDestroy {
     if (ch['id'] || ch['kind'] || ch['extraContractId']) {
       // another entity (navigation / input change): everything that belonged to the previous one is dropped and its in-flight answers are ignored
       this.cancelAll();
-      this.controls.set(null); this.contractControls.set(null); this.dialog.set(null); this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(false);
+      this.controls.set(null); this.contractControls.set(null); this.closingChoice.set(null); this.dialog.set(null); this.quote.set(null); this.quoteOwner.set(null); this.quoteLoading.set(false);
       this.busy.set(false); this.error.set(''); this.unknown.set(false);
-      this.epoch++; this.versionNote.set(''); this.manualRefresh.set(false); this.autoRefreshes = 0; this.controlsPending = false;
+      this.epoch++; this.versionNote.set(''); this.manualRefresh.set(false); this.autoRefreshes = 0; this.controlsPending.set(false);
       this.reload();
     }
   }
@@ -216,27 +267,63 @@ export class SaOrderControls implements OnChanges, OnDestroy {
   reload(): void {
     if (!this.id) return;
     this.loadFailed.set(false); this.forbidden.set(false);
-    // only the LATEST request counts: a slower, older answer can never overwrite a newer one (the older subscription is cancelled), and an answer for another entity is ignored
-    const kind = this.kind, id = this.id, contractId = this.extraContractId;
-    this.controlsSub?.unsubscribe();
-    this.controlsSub = this.api.controls(kind, id).subscribe({
-      next: (res) => { if (kind !== this.kind || id !== this.id) return; this.controls.set(res?.data?.actions ? res.data : null); this.controlsPending = false; this.checkConsistency(); },
-      error: (err) => { if (kind !== this.kind || id !== this.id) return; this.controlsPending = false; this.controls.set(null); if (err?.status === 403) this.forbidden.set(true); else this.loadFailed.set(true); },
-    });
-    this.contractControlsSub?.unsubscribe();
-    if (kind === 'offer' && contractId) {
+    const kind = this.kind, id = this.id;
+    let mainPending = true, linkedPending = kind === 'offer' && !!this.extraContractId;
+    const current = () => kind === this.kind && id === this.id;
+    const settled = () => { this.controlsPending.set(mainPending || linkedPending); this.checkConsistency(); };
+    const loadLinked = (contractId: string) => {
+      linkedPending = true; settled();
       this.contractControlsSub = this.api.controls('contract', contractId).subscribe({
-        next: (res) => { if (contractId === this.extraContractId) { this.contractControls.set(res?.data?.actions ? res.data : null); this.controlsPending = false; this.checkConsistency(); } },
-        error: () => { if (contractId === this.extraContractId) { this.controlsPending = false; this.contractControls.set(null); } },
+        next: res => {
+          if (!current() || contractId !== this.linkedContractId()) return;
+          this.contractControls.set(res?.data?.actions ? res.data : null); linkedPending = false; settled();
+        },
+        error: () => {
+          if (!current() || contractId !== this.linkedContractId()) return;
+          this.contractControls.set(null); this.loadFailed.set(true); linkedPending = false; settled();
+        },
       });
-    }
+    };
+    this.controlsSub?.unsubscribe(); this.contractControlsSub?.unsubscribe();
+    this.contractControls.set(null); this.controlsPending.set(true);
+    this.controlsSub = this.api.controls(kind, id).subscribe({
+      next: res => {
+        if (!current()) return;
+        this.controls.set(res?.data?.actions ? res.data : null);
+        if (kind === 'request' && this.linkedContractId()) loadLinked(this.linkedContractId()!);
+        mainPending = false; settled();
+      },
+      error: err => {
+        if (!current()) return;
+        mainPending = false; this.controls.set(null); settled();
+        if (err?.status === 403) this.forbidden.set(true); else this.loadFailed.set(true);
+      },
+    });
+    if (kind === 'offer' && this.extraContractId) loadLinked(this.extraContractId);
   }
 
-  private targetId(a: ControlAction): string { return a.startsWith('CONTRACT_') || a.startsWith('ESCROW_') ? (this.kind === 'offer' ? this.extraContractId ?? this.id : this.id) : this.id; }
-  private versionOf(a: ControlAction): string { return ((this.kind === 'offer' && a.startsWith('CONTRACT_')) ? this.contractControls() : this.controls())?.version ?? ''; }
+  private targetId(action: ControlAction): string {
+    return action.startsWith('CONTRACT_') || action.startsWith('ESCROW_') ? this.linkedContractId() ?? this.id : this.id;
+  }
+  private versionOf(action: ControlAction): string {
+    return (this.kind !== 'contract' && (action.startsWith('CONTRACT_') || action.startsWith('ESCROW_')) ? this.contractControls() : this.controls())?.version ?? '';
+  }
+
+  closeChoice(): void { if (!this.busy()) this.closingChoice.set(null); }
+  chooseClosing(action: 'ESCROW_REFUND' | 'ESCROW_RELEASE' | 'CONTRACT_UNFREEZE'): void {
+    if (!this.closingChoice() || !this.closingAllowed(action)) return;
+    this.closingChoice.set(null);
+    this.open(ACTION_DEFS[action]);
+  }
 
   open(def: ActionDef): void {
-    if (this.busy()) return; // a call is in flight: the dialog (its action and entity) cannot change under it
+    if (this.busy() || this.controlsPending()) return; // a call is in flight: the dialog (its action and entity) cannot change under it
+    if ((def.action === 'REQUEST_CANCEL' || def.action === 'CONTRACT_CANCEL') &&
+        this.canChooseClosing((def.action === 'REQUEST_CANCEL' ? this.controls() : this.contractSource())?.actions?.[def.action]?.code)) {
+      this.dialog.set(null); this.quoteSub?.unsubscribe(); this.quote.set(null); this.quoteOwner.set(null);
+      this.closingChoice.set(def.action); return;
+    }
+    this.closingChoice.set(null);
     this.quoteSub?.unsubscribe(); // opening another action: the previous preview (and its pending answer) is dropped
     this.versionNote.set(''); this.manualRefresh.set(false); this.autoRefreshes = 0;
     this.dialog.set(def); this.reason.set(''); this.confirmed.set(false); this.error.set(''); this.unknown.set(false); this.quote.set(null); this.quoteOwner.set(null);
@@ -275,7 +362,7 @@ export class SaOrderControls implements OnChanges, OnDestroy {
     this.busy.set(true); this.error.set(''); this.unknown.set(false);
     // The reply is bound to ITS context (this component instance's entity epoch + this attempt): when the admin has moved to another entity (or the component is gone) the reply only settles the
     // stored attempt (a definite answer drops it, an unknown one keeps it for a safe replay) and touches no screen state, toast or parent event.
-    const live = () => epoch === this.epoch && attemptId === this.attemptSeq;
+    const live = () => epoch === this.epoch && attemptId === this.attemptSeq && this.targetId(action) === targetId;
     this.api.run(action, targetId, body, attempt.key).subscribe({
       next: () => {
         ATTEMPTS.delete(slot);
@@ -302,7 +389,7 @@ export class SaOrderControls implements OnChanges, OnDestroy {
   /** controls and the preview must describe the SAME version of the entity; when they do not, both are re-fetched together (bounded), the confirmation is cleared and the admin is told why. */
   private checkConsistency(): void {
     const d = this.dialog();
-    if (!d || !d.hasQuote || this.quoteLoading() || this.controlsPending) return;
+    if (!d || !d.hasQuote || this.quoteLoading() || this.controlsPending()) return;
     const q = this.quote(), owner = this.quoteOwner(), cv = this.versionOf(d.action);
     if (!q || !owner || owner.action !== d.action || !cv) return;
     if (q.version === cv) { this.versionNote.set(''); this.manualRefresh.set(false); this.autoRefreshes = 0; return; }
@@ -315,7 +402,7 @@ export class SaOrderControls implements OnChanges, OnDestroy {
     this.confirmed.set(false); this.versionNote.set(note); this.manualRefresh.set(false);
     if (!d) { this.reload(); return; }
     this.quoteSub?.unsubscribe(); this.quote.set(null); this.quoteOwner.set(null);
-    this.controlsPending = true;
+    this.controlsPending.set(true);
     this.reload();
     if (d.hasQuote && this.dialog()?.action === d.action) this.loadQuote(d);
   }

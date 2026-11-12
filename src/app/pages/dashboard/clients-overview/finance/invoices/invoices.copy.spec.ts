@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -53,7 +54,7 @@ describe('client invoices: honest wording', () => {
 	});
 
 	it('details: «طباعة / حفظ كـ PDF» calls the browser print; no tax rows, no «تنزيل … PDF», «اكتمال بيانات» not «دقة»', async () => {
-		const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+		const print = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => {});
 		await TestBed.configureTestingModule({ imports: [InvoiceDetails], providers: [provideRouter([]),
 			{ provide: ClientFinanceService, useValue: { getInvoice: () => of({ success: true, data: INV() }) } },
 			{ provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'CLIENT_INDIVIDUAL' }) } },

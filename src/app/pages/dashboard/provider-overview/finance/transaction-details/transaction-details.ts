@@ -1,3 +1,6 @@
+import { reportMoney } from '../../../../../core/reports/report-document';
+import { walletReportSections } from '../../../../../core/reports/wallet-report';
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -23,6 +26,7 @@ interface FinancialEvent {
 // this fetches the full list and finds the matching id client-side.
 @Component({ selector: 'app-transaction-details', standalone: true, imports: [CommonModule, RouterModule, WalletBreakdownComponent], templateUrl: './transaction-details.html' })
 export class TransactionDetails implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private http = inject(HttpClient);
   private walletApi = inject(WalletUnifyService);
   private route = inject(ActivatedRoute);
@@ -93,5 +97,8 @@ export class TransactionDetails implements OnInit {
     this.router.navigate(['/provider-overview/messages'], { state: { messageContext: ctx } });
   }
 
-  printReceipt() { window.print(); }
+  printReceipt() {
+    const tx=this.txn();if(!tx||this.loading()||this.error())return;
+    this.reportPrinter.print({title:'إيصال حركة مالية لمقدم الخدمة',metadata:[['رقم المعاملة',tx.id]],sections:[{title:'بيانات الحركة',facts:[['نوع الحركة',this.typeLabel(tx)],['الحالة',this.statusLabel(tx)],['المشروع',tx.projectTitle],['التاريخ',new Date(tx.createdAt).toLocaleString('ar-EG')],['القيمة المسجلة',reportMoney(tx.amount,tx.currency)],['الوصف',tx.description]]},...walletReportSections(tx.breakdown)]});
+  }
 }

@@ -136,3 +136,7 @@
 :host-context(body.theme-light) .rc-ip-more,
 :host-context(.light-theme) .rc-ip-more,
 :host-context(.theme-light) .rc-ip-more{color:#64748B}
+
+/* Explicit account actions share the existing admin permission and confirmation flow. */
+.rc-risk-item{border-color:var(--sec-bd)}.rc-grid{grid-template-columns:minmax(0,1fr)}.rc-kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}.rc-action-error{color:var(--red);line-height:1.8}.rc-action-notice{color:var(--teal-txt);line-height:1.8}
+@media(max-width:600px){.rc-risk-item{align-items:stretch;flex-direction:column}.rc-risk-item>.rc-btn{width:100%}}

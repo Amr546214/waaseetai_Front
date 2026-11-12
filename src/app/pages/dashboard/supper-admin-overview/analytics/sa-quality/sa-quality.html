@@ -6,7 +6,7 @@
       <button type="button" class="sq-cbtn" [class.sq-cbtn-keep]="period() === p.key" [attr.data-testid]="'sq-period-' + p.key" (click)="setPeriod(p.key)">{{ p.label }}</button>
     }
     <button type="button" class="sq-cbtn" data-testid="sq-csv" [disabled]="!recent().length" [title]="recent().length ? 'تنزيل ملف CSV بأحدث التقييمات المعروضة' : 'لا توجد تقييمات للتصدير'" (click)="exportCsv()">تصدير CSV</button>
-    <button type="button" class="sq-cbtn" data-testid="sq-print" (click)="print()">طباعة / حفظ PDF</button>
+    <button type="button" class="sq-cbtn" data-testid="sq-print" [disabled]="loading() || failed() || !data()" (click)="print()">طباعة / حفظ PDF</button>
   </div>
   @if (failed()) {
     <div role="alert" class="sq-card" data-testid="sq-error"><div class="sq-card-ttl">تعذّر تحميل البيانات</div><p style="font-size:var(--font-size-small)">لا تُعرض أرقام بديلة. <button type="button" class="sq-cbtn" (click)="reload()">إعادة المحاولة</button></p></div>

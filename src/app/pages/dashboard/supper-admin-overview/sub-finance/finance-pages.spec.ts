@@ -15,6 +15,8 @@ import { SaCashback } from './sa-cashback/sa-cashback';
 import { AdminOpsApiService } from '../../../../core/services/admin-ops-api.service';
 import { AdminAiService } from '../../../../core/services/admin-ai.service';
 import { LevelsService } from '../../../../core/levels/levels.service';
+import { AdminAccessService } from '../../../../core/services/admin-access.service';
+import { FeePolicyApi } from '../../../../core/services/fee-policy.api';
 import { signal } from '@angular/core';
 
 const PAG = { page: 1, limit: 10, total: 1, pages: 1, totalPages: 1 };
@@ -38,10 +40,10 @@ function api(over: Partial<Record<string, any>> = {}) {
 		...over,
 	};
 }
-function mount<T>(cmp: new (...a: any[]) => T, a = api()) {
+function mount<T>(cmp: new (...a: any[]) => T, a = api(), feesManage = false) {
 	TestBed.configureTestingModule({
 		imports: [cmp],
-		providers: [provideRouter([]), { provide: AdminOpsApiService, useValue: a },
+		providers: [provideRouter([]), { provide: AdminOpsApiService, useValue: a }, { provide: AdminAccessService, useValue: { can: () => feesManage } },
 			{ provide: LevelsService, useValue: { payload: signal(null), ensureLoaded: () => undefined } },
 			{ provide: AdminAiService, useValue: { getForecastSummary: () => of({ success: true, data: null }) } }],
 	});
@@ -81,6 +83,25 @@ describe('SaRevenues', () => {
 		f.detectChanges();
 	});
 
+  it('the revenues PDF button prints an independent financial statement, without the account navbar or dashboard widgets', async () => {
+    const sourceNav=document.createElement('nav');sourceNav.textContent='حساب الأدمن — قائمة الموقع';document.body.append(sourceNav);
+    const print=vi.fn();const parentPrint=vi.spyOn(window,'print').mockImplementation(()=>{});
+    const append=document.body.append.bind(document.body);let frame!:HTMLIFrameElement;
+    vi.spyOn(document.body,'append').mockImplementation((...nodes)=>{
+      append(...nodes);
+      for(const node of nodes)if(node instanceof HTMLIFrameElement){
+        frame=node;vi.spyOn(node.contentWindow!,'print').mockImplementation(print);vi.spyOn(node.contentWindow!,'focus').mockImplementation(()=>{});
+      }
+    });
+    const {f,el}=mount(SaRevenues);q(el,'rev-print')!.click();await f.whenStable();f.detectChanges();
+    expect(print).toHaveBeenCalledOnce();expect(parentPrint).not.toHaveBeenCalled();
+    const doc=frame.contentDocument!;
+    expect(doc.querySelector('h1')!.textContent).toBe('تقرير الإيرادات');expect(doc.body.textContent).toContain('777.77 USD');expect(doc.body.textContent).toContain('4,242.42 USD');
+    expect(doc.querySelector('nav,button,svg,canvas,app-root')).toBeNull();expect(doc.body.textContent).not.toContain(sourceNav.textContent);
+    expect(doc.querySelector('thead')).not.toBeNull();expect(doc.querySelector('style')!.textContent).toContain('@page');
+    frame.contentWindow!.dispatchEvent(new Event('afterprint'));sourceNav.remove();expect(frame.isConnected).toBe(false);
+  });
+
 	it('shows an error with retry and an empty chart state', () => {
 		const empty = { ...OVERVIEW, series: [] };
 		const { el } = mount(SaRevenues, api({ financeOverview: () => of({ success: true, data: empty }), financeTransactions: () => of({ success: true, data: { items: [], typeCounts: {}, pagination: PAG } }) }));
@@ -90,17 +111,15 @@ describe('SaRevenues', () => {
 });
 
 describe('SaSubFinance', () => {
-	it('renders API KPIs and recent transactions; PDF is print and CSV is a real download', () => {
-		const print = vi.spyOn(window, 'print').mockImplementation(() => undefined);
+	it('renders API KPIs and recent transactions; prepares a separate financial report and downloads CSV', () => {
 		stubSave();
 		const { el, a } = mount(SaSubFinance);
 		const t = el.textContent || '';
 		for (const v of ['777.77 $', '9,999.99 $', '1,234.56 $', '321.09 $', 'سلمى الدوسري', '4,242.42 $']) expect(t, v).toContain(v);
 		for (const old of ['14.8M', '9.2M', '99.2%', 'عتبة', '10,000']) expect(t, old).not.toContain(old);
 		expect(a.financeTransactions).toHaveBeenCalledWith({ limit: 5 });
-		expect(q(el, 'sf-print')!.textContent).toContain('طباعة / حفظ PDF');
-		q(el, 'sf-print')!.click();
-		expect(print).toHaveBeenCalled();
+		expect(q(el, 'sf-print')!.textContent).toContain('تقرير مالي / PDF');
+		expect(q(el, 'sf-print')!.disabled).toBe(false);
 		expect(q(el, 'sf-csv')!.textContent).toContain('تنزيل CSV');
 		q(el, 'sf-csv')!.click();
 		expect(a.downloadCsv).toHaveBeenCalledWith('transactions');
@@ -147,16 +166,30 @@ describe('Invoices pages', () => {
 });
 
 describe('SaCommissions', () => {
-	it('shows per-project commission and affiliate totals from the API, no 15-tier mock, disabled edit with reason', () => {
+	it('shows per-project commission and affiliate totals from the API, no 15-tier mock, hides policy editing without permission', () => {
 		const { el, a } = mount(SaCommissions);
 		const t = el.textContent || '';
 		for (const v of ['500.50 $', 'مشروع العمولة', '70.00 $']) expect(t, v).toContain(v);
 		for (const old of ['1,247', '2.96M', 'M15', 'أسطوري']) expect(t, old).not.toContain(old);
-		expect(q(el, 'cm-edit')!.disabled).toBe(true);
+		expect(q(el, 'cm-edit')).toBeNull();
 		expect(q(el, 'cm-edit-reason')!.textContent?.trim().length).toBeGreaterThan(5);
 		q(el, 'cm-export')!.click();
 		expect(a.downloadCsv).toHaveBeenCalledWith('commissions');
 	});
+});
+
+
+describe('commission structure entry point', () => {
+  it('opens the existing versioned policy editor only with fees.manage', async () => {
+    const payload={providerCommissionByLevel:Array(15).fill(12),clientCashbackByLevel:Array(15).fill(1),marketerCommissionByLevel:Array(15).fill(1),depositFeePercent:{mada:1,visa_mastercard:1,paypal:1,international_transfer:1,other:1},marketerWithdrawalFeePercent:{bank_transfer:1,paypal:1,usdt:1},minMarketerPayout:300,minProviderPayout:0};
+    const view=vi.fn(()=>of({success:true,data:{active:{id:'p',version:1,effectiveFrom:'2026-01-01',payload,state:'EFFECTIVE'},upcoming:[],history:[],limits:{},now:'2026-11-12'}}));
+    TestBed.configureTestingModule({providers:[{provide:FeePolicyApi,useValue:{view}}]});
+    const {f,el}=mount(SaCommissions,api(),true);
+    expect(view).not.toHaveBeenCalled(); q(el,'cm-edit')!.click(); f.detectChanges(); await f.whenStable(); f.detectChanges();
+    expect(view).toHaveBeenCalledTimes(1); expect(el.querySelector('app-fee-policy-panel')).not.toBeNull();
+    expect(el.querySelector('input[aria-label="عمولة مقدم الخدمة المستوى 1"]')).not.toBeNull();
+    q(el,'cm-edit')!.click(); f.detectChanges(); expect(el.querySelector('app-fee-policy-panel')).toBeNull();
+  });
 });
 
 describe('SaSubFinanceReports', () => {

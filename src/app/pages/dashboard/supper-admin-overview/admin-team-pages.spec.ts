@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../../core/reports/report-print.service';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -125,7 +126,7 @@ describe('admin team pages (real data, honest states, SUPER_ADMIN-only actions)'
 	it('performance page: «تصدير PDF» is in the design\'s place (print / save-as-PDF of what the page shows), CSV is an addition, both need performance.export; the design\'s 7 columns', async () => {
 		const report = { success: true, data: { period: 'month', from: '', to: '', team: { members: 1, completed: 4, avgCompletionHours: 5, onTimeRate: 50, onTimeOf: 2 }, members: [{ userId: 'u1', name: 'هيثم', role: 'مشرف', roleColor: null, status: 'ACTIVE', openTasks: 1, completed: 4, avgCompletionHours: 5, onTimeRate: 50, onTimeOf: 2, slaRate: null, userRating: null, overallScore: null }], trend: Array.from({ length: 12 }, (_, i) => ({ month: i + 1, thisYear: 0, lastYear: 0 })), definitions: { completed: 'ت', completionTime: 'ت', onTime: 'ت', decisionsNeeded: ['قرار'] } } };
 		setAccess(false, ['performance.view', 'performance.export']);
-		const print = vi.spyOn(window, 'print').mockImplementation(() => undefined);
+		const print = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => undefined);
 		const f = TestBed.createComponent(SaTeamPerformance); await flush(f);
 		http.expectOne(r => r.url === `${B}/performance`).flush(report); await flush(f);
 		const el = f.nativeElement as HTMLElement;

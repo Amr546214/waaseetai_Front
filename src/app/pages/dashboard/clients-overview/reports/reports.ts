@@ -1,3 +1,4 @@
+import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { Component, signal, computed, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -15,6 +16,7 @@ import { formatMoney } from '../../../../core/utils/money.util';
 	styleUrl: './reports.css'
 })
 export class Reports implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
 	public themeService = inject(ThemeService);
 	private reportsService = inject(ClientReportsService);
 
@@ -42,6 +44,7 @@ export class Reports implements OnInit {
 	aiLoading = signal<boolean>(false);
 	aiRequestFailed = signal<boolean>(false);
 	private aiSeq = 0;
+  private reportSeq = 0;
 
 	ordersPage = signal<number>(1);
 	private readonly pageSize = 4;
@@ -60,11 +63,13 @@ export class Reports implements OnInit {
 	}
 
 	private loadReports(range: ClientReportDateRange) {
+    const seq=++this.reportSeq;
 		this.isLoading.set(true);
 		this.hasError.set(false);
 		this.ordersPage.set(1);
 		this.reportsService.getReports(range).subscribe({
 			next: (res) => {
+        if(seq!==this.reportSeq)return;
 				this.isLoading.set(false);
 				if (res?.success && res.data) {
 					this.data.set(res.data);
@@ -73,6 +78,7 @@ export class Reports implements OnInit {
 				}
 			},
 			error: (err) => {
+        if(seq!==this.reportSeq)return;
 				console.error('[Reports] Failed to load real report data:', err);
 				this.isLoading.set(false);
 				this.hasError.set(true);
@@ -303,7 +309,13 @@ export class Reports implements OnInit {
 
 	/** PDF = the browser's print dialog ("Save as PDF"); CSV = the report data currently loaded on the page, built in the browser (no server file). */
 	exportRpt(type: string) {
-		if (type === 'pdf') { window.print(); return; }
+		if (type === 'pdf') {
+      const d=this.data();if(!d||this.isLoading()||this.hasError())return;
+      const tab=this.activeTab();
+      const columns=tab==='finance'?['الوصف','النوع','المبلغ والعملة','الحالة','التاريخ']:tab==='disputes'?['السبب','الحالة','التاريخ']:['العنوان','التخصص','الميزانية','الحالة','التاريخ'];
+      const rows:unknown[][]=tab==='finance'?this.filteredTransactions().map(t=>[t.description,t.type,this.formatAmount(t.amount,t.currency),t.status,t.createdAt]):tab==='disputes'?this.filteredDisputes().map(x=>[x.reason,x.status,x.createdAt]):(tab==='projects'?this.filteredProjects():this.filteredOrders()).map(i=>[i.title,i.specialty,i.budget,i.bucket,i.createdAt]);
+      this.reportPrinter.print({title:'تقرير العميل',metadata:[['الفترة',({month:'هذا الشهر','3m':'آخر 3 أشهر','6m':'آخر 6 أشهر',year:'هذا العام',all:'كل الفترات'})[this.dateFilter()]],['القسم',({orders:'الطلبات',projects:'المشاريع',finance:'المعاملات المالية',disputes:'النزاعات'})[tab]],['البحث',this.searchQuery()||'بدون']],sections:[{title:'النتائج المطابقة للفلاتر',columns,rows}],note:'الصفوف المحمّلة المطابقة للفلاتر الحالية، وليست بالضرورة جميع السجلات في المنصة.'});return;
+    }
 		this.exportCsv();
 	}
 

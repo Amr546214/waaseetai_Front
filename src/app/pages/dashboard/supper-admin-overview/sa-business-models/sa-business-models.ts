@@ -1,20 +1,21 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { WsSelectComponent } from '../../../../shared/forms/select.component';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BusinessModelReviewApi, MODEL_STATUSES, modelError, ReviewPage } from './business-model-review.api';
 
 @Component({
   selector: 'app-sa-business-models',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, WsSelectComponent],
   templateUrl: './sa-business-models.html',
-  styleUrls: ['./sa-business-models.css', './business-model-review.css'],
+  styleUrls: ['./sa-business-models.css'],
 })
 export class SaBusinessModels implements OnInit {
   private readonly api = inject(BusinessModelReviewApi);
   private readonly destroyRef = inject(DestroyRef);
   readonly labels = MODEL_STATUSES;
-  readonly statuses = Object.entries(MODEL_STATUSES);
+  readonly statusOptions = [{ value: '', label: 'كل الحالات' }, ...Object.entries(MODEL_STATUSES).map(([value, label]) => ({value, label}))];
   readonly result = signal<ReviewPage | null>(null);
   readonly loading = signal(false);
   readonly error = signal('');
@@ -29,6 +30,8 @@ export class SaBusinessModels implements OnInit {
     this.filters = { search: this.search.trim(), status: this.status };
     this.load(1);
   }
+
+  clearFilters() { this.search = ''; this.status = ''; this.applyFilters(); }
 
   load(page: number) {
     if (this.loading() || page < 1) return;

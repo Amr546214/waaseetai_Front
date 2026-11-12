@@ -1,3 +1,5 @@
+import { reportMoney } from '../../../../../core/reports/report-document';
+import { ReportPrintService } from '../../../../../core/reports/report-print.service';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,6 +15,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
   styleUrl: './invoice-details.css',
 })
 export class InvoiceDetails implements OnInit {
+  private readonly reportPrinter = inject(ReportPrintService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private financeService = inject(ClientFinanceService);
@@ -30,7 +33,7 @@ export class InvoiceDetails implements OnInit {
         next: response => {
           this.invoice.set(response.data);
           this.loading.set(false);
-          if (this.route.snapshot.queryParamMap.get('print') === '1') setTimeout(() => window.print(), 100);
+          if (this.route.snapshot.queryParamMap.get('print') === '1') this.printInvoice();
         },
         error: event => {
           this.error.set(event.error?.message || 'تعذر تحميل الفاتورة');
@@ -46,7 +49,8 @@ export class InvoiceDetails implements OnInit {
 
   /** Opens the browser's print dialog (the user can save it as PDF). There is no server-generated PDF. */
   printInvoice() {
-    window.print();
+    const inv=this.invoice();if(!inv||this.loading()||this.error())return;
+    this.reportPrinter.print({title:'تفاصيل فاتورة العميل',metadata:[['رقم الفاتورة',inv.id],['التاريخ',this.formatDate(inv.date)]],sections:[{title:'المشروع والدفعة',facts:[['المشروع',inv.projectTitle||inv.project],['المرحلة',inv.stageTitle],['مقدم الخدمة',inv.providerName],['القيمة قبل الخصم',reportMoney(inv.subtotal,'USD')],['الخصم',reportMoney(inv.discount??0,'USD')],['كود الخصم',inv.couponCode],['الإجمالي الفعلي',reportMoney(inv.total,'USD')],['الحالة',inv.status==='paid'?'مدفوعة':'مستحقة'],['تاريخ الدفع',this.formatDate(inv.paymentDate)]]}],note:'تفاصيل الدفعة المسجلة، وليست فاتورة ضريبية معتمدة.'});
   }
 
   formatDate(value: string | null): string {
