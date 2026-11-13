@@ -50,7 +50,7 @@ export class SaSystemSettings implements OnInit {
 		{ key: 'finance', label: 'المالية', icon: this.icons.wallet, ws: 'pl-admin-ss-tab-finance' },
 		{ key: 'regional', label: 'الإقليمية', icon: this.icons.globe, ws: 'pl-admin-ss-tab-regional' },
 		{ key: 'health', label: 'صحة النظام', icon: this.icons.check, ws: 'pl-admin-ss-tab-health' },
-		{ key: 'admins', label: 'حسابات الإدارة العليا', icon: this.icons.shield },
+		{ key: 'admins', label: 'حسابات الإدارة العليا', icon: this.icons.shield, ws: 'pl-nav-admin-super-admins' },
 		{ key: 'integrations', label: 'التكاملات والـ API', icon: this.icons.settings },
 		{ key: 'audit', label: 'Audit Trail', icon: this.icons.check },
 		{ key: 'danger', label: 'المنطقة الحمراء', icon: this.icons.bell },

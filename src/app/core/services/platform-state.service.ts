@@ -50,7 +50,8 @@ export class PlatformStateService {
 		// anonymous on purpose: the public state needs no identity, and a stale token must never get this connection refused
 		const s = io(environment.socketUrl, { ...SOCKET_BACKOFF, transports: ['websocket', 'polling'] });
 		s.on('platform:state', (st: PlatformState) => this.apply(st));
-		s.io.on('reconnect', () => this.refresh());
+		// `connect` fires on the first connection and on every reconnection: after the first, re-read the state (a push may have been missed while disconnected)
+		let connected = false; s.on('connect', () => { if (connected) this.refresh(); connected = true; });
 		this.socket = s;
 	}
 }

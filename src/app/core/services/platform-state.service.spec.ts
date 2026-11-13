@@ -4,8 +4,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { environment } from '../../../environments/environment';
 
-const handlers: Record<string, (p?: unknown) => void> = {}; const ioHandlers: Record<string, () => void> = {};
-vi.mock('socket.io-client', () => ({ io: vi.fn(() => ({ on: (e: string, h: (p?: unknown) => void) => { handlers[e] = h; }, io: { on: (e: string, h: () => void) => { ioHandlers[e] = h; } }, disconnect: vi.fn() })) }));
+const handlers: Record<string, (p?: unknown) => void> = {};
+vi.mock('socket.io-client', () => ({ io: vi.fn(() => ({ on: (e: string, h: (p?: unknown) => void) => { handlers[e] = h; }, disconnect: vi.fn() })) }));
 import { io } from 'socket.io-client';
 import { PlatformInfoService } from './platform-info.service';
 import { PLATFORM_STATE_POLL_MS, PlatformStateService } from './platform-state.service';
@@ -31,7 +31,7 @@ describe('PlatformStateService: live maintenance without a click or a reload', (
 	});
 	it('re-reads after a socket reconnect, when the tab becomes visible again, and by the light fallback poll', () => {
 		svc.start(); http.expectOne(URL()).flush(st(false, 1));
-		ioHandlers['reconnect'](); http.expectOne(URL()).flush(st(true, 2)); expect(info.maintenance()).not.toBeNull();
+		handlers['connect'](); handlers['connect'](); http.expectOne(URL()).flush(st(true, 2)); expect(info.maintenance()).not.toBeNull();
 		document.dispatchEvent(new Event('visibilitychange')); http.expectOne(URL()).flush(st(false, 3)); expect(info.maintenance()).toBeNull();
 		vi.advanceTimersByTime(PLATFORM_STATE_POLL_MS); http.expectOne(URL()).flush(st(true, 4, 'عبر الاستطلاع')); expect(info.maintenance()).toBe('عبر الاستطلاع');
 	});
