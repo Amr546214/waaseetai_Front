@@ -13,12 +13,11 @@ interface PlatformState {
   revision: number;
   at?: number;
 }
-export const PLATFORM_STATE_POLL_MS = 5_000;
 
 /**
  * Keeps the open browser in step with the server's maintenance state WITHOUT a click or a page reload:
  *  - the server pushes `platform:state` over Socket.IO the moment a save commits (and on every (re)connection);
- *  - the state is also READ when the site opens, when the socket reconnects, when the tab becomes visible again, and by a light fallback poll (every five seconds) in case the push is missed;
+ *  - the state is also READ when the site opens, when the socket reconnects, when the tab becomes visible again or the browser goes online; there is no periodic polling;
  *  - an older answer never overwrites a newer one (the committed database revision is compared), and turning maintenance off simply shows the site again (no reload, so no reload loop).
  * Nothing secret is carried: the payload is {maintenance:{on,message}, revision, at}.
  */
@@ -29,7 +28,6 @@ export class PlatformStateService {
   private readonly info = inject(PlatformInfoService);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private socket: Socket | null = null;
-  private timer: ReturnType<typeof setInterval> | null = null;
   private started = false;
   private epoch = 0;
 
@@ -40,7 +38,6 @@ export class PlatformStateService {
     this.connect();
     document.addEventListener('visibilitychange', this.onVisible);
     window.addEventListener('online', this.onVisible);
-    this.timer = setInterval(() => this.refresh(), PLATFORM_STATE_POLL_MS);
     destroyRef?.onDestroy(() => this.stop());
   }
   stop(): void {
@@ -48,8 +45,6 @@ export class PlatformStateService {
     this.epoch++;
     this.socket?.disconnect();
     this.socket = null;
-    if (this.timer) clearInterval(this.timer);
-    this.timer = null;
     if (typeof document !== 'undefined') {
       document.removeEventListener('visibilitychange', this.onVisible);
       window.removeEventListener('online', this.onVisible);

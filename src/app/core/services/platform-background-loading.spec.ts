@@ -7,7 +7,7 @@ import { loadingInterceptor } from '../interceptors/loading.interceptor';
 import { LoadingService } from './loading.service';
 import { SystemSettingsApi } from './system-settings.store';
 import { PlatformInfoService } from './platform-info.service';
-import { PlatformStateService, PLATFORM_STATE_POLL_MS } from './platform-state.service';
+import { PlatformStateService } from './platform-state.service';
 import { PageLoader } from '../../sheards/page-loader/page-loader';
 import { SiteIdentityService } from '../identity/site-identity.service';
 
@@ -86,25 +86,24 @@ describe('platform background traffic with the real global loader interceptor', 
     TestBed.resetTestingModule();
     vi.useRealTimers();
   });
-  it('keeps the existing shell uncovered during three five-second polls', () => {
+  it('keeps the existing shell uncovered and makes no periodic requests while idle', () => {
     open();
     const sidebar = fixture.nativeElement.querySelector('[data-testid="sidebar"]');
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
     input.value = 'unsaved input';
     for (let n = 0; n < 3; n++) {
-      vi.advanceTimersByTime(PLATFORM_STATE_POLL_MS);
-      const poll = request('/public/platform-state');
+      vi.advanceTimersByTime(60_000);
+      http.expectNone((r) => r.url.endsWith('/public/platform-state'));
       noOverlay();
       expect(fixture.nativeElement.querySelector('[data-testid="sidebar"]')).toBe(sidebar);
       expect(fixture.nativeElement.querySelector('input')).toBe(input);
       expect(input.value).toBe('unsaved input');
-      poll.flush(state());
     }
     http.verify();
   });
-  it('socket maintenance changes apply immediately, refresh settings silently and reject a late stale poll', () => {
+  it('socket maintenance changes apply immediately, refresh settings silently and reject a late stale resync', () => {
     open();
-    vi.advanceTimersByTime(PLATFORM_STATE_POLL_MS);
+    window.dispatchEvent(new Event('online'));
     const old = request('/public/platform-state');
     handlers['platform:state'](state(true, 2).data);
     expect(info.maintenance()).toBe('maintenance');
