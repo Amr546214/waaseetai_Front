@@ -20,7 +20,7 @@ const ITEMS: SettingItem[] = [
 	item({ key: 'maintenanceMode', label: 'وضع الصيانة', value: false, version: 0, effect: 'within-5s' }),
 	item({ key: 'registrationOpen', label: 'تسجيل حسابات جديدة', value: true, version: 0 }),
 	item({ key: 'liveSupportAssistant', label: 'الدعم الفوري', status: 'blocked', canWrite: false, value: null, version: null, effect: null, reason: 'تغييرات الذكاء الاصطناعي نطاق منفصل: يُجرد هنا فقط.', source: null }),
-	item({ key: 'supportEmail', value: 'a@b.co', version: 1 }), item({ key: 'supportPhone', value: '' }), item({ key: 'maintenanceBannerEnabled', value: false }), item({ key: 'maintenanceBannerText', value: '' }),
+	item({ key: 'supportEmail', value: 'a@b.co', version: 1 }), item({ key: 'supportPhone', value: '' }), item({ key: 'maintenanceBannerText', value: '' }),
 	item({ key: 'termsVersion', value: '' }), item({ key: 'privacyVersion', value: '' }), item({ key: 'termsContent', value: '' }), item({ key: 'privacyContent', value: '' }),
 	item({ key: 'sessionIdleMinutes', tab: 'security', label: 'انتهاء الجلسة بسبب الخمول', value: 0, unit: 'دقيقة' }),
 	item({ key: 'sessionMaxHours', tab: 'security', label: 'المدة القصوى المطلقة للجلسة', value: 168, allowed: [8, 24, 48, 168], unit: 'ساعة', effect: 'new-sessions' }),

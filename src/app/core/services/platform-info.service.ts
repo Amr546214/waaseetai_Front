@@ -5,7 +5,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { setPlatformRegional } from '../utils/regional';
 
-/** What the server publishes about the platform itself (GET /public/settings): the announcement banner. A server answer MAINTENANCE (503) also lands here so every page can say why nothing loads. */
+/** What the server publishes about the platform itself (GET /public/settings): names, support details, legal texts and the maintenance state. A server answer MAINTENANCE (503) also lands here. */
 export const DEFAULT_BRAND = 'وسيط AI';
 /** shown by the support buttons (login «account frozen» dialog, report-a-problem page) while the `supportEmail` setting is empty; the server's registry reports the same literal as the value in use */
 export const DEFAULT_SUPPORT_EMAIL = 'support@waseet.ai';
@@ -19,7 +19,6 @@ export const DEFAULT_MAINTENANCE_MESSAGE = 'المنصة في صيانة مؤق�
 export class PlatformInfoService {
 	private http = inject(HttpClient);
 	private browser = isPlatformBrowser(inject(PLATFORM_ID));
-	readonly banner = signal<{ enabled: boolean; text: string }>({ enabled: false, text: '' });
 	readonly maintenance = signal<string | null>(null);
 	private title = inject(Title);
 	/** the name shown in shell labels: the platform setting, else the built-in brand */
@@ -46,8 +45,8 @@ export class PlatformInfoService {
 
 	load(): void {
 		if (!this.browser) return;
-		this.http.get<{ success: boolean; data: { maintenanceBannerEnabled?: boolean; maintenanceBannerText?: string; defaultTimezone?: string; dateFormat?: string; calendarSystem?: string; defaultLanguage?: string } }>(`${environment.url_api}/public/settings`).subscribe({
-			next: r => { setPlatformRegional(r.data ?? {}); this.applyPublic(r.data as Record<string, unknown> | undefined); this.applyName((r.data as Record<string, unknown> | undefined)?.['platformName']); this.banner.set({ enabled: r.data?.maintenanceBannerEnabled === true, text: String(r.data?.maintenanceBannerText ?? '').trim() }); },
+		this.http.get<{ success: boolean; data: { maintenanceMode?: boolean; maintenanceBannerText?: string; defaultTimezone?: string; dateFormat?: string; calendarSystem?: string; defaultLanguage?: string } }>(`${environment.url_api}/public/settings`).subscribe({
+			next: r => { setPlatformRegional(r.data ?? {}); this.applyPublic(r.data as Record<string, unknown> | undefined); this.applyName((r.data as Record<string, unknown> | undefined)?.['platformName']); this.applyMaintenance(r.data?.maintenanceMode === true, String(r.data?.maintenanceBannerText ?? '')); },
 			error: () => undefined, // the banner is optional: a failure must never disturb the page
 		});
 	}
@@ -57,10 +56,12 @@ export class PlatformInfoService {
 		return new Promise<void>(resolve => {
 			const done = () => resolve(); const t = setTimeout(done, 1500);
 			this.http.get<{ data: Record<string, unknown> }>(`${environment.url_api}/public/settings`).subscribe({
-				next: r => { setPlatformRegional((r.data ?? {}) as never); this.applyPublic(r.data); this.applyName(r.data?.['platformName']); this.banner.set({ enabled: r.data?.['maintenanceBannerEnabled'] === true, text: String(r.data?.['maintenanceBannerText'] ?? '').trim() }); clearTimeout(t); done(); },
+				next: r => { setPlatformRegional((r.data ?? {}) as never); this.applyPublic(r.data); this.applyName(r.data?.['platformName']); this.applyMaintenance(r.data?.['maintenanceMode'] === true, String(r.data?.['maintenanceBannerText'] ?? '')); clearTimeout(t); done(); },
 				error: () => { clearTimeout(t); done(); },
 			});
 		});
 	}
+	/** the ONE maintenance state: on = the Under Deployment page (message = the saved text), off = the normal site. Fed by the public settings, the live Socket.IO event, the state read and a 503 MAINTENANCE answer. */
+	applyMaintenance(on: boolean, message: string) { this.maintenance.set(on ? (message.trim() || DEFAULT_MAINTENANCE_MESSAGE) : null); }
 	setMaintenance(message: string) { this.maintenance.set(message || DEFAULT_MAINTENANCE_MESSAGE); }
 }

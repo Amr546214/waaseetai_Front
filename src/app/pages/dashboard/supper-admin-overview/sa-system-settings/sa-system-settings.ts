@@ -47,8 +47,8 @@ export class SaSystemSettings implements OnInit {
 	/** the technical requirement list sits behind a toggle (the long text is not part of the compact card) */
 	readonly readyOpen = signal(false);
 
-	readonly general = ['platformName', 'maintenanceMode', 'registrationOpen', 'liveSupportAssistant'];
-	readonly contacts = ['supportEmail', 'supportPhone', 'maintenanceBannerEnabled', 'maintenanceBannerText'];
+	readonly general = ['platformName', 'maintenanceMode', 'maintenanceBannerText', 'registrationOpen', 'liveSupportAssistant'];
+	readonly contacts = ['supportEmail', 'supportPhone'];
 	readonly legal = ['termsVersion', 'privacyVersion', 'termsContent', 'privacyContent'];
 	readonly generalAll = [...this.general, ...this.contacts, ...this.legal];
 	readonly ai = ['aiEngineEnabled', 'aiConfidenceThreshold', 'aiDisputeArbitration', 'aiFraudDetection', 'aiDisclosureBanner'];

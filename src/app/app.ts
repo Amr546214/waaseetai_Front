@@ -11,18 +11,26 @@ import { FormA11ySyncService } from './shared/forms/form-a11y-sync.service';
 import { AssistantWidgetComponent } from './sheards/assistant-widget/assistant-widget';
 import { PlatformBannerComponent } from './shared/platform-banner/platform-banner.component';
 import { assistantLiftPx, isAssistantHidden, isAssistantToolbarInSidebar } from './sheards/assistant-widget/assistant-visibility';
+import { UnderDeploymentComponent } from './shared/under-deployment/under-deployment.component';
+import { PlatformInfoService } from './core/services/platform-info.service';
+import { PlatformStateService } from './core/services/platform-state.service';
 import { IdentityImgDirective } from './core/identity/identity-img.directive';
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [IdentityImgDirective, RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent, PlatformBannerComponent],
+	imports: [IdentityImgDirective, RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent, PlatformBannerComponent, UnderDeploymentComponent],
 	styleUrl: './app.css',
 	template: `
-		<ng-container *ngIf="authStore.isInitialized$ | async">
-			<app-platform-banner />
-			<router-outlet />
-		</ng-container>
+		<!-- Maintenance: the standalone Under Deployment page REPLACES the site (no navbar, no menus, no assistant behind it). A Super Admin and the login page itself pass. -->
+		@if (maintenanceBlocked()) {
+			<app-under-deployment />
+		} @else {
+			<ng-container *ngIf="authStore.isInitialized$ | async">
+				<app-platform-banner />
+				<router-outlet />
+			</ng-container>
+		}
 
 		<div *ngIf="showLoader()" class="global-app-loader" [class.fade-out]="authStore.isInitialized$ | async">
 			<div class="loader-content">
@@ -39,7 +47,7 @@ import { IdentityImgDirective } from './core/identity/identity-img.directive';
 		     full assistant, visitors get the robot + a login prompt, and routes flagged
 		     data.hideAssistant (auth, errors) get nothing. Mounted nowhere else.
 		     Lazy-loaded after the page is idle; browser-only. -->
-		@if ((authStore.isInitialized$ | async) && !assistantHidden()) {
+		@if ((authStore.isInitialized$ | async) && !assistantHidden() && !maintenanceBlocked()) {
 			@defer (on idle) {
 				<app-assistant-widget [lift]="assistantLift()" [hideToolbar]="assistantToolbarInSidebar()" />
 			}
@@ -49,6 +57,12 @@ import { IdentityImgDirective } from './core/identity/identity-img.directive';
 export class App implements OnInit {
 	authStore = inject(AuthStore);
 	private readonly assistantStore = inject(AssistantExamState);
+	private readonly destroyRef = inject(DestroyRef);
+	private readonly platformInfo = inject(PlatformInfoService);
+	private readonly platformState = inject(PlatformStateService);
+	private readonly url = signal('');
+	/** maintenance is on AND this visitor may not pass: not a Super Admin, and not on the login page (the only way to reach the admin entry) */
+	readonly maintenanceBlocked = computed(() => this.platformInfo.maintenance() !== null && String(this.authStore.currentUser()?.accountType) !== 'SUPER_ADMIN' && !/^\/auth\/(login|google)/.test(this.url()));
 	showLoader = signal(true);
 	private readonly router = inject(Router);
 	private readonly routeHidden = signal(false);
@@ -69,10 +83,12 @@ export class App implements OnInit {
 		}
 		this.router.events
 			.pipe(filter((e) => e instanceof NavigationEnd), takeUntilDestroyed(inject(DestroyRef)))
-			.subscribe(() => this.syncAssistantRoute());
+			.subscribe(() => { this.url.set(this.router.url); this.syncAssistantRoute(); });
 	}
 
 	ngOnInit() {
+		this.url.set(this.router.url);
+		this.platformState.start(this.destroyRef);
 		this.syncAssistantRoute();
 		this.authStore.isInitialized$.subscribe(isInit => {
 			if (isInit) {
