@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { mapHttpError } from '../forms/http-error';
@@ -44,7 +45,7 @@ export class SystemSettingsApi {
 	view(): Observable<Envelope<SettingsView>> { return this.http.get<Envelope<SettingsView>>(base()); }
 	save(changes: Record<string, unknown>, expected: Record<string, number>): Observable<Envelope<{ changed: string[]; items: SettingItem[] }>> { return this.http.put<Envelope<{ changed: string[]; items: SettingItem[] }>>(base(), { changes, expected }); }
 	history(limit = 20): Observable<Envelope<SettingsHistoryItem[]>> { return this.http.get<Envelope<SettingsHistoryItem[]>>(`${base()}/history`, { params: { limit } }); }
-	health(): Observable<Envelope<{ checkedAt: string; items: HealthItem[] }>> { return this.http.get<Envelope<{ checkedAt: string; items: HealthItem[] }>>(`${base()}/health`); }
+	health(): Observable<Envelope<{ checkedAt: string; items: HealthItem[] }>> { return this.http.get<Envelope<{ checkedAt: string; items: HealthItem[] }>>(`${base()}/health`, { context: new HttpContext().set(SKIP_LOADING, true) }); }
 	sessionsImpact(idleMinutes: number): Observable<Envelope<{ idleMinutes: number; activeSessions: number; wouldEndNow: number }>> { return this.http.get<Envelope<{ idleMinutes: number; activeSessions: number; wouldEndNow: number }>>(`${base()}/sessions-impact`, { params: { idleMinutes } }); }
 	readiness(): Observable<Envelope<{ ready: boolean; blockers: Blocker[] }>> { return this.http.get<Envelope<{ ready: boolean; blockers: Blocker[] }>>(`${base()}/currency-readiness`); }
 }
