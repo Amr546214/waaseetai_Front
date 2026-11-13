@@ -87,7 +87,7 @@ The API address is set per Angular configuration; `angular.json` swaps `src/envi
 | `npm start` | `environment.dev.ts` | `https://dev.waseetai.com/api` |
 | `npm run build` | `environment.prod.ts` | `/api` (same origin, behind a reverse proxy) |
 
-Other keys: `socketUrl`, `google_client_id`, `paypal_client_id`. Environment files are bundled into the browser, so they must only hold public values. Google sign-in only works from origins registered in Google Cloud (see [the guide](docs/frontend-guide.md#google-oauth)).
+Other keys: `socketUrl`, `google_client_id`, `paypal_client_id`. Environment files are bundled into the browser, so they must only hold public values. Google sign-in only works from origins registered in Google Cloud.
 
 ## Scripts
 
@@ -127,7 +127,4 @@ public/                  Static assets (brand mark, fonts, images)
 
 | Document | Contents |
 |---|---|
-| [docs/frontend-guide.md](docs/frontend-guide.md) | Architecture, routing, auth/session, API layer, SSR, troubleshooting, contribution rules |
-| [docs/ui-arabic-text-clipping.md](docs/ui-arabic-text-clipping.md) | Arabic text clipping in buttons and tabs |
-| [docs/reviews/](docs/reviews) | Review notes |
 | [Backend repository](https://github.com/Amr546214/waaseetai_Back) | API, database, deployment |
