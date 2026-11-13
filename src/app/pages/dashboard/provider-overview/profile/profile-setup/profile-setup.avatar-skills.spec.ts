@@ -41,7 +41,7 @@ describe('provider setup wizard: photo, skills catalog, date of birth', () => {
     http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
   };
-  afterEach(() => { http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } })); http.verify(); fixture.destroy(); });
+  afterEach(() => { http.match(r => r.url.includes('/public/geo-suggestion')).forEach(r => r.flush({ success: true, data: { source: 'none' } })); http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } })); http.verify(); fixture.destroy(); });
   const catalog = (skills: string[]) => http.expectOne(r => r.url.includes('/skills/catalog')).flush({ success: true, data: { category: 'design-creative', skills } });
   const pick = (file: File) => component.onAvatarSelected({ target: { files: [file] } });
   const png = () => new File([new Uint8Array([1, 2, 3])], 'me.png', { type: 'image/png' });

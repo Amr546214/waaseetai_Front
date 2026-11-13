@@ -146,3 +146,6 @@
 :host-context(.light-theme) .spa-fr-sel ::ng-deep .ws-sel-trigger,:host-context(.theme-light) .spa-fr-sel ::ng-deep .ws-sel-trigger{background:#fff;border-color:#CBD5E1;color:#1E293B}
 
 .spa-row-lbl .spa-bdg{padding:1px 9px;line-height:1.3}
+
+.spa-layout.spa-embed{display:block}
+.spa-layout.spa-embed .spa-content{width:100%}

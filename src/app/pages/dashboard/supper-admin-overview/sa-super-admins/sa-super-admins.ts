@@ -1,6 +1,6 @@
 import { spaIconHref } from '../../../../shared/system-settings/spa-icons';
 import { FeePolicyPanel } from '../../../../shared/fee-policy/fee-policy-panel';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { WsDatePipe, formatWsDate } from '../../../../shared/ws-date/ws-date.pipe';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
@@ -56,6 +56,8 @@ export class SaSuperAdmins implements OnInit {
     { key: 'danger', icon: 'warn', label: 'المنطقة الحمراء', danger: true },
   ];
 
+  /** set when this page is embedded as a tab of the unified «إعدادات النظام»: only that part is shown, without this page's own navigation */
+  @Input() embed: SpaSection | 'admins' | null = null;
   readonly activeSection = signal<SpaSection>('general');
   /** a failed / conflicting header save is shown here (the cards of this page have no save button of their own, so they print nothing) */
   conflictReload(keys: string[]) { return this.store.load().then(() => this.store.discard(keys)); }
@@ -115,6 +117,7 @@ export class SaSuperAdmins implements OnInit {
   });
 
   ngOnInit(): void {
+    if (this.embed) this.activeSection.set(this.embed === 'admins' ? 'general' : this.embed);
     void this.store.load();
     this.api.getAdmins().subscribe({ next: (r) => this.admins.set(r.data ?? []), error: () => this.adminsFailed.set(true) });
     this.loadAudit();

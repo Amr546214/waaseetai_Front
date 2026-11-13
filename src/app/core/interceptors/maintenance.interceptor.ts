@@ -7,7 +7,7 @@ import { PlatformInfoService } from '../services/platform-info.service';
 export const maintenanceInterceptor: HttpInterceptorFn = (req, next) => {
 	const info = inject(PlatformInfoService);
 	return next(req).pipe(catchError((e: unknown) => {
-		if (e instanceof HttpErrorResponse && e.status === 503 && e.error?.code === 'MAINTENANCE') info.setMaintenance(String(e.error?.message ?? ''));
+		if (e instanceof HttpErrorResponse && e.status === 503 && e.error?.code === 'MAINTENANCE') info.setMaintenance(String(e.error?.message ?? ''), e.error?.revision);
 		return throwError(() => e);
 	}));
 };

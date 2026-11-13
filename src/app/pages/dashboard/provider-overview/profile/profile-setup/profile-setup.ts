@@ -15,6 +15,7 @@ import { ProviderProfileService } from '../../../../../core/services/provider-pr
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { SetupTestService, SETUP_TEST_QUESTION_COUNT, SETUP_TEST_TIME_LIMIT_MINUTES } from '../../../../../core/services/setup-test.service';
 import { SPECIALTY_TEST_PASS_SCORE, SpecialtyTestComponent, type SpecialtyTestPhase, type SpecialtyTestQuestion, type SpecialtyTestResult } from '../../../../../shared/specialty-test/specialty-test.component';
+import { GeoSuggestionService } from '../../../../../shared/data/geo-suggestion';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
@@ -104,6 +105,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
 	readonly countryNames = COUNTRY_NAMES;
+	private readonly geo = inject(GeoSuggestionService);
+	/** the country/city were filled from an approximate network location (a hint the user can change); cleared as soon as the user edits either field */
+	readonly geoSuggested = signal(false);
+	private geoSuggest() {
+		const g = this.setupForm.get('profData'); this.geo.suggestInto(g, () => { this.geoSuggested.set(true); const off = () => this.geoSuggested.set(false); g?.get('country')?.valueChanges.subscribe(off); g?.get('city')?.valueChanges.subscribe(off); });
+	}
 	readonly citiesOf = citiesOf;
 	readonly cityPlaceholder = cityPlaceholder;
 
@@ -360,6 +367,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							ackFinal: d.accurateAgreed || false
 						}
 					});
+					this.geoSuggest(); // approximate hint for EMPTY country/city only
 					if (d.frontIdUrl) this.uploadedFrontId.set(d.frontIdUrl);
 					if (d.frontIdUrlAccess?.private) this.storedFrontAccess.set(d.frontIdUrlAccess);
 					if (d.backIdUrlAccess?.private) this.storedBackAccess.set(d.backIdUrlAccess);

@@ -18,7 +18,7 @@ const ITEMS: SettingItem[] = [
 	item({ key: 'termsVersion', value: '', effective: { value: null, source: 'static page text' } }),
 	item({ key: 'termsContent', value: '', effective: { value: null, source: 'static page text', note: 'صفحة الشروط تعرض نصها الثابت' } }),
 	item({ key: 'privacyContent', value: '', effective: { value: null, source: 'static page text' } }),
-	item({ key: 'maintenanceBannerEnabled', value: false, effective: { value: false, source: 'built-in default', note: 'لا يظهر أي بنر' } }),
+	item({ key: 'maintenanceMode', value: false, effective: { value: false, source: 'built-in default', note: 'الصيانة غير مفعّلة' } }),
 	item({ key: 'registrationOpen', value: true, writeBy: 'SUPER', effective: { value: true, source: 'built-in default' } }),
 	item({ key: 'sessionMaxHours', value: 168, allowed: [8, 24, 48, 168], unit: 'ساعة', writeBy: 'SUPER', effect: 'new-sessions', effective: { value: 168, source: 'built-in default' } }),
 	item({ key: 'defaultLanguage', value: 'en', allowed: ['ar', 'en'], allowedLabels: { ar: 'العربية', en: 'English' }, version: 1, writeBy: 'SUPER', effective: { value: 'en', source: 'setting' } }),
@@ -69,7 +69,7 @@ describe('settings card: loading / failure / unset / set are four different thin
 		const inp = (k: string) => row(el, k).querySelector('input') as HTMLInputElement;
 		expect(inp('platformName').value).toBe('وسيط AI'); expect(inp('supportEmail').value).toBe('help@x.co'); expect(inp('supportPhone').value).toBe('+966 55 256 0392'); expect(inp('termsVersion').value).toBe('2026-07-21');
 		expect((row(el, 'termsContent').querySelector('textarea') as HTMLTextAreaElement).value).toBe(TERMS_DEFAULT_TEXT); expect((row(el, 'privacyContent').querySelector('textarea') as HTMLTextAreaElement).value).toBe(PRIVACY_DEFAULT_TEXT);
-		expect(row(el, 'registrationOpen').querySelector('[role=switch]')?.getAttribute('aria-checked')).toBe('true'); expect(row(el, 'maintenanceBannerEnabled').querySelector('[role=switch]')?.getAttribute('aria-checked')).toBe('false');
+		expect(row(el, 'registrationOpen').querySelector('[role=switch]')?.getAttribute('aria-checked')).toBe('true'); expect(row(el, 'maintenanceMode').querySelector('[role=switch]')?.getAttribute('aria-checked')).toBe('false');
 		expect(row(el, 'sessionMaxHours').textContent).toContain('168'); expect(row(el, 'defaultLanguage').textContent).toContain('English'); expect((inp('sessionIdleMinutes')).value).toBe('10');
 		expect(el.textContent).not.toContain('غير مضبوط'); expect(el.querySelector('[data-testid^="inuse-"]')).toBeNull();
 		expect(row(el, 'platformName').querySelector('[data-testid="desc-platformName"]')?.textContent?.trim()).toBe('يظهر في رسائل البريد الجديدة'); // ONE line: the first sentence

@@ -6,6 +6,7 @@ import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
+import { GeoSuggestionService } from '../../../../../shared/data/geo-suggestion';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { mapHttpError } from '../../../../../core/forms/http-error';
@@ -86,6 +87,12 @@ export class ProfileSetupDashboard implements OnInit {
 
 	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
 	readonly countryNames = COUNTRY_NAMES;
+	private readonly geo = inject(GeoSuggestionService);
+	/** the country/city were filled from an approximate network location (a hint the user can change); cleared as soon as the user edits either field */
+	readonly geoSuggested = signal(false);
+	private geoSuggest() {
+		const g = this.setupForm.get('details'); this.geo.suggestInto(g, () => { this.geoSuggested.set(true); const off = () => this.geoSuggested.set(false); g?.get('country')?.valueChanges.subscribe(off); g?.get('city')?.valueChanges.subscribe(off); });
+	}
 	readonly citiesOf = citiesOf;
 	readonly cityPlaceholder = cityPlaceholder;
 	readonly maxDobIso = maxDobIso();
@@ -139,6 +146,7 @@ export class ProfileSetupDashboard implements OnInit {
 						occupation: data.industry || '',
 						address: data.address || ''
 					});
+					this.geoSuggest(); // approximate hint for EMPTY country/city only
 
 					// Patch bank
 					this.setupForm.get('bank')?.patchValue({ paypalPayoutEmail: data.paypalPayoutEmail || '' });

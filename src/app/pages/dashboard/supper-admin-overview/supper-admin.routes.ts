@@ -1,3 +1,5 @@
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Route, Routes } from '@angular/router';
 import { adminAccessGuard } from '../../../core/guards/admin-access.guard';
 import { ruleForPath } from '../../../core/config/admin-access-rules';
@@ -244,11 +246,8 @@ const RAW_ROUTES: Routes = [
         loadComponent: () => import('./sa-my-account/sa-my-account').then(m => m.SaMyAccount),
         data: { title: 'حسابي وأمان الدخول' }
     },
-    {
-        path: 'super-admins',
-        loadComponent: () => import('./sa-super-admins/sa-super-admins').then(m => m.SaSuperAdmins),
-        data: { title: 'Super Admin' }
-    },
+    // The old «Super Admin» page is a tab of the unified «إعدادات النظام» now: old links and bookmarks land on its accounts tab instead of a 404.
+    { path: 'super-admins', pathMatch: 'full', redirectTo: () => inject(Router).parseUrl('/supper-admin-overview/system-settings?tab=admins') },
     // Keep old invoice bookmarks on the guarded canonical finance route.
     { path: 'invoices-out', pathMatch: 'full', redirectTo: 'sub-finance/invoices-out' },
     {
