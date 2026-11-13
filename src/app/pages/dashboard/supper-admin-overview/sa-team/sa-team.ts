@@ -35,6 +35,7 @@ export class SaTeam implements OnInit {
 		const d = this.data(); if (!d) return [];
 		return d.members.filter(m => (this.tab() === 'all' || this.tab() === 'pending' || m.role?.id === this.tab()));
 	});
+ leadership = computed(()=> (this.data()?.leadership??[]).filter(m=>(this.tab()==='all'||this.tab()==='leadership')&&!this.roleFilter()&&(!this.search()||m.name.toLowerCase().includes(this.search().toLowerCase()))&&(!this.statusFilter()||(this.statusFilter()==='ACTIVE'?(m.status==='ACTIVE'&&!m.isBanned):(m.status!=='ACTIVE'||m.isBanned)))));
 	counts = computed(() => this.data()?.counts);
 	workload = computed(() => {
 		const ms = this.data()?.members.filter(m => m.status === 'ACTIVE') ?? [];

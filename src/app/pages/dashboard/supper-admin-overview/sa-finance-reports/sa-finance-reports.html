@@ -2,10 +2,10 @@
   <div class="frp-hdr">
     <div>
       <h1 class="frp-ttl">التقارير المالية</h1>
-      <p class="frp-sub">من السجلات الفعلية — آخر 12 شهرًا — بالدولار الأمريكي ($)</p>
+      <p class="frp-sub">من السجلات الفعلية — الحركة الشهرية: آخر 12 شهرًا؛ المصروفات والأرباح: تراكمية — USD</p>
     </div>
     <div class="frp-hdr-actions">
-      <button type="button" class="frp-btn frp-btn-ghost" data-testid="frp-csv" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : 'تصدير CSV (العمولات)' }}</button>
+      <button type="button" class="frp-btn frp-btn-ghost" data-testid="frp-csv" [disabled]="exporting()" (click)="exportCsv()">{{ exporting() ? 'جارٍ التصدير…' : (activeTab()==='expenses'||activeTab()==='profit'?'تصدير CSV للسجلات':'تصدير CSV (العمولات)') }}</button>
       <button type="button" class="frp-btn frp-btn-ghost" data-testid="frp-print" [disabled]="loading() || !!error() || !overview()" (click)="print()">طباعة / حفظ PDF</button>
     </div>
   </div>
@@ -124,24 +124,7 @@
   }
 
   @if (activeTab() === 'expenses' || activeTab() === 'profit') {
-    <div class="frp-card" data-testid="frp-no-expenses">
-      <div class="frp-card-ttl">{{ activeTab() === 'expenses' ? 'المصروفات' : 'الأرباح' }}</div>
-      <p class="frp-sub">{{ noExpensesMsg }}</p>
-    </div>
-    <div class="frp-card" data-testid="frp-costs">
-      <div class="frp-card-ttl">أرقام فعلية متاحة</div>
-      <div class="frp-table-wrap">
-        <table class="frp-table">
-          <tbody>
-            <tr><td>مدفوعات صافية محرَّرة لمقدمي الخدمة</td><td class="strong">{{ usd(o.totals.providerNetReleased) }}</td></tr>
-            @for (a of affiliateRows(); track a.key) {
-              <tr><td>عمولات الوسطاء — {{ a.label }} ({{ a.count }})</td><td class="strong">{{ usd(a.amount) }}</td></tr>
-            }
-            <tr><td>رسوم بوابة الدفع (يتحمّلها المودِع — ليست مصروفًا على المنصة)</td><td class="strong">{{ usd(o.totals.paymentGatewayFees) }}</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <app-operating-finance [mode]="activeTab()==='expenses'?'expenses':'profit'" />
   }
   }
 

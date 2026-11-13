@@ -3,6 +3,7 @@ import { authGuard } from '../../core/guards/auth.guards';
 import { purchaseRoleGuard } from '../../core/guards/purchase-role.guard';
 
 export const WEBSITE_ROUTES: Routes = [
+ {path:'faq',loadComponent:()=>import('../../shared/published-content/faq-page.component').then(m=>m.FaqPageComponent)},
 	{
 		path: '',
 		loadComponent: () => import('./home/home.component').then(m => m.HomeComponent)

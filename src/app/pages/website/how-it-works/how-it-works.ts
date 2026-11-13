@@ -1,3 +1,4 @@
+import { PublishedContentComponent } from '../../../shared/published-content/published-content.component';
 import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -48,7 +49,7 @@ export const HIW_SYMBOL_IDS = ['hiw-broker', 'hiw-building', 'hiw-client', 'hiw-
 @Component({
   selector: 'app-how-it-works',
   standalone: true,
-  imports: [RouterLink],
+  imports: [PublishedContentComponent, RouterLink],
   templateUrl: './how-it-works.html',
   styleUrl: './how-it-works.css'
 })

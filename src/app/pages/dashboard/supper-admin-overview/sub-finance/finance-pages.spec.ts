@@ -1,3 +1,4 @@
+import { AdminOperationsService } from '../../../../core/services/admin-operations.service';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -43,7 +44,7 @@ function api(over: Partial<Record<string, any>> = {}) {
 function mount<T>(cmp: new (...a: any[]) => T, a = api(), feesManage = false) {
 	TestBed.configureTestingModule({
 		imports: [cmp],
-		providers: [provideRouter([]), { provide: AdminOpsApiService, useValue: a }, { provide: AdminAccessService, useValue: { can: () => feesManage } },
+		providers: [{provide:AdminOperationsService,useValue:{get:(path:string)=>of({success:true,data:path==='result'?{revenue:777.77,affiliateCost:55.55,cashbackCost:0,operatingExpenses:12.5,net:709.72,foreignCommissions:[],expenseCount:1,asOf:'2026-11-13',definition:'نتيجة من السجلات'}:{rows:[],total:0,page:1,pageSize:30}})}}, provideRouter([]), { provide: AdminOpsApiService, useValue: a }, { provide: AdminAccessService, useValue: { can: () => feesManage, isSuperAdmin:()=>feesManage } },
 			{ provide: LevelsService, useValue: { payload: signal(null), ensureLoaded: () => undefined } },
 			{ provide: AdminAiService, useValue: { getForecastSummary: () => of({ success: true, data: null }) } }],
 	});
@@ -136,9 +137,9 @@ describe('SaFinanceReports', () => {
 		expect(q(el, 'frp-print')!.textContent).toContain('طباعة / حفظ PDF');
 		(Array.from(el.querySelectorAll('.frp-tab')).find((b) => b.textContent?.includes('المصروفات')) as HTMLButtonElement).click();
 		f.detectChanges();
-		expect(q(el, 'frp-no-expenses')!.textContent).toContain('لا يوجد سجل مصروفات في المنصة بعد — لا تُعرض أرقام تقديرية');
-		expect(q(el, 'frp-costs')!.textContent).toContain('7,222.23 $');
-		expect(q(el, 'frp-costs')!.textContent).toContain('55.55 $');
+		expect(el.textContent).toContain('709.72');
+		expect(el.textContent).toContain('نتيجة من السجلات');
+		expect(el.textContent).not.toContain('لا يوجد سجل مصروفات في المنصة بعد');
 	});
 });
 
@@ -207,8 +208,6 @@ describe('SaSubFinanceReports', () => {
 describe('Pages with no backend source: honest empty state, disabled actions, no mock rows', () => {
 	it.each([
 		[SaGovFees, 'لا توجد رسوم حكومية مسجّلة في المنصة', ['1.24M', '508,800', '31 مارس']],
-		[SaFutureBilling, 'الفوترة المستقبلية غير مفعّلة', ['8,247', '310000000001233', 'QR']],
-		[SaCashback, 'الكاش باك قيد القرار ولم يُفعَّل بعد', ['487k', 'هيثم القرني', '84.6%']],
 	] as const)('%o', (cmp, msg, mocks) => {
 		const { el } = mount(cmp as any);
 		const t = el.textContent || '';

@@ -1,35 +1,13 @@
-import { TestBed } from '@angular/core/testing';
-import { describe, it, expect } from 'vitest';
-import { SaContent } from './sa-content';
-import { expectFieldProblem, expectFocused, settleForm } from '../../../../../shared/forms/form-spec-utils';
-
-describe('SaContent form', () => {
-	it('saving an empty page puts the message under the textarea and focuses it', async () => {
-		TestBed.configureTestingModule({ imports: [SaContent] });
-		const f = TestBed.createComponent(SaContent);
-		f.detectChanges();
-		const el = f.nativeElement as HTMLElement;
-		f.componentInstance.onContentChange('   ');
-		f.detectChanges();
-		(el.querySelector('[data-testid="cms-save-local"]') as HTMLButtonElement).click();
-		await settleForm();
-		const ta = el.querySelector('#sco-content');
-		expectFieldProblem(ta, 'فارغ');
-		expectFocused(ta);
-	});
-
-	it('is honest: states it is a LOCAL draft (not published, not saved on the server) and never claims publishing', () => {
-		TestBed.configureTestingModule({ imports: [SaContent] });
-		const f = TestBed.createComponent(SaContent);
-		f.detectChanges();
-		const el = f.nativeElement as HTMLElement;
-		const note = el.querySelector('[data-testid="cms-local-note"]')?.textContent ?? '';
-		expect(note).toContain('مسودة محلية');
-		expect(note).toContain('لا يُنشر');
-		expect(note).toContain('غير متصل');
-		expect(el.querySelector('[data-testid="cms-draft-state"]')?.textContent).toContain('غير منشورة');
-		expect(el.textContent).not.toContain('تُنشر فوراً');
-		expect(el.textContent).not.toContain('حفظ ونشر');
-		expect(el.querySelector('[data-testid="cms-save-local"]')?.textContent).toContain('مسودة محلية');
-	});
+import {TestBed} from '@angular/core/testing';
+import {provideRouter} from '@angular/router';
+import {of,throwError} from 'rxjs';
+import {describe,it,expect,vi,afterEach} from 'vitest';
+import {SaContent} from './sa-content';
+import {AdminOperationsService} from '../../../../../core/services/admin-operations.service';
+afterEach(()=>TestBed.resetTestingModule());
+const row={slug:'about',title:'من نحن',draft:'saved draft',published:'live body',version:3,publishedAt:'2026-11-13',updatedAt:'2026-11-13'};
+function mount(){const api={get:vi.fn(()=>of({success:true,data:[row]})),put:vi.fn(()=>of({success:true,data:{...row,version:4}}))};TestBed.configureTestingModule({imports:[SaContent],providers:[provideRouter([]),{provide:AdminOperationsService,useValue:api}]});const f=TestBed.createComponent(SaContent);f.detectChanges();return {f,c:f.componentInstance,api};}
+describe('server content publication',()=>{
+ it('keeps draft separate from publishing and requires reason and explicit confirmation',()=>{const {c,api}=mount();c.body='new body';c.save('PUBLISH');expect(api.put).not.toHaveBeenCalled();c.reason='correct wording';c.save('DRAFT');expect(api.put).toHaveBeenLastCalledWith('content/about',{body:'new body',version:3,action:'DRAFT',reason:'correct wording'});c.confirmed=true;c.save('PUBLISH');expect(api.put).toHaveBeenLastCalledWith('content/about',expect.objectContaining({action:'PUBLISH',version:4}));});
+ it('preserves unsaved edit when server reports a version conflict',()=>{const {c,api}=mount();api.put.mockReturnValue(throwError(()=>({error:{message:'تغيرت الصفحة'}})) as any);c.body='my unsaved edit';c.reason='fix';c.save('DRAFT');expect(c.error()).toBe('تغيرت الصفحة');expect(c.body).toBe('my unsaved edit');expect(c.selected()?.version).toBe(3);});
 });
