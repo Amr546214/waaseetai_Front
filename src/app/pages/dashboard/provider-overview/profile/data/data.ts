@@ -28,6 +28,7 @@ import { KycAccess, KycDocumentKey } from '../../../../../core/models/kyc-docume
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
+import { IdentityCheckService } from '../../../../../core/services/identity-check.service';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 
 /** Arabic names of the fields, used by the "what is missing" summary. */
@@ -144,6 +145,9 @@ export class Data implements OnInit {
 
   private host = inject(ElementRef<HTMLElement>);
   private ui = inject(UiNotificationService);
+  private identityCheck = inject(IdentityCheckService);
+  /** Neutral owner state of the automatic ID check: only «in review» or nothing, never a field result. */
+  identityInReview = signal(false);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
@@ -1384,6 +1388,7 @@ export class Data implements OnInit {
     this.completionLoaded.set(true);
     this.missingItems.set(Array.isArray(profile?.missingItems) ? profile.missingItems : []);
     if (profile?.identityVerification?.status) this.identityVerification.set(profile.identityVerification);
+    this.identityCheck.getMyState('PROVIDER').subscribe({ next: (st) => this.identityInReview.set(st === 'IN_REVIEW'), error: () => this.identityInReview.set(false) });
   }
 
   /** Re-reads only the completion (percentage + missing items) after a save that does not reload the forms. */

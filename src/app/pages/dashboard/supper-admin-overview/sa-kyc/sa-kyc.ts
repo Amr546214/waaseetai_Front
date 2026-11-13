@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { handleAdminError, reportAdminProblems } from '../shared/admin-form-report';
 import { UiNotificationService } from '../../../../core/services/ui-notification.service';
 import { SaKycService } from './sa-kyc.service';
+import { IdentityCheckPanel } from './identity-check-panel';
 import { KycDocumentLink } from '../../../../sheards/kyc-document-link/kyc-document-link';
 import {
   OnboardingRequest,
@@ -20,7 +21,7 @@ type Tab = 'clients' | 'providers';
 @Component({
   selector: 'app-sa-kyc',
   standalone: true,
-  imports: [CommonModule, KycDocumentLink],
+  imports: [CommonModule, KycDocumentLink, IdentityCheckPanel],
   templateUrl: './sa-kyc.html',
   styleUrls: ['./sa-kyc.css']
 })
