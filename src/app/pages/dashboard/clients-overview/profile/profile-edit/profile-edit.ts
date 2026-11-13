@@ -25,6 +25,7 @@ import { SkillsCatalogService } from '../../../../../core/services/skills-catalo
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { LegalNameFieldComponent } from '../../../../../shared/legal-name/legal-name-field.component';
 
 const PROFILE_LABELS: Record<string, string> = {
 	firstName: 'الاسم الأول',
@@ -41,7 +42,7 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent, LegalNameFieldComponent],
 	templateUrl: './profile-edit.html',
 	styleUrl: './profile-edit.css',
 })

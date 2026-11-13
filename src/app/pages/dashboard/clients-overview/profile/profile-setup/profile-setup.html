@@ -108,7 +108,8 @@
   </select>
   @if (documentError('idDocumentType'); as error) { <p id="identity-error-idDocumentType" class="text-sm text-red-400" role="alert">{{ error }}</p> }
 </div>
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2 md:col-span-2"><ws-legal-name-field /></div>
+							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">رقم الوثيقة
 									<span class="ws-req" aria-hidden="true">*</span></label>
 								<input type="text" formControlName="idNumber" [attr.aria-invalid]="documentError('idNumber') ? 'true' : null" [attr.aria-describedby]="documentError('idNumber') ? 'identity-error-idNumber' : null" aria-required="true" placeholder="الرقم كما هو مكتوب في الوثيقة" maxlength="40"

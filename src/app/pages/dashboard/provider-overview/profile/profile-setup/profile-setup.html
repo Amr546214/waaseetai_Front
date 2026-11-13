@@ -417,6 +417,7 @@
   </select>
   @if (documentError('idDocumentType'); as error) { <p id="identity-error-idDocumentType" class="text-sm text-red-400" role="alert">{{ error }}</p> }
 </div>
+<div class="flex flex-col gap-2"><ws-legal-name-field /></div>
 <div class="flex flex-col gap-2">
   <label for="identity-document-number">رقم الوثيقة</label>
   <input id="identity-document-number" formControlName="idNumber" [attr.aria-invalid]="documentError('idNumber') ? 'true' : null" [attr.aria-describedby]="documentError('idNumber') ? 'identity-error-idNumber' : null" maxlength="40" dir="ltr" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">

@@ -40,7 +40,7 @@ describe('provider setup wizard: identity review state', { timeout: 30000 }, () 
     fixture.detectChanges();
     component.currentStep.set(4); fixture.detectChanges();
   };
-  afterEach(() => { http.match(r => r.url.includes('/public/geo-suggestion')).forEach(r => r.flush({ success: true, data: { source: 'none' } })); http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } })); http.verify(); fixture.destroy(); });
+  afterEach(() => { http.match(r => r.url.includes('/legal-name')).forEach(r => r.flush({ success: true, data: { status: 'PROVIDED', legalName: 'اسم حقيقي كامل', changeNeedsReview: false, pendingRequest: null } })); http.match(r => r.url.includes('/public/geo-suggestion')).forEach(r => r.flush({ success: true, data: { source: 'none' } })); http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } })); http.verify(); fixture.destroy(); });
   const q = (s: string) => fixture.nativeElement.querySelector(s) as HTMLElement | null;
   const frontInput = () => q('input[aria-label="رفع صورة الهوية، وجه"]') as HTMLInputElement | null;
 

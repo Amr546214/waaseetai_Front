@@ -9,6 +9,7 @@ import { AuthStore } from '../../core/store/auth.store';
 import { ChatService } from '../../core/services/chat.service';
 import { environment } from '../../../environments/environment';
 import { HelpAssistantSocketService, HelpStreamEvent } from '../../core/services/help-assistant-socket.service';
+import { AssistantExamState } from '../../core/store/assistant-exam-state.service';
 
 // jsdom lacks these browser APIs; the real Bebo engine (public/bebo/robot.js)
 // needs them once the deferred assistant widget renders.
@@ -55,6 +56,25 @@ describe('DashboardLayout', () => {
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
+	});
+
+	it('exam mode: the test is a screen of its own (no topbar, no sidebar, no footer, no call window) and everything returns when it ends', () => {
+		const root = () => fixture.nativeElement as HTMLElement;
+		expect(root().querySelector('app-nav-dashboard')).not.toBeNull();
+		expect(root().querySelector('app-sidebar')).not.toBeNull();
+		TestBed.inject(AssistantExamState).setExamActive(true);
+		fixture.detectChanges();
+		expect(root().querySelector('.ws-dashboard-root')?.classList.contains('exam-mode')).toBe(true);
+		expect(root().querySelector('app-nav-dashboard')).toBeNull();
+		expect(root().querySelector('app-sidebar')).toBeNull();
+		expect(root().querySelector('.sidebar-wrapper')).toBeNull();
+		expect(root().querySelector('footer')).toBeNull();
+		expect(root().querySelector('app-video-call-modal')).toBeNull();
+		expect(root().querySelector('router-outlet')).not.toBeNull(); // the exam page itself stays
+		TestBed.inject(AssistantExamState).setExamActive(false);
+		fixture.detectChanges();
+		expect(root().querySelector('app-nav-dashboard')).not.toBeNull();
+		expect(root().querySelector('app-sidebar')).not.toBeNull();
 	});
 
 	it('N2: while a stale-role redirect is loading the routed (wrong-role) page is hidden and a status note says the right dashboard is opening', () => {

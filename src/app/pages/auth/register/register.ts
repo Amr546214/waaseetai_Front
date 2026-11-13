@@ -25,10 +25,12 @@ import { matchFieldsValidator, strongPasswordValidator } from '../../../core/for
 import { backendPhoneValidator, phoneDigits } from '../../../core/forms/phone.validator';
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
 import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
+import { cleanLegalName, legalNameValidator } from '../../../core/validators/legal-name.validator';
 
 /** The register payload names some fields differently from the form controls. */
 const REGISTER_SERVER_FIELD_ALIASES: Record<string, string> = { phoneNumber: 'phone', phoneCountryCode: 'phone', agreedToTerms: 'agreeTerms', confirmPassword: 'confirmPassword' };
 const REGISTER_LABELS: Record<string, string> = {
+	legalName: 'الاسم الحقيقي',
 	firstName: 'الاسم الأول',
 	lastName: 'اسم العائلة',
 	email: 'البريد الإلكتروني',
@@ -229,6 +231,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		this.basicInfoForm = this.fb.group({
 			// Same rules as the backend registerSchema (auth.schema.ts): names 2+ chars, password 8+ with an
 			// uppercase letter and a digit, phone digits only and at least 9.
+			// the REAL name (as on the identity document): compared with the document and never shown to others; the first/last name below is the display name
+			legalName: ['', [Validators.required, legalNameValidator]],
 			firstName: ['', [Validators.required, Validators.minLength(2)]],
 			lastName: ['', [Validators.required, Validators.minLength(2)]],
 			email: ['', [Validators.required, Validators.email]],
@@ -485,6 +489,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		const val = this.basicInfoForm.value;
 		const payload = {
 			accountType: this.accountTypeMap[this.selectedAccountType],
+			legalName: cleanLegalName(val.legalName),
 			firstName: val.firstName,
 			lastName: val.lastName,
 			email: val.email,
@@ -560,6 +565,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		const val = this.basicInfoForm.value;
 		return {
 			accountType: this.accountTypeMap[this.selectedAccountType],
+			legalName: cleanLegalName(val.legalName),
 			firstName: val.firstName,
 			lastName: val.lastName,
 			email: String(val.email ?? '').trim(),

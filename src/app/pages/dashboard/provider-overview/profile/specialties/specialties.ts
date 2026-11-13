@@ -17,6 +17,9 @@ import { ACCREDITATION_NEW_PAGE, type RegisteredSpecialty, type SpecialtyApprova
 import { SPECIALTY_TEST_PASS_SCORE, SPECIALTY_TEST_QUESTION_COUNT, SPECIALTY_TEST_TIME_LIMIT_MINUTES, SpecialtyTestComponent, type SpecialtyTestPhase, type SpecialtyTestQuestion, type SpecialtyTestResult } from '../../../../../shared/specialty-test/specialty-test.component';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { AntiCheatService } from '../../../../../core/services/anti-cheat.service';
+import { ExamEnvironmentService } from '../../../../../core/services/exam-environment.service';
+import { ExamIntegrityService } from '../../../../../core/services/exam-integrity.service';
+import { ExamEnvironmentInstructionsComponent } from '../../../../../shared/exam-environment/exam-environment-instructions.component';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 
 export interface Specialty {
@@ -123,7 +126,7 @@ export interface PortfolioReview {
 @Component({
 	selector: 'app-profile-specialties',
 	standalone: true,
-	imports: [CommonModule, FormsModule, SpecialtyStatusComponent, SpecialtyTestComponent],
+	imports: [CommonModule, FormsModule, SpecialtyStatusComponent, SpecialtyTestComponent, ExamEnvironmentInstructionsComponent],
 	templateUrl: './specialties.html',
 	styleUrls: ['./specialties.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush
@@ -135,6 +138,8 @@ export class Specialties implements OnInit, OnDestroy {
 
 	constructor() {
 		effect(() => {
+			// on a reload the marker keeps exam mode on until the SERVER has said whether an attempt is live (no flash of the normal page)
+			if (this.assistantStore.resolving()) return;
 			this.assistantStore.setExamActive(this.currentStep() === 4);
 		});
 	}
@@ -158,6 +163,12 @@ export class Specialties implements OnInit, OnDestroy {
 	/** Every registered specialty with its real approval state (test vs samples vs admin decision), shown at the top of step 1. */
 	registeredSpecialties = signal<(RegisteredSpecialty & SpecialtyApprovalInfo)[]>([]);
 	public antiCheatService = inject(AntiCheatService);
+	readonly examEnv = inject(ExamEnvironmentService);
+	private readonly integrity = inject(ExamIntegrityService);
+	/** The server runs the restricted exam mode and this browser is not a verified Safe Exam Browser: the instructions replace the start of the test. */
+	readonly showExamInstructions = signal(false);
+	private draftTimer: ReturnType<typeof setTimeout> | null = null;
+	private draftDirty = false;
 	public confirmModal = inject(ConfirmModalService);
 	private platformId = inject(PLATFORM_ID);
 	/**
@@ -313,6 +324,8 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
+		this.examEnv.load(env => this.antiCheatService.restricted.set(env?.restricted === true));
+		this.resumeLiveAttempt();
 		this.loadRecommendation();
 		this.providerApi.getPassedSpecialties().subscribe({
 			next: (res: any) => this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []),
@@ -349,6 +362,8 @@ export class Specialties implements OnInit, OnDestroy {
 		this.antiCheatService.assessmentReady$.subscribe((ready) => {
 			if (ready && ready.attemptId) {
 				this.quizSessionId.set(ready.attemptId);
+				this.integrity.start(ready.attemptId);
+				this.syncServerClock(ready.attemptId);
 			}
 			if (ready && typeof ready.totalQuestions === 'number' && ready.totalQuestions > 0) this.expectedQuestions.set(ready.totalQuestions);
 			this.generationInProgress.set(false);
@@ -746,13 +761,14 @@ export class Specialties implements OnInit, OnDestroy {
 		if (this.currentStep() === 4 && this.antiCheatService.isMonitoring()) {
 			const confirmLeave = await this.confirmModal.confirm({
 				title: '⚠️ مغادرة الاختبار الجاري',
-				message: 'مغادرة شاشة الاختبار الآن ستؤدي لفقدان تقدمك في هذه المحاولة.\n\nهل أنت متأكد من العودة؟',
+				message: 'مغادرة شاشة الاختبار لا تُنهي المحاولة: إجاباتك محفوظة ويستمر الوقت بالعدّ، ويمكنك العودة قبل انتهائه. تُسجَّل المغادرة كحدث للمراجعة.\n\nهل أنت متأكد من المغادرة؟',
 				type: 'danger',
 				confirmText: 'نعم، مغادرة الاختبار',
 				cancelText: 'البقاء ومتابعة الاختبار'
 			});
 			if (!confirmLeave) return;
 
+			this.integrity.log('LEFT_EXAM_MODE');
 			this.antiCheatService.stopMonitoring();
 			this.stopTimer();
 				this.isQuizActive.set(false);
@@ -1106,7 +1122,7 @@ export class Specialties implements OnInit, OnDestroy {
 	declarations = signal<{ id: number, text: string, checked: boolean }[]>([
 		{ id: 1, text: 'أقر بأن جميع نماذج أعمالي المرفوعة صحيحة وتتطابق مع خبرتي الفعلية وهي من إنتاجي', checked: false },
 		{ id: 2, text: 'أوافق على شروط المراجعة وأدرك أن اجتياز الاختبار شرط لمراجعة تخصصي، وأن اعتماد التخصص ومنح الشارة يتمّان بعد قرار الإدارة', checked: false },
-		{ id: 3, text: 'أتعهد بالالتزام التام بضمانات مكافحة الغش وأعلم أن مغادرة المتصفح ستتسبب ببطول النتيجة وقفل الاختبار لـ 24 ساعة', checked: false }
+		{ id: 3, text: 'أتعهد بالالتزام التام بضمانات مكافحة الغش وأعلم أن مغادرة صفحة الاختبار تُسجَّل كحدث يراجعه فريق المراجعة، وأن الوقت المخصص يستمر بالعدّ حتى لو غادرت', checked: false }
 	]);
 
 	toggleDeclaration(id: number) {
@@ -1191,6 +1207,9 @@ export class Specialties implements OnInit, OnDestroy {
 		if (this.isSubmittingQuiz() || (this.isQuizActive() && !this.quizGenerationError())) return;
 		const specId = this.providerSpecialtyId();
 		if (!specId) { this.setQuizError(SPECIALTY_ID_MISSING_MESSAGE); return; }
+		// Restricted exam mode (the server requires Safe Exam Browser): nothing starts, and no question is requested, from a browser the server has not verified
+		if (this.examEnv.restricted() && !this.examEnv.satisfied()) { this.showExamInstructions.set(true); return; }
+		this.showExamInstructions.set(false);
 		this.isQuizActive.set(true);
 		this.quizGenerationError.set(null);
 		this.quizErrorRetryable.set(true);
@@ -1212,7 +1231,7 @@ export class Specialties implements OnInit, OnDestroy {
 		const activeSubs = this.activeSubSpecialties();
 		const selSpec = this.filteredSpecialties().find(s => s.id === this.selectedSpecId());
 
-		// 1. Primary: Start Real-Time WebSocket Question Stream over /assessments
+		// 1. Primary: Start Real-Time WebSocket Question Stream over /assessments (the restricted mode uses the verified HTTP routes only: startAssessmentStream is a no-op there)
 		this.antiCheatService.startAssessmentStream({
 			providerSpecialtyId: specId,
 			specialtyId: this.selectedSpecId() || 'tech',
@@ -1256,7 +1275,7 @@ export class Specialties implements OnInit, OnDestroy {
 					}
 				});
 			}
-		}, 15000);
+		}, this.antiCheatService.restricted() ? 0 : 15000);
 
 		this.currentStep.set(4);
 	}
@@ -1267,7 +1286,59 @@ export class Specialties implements OnInit, OnDestroy {
 		this.initiateDynamicQuiz();
 	}
 
-	private setupQuizSession(sessionId: string, questions: QuizQuestion[], remainingSec: number, isStreaming = false) {
+	/**
+	 * Reload / direct entry / reconnect: asks the SERVER for the live attempt (key-less questions, saved answers, the server's remaining time) and goes straight back into the test.
+	 * Nothing here starts a new attempt or a loader: a failed check changes nothing on the page.
+	 */
+	private resumeLiveAttempt() {
+		if (!this.isBrowser) { this.assistantStore.resolved(); return; }
+		this.specialtyService.getActiveAttempt().subscribe({
+			next: (res: any) => {
+				const a = res?.data;
+				if (this.isQuizActive() || !a || a.expired || !Array.isArray(a.questions) || a.questions.length === 0) {
+					if (!this.isQuizActive()) this.assistantStore.setExamActive(false);
+					this.assistantStore.resolved();
+					return;
+				}
+				const questions: QuizQuestion[] = a.questions.map((q: any) => ({ id: String(q.id), subSpecialtyTag: q.difficulty || q.assessmentArea || 'تقييم ذكي', text: q.textAr || q.text || '', options: q.options || [] }));
+				this.providerSpecialtyId.set(a.providerSpecialtyId ?? this.providerSpecialtyId());
+				this.currentStep.set(4);
+				this.setupQuizSession(a.attemptId, questions, Math.max(1, Number(a.remainingSeconds) || 0), false, true);
+				this.userAnswers.set(a.answers && typeof a.answers === 'object' ? { ...a.answers } : {});
+				this.expectedQuestions.set(questions.length);
+				this.assistantStore.resolved();
+			},
+			error: () => { this.assistantStore.resolved(); }
+		});
+	}
+
+	/** «I opened it from Safe Exam Browser»: ask the server again; when this browser is now verified the test starts. */
+	recheckExamEnvironment() {
+		this.examEnv.load(env => {
+			this.antiCheatService.restricted.set(env?.restricted === true);
+			if (this.examEnv.satisfied()) { this.showExamInstructions.set(false); this.initiateDynamicQuiz(); }
+		});
+	}
+
+	/** The server's clock is the clock: after an attempt is known the displayed time follows the server's remaining seconds (a refresh never gives extra time). */
+	private syncServerClock(attemptId: string) {
+		this.specialtyService.getActiveAttempt().subscribe({ next: (r: any) => { const a = r?.data; if (a && a.attemptId === attemptId && typeof a.remainingSeconds === 'number' && this.isQuizActive()) this.timerRemainingSec.set(Math.max(0, a.remainingSeconds)); }, error: () => undefined });
+	}
+
+	/** Silent autosave (debounced): answers survive a lost connection or a reload; a failed save is retried on the next change or when the connection returns. */
+	private scheduleDraftSave() {
+		this.draftDirty = true;
+		if (this.draftTimer) return;
+		this.draftTimer = setTimeout(() => { this.draftTimer = null; this.flushDraft(); }, 1500);
+	}
+	private flushDraft() {
+		const id = this.quizSessionId();
+		if (!id || !this.draftDirty || !this.isQuizActive()) return;
+		this.draftDirty = false;
+		this.specialtyService.saveAttemptAnswers(id, this.userAnswers()).subscribe({ error: () => { this.draftDirty = true; } });
+	}
+
+	private setupQuizSession(sessionId: string, questions: QuizQuestion[], remainingSec: number, isStreaming = false, reloaded = false) {
 		this.quizSessionId.set(sessionId);
 		this.currentQuestionIdx.set(0);
 		this.userAnswers.set({});
@@ -1287,6 +1358,8 @@ export class Specialties implements OnInit, OnDestroy {
 
 		// Establish the assessment socket transport for this attempt
 		this.antiCheatService.startMonitoring();
+		this.integrity.start(sessionId, reloaded);
+		if (!reloaded) this.syncServerClock(sessionId);
 
 		if (questions.length > 0) {
 			this.startTimerOnceQuestionsAreVisible();
@@ -1360,6 +1433,7 @@ export class Specialties implements OnInit, OnDestroy {
 			...answers,
 			[String(questionId)]: String(optionChoice)
 		}));
+		this.scheduleDraftSave();
 	}
 
 	getSelectedOptionForCurrent(): string | null {
@@ -1608,6 +1682,8 @@ export class Specialties implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this.assistantStore.setExamActive(false);
+		this.integrity.stop();
+		if (this.draftTimer) clearTimeout(this.draftTimer);
 		this.stopTimer();
 		this.clearSubmissionWatchers();
 		this.antiCheatService.stopMonitoring();

@@ -1,5 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
+import { SKIP_RATE_LIMIT_TOAST } from '../interceptors/rate-limit.interceptor';
+import { SKIP_GET_CACHE } from '../interceptors/get-cache.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -70,5 +73,25 @@ export class SpecialtyService {
 
 	getAiAssessmentStatus(attemptId: string): Observable<any> {
 		return this.http.get(`${this.apiUrl}/assessments/${attemptId}/status`);
+	}
+
+	/** Background calls of a live test (state, autosave, events): never the global loader, never a rate-limit toast, never cached. */
+	private readonly silent = () => new HttpContext().set(SKIP_LOADING, true).set(SKIP_RATE_LIMIT_TOAST, true).set(SKIP_GET_CACHE, true);
+
+	/** Which exam mode the server runs and whether this browser is a verified Safe Exam Browser (restricted mode). */
+	getExamEnvironment(): Observable<any> {
+		return this.http.get(`${this.apiUrl}/assessments/exam-environment`, { context: this.silent() });
+	}
+	/** The signed-in provider's live attempt (key-less questions, saved answers, SERVER remaining time) after a reload / reconnect; data = null when none. */
+	getActiveAttempt(): Observable<any> {
+		return this.http.get(`${this.apiUrl}/assessments/active`, { context: this.silent() });
+	}
+	/** Silent autosave of the answers so far. */
+	saveAttemptAnswers(attemptId: string, answers: Record<string, string>): Observable<any> {
+		return this.http.put(`${this.apiUrl}/assessments/${attemptId}/answers`, { answers }, { context: this.silent() });
+	}
+	/** A page / exam-mode event for the reviewers (information only). */
+	logAttemptEvent(attemptId: string, type: string): Observable<any> {
+		return this.http.post(`${this.apiUrl}/assessments/${attemptId}/events`, { type }, { context: this.silent() });
 	}
 }

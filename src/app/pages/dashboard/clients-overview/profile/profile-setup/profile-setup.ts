@@ -23,6 +23,7 @@ import { KycAccess } from '../../../../../core/models/kyc-document.model';
 import { IdentityGateService, identityRefusalMessage, isIdentityNotApproved } from '../../../../../core/services/identity-gate.service';
 import { IdentityGateStatusComponent } from '../../../../../shared/identity-gate/identity-gate-status.component';
 import { CLIENT_EDIT_PAGE, SETUP_REDIRECT_MESSAGE, resolveClientSetup } from './profile-setup-state';
+import { LegalNameFieldComponent } from '../../../../../shared/legal-name/legal-name-field.component';
 
 const SETUP_LABELS: Record<string, string> = {
 	idNumber: 'رقم الهوية الوطنية',
@@ -53,7 +54,7 @@ const FILE_RULES: Record<string, { maxBytes: number; mimeTypes: string[]; typesL
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, IdentityGateStatusComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, IdentityGateStatusComponent, LegalNameFieldComponent],
 	providers: [IdentityGateService],
 	templateUrl: './profile-setup.html'
 })

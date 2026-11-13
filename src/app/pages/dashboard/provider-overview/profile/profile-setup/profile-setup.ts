@@ -39,6 +39,7 @@ import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSet
 import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../core/services/provider-access.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, isEmailDisabledError } from '../../../../../core/services/notification-preferences.service';
+import { LegalNameFieldComponent } from '../../../../../shared/legal-name/legal-name-field.component';
 
 const SETUP_LABELS: Record<string, string> = {
 	jobTitle: 'المسمى الوظيفي',
@@ -85,7 +86,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent, IdentityGateStatusComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent, IdentityGateStatusComponent, LegalNameFieldComponent],
 	providers: [IdentityGateService],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']

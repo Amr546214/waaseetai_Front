@@ -36,7 +36,7 @@ describe('provider setup AI suggestions', () => {
   });
   afterEach(() => {
     // choosing a main specialty asks the backend for that field's skills catalog: answer it so verify() only catches unexpected calls
-    http.match(r => r.url.includes('/public/geo-suggestion')).forEach(r => r.flush({ success: true, data: { source: 'none' } })); // the approximate-location hint for empty country/city
+    http.match(r => r.url.includes('/legal-name')).forEach(r => r.flush({ success: true, data: { status: 'PROVIDED', legalName: 'اسم حقيقي كامل', changeNeedsReview: false, pendingRequest: null } })); http.match(r => r.url.includes('/public/geo-suggestion')).forEach(r => r.flush({ success: true, data: { source: 'none' } })); // the approximate-location hint for empty country/city
     http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } }));
     http.verify(); fixture.destroy();
   });

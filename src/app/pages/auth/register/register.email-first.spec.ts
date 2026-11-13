@@ -13,7 +13,7 @@ import { AuthStore } from '../../../core/store/auth.store';
 class BlankTestComponent {}
 
 const PASSWORD = 'Aa1!aaaaaa';
-const FORM = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: PASSWORD, confirmPassword: PASSWORD, phone: { dialCode: '+20', number: '01000000001' }, agreeData: true, agreeTerms: true };
+const FORM = { legalName: 'Sara Ahmed Ali', firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: PASSWORD, confirmPassword: PASSWORD, phone: { dialCode: '+20', number: '01000000001' }, agreeData: true, agreeTerms: true };
 const CONFLICT = () => throwError(() => ({ status: 409, error: { success: false, code: 'REGISTRATION_DATA_UNAVAILABLE', message: 'تعذّر إنشاء حساب بهذه البيانات لأن البريد الإلكتروني أو رقم الجوال مرتبط بحساب قائم. صحّح البيانات، أو سجّل الدخول، أو استعد كلمة المرور، أو تواصل مع الدعم' } }));
 
 function mount(onPost: (url: string, body: any) => any) {
@@ -51,6 +51,9 @@ describe('Register (e-mail-first): proof before account', () => {
 		expect(JSON.stringify(start[1])).not.toContain(PASSWORD);
 		expect(start[1].phoneNumber).toBe('01000000001');
 		expect(start[1].password).toBeUndefined();
+		// the legal name travels on its own, separate from the display name (first / last name)
+		expect(start[1].legalName).toBe('Sara Ahmed Ali');
+		expect(start[1].firstName).toBe('Sara');
 		type(m.c); m.c.onVerificationSubmit();
 		const done = calls(m.post, /register\/complete$/)[0];
 		expect(done[1]).toEqual(expect.objectContaining({ password: PASSWORD, ticket: 'T', code: '123456' }));
@@ -144,5 +147,19 @@ describe('Register (e-mail-first): proof before account', () => {
 		expect(m.c.registerWait().active()).toBe(true);
 		expect(m.c.completesWithHeldCode).toBe(true);
 		expect((m.el.querySelector('#btn-next') as HTMLButtonElement).disabled).toBe(false);
+	});
+});
+
+describe('Register: the legal name is required and validated apart from the display name', () => {
+	it('the form is invalid without a legal name, with one word or digits, and valid with a normal two-part name', () => {
+		const m = mount(() => of({ success: true, data: { emailSent: true, ticket: 'T' } }));
+		const ctl = m.c.basicInfoForm.get('legalName')!;
+		ctl.setValue(''); expect(ctl.hasError('required')).toBe(true);
+		ctl.setValue('عمرو'); expect(ctl.valid).toBe(false);
+		ctl.setValue('عمرو 2'); expect(ctl.valid).toBe(false);
+		ctl.setValue('عمرو محمود'); expect(ctl.valid).toBe(true);
+		// a display name that differs from the legal name is normal
+		m.c.basicInfoForm.patchValue({ firstName: 'عمرو', lastName: 'م.' });
+		expect(m.c.basicInfoForm.get('firstName')?.value).toBe('عمرو');
 	});
 });
