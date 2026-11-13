@@ -1,19 +1,9 @@
-<section class="fcb-page" dir="rtl">
-  <div class="fcb-hdr">
-    <div>
-      <h1 class="fcb-ttl">إدارة الكاش باك</h1>
-      <p class="fcb-sub">لا يوجد سجل توزيعات كاش باك</p>
-    </div>
-    <div class="fcb-actions">
-      <button type="button" class="fcb-btn fcb-btn-ghost" disabled [attr.title]="emptyReason">تصدير</button>
-      <button type="button" class="fcb-btn fcb-btn-ghost" disabled [attr.title]="emptyReason">توزيع دفعة</button>
-    </div>
-  </div>
-
-  <div class="ws-note ws-note--neutral" role="status" data-testid="sf-empty">
-    <div class="ws-note-body">
-      <div class="ws-note-lbl">{{ emptyTitle }}</div>
-      <p class="ws-note-txt" data-testid="sf-empty-reason">{{ emptyReason }}</p>
-    </div>
-  </div>
+<section class="ops">
+<header><div><h1>إدارة الكاش باك</h1><p>استحقاقات التسليم وفق نسب ومعادلة XLSX المعتمدة.</p></div><button (click)="load()" [disabled]="busy()">تحديث</button></header>
+@if(error()){<p class="error" role="alert">{{error()}}</p>}@if(busy()){<p role="status">جارٍ تحميل أو معالجة البيانات…</p>}
+@if(data();as d){
+<div class="panel"><h2>{{ d.gate ? 'التفعيل على الخادم مطلوب' : 'محرك الكاش باك مفعّل' }}</h2><p>{{d.policy}}</p>@if(d.gate){<p class="error">لم يُفعّل إعداد الخادم: {{d.gate}}. يمكن تسجيل درجة السداد الآن، ويُعالج الاستحقاق بعد تفعيل المحرك.</p>}<p>المستوى يثبت عند إكمال المشروع. معامل التقييم: 1.2 من 4.8، و1 من 4، و0.8 دون ذلك. درجة السداد من 80 تضرب الناتج في 1.1، ودون 80 في 1.</p></div>
+@if(selected();as row){<form class="panel" (ngSubmit)="save()"><h2>اعتماد درجة السداد للعقد</h2><p class="muted">{{row.contractId}}</p><div class="fields"><label>درجة السداد المسجلة / 100 *<input type="number" min="0" max="100" step="0.01" name="score" [(ngModel)]="score" required></label><label>سبب الدرجة ومرجع المراجعة *<input name="reason" [(ngModel)]="reason" maxlength="500" required></label></div><label class="check"><input type="checkbox" name="confirmed" [(ngModel)]="confirmed">أؤكد صحة الدرجة؛ عند توفر تقييم حقيقي سيضاف المبلغ للمحفظة فورًا.</label><div class="actions"><button class="primary" [disabled]="busy()||!confirmed||score==null||score<0||score>100||!reason.trim()">اعتماد الدرجة</button><button type="button" [disabled]="busy()" (click)="selected.set(null)">إغلاق</button></div></form>}
+<div class="panel"><h2>استحقاقات معلقة — {{d.total}}</h2><div class="table-wrap"><table><thead><tr><th>العقد</th><th>حجم مؤهل</th><th>المستوى / النسبة</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody>@for(r of d.pending;track r.id){<tr><td><a [routerLink]="['/supper-admin-overview/contracts',r.contractId]">{{r.contractId}}</a></td><td>{{r.eligibleValue|number:'1.2-2'}} USD</td><td>{{r.level}} / {{r.ratePercent}}%</td><td>{{state(r.status)}}</td><td>@if(access.isSuperAdmin()){<button (click)="edit(r)" [disabled]="busy()">تسجيل / مراجعة الدرجة</button>}@else{مراجعة Super Admin مطلوبة}</td></tr>}@empty{<tr><td colspan="5">لا توجد استحقاقات معلقة في هذه الصفحة.</td></tr>}</tbody></table></div></div>
+<div class="panel"><h2>مبالغ أُضيفت للمحافظ</h2><div class="table-wrap"><table><thead><tr><th>العقد</th><th>المبلغ</th><th>التقييم</th><th>درجة السداد</th><th>التاريخ</th></tr></thead><tbody>@for(r of d.entries;track r.id){<tr><td>{{r.contractId}}</td><td>{{r.amount|number:'1.2-2'}} USD</td><td>{{r.ratingInput}}</td><td>{{r.paymentInput}}</td><td>{{r.createdAt|date:'yyyy/MM/dd HH:mm'}}</td></tr>}@empty{<tr><td colspan="5">لا توجد إضافات مسجلة في هذه الصفحة.</td></tr>}</tbody></table></div><div class="paging"><button [disabled]="busy()||page===1" (click)="turn(-1)">السابق</button><span>صفحة {{page}}</span><button [disabled]="busy()||(d.pending.length<30&&d.entries.length<30)" (click)="turn(1)">التالي</button></div></div>}
 </section>

@@ -1,3 +1,4 @@
+import { PublishedContentComponent } from '../../../shared/published-content/published-content.component';
 import { Component, ElementRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -8,7 +9,7 @@ import { FieldProblem, reportProblems } from '../../../shared/forms/form-error-f
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [PublishedContentComponent, CommonModule, RouterLink, FormsModule],
   templateUrl: './contact.html',
   styleUrl: './contact.css'
 })
