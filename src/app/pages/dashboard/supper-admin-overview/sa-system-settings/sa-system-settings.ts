@@ -16,7 +16,6 @@ import { SettingsHealthComponent } from './settings-health.component';
 type Tab = 'general' | 'ai' | 'notifications' | 'security' | 'finance' | 'regional' | 'health' | 'admins' | 'integrations' | 'audit' | 'danger';
 const TABS: readonly Tab[] = ['general', 'ai', 'notifications', 'security', 'finance', 'regional', 'health', 'admins', 'integrations', 'audit', 'danger'];
 export const NO_PANEL_ACCESS = 'يلزم امتلاك صلاحية Super Admin للوصول إلى إعدادات النظام وتعديلها';
-export const OFFICIAL_ONLY = 'لوحة الإعدادات التشغيلية متاحة على الموقع الرسمي فقط.';
 
 /**
  * P-AD-020 «إعدادات النظام». Every row comes from the server's settings registry (one source shared with «Super Admin»): what is enforced is editable and saved with a version check and an audit entry,
@@ -37,7 +36,7 @@ export class SaSystemSettings implements OnInit {
 	readonly appVersion = environment.appVersion;
 	readonly panel = inject(OperationsPanelService);
 	private readonly route = inject(ActivatedRoute);
-	readonly noAccess = NO_PANEL_ACCESS; readonly officialOnly = OFFICIAL_ONLY;
+	readonly noAccess = NO_PANEL_ACCESS;
 	private changelog = viewChild(SettingsChangelogComponent);
 
 	/** the icons are the reference's own symbols (P-AD-020 #i-settings / #i-ai / #i-bell / #i-shield / #i-wallet / #i-globe / #i-check) flattened to one path each */

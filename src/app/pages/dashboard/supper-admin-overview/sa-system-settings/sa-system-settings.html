@@ -11,7 +11,7 @@
   } @else if (!panel.state()) {
     <div class="ss-card" role="status" data-testid="panel-checking">جارٍ التحقق من الصلاحية…</div>
   } @else if (!panel.available()) {
-    <div class="ss-card ss-err" role="alert" data-testid="panel-denied">{{ panel.reason() === 'official' ? officialOnly : noAccess }}</div>
+    <div class="ss-card ss-err" role="alert" data-testid="panel-denied">{{ noAccess }}</div>
   } @else {
   @if (!store.storageReady()) {
     <div class="ss-note" role="status" data-testid="settings-storage-pending" style="border-color:rgba(255,140,105,.4)">مخزن الإعدادات غير جاهز على الخادم بعد: تُعرض القيم الافتراضية ولا يمكن الحفظ حتى يُهيَّأ.</div>
