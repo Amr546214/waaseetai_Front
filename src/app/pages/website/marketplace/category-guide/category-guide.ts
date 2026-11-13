@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, OnInit, AfterViewInit, OnDestroy, PLATFORM_ID, inject, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
@@ -20,6 +22,7 @@ interface CategoryPalette {
 	encapsulation: ViewEncapsulation.None
 })
 export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	private marketplaceService = inject(MarketplaceService);
 	private router = inject(Router);
 	private platformId = inject(PLATFORM_ID);
@@ -170,7 +173,7 @@ export class CategoryGuide implements OnInit, AfterViewInit, OnDestroy {
 
 	loadCategories() {
 		this.isLoading.set(true);
-		this.marketplaceService.getCategories().subscribe({
+		this.marketplaceService.getCategories().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
 			next: (res) => {
 				const cats = res?.data?.categories || [];
 				this.categories.set(cats);

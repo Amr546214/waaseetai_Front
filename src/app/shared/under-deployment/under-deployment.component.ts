@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { AuthStore } from '../../core/store/auth.store';
+import { rememberReturnUrl } from '../../core/routing/return-url';
 import { Router } from '@angular/router';
 import { PlatformInfoService } from '../../core/services/platform-info.service';
 
@@ -39,5 +41,13 @@ import { PlatformInfoService } from '../../core/services/platform-info.service';
 export class UnderDeploymentComponent {
 	readonly info = inject(PlatformInfoService);
 	private readonly router = inject(Router);
-	adminEntry() { void this.router.navigate(['/auth/login']); }
+	private readonly auth = inject(AuthStore);
+  adminEntry() {
+    const target = '/supper-admin-overview/system-settings';
+    if (String(this.auth.currentUser()?.accountType) === 'SUPER_ADMIN') { void this.router.navigateByUrl(target); return; }
+    // A client session must not let guestGuard bounce the administrator back to the maintenance page.
+    this.auth.clearSession();
+    rememberReturnUrl(target);
+    void this.router.navigate(['/auth/login'], { queryParams: { returnUrl: target, maintenanceAdmin: '1' } });
+  }
 }

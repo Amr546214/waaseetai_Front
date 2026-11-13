@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, computed, effect, untracked, signal, OnDestroy, OnInit, inject, PLATFORM_ID, ViewEncapsulation, ElementRef } from '@angular/core';
 import { canRewrite, checkRewriteOutput, REWRITE_INPUT_REQUIRED_MESSAGE } from './description-rewrite-guard';
 import { parseDescriptionRewrite, REWRITE_PREVIEW_MAX_CHARS } from './description-rewrite-options';
@@ -145,6 +147,7 @@ interface CreateRequestDraftV1 {
   encapsulation: ViewEncapsulation.None
 })
 export class CreateRequest implements OnInit, OnDestroy {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
   private socket?: Socket;
   private notify = inject(UiNotificationService);
   private specialtyService = inject(SpecialtyService);
@@ -194,7 +197,7 @@ export class CreateRequest implements OnInit, OnDestroy {
     this.skillsCatalogError.set('');
     if (!key) { this.skillOptions.set([]); this.skillsLoading.set(false); return; }
     this.skillsLoading.set(true);
-    this.skillsCatalog.getCatalog(key).subscribe({
+    this.skillsCatalog.getCatalog(key).pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
       next: res => {
         if (key !== this.skillsKey) return;
         this.skillOptions.set(res?.success ? (res.data?.skills ?? []) : []);
@@ -666,7 +669,7 @@ export class CreateRequest implements OnInit, OnDestroy {
   }
 
   private fallbackLoadSpecialties(): void {
-    this.specialtyService.getCategories().subscribe({
+    this.specialtyService.getCategories().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
       next: (res: any) => {
         const catList = res && res.success && Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : []);
         if (catList.length > 0) {

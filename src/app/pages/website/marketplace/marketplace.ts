@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, HostListener, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -33,6 +35,7 @@ interface FilterDraft { cat: string; levels: string[]; rating: number; maxDays: 
 	encapsulation: ViewEncapsulation.None
 })
 export class Marketplace implements OnInit, OnDestroy {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	private marketplaceService = inject(MarketplaceService);
 	private authStore = inject(AuthStore);
 	private route = inject(ActivatedRoute);
@@ -366,7 +369,7 @@ export class Marketplace implements OnInit, OnDestroy {
 	}
 
 	loadCategories() {
-		this.marketplaceService.getCategories().subscribe({
+		this.marketplaceService.getCategories().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
 			next: (res) => {
 				if (res?.data?.categories && res.data.categories.length > 0) {
 					this.categories.set(res.data.categories);

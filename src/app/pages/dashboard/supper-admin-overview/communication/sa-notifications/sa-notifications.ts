@@ -7,6 +7,7 @@ import { WsDatePipe } from '../../../../../shared/ws-date/ws-date.pipe';
 import { AdminNotificationHistoryApi, Category, HistoryCursor, HistoryFilters, HistoryPage, NOTIFICATION_CATEGORIES } from './admin-notification-history.api';
 
 const TYPES: Record<string, string> = {
+  ADMIN_BROADCAST: 'إعلان من الإدارة', ADMIN_MESSAGE: 'رسالة من الإدارة',
   PLATFORM_REPORT_DECIDED: 'قرار في بلاغ', GENERAL: 'إشعار عام',
   CHAT: 'رسالة محادثة', NEW_TICKET: 'تذكرة دعم جديدة', NEW_DISPUTE: 'نزاع جديد',
 };
@@ -32,12 +33,13 @@ export class SaNotifications implements OnInit {
   private retryAction = () => this.applyFilters();
   range: HistoryFilters['range'] = '24h';
   category: HistoryFilters['category'] = '';
+  source: HistoryFilters['source'] = '';
   read: HistoryFilters['read'] = '';
 
   ngOnInit() { this.applyFilters(); }
 
   applyFilters() {
-    const filters = { range: this.range, category: this.category, read: this.read };
+    const filters = { range: this.range, category: this.category, read: this.read, source: this.source };
     this.load(filters, [null]);
   }
 

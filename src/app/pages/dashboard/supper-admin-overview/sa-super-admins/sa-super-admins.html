@@ -196,6 +196,8 @@
             <button type="button" class="spa-btn spa-btn-danger" data-testid="danger-maintenance-btn" [disabled]="store.saving() || !store.item('maintenanceMode')?.canWrite" (click)="toggleMaintenance()">{{ maintenanceOn() ? 'إيقاف' : 'تفعيل' }}</button>
           </div>
           @if (dangerError()) { <div class="spa-row spa-row-err" role="alert" data-testid="danger-error">{{ dangerError() }}</div> }
+          <app-dev-data-reset />
+          <div class="spa-row" data-testid="danger-broadcast"><div><div class="spa-row-lbl">إرسال إشعار لجميع المستخدمين</div><p>داخل الموقع وبالبريد، مع معاينة المستلمين والتأكيد من صفحة التواصل.</p>@if(store.item('adminBroadcastEnabled')?.value!==true){<p>الإرسال متوقف؛ فعّله من تبويب الإشعارات في إعدادات النظام.</p>}</div><a class="spa-btn" routerLink="/supper-admin-overview/communication/broadcast">إدارة الإرسال</a></div>
           @for (d of unavailableActions; track d.key) {
             <div class="spa-row" [attr.data-testid]="'danger-' + d.key">
               <div><div class="spa-row-lbl spa-row-lbl-danger">{{ d.label }} <span class="spa-bdg spa-bdg-role">غير متاح</span><button type="button" class="spa-help-btn" [attr.data-testid]="'help-btn-' + d.key" aria-label="تفاصيل" [attr.aria-expanded]="dangerHelp().has(d.key)" (click)="toggleDangerHelp(d.key)"><svg data-ws-icon="ws-info" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div><div class="spa-row-sub">{{ d.desc }}</div>

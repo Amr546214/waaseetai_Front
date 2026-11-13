@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -12,6 +14,7 @@ import { Card } from '../../../../../sheards/card/card';
 	styleUrl: './marketplace-preview.css',
 })
 export class MarketplacePreview implements OnInit {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	private marketplaceService = inject(MarketplaceService);
 	private platformId = inject(PLATFORM_ID);
 
@@ -63,7 +66,7 @@ export class MarketplacePreview implements OnInit {
 		this.errorMsg.set(null);
 
 		// Fetch dynamic categories from Marketplace Service
-		this.marketplaceService.getCategories().subscribe({
+		this.marketplaceService.getCategories().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
 			next: (res) => {
 				if (res && res.success && res.data) {
 					const catList = res.data.categories || [];

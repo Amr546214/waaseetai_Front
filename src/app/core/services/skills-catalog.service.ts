@@ -1,6 +1,10 @@
+import { CatalogChangesService } from './catalog-changes.service';
+import { HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
+import { SKIP_GET_CACHE } from '../interceptors/get-cache.interceptor';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, shareReplay, throwError } from 'rxjs';
+import { Observable, switchMap, catchError, shareReplay, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface SkillsCatalogResponse { success: boolean; data: { category: string | null; skills: string[] } }
@@ -19,6 +23,8 @@ export interface ProviderMineResponse {
  */
 @Injectable({ providedIn: 'root' })
 export class SkillsCatalogService {
+	private readonly catalog = inject(CatalogChangesService);
+	private readonly context = () => new HttpContext().set(SKIP_LOADING, true).set(SKIP_GET_CACHE, true);
 	private readonly http = inject(HttpClient);
 	private readonly base = `${environment.url_api}/skills`;
 	private readonly byCategory = new Map<string, Observable<SkillsCatalogResponse>>();
@@ -29,9 +35,9 @@ export class SkillsCatalogService {
 		const key = (category || '').trim();
 		let cached = this.byCategory.get(key);
 		if (!cached) {
-			cached = this.http.get<SkillsCatalogResponse>(`${this.base}/catalog`, { params: { category: key } }).pipe(
+			cached = this.catalog.changes.pipe(switchMap(() => this.http.get<SkillsCatalogResponse>(`${this.base}/catalog`, { params: { category: key }, context: this.context() })),
 				catchError(err => { this.byCategory.delete(key); return throwError(() => err); }),
-				shareReplay({ bufferSize: 1, refCount: false })
+				shareReplay({ bufferSize: 1, refCount: true })
 			);
 			this.byCategory.set(key, cached);
 		}
@@ -41,9 +47,9 @@ export class SkillsCatalogService {
 	/** Every category with its skills. Cached. */
 	getAll(): Observable<SkillsCatalogAllResponse> {
 		if (!this.all$) {
-			this.all$ = this.http.get<SkillsCatalogAllResponse>(`${this.base}/catalog/all`).pipe(
+			this.all$ = this.catalog.changes.pipe(switchMap(() => this.http.get<SkillsCatalogAllResponse>(`${this.base}/catalog/all`, { context: this.context() })),
 				catchError(err => { this.all$ = null; return throwError(() => err); }),
-				shareReplay({ bufferSize: 1, refCount: false })
+				shareReplay({ bufferSize: 1, refCount: true })
 			);
 		}
 		return this.all$;

@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { RegisteredSpecialty } from '../../../../../core/utils/specialty-states';
 import { Component, signal, computed, effect, untracked, OnInit, OnDestroy, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -56,6 +58,7 @@ export interface AccreditationModelItem {
 	styleUrl: './new-project.css',
 })
 export class NewProject implements OnInit, OnDestroy {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	private newProjectService = inject(NewProjectService);
 	private providerApi = inject(ProviderApiService);
 	private skillsCatalog = inject(SkillsCatalogService);
@@ -385,7 +388,7 @@ export class NewProject implements OnInit, OnDestroy {
 		this.skillsCategoryKey = key;
 		if (!key) { this.skillOptions.set([]); this.skillsLoading.set(false); return; }
 		this.skillsLoading.set(true);
-		this.skillsCatalog.getCatalog(key).subscribe({
+		this.skillsCatalog.getCatalog(key).pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
 			next: res => {
 				if (key !== this.skillsCategoryKey) return;
 				const options = res?.success ? (res.data?.skills ?? []) : [];

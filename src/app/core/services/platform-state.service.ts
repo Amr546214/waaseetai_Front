@@ -1,3 +1,4 @@
+import { CatalogChangesService } from './catalog-changes.service';
 import { DestroyRef, Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpClient, HttpContext } from '@angular/common/http';
@@ -23,6 +24,7 @@ interface PlatformState {
  */
 @Injectable({ providedIn: 'root' })
 export class PlatformStateService {
+  private readonly catalog = inject(CatalogChangesService);
   private readonly http = inject(HttpClient);
   private readonly destroy = inject(DestroyRef);
   private readonly info = inject(PlatformInfoService);
@@ -89,11 +91,12 @@ export class PlatformStateService {
       ...SOCKET_BACKOFF,
       transports: ['websocket', 'polling'],
     });
+    s.on('taxonomy:changed', (n: { revision?: number }) => this.catalog.refresh(n?.revision));
     s.on('platform:state', (st: PlatformState) => this.apply(st));
     // `connect` fires on the first connection and on every reconnection: after the first, re-read the state (a push may have been missed while disconnected)
     let connected = false;
     s.on('connect', () => {
-      if (connected) this.refresh();
+      if (connected) { this.refresh(); this.catalog.refresh(); }
       connected = true;
     });
     this.socket = s;
