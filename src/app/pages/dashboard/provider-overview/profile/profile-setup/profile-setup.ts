@@ -1,6 +1,7 @@
 import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
+import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, identityCountryCode } from '../../../../../shared/data/identity-documents';
 import { requiredText } from '../../../../../core/forms/required-text.validator';
-import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
+import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -32,6 +33,8 @@ import { birthDateValidator, dobInputValue, maxDobIso } from '../../../../../cor
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
+import { IdentityGateService, identityRefusalMessage, isIdentityNotApproved } from '../../../../../core/services/identity-gate.service';
+import { IdentityGateStatusComponent } from '../../../../../shared/identity-gate/identity-gate-status.component';
 import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSetup } from './provider-setup-state';
 import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../core/services/provider-access.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
@@ -82,11 +85,14 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent, IdentityGateStatusComponent],
+	providers: [IdentityGateService],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
 })
 export class ProfileSetupDashboard implements OnInit, OnDestroy {
+	readonly identityDocumentTypes = IDENTITY_DOCUMENT_TYPES;
+
 	private fb = inject(FormBuilder);
 	private destroyRef = inject(DestroyRef);
 	private router = inject(Router);
@@ -176,6 +182,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			paypalEmail: ['', paypalEmailValidators]
 		}),
 		docs: this.fb.group({
+			idNumber: ['', Validators.pattern(DOCUMENT_NUMBER_PATTERN)],
+			idDocumentType: [''],
 			frontId: [''],
 			backId: [''],
 			selfie: [''],
@@ -248,8 +256,19 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	alertModal = signal<SetupAlertModal | null>(null);
 
+	/** The identity gate: step 5+ opens only while the backend says the CURRENT image + data are APPROVED. */
+	readonly gate = inject(IdentityGateService).use('PROVIDER');
+	/** Why the identity could not be sent / the next step did not open. */
+	gateProblem = signal<string | null>(null);
+	/** Refs uploaded in THIS session and not yet sent through the identity save (a stored ref is never re-sent as a "new" image). */
+	/** The back side is required for every document except a passport (the backend's identity gate «missing» list follows the same rule). */
+	backRequired(): boolean { return this.setupForm.get('docs.idDocumentType')?.value !== 'PASSPORT'; }
+	private pendingRefs: { frontId?: string; backId?: string } = {};
+	private gateFresh = false;
+
 	constructor() {
 		linkCountryCity(this.setupForm.get('profData'), this.destroyRef);
+		effect(() => { if (this.currentStep() === 4) untracked(() => this.gate.load().subscribe({ error: () => { /* unknown: nothing opens */ } })); });
 		effect(() => {
 			this.assistantStore.setExamActive(this.currentStep() === 7);
 		});
@@ -360,6 +379,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							paypalEmail: d.paypalPayoutEmail || ''
 						},
 						docs: {
+							idNumber: d.idNumber || '',
+							idDocumentType: d.idDocumentType || '',
 							frontId: d.frontIdUrl || '',
 							backId: d.backIdUrl || ''
 						},
@@ -399,6 +420,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					}
 					this.currentStep.set(start.step);
 					if (start.step === 5) this.initPortfolioCards();
+					// a resumed wizard never stands past an identity that is not approved (the server would refuse those steps anyway)
+					if (start.step > 4) this.gate.load().subscribe({ next: g => { if (!g.canAdvance && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
 				}
 			}
 		});
@@ -467,6 +490,17 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	/** One wizard step: marks touched, builds the summary, focuses the first missing field. */
+	documentError(key: 'idNumber' | 'idDocumentType'): string | null {
+		const number = this.setupForm.get('docs.idNumber');
+		const type = this.setupForm.get('docs.idDocumentType');
+		if (!number || number.disabled || type?.disabled) return null;
+		if (!number.touched && !type?.touched) return null;
+		const problem = documentInputProblem(number.value, identityCountryCode(this.setupForm.get('profData.country')?.value), type?.value ?? null);
+		if (problem?.key === key) return problem.message;
+		if (key === 'idNumber') return number.getError('server') ?? null;
+		return type?.getError('server') ?? null;
+	}
+
 	private validateStep(step: number): boolean {
 		switch (step) {
 			case 1:
@@ -481,6 +515,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				return this.checkGroup('payout');
 			case 4: {
 				const items: InvalidField[] = [];
+				{
+					const d = this.setupForm.getRawValue().docs;
+					this.setupForm.get('docs.idNumber')?.markAsTouched();
+					this.setupForm.get('docs.idDocumentType')?.markAsTouched();
+					const problem = documentInputProblem(d.idNumber, identityCountryCode(this.setupForm.get('profData.country')?.value), d.idDocumentType);
+					if (problem) items.push({ ...problem, path: 'docs.' + problem.key });
+				}
+
 				const labels: Record<string, string> = { frontId: 'صورة الهوية (الوجه الأمامي)', backId: 'صورة الهوية (الوجه الخلفي)', selfie: 'الصورة الشخصية مع الهوية', certs: 'الشهادات المهنية' };
 				for (const key of ['frontId', 'backId', 'selfie', 'certs']) {
 					const state = this.getUploadState(key)?.status;
@@ -498,7 +540,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					items.push({ path: 'docs.frontId', label: labels['frontId'], message });
 					this.setFileError('frontId', message);
 				}
-				this.missing.set(items);
+				this.missing.set(items.filter(issue => issue.path !== 'docs.idNumber' && issue.path !== 'docs.idDocumentType'));
 				return items.length === 0;
 			}
 			case 5: {
@@ -597,6 +639,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				}
 			}
 		}
+		if (step > 4 && this.currentStep() <= 4 && !this.gateFresh) {
+			// leaving the identity step forward: the server's CURRENT answer decides
+			this.checkGate(() => { this.gateFresh = true; try { this.goToStep(step); } finally { this.gateFresh = false; } });
+			return;
+		}
 		this.missing.set([]);
 
 		// Auto-init portfolio when reaching step 5
@@ -604,6 +651,39 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 		this.currentStep.set(step);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
+
+	private checkGate(proceed: () => void) {
+		this.gate.load().subscribe({
+			next: g => {
+				if (g.canAdvance) { this.gateProblem.set(null); proceed(); return; }
+				this.currentStep.set(4);
+				this.gateProblem.set(g.status === 'UNDER_REVIEW' ? 'الوثيقة قيد المراجعة؛ تُفتح الخطوة التالية بعد اعتمادها.' : g.status === 'REJECTED' ? 'الوثيقة مرفوضة؛ صحّح البيانات أو أعد رفع الصورة.' : 'ارفع صورة الوثيقة وأكمل بيانات الهوية لتبدأ المراجعة.');
+			},
+			error: () => { this.currentStep.set(4); this.gateProblem.set('تعذّر التحقق من حالة الوثيقة، حاول مرة أخرى.'); }
+		});
+	}
+
+	/** The identity step save: ID data + the images uploaded now go to the server, which stores them and STARTS the review. The user stays here; nothing is erased. */
+	sendIdentity() {
+		const d = this.setupForm.getRawValue();
+		const issuer = identityCountryCode(d.profData.country);
+		const problem = documentInputProblem(d.docs.idNumber, issuer, d.docs.idDocumentType || null);
+		this.setupForm.get('docs.idNumber')?.markAsTouched();
+		this.setupForm.get('docs.idDocumentType')?.markAsTouched();
+		if (problem || !d.docs.idDocumentType || !issuer || !d.docs.idNumber) {
+			this.gateProblem.set(problem?.message ?? 'أكمل الدولة (الخطوة الأولى) ونوع الوثيقة ورقمها ثم احفظ.');
+			return;
+		}
+		this.gateProblem.set(null);
+		const { frontId, backId } = this.pendingRefs;
+		this.gate.save({
+			idIssuingCountry: issuer, idDocumentType: d.docs.idDocumentType, idNumber: String(d.docs.idNumber).trim(),
+			...(d.profData.dob ? { dob: String(d.profData.dob).slice(0, 10) } : {}), ...(frontId ? { frontId } : {}), ...(backId ? { backId } : {})
+		}).subscribe({
+			next: () => { this.pendingRefs = {}; },
+			error: (err) => this.gateProblem.set(mapHttpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى.' }).message)
+		});
 	}
 
 	toggleSpec(spec: string) {
@@ -939,10 +1019,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						this.uploadedFrontId.set(url);
 						this.uploadedFrontIdName.set(name);
 						this.setupForm.get('docs.frontId')?.setValue(url);
+						this.pendingRefs.frontId = url; this.sendIdentity();
 					}
 					if (type === 'backId') {
 						this.setupForm.get('docs.backId')?.setValue(url);
 						this.uploadedBackIdName.set(name);
+						this.pendingRefs.backId = url; this.sendIdentity();
 					}
 					if (type === 'selfie') {
 						this.setupForm.get('docs.selfie')?.setValue(url);
@@ -1253,6 +1335,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			// Only a photo that was uploaded in this session is sent; the stored one (own storage URL or the Google sign-in picture) is kept by the server and never re-posted as a "new link".
 			...(this.avatarUrl() && this.avatarUrl() !== this.storedAvatarUrl ? { avatarUrl: this.avatarUrl() } : {}),
 			details: {
+				...(!this.kycVerified() && !this.kycPending() ? { idNumber: this.setupForm.get('docs.idNumber')?.value || undefined, idIssuingCountry: (this.setupForm.get('docs.idDocumentType')?.value && identityCountryCode(this.setupForm.get('profData.country')?.value)) || undefined, idDocumentType: this.setupForm.get('docs.idDocumentType')?.value || undefined } : {}),
 				occupation: this.setupForm.get('profData.jobTitle')?.value,
 				country: this.setupForm.get('profData.country')?.value,
 				city: this.setupForm.get('profData.city')?.value,
@@ -1313,6 +1396,13 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			},
 			error: (error) => {
 				this.isSubmitting.set(false);
+				if (isIdentityNotApproved(error)) {
+					// the server refused a submission that skipped the identity: back to the identity step with the real state
+					this.currentStep.set(4);
+					this.gate.refusedByServer();
+					this.gateProblem.set(identityRefusalMessage(error));
+					return;
+				}
 				const mapped = mapHttpError(error, { fallback: 'تعذر حفظ البيانات. يرجى المحاولة مجدداً.' });
 				// Server field messages (zod-style `errors[]`, names as the backend calls them) go to the matching inputs;
 				// the wizard returns to the step that holds the first one and focuses it.

@@ -355,6 +355,7 @@
         <div class="gov-bar" data-testid="identity-status" data-status="PENDING_REVIEW" role="status" style="border-color:rgba(43,127,255,.45)">
           <div class="gov-bar-ico"><svg aria-hidden="true"><use href="#ws-shield"></use></svg></div>
           <div class="gov-bar-txt">
+            @if (identityInReview()) { <strong data-testid="identity-in-review">الهوية قيد الفحص</strong><br> }
             <strong>تم استلام طلب التحقق من الهوية، وهو الآن قيد مراجعة الإدارة</strong>
             @if (identityJustSubmitted()) { لا تحتاج إلى إعادة رفع المستند. } سنُعلمك بالنتيجة، وتظهر حالته في «طلباتي السابقة».
           </div>
