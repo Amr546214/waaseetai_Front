@@ -1,3 +1,4 @@
+import { PlatformBannerComponent } from '../../shared/platform-banner/platform-banner.component';
 import { Component, computed, inject, signal, effect, AfterViewInit, OnInit, OnDestroy, PLATFORM_ID, Renderer2 } from '@angular/core';
 import { BrandNamePipe } from '../../shared/brand/brand-name.pipe';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
@@ -18,7 +19,7 @@ import { PageLoader } from '../../sheards/page-loader/page-loader';
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [BrandNamePipe, CommonModule, RouterModule, NavDashboard, Sidebar, VideoCallModalComponent, PageLoader],
+  imports: [PlatformBannerComponent, BrandNamePipe, CommonModule, RouterModule, NavDashboard, Sidebar, VideoCallModalComponent, PageLoader],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css'
 })

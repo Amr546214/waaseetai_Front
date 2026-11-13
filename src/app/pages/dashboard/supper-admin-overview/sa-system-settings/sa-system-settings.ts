@@ -65,7 +65,7 @@ export class SaSystemSettings implements OnInit {
 	readonly legal = ['termsVersion', 'privacyVersion', 'termsContent', 'privacyContent'];
 	readonly generalAll = [...this.general, ...this.contacts, ...this.legal];
 	readonly ai = ['aiEngineEnabled', 'aiConfidenceThreshold', 'aiDisputeArbitration', 'aiFraudDetection', 'aiDisclosureBanner'];
-	readonly notif = ['channelEmail', 'channelPush', 'adminDisputeAlerts', 'adminNotificationEmail'];
+	readonly notif = ['adminBroadcastEnabled', 'channelEmail', 'channelPush', 'adminDisputeAlerts', 'adminNotificationEmail'];
 	readonly security = ['adminTwoFactor', 'sessionIdleMinutes', 'sessionMaxHours', 'auditLogging', 'loginMaxFailedAttempts', 'loginAttemptWindowMinutes', 'loginBlockMinutes', 'loginIpMaxFailedAttempts'];
 	readonly finance = ['baseCurrency', 'paymentGateway', 'escrowHoldHours', 'futureBilling'];
 	readonly regional = ['defaultTimezone', 'dateFormat', 'calendarSystem'];

@@ -3,23 +3,25 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { SKIP_RATE_LIMIT_TOAST } from '../interceptors/rate-limit.interceptor';
 import { SKIP_GET_CACHE } from '../interceptors/get-cache.interceptor';
-import { Observable } from 'rxjs';
+import { CatalogChangesService } from './catalog-changes.service';
+import { Observable, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class SpecialtyService {
+	private catalog = inject(CatalogChangesService);
 	private http = inject(HttpClient);
 	private apiUrl = environment.url_api;
 
 	getCategories(): Observable<any> {
-		return this.http.get(`${this.apiUrl}/specialties/categories`);
+		return this.catalog.changes.pipe(switchMap(() => this.http.get(`${this.apiUrl}/specialties/categories`, { context: this.silent() })));
 	}
 
 	getPublicSpecialties(categoryId?: string): Observable<any> {
 		const param = categoryId && categoryId !== 'all' ? `?categoryId=${categoryId}` : '';
-		return this.http.get(`${this.apiUrl}/specialties/public${param}`);
+		return this.catalog.changes.pipe(switchMap(() => this.http.get(`${this.apiUrl}/specialties/public${param}`, { context: this.silent() })));
 	}
 
 	/** Rule-based suggestion from real data (proposal history / profile / open demand); never AI. */

@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WaitTimerService, waitScope } from '../../../../../core/wait/wait-timer.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { AssistantExamState } from '../../../../../core/store/assistant-exam-state.service';
@@ -133,6 +135,7 @@ export interface PortfolioReview {
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Specialties implements OnInit, OnDestroy {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	private specialtyService = inject(SpecialtyService);
 	private assistantStore = inject(AssistantExamState);
 	private sanitizer = inject(DomSanitizer);
@@ -331,7 +334,7 @@ export class Specialties implements OnInit, OnDestroy {
 			next: (res: any) => this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []),
 			error: () => this.registeredSpecialties.set([]),
 		});
-		this.specialtyService.getCategories().subscribe({
+		this.specialtyService.getCategories().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
 			next: (res: any) => {
 				if (res && res.success && res.data) {
 					this.apiCategories.set(res.data);

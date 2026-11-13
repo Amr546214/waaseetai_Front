@@ -1,5 +1,7 @@
 import { Injectable, inject, signal, DestroyRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -9,15 +11,16 @@ export interface Paged<T>{rows:T[];total:number;page:number;pageSize:number}
 export interface OperatingResult {period:string;currency:string;asOf:string;revenue:number;affiliateCost:number;cashbackCost:number;operatingExpenses:number;expenseCount:number;net:number|null;foreignCommissions:{currency:string;amount:number}[];definition:string}
 export interface Upcoming {id:string;contractId:string;projectId:string;project:string;client:string;title:string;amount:number;currency:string;frozen:boolean;dueAt:string|null;status:string}
 export interface CmsPage {slug:string;title:string;draft:string;published:string|null;version:number;publishedAt:string|null;updatedAt:string|null}
-export interface Campaign {id:string;title:string;message:string;audience:string;version:number;status:string;recipientCount:number;sentCount:number;failedCount:number;createdAt:string}
-export interface BroadcastPreview {id:string;version:number;recipients:number;channel:string;audience:string}
+export interface Campaign {id:string;title:string;message:string;audience:string;version:number;status:string;recipientCount:number;sentCount:number;failedCount:number;createdAt:string;emailRequested:boolean;emailCounts:Record<string,number>}
+export interface BroadcastCapabilities {enabled:boolean;emailEnabled:boolean;smtpConfigured:boolean;emailReady:boolean}
+export interface BroadcastPreview {id:string;version:number;recipients:number;channel:string;audience:string;capabilities:BroadcastCapabilities}
 export interface CashbackPending {id:string;contractId:string;projectId:string;userId:string;eligibleValue:string;level:number;ratePercent:number;paymentInput:number|null;status:string;version:number;completedAt:string}
 export interface CashbackEntry {id:string;contractId:string;amount:number;level:number;ratePercent:number;ratingInput:number;paymentInput:number;createdAt:string}
 export interface CashbackData {gate:string|null;formula:string;policy:string;pending:CashbackPending[];entries:CashbackEntry[];total:number;page:number;pageSize:number}
 @Injectable({providedIn:'root'})
 export class AdminOperationsService {
  private http=inject(HttpClient);private base=()=>`${environment.url_api}/admin/operations`;
- get<T>(path:string){return this.http.get<Envelope<T>>(`${this.base()}/${path}`);}
+ get<T>(path:string,silent=false){return this.http.get<Envelope<T>>(`${this.base()}/${path}`,{context:new HttpContext().set(SKIP_LOADING,silent)});}
  post<T>(path:string,body:unknown){return this.http.post<Envelope<T>>(`${this.base()}/${path}`,body);}
  put<T>(path:string,body:unknown){return this.http.put<Envelope<T>>(`${this.base()}/${path}`,body);}
 }

@@ -1,4 +1,4 @@
-<section class="bm-page">
+<section class="bm-page bm-detail-box">
   <a routerLink="..">العودة إلى نماذج الأعمال</a>
   <h1 class="bm-ttl">تفاصيل نموذج العمل</h1>
   @if (saved()) { <p role="status">تم حفظ القرار.</p> }
@@ -10,7 +10,7 @@
       <h2>{{ item.title }}</h2>
       <p>{{ states[item.status] }} · {{ item.provider.firstName }} {{ item.provider.lastName }}</p>
       <p>{{ item.specialty?.nameAr || 'بلا تخصص' }} · مدة التنفيذ: {{ item.totalDays }} يوم</p>
-      <p class="review-description">{{ item.description }}</p>
+      <div class="review-description markdown" [innerHTML]="markdown(item.description)"></div>
       @if (item.auditRejectionReason) { <p>سبب الرفض: {{ item.auditRejectionReason }}</p> }
       <h3>مراحل العمل</h3>
       @if (item.stages.length) {

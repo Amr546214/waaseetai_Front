@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { afterNextRender, ChangeDetectorRef, Component, DestroyRef, ElementRef, Injector, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -48,6 +50,7 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 	styleUrl: './profile-edit.css',
 })
 export class ProfileEdit {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
 	readonly countryNames = COUNTRY_NAMES;
 	readonly citiesOf = citiesOf;
@@ -123,7 +126,7 @@ export class ProfileEdit {
 			next: res => {
 				const main = res?.success ? res.data?.mainSpecialty : null;
 				if (!main) { this.skillOptions.set([]); return; }
-				this.skillsCatalog.getCatalog(main).subscribe({
+				this.skillsCatalog.getCatalog(main).pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
 					next: c => this.skillOptions.set(c?.success ? (c.data?.skills ?? []) : []),
 					error: () => this.skillOptions.set([])
 				});

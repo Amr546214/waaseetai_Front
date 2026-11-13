@@ -1,3 +1,4 @@
+import { DevDataResetComponent } from '../../../../shared/system-settings/dev-data-reset.component';
 import { spaIconHref } from '../../../../shared/system-settings/spa-icons';
 import { FeePolicyPanel } from '../../../../shared/fee-policy/fee-policy-panel';
 import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
@@ -25,7 +26,7 @@ type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'in
 @Component({
   selector: 'app-sa-super-admins',
   standalone: true,
-  imports: [WsDatePipe, CommonModule, WsSelectComponent, FormsModule, SettingsSectionComponent, RouterLink, FeePolicyPanel],
+  imports: [DevDataResetComponent, WsDatePipe, CommonModule, WsSelectComponent, FormsModule, SettingsSectionComponent, RouterLink, FeePolicyPanel],
   templateUrl: './sa-super-admins.html',
   styleUrl: './sa-super-admins.css',
 })
@@ -91,9 +92,7 @@ export class SaSuperAdmins implements OnInit {
   readonly maintenanceOn = computed(() => this.store.item('maintenanceMode')?.value === true);
   /** the actions that have NO implementation: shown with the reason, never as a button that pretends */
   readonly unavailableActions = [
-    { key: 'wipeTest', label: 'مسح قاعدة بيانات الاختبار', desc: 'حذف بيانات بيئة التطوير', buttonLabel: 'تنفيذ', reason: 'غير متاح ولن يُنفَّذ من الواجهة: حذف بيانات خارج نطاق التطبيق.' },
-    { key: 'broadcast', label: 'إرسال إشعار لجميع المستخدمين', desc: 'نشرة إعلانية لجميع المستخدمين', buttonLabel: 'إرسال', reason: 'غير متاح: لا يوجد مسار إرسال جماعي منفّذ في الخادم.' },
-    { key: 'backup', label: 'تصدير نسخة احتياطية كاملة', desc: 'DB Snapshot — مشفّرة', buttonLabel: 'تصدير', reason: 'غير متاح: النسخ الاحتياطي يتم خارج التطبيق (على الخادم).' },
+    { key: 'backup', label: 'تصدير نسخة احتياطية كاملة', desc: 'مؤجل — يُؤخذ يدويًا من الخادم', buttonLabel: 'تصدير', reason: 'غير متاح: النسخ الاحتياطي يتم خارج التطبيق (على الخادم).' },
   ];
 
   // Audit Trail tab: real AccountAuditLog rows from the server (filters + pagination run server-side).

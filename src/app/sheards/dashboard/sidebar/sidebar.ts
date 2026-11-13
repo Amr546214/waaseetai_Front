@@ -1,3 +1,4 @@
+import { AdminSidebarCounts } from '../../../core/services/admin-sidebar-counts.service';
 import { OperationsPanelService } from '../../../core/services/operations-panel.service';
 import { roleHome } from '../../../core/routing/role-routes';
 import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
@@ -45,6 +46,7 @@ export interface NavItem {
 	styleUrl: './sidebar.css',
 })
 export class Sidebar implements OnInit {
+	readonly adminCounts = inject(AdminSidebarCounts);
 	private authStore = inject(AuthStore);
 	private ops = inject(OperationsPanelService);
 	private router = inject(Router);
@@ -327,7 +329,7 @@ export class Sidebar implements OnInit {
 			},
 			{ type: 'link', label: 'الوسطاء', route: '/supper-admin-overview/brokers', ws: 'pl-nav-admin-brokers', icon: icons.market },
 			{
-				type: 'accordion', id: 'sa-disputes', label: 'النزاعات والشكاوى', ws: 'pl-nav-group-sa-disputes', icon: icons.warn, badge: 33,
+				type: 'accordion', id: 'sa-disputes', label: 'النزاعات والشكاوى', ws: 'pl-nav-group-sa-disputes', icon: icons.warn, badge: this.adminCounts.total(),
 				children: [
 					{ type: 'link', label: 'النزاعات', route: '/supper-admin-overview/disputes', ws: 'pl-nav-admin-disputes', icon: icons.escrow },
 					{ type: 'link', label: 'البلاغات', route: '/supper-admin-overview/reports', ws: 'pl-nav-admin-reports', icon: icons.warn },

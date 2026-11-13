@@ -209,6 +209,7 @@
 
 	<!-- MAIN CONTENT -->
 	<main class="main" [class.chat-main]="isChatRoute()">
+        @if (!examMode()) { <app-platform-banner class="maintenance-banner" /> }
 		<div class="main-inner" [class.chat-inner]="isChatRoute()" [hidden]="!!roleRedirectLabel()">
 			<router-outlet></router-outlet>
 		</div>

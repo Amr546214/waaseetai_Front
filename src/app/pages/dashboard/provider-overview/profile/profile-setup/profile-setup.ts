@@ -1,3 +1,6 @@
+import { Subscription as CatalogSubscription } from 'rxjs';
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, identityCountryCode } from '../../../../../shared/data/identity-documents';
 import { requiredText } from '../../../../../core/forms/required-text.validator';
@@ -94,6 +97,7 @@ export interface SetupAlertModal {
 	styleUrls: ['./profile-setup.css']
 })
 export class ProfileSetupDashboard implements OnInit, OnDestroy {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	readonly identityDocumentTypes = IDENTITY_DOCUMENT_TYPES;
 
 	private fb = inject(FormBuilder);
@@ -320,18 +324,19 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	ngOnInit() {
 		this.generateParticles();
 
-		this.specialtyService.getCategories().subscribe(res => {
+		this.specialtyService.getCategories().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe(res => {
 			if (res.success) {
 				this.categories.set(res.data);
 			}
 		});
 
-		this.setupForm.get('specialties.mainSpec')?.valueChanges.subscribe(val => {
+		this.setupForm.get('specialties.mainSpec')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(val => {
+        this.catalogSpecialtiesSub?.unsubscribe();
 			this.loadSkillOptions(val || '');
 			if (val) {
 				const cat = this.categories().find(c => c.slug === val || c.id === val);
 				const catId = cat ? cat.id : val;
-				this.specialtyService.getPublicSpecialties(catId).subscribe(res => {
+				this.catalogSpecialtiesSub = this.specialtyService.getPublicSpecialties(catId).pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe(res => {
 					if (res.success) {
 						this.subSpecialtiesList.set(res.data.map((s: any) => s.nameAr));
 					}
@@ -794,9 +799,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.pruneSkillsOnCatalog = true;
 	}
 
-	private loadSkillOptions(mainSpec: string) {
+	private catalogSkillSub?: CatalogSubscription;
+ private catalogSpecialtiesSub?: CatalogSubscription;
+ private loadSkillOptions(mainSpec: string) {
+  this.catalogSkillSub?.unsubscribe();
 		if (!mainSpec) { this.skillOptions.set([]); return; }
-		this.providerProfileService.getSkillsCatalog(mainSpec).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+		this.catalogSkillSub = this.providerProfileService.getSkillsCatalog(mainSpec).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
 			next: res => {
 				const options = res?.success ? (res.data?.skills ?? []) : [];
 				this.skillOptions.set(options);

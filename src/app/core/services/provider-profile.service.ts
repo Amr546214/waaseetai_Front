@@ -1,3 +1,6 @@
+import { SKIP_GET_CACHE } from '../interceptors/get-cache.interceptor';
+import { CatalogChangesService } from './catalog-changes.service';
+import { switchMap } from 'rxjs';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpContext, HttpEvent } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
@@ -95,6 +98,7 @@ export interface PaypalChangeRequestResult { emailSent: boolean; emailHint: stri
 
 @Injectable({ providedIn: 'root' })
 export class ProviderProfileService {
+  private readonly catalogChanges = inject(CatalogChangesService);
   private http = inject(HttpClient);
   private skillsCatalog = inject(SkillsCatalogService);
   private apiUrl = `${environment.url_api}/provider/profile`;
@@ -233,7 +237,7 @@ export class ProviderProfileService {
 
   /** The marketplace taxonomy (the same source as the marketplace and the setup wizard): categories with their specialties. */
   getSpecialtyCategories(): Observable<{ success: boolean; data: Array<{ id: string; slug: string; nameAr: string; specialties?: Array<{ id: string; nameAr: string }> }> }> {
-    return this.http.get<any>(`${environment.url_api}/specialties/categories`);
+    return this.catalogChanges.changes.pipe(switchMap(() => this.http.get<any>(`${environment.url_api}/specialties/categories`,{context:new HttpContext().set(SKIP_LOADING,true).set(SKIP_GET_CACHE,true)})));
   }
 
   /** The skills offered for a main specialty (the marketplace Category slug): the only skills a provider can pick. Reads the shared catalog service (cached). */

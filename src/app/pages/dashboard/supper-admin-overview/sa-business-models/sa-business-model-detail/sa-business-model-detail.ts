@@ -1,3 +1,4 @@
+import { assistantMarkdown } from '../../../../../core/help/assistant-content';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +10,7 @@ import { BusinessModelReviewApi, MODEL_ACTIONS, MODEL_STATUSES, ModelAction, mod
   selector: 'app-sa-business-model-detail',
   imports: [RouterLink, FormsModule],
   templateUrl: './sa-business-model-detail.html',
-  styleUrls: ['../sa-business-models.css', '../business-model-review.css'],
+  styleUrls: ['../sa-business-models.css', '../business-model-review.css', './sa-business-model-detail.css'],
 })
 export class SaBusinessModelDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -25,6 +26,7 @@ export class SaBusinessModelDetail implements OnInit {
   readonly busy = signal(false);
   readonly loading = signal(false);
   readonly selected = signal<ModelAction | null>(null);
+  readonly markdown = assistantMarkdown;
   reason = '';
 
   ngOnInit() { this.load(); }

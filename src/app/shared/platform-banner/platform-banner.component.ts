@@ -8,7 +8,7 @@ import { PlatformInfoService } from '../../core/services/platform-info.service';
 	standalone: true,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `@if (isSuperAdmin() && info.maintenance(); as m) { <div class="pb pb-maint" role="alert" data-testid="maintenance-notice">وضع الصيانة مفعّل — أنت ترى المنصة بصلاحية Super Admin. رسالة الزوار: {{ m }}</div> }`,
-	styles: [`.pb{position:relative;z-index:50;text-align:center;font-size:13px;font-weight:700;padding:8px 14px;border-bottom:1px solid rgba(255,180,0,.35)}.pb-maint{background:rgba(255,180,0,.14);color:#FFD27A}`],
+	styles: [`.pb{position:relative;z-index:50;text-align:center;font-size:13px;font-weight:700;padding:8px 14px;border-bottom:1px solid rgba(255,180,0,.35)}.pb-maint{background:var(--ws-surface,#18212e);color:var(--ws-text,#e8eefc);box-shadow:0 2px 8px #0002}`],
 })
 export class PlatformBannerComponent implements OnInit {
 	readonly info = inject(PlatformInfoService);

@@ -25,14 +25,10 @@ export const maintenanceAuthPath = (url: string) => ['/auth/login','/auth/verify
 	styleUrl: './app.css',
 	template: `
 		<!-- Maintenance: the standalone Under Deployment page REPLACES the site (no navbar, no menus, no assistant behind it). A Super Admin and the login page itself pass. -->
-		@if (maintenanceBlocked()) {
-			<app-under-deployment />
-		} @else {
-			<ng-container *ngIf="authStore.isInitialized$ | async">
-				<app-platform-banner />
-				<router-outlet />
-			</ng-container>
-		}
+		@if (maintenanceBlocked()) { <app-under-deployment /> }
+        <div [hidden]="maintenanceBlocked()">
+          <ng-container *ngIf="authStore.isInitialized$ | async"><router-outlet /></ng-container>
+        </div>
 
 		<div *ngIf="showLoader()" class="global-app-loader" [class.fade-out]="authStore.isInitialized$ | async">
 			<div class="loader-content">
