@@ -10,6 +10,7 @@ import { UiNotificationService } from '../../../../core/services/ui-notification
 import { SettingItem, SystemSettingsStore } from '../../../../core/services/system-settings.store';
 import { By } from '@angular/platform-browser';
 import { SettingsSectionComponent } from '../../../../shared/system-settings/settings-section.component';
+import { OperationsPanelService } from '../../../../core/services/operations-panel.service';
 import { SaSystemSettings } from './sa-system-settings';
 
 const B = `${environment.url_api}/admin/system-settings`;
@@ -35,6 +36,7 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 		confirm = vi.fn(async () => true);
 		TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: ConfirmModalService, useValue: { confirm } }] });
 		http = TestBed.inject(HttpTestingController);
+		const ops = TestBed.inject(OperationsPanelService); ops.state.set({ officialDeployment: true, isSuperAdmin: true, available: true }); ops.loaded.set(true);
 		const a = TestBed.inject(AdminAccessService); a.access.set({ userId: 'me', isSuperAdmin: true, staffStatus: null, roleName: 'Super Admin', permissions: [], hasAnyPermission: true, state: 'SUPER_ADMIN', displayRole: 'مدير النظام' } as any); a.status.set('ready');
 	});
 	const boot = async (items: SettingItem[] = ITEMS, history: any[] = HIST) => {
@@ -45,9 +47,10 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 	const row = (el: HTMLElement, k: string) => el.querySelector(`[data-testid="row-${k}"]`) as HTMLElement;
 	const type = async (f: any, input: HTMLInputElement, v: string) => { input.value = v; input.dispatchEvent(new Event('input')); await flush(f); };
 
-	it('has exactly the seven design tabs and no sample data', async () => {
+	it('has the design tabs plus the Super Admin tabs of the merged page, and no sample data', async () => {
 		const { el } = await boot();
-		expect(Array.from(el.querySelectorAll('.ss-nav-item')).map(b => b.textContent?.trim())).toEqual(['عام', 'الذكاء الاصطناعي', 'الإشعارات', 'الأمان', 'المالية', 'الإقليمية', 'صحة النظام']);
+		expect(Array.from(el.querySelectorAll('.ss-nav-item')).map(b => b.textContent?.trim())).toEqual(['عام', 'الذكاء الاصطناعي', 'الإشعارات', 'الأمان', 'المالية', 'الإقليمية', 'صحة النظام', 'حسابات الإدارة العليا', 'التكاملات والـ API', 'Audit Trail', 'المنطقة الحمراء']);
+		expect(el.querySelector('h1')?.textContent).toContain('إعدادات النظام');
 		for (const sample of ['99.8%', '197.32.14.88', '185.220.101.42', 'فهد العتيبي', 'admin@waseet.ai', '95% دقة']) expect(el.textContent).not.toContain(sample);
 	});
 
@@ -177,5 +180,14 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 		expect(el.querySelector('[data-testid="health-card"]')?.textContent).toContain('جارٍ فحص'); 
 		http.expectOne(`${B}/health`).flush({ success: true, data: { checkedAt: '2026-10-25T10:00:00Z', items: [{ key: 'database', label: 'قاعدة البيانات', status: 'ok', detail: 'استجابة 4 ms' }, { key: 'backup', label: 'النسخ الاحتياطي', status: 'unavailable', detail: 'لا يوجد مصدر مراقبة مرتبط' }] } }); await flush(f);
 		expect(el.querySelector('[data-testid="health-database"]')?.textContent).toContain('استجابة 4 ms'); expect(el.querySelector('[data-testid="health-backup"]')?.textContent).toContain('غير متاح'); expect(el.textContent).not.toContain('uptime');
+	});
+
+	it('a caller without the panel (not a Super Admin / not the official site) sees the exact refusal and no settings are requested', async () => {
+		const ops = TestBed.inject(OperationsPanelService);
+		for (const [state, text] of [[{ officialDeployment: true, isSuperAdmin: false, available: false }, 'يلزم امتلاك صلاحية Super Admin للوصول إلى إعدادات النظام وتعديلها'], [{ officialDeployment: false, isSuperAdmin: true, available: false }, 'متاحة على الموقع الرسمي فقط']] as const) {
+			ops.state.set(state);
+			const f = TestBed.createComponent(SaSystemSettings); await flush(f); const el = f.nativeElement as HTMLElement;
+			expect(el.querySelector('[data-testid="panel-denied"]')?.textContent).toContain(text); expect(el.querySelector('.ss-nav')).toBeNull(); http.expectNone(B);
+		}
 	});
 });

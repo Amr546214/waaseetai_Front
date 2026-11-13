@@ -48,7 +48,7 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 		expect(routes()).toEqual(['/supper-admin-overview/my-account', '/supper-admin-overview/bebo']); // own account + Bebo's tools (every admin account had the bar)
 	});
 	it('does not list the super-admin-only page', () => {
-		expect(setup(ADMIN).routes()).not.toContain('/supper-admin-overview/super-admins');
+		const r = setup(ADMIN).routes(); expect(r).not.toContain('/supper-admin-overview/super-admins'); expect(r).not.toContain('/supper-admin-overview/system-settings');
 	});
 	it('the OWNER keeps the full menu including the roles and super admin pages; a SUPER_ADMIN ACCOUNT that is not the owner does not', () => {
 		const sa = { accountType: 'SUPER_ADMIN', activeRole: 'SUPER_ADMIN', roles: ['SUPER_ADMIN'] };
@@ -56,7 +56,7 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 		TestBed.resetTestingModule();
 		const r = setup(sa, [], true).routes();
 		expect(r).toContain('/supper-admin-overview/roles');
-		expect(r).toContain('/supper-admin-overview/super-admins');
+		expect(r).not.toContain('/supper-admin-overview/super-admins'); // merged into «إعدادات النظام» (a tab of it)
 		expect(r).toContain('/supper-admin-overview/accreditations');
 	});
 	it('an admin account whose STORED active role is CLIENT still gets the admin menu (the account type decides, never the client shell)', () => {

@@ -15,7 +15,8 @@
     <symbol id="spa-i-export" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
   </defs></svg>
 
-  <div class="spa-layout">
+  <div class="spa-layout" [class.spa-embed]="!!embed">
+    @if (!embed) {
     <div class="spa-nav">
       <div class="spa-nav-inner">
         <div class="spa-nav-ttl">الإعدادات</div>
@@ -32,6 +33,7 @@
         }
       </div>
     </div>
+    }
 
     <div class="spa-content">
       @if (store.loading() && !store.items().length) {
@@ -56,6 +58,7 @@
       }
 
       @if (activeSection() === 'general') {
+        @if (!embed) {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الإعدادات العامة</div><div class="spa-sec-sub">اسم النظام، اللغة، التوقيت والسياسات الأساسية</div></div>
           <button type="button" class="spa-btn spa-btn-pri" data-testid="header-save" [disabled]="!dirtyIn(generalKeys).length || store.saving() || store.state() !== 'ready'" (click)="saveTab(generalKeys)"><svg><use href="#spa-i-save"></use></svg>{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
@@ -63,6 +66,7 @@
         <app-settings-section title="هوية النظام" icon="globe" [keys]="identity" variant="spa" [showState]="false" [showSave]="false" />
         <app-settings-section title="التسجيل والوصول" icon="settings" [keys]="registration" variant="spa" [showState]="false" [showSave]="false" />
         <app-settings-section title="سياسات المحتوى" icon="list" [keys]="contentPolicy" variant="spa" [showState]="false" [showSave]="false" />
+        }
         <div class="spa-card spa-card-flush" data-testid="admins-card">
           <div class="spa-card-head"><div class="spa-card-ttl"><svg aria-hidden="true"><use href="#spa-i-shield"></use></svg>الحسابات الإدارية</div><div class="spa-row-sub">حسابات المسؤول والمسؤول الأعلى المسجلة فعليًا في النظام</div></div>
           @if (adminsFailed()) { <div class="spa-empty" role="alert" data-testid="admins-error">تعذّر تحميل الحسابات الإدارية.</div> }

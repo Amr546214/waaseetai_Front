@@ -1,5 +1,9 @@
 import { FeePolicyPanel } from '../../../../shared/fee-policy/fee-policy-panel';
 import { ChangeDetectionStrategy, Component, OnInit, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { OperationsPanelService } from '../../../../core/services/operations-panel.service';
+import { LoginProtectionComponent } from '../../../../shared/login-protection/login-protection.component';
+import { SaSuperAdmins } from '../sa-super-admins/sa-super-admins';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { mapHttpError } from '../../../../core/forms/http-error';
@@ -9,7 +13,10 @@ import { SettingsSectionComponent } from '../../../../shared/system-settings/set
 import { SettingsChangelogComponent } from './settings-changelog.component';
 import { SettingsHealthComponent } from './settings-health.component';
 
-type Tab = 'general' | 'ai' | 'notifications' | 'security' | 'finance' | 'regional' | 'health';
+type Tab = 'general' | 'ai' | 'notifications' | 'security' | 'finance' | 'regional' | 'health' | 'admins' | 'integrations' | 'audit' | 'danger';
+const TABS: readonly Tab[] = ['general', 'ai', 'notifications', 'security', 'finance', 'regional', 'health', 'admins', 'integrations', 'audit', 'danger'];
+export const NO_PANEL_ACCESS = 'يلزم امتلاك صلاحية Super Admin للوصول إلى إعدادات النظام وتعديلها';
+export const OFFICIAL_ONLY = 'لوحة الإعدادات التشغيلية متاحة على الموقع الرسمي فقط.';
 
 /**
  * P-AD-020 «إعدادات النظام». Every row comes from the server's settings registry (one source shared with «Super Admin»): what is enforced is editable and saved with a version check and an audit entry,
@@ -18,7 +25,7 @@ type Tab = 'general' | 'ai' | 'notifications' | 'security' | 'finance' | 'region
 @Component({
 	selector: 'app-sa-system-settings',
 	standalone: true,
-	imports: [FeePolicyPanel, SettingsSectionComponent, SettingsHealthComponent, SettingsChangelogComponent],
+	imports: [FeePolicyPanel, SettingsSectionComponent, SettingsHealthComponent, SettingsChangelogComponent, LoginProtectionComponent, SaSuperAdmins],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './sa-system-settings.html',
 	styleUrl: './sa-system-settings.css',
@@ -28,6 +35,9 @@ export class SaSystemSettings implements OnInit {
 	private api = inject(SystemSettingsApi);
 	readonly access = inject(AdminAccessService);
 	readonly appVersion = environment.appVersion;
+	readonly panel = inject(OperationsPanelService);
+	private readonly route = inject(ActivatedRoute);
+	readonly noAccess = NO_PANEL_ACCESS; readonly officialOnly = OFFICIAL_ONLY;
 	private changelog = viewChild(SettingsChangelogComponent);
 
 	/** the icons are the reference's own symbols (P-AD-020 #i-settings / #i-ai / #i-bell / #i-shield / #i-wallet / #i-globe / #i-check) flattened to one path each */
@@ -40,6 +50,10 @@ export class SaSystemSettings implements OnInit {
 		{ key: 'finance', label: 'المالية', icon: this.icons.wallet, ws: 'pl-admin-ss-tab-finance' },
 		{ key: 'regional', label: 'الإقليمية', icon: this.icons.globe, ws: 'pl-admin-ss-tab-regional' },
 		{ key: 'health', label: 'صحة النظام', icon: this.icons.check, ws: 'pl-admin-ss-tab-health' },
+		{ key: 'admins', label: 'حسابات الإدارة العليا', icon: this.icons.shield },
+		{ key: 'integrations', label: 'التكاملات والـ API', icon: this.icons.settings },
+		{ key: 'audit', label: 'Audit Trail', icon: this.icons.check },
+		{ key: 'danger', label: 'المنطقة الحمراء', icon: this.icons.bell },
 	];
 	readonly active = signal<Tab>('general');
 	readonly readiness = signal<{ ready: boolean; blockers: Blocker[] } | null>(null);
@@ -53,16 +67,21 @@ export class SaSystemSettings implements OnInit {
 	readonly generalAll = [...this.general, ...this.contacts, ...this.legal];
 	readonly ai = ['aiEngineEnabled', 'aiConfidenceThreshold', 'aiDisputeArbitration', 'aiFraudDetection', 'aiDisclosureBanner'];
 	readonly notif = ['channelEmail', 'channelPush', 'adminDisputeAlerts', 'adminNotificationEmail'];
-	readonly security = ['adminTwoFactor', 'sessionIdleMinutes', 'sessionMaxHours', 'auditLogging', 'loginProtection'];
+	readonly security = ['adminTwoFactor', 'sessionIdleMinutes', 'sessionMaxHours', 'auditLogging', 'loginMaxFailedAttempts', 'loginAttemptWindowMinutes', 'loginBlockMinutes', 'loginIpMaxFailedAttempts'];
 	readonly finance = ['baseCurrency', 'paymentGateway', 'escrowHoldHours', 'futureBilling'];
 	readonly regional = ['defaultTimezone', 'dateFormat', 'calendarSystem'];
 
 	constructor() {
 		// the change log follows every successful save (the server's own record, not a local echo)
+		// the server decides: no settings are requested until it says this caller may see the panel on this deployment
+		effect(() => { if (this.panel.available()) untracked(() => void this.store.load()); });
 		effect(() => { const n = this.store.notice(); if (n) untracked(() => void this.changelog()?.refresh()); });
 	}
 
-	ngOnInit() { void this.store.load(); }
+	ngOnInit() {
+		this.panel.load();
+		const t = this.route.snapshot.queryParamMap.get('tab') as Tab | null; if (t && TABS.includes(t)) this.active.set(t);
+	}
 	setTab(t: Tab) { this.active.set(t); if (t === 'finance' && this.access.isSuperAdmin() && !this.readiness()) void this.loadReadiness(); }
 	async loadReadiness() {
 		this.readinessError.set('');
