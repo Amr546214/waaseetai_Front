@@ -6,7 +6,9 @@
     </div>
   </div>
 
-  @if (!panel.state()) {
+  @if (panel.error()) {
+    <div class="ss-card ss-err" role="alert">{{panel.error()}} <button type="button" class="ss-link" (click)="panel.load(true)">إعادة المحاولة</button></div>
+  } @else if (!panel.state()) {
     <div class="ss-card" role="status" data-testid="panel-checking">جارٍ التحقق من الصلاحية…</div>
   } @else if (!panel.available()) {
     <div class="ss-card ss-err" role="alert" data-testid="panel-denied">{{ panel.reason() === 'official' ? officialOnly : noAccess }}</div>

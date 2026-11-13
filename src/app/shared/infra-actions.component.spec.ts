@@ -1,0 +1,12 @@
+import {TestBed} from '@angular/core/testing';
+import {provideHttpClient} from '@angular/common/http';
+import {provideHttpClientTesting,HttpTestingController} from '@angular/common/http/testing';
+import {describe,it,expect,afterEach} from 'vitest';
+import {InfraActionsComponent} from './infra-actions.component';
+afterEach(()=>TestBed.resetTestingModule());
+function boot(){TestBed.configureTestingModule({imports:[InfraActionsComponent],providers:[provideHttpClient(),provideHttpClientTesting()]});const fixture=TestBed.createComponent(InfraActionsComponent);return{c:fixture.componentInstance,http:TestBed.inject(HttpTestingController),fixture};}
+describe('infrastructure actions',()=>{
+ it('requires reason and typed confirmation before any mutation',async()=>{const{c,http}=boot();await c.submit();http.expectNone(()=>true);c.reason='backup before change';c.confirmation='wrong';await c.submit();http.expectNone(()=>true);});
+ it('uncertain answer retries the identical payload with the same idempotency key',async()=>{const{c,http}=boot();c.kind='cdn';c.files='https://waseetai.com/a.js';c.reason='refresh after update';c.confirmation=c.phrase;const first=c.submit();const r=http.expectOne(q=>q.url.endsWith('/cdn/purge'));const key=r.request.headers.get('Idempotency-Key');expect(key).toBeTruthy();r.flush('down',{status:503,statusText:'down'});await first;const second=c.submit();const retry=http.expectOne(q=>q.url.endsWith('/cdn/purge'));expect(retry.request.headers.get('Idempotency-Key')).toBe(key);retry.flush({data:{accepted:true,note:'accepted'}});await second;expect(c.message()).toBe('accepted');expect(c.confirmation).toBe('');http.verify();});
+ it('queued recovery is presented as queued and a failed job never claims successful restore',async()=>{const{c,http}=boot();c.action='RESTORE';c.file='backup-id.dump';c.reason='verify recovered snapshot';c.confirmation=c.phrase;const p=c.submit();http.expectOne(q=>q.url.endsWith('/backups/jobs')).flush({data:{id:'test-job',action:'RESTORE',status:'QUEUED',file:c.file}});await p;expect(c.message()).toContain('في الانتظار');expect(c.message()).not.toContain('تم الاسترداد');const refresh=c.refreshJob();http.expectOne(q=>q.url.endsWith('/backups/jobs/test-job')).flush({data:{id:'test-job',action:'RESTORE',status:'FAILED'}});await refresh;expect(c.message()).toContain('فشلت');expect(c.message()).not.toContain('تم الاسترداد');});
+});

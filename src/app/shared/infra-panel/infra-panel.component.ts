@@ -6,7 +6,7 @@ import { mapHttpError } from '../../core/forms/http-error';
 
 export interface InfraItem { label: string; value: string | number | boolean | null; unit?: string; note?: string }
 export interface InfraSection { title: string; source: string; scope: string; measuredAt: string; items?: InfraItem[]; table?: { columns: string[]; rows: Array<Array<string | number | null>> }; unavailable?: { reason: string; requirement: string } }
-export const SOURCE_LABELS: Record<string, string> = { process: 'عملية الخلفية', container: 'الحاوية', host: 'الخادم المضيف', database: 'قاعدة البيانات', config: 'إعدادات البيئة', filesystem: 'القرص', 'backup-dir': 'مجلد النسخ' };
+export const SOURCE_LABELS: Record<string, string> = { process: 'عملية الخلفية', container: 'الحاوية', host: 'الخادم المضيف', database: 'قاعدة البيانات', config: 'إعدادات البيئة', filesystem: 'القرص', 'backup-dir': 'مجلد النسخ', provider: 'المزوّد', 'backup-agent': 'عامل النسخ' };
 
 /** One renderer for the real measurements of «البنية التقنية»: every block says what measured it, over which scope and when; what has no source says so and names the missing requirement. Nothing is invented. */
 @Component({

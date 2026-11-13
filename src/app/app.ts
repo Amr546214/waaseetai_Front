@@ -16,6 +16,8 @@ import { PlatformInfoService } from './core/services/platform-info.service';
 import { PlatformStateService } from './core/services/platform-state.service';
 import { IdentityImgDirective } from './core/identity/identity-img.directive';
 
+export const maintenanceAuthPath = (url: string) => ['/auth/login','/auth/verify-otp','/auth/forget-password','/auth/google','/auth/google/callback'].includes(url.split(/[?#]/)[0].replace(/\/$/, ''));
+
 @Component({
 	selector: 'app-root',
 	standalone: true,
@@ -62,7 +64,7 @@ export class App implements OnInit {
 	private readonly platformState = inject(PlatformStateService);
 	private readonly url = signal('');
 	/** maintenance is on AND this visitor may not pass: not a Super Admin, and not on the login page (the only way to reach the admin entry) */
-	readonly maintenanceBlocked = computed(() => this.platformInfo.maintenance() !== null && String(this.authStore.currentUser()?.accountType) !== 'SUPER_ADMIN' && !/^\/auth\/(login|google)/.test(this.url()));
+	readonly maintenanceBlocked = computed(() => this.platformInfo.maintenance() !== null && String(this.authStore.currentUser()?.accountType) !== 'SUPER_ADMIN' && !maintenanceAuthPath(this.url()));
 	showLoader = signal(true);
 	private readonly router = inject(Router);
 	private readonly routeHidden = signal(false);

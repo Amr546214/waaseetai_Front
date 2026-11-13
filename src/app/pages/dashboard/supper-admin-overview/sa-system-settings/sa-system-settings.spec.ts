@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+import { AuthStore } from '../../../../core/store/auth.store';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -34,7 +36,7 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 	let http: HttpTestingController; let confirm: ReturnType<typeof vi.fn>;
 	beforeEach(() => {
 		confirm = vi.fn(async () => true);
-		TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: ConfirmModalService, useValue: { confirm } }] });
+		TestBed.configureTestingModule({ providers: [{provide:AuthStore,useValue:{currentUser:signal({id:'me',accountType:'SUPER_ADMIN'})}}, provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: ConfirmModalService, useValue: { confirm } }] });
 		http = TestBed.inject(HttpTestingController);
 		const ops = TestBed.inject(OperationsPanelService); ops.state.set({ officialDeployment: true, isSuperAdmin: true, available: true }); ops.loaded.set(true);
 		const a = TestBed.inject(AdminAccessService); a.access.set({ userId: 'me', isSuperAdmin: true, staffStatus: null, roleName: 'Super Admin', permissions: [], hasAnyPermission: true, state: 'SUPER_ADMIN', displayRole: 'مدير النظام' } as any); a.status.set('ready');
