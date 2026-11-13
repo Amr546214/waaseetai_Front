@@ -18,6 +18,9 @@ export interface IdentityCheckAdmin {
 	stateReason: string | null;
 	manualReviewRequired: boolean;
 	advisory: boolean;
+	/** the account's LEGAL name: what the document is compared with (private; reviewers only) */
+	legalName?: string | null;
+	legalNameMissing?: boolean;
 	imageVersion: { version: number; digest: string; submittedAt: string } | null;
 	stale: boolean;
 	startedAt: string | null;

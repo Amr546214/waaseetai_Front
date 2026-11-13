@@ -20,7 +20,16 @@ import { ExamEnvironment } from '../../core/services/exam-environment.service';
 				</li>
 				<li>سجّل الدخول داخل البرنامج، ثم ابدأ الاختبار من صفحة التخصصات.</li>
 			</ol>
-			<p class="text-sm text-slate-300">الأنظمة المدعومة: <strong>Windows</strong> و<strong>macOS</strong> و<strong>iOS / iPadOS</strong> (بإمكانات أقل). غير مدعومة: Android وLinux وChromeOS.</p>
+			<ul class="text-sm text-slate-300 space-y-1" data-testid="exam-env-systems">
+				@for (sys of env().supportedSystems; track sys.system) {
+					<li><strong>{{ sys.system }}</strong>: {{ sys.supported ? 'مدعوم' : 'غير مدعوم' }}@if (sys.note) { — <span class="text-slate-400">{{ sys.note }}</span> }</li>
+				}
+			</ul>
+			@if (!env().testedInRealSeb) {
+				<p class="text-xs text-amber-300" role="note" data-testid="exam-env-untested">هذا الوضع لم يُجرَّب بعد في Safe Exam Browser حقيقي (المفاتيح وملف الإعدادات موجودان على الخادم لكن التكامل لم يُختبر). قد لا يعمل على بعض الأنظمة، وفي هذه الحالة تواصل مع الدعم.</p>
+			} @else {
+				<p class="text-xs text-slate-400" data-testid="exam-env-tested">جُرّب التكامل في SEB حقيقي: {{ env().testedNote }}</p>
+			}
 		}
 		<p class="text-xs text-slate-400" data-testid="exam-env-limits">{{ env().limits }}</p>
 		<button type="button" class="px-4 py-2 rounded-xl border border-white/20 text-sm" (click)="recheck.emit()" data-testid="exam-env-recheck">فتحت الاختبار من البرنامج — تحقق مجددًا</button>

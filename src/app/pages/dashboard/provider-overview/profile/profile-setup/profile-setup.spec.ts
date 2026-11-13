@@ -26,7 +26,7 @@ describe('provider setup AI suggestions', () => {
         { provide: AuthStore, useValue: { currentUser: () => null } },
         { provide: ProfileApiService, useValue: { getProviderProfileSetup: () => of({ data: { industry: 'مطور مواقع', bio: 'نبذتي الحالية', skills: [{ name: 'HTML' }] } }), saveProviderProfileSetup: save } },
         { provide: SpecialtyService, useValue: { getCategories: () => of({ success: true, data: [] }), getPublicSpecialties: () => of({ success: true, data: [] }) } },
-        { provide: SetupTestService, useValue: { warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } }
+        { provide: SetupTestService, useValue: { needsExamEnvironment: signal(false), warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } }
       ]
     }).compileComponents();
     fixture = TestBed.createComponent(ProfileSetupDashboard);

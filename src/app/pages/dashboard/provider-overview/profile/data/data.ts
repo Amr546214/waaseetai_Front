@@ -30,6 +30,7 @@ import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../.
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { IdentityCheckService } from '../../../../../core/services/identity-check.service';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
+import { UsernameFieldComponent } from '../../../../../shared/username/username-field.component';
 
 /** Arabic names of the fields, used by the "what is missing" summary. */
 const PROFILE_LABELS: Record<string, string> = {
@@ -109,7 +110,7 @@ interface ActiveSession {
 @Component({
   selector: 'app-profile-data',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent, SkillsPickerComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent, SkillsPickerComponent, UsernameFieldComponent],
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
@@ -373,6 +374,9 @@ export class Data implements OnInit {
     this.clearDraftStorage();
   }
 
+  /** the username (the display name) was saved on its own: the form that still carries first/last name follows, so a later save can never write an older name back */
+  onUsernameChanged(username: string) { this.profileForm?.patchValue({ firstName: username, lastName: '' }, { emitEvent: false }); }
+
   ngOnInit() {
     this.clearDraftStorage();
     // e.g. the withdraw page links to ?tab=payout to add the PayPal email.
@@ -382,7 +386,7 @@ export class Data implements OnInit {
 
     this.profileForm = this.fb.group({
       firstName: ['', [requiredTrim, maxTrim(60)]],
-      lastName: ['', [requiredTrim, maxTrim(60)]],
+      lastName: ['', [maxTrim(60)]], // empty is normal: the username (kept in firstName) is ONE field
       headline: ['', [requiredTrim, maxTrim(100)]],
       hourlyRate: [null as number | null, Validators.min(0)],
       yearsOfExperience: [null as number | null, Validators.min(0)],

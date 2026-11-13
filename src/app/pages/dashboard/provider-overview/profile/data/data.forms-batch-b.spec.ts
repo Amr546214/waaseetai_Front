@@ -81,12 +81,12 @@ describe('provider profile data: Batch B forms (field errors, generic errors, on
     const fill = () => { component.profileForm.patchValue({ firstName: 'أحمد', lastName: 'علي', headline: 'مصمم', specialty: 'تصميم', country: 'السعودية', city: 'الرياض' }); render(); };
 
     it('invalid submit: first invalid field has focus, aria-invalid and a role=alert message', async () => {
-      component.profileForm.patchValue({ firstName: '', headline: '' }); render();
+      component.profileForm.patchValue({ headline: '' }); render();
       q('button.btn-primary').click();
       render(); await settleForm();
       TestBed.inject(FormA11ySyncService).sync(document); // the app root runs this watcher for every touched-invalid control
-      expectFocused(q('#pr-fname'));
-      expect(q('#pr-fname').getAttribute('aria-invalid')).toBe('true');
+      expectFocused(q('#pr-title'));
+      expect(q('#pr-title').getAttribute('aria-invalid')).toBe('true');
       expect(q('#prof-panel-profile').querySelector('[role="alert"][data-testid="field-error"]')).toBeTruthy();
       expect(svc['updateBasicInfo']).not.toHaveBeenCalled();
     });

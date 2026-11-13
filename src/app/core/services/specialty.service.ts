@@ -86,9 +86,22 @@ export class SpecialtyService {
 	getActiveAttempt(): Observable<any> {
 		return this.http.get(`${this.apiUrl}/assessments/active`, { context: this.silent() });
 	}
-	/** Silent autosave of the answers so far. */
-	saveAttemptAnswers(attemptId: string, answers: Record<string, string>): Observable<any> {
-		return this.http.put(`${this.apiUrl}/assessments/${attemptId}/answers`, { answers }, { context: this.silent() });
+	/** Silent autosave of the answers so far. `seq` is a monotonic counter: the server applies an answer only if this request is newer than the one that last wrote it. */
+	saveAttemptAnswers(attemptId: string, answers: Record<string, string>, seq: number): Observable<any> {
+		return this.http.put(`${this.apiUrl}/assessments/${attemptId}/answers`, { answers, seq }, { context: this.silent() });
+	}
+	/**
+	 * Last-chance save while the page is going away (tab closed, reload, navigation): `fetch` with keepalive outlives the page, a normal XHR does not. Fire-and-forget; the caller treats the answers
+	 * as UNCONFIRMED until a later read says otherwise.
+	 */
+	saveAttemptAnswersKeepalive(attemptId: string, answers: Record<string, string>, seq: number): void {
+		if (typeof fetch !== 'function') return;
+		let token = '';
+		try { token = localStorage.getItem('waseet_token') || localStorage.getItem('access_token') || localStorage.getItem('token') || ''; } catch { /* storage blocked */ }
+		if (!token && typeof document !== 'undefined') token = document.cookie.match(/(?:^|;\s*)waseet_token=([^;]+)/)?.[1] || '';
+		try {
+			void fetch(`${this.apiUrl}/assessments/${attemptId}/answers`, { method: 'PUT', keepalive: true, credentials: 'include', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token.replace(/^"|"$/g, '')}` } : {}) }, body: JSON.stringify({ answers, seq }) }).catch(() => undefined);
+		} catch { /* nothing more can be done while leaving */ }
 	}
 	/** A page / exam-mode event for the reviewers (information only). */
 	logAttemptEvent(attemptId: string, type: string): Observable<any> {

@@ -106,17 +106,22 @@ describe('Specialties — exam guard', () => {
 		expect(TestBed.inject(ExamEnvironmentService).satisfied()).toBe(true);
 	});
 
-	it('answers are saved silently (debounced) to the server; a failed save is retried on the next change', async () => {
-		await mount((m, url) => (/assessments\/active$/.test(url) ? ACTIVE : base(m, url)), true);
+	it('answers are saved silently (debounced) with a sequence number; the page shows them as unconfirmed until the SERVER answers', async () => {
+		await mount((m, url) => (/assessments\/active$/.test(url) ? ACTIVE : /answers$/.test(url) ? { success: true, data: { saved: true, answers: { '1': 'a', '2': 'a' } } } : base(m, url)), true);
 		vi.useFakeTimers();
 		component.selectQuestionAnswer('2', 'a');
 		component.selectQuestionAnswer('1', 'a');
 		expect(calls.filter(c => c.m === 'PUT').length).toBe(0);
+		expect(component.autosave.status()?.state).toBe('unconfirmed');
+		expect(component.autosave.unconfirmedCount()).toBe(2);
 		vi.advanceTimersByTime(1600);
 		const puts = calls.filter(c => c.m === 'PUT');
 		expect(puts.length).toBe(1);
 		expect(puts[0].url).toMatch(/assessments\/att-1\/answers$/);
 		expect(puts[0].body.answers).toEqual({ '1': 'a', '2': 'a' });
+		expect(typeof puts[0].body.seq).toBe('number');
+		expect(component.autosave.status()?.state).toBe('saved'); // confirmed because the server's answer holds them
+		expect(component.autosave.unconfirmedCount()).toBe(0);
 	});
 
 	it('the leave-the-test copy no longer threatens an automatic loss: progress is saved and the leave is only an event', async () => {

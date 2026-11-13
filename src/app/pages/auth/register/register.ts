@@ -26,13 +26,13 @@ import { backendPhoneValidator, phoneDigits } from '../../../core/forms/phone.va
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
 import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
 import { cleanLegalName, legalNameValidator } from '../../../core/validators/legal-name.validator';
+import { cleanUsername, usernameValidator } from '../../../core/validators/username.validator';
 
 /** The register payload names some fields differently from the form controls. */
 const REGISTER_SERVER_FIELD_ALIASES: Record<string, string> = { phoneNumber: 'phone', phoneCountryCode: 'phone', agreedToTerms: 'agreeTerms', confirmPassword: 'confirmPassword' };
 const REGISTER_LABELS: Record<string, string> = {
 	legalName: 'الاسم الحقيقي',
-	firstName: 'الاسم الأول',
-	lastName: 'اسم العائلة',
+	username: 'اسم المستخدم',
 	email: 'البريد الإلكتروني',
 	phone: 'رقم الجوال',
 	password: 'كلمة المرور',
@@ -233,8 +233,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			// uppercase letter and a digit, phone digits only and at least 9.
 			// the REAL name (as on the identity document): compared with the document and never shown to others; the first/last name below is the display name
 			legalName: ['', [Validators.required, legalNameValidator]],
-			firstName: ['', [Validators.required, Validators.minLength(2)]],
-			lastName: ['', [Validators.required, Validators.minLength(2)]],
+			// ONE field, a single word is fine: the name shown on the platform (separate from the legal name above)
+			username: ['', [Validators.required, usernameValidator]],
 			email: ['', [Validators.required, Validators.email]],
 			phone: ['', [Validators.required, backendPhoneValidator]],
 			password: ['', [Validators.required, strongPasswordValidator]],
@@ -417,8 +417,8 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		this.isGoogleFlow = true;
 		this.errorMessage = '';
 		this.basicInfoForm.patchValue({
-			firstName: profile.firstName,
-			lastName: profile.lastName,
+			// Google's given name is only a SUGGESTION for the username; the legal name stays empty until the user writes it
+			username: String(profile.firstName ?? '').trim().slice(0, 60),
 			email: profile.email
 		});
 		const password = this.basicInfoForm.get('password');
@@ -490,8 +490,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		const payload = {
 			accountType: this.accountTypeMap[this.selectedAccountType],
 			legalName: cleanLegalName(val.legalName),
-			firstName: val.firstName,
-			lastName: val.lastName,
+			username: cleanUsername(val.username),
 			email: val.email,
 			phoneCountryCode: val.phone?.dialCode || '+966',
 			phoneNumber: phoneDigits(val.phone?.number),
@@ -566,8 +565,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		return {
 			accountType: this.accountTypeMap[this.selectedAccountType],
 			legalName: cleanLegalName(val.legalName),
-			firstName: val.firstName,
-			lastName: val.lastName,
+			username: cleanUsername(val.username),
 			email: String(val.email ?? '').trim(),
 			phoneCountryCode: val.phone?.dialCode || '+966',
 			phoneNumber: phoneDigits(val.phone?.number),

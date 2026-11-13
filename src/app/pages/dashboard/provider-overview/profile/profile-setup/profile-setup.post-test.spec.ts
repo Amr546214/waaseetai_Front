@@ -23,7 +23,7 @@ describe('setup wizard: after the step-7 test', () => {
 				{ provide: AuthStore, useValue: { currentUser: () => ({ accountType: 'PROVIDER_INDIVIDUAL' }) } },
 				{ provide: ProfileApiService, useValue: { getProviderProfileSetup: () => of({ data: {} }), saveProviderProfileSetup: vi.fn(() => of({ success: true })) } },
 				{ provide: SpecialtyService, useValue: { getCategories: () => of({ success: true, data: [] }), getPublicSpecialties: () => of({ success: true, data: [] }) } },
-				{ provide: SetupTestService, useValue: { warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), disconnect: vi.fn(), startTest: vi.fn() } },
+				{ provide: SetupTestService, useValue: { needsExamEnvironment: signal(false), warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), disconnect: vi.fn(), startTest: vi.fn() } },
 				{ provide: ProviderAccessService, useValue: { invalidate } },
 			],
 		});

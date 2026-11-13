@@ -1,4 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
+import { ExamEnvironmentService } from './exam-environment.service';
 import { io, Socket } from 'socket.io-client';
 import { SOCKET_BACKOFF } from '../utils/socket-backoff';
 import { environment } from '../../../environments/environment';
@@ -68,6 +71,11 @@ export class SetupTestService {
     return '';
   }
 
+  private readonly http = inject(HttpClient);
+  private readonly examEnv = inject(ExamEnvironmentService);
+  /** Restricted exam mode and this browser is not a verified Safe Exam Browser: the page shows the instructions, nothing is generated. */
+  readonly needsExamEnvironment = signal(false);
+
   startTest() {
     this.isGenerating.set(true);
     this.errorMsg.set(null);
@@ -77,7 +85,20 @@ export class SetupTestService {
     this.currentQuestion.set(null);
     this.cachedQuestions = [];
     this.nextQuestionIndex = 0;
+    this.needsExamEnvironment.set(false);
+    // The test itself, its scoring and what its result does are unchanged. Only in the server's restricted exam mode does it first ask WHERE it may start: a verified Safe Exam Browser
+    // gets a short-lived ticket on the verified HTTP route, and the server refuses to start (and to generate any question) without it.
+    this.examEnv.load(env => {
+      if (!env?.restricted) { this.openSocket(); return; }
+      if (!this.examEnv.satisfied()) { this.isGenerating.set(false); this.needsExamEnvironment.set(true); return; }
+      this.http.post<{ data?: { ticket?: string } }>(`${environment.url_api}/exam-environment/ticket`, {}, { context: new HttpContext().set(SKIP_LOADING, true) }).subscribe({
+        next: r => this.openSocket(r?.data?.ticket),
+        error: () => { this.isGenerating.set(false); this.errorMsg.set('تعذر التحقق من بيئة الاختبار. أعد المحاولة من داخل Safe Exam Browser.'); }
+      });
+    });
+  }
 
+  private openSocket(examTicket?: string) {
     const socketUrl = environment.url_api.includes('/api') 
       ? environment.url_api.replace('/api', '') 
       : environment.url_api;
@@ -88,7 +109,7 @@ export class SetupTestService {
       transports: ['websocket'],
       auth: { token }
     });
-    this.socket.emit('setup_test:init', { token });
+    this.socket.emit('setup_test:init', { token, ...(examTicket ? { examTicket } : {}) });
 
     this.socket.on('setup_test:generating', (data: any) => {
       this.statusMsg.set(data.message);

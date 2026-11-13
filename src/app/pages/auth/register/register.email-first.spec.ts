@@ -13,7 +13,7 @@ import { AuthStore } from '../../../core/store/auth.store';
 class BlankTestComponent {}
 
 const PASSWORD = 'Aa1!aaaaaa';
-const FORM = { legalName: 'Sara Ahmed Ali', firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: PASSWORD, confirmPassword: PASSWORD, phone: { dialCode: '+20', number: '01000000001' }, agreeData: true, agreeTerms: true };
+const FORM = { legalName: 'Sara Ahmed Ali', username: 'Sara', email: 'sara@example.com', password: PASSWORD, confirmPassword: PASSWORD, phone: { dialCode: '+20', number: '01000000001' }, agreeData: true, agreeTerms: true };
 const CONFLICT = () => throwError(() => ({ status: 409, error: { success: false, code: 'REGISTRATION_DATA_UNAVAILABLE', message: 'تعذّر إنشاء حساب بهذه البيانات لأن البريد الإلكتروني أو رقم الجوال مرتبط بحساب قائم. صحّح البيانات، أو سجّل الدخول، أو استعد كلمة المرور، أو تواصل مع الدعم' } }));
 
 function mount(onPost: (url: string, body: any) => any) {
@@ -53,7 +53,9 @@ describe('Register (e-mail-first): proof before account', () => {
 		expect(start[1].password).toBeUndefined();
 		// the legal name travels on its own, separate from the display name (first / last name)
 		expect(start[1].legalName).toBe('Sara Ahmed Ali');
-		expect(start[1].firstName).toBe('Sara');
+		expect(start[1].username).toBe('Sara');
+		expect(start[1].firstName).toBeUndefined();
+		expect(start[1].lastName).toBeUndefined();
 		type(m.c); m.c.onVerificationSubmit();
 		const done = calls(m.post, /register\/complete$/)[0];
 		expect(done[1]).toEqual(expect.objectContaining({ password: PASSWORD, ticket: 'T', code: '123456' }));
@@ -159,7 +161,8 @@ describe('Register: the legal name is required and validated apart from the disp
 		ctl.setValue('عمرو 2'); expect(ctl.valid).toBe(false);
 		ctl.setValue('عمرو محمود'); expect(ctl.valid).toBe(true);
 		// a display name that differs from the legal name is normal
-		m.c.basicInfoForm.patchValue({ firstName: 'عمرو', lastName: 'م.' });
-		expect(m.c.basicInfoForm.get('firstName')?.value).toBe('عمرو');
+		m.c.basicInfoForm.patchValue({ username: 'عمرو' });
+		expect(m.c.basicInfoForm.get('username')?.valid).toBe(true); // a one-word username is fine and differs from the legal name
+		expect(m.c.basicInfoForm.get('username')?.value).not.toBe(m.c.basicInfoForm.get('legalName')?.value);
 	});
 });

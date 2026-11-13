@@ -8,6 +8,9 @@ export interface ExamEnvironment {
 	/** THIS browser's request carried a valid Safe Exam Browser hash (checked by the server) */
 	verified: boolean;
 	restricted: boolean;
+	/** the operator declared the integration was tried in a real Safe Exam Browser; keys and settings file being present does NOT mean this */
+	testedInRealSeb?: boolean;
+	testedNote?: string | null;
 	configUrl?: string;
 	configDownloadUrl?: string;
 	downloadUrl: string;

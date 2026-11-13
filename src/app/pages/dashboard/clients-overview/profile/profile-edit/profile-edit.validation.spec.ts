@@ -132,13 +132,10 @@ describe('client profile-edit: shared validation', () => {
   describe('basics tab', () => {
     beforeEach(() => goTab('basics'));
 
-    it('a 1-character name: no request, summary + inline error, button enabled', () => {
-      component.basicsForm.patchValue({ firstName: 'س' });
-      component.saveTab('basics'); render();
-      expect(updateTab).not.toHaveBeenCalled();
-      expect(summary()).toContain('الاسم الأول');
-      expect(errors().some(t => t.includes('حرفين'))).toBe(true);
-      expect(submitBtn().disabled).toBe(false);
+    it('the display name is ONE username field (a single word is fine) saved on its own; the old first/last inputs are gone from this form', () => {
+      expect(el().querySelector('ws-username-field')).not.toBeNull();
+      expect(el().querySelector('[formControlName="firstName"]')).toBeNull();
+      expect(el().querySelector('[formControlName="lastName"]')).toBeNull();
     });
 
     it('email and phone are read-only (disabled, labelled), and only the name is sent', () => {

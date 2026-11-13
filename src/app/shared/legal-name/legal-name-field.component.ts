@@ -16,7 +16,8 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 		@if (view(); as v) {
 			<label class="block text-sm font-bold mb-1" for="legal-name-field-input">الاسم الحقيقي (كما في الهوية)</label>
 			@if (v.status === 'MISSING') {
-				<p class="text-xs text-amber-300 mb-2" role="note" data-testid="legal-name-missing">أكمل اسمك الحقيقي كما هو مكتوب في وثيقة الهوية؛ نطابقه معها ولا يظهر للآخرين. اسم العرض لا يتغيّر.</p>
+				<p class="text-xs text-amber-300 mb-2" role="note" data-testid="legal-name-missing">أكمل اسمك الحقيقي كما هو مكتوب في وثيقة الهوية؛ نطابقه معها ولا يظهر للآخرين. اسم المستخدم لا يتغيّر. لا يمكن اعتماد هوية جديدة قبل إدخاله.</p>
+				@if (v.changeNeedsReview) { <p class="text-xs text-slate-300 mb-2" role="note" data-testid="legal-name-legacy-verified">حسابك موثَّق حاليًا كما هو ويبقى كذلك؛ إضافة الاسم الحقيقي تُرسل كطلب للمراجعة، وبعد اعتماده تُعاد مطابقة وثيقتك به.</p> }
 			}
 			@if (v.pendingRequest; as p) {
 				<p class="text-xs text-slate-300 mb-2" role="status" data-testid="legal-name-pending">طلب تعديل الاسم إلى «{{ p.requestedValue }}» قيد المراجعة. سيبقى الاسم الحالي حتى القرار، ثم تُعاد مطابقة الهوية.</p>
@@ -26,7 +27,7 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 				@if (problem(); as pr) { <div class="text-xs text-red-400 mt-1" role="alert" data-testid="legal-name-problem">{{ pr }}</div> }
 				@if (v.changeNeedsReview && v.status === 'PROVIDED') { <p class="text-xs text-slate-300 mt-1">اسمك مرتبط بهوية موثقة أو قيد المراجعة: التعديل يُرسل كطلب للمراجعة ثم تُعاد مطابقة الهوية.</p> }
 				<div class="flex gap-2 mt-2">
-					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-[#04101f] text-sm font-bold" [disabled]="saving() || !!problem() || !draft().trim()" (click)="save()" data-testid="legal-name-save">{{ v.changeNeedsReview && v.status === 'PROVIDED' ? 'إرسال طلب التعديل' : 'حفظ الاسم الحقيقي' }}</button>
+					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-[#04101f] text-sm font-bold" [disabled]="saving() || !!problem() || !draft().trim()" (click)="save()" data-testid="legal-name-save">{{ v.changeNeedsReview ? (v.status === 'PROVIDED' ? 'إرسال طلب التعديل' : 'إرسال طلب إضافة الاسم') : 'حفظ الاسم الحقيقي' }}</button>
 					@if (v.status === 'PROVIDED') { <button type="button" class="px-4 py-2 rounded-xl border border-white/20 text-sm" (click)="cancel()">إلغاء</button> }
 				</div>
 			} @else {

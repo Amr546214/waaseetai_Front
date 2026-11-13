@@ -19,6 +19,7 @@ import { SpecialtyService } from '../../../../../core/services/specialty.service
 import { AntiCheatService } from '../../../../../core/services/anti-cheat.service';
 import { ExamEnvironmentService } from '../../../../../core/services/exam-environment.service';
 import { ExamIntegrityService } from '../../../../../core/services/exam-integrity.service';
+import { ExamAutosaveService } from '../../../../../core/services/exam-autosave.service';
 import { ExamEnvironmentInstructionsComponent } from '../../../../../shared/exam-environment/exam-environment-instructions.component';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 
@@ -167,8 +168,7 @@ export class Specialties implements OnInit, OnDestroy {
 	private readonly integrity = inject(ExamIntegrityService);
 	/** The server runs the restricted exam mode and this browser is not a verified Safe Exam Browser: the instructions replace the start of the test. */
 	readonly showExamInstructions = signal(false);
-	private draftTimer: ReturnType<typeof setTimeout> | null = null;
-	private draftDirty = false;
+	readonly autosave = inject(ExamAutosaveService);
 	public confirmModal = inject(ConfirmModalService);
 	private platformId = inject(PLATFORM_ID);
 	/**
@@ -363,6 +363,7 @@ export class Specialties implements OnInit, OnDestroy {
 			if (ready && ready.attemptId) {
 				this.quizSessionId.set(ready.attemptId);
 				this.integrity.start(ready.attemptId);
+				this.autosave.start(ready.attemptId);
 				this.syncServerClock(ready.attemptId);
 			}
 			if (ready && typeof ready.totalQuestions === 'number' && ready.totalQuestions > 0) this.expectedQuestions.set(ready.totalQuestions);
@@ -1305,6 +1306,7 @@ export class Specialties implements OnInit, OnDestroy {
 				this.currentStep.set(4);
 				this.setupQuizSession(a.attemptId, questions, Math.max(1, Number(a.remainingSeconds) || 0), false, true);
 				this.userAnswers.set(a.answers && typeof a.answers === 'object' ? { ...a.answers } : {});
+				this.autosave.adopt(this.userAnswers());
 				this.expectedQuestions.set(questions.length);
 				this.assistantStore.resolved();
 			},
@@ -1323,19 +1325,6 @@ export class Specialties implements OnInit, OnDestroy {
 	/** The server's clock is the clock: after an attempt is known the displayed time follows the server's remaining seconds (a refresh never gives extra time). */
 	private syncServerClock(attemptId: string) {
 		this.specialtyService.getActiveAttempt().subscribe({ next: (r: any) => { const a = r?.data; if (a && a.attemptId === attemptId && typeof a.remainingSeconds === 'number' && this.isQuizActive()) this.timerRemainingSec.set(Math.max(0, a.remainingSeconds)); }, error: () => undefined });
-	}
-
-	/** Silent autosave (debounced): answers survive a lost connection or a reload; a failed save is retried on the next change or when the connection returns. */
-	private scheduleDraftSave() {
-		this.draftDirty = true;
-		if (this.draftTimer) return;
-		this.draftTimer = setTimeout(() => { this.draftTimer = null; this.flushDraft(); }, 1500);
-	}
-	private flushDraft() {
-		const id = this.quizSessionId();
-		if (!id || !this.draftDirty || !this.isQuizActive()) return;
-		this.draftDirty = false;
-		this.specialtyService.saveAttemptAnswers(id, this.userAnswers()).subscribe({ error: () => { this.draftDirty = true; } });
 	}
 
 	private setupQuizSession(sessionId: string, questions: QuizQuestion[], remainingSec: number, isStreaming = false, reloaded = false) {
@@ -1359,6 +1348,7 @@ export class Specialties implements OnInit, OnDestroy {
 		// Establish the assessment socket transport for this attempt
 		this.antiCheatService.startMonitoring();
 		this.integrity.start(sessionId, reloaded);
+		this.autosave.start(sessionId, reloaded ? this.userAnswers() : {});
 		if (!reloaded) this.syncServerClock(sessionId);
 
 		if (questions.length > 0) {
@@ -1433,7 +1423,7 @@ export class Specialties implements OnInit, OnDestroy {
 			...answers,
 			[String(questionId)]: String(optionChoice)
 		}));
-		this.scheduleDraftSave();
+		this.autosave.answersChanged(this.userAnswers());
 	}
 
 	getSelectedOptionForCurrent(): string | null {
@@ -1499,6 +1489,7 @@ export class Specialties implements OnInit, OnDestroy {
 		// is set synchronously below before any async gap, so a rapid repeat
 		// call (or a second entry via the timeout path) is rejected here.
 		if (this.isSubmittingQuiz() || this.quizResult()) return; // already pending, or a result already exists
+		this.autosave.stop(); // the answers travel with the submission now
 
 		const attemptId = this.quizSessionId() || 'demo-session-2026';
 
@@ -1683,7 +1674,8 @@ export class Specialties implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.assistantStore.setExamActive(false);
 		this.integrity.stop();
-		if (this.draftTimer) clearTimeout(this.draftTimer);
+		this.autosave.flushOnLeave();
+		this.autosave.stop();
 		this.stopTimer();
 		this.clearSubmissionWatchers();
 		this.antiCheatService.stopMonitoring();

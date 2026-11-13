@@ -587,7 +587,7 @@
 		</div>
 
 		<!-- The test screen is the SAME component as the setup test (shared/specialty-test): one UI for every specialty test -->
-		<ws-specialty-test *ngIf="testPhase() as phase"
+		<ws-specialty-test *ngIf="testPhase() as phase" [saveStatus]="autosave.status()"
 			[phase]="phase"
 			[statusTitle]="generationInProgress() ? 'التقييم قيد التوليد…' : null"
 			[errorMessage]="quizErrorShown()"

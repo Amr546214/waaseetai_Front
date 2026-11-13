@@ -942,6 +942,9 @@
                 نتيجة اختبار الإعداد المسجلة: <strong>{{ storedSetupTestScore() != null ? (storedSetupTestScore() | number:'1.0-1') + '%' : '—' }}</strong>
                 · الحالة: <strong>{{ storedSetupTestStatusLabel() }}</strong>
               </div>
+              @if (setupTestService.needsExamEnvironment() && examEnv.env(); as examEnvironment) {
+                <ws-exam-environment-instructions [env]="examEnvironment" (recheck)="startTest()" />
+              }
               <button type="button" class="start-btn" (click)="startTest()">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#i-arrow-l"></use></svg>
                 ابدأ الاختبار الآن

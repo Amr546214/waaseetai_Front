@@ -26,6 +26,7 @@ import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { LegalNameFieldComponent } from '../../../../../shared/legal-name/legal-name-field.component';
+import { UsernameFieldComponent } from '../../../../../shared/username/username-field.component';
 
 const PROFILE_LABELS: Record<string, string> = {
 	firstName: 'الاسم الأول',
@@ -42,7 +43,7 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent, LegalNameFieldComponent],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent, LegalNameFieldComponent, UsernameFieldComponent],
 	templateUrl: './profile-edit.html',
 	styleUrl: './profile-edit.css',
 })
@@ -229,6 +230,8 @@ export class ProfileEdit {
 	pendingNameRequest = signal<{ id: string; requestedValue: string } | null>(null);
 	/** The name currently applied on the account (what the form shows again after a request is sent). */
 	private appliedNames = { firstName: '', lastName: '' };
+	/** the username (the display name) was saved on its own: the form that still carries first/last name follows, so a later save can never write an older name back */
+	onUsernameChanged(username: string) { this.appliedNames = { firstName: username, lastName: '' }; this.basicsForm.patchValue({ firstName: username, lastName: '' }, { emitEvent: false }); }
 	/** The raw value of each sensitive tab form as loaded / last saved: a save that matches it sends nothing. */
 	private tabRef: Record<string, string | undefined> = {};
 	showRequestsModal = signal(false);
