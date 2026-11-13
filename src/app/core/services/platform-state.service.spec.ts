@@ -8,7 +8,7 @@ const handlers: Record<string, (p?: unknown) => void> = {};
 vi.mock('socket.io-client', () => ({ io: vi.fn(() => ({ on: (e: string, h: (p?: unknown) => void) => { handlers[e] = h; }, disconnect: vi.fn() })) }));
 import { io } from 'socket.io-client';
 import { PlatformInfoService } from './platform-info.service';
-import { PLATFORM_STATE_POLL_MS, PlatformStateService } from './platform-state.service';
+import { PlatformStateService } from './platform-state.service';
 
 const URL = () => `${environment.url_api}/public/platform-state`;
 const st = (on: boolean, revision: number, message = 'نعود قريبًا') => ({ success: true, data: { maintenance: { on, message: on ? message : '' }, revision } });
@@ -25,15 +25,21 @@ describe('PlatformStateService: live maintenance without a click or a reload', (
 		handlers['platform:state']({ maintenance: { on: false, message: '' }, revision: 4 }); expect(info.maintenance()).toBeNull();
 		http.expectNone(URL());
 	});
-	it('an older answer never overwrites a newer one (a slow poll cannot bring the page back after a push turned it off)', () => {
+	it('an older answer never overwrites a newer one (a slow resync cannot bring the page back after a push turned it off)', () => {
 		svc.start(); http.expectOne(URL()).flush(st(false, 1)); handlers['platform:state']({ maintenance: { on: false, message: '' }, revision: 10 });
 		svc.apply({ maintenance: { on: true, message: 'قديم' }, revision: 5 }); expect(info.maintenance()).toBeNull();
 	});
-	it('re-reads after a socket reconnect, when the tab becomes visible again, and by the light fallback poll', () => {
+	it('re-reads after a socket reconnect, when the tab becomes visible again, and when the browser goes online', () => {
 		svc.start(); http.expectOne(URL()).flush(st(false, 1));
 		handlers['connect'](); handlers['connect'](); http.expectOne(URL()).flush(st(true, 2)); expect(info.maintenance()).not.toBeNull();
 		document.dispatchEvent(new Event('visibilitychange')); http.expectOne(URL()).flush(st(false, 3)); expect(info.maintenance()).toBeNull();
-		vi.advanceTimersByTime(PLATFORM_STATE_POLL_MS); http.expectOne(URL()).flush(st(true, 4, 'عبر الاستطلاع')); expect(info.maintenance()).toBe('عبر الاستطلاع');
+		window.dispatchEvent(new Event('online')); http.expectOne(URL()).flush(st(true, 4, 'بعد عودة الاتصال')); expect(info.maintenance()).toBe('بعد عودة الاتصال');
+	});
+	it('does not poll while idle; a pushed change is still applied after five minutes', () => {
+		svc.start(); http.expectOne(URL()).flush(st(false, 1));
+		vi.advanceTimersByTime(5 * 60_000); http.expectNone(URL());
+		handlers['platform:state']({ maintenance: { on: true, message: 'تحديث فوري' }, revision: 2 });
+		expect(info.maintenance()).toBe('تحديث فوري'); http.expectNone(URL());
 	});
 	it('a failed read keeps the last known state and starts only once', () => {
 		svc.start(); svc.start(); http.expectOne(URL()).flush(st(true, 1)); expect(info.maintenance()).not.toBeNull();
