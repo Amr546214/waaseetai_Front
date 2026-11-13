@@ -949,8 +949,6 @@ export class Data implements OnInit {
     this.isSavingProfile.set(true);
 
     this.profileService.updateBasicInfo({
-      firstName: (val.firstName || stored.firstName || stored.user?.firstName || '').trim(),
-      lastName: (val.lastName || stored.lastName || stored.user?.lastName || '').trim(),
       // sent only when the user changed it: a new image, or null for an explicit removal
       ...(this.avatarDirty ? { avatarUrl: this.avatarUrl() } : {}),
       headline: (val.headline ?? stored.headline ?? '').trim(),

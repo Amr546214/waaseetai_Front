@@ -422,4 +422,19 @@ describe('client profile-edit: shared validation', () => {
     expect(component.missing()).toEqual([]);
     expect(component.errorMsg()).toBe('');
   });
+  it('a one-word username survives a general profile save without replaying hidden names', () => {
+    component.onUsernameChanged('عمرو');
+    for (const form of [component.basicsForm, component.clientForm, component.providerForm, component.contactForm]) {
+      if (form.get('firstName')) expect(form.get('firstName')!.value).toBe('عمرو');
+      if (form.get('lastName')) expect(form.get('lastName')!.value).toBe('');
+    }
+    component.clientForm.patchValue({ bio: 'نبذة جديدة' });
+    component.saveProfile();
+    expect(updateProfile).toHaveBeenCalledTimes(1);
+    const payload = updateProfile.mock.calls[0][0];
+    expect(payload.bio).toBe('نبذة جديدة');
+    expect(payload).not.toHaveProperty('firstName');
+    expect(payload).not.toHaveProperty('lastName');
+  });
+
 });

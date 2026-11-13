@@ -120,7 +120,9 @@ export class SetupTestService {
       this.totalQuestions.set(data.totalQuestions);
       if (Array.isArray(data.questions) && data.questions.length > 0) {
         this.cachedQuestions = data.questions;
-        this.currentQuestion.set(this.cachedQuestions[0]);
+        const index = Number.isInteger(data.currentQuestionIndex) ? data.currentQuestionIndex : 0;
+        this.nextQuestionIndex = index;
+        this.currentQuestion.set(this.cachedQuestions[index] ?? null);
       } else {
         this.socket?.emit('setup_test:get_question', { token: this.getToken() });
       }
