@@ -123,6 +123,7 @@ describe('AntiCheatService.recordAnswer (#20)', () => {
 	it('emits record_answer only when the socket is connected, and never throws otherwise', async () => {
 		const svc: any = Object.create((await import('./anti-cheat.service')).AntiCheatService.prototype);
 		const emit = vi.fn();
+		svc.restricted = () => false; // the prototype-only object has no field initialisers
 		svc.socket = { connected: true, emit };
 		svc.recordAnswer('att-1', '7', 'b');
 		expect(emit).toHaveBeenCalledWith('record_answer', { attemptId: 'att-1', questionId: '7', answer: 'b' });

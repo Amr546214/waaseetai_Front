@@ -10,6 +10,7 @@ import { Sidebar } from '../../sheards/dashboard/sidebar/sidebar';
 import { ChatService } from '../../core/services/chat.service';
 import { ChatStateService } from '../../core/services/chat-state.service';
 import { NotificationSoundService } from '../../core/services/notification-sound.service';
+import { AssistantExamState } from '../../core/store/assistant-exam-state.service';
 
 import { VideoCallModalComponent } from '../../sheards/dashboard/video-call-modal/video-call-modal';
 import { PageLoader } from '../../sheards/page-loader/page-loader';
@@ -30,6 +31,8 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
   public chatStateService = inject(ChatStateService);
   private notificationSoundService = inject(NotificationSoundService);
   private sub = new Subscription();
+  /** A specialty test is on: the layout shows the routed page alone (see assistant-exam-state). */
+  readonly examMode = inject(AssistantExamState).examActive;
 
   // App Info
   currentYear = new Date().getFullYear();

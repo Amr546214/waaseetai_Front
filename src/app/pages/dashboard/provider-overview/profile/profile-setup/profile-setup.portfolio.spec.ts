@@ -32,7 +32,7 @@ describe('provider setup wizard — stage 5 portfolio (#15)', () => {
 				{ provide: ProviderProfileService, useValue: { uploadDocument: vi.fn(), getSkillsCatalog: vi.fn(() => of({ success: true, data: { category: null, skills: [] } })) } },
 				{ provide: KycDocumentService, useValue: { createAccessLink: vi.fn() } },
 				{ provide: SpecialtyService, useValue: { getCategories: () => of({ success: true, data: [] }), getPublicSpecialties: () => of({ success: true, data: [] }) } },
-				{ provide: SetupTestService, useValue: { warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
+				{ provide: SetupTestService, useValue: { needsExamEnvironment: signal(false), warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
 			],
 		});
 		fixture = TestBed.createComponent(ProfileSetupDashboard);

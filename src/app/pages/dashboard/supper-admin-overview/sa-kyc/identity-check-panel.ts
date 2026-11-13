@@ -19,6 +19,11 @@ const STATUS_CLASS: Record<string, string> = { MATCH: 'ok', MISMATCH: 'bad', COU
 		@if (loading()) { <p class="icp-note" data-testid="id-check-loading">جاري التحميل...</p> }
 		@else if (error()) { <p class="icp-note" data-testid="id-check-error" role="alert">{{ error() }}</p> }
 		@else if (c(); as d) {
+			<div class="icp-legal" data-testid="id-check-legal-name">
+				<span class="icp-k">الاسم الحقيقي المسجَّل</span>
+				@if (d.legalName) { <strong data-testid="id-check-legal-name-value">{{ d.legalName }}</strong> <small class="icp-reason">قارنه بالاسم في الوثيقة: هو جزء من الدليل الذي تعتمده</small> }
+				@else { <span class="icp-chip unk" data-testid="id-check-legal-name-missing">لم يُسجَّل بعد — لا يمكن اعتماد هوية جديدة قبل أن يدخله صاحب الحساب</span> }
+			</div>
 			@if (inProgress()) {
 				<p class="icp-state" data-testid="id-check-state" data-state="IN_PROGRESS">قيد الفحص الآلي</p>
 			} @else if (d.state === 'DONE' && d.fields) {
@@ -61,6 +66,7 @@ const STATUS_CLASS: Record<string, string> = { MATCH: 'ok', MISMATCH: 'bad', COU
 	:host-context(body:not(.light-theme)) .icp-chip.unk { color: #ffc940; }
 	.icp-reason { color: var(--m); font-size: 11px; }
 	.icp-state { margin: 0 0 8px; font-weight: 700; }
+	.icp-legal { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 	.icp-note { margin: 0; font-size: 12px; color: var(--m); line-height: 1.7; }
 	`],
 })

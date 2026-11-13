@@ -132,13 +132,10 @@ describe('client profile-edit: shared validation', () => {
   describe('basics tab', () => {
     beforeEach(() => goTab('basics'));
 
-    it('a 1-character name: no request, summary + inline error, button enabled', () => {
-      component.basicsForm.patchValue({ firstName: 'س' });
-      component.saveTab('basics'); render();
-      expect(updateTab).not.toHaveBeenCalled();
-      expect(summary()).toContain('الاسم الأول');
-      expect(errors().some(t => t.includes('حرفين'))).toBe(true);
-      expect(submitBtn().disabled).toBe(false);
+    it('the display name is ONE username field (a single word is fine) saved on its own; the old first/last inputs are gone from this form', () => {
+      expect(el().querySelector('ws-username-field')).not.toBeNull();
+      expect(el().querySelector('[formControlName="firstName"]')).toBeNull();
+      expect(el().querySelector('[formControlName="lastName"]')).toBeNull();
     });
 
     it('email and phone are read-only (disabled, labelled), and only the name is sent', () => {
@@ -425,4 +422,19 @@ describe('client profile-edit: shared validation', () => {
     expect(component.missing()).toEqual([]);
     expect(component.errorMsg()).toBe('');
   });
+  it('a one-word username survives a general profile save without replaying hidden names', () => {
+    component.onUsernameChanged('عمرو');
+    for (const form of [component.basicsForm, component.clientForm, component.providerForm, component.contactForm]) {
+      if (form.get('firstName')) expect(form.get('firstName')!.value).toBe('عمرو');
+      if (form.get('lastName')) expect(form.get('lastName')!.value).toBe('');
+    }
+    component.clientForm.patchValue({ bio: 'نبذة جديدة' });
+    component.saveProfile();
+    expect(updateProfile).toHaveBeenCalledTimes(1);
+    const payload = updateProfile.mock.calls[0][0];
+    expect(payload.bio).toBe('نبذة جديدة');
+    expect(payload).not.toHaveProperty('firstName');
+    expect(payload).not.toHaveProperty('lastName');
+  });
+
 });

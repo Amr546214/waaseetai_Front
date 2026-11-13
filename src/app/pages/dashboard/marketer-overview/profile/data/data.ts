@@ -22,6 +22,7 @@ import { PhoneInputComponent } from '../../../../../sheards/phone-input/phone-in
 import type { CountryCode } from 'libphonenumber-js/mobile';
 import { MarketerKycCard } from '../kyc-document/marketer-kyc-card';
 import { CompletionBoxComponent, CompletionBoxItem } from '../../../../../shared/forms/completion-box.component';
+import { UsernameFieldComponent } from '../../../../../shared/username/username-field.component';
 
 const LABELS: Record<string, string> = {
 	bio: 'الوصف التسويقي',
@@ -71,7 +72,7 @@ export const MARKETER_TIMEZONE_OPTIONS: { value: string; label: string }[] = PRO
 @Component({
 	selector: 'app-data',
 	standalone: true,
-	imports: [MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent, MarketerKycCard, PhoneInputComponent],
+	imports: [MarketerLevelTagComponent, CommonModule, ReactiveFormsModule, FormsModule, RouterLink, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent, MarketerKycCard, PhoneInputComponent, UsernameFieldComponent],
 	templateUrl: './data.html',
 	styleUrl: './data.css',
 })
@@ -178,6 +179,9 @@ export class Data implements OnInit {
 	basicsForm!: FormGroup;
 	contactForm!: FormGroup;
 	passwordForm!: FormGroup;
+
+	/** the username (the display name) was saved on its own: the form that still carries first/last name follows */
+	onUsernameChanged(username: string) { this.basicsForm?.patchValue({ firstName: username, lastName: '' }, { emitEvent: false }); }
 
 	ngOnInit() {
 		this.marketingForm = this.fb.group({

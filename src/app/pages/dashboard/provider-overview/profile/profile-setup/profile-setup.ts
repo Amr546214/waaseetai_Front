@@ -39,6 +39,9 @@ import { PROVIDER_EDIT_PAGE, PROVIDER_SETUP_REDIRECT_MESSAGE, resolveProviderSet
 import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../../../core/services/provider-access.service';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { EMAIL_DISABLED_BY_PLATFORM, CODE_MAIL_ALWAYS_NOTE, isEmailDisabledError } from '../../../../../core/services/notification-preferences.service';
+import { LegalNameFieldComponent } from '../../../../../shared/legal-name/legal-name-field.component';
+import { ExamEnvironmentService } from '../../../../../core/services/exam-environment.service';
+import { ExamEnvironmentInstructionsComponent } from '../../../../../shared/exam-environment/exam-environment-instructions.component';
 
 const SETUP_LABELS: Record<string, string> = {
 	jobTitle: 'المسمى الوظيفي',
@@ -85,7 +88,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent, IdentityGateStatusComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent, IdentityGateStatusComponent, LegalNameFieldComponent, ExamEnvironmentInstructionsComponent],
 	providers: [IdentityGateService],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']
@@ -108,6 +111,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private providerProfileService = inject(ProviderProfileService);
 	private specialtyService = inject(SpecialtyService);
 	public setupTestService = inject(SetupTestService);
+	readonly examEnv = inject(ExamEnvironmentService);
 
 	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
 	readonly countryNames = COUNTRY_NAMES;

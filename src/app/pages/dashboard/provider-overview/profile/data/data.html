@@ -146,12 +146,7 @@
       </div>
     </div>
     <div class="form-grid form-col-2">
-      <div class="inp-group"><label class="inp-label" for="pr-fname">الاسم الأول<span class="ws-req" aria-hidden="true">*</span></label><input
-          id="pr-fname" aria-required="true" class="inp-field" formControlName="firstName" maxlength="60"><ws-field-error [control]="profileForm.get('firstName')" label="الاسم الأول" />
-      </div>
-      <div class="inp-group"><label class="inp-label" for="pr-lname">اسم العائلة<span class="ws-req" aria-hidden="true">*</span></label><input
-          id="pr-lname" aria-required="true" class="inp-field" formControlName="lastName" maxlength="60"><ws-field-error [control]="profileForm.get('lastName')" label="اسم العائلة" />
-      </div>
+      <div class="inp-group" style="grid-column:1/-1"><ws-username-field (changed)="onUsernameChanged($event)" /></div>
       <div class="inp-group"><label class="inp-label" for="pr-title">المسمى المهني<span
             class="ws-req" aria-hidden="true">*</span></label><input id="pr-title" aria-required="true" class="inp-field" formControlName="headline" maxlength="100"
           placeholder="اكتب مسماك المهني"><ws-field-error [control]="profileForm.get('headline')" label="المسمى المهني" />

@@ -33,7 +33,7 @@ describe('provider setup wizard: photo, skills catalog, date of birth', () => {
         { provide: AuthStore, useValue: { currentUser: () => null } },
         { provide: ProfileApiService, useValue: { getProviderProfileSetup: () => of({ data: stored }), saveProviderProfileSetup: save } },
         { provide: SpecialtyService, useValue: { getCategories: () => of({ success: true, data: CATEGORIES }), getPublicSpecialties: () => of({ success: true, data: [] }) } },
-        { provide: SetupTestService, useValue: { warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
+        { provide: SetupTestService, useValue: { needsExamEnvironment: signal(false), warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ProfileSetupDashboard);
@@ -41,7 +41,7 @@ describe('provider setup wizard: photo, skills catalog, date of birth', () => {
     http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
   };
-  afterEach(() => { http.match(r => r.url.includes('/public/geo-suggestion')).forEach(r => r.flush({ success: true, data: { source: 'none' } })); http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } })); http.verify(); fixture.destroy(); });
+  afterEach(() => { http.match(r => r.url.includes('/legal-name')).forEach(r => r.flush({ success: true, data: { status: 'PROVIDED', legalName: 'اسم حقيقي كامل', changeNeedsReview: false, pendingRequest: null } })); http.match(r => r.url.includes('/public/geo-suggestion')).forEach(r => r.flush({ success: true, data: { source: 'none' } })); http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } })); http.verify(); fixture.destroy(); });
   const catalog = (skills: string[]) => http.expectOne(r => r.url.includes('/skills/catalog')).flush({ success: true, data: { category: 'design-creative', skills } });
   const pick = (file: File) => component.onAvatarSelected({ target: { files: [file] } });
   const png = () => new File([new Uint8Array([1, 2, 3])], 'me.png', { type: 'image/png' });

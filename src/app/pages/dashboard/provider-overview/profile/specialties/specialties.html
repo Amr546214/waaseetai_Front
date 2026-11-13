@@ -468,6 +468,9 @@
 	</ng-container>
 
 	<ng-container *ngIf="currentStep() === 3">
+		@if (showExamInstructions() && examEnv.env(); as examEnvironment) {
+			<ws-exam-environment-instructions [env]="examEnvironment" (recheck)="recheckExamEnvironment()" />
+		}
 		<!-- Step banner: neutral wording; AI wording appears only inside a real model result below -->
 		<div data-testid="step3-banner"
 			class="ws-note ws-note--neutral" style="margin-bottom:24px">
@@ -584,7 +587,7 @@
 		</div>
 
 		<!-- The test screen is the SAME component as the setup test (shared/specialty-test): one UI for every specialty test -->
-		<ws-specialty-test *ngIf="testPhase() as phase"
+		<ws-specialty-test *ngIf="testPhase() as phase" [saveStatus]="autosave.status()"
 			[phase]="phase"
 			[statusTitle]="generationInProgress() ? 'التقييم قيد التوليد…' : null"
 			[errorMessage]="quizErrorShown()"

@@ -28,6 +28,8 @@ export class AntiCheatService implements OnDestroy {
 
   // Reactive State Signals
   public isMonitoring = signal<boolean>(false);
+  /** Restricted exam mode (the server only accepts a verified Safe Exam Browser): the socket never starts, answers or times a test, everything goes over the verified HTTP routes. */
+  public restricted = signal<boolean>(false);
 
   // Event subjects for component reactive overlays and streaming
   public questionStreamed$ = new Subject<StreamedQuestionPayload>();
@@ -55,7 +57,7 @@ export class AntiCheatService implements OnDestroy {
   public startMonitoring(): void {
     if (!this.isBrowser || this.isMonitoring()) return;
 
-    this.initSocket();
+    if (!this.restricted()) this.initSocket();
     this.isMonitoring.set(true);
     console.log('[AntiCheatService] Assessment socket transport activated');
   }
@@ -155,7 +157,7 @@ export class AntiCheatService implements OnDestroy {
     specialtyName?: string;
     providerProfileId?: string;
   }): void {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || this.restricted()) return;
 
     if (!this.socket) this.initSocket();
 
@@ -175,7 +177,7 @@ export class AntiCheatService implements OnDestroy {
   // arrive — this was the exact bug that made socket submission dead in
   // practice (see the Batch 3D-3 report for the call-order root cause).
   public submitAssessmentAnswers(attemptId: string, answers: Record<string, string>): boolean {
-    if (this.socket?.connected) {
+    if (!this.restricted() && this.socket?.connected) {
       this.socket.emit('submit_answer', { attemptId, answers });
       return true;
     }
@@ -187,7 +189,7 @@ export class AntiCheatService implements OnDestroy {
    * still travel with submitAssessmentAnswers, and a missing / old backend simply ignores the event.
    */
   public recordAnswer(attemptId: string, questionId: string, answer: string): void {
-    if (attemptId && this.socket?.connected) this.socket.emit('record_answer', { attemptId, questionId, answer });
+    if (!this.restricted() && attemptId && this.socket?.connected) this.socket.emit('record_answer', { attemptId, questionId, answer });
   }
 
   ngOnDestroy(): void {
