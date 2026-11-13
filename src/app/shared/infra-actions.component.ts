@@ -26,7 +26,7 @@ import { mapHttpError } from '../core/forms/http-error';
       }
     } @else {
       <h2>تنقية كاش روابط الموقع</h2>
-      <p>حتى 30 رابط HTTPS على مضيف الموقع الرسمي، رابط في كل سطر. لا تتغير ملفات المصدر.</p>
+      <p>حتى 30 رابط HTTPS على مضيف هذه البيئة، رابط في كل سطر. لا تتغير ملفات المصدر.</p>
       <label
         >الروابط <textarea rows="4" [(ngModel)]="files" (ngModelChange)="edited()"></textarea>
       </label>

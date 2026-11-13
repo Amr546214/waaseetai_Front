@@ -31,10 +31,6 @@ export class OperationsPanelService {
   readonly available = computed(
     () => this.identity() === this.caller && this.state()?.available === true,
   );
-  readonly reason = computed<'super-admin' | 'official' | null>(() => {
-    const s = this.state();
-    return !s || s.available ? null : s.isSuperAdmin ? 'official' : 'super-admin';
-  });
   constructor() {
     effect(() => {
       const next = this.identity();

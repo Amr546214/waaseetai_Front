@@ -184,9 +184,14 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 		expect(el.querySelector('[data-testid="health-database"]')?.textContent).toContain('استجابة 4 ms'); expect(el.querySelector('[data-testid="health-backup"]')?.textContent).toContain('غير متاح'); expect(el.textContent).not.toContain('uptime');
 	});
 
-	it('a caller without the panel (not a Super Admin / not the official site) sees the exact refusal and no settings are requested', async () => {
+ it('Super Admin can open the settings tabs on dev without an official deployment flag',async()=>{
+  const ops=TestBed.inject(OperationsPanelService);ops.state.set({officialDeployment:false,isSuperAdmin:true,available:true});
+  const {el}=await boot();expect(el.querySelector('.ss-nav')).toBeTruthy();expect(el.querySelector('[data-testid="panel-denied"]')).toBeNull();expect(el.textContent).not.toContain('الموقع الرسمي فقط');
+ });
+
+	it('ordinary staff on either deployment sees the Super Admin refusal and no settings are requested', async () => {
 		const ops = TestBed.inject(OperationsPanelService);
-		for (const [state, text] of [[{ officialDeployment: true, isSuperAdmin: false, available: false }, 'يلزم امتلاك صلاحية Super Admin للوصول إلى إعدادات النظام وتعديلها'], [{ officialDeployment: false, isSuperAdmin: true, available: false }, 'متاحة على الموقع الرسمي فقط']] as const) {
+		for (const [state, text] of [[{ officialDeployment: true, isSuperAdmin: false, available: false }, 'يلزم امتلاك صلاحية Super Admin للوصول إلى إعدادات النظام وتعديلها'], [{ officialDeployment: false, isSuperAdmin: false, available: false }, 'يلزم امتلاك صلاحية Super Admin للوصول إلى إعدادات النظام وتعديلها']] as const) {
 			ops.state.set(state);
 			const f = TestBed.createComponent(SaSystemSettings); await flush(f); const el = f.nativeElement as HTMLElement;
 			expect(el.querySelector('[data-testid="panel-denied"]')?.textContent).toContain(text); expect(el.querySelector('.ss-nav')).toBeNull(); http.expectNone(B);
