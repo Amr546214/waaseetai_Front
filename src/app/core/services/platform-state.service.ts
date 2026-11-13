@@ -1,6 +1,7 @@
 import { DestroyRef, Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { isPlatformBrowser } from '@angular/common';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
@@ -58,12 +59,13 @@ export class PlatformStateService {
     if (typeof document === 'undefined' || document.visibilityState === 'visible') this.refresh();
   };
 
-  /** GET /public/platform-state (never cached). A failed read changes nothing: the last known state stays until a real answer arrives. */
+  /** Background GET /public/platform-state (never cached, never covers the current page). A failed read changes nothing: the last known state stays until a real answer arrives. */
   refresh(): void {
     const epoch = this.epoch;
     this.http
       .get<{ success: boolean; data: PlatformState }>(
         `${environment.url_api}/public/platform-state`,
+        { context: new HttpContext().set(SKIP_LOADING, true) },
       )
       .pipe(takeUntilDestroyed(this.destroy))
       .subscribe({

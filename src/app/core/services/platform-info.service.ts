@@ -2,7 +2,8 @@ import { Injectable, PLATFORM_ID, computed, inject, signal, DestroyRef } from '@
 import { Title } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { setPlatformRegional } from '../utils/regional';
@@ -87,6 +88,7 @@ export class PlatformInfoService {
     this.applyName(d['platformName']);
     if (revision !== undefined) this.publicRevision.set(revision);
   }
+  /** Public settings synchronize in the background; the app bootstrap has its own initialization loader. */
   load(): void {
     if (!this.browser) return;
     if (this.active) {
@@ -98,6 +100,7 @@ export class PlatformInfoService {
     this.http
       .get<{ data: Record<string, unknown>; revision?: number }>(
         `${environment.url_api}/public/settings`,
+        { context: new HttpContext().set(SKIP_LOADING, true) },
       )
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -123,6 +126,7 @@ export class PlatformInfoService {
       this.http
         .get<{ data: Record<string, unknown>; revision?: number }>(
           `${environment.url_api}/public/settings`,
+          { context: new HttpContext().set(SKIP_LOADING, true) },
         )
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
