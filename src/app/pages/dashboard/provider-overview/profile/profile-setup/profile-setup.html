@@ -122,6 +122,7 @@
                 @for (countryName of countryNames; track countryName) { <option [value]="countryName">{{ countryName }}</option> }
                </select>
               <ws-field-error [control]="setupForm.get('profData.country')" label="الدولة" />
+              @if (geoSuggested()) { <p class="text-[11px] text-slate-500" data-testid="geo-hint" role="note">اقتراح تقريبي حسب شبكتك وليس عنوانًا موثقًا — عدّله كما تشاء.</p> }
             </div>
             <div class="f-wrap">
               <label class="f-lbl" for="pr-city">المدينة <span class="ws-req" aria-hidden="true">*</span></label>

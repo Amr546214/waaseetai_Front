@@ -36,7 +36,7 @@ describe('provider setup wizard: identity review state', () => {
     fixture.detectChanges();
     component.currentStep.set(4); fixture.detectChanges();
   };
-  afterEach(() => { http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } })); http.verify(); fixture.destroy(); });
+  afterEach(() => { http.match(r => r.url.includes('/public/geo-suggestion')).forEach(r => r.flush({ success: true, data: { source: 'none' } })); http.match(r => r.url.includes('/skills/catalog')).forEach(r => r.flush({ success: true, data: { category: null, skills: [] } })); http.verify(); fixture.destroy(); });
   const q = (s: string) => fixture.nativeElement.querySelector(s) as HTMLElement | null;
   const frontInput = () => q('input[aria-label="رفع صورة الهوية، وجه"]') as HTMLInputElement | null;
 
