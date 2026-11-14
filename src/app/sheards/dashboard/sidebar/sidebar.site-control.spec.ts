@@ -35,7 +35,7 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(nav[nav.length - 1].type).toBe('button'); // logout stays the last entry
 		expect(nav.slice(i + 2).map((n: any) => n.label)).toEqual(['المساعد', 'بيبو', 'تسجيل الخروج']); // only the Bebo tab sits between the section and logout
 		const children = nav[i + 1].children as any[];
-		expect(children.map(c => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'دليل الأنماط', 'المعاينة الشاملة', 'تصدير CSS']);
+		expect(children.map(c => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'تصدير CSS']);
 		expect(children.every(c => String(c.route).startsWith('/supper-admin-overview/site-control/'))).toBe(true);
 	});
 
@@ -65,7 +65,7 @@ describe('Sidebar: التحكم بالموقع', () => {
 
 	it('Round 5: the legacy site_control.manage keeps the whole section and sees «الهوية» (where it also edits); nobody loses access', () => {
 		const legacy = items('ADMIN', ['site_control.manage']).find(n => n.label === 'التحكم بالموقع' && n.type === 'accordion');
-		expect(legacy.children.map((c: any) => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'دليل الأنماط', 'المعاينة الشاملة', 'تصدير CSS']);
+		expect(legacy.children.map((c: any) => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'تصدير CSS']);
 		TestBed.resetTestingModule();
 		const both = items('ADMIN', ['site_control.manage', 'site.manage']).find(n => n.label === 'التحكم بالموقع' && n.type === 'accordion');
 		expect(both.children.length).toBe(10);

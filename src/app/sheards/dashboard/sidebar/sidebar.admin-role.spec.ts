@@ -43,10 +43,10 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 		expect(routes()).not.toContain('/supper-admin-overview/roles'); // owner only
 		expect(routes().some(r => r.startsWith('/client-overview'))).toBe(false);
 	});
-	it('an account with NO permission sees only its own account page (nothing that suggests authority)', () => {
-		const { routes } = setup(ADMIN, []);
-		expect(routes()).toEqual(['/supper-admin-overview/my-account', '/supper-admin-overview/bebo']); // own account + Bebo's tools (every admin account had the bar)
-	});
+it('an account with NO permission only sees Bebo tools', () => {
+    const { routes } = setup(ADMIN, []);
+    expect(routes()).toEqual(['/supper-admin-overview/bebo']);
+});
 	it('does not list the super-admin-only page', () => {
 		expect(setup(ADMIN).routes()).not.toContain('/supper-admin-overview/super-admins');
 	});

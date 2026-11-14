@@ -5,7 +5,7 @@ import { AccessRule, ruleForPath } from '../../../../core/config/admin-access-ru
 import { AdminAccessService } from '../../../../core/services/admin-access.service';
 
 /** the pages of «التحكم بالموقع» in menu order: «الهوية» (server-backed) first, then the nine local-only pages */
-export const SITE_CONTROL_PAGES = ['identity', 'health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export'] as const;
+export const SITE_CONTROL_PAGES = ['identity', 'health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'export'] as const;
 
 /** the first page of the section the account may open (null = none): the section link never lands on a page that would refuse the visitor */
 export function firstAllowedSiteControlPage(allows: (rule: AccessRule) => boolean): (typeof SITE_CONTROL_PAGES)[number] | null {

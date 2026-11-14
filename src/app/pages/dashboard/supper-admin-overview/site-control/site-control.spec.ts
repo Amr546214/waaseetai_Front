@@ -18,7 +18,7 @@ describe('site control (التحكم بالموقع)', () => {
 		expect(idx).toBeGreaterThan(-1);
 		expect(idx).toBeLessThan(wild);
 		const kids = SUPPER_ADMIN_ROUTES[idx].children!.filter(c => c.path);
-		expect(kids.map(k => k.path)).toEqual(['identity', 'health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'style-guide', 'live-preview', 'export']);
+		expect(kids.map(k => k.path)).toEqual(['identity', 'health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'export']);
 		expect(kids.every(k => /[؀-ۿ]/.test(String((k.data as any)?.title)))).toBe(true);
 		expect((SUPPER_ADMIN_ROUTES[idx].data as any).title).toBe('التحكم بالموقع');
 		// Round 2: the section link opens the FIRST PAGE THE ACCOUNT MAY OPEN (landing guard), no longer a blind redirect to «الهوية» (see site-control-landing.guard.spec.ts)
@@ -47,7 +47,7 @@ describe('site control (التحكم بالموقع)', () => {
 		// the legacy permission opens «الهوية» too (Round 5: it is the edit capability; the server decides canManage)
 		expect((kid('identity').data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
 		for (const p of ['tokens', 'typography']) expect((kid(p).data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] }); // server-backed token editor: identity permissions (Round 5)
-		for (const p of ['health', 'icons', 'accounts', 'templates', 'style-guide', 'live-preview', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
+		for (const p of ['health', 'icons', 'accounts', 'templates', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
 		expect((kid('identity').data as any).title).toBe('الهوية');
 		expect(kid('identity').canActivate?.length).toBeGreaterThan(0);
 	});

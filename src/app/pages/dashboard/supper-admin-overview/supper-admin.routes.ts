@@ -239,11 +239,7 @@ const RAW_ROUTES: Routes = [
         loadComponent: () => import('../../../sheards/assistant-widget/dashboard-bebo').then(m => m.DashboardBebo),
         data: { title: 'بيبو' }
     },
-    {
-        path: 'my-account',
-        loadComponent: () => import('./sa-my-account/sa-my-account').then(m => m.SaMyAccount),
-        data: { title: 'حسابي وأمان الدخول' }
-    },
+
     {
         path: 'super-admins',
         loadComponent: () => import('./sa-super-admins/sa-super-admins').then(m => m.SaSuperAdmins),
@@ -479,8 +475,6 @@ const RAW_ROUTES: Routes = [
             { path: 'accounts', loadComponent: () => import('./site-control/accounts/accounts').then(m => m.Accounts), data: { title: 'المستويات والنقاط' } },
             { path: 'templates', loadComponent: () => import('./site-control/templates/templates').then(m => m.Templates), data: { title: 'القوالب' } },
             { path: 'typography', loadComponent: () => import('./site-control/typography/typography').then(m => m.Typography), data: { title: 'الخطوط' } },
-            { path: 'style-guide', loadComponent: () => import('./site-control/style-guide/style-guide').then(m => m.StyleGuide), data: { title: 'دليل الأنماط' } },
-            { path: 'live-preview', loadComponent: () => import('./site-control/live-preview/live-preview').then(m => m.LivePreview), data: { title: 'المعاينة الشاملة' } },
             { path: 'export', loadComponent: () => import('./site-control/export-css/export-css').then(m => m.ExportCss), data: { title: 'تصدير CSS' } }
         ]
     },

@@ -24,7 +24,7 @@ export class SiteControlShell implements AfterViewInit, OnDestroy {
  private readonly access = inject(AdminAccessService);
  readonly navigation = computed(() => [
   ['identity', 'الهوية'], ['health', 'صحة النظام'], ['tokens', 'القيم والألوان'], ['icons', 'الأيقونات'],
-  ['typography', 'الخطوط'], ['accounts', 'هوية المستويات'], ['style-guide', 'دليل الأنماط'], ['live-preview', 'المعاينة'], ['templates', 'القوالب'], ['export', 'تصدير CSS'],
+  ['typography', 'الخطوط'], ['accounts', 'هوية المستويات'], ['templates', 'القوالب'], ['export', 'تصدير CSS'],
  ].map(([path, title]) => ({ title, url: '/supper-admin-overview/site-control/' + path }))
   .filter(link => this.access.allows(ruleForPath(link.url))));
 	private readonly scope = inject(SiteControlScope);
@@ -36,7 +36,7 @@ export class SiteControlShell implements AfterViewInit, OnDestroy {
 	 * What each page of the section really is (decision table: IDENTITY-SECTIONS-2026-10-28.md):
 	 *  - server: «الهوية» and «مكتبة الأيقونات» write the platform's identity on the server (no notice, the pages explain themselves);
 	 *  - mixed: «القيم والألوان» and «الخطوط» hold a SERVER-backed editor above a local sandbox;
-	 *  - aid: design aids that READ the live identity (style guide, live preview, health scan) and save nothing on the site;
+	*  - aid: design aids that READ the live identity (style guide, health scan) and save nothing on the site;
 	 *  - rules: «المستويات والنقاط» = business rules of the platform, out of this system's scope, logic untouched;
 	 *  - local: the remaining local tools (templates, export) and anything unknown.
 	 */
@@ -44,7 +44,7 @@ export class SiteControlShell implements AfterViewInit, OnDestroy {
 		const m = /\/site-control\/([^/?#]+)/.exec(this.url());
 		switch (m?.[1]) {
 			case 'tokens': case 'identity': case 'icons': case 'typography': case 'templates': case 'accounts': case 'export': return 'server';
-			case 'style-guide': case 'live-preview': case 'health': return 'aid';
+			case 'health': return 'aid';
 			
 			default: return 'local';
 		}
