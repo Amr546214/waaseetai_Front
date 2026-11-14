@@ -102,16 +102,26 @@ describe('provider withdraw (PayPal only)', () => {
     const q = (id: string) => (fixture.nativeElement as HTMLElement).querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
     const type = (value: string) => { const input = (fixture.nativeElement as HTMLElement).querySelector('#wdAmt') as HTMLInputElement; input.value = value; input.dispatchEvent(new Event('input')); fixture.detectChanges(); };
 
-    it('balance 0 + amount 1: the error shows as soon as it is typed, a click sends no request, and NO banner repeats the field message (contract change: field errors live under their field only)', async () => {
+    it('balance 0 + amount 10: the error shows as soon as it is typed, a click sends no request, and NO banner repeats the field message (contract change: field errors live under their field only)', async () => {
       await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 0 });
       expect(q('wd-zero-balance')!.textContent).toContain('لا يوجد رصيد متاح للسحب حاليًا');
-      type('1');
+      type('10');
       expect(q('wd-amount-error')!.textContent).toContain('الرصيد غير كافٍ');
       ((fixture.nativeElement as HTMLElement).querySelector('.wd-btn-pri') as HTMLButtonElement).click();
       fixture.detectChanges();
       expect(submit).not.toHaveBeenCalled();
       expect(q('wd-submit-error')).toBeNull();
       expect(q('wd-amount-error')!.textContent).toContain('الرصيد غير كافٍ');
+    });
+
+    it('the minimum is 10 USD for the provider too: 9.99 is refused at the field with the minimum, 10 is sent; there is no maximum other than the balance (the chips say «كامل الرصيد»)', async () => {
+      await setup('me@example.com', 'PROVIDER_INDIVIDUAL', [], { balance: 500 });
+      type('9.99');
+      ((fixture.nativeElement as HTMLElement).querySelector('.wd-btn-pri') as HTMLButtonElement).click(); fixture.detectChanges();
+      expect(submit).not.toHaveBeenCalled(); expect(q('wd-amount-error')!.textContent).toContain('الحد الأدنى لطلب السحب 10');
+      type('10'); ((fixture.nativeElement as HTMLElement).querySelector('.wd-btn-pri') as HTMLButtonElement).click(); fixture.detectChanges();
+      expect(submit).toHaveBeenCalledTimes(1);
+      expect((fixture.nativeElement as HTMLElement).textContent).toContain('الحد الأدنى: 10');
     });
 
     it('amount above a positive balance: "لا يمكنك طلب سحب أكبر من الرصيد المتاح", no request', async () => {

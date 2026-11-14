@@ -52,7 +52,7 @@ describe('marketer withdraw: server balance, states and details', () => {
   it('max / minimum / balance after use the real values; "use max" fills the amount', async () => {
     await setup();
     expect(el().querySelector('[data-testid="withdraw-limits"]')!.textContent).toContain('الحد الأدنى: 300');
-    expect(el().querySelector('[data-testid="withdraw-limits"]')!.textContent).toContain('الحد الأقصى: 600');
+    expect(el().querySelector('[data-testid="withdraw-limits"]')!.textContent).toContain('المتاح للسحب: 600');
     c.useMax();
     expect(c.withdrawForm.value.amount).toBe(600);
     c.withdrawForm.patchValue({ amount: 350 });
