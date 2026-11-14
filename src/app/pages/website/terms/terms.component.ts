@@ -1,3 +1,4 @@
+import { PublishedContentComponent } from '../../../shared/published-content/published-content.component';
 import { Component, computed, HostListener, Inject, PLATFORM_ID, OnInit, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -9,7 +10,7 @@ import { parseLegalText } from '../../../core/utils/legal-text';
 @Component({
 	selector: 'app-terms',
 	standalone: true,
-	imports: [CommonModule, RouterLink, RouterLinkActive],
+	imports: [PublishedContentComponent, CommonModule, RouterLink, RouterLinkActive],
 	templateUrl: './terms.component.html',
 	styleUrls: ['./terms.component.css']
 })

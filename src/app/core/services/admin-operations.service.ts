@@ -1,3 +1,4 @@
+import type { CmsCopy } from '../../shared/published-content/cms-copy';
 import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { SKIP_LOADING } from '../interceptors/loading.interceptor';
@@ -10,7 +11,7 @@ export interface Expense {id:string;amount:string;currency:string;category:strin
 export interface Paged<T>{rows:T[];total:number;page:number;pageSize:number}
 export interface OperatingResult {period:string;currency:string;asOf:string;revenue:number;affiliateCost:number;cashbackCost:number;operatingExpenses:number;expenseCount:number;net:number|null;foreignCommissions:{currency:string;amount:number}[];definition:string}
 export interface Upcoming {id:string;contractId:string;projectId:string;project:string;client:string;title:string;amount:number;currency:string;frozen:boolean;dueAt:string|null;status:string}
-export interface CmsPage {slug:string;title:string;draft:string;published:string|null;version:number;publishedAt:string|null;updatedAt:string|null}
+export interface CmsPage {draftCopy?:CmsCopy|null;publishedCopy?:CmsCopy|null;slug:string;title:string;draft:string;published:string|null;version:number;publishedAt:string|null;updatedAt:string|null}
 export interface Campaign {id:string;title:string;message:string;audience:string;version:number;status:string;recipientCount:number;sentCount:number;failedCount:number;createdAt:string;emailRequested:boolean;emailCounts:Record<string,number>}
 export interface BroadcastCapabilities {enabled:boolean;emailEnabled:boolean;smtpConfigured:boolean;emailReady:boolean}
 export interface BroadcastPreview {id:string;version:number;recipients:number;channel:string;audience:string;capabilities:BroadcastCapabilities}
