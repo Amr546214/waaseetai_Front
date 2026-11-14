@@ -39,10 +39,10 @@ app-verify-otp .masked-type{font-size:var(--font-size-small);color:var(--txt-3);
 app-verify-otp .otp-card{background:var(--crd-bg);border:1px solid var(--crd-bd);border-radius:var(--radius-lg);padding:24px 20px 20px;margin-bottom:14px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 app-verify-otp .otp-card-title{font-size:var(--font-size-label);font-weight:800;color:var(--txt-2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:18px;text-align:center}
 app-verify-otp .otp-group{display:flex;gap:10px;justify-content:center;direction:ltr;margin-bottom:20px}
-app-verify-otp .otp-box{width:52px;height:60px;border-radius:12px;border:1.5px solid var(--otp-border);background:var(--otp-bg);color:var(--otp-value);font-size:24px;font-weight:800;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;caret-color:var(--otp-caret);font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;-moz-appearance:textfield;appearance:textfield}
+app-verify-otp .otp-box{width:52px;height:60px;border-radius:12px;font-size:24px;font-weight:800;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;-moz-appearance:textfield;appearance:textfield;flex:0 1 auto;min-width:0;box-sizing:border-box;border:1.5px solid var(--otp-border);background:var(--otp-bg);color:var(--otp-value);-webkit-text-fill-color:var(--otp-value);caret-color:var(--otp-caret)}
 app-verify-otp .otp-box::-webkit-outer-spin-button,app-verify-otp .otp-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 app-verify-otp .otp-box:focus{border-color:var(--otp-focus-border);box-shadow:0 0 0 3px color-mix(in srgb,var(--otp-focus-border) 18%,transparent);background:var(--otp-focus-bg)}
-app-verify-otp .otp-box.filled{border-color:var(--otp-filled-border);background:var(--otp-filled-bg);color:var(--otp-filled-value)}
+app-verify-otp .otp-box.filled{border-color:var(--otp-filled-border);background:var(--otp-filled-bg);color:var(--otp-filled-value);-webkit-text-fill-color:var(--otp-filled-value)}
 app-verify-otp .otp-box.has-error{border-color:color-mix(in srgb,var(--red) 70%,transparent);background:color-mix(in srgb,var(--red) 6%,transparent)}
 app-verify-otp .timer-block{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:4px}
 app-verify-otp .timer-label{font-size:var(--font-size-small);color:var(--txt-3)}
@@ -69,3 +69,6 @@ app-verify-otp .btn-tertiary:hover{color:var(--txt-2);border-color:rgba(255,255,
 
 /* ── App-only addition: confirmation after a code is re-sent (the design shows it as a toast). ── */
 app-verify-otp .banner-success{background:rgba(15,179,163,.10);border:1px solid rgba(15,179,163,.24);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:var(--font-size-label);color:#0FA99A}
+
+/* Theme-aware OTP slots: visible on white cards, stable on narrow screens and Safari autofill. */
+app-verify-otp{--otp-border:var(--pub-txt-3,#94a3b8);--otp-bg:color-mix(in srgb,var(--pub-txt,#f8fafc) 5%,transparent);--otp-value:var(--pub-txt,#f8fafc);--otp-focus-border:var(--brand-blue,#2b7fff);--otp-focus-bg:color-mix(in srgb,var(--brand-blue,#2b7fff) 7%,transparent);--otp-filled-border:var(--brand-blue,#2b7fff);--otp-filled-bg:color-mix(in srgb,var(--brand-blue,#2b7fff) 6%,transparent);--otp-filled-value:var(--pub-txt,#f8fafc);--otp-caret:var(--brand-blue,#2b7fff)}
