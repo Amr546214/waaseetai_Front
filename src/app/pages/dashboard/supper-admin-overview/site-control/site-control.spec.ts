@@ -12,13 +12,14 @@ import { SiteControlShell } from './shell/site-control-shell';
 describe('site control (التحكم بالموقع)', () => {
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('the routes live inside the guarded admin area, before the not-found catch-all, «الهوية» first/default plus the seven remaining pages with Arabic titles', () => {
+	it('the routes live inside the guarded admin area, before the not-found catch-all, «الهوية» first/default plus the six remaining pages with Arabic titles', () => {
 		const idx = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === 'site-control');
 		const wild = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === '**');
 		expect(idx).toBeGreaterThan(-1);
 		expect(idx).toBeLessThan(wild);
-		const kids = SUPPER_ADMIN_ROUTES[idx].children!.filter(c => c.path);
-		expect(kids.map(k => k.path)).toEqual(['identity', 'health', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'export']);
+		const kids = SUPPER_ADMIN_ROUTES[idx].children!.filter(c => c.path && c.redirectTo === undefined);
+		expect(kids.map(k => k.path)).toEqual(['identity', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'export']);
+		expect(SUPPER_ADMIN_ROUTES[idx].children!.find(c => c.path === 'health')?.redirectTo).toBe('identity');
 		expect(kids.every(k => /[؀-ۿ]/.test(String((k.data as any)?.title)))).toBe(true);
 		expect((SUPPER_ADMIN_ROUTES[idx].data as any).title).toBe('التحكم بالموقع');
 		// Round 2: the section link opens the FIRST PAGE THE ACCOUNT MAY OPEN (landing guard), no longer a blind redirect to «الهوية» (see site-control-landing.guard.spec.ts)
@@ -47,7 +48,7 @@ describe('site control (التحكم بالموقع)', () => {
 		// the legacy permission opens «الهوية» too (Round 5: it is the edit capability; the server decides canManage)
 		expect((kid('identity').data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
 		for (const p of ['tokens', 'typography']) expect((kid(p).data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] }); // server-backed token editor: identity permissions (Round 5)
-		for (const p of ['health', 'icons', 'accounts', 'templates', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
+		for (const p of ['icons', 'accounts', 'templates', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
 		expect((kid('identity').data as any).title).toBe('الهوية');
 		expect(kid('identity').canActivate?.length).toBeGreaterThan(0);
 	});
@@ -92,16 +93,15 @@ describe('site control (التحكم بالموقع)', () => {
 		void TestBed.inject(Router);
 	});
 
-	it('on the real «الهوية» page the local-only notice is not shown (the page explains itself); on every other page it is', async () => {
+	it('the identity page explains itself and has no separate health navigation or health notice', async () => {
 		@Component({ template: '' }) class Blank {}
-		TestBed.configureTestingModule({ imports: [SiteControlShell], providers: [provideRouter([{ path: 'x/site-control/identity', component: Blank }, { path: 'x/site-control/health', component: Blank }]), provideHttpClient(), provideHttpClientTesting()] });
+		TestBed.configureTestingModule({ imports: [SiteControlShell], providers: [provideRouter([{ path: 'x/site-control/identity', component: Blank }]), provideHttpClient(), provideHttpClientTesting()] });
 		const router = TestBed.inject(Router);
 		const f = TestBed.createComponent(SiteControlShell);
 		await router.navigateByUrl('/x/site-control/identity'); f.detectChanges();
 		expect(f.nativeElement.querySelector('[data-testid="site-control-notice"]')).toBeNull();
-		await router.navigateByUrl('/x/site-control/health'); f.detectChanges();
-		expect(f.nativeElement.querySelector('[data-testid="site-control-notice"]')).toBeNull();
-		expect(f.nativeElement.querySelector('[data-testid="site-control-aid"]').textContent).toContain('تقرأ هوية الموقع الحالية ولا تحفظ شيئًا على الموقع');
+		expect(f.nativeElement.querySelector('[data-testid="site-control-aid"]')).toBeNull();
+		expect(f.componentInstance.navigation().some(link => link.url.endsWith('/health'))).toBe(false);
 		TestBed.inject(HttpTestingController).match(() => true);
 		f.destroy();
 	});

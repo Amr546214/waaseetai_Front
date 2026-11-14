@@ -13,6 +13,7 @@ import { WsDatePipe, formatWsDate } from '../../../../../shared/ws-date/ws-date.
 import { DesignTokensService } from '../core/design-tokens.service';
 import { ThemeModeService } from '../core/theme-mode.service';
 import { IdentityGuide } from './identity-guide';
+import { IdentityLoadStatus } from './identity-load-status';
 import { InlineSvgDirective } from './inline-svg.directive';
 import { CHANGE_KIND_TEXT, Failure, sourceText, GROUP_TITLES, actorName, actorOf, bytesText, currentSummary, describeFailure, mimeName, parsePreview, previousVersion, restorable, shortId, shortSha, sideText, sizeText, versionName } from './identity-view';
 
@@ -42,7 +43,7 @@ const readText = (b: Blob): Promise<string> => (typeof b.text === 'function' ? b
 @Component({
 	selector: 'sc-identity',
 	standalone: true,
-	imports: [RouterLink, NgTemplateOutlet, WsDatePipe, InlineSvgDirective, IdentityGuide],
+	imports: [RouterLink, NgTemplateOutlet, WsDatePipe, InlineSvgDirective, IdentityGuide, IdentityLoadStatus],
 	templateUrl: './identity.html',
 	encapsulation: ViewEncapsulation.ShadowDom,
 	styleUrls: ['../site-control-base.css', './identity.css']
