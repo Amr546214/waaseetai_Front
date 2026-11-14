@@ -175,7 +175,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			// Date of birth (private, optional): stored on the profile and shown only to its owner; never on the public profile.
 			dob: ['', birthDateValidator],
 			languages: [[]],
-			bio: ['', [requiredText, Validators.maxLength(500)]],
+			// optional: the bio can be added later from the profile (it still counts toward the completion percentage)
+			bio: ['', [Validators.maxLength(500)]],
 			portfolioUrl: [''],
 			linkedinUrl: [''],
 			websiteUrl: [''],

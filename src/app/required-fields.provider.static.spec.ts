@@ -21,7 +21,7 @@ function expectRequired(html: string, labelText: string, controlId: string) {
 }
 
 const FORMS: Array<[string, Array<[string, string]>]> = [
-	['profile/profile-setup/profile-setup.html', [['المسمى الوظيفي', 'job-title'], ['سنوات الخبرة', 'exp-years'], ['الدولة', 'pr-country'], ['المدينة', 'pr-city'], ['النبذة المهنية', 'bio'], ['التخصص الرئيسي', 'main-spec'], ['بريد PayPal', 'pr-paypal']]],
+	['profile/profile-setup/profile-setup.html', [['المسمى الوظيفي', 'job-title'], ['سنوات الخبرة', 'exp-years'], ['الدولة', 'pr-country'], ['المدينة', 'pr-city'], ['التخصص الرئيسي', 'main-spec'], ['بريد PayPal', 'pr-paypal']]],
 	['profile/data/data.html', [['الاسم الأول', 'pr-fname'], ['اسم العائلة', 'pr-lname'], ['المسمى المهني', 'pr-title'], ['التخصص الرئيسي', 'pr-spec'], ['الدولة', 'pr-country'], ['المدينة', 'pr-city'], ['بريد PayPal', 'pp-email'], ['كلمة المرور الجديدة', 'pwd-new']]],
 	['marketing/offer-form/offer-form.html', [['اسم العرض', 'of-name'], ['نسبة الخصم', 'of-disc'], ['تاريخ البداية', 'of-start'], ['نص الشارة', 'of-badge']]],
 	['marketing/coupon-form/coupon-form.html', [['قيمة الخصم', 'cp-val'], ['تاريخ البداية', 'cp-start'], ['الحد الأقصى للعميل الواحد', 'cp-per']]],
