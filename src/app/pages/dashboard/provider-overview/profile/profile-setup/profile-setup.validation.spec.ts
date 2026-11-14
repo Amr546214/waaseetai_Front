@@ -59,8 +59,9 @@ describe('provider profile-setup: shared validation', () => {
     render();
     expect(component.currentStep()).toBe(1);
     // (the city list stays disabled until a country is chosen, so the city is listed once the country is set)
-    for (const label of ['المسمى الوظيفي', 'سنوات الخبرة', 'الدولة', 'النبذة المهنية']) expect(summary(), label).toContain(label);
-    expect(fieldErrors().length).toBe(4);
+    for (const label of ['المسمى الوظيفي', 'سنوات الخبرة', 'الدولة']) expect(summary(), label).toContain(label);
+    expect(summary()).not.toContain('النبذة المهنية'); // the bio is optional
+    expect(fieldErrors().length).toBe(3);
     expect(document.activeElement?.id).toBe('job-title');
     expect((el().querySelector('.btn-wz-next') as HTMLButtonElement).disabled).toBe(false);
     el().remove();
@@ -301,18 +302,18 @@ describe('provider profile-setup: shared validation', () => {
     });
   });
 
-  it('job title and bio made only of spaces / NBSP / zero-width characters are NOT accepted: red error, aria-invalid, aria-describedby; Next stays on step 1', () => {
+  it('a job title made only of spaces / NBSP / zero-width characters is NOT accepted (red error, aria-invalid, aria-describedby; Next stays on step 1); a blank bio is fine (optional)', () => {
     document.body.appendChild(el());
     for (const blank of ['   ', '\u00A0\u00A0', '\u200B\u200C', ' \uFEFF ']) {
       component.setupForm.get('profData')!.patchValue({ jobTitle: blank, bio: blank, expYears: '1 الى 3 سنوات', country: 'السعودية', city: 'الرياض' });
       expect(component.setupForm.get('profData.jobTitle')!.errors, JSON.stringify(blank)).toEqual({ required: true });
-      expect(component.setupForm.get('profData.bio')!.errors, JSON.stringify(blank)).toEqual({ required: true });
+      expect(component.setupForm.get('profData.bio')!.errors, JSON.stringify(blank)).toBeNull();
       component.goToStep(2);
       render();
       expect(component.currentStep()).toBe(1);
       const errs = fieldErrors();
       expect(errs).toContain('المسمى الوظيفي مطلوب');
-      expect(errs).toContain('النبذة المهنية مطلوب');
+      expect(errs).not.toContain('النبذة المهنية مطلوب');
     }
     const job = el().querySelector('#job-title') as HTMLInputElement;
     expect(job.className).toContain('ng-invalid');
