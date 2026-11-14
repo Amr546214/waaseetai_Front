@@ -157,3 +157,14 @@
 :host-context(.theme-light) .mini-chat__file-name {
   color: #0f172a;
 }
+
+.mini-chat__quote{display:flex;flex-direction:column;gap:2px;width:100%;text-align:start;margin:0 0 6px;padding:6px 9px;border:0;border-inline-start:3px solid var(--teal,#2bd4c7);border-radius:8px;background:rgba(127,127,127,.12);color:inherit;font:inherit;cursor:pointer}
+.mini-chat__quote b{font-size:11.5px;color:var(--teal,#2bd4c7)} .mini-chat__quote span{font-size:12px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.mini-chat__quote.is-revision{border-inline-start-color:var(--kahr,#d98a0b)} .mini-chat__quote.is-revision b{color:var(--kahr,#d98a0b)}
+.mini-chat__badge{display:inline-block;margin:0 0 4px;padding:1px 8px;border-radius:999px;font-size:10.5px;font-weight:800;background:rgba(217,138,11,.16);color:var(--kahr,#d98a0b)}
+.mini-chat__bubble.is-revision{border-color:rgba(217,138,11,.45)}
+.mini-chat__reply{background:none;border:0;padding:0 0 0 6px;margin-inline-start:8px;color:var(--teal,#2bd4c7);font:inherit;font-size:11px;cursor:pointer;opacity:.85}
+.mini-chat__reply:hover,.mini-chat__reply:focus-visible{opacity:1;text-decoration:underline}
+.mini-chat__replying{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 14px 6px;padding:7px 10px;border-radius:10px;border-inline-start:3px solid var(--teal,#2bd4c7);background:rgba(127,127,127,.12)}
+.mini-chat__replying span{display:flex;flex-direction:column;min-width:0} .mini-chat__replying b{font-size:12px} .mini-chat__replying small{font-size:11.5px;opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini-chat__replying button{background:none;border:0;color:inherit;font-size:18px;line-height:1;cursor:pointer;padding:2px 6px}

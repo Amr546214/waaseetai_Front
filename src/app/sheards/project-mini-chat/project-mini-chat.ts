@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthStore } from '../../core/store/auth.store';
-import { ChatService, ChatMessagePayload } from '../../core/services/chat.service';
+import { ChatService, ChatMessagePayload, MessageContext } from '../../core/services/chat.service';
 import { ChatStateService } from '../../core/services/chat-state.service';
 
 interface MiniChatMessage {
@@ -20,6 +20,7 @@ interface MiniChatMessage {
   fileName?: string;
   status?: 'PENDING' | 'SENT' | 'READ';
   isEvent?: boolean;
+  context?: MessageContext | null;
 }
 
 @Component({
@@ -53,6 +54,25 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
   sending = signal(false);
   error = signal('');
   partnerTyping = signal(false);
+
+  // ---- replies: a message can answer another one (quoted under it). A revision request of the other side is offered as the default target until it is answered or dismissed.
+  private readonly manualReply = signal<MiniChatMessage | null>(null);
+  private readonly dismissedAuto = signal<string | null>(null);
+  readonly autoReplyTarget = computed<MiniChatMessage | null>(() => {
+    const list = this.messages();
+    for (let i = list.length - 1; i >= 0; i--) {
+      const m = list[i];
+      if (m.isMe || m.isEvent || m.context?.kind !== 'REVISION_REQUEST') continue;
+      const answered = list.slice(i + 1).some(x => x.isMe && x.context?.replyTo?.messageId === m.id);
+      return answered || this.dismissedAuto() === m.id ? null : m;
+    }
+    return null;
+  });
+  readonly replyTarget = computed<MiniChatMessage | null>(() => this.manualReply() ?? this.autoReplyTarget());
+  startReply(message: MiniChatMessage): void { if (!message.isEvent && !message.tempId) this.manualReply.set(message); }
+  cancelReply(): void { const t = this.replyTarget(); if (this.manualReply()) this.manualReply.set(null); else if (t) this.dismissedAuto.set(t.id); }
+  excerptOf(message: MiniChatMessage): string { return (message.content || message.fileName || 'مرفق').replace(/\s+/g, ' ').trim().slice(0, 140); }
+  goToMessage(id: string | undefined): void { if (!id) return; const el = this.messagesViewport?.nativeElement.querySelector(`[data-msg-id="${CSS.escape(id)}"]`); el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' }); }
 
   ngOnInit(): void {
     this.currentUserId = this.authStore.currentUser()?.id || '';
@@ -110,11 +130,14 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
     const content = this.draft.trim();
     if (!content || !this.conversationId || !this.currentUserId || this.sending()) return;
     const tempId = `mini_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-    const payload: ChatMessagePayload = { conversationId: this.conversationId, tempId, content, type: 'TEXT' };
+    const target = this.replyTarget();
+    const payload: ChatMessagePayload = { conversationId: this.conversationId, tempId, content, type: 'TEXT', ...(target ? { context: { type: 'PROJECT', replyTo: { messageId: target.id } } } : {}) };
     this.messages.update(items => [...items, {
       id: tempId, tempId, senderId: this.currentUserId, senderName: 'أنت', senderInitial: 'أ',
-      isMe: true, content, time: new Date(), status: 'PENDING'
+      isMe: true, content, time: new Date(), status: 'PENDING',
+      ...(target ? { context: { type: 'PROJECT', replyTo: { messageId: target.id, senderName: target.isMe ? 'أنت' : target.senderName, excerpt: this.excerptOf(target), ...(target.context?.kind ? { kind: target.context.kind } : {}) } } as MessageContext } : {})
     }]);
+    this.manualReply.set(null);
     this.draft = '';
     this.error.set('');
     this.sending.set(true);
@@ -256,7 +279,7 @@ export class ProjectMiniChat implements OnInit, AfterViewInit, OnDestroy {
       senderName, senderInitial: message.senderInitial || message.senderInitials || senderName.charAt(0) || 'م', isMe,
       isEvent: message.type === 'SYSTEM' || message.isEvent === true,
       content: message.content ?? message.text ?? '', time: message.createdAt || message.time || new Date(),
-      fileUrl: message.fileUrl, fileName: message.fileName, status: message.status || 'SENT'
+      fileUrl: message.fileUrl, fileName: message.fileName, status: message.status || 'SENT', context: message.context ?? null
     };
   }
 

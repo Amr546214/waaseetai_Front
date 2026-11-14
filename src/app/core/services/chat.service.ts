@@ -19,6 +19,10 @@ export interface MessageContext {
   stageNumber?: number;
   deliveryId?: string;
   amount?: number;
+  /** a revision request written by the client on a delivered stage (set by the server) */
+  kind?: 'REVISION_REQUEST';
+  /** this message answers another one: the client sends only `messageId`; the server fills the rest from the real message */
+  replyTo?: { messageId: string; senderName?: string; excerpt?: string; kind?: 'REVISION_REQUEST' };
 }
 
 export interface ChatMessagePayload {
