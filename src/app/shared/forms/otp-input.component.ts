@@ -20,10 +20,10 @@ import { ChangeDetectionStrategy, Component, ElementRef, inject, input, model, o
 	`,
 	styles: [`
 		.otp-group{display:flex;gap:10px;justify-content:center;direction:ltr;margin:6px 0 12px}
-		.otp-box{width:52px;height:60px;border-radius:12px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:var(--txt);font-size:24px;font-weight:800;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;caret-color:#2BD4C7;font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;-moz-appearance:textfield;appearance:textfield}
+		.otp-box{flex:0 1 auto;min-width:0;box-sizing:border-box;width:52px;height:60px;border-radius:12px;border:1.5px solid var(--otp-border,var(--pub-txt-3,#94a3b8));background:var(--otp-bg,color-mix(in srgb,var(--pub-txt,#f8fafc) 5%,transparent));color:var(--otp-value,var(--pub-txt,#f8fafc));-webkit-text-fill-color:var(--otp-value,var(--pub-txt,#f8fafc));font-size:24px;font-weight:800;text-align:center;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;caret-color:var(--otp-caret,var(--brand-blue,#2b7fff));font-family:var(--font-family,'Tajawal'),system-ui,sans-serif;-moz-appearance:textfield;appearance:textfield}
 		.otp-box::-webkit-outer-spin-button,.otp-box::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-		.otp-box:focus{border-color:rgba(43,212,199,.45);box-shadow:0 0 0 3px rgba(43,212,199,.10);background:rgba(43,212,199,.04)}
-		.otp-box.filled{border-color:rgba(43,212,199,.35);background:rgba(43,212,199,.06)}
+		.otp-box:focus{border-color:var(--otp-focus-border,var(--brand-blue,#2b7fff));box-shadow:0 0 0 3px color-mix(in srgb,var(--brand-blue,#2b7fff) 18%,transparent);background:var(--otp-focus-bg,color-mix(in srgb,var(--brand-blue,#2b7fff) 7%,transparent))}
+		.otp-box.filled{border-color:var(--otp-filled-border,var(--brand-blue,#2b7fff));background:var(--otp-filled-bg,color-mix(in srgb,var(--brand-blue,#2b7fff) 6%,transparent))}
 		.otp-box.has-error{border-color:rgba(248,113,113,.65);background:rgba(248,113,113,.06)}
 		.otp-box:disabled{opacity:.5}
 		@media(max-width:767px){.otp-box{width:42px;height:50px;font-size:20px}.otp-group{gap:7px}}
