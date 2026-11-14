@@ -106,3 +106,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, label.file-btn:foc
 .pt-original { font-size: 12px; }
 .pt-problem { color: var(--err, #ff8c69); font-size: 12px; }
 .pt-text[aria-invalid="true"] { border-color: var(--err, #ff8c69); }
+
+.pt-place-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border,rgba(255,255,255,.14))}
+.pt-place-ed{display:flex;flex-direction:column;gap:4px;padding:8px 10px;border-radius:10px;background:var(--crd-bg,rgba(255,255,255,.03))}
+.pt-place-ed.pt-edited{outline:1px solid var(--teal,#2bd4c7)}

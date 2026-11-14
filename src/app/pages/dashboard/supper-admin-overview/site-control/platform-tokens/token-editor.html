@@ -1,3 +1,24 @@
+
+<ng-template #placeEditors let-it="it" let-t="t" let-table="table">
+  @let pds = placeDefs(it, t);
+  @if (pds.length) {
+    <div class="pt-place-list" [attr.data-testid]="(table ? 'pt-tplaces-' : 'pt-places-') + t.name">
+      <strong>كل موضع على حدة</strong>
+      <small class="muted">قيمة الموضع تغلب القيمة العامة لهذا الموضع وحده، ولا تمسّ المواضع الأخرى.</small>
+      @for (pd of pds; track pd.def.name) {
+        @let pv = fieldView(it, pd.def);
+        <div class="pt-place-ed" [class.pt-edited]="isEdited(it, pd.def)" [attr.data-testid]="(table ? 'pt-tplace-' : 'pt-place-') + pd.def.name">
+          <label [attr.for]="(table ? 'pt-tf-' : 'pt-f-') + pd.def.name">{{ pd.label }} <span class="chip chip-muted">{{ pv.sourceText }}</span></label>
+          <div class="pt-current"><ng-container *ngTemplateOutlet="valueRows; context: { rows: pv.rows, shared: false, compact: true }" /></div>
+          <input [id]="(table ? 'pt-tf-' : 'pt-f-') + pd.def.name" class="pt-text" type="text" dir="ltr" [value]="fieldText(it, pd.def)" (change)="onText(it, pd.def, $event)" [disabled]="state(it.key).busy !== null"
+            [attr.aria-label]="'قيمة ' + pd.label" [attr.aria-invalid]="problem(it, pd.def) ? 'true' : null" [attr.data-testid]="(table ? 'pt-tinput-' : 'pt-input-') + pd.def.name" spellcheck="false" autocomplete="off">
+          @if (problem(it, pd.def); as pr) { <small class="pt-problem" role="alert" [attr.data-testid]="'pt-problem-' + pd.def.name">{{ pr }}</small> } @else if (unitHint(pd.def)) { <small class="muted">{{ unitHint(pd.def) }}</small> }
+          @if (isEdited(it, pd.def) || isOverridden(it, pd.def)) { <button type="button" class="btn-link" (click)="resetRow(it, pd.def)" [attr.data-testid]="(table ? 'pt-treset-' : 'pt-reset-') + pd.def.name">إرجاع هذا الموضع للأصل</button> }
+        </div>
+      }
+    </div>
+  }
+</ng-template>
 <ng-template #valueRows let-rows="rows" let-shared="shared" let-compact="compact">
   @for (r of rows; track $index) {
     <div class="pt-place-row" [attr.data-testid]="'pt-place-row'">
@@ -107,9 +128,11 @@
                           <input type="color" [value]="fieldText(it,t)" (input)="pickColor(it,t,$event)" [disabled]="state(it.key).busy !== null" [attr.aria-label]="'منتقي لون ' + t.label">
                         }
                         <input [id]="'pt-f-' + t.name" class="pt-text" dir="ltr" [value]="fieldText(it,t)" (input)="onText(it,t,$event)" [disabled]="state(it.key).busy !== null" [attr.aria-invalid]="problem(it,t) ? 'true' : null" spellcheck="false" autocomplete="off">
-                        @if (!fv.unified) { <small class="muted" data-testid="pt-diverge">القيم تختلف بين المواضع المذكورة. كتابة قيمة هنا توحّدها على كل المواضع.</small> }
+                        @if (placeDefs(it,t).length) { <small class="muted" data-testid="pt-all-places">هذا الحقل يكتب القيمة نفسها على كل المواضع التي ليس لها قيمة خاصة بها. لضبط موضع واحد فقط استعمل حقله المستقل أدناه.</small> }
+                        @else if (!fv.unified) { <small class="muted" data-testid="pt-diverge">القيم تختلف بين المواضع المذكورة. كتابة قيمة هنا توحّدها على كل المواضع.</small> }
                         @if (problem(it,t); as pr) { <small class="pt-problem" role="alert" [attr.data-testid]="'pt-problem-' + t.name">{{ pr }}</small> }
                         @else if (unitHint(t)) { <small class="muted" [attr.data-testid]="'pt-unit-' + t.name">{{ unitHint(t) }}</small> }
+                        <ng-container *ngTemplateOutlet="placeEditors; context: { it: it, t: t }" />
                       </div>
                     }
                   </div>
@@ -155,6 +178,7 @@
                       [attr.aria-label]="'قيمة جديدة لـ ' + t.label" [attr.aria-invalid]="problem(it, t) ? 'true' : null" [attr.data-testid]="'pt-input-' + t.name" spellcheck="false" autocomplete="off" />
                     @if (problem(it, t); as pr) { <small class="pt-problem" role="alert">{{ pr }}</small> } @else if (unitHint(t)) { <small class="muted">{{ unitHint(t) }}</small> }
                     @if (isEdited(it, t) || isOverridden(it, t)) { <button type="button" class="btn-link" (click)="resetRow(it, t)" [attr.data-testid]="'pt-reset-' + t.name">إرجاع للأصل</button> }
+                    <ng-container *ngTemplateOutlet="placeEditors; context: { it: it, t: t, table: true }" />
                   } @else { <span class="muted">—</span> }
                 </span>
               </div>

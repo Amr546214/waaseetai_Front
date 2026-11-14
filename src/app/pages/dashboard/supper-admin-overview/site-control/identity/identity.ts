@@ -73,12 +73,22 @@ export class Identity implements OnInit, OnDestroy {
  private root(): ShadowRoot | null { return this.element.nativeElement.shadowRoot; }
  /** jump to a section of this page (smooth unless the visitor prefers reduced motion) and keep the address in step, without a navigation or a reload */
  goTo(id: string, updateUrl = true): void {
+  this.navSeq++; // a click / a new link supersedes any link that is still waiting for its section
   const el = this.root()?.getElementById('sec-' + id);
   if (!el) return;
   const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   el.scrollIntoView?.({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   this.currentSection.set(id);
   if (updateUrl) void this.router.navigate([], { relativeTo: this.route, fragment: id, replaceUrl: true });
+ }
+ private navSeq = 0;
+ /** the section an old link asked for: kept until the page has really rendered it (data can arrive late), then scrolled to once, and re-aligned once after the embedded editors have laid out */
+ private wanted: string | null = null;
+ private flushWanted(): void {
+  const id = this.wanted; if (!id || !this.root()?.getElementById('sec-' + id)) return;
+  this.wanted = null; this.goTo(id, false);
+  const seq = this.navSeq;
+  setTimeout(() => { if (!this.destroyed && seq === this.navSeq) this.goTo(id, false); }, 700);
  }
  private watchSections(): void {
   this.observer?.disconnect();
@@ -151,7 +161,7 @@ export class Identity implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		void this.load();
 		// an old link (/site-control/tokens, /typography, /icons, /templates) arrives here with the section as the fragment
-		this.fragmentSub = this.route.fragment.subscribe(f => { if (f && this.sectionDefs.some(x => x.id === f)) setTimeout(() => this.goTo(f, false), 250); });
+		this.fragmentSub = this.route.fragment.subscribe(f => { if (f && this.sectionDefs.some(x => x.id === f)) { this.wanted = f; setTimeout(() => this.flushWanted()); } });
 	}
 	ngOnDestroy(): void { this.observer?.disconnect(); this.fragmentSub?.unsubscribe(); this.destroyed = true; for (const u of this.objectUrls) { try { URL.revokeObjectURL(u); } catch { /* ignore */ } } this.objectUrls.length = 0; }
 
@@ -166,7 +176,7 @@ export class Identity implements OnInit, OnDestroy {
 			if (!r?.data || !Array.isArray(r.data.items)) throw new Error('bad shape');
 			this.data.set(r.data);
 			this.phase.set('ready');
-			setTimeout(() => this.watchSections());
+			setTimeout(() => { this.watchSections(); this.flushWanted(); });
 			void this.loadActivePreviews();
 			if (!silent || this.setPhase() === 'idle') void this.loadSetHistory();
 		} catch (e) {

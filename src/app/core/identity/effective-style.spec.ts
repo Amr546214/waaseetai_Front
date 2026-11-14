@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { buildProbe, colourText, groupByValue, lengthText, measurePlaces, placeLabel, splitSelectors } from './effective-style';
+import { buildProbe, buildProbeParts, colourText, groupByValue, lengthText, measurePlaces, placeLabel, splitSelectors } from './effective-style';
 import { PRESENTATION_STYLE_ID } from './presentation-controls';
 
 describe('effective-style: what a control really has on the site, per place', () => {
@@ -19,6 +19,14 @@ describe('effective-style: what a control really has on the site, per place', ()
 		expect(buildProbe(document, 'table th')!.querySelector('th')).not.toBeNull();
 		expect(buildProbe(document, 'ul > li')).toBeNull();
 		expect(buildProbe(document, 'a:hover')).toBeNull();
+	});
+	it('a table cell is measured ON the cell, never on the table that holds it (probe target = last element of the chain)', () => {
+		style.textContent = 'table{padding:8px} table th,table td{padding:26px} th{font-size:13px}';
+		const parts = buildProbeParts(document, 'table td')!;
+		expect(parts.root.tagName).toBe('TABLE'); expect(parts.target.tagName).toBe('TD'); expect(parts.target.parentElement!.tagName).toBe('TR');
+		const r = measurePlaces(document, 'table th,table td', 'padding');
+		expect(r.map(p => p.value)).toEqual(['26px (1.625rem)', '26px (1.625rem)']);
+		expect(measurePlaces(document, 'table td', 'padding')[0].value).not.toContain('8px');
 	});
 	it('reads the REAL computed value of each place and shows units / colours plainly', () => {
 		style.textContent = '.card{border-radius:12px;padding:20px} .project-card{border-radius:16px;padding:20px} h1{font-size:32px;font-weight:800} .btn{background-color:rgb(43,212,199)}';

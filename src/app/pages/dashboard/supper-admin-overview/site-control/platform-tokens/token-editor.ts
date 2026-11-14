@@ -6,8 +6,8 @@ import { firstValueFrom } from 'rxjs';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 import { IdentityAssetMeta, IdentityChangeResult, IdentityItemInfo, IdentityTokenDef, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { Failure, actorName, currentSummary, describeFailure } from '../identity/identity-view';
-import { PRESENTATION_GROUPS,PRESENTATION_STYLE_ID,buildPresentationCss,presentationInline,safePresentationValue } from '../../../../../core/identity/presentation-controls';
-import { PlaceValue, groupByValue, measurePlaces } from '../../../../../core/identity/effective-style';
+import { PRESENTATION_GROUPS,PRESENTATION_STYLE_ID,buildPresentationCss,isPlaceToken,parsePlaceToken,placeToken,presentationInline,safePresentationValue,splitSelectors } from '../../../../../core/identity/presentation-controls';
+import { PlaceValue, groupByValue, measurePlaces, placeLabel } from '../../../../../core/identity/effective-style';
 import { PlatformTokensStore } from './platform-tokens.store';
 
 export interface TokenNotice { type: 'ok' | 'warn' | 'error' | 'conflict'; text: string; detail?: string; failure?: Failure }
@@ -46,21 +46,35 @@ export class TokenEditor implements OnInit {
  // ---- the REAL current value of every control, per place (measured from the live site, never a placeholder)
  readonly measureVersion=signal(0);
  private readonly placeCache=new Map<string,{current:PlaceValue[];original:PlaceValue[]}>();
- private fieldOf(name:string){return this.scopesByToken.get(name)?.fields.find(f=>f.name===name);}
+ /** the field definition of a token; a per-place token (`--x--p2`) has the field of its group's `--x` */
+ private fieldOf(name:string){const base=parsePlaceToken(name)?.base??name;return this.scopesByToken.get(base)?.fields.find(f=>f.name===base);}
+ /** what a token is measured on: the whole group selector for the group's own token, ONE place for a per-place token */
+ private selectorOf(name:string):string|null{
+  const pl=parsePlaceToken(name),group=this.scopesByToken.get(pl?.base??name);
+  if(!group)return null;
+  return pl?(splitSelectors(group.selector)[pl.index]??null):group.selector;
+ }
  placesOf(t:IdentityTokenDef):{current:PlaceValue[];original:PlaceValue[]}|null{
   this.measureVersion();
-  const group=this.scopesByToken.get(t.name),field=this.fieldOf(t.name);
-  if(!group||!field||typeof document==='undefined')return null;
+  const selector=this.selectorOf(t.name),field=this.fieldOf(t.name);
+  if(!selector||!field||typeof document==='undefined')return null;
   let c=this.placeCache.get(t.name);
-  if(!c){c={current:measurePlaces(document,group.selector,field.property),original:measurePlaces(document,group.selector,field.property,{original:true})};this.placeCache.set(t.name,c);}
+  if(!c){c={current:measurePlaces(document,selector,field.property),original:measurePlaces(document,selector,field.property,{original:true})};this.placeCache.set(t.name,c);}
   return c;
+ }
+ /** the places of a group's token that can be controlled one by one: each with its own server token (absent on a server that predates per-place tokens: then only the group-wide control shows) */
+ placeDefs(it:IdentityItemInfo,t:IdentityTokenDef):{index:number;selector:string;label:string;def:IdentityTokenDef}[]{
+  if(isPlaceToken(t.name))return [];
+  const group=this.scopesByToken.get(t.name);if(!group)return [];
+  const sels=splitSelectors(group.selector);if(sels.length<2)return [];
+  return sels.flatMap((selector,index)=>{const def=(it.tokens??[]).find(x=>x.name===placeToken(t.name,index));return def?[{index,selector,label:placeLabel(selector),def}]:[];});
  }
  /**
   * What a control shows: a published override (source «تخصيص منشور»), else the value the site really has (measured per place, source «القيمة الأصلية للموقع»), else the server's default.
   * Places that differ are separate rows with their names; the field's own value is pre-filled only when every place agrees.
   */
  fieldView(it:IdentityItemInfo,t:IdentityTokenDef):{source:'override'|'site'|'default';sourceText:string;rows:{value:string|null;reason?:string;basis?:string;plain?:boolean;places:string[]}[];original:{value:string|null;reason?:string;basis?:string;places:string[]}[]|null;editValue:string;unified:boolean;shared:boolean}{
-  const ov=this.activeValue(it)[t.name],places=this.placesOf(t),shared=(places?.current.length??0)>1;
+  const ov=this.activeValue(it)[t.name],places=this.placesOf(t),shared=!isPlaceToken(t.name)&&splitSelectors(this.scopesByToken.get(t.name)?.selector??'').length>1;
   const field=this.fieldOf(t.name);
   if(ov!==undefined&&ov!=='inherit')return{source:'override',sourceText:'تخصيص منشور',rows:[{value:ov,plain:true,places:[shared?'تخصيص واحد منشور يسري على كل المواضع':'تخصيص منشور']}],original:places?groupByValue(places.original):null,editValue:ov,unified:true,shared};
   if(places&&(t.default==='inherit'||ov==='inherit')){
@@ -103,7 +117,7 @@ export class TokenEditor implements OnInit {
  invalidEdits(it:IdentityItemInfo):IdentityTokenDef[]{return(it.tokens??[]).filter(t=>this.problem(it,t)!==null);}
  readonly scopesByToken = new Map(PRESENTATION_GROUPS.flatMap(group =>
    group.fields.map(field => [field.name, group] as const)));
- filteredTokens(it:IdentityItemInfo):IdentityTokenDef[]{const q=this.query().trim().toLowerCase();return(it.tokens??[]).filter(t=>(!this.tokenPrefix()||t.name.startsWith(this.tokenPrefix()))&&(!q||[t.name,t.label,t.default].some(v=>v.toLowerCase().includes(q))));}
+ filteredTokens(it:IdentityItemInfo):IdentityTokenDef[]{const q=this.query().trim().toLowerCase();return(it.tokens??[]).filter(t=>!isPlaceToken(t.name)&&(!this.tokenPrefix()||t.name.startsWith(this.tokenPrefix()))&&(!q||[t.name,t.label,t.default].some(v=>v.toLowerCase().includes(q))));}
  visibleTokens(it:IdentityItemInfo):IdentityTokenDef[]{return this.filteredTokens(it).slice(0,this.limit());}
  samples(it:IdentityItemInfo){return PRESENTATION_GROUPS.filter(g=>g.key===it.key&&(!this.tokenPrefix()||g.fields.some(f=>f.name.startsWith(this.tokenPrefix())))).slice(0,20);}
  readonly livePreview = input(false);

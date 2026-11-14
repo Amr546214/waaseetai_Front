@@ -431,6 +431,21 @@ describe('identity view helpers', () => {
 			expect(t.q('identity-nav-typography')!.getAttribute('aria-current')).toBe('true');
 			expect(t.q('identity-nav-logos')!.getAttribute('aria-current')).toBeNull();
 		});
+		it('an old link whose data arrives LATE still reaches its section (no fixed wait): the jump happens once the section is on the page', async () => {
+			const late = new Subject<{ success: boolean; data: IdentityOverview }>();
+			const { Router } = await import('@angular/router');
+			const proto = HTMLElement.prototype as unknown as { scrollIntoView?: () => void }; const orig = proto.scrollIntoView; const scrolled = vi.fn(); proto.scrollIntoView = scrolled;
+			try {
+				const t = setup(overview([item()]), { overview: vi.fn(() => late) });
+				await TestBed.inject(Router).navigate([], { fragment: 'typography' });
+				await new Promise(r => setTimeout(r, 1200)); // far longer than the old fixed 250ms
+				expect(t.q('identity-loading')).toBeTruthy(); expect(scrolled).not.toHaveBeenCalled();
+				late.next({ success: true, data: overview([item()]) }); late.complete();
+				await t.settle(); await new Promise(r => setTimeout(r, 50)); t.f.detectChanges();
+				expect(scrolled).toHaveBeenCalled();
+				expect(t.q('identity-nav-typography')!.getAttribute('aria-current')).toBe('true');
+			} finally { proto.scrollIntoView = orig; }
+		});
 		it('the bar and sections do not create scroll areas of their own (the bar is sticky, sections scroll with the page)', async () => {
 			const t = setup(overview([item()])); await t.settle();
 			expect(t.root().querySelector('.id-nav')).not.toBeNull();

@@ -1,6 +1,20 @@
 import GROUPS from './presentation-controls.json';
 export const PRESENTATION_GROUPS=GROUPS;
 export const PRESENTATION_STYLE_ID='ws-identity-presentation';
+/** top-level commas only (a comma inside `( )` or `[ ]` belongs to the selector): the PLACES of a group */
+export function splitSelectors(selector:string):string[]{
+ const out:string[]=[];let depth=0,cur='';
+ for(const ch of selector){
+  if(ch==='('||ch==='[')depth++;else if(ch===')'||ch===']')depth--;
+  if(ch===','&&depth===0){out.push(cur.trim());cur='';}else cur+=ch;
+ }
+ if(cur.trim())out.push(cur.trim());
+ return out.filter(Boolean);
+}
+/** the token of ONE place (zero-based index) of a multi-place group: `--x` -> `--x--p2`; it overrides the group's own token for that place only (same rule as the server's registry) */
+export const placeToken=(name:string,index:number):string=>`${name}--p${index+1}`;
+export function parsePlaceToken(name:string):{base:string;index:number}|null{const m=/^(.+)--p(\d+)$/.exec(name);return m?{base:m[1],index:Number(m[2])-1}:null;}
+export const isPlaceToken=(name:string):boolean=>parsePlaceToken(name)!==null;
 type Field={type:string;min?:number;max?:number;integer?:boolean};
 export function safePresentationValue(field:Field,value:unknown):value is string {
  if(typeof value!=='string'||!value||value.length>200||/[;{}<>@\\/!\n\r]/.test(value)||/url|expression|var\(|calc\(/i.test(value))return false;
@@ -20,7 +34,15 @@ export function presentationInline(groupId:string,values:Record<string,string>|u
 }
 export function buildPresentationCss(items:Record<string,{value?:Record<string,string>}>,prefix='html:root:root:root body'):string{
  return PRESENTATION_GROUPS.map(group=>{
-  const declarations=Object.entries(presentationInline(group.id,items[group.key]?.value)).map(([p,v])=>`${p}:${v}!important`);
-  return declarations.length?group.selector.split(',').map(s=>prefix+' '+s).join(',')+'{'+declarations.join(';')+'}':'';
+  const values=items[group.key]?.value,places=splitSelectors(group.selector);
+  const rule=(selectors:string[],decl:Record<string,string>)=>{const d=Object.entries(decl).map(([p,v])=>`${p}:${v}!important`);return d.length?selectors.map(s=>prefix+' '+s).join(',')+'{'+d.join(';')+'}':'';};
+  // the group's own value for every place, then each place's own value AFTER it (same specificity: the later rule wins, so a place's value overrides the group's for that place only)
+  const all=rule(places,presentationInline(group.id,values));
+  const each=places.length>1?places.map((sel,i)=>{
+   const decl:Record<string,string>={};
+   for(const field of group.fields){const v=values?.[placeToken(field.name,i)];if(safePresentationValue(field,v))decl[field.property]=v;}
+   return rule([sel],decl);
+  }).join(''):'';
+  return all+each;
  }).join('');
 }

@@ -1,4 +1,4 @@
-import { PRESENTATION_STYLE_ID } from './presentation-controls';
+import { PRESENTATION_STYLE_ID, splitSelectors } from './presentation-controls';
 
 /**
  * The value a control really has on the site RIGHT NOW, per place. A "place" is one selector of a presentation group (e.g. `.card`, `.project-card`, `.kpi-card` of «البطاقات»): the places of one
@@ -25,16 +25,7 @@ const PLACE_LABELS: Record<string, string> = {
 };
 for (const h of ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']) PLACE_LABELS[h] = `العنوان ${h.toUpperCase()}`;
 
-/** split on top-level commas only (a comma inside `( )` or `[ ]` belongs to the selector) */
-export function splitSelectors(selector: string): string[] {
-	const out: string[] = []; let depth = 0, cur = '';
-	for (const ch of selector) {
-		if (ch === '(' || ch === '[') depth++; else if (ch === ')' || ch === ']') depth--;
-		if (ch === ',' && depth === 0) { out.push(cur.trim()); cur = ''; } else cur += ch;
-	}
-	if (cur.trim()) out.push(cur.trim());
-	return out.filter(Boolean);
-}
+export { splitSelectors };
 
 export function placeLabel(selector: string): string {
 	if (PLACE_LABELS[selector]) return PLACE_LABELS[selector];
@@ -44,10 +35,15 @@ export function placeLabel(selector: string): string {
 	return selector;
 }
 
-/** build ONE element (or a descendant chain `table th`) for a selector; null when the selector uses something the probe cannot express */
-export function buildProbe(doc: Document, selector: string): HTMLElement | null {
+/**
+ * build ONE element (or a descendant chain `table th`) for a selector; null when the selector uses something the probe cannot express.
+ * `root` is what gets attached to the page; `target` is the element the selector actually matches (the LAST of the chain): the one that must be measured.
+ * A table cell gets its `tbody > tr` so the browser lays it out as a real cell.
+ */
+export function buildProbeParts(doc: Document, selector: string): { root: HTMLElement; target: HTMLElement } | null {
 	const chain = selector.trim().split(/\s+/);
-	let root: HTMLElement | null = null, parent: HTMLElement | null = null;
+	if (chain.some(p => /^(th|td)/i.test(p)) && !chain.some(p => /^table/i.test(p))) return null;
+	let root: HTMLElement | null = null, parent: HTMLElement | null = null, target: HTMLElement | null = null;
 	for (const part of chain) {
 		if (/[>+~*]/.test(part.replace(/\[[^\]]*\]/g, ''))) return null;
 		const tagMatch = /^[a-z][a-z0-9-]*/i.exec(part);
@@ -62,14 +58,17 @@ export function buildProbe(doc: Document, selector: string): HTMLElement | null 
 		if (/:disabled/.test(rest)) el.setAttribute('disabled', '');
 		rest = rest.replace(/\.[\w-]+/g, '').replace(/:disabled/g, '');
 		if (rest.trim()) return null; // some other pseudo-class: not expressible
-		if (tag === 'th' || tag === 'td') { /* needs a table to be laid out as a cell */ }
-		if (parent) parent.appendChild(el); else root = el;
-		parent = el;
+		if (parent) {
+			// a cell cannot sit directly in a table: give it the row (and body) a browser would build
+			if ((tag === 'th' || tag === 'td') && parent.tagName === 'TABLE') { const tb = doc.createElement('tbody'), tr = doc.createElement('tr'); tb.appendChild(tr); parent.appendChild(tb); parent = tr; }
+			parent.appendChild(el);
+		} else root = el;
+		parent = el; target = el;
 	}
-	if (root && chain.some(p => /^(th|td)/i.test(p)) && !chain.some(p => /^table/i.test(p))) return null;
-	if (root && chain.length === 2 && /^table$/i.test(chain[0])) { const tbl = root; const tr = doc.createElement('tr'); const cell = tbl.firstElementChild!; tbl.removeChild(cell); tr.appendChild(cell); const tb = doc.createElement('tbody'); tb.appendChild(tr); tbl.appendChild(tb); return tbl; }
-	return root;
+	return root && target ? { root, target } : null;
 }
+/** the element to ATTACH (kept for callers that only need the probe tree) */
+export function buildProbe(doc: Document, selector: string): HTMLElement | null { return buildProbeParts(doc, selector)?.root ?? null; }
 
 const KEYWORDS = new Set(['', 'auto', 'inherit', 'initial', 'unset']);
 /** `normal` is a real, editable value for these two properties */
@@ -157,10 +156,10 @@ export function measurePlaces(doc: Document, selector: string, property: string,
 				continue;
 			}
 			// 2) no such element here: a probe styled by the site's global stylesheets (the limit is said on the row)
-			const probe = buildProbe(doc, s);
-			if (!probe) { out.push({ ...base, basis: 'global', value: null, reason: 'تعذّر بناء عنصر قياس لهذا الموضع، ولا يوجد عنصر منه في هذه الصفحة، فلا يمكن تحديد قيمته.' }); continue; }
+			const parts = buildProbeParts(doc, s), probe = parts?.root;
+			if (!parts || !probe) { out.push({ ...base, basis: 'global', value: null, reason: 'تعذّر بناء عنصر قياس لهذا الموضع، ولا يوجد عنصر منه في هذه الصفحة، فلا يمكن تحديد قيمته.' }); continue; }
 			host.appendChild(probe);
-			const raw = read(view.getComputedStyle(probe), property);
+			const raw = read(view.getComputedStyle(parts.target), property); // the element the selector matches, never its ancestors
 			host.removeChild(probe);
 			out.push(unusable(raw)
 				? { ...base, basis: 'global', value: null, raw: null, reason: `المتصفح أعاد «${raw || 'قيمة فارغة'}» لهذا الموضع: لا قيمة رقمية مطبّقة عليه من أنماط الموقع العامة.` }
