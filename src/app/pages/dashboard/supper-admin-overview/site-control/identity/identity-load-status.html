@@ -1,0 +1,28 @@
+<section aria-label="حالة تحميل الهوية" data-testid="identity-load-status">
+  <header>
+    <h2>حالة تحميل الهوية</h2>
+    <button type="button" (click)="refresh()" [disabled]="busy()">{{ busy() ? 'جارٍ التحديث…' : 'تحديث حالة الهوية' }}</button>
+  </header>
+  <p>بيانات النسخة المتاحة في هذا المتصفح وأخطاء تحميل ملفات الهوية التي رصدها خلال الجلسة الحالية.</p>
+  <dl>
+    <div><dt>نسخة الهوية المتاحة</dt><dd>{{ identity.version() }}</dd></div>
+    <div><dt>ملفات مخصصة منشورة</dt><dd>{{ assets() }}</dd></div>
+    <div><dt>قيم تصميم مخصصة منشورة</dt><dd>{{ overrides() }}</dd></div>
+  </dl>
+  <div aria-live="polite">
+    @if (identity.lastError() || (checked() && !publicReadOk())) {
+      <p class="error" role="alert">تعذّر تحديث بيانات الهوية؛ تُعرض آخر نسخة متاحة أو القيم الافتراضية. {{ identity.lastError() }}</p>
+    } @else if (checked() && publicReadOk()) {
+      <p class="ok">تم تحديث بيانات الهوية من الخادم.</p>
+    }
+  </div>
+  @for (name of fonts.failed(); track name) {
+    <p class="error" role="alert">تعذّر تحميل الخط {{ name }}؛ يستخدم المتصفح خطًا احتياطيًا.</p>
+  }
+  @if (identity.failedAssetUrls().length) {
+    <p class="error">ملفات تعذّر تحميلها في هذه الجلسة:</p>
+    <ul>@for (url of identity.failedAssetUrls(); track url) { <li><bdi>{{ url }}</bdi></li> }</ul>
+  } @else {
+    <p>لم يرصد المتصفح فشل تحميل ملف هوية في هذه الجلسة. هذه الحالة ليست فحصًا شاملًا للخادم أو لكل ملفات المنصة.</p>
+  }
+</section>

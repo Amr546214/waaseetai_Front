@@ -458,7 +458,7 @@ const RAW_ROUTES: Routes = [
         ]
     },
     {
-        // «التحكم بالموقع»: «الهوية» is real (server-backed, site.view / site.manage); the nine pages imported from pmo stay local-only and keep site_control.manage.
+        // «التحكم بالموقع»: «الهوية» is real (server-backed, site.view / site.manage); each remaining page keeps its own access rule.
         path: 'site-control',
         loadComponent: () => import('./site-control/shell/site-control-shell').then(m => m.SiteControlShell),
         data: { title: 'التحكم بالموقع' },
@@ -467,7 +467,7 @@ const RAW_ROUTES: Routes = [
             { path: '', pathMatch: 'full', canActivate: [siteControlLandingGuard], children: [] },
             // the only server-backed page of the section: the platform's visual identity (logos, favicon, AI icon). Needs site.view / site.manage (core/config/admin-access-rules.ts); the server enforces the same.
             { path: 'identity', loadComponent: () => import('./site-control/identity/identity').then(m => m.Identity), data: { title: 'الهوية' } },
-            { path: 'health', loadComponent: () => import('./site-control/health/health').then(m => m.Health), data: { title: 'صحة الهوية' } },
+            { path: 'health', pathMatch: 'full', redirectTo: 'identity' },
             { path: 'tokens', loadComponent: () => import('./site-control/color-tokens/color-tokens').then(m => m.ColorTokens), data: { title: 'القيم والألوان' } },
             { path: 'icons', loadComponent: () => import('./site-control/icon-tokens/icon-tokens').then(m => m.IconTokens), data: { title: 'مكتبة الأيقونات' } },
             { path: 'accounts', loadComponent: () => import('./site-control/accounts/accounts').then(m => m.Accounts), data: { title: 'المستويات والنقاط' } },

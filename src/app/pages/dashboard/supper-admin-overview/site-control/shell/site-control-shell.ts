@@ -23,7 +23,7 @@ import { DesignTokensService } from '../core/design-tokens.service';
 export class SiteControlShell implements AfterViewInit, OnDestroy {
  private readonly access = inject(AdminAccessService);
  readonly navigation = computed(() => [
-  ['identity', 'الهوية'], ['health', 'صحة النظام'], ['tokens', 'القيم والألوان'], ['icons', 'الأيقونات'],
+  ['identity', 'الهوية'], ['tokens', 'القيم والألوان'], ['icons', 'الأيقونات'],
   ['typography', 'الخطوط'], ['accounts', 'هوية المستويات'], ['templates', 'القوالب'], ['export', 'تصدير CSS'],
  ].map(([path, title]) => ({ title, url: '/supper-admin-overview/site-control/' + path }))
   .filter(link => this.access.allows(ruleForPath(link.url))));
@@ -36,15 +36,13 @@ export class SiteControlShell implements AfterViewInit, OnDestroy {
 	 * What each page of the section really is (decision table: IDENTITY-SECTIONS-2026-10-28.md):
 	 *  - server: «الهوية» and «مكتبة الأيقونات» write the platform's identity on the server (no notice, the pages explain themselves);
 	 *  - mixed: «القيم والألوان» and «الخطوط» hold a SERVER-backed editor above a local sandbox;
-	 *  - aid: the health scan READS the live identity and save nothing on the site;
 	 *  - rules: «المستويات والنقاط» = business rules of the platform, out of this system's scope, logic untouched;
 	 *  - local: the remaining local tools (templates, export) and anything unknown.
 	 */
-	readonly kind = computed<'server' | 'mixed' | 'aid' | 'rules' | 'local'>(() => {
+	readonly kind = computed<'server' | 'mixed' | 'rules' | 'local'>(() => {
 		const m = /\/site-control\/([^/?#]+)/.exec(this.url());
 		switch (m?.[1]) {
 			case 'tokens': case 'identity': case 'icons': case 'typography': case 'templates': case 'accounts': case 'export': return 'server';
-			case 'health': return 'aid';
 			
 			default: return 'local';
 		}
