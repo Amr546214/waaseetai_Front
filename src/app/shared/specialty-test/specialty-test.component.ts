@@ -124,6 +124,18 @@ export interface SpecialtyTestResult {
 					</div>
 				</div>
 
+				@if (saveStatus(); as ss) {
+					@if (ss.state !== 'idle') {
+						<div class="wst-save" role="status" aria-live="polite" [attr.data-state]="ss.state" data-testid="specialty-test-save-status" style="font-size:12px;margin:4px 0;opacity:.85">
+							@switch (ss.state) {
+								@case ('saved') { <span>إجاباتك محفوظة على الخادم (مؤكَّد)</span> }
+								@case ('saving') { <span>جارٍ حفظ {{ ss.unconfirmed }} {{ ss.unconfirmed === 1 ? 'إجابة' : 'إجابات' }}…</span> }
+								@default { <span>{{ ss.unconfirmed }} {{ ss.unconfirmed === 1 ? 'إجابة لم يؤكد' : 'إجابات لم يؤكد' }} الخادم حفظها بعد — نعيد المحاولة تلقائيًا، ويمكنك المتابعة.</span> }
+							}
+						</div>
+					}
+				}
+
 				@if (streaming(); as st) {
 					<div class="wst-stream" role="status" data-testid="specialty-test-streaming">
 						<span>{{ st.message }}</span>
@@ -196,6 +208,8 @@ export class SpecialtyTestComponent {
 	readonly streaming = input<{ message: string; count: number; total: number | null } | null>(null);
 
 	readonly result = input<SpecialtyTestResult | null>(null);
+	/** What the SERVER has confirmed about the saved answers (null = this test does not autosave). */
+	readonly saveStatus = input<{ state: string; unconfirmed: number } | null>(null);
 
 	readonly answer = output<number>();
 	readonly prev = output<void>();

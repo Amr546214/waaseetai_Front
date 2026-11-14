@@ -1,3 +1,5 @@
+import { AdminSidebarCounts } from '../../../core/services/admin-sidebar-counts.service';
+import { OperationsPanelService } from '../../../core/services/operations-panel.service';
 import { roleHome } from '../../../core/routing/role-routes';
 import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
 import { Component, Input, Output, EventEmitter, inject, signal, computed, ChangeDetectorRef, effect, OnInit } from '@angular/core';
@@ -44,7 +46,9 @@ export interface NavItem {
 	styleUrl: './sidebar.css',
 })
 export class Sidebar implements OnInit {
+	readonly adminCounts = inject(AdminSidebarCounts);
 	private authStore = inject(AuthStore);
+	private ops = inject(OperationsPanelService);
 	private router = inject(Router);
 	public chatStateService = inject(ChatStateService);
 	private cdRef = inject(ChangeDetectorRef);
@@ -88,6 +92,7 @@ export class Sidebar implements OnInit {
 	}
 
 	ngOnInit() {
+		this.ops.load();
 		// Admin accounts: what the account may do is read once from the server; until then the menu shows only the account's own pages.
 		if (this.effectiveRole() === UserRole.ADMIN || this.effectiveRole() === UserRole.SUPER_ADMIN) void this.adminAccess.ensure();
 		// Marketer: read the profile once so the sidebar knows whether the setup wizard still has something to collect (pages keep it fresh).
@@ -323,7 +328,7 @@ export class Sidebar implements OnInit {
 			},
 			{ type: 'link', label: 'الوسطاء', route: '/supper-admin-overview/brokers', ws: 'pl-nav-admin-brokers', icon: icons.market },
 			{
-				type: 'accordion', id: 'sa-disputes', label: 'النزاعات والشكاوى', ws: 'pl-nav-group-sa-disputes', icon: icons.warn, badge: 33,
+				type: 'accordion', id: 'sa-disputes', label: 'النزاعات والشكاوى', ws: 'pl-nav-group-sa-disputes', icon: icons.warn, badge: this.adminCounts.total(),
 				children: [
 					{ type: 'link', label: 'النزاعات', route: '/supper-admin-overview/disputes', ws: 'pl-nav-admin-disputes', icon: icons.escrow },
 					{ type: 'link', label: 'البلاغات', route: '/supper-admin-overview/reports', ws: 'pl-nav-admin-reports', icon: icons.warn },
@@ -358,8 +363,7 @@ export class Sidebar implements OnInit {
 			{
 				type: 'accordion', id: 'sa-system', label: 'إدارة النظام', ws: 'pl-nav-group-sa-system', icon: icons.settings,
 				children: [
-					{ type: 'link', label: 'إعدادات النظام', route: '/supper-admin-overview/system-settings', ws: 'pl-nav-admin-system-settings', icon: icons.settings },
-					...(isSuper ? [{ type: 'link' as const, label: 'Super Admin', route: '/supper-admin-overview/super-admins', ws: 'pl-nav-admin-super-admins', icon: icons.shield }] as NavItem[] : [])
+					...(isSuper && this.ops.available() ? [{ type: 'link' as const, label: 'إعدادات النظام', route: '/supper-admin-overview/system-settings', ws: 'pl-nav-admin-system-settings', icon: icons.settings }] as NavItem[] : [])
 				]
 			},
 
@@ -464,7 +468,7 @@ export class Sidebar implements OnInit {
 				action: 'logout'
 			}
 		];
-		return all.filter(n => isSuper || (n.id !== 'sa-site-control' && !(n.type === 'header' && n.label === 'التحكم بالموقع')));
+		return all.filter(n => isSuper || (n.id !== 'sa-site-control' && !(n.type === 'header' && n.label === 'التحكم بالموقع'))).filter(n => !(n.type === 'accordion' && n.id === 'sa-system' && !(n.children?.length)));
 	}
 
 	private getMarketerNavItems(): NavItem[] {

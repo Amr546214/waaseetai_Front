@@ -2,7 +2,7 @@
   <div class="tm-hdr">
     <div>
       <h1 class="tm-ttl">فريق الإدارة</h1>
-      <p class="tm-sub">إدارة موظفي وسيط AI وصلاحياتهم وأدوارهم</p>
+      <p class="tm-sub">الإدارة العليا ومديرو النظام وموظفو الإدارة وأدوارهم</p>
     </div>
     <div class="tm-hdr-actions">
       @if (isSuperAdmin()) {
@@ -24,14 +24,15 @@
     <div class="tm-empty" role="status">جاري تحميل الفريق...</div>
   } @else if (data(); as d) {
     <div class="tm-kpi-row">
-      <div class="tm-kpi"><div class="tm-kpi-lbl">إجمالي الفريق</div><div class="tm-kpi-val" style="color:#2BD4C7" data-testid="kpi-total">{{ d.counts.total }}</div><div class="tm-kpi-sub">{{ d.counts.active }} نشط · {{ d.counts.pendingInvites }} دعوة معلقة@if (d.counts.suspended) { · {{ d.counts.suspended }} موقوف }</div></div>
+      <div class="tm-kpi"><div class="tm-kpi-lbl">إجمالي الفريق</div><div class="tm-kpi-val" style="color:#2BD4C7" data-testid="kpi-total">{{ d.counts.total + (d.leadership?.length ?? 0) }}</div><div class="tm-kpi-sub">{{ d.counts.active }} موظف نشط · {{d.leadership?.length??0}} من الإدارة العليا · {{ d.counts.pendingInvites }} دعوة معلقة@if (d.counts.suspended) { · {{ d.counts.suspended }} موقوف }</div></div>
       <div class="tm-kpi"><div class="tm-kpi-lbl">نشطون الآن</div><div class="tm-kpi-val" style="color:#0FA99A" data-testid="kpi-active-now">{{ d.counts.activeNow }}</div><div class="tm-kpi-sub">من {{ d.counts.active }} عضو · نشاط خلال آخر 5 دقائق</div></div>
       <div class="tm-kpi"><div class="tm-kpi-lbl">مهام مفتوحة</div><div class="tm-kpi-val" style="color:#FFB400">{{ d.counts.openTasks }}</div><div class="tm-kpi-sub">{{ d.counts.overdueTasks }} متأخرة</div></div>
       <div class="tm-kpi"><div class="tm-kpi-lbl">متوسط الأداء</div><div class="tm-kpi-val" style="color:#A56BE0">—</div><div class="tm-kpi-sub">لا تتوفر بيانات: قاعدة الدرجة الكلية لم تُعتمد</div></div>
     </div>
 
     <div class="tm-tabs" role="tablist">
-      <button class="tm-tab" [class.active]="tab() === 'all'" type="button" (click)="setTab('all')">الكل <span class="tm-tab-count">{{ d.counts.total }}</span></button>
+      <button class="tm-tab" [class.active]="tab() === 'all'" type="button" (click)="setTab('all')">الكل <span class="tm-tab-count">{{ d.counts.total + (d.leadership?.length ?? 0) }}</span></button>
+      <button class="tm-tab" [class.active]="tab()==='leadership'" type="button" (click)="setTab('leadership')">الإدارة العليا / Super Admin <span class="tm-tab-count">{{d.leadership?.length??0}}</span></button>
       @for (r of roleTabs(); track r.id) { <button class="tm-tab" [class.active]="tab() === r.id" type="button" (click)="setTab(r.id)">{{ r.name }} <span class="tm-tab-count">{{ r.memberCount }}</span></button> }
       <button class="tm-tab" [class.active]="tab() === 'pending'" type="button" (click)="setTab('pending')" data-testid="tab-pending">دعوات معلقة <span class="tm-tab-count">{{ d.counts.pendingInvites }}</span></button>
     </div>
@@ -53,6 +54,7 @@
     </div>
 
     <div class="tm-grid" data-testid="team-grid">
+      @if(tab()!=='pending'){@for(m of leadership();track m.userId){<article class="tm-card" data-testid="team-leadership"><div class="tm-card-top"><div class="tm-avatar" [style.background]="avatar(0)">{{initial(m.name)}}</div><div class="tm-card-head-body"><div class="tm-name">{{m.name}}</div><div class="tm-role">Super Admin · مدير النظام</div></div></div><p class="tm-dept">{{m.isBanned||m.status!=='ACTIVE'?'حساب غير نشط':m.activeNow?'نشط الآن':'غير متصل حاليًا'}}</p><p class="tm-pending-note">صلاحيات الإدارة العليا؛ لا يُدار كدور موظف محدود.</p>@if(isSuperAdmin()){<a class="tm-btn tm-btn-ghost" routerLink="/supper-admin-overview/super-admins">إدارة حسابات Super Admin</a>}</article>}}
       @if (tab() !== 'pending') {
         @for (m of filtered(); track m.userId; let i = $index) {
           <a class="tm-card" [routerLink]="['/supper-admin-overview/team', m.userId]" style="display:block;text-decoration:none" data-testid="team-member">
@@ -68,7 +70,7 @@
               <div class="tm-stat"><div class="tm-stat-val" [style.color]="m.overdueTasks ? '#FF8C69' : '#6B7699'">{{ m.overdueTasks }}</div><div class="tm-stat-lbl">متأخرة</div></div>
             </div>
           </a>
-        } @empty { <div class="tm-empty">لا يوجد أعضاء</div> }
+        } @empty { @if(!leadership().length){<div class="tm-empty">لا يوجد أعضاء مطابقون</div>} }
       } @else {
         @for (p of d.pendingInvites; track p.id) {
           <div class="tm-card tm-card-pending" data-testid="pending-invite">

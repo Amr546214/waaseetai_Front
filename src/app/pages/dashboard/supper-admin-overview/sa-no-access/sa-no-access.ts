@@ -13,7 +13,7 @@ import { SaUnavailable } from '../shared/sa-unavailable/sa-unavailable';
 	template: `
 		<app-sa-unavailable title="الوصول إلى لوحة الإدارة" [subtitle]="subtitle()" [heading]="text().heading" [reason]="text().reason">
 			@if (reason() === 'unavailable') { <button type="button" class="sna-retry" data-testid="no-access-retry" (click)="retry()">إعادة المحاولة</button> }
-			@if (canSeeHome()) { <a class="sna-home" routerLink="/supper-admin-overview" data-testid="no-access-home">العودة إلى لوحة التحكم</a> }		
+			@if (canSeeHome()) { <a class="sna-home" routerLink="/supper-admin-overview" data-testid="no-access-home">العودة إلى لوحة التحكم</a> }
 		</app-sa-unavailable>`,
 	styles: [`.sna-retry,.sna-home{display:inline-flex;margin:14px 6px 0;padding:8px 18px;border-radius:999px;font-size:12.5px;font-weight:800;color:#2BD4C7;border:1px solid rgba(43,212,199,.3);background:transparent;text-decoration:none;font-family:inherit;cursor:pointer}`],
 })

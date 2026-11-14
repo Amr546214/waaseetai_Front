@@ -1,3 +1,7 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { ThemeService } from '../../../core/services/theme.service';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -10,7 +14,7 @@ describe('About', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [About]
+      imports: [About], providers:[provideRouter([]),provideHttpClient(),provideHttpClientTesting(),{provide:ThemeService,useValue:{theme:()=> 'dark'}}]
     })
     .compileComponents();
 

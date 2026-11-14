@@ -128,7 +128,10 @@ describe('Register', () => {
 			);
 			expect(component.isGoogleFlow).toBe(true);
 			expect(component.basicInfoForm.get('email')?.value).toBe('new@example.com');
-			expect(component.basicInfoForm.get('firstName')?.value).toBe('Sara');
+			expect(component.basicInfoForm.get('username')?.value).toBe('Sara'); // Google's given name: a suggestion for the username only
+			// Google's profile name is a display-name suggestion only: the LEGAL name (the document name) is never taken from it and stays empty until the user types it
+			expect(component.basicInfoForm.get('legalName')?.value).toBe('');
+			expect(component.basicInfoForm.get('legalName')?.valid).toBe(false);
 		});
 
 		it('an already-registered Google identity shows "account already exists" with a link to Login, never logs in or creates a duplicate', async () => {
@@ -152,7 +155,7 @@ describe('Register', () => {
 	});
 
 	describe('going back during registration (Batch B T1)', () => {
-		const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
+		const valid = { legalName: 'Sara Ahmed Ali', username: 'Sara', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
 
 		it('after the registration answer, Back keeps the data, and continuing with the SAME data returns to the code step WITHOUT a second register call; edited data is submitted again', () => {
 			const { fixture, component, postSpy } = setup();
@@ -655,7 +658,7 @@ describe('Register', () => {
 
 
 describe('Register: the server refuses the request because of the send interval (429)', () => {
-	const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
+	const valid = { legalName: 'Sara Ahmed Ali', username: 'Sara', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
 	afterEach(() => vi.unstubAllGlobals());
 
 	it('says how long to wait (ticking text under the stepper), locks the submit button, stays on step 2 and never claims a send', () => {
@@ -679,7 +682,7 @@ describe('Register: the server refuses the request because of the send interval 
 });
 
 describe('Register: the code step after the server confirmed the proof mail', () => {
-	const valid = { firstName: 'Sara', lastName: 'Ali', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
+	const valid = { legalName: 'Sara Ahmed Ali', username: 'Sara', email: 'sara@example.com', password: 'Aa1!aaaaaa', confirmPassword: 'Aa1!aaaaaa', phone: { dialCode: '+966', number: '501234567' }, agreeData: true, agreeTerms: true };
 	afterEach(() => vi.unstubAllGlobals());
 
 	it('stays on the details step with a red message when the contact data is already in use', () => {

@@ -36,7 +36,7 @@ export class SiteControlShell implements AfterViewInit, OnDestroy {
 	 * What each page of the section really is (decision table: IDENTITY-SECTIONS-2026-10-28.md):
 	 *  - server: «الهوية» and «مكتبة الأيقونات» write the platform's identity on the server (no notice, the pages explain themselves);
 	 *  - mixed: «القيم والألوان» and «الخطوط» hold a SERVER-backed editor above a local sandbox;
-	*  - aid: design aids that READ the live identity (style guide, health scan) and save nothing on the site;
+	 *  - aid: the health scan READS the live identity and save nothing on the site;
 	 *  - rules: «المستويات والنقاط» = business rules of the platform, out of this system's scope, logic untouched;
 	 *  - local: the remaining local tools (templates, export) and anything unknown.
 	 */

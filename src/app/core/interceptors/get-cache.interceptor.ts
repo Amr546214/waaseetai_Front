@@ -1,3 +1,4 @@
+import { adminDataChanges } from '../services/admin-data-changes';
 import { HttpContextToken, HttpErrorResponse, HttpEvent, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, catchError, finalize, of, shareReplay, tap, throwError } from 'rxjs';
@@ -38,7 +39,7 @@ function remember(map: Map<string, Entry>, key: string, res: HttpResponse<unknow
 export const getCacheInterceptor: HttpInterceptorFn = (req, next) => {
 	const auth = inject(AuthStore);
 	if (req.method !== 'GET' || req.context.get(SKIP_GET_CACHE) || req.responseType !== 'json' || req.reportProgress) {
-		return next(req).pipe(tap(e => { if (e instanceof HttpResponse && e.status >= 200 && e.status < 300) fresh.clear(); }));
+		return next(req).pipe(tap(e => { if (e instanceof HttpResponse && e.status >= 200 && e.status < 300) { fresh.clear(); if(req.method!=='GET'&&/\/(?:disputes|reports|support|modification-requests|profile-change)/.test(req.url))adminDataChanges.next(); } }));
 	}
 	const u: any = auth.currentUser?.();
 	const key = `${u?.id ?? 'anon'}|${u?.activeRole ?? ''}|${req.urlWithParams}`;

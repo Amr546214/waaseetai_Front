@@ -1,3 +1,5 @@
+import { IdentityGateService } from '../../../../../core/services/identity-gate.service';
+import { FakeIdentityGate } from '../../../../../core/services/identity-gate.testing';
 import { ChangeDetectorRef, signal } from '@angular/core';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
@@ -15,6 +17,7 @@ import { AuthStore } from '../../../../../core/store/auth.store';
 // / reused-file proofs block both the step and the final submit, each with its own message UNDER the attachment; a stored proof counts through its marker.
 const SPEC = 'تطوير مواقع';
 describe('provider setup step 5: proof of ownership is required', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
   let fixture: ComponentFixture<ProfileSetupDashboard>;
   let c: ProfileSetupDashboard;
   let http: HttpTestingController;
@@ -29,10 +32,10 @@ describe('provider setup step 5: proof of ownership is required', () => {
         { provide: AuthStore, useValue: { currentUser: () => null } },
         { provide: ProfileApiService, useValue: { getProviderProfileSetup: () => of({ data: {} }), saveProviderProfileSetup: save } },
         { provide: SpecialtyService, useValue: { getCategories: () => of({ success: true, data: [] }), getPublicSpecialties: () => of({ success: true, data: [] }) } },
-        { provide: SetupTestService, useValue: { warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
+        { provide: SetupTestService, useValue: { needsExamEnvironment: signal(false), warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
       ],
     }).compileComponents();
-    fixture = TestBed.createComponent(ProfileSetupDashboard);
+    fixture = (TestBed.overrideComponent(ProfileSetupDashboard, { set: { providers: [{ provide: IdentityGateService, useClass: FakeIdentityGate }] } }), TestBed.createComponent(ProfileSetupDashboard));
     c = fixture.componentInstance;
     http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();

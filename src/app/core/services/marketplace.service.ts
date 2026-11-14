@@ -1,4 +1,8 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
+import { SKIP_GET_CACHE } from '../interceptors/get-cache.interceptor';
+import { CatalogChangesService } from './catalog-changes.service';
+import { switchMap } from 'rxjs';
+import { HttpClient, HttpParams, HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -74,6 +78,7 @@ export interface MarketplaceModel {
   providedIn: 'root'
 })
 export class MarketplaceService {
+  private readonly catalogChanges = inject(CatalogChangesService);
   private http = inject(HttpClient);
   private readonly baseUrl = `${environment.url_api}/marketplace`;
 
@@ -101,7 +106,7 @@ export class MarketplaceService {
    * Get dynamic categories with counts & sub-specialties
    */
   public getCategories(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/categories`);
+    return this.catalogChanges.changes.pipe(switchMap(() => this.http.get<any>(`${this.baseUrl}/categories`,{context:new HttpContext().set(SKIP_LOADING,true).set(SKIP_GET_CACHE,true)})));
   }
 
   /**

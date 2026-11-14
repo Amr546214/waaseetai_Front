@@ -1,35 +1,34 @@
+import { CmsTextSurface, CmsRoot } from '../../../../../shared/published-content/cms-copy';
 import { TestBed } from '@angular/core/testing';
-import { describe, it, expect } from 'vitest';
+import { of, throwError } from 'rxjs';
+import { describe,it,expect,vi,afterEach } from 'vitest';
 import { SaContent } from './sa-content';
-import { expectFieldProblem, expectFocused, settleForm } from '../../../../../shared/forms/form-spec-utils';
-
-describe('SaContent form', () => {
-	it('saving an empty page puts the message under the textarea and focuses it', async () => {
-		TestBed.configureTestingModule({ imports: [SaContent] });
-		const f = TestBed.createComponent(SaContent);
-		f.detectChanges();
-		const el = f.nativeElement as HTMLElement;
-		f.componentInstance.onContentChange('   ');
-		f.detectChanges();
-		(el.querySelector('[data-testid="cms-save-local"]') as HTMLButtonElement).click();
-		await settleForm();
-		const ta = el.querySelector('#sco-content');
-		expectFieldProblem(ta, 'فارغ');
-		expectFocused(ta);
-	});
-
-	it('is honest: states it is a LOCAL draft (not published, not saved on the server) and never claims publishing', () => {
-		TestBed.configureTestingModule({ imports: [SaContent] });
-		const f = TestBed.createComponent(SaContent);
-		f.detectChanges();
-		const el = f.nativeElement as HTMLElement;
-		const note = el.querySelector('[data-testid="cms-local-note"]')?.textContent ?? '';
-		expect(note).toContain('مسودة محلية');
-		expect(note).toContain('لا يُنشر');
-		expect(note).toContain('غير متصل');
-		expect(el.querySelector('[data-testid="cms-draft-state"]')?.textContent).toContain('غير منشورة');
-		expect(el.textContent).not.toContain('تُنشر فوراً');
-		expect(el.textContent).not.toContain('حفظ ونشر');
-		expect(el.querySelector('[data-testid="cms-save-local"]')?.textContent).toContain('مسودة محلية');
-	});
+import { AdminOperationsService } from '../../../../../core/services/admin-operations.service';
+afterEach(()=>TestBed.resetTestingModule());
+const row={slug:'about',title:'من نحن',draft:'',published:null,draftCopy:null,publishedCopy:null,version:3,publishedAt:null,updatedAt:null};
+function mount(){const api={get:vi.fn(()=>of({success:true,data:[row]})),put:vi.fn()};TestBed.configureTestingModule({imports:[SaContent],providers:[{provide:AdminOperationsService,useValue:api}]});const f=TestBed.createComponent(SaContent);f.detectChanges();return {f,c:f.componentInstance,api};}
+describe('actual-page content editing',()=>{
+ it('embeds the actual internal page and publishes text overrides with its version',()=>{
+  const {c,api,f}=mount();expect(f.nativeElement.querySelector('a[target="_blank"]')).toBeNull();
+  expect(f.nativeElement.querySelector('iframe')?.getAttribute('src')).toBe('/about?cmsPreview=about');
+  c.frameReady.set(true);c.texts.set([{key:'h1.0/text.0:abc',original:'Original',value:'Original',kind:'text'}]);c.selectedKey.set('h1.0/text.0:abc');
+  c.updateText('Edited');api.put.mockReturnValue(of({success:true,data:{...row,version:4,draftCopy:c.copy(),publishedCopy:c.copy()}}));
+  c.publish();expect(api.put).toHaveBeenCalledWith('content/about/copy',{version:3,copy:{version:1,edits:[{key:'h1.0/text.0:abc',original:'Original',value:'Edited'}]}});
+  expect(c.dirty()).toBe(false);expect(c.notice()).toContain('تم نشر');
+ });
+ it('selects a text from the embedded page and updates its live preview',()=>{
+  const {c,f}=mount();const frame=f.nativeElement.querySelector('iframe') as HTMLIFrameElement;
+  const doc=frame.contentDocument!;doc.open();doc.write('<html><body><div data-ws-cms-page="about" data-ws-cms-ready="true"><h1>Actual page title</h1></div></body></html>');doc.close();
+  const root=doc.querySelector('[data-ws-cms-page]') as CmsRoot;const surface=new CmsTextSurface(root,true);
+  root.wsCmsBridge={getTexts:()=>surface.getTexts(),setCopy:copy=>surface.setCopy(copy)};
+  c.onFrameLoad();expect(c.frameReady()).toBe(true);
+  root.querySelector<HTMLElement>('[data-ws-cms-key]')!.click();
+  expect(c.selectedText()?.original).toBe('Actual page title');c.updateText('Changed in the page');
+  expect(root.querySelector('h1')?.textContent).toBe('Changed in the page');surface.destroy();
+ });
+ it('keeps edits on a version conflict instead of replacing them with defaults',()=>{
+  const {c,api}=mount();c.frameReady.set(true);c.copy.set({version:1,edits:[{key:'p.0',original:'original',value:'unsaved'}]});
+  api.put.mockReturnValue(throwError(()=>({error:{message:'تغيرت الصفحة'}})));c.publish();
+  expect(c.error()).toBe('تغيرت الصفحة');expect(c.copy().edits[0].value).toBe('unsaved');expect(c.selected()?.version).toBe(3);
+ });
 });

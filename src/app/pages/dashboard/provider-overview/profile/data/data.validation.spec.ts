@@ -77,13 +77,13 @@ describe('provider profile data tabs: shared validation', () => {
     afterEach(() => el().remove());
 
     it('empty save: no request, summary, inline errors, focus on the first field, button stays enabled', () => {
-      fill(component.profileForm, { firstName: '', lastName: '  ', headline: '', specialty: '', country: '' });
+      fill(component.profileForm, { headline: '', specialty: '', country: '' });
       button('profile', 'حفظ التعديلات').click();
       render();
       expect(svc['updateBasicInfo']).not.toHaveBeenCalled();
-      for (const label of ['الاسم الأول', 'اسم العائلة', 'المسمى المهني', 'التخصص الرئيسي', 'الدولة']) expect(summary('profile'), label).toContain(label);
-      expect(fieldErrors('profile').length).toBe(5);
-      expect(document.activeElement?.id).toBe('pr-fname');
+      for (const label of ['المسمى المهني', 'التخصص الرئيسي', 'الدولة']) expect(summary('profile'), label).toContain(label);
+      expect(fieldErrors('profile').length).toBe(3);
+      expect(document.activeElement?.id).toBe('pr-title'); // the display name is the username field now (saved on its own), not a form input
       expect(button('profile', 'حفظ التعديلات').disabled).toBe(false);
     });
 

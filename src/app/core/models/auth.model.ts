@@ -89,8 +89,10 @@ export interface AuthResponse {
 
 export interface RegisterInput {
 	accountType: AccountType;
-	firstName: string;
-	lastName: string;
+	/** the name on the identity document (private; compared with the document only) */
+	legalName: string;
+	/** the name shown on the platform: ONE field, a single word is fine */
+	username: string;
 	email: string;
 	phoneCountryCode: string;
 	phoneNumber: string;

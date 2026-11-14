@@ -27,7 +27,6 @@ describe('SaFinanceReports export/print buttons', () => {
     const print = vi.spyOn(ReportPrintService.prototype, 'print').mockImplementation(() => {});
     const downloadCsv = vi.fn(() => of(new Blob(['id,amount\n1,9'], { type: 'text/csv' })));
     const f = make({ financeOverview: () => of({ success: true, data: { currency: 'USD', totals: {paymentGatewayFees: 2}, series: [], withdrawals: {}, affiliateCommissions: {} } }), downloadCsv });
-    f.componentInstance.setTab('expenses');
     f.detectChanges();
     (f.nativeElement.querySelector('[data-testid="frp-csv"]') as HTMLButtonElement).click();
     expect(downloadCsv).toHaveBeenCalledWith('commissions');

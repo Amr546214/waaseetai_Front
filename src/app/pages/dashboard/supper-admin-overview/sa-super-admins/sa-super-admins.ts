@@ -1,6 +1,7 @@
+import { DevDataResetComponent } from '../../../../shared/system-settings/dev-data-reset.component';
 import { spaIconHref } from '../../../../shared/system-settings/spa-icons';
 import { FeePolicyPanel } from '../../../../shared/fee-policy/fee-policy-panel';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, computed, inject, signal } from '@angular/core';
 import { WsDatePipe, formatWsDate } from '../../../../shared/ws-date/ws-date.pipe';
 import { FormsModule } from '@angular/forms';
 import { WsSelectComponent } from '../../../../shared/forms/select.component';
@@ -25,7 +26,7 @@ type SpaSection = 'general' | 'fees' | 'security' | 'notifications' | 'ai' | 'in
 @Component({
   selector: 'app-sa-super-admins',
   standalone: true,
-  imports: [WsDatePipe, CommonModule, WsSelectComponent, FormsModule, SettingsSectionComponent, RouterLink, FeePolicyPanel],
+  imports: [DevDataResetComponent, WsDatePipe, CommonModule, WsSelectComponent, FormsModule, SettingsSectionComponent, RouterLink, FeePolicyPanel],
   templateUrl: './sa-super-admins.html',
   styleUrl: './sa-super-admins.css',
 })
@@ -56,6 +57,8 @@ export class SaSuperAdmins implements OnInit {
     { key: 'danger', icon: 'warn', label: 'المنطقة الحمراء', danger: true },
   ];
 
+  /** set when this page is embedded as a tab of the unified «إعدادات النظام»: only that part is shown, without this page's own navigation */
+  @Input() embed: SpaSection | 'admins' | null = null;
   readonly activeSection = signal<SpaSection>('general');
   /** a failed / conflicting header save is shown here (the cards of this page have no save button of their own, so they print nothing) */
   conflictReload(keys: string[]) { return this.store.load().then(() => this.store.discard(keys)); }
@@ -89,9 +92,7 @@ export class SaSuperAdmins implements OnInit {
   readonly maintenanceOn = computed(() => this.store.item('maintenanceMode')?.value === true);
   /** the actions that have NO implementation: shown with the reason, never as a button that pretends */
   readonly unavailableActions = [
-    { key: 'wipeTest', label: 'مسح قاعدة بيانات الاختبار', desc: 'حذف بيانات بيئة التطوير', buttonLabel: 'تنفيذ', reason: 'غير متاح ولن يُنفَّذ من الواجهة: حذف بيانات خارج نطاق التطبيق.' },
-    { key: 'broadcast', label: 'إرسال إشعار لجميع المستخدمين', desc: 'نشرة إعلانية لجميع المستخدمين', buttonLabel: 'إرسال', reason: 'غير متاح: لا يوجد مسار إرسال جماعي منفّذ في الخادم.' },
-    { key: 'backup', label: 'تصدير نسخة احتياطية كاملة', desc: 'DB Snapshot — مشفّرة', buttonLabel: 'تصدير', reason: 'غير متاح: النسخ الاحتياطي يتم خارج التطبيق (على الخادم).' },
+    { key: 'backup', label: 'تصدير نسخة احتياطية كاملة', desc: 'مؤجل — يُؤخذ يدويًا من الخادم', buttonLabel: 'تصدير', reason: 'غير متاح: النسخ الاحتياطي يتم خارج التطبيق (على الخادم).' },
   ];
 
   // Audit Trail tab: real AccountAuditLog rows from the server (filters + pagination run server-side).
@@ -115,6 +116,7 @@ export class SaSuperAdmins implements OnInit {
   });
 
   ngOnInit(): void {
+    if (this.embed) this.activeSection.set(this.embed === 'admins' ? 'general' : this.embed);
     void this.store.load();
     this.api.getAdmins().subscribe({ next: (r) => this.admins.set(r.data ?? []), error: () => this.adminsFailed.set(true) });
     this.loadAudit();

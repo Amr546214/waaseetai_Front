@@ -48,8 +48,8 @@ describe('regional display settings: one answer for every formatter', () => {
 	});
 	it('the app start reads the public settings once, applies them, and a failed or slow read never blocks or breaks the app', async () => {
 		const http = TestBed.inject(HttpTestingController); const info = TestBed.inject(PlatformInfoService);
-		const p = info.loadOnce(); http.expectOne(`${environment.url_api}/public/settings`).flush({ success: true, data: { defaultTimezone: 'Asia/Riyadh', dateFormat: 'DD/MM/YYYY', calendarSystem: 'hijri', defaultLanguage: 'en', maintenanceBannerEnabled: true, maintenanceBannerText: 'x' } }); await p;
-		expect(platformRegional()).toEqual({ timezone: 'Asia/Riyadh', dateFormat: 'DD/MM/YYYY', calendar: 'hijri', language: 'en' }); expect(info.banner().enabled).toBe(true);
+		const p = info.loadOnce(); http.expectOne(`${environment.url_api}/public/settings`).flush({ success: true, data: { defaultTimezone: 'Asia/Riyadh', dateFormat: 'DD/MM/YYYY', calendarSystem: 'hijri', defaultLanguage: 'en', maintenanceMode: true, maintenanceBannerText: 'x' } }); await p;
+		expect(platformRegional()).toEqual({ timezone: 'Asia/Riyadh', dateFormat: 'DD/MM/YYYY', calendar: 'hijri', language: 'en' }); expect(info.maintenance()).toBe('x');
 		const p2 = info.loadOnce(); http.expectOne(`${environment.url_api}/public/settings`).flush('x', { status: 500, statusText: 'x' }); await p2; // resolved, nothing thrown; the previous values stay
 		expect(platformRegional().timezone).toBe('Asia/Riyadh');
 	});

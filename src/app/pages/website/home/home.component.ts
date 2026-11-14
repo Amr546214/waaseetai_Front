@@ -1,3 +1,4 @@
+import { PublishedContentComponent } from '../../../shared/published-content/published-content.component';
 import { Component, AfterViewInit, OnInit, PLATFORM_ID, inject, ViewEncapsulation } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -14,7 +15,7 @@ import { Cta } from './components/cta/cta';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [
+  imports: [PublishedContentComponent,
     RouterLink, 
     Hero,
     Audience,

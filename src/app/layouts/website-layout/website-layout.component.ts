@@ -12,6 +12,7 @@ import { PageLoader } from '../../sheards/page-loader/page-loader';
   templateUrl: './website-layout.component.html'
 })
 export class WebsiteLayoutComponent implements AfterViewInit {
+  readonly cmsPreview = typeof window !== 'undefined' && window.parent !== window && new URL(window.location.href).searchParams.has('cmsPreview');
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngAfterViewInit() {

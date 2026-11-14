@@ -1,3 +1,5 @@
+import { IdentityGateService } from '../../../../../core/services/identity-gate.service';
+import { FakeIdentityGate } from '../../../../../core/services/identity-gate.testing';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -13,6 +15,7 @@ const DATA_URI = 'data:image/png;base64,iVBORw0KGgo=';
 
 // "التالي" stores the step it leaves (database only) and advances only when the save succeeded.
 describe('client setup wizard: each Next stores its step', () => {
+	beforeEach(() => FakeIdentityGate.reset()); // the fake gate keeps static state: every test starts APPROVED
 	let fixture: ComponentFixture<ProfileSetupDashboard>;
 	let c: ProfileSetupDashboard;
 	let saveStep: ReturnType<typeof vi.fn>;
@@ -27,7 +30,7 @@ describe('client setup wizard: each Next stores its step', () => {
 				{ provide: ProfileApiService, useValue: { getClientProfileSetup: () => of({ data }), saveClientProfileSetup: vi.fn(), saveClientSetupStep: saveStep } },
 			],
 		});
-		fixture = TestBed.createComponent(ProfileSetupDashboard);
+		fixture = (TestBed.overrideComponent(ProfileSetupDashboard, { set: { providers: [{ provide: IdentityGateService, useClass: FakeIdentityGate }] } }), TestBed.createComponent(ProfileSetupDashboard));
 		c = fixture.componentInstance;
 		fixture.detectChanges();
 	}
@@ -70,11 +73,13 @@ describe('client setup wizard: each Next stores its step', () => {
 		expect(c.currentStep()).toBe(5);
 	});
 
-	it('a new identity upload is sent; an already stored (URL) document is never re-sent', () => {
+	// Updated for the identity gate: the identity images are no longer sent by the generic step-2 save; sendIdentity() sends them to the identity endpoint
+	// (covered in profile-setup.id-gate.spec.ts), so «التالي» on step 2 stores nothing itself.
+	it('step 2 never sends the identity through the generic step save (the identity gate does)', () => {
 		mount(); fill1(); c.currentStep.set(2);
 		c.setupForm.get('identity')!.patchValue({ frontId: DATA_URI, backId: 'https://res.cloudinary.com/x/back.png' });
 		c.nextStep();
-		expect(saveStep).toHaveBeenCalledWith(2, { identity: { frontId: DATA_URI, backId: undefined } });
+		expect(saveStep).not.toHaveBeenCalledWith(2, expect.anything());
 	});
 
 	it('step bar jump forward stores each step on the way and stops at the first failure', () => {

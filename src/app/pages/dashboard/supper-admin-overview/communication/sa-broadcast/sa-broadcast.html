@@ -1,1 +1,19 @@
-<app-sa-unavailable title="Broadcast — رسائل جماعية" subtitle="إرسال رسائل مستهدفة لشرائح المستخدمين" heading="الإرسال الجماعي غير متاح بعد" reason="لا يوجد نظام حملات أو رسائل جماعية في المنصة بعد، لذلك لا يمكن إرسال رسائل ولا تُعرض حملات سابقة أو أعداد مستلمين." disabledLabel="إرسال رسالة جماعية" disabledReason="لا يوجد نظام إرسال جماعي" />
+<section class="ops">
+ <header><div><h1>إرسال الإشعارات</h1><p>اكتب الإعلان واختر الفئة ثم اضغط نشر. يصل داخل الموقع، ومعه بريد للمستخدمين الذين فعّلوه إذا كانت قناة البريد مفعّلة.</p></div><button (click)="load()" [disabled]="busy()">تحديث حالة التوصيل</button></header>
+ @if(error()){<p class="error" role="alert">{{error()}}</p>}
+ @if(notice()){<p class="notice" role="status">{{notice()}}</p>}
+ @if(!caps()?.enabled){<p class="panel" role="status">الإرسال متوقف من إعدادات النظام أو لم تُقرأ حالته بعد. <a routerLink="/supper-admin-overview/system-settings" [queryParams]="{tab:'notifications'}">إعدادات الإشعارات</a></p>}
+ @if(caps();as c){@if(!c.emailEnabled){<p class="muted">قناة البريد مغلقة؛ الإعلان سيصل داخل الموقع فقط.</p>}@else if(!c.smtpConfigured){<p class="muted">نسخ البريد ستبقى في الطابور إلى أن يجهز خادم البريد. إشعارات الموقع تعمل.</p>}}
+ <form class="panel" (ngSubmit)="publish()">
+  <h2>إعلان جديد</h2>
+  <div class="fields"><label>العنوان *<input name="title" [(ngModel)]="title" required maxlength="150" [disabled]="busy()"></label><label>الفئة المستهدفة *<select name="audience" [(ngModel)]="audience" [disabled]="busy()">@for(a of audienceLabels|keyvalue;track a.key){<option [value]="a.key">{{a.value}}</option>}</select></label></div>
+  <label>الرسالة *<textarea name="message" [(ngModel)]="message" maxlength="4000" required [disabled]="busy()"></textarea></label>
+  <button class="primary" type="submit" [disabled]="busy()||!title.trim()||!message.trim()||!caps()?.enabled">{{busy()?'جارٍ النشر…':'نشر الإشعار'}}</button>
+ </form>
+ <div class="panel"><h2>آخر 50 إعلانًا</h2><p>يستكمل الخادم التوصيل بعد إغلاق الصفحة. «وصل للموقع» يعني إضافته لصندوق المستخدم، وقبول خادم البريد لا يعني قراءته.</p>
+  <div class="table-wrap"><table><thead><tr><th>الإعلان</th><th>الفئة</th><th>الحالة</th><th>وصل للموقع / المستهدف</th><th>تعذر بالموقع</th><th>البريد</th><th>إجراء</th></tr></thead><tbody>
+  @for(c of rows();track c.id){<tr><td>{{c.title}}<br><small>{{c.createdAt|date:'yyyy/MM/dd HH:mm'}}</small></td><td>{{audienceLabels[c.audience]}}</td><td>{{state(c.status)}}</td><td>{{c.sentCount}} / {{c.recipientCount}}</td><td>{{c.failedCount}}</td><td>@if(c.emailRequested){@for(e of c.emailCounts|keyvalue;track e.key){<div>{{emailState(e.key)}}: {{e.value}}</div>}}@else{غير مطلوب}</td><td>@if(c.status==='DRAFT'){<button [disabled]="busy()||!caps()?.enabled" (click)="publishSaved(c)">نشر الإشعار</button>}@if(c.status==='DRAFT'||c.status==='SENDING'){<button class="danger" [disabled]="busy()" (click)="cancel(c)">إلغاء المتبقي</button>}</td></tr>}
+  @empty{<tr><td colspan="7">لم تُنشر إعلانات بعد.</td></tr>}
+  </tbody></table></div>
+ </div>
+</section>

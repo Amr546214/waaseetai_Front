@@ -119,7 +119,7 @@ describe('admin team pages (real data, honest states, SUPER_ADMIN-only actions)'
 			TestBed.resetTestingModule();
 			TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: (await import('@angular/router')).ActivatedRoute, useValue: { queryParamMap: (await import('rxjs')).of({ get: () => reason }) } }] });
 			const f = TestBed.createComponent(SaNoAccess); await flush(f); const el = f.nativeElement as HTMLElement;
-			expect(el.textContent).toContain(text); expect(!!el.querySelector('[data-testid="no-access-retry"]')).toBe(retry); expect(el.querySelector('[data-testid="no-access-account"]')).toBeTruthy();
+			expect(el.textContent).toContain(text); expect(!!el.querySelector('[data-testid="no-access-retry"]')).toBe(retry); expect(el.querySelector('[data-testid="no-access-account"]')).toBeNull();
 		}
 	});
 

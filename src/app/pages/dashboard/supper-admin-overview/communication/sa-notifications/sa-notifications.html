@@ -13,7 +13,7 @@
     <label>الفترة<select name="range" [(ngModel)]="range" [disabled]="busy()"><option value="24h">آخر ٢٤ ساعة</option><option value="7d">آخر ٧ أيام</option></select></label>
     <label>التصنيف<select name="category" [(ngModel)]="category" [disabled]="busy()"><option value="">كل التصنيفات</option>@for (key of categoryKeys; track key) { <option [value]="key">{{ categories[key] }}</option> }</select></label>
     <label>حالة القراءة<select name="read" [(ngModel)]="read" [disabled]="busy()"><option value="">الكل</option><option value="read">مقروء</option><option value="unread">غير مقروء</option></select></label>
-    <button type="submit" [disabled]="busy()">عرض النتائج</button>
+    <label>المصدر<select name="source" [(ngModel)]="source"><option value="">كل الإشعارات</option><option value="SYSTEM">النظام تلقائيًا</option><option value="ADMIN">رسائل الإدارة</option></select></label><button type="submit" [disabled]="busy()">عرض النتائج</button>
   </form>
   @if (busy()) { <p role="status">جاري تحميل السجل…</p> }
   @else if (error()) {
@@ -26,7 +26,10 @@
       <ul class="history-items" aria-label="الإشعارات المحفوظة">
         @for (item of result.items; track item.id) {
           <li>
-            <strong>{{ typeLabel(item.type) }}</strong>
+            <strong>{{ item.title || typeLabel(item.type) }}</strong>
+            <span>{{item.source==='ADMIN'?'الإدارة':'النظام'}}</span>
+            @if(item.message){<p class="broadcast-message">{{item.message}}</p>}
+            @if(item.delivery;as d){<span>الموقع: {{d.status==='SENT'?'محفوظ في الصندوق':d.status}} · البريد: {{d.emailStatus==='SENT'?'قبله خادم البريد':d.emailStatus==='SKIPPED'?'غير مطلوب / حسب التفضيلات':d.emailStatus}}</span>}
             <span>{{ categories[item.category] || item.category }}</span>
             <span>{{ item.isRead ? 'مقروء' : 'غير مقروء' }}</span>
             <time [attr.datetime]="item.createdAt">{{ item.createdAt | wsDate:'datetime':'yyyy-MM-dd HH:mm' }}</time>

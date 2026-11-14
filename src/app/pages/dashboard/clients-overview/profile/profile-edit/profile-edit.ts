@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { afterNextRender, ChangeDetectorRef, Component, DestroyRef, ElementRef, Injector, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -25,6 +27,8 @@ import { SkillsCatalogService } from '../../../../../core/services/skills-catalo
 import { SkillsPickerComponent } from '../../../../../shared/forms/skills-picker.component';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
+import { LegalNameFieldComponent } from '../../../../../shared/legal-name/legal-name-field.component';
+import { UsernameFieldComponent } from '../../../../../shared/username/username-field.component';
 
 const PROFILE_LABELS: Record<string, string> = {
 	firstName: 'الاسم الأول',
@@ -41,11 +45,12 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent, LegalNameFieldComponent, UsernameFieldComponent],
 	templateUrl: './profile-edit.html',
 	styleUrl: './profile-edit.css',
 })
 export class ProfileEdit {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
 	readonly countryNames = COUNTRY_NAMES;
 	readonly citiesOf = citiesOf;
@@ -121,7 +126,7 @@ export class ProfileEdit {
 			next: res => {
 				const main = res?.success ? res.data?.mainSpecialty : null;
 				if (!main) { this.skillOptions.set([]); return; }
-				this.skillsCatalog.getCatalog(main).subscribe({
+				this.skillsCatalog.getCatalog(main).pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
 					next: c => this.skillOptions.set(c?.success ? (c.data?.skills ?? []) : []),
 					error: () => this.skillOptions.set([])
 				});
@@ -228,6 +233,11 @@ export class ProfileEdit {
 	pendingNameRequest = signal<{ id: string; requestedValue: string } | null>(null);
 	/** The name currently applied on the account (what the form shows again after a request is sent). */
 	private appliedNames = { firstName: '', lastName: '' };
+	/** the username (the display name) was saved on its own: the form that still carries first/last name follows, so a later save can never write an older name back */
+	onUsernameChanged(username: string) {
+		this.appliedNames = { firstName: username, lastName: '' };
+		for (const form of [this.basicsForm, this.clientForm, this.providerForm, this.contactForm]) form?.patchValue(this.appliedNames, { emitEvent: false });
+	}
 	/** The raw value of each sensitive tab form as loaded / last saved: a save that matches it sends nothing. */
 	private tabRef: Record<string, string | undefined> = {};
 	showRequestsModal = signal(false);
@@ -704,8 +714,10 @@ export class ProfileEdit {
 
 	/** The body of PUT /profiles/update for the main form (also the shape compared with the last-known stored value). */
 	private buildProfilePayload(): any {
-		if (this.isClient) return { ...this.clientForm.value, interests: this.interests() };
-		const payload: any = { ...this.providerForm.value, skills: this.skills(), interests: this.interests() };
+		// Username owns display-name writes. General profile saves must not replay hidden legacy fields.
+		const { firstName: _first, lastName: _last, ...fields } = (this.isClient ? this.clientForm : this.providerForm).value;
+		if (this.isClient) return { ...fields, interests: this.interests() };
+		const payload: any = { ...fields, skills: this.skills(), interests: this.interests() };
 		// Ensure numeric rate
 		if (payload.hourlyRate) payload.hourlyRate = Number(payload.hourlyRate);
 		return payload;

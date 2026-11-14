@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.component';
 import { Component, HostListener, AfterViewInit, OnDestroy, OnInit, PLATFORM_ID, Inject, ViewEncapsulation, signal, computed } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
@@ -20,6 +22,7 @@ interface FilterDraft { sub: string; levels: string[]; rating: number; maxDays: 
 	encapsulation: ViewEncapsulation.None
 })
 export class Slug implements OnInit, AfterViewInit, OnDestroy {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	private isBrowser: boolean;
 	private subscriptions = new Subscription();
 
@@ -290,7 +293,7 @@ export class Slug implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	loadCategories() {
-		this.marketplaceService.getCategories().subscribe({
+		this.marketplaceService.getCategories().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
 			next: (res) => {
 				if (res?.data?.categories) {
 					this.categories.set(res.data.categories);

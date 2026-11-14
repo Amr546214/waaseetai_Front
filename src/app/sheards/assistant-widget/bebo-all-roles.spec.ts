@@ -34,7 +34,7 @@ describe('Bebo is present for every role layout', () => {
 
 	it('it is mounted once at the root, behind the single hideAssistant check, and nowhere else', () => {
 		const app = readFileSync(join(__dirname, '..', '..', 'app.ts'), 'utf8');
-		expect(app).toMatch(/@if \(\(authStore\.isInitialized\$ \| async\) && !assistantHidden\(\)\) \{\s*@defer \(on idle\) \{\s*<app-assistant-widget/);
+		expect(app).toMatch(/@if \(\(authStore\.isInitialized\$ \| async\) && !assistantHidden\(\) && !maintenanceBlocked\(\)\) \{\s*@defer \(on idle\) \{\s*<app-assistant-widget/);
 	});
 });
 

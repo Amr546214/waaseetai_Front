@@ -1,11 +1,18 @@
 <section class="ss-page" dir="rtl">
   <div class="ss-hdr">
     <div>
-      <h1 class="ss-ttl">إدارة النظام</h1>
+      <h1 class="ss-ttl">إعدادات النظام</h1>
       <p class="ss-sub">إعدادات وسيط AI العامة والتقنية والأمنية</p>
     </div>
   </div>
 
+  @if (panel.error()) {
+    <div class="ss-card ss-err" role="alert">{{panel.error()}} <button type="button" class="ss-link" (click)="panel.load(true)">إعادة المحاولة</button></div>
+  } @else if (!panel.state()) {
+    <div class="ss-card" role="status" data-testid="panel-checking">جارٍ التحقق من الصلاحية…</div>
+  } @else if (!panel.available()) {
+    <div class="ss-card ss-err" role="alert" data-testid="panel-denied">{{ noAccess }}</div>
+  } @else {
   @if (!store.storageReady()) {
     <div class="ss-note" role="status" data-testid="settings-storage-pending" style="border-color:rgba(255,140,105,.4)">مخزن الإعدادات غير جاهز على الخادم بعد: تُعرض القيم الافتراضية ولا يمكن الحفظ حتى يُهيَّأ.</div>
   }
@@ -36,7 +43,7 @@
               <details class="ss-note-more"><summary>التفاصيل</summary>يشمل البريد الاختياري: نسخ الإشعارات، ملخص الرسائل غير المقروءة، مكافأة إكمال المشروع. عند إيقافه لا يُرسل بريد اختياري حتى لمن اختاره، وعند تفعيله يبقى لكل مستخدم اختياره الخاص. يظهر خيار البريد لدى المستخدمين معطّلًا «بواسطة إدارة المنصة» ويبقى اختيارهم المحفوظ كما هو. الرسائل المستثناة مطلوبة لإتمام العملية: إيصال إيداع الضمان، دعوة المزوّد لتوقيع العقد، رموز تسجيل الدخول والتفعيل وإعادة تعيين كلمة المرور وتأكيد الدفع والتوقيع.</details></div>
             <app-settings-section title="إعدادات الإشعارات" [icon]="icons.bell" wsIcon="i-bell" [keys]="notif" variant="ss" saveLabel="حفظ" />
           }
-          @case ('security') { <app-settings-section title="الأمان والمصادقة" [icon]="icons.shield" wsIcon="pl-admin-ss-section-security" [keys]="security" variant="ss" saveLabel="حفظ" /> }
+          @case ('security') { <app-settings-section title="الأمان والمصادقة" [icon]="icons.shield" wsIcon="pl-admin-ss-section-security" [keys]="security" variant="ss" saveLabel="حفظ" /> <app-login-protection /> }
           @case ('finance') {
             <app-settings-section title="الإعدادات المالية" [icon]="icons.wallet" wsIcon="pl-admin-ss-section-finance" [keys]="finance" variant="ss" saveLabel="حفظ" />
             @if (access.canAny(['fees.view','fees.manage'])) { <app-fee-policy-panel variant="ss" /> }
@@ -55,10 +62,15 @@
           }
           @case ('regional') { <app-settings-section title="الإعدادات الإقليمية" [icon]="icons.globe" wsIcon="pl-admin-ss-section-regional" [keys]="regional" variant="ss" saveLabel="حفظ" /> }
           @case ('health') { <app-settings-health /> }
+          @case ('admins') { <app-sa-super-admins embed="admins" /> }
+          @case ('integrations') { <app-sa-super-admins embed="integrations" /> }
+          @case ('audit') { <app-sa-super-admins embed="audit" /> }
+          @case ('danger') { <app-sa-super-admins embed="danger" /> }
         }
       </div>
     </div>
     <app-settings-changelog />
+  }
   }
   <div class="ss-foot">© 2026 وسيط AI · v{{ appVersion }}</div>
 </section>

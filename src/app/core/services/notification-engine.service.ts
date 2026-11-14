@@ -1,3 +1,4 @@
+import { adminDataChanges } from './admin-data-changes';
 import { Injectable, InjectionToken, Injector, signal, inject, effect, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { providerTimeZone } from './provider-prefs.store';
 import { AdminAccessService } from './admin-access.service';
@@ -307,6 +308,7 @@ export class NotificationEngineService implements OnDestroy {
 		});
 
 		const handleNewNotification = (notif: any) => {
+      if (/DISPUTE|TICKET|REPORT|MODIFICATION/.test(String(notif?.type||''))) adminDataChanges.next();
 			if (!this.registerArrival(notif)) return; // duplicate: already shown / counted
 			this.unreadCount.update(c => c + 1);
 			this.realtimeNewNotification.set(notif);

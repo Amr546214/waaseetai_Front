@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -16,6 +18,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 	styleUrls: ['./public.css'],
 })
 export class Public implements OnInit {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
 	/** The one shared level display (same badge as the dashboard and the level page): backend levelDisplay, else the level name read back to its level. */
 	levelDisplay = computed(() => {
 		const li = (this.profileData() as any)?.header?.levelInfo;
@@ -114,7 +117,7 @@ export class Public implements OnInit {
 
 	ngOnInit() {
 		this.loadPublicProfile();
-		this.specialtyService.getPublicSpecialties().subscribe({
+		this.specialtyService.getPublicSpecialties().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
 			next: (res: any) => {
 				const map: Record<string, string> = {};
 				for (const s of (Array.isArray(res?.data) ? res.data : [])) if (s?.id) map[s.id] = s.nameAr || s.name || '';
@@ -126,7 +129,7 @@ export class Public implements OnInit {
 
 	/** The service's specialty: the API's `specialtyName` first (new backend), else the public-specialties lookup, else '—'. */
 	specialtyOf(service: { specialtyName?: string | null; specialtyId?: string | null }): string {
-		return service?.specialtyName || this.specialtyName(service?.specialtyId);
+		return (service?.specialtyId && this.specialtyNames()[service.specialtyId]) || service?.specialtyName || '—';
 	}
 
 	/** Name of a service's specialty, or '—' when it is not in the public (active) specialties list. */

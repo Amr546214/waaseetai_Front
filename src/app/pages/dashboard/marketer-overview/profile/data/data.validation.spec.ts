@@ -170,15 +170,15 @@ describe('Data (marketer profile): shared validation', () => {
     });
 
     it('over-long values: no request, summary, inline errors, focus, button enabled', () => {
-      c.basicsForm.patchValue({ firstName: 'x'.repeat(51), nationalId: '1'.repeat(21) });
+      c.basicsForm.patchValue({ nationalId: '1'.repeat(21) });
       render();
       c.submitBasicsChangeRequest();
       render();
       expect(svc.createIdentityRequest).not.toHaveBeenCalled();
-      expect(summary()).toContain('الاسم الأول');
       expect(summary()).toContain('رقم الهوية');
-      expect(errors().length).toBeGreaterThanOrEqual(2);
-      expect(document.activeElement?.id).toBe('af-fname');
+      expect(errors().length).toBeGreaterThanOrEqual(1);
+      expect(document.activeElement?.id).toBe('af-nid');
+      expect(el().querySelector('ws-username-field')).not.toBeNull(); // the display name is the username field now
       expect(btn('إرسال طلب تعديل').disabled).toBe(false);
     });
 

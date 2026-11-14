@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { requiredText } from '../../core/forms/required-text.validator';
 import { Directive, signal, computed, inject, OnInit, ElementRef } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -62,6 +64,7 @@ const TYPE_COLORS: Record<string, string> = {
 
 @Directive()
 export abstract class AddAccountBase implements OnInit {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
   private accountService = inject(AccountService);
   public authStore = inject(AuthStore);
   private router = inject(Router);
@@ -175,7 +178,7 @@ export abstract class AddAccountBase implements OnInit {
   });
 
   ngOnInit() {
-    this.skillsCatalog.getAll().subscribe({
+    this.skillsCatalog.getAll().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
       next: res => this.skillCategories.set(res?.success ? (res.data?.categories ?? []) : []),
       error: () => this.skillCategories.set([])
     });

@@ -12,7 +12,7 @@ import { SiteControlShell } from './shell/site-control-shell';
 describe('site control (التحكم بالموقع)', () => {
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('the routes live inside the guarded admin area, before the not-found catch-all, «الهوية» first/default plus the nine local pages with Arabic titles', () => {
+	it('the routes live inside the guarded admin area, before the not-found catch-all, «الهوية» first/default plus the seven remaining pages with Arabic titles', () => {
 		const idx = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === 'site-control');
 		const wild = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === '**');
 		expect(idx).toBeGreaterThan(-1);

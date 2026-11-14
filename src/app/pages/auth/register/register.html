@@ -191,29 +191,32 @@
           <div class="social-divider"><span>أو أدخل بياناتك يدوياً</span></div>
           }
 
-          <div class="field-2col">
-            <div class="field-grp">
-              <label class="field-lbl" for="first-name">الاسم الأول <span class="ws-req" aria-hidden="true">*</span></label>
-              <input class="field-in" type="text" id="first-name" formControlName="firstName" placeholder="الاسم الأول" autocomplete="given-name" aria-required="true" [attr.aria-invalid]="fieldError('firstName') ? 'true' : null" [attr.aria-describedby]="fieldError('firstName') ? 'err-first-name' : null"
-                [class.has-error]="basicInfoForm.get('firstName')?.touched && basicInfoForm.get('firstName')?.invalid">
-              @if (fieldError('firstName'); as msg_firstName) {
-              <div class="field-err" id="err-first-name" role="alert">
-                <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-                <span>{{ msg_firstName }}</span>
-              </div>
-              }
+          <div class="field-grp">
+            <label class="field-lbl" for="legal-name">الاسم الحقيقي (كما في هوية رسمية) <span class="ws-req" aria-hidden="true">*</span></label>
+            <input class="field-in" type="text" id="legal-name" formControlName="legalName" placeholder="مثال: عمرو محمود" autocomplete="off" maxlength="120" aria-required="true" data-testid="legal-name-input" [attr.aria-invalid]="fieldError('legalName') ? 'true' : null" [attr.aria-describedby]="fieldError('legalName') ? 'err-legal-name' : 'legal-name-hint'"
+              [class.has-error]="basicInfoForm.get('legalName')?.touched && basicInfoForm.get('legalName')?.invalid">
+            @if (fieldError('legalName'); as msg_legalName) {
+            <div class="field-err" id="err-legal-name" role="alert">
+              <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+              <span>{{ msg_legalName }}</span>
             </div>
-            <div class="field-grp">
-              <label class="field-lbl" for="last-name">اسم العائلة <span class="ws-req" aria-hidden="true">*</span></label>
-              <input class="field-in" type="text" id="last-name" formControlName="lastName" placeholder="اسم العائلة" autocomplete="family-name" aria-required="true" [attr.aria-invalid]="fieldError('lastName') ? 'true' : null" [attr.aria-describedby]="fieldError('lastName') ? 'err-last-name' : null"
-                [class.has-error]="basicInfoForm.get('lastName')?.touched && basicInfoForm.get('lastName')?.invalid">
-              @if (fieldError('lastName'); as msg_lastName) {
-              <div class="field-err" id="err-last-name" role="alert">
-                <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-                <span>{{ msg_lastName }}</span>
-              </div>
-              }
+            } @else {
+            <div class="field-hint" id="legal-name-hint" style="font-size:12px;opacity:.7;margin-top:4px">يُستخدم لمطابقة وثيقة الهوية فقط ولا يظهر للآخرين. ويمكن أن يختلف عن اسم المستخدم أدناه.</div>
+            }
+          </div>
+
+          <div class="field-grp">
+            <label class="field-lbl" for="username">اسم المستخدم (الاسم الذي يظهر للآخرين) <span class="ws-req" aria-hidden="true">*</span></label>
+            <input class="field-in" type="text" id="username" formControlName="username" placeholder="مثال: عمرو" autocomplete="nickname" maxlength="60" aria-required="true" data-testid="username-input" [attr.aria-invalid]="fieldError('username') ? 'true' : null" [attr.aria-describedby]="fieldError('username') ? 'err-username' : 'username-hint'"
+              [class.has-error]="basicInfoForm.get('username')?.touched && basicInfoForm.get('username')?.invalid">
+            @if (fieldError('username'); as msg_username) {
+            <div class="field-err" id="err-username" role="alert">
+              <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
+              <span>{{ msg_username }}</span>
             </div>
+            } @else {
+            <div class="field-hint" id="username-hint" style="font-size:12px;opacity:.7;margin-top:4px">يمكن أن يكون كلمة واحدة. هذا ما يراه الآخرون في ملفك والمحادثات؛ ويختلف عن اسمك الحقيقي أعلاه.</div>
+            }
           </div>
 
           <div class="field-grp">

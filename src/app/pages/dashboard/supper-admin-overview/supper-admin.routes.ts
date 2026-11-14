@@ -1,3 +1,5 @@
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Route, Routes } from '@angular/router';
 import { adminAccessGuard } from '../../../core/guards/admin-access.guard';
 import { ruleForPath } from '../../../core/config/admin-access-rules';
@@ -239,12 +241,8 @@ const RAW_ROUTES: Routes = [
         loadComponent: () => import('../../../sheards/assistant-widget/dashboard-bebo').then(m => m.DashboardBebo),
         data: { title: 'بيبو' }
     },
-
-    {
-        path: 'super-admins',
-        loadComponent: () => import('./sa-super-admins/sa-super-admins').then(m => m.SaSuperAdmins),
-        data: { title: 'Super Admin' }
-    },
+    // Keep old Super Admin bookmarks on the unified system-settings accounts tab.
+    { path: 'super-admins', pathMatch: 'full', redirectTo: () => inject(Router).parseUrl('/supper-admin-overview/system-settings?tab=admins') },
     // Keep old invoice bookmarks on the guarded canonical finance route.
     { path: 'invoices-out', pathMatch: 'full', redirectTo: 'sub-finance/invoices-out' },
     {

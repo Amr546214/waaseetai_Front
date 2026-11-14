@@ -358,6 +358,9 @@
               <span class="sk-detail-key">المعرف</span>
               <span class="sk-detail-val sk-detail-id">#{{ getShortId(selectedOnboarding()!.id) }}</span>
             </div>
+            @if (selectedOnboarding()!.userId) {
+              <app-identity-check-panel [userId]="selectedOnboarding()!.userId!" party="CLIENT" />
+            }
             @if (selectedOnboarding()!.userName) {
               <div class="sk-detail-row">
                 <span class="sk-detail-key">المستخدم</span>
@@ -513,6 +516,7 @@
                 <span class="sk-detail-val"><app-kyc-document-link document="provider_front_id" [userId]="selectedProvider()!.userId" [url]="selectedProvider()!.frontIdUrl" [access]="selectedProvider()!.frontIdUrlAccess" linkClass="sk-doc-link" /></span>
               </div>
             }
+            <app-identity-check-panel [userId]="selectedProvider()!.userId" party="PROVIDER" />
             @if (providerPendingIdentityRequestId(); as reqId) {
               <div class="sk-detail-row" data-testid="kyc-new-identity-doc">
                 <span class="sk-detail-key">مستند الهوية الجديد</span>

@@ -1,53 +1,18 @@
-<section class="sco-page" dir="rtl">
-  <div class="sco-hdr">
-    <div>
-      <h1 class="sco-ttl">إدارة المحتوى (CMS)</h1>
-      <p class="sco-sub">تعديل محتوى الصفحات الثابتة + الشروط + FAQs</p>
-    </div>
-    <button type="button" class="sco-btn sco-btn-pri" disabled title="غير متصل بالخادم بعد">صفحة جديدة</button>
+<section class="ops cms-editor">
+ <header><div><h1>إدارة محتوى الصفحات</h1><p>اختر الصفحة واضغط على أي نص فيها لتعديله من مكانه. النشر يحدّث نصوص الصفحة مع الحفاظ على تصميمها.</p></div><button (click)="load()" [disabled]="busy()">إعادة التحميل</button></header>
+ @if(error()){<p class="error" role="alert">{{error()}}</p>}
+ @if(notice()){<p class="notice" role="status">{{notice()}}</p>}
+ <nav class="tabs" aria-label="الصفحات">@for(p of pages();track p.slug){<button [attr.aria-current]="selected()?.slug===p.slug" [disabled]="busy()" (click)="choose(p)">{{p.title}}</button>}</nav>
+ @if(selected();as p){
+  <div class="panel cms-toolbar"><strong>{{p.title}}</strong><span>الإصدار {{p.version}}</span><label class="check"><input type="checkbox" [ngModel]="editing()" (ngModelChange)="editing.set($event)">تعديل النصوص بالضغط عليها</label><button class="primary" [disabled]="busy()||!frameReady()||!dirty()" (click)="publish()">{{busy()?'جارٍ النشر…':'نشر التعديلات'}}</button><button [disabled]="busy()||!dirty()" (click)="discard()">تراجع عن التعديلات</button></div>
+  <div class="cms-workspace">
+   <aside class="panel cms-text-panel">
+    @if(selectedText();as text){<h2>تعديل النص المحدد</h2><label>النص<textarea [ngModel]="text.value" (ngModelChange)="updateText($event)" maxlength="8000" [disabled]="busy()" aria-label="النص المحدد"></textarea></label><button [disabled]="busy()" (click)="restoreText()">استعادة النص الأصلي</button>}
+    @else{<h2>الصفحة معروضة هنا</h2><p>اضغط على النص داخل الصفحة، أو اختَره من القائمة. أوقف وضع التعديل مؤقتًا لفتح أقسام الأسئلة أو تبديل تبويبات الصفحة.</p>}
+    <label>ابحث في نصوص الصفحة<input [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="بحث عن نص"></label>
+    <div class="cms-text-list">@for(text of matches();track text.key){<button [class.selected]="selectedKey()===text.key" (click)="selectText(text)">{{text.value||'نص فارغ'}}</button>}@empty{<p>{{frameReady()?'لا توجد نصوص مطابقة.':'جارٍ عرض الصفحة الفعلية…'}}</p>}</div>
+   </aside>
+   <div class="cms-frame-panel"><iframe #pageFrame [src]="frameUrl()" (load)="onFrameLoad()" [title]="'تحرير صفحة '+p.title" sandbox="allow-scripts allow-same-origin" referrerpolicy="same-origin"></iframe></div>
   </div>
-  <div class="sco-local-note" role="note" data-testid="cms-local-note">
-    مسودة محلية فقط: ما تكتبه هنا لا يُنشر على الموقع ولا يُحفظ على الخادم، ويزول عند إعادة تحميل الصفحة. الحفظ والنشر الفعلي غير متصل بعد.
-  </div>
-
-  <div class="sco-layout">
-    <div class="sco-card sco-pages-card">
-      <div class="sco-card-ttl">الصفحات</div>
-      <div class="sco-pages-list">
-        @for (p of pages; track p.key) {
-          <button type="button" class="sco-page-btn" [class.active]="selectedKey() === p.key" (click)="selectPage(p.key)">{{ p.title }}</button>
-        }
-      </div>
-    </div>
-
-    <div class="sco-card sco-editor-card">
-      <div class="sco-editor-hdr">
-        <div class="sco-editor-ttl">{{ selectedPage().title }}</div>
-        <div class="sco-lang-toggle"><span>AR</span><span class="sco-lang-sep">·</span><span>EN</span></div>
-        <div class="sco-editor-date">آخر تعديل: {{ selectedPage().lastEdited }}</div>
-      </div>
-      <div class="sco-editor-box">
-        <div class="sco-toolbar">
-          <button type="button" class="sco-tb-btn active" style="font-weight:800">B</button>
-          <button type="button" class="sco-tb-btn" style="font-style:italic">I</button>
-          <button type="button" class="sco-tb-btn">H2</button>
-          <button type="button" class="sco-tb-btn">— قائمة</button>
-          <button type="button" class="sco-tb-btn">رابط</button>
-        </div>
-        <textarea id="sco-content" aria-label="محتوى الصفحة" class="sco-textarea" [ngModel]="draftContent()" (ngModelChange)="onContentChange($event)"></textarea>
-      </div>
-      <div class="sco-editor-actions">
-        <button type="button" class="sco-btn sco-btn-pri" data-testid="cms-save-local" (click)="saveLocalDraft()">حفظ مسودة محلية</button>
-        <button type="button" class="sco-btn sco-btn-gh" disabled title="غير متصل بالخادم بعد">معاينة</button>
-        <button type="button" class="sco-btn sco-btn-gh" disabled title="حفظ المسودة على الخادم غير متصل بعد">حفظ مسودة</button>
-        <div class="sco-editor-note">
-          @if (dirty()) {
-            <span class="txt-amber">● تغييرات غير محفوظة</span>
-          } @else {
-            <span data-testid="cms-draft-state">مسودة محلية: غير منشورة وغير محفوظة على الخادم</span>
-          }
-        </div>
-      </div>
-    </div>
-  </div>
+ }
 </section>

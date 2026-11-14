@@ -14,7 +14,7 @@ import { ProviderAccessService } from '../../../core/services/provider-access.se
 import { isAdminUser } from '../../../core/guards/auth.guards';
 import { AdminAccessService } from '../../../core/services/admin-access.service';
 
-// «التحكم بالموقع»: a section at the BOTTOM of the admin sidebar (just above the logout button), with the nine pages under it and real links.
+// «التحكم بالموقع»: a section at the BOTTOM of the admin sidebar (just above the logout button), with the eight pages under it and real links.
 describe('Sidebar: التحكم بالموقع', () => {
 	// the menu follows what the SERVER says this account may do (admin access): a SUPER_ADMIN holds every permission, an ADMIN only those of its role
 	const items = (accountType: string, perms: string[] = []) => {
@@ -26,7 +26,7 @@ describe('Sidebar: التحكم بالموقع', () => {
 	};
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('a super admin sees the section last (before logout) with «الهوية» first and the nine local pages, correct routes', () => {
+	it('a super admin sees the section last (before logout) with «الهوية» first and the seven remaining pages, correct routes', () => {
 		const nav = items('SUPER_ADMIN', ['site_control.manage']);
 		const i = nav.findIndex(n => n.type === 'header' && n.label === 'التحكم بالموقع');
 		expect(i).toBeGreaterThan(-1);
@@ -68,7 +68,7 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(legacy.children.map((c: any) => c.label)).toEqual(['الهوية', 'صحة الهوية', 'القيم والألوان', 'مكتبة الأيقونات', 'المستويات والنقاط', 'القوالب', 'الخطوط', 'تصدير CSS']);
 		TestBed.resetTestingModule();
 		const both = items('ADMIN', ['site_control.manage', 'site.manage']).find(n => n.label === 'التحكم بالموقع' && n.type === 'accordion');
-		expect(both.children.length).toBe(10);
+		expect(both.children.length).toBe(8);
 	});
 
 	it('no other role gets the section', () => {

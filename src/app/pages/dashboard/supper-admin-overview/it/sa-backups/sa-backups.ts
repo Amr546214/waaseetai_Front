@@ -1,13 +1,5 @@
 import { Component } from '@angular/core';
-import { SaUnavailable } from '../../shared/sa-unavailable/sa-unavailable';
-
-// Admin sweep (D3): this page used to render hardcoded mock data with no backend source.
-// It now shows an honest "not available" state (see shared/sa-unavailable); the route and
-// component are kept so the page can be wired to real data once a backend exists.
-@Component({
-  selector: 'app-sa-backups',
-  standalone: true,
-  imports: [SaUnavailable],
-  templateUrl: './sa-backups.html',
-})
+import { InfraPanelComponent } from '../../../../../shared/infra-panel/infra-panel.component';
+import { InfraActionsComponent } from '../../../../../shared/infra-actions.component';
+@Component({selector:'app-sa-backups',standalone:true,imports:[InfraPanelComponent,InfraActionsComponent],template:'<app-infra-panel endpoint="backups" title="النسخ الاحتياطي"><app-infra-actions kind="backups" /></app-infra-panel>'})
 export class SaBackups {}

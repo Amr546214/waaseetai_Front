@@ -1,3 +1,5 @@
+import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
+import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, ElementRef, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +31,7 @@ interface Category {
   styleUrls: ['../components/checkout-tokens.css', './custom-request.css'],
 })
 export class CustomRequestComponent implements OnInit {
+  private readonly catalogDestroy = catalogInject(CatalogDestroyRef);
   private projectApi = inject(ProjectApiService);
   private specialtyService = inject(SpecialtyService);
   private router = inject(Router);
@@ -63,7 +66,7 @@ export class CustomRequestComponent implements OnInit {
 
   private loadCategories(): void {
     this.categoriesLoading.set(true);
-    this.specialtyService.getCategories().subscribe({
+    this.specialtyService.getCategories().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
       next: (res: any) => {
         const list = res && res.success && Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : []);
         const mapped: Category[] = list.map((cat: any) => ({

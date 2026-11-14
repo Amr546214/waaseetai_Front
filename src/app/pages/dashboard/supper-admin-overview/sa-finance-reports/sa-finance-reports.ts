@@ -1,3 +1,5 @@
+import { OperatingFinanceComponent } from './operating-finance/operating-finance.component';
+import { ViewChild } from '@angular/core';
 import { adminFinanceDocument } from '../sub-finance/financial-report';
 import { ReportPrintService } from '../../../../core/reports/report-print.service';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
@@ -11,18 +13,18 @@ type ReportTab = 'overview' | 'revenue' | 'expenses' | 'profit';
 @Component({
   selector: 'app-sa-finance-reports',
   standalone: true,
-  imports: [CommonModule, ForecastSummaryComponent],
+  imports: [OperatingFinanceComponent, CommonModule, ForecastSummaryComponent],
   templateUrl: './sa-finance-reports.html',
   styleUrl: './sa-finance-reports.css',
 })
 export class SaFinanceReports implements OnInit {
+  @ViewChild(OperatingFinanceComponent) operating?: OperatingFinanceComponent;
   private readonly reportPrinter = inject(ReportPrintService);
   private api = inject(AdminOpsApiService);
 
   readonly usd = usd;
   readonly pct = pct;
   readonly monthLabel = monthLabel;
-  readonly noExpensesMsg = 'لا يوجد سجل مصروفات في المنصة بعد — لا تُعرض أرقام تقديرية';
 
   activeTab = signal<ReportTab>('overview');
   overview = signal<AdminFinanceOverview | null>(null);
@@ -76,15 +78,15 @@ export class SaFinanceReports implements OnInit {
   }
 
   print() {
+    if(this.activeTab()==='expenses'||this.activeTab()==='profit'){this.operating?.print();return;}
     const overview=this.overview(); if(!overview||this.loading()||this.error())return;
     const report=adminFinanceDocument(overview,undefined,'التقارير المالية');
     report.metadata!.push(['التبويب',this.tabs.find(t=>t.key===this.activeTab())?.label??this.activeTab()]);
-    if(this.activeTab()==='expenses')report.sections=[{title:'المصروفات',text:this.noExpensesMsg,facts:[['رسوم بوابة الدفع (تكلفة مدفوعات)',usd(overview.totals.paymentGatewayFees)]]}];
-    if(this.activeTab()==='profit')report.sections=[{title:'بيانات الأرباح المتاحة',text:'لا يمكن احتساب صافي الربح دون سجل كامل للمصروفات. عمولة المنصة ليست صافي الربح.',facts:[['عمولة المنصة',usd(overview.totals.platformCommission)],['رسوم بوابة الدفع',usd(overview.totals.paymentGatewayFees)]]}];
     this.reportPrinter.print(report);
   }
 
   exportCsv() {
+    if(this.activeTab()==='expenses'||this.activeTab()==='profit'){this.operating?.exportCsv();return;}
     if (this.exporting()) return;
     this.exporting.set(true);
     this.exportError.set('');

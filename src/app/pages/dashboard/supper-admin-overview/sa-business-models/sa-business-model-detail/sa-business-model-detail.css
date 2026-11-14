@@ -2,3 +2,5 @@
 .bm-detail-crumb a{color:#A8B2D1;font-size:var(--font-size-label);text-decoration:none}
 .bm-detail-crumb a:hover{color:#2BD4C7}
 .bm-detail-box{max-width:900px;max-height:none;overflow:visible;margin:0 auto}
+
+:host{display:block;width:100%}.bm-detail-box{width:100%;max-width:960px;margin-inline:auto;box-sizing:border-box}.review-panel{background:var(--ws-surface,var(--card,rgba(255,255,255,.035)));border-color:var(--ws-border,rgba(148,163,184,.22));padding:clamp(16px,3vw,32px);box-shadow:0 8px 24px #0001}.review-description{white-space:normal;line-height:1.9}.markdown{overflow-wrap:anywhere}.markdown ::ng-deep p{margin-block:.6rem}.markdown ::ng-deep h4{margin-block:1.4rem .5rem}.markdown ::ng-deep pre{overflow:auto}.review-panel ol{padding-inline-start:1.5rem}

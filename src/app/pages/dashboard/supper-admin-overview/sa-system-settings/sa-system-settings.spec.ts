@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+import { AuthStore } from '../../../../core/store/auth.store';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -10,6 +12,7 @@ import { UiNotificationService } from '../../../../core/services/ui-notification
 import { SettingItem, SystemSettingsStore } from '../../../../core/services/system-settings.store';
 import { By } from '@angular/platform-browser';
 import { SettingsSectionComponent } from '../../../../shared/system-settings/settings-section.component';
+import { OperationsPanelService } from '../../../../core/services/operations-panel.service';
 import { SaSystemSettings } from './sa-system-settings';
 
 const B = `${environment.url_api}/admin/system-settings`;
@@ -20,7 +23,7 @@ const ITEMS: SettingItem[] = [
 	item({ key: 'maintenanceMode', label: 'وضع الصيانة', value: false, version: 0, effect: 'within-5s' }),
 	item({ key: 'registrationOpen', label: 'تسجيل حسابات جديدة', value: true, version: 0 }),
 	item({ key: 'liveSupportAssistant', label: 'الدعم الفوري', status: 'blocked', canWrite: false, value: null, version: null, effect: null, reason: 'تغييرات الذكاء الاصطناعي نطاق منفصل: يُجرد هنا فقط.', source: null }),
-	item({ key: 'supportEmail', value: 'a@b.co', version: 1 }), item({ key: 'supportPhone', value: '' }), item({ key: 'maintenanceBannerEnabled', value: false }), item({ key: 'maintenanceBannerText', value: '' }),
+	item({ key: 'supportEmail', value: 'a@b.co', version: 1 }), item({ key: 'supportPhone', value: '' }), item({ key: 'maintenanceBannerText', value: '' }),
 	item({ key: 'termsVersion', value: '' }), item({ key: 'privacyVersion', value: '' }), item({ key: 'termsContent', value: '' }), item({ key: 'privacyContent', value: '' }),
 	item({ key: 'sessionIdleMinutes', tab: 'security', label: 'انتهاء الجلسة بسبب الخمول', value: 0, unit: 'دقيقة' }),
 	item({ key: 'sessionMaxHours', tab: 'security', label: 'المدة القصوى المطلقة للجلسة', value: 168, allowed: [8, 24, 48, 168], unit: 'ساعة', effect: 'new-sessions' }),
@@ -33,8 +36,9 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 	let http: HttpTestingController; let confirm: ReturnType<typeof vi.fn>;
 	beforeEach(() => {
 		confirm = vi.fn(async () => true);
-		TestBed.configureTestingModule({ providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: ConfirmModalService, useValue: { confirm } }] });
+		TestBed.configureTestingModule({ providers: [{provide:AuthStore,useValue:{currentUser:signal({id:'me',accountType:'SUPER_ADMIN'})}}, provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: ConfirmModalService, useValue: { confirm } }] });
 		http = TestBed.inject(HttpTestingController);
+		const ops = TestBed.inject(OperationsPanelService); ops.state.set({ officialDeployment: true, isSuperAdmin: true, available: true }); ops.loaded.set(true);
 		const a = TestBed.inject(AdminAccessService); a.access.set({ userId: 'me', isSuperAdmin: true, staffStatus: null, roleName: 'Super Admin', permissions: [], hasAnyPermission: true, state: 'SUPER_ADMIN', displayRole: 'مدير النظام' } as any); a.status.set('ready');
 	});
 	const boot = async (items: SettingItem[] = ITEMS, history: any[] = HIST) => {
@@ -45,9 +49,10 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 	const row = (el: HTMLElement, k: string) => el.querySelector(`[data-testid="row-${k}"]`) as HTMLElement;
 	const type = async (f: any, input: HTMLInputElement, v: string) => { input.value = v; input.dispatchEvent(new Event('input')); await flush(f); };
 
-	it('has exactly the seven design tabs and no sample data', async () => {
+	it('has the design tabs plus the Super Admin tabs of the merged page, and no sample data', async () => {
 		const { el } = await boot();
-		expect(Array.from(el.querySelectorAll('.ss-nav-item')).map(b => b.textContent?.trim())).toEqual(['عام', 'الذكاء الاصطناعي', 'الإشعارات', 'الأمان', 'المالية', 'الإقليمية', 'صحة النظام']);
+		expect(Array.from(el.querySelectorAll('.ss-nav-item')).map(b => b.textContent?.trim())).toEqual(['عام', 'الذكاء الاصطناعي', 'الإشعارات', 'الأمان', 'المالية', 'الإقليمية', 'صحة النظام', 'حسابات الإدارة العليا', 'التكاملات والـ API', 'Audit Trail', 'المنطقة الحمراء']);
+		expect(el.querySelector('h1')?.textContent).toContain('إعدادات النظام');
 		for (const sample of ['99.8%', '197.32.14.88', '185.220.101.42', 'فهد العتيبي', 'admin@waseet.ai', '95% دقة']) expect(el.textContent).not.toContain(sample);
 	});
 
@@ -177,5 +182,19 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 		expect(el.querySelector('[data-testid="health-card"]')?.textContent).toContain('جارٍ فحص'); 
 		http.expectOne(`${B}/health`).flush({ success: true, data: { checkedAt: '2026-10-25T10:00:00Z', items: [{ key: 'database', label: 'قاعدة البيانات', status: 'ok', detail: 'استجابة 4 ms' }, { key: 'backup', label: 'النسخ الاحتياطي', status: 'unavailable', detail: 'لا يوجد مصدر مراقبة مرتبط' }] } }); await flush(f);
 		expect(el.querySelector('[data-testid="health-database"]')?.textContent).toContain('استجابة 4 ms'); expect(el.querySelector('[data-testid="health-backup"]')?.textContent).toContain('غير متاح'); expect(el.textContent).not.toContain('uptime');
+	});
+
+ it('Super Admin can open the settings tabs on dev without an official deployment flag',async()=>{
+  const ops=TestBed.inject(OperationsPanelService);ops.state.set({officialDeployment:false,isSuperAdmin:true,available:true});
+  const {el}=await boot();expect(el.querySelector('.ss-nav')).toBeTruthy();expect(el.querySelector('[data-testid="panel-denied"]')).toBeNull();expect(el.textContent).not.toContain('الموقع الرسمي فقط');
+ });
+
+	it('ordinary staff on either deployment sees the Super Admin refusal and no settings are requested', async () => {
+		const ops = TestBed.inject(OperationsPanelService);
+		for (const [state, text] of [[{ officialDeployment: true, isSuperAdmin: false, available: false }, 'يلزم امتلاك صلاحية Super Admin للوصول إلى إعدادات النظام وتعديلها'], [{ officialDeployment: false, isSuperAdmin: false, available: false }, 'يلزم امتلاك صلاحية Super Admin للوصول إلى إعدادات النظام وتعديلها']] as const) {
+			ops.state.set(state);
+			const f = TestBed.createComponent(SaSystemSettings); await flush(f); const el = f.nativeElement as HTMLElement;
+			expect(el.querySelector('[data-testid="panel-denied"]')?.textContent).toContain(text); expect(el.querySelector('.ss-nav')).toBeNull(); http.expectNone(B);
+		}
 	});
 });

@@ -1,77 +1,83 @@
-import { Component, ElementRef, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { reportAdminProblems } from '../../shared/admin-form-report';
-import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
-
-interface CmsPage {
-  key: string;
-  title: string;
-  lastEdited: string;
-  content: string;
-}
-
-@Component({
-  selector: 'app-sa-content',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './sa-content.html',
-  styleUrl: './sa-content.css',
-})
-export class SaContent {
-  readonly pages: CmsPage[] = [
-    {
-      key: 'terms', title: 'شروط الاستخدام', lastEdited: '15 يناير 2025',
-      content: `1. قبول الشروط
-باستخدامك وسيط AI، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على أي جزء من هذه الشروط، يرجى عدم استخدام وسيط AI.
-
-2. التسجيل والحساب
-يجب أن يكون عمرك 18 عاماً أو أكثر لتسجيل حساب. أنت مسؤول عن الحفاظ على سرية بيانات حسابك.
-
-3. المدفوعات والرسوم
-تُحجز المبالغ كضمان في نظام الضمان لدى وسيط AI حتى إتمام الخدمة. رسوم وسيط AI حسب مستوى مقدم الخدمة وفق جدول المستويات المعتمد.
-
-4. المسؤولية
-وسيط AI وسيط بين أطراف العقد ولا تتحمل مسؤولية النزاعات التي تنشأ عن أداء الخدمات.`,
-    },
-    { key: 'privacy', title: 'سياسة الخصوصية', lastEdited: '10 يناير 2025', content: 'نلتزم في وسيط AI بحماية بياناتك الشخصية...\n\nنجمع فقط البيانات اللازمة لتقديم الخدمة، ولا نشاركها مع أطراف ثالثة دون موافقتك.' },
-    { key: 'faq', title: 'الأسئلة الشائعة (FAQ)', lastEdited: '5 يناير 2025', content: 'س: كيف أبدأ مشروعاً جديداً؟\nج: من لوحة التحكم اضغط على "طلب جديد" واتبع الخطوات.\n\nس: كيف تعمل الضمانات المالية؟\nج: يُحجز المبلغ لدى وسيط AI حتى تسليم العمل والموافقة عليه.' },
-    { key: 'about', title: 'من نحن', lastEdited: '2 يناير 2025', content: 'وسيط AI منصة سعودية تربط بين طالبي الخدمات ومقدميها باستخدام الذكاء الاصطناعي لضمان أفضل مطابقة وأعلى جودة.' },
-    { key: 'how', title: 'كيف يعمل', lastEdited: '28 ديسمبر 2024', content: '1. انشر طلبك\n2. يُطابقك AI بأفضل المقدمين\n3. تفاوض واتفق على السعر\n4. يُنجز العمل ويُسلَّم عبر الضمان' },
-    { key: 'contact', title: 'تواصل معنا', lastEdited: '20 ديسمبر 2024', content: 'البريد الإلكتروني: support@waseet.ai\nالهاتف: 920000000\nساعات العمل: 9 صباحاً - 9 مساءً' },
-    { key: 'welcome', title: 'رسالة الترحيب', lastEdited: '15 ديسمبر 2024', content: 'مرحباً بك في وسيط AI! نحن سعداء بانضمامك. استكشف المنصة وابدأ أول مشروع لك اليوم.' },
-  ];
-
-  selectedKey = signal(this.pages[0].key);
-  draftContent = signal(this.pages[0].content);
-  dirty = signal(false);
-  private notify = inject(UiNotificationService);
-  private host = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  selectedPage = computed(() => this.pages.find((p) => p.key === this.selectedKey()) ?? this.pages[0]);
-
-  selectPage(key: string): void {
-    const page = this.pages.find((p) => p.key === key);
-    if (!page) return;
-    this.selectedKey.set(key);
-    this.draftContent.set(page.content);
-    this.dirty.set(false);
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { OperationsPage, CmsPage } from '../../../../../core/services/admin-operations.service';
+import { CmsBridge, CmsCopy, CmsRoot, CmsTextView, emptyCmsCopy, isCmsCopy } from '../../../../../shared/published-content/cms-copy';
+const PATHS:Record<string,string>={terms:'/terms',privacy:'/privacy',faq:'/faq',about:'/about',how:'/how-it-works',contact:'/contact',welcome:'/'};
+@Component({selector:'app-sa-content',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./sa-content.html',styleUrls:['../../../../../shared/admin-operations.css','./sa-content.css']})
+export class SaContent extends OperationsPage implements OnInit,OnDestroy {
+ pages=signal<CmsPage[]>([]);selected=signal<CmsPage|null>(null);copy=signal<CmsCopy>(emptyCmsCopy());
+ texts=signal<CmsTextView[]>([]);selectedKey=signal<string|null>(null);frameUrl=signal<SafeResourceUrl|null>(null);frameReady=signal(false);editing=signal(true);search=signal('');
+ readonly selectedText=computed(()=>this.texts().find(t=>t.key===this.selectedKey())??null);
+ readonly matches=computed(()=>{const term=this.search().trim().toLocaleLowerCase();return this.texts().filter(t=>!term||t.value.toLocaleLowerCase().includes(term)||t.original.toLocaleLowerCase().includes(term));});
+ readonly dirty=computed(()=>JSON.stringify(this.copy())!==JSON.stringify(this.initialCopy(this.selected())));
+ private sanitizer=inject(DomSanitizer);private bridge?:CmsBridge;private observer?:MutationObserver;private doc?:Document;private queued=false;private frameTimer?:ReturnType<typeof setTimeout>;
+ @ViewChild('pageFrame') frame?:ElementRef<HTMLIFrameElement>;
+ ngOnInit(){this.load();}
+ ngOnDestroy(){this.detach();}
+ private initialCopy(p:CmsPage|null){return isCmsCopy(p?.draftCopy)?p!.draftCopy!:isCmsCopy(p?.publishedCopy)?p!.publishedCopy!:emptyCmsCopy();}
+ load(){const slug=this.selected()?.slug;this.request(this.api.get<CmsPage[]>('content',true),rows=>{this.pages.set(rows);const p=rows.find(p=>p.slug===slug)||rows[0];if(p)this.choose(p);});}
+ choose(p:CmsPage){
+  if(this.busy()||!Object.hasOwn(PATHS,p.slug))return;
+  if(this.dirty()&&!confirm('توجد تعديلات لم تُنشر. هل تتركها وتفتح الصفحة الأخرى؟'))return;
+  this.detach();this.selected.set(p);this.copy.set(structuredClone(this.initialCopy(p)));this.selectedKey.set(null);this.texts.set([]);this.frameReady.set(false);this.search.set('');this.notice.set('');
+  const url=new URL(PATHS[p.slug],window.location.origin);url.searchParams.set('cmsPreview',p.slug);
+  this.frameUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url.pathname+url.search));
+ }
+ private detach(){if(this.frameTimer)clearTimeout(this.frameTimer);this.frameTimer=undefined;this.observer?.disconnect();this.observer=undefined;this.bridge=undefined;if(this.doc){this.doc.removeEventListener('click',this.onClick,true);this.doc.removeEventListener('submit',this.preventSubmit,true);}this.doc=undefined;}
+ onFrameLoad(){
+  this.detach();const frame=this.frame?.nativeElement;
+  try{
+   const doc=frame?.contentDocument;if(!doc)throw new Error();
+   // A link or redirect must never turn this editor into a different site/page.
+   const url=new URL(frame!.contentWindow!.location.href);
+   if(url.origin!==window.location.origin||url.searchParams.get('cmsPreview')!==this.selected()?.slug)throw new Error();
+   this.doc=doc;doc.addEventListener('click',this.onClick,true);doc.addEventListener('submit',this.preventSubmit,true);
+   const View=doc.defaultView!;this.observer=new View.MutationObserver(()=>this.queueRefresh());
+   this.observer.observe(doc.documentElement,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['data-ws-cms-ready']});
+   this.refreshSurface();
+   if(!this.frameReady())this.frameTimer=setTimeout(()=>{if(!this.frameReady())this.error.set('تعذّر تحميل الصفحة داخل المحرر. أعد التحميل وتحقق من حالة الصيانة والجلسة.');},15000);
+  }catch{this.error.set('تعذّر عرض الصفحة داخل المحرر. أعد تحميل الصفحة.');}
+ }
+ private queueRefresh(){if(this.queued)return;this.queued=true;queueMicrotask(()=>{this.queued=false;if(this.doc)this.refreshSurface();});}
+ private refreshSurface(){
+  const slug=this.selected()?.slug;if(!slug||!this.doc)return;
+  const root=Array.from(this.doc.querySelectorAll<CmsRoot>('[data-ws-cms-page]')).find(e=>e.dataset['wsCmsPage']===slug&&e.dataset['wsCmsReady']==='true'&&e.wsCmsBridge);
+  if(!root)return;
+  if(this.bridge!==root.wsCmsBridge){this.bridge=root.wsCmsBridge;this.bridge!.setCopy(this.copy());}
+  this.texts.set(this.bridge!.getTexts());this.frameReady.set(true);if(this.frameTimer)clearTimeout(this.frameTimer);this.frameTimer=undefined;
+ }
+ private preventSubmit=(e:Event)=>{e.preventDefault();e.stopImmediatePropagation();};
+ private onClick=(event:MouseEvent)=>{
+  const target=event.target as Element|null;
+  if(!target?.closest('[data-ws-cms-page]')){event.preventDefault();event.stopImmediatePropagation();return;}
+  let key=target?.closest('[data-ws-cms-key]')?.getAttribute('data-ws-cms-key');
+  if(!key&&this.doc){
+   const doc=this.doc as Document&{caretPositionFromPoint?:(x:number,y:number)=>{offsetNode:Node}|null;caretRangeFromPoint?:(x:number,y:number)=>Range|null};
+   const node=doc.caretPositionFromPoint?.(event.clientX,event.clientY)?.offsetNode??doc.caretRangeFromPoint?.(event.clientX,event.clientY)?.startContainer;
+   key=node?.parentElement?.closest('[data-ws-cms-key]')?.getAttribute('data-ws-cms-key');
+   if(!key&&target?.querySelectorAll('[data-ws-cms-key]').length===1)key=target.querySelector('[data-ws-cms-key]')?.getAttribute('data-ws-cms-key');
   }
-
-  onContentChange(value: string): void {
-    this.draftContent.set(value);
-    this.dirty.set(true);
+  if(this.editing()&&key&&this.texts().some(t=>t.key===key)){
+   event.preventDefault();event.stopImmediatePropagation();this.selectedKey.set(key);return;
   }
-
-  /** Local draft only: nothing is sent to the server and nothing is published (real saving/publishing is not connected yet). */
-  saveLocalDraft(): void {
-    if (!this.draftContent().trim()) {
-      void reportAdminProblems(this.host.nativeElement, [{ field: 'sco-content', message: 'محتوى الصفحة فارغ، اكتب المحتوى قبل الحفظ' }]);
-      return;
-    }
-    const page = this.pages.find((p) => p.key === this.selectedKey());
-    if (page) page.content = this.draftContent();
-    this.dirty.set(false);
-    this.notify.warning('حُفظت كمسودة محلية فقط: لم يُنشر المحتوى ولم يُحفظ على الخادم، فالحفظ والنشر الفعلي غير متصل بعد');
-  }
+  // In preview mode role tabs / FAQ expansion still work. Links and forms cannot navigate away or send real data.
+  const link=target?.closest('a[href]');if(link&&!link.getAttribute('href')?.startsWith('#')){event.preventDefault();event.stopImmediatePropagation();}
+ };
+ selectText(t:CmsTextView){this.selectedKey.set(t.key);}
+ updateText(value:string){
+  const text=this.selectedText();if(!text||value.length>8000)return;
+  const edits=this.copy().edits.filter(e=>e.key!==text.key);
+  if(value!==text.original)edits.push({key:text.key,original:text.original,value});
+  this.copy.set({version:1,edits:edits.sort((a,b)=>a.key.localeCompare(b.key))});this.bridge?.setCopy(this.copy());this.refreshSurface();
+ }
+ restoreText(){const text=this.selectedText();if(text)this.updateText(text.original);}
+ discard(){this.copy.set(structuredClone(this.initialCopy(this.selected())));this.bridge?.setCopy(this.copy());this.refreshSurface();}
+ publish(){
+  const page=this.selected();if(!page||!this.frameReady()||!this.dirty())return;
+  this.request(this.api.put<CmsPage>(`content/${page.slug}/copy`,{copy:this.copy(),version:page.version}),p=>{
+   this.pages.update(rows=>rows.map(r=>r.slug===p.slug?p:r));this.selected.set(p);this.copy.set(structuredClone(this.initialCopy(p)));this.notice.set('تم نشر النصوص. تظهر التعديلات في الصفحة نفسها لكل الزوار.');
+  });
+ }
 }

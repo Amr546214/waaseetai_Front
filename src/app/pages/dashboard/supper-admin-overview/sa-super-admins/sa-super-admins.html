@@ -15,7 +15,8 @@
     <symbol id="spa-i-export" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
   </defs></svg>
 
-  <div class="spa-layout">
+  <div class="spa-layout" [class.spa-embed]="!!embed">
+    @if (!embed) {
     <div class="spa-nav">
       <div class="spa-nav-inner">
         <div class="spa-nav-ttl">الإعدادات</div>
@@ -32,6 +33,7 @@
         }
       </div>
     </div>
+    }
 
     <div class="spa-content">
       @if (store.loading() && !store.items().length) {
@@ -56,6 +58,7 @@
       }
 
       @if (activeSection() === 'general') {
+        @if (!embed) {
         <div class="spa-sec-hdr">
           <div><div class="spa-sec-ttl">الإعدادات العامة</div><div class="spa-sec-sub">اسم النظام، اللغة، التوقيت والسياسات الأساسية</div></div>
           <button type="button" class="spa-btn spa-btn-pri" data-testid="header-save" [disabled]="!dirtyIn(generalKeys).length || store.saving() || store.state() !== 'ready'" (click)="saveTab(generalKeys)"><svg><use href="#spa-i-save"></use></svg>{{ store.saving() ? 'جارٍ الحفظ…' : 'حفظ التغييرات' }}</button>
@@ -63,6 +66,7 @@
         <app-settings-section title="هوية النظام" icon="globe" [keys]="identity" variant="spa" [showState]="false" [showSave]="false" />
         <app-settings-section title="التسجيل والوصول" icon="settings" [keys]="registration" variant="spa" [showState]="false" [showSave]="false" />
         <app-settings-section title="سياسات المحتوى" icon="list" [keys]="contentPolicy" variant="spa" [showState]="false" [showSave]="false" />
+        }
         <div class="spa-card spa-card-flush" data-testid="admins-card">
           <div class="spa-card-head"><div class="spa-card-ttl"><svg aria-hidden="true"><use href="#spa-i-shield"></use></svg>الحسابات الإدارية</div><div class="spa-row-sub">حسابات المسؤول والمسؤول الأعلى المسجلة فعليًا في النظام</div></div>
           @if (adminsFailed()) { <div class="spa-empty" role="alert" data-testid="admins-error">تعذّر تحميل الحسابات الإدارية.</div> }
@@ -192,6 +196,8 @@
             <button type="button" class="spa-btn spa-btn-danger" data-testid="danger-maintenance-btn" [disabled]="store.saving() || !store.item('maintenanceMode')?.canWrite" (click)="toggleMaintenance()">{{ maintenanceOn() ? 'إيقاف' : 'تفعيل' }}</button>
           </div>
           @if (dangerError()) { <div class="spa-row spa-row-err" role="alert" data-testid="danger-error">{{ dangerError() }}</div> }
+          <app-dev-data-reset />
+          <div class="spa-row" data-testid="danger-broadcast"><div><div class="spa-row-lbl">إرسال إشعار لجميع المستخدمين</div><p>داخل الموقع وبالبريد، مع معاينة المستلمين والتأكيد من صفحة التواصل.</p>@if(store.item('adminBroadcastEnabled')?.value!==true){<p>الإرسال متوقف؛ فعّله من تبويب الإشعارات في إعدادات النظام.</p>}</div><a class="spa-btn" routerLink="/supper-admin-overview/communication/broadcast">إدارة الإرسال</a></div>
           @for (d of unavailableActions; track d.key) {
             <div class="spa-row" [attr.data-testid]="'danger-' + d.key">
               <div><div class="spa-row-lbl spa-row-lbl-danger">{{ d.label }} <span class="spa-bdg spa-bdg-role">غير متاح</span><button type="button" class="spa-help-btn" [attr.data-testid]="'help-btn-' + d.key" aria-label="تفاصيل" [attr.aria-expanded]="dangerHelp().has(d.key)" (click)="toggleDangerHelp(d.key)"><svg data-ws-icon="ws-info" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div><div class="spa-row-sub">{{ d.desc }}</div>

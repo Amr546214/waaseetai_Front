@@ -1,3 +1,4 @@
+import { PublishedContentComponent } from '../../../shared/published-content/published-content.component';
 import { Component, ViewEncapsulation, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
@@ -6,7 +7,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [RouterLink],
+  imports: [PublishedContentComponent, RouterLink],
   templateUrl: './about.html',
   styleUrl: './about.css',
   encapsulation: ViewEncapsulation.None

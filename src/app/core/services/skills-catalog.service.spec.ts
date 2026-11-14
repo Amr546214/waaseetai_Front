@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { CatalogChangesService } from './catalog-changes.service';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { SkillsCatalogService } from './skills-catalog.service';
 import { environment } from '../../../environments/environment';
 
@@ -45,6 +47,19 @@ describe('SkillsCatalogService', () => {
 		svc.getAll().subscribe();
 		http.expectOne(`${base}/catalog/all`).flush({ success: true, data: { categories: [{ slug: 'a', nameAr: 'أ', skills: ['s'] }] } });
 	});
+
+	it('refreshes an open catalog silently only on a change notification', () => {
+    const seen: string[] = [];
+    svc.getAll().subscribe(r=>seen.push(r.data.categories[0].nameAr));
+    http.expectOne(`${base}/catalog/all`).flush({success:true,data:{categories:[{slug:'a',nameAr:'old',skills:[]}]}});
+    TestBed.inject(CatalogChangesService).refresh(23);
+    const refresh=http.expectOne(`${base}/catalog/all`);
+    expect(refresh.request.context.get(SKIP_LOADING)).toBe(true);
+    refresh.flush({success:true,data:{categories:[{slug:'a',nameAr:'new',skills:[]}]}});
+    TestBed.inject(CatalogChangesService).refresh(23);
+    http.expectNone(`${base}/catalog/all`);
+    expect(seen).toEqual(['old','new']);
+  });
 
 	it('getProviderMine reads /skills/provider-mine every time (the provider can change it)', () => {
 		svc.getProviderMine().subscribe();

@@ -57,6 +57,16 @@ describe('admin business-model review', () => {
     http.expectNone(r => r.method === 'PATCH');
   });
 
+  it('renders the description as safe Markdown inside the centered card', () => {
+    const http = setup(false);
+    const f = TestBed.createComponent(SaBusinessModelDetail); f.detectChanges();
+    http.expectOne(r=>r.url.endsWith(id)).flush({data:{...item,description:'### عنوان\n**نص مهم**\n<script>alert(1)</script>'}});f.detectChanges();
+    expect(f.nativeElement.querySelector('.bm-detail-box .review-panel')).not.toBeNull();
+    expect(f.nativeElement.querySelector('.markdown h4')?.textContent).toBe('عنوان');
+    expect(f.nativeElement.querySelector('.markdown strong')?.textContent).toBe('نص مهم');
+    expect(f.nativeElement.querySelector('.markdown script')).toBeNull();
+  });
+
   it('sends a rejection with the reason and visible status, and reloads a conflict', () => {
     const http = setup(true);
     const fixture = TestBed.createComponent(SaBusinessModelDetail);
