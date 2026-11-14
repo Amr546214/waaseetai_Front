@@ -97,11 +97,11 @@ export function colourText(v: string): string {
 	return a === 1 ? hex : `${hex} (شفافية ${Math.round(a * 100)}%)`;
 }
 /** px lengths are shown with their rem equivalent so the unit is never ambiguous */
-export function lengthText(v: string): string {
+export function lengthText(v: string, rootSize = 16): string {
 	const m = /^(-?\d+(?:\.\d+)?)px$/.exec(v.trim());
 	if (!m) return v.trim();
 	const px = Number(m[1]);
-	return px === 0 ? '0px' : `${+px.toFixed(3)}px (${+(px / 16).toFixed(4)}rem)`;
+	return px === 0 ? '0px' : `${+px.toFixed(3)}px (${+(px / rootSize).toFixed(4)}rem)`;
 }
 
 function read(cs: CSSStyleDeclaration, property: string): string {
@@ -115,9 +115,9 @@ function read(cs: CSSStyleDeclaration, property: string): string {
 	return g(property);
 }
 
-export function formatMeasured(property: string, raw: string): string {
+export function formatMeasured(property: string, raw: string, rootSize = 16): string {
 	if (/(^|-)color$|^background$/.test(property)) return colourText(raw);
-	if (['font-size', 'border-radius', 'padding-inline', 'padding-block', 'padding', 'min-height', 'gap', 'letter-spacing'].includes(property)) return raw.split(' / ').map(p => p.split(' ').map(lengthText).join(' ')).join(' / ');
+	if (['font-size', 'border-radius', 'padding-inline', 'padding-block', 'padding', 'min-height', 'gap', 'letter-spacing'].includes(property)) return raw.split(' / ').map(p => p.split(' ').map(v=>lengthText(v,rootSize)).join(' ')).join(' / ');
 	return raw;
 }
 
@@ -125,7 +125,7 @@ export function formatMeasured(property: string, raw: string): string {
  * Measures `property` on every place of `selector`. `original: true` measures with the published presentation overrides switched off for the instant of the read (the style element is
  * put back in the same task, so nothing repaints and there is no flash), which gives the site's OWN value even for a control that currently carries an override.
  */
-export function measurePlaces(doc: Document, selector: string, property: string, opts: { original?: boolean } = {}): PlaceValue[] {
+export function measurePlaces(doc: Document, selector: string, property: string, opts: { original?: boolean; existingOnly?: boolean } = {}): PlaceValue[] {
 	const view = doc.defaultView; if (!view) return splitSelectors(selector).map(s => ({ place: placeLabel(s), selector: s, value: null, reason: 'لا توجد نافذة عرض لقياس القيمة.' }));
 	const host = doc.createElement('div');
 	host.setAttribute('aria-hidden', 'true'); host.setAttribute('inert', ''); host.setAttribute('data-ws-measure', '');
@@ -136,7 +136,7 @@ export function measurePlaces(doc: Document, selector: string, property: string,
 		doc.body.appendChild(host);
 		if (sheet && holder) holder.removeChild(sheet); // out of the cascade for the instant of the read; put back in the same task below
 		const out: PlaceValue[] = [];
-		const format = (raw: string) => (raw === 'normal' ? 'normal (القيمة الافتراضية للمتصفح)' : formatMeasured(property, raw));
+		const format = (raw: string) => (raw === 'normal' ? 'normal (القيمة الافتراضية للمتصفح)' : formatMeasured(property, raw, parseFloat(view.getComputedStyle(doc.documentElement).fontSize) || 16));
 		const unusable = (raw: string) => KEYWORDS.has(raw) || (raw === 'normal' && !NORMAL_OK.has(property));
 		for (const s of splitSelectors(selector)) {
 			const base = { place: placeLabel(s), selector: s };
@@ -155,6 +155,7 @@ export function measurePlaces(doc: Document, selector: string, property: string,
 				}
 				continue;
 			}
+			if (opts.existingOnly) continue;
 			// 2) no such element here: a probe styled by the site's global stylesheets (the limit is said on the row)
 			const parts = buildProbeParts(doc, s), probe = parts?.root;
 			if (!parts || !probe) { out.push({ ...base, basis: 'global', value: null, reason: 'تعذّر بناء عنصر قياس لهذا الموضع، ولا يوجد عنصر منه في هذه الصفحة، فلا يمكن تحديد قيمته.' }); continue; }
@@ -176,7 +177,7 @@ export function measurePlaces(doc: Document, selector: string, property: string,
 export function groupByValue(places: PlaceValue[]): { value: string | null; reason?: string; basis?: PlaceBasis; places: string[] }[] {
 	const out: { value: string | null; reason?: string; basis?: PlaceBasis; places: string[] }[] = [];
 	for (const p of places) {
-		const hit = out.find(g => g.value === p.value && g.reason === p.reason);
+		const hit = out.find(g => g.value === p.value && g.reason === p.reason && g.basis === p.basis);
 		if (hit) hit.places.push(p.place); else out.push({ value: p.value, reason: p.reason, basis: p.basis, places: [p.place] });
 	}
 	return out;

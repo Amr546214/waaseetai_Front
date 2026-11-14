@@ -35,7 +35,7 @@
     <span class="chip chip-ok" data-testid="pt-linked">مرتبط بالموقع</span>
   </header>
   <p class="hint" data-testid="pt-explain">
-    هذه القيم تُحفظ على الخادم بنسخ مرقّمة وتغيّر <strong>الموقع كله</strong> (كل الزوّار) بعد «تطبيق»، بنفس مسار صفحة «الهوية»: تحقّق ومعاينة ثم تطبيق أو إلغاء، واستعادة، وكشف التعارض. القيم الافتراضية المعروضة هي قيم المنصة الحالية. ما لا تغيّره يبقى كما هو بلا أي تغيير في مظهر الموقع.
+    هذه القيم تُحفظ على الخادم بنسخ مرقّمة وتغيّر <strong>الموقع كله</strong> (كل الزوّار) بعد «تطبيق»، بنفس مسار صفحة «الهوية»: تحقّق ومعاينة ثم تطبيق أو إلغاء، واستعادة، وكشف التعارض. القيم المنشورة من الخادم، والقياسات موضّح مصدرها: عنصر فعلي أو أنماط عامة قد تختلف عن الصفحات ذات التنسيق الخاص. ما لا تغيّره يبقى كما هو بلا أي تغيير في مظهر الموقع.
   </p>
   <p class="note note-warn" role="note" data-testid="pt-scope">
     <strong>نطاق التطبيق:</strong> التغيير يتبع القيم والمكوّنات المربوطة في السجل، ولا يطبّق نماذج الملف المرجعي تلقائيًا. بلا تجاوز تبقى إعدادات كل موضع الأصلية كما هي، وتعيدها الاستعادة. معاينة المسودة لا تغيّر الموقع.
@@ -88,7 +88,9 @@
               <section class="visual-editor" aria-label="محرّر المكوّن">
                 <h4>{{group.label}}</h4>
                 <p class="hint">معاينة بالقيم الحالية والمسودة. عناصر العرض لا تنفّذ أي إجراء.</p>
-                <div class="visual-pair">
+                @for (place of previewPlaces(group.id); track place.index) {
+                <h5>{{place.label}} <code dir="ltr">{{place.selector}}</code></h5>
+                <div class="visual-pair" [attr.data-testid]="'pt-pair-'+group.id+'-'+place.index">
                   @for (after of [false,true]; track after) {
                     <div class="visual-pane">
                       <strong>{{after ? 'بعد التعديل' : 'قبل التعديل'}}</strong>
@@ -96,7 +98,7 @@
                         @if (walletButtons[group.id]; as label) {
                           <button type="button" class="pt-wallet-button" [ngStyle]="walletButtonStyle(it,group.id,after)">＋ {{label}}</button>
                         } @else {
-                          @let style = visualStyle(it,group.id,after);
+                          @let style = visualStyle(it,group.id,after,place.index);
                           @switch (group.id) {
                             @case ('button') { <button type="button" class="btn-save" [ngStyle]="style">حفظ التغييرات</button> }
                             @case ('button-disabled') { <button type="button" class="btn-save" disabled [ngStyle]="style">حفظ التغييرات</button> }
@@ -116,6 +118,7 @@
                     </div>
                   }
                 </div>
+                }
                 @if (canEdit(it)) {
                   <div class="visual-fields">
                     @for (t of filteredTokens(it); track t.name) {
@@ -209,18 +212,18 @@
                   }
                 </ul>
               } @else { <p class="hint">لا فرق بين هذه المسودة وما هو منشور.</p> }
-              @if (livePreview() && !walletButtons[samples(it).at(0)?.id ?? '']) {
+              @if (livePreview()) {
                 <section aria-label="معاينة صفحة فعلية">
                   <h4>معاينة على صفحة من الموقع</h4>
                   <p>اختَر صفحة وشوف التغيير على المكوّنات الظاهرة فيها. المعاينة للعرض فقط.</p>
                   <label>الصفحة
-                    <select #page (change)="previewPage.set(page.value); previewCount.set(null); previewStatus.set('جارٍ تحميل الصفحة…')">
+                    <select #page (change)="selectPreviewPage(page.value)">
                       <option value="">اختَر صفحة</option>
                       @for (option of previewPages; track option.path) { <option [value]="option.path">{{option.label}}</option> }
                     </select>
                   </label>
                   @if (previewSrc(); as src) {
-                    <button type="button" class="btn-secondary" (click)="updatePagePreview(frame,it,false)">قبل التعديل</button>
+                    <button type="button" class="btn-secondary" (click)="updatePagePreview(frame,it,false)">قياس القيم المنشورة</button>
                     <button type="button" class="btn-secondary" (click)="updatePagePreview(frame,it,true)">بعد التعديل</button>
                     <p role="status">{{previewStatus()}} @if (previewCount() !== null) { · العناصر المطابقة في الصفحة الآن: {{previewCount()}} }</p>
                     <iframe #frame inert sandbox="allow-scripts allow-same-origin" title="معاينة مكوّنات الصفحة" tabindex="-1" [src]="src" (load)="updatePagePreview(frame,it,false)" style="width:100%;height:460px;border:1px solid var(--sec-bd,#475569);pointer-events:none"></iframe>
@@ -230,16 +233,16 @@
               <div class="pt-sample-wrap">
                 <span class="pt-cap">عيّنة بقيم المسودة ({{ sampleMode(it) === 'light' ? 'الوضع الفاتح' : sampleMode(it) === 'dark' ? 'الوضع الداكن' : 'كما في الموقع' }}) — لا تمسّ الموقع:</span>
                 <div class="pt-sample" [ngStyle]="sampleVars(it)" [attr.data-mode]="sampleMode(it)" [attr.data-testid]="'pt-sample-' + it.key">
-                  @for(group of samples(it);track group.id){<section style="margin:12px 0;overflow:auto;max-height:300px"><strong>{{group.label}}</strong>@if (walletButtons[group.id]; as label) {
+                  @for(group of samples(it);track group.id){@for(place of previewPlaces(group.id);track place.index){<section style="margin:12px 0;overflow:auto;max-height:300px"><strong>{{group.label}} — {{place.label}}</strong>@if (walletButtons[group.id]; as label) {
                     <div class="pt-wallet-preview">
                       <div><small>قبل التغيير</small><button type="button" class="pt-wallet-button" [ngStyle]="walletButtonStyle(it,group.id,false)">＋ {{label}}</button></div>
                       <div><small>بعد التغيير</small><button type="button" class="pt-wallet-button" [ngStyle]="walletButtonStyle(it,group.id,true)">＋ {{label}}</button></div>
                     </div>
                   } @else if (group.id === 'button'  || group.id === 'button-disabled') {
-                    <button type="button" [disabled]="group.id === 'button-disabled'" [ngStyle]="sampleStyle(it,group.id)" [attr.data-testid]="'pt-presentation-'+group.id">زر تجريبي</button>
+                    <button type="button" [disabled]="group.id === 'button-disabled'" [ngStyle]="sampleStyle(it,group.id,place.index)" [attr.data-testid]="'pt-presentation-'+group.id">زر تجريبي</button>
                   } @else {
-                    <p [ngStyle]="sampleStyle(it,group.id)" [attr.data-testid]="'pt-presentation-'+group.id">وسيط AI — نص تجريبي 123</p>
-                  }</section>}
+                    <p [ngStyle]="sampleStyle(it,group.id,place.index)" [attr.data-testid]="'pt-presentation-'+group.id">وسيط AI — نص تجريبي 123</p>
+                  }</section>}}
                   <h5>عنوان تجريبي</h5>
                   <p [style.font-family]="(reviewed(it) ?? desired(it))['--font-family'] || null">نص أساسي لمعاينة الألوان والخط معًا على محتوى المنصة.</p>@if(previewFonts.failed().length){<p role="alert">تعذّر تحميل خط المعاينة؛ المعروض خط احتياطي. لم يُنشر هذا التغيير.</p>}
                   <p class="s2">نص ثانوي توضيحي.</p>

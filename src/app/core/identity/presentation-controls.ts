@@ -15,6 +15,9 @@ export function splitSelectors(selector:string):string[]{
 export const placeToken=(name:string,index:number):string=>`${name}--p${index+1}`;
 export function parsePlaceToken(name:string):{base:string;index:number}|null{const m=/^(.+)--p(\d+)$/.exec(name);return m?{base:m[1],index:Number(m[2])-1}:null;}
 export const isPlaceToken=(name:string):boolean=>parsePlaceToken(name)!==null;
+/** Source-template audit: retain their stored tokens for compatibility, but do not offer controls for unused selectors. Indices NEVER shift. */
+export const UNUSED_PRESENTATION_PLACES = new Set(['.body-lg','.body-md','.body-sm','.overline','.kpi-number','[data-site-component="button"]','.project-card','.service-card','.modal-panel','.dialog-panel','.dropdown-menu','.status-pill']);
+export const availablePresentationPlace = (selector:string):boolean => !UNUSED_PRESENTATION_PLACES.has(selector);
 type Field={type:string;min?:number;max?:number;integer?:boolean};
 export function safePresentationValue(field:Field,value:unknown):value is string {
  if(typeof value!=='string'||!value||value.length>200||/[;{}<>@\\/!\n\r]/.test(value)||/url|expression|var\(|calc\(/i.test(value))return false;
@@ -27,9 +30,11 @@ export function safePresentationValue(field:Field,value:unknown):value is string
  if(field.type==='shadow')return value==='none'||/^[\d.,pxem#() rgbahslt-]+$/i.test(value);
  return false;
 }
-export function presentationInline(groupId:string,values:Record<string,string>|undefined):Record<string,string>{
+export function presentationInline(groupId:string,values:Record<string,string>|undefined,placeIndex?:number):Record<string,string>{
  const out:Record<string,string>={},group=PRESENTATION_GROUPS.find(g=>g.id===groupId);
- for(const field of group?.fields??[]){const value=values?.[field.name];if(safePresentationValue(field,value))out[field.property]=value;}
+ const places=group?splitSelectors(group.selector):[];
+ const scoped=placeIndex!==undefined&&placeIndex>=0&&placeIndex<places.length&&places.length>1;
+ for(const field of group?.fields??[]){const own=scoped?values?.[placeToken(field.name,placeIndex!)]:undefined;const value=safePresentationValue(field,own)?own:values?.[field.name];if(safePresentationValue(field,value))out[field.property]=value;}
  return out;
 }
 export function buildPresentationCss(items:Record<string,{value?:Record<string,string>}>,prefix='html:root:root:root body'):string{

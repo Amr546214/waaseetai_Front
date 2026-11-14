@@ -84,4 +84,12 @@ describe('effective-style: real elements of the page come first', () => {
 		expect(groupByValue(r).length).toBe(2);
 		wrap.remove(); st.remove();
 	});
+    it('only records existing elements during page capture and converts rem using that page root', () => {
+        const style=document.createElement('style');style.textContent='html{font-size:20px}.card{border-radius:20px}';document.head.appendChild(style);
+        expect(measurePlaces(document,'.card','border-radius',{existingOnly:true})).toEqual([]);
+        const card=document.createElement('article');card.className='card';document.body.appendChild(card);
+        try {expect(measurePlaces(document,'.card','border-radius',{existingOnly:true})[0]).toMatchObject({basis:'instances',value:'20px (1rem)'});}
+        finally {card.remove();style.remove();}
+    });
+
 });

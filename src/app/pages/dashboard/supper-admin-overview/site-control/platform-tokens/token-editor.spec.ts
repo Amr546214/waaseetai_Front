@@ -233,16 +233,16 @@ describe('platform design-token editor (central flow)', () => {
 		];
 		const compItem = (o: Partial<IdentityItemInfo> = {}) => item({ key: 'tokens.components', label: 'مظهر المكوّنات', tokens: COMP as never, ...o });
 		let st: HTMLStyleElement;
-		beforeEach(() => { st = document.createElement('style'); st.textContent = '.card,.model-card,.service-card,.kpi-card,.kpi-c,.stat-card{border-radius:12px} .project-card{border-radius:16px} .card,.project-card,.model-card,.service-card,.kpi-card,.kpi-c,.stat-card{padding:20px}'; document.head.appendChild(st); });
+		beforeEach(() => { st = document.createElement('style'); st.textContent = '.card,.model-card,.service-card,.kpi-card,.kpi-c,.stat-card{border-radius:12px} .project-card,.model-card{border-radius:16px} .card,.project-card,.model-card,.service-card,.kpi-card,.kpi-c,.stat-card{padding:20px}'; document.head.appendChild(st); });
 		afterEach(() => st.remove());
 		const open = async () => { const t = setup(overview([compItem()]), {}, () => true, ['tokens.components']); await t.settle(); t.c.measureVersion.update(v => v + 1); t.f.detectChanges(); return t; };
 
 		it('a token with no override shows the value the site really has, per place: places that DIFFER are separate rows with their names, places that agree share one row', async () => {
 			const t = await open();
 			const radius = t.c.fieldView(t.c.current()!, COMP[0] as never);
-			expect(radius.source).toBe('site'); expect(radius.sourceText).toBe('القيمة الأصلية للموقع');
+			expect(radius.source).toBe('site'); expect(radius.sourceText).toContain('أنماط عامة');
 			expect(radius.rows.map(r => r.value)).toEqual(['12px (0.75rem)', '16px (1rem)']);
-			expect(radius.rows[1].places).toEqual(['بطاقة مشروع']); // the place that differs is on its own row, by name
+			expect(radius.rows[1].places).toEqual(['بطاقة نموذج']); // the place that differs is on its own row, by name
 			expect(radius.rows[0].places).toContain('بطاقة');
 			expect(radius.unified).toBe(false); expect(radius.editValue).toBe(''); // no single value to pre-fill: the field says it unifies
 			const pad = t.c.fieldView(t.c.current()!, COMP[1] as never);
@@ -253,7 +253,7 @@ describe('platform design-token editor (central flow)', () => {
 			const html = t.root().innerHTML;
 			expect(html).not.toContain('افتراضي لكل موضع');
 			expect(t.q('pt-pub---comp-card-padding')?.textContent).toContain('20px (1.25rem)'); // the real value, in the row
-			expect(t.q('pt-row---comp-card-padding')?.textContent).toContain('القيمة الأصلية للموقع'); // its source, as a secondary note
+			expect(t.q('pt-row---comp-card-padding')?.textContent).toContain('أنماط عامة'); // its source, as a secondary note
 			expect((t.q('pt-input---comp-card-padding') as HTMLInputElement).value).toBe('20px'); // the field itself holds the value (no empty box)
 			expect((t.q('pt-input---comp-card-radius') as HTMLInputElement).value).toBe(''); // places differ: no single value to show, the row above lists each place's value
 			expect(t.c.unitHint(COMP[0] as never)).toContain('px أو rem');
@@ -279,12 +279,12 @@ describe('platform design-token editor (central flow)', () => {
 				const t = await openP();
 				expect(t.q('pt-row---comp-card-radius--p2')).toBeNull(); // not a flat row of its own
 				const pds = t.c.placeDefs(t.c.current()!, COMP[0] as never);
-				expect(pds.map(p => p.label).slice(0, 3)).toEqual(['بطاقة', 'بطاقة مشروع', 'بطاقة نموذج']);
-				expect(pds.length).toBe(7);
+				expect(pds.map(p => p.label).slice(0, 3)).toEqual(['بطاقة', 'بطاقة نموذج', 'بطاقة مؤشر']);
+				expect(pds.length).toBe(5);
 				const p1 = t.c.fieldView(t.c.current()!, PLACES[0] as never), p2 = t.c.fieldView(t.c.current()!, PLACES[1] as never);
 				expect(p1.rows.map(r => r.value)).toEqual(['12px (0.75rem)']); expect(p1.editValue).toBe('12px');
 				expect(p2.rows.map(r => r.value)).toEqual(['16px (1rem)']); expect(p2.editValue).toBe('16px'); // the differing place is a single value of its own
-				expect(t.q('pt-tplace---comp-card-radius--p2')).toBeTruthy(); expect((t.q('pt-tinput---comp-card-radius--p2') as HTMLInputElement).value).toBe('16px');
+				expect(t.q('pt-tplace---comp-card-radius--p2')).toBeNull(); expect(t.q('pt-tplace---comp-card-radius--p3')).toBeTruthy();
 			});
 			it('editing ONE place changes ONLY that place\'s token: the group token and the other places are untouched, and only that value is sent', async () => {
 				const draft = meta({ version: 1, status: 'STAGED', key: 'tokens.components', value: { '--comp-card-radius--p2': '24px' } });
@@ -292,12 +292,41 @@ describe('platform design-token editor (central flow)', () => {
 				const it_ = t.c.current()!;
 				t.c.edit(it_, PLACES[1] as never, '24px');
 				expect(t.c.desired(it_)).toEqual({ '--comp-card-radius--p2': '24px' });
-				expect(t.c.fieldText(it_, COMP[0] as never)).toBe(''); expect(t.c.fieldText(it_, PLACES[0] as never)).toBe('12px'); expect(t.c.fieldText(it_, PLACES[2] as never)).toBe('12px');
+				expect(t.c.fieldText(it_, COMP[0] as never)).toBe(''); expect(t.c.fieldText(it_, PLACES[0] as never)).toBe('12px'); expect(t.c.fieldText(it_, PLACES[2] as never)).toBe('16px');
 				t.f.detectChanges(); expect(t.c.dirty(it_)).toBe(true);
 				(t.q('pt-stage-tokens.components') as HTMLButtonElement).click(); await t.settle();
 				expect(t.api['uploadTokens']).toHaveBeenCalledTimes(1);
 				expect(JSON.stringify(t.api['uploadTokens'].mock.calls[0])).toContain('--comp-card-radius--p2'); expect(JSON.stringify(t.api['uploadTokens'].mock.calls[0])).not.toContain('--comp-card-radius"');
 			});
+			it('before/after and staged samples reflect only the selected place, including restore to its measured original', async () => {
+                const t=await openP();const it=t.c.current()!;
+                const def=PLACES[2] as never;
+                const before=t.c.visualStyle(it,'card',false,2);
+                t.c.edit(it,def,'24px');
+                expect(t.c.visualStyle(it,'card',true,2)['border-radius']).toBe('24px');
+                expect(t.c.visualStyle(it,'card',false,2)).toEqual(before);
+                expect(t.c.visualStyle(it,'card',true,0)['border-radius']).not.toBe('24px');
+                expect(t.c.sampleStyle(it,'card',2)['border-radius']).toBe('24px');
+                t.f.componentRef.setInput('livePreview',true);t.f.componentRef.setInput('tokenPrefix','--comp-card-');t.f.detectChanges();
+                const pair=t.q('pt-pair-card-2')!;
+                expect((pair.querySelector('.visual-pane:last-child article') as HTMLElement).style.borderRadius).toBe('24px');
+                expect((pair.querySelector('.visual-pane:first-child article') as HTMLElement).style.borderRadius).not.toBe('24px');
+                expect(t.c.previewPlaces('card').map(p=>p.selector)).not.toContain('.project-card');
+                expect(t.c.previewPlaces('button').map(p=>p.index)).toEqual([0,1]);
+            });
+            it('uses actual elements of a selected page and never invents a measurement for absent elements', async () => {
+                const t=await openP();const it=t.c.current()!;
+                const frame=document.createElement('iframe');document.body.appendChild(frame);
+                try {
+                    const doc=frame.contentDocument!;doc.head.innerHTML='<style>.card{border-radius:19px}</style>';doc.body.innerHTML='<article class="card">Real card</article>';
+                    t.c.previewPage.set('/marketplace');(t.c as any).capturePage(it,doc);
+                    const rows=t.c.fieldView(it,PLACES[0] as never).rows;
+                    expect(rows[0].value).toContain('19px');expect(rows[0].basis).toBe('instances');
+                    expect(t.c.previewStatus()).toContain('/marketplace');
+                    doc.body.innerHTML='';(t.c as any).capturePage(it,doc);
+                    expect(t.c.previewStatus()).toContain('لم يُسجَّل قياس فعلي');
+                } finally {frame.remove();}
+            });
 			it('an invalid value in a place is refused for that place with its unit hint and blocks the check', async () => {
 				const t = await openP(); const it_ = t.c.current()!;
 				t.c.edit(it_, PLACES[2] as never, '9zz'); t.f.detectChanges();

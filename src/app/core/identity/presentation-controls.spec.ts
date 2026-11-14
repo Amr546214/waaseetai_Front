@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {PRESENTATION_GROUPS,buildPresentationCss,isPlaceToken,parsePlaceToken,placeToken,safePresentationValue,splitSelectors} from './presentation-controls';
+import {PRESENTATION_GROUPS,presentationInline,buildPresentationCss,isPlaceToken,parsePlaceToken,placeToken,safePresentationValue,splitSelectors} from './presentation-controls';
 describe('shared site presentation contract',()=>{
  it('does not add any rule for the original or restored state',()=>{expect(buildPresentationCss({})).toBe('');expect(buildPresentationCss({'tokens.typography':{value:{'--type-h1-size':'inherit'}}})).toBe('');});
  it('binds headings/components/role-level badges without touching business data',()=>{
@@ -18,6 +18,15 @@ describe('shared site presentation contract',()=>{
   expect(buildPresentationCss({'tokens.components':{value:{'--comp-button-height--p9':'48px'}}})).toBe(''); // no such place
   expect(parsePlaceToken(placeToken('--comp-button-height',1))).toEqual({base:'--comp-button-height',index:1});expect(isPlaceToken('--comp-button-height')).toBe(false);
   expect(splitSelectors('.a,[data-x="1,2"] b, :is(.c,.d)')).toEqual(['.a','[data-x="1,2"] b',':is(.c,.d)']);
+ });
+ it('inline samples use the same per-place value as the published rule, and restoring one place falls back to the shared value',()=>{
+  const active={'--comp-button-height':'40px','--comp-button-height--p2':'48px'};
+  const desired={...active,'--comp-button-height--p2':'56px'};
+  expect(presentationInline('button',active,1)).toEqual({'min-height':'48px'});
+  expect(presentationInline('button',desired,1)).toEqual({'min-height':'56px'});
+  expect(presentationInline('button',desired,0)).toEqual({'min-height':'40px'});
+  expect(presentationInline('button',{'--comp-button-height':'40px'},1)).toEqual({'min-height':'40px'});
+  expect(presentationInline('button',{'--comp-button-height--p2':'url(x)'},1)).toEqual({});
  });
  it('rejects CSS injection and unsafe dimensions',()=>{
   for(const v of ['999px','0px','url(x)','var(--x)','20px;color:red'])expect(safePresentationValue({type:'length',min:8,max:128},v)).toBe(false);

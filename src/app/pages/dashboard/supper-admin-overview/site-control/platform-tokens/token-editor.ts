@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 import { IdentityAssetMeta, IdentityChangeResult, IdentityItemInfo, IdentityTokenDef, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { Failure, actorName, currentSummary, describeFailure } from '../identity/identity-view';
-import { PRESENTATION_GROUPS,PRESENTATION_STYLE_ID,buildPresentationCss,isPlaceToken,parsePlaceToken,placeToken,presentationInline,safePresentationValue,splitSelectors } from '../../../../../core/identity/presentation-controls';
+import { PRESENTATION_GROUPS,PRESENTATION_STYLE_ID,buildPresentationCss,availablePresentationPlace,isPlaceToken,parsePlaceToken,placeToken,presentationInline,safePresentationValue,splitSelectors } from '../../../../../core/identity/presentation-controls';
 import { PlaceValue, groupByValue, measurePlaces, placeLabel } from '../../../../../core/identity/effective-style';
 import { PlatformTokensStore } from './platform-tokens.store';
 
@@ -46,13 +46,14 @@ export class TokenEditor implements OnInit {
  // ---- the REAL current value of every control, per place (measured from the live site, never a placeholder)
  readonly measureVersion=signal(0);
  private readonly placeCache=new Map<string,{current:PlaceValue[];original:PlaceValue[]}>();
+ private readonly measurementSources=new Map<string,string>();
  /** the field definition of a token; a per-place token (`--x--p2`) has the field of its group's `--x` */
  private fieldOf(name:string){const base=parsePlaceToken(name)?.base??name;return this.scopesByToken.get(base)?.fields.find(f=>f.name===base);}
  /** what a token is measured on: the whole group selector for the group's own token, ONE place for a per-place token */
  private selectorOf(name:string):string|null{
   const pl=parsePlaceToken(name),group=this.scopesByToken.get(pl?.base??name);
   if(!group)return null;
-  return pl?(splitSelectors(group.selector)[pl.index]??null):group.selector;
+  return pl?(splitSelectors(group.selector)[pl.index]??null):splitSelectors(group.selector).filter(availablePresentationPlace).join(',');
  }
  placesOf(t:IdentityTokenDef):{current:PlaceValue[];original:PlaceValue[]}|null{
   this.measureVersion();
@@ -67,7 +68,7 @@ export class TokenEditor implements OnInit {
   if(isPlaceToken(t.name))return [];
   const group=this.scopesByToken.get(t.name);if(!group)return [];
   const sels=splitSelectors(group.selector);if(sels.length<2)return [];
-  return sels.flatMap((selector,index)=>{const def=(it.tokens??[]).find(x=>x.name===placeToken(t.name,index));return def?[{index,selector,label:placeLabel(selector),def}]:[];});
+  return sels.flatMap((selector,index)=>{const def=(it.tokens??[]).find(x=>x.name===placeToken(t.name,index));return def&&availablePresentationPlace(selector)?[{index,selector,label:placeLabel(selector),def}]:[];});
  }
  /**
   * What a control shows: a published override (source «تخصيص منشور»), else the value the site really has (measured per place, source «القيمة الأصلية للموقع»), else the server's default.
@@ -78,9 +79,9 @@ export class TokenEditor implements OnInit {
   const field=this.fieldOf(t.name);
   if(ov!==undefined&&ov!=='inherit')return{source:'override',sourceText:'تخصيص منشور',rows:[{value:ov,plain:true,places:[shared?'تخصيص واحد منشور يسري على كل المواضع':'تخصيص منشور']}],original:places?groupByValue(places.original):null,editValue:ov,unified:true,shared};
   if(places&&(t.default==='inherit'||ov==='inherit')){
-   const rows=groupByValue(places.current),one=rows.length===1&&rows[0].value!==null;
+   const rows=groupByValue(places.current),one=rows.length>0&&rows.every(r=>r.value!==null&&r.value===rows[0].value);
    const raw=one?places.current[0].raw??'':'';
-   return{source:'site',sourceText:'القيمة الأصلية للموقع',rows,original:null,editValue:one?raw:'',unified:one,shared};
+   return{source:'site',sourceText:this.measurementSources.has(t.name)?`قياس فعلي — ${this.measurementSources.get(t.name)}`:places.current.some(p=>p.basis==='global')?'أنماط عامة — ليست قياسًا مؤكدًا لكل الصفحات':'القيمة الأصلية للموقع',rows,original:null,editValue:one?raw:'',unified:one,shared};
   }
   return{source:'default',sourceText:'القيمة الأصلية',rows:[{value:t.default,plain:true,places:['قيمة المنصة الأصلية']}],original:null,editValue:t.default,unified:true,shared:false};
  }
@@ -88,7 +89,7 @@ export class TokenEditor implements OnInit {
  basisNote(rows:{basis?:string}[]):string|null{
   const i=rows.some(r=>r.basis==='instances'),g=rows.some(r=>r.basis==='global');
   if(i&&g)return 'مقاس من عناصر فعلية في هذه الصفحة؛ والمواضع التي لا عنصر منها هنا من الأنماط العامة للموقع فقط (قد تختلف المكوّنات ذات الأنماط الخاصة).';
-  if(i)return 'مقاس من عناصر فعلية في هذه الصفحة.';
+  if(i)return 'مقاس من عناصر فعلية في الصفحة المقيسة؛ لا يشمل الصفحات الأخرى.';
   if(g)return 'من الأنماط العامة للموقع فقط: لا عنصر من هذه المواضع في هذه الصفحة، وقد تختلف المكوّنات ذات الأنماط الخاصة.';
   return null;
  }
@@ -120,11 +121,26 @@ export class TokenEditor implements OnInit {
  filteredTokens(it:IdentityItemInfo):IdentityTokenDef[]{const q=this.query().trim().toLowerCase();return(it.tokens??[]).filter(t=>!isPlaceToken(t.name)&&(!this.tokenPrefix()||t.name.startsWith(this.tokenPrefix()))&&(!q||[t.name,t.label,t.default].some(v=>v.toLowerCase().includes(q))));}
  visibleTokens(it:IdentityItemInfo):IdentityTokenDef[]{return this.filteredTokens(it).slice(0,this.limit());}
  samples(it:IdentityItemInfo){return PRESENTATION_GROUPS.filter(g=>g.key===it.key&&(!this.tokenPrefix()||g.fields.some(f=>f.name.startsWith(this.tokenPrefix())))).slice(0,20);}
+ previewPlaces(id:string):{index:number;selector:string;label:string}[]{const group=PRESENTATION_GROUPS.find(g=>g.id===id);return group?splitSelectors(group.selector).flatMap((selector,index)=>availablePresentationPlace(selector)?[{index,selector,label:placeLabel(selector)}]:[]):[];}
+ /** Capture only real elements of the selected page, before adding the draft. Missing/denied pages never count as measured. */
+ private capturePage(it:IdentityItemInfo,doc:Document):void{
+  this.placeCache.clear();this.measurementSources.clear();let count=0;
+  for(const t of it.tokens??[]){if(this.tokenPrefix()&&!t.name.startsWith(this.tokenPrefix()))continue;const selector=this.selectorOf(t.name),field=this.fieldOf(t.name);if(!selector||!field)continue;
+   const current=measurePlaces(doc,selector,field.property,{existingOnly:true});
+   if(current.length){this.placeCache.set(t.name,{current,original:measurePlaces(doc,selector,field.property,{original:true,existingOnly:true})});this.measurementSources.set(t.name,this.previewPage());count++;}
+  }
+  this.measureVersion.update(v=>v+1);
+  this.previewStatus.set(count?`قياس فعلي من ${this.previewPage()} — ${count} حقلًا؛ المواضع الغائبة تظل موضحة كمصدر عام.`:'لا توجد عناصر مطابقة في هذه الصفحة. لم يُسجَّل قياس فعلي.');
+ }
  readonly livePreview = input(false);
  readonly previewPages = [
    {path:'/marketplace', label:'السوق'},
+   {path:'/client-overview', label:'لوحة العميل (حسب صلاحيات الجلسة)'},
+   {path:'/provider-overview', label:'لوحة مقدم الخدمة (حسب صلاحيات الجلسة)'},
+   {path:'/marketer-overview', label:'لوحة الوسيط (حسب صلاحيات الجلسة)'},
  ];
  readonly previewPage = signal('');
+ selectPreviewPage(path:string):void{this.previewPage.set(this.previewPages.some(p=>p.path===path)?path:'');this.placeCache.clear();this.measurementSources.clear();this.measureVersion.update(v=>v+1);this.previewCount.set(null);this.previewStatus.set(path?'جارٍ تحميل الصفحة…':'');}
  private readonly sanitizer = inject(DomSanitizer);
  readonly previewSrc = computed(() => {
    const path = this.previewPage();
@@ -141,6 +157,7 @@ export class TokenEditor implements OnInit {
        return;
      }
      const values = Object.fromEntries(this.store.items().map(item => [item.key, {value:this.activeValue(item)}]));
+     const active=values[it.key];
      if (draft) values[it.key] = {value:this.reviewed(it) ?? this.desired(it)};
      let style = doc.getElementById(PRESENTATION_STYLE_ID);
      if (!style) {
@@ -148,34 +165,38 @@ export class TokenEditor implements OnInit {
        style.id = PRESENTATION_STYLE_ID;
        doc.head.appendChild(style);
      }
+     style.textContent = buildPresentationCss({...values,[it.key]:active});
+     this.capturePage(it,doc);
      style.textContent = buildPresentationCss(values);
      const group = this.samples(it)[0];
      this.previewCount.set(group ? doc.querySelectorAll(group.selector).length : 0);
-     this.previewStatus.set(draft ? 'المسودة في المعاينة فقط' : 'القيم المنشورة');
+     this.previewStatus.update(message=>message+(draft?' · المسودة في المعاينة فقط':' · القيم المنشورة'));
    } catch {
-     this.previewStatus.set('المتصفح لم يسمح بمعاينة هذه الصفحة.');
+     this.previewStatus.set('المتصفح لم يسمح بمعاينة هذه الصفحة. لم يُسجَّل قياس فعلي.');
    }
  }
  /** the values the site really has for a group now (measured), so a sample is drawn with the REAL look of the element, not with the editor's own styling */
- private measuredValues(it:IdentityItemInfo,groupId:string):Record<string,string>{
+ private measuredValues(it:IdentityItemInfo,groupId:string,placeIndex=0):Record<string,string>{
   const group=PRESENTATION_GROUPS.find(g=>g.id===groupId),out:Record<string,string>={};
   for(const f of group?.fields??[]){
-   const t=(it.tokens??[]).find(x=>x.name===f.name);if(!t)continue;
-   const fv=this.fieldView(it,t);
-   if(fv.source==='site'&&fv.unified&&fv.editValue)out[f.name]=fv.editValue;
+   const own=splitSelectors(group!.selector).length>1?placeToken(f.name,placeIndex):f.name;
+   const t=(it.tokens??[]).find(x=>x.name===own)??(it.tokens??[]).find(x=>x.name===f.name);if(!t)continue;
+   const measured=this.placesOf(t)?.original;
+   const raw=measured?.length===1?measured[0].raw:null;
+   if(raw&&safePresentationValue(f,raw))out[f.name]=raw;
   }
   return out;
  }
- visualStyle(it:IdentityItemInfo,id:string,preview:boolean) {
-   const values = {...this.measuredValues(it,id),...(preview ? this.desired(it) : this.activeValue(it))};
-   return presentationInline(id,values);
+ visualStyle(it:IdentityItemInfo,id:string,preview:boolean,placeIndex=0) {
+   const values = {...this.measuredValues(it,id,placeIndex),...(preview ? this.desired(it) : this.activeValue(it))};
+   return presentationInline(id,values,placeIndex);
  }
  readonly walletButtons: Record<string,string> = {'client-wallet-deposit':'إيداع رصيد','provider-wallet-withdraw':'سحب الأرباح'};
  walletButtonStyle(it:IdentityItemInfo,id:string,preview:boolean){
    const values={...this.measuredValues(it,'button'),...this.measuredValues(it,id),...(preview?this.desired(it):this.activeValue(it))};
-   return {...presentationInline('button',values),...presentationInline(id,values)};
+   return {...presentationInline('button',values,0),...presentationInline(id,values)};
  }
- sampleStyle(it:IdentityItemInfo,id:string){return presentationInline(id,{...this.measuredValues(it,id),...(this.reviewed(it)??this.desired(it))});}
+ sampleStyle(it:IdentityItemInfo,id:string,placeIndex=0){return presentationInline(id,{...this.measuredValues(it,id,placeIndex),...(this.reviewed(it)??this.desired(it))},placeIndex);}
 
 	readonly previewFonts=inject(IdentityFontsRuntime);
  readonly store = inject(PlatformTokensStore);
@@ -189,7 +210,7 @@ export class TokenEditor implements OnInit {
 
  constructor(){effect(()=>{const values=this.ui()['tokens.typography']?.draft?.value;this.previewFonts.setItems(values?{'tokens.typography':{value:values}}:{});});
   // the published values changed (load / apply / restore): measure again once the site has re-applied them
-  effect(()=>{this.store.items();untracked(()=>{this.placeCache.clear();setTimeout(()=>this.measureVersion.update(v=>v+1),80);});});}
+  effect(()=>{this.store.items();untracked(()=>{this.placeCache.clear();this.measurementSources.clear();setTimeout(()=>this.measureVersion.update(v=>v+1),80);});});}
  ngOnDestroy(){this.previewFonts.setItems({});}
 	ngOnInit(): void { void Promise.resolve(this.store.load()).then(() => this.adoptStaged()); }
 
