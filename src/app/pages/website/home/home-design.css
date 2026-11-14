@@ -204,7 +204,7 @@ app-home #audience,app-home #ops,app-home #how-it-works,app-home #stats,app-home
 app-home #ops,app-home #how-it-works,app-home #stats,app-home #ai,app-home #cta-final{margin-top:36px}
 app-home #ai{position:relative;overflow:hidden}
 app-home #ai::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background:var(--ai-zone)}
-app-home .ai-layout{display:grid;grid-template-columns:260px 1fr;gap:16px;align-items:start}
+app-home .ai-layout{display:grid;grid-template-columns:minmax(280px,310px) 1fr;gap:16px;align-items:start}
 app-home .ai-persona{padding:20px 18px;text-align:center;border-radius:var(--radius-lg);background:var(--ai-per-bg);border:1px solid var(--ai-per-bd);box-shadow:var(--ai-per-shd);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relative;overflow:hidden}
 app-home .ai-persona::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 50% 10%,rgba(123,47,190,.18),transparent 52%);opacity:.55}
 app-home .ai-persona>*{position:relative;z-index:1}
@@ -217,7 +217,7 @@ app-home .ai-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 app-home .dot-teal{background:var(--teal)}
 app-home .dot-blue{background:var(--blue)}
 app-home .dot-ai{background:var(--ai)}
-app-home .ai-badge{display:inline-block;padding:7px 16px;background:var(--ai-bdg-bg);border:1px solid var(--ai-bdg-bd);border-radius:50px;font-size:var(--font-size-label);font-weight:700;color:var(--ai-bdg-clr);line-height:1.5;white-space:nowrap;width:fit-content;max-width:100%;margin-inline:auto}
+app-home .ai-badge{display:inline-flex;align-items:center;justify-content:center;padding:8px 16px;background:var(--ai-bdg-bg);border:1px solid var(--ai-bdg-bd);border-radius:20px;font-size:var(--font-size-label);font-weight:700;color:var(--ai-bdg-clr);line-height:1.5;white-space:normal;text-align:center;width:fit-content;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;margin-inline:auto}
 app-home .ai-cards{display:flex;flex-direction:column;gap:12px}
 app-home .ai-card{padding:16px 18px;border-radius:var(--radius-md);background:var(--ai-crd-bg);border:1px solid var(--ai-crd-bd);box-shadow:var(--ai-crd-shd);position:relative;overflow:hidden}
 app-home .ai-card::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 18% 14%,rgba(123,47,190,.12),transparent 35%);opacity:.6}
