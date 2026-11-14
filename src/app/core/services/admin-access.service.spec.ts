@@ -43,7 +43,6 @@ describe('admin access (what the SERVER says this admin account may do)', () => 
 		expect(ruleForPath('/supper-admin-overview/team-performance')).toEqual({ all: ['performance.view'] });
 		expect(ruleForPath('/supper-admin-overview/system-settings')).toEqual({ superAdmin: true });
 		expect(ruleForPath('/supper-admin-overview/sub-finance/invoices-out')).toEqual({ all: ['finance.read'] });
-		expect(ruleForPath('/supper-admin-overview/my-account')).toEqual({ self: true });
 		expect(ruleForPath('/supper-admin-overview')).toEqual({ member: true });
 	});
 	it('a direct link to a page the account may not open lands on the clear no-access page; an unreadable state fails closed', async () => {

@@ -293,7 +293,6 @@ export class Sidebar implements OnInit {
 			{ type: 'header', label: 'الرئيسية' },
 			{ type: 'link', label: 'لوحة التحكم', route: '/supper-admin-overview', exact: true, ws: 'pl-nav-admin', icon: icons.home },
 			{ type: 'link', label: 'الرسائل', route: '/supper-admin-overview/messages', ws: 'pl-nav-admin-messages', icon: icons.chat, badge: this.chatStateService.totalUnreadCount() > 0 ? this.chatStateService.totalUnreadCount() : undefined },
-			{ type: 'link', label: 'حسابي وأمان الدخول', route: '/supper-admin-overview/my-account', ws: 'pl-nav-admin-my-account', icon: icons.person },
 
 			{ type: 'header', label: 'العمليات' },
 			{
@@ -454,8 +453,7 @@ export class Sidebar implements OnInit {
 						{ type: 'link', label: 'المستويات والنقاط', route: '/supper-admin-overview/site-control/accounts', ws: 'pl-nav-admin-site-control-accounts', icon: icons.chart },
 						{ type: 'link', label: 'القوالب', route: '/supper-admin-overview/site-control/templates', ws: 'pl-nav-admin-site-control-templates', icon: icons.doc },
 						{ type: 'link', label: 'الخطوط', route: '/supper-admin-overview/site-control/typography', ws: 'pl-nav-admin-site-control-typography', icon: icons.edit },
-						{ type: 'link', label: 'دليل الأنماط', route: '/supper-admin-overview/site-control/style-guide', ws: 'pl-nav-admin-site-control-style-guide', icon: icons.list },
-						{ type: 'link', label: 'المعاينة الشاملة', route: '/supper-admin-overview/site-control/live-preview', ws: 'pl-nav-admin-site-control-live-preview', icon: icons.globe },
+
 						{ type: 'link', label: 'تصدير CSS', route: '/supper-admin-overview/site-control/export', ws: 'pl-nav-admin-site-control-export', icon: icons.send }
 					]
 			},
