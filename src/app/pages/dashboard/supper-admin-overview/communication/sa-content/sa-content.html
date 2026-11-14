@@ -1,4 +1,18 @@
-<section class="ops"><header><div><h1>إدارة المحتوى</h1><p>مسودات مشتركة على الخادم ونشر فعلي لكل زوار المنصة.</p></div><button (click)="load()" [disabled]="busy()">إعادة التحميل</button></header>@if(error()){<p class="error" role="alert">{{error()}}</p>}@if(notice()){<p class="notice" role="status">{{notice()}}</p>}@if(busy()){<p role="status">جارٍ الحفظ أو التحميل…</p>}
-<nav class="tabs" aria-label="الصفحات">@for(p of pages();track p.slug){<button [attr.aria-current]="selected()?.slug===p.slug" [disabled]="busy()" (click)="choose(p)">{{p.title}}</button>}</nav>
-@if(selected();as p){<div class="panel"><header><div><h2>{{p.title}}</h2><p class="muted">الإصدار {{p.version}} · {{p.publishedAt?'منشور منذ '+(p.publishedAt|date:'yyyy/MM/dd HH:mm'):'يُعرض محتوى الموقع الافتراضي؛ لا نسخة منشورة هنا'}}</p></div><a [routerLink]="publicPath(p.slug)" target="_blank">فتح الصفحة العامة</a></header><p>نص عادي آمن. المسودة لا تظهر للزوار حتى تنشرها. إلغاء النشر يعيد المحتوى الافتراضي للموقع.</p><label>محتوى الصفحة *<textarea class="editor" [(ngModel)]="body" maxlength="60000" [disabled]="busy()"></textarea></label><label>سبب الحفظ أو النشر *<input [(ngModel)]="reason" maxlength="500" [disabled]="busy()"></label><label class="check"><input type="checkbox" [(ngModel)]="confirmed" [disabled]="busy()">أوافق على نشر التغيير أو سحبه من جميع زوار المنصة.</label><div class="actions"><button [disabled]="busy()||!body.trim()||!reason.trim()" (click)="save('DRAFT')">حفظ المسودة على الخادم</button><button (click)="preview.set(!preview())">معاينة المسودة</button><button class="primary" [disabled]="busy()||!confirmed||!body.trim()||!reason.trim()" (click)="save('PUBLISH')">نشر للمنصة</button><button class="danger" [disabled]="busy()||!confirmed||!p.published||!reason.trim()" (click)="save('UNPUBLISH')">إلغاء النشر</button></div></div>@if(preview()){<article class="panel"><h2>معاينة المسودة — {{p.title}}</h2><div class="body">{{body}}</div></article>}}
+<section class="ops cms-editor">
+ <header><div><h1>إدارة محتوى الصفحات</h1><p>اختر الصفحة واضغط على أي نص فيها لتعديله من مكانه. النشر يحدّث نصوص الصفحة مع الحفاظ على تصميمها.</p></div><button (click)="load()" [disabled]="busy()">إعادة التحميل</button></header>
+ @if(error()){<p class="error" role="alert">{{error()}}</p>}
+ @if(notice()){<p class="notice" role="status">{{notice()}}</p>}
+ <nav class="tabs" aria-label="الصفحات">@for(p of pages();track p.slug){<button [attr.aria-current]="selected()?.slug===p.slug" [disabled]="busy()" (click)="choose(p)">{{p.title}}</button>}</nav>
+ @if(selected();as p){
+  <div class="panel cms-toolbar"><strong>{{p.title}}</strong><span>الإصدار {{p.version}}</span><label class="check"><input type="checkbox" [ngModel]="editing()" (ngModelChange)="editing.set($event)">تعديل النصوص بالضغط عليها</label><button class="primary" [disabled]="busy()||!frameReady()||!dirty()" (click)="publish()">{{busy()?'جارٍ النشر…':'نشر التعديلات'}}</button><button [disabled]="busy()||!dirty()" (click)="discard()">تراجع عن التعديلات</button></div>
+  <div class="cms-workspace">
+   <aside class="panel cms-text-panel">
+    @if(selectedText();as text){<h2>تعديل النص المحدد</h2><label>النص<textarea [ngModel]="text.value" (ngModelChange)="updateText($event)" maxlength="8000" [disabled]="busy()" aria-label="النص المحدد"></textarea></label><button [disabled]="busy()" (click)="restoreText()">استعادة النص الأصلي</button>}
+    @else{<h2>الصفحة معروضة هنا</h2><p>اضغط على النص داخل الصفحة، أو اختَره من القائمة. أوقف وضع التعديل مؤقتًا لفتح أقسام الأسئلة أو تبديل تبويبات الصفحة.</p>}
+    <label>ابحث في نصوص الصفحة<input [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="بحث عن نص"></label>
+    <div class="cms-text-list">@for(text of matches();track text.key){<button [class.selected]="selectedKey()===text.key" (click)="selectText(text)">{{text.value||'نص فارغ'}}</button>}@empty{<p>{{frameReady()?'لا توجد نصوص مطابقة.':'جارٍ عرض الصفحة الفعلية…'}}</p>}</div>
+   </aside>
+   <div class="cms-frame-panel"><iframe #pageFrame [src]="frameUrl()" (load)="onFrameLoad()" [title]="'تحرير صفحة '+p.title" sandbox="allow-scripts allow-same-origin" referrerpolicy="same-origin"></iframe></div>
+  </div>
+ }
 </section>

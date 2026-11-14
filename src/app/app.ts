@@ -65,7 +65,7 @@ export class App implements OnInit {
 	private readonly router = inject(Router);
 	private readonly routeHidden = signal(false);
 	/** True on routes that opt out of the floating assistant (`data.hideAssistant`) or during active exams. */
-	readonly assistantHidden = computed(() => this.routeHidden() || this.assistantStore.examActive());
+	readonly assistantHidden = computed(() => (typeof window !== 'undefined' && window.parent !== window && new URL(window.location.href).searchParams.has('cmsPreview')) || this.routeHidden() || this.assistantStore.examActive());
 	/** Extra px the assistant floats above the viewport floor on pages with a bottom action bar. */
 	readonly assistantLift = signal(0);
 	/** In dashboards Bebo's tool bar is the «بيبو» sidebar tab, so the widget does not float it. */

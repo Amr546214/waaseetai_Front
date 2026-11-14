@@ -3,13 +3,13 @@
 <div class="particles" id="particles-container" aria-hidden="true"></div>
 <div class="flex flex-col min-h-screen">
 	<!-- Header -->
-	<app-navbar></app-navbar>
+	@if (!cmsPreview) { <app-navbar></app-navbar> }
 
 	<!-- Main Content -->
-	<main class="flex-grow pt-[64px]">
+	<main class="flex-grow pt-[64px]" [style.padding-top]="cmsPreview ? '0' : null">
 		<router-outlet></router-outlet>
 	</main>
 
 	<!-- Footer -->
-	<app-footer></app-footer>
+	@if (!cmsPreview) { <app-footer></app-footer> }
 </div>

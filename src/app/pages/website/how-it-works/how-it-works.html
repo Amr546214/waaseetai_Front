@@ -117,25 +117,7 @@
     <!-- FAQ -->
     <div class="container">
       <div class="sec-sep"></div>
-      <app-published-content slug="faq"><div class="faq-wrap">
-        <div class="faq-hd">
-          <div class="section-label label-teal" style="justify-content:center"><svg aria-hidden="true"><use href="#hiw-check"></use></svg> أسئلة شائعة</div>
-          <h2 class="steps-title">كل ما تريد معرفته</h2>
-        </div>
-        <div class="faq-list" role="list">
-          @for (faq of faqs; track faq.q; let i = $index) {
-            <div class="faq-item" [class.open]="openFaq() === i" role="listitem">
-              <div class="faq-q" (click)="toggleFaq(i)" tabindex="0" role="button" [attr.aria-expanded]="openFaq() === i" (keydown.enter)="toggleFaq(i)">
-                {{ faq.q }}
-                <div class="faq-q-ico"><svg aria-hidden="true"><use href="#hiw-chevron"></use></svg></div>
-              </div>
-              <div class="faq-a"><p>{{ faq.a }}</p></div>
-            </div>
-          }
-        </div>
-      </div>
-
-      </app-published-content>
+      <app-site-faq />
       <div class="cta-band">
         <h2>ابدأ الآن — مجاناً</h2>
         <p>سجّل حسابك في دقيقتين واستمتع بتجربة خدمات مهنية ذكية ومضمونة</p>

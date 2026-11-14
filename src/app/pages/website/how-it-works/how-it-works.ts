@@ -1,3 +1,5 @@
+import { SiteFaqComponent } from '../../../shared/published-content/site-faq.component';
+import { SITE_FAQS } from '../../../shared/published-content/faq-copy';
 import { PublishedContentComponent } from '../../../shared/published-content/published-content.component';
 import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -49,7 +51,7 @@ export const HIW_SYMBOL_IDS = ['hiw-broker', 'hiw-building', 'hiw-client', 'hiw-
 @Component({
   selector: 'app-how-it-works',
   standalone: true,
-  imports: [PublishedContentComponent, RouterLink],
+  imports: [SiteFaqComponent, PublishedContentComponent, RouterLink],
   templateUrl: './how-it-works.html',
   styleUrl: './how-it-works.css'
 })
@@ -182,13 +184,7 @@ export class HowItWorks {
     }
   ];
 
-  faqs: FaqItem[] = [
-    { q: 'هل التسجيل مجاني لجميع الأطراف؟', a: 'نعم، التسجيل مجاني تماماً لجميع الأطراف — فرد أو شركة. تُعرض تفاصيل العمولة والرسوم داخل لوحة التحكم وسياسة المدفوعات.' },
-    { q: 'ما الفرق بين حساب الفرد وحساب الشركة؟', a: 'حساب الفرد مناسب للأعمال الفردية المستقلة. حساب الشركة يضيف إدارة الفريق والميزانيات والفواتير المؤسسية وقبول المشاريع الضخمة — مع شارة "شركة معتمدة" في السوق.' },
-    { q: 'ما الفرق بين الشراء في الموقع والتفاوض في اللوحة؟', a: 'الخدمات الجاهزة تُشترى من الموقع بسعر محدد مسبقاً. أما التفاوض على التفاصيل والمتطلبات الخاصة فيتم في لوحة التحكم بعد انطلاق المشروع.' },
-    { q: 'كيف تضمن وسيط AI حماية مدفوعاتي؟', a: 'نستخدم نظام حساب ضمان — المبلغ يُحتجز لدينا ولا يُحرَّر للمقدم إلا بعد اعتمادك للتسليم. إذا لم تتم الخدمة حسب الاتفاق يُسترد مبلغك كاملاً.' },
-    { q: 'كيف يعمل مستوى المقدم؟', a: 'يحسب النظام المستوى تلقائياً من نقاط الأداء وعدد المشاريع المكتملة ومتوسط تقييمات العملاء. يتحدث بعد كل مشروع ويعرض تقدّمك داخل المنصة. تُعرض تفاصيل العمولة والرسوم داخل لوحة التحكم وسياسة المدفوعات، وقد تختلف حسب مستوى الحساب وفق قواعد المنصة المعتمدة.' }
-  ];
+  faqs: FaqItem[] = SITE_FAQS;
 
   get active(): RoleContent {
     return this.roles.find(r => r.key === this.activeRole())!;
