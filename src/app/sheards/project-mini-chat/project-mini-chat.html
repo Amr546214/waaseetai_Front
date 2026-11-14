@@ -43,10 +43,16 @@
           </article>
         }
       } @else {
-      <article class="mini-chat__row" [class.is-me]="message.isMe">
+      <article class="mini-chat__row" [class.is-me]="message.isMe" [attr.data-msg-id]="message.id">
         @if (!message.isMe) { <span class="mini-chat__small-avatar">{{ message.senderInitial }}</span> }
-        <div class="mini-chat__bubble">
+        <div class="mini-chat__bubble" [class.is-revision]="message.context?.kind === 'REVISION_REQUEST'">
           @if (!message.isMe) { <b>{{ message.senderName }}</b> }
+          @if (message.context?.kind === 'REVISION_REQUEST') { <span class="mini-chat__badge" data-testid="chat-revision-badge">طلب تعديل</span> }
+          @if (message.context?.replyTo; as q) {
+            <button type="button" class="mini-chat__quote" [class.is-revision]="q.kind === 'REVISION_REQUEST'" (click)="goToMessage(q.messageId)" data-testid="chat-quote" [attr.aria-label]="'رد على ' + (q.senderName || 'رسالة')">
+              <b>{{ q.senderName || 'رسالة' }}@if (q.kind === 'REVISION_REQUEST') { · طلب تعديل }</b><span>{{ q.excerpt }}</span>
+            </button>
+          }
           @if (message.content) { <p>{{ message.content }}</p> }
           @if (message.fileUrl) {
             @if (isImage(message.fileUrl, message.fileName)) {
@@ -64,7 +70,7 @@
               </a>
             }
           }
-          <small>{{ formatTime(message.time) }} @if(message.status === 'PENDING'){ · جارٍ الإرسال }</small>
+          <small>{{ formatTime(message.time) }} @if(message.status === 'PENDING'){ · جارٍ الإرسال } @if (!message.tempId) { <button type="button" class="mini-chat__reply" (click)="startReply(message)" data-testid="chat-reply-action" aria-label="رد على هذه الرسالة">رد</button> }</small>
         </div>
       </article>
       }
@@ -77,6 +83,12 @@
   @if (error()) { <div class="mini-chat__error" role="alert">{{ error() }}</div> }
   @if (!conversationId) { <div class="mini-chat__error">المحادثة غير متاحة لهذا المشروع حالياً</div> }
   @if (attachError()) { <div class="mini-chat__error" role="alert">{{ attachError() }}</div> }
+  @if (replyTarget(); as target) {
+    <div class="mini-chat__replying" data-testid="chat-replying">
+      <span><b>رد على {{ target.isMe ? 'رسالتك' : target.senderName }}@if (target.context?.kind === 'REVISION_REQUEST') { · طلب تعديل }</b><small>{{ excerptOf(target) }}</small></span>
+      <button type="button" (click)="cancelReply()" aria-label="إلغاء الرد" data-testid="chat-reply-cancel">×</button>
+    </div>
+  }
   <footer class="mini-chat__composer">
     <label class="mini-chat__attach" [class.is-disabled]="!conversationId || uploading()" aria-label="إرفاق ملف">
       <input type="file" hidden (change)="onFilePicked($event)" [disabled]="!conversationId || uploading()" data-testid="project-chat-file">

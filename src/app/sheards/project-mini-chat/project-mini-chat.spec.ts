@@ -3,6 +3,8 @@ import { ProjectMiniChat } from './project-mini-chat';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { vi } from 'vitest';
+import { ChatService } from '../../core/services/chat.service';
 
 describe('ProjectMiniChat', () => {
   let component: ProjectMiniChat;
@@ -49,5 +51,40 @@ describe('ProjectMiniChat', () => {
     expect(component.isImage('https://cdn.example.com/archive.zip')).toBe(false);
     expect(component.isImage(undefined, 'document.pdf')).toBe(false);
   });
-});
 
+  describe('replies', () => {
+    const msg = (o: any) => ({ id: 'm', senderName: 'x', senderInitial: 'x', isMe: false, content: 'نص', time: new Date(), status: 'SENT', ...o });
+    const setup = () => {
+      const chat = TestBed.inject(ChatService); const send = vi.spyOn(chat, 'sendMessage').mockImplementation(() => undefined as never); vi.spyOn(chat, 'emitTyping').mockImplementation(() => undefined as never);
+      component.conversationId = 'c1'; component.currentUserId = 'me';
+      return send;
+    };
+    it('a revision request of the other side is the default reply target until it is answered; the answer is sent with replyTo and shown quoted at once', () => {
+      const send = setup();
+      component.messages.set([msg({ id: 'rev1', senderName: 'العميل', content: 'طلب تعديل على «المرحلة»: غيّر الصورة', context: { type: 'DELIVERY', kind: 'REVISION_REQUEST' } })]);
+      expect(component.replyTarget()?.id).toBe('rev1');
+      component.draft = 'ماشي'; component.send();
+      expect(send.mock.calls[0][1].context).toEqual({ type: 'PROJECT', replyTo: { messageId: 'rev1' } });
+      const mine = component.messages().at(-1)!; expect(mine.context?.replyTo).toMatchObject({ messageId: 'rev1', senderName: 'العميل', kind: 'REVISION_REQUEST' }); expect(mine.context?.replyTo?.excerpt).toContain('غيّر الصورة');
+      expect(component.replyTarget()).toBeNull(); // answered: nothing is pre-selected any more
+    });
+    it('dismissing the default target sends a plain message; a plain message of the other side is only a reply when chosen with «رد»', () => {
+      const send = setup();
+      component.messages.set([msg({ id: 'rev1', context: { type: 'DELIVERY', kind: 'REVISION_REQUEST' } }), msg({ id: 'p1', senderName: 'زياد', content: 'سؤال' })]);
+      component.cancelReply(); expect(component.replyTarget()).toBeNull();
+      component.draft = 'بلا رد'; component.send(); expect(send.mock.calls[0][1].context).toBeUndefined(); component.sending.set(false);
+      component.startReply(component.messages().find(m => m.id === 'p1')!); expect(component.replyTarget()?.id).toBe('p1');
+      component.draft = 'جواب'; component.send(); expect(send.mock.calls[1][1].context).toEqual({ type: 'PROJECT', replyTo: { messageId: 'p1' } });
+      expect(component.replyTarget()).toBeNull();
+    });
+    it('my own message is never an automatic target, the quote is rendered with its sender and text, and a pending message cannot be replied to', () => {
+      setup();
+      component.messages.set([msg({ id: 'mine', isMe: true, context: { type: 'DELIVERY', kind: 'REVISION_REQUEST' } }), msg({ id: 'a', context: { type: 'PROJECT', replyTo: { messageId: 'mine', senderName: 'أنت', excerpt: 'نصي الأصلي' } } }), msg({ id: 't', tempId: 't', status: 'PENDING' })]);
+      expect(component.autoReplyTarget()).toBeNull(); component.startReply(component.messages().find(m => m.tempId)!); expect(component.replyTarget()).toBeNull();
+      fixture.detectChanges(); // first render runs ngOnInit (which loads the initial messages): set ours after it
+      component.messages.set([msg({ id: 'mine', isMe: true, context: { type: 'DELIVERY', kind: 'REVISION_REQUEST' } }), msg({ id: 'a', context: { type: 'PROJECT', replyTo: { messageId: 'mine', senderName: 'أنت', excerpt: 'نصي الأصلي' } } })]); fixture.detectChanges();
+      const quote = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="chat-quote"]');
+      expect(quote?.textContent).toContain('أنت'); expect(quote?.textContent).toContain('نصي الأصلي');
+    });
+  });
+});
