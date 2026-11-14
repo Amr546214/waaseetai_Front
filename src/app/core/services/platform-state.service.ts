@@ -5,6 +5,7 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { isPlatformBrowser } from '@angular/common';
 import { SiteIdentityService } from '../identity/site-identity.service';
+import { LevelsService } from '../levels/levels.service';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { SOCKET_BACKOFF } from '../utils/socket-backoff';
@@ -30,6 +31,7 @@ export class PlatformStateService {
   private readonly destroy = inject(DestroyRef);
   private readonly info = inject(PlatformInfoService);
   private readonly identity = inject(SiteIdentityService);
+  private readonly levels = inject(LevelsService);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private socket: Socket | null = null;
   private started = false;
@@ -95,12 +97,14 @@ export class PlatformStateService {
     });
     s.on('taxonomy:changed', (n: { revision?: number }) => this.catalog.refresh(n?.revision));
     // the identity was saved / restored on the server: re-read it through the same socket (no polling)
-    s.on('identity:changed', () => { void this.identity.refresh(true); });
+    s.on('identity:changed', () => { void this.identity.refresh(true); this.levels.refreshIfLoaded(); });
+    // a level was renamed / recoloured in «هوية المستويات»: re-read the level table if this page uses it (no polling)
+    s.on('levels:changed', () => this.levels.refreshIfLoaded());
     s.on('platform:state', (st: PlatformState) => this.apply(st));
     // `connect` fires on the first connection and on every reconnection: after the first, re-read the state (a push may have been missed while disconnected)
     let connected = false;
     s.on('connect', () => {
-      if (connected) { this.refresh(); this.catalog.refresh(); void this.identity.refresh(true); } // a pushed identity change may have been missed while disconnected
+      if (connected) { this.refresh(); this.catalog.refresh(); void this.identity.refresh(true); this.levels.refreshIfLoaded(); } // a pushed identity change may have been missed while disconnected
       connected = true;
     });
     this.socket = s;
