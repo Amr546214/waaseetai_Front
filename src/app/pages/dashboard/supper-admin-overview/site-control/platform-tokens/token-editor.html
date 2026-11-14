@@ -1,3 +1,13 @@
+<ng-template #valueRows let-rows="rows" let-shared="shared" let-compact="compact">
+  @for (r of rows; track $index) {
+    <div class="pt-place-row" [attr.data-testid]="'pt-place-row'">
+      @if (r.value !== null) { <code dir="ltr">{{ r.value }}</code> } @else { <span class="muted pt-reason" data-testid="pt-reason">{{ r.reason }}</span> }
+      @if (r.plain) { @if (!compact) { <small class="muted pt-places">{{ r.places.join('، ') }}</small> } }
+      @else if (rows.length > 1 || shared) { <small class="muted pt-places">{{ rows.length === 1 ? 'كل المواضع: ' : 'المواضع: ' }}{{ r.places.join('، ') }}</small> }
+    </div>
+  }
+  @if (basisNote(rows); as note) { <small class="muted pt-basis" data-testid="pt-basis">{{ note }}</small> }
+</ng-template>
 <section class="pt-wrap" data-testid="platform-tokens" aria-labelledby="pt-h">
   <header class="pt-head">
     <h2 id="pt-h">{{ title() }}</h2>
@@ -88,12 +98,19 @@
                 @if (canEdit(it)) {
                   <div class="visual-fields">
                     @for (t of filteredTokens(it); track t.name) {
-                      <label>{{t.label}}
-                        @if (isHex6(shownValue(it,t)) && (t.type === 'color' || t.type === 'paint')) {
-                          <input type="color" [value]="shownValue(it,t)" (input)="pickColor(it,t,$event)" [disabled]="state(it.key).busy !== null">
+                      @let fv = fieldView(it,t);
+                      <div class="pt-field" [attr.data-testid]="'pt-field-' + t.name">
+                        <label [attr.for]="'pt-f-' + t.name">{{t.label}} <span class="chip chip-muted" [attr.data-testid]="'pt-source-' + t.name">{{ fv.sourceText }}</span></label>
+                        <div class="pt-current" [attr.data-testid]="'pt-current-' + t.name"><ng-container *ngTemplateOutlet="valueRows; context: { rows: fv.rows, shared: fv.shared }" /></div>
+                        @if (fv.original) { <div class="pt-original muted">الأصل: <ng-container *ngTemplateOutlet="valueRows; context: { rows: fv.original, shared: fv.shared }" /></div> }
+                        @if (isHex6(fieldText(it,t)) && (t.type === 'color' || t.type === 'paint')) {
+                          <input type="color" [value]="fieldText(it,t)" (input)="pickColor(it,t,$event)" [disabled]="state(it.key).busy !== null" [attr.aria-label]="'منتقي لون ' + t.label">
                         }
-                        <input class="pt-text" dir="ltr" [value]="state(it.key).edits[t.name] ?? ''" [placeholder]="displayValue(published(it,t))" (input)="onText(it,t,$event)" [disabled]="state(it.key).busy !== null">
-                      </label>
+                        <input [id]="'pt-f-' + t.name" class="pt-text" dir="ltr" [value]="fieldText(it,t)" (input)="onText(it,t,$event)" [disabled]="state(it.key).busy !== null" [attr.aria-invalid]="problem(it,t) ? 'true' : null" spellcheck="false" autocomplete="off">
+                        @if (!fv.unified) { <small class="muted" data-testid="pt-diverge">القيم تختلف بين المواضع المذكورة. كتابة قيمة هنا توحّدها على كل المواضع.</small> }
+                        @if (problem(it,t); as pr) { <small class="pt-problem" role="alert" [attr.data-testid]="'pt-problem-' + t.name">{{ pr }}</small> }
+                        @else if (unitHint(t)) { <small class="muted" [attr.data-testid]="'pt-unit-' + t.name">{{ unitHint(t) }}</small> }
+                      </div>
                     }
                   </div>
                 }
@@ -119,22 +136,24 @@
                     </details>
                   }
                   <code class="code" dir="ltr">{{ t.name }}</code>@if(t.type==='font-family' && store.canManage()){<div class="font-choices">@for(font of fontChoices;track font.id){<button type="button" class="btn-secondary" (click)="edit(it,t,fontStack(font))">{{font.label}}</button>}</div><small>خطوط المكتبة تُحمّل من Google Fonts لكل زائر بعد النشر؛ عند تعذّر التحميل يُستخدم الخط الاحتياطي. الاسم المخصص يحتاج ملف خط متاحًا للزائر.</small>} @if (t.sharedWithDark) { <small class="muted">تشاركها قيمة الوضع الداكن</small> }</span>
+                @let fv = fieldView(it, t);
                 <span class="pt-val" role="cell">
-                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="t.default" [attr.aria-hidden]="true"></i> }
-                  <code dir="ltr">{{ displayValue(t.default) }}</code>
+                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="fv.original?.[0]?.value ?? fv.rows[0]?.value ?? t.default" [attr.aria-hidden]="true"></i> }
+                  <ng-container *ngTemplateOutlet="valueRows; context: { rows: fv.original ?? fv.rows, shared: fv.shared, compact: true }" />
                 </span>
                 <span class="pt-val" role="cell">
-                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="published(it, t)" [attr.aria-hidden]="true"></i> }
-                  <code dir="ltr" [attr.data-testid]="'pt-pub-' + t.name">{{ displayValue(published(it, t)) }}</code>
-                  @if (isOverridden(it, t)) { <span class="chip chip-ok">مخصّصة</span> }
+                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="published(it, t) === 'inherit' ? (fv.rows[0]?.value ?? '') : published(it, t)" [attr.aria-hidden]="true"></i> }
+                  <span [attr.data-testid]="'pt-pub-' + t.name"><ng-container *ngTemplateOutlet="valueRows; context: { rows: fv.rows, shared: fv.shared, compact: true }" /></span>
+                  <span class="chip" [class.chip-ok]="isOverridden(it, t)" [class.chip-muted]="!isOverridden(it, t)">{{ fv.sourceText }}</span>
                 </span>
                 <span class="pt-edit" role="cell">
                   @if (canEdit(it)) {
                     @if (t.type === 'color' && isHex6(shownValue(it, t))) {
                       <input type="color" class="pt-color" [value]="shownValue(it, t)" (input)="pickColor(it, t, $event)" [attr.aria-label]="'منتقي لون ' + t.label" />
                     }
-                    <input type="text" class="pt-text" dir="ltr" [value]="isEdited(it, t) ? state(it.key).edits[t.name] : ''" [placeholder]="displayValue(published(it, t))" (change)="onText(it, t, $event)"
-                      [attr.aria-label]="'قيمة جديدة لـ ' + t.label" [attr.data-testid]="'pt-input-' + t.name" spellcheck="false" autocomplete="off" />
+                    <input type="text" class="pt-text" dir="ltr" [value]="fieldText(it, t)" (change)="onText(it, t, $event)"
+                      [attr.aria-label]="'قيمة جديدة لـ ' + t.label" [attr.aria-invalid]="problem(it, t) ? 'true' : null" [attr.data-testid]="'pt-input-' + t.name" spellcheck="false" autocomplete="off" />
+                    @if (problem(it, t); as pr) { <small class="pt-problem" role="alert">{{ pr }}</small> } @else if (unitHint(t)) { <small class="muted">{{ unitHint(t) }}</small> }
                     @if (isEdited(it, t) || isOverridden(it, t)) { <button type="button" class="btn-link" (click)="resetRow(it, t)" [attr.data-testid]="'pt-reset-' + t.name">إرجاع للأصل</button> }
                   } @else { <span class="muted">—</span> }
                 </span>

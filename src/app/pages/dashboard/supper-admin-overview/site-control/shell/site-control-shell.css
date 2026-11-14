@@ -8,7 +8,8 @@
 	margin: -24px;
 	padding: 0;
 	/* anything wider than the screen scrolls INSIDE the panel; the platform page itself never grows sideways */
-	overflow-x: auto;
+	/* `clip`, not `auto`: `auto` would make this box a scroll container and the section bar of «الهوية» could never stick to the window */
+	overflow-x: clip;
 }
 .sc-notice {
 	margin: 16px 24px 0;

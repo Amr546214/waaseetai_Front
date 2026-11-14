@@ -94,5 +94,15 @@ button:focus-visible, summary:focus-visible, a:focus-visible, label.file-btn:foc
 .visual-pane { border:1px solid var(--sec-bd,#475569); border-radius:12px; padding:1rem; min-width:0; }
 .visual-object { display:grid; justify-items:start; align-items:center; min-height:5rem; margin-top:.75rem; overflow:auto; }
 .visual-box { display:block; border:1px solid var(--sec-bd,#475569); border-radius:10px; padding:.75rem; }
-.visual-fields { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr)); gap:.75rem; margin-block:1rem; }
+.visual-fields { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr)); gap:.75rem; margin-block:1rem; }
 .visual-fields label { display:grid; gap:.35rem; min-width:0; }
+
+/* the real current value of a control, one row per distinct value with the places named */
+.pt-field { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; }
+.pt-field > label { font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pt-place-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.pt-place-row code { background: var(--surface, rgba(255,255,255,.06)); padding: 1px 8px; border-radius: 6px; font-size: 12px; }
+.pt-places, .pt-reason { font-size: 11px; }
+.pt-original { font-size: 12px; }
+.pt-problem { color: var(--err, #ff8c69); font-size: 12px; }
+.pt-text[aria-invalid="true"] { border-color: var(--err, #ff8c69); }

@@ -30,7 +30,7 @@ describe('«التحكم بالموقع» landing', () => {
 	});
 	it('the helper picks the first page of the section order that the rule predicate admits (a local page when identity is not allowed)', () => {
 		expect(firstAllowedSiteControlPage(() => true)).toBe('identity');
-		expect(firstAllowedSiteControlPage(r => !!r.all?.includes('site_control.manage'))).toBe('icons');
+		expect(firstAllowedSiteControlPage(r => !!r.all?.includes('site_control.manage'))).toBe('accounts'); // identity needs the identity permissions; the pages that stay need site_control.manage
 		expect(firstAllowedSiteControlPage(() => false)).toBeNull();
 		expect(SITE_CONTROL_PAGES[0]).toBe('identity');
 	});
@@ -40,6 +40,9 @@ describe('«التحكم بالموقع» landing', () => {
 		expect(empty.redirectTo).toBeUndefined();
 		expect(empty.canActivate!.length).toBe(2);
 		expect(empty.canActivate![0]).toBe(siteControlLandingGuard);
-		expect(section.children!.filter(c => c.redirectTo === undefined).map(c => c.path)).toEqual(['', ...SITE_CONTROL_PAGES]);
+		// the four old pages (tokens, icons, templates, typography) are redirect guards to their section of «الهوية», never pages of their own
+		const real = section.children!.filter(c => c.redirectTo === undefined && c.children === undefined && c.path !== '').map(c => c.path);
+		expect(real).toEqual([...SITE_CONTROL_PAGES]);
+		expect(section.children!.filter(c => c.pathMatch === 'full' && c.children?.length === 0 && c.path).map(c => c.path)).toEqual(['tokens', 'icons', 'templates', 'typography']);
 	});
 });

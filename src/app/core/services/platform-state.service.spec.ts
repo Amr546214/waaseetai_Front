@@ -9,6 +9,7 @@ vi.mock('socket.io-client', () => ({ io: vi.fn(() => ({ on: (e: string, h: (p?: 
 import { io } from 'socket.io-client';
 import { PlatformInfoService } from './platform-info.service';
 import { PlatformStateService } from './platform-state.service';
+import { SiteIdentityService } from '../identity/site-identity.service';
 
 const URL = () => `${environment.url_api}/public/platform-state`;
 const st = (on: boolean, revision: number, message = 'نعود قريبًا') => ({ success: true, data: { maintenance: { on, message: on ? message : '' }, revision } });
@@ -44,5 +45,19 @@ describe('PlatformStateService: live maintenance without a click or a reload', (
 	it('a failed read keeps the last known state and starts only once', () => {
 		svc.start(); svc.start(); http.expectOne(URL()).flush(st(true, 1)); expect(info.maintenance()).not.toBeNull();
 		svc.refresh(); http.expectOne(URL()).flush('x', { status: 500, statusText: 'x' }); expect(info.maintenance()).not.toBeNull(); expect(vi.mocked(io)).toHaveBeenCalledTimes(1);
+	});
+
+	it('identity:changed re-reads the identity once per event (no polling), a reconnect re-reads it once, and the listener is registered once however often the socket reconnects', () => {
+		const refresh = vi.spyOn(TestBed.inject(SiteIdentityService), 'refresh').mockResolvedValue(true);
+		const on = vi.fn(); vi.mocked(io).mockImplementationOnce((() => ({ on: (e: string, h: (p?: unknown) => void) => { on(e); handlers[e] = h; }, disconnect: vi.fn() })) as never);
+		svc.start(); http.expectOne(URL()).flush(st(false, 1));
+		expect(on.mock.calls.filter(c => c[0] === 'identity:changed').length).toBe(1);
+		handlers['identity:changed']({ at: 1 }); expect(refresh).toHaveBeenCalledTimes(1); expect(refresh).toHaveBeenLastCalledWith(true);
+		handlers['connect'](); expect(refresh).toHaveBeenCalledTimes(1); // first connection: nothing missed
+		http.match(URL()).forEach(r => r.flush(st(false, 1)));
+		handlers['connect'](); handlers['connect'](); expect(refresh).toHaveBeenCalledTimes(3); // each reconnect reads once, no listener duplication
+		expect(on.mock.calls.filter(c => c[0] === 'identity:changed').length).toBe(1);
+		vi.advanceTimersByTime(10 * 60_000); expect(refresh).toHaveBeenCalledTimes(3);
+		http.match(URL());
 	});
 });

@@ -1,5 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, OnDestroy, OnInit, ViewEncapsulation, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -12,7 +13,11 @@ import { ParsedSvgIcon, parseCustomSvg } from '../../../../../core/identity/iden
 import { WsDatePipe, formatWsDate } from '../../../../../shared/ws-date/ws-date.pipe';
 import { DesignTokensService } from '../core/design-tokens.service';
 import { ThemeModeService } from '../core/theme-mode.service';
-import { IdentityGuide } from './identity-guide';
+import { ColorTokens } from '../color-tokens/color-tokens';
+import { Typography } from '../typography/typography';
+import { IconTokens } from '../icon-tokens/icon-tokens';
+import { Templates } from '../templates/templates';
+import { ruleForPath } from '../../../../../core/config/admin-access-rules';
 import { IdentityLoadStatus } from './identity-load-status';
 import { InlineSvgDirective } from './inline-svg.directive';
 import { CHANGE_KIND_TEXT, Failure, sourceText, GROUP_TITLES, actorName, actorOf, bytesText, currentSummary, describeFailure, mimeName, parsePreview, previousVersion, restorable, shortId, shortSha, sideText, sizeText, versionName } from './identity-view';
@@ -43,14 +48,48 @@ const readText = (b: Blob): Promise<string> => (typeof b.text === 'function' ? b
 @Component({
 	selector: 'sc-identity',
 	standalone: true,
-	imports: [RouterLink, NgTemplateOutlet, WsDatePipe, InlineSvgDirective, IdentityGuide, IdentityLoadStatus],
+	imports: [RouterLink, NgTemplateOutlet, WsDatePipe, InlineSvgDirective, IdentityLoadStatus, ColorTokens, Typography, IconTokens, Templates],
 	templateUrl: './identity.html',
 	encapsulation: ViewEncapsulation.ShadowDom,
 	styleUrls: ['../site-control-base.css', './identity.css']
 })
 export class Identity implements OnInit, OnDestroy {
  private readonly element = inject(ElementRef<HTMLElement>);
- showAssets(): void { this.element.nativeElement.shadowRoot?.querySelector('[data-testid="identity-assets-start"]')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }); }
+ private readonly router = inject(Router);
+ private readonly route = inject(ActivatedRoute);
+ /**
+  * The identity file is ONE page: every section is rendered in place (no step that reveals it) with its own editor, in this order. The bar below follows the scroll and jumps to a section on the
+  * same page. «الأيقونات» and «المكوّنات والقوالب» keep the permission they always needed (site_control.manage): a viewer who only has site.view does not get editors that were never theirs.
+  */
+ readonly sectionDefs = [
+  { id: 'logos', label: 'الشعارات والملفات' }, { id: 'colors', label: 'الألوان' }, { id: 'typography', label: 'الخطوط' }, { id: 'layout', label: 'المقاسات والأبعاد' },
+  { id: 'icons', label: 'الأيقونات', rule: 'site-control/icons' }, { id: 'components', label: 'المكوّنات والقوالب', rule: 'site-control/templates' }, { id: 'history', label: 'السجل والاستعادة' },
+ ] as const;
+ readonly sections = computed(() => this.sectionDefs.filter(sec => !('rule' in sec) || this.access.allows(ruleForPath(sec.rule))));
+ readonly currentSection = signal<string>('logos');
+ canSee(id: string): boolean { return this.sections().some(x => x.id === id); }
+ private observer: IntersectionObserver | null = null;
+ private fragmentSub: { unsubscribe(): void } | null = null;
+ private root(): ShadowRoot | null { return this.element.nativeElement.shadowRoot; }
+ /** jump to a section of this page (smooth unless the visitor prefers reduced motion) and keep the address in step, without a navigation or a reload */
+ goTo(id: string, updateUrl = true): void {
+  const el = this.root()?.getElementById('sec-' + id);
+  if (!el) return;
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView?.({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  this.currentSection.set(id);
+  if (updateUrl) void this.router.navigate([], { relativeTo: this.route, fragment: id, replaceUrl: true });
+ }
+ private watchSections(): void {
+  this.observer?.disconnect();
+  const root = this.root(); if (!root || typeof IntersectionObserver === 'undefined') return;
+  // the section whose top has passed under the fixed bars and is the last one doing so is the current one
+  this.observer = new IntersectionObserver(entries => {
+   const visible = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+   if (visible) this.currentSection.set(visible.target.id.replace(/^sec-/, ''));
+  }, { rootMargin: '-120px 0px -65% 0px', threshold: 0 });
+  for (const sec of this.sections()) { const el = root.getElementById('sec-' + sec.id); if (el) this.observer.observe(el); }
+ }
 	private readonly api = inject(SiteIdentityAdminApi);
 	private readonly confirmer = inject(ConfirmModalService);
 	private readonly sanitizer = inject(DomSanitizer);
@@ -109,8 +148,12 @@ export class Identity implements OnInit, OnDestroy {
 	private readonly objectUrls: string[] = [];
 	private destroyed = false;
 
-	ngOnInit(): void { void this.load(); }
-	ngOnDestroy(): void { this.destroyed = true; for (const u of this.objectUrls) { try { URL.revokeObjectURL(u); } catch { /* ignore */ } } this.objectUrls.length = 0; }
+	ngOnInit(): void {
+		void this.load();
+		// an old link (/site-control/tokens, /typography, /icons, /templates) arrives here with the section as the fragment
+		this.fragmentSub = this.route.fragment.subscribe(f => { if (f && this.sectionDefs.some(x => x.id === f)) setTimeout(() => this.goTo(f, false), 250); });
+	}
+	ngOnDestroy(): void { this.observer?.disconnect(); this.fragmentSub?.unsubscribe(); this.destroyed = true; for (const u of this.objectUrls) { try { URL.revokeObjectURL(u); } catch { /* ignore */ } } this.objectUrls.length = 0; }
 
 	setMode(mode: 'dark' | 'light'): void { this.tokens.setMode(mode); }
 
@@ -123,6 +166,7 @@ export class Identity implements OnInit, OnDestroy {
 			if (!r?.data || !Array.isArray(r.data.items)) throw new Error('bad shape');
 			this.data.set(r.data);
 			this.phase.set('ready');
+			setTimeout(() => this.watchSections());
 			void this.loadActivePreviews();
 			if (!silent || this.setPhase() === 'idle') void this.loadSetHistory();
 		} catch (e) {

@@ -94,42 +94,23 @@
         <div class="note" [class]="'note note-' + pn.type" role="status" data-testid="identity-page-notice"><strong>{{ pn.text }}</strong> {{ pn.detail }}</div>
       }
 
-      <sc-identity-guide (assetsRequested)="showAssets()" />
-      <div data-testid="identity-assets-start" class="assets-heading"><h2>الشعارات والملفات المنشورة على الموقع</h2><p class="hint">القيم والملفات أدناه هي الحالة الفعلية من الخادم، مع المعاينة والتطبيق والاستعادة.</p></div>
+      <!-- ONE page: the identity file's sections are all here, in place, each with its own editor. The bar follows the scroll. -->
+      <nav class="id-nav" aria-label="أقسام ملف الهوية" data-testid="identity-nav">
+        @for (sec of sections(); track sec.id) {
+          <button type="button" class="id-nav-link" [class.active]="currentSection() === sec.id" [attr.aria-current]="currentSection() === sec.id ? 'true' : null" (click)="goTo(sec.id)" [attr.data-testid]="'identity-nav-' + sec.id">{{ sec.label }}</button>
+        }
+      </nav>
+
+      <section id="sec-logos" class="id-sec" data-testid="identity-section-logos" aria-labelledby="sec-logos-h">
+        <h2 id="sec-logos-h" class="sec-title">الشعارات والملفات المنشورة على الموقع</h2>
+        <p class="hint">القيم والملفات أدناه هي الحالة الفعلية من الخادم، مع المعاينة والتطبيق والاستعادة.</p>
 
       <section class="card platform-name" data-testid="identity-platform-name" aria-labelledby="pn-h">
-        <h2 id="pn-h">اسم المنصة</h2>
+        <h3 id="pn-h">اسم المنصة</h3>
         <p class="val"><strong>{{ platformName() }}</strong> <span class="chip chip-muted">للقراءة فقط هنا</span></p>
         <p class="hint">الاسم ليس جزءًا من هذه الصفحة: مصدره الوحيد إعداد «اسم النظام» في
           @if (canOpenSettings()) { <a routerLink="/supper-admin-overview/system-settings" data-testid="identity-settings-link">إعدادات النظام</a> } @else { إعدادات النظام (تحتاج صلاحية الإعدادات) }.
           لا يوجد مصدر ثانٍ له.</p>
-      </section>
-
-      <section class="card colors-note" data-testid="identity-colors-note">
-        <h2>الألوان والخطوط والقيم العامة</h2>
-        <p class="hint">المتغيّرات المركزية للتصميم (ألوان الوضعين، أبعاد الحواف والحاوية، والخط العام) <strong>مرتبطة بالموقع</strong> وتُعدَّل من تبويبات الهوية أعلاه أو صفحتي «القيم والألوان» و«الخطوط»، باستخدام المحرّر نفسه والقيم نفسها من الخادم (تحقّق ومعاينة ثم تطبيق، استعادة، تعارض). حالة تحميل الهوية وأخطاء ملفاتها تظهر في هذه الصفحة؛ <strong>القوالب والتصدير والمحرّر المحلي</strong> في صفحتي القيم والخطوط أدوات تجربة تعمل على هذا المتصفح فقط وهي <strong>غير مرتبطة بالموقع</strong>؛ و<strong>المستويات والنقاط</strong> قواعد أعمال المنصة خارج نطاق إدارة الهوية ولا يغيّر هذا القسم منطقها. الألوان المكتوبة مباشرة في الشيفرة لا تتبع هذه المتغيّرات (الأعداد على صفحة «القيم والألوان»).</p>
-      </section>
-
-      @if (tokenItems().length) {
-        <section class="card token-summary" data-testid="identity-tokens" aria-labelledby="tk-h">
-          <h2 id="tk-h">قيم التصميم المرتبطة بالموقع</h2>
-          <ul class="plain-list" data-testid="identity-tokens-list">
-            @for (it of tokenItems(); track it.key) {
-              <li [attr.data-testid]="'token-sum-' + it.key">
-                <strong>{{ it.label }}</strong> <code class="code" dir="ltr">{{ it.key }}</code>
-                — @if (it.state.isDefault) { <span class="chip chip-muted">الأصل الافتراضي</span> } @else { <span class="chip chip-ok">مخصّص: النسخة {{ it.state.active?.version }} ({{ overrideCount(it) }} قيمة)</span> }
-                @if (!it.wired) { <span class="chip chip-off">غير مفعّل بعد</span> }
-                — <a [routerLink]="tokenPage(it.key).link">تحرير من «{{ tokenPage(it.key).text }}»</a>
-              </li>
-            }
-          </ul>
-        </section>
-      }
-
-      <section class="card fn-icons-summary" data-testid="identity-fn-icons" aria-labelledby="fn-h">
-        <h2 id="fn-h">الأيقونات الوظيفية في الموقع</h2>
-        <p class="hint">أيقونات الواجهة (الجرس والبحث والإعدادات وغيرها) تُدار كلها من صفحة <a routerLink="/supper-admin-overview/site-control/icons" data-testid="identity-fn-icons-link">«مكتبة الأيقونات»</a> بنفس مسار هذه الصفحة (معاينة وتطبيق وإلغاء واستعادة وتعارض). لا يوجد محرّر ثانٍ لها هنا.
-          المخصّصة الآن: <strong data-testid="identity-fn-icons-custom">{{ fnIcons().custom }}</strong>@if (fnIcons().withDraft) { ، وبها مسودات: {{ fnIcons().withDraft }} }. أيقونة الذكاء الاصطناعي الرسمية وحدها تبقى هنا (المفتاح <code dir="ltr">icon.ai</code>).</p>
       </section>
 
       @for (g of groups(); track g.id) {
@@ -147,6 +128,38 @@
         </section>
       }
 
+      </section>
+
+      <section id="sec-colors" class="id-sec" data-testid="identity-section-colors" aria-labelledby="sec-colors-h">
+        <h2 id="sec-colors-h" class="sec-title">الألوان</h2>
+        <sc-color-tokens part="colors" />
+      </section>
+
+      <section id="sec-typography" class="id-sec" data-testid="identity-section-typography" aria-labelledby="sec-typography-h">
+        <h2 id="sec-typography-h" class="sec-title">الخطوط</h2>
+        <sc-typography />
+      </section>
+
+      <section id="sec-layout" class="id-sec" data-testid="identity-section-layout" aria-labelledby="sec-layout-h">
+        <h2 id="sec-layout-h" class="sec-title">المقاسات والأبعاد</h2>
+        <sc-color-tokens part="layout" />
+      </section>
+
+      @if (canSee('icons')) {
+        <section id="sec-icons" class="id-sec" data-testid="identity-section-icons" aria-labelledby="sec-icons-h">
+          <h2 id="sec-icons-h" class="sec-title">الأيقونات</h2>
+          <sc-icon-tokens />
+        </section>
+      }
+
+      @if (canSee('components')) {
+        <section id="sec-components" class="id-sec" data-testid="identity-section-components" aria-labelledby="sec-components-h">
+          <h2 id="sec-components-h" class="sec-title">المكوّنات والقوالب</h2>
+          <sc-templates />
+        </section>
+      }
+
+      <div id="sec-history" class="id-sec" data-testid="identity-section-history">
       <section class="card" data-testid="identity-set-section" aria-labelledby="set-h">
         <h2 id="set-h">استعادة نسخة هوية كاملة</h2>
         <p class="hint">كل تطبيق أو استعادة يضيف سطرًا إلى سجل بيان الموقع. من هنا تُرجع <strong>كل المفاتيح معًا</strong> إلى حالتها في نسخة سابقة (أو إلى الأصل الكامل). يظهر لك قبل التنفيذ <strong>الفرق الدقيق</strong> لكل مفتاح (الحالي مقابل ما بعد الاستعادة) ولا يُنفَّذ غيره.</p>
@@ -246,6 +259,8 @@
           </div>
         }
       </section>
+
+      </div>
 
       <section class="card not-identity" data-testid="identity-not-identity" aria-labelledby="ni-h">
         <h2 id="ni-h">ليس من الهوية</h2>

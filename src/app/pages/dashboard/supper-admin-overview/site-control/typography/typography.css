@@ -7,7 +7,7 @@
   direction: rtl;
 }
 .typo-wrap { max-width: 1240px; margin: 0 auto; padding: 24px; }
-.panel-header h1 { margin: 0 0 4px; font-size: 22px; font-weight: 900; }
+.panel-header h1, .panel-header h3 { margin: 0 0 4px; font-size: 18px; font-weight: 900; }
 .panel-header .sub { margin: 0 0 12px; color: var(--txt-2); font-size: 13px; }
 
 .actions { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }

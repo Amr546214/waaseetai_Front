@@ -1,12 +1,13 @@
 import { DomSanitizer } from "@angular/platform-browser";
 import {APPROVED_FONTS,IdentityFontsRuntime} from '../../../../../core/identity/identity-fonts.runtime';
-import { NgStyle } from '@angular/common';
-import { Component, ViewEncapsulation, computed, inject, input, signal, OnInit, effect } from '@angular/core';
+import { NgStyle, NgTemplateOutlet } from '@angular/common';
+import { Component, ViewEncapsulation, computed, inject, input, signal, OnInit, effect, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmModalService } from '../../../../../core/services/confirm-modal.service';
 import { IdentityAssetMeta, IdentityChangeResult, IdentityItemInfo, IdentityTokenDef, SiteIdentityAdminApi } from '../../../../../core/identity/site-identity-admin.api';
 import { Failure, actorName, currentSummary, describeFailure } from '../identity/identity-view';
-import { PRESENTATION_GROUPS,PRESENTATION_STYLE_ID,buildPresentationCss,presentationInline } from '../../../../../core/identity/presentation-controls';
+import { PRESENTATION_GROUPS,PRESENTATION_STYLE_ID,buildPresentationCss,presentationInline,safePresentationValue } from '../../../../../core/identity/presentation-controls';
+import { PlaceValue, groupByValue, measurePlaces } from '../../../../../core/identity/effective-style';
 import { PlatformTokensStore } from './platform-tokens.store';
 
 export interface TokenNotice { type: 'ok' | 'warn' | 'error' | 'conflict'; text: string; detail?: string; failure?: Failure }
@@ -27,7 +28,7 @@ export const isSwatch = (t: IdentityTokenDef): boolean => t.type === 'color' || 
 	selector: 'sc-token-editor',
 	standalone: true,
  providers: [IdentityFontsRuntime],
-	imports: [NgStyle],
+	imports: [NgStyle, NgTemplateOutlet],
 	templateUrl: './token-editor.html',
 	encapsulation: ViewEncapsulation.ShadowDom,
 	styleUrls: ['../site-control-base.css', './token-editor.css']
@@ -39,7 +40,67 @@ export class TokenEditor implements OnInit {
  readonly fontChoices=APPROVED_FONTS;
  fontStack(font:{googleFamily:string;latinPartner:string}):string{return [...new Set([font.googleFamily,font.latinPartner])].map(n=>"'"+n+"'").join(',')+',system-ui,sans-serif';}
  readonly tokenPrefix=input('');readonly query=signal('');readonly limit=signal(50);
- displayValue(value:string):string{return value==='inherit'?'افتراضي لكل موضع':value;}
+
+ /** a value as the page shows it: `inherit` is never shown (it is not a value): the token's real value is measured instead (see fieldView) */
+ displayValue(value:string):string{return value==='inherit'?'(يُقاس من الموقع)':value;}
+ // ---- the REAL current value of every control, per place (measured from the live site, never a placeholder)
+ readonly measureVersion=signal(0);
+ private readonly placeCache=new Map<string,{current:PlaceValue[];original:PlaceValue[]}>();
+ private fieldOf(name:string){return this.scopesByToken.get(name)?.fields.find(f=>f.name===name);}
+ placesOf(t:IdentityTokenDef):{current:PlaceValue[];original:PlaceValue[]}|null{
+  this.measureVersion();
+  const group=this.scopesByToken.get(t.name),field=this.fieldOf(t.name);
+  if(!group||!field||typeof document==='undefined')return null;
+  let c=this.placeCache.get(t.name);
+  if(!c){c={current:measurePlaces(document,group.selector,field.property),original:measurePlaces(document,group.selector,field.property,{original:true})};this.placeCache.set(t.name,c);}
+  return c;
+ }
+ /**
+  * What a control shows: a published override (source «تخصيص منشور»), else the value the site really has (measured per place, source «القيمة الأصلية للموقع»), else the server's default.
+  * Places that differ are separate rows with their names; the field's own value is pre-filled only when every place agrees.
+  */
+ fieldView(it:IdentityItemInfo,t:IdentityTokenDef):{source:'override'|'site'|'default';sourceText:string;rows:{value:string|null;reason?:string;basis?:string;plain?:boolean;places:string[]}[];original:{value:string|null;reason?:string;basis?:string;places:string[]}[]|null;editValue:string;unified:boolean;shared:boolean}{
+  const ov=this.activeValue(it)[t.name],places=this.placesOf(t),shared=(places?.current.length??0)>1;
+  const field=this.fieldOf(t.name);
+  if(ov!==undefined&&ov!=='inherit')return{source:'override',sourceText:'تخصيص منشور',rows:[{value:ov,plain:true,places:[shared?'تخصيص واحد منشور يسري على كل المواضع':'تخصيص منشور']}],original:places?groupByValue(places.original):null,editValue:ov,unified:true,shared};
+  if(places&&(t.default==='inherit'||ov==='inherit')){
+   const rows=groupByValue(places.current),one=rows.length===1&&rows[0].value!==null;
+   const raw=one?places.current[0].raw??'':'';
+   return{source:'site',sourceText:'القيمة الأصلية للموقع',rows,original:null,editValue:one?raw:'',unified:one,shared};
+  }
+  return{source:'default',sourceText:'القيمة الأصلية',rows:[{value:t.default,plain:true,places:['قيمة المنصة الأصلية']}],original:null,editValue:t.default,unified:true,shared:false};
+ }
+ /** where the shown numbers come from, said once per field: real elements of this page, and/or the site's global stylesheets only */
+ basisNote(rows:{basis?:string}[]):string|null{
+  const i=rows.some(r=>r.basis==='instances'),g=rows.some(r=>r.basis==='global');
+  if(i&&g)return 'مقاس من عناصر فعلية في هذه الصفحة؛ والمواضع التي لا عنصر منها هنا من الأنماط العامة للموقع فقط (قد تختلف المكوّنات ذات الأنماط الخاصة).';
+  if(i)return 'مقاس من عناصر فعلية في هذه الصفحة.';
+  if(g)return 'من الأنماط العامة للموقع فقط: لا عنصر من هذه المواضع في هذه الصفحة، وقد تختلف المكوّنات ذات الأنماط الخاصة.';
+  return null;
+ }
+ /** the pending text of a field, else its current value (so a field is never an empty box that only hints at a default) */
+ fieldText(it:IdentityItemInfo,t:IdentityTokenDef):string{const e=this.state(it.key).edits[t.name];return e!==undefined?e:this.fieldView(it,t).editValue;}
+ /** the unit / range a field accepts, in words */
+ unitHint(t:IdentityTokenDef):string{
+  const f=this.fieldOf(t.name);if(!f)return '';
+  switch(f.type){
+   case 'length':return `رقم مع الوحدة px أو rem بين ${f.min??0} و${f.max??128}px`;
+   case 'number':return `رقم بلا وحدة بين ${f.min} و${f.max}${f.integer?' (عدد صحيح)':''}`;
+   case 'spacing':return 'px بين -4 و8، أو em بين -0.2 و0.5، أو normal';
+   case 'font-family':return "اسم خط بين علامتي ' ' أو عائلة عامة، مفصولة بفواصل";
+   case 'color':return '#rgb أو #rrggbb أو rgb()/rgba()/hsl()';
+   case 'paint':return 'لون أو linear-gradient(...)';
+   case 'shadow':return 'none أو قيمة ظل (مثال: 0 2px 8px rgba(0,0,0,.2))';
+   default:return '';
+  }
+ }
+ /** why a pending value is refused here (same rule the site applies when it renders the value); null = fine or not checkable on this page (the server still validates every value) */
+ problem(it:IdentityItemInfo,t:IdentityTokenDef):string|null{
+  const f=this.fieldOf(t.name),e=this.state(it.key).edits[t.name];
+  if(!f||e===undefined||!e.trim())return null;
+  return safePresentationValue(f,e.trim())?null:`القيمة غير مقبولة: ${this.unitHint(t)}.`;
+ }
+ invalidEdits(it:IdentityItemInfo):IdentityTokenDef[]{return(it.tokens??[]).filter(t=>this.problem(it,t)!==null);}
  readonly scopesByToken = new Map(PRESENTATION_GROUPS.flatMap(group =>
    group.fields.map(field => [field.name, group] as const)));
  filteredTokens(it:IdentityItemInfo):IdentityTokenDef[]{const q=this.query().trim().toLowerCase();return(it.tokens??[]).filter(t=>(!this.tokenPrefix()||t.name.startsWith(this.tokenPrefix()))&&(!q||[t.name,t.label,t.default].some(v=>v.toLowerCase().includes(q))));}
@@ -81,16 +142,26 @@ export class TokenEditor implements OnInit {
      this.previewStatus.set('المتصفح لم يسمح بمعاينة هذه الصفحة.');
    }
  }
+ /** the values the site really has for a group now (measured), so a sample is drawn with the REAL look of the element, not with the editor's own styling */
+ private measuredValues(it:IdentityItemInfo,groupId:string):Record<string,string>{
+  const group=PRESENTATION_GROUPS.find(g=>g.id===groupId),out:Record<string,string>={};
+  for(const f of group?.fields??[]){
+   const t=(it.tokens??[]).find(x=>x.name===f.name);if(!t)continue;
+   const fv=this.fieldView(it,t);
+   if(fv.source==='site'&&fv.unified&&fv.editValue)out[f.name]=fv.editValue;
+  }
+  return out;
+ }
  visualStyle(it:IdentityItemInfo,id:string,preview:boolean) {
-   const values = preview ? this.desired(it) : this.activeValue(it);
+   const values = {...this.measuredValues(it,id),...(preview ? this.desired(it) : this.activeValue(it))};
    return presentationInline(id,values);
  }
  readonly walletButtons: Record<string,string> = {'client-wallet-deposit':'إيداع رصيد','provider-wallet-withdraw':'سحب الأرباح'};
  walletButtonStyle(it:IdentityItemInfo,id:string,preview:boolean){
-   const values=preview?this.desired(it):this.activeValue(it);
+   const values={...this.measuredValues(it,'button'),...this.measuredValues(it,id),...(preview?this.desired(it):this.activeValue(it))};
    return {...presentationInline('button',values),...presentationInline(id,values)};
  }
- sampleStyle(it:IdentityItemInfo,id:string){return presentationInline(id,this.reviewed(it)??this.desired(it));}
+ sampleStyle(it:IdentityItemInfo,id:string){return presentationInline(id,{...this.measuredValues(it,id),...(this.reviewed(it)??this.desired(it))});}
 
 	readonly previewFonts=inject(IdentityFontsRuntime);
  readonly store = inject(PlatformTokensStore);
@@ -102,7 +173,9 @@ export class TokenEditor implements OnInit {
 	readonly shown = computed(() => this.keys().map(k => this.store.item(k)).filter((i): i is IdentityItemInfo => !!i));
 	readonly current = computed(() => this.shown().find(i => i.key === this.active()) ?? this.shown()[0] ?? null);
 
- constructor(){effect(()=>{const values=this.ui()['tokens.typography']?.draft?.value;this.previewFonts.setItems(values?{'tokens.typography':{value:values}}:{});});}
+ constructor(){effect(()=>{const values=this.ui()['tokens.typography']?.draft?.value;this.previewFonts.setItems(values?{'tokens.typography':{value:values}}:{});});
+  // the published values changed (load / apply / restore): measure again once the site has re-applied them
+  effect(()=>{this.store.items();untracked(()=>{this.placeCache.clear();setTimeout(()=>this.measureVersion.update(v=>v+1),80);});});}
  ngOnDestroy(){this.previewFonts.setItems({});}
 	ngOnInit(): void { void Promise.resolve(this.store.load()).then(() => this.adoptStaged()); }
 
@@ -193,6 +266,8 @@ export class TokenEditor implements OnInit {
 	async stage(it: IdentityItemInfo): Promise<void> {
 		if (this.state(it.key).busy || !this.canEdit(it)) return;
 		const want = this.desired(it);
+		const bad = this.invalidEdits(it);
+		if (bad.length) { this.patch(it.key, { notice: { type: 'error', text: `قيمة غير مقبولة في: ${bad.map(b => b.label).join('، ')}.`, detail: this.unitHint(bad[0]) } }); return; }
 		if (!this.dirty(it)) { this.patch(it.key, { notice: { type: 'warn', text: 'لا تغيير لتتحقق منه: عدّل قيمة واحدة على الأقل.' } }); return; }
 		if (!Object.keys(want).length) { this.patch(it.key, { notice: { type: 'warn', text: 'كل القيم أصبحت مساوية للقيم الافتراضية للمنصة. للعودة إلى الأصل استعمل «العودة إلى الأصل».' } }); return; }
 		this.patch(it.key, { busy: 'stage', notice: null });

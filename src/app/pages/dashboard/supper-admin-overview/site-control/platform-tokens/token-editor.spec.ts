@@ -137,7 +137,8 @@ describe('platform design-token editor (central flow)', () => {
 		t.q('pt-stage-tokens.colors.dark')!.click(); await t.settle(); t.q('pt-cancel2-tokens.colors.dark')!.click(); await t.settle();
 		expect(t.api['discard']).toHaveBeenCalledWith('tokens.colors.dark', draft.versionId);
 		expect(t.q('pt-review-tokens.colors.dark')).toBeNull(); expect(t.api['publish']).not.toHaveBeenCalled();
-		expect((t.q('pt-input---teal') as HTMLInputElement).value).toBe('');
+		// the field shows the REAL value of the token again (the platform default), never an empty box with a hint
+		expect((t.q('pt-input---teal') as HTMLInputElement).value).toBe('#2bd4c7');
 	});
 
 	it('restore: back to the platform default and a previous version, both through the restore API bound to the state version', async () => {
@@ -221,6 +222,52 @@ describe('platform design-token editor (central flow)', () => {
 		it('another admin\'s draft is not adopted and not touched', async () => {
 			const t = setup(withDrafts(staged(4, { '--pg': '#222222' }, false))); await t.settle();
 			expect(t.c.state('tokens.colors.dark').draft).toBeNull(); expect(t.q('pt-review-tokens.colors.dark')).toBeNull(); expect(t.api['discard']).not.toHaveBeenCalled();
+		});
+	});
+
+	// ---- the REAL value of every control, per place (no empty box hinting at a default) ----
+	describe('real current values per place', () => {
+		const COMP = [
+			{ name: '--comp-card-radius', type: 'length' as const, label: 'البطاقات — الزوايا', default: 'inherit' },
+			{ name: '--comp-card-padding', type: 'length' as const, label: 'البطاقات — الحشو', default: 'inherit' },
+		];
+		const compItem = (o: Partial<IdentityItemInfo> = {}) => item({ key: 'tokens.components', label: 'مظهر المكوّنات', tokens: COMP as never, ...o });
+		let st: HTMLStyleElement;
+		beforeEach(() => { st = document.createElement('style'); st.textContent = '.card,.model-card,.service-card,.kpi-card,.kpi-c,.stat-card{border-radius:12px} .project-card{border-radius:16px} .card,.project-card,.model-card,.service-card,.kpi-card,.kpi-c,.stat-card{padding:20px}'; document.head.appendChild(st); });
+		afterEach(() => st.remove());
+		const open = async () => { const t = setup(overview([compItem()]), {}, () => true, ['tokens.components']); await t.settle(); t.c.measureVersion.update(v => v + 1); t.f.detectChanges(); return t; };
+
+		it('a token with no override shows the value the site really has, per place: places that DIFFER are separate rows with their names, places that agree share one row', async () => {
+			const t = await open();
+			const radius = t.c.fieldView(t.c.current()!, COMP[0] as never);
+			expect(radius.source).toBe('site'); expect(radius.sourceText).toBe('القيمة الأصلية للموقع');
+			expect(radius.rows.map(r => r.value)).toEqual(['12px (0.75rem)', '16px (1rem)']);
+			expect(radius.rows[1].places).toEqual(['بطاقة مشروع']); // the place that differs is on its own row, by name
+			expect(radius.rows[0].places).toContain('بطاقة');
+			expect(radius.unified).toBe(false); expect(radius.editValue).toBe(''); // no single value to pre-fill: the field says it unifies
+			const pad = t.c.fieldView(t.c.current()!, COMP[1] as never);
+			expect(pad.rows.length).toBe(1); expect(pad.rows[0].value).toBe('20px (1.25rem)'); expect(pad.unified).toBe(true); expect(pad.editValue).toBe('20px');
+		});
+		it('the old placeholder is gone: «افتراضي لكل موضع» never appears; values and their units are in the page', async () => {
+			const t = await open();
+			const html = t.root().innerHTML;
+			expect(html).not.toContain('افتراضي لكل موضع');
+			expect(t.q('pt-pub---comp-card-padding')?.textContent).toContain('20px (1.25rem)'); // the real value, in the row
+			expect(t.q('pt-row---comp-card-padding')?.textContent).toContain('القيمة الأصلية للموقع'); // its source, as a secondary note
+			expect((t.q('pt-input---comp-card-padding') as HTMLInputElement).value).toBe('20px'); // the field itself holds the value (no empty box)
+			expect((t.q('pt-input---comp-card-radius') as HTMLInputElement).value).toBe(''); // places differ: no single value to show, the row above lists each place's value
+			expect(t.c.unitHint(COMP[0] as never)).toContain('px أو rem');
+		});
+		it('an override is shown as «تخصيص منشور» with the original beside it; a value outside the allowed range or unit is refused with the reason and cannot be checked', async () => {
+			const active = meta({ version: 1, key: 'tokens.components', value: { '--comp-card-radius': '30px' } });
+			const t = setup(overview([compItem({ state: { stateVersion: 1, isDefault: false, active, updatedAt: null, updatedBy: null } })]), {}, () => true, ['tokens.components']); await t.settle();
+			t.c.measureVersion.update(v => v + 1); t.f.detectChanges();
+			const fv = t.c.fieldView(t.c.current()!, COMP[0] as never);
+			expect(fv.source).toBe('override'); expect(fv.sourceText).toBe('تخصيص منشور'); expect(fv.rows[0].value).toBe('30px'); expect(fv.original!.map(r => r.value)).toEqual(['12px (0.75rem)', '16px (1rem)']);
+			t.c.edit(t.c.current()!, COMP[1] as never, '5zz');
+			expect(t.c.problem(t.c.current()!, COMP[1] as never)).toContain('px أو rem');
+			t.c.edit(t.c.current()!, COMP[1] as never, '24px');
+			expect(t.c.problem(t.c.current()!, COMP[1] as never)).toBeNull();
 		});
 	});
 });
