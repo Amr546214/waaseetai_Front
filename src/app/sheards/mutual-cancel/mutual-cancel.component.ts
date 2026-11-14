@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, input, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { CancelRequest, CancelSide, MutualCancelService } from '../../core/services/mutual-cancel.service';
@@ -129,6 +129,8 @@ export class MutualCancelComponent implements OnInit {
 	variant = input<'tile' | 'card'>('tile');
 	/** why the tile is disabled (e.g. the contract is not active); null = enabled */
 	blockedReason = input<string | null>(null);
+	/** Emits the active (pending / agreed / settled) request, or null when none is open, so parents can react without extra HTTP calls. */
+	activeRequestChange = output<CancelRequest | null>();
 
 	modal = signal(false); loading = signal(true); loadError = signal(''); busy = signal(false); error = signal('');
 	requests = signal<CancelRequest[]>([]);
@@ -140,6 +142,10 @@ export class MutualCancelComponent implements OnInit {
 	openRequest = computed(() => this.requests().find(r => r.status === 'PENDING_OTHER_PARTY' || r.status === 'AGREED_PENDING_SETTLEMENT' || r.status === 'SETTLED') ?? null);
 	last = computed(() => this.requests().find(r => r.status === 'REJECTED' || r.status === 'WITHDRAWN') ?? null);
 	step = computed(() => { const r = this.openRequest(); return !r ? 1 : r.status === 'AGREED_PENDING_SETTLEMENT' || r.status === 'SETTLED' ? 3 : 2; });
+
+	constructor() {
+		effect(() => this.activeRequestChange.emit(this.openRequest()));
+	}
 
 	ngOnInit() { this.reload(); const t = setInterval(() => { if (!this.modal() && !this.busy()) this.reload(true); }, 30000); this.destroy.onDestroy(() => clearInterval(t)); }
 

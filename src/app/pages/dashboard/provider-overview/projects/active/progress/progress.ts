@@ -1,4 +1,5 @@
 import { MutualCancelComponent } from '../../../../../../sheards/mutual-cancel/mutual-cancel.component';
+import { CancelRequest } from '../../../../../../core/services/mutual-cancel.service';
 import { providerTimeZone } from '../../../../../../core/services/provider-prefs.store';
 import { Component, DestroyRef, OnInit, computed, inject, signal, ElementRef, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -117,6 +118,11 @@ export class Progress implements OnInit {
   disputeError = signal('');
   disputeSubmitted = signal(false);
   disputeFieldErrors = signal<DisputeFieldError[]>([]);
+  activeCancelRequest = signal<CancelRequest | null>(null);
+  onCancelRequestChange(req: CancelRequest | null) {
+    const active = req && (req.status === 'PENDING_OTHER_PARTY' || req.status === 'AGREED_PENDING_SETTLEMENT' || req.status === 'SETTLED') ? req : null;
+    this.activeCancelRequest.set(active);
+  }
   // P-PR-009 change-order request / mutual-cancellation modal state.
   // NOTE (anti-fabrication): there is no backend endpoint anywhere in this
   // app for creating a project change-order or a mutual-cancellation request
@@ -165,14 +171,50 @@ export class Progress implements OnInit {
     if (!this.projectId || this.loading()) return;
     this.service.getProjectProgress(this.projectId).subscribe({ next: res => { if (res?.data) this.projectData.set(res.data); }, error: () => { /* keep what is shown */ } });
   }
-  /** Why the upload button is not offered for this stage (server-provided reason), or null when there is nothing to say (done / already with the client). */
+  private isOpenDisputeStatus(status: unknown): boolean {
+    const s = typeof status === 'string' ? status.toUpperCase() : '';
+    return s === 'OPEN' || s === 'UNDER_REVIEW';
+  }
+  /** Delivery is stopped whenever a dispute (from either party) or a mutual-cancellation request/agreement is active. */
+  deliveryFreezeReason(data: any = this.projectData()): string | null {
+    if (data?.disputeFreeze?.frozen || data?.hasActiveDispute || this.isOpenDisputeStatus(data?.disputeStatus) || this.disputeSubmitted()) {
+      return 'تم إيقاف التسليم لوجود نزاع مفتوح على هذا المشروع حتى يتم حسمه من الإدارة.';
+    }
+    const req = this.activeCancelRequest();
+    if (data?.cancellationFreeze?.frozen || req) {
+      if (req?.status === 'AGREED_PENDING_SETTLEMENT' || req?.status === 'SETTLED' || data?.cancellationFreeze?.frozen) {
+        return data?.cancellationFreeze?.reason || 'تم إيقاف التسليم بعد الاتفاق على إلغاء المشروع بالتراضي.';
+      }
+      return 'تم إيقاف التسليم لوجود طلب إلغاء بالتراضي بانتظار الرد أو السحب.';
+    }
+    return null;
+  }
+  canDeliverStage(data: any, stage: any): boolean {
+    return !!(stage?.canUploadDelivery && !this.stageClosedBySettlement(stage) && !this.deliveryFreezeReason(data));
+  }
+  canDeliverEdit(data: any, edit: any): boolean {
+    return !!(edit?.status === 'waiting' && edit?.canUploadDelivery && !this.deliveryFreezeReason(data));
+  }
+  editBlockedNote(data: any, edit: any): string | null {
+    if (!edit || edit.status !== 'waiting') return null;
+    return this.deliveryFreezeReason(data) || (!edit.canUploadDelivery ? (edit.uploadBlockedReason || null) : null);
+  }
+  /** Why the upload button is not offered for this stage (server-provided reason or freeze reason), or null when there is nothing to say (done / already with the client). */
   uploadBlockedNote(stage: any): string | null {
-    if (!stage || stage.canUploadDelivery || stage.status === 'completed' || stage.status === 'submitted') return null;
+    if (!stage || stage.status === 'completed' || stage.status === 'submitted' || this.stageClosedBySettlement(stage)) return null;
+    const freeze = this.deliveryFreezeReason();
+    if (freeze) return freeze;
+    if (stage.canUploadDelivery) return null;
     return stage.uploadBlockedReason || null;
   }
   setDeliveryFilter(filter: 'all' | 'pending' | 'approved' | 'notes') { this.deliveryFilter.set(filter); }
   setEditFilter(filter: 'all' | 'waiting') { this.editFilter.set(filter); }
-  openDelivery(stage: any) { if (stage?.canUploadDelivery === false) { this.error.set(stage.uploadBlockedReason || 'هذه المرحلة غير متاحة للتسليم حالياً'); return; } this.deliveryStage.set(stage); this.deliveryNote = ''; this.deliveryLinks = ''; this.cancelAllUploads(); this.deliveryFileError.set(''); this.deliveryStep.set(1); this.deliverySuccess = false; this.cancelAllUploads(); this.deliveryFileError.set(''); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; } }
+  openDelivery(stage: any) {
+    const freeze = this.deliveryFreezeReason();
+    if (freeze) { this.error.set(freeze); return; }
+    if (stage?.canUploadDelivery === false) { this.error.set(stage.uploadBlockedReason || 'هذه المرحلة غير متاحة للتسليم حالياً'); return; }
+    this.deliveryStage.set(stage); this.deliveryNote = ''; this.deliveryLinks = ''; this.cancelAllUploads(); this.deliveryFileError.set(''); this.deliveryStep.set(1); this.deliverySuccess = false; this.cancelAllUploads(); this.deliveryFileError.set(''); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; }
+  }
   closeDelivery() { if (!this.saving()) { this.deliveryStage.set(null); this.deliveryStep.set(1); this.deliverySuccess = false; this.cancelAllUploads(); this.deliveryFileError.set(''); this.aiCheckState.set('idle'); this.aiProgress.set(0); if (this.aiTimer) { clearInterval(this.aiTimer); this.aiTimer = null; } } }
   openConversation(stage?: any) {
     const data = this.projectData();
@@ -323,6 +365,8 @@ export class Progress implements OnInit {
   submitDelivery() {
     const stage = this.deliveryStage();
     if (!stage) return;
+    const freeze = this.deliveryFreezeReason();
+    if (freeze) { this.error.set(freeze); return; }
     // The server decides whether this stage can be submitted now (canSubmitDelivery + uploadBlockedReason): never recompute it here.
     if (stage.canSubmitDelivery === false) { this.error.set(stage.uploadBlockedReason || 'هذه المرحلة غير متاحة لإرسال التسليم حالياً'); return; }
     const blocker = this.deliveryBlocker();
