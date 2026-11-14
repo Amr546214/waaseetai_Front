@@ -43,14 +43,14 @@ describe('provider withdraw: form wiring and no ready-made amounts', () => {
 		expect(fixture.componentInstance.amount()).toBeNull();
 		expect(amt().getAttribute('placeholder')).toBe('أدخل المبلغ بالدولار');
 		const chips = Array.from(el().querySelectorAll('.wd-quick-btn')).map(b => b.textContent!.trim());
-		expect(chips).toEqual(['25%', '50%', '75%', 'الحد الأقصى']);
+		expect(chips).toEqual(['25%', '50%', '75%', 'كامل الرصيد']);
 		(el().querySelectorAll('.wd-quick-btn')[1] as HTMLButtonElement).click();
 		expect(fixture.componentInstance.amount()).toBe(2000);
 	});
 
 	it('with no available balance there are no share chips (only the max button)', async () => {
 		await setup('me@example.com', 0);
-		expect(Array.from(el().querySelectorAll('.wd-quick-btn')).map(b => b.textContent!.trim())).toEqual(['الحد الأقصى']);
+		expect(Array.from(el().querySelectorAll('.wd-quick-btn')).map(b => b.textContent!.trim())).toEqual(['كامل الرصيد']);
 	});
 
 	it('empty submit: aria-invalid + describedby -> role=alert message, focus on the amount, no request', async () => {
@@ -78,13 +78,13 @@ describe('provider withdraw: form wiring and no ready-made amounts', () => {
 
 	it('backend 422 naming the amount lands at the amount field and keeps what was typed', async () => {
 		await setup('me@example.com', 500, () => throwError(() => httpFail(422, { errors: [{ field: 'amount', message: 'المبلغ أقل من الحد الأدنى للسحب' }] })));
-		typeAmt('5');
+		typeAmt('15');
 		btn().click(); fixture.detectChanges(); await settleForm(); fixture.detectChanges();
 		expect(submit).toHaveBeenCalledTimes(1);
 		expect(el().querySelector('[data-testid=wd-amount-error]')!.textContent).toContain('أقل من الحد الأدنى');
 		expect(amt().getAttribute('aria-invalid')).toBe('true');
 		expectFocused(amt());
-		expect(amt().value).toBe('5');
+		expect(amt().value).toBe('15');
 		expect(fixture.componentInstance.submitting()).toBe(false);
 	});
 

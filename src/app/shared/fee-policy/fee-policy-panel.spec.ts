@@ -8,7 +8,7 @@ import { ConfirmModalService } from '../../core/services/confirm-modal.service';
 const payload = (): FeePolicyPayload => ({
 	providerCommissionByLevel: Array(15).fill(10), clientCashbackByLevel: Array(15).fill(1), marketerCommissionByLevel: Array(15).fill(2),
 	depositFeePercent: { mada: 4, visa_mastercard: 5, paypal: 7, international_transfer: 7, other: 8 },
-	marketerWithdrawalFeePercent: { bank_transfer: 8, paypal: 7, usdt: 4 }, minMarketerPayout: 300, minProviderPayout: 0,
+	marketerWithdrawalFeePercent: { bank_transfer: 8, paypal: 7, usdt: 4 }, minMarketerPayout: 10, minProviderPayout: 10,
 });
 const view = (upcoming: FeePolicyView['upcoming'] = []): FeePolicyView => ({ active: { id: 'a', version: 1, effectiveFrom: '2000-01-01T00:00:00Z', payload: payload(), note: null, createdById: null, createdAt: '', cancelledAt: null, state: 'EFFECTIVE' }, upcoming, history: [], limits: { minLeadMinutes: 15, maxLeadDays: 366 }, now: '' });
 
@@ -27,16 +27,16 @@ describe('FeePolicyPanel', () => {
 	});
 	it('sends only the changed keys with the base version and the confirmation flag', async () => {
 		const { c, api } = await setup(view());
-		c.setMin('minMarketerPayout', '250'); c.note.set('reason');
+		c.setTable('depositFeePercent', 'paypal', '6'); c.note.set('reason');
 		await c.submit();
 		const body = (api.schedule.mock.lastCall as any[])[0];
-		expect(body.changes).toEqual({ minMarketerPayout: 250 });
+		expect(body.changes).toEqual({ depositFeePercent: expect.objectContaining({ paypal: 6 }) });
 		expect(body.baseVersion).toBe(1); expect(body.confirmSensitive).toBe(true);
 	});
 	it('writes nothing when the confirmation is declined or the reason is empty', async () => {
-		const a = await setup(view(), true, false); a.c.setMin('minMarketerPayout', '250'); a.c.note.set('r'); await a.c.submit(); expect(a.api.schedule).not.toHaveBeenCalled();
+		const a = await setup(view(), true, false); a.c.setTable('depositFeePercent', 'paypal', '6'); a.c.note.set('r'); await a.c.submit(); expect(a.api.schedule).not.toHaveBeenCalled();
 		TestBed.resetTestingModule();
-		const b = await setup(view()); b.c.setMin('minMarketerPayout', '250'); await b.c.submit(); expect(b.api.schedule).not.toHaveBeenCalled(); expect(b.c.formError()).toContain('سبب');
+		const b = await setup(view()); b.c.setTable('depositFeePercent', 'paypal', '6'); await b.c.submit(); expect(b.api.schedule).not.toHaveBeenCalled(); expect(b.c.formError()).toContain('سبب');
 	});
 	it('is read-only without fees.manage and while a version is pending', async () => {
 		const a = await setup(view(), false); expect(a.c.editable()).toBe(false);
@@ -54,14 +54,20 @@ describe('FeePolicyPanel', () => {
 		expect(el.querySelector('[data-testid="fp-display-only"]')?.textContent).toContain('لا تُطبَّق ماليًا');
 		const cashback = el.querySelectorAll('[data-testid="fp-ladders"] tbody tr td:nth-child(3) input');
 		expect(cashback.length).toBe(15); expect(Array.from(cashback).every(i => (i as HTMLInputElement).disabled)).toBe(true);
-		c.setMin('minProviderPayout', '5'); c.note.set('r'); await c.submit();
-		expect(Object.keys((api.schedule.mock.lastCall as any[])[0].changes)).toEqual(['minProviderPayout']);
+		c.setTable('depositFeePercent', 'paypal', '6'); c.note.set('r'); await c.submit();
+		expect(Object.keys((api.schedule.mock.lastCall as any[])[0].changes)).toEqual(['depositFeePercent']); // never the display-only fields, never the withdrawal minimum
+	});
+	it('the withdrawal minimum is shown as ONE fixed platform rule (10 for both roles): disabled, never part of a change', async () => {
+		const { f } = await setup(view()); f.detectChanges();
+		const el = f.nativeElement as HTMLElement;
+		for (const id of ['fp-min-marketer', 'fp-min-provider']) { const i = el.querySelector(`[data-testid="${id}"]`) as HTMLInputElement; expect(i.disabled).toBe(true); expect(i.value).toBe('10'); }
+		expect(el.textContent).toContain('ثابت للمنصة');
 	});
 	it('types the effective time in the platform zone and sends the matching UTC instant', async () => {
 		const { setPlatformRegional } = await import('../../core/utils/regional');
 		setPlatformRegional({ defaultTimezone: 'Asia/Riyadh' });
 		try {
-			const { c, api } = await setup(view()); c.setMin('minProviderPayout', '5'); c.note.set('r'); c.effectiveFrom.set('2030-03-10T09:30');
+			const { c, api } = await setup(view()); c.setTable('depositFeePercent', 'paypal', '6'); c.note.set('r'); c.effectiveFrom.set('2030-03-10T09:30');
 			await c.submit(); expect((api.schedule.mock.lastCall as any[])[0].effectiveFrom).toBe('2030-03-10T06:30:00.000Z');
 			expect(c.zoneLabel()).toBe('Asia/Riyadh');
 		} finally { setPlatformRegional({}); }
@@ -77,7 +83,7 @@ describe('FeePolicyPanel', () => {
 		await f.componentInstance.load(); f.detectChanges();
 		expect(el.querySelector('[data-testid="fp-load-error"]')?.textContent).toContain('تعذّر تحميل'); expect(el.querySelector('[data-testid="fp-retry"]')).toBeTruthy();
 		expect(el.querySelectorAll('input').length).toBe(0); expect(el.querySelector('[data-testid="fp-submit"]')).toBeNull();
-		expect(f.componentInstance.view()?.active.payload.minMarketerPayout).toBe(300); // the loaded values are kept, just not offered for editing
+		expect(f.componentInstance.view()?.active.payload.minMarketerPayout).toBe(10); // the loaded values are kept, just not offered for editing
 		await f.componentInstance.load(); f.detectChanges();
 		expect(el.querySelector('[data-testid="fp-load-error"]')?.textContent).toContain('ليست لديك صلاحية'); expect(el.querySelector('[data-testid="fp-retry"]')).toBeNull();
 	});

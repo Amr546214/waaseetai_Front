@@ -43,6 +43,8 @@ export class Withdraw implements OnInit {
     const s = this.wallet()?.summary;
     return Math.max(0, s?.withdrawableBalance ?? s?.availableBalance ?? 0);
   });
+  /** The platform minimum (the server's figure; 10 USD for every role): there is NO maximum other than the withdrawable balance. */
+  minimumWithdrawal = computed(() => (this.wallet()?.summary as { minimumWithdrawal?: number } | undefined)?.minimumWithdrawal ?? 10);
   pendingWithdrawals = computed(() => this.wallet()?.summary?.pendingWithdrawals ?? 0);
   totalEarnings = computed(() => this.wallet()?.summary?.totalEarnings ?? 0);
   escrowBalance = computed(() => this.wallet()?.summary?.escrowBalance ?? 0);
@@ -216,6 +218,8 @@ export class Withdraw implements OnInit {
       errors['amount'] = 'المبلغ مطلوب';
     } else if (amt <= 0) {
       errors['amount'] = 'المبلغ يجب أن يكون أكبر من صفر';
+    } else if (amt < this.minimumWithdrawal()) {
+      errors['amount'] = `الحد الأدنى لطلب السحب ${this.minimumWithdrawal()} ${this.currency()}`;
     } else if (amt > avail) {
       errors['amount'] = this.insufficientMessage();
     }

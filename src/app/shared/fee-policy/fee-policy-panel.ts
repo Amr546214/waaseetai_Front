@@ -59,7 +59,6 @@ export class FeePolicyPanel implements OnInit {
 	}
 	setLadder(key: 'providerCommissionByLevel' | 'clientCashbackByLevel' | 'marketerCommissionByLevel', i: number, raw: string) { this.draft.update(d => d && ({ ...d, [key]: d[key].map((v, k) => (k === i ? num(raw) : v)) })); this.clearMessages(); }
 	setTable(key: 'depositFeePercent' | 'marketerWithdrawalFeePercent', k: string, raw: string) { this.draft.update(d => d && ({ ...d, [key]: { ...d[key], [k]: num(raw) } })); this.clearMessages(); }
-	setMin(key: 'minMarketerPayout' | 'minProviderPayout', raw: string) { this.draft.update(d => d && ({ ...d, [key]: num(raw) })); this.clearMessages(); }
 	private clearMessages() { this.formError.set(''); this.fieldErrors.set([]); this.notice.set(''); }
 	reset() { const v = this.view(); if (v) this.draft.set(clone(v.active.payload)); this.clearMessages(); }
 

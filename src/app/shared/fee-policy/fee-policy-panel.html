@@ -44,9 +44,10 @@
         <fieldset class="fp-fs"><legend>رسوم سحب الوسيط % <span class="fp-tag">للعرض فقط</span></legend>
           @for (k of withdrawKeys; track k) { <label class="fp-row">{{ withdrawLabels[k] }}<input class="fp-in" type="number" step="0.01" [value]="d.marketerWithdrawalFeePercent[k]" disabled /></label> }
         </fieldset>
-        <fieldset class="fp-fs"><legend>الحد الأدنى للسحب</legend>
-          <label class="fp-row">الوسيط<input class="fp-in" type="number" step="0.01" [value]="d.minMarketerPayout" [disabled]="!editable()" (input)="setMin('minMarketerPayout', $any($event.target).value)" /></label>
-          <label class="fp-row">مقدم الخدمة (0 = بلا حد)<input class="fp-in" type="number" step="0.01" [value]="d.minProviderPayout" [disabled]="!editable()" (input)="setMin('minProviderPayout', $any($event.target).value)" /></label>
+        <fieldset class="fp-fs"><legend>الحد الأدنى للسحب <span class="fp-tag">ثابت للمنصة</span></legend>
+          <label class="fp-row">الوسيط<input class="fp-in" type="number" step="0.01" [value]="d.minMarketerPayout" disabled data-testid="fp-min-marketer" /></label>
+          <label class="fp-row">مقدم الخدمة<input class="fp-in" type="number" step="0.01" [value]="d.minProviderPayout" disabled data-testid="fp-min-provider" /></label>
+          <small class="fp-note">قاعدة واحدة لكل الحسابات: 10 دولار كحد أدنى، ولا يوجد حد أقصى غير الرصيد المتاح. لا تتغيّر من سياسة الرسوم.</small>
         </fieldset>
       </div>
 

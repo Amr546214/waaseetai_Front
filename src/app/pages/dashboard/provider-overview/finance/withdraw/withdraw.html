@@ -102,7 +102,7 @@
         </div>
       </div>
     </div>
-    <div class="wal-main-sub">الحد الأقصى المتاح للسحب في هذه العملية@if (pendingWithdrawals() > 0) { <span data-testid="wd-pending-note"> · طلبات سحب قيد المعالجة: {{ pendingWithdrawals() | number:'1.0-2' }} {{ currency() }}</span> }</div>
+    <div class="wal-main-sub">المتاح للسحب في هذه العملية@if (pendingWithdrawals() > 0) { <span data-testid="wd-pending-note"> · طلبات سحب قيد المعالجة: {{ pendingWithdrawals() | number:'1.0-2' }} {{ currency() }}</span> }</div>
   }
 
   <!-- Submit form -->
@@ -148,7 +148,7 @@
         @if (formErrors()['amount']; as err) {
           <div class="wd-field-err" id="wdAmt-err" role="alert" data-testid="wd-amount-error">{{ err }}</div>
         } @else {
-          <div class="wd-field-hint" id="wdAmt-hint">الحد الأقصى المتاح: {{ availableBalance() | number:'1.0-2' }} {{ currency() }}@if (availableBalance() <= 0) { <span data-testid="wd-zero-balance"> · لا يوجد رصيد متاح للسحب حاليًا</span> }</div>
+          <div class="wd-field-hint" id="wdAmt-hint">الحد الأدنى: {{ minimumWithdrawal() | number:'1.0-2' }} {{ currency() }} · المتاح للسحب: {{ availableBalance() | number:'1.0-2' }} {{ currency() }}@if (availableBalance() <= 0) { <span data-testid="wd-zero-balance"> · لا يوجد رصيد متاح للسحب حاليًا</span> }</div>
         }
         <div class="wd-quick-amts">
           @if (availableBalance() > 0) {
@@ -156,7 +156,7 @@
               <button type="button" class="wd-quick-btn" (click)="setAmount(quickAmount(share))">{{ share }}%</button>
             }
           }
-          <button type="button" class="wd-quick-btn wd-quick-max" (click)="setAmount(availableBalance())">الحد الأقصى</button>
+          <button type="button" class="wd-quick-btn wd-quick-max" (click)="setAmount(availableBalance())">كامل الرصيد</button>
         </div>
       </div>
 
