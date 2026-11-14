@@ -1,4 +1,41 @@
-<div class="accounts-wrap"><header class="panel-header"><h1>هوية المستويات والشارات</h1><p class="sub">الأسماء والنسب والحدود تُقرأ من الخادم. هنا تتحكم في شكل الشارة لكل نوع حساب ومستوى، وليس في حساب العمولات أو أرصدة المستخدمين.</p></header><nav aria-label="نوع الحساب">@for(r of roles;track r.id){<button type="button" (click)="role.set(r.id);index.set(1)" [attr.aria-pressed]="role()===r.id">{{r.label}}</button>}</nav>
-@if(busy()){<p role="status">جارٍ تحميل المستويات…</p>}@if(error()){<p role="alert">{{error()}}<button type="button" (click)="reload()">إعادة المحاولة</button></p>}
-<div class="levels-grid">@for(row of rows();track row.level){<button type="button" (click)="index.set(row.level)" [attr.aria-pressed]="index()===row.level"><ws-level-badge [level]="display(row)" /> <span>المستوى {{row.level}}</span></button>}</div>
-<sc-token-editor [keys]="['tokens.components']" [tokenPrefix]="prefix()" title="شكل شارة المستوى المنشور" /></div>
+<div class="accounts-wrap">
+<header class="panel-header"><h1>هوية المستويات والشارات</h1><p class="sub">الأسماء والنسب والحدود تُقرأ من الخادم. من هنا تغيّر <strong>اسم</strong> كل مستوى و<strong>لونه</strong> (داكن وفاتح)؛ يُحفظ على الخادم ويظهر على الموقع كله لكل المستخدمين. لا يغيّر النسب ولا حدود الترقية ولا حسابات العمولات أو الأرصدة.</p></header>
+<nav class="role-tabs" role="tablist" aria-label="نوع الحساب" data-testid="level-roles">@for (r of roles; track r.id) {<button type="button" role="tab" class="role-tab" [class.active]="role() === r.id" (click)="pickRole(r.id)" [attr.aria-selected]="role() === r.id" [attr.data-testid]="'level-role-' + r.id">{{ r.label }}</button>}</nav>
+@if (busy()) {<p class="state" role="status">جارٍ تحميل المستويات…</p>}
+@if (error()) {<p class="note note-error" role="alert">{{ error() }} <button type="button" class="btn-secondary" (click)="reload()">إعادة المحاولة</button></p>}
+<div class="levels-grid" data-testid="level-grid">@for (row of rows(); track row.level) {<button type="button" class="level-pick" [class.active]="index() === row.level" (click)="pickLevel(row.level)" [attr.aria-pressed]="index() === row.level" [attr.data-testid]="'level-pick-' + row.level"><ws-level-badge [level]="display(row)" /><span class="level-n">المستوى {{ row.level }}</span>@if (rowOf(row.level); as r) { @if (isEdited(r)) { <span class="chip chip-ok" title="معدَّل عن الأصل">معدَّل</span> } }</button>}</div>
+@if (current(); as c) { @if (draft(); as d) {
+<section class="id-editor" data-testid="level-editor" [attr.aria-label]="'تعديل المستوى ' + c.level">
+  <h2>المستوى {{ c.level }} — {{ c.defaultName }} <small class="muted">(الاسم الأصلي)</small></h2>
+  <div class="id-grid">
+    <div class="id-field">
+      <label for="lv-name">اسم المستوى</label>
+      <input id="lv-name" type="text" class="txt" [value]="d.name" [attr.maxlength]="nameMax()" (input)="setName($any($event.target).value)" [attr.aria-invalid]="nameProblem() ? 'true' : null" data-testid="level-name-input" autocomplete="off">
+      <small class="muted">حتى {{ nameMax() }} حرفًا؛ لا يتكرر داخل القائمة نفسها.</small>
+      @if (nameProblem(); as p) { <small class="problem" role="alert" data-testid="level-name-problem">{{ p }}</small> }
+      @if (d.name.trim() !== c.defaultName) { <button type="button" class="btn-link" (click)="resetName()" data-testid="level-name-reset">إرجاع الاسم الأصلي</button> }
+    </div>
+    @for (t of themes; track t) {
+    <div class="id-field">
+      <label [attr.for]="'lv-' + t">{{ t === 'dark' ? 'لون الوضع الداكن' : 'لون الوضع الفاتح' }}</label>
+      <span class="colour-row"><input type="color" class="clr" [value]="t === 'dark' ? d.dark : d.light" (input)="setColour(t, $any($event.target).value)" [attr.aria-label]="'منتقي ' + (t === 'dark' ? 'اللون الداكن' : 'اللون الفاتح')" [attr.data-testid]="'level-' + t + '-picker'">
+      <input [id]="'lv-' + t" type="text" class="txt" dir="ltr" [value]="t === 'dark' ? d.dark : d.light" (input)="setColour(t, $any($event.target).value)" [attr.aria-invalid]="(t === 'dark' ? darkProblem() : lightProblem()) ? 'true' : null" [attr.data-testid]="'level-' + t + '-input'" spellcheck="false" autocomplete="off"></span>
+      @if ((t === 'dark' ? darkProblem() : lightProblem()); as p) { <small class="problem" role="alert">{{ p }}</small> }
+      @if ((t === 'dark' ? d.dark : d.light).toUpperCase() !== c.defaultColor[t].toUpperCase()) { <button type="button" class="btn-link" (click)="resetColour(t)" [attr.data-testid]="'level-' + t + '-reset'">إرجاع اللون الأصلي ({{ c.defaultColor[t] }})</button> }
+    </div>
+    }
+  </div>
+  <div class="id-preview" data-testid="level-preview" aria-label="معاينة">
+    <span class="muted">معاينة قبل الحفظ:</span>
+    <span class="pv pv-dark"><ws-level-badge [level]="preview()" variant="hero" /></span>
+    <span class="pv pv-light"><ws-level-badge [level]="preview()" /></span>
+  </div>
+  @if (notice(); as n) { <p class="note" [class.note-ok]="n.type === 'ok'" [class.note-error]="n.type !== 'ok'" role="status" [attr.data-testid]="'level-notice-' + n.type">{{ n.text }} @if (n.type === 'conflict') { <button type="button" class="btn-secondary" (click)="reloadAfterConflict()" data-testid="level-conflict-reload">إعادة تحميل الحالة الحالية</button> }</p> }
+  <div class="id-actions">
+    <button type="button" class="btn-save" [disabled]="!canSave()" (click)="save()" data-testid="level-save">{{ saving() ? 'جارٍ الحفظ…' : 'حفظ على الموقع كله' }}</button>
+    <button type="button" class="btn-secondary" [disabled]="!changes() || saving()" (click)="revert()" data-testid="level-revert">تراجع عن التعديل</button>
+  </div>
+</section> } }
+<details class="adv"><summary>تخصيص متقدم لشكل الشارة (ألوان النص والخلفية والحد)</summary>
+<sc-token-editor [keys]="['tokens.components']" [tokenPrefix]="prefix()" title="شكل شارة المستوى المنشور" /></details>
+</div>

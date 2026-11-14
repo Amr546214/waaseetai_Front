@@ -1,7 +1,7 @@
 // ONE level display model for every role and every page: name, colour pair, icon, percentage and its label. Nothing here is typed per page: the colours come
 // from the brand formula (core/levels/level-colors.ts, pinned to the backend), the numbers from the backend `levelInfo` payload (utils/level-info.ts), and the
 // provider titles that older endpoints still return as plain strings are read back to their level.
-import { levelColor, providerLevelOfTitle, PROVIDER_LEVEL_NAMES, type LevelRole } from './level-colors';
+import { levelColor, providerLevelName, providerLevelOfTitle, type LevelRole } from './level-colors';
 
 export type LevelPercentKind = 'PLATFORM_COMMISSION' | 'EARNED_COMMISSION' | 'CASHBACK';
 
@@ -58,7 +58,7 @@ export function providerLevelDisplayFromTitle(title: string | null | undefined, 
 	const text = (title ?? '').trim();
 	const index = providerLevelOfTitle(text);
 	if (index === null) return text ? { role: 'PROVIDER', index: null, total: 15, name: text, percent: null, percentKind: null, color: { ...UNKNOWN_LEVEL_COLOR } } : (fallbackName ? { role: 'PROVIDER', index: null, total: 15, name: fallbackName, percent: null, percentKind: null, color: { ...UNKNOWN_LEVEL_COLOR } } : null);
-	return { role: 'PROVIDER', index, total: 15, name: PROVIDER_LEVEL_NAMES[index - 1], percent: null, percentKind: null, color: { dark: levelColor('PROVIDER', index, 'dark'), light: levelColor('PROVIDER', index, 'light') } };
+	return { role: 'PROVIDER', index, total: 15, name: providerLevelName(index), percent: null, percentKind: null, color: { dark: levelColor('PROVIDER', index, 'dark'), light: levelColor('PROVIDER', index, 'light') } };
 }
 
 /** Best display from whatever a page has: the backend payload first, then a provider title. */

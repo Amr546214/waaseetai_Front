@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { setRuntimeLevels } from './level-colors';
 
 export interface LevelRow {
 	level: number;
@@ -38,14 +39,24 @@ export class LevelsService {
 		if (this.requested) return;
 		this.requested = true;
 		this.http.get<{ success: boolean; data: LevelsPayload }>(`${environment.url_api}/levels`).subscribe({
-			next: r => { if (r?.success && r.data) this.payload.set(r.data); },
+			next: r => { if (r?.success && r.data) this.adopt(r.data); },
 			error: () => { this.requested = false; },
 		});
 	}
 
 	load(): Observable<{ success: boolean; data: LevelsPayload }> {
-		return this.http.get<{ success: boolean; data: LevelsPayload }>(`${environment.url_api}/levels`).pipe(tap(r => { if (r?.success && r.data) this.payload.set(r.data); }));
+		return this.http.get<{ success: boolean; data: LevelsPayload }>(`${environment.url_api}/levels`).pipe(tap(r => { if (r?.success && r.data) this.adopt(r.data); }));
 	}
+
+	/** keep the answer, and tell the level helpers what the server publishes (names + colours incl. the owner's edits) */
+	private adopt(data: LevelsPayload): void {
+		this.payload.set(data);
+		const of = (r: RoleLevels | undefined) => (r?.levels ?? []).map(l => ({ name: l.name, color: l.color }));
+		setRuntimeLevels({ PROVIDER: of(data.roles?.PROVIDER), CLIENT: of(data.roles?.CLIENT), MARKETER: of(data.roles?.MARKETER) });
+	}
+
+	/** an open session follows a rename / recolour: re-read only when the table was already needed on this page (no extra request for pages that never showed a level) */
+	refreshIfLoaded(): void { if (this.payload()) this.load().subscribe({ error: () => undefined }); }
 
 	/** Minimum payout from the ACTIVE fee policy (null until loaded); 0 provider minimum = none. */
 	readonly minMarketerPayout = computed(() => this.payload()?.payments?.minMarketerPayout ?? null);

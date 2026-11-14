@@ -30,13 +30,33 @@ function hslToHex(h: number, s: number, l: number): string {
 	return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
 }
 
-export function levelColor(role: LevelRole, level: number, theme: 'dark' | 'light' = 'dark'): string {
+/** the brand-formula colour, ignoring any published override */
+export function defaultLevelColor(role: LevelRole, level: number, theme: 'dark' | 'light' = 'dark'): string {
 	const station = levelStation(level);
 	return hslToHex(LEVEL_STATION_HUES[role][station - 1], LEVEL_SATURATION[role], LEVEL_LIGHTNESS[theme][station - 1]);
 }
 
-/** Level (1..15) of a provider title such as "خبير", or null when the title is not one of the 15 names. */
+/**
+ * What the server publishes for each level right now (GET /levels: name + colour pair, which already include the owner's edits of «هوية المستويات»). Pages that only have a level NUMBER
+ * or a provider title (no backend payload) read this so they follow a rename / recolour too; empty until /levels has answered (then the workbook names and the brand formula apply).
+ */
+export interface RuntimeLevel { name: string; color: { dark: string; light: string } }
+let runtime: Partial<Record<LevelRole, readonly RuntimeLevel[]>> = {};
+export const setRuntimeLevels = (next: Partial<Record<LevelRole, readonly RuntimeLevel[]>>): void => { runtime = next; };
+const runtimeOf = (role: LevelRole, level: number): RuntimeLevel | undefined => runtime[role]?.[clampLevel(level) - 1];
+
+export function levelColor(role: LevelRole, level: number, theme: 'dark' | 'light' = 'dark'): string {
+	return runtimeOf(role, level)?.color[theme] ?? defaultLevelColor(role, level, theme);
+}
+
+/** the provider level name as published now (falls back to the workbook name) */
+export const providerLevelName = (level: number): string => runtimeOf('PROVIDER', level)?.name ?? PROVIDER_LEVEL_NAMES[clampLevel(level) - 1];
+
+/** Level (1..15) of a provider title such as "خبير" (the published name or the workbook name), or null when the title is not one of the 15 names. */
 export const providerLevelOfTitle = (title: string | null | undefined): number | null => {
-	const i = title ? PROVIDER_LEVEL_NAMES.indexOf(title.trim()) : -1;
+	const t = title?.trim();
+	if (!t) return null;
+	const live = runtime.PROVIDER?.findIndex(l => l.name === t) ?? -1;
+	const i = live >= 0 ? live : PROVIDER_LEVEL_NAMES.indexOf(t);
 	return i >= 0 ? i + 1 : null;
 };

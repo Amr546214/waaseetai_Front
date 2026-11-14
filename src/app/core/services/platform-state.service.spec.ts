@@ -10,6 +10,7 @@ import { io } from 'socket.io-client';
 import { PlatformInfoService } from './platform-info.service';
 import { PlatformStateService } from './platform-state.service';
 import { SiteIdentityService } from '../identity/site-identity.service';
+import { LevelsService } from '../levels/levels.service';
 
 const URL = () => `${environment.url_api}/public/platform-state`;
 const st = (on: boolean, revision: number, message = 'نعود قريبًا') => ({ success: true, data: { maintenance: { on, message: on ? message : '' }, revision } });
@@ -59,5 +60,12 @@ describe('PlatformStateService: live maintenance without a click or a reload', (
 		expect(on.mock.calls.filter(c => c[0] === 'identity:changed').length).toBe(1);
 		vi.advanceTimersByTime(10 * 60_000); expect(refresh).toHaveBeenCalledTimes(3);
 		http.match(URL());
+	});
+
+	it('levels:changed re-reads the level table only when a page already uses it (one read per event, none otherwise)', () => {
+		const lv = TestBed.inject(LevelsService); const load = vi.spyOn(lv, 'load').mockReturnValue({ subscribe: () => undefined } as never);
+		svc.start(); http.expectOne(URL()).flush(st(false, 1));
+		handlers['levels:changed']({ at: 1 }); expect(load).not.toHaveBeenCalled(); // nothing on this page showed a level
+		lv.payload.set({ version: 1 } as never); handlers['levels:changed']({ at: 2 }); expect(load).toHaveBeenCalledTimes(1);
 	});
 });
