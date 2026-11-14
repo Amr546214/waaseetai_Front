@@ -116,9 +116,9 @@
 .cmp-bar.show{display:flex;animation:ws-fade .2s ease}
 .cmp-bar-txt{font-size:var(--font-size-label);font-weight:700;color:#A8B2D1}
 .cmp-bar-txt strong{color:var(--teal-txt,#2BD4C7);font-size:var(--font-size-body)}
-.cmp-bar-btn{padding:11px 26px;border-radius:10px;font-size:var(--font-size-label);font-weight:800;cursor:pointer;font-family:inherit;border:none;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24}
-.cmp-bar-btn:disabled{opacity:.4;cursor:not-allowed}
-.cmp-bar-cancel{padding:11px 18px;border-radius:10px;font-size:var(--font-size-label);font-weight:700;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#A8B2D1}
+.req-details-page .cmp-bar-btn{padding:11px 26px;border-radius:10px;font-size:var(--font-size-label);font-weight:800;cursor:pointer;font-family:inherit;border:none;background:linear-gradient(135deg,#2BD4C7,#2B7FFF);color:#070D24}
+.req-details-page .cmp-bar-btn:disabled{opacity:.4;cursor:not-allowed}
+.req-details-page .cmp-bar-cancel{padding:11px 18px;border-radius:10px;font-size:var(--font-size-label);font-weight:700;cursor:pointer;font-family:inherit;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#A8B2D1}
 
 .modal-ov{position:fixed;inset:0;background:rgba(3,7,20,.72);backdrop-filter:blur(4px);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-ov.show{display:flex;animation:ws-fade .2s ease both}
