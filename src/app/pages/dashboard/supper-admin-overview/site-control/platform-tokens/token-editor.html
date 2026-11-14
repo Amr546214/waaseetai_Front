@@ -1,10 +1,41 @@
+
+<ng-template #placeEditors let-it="it" let-t="t" let-table="table">
+  @let pds = placeDefs(it, t);
+  @if (pds.length) {
+    <div class="pt-place-list" [attr.data-testid]="(table ? 'pt-tplaces-' : 'pt-places-') + t.name">
+      <strong>كل موضع على حدة</strong>
+      <small class="muted">قيمة الموضع تغلب القيمة العامة لهذا الموضع وحده، ولا تمسّ المواضع الأخرى.</small>
+      @for (pd of pds; track pd.def.name) {
+        @let pv = fieldView(it, pd.def);
+        <div class="pt-place-ed" [class.pt-edited]="isEdited(it, pd.def)" [attr.data-testid]="(table ? 'pt-tplace-' : 'pt-place-') + pd.def.name">
+          <label [attr.for]="(table ? 'pt-tf-' : 'pt-f-') + pd.def.name">{{ pd.label }} <span class="chip chip-muted">{{ pv.sourceText }}</span></label>
+          <div class="pt-current"><ng-container *ngTemplateOutlet="valueRows; context: { rows: pv.rows, shared: false, compact: true }" /></div>
+          <input [id]="(table ? 'pt-tf-' : 'pt-f-') + pd.def.name" class="pt-text" type="text" dir="ltr" [value]="fieldText(it, pd.def)" (change)="onText(it, pd.def, $event)" [disabled]="state(it.key).busy !== null"
+            [attr.aria-label]="'قيمة ' + pd.label" [attr.aria-invalid]="problem(it, pd.def) ? 'true' : null" [attr.data-testid]="(table ? 'pt-tinput-' : 'pt-input-') + pd.def.name" spellcheck="false" autocomplete="off">
+          @if (problem(it, pd.def); as pr) { <small class="pt-problem" role="alert" [attr.data-testid]="'pt-problem-' + pd.def.name">{{ pr }}</small> } @else if (unitHint(pd.def)) { <small class="muted">{{ unitHint(pd.def) }}</small> }
+          @if (isEdited(it, pd.def) || isOverridden(it, pd.def)) { <button type="button" class="btn-link" (click)="resetRow(it, pd.def)" [attr.data-testid]="(table ? 'pt-treset-' : 'pt-reset-') + pd.def.name">إرجاع هذا الموضع للأصل</button> }
+        </div>
+      }
+    </div>
+  }
+</ng-template>
+<ng-template #valueRows let-rows="rows" let-shared="shared" let-compact="compact">
+  @for (r of rows; track $index) {
+    <div class="pt-place-row" [attr.data-testid]="'pt-place-row'">
+      @if (r.value !== null) { <code dir="ltr">{{ r.value }}</code> } @else { <span class="muted pt-reason" data-testid="pt-reason">{{ r.reason }}</span> }
+      @if (r.plain) { @if (!compact) { <small class="muted pt-places">{{ r.places.join('، ') }}</small> } }
+      @else if (rows.length > 1 || shared) { <small class="muted pt-places">{{ rows.length === 1 ? 'كل المواضع: ' : 'المواضع: ' }}{{ r.places.join('، ') }}</small> }
+    </div>
+  }
+  @if (basisNote(rows); as note) { <small class="muted pt-basis" data-testid="pt-basis">{{ note }}</small> }
+</ng-template>
 <section class="pt-wrap" data-testid="platform-tokens" aria-labelledby="pt-h">
   <header class="pt-head">
     <h2 id="pt-h">{{ title() }}</h2>
     <span class="chip chip-ok" data-testid="pt-linked">مرتبط بالموقع</span>
   </header>
   <p class="hint" data-testid="pt-explain">
-    هذه القيم تُحفظ على الخادم بنسخ مرقّمة وتغيّر <strong>الموقع كله</strong> (كل الزوّار) بعد «تطبيق»، بنفس مسار صفحة «الهوية»: تحقّق ومعاينة ثم تطبيق أو إلغاء، واستعادة، وكشف التعارض. القيم الافتراضية المعروضة هي قيم المنصة الحالية. ما لا تغيّره يبقى كما هو بلا أي تغيير في مظهر الموقع.
+    هذه القيم تُحفظ على الخادم بنسخ مرقّمة وتغيّر <strong>الموقع كله</strong> (كل الزوّار) بعد «تطبيق»، بنفس مسار صفحة «الهوية»: تحقّق ومعاينة ثم تطبيق أو إلغاء، واستعادة، وكشف التعارض. القيم المنشورة من الخادم، والقياسات موضّح مصدرها: عنصر فعلي أو أنماط عامة قد تختلف عن الصفحات ذات التنسيق الخاص. ما لا تغيّره يبقى كما هو بلا أي تغيير في مظهر الموقع.
   </p>
   <p class="note note-warn" role="note" data-testid="pt-scope">
     <strong>نطاق التطبيق:</strong> التغيير يتبع القيم والمكوّنات المربوطة في السجل، ولا يطبّق نماذج الملف المرجعي تلقائيًا. بلا تجاوز تبقى إعدادات كل موضع الأصلية كما هي، وتعيدها الاستعادة. معاينة المسودة لا تغيّر الموقع.
@@ -57,7 +88,9 @@
               <section class="visual-editor" aria-label="محرّر المكوّن">
                 <h4>{{group.label}}</h4>
                 <p class="hint">معاينة بالقيم الحالية والمسودة. عناصر العرض لا تنفّذ أي إجراء.</p>
-                <div class="visual-pair">
+                @for (place of previewPlaces(group.id); track place.index) {
+                <h5>{{place.label}} <code dir="ltr">{{place.selector}}</code></h5>
+                <div class="visual-pair" [attr.data-testid]="'pt-pair-'+group.id+'-'+place.index">
                   @for (after of [false,true]; track after) {
                     <div class="visual-pane">
                       <strong>{{after ? 'بعد التعديل' : 'قبل التعديل'}}</strong>
@@ -65,7 +98,7 @@
                         @if (walletButtons[group.id]; as label) {
                           <button type="button" class="pt-wallet-button" [ngStyle]="walletButtonStyle(it,group.id,after)">＋ {{label}}</button>
                         } @else {
-                          @let style = visualStyle(it,group.id,after);
+                          @let style = visualStyle(it,group.id,after,place.index);
                           @switch (group.id) {
                             @case ('button') { <button type="button" class="btn-save" [ngStyle]="style">حفظ التغييرات</button> }
                             @case ('button-disabled') { <button type="button" class="btn-save" disabled [ngStyle]="style">حفظ التغييرات</button> }
@@ -85,15 +118,25 @@
                     </div>
                   }
                 </div>
+                }
                 @if (canEdit(it)) {
                   <div class="visual-fields">
                     @for (t of filteredTokens(it); track t.name) {
-                      <label>{{t.label}}
-                        @if (isHex6(shownValue(it,t)) && (t.type === 'color' || t.type === 'paint')) {
-                          <input type="color" [value]="shownValue(it,t)" (input)="pickColor(it,t,$event)" [disabled]="state(it.key).busy !== null">
+                      @let fv = fieldView(it,t);
+                      <div class="pt-field" [attr.data-testid]="'pt-field-' + t.name">
+                        <label [attr.for]="'pt-f-' + t.name">{{t.label}} <span class="chip chip-muted" [attr.data-testid]="'pt-source-' + t.name">{{ fv.sourceText }}</span></label>
+                        <div class="pt-current" [attr.data-testid]="'pt-current-' + t.name"><ng-container *ngTemplateOutlet="valueRows; context: { rows: fv.rows, shared: fv.shared }" /></div>
+                        @if (fv.original) { <div class="pt-original muted">الأصل: <ng-container *ngTemplateOutlet="valueRows; context: { rows: fv.original, shared: fv.shared }" /></div> }
+                        @if (isHex6(fieldText(it,t)) && (t.type === 'color' || t.type === 'paint')) {
+                          <input type="color" [value]="fieldText(it,t)" (input)="pickColor(it,t,$event)" [disabled]="state(it.key).busy !== null" [attr.aria-label]="'منتقي لون ' + t.label">
                         }
-                        <input class="pt-text" dir="ltr" [value]="state(it.key).edits[t.name] ?? ''" [placeholder]="displayValue(published(it,t))" (input)="onText(it,t,$event)" [disabled]="state(it.key).busy !== null">
-                      </label>
+                        <input [id]="'pt-f-' + t.name" class="pt-text" dir="ltr" [value]="fieldText(it,t)" (input)="onText(it,t,$event)" [disabled]="state(it.key).busy !== null" [attr.aria-invalid]="problem(it,t) ? 'true' : null" spellcheck="false" autocomplete="off">
+                        @if (placeDefs(it,t).length) { <small class="muted" data-testid="pt-all-places">هذا الحقل يكتب القيمة نفسها على كل المواضع التي ليس لها قيمة خاصة بها. لضبط موضع واحد فقط استعمل حقله المستقل أدناه.</small> }
+                        @else if (!fv.unified) { <small class="muted" data-testid="pt-diverge">القيم تختلف بين المواضع المذكورة. كتابة قيمة هنا توحّدها على كل المواضع.</small> }
+                        @if (problem(it,t); as pr) { <small class="pt-problem" role="alert" [attr.data-testid]="'pt-problem-' + t.name">{{ pr }}</small> }
+                        @else if (unitHint(t)) { <small class="muted" [attr.data-testid]="'pt-unit-' + t.name">{{ unitHint(t) }}</small> }
+                        <ng-container *ngTemplateOutlet="placeEditors; context: { it: it, t: t }" />
+                      </div>
                     }
                   </div>
                 }
@@ -119,23 +162,26 @@
                     </details>
                   }
                   <code class="code" dir="ltr">{{ t.name }}</code>@if(t.type==='font-family' && store.canManage()){<div class="font-choices">@for(font of fontChoices;track font.id){<button type="button" class="btn-secondary" (click)="edit(it,t,fontStack(font))">{{font.label}}</button>}</div><small>خطوط المكتبة تُحمّل من Google Fonts لكل زائر بعد النشر؛ عند تعذّر التحميل يُستخدم الخط الاحتياطي. الاسم المخصص يحتاج ملف خط متاحًا للزائر.</small>} @if (t.sharedWithDark) { <small class="muted">تشاركها قيمة الوضع الداكن</small> }</span>
+                @let fv = fieldView(it, t);
                 <span class="pt-val" role="cell">
-                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="t.default" [attr.aria-hidden]="true"></i> }
-                  <code dir="ltr">{{ displayValue(t.default) }}</code>
+                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="fv.original?.[0]?.value ?? fv.rows[0]?.value ?? t.default" [attr.aria-hidden]="true"></i> }
+                  <ng-container *ngTemplateOutlet="valueRows; context: { rows: fv.original ?? fv.rows, shared: fv.shared, compact: true }" />
                 </span>
                 <span class="pt-val" role="cell">
-                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="published(it, t)" [attr.aria-hidden]="true"></i> }
-                  <code dir="ltr" [attr.data-testid]="'pt-pub-' + t.name">{{ displayValue(published(it, t)) }}</code>
-                  @if (isOverridden(it, t)) { <span class="chip chip-ok">مخصّصة</span> }
+                  @if (t.type === 'color' || t.type === 'paint') { <i class="sw" [style.background]="published(it, t) === 'inherit' ? (fv.rows[0]?.value ?? '') : published(it, t)" [attr.aria-hidden]="true"></i> }
+                  <span [attr.data-testid]="'pt-pub-' + t.name"><ng-container *ngTemplateOutlet="valueRows; context: { rows: fv.rows, shared: fv.shared, compact: true }" /></span>
+                  <span class="chip" [class.chip-ok]="isOverridden(it, t)" [class.chip-muted]="!isOverridden(it, t)">{{ fv.sourceText }}</span>
                 </span>
                 <span class="pt-edit" role="cell">
                   @if (canEdit(it)) {
                     @if (t.type === 'color' && isHex6(shownValue(it, t))) {
                       <input type="color" class="pt-color" [value]="shownValue(it, t)" (input)="pickColor(it, t, $event)" [attr.aria-label]="'منتقي لون ' + t.label" />
                     }
-                    <input type="text" class="pt-text" dir="ltr" [value]="isEdited(it, t) ? state(it.key).edits[t.name] : ''" [placeholder]="displayValue(published(it, t))" (change)="onText(it, t, $event)"
-                      [attr.aria-label]="'قيمة جديدة لـ ' + t.label" [attr.data-testid]="'pt-input-' + t.name" spellcheck="false" autocomplete="off" />
+                    <input type="text" class="pt-text" dir="ltr" [value]="fieldText(it, t)" (change)="onText(it, t, $event)"
+                      [attr.aria-label]="'قيمة جديدة لـ ' + t.label" [attr.aria-invalid]="problem(it, t) ? 'true' : null" [attr.data-testid]="'pt-input-' + t.name" spellcheck="false" autocomplete="off" />
+                    @if (problem(it, t); as pr) { <small class="pt-problem" role="alert">{{ pr }}</small> } @else if (unitHint(t)) { <small class="muted">{{ unitHint(t) }}</small> }
                     @if (isEdited(it, t) || isOverridden(it, t)) { <button type="button" class="btn-link" (click)="resetRow(it, t)" [attr.data-testid]="'pt-reset-' + t.name">إرجاع للأصل</button> }
+                    <ng-container *ngTemplateOutlet="placeEditors; context: { it: it, t: t, table: true }" />
                   } @else { <span class="muted">—</span> }
                 </span>
               </div>
@@ -166,18 +212,18 @@
                   }
                 </ul>
               } @else { <p class="hint">لا فرق بين هذه المسودة وما هو منشور.</p> }
-              @if (livePreview() && !walletButtons[samples(it).at(0)?.id ?? '']) {
+              @if (livePreview()) {
                 <section aria-label="معاينة صفحة فعلية">
                   <h4>معاينة على صفحة من الموقع</h4>
                   <p>اختَر صفحة وشوف التغيير على المكوّنات الظاهرة فيها. المعاينة للعرض فقط.</p>
                   <label>الصفحة
-                    <select #page (change)="previewPage.set(page.value); previewCount.set(null); previewStatus.set('جارٍ تحميل الصفحة…')">
+                    <select #page (change)="selectPreviewPage(page.value)">
                       <option value="">اختَر صفحة</option>
                       @for (option of previewPages; track option.path) { <option [value]="option.path">{{option.label}}</option> }
                     </select>
                   </label>
                   @if (previewSrc(); as src) {
-                    <button type="button" class="btn-secondary" (click)="updatePagePreview(frame,it,false)">قبل التعديل</button>
+                    <button type="button" class="btn-secondary" (click)="updatePagePreview(frame,it,false)">قياس القيم المنشورة</button>
                     <button type="button" class="btn-secondary" (click)="updatePagePreview(frame,it,true)">بعد التعديل</button>
                     <p role="status">{{previewStatus()}} @if (previewCount() !== null) { · العناصر المطابقة في الصفحة الآن: {{previewCount()}} }</p>
                     <iframe #frame inert sandbox="allow-scripts allow-same-origin" title="معاينة مكوّنات الصفحة" tabindex="-1" [src]="src" (load)="updatePagePreview(frame,it,false)" style="width:100%;height:460px;border:1px solid var(--sec-bd,#475569);pointer-events:none"></iframe>
@@ -187,16 +233,16 @@
               <div class="pt-sample-wrap">
                 <span class="pt-cap">عيّنة بقيم المسودة ({{ sampleMode(it) === 'light' ? 'الوضع الفاتح' : sampleMode(it) === 'dark' ? 'الوضع الداكن' : 'كما في الموقع' }}) — لا تمسّ الموقع:</span>
                 <div class="pt-sample" [ngStyle]="sampleVars(it)" [attr.data-mode]="sampleMode(it)" [attr.data-testid]="'pt-sample-' + it.key">
-                  @for(group of samples(it);track group.id){<section style="margin:12px 0;overflow:auto;max-height:300px"><strong>{{group.label}}</strong>@if (walletButtons[group.id]; as label) {
+                  @for(group of samples(it);track group.id){@for(place of previewPlaces(group.id);track place.index){<section style="margin:12px 0;overflow:auto;max-height:300px"><strong>{{group.label}} — {{place.label}}</strong>@if (walletButtons[group.id]; as label) {
                     <div class="pt-wallet-preview">
                       <div><small>قبل التغيير</small><button type="button" class="pt-wallet-button" [ngStyle]="walletButtonStyle(it,group.id,false)">＋ {{label}}</button></div>
                       <div><small>بعد التغيير</small><button type="button" class="pt-wallet-button" [ngStyle]="walletButtonStyle(it,group.id,true)">＋ {{label}}</button></div>
                     </div>
                   } @else if (group.id === 'button'  || group.id === 'button-disabled') {
-                    <button type="button" [disabled]="group.id === 'button-disabled'" [ngStyle]="sampleStyle(it,group.id)" [attr.data-testid]="'pt-presentation-'+group.id">زر تجريبي</button>
+                    <button type="button" [disabled]="group.id === 'button-disabled'" [ngStyle]="sampleStyle(it,group.id,place.index)" [attr.data-testid]="'pt-presentation-'+group.id">زر تجريبي</button>
                   } @else {
-                    <p [ngStyle]="sampleStyle(it,group.id)" [attr.data-testid]="'pt-presentation-'+group.id">وسيط AI — نص تجريبي 123</p>
-                  }</section>}
+                    <p [ngStyle]="sampleStyle(it,group.id,place.index)" [attr.data-testid]="'pt-presentation-'+group.id">وسيط AI — نص تجريبي 123</p>
+                  }</section>}}
                   <h5>عنوان تجريبي</h5>
                   <p [style.font-family]="(reviewed(it) ?? desired(it))['--font-family'] || null">نص أساسي لمعاينة الألوان والخط معًا على محتوى المنصة.</p>@if(previewFonts.failed().length){<p role="alert">تعذّر تحميل خط المعاينة؛ المعروض خط احتياطي. لم يُنشر هذا التغيير.</p>}
                   <p class="s2">نص ثانوي توضيحي.</p>

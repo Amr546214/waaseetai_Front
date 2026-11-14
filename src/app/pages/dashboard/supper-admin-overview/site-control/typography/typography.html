@@ -1,3 +1,3 @@
-<div class="typo-wrap"><header class="panel-header"><h1>الخطوط وأدوار النصوص</h1><p class="sub">تعديل فعلي من الخادم: الحجم والوزن وارتفاع السطر والتباعد والعائلة، مع المعاينة والتأكيد والاستعادة.</p></header>
+<div class="typo-wrap"><header class="panel-header"><p class="sub">تعديل فعلي من الخادم: الحجم والوزن وارتفاع السطر والتباعد والعائلة، مع المعاينة والتأكيد والاستعادة.</p></header>
 <nav class="sub-tabs" aria-label="نوع النص"><button type="button" class="sub-tab" (click)="prefix.set('--font-family')">الخط العام</button>@for(role of roles;track role.id){<button type="button" class="sub-tab" [class.active]="prefix()==='--type-'+role.id+'-'" (click)="prefix.set('--type-'+role.id+'-')">{{role.label}}</button>}</nav>
 <sc-token-editor [keys]="['tokens.typography']" [tokenPrefix]="prefix()" title="الخطوط المنشورة" /></div>

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Route, Routes } from '@angular/router';
 import { adminAccessGuard } from '../../../core/guards/admin-access.guard';
 import { ruleForPath } from '../../../core/config/admin-access-rules';
-import { siteControlLandingGuard } from './site-control/site-control-landing.guard';
+import { siteControlLandingGuard, identitySectionRedirect } from './site-control/site-control-landing.guard';
 
 const RAW_ROUTES: Routes = [
     {
@@ -465,14 +465,14 @@ const RAW_ROUTES: Routes = [
         children: [
             // the section link opens the FIRST page the account may open (identity for most, a local page for a legacy-only holder), never blindly «الهوية»
             { path: '', pathMatch: 'full', canActivate: [siteControlLandingGuard], children: [] },
-            // the only server-backed page of the section: the platform's visual identity (logos, favicon, AI icon). Needs site.view / site.manage (core/config/admin-access-rules.ts); the server enforces the same.
+            // the identity FILE: logos, favicon, AI icon AND the colour / font / dimension / icon / component editors as sections of one page (the old pages below redirect to their section). Needs site.view / site.manage (core/config/admin-access-rules.ts); the server enforces the same.
             { path: 'identity', loadComponent: () => import('./site-control/identity/identity').then(m => m.Identity), data: { title: 'الهوية' } },
             { path: 'health', pathMatch: 'full', redirectTo: 'identity' },
-            { path: 'tokens', loadComponent: () => import('./site-control/color-tokens/color-tokens').then(m => m.ColorTokens), data: { title: 'القيم والألوان' } },
-            { path: 'icons', loadComponent: () => import('./site-control/icon-tokens/icon-tokens').then(m => m.IconTokens), data: { title: 'مكتبة الأيقونات' } },
+            { path: 'tokens', pathMatch: 'full', canActivate: [identitySectionRedirect('tokens')], children: [] },
+            { path: 'icons', pathMatch: 'full', canActivate: [identitySectionRedirect('icons')], children: [] },
             { path: 'accounts', loadComponent: () => import('./site-control/accounts/accounts').then(m => m.Accounts), data: { title: 'المستويات والنقاط' } },
-            { path: 'templates', loadComponent: () => import('./site-control/templates/templates').then(m => m.Templates), data: { title: 'القوالب' } },
-            { path: 'typography', loadComponent: () => import('./site-control/typography/typography').then(m => m.Typography), data: { title: 'الخطوط' } },
+            { path: 'templates', pathMatch: 'full', canActivate: [identitySectionRedirect('templates')], children: [] },
+            { path: 'typography', pathMatch: 'full', canActivate: [identitySectionRedirect('typography')], children: [] },
             { path: 'export', loadComponent: () => import('./site-control/export-css/export-css').then(m => m.ExportCss), data: { title: 'تصدير CSS' } }
         ]
     },

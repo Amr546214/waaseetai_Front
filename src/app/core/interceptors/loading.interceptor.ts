@@ -13,6 +13,12 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
 		return next(req);
 	}
 
+	// 1b. The identity editors (colours, fonts, icons, components, logos) show their OWN busy state on the control being used: their requests never take the whole-page loader
+	// (it flashed the console on every check / apply / restore and on each section's first read).
+	if (req.url.includes('/admin/site-identity/') || req.url.includes('/public/site-identity')) {
+		return next(req);
+	}
+
 	// 2. File and photo uploads: uploads must NOT hijack the entire viewport with a full-page modal loader.
 	// Components display their own local progress bars, upload spinners, and status badges.
 	const isUpload =

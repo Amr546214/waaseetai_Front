@@ -197,12 +197,15 @@ export class SiteIdentityService {
 	/** fetch the public manifest; resolves true when the answer was applied (or already current), false on any failure (last good stays) */
 	refresh(force = false): Promise<boolean> {
 		if (!this.browser) return Promise.resolve(false);
-		if (this.inflight) return this.inflight;
+		// a forced read asked for while one is already on the wire (a change notice arriving mid-request) must not be swallowed: that request may have started before the change, so it is read again once it ends
+		if (this.inflight) { if (force) this.again = true; return this.inflight; }
 		if (!force && Date.now() - this.lastFetch < 1_000) return Promise.resolve(true);
 		this.lastFetch = Date.now();
-		this.inflight = this.fetchManifest().finally(() => { this.inflight = null; });
+		const run = async (): Promise<boolean> => { let ok = await this.fetchManifest(); while (this.again) { this.again = false; ok = await this.fetchManifest(); } return ok; };
+		this.inflight = run().finally(() => { this.inflight = null; });
 		return this.inflight;
 	}
+	private again = false;
 
 	private async fetchManifest(): Promise<boolean> {
 		const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;

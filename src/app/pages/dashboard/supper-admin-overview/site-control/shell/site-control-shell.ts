@@ -23,8 +23,7 @@ import { DesignTokensService } from '../core/design-tokens.service';
 export class SiteControlShell implements AfterViewInit, OnDestroy {
  private readonly access = inject(AdminAccessService);
  readonly navigation = computed(() => [
-  ['identity', 'الهوية'], ['tokens', 'القيم والألوان'], ['icons', 'الأيقونات'],
-  ['typography', 'الخطوط'], ['accounts', 'هوية المستويات'], ['templates', 'القوالب'], ['export', 'تصدير CSS'],
+  ['identity', 'الهوية'], ['accounts', 'هوية المستويات'], ['export', 'تصدير CSS'],
  ].map(([path, title]) => ({ title, url: '/supper-admin-overview/site-control/' + path }))
   .filter(link => this.access.allows(ruleForPath(link.url))));
 	private readonly scope = inject(SiteControlScope);

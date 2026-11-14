@@ -1,5 +1,5 @@
-<div class="panel-wrap"><header class="panel-header"><h1>القيم والألوان</h1><p class="sub">إعدادات منشورة من الخادم لكل المستخدمين. تبقى القيم الأصلية كما هي حتى تؤكد تطبيق تعديل، ويمكن استعادتها.</p></header>
-<nav class="group-tabs" aria-label="مجموعة القيم">@for(s of sections;track s.id){<button type="button" class="group-tab" [class.active]="section()===s.id" (click)="section.set(s.id)">{{s.label}}</button>}</nav>
+<div class="panel-wrap"><header class="panel-header"><p class="sub">إعدادات منشورة من الخادم لكل المستخدمين. القيمة الحالية ظاهرة في كل حقل، وتبقى القيم الأصلية كما هي حتى تؤكد تطبيق تعديل، ويمكن استعادتها.</p></header>
+<nav class="group-tabs" aria-label="مجموعة القيم">@for(s of sections();track s.id){<button type="button" class="group-tab" [class.active]="section()===s.id" (click)="section.set(s.id)">{{s.label}}</button>}</nav>
 @if(section()!=='layout'){<div class="theme-toggle" aria-label="الوضع المراد تعديله"><button type="button" class="toggle-seg" [class.active]="mode()==='dark'" (click)="mode.set('dark')">داكن</button><button type="button" class="toggle-seg" [class.active]="mode()==='light'" (click)="mode.set('light')">فاتح</button></div>}
 @if(section()==='palette'){<p class="hint">كل لون مرتبط بمواضع من كود المنصة بحسب وظيفته: نص أو خلفية أو حد. استخدم البحث لتحديد القيمة، وراجع المعاينة قبل النشر.</p>}
 <sc-token-editor [keys]="keys()" title="القيم المنشورة على الموقع" /></div>

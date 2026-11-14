@@ -12,13 +12,16 @@ import { SiteControlShell } from './shell/site-control-shell';
 describe('site control (التحكم بالموقع)', () => {
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('the routes live inside the guarded admin area, before the not-found catch-all, «الهوية» first/default plus the six remaining pages with Arabic titles', () => {
+	it('the routes live inside the guarded admin area, before the not-found catch-all, «الهوية» first/default plus the pages that stay, the four old tool pages are redirects to sections of «الهوية»', () => {
 		const idx = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === 'site-control');
 		const wild = SUPPER_ADMIN_ROUTES.findIndex(r => r.path === '**');
 		expect(idx).toBeGreaterThan(-1);
 		expect(idx).toBeLessThan(wild);
-		const kids = SUPPER_ADMIN_ROUTES[idx].children!.filter(c => c.path && c.redirectTo === undefined);
-		expect(kids.map(k => k.path)).toEqual(['identity', 'tokens', 'icons', 'accounts', 'templates', 'typography', 'export']);
+		const kids = SUPPER_ADMIN_ROUTES[idx].children!.filter(c => c.path && c.redirectTo === undefined && !c.children);
+		expect(kids.map(k => k.path)).toEqual(['identity', 'accounts', 'export']);
+		const moved = SUPPER_ADMIN_ROUTES[idx].children!.filter(c => c.path && c.children?.length === 0 && c.pathMatch === 'full');
+		expect(moved.map(k => k.path)).toEqual(['tokens', 'icons', 'templates', 'typography']);
+		expect(moved.every(k => !k.loadComponent)).toBe(true); // no separate page any more
 		expect(SUPPER_ADMIN_ROUTES[idx].children!.find(c => c.path === 'health')?.redirectTo).toBe('identity');
 		expect(kids.every(k => /[؀-ۿ]/.test(String((k.data as any)?.title)))).toBe(true);
 		expect((SUPPER_ADMIN_ROUTES[idx].data as any).title).toBe('التحكم بالموقع');
@@ -34,7 +37,7 @@ describe('site control (التحكم بالموقع)', () => {
 		const reader: AdminAccess = { userId: 'reader', isSuperAdmin: false, staffStatus: 'ACTIVE', roleName: 'قارئ', permissions: ['site.view'], hasAnyPermission: true, state: 'ACTIVE', displayRole: 'قارئ' };
 		access.access.set(reader);
 		const f = TestBed.createComponent(SiteControlShell);
-		expect(f.componentInstance.navigation().map(link => link.url.split('/').pop())).toEqual(['identity', 'tokens', 'typography']);
+		expect(f.componentInstance.navigation().map(link => link.url.split('/').pop())).toEqual(['identity']);
 		access.access.set({ ...reader, permissions: [], hasAnyPermission: false, state: 'NO_PERMISSIONS' });
 		expect(f.componentInstance.navigation()).toEqual([]);
 		f.destroy();
@@ -47,7 +50,8 @@ describe('site control (التحكم بالموقع)', () => {
 		const kid = (p: string) => sec.children!.find(c => c.path === p)!;
 		// the legacy permission opens «الهوية» too (Round 5: it is the edit capability; the server decides canManage)
 		expect((kid('identity').data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
-		for (const p of ['tokens', 'typography']) expect((kid(p).data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] }); // server-backed token editor: identity permissions (Round 5)
+		// the moved pages keep THEIR OWN access rule on the old path (the redirect guard checks it first: the move grants nothing)
+		for (const p of ['tokens', 'typography']) expect((kid(p).data as any).access).toEqual({ anyOf: ['site.view', 'site.manage', 'site_control.manage'] });
 		for (const p of ['icons', 'accounts', 'templates', 'export']) expect((kid(p).data as any).access).toEqual({ all: ['site_control.manage'] });
 		expect((kid('identity').data as any).title).toBe('الهوية');
 		expect(kid('identity').canActivate?.length).toBeGreaterThan(0);

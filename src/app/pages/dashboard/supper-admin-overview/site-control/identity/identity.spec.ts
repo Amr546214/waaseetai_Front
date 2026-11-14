@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -20,7 +21,7 @@ const item = (o: Partial<IdentityItemInfo> = {}): IdentityItemInfo => ({
 const overview = (items: IdentityItemInfo[], canManage = true, manifestVersion = 0): IdentityOverview => ({ manifestVersion, canManage, groups: ['logo', 'favicon', 'icon', 'character'], items, notIdentity: ['أيقونات الوظائف ليست هوية'], unregisteredAssets: [] });
 const http = (status: number, body: unknown = {}) => new HttpErrorResponse({ status, error: body });
 
-function setup(ov: IdentityOverview | HttpErrorResponse, extra: Record<string, unknown> = {}, confirm = true, can: (id: string) => boolean = () => true) {
+function setup(ov: IdentityOverview | HttpErrorResponse, extra: Record<string, unknown> = {}, confirm = true, can: (id: string) => boolean = () => true, allows: (rule: { all?: string[]; anyOf?: string[] }) => boolean = () => true) {
 	const live: { items: Record<string, { sha256: string }>; version: number } = { items: {}, version: 0 };
 	const api: Record<string, ReturnType<typeof vi.fn>> = {
 		overview: vi.fn(() => (ov instanceof HttpErrorResponse ? throwError(() => ov) : of({ success: true, data: ov }))),
@@ -31,7 +32,7 @@ function setup(ov: IdentityOverview | HttpErrorResponse, extra: Record<string, u
 		...extra
 	};
 	const confirmSvc = { confirm: vi.fn(async () => confirm) };
-	TestBed.configureTestingModule({ imports: [Identity], providers: [provideRouter([]), { provide: SiteIdentityAdminApi, useValue: api }, { provide: ConfirmModalService, useValue: confirmSvc }, { provide: AdminAccessService, useValue: { allows: () => true, can, access: signal(null) } }] });
+	TestBed.configureTestingModule({ imports: [Identity], providers: [provideRouter([]), { provide: SiteIdentityAdminApi, useValue: api }, { provide: ConfirmModalService, useValue: confirmSvc }, { provide: AdminAccessService, useValue: { allows, can, access: signal(null) } }] });
 	(URL as unknown as { createObjectURL: () => string }).createObjectURL = () => 'blob:test';
 	const f = TestBed.createComponent(Identity);
 	f.detectChanges();
@@ -401,5 +402,67 @@ describe('identity view helpers', () => {
 		expect(describeFailure(http(403, {}), 'x').kind).toBe('denied');
 		expect(describeFailure(http(500, {}), 'x').message).toMatch(/[؀-ۿ]/);
 		expect(bytesText(2048)).toContain('ك.ب');
+	});
+
+	// ---- the identity FILE is one page: every section in place, a sticky bar that follows the scroll, no step that reveals it ----
+	describe('one page: sections, bar, no reveal step', () => {
+		const ids = ['logos', 'colors', 'typography', 'layout', 'icons', 'components', 'history'];
+		it('every section is rendered in place when the page opens, in this order, each with its own editor; there is no button that reveals the profile', async () => {
+			const t = setup(overview([item()])); await t.settle();
+			expect([...t.root().querySelectorAll('.id-sec')].map(e => e.id.replace('sec-', ''))).toEqual(ids);
+			expect(t.root().querySelector('#sec-colors sc-color-tokens')).not.toBeNull();
+			expect(t.root().querySelector('#sec-typography sc-typography')).not.toBeNull();
+			expect(t.root().querySelector('#sec-layout sc-color-tokens')).not.toBeNull();
+			expect(t.root().querySelector('#sec-icons sc-icon-tokens')).not.toBeNull();
+			expect(t.root().querySelector('#sec-components sc-templates')).not.toBeNull();
+			expect(t.root().textContent).not.toContain('عرض ملف الهوية كاملًا');
+			expect(t.root().querySelector('sc-identity-guide')).toBeNull();
+			expect(t.root().querySelector('iframe')).toBeNull();
+			expect(t.q('guide-open')).toBeNull();
+		});
+		it('the bar lists the sections, marks the current one, and a click goes to that section on the same page and puts it in the address', async () => {
+			const t = setup(overview([item()])); await t.settle();
+			const links = [...t.root().querySelectorAll('[data-testid^="identity-nav-"]')] as HTMLElement[];
+			expect(links.map(l => l.getAttribute('data-testid')!.replace('identity-nav-', ''))).toEqual(ids);
+			expect(t.q('identity-nav-logos')!.getAttribute('aria-current')).toBe('true');
+			const sec = t.root().getElementById('sec-typography')!; const scrolled = vi.fn(); sec.scrollIntoView = scrolled;
+			t.q('identity-nav-typography')!.click(); t.f.detectChanges();
+			expect(scrolled).toHaveBeenCalled();
+			expect(t.q('identity-nav-typography')!.getAttribute('aria-current')).toBe('true');
+			expect(t.q('identity-nav-logos')!.getAttribute('aria-current')).toBeNull();
+		});
+		it('an old link whose data arrives LATE still reaches its section (no fixed wait): the jump happens once the section is on the page', async () => {
+			const late = new Subject<{ success: boolean; data: IdentityOverview }>();
+			const { Router } = await import('@angular/router');
+			const proto = HTMLElement.prototype as unknown as { scrollIntoView?: () => void }; const orig = proto.scrollIntoView; const scrolled = vi.fn(); proto.scrollIntoView = scrolled;
+			try {
+				const t = setup(overview([item()]), { overview: vi.fn(() => late) });
+				await TestBed.inject(Router).navigate([], { fragment: 'typography' });
+				await new Promise(r => setTimeout(r, 1200)); // far longer than the old fixed 250ms
+				expect(t.q('identity-loading')).toBeTruthy(); expect(scrolled).not.toHaveBeenCalled();
+				late.next({ success: true, data: overview([item()]) }); late.complete();
+				await t.settle(); await new Promise(r => setTimeout(r, 50)); t.f.detectChanges();
+				expect(scrolled).toHaveBeenCalled();
+				expect(t.q('identity-nav-typography')!.getAttribute('aria-current')).toBe('true');
+			} finally { proto.scrollIntoView = orig; }
+		});
+		it('the bar and sections do not create scroll areas of their own (the bar is sticky, sections scroll with the page)', async () => {
+			const t = setup(overview([item()])); await t.settle();
+			expect(t.root().querySelector('.id-nav')).not.toBeNull();
+			const css = readFileSync('src/app/pages/dashboard/supper-admin-overview/site-control/identity/identity.css', 'utf8');
+			expect(css).toMatch(/\.id-nav\s*\{[^}]*position:\s*sticky/);
+			expect(css).toMatch(/\.id-sec\s*\{[^}]*scroll-margin-top/);
+			expect(css).not.toMatch(/\.id-sec[^{]*\{[^}]*overflow-y:\s*(auto|scroll)/);
+			// the shell box must not be a scroll container either (that is what would stop a sticky bar from sticking to the window)
+			const shell = readFileSync('src/app/pages/dashboard/supper-admin-overview/site-control/shell/site-control-shell.css', 'utf8');
+			expect(shell).toMatch(/\.sc-root\s*\{[^}]*overflow-x:\s*clip/);
+		});
+		it('permissions: «الأيقونات» and «المكوّنات والقوالب» keep the permission they always needed (site_control.manage): a site.view-only account gets neither the sections nor their bar entries', async () => {
+			const viewer = (r: { all?: string[]; anyOf?: string[] }) => !(r.all ?? []).includes('site_control.manage');
+			const t = setup(overview([item()], false), {}, true, () => false, viewer); await t.settle();
+			expect([...t.root().querySelectorAll('.id-sec')].map(e => e.id.replace('sec-', ''))).toEqual(['logos', 'colors', 'typography', 'layout', 'history']);
+			expect(t.q('identity-nav-icons')).toBeNull(); expect(t.q('identity-nav-components')).toBeNull();
+			expect(t.q('identity-readonly')).toBeTruthy();
+		});
 	});
 });

@@ -104,6 +104,26 @@ describe('SiteIdentityService', () => {
 		expect(localStorage.getItem(IDENTITY_CACHE_KEY)).toContain(SHA_B);
 	});
 
+	it('a change notice that arrives while a read is on the wire is not lost: the manifest is read again once that read ends', async () => {
+		const s = make();
+		let release!: (r: Response) => void;
+		const f = vi.fn((_u: string, _i?: RequestInit) => f.mock.calls.length === 1 ? new Promise<Response>(r => { release = r; }) : Promise.resolve(ok(manifest(2, { 'logo.mark': item(SHA_B, 2) }))));
+		vi.stubGlobal('fetch', f);
+		f.mockClear();
+		const first = s.refresh(true);              // the read that started BEFORE the change
+		const notice = s.refresh(true);             // the change notice arrives mid-request
+		expect(f).toHaveBeenCalledTimes(1);
+		release(ok(manifest(1)));                   // the old answer (no logo)
+		await Promise.all([first, notice]);
+		expect(f).toHaveBeenCalledTimes(2);         // a second read was made after the first ended
+		expect(s.version()).toBe(2);
+		// a non-forced call while a read is running does not queue another one
+		const g = vi.fn((_u: string, _i?: RequestInit) => Promise.resolve(ok(manifest(2))));
+		vi.stubGlobal('fetch', g);
+		await Promise.all([s.refresh(true), s.refresh(false), s.refresh(false)]);
+		expect(g).toHaveBeenCalledTimes(1);
+	});
+
 	it('an asset URL reported broken (404) falls back to the default for that key only, until the manifest changes', () => {
 		const s = make();
 		s.apply(parseManifest(manifest(1, { 'logo.mark': item(SHA_A), 'favicon.tab': { ...item(SHA_B), url: `/public/site-identity/assets/favicon.tab/${SHA_B}` } }))!, false);

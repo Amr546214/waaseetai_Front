@@ -69,7 +69,7 @@ describe('platform background traffic with the real global loader interceptor', 
         provideHttpClientTesting(),
         {
           provide: SiteIdentityService,
-          useValue: { customUrl: () => null, reportBroken: vi.fn() },
+          useValue: { customUrl: () => null, reportBroken: vi.fn(), refresh: vi.fn().mockResolvedValue(true) },
         },
       ],
     });
