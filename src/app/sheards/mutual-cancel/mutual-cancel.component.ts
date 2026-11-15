@@ -151,7 +151,7 @@ export class MutualCancelComponent implements OnInit {
 
 	reload(silent = false) {
 		if (!silent) { this.loading.set(true); this.loadError.set(''); }
-		this.api.list(this.side(), this.projectKey()).subscribe({
+		this.api.list(this.side(), this.projectKey(), silent).subscribe({
 			next: res => { const d = res?.data; this.requests.set(Array.isArray(d?.requests) ? d.requests : []); this.eligibility.set(d?.eligibility ?? { canRequest: true, reason: null }); if (d?.moneyNote) this.moneyNote.set(d.moneyNote); this.loading.set(false); },
 			error: err => { if (!silent) { this.loading.set(false); this.loadError.set(err?.error?.message || 'تعذر تحميل حالة طلب الإلغاء'); } }
 		});

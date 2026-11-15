@@ -5,6 +5,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { loadingInterceptor } from '../interceptors/loading.interceptor';
 import { LoadingService } from './loading.service';
+import { MutualCancelService } from './mutual-cancel.service';
 import { SystemSettingsApi } from './system-settings.store';
 import { PlatformInfoService } from './platform-info.service';
 import { PlatformStateService } from './platform-state.service';
@@ -159,6 +160,18 @@ describe('platform background traffic with the real global loader interceptor', 
     http.verify();
   });
 
+  it('the periodic cancellation-request refresh keeps the page loader off, while the first (non-silent) read still shows it', () => {
+    open();
+    const api = TestBed.inject(MutualCancelService);
+    api.list('client', 'p1', true).subscribe();
+    const silent = request('/cancellation-requests');
+    noOverlay();
+    silent.flush({ success: true, data: { requests: [], eligibility: { canRequest: true, reason: null } } });
+    api.list('client', 'p1').subscribe();
+    const first = request('/cancellation-requests');
+    expect(TestBed.inject(LoadingService).isLoading()).toBe(true);
+    first.flush({ success: true, data: { requests: [], eligibility: { canRequest: true, reason: null } } });
+  });
   it('ordinary requests still show their loader and background completion cannot clear it', () => {
     open();
     TestBed.inject(HttpClient).get('/api/admin/projects').subscribe();
