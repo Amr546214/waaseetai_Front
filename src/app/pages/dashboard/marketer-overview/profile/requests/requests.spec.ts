@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 import { Requests } from './requests';
+import { MarketerProfileService } from '../../../../../core/services/marketer-profile.service';
 
 describe('Requests', () => {
   let component: Requests;
@@ -8,7 +10,9 @@ describe('Requests', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Requests]
+      imports: [Requests],
+      // the component reads its list on creation; without this double the spec called the REAL dev API and `whenStable()` waited for that network call
+      providers: [{ provide: MarketerProfileService, useValue: { getRequests: () => of({ success: true, data: { totalRequests: 0, pendingAiCount: 0, pendingHumanCount: 0, approvedCount: 0, rejectedCount: 0, items: [] } }) } }]
     })
     .compileComponents();
 
@@ -19,5 +23,7 @@ describe('Requests', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    expect(component.loadError()).toBe(false);
+    expect(component.summary()?.items).toEqual([]);
   });
 });
