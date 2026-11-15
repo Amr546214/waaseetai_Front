@@ -51,6 +51,8 @@ export interface ClientLevelResponse {
 	nextLevelProgress: { title: string; pointsGap: number; projectsGap: number; ratingRequired: number; pointsPercent: number; projectsPercent: number; nextCashbackRate: number };
 	roadmap: Array<{ index: number; title: string; reqPoints: number; reqProjects: number; reqRating: number; rate: number; station: number; color: { dark: string; light: string }; isCurrent: boolean }>;
 	limitations: string[];
+	/** true when the backend's cashback engine really credits the wallet (older backends omit it: treated as off) */
+	cashbackActive?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
