@@ -76,7 +76,7 @@ describe('client stage review page: lifecycle states', () => {
 		expect(s.q('request-ai-review')).toBeNull();
 	});
 
-	it('active dispute: the freeze reason is shown, approval is disabled (not hidden), the revision request stays possible', async () => {
+	it('active dispute: the freeze reason is shown, approval is disabled (not hidden)', async () => {
 		const FREEZE = 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع';
 		const s = await setup(ws(lc({ eligibility: elig({ approve: { allowed: false, reason: FREEZE, code: 'ACTIVE_DISPUTE_FREEZE', httpStatus: 423 } }) }), { disputeFreeze: { frozen: true, reason: FREEZE, activeDisputeCount: 1, disputeId: 'd' } }));
 		expect(s.q('dr-freeze-banner')!.textContent).toContain(FREEZE);
