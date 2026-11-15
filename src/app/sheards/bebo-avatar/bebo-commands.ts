@@ -9,7 +9,7 @@
 // Routing rule (same as the handoff): a message is a local Bebo command
 // ONLY when, after stripping an optional "يا بيبو / bebo" prefix and a
 // politeness prefix, it EXACTLY equals one of the listed phrases. Anything
-// else (e.g. "كيف أعمل مشروع؟") is a normal assistant question.
+// else (e.g. "ازاي أعمل مشروع؟") is a normal assistant question.
 
 export const BEBO_DIALECTS = {
 	egyptian: { label: 'مصري', language: 'ar-EG' },
@@ -59,7 +59,7 @@ export const BEBO_CORE_MOTIONS: readonly BeboMotionItem[] = [
 	{ action: 'sleep', label: 'ينام', icon: '💤' },
 ];
 
-/** Full guide & safety motions for Bebo (Scout - Waseet AI Guide). */
+/** Full guide & safety motions for Nadeem (Scout - Platform Guide). */
 export const NADEEM_GUIDE_MOTIONS: readonly BeboMotionItem[] = [
 	{ action: 'map', label: 'يفرد الخريطة', icon: '🗺️' },
 	{ action: 'report', label: 'يراجع تقرير', icon: '📋' },
