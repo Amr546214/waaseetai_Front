@@ -23,13 +23,53 @@ interface ChatMessage { id: string; mine: boolean; name: string; time: string; t
 const formatDateTime = (iso: string) => new Date(iso).toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: providerTimeZone() });
 
 /** Marketer ticket page: the real thread (the team's replies are visible), reply and close. Someone else's ticket is a 404 from the server. */
+
 @Component({
-	selector: 'app-marketer-ticket-detail',
-	standalone: true,
-	imports: [CaseAttachments, CommonModule, FormsModule, RouterLink],
-	templateUrl: './ticket-detail.html',
-	changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-marketer-ticket-detail',
+  standalone: true,
+  imports: [CaseAttachments, CommonModule, FormsModule, RouterLink],
+  templateUrl: './ticket-detail.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
+    /* Dark Mode — preserve existing appearance */
+    .marketer-ticket-reply {
+      box-sizing: border-box;
+      display: block;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: var(--font-size-label);
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .marketer-ticket-reply:focus {
+      outline: none;
+      border-color: #0fa99a;
+      box-shadow: 0 0 0 2px rgba(15, 169, 154, 0.12);
+    }
+
+    /* Light Mode only */
+    :host-context([data-theme="light"]) .marketer-ticket-reply {
+      background: #fff;
+      border-color: #a9b8cc;
+      color: #1e293b;
+    }
+
+    :host-context([data-theme="light"]) .marketer-ticket-reply::placeholder {
+      color: #64748b;
+    }
+
+    :host-context([data-theme="light"]) .marketer-ticket-reply:focus {
+      border-color: #0fa99a;
+      box-shadow: 0 0 0 2px rgba(15, 169, 154, 0.13);
+    }
+  `],
 })
+
 export class MarketerTicketDetail implements OnInit {
 	private route = inject(ActivatedRoute);
 	private authStore = inject(AuthStore);
