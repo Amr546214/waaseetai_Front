@@ -484,12 +484,11 @@ export class ApplayRequest implements OnInit, OnDestroy {
 								pct: Math.max(1, Math.min(100, Number(m.pct || m.percentage || 0)))
 							}));
 
-						if (mappedMilestones.length > 0) {
-							const sumPct = mappedMilestones.reduce((s, m) => s + (Number(m.pct) || 0), 0);
-							if (sumPct !== 100) {
-								mappedMilestones[0].pct = Math.max(1, (Number(mappedMilestones[0].pct) || 0) + (100 - sumPct));
-							}
-						}
+						// Invalid AI payment schedules must never replace the provider's current stages.
+						const validSchedule = mappedMilestones.length === rawMilestones.length
+							&& mappedMilestones.every(m => Number.isFinite(m.days) && Number.isFinite(m.pct))
+							&& mappedMilestones.reduce((sum, m) => sum + (m.pct ?? 0), 0) === 100;
+						if (!validSchedule) mappedMilestones.length = 0;
 
 						if (typeof res.data.suggestedTotalPrice === 'number' && res.data.suggestedTotalPrice > 0 && !(this.totalBudget() > 0)) {
 							this.totalBudget.set(Math.round(res.data.suggestedTotalPrice));
@@ -827,7 +826,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			profileAudit: [{ title: 'تعذر إكمال مراجعة الجودة', subtitle: 'لم يتم إنشاء تقييم بديل أو درجات وهمية. يمكنك المتابعة وتقديم العرض بشكل طبيعي.', status: 'WARNING', badge: 'غير متاح' }],
 			triPartyComparison: {
 				client: { budget: 'غير متاح', duration: 'غير متاح', milestones: 'غير متاح' },
-				provider: { budget: `${this.totalAmount} ر.س`, duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
+				provider: { budget: `${this.totalAmount} $`, duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
 				aiRecommendation: { budget: 'غير مدعوم', duration: 'غير مدعوم', milestones: 'غير مدعوم' }
 			},
 			triPartyNote: 'يقيّم هذا الفحص نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع المشروع ولا عدالة السعر مقارنة بميزانية العميل. مراجعة الجودة غير متاحة حالياً ولم يولّد موقع وسيط AI أي استنتاج بديل.',
