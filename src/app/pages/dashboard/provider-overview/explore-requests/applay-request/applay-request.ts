@@ -473,13 +473,34 @@ export class ApplayRequest implements OnInit, OnDestroy {
 						const suggestedAdvs = (res.data.suggestedAdvantages || []).map((a: string) => this.formatProposalText(a, true));
 						const suggestedOutputs = res.data.suggestedOutputs ? this.formatProposalText(res.data.suggestedOutputs, true) : '';
 
+						const rawMilestones = Array.isArray(res.data.suggestedMilestones) ? res.data.suggestedMilestones : [];
+						const mappedMilestones: Milestone[] = rawMilestones
+							.filter((m: any) => m && (m.name || m.title))
+							.map((m: any, idx: number) => ({
+								id: String(idx + 1),
+								name: this.formatProposalText(m.name || m.title, true),
+								desc: this.formatProposalText(m.desc || m.description || m.name || m.title, true),
+								days: Math.max(1, Number(m.days || m.durationDays || 1)),
+								pct: Math.max(1, Math.min(100, Number(m.pct || m.percentage || 0)))
+							}));
+
+						// Invalid AI payment schedules must never replace the provider's current stages.
+						const validSchedule = mappedMilestones.length === rawMilestones.length
+							&& mappedMilestones.every(m => Number.isFinite(m.days) && Number.isFinite(m.pct))
+							&& mappedMilestones.reduce((sum, m) => sum + (m.pct ?? 0), 0) === 100;
+						if (!validSchedule) mappedMilestones.length = 0;
+
+						if (typeof res.data.suggestedTotalPrice === 'number' && res.data.suggestedTotalPrice > 0 && !(this.totalBudget() > 0)) {
+							this.totalBudget.set(Math.round(res.data.suggestedTotalPrice));
+						}
+
 						this.proposal.update(p => ({
 							...p,
 							title: refinedTitle,
 							message: refinedMsg,
 							outputs: suggestedOutputs || p.outputs,
 							advantages: Array.from(new Set([...p.advantages, ...suggestedAdvs])),
-							milestones: p.milestones
+							milestones: mappedMilestones.length > 0 ? mappedMilestones : p.milestones
 						}));
 						this.saveDraft();
 					}
@@ -808,7 +829,7 @@ export class ApplayRequest implements OnInit, OnDestroy {
 				provider: { budget: `${this.totalAmount} $`, duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
 				aiRecommendation: { budget: 'غير مدعوم', duration: 'غير مدعوم', milestones: 'غير مدعوم' }
 			},
-			triPartyNote: 'يقيّم هذا الفحص نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع المشروع ولا عدالة السعر مقارنة بميزانية العميل. مراجعة الجودة غير متاحة حالياً ولم تُولد المنصة أي استنتاج بديل.',
+			triPartyNote: 'يقيّم هذا الفحص نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع المشروع ولا عدالة السعر مقارنة بميزانية العميل. مراجعة الجودة غير متاحة حالياً ولم يولّد موقع وسيط AI أي استنتاج بديل.',
 			finalMetrics: { overallScore: null }
 		};
 	}

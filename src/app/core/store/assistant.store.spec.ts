@@ -464,7 +464,7 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 			store.toggleListening();
 			const rec = FakeRecognition.instances[0];
 			expect(rec.started).toBe(true);
-			expect(rec.lang).toBe('ar-EG');
+			expect(rec.lang).toBe('ar-SA');
 			expect(rec.continuous).toBe(false);
 			expect(rec.interimResults).toBe(true);
 			expect(store.state()).toBe('listening');
@@ -610,7 +610,7 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 			expect(socket.ask).not.toHaveBeenCalled();
 			expect(store.messages()).toEqual([]);
 			expect(store.beboCommand()).toEqual({ action: 'dance', seq: 1 });
-			expect(store.commandReply()).toBe('على واحدة ونص! شوف الرقصة دي.');
+			expect(store.commandReply()).toBe('أبشر، هذي رقصة لك!');
 			expect(store.state()).toBe('idle');
 		});
 

@@ -22,7 +22,7 @@ export type BeboDialect = keyof typeof BEBO_DIALECTS;
 /** 'auto' = detect from the user's words (handoff "تلقائي من كلامك"). */
 export type BeboDialectChoice = BeboDialect | 'auto';
 export const BEBO_DIALECT_IDS = Object.keys(BEBO_DIALECTS) as BeboDialect[];
-export const DEFAULT_DIALECT: BeboDialect = 'egyptian';
+export const DEFAULT_DIALECT: BeboDialect = 'saudi';
 
 export const BEBO_VOICES = ['Puck', 'Kore', 'Fenrir', 'Aoede', 'Zephyr', 'Sulafat', 'Charon', 'Leda'] as const; export const BEBO_EXTENDED_VOICES = [...BEBO_VOICES, 'Orus', 'Callirrhoe'] as const;
 export type BeboVoice = (typeof BEBO_EXTENDED_VOICES)[number];
@@ -153,7 +153,7 @@ const COMMAND_GROUPS: Record<BeboAction, string[]> = {
 export function commandFor(text: string): BeboAction | null {
 	const t = normalize(text)
 		.replace(/^(من فضلك|لو سمحت|ممكن|please)\s+/, '')
-		.replace(/^(يا\s+)?(بيبو|bebo|نديم|nadeem|وسيط\s*ai)\s+/, '')
+		.replace(/^(يا\s+)?(بيبو|bebo|نديم|nadeem|وسيط\s*ai|دليل|scout)\s+/, '')
 		.replace(/^(من فضلك|لو سمحت|ممكن|please)\s+/, '')
 		.trim();
 	if (t.length > 100 || /^(لا|مت|ما|dont|do not|don't)\b/.test(t)) return null;
@@ -230,5 +230,5 @@ const ACKNOWLEDGEMENTS: Record<BeboDialect, Partial<Record<BeboAction | BeboPose
 };
 
 export function acknowledge(action: BeboAction | BeboPose, dialect: BeboDialect): string {
-	return ACKNOWLEDGEMENTS[dialect]?.[action] || ACKNOWLEDGEMENTS.egyptian[action] || '';
+	return ACKNOWLEDGEMENTS[dialect]?.[action] || ACKNOWLEDGEMENTS.saudi[action] || '';
 }
