@@ -30,6 +30,7 @@ describe('Bebo local commands (handoff commandFor)', () => {
 		expect(commandFor('اضحك!!')).toBe('laugh');
 		expect(commandFor('إرقص')).toBe('dance'); // hamza normalized
 		expect(commandFor('يا نديم افرد الخريطة')).toBe('map');
+		expect(commandFor('يا وسيط AI افرد الخريطة')).toBe('map');
 		expect(commandFor('لو سمحت يا نديم انط')).toBe('jump');
 		expect(commandFor('Nadeem please dance')).toBe('dance');
 		expect(commandFor('يا نديم كيف أنشئ مشروع؟')).toBeNull();

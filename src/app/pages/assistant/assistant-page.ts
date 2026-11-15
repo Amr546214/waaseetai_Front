@@ -47,21 +47,30 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 			<!-- Head: Brand & collapse toggles -->
 			<div class="tc-sidebar-head">
 				<div class="tc-rail-entry tc-brand-entry">
+					@if (desktopCollapsed()) {
+					<!-- collapsed rail: the logo slot is the control that opens the sidebar again (it shows the toggle on hover) -->
 					<button
 						type="button"
 						class="tc-sidebar-brand"
 						(click)="toggleDesktopCollapse()"
 						aria-keyshortcuts="Control+Shift+S"
-						[attr.aria-label]="desktopCollapsed() ? 'فتح قائمة المحادثات' : 'طي قائمة المحادثات'"
+						aria-label="فتح قائمة المحادثات"
 					>
 						<img [wsIdentityImg]="'logo.mark'" src="/images/waseet-mark.png" alt="وسيط" />
-						<svg data-ws-icon="pl-assistant-sidebar-collapse" class="tc-brand-toggle" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<svg data-ws-icon="pl-assistant-sidebar-collapse" class="tc-brand-toggle" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 							<rect width="18" height="18" x="3" y="3" rx="2" />
 							<path d="M9 3v18M16 15l-3-3 3-3" />
 						</svg>
 						<strong>وسيط</strong>
 					</button>
 					<div class="tc-rail-tooltip" role="tooltip">الشريط الجانبي <kbd dir="ltr">Ctrl+Shift+S</kbd></div>
+					} @else {
+					<!-- expanded: the Waseet logo / name takes the user back to the home page (the collapse button is next to it) -->
+					<a routerLink="/" class="tc-sidebar-brand" data-testid="assistant-brand-home" aria-label="العودة إلى الصفحة الرئيسية">
+						<img [wsIdentityImg]="'logo.mark'" src="/images/waseet-mark.png" alt="وسيط" />
+						<strong>وسيط</strong>
+					</a>
+					}
 				</div>
 
 				<button
@@ -365,7 +374,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 
 		<!-- Main Workspace Area -->
 		<main class="tc-main main" dir="rtl">
-			<!-- Topbar: Hamburger toggle, single central tab «المحادثة · نديم», share button, ⋯ menu -->
+			<!-- Topbar: Hamburger toggle, single central tab «المحادثة · وسيط AI», share button, ⋯ menu -->
 			<header class="tc-topbar">
 				<div class="tc-topbar-start">
 					<button
@@ -608,7 +617,7 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 								(input)="resizeComposer()"
 								(keydown)="onKeydown($event)"
 								rows="1"
-								placeholder="اسأل نديم عن خدمات وسيط أو استفسر عن مشروعك..."
+								placeholder="اسأل وسيط AI عن خدمات وسيط أو استفسر عن مشروعك..."
 								dir="auto"
 								aria-label="اكتب رسالتك"
 								[readOnly]="store.busy()"

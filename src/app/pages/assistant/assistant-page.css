@@ -126,6 +126,7 @@ a {
 .tc-sidebar-brand {
   border: 0;
   background: none;
+  text-decoration: none;
   color: var(--tc-text);
   display: flex;
   align-items: center;

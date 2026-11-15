@@ -9,7 +9,7 @@ import { AssistantPositionSettingsComponent } from './assistant-position-setting
 	template: `
 	<div class="settings" dir="rtl">
 		<p>شغّل صوت أي رد من زر الاستماع أسفله، ثم تحكّم في التشغيل والوقت من مشغّل الصوت.</p>
-		<label>الشخصية<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)"><option value="scout" [selected]="store.skin() === 'scout'">نديم — دليل وسيط</option><option value="classic" [selected]="store.skin() === 'classic'">بيبو — المساعد الكرتوني</option></select></label>
+		<label>الشخصية<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)"><option value="scout" [selected]="store.skin() === 'scout'">وسيط AI — دليل المنصة</option><option value="classic" [selected]="store.skin() === 'classic'">بيبو — المساعد الكرتوني</option></select></label>
 		<app-assistant-position-settings />
 		<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto" [selected]="store.profile() === 'auto'">تلقائي</option><option value="fast" [selected]="store.profile() === 'fast'">سريع ومختصر</option><option value="balanced" [selected]="store.profile() === 'balanced'">متوازن</option><option value="deep" [selected]="store.profile() === 'deep'">شرح وتحليل مفصل</option></select></label>
 		<label>اللهجة<select [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)"><option value="auto" [selected]="store.ttsDialect() === 'auto'">تلقائي حسب كلامك</option>@for (dialect of dialects; track dialect.id) { <option [value]="dialect.id" [selected]="store.ttsDialect() === dialect.id">{{ dialect.label }}</option> }</select></label>

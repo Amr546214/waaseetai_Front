@@ -168,9 +168,9 @@ export class AssistantStore {
 	private readonly examState = inject(AssistantExamState);
 	readonly examActive = this.examState.examActive;
 	readonly skin = signal<BeboSkin>(this.loadSkinPref());
-	readonly characterName = computed(() => (this.skin() === 'scout' ? 'نديم' : 'بيبو'));
+	readonly characterName = computed(() => (this.skin() === 'scout' ? 'وسيط AI' : 'بيبو'));
 	readonly characterRole = computed(() => (this.skin() === 'scout' ? 'دليل وسيط' : 'المساعد الذكي'));
-	readonly characterFullName = computed(() => (this.skin() === 'scout' ? 'نديم — دليل وسيط' : 'بيبو — مساعد وسيط الذكي'));
+	readonly characterFullName = computed(() => (this.skin() === 'scout' ? 'وسيط AI — دليل المنصة' : 'بيبو — مساعد وسيط الذكي'));
 	readonly voiceEnabled = signal(this.readVoicePref());
 	readonly profile = signal<NonNullable<AssistantAskOptions['profile']>>('auto');
 	readonly effort = signal<NonNullable<AssistantAskOptions['effort']>>('medium');
@@ -795,7 +795,7 @@ export class AssistantStore {
 		this.detectedDialect.set(dialect);
 		this.cancelListening();
 		if (this.skin() === 'classic' && (BEBO_EXTRA_POSES as readonly string[]).includes(action)) {
-			this.commandReply.set('هذه الحركة متاحة لنديم — دليل وسيط. يمكنك تغيير الشخصية من الإعدادات.');
+			this.commandReply.set('هذه الحركة متاحة لوسيط AI — دليل المنصة. يمكنك تغيير الشخصية من الإعدادات.');
 			return;
 		}
 		if (action === 'stop') this.stopAudio();
