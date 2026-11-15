@@ -34,7 +34,21 @@ export function assistantMarkdown(raw: string): string {
 	return result.join('');
 }
 export function speakableText(raw: string): string {
-	return String(raw ?? '').replace(/```[\s\S]*?(?:```|$)/g, ' ').replace(/!\[[^\]]*\]\([^)]*\)/g, ' ').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/https?:\/\/\S+/g, ' ').replace(/<[^>]*>/g, ' ').replace(/^[\s]*#{1,6}\s+/gm, '').replace(/^\s*(?:[-*•]|\d+[.)])\s+/gm, '').replace(/[*_`>#|]/g, '').replace(/\s+/g, ' ').trim();
+	return String(raw ?? '')
+		.replace(/```[\s\S]*?(?:```|$)/g, ' ')
+		.replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+		.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+		.replace(/https?:\/\/\S+/g, ' ')
+		.replace(/<[^>]*>/g, ' ')
+		.replace(/^[\s]*#{1,6}\s+/gm, '')
+		.replace(/^\s*(?:[-*•]|\d+[.)])\s+/gm, '')
+		.replace(/\s*[—–]+\s*|\.{2,}/g, '، ')
+		.replace(/\(([^()]{1,120})\)/g, '، $1، ')
+		.replace(/([\u0600-\u06FF])\s*\/\s*([\u0600-\u06FF])/g, '$1 أو $2')
+		.replace(/[*_`>#|~]/g, ' ')
+		.replace(/(?:،\s*){2,}/g, '، ')
+		.replace(/\s+/g, ' ')
+		.trim();
 }
 /** Keep each upstream request below the TTS bound; prefer complete sentences. */
 export function speechChunks(raw: string, limit = 1400): string[] {

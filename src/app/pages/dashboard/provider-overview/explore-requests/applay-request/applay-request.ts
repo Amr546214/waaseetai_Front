@@ -473,13 +473,35 @@ export class ApplayRequest implements OnInit, OnDestroy {
 						const suggestedAdvs = (res.data.suggestedAdvantages || []).map((a: string) => this.formatProposalText(a, true));
 						const suggestedOutputs = res.data.suggestedOutputs ? this.formatProposalText(res.data.suggestedOutputs, true) : '';
 
+						const rawMilestones = Array.isArray(res.data.suggestedMilestones) ? res.data.suggestedMilestones : [];
+						const mappedMilestones: Milestone[] = rawMilestones
+							.filter((m: any) => m && (m.name || m.title))
+							.map((m: any, idx: number) => ({
+								id: String(idx + 1),
+								name: this.formatProposalText(m.name || m.title, true),
+								desc: this.formatProposalText(m.desc || m.description || m.name || m.title, true),
+								days: Math.max(1, Number(m.days || m.durationDays || 1)),
+								pct: Math.max(1, Math.min(100, Number(m.pct || m.percentage || 0)))
+							}));
+
+						if (mappedMilestones.length > 0) {
+							const sumPct = mappedMilestones.reduce((s, m) => s + (Number(m.pct) || 0), 0);
+							if (sumPct !== 100) {
+								mappedMilestones[0].pct = Math.max(1, (Number(mappedMilestones[0].pct) || 0) + (100 - sumPct));
+							}
+						}
+
+						if (typeof res.data.suggestedTotalPrice === 'number' && res.data.suggestedTotalPrice > 0 && !(this.totalBudget() > 0)) {
+							this.totalBudget.set(Math.round(res.data.suggestedTotalPrice));
+						}
+
 						this.proposal.update(p => ({
 							...p,
 							title: refinedTitle,
 							message: refinedMsg,
 							outputs: suggestedOutputs || p.outputs,
 							advantages: Array.from(new Set([...p.advantages, ...suggestedAdvs])),
-							milestones: p.milestones
+							milestones: mappedMilestones.length > 0 ? mappedMilestones : p.milestones
 						}));
 						this.saveDraft();
 					}
@@ -805,10 +827,10 @@ export class ApplayRequest implements OnInit, OnDestroy {
 			profileAudit: [{ title: 'تعذر إكمال مراجعة الجودة', subtitle: 'لم يتم إنشاء تقييم بديل أو درجات وهمية. يمكنك المتابعة وتقديم العرض بشكل طبيعي.', status: 'WARNING', badge: 'غير متاح' }],
 			triPartyComparison: {
 				client: { budget: 'غير متاح', duration: 'غير متاح', milestones: 'غير متاح' },
-				provider: { budget: `${this.totalAmount} $`, duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
+				provider: { budget: `${this.totalAmount} ر.س`, duration: `${this.totalDays()} يوم`, milestones: `${this.proposal().milestones.length} مرحلة` },
 				aiRecommendation: { budget: 'غير مدعوم', duration: 'غير مدعوم', milestones: 'غير مدعوم' }
 			},
-			triPartyNote: 'يقيّم هذا الفحص نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع المشروع ولا عدالة السعر مقارنة بميزانية العميل. مراجعة الجودة غير متاحة حالياً ولم تُولد المنصة أي استنتاج بديل.',
+			triPartyNote: 'يقيّم هذا الفحص نص العرض وخطته وسعره كما كُتبت فقط، ولا يقيس توافقه مع المشروع ولا عدالة السعر مقارنة بميزانية العميل. مراجعة الجودة غير متاحة حالياً ولم يولّد موقع وسيط AI أي استنتاج بديل.',
 			finalMetrics: { overallScore: null }
 		};
 	}
