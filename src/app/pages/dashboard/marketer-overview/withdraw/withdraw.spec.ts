@@ -40,6 +40,17 @@ describe('marketer withdraw: server balance, states and details', () => {
   const el = () => fixture.nativeElement as HTMLElement;
   afterEach(() => { fixture?.destroy(); TestBed.resetTestingModule(); });
 
+  it('shows the PayPal withdrawal fee and the net the marketer receives for the typed amount (server fee percent); nothing when the server sends no fee', async () => {
+    await setup({ withdrawalFeePercent: 7.75 });
+    c.withdrawForm.patchValue({ amount: 100 }); fixture.detectChanges();
+    expect(c.feeAmount()).toBe(7.75); expect(c.netAfterFee()).toBe(92.25);
+    expect((el().querySelector('[data-testid="withdraw-fee"]') as HTMLElement).textContent).toContain('7.75%');
+    TestBed.resetTestingModule();
+    await setup({});
+    c.withdrawForm.patchValue({ amount: 100 }); fixture.detectChanges();
+    expect(el().querySelector('[data-testid="withdraw-fee"]')).toBeNull();
+  });
+
   it('the balance, reserved and paid figures are the server wallet, not the summary total', async () => {
     await setup();
     expect(c.withdrawableBalance()).toBe(600);

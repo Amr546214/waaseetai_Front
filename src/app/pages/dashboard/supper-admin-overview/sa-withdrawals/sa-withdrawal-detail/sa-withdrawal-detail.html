@@ -37,6 +37,7 @@
         <div class="wd-md-field">
           <label>المبلغ</label>
           <p>{{ formatAmount(w.amount, w.currency) }}</p>
+          @if (w.netAmount) { <p class="wd-warn" data-testid="wd-net">الصافي المحوَّل لمقدّم الطلب بعد رسوم السحب ({{ w.feePercent }}%): {{ formatAmount(w.netAmount, w.currency) }}</p> }
         </div>
         <div class="wd-md-row">
           <div class="wd-md-field">
@@ -192,7 +193,7 @@
       <div class="wd-mov" data-testid="wd-payout-modal">
         <div class="wd-mbox">
           <h4 class="wd-af-ttl">تأكيد إرسال التحويل</h4>
-          <p class="wd-warn">سيتم تحويل {{ formatAmount(w.amount, w.currency) }} إلى بريد PayPal {{ w.paypalEmail || '—' }} — لا يمكن التراجع</p>
+          <p class="wd-warn">سيتم تحويل {{ formatAmount(w.netAmount || w.amount, w.currency) }} إلى بريد PayPal {{ w.paypalEmail || '—' }} — لا يمكن التراجع</p>
           @if (payoutError()) {
             <p class="wd-af-err" role="alert" data-testid="wd-payout-error">{{ payoutError() }}</p>
           }

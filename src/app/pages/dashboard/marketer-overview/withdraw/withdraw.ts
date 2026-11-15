@@ -79,6 +79,10 @@ export class Withdraw implements OnInit {
     return Number.isFinite(amount) && amount > 0 ? Math.max(0, Math.round((this.withdrawableBalance() - amount) * 100) / 100) : this.withdrawableBalance();
   });
   private amountValue = signal<number | null>(null);
+  /** the server's PayPal withdrawal fee %, shown before the request is sent (the request itself snapshots the real one) */
+  feePercent = computed(() => this.wallet()?.withdrawalFeePercent ?? 0);
+  feeAmount = computed(() => { const a = Number(this.amountValue()); return Number.isFinite(a) && a > 0 && this.feePercent() > 0 ? Math.round((a - Math.round(a * (1 - this.feePercent() / 100) * 100) / 100) * 100) / 100 : 0; });
+  netAfterFee = computed(() => { const a = Number(this.amountValue()); return Number.isFinite(a) && a > 0 ? Math.round(a * (1 - this.feePercent() / 100) * 100) / 100 : 0; });
 
   stateOf(status: unknown) { return WITHDRAWAL_STATE[String(status)] ?? { label: String(status ?? '—'), tone: 'blue' as const }; }
 
