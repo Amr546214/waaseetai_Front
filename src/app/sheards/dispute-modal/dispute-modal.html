@@ -63,18 +63,12 @@
 		<!-- سبب النزاع -->
 		<div class="lc-fld">
 			<label for="dp-reason">سبب النزاع <span class="ws-req" aria-hidden="true">*</span></label>
-			<select class="lc-sel" id="dp-reason-preset" (change)="onPresetReasonChange($event)" [disabled]="isSubmitting">
-				<option value="">اختر من الأسباب الشائعة (أو اكتب أدناه)</option>
-				<option value="جودة التسليم لا تطابق العقد">جودة التسليم لا تطابق العقد</option>
-				<option value="تأخّر في التسليم">تأخّر في التسليم</option>
-				<option value="تعديلات خارج النطاق المتفق عليه">تعديلات خارج النطاق المتفق عليه</option>
-				@if (actor === 'client') {
-					<option value="توقّف التواصل من مقدم الخدمة">توقّف التواصل من مقدم الخدمة</option>
-				} @else {
-					<option value="توقّف التواصل من العميل">توقّف التواصل من العميل</option>
-					<option value="عدم وضوح المتطلبات وتأخر الاعتماد">عدم وضوح المتطلبات وتأخر الاعتماد</option>
+			<select class="lc-sel" id="dp-reason-preset" data-testid="dispute-reason-preset" [value]="presetReason()" (change)="onPresetReasonChange($event)" [disabled]="isSubmitting">
+				<option value="" [selected]="!presetReason()">اختر من الأسباب الشائعة (أو اكتب أدناه)</option>
+				@for (preset of reasonPresets(); track $index) {
+					<option [value]="preset" [selected]="presetReason() === preset">{{ preset }}</option>
 				}
-				<option value="other">سبب آخر</option>
+				<option value="other" [selected]="presetReason() === 'other'">سبب آخر</option>
 			</select>
 			<input
 				id="dp-reason"
@@ -83,7 +77,7 @@
 				class="dp-input"
 				[value]="reason()"
 				(input)="onReasonInput($event)"
-				placeholder="مثال: عدم تسليم المتطلبات أو تأخير غير مبرر"
+				[placeholder]="reasonPlaceholder()"
 				maxlength="120"
 				[disabled]="isSubmitting"
 				[class.ws-invalid]="reasonError()"

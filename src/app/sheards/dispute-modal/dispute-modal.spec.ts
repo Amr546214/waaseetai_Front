@@ -143,4 +143,35 @@ describe('DisputeModal stage dispute (case 2)', () => {
 		expect((f2.nativeElement as HTMLElement).textContent).toContain('القرار للإدارة وحدها');
 		void fixture;
 	});
+
+	it('shows role-appropriate preset dispute reasons for client and provider', () => {
+		const { fixture, el, cmp } = setup({ actor: 'provider' });
+		const optionValues = () => Array.from(el.querySelectorAll('[data-testid="dispute-reason-preset"] option')).map((o) => (o as HTMLOptionElement).value);
+
+		const providerValues = optionValues();
+		expect(providerValues).toContain('تعديلات خارج النطاق المتفق عليه');
+		expect(providerValues).toContain('توقّف التواصل من العميل');
+		expect(providerValues).toContain('عدم وضوح المتطلبات وتأخر الاعتماد');
+		expect(providerValues).toContain('تأخر العميل في تزويد البيانات أو مراجعة التسليم');
+		expect(providerValues).not.toContain('جودة التسليم لا تطابق العقد');
+		expect(providerValues).not.toContain('تأخّر في التسليم');
+		expect(providerValues).not.toContain('توقّف التواصل من مقدم الخدمة');
+
+		cmp.onPresetReasonChange({ target: { value: 'تعديلات خارج النطاق المتفق عليه' } } as any);
+		expect(cmp.reason()).toBe('تعديلات خارج النطاق المتفق عليه');
+		expect(cmp.presetReason()).toBe('تعديلات خارج النطاق المتفق عليه');
+
+		fixture.componentRef.setInput('actor', 'client');
+		fixture.detectChanges();
+		const clientValues = optionValues();
+		expect(clientValues).toContain('جودة التسليم لا تطابق العقد');
+		expect(clientValues).toContain('تأخّر في التسليم');
+		expect(clientValues).toContain('توقّف التواصل من مقدم الخدمة');
+		expect(clientValues).not.toContain('تعديلات خارج النطاق المتفق عليه');
+		expect(clientValues).not.toContain('توقّف التواصل من العميل');
+
+		cmp.reset();
+		expect(cmp.presetReason()).toBe('');
+		expect(cmp.reason()).toBe('');
+	});
 });

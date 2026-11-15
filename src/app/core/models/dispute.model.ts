@@ -37,6 +37,22 @@ export const REQUESTED_RESOLUTIONS: Record<'client' | 'provider', { code: Reques
   ],
 };
 
+/** Role-appropriate preset dispute reasons shown in the dispute dialog dropdown. */
+export const DISPUTE_REASON_PRESETS: Record<'client' | 'provider', readonly string[]> = {
+  client: [
+    'جودة التسليم لا تطابق العقد',
+    'تأخّر في التسليم',
+    'عدم الالتزام بمتطلبات المرحلة المتفق عليها',
+    'توقّف التواصل من مقدم الخدمة',
+  ],
+  provider: [
+    'تعديلات خارج النطاق المتفق عليه',
+    'عدم وضوح المتطلبات وتأخر الاعتماد',
+    'تأخر العميل في تزويد البيانات أو مراجعة التسليم',
+    'توقّف التواصل من العميل',
+  ],
+};
+
 /** A stage offered by the dispute dialog: `canDispute` / `blockedReason` come from the server's own stage rule. */
 export interface DisputeStageOption {
   id: string;

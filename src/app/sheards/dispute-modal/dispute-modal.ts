@@ -2,9 +2,14 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, signa
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { scrollFocus } from '../../shared/forms/form-error-focus';
-import { CreateDisputePayload, DisputeFieldError, DisputeStageOption, REQUESTED_RESOLUTIONS, RequestedResolutionCode, STAGE_DISPUTE_MIN_DESCRIPTION } from '../../core/models/dispute.model';
+import { CreateDisputePayload, DISPUTE_REASON_PRESETS, DisputeFieldError, DisputeStageOption, REQUESTED_RESOLUTIONS, RequestedResolutionCode, STAGE_DISPUTE_MIN_DESCRIPTION } from '../../core/models/dispute.model';
 
 export type DisputeActor = 'client' | 'provider';
+
+const REASON_PLACEHOLDERS: Record<DisputeActor, string> = {
+	client: 'مثال: تأخّر في التسليم أو عدم مطابقة المواصفات',
+	provider: 'مثال: طلب تعديلات خارج نطاق العقد أو تأخّر الاعتماد',
+};
 
 const FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_FILES = 5;
@@ -18,9 +23,16 @@ const MAX_FILE_BYTES = 10 * 1024 * 1024;
 	styleUrl: './dispute-modal.css',
 })
 export class DisputeModal implements OnChanges {
+	private readonly actorState = signal<DisputeActor>('client');
+
 	@Input() open = false;
 	@Input() isSubmitting = false;
-	@Input() actor: DisputeActor = 'client';
+	@Input() set actor(value: DisputeActor) {
+		this.actorState.set(value === 'provider' ? 'provider' : 'client');
+	}
+	get actor(): DisputeActor {
+		return this.actorState();
+	}
 	/** Server rejection message (e.g. 403/400 from the API), shown inside the dialog. */
 	@Input() errorMessage = '';
 	/** Per-field problems from the server (`errors:[{field,message}]`), shown under the matching field. */
@@ -34,6 +46,7 @@ export class DisputeModal implements OnChanges {
 	@Output() submit = new EventEmitter<CreateDisputePayload>();
 
 	stageId = signal('');
+	presetReason = signal('');
 	reason = signal('');
 	description = signal('');
 	requested = signal<RequestedResolutionCode | ''>('');
@@ -52,7 +65,9 @@ export class DisputeModal implements OnChanges {
 	hasStages = computed(() => this.stages.length > 0);
 	/** The server asks for the long explanation only when the dispute is about a stage. */
 	minDescription = computed(() => (this.stageId() ? STAGE_DISPUTE_MIN_DESCRIPTION : 10));
-	resolutionOptions = computed(() => REQUESTED_RESOLUTIONS[this.actor]);
+	reasonPresets = computed(() => DISPUTE_REASON_PRESETS[this.actorState()]);
+	reasonPlaceholder = computed(() => REASON_PLACEHOLDERS[this.actorState()]);
+	resolutionOptions = computed(() => REQUESTED_RESOLUTIONS[this.actorState()]);
 	eligibleCount = computed(() => this.stages.filter((s) => s.canDispute).length);
 
 	private lastFingerprint = '';
@@ -166,6 +181,7 @@ export class DisputeModal implements OnChanges {
 	onPresetReasonChange(event: Event): void {
 		const select = event.target as HTMLSelectElement;
 		const val = select.value;
+		this.presetReason.set(val);
 		if (val && val !== 'other') {
 			this.reason.set(val);
 			if (this.reasonError()) this.reasonError.set('');
@@ -177,6 +193,7 @@ export class DisputeModal implements OnChanges {
 	onReasonInput(event: Event): void {
 		const value = (event.target as HTMLTextAreaElement | HTMLInputElement).value;
 		this.reason.set(value);
+		this.presetReason.set(this.reasonPresets().includes(value) ? value : value ? 'other' : '');
 		if (this.reasonError()) this.reasonError.set('');
 	}
 
@@ -213,6 +230,7 @@ export class DisputeModal implements OnChanges {
 
 	reset(): void {
 		this.stageId.set('');
+		this.presetReason.set('');
 		this.reason.set('');
 		this.description.set('');
 		this.requested.set('');
