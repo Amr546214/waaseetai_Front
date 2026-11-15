@@ -22,6 +22,10 @@ export interface Withdrawal {
   method?: string;
   /** PayPal destination snapshot of a 'paypal' withdrawal (when the API returns it). */
   paypalEmail?: string;
+  /** Marketer withdrawals: the fee snapshot taken at creation. The ledger is debited `amount`; PayPal is paid `netAmount`. Absent / null = no fee. */
+  feePercent?: number | null;
+  feeAmount?: number | null;
+  netAmount?: number | null;
   adminNote?: string | null;
   rejectionReason?: string | null;
   createdAt?: string;

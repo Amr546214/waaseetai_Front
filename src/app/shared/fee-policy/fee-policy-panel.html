@@ -23,7 +23,7 @@
       <div class="fp-note" role="note" data-testid="fp-display-only" [hidden]="!help()">الكاش باك ورسوم سحب الوسيط <b>لا تُطبَّق ماليًا حاليًا</b> (التفعيل الفعلي للكاش باك محجوب حتى تُحسم مدخلاته، ولا يوجد خصم يطبّق رسم السحب)، لذلك تُعرض للاطلاع ولا يمكن تعديلها حتى يُنفَّذ مسارها كاملًا. المطبّق فعليًا: عمولة مقدم الخدمة، عمولة الوسيط، رسوم الإيداع والحدّان الأدنيان للسحب.</div>
       <div class="fp-tbl-wrap">
         <table class="fp-tbl" data-testid="fp-ladders">
-          <thead><tr><th>المستوى</th><th>عمولة مقدم الخدمة %</th><th>كاش باك طالب الخدمة % <span class="fp-tag">للعرض فقط</span></th><th>عمولة الوسيط %</th></tr></thead>
+          <thead><tr><th>المستوى</th><th>عمولة مقدم الخدمة %</th><th>كاش باك طالب الخدمة % <span class="fp-tag">ثابت من السياسة · لا يُعدَّل من هنا</span></th><th>عمولة الوسيط %</th></tr></thead>
           <tbody>
             @for (l of levels; track l; let i = $index) {
               <tr>
@@ -41,7 +41,7 @@
         <fieldset class="fp-fs"><legend>رسوم الإيداع % <span class="fp-lg-sub">حسب وسيلة الدفع</span></legend>
           @for (k of depositKeys; track k) { <label class="fp-row">{{ depositLabels[k] }}<input class="fp-in" type="number" step="0.01" [value]="d.depositFeePercent[k]" [disabled]="!editable()" (input)="setTable('depositFeePercent', k, $any($event.target).value)" /></label> }
         </fieldset>
-        <fieldset class="fp-fs"><legend>رسوم سحب الوسيط % <span class="fp-tag">للعرض فقط</span></legend>
+        <fieldset class="fp-fs"><legend>رسوم سحب الوسيط % <span class="fp-tag">ثابت من السياسة · لا يُعدَّل من هنا</span></legend>
           @for (k of withdrawKeys; track k) { <label class="fp-row">{{ withdrawLabels[k] }}<input class="fp-in" type="number" step="0.01" [value]="d.marketerWithdrawalFeePercent[k]" disabled /></label> }
         </fieldset>
         <fieldset class="fp-fs"><legend>الحد الأدنى للسحب <span class="fp-tag">ثابت للمنصة</span></legend>
