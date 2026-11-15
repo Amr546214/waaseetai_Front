@@ -115,13 +115,13 @@ export class ProfileLevel implements OnInit, OnDestroy {
     const cur = d.roadmap.find(l => l.isCurrent) ?? d.roadmap[0];
     const next = isTop ? null : { title: d.nextLevelProgress.title, percent: d.nextLevelProgress.nextCashbackRate };
     return {
-      percentLabel: 'نسبة الكاش باك (للعرض فقط — غير مطبّقة ماليًا حاليًا)',
+      percentLabel: d.cashbackActive ? 'نسبة الكاش باك (تُضاف إلى محفظتك عند اكتمال المشروع بالتسليم)' : 'نسبة الكاش باك (للعرض فقط — غير مطبّقة ماليًا حاليًا)',
       current: { index: d.currentLevel.index, title: d.currentLevel.title, percent: d.currentStats.cashbackRate, color: cur?.color ?? { dark: '#9B8B7A', light: '#7A6B5A' } },
       next,
       stats: [
         { label: 'نقاطك', value: String(d.currentStats.points) },
         { label: 'مشاريع مكتملة', value: String(d.currentStats.completedProjects) },
-        { label: 'نسبة الكاش باك (للعرض فقط)', value: d.currentStats.cashbackRate + '%' },
+        { label: d.cashbackActive ? 'نسبة الكاش باك' : 'نسبة الكاش باك (للعرض فقط)', value: d.currentStats.cashbackRate + '%' },
       ],
       progress: isTop ? [] : [
         { key: 'points', label: 'النقاط', have: String(d.currentStats.points), need: String(d.currentStats.points + d.nextLevelProgress.pointsGap), percent: d.nextLevelProgress.pointsPercent },
@@ -142,6 +142,7 @@ export class ProfileLevel implements OnInit, OnDestroy {
       CLIENT_NO_RATINGS_YET: 'لا توجد تقييمات من مقدمي الخدمة لك بعد: شرط التقييم في المستويات الأعلى لا يتحقق قبل أن يقيّمك مقدم خدمة، ولا يُفترض لك تقييم.',
       CLIENT_RATING_NOT_AVAILABLE: 'تقييم طالب الخدمة غير متاح بعد، فلا يُحتسب شرط التقييم.',
       CASHBACK_NOT_CREDITED_YET: 'الكاش باك يظهر هنا حسب مستواك لكنه لا يُضاف إلى محفظتك تلقائيًا بعد.',
+      CASHBACK_CREDITED_ON_COMPLETION: 'الكاش باك يُضاف إلى محفظتك تلقائيًا عند اكتمال المشروع بالتسليم، بعد اعتماد درجة السداد من الإدارة ووجود تقييم حقيقي من مقدم الخدمة. لا يُمنح عند الإلغاء أو الإغلاق الإداري.',
     };
     return limitations.map(k => text[k]).filter((t): t is string => !!t);
   }

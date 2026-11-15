@@ -64,6 +64,8 @@ export interface MarketerWallet {
 	hasPaypal: boolean;
 	/** Why a withdrawal cannot be requested right now (null = it can). */
 	withdrawBlockedReason: string | null;
+	/** PayPal withdrawal fee (%) the next request will snapshot (absent on an older server) */
+	withdrawalFeePercent?: number;
 }
 
 export interface MarketerAssetFile {

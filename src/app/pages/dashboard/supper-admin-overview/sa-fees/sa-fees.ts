@@ -61,10 +61,10 @@ export class SaFees implements OnInit {
     const list = (m: Record<string, number>, labels: Record<string, string>) => Object.entries(m).map(([k, v]) => `${labels[k] ?? k} ${v}%`).join(' · ');
     return [
       { label: 'عمولة المنصة على مقدم الخدمة (الخصم النهائي)', value: range(p.roles.PROVIDER.levels), color: '#2BD4C7', desc: 'تنخفض مع ارتفاع المستوى: المستوى 1 إلى المستوى 15' },
-      { label: 'نسبة الكاش باك لطالب الخدمة', value: range(p.roles.CLIENT.levels), color: '#59C1F5', desc: 'تزيد مع ارتفاع المستوى — للعرض فقط: لا يُمنح كاش باك ماليًا حاليًا' },
+      { label: 'نسبة الكاش باك لطالب الخدمة', value: range(p.roles.CLIENT.levels), color: '#59C1F5', desc: 'تزيد مع ارتفاع المستوى — تُضاف لمحفظة طالب الخدمة عند اكتمال المشروع بالتسليم متى كان محرك الكاش باك مفعّلًا (يُراجَع في «الكاش باك» بالعمليات)' },
       { label: 'عمولة الوسيط', value: range(p.roles.MARKETER.levels), color: '#0FA99A', desc: 'تزيد مع ارتفاع المستوى' },
       { label: 'رسوم إيداع طالب الخدمة', value: '', color: '#FFB400', desc: list(p.payments.clientDeposit, DEPOSIT_METHOD_LABELS) },
-      { label: 'رسوم سحب الوسيط', value: '', color: '#5DA0FF', desc: list(p.payments.marketerWithdrawal, WITHDRAWAL_METHOD_LABELS) + ' — للعرض فقط: لا تُخصم من السحب حاليًا' },
+      { label: 'رسوم سحب الوسيط', value: '', color: '#5DA0FF', desc: list(p.payments.marketerWithdrawal, WITHDRAWAL_METHOD_LABELS) + ' — تُخصم من طلب سحب الوسيط عبر PayPal وتُحفظ لقطة بها عند الطلب' },
     ];
   });
 }

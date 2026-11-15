@@ -39,6 +39,9 @@
         <input type="number" formControlName="amount" id="withdraw-amount" aria-required="true" name="amount" inputmode="decimal" placeholder="أدخل مبلغ السحب بالدولار" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:var(--font-size-label);font-family:inherit;outline:none" class="txt-white">
         <div style="font-size:var(--font-size-small);margin-top:5px" class="txt-muted" data-testid="withdraw-limits">الحد الأدنى: {{ wallet() ? minimumWithdrawal() : '—' }} $ · المتاح للسحب: {{ withdrawableBalance() }} $ (لا يوجد حد أقصى آخر) <button type="button" class="txt-teal" style="font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit" data-testid="use-max" [disabled]="withdrawableBalance() <= 0" (click)="useMax()">سحب كامل الرصيد المتاح</button></div>
         <div style="font-size:var(--font-size-small);margin-top:3px" class="txt-muted" data-testid="balance-after">الرصيد بعد السحب: {{ balanceAfter() }} $</div>
+        @if (feePercent() > 0) {
+        <div style="font-size:var(--font-size-small);margin-top:3px" class="txt-muted" data-testid="withdraw-fee">رسوم السحب عبر PayPal ({{ feePercent() }}%): {{ feeAmount() }} $ · الصافي الذي يصلك: {{ netAfterFee() }} $</div>
+        }
       </div>
       <div style="margin-bottom:14px">
         <label style="font-size:var(--font-size-small);font-weight:700;display:block;margin-bottom:6px" class="txt-slate">بريد PayPal</label>
@@ -78,7 +81,7 @@
             @for (log of withdrawals(); track log.id) {
               <tr data-testid="withdrawal-row">
                 <td>{{ log.createdAt | wsDate:'date':'yyyy-MM-dd' }}</td>
-                <td style="font-weight:700" class="txt-green">{{ log.amount | number:'1.0-2' }} $</td>
+                <td style="font-weight:700" class="txt-green">{{ log.amount | number:'1.0-2' }} $@if (log.netAmount) { <div style="font-size:var(--font-size-small);font-weight:400" class="txt-muted" data-testid="withdrawal-net">الصافي {{ log.netAmount | number:'1.0-2' }} $ بعد رسوم {{ log.feePercent }}%</div> }</td>
                 <td dir="ltr">{{ log.paypalEmail || '—' }}</td>
                 <td>
                   <span data-testid="withdrawal-state" [attr.data-status]="log.status" style="padding:3px 10px;border-radius:12px;font-size:var(--font-size-small);font-weight:700"

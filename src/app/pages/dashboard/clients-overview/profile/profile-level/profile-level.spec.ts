@@ -88,6 +88,15 @@ describe('ProfileLevel (client)', () => {
 		expect(q(render(payload(1, [])), 'level-notices')).toBeNull();
 	});
 
+	it('cashback engine ON: the label and the notice say it is credited on completion, with no «display only» wording', () => {
+		const el = render({ ...payload(1, ['CLIENT_POINTS_NOT_AWARDED', 'CASHBACK_CREDITED_ON_COMPLETION']), cashbackActive: true });
+		const text = el.textContent!;
+		expect(text).toContain('تُضاف إلى محفظتك عند اكتمال المشروع بالتسليم');
+		expect(q(el, 'level-notices')!.textContent).toContain('يُضاف إلى محفظتك تلقائيًا عند اكتمال المشروع بالتسليم');
+		expect(text).not.toContain('للعرض فقط');
+		expect(text).not.toContain('غير مطبّقة ماليًا');
+	});
+
 	it('never shows made-up progress on a failed response or an HTTP error: the honest unavailable state', () => {
 		for (const stub of [{ getClientLevelDetails: () => of({ success: false, data: undefined as any }) }, { getClientLevelDetails: () => throwError(() => ({ status: 403 })) }]) {
 			const f = setup(stub);
