@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { marketerPrefsGuard } from '../../../core/services/marketer-prefs.store';
+import { marketerProfileCompleteGuard } from '../../../core/guards/marketer-profile-complete.guard';
 import { marketerSetupGuard } from './profile/profile-setup/profile-setup.guard';
 
 const MARKETER_PAGES: Routes = [
@@ -111,7 +112,7 @@ const MARKETER_PAGES: Routes = [
 	}
 ];
 
-// Every marketer page opens through the prefs guard (it loads the saved timezone once)
+// Every marketer page opens through the prefs guard (loads timezone) and the onboarding completeness guard
 export const MARKETER_ROUTES: Routes = [
-	{ path: '', canActivateChild: [marketerPrefsGuard], children: MARKETER_PAGES }
+	{ path: '', canActivateChild: [marketerPrefsGuard, marketerProfileCompleteGuard], children: MARKETER_PAGES }
 ];

@@ -52,24 +52,30 @@ describe('marketer setup: bio and one valid channel are required', () => {
     el().remove();
   });
 
-  it('bio step: typing a bio clears the message and keeps the text; the save sends it with setup:true', async () => {
+  it('bio step: typing a valid bio (>= 50 chars) clears the message and keeps the text; under 50 chars shows minlength error and does not send', async () => {
     await mount();
     c.currentStep.set(2); render();
     c.saveBio(); render();
     expect(errors().length).toBe(1);
-    c.marketingForm.get('bio')!.setValue('وصف تسويقي مختصر'); render();
+    c.marketingForm.get('bio')!.setValue('وصف قصير');
+    c.saveBio(); render();
+    expect(svc.updateMarketingInfo).not.toHaveBeenCalled();
+    expect(errors()).toContain('اكتب وصفًا تسويقيًا من 50 حرفًا على الأقل');
+    const longBio = 'مسوّق رقمي متخصص في التسويق بالعمولة وجلب العملاء للمشاريع والخدمات التقنية.';
+    c.marketingForm.get('bio')!.setValue(longBio); render();
     expect(errors()).toEqual([]);
     c.saveBio();
-    expect(svc.updateMarketingInfo).toHaveBeenCalledWith({ bio: 'وصف تسويقي مختصر', setup: true });
+    expect(svc.updateMarketingInfo).toHaveBeenCalledWith({ bio: longBio, setup: true });
   });
 
-  it('«التالي» and the bar cannot pass the bio step without a SAVED bio; typed-but-unsaved says to save it; with a saved bio they pass', async () => {
+  it('«التالي» and the bar cannot pass the marketing step without BOTH a saved avatar and a saved bio', async () => {
     await mount();
     c.currentStep.set(2); render();
     c.skipNext(); render();
     expect(c.currentStep()).toBe(2);
     expect(errors()).toContain('الوصف التسويقي مطلوب');
-    c.marketingForm.get('bio')!.setValue('نص مكتوب غير محفوظ'); render();
+    expect(el().querySelector('[data-testid="avatar-required"]')?.textContent).toContain('ارفع صورة شخصية');
+    c.marketingForm.get('bio')!.setValue('مسوّق رقمي متخصص في التسويق بالعمولة وجلب العملاء للمشاريع والخدمات التقنية.'); render();
     c.skipNext(); render();
     expect(c.currentStep()).toBe(2);
     expect(errors().some(t => t.includes('اضغط «حفظ ومتابعة»'))).toBe(true);
@@ -77,9 +83,44 @@ describe('marketer setup: bio and one valid channel are required', () => {
     c.setStep(4); render();
     expect(c.currentStep()).toBe(2);               // the bar stops at the first required step
     c.profile.set({ ...(c.profile() as any), bio: 'محفوظ' });
+    c.skipNext(); render();
+    expect(c.currentStep()).toBe(2);               // still blocks without avatar
+    expect(el().querySelector('[data-testid="avatar-required"]')).not.toBeNull();
+    c.profile.set({ ...(c.profile() as any), bio: 'محفوظ', avatarUrl: 'data:image/png;base64,AAA' });
     c.setStep(3); render();
     expect(c.currentStep()).toBe(3);
     expect(svc.updateMarketingInfo).not.toHaveBeenCalled();
+  });
+
+  it('avatar upload validates JPG/PNG <= 5MB and saves avatarUrl via updateMarketingInfo', async () => {
+    await mount();
+    c.currentStep.set(2); render();
+    const badFile = new File(['bad'], 'doc.pdf', { type: 'application/pdf' });
+    c.onAvatarChange({ target: { files: [badFile], value: 'x' } } as unknown as Event);
+    render();
+    expect(el().querySelector('[data-testid="avatar-error"]')).not.toBeNull();
+    expect(svc.updateMarketingInfo).not.toHaveBeenCalled();
+
+    const origFileReader = globalThis.FileReader;
+    class FakeReader {
+      result: string | ArrayBuffer | null = null;
+      onload: ((e: any) => void) | null = null;
+      onerror: (() => void) | null = null;
+      readAsDataURL() {
+        this.result = 'data:image/png;base64,FAKEIMG';
+        this.onload?.({ target: { result: this.result } });
+      }
+    }
+    vi.stubGlobal('FileReader', FakeReader as any);
+    try {
+      const okFile = new File(['img'], 'avatar.png', { type: 'image/png' });
+      svc.getProfile.mockReturnValueOnce(of({ success: true, data: { marketingChannels: [], completionPercentage: 20, bio: '', avatarUrl: 'data:image/png;base64,FAKEIMG', user: { avatarUrl: 'data:image/png;base64,FAKEIMG' } } }));
+      c.onAvatarChange({ target: { files: [okFile], value: 'x' } } as unknown as Event);
+      expect(svc.updateMarketingInfo).toHaveBeenCalledWith({ avatarUrl: 'data:image/png;base64,FAKEIMG' });
+      expect(c.avatarSaved()).toBe(true);
+    } finally {
+      vi.stubGlobal('FileReader', origFileReader);
+    }
   });
 
   it('channel step with no channel: «التالي» shows the message under the channel control (red box, aria-describedby, focus on the platform), nothing is sent', async () => {
@@ -128,7 +169,7 @@ describe('marketer setup: bio and one valid channel are required', () => {
   it('server errors land under the right place: bio on the bio, handle on the channel handle; a 500 is a general message that marks no healthy field', async () => {
     await mount();
     c.currentStep.set(2); render();
-    c.marketingForm.get('bio')!.setValue('وصف تسويقي');
+    c.marketingForm.get('bio')!.setValue('مسوّق رقمي متخصص في التسويق بالعمولة وجلب العملاء للمشاريع والخدمات التقنية.');
     svc.updateMarketingInfo.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'x', errors: [{ field: 'bio', path: 'bio', message: 'الوصف التسويقي مطلوب' }] } })));
     c.saveBio(); render();
     expect(c.marketingForm.get('bio')!.errors?.['server']).toBeTruthy();
@@ -147,7 +188,7 @@ describe('marketer setup: bio and one valid channel are required', () => {
     expect(c.channelForm.get('platform')!.invalid).toBe(false);
   });
 
-  it('finishing needs the two required items: without them it goes to the step and shows the message; PayPal is not required', async () => {
+  it('finishing needs the three required items (avatar, bio, channel): without them it goes to the step and shows the message; PayPal is not required', async () => {
     await mount();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     c.currentStep.set(5);
@@ -155,6 +196,11 @@ describe('marketer setup: bio and one valid channel are required', () => {
     expect(c.currentStep()).toBe(2);
     expect(nav).not.toHaveBeenCalled();
     c.profile.set({ ...(c.profile() as any), bio: 'محفوظ' });
+    c.currentStep.set(5);
+    c.finish(); render();
+    expect(c.currentStep()).toBe(2);
+    expect(el().querySelector('[data-testid="avatar-required"]')).not.toBeNull();
+    c.profile.set({ ...(c.profile() as any), avatarUrl: 'data:image/png;base64,AAA', bio: 'محفوظ' });
     c.finish(); render();
     expect(c.currentStep()).toBe(3);
     expect(el().querySelector('[data-testid="channel-required"]')).not.toBeNull();

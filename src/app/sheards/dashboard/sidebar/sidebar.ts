@@ -14,7 +14,7 @@ import { ChatStateService } from '../../../core/services/chat-state.service';
 import { ProviderApiService } from '../../../core/services/provider-api.service';
 import { MarketingCenterService } from '../../../core/services/marketing-center.service';
 import { MarketerProfileService } from '../../../core/services/marketer-profile.service';
-import { resolveMarketerSetup } from '../../../pages/dashboard/marketer-overview/profile/profile-setup/marketer-setup-state';
+import { resolveMarketerSetup, isMarketerOnboardingAllowedPath, isMarketerOnboardingComplete } from '../../../pages/dashboard/marketer-overview/profile/profile-setup/marketer-setup-state';
 import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService } from '../../../core/services/provider-access.service';
 import { isOnboardingAllowedPath } from '../../../core/guards/profile-complete.guard';
 import { AdminAccessService } from '../../../core/services/admin-access.service';
@@ -67,6 +67,11 @@ export class Sidebar implements OnInit {
 	marketerSetupNeeded = computed<boolean>(() => {
 		const p = this.marketerProfileService.profileSnapshot();
 		return p ? resolveMarketerSetup(p).kind === 'step' : true;
+	});
+	/** Marketer: required onboarding items (avatar, bio, one marketing channel) are incomplete -> disable dashboard links until completed. */
+	marketerOnboardingIncomplete = computed<boolean>(() => {
+		const p = this.marketerProfileService.profileSnapshot();
+		return p ? !isMarketerOnboardingComplete(p) : false;
 	});
 
 	constructor() {
@@ -467,7 +472,7 @@ export class Sidebar implements OnInit {
 	}
 
 	private getMarketerNavItems(): NavItem[] {
-		return [
+		const items: NavItem[] = [
 			{ type: 'header', label: 'الرئيسية' },
 			{
 				type: 'link',
@@ -550,6 +555,27 @@ export class Sidebar implements OnInit {
 				action: 'logout'
 			}
 		];
+
+		if (this.marketerOnboardingIncomplete()) {
+			const reason = 'أكمل الصورة الشخصية والوصف التسويقي وقناة تسويق واحدة أولًا';
+			const off = (item: NavItem): NavItem => ({
+				...item,
+				disabled: true,
+				disabledReason: reason,
+				children: item.children?.map(c => ({ ...c, disabled: true, disabledReason: reason }))
+			});
+			return items.map(item => {
+				if (item.type === 'header' || item.action === 'logout') return item;
+				if (item.children) {
+					const open = (c: NavItem) => !!c.route && isMarketerOnboardingAllowedPath(c.route);
+					if (!item.children.some(open)) return off(item);
+					return { ...item, children: item.children.map(c => open(c) ? c : { ...c, disabled: true, disabledReason: reason }) };
+				}
+				return item.route && isMarketerOnboardingAllowedPath(item.route) ? item : off(item);
+			});
+		}
+
+		return items;
 	}
 
 	private getProviderNavItems(): NavItem[] {
