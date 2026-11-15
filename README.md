@@ -27,7 +27,7 @@ Waseet AI connects service clients with providers through requests, offers, cont
 | Provider dashboard | Service providers | `/provider-overview` |
 | Marketer dashboard | Marketing brokers | `/marketer-overview` |
 | Admin dashboard | Super admins | `/supper-admin-overview` |
-| Assistant | Signed-in users | `/assistant` |
+| Assistant («وسيط AI») | Signed-in users | `/assistant` — the logo in its sidebar returns to the home page |
 
 The UI is Arabic-first (RTL) with a dark/light theme switch.
 
@@ -41,7 +41,7 @@ The UI is Arabic-first (RTL) with a dark/light theme switch.
   </tr>
 </table>
 
-<sub>Screenshots: public home page from a local run (`npm run start:local`, no backend, no user data).</sub>
+<sub>Screenshots: public home page from a local run (`npm run start:local`, no backend, no user data), refreshed 2026-11-15.</sub>
 
 ## Tech stack
 
@@ -121,6 +121,8 @@ public/                  Static assets (brand mark, fonts, images)
 
 - Public pages work without a session; private actions check authentication when triggered, and a `401` on an authenticated request clears the session.
 - Dashboards are role-guarded; protected pages need a backend account with the matching role.
+- While a dispute or a mutual-cancellation request is open, the client's approve / revision buttons (project timeline, milestones tab, delivery-review page) are disabled with the reason; the backend enforces the same freeze with `423`.
+- Background refreshes (the cancellation tile every 30 s, the identity-review poll, backup-job polling) send `SKIP_LOADING` so they never raise the full-page loader; only user-initiated loads do.
 - Do not touch window/`localStorage` outside browser-only code — the app is server-rendered and hydrated.
 
 ## Documentation
