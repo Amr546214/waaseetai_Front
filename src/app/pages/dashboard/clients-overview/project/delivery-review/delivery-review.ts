@@ -192,7 +192,7 @@ export class DeliveryReview implements OnInit {
 
 	// Dispute freeze: while a dispute on this project is open the backend refuses approvals (423). The button stays visible but disabled with
 	// the reason; chat, evidence and the provider's deliveries are untouched, and a revision request is still possible.
-	freezeReason(): string | null { const f = this.project()?.disputeFreeze; return f?.frozen ? (f.reason || 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع') : null; }
+	freezeReason(): string | null { const f = this.project()?.disputeFreeze; if (f?.frozen) return f.reason || 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع'; const c = this.project()?.cancellationFreeze; return c?.frozen ? (c.reason || 'مراجعة التسليم واعتماده وطلب تعديله متوقفة بسبب طلب الإلغاء بالتراضي') : null; }
 
 	statusBadgeText(stage: any): string {
 		switch (this.viewState(stage)) {
@@ -254,14 +254,14 @@ export class DeliveryReview implements OnInit {
 	}
 
 	toggleRevision() {
-		if (this.saving()) return;
+		if (this.saving() || this.freezeReason()) return;
 		this.revisionError.set(''); this.revisionFieldInvalid.set(false);
 		this.revisionOpen.update(v => !v);
 	}
 
 	requestRevision() {
 		const stage = this.stage();
-		if (!stage || this.saving() || !this.canRequestRevision(stage) || !this.canDecide(stage)) return;
+		if (!stage || this.saving() || this.freezeReason() || !this.canRequestRevision(stage) || !this.canDecide(stage)) return;
 		const note = this.revisionNote.trim();
 		if (note.length < this.REVISION_MIN_CHARS) {
 			this.revisionError.set(`اكتب ملاحظات التعديل بوضوح (${this.REVISION_MIN_CHARS} أحرف على الأقل)`);

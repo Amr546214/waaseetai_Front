@@ -44,13 +44,17 @@ describe('ProjectDetails - dispute freeze', () => {
     expect(component.freezeReason(null)).toBeNull();
   });
 
-  it('openReview(approve) does not leave the page while frozen and tells the client why; a revision still navigates', () => {
+  it('openReview does not leave the page while frozen (approve or revision) and tells the client why', () => {
     component.project.set({ disputeFreeze: { frozen: true, reason: REASON } });
     component.openReview({ id: 's1' }, 'approve');
     expect(navigate).not.toHaveBeenCalled();
     expect(component.error()).toBe(REASON);
     component.openReview({ id: 's1' }, 'revision');
-    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).not.toHaveBeenCalled();
+    component.project.set({ cancellationFreeze: { frozen: true, reason: 'طلب إلغاء بالتراضي مفتوح' } });
+    component.openReview({ id: 's1' }, 'revision');
+    expect(navigate).not.toHaveBeenCalled();
+    expect(component.error()).toBe('طلب إلغاء بالتراضي مفتوح');
   });
 
   it('openReview(approve) works as before when not frozen', () => {

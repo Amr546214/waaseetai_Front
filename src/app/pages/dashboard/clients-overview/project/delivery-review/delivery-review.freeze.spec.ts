@@ -11,24 +11,24 @@ import { DeliveryReview } from './delivery-review';
 // revision request, the chat and the evidence available.
 const REASON = 'اعتماد المراحل وصرف الأموال موقوفان بسبب نزاع مفتوح على هذا المشروع إلى أن تحسمه الإدارة.';
 
-function workspace(disputeFreeze: any) {
+function workspace(disputeFreeze: any, cancellationFreeze?: any) {
   return {
     success: true,
     data: {
       id: 'contract-1', projectId: 'proj-1', title: 'مشروع', clientName: 'نورة', contractRef: 'CT-1', conversationId: 'conv-1',
-      disputeFreeze,
+      disputeFreeze, cancellationFreeze,
       stages: [{ id: 'stage-1', stageNumber: 1, title: 'المرحلة', amount: 100, status: 'submitted', threads: [{ id: 'd1', date: new Date().toISOString(), files: [] }] }],
     },
   };
 }
 
-async function setup(freeze: any, post: () => any = () => of({ success: true, data: {} })) {
+async function setup(freeze: any, post: () => any = () => of({ success: true, data: {} }), cancellationFreeze?: any) {
   const postSpy = vi.fn<(...a: any[]) => any>(post);
   await TestBed.configureTestingModule({
     imports: [DeliveryReview],
     providers: [
       provideRouter([]),
-      { provide: HttpClient, useValue: { get: () => of(workspace(freeze)), post: (...a: any[]) => postSpy(...a) } },
+      { provide: HttpClient, useValue: { get: () => of(workspace(freeze, cancellationFreeze)), post: (...a: any[]) => postSpy(...a) } },
       { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'proj-1', stageId: 'stage-1' }) } } },
     ],
   }).compileComponents();
@@ -54,17 +54,27 @@ describe('DeliveryReview - dispute freeze', () => {
     expect(component.error()).toBe(REASON);
   });
 
-  it('frozen: the revision request and the conversation are still available', async () => {
+  it('frozen: the revision request is disabled and never posted, the conversation stays available', async () => {
     const { el, postSpy, component } = await setup({ frozen: true, activeDisputeCount: 2, disputeId: 'dp1', reason: REASON });
     const toggle = el.querySelector('[data-testid="dr-revision-toggle"]') as HTMLButtonElement;
     expect(toggle).toBeTruthy();
-    expect(toggle.disabled).toBe(false);
+    expect(toggle.disabled).toBe(true);
     expect(el.textContent).toContain('فتح نقاش مع مقدم الخدمة');
     component.revisionNote = 'يرجى تعديل الألوان كما في الملاحظات';
     component.revisionOpen.set(true);
     component.requestRevision();
-    expect(postSpy).toHaveBeenCalledTimes(1);
-    expect((postSpy.mock.calls[0] as any[])[1].decision).toBe('revision');
+    expect(postSpy).not.toHaveBeenCalled();
+  });
+
+  it('open cancellation request: approve and revision are both frozen with the cancellation reason', async () => {
+    const CR = 'يوجد طلب إلغاء بالتراضي مفتوح: مراجعة التسليم واعتماده وطلب تعديله متوقفة';
+    const { el, postSpy, component } = await setup({ frozen: false, activeDisputeCount: 0, disputeId: null, reason: null }, undefined, { frozen: true, agreed: false, reason: CR });
+    expect(el.querySelector('[data-testid="dr-freeze-banner"]')?.textContent).toContain(CR);
+    expect((el.querySelector('[data-testid="dr-approve"]') as HTMLButtonElement).disabled).toBe(true);
+    expect((el.querySelector('[data-testid="dr-revision-toggle"]') as HTMLButtonElement).disabled).toBe(true);
+    component.approveDelivery();
+    component.revisionNote = 'يرجى تعديل الألوان كما في الملاحظات'; component.revisionOpen.set(true); component.requestRevision();
+    expect(postSpy).not.toHaveBeenCalled();
   });
 
   it('not frozen: no banner, approve enabled and posted as before', async () => {

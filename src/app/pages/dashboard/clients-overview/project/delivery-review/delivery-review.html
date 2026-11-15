@@ -115,7 +115,7 @@
 			<div class="dr-card" [attr.data-state]="viewState(stage)">
 				@if (error()) { <div class="inline-error" role="alert">{{ error() }}</div> }
 				@if (freezeReason(); as fr) {
-					<div class="inline-error" role="status" data-testid="dr-freeze-banner"><b>الاعتماد موقوف مؤقتًا:</b> {{ fr }} <a routerLink="/client-overview/disputes">متابعة النزاع</a></div>
+					<div class="inline-error" role="status" data-testid="dr-freeze-banner"><b>المراجعة والاعتماد موقوفان مؤقتًا:</b> {{ fr }} @if (project()?.disputeFreeze?.frozen) { <a routerLink="/client-overview/disputes">متابعة النزاع</a> }</div>
 				}
 				@switch (viewState(stage)) {
 					@case ('decided') {
@@ -143,7 +143,7 @@
 						<div class="dr-decision-row">
 							<button type="button" class="dr-btn-pri" data-testid="dr-approve" (click)="approveDelivery()" [disabled]="saving() || !!freezeReason()" [attr.title]="freezeReason() || blockReason(stage)">{{ saving() ? 'جارٍ الحفظ...' : 'اعتماد التسليم وإفراج الدفعة' }}</button>
 							@if (canRequestRevision(stage)) {
-								<button type="button" class="dr-btn-secondary" data-testid="dr-revision-toggle" (click)="toggleRevision()" [disabled]="saving()">طلب تعديل على التسليم</button>
+								<button type="button" class="dr-btn-secondary" data-testid="dr-revision-toggle" (click)="toggleRevision()" [disabled]="saving() || !!freezeReason()" [attr.title]="freezeReason()">طلب تعديل على التسليم</button>
 							}
 						</div>
 					}
@@ -162,7 +162,7 @@
 						<textarea id="dr-rev-note" aria-required="true" data-testid="dr-revision-note" rows="4" style="width:100%" [(ngModel)]="revisionNote" (ngModelChange)="revisionFieldInvalid.set(false)" name="revisionNote" placeholder="اشرح التعديل المطلوب بوضوح" [class.ws-invalid]="revisionFieldInvalid()" [attr.aria-invalid]="revisionFieldInvalid() ? 'true' : null" [attr.aria-describedby]="revisionFieldInvalid() ? 'dr-rev-err' : null"></textarea>
 						@if (revisionError()) { <div class="inline-error" id="dr-rev-err" role="alert" data-testid="dr-revision-error">{{ revisionError() }}</div> }
 						<div class="dr-decision-row" style="margin-top:8px">
-							<button type="button" class="dr-btn-pri" data-testid="dr-revision-send" (click)="requestRevision()" [disabled]="saving()">{{ saving() ? 'جارٍ الإرسال...' : 'إرسال طلب التعديل' }}</button>
+							<button type="button" class="dr-btn-pri" data-testid="dr-revision-send" (click)="requestRevision()" [disabled]="saving() || !!freezeReason()">{{ saving() ? 'جارٍ الإرسال...' : 'إرسال طلب التعديل' }}</button>
 							<button type="button" class="dr-btn-secondary" (click)="toggleRevision()" [disabled]="saving()">إلغاء</button>
 						</div>
 					</div>
