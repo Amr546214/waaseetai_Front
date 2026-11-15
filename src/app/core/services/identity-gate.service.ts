@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy, inject, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -72,8 +73,8 @@ export class IdentityGateService implements OnDestroy {
 
 	private get url() { return `${environment.url_api}/${this.party === 'CLIENT' ? 'client' : 'provider'}/profile/setup/identity`; }
 
-	load(): Observable<IdentityGateState> {
-		return this.http.get<{ data: IdentityGateState }>(this.url).pipe(
+	load(silent = false): Observable<IdentityGateState> {
+		return this.http.get<{ data: IdentityGateState }>(this.url, silent ? { context: new HttpContext().set(SKIP_LOADING, true) } : {}).pipe(
 			map(r => r.data),
 			tap({ next: s => { this.loadFailed.set(false); this.apply(s); }, error: () => this.loadFailed.set(true) })
 		);
@@ -111,7 +112,7 @@ export class IdentityGateService implements OnDestroy {
 			if (typeof document !== 'undefined' && document.visibilityState === 'hidden') { this.schedule(); return; }
 			if (this.inFlight || this.status() !== 'UNDER_REVIEW') { if (this.status() === 'UNDER_REVIEW') this.schedule(); return; }
 			this.inFlight = true;
-			this.load().subscribe({
+			this.load(true).subscribe({
 				next: () => { this.inFlight = false; this.delay = Math.min(this.delay * 1.5, POLL_MAX_MS); },
 				error: () => { this.inFlight = false; this.delay = POLL_MAX_MS; if (this.status() === 'UNDER_REVIEW') this.schedule(); }
 			});

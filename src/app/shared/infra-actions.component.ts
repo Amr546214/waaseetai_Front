@@ -1,5 +1,6 @@
 import { Component, DestroyRef, Input, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../core/interceptors/loading.interceptor';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom, timer, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -168,7 +169,7 @@ export class InfraActionsComponent {
           this.poll = timer(1000, 2000)
             .pipe(
               switchMap(() =>
-                this.http.get<{ data: any }>(`${this.base}/backups/jobs/${r.data.id}`),
+                this.http.get<{ data: any }>(`${this.base}/backups/jobs/${r.data.id}`, { context: new HttpContext().set(SKIP_LOADING, true) }),
               ),
               takeUntilDestroyed(this.destroyRef),
             )

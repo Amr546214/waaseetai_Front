@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_LOADING } from '../interceptors/loading.interceptor';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -34,7 +35,8 @@ export class MutualCancelService {
 	private base = (s: CancelSide) => `${environment.url_api}${s === 'client' ? '/client/projects' : '/provider/projects'}`;
 	/** the answer / withdraw routes are keyed by the REQUEST id (client router: under /client/projects, provider router: at its root) */
 	private byId = (s: CancelSide) => `${environment.url_api}${s === 'client' ? '/client/projects/cancellation-requests' : '/provider/cancellation-requests'}`;
-	list(s: CancelSide, projectKey: string): Observable<{ success: boolean; data: CancelList }> { return this.http.get<any>(`${this.base(s)}/${encodeURIComponent(projectKey)}/cancellation-requests`); }
+	/** `silent` = the background refresh: it must never raise the full-page loader (that flashed the whole screen on every refresh). */
+	list(s: CancelSide, projectKey: string, silent = false): Observable<{ success: boolean; data: CancelList }> { const url = `${this.base(s)}/${encodeURIComponent(projectKey)}/cancellation-requests`; return silent ? this.http.get<any>(url, { context: new HttpContext().set(SKIP_LOADING, true) }) : this.http.get<any>(url); }
 	create(s: CancelSide, projectKey: string, body: { reason: string; note?: string; requestKey: string }): Observable<{ success: boolean; data: CancelRequest }> { return this.http.post<any>(`${this.base(s)}/${encodeURIComponent(projectKey)}/cancellation-requests`, body); }
 	respond(s: CancelSide, id: string, decision: 'accept' | 'reject', responseNote?: string): Observable<{ success: boolean; data: CancelRequest }> { return this.http.post<any>(`${this.byId(s)}/${id}/respond`, { decision, ...(responseNote ? { responseNote } : {}) }); }
 	withdraw(s: CancelSide, id: string): Observable<{ success: boolean; data: CancelRequest }> { return this.http.post<any>(`${this.byId(s)}/${id}/withdraw`, {}); }
