@@ -46,7 +46,7 @@ export class NavDashboard {
 	private cdRef = inject(ChangeDetectorRef);
 	private el = inject(ElementRef);
 
-	characterName = computed(() => this.assistantStore?.characterName() || 'نديم');
+	characterName = computed(() => this.assistantStore?.characterName() || 'وسيط AI');
 
 	toggleAssistant(): void {
 		if (this.assistantStore) {

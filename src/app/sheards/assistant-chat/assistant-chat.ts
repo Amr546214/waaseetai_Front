@@ -158,7 +158,7 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		<div class="ac__settings">
 			<label>مظهر الروبوت
 				<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)">
-					<option value="scout" [selected]="store.skin() === 'scout'">نديم (دليل وسيط)</option>
+					<option value="scout" [selected]="store.skin() === 'scout'">وسيط AI (دليل المنصة)</option>
 					<option value="classic" [selected]="store.skin() === 'classic'">بيبو (المساعد الكرتوني)</option>
 				</select>
 			</label>

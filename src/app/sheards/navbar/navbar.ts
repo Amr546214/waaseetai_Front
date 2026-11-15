@@ -44,7 +44,7 @@ export class Navbar {
 	private el = inject(ElementRef);
 	private platformId = inject(PLATFORM_ID);
 	
-	characterName = computed(() => this.assistantStore?.characterName() || 'نديم');
+	characterName = computed(() => this.assistantStore?.characterName() || 'وسيط AI');
 
 	toggleAssistant(): void {
 		if (this.assistantStore) {

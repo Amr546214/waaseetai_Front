@@ -598,7 +598,7 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 			store.setSkin('classic');
 			store.runMotion('map');
 			expect(store.beboCommand()).toBe(command);
-			expect(store.commandReply()).toContain('متاحة لنديم');
+			expect(store.commandReply()).toContain('متاحة لوسيط AI');
 		});
 
 		it('keeps invalid skin values out of state and persisted preferences', () => {

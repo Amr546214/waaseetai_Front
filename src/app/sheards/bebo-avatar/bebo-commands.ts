@@ -153,7 +153,7 @@ const COMMAND_GROUPS: Record<BeboAction, string[]> = {
 export function commandFor(text: string): BeboAction | null {
 	const t = normalize(text)
 		.replace(/^(من فضلك|لو سمحت|ممكن|please)\s+/, '')
-		.replace(/^(يا\s+)?(بيبو|bebo|نديم|nadeem)\s+/, '')
+		.replace(/^(يا\s+)?(بيبو|bebo|نديم|nadeem|وسيط\s*ai)\s+/, '')
 		.replace(/^(من فضلك|لو سمحت|ممكن|please)\s+/, '')
 		.trim();
 	if (t.length > 100 || /^(لا|مت|ما|dont|do not|don't)\b/.test(t)) return null;

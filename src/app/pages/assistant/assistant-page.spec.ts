@@ -177,6 +177,9 @@ describe('AssistantPageComponent (ChatGPT-like Redesign R1-R7)', () => {
 	});
 
 	it('R1: has logo hover toggle element (.tc-brand-toggle) and tooltips with kbd shortcuts', () => {
+		// expanded: the brand is a home link; the hover toggle lives on the collapsed rail
+		fixture.componentInstance.desktopCollapsed.set(true);
+		fixture.detectChanges();
 		const brandToggle = el().querySelector('.tc-brand-entry .tc-brand-toggle');
 		expect(brandToggle).toBeTruthy();
 
@@ -229,13 +232,25 @@ describe('AssistantPageComponent (ChatGPT-like Redesign R1-R7)', () => {
 	});
 
 	// ── R2: Topbar & Header Simplification ────────────────────────────────────
-	it('R2: renders topbar with single tab «المحادثة · نديم» and share button', async () => {
+	it('brand link returns to home when the sidebar is expanded', () => {
+		const brand = el().querySelector('[data-testid="assistant-brand-home"]') as HTMLAnchorElement | null;
+		expect(brand).toBeTruthy();
+		expect(brand?.getAttribute('href')).toBe('/');
+	});
+
+	it('brand link returns to home when the sidebar is expanded', () => {
+		const brand = el().querySelector('[data-testid="assistant-brand-home"]');
+		expect(brand).toBeTruthy();
+		expect(brand?.getAttribute('href')).toBe('/');
+	});
+
+	it('R2: renders topbar with single tab «المحادثة · وسيط AI» and share button', async () => {
 		const topbar = el().querySelector('.tc-topbar');
 		expect(topbar).toBeTruthy();
 
 		const tabs = topbar?.querySelectorAll('.tc-workspace-tabs button, .tc-workspace-tabs span');
 		expect(tabs?.length).toBe(1);
-		expect(tabs?.[0].textContent).toContain('المحادثة · نديم');
+		expect(tabs?.[0].textContent).toContain('المحادثة · وسيط AI');
 
 		const shareButton = topbar?.querySelector('.tc-share-button') as HTMLButtonElement;
 		expect(shareButton).toBeTruthy();
@@ -314,7 +329,7 @@ describe('AssistantPageComponent (ChatGPT-like Redesign R1-R7)', () => {
 
 		// Auto-expanding textarea
 		const textarea = el().querySelector('textarea#user-input') as HTMLTextAreaElement;
-		expect(textarea.placeholder).toContain('اسأل نديم عن خدمات وسيط');
+		expect(textarea.placeholder).toContain('اسأل وسيط AI عن خدمات وسيط');
 
 		// Disclaimer caption
 		const caption = el().querySelector('.tc-composer-caption');

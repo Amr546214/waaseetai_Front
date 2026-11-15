@@ -86,8 +86,8 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 		toggle.click();fixture.detectChanges();
 		expect(tools.hidden).toBe(true);
 		expect(toggle.getAttribute('aria-expanded')).toBe('false');
-		expect(toggle.getAttribute('aria-label')).toBe('فتح أدوات نديم');
-		expect(el().querySelector('.pg-toolbar-caption')?.textContent).toContain('أدوات نديم');
+		expect(toggle.getAttribute('aria-label')).toBe('فتح أدوات وسيط AI');
+		expect(el().querySelector('.pg-toolbar-caption')?.textContent).toContain('أدوات وسيط AI');
 		expect(store.panelOpen()).toBe(true);
 		expect(el().querySelector('.aw__panel app-assistant-chat')).toBeTruthy();
 		expect(robot().paused).toBe(false);
@@ -248,7 +248,7 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 	it('compact chat keeps only the character name and puts navigation and history actions in one menu', () => {
 		store.open();
 		fixture.detectChanges();
-		expect(el().querySelector('#aw-title')?.textContent).toBe('نديم');
+		expect(el().querySelector('#aw-title')?.textContent).toBe('وسيط AI');
 		expect(el().querySelector('.aw__state')).toBeNull();
 		expect(el().querySelector('.ac__toolbar')).toBeNull();
 		expect(el().querySelector('#aw-menu')).toBeNull();
@@ -456,7 +456,7 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 			expect(store.panelOpen()).toBe(true);
 			const prompt = el().querySelector('[data-testid="assistant-guest-prompt"]') as HTMLElement;
 			expect(prompt).toBeTruthy();
-			expect(prompt.textContent).toMatch(/سجّل الدخول لتتحدث مع (نديم|بيبو)/);
+			expect(prompt.textContent).toMatch(/سجّل الدخول لتتحدث مع (وسيط AI|بيبو)/);
 			expect(el().querySelector('app-assistant-chat')).toBeNull();
 			expect(el().querySelector('textarea, input')).toBeNull();
 			expect(el().querySelector('.aw__state')).toBeNull();
@@ -558,9 +558,9 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 	});
 
 	describe('Character identity & role (Nadeem default vs Bebo)', () => {
-		it('defaults to skin scout: name is نديم, role is دليل وسيط, 25 guide motions', () => {
+		it('defaults to skin scout: name is وسيط AI, role is دليل وسيط, 25 guide motions', () => {
 			expect(store.skin()).toBe('scout');
-			expect(fixture.componentInstance.characterName()).toBe('نديم');
+			expect(fixture.componentInstance.characterName()).toBe('وسيط AI');
 			expect(fixture.componentInstance.characterRole()).toBe('دليل وسيط');
 			expect(fixture.componentInstance.currentMotions().length).toBe(25);
 		});
@@ -576,14 +576,14 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 
 		it('updates the real shadow button name immediately when switching characters without a pose change', () => {
 			const button = robot().shadowRoot!.querySelector('button')!;
-			expect(button.getAttribute('aria-label')).toContain('نديم');
+			expect(button.getAttribute('aria-label')).toContain('وسيط AI');
 			store.setSkin('classic');
 			fixture.detectChanges();
 			expect(button.getAttribute('aria-label')).toContain('بيبو');
-			expect(button.getAttribute('aria-label')).not.toContain('نديم');
+			expect(button.getAttribute('aria-label')).not.toContain('وسيط AI');
 			store.setSkin('scout');
 			fixture.detectChanges();
-			expect(button.getAttribute('aria-label')).toContain('نديم');
+			expect(button.getAttribute('aria-label')).toContain('وسيط AI');
 		});
 
 		it('tour buttons dynamically show the active character name', () => {
@@ -592,7 +592,7 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 			fixture.detectChanges();
 			const askButtons = el().querySelectorAll('.pg-tour-ask');
 			expect(askButtons.length).toBeGreaterThan(0);
-			expect(askButtons[0].textContent).toContain('اسأل نديم عن هذا الموضوع');
+			expect(askButtons[0].textContent).toContain('اسأل وسيط AI عن هذا الموضوع');
 			store.setSkin('classic');
 			fixture.detectChanges();
 			expect(askButtons[0].textContent).toContain('اسأل بيبو عن هذا الموضوع');
@@ -645,7 +645,7 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 			// Reopen button appears
 			const reopenBtn = el().querySelector('.pg-reopen') as HTMLButtonElement;
 			expect(reopenBtn).toBeTruthy();
-			expect(reopenBtn.textContent).toContain('إظهار نديم');
+			expect(reopenBtn.textContent).toContain('إظهار وسيط AI');
 		});
 
 		it('clicking the reopen pill restores the assistant and dock', () => {
