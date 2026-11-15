@@ -89,4 +89,15 @@ describe('Active (provider active projects) — real states, no invented labels'
 		expect(component.activeFilter()).toBe('pending');
 		expect(component.filteredProjects().map(p => p.id)).toEqual(['3']);
 	});
+
+	it('stops delivery readiness and excludes project from needsAction when disputeStatus is OPEN even if canUploadDelivery is true', () => {
+		const { fixture, component } = setup();
+		fixture.detectChanges();
+		component.projects.set([
+			{ id: '10', title: 'p10', status: 'run', statusLabel: 'قيد التنفيذ', progress: 40, providerName: 'a', providerInitial: 'A', providerAvatarColor: '#000', currentStage: 's1', escrowAmount: '100', escrowLabel: 'e', meta: 'm', heldAmount: 100, escrowFunded: true, canUploadDelivery: true, disputeStatus: 'OPEN' }
+		]);
+		fixture.detectChanges();
+		expect((component.counts() as any).needsAction).toBe(0);
+		expect((fixture.nativeElement as HTMLElement).querySelector('[data-testid="upload-blocked-reason"]')?.textContent).toContain('نزاع مفتوح');
+	});
 });

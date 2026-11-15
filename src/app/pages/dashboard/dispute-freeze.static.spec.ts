@@ -6,13 +6,15 @@ import { readFileSync } from 'node:fs';
 const read = (p: string) => readFileSync('src/app/' + p, 'utf8');
 
 describe('dispute freeze - static guards', () => {
-	it('provider progress page shows the freeze reason with a link to the dispute, and keeps delivery/chat untouched', () => {
+	it('provider progress page shows the freeze reason with a link to the dispute, stops delivery, and keeps chat/evidence available', () => {
 		const html = read('pages/dashboard/provider-overview/projects/active/progress/progress.html');
 		expect(html).toContain('data-testid="provider-freeze-banner"');
-		expect(html).toContain('disputeFreeze.reason');
+		expect(html).toContain('disputeFreeze?.reason');
 		expect(html).toContain('/provider-overview/disputes/');
-		expect(html).toContain('يمكنك متابعة التسليم والمحادثة ورفع الأدلة');
-		expect(html).not.toMatch(/canUploadDelivery[^}]*disputeFreeze/);
+		expect(html).toContain('التسليم واعتماد المراحل وصرف الدفعات موقوفة');
+		expect(html).toContain('يمكنك متابعة المحادثة ورفع الأدلة');
+		expect(html).toContain('canDeliverStage(data, stage)');
+		expect(html).toContain('canDeliverEdit(data, edit)');
 	});
 
 	it('client review list marks frozen items; the client review page keeps revision and chat outside the freeze', () => {

@@ -124,12 +124,28 @@ export class Active implements OnInit {
 			wait: projs.filter(p => p.status === 'wait').length,
 			review: projs.filter(p => p.status === 'review').length,
 			pending: projs.filter(p => p.status === 'pending').length,
-			// Projects where the next move is the provider's (a delivery or a requested revision can be sent now).
-			needsAction: projs.filter(p => p.canUploadDelivery).length,
+			// Projects where the next move is the provider's (a delivery or a requested revision can be sent now, and no open dispute).
+			needsAction: projs.filter(p => this.canUpload(p)).length,
 			late: lateCount,
 			totalEscrowFormatted: formatMoney(totalEscrow)
 		};
 	});
+
+	hasOpenDispute(p: Project): boolean {
+		const s = typeof p.disputeStatus === 'string' ? p.disputeStatus.toUpperCase() : '';
+		return s === 'OPEN' || s === 'UNDER_REVIEW';
+	}
+
+	canUpload(p: Project): boolean {
+		return Boolean(p.canUploadDelivery) && !this.hasOpenDispute(p);
+	}
+
+	uploadBlockNote(p: Project): string | null {
+		if (this.hasOpenDispute(p)) {
+			return p.uploadBlockedReason || 'التسليم متوقف بسبب نزاع مفتوح على المشروع';
+		}
+		return p.canUploadDelivery === false && p.uploadBlockedReason ? p.uploadBlockedReason : null;
+	}
 
 	teamMembers = computed(() => {
 		const members = new Map<string, { name: string; initial: string; color: string }>();
