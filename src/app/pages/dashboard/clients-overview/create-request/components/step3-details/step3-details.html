@@ -23,10 +23,11 @@
 					<div class="flex items-center gap-2">
 						<button type="button"
 							data-testid="ai-refine-btn"
-							class="text-xs font-bold px-3 py-2 bg-[var(--sec-bg)] text-[var(--txt-2)] rounded-xl border border-[var(--sec-bd)] hover:border-[var(--teal)] transition-all cursor-pointer"
+							class="inline-flex items-center justify-center gap-[6px] text-xs font-bold px-3 py-2 bg-[var(--ai-bg)] text-[var(--ai-txt)] rounded-xl border border-[var(--ai-border)] hover:bg-[rgba(123,47,190,.18)] transition-all cursor-pointer disabled:opacity-[.55] disabled:cursor-not-allowed"
 							[disabled]="parent.isAiStreaming() || parent.isFetchingAiDraft()"
 							(click)="parent.triggerAiDescription()">
-							{{ parent.isAiStreaming() ? 'جارٍ تحسين الوصف...' : 'تحسين وصياغة AI' }}
+							<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg>
+							<span>{{ parent.isAiStreaming() ? 'جارٍ تحسين الوصف...' : 'تحسين وصياغة AI' }}</span>
 						</button>
 					</div>
 				</div>
