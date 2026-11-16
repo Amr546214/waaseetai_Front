@@ -1,10 +1,11 @@
 /// <reference types="node" />
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Public } from './public';
+import { AccountLogsService } from '../../../../../core/services/account-logs.service';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
@@ -25,12 +26,14 @@ const data = (o: any = {}) => ({
 	basicInfo: { headline: '', bio: '' }, specialties: [], services: [], skills: [], aiMetrics: { averageTestScore: 0, codeMatchingIndex: 0 }, ...o,
 });
 
+let logsResponse: any = { success: true, data: { items: [] } };
 async function render(d: any, company = false) {
 	await TestBed.configureTestingModule({
 		imports: [Public],
 		providers: [provideRouter([]),
 			{ provide: AuthStore, useValue: { currentUser: () => (company ? { accountType: 'PROVIDER_COMPANY', firstName: 'ش', lastName: 'ك' } : null) } },
 			{ provide: SpecialtyService, useValue: { getPublicSpecialties: () => of({ success: true, data: [{ id: 'sp1', nameAr: 'أنظمة الويب' }] }) } },
+			{ provide: AccountLogsService, useValue: { getUserLogs: () => (logsResponse instanceof Error ? throwError(() => logsResponse) : of(logsResponse)) } },
 			{ provide: ProviderProfileService, useValue: { getPublicProfile: () => of({ success: true, data: d }) } }],
 	}).compileComponents();
 	const f = TestBed.createComponent(Public);
@@ -69,7 +72,7 @@ describe('provider public profile shows only real data', () => {
 		f.detectChanges();
 		const t = text(f);
 		expect(t).toContain('0 تخصص معتمد');
-		expect(t).toContain('بانتظار اعتماد الإدارة');
+		expect(t).toContain('بانتظار إجراء الاختبار');
 		expect(t).not.toContain('مفحوص بالذكاء');
 	});
 
@@ -132,5 +135,64 @@ describe('provider public profile shows only real data', () => {
 	it('company/individual attribution helpers live in the component (no AI attribution for APPROVED)', () => {
 		expect(ts).toContain("case 'APPROVED'");
 		expect(ts).not.toMatch(/بالذكاء/);
+	});
+
+	it('a specialty whose test was not taken shows NO score and NO tick (not 0% and a check mark), and says so', async () => {
+		const f = await render(data({ specialties: [spec({ status: 'PENDING_PROOF', isPassed: false, hasTakenAssessment: false, latestScore: null, assessmentDetails: null })] }));
+		f.componentInstance.setTab('skills');
+		f.detectChanges();
+		const el = f.nativeElement as HTMLElement;
+		expect(el.querySelector('[data-testid="spec-score"]')).toBeNull();
+		expect(el.querySelector('[data-testid="spec-passed-tick"]')).toBeNull();
+		expect(el.querySelector('[data-testid="spec-score-none"]')?.textContent).toContain('لم تُجرِ الاختبار بعد');
+		expect(el.querySelector('[data-testid="spec-status-label"]')?.textContent).toContain('لم تُجرِ الاختبار بعد');
+		expect(el.querySelector('[data-testid="spec-score-box"]')?.textContent).not.toContain('0%');
+	});
+
+	it('a passed and scored specialty keeps its real score and the tick; a failed score shows without the tick', async () => {
+		let f = await render(data({ specialties: [spec({ latestScore: 80, isPassed: true, hasTakenAssessment: true })] }));
+		f.componentInstance.setTab('skills');
+		f.detectChanges();
+		let el = f.nativeElement as HTMLElement;
+		expect(el.querySelector('[data-testid="spec-score"]')?.textContent).toContain('80%');
+		expect(el.querySelector('[data-testid="spec-passed-tick"]')).toBeTruthy();
+		TestBed.resetTestingModule();
+		f = await render(data({ specialties: [spec({ status: 'REJECTED', latestScore: 20, isPassed: false, hasTakenAssessment: true, assessmentDetails: null })] }));
+		f.componentInstance.setTab('skills');
+		f.detectChanges();
+		el = f.nativeElement as HTMLElement;
+		expect(el.querySelector('[data-testid="spec-score"]')?.textContent).toContain('20%');
+		expect(el.querySelector('[data-testid="spec-passed-tick"]')).toBeNull();
+	});
+
+	it('activity tab: the real log entries are listed (with a link to the full log); empty and error are honest', async () => {
+		logsResponse = { success: true, data: { items: [{ id: 'l1', title: 'تحديث الملف', summary: 'تم تحديث بيانات الملف', statusText: 'مكتمل', createdAt: '2026-11-15T10:30:00Z' }] } };
+		let f = await render(data());
+		f.componentInstance.setTab('activity'); f.detectChanges();
+		let el = f.nativeElement as HTMLElement;
+		expect(el.querySelectorAll('[data-testid="activity-row"]').length).toBe(1);
+		expect(el.querySelector('[data-testid="activity-row"]')?.textContent).toContain('تم تحديث بيانات الملف');
+		expect(el.querySelector('[data-testid="activity-all"]')?.getAttribute('href')).toBe('/provider-overview/profile/logs');
+		TestBed.resetTestingModule();
+		logsResponse = new Error('x');
+		f = await render(data());
+		f.componentInstance.setTab('activity'); f.detectChanges();
+		el = f.nativeElement as HTMLElement;
+		expect(el.querySelector('[data-testid="activity-error"]')).toBeTruthy();
+		expect(el.querySelector('[data-testid="activity-empty"]')).toBeNull();
+		logsResponse = { success: true, data: { items: [] } };
+	});
+
+	it('links tab: a button takes the provider straight to the page where the links are added', async () => {
+		let f = await render(data());
+		f.componentInstance.setTab('links'); f.detectChanges();
+		let btn = (f.nativeElement as HTMLElement).querySelector('[data-testid="add-links-btn"]') as HTMLAnchorElement;
+		expect(btn.getAttribute('href')).toBe('/provider-overview/profile/data');
+		expect(btn.textContent).toContain('أضف روابطك');
+		TestBed.resetTestingModule();
+		f = await render(data({ socialLinks: { website: 'https://x.dev', linkedin: null, github: null } }));
+		f.componentInstance.setTab('links'); f.detectChanges();
+		btn = (f.nativeElement as HTMLElement).querySelector('[data-testid="add-links-btn"]') as HTMLAnchorElement;
+		expect(btn.textContent).toContain('تعديل الروابط');
 	});
 });

@@ -1,9 +1,10 @@
 import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
 import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ProviderProfileService } from '../../../../../core/services/provider-profile.service';
+import { AccountLogsService } from '../../../../../core/services/account-logs.service';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { resolveLevelDisplay } from '../../../../../core/levels/level-display';
@@ -13,7 +14,7 @@ import { AccountType } from '../../../../../core/models/auth.model';
 @Component({
 	selector: 'app-profile-public',
 	standalone: true,
-	imports: [CommonModule, RouterModule, LevelBadgeComponent],
+	imports: [CommonModule, RouterModule, DatePipe, LevelBadgeComponent],
 	templateUrl: './public.html',
 	styleUrls: ['./public.css'],
 })
@@ -29,6 +30,7 @@ export class Public implements OnInit {
 	private authStore = inject(AuthStore);
 	private specialtyService = inject(SpecialtyService);
 	private router = inject(Router);
+	private accountLogs = inject(AccountLogsService);
 
 	currentTab = signal<string>('info');
 	showBanner = signal<boolean>(true);
@@ -78,8 +80,17 @@ export class Public implements OnInit {
 			case 'APPROVED': return spec?.isPassed && spec?.assessmentDetails ? 'تخصص معتمد · اجتاز اختبار AI' : 'تخصص معتمد';
 			case 'REJECTED': return 'تم رفض التخصص';
 			case 'LOCKED_OUT': return 'التخصص مقفل مؤقتاً';
+			// the test / proof steps are the provider's own: only a specialty that already went through them is "waiting for the administration"
+			case 'PENDING_PROOF': return spec?.isPassed ? 'اجتزت الاختبار · بانتظار رفع الإثباتات' : spec?.hasTakenAssessment ? 'بانتظار رفع الإثباتات' : 'لم تُجرِ الاختبار بعد';
+			case 'PENDING_TEST':
+			case 'TEST_REQUIRED': return 'بانتظار إجراء الاختبار';
 			default: return 'بانتظار اعتماد الإدارة';
 		}
+	}
+
+	/** The test score is shown only when a test was really taken and scored; otherwise nothing is invented (no 0%, no tick). */
+	hasTestScore(spec: any): boolean {
+		return !!spec?.hasTakenAssessment && typeof spec?.latestScore === 'number';
 	}
 
 	/** "—" for a missing value; numbers (including 0) are shown as they are. */
@@ -156,6 +167,30 @@ export class Public implements OnInit {
 
 	setTab(tab: string) {
 		this.currentTab.set(tab);
+		if (tab === 'activity') this.loadActivity();
+	}
+
+	/** The real account activity (the same audit log as «سجل النشاط والأمان»), read when the tab is opened. */
+	activityState = signal<'idle' | 'loading' | 'error' | 'ready'>('idle');
+	activityItems = signal<Array<{ id: string; title: string; status: string; at: string }>>([]);
+
+	loadActivity() {
+		if (this.activityState() === 'loading' || this.activityState() === 'ready') return;
+		this.activityState.set('loading');
+		this.accountLogs.getUserLogs({ limit: 8 }).subscribe({
+			next: (res) => {
+				if (!res?.success) { this.activityState.set('error'); return; }
+				const rows = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+				this.activityItems.set(rows.slice(0, 8).map((log: any) => ({
+					id: String(log.id),
+					title: String(log.summary || log.title || log.actionText || 'إجراء في الحساب'),
+					status: String(log.statusText || ''),
+					at: String(log.occurredAt || log.createdAt || ''),
+				})));
+				this.activityState.set('ready');
+			},
+			error: () => this.activityState.set('error'),
+		});
 	}
 
 	closeBanner() {

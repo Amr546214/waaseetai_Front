@@ -494,15 +494,21 @@
 				</div>
 
 				<!-- Score Pill -->
-				<div class="spec-score-box flex items-center gap-3 px-4 py-2.5 rounded-2xl shrink-0">
+				<div class="spec-score-box flex items-center gap-3 px-4 py-2.5 rounded-2xl shrink-0" data-testid="spec-score-box">
 					<div class="text-right">
 						<div class="text-[length:var(--font-size-caption)] font-bold text-[var(--txt-3)]">نتيجة الاختبار التقني</div>
-						<div class="text-[length:var(--font-size-section)] font-black text-[var(--teal-txt,#2bd4c7)]">{{ spec.latestScore }}%</div>
+						@if (hasTestScore(spec)) {
+						<div class="text-[length:var(--font-size-section)] font-black text-[var(--teal-txt,#2bd4c7)]" data-testid="spec-score">{{ spec.latestScore }}%</div>
+						} @else {
+						<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]" data-testid="spec-score-none">لم تُجرِ الاختبار بعد</div>
+						}
 					</div>
+					@if (hasTestScore(spec) && spec.isPassed) {
 					<div
-						class="w-10 h-10 rounded-full bg-gradient-to-br from-[#2bd4c7] to-[#2b7fff] flex items-center justify-center text-[#070d24] font-black text-xs shadow-[0_0_12px_rgba(43,212,199,0.4)]">
+						class="w-10 h-10 rounded-full bg-gradient-to-br from-[#2bd4c7] to-[#2b7fff] flex items-center justify-center text-[#070d24] font-black text-xs shadow-[0_0_12px_rgba(43,212,199,0.4)]" data-testid="spec-passed-tick">
 						✓
 					</div>
+					}
 				</div>
 			</div>
 
@@ -760,6 +766,13 @@
 						مُضاف</span></ng-template>
 			</div>
 		</div>
+		<div class="pt-4">
+			<a routerLink="/provider-overview/profile/data" data-testid="add-links-btn"
+				class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[length:var(--font-size-small)] font-bold bg-[rgba(43,212,199,.10)] border border-[rgba(43,212,199,.25)] text-[var(--teal-txt,#2BD4C7)] hover:bg-[rgba(43,212,199,.18)] transition-all">
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+				{{ profileData()?.socialLinks?.website || profileData()?.socialLinks?.linkedin || profileData()?.socialLinks?.github ? 'تعديل الروابط' : 'أضف روابطك' }}
+			</a>
+		</div>
 	</div>
 	}
 
@@ -775,7 +788,32 @@
 			</svg>
 			سجل النشاط الأخير
 		</div>
+		@switch (activityState()) {
+		@case ('loading') {
+		<div class="py-6 text-center text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)]" data-testid="activity-loading">جارٍ تحميل النشاط...</div>
+		}
+		@case ('error') {
+		<div class="py-6 text-center text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)]" data-testid="activity-error" role="alert">
+			تعذر تحميل سجل النشاط.
+			<button type="button" class="underline ms-2" (click)="activityState.set('idle'); loadActivity()">إعادة المحاولة</button>
+		</div>
+		}
+		@default {
+		@if (activityItems().length > 0) {
+		<div class="flex flex-col divide-y divide-[var(--sec-bd)]">
+			@for (act of activityItems(); track act.id) {
+			<div class="flex items-center justify-between gap-3 py-3" data-testid="activity-row">
+				<span class="text-[length:var(--font-size-label)] font-bold text-[var(--txt-2)]">{{ act.title }}@if (act.status) { <span class="text-[var(--txt-3)]"> · {{ act.status }}</span> }</span>
+				<span class="text-[length:var(--font-size-small)] text-[var(--txt-3)]" dir="ltr">{{ act.at | date:'yyyy-MM-dd HH:mm' }}</span>
+			</div>
+			}
+		</div>
+		<div class="pt-3 text-center"><a routerLink="/provider-overview/profile/logs" class="underline text-[length:var(--font-size-small)] text-[var(--txt-3)]" data-testid="activity-all">عرض السجل الكامل</a></div>
+		} @else {
 		<div class="py-6 text-center text-[length:var(--font-size-label)] font-bold text-[var(--txt-3)]" data-testid="activity-empty">لا توجد بيانات بعد</div>
+		}
+		}
+		}
 	</div>
 	}
 </div>
