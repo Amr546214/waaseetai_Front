@@ -2,7 +2,7 @@ import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CanActivateChildFn, Router } from '@angular/router';
 import { AccountType } from '../models/auth.model';
-import { PROVIDER_ACCESS_STATUS_URL, ProviderAccessService, accessRedirectUrl } from '../services/provider-access.service';
+import { PROVIDER_ACCESS_STATUS_URL, PROVIDER_SETUP_URL, ProviderAccessService, accessRedirectUrl } from '../services/provider-access.service';
 import { filter, map, switchMap, take, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthStore } from '../store/auth.store';
@@ -49,6 +49,12 @@ export function isOnboardingAllowedPath(url: string): boolean {
   return ONBOARDING_ALLOWED_PATHS.some(p => path === p || path.startsWith(p + '/'));
 }
 
+/** the wizard itself (the identity step lives there) */
+export function isSetupPath(url: string): boolean {
+  const path = (url || '').split(/[?#]/)[0].replace(/^\/?provider-overview\/?/, '').replace(/^\/+|\/+$/g, '');
+  return path === 'profile/setup' || path.startsWith('profile/setup/');
+}
+
 export const providerProfileCompleteGuard: CanActivateChildFn = (childRoute, state) => {
   const authStore = inject(AuthStore);
   const providerApiService = inject(ProviderApiService);
@@ -66,7 +72,11 @@ export const providerProfileCompleteGuard: CanActivateChildFn = (childRoute, sta
       if (authStore.currentUser()?.accountType !== AccountType.PROVIDER_COMPANY) {
         const url = state?.url ?? '';
         // onboarding pages never need the answer to open (the status page reads it itself and shows an honest error with retry)
-        if (isOnboardingAllowedPath(url)) return of(true);
+        if (isOnboardingAllowedPath(url)) {
+          // a REJECTED identity keeps the provider on the setup page: the other onboarding pages (notifications, help, settings...) wait until new documents are sent. A failed read never locks anyone out.
+          if (isSetupPath(url)) return of(true);
+          return providerAccess.load().pipe(map(a => a.identityRejected === true ? router.parseUrl(PROVIDER_SETUP_URL) : true), catchError(() => of(true)));
+        }
         const toStatus = () => router.parseUrl(PROVIDER_ACCESS_STATUS_URL);
         return providerAccess.load().pipe(
           map(a => {

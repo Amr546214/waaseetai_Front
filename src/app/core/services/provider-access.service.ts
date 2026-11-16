@@ -24,6 +24,8 @@ export interface ProviderAccessState {
 	/** server-derived entry gate: SETUP (only the completion page) | REVIEW (the actions log, completion, help, account) | OPEN (operating dashboard) */
 	gate?: 'SETUP' | 'REVIEW' | 'OPEN';
 	completionSampleId?: string | null;
+	/** the admin rejected the identity documents: the provider stays on the setup page (identity step) until new pictures are sent */
+	identityRejected?: boolean;
 	canAccessDashboard: boolean;
 	message: string;
 	reason: string | null;

@@ -38,7 +38,8 @@ export function resolveProviderSetup(data: ProviderSetupData | null | undefined)
 	const d = data ?? {};
 	const testDone = d.setupTestStatus === 'COMPLETED';
 	// a rejected identity review while the wizard is still in progress opens the documents step first (reason shown, files can be sent again)
-	if (d.kycStatus === 'REJECTED' && !d.isProfileSetupComplete) return { kind: 'step', step: 4 };
+	// (also for an account whose wizard was long finished: the dashboard is closed until new documents are sent)
+	if (d.kycStatus === 'REJECTED') return { kind: 'step', step: 4 };
 	if (d.isProfileSetupComplete && testDone) return { kind: 'redirect', reason: 'complete' };
 	// everything was submitted: only the classification test is left
 	if (d.isProfileSetupComplete) return { kind: 'step', step: 7 };
