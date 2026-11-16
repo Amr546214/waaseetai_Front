@@ -137,7 +137,7 @@ export abstract class AddAccountBase implements OnInit {
     const specialty = String(this.specMainValue() ?? '').trim();
     if (!specialty || this.isSuggestingSkills()) return;
     this.isSuggestingSkills.set(true);
-    this.accountService.suggestSkills({ mainSpecialty: specialty, existingSkills: this.skills().slice(0, 30) }).subscribe({
+    this.accountService.suggestSkills({ mainSpecialty: specialty, availableSkills: this.skillOptions().slice(0, 250), existingSkills: this.skills().slice(0, 30) }).subscribe({
       next: res => {
         this.isSuggestingSkills.set(false);
         const allowed = new Map(this.skillOptions().map(o => [o.trim().toLowerCase(), o] as const));
