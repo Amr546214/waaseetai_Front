@@ -272,7 +272,7 @@ describe('ProjectDetails: honest contract / funding / stage states', () => {
 
   async function open(ws: any) {
     const get = vi.fn((url: string) => String(url).includes('/workspace') ? of(ws) : of({ success: true, data: [] }));
-    await TestBed.configureTestingModule({ imports: [ProjectDetails], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post: vi.fn() } }, { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [ProjectDetails], providers: [provideRouter([]), { provide: HttpClient, useValue: { get, post: vi.fn(() => of({ success: false })) } }, { provide: ActivatedRoute, useValue: { queryParamMap: of(convertToParamMap({})), snapshot: { paramMap: convertToParamMap({ id: 'proj-1' }) }, params: of({ id: 'proj-1' }) } }] }).compileComponents();
     const f = TestBed.createComponent(ProjectDetails); f.detectChanges(); await f.whenStable(); f.detectChanges();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const el = f.nativeElement as HTMLElement;

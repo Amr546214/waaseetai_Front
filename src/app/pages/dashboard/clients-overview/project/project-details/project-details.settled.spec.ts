@@ -80,7 +80,7 @@ describe('client project details: project closed by a dispute settlement', () =>
     const cancel = s.q('amend-cancel') as HTMLButtonElement;
     expect(cancel.disabled).toBe(true); expect(cancel.getAttribute('title')).toBe(REASON);
     cancel.click();
-    expect(s.post).not.toHaveBeenCalled();
+    expect(s.post.mock.calls.filter((c: any[]) => !String(c[0]).endsWith('/health'))).toEqual([]); // the AI insights call is the only POST
     expect(s.c.amendmentBlockedReason(AM({ actionable: undefined, actionBlockedReason: undefined }))).toBeNull(); // an older API never blocks
   });
 });

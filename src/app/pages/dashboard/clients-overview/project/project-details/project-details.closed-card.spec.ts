@@ -22,9 +22,17 @@ describe('project details: closed project card', () => {
 	it('without a settlement it reports released of total from the escrow numbers', () => {
 		expect(c.closureSummary({ status: 'COMPLETED', stages: [{ status: 'completed' }], escrowTotal: 300, escrowReleased: 300 }).join(' | ')).toContain('أُفرج 300 $ من أصل 300 $');
 	});
-	it('the template swaps the AI card for the closure card on closed projects (no AI mark, no analyze button inside it)', () => {
+	it('the AI insights card is the one card for every project: AI icon, title رؤى الذكاء, predictions hidden once closed, facts only as the fallback when the AI call failed', () => {
 		const html = readFileSync(join(dir, 'project-details.html'), 'utf8');
-		const closed = html.slice(html.indexOf('@if (isClosedProject(data))'), html.indexOf('} @else {', html.indexOf('@if (isClosedProject(data))')));
-		expect(closed).toContain('data-testid="pd-closure-card"'); expect(closed).not.toContain('#i-ai'); expect(closed).not.toContain('analyzeProjectHealth');
+		expect(html).not.toContain('pd-closure-card');
+		const card = html.slice(html.indexOf('<div class="lc-ai">'), html.indexOf('data-testid="pd-escrow-sum"'));
+		expect(card).toContain('#i-ai'); expect(card).toContain('رؤى الذكاء');
+		expect(card).toContain('@if (!isClosedProject(data)) {<span class="conf">'); expect(card).toContain('@if (!isClosedProject(data)) {<div class="lc-aim">');
+		expect(card).toMatch(/تعذر إجراء تحليل[\s\S]{0,260}pd-closure-fact/);
+		expect(card).toContain('analyzeProjectHealth()');
+	});
+	it('the analysis starts by itself once per project when the workspace loads', () => {
+		const ts = readFileSync(join(dir, 'project-details.ts'), 'utf8');
+		expect(ts).toMatch(/this\.project\.set\(response\.data\);[\s\S]{0,400}this\.healthRequestedFor !== this\.projectId[\s\S]{0,120}this\.analyzeProjectHealth\(\)/);
 	});
 });
