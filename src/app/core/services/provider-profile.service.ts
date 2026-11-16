@@ -131,6 +131,8 @@ export class ProviderProfileService {
     side: 'FRONT' | 'BACK';
     image: string;
     imageMimeType?: string;
+    /** the document kind the user CHOSE and its country: the AI check says when the upload looks like another kind */
+    document?: { country?: string; type?: string };
     declared?: { fullName?: string; birthDate?: string; nationalId?: string };
   }): Observable<{ success: boolean; data: IdentityDocumentInspection }> {
     return this.http.post<{ success: boolean; data: IdentityDocumentInspection }>(
