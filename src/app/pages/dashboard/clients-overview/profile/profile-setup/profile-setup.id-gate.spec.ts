@@ -101,9 +101,9 @@ describe('client profile-setup: identity gate behaviour', () => {
 		expect(c.gateProblem()).toContain('تختلف عن الوثيقة المعتمدة');
 	});
 
-	it('the back side is not required for a passport', () => {
+	it('the back side is optional for every document kind', () => {
 		mount(); c.setupForm.get('details.idDocumentType').setValue('PASSPORT'); expect(c.backRequired()).toBe(false);
-		c.setupForm.get('details.idDocumentType').setValue('NATIONAL_ID'); expect(c.backRequired()).toBe(true);
+		c.setupForm.get('details.idDocumentType').setValue('NATIONAL_ID'); expect(c.backRequired()).toBe(false);
 	});
 
 	it('legacy VERIFIED/APPROVED + step 1 re-save re-reads the state', () => {

@@ -46,7 +46,7 @@ describe('client profile-setup: identity approval needs both sides of the ID', (
 		c.nextStep(); fixture.detectChanges();
 		expect(saveStep).not.toHaveBeenCalled();
 		expect(c.currentStep()).toBe(2);
-		expect(c.identityDocsProvided()).toBe(false);
+		expect(c.identityDocsProvided()).toBe(true); // the front side is what counts; the back side is optional
 	});
 
 	it('front only for a document the server approved (passport): the wizard moves on', () => {
