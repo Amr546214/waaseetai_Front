@@ -98,9 +98,13 @@ describe('create request: AI copy is truthful', () => {
 		const reqNote = step3.slice(step3.indexOf('أضف الشروط الإضافية') - 600, step3.indexOf('أضف الشروط الإضافية'));
 		expect(reqNote).not.toContain('#i-ai');
 		// the AI "node graph" glyph (circle cx=12 cy=12 r=2 + satellites) lives only on the refine button
-		for (const f of ['components/step1-specialty/step1-specialty.html', 'components/step2-conditions/step2-conditions.html', 'components/step4-budget/step4-budget.html', 'components/step5-files/step5-files.html', 'components/step6-review/step6-review.html']) {
+		for (const f of ['components/step1-specialty/step1-specialty.html', 'components/step2-conditions/step2-conditions.html', 'components/step5-files/step5-files.html', 'components/step6-review/step6-review.html']) {
 			expect(read(f)).not.toMatch(/#i-ai|<circle cx="12" cy="12" r="3"\/>/);
 		}
+	});
+
+	it('step 4: the real AI budget-suggestion button carries the official AI icon', () => {
+		expect(read('components/step4-budget/step4-budget.html')).toContain('href="#i-ai"');
 	});
 
 	it('Batch B: no hardcoded budget "AI range" (commented-out fake block removed)', () => {
