@@ -178,10 +178,10 @@ describe('client profile-setup: shared validation', () => {
 			await vi.waitFor(() => expect(String(component.setupForm.get('identity.backId')!.value)).toContain('data:image/png'));
 		});
 
-		it('the ID uploads are required marked: the identity gate needs both sides before the next step opens', () => {
+		it('the front ID upload is marked required and the back side is marked optional', () => {
 			component.currentStep.set(2); render();
-			expect(el().textContent).not.toContain('(اختياري)');
-			expect(el().querySelectorAll('.ws-req').length).toBeGreaterThanOrEqual(2);
+			expect(el().textContent).toContain('(اختياري)');
+			expect(el().querySelectorAll('.ws-req').length).toBeGreaterThanOrEqual(1);
 			expect(el().querySelector('#frontIdFile')).toBeTruthy();
 		});
 	});
