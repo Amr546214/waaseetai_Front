@@ -9,6 +9,8 @@ export interface PreferenceItem {
   title: string;
   subtitle: string;
   enabled: boolean;
+  /** false = no sender exists for this type yet: the switch is shown off and disabled, never saved */
+  unavailable?: boolean;
 }
 
 export interface PreferenceSection {
@@ -118,37 +120,37 @@ export class Favorite implements OnInit {
       title: 'إشعارات الطلبات والعروض',
       iconSvg: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
       items: [
-        { id: 'orders_offers_new', title: 'عرض جديد على طلبي', subtitle: 'عند تقديم مقدّم خدمة عرضًا', enabled: true },
-        { id: 'orders_offers_update', title: 'تحديث حالة الطلب', subtitle: 'تغيّر حالة أي من طلباتك', enabled: true },
-        { id: 'orders_offers_msg', title: 'رسالة جديدة', subtitle: 'عند وصول رسالة من مقدّم خدمة', enabled: true },
-        { id: 'orders_offers_remind', title: 'تذكير بمهلة المراجعة', subtitle: 'قبل انتهاء مهلة اعتماد التسليم', enabled: true },
+        { id: 'newOffer', title: 'الفرص والعروض', subtitle: 'فرصة مشروع تطابق تخصصك، أو قبول عرضك أو التفاوض عليه', enabled: true },
+        { id: 'requestStatus', title: 'تحديثات المشاريع', subtitle: 'تعديلات المشروع والتسليم والاعتماد والتقييمات', enabled: true },
+        { id: 'newMessage', title: 'رسالة جديدة', subtitle: 'عند وصول رسالة أو دعوة اجتماع من عميل', enabled: true },
+        { id: 'reviewDeadline', title: 'تذكير بمهلة المراجعة', subtitle: 'قبل انتهاء مهلة اعتماد التسليم · غير متاح حاليًا (لا يُرسَل بعد)', enabled: false, unavailable: true },
       ]
     },
     {
       title: 'الإشعارات المالية',
       iconSvg: '<path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/>',
       items: [
-        { id: 'finance_wallet', title: 'حركات المحفظة', subtitle: 'إيداع أو سحب أو إفراج ضمان', enabled: true },
-        { id: 'finance_cashback', title: 'كاش باك الولاء', subtitle: 'عند إضافة كاش باك جديد', enabled: true },
-        { id: 'finance_security', title: 'تنبيهات الأمان المالي', subtitle: 'نشاط غير معتاد على المحفظة', enabled: true },
+        { id: 'walletActivity', title: 'حركات المحفظة', subtitle: 'إيداع ضمان أو سحب أو تحرير دفعة', enabled: true },
+        { id: 'cashback', title: 'كاش باك الولاء', subtitle: 'يخص حساب طالب الخدمة · لا ينطبق على مقدّم الخدمة', enabled: false, unavailable: true },
+        { id: 'financialSecurity', title: 'تنبيهات الأمان المالي', subtitle: 'نشاط غير معتاد على المحفظة · غير متاح حاليًا (لا يُرسَل بعد)', enabled: false, unavailable: true },
       ]
     },
     {
       title: 'توصيات الذكاء والتسويق',
       iconSvg: '<circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/>',
       items: [
-        { id: 'ai_providers', title: 'توصيات مقدّمي الخدمة', subtitle: 'اقتراحات مطابقة لطلباتك', enabled: true },
-        { id: 'ai_promos', title: 'عروض وخصومات وسيط AI', subtitle: 'حملات وعروض ترويجية', enabled: false },
-        { id: 'ai_newsletter', title: 'نشرة وسيط الدورية', subtitle: 'ملخص أسبوعي لنشاطك', enabled: false },
+        { id: 'providerRecommendations', title: 'توصيات الفرص', subtitle: 'اقتراحات مطابقة لتخصصك · غير متاح حاليًا (لا يُرسَل بعد)', enabled: false, unavailable: true },
+        { id: 'promotions', title: 'عروض وخصومات وسيط AI', subtitle: 'حملات وعروض ترويجية · غير متاح حاليًا (لا يُرسَل بعد)', enabled: false, unavailable: true },
+        { id: 'newsletter', title: 'نشرة وسيط الدورية', subtitle: 'ملخص أسبوعي لنشاطك · غير متاح حاليًا (لا يُرسَل بعد)', enabled: false, unavailable: true },
       ]
     },
     {
       title: 'قنوات الإيصال',
       iconSvg: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
       items: [
-        { id: 'channel_inapp', title: 'الإشعارات داخل وسيط AI', subtitle: 'مركز الإشعارات', enabled: true },
-        { id: 'channel_email', title: 'البريد الإلكتروني', subtitle: 'إلى بريدك المسجّل', enabled: true },
-        { id: 'channel_push', title: 'إشعارات الجوال Push', subtitle: 'عبر تطبيق وسيط', enabled: false },
+        { id: 'channel_in_app', title: 'الإشعارات اللحظية داخل وسيط AI', subtitle: 'ظهور الإشعار فور وصوله، وتبقى محفوظة في مركز الإشعارات', enabled: true },
+        { id: 'channel_email', title: 'البريد الإلكتروني', subtitle: 'نسخة من الإشعارات الجديدة إلى بريدك المسجّل', enabled: false },
+        { id: 'channel_push', title: 'إشعارات الجوال Push', subtitle: 'غير متاحة حاليًا: لا يوجد تطبيق جوال', enabled: false, unavailable: true },
       ]
     }
   ]);
@@ -165,6 +167,7 @@ export class Favorite implements OnInit {
     for (const section of this.sections()) {
       for (const item of section.items) {
         // while the platform has optional e-mail off the option is not editable and not sent (the stored choice is untouched)
+        if (item.unavailable) continue;
         if (item.id === 'channel_email' && this.emailDisabled()) continue;
         map[item.id] = item.enabled;
       }
@@ -177,7 +180,7 @@ export class Favorite implements OnInit {
       ...section,
       items: section.items.map(item => ({
         ...item,
-        enabled: settings[item.id] !== undefined ? settings[item.id] : item.enabled,
+        enabled: item.unavailable ? false : settings[item.id] !== undefined ? settings[item.id] : item.enabled,
       })),
     })));
   }

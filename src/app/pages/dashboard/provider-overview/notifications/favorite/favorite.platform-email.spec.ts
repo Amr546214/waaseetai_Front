@@ -24,7 +24,7 @@ describe('provider notification preferences - platform switch for optional e-mai
 		fixture.componentInstance.savePreferences();
 		const sent = (updatePreferences.mock.calls[0] as unknown[])[0] as Record<string, boolean>;
 		expect('channel_email' in sent).toBe(false);
-		expect('channel_inapp' in sent).toBe(true);
+		expect('channel_in_app' in sent).toBe(true);
 	});
 	it('platform ON: the e-mail row is editable and is sent', async () => {
 		const { fixture, el, updatePreferences } = render({ emailEnabled: true }, { channel_email: false });

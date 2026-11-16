@@ -83,7 +83,24 @@ describe('client notification preferences page', () => {
 		expect(box.disabled).toBe(true);
 		expect(box.checked).toBe(false);
 		const note = s.el.querySelector('[data-testid="prefs-note"]')?.textContent || '';
-		expect(note).toContain('أنواع الإشعارات غير قابلة للتحكم');
+		expect(note).toContain('يمكنك تشغيله أو إيقافه');
 		expect(s.el.textContent).not.toContain('تجميع تلقائي');
+	});
+
+	it('the five working type switches are live: turning one off saves false for exactly that key; the unavailable types stay disabled', async () => {
+		const s = setup();
+		await s.fixture.whenStable(); s.fixture.detectChanges();
+		for (const k of ['newOffer', 'requestStatus', 'newMessage', 'walletActivity', 'cashback']) {
+			const box = s.el.querySelector(`[data-testid="switch-${k}"]`) as HTMLInputElement;
+			expect(box, k).toBeTruthy(); expect(box.disabled).toBe(false);
+		}
+		const off = s.el.querySelector('[data-testid="switch-newOffer"]') as HTMLInputElement;
+		off.click(); s.fixture.detectChanges(); await s.fixture.whenStable();
+		s.c.savePreferences();
+		const sent = s.updatePreferences.mock.calls[0][0];
+		expect(sent['newOffer']).toBe(false); expect(sent['newMessage']).toBe(true);
+		const disabledRows = Array.from(s.el.querySelectorAll('.pref-row')).filter(r => (r.textContent || '').includes('غير متاح حاليًا (لا يُرسَل بعد)'));
+		expect(disabledRows.length).toBeGreaterThanOrEqual(5);
+		for (const r of disabledRows) expect((r.querySelector('input') as HTMLInputElement).disabled).toBe(true);
 	});
 });
