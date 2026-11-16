@@ -27,7 +27,8 @@ describe('project details: closed project card', () => {
 		expect(html).not.toContain('pd-closure-card');
 		const card = html.slice(html.indexOf('<div class="lc-ai">'), html.indexOf('data-testid="pd-escrow-sum"'));
 		expect(card).toContain('#i-ai'); expect(card).toContain('رؤى الذكاء');
-		expect(card).toContain('@if (!isClosedProject(data)) {<span class="conf">'); expect(card).toContain('@if (!isClosedProject(data)) {<div class="lc-aim">');
+		// the same card layout for every project (confidence chip + the three values); an ended project's values come from the AI retrospective grade, not from a prediction
+		expect(card).toContain('<span class="conf">ثقة {{ aiConfidence(data) }}</span>'); expect(card).toContain('<div class="lc-aim">'); expect(card).not.toContain('isClosedProject(data)) {<div class="lc-aim">');
 		expect(card).toMatch(/تعذر إجراء تحليل[\s\S]{0,260}pd-closure-fact/);
 		expect(card).toContain('analyzeProjectHealth()');
 	});

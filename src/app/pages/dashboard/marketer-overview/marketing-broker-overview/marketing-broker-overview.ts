@@ -59,20 +59,29 @@ export class MarketingBrokerOverview implements OnInit {
 		this.loadInsights();
 	}
 
-	loadInsights() {
+	/** The insights call can fail once for a moment (the AI provider answers 503 for a second): the card retries by itself ONCE, silently, before it shows «تعذر تشغيل التحليل». The button retries from scratch. */
+	loadInsights(autoRetry = true) {
 		const seq = ++this.insightsSeq;
 		this.insightsLoading.set(true);
 		this.insightsFailed.set(false);
 		this.insights.set(null);
+		const retryOnce = () => { setTimeout(() => { if (seq === this.insightsSeq) this.loadInsights(false); }, 2500); };
 		this.marketerOverviewService.getAiInsights().subscribe({
 			next: (res) => {
 				if (seq !== this.insightsSeq) return;
-				this.insightsLoading.set(false);
-				if (res?.success && res.data && !Array.isArray(res.data)) this.insights.set(res.data);
-				else this.insightsFailed.set(true);
+				if (res?.success && res.data && !Array.isArray(res.data)) {
+					if (autoRetry && (res.data as { status?: string }).status === 'FAILED') { retryOnce(); return; }
+					this.insightsLoading.set(false);
+					this.insights.set(res.data);
+				} else {
+					if (autoRetry) { retryOnce(); return; }
+					this.insightsLoading.set(false);
+					this.insightsFailed.set(true);
+				}
 			},
 			error: () => {
 				if (seq !== this.insightsSeq) return;
+				if (autoRetry) { retryOnce(); return; }
 				this.insightsLoading.set(false);
 				this.insightsFailed.set(true);
 			},
