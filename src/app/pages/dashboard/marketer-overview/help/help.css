@@ -165,3 +165,43 @@
 :host-context(body.theme-light) .chan-ttl,
 :host-context(.light-theme) .chan-ttl,
 :host-context(.theme-light) .chan-ttl { color: #0F172A; }
+
+/* Marketer ticket fields — Dark Mode */
+.marketer-ticket-field {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: var(--font-size-label);
+  font-family: inherit;
+}
+
+textarea.marketer-ticket-field {
+  resize: vertical;
+}
+
+.marketer-ticket-field:focus {
+  outline: none;
+  border-color: #0fa99a;
+  box-shadow: 0 0 0 2px rgba(15, 169, 154, 0.12);
+}
+
+/* Light Mode only */
+:host-context([data-theme="light"]) .marketer-ticket-field {
+  background: #fff;
+  border-color: #a9b8cc;
+  color: #1e293b;
+}
+
+:host-context([data-theme="light"]) .marketer-ticket-field::placeholder {
+  color: #64748b;
+}
+
+:host-context([data-theme="light"]) .marketer-ticket-field:focus {
+  border-color: #0fa99a;
+  box-shadow: 0 0 0 2px rgba(15, 169, 154, 0.13);
+}

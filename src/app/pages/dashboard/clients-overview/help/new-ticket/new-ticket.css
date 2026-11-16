@@ -133,3 +133,46 @@ select.inp-field{cursor:pointer;appearance:none;background-image:var(--ws-icon-p
 :host-context(.theme-light) .inp-hint{color:#475569}
 .upload-area--off{cursor:not-allowed;opacity:.6}
 .upload-area--off:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.03)}
+.upload-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.upload-clickable {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 135px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.upload-clickable:hover {
+  border-color: #22c5c5;
+}
+
+.upload-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.upload-action {
+  margin-top: 8px;
+  color: #0891b2;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.upload-selected-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+}

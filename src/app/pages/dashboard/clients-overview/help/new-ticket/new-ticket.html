@@ -62,29 +62,67 @@
 			<div class="fld-hint">{{ description().length }} حرف · الحد الأدنى 20</div>
 		</div>
 
-		<!-- Attach -->
-		<div class="fld-row">
-			<label class="inp-label">إرفاق ملف (اختياري)</label>
-			<div class="upload-area">
-				<div class="upload-ico"><svg data-ws-icon="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-				<div class="upload-ttl">JPG، PNG، PDF — حتى خمسة ملفات</div>
-				<div class="upload-sub">10 ميجابايت لكل ملف؛ تُحفظ الملفات مع التذكرة</div>
-        <input type="file" multiple accept="image/jpeg,image/png,application/pdf" aria-label="اختيار مرفقات التذكرة" [disabled]="submitting()" (change)="selectAttachments($event)" />
-        @for (file of selectedAttachments; track $index) { <div>{{ file.name }} <button type="button" [disabled]="submitting()" (click)="removeAttachment($index)">إزالة</button></div> }
-        @if (attachmentError()) { <p role="alert">{{ attachmentError() }}</p> }
 
-			</div>
-		</div>
+<!-- Attach -->
+<div class="fld-row">
+    <label class="inp-label" for="ticket-attachments">
+        إرفاق ملف (اختياري)
+    </label>
 
-		<div class="form-actions">
-			<button type="button" class="btn-ghost" routerLink="/client-overview/help/tickets">إلغاء</button>
-			<button type="submit" class="btn-primary" [disabled]="submitting()">
-				@if (submitting()) {
-					<span class="spinner"></span> جاري الإرسال...
-				} @else {
-					<svg data-ws-icon="ws-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> فتح التذكرة
-				}
-			</button>
-		</div>
-	</form>
-</section>
+    <div class="upload-area">
+        <input
+            id="ticket-attachments"
+            type="file"
+            multiple
+            accept="image/jpeg,image/png,application/pdf"
+            aria-label="اختيار مرفقات التذكرة"
+            [disabled]="submitting()"
+            (change)="selectAttachments($event)"
+            class="upload-file-input"
+        />
+
+        <label
+            for="ticket-attachments"
+            class="upload-clickable"
+            [class.upload-disabled]="submitting()"
+        >
+            <div class="upload-ico">
+                <svg data-ws-icon="i-upload" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+
+            <div class="upload-ttl">
+                JPG، PNG، PDF — حتى خمسة ملفات
+            </div>
+
+            <div class="upload-sub">
+                10 ميجابايت لكل ملف؛ تُحفظ الملفات مع التذكرة
+            </div>
+
+            <span class="upload-action">اختيار الملفات</span>
+        </label>
+
+        @for (file of selectedAttachments; track $index) {
+            <div class="upload-selected-file">
+                <span>{{ file.name }}</span>
+                <button
+                    type="button"
+                    [disabled]="submitting()"
+                    (click)="removeAttachment($index)"
+                >
+                    إزالة
+                </button>
+            </div>
+        }
+
+        @if (attachmentError()) {
+            <p role="alert">{{ attachmentError() }}</p>
+        }
+    </div>
+</div>
