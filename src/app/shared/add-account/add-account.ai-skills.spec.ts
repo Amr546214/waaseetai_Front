@@ -27,7 +27,7 @@ describe('add-account wizard: AI skills suggestion', () => {
 		const suggest = vi.fn(() => of({ success: true, data: { suggestedSkills: ['python', 'SQL', 'Rust', 'Python', 'pytorch'] } }));
 		const { c, success } = mount(suggest); c.skills.set(['SQL']);
 		c.suggestSkillsWithAi();
-		expect(suggest).toHaveBeenCalledWith({ mainSpecialty: 'ذكاء اصطناعي وبيانات', existingSkills: ['SQL'] });
+		expect(suggest).toHaveBeenCalledWith({ mainSpecialty: 'ذكاء اصطناعي وبيانات', availableSkills: ['Python', 'SQL', 'Excel', 'PyTorch'], existingSkills: ['SQL'] }); // the AI chooses among the catalog of the chosen specialty
 		expect(c.skills()).toEqual(['SQL', 'Python', 'PyTorch']);
 		expect(success).toHaveBeenCalled(); expect(c.isSuggestingSkills()).toBe(false);
 	});

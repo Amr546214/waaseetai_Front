@@ -56,7 +56,7 @@ export class AccountService {
    * Add a new account role type
    */
   /** AI skills suggestion for the add-account wizard (a client adding a provider account has no provider profile yet): from the draft specialty + skills only. */
-  public suggestSkills(input: { mainSpecialty: string; existingSkills: string[] }): Observable<{ success: boolean; data: { suggestedSkills: string[] } }> {
+  public suggestSkills(input: { mainSpecialty: string; availableSkills: string[]; existingSkills: string[] }): Observable<{ success: boolean; data: { suggestedSkills: string[] } }> {
     return this.http.post<{ success: boolean; data: { suggestedSkills: string[] } }>(`${this.baseUrl}/suggest-skills`, input, { context: new HttpContext().set(SKIP_LOADING, true) });
   }
 
