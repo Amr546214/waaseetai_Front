@@ -131,6 +131,32 @@ export abstract class AddAccountBase implements OnInit {
   private specMainValue = toSignal(this.spec.controls.specMain.valueChanges, { initialValue: this.spec.controls.specMain.value });
   skillOptions = computed<string[]>(() => this.skillCategories().find(c => c.nameAr === this.specMainValue())?.skills ?? []);
 
+  /** AI skills suggestion: only names that exist in the catalog of the chosen specialty are added (nothing invented), never beyond the picker's limit. */
+  isSuggestingSkills = signal(false);
+  suggestSkillsWithAi(): void {
+    const specialty = String(this.specMainValue() ?? '').trim();
+    if (!specialty || this.isSuggestingSkills()) return;
+    this.isSuggestingSkills.set(true);
+    this.accountService.suggestSkills({ mainSpecialty: specialty, existingSkills: this.skills().slice(0, 30) }).subscribe({
+      next: res => {
+        this.isSuggestingSkills.set(false);
+        const allowed = new Map(this.skillOptions().map(o => [o.trim().toLowerCase(), o] as const));
+        const taken = new Set(this.skills().map(s => s.trim().toLowerCase()));
+        const added: string[] = [];
+        for (const name of res?.data?.suggestedSkills ?? []) {
+          const real = allowed.get(String(name).trim().toLowerCase());
+          if (real && !taken.has(real.toLowerCase()) && !added.includes(real)) added.push(real);
+        }
+        const room = Math.max(0, 30 - this.skills().length);
+        const picked = added.slice(0, room);
+        if (!picked.length) { this.notify.info('لا توجد مهارات جديدة مقترحة لهذا التخصص.'); return; }
+        this.skills.set([...this.skills(), ...picked]);
+        this.notify.success(`أُضيفت ${picked.length} مهارة مقترحة؛ راجعها وعدّلها كما تشاء.`);
+      },
+      error: () => { this.isSuggestingSkills.set(false); this.notify.error('تعذر اقتراح المهارات بالذكاء الاصطناعي حاليًا، حاول مرة أخرى.'); }
+    });
+  }
+
   currentUser = this.authStore.currentUser;
 
   userAccountType = computed(() => {
