@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, input, output, signal } from '@angular/core';
 import { LegalNameService, LegalNameView } from '../../core/services/legal-name.service';
 import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-name.validator';
 
@@ -22,13 +22,13 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 			@if (v.pendingRequest; as p) {
 				<p class="text-xs text-slate-300 mb-2" role="status" data-testid="legal-name-pending">طلب تعديل الاسم إلى «{{ p.requestedValue }}» قيد المراجعة. سيبقى الاسم الحالي حتى القرار، ثم تُعاد مطابقة الهوية.</p>
 			}
-			@if (editing() || v.status === 'MISSING') {
+			@if ((editing() && !v.pendingRequest) || v.status === 'MISSING') {
 				<input id="legal-name-field-input" type="text" maxlength="120" autocomplete="off" class="field-in w-full" data-testid="legal-name-field-input" [value]="draft()" (input)="onInput($event)" [attr.aria-invalid]="problem() ? 'true' : null" />
 				@if (problem(); as pr) { <div class="text-xs text-red-400 mt-1" role="alert" data-testid="legal-name-problem">{{ pr }}</div> }
 				@if (v.changeNeedsReview && v.status === 'PROVIDED') { <p class="text-xs text-slate-300 mt-1">اسمك مرتبط بهوية موثقة أو قيد المراجعة: التعديل يُرسل كطلب للمراجعة ثم تُعاد مطابقة الهوية.</p> }
 				<div class="flex gap-2 mt-2">
 					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-[#04101f] text-sm font-bold" [disabled]="saving() || !!problem() || !draft().trim()" (click)="save()" data-testid="legal-name-save">{{ v.changeNeedsReview ? (v.status === 'PROVIDED' ? 'إرسال طلب التعديل' : 'إرسال طلب إضافة الاسم') : 'حفظ الاسم الحقيقي' }}</button>
-					@if (v.status === 'PROVIDED') { <button type="button" class="px-4 py-2 rounded-xl border border-white/20 text-sm" (click)="cancel()">إلغاء</button> }
+					@if (v.status === 'PROVIDED' && !alwaysEdit()) { <button type="button" class="px-4 py-2 rounded-xl border border-white/20 text-sm" (click)="cancel()">إلغاء</button> }
 				</div>
 			} @else {
 				<div class="flex items-center gap-3">
@@ -48,11 +48,14 @@ export class LegalNameFieldComponent implements OnInit {
 	readonly saving = signal(false);
 	readonly note = signal<string | null>(null);
 	readonly problem = signal<string | null>(null);
+	/** setup pages: the name is always a box right here (prefilled when already provided), never a read-only value with an edit link */
+	readonly alwaysEdit = input(false);
 	/** emitted when the legal name was saved (so the page can re-read what depends on it) */
 	readonly saved = output<void>();
 
 	ngOnInit() { this.load(); }
-	private load() { this.api.get().subscribe({ next: r => { if (r?.data) this.view.set(r.data); }, error: () => undefined }); }
+	private load() { this.api.get().subscribe({ next: r => { if (r?.data) { this.view.set(r.data); this.openIfAlways(r.data); } }, error: () => undefined }); }
+	private openIfAlways(v: LegalNameView) { if (this.alwaysEdit() && v.status === 'PROVIDED' && !v.pendingRequest) this.startEdit(v); }
 	startEdit(v: LegalNameView) { this.draft.set(v.legalName ?? ''); this.problem.set(null); this.note.set(null); this.editing.set(true); }
 	cancel() { this.editing.set(false); this.problem.set(null); }
 	onInput(e: Event) { const v = (e.target as HTMLInputElement).value; this.draft.set(v); this.problem.set(legalNameProblem(v)); }
@@ -62,7 +65,7 @@ export class LegalNameFieldComponent implements OnInit {
 		this.saving.set(true);
 		this.api.save(value).subscribe({
 			next: r => {
-				this.saving.set(false); this.view.set(r.data.view); this.editing.set(false);
+				this.saving.set(false); this.view.set(r.data.view); this.editing.set(false); this.openIfAlways(r.data.view);
 				this.note.set(r.data.outcome === 'REQUEST_CREATED' ? 'أُرسل طلب التعديل للمراجعة.' : r.data.outcome === 'SAVED' ? 'تم حفظ الاسم الحقيقي.' : null);
 				if (r.data.outcome !== 'UNCHANGED') this.saved.emit();
 			},
