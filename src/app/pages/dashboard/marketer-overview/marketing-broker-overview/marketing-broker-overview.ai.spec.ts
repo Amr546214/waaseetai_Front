@@ -1,6 +1,7 @@
 import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError, Subject } from 'rxjs';
+import { vi } from 'vitest';
 import { MarketingBrokerOverview } from './marketing-broker-overview';
 import { MarketerOverviewService } from '../../../../core/services/marketer-overview.service';
 
@@ -19,7 +20,9 @@ describe('marketer dashboard — AI insights card', () => {
 		f.detectChanges();
 		return { f, el: f.nativeElement as HTMLElement, count: () => n };
 	}
-	afterEach(() => TestBed.resetTestingModule());
+	afterEach(() => { vi.useRealTimers(); TestBed.resetTestingModule(); });
+	/** the card retries once by itself after 2.5 s before it shows the failure */
+	const afterAutoRetry = (f: { detectChanges(): void }) => { vi.advanceTimersByTime(2600); f.detectChanges(); };
 
 	it('READY', () => {
 		const { el } = setup(() => of({ success: true, data: res({}) }));
@@ -37,7 +40,8 @@ describe('marketer dashboard — AI insights card', () => {
 	});
 	it('FAILED and HTTP error show the failure text + retry; rest of the page renders', () => {
 		for (const s of [() => of({ success: true, data: res({ status: 'FAILED', source: 'NONE', summary: null, details: null }) }), () => throwError(() => new Error('x'))]) {
-			const { el } = setup(s);
+			vi.useFakeTimers();
+			const { f, el } = setup(s); afterAutoRetry(f);
 			expect(el.textContent).toContain('تعذر تشغيل التحليل حاليًا');
 			expect(el.querySelector('[data-testid="ai-card-retry"]')).toBeTruthy();
 			expect(el.textContent).toContain('إجمالي العمولات');
@@ -45,14 +49,25 @@ describe('marketer dashboard — AI insights card', () => {
 		}
 	});
 	it('legacy array response is not rendered as advice', () => {
-		const { el } = setup(() => of({ success: true, data: [{ text: 'نصيحة قديمة' }] }));
+		vi.useFakeTimers();
+		const { f, el } = setup(() => of({ success: true, data: [{ text: 'نصيحة قديمة' }] })); afterAutoRetry(f);
 		expect(el.textContent).not.toContain('نصيحة قديمة');
 		expect(el.textContent).toContain('تعذر تشغيل التحليل حاليًا');
 	});
-	it('retry reloads', () => {
-		const { f, el, count } = setup(() => throwError(() => new Error('x')));
+	it('retry reloads (the button starts over, with its own silent retry)', () => {
+		vi.useFakeTimers();
+		const { f, el, count } = setup(() => throwError(() => new Error('x'))); afterAutoRetry(f);
+		expect(count()).toBe(2); // first call + the silent retry
 		(el.querySelector('[data-testid="ai-card-retry"]') as HTMLButtonElement).click();
 		f.detectChanges();
-		expect(count()).toBe(2);
+		expect(count()).toBe(3);
+	});
+	it('a first failure is retried silently: the result shows without any click', () => {
+		vi.useFakeTimers();
+		let calls = 0;
+		const { f, el, count } = setup(() => (++calls === 1 ? of({ success: true, data: res({ status: 'FAILED', source: 'NONE', summary: null, details: null }) }) : of({ success: true, data: res({}) })));
+		expect(el.textContent).not.toContain('تعذر تشغيل التحليل حاليًا'); // still loading (no failure flash)
+		afterAutoRetry(f);
+		expect(count()).toBe(2); expect(el.querySelector('[data-testid="ai-card-ai"]')).toBeTruthy(); expect(el.textContent).toContain('ملخص أداء'); expect(el.textContent).not.toContain('تعذر تشغيل التحليل حاليًا');
 	});
 });
