@@ -77,7 +77,7 @@ const ROLES: Record<string, WelcomeRoleConfig> = {
     name: 'الوسيط التسويقي',
     icon: 'ws-role-broker',
     canSkip: false,
-    completionNote: 'يجب رفع صورتك الشخصية وكتابة الوصف التسويقي وإضافة قناة تسويق واحدة قبل دخول لوحة التحكم',
+    completionNote: 'يجب كتابة الوصف التسويقي وإضافة قناة تسويق واحدة قبل دخول لوحة التحكم',
     restrictions: null,
     profileSetupRoute: '/marketer-overview/profile-setup',
   },

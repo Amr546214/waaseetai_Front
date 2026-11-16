@@ -47,7 +47,7 @@ describe('marketer setup wizard: no skip buttons', () => {
 		}
 	});
 
-	it('only the PayPal step is optional: the avatar+bio and channel steps cannot be passed with "التالي" without their items (nothing is saved or sent)', () => {
+	it('only the PayPal and avatar are optional: the bio and channel steps cannot be passed with "التالي" without their items (nothing is saved or sent)', () => {
 		const { c, render, labels } = mount();
 		expect(c.currentStep()).toBe(2);                                                  // opens on the first missing step
 		for (const step of [2, 3, 4]) {
@@ -55,11 +55,9 @@ describe('marketer setup wizard: no skip buttons', () => {
 			expect(labels().filter(t => t === 'التالي').length, `step ${step}`).toBe(1);
 		}
 		c.currentStep.set(2); render();
-		c.skipNext(); render(); expect(c.currentStep()).toBe(2);                           // no saved avatar or bio
+		c.skipNext(); render(); expect(c.currentStep()).toBe(2);                           // no saved bio
 		c.profile.set({ ...(c.profile() as any), bio: 'وصف' });
-		c.skipNext(); render(); expect(c.currentStep()).toBe(2);                           // still missing avatar
-		c.profile.set({ ...(c.profile() as any), avatarUrl: 'data:image/png;base64,AAA' });
-		c.skipNext(); render(); expect(c.currentStep()).toBe(3);
+		c.skipNext(); render(); expect(c.currentStep()).toBe(3);                           // avatar is optional
 		c.skipNext(); render(); expect(c.currentStep()).toBe(3);                           // no channel yet
 		c.profile.set({ ...(c.profile() as any), marketingChannels: [{ id: 'c', platform: 'TIKTOK', handle: 'x' }] });
 		c.skipNext(); render(); expect(c.currentStep()).toBe(4);
@@ -93,6 +91,6 @@ describe('marketer setup wizard: no skip buttons', () => {
 	it('the intro text no longer talks about skipping', () => {
 		const { el } = mount();
 		expect(el.textContent).not.toContain('التخطي');
-		expect(el.textContent).toContain('الصورة الشخصية والوصف التسويقي وقناة تسويق واحدة مطلوبون');
+		expect(el.textContent).toContain('الوصف التسويقي وقناة تسويق واحدة مطلوبان');
 	});
 });

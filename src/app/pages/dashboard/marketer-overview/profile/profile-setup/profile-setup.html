@@ -9,7 +9,7 @@
   </div>
 
   <h2 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">استكمال بياناتك</h2>
-  <p style="font-size:var(--font-size-label);margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — الصورة الشخصية والوصف التسويقي وقناة تسويق واحدة مطلوبون لإتمام الإعداد، أما بريد PayPal فيمكن إضافته لاحقًا من صفحة ملفي التسويقي</p>
+  <p style="font-size:var(--font-size-label);margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — الوصف التسويقي وقناة تسويق واحدة مطلوبان لإتمام الإعداد، أما الصورة الشخصية وبريد PayPal فيمكن إضافتهما الآن أو لاحقًا من صفحة ملفي التسويقي</p>
 
   @if (isLoading()) {
     <div class="adm-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
@@ -50,12 +50,12 @@
       <div class="actions-row"><button type="button" class="btn-primary" (click)="nextStep()">التالي</button></div>
     }
 
-    <!-- Step 2: الملف التسويقي (الصورة الشخصية + الوصف التسويقي) -->
+    <!-- Step 2: الملف التسويقي (الصورة الشخصية اختيارية + الوصف التسويقي) -->
     @if (currentStep() === 2) {
-      <div class="form-card" id="ps-avatar-section" [class.has-error]="avatarRequired()" data-testid="ps-avatar-card">
+      <div class="form-card" id="ps-avatar-section" data-testid="ps-avatar-card">
         <div class="form-card-hdr">
           <div class="form-card-ico"><svg aria-hidden="true"><use href="#i-camera"></use></svg></div>
-          <div><div class="form-card-title">الصورة الشخصية <span class="ws-req" aria-hidden="true">*</span></div><div class="form-card-sub">تظهر في ملفك العام وتزيد ثقة العملاء بك</div></div>
+          <div><div class="form-card-title">الصورة الشخصية (اختياري)</div><div class="form-card-sub">تظهر في ملفك العام وتزيد ثقة العملاء بك</div></div>
         </div>
         <div class="avatar-section">
           <div class="avatar-circle">
@@ -68,7 +68,7 @@
           <div>
             <div class="av-btns">
               <input type="file" hidden #avatarInput accept="image/png, image/jpeg" (change)="onAvatarChange($event)" data-testid="ps-avatar-input">
-              <button id="ps-avatar-btn" type="button" class="av-btn av-btn-p" [disabled]="savingAvatar()" (click)="avatarInput.click()" [attr.aria-describedby]="avatarRequired() ? 'ps-avatar-required' : null">
+              <button id="ps-avatar-btn" type="button" class="av-btn av-btn-p" [disabled]="savingAvatar()" (click)="avatarInput.click()">
                 {{ savingAvatar() ? 'جارٍ حفظ الصورة...' : (avatarUrl() ? 'تغيير الصورة الشخصية' : 'رفع صورة شخصية') }}
               </button>
             </div>
@@ -78,7 +78,6 @@
             }
           </div>
         </div>
-        @if (avatarRequired()) { <div class="f-err" id="ps-avatar-required" data-testid="avatar-required" role="alert" style="margin-top:10px">ارفع صورة شخصية (JPG أو PNG) للمتابعة</div> }
       </div>
 
       <div class="form-card" [formGroup]="marketingForm">

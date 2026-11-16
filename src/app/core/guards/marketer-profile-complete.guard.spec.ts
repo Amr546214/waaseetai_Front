@@ -46,9 +46,8 @@ describe('marketerProfileCompleteGuard', () => {
 
 	const GATED = ['', '/referrals', '/ref-links', '/assets', '/commissions', '/withdraw', '/messages', '/profile/data', '/profile/public'];
 
-	it('missing avatar or bio or channel blocks dashboard and every gated route -> redirects to /marketer-overview/profile-setup', async () => {
+	it('missing bio or channel blocks dashboard and every gated route -> redirects to /marketer-overview/profile-setup', async () => {
 		for (const incomplete of [
-			completeProfile({ avatarUrl: '', user: {}, missingItems: [item('avatar')] }),
 			completeProfile({ bio: '', missingItems: [item('bio')] }),
 			completeProfile({ marketingChannels: [], missingItems: [item('channel')] }),
 			completeProfile({ avatarUrl: '', bio: '', marketingChannels: [], completionPercentage: 20, missingItems: [item('avatar'), item('bio'), item('channel'), item('payout')] }),
@@ -61,15 +60,15 @@ describe('marketerProfileCompleteGuard', () => {
 	});
 
 	it('allowed onboarding/support paths stay open while incomplete without querying profile', async () => {
-		const { getProfile } = setup(of({ success: true, data: completeProfile({ avatarUrl: '', user: {}, missingItems: [item('avatar')] }) }));
+		const { getProfile } = setup(of({ success: true, data: completeProfile({ bio: '', missingItems: [item('bio')] }) }));
 		for (const u of ['profile-setup', 'help', 'help/tickets/123', 'notifications', 'bebo']) {
 			expect(await run('/marketer-overview/' + u), u).toBe(true);
 		}
 		expect(getProfile).not.toHaveBeenCalled();
 	});
 
-	it('avatar + bio + channel complete (even when PayPal is still optional/missing) opens dashboard and gated routes', async () => {
-		setup(of({ success: true, data: completeProfile() }));
+	it('bio + channel complete (even when avatar and PayPal are missing) opens dashboard and gated routes', async () => {
+		setup(of({ success: true, data: completeProfile({ avatarUrl: '', user: {}, missingItems: [item('avatar'), item('payout')] }) }));
 		for (const g of GATED) {
 			expect(await run('/marketer-overview' + g), g || 'home').toBe(true);
 		}
@@ -79,7 +78,7 @@ describe('marketerProfileCompleteGuard', () => {
 		setup(throwError(() => new Error('500')), null);
 		expect(await run('/marketer-overview')).toBe(true);
 
-		setup(throwError(() => new Error('500')), completeProfile({ avatarUrl: '', user: {}, missingItems: [item('avatar')] }));
+		setup(throwError(() => new Error('500')), completeProfile({ bio: '', missingItems: [item('bio')] }));
 		expect(await run('/marketer-overview')).toBe(MARKETER_SETUP_PAGE);
 	});
 });

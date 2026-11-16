@@ -39,8 +39,8 @@ describe('marketer sidebar: استكمال البيانات', () => {
 	it('something still to collect (channel + bank missing): the link is there', () => {
 		expect(setup({ completionPercentage: 40, missingItems: [item('channel'), item('payout')] }).routes()).toContain(SETUP);
 	});
-	it('missing avatar/bio/channel disables gated dashboard links while leaving استكمال البيانات and المساعدة enabled', () => {
-		const { items, svc } = setup({ completionPercentage: 40, missingItems: [item('avatar'), item('bio'), item('channel')] });
+	it('missing bio/channel disables gated dashboard links while leaving استكمال البيانات and المساعدة enabled; optional avatar/PayPal unlocks dashboard', () => {
+		const { items, svc } = setup({ completionPercentage: 40, missingItems: [item('bio'), item('channel')] });
 		const byRoute = (r: string) => items().find(i => i.route === r);
 		expect(byRoute('/marketer-overview')?.disabled).toBe(true);
 		expect(byRoute('/marketer-overview/referrals')?.disabled).toBe(true);
@@ -50,11 +50,10 @@ describe('marketer sidebar: استكمال البيانات', () => {
 		expect(byRoute('/marketer-overview/help')?.disabled).toBeFalsy();
 
 		svc.profileSnapshot.set({
-			completionPercentage: 70,
-			avatarUrl: 'data:image/png;base64,AAA',
+			completionPercentage: 60,
 			bio: 'وصف تسويقي',
 			marketingChannels: [{ id: 'c1' }],
-			missingItems: [item('payout')],
+			missingItems: [item('avatar'), item('payout')],
 		} as any);
 		expect(byRoute('/marketer-overview')?.disabled).toBeFalsy();
 		expect(byRoute('/marketer-overview/withdraw')?.disabled).toBeFalsy();

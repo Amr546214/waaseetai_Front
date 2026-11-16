@@ -1,8 +1,8 @@
 // Where the marketer "استكمال البيانات" wizard opens, decided from the SAVED profile (GET /marketer/profile: completionPercentage + missingItems),
 // never from a hard-coded step 1. Pure functions shared by the route guards, the wizard, the sidebar and the tests.
 //
-// Required onboarding items before entering the marketer dashboard: avatar + bio (step 2) and one channel (step 3).
-// PayPal email (step 4) remains optional and can be completed later from profile-setup or the edit page.
+// Required onboarding items before entering the marketer dashboard: bio (step 2) and one channel (step 3).
+// Avatar (step 2) and PayPal email (step 4) remain optional and can be completed during setup or later from the edit page.
 
 export const MARKETER_EDIT_PAGE = '/marketer-overview/profile/data';
 export const MARKETER_SETUP_PAGE = '/marketer-overview/profile-setup';
@@ -23,7 +23,7 @@ export type MarketerSetupResolution =
 	| { kind: 'redirect'; reason: 'complete' | 'nothing-to-collect' };
 
 const STEP_OF: Record<string, 2 | 3 | 4> = { avatar: 2, bio: 2, channel: 3, payout: 4 };
-const REQUIRED_SETUP_KEYS = ['avatar', 'bio', 'channel'] as const;
+const REQUIRED_SETUP_KEYS = ['bio', 'channel'] as const;
 
 export function isMarketerOnboardingAllowedPath(url: string): boolean {
 	const path = (url || '').split(/[?#]/)[0].replace(/^\/?marketer-overview\/?/, '').replace(/^\/+|\/+$/g, '');
@@ -35,9 +35,6 @@ function hasMissingItem(data: MarketerSetupData | null | undefined, key: string)
 }
 
 function isDirectRequiredMissing(data: MarketerSetupData, key: typeof REQUIRED_SETUP_KEYS[number]): boolean {
-	if (key === 'avatar' && ('avatarUrl' in data || 'user' in data)) {
-		return !(data.avatarUrl ?? data.user?.avatarUrl ?? '').trim();
-	}
 	if (key === 'bio' && 'bio' in data) {
 		return !(data.bio ?? '').trim();
 	}
@@ -47,20 +44,16 @@ function isDirectRequiredMissing(data: MarketerSetupData, key: typeof REQUIRED_S
 	return false;
 }
 
-function hasAnyRequiredMissing(data: MarketerSetupData): boolean {
-	return REQUIRED_SETUP_KEYS.some(key => hasMissingItem(data, key) || isDirectRequiredMissing(data, key));
-}
-
 /**
- * Whether the marketer has finished the required onboarding items (avatar, bio, and one channel)
- * needed to enter the dashboard. PayPal stays optional.
+ * Whether the marketer has finished the required onboarding items (bio and one channel)
+ * needed to enter the dashboard. Avatar and PayPal stay optional.
  */
 export function isMarketerOnboardingComplete(data: MarketerSetupData | null | undefined): boolean {
 	if (!data) return false;
 	if (REQUIRED_SETUP_KEYS.some(key => hasMissingItem(data, key))) return false;
 	if (Number(data.completionPercentage) >= 100) return true;
 	if (REQUIRED_SETUP_KEYS.some(key => isDirectRequiredMissing(data, key))) return false;
-	const hasAllDirectFields = ('avatarUrl' in data || 'user' in data) && 'bio' in data && 'marketingChannels' in data;
+	const hasAllDirectFields = 'bio' in data && 'marketingChannels' in data;
 	return !!data.missingItems || hasAllDirectFields;
 }
 
@@ -69,14 +62,13 @@ export function resolveMarketerSetup(data: MarketerSetupData | null | undefined)
 	if (Number(d.completionPercentage) >= 100 && !REQUIRED_SETUP_KEYS.some(k => hasMissingItem(d, k))) {
 		return { kind: 'redirect', reason: 'complete' };
 	}
-	for (const key of ['avatar', 'bio', 'channel', 'payout'] as const) {
-		if (hasMissingItem(d, key) || (key !== 'payout' && isDirectRequiredMissing(d, key))) {
+	for (const key of ['bio', 'channel', 'avatar', 'payout'] as const) {
+		if (hasMissingItem(d, key) || ((key === 'bio' || key === 'channel') && isDirectRequiredMissing(d, key))) {
 			return { kind: 'step', step: STEP_OF[key] };
 		}
 	}
 	// nothing the wizard collects is missing (e.g., payout is pending_review and required items are done)
-	const hasAllDirectFields = ('avatarUrl' in d || 'user' in d) && 'bio' in d && 'marketingChannels' in d;
-	if (data && (d.missingItems || (hasAllDirectFields && !hasAnyRequiredMissing(d)))) {
+	if (data && d.missingItems) {
 		return { kind: 'redirect', reason: 'nothing-to-collect' };
 	}
 	// no report at all (an unusual answer): start at the beginning of the form steps

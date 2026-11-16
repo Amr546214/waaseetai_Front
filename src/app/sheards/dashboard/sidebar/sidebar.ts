@@ -557,7 +557,7 @@ export class Sidebar implements OnInit {
 		];
 
 		if (this.marketerOnboardingIncomplete()) {
-			const reason = 'أكمل الصورة الشخصية والوصف التسويقي وقناة تسويق واحدة أولًا';
+			const reason = 'أكمل الوصف التسويقي وقناة تسويق واحدة أولًا';
 			const off = (item: NavItem): NavItem => ({
 				...item,
 				disabled: true,

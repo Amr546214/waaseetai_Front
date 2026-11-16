@@ -68,13 +68,13 @@ describe('marketer setup: bio and one valid channel are required', () => {
     expect(svc.updateMarketingInfo).toHaveBeenCalledWith({ bio: longBio, setup: true });
   });
 
-  it('«التالي» and the bar cannot pass the marketing step without BOTH a saved avatar and a saved bio', async () => {
+  it('«التالي» and the bar cannot pass the bio step without a SAVED bio; avatar stays optional', async () => {
     await mount();
     c.currentStep.set(2); render();
     c.skipNext(); render();
     expect(c.currentStep()).toBe(2);
     expect(errors()).toContain('الوصف التسويقي مطلوب');
-    expect(el().querySelector('[data-testid="avatar-required"]')?.textContent).toContain('ارفع صورة شخصية');
+    expect(el().querySelector('[data-testid="avatar-required"]')).toBeNull();
     c.marketingForm.get('bio')!.setValue('مسوّق رقمي متخصص في التسويق بالعمولة وجلب العملاء للمشاريع والخدمات التقنية.'); render();
     c.skipNext(); render();
     expect(c.currentStep()).toBe(2);
@@ -83,12 +83,8 @@ describe('marketer setup: bio and one valid channel are required', () => {
     c.setStep(4); render();
     expect(c.currentStep()).toBe(2);               // the bar stops at the first required step
     c.profile.set({ ...(c.profile() as any), bio: 'محفوظ' });
-    c.skipNext(); render();
-    expect(c.currentStep()).toBe(2);               // still blocks without avatar
-    expect(el().querySelector('[data-testid="avatar-required"]')).not.toBeNull();
-    c.profile.set({ ...(c.profile() as any), bio: 'محفوظ', avatarUrl: 'data:image/png;base64,AAA' });
     c.setStep(3); render();
-    expect(c.currentStep()).toBe(3);
+    expect(c.currentStep()).toBe(3);               // passes without avatar
     expect(svc.updateMarketingInfo).not.toHaveBeenCalled();
   });
 
@@ -188,7 +184,7 @@ describe('marketer setup: bio and one valid channel are required', () => {
     expect(c.channelForm.get('platform')!.invalid).toBe(false);
   });
 
-  it('finishing needs the three required items (avatar, bio, channel): without them it goes to the step and shows the message; PayPal is not required', async () => {
+  it('finishing needs the two required items (bio, channel): without them it goes to the step and shows the message; avatar and PayPal are optional', async () => {
     await mount();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     c.currentStep.set(5);
@@ -197,10 +193,6 @@ describe('marketer setup: bio and one valid channel are required', () => {
     expect(nav).not.toHaveBeenCalled();
     c.profile.set({ ...(c.profile() as any), bio: 'محفوظ' });
     c.currentStep.set(5);
-    c.finish(); render();
-    expect(c.currentStep()).toBe(2);
-    expect(el().querySelector('[data-testid="avatar-required"]')).not.toBeNull();
-    c.profile.set({ ...(c.profile() as any), avatarUrl: 'data:image/png;base64,AAA', bio: 'محفوظ' });
     c.finish(); render();
     expect(c.currentStep()).toBe(3);
     expect(el().querySelector('[data-testid="channel-required"]')).not.toBeNull();

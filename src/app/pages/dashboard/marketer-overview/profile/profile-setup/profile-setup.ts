@@ -87,8 +87,6 @@ export class ProfileSetup implements OnInit {
 	agree = signal(false);
 	/** The channel step was left (or the wizard finished) with no channel at all: the message under the channel control. */
 	channelRequired = signal(false);
-	/** The avatar section was left (or finished) with no photo uploaded yet. */
-	avatarRequired = signal(false);
 	avatarError = signal<string | null>(null);
 	savingAvatar = signal(false);
 	avatarUrl = computed(() => (this.profile()?.avatarUrl ?? this.profile()?.user?.avatarUrl ?? '').trim());
@@ -171,7 +169,7 @@ export class ProfileSetup implements OnInit {
 	}
 
 	private canLeave(step: number): boolean {
-		if (step === 2) return this.avatarSaved() && this.bioSaved();
+		if (step === 2) return this.bioSaved();
 		if (step === 3) return this.hasChannel();
 		return true;
 	}
@@ -179,27 +177,14 @@ export class ProfileSetup implements OnInit {
 	/** Shows what the step still needs, under the field, and focuses the first problem. */
 	private requireStep(step: number): void {
 		if (step === 2) {
-			this.avatarRequired.set(!this.avatarSaved());
 			const bio = this.marketingForm.get('bio')!;
 			bio.markAsTouched();
-			if (bio.valid && !this.bioSaved()) bio.setErrors({ unsaved: true }); // typed but not saved yet
-			if (bio.invalid) {
-				this.check(this.marketingForm);
-				return;
-			}
-			this.missing.set([]);
-			if (!this.avatarSaved()) this.focusAvatarButton();
+			if (bio.valid) bio.setErrors({ unsaved: true }); // typed but not saved yet
+			this.check(this.marketingForm);
 		} else if (step === 3) {
 			this.channelRequired.set(true);
 			this.check(this.channelForm);
 		}
-	}
-
-	private focusAvatarButton(): void {
-		const root = this.host.nativeElement as HTMLElement;
-		const btn = root.querySelector<HTMLElement>('#ps-avatar-btn');
-		btn?.focus();
-		btn?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
 	}
 
 	/** Marks the form touched, lists what is missing and focuses the first problem. Returns true when it is valid. */
@@ -263,7 +248,6 @@ export class ProfileSetup implements OnInit {
 					this.avatarError.set(res.message || 'تعذر حفظ الصورة الشخصية');
 					return;
 				}
-				this.avatarRequired.set(false);
 				this.profile.update(p => p ? { ...p, avatarUrl, user: { ...p.user, avatarUrl } } : p);
 				const snap = typeof this.profileService.profileSnapshot === 'function' ? this.profileService.profileSnapshot() : null;
 				if (snap) {
@@ -289,11 +273,6 @@ export class ProfileSetup implements OnInit {
 				this.notify.success('تم حفظ الوصف التسويقي');
 				this.profile.update(p => p ? { ...p, bio: String(this.marketingForm.value.bio ?? '') } : p);
 				this.loadProfile();
-				if (!this.avatarSaved()) {
-					this.avatarRequired.set(true);
-					this.focusAvatarButton();
-					return;
-				}
 				this.nextStep();
 			},
 			error: (err) => this.fail(this.marketingForm, err)
@@ -330,8 +309,8 @@ export class ProfileSetup implements OnInit {
 	}
 
 	finish(): void {
-		// required items: avatar, bio, and one marketing channel (PayPal remains optional)
-		if (!this.avatarSaved() || !this.bioSaved()) { this.currentStep.set(2); this.requireStep(2); return; }
+		// required items: bio and one marketing channel (avatar and PayPal remain optional)
+		if (!this.bioSaved()) { this.currentStep.set(2); this.requireStep(2); return; }
 		if (!this.hasChannel()) { this.currentStep.set(3); this.requireStep(3); return; }
 		this.notify.success('تم استكمال بياناتك بنجاح');
 		setTimeout(() => this.router.navigate(['/marketer-overview']), 1200);
