@@ -226,6 +226,20 @@ export class VerifyOtp implements OnInit {
     // The control only becomes valid (6 digits) once every box is filled.
     this.otpDigitsBuf = digits;
     this.otpCtrl.setValue(digits.join(''));
+    // editing the code (a digit removed / changed) makes the next complete code eligible for auto-submit again
+    if (digits.join('') !== this.lastAutoSubmitted) this.lastAutoSubmitted = '';
+  }
+
+  /** The last COMPLETE code that was sent automatically: the same code is never re-sent by itself after it failed (the button / Enter still can). */
+  private lastAutoSubmitted = '';
+
+  /** Typing or pasting the sixth digit opens the dashboard by itself: no button press. Only a valid six-digit code, once, and only when no request / wait is running. */
+  private autoSubmitWhenComplete() {
+    const code = this.otpCtrl.value ?? '';
+    if (this.otpCtrl.invalid || code.length !== 6 || code === this.lastAutoSubmitted) return;
+    if (this.isLoading || this.isEntering || this.entryFailedUrl || this.verifyWait().active()) return;
+    this.lastAutoSubmitted = code;
+    void this.verify();
   }
 
   private otpDigitsBuf: string[] = ['', '', '', '', '', ''];
@@ -241,6 +255,7 @@ export class VerifyOtp implements OnInit {
     this.errorMsg = '';
     this.errorIsAboutCode = false;
     if (raw && index < 5) this.focusOtpInput(index + 1);
+    this.autoSubmitWhenComplete();
   }
 
   onOtpKeydown(index: number, event: KeyboardEvent) {
@@ -276,6 +291,7 @@ export class VerifyOtp implements OnInit {
     this.errorMsg = '';
     this.errorIsAboutCode = false;
     this.focusOtpInput(Math.min(digits.length, 6) - 1);
+    this.autoSubmitWhenComplete();
   }
 
   private focusOtpInput(index: number) {
