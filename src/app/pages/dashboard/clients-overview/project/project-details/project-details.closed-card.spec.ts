@@ -30,7 +30,9 @@ describe('project details: closed project card', () => {
 		// the same card layout for every project (confidence chip + the three values); an ended project's values come from the AI retrospective grade, not from a prediction
 		expect(card).toContain('<span class="conf">ثقة {{ aiConfidence(data) }}</span>'); expect(card).toContain('<div class="lc-aim">'); expect(card).not.toContain('isClosedProject(data)) {<div class="lc-aim">');
 		expect(card).toMatch(/تعذر إجراء تحليل[\s\S]{0,260}pd-closure-fact/);
-		expect(card).toContain('analyzeProjectHealth()');
+		// no «تحليل صحة المشروع» button: the analysis already ran by itself; the only button is a retry shown when it failed
+		expect(card).not.toContain(": 'تحليل صحة المشروع بالذكاء الاصطناعي' }}"); // the old button label
+		expect(card).toMatch(/@if \(healthAnalysisError\(\) && !healthAnalysisLoading\(\)\) \{\s*<button[^>]*analyzeProjectHealth\(\)[^>]*pd-ai-retry/);
 	});
 	it('the analysis starts by itself once per project when the workspace loads', () => {
 		const ts = readFileSync(join(dir, 'project-details.ts'), 'utf8');
