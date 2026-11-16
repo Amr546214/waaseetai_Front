@@ -34,8 +34,8 @@ export class AccountLogsService {
 
 	getUserLogs(query: AuditLogQuery = {}): Observable<any> {
 		const params = Object.fromEntries(Object.entries(query).filter(([, value]) => value !== undefined && value !== '')) as Record<string, string>;
-		return this.http.get<any>(`${this.apiUrl}/provider/logs`, { params });
+		return this.http.get<any>(`${this.apiUrl}/account/logs`, { params });
 	}
 
-	getUserLog(id: string): Observable<any> { return this.http.get<any>(`${this.apiUrl}/provider/logs/${id}`); }
+	getUserLog(id: string): Observable<any> { return this.http.get<any>(`${this.apiUrl}/account/logs/${id}`); }
 }

@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
+import { AccountLogsService } from '../../../../core/services/account-logs.service';
 import { describe, it, expect } from 'vitest';
 import { Profile } from './profile';
 import { ProfileApiService } from '../../../../core/services/profile-api.service';
@@ -81,5 +83,54 @@ describe('client profile page — interests tab', () => {
 		(f.componentInstance as any).switchTab('interests');
 		f.detectChanges();
 		expect(Array.from((f.nativeElement as HTMLElement).querySelectorAll('.skill-tag')).map(t => t.textContent?.trim())).toEqual(['تصميم']);
+	});
+});
+
+describe('client profile page — activity tab (real audit log)', () => {
+	function mountWithLogs(getUserLogs: () => any) {
+		TestBed.configureTestingModule({
+			imports: [Profile],
+			providers: [
+				provideRouter([]),
+				{ provide: ProfileApiService, useValue: { getMyProfile: () => of({ success: true, data: { currentProfileData: { firstName: 'نورة', lastName: 'ق' } } }) } },
+				{ provide: AccountLogsService, useValue: { getUserLogs } },
+				{ provide: AuthStore, useValue: { currentUser: () => ({ firstName: 'نورة', lastName: 'ق', accountType: 'CLIENT_INDIVIDUAL' }), token: () => 't', authenticate: () => {} } },
+			],
+		});
+		const f = TestBed.createComponent(Profile);
+		f.detectChanges();
+		return f;
+	}
+	const open = (f: any) => { f.componentInstance.switchTab('activity'); f.detectChanges(); };
+
+	it('opening the tab loads the latest log entries and lists them with a link to the full log', () => {
+		const getUserLogs = vi.fn(() => of({ success: true, data: { items: [{ id: 'l1', title: 'تغيير كلمة المرور', summary: 'تم طلب تغيير كلمة المرور', statusText: 'مكتمل', createdAt: '2026-11-15T10:30:00Z' }, { id: 'l2', title: 'تحديث الملف', createdAt: '2026-11-14T08:00:00Z' }] } }));
+		const f = mountWithLogs(getUserLogs);
+		expect(getUserLogs).not.toHaveBeenCalled();
+		open(f);
+		expect(getUserLogs).toHaveBeenCalledWith({ limit: 8 });
+		const rows = (f.nativeElement as HTMLElement).querySelectorAll('[data-testid="activity-row"]');
+		expect(rows.length).toBe(2);
+		expect(rows[0].textContent).toContain('تم طلب تغيير كلمة المرور');
+		expect(rows[0].textContent).toContain('مكتمل');
+		expect((f.nativeElement as HTMLElement).querySelector('[data-testid="activity-all"]')?.getAttribute('href')).toBe('/client-overview/profile/logs');
+	});
+
+	it('no entries: the honest empty line; a failure: an error with retry (never a fake empty)', () => {
+		let f = mountWithLogs(() => of({ success: true, data: { items: [] } }));
+		open(f);
+		expect((f.nativeElement as HTMLElement).querySelector('[data-testid="activity-empty"]')).toBeTruthy();
+		TestBed.resetTestingModule();
+		f = mountWithLogs(() => throwError(() => new Error('x')));
+		open(f);
+		expect((f.nativeElement as HTMLElement).querySelector('[data-testid="activity-error"]')).toBeTruthy();
+		expect((f.nativeElement as HTMLElement).querySelector('[data-testid="activity-empty"]')).toBeNull();
+	});
+
+	it('the log is read once per visit, not on every tab click', () => {
+		const getUserLogs = vi.fn(() => of({ success: true, data: { items: [{ id: 'l1', title: 'حدث', createdAt: '2026-11-15T10:30:00Z' }] } }));
+		const f = mountWithLogs(getUserLogs);
+		open(f); open(f);
+		expect(getUserLogs).toHaveBeenCalledTimes(1);
 	});
 });
