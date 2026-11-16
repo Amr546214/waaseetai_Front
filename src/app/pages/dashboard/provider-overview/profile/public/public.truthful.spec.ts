@@ -146,9 +146,9 @@ describe('provider public profile shows only real data', () => {
 		expect(el.querySelector('[data-testid="spec-passed-tick"]')).toBeNull();
 		// it leads to the page where the test is taken
 		const take = el.querySelector('[data-testid="spec-take-test"]') as HTMLAnchorElement;
-		expect(take.getAttribute('href')).toBe('/provider-overview/profile/specialties');
+		expect(take.getAttribute('href')).toBe('/provider-overview/profile/specialties?takeTest=s1');
 		expect(take.textContent).toContain('ابدأ الاختبار');
-		expect((el.querySelector('[data-testid="spec-status-test-link"]') as HTMLAnchorElement).getAttribute('href')).toBe('/provider-overview/profile/specialties');
+		expect((el.querySelector('[data-testid="spec-status-test-link"]') as HTMLAnchorElement).getAttribute('href')).toBe('/provider-overview/profile/specialties?takeTest=s1');
 		expect(el.querySelector('[data-testid="spec-status-label"]')?.textContent).toContain('لم تُجرِ الاختبار بعد');
 		expect(el.querySelector('[data-testid="spec-score-box"]')?.textContent).not.toContain('0%');
 	});

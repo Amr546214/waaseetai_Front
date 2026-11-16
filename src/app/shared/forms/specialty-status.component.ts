@@ -19,7 +19,7 @@ type Row = RegisteredSpecialty & SpecialtyApprovalInfo;
 			<div class="wss-row" [attr.data-state]="r.approvalState" [attr.data-tone]="r.view.tone">
 				<div class="wss-main"><strong>{{ r.name }}</strong><span class="wss-tag" data-testid="specialty-status-label">{{ r.view.label }}</span></div>
 				@if (r.view.detail) { <p class="wss-detail">{{ r.view.detail }}</p> }
-				@if (r.view.ctaLink) { <a class="wss-cta" [routerLink]="ctaTarget(r.approvalState, r.view.ctaLink)" [queryParams]="queryFor(ctaTarget(r.approvalState, r.view.ctaLink))" [attr.data-testid]="r.approvalState === 'TEST_NOT_TAKEN' ? 'take-test-cta' : null">{{ r.view.ctaLabel }}</a> }
+				@if (r.view.ctaLink) { <a class="wss-cta" [routerLink]="ctaTarget(r.approvalState, r.view.ctaLink)" [queryParams]="queryFor(ctaTarget(r.approvalState, r.view.ctaLink), r)" [attr.data-testid]="r.approvalState === 'TEST_NOT_TAKEN' ? 'take-test-cta' : null">{{ r.view.ctaLabel }}</a> }
 			</div>
 			}
 		</section>
@@ -40,7 +40,14 @@ export class SpecialtyStatusComponent {
 	readonly registered = input<readonly Row[] | null | undefined>(null);
 	/** When set (e.g. 'accreditation'), links to the specialties page carry ?returnTo= so the test brings the provider back here. */
 	readonly returnTo = input<string | null>(null);
-	protected queryFor(link: string): Record<string, string> | null { return link === SPECIALTIES_PAGE && this.returnTo() ? { returnTo: this.returnTo() as string } : null; }
+	/** The remaining step of a specialty that has not passed its test IS the test: the link opens it directly (?takeTest=<id>) instead of the wizard's first step. */
+	protected queryFor(link: string, row?: Row): Record<string, string> | null {
+		if (link !== SPECIALTIES_PAGE) return null;
+		const query: Record<string, string> = {};
+		if (this.returnTo()) query['returnTo'] = this.returnTo() as string;
+		if (row?.id && (row.approvalState === 'TEST_NOT_TAKEN' || row.approvalState === 'TEST_NOT_PASSED')) query['takeTest'] = row.id;
+		return Object.keys(query).length ? query : null;
+	}
 	private readonly access = inject(ProviderAccessService);
 	constructor() {
 		// «إجراء الاختبار» must open the test: while the onboarding test is pending the wizard (profile/setup, test = step 7) is where it lives; this page itself has no test to open from a link to itself.

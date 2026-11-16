@@ -15,7 +15,7 @@ import { HttpEventType } from '@angular/common/http';
 import { Subscription, firstValueFrom } from 'rxjs';
 import { ProviderApiService } from '../../../../../core/services/provider-api.service';
 import { SpecialtyStatusComponent } from '../../../../../shared/forms/specialty-status.component';
-import { ACCREDITATION_NEW_PAGE, type RegisteredSpecialty, type SpecialtyApprovalInfo } from '../../../../../core/utils/specialty-states';
+import { ACCREDITATION_NEW_PAGE, registeredStateText, type RegisteredSpecialty, type SpecialtyApprovalInfo } from '../../../../../core/utils/specialty-states';
 import { SPECIALTY_TEST_PASS_SCORE, SPECIALTY_TEST_QUESTION_COUNT, SPECIALTY_TEST_TIME_LIMIT_MINUTES, SpecialtyTestComponent, type SpecialtyTestPhase, type SpecialtyTestQuestion, type SpecialtyTestResult } from '../../../../../shared/specialty-test/specialty-test.component';
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { AntiCheatService } from '../../../../../core/services/anti-cheat.service';
@@ -164,6 +164,21 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 	readonly testLeaveLabel = this.returnToAccreditation ? 'العودة إلى رفع نموذج الاعتماد' : 'العودة إلى لوحة التخصصات';
 	goToAccreditation() { void this.router.navigateByUrl('/provider-overview/business-models/accreditation/new'); }
+	private takeTestId: string | null = null;
+	private registeredLoaded = false;
+	/** Opens the test gate of the requested specialty (declarations, then the test). Refuses, with the reason, a specialty that cannot take it now. */
+	private openRequestedTest() {
+		const id = this.takeTestId;
+		if (!id || !this.registeredLoaded || this.isQuizActive()) return;
+		this.takeTestId = null;
+		const row = this.registeredSpecialties().find(r => r.id === id);
+		if (!row || (row.state !== 'TEST_NOT_TAKEN' && row.state !== 'TEST_NOT_PASSED')) { this.stepError.set('لا يمكن بدء اختبار هذا التخصص الآن. اختر تخصصك من القائمة.'); return; }
+		if (row.attemptLimitReached || (row.retryAfterSeconds ?? 0) > 0) { this.stepError.set(registeredStateText({ state: row.state, retryAfterSeconds: row.retryAfterSeconds, attemptLimitReached: row.attemptLimitReached })); return; }
+		this.stepError.set(null);
+		this.providerSpecialtyId.set(row.id ?? null);
+		this.selectedSpecId.set(row.specialtyId ?? null);
+		this.currentStep.set(3);
+	}
 	/** Every registered specialty with its real approval state (test vs samples vs admin decision), shown at the top of step 1. */
 	registeredSpecialties = signal<(RegisteredSpecialty & SpecialtyApprovalInfo)[]>([]);
 	public antiCheatService = inject(AntiCheatService);
@@ -327,11 +342,13 @@ export class Specialties implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
+		// «إجراء الاختبار» (?takeTest=<providerSpecialtyId>) from the status list / the public profile: straight to the test. The page is reused when only the query changes, so this listens.
+		this.route?.queryParamMap.pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe(q => { this.takeTestId = q.get('takeTest'); this.openRequestedTest(); });
 		this.examEnv.load(env => this.antiCheatService.restricted.set(env?.restricted === true));
 		this.resumeLiveAttempt();
 		this.loadRecommendation();
 		this.providerApi.getPassedSpecialties().subscribe({
-			next: (res: any) => this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []),
+			next: (res: any) => { this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []); this.registeredLoaded = true; this.openRequestedTest(); },
 			error: () => this.registeredSpecialties.set([]),
 		});
 		this.specialtyService.getCategories().pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe({
