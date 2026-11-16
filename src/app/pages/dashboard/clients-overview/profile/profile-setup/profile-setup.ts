@@ -445,7 +445,7 @@ export class ProfileSetupDashboard implements OnInit {
 				sendAfterInspection = true;
 				this.idDocInspections.update(curr => ({
 					...curr,
-					[controlName]: { status: 'scanning', message: '⏳ جاري فحص وضوح الوثيقة ونوعها بالذكاء الاصطناعي...' }
+					[controlName]: { status: 'scanning', message: 'جاري فحص وضوح الوثيقة ونوعها بالذكاء الاصطناعي...' }
 				}));
 				const idNumber = String(this.setupForm.get('details.idNumber')?.value || '').trim();
 				const dob = String(this.setupForm.get('details.dob')?.value || '').trim();
@@ -508,7 +508,7 @@ export class ProfileSetupDashboard implements OnInit {
 	 * The identity step save: the ID data of step 1 + the new photo(s) go to the server, which stores them and STARTS the review. A successful
 	 * upload never opens the next step; only the server's APPROVED does. The user stays here and the form keeps everything (no data loss).
 	 */
-	sendIdentity() {
+	sendIdentity(options: { removeBack?: boolean } = {}) {
 		const raw = this.setupForm.getRawValue();
 		const d = raw.details;
 		const issuer = this.setupForm.get('details.idDocumentType')?.disabled ? this.verifiedIssuer : identityCountryCode(d.country);
@@ -521,11 +521,22 @@ export class ProfileSetupDashboard implements OnInit {
 		this.gateProblem.set(null);
 		this.gate.save({
 			idIssuingCountry: issuer, idDocumentType: d.idDocumentType, idNumber: String(d.idNumber).trim(),
-			...(d.dob ? { dob: String(d.dob).slice(0, 10) } : {}), ...(frontId ? { frontId } : {}), ...(backId ? { backId } : {})
+			...(d.dob ? { dob: String(d.dob).slice(0, 10) } : {}), ...(frontId ? { frontId } : {}), ...(backId ? { backId } : {}),
+			...(options.removeBack && !backId ? { removeBackId: true } : {})
 		}).subscribe({
-			next: () => { /* the status panel shows the new state; polling follows while it is under review */ },
+			next: () => {
+				/* the status panel shows the new state; polling follows while it is under review */
+				if (options.removeBack && !backId) this.storedDocs.update(s => ({ ...s, backId: null }));
+			},
 			error: (err: any) => { this.gateProblem.set(this.notify.httpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى' }).message || 'تعذّر حفظ الوثيقة، حاول مرة أخرى'); }
 		});
+	}
+
+	/** The owner removes the back side that was stored earlier (optional): the server clears it; the picture picked now (if any) is dropped too. */
+	removeStoredBack() {
+		this.setupForm.get('identity.backId')?.setValue('');
+		this.idDocInspections.update(curr => { const next = { ...curr }; delete next['backId']; return next; });
+		this.sendIdentity({ removeBack: true });
 	}
 
 	/** The saved data may have just taken the profile to 100%: update the completion the sidebar / banners read (best effort). */

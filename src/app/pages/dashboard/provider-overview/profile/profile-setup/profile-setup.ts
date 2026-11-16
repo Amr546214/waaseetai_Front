@@ -952,7 +952,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		}
 		this.idDocInspections.update(curr => ({
 			...curr,
-			[slot]: { status: 'scanning', message: '⏳ جاري فحص وضوح الوثيقة ونوعها بالذكاء الاصطناعي...' }
+			[slot]: { status: 'scanning', message: 'جاري فحص وضوح الوثيقة ونوعها بالذكاء الاصطناعي...' }
 		}));
 		const reader = new FileReader();
 		reader.onload = () => {

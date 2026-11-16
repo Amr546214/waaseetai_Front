@@ -287,7 +287,7 @@
 								@if (fileErrors()['backId']; as fe) { <span role="alert" class="field-error text-[length:var(--font-size-small)] font-bold ">{{ fe }}</span> }
 								@if (storedDocs().backId; as stored) {
 									@if (!setupForm.get('identity.backId')?.value?.startsWith('data:')) {
-										<div class="flex items-center gap-2 text-[length:var(--font-size-small)] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_back_id" [url]="stored.url" [access]="stored.access" /></div>
+										<div class="flex items-center gap-2 text-[length:var(--font-size-small)] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_back_id" [url]="stored.url" [access]="stored.access" /><button type="button" class="text-xs font-bold text-red-500 hover:underline" (click)="removeStoredBack()" data-testid="remove-stored-back">حذف</button></div>
 									}
 								}
 								<div
