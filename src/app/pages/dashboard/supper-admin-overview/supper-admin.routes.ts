@@ -237,6 +237,11 @@ const RAW_ROUTES: Routes = [
         data: { title: 'إعدادات النظام' }
     },
     {
+        path: 'notification-settings',
+        loadComponent: () => import('./notification-settings/admin-notification-settings').then(m => m.AdminNotificationSettings),
+        data: { title: 'تفضيلات الإشعارات' }
+    },
+    {
         path: 'bebo',
         loadComponent: () => import('../../../sheards/assistant-widget/dashboard-bebo').then(m => m.DashboardBebo),
         data: { title: 'بيبو' }

@@ -45,7 +45,7 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 	});
 it('an account with NO permission only sees Bebo tools', () => {
     const { routes } = setup(ADMIN, []);
-    expect(routes()).toEqual(['/supper-admin-overview/bebo']);
+    expect(routes()).toEqual(['/supper-admin-overview/notification-settings', '/supper-admin-overview/bebo']);
 });
 	it('does not list the super-admin-only page', () => {
 		const r = setup(ADMIN).routes(); expect(r).not.toContain('/supper-admin-overview/super-admins'); expect(r).not.toContain('/supper-admin-overview/system-settings');

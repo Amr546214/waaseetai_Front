@@ -71,6 +71,8 @@ export const ADMIN_ROUTE_ACCESS: Record<string, AccessRule> = {
 	'risk-center': { all: ['finance.read'] },
 	// Bebo's tools (the same bar that used to float on every page): every admin account had them, so every admin account keeps them
 	bebo: { self: true },
+	// the admin's own notification channels (real-time / e-mail): any admin account, like Bebo
+	'notification-settings': { self: true },
 	'no-access': { self: true },
 };
 
