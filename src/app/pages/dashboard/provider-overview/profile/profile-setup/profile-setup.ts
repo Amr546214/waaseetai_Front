@@ -1,3 +1,4 @@
+import { identityImageRejected } from '../../../../../core/utils/identity-inspection-result';
 import { Subscription as CatalogSubscription } from 'rxjs';
 import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
 import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -986,6 +987,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							...inspection
 						}
 					}));
+					if (identityImageRejected(d)) {
+						// not accepted: the picture is removed (form, upload state, pending reference), the message under the field stays
+						this.removeUploadedFile(slot);
+						delete this.pendingRefs[slot];
+						this.idDocInspections.update(curr => ({ ...curr, [slot]: { ...inspection } }));
+					}
 				},
 				error: () => {
 					if (!isCurrent()) return;
