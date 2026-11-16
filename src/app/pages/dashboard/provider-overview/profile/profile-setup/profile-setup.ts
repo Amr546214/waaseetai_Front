@@ -274,6 +274,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	/** Refs uploaded in THIS session and not yet sent through the identity save (a stored ref is never re-sent as a "new" image). */
 	/** The back side is required for every document except a passport (the backend's identity gate «missing» list follows the same rule). */
 	backRequired(): boolean { return this.setupForm.get('docs.idDocumentType')?.value !== 'PASSPORT'; }
+	/** the kind / country the provider chose, sent with the AI document check (empty parts are left out) */
+	private chosenDocument(): { type?: string; country?: string } {
+		const type = String(this.setupForm.get('docs.idDocumentType')?.value || '');
+		const country = identityCountryCode(this.setupForm.get('profData.country')?.value) ?? '';
+		return { ...(type ? { type } : {}), ...(country ? { country } : {}) };
+	}
 	private pendingRefs: { frontId?: string; backId?: string } = {};
 	private gateFresh = false;
 
@@ -960,6 +966,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				side: slot === 'frontId' ? 'FRONT' : 'BACK',
 				image: dataUrl,
 				imageMimeType: file.type,
+				document: this.chosenDocument(),
 				declared: {
 					...(fullName ? { fullName } : {}),
 					...(this.setupForm.get('profData.dob')?.value ? { birthDate: String(this.setupForm.get('profData.dob')?.value) } : {})
