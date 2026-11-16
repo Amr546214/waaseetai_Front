@@ -24,6 +24,8 @@ export interface IdentityGateSaveBody {
 	dob?: string;
 	frontId?: string;
 	backId?: string;
+	/** remove the stored back side (it is optional) */
+	removeBackId?: boolean;
 }
 
 /** The server refuses a skipped step with 409 + code IDENTITY_NOT_APPROVED (contract section 3). */
@@ -83,7 +85,8 @@ export class IdentityGateService implements OnDestroy {
 	/** The identity step save: stores data + files and starts (or restarts) the review. A change after approval cancels the approval. */
 	save(body: IdentityGateSaveBody): Observable<IdentityGateState> {
 		this.saving.set(true);
-		return this.http.put<{ data: IdentityGateState }>(this.url, body).pipe(
+		// SKIP_LOADING: the identity panel shows its own state; the app-wide loading overlay made every save look like a page reload
+		return this.http.put<{ data: IdentityGateState }>(this.url, body, { context: new HttpContext().set(SKIP_LOADING, true) }).pipe(
 			map(r => r.data),
 			tap({ next: s => { this.saving.set(false); this.apply(s); }, error: () => this.saving.set(false) })
 		);
