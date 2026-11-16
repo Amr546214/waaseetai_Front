@@ -475,7 +475,7 @@
 								<polyline points="20 6 9 17 4 12" />
 							</svg>
 							@if (needsTest(spec)) {
-							<a routerLink="/provider-overview/profile/specialties" class="hover:underline" data-testid="spec-status-test-link"><span data-testid="spec-status-label" [attr.data-status]="spec.status">{{ specStatusLabel(spec) }}</span></a>
+							<a routerLink="/provider-overview/profile/specialties" [queryParams]="{ takeTest: spec.id }" class="hover:underline" data-testid="spec-status-test-link"><span data-testid="spec-status-label" [attr.data-status]="spec.status">{{ specStatusLabel(spec) }}</span></a>
 							} @else {
 							<span data-testid="spec-status-label" [attr.data-status]="spec.status">{{ specStatusLabel(spec) }}</span>
 							}
@@ -502,7 +502,7 @@
 						<div class="text-[length:var(--font-size-section)] font-black text-[var(--teal-txt,#2bd4c7)]" data-testid="spec-score">{{ spec.latestScore }}%</div>
 						} @else {
 						@if (needsTest(spec)) {
-						<a routerLink="/provider-overview/profile/specialties" data-testid="spec-take-test"
+						<a routerLink="/provider-overview/profile/specialties" [queryParams]="{ takeTest: spec.id }" data-testid="spec-take-test"
 							class="block text-[length:var(--font-size-small)] font-bold text-[var(--teal-txt,#2BD4C7)] hover:underline">لم تُجرِ الاختبار بعد · ابدأ الاختبار ←</a>
 						} @else {
 						<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]" data-testid="spec-score-none">لم تُجرِ الاختبار بعد</div>
