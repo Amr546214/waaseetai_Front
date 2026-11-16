@@ -111,6 +111,8 @@ export class ProjectDetails implements OnInit {
 				if (!response?.success || !response.data) this.error.set('تعذر تحميل مساحة العمل');
 				else {
 					this.project.set(response.data);
+					// the AI insights card fills itself once per project (an ended project gets a retrospective summary, a running one the health view)
+					if (this.healthRequestedFor !== this.projectId) { this.healthRequestedFor = this.projectId; this.analyzeProjectHealth(); }
 					// Rating eligibility + the saved review come from the server (never assumed). On a read error NO rating call-to-action is shown.
 					this.ratingApi.getRatingStatus('client', this.projectId).subscribe({
 						next: status => {
@@ -143,6 +145,7 @@ export class ProjectDetails implements OnInit {
 	// the honest static placeholder still returned inline on project().
 	// aiInsights. On failure, healthAnalysisError is set and the placeholder
 	// is NOT silently re-shown as if it were a real result.
+	private healthRequestedFor = '';
 	healthAnalysis = signal<any>(null);
 	healthAnalysisLoading = signal(false);
 	healthAnalysisError = signal(false);
