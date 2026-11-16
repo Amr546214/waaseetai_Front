@@ -6,7 +6,8 @@ import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES,
 import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
+import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
@@ -101,6 +102,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	readonly identityDocumentTypes = IDENTITY_DOCUMENT_TYPES;
 
 	private fb = inject(FormBuilder);
+	private legalNames = inject(LegalNameService);
 	private destroyRef = inject(DestroyRef);
 	private router = inject(Router);
 	private access = inject(ProviderAccessService);
@@ -953,9 +955,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				this.idDocInspections.update(curr => { const next = { ...curr }; delete next[slot]; return next; });
 				return;
 			}
-			const u = this.authStore.currentUser();
-			const fullName = u ? `${u.firstName || ''} ${u.lastName || ''}`.trim() : '';
-			this.providerProfileService.verifyIdentityDocument({
+			// the document is compared with the LEGAL name, never with the account's display name (no legal name yet: no name comparison)
+			this.legalNames.declaredName().pipe(switchMap(fullName => this.providerProfileService.verifyIdentityDocument({
 				side: slot === 'frontId' ? 'FRONT' : 'BACK',
 				image: dataUrl,
 				imageMimeType: file.type,
@@ -963,7 +964,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					...(fullName ? { fullName } : {}),
 					...(this.setupForm.get('profData.dob')?.value ? { birthDate: String(this.setupForm.get('profData.dob')?.value) } : {})
 				}
-			}).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+			})), takeUntilDestroyed(this.destroyRef)).subscribe({
 				next: res => {
 					if (!isCurrent()) return;
 					const d = res?.data;
