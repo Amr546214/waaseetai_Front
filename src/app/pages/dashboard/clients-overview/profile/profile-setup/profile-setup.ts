@@ -1,4 +1,5 @@
 import { switchMap } from 'rxjs';
+import { identityImageRejected } from '../../../../../core/utils/identity-inspection-result';
 import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, identityCountryCode } from '../../../../../shared/data/identity-documents';
@@ -432,6 +433,8 @@ export class ProfileSetupDashboard implements OnInit {
 			}
 			this.isUploading.update(s => ({ ...s, [controlName]: false }));
 
+			// an inspected picture is sent for review only once it is accepted (a rejected one is removed); no inspection / a failed one: sent as before
+			let sendAfterInspection = false;
 			if (
 				groupName === 'identity' &&
 				(controlName === 'frontId' || controlName === 'backId') &&
@@ -439,6 +442,7 @@ export class ProfileSetupDashboard implements OnInit {
 				file.size >= 512 &&
 				typeof this.profileApi.verifyIdentityDocument === 'function'
 			) {
+				sendAfterInspection = true;
 				this.idDocInspections.update(curr => ({
 					...curr,
 					[controlName]: { status: 'scanning', message: '⏳ جاري فحص وضوح الوثيقة ونوعها بالذكاء الاصطناعي...' }
@@ -462,6 +466,7 @@ export class ProfileSetupDashboard implements OnInit {
 						const d = res?.data;
 						if (!d) {
 							this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+							this.sendIdentity();
 							return;
 						}
 						const inspection = identityInspectionResult(d);
@@ -471,17 +476,25 @@ export class ProfileSetupDashboard implements OnInit {
 								...inspection
 							}
 						}));
+						if (identityImageRejected(d)) {
+							// not accepted: the picture is removed (form value and file input), the message under the field stays
+							(this.setupForm.get(groupName) as FormGroup)?.patchValue({ [controlName]: '' });
+							input.value = '';
+							return;
+						}
+						this.sendIdentity();
 					},
 					error: () => {
 						if (!isCurrent()) return;
 						this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+						this.sendIdentity();
 					}
 				});
 			} else if (controlName === 'frontId' || controlName === 'backId') {
 				this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
 			}
 			// choosing the photo saves the identity (data + image) and starts the review right here; it never moves to another step
-			if (groupName === 'identity') this.sendIdentity();
+			if (groupName === 'identity' && !sendAfterInspection) this.sendIdentity();
 		};
 		reader.onerror = () => {
 			if (!isCurrent()) return;
