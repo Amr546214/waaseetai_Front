@@ -1,4 +1,5 @@
 import { switchMap } from 'rxjs';
+import { resetClientIdentityRejectedCache } from '../../../../../core/guards/client-identity-rejected.guard';
 import { identityImageRejected } from '../../../../../core/utils/identity-inspection-result';
 import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
@@ -526,6 +527,7 @@ export class ProfileSetupDashboard implements OnInit {
 		}).subscribe({
 			next: () => {
 				/* the status panel shows the new state; polling follows while it is under review */
+				resetClientIdentityRejectedCache(); // new documents sent: the REJECTED lock re-reads the real state on the next navigation
 				if (options.removeBack && !backId) this.storedDocs.update(s => ({ ...s, backId: null }));
 			},
 			error: (err: any) => { this.gateProblem.set(this.notify.httpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى' }).message || 'تعذّر حفظ الوثيقة، حاول مرة أخرى'); }
