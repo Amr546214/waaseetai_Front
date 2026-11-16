@@ -78,6 +78,8 @@ export class ProfileSetupDashboard implements OnInit {
 	readonly gate = inject(IdentityGateService).use('CLIENT');
 	/** Why the identity could not be sent from step 2 (data of step 1 incomplete / refused by the server). */
 	gateProblem = signal<string | null>(null);
+	/** Under review the submitted documents cannot be changed or removed: they are decided first; after a rejection the owner uploads again. */
+	identityLocked(): boolean { return this.gate.status() === 'UNDER_REVIEW'; }
 	/** The back side is optional for every document kind: the front side is what the review relies on. */
 	backRequired(): boolean { return false; }
 	/** the kind / country the client chose, sent with the AI document check (empty parts are left out) */
@@ -407,6 +409,7 @@ export class ProfileSetupDashboard implements OnInit {
 		const input = event.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
+		if (groupName === 'identity' && this.identityLocked()) { input.value = ''; return; }
 
 		const rule = FILE_RULES[controlName];
 		const problem = rule ? validateFile(file, rule) : null;
