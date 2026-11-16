@@ -53,4 +53,22 @@ describe('LegalNameFieldComponent', () => {
 		(q('legal-name-save') as HTMLButtonElement).click(); fixture.detectChanges();
 		expect(q('legal-name-pending')?.textContent).toContain('قيد المراجعة');
 	});
+
+	it('alwaysEdit (setup pages): the name is a prefilled box right here, no read-only value / edit link', async () => {
+		get = vi.fn(() => of({ success: true, data: view({}) })); save = vi.fn();
+		await TestBed.configureTestingModule({ imports: [LegalNameFieldComponent], providers: [{ provide: LegalNameService, useValue: { get, save } }] }).compileComponents();
+		fixture = TestBed.createComponent(LegalNameFieldComponent); fixture.componentRef.setInput('alwaysEdit', true);
+		fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
+		expect((q('legal-name-field-input') as HTMLInputElement).value).toBe('عمرو محمود');
+		expect(q('legal-name-edit')).toBeNull(); expect(q('legal-name-value')).toBeNull();
+		expect(fixture.nativeElement.textContent).not.toContain('إلغاء');
+	});
+
+	it('alwaysEdit with a pending change request: the box is replaced by the pending note (no second request)', async () => {
+		get = vi.fn(() => of({ success: true, data: view({ pendingRequest: { requestedValue: 'عمرو محمود علي' } as never }) })); save = vi.fn();
+		await TestBed.configureTestingModule({ imports: [LegalNameFieldComponent], providers: [{ provide: LegalNameService, useValue: { get, save } }] }).compileComponents();
+		fixture = TestBed.createComponent(LegalNameFieldComponent); fixture.componentRef.setInput('alwaysEdit', true);
+		fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
+		expect(q('legal-name-field-input')).toBeNull(); expect(q('legal-name-pending')).not.toBeNull();
+	});
 });
