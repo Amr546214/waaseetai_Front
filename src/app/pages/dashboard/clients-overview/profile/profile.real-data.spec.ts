@@ -66,3 +66,20 @@ describe('client profile page — real data only', () => {
 		expect(text(f)).not.toContain('GitHub');
 	});
 });
+
+describe('client profile page — interests tab', () => {
+	it('shows the saved interests on the الاهتمامات tab', () => {
+		const f = mount({ interests: ['تصميم', 'برمجة'] });
+		(f.componentInstance as any).switchTab('interests');
+		f.detectChanges();
+		const tags = Array.from((f.nativeElement as HTMLElement).querySelectorAll('.skill-tag')).map(t => t.textContent?.trim());
+		expect(tags).toEqual(['تصميم', 'برمجة']);
+	});
+
+	it('an empty skills list in the payload never hides the saved interests', () => {
+		const f = mount({ skills: [], interests: ['تصميم'] });
+		(f.componentInstance as any).switchTab('interests');
+		f.detectChanges();
+		expect(Array.from((f.nativeElement as HTMLElement).querySelectorAll('.skill-tag')).map(t => t.textContent?.trim())).toEqual(['تصميم']);
+	});
+});

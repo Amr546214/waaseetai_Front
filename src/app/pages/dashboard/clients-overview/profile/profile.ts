@@ -172,7 +172,9 @@ export class Profile {
 	}
 
 	get skills(): string[] {
-		return this.profileData()?.skills || this.profileData()?.interests || [];
+		const skills = this.profileData()?.skills, interests = this.profileData()?.interests;
+		// an empty skills list (a provider-shaped payload) must never hide the interests the client saved
+		return Array.isArray(skills) && skills.length ? skills : Array.isArray(interests) ? interests : [];
 	}
 
 	get bio(): string {

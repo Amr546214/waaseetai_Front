@@ -669,16 +669,45 @@ export class ProfileEdit {
 		}
 	}
 
+	/** The client's interests are saved the moment they change (add / remove): typing an interest and leaving the page must not lose it. */
+	interestsSaving = signal(false);
+
 	removeInterest(tag: string) {
+		const before = this.interests();
 		this.interests.update(s => s.filter(x => x !== tag));
+		this.persistInterests(before);
 	}
 
 	addInterest(input: HTMLInputElement) {
 		const val = input.value.trim();
 		if (val && !this.interests().includes(val)) {
+			const before = this.interests();
 			this.interests.update(s => [...s, val]);
 			input.value = '';
+			this.persistInterests(before);
 		}
+	}
+
+	/** Writes ONLY the interests (the rest of the form stays an unsaved draft). On a refusal the list goes back to what is stored and the reason is shown. */
+	private persistInterests(before: string[]) {
+		if (!this.isClient) return; // the provider form keeps its single save button
+		const interests = this.interests();
+		this.interestsSaving.set(true);
+		this.errorMsg.set('');
+		this.profileApi.updateProfile({ interests } as any).subscribe({
+			next: (res) => {
+				this.interestsSaving.set(false);
+				if (!res.success) { this.interests.set(before); this.errorMsg.set(res.message || 'تعذر حفظ الاهتمامات'); return; }
+				// the stored baseline now includes them, so the main save does not report them as an unsaved change
+				if (this.profileRef) { try { this.profileRef = JSON.stringify({ ...JSON.parse(this.profileRef), interests }); } catch { /* keep the old baseline */ } }
+				this.successMsg.set('تم حفظ الاهتمامات');
+			},
+			error: (err) => {
+				this.interestsSaving.set(false);
+				this.interests.set(before);
+				this.errorMsg.set(mapHttpError(err, { fallback: 'تعذر حفظ الاهتمامات. حاول مرة أخرى.' }).message || 'تعذر حفظ الاهتمامات. حاول مرة أخرى.');
+			},
+		});
 	}
 
 	private root(): HTMLElement {

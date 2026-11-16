@@ -223,7 +223,10 @@ describe('client profile-edit: shared validation', () => {
       component.removeInterest('تسويق');
       component.clientForm.patchValue({ bio: 'تغيير' }); // an unchanged form is no longer sent (K-1)
       component.saveProfile();
-      expect(updateProfile.mock.calls[0][0].interests).not.toContain('تسويق');
+      // each interest change is saved on its own at once (add, then remove); the form save that follows carries the final list
+      expect(updateProfile.mock.calls[0][0]).toEqual({ interests: expect.arrayContaining(['تسويق']) });
+      expect(updateProfile.mock.calls[1][0].interests).not.toContain('تسويق');
+      expect(updateProfile.mock.calls.at(-1)![0].interests).not.toContain('تسويق');
     });
 
     it('success is shown only after the profile AND the notification preferences are stored', () => {
