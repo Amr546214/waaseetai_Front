@@ -202,8 +202,8 @@
           <div class="form-card-sub">عرّف العملاء بخبرتك وما تقدمه من خدمات</div>
         </div>
       </div>
-      <button type="button" class="ai-banner-btn" (click)="triggerBioAi()" [disabled]="isSuggestingBio()" data-testid="suggest-bio-btn">
-        {{ isSuggestingBio() ? (hasBioText() ? '⏳ جاري تحسين الوصف...' : '⏳ جاري صياغة الوصف...') : (hasBioText() ? '✨ تحسين الوصف بالذكاء الاصطناعي' : '✨ اقتراح وصف بالذكاء الاصطناعي') }}
+      <button type="button" class="ai-banner-btn inline-flex items-center gap-1.5" (click)="triggerBioAi()" [disabled]="isSuggestingBio()" data-testid="suggest-bio-btn">
+        @if (isSuggestingBio()) { {{ hasBioText() ? 'جاري تحسين الوصف...' : 'جاري صياغة الوصف...' }} } @else { <svg class="w-3.5 h-3.5 shrink-0 inline-block align-middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg> {{ hasBioText() ? 'تحسين الوصف بالذكاء الاصطناعي' : 'اقتراح وصف بالذكاء الاصطناعي' }} }
       </button>
     </div>
     <div class="inp-group">
@@ -227,23 +227,23 @@
           <div class="form-card-sub">تساعد العملاء ومحرك المطابقة على اكتشاف خبراتك</div>
         </div>
       </div>
-      <button type="button" class="ai-banner-btn" (click)="suggestSkills()" [disabled]="isSuggestingSkills()" data-testid="suggest-skills-btn">
-        {{ isSuggestingSkills() ? '⏳ جاري اقتراح المهارات...' : '✨ اقتراح مهارات بالذكاء الاصطناعي' }}
+      <button type="button" class="ai-banner-btn inline-flex items-center gap-1.5" (click)="suggestSkills()" [disabled]="isSuggestingSkills()" data-testid="suggest-skills-btn">
+        @if (isSuggestingSkills()) { جاري اقتراح المهارات... } @else { <svg class="w-3.5 h-3.5 shrink-0 inline-block align-middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg> اقتراح مهارات بالذكاء الاصطناعي }
       </button>
     </div>
     @if (aiSuggestedSkills().length) {
       <div class="ai-banner" style="flex-direction:column;align-items:stretch;gap:10px;margin-bottom:12px" data-testid="ai-suggested-skills">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-          <div class="ai-banner-txt" style="font-weight:700">✨ مهارات مقترحة بالذكاء الاصطناعي لمجالك (اضغط لإضافتها فوراً):</div>
+          <div class="ai-banner-txt" style="font-weight:700"><svg class="w-3.5 h-3.5 shrink-0 inline-block align-middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg> مهارات مقترحة بالذكاء الاصطناعي لمجالك (اضغط لإضافتها فوراً):</div>
           @if (aiSuggestedSkills().length > 1) {
-            <button type="button" class="ai-banner-btn" style="font-weight:800" (click)="addAllAiSkills()" data-testid="add-all-ai-skills-btn">
-              ✨ إضافة كل المقترحات دفعة واحدة ({{ aiSuggestedSkills().length }})
+            <button type="button" class="ai-banner-btn inline-flex items-center gap-1.5" style="font-weight:800" (click)="addAllAiSkills()" data-testid="add-all-ai-skills-btn">
+              <svg class="w-3.5 h-3.5 shrink-0 inline-block align-middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#i-ai"></use></svg> إضافة كل المقترحات دفعة واحدة ({{ aiSuggestedSkills().length }})
             </button>
           }
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
           @for (skill of aiSuggestedSkills(); track skill) {
-            <button type="button" class="ai-banner-btn" (click)="addAiSkill(skill)">+ {{ skill }}</button>
+            <button type="button" class="ai-banner-btn inline-flex items-center gap-1.5" (click)="addAiSkill(skill)">+ {{ skill }}</button>
           }
         </div>
       </div>
@@ -320,7 +320,7 @@
         <label class="notif-check"><input type="checkbox" formControlName="notifyEmail">البريد الالكتروني</label>
         <label class="notif-check"><input type="checkbox" formControlName="notifyInApp">الاشعارات داخل التطبيق</label>
         <label class="notif-check" title="قناة Telegram غير متاحة حاليًا"><input type="checkbox" disabled>Telegram (غير متاحة حاليًا)</label>
-        <label class="notif-check"><input type="checkbox" formControlName="notifyWhatsapp">WhatsApp</label>
+        <label class="notif-check" title="قناة WhatsApp غير متاحة حاليًا" data-testid="notif-whatsapp-unavailable"><input type="checkbox" disabled>WhatsApp (غير متاحة حاليًا)</label>
       </div>
     </div>
   </div>
