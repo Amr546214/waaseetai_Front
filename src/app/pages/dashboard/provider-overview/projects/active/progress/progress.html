@@ -26,6 +26,9 @@
       </div>
       <span class="opill op-active"><span class="lv"></span>{{data.adminSettled?.label || data.statusLabel}}</span>@if(data.disputeStatus){<span class="opill" data-testid="dispute-badge">نزاع مفتوح</span>}
     </div>
+    @if(data.readOnly){
+    <div class="review-note" role="status" data-testid="provider-ended-bid-banner"><b>{{data.statusLabel}}.</b> هذا المشروع لم يتحول إلى عقد: يمكنك الاطلاع على بياناته فقط، ولا يوجد تسليم أو مراسلة عليه.</div>
+    }
     @if(data.closedBySettlement){
     <div class="review-note" role="status" data-testid="provider-settled-banner"><b>{{data.statusLabel || 'أُغلق بتسوية نزاع'}}.</b> لا اعتماد ولا تسليم جديد ولا تعديل على العقد بعد التسوية. تبقى التسليمات للاطلاع فقط، ولا تُنسب مبالغ التسوية إلى مراحل بعينها@if(data.financial?.settlement; as st){. بقرار التسوية: استرداد للعميل {{st.refundToClient| number:'1.0-2'}} $، وأُفرج لك {{st.releaseToProvider| number:'1.0-2'}} $ إجمالًا (عمولة المنصة {{st.platformCommission| number:'1.0-2'}} $، صافي ما تلقيته {{st.providerNet| number:'1.0-2'}} $)}. <span data-testid="provider-settled-value-note">{{data.financial?.contractValueNote}}</span>.</div>
     }
