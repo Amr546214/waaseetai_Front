@@ -170,7 +170,9 @@
 					@for(bullet of aiBullets(data); track bullet){<div class="lc-aln"><span class="d"></span><span class="tx" [innerHTML]="bullet"></span></div>}
 					}
 					<div class="lc-aim"><div class="m"><div class="mv">{{ aiEarlyDays(data) }}</div><div class="ml">أيام تبكير متوقع</div></div><div class="m"><div class="mv">{{ aiMatchPct(data) }}</div><div class="ml">تطابق التسليم</div></div><div class="m"><div class="mv">{{ aiRiskLevel(data) }}</div><div class="ml">المخاطرة</div></div></div>
-					<button type="button" class="lc-aifoot" (click)="analyzeProjectHealth()" [disabled]="healthAnalysisLoading()"><svg data-ws-icon="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>{{ healthAnalysisLoading() ? 'جارٍ التحليل...' : 'تحليل صحة المشروع بالذكاء الاصطناعي' }}</button>
+					@if (healthAnalysisError() && !healthAnalysisLoading()) {
+					<button type="button" class="lc-aifoot" (click)="analyzeProjectHealth()" data-testid="pd-ai-retry"><svg data-ws-icon="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>إعادة المحاولة</button>
+					}
 				</div>
 				<div class="lc-sum" data-testid="pd-escrow-sum"><h5><svg data-ws-icon="pl-client-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>الضمان المالي</h5>
 					@if (data.financial?.settlement; as st) {
