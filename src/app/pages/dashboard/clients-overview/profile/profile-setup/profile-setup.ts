@@ -78,6 +78,12 @@ export class ProfileSetupDashboard implements OnInit {
 	gateProblem = signal<string | null>(null);
 	/** The back side is required for every document except a passport. */
 	backRequired(): boolean { return this.setupForm.get('details.idDocumentType')?.value !== 'PASSPORT'; }
+	/** the kind / country the client chose, sent with the AI document check (empty parts are left out) */
+	private chosenDocument(): { type?: string; country?: string } {
+		const type = String(this.setupForm.get('details.idDocumentType')?.value || '');
+		const country = identityCountryCode(this.setupForm.get('details.country')?.value) ?? '';
+		return { ...(type ? { type } : {}), ...(country ? { country } : {}) };
+	}
 	constructor() {
 		// entering the identity step always reads the real state from the server
 		effect(() => { if (this.currentStep() === 2) untracked(() => this.gate.load().subscribe({ error: () => { /* the state stays unknown: nothing opens */ } })); });
@@ -444,6 +450,7 @@ export class ProfileSetupDashboard implements OnInit {
 					side: controlName === 'frontId' ? 'FRONT' : 'BACK',
 					image: base64Str,
 					imageMimeType: file.type,
+					document: this.chosenDocument(),
 					declared: {
 						...(fullName ? { fullName } : {}),
 						...(idNumber ? { nationalId: idNumber } : {}),

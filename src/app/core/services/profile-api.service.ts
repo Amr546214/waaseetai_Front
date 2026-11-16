@@ -125,6 +125,8 @@ export class ProfileApiService {
     side: 'FRONT' | 'BACK';
     image: string;
     imageMimeType?: string;
+    /** the document kind the user CHOSE and its country: the AI check says when the upload looks like another kind */
+    document?: { country?: string; type?: string };
     declared?: { fullName?: string; birthDate?: string; nationalId?: string };
   }): Observable<any> {
     return this.http.post<any>(

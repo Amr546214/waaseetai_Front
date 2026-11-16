@@ -28,6 +28,7 @@ describe('identity inspection on the setup pages', () => {
 			const src = readFileSync(join(process.cwd(), 'src/app', f), 'utf8');
 			expect(src).toContain('declaredName()');
 			expect(src).not.toMatch(/fullName = u \? `\$\{u\.firstName/);
+			expect(src).toContain('document: this.chosenDocument()'); // the chosen kind / country go with the AI check
 		});
 	}
 });
