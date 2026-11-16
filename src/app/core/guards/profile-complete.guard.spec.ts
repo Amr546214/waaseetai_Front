@@ -52,7 +52,10 @@ describe('providerProfileCompleteGuard (backend access-state decides for individ
 		for (const u of ['accreditation-status', 'profile/setup', 'profile/data', 'business-models/accreditation/new', 'business-models/accreditation/list', 'help', 'help/tickets/new', 'notifications', 'settings/account']) {
 			expect(await run('/provider-overview/' + u)).toBe(true);
 		}
-		expect(loadSpy).not.toHaveBeenCalled();
+		// the wizard itself never needs the answer; the other onboarding pages read it only to honour a REJECTED identity (they still open when it is not rejected)
+		const urls = ['accreditation-status', 'profile/setup', 'profile/data', 'business-models/accreditation/new', 'business-models/accreditation/list', 'help', 'help/tickets/new', 'notifications'];
+		expect(loadSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
+		loadSpy.mockClear(); expect(await run('/provider-overview/profile/setup')).toBe(true); expect(urls.length).toBeGreaterThan(0); expect(loadSpy).not.toHaveBeenCalled();
 	});
 
 	it('individual + APPROVED: dashboard and children open', async () => {
@@ -103,5 +106,30 @@ describe('providerProfileCompleteGuard (backend access-state decides for individ
 		expect(isOnboardingAllowedPath('/provider-overview/helpful')).toBe(false);
 		expect(isOnboardingAllowedPath('/provider-overview')).toBe(false);
 		expect(isOnboardingAllowedPath('/provider-overview/business-models/market')).toBe(false);
+	});
+});
+
+describe('providerProfileCompleteGuard: a REJECTED identity keeps the provider on the setup page', () => {
+	function setup(load: () => Observable<ProviderAccessState>) {
+		TestBed.resetTestingModule();
+		TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: PLATFORM_ID, useValue: 'browser' },
+			{ provide: AuthStore, useValue: { isInitialized$: new BehaviorSubject(true), currentUser: () => ({ accountType: 'PROVIDER_INDIVIDUAL' }) } },
+			{ provide: ProviderAccessService, useValue: { load: vi.fn(load) } }, { provide: ProviderApiService, useValue: { getOverviewStats: () => of({}) } }] });
+	}
+	async function run(url: string) {
+		const r = await firstValueFrom(TestBed.runInInjectionContext(() => providerProfileCompleteGuard({ data: {} } as any, { url } as any)) as Observable<boolean | UrlTree>);
+		return r instanceof UrlTree ? TestBed.inject(Router).serializeUrl(r) : r;
+	}
+	const rejected = { ...st('SETUP_INCOMPLETE'), identityRejected: true };
+	it('every page except the wizard goes to the wizard (settings / notifications / help / account log included); the wizard itself opens', async () => {
+		setup(() => of(rejected));
+		for (const u of ['/provider-overview/notifications', '/provider-overview/help', '/provider-overview/settings/account', '/provider-overview/account-actions', '/provider-overview/profile/data', '/provider-overview/projects/active'])
+			expect(await run(u), u).toBe('/provider-overview/profile/setup');
+		expect(await run('/provider-overview/profile/setup')).toBe(true);
+		expect(await run('/provider-overview/profile/setup?step=4')).toBe(true);
+	});
+	it('without a rejection the onboarding pages open as before; a failed read never locks the provider out', async () => {
+		setup(() => of(st('SETUP_INCOMPLETE'))); expect(await run('/provider-overview/notifications')).toBe(true);
+		setup(() => throwError(() => new Error('x'))); expect(await run('/provider-overview/notifications')).toBe(true);
 	});
 });
