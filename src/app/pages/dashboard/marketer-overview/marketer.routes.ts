@@ -62,6 +62,11 @@ const MARKETER_PAGES: Routes = [
 				data: { title: "طلبات التعديل" }
 			},
 			{
+				path: 'logs',
+				loadComponent: () => import('./profile/logs/logs').then(m => m.Logs),
+				data: { title: "سجل النشاط والأمان" }
+			},
+			{
 				path: 'add-account',
 				loadComponent: () => import('./profile/add-account/add-account').then(m => m.AddAccount),
 				data: { title: "إضافة حساب" }

@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthStore } from '../../../../core/store/auth.store';
 import { ProfileApiService } from '../../../../core/services/profile-api.service';
+import { AccountLogsService } from '../../../../core/services/account-logs.service';
 import { Subscription } from 'rxjs';
 
 import { levelDisplayFromInfo } from '../../../../core/levels/level-display';
@@ -20,6 +21,7 @@ type ProfileTab = 'info' | 'interests' | 'links' | 'activity';
 export class Profile {
 	authStore = inject(AuthStore);
 	profileApi = inject(ProfileApiService);
+	private accountLogs = inject(AccountLogsService);
 	private destroyRef = inject(DestroyRef);
 	private profileRequest?: Subscription;
 	private requestVersion = 0;
@@ -54,6 +56,7 @@ export class Profile {
 		this.errorMsg.set(null);
 		this.avatarError.set(false);
 		this.activeTab.set('info');
+		this.activityState.set('idle');
 		this.showBanner = true;
 		if (!this.authStore.currentUser() || !this.authStore.token()) {
 			this.isLoading.set(false);
@@ -90,6 +93,30 @@ export class Profile {
 
 	switchTab(tab: ProfileTab) {
 		this.activeTab.set(tab);
+		if (tab === 'activity') this.loadActivity();
+	}
+
+	/** The real account activity (the same audit log as «سجل النشاط والأمان»): the latest few entries, read when the tab is opened. */
+	activityState = signal<'idle' | 'loading' | 'error' | 'ready'>('idle');
+	activityItems = signal<Array<{ id: string; title: string; status: string; at: string }>>([]);
+
+	loadActivity() {
+		if (this.activityState() === 'loading' || this.activityState() === 'ready') return;
+		this.activityState.set('loading');
+		this.accountLogs.getUserLogs({ limit: 8 }).subscribe({
+			next: (res) => {
+				if (!res?.success) { this.activityState.set('error'); return; }
+				const rows = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+				this.activityItems.set(rows.slice(0, 8).map((log: any) => ({
+					id: String(log.id),
+					title: String(log.summary || log.title || log.actionText || 'إجراء في الحساب'),
+					status: String(log.statusText || ''),
+					at: String(log.occurredAt || log.createdAt || ''),
+				})));
+				this.activityState.set('ready');
+			},
+			error: () => this.activityState.set('error'),
+		});
 	}
 
 	getInitials(): string {

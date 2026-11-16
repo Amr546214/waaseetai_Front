@@ -444,17 +444,31 @@
 				</svg>
 				سجل النشاط الأخير
 			</div>
-			@if (profileData()?.recentActivity && profileData().recentActivity.length > 0) {
-			@for (act of profileData().recentActivity; track act.id) {
-			<div class="activity-row">
-				<span class="activity-title">{{ act.title }}</span>
-				<span class="activity-time">{{ act.timeAgo }}</span>
+			@switch (activityState()) {
+			@case ('loading') {
+			<div style="text-align:center;padding:20px;font-size:var(--font-size-small);margin-top:8px" class="txt-muted" data-testid="activity-loading">جارٍ تحميل النشاط...</div>
+			}
+			@case ('error') {
+			<div style="text-align:center;padding:20px;font-size:var(--font-size-small);margin-top:8px" class="txt-muted" data-testid="activity-error" role="alert">
+				تعذر تحميل سجل النشاط.
+				<button type="button" class="link-btn" style="margin-inline-start:8px;text-decoration:underline" (click)="activityState.set('idle'); loadActivity()">إعادة المحاولة</button>
 			</div>
 			}
+			@default {
+			@if (activityItems().length > 0) {
+			@for (act of activityItems(); track act.id) {
+			<div class="activity-row" data-testid="activity-row">
+				<span class="activity-title">{{ act.title }}@if (act.status) { <span class="txt-muted" style="font-size:var(--font-size-small)"> · {{ act.status }}</span> }</span>
+				<span class="activity-time">{{ act.at | date:'yyyy-MM-dd HH:mm' }}</span>
+			</div>
+			}
+			<div style="text-align:center;margin-top:12px"><a routerLink="/client-overview/profile/logs" style="font-size:var(--font-size-small);text-decoration:underline" data-testid="activity-all">عرض السجل الكامل</a></div>
 			} @else {
-			<div style="text-align:center;padding:20px;font-size:var(--font-size-small);margin-top:8px" class="txt-muted">
+			<div style="text-align:center;padding:20px;font-size:var(--font-size-small);margin-top:8px" class="txt-muted" data-testid="activity-empty">
 				لا توجد أنشطة حديثة للعرض
 			</div>
+			}
+			}
 			}
 		</div>
 		}
