@@ -17,7 +17,7 @@ import { IdentityGateState } from '../../core/services/identity-gate.service';
 				<div role="alert" data-testid="identity-gate-rejected" class="ws-igs ws-igs--bad">
 					<strong>رُفضت الوثيقة</strong>
 					<span data-testid="identity-gate-reason">السبب: {{ state()?.rejectionReason || 'لم تستوفِ الوثيقة متطلبات التحقق' }}</span>
-					<span>صحّح البيانات أو ارفع صورة جديدة؛ بياناتك محفوظة ولن تُمسح.</span>
+					<span>أُزيلت الصور المرفوضة من حسابك: ارفع صورة جديدة واضحة وصحّح البيانات إن لزم. بياناتك المكتوبة محفوظة.</span>
 				</div>
 			}
 			@case ('APPROVED') {
