@@ -76,8 +76,8 @@ export class ProfileSetupDashboard implements OnInit {
 	readonly gate = inject(IdentityGateService).use('CLIENT');
 	/** Why the identity could not be sent from step 2 (data of step 1 incomplete / refused by the server). */
 	gateProblem = signal<string | null>(null);
-	/** The back side is required for every document except a passport. */
-	backRequired(): boolean { return this.setupForm.get('details.idDocumentType')?.value !== 'PASSPORT'; }
+	/** The back side is optional for every document kind: the front side is what the review relies on. */
+	backRequired(): boolean { return false; }
 	/** the kind / country the client chose, sent with the AI document check (empty parts are left out) */
 	private chosenDocument(): { type?: string; country?: string } {
 		const type = String(this.setupForm.get('details.idDocumentType')?.value || '');
@@ -290,7 +290,7 @@ export class ProfileSetupDashboard implements OnInit {
 	/** Identity documents were sent (a file in the form, or already under review): the review shows "تم الإرسال" instead of "اختياري". */
 	identityDocsProvided(): boolean {
 		const v = this.setupForm.getRawValue().identity;
-		return !!((v.frontId || this.storedDocs().frontId) && (v.backId || this.storedDocs().backId)) || this.kycPending();
+		return !!(v.frontId || this.storedDocs().frontId) || this.kycPending();
 	}
 
 	/** Review shortcut to a step that is missing something: go there and show what is missing, right where the field is. */
