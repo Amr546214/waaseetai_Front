@@ -1,3 +1,5 @@
+import { switchMap } from 'rxjs';
+import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, identityCountryCode } from '../../../../../shared/data/identity-documents';
 import { IdentityCheckService } from '../../../../../core/services/identity-check.service';
@@ -68,6 +70,7 @@ export class ProfileSetupDashboard implements OnInit {
 	private router = inject(Router);
 	private authStore = inject(AuthStore);
 	private profileApi = inject(ProfileApiService);
+	private legalNames = inject(LegalNameService);
 	private identityCheck = inject(IdentityCheckService);
 	/** The identity gate: the next step opens only while the backend says the CURRENT image + data are APPROVED. */
 	readonly gate = inject(IdentityGateService).use('CLIENT');
@@ -75,6 +78,12 @@ export class ProfileSetupDashboard implements OnInit {
 	gateProblem = signal<string | null>(null);
 	/** The back side is required for every document except a passport. */
 	backRequired(): boolean { return this.setupForm.get('details.idDocumentType')?.value !== 'PASSPORT'; }
+	/** the kind / country the client chose, sent with the AI document check (empty parts are left out) */
+	private chosenDocument(): { type?: string; country?: string } {
+		const type = String(this.setupForm.get('details.idDocumentType')?.value || '');
+		const country = identityCountryCode(this.setupForm.get('details.country')?.value) ?? '';
+		return { ...(type ? { type } : {}), ...(country ? { country } : {}) };
+	}
 	constructor() {
 		// entering the identity step always reads the real state from the server
 		effect(() => { if (this.currentStep() === 2) untracked(() => this.gate.load().subscribe({ error: () => { /* the state stays unknown: nothing opens */ } })); });
@@ -434,20 +443,20 @@ export class ProfileSetupDashboard implements OnInit {
 					...curr,
 					[controlName]: { status: 'scanning', message: '⏳ جاري فحص وضوح الوثيقة ونوعها بالذكاء الاصطناعي...' }
 				}));
-				const u = this.authStore.currentUser();
-				const fullName = u ? `${u.firstName || ''} ${u.lastName || ''}`.trim() : '';
 				const idNumber = String(this.setupForm.get('details.idNumber')?.value || '').trim();
 				const dob = String(this.setupForm.get('details.dob')?.value || '').trim();
-				this.profileApi.verifyIdentityDocument({
+				// the document is compared with the LEGAL name entered on this step, never with the account's display name (no legal name yet: no name comparison)
+				this.legalNames.declaredName().pipe(switchMap(fullName => this.profileApi.verifyIdentityDocument({
 					side: controlName === 'frontId' ? 'FRONT' : 'BACK',
 					image: base64Str,
 					imageMimeType: file.type,
+					document: this.chosenDocument(),
 					declared: {
 						...(fullName ? { fullName } : {}),
 						...(idNumber ? { nationalId: idNumber } : {}),
 						...(dob ? { birthDate: dob } : {})
 					}
-				}).subscribe({
+				}))).subscribe({
 					next: (res: any) => {
 						if (!isCurrent()) return;
 						const d = res?.data;
