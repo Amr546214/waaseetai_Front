@@ -230,22 +230,22 @@
 
 			<!-- Stats -->
 			<div class="stats-grid">
-				<div class="stat-cell">
+				<a class="stat-cell stat-link" routerLink="/client-overview/my-requests" data-testid="stat-requests">
 					<div class="stat-num">{{ profileData()?.totalRequests ?? '—' }}</div>
 					<div class="stat-lbl">طلب منشور</div>
-				</div>
-				<div class="stat-cell" style="border-inline: 1px solid rgba(255,255,255,.06)">
+				</a>
+				<a class="stat-cell stat-link" style="border-inline: 1px solid rgba(255,255,255,.06)" routerLink="/client-overview/projects/archived" data-testid="stat-projects">
 					<div class="stat-num">{{ profileData()?.completedProjects ?? '—' }}</div>
 					<div class="stat-lbl">مشروع مكتمل</div>
-				</div>
-				<div class="stat-cell" style="border-inline-end: 1px solid rgba(255,255,255,.06)">
+				</a>
+				<a class="stat-cell stat-link" style="border-inline-end: 1px solid rgba(255,255,255,.06)" routerLink="/client-overview/projects/archived" data-testid="stat-rating">
 					<div class="stat-num teal">{{ humanRating !== null ? (humanRating | number:'1.1-1') : '—' }}</div>
 					<div class="stat-lbl">تقييم متوسط</div>
-				</div>
-				<div class="stat-cell">
+				</a>
+				<a class="stat-cell stat-link" routerLink="/client-overview/projects/archived" data-testid="stat-reviews">
 					<div class="stat-num">{{ profileData()?.reviewsCount ?? '—' }}</div>
 					<div class="stat-lbl">تقييم من مقدمي الخدمة</div>
-				</div>
+				</a>
 			</div>
 		</div>
 

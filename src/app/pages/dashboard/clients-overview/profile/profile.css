@@ -1014,3 +1014,7 @@
 :host-context(body.theme-light) select:focus {
   border-color: #1D6FE0;
 }
+
+/* the stat cells are links to the page behind each number */
+.stat-link { text-decoration: none; color: inherit; cursor: pointer; transition: background .15s; }
+.stat-link:hover { background: rgba(255,255,255,.04); }

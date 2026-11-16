@@ -165,6 +165,13 @@ export class Public implements OnInit {
 		});
 	}
 
+	/** The average client rating out of 5 (one decimal), from the real public reviews; null while there are none. */
+	clientRatingOutOf5(): number | null {
+		const stats = this.profileData()?.header?.stats;
+		if (!stats || !(stats.reviewsCount > 0) || typeof stats.clientRating !== 'number') return null;
+		return Math.round((stats.clientRating / 20) * 10) / 10;
+	}
+
 	setTab(tab: string) {
 		this.currentTab.set(tab);
 		if (tab === 'activity') this.loadActivity();

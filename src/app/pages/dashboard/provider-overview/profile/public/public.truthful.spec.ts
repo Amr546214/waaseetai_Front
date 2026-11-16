@@ -195,4 +195,21 @@ describe('provider public profile shows only real data', () => {
 		btn = (f.nativeElement as HTMLElement).querySelector('[data-testid="add-links-btn"]') as HTMLAnchorElement;
 		expect(btn.textContent).toContain('تعديل الروابط');
 	});
+
+	it('header stats: every number is a link to the page behind it, and the client rating is the real average out of 5', async () => {
+		const f = await render(data({ header: { ...data().header, stats: { completedProjects: 3, completedTasks: 7, publishedServices: 2, reviewsCount: 4, clientRating: 86 } } }));
+		const el = f.nativeElement as HTMLElement;
+		const href = (id: string) => (el.querySelector(`[data-testid="${id}"]`) as HTMLAnchorElement).getAttribute('href');
+		expect(href('stat-projects')).toBe('/provider-overview/projects/archived');
+		expect(href('stat-tasks')).toBe('/provider-overview/projects/archived');
+		expect(href('stat-services')).toBe('/provider-overview/business-models/market');
+		expect(href('stat-rating')).toBe('/provider-overview/projects/archived');
+		expect(el.querySelector('[data-testid="stat-rating-value"]')?.textContent?.trim()).toBe('4.3 / 5');
+		expect(el.querySelector('[data-testid="stat-rating"]')?.textContent).toContain('(4)');
+	});
+
+	it('no reviews yet: the rating cell says so with a dash (never a made-up average)', async () => {
+		const f = await render(data({ header: { ...data().header, stats: { completedProjects: 0, completedTasks: 0, publishedServices: 1, reviewsCount: 0, clientRating: 0 } } }));
+		expect((f.nativeElement as HTMLElement).querySelector('[data-testid="stat-rating-value"]')?.textContent?.trim()).toBe('—');
+	});
 });

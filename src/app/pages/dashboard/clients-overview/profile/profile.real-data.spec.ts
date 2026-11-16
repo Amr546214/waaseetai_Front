@@ -134,3 +134,15 @@ describe('client profile page — activity tab (real audit log)', () => {
 		expect(getUserLogs).toHaveBeenCalledTimes(1);
 	});
 });
+
+describe('client profile page — stat cells are links', () => {
+	it('each number opens the page behind it', () => {
+		const f = mount({ totalRequests: 2, completedProjects: 1, humanRating: 4.5, reviewsCount: 3 });
+		const el = f.nativeElement as HTMLElement;
+		const href = (id: string) => (el.querySelector(`[data-testid="${id}"]`) as HTMLAnchorElement).getAttribute('href');
+		expect(href('stat-requests')).toBe('/client-overview/my-requests');
+		expect(href('stat-projects')).toBe('/client-overview/projects/archived');
+		expect(href('stat-rating')).toBe('/client-overview/projects/archived');
+		expect(href('stat-reviews')).toBe('/client-overview/projects/archived');
+	});
+});

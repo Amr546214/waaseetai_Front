@@ -257,25 +257,22 @@
 	<!-- Stats Grid -->
 	<div
 		class="grid grid-cols-2 lg:grid-cols-4 bg-[var(--sec-bg)]/50 border border-[var(--sec-bd)] rounded-[12px] overflow-hidden divide-x divide-x-reverse divide-[var(--sec-bd)] divide-y lg:divide-y-0">
-		<div class="p-3 text-center">
-			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{
-				profileData()?.header?.stats?.completedProjects || 0 }}</div>
+		<a routerLink="/provider-overview/projects/archived" data-testid="stat-projects" class="p-3 text-center block no-underline hover:bg-[var(--sec-bg)] transition-colors cursor-pointer">
+			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{ profileData()?.header?.stats?.completedProjects || 0 }}</div>
 			<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">مشروع مكتمل</div>
-		</div>
-		<div class="p-3 text-center">
-			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{ profileData()?.header?.stats?.completedTasks
-				|| 0 }}</div>
+		</a>
+		<a routerLink="/provider-overview/projects/archived" data-testid="stat-tasks" class="p-3 text-center block no-underline hover:bg-[var(--sec-bg)] transition-colors cursor-pointer">
+			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{ profileData()?.header?.stats?.completedTasks || 0 }}</div>
 			<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">مهمة منجزة</div>
-		</div>
-		<div class="p-3 text-center">
-			<div class="text-[20px] font-black text-[#5DA0FF] mb-1">{{ profileData()?.header?.stats?.publishedServices
-				|| 0 }}</div>
+		</a>
+		<a routerLink="/provider-overview/business-models/market" data-testid="stat-services" class="p-3 text-center block no-underline hover:bg-[var(--sec-bg)] transition-colors cursor-pointer">
+			<div class="text-[20px] font-black text-[#5DA0FF] mb-1">{{ profileData()?.header?.stats?.publishedServices || 0 }}</div>
 			<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">خدمة منشورة</div>
-		</div>
-		<div class="p-3 text-center">
-			<div class="text-[20px] font-black text-[var(--txt)] mb-1">{{ (profileData()?.header?.stats?.reviewsCount || 0) > 0 ? (profileData()?.header?.stats?.clientRating + '%') : '—' }}</div>
-			<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">تقييم العملاء</div>
-		</div>
+		</a>
+		<a routerLink="/provider-overview/projects/archived" data-testid="stat-rating" class="p-3 text-center block no-underline hover:bg-[var(--sec-bg)] transition-colors cursor-pointer">
+			<div class="text-[20px] font-black text-[var(--txt)] mb-1" data-testid="stat-rating-value">{{ clientRatingOutOf5() !== null ? (clientRatingOutOf5() + ' / 5') : '—' }}</div>
+			<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]">تقييم العملاء@if ((profileData()?.header?.stats?.reviewsCount || 0) > 0) { <span> ({{ profileData()?.header?.stats?.reviewsCount }})</span> }</div>
+		</a>
 	</div>
 </div>
 
