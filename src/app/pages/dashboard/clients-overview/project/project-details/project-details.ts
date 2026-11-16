@@ -211,6 +211,26 @@ export class ProjectDetails implements OnInit {
 		if (!value) return '—';
 		return new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'short' }).format(new Date(value));
 	}
+	/** The project ended (completed, cancelled or closed by a settlement): predictions (days early / risk / delivery match) mean nothing any more. */
+	isClosedProject(data: any): boolean {
+		return this.isSettled(data) || ['COMPLETED', 'CANCELLED'].includes(String(data?.status ?? '').toUpperCase());
+	}
+	/** Facts only, from the real stage and escrow numbers (no model, no invented figure). */
+	closureSummary(data: any): string[] {
+		const stages: any[] = Array.isArray(data?.stages) ? data.stages : [];
+		const done = stages.filter(s => s?.status === 'completed').length;
+		const lines: string[] = [];
+		if (stages.length) lines.push(`${done} من ${stages.length} مراحل اكتملت واعتُمدت`);
+		const st = data?.financial?.settlement;
+		if (st) {
+			lines.push(`أُفرج ${this.formatNumber(data.financial.releasedByStageApprovals)} $ عبر المراحل المعتمدة`);
+			lines.push(`استرداد للعميل بقرار التسوية: ${this.formatNumber(st.refundToClient)} $، ومُنح لمقدم الخدمة: ${this.formatNumber(st.releaseToProvider)} $`);
+		} else if (Number(data?.escrowTotal) > 0) {
+			lines.push(`أُفرج ${this.formatNumber(data.escrowReleased)} $ من أصل ${this.formatNumber(data.escrowTotal)} $`);
+		}
+		lines.push(data?.statusLabel ? `الحالة: ${data.statusLabel}` : 'المشروع مغلق ولا إجراءات متاحة عليه');
+		return lines;
+	}
 	/** Closed by a dispute settlement (the server's lifecycle flag, or the older adminSettled marker). */
 	isSettled(data: any): boolean { return data?.closedBySettlement === true || !!data?.adminSettled; }
 	openUrl(file: any): string | null { return deliveryFileOpenUrl(file); }

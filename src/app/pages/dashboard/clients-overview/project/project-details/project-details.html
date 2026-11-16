@@ -159,6 +159,11 @@
 				}
 			</div></div>
 				<div class="lc-rail">
+				@if (isClosedProject(data)) {
+				<div class="lc-ai" data-testid="pd-closure-card"><div class="lc-aihd"><span class="ico"><svg aria-hidden="true"><use href="#i-doc"></use></svg></span><b>ملخص إغلاق المشروع</b></div>
+					@for(line of closureSummary(data); track line){<div class="lc-aln"><span class="d"></span><span class="tx">{{ line }}</span></div>}
+				</div>
+				} @else {
 				<div class="lc-ai"><div class="lc-aihd"><span class="ico"><svg aria-hidden="true"><use href="#i-ai"></use></svg></span><b>رؤى الذكاء</b><span class="conf">ثقة {{ aiConfidence(data) }}</span></div>
 					<div style="font-size:var(--font-size-small);opacity:.75;padding:0 2px 6px">تحليل استشاري بمساعدة الذكاء الاصطناعي — لا يمثل قراراً تعاقدياً، والقرار النهائي يبقى دائماً لك ولمقدم الخدمة.</div>
 					@if (healthAnalysisLoading()) {
@@ -171,6 +176,7 @@
 					<div class="lc-aim"><div class="m"><div class="mv">{{ aiEarlyDays(data) }}</div><div class="ml">أيام تبكير متوقع</div></div><div class="m"><div class="mv">{{ aiMatchPct(data) }}</div><div class="ml">تطابق التسليم</div></div><div class="m"><div class="mv">{{ aiRiskLevel(data) }}</div><div class="ml">المخاطرة</div></div></div>
 					<button type="button" class="lc-aifoot" (click)="analyzeProjectHealth()" [disabled]="healthAnalysisLoading()"><svg data-ws-icon="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>{{ healthAnalysisLoading() ? 'جارٍ التحليل...' : 'تحليل صحة المشروع بالذكاء الاصطناعي' }}</button>
 				</div>
+				}
 				<div class="lc-sum" data-testid="pd-escrow-sum"><h5><svg data-ws-icon="pl-client-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>الضمان المالي</h5>
 					@if (data.financial?.settlement; as st) {
 						<div class="lc-smrow"><span>قيمة العقد (تعاقدية سابقة)</span><b>{{ formatNumber(data.financial.contractValue) }} <small>$</small></b></div>
