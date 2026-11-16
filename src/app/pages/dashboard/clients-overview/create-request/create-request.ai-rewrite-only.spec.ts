@@ -298,6 +298,11 @@ describe('create-request: AI refine is rewriting only', () => {
 			expect(b.className).not.toContain('opacity-50');
 			expect(b.className).not.toContain('pointer-events-none');
 			expect(el.textContent).not.toContain('اقترح لي');
+			// it is an AI action: the AI purple tokens and the official AI icon
+			expect(b.className).toContain('var(--ai-txt)');
+			expect(b.className).toContain('var(--ai-bg)');
+			expect(b.className).toContain('var(--ai-border)');
+			expect(b.querySelector('svg use')?.getAttribute('href')).toBe('#i-ai');
 		});
 
 		for (const [label, title, description] of [
