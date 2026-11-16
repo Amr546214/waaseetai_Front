@@ -474,7 +474,11 @@
 							<svg data-ws-icon="ws-check" *ngIf="spec.status === 'APPROVED'" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
 								<polyline points="20 6 9 17 4 12" />
 							</svg>
+							@if (needsTest(spec)) {
+							<a routerLink="/provider-overview/profile/specialties" class="hover:underline" data-testid="spec-status-test-link"><span data-testid="spec-status-label" [attr.data-status]="spec.status">{{ specStatusLabel(spec) }}</span></a>
+							} @else {
 							<span data-testid="spec-status-label" [attr.data-status]="spec.status">{{ specStatusLabel(spec) }}</span>
+							}
 						</span>
 						@if (spec.aiMetrics?.aiScore > 0) {
 						<span class="px-3 py-1 rounded-full bg-[#7B2FBE]/15 border border-[#7B2FBE]/30 text-[var(--ai-txt,#A56BE0)] text-[length:var(--font-size-small)] font-extrabold">تقييم AI {{ spec.aiMetrics.aiScore }}%</span>
@@ -497,7 +501,12 @@
 						@if (hasTestScore(spec)) {
 						<div class="text-[length:var(--font-size-section)] font-black text-[var(--teal-txt,#2bd4c7)]" data-testid="spec-score">{{ spec.latestScore }}%</div>
 						} @else {
+						@if (needsTest(spec)) {
+						<a routerLink="/provider-overview/profile/specialties" data-testid="spec-take-test"
+							class="block text-[length:var(--font-size-small)] font-bold text-[var(--teal-txt,#2BD4C7)] hover:underline">لم تُجرِ الاختبار بعد · ابدأ الاختبار ←</a>
+						} @else {
 						<div class="text-[length:var(--font-size-small)] font-bold text-[var(--txt-3)]" data-testid="spec-score-none">لم تُجرِ الاختبار بعد</div>
+						}
 						}
 					</div>
 					@if (hasTestScore(spec) && spec.isPassed) {

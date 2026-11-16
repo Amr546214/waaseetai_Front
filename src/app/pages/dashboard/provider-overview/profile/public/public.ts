@@ -88,6 +88,11 @@ export class Public implements OnInit {
 		}
 	}
 
+	/** A specialty whose test was not taken yet: its score box and status lead to the page where the test is taken. */
+	needsTest(spec: any): boolean {
+		return !spec?.hasTakenAssessment && spec?.status !== 'APPROVED' && spec?.status !== 'REJECTED' && spec?.status !== 'LOCKED_OUT';
+	}
+
 	/** The test score is shown only when a test was really taken and scored; otherwise nothing is invented (no 0%, no tick). */
 	hasTestScore(spec: any): boolean {
 		return !!spec?.hasTakenAssessment && typeof spec?.latestScore === 'number';
