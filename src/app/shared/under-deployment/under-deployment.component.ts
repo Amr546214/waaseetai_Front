@@ -1,12 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { AuthStore } from '../../core/store/auth.store';
-import { rememberReturnUrl } from '../../core/routing/return-url';
-import { Router } from '@angular/router';
 import { PlatformInfoService } from '../../core/services/platform-info.service';
 
 /**
  * The standalone «جارٍ تحديث المنصة — Under Deployment» page. It replaces the whole site while maintenance is on: no navbar, no menus, no footer, no assistant (the root renders it INSTEAD of them).
- * The text is the server's saved maintenance message. The only way past it is the Super Admin entry, which opens the normal login page (the server decides who may pass; the page never trusts the browser).
+ * The text is the server's saved maintenance message. There is no entry button here: Super Admins control the platform from the admin panel (dev panel controls the official site), and the server alone decides who may pass (the page never trusts the browser).
  */
 @Component({
 	selector: 'app-under-deployment',
@@ -20,7 +17,6 @@ import { PlatformInfoService } from '../../core/services/platform-info.service';
 			<p class="ud-en" lang="en" dir="ltr">Under Deployment</p>
 			<p class="ud-msg" role="status" data-testid="under-deployment-message">{{ info.maintenance() }}</p>
 			<p class="ud-hint">نتحقق تلقائيًا، وستعود المنصة فور انتهاء التحديث دون حاجة لإعادة تحميل الصفحة.</p>
-			<button type="button" class="ud-admin" data-testid="under-deployment-admin" (click)="adminEntry()">دخول مدير النظام</button>
 		</div>
 	</main>`,
 	styles: [`
@@ -33,21 +29,9 @@ import { PlatformInfoService } from '../../core/services/platform-info.service';
 	.ud-en{margin:0 0 18px;font-size:15px;letter-spacing:.08em;opacity:.7}
 	.ud-msg{margin:0 0 12px;font-size:16px;line-height:1.8;white-space:pre-line}
 	.ud-hint{margin:0 0 24px;font-size:13px;opacity:.7}
-	.ud-admin{background:none;border:0;color:inherit;opacity:.55;font-size:12px;text-decoration:underline;cursor:pointer;padding:6px}
-	.ud-admin:hover{opacity:.9}
 	@keyframes ud-spin{to{transform:rotate(360deg)}}
 	@media (prefers-reduced-motion:reduce){.ud-mark{animation:none}}`],
 })
 export class UnderDeploymentComponent {
 	readonly info = inject(PlatformInfoService);
-	private readonly router = inject(Router);
-	private readonly auth = inject(AuthStore);
-  adminEntry() {
-    const target = '/supper-admin-overview/system-settings';
-    if (String(this.auth.currentUser()?.accountType) === 'SUPER_ADMIN') { void this.router.navigateByUrl(target); return; }
-    // A client session must not let guestGuard bounce the administrator back to the maintenance page.
-    this.auth.clearSession();
-    rememberReturnUrl(target);
-    void this.router.navigate(['/auth/login'], { queryParams: { returnUrl: target, maintenanceAdmin: '1' } });
-  }
 }
