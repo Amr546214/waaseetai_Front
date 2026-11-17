@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 import vm from 'node:vm';
-import { identityInspectionResult } from '../src/app/core/utils/identity-inspection-result.ts';
+import { Observable, of, switchMap } from 'rxjs';
+import { identityInspectionResult, identityImageRejected } from '../src/app/core/utils/identity-inspection-result.ts';
 const root='src/app/pages/dashboard/';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const signal=v=>{const f=()=>v;f.set=x=>v=x;f.update=g=>v=g(v);return f;};
@@ -25,10 +26,12 @@ const provider=read(root+'provider-overview/profile/profile-setup/profile-setup.
 let callbacks=[];const readers=[];
 class Reader {readAsDataURL(){readers.push(this);} result='data:image/png;base64,example';}
 const start=provider.indexOf('\tprivate runAdvisoryIdInspection'),end=provider.indexOf('\n\tprivate uploadSingleDoc',start);
-const P=vm.runInNewContext(stripTypeScriptTypes('class Harness {'+provider.slice(start,end)+'}; Harness'),{FileReader:Reader,takeUntilDestroyed:()=>x=>x,identityInspectionResult});
-const p=new P();Object.assign(p,{idInspectionVersions:{},idDocInspections:signal({}),authStore:{currentUser:()=>null},setupForm:{get:()=>null},providerProfileService:{verifyIdentityDocument:()=>({pipe(){return this},subscribe:c=>callbacks.push(c)})}});
+const P=vm.runInNewContext(stripTypeScriptTypes('class Harness {'+provider.slice(start,end)+'}; Harness'),{FileReader:Reader,takeUntilDestroyed:()=>x=>x,identityInspectionResult,identityImageRejected,switchMap});
+const identityRequests=[];
+const p=new P();Object.assign(p,{idInspectionVersions:{},idDocInspections:signal({}),authStore:{currentUser:()=>null},setupForm:{get:()=>null},chosenDocument:()=>({country:'EG',type:'NATIONAL_ID'}),legalNames:{declaredName:()=>of('اسم الاختبار المعتمد')},providerProfileService:{verifyIdentityDocument:body=>new Observable(observer=>{identityRequests.push(body);callbacks.push(observer);})}});
 p.runAdvisoryIdInspection({type:'image/png',size:600},'frontId');readers[0].onload();
 p.runAdvisoryIdInspection({type:'image/png',size:600},'frontId');readers[1].onload();
+assert.equal(identityRequests.length,2);assert.equal(identityRequests[1].declared.fullName,'اسم الاختبار المعتمد');
 callbacks[1].next({data:clear});callbacks[0].next({data:{...clear,status:'NOT_ID_DOCUMENT',summaryAr:'old'}});
 assert.equal(p.idDocInspections().frontId.status,'valid');assert.equal(p.idDocInspections().frontId.message,'واضحة');
 p.idInspectionVersions.frontId++;p.idDocInspections.set({});callbacks[1].next({data:clear});assert.deepEqual(p.idDocInspections(),{});

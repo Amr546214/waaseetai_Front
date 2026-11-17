@@ -47,18 +47,51 @@ describe('getCacheInterceptor + rateLimitInterceptor', () => {
 		http.get('/api/provider/statistics').subscribe(); ctl.expectOne('/api/provider/statistics').flush({ a: 3 });
 	});
 
-	it('429 on a read that succeeded before returns the earlier data (no error, page keeps its data); another account never gets it', () => {
+	it('429 on a public catalog can use the earlier data; another account never gets it', () => {
 		vi.useFakeTimers();
 		const { http, ctl } = setup();
-		http.get('/api/client/requests').subscribe(); ctl.expectOne('/api/client/requests').flush({ items: [1, 2] });
+		http.get('/api/specialties/public').subscribe(); ctl.expectOne('/api/specialties/public').flush({ items: [1, 2] });
 		let got: any, err: any;
-		http.get('/api/client/requests').subscribe({ next: x => got = x, error: e => err = e });
-		ctl.expectOne('/api/client/requests').flush({ message: 'x' }, { status: 429, statusText: 'Too Many' });
+		http.get('/api/specialties/public').subscribe({ next: x => got = x, error: e => err = e });
+		ctl.expectOne('/api/specialties/public').flush({ message: 'x' }, { status: 429, statusText: 'Too Many' });
 		expect(got).toEqual({ items: [1, 2] }); expect(err).toBeUndefined();
 		user.set({ id: 'u2', activeRole: 'CLIENT' });
-		http.get('/api/client/requests').subscribe({ error: e => err = e });
-		ctl.expectOne('/api/client/requests').flush({ message: 'x' }, { status: 429, statusText: 'Too Many' });
+		http.get('/api/specialties/public').subscribe({ error: e => err = e });
+		ctl.expectOne('/api/specialties/public').flush({ message: 'x' }, { status: 429, statusText: 'Too Many' });
 		expect(err instanceof HttpErrorResponse && err.status === 429).toBe(true);
+	});
+
+	it.each(['/api/provider/finance/wallet', '/api/provider/access-state', '/api/client/requests', '/api/client/company/dashboard'])('does not disguise a failed sensitive refresh as success: %s', url => {
+		const { http, ctl } = setup();
+		http.get(url).subscribe(); ctl.expectOne(url).flush({ balance: 100 });
+		let got: unknown, status: number | undefined;
+		http.get(url).subscribe({ next: value => got = value, error: error => status = error.status });
+		ctl.expectOne(url).flush({}, { status: 429, statusText: 'Too Many' });
+		expect(got).toBeUndefined(); expect(status).toBe(429); ctl.verify();
+	});
+
+	it('a successful write invalidates previous fallback data, including reads still in flight', () => {
+		const { http, ctl } = setup();
+		const url = '/api/specialties/public';
+		http.get(url).subscribe(); const oldRead = ctl.expectOne(url);
+		http.post('/api/admin/specialties', {}).subscribe(); ctl.expectOne('/api/admin/specialties').flush({});
+		http.get(url).subscribe({ error: () => undefined }); const newRead = ctl.expectOne(url);
+		oldRead.flush({ items: ['old'] });
+		let status: number | undefined;
+		http.get(url).subscribe({ error: error => status = error.status });
+		ctl.expectNone(url); // still shares the NEW read, not the completed pre-write one
+		newRead.flush({}, { status: 429, statusText: 'Too Many' });
+		expect(status).toBe(429); ctl.verify();
+	});
+
+	it('a successful write clears previously completed fallback data too', () => {
+		const { http, ctl } = setup(); const url = '/api/specialties/public';
+		http.get(url).subscribe(); ctl.expectOne(url).flush({ items: ['old'] });
+		http.post('/api/admin/specialties', {}).subscribe(); ctl.expectOne('/api/admin/specialties').flush({});
+		let status: number | undefined;
+		http.get(url).subscribe({ error: error => status = error.status });
+		ctl.expectOne(url).flush({}, { status: 429, statusText: 'Too Many' });
+		expect(status).toBe(429); ctl.verify();
 	});
 
 	it('writes (payment / withdrawal / OTP) are never retried, cached or shared: a 429 reaches the caller once with a single request', () => {

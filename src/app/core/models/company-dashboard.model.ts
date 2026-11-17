@@ -1,11 +1,11 @@
 export interface CompanyDashboardKpis {
-	remainingBudget: number;
+	remainingBudget: number | null;
 	activeEmployees: number;
 	activeEmployeesTotal: number;
 	quarterSpend: number;
 	activeTeamProjects: number;
 	activeTeamProjectsMembers: number;
-	pendingYourApproval: number;
+	pendingYourApproval: number | null;
 }
 
 export interface CompanyQuarterBudget {
@@ -64,7 +64,7 @@ export interface CompanyDashboardData {
 	companyBadge: string;
 	profileCompletionPercent: number;
 	kpis: CompanyDashboardKpis;
-	quarterBudget: CompanyQuarterBudget;
+	quarterBudget: CompanyQuarterBudget | null;
 	actionCards: CompanyActionCard[];
 	levelProgress: CompanyLevelProgress;
 	walletBalance: number;
