@@ -14,6 +14,14 @@ export interface AssistantHistory {
 	activeId: string | null;
 }
 export const HISTORY_LIMIT = 20;
+/** A conversation is kept for 48 hours after its last message; older ones disappear. */
+export const HISTORY_RETENTION_MS = 48 * 60 * 60 * 1000;
+export function dropExpired(history: AssistantHistory, now = Date.now()): AssistantHistory {
+	const conversations = history.conversations.filter(c => now - c.updatedAt < HISTORY_RETENTION_MS);
+	if (conversations.length === history.conversations.length) return history;
+	const activeId = conversations.some(c => c.id === history.activeId) ? history.activeId : (conversations[0]?.id ?? null);
+	return { version: 2, conversations, activeId };
+}
 export const emptyHistory = (): AssistantHistory => ({ version: 2, conversations: [], activeId: null });
 export function newConversationId(): string {
 	return globalThis.crypto?.randomUUID?.() ?? `chat-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;

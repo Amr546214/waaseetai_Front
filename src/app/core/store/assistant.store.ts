@@ -39,7 +39,7 @@ import {
 } from '../../sheards/bebo-avatar/bebo-commands';
 import { HelpRole, guidedCatalog, helpRoleOfUrl } from '../help/help-guided';
 import { AuthStore } from './auth.store';
-import { AssistantConversation, AssistantHistory, cleanMessages, conversationTitle, emptyHistory, mergeHistory, newConversationId, readHistory } from '../help/assistant-history';
+import { AssistantConversation, AssistantHistory, cleanMessages, conversationTitle, dropExpired, emptyHistory, mergeHistory, newConversationId, readHistory } from '../help/assistant-history';
 
 // Single source of truth for the dashboard Help Assistant + Avatar. The
 // floating Avatar widget and the help pages render this same conversation,
@@ -1016,7 +1016,7 @@ export class AssistantStore {
 		if (this.isBrowser && this.storageKey) {
 			try {
 				const raw = localStorage.getItem(this.storageKey);
-				saved = readHistory(raw);
+				saved = dropExpired(readHistory(raw));
 				// Keep the source intact before the first v2 write. It is per-user and per-role.
 				if (raw && JSON.parse(raw)?.version === 1 && saved.conversations.length) {
 					try { const backupKey = `${this.storageKey}.legacy-v1`; if (!localStorage.getItem(backupKey)) localStorage.setItem(backupKey, raw); }
@@ -1049,7 +1049,7 @@ export class AssistantStore {
 			const conversation = { id, title, messages, updatedAt: changed ? Date.now() : previous.updatedAt, pinned: previous?.pinned ?? false };
 			if (index >= 0) list[index] = conversation; else list.unshift(conversation);
 		}
-		const saved = readHistory(JSON.stringify({ version: 2, activeId: id, conversations: list }));
+		const saved = dropExpired(readHistory(JSON.stringify({ version: 2, activeId: id, conversations: list })));
 		this.conversations.set(saved.conversations);
 		try { localStorage.setItem(this.storageKey, JSON.stringify(saved)); this.storageNotice.set(''); }
 		catch { this.storageNotice.set('تعذر حفظ السجل محليًا. صدّر محادثاتك للاحتفاظ بها.'); }

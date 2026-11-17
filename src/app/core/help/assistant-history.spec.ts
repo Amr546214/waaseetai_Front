@@ -1,4 +1,4 @@
-import { cleanMessages, emptyHistory, mergeHistory, readHistory } from './assistant-history';
+import { HISTORY_RETENTION_MS, cleanMessages, dropExpired, emptyHistory, mergeHistory, readHistory } from './assistant-history';
 import { HELP_ASSISTANT_UNAVAILABLE_MESSAGE } from './assistant-errors';
 
 describe('assistant local history', () => {
@@ -45,5 +45,18 @@ describe('assistant local history', () => {
 		expect(result.conversations.find(c=>c.id==='local')?.messages[0].text).toBe('private');
 		expect(result.conversations).toHaveLength(2);
 		expect(result.conversations.find(c=>c.title==='Imported')?.id).not.toBe('local');
+	});
+	it('drops conversations whose last message is 48 hours old or more, and moves the active id to a kept one', () => {
+		const now = 10 * HISTORY_RETENTION_MS;
+		const h = { version: 2 as const, activeId: 'old', conversations: [
+			{ id: 'fresh', title: 'a', updatedAt: now - HISTORY_RETENTION_MS + 1000, messages: [] },
+			{ id: 'old', title: 'b', updatedAt: now - HISTORY_RETENTION_MS, messages: [] },
+			{ id: 'older', title: 'c', updatedAt: 1, pinned: true, messages: [] },
+		] };
+		const r = dropExpired(h, now);
+		expect(r.conversations.map(c => c.id)).toEqual(['fresh']);
+		expect(r.activeId).toBe('fresh');
+		expect(dropExpired({ ...h, conversations: [h.conversations[0]], activeId: 'fresh' }, now).conversations).toHaveLength(1);
+		expect(dropExpired({ ...h, conversations: [h.conversations[2]], activeId: 'older' }, now)).toEqual(emptyHistory());
 	});
 });
