@@ -17,6 +17,9 @@ import { LevelBadgeComponent } from '../../../../shared/levels/level-badge.compo
 	styleUrl: './client-overview.component.css'
 })
 export class ClientOverviewComponent implements OnInit {
+	companyLevelProgressPercent(points: number, nextLevelPoints: number): number {
+		return nextLevelPoints > 0 ? Math.max(0, Math.min(100, points / nextLevelPoints * 100)) : 100;
+	}
 	/**
 	 * The wording of a project card from its REAL stored state: a cancelled project is «ملغى» (never «متنازع عليه»), a project closed by an administrative release is «أُغلق بصرف إداري» (never «مكتمل»,
 	 * it was not completed by delivery), and «متنازع عليه» is only for a project whose status really is DISPUTED. An unknown status is shown as «قيد المعالجة», never as a dispute.

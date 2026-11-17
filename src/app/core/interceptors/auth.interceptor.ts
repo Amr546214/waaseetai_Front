@@ -1,5 +1,5 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject, PLATFORM_ID } from '@angular/core';
+import { inject, PLATFORM_ID, REQUEST } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
@@ -34,6 +34,15 @@ export const AUTH_ATTEMPT_URLS = [
  */
 export const NON_SESSION_401_MESSAGES = ['CURRENT_PASSWORD_INCORRECT'];
 
+/** Only these read-only routes are public on the backend. Never allow an
+ * entire marketplace prefix: favorites and my-purchase require a session. */
+export function isPublicSsrRead(method: string, url: string): boolean {
+  if (method !== 'GET' && method !== 'HEAD') return false;
+  const path = new URL(url, 'http://ssr.local').pathname.replace(/\/$/, '');
+  return /^\/api\/(?:health|levels|specialties\/(?:public|categories)|public\/(?:settings|platform-state|site-identity))$/.test(path)
+    || /^\/api\/marketplace(?:\/models(?:\/[^/]+)?|\/categories)?$/.test(path);
+}
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
   const router = inject(Router);
@@ -53,7 +62,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Do not perform protected API calls during SSR without a request-scoped
   // session. Throw the error so callers enter their normal error paths.
-  if (!isBrowser && !token && req.url.includes('/api/')) {
+  if (!isBrowser && !token && req.url.includes('/api/') && !isPublicSsrRead(req.method, req.url)) {
     return throwError(() => new HttpErrorResponse({
       status: 401,
       statusText: 'SSR Bypassed - Unauthenticated',
@@ -68,7 +77,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     headers = req.headers.set('Authorization', `Bearer ${token}`);
   }
 
+  const incomingRequest = !isBrowser ? inject(REQUEST, { optional: true }) : null;
   const authReq = req.clone({
+    // Node fetch requires an absolute URL. Resolve same-origin production
+    // API reads using this SSR request, never a process-wide cached origin.
+    url: incomingRequest && req.url.startsWith('/api/')
+      ? new URL(req.url, incomingRequest.url).href
+      : req.url,
     headers,
     withCredentials: true
   });

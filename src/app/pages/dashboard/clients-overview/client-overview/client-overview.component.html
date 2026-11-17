@@ -165,17 +165,22 @@
 		</div>
 
 		<div class="co-kpi-grid">
-			<div class="co-kpi"><div class="co-kpi-ico"><svg data-ws-icon="pl-client-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="co-kpi-val">{{ c.kpis.remainingBudget | number:'1.0-0' }}</div><div class="co-kpi-lbl">الميزانية المتبقية (دولار)</div></div>
+			<div class="co-kpi"><div class="co-kpi-ico"><svg data-ws-icon="pl-client-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="co-kpi-val">{{ c.kpis.remainingBudget === null ? '—' : (c.kpis.remainingBudget | number:'1.0-0') }}</div><div class="co-kpi-lbl">الميزانية المتبقية (دولار)</div></div>
 			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-add-user"></use></svg></div><div class="co-kpi-val">{{ c.kpis.activeEmployees }}</div><div class="co-kpi-lbl">الموظفون النشطون</div></div>
 			<div class="co-kpi"><div class="co-kpi-ico"><svg data-ws-icon="pl-client-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div><div class="co-kpi-val">{{ c.kpis.quarterSpend | number:'1.0-0' }}</div><div class="co-kpi-lbl">إنفاق الربع (دولار)</div></div>
 			<div class="co-kpi"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-market"></use></svg></div><div class="co-kpi-val">{{ c.kpis.activeTeamProjects }}</div><div class="co-kpi-lbl">مشاريع الفريق النشطة</div></div>
-			<div class="co-kpi co-kpi-warn"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-check-sm"></use></svg></div><div class="co-kpi-val">{{ c.kpis.pendingYourApproval }}</div><div class="co-kpi-lbl">بانتظار اعتمادك</div></div>
+			<div class="co-kpi co-kpi-warn"><div class="co-kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-check-sm"></use></svg></div><div class="co-kpi-val">{{ c.kpis.pendingYourApproval ?? '—' }}</div><div class="co-kpi-lbl">بانتظار اعتمادك</div></div>
 		</div>
 
+		@if (c.quarterBudget; as budget) {
 		<div class="co-budget-bar">
-			<div class="co-budget-lbl">{{ c.quarterBudget.percent }}% <span>ميزانية الربع المستهلكة، {{ c.quarterBudget.used | number:'1.0-0' }} من {{ c.quarterBudget.total | number:'1.0-0' }} دولار</span></div>
-			<div class="co-budget-track"><div class="co-budget-fill" [style.width.%]="c.quarterBudget.percent"></div></div>
+			<div class="co-budget-lbl">{{ budget.percent }}% <span>ميزانية الربع المستهلكة، {{ budget.used | number:'1.0-0' }} من {{ budget.total | number:'1.0-0' }} دولار</span></div>
+			<div class="co-budget-track"><div class="co-budget-fill" [style.width.%]="budget.percent"></div></div>
 		</div>
+
+		} @else {
+		<div class="co-budget-bar"><div class="co-budget-lbl">ميزانية الربع غير محددة</div></div>
+		}
 
 		@if (c.actionCards.length) {
 		<div class="co-action-cards">
@@ -191,8 +196,8 @@
 
 		<div class="co-level">
 			<div class="co-level-badge"><svg data-ws-icon="i-star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>مستوى الشركة</div>
-			<div class="co-level-track"><div class="co-level-fill" [style.width.%]="(c.levelProgress.points / c.levelProgress.nextLevelPoints) * 100"></div></div>
-			<div class="co-level-lbl">{{ c.levelProgress.points }} نقطة · نشط - المستوى {{ c.levelProgress.currentLevel }}</div>
+			<div class="co-level-track"><div class="co-level-fill" [style.width.%]="companyLevelProgressPercent(c.levelProgress.points, c.levelProgress.nextLevelPoints)"></div></div>
+			<div class="co-level-lbl">{{ c.levelProgress.points }} نقطة · {{ c.levelProgress.levelLabel }} - المستوى {{ c.levelProgress.currentLevel }}</div>
 		</div>
 
 		<div class="co-grid">
