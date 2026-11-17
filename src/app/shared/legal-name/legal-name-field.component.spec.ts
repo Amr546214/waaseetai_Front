@@ -71,4 +71,46 @@ describe('LegalNameFieldComponent', () => {
 		fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
 		expect(q('legal-name-field-input')).toBeNull(); expect(q('legal-name-pending')).not.toBeNull();
 	});
+
+	describe('setup pages (autoSave): the name is a plain input among the form fields, no save button', () => {
+		async function mountAuto(v: LegalNameView) {
+			get = vi.fn(() => of({ success: true, data: v })); save = vi.fn();
+			await TestBed.configureTestingModule({ imports: [LegalNameFieldComponent], providers: [{ provide: LegalNameService, useValue: { get, save } }] }).compileComponents();
+			fixture = TestBed.createComponent(LegalNameFieldComponent); fixture.componentRef.setInput('alwaysEdit', true); fixture.componentRef.setInput('autoSave', true);
+			fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
+		}
+		const blur = () => { (q('legal-name-field-input') as HTMLInputElement).dispatchEvent(new Event('blur')); fixture.detectChanges(); };
+
+		it('the box is visible with the form input look and there is no save button; a valid name is saved when the box loses focus (once, cleaned)', async () => {
+			await mountAuto(view({ status: 'MISSING', legalName: null }));
+			const input = q('legal-name-field-input') as HTMLInputElement;
+			expect(input.className).toContain('border-slate-200');
+			expect(input.className).toContain('rounded-xl');
+			expect(q('legal-name-save')).toBeNull();
+			save.mockReturnValue(of({ success: true, data: { outcome: 'SAVED', view: view({}) } }));
+			type('  عمرو   محمود '); blur(); blur();
+			expect(save).toHaveBeenCalledTimes(1);
+			expect(save).toHaveBeenCalledWith('عمرو محمود');
+		});
+
+		it('typing is saved by itself after a short pause (not on every key); an invalid or unchanged name is never sent', async () => {
+			vi.useFakeTimers();
+			try {
+				await mountAuto(view({ status: 'MISSING', legalName: null }));
+				save.mockReturnValue(of({ success: true, data: { outcome: 'SAVED', view: view({}) } }));
+				type('عمرو'); vi.advanceTimersByTime(2000); expect(save).not.toHaveBeenCalled();       // one word: refused with a reason, nothing sent
+				type('عمرو م'); type('عمرو محمود'); expect(save).not.toHaveBeenCalled(); vi.advanceTimersByTime(900);
+				expect(save).toHaveBeenCalledTimes(1);
+				fixture.detectChanges();
+				type('عمرو محمود'); blur(); expect(save).toHaveBeenCalledTimes(1);                      // unchanged: no second call
+			} finally { vi.useRealTimers(); }
+		});
+
+		it('a change that needs an administrator review keeps its explicit button and is never auto-sent', async () => {
+			await mountAuto(view({ changeNeedsReview: true }));
+			type('عمرو أحمد'); blur();
+			expect(save).not.toHaveBeenCalled();
+			expect(q('legal-name-save')?.textContent).toContain('إرسال طلب التعديل');
+		});
+	});
 });
