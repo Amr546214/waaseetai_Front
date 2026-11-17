@@ -11,7 +11,16 @@ export function isObsoleteKnowledgeRefusal(text: string): boolean {
 
 /** Questions are user content: quoting an old error must never change the question. */
 export function normalizeAssistantMessageText(text: string, role: 'user' | 'assistant'): string {
-	return role === 'assistant' && isObsoleteKnowledgeRefusal(text) ? HELP_ASSISTANT_UNAVAILABLE_MESSAGE : text;
+	if (role !== 'assistant') return text;
+	return isObsoleteKnowledgeRefusal(text) ? HELP_ASSISTANT_UNAVAILABLE_MESSAGE : fixStalePersonaName(text);
+}
+
+/** Replies saved before the guide was named «وسيط AI» introduced it as «نديم»: only that self-introduction is corrected, in saved assistant replies. */
+export function fixStalePersonaName(text: string): string {
+	return text
+		.replace(/أنا\s+بيبو\s*\(\s*نديم\s*\)/g, 'أنا بيبو')
+		.replace(/أنا\s+نديم/g, 'أنا وسيط AI')
+		.replace(/I(?:'|’)?m\s+Nadeem/gi, 'I’m Waseet AI');
 }
 
 export function normalizeAssistantError(error: { code?: string; message?: string; humanSupportFallback?: boolean }): { code: string; message: string; humanSupportFallback: boolean } {
