@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { Router, UrlTree, provideRouter } from '@angular/router';
 import { BehaviorSubject, Observable, firstValueFrom, of, throwError } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { vi } from 'vitest';
 import { signal } from '@angular/core';
 import { marketerProfileCompleteGuard } from './marketer-profile-complete.guard';
@@ -72,6 +73,19 @@ describe('marketerProfileCompleteGuard', () => {
 		for (const g of GATED) {
 			expect(await run('/marketer-overview' + g), g || 'home').toBe(true);
 		}
+	});
+
+	it('a complete profile is read once, then trusted for a minute (no GET on every navigation); expires after that', async () => {
+		vi.useFakeTimers();
+		try {
+			const { getProfile, profileSnapshot } = setup(of({ success: true, data: completeProfile() }));
+			getProfile.mockImplementation(() => of({ success: true, data: completeProfile() }).pipe(tap(r => profileSnapshot.set(r.data))) as any);
+			for (const u of ['', '/referrals', '/withdraw']) expect(await run('/marketer-overview' + u)).toBe(true);
+			expect(getProfile).toHaveBeenCalledTimes(1);
+			vi.advanceTimersByTime(61_000);
+			expect(await run('/marketer-overview')).toBe(true);
+			expect(getProfile).toHaveBeenCalledTimes(2);
+		} finally { vi.useRealTimers(); }
 	});
 
 	it('on network error: falls back to snapshot if incomplete, otherwise avoids trapping navigation', async () => {
