@@ -71,7 +71,17 @@ describe('provider setup wizard: local draft (refresh keeps the step and the ans
     vi.spyOn(component, 'goToStep').mockImplementation(() => {});
     component.saveAndGoToTest();
     expect(save).toHaveBeenCalled();
-    http.match(r => r.url.includes('paypal-email')).forEach(r => r.flush({ success: true }));
+    http.match(r => r.url.includes('paypal-email')).forEach(r => r.flush({ success: true, data: { emailSent: false } }));
     expect(localStorage.getItem('waseet.provider-setup-draft.v1.u1')).toBeNull();
+  });
+
+  it('the document number is required until the identity has been sent or approved', async () => {
+    await setup({ skills: [] });
+    const c = component.setupForm.get('docs.idNumber')!;
+    c.setValue(''); c.markAsTouched(); fixture.detectChanges();
+    expect(c.hasError('required')).toBe(true);
+    expect(component.documentError('idNumber')).toBe('أدخل رقم الوثيقة');
+    component.kycPending.set(true); fixture.detectChanges(); TestBed.flushEffects?.();
+    expect(c.hasError('required')).toBe(false);
   });
 });

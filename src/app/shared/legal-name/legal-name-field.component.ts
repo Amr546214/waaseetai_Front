@@ -16,7 +16,6 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 		@if (view(); as v) {
 			<label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-400" for="legal-name-field-input">الاسم الحقيقي (كما في الهوية) <span class="ws-req" aria-hidden="true">*</span></label>
 			@if (v.status === 'MISSING') {
-				<p class="text-xs text-amber-300 mb-2" role="note" data-testid="legal-name-missing">أكمل اسمك الحقيقي كما هو مكتوب في وثيقة الهوية؛ نطابقه معها ولا يظهر للآخرين. اسم المستخدم لا يتغيّر. لا يمكن اعتماد هوية جديدة قبل إدخاله.</p>
 				@if (v.changeNeedsReview) { <p class="text-xs text-slate-300 mb-2" role="note" data-testid="legal-name-legacy-verified">حسابك موثَّق حاليًا كما هو ويبقى كذلك؛ إضافة الاسم الحقيقي تُرسل كطلب للمراجعة، وبعد اعتماده تُعاد مطابقة وثيقتك به.</p> }
 			}
 			@if (v.pendingRequest; as p) {
