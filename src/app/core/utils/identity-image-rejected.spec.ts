@@ -10,8 +10,12 @@ describe('identityImageRejected', () => {
 		expect(identityImageRejected({ ...ok, sideMatchesExpected: false, status: 'NEEDS_ATTENTION' })).toBe(true);
 		expect(identityImageRejected({ ...ok, documentTypeMatches: false, status: 'NEEDS_ATTENTION' })).toBe(true);
 	});
-	it('keeps the picture when only the data differs (name / number / date) or the photo is a bit blurry', () => {
-		expect(identityImageRejected({ ...ok, status: 'NEEDS_ATTENTION', fields: { fullName: 'MISMATCH' } })).toBe(false);
+	it('rejects when the document number differs from the typed one', () => {
+		expect(identityImageRejected({ ...ok, status: 'NEEDS_ATTENTION', fields: { nationalId: 'MISMATCH' } })).toBe(true);
+		expect(identityImageRejected({ ...ok, fields: { nationalId: 'COULD_NOT_VERIFY' } })).toBe(false);
+	});
+	it('keeps the picture when only the name / date differ or the photo is a bit blurry', () => {
+		expect(identityImageRejected({ ...ok, status: 'NEEDS_ATTENTION', fields: { fullName: 'MISMATCH', birthDate: 'MISMATCH' } })).toBe(false);
 		expect(identityImageRejected({ ...ok, status: 'NEEDS_ATTENTION', readability: 'BLURRY' })).toBe(false);
 	});
 	it('no result: nothing is rejected', () => { expect(identityImageRejected(null)).toBe(false); expect(identityImageRejected(undefined)).toBe(false); });

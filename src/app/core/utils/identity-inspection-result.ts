@@ -14,10 +14,15 @@ export function identityInspectionResult(d: any): { status: 'valid' | 'warning';
 
 /**
  * The picture itself is not accepted: not an identity document, unreadable, the wrong side, or another document kind than the one chosen. Such a picture is removed from the form
- * (the message stays under the field). A name / number / date remark does not reject the picture: the owner may simply have typed the data differently.
+ * (the message stays under the field). A document NUMBER that differs from the typed one rejects it too (the number is the key of the identity, and the owner is told to fix it);
+ * a name / date remark does not reject the picture: the owner may simply have typed those differently.
  */
+export function identityNumberMismatch(d: any): boolean { return d?.fields?.nationalId === 'MISMATCH'; }
+
+export const NUMBER_MISMATCH_MESSAGE = 'الرقم المكتوب لا يطابق الرقم الظاهر في الوثيقة. صحّح الرقم ثم أعد رفع الصورة.';
+
 export function identityImageRejected(d: any): boolean {
-  return !!d && (d.isIdentityDocument === false || d.status === 'NOT_ID_DOCUMENT' || d.status === 'UNREADABLE' || d.readability === 'UNREADABLE' || d.sideMatchesExpected === false || d.documentTypeMatches === false);
+  return !!d && (identityNumberMismatch(d) || d.isIdentityDocument === false || d.status === 'NOT_ID_DOCUMENT' || d.status === 'UNREADABLE' || d.readability === 'UNREADABLE' || d.sideMatchesExpected === false || d.documentTypeMatches === false);
 }
 
 /** The document kind the AI recognised in the picture, as the app's document-type code (null = not recognised / «other»): the owner no longer picks the type, it comes from the document. */

@@ -1,4 +1,4 @@
-import { identityImageRejected } from '../../../../../core/utils/identity-inspection-result';
+import { identityImageRejected, identityNumberMismatch, NUMBER_MISMATCH_MESSAGE } from '../../../../../core/utils/identity-inspection-result';
 import { Subscription as CatalogSubscription } from 'rxjs';
 import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
 import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -1036,6 +1036,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				document: this.chosenDocument(),
 				declared: {
 					...(fullName ? { fullName } : {}),
+					...(String(this.setupForm.get('docs.idNumber')?.value || '').trim() ? { nationalId: String(this.setupForm.get('docs.idNumber')?.value).trim() } : {}),
 					...(this.setupForm.get('profData.dob')?.value ? { birthDate: String(this.setupForm.get('profData.dob')?.value) } : {})
 				}
 			})), takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -1060,6 +1061,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 						this.removeUploadedFile(slot);
 						delete this.pendingRefs[slot];
 						this.idDocInspections.update(curr => ({ ...curr, [slot]: { ...inspection } }));
+						// the number typed in the form is not the one on the document: the number box says so (the error clears when the number is edited)
+						if (identityNumberMismatch(d)) { const n = this.setupForm.get('docs.idNumber'); n?.markAsTouched(); n?.setErrors({ server: NUMBER_MISMATCH_MESSAGE }); }
 					}
 				},
 				error: () => {
