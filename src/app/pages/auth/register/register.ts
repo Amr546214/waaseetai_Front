@@ -25,13 +25,11 @@ import { matchFieldsValidator, strongPasswordValidator } from '../../../core/for
 import { backendPhoneValidator, phoneDigits } from '../../../core/forms/phone.validator';
 import { FormSummaryComponent } from '../../../shared/forms/form-summary.component';
 import { IdentityImgDirective } from '../../../core/identity/identity-img.directive';
-import { cleanLegalName, legalNameValidator } from '../../../core/validators/legal-name.validator';
 import { cleanUsername, usernameValidator } from '../../../core/validators/username.validator';
 
 /** The register payload names some fields differently from the form controls. */
 const REGISTER_SERVER_FIELD_ALIASES: Record<string, string> = { phoneNumber: 'phone', phoneCountryCode: 'phone', agreedToTerms: 'agreeTerms', confirmPassword: 'confirmPassword' };
 const REGISTER_LABELS: Record<string, string> = {
-	legalName: 'الاسم الحقيقي',
 	username: 'اسم المستخدم',
 	email: 'البريد الإلكتروني',
 	phone: 'رقم الجوال',
@@ -232,7 +230,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 			// Same rules as the backend registerSchema (auth.schema.ts): names 2+ chars, password 8+ with an
 			// uppercase letter and a digit, phone digits only and at least 9.
 			// the REAL name (as on the identity document): compared with the document and never shown to others; the first/last name below is the display name
-			legalName: ['', [Validators.required, legalNameValidator]],
 			// ONE field, a single word is fine: the name shown on the platform (separate from the legal name above)
 			username: ['', [Validators.required, usernameValidator]],
 			email: ['', [Validators.required, Validators.email]],
@@ -489,7 +486,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		const val = this.basicInfoForm.value;
 		const payload = {
 			accountType: this.accountTypeMap[this.selectedAccountType],
-			legalName: cleanLegalName(val.legalName),
 			username: cleanUsername(val.username),
 			email: val.email,
 			phoneCountryCode: val.phone?.dialCode || '+966',
@@ -564,7 +560,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 		const val = this.basicInfoForm.value;
 		return {
 			accountType: this.accountTypeMap[this.selectedAccountType],
-			legalName: cleanLegalName(val.legalName),
 			username: cleanUsername(val.username),
 			email: String(val.email ?? '').trim(),
 			phoneCountryCode: val.phone?.dialCode || '+966',

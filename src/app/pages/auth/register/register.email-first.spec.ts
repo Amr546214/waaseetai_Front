@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { provideRouter, Router } from '@angular/router';
@@ -13,7 +15,7 @@ import { AuthStore } from '../../../core/store/auth.store';
 class BlankTestComponent {}
 
 const PASSWORD = 'Aa1!aaaaaa';
-const FORM = { legalName: 'Sara Ahmed Ali', username: 'Sara', email: 'sara@example.com', password: PASSWORD, confirmPassword: PASSWORD, phone: { dialCode: '+20', number: '01000000001' }, agreeData: true, agreeTerms: true };
+const FORM = { username: 'Sara', email: 'sara@example.com', password: PASSWORD, confirmPassword: PASSWORD, phone: { dialCode: '+20', number: '01000000001' }, agreeData: true, agreeTerms: true };
 const CONFLICT = () => throwError(() => ({ status: 409, error: { success: false, code: 'REGISTRATION_DATA_UNAVAILABLE', message: 'تعذّر إنشاء حساب بهذه البيانات لأن البريد الإلكتروني أو رقم الجوال مرتبط بحساب قائم. صحّح البيانات، أو سجّل الدخول، أو استعد كلمة المرور، أو تواصل مع الدعم' } }));
 
 function mount(onPost: (url: string, body: any) => any) {
@@ -52,7 +54,7 @@ describe('Register (e-mail-first): proof before account', () => {
 		expect(start[1].phoneNumber).toBe('01000000001');
 		expect(start[1].password).toBeUndefined();
 		// the legal name travels on its own, separate from the display name (first / last name)
-		expect(start[1].legalName).toBe('Sara Ahmed Ali');
+		expect('legalName' in start[1]).toBe(false); // the legal name is asked in the identity step, not at sign-up
 		expect(start[1].username).toBe('Sara');
 		expect(start[1].firstName).toBeUndefined();
 		expect(start[1].lastName).toBeUndefined();
@@ -152,17 +154,16 @@ describe('Register (e-mail-first): proof before account', () => {
 	});
 });
 
-describe('Register: the legal name is required and validated apart from the display name', () => {
-	it('the form is invalid without a legal name, with one word or digits, and valid with a normal two-part name', () => {
+describe('Register: only the username is asked (the real name moved to the identity step)', () => {
+	it('the form has no legal-name control and no legal-name box is drawn; the username label is plain', () => {
 		const m = mount(() => of({ success: true, data: { emailSent: true, ticket: 'T' } }));
-		const ctl = m.c.basicInfoForm.get('legalName')!;
-		ctl.setValue(''); expect(ctl.hasError('required')).toBe(true);
-		ctl.setValue('عمرو'); expect(ctl.valid).toBe(false);
-		ctl.setValue('عمرو 2'); expect(ctl.valid).toBe(false);
-		ctl.setValue('عمرو محمود'); expect(ctl.valid).toBe(true);
-		// a display name that differs from the legal name is normal
+		expect(m.c.basicInfoForm.get('legalName')).toBeNull();
+		expect(m.el.querySelector('[data-testid="legal-name-input"]')).toBeNull();
+		const html = readFileSync(join(process.cwd(), 'src/app/pages/auth/register/register.html'), 'utf8');
+		expect(html).not.toContain('legal-name');
+		expect(html).not.toContain('الاسم الذي يظهر للآخرين');
+		expect(html).toContain('اسم المستخدم <span');
 		m.c.basicInfoForm.patchValue({ username: 'عمرو' });
-		expect(m.c.basicInfoForm.get('username')?.valid).toBe(true); // a one-word username is fine and differs from the legal name
-		expect(m.c.basicInfoForm.get('username')?.value).not.toBe(m.c.basicInfoForm.get('legalName')?.value);
+		expect(m.c.basicInfoForm.get('username')?.valid).toBe(true);
 	});
 });
