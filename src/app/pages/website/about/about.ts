@@ -3,6 +3,7 @@ import { Component, ViewEncapsulation, inject, OnInit, OnDestroy, PLATFORM_ID } 
 import { RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../../core/services/theme.service';
+import { AuthStore } from '../../../core/store/auth.store';
 
 @Component({
   selector: 'app-about',
@@ -14,6 +15,8 @@ import { ThemeService } from '../../../core/services/theme.service';
 })
 export class About implements OnInit, OnDestroy {
   public themeService = inject(ThemeService);
+  /** the «سجّل حساباً مجاناً» button is for visitors only: a signed-in user already has an account */
+  readonly authStore = inject(AuthStore);
   private platformId = inject(PLATFORM_ID);
   private particleTimer: any;
 

@@ -276,10 +276,12 @@
         <h2>ابدأ رحلتك مع وسيط AI</h2>
         <p>سواء كنت تبحث عن خدمة أو تقدمها، وسيط AI هو شريكك الذكي في كل خطوة</p>
         <div class="cta-actions">
-          <a routerLink="/auth/register" class="btn-grad">
+          @if (!authStore.isAuthenticated()) {
+          <a routerLink="/auth/register" class="btn-grad" data-testid="about-register-cta">
             <svg aria-hidden="true"><use href="#ws-users"></use></svg>
             سجّل حساباً مجاناً
           </a>
+          }
           <a routerLink="/contact" class="btn-ghost-lg">
             <svg aria-hidden="true"><use href="#ws-globe"></use></svg>
             تواصل معنا
