@@ -409,6 +409,7 @@
         @if (true) {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 <div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2" [hidden]="!(typeNeedsPicking() && !documentTypeLabel())" data-testid="identity-document-type-fallback">
   <label for="identity-document-type">نوع وثيقة الهوية</label>
   <small>الدولة المختارة: {{ setupForm.get('profData.country')?.value || 'غير محددة' }}</small>
   <select id="identity-document-type" formControlName="idDocumentType" [attr.aria-invalid]="documentError('idDocumentType') ? 'true' : null" [attr.aria-describedby]="documentError('idDocumentType') ? 'identity-error-idDocumentType' : null" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
@@ -416,6 +417,8 @@
     @for (type of identityDocumentTypes; track type.code) { <option [value]="type.code">{{ type.label }}</option> }
   </select>
   @if (documentError('idDocumentType'); as error) { <p id="identity-error-idDocumentType" class="text-sm text-red-400" role="alert">{{ error }}</p> }
+</div>
+  <span class="text-sm" [hidden]="typeNeedsPicking() && !documentTypeLabel()" data-testid="identity-document-type-auto">{{ documentTypeLabel() ? ('نوع الوثيقة: ' + documentTypeLabel()) : 'يُحدَّد نوع الوثيقة تلقائيًا من الصورة بعد رفعها' }}</span>
 </div>
 <div class="flex flex-col gap-2"><ws-legal-name-field /></div>
 <div class="flex flex-col gap-2">

@@ -2,7 +2,7 @@ import { switchMap } from 'rxjs';
 import { resetClientIdentityRejectedCache } from '../../../../../core/guards/client-identity-rejected.guard';
 import { identityImageRejected } from '../../../../../core/utils/identity-inspection-result';
 import { LegalNameService } from '../../../../../core/services/legal-name.service';
-import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
+import { detectedDocumentCode, identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, identityCountryCode } from '../../../../../shared/data/identity-documents';
 import { IdentityCheckService } from '../../../../../core/services/identity-check.service';
 import { birthDateValidator, maxDobIso } from '../../../../../core/forms/birth-date';
@@ -83,10 +83,21 @@ export class ProfileSetupDashboard implements OnInit {
 	/** The back side is optional for every document kind: the front side is what the review relies on. */
 	backRequired(): boolean { return false; }
 	/** the kind / country the client chose, sent with the AI document check (empty parts are left out) */
+	/** true when the AI could not tell the document type from the picture: only then the type list is shown. */
+	typeNeedsPicking = signal(false);
+	private applyDetectedKind(d: any, side: 'FRONT' | 'BACK') {
+		const control = this.setupForm.get('details.idDocumentType');
+		if (!control || control.disabled) return;
+		const code = detectedDocumentCode(d);
+		if (code && (side === 'FRONT' || !control.value)) { control.setValue(code); control.markAsDirty(); this.typeNeedsPicking.set(false); }
+		else if (!control.value) this.typeNeedsPicking.set(true);
+	}
+	/** the label of the recognised / stored document type (empty = none yet) */
+	documentTypeLabel(): string { return this.identityDocumentTypes.find(t => t.code === this.setupForm.get('details.idDocumentType')?.value)?.label ?? ''; }
 	private chosenDocument(): { type?: string; country?: string } {
-		const type = String(this.setupForm.get('details.idDocumentType')?.value || '');
+		// the document type is not chosen by the owner: the AI recognises it from the picture
 		const country = identityCountryCode(this.setupForm.get('details.country')?.value) ?? '';
-		return { ...(type ? { type } : {}), ...(country ? { country } : {}) };
+		return country ? { country } : {};
 	}
 	constructor() {
 		// entering the identity step always reads the real state from the server
@@ -470,9 +481,11 @@ export class ProfileSetupDashboard implements OnInit {
 						const d = res?.data;
 						if (!d) {
 							this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+							this.applyDetectedKind(null, 'FRONT');
 							this.sendIdentity();
 							return;
 						}
+						this.applyDetectedKind(d, controlName === 'frontId' ? 'FRONT' : 'BACK');
 						const inspection = identityInspectionResult(d);
 						this.idDocInspections.update(curr => ({
 							...curr,
@@ -491,6 +504,7 @@ export class ProfileSetupDashboard implements OnInit {
 					error: () => {
 						if (!isCurrent()) return;
 						this.idDocInspections.update(curr => { const next = { ...curr }; delete next[controlName]; return next; });
+						this.applyDetectedKind(null, 'FRONT');
 						this.sendIdentity();
 					}
 				});
@@ -518,6 +532,7 @@ export class ProfileSetupDashboard implements OnInit {
 		const issuer = this.setupForm.get('details.idDocumentType')?.disabled ? this.verifiedIssuer : identityCountryCode(d.country);
 		const problem = documentInputProblem(d.idNumber, issuer ?? null, d.idDocumentType || null);
 		if (problem || !d.idDocumentType || !issuer || !d.idNumber) {
+			if (!d.idDocumentType) this.typeNeedsPicking.set(true); // the AI could not tell the type from the picture: the list is shown
 			this.gateProblem.set('أكمل بيانات الهوية في الخطوة الأولى (الدولة ونوع الوثيقة ورقمها) ثم أعد رفع الصورة؛ الصورة محفوظة في النموذج.' + (problem ? ' ' + problem.message : ''));
 			return;
 		}

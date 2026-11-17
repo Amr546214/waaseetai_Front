@@ -19,3 +19,9 @@ export function identityInspectionResult(d: any): { status: 'valid' | 'warning';
 export function identityImageRejected(d: any): boolean {
   return !!d && (d.isIdentityDocument === false || d.status === 'NOT_ID_DOCUMENT' || d.status === 'UNREADABLE' || d.readability === 'UNREADABLE' || d.sideMatchesExpected === false || d.documentTypeMatches === false);
 }
+
+/** The document kind the AI recognised in the picture, as the app's document-type code (null = not recognised / «other»): the owner no longer picks the type, it comes from the document. */
+export function detectedDocumentCode(d: any): 'NATIONAL_ID' | 'PASSPORT' | 'RESIDENCE_PERMIT' | 'DRIVING_LICENCE' | null {
+	const kind = String(d?.documentKind ?? '').toUpperCase();
+	return kind === 'NATIONAL_ID' || kind === 'PASSPORT' || kind === 'RESIDENCE_PERMIT' || kind === 'DRIVING_LICENCE' ? (kind as any) : null;
+}

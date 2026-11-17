@@ -70,6 +70,27 @@ describe('provider profile-setup: identity gate behaviour', { timeout: 30000 }, 
     expect(label()).toContain('غير مطلوب لجواز السفر');
   });
 
+  it('the document type is not picked by the owner: it comes from the picture (list shown only when the AI cannot tell)', async () => {
+    await mount('NOT_SUBMITTED', { country: 'مصر', idNumber: 'A1' });
+    fixture.detectChanges();
+    const q = (id: string) => fixture.nativeElement.querySelector(`[data-testid="${id}"]`) as HTMLElement;
+    expect(q('identity-document-type-auto').hidden).toBe(false);
+    expect(q('identity-document-type-auto').textContent).toContain('يُحدَّد نوع الوثيقة تلقائيًا');
+    expect(q('identity-document-type-fallback').hidden).toBe(true);
+    (c as any).applyDetectedKind({ documentKind: 'PASSPORT' }, 'FRONT'); fixture.detectChanges();
+    expect(c.setupForm.get('docs.idDocumentType').value).toBe('PASSPORT');
+    expect(q('identity-document-type-auto').textContent).toContain('جواز سفر');
+    expect(q('identity-document-type-fallback').hidden).toBe(true);
+    // a new front picture of another kind replaces it
+    (c as any).applyDetectedKind({ documentKind: 'NATIONAL_ID' }, 'FRONT'); fixture.detectChanges();
+    expect(c.setupForm.get('docs.idDocumentType').value).toBe('NATIONAL_ID');
+    // not recognised: the list appears so the owner can pick
+    c.setupForm.get('docs.idDocumentType').setValue('');
+    (c as any).applyDetectedKind({ documentKind: 'UNKNOWN' }, 'FRONT'); fixture.detectChanges();
+    expect(q('identity-document-type-fallback').hidden).toBe(false);
+    expect(q('identity-document-type-auto').hidden).toBe(true);
+  });
+
   it('a final submission that changes approved evidence (EVIDENCE_CHANGED_IN_SUBMISSION) returns to step 4 with a clear message', async () => {
     const err = new HttpErrorResponse({ status: 409, error: { success: false, code: 'IDENTITY_NOT_APPROVED', message: 'x', errors: [{ code: 'IDENTITY_NOT_APPROVED', status: 'APPROVED', reason: 'EVIDENCE_CHANGED_IN_SUBMISSION' }] } });
     await mount('APPROVED', {});
