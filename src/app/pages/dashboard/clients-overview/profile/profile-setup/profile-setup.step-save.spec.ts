@@ -42,8 +42,15 @@ describe('client setup wizard: each Next stores its step', () => {
 		expect(saveStep).toHaveBeenCalledTimes(1);
 		const [step, body] = saveStep.mock.calls[0];
 		expect(step).toBe(1);
-		expect(body.details).toEqual(expect.objectContaining({ idNumber: '1234567890', country: 'السعودية', city: 'الرياض', occupation: 'مهندس', address: 'الرياض' }));
+		// the number is stored with the document upload (once the type is read from the picture), not judged here without a type
+		expect(body.details.idNumber).toBeUndefined();
+		expect(body.details).toEqual(expect.objectContaining({ country: 'السعودية', city: 'الرياض', occupation: 'مهندس', address: 'الرياض' }));
 		expect(c.currentStep()).toBe(2);
+	});
+
+	it('step 1 sends the number once the document type is known', () => {
+		mount(); fill1(); c.setupForm.get('details.idDocumentType')?.setValue('NATIONAL_ID'); c.nextStep();
+		expect(saveStep.mock.calls[0][1].details.idNumber).toBe('1234567890');
 	});
 
 	it('an invalid step is not sent and does not advance', () => {
