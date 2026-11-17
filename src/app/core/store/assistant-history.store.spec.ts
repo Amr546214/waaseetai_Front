@@ -47,7 +47,7 @@ describe('AssistantStore multiple conversations and per-user persistence', () =>
 	it('reloads all old v1 turns, preserves them through an empty view, and restores selection', () => {
 		TestBed.resetTestingModule();
 		const messages=Array.from({length:7},(_,i)=>[{role:'user',text:`سؤال ${i}`},{role:'assistant',text:`رد ${i}`}]).flat();
-		saved.set('waseet.bebo.session.a.CLIENT',JSON.stringify({version:1,updatedAt:Date.now()-30*86400_000,messages}));
+		saved.set('waseet.bebo.session.a.CLIENT',JSON.stringify({version:1,updatedAt:Date.now()-3600_000,messages}));
 		TestBed.configureTestingModule({providers:[provideRouter([]),{provide:AuthStore,useValue:{token,currentUser:user}},{provide:HelpAssistantSocketService,useValue:socket},{provide:SPEECH_RECOGNITION,useValue:null}]});
 		store=TestBed.inject(AssistantStore);TestBed.tick();
 		expect(store.messages()).toHaveLength(14);expect(store.conversations()).toHaveLength(1);
@@ -56,6 +56,15 @@ describe('AssistantStore multiple conversations and per-user persistence', () =>
 		store.messages.set([]);TestBed.tick();expect(store.conversations()[0].messages).toHaveLength(14);
 		expect(store.selectConversation(id)).toBe(true);expect(store.messages()).toHaveLength(14);
 		expect(JSON.parse(saved.get('waseet.bebo.session.a.CLIENT')!).conversations[0].messages).toHaveLength(14);
+	});
+	it('a conversation whose last message is older than 48 hours is not restored; a recent one is', () => {
+		TestBed.resetTestingModule();
+		const conv=(id:string,age:number)=>({id,title:id,updatedAt:Date.now()-age,messages:[{role:'user',text:'سؤال'},{role:'assistant',text:'رد'}]});
+		saved.set('waseet.bebo.session.a.CLIENT',JSON.stringify({version:2,activeId:'stale',conversations:[conv('stale',49*3600_000),conv('recent',47*3600_000)]}));
+		TestBed.configureTestingModule({providers:[provideRouter([]),{provide:AuthStore,useValue:{token,currentUser:user}},{provide:HelpAssistantSocketService,useValue:socket},{provide:SPEECH_RECOGNITION,useValue:null}]});
+		store=TestBed.inject(AssistantStore);TestBed.tick();
+		expect(store.conversations().map(c=>c.id)).toEqual(['recent']);
+		expect(store.activeConversationId()).toBe('recent');
 	});
 	it('restores each user and role independently after logout, another login, and token refresh', () => {
 		answer('خاص أ','جواب أ');

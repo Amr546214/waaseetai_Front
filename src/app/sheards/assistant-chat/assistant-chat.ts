@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild, afterNextRender, computed, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AssistantStore, MAX_QUESTION_LENGTH } from '../../core/store/assistant.store';
@@ -335,6 +335,8 @@ export class AssistantChatComponent implements OnDestroy {
 			});
 		});
 		queueMicrotask(() => this.composer?.nativeElement.focus());
+		// The list is not rendered yet when the effect first runs: open on the newest message, not mid-conversation.
+		afterNextRender(() => this.scrollToLatest());
 	}
 	onScroll(): void { const el = this.scroller?.nativeElement; this.nearBottom = !el || el.scrollHeight - el.scrollTop - el.clientHeight < 64; this.showJump.set(!this.nearBottom); }
 	scrollToLatest(): void { this.nearBottom = true; this.showJump.set(false); const el = this.scroller?.nativeElement; if (el) el.scrollTop = el.scrollHeight; }
