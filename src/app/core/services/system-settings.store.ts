@@ -15,7 +15,7 @@ export interface SettingItem {
 }
 /** what the product really uses (server-computed from the consumers' own constants); source 'setting' = the stored value */
 export interface SettingEffective { value: unknown; /** the value written for people (e.g. «USD — دولار أمريكي») */ label?: string; source: 'setting' | 'built-in default' | 'static page text' | 'not consumed'; note?: string; uses?: Array<{ where: string; value: unknown }> }
-export interface SettingsView { storageReady: boolean; items: SettingItem[] }
+export interface SettingsView { storageReady: boolean; items: SettingItem[]; /** OFFICIAL = this panel edits the official site's settings, not this deployment's */ controlTarget?: 'OFFICIAL' | 'LOCAL' }
 export interface SettingsHistoryItem { id: string; at: string; severity: string | null; ip: string | null; actor: string | null; changes: Array<{ key: string; label: string; from: unknown; to: unknown }> }
 export interface HealthItem { key: string; label: string; status: 'ok' | 'down' | 'configured' | 'unconfigured' | 'unavailable'; detail: string }
 export interface Blocker { code: string; message: string }
@@ -68,6 +68,7 @@ export class SystemSettingsStore {
 	/** loading = nothing known yet; error = the last load failed (also 403); ready = values are known. A failed RE-load keeps the values but the state is 'error' until a load succeeds. */
 	readonly state = computed<'loading' | 'error' | 'ready'>(() => (this.loadError() ? 'error' : this.loaded() || this.items().length ? 'ready' : 'loading'));
 	readonly storageReady = signal(true);
+	readonly controlTarget = signal<'OFFICIAL' | 'LOCAL'>('LOCAL');
 	readonly drafts = signal<Record<string, unknown>>({});
 	readonly errors = signal<Record<string, string>>({});
 	readonly saving = signal(false);
@@ -97,7 +98,7 @@ export class SystemSettingsStore {
 
 	async load(): Promise<void> {
 		this.loading.set(true);
-		try { const r = await firstValueFrom(this.api.view()); this.items.set(r.data.items); this.storageReady.set(r.data.storageReady !== false); this.loadError.set(''); this.forbidden.set(false); this.loaded.set(true); }
+		try { const r = await firstValueFrom(this.api.view()); this.items.set(r.data.items); this.storageReady.set(r.data.storageReady !== false); this.controlTarget.set(r.data.controlTarget === 'OFFICIAL' ? 'OFFICIAL' : 'LOCAL'); this.loadError.set(''); this.forbidden.set(false); this.loaded.set(true); }
 		catch (e) { const f = (e as HttpErrorResponse)?.status === 403; this.forbidden.set(f); this.loadError.set(f ? 'ليست لديك صلاحية عرض إعدادات النظام.' : 'تعذّر تحميل الإعدادات. لم يتغيّر شيء، ويمكنك إعادة المحاولة.'); } // previously loaded values stay in `items`; the pages show no form while loadError is set
 		finally { this.loading.set(false); }
 	}
