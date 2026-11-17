@@ -1,7 +1,8 @@
 import { SiteFaqComponent } from '../../../shared/published-content/site-faq.component';
 import { SITE_FAQS } from '../../../shared/published-content/faq-copy';
 import { PublishedContentComponent } from '../../../shared/published-content/published-content.component';
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { AuthStore } from '../../../core/store/auth.store';
 import { RouterLink } from '@angular/router';
 
 type RoleKey = 'client-ind' | 'client-co' | 'provider-ind' | 'provider-co' | 'broker';
@@ -56,6 +57,8 @@ export const HIW_SYMBOL_IDS = ['hiw-broker', 'hiw-building', 'hiw-client', 'hiw-
   styleUrl: './how-it-works.css'
 })
 export class HowItWorks {
+  /** the closing «سجّل حسابك» band is for visitors only: a signed-in user already has an account */
+  readonly authStore = inject(AuthStore);
   /** `#hiw-<name>` of a data icon name (same string as before; the full ids above are what the tools read) */
   iconHref(name: string): string { const id = 'hiw-' + name; return '#' + (HIW_SYMBOL_IDS.find(i => i === id) ?? id); }
   activeRole = signal<RoleKey>('client-ind');

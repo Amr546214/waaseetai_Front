@@ -118,6 +118,7 @@
     <div class="container">
       <div class="sec-sep"></div>
       <app-site-faq />
+      @if (!authStore.isAuthenticated()) {
       <div class="cta-band">
         <h2>ابدأ الآن — مجاناً</h2>
         <p>سجّل حسابك في دقيقتين واستمتع بتجربة خدمات مهنية ذكية ومضمونة</p>
@@ -132,6 +133,7 @@
           </a>
         </div>
       </div>
+      }
     </div>
   </main>
 </div>
