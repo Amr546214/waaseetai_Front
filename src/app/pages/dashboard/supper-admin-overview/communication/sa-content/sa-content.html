@@ -1,4 +1,5 @@
 <section class="ops cms-editor">
+ <ws-control-target-notice />
  <header><div><h1>إدارة محتوى الصفحات</h1><p>اختر الصفحة واضغط على أي نص فيها لتعديله من مكانه. النشر يحدّث نصوص الصفحة مع الحفاظ على تصميمها.</p></div><button (click)="load()" [disabled]="busy()">إعادة التحميل</button></header>
  @if(error()){<p class="error" role="alert">{{error()}}</p>}
  @if(notice()){<p class="notice" role="status">{{notice()}}</p>}

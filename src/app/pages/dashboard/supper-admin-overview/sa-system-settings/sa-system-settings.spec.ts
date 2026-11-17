@@ -207,5 +207,7 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 		http.match(B).forEach(r => r.flush({ success: true, data: { storageReady: true, items: ITEMS, controlTarget: 'OFFICIAL' } })); await flush(f2);
 		http.match(r => r.url === `${B}/history`).forEach(r => r.flush({ success: true, data: [] })); await flush(f2);
 		expect((f2.nativeElement as HTMLElement).querySelector('[data-testid="settings-control-official"]')?.textContent).toContain('الموقع الرسمي');
+		(f2.componentInstance as any).setTab?.('health'); await flush(f2);
+		expect((f2.nativeElement as HTMLElement).querySelector('[data-testid="health-local-note"]')?.textContent).toContain('هذا الخادم التجريبي');
 	});
 });

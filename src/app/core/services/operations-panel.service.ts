@@ -16,6 +16,8 @@ export interface OperationsAccess {
   officialDeployment: boolean;
   isSuperAdmin: boolean;
   available: boolean;
+  /** OFFICIAL = this panel edits the official site's data from another deployment */
+  controlTarget?: 'OFFICIAL' | 'LOCAL';
 }
 @Injectable({ providedIn: 'root' })
 export class OperationsPanelService {

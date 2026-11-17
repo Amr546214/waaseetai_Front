@@ -1,3 +1,4 @@
+import { ControlTargetNoticeComponent } from '../../../../../shared/control-target/control-target-notice.component';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, OnDestroy, OnInit, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -48,7 +49,7 @@ const readText = (b: Blob): Promise<string> => (typeof b.text === 'function' ? b
 @Component({
 	selector: 'sc-identity',
 	standalone: true,
-	imports: [RouterLink, NgTemplateOutlet, WsDatePipe, InlineSvgDirective, IdentityLoadStatus, ColorTokens, Typography, IconTokens, Templates],
+	imports: [ControlTargetNoticeComponent, RouterLink, NgTemplateOutlet, WsDatePipe, InlineSvgDirective, IdentityLoadStatus, ColorTokens, Typography, IconTokens, Templates],
 	templateUrl: './identity.html',
 	encapsulation: ViewEncapsulation.ShadowDom,
 	styleUrls: ['../site-control-base.css', './identity.css']

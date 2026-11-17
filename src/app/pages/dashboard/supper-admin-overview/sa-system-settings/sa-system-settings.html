@@ -64,7 +64,10 @@
             }
           }
           @case ('regional') { <app-settings-section title="الإعدادات الإقليمية" [icon]="icons.globe" wsIcon="pl-admin-ss-section-regional" [keys]="regional" variant="ss" saveLabel="حفظ" /> }
-          @case ('health') { <app-settings-health /> }
+          @case ('health') {
+          @if (store.controlTarget() === 'OFFICIAL') { <p class="ss-note" role="note" data-testid="health-local-note">هذه الحالة لهذا الخادم التجريبي (التشغيل والبريد والدفع)، وليست حالة الموقع الرسمي.</p> }
+          <app-settings-health />
+        }
           @case ('admins') { <app-sa-super-admins embed="admins" /> }
           @case ('integrations') { <app-sa-super-admins embed="integrations" /> }
           @case ('audit') { <app-sa-super-admins embed="audit" /> }
