@@ -44,7 +44,7 @@ for (const name of ['localStorage', 'sessionStorage'] as const) {
 //  2) AuthStore.authenticate() writes the waseet_* cookies on the shared document (and storage); the next spec's AuthStore then boots signed in
 //     as that user (e.g. a PROVIDER, so a CLIENT notification becomes "role-unavailable" and navigateByUrl is never called). Fix: wipe them
 //     before every test.
-import { afterAll, beforeEach, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, vi } from 'vitest';
 
 const sockets = globalThis as any;
 const defaultSocket = { connected: false, on: () => defaultSocket, once: () => defaultSocket, off: () => defaultSocket, emit: () => defaultSocket, disconnect: () => defaultSocket, removeAllListeners: () => defaultSocket };
@@ -87,7 +87,6 @@ installTestNetworkGuard();
 
 // The provider setup wizard keeps a local draft (provider-setup-draft.ts). The storage is shared by every spec of a worker, so a draft written by one test
 // would be restored into the next one; drop it after each test (only that key family, nothing else is touched).
-import { afterEach, beforeEach } from 'vitest';
 const dropProviderDrafts = () => { try { for (const k of Object.keys(localStorage)) if (k.startsWith('waseet.provider-setup-draft.')) localStorage.removeItem(k); } catch { /* storage unavailable */ } };
 // before too: a debounced write of a test that was not destroyed can land after its afterEach
 beforeEach(dropProviderDrafts);
