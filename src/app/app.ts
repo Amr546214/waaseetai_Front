@@ -7,6 +7,7 @@ import { AuthStore } from './core/store/auth.store';
 import { AssistantExamState } from './core/store/assistant-exam-state.service';
 import { ConfirmModalComponent } from './sheards/confirm-modal/confirm-modal.component';
 import { NotificationHostComponent } from './shared/forms/notification-host.component';
+import { installWesternDigits } from './core/utils/western-digits';
 import { FormA11ySyncService } from './shared/forms/form-a11y-sync.service';
 import { AssistantWidgetComponent } from './sheards/assistant-widget/assistant-widget';
 import { PlatformBannerComponent } from './shared/platform-banner/platform-banner.component';
@@ -78,6 +79,9 @@ export class App implements OnInit {
 			a11ySync.start(document);
 			// the observer lives as long as the app does: when the root component is destroyed (a test tearing down) it stops, so it cannot leak onto the shared document of later specs
 			inject(DestroyRef).onDestroy(() => a11ySync.stop());
+			// digits typed in Arabic/Persian become 0-9 everywhere (ID numbers, phones, amounts), so the same value is never judged differently
+			const stopDigits = installWesternDigits(document);
+			inject(DestroyRef).onDestroy(stopDigits);
 		}
 		this.router.events
 			.pipe(filter((e) => e instanceof NavigationEnd), takeUntilDestroyed(inject(DestroyRef)))
