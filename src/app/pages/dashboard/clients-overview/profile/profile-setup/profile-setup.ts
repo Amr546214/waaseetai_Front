@@ -379,7 +379,7 @@ export class ProfileSetupDashboard implements OnInit {
 		const raw = this.setupForm.getRawValue();
 		if (step === 1) {
 			const d = raw.details;
-			return { step: 1, body: { details: { idNumber: d.idNumber, idIssuingCountry: this.setupForm.get('details.idDocumentType')?.disabled ? this.verifiedIssuer : (d.idDocumentType && identityCountryCode(d.country)) || undefined, idDocumentType: d.idDocumentType || undefined, dob: d.dob ? new Date(d.dob).toISOString() : '', country: d.country, city: d.city, occupation: d.occupation, address: d.address } } };
+			return { step: 1, body: { details: { idNumber: (d.idNumber && d.idDocumentType) || this.setupForm.get('details.idDocumentType')?.disabled ? d.idNumber : undefined, idIssuingCountry: this.setupForm.get('details.idDocumentType')?.disabled ? this.verifiedIssuer : (d.idDocumentType && identityCountryCode(d.country)) || undefined, idDocumentType: d.idDocumentType || undefined, dob: d.dob ? new Date(d.dob).toISOString() : '', country: d.country, city: d.city, occupation: d.occupation, address: d.address } } };
 		}
 		if (step === 2) {
 			return null; // the identity step is saved (and its review started) by sendIdentity(), right after the photo is chosen

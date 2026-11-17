@@ -1378,7 +1378,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			// Only a photo that was uploaded in this session is sent; the stored one (own storage URL or the Google sign-in picture) is kept by the server and never re-posted as a "new link".
 			...(this.avatarUrl() && this.avatarUrl() !== this.storedAvatarUrl ? { avatarUrl: this.avatarUrl() } : {}),
 			details: {
-				...(!this.kycVerified() && !this.kycPending() ? { idNumber: this.setupForm.get('docs.idNumber')?.value || undefined, idIssuingCountry: (this.setupForm.get('docs.idDocumentType')?.value && identityCountryCode(this.setupForm.get('profData.country')?.value)) || undefined, idDocumentType: this.setupForm.get('docs.idDocumentType')?.value || undefined } : {}),
+				...(!this.kycVerified() && !this.kycPending() ? { idNumber: (this.setupForm.get('docs.idDocumentType')?.value && this.setupForm.get('docs.idNumber')?.value) || undefined, idIssuingCountry: (this.setupForm.get('docs.idDocumentType')?.value && identityCountryCode(this.setupForm.get('profData.country')?.value)) || undefined, idDocumentType: this.setupForm.get('docs.idDocumentType')?.value || undefined } : {}),
 				occupation: this.setupForm.get('profData.jobTitle')?.value,
 				country: this.setupForm.get('profData.country')?.value,
 				city: this.setupForm.get('profData.city')?.value,
