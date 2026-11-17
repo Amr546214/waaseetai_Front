@@ -61,13 +61,14 @@ describe('provider profile-setup: identity gate behaviour', { timeout: 30000 }, 
     expect(c.currentStep()).toBe(4);
   });
 
-  it('the back side label says when it is required: national ID yes, passport no', async () => {
+  it('the back side label says it is optional, for a national ID and for a passport alike', async () => {
     await mount('NOT_SUBMITTED', { country: 'مصر', idNumber: 'A1', idDocumentType: 'NATIONAL_ID' });
     fixture.detectChanges();
     const label = () => (fixture.nativeElement.querySelector('[data-testid="back-id-label"]') as HTMLElement).textContent;
-    expect(label()).toContain('إلزامي');
+    expect(label()).toContain('اختياري');
+    expect(label()).not.toContain('إلزامي');
     c.setupForm.get('docs.idDocumentType').setValue('PASSPORT'); fixture.detectChanges();
-    expect(label()).toContain('غير مطلوب لجواز السفر');
+    expect(label()).toContain('اختياري');
   });
 
   it('the document type is not picked by the owner: it comes from the picture (list shown only when the AI cannot tell)', async () => {

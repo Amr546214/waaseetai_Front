@@ -275,7 +275,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	gateProblem = signal<string | null>(null);
 	/** Refs uploaded in THIS session and not yet sent through the identity save (a stored ref is never re-sent as a "new" image). */
 	/** The back side is required for every document except a passport (the backend's identity gate «missing» list follows the same rule). */
-	backRequired(): boolean { return this.setupForm.get('docs.idDocumentType')?.value !== 'PASSPORT'; }
+	/** the back side is optional for every kind of document (the review relies on the front side; the server never lists it as missing) */
+	backRequired(): boolean { return false; }
 	/** the kind / country the provider chose, sent with the AI document check (empty parts are left out) */
 	/** true when the AI could not tell the document type from the picture: only then the type list is shown. */
 	typeNeedsPicking = signal(false);
