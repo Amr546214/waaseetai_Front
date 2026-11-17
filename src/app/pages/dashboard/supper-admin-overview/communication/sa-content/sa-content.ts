@@ -5,7 +5,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { OperationsPage, CmsPage } from '../../../../../core/services/admin-operations.service';
 import { CmsBridge, CmsCopy, CmsRoot, CmsTextView, emptyCmsCopy, isCmsCopy } from '../../../../../shared/published-content/cms-copy';
 const PATHS:Record<string,string>={terms:'/terms',privacy:'/privacy',faq:'/faq',about:'/about',how:'/how-it-works',contact:'/contact',welcome:'/'};
-@Component({selector:'app-sa-content',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./sa-content.html',styleUrls:['../../../../../shared/admin-operations.css','./sa-content.css']})
+import { ControlTargetNoticeComponent } from '../../../../../shared/control-target/control-target-notice.component';
+@Component({selector:'app-sa-content',standalone:true,imports:[CommonModule,FormsModule,ControlTargetNoticeComponent],templateUrl:'./sa-content.html',styleUrls:['../../../../../shared/admin-operations.css','./sa-content.css']})
 export class SaContent extends OperationsPage implements OnInit,OnDestroy {
  pages=signal<CmsPage[]>([]);selected=signal<CmsPage|null>(null);copy=signal<CmsCopy>(emptyCmsCopy());
  texts=signal<CmsTextView[]>([]);selectedKey=signal<string|null>(null);frameUrl=signal<SafeResourceUrl|null>(null);frameReady=signal(false);editing=signal(true);search=signal('');
