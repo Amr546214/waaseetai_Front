@@ -12,8 +12,8 @@ import { BeboToolbarComponent } from './bebo-toolbar';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<section class="bebo-page" dir="rtl" data-testid="dashboard-bebo">
-			<h1 class="bebo-ttl">بيبو</h1>
-			<p class="bebo-sub">أدوات بيبو للوحة التحكم: الكتابة له، والمايك، والمحادثة الكاملة، ودليل وسيط، وحركات الشخصية، والإعدادات.</p>
+			<h1 class="bebo-ttl">وسيط AI</h1>
+			<p class="bebo-sub">أدوات وسيط AI للوحة التحكم: الكتابة له، والمايك، والمحادثة الكاملة، ودليل وسيط، وحركات الشخصية، والإعدادات.</p>
 			<div class="bebo-bar" data-testid="dashboard-bebo-toolbar"><app-bebo-toolbar /></div>
 		</section>
 	`,

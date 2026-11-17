@@ -244,7 +244,7 @@ const RAW_ROUTES: Routes = [
     {
         path: 'bebo',
         loadComponent: () => import('../../../sheards/assistant-widget/dashboard-bebo').then(m => m.DashboardBebo),
-        data: { title: 'بيبو' }
+        data: { title: 'وسيط AI' }
     },
     // Keep old Super Admin bookmarks on the unified system-settings accounts tab.
     { path: 'super-admins', pathMatch: 'full', redirectTo: () => inject(Router).parseUrl('/supper-admin-overview/system-settings?tab=admins') },

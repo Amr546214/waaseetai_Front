@@ -168,9 +168,9 @@ export class AssistantStore {
 	private readonly examState = inject(AssistantExamState);
 	readonly examActive = this.examState.examActive;
 	readonly skin = signal<BeboSkin>(this.loadSkinPref());
-	readonly characterName = computed(() => (this.skin() === 'scout' ? 'وسيط AI' : 'بيبو'));
-	readonly characterRole = computed(() => (this.skin() === 'scout' ? 'دليل وسيط' : 'المساعد الذكي'));
-	readonly characterFullName = computed(() => (this.skin() === 'scout' ? 'وسيط AI — دليل المنصة' : 'بيبو — مساعد وسيط الذكي'));
+	readonly characterName = computed(() => 'وسيط AI');
+	readonly characterRole = computed(() => 'المساعد الذكي');
+	readonly characterFullName = computed(() => 'وسيط AI — المساعد الذكي');
 	readonly voiceEnabled = signal(this.readVoicePref());
 	readonly profile = signal<NonNullable<AssistantAskOptions['profile']>>('auto');
 	readonly effort = signal<NonNullable<AssistantAskOptions['effort']>>('medium');
@@ -415,7 +415,7 @@ export class AssistantStore {
 				if (!current()) return;
 				this.liveTokenSub = null;
 				this.liveSession = new AssistantLiveSession({
-					state: value => { if (!current()) return; this.zone.run(() => { this.liveConnecting.set(value === 'connecting'); this.liveActive.set(value === 'listening' || value === 'speaking'); this.state.set(value === 'speaking' ? 'speaking' : value === 'listening' ? 'listening' : 'idle'); if (value === 'listening') this.liveNotice.set('المحادثة الصوتية تعمل؛ يمكنك مقاطعة بيبو بالكلام.'); if (value === 'ended') this.liveTranscript.set(''); }); },
+					state: value => { if (!current()) return; this.zone.run(() => { this.liveConnecting.set(value === 'connecting'); this.liveActive.set(value === 'listening' || value === 'speaking'); this.state.set(value === 'speaking' ? 'speaking' : value === 'listening' ? 'listening' : 'idle'); if (value === 'listening') this.liveNotice.set('المحادثة الصوتية تعمل؛ يمكنك مقاطعة وسيط AI بالكلام.'); if (value === 'ended') this.liveTranscript.set(''); }); },
 					transcript: (role, text, complete) => { if (!current()) return; this.zone.run(() => { if (complete) { this.messages.update(messages => [...messages, { role, text: text.slice(0, 30_000), createdAt: Date.now() }].slice(-100)); this.liveTranscript.set(''); } else this.liveTranscript.set(`${role === 'user' ? 'أنت' : 'بيبو'}: ${text.slice(-500)}`); }); },
 					level: level => { if (current()) this.emitSpeechLevel(level); },
 					error: message => { if (current()) this.zone.run(() => this.liveNotice.set(message)); },
@@ -1181,8 +1181,9 @@ export class AssistantStore {
 		else this.supportRoute.set(null);
 	}
 
+	/** There is ONE character («وسيط AI»): the engine's «scout» look. The older «classic» robot is no longer offered and a saved «classic» choice is ignored. */
 	setSkin(skin: BeboSkin): void {
-		if (skin !== 'scout' && skin !== 'classic') return;
+		if (skin !== 'scout') return;
 		this.skin.set(skin);
 		try {
 			if (typeof localStorage !== 'undefined') localStorage.setItem(SKIN_PREF_KEY, skin);
@@ -1190,10 +1191,6 @@ export class AssistantStore {
 	}
 
 	private loadSkinPref(): BeboSkin {
-		try {
-			const s = typeof localStorage !== 'undefined' ? localStorage.getItem(SKIN_PREF_KEY) : null;
-			if (s === 'scout' || s === 'classic') return s;
-		} catch {}
 		return 'scout';
 	}
 

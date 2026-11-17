@@ -96,10 +96,10 @@ export class BeboAvatarComponent implements OnDestroy {
 	readonly floorOffset = input(0);
 	readonly homeX = input<number | null>(null);
 	readonly movementBounds = input<AssistantMovementBounds | null>(null);
-	readonly label = input('بيبو — المساعد الذكي');
+	readonly label = input('وسيط AI — المساعد الذكي');
 	/** Local motion command (AssistantStore.beboCommand); each new seq runs once. */
 	readonly command = input<BeboCommand | null>(null);
-	readonly skin = input<BeboSkin>('classic');
+	readonly skin = input<BeboSkin>('scout');
 	readonly paused = input(false);
 
 	readonly activate = output<void>();

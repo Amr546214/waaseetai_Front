@@ -68,13 +68,13 @@ it('an account with NO permission only sees Bebo tools', () => {
 		}
 	});
 
-	it('«بيبو» is a tab directly above «تسجيل الخروج» for every admin account', () => {
+	it('«وسيط AI» is a tab directly above «تسجيل الخروج» for every admin account', () => {
 		for (const [perms, isSuper] of [[[], false], [['users.view'], false], [[], true]] as const) {
 			TestBed.resetTestingModule();
 			const { items } = setup(ADMIN, [...perms], isSuper);
 			const list = items(); const logout = list.findIndex(i => i.type === 'button' && i.action === 'logout');
 			expect(logout).toBeGreaterThan(0);
-			expect(list[logout - 1]).toMatchObject({ type: 'link', label: 'بيبو', route: '/supper-admin-overview/bebo' });
+			expect(list[logout - 1]).toMatchObject({ type: 'link', label: 'وسيط AI', route: '/supper-admin-overview/bebo' });
 		}
 	});
 });
@@ -88,11 +88,11 @@ describe('Bebo in non-admin dashboards', () => {
 		['PROVIDER_INDIVIDUAL', 'PROVIDER', 'provider-overview'],
 		['PROVIDER_COMPANY', 'PROVIDER', 'provider-overview'],
 		['MARKETING_BROKER', 'AFFILIATE', 'marketer-overview'],
-	])('puts Bebo directly above logout for %s', (accountType, activeRole, area) => {
+	])('puts «وسيط AI» directly above logout for %s', (accountType, activeRole, area) => {
 		const list = setup({ accountType, activeRole, roles: [activeRole] }).items();
 		const logout = list.findIndex(i => i.type === 'button' && i.action === 'logout');
 		expect(logout).toBeGreaterThan(0);
-		expect(list[logout - 1]).toMatchObject({ type: 'link', label: 'بيبو', route: '/' + area + '/bebo' });
+		expect(list[logout - 1]).toMatchObject({ type: 'link', label: 'وسيط AI', route: '/' + area + '/bebo' });
 		expect(list.filter(item => item.route === '/' + area + '/bebo')).toHaveLength(1);
 	});
 });

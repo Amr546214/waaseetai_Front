@@ -249,7 +249,7 @@ export class Sidebar implements OnInit {
 	private withBeboTab(items: NavItem[], area: string): NavItem[] {
 		const logout = items.findIndex(item => item.type === 'button' && item.action === 'logout');
 		if (logout < 0) return items;
-		const bebo: NavItem = { type: 'link', label: 'بيبو', route: '/' + area + '/bebo', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' };
+		const bebo: NavItem = { type: 'link', label: 'وسيط AI', route: '/' + area + '/bebo', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' };
 		return [...items.slice(0, logout), bebo, ...items.slice(logout)];
 	}
 
@@ -461,7 +461,7 @@ export class Sidebar implements OnInit {
 			// Bebo's tool bar (moved here from the floating bar): directly above the logout button
 			{ type: 'header', label: 'المساعد' },
 			{ type: 'link', label: 'تفضيلات الإشعارات', route: '/supper-admin-overview/notification-settings', ws: 'i-bell', icon: icons.bell },
-			{ type: 'link', label: 'بيبو', route: '/supper-admin-overview/bebo', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' },
+			{ type: 'link', label: 'وسيط AI', route: '/supper-admin-overview/bebo', ws: 'pl-assistant-compass', icon: 'M12 22A10 10 0 1 0 12 2a10 10 0 0 0 0 20zM16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z' },
 			{
 				type: 'button',
 				label: 'تسجيل الخروج',

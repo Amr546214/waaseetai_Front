@@ -80,7 +80,7 @@
   class CuteRobot extends HTMLElement {
     static observedAttributes = ['state','size','sprite','actions','paused','interactive','movable','floating','roam','floor-offset','speaking-sprite','home-x','antics-sprite','emotions-sprite','cat-sprite','traffic-sprite','expressions-sprite','brand-logo','skin','label'];
     get skin() {
-      return this.getAttribute('skin') || 'classic';
+      return this.getAttribute('skin') || 'scout';
     }
     _activeAssets() {
       return (this.skin === 'scout' || this.skin === 'safety') ? scoutAssets : classicAssets;
@@ -356,7 +356,7 @@
       const interactive = this.hasAttribute('interactive');
       this._button.tabIndex = interactive || this.movable ? 0 : -1;
       this._button.setAttribute('role',interactive || this.movable ? 'button' : 'img');
-      this._button.setAttribute('aria-label',(this.getAttribute('label') || 'بيبو') + '، ' + poses[state].label +
+      this._button.setAttribute('aria-label',(this.getAttribute('label') || 'وسيط AI') + '، ' + poses[state].label +
         (this.movable ? '، اسحب لتحريكه أو استخدم الأسهم، سهم لأعلى للنط' : ''));
       const stopped = this.paused || document.hidden || !this._visible;
       this._button.className = state + (stopped ? ' still' : '') + (this._motion.matches ? ' reduced' : '');
