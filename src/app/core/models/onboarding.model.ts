@@ -120,6 +120,8 @@ export interface RejectPayload {
 
 export interface ApprovePayload {
   adminNote?: string;
+  /** the administrator confirms the account is a DIFFERENT person from the approved account(s) with the same name + birth date */
+  confirmNotDuplicate?: boolean;
 }
 
 // ── API response wrappers ────────────────────────────────────────────

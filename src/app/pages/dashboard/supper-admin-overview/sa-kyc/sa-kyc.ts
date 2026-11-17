@@ -88,6 +88,9 @@ export class SaKyc implements OnInit {
   actionNote = signal<string>('');
   processing = signal<boolean>(false);
   actionError = signal<string | null>(null);
+  /** accounts the backend named as possible duplicates of this one (same name + birth date, another document); empty = none */
+  duplicateAccounts = signal<string[]>([]);
+  confirmNotDuplicate = signal(false);
 
   // ── Computed summary (from loaded items) ────────────────────────────
   onboardingPending = computed(() => this.onboarding().filter(o => o.status === 'PENDING').length);
@@ -331,6 +334,8 @@ export class SaKyc implements OnInit {
     this.actionReason.set('');
     this.actionNote.set('');
     this.actionError.set(null);
+    this.duplicateAccounts.set([]);
+    this.confirmNotDuplicate.set(false);
     this.showActionModal.set(true);
   }
 
@@ -339,6 +344,15 @@ export class SaKyc implements OnInit {
     this.actionReason.set('');
     this.actionNote.set('');
     this.actionError.set(null);
+    this.duplicateAccounts.set([]);
+    this.confirmNotDuplicate.set(false);
+  }
+
+  /** The approval payload: the optional note, plus the administrator's confirmation when a possible duplicate was reported. */
+  private approvePayload() {
+    const note = this.actionNote().trim();
+    const payload = { ...(note ? { adminNote: note } : {}), ...(this.confirmNotDuplicate() ? { confirmNotDuplicate: true } : {}) };
+    return Object.keys(payload).length ? payload : undefined;
   }
 
   confirmAction() {
@@ -359,7 +373,7 @@ export class SaKyc implements OnInit {
 
     if (isClient && onboarding) {
       if (this.actionType() === 'approve') {
-        this.kycService.approveOnboarding(onboarding.id, this.actionNote().trim() ? { adminNote: this.actionNote().trim() } : undefined).subscribe({
+        this.kycService.approveOnboarding(onboarding.id, this.approvePayload()).subscribe({
           next: () => this.onActionSuccess('تمت الموافقة على الطلب وتم إشعار صاحبه'),
           error: (err) => this.onActionError(err),
         });
@@ -371,7 +385,7 @@ export class SaKyc implements OnInit {
       }
     } else if (!isClient && provider) {
       if (this.actionType() === 'approve') {
-        this.kycService.approveKycProvider(provider.userId, this.actionNote().trim() ? { adminNote: this.actionNote().trim() } : undefined).subscribe({
+        this.kycService.approveKycProvider(provider.userId, this.approvePayload()).subscribe({
           next: () => this.onActionSuccess('تم توثيق مقدم الخدمة وتم إشعاره'),
           error: (err) => this.onActionError(err),
         });
@@ -404,6 +418,13 @@ export class SaKyc implements OnInit {
 
   private onActionError(err: any) {
     this.processing.set(false);
+    const dup = (Array.isArray(err?.error?.errors) ? err.error.errors : []).find((e: any) => e?.code === 'POSSIBLE_DUPLICATE_IDENTITY') ?? (err?.error?.code === 'POSSIBLE_DUPLICATE_IDENTITY' ? {} : null);
+    if (dup) {
+      // not a stale request: the modal stays open, shows the message and asks the administrator to confirm it is a different person
+      this.duplicateAccounts.set(Array.isArray(dup.duplicateUserIds) ? dup.duplicateUserIds.map(String) : []);
+      this.actionError.set(err?.error?.message || 'يوجد حساب آخر معتمد بنفس الاسم وتاريخ الميلاد');
+      return;
+    }
     // A 400/422 naming rejectionReason / adminNote goes under that box; anything else (409, 403, 429, 5xx, network) is the honest banner.
     handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تنفيذ الإجراء', resolve: { rejectionReason: 'kyc-reject-reason', adminNote: 'kyc-admin-note' } }, (m) => this.actionError.set(m));
     // 409 = someone already decided this request: refresh the list so the stale row disappears.

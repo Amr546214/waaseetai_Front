@@ -619,6 +619,14 @@
         @if (actionError()) {
           <div class="sk-modal-error" role="alert" data-testid="kyc-action-error">{{ actionError() }}</div>
         }
+        @if (actionType() === 'approve' && actionError() && (duplicateAccounts().length || confirmNotDuplicate())) {
+          <label class="sk-form-group" data-testid="kyc-duplicate-confirm" style="display:flex;gap:8px;align-items:flex-start">
+            <input type="checkbox" [checked]="confirmNotDuplicate()" (change)="confirmNotDuplicate.set($any($event.target).checked)" data-testid="kyc-duplicate-checkbox">
+            <span>راجعت الحساب{{ duplicateAccounts().length > 1 ? 'ات' : '' }} المعتمد{{ duplicateAccounts().length > 1 ? 'ة' : '' }} بنفس الاسم وتاريخ الميلاد
+              @if (duplicateAccounts().length) { (<span dir="ltr">{{ duplicateAccounts().join(' ، ') }}</span>) }
+              وأؤكد أن صاحب هذا الطلب شخص مختلف</span>
+          </label>
+        }
         <div class="sk-modal-actions">
           <button type="button" class="sk-btn sk-btn-cancel" (click)="closeActionModal()" [disabled]="processing()">إلغاء</button>
           <button type="button" class="sk-btn" [class.sk-btn-approve]="actionType() === 'approve'" [class.sk-btn-reject]="actionType() === 'reject'" (click)="confirmAction()" [disabled]="processing()">
