@@ -15,6 +15,6 @@ describe('Under Deployment page', () => {
 		expect(el.textContent).toContain('جارٍ تحديث المنصة'); expect(el.textContent).toContain('Under Deployment');
 		expect(el.querySelector('[data-testid="under-deployment-message"]')?.textContent).toContain('نحدّث المنصة حتى الساعة 5');
 		expect(el.querySelectorAll('nav,header,footer,aside,app-assistant-widget,router-outlet').length).toBe(0);
-		(el.querySelector('[data-testid="under-deployment-admin"]') as HTMLButtonElement).click(); expect(TestBed.inject(AuthStore).clearSession).toHaveBeenCalled(); expect(nav).toHaveBeenCalledWith(['/auth/login'], {queryParams:{returnUrl:'/supper-admin-overview/system-settings',maintenanceAdmin:'1'}});
+		expect(el.querySelector('[data-testid="under-deployment-admin"]')).toBeNull(); // no entry button: administrators control the platform from the panel
 	});
 });
