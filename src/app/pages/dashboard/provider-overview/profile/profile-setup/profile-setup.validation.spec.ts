@@ -123,6 +123,15 @@ describe('provider profile-setup: shared validation', () => {
     expect(el().querySelector('[data-testid="doc-file-error-frontId"]')?.textContent).toContain('مطلوبة');
   });
 
+  it('a refused picture is removed but the reason stays visible under the empty box (front and back)', () => {
+    component.currentStep.set(4);
+    component.idDocInspections.set({ frontId: { status: 'warning', message: 'الصورة ليست وثيقة هوية' }, backId: { status: 'warning', message: 'صورة الظهر غير مقروءة' } });
+    render();
+    expect(component.uploadedFrontIdName()).toBeFalsy();
+    expect(el().querySelector('[data-testid="ai-id-inspection-frontId"]')?.textContent).toContain('ليست وثيقة هوية');
+    expect(el().querySelector('[data-testid="ai-id-inspection-backId"]')?.textContent).toContain('غير مقروءة');
+  });
+
   // The back side is optional for every kind of document (the selfie stays optional too).
   it('the back-ID is optional for every document kind, passport included; the selfie slot stays optional', () => {
     component.currentStep.set(4); render();
