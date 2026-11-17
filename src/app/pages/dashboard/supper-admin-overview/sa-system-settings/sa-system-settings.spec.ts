@@ -197,4 +197,15 @@ describe('system settings page (P-AD-020): registry-driven, honest, saved only o
 			expect(el.querySelector('[data-testid="panel-denied"]')?.textContent).toContain(text); expect(el.querySelector('.ss-nav')).toBeNull(); http.expectNone(B);
 		}
 	});
+
+	it('shows who the panel controls: a notice only while it edits the OFFICIAL site from another deployment', async () => {
+		const { el } = await boot();
+		expect(el.querySelector('[data-testid="settings-control-official"]')).toBeNull();
+		const { store } = { store: TestBed.inject(SystemSettingsStore) };
+		store.controlTarget.set('OFFICIAL');
+		const f2 = TestBed.createComponent(SaSystemSettings); await flush(f2);
+		http.match(B).forEach(r => r.flush({ success: true, data: { storageReady: true, items: ITEMS, controlTarget: 'OFFICIAL' } })); await flush(f2);
+		http.match(r => r.url === `${B}/history`).forEach(r => r.flush({ success: true, data: [] })); await flush(f2);
+		expect((f2.nativeElement as HTMLElement).querySelector('[data-testid="settings-control-official"]')?.textContent).toContain('الموقع الرسمي');
+	});
 });

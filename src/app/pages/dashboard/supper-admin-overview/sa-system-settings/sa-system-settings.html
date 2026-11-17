@@ -13,6 +13,9 @@
   } @else if (!panel.available()) {
     <div class="ss-card ss-err" role="alert" data-testid="panel-denied">{{ noAccess }}</div>
   } @else {
+  @if (store.controlTarget() === 'OFFICIAL') {
+    <div class="ss-note" role="status" data-testid="settings-control-official">هذه اللوحة تتحكم في إعدادات <strong>الموقع الرسمي</strong> (مثل الصيانة)، ولا تؤثر على هذا الموقع التجريبي: يبقى شغالًا حتى لو أوقفت الرسمي.</div>
+  }
   @if (!store.storageReady()) {
     <div class="ss-note" role="status" data-testid="settings-storage-pending" style="border-color:rgba(255,140,105,.4)">مخزن الإعدادات غير جاهز على الخادم بعد: تُعرض القيم الافتراضية ولا يمكن الحفظ حتى يُهيَّأ.</div>
   }
