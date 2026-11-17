@@ -1,6 +1,6 @@
 import { switchMap } from 'rxjs';
 import { resetClientIdentityRejectedCache } from '../../../../../core/guards/client-identity-rejected.guard';
-import { identityImageRejected } from '../../../../../core/utils/identity-inspection-result';
+import { identityImageRejected, identityNumberMismatch, NUMBER_MISMATCH_MESSAGE } from '../../../../../core/utils/identity-inspection-result';
 import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { detectedDocumentCode, identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES, identityCountryCode } from '../../../../../shared/data/identity-documents';
@@ -497,6 +497,8 @@ export class ProfileSetupDashboard implements OnInit {
 							// not accepted: the picture is removed (form value and file input), the message under the field stays
 							(this.setupForm.get(groupName) as FormGroup)?.patchValue({ [controlName]: '' });
 							input.value = '';
+							// the number typed in the form is not the one on the document: the number box says so (the error clears when the number is edited)
+							if (identityNumberMismatch(d)) { const n = this.setupForm.get('details.idNumber'); n?.markAsTouched(); n?.setErrors({ server: NUMBER_MISMATCH_MESSAGE }); }
 							return;
 						}
 						this.sendIdentity();
