@@ -184,9 +184,9 @@ describe('character.bebo.*: robot.js resolves atlas URLs through the identity', 
 		urls['character.bebo.classic.actions'] = 5 as unknown as string;
 		expect(a.classicAssets['action']).toBe('https://site.test/bebo/robot-actions.png');
 	});
-	it('the tuned engine (poses, frame coordinates, timing, drawing) is byte-identical to the shipped file: only the URL resolution block changed', () => {
+	it('the tuned engine (poses, frame coordinates, timing, drawing) is byte-identical to the shipped file except the single-character defaults (default skin scout, default label وسيط AI)', () => {
 		const tail = ROBOT.slice(headEnd);
-		expect(createHash('sha256').update(tail).digest('hex')).toBe('4513e5baffee9ab511bbedbef489b9db2c0b90462f5f8b97b10298bc2c60f691');
+		expect(createHash('sha256').update(tail).digest('hex')).toBe('6809c973047c507c6ad802332e59b52d751b839271bece996d10eb1222a7dfab');
 		expect(ROBOT.slice(0, ROBOT.indexOf('  // Site identity'))).toMatch(/const base = document\.currentScript\?\.src \|\| document\.baseURI;\s*$/);
 	});
 	it('the wired list holds logo.boot and all 14 atlases', () => {

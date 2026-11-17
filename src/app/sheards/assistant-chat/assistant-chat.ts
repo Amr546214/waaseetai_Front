@@ -156,12 +156,6 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		<details class="ac__settings-panel" [open]="!compact()">
 		<summary>تخصيص الرد</summary>
 		<div class="ac__settings">
-			<label>مظهر الروبوت
-				<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)">
-					<option value="scout" [selected]="store.skin() === 'scout'">وسيط AI (دليل المنصة)</option>
-					<option value="classic" [selected]="store.skin() === 'classic'">بيبو (المساعد الكرتوني)</option>
-				</select>
-			</label>
 			<label>طريقة الرد<select [value]="store.profile()" (change)="store.setProfile($any($event.target).value)"><option value="auto" [selected]="store.profile() === 'auto'">تلقائي</option><option value="fast" [selected]="store.profile() === 'fast'">سريع ومختصر</option><option value="balanced" [selected]="store.profile() === 'balanced'">متوازن</option><option value="deep" [selected]="store.profile() === 'deep'">شرح وتحليل مفصل</option></select></label>
 			<label>اللهجة
 				<select class="ac__dialect" [value]="store.ttsDialect()" (change)="store.setDialect($any($event.target).value)">
@@ -291,7 +285,7 @@ export class AssistantChatComponent implements OnDestroy {
 	readonly textModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['text','chat'].includes(v.toLowerCase()))));
 	readonly speechModels = computed(() => (this.store.capabilities()?.models ?? []).filter(m => m.available !== false && m.modalities?.some(v => ['tts','speech'].includes(v.toLowerCase()))));
 	readonly motions = computed(() => {
-		const list = this.store.skin() === 'scout' ? NADEEM_GUIDE_MOTIONS : BEBO_CORE_MOTIONS;
+		const list = NADEEM_GUIDE_MOTIONS;
 		return list.map((m) => ({ id: m.action, label: `${m.icon} ${m.label}` }));
 	});
 	copyNotice = '';

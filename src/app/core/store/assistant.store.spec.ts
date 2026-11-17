@@ -590,15 +590,14 @@ describe('AssistantStore (Help assistant + Avatar state machine)', () => {
 	// ── Local Bebo commands ───────────────────────────────────────────────
 
 	describe('local Bebo commands', () => {
-		it('recognises Nadeem commands locally and keeps guide poses exclusive to Nadeem', () => {
+		it('recognises guide commands locally (the single character plays every pose, including the guide poses)', () => {
 			store.ask('يا نديم افرد الخريطة');
 			expect(store.beboCommand()?.action).toBe('map');
 			expect(socket.ask).not.toHaveBeenCalled();
-			const command = store.beboCommand();
 			store.setSkin('classic');
+			expect(store.skin()).toBe('scout');
 			store.runMotion('map');
-			expect(store.beboCommand()).toBe(command);
-			expect(store.commandReply()).toContain('متاحة لوسيط AI');
+			expect(store.beboCommand()?.action).toBe('map');
 		});
 
 		it('keeps invalid skin values out of state and persisted preferences', () => {

@@ -211,19 +211,18 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 	});
 
 	it('quick composer sends each question and replaces the old greeting with the latest streamed answer', () => {
-		store.setSkin('classic');
 		fixture.componentInstance.toggleComposerOrChat();
 		fixture.componentInstance.quickText = 'أهلًا';
 		fixture.componentInstance.onQuickSend(new Event('submit'));
-		events.next({ type: 'chunk', clientRequestId: 'w-1', chunk: 'أهلًا! أنا بيبو.' });
+		events.next({ type: 'chunk', clientRequestId: 'w-1', chunk: 'أهلًا! أنا وسيط AI.' });
 		events.next({ type: 'complete', clientRequestId: 'w-1' });
 		fixture.detectChanges();
-		expect(el().querySelector('.aw__bubble')?.textContent).toContain('أهلًا! أنا بيبو.');
+		expect(el().querySelector('.aw__bubble')?.textContent).toContain('أهلًا! أنا وسيط AI.');
 		expect((el().querySelector('.pg-composer input') as HTMLInputElement).maxLength).toBe(500);
 		fixture.componentInstance.quickText = 'اكتب وصفًا لمشروع متجر إلكتروني';
 		fixture.componentInstance.onQuickSend(new Event('submit'));
 		fixture.detectChanges();
-		expect(socket.ask).toHaveBeenLastCalledWith('اكتب وصفًا لمشروع متجر إلكتروني', expect.any(Array), expect.objectContaining({ skin: 'classic' }));
+		expect(socket.ask).toHaveBeenLastCalledWith('اكتب وصفًا لمشروع متجر إلكتروني', expect.any(Array), expect.objectContaining({ skin: 'scout' }));
 		expect(el().querySelector('.aw__bubble')).toBeNull();
 		expect(fixture.componentInstance.quickText).toBe('');
 		events.next({ type: 'chunk', clientRequestId: 'w-1', chunk: 'متجر إلكتروني لعرض المنتجات وإدارة الطلبات.' });
@@ -478,22 +477,18 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 			expect(tts.synthesize).not.toHaveBeenCalled();
 		});
 
-		it('lets a guest switch skin and play local motions without opening a remote chat', () => {
+		it('lets a guest open settings and play local motions without opening a remote chat (there is no character picker)', () => {
 			fixture.componentInstance.openTab('settings');
 			fixture.detectChanges();
 			expect(el().querySelector('[data-testid="assistant-guest-prompt"]')).toBeNull();
-			const appearance = el().querySelector('.pg-settings select') as HTMLSelectElement;
-			expect(appearance).toBeTruthy();
-			appearance.value = 'classic';
-			appearance.dispatchEvent(new Event('change'));
-			fixture.detectChanges();
-			expect(robot().getAttribute('skin')).toBe('classic');
+			expect(el().querySelector('.pg-settings select option[value="classic"]')).toBeNull();
+			expect(robot().getAttribute('skin')).toBe('scout');
 			fixture.componentInstance.openTab('motions');
 			fixture.detectChanges();
-			expect(el().querySelectorAll('.pg-motions button')).toHaveLength(12);
+			expect(el().querySelectorAll('.pg-motions button')).toHaveLength(25);
 			(el().querySelector('.pg-motions button') as HTMLButtonElement).click();
 			fixture.detectChanges();
-			expect(robot().state).toBe('wave');
+			expect(robot().state).toBe(fixture.componentInstance.currentMotions()[0].action);
 			expect(socket.ask).not.toHaveBeenCalled();
 			expect(tts.synthesize).not.toHaveBeenCalled();
 		});
@@ -557,45 +552,36 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 		});
 	});
 
-	describe('Character identity & role (Nadeem default vs Bebo)', () => {
-		it('defaults to skin scout: name is وسيط AI, role is دليل وسيط, 25 guide motions', () => {
+	describe('Character identity & role (one character: وسيط AI)', () => {
+		it('is the single scout-look character: name وسيط AI, role المساعد الذكي, all 25 motions', () => {
 			expect(store.skin()).toBe('scout');
 			expect(fixture.componentInstance.characterName()).toBe('وسيط AI');
-			expect(fixture.componentInstance.characterRole()).toBe('دليل وسيط');
+			expect(fixture.componentInstance.characterRole()).toBe('المساعد الذكي');
 			expect(fixture.componentInstance.currentMotions().length).toBe(25);
 		});
 
-		it('switching skin to classic: name is بيبو, role is المساعد الذكي, 12 core motions', () => {
+		it('there is no second character: «classic» is refused, a saved «classic» choice is ignored, and no character picker is drawn', () => {
 			store.setSkin('classic');
 			fixture.detectChanges();
-			expect(store.skin()).toBe('classic');
-			expect(fixture.componentInstance.characterName()).toBe('بيبو');
-			expect(fixture.componentInstance.characterRole()).toBe('المساعد الذكي');
-			expect(fixture.componentInstance.currentMotions().length).toBe(12);
+			expect(store.skin()).toBe('scout');
+			expect(fixture.componentInstance.characterName()).toBe('وسيط AI');
+			expect(el().textContent).not.toContain('بيبو (المساعد الكرتوني)');
+			expect(el().querySelector('select option[value="classic"]')).toBeNull();
 		});
 
-		it('updates the real shadow button name immediately when switching characters without a pose change', () => {
+		it('the real shadow button is named وسيط AI', () => {
 			const button = robot().shadowRoot!.querySelector('button')!;
 			expect(button.getAttribute('aria-label')).toContain('وسيط AI');
-			store.setSkin('classic');
-			fixture.detectChanges();
-			expect(button.getAttribute('aria-label')).toContain('بيبو');
-			expect(button.getAttribute('aria-label')).not.toContain('وسيط AI');
-			store.setSkin('scout');
-			fixture.detectChanges();
-			expect(button.getAttribute('aria-label')).toContain('وسيط AI');
+			expect(button.getAttribute('aria-label')).not.toContain('بيبو');
 		});
 
-		it('tour buttons dynamically show the active character name', () => {
+		it('tour buttons show the character name', () => {
 			store.open();
 			fixture.componentInstance.openTab('tour');
 			fixture.detectChanges();
 			const askButtons = el().querySelectorAll('.pg-tour-ask');
 			expect(askButtons.length).toBeGreaterThan(0);
 			expect(askButtons[0].textContent).toContain('اسأل وسيط AI عن هذا الموضوع');
-			store.setSkin('classic');
-			fixture.detectChanges();
-			expect(askButtons[0].textContent).toContain('اسأل بيبو عن هذا الموضوع');
 		});
 	});
 

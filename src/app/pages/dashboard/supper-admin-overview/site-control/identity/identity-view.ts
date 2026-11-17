@@ -7,7 +7,7 @@ export const GROUP_TITLES: Record<string, { title: string; hint: string }> = {
 	logo: { title: 'الشعارات', hint: 'علامة وسيط AI كما تظهر في الشريط العلوي والتذييل وصفحات الدخول.' },
 	favicon: { title: 'أيقونة التبويب', hint: 'ما يظهر في تبويب المتصفح وملف favicon.' },
 	icon: { title: 'الأيقونات', hint: 'علامة الذكاء الاصطناعي الرسمية الوحيدة.' },
-	character: { title: 'الشخصيات (بيبو)', hint: 'لوحات الحركة (sprites) للمساعد بيبو.' }
+	character: { title: 'الشخصية (وسيط AI)', hint: 'لوحات الحركة (sprites) لشخصية المساعد وسيط AI.' }
 };
 
 export const bytesText = (n: number | null | undefined): string => {

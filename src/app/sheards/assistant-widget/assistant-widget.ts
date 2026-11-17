@@ -171,7 +171,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 						<app-assistant-chat class="aw__chat" [compact]="true" />
 					} @else if (panelTab() === 'motions') {
 						<div class="pg-motions-container">
-							<p class="pg-motions-intro">حركات {{ characterName() }} ({{ store.skin() === 'scout' ? 'دليل وسيط' : 'المساعد الكرتوني' }}):</p>
+							<p class="pg-motions-intro">حركات {{ characterName() }}:</p>
 							<div class="pg-motions">
 								@for (motion of currentMotions(); track motion.action) {
 									<button type="button" (click)="playMotion(motion.action)" [disabled]="store.busy()">
@@ -190,13 +190,6 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 								العودة إلى المحادثة
 							</button>
 							<p id="aw-manual-audio-help" class="pg-manual-audio-help">تشغيل الصوت يدويًا من زر كل رد. يمكنك ضبط الصوت واللهجة ومستواه هنا.</p>
-							<label>
-								مظهر الروبوت
-								<select [value]="store.skin()" (change)="store.setSkin($any($event.target).value)">
-									<option value="scout" [selected]="store.skin() === 'scout'">وسيط AI (دليل المنصة)</option>
-									<option value="classic" [selected]="store.skin() === 'classic'">بيبو (المساعد الكرتوني)</option>
-								</select>
-							</label>
 							<label>
 								طريقة الرد
 								<select class="pg-profile" [value]="store.profile()" (change)="store.setProfile($any($event.target).value)">
@@ -368,7 +361,7 @@ export class AssistantWidgetComponent {
 	readonly characterName = computed(() => this.store.characterName());
 	readonly characterRole = computed(() => this.store.characterRole());
 	readonly characterFullName = computed(() => this.store.characterFullName());
-	readonly currentMotions = computed(() => (this.store.skin() === 'scout' ? NADEEM_GUIDE_MOTIONS : BEBO_CORE_MOTIONS));
+	readonly currentMotions = computed(() => NADEEM_GUIDE_MOTIONS);
 
 	readonly guidedTopics = GUIDED_TOPICS;
 	readonly dialects = Object.entries(BEBO_DIALECTS).map(([id, d]) => ({ id, label: d.label }));

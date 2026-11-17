@@ -415,7 +415,7 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'bebo',
 		loadComponent: () => import('../../../sheards/assistant-widget/dashboard-bebo').then(m => m.DashboardBebo),
-		data: { title: 'بيبو', allowIncompleteProfile: true },
+		data: { title: 'وسيط AI', allowIncompleteProfile: true },
 	},
 	{
 		path: '**',

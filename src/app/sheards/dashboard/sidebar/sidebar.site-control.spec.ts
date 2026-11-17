@@ -33,7 +33,7 @@ describe('Sidebar: التحكم بالموقع', () => {
 		expect(nav[i + 1].type).toBe('accordion');
 		expect(nav[i + 1].label).toBe('التحكم بالموقع');
 		expect(nav[nav.length - 1].type).toBe('button'); // logout stays the last entry
-		expect(nav.slice(i + 2).map((n: any) => n.label)).toEqual(['المساعد', 'تفضيلات الإشعارات', 'بيبو', 'تسجيل الخروج']); // only the own-account notification settings and the Bebo tab sit between the section and logout
+		expect(nav.slice(i + 2).map((n: any) => n.label)).toEqual(['المساعد', 'تفضيلات الإشعارات', 'وسيط AI', 'تسجيل الخروج']); // only the own-account notification settings and the Bebo tab sit between the section and logout
 		const children = nav[i + 1].children as any[];
 		expect(children.map(c => c.label)).toEqual(['الهوية', 'المستويات والنقاط', 'تصدير CSS']);
 		for (const gone of ['القيم والألوان', 'مكتبة الأيقونات', 'القوالب', 'الخطوط']) expect(children.some(c => c.label === gone)).toBe(false);

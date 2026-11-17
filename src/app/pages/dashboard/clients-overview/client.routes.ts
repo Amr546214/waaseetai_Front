@@ -262,7 +262,7 @@ export const CLIENT_OVERVIEW_ROUTES: Routes = [
 	{
 		path: 'bebo',
 		loadComponent: () => import('../../../sheards/assistant-widget/dashboard-bebo').then(m => m.DashboardBebo),
-		data: { title: 'بيبو' },
+		data: { title: 'وسيط AI' },
 	},
 	{
 		path: '**',
