@@ -84,3 +84,11 @@ vi.unstubAllGlobals();
 afterAll(() => { vi.unstubAllGlobals(); });
 
 installTestNetworkGuard();
+
+// The provider setup wizard keeps a local draft (provider-setup-draft.ts). The storage is shared by every spec of a worker, so a draft written by one test
+// would be restored into the next one; drop it after each test (only that key family, nothing else is touched).
+import { afterEach, beforeEach } from 'vitest';
+const dropProviderDrafts = () => { try { for (const k of Object.keys(localStorage)) if (k.startsWith('waseet.provider-setup-draft.')) localStorage.removeItem(k); } catch { /* storage unavailable */ } };
+// before too: a debounced write of a test that was not destroyed can land after its afterEach
+beforeEach(dropProviderDrafts);
+afterEach(dropProviderDrafts);
