@@ -1824,23 +1824,15 @@ button.btn-outline-sm {
 
 /* === Profile completion extras (P-AU-011) === */
 .bio-actions{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
-.ai-suggest-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(var(--teal-rgb),.1);border:1px solid rgba(var(--teal-rgb),.3);border-radius:8px;color:var(--teal);font-size:var(--font-size-small);font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
-.ai-suggest-btn:hover:not(:disabled){background:rgba(43,212,199,.18)}
+/* the AI identity colour (--ai*, styles.css) - purple, never the teal of the ordinary actions */
+.ai-suggest-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--ai-bg);border:1px solid var(--ai-border);border-radius:8px;color:var(--ai-txt);font-size:var(--font-size-small);font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.ai-suggest-btn:hover:not(:disabled){background:rgba(123,47,190,.18)}
 .ai-suggest-btn:disabled{opacity:.5;cursor:not-allowed}
 .skills-input-row{display:flex;gap:8px;align-items:center}
 .skills-input-row .f-inp{flex:1}
 .chip-remove{background:none;border:none;color:inherit;font-size:var(--font-size-body);line-height:1;cursor:pointer;padding:0 2px;margin-right:2px;opacity:.7}
 .chip-remove:hover{opacity:1}
 
-/* Light mode for AI button */
-:host-context(body.light-theme) .ai-suggest-btn,
-:host-context(body.theme-light) .ai-suggest-btn,
-:host-context(.light-theme) .ai-suggest-btn,
-:host-context(.theme-light) .ai-suggest-btn{
-	background:rgba(43,212,199,.08);
-	border-color:rgba(43,212,199,.25);
-	color:#0E8A82
-}
 
 
 /* ── P-AU-010 LIGHT MODE OVERRIDES ── */

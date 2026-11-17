@@ -312,11 +312,12 @@
             <div class="card-title-ico badge-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><use href="#i-tag"></use></svg></div>
             مهاراتي
             <span class="card-optional">اختياري</span>
-          </div>
-          <div class="skills-ai">
-            <button type="button" class="ai-suggest-btn" (click)="suggestSkills()" [disabled]="isSuggestingSkills()" data-testid="suggest-skills">
+            <button type="button" class="ai-suggest-btn" style="margin-inline-start:auto" (click)="suggestSkills()" [disabled]="isSuggestingSkills()" data-testid="suggest-skills">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><use href="#i-ai"></use></svg>
               {{ isSuggestingSkills() ? 'جاري إنشاء الاقتراح...' : 'اقتراح مهارات بالذكاء الاصطناعي' }}
             </button>
+          </div>
+          <div class="skills-ai">
             @if (skillsSuggestionError()) { <p role="alert" class="f-hint">{{ skillsSuggestionError() }}</p> }
             @if (skillsServerError(); as skillsErr) { <p role="alert" class="f-err" id="skills-server-error">{{ skillsErr }}</p> }
             @if (skillsSuggestionReady() && !aiSuggestedSkills().length) { <p class="f-hint" role="status">لا توجد اقتراحات مهارات جديدة حالياً.</p> }
