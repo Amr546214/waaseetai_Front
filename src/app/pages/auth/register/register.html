@@ -192,21 +192,7 @@
           }
 
           <div class="field-grp">
-            <label class="field-lbl" for="legal-name">الاسم الحقيقي (كما في هوية رسمية) <span class="ws-req" aria-hidden="true">*</span></label>
-            <input class="field-in" type="text" id="legal-name" formControlName="legalName" placeholder="مثال: عمرو محمود" autocomplete="off" maxlength="120" aria-required="true" data-testid="legal-name-input" [attr.aria-invalid]="fieldError('legalName') ? 'true' : null" [attr.aria-describedby]="fieldError('legalName') ? 'err-legal-name' : 'legal-name-hint'"
-              [class.has-error]="basicInfoForm.get('legalName')?.touched && basicInfoForm.get('legalName')?.invalid">
-            @if (fieldError('legalName'); as msg_legalName) {
-            <div class="field-err" id="err-legal-name" role="alert">
-              <svg style="width:12px;height:12px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8" aria-hidden="true"><use href="#ws-warn"></use></svg>
-              <span>{{ msg_legalName }}</span>
-            </div>
-            } @else {
-            <div class="field-hint" id="legal-name-hint" style="font-size:12px;opacity:.7;margin-top:4px">يُستخدم لمطابقة وثيقة الهوية فقط ولا يظهر للآخرين. ويمكن أن يختلف عن اسم المستخدم أدناه.</div>
-            }
-          </div>
-
-          <div class="field-grp">
-            <label class="field-lbl" for="username">اسم المستخدم (الاسم الذي يظهر للآخرين) <span class="ws-req" aria-hidden="true">*</span></label>
+            <label class="field-lbl" for="username">اسم المستخدم <span class="ws-req" aria-hidden="true">*</span></label>
             <input class="field-in" type="text" id="username" formControlName="username" placeholder="مثال: عمرو" autocomplete="nickname" maxlength="60" aria-required="true" data-testid="username-input" [attr.aria-invalid]="fieldError('username') ? 'true' : null" [attr.aria-describedby]="fieldError('username') ? 'err-username' : 'username-hint'"
               [class.has-error]="basicInfoForm.get('username')?.touched && basicInfoForm.get('username')?.invalid">
             @if (fieldError('username'); as msg_username) {

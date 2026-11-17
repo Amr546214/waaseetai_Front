@@ -90,7 +90,8 @@ export interface AuthResponse {
 export interface RegisterInput {
 	accountType: AccountType;
 	/** the name on the identity document (private; compared with the document only) */
-	legalName: string;
+	/** No longer asked at sign-up: the real name is typed in the identity step. Still accepted by the API when present. */
+	legalName?: string;
 	/** the name shown on the platform: ONE field, a single word is fine */
 	username: string;
 	email: string;
