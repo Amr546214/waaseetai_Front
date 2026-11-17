@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, input, output, signal } from '@angular/core';
 import { LegalNameService, LegalNameView } from '../../core/services/legal-name.service';
 import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-name.validator';
 
@@ -14,7 +14,7 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 	template: `
 	<section class="legal-name" dir="rtl" data-testid="legal-name-field">
 		@if (view(); as v) {
-			<label class="block text-sm font-bold mb-1" for="legal-name-field-input">الاسم الحقيقي (كما في الهوية)</label>
+			<label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-400" for="legal-name-field-input">الاسم الحقيقي (كما في الهوية) <span class="ws-req" aria-hidden="true">*</span></label>
 			@if (v.status === 'MISSING') {
 				<p class="text-xs text-amber-300 mb-2" role="note" data-testid="legal-name-missing">أكمل اسمك الحقيقي كما هو مكتوب في وثيقة الهوية؛ نطابقه معها ولا يظهر للآخرين. اسم المستخدم لا يتغيّر. لا يمكن اعتماد هوية جديدة قبل إدخاله.</p>
 				@if (v.changeNeedsReview) { <p class="text-xs text-slate-300 mb-2" role="note" data-testid="legal-name-legacy-verified">حسابك موثَّق حاليًا كما هو ويبقى كذلك؛ إضافة الاسم الحقيقي تُرسل كطلب للمراجعة، وبعد اعتماده تُعاد مطابقة وثيقتك به.</p> }
@@ -23,13 +23,15 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 				<p class="text-xs text-slate-300 mb-2" role="status" data-testid="legal-name-pending">طلب تعديل الاسم إلى «{{ p.requestedValue }}» قيد المراجعة. سيبقى الاسم الحالي حتى القرار، ثم تُعاد مطابقة الهوية.</p>
 			}
 			@if ((editing() && !v.pendingRequest) || v.status === 'MISSING') {
-				<input id="legal-name-field-input" type="text" maxlength="120" autocomplete="off" class="field-in w-full" data-testid="legal-name-field-input" [value]="draft()" (input)="onInput($event)" [attr.aria-invalid]="problem() ? 'true' : null" />
+				<input id="legal-name-field-input" type="text" maxlength="120" autocomplete="off" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="مثال: عمرو محمود" data-testid="legal-name-field-input" [value]="draft()" (input)="onInput($event)" (blur)="flush()" [attr.aria-invalid]="problem() ? 'true' : null" />
 				@if (problem(); as pr) { <div class="text-xs text-red-400 mt-1" role="alert" data-testid="legal-name-problem">{{ pr }}</div> }
 				@if (v.changeNeedsReview && v.status === 'PROVIDED') { <p class="text-xs text-slate-300 mt-1">اسمك مرتبط بهوية موثقة أو قيد المراجعة: التعديل يُرسل كطلب للمراجعة ثم تُعاد مطابقة الهوية.</p> }
+				@if (!autoSaves(v)) {
 				<div class="flex gap-2 mt-2">
 					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-[#04101f] text-sm font-bold" [disabled]="saving() || !!problem() || !draft().trim()" (click)="save()" data-testid="legal-name-save">{{ v.changeNeedsReview ? (v.status === 'PROVIDED' ? 'إرسال طلب التعديل' : 'إرسال طلب إضافة الاسم') : 'حفظ الاسم الحقيقي' }}</button>
 					@if (v.status === 'PROVIDED' && !alwaysEdit()) { <button type="button" class="px-4 py-2 rounded-xl border border-white/20 text-sm" (click)="cancel()">إلغاء</button> }
 				</div>
+				}
 			} @else {
 				<div class="flex items-center gap-3">
 					<span class="text-sm" data-testid="legal-name-value">{{ v.legalName }}</span>
@@ -40,7 +42,7 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 		}
 	</section>`
 })
-export class LegalNameFieldComponent implements OnInit {
+export class LegalNameFieldComponent implements OnInit, OnDestroy {
 	private readonly api = inject(LegalNameService);
 	readonly view = signal<LegalNameView | null>(null);
 	readonly editing = signal(false);
@@ -50,6 +52,10 @@ export class LegalNameFieldComponent implements OnInit {
 	readonly problem = signal<string | null>(null);
 	/** setup pages: the name is always a box right here (prefilled when already provided), never a read-only value with an edit link */
 	readonly alwaysEdit = input(false);
+	/** setup pages: no save button, the name is saved by itself when typing stops / the box loses focus. A change that needs an administrator's review (verified or pending identity) still keeps its explicit button, so no request is ever created by accident. */
+	readonly autoSave = input(false);
+	private timer: ReturnType<typeof setTimeout> | null = null;
+	autoSaves(v: LegalNameView): boolean { return this.autoSave() && !v.changeNeedsReview; }
 	/** emitted when the legal name was saved (so the page can re-read what depends on it) */
 	readonly saved = output<void>();
 
@@ -58,7 +64,22 @@ export class LegalNameFieldComponent implements OnInit {
 	private openIfAlways(v: LegalNameView) { if (this.alwaysEdit() && v.status === 'PROVIDED' && !v.pendingRequest) this.startEdit(v); }
 	startEdit(v: LegalNameView) { this.draft.set(v.legalName ?? ''); this.problem.set(null); this.note.set(null); this.editing.set(true); }
 	cancel() { this.editing.set(false); this.problem.set(null); }
-	onInput(e: Event) { const v = (e.target as HTMLInputElement).value; this.draft.set(v); this.problem.set(legalNameProblem(v)); }
+	onInput(e: Event) {
+		const v = (e.target as HTMLInputElement).value; this.draft.set(v); this.problem.set(legalNameProblem(v));
+		if (this.timer) clearTimeout(this.timer);
+		const view = this.view();
+		if (view && this.autoSaves(view)) this.timer = setTimeout(() => this.flush(), 800);
+	}
+	/** saves a valid, changed name right now (auto-save mode only) */
+	flush() {
+		if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+		const view = this.view();
+		if (!view || !this.autoSaves(view) || this.saving()) return;
+		const value = cleanLegalName(this.draft());
+		if (!value || legalNameProblem(value) || value === (view.legalName ?? '')) return;
+		this.save();
+	}
+	ngOnDestroy() { if (this.timer) clearTimeout(this.timer); }
 	save() {
 		const value = cleanLegalName(this.draft()); const p = legalNameProblem(value);
 		if (!value || p) { this.problem.set(p ?? 'الاسم الحقيقي مطلوب'); return; }

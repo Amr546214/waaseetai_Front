@@ -420,7 +420,7 @@
 </div>
   <span class="text-sm" [hidden]="typeNeedsPicking() && !documentTypeLabel()" data-testid="identity-document-type-auto">{{ documentTypeLabel() ? ('نوع الوثيقة: ' + documentTypeLabel()) : 'يُحدَّد نوع الوثيقة تلقائيًا من الصورة بعد رفعها' }}</span>
 </div>
-<div class="flex flex-col gap-2"><ws-legal-name-field /></div>
+<div class="flex flex-col gap-2"><ws-legal-name-field [alwaysEdit]="true" [autoSave]="true" /></div>
 <div class="flex flex-col gap-2">
   <label for="identity-document-number">رقم الوثيقة</label>
   <input id="identity-document-number" formControlName="idNumber" [attr.aria-invalid]="documentError('idNumber') ? 'true' : null" [attr.aria-describedby]="documentError('idNumber') ? 'identity-error-idNumber' : null" maxlength="40" dir="ltr" class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white">
