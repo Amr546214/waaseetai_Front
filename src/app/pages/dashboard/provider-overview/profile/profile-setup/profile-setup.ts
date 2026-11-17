@@ -7,7 +7,8 @@ import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES,
 import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, switchMap } from 'rxjs';
+import { debounceTime, finalize, switchMap } from 'rxjs';
+import { buildDraft, clearDraft, readDraft, writeDraft } from './provider-setup-draft';
 import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { CommonModule } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
@@ -295,7 +296,39 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private pendingRefs: { frontId?: string; backId?: string } = {};
 	private gateFresh = false;
 
+	/** the wizard's local draft (see provider-setup-draft.ts): written only after the server answer has been applied, so a blank form never overwrites a saved draft */
+	private draftReady = false;
+	private draftOn = true;
+	private draftUserId() { return this.authStore.currentUser()?.id ?? ''; }
+	private saveDraft() {
+		const id = this.draftUserId();
+		if (!this.draftReady || !this.draftOn || !id) return;
+		writeDraft(id, buildDraft({ step: this.currentStep(), formRaw: this.setupForm.getRawValue() as Record<string, unknown>, skills: this.skillsList(), specs: this.selectedSpecs(), portfolio: this.portfolioItems() as Record<string, unknown[]>, avatarUrl: this.avatarUrl() }));
+	}
+	/** puts the saved draft back over what the server returned (enabled fields only) and returns to the step the person was on */
+	private restoreDraft() {
+		this.draftReady = true;
+		const id = this.draftUserId();
+		const d = id ? readDraft(id) : null;
+		if (!d) return;
+		for (const [group, values] of Object.entries(d.form)) {
+			for (const [key, value] of Object.entries(values)) { const c = this.setupForm.get(`${group}.${key}`); if (c && c.enabled) c.setValue(value); }
+		}
+		if (d.skills.length) this.skillsList.set(d.skills);
+		if (d.specs.length) this.selectedSpecs.set(d.specs);
+		if (Object.keys(d.portfolio).length) this.portfolioItems.set(d.portfolio as unknown as Record<string, PortfolioItem[]>);
+		if (d.avatarUrl && !this.avatarUrl()) { this.avatarUrl.set(d.avatarUrl); this.avatarPreview.set(d.avatarUrl); }
+		if (d.step !== this.currentStep()) {
+			this.currentStep.set(d.step);
+			if (d.step === 5) this.initPortfolioCards();
+			// a resumed wizard never stands past an identity that is not approved
+			if (d.step > 4) this.gate.load().subscribe({ next: g => { if (!g.canAdvance && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
+		}
+	}
+
 	constructor() {
+		this.setupForm.valueChanges.pipe(debounceTime(400), takeUntilDestroyed(this.destroyRef)).subscribe(() => this.saveDraft());
+		effect(() => { this.currentStep(); this.skillsList(); this.selectedSpecs(); this.portfolioItems(); this.avatarUrl(); untracked(() => this.saveDraft()); });
 		linkCountryCity(this.setupForm.get('profData'), this.destroyRef);
 		effect(() => { if (this.currentStep() === 4) untracked(() => this.gate.load().subscribe({ error: () => { /* unknown: nothing opens */ } })); });
 		effect(() => {
@@ -453,7 +486,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					// a resumed wizard never stands past an identity that is not approved (the server would refuse those steps anyway)
 					if (start.step > 4) this.gate.load().subscribe({ next: g => { if (!g.canAdvance && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
 				}
-			}
+				this.restoreDraft();
+			},
+			error: () => this.restoreDraft()
 		});
 	}
 
@@ -1446,6 +1481,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					// Use 'any' to cast the status temporarily if UserStatus enum requires import update
 					this.authStore.updateUser({ ...user, status: 'ACTIVE' as any, profileCompletionPercent: 100 });
 				}
+				// everything reached the server: the local draft has done its job
+				this.draftOn = false; clearDraft(this.draftUserId());
 				this.goToStep(7);
 			},
 			error: (error) => {
