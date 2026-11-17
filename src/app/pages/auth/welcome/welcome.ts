@@ -76,9 +76,9 @@ const ROLES: Record<string, WelcomeRoleConfig> = {
   broker: {
     name: 'الوسيط التسويقي',
     icon: 'ws-role-broker',
-    canSkip: true,
-    completionNote: 'استكمال بياناتك داخل اللوحة يتيح لك استلام العمولات وتنفيذ العمليات الرسمية',
-    restrictions: ['استلام العمولات والمدفوعات', 'سحب الأرباح', 'تنفيذ عمليات رسمية موثقة'],
+    canSkip: false,
+    completionNote: 'يجب كتابة الوصف التسويقي وإضافة قناة تسويق واحدة قبل دخول لوحة التحكم',
+    restrictions: null,
     profileSetupRoute: '/marketer-overview/profile-setup',
   },
 };

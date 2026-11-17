@@ -9,7 +9,7 @@
   </div>
 
   <h2 style="font-size:20px;font-weight:900;margin-bottom:4px" class="txt-white">استكمال بياناتك</h2>
-  <p style="font-size:var(--font-size-label);margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — الوصف التسويقي وقناة تسويق واحدة مطلوبان لإتمام الإعداد، أما بريد PayPal فيمكن إضافته لاحقًا من صفحة ملفي التسويقي</p>
+  <p style="font-size:var(--font-size-label);margin-bottom:20px" class="txt-muted">أكمل ملفك التسويقي خطوة بخطوة — الوصف التسويقي وقناة تسويق واحدة مطلوبان لإتمام الإعداد، أما الصورة الشخصية وبريد PayPal فيمكن إضافتهما الآن أو لاحقًا من صفحة ملفي التسويقي</p>
 
   @if (isLoading()) {
     <div class="adm-card"><div class="skeleton-row" style="width:50%;height:16px;margin-bottom:14px"></div><div class="skeleton-box" style="height:120px"></div></div>
@@ -50,8 +50,36 @@
       <div class="actions-row"><button type="button" class="btn-primary" (click)="nextStep()">التالي</button></div>
     }
 
-    <!-- Step 2: الملف التسويقي -->
+    <!-- Step 2: الملف التسويقي (الصورة الشخصية اختيارية + الوصف التسويقي) -->
     @if (currentStep() === 2) {
+      <div class="form-card" id="ps-avatar-section" data-testid="ps-avatar-card">
+        <div class="form-card-hdr">
+          <div class="form-card-ico"><svg aria-hidden="true"><use href="#i-camera"></use></svg></div>
+          <div><div class="form-card-title">الصورة الشخصية (اختياري)</div><div class="form-card-sub">تظهر في ملفك العام وتزيد ثقة العملاء بك</div></div>
+        </div>
+        <div class="avatar-section">
+          <div class="avatar-circle">
+            @if (avatarUrl()) {
+              <img [src]="avatarUrl()" alt="الصورة الشخصية" style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+            } @else {
+              {{ (profile()?.user?.firstName?.[0] || 'و') + (profile()?.user?.lastName?.[0] || 'س') }}
+            }
+          </div>
+          <div>
+            <div class="av-btns">
+              <input type="file" hidden #avatarInput accept="image/png, image/jpeg" (change)="onAvatarChange($event)" data-testid="ps-avatar-input">
+              <button id="ps-avatar-btn" type="button" class="av-btn av-btn-p" [disabled]="savingAvatar()" (click)="avatarInput.click()">
+                {{ savingAvatar() ? 'جارٍ حفظ الصورة...' : (avatarUrl() ? 'تغيير الصورة الشخصية' : 'رفع صورة شخصية') }}
+              </button>
+            </div>
+            <div class="inp-hint" style="margin-top:6px">JPG أو PNG، يفضل 400x400 بكسل، حجم أقصى 5MB</div>
+            @if (avatarError(); as avErr) {
+              <div class="f-err" role="alert" data-testid="avatar-error" style="margin-top:6px">{{ avErr }}</div>
+            }
+          </div>
+        </div>
+      </div>
+
       <div class="form-card" [formGroup]="marketingForm">
         <div class="form-card-hdr">
           <div class="form-card-ico"><svg aria-hidden="true"><use href="#i-doc"></use></svg></div>
@@ -59,8 +87,9 @@
         </div>
         <div class="inp-group">
           <label class="inp-label" for="ps-bio">وصف تسويقي مختصر<span class="ws-req" aria-hidden="true">*</span></label>
-          <textarea id="ps-bio" class="inp-field" [appBioField]="500" formControlName="bio" rows="3" aria-required="true" placeholder="اكتب وصفاً مختصراً عن تخصصك التسويقي وجمهورك المستهدف..."></textarea>
-          <ws-field-error [control]="marketingForm.get('bio')" label="الوصف التسويقي" [messages]="{ required: 'الوصف التسويقي مطلوب', unsaved: 'اضغط «حفظ ومتابعة» لحفظ الوصف قبل المتابعة' }" />
+          <textarea id="ps-bio" class="inp-field" [appBioField]="500" formControlName="bio" rows="3" minlength="50" aria-required="true" placeholder="اكتب وصفاً مختصراً عن تخصصك التسويقي وجمهورك المستهدف (50 حرفًا على الأقل)..."></textarea>
+          <div class="inp-hint">50 حرفًا على الأقل (بحد أقصى 500 حرف)</div>
+          <ws-field-error [control]="marketingForm.get('bio')" label="الوصف التسويقي" [messages]="{ required: 'الوصف التسويقي مطلوب', minlength: 'اكتب وصفًا تسويقيًا من 50 حرفًا على الأقل', unsaved: 'اضغط «حفظ ومتابعة» لحفظ الوصف قبل المتابعة' }" />
         </div>
       </div>
       <ws-form-summary [items]="missing()" />
@@ -138,6 +167,7 @@
           </div>
         </div>
         <ws-completion-box [items]="missingItems()" (select)="openMissingItem($event)" />
+        <div class="review-row"><span class="txt-muted">الصورة الشخصية</span><span class="txt-white" data-testid="avatar-state">{{ avatarState() }}</span></div>
         <div class="review-row"><span class="txt-muted">الوصف التسويقي</span><span class="txt-white" data-testid="bio-state">{{ bioState() }}</span></div>
         <div class="review-row"><span class="txt-muted">قنوات التسويق</span><span class="txt-white">{{ hasChannel() ? 'تمت إضافة قناة' : 'لم تُضف بعد' }}</span></div>
         <div class="review-row"><span class="txt-muted">بريد PayPal</span><span class="txt-white" data-testid="paypal-state">{{ paypalState() }}</span></div>

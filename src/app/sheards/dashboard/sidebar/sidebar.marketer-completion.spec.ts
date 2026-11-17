@@ -26,13 +26,37 @@ function setup(profileData: any | 'error') {
 	});
 	const f = TestBed.createComponent(Sidebar);
 	f.detectChanges();
-	return { routes: () => (f.componentInstance.navItems() as NavItem[]).flatMap(i => [i, ...(i.children ?? [])]).map(i => i.route), svc: TestBed.inject(MarketerProfileService) };
+	const flat = () => (f.componentInstance.navItems() as NavItem[]).flatMap(i => [i, ...(i.children ?? [])]);
+	return {
+		routes: () => flat().map(i => i.route),
+		items: flat,
+		svc: TestBed.inject(MarketerProfileService),
+	};
 }
 
 describe('marketer sidebar: استكمال البيانات', () => {
 	afterEach(() => TestBed.resetTestingModule());
 	it('something still to collect (channel + bank missing): the link is there', () => {
 		expect(setup({ completionPercentage: 40, missingItems: [item('channel'), item('payout')] }).routes()).toContain(SETUP);
+	});
+	it('missing bio/channel disables gated dashboard links while leaving استكمال البيانات and المساعدة enabled; optional avatar/PayPal unlocks dashboard', () => {
+		const { items, svc } = setup({ completionPercentage: 40, missingItems: [item('bio'), item('channel')] });
+		const byRoute = (r: string) => items().find(i => i.route === r);
+		expect(byRoute('/marketer-overview')?.disabled).toBe(true);
+		expect(byRoute('/marketer-overview/referrals')?.disabled).toBe(true);
+		expect(byRoute('/marketer-overview/withdraw')?.disabled).toBe(true);
+		expect(byRoute('/marketer-overview/profile/data')?.disabled).toBe(true);
+		expect(byRoute(SETUP)?.disabled).toBeFalsy();
+		expect(byRoute('/marketer-overview/help')?.disabled).toBeFalsy();
+
+		svc.profileSnapshot.set({
+			completionPercentage: 60,
+			bio: 'وصف تسويقي',
+			marketingChannels: [{ id: 'c1' }],
+			missingItems: [item('avatar'), item('payout')],
+		} as any);
+		expect(byRoute('/marketer-overview')?.disabled).toBeFalsy();
+		expect(byRoute('/marketer-overview/withdraw')?.disabled).toBeFalsy();
 	});
 	it('100%: the link is gone, the profile link stays', () => {
 		const r = setup({ completionPercentage: 100, missingItems: [] }).routes();

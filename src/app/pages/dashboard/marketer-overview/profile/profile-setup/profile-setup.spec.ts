@@ -177,8 +177,8 @@ describe('ProfileSetup (marketer): shared validation', () => {
     vi.useFakeTimers();
     try {
       const nav = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
-      // the two required items are in place (a saved bio and one channel)
-      component.profile.set({ bio: 'وصف تسويقي', marketingChannels: [{ id: 'c1', platform: 'TIKTOK', handle: 'x' }] } as any);
+      // the three required items are in place (a saved avatar, bio and one channel)
+      component.profile.set({ avatarUrl: 'data:image/png;base64,AAA', bio: 'وصف تسويقي', marketingChannels: [{ id: 'c1', platform: 'TIKTOK', handle: 'x' }] } as any);
       component.finish();
       expect(TestBed.inject(UiNotificationService).toasts().at(-1)).toMatchObject({ kind: 'success', message: 'تم استكمال بياناتك بنجاح' });
       vi.advanceTimersByTime(1200);

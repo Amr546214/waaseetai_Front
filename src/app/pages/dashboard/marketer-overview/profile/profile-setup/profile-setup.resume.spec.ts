@@ -10,13 +10,26 @@ import { MarketerProfileService } from '../../../../../core/services/marketer-pr
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 
 const item = (key: string, status: 'missing' | 'pending_review' = 'missing') => ({ key, status, label: key, points: 20, tab: 'profile', hint: '' });
-const profile = (over: any = {}) => ({ id: 'a1', user: {}, marketingChannels: [], completionPercentage: 40, missingItems: [], bio: '', paypalPayoutEmail: '', ...over });
+const AVATAR = 'data:image/png;base64,AAA';
+const BIO = 'وصف تسويقي طويل يتجاوز الخمسين حرفًا ليكون مقبولًا في الاكتمال';
+const profile = (over: any = {}) => ({
+	id: 'a1',
+	avatarUrl: AVATAR,
+	user: { avatarUrl: AVATAR },
+	marketingChannels: [{ id: 'c1' }],
+	completionPercentage: 40,
+	missingItems: [],
+	bio: BIO,
+	paypalPayoutEmail: '',
+	...over,
+});
 
 describe('marketer setup wizard: where it opens (resolveMarketerSetup)', () => {
 	it('100% -> redirect, no wizard', () => {
 		expect(resolveMarketerSetup({ completionPercentage: 100, missingItems: [] })).toEqual({ kind: 'redirect', reason: 'complete' });
 	});
-	it('bio missing -> step 2; bio saved but no channel -> step 3; only the bank missing -> step 4 (never always step 1)', () => {
+	it('avatar or bio missing -> step 2; bio+avatar saved but no channel -> step 3; only PayPal missing -> step 4 (never always step 1)', () => {
+		expect(resolveMarketerSetup({ completionPercentage: 20, missingItems: [item('avatar'), item('bio'), item('channel'), item('payout')] })).toEqual({ kind: 'step', step: 2 });
 		expect(resolveMarketerSetup({ completionPercentage: 20, missingItems: [item('bio'), item('channel'), item('payout')] })).toEqual({ kind: 'step', step: 2 });
 		expect(resolveMarketerSetup({ completionPercentage: 40, missingItems: [item('channel'), item('payout')] })).toEqual({ kind: 'step', step: 3 });
 		expect(resolveMarketerSetup({ completionPercentage: 70, missingItems: [item('payout')] })).toEqual({ kind: 'step', step: 4 });
@@ -25,8 +38,8 @@ describe('marketer setup wizard: where it opens (resolveMarketerSetup)', () => {
 		expect(resolveMarketerSetup({ completionPercentage: 70, missingItems: [item('payout', 'pending_review')] })).toEqual({ kind: 'redirect', reason: 'nothing-to-collect' });
 		expect(resolveMarketerSetup({ completionPercentage: 40, missingItems: [item('channel'), item('payout', 'pending_review')] })).toEqual({ kind: 'step', step: 3 });
 	});
-	it('only the avatar left (edit page item) -> redirect to the edit page', () => {
-		expect(resolveMarketerSetup({ completionPercentage: 80, missingItems: [item('avatar')] })).toEqual({ kind: 'redirect', reason: 'nothing-to-collect' });
+	it('only the avatar missing -> opens step 2 inside profile-setup (not redirected to edit page)', () => {
+		expect(resolveMarketerSetup({ completionPercentage: 80, missingItems: [item('avatar')] })).toEqual({ kind: 'step', step: 2 });
 	});
 	it('an answer without a missing-items report falls back to the first form step', () => {
 		expect(resolveMarketerSetup({ completionPercentage: 10 })).toEqual({ kind: 'step', step: 2 });
@@ -77,21 +90,22 @@ describe('marketer setup wizard component: resume from saved data', () => {
 
 	const BIO = 'وصف تسويقي طويل يتجاوز الخمسين حرفًا ليكون مقبولًا في الاكتمال';
 
-	it('bio saved, channel missing: opens on step 3 with the saved bio prefilled', () => {
-		const { c } = mount(profile({ bio: BIO, missingItems: [item('channel'), item('payout')], completionPercentage: 40 }));
+	it('bio saved and avatar uploaded, channel missing: opens on step 3 with the saved bio prefilled', () => {
+		const { c } = mount(profile({ marketingChannels: [], missingItems: [item('channel'), item('payout')], completionPercentage: 40 }));
 		expect(c.currentStep()).toBe(3);
 		expect(c.marketingForm.value.bio).toBe(BIO);
 	});
 	it('only PayPal missing: opens on step 4; a refresh (new instance) opens on the same step', () => {
-		const data = profile({ bio: BIO, marketingChannels: [{ id: 'c1' }], missingItems: [item('payout')], completionPercentage: 70 });
+		const data = profile({ missingItems: [item('payout')], completionPercentage: 70 });
 		expect(mount(data).c.currentStep()).toBe(4);
 		TestBed.resetTestingModule();
 		expect(mount(data).c.currentStep()).toBe(4);
 	});
-	it('only the avatar left (PayPal saved): the PayPal state reads "مكتمل" and the user is sent to the profile page', () => {
-		const { c, navigateByUrl } = mount(profile({ bio: BIO, marketingChannels: [{ id: 'c1' }], paypalPayoutEmail: 'm@example.com', missingItems: [{ key: 'avatar', status: 'missing' }], completionPercentage: 70 }));
+	it('only the avatar left (bio+channel+PayPal saved): opens on step 2 to upload the photo and PayPal state reads "مكتمل"', () => {
+		const { c, navigateByUrl } = mount(profile({ avatarUrl: '', user: {}, paypalPayoutEmail: 'm@example.com', missingItems: [{ key: 'avatar', status: 'missing' }], completionPercentage: 70 }));
 		expect(c.paypalState()).toBe('مكتمل');
-		expect(navigateByUrl).toHaveBeenCalledWith(MARKETER_EDIT_PAGE);
+		expect(c.currentStep()).toBe(2);
+		expect(navigateByUrl).not.toHaveBeenCalled();
 	});
 	it('100%: redirects to the profile page with a message, no wizard', () => {
 		const { navigateByUrl } = mount(profile({ completionPercentage: 100 }));
@@ -99,7 +113,7 @@ describe('marketer setup wizard component: resume from saved data', () => {
 		expect(TestBed.inject(UiNotificationService).toasts().length).toBe(1);
 	});
 	it('re-reading the profile after a saved step never moves the user back (only the first read decides the step)', () => {
-		const { c } = mount(profile({ missingItems: [item('bio'), item('channel'), item('payout')], completionPercentage: 0 }));
+		const { c } = mount(profile({ avatarUrl: '', user: {}, bio: '', marketingChannels: [], missingItems: [item('avatar'), item('bio'), item('channel'), item('payout')], completionPercentage: 0 }));
 		expect(c.currentStep()).toBe(2);
 		c.currentStep.set(4); // placed on the step (the bar is gated by the required items: see profile-setup.required.spec.ts)
 		c.loadProfile();                      // what saveBio/addChannel do after each save

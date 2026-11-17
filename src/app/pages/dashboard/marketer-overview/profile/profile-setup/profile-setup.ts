@@ -8,6 +8,7 @@ import { paypalEmailValidators } from '../../../../../core/validators/paypal-ema
 import { buildReferralUrl } from '../../../../../core/utils/referral-link.util';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../../../core/forms/form-helpers';
+import { validateFile, MB } from '../../../../../core/forms/file-validation';
 import { mapHttpError } from '../../../../../core/forms/http-error';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
@@ -16,8 +17,16 @@ import { CompletionBoxComponent, CompletionBoxItem } from '../../../../../shared
 import { marketingChannelProblem } from '../../../../../core/utils/marketing-channel';
 import { MARKETER_EDIT_PAGE, MARKETER_SETUP_MESSAGE, resolveMarketerSetup } from './marketer-setup-state';
 
+const BIO_MIN_LENGTH = 50;
+const cleanBioText = (v: unknown): string => String(v ?? '').replace(/[\u00A0\u200B-\u200D\u2060\uFEFF]/g, '').trim();
 /** Bio: required, and a value that is only spaces / invisible characters is empty. */
-const bioRequired = (c: AbstractControl): ValidationErrors | null => String(c.value ?? '').replace(/[\s\u00A0\u200B-\u200D\u2060\uFEFF]/g, '') === '' ? { required: true } : null;
+const bioRequired = (c: AbstractControl): ValidationErrors | null => cleanBioText(c.value) === '' ? { required: true } : null;
+/** Bio: at least 50 visible characters to match the backend completion rule. */
+const bioMinLength = (c: AbstractControl): ValidationErrors | null => {
+	const text = cleanBioText(c.value);
+	if (!text) return null;
+	return text.length < BIO_MIN_LENGTH ? { minlength: { requiredLength: BIO_MIN_LENGTH, actualLength: text.length } } : null;
+};
 /** Channel handle: valid for the chosen platform (the same rule as the server). */
 const channelHandleValid = (c: AbstractControl): ValidationErrors | null => {
 	const problem = marketingChannelProblem(c.parent?.get('platform')?.value, c.value);
@@ -62,7 +71,7 @@ export class ProfileSetup implements OnInit {
 	];
 
 	marketingForm: FormGroup = this.fb.group({
-		bio: ['', [bioRequired, Validators.maxLength(500)]],
+		bio: ['', [bioRequired, bioMinLength, Validators.maxLength(500)]],
 	});
 
 	channelForm: FormGroup = this.fb.group({
@@ -78,6 +87,11 @@ export class ProfileSetup implements OnInit {
 	agree = signal(false);
 	/** The channel step was left (or the wizard finished) with no channel at all: the message under the channel control. */
 	channelRequired = signal(false);
+	avatarError = signal<string | null>(null);
+	savingAvatar = signal(false);
+	avatarUrl = computed(() => (this.profile()?.avatarUrl ?? this.profile()?.user?.avatarUrl ?? '').trim());
+	avatarSaved = computed(() => !!this.avatarUrl());
+	avatarState = computed(() => this.avatarSaved() ? 'مرفوعة' : 'لم تُضف');
 	/** The bio typed in this step is not saved yet while the user tries to leave it. */
 	bioSaved = computed(() => !!(this.profile()?.bio ?? '').trim());
 
@@ -190,11 +204,77 @@ export class ProfileSetup implements OnInit {
 		}
 	}
 
+	onAvatarChange(event: Event): void {
+		const input = event.target as HTMLInputElement;
+		this.avatarError.set(null);
+		const file = input.files?.[0];
+		if (!file) return;
+
+		const problem = validateFile(file, {
+			maxBytes: 5 * MB,
+			mimeTypes: ['image/jpeg', 'image/png'],
+			extensions: ['.jpg', '.jpeg', '.png'],
+			typesLabel: 'JPG أو PNG',
+		});
+		if (problem) {
+			this.avatarError.set(problem);
+			input.value = '';
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onload = (e: ProgressEvent<FileReader>) => {
+			const base64Str = typeof e.target?.result === 'string' ? e.target.result : '';
+			if (!base64Str) {
+				this.avatarError.set('تعذرت قراءة ملف الصورة، حاول مرة أخرى');
+				return;
+			}
+			this.saveAvatar(base64Str);
+		};
+		reader.onerror = () => {
+			this.avatarError.set('تعذرت قراءة ملف الصورة، حاول مرة أخرى');
+		};
+		reader.readAsDataURL(file);
+		input.value = '';
+	}
+
+	private saveAvatar(avatarUrl: string): void {
+		this.savingAvatar.set(true);
+		this.avatarError.set(null);
+		this.profileService.updateMarketingInfo({ avatarUrl }).subscribe({
+			next: (res) => {
+				this.savingAvatar.set(false);
+				if (res && res.success === false) {
+					this.avatarError.set(res.message || 'تعذر حفظ الصورة الشخصية');
+					return;
+				}
+				this.profile.update(p => p ? { ...p, avatarUrl, user: { ...p.user, avatarUrl } } : p);
+				const snap = typeof this.profileService.profileSnapshot === 'function' ? this.profileService.profileSnapshot() : null;
+				if (snap) {
+					this.profileService.profileSnapshot.set({ ...snap, avatarUrl, user: { ...snap.user, avatarUrl } });
+				}
+				this.notify.success('تم حفظ الصورة الشخصية');
+				this.loadProfile();
+			},
+			error: (err) => {
+				this.savingAvatar.set(false);
+				const mapped = this.notify.httpError(err);
+				this.avatarError.set(mapped.fieldErrors['avatarUrl'] || mapped.message || 'تعذر حفظ الصورة الشخصية');
+			},
+		});
+	}
+
 	saveBio(): void {
 		if (!this.check(this.marketingForm)) return;
 		this.isSubmitting.set(true);
 		this.profileService.updateMarketingInfo({ ...this.marketingForm.value, setup: true }).subscribe({
-			next: () => { this.isSubmitting.set(false); this.notify.success('تم حفظ الوصف التسويقي'); this.loadProfile(); this.nextStep(); },
+			next: () => {
+				this.isSubmitting.set(false);
+				this.notify.success('تم حفظ الوصف التسويقي');
+				this.profile.update(p => p ? { ...p, bio: String(this.marketingForm.value.bio ?? '') } : p);
+				this.loadProfile();
+				this.nextStep();
+			},
 			error: (err) => this.fail(this.marketingForm, err)
 		});
 	}
@@ -222,14 +302,14 @@ export class ProfileSetup implements OnInit {
 		});
 	}
 
-	/** Review-step box item: go back to the step that fixes it (PayPal step, or the bio / channel steps). */
+	/** Review-step box item: go back to the step that fixes it (PayPal step, or the avatar / bio / channel steps). */
 	openMissingItem(item: CompletionBoxItem): void {
-		const target = item.key === 'payout' ? 4 : item.key === 'channel' ? 3 : item.key === 'bio' ? 2 : null;
+		const target = item.key === 'payout' ? 4 : item.key === 'channel' ? 3 : (item.key === 'bio' || item.key === 'avatar') ? 2 : null;
 		if (target !== null) this.setStep(target);
 	}
 
 	finish(): void {
-		// the two required items first (PayPal and the avatar stay optional here)
+		// required items: bio and one marketing channel (avatar and PayPal remain optional)
 		if (!this.bioSaved()) { this.currentStep.set(2); this.requireStep(2); return; }
 		if (!this.hasChannel()) { this.currentStep.set(3); this.requireStep(3); return; }
 		this.notify.success('تم استكمال بياناتك بنجاح');
