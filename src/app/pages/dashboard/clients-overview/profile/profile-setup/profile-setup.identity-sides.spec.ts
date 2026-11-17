@@ -4,7 +4,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { ProfileSetupDashboard } from './profile-setup';
 import { ProfileApiService } from '../../../../../core/services/profile-api.service';
@@ -71,5 +71,16 @@ describe('client profile-setup: identity approval needs both sides of the ID', (
 		c.nextStep();
 		expect(saveStep).not.toHaveBeenCalled();
 		expect(c.currentStep()).toBe(3);
+	});
+
+	it('a document the server refuses (identity used by another account): the picture is removed at once and the reason sits under the box, not in the top banner', () => {
+		c.setupForm.get('details').patchValue({ country: 'مصر', idDocumentType: 'NATIONAL_ID', idNumber: '30408012203296' });
+		c.setupForm.get('identity.frontId').setValue(PNG);
+		vi.spyOn(c.gate, 'save').mockReturnValue(throwError(() => ({ status: 409, error: { message: 'هذه الهوية مسجّلة بالفعل بحساب آخر' } })));
+		c.sendIdentity(); fixture.detectChanges();
+		expect(c.setupForm.get('identity.frontId').value).toBe('');
+		expect(c.gateProblem()).toBeNull();
+		expect(c.idDocInspections()['frontId']?.status).toBe('warning');
+		expect(c.idDocInspections()['frontId']?.message).toContain('مسجّلة');
 	});
 });

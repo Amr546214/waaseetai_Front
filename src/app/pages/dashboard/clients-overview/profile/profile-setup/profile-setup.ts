@@ -548,7 +548,20 @@ export class ProfileSetupDashboard implements OnInit {
 				resetClientIdentityRejectedCache(); // new documents sent: the REJECTED lock re-reads the real state on the next navigation
 				if (options.removeBack && !backId) this.storedDocs.update(s => ({ ...s, backId: null }));
 			},
-			error: (err: any) => { this.gateProblem.set(this.notify.httpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى' }).message || 'تعذّر حفظ الوثيقة، حاول مرة أخرى'); }
+			error: (err: any) => {
+				const message = this.notify.httpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى' }).message || 'تعذّر حفظ الوثيقة، حاول مرة أخرى';
+				if (!frontId && !backId) { this.gateProblem.set(message); return; }
+				// the server refused the document (e.g. the identity belongs to another account): the picture is removed right away so the box is empty again,
+				// and the reason stays under the box instead of a banner at the top
+				for (const slot of ['frontId', 'backId'] as const) {
+					if (!(slot === 'frontId' ? frontId : backId)) continue;
+					this.setupForm.get('identity.' + slot)?.setValue('');
+					const input = this.host.nativeElement.querySelector('#' + slot + 'File') as HTMLInputElement | null;
+					if (input) input.value = '';
+					this.idDocInspections.update(curr => ({ ...curr, [slot]: { status: 'warning', message } }));
+				}
+				this.gateProblem.set(null);
+			}
 		});
 	}
 

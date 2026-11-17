@@ -713,7 +713,18 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			...(d.profData.dob ? { dob: String(d.profData.dob).slice(0, 10) } : {}), ...(frontId ? { frontId } : {}), ...(backId ? { backId } : {})
 		}).subscribe({
 			next: () => { this.pendingRefs = {}; },
-			error: (err) => this.gateProblem.set(mapHttpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى.' }).message)
+			error: (err) => {
+				const message = mapHttpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى.' }).message;
+				if (!frontId && !backId) { this.gateProblem.set(message); return; }
+				// refused document: the picture is removed right away (box empty again) and the reason stays under the box, not in a banner on top
+				for (const slot of ['frontId', 'backId'] as const) {
+					if (!this.pendingRefs[slot]) continue;
+					this.removeUploadedFile(slot);
+					delete this.pendingRefs[slot];
+					this.idDocInspections.update(curr => ({ ...curr, [slot]: { status: 'warning', message } }));
+				}
+				this.gateProblem.set(null);
+			}
 		});
 	}
 
