@@ -21,4 +21,11 @@ describe('assistant legacy error compatibility', () => {
 		expect(normalizeAssistantError({ code: 'RATE_LIMITED', message: 'انتظر دقيقة.', humanSupportFallback: false })).toEqual({ code: 'RATE_LIMITED', message: 'انتظر دقيقة.', humanSupportFallback: false });
 		expect(normalizeAssistantError({ code: 'AUTH_REQUIRED', message: 'يجب تسجيل الدخول.' }).code).toBe('AUTH_REQUIRED');
 	});
+	it('a saved reply that introduced the guide as «نديم» now says «وسيط AI»; user text and other mentions are untouched', () => {
+		expect(normalizeAssistantMessageText('أهلاً بك! أنا نديم، دليل وسيط. مهمتي أساعدك', 'assistant')).toBe('أهلاً بك! أنا وسيط AI، دليل وسيط. مهمتي أساعدك');
+		expect(normalizeAssistantMessageText('أنا بيبو (نديم)، المساعد الذكي', 'assistant')).toBe('أنا بيبو، المساعد الذكي');
+		expect(normalizeAssistantMessageText("I'm Nadeem, your guide", 'assistant')).toBe('I’m Waseet AI, your guide');
+		expect(normalizeAssistantMessageText('أنا نديم', 'user')).toBe('أنا نديم');
+		expect(normalizeAssistantMessageText('تواصل مع نديم بدر في فريق الدعم', 'assistant')).toBe('تواصل مع نديم بدر في فريق الدعم');
+	});
 });
