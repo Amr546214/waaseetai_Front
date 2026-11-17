@@ -11,6 +11,10 @@ import {
   isMarketerOnboardingComplete,
 } from '../../pages/dashboard/marketer-overview/profile/profile-setup/marketer-setup-state';
 
+/** A profile found complete is trusted for this long, so browsing the dashboard does not re-read it on every navigation (avoids 429s). */
+export const MARKETER_COMPLETE_TRUST_MS = 60_000;
+let verifiedComplete: { id: string; at: number } | null = null;
+
 /**
  * Full navigation-level gate under /marketer-overview:
  * prevents marketers from opening the dashboard or any protected marketer route
@@ -33,12 +37,19 @@ export const marketerProfileCompleteGuard: CanActivateChildFn = (_childRoute, st
       if (isMarketerOnboardingAllowedPath(url)) return of(true);
 
       const readSnap = () => typeof profileService.profileSnapshot === 'function' ? profileService.profileSnapshot() : null;
+      const snapNow = readSnap();
+      if (snapNow?.id && isMarketerOnboardingComplete(snapNow) && verifiedComplete?.id === snapNow.id && Date.now() - verifiedComplete.at < MARKETER_COMPLETE_TRUST_MS) {
+        return of(true);
+      }
       return profileService.getProfile().pipe(
         map(res => {
           if (res?.success && res.data) {
-            return isMarketerOnboardingComplete(res.data)
-              ? true
-              : router.parseUrl(MARKETER_SETUP_PAGE);
+            if (isMarketerOnboardingComplete(res.data)) {
+              verifiedComplete = res.data.id ? { id: res.data.id, at: Date.now() } : null;
+              return true;
+            }
+            verifiedComplete = null;
+            return router.parseUrl(MARKETER_SETUP_PAGE);
           }
           const snap = readSnap();
           if (snap && !isMarketerOnboardingComplete(snap)) {
