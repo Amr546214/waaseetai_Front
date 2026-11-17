@@ -79,8 +79,6 @@ export function documentInputProblem(number: string | null, issuer: string | nul
       if (!/^[\p{L}\p{Nd}]/u.test(value)) return numberError('رقم الوثيقة لازم يبدأ بحرف أو رقم');
       if (!DOCUMENT_NUMBER_PATTERN.test(value)) return numberError('رقم الوثيقة فيه رمز غير مسموح');
     }
-  } else if (value && !/^[12]\d{9}$/.test(value)) {
-    return { key: 'idDocumentType', label: 'نوع وثيقة الهوية', message: 'اختر نوع الوثيقة للتحقق من صيغة الرقم' };
   }
   return null;
 }
