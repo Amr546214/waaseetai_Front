@@ -18,11 +18,12 @@ describe('date of birth helpers', () => {
   });
 });
 
-describe('maximum date of birth follows the server contract', () => {
-  it('allows past dates without inventing a minimum-age restriction', () => {
+describe('minimum age of 10 years', () => {
+  it('the latest selectable date is today minus 10 years and younger holders are refused', () => {
     const now = new Date();
-    expect(maxDobIso()).toBe(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
-    expect(birthDateValidator({ value: `${now.getFullYear() - 10}-01-01` } as any)).toBeNull();
+    expect(maxDobIso()).toBe(`${now.getFullYear() - 10}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
+    expect(birthDateValidator({ value: maxDobIso() } as any)).toBeNull();
+    expect(birthDateValidator({ value: `${now.getFullYear() - 5}-01-01` } as any)).toEqual({ minAge: { years: 10 } });
     expect(birthDateValidator({ value: `${now.getFullYear() + 1}-01-01` } as any)).toEqual({ birthDate: true });
   });
 });

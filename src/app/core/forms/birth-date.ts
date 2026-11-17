@@ -1,11 +1,15 @@
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 
-/** Date of birth (optional): empty is fine; otherwise a real date, not in the future and not before 1900. */
+/** Youngest age accepted for an account holder. */
+export const MIN_AGE_YEARS = 10;
+
+/** Date of birth (optional): empty is fine; otherwise a real date, not before 1900 and at least MIN_AGE_YEARS old. */
 export function birthDateValidator(control: AbstractControl): ValidationErrors | null {
 	const v = String(control.value ?? '').trim();
 	if (!v) return null;
 	const d = new Date(v);
 	if (Number.isNaN(d.getTime()) || d.getTime() > Date.now() || d.getFullYear() < 1900) return { birthDate: true };
+	if (v > maxDobIso()) return { minAge: { years: MIN_AGE_YEARS } };
 	return null;
 }
 
@@ -24,8 +28,8 @@ export function dobDisplay(stored: unknown): string {
 	return `${day}/${m}/${y}`;
 }
 
-/** Maximum selectable birth date follows the API contract: no future date. This does not introduce an age policy. */
+/** Latest selectable birth date: today minus MIN_AGE_YEARS (so the holder is at least that old). */
 export function maxDobIso(): string {
 	const d = new Date();
-	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+	return `${d.getFullYear() - MIN_AGE_YEARS}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
