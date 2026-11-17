@@ -480,15 +480,16 @@
               </div>
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('frontId')" aria-label="حذف الملف">&#x2715;</button>
             </div>
-            <div role="status" aria-live="polite" aria-atomic="true">
-              @if (idDocInspections()['frontId']; as insp) {
-                <div data-testid="ai-id-inspection-frontId" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:center;gap:6px" [style.background]="insp.status === 'warning' ? 'rgba(245,158,11,.12)' : (insp.status === 'valid' ? 'rgba(43,212,199,.10)' : 'rgba(255,255,255,.05)')" [style.border]="insp.status === 'warning' ? '1px solid rgba(245,158,11,.35)' : (insp.status === 'valid' ? '1px solid rgba(43,212,199,.30)' : '1px solid rgba(255,255,255,.10)')" [style.color]="insp.status === 'warning' ? '#fbbf24' : (insp.status === 'valid' ? '#2BD4C7' : '#A8B2D1')">
-                  <span role="img" [attr.aria-label]="insp.status === 'warning' ? 'تنبيه' : (insp.status === 'valid' ? 'تم الفحص' : 'قيد الفحص')">{{ insp.status === 'warning' ? '⚠️' : (insp.status === 'valid' ? '✓' : '⏳') }}</span>
-                  <span>{{ insp.message }}</span>
-                </div>
-              }
-            </div>
           }
+          <!-- the verdict of the document check stays visible after a refused picture was removed (outside the uploaded-file block) -->
+          <div role="status" aria-live="polite" aria-atomic="true">
+            @if (idDocInspections()['frontId']; as insp) {
+              <div data-testid="ai-id-inspection-frontId" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:center;gap:6px" [style.background]="insp.status === 'warning' ? 'rgba(245,158,11,.12)' : (insp.status === 'valid' ? 'rgba(43,212,199,.10)' : 'rgba(255,255,255,.05)')" [style.border]="insp.status === 'warning' ? '1px solid rgba(245,158,11,.35)' : (insp.status === 'valid' ? '1px solid rgba(43,212,199,.30)' : '1px solid rgba(255,255,255,.10)')" [style.color]="insp.status === 'warning' ? '#fbbf24' : (insp.status === 'valid' ? '#2BD4C7' : '#A8B2D1')">
+                <span role="img" [attr.aria-label]="insp.status === 'warning' ? 'تنبيه' : (insp.status === 'valid' ? 'تم الفحص' : 'قيد الفحص')">{{ insp.status === 'warning' ? '⚠️' : (insp.status === 'valid' ? '✓' : '⏳') }}</span>
+                <span>{{ insp.message }}</span>
+              </div>
+            }
+          </div>
           @if (fileErr('frontId'); as e) { <div class="f-err doc-inline-err" id="err-doc-frontId" data-testid="doc-file-error-frontId" role="alert">{{ e }}</div> }
           <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، لا يشارك مع أطراف خارجية</div>
         </div>
@@ -547,15 +548,16 @@
               </div>
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('backId')" aria-label="حذف الملف">&#x2715;</button>
             </div>
-            <div role="status" aria-live="polite" aria-atomic="true">
-              @if (idDocInspections()['backId']; as insp) {
-                <div data-testid="ai-id-inspection-backId" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:center;gap:6px" [style.background]="insp.status === 'warning' ? 'rgba(245,158,11,.12)' : (insp.status === 'valid' ? 'rgba(43,212,199,.10)' : 'rgba(255,255,255,.05)')" [style.border]="insp.status === 'warning' ? '1px solid rgba(245,158,11,.35)' : (insp.status === 'valid' ? '1px solid rgba(43,212,199,.30)' : '1px solid rgba(255,255,255,.10)')" [style.color]="insp.status === 'warning' ? '#fbbf24' : (insp.status === 'valid' ? '#2BD4C7' : '#A8B2D1')">
-                  <span role="img" [attr.aria-label]="insp.status === 'warning' ? 'تنبيه' : (insp.status === 'valid' ? 'تم الفحص' : 'قيد الفحص')">{{ insp.status === 'warning' ? '⚠️' : (insp.status === 'valid' ? '✓' : '⏳') }}</span>
-                  <span>{{ insp.message }}</span>
-                </div>
-              }
-            </div>
           }
+          <!-- the verdict of the document check stays visible after a refused picture was removed (outside the uploaded-file block) -->
+          <div role="status" aria-live="polite" aria-atomic="true">
+            @if (idDocInspections()['backId']; as insp) {
+              <div data-testid="ai-id-inspection-backId" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:center;gap:6px" [style.background]="insp.status === 'warning' ? 'rgba(245,158,11,.12)' : (insp.status === 'valid' ? 'rgba(43,212,199,.10)' : 'rgba(255,255,255,.05)')" [style.border]="insp.status === 'warning' ? '1px solid rgba(245,158,11,.35)' : (insp.status === 'valid' ? '1px solid rgba(43,212,199,.30)' : '1px solid rgba(255,255,255,.10)')" [style.color]="insp.status === 'warning' ? '#fbbf24' : (insp.status === 'valid' ? '#2BD4C7' : '#A8B2D1')">
+                <span role="img" [attr.aria-label]="insp.status === 'warning' ? 'تنبيه' : (insp.status === 'valid' ? 'تم الفحص' : 'قيد الفحص')">{{ insp.status === 'warning' ? '⚠️' : (insp.status === 'valid' ? '✓' : '⏳') }}</span>
+                <span>{{ insp.message }}</span>
+              </div>
+            }
+          </div>
           @if (fileErr('backId'); as e) { <div class="f-err doc-inline-err" id="err-doc-backId" data-testid="doc-file-error-backId" role="alert">{{ e }}</div> }
           <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، لا يشارك مع أطراف خارجية</div>
         </div>
