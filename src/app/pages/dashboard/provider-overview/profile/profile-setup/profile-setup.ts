@@ -195,7 +195,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			paypalEmail: ['', paypalEmailValidators]
 		}),
 		docs: this.fb.group({
-			idNumber: ['', Validators.pattern(DOCUMENT_NUMBER_PATTERN)],
+			idNumber: ['', [Validators.required, Validators.pattern(DOCUMENT_NUMBER_PATTERN)]],
 			idDocumentType: [''],
 			frontId: [''],
 			backId: [''],
@@ -327,6 +327,13 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	}
 
 	constructor() {
+		// the number is required until the identity has been sent or approved (after that the server keeps it and it is not asked again)
+		effect(() => {
+			const locked = this.kycVerified() || this.kycPending();
+			const c = this.setupForm.get('docs.idNumber');
+			c?.setValidators(locked ? [Validators.pattern(DOCUMENT_NUMBER_PATTERN)] : [Validators.required, Validators.pattern(DOCUMENT_NUMBER_PATTERN)]);
+			untracked(() => c?.updateValueAndValidity({ emitEvent: false }));
+		});
 		this.setupForm.valueChanges.pipe(debounceTime(400), takeUntilDestroyed(this.destroyRef)).subscribe(() => this.saveDraft());
 		effect(() => { this.currentStep(); this.skillsList(); this.selectedSpecs(); this.portfolioItems(); this.avatarUrl(); untracked(() => this.saveDraft()); });
 		linkCountryCity(this.setupForm.get('profData'), this.destroyRef);
@@ -562,7 +569,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		if (!number.touched && !type?.touched) return null;
 		const problem = documentInputProblem(number.value, identityCountryCode(this.setupForm.get('profData.country')?.value), type?.value ?? null);
 		if (problem?.key === key) return problem.message;
-		if (key === 'idNumber') return number.getError('server') ?? null;
+		if (key === 'idNumber') return number.getError('server') ?? (number.hasError('required') ? 'أدخل رقم الوثيقة' : null);
 		return type?.getError('server') ?? null;
 	}
 

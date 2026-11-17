@@ -18,7 +18,7 @@ describe('LegalNameFieldComponent', () => {
 
 	it('a legacy / Google account without it is asked for the legal name; the display name is not touched; a one-word name is refused with a reason', async () => {
 		await mount(view({ status: 'MISSING', legalName: null }));
-		expect(q('legal-name-missing')?.textContent).toContain('اسم المستخدم لا يتغيّر');
+		expect(q('legal-name-missing')).toBeNull(); // no yellow explanation above the box
 		type('عمرو');
 		expect(q('legal-name-problem')?.textContent).toContain('جزأين');
 		expect((q('legal-name-save') as HTMLButtonElement).disabled).toBe(true);
