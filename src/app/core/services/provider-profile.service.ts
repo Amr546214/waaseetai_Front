@@ -127,6 +127,15 @@ export class ProviderProfileService {
     );
   }
 
+  /** the AI reads ONE business-model file / proof (PASS, FAIL or UNVERIFIED); nothing is stored */
+  checkPortfolioFile(input: { kind: 'MODEL' | 'PROOF'; specialtyName: string; title?: string; fileName?: string; mimeType: string; file: string }): Observable<{ success: boolean; data: { verdict: 'PASS' | 'FAIL' | 'UNVERIFIED'; score: number | null; summaryAr: string; recommendationsAr: string[] } }> {
+    return this.http.post<{ success: boolean; data: { verdict: 'PASS' | 'FAIL' | 'UNVERIFIED'; score: number | null; summaryAr: string; recommendationsAr: string[] } }>(
+      `${this.apiUrl}/portfolio-file-check`,
+      input,
+      { context: new HttpContext().set(SKIP_LOADING, true) }
+    );
+  }
+
   verifyIdentityDocument(input: {
     side: 'FRONT' | 'BACK';
     image: string;
