@@ -54,6 +54,13 @@ const MARKETPLACE: TourDefinition = { id: 'page-marketplace-v1', title: 'جول�
 		text: 'ويفتح لك هذا الزر الفلاتر لتضييق النتائج، مثل الفئة، ثم يمكنك إعادة ضبطها عندما تريد البدء من جديد.' },
 ] };
 
+const REGISTER_ROLES: TourDefinition = { id: 'page-register-roles-v1', title: 'جولة في اختيار نوع الحساب', steps: [
+	{ id: 'reg-roles-intro', route: '/auth/register', target: '.roles-grid', title: 'اختر نوع حسابك',
+		text: 'هنا تختار نوع حسابك: طالب خدمة، أو مقدّم خدمة، أو وسيط تسويقي. حسابات الأفراد وحساب الوسيط التسويقي متاحة الآن، وحسابات الشركات قريبًا، ومقدّم الخدمة يحتاج إلى توثيق هويته.' },
+	{ id: 'reg-roles-next', route: '/auth/register', target: '.role-cta', title: 'ثم تابع',
+		text: 'بعد اختيار النوع المناسب اضغط على متابعة لتنتقل إلى إدخال بيانات حسابك.' },
+] };
+
 const REGISTER_FORM: TourDefinition = { id: 'page-register-form-v1', title: 'جولة في نموذج التسجيل', steps: [
 	{ id: 'reg-username', route: '/auth/register', target: '#username', title: 'اسم المستخدم',
 		text: 'اختر اسم مستخدم لحسابك.' },
@@ -72,10 +79,13 @@ export const PAGE_TOURS: PageTourEntry[] = [
 	{ path: '/blog', tour: BLOG },
 	{ path: '/contact', tour: CONTACT },
 	{ path: '/marketplace', tour: MARKETPLACE },
+	{ path: '/auth/register', presence: '.roles-grid', tour: REGISTER_ROLES },
 	{ path: '/auth/register', presence: '#email', tour: REGISTER_FORM },
 ];
 
-export const pageTourFor = (path: string): PageTourEntry | null => {
-	const clean = (path.split(/[?#]/)[0] || '/').replace(/\/$/, '') || '/';
-	return PAGE_TOURS.find(e => e.path === clean) ?? null;
-};
+const clean = (path: string) => (path.split(/[?#]/)[0] || '/').replace(/\/$/, '') || '/';
+/** every tour of this path (the registration page has one per step) */
+export const pageToursFor = (path: string): PageTourEntry[] => PAGE_TOURS.filter(e => e.path === clean(path));
+/** the tour to offer now: the first one of the path whose `presence` element is on screen (`present` answers that) */
+export const pageTourFor = (path: string, present: (selector: string) => boolean = () => true): PageTourEntry | null =>
+	pageToursFor(path).find(e => !e.presence || present(e.presence)) ?? null;

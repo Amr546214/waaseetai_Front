@@ -6,6 +6,7 @@
  *   npm run tour:audio -- --only=visitor-hero,visitor-ai
  *   npm run tour:audio -- --verify     # also transcribe each result back with the speech-to-text and flag mismatches
  *   npm run tour:audio -- --dry        # list what would be rendered, change nothing
+ *   npm run tour:audio -- --check      # like --dry, but exits 1 when any step lacks up-to-date audio (run it before every deploy)
  *   npm run tour:audio -- --pace=20    # seconds to wait between renders (the TTS quota is per minute; default 5)
  *
  * How: the text goes to the AI service's TTS through the backend container on the server (SSH + docker exec; the service credentials never leave the server),
@@ -46,6 +47,7 @@ const todo = steps.filter(s => (only.length ? only.includes(s.id) : true) && (fl
 const orphans = readdirSync(outDir).filter(f => f.endsWith('.mp3') && !ids.includes(f.slice(0, -4)));
 console.log(`${steps.length} steps · ${todo.length} to render · ${orphans.length} orphan file(s)`);
 for (const s of todo) console.log('  render', s.id);
+if (flag('check')) { if (todo.length || orphans.length) { console.log('NOT READY: render the steps above with `npm run tour:audio`'); process.exit(1); } console.log('every step has up-to-date audio'); process.exit(0); }
 if (flag('dry')) process.exit(0);
 for (const f of orphans) { rmSync(join(outDir, f)); delete manifest.entries[f.slice(0, -4)]; console.log('  removed', f); }
 

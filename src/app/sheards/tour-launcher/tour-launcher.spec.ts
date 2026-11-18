@@ -35,9 +35,13 @@ describe('TourLauncherComponent', () => {
 		url = '/auth/register';
 		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
 		expect(chip(f)).toBeNull();
+		const roles = document.createElement('div'); roles.className = 'roles-grid'; document.body.appendChild(roles);
+		vi.advanceTimersByTime(800); f.detectChanges();
+		chip(f)!.click(); expect(TestBed.inject(TourService).tour()?.id).toBe('page-register-roles-v1'); TestBed.inject(TourService).close(); roles.remove();
 		const email = document.createElement('input'); email.id = 'email'; document.body.appendChild(email);
 		vi.advanceTimersByTime(800); f.detectChanges();
 		expect(chip(f)).not.toBeNull();
+		chip(f)!.click(); expect(TestBed.inject(TourService).tour()?.id).toBe('page-register-form-v1'); TestBed.inject(TourService).close();
 		email.remove(); vi.advanceTimersByTime(800); f.detectChanges();
 		expect(chip(f)).toBeNull();
 	});

@@ -1,5 +1,5 @@
 import { ALL_TOURS } from './index';
-import { PAGE_TOURS, pageTourFor } from './page-tours';
+import { PAGE_TOURS, pageTourFor, pageToursFor } from './page-tours';
 import { VISITOR_TOUR } from './visitor.tour';
 
 describe('page tours', () => {
@@ -20,7 +20,10 @@ describe('page tours', () => {
 		expect(pageTourFor('/about')?.tour.id).toBe('page-about-v1');
 		expect(pageTourFor('/blog/?q=ai#x')?.tour.id).toBe('page-blog-v1');
 		expect(pageTourFor('/contact/')?.tour.id).toBe('page-contact-v1');
-		expect(pageTourFor('/auth/register')?.presence).toBe('#email');
+		expect(pageToursFor('/auth/register').map(e => e.presence)).toEqual(['.roles-grid', '#email']);
+		expect(pageTourFor('/auth/register', sel => sel === '.roles-grid')?.tour.id).toBe('page-register-roles-v1');
+		expect(pageTourFor('/auth/register', sel => sel === '#email')?.tour.id).toBe('page-register-form-v1');
+		expect(pageTourFor('/auth/register', () => false)).toBeNull();
 		for (const p of ['/', '/blog/some-article', '/client-overview', '/provider-overview/projects', '/marketer-overview', '/supper-admin-overview', '/assistant']) expect(pageTourFor(p), p).toBeNull();
 	});
 });

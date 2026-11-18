@@ -4,7 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TourService } from '../../core/tour/tour.service';
-import { PageTourEntry, pageTourFor } from '../../core/tour/tours/page-tours';
+import { PageTourEntry, pageTourFor, pageToursFor } from '../../core/tour/tours/page-tours';
 
 /**
  * The «جولة في هذه الصفحة» chip: shown only while the visitor is ON a page that has its own small tour (and, for the registration form, only once its fields
@@ -25,9 +25,9 @@ import { PageTourEntry, pageTourFor } from '../../core/tour/tours/page-tours';
 	`,
 	styles: [`
 		:host { display: contents; }
-		.ws-tl-chip { position: fixed; z-index: 9000; inset-inline-end: 16px; bottom: 84px; display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; border: 1px solid #5b3fb8; background: #1c1233; color: #f3eeff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 24px rgba(60, 30, 140, .35); }
+		.ws-tl-chip { position: fixed; z-index: 9000; right: 16px; left: auto; bottom: 84px; display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; border: 1px solid #5b3fb8; background: #1c1233; color: #f3eeff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 24px rgba(60, 30, 140, .35); }
 		.ws-tl-chip:hover, .ws-tl-chip:focus-visible { background: #2a1a4d; }
-		@media (max-width: 640px) { .ws-tl-chip { bottom: 76px; inset-inline-end: 10px; padding: 8px 13px; font-size: 13px; } }
+		@media (max-width: 640px) { .ws-tl-chip { bottom: 76px; right: 10px; padding: 8px 13px; font-size: 13px; } }
 	`],
 })
 export class TourLauncherComponent {
@@ -42,10 +42,7 @@ export class TourLauncherComponent {
 	readonly entry = computed<PageTourEntry | null>(() => {
 		this.tick();
 		if (this.tour.active()) return null;
-		const e = pageTourFor(this.path());
-		if (!e) return null;
-		if (e.presence && !this.doc.querySelector(e.presence)) return null;
-		return e;
+		return pageTourFor(this.path(), selector => !!this.doc.querySelector(selector));
 	});
 	/** re-read when a tour starts / ends, so a finished tour flips the label */
 	readonly done = computed(() => { this.tick(); this.tour.active(); const e = this.entry(); return !!e && this.tour.isDone(e.tour.id); });
@@ -53,7 +50,7 @@ export class TourLauncherComponent {
 	constructor() {
 		if (!this.isBrowser) return;
 		this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd), takeUntilDestroyed()).subscribe(e => { this.path.set(e.urlAfterRedirects.split(/[?#]/)[0]); this.tick.update(n => n + 1); });
-		const timer = setInterval(() => { if (pageTourFor(this.path())?.presence) this.tick.update(n => n + 1); }, 700);
+		const timer = setInterval(() => { if (pageToursFor(this.path()).some(e => e.presence)) this.tick.update(n => n + 1); }, 700);
 		inject(DestroyRef).onDestroy(() => clearInterval(timer));
 	}
 
