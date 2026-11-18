@@ -6,6 +6,7 @@
  *   npm run tour:audio -- --only=visitor-hero,visitor-ai
  *   npm run tour:audio -- --verify     # also transcribe each result back with the speech-to-text and flag mismatches
  *   npm run tour:audio -- --dry        # list what would be rendered, change nothing
+ *   npm run tour:audio -- --pace=20    # seconds to wait between renders (the TTS quota is per minute; default 5)
  *
  * How: the text goes to the AI service's TTS through the backend container on the server (SSH + docker exec; the service credentials never leave the server),
  * the WAV comes back, ffmpeg turns it into a small mono MP3 in public/assets/tour/ar/<stepId>.mp3, and manifest.json records a hash of
@@ -59,7 +60,7 @@ if (todo.length) {
 	const remote = `C=$(docker ps --format '{{.Names}}' | grep -E '^waseetai-backend-prod-[0-9a-f]{7}$' | head -1); docker exec -i $C node -e "eval(Buffer.from('${b64}','base64').toString())"`;
 	const runRemote = async (items: typeof todo): Promise<any[]> => {
 		const child = spawn('ssh', ['-i', key, '-o', 'IdentitiesOnly=yes', ssh, remote], { stdio: ['pipe', 'pipe', 'inherit'] });
-		child.stdin.end(JSON.stringify({ items, voice: VOICE, model: MODEL, dialect: DIALECT, verify: flag('verify') }));
+		child.stdin.end(JSON.stringify({ items, voice: VOICE, model: MODEL, dialect: DIALECT, verify: flag('verify'), paceMs: Number((args.find(a => a.startsWith('--pace=')) ?? '--pace=5').slice(7)) * 1000 }));
 		let buffer = ''; const out: any[] = [];
 		child.stdout.on('data', chunk => { buffer += chunk; let i; while ((i = buffer.indexOf('\n')) >= 0) { const line = buffer.slice(0, i).trim(); buffer = buffer.slice(i + 1); if (line.startsWith('{')) { try { out.push(JSON.parse(line)); } catch { /* partial / noise */ } } } });
 		await new Promise<void>(res => child.on('close', () => res()));
@@ -68,8 +69,8 @@ if (todo.length) {
 	// the AI service answers 503 under load now and then: a step with no usable result is retried (twice) before it counts as failed
 	const results: any[] = [];
 	let pending = todo;
-	for (let attempt = 1; attempt <= 3 && pending.length; attempt++) {
-		if (attempt > 1) console.log(`  retry ${attempt - 1}: ${pending.map(p => p.id).join(', ')}`);
+	for (let attempt = 1; attempt <= 4 && pending.length; attempt++) {
+		if (attempt > 1) { console.log(`  retry ${attempt - 1}: ${pending.map(p => p.id).join(', ')}`); await new Promise(r => setTimeout(r, 30000)); }
 		for (const r of await runRemote(pending)) { if (r.error) console.log(`    ${r.id}: ${r.error}`); if (r.wav) { const i = results.findIndex(x => x.id === r.id); if (i >= 0) results.splice(i, 1); results.push(r); } }
 		pending = todo.filter(s => !results.some(r => r.id === s.id));
 	}

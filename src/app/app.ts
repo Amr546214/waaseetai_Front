@@ -18,13 +18,14 @@ import { PlatformStateService } from './core/services/platform-state.service';
 import { IdentityImgDirective } from './core/identity/identity-img.directive';
 import { TourService } from './core/tour/tour.service';
 import { TourOverlayComponent } from './sheards/tour-overlay/tour-overlay';
+import { TourLauncherComponent } from './sheards/tour-launcher/tour-launcher';
 
 export const maintenanceAuthPath = (url: string) => ['/auth/login','/auth/verify-otp','/auth/forget-password','/auth/google','/auth/google/callback'].includes(url.split(/[?#]/)[0].replace(/\/$/, ''));
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [IdentityImgDirective, RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent, TourOverlayComponent, PlatformBannerComponent, UnderDeploymentComponent],
+	imports: [IdentityImgDirective, RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent, TourOverlayComponent, TourLauncherComponent, PlatformBannerComponent, UnderDeploymentComponent],
 	styleUrl: './app.css',
 	template: `
 		<!-- Maintenance: the standalone Under Deployment page REPLACES the site (no navbar, no menus, no assistant behind it). A Super Admin and the login page itself pass. -->
@@ -50,6 +51,8 @@ export const maintenanceAuthPath = (url: string) => ['/auth/login','/auth/verify
 		     Lazy-loaded after the page is idle; browser-only. -->
 		<!-- Guided tour (Bebo narrates and points). Lazy: the overlay code loads only when a tour starts. While it runs the floating assistant steps aside. -->
 		@defer (when tour.active()) { @if (tour.active()) { <app-tour-overlay /> } }
+		<!-- «جولة في هذه الصفحة»: offered only on public pages that have a small tour of their own; never starts by itself -->
+		@if (!maintenanceBlocked()) { @defer (on idle) { <app-tour-launcher /> } }
 
 		@if ((authStore.isInitialized$ | async) && !assistantHidden() && !maintenanceBlocked() && !tour.active()) {
 			@defer (on idle) {

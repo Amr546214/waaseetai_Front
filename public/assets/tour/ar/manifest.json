@@ -42,6 +42,31 @@
       "hash": "f1815ff33bf22dd1",
       "bytes": 126812,
       "seconds": 21
+    },
+    "about-intro": {
+      "hash": "d2b813f4f2468f90",
+      "bytes": 63452,
+      "seconds": 10.5
+    },
+    "about-mission": {
+      "hash": "49c1920add4c24b3",
+      "bytes": 125660,
+      "seconds": 20.8
+    },
+    "about-values": {
+      "hash": "1b5ad4ae49706c18",
+      "bytes": 65180,
+      "seconds": 10.8
+    },
+    "about-ai": {
+      "hash": "f9a59377334d6670",
+      "bytes": 104924,
+      "seconds": 17.4
+    },
+    "about-team": {
+      "hash": "40752b9514ebf1e9",
+      "bytes": 44012,
+      "seconds": 7.2
     }
   }
 }

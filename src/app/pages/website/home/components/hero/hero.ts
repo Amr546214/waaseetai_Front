@@ -2,7 +2,7 @@ import { Component, DOCUMENT, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthStore } from '../../../../../core/store/auth.store';
 import { TourService } from '../../../../../core/tour/tour.service';
-import { VISITOR_TOUR } from '../../../../../core/tour/tours/visitor.tour';
+import { TourCatalogService } from '../../../../../core/tour/tour-catalog.service';
 
 @Component({
   selector: 'app-hero',
@@ -14,15 +14,17 @@ export class Hero {
   readonly authStore = inject(AuthStore);
   private readonly doc = inject(DOCUMENT);
   private readonly tour = inject(TourService);
+  private readonly catalog = inject(TourCatalogService);
 
   /**
-   * «شاهد كيف يعمل»: a visitor (no account) gets the guided tour narrated by Bebo; a signed-in user keeps the scroll to the section for now (their role tour comes with the dashboard tours).
-   * The link keeps its href, so without JavaScript it still goes to the section.
+   * «شاهد كيف يعمل»: runs the guided tour narrated by Bebo: the introduction for a visitor, the dashboard tour of their role for a signed-in user.
+   * A signed-in role that has no tour yet keeps the old behaviour (scroll to the section). The link keeps its href, so without JavaScript it still goes to the section.
    */
   watchHowItWorks(event: Event): void {
-    if (this.authStore.isAuthenticated()) { this.scrollToHowItWorks(event); return; }
+    const tour = this.catalog.mainTour();
+    if (!tour) { this.scrollToHowItWorks(event); return; }
     event.preventDefault();
-    this.tour.start(VISITOR_TOUR);
+    this.tour.start(tour);
   }
 
   /**

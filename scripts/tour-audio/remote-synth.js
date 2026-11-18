@@ -4,7 +4,7 @@ const { waseetAiClient } = require('/app/dist/services/ai/waseet-ai/waseet-ai.cl
 let raw = '';
 process.stdin.on('data', c => { raw += c; });
 process.stdin.on('end', async () => {
-  const { items, voice, model, dialect, verify } = JSON.parse(raw);
+  const { items, voice, model, dialect, verify, paceMs } = JSON.parse(raw);
   const actor = { userId: 'tour-audio-generator', role: 'system' };
   const queue = [...items];
   const worker = async () => {
@@ -17,10 +17,12 @@ process.stdin.on('end', async () => {
           catch (e) { out.sttError = String(e && e.message || e).slice(0, 120); }
         }
         process.stdout.write(JSON.stringify(out) + '\n');
+        await new Promise(r => setTimeout(r, paceMs || 5000));
       } catch (e) { process.stdout.write(JSON.stringify({ id: item.id, error: String(e && e.message || e).slice(0, 200) }) + '\n'); }
     }
   };
-  await Promise.all([worker(), worker(), worker()]);
+  // strictly one at a time with a pause: a long list in parallel hit the TTS per-minute quota and the service answered 503 (AI_ROUTE_UNAVAILABLE) for the rest
+  await worker();
   // wait until the pipe has been flushed: exiting right away cut off the big (base64 WAV) lines
   process.stdout.write('', () => process.exit(0));
 });
