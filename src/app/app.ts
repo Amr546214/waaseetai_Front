@@ -16,13 +16,15 @@ import { UnderDeploymentComponent } from './shared/under-deployment/under-deploy
 import { PlatformInfoService } from './core/services/platform-info.service';
 import { PlatformStateService } from './core/services/platform-state.service';
 import { IdentityImgDirective } from './core/identity/identity-img.directive';
+import { TourService } from './core/tour/tour.service';
+import { TourOverlayComponent } from './sheards/tour-overlay/tour-overlay';
 
 export const maintenanceAuthPath = (url: string) => ['/auth/login','/auth/verify-otp','/auth/forget-password','/auth/google','/auth/google/callback'].includes(url.split(/[?#]/)[0].replace(/\/$/, ''));
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [IdentityImgDirective, RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent, PlatformBannerComponent, UnderDeploymentComponent],
+	imports: [IdentityImgDirective, RouterOutlet, AsyncPipe, NgIf, ConfirmModalComponent, NotificationHostComponent, AssistantWidgetComponent, TourOverlayComponent, PlatformBannerComponent, UnderDeploymentComponent],
 	styleUrl: './app.css',
 	template: `
 		<!-- Maintenance: the standalone Under Deployment page REPLACES the site (no navbar, no menus, no assistant behind it). A Super Admin and the login page itself pass. -->
@@ -46,7 +48,10 @@ export const maintenanceAuthPath = (url: string) => ['/auth/login','/auth/verify
 		     full assistant, visitors get the robot + a login prompt, and routes flagged
 		     data.hideAssistant (auth, errors) get nothing. Mounted nowhere else.
 		     Lazy-loaded after the page is idle; browser-only. -->
-		@if ((authStore.isInitialized$ | async) && !assistantHidden() && !maintenanceBlocked()) {
+		<!-- Guided tour (Bebo narrates and points). Lazy: the overlay code loads only when a tour starts. While it runs the floating assistant steps aside. -->
+		@defer (when tour.active()) { @if (tour.active()) { <app-tour-overlay /> } }
+
+		@if ((authStore.isInitialized$ | async) && !assistantHidden() && !maintenanceBlocked() && !tour.active()) {
 			@defer (on idle) {
 				<app-assistant-widget [lift]="assistantLift()" [hideToolbar]="assistantToolbarInSidebar()" />
 			}
@@ -55,6 +60,7 @@ export const maintenanceAuthPath = (url: string) => ['/auth/login','/auth/verify
 })
 export class App implements OnInit {
 	authStore = inject(AuthStore);
+	readonly tour = inject(TourService);
 	private readonly assistantStore = inject(AssistantExamState);
 	private readonly destroyRef = inject(DestroyRef);
 	private readonly platformInfo = inject(PlatformInfoService);
