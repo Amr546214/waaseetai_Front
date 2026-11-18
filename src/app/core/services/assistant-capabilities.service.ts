@@ -28,6 +28,7 @@ export interface AssistantLiveToken {
 export function assistantData<T>(response: T | { data: T }): T {
 	return response && typeof response === 'object' && 'data' in response ? response.data : response as T;
 }
+export interface AssistantAttachment { name: string; kind: 'TEXT' | 'IMAGE'; text: string; truncated: boolean; readable: boolean; scanned: boolean }
 @Injectable({ providedIn: 'root' })
 export class AssistantCapabilitiesService {
 	private readonly http = inject(HttpClient);
@@ -36,5 +37,10 @@ export class AssistantCapabilitiesService {
 	/** Background fetch: the assistant panel shows its own «تعذر تحميل الخيارات» note, so a 429 here must not raise the global rate-limit toast. */
 	get(): Observable<AssistantCapabilities> { return this.http.get<AssistantCapabilities | {data:AssistantCapabilities}>(`${environment.url_api}/help-assistant/capabilities`, { ...this.options(), context: new HttpContext().set(SKIP_LOADING, true).set(SKIP_RATE_LIMIT_TOAST, true) }).pipe(map(assistantData<AssistantCapabilities>)); }
 	transcribe(audioBase64: string, mimeType: string, language: string): Observable<{ text?: string; transcript?: string; data?: { text?: string; transcript?: string } }> { return this.http.post<any>(`${environment.url_api}/help-assistant/stt`, { audioBase64, mimeType, languageCodes: [language], mode: 'verbatim' }, this.options()); }
+	/** Uploads ONE file; the server checks it and returns the text it read (the file itself is not kept and never travels with the question). */
+	uploadAttachment(file: File): Observable<{ success?: boolean; data?: AssistantAttachment } & Partial<AssistantAttachment>> {
+		const body = new FormData(); body.append('file', file);
+		return this.http.post<any>(`${environment.url_api}/help-assistant/attachments`, body, this.options());
+	}
 	liveToken(options: { model?: string; voice?: string; language?: string } = {}): Observable<AssistantLiveToken> { return this.http.post<AssistantLiveToken | {data:AssistantLiveToken}>(`${environment.url_api}/help-assistant/live-token`, options, this.options()).pipe(map(assistantData<AssistantLiveToken>)); }
 }
