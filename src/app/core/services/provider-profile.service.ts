@@ -127,6 +127,16 @@ export class ProviderProfileService {
     );
   }
 
+  /** the AI reads the «person with the identity document» photo (advisory: no face match) */
+  verifySelfie(input: { image: string; imageMimeType: string }): Observable<{ success: boolean; data: { status: 'CLEAR_VALID' | 'NEEDS_ATTENTION' | 'NOT_A_SELFIE'; summaryAr: string; warningsAr: string[] } }> {
+    return this.http.post<any>(`${this.apiUrl}/verify-selfie`, input, { context: new HttpContext().set(SKIP_LOADING, true) });
+  }
+
+  /** the AI reads a professional certificate (readability, kind, relevance; authenticity stays a human decision) */
+  verifyCertificate(input: { image: string; imageMimeType: string; specialtyName?: string }): Observable<{ success: boolean; data: { status: 'CLEAR_VALID' | 'NEEDS_ATTENTION' | 'NOT_CERTIFICATE' | 'UNREADABLE'; summaryAr: string; warningsAr: string[] } }> {
+    return this.http.post<any>(`${this.apiUrl}/verify-certificate`, input, { context: new HttpContext().set(SKIP_LOADING, true) });
+  }
+
   /** the AI reads ONE business-model file / proof (PASS, FAIL or UNVERIFIED); nothing is stored */
   checkPortfolioFile(input: { kind: 'MODEL' | 'PROOF'; specialtyName: string; title?: string; fileName?: string; mimeType: string; file: string }): Observable<{ success: boolean; data: { verdict: 'PASS' | 'FAIL' | 'UNVERIFIED'; score: number | null; summaryAr: string; recommendationsAr: string[] } }> {
     return this.http.post<{ success: boolean; data: { verdict: 'PASS' | 'FAIL' | 'UNVERIFIED'; score: number | null; summaryAr: string; recommendationsAr: string[] } }>(
