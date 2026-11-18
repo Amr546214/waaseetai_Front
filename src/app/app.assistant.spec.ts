@@ -97,10 +97,10 @@ describe('App-level assistant (single floating Bebo)', () => {
 			expect(el().querySelectorAll('cute-robot').length).toBe(1);
 			clickRobot();
 			const prompt = el().querySelector('[data-testid="assistant-guest-prompt"]') as HTMLElement;
-			expect(prompt.textContent).toContain('سجّل الدخول لتتحدث مع وسيط AI');
+			expect(prompt.textContent).toContain('اسألني عن وسيط AI');
 			expect((el().querySelector('.aw__login') as HTMLAnchorElement).getAttribute('href')).toBe('/auth/login');
 			expect(el().querySelector('app-assistant-chat')).toBeNull();
-			expect(el().querySelector('textarea, input')).toBeNull();
+			expect(el().querySelector('[data-testid="guest-chat-input"]')).toBeTruthy();
 			expect(socket.ask).not.toHaveBeenCalled();
 			expect(tts.synthesize).not.toHaveBeenCalled();
 		});
