@@ -2,6 +2,7 @@
 	"name": "frontend",
 	"version": "0.0.0",
 	"scripts": {
+		"tour:audio": "tsx scripts/tour-audio/generate.mts",
 		"ng": "ng",
 		"start": "ng serve",
 		"start:local": "ng serve -c local",

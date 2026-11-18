@@ -1,0 +1,47 @@
+{
+  "voice": "Puck",
+  "model": "gemini-3.8-flash-tts",
+  "dialect": "msa",
+  "entries": {
+    "visitor-welcome": {
+      "hash": "2ee9563ee7ad3f7a",
+      "bytes": 56252,
+      "seconds": 9.3
+    },
+    "visitor-hero": {
+      "hash": "756d01ce53cdaa1d",
+      "bytes": 71372,
+      "seconds": 11.8
+    },
+    "visitor-how": {
+      "hash": "45ade93c27e5d870",
+      "bytes": 70652,
+      "seconds": 11.7
+    },
+    "visitor-ops": {
+      "hash": "049b013171d28fbe",
+      "bytes": 91532,
+      "seconds": 15.2
+    },
+    "visitor-ai": {
+      "hash": "be343383c82d1bbe",
+      "bytes": 66332,
+      "seconds": 11
+    },
+    "visitor-roles": {
+      "hash": "452a55fe276cbbf0",
+      "bytes": 61580,
+      "seconds": 10.2
+    },
+    "visitor-end": {
+      "hash": "21646dfe468d7cef",
+      "bytes": 50204,
+      "seconds": 8.3
+    },
+    "visitor-register": {
+      "hash": "f1815ff33bf22dd1",
+      "bytes": 126812,
+      "seconds": 21
+    }
+  }
+}
