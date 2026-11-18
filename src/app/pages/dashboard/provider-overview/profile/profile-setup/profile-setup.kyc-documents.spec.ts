@@ -88,7 +88,8 @@ describe('provider setup wizard: private KYC documents', () => {
 		setup({});
 		component.onFileSelected({ target: { files: [new File(['x'], 'front.png', { type: 'image/png' })], value: '' } }, 'frontId');
 		expect(uploadDocument).toHaveBeenCalledTimes(1);
-		expect(uploadDocument.mock.calls[0].length).toBe(1);
+		// private (no visibility option); the identity-document slot also names its kind so the server repeats the AI check
+		expect(uploadDocument.mock.calls[0][1]).toEqual({ kind: 'ID_DOCUMENT' });
 		expect(component.uploadedFrontId()).toBe(REF);
 		component.currentStep.set(4);
 		fixture.detectChanges();
@@ -107,6 +108,6 @@ describe('provider setup wizard: private KYC documents', () => {
 		expect(publicCalls).toBe(1);
 		expect(uploadDocument.mock.calls.slice(1, 3).every(c => c.length === 1)).toBe(true);
 		component.onFileSelected({ target: { files: [new File(['x'], 'f.png', { type: 'image/png' })], value: '' } }, 'backId');
-		expect(uploadDocument.mock.calls.at(-1)!.length).toBe(1);
+		expect(uploadDocument.mock.calls.at(-1)![1]).toEqual({ kind: 'ID_DOCUMENT' });
 	});
 });

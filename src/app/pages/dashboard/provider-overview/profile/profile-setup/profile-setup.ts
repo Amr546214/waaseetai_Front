@@ -1149,7 +1149,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			this.runAdvisoryIdInspection(file, type);
 		}
 
-		this.providerProfileService.uploadDocument(file).subscribe({
+		// the server repeats the AI check for these slots and refuses a clearly wrong file (it cannot be skipped by calling the API directly)
+		const kind = type === 'frontId' || type === 'backId' ? 'ID_DOCUMENT' as const : type === 'selfie' ? 'SELFIE' as const : undefined;
+		this.providerProfileService.uploadDocument(file, kind ? { kind } : {}).subscribe({
 			next: (event: any) => {
 				if (event.type === HttpEventType.UploadProgress) {
 					const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
@@ -1209,7 +1211,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		files.forEach((file, idx) => {
 			this.setUploadState(`${key}-${idx}`, { status: 'uploading', progress: 0, name: file.name });
 
-			this.providerProfileService.uploadDocument(file).subscribe({
+			this.providerProfileService.uploadDocument(file, { kind: 'CERTIFICATE' }).subscribe({
 				next: (event: any) => {
 					if (event.type === HttpEventType.UploadProgress) {
 						const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
