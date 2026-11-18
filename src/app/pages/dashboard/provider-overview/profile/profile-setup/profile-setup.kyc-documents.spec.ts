@@ -99,14 +99,14 @@ describe('provider setup wizard: private KYC documents', () => {
 	it('only the avatar is public (visibility=public); KYC files and the work-model proof files are private', () => {
 		setup({});
 		component.onAvatarSelected(pick('image/png', 'me.png'));
-		expect(uploadDocument.mock.calls[0][1]).toEqual({ visibility: 'public' });
+		expect(uploadDocument.mock.calls[0][1]).toEqual({ visibility: 'public', kind: 'AVATAR' });
 		component.portfolioItems.set({ برمجة: [{ review: '', reviewDisplayName: '', proofs: [], proofDisplayNames: [] }] });
 		component.onPortfolioReviewChange(pick('application/pdf', 'r.pdf'), 'برمجة', 0);
 		component.onPortfolioProofsChange({ target: { files: [new File(['x'], 'p.pdf', { type: 'application/pdf' })], value: '' } }, 'برمجة', 0);
 		// Batch B T1: the work-model proof files are confidential documents (no visibility option = private reference)
 		const publicCalls = uploadDocument.mock.calls.filter(c => c[1]?.visibility === 'public').length;
 		expect(publicCalls).toBe(1);
-		expect(uploadDocument.mock.calls.slice(1, 3).every(c => c.length === 1)).toBe(true);
+		expect(uploadDocument.mock.calls.slice(1, 3).map(c => c[1])).toEqual([{ kind: 'PORTFOLIO_MODEL' }, { kind: 'PORTFOLIO_PROOF' }]);
 		component.onFileSelected({ target: { files: [new File(['x'], 'f.png', { type: 'image/png' })], value: '' } }, 'backId');
 		expect(uploadDocument.mock.calls.at(-1)![1]).toEqual({ kind: 'ID_DOCUMENT' });
 	});

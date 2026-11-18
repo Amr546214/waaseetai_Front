@@ -896,7 +896,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 		this.avatarError.set('');
 		this.setUploadState('avatar', { status: 'uploading', progress: 0, name: file.name });
-		this.providerProfileService.uploadDocument(file, { visibility: 'public' }).subscribe({
+		this.providerProfileService.uploadDocument(file, { visibility: 'public', kind: 'AVATAR' }).subscribe({
 			next: (event: any) => {
 				if (event.type === HttpEventType.UploadProgress) {
 					const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
@@ -1150,8 +1150,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		}
 
 		// the server repeats the AI check for these slots and refuses a clearly wrong file (it cannot be skipped by calling the API directly)
-		const kind = type === 'frontId' || type === 'backId' ? 'ID_DOCUMENT' as const : type === 'selfie' ? 'SELFIE' as const : undefined;
-		this.providerProfileService.uploadDocument(file, kind ? { kind } : {}).subscribe({
+		const kind = type === 'frontId' || type === 'backId' ? 'ID_DOCUMENT' as const : 'SELFIE' as const;
+		this.providerProfileService.uploadDocument(file, { kind }).subscribe({
 			next: (event: any) => {
 				if (event.type === HttpEventType.UploadProgress) {
 					const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
@@ -1407,7 +1407,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				this.updatePortfolioItem(spec, idx, item => ({ ...item, review: '', reviewDisplayName: '' }));
 				this.uploadStates.update(st => { const n = { ...st }; delete n[key]; return n; });
 			});
-			this.providerProfileService.uploadDocument(file).subscribe({
+			this.providerProfileService.uploadDocument(file, { kind: 'PORTFOLIO_MODEL' }).subscribe({
 				next: (event: any) => {
 					if (event.type === HttpEventType.UploadProgress) {
 						const progress = event.total ? Math.round((event.loaded / event.total) * 100) : 0;
@@ -1454,7 +1454,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				this.updatePortfolioItem(spec, idx, item => ({ ...item, proofDisplayNames: [...item.proofDisplayNames, file.name], proofs: [...item.proofs, ''] }));
 				this.checkPortfolioWithAi('PROOF', spec, file, `proof-${spec}-${idx}-${baseProofIdx}`, `refused-${spec}-${idx}`, () => this.removePortfolioProof(spec, idx, Math.min(baseProofIdx, (this.portfolioItems()[spec]?.[idx]?.proofs.length ?? 1) - 1)));
 
-				this.providerProfileService.uploadDocument(file).subscribe({
+				this.providerProfileService.uploadDocument(file, { kind: 'PORTFOLIO_PROOF' }).subscribe({
 					next: (ev: any) => {
 						if (ev.type === HttpEventType.UploadProgress) {
 							const progress = ev.total ? Math.round((ev.loaded / ev.total) * 100) : 0;

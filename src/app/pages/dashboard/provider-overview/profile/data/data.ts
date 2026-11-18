@@ -1138,8 +1138,8 @@ export class Data implements OnInit {
     this.setDocumentState(controlName, { name: file.name, progress: 0, status: 'uploading', previewUrl, mimeType: file.type });
     if (controlName === 'idDocumentUrl') this.checkIdentityDocumentWithAi(file, controlName);
     // server-side AI check for the identity document / certificate slots (a clearly wrong file is refused with 422)
-    const kind = controlName === 'idDocumentUrl' ? 'ID_DOCUMENT' as const : controlName === 'certificatesUrl' ? 'CERTIFICATE' as const : undefined;
-    this.profileService.uploadDocument(file, kind ? { kind } : {}).subscribe({
+    const kind = controlName === 'idDocumentUrl' ? 'ID_DOCUMENT' as const : controlName === 'certificatesUrl' ? 'CERTIFICATE' as const : 'BUSINESS_DOCUMENT' as const; // commercial registration / VAT: labelled, not AI-checked
+    this.profileService.uploadDocument(file, { kind }).subscribe({
       next: (ev: any) => {
         if (ev.type === HttpEventType.UploadProgress) {
           const progress = ev.total ? Math.round((ev.loaded / ev.total) * 100) : 0;

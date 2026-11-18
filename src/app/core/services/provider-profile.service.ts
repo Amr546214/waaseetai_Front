@@ -213,12 +213,12 @@ export class ProviderProfileService {
    * KYC / confidential documents are uploaded PRIVATE by default and the response carries a private reference (data.url) that is sent back
    * unchanged in the next request; it is never shown. Content shown publicly on the profile (avatar, portfolio files) passes visibility 'public'.
    */
-  uploadDocument(file: File, options: { visibility?: 'public'; kind?: 'ID_DOCUMENT' | 'SELFIE' | 'CERTIFICATE'; specialtyName?: string } = {}): Observable<HttpEvent<any>> {
+  uploadDocument(file: File, options: { visibility?: 'public'; kind: 'ID_DOCUMENT' | 'SELFIE' | 'CERTIFICATE' | 'AVATAR' | 'PORTFOLIO_MODEL' | 'PORTFOLIO_PROOF' | 'BUSINESS_DOCUMENT'; specialtyName?: string }): Observable<HttpEvent<any>> {
     const body = new FormData();
     if (options.visibility === 'public') body.append('visibility', 'public');
     // the server runs the same AI check again for these slots and refuses a clearly wrong file (422), so the check cannot be skipped by calling the API directly
-    if (options.kind) body.append('kind', options.kind);
-    if (options.kind && options.specialtyName) body.append('specialtyName', options.specialtyName);
+    body.append('kind', options.kind);
+    if (options.specialtyName) body.append('specialtyName', options.specialtyName);
     body.append('file', file);
     return this.http.post<any>(`${this.apiUrl}/documents/upload`, body, {
       observe: 'events',
