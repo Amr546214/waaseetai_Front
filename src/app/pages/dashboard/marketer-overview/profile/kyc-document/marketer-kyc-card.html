@@ -35,7 +35,7 @@
 		@if (status() !== 'APPROVED') {
 			<label class="mk-upload" [class.busy]="uploading()">
 				<input type="file" class="mk-file" data-testid="kyc-file" [attr.accept]="rule.extensions.join(',')" [disabled]="uploading()" (change)="onFileSelected($event)">
-				<span>{{ uploading() ? 'جارٍ الرفع…' : (status() === 'PENDING' ? 'استبدال المستند' : 'رفع المستند') }}</span>
+				<span>{{ uploading() ? 'جارٍ الرفع وقراءة الوثيقة بالذكاء الاصطناعي…' : (status() === 'PENDING' ? 'استبدال المستند' : 'رفع المستند') }}</span>
 			</label>
 			<div class="mk-hint">{{ rule.typesLabel }} · حتى 5 ميغابايت · ملف واحد</div>
 			@if (status() !== 'REJECTED') { <p class="mk-note" data-testid="kyc-reject-note">إذا لم يُعتمد المستند يظهر هنا سبب الرفض، ويمكنك رفع مستند جديد.</p> }

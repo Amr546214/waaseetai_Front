@@ -1,3 +1,4 @@
+import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
 import { Component, signal, OnInit, inject, PLATFORM_ID, computed, DestroyRef, ElementRef } from '@angular/core';
@@ -1087,6 +1088,39 @@ export class Data implements OnInit {
     });
   }
 
+  /** the AI reads the identity document picked here (the same check as the setup wizard): a picture that is not an identity document or is unreadable is removed with the reason; anything it cannot read stays for the human review */
+  readonly idDocCheck = signal<{ status: 'scanning' | 'valid' | 'warning'; message: string } | null>(null);
+  private idDocCheckSeq = 0;
+  private checkIdentityDocumentWithAi(file: File, controlName: string) {
+    const seq = ++this.idDocCheckSeq;
+    const current = () => seq === this.idDocCheckSeq;
+    if ((!file.type?.startsWith('image/') && file.type !== 'application/pdf') || file.size < 512 || file.size > 7_500_000) { this.idDocCheck.set(null); return; }
+    this.idDocCheck.set({ status: 'scanning', message: 'جاري قراءة الوثيقة بالذكاء الاصطناعي...' });
+    const reader = new FileReader();
+    reader.onerror = () => { if (current()) this.idDocCheck.set(null); };
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+      if (!dataUrl) { if (current()) this.idDocCheck.set(null); return; }
+      this.profileService.verifyIdentityDocument({
+        side: 'FRONT', image: dataUrl, imageMimeType: file.type,
+        ...(this.profileForm.get('dob')?.value ? { declared: { birthDate: String(this.profileForm.get('dob')?.value) } } : {})
+      }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: res => {
+          if (!current()) return;
+          const d = res?.data;
+          if (!d) { this.idDocCheck.set(null); return; }
+          const inspection = identityInspectionResult(d);
+          // refused only when it is not an identity document / unreadable (this slot has no number to compare, and either side may be sent here)
+          const refused = d.isIdentityDocument === false || d.status === 'NOT_ID_DOCUMENT' || d.status === 'UNREADABLE' || d.readability === 'UNREADABLE';
+          if (refused) { this.removeDocument(controlName); this.setDocFileError(controlName, inspection.message + ' ارفع صورة واضحة لوثيقة هويتك.'); this.idDocCheck.set(null); return; }
+          this.idDocCheck.set(inspection);
+        },
+        error: () => { if (current()) this.idDocCheck.set(null); }
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
   onDocSelected(event: Event, controlName: string) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -1102,6 +1136,7 @@ export class Data implements OnInit {
     if (previousPreview?.startsWith('blob:')) URL.revokeObjectURL(previousPreview);
     const previewUrl = URL.createObjectURL(file);
     this.setDocumentState(controlName, { name: file.name, progress: 0, status: 'uploading', previewUrl, mimeType: file.type });
+    if (controlName === 'idDocumentUrl') this.checkIdentityDocumentWithAi(file, controlName);
     this.profileService.uploadDocument(file).subscribe({
       next: (ev: any) => {
         if (ev.type === HttpEventType.UploadProgress) {
