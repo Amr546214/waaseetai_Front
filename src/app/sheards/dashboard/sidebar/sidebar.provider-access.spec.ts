@@ -37,10 +37,10 @@ const STATUS = '/provider-overview/account-actions';
 describe('provider sidebar while the account is not approved', () => {
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('pending: the status link is there, dashboard/offers/wallet/marketing are disabled with an honest reason, onboarding links stay enabled', () => {
+	it('pending: there is no «إجراءات الحساب» link in the menu, dashboard/offers/wallet/marketing are disabled with an honest reason, onboarding links stay enabled', () => {
 		const items = setup('PROVIDER_INDIVIDUAL', st('PENDING_REVIEW'));
 		const by = (r: string) => items.find(i => i.route === r)!;
-		expect(by(STATUS).disabled).toBeFalsy();
+		expect(items.find(i => i.route === STATUS)).toBeUndefined(); // the page stays as the automatic waiting screen, it is just not a menu item
 		for (const r of ['/provider-overview', '/provider-overview/offers', '/provider-overview/finance/wallet', '/provider-overview/marketing/center', '/provider-overview/business-models/market']) {
 			expect(by(r).disabled).toBe(true);
 			expect(by(r).disabledReason).toBe('تفتح بعد اعتماد نموذج الاعتماد');
