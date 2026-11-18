@@ -1562,6 +1562,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				backId: this.setupForm.get('docs.backId')?.value,
 				certs: this.uploadedCerts()
 			},
+			// the «person holding the document» photo is stored as the supporting document (it was uploaded and AI-checked but never sent, so it was lost); absent = keep what is stored
+			...(String(this.setupForm.get('docs.selfie')?.value || '').trim() ? { documents: { supportingDocs: String(this.setupForm.get('docs.selfie')?.value).trim() } } : {}),
 			portfolio: this.sanitizePortfolioForPayload(this.portfolioItems()),
 
 			// No `bank` key on purpose: the setup endpoint then leaves any saved bank values untouched

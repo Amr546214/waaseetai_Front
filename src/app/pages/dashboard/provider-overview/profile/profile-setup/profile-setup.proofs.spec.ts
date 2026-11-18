@@ -251,4 +251,17 @@ describe('provider setup step 5: proof of ownership is required', () => {
     c.saveAndGoToTest(); c.saveAndGoToTest(); c.saveAndGoToTest();
     expect(save).toHaveBeenCalledTimes(1);
   });
+
+  it('the selfie uploaded in the wizard is sent as the supporting document (it used to be dropped); no selfie = no documents key', () => {
+    set({ review: 'r-url', reviewDisplayName: 'r.pdf', proofs: ['p-url'], proofDisplayNames: ['p'] });
+    c.setupForm.get('agreements.ackFinal')!.setValue(true);
+    c.currentStep.set(6);
+    c.setupForm.get('docs.selfie')!.setValue('private:image:png:waseetai/providers/u1/documents/selfie/s-1');
+    c.saveAndGoToTest();
+    expect((save.mock.calls.at(-1) as any[])[0].documents).toEqual({ supportingDocs: 'private:image:png:waseetai/providers/u1/documents/selfie/s-1' });
+    save.mockClear();
+    c.setupForm.get('docs.selfie')!.setValue('');
+    c.saveAndGoToTest();
+    expect((save.mock.calls.at(-1) as any[])[0].documents).toBeUndefined();
+  });
 });
