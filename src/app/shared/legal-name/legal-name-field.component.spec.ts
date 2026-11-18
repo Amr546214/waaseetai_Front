@@ -106,11 +106,13 @@ describe('LegalNameFieldComponent', () => {
 			} finally { vi.useRealTimers(); }
 		});
 
-		it('a change that needs an administrator review keeps its explicit button and is never auto-sent', async () => {
+		it('a name tied to a verified / pending identity is read-only here: no «إرسال طلب التعديل» button, nothing is ever sent', async () => {
 			await mountAuto(view({ changeNeedsReview: true }));
+			const input = q('legal-name-field-input') as HTMLInputElement;
+			expect(input.readOnly).toBe(true);
+			expect(q('legal-name-save')).toBeNull();
 			type('عمرو أحمد'); blur();
 			expect(save).not.toHaveBeenCalled();
-			expect(q('legal-name-save')?.textContent).toContain('إرسال طلب التعديل');
 		});
 	});
 });

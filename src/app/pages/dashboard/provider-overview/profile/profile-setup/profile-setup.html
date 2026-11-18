@@ -710,15 +710,12 @@
           </div>
         </div>
 
-        <div class="identity-gate-actions" style="margin:12px 0">
-          <button type="button" class="btn-wz-next" data-testid="identity-gate-send" (click)="sendIdentity()" [disabled]="gate.saving() || isUploading()">{{ gate.saving() ? 'جاري حفظ الوثيقة...' : (gate.status() === 'REJECTED' ? 'حفظ التصحيح وإعادة الإرسال للمراجعة' : 'حفظ وإرسال للمراجعة') }}</button>
-        </div>
 
         <ws-form-summary [items]="missing()" />
         <div class="step-nav">
           <button type="button" class="btn-wz-back" (click)="goToStep(3)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-r"></use></svg>السابق</button>
           <span class="step-cnt">المرحلة 4 من 7</span>
-          <button type="button" class="btn-wz-next" (click)="goToStep(5)" [disabled]="isUploading() || !gate.canAdvance()" data-testid="identity-next">{{ isUploading() ? 'جاري الرفع...' : 'التالي' }}<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
+          <button type="button" class="btn-wz-next" (click)="identityNext()" [disabled]="isUploading() || gate.saving()" data-testid="identity-next">{{ isUploading() ? 'جاري الرفع...' : 'التالي' }}<svg width="14" height="14" aria-hidden="true"><use href="#i-arrow-l"></use></svg></button>
         </div>
       </div>
 

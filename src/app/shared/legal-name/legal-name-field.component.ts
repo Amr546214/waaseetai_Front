@@ -22,10 +22,10 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 				<p class="text-xs text-slate-300 mb-2" role="status" data-testid="legal-name-pending">طلب تعديل الاسم إلى «{{ p.requestedValue }}» قيد المراجعة. سيبقى الاسم الحالي حتى القرار، ثم تُعاد مطابقة الهوية.</p>
 			}
 			@if ((editing() && !v.pendingRequest) || v.status === 'MISSING') {
-				<input id="legal-name-field-input" type="text" maxlength="120" autocomplete="off" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="مثال: عمرو محمود" data-testid="legal-name-field-input" [value]="draft()" (input)="onInput($event)" (blur)="flush()" [attr.aria-invalid]="problem() ? 'true' : null" />
+				<input id="legal-name-field-input" type="text" [readOnly]="lockedHere(v)" maxlength="120" autocomplete="off" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="مثال: عمرو محمود" data-testid="legal-name-field-input" [value]="draft()" (input)="onInput($event)" (blur)="flush()" [attr.aria-invalid]="problem() ? 'true' : null" />
 				@if (problem(); as pr) { <div class="text-xs text-red-400 mt-1" role="alert" data-testid="legal-name-problem">{{ pr }}</div> }
-				@if (v.changeNeedsReview && v.status === 'PROVIDED') { <p class="text-xs text-slate-300 mt-1">اسمك مرتبط بهوية موثقة أو قيد المراجعة: التعديل يُرسل كطلب للمراجعة ثم تُعاد مطابقة الهوية.</p> }
-				@if (!autoSaves(v)) {
+				@if (v.changeNeedsReview && v.status === 'PROVIDED') { <p class="text-xs text-slate-300 mt-1">@if (lockedHere(v)) {اسمك مرتبط بهوية موثقة أو قيد المراجعة ولا يمكن تعديله من هنا.} @else {اسمك مرتبط بهوية موثقة أو قيد المراجعة: التعديل يُرسل كطلب للمراجعة ثم تُعاد مطابقة الهوية.}</p> }
+				@if (!autoSaves(v) && !lockedHere(v)) {
 				<div class="flex gap-2 mt-2">
 					<button type="button" class="px-4 py-2 rounded-xl bg-[#2BD4C7] text-[#04101f] text-sm font-bold" [disabled]="saving() || !!problem() || !draft().trim()" (click)="save()" data-testid="legal-name-save">{{ v.changeNeedsReview ? (v.status === 'PROVIDED' ? 'إرسال طلب التعديل' : 'إرسال طلب إضافة الاسم') : 'حفظ الاسم الحقيقي' }}</button>
 					@if (v.status === 'PROVIDED' && !alwaysEdit()) { <button type="button" class="px-4 py-2 rounded-xl border border-white/20 text-sm" (click)="cancel()">إلغاء</button> }
@@ -54,7 +54,9 @@ export class LegalNameFieldComponent implements OnInit, OnDestroy {
 	/** setup pages: no save button, the name is saved by itself when typing stops / the box loses focus. A change that needs an administrator's review (verified or pending identity) still keeps its explicit button, so no request is ever created by accident. */
 	readonly autoSave = input(false);
 	private timer: ReturnType<typeof setTimeout> | null = null;
-	autoSaves(v: LegalNameView): boolean { return this.autoSave() && !v.changeNeedsReview; }
+	/** auto-saving pages: no button for the name at all. An EXISTING name tied to a verified / pending identity cannot be changed from here (the box is read-only); a missing one is added by itself */
+	autoSaves(v: LegalNameView): boolean { return this.autoSave() && (!v.changeNeedsReview || v.status === 'MISSING'); }
+	lockedHere(v: LegalNameView): boolean { return this.autoSave() && v.changeNeedsReview && v.status === 'PROVIDED'; }
 	/** emitted when the legal name was saved (so the page can re-read what depends on it) */
 	readonly saved = output<void>();
 

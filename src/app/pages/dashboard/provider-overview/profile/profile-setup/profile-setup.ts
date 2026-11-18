@@ -323,7 +323,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			this.currentStep.set(d.step);
 			if (d.step === 5) this.initPortfolioCards();
 			// a resumed wizard never stands past an identity that is not approved
-			if (d.step > 4) this.gate.load().subscribe({ next: g => { if (!g.canAdvance && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
+			if (d.step > 4) this.gate.load().subscribe({ next: g => { if (!(g.canAdvance || g.status === 'UNDER_REVIEW') && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
 		}
 	}
 
@@ -492,7 +492,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					this.currentStep.set(start.step);
 					if (start.step === 5) this.initPortfolioCards();
 					// a resumed wizard never stands past an identity that is not approved (the server would refuse those steps anyway)
-					if (start.step > 4) this.gate.load().subscribe({ next: g => { if (!g.canAdvance && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
+					if (start.step > 4) this.gate.load().subscribe({ next: g => { if (!(g.canAdvance || g.status === 'UNDER_REVIEW') && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
 				}
 				this.restoreDraft();
 			},
@@ -729,16 +729,26 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private checkGate(proceed: () => void) {
 		this.gate.load().subscribe({
 			next: g => {
-				if (g.canAdvance) { this.gateProblem.set(null); proceed(); return; }
+				// the document is sent (under review): the wizard carries on, the approval is awaited at the end
+				if (g.canAdvance || g.status === 'UNDER_REVIEW') { this.gateProblem.set(null); proceed(); return; }
 				this.currentStep.set(4);
-				this.gateProblem.set(g.status === 'UNDER_REVIEW' ? 'الوثيقة قيد المراجعة؛ تُفتح الخطوة التالية بعد اعتمادها.' : g.status === 'REJECTED' ? 'الوثيقة مرفوضة؛ صحّح البيانات أو أعد رفع الصورة.' : 'ارفع صورة الوثيقة وأكمل بيانات الهوية لتبدأ المراجعة.');
+				this.gateProblem.set(g.status === 'REJECTED' ? 'الوثيقة مرفوضة؛ صحّح البيانات أو أعد رفع الصورة.' : 'ارفع صورة الوثيقة وأكمل بيانات الهوية لتبدأ المراجعة.');
 			},
 			error: () => { this.currentStep.set(4); this.gateProblem.set('تعذّر التحقق من حالة الوثيقة، حاول مرة أخرى.'); }
 		});
 	}
 
 	/** The identity step save: ID data + the images uploaded now go to the server, which stores them and STARTS the review. The user stays here; nothing is erased. */
-	sendIdentity() {
+	/** the Next button of the identity step: sends the document first when it was not sent yet (or the typed number differs from the stored one), then moves on */
+	identityNext() {
+		const st = this.gate.status();
+		const typed = String(this.setupForm.get('docs.idNumber')?.value || '').trim();
+		const stored = String(this.gate.state()?.data?.idNumber ?? '').trim();
+		if (st === 'NOT_SUBMITTED' || st === 'REJECTED' || (!!typed && typed !== stored)) { this.sendIdentity(() => this.goToStep(5)); return; }
+		this.goToStep(5);
+	}
+
+	sendIdentity(done?: () => void) {
 		const d = this.setupForm.getRawValue();
 		const issuer = identityCountryCode(d.profData.country);
 		const problem = documentInputProblem(d.docs.idNumber, issuer, d.docs.idDocumentType || null);
@@ -755,7 +765,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			idIssuingCountry: issuer, idDocumentType: d.docs.idDocumentType, idNumber: String(d.docs.idNumber).trim(),
 			...(d.profData.dob ? { dob: String(d.profData.dob).slice(0, 10) } : {}), ...(frontId ? { frontId } : {}), ...(backId ? { backId } : {})
 		}).subscribe({
-			next: () => { this.pendingRefs = {}; },
+			next: () => { this.pendingRefs = {}; done?.(); },
 			error: (err) => {
 				const message = mapHttpError(err, { fallback: 'تعذّر حفظ الوثيقة، حاول مرة أخرى.' }).message;
 				if (!frontId && !backId) { this.gateProblem.set(message); return; }
