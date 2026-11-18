@@ -44,16 +44,15 @@ describe('provider setup wizard: identity review state', { timeout: 30000 }, () 
   const q = (s: string) => fixture.nativeElement.querySelector(s) as HTMLElement | null;
   const frontInput = () => q('input[aria-label="رفع صورة الهوية، وجه"]') as HTMLInputElement | null;
 
-  it('UNDER_REVIEW: «الوثيقة قيد المراجعة» in place, the stored file is listed and the next step stays closed', async () => {
+  it('UNDER_REVIEW: «الوثيقة قيد المراجعة» in place, the stored file is listed, there is no send button and the wizard carries on to the next step', async () => {
     await setup({ frontIdUrlAccess: FRONT, kycStatus: 'PENDING', identityVerification: iv('PENDING_REVIEW') }, 'UNDER_REVIEW');
     fixture.detectChanges();
     expect(q('[data-testid="identity-gate-under-review"]')!.textContent).toContain('الوثيقة قيد المراجعة');
     expect(q('.uploaded-file')!.textContent).toContain('يوجد مستند مرفوع سابقًا');
-    expect((q('[data-testid="identity-next"]') as HTMLButtonElement).disabled).toBe(true);
+    expect(q('[data-testid="identity-gate-send"]')).toBeNull(); // no «حفظ وإرسال للمراجعة» button: the picture is sent when chosen
+    expect((q('[data-testid="identity-next"]') as HTMLButtonElement).disabled).toBe(false);
     (component as any).goToStep(5);
-    expect(component.currentStep()).toBe(4);
-    fixture.detectChanges();
-    expect(q('[data-testid="identity-gate-problem"]')!.textContent).toContain('قيد المراجعة');
+    expect(component.currentStep()).toBe(5);
   });
 
   it('a DOCUMENTS request waiting (no stored front) is still the under-review state', async () => {
@@ -62,7 +61,7 @@ describe('provider setup wizard: identity review state', { timeout: 30000 }, () 
     expect(component.kycPending()).toBe(true);
     expect(q('[data-testid="identity-gate-under-review"]')).not.toBeNull();
     (component as any).goToStep(5);
-    expect(component.currentStep()).toBe(4);
+    expect(component.currentStep()).toBe(5);
   });
 
   it('APPROVED: the approved panel shows and the next step opens', async () => {
