@@ -7,7 +7,7 @@ import { documentInputProblem, DOCUMENT_NUMBER_PATTERN, IDENTITY_DOCUMENT_TYPES,
 import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { Component, ElementRef, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, finalize, switchMap } from 'rxjs';
+import { debounceTime, finalize, firstValueFrom, switchMap } from 'rxjs';
 import { buildDraft, clearDraft, readDraft, writeDraft } from './provider-setup-draft';
 import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { CommonModule } from '@angular/common';
@@ -807,6 +807,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				return;
 			}
 			this.clearFileError(type);
+			if (type === 'selfie') {
+				event.target.value = '';
+				void this.readSupportingFile('selfie', [file]).then(ok => { if (ok) this.uploadSingleDoc(file, type); });
+				return;
+			}
 			this.uploadSingleDoc(file, type);
 		} else if (type === 'certs') {
 			const validFiles: File[] = [];
@@ -820,8 +825,49 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				validFiles.push(f);
 			}
 			this.clearFileError('certs');
-			this.uploadCerts(validFiles);
+			event.target.value = '';
+			void this.readSupportingFile('certs', validFiles).then(ok => { if (ok) this.uploadCerts(validFiles); });
 		}
+	}
+
+	/** the AI reading of the «selfie with the document» photo and of the certificates, shown under their cards: key `selfie` / `certs` */
+	supportingChecks = signal<Record<string, { status: 'scanning' | 'valid' | 'warning'; message: string }>>({});
+	private setSupportingCheck(key: string, v: { status: 'scanning' | 'valid' | 'warning'; message: string } | null) {
+		this.supportingChecks.update(c => { const n = { ...c }; if (v) n[key] = v; else delete n[key]; return n; });
+	}
+	private readAsDataUrl(file: File): Promise<string> {
+		return new Promise(resolve => { const r = new FileReader(); r.onload = () => resolve(typeof r.result === 'string' ? r.result : ''); r.onerror = () => resolve(''); r.readAsDataURL(file); });
+	}
+	/**
+	 * The AI reads the file(s) BEFORE they are uploaded. Returns true when the upload may start: a picture that is not what the slot asks for (no person / not a certificate / unreadable)
+	 * is refused with the reason and nothing is uploaded; whatever the AI cannot read or judge (other types, > 7.5 MB, the service down) goes on to the human review.
+	 */
+	private async readSupportingFile(kind: 'selfie' | 'certs', files: File[]): Promise<boolean> {
+		const readable = (f: File) => (f.type.startsWith('image/') || (kind === 'certs' && f.type === 'application/pdf')) && f.size >= 512 && f.size <= 7_500_000;
+		this.setSupportingCheck(kind, { status: 'scanning', message: 'جاري قراءة الملف بالذكاء الاصطناعي...' });
+		const specialtyName = this.categories().find(c => c.slug === this.setupForm.get('specialties.mainSpec')?.value || c.id === this.setupForm.get('specialties.mainSpec')?.value)?.nameAr;
+		let warning = '';
+		for (const file of files) {
+			if (!readable(file)) { warning = 'هذا النوع أو الحجم لا يُقرأ آليًا؛ ستراجعه الإدارة.'; continue; }
+			const image = await this.readAsDataUrl(file);
+			if (!image) continue;
+			try {
+				const res = kind === 'selfie'
+					? await firstValueFrom(this.providerProfileService.verifySelfie({ image, imageMimeType: file.type }))
+					: await firstValueFrom(this.providerProfileService.verifyCertificate({ image, imageMimeType: file.type, ...(specialtyName ? { specialtyName } : {}) }));
+				const d = res?.data;
+				if (!d) continue;
+				const reasons = [...new Set([d.summaryAr, ...(d.warningsAr ?? [])].filter((s): s is string => !!s?.trim()))].join(' — ');
+				if (d.status === 'NOT_A_SELFIE' || d.status === 'NOT_CERTIFICATE' || d.status === 'UNREADABLE') {
+					this.setSupportingCheck(kind, null);
+					this.setFileError(kind, `${files.length > 1 ? `«${file.name}»: ` : ''}${reasons || 'الملف غير مناسب لهذا الحقل.'} ${kind === 'selfie' ? 'التقط صورة شخصية واضحة وأنت تحمل وثيقة هويتك.' : 'ارفع صورة واضحة للشهادة.'}`);
+					return false;
+				}
+				if (d.status === 'NEEDS_ATTENTION') warning = reasons || 'توجد ملاحظات على الملف؛ ستراجعه الإدارة.';
+			} catch { warning = 'تعذّر الفحص الآلي حاليًا؛ يمكنك المتابعة وستراجع الإدارة الملف.'; }
+		}
+		this.setSupportingCheck(kind, warning ? { status: 'warning', message: warning } : { status: 'valid', message: kind === 'selfie' ? 'قرأ الذكاء الاصطناعي الصورة: شخص وهوية ظاهران.' : 'قرأ الذكاء الاصطناعي الشهادة وهي مقروءة.' });
+		return true;
 	}
 
 	// === Profile completion extras (P-AU-011) ===

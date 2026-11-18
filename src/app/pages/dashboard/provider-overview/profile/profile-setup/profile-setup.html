@@ -622,7 +622,13 @@
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('selfie')" aria-label="حذف الملف">&#x2715;</button>
             </div>
           }
-          @if (fileErr('selfie'); as e) { <div class="f-err doc-inline-err" id="err-doc-selfie" data-testid="doc-file-error-selfie" role="alert">{{ e }}</div> }
+          @if (supportingChecks()['selfie']; as chk) {
+          <div data-testid="selfie-ai-check" role="status" aria-live="polite" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:flex-start;gap:6px;border:1px solid" [style.background]="chk.status === 'valid' ? 'rgba(16,185,129,.10)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.10)' : 'rgba(245,158,11,.10)')" [style.borderColor]="chk.status === 'valid' ? 'rgba(16,185,129,.4)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.35)' : 'rgba(245,158,11,.4)')">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="flex-shrink:0;margin-top:2px"><use href="#i-ai"></use></svg>
+            <span>{{ chk.message }}</span>
+          </div>
+        }
+        @if (fileErr('selfie'); as e) { <div class="f-err doc-inline-err" id="err-doc-selfie" data-testid="doc-file-error-selfie" role="alert">{{ e }}</div> }
           <div class="enc-note" style="margin-top:10px"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفرة، وتُستخدم للتحقق من هويتك فقط</div>
         </div>
 
@@ -683,7 +689,13 @@
               <button type="button" class="uploaded-remove" (click)="removeUploadedFile('certs')" aria-label="حذف الملفات">&#x2715;</button>
             </div>
           }
-          @if (fileErr('certs'); as e) { <div class="f-err doc-inline-err" id="err-doc-certs" data-testid="doc-file-error-certs" role="alert">{{ e }}</div> }
+          @if (supportingChecks()['certs']; as chk) {
+          <div data-testid="certs-ai-check" role="status" aria-live="polite" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:flex-start;gap:6px;border:1px solid" [style.background]="chk.status === 'valid' ? 'rgba(16,185,129,.10)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.10)' : 'rgba(245,158,11,.10)')" [style.borderColor]="chk.status === 'valid' ? 'rgba(16,185,129,.4)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.35)' : 'rgba(245,158,11,.4)')">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="flex-shrink:0;margin-top:2px"><use href="#i-ai"></use></svg>
+            <span>{{ chk.message }}</span>
+          </div>
+        }
+        @if (fileErr('certs'); as e) { <div class="f-err doc-inline-err" id="err-doc-certs" data-testid="doc-file-error-certs" role="alert">{{ e }}</div> }
           <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، يبقى في ملفك المهني</div>
         </div>
 
