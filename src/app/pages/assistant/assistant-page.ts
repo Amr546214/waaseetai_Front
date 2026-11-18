@@ -589,11 +589,11 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 
 									@if (toolsOpen()) {
 										<div class="tc-popover tc-tools-menu" role="menu" aria-label="أدوات المساعد">
-											<button type="button" role="menuitem" (click)="fileInput.click(); toolsOpen.set(false)" [disabled]="store.busy()">
+											<button type="button" role="menuitem" data-testid="assistant-attach-unavailable" title="إرفاق الملفات للمساعد غير متاح بعد" aria-disabled="true" disabled>
 												<svg data-ws-icon="pl-assistant-paperclip" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 													<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
 												</svg>
-												<span>إرفاق ملف</span>
+												<span>إرفاق ملف (غير متاح بعد)</span>
 											</button>
 											<button type="button" role="menuitem" (click)="toggleWebSearch(); toolsOpen.set(false)">
 												<svg data-ws-icon="pl-assistant-globe" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
