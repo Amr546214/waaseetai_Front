@@ -90,7 +90,7 @@ describe('provider setup step 5: proof of ownership is required', () => {
     el().remove();
   });
 
-  it('a REAL in-flight proof upload (not a hand-set state) blocks the step with the "wait" message until it completes, then the message clears', () => {
+  it('a REAL in-flight proof upload (not a hand-set state) blocks the step with the "wait" message until it completes, then the message clears', async () => {
     set({ review: 'r-url', reviewDisplayName: 'r.pdf' });
     const file = new File([new Uint8Array(10)], 'proof.pdf', { type: 'application/pdf' });
     c.onPortfolioProofsChange({ target: { files: [file], value: 'x' } }, SPEC, 0);
@@ -99,6 +99,11 @@ describe('provider setup step 5: proof of ownership is required', () => {
     expect(c.currentStep()).toBe(5);
     expect(text('pf-proof-error')).toContain('انتظر اكتمال رفع وثيقة الإثبات');
     req.flush({ data: { url: 'p-url', name: 'proof.pdf' } });
+    // the AI reads the proof as well: the step waits for that too, then lets it through
+    let aiReq: any[] = [];
+    for (let i = 0; i < 100 && !aiReq.length; i++) { aiReq = http.match(r => r.url.endsWith('/portfolio-file-check')); if (!aiReq.length) await new Promise(r => setTimeout(r, 10)); }
+    expect(aiReq.length).toBe(1);
+    aiReq.forEach(r => r.flush({ success: true, data: { verdict: 'PASS', score: 80, summaryAr: 'مناسب', recommendationsAr: [] } }));
     next();
     expect(c.currentStep()).toBe(6);
     expect(c.fileErr(`pf-proof-${SPEC}-0`)).toBe('');

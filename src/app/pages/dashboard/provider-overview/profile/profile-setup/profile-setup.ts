@@ -634,12 +634,14 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 							const reviewState = this.getUploadState(`portfolio-review-${spec}-${idx}`)?.status;
 							let reviewMsg = '';
 							if (reviewState === 'uploading') reviewMsg = 'انتظر اكتمال رفع ملف النموذج';
+							else if (this.portfolioChecks()[`review-${spec}-${idx}`]?.status === 'scanning') reviewMsg = 'انتظر اكتمال فحص ملف النموذج بالذكاء الاصطناعي';
 							else if (reviewState === 'error') reviewMsg = 'فشل رفع ملف النموذج، أعد رفعه';
 							else if (!item.review) reviewMsg = 'ارفع ملف نموذج العمل';
 							let proofMsg = '';
 							const states = item.proofs.map((_, i) => this.getUploadState(`portfolio-proof-${spec}-${idx}-${i}`)?.status);
 							const doneProofs = item.proofs.filter(v => !!v && v !== item.review);
 							if (states.includes('uploading')) proofMsg = 'انتظر اكتمال رفع وثيقة الإثبات';
+							else if (item.proofs.some((_, i) => this.portfolioChecks()[`proof-${spec}-${idx}-${i}`]?.status === 'scanning')) proofMsg = 'انتظر اكتمال فحص وثيقة الإثبات بالذكاء الاصطناعي';
 							else if (states.includes('error') || item.proofs.some(v => !v)) {
 								const failedAt = states.findIndex(st => st === 'error');
 								const name = item.proofDisplayNames[failedAt >= 0 ? failedAt : item.proofs.findIndex(v => !v)] || '';
@@ -1295,6 +1297,46 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		}
 	}
 
+	/** the AI's reading of the business-model files and proofs: key `review-<spec>-<item>` / `proof-<spec>-<item>-<n>` / `refused-<spec>-<item>` (the last refusal of that card, kept after the file is removed) */
+	portfolioChecks = signal<Record<string, { status: 'scanning' | 'valid' | 'warning' | 'refused'; message: string }>>({});
+	private portfolioCheckSeq: Record<string, number> = {};
+	private setPortfolioCheck(key: string, v: { status: 'scanning' | 'valid' | 'warning' | 'refused'; message: string } | null) {
+		this.portfolioChecks.update(c => { const n = { ...c }; if (v) n[key] = v; else delete n[key]; return n; });
+	}
+	/** reads the chosen file with the AI (before the page moves on): PASS keeps it, FAIL removes it (`onRefused`) with the reason, UNVERIFIED keeps it for the human review */
+	private checkPortfolioWithAi(kind: 'MODEL' | 'PROOF', spec: string, file: File, key: string, refusedKey: string, onRefused: () => void) {
+		const seq = (this.portfolioCheckSeq[key] = (this.portfolioCheckSeq[key] || 0) + 1);
+		const current = () => this.portfolioCheckSeq[key] === seq;
+		const readable = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'text/plain'];
+		if (!readable.includes(file.type)) { this.setPortfolioCheck(key, { status: 'warning', message: 'هذا النوع من الملفات لا يُقرأ آليًا؛ ستراجعه الإدارة.' }); return; }
+		if (file.size > 2_300_000) { this.setPortfolioCheck(key, { status: 'warning', message: 'حجم الملف أكبر من حد الفحص الآلي؛ ستراجعه الإدارة.' }); return; }
+		this.setPortfolioCheck(refusedKey, null);
+		this.setPortfolioCheck(key, { status: 'scanning', message: 'جاري قراءة الملف بالذكاء الاصطناعي...' });
+		const reader = new FileReader();
+		reader.onerror = () => { if (current()) this.setPortfolioCheck(key, { status: 'warning', message: 'تعذّر قراءة الملف آليًا؛ ستراجعه الإدارة.' }); };
+		reader.onload = () => {
+			const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+			if (!dataUrl) { if (current()) this.setPortfolioCheck(key, null); return; }
+			this.providerProfileService.checkPortfolioFile({ kind, specialtyName: spec, fileName: file.name, mimeType: file.type, file: dataUrl }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+				next: res => {
+					if (!current()) return;
+					const v = res?.data;
+					if (!v) { this.setPortfolioCheck(key, null); return; }
+					const advice = v.recommendationsAr?.length ? ' ' + v.recommendationsAr.join('، ') : '';
+					if (v.verdict === 'PASS') this.setPortfolioCheck(key, { status: 'valid', message: v.summaryAr || 'قرأ الذكاء الاصطناعي الملف وهو مناسب.' });
+					else if (v.verdict === 'FAIL') {
+						// not accepted: the file is removed, the reason stays under the card
+						this.setPortfolioCheck(key, null);
+						onRefused();
+						this.setPortfolioCheck(refusedKey, { status: 'refused', message: (v.summaryAr || 'الملف غير مناسب كنموذج عمل لهذا التخصص.') + advice + ' ارفع ملفًا آخر.' });
+					} else this.setPortfolioCheck(key, { status: 'warning', message: v.summaryAr || 'تعذّر قراءة الملف آليًا؛ ستراجعه الإدارة.' });
+				},
+				error: () => { if (current()) this.setPortfolioCheck(key, { status: 'warning', message: 'تعذّر الفحص الآلي حاليًا؛ يمكنك المتابعة وستراجع الإدارة الملف.' }); }
+			});
+		};
+		reader.readAsDataURL(file);
+	}
+
 	onPortfolioReviewChange(event: any, spec: string, idx: number) {
 		if (event.target.files && event.target.files[0]) {
 			const file = event.target.files[0] as File;
@@ -1313,6 +1355,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			this.clearFileError(pfSpecKey(spec));
 
 			(event.target as HTMLInputElement).value = ''; // the same file can be attached again after removing it
+			this.checkPortfolioWithAi('MODEL', spec, file, `review-${spec}-${idx}`, `refused-${spec}-${idx}`, () => {
+				this.updatePortfolioItem(spec, idx, item => ({ ...item, review: '', reviewDisplayName: '' }));
+				this.uploadStates.update(st => { const n = { ...st }; delete n[key]; return n; });
+			});
 			this.providerProfileService.uploadDocument(file).subscribe({
 				next: (event: any) => {
 					if (event.type === HttpEventType.UploadProgress) {
@@ -1358,6 +1404,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 				// placeholder entry until the upload completes
 				this.updatePortfolioItem(spec, idx, item => ({ ...item, proofDisplayNames: [...item.proofDisplayNames, file.name], proofs: [...item.proofs, ''] }));
+				this.checkPortfolioWithAi('PROOF', spec, file, `proof-${spec}-${idx}-${baseProofIdx}`, `refused-${spec}-${idx}`, () => this.removePortfolioProof(spec, idx, Math.min(baseProofIdx, (this.portfolioItems()[spec]?.[idx]?.proofs.length ?? 1) - 1)));
 
 				this.providerProfileService.uploadDocument(file).subscribe({
 					next: (ev: any) => {
@@ -1398,6 +1445,11 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 				if (following) next[`${prefix}${i}`] = following; else delete next[`${prefix}${i}`];
 			}
 			return next;
+		});
+		this.portfolioChecks.update(c => {
+			const n = { ...c }; const pfx = `proof-${spec}-${itemIdx}-`;
+			for (let i = proofIdx; i < item.proofs.length; i++) { const nx = c[`${pfx}${i + 1}`]; if (nx) n[`${pfx}${i}`] = nx; else delete n[`${pfx}${i}`]; }
+			return n;
 		});
 		this.updatePortfolioItem(spec, itemIdx, it => ({
 			...it,
