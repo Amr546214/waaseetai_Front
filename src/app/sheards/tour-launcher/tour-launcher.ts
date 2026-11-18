@@ -25,9 +25,9 @@ import { PageTourEntry, pageTourFor, pageToursFor } from '../../core/tour/tours/
 	`,
 	styles: [`
 		:host { display: contents; }
-		.ws-tl-chip { position: fixed; z-index: 9000; right: 16px; left: auto; bottom: 84px; display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; border: 1px solid #5b3fb8; background: #1c1233; color: #f3eeff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 24px rgba(60, 30, 140, .35); }
+		.ws-tl-chip { position: fixed; z-index: 9000; left: 16px; right: auto; bottom: 176px; /* just above Bebo (bottom-left) */ display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; border: 1px solid #5b3fb8; background: #1c1233; color: #f3eeff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 24px rgba(60, 30, 140, .35); }
 		.ws-tl-chip:hover, .ws-tl-chip:focus-visible { background: #2a1a4d; }
-		@media (max-width: 640px) { .ws-tl-chip { bottom: 76px; right: 10px; padding: 8px 13px; font-size: 13px; } }
+		@media (max-width: 640px) { .ws-tl-chip { bottom: 150px; left: 10px; padding: 8px 13px; font-size: 13px; } }
 	`],
 })
 export class TourLauncherComponent {
