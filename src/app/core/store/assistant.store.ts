@@ -190,6 +190,27 @@ export class AssistantStore {
 	readonly voiceVolume = signal(1);
 	readonly recording = signal(false);
 	readonly sttLoading = signal(false);
+	/** Files the user attached: the server already read each one into short text (max 2); only that text goes with the next question. */
+	readonly attachments = signal<Array<{ name: string; text: string; readable: boolean; truncated: boolean }>>([]);
+	readonly attachmentBusy = signal(false);
+	readonly attachmentError = signal('');
+	attachFile(file: File): void {
+		this.attachmentError.set('');
+		if (this.attachments().length >= 2) { this.attachmentError.set('الحد الأقصى ملفان في الرسالة الواحدة.'); return; }
+		if (file.size > 2 * 1024 * 1024) { this.attachmentError.set('حجم الملف يجب أن يكون أقل من 2 ميجابايت.'); return; }
+		this.attachmentBusy.set(true);
+		this.injector.get(AssistantCapabilitiesService).uploadAttachment(file).subscribe({
+			next: res => {
+				this.attachmentBusy.set(false);
+				const data = (res as any)?.data ?? res;
+				if (!data || typeof data.text !== 'string') { this.attachmentError.set('تعذّرت قراءة الملف.'); return; }
+				if (!data.readable || !data.text.trim()) { this.attachmentError.set('لم أستطع قراءة محتوى هذا الملف.'); return; }
+				this.attachments.update(list => [...list, { name: String(data.name || file.name).slice(0, 120), text: data.text, readable: true, truncated: !!data.truncated }]);
+			},
+			error: (err: any) => { this.attachmentBusy.set(false); this.attachmentError.set(err?.error?.message || 'تعذّر رفع الملف. حاول مرة أخرى.'); }
+		});
+	}
+	removeAttachment(index: number): void { this.attachments.update(list => list.filter((_, i) => i !== index)); this.attachmentError.set(''); }
 	readonly liveActive = signal(false);
 	readonly liveConnecting = signal(false);
 	readonly liveTranscript = signal('');
@@ -825,9 +846,9 @@ export class AssistantStore {
 		const dialect = this.effectiveDialect();
 		const path = (this.router.url || '/').split(/[?#]/)[0];
 		let projectId: string | undefined; for (let route = this.router.routerState?.snapshot.root; route; route = route.firstChild!) { projectId ||= route.paramMap.get('projectId') ?? undefined; }
-		const id = this.socket.ask(question, history, { skin: this.skin(), dialect, language: BEBO_DIALECTS[dialect].language, ...(this.profile() === 'auto' ? {} : { effort: this.effort() }), profile: this.profile(), ...(this.textModel() ? { model: this.textModel() } : {}), ...(this.webSearchEnabled() && this.capabilities()?.webSearch?.available ? { webSearch: true } : {}), pageContext: { path, ...(projectId ? { projectId } : {}) } });
+		const id = this.socket.ask(question, history, { skin: this.skin(), dialect, language: BEBO_DIALECTS[dialect].language, ...(this.profile() === 'auto' ? {} : { effort: this.effort() }), profile: this.profile(), ...(this.textModel() ? { model: this.textModel() } : {}), ...(this.webSearchEnabled() && this.capabilities()?.webSearch?.available ? { webSearch: true } : {}), ...(this.attachments().length ? { attachments: this.attachments().map(a => ({ name: a.name, text: a.text })) } : {}), pageContext: { path, ...(projectId ? { projectId } : {}) } });
 		this.currentRequestId = id;
-		if (id) this.armWatchdog();
+		if (id) { this.attachments.set([]); this.attachmentError.set(''); this.armWatchdog(); }
 	}
 
 	private onEvent(e: HelpStreamEvent): void {

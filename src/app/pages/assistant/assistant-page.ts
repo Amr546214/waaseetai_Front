@@ -568,6 +568,19 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 
 				<!-- Docked rounded composer container with 3-column Grid LTR -->
 				<div class="chat-composer-wrap tc-composer-dock">
+					<input #attachInput type="file" hidden data-testid="assistant-attach-input" accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.md,.json,image/png,image/jpeg,image/webp,application/pdf,text/plain,text/csv,text/markdown,application/json" (change)="onAttachPicked($event)" />
+					@if (store.attachments().length || store.attachmentBusy() || store.attachmentError()) {
+						<div class="tc-attachments" data-testid="assistant-attachments" role="status" aria-live="polite" style="display:flex;flex-wrap:wrap;gap:8px;padding:0 4px 8px">
+							@for (a of store.attachments(); track $index) {
+								<span class="tc-attachment-chip" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--border-color, #2a3b3a);font-size:13px">
+									<span dir="auto">{{ a.name }}</span>@if (a.truncated) { <small title="قُرئ جزء من الملف فقط">(جزء)</small> }
+									<button type="button" (click)="store.removeAttachment($index)" [attr.aria-label]="'إزالة ' + a.name" style="background:none;border:0;color:inherit;cursor:pointer">×</button>
+								</span>
+							}
+							@if (store.attachmentBusy()) { <span style="font-size:13px">جاري قراءة الملف...</span> }
+							@if (store.attachmentError()) { <span class="field-error" role="alert" style="font-size:13px;color:#ff8a8a">{{ store.attachmentError() }}</span> }
+						</div>
+					}
 					<div class="tc-composer">
 						<div class="tc-composer-controls">
 							<!-- Column 1: + tools menu with ONLY File Attachment and Web Search -->
@@ -589,11 +602,11 @@ import { IdentityImgDirective } from '../../core/identity/identity-img.directive
 
 									@if (toolsOpen()) {
 										<div class="tc-popover tc-tools-menu" role="menu" aria-label="أدوات المساعد">
-											<button type="button" role="menuitem" data-testid="assistant-attach-unavailable" title="إرفاق الملفات للمساعد غير متاح بعد" aria-disabled="true" disabled>
+											<button type="button" role="menuitem" data-testid="assistant-attach" title="صور PNG/JPG/WEBP وPDF وملفات نصية، حتى 2 ميجابايت" [disabled]="store.attachmentBusy() || store.attachments().length >= 2" (click)="attachInput.click(); toolsOpen.set(false)">
 												<svg data-ws-icon="pl-assistant-paperclip" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 													<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
 												</svg>
-												<span>إرفاق ملف (غير متاح بعد)</span>
+												<span>{{ store.attachmentBusy() ? 'جاري قراءة الملف...' : 'إرفاق ملف' }}</span>
 											</button>
 											<button type="button" role="menuitem" (click)="toggleWebSearch(); toolsOpen.set(false)">
 												<svg data-ws-icon="pl-assistant-globe" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1080,7 +1093,13 @@ export class AssistantPageComponent {
 		}
 	}
 
-	toggleWebSearch(): void {
+	onAttachPicked(event: Event): void {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		input.value = ''; // the same file can be picked again after removing it
+		if (file) this.store.attachFile(file);
+	}
+		toggleWebSearch(): void {
 		this.store.webSearchEnabled.update(v => !v);
 		this.showNotice(this.store.webSearchEnabled() ? 'تم تفعيل البحث المباشر في الويب.' : 'تم إيقاف البحث المباشر في الويب.');
 	}

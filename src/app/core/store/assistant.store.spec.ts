@@ -8,6 +8,8 @@ import { HelpAssistantSocketService, HelpStreamEvent } from '../services/help-as
 import { AssistantTtsError, AssistantTtsService, TtsRequest } from '../services/assistant-tts.service';
 import { SECURE_CONTEXT, SPEECH_ERROR_MESSAGES, SPEECH_INSECURE, SPEECH_RECOGNITION, SPEECH_UNSUPPORTED } from '../services/speech-recognition';
 import { AuthStore } from './auth.store';
+import { AssistantCapabilitiesService } from '../services/assistant-capabilities.service';
+import { of, throwError } from 'rxjs';
 import { HELP_ASSISTANT_UNAVAILABLE_MESSAGE } from '../help/assistant-errors';
 
 // Avatar/assistant state machine. Every external dependency is faked: the
@@ -1068,5 +1070,43 @@ describe('AssistantStore session isolation, listening/happy and speech meter', (
 		expect(source.disconnect).toHaveBeenCalled();
 		expect(analyser.disconnect).toHaveBeenCalled();
 		off();
+	});
+});
+
+describe('AssistantStore file attachments', () => {
+	let store: AssistantStore; let socket: FakeHelpSocket; let upload: ReturnType<typeof vi.fn>;
+	beforeEach(() => {
+		stubBrowser(); socket = new FakeHelpSocket();
+		upload = vi.fn(() => of({ success: true, data: { name: 'plan.txt', kind: 'TEXT', text: 'صفحة دخول ولوحة تحكم', truncated: false, readable: true, scanned: true } }));
+		TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: HelpAssistantSocketService, useValue: socket }, { provide: AssistantTtsService, useValue: new FakeTts() },
+			{ provide: SPEECH_RECOGNITION, useValue: FakeRecognition }, { provide: SECURE_CONTEXT, useValue: () => true }, { provide: AssistantCapabilitiesService, useValue: { uploadAttachment: upload, get: () => of({}) } }] });
+		store = TestBed.inject(AssistantStore);
+	});
+	afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
+	const file = (name = 'plan.txt', size = 10) => { const f = new File(['x'], name, { type: 'text/plain' }); Object.defineProperty(f, 'size', { value: size }); return f; };
+
+	it('an attached file is read by the server, shown as a chip, sent as text with the NEXT question only, then cleared', () => {
+		store.attachFile(file());
+		expect(store.attachments().map(a => a.name)).toEqual(['plan.txt']);
+		store.ask('لخص الملف');
+		expect(socket.asks.at(-1)!.options.attachments).toEqual([{ name: 'plan.txt', text: 'صفحة دخول ولوحة تحكم' }]);
+		expect(store.attachments()).toEqual([]);
+		socket.emit({ type: 'start', clientRequestId: 'req-1' }); socket.emit({ type: 'chunk', clientRequestId: 'req-1', chunk: 'ملخص' }); socket.emit({ type: 'complete', clientRequestId: 'req-1' });
+		store.ask('سؤال تاني');
+		expect(socket.asks.at(-1)!.options.attachments).toBeUndefined();
+	});
+	it('at most 2 files, 2 MB each; a server refusal shows its message and attaches nothing', () => {
+		store.attachFile(file('a.txt')); store.attachFile(file('b.txt')); store.attachFile(file('c.txt'));
+		expect(store.attachments().length).toBe(2); expect(store.attachmentError()).toContain('ملفان');
+		store.attachments.set([]); store.attachFile(file('big.txt', 3 * 1024 * 1024));
+		expect(store.attachments().length).toBe(0); expect(store.attachmentError()).toContain('2 ميجابايت');
+		upload.mockReturnValueOnce(throwError(() => ({ error: { message: 'هذا الملف يحتوي على محتوى غير مناسب ولا يمكن قبوله.' } })));
+		store.attachFile(file('bad.png'));
+		expect(store.attachments().length).toBe(0); expect(store.attachmentError()).toContain('غير مناسب'); expect(store.attachmentBusy()).toBe(false);
+	});
+	it('an unreadable file is not attached and says so', () => {
+		upload.mockReturnValueOnce(of({ success: true, data: { name: 'x.pdf', kind: 'TEXT', text: '', truncated: false, readable: false, scanned: true } }));
+		store.attachFile(file('x.pdf'));
+		expect(store.attachments().length).toBe(0); expect(store.attachmentError()).toContain('لم أستطع قراءة');
 	});
 });
