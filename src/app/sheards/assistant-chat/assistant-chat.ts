@@ -119,7 +119,6 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 		@if (store.sttLoading()) { <p class="ac__notice" role="status">جاري تحويل التسجيل إلى نص…</p> }
 
 		<div class="ac__input">
-			@if (store.capabilities()?.stt?.available) { <button type="button" class="ac__mic" (click)="store.toggleRecording()" [disabled]="store.busy() || store.sttLoading()" [attr.aria-pressed]="store.recording()" [attr.aria-label]="store.recording() ? 'إنهاء الرسالة الصوتية' : 'تسجيل رسالة صوتية'">{{ store.recording() ? '■' : '●' }}</button> }
 			<button
 				type="button"
 				class="ac__mic"
