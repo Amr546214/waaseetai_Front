@@ -22,4 +22,11 @@ describe('social links: one list for the whole site', () => {
 		expect(read('pages/website/contact/contact.ts')).toContain('SOCIAL_LINKS');
 		expect(read('sheards/footer/footer.ts')).toContain('SOCIAL_LINKS');
 	});
+	it('the about page: the team cards without a personal profile use the platform accounts (no invented company page, no wrong X handle); personal profiles stay', () => {
+		const html = read('pages/website/about/about.html');
+		expect(html).not.toContain('linkedin.com/company'); expect(html).not.toContain('x.com/waseetai');
+		expect(html).toContain('[href]="social.linkedin"'); expect(html).toContain('[href]="social.x"');
+		expect(html).toContain('linkedin.com/in/karim-muhammad-561573289'); // a member's own profile is untouched
+		expect(read('pages/website/about/about.ts')).toContain('SOCIAL_LINKS');
+	});
 });

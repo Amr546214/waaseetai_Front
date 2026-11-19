@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../../core/services/theme.service';
 import { AuthStore } from '../../../core/store/auth.store';
+import { SOCIAL_LINKS } from '../../../core/constants/social-links';
 
 @Component({
   selector: 'app-about',
@@ -14,6 +15,8 @@ import { AuthStore } from '../../../core/store/auth.store';
   encapsulation: ViewEncapsulation.None
 })
 export class About implements OnInit, OnDestroy {
+  /** the platform's real social accounts (one shared list); the team cards without a personal profile point at these */
+  readonly social = SOCIAL_LINKS;
   public themeService = inject(ThemeService);
   /** the «سجّل حساباً مجاناً» button is for visitors only: a signed-in user already has an account */
   readonly authStore = inject(AuthStore);
