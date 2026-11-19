@@ -302,8 +302,8 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 					</div>
 				}
 
-				<!-- Bebo's tool bar (shared component). In the admin panel it lives in the «بيبو» tab instead, so it is not drawn here. -->
-				@if (!hideToolbar()) { <app-bebo-toolbar /> }
+				<!-- The tool bar (shared component) carries the extra features of signed-in users, so a visitor does not get it. In the admin panel it lives in the «بيبو» tab instead, so it is not drawn here. -->
+				@if (!hideToolbar() && !isGuest()) { <app-bebo-toolbar /> }
 			</div>
 			}
 		} @else {

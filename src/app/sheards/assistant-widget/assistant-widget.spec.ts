@@ -449,13 +449,23 @@ describe('AssistantWidgetComponent (floating dashboard assistant + Bebo)', () =>
 			tts.synthesize.mockClear();
 		});
 
+		it('a visitor gets NO tool bar under the robot (it carries the features of signed-in users); a signed-in user does', () => {
+			expect(el().querySelector('app-bebo-toolbar')).toBeNull();
+			authToken.set('tok');
+			fixture.detectChanges();
+			expect(el().querySelector('app-bebo-toolbar')).not.toBeNull();
+			authToken.set(null);
+			fixture.detectChanges();
+			expect(el().querySelector('app-bebo-toolbar')).toBeNull();
+		});
+
 		it('shows the robot, and clicking it opens the public chat (about the platform) instead of the signed-in chat', () => {
 			expect(robot()).toBeTruthy();
 			click();
 			expect(store.panelOpen()).toBe(true);
 			const prompt = el().querySelector('[data-testid="assistant-guest-prompt"]') as HTMLElement;
 			expect(prompt).toBeTruthy();
-			expect(el().querySelector('[data-testid="guest-chat-hello"]')!.textContent).toContain('اسألني عن وسيط AI');
+			expect(el().querySelector('[data-testid="guest-chat-hello"]')!.textContent).toContain('أنا وسيط AI');
 			expect(el().querySelector('app-assistant-chat')).toBeNull();
 			expect(el().querySelector('[data-testid="guest-chat-input"]')).toBeTruthy();
 			expect(el().querySelector('.aw__state')).toBeNull();

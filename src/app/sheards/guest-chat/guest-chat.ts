@@ -7,13 +7,13 @@ const MAX = 400;
 
 const COPY = {
 	ar: {
-		hello: 'أهلًا بك! أنا بيبو. اسألني عن وسيط AI: من نحن، وماذا نفعل، وما هدفنا، وما الذي يميزنا، وكيف تبدأ.',
+		hello: 'أهلًا بك! أنا وسيط AI. اسألني عن المنصة: من نحن، وماذا نفعل، وما هدفنا، وما الذي يميزنا، وكيف تبدأ.',
 		chips: ['من هي وسيط AI؟', 'ما الذي يميّزكم؟', 'كيف أبدأ؟', 'كيف يحمي الضمان حقوقي؟'],
 		placeholder: 'اسأل عن وسيط AI...', send: 'إرسال', thinking: 'جاري الكتابة...', login: 'تسجيل الدخول', foot: 'للأسئلة التفصيلية داخل المنصة سجّل دخولك.',
 		failed: 'تعذّر الرد الآن، حاول مرة أخرى.', counter: 'عدد الأحرف'
 	},
 	en: {
-		hello: "Hi! I'm Bebo. Ask me about Waseet AI: who we are, what we do, our goal, what sets us apart, and how to start.",
+		hello: "Hi! I'm Waseet AI. Ask me about the platform: who we are, what we do, our goal, what sets us apart, and how to start.",
 		chips: ['Who is Waseet AI?', 'What sets you apart?', 'How do I start?', 'How does the escrow protect me?'],
 		placeholder: 'Ask about Waseet AI...', send: 'Send', thinking: 'Typing...', login: 'Sign in', foot: 'For detailed questions inside the platform, sign in.',
 		failed: "Couldn't answer right now, please try again.", counter: 'characters'

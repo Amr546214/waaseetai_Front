@@ -16,7 +16,7 @@ describe('GuestChatComponent', () => {
 	const type = (f: any, value: string) => { const i = q(f, '[data-testid=guest-chat-input]') as HTMLInputElement; i.value = value; i.dispatchEvent(new Event('input')); f.detectChanges(); };
 
 	it('greets, offers suggestion chips, and nothing is asked until the visitor asks', () => {
-		const f = make(); expect(q(f, '[data-testid=guest-chat-hello]')!.textContent).toContain('اسألني عن وسيط AI');
+		const f = make(); expect(q(f, '[data-testid=guest-chat-hello]')!.textContent).toContain('أنا وسيط AI'); expect(q(f, '[data-testid=guest-chat-hello]')!.textContent).not.toContain('بيبو');
 		expect(f.nativeElement.querySelectorAll('.ws-gc-chip').length).toBe(4); expect(ask).not.toHaveBeenCalled();
 	});
 	it('a chip asks that question (with no history yet); the answer is shown; the chips go away', () => {
@@ -48,7 +48,7 @@ describe('GuestChatComponent', () => {
 	});
 	it('English mode: English greeting, chips, language sent as en, left-to-right', () => {
 		const f = make(true);
-		expect(q(f, '[data-testid=guest-chat-hello]')!.textContent).toContain('Ask me about Waseet AI'); expect(q(f, '.ws-gc')!.getAttribute('dir')).toBe('ltr');
+		expect(q(f, '[data-testid=guest-chat-hello]')!.textContent).toContain("I'm Waseet AI"); expect(q(f, '.ws-gc')!.getAttribute('dir')).toBe('ltr');
 		(f.nativeElement.querySelector('.ws-gc-chip') as HTMLButtonElement).click(); expect(ask).toHaveBeenCalledWith('Who is Waseet AI?', 'en', []);
 	});
 	it('the footer always offers sign-in (for in-platform questions)', () => {
