@@ -78,10 +78,12 @@ describe('App-level assistant (single floating Bebo)', () => {
 		await fixture.whenStable();
 		fixture.detectChanges();
 	}
+	/** the app root also has two defer blocks of the guided tour (the overlay and the page-tour chip); the assistant widget's is the last one */
+	const TOUR_DEFER_BLOCKS = 2;
 	async function mountWidget(): Promise<void> {
 		const blocks = await fixture.getDeferBlocks();
-		expect(blocks.length).toBe(1);
-		await blocks[0].render(DeferBlockState.Complete);
+		expect(blocks.length).toBe(TOUR_DEFER_BLOCKS + 1);
+		await blocks[blocks.length - 1].render(DeferBlockState.Complete);
 		fixture.detectChanges();
 		await fixture.whenStable();
 		fixture.detectChanges();
@@ -110,7 +112,7 @@ describe('App-level assistant (single floating Bebo)', () => {
 		for (const url of ['/auth/login', '/error/500', '/no/such/page']) {
 			it(`${url}: no assistant is mounted at all`, async () => {
 				await go(url);
-				expect((await fixture.getDeferBlocks()).length).toBe(0);
+				expect((await fixture.getDeferBlocks()).length).toBe(TOUR_DEFER_BLOCKS);
 				expect(el().querySelector('app-assistant-widget')).toBeNull();
 				expect(el().querySelector('cute-robot')).toBeNull();
 			});
