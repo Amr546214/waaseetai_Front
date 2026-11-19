@@ -47,4 +47,11 @@ describe('TourOverlayComponent', () => {
 		const mute = f.nativeElement.querySelector('[data-testid=tour-mute]') as HTMLButtonElement; mute.click(); f.detectChanges();
 		expect(mute.getAttribute('aria-pressed')).toBe('true'); expect(mute.getAttribute('aria-label')).toBe('تشغيل الصوت');
 	});
+	it('the auto-advance button toggles and reflects its state accessibly', () => {
+		const f = make(); t().start(demo); f.detectChanges();
+		const btn = f.nativeElement.querySelector('[data-testid=tour-auto]') as HTMLButtonElement;
+		expect(btn.getAttribute('aria-pressed')).toBe('true');
+		btn.click(); f.detectChanges();
+		expect(btn.getAttribute('aria-pressed')).toBe('false'); expect(btn.getAttribute('aria-label')).toBe('تشغيل الانتقال التلقائي');
+	});
 });

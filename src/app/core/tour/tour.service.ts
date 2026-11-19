@@ -5,6 +5,9 @@ import { TourDefinition, TourEndReason, TourStep, tourAudioUrl } from './tour.ty
 
 const DONE_KEY = 'ws.tour.done.v1';
 const MUTE_KEY = 'ws.tour.muted.v1';
+const AUTO_KEY = 'ws.tour.auto.v1';
+/** pause after the narration ends, before the tour moves on by itself */
+export const TOUR_AUTO_ADVANCE_DELAY_MS = 900;
 const safeGet = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
 const safeSet = (key: string, value: string) => { try { localStorage.setItem(key, value); } catch { /* storage blocked: the tour still works */ } };
 
@@ -25,6 +28,8 @@ export class TourService {
 	/** true while the step's audio is playing: Bebo is "speaking" */
 	readonly speaking = signal(false);
 	readonly muted = signal(safeGet(MUTE_KEY) === '1');
+	/** move to the next step by itself when the narration of this one ends (on by default; the user can turn it off) */
+	readonly autoAdvance = signal(safeGet(AUTO_KEY) !== '0');
 
 	readonly active = computed(() => this.tour() !== null);
 	readonly step = computed<TourStep | null>(() => this.tour()?.steps[this.index()] ?? null);
@@ -35,6 +40,7 @@ export class TourService {
 	private audio: HTMLAudioElement | null = null;
 	private seq = 0;
 	private pollTimer: ReturnType<typeof setTimeout> | null = null;
+	private autoTimer: ReturnType<typeof setTimeout> | null = null;
 	/** called when a tour ends (for "mark as done" and for chaining a follow-up) */
 	onEnd: ((tour: TourDefinition, reason: TourEndReason) => void) | null = null;
 
@@ -63,6 +69,13 @@ export class TourService {
 		this.onEnd?.(tour, reason);
 	}
 
+	toggleAuto(): void {
+		const on = !this.autoAdvance();
+		this.autoAdvance.set(on);
+		safeSet(AUTO_KEY, on ? '1' : '0');
+		if (!on) this.clearAuto();
+	}
+
 	toggleMute(): void {
 		const muted = !this.muted();
 		this.muted.set(muted);
@@ -81,6 +94,7 @@ export class TourService {
 	private halt(): void {
 		this.seq++;
 		if (this.pollTimer) { clearTimeout(this.pollTimer); this.pollTimer = null; }
+		this.clearAuto();
 		this.stopAudio();
 	}
 
@@ -128,9 +142,18 @@ export class TourService {
 		const audio = new Audio(tourAudioUrl(step.id));
 		this.audio = audio;
 		audio.onplaying = () => { if (seq === this.seq) this.speaking.set(true); };
-		audio.onended = () => this.speaking.set(false);
+		audio.onended = () => { this.speaking.set(false); if (seq === this.seq) this.scheduleAutoAdvance(seq); };
 		audio.onerror = () => this.speaking.set(false); // no audio file for this step: text only
 		audio.play().catch(() => this.speaking.set(false)); // autoplay blocked / file missing: text only
+	}
+
+	private clearAuto(): void { if (this.autoTimer) { clearTimeout(this.autoTimer); this.autoTimer = null; } }
+
+	/** the narration ended on its own (not stopped, not an error): after a short pause go to the next step. The last step waits for the user to finish. */
+	private scheduleAutoAdvance(seq: number): void {
+		this.clearAuto();
+		if (!this.autoAdvance() || this.isLast()) return;
+		this.autoTimer = setTimeout(() => { this.autoTimer = null; if (seq === this.seq && this.active() && !this.isLast()) this.next(); }, TOUR_AUTO_ADVANCE_DELAY_MS);
 	}
 
 	private stopAudio(): void {

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { vi } from 'vitest';
-import { TourService } from './tour.service';
+import { TourService, TOUR_AUTO_ADVANCE_DELAY_MS } from './tour.service';
 import { TourDefinition, tourAudioUrl } from './tour.types';
 import { VISITOR_TOUR } from './tours/visitor.tour';
 
@@ -106,5 +106,53 @@ describe('TourService', () => {
 		const ids = VISITOR_TOUR.steps.map(s => s.id);
 		expect(new Set(ids).size).toBe(ids.length);
 		for (const s of VISITOR_TOUR.steps) { expect(s.text.length).toBeGreaterThan(20); expect(/[؀-ۿ]/.test(s.text)).toBe(true); expect(s.route === '/' || s.route === '/auth/register').toBe(true); }
+	});
+
+	describe('auto-advance when the narration ends', () => {
+		const wait = () => vi.advanceTimersByTime(TOUR_AUTO_ADVANCE_DELAY_MS + 50);
+		it('after the audio ends, the tour goes to the next step by itself (after a short pause)', () => {
+			svc.start(tour());
+			FakeAudio.instances.at(-1)!.onended?.();
+			expect(svc.step()?.id).toBe('s1');           // not instantly: a pause first
+			wait();
+			expect(svc.step()?.id).toBe('s2');
+			expect(FakeAudio.instances.at(-1)!.src).toBe(tourAudioUrl('s2')); // and the next narration starts
+		});
+		it('the last step does not close the tour by itself', async () => {
+			svc.start(tour(), 2);
+			await Promise.resolve(); await Promise.resolve(); // the last step lives on another route: its narration starts after the navigation
+			FakeAudio.instances.at(-1)!.onended?.(); wait();
+			expect(svc.active()).toBe(true); expect(svc.isLast()).toBe(true);
+		});
+		it('the user moving first cancels the pending auto-advance (no double jump)', () => {
+			svc.start(tour());
+			FakeAudio.instances.at(-1)!.onended?.();
+			svc.next();                                   // the user pressed «التالي» during the pause
+			wait();
+			expect(svc.step()?.id).toBe('s2');            // not s3
+		});
+		it('turning it off stops the jump and is remembered; turning it on again works from the next step', () => {
+			svc.start(tour());
+			svc.toggleAuto();
+			expect(svc.autoAdvance()).toBe(false); expect(store['ws.tour.auto.v1']).toBe('0');
+			FakeAudio.instances.at(-1)!.onended?.(); wait();
+			expect(svc.step()?.id).toBe('s1');
+			svc.toggleAuto(); svc.next();
+			FakeAudio.instances.at(-1)!.onended?.(); wait();
+			expect(svc.step()?.id).toBe('s3');
+		});
+		it('a missing audio file or a muted tour never moves on by itself (the user reads and presses next)', () => {
+			svc.start(tour());
+			FakeAudio.instances.at(-1)!.onerror?.(); wait();
+			expect(svc.step()?.id).toBe('s1');
+			svc.toggleMute(); svc.next(); wait();
+			expect(svc.step()?.id).toBe('s2');
+		});
+		it('closing the tour while a jump is pending does nothing afterwards', () => {
+			svc.start(tour());
+			FakeAudio.instances.at(-1)!.onended?.();
+			svc.close(); wait();
+			expect(svc.active()).toBe(false);
+		});
 	});
 });

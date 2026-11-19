@@ -33,6 +33,7 @@ const CARD_W = 380;
 					<div class="ws-tx-body">
 						<div class="ws-tx-meta">
 							<span class="ws-tx-count" data-testid="tour-count">{{ tour.index() + 1 }} / {{ tour.total() }}</span>
+							<button type="button" class="ws-tx-icon" (click)="tour.toggleAuto()" [attr.aria-pressed]="tour.autoAdvance()" [attr.aria-label]="tour.autoAdvance() ? 'إيقاف الانتقال التلقائي' : 'تشغيل الانتقال التلقائي'" [title]="tour.autoAdvance() ? 'ينتقل تلقائيًا بعد انتهاء الصوت' : 'الانتقال التلقائي متوقف'" data-testid="tour-auto" [style.opacity]="tour.autoAdvance() ? 1 : .5">⏭</button>
 							<button type="button" class="ws-tx-icon" (click)="tour.toggleMute()" [attr.aria-pressed]="tour.muted()" [attr.aria-label]="tour.muted() ? 'تشغيل الصوت' : 'كتم الصوت'" data-testid="tour-mute">{{ tour.muted() ? '🔇' : '🔊' }}</button>
 							<button type="button" class="ws-tx-icon" (click)="tour.close()" aria-label="إغلاق الجولة" data-testid="tour-close">×</button>
 						</div>
