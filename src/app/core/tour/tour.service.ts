@@ -133,7 +133,8 @@ export class TourService {
 		look();
 	}
 
-	private measure(el: Element) { const r = el.getBoundingClientRect(); return { top: r.top, left: r.left, width: r.width, height: r.height }; }
+	/** the rectangle of the target, or null when it takes no space (collapsed / hidden: e.g. the sidebar on a phone): then the card is centred */
+	private measure(el: Element) { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? { top: r.top, left: r.left, width: r.width, height: r.height } : null; }
 	private reducedMotion(): boolean { try { return !!this.doc.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches; } catch { return false; } }
 
 	private playAudio(step: TourStep, seq: number): void {

@@ -152,6 +152,26 @@
       "hash": "05ce10defae7b910",
       "bytes": 53660,
       "seconds": 8.8
+    },
+    "client-welcome": {
+      "hash": "a57566f9c29445ce",
+      "bytes": 70364,
+      "seconds": 11.6
+    },
+    "client-home": {
+      "hash": "8f2f04eca67ce470",
+      "bytes": 121052,
+      "seconds": 20.1
+    },
+    "client-sidebar": {
+      "hash": "9ae236d83740fc31",
+      "bytes": 47612,
+      "seconds": 7.8
+    },
+    "client-messages": {
+      "hash": "359b6e4bca27837b",
+      "bytes": 48044,
+      "seconds": 7.9
     }
   }
 }
