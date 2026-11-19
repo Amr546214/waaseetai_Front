@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PlatformInfoService } from '../../../core/services/platform-info.service';
+import { SOCIAL_LINKS } from '../../../core/constants/social-links';
 import { FieldProblem, reportProblems } from '../../../shared/forms/form-error-focus';
 
 @Component({
@@ -17,6 +18,7 @@ export class Contact {
   private readonly host = inject(ElementRef<HTMLElement>);
   /** the WhatsApp card shows the `supportPhone` setting (the built-in number while it is empty) */
   readonly platform = inject(PlatformInfoService);
+  readonly social = SOCIAL_LINKS;
   submitted = signal(false);
   sending = signal(false);
 
