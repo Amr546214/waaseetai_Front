@@ -61,11 +61,13 @@ describe('official AI icon', () => {
 	});
 
 	it('the AI bars / disclosures / badges that were fixed draw the full mark', () => {
+		// the mark is either drawn in full inline, or referenced from the official sprite symbol `#i-ai` (the same paths, defined once in the dashboard layout)
 		const full = (rel: string, marker: RegExp) => {
 			const s = read(rel);
 			const m = marker.exec(s);
 			expect(m, rel).not.toBeNull();
-			expect(s.slice(m!.index, m!.index + 1400), rel).toContain(AI_ICON_LINKS);
+			const around = s.slice(m!.index, m!.index + 1400);
+			expect(around.includes(AI_ICON_LINKS) || around.includes('href="#i-ai"'), rel).toBe(true);
 		};
 		// Chat bars are a support-review notice (no AI call): they no longer draw the AI mark at all.
 		for (const role of ['clients-overview', 'provider-overview', 'marketer-overview']) {
@@ -75,7 +77,7 @@ describe('official AI icon', () => {
 			expect(s.slice(m!.index, m!.index + 1400), role).not.toContain(AI_ICON_LINKS);
 		}
 		full('pages/dashboard/provider-overview/business-models/market/model-details/model-details.html', /class="mdl-ai-ico"/);
-		full('pages/dashboard/clients-overview/create-request/components/step3-details/step3-details.html', /class="ai-suggest-btn/);
+		full('pages/dashboard/clients-overview/create-request/components/step3-details/step3-details.html', /data-testid="ai-refine-btn"/); // the button was renamed (it used to be class="ai-suggest-btn")
 	});
 
 	it('no sparkle / star / clock stands in for the AI mark in the places that were fixed', () => {
