@@ -28,7 +28,7 @@ const CARD_W = 380;
 				<div #card class="ws-tx-panel" role="dialog" aria-modal="true" [attr.aria-label]="step.title" tabindex="-1" data-testid="tour-card"
 					[class.ws-tx-panel--center]="!cardPos()" [style.top.px]="cardPos()?.top" [style.left.px]="cardPos()?.left">
 					<div class="ws-tx-bebo" aria-hidden="true">
-						<app-bebo-avatar [floating]="false" [size]="84" [state]="tour.speaking() ? 'speaking' : 'idle'" label="بيبو" />
+						<app-bebo-avatar [floating]="false" [size]="84" [state]="tour.speaking() ? 'speaking' : 'idle'" label="وسيط AI" />
 					</div>
 					<div class="ws-tx-body">
 						<div class="ws-tx-meta">
