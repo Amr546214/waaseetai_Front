@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 
 import { Hero } from './hero';
+import { TourService } from '../../../../../core/tour/tour.service';
+import { AuthStore } from '../../../../../core/store/auth.store';
 
 describe('Hero', () => {
   let component: Hero;
@@ -52,6 +54,24 @@ describe('Hero', () => {
       const event = new Event('click', { cancelable: true });
       component.scrollToHowItWorks(event);
       expect(event.defaultPrevented).toBe(false);
+    });
+  });
+
+  describe('«شاهد كيف يعمل» starts the guided tour for a visitor', () => {
+    afterEach(() => document.getElementById('how-it-works')?.remove());
+    it('a visitor (no account) gets the tour and the link is not followed', () => {
+      const start = vi.spyOn(TestBed.inject(TourService), 'start').mockImplementation(() => {});
+      vi.spyOn(TestBed.inject(AuthStore), 'isAuthenticated').mockReturnValue(false);
+      const event = new Event('click', { cancelable: true });
+      component.watchHowItWorks(event);
+      expect(start).toHaveBeenCalledTimes(1); expect((start.mock.calls[0][0] as any).id).toBe('visitor-v1'); expect(event.defaultPrevented).toBe(true);
+    });
+    it('a signed-in user keeps the scroll to the section (their role tour comes with the dashboard tours)', () => {
+      const start = vi.spyOn(TestBed.inject(TourService), 'start').mockImplementation(() => {});
+      vi.spyOn(TestBed.inject(AuthStore), 'isAuthenticated').mockReturnValue(true);
+      const target = document.createElement('section'); target.id = 'how-it-works'; target.scrollIntoView = vi.fn(); document.body.appendChild(target);
+      component.watchHowItWorks(new Event('click', { cancelable: true }));
+      expect(start).not.toHaveBeenCalled(); expect(target.scrollIntoView).toHaveBeenCalled();
     });
   });
 });
