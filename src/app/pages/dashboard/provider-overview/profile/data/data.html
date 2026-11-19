@@ -400,10 +400,7 @@
         @if (identityRejected()) { <span class="field-error" role="alert" data-testid="id-doc-rejected">مستند الهوية مرفوض@if (identityRejectionReason()) { — السبب: {{ identityRejectionReason() }} }. اضغط على المربع وارفع مستندًا جديدًا ثم أرسل الطلب.</span> }
         @if (!identityPending()) { <ws-field-error [control]="docsForm.get('idDocumentUrl')" label="مستند الهوية" /> }
         @if (idDocCheck(); as chk) {
-          <div data-testid="id-doc-ai-check" role="status" aria-live="polite" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:flex-start;gap:6px;border:1px solid" [style.background]="chk.status === 'valid' ? 'rgba(16,185,129,.10)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.10)' : 'rgba(245,158,11,.10)')" [style.borderColor]="chk.status === 'valid' ? 'rgba(16,185,129,.4)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.35)' : 'rgba(245,158,11,.4)')">
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="flex-shrink:0;margin-top:2px"><use href="#i-ai"></use></svg>
-            <span>{{ chk.message }}</span>
-          </div>
+          <ws-ai-note data-testid="id-doc-ai-check" [message]="chk.message" [state]="chk.status" />
         }
         @if (docFileErrors()['idDocumentUrl'] && !identityPending()) { <span class="field-error" role="alert">{{ docFileErrors()['idDocumentUrl'] }}</span> }
       </div>

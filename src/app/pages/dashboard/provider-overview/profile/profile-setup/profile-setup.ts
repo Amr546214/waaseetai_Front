@@ -1,3 +1,4 @@
+import { AiNoteComponent } from '../../../../../shared/ai/ai-note.component';
 import { BirthDateFieldComponent } from '../../../../../shared/forms/birth-date-field.component';
 import { identityImageRejected, identityNumberMismatch, NUMBER_MISMATCH_MESSAGE } from '../../../../../core/utils/identity-inspection-result';
 import { Subscription as CatalogSubscription } from 'rxjs';
@@ -95,7 +96,7 @@ export interface SetupAlertModal {
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, BirthDateFieldComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent, IdentityGateStatusComponent, LegalNameFieldComponent, ExamEnvironmentInstructionsComponent],
+	imports: [AiNoteComponent, CommonModule, RouterModule, ReactiveFormsModule, FormsModule, BioFieldDirective, PaypalEmailConfirmComponent, FieldErrorComponent, BirthDateFieldComponent, FormSummaryComponent, KycDocumentLink, SkillsPickerComponent, SpecialtyTestComponent, IdentityGateStatusComponent, LegalNameFieldComponent, ExamEnvironmentInstructionsComponent],
 	providers: [IdentityGateService],
 	templateUrl: './profile-setup.html',
 	styleUrls: ['./profile-setup.css']

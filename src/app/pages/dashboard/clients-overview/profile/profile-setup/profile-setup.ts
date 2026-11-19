@@ -1,3 +1,4 @@
+import { AiNoteComponent } from '../../../../../shared/ai/ai-note.component';
 import { switchMap } from 'rxjs';
 import { resetClientIdentityRejectedCache } from '../../../../../core/guards/client-identity-rejected.guard';
 import { identityImageRejected, identityNumberMismatch, NUMBER_MISMATCH_MESSAGE } from '../../../../../core/utils/identity-inspection-result';
@@ -59,7 +60,7 @@ const FILE_RULES: Record<string, { maxBytes: number; mimeTypes: string[]; typesL
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, BirthDateFieldComponent, FormSummaryComponent, KycDocumentLink, IdentityGateStatusComponent, LegalNameFieldComponent],
+	imports: [AiNoteComponent, CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, BirthDateFieldComponent, FormSummaryComponent, KycDocumentLink, IdentityGateStatusComponent, LegalNameFieldComponent],
 	providers: [IdentityGateService],
 	templateUrl: './profile-setup.html'
 })
