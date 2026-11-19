@@ -20,6 +20,7 @@ import { AssistantStore, MAX_QUESTION_LENGTH } from '../../core/store/assistant.
 import { BeboAvatarComponent } from '../bebo-avatar/bebo-avatar';
 import { AuthStore } from '../../core/store/auth.store';
 import { AssistantChatComponent } from '../assistant-chat/assistant-chat';
+import { GuestChatComponent } from '../guest-chat/guest-chat';
 import { BeboPose } from '../bebo-avatar/bebo-loader';
 import {
 	BEBO_CORE_MOTIONS,
@@ -90,7 +91,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 @Component({
 	selector: 'app-assistant-widget',
 	standalone: true,
-	imports: [FormsModule, RouterLink, NgStyle, BeboAvatarComponent, AssistantChatComponent, AssistantPositionSettingsComponent, BeboToolbarComponent],
+	imports: [FormsModule, RouterLink, NgStyle, BeboAvatarComponent, AssistantChatComponent, GuestChatComponent, AssistantPositionSettingsComponent, BeboToolbarComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	styleUrl: './assistant-widget.css',
 	host: {
@@ -163,8 +164,7 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 
 				@if (isGuest() && panelTab() === 'chat') {
 					<div class="aw__guest" data-testid="assistant-guest-prompt">
-						<p>سجّل الدخول لتتحدث مع {{ characterName() }}</p>
-						<a class="aw__login" routerLink="/auth/login" (click)="store.close()">تسجيل الدخول</a>
+						<app-guest-chat [english]="store.effectiveDialect() === 'english'" (loginClicked)="store.close()" />
 					</div>
 				} @else {
 					@if (panelTab() === 'chat') {
@@ -302,8 +302,8 @@ const GUIDED_TOPICS: readonly GuidedTopic[] = [
 					</div>
 				}
 
-				<!-- Bebo's tool bar (shared component). In the admin panel it lives in the «بيبو» tab instead, so it is not drawn here. -->
-				@if (!hideToolbar()) { <app-bebo-toolbar /> }
+				<!-- The tool bar (shared component) carries the extra features of signed-in users, so a visitor does not get it. In the admin panel it lives in the «بيبو» tab instead, so it is not drawn here. -->
+				@if (!hideToolbar() && !isGuest()) { <app-bebo-toolbar /> }
 			</div>
 			}
 		} @else {
