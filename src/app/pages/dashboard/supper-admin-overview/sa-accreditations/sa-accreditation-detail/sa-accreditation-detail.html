@@ -108,7 +108,17 @@
           }
         </div>
       } @else {
-        <p class="acc-section-note" data-testid="no-ai">لا يوجد تقييم AI مخزّن لهذا النموذج؛ الفحص الذكي للنماذج متوقف ويُراجع النموذج يدويًا.</p>
+        <p class="acc-section-note" data-testid="no-ai">لا يوجد تقييم AI مخزّن لهذا النموذج. يمكنك تشغيل التقييم من الزر أدناه، أو مراجعته يدويًا.</p>
+      }
+
+      @if (proofs().length) {
+        <div class="acc-md-actions" data-testid="ai-rerun-row">
+          <button type="button" class="acc-btn acc-btn-ghost" data-testid="ai-rerun-btn" [disabled]="rerunningAi() || submittingAction()" (click)="rerunAi()">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><use href="#i-ai"/></svg>
+            {{ rerunningAi() ? 'جارٍ تقييم AI…' : (d.aiScore != null ? 'إعادة تقييم AI' : 'تشغيل تقييم AI') }}
+          </button>
+          <span class="acc-section-note">استرشادي فقط: يحدّث الدرجة والملاحظات ولا يغيّر قرار النموذج ولا حالة التخصص.</span>
+        </div>
       }
 
       <div class="acc-md-field-row">

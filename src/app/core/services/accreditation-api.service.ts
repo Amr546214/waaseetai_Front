@@ -53,6 +53,17 @@ export class AccreditationApiService {
   }
 
   /**
+   * Admin re-runs the advisory AI review of an existing sample (score / rating / notes only; the decision is never touched).
+   * POST /api/admin/accreditation/samples/:id/ai-rerun
+   */
+  rerunAiReview(id: string): Observable<{ success: boolean; message?: string; data?: { updated: boolean; scored?: boolean; aiScore: number | null } }> {
+    return this.http.post<{ success: boolean; message?: string; data?: { updated: boolean; scored?: boolean; aiScore: number | null } }>(
+      `${this.baseUrl}/admin/accreditation/samples/${id}/ai-rerun`,
+      {},
+    );
+  }
+
+  /**
    * Admin rejects an accreditation sample with a required reason (2-2000 chars).
    * The backend has no dedicated rejection-reason column — the reason is
    * appended to the sample's own aiFeedbackAr field, prefixed with
