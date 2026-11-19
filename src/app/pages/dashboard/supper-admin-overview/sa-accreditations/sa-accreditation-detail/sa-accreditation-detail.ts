@@ -204,6 +204,31 @@ export class SaAccreditationDetail implements OnInit {
     });
   }
 
+  readonly rerunningAi = signal(false);
+
+  /** Re-runs the advisory AI review of this sample, then re-reads it so the stored score follows the server. Never changes the decision. */
+  rerunAi(): void {
+    const sample = this.selected();
+    if (!sample || this.rerunningAi() || this.submittingAction()) return;
+    this.actionError.set('');
+    this.actionSuccess.set('');
+    this.rerunningAi.set(true);
+    this.accreditationApi.rerunAiReview(sample.id).subscribe({
+      next: (res) => {
+        this.rerunningAi.set(false);
+        const note = res.message || 'تم تحديث تقييم الذكاء الاصطناعي';
+        this.accreditationApi.getAdminSample(sample.id).subscribe({
+          next: (fresh) => { if (fresh.success && fresh.data) this.selected.set(fresh.data); this.actionSuccess.set(note); },
+          error: () => this.actionSuccess.set(`${note} — أعد تحميل الصفحة لرؤية النتيجة`),
+        });
+      },
+      error: (err) => {
+        this.rerunningAi.set(false);
+        handleAdminError(this.host.nativeElement, err, { fallback: 'تعذر تشغيل تقييم الذكاء الاصطناعي، حاول لاحقًا' }, (m) => this.actionError.set(m));
+      },
+    });
+  }
+
   openApproveConfirm() {
     this.actionError.set('');
     this.actionSuccess.set('');

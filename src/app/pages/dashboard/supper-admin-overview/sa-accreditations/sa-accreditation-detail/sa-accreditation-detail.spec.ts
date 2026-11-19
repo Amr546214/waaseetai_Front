@@ -265,10 +265,32 @@ describe('SaAccreditationDetail — honesty and confirmation', () => {
 		expect(el.querySelector('[data-testid="stored-ai"]')!.textContent).toContain('تقييم AI المخزّن');
 	});
 
-	it('without a stored AI result it says the AI check is off instead of showing a score', async () => {
+	it('without a stored AI result it shows no score and offers to run the AI review', async () => {
 		const { el } = await render({ aiScore: null, aiFeedbackAr: null, aiStrengths: [], aiRecommendations: [] });
 		expect(el.querySelector('[data-testid="stored-ai"]')).toBeNull();
-		expect(el.querySelector('[data-testid="no-ai"]')!.textContent).toContain('متوقف');
+		expect(el.querySelector('[data-testid="no-ai"]')!.textContent).toContain('لا يوجد تقييم AI مخزّن');
+		expect(el.querySelector('[data-testid="ai-rerun-btn"]')!.textContent).toContain('تشغيل تقييم AI');
+	});
+
+	it('the AI re-run button posts to /ai-rerun, then re-reads the sample and reports the server message; the decision buttons are untouched', async () => {
+		const post = vi.fn((..._a: any[]) => of({ success: true, message: 'تم تحديث تقييم الذكاء الاصطناعي', data: { updated: true, scored: true, aiScore: 81 } }));
+		const { harness, el } = await render({ status: 'AI_VERIFIED', providerSpecialty: { id: 'ps-1', status: 'APPROVED' } as any }, post);
+		expect(el.querySelector('[data-testid="ai-rerun-btn"]')!.textContent).toContain('إعادة تقييم AI');
+		(el.querySelector('[data-testid="ai-rerun-btn"]') as HTMLButtonElement).click();
+		await harness.fixture.whenStable(); harness.detectChanges();
+		expect(post.mock.calls[0][0]).toContain('/admin/accreditation/samples/sample-1/ai-rerun');
+		expect(post).toHaveBeenCalledTimes(1);
+		expect(el.querySelector('[data-testid="acc-action-success"]')!.textContent).toContain('تم تحديث تقييم الذكاء الاصطناعي');
+		expect(el.querySelector('[data-testid="approve-btn"]')).toBeNull();
+	});
+
+	it('a failed AI re-run shows the server error and changes nothing else', async () => {
+		const post = vi.fn((..._a: any[]) => throwError(() => ({ status: 502, error: { message: 'تعذّر تشغيل تقييم الذكاء الاصطناعي الآن؛ لم يتغير شيء في النموذج' } })));
+		const { harness, el } = await render({}, post);
+		(el.querySelector('[data-testid="ai-rerun-btn"]') as HTMLButtonElement).click();
+		await harness.fixture.whenStable(); harness.detectChanges();
+		expect(el.textContent).toContain('لم يتغير شيء في النموذج');
+		expect(el.querySelector('[data-testid="acc-action-success"]')).toBeNull();
 	});
 
 	it('status labels: MANUAL_REVIEW is waiting for manual review; AI_VERIFIED is "approved" only when the specialty really is approved', async () => {
