@@ -157,7 +157,13 @@
                 </div>
                 <div style="font-size:var(--font-size-small);display:flex;align-items:center;gap:5px" class="txt-teal">
                   @if (sample.aiQualityRating) { <span>✓</span>تقييم AI: {{ sample.aiQualityRating }} }
-                  @else { <span>—</span>لم يُقيَّم بعد }
+                  @else if (evaluating().has(sample.id)) { <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><use href="#i-ai"/></svg>جارٍ تقييم AI… }
+                  @else {
+                    <span>—</span>{{ evaluateFailed().has(sample.id) ? 'تعذّر التقييم الآن' : 'لم يُقيَّم بعد' }}
+                    @if (sample.status !== 'REJECTED') {
+                      <button type="button" data-testid="evaluate-sample" (click)="evaluateSample(sample.id); $event.stopPropagation()" style="margin-inline-start:6px;background:none;border:1px solid rgba(168,120,255,.5);color:#c4a5ff;border-radius:999px;padding:1px 9px;font-size:var(--font-size-small);cursor:pointer;display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><use href="#i-ai"/></svg>قيّم الآن</button>
+                    }
+                  }
                 </div>
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.07);padding-top:9px">

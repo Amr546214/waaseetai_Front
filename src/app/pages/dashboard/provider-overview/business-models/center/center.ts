@@ -74,6 +74,7 @@ export class Center implements OnInit {
 			next: (res) => {
 				if (res && res.success && Array.isArray(res.samples)) {
 					this.accreditationSamples.set(res.samples);
+					this.autoEvaluateMissing();
 				} else {
 					this.accreditationSamples.set([]);
 				}
@@ -84,6 +85,42 @@ export class Center implements OnInit {
 				this.accreditationSamples.set([]);
 				this.isLoading.set(false);
 			}
+		});
+	}
+
+	/** Samples whose AI evaluation is running, and ones whose last attempt did not produce a rating (a button is offered instead of silent emptiness). */
+	evaluating = signal<ReadonlySet<string>>(new Set());
+	evaluateFailed = signal<ReadonlySet<string>>(new Set());
+	private autoTried = new Set<string>();
+
+	/** Rejected samples are not evaluated; everything else without a rating is, once per page visit, one after another. */
+	private autoEvaluateMissing(): void {
+		const todo = this.accreditationSamples().filter(s => s.status !== 'REJECTED' && !s.aiQualityRating && s.aiScore == null && !this.autoTried.has(s.id));
+		todo.forEach(s => this.autoTried.add(s.id));
+		const run = (i: number) => { if (i < todo.length) this.evaluateSample(todo[i].id, () => run(i + 1)); };
+		run(0);
+	}
+
+	/** Asks the server to evaluate one of MY samples; the card is updated from the answer. Never changes the review decision. */
+	evaluateSample(id: string, done?: () => void): void {
+		if (this.evaluating().has(id)) return;
+		const mark = (set: ReadonlySet<string>, add: boolean) => { const n = new Set(set); if (add) n.add(id); else n.delete(id); return n; };
+		this.evaluating.update(s => mark(s, true));
+		this.evaluateFailed.update(s => mark(s, false));
+		this.providerApi.evaluateAccreditationSample(id).subscribe({
+			next: (res) => {
+				this.evaluating.update(s => mark(s, false));
+				const d = res?.data;
+				const got = d && d.aiScore != null;
+				if (got) this.accreditationSamples.update(list => list.map(x => x.id === id ? { ...x, aiScore: d.aiScore, aiQualityRating: d.aiQualityRating ?? x.aiQualityRating } : x));
+				else this.evaluateFailed.update(s => mark(s, true));
+				done?.();
+			},
+			error: () => {
+				this.evaluating.update(s => mark(s, false));
+				this.evaluateFailed.update(s => mark(s, true));
+				done?.();
+			},
 		});
 	}
 

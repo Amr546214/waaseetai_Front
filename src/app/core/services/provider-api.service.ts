@@ -280,6 +280,11 @@ export class ProviderApiService {
 		return this.http.post<any>(`${this.apiUrl}/accreditation/ai-suggest`, payload);
 	}
 
+	/** Advisory AI evaluation of one of the provider's OWN samples (score / rating / notes only). POST /accreditation/samples/:id/ai-evaluate */
+	evaluateAccreditationSample(id: string): Observable<any> {
+		return this.http.post<any>(`${this.apiUrl}/accreditation/samples/${encodeURIComponent(id)}/ai-evaluate`, {});
+	}
+
 	getAccreditationSamples(): Observable<any> {
 		return this.http.get<any>(`${this.apiUrl}/accreditation/samples`).pipe(
 			catchError((error) => {
