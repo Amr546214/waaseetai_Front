@@ -11,9 +11,9 @@ import { setPlatformRegional } from '../utils/regional';
 /** What the server publishes about the platform itself (GET /public/settings): names, support details, legal texts and the maintenance state. A server answer MAINTENANCE (503) also lands here. */
 export const DEFAULT_BRAND = 'وسيط AI';
 /** shown by the support buttons (login «account frozen» dialog, report-a-problem page) while the `supportEmail` setting is empty; the server's registry reports the same literal as the value in use */
-export const DEFAULT_SUPPORT_EMAIL = 'support@waseet.ai';
+export const DEFAULT_SUPPORT_EMAIL = 'support@waseetai.com';
 /** the support / WhatsApp number shown by the contact page and the footer while the `supportPhone` setting is empty (the server's registry reports the same literal as the value in use) */
-export const DEFAULT_SUPPORT_PHONE = '+966 55 256 0392';
+export const DEFAULT_SUPPORT_PHONE = '+966 55 996 5056';
 /** wa.me link of a displayed number: digits only, a leading 00 dropped (the number must be written in international form) */
 export const waLink = (phone: string) =>
   `https://wa.me/${phone.replace(/\D/g, '').replace(/^00/, '')}`;

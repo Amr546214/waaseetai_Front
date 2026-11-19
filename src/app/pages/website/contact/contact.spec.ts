@@ -29,7 +29,7 @@ describe('Contact', () => {
 
   it('support phone: the WhatsApp card shows the built-in number while the setting is empty, and the saved number (text and link) once published', () => {
     const el = fixture.nativeElement as HTMLElement; const link = () => el.querySelector('[data-testid="support-phone"]') as HTMLAnchorElement;
-    fixture.detectChanges(); expect(link().textContent?.trim()).toBe('+966 55 256 0392'); expect(link().getAttribute('href')).toBe('https://wa.me/966552560392');
+    fixture.detectChanges(); expect(link().textContent?.trim()).toBe('+966 55 996 5056'); expect(link().getAttribute('href')).toBe('https://wa.me/966559965056');
     const http = TestBed.inject(HttpTestingController); TestBed.inject(PlatformInfoService).load();
     http.expectOne(`${environment.url_api}/public/settings`).flush({ success: true, data: { supportPhone: '+971 50 123 4567' } });
     fixture.detectChanges(); expect(link().textContent?.trim()).toBe('+971 50 123 4567'); expect(link().getAttribute('href')).toBe('https://wa.me/971501234567');

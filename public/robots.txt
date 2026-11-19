@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /super-admin/
+Disallow: /supper-admin-overview/
+Disallow: /client-overview/
+Disallow: /provider-overview/
+Disallow: /marketer-overview/
+Disallow: /checkout/
+Disallow: /auth/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /verify-code
+Disallow: /api/
+
+Sitemap: https://waseetai.com/sitemap.xml

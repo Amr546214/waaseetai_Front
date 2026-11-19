@@ -36,7 +36,7 @@ describe('Footer', () => {
 
   it('support phone: the WhatsApp link is the built-in number while the setting is empty, and the saved number once published', () => {
     const a = () => fixture.nativeElement.querySelector('a[aria-label="واتساب"]') as HTMLAnchorElement;
-    fixture.detectChanges(); expect(a().getAttribute('href')).toBe('https://wa.me/966552560392');
+    fixture.detectChanges(); expect(a().getAttribute('href')).toBe('https://wa.me/966559965056');
     const http = TestBed.inject(HttpTestingController); TestBed.inject(PlatformInfoService).load();
     http.expectOne(`${environment.url_api}/public/settings`).flush({ success: true, data: { supportPhone: '+971 50 123 4567' } });
     fixture.detectChanges(); expect(a().getAttribute('href')).toBe('https://wa.me/971501234567');
