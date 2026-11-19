@@ -1,0 +1,157 @@
+{
+  "voice": "Puck",
+  "model": "gemini-3.8-flash-tts",
+  "dialect": "msa",
+  "entries": {
+    "visitor-welcome": {
+      "hash": "3b8a1aaf97ccb15c",
+      "bytes": 66332,
+      "seconds": 11
+    },
+    "visitor-hero": {
+      "hash": "756d01ce53cdaa1d",
+      "bytes": 71372,
+      "seconds": 11.8
+    },
+    "visitor-how": {
+      "hash": "45ade93c27e5d870",
+      "bytes": 70652,
+      "seconds": 11.7
+    },
+    "visitor-ops": {
+      "hash": "049b013171d28fbe",
+      "bytes": 91532,
+      "seconds": 15.2
+    },
+    "visitor-ai": {
+      "hash": "be343383c82d1bbe",
+      "bytes": 66332,
+      "seconds": 11
+    },
+    "visitor-roles": {
+      "hash": "452a55fe276cbbf0",
+      "bytes": 61580,
+      "seconds": 10.2
+    },
+    "visitor-end": {
+      "hash": "21646dfe468d7cef",
+      "bytes": 50204,
+      "seconds": 8.3
+    },
+    "visitor-register": {
+      "hash": "f1815ff33bf22dd1",
+      "bytes": 126812,
+      "seconds": 21
+    },
+    "about-intro": {
+      "hash": "d2b813f4f2468f90",
+      "bytes": 63452,
+      "seconds": 10.5
+    },
+    "about-mission": {
+      "hash": "49c1920add4c24b3",
+      "bytes": 125660,
+      "seconds": 20.8
+    },
+    "about-values": {
+      "hash": "1b5ad4ae49706c18",
+      "bytes": 65180,
+      "seconds": 10.8
+    },
+    "about-ai": {
+      "hash": "f9a59377334d6670",
+      "bytes": 104924,
+      "seconds": 17.4
+    },
+    "about-team": {
+      "hash": "40752b9514ebf1e9",
+      "bytes": 44012,
+      "seconds": 7.2
+    },
+    "blog-intro": {
+      "hash": "5efaeb221ac4336f",
+      "bytes": 65900,
+      "seconds": 10.9
+    },
+    "blog-search": {
+      "hash": "750b2e94385425ea",
+      "bytes": 26732,
+      "seconds": 4.4
+    },
+    "blog-categories": {
+      "hash": "c60d94c70acc0805",
+      "bytes": 35660,
+      "seconds": 5.8
+    },
+    "blog-posts": {
+      "hash": "5398fdc54a929688",
+      "bytes": 51212,
+      "seconds": 8.4
+    },
+    "contact-intro": {
+      "hash": "5702aaa51a4764ec",
+      "bytes": 54092,
+      "seconds": 8.9
+    },
+    "contact-form": {
+      "hash": "62ca41d70d4b97c5",
+      "bytes": 42860,
+      "seconds": 7
+    },
+    "contact-type": {
+      "hash": "257593e7501e049a",
+      "bytes": 70940,
+      "seconds": 11.7
+    },
+    "contact-info": {
+      "hash": "b06bc7fca98dc296",
+      "bytes": 79724,
+      "seconds": 13.2
+    },
+    "market-search": {
+      "hash": "58674a0a63c1fdb2",
+      "bytes": 41420,
+      "seconds": 6.8
+    },
+    "market-filters": {
+      "hash": "e8d7022cd98b2366",
+      "bytes": 49340,
+      "seconds": 8.1
+    },
+    "reg-roles-intro": {
+      "hash": "86333a6fa0deef97",
+      "bytes": 99164,
+      "seconds": 16.4
+    },
+    "reg-roles-next": {
+      "hash": "e6edea22d0103cf8",
+      "bytes": 42140,
+      "seconds": 6.9
+    },
+    "reg-username": {
+      "hash": "fd5f7267097b9457",
+      "bytes": 19820,
+      "seconds": 3.2
+    },
+    "reg-email": {
+      "hash": "e258d024867a1035",
+      "bytes": 42284,
+      "seconds": 7
+    },
+    "reg-mobile": {
+      "hash": "34cf41b8c3555a87",
+      "bytes": 12764,
+      "seconds": 2
+    },
+    "reg-password": {
+      "hash": "b56bdb6abde7d908",
+      "bytes": 35804,
+      "seconds": 5.9
+    },
+    "reg-next": {
+      "hash": "05ce10defae7b910",
+      "bytes": 53660,
+      "seconds": 8.8
+    }
+  }
+}
