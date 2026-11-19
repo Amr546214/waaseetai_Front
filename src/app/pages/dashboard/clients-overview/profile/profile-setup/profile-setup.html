@@ -122,10 +122,10 @@
 								<span class="text-[length:var(--font-size-caption)] text-slate-500 mt-1">اكتب الرقم كما هو ظاهر في الوثيقة</span>
 							</div>
 							<div class="flex flex-col gap-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">تاريخ الميلاد <span class="ws-req" aria-hidden="true">*</span></label>
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400" for="client-dob">تاريخ الميلاد <span class="text-[length:var(--font-size-caption)] font-normal text-slate-500" data-testid="optional-tag">اختياري</span></label>
 								<div class="relative">
-									<input type="date" formControlName="dob" aria-required="true" [max]="maxDobIso" min="1900-01-01"
-										class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all dark:[&::-webkit-calendar-picker-indicator]:opacity-50 dark:[&::-webkit-calendar-picker-indicator]:invert">
+									<ws-birth-date-field formControlName="dob" inputId="client-dob" data-testid="setup-dob"
+										inputClass="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all" />
 								<ws-field-error [control]="setupForm.get('details.dob')" label="تاريخ الميلاد" />
 								</div>
 								<span class="text-[length:var(--font-size-caption)] mt-1" [class.text-slate-500]="!(setupForm.get('details.dob')?.invalid && (setupForm.get('details.dob')?.touched || setupForm.get('details.dob')?.dirty))" [class.text-red-500]="setupForm.get('details.dob')?.invalid && (setupForm.get('details.dob')?.touched || setupForm.get('details.dob')?.dirty)">يجب ألا يقل العمر عن 10 سنوات</span>
@@ -141,24 +141,24 @@
 								@if (geoSuggested()) { <p class="text-[11px] text-slate-500" data-testid="geo-hint" role="note">اقتراح تقريبي حسب شبكتك وليس عنوانًا موثقًا — عدّله كما تشاء.</p> }
 							</div>
 							<div class="flex flex-col gap-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المدينة <span class="ws-req" aria-hidden="true">*</span></label>
-								<select formControlName="city" aria-required="true"
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المدينة <span class="text-[length:var(--font-size-caption)] font-normal text-slate-500" data-testid="optional-tag">اختياري</span></label>
+								<select formControlName="city"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all appearance-none">
-									<option value="" disabled>{{ cityPlaceholder(setupForm.get('details')?.get('country')?.value) }}</option>
+									<option value="">{{ cityPlaceholder(setupForm.get('details')?.get('country')?.value) }}</option>
 									@for (cityName of citiesOf(setupForm.get('details')?.get('country')?.value); track cityName) { <option [value]="cityName">{{ cityName }}</option> }
 								</select>
 								<ws-field-error [control]="setupForm.get('details.city')" label="المدينة" />
 							</div>
 							<div class="flex flex-col gap-2 md:col-span-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المهنة الحالية <span class="ws-req" aria-hidden="true">*</span></label>
-								<input type="text" formControlName="occupation" aria-required="true" placeholder="مثال: موظف حكومي"
+								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المهنة الحالية <span class="text-[length:var(--font-size-caption)] font-normal text-slate-500" data-testid="optional-tag">اختياري</span></label>
+								<input type="text" formControlName="occupation" placeholder="مثال: موظف حكومي"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
 								<ws-field-error [control]="setupForm.get('details.occupation')" label="المهنة الحالية" />
 							</div>
 							<div class="flex flex-col gap-2 md:col-span-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">العنوان
-									التفصيلي <span class="ws-req" aria-hidden="true">*</span></label>
-								<input type="text" formControlName="address" aria-required="true" placeholder="الحي، الشارع، رقم المبنى"
+									التفصيلي <span class="text-[length:var(--font-size-caption)] font-normal text-slate-500" data-testid="optional-tag">اختياري</span></label>
+								<input type="text" formControlName="address" placeholder="الحي، الشارع، رقم المبنى"
 									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600">
 								<ws-field-error [control]="setupForm.get('details.address')" label="العنوان التفصيلي" />
 							</div>

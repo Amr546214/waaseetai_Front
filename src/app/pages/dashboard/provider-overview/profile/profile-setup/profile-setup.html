@@ -134,7 +134,7 @@
             </div>
             <div class="f-wrap">
               <label class="f-lbl" for="pr-dob">تاريخ الميلاد <span class="card-optional">اختياري</span></label>
-              <input type="date" class="f-inp" id="pr-dob" formControlName="dob" dir="ltr" [max]="maxDobIso" min="1900-01-01" data-testid="setup-dob" autocomplete="bday">
+              <ws-birth-date-field formControlName="dob" inputId="pr-dob" inputClass="f-inp" data-testid="setup-dob" />
               <p class="f-hint">خاص بك فقط، لا يظهر في ملفك العام.</p>
               <ws-field-error [control]="setupForm.get('profData.dob')" label="تاريخ الميلاد" />
             </div>

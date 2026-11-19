@@ -49,9 +49,9 @@ describe('client setup: final submit and step completion agree', () => {
 		expect(el.querySelector('[data-testid=step-incomplete-mark]')).toBeNull();
 	});
 
-	it('a missing address makes step 1 incomplete: the review says "ناقص" (never "مكتمل") and the stepper does not tick it', () => {
+	it('a missing country makes step 1 incomplete: the review says "ناقص" (never "مكتمل") and the stepper does not tick it', () => {
 		const el = mount(FULL);
-		c.setupForm.get('details.address')!.setValue('');
+		c.setupForm.get('details.country')!.setValue('');
 		c.currentStep.set(5); fixture.detectChanges();
 		expect(c.stepIsIncomplete(1)).toBe(true);
 		expect(el.querySelector('[data-testid=summary-step-1-incomplete]')).toBeTruthy();
@@ -68,28 +68,39 @@ describe('client setup: final submit and step completion agree', () => {
 		expect(el.querySelector('[data-testid=summary-step-3-incomplete]')).toBeTruthy();
 	});
 
-	it('final submit with the address missing sends nothing, goes back to step 1 and names the field (its own message, not only a toast)', () => {
+	it('final submit with the country missing sends nothing, goes back to step 1 and names the field (its own message, not only a toast)', () => {
 		const el = mount(FULL);
-		c.setupForm.get('details.address')!.setValue('');
+		c.setupForm.get('details.country')!.setValue('');
 		agree();
 		c.currentStep.set(5); fixture.detectChanges();
 		c.submitForm(); fixture.detectChanges();
 		expect(saveFinal).not.toHaveBeenCalled();
 		expect(c.currentStep()).toBe(1);
-		expect(c.missing().some(m => m.path === 'details.address' && m.label === 'العنوان التفصيلي' && !!m.message)).toBe(true);
+		expect(c.missing().some(m => m.path === 'details.country' && m.label === 'الدولة' && !!m.message)).toBe(true);
 		const summary = el.querySelector('[data-testid=form-summary]');
-		expect(summary?.textContent).toContain('العنوان التفصيلي');
-		expect(el.querySelector('[formcontrolname=address] ~ [data-testid=field-error], [data-testid=field-error]')?.textContent?.length).toBeGreaterThan(0);
-		expect(c.setupForm.get('details.address')!.touched).toBe(true);
+		expect(summary?.textContent).toContain('الدولة');
+		expect(el.querySelector('[formcontrolname=country] ~ [data-testid=field-error], [data-testid=field-error]')?.textContent?.length).toBeGreaterThan(0);
+		expect(c.setupForm.get('details.country')!.touched).toBe(true);
 	});
 
 	it('the review shortcut "أكمل المرحلة 1" opens step 1 with the missing field marked', () => {
 		const el = mount(FULL);
-		c.setupForm.get('details.address')!.setValue('');
+		c.setupForm.get('details.country')!.setValue('');
 		c.currentStep.set(5); fixture.detectChanges();
 		(el.querySelector('[data-testid=summary-fix-1]') as HTMLButtonElement).click(); fixture.detectChanges();
 		expect(c.currentStep()).toBe(1);
-		expect(c.missing().some(m => m.path === 'details.address')).toBe(true);
+		expect(c.missing().some(m => m.path === 'details.country')).toBe(true);
+	});
+
+	it('date of birth, city, occupation and address are OPTIONAL for a service seeker: the final submit goes through without them', () => {
+		mount({ ...FULL, dob: null, city: '', industry: '', address: '' });
+		agree();
+		c.currentStep.set(5); fixture.detectChanges();
+		expect(c.stepIsIncomplete(1)).toBe(false);
+		c.submitForm();
+		expect(saveFinal).toHaveBeenCalledTimes(1);
+		const d = saveFinal.mock.calls[0][0].details;
+		expect(d.dob).toBeNull(); expect(d.city).toBe(''); expect(d.occupation).toBe(''); expect(d.address).toBe('');
 	});
 
 	it('final submit succeeds when every required field is present', () => {
@@ -102,8 +113,8 @@ describe('client setup: final submit and step completion agree', () => {
 		expect(saveFinal.mock.calls[0][0].agreements).toEqual({ accurate: true, terms: true, privacy: true });
 	});
 
-	it('after a refresh, an account whose address is missing opens on step 1, not on the review', () => {
-		mount({ ...FULL, address: '', completionPercentage: 50 });
+	it('after a refresh, an account whose country is missing opens on step 1, not on the review', () => {
+		mount({ ...FULL, country: '', completionPercentage: 50 });
 		expect(c.currentStep()).toBe(1);
 	});
 

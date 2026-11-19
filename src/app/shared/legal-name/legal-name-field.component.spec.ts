@@ -106,13 +106,18 @@ describe('LegalNameFieldComponent', () => {
 			} finally { vi.useRealTimers(); }
 		});
 
-		it('a name tied to a verified / pending identity is read-only here: no «إرسال طلب التعديل» button, nothing is ever sent', async () => {
+		it('a name tied to a verified / pending identity CAN be edited here (the owner asked for it): the box is writable and the change is sent as a review request with the «إرسال طلب التعديل» button — never saved silently', async () => {
 			await mountAuto(view({ changeNeedsReview: true }));
 			const input = q('legal-name-field-input') as HTMLInputElement;
-			expect(input.readOnly).toBe(true);
-			expect(q('legal-name-save')).toBeNull();
+			expect(input.readOnly).toBe(false);
+			expect(q('legal-name-review-note')!.textContent).toContain('طلب للمراجعة');
 			type('عمرو أحمد'); blur();
-			expect(save).not.toHaveBeenCalled();
+			expect(save).not.toHaveBeenCalled();                      // typing / leaving the box sends nothing by itself
+			const btn = q('legal-name-save') as HTMLButtonElement;
+			expect(btn.textContent).toContain('إرسال طلب التعديل');
+			save.mockReturnValue(of({ success: true, data: { outcome: 'REQUEST_CREATED', view: view({ changeNeedsReview: true }) } }));
+			btn.click();
+			expect(save).toHaveBeenCalledTimes(1);
 		});
 	});
 });

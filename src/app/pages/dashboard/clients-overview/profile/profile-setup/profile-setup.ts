@@ -20,6 +20,7 @@ import { attemptSubmit, collectInvalidFields, focusFirstInvalid, InvalidField } 
 import { DOC_MIMES, MB, validateFile } from '../../../../../core/forms/file-validation';
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
+import { BirthDateFieldComponent } from '../../../../../shared/forms/birth-date-field.component';
 import { paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
@@ -58,7 +59,7 @@ const FILE_RULES: Record<string, { maxBytes: number; mimeTypes: string[]; typesL
 @Component({
 	selector: 'app-profile-setup-dashboard',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, IdentityGateStatusComponent, LegalNameFieldComponent],
+	imports: [CommonModule, RouterModule, ReactiveFormsModule, FieldErrorComponent, BirthDateFieldComponent, FormSummaryComponent, KycDocumentLink, IdentityGateStatusComponent, LegalNameFieldComponent],
 	providers: [IdentityGateService],
 	templateUrl: './profile-setup.html'
 })
@@ -151,11 +152,12 @@ export class ProfileSetupDashboard implements OnInit {
 		details: this.fb.group({
 			idDocumentType: [''],
 			idNumber: ['', [Validators.required, Validators.pattern(DOCUMENT_NUMBER_PATTERN)]],
-			dob: ['', [Validators.required, birthDateValidator]],
+			// optional for a service seeker: none of these is needed to continue (the country stays required: the identity document check uses it)
+			dob: ['', [birthDateValidator]],
 			country: ['', Validators.required],
-			city: ['', Validators.required],
-			occupation: ['', Validators.required],
-			address: ['', Validators.required]
+			city: [''],
+			occupation: [''],
+			address: ['']
 		}),
 		identity: this.fb.group({
 			frontId: [''],
@@ -177,7 +179,8 @@ export class ProfileSetupDashboard implements OnInit {
 	});
 
 	ngOnInit() {
-		linkCountryCity(this.setupForm.get('details'), this.destroyRef);
+		// the city is optional for a service seeker (it still follows the chosen country)
+		linkCountryCity(this.setupForm.get('details'), this.destroyRef, { country: 'country', city: 'city', requireCity: false });
 		this.loadClientProfile();
 	}
 

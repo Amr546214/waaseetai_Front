@@ -38,6 +38,7 @@ export function validationMessage(errors: ValidationErrors | null | undefined, l
 	if (errors['pattern']) return name ? `صيغة ${name} غير صحيحة` : 'الصيغة غير صحيحة';
 	if (errors['minAge']) return `يجب ألا يقل العمر عن ${errors['minAge'].years} سنوات`;
 	if (errors['birthDate']) return 'تاريخ الميلاد غير صالح';
+	if (errors['birthDatePartial']) return 'أكمل اليوم والشهر والسنة، أو اتركها فارغة';
 	return name ? `${name} غير صالح` : 'القيمة غير صالحة';
 }
 

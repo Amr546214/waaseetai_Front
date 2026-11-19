@@ -1,3 +1,4 @@
+import { BirthDateFieldComponent } from '../../../../../shared/forms/birth-date-field.component';
 import { identityInspectionResult } from '../../../../../core/utils/identity-inspection-result';
 import { requiredText } from '../../../../../core/forms/required-text.validator';
 import { providerTimeZone } from '../../../../../core/services/provider-prefs.store';
@@ -111,7 +112,7 @@ interface ActiveSession {
 @Component({
   selector: 'app-profile-data',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent, SkillsPickerComponent, UsernameFieldComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, BirthDateFieldComponent, FormSummaryComponent, KycDocumentLink, PaypalEmailConfirmComponent, OtpInputComponent, SkillsPickerComponent, UsernameFieldComponent],
   templateUrl: './data.html',
   styleUrl: './data.css'
 })
