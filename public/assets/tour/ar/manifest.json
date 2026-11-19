@@ -67,6 +67,91 @@
       "hash": "40752b9514ebf1e9",
       "bytes": 44012,
       "seconds": 7.2
+    },
+    "blog-intro": {
+      "hash": "5efaeb221ac4336f",
+      "bytes": 65900,
+      "seconds": 10.9
+    },
+    "blog-search": {
+      "hash": "750b2e94385425ea",
+      "bytes": 26732,
+      "seconds": 4.4
+    },
+    "blog-categories": {
+      "hash": "c60d94c70acc0805",
+      "bytes": 35660,
+      "seconds": 5.8
+    },
+    "blog-posts": {
+      "hash": "5398fdc54a929688",
+      "bytes": 51212,
+      "seconds": 8.4
+    },
+    "contact-intro": {
+      "hash": "5702aaa51a4764ec",
+      "bytes": 54092,
+      "seconds": 8.9
+    },
+    "contact-form": {
+      "hash": "62ca41d70d4b97c5",
+      "bytes": 42860,
+      "seconds": 7
+    },
+    "contact-type": {
+      "hash": "257593e7501e049a",
+      "bytes": 70940,
+      "seconds": 11.7
+    },
+    "contact-info": {
+      "hash": "b06bc7fca98dc296",
+      "bytes": 79724,
+      "seconds": 13.2
+    },
+    "market-search": {
+      "hash": "58674a0a63c1fdb2",
+      "bytes": 41420,
+      "seconds": 6.8
+    },
+    "market-filters": {
+      "hash": "e8d7022cd98b2366",
+      "bytes": 49340,
+      "seconds": 8.1
+    },
+    "reg-roles-intro": {
+      "hash": "86333a6fa0deef97",
+      "bytes": 99164,
+      "seconds": 16.4
+    },
+    "reg-roles-next": {
+      "hash": "e6edea22d0103cf8",
+      "bytes": 42140,
+      "seconds": 6.9
+    },
+    "reg-username": {
+      "hash": "fd5f7267097b9457",
+      "bytes": 19820,
+      "seconds": 3.2
+    },
+    "reg-email": {
+      "hash": "e258d024867a1035",
+      "bytes": 42284,
+      "seconds": 7
+    },
+    "reg-mobile": {
+      "hash": "34cf41b8c3555a87",
+      "bytes": 12764,
+      "seconds": 2
+    },
+    "reg-password": {
+      "hash": "b56bdb6abde7d908",
+      "bytes": 35804,
+      "seconds": 5.9
+    },
+    "reg-next": {
+      "hash": "05ce10defae7b910",
+      "bytes": 53660,
+      "seconds": 8.8
     }
   }
 }
