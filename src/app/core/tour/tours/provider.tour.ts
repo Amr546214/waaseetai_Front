@@ -44,9 +44,5 @@ export const PROVIDER_TOUR: TourDefinition = {
 			text: 'مركز المساعدة. تجد فيه الإجابات عن أسئلتك.' },
 		{ id: 'provider-assistant', route: R, target: `#sidebar a[href="${R}/bebo"]`, title: 'وسيط AI',
 			text: 'وسيط AI. مساعدك الذكي داخل المنصة، اسأله عما تحتاجه.' },
-		{ id: 'provider-explore-page', route: `${R}/explore-requests`, target: '.ord-title', title: 'استكشاف الطلبات',
-			text: 'وهذه صفحة استكشاف الطلبات. تصفّح الطلبات المنشورة، وقدّم عرضك على ما يناسب تخصصك.' },
-		{ id: 'provider-end', route: R, title: 'وبعد ذلك',
-			text: 'وبهذا عرفت أماكن كل شيء. ابدأ باستكشاف الطلبات وتقديم عروضك. ويمكنك إعادة هذه الجولة في أي وقت من زر الجولة.' },
 	],
 };
