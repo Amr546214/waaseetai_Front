@@ -47,6 +47,13 @@ test('query/hash/trailing slash are removed without changing the actual public p
   assert.equal(seo.pageSeo('/marketplace/offer/123?token=secret').path, '/marketplace/offer/123');
   for (const p of ['/supper-admin-overview','/supper-admin-overview/users','/auth/login','/checkout/payment','/admin-invite?token=secret','/not-a-real-page','/favorites']) assert.equal(seo.pageSeo(p).indexable, false, p);
 });
+test('reserved marketplace application paths are never treated as public service slugs', () => {
+  for (const path of ['/marketplace/cart', '/marketplace/comparison', '/marketplace/tracking', '/marketplace/cart/?utm_source=x#item', '/marketplace/%63art', '/marketplace/COMPARISON', '/marketplace/cart/item']) {
+    assert.equal(seo.pageSeo(path).indexable, false, path);
+    assert.ok(!seo.PUBLIC_PAGES.some(p => p.path === path));
+  }
+  for (const path of ['/marketplace/design-logo', '/marketplace/offer/123', '/marketplace/cart-design']) assert.equal(seo.pageSeo(path).indexable, true, path);
+});
 test('metadata escapes text and JSON-LD cannot close its script; no invented address is emitted', () => {
   const text = '</script><img src=x onerror=alert(1)>';
   const doc = renderShell(html, {...seo.PUBLIC_PAGES[0], title: text, description: text}, seo);
@@ -63,7 +70,8 @@ test('build emits route-specific shells and a host policy for the actual static 
     await import('node:fs/promises').then(fs => fs.writeFile(join(out,'browser/index.csr.html'), html));
     await buildSeo(out);
     const conf = await readFile(join(out,'seo-map.conf'),'utf8');
-    assert.ok(conf.includes('map $request_uri $ws_request_path'));
+    assert.ok(conf.includes('map $uri $ws_request_path'));
+    for (const path of seo.PRIVATE_MARKETPLACE_PATHS) assert.ok(conf.includes(`"${path}" 0;`));
     assert.ok(conf.includes('map $ws_request_path $ws_public_path'));
     assert.ok(conf.includes('default "noindex, nofollow"'));
     assert.ok(conf.includes('"1:1" ""'));
@@ -96,7 +104,7 @@ test('Express SSR entry enforces the same host boundary and serves actual crawle
       assert.equal(sitemap.status,official?200:404);
       if(official) assert.ok((await sitemap.text()).includes('<urlset'));
     }
-    for (const url of ['/auth/login','/supper-admin-overview','/checkout/payment','/no-such-page']) {
+    for (const url of ['/auth/login','/supper-admin-overview','/checkout/payment','/no-such-page','/marketplace/cart','/marketplace/comparison/?id=x','/marketplace/tracking','/marketplace/%63art']) {
       const r=await httpGet(base+url,{headers:{Host:'waseetai.com'}});
       assert.equal(r.headers.get('x-robots-tag'),seo.NOINDEX_ROBOTS);
     }

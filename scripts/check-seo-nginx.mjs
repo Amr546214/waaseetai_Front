@@ -56,7 +56,7 @@ try {
   }
   for(const host of ['waseetai.com','www.waseetai.com','dev.waseetai.com','agent.waseetai.com','localhost']){
     const official=seo.isOfficialHost(host);
-    for(const path of ['/about/','/pricing','/auth/login','/supper-admin-overview','/checkout/payment','/marketplace/offer/123?token=secret']){
+    for(const path of ['/about/','/pricing','/auth/login','/supper-admin-overview','/checkout/payment','/marketplace/offer/123?token=secret','/marketplace/cart','/marketplace/comparison','/marketplace/tracking','/marketplace/cart/?x=1','/marketplace/%63art','/marketplace/COMPARISON','/marketplace/cart/item','/comparison','/tracking','/marketplace/cart-design']){
       const r=await httpGet(base+path,{headers:{Host:host}});const body=await r.text();
       assert.equal(r.status, 200, `${host}${path} must serve the Angular shell`);
       assert.equal(r.headers.get('x-robots-tag'),official&&seo.pageSeo(path).indexable?null:seo.NOINDEX_ROBOTS,`${host}${path}`);
