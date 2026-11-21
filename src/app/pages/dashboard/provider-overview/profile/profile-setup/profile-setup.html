@@ -134,7 +134,7 @@
             </div>
             <div class="f-wrap">
               <label class="f-lbl" for="pr-dob">تاريخ الميلاد <span class="card-optional">اختياري</span></label>
-              <input type="date" class="f-inp" id="pr-dob" formControlName="dob" dir="ltr" [max]="maxDobIso" min="1900-01-01" data-testid="setup-dob" autocomplete="bday">
+              <ws-birth-date-field formControlName="dob" inputId="pr-dob" inputClass="f-inp" data-testid="setup-dob" />
               <p class="f-hint">خاص بك فقط، لا يظهر في ملفك العام.</p>
               <ws-field-error [control]="setupForm.get('profData.dob')" label="تاريخ الميلاد" />
             </div>
@@ -484,10 +484,7 @@
           <!-- the verdict of the document check stays visible after a refused picture was removed (outside the uploaded-file block) -->
           <div role="status" aria-live="polite" aria-atomic="true">
             @if (idDocInspections()['frontId']; as insp) {
-              <div data-testid="ai-id-inspection-frontId" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:center;gap:6px" [style.background]="insp.status === 'warning' ? 'rgba(245,158,11,.12)' : (insp.status === 'valid' ? 'rgba(43,212,199,.10)' : 'rgba(255,255,255,.05)')" [style.border]="insp.status === 'warning' ? '1px solid rgba(245,158,11,.35)' : (insp.status === 'valid' ? '1px solid rgba(43,212,199,.30)' : '1px solid rgba(255,255,255,.10)')" [style.color]="insp.status === 'warning' ? '#fbbf24' : (insp.status === 'valid' ? '#2BD4C7' : '#A8B2D1')">
-                <span role="img" [attr.aria-label]="insp.status === 'warning' ? 'تنبيه' : (insp.status === 'valid' ? 'تم الفحص' : 'قيد الفحص')">{{ insp.status === 'warning' ? '⚠️' : (insp.status === 'valid' ? '✓' : '⏳') }}</span>
-                <span>{{ insp.message }}</span>
-              </div>
+              <ws-ai-note data-testid="ai-id-inspection-frontId" [message]="insp.message" [state]="insp.status" />
             }
           </div>
           @if (fileErr('frontId'); as e) { <div class="f-err doc-inline-err" id="err-doc-frontId" data-testid="doc-file-error-frontId" role="alert">{{ e }}</div> }
@@ -552,10 +549,7 @@
           <!-- the verdict of the document check stays visible after a refused picture was removed (outside the uploaded-file block) -->
           <div role="status" aria-live="polite" aria-atomic="true">
             @if (idDocInspections()['backId']; as insp) {
-              <div data-testid="ai-id-inspection-backId" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:center;gap:6px" [style.background]="insp.status === 'warning' ? 'rgba(245,158,11,.12)' : (insp.status === 'valid' ? 'rgba(43,212,199,.10)' : 'rgba(255,255,255,.05)')" [style.border]="insp.status === 'warning' ? '1px solid rgba(245,158,11,.35)' : (insp.status === 'valid' ? '1px solid rgba(43,212,199,.30)' : '1px solid rgba(255,255,255,.10)')" [style.color]="insp.status === 'warning' ? '#fbbf24' : (insp.status === 'valid' ? '#2BD4C7' : '#A8B2D1')">
-                <span role="img" [attr.aria-label]="insp.status === 'warning' ? 'تنبيه' : (insp.status === 'valid' ? 'تم الفحص' : 'قيد الفحص')">{{ insp.status === 'warning' ? '⚠️' : (insp.status === 'valid' ? '✓' : '⏳') }}</span>
-                <span>{{ insp.message }}</span>
-              </div>
+              <ws-ai-note data-testid="ai-id-inspection-backId" [message]="insp.message" [state]="insp.status" />
             }
           </div>
           @if (fileErr('backId'); as e) { <div class="f-err doc-inline-err" id="err-doc-backId" data-testid="doc-file-error-backId" role="alert">{{ e }}</div> }
@@ -623,10 +617,7 @@
             </div>
           }
           @if (supportingChecks()['selfie']; as chk) {
-          <div data-testid="selfie-ai-check" role="status" aria-live="polite" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:flex-start;gap:6px;border:1px solid" [style.background]="chk.status === 'valid' ? 'rgba(16,185,129,.10)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.10)' : 'rgba(245,158,11,.10)')" [style.borderColor]="chk.status === 'valid' ? 'rgba(16,185,129,.4)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.35)' : 'rgba(245,158,11,.4)')">
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="flex-shrink:0;margin-top:2px"><use href="#i-ai"></use></svg>
-            <span>{{ chk.message }}</span>
-          </div>
+          <ws-ai-note data-testid="selfie-ai-check" [message]="chk.message" [state]="chk.status" />
         }
         @if (fileErr('selfie'); as e) { <div class="f-err doc-inline-err" id="err-doc-selfie" data-testid="doc-file-error-selfie" role="alert">{{ e }}</div> }
           <div class="enc-note" style="margin-top:10px"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفرة، وتُستخدم للتحقق من هويتك فقط</div>
@@ -690,10 +681,7 @@
             </div>
           }
           @if (supportingChecks()['certs']; as chk) {
-          <div data-testid="certs-ai-check" role="status" aria-live="polite" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:flex-start;gap:6px;border:1px solid" [style.background]="chk.status === 'valid' ? 'rgba(16,185,129,.10)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.10)' : 'rgba(245,158,11,.10)')" [style.borderColor]="chk.status === 'valid' ? 'rgba(16,185,129,.4)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.35)' : 'rgba(245,158,11,.4)')">
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="flex-shrink:0;margin-top:2px"><use href="#i-ai"></use></svg>
-            <span>{{ chk.message }}</span>
-          </div>
+          <ws-ai-note data-testid="certs-ai-check" [message]="chk.message" [state]="chk.status" />
         }
         @if (fileErr('certs'); as e) { <div class="f-err doc-inline-err" id="err-doc-certs" data-testid="doc-file-error-certs" role="alert">{{ e }}</div> }
           <div class="enc-note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-lock"></use></svg>مشفر بـ AES-256، يبقى في ملفك المهني</div>
@@ -796,10 +784,7 @@
                           </label>
                         }
                         @if (portfolioChecks()['review-' + spec + '-' + itemIdx]; as chk) {
-                          <div data-testid="pf-ai-check-review" role="status" aria-live="polite" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:flex-start;gap:6px;border:1px solid" [style.background]="chk.status === 'valid' ? 'rgba(16,185,129,.10)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.10)' : (chk.status === 'refused' ? 'rgba(239,68,68,.10)' : 'rgba(245,158,11,.10)'))" [style.borderColor]="chk.status === 'valid' ? 'rgba(16,185,129,.4)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.35)' : (chk.status === 'refused' ? 'rgba(239,68,68,.45)' : 'rgba(245,158,11,.4)'))">
-                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="flex-shrink:0;margin-top:2px"><use href="#i-ai"></use></svg>
-                            <span>{{ chk.message }}</span>
-                          </div>
+                          <ws-ai-note data-testid="pf-ai-check-review" [message]="chk.message" [state]="chk.status" />
                         }
                         @if (fileErr('pf-review-' + spec + '-' + itemIdx); as e) { <div class="f-err" id="err-pf-review-{{ specIdx }}-{{ itemIdx }}" data-testid="pf-review-error" role="alert">{{ e }}</div> }
                       </div>
@@ -820,7 +805,7 @@
                               } @else if (getUploadState('portfolio-proof-' + spec + '-' + itemIdx + '-' + proofIdx)?.status === 'error') {
                                 <span class="f-hint txt-red" style="font-size:var(--font-size-small)">فشل الرفع</span>
                               }
-                              @if (portfolioChecks()['proof-' + spec + '-' + itemIdx + '-' + proofIdx]; as chk) { <span class="f-hint" data-testid="pf-ai-check-proof" style="font-size:var(--font-size-small)" [class.txt-teal]="chk.status === 'valid'" [class.txt-red]="chk.status === 'refused'">{{ chk.message }}</span> }
+                              @if (portfolioChecks()['proof-' + spec + '-' + itemIdx + '-' + proofIdx]; as chk) { <ws-ai-note data-testid="pf-ai-check-proof" [message]="chk.message" [state]="chk.status" /> }
                               <button type="button" class="pw-proof-del" (click)="removePortfolioProof(spec, itemIdx, proofIdx)" aria-label="حذف">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><use href="#i-close"></use></svg>
                               </button>
@@ -836,10 +821,7 @@
                     </div>
                     <!-- the reason a model file or a proof was refused stays here after the file is removed -->
                         @if (portfolioChecks()['refused-' + spec + '-' + itemIdx]; as chk) {
-                          <div data-testid="pf-ai-check-refused" role="status" aria-live="polite" style="margin-top:8px;padding:8px 12px;border-radius:9px;font-size:var(--font-size-small);font-weight:700;display:flex;align-items:flex-start;gap:6px;border:1px solid" [style.background]="chk.status === 'valid' ? 'rgba(16,185,129,.10)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.10)' : (chk.status === 'refused' ? 'rgba(239,68,68,.10)' : 'rgba(245,158,11,.10)'))" [style.borderColor]="chk.status === 'valid' ? 'rgba(16,185,129,.4)' : (chk.status === 'scanning' ? 'rgba(148,163,184,.35)' : (chk.status === 'refused' ? 'rgba(239,68,68,.45)' : 'rgba(245,158,11,.4)'))">
-                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="flex-shrink:0;margin-top:2px"><use href="#i-ai"></use></svg>
-                            <span>{{ chk.message }}</span>
-                          </div>
+                          <ws-ai-note data-testid="pf-ai-check-refused" [message]="chk.message" [state]="chk.status" />
                         }
                     @if (getPortfolioItems(spec).length > 1) {
                       <div class="pw-item-foot">

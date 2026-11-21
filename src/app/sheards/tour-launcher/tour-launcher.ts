@@ -24,7 +24,7 @@ const safeSet = (k: string, v: string) => { try { localStorage.setItem(k, v); } 
 		@if (entry(); as e) {
 			@if (suggesting()) {
 				<div class="ws-tl-suggest" data-ws-theme-owned role="dialog" aria-label="اقتراح جولة" data-testid="tour-suggestion">
-					<p>هل تحب جولة قصيرة تعرّفك على لوحتك؟</p>
+					<p><span class="ws-tl-ai" aria-hidden="true" style="margin-inline-end:6px"><svg data-ws-ai-mark viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg></span>هل تحب جولة قصيرة تعرّفك على لوحتك؟</p>
 					<div class="ws-tl-suggest-actions">
 						<button type="button" class="ws-tl-yes" (click)="start(e)" data-testid="tour-suggestion-yes">ابدأ الجولة</button>
 						<button type="button" class="ws-tl-no" (click)="dismissSuggestion()" data-testid="tour-suggestion-no">لاحقًا</button>
@@ -33,7 +33,7 @@ const safeSet = (k: string, v: string) => { try { localStorage.setItem(k, v); } 
 			}
 			<button type="button" class="ws-tl-chip" data-ws-theme-owned data-testid="tour-launcher" (click)="start(e)"
 				[attr.aria-label]="done() ? 'إعادة الجولة' : (e.label ?? 'جولة في هذه الصفحة')">
-				<span aria-hidden="true">🎧</span>
+				<span aria-hidden="true" class="ws-tl-ai"><svg data-ws-ai-mark viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg></span>
 				<span>{{ done() ? 'إعادة الجولة' : (e.label ?? 'جولة في هذه الصفحة') }}</span>
 			</button>
 		}
@@ -41,6 +41,7 @@ const safeSet = (k: string, v: string) => { try { localStorage.setItem(k, v); } 
 	styles: [`
 		:host { display: contents; }
 		.ws-tl-chip { position: fixed; z-index: 9000; left: 16px; right: auto; bottom: 176px; /* just above Bebo (bottom-left) */ display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; border: 1px solid #5b3fb8; background: #1c1233; color: #f3eeff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 24px rgba(60, 30, 140, .35); }
+		.ws-tl-ai { display: inline-flex; color: #C9A5F0; }
 		.ws-tl-chip:hover, .ws-tl-chip:focus-visible { background: #2a1a4d; }
 		.ws-tl-suggest { position: fixed; z-index: 9000; left: 16px; bottom: 228px; width: 250px; padding: 12px 14px; border-radius: 16px; background: #1c1233; color: #f3eeff; border: 1px solid #5b3fb8; box-shadow: 0 8px 24px rgba(60, 30, 140, .35); direction: rtl; }
 		.ws-tl-suggest p { margin: 0 0 10px; font-size: 14px; line-height: 1.7; color: #f3eeff; }

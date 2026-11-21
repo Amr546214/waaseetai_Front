@@ -50,10 +50,10 @@ describe('client profile-setup: shared validation', () => {
 		render();
 		expect(component.currentStep()).toBe(1);
 		// Updated (stale since PR #335): the document number / type message now sits UNDER the field (documentError), not in the summary list.
-		for (const label of ['تاريخ الميلاد', 'الدولة', 'المهنة الحالية', 'العنوان التفصيلي']) {
-			expect(summary(), label).toContain(label);
-		}
-		expect(el().querySelectorAll('[data-testid="field-error"]').length).toBeGreaterThanOrEqual(4); // the document-number message is shown by documentError() under its own field since PR #335
+		// the country is the only personal-detail field still required; date of birth, city, occupation and address are optional for a service seeker
+		expect(summary()).toContain('الدولة');
+		for (const label of ['تاريخ الميلاد', 'المهنة الحالية', 'العنوان التفصيلي']) expect(summary(), label).not.toContain(label);
+		expect(el().querySelectorAll('[data-testid="field-error"]').length).toBeGreaterThanOrEqual(1); // the document-number message is shown by documentError() under its own field since PR #335
 		expect(document.activeElement?.getAttribute('formcontrolname')).toBe('idNumber');
 		el().remove();
 	});
@@ -75,9 +75,10 @@ describe('client profile-setup: shared validation', () => {
 		expect(component.documentError('idNumber')).toBeNull();
 	});
 
-	it('the address field now carries a required marker (it is required by the form)', () => {
-		const labels = Array.from(el().querySelectorAll('label')).filter(l => l.textContent?.includes('العنوان التفصيلي'));
-		expect(labels[0]?.querySelector('.ws-req')).toBeTruthy();
+	it('the address field is marked optional (no required marker), and so are date of birth, city and occupation; the country keeps its marker', () => {
+		const label = (text: string) => Array.from(el().querySelectorAll('label')).filter(l => l.textContent?.includes(text))[0];
+		for (const t of ['العنوان التفصيلي', 'تاريخ الميلاد', 'المدينة', 'المهنة الحالية']) { expect(label(t)?.querySelector('.ws-req'), t).toBeFalsy(); expect(label(t)?.querySelector('[data-testid=optional-tag]'), t).toBeTruthy(); }
+		expect(label('الدولة')?.querySelector('.ws-req')).toBeTruthy();
 	});
 
 	it('a complete step 1 moves to step 2 and clears the summary; Back clears it too', () => {

@@ -174,8 +174,8 @@ describe('provider data page: stored values come back consistently', () => {
 
   it('date of birth: shown with its own clear label (not mixed with the ID expiry), editable, and sent with the save', () => {
     setup({ dob: '1990-05-17T00:00:00.000Z', kycStatus: 'UNVERIFIED' });
-    const input = q('[data-testid="dob-input"]') as HTMLInputElement;
-    expect(input.value).toBe('1990-05-17');
+    // the date of birth is three Arabic drop-downs (day / month / year), not the native date box (its Arabic placeholder showed mirrored letters)
+    expect((q('[data-testid="birth-day"]') as HTMLSelectElement).value).toBe('17'); expect((q('[data-testid="birth-month"]') as HTMLSelectElement).value).toBe('5'); expect((q('[data-testid="birth-year"]') as HTMLSelectElement).value).toBe('1990');
     expect(el().querySelector('label[for="pr-dob"]')!.textContent).toContain('تاريخ الميلاد');
     expect(el().textContent).not.toContain('الانتهاء/الميلاد');
     component.profileForm.get('dob')?.setValue('1991-01-02');
@@ -185,9 +185,8 @@ describe('provider data page: stored values come back consistently', () => {
 
   it('date of birth: a verified account sees it read-only and it is never sent', () => {
     setup({ dob: '1990-05-17T00:00:00.000Z', kycStatus: 'VERIFIED' });
-    const input = q('[data-testid="dob-input"]') as HTMLInputElement;
-    expect(input.disabled).toBe(true);
-    expect(input.value).toBe('1990-05-17');
+    for (const id of ['birth-day', 'birth-month', 'birth-year']) expect((q(`[data-testid="${id}"]`) as HTMLSelectElement).disabled, id).toBe(true);
+    expect((q('[data-testid="birth-year"]') as HTMLSelectElement).value).toBe('1990');
     expect(q('[data-testid="dob-hint"]')!.textContent).toContain('موثّق');
     component.saveProfile();
     expect(updateBasicInfo.mock.calls[0][0]).not.toHaveProperty('dob');

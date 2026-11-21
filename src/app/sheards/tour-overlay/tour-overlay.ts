@@ -32,7 +32,7 @@ const CARD_W = 380;
 					</div>
 					<div class="ws-tx-body">
 						<div class="ws-tx-meta">
-							<span class="ws-tx-count" data-testid="tour-count">{{ tour.index() + 1 }} / {{ tour.total() }}</span>
+							<span class="ws-tx-aimark" aria-hidden="true" title="وسيط AI"><svg data-ws-ai-mark viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg></span><span class="ws-tx-count" data-testid="tour-count">{{ tour.index() + 1 }} / {{ tour.total() }}</span>
 							<button type="button" class="ws-tx-icon" (click)="tour.toggleAuto()" [attr.aria-pressed]="tour.autoAdvance()" [attr.aria-label]="tour.autoAdvance() ? 'إيقاف الانتقال التلقائي' : 'تشغيل الانتقال التلقائي'" [title]="tour.autoAdvance() ? 'ينتقل تلقائيًا بعد انتهاء الصوت' : 'الانتقال التلقائي متوقف'" data-testid="tour-auto" [style.opacity]="tour.autoAdvance() ? 1 : .5">⏭</button>
 							<button type="button" class="ws-tx-icon" (click)="tour.toggleMute()" [attr.aria-pressed]="tour.muted()" [attr.aria-label]="tour.muted() ? 'تشغيل الصوت' : 'كتم الصوت'" data-testid="tour-mute">{{ tour.muted() ? '🔇' : '🔊' }}</button>
 							<button type="button" class="ws-tx-icon" (click)="tour.close()" aria-label="إغلاق الجولة" data-testid="tour-close">×</button>
@@ -61,6 +61,7 @@ const CARD_W = 380;
 		.ws-tx-bebo { flex: 0 0 84px; width: 84px; height: 84px; position: relative; }
 		.ws-tx-body { flex: 1; min-width: 0; }
 		.ws-tx-meta { display: flex; align-items: center; gap: 6px; }
+		.ws-tx-aimark { display: inline-flex; color: #A56BE0; }
 		.ws-tx-count { margin-inline-end: auto; font-size: 12px; opacity: .7; }
 		.ws-tx-icon { background: none; border: 0; color: inherit; cursor: pointer; font-size: 17px; line-height: 1; padding: 4px 6px; border-radius: 8px; }
 		.ws-tx-icon:hover, .ws-tx-icon:focus-visible { background: rgba(255, 255, 255, .1); }
