@@ -10,6 +10,8 @@ export interface PageTourEntry {
 	/** matches the URL path (no query / hash / trailing slash) */
 	path: string;
 	presence?: string;
+	/** chip text when it is not the default «جولة في هذه الصفحة» */
+	label?: string;
 }
 
 const ABOUT: TourDefinition = { id: 'page-about-v1', title: 'جولة في صفحة من نحن', steps: [

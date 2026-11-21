@@ -417,3 +417,17 @@ describe('End-to-end: clicking a real CHAT notification in the bell dropdown act
 		});
 	});
 });
+
+describe('Sidebar × the client tour (every sidebar target of the tour exists in the real menu)', () => {
+	it('a client\'s sidebar contains each menu group / link the client tour points at', async () => {
+		const { CLIENT_TOUR } = await import('../../../core/tour/tours/client.tour');
+		const { fixture, router } = setup('CLIENT_INDIVIDUAL');
+		await router.navigateByUrl('/client-overview');
+		fixture.detectChanges();
+		const el: HTMLElement = fixture.nativeElement;
+		const sidebarTargets = CLIENT_TOUR.steps.map(s => s.target).filter((t): t is string => !!t && (t.startsWith('#acc-') || t.startsWith('#sidebar')));
+		expect(sidebarTargets.length).toBeGreaterThanOrEqual(12);
+		const missing = sidebarTargets.filter(sel => !(sel === '#sidebar' ? el.querySelector('aside#sidebar') : el.querySelector(sel.replace(/^#sidebar /, 'aside#sidebar '))));
+		expect(missing, `the menu no longer has: ${missing.join(', ')}`).toEqual([]);
+	});
+});

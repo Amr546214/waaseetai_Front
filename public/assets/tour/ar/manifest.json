@@ -152,6 +152,86 @@
       "hash": "05ce10defae7b910",
       "bytes": 53660,
       "seconds": 8.8
+    },
+    "client-welcome": {
+      "hash": "a57566f9c29445ce",
+      "bytes": 70364,
+      "seconds": 11.6
+    },
+    "client-home": {
+      "hash": "8f2f04eca67ce470",
+      "bytes": 121052,
+      "seconds": 20.1
+    },
+    "client-sidebar": {
+      "hash": "9ae236d83740fc31",
+      "bytes": 47612,
+      "seconds": 7.8
+    },
+    "client-messages": {
+      "hash": "359b6e4bca27837b",
+      "bytes": 48044,
+      "seconds": 7.9
+    },
+    "client-requests": {
+      "hash": "5ca527a625e3ef01",
+      "bytes": 39404,
+      "seconds": 6.5
+    },
+    "client-projects": {
+      "hash": "0bf6d5609954eadb",
+      "bytes": 50492,
+      "seconds": 8.3
+    },
+    "client-reports": {
+      "hash": "4c26f6f92ff1eea8",
+      "bytes": 22412,
+      "seconds": 3.6
+    },
+    "client-finance": {
+      "hash": "61e33920a5b0034b",
+      "bytes": 31772,
+      "seconds": 5.2
+    },
+    "client-disputes": {
+      "hash": "1e0868e6507cc0f6",
+      "bytes": 68924,
+      "seconds": 11.4
+    },
+    "client-profile": {
+      "hash": "fe1b37a83e938488",
+      "bytes": 56252,
+      "seconds": 9.3
+    },
+    "client-notifications": {
+      "hash": "5b0edef6478899d4",
+      "bytes": 24284,
+      "seconds": 4
+    },
+    "client-settings": {
+      "hash": "1c1156d9b8db5ec1",
+      "bytes": 19964,
+      "seconds": 3.2
+    },
+    "client-help": {
+      "hash": "920728c12947e79e",
+      "bytes": 45884,
+      "seconds": 7.6
+    },
+    "client-assistant": {
+      "hash": "61452621cabf5352",
+      "bytes": 32924,
+      "seconds": 5.4
+    },
+    "client-create": {
+      "hash": "84f15bd61589a52b",
+      "bytes": 45164,
+      "seconds": 7.4
+    },
+    "client-end": {
+      "hash": "34bea068cb707b49",
+      "bytes": 55100,
+      "seconds": 9.1
     }
   }
 }
