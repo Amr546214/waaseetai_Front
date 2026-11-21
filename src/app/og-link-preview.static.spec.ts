@@ -5,7 +5,7 @@ import { join } from 'node:path';
 const root = join(__dirname, '..', '..');
 const html = readFileSync(join(root, 'src', 'index.html'), 'utf8');
 const IMAGE_PATH = 'public/assets/social/waseetai-og-v3.jpg';
-const IMAGE_URL = 'https://dev.waseetai.com/assets/social/waseetai-og-v3.jpg';
+const IMAGE_URL = 'https://waseetai.com/assets/social/waseetai-og-v3.jpg';
 const TITLE = 'وسيط AI | الوساطة المهنية الذكية';
 const DESCRIPTION = 'يربط طالبي الخدمات بمقدميها عبر الذكاء الاصطناعي، من اختيار الأنسب والتعاقد إلى متابعة التنفيذ والتسليم، مع ضمان مالي يحفظ حقوق الطرفين.';
 const meta = (attr: 'property' | 'name', key: string) => new RegExp(`<meta\\s+${attr}="${key}"\\s+content="([^"]*)"`).exec(html)?.[1];
@@ -15,7 +15,7 @@ describe('link preview meta (static index.html)', () => {
     expect(meta('property', 'og:type')).toBe('website');
     expect(meta('property', 'og:title')).toBe(TITLE);
     expect(meta('property', 'og:description')).toBe(DESCRIPTION);
-    expect(meta('property', 'og:url')).toBe('https://dev.waseetai.com/');
+    expect(meta('property', 'og:url')).toBe('https://waseetai.com/');
     expect(meta('property', 'og:image')).toBe(IMAGE_URL);
     expect(meta('property', 'og:image:url')).toBe(IMAGE_URL);
     expect(meta('property', 'og:image:secure_url')).toBe(IMAGE_URL);

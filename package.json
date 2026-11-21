@@ -10,7 +10,9 @@
 		"build": "ng build",
 		"watch": "ng build --watch --configuration development",
 		"test": "ng test",
-		"serve:ssr:frontend": "node dist/frontend/server/server.mjs"
+		"serve:ssr:frontend": "node dist/frontend/server/server.mjs",
+		"postbuild": "node scripts/build-seo.mjs",
+		"seo:check": "node --test scripts/seo.test.mjs"
 	},
 	"prettier": {
 		"printWidth": 100,
@@ -62,6 +64,7 @@
 		"postcss": "^8.5.3",
 		"tailwindcss": "^4.1.12",
 		"typescript": "~5.9.2",
-		"vitest": "^4.0.8"
+		"vitest": "^4.0.8",
+		"esbuild": "0.27.3"
 	}
 }

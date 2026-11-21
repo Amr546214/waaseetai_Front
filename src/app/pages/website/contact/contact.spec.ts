@@ -34,4 +34,12 @@ describe('Contact', () => {
     http.expectOne(`${environment.url_api}/public/settings`).flush({ success: true, data: { supportPhone: '+971 50 123 4567' } });
     fixture.detectChanges(); expect(link().textContent?.trim()).toBe('+971 50 123 4567'); expect(link().getAttribute('href')).toBe('https://wa.me/971501234567');
   });
+  it('support email follows public settings in both its text and mailto link', () => {
+    const email = () => fixture.nativeElement.querySelector('[data-testid="support-email"]') as HTMLAnchorElement;
+    fixture.detectChanges(); expect(email().textContent?.trim()).toBe('support@waseetai.com');
+    const http = TestBed.inject(HttpTestingController); TestBed.inject(PlatformInfoService).load();
+    http.expectOne(`${environment.url_api}/public/settings`).flush({ success: true, data: { supportEmail: 'help@example.test' } });
+    fixture.detectChanges(); expect(email().textContent?.trim()).toBe('help@example.test'); expect(email().getAttribute('href')).toBe('mailto:help@example.test');
+  });
+
 });

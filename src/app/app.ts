@@ -1,3 +1,4 @@
+import { PageSeoService } from './core/seo/page-seo.service';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
@@ -62,6 +63,7 @@ export const maintenanceAuthPath = (url: string) => ['/auth/login','/auth/verify
 	`,
 })
 export class App implements OnInit {
+	private readonly pageSeo = inject(PageSeoService);
 	authStore = inject(AuthStore);
 	readonly tour = inject(TourService);
 	private readonly assistantStore = inject(AssistantExamState);

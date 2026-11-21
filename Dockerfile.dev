@@ -20,6 +20,7 @@ FROM nginx:alpine
 # Configure Nginx to listen on port 4200 and handle SPA routing. The identity alias routes (/favicon.ico and the link-share image answered from the backend, static default as the fallback)
 # are OFF unless the container is started with WS_IDENTITY_UPSTREAM (+ WS_IDENTITY_HOST, WS_RESOLVER); nothing about dev is baked into the image.
 COPY nginx/dev.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=builder /app/dist/frontend/seo-map.conf /etc/nginx/seo-map.conf
 COPY nginx/identity.inc.template /etc/nginx/identity.inc.template
 COPY nginx/15-ws-identity.sh /docker-entrypoint.d/15-ws-identity.sh
 RUN chmod +x /docker-entrypoint.d/15-ws-identity.sh
