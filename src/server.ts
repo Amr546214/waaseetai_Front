@@ -1,3 +1,4 @@
+import { seoHeaders } from './seo-http';
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
@@ -12,6 +13,8 @@ const publicFolder = join(process.cwd(), 'public');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+
+app.use(seoHeaders);
 
 /**
  * Example Express Rest API endpoints can be defined here.

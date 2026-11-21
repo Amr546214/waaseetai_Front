@@ -11,10 +11,10 @@ describe('PlatformInfoService: support address and legal versions come from the 
 	const answer = (data: Record<string, unknown>) => { svc.load(); http.expectOne(`${environment.url_api}/public/settings`).flush({ success: true, data }); };
 
 	it('unset: byte-for-byte the previous hard-coded address, no legal version chip', () => {
-		expect(DEFAULT_SUPPORT_EMAIL).toBe('support@waseet.ai');
-		expect(svc.supportEmail()).toBe('support@waseet.ai');
+		expect(DEFAULT_SUPPORT_EMAIL).toBe('support@waseetai.com');
+		expect(svc.supportEmail()).toBe('support@waseetai.com');
 		answer({ supportEmail: '', termsVersion: '', privacyVersion: '' });
-		expect(svc.supportEmail()).toBe('support@waseet.ai'); expect(svc.termsVersion()).toBe(''); expect(svc.privacyVersion()).toBe('');
+		expect(svc.supportEmail()).toBe('support@waseetai.com'); expect(svc.termsVersion()).toBe(''); expect(svc.privacyVersion()).toBe('');
 	});
 	it('set: the configured address and versions are used', () => {
 		answer({ supportEmail: ' help@x.co ', termsVersion: 'v2', privacyVersion: '3.1' });

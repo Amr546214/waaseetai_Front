@@ -2,6 +2,8 @@
 # /favicon.ico and the link-share image are answered from the platform identity source ONLY when WS_IDENTITY_UPSTREAM is set (nginx/identity.inc.template, generated into
 # /etc/nginx/ws-identity.inc by 15-ws-identity.sh). With the variable unset or empty the include is an empty file: static default files only, no proxying, no upstream lookup
 # (identical to the previous behaviour; an ARB / production build of this repo can never call dev).
+include /etc/nginx/seo-map.conf;
+
 server {
     listen 4200;
     server_name localhost;
@@ -17,12 +19,33 @@ server {
     gzip_proxied any;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/json application/manifest+json application/xml image/svg+xml image/x-icon font/ttf font/otf application/vnd.ms-fontobject application/octet-stream;
 
+    # Only the official host advertises a sitemap. Non-official HTML stays crawlable
+    # so crawlers can actually observe the noindex header (robots Disallow hides it).
+    add_header X-Robots-Tag $ws_robots always;
+    location = /robots.txt {
+        default_type text/plain;
+        add_header Cache-Control "no-cache";
+        add_header X-Robots-Tag $ws_robots always;
+        if ($ws_official_host = 0) { return 200 "User-agent: *\nAllow: /\n# Non-official environment: all responses carry X-Robots-Tag: noindex, nofollow.\n"; }
+        root /usr/share/nginx/html;
+        try_files /robots.txt =404;
+    }
+    location = /sitemap.xml {
+        if ($ws_official_host = 0) { return 404; }
+        root /usr/share/nginx/html;
+        add_header Cache-Control "no-cache";
+        add_header X-Robots-Tag $ws_robots always;
+        try_files /sitemap.xml =404;
+    }
+    location /_seo/ { internal; }
+
     location / {
         root /usr/share/nginx/html;
         index index.html index.htm;
-        try_files $uri $uri/ /index.html;
+        try_files $ws_seo_file $uri $uri/ /index.html;
         # the page shell is revalidated every time (a deploy changes the hashed file names it points to); the 304 costs a few hundred bytes
         add_header Cache-Control "no-cache";
+        add_header X-Robots-Tag $ws_robots always;
     }
 
     include /etc/nginx/ws-identity.inc;
@@ -33,6 +56,7 @@ server {
         include /etc/nginx/mime.types;
         try_files $uri =404;
         add_header Cache-Control "public, max-age=31536000, immutable";
+        add_header X-Robots-Tag $ws_robots always;
     }
 
     location ~ \.(js|css|svg|ico|png|jpg|jpeg|woff|woff2|ttf|map)$ {

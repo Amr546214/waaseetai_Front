@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Private application pages return X-Robots-Tag: noindex, nofollow.
+# Keep their HTML crawlable so search engines can observe that directive.
+# Authentication remains required for all protected data.
+Sitemap: https://waseetai.com/sitemap.xml

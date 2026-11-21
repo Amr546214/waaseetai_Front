@@ -21,6 +21,7 @@ resolver_timeout 2s;
         try_files /favicon.ico =404;
         add_header Cache-Control "public, max-age=300";
         add_header X-Identity-Source "static-fallback" always;
+        add_header X-Robots-Tag $ws_robots always;
     }
 
     # link-share image (index.html og:image / twitter:image keep this exact URL) -> backend alias; any failure -> the static default image of this image
@@ -41,5 +42,6 @@ resolver_timeout 2s;
         try_files /assets/social/waseetai-og-v3.jpg =404;
         add_header Cache-Control "public, max-age=300";
         add_header X-Identity-Source "static-fallback" always;
+        add_header X-Robots-Tag $ws_robots always;
     }
 

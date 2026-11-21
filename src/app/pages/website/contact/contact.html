@@ -84,7 +84,7 @@
           </div>
           <div class="info-title">البريد الإلكتروني</div>
           <div class="info-val">للاستفسارات العامة والشراكات</div>
-          <a href="mailto:hello@waseet.ai" class="info-link">hello@waseet.ai</a>
+          <a [href]="'mailto:' + platform.supportEmail()" class="info-link" data-testid="support-email">{{ platform.supportEmail() }}</a>
         </div>
 
         <div class="info-card">

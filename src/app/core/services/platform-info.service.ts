@@ -1,5 +1,5 @@
+import { SITE_NAME, SUPPORT_EMAIL, SUPPORT_PHONE } from '../seo/site-seo';
 import { Injectable, PLATFORM_ID, computed, inject, signal, DestroyRef } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { HttpClient, HttpContext } from '@angular/common/http';
@@ -9,16 +9,16 @@ import { environment } from '../../../environments/environment';
 import { setPlatformRegional } from '../utils/regional';
 
 /** What the server publishes about the platform itself (GET /public/settings): names, support details, legal texts and the maintenance state. A server answer MAINTENANCE (503) also lands here. */
-export const DEFAULT_BRAND = 'وسيط AI';
+export const DEFAULT_BRAND = SITE_NAME;
 /** shown by the support buttons (login «account frozen» dialog, report-a-problem page) while the `supportEmail` setting is empty; the server's registry reports the same literal as the value in use */
-export const DEFAULT_SUPPORT_EMAIL = 'support@waseet.ai';
+export const DEFAULT_SUPPORT_EMAIL = SUPPORT_EMAIL;
 /** the support / WhatsApp number shown by the contact page and the footer while the `supportPhone` setting is empty (the server's registry reports the same literal as the value in use) */
-export const DEFAULT_SUPPORT_PHONE = '+966 55 256 0392';
+export const DEFAULT_SUPPORT_PHONE = SUPPORT_PHONE;
 /** wa.me link of a displayed number: digits only, a leading 00 dropped (the number must be written in international form) */
 export const waLink = (phone: string) =>
   `https://wa.me/${phone.replace(/\D/g, '').replace(/^00/, '')}`;
 /** the server's answer during maintenance has this sentence when no banner text is configured; the web app uses it when the server sent none */
-export const DEFAULT_MAINTENANCE_MESSAGE = 'المنصة في صيانة مؤقتة. سنعود قريبًا.';
+export const DEFAULT_MAINTENANCE_MESSAGE = 'الموقع في صيانة مؤقتة. سنعود قريبًا.';
 @Injectable({ providedIn: 'root' })
 export class PlatformInfoService {
   private http = inject(HttpClient);
@@ -30,7 +30,6 @@ export class PlatformInfoService {
   readonly publicRevision = signal(-1);
   private browser = isPlatformBrowser(inject(PLATFORM_ID));
   readonly maintenance = signal<string | null>(null);
-  private title = inject(Title);
   /** the name shown in shell labels: the platform setting, else the built-in brand */
   readonly name = signal('');
   readonly brand = computed(() => this.name() || DEFAULT_BRAND);
@@ -57,7 +56,6 @@ export class PlatformInfoService {
   private applyName(v: unknown) {
     const n = typeof v === 'string' ? v.trim() : '';
     this.name.set(n);
-    if (this.browser && n) this.title.setTitle(`${n} | للخدمات الذكية`);
   }
 
   /** All HTTP, socket and 503 inputs share this database revision boundary. */
