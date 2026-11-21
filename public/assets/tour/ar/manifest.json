@@ -232,6 +232,86 @@
       "hash": "34bea068cb707b49",
       "bytes": 55100,
       "seconds": 9.1
+    },
+    "provider-welcome": {
+      "hash": "27d3f19080a6ac7e",
+      "bytes": 62444,
+      "seconds": 10.3
+    },
+    "provider-home": {
+      "hash": "d581f1584bb1518a",
+      "bytes": 68780,
+      "seconds": 11.4
+    },
+    "provider-sidebar": {
+      "hash": "9ae236d83740fc31",
+      "bytes": 48620,
+      "seconds": 8
+    },
+    "provider-messages": {
+      "hash": "4a836f9b686c1e23",
+      "bytes": 44444,
+      "seconds": 7.3
+    },
+    "provider-explore": {
+      "hash": "e9e81a8ea4432834",
+      "bytes": 54092,
+      "seconds": 8.9
+    },
+    "provider-templates": {
+      "hash": "d495ac30e32ca44d",
+      "bytes": 72812,
+      "seconds": 12
+    },
+    "provider-marketing": {
+      "hash": "419b49beef22961c",
+      "bytes": 39260,
+      "seconds": 6.4
+    },
+    "provider-projects": {
+      "hash": "8eebb0f17090f882",
+      "bytes": 36380,
+      "seconds": 6
+    },
+    "provider-finance": {
+      "hash": "a2c3375c66b4b324",
+      "bytes": 32204,
+      "seconds": 5.3
+    },
+    "provider-disputes": {
+      "hash": "1e0868e6507cc0f6",
+      "bytes": 68924,
+      "seconds": 11.4
+    },
+    "provider-reports": {
+      "hash": "4c26f6f92ff1eea8",
+      "bytes": 22412,
+      "seconds": 3.6
+    },
+    "provider-profile": {
+      "hash": "5e1a3ff664a7359c",
+      "bytes": 92684,
+      "seconds": 15.4
+    },
+    "provider-notifications": {
+      "hash": "432470d996e2345d",
+      "bytes": 35372,
+      "seconds": 5.8
+    },
+    "provider-settings": {
+      "hash": "1c1156d9b8db5ec1",
+      "bytes": 19964,
+      "seconds": 3.2
+    },
+    "provider-help": {
+      "hash": "362e79c494070b48",
+      "bytes": 27740,
+      "seconds": 4.5
+    },
+    "provider-assistant": {
+      "hash": "61452621cabf5352",
+      "bytes": 32924,
+      "seconds": 5.4
     }
   }
 }
