@@ -45,6 +45,17 @@ describe('PageSeoService', () => {
     expect(doc.head.querySelector('meta[name=robots]')?.getAttribute('content')).toContain('index, follow');
     expect(doc.head.querySelector('link[rel=canonical]')?.getAttribute('href')).toBe('https://waseetai.com/marketplace/offer/123');
   });
+  it('reserved marketplace pages remove stale public canonicals and stay noindex after SPA navigation', () => {
+    start();
+    for (const path of ['/marketplace/cart', '/marketplace/comparison', '/marketplace/tracking', '/marketplace/cart/?x=1#item', '/marketplace/%63art']) {
+      visit('/marketplace/offer/123'); visit(path);
+      expect(doc.head.querySelector('meta[name=robots]')?.getAttribute('content')).toBe('noindex, nofollow');
+      expect(doc.head.querySelector('link[rel=canonical]')).toBeNull();
+    }
+    visit('/marketplace/design-logo');
+    expect(doc.head.querySelector('meta[name=robots]')?.getAttribute('content')).toContain('index, follow');
+    expect(doc.head.querySelector('link[rel=canonical]')?.getAttribute('href')).toBe('https://waseetai.com/marketplace/design-logo');
+  });
   it('open sessions use the configured brand and support contact in schema without losing the route title', () => {
     start(); visit('/contact'); brand.set('اسم جديد'); email.set('help@example.test'); phone.set('+123'); TestBed.tick();
     expect(doc.title).toBe('تواصل معنا | اسم جديد');

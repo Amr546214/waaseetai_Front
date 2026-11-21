@@ -9,6 +9,8 @@ export const SHARE_IMAGE = `${SITE_ORIGIN}/assets/social/waseetai-og-v3.jpg`;
 export const DEFAULT_DESCRIPTION = 'وسيط AI للخدمات المهنية الموثقة - اربط طلبات الخدمة والعقود والمدفوعات في تجربة واحدة مدعومة بذكاء اصطناعي';
 export const INDEX_ROBOTS = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 export const NOINDEX_ROBOTS = 'noindex, nofollow';
+/** Reserved application paths must win over the generic marketplace service slug. */
+export const PRIVATE_MARKETPLACE_PATHS = ['/marketplace/cart', '/marketplace/comparison', '/marketplace/tracking'];
 
 export interface PageSeo { title: string; description: string; path: string; indexable: boolean; }
 const page = (path: string, title: string, description: string): PageSeo => ({ path, title, description, indexable: true });
@@ -63,6 +65,11 @@ export function cleanPath(url: string): string {
 /** Unknown URLs are not advertised as canonical pages. Data-backed service URLs are canonicalized after navigation. */
 export function pageSeo(url: string): PageSeo {
   const path = cleanPath(url);
+  let decodedPath = path.toLowerCase();
+  try { decodedPath = decodeURIComponent(path).toLowerCase(); } catch { return { path, title: 'الخدمات المهنية الذكية', description: DEFAULT_DESCRIPTION, indexable: false }; }
+  if (PRIVATE_MARKETPLACE_PATHS.some(p => decodedPath === p || decodedPath.startsWith(p + '/'))) {
+    return { path, title: 'الخدمات المهنية الذكية', description: DEFAULT_DESCRIPTION, indexable: false };
+  }
   const known = PUBLIC_PAGES.find(p => p.path === path);
   if (known) return known;
   if (/^\/marketplace\/(?:offer\/)?[\p{L}\p{N}_%.-]+$/u.test(path)) {
