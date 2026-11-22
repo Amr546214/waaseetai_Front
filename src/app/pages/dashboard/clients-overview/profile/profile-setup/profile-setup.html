@@ -111,7 +111,7 @@
 </div>
   <span class="text-sm" [hidden]="typeNeedsPicking() && !documentTypeLabel()" data-testid="identity-document-type-auto">{{ documentTypeLabel() ? ('نوع الوثيقة: ' + documentTypeLabel()) : 'يُحدَّد نوع الوثيقة تلقائيًا من الصورة بعد رفعها' }}</span>
 </div>
-<div class="flex flex-col gap-2 md:col-span-2"><ws-legal-name-field [alwaysEdit]="true" [autoSave]="true" /></div>
+<div class="flex flex-col gap-2 md:col-span-2"><ws-legal-name-field [alwaysEdit]="true" /></div>
 							<div class="flex flex-col gap-2">
 								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">رقم الوثيقة
 									<span class="ws-req" aria-hidden="true">*</span></label>
