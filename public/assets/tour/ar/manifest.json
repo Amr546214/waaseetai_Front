@@ -312,6 +312,21 @@
       "hash": "61452621cabf5352",
       "bytes": 32924,
       "seconds": 5.4
+    },
+    "marketer-sidebar": {
+      "hash": "9ae236d83740fc31",
+      "bytes": 48620,
+      "seconds": 8
+    },
+    "marketer-notifications": {
+      "hash": "5b0edef6478899d4",
+      "bytes": 24284,
+      "seconds": 4
+    },
+    "marketer-assistant": {
+      "hash": "61452621cabf5352",
+      "bytes": 32924,
+      "seconds": 5.4
     }
   }
 }
