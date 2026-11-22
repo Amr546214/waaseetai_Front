@@ -1,5 +1,7 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { TourService } from '../../../../../core/tour/tour.service';
+import { CLIENT_PROFILE_EDIT_TOUR } from '../../../../../core/tour/tours/client-profile-edit.tour';
 import { HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -21,10 +23,12 @@ describe('client profile-edit: shared validation', () => {
   let getPrefs: ReturnType<typeof vi.fn<(...a: any[]) => any>>;
   let updatePrefs: ReturnType<typeof vi.fn<(...a: any[]) => any>>;
   let profileData: any;
+  let suggestBio: ReturnType<typeof vi.fn<(...args: any[]) => any>>;
 
   async function configure(accountType: string, over: { profile?: any; prefs?: any } = {}) {
     updateTab = vi.fn(() => of({ success: true, message: 'تم التحديث. التعديلات الحساسة تتطلب التحقق.' }));
     updateProfile = vi.fn(() => of({ success: true }));
+    suggestBio = vi.fn(() => of({ success: true, data: { suggestedBio: 'أنا مهندس أطلب خدمات تصميم.' } }));
     getPrefs = vi.fn(() => of({ success: true, data: { settings: {} } }));
     updatePrefs = vi.fn(() => of({ success: true, data: { settings: {} } }));
     profileData = { firstName: 'سارة', lastName: 'أحمد', email: 'a@b.co', phoneNumber: '+966551234567', country: 'السعودية', city: 'الرياض', ...(over.profile || {}) };
@@ -40,7 +44,7 @@ describe('client profile-edit: shared validation', () => {
           useValue: {
             getMyProfile: () => of({ success: true, data: { currentProfileData: profileData, latestHistory: [] } }),
             getChangeRequests: () => of({ success: true, data: [] }), getMyChangeRequests: () => of({ success: true, data: [] }),
-            updateTab, updateProfile,
+            updateTab, updateProfile, suggestClientBio: (x: any) => suggestBio(x),
           },
         },
       ],
@@ -358,62 +362,29 @@ describe('client profile-edit: shared validation', () => {
     });
   });
 
-  describe('optional profile guide', () => {
-    const clickGuideButton = (text: string) => {
-      const button = Array.from(el().querySelectorAll<HTMLButtonElement>('[data-testid="profile-guide"] button'))
-        .find(b => b.textContent?.trim() === text)!;
-      button.click();
-      render();
-    };
-
-    it('stays closed until requested, highlights each section, and preserves unsaved edits without API writes', async () => {
+  describe('optional profile guide (shared narrated tour)', () => {
+    it('the button starts the shared tour with this page\'s definition (voiced), is purple with the AI mark, and touches no form or API', () => {
       component.clientForm.patchValue({ bio: 'نبذة لم تُحفظ بعد' });
+      const tour = TestBed.inject(TourService);
+      const start = vi.spyOn(tour, 'start').mockImplementation(() => undefined);
+      const button = el().querySelector<HTMLButtonElement>('[data-testid="profile-guide-start"]')!;
+      expect(button.querySelector('[data-ws-ai-mark]')).not.toBeNull();
+      expect(button.className).toContain('ws-tour-start');
+      button.click();
+      expect(start).toHaveBeenCalledWith(CLIENT_PROFILE_EDIT_TOUR);
       expect(el().querySelector('[data-testid="profile-guide"]')).toBeNull();
-      el().querySelector<HTMLButtonElement>('[data-testid="profile-guide-start"]')!.click();
-      render();
-      await fixture.whenStable();
-      expect(el().querySelector('#profile-guide-title')?.textContent).toContain('الصورة الشخصية');
-      expect(el().querySelector('[data-guide-active] input[type="file"]')).not.toBeNull();
-      expect(el().querySelector<HTMLButtonElement>('.profile-guide-back')!.disabled).toBe(true);
-      clickGuideButton('التالي');
-      await fixture.whenStable();
-      expect(el().querySelector('#profile-guide-title')?.textContent).toContain('نبذة عنك');
-      expect(el().querySelector('[data-guide-active] textarea[formcontrolname="bio"]')).not.toBeNull();
-      clickGuideButton('السابق');
-      expect(el().querySelector('#profile-guide-title')?.textContent).toContain('الصورة الشخصية');
-      // The guide walks all tabs without submitting any form or changing draft values.
-      for (let i = 1; i < component.guideSteps.length; i++) {
-        clickGuideButton('التالي');
-        expect(component.activeTab()).toBe(component.guideStep().tab);
-      }
-      expect(el().querySelector('#profile-guide-title')?.textContent).toContain('أمان الحساب');
-      clickGuideButton('إنهاء الجولة');
-      expect(el().querySelector('[data-testid="profile-guide"]')).toBeNull();
-      expect(el().querySelector('[data-guide-active]')).toBeNull();
       expect(component.clientForm.get('bio')!.value).toBe('نبذة لم تُحفظ بعد');
-      expect(updateProfile).not.toHaveBeenCalled();
-      expect(updateTab).not.toHaveBeenCalled();
-      expect(updatePrefs).not.toHaveBeenCalled();
+      expect(updateProfile).not.toHaveBeenCalled(); expect(updateTab).not.toHaveBeenCalled(); expect(updatePrefs).not.toHaveBeenCalled();
     });
 
-    it('closes with Escape, restores focus, and can be restarted', async () => {
-      const start = el().querySelector<HTMLButtonElement>('[data-testid="profile-guide-start"]')!;
-      start.click(); render(); await fixture.whenStable();
-      el().querySelector('[data-testid="profile-guide"]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-      render();
-      expect(el().querySelector('[data-testid="profile-guide"]')).toBeNull();
-      expect(el().querySelector('[data-guide-active]')).toBeNull();
-      expect(document.activeElement).toBe(start);
-      start.click(); render();
-      expect(component.guideIndex()).toBe(0);
-      expect(el().querySelector('[data-testid="profile-guide"]')).not.toBeNull();
-    });
-
-    it('closes when the user navigates to another tab independently', () => {
-      el().querySelector<HTMLButtonElement>('[data-testid="profile-guide-start"]')!.click(); render();
-      component.switchTab('contact'); render();
-      expect(component.activeTab()).toBe('contact');
-      expect(el().querySelector('[data-testid="profile-guide"]')).toBeNull();
+    it('every step of the tour finds its target inside the tab it clicks first (so the spotlight never misses)', () => {
+      for (const step of CLIENT_PROFILE_EDIT_TOUR.steps) {
+        const tabId = /data-tour-tab="(\w+)"/.exec(step.click ?? '')?.[1];
+        expect(tabId, step.id).toBeTruthy();
+        el().querySelector<HTMLButtonElement>(step.click!)!.click(); render();
+        expect(component.activeTab(), step.id).toBe(tabId);
+        expect(el().querySelector(step.target!), step.id).not.toBeNull();
+      }
     });
   });
 
@@ -440,4 +411,41 @@ describe('client profile-edit: shared validation', () => {
     expect(payload).not.toHaveProperty('lastName');
   });
 
+
+  describe('bio: wording by account type + the AI helper', () => {
+    const bioBox = () => el().querySelector<HTMLTextAreaElement>('textarea[formcontrolname="bio"]')!;
+
+    it('an individual is not asked to describe a company: the placeholder talks about the person and the services they need', () => {
+      expect(bioBox().placeholder).toContain('عنك');
+      expect(bioBox().placeholder).not.toContain('الشركة');
+    });
+
+    it('a company keeps the company wording', async () => {
+      TestBed.resetTestingModule(); await configure('CLIENT_COMPANY'); render();
+      expect(bioBox().placeholder).toContain('الشركة');
+    });
+
+    it('the AI button (purple, official AI mark) drafts the bio from the form, puts it in the box, marks it as an AI suggestion to review, and saves nothing', () => {
+      component.clientForm.patchValue({ industry: 'مهندس' });
+      const btn = el().querySelector<HTMLButtonElement>('[data-testid="bio-ai-btn"]')!;
+      expect(btn.querySelector('[data-ws-ai-mark]')).not.toBeNull();
+      expect(btn.textContent).toContain('ساعدني أكتب نبذة');
+      btn.click(); render();
+      expect(suggestBio).toHaveBeenCalledWith(expect.objectContaining({ occupation: 'مهندس', interests: [] }));
+      expect(component.clientForm.get('bio')!.value).toBe('أنا مهندس أطلب خدمات تصميم.');
+      expect(el().querySelector('[data-testid="bio-ai-note"]')?.textContent).toContain('اقتراح من وسيط AI');
+      expect(el().querySelector('[data-testid="bio-ai-note"] [data-ws-ai-mark]')).not.toBeNull();
+      expect(updateProfile).not.toHaveBeenCalled();
+      expect(el().querySelector<HTMLButtonElement>('[data-testid="bio-ai-btn"]')!.textContent).toContain('حسّن صياغة نبذتي');
+    });
+
+    it('with the user\'s own text it sends it to be polished; a refusal (400) shows its reason in the AI note and keeps the text', () => {
+      component.clientForm.patchValue({ bio: 'مهندس أبحث عن مصمم' });
+      suggestBio.mockImplementation(() => throwError(() => ({ status: 400, error: { message: 'أضف مهنتك أو اهتماماتك' } })));
+      el().querySelector<HTMLButtonElement>('[data-testid="bio-ai-btn"]')!.click(); render();
+      expect(suggestBio).toHaveBeenCalledWith(expect.objectContaining({ bio: 'مهندس أبحث عن مصمم' }));
+      expect(component.clientForm.get('bio')!.value).toBe('مهندس أبحث عن مصمم');
+      expect(el().querySelector('[data-testid="bio-ai-note"]')?.textContent).toContain('أضف مهنتك');
+    });
+  });
 });

@@ -387,6 +387,51 @@
       "hash": "eabd4d0fe0820c47",
       "bytes": 25580,
       "seconds": 4.2
+    },
+    "cpe-photo": {
+      "hash": "5f1bcadbb216c983",
+      "bytes": 65900,
+      "seconds": 10.9
+    },
+    "cpe-bio": {
+      "hash": "53459d3415faf43e",
+      "bytes": 76124,
+      "seconds": 12.6
+    },
+    "cpe-interests": {
+      "hash": "36d858b9fece298b",
+      "bytes": 60140,
+      "seconds": 9.9
+    },
+    "cpe-links": {
+      "hash": "f0835c14ca4ed511",
+      "bytes": 86492,
+      "seconds": 14.3
+    },
+    "cpe-prefs": {
+      "hash": "98610f582a7f3696",
+      "bytes": 70652,
+      "seconds": 11.7
+    },
+    "cpe-basics": {
+      "hash": "7285a17f6143175d",
+      "bytes": 84620,
+      "seconds": 14
+    },
+    "cpe-identity": {
+      "hash": "fd841d8506945ca5",
+      "bytes": 79004,
+      "seconds": 13.1
+    },
+    "cpe-contact": {
+      "hash": "c0abc0f4d5b88437",
+      "bytes": 51212,
+      "seconds": 8.4
+    },
+    "cpe-paypal": {
+      "hash": "a9d3fc17735c8cf0",
+      "bytes": 57980,
+      "seconds": 9.6
     }
   }
 }

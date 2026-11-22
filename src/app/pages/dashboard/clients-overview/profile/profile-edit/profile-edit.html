@@ -1,20 +1,4 @@
-<div class="flex flex-col gap-6 w-full max-w-full mx-auto pb-10" dir="rtl" (keydown.escape)="closeProfileGuide()">
-	@if (guideOpen()) {
-		<section id="profile-guide" class="profile-guide" role="region" aria-labelledby="profile-guide-title" data-testid="profile-guide">
-			<div class="flex items-center justify-between gap-3 mb-3">
-				<span class="text-xs font-bold text-[var(--txt-3)]">جولة إرشادية <bdi>{{ guideIndex() + 1 }} / {{ guideSteps.length }}</bdi></span>
-				<button type="button" class="profile-guide-close" (click)="closeProfileGuide()" aria-label="إغلاق الدليل">×</button>
-			</div>
-			<div aria-live="polite" aria-atomic="true">
-				<h2 id="profile-guide-title" tabindex="-1" class="text-base font-extrabold text-[var(--txt)] outline-none mb-2">{{ guideStep().title }}</h2>
-				<p class="text-sm leading-7 text-[var(--txt-2)] mb-4">{{ guideStep().text }}</p>
-			</div>
-			<div class="flex items-center justify-between gap-3">
-				<button type="button" class="profile-guide-back" [disabled]="guideIndex() === 0" (click)="showProfileGuideStep(guideIndex() - 1)">السابق</button>
-				<button type="button" class="profile-guide-next" (click)="guideIndex() === guideSteps.length - 1 ? closeProfileGuide() : showProfileGuideStep(guideIndex() + 1)">{{ guideIndex() === guideSteps.length - 1 ? 'إنهاء الجولة' : 'التالي' }}</button>
-			</div>
-		</section>
-	}
+<div class="flex flex-col gap-6 w-full max-w-full mx-auto pb-10" dir="rtl">
 	<!-- Progress card: client accounts see it only while the profile is incomplete (hidden at 100%); other roles are unchanged -->
 	@if (!isClient || (completionLoaded() && completionPercentage() < 100)) {
 	<!-- Progress Bar -->
@@ -66,8 +50,8 @@
 			<span class="text-slate-900 dark:text-white">نوع التعديل:</span>
 			<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> حفظ مباشر</div>
 			<div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> يتطلب مراجعة</div>
-			<button type="button" class="profile-guide-start" data-testid="profile-guide-start" (click)="startProfileGuide()" [attr.aria-expanded]="guideOpen()" aria-controls="profile-guide">
-				<svg data-ws-icon="i-help" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4M12 16h.01"/></svg>
+			<button type="button" class="ws-tour-start" data-ws-theme-owned data-testid="profile-guide-start" (click)="startProfileGuide()">
+				<svg data-ws-ai-mark viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
 				ابدأ جولة إرشادية
 			</button>
 		</div>
@@ -75,38 +59,38 @@
 		<!-- Tabs -->
 		<div
 			class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide border-b border-slate-200 dark:border-slate-800">
-			<button (click)="switchTab('profile')" [class.border-cyan-500]="activeTab() === 'profile'"
+			<button data-tour-tab="profile" (click)="switchTab('profile')" [class.border-cyan-500]="activeTab() === 'profile'"
 				[class.text-cyan-600]="activeTab() === 'profile'" [class.dark:text-cyan-400]="activeTab() === 'profile'"
 				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
 				الملف العام
 				<span class="w-1.5 h-1.5 rounded-full bg-cyan-400 ml-1"></span>
 			</button>
-			<button (click)="switchTab('basics')" [class.border-cyan-500]="activeTab() === 'basics'"
+			<button data-tour-tab="basics" (click)="switchTab('basics')" [class.border-cyan-500]="activeTab() === 'basics'"
 				[class.text-cyan-600]="activeTab() === 'basics'" [class.dark:text-cyan-400]="activeTab() === 'basics'"
 				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
 				البيانات الاساسية
 				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
 			</button>
-			<button (click)="switchTab('identity')" [class.border-cyan-500]="activeTab() === 'identity'"
+			<button data-tour-tab="identity" (click)="switchTab('identity')" [class.border-cyan-500]="activeTab() === 'identity'"
 				[class.text-cyan-600]="activeTab() === 'identity'"
 				[class.dark:text-cyan-400]="activeTab() === 'identity'"
 				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
 				بيانات الهوية
 				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
 			</button>
-			<button (click)="switchTab('contact')" [class.border-cyan-500]="activeTab() === 'contact'"
+			<button data-tour-tab="contact" (click)="switchTab('contact')" [class.border-cyan-500]="activeTab() === 'contact'"
 				[class.text-cyan-600]="activeTab() === 'contact'" [class.dark:text-cyan-400]="activeTab() === 'contact'"
 				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
 				بيانات التواصل
 				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
 			</button>
-			<button (click)="switchTab('banking')" [class.border-cyan-500]="activeTab() === 'banking'"
+			<button data-tour-tab="banking" (click)="switchTab('banking')" [class.border-cyan-500]="activeTab() === 'banking'"
 				[class.text-cyan-600]="activeTab() === 'banking'" [class.dark:text-cyan-400]="activeTab() === 'banking'"
 				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
 				بريد PayPal
 				<span class="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1"></span>
 			</button>
-			<button (click)="switchTab('security')" [class.border-cyan-500]="activeTab() === 'security'"
+			<button data-tour-tab="security" (click)="switchTab('security')" [class.border-cyan-500]="activeTab() === 'security'"
 				[class.text-cyan-600]="activeTab() === 'security'"
 				[class.dark:text-cyan-400]="activeTab() === 'security'"
 				class="flex items-center cursor-pointer gap-2 px-4 py-3 border-b-2 border-transparent text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap">
@@ -209,12 +193,19 @@
 			<!-- Bio -->
 			<div
 				class="bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/50 rounded-3xl p-6 backdrop-blur-xl">
-				<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">نبذة تعريفية (Bio)</h3>
+				<div class="flex items-center justify-between gap-3 flex-wrap">
+					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">نبذة تعريفية (Bio)</h3>
+					<button type="button" class="ws-ai-btn" data-ws-theme-owned data-testid="bio-ai-btn" [disabled]="bioAiBusy()" (click)="suggestBio()">
+						<svg data-ws-ai-mark viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="4" cy="6" r="1.5"/><circle cx="20" cy="6" r="1.5"/><circle cx="4" cy="18" r="1.5"/><circle cx="20" cy="18" r="1.5"/><circle cx="12" cy="3" r="1.5"/><circle cx="12" cy="21" r="1.5"/><path d="M12 10V5M12 19v-5M10 12H5M19 12h-5M5.6 7.4l3.5 3.5M14.9 14.9l3.5 3.5M5.6 16.6l3.5-3.5M14.9 9.1l3.5-3.5"/></svg>
+						{{ bioAiBusy() ? 'وسيط AI يكتب…' : (clientForm.get('bio')?.value ? 'حسّن صياغة نبذتي' : 'ساعدني أكتب نبذة') }}
+					</button>
+				</div>
 				<div class="relative mt-4">
 					<textarea [appBioField]="1000" formControlName="bio"
 						class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500/50 h-32"
-						placeholder="اكتب نبذة مختصرة عن الشركة واحتياجاتها..."></textarea>
+						[placeholder]="isCompanyMode() ? 'اكتب نبذة مختصرة عن الشركة واحتياجاتها...' : 'اكتب نبذة مختصرة عنك وعن الخدمات التي تحتاجها...'"></textarea>
 					<ws-field-error [control]="clientForm.get('bio')" label="النبذة التعريفية" />
+					@if (bioAiNote(); as note) { <ws-ai-note data-testid="bio-ai-note" [message]="note" /> }
 				</div>
 			</div>
 

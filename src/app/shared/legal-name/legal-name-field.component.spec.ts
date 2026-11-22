@@ -6,12 +6,12 @@ import { LegalNameService, LegalNameView } from '../../core/services/legal-name.
 
 describe('LegalNameFieldComponent', () => {
 	let fixture: ComponentFixture<LegalNameFieldComponent>;
-	let get: ReturnType<typeof vi.fn>, save: ReturnType<typeof vi.fn>;
+	let get: ReturnType<typeof vi.fn>, save: ReturnType<typeof vi.fn>, cancelRequest: ReturnType<typeof vi.fn>;
 	const view = (o: Partial<LegalNameView>): LegalNameView => ({ status: 'PROVIDED', legalName: 'عمرو محمود', changeNeedsReview: false, pendingRequest: null, ...o });
 	const q = (id: string) => (fixture.nativeElement as HTMLElement).querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
 	async function mount(v: LegalNameView) {
-		get = vi.fn(() => of({ success: true, data: v })); save = vi.fn();
-		await TestBed.configureTestingModule({ imports: [LegalNameFieldComponent], providers: [{ provide: LegalNameService, useValue: { get, save } }] }).compileComponents();
+		get = vi.fn(() => of({ success: true, data: v })); save = vi.fn(); cancelRequest = vi.fn();
+		await TestBed.configureTestingModule({ imports: [LegalNameFieldComponent], providers: [{ provide: LegalNameService, useValue: { get, save, cancelRequest } }] }).compileComponents();
 		fixture = TestBed.createComponent(LegalNameFieldComponent); fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
 	}
 	const type = (value: string) => { const i = q('legal-name-field-input') as HTMLInputElement; i.value = value; i.dispatchEvent(new Event('input')); fixture.detectChanges(); };
@@ -119,5 +119,35 @@ describe('LegalNameFieldComponent', () => {
 			btn.click();
 			expect(save).toHaveBeenCalledTimes(1);
 		});
+	});
+
+	const pendingView = () => view({ changeNeedsReview: true, pendingRequest: { id: 'req-1', requestedValue: 'عمرو محمود يحيى محمد', createdAt: '2026-11-22T10:00:00Z' } });
+
+	it('a waiting request can be corrected or withdrawn (it is no longer a dead end): both actions show, the box opens prefilled with the requested name', async () => {
+		await mount(pendingView());
+		expect(q('legal-name-pending')?.textContent).toContain('عمرو محمود يحيى محمد');
+		expect(q('legal-name-edit-request')).not.toBeNull(); expect(q('legal-name-withdraw')).not.toBeNull();
+		q('legal-name-edit-request')!.click(); fixture.detectChanges();
+		expect((q('legal-name-field-input') as HTMLInputElement).value).toBe('عمرو محمود يحيى محمد');
+		expect(q('legal-name-pending-actions')).toBeNull();
+	});
+
+	it('editing the waiting request sends the corrected name (the server replaces the old request)', async () => {
+		await mount(pendingView());
+		q('legal-name-edit-request')!.click(); fixture.detectChanges();
+		save.mockReturnValue(of({ success: true, data: { outcome: 'REQUEST_CREATED', view: view({ changeNeedsReview: true, pendingRequest: { id: 'req-2', requestedValue: 'عمرو محمود يحيى', createdAt: '2026-11-22T10:05:00Z' } }) } }));
+		type('عمرو محمود يحيى'); (q('legal-name-save') as HTMLButtonElement).click(); fixture.detectChanges();
+		expect(save).toHaveBeenCalledWith('عمرو محمود يحيى');
+		expect(q('legal-name-pending')?.textContent).toContain('عمرو محمود يحيى');
+	});
+
+	it('withdrawing the request calls the server, shows the current name again and says so', async () => {
+		await mount(pendingView());
+		cancelRequest.mockReturnValue(of({ success: true, data: view({ changeNeedsReview: true, pendingRequest: null }) }));
+		q('legal-name-withdraw')!.click(); fixture.detectChanges();
+		expect(cancelRequest).toHaveBeenCalledTimes(1);
+		expect(q('legal-name-pending')).toBeNull();
+		expect(q('legal-name-value')?.textContent).toContain('عمرو محمود');
+		expect(q('legal-name-note')?.textContent).toContain('تم سحب الطلب');
 	});
 });

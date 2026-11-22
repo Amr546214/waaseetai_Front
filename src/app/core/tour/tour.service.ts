@@ -116,6 +116,7 @@ export class TourService {
 
 	private reveal(step: TourStep, seq: number): void {
 		this.playAudio(step, seq);
+		if (step.click) { try { this.doc.querySelector<HTMLElement>(step.click)?.click(); } catch { /* a missing tab never stops the tour */ } }
 		if (!step.target) return;
 		const deadline = Date.now() + (step.waitMs ?? 4000);
 		const look = () => {
