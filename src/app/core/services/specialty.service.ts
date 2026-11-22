@@ -5,6 +5,7 @@ import { SKIP_RATE_LIMIT_TOAST } from '../interceptors/rate-limit.interceptor';
 import { SKIP_GET_CACHE } from '../interceptors/get-cache.interceptor';
 import { CatalogChangesService } from './catalog-changes.service';
 import { Observable, switchMap } from 'rxjs';
+import { SebBrowserProofService } from './seb-browser-proof.service';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -14,6 +15,7 @@ export class SpecialtyService {
 	private catalog = inject(CatalogChangesService);
 	private http = inject(HttpClient);
 	private apiUrl = environment.url_api;
+	private readonly sebProof = inject(SebBrowserProofService);
 
 	getCategories(): Observable<any> {
 		return this.catalog.changes.pipe(switchMap(() => this.http.get(`${this.apiUrl}/specialties/categories`, { context: this.silent() })));
@@ -102,7 +104,8 @@ export class SpecialtyService {
 		try { token = localStorage.getItem('waseet_token') || localStorage.getItem('access_token') || localStorage.getItem('token') || ''; } catch { /* storage blocked */ }
 		if (!token && typeof document !== 'undefined') token = document.cookie.match(/(?:^|;\s*)waseet_token=([^;]+)/)?.[1] || '';
 		try {
-			void fetch(`${this.apiUrl}/assessments/${attemptId}/answers`, { method: 'PUT', keepalive: true, credentials: 'include', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token.replace(/^"|"$/g, '')}` } : {}) }, body: JSON.stringify({ answers, seq }) }).catch(() => undefined);
+			const url = `${this.apiUrl}/assessments/${attemptId}/answers`;
+			void fetch(url, { method: 'PUT', keepalive: true, credentials: 'include', headers: { 'Content-Type': 'application/json', ...this.sebProof.headersFor(url), ...(token ? { Authorization: `Bearer ${token.replace(/^"|"$/g, '')}` } : {}) }, body: JSON.stringify({ answers, seq }) }).catch(() => undefined);
 		} catch { /* nothing more can be done while leaving */ }
 	}
 	/** A page / exam-mode event for the reviewers (information only). */

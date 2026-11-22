@@ -344,8 +344,10 @@ export class Specialties implements OnInit, OnDestroy {
 	ngOnInit() {
 		// «إجراء الاختبار» (?takeTest=<providerSpecialtyId>) from the status list / the public profile: straight to the test. The page is reused when only the query changes, so this listens.
 		this.route?.queryParamMap.pipe(catalogUntilDestroyed(this.catalogDestroy)).subscribe(q => { this.takeTestId = q.get('takeTest'); this.openRequestedTest(); });
-		this.examEnv.load(env => this.antiCheatService.restricted.set(env?.restricted === true));
-		this.resumeLiveAttempt();
+		this.examEnv.load(env => {
+			this.antiCheatService.restricted.set(env?.restricted === true);
+			this.resumeLiveAttempt();
+		});
 		this.loadRecommendation();
 		this.providerApi.getPassedSpecialties().subscribe({
 			next: (res: any) => { this.registeredSpecialties.set(Array.isArray(res?.registered) ? res.registered : []); this.registeredLoaded = true; this.openRequestedTest(); },
@@ -1223,7 +1225,18 @@ export class Specialties implements OnInit, OnDestroy {
 		return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 	});
 
+	private environmentCheckPending = false;
 	private initiateDynamicQuiz() {
+		if (this.environmentCheckPending || this.isSubmittingQuiz() || (this.isQuizActive() && !this.quizGenerationError())) return;
+		this.environmentCheckPending = true;
+		this.examEnv.load(env => {
+			this.environmentCheckPending = false;
+			this.antiCheatService.restricted.set(env?.restricted === true);
+			this.initiateVerifiedDynamicQuiz();
+		});
+	}
+
+	private initiateVerifiedDynamicQuiz() {
 		// Guard: never start twice while a start/attempt is in flight (double click, repeated retry).
 		if (this.isSubmittingQuiz() || (this.isQuizActive() && !this.quizGenerationError())) return;
 		const specId = this.providerSpecialtyId();
@@ -1338,7 +1351,7 @@ export class Specialties implements OnInit, OnDestroy {
 	recheckExamEnvironment() {
 		this.examEnv.load(env => {
 			this.antiCheatService.restricted.set(env?.restricted === true);
-			if (this.examEnv.satisfied()) { this.showExamInstructions.set(false); this.initiateDynamicQuiz(); }
+			if (this.examEnv.satisfied()) { this.showExamInstructions.set(false); this.initiateVerifiedDynamicQuiz(); }
 		});
 	}
 
