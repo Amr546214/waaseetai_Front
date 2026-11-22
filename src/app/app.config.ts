@@ -19,6 +19,8 @@ import { adminAccessInterceptor } from './core/interceptors/admin-access.interce
 import { SOCIAL_AUTH_CONFIG, SocialAuthServiceConfig, GoogleLoginProvider } from '@abacritt/angularx-social-login';
 import { environment } from '../environments/environment';
 import { provideSiteIdentity } from './core/identity/identity.providers';
+import { SebBrowserProofService } from './core/services/seb-browser-proof.service';
+import { sebProofInterceptor } from './core/interceptors/seb-proof.interceptor';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -29,7 +31,8 @@ export const appConfig: ApplicationConfig = {
 			anchorScrolling: 'enabled'
 		})),
 		provideClientHydration(withEventReplay()),
-		provideHttpClient(withFetch(), withInterceptors([adminAccessInterceptor, errorMessageInterceptor, loadingInterceptor, providerGateInterceptor, authInterceptor, getCacheInterceptor, rateLimitInterceptor, maintenanceInterceptor])),
+		provideHttpClient(withFetch(), withInterceptors([adminAccessInterceptor, errorMessageInterceptor, loadingInterceptor, providerGateInterceptor, authInterceptor, sebProofInterceptor, getCacheInterceptor, rateLimitInterceptor, maintenanceInterceptor])),
+		provideAppInitializer(() => inject(SebBrowserProofService).captureInitialDocument()),
 		provideTranslateService({ lang: 'ar', fallbackLang: 'ar' }),
 		// the platform's regional settings are read once at start (never blocks longer than ~1.5 s, never fails the app): every date pipe then shows times in the platform zone
 		// (the provider / marketer areas override this with the user's own saved zone, see app.routes.ts)
