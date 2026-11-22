@@ -1,3 +1,4 @@
+import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -12,12 +13,14 @@ describe('marketer KYC card (#51)', () => {
 	let upload: ReturnType<typeof vi.fn>;
 	let createAccessLink: ReturnType<typeof vi.fn>;
 
+	const saveLegalName = vi.fn((legalName: string) => of({ success: true, data: { outcome: 'SAVED', view: { status: 'PROVIDED', legalName, changeNeedsReview: false, pendingRequest: null } } }));
 	const setup = (status: string, uploadImpl?: () => any, reason: string | null = null) => {
+		saveLegalName.mockClear();
 		upload = vi.fn(uploadImpl ?? (() => of({ status: 'PENDING' })));
 		createAccessLink = vi.fn(() => of({ url: 'https://x', expiresAt: null, expiresInSeconds: 120, private: true, legacy: false }));
 		TestBed.configureTestingModule({
 			imports: [MarketerKycCard],
-			providers: [
+			providers: [{ provide: LegalNameService, useValue: { save: saveLegalName, get: () => of({ success: true, data: { status: 'PROVIDED', legalName: 'اسم هوية محفوظ', changeNeedsReview: false, pendingRequest: null } }) } }, 
 				{ provide: MarketerKycService, useValue: { getStatus: () => (status === 'FAIL' ? throwError(() => new HttpErrorResponse({ status: 500 })) : of({ status, rejectionReason: reason, reviewedAt: null })), upload } },
 				{ provide: KycDocumentService, useValue: { createAccessLink } },
 			],
@@ -35,6 +38,16 @@ describe('marketer KYC card (#51)', () => {
 		fixture.detectChanges();
 	};
 	afterEach(() => TestBed.resetTestingModule());
+
+	it('a marketer with an approved document still edits and saves the private legal name immediately', () => {
+		setup('APPROVED'); q('legal-name-edit')!.click(); fixture.detectChanges();
+		const input = q('legal-name-field-input') as HTMLInputElement; input.value = 'اسم هوية جديد'; input.dispatchEvent(new Event('input')); fixture.detectChanges();
+		q('legal-name-save')!.click(); fixture.detectChanges();
+		expect(saveLegalName).toHaveBeenCalledWith('اسم هوية جديد');
+		expect(q('legal-name-value')?.textContent).toBe('اسم هوية جديد');
+		expect(q('legal-name-note')?.textContent).toContain('تم حفظ');
+		expect(q('legal-name-pending')).toBeNull();
+	});
 
 	it('NONE: asks for the document, shows the upload button and the generic rejection note', () => {
 		setup('NONE');

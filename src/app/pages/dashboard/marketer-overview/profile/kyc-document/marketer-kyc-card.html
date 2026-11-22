@@ -9,6 +9,8 @@
 		}
 	</div>
 
+	<ws-legal-name-field class="block mb-4" />
+
 	@if (loadFailed()) {
 		<div class="mk-err" role="alert">تعذر تحميل حالة التوثيق. <button type="button" class="mk-link" (click)="load()">إعادة المحاولة</button></div>
 	} @else if (status() === null) {
