@@ -8,8 +8,9 @@ export class FakeIdentityGate {
 	static status: IdentityGateStatus = 'APPROVED';
 	static reason: string | null = null;
 	static saved: IdentityGateSaveBody[] = [];
-	static reset(status: IdentityGateStatus = 'APPROVED') { FakeIdentityGate.status = status; FakeIdentityGate.reason = null; FakeIdentityGate.saved = []; }
-	private snap = (): IdentityGateState => ({ status: FakeIdentityGate.status, rejectionReason: FakeIdentityGate.reason, canAdvance: FakeIdentityGate.status === 'APPROVED', submittedAt: null, missing: [], data: { hasFront: true, hasBack: true } });
+	static automaticCheck: IdentityGateState['automaticCheck'] = undefined;
+	static reset(status: IdentityGateStatus = 'APPROVED') { FakeIdentityGate.status = status; FakeIdentityGate.reason = null; FakeIdentityGate.saved = []; FakeIdentityGate.automaticCheck = undefined; }
+	private snap = (): IdentityGateState => ({ status: FakeIdentityGate.status, rejectionReason: FakeIdentityGate.reason, canAdvance: FakeIdentityGate.status === 'APPROVED' || (FakeIdentityGate.status === 'UNDER_REVIEW' && FakeIdentityGate.automaticCheck === 'MATCHED'), ...(FakeIdentityGate.automaticCheck ? { automaticCheck: FakeIdentityGate.automaticCheck } : {}), submittedAt: null, missing: [], data: { hasFront: true, hasBack: true } });
 	readonly state = signal<IdentityGateState | null>(null);
 	readonly saving = signal(false);
 	readonly loadFailed = signal(false);

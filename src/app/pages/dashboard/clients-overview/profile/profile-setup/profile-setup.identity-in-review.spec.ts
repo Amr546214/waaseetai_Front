@@ -40,6 +40,19 @@ describe('client profile-setup: identity gate status in the identity step', () =
 		fixture.detectChanges();
 		expect(q('identity-gate-problem')?.textContent).toContain('قيد المراجعة');
 	});
+	it('full CURRENT field match opens Next while KYC stays under review; a later stale check closes it again', () => {
+		setup('UNDER_REVIEW'); FakeIdentityGate.automaticCheck = 'MATCHED';
+		fixture.componentInstance.gate.load().subscribe(); fixture.detectChanges();
+		expect(q('identity-gate-matched')?.textContent).toContain('دون انتظار الإدارة');
+		expect(fixture.componentInstance.gate.status()).toBe('UNDER_REVIEW');
+		expect(next().disabled).toBe(false);
+		fixture.componentInstance.nextStep(); fixture.detectChanges();
+		expect(fixture.componentInstance.currentStep()).toBe(3);
+		fixture.componentInstance.currentStep.set(2); FakeIdentityGate.automaticCheck = 'NOT_CHECKED';
+		fixture.componentInstance.gate.load().subscribe(); fixture.detectChanges();
+		expect(next().disabled).toBe(true); expect(q('identity-gate-checking')).not.toBeNull();
+	});
+
 	it('REJECTED: the reason shows beside the upload and the data is still in the form', () => {
 		setup('REJECTED', 'الصورة غير واضحة');
 		fixture.componentInstance.setupForm.get('details.idNumber')!.setValue('A123456');

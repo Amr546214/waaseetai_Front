@@ -367,13 +367,20 @@ export class ProfileSetupDashboard implements OnInit {
 			next: g => {
 				this.isSavingStep.set(false);
 				if (g.canAdvance) { this.gateProblem.set(null); proceed(); return; }
-				this.gateProblem.set(g.status === 'UNDER_REVIEW' ? 'الوثيقة قيد المراجعة؛ تُفتح الخطوة التالية بعد اعتمادها.' : g.status === 'REJECTED' ? 'الوثيقة مرفوضة؛ صحّح البيانات أو أعد رفع الصورة.' : 'ارفع صورة الوثيقة وأكمل بيانات الهوية لتبدأ المراجعة.');
+				this.gateProblem.set(g.status === 'UNDER_REVIEW' ? 'الوثيقة قيد المراجعة؛ تُفتح الخطوة التالية عند اكتمال مطابقة البيانات أو مراجعتها.' : g.status === 'REJECTED' ? 'الوثيقة مرفوضة؛ صحّح البيانات أو أعد رفع الصورة.' : 'ارفع صورة الوثيقة وأكمل بيانات الهوية لتبدأ المراجعة.');
 			},
 			error: () => { this.isSavingStep.set(false); this.gateProblem.set('تعذّر التحقق من حالة الوثيقة، حاول مرة أخرى.'); }
 		});
 	}
 
 	/** Only a NEW upload (a data URI) is sent: a document that is already stored is never re-submitted (that would re-open its review). */
+	/** Keep local previews while preventing a saved image from being re-posted as new evidence. */
+	private savedIdentityUploads: Partial<Record<'frontId' | 'backId', string>> = {};
+	private newIdentityUpload(slot: 'frontId' | 'backId', value: unknown): string | undefined {
+		const upload = this.newUpload(value);
+		return upload && this.savedIdentityUploads[slot] !== upload ? upload : undefined;
+	}
+
 	private newUpload(value: unknown): string | undefined {
 		return typeof value === 'string' && value.startsWith('data:') ? value : undefined;
 	}
@@ -530,7 +537,7 @@ export class ProfileSetupDashboard implements OnInit {
 
 	/**
 	 * The identity step save: the ID data of step 1 + the new photo(s) go to the server, which stores them and STARTS the review. A successful
-	 * upload never opens the next step; only the server's APPROVED does. The user stays here and the form keeps everything (no data loss).
+	 * upload alone never opens the next step; the server must confirm a full current match or approval. The user stays here and the form keeps everything (no data loss).
 	 */
 	sendIdentity(options: { removeBack?: boolean } = {}) {
 		const raw = this.setupForm.getRawValue();
@@ -542,7 +549,7 @@ export class ProfileSetupDashboard implements OnInit {
 			this.gateProblem.set('أكمل بيانات الهوية في الخطوة الأولى (الدولة ونوع الوثيقة ورقمها) ثم أعد رفع الصورة؛ الصورة محفوظة في النموذج.' + (problem ? ' ' + problem.message : ''));
 			return;
 		}
-		const frontId = this.newUpload(raw.identity.frontId), backId = this.newUpload(raw.identity.backId);
+		const frontId = this.newIdentityUpload('frontId', raw.identity.frontId), backId = this.newIdentityUpload('backId', raw.identity.backId);
 		this.gateProblem.set(null);
 		this.gate.save({
 			idIssuingCountry: issuer, idDocumentType: d.idDocumentType, idNumber: String(d.idNumber).trim(),
@@ -550,6 +557,9 @@ export class ProfileSetupDashboard implements OnInit {
 			...(options.removeBack && !backId ? { removeBackId: true } : {})
 		}).subscribe({
 			next: () => {
+				if (frontId) this.savedIdentityUploads.frontId = frontId;
+				if (backId) this.savedIdentityUploads.backId = backId;
+				if (options.removeBack && !backId) delete this.savedIdentityUploads.backId;
 				/* the status panel shows the new state; polling follows while it is under review */
 				resetClientIdentityRejectedCache(); // new documents sent: the REJECTED lock re-reads the real state on the next navigation
 				if (options.removeBack && !backId) this.storedDocs.update(s => ({ ...s, backId: null }));
@@ -618,8 +628,8 @@ export class ProfileSetupDashboard implements OnInit {
 				address: formVal.details.address
 			},
 			identity: {
-				frontId: formVal.identity.frontId,
-				backId: formVal.identity.backId
+				frontId: this.newIdentityUpload('frontId', formVal.identity.frontId),
+				backId: this.newIdentityUpload('backId', formVal.identity.backId)
 			},
 			bank: {
 				paypalPayoutEmail: String(formVal.bank.paypalPayoutEmail || '').trim()
