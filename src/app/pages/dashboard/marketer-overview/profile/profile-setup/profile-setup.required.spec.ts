@@ -1,3 +1,4 @@
+import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -20,7 +21,7 @@ describe('marketer setup: bio and one valid channel are required', () => {
 
   async function mount(p = profile()) {
     svc = { getProfile: vi.fn(() => of(p)), updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(() => of({ success: true })), updatePaypalPayout: vi.fn(() => of({ success: true })) };
-    await TestBed.configureTestingModule({ imports: [ProfileSetup], providers: [provideRouter([]), { provide: MarketerProfileService, useValue: svc }] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [ProfileSetup], providers: [{ provide: LegalNameService, useValue: { get: () => of({ success: true, data: { status: 'PROVIDED', legalName: 'اسم هوية محفوظ', changeNeedsReview: false, pendingRequest: null } }) } }, provideRouter([]), { provide: MarketerProfileService, useValue: svc }] }).compileComponents();
     fixture = TestBed.createComponent(ProfileSetup);
     c = fixture.componentInstance;
     fixture.detectChanges();

@@ -21,6 +21,7 @@
 				<div class="kq-row" data-testid="kyc-row">
 					<div class="kq-who">
 						<div class="kq-name">{{ r.name || '—' }}</div>
+						<div class="kq-meta" data-testid="kyc-legal-name">الاسم كما في الهوية: {{ r.legalName || 'لم يُسجّل' }}</div>
 						<div class="kq-meta">{{ r.email || '—' }} · {{ r.submittedAt | date:'shortDate' }}</div>
 					</div>
 					<div class="kq-actions">

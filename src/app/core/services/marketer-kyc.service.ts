@@ -13,6 +13,8 @@ export interface MarketerKycRequest {
 	userId: string;
 	referralSlug: string | null;
 	name: string;
+	/** Private identity-review field; never a public display name. */
+	legalName?: string | null;
 	email: string | null;
 	submittedAt: string;
 }

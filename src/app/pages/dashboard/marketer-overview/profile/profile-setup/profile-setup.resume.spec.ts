@@ -1,3 +1,4 @@
+import { LegalNameService } from '../../../../../core/services/legal-name.service';
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree, provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -50,7 +51,7 @@ describe('marketer setup wizard: where it opens (resolveMarketerSetup)', () => {
 describe('marketer setup route guard', () => {
 	function run(res: any) {
 		const getProfile = vi.fn(() => res);
-		TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: MarketerProfileService, useValue: { getProfile } }] });
+		TestBed.configureTestingModule({ providers: [{ provide: LegalNameService, useValue: { get: () => of({ success: true, data: { status: 'PROVIDED', legalName: 'اسم هوية محفوظ', changeNeedsReview: false, pendingRequest: null } }) } }, provideRouter([]), { provide: MarketerProfileService, useValue: { getProfile } }] });
 		const out = TestBed.runInInjectionContext(() => marketerSetupGuard({} as any, {} as any));
 		return { result: isObservable(out) ? firstValueFrom(out as any) : Promise.resolve(out), notify: TestBed.inject(UiNotificationService), router: TestBed.inject(Router) };
 	}
@@ -79,7 +80,7 @@ describe('marketer setup wizard component: resume from saved data', () => {
 		const getProfile = vi.fn(() => of({ success: true, data }));
 		TestBed.configureTestingModule({
 			imports: [ProfileSetup],
-			providers: [provideRouter([]), { provide: MarketerProfileService, useValue: { getProfile, updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(() => of({ success: true })), updatePaypalPayout: vi.fn(() => of({ success: true })) } }],
+			providers: [{ provide: LegalNameService, useValue: { get: () => of({ success: true, data: { status: 'PROVIDED', legalName: 'اسم هوية محفوظ', changeNeedsReview: false, pendingRequest: null } }) } }, provideRouter([]), { provide: MarketerProfileService, useValue: { getProfile, updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(() => of({ success: true })), updatePaypalPayout: vi.fn(() => of({ success: true })) } }],
 		});
 		vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockImplementation(navigateByUrl);
 		const f = TestBed.createComponent(ProfileSetup);

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { LegalNameFieldComponent } from '../../../../../shared/legal-name/legal-name-field.component';
 import { CommonModule } from '@angular/common';
 import { MarketerKycService, MarketerKycStatus } from '../../../../../core/services/marketer-kyc.service';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
@@ -16,7 +17,7 @@ export const MARKETER_KYC_RULE = { maxBytes: 5 * MB, mimeTypes: ['application/pd
 @Component({
 	selector: 'app-marketer-kyc-card',
 	standalone: true,
-	imports: [CommonModule, KycDocumentLink],
+	imports: [CommonModule, KycDocumentLink, LegalNameFieldComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './marketer-kyc-card.html',
 	styleUrl: './marketer-kyc-card.css',

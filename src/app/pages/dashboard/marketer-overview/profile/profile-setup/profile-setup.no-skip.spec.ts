@@ -1,3 +1,4 @@
+import { LegalNameService } from '../../../../../core/services/legal-name.service';
 /// <reference types="node" />
 import { ChangeDetectorRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -22,7 +23,7 @@ describe('marketer setup wizard: no skip buttons', () => {
 			getProfile: vi.fn(() => of({ success: true, data: { marketingChannels: [], completionPercentage: 0, missingItems: [{ key: 'bio', status: 'missing' }, { key: 'channel', status: 'missing' }, { key: 'payout', status: 'missing' }], user: {} } })),
 			updateMarketingInfo: vi.fn(() => of({ success: true })), addChannel: vi.fn(() => of({ success: true })), updatePaypalPayout: vi.fn(() => of({ success: true })),
 		};
-		TestBed.configureTestingModule({ imports: [ProfileSetup], providers: [provideRouter([]), { provide: MarketerProfileService, useValue: svc }] });
+		TestBed.configureTestingModule({ imports: [ProfileSetup], providers: [{ provide: LegalNameService, useValue: { get: () => of({ success: true, data: { status: 'PROVIDED', legalName: 'اسم هوية محفوظ', changeNeedsReview: false, pendingRequest: null } }) } }, provideRouter([]), { provide: MarketerProfileService, useValue: svc }] });
 		const f = TestBed.createComponent(ProfileSetup);
 		f.detectChanges();
 		const render = () => { f.componentRef.injector.get(ChangeDetectorRef).markForCheck(); f.detectChanges(); };

@@ -1,3 +1,4 @@
+import { LegalNameFieldComponent } from '../../../../../shared/legal-name/legal-name-field.component';
 import { Component, ElementRef, inject, signal, computed, OnInit } from '@angular/core';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -43,7 +44,7 @@ const MARKETER_LABELS: Record<string, string> = {
 @Component({
 	selector: 'app-marketer-profile-setup',
 	standalone: true,
-	imports: [CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent],
+	imports: [LegalNameFieldComponent, CommonModule, RouterModule, ReactiveFormsModule, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, CompletionBoxComponent],
 	templateUrl: './profile-setup.html',
 	styleUrl: './profile-setup.css',
 })
