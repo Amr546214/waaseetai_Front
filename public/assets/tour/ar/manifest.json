@@ -327,6 +327,66 @@
       "hash": "61452621cabf5352",
       "bytes": 32924,
       "seconds": 5.4
+    },
+    "provider-explore-page": {
+      "hash": "de620eb1f67a3f93",
+      "bytes": 42284,
+      "seconds": 7
+    },
+    "provider-end": {
+      "hash": "3c1e757543d518ec",
+      "bytes": 58844,
+      "seconds": 9.7
+    },
+    "marketer-welcome": {
+      "hash": "451b2d25a4f32f29",
+      "bytes": 60284,
+      "seconds": 10
+    },
+    "marketer-home": {
+      "hash": "1f45b61693a4faf8",
+      "bytes": 33644,
+      "seconds": 5.5
+    },
+    "marketer-referrals": {
+      "hash": "25e3dd539bf76878",
+      "bytes": 37820,
+      "seconds": 6.2
+    },
+    "marketer-ref-links": {
+      "hash": "a1335fad12d14768",
+      "bytes": 36380,
+      "seconds": 6
+    },
+    "marketer-assets": {
+      "hash": "719a2c6f0c108206",
+      "bytes": 29180,
+      "seconds": 4.8
+    },
+    "marketer-commissions": {
+      "hash": "3fe3eeba77f3e7fb",
+      "bytes": 25292,
+      "seconds": 4.1
+    },
+    "marketer-withdraw": {
+      "hash": "808420bd3982193e",
+      "bytes": 30620,
+      "seconds": 5
+    },
+    "marketer-profile": {
+      "hash": "897a202d29c2dea3",
+      "bytes": 47612,
+      "seconds": 7.8
+    },
+    "marketer-messages": {
+      "hash": "20a9660552139fa7",
+      "bytes": 40844,
+      "seconds": 6.7
+    },
+    "marketer-help": {
+      "hash": "eabd4d0fe0820c47",
+      "bytes": 25580,
+      "seconds": 4.2
     }
   }
 }
