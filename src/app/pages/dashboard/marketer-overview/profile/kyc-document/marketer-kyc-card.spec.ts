@@ -20,7 +20,7 @@ describe('marketer KYC card (#51)', () => {
 		createAccessLink = vi.fn(() => of({ url: 'https://x', expiresAt: null, expiresInSeconds: 120, private: true, legacy: false }));
 		TestBed.configureTestingModule({
 			imports: [MarketerKycCard],
-			providers: [{ provide: LegalNameService, useValue: { save: saveLegalName, get: () => of({ success: true, data: { status: 'PROVIDED', legalName: 'اسم هوية محفوظ', changeNeedsReview: false, pendingRequest: null } }) } }, 
+			providers: [{ provide: LegalNameService, useValue: { save: saveLegalName, get: () => of({ success: true, data: { status: 'PROVIDED', legalName: 'اسم هوية محفوظ', changeNeedsReview: false, pendingRequest: null } }) } },
 				{ provide: MarketerKycService, useValue: { getStatus: () => (status === 'FAIL' ? throwError(() => new HttpErrorResponse({ status: 500 })) : of({ status, rejectionReason: reason, reviewedAt: null })), upload } },
 				{ provide: KycDocumentService, useValue: { createAccessLink } },
 			],
