@@ -1,4 +1,5 @@
-import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { AssistantExamState } from '../store/assistant-exam-state.service';
+import { Injectable, PLATFORM_ID, computed, effect, inject, signal } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { TourDefinition, TourEndReason, TourStep, tourAudioUrl } from './tour.types';
@@ -18,6 +19,7 @@ const safeSet = (key: string, value: string) => { try { localStorage.setItem(key
 @Injectable({ providedIn: 'root' })
 export class TourService {
 	private readonly router = inject(Router);
+	private readonly exam = inject(AssistantExamState);
 	private readonly doc = inject(DOCUMENT);
 	private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
@@ -44,11 +46,15 @@ export class TourService {
 	/** called when a tour ends (for "mark as done" and for chaining a follow-up) */
 	onEnd: ((tour: TourDefinition, reason: TourEndReason) => void) | null = null;
 
+	constructor() {
+		effect(() => { if (this.exam.examActive() && this.active()) this.stop('closed'); });
+	}
+
 	isDone(tourId: string): boolean { try { return !!JSON.parse(safeGet(DONE_KEY) || '{}')[tourId]; } catch { return false; } }
 	private markDone(tourId: string) { let all: Record<string, number> = {}; try { all = JSON.parse(safeGet(DONE_KEY) || '{}'); } catch { /* reset */ } all[tourId] = Date.now(); safeSet(DONE_KEY, JSON.stringify(all)); }
 
 	start(tour: TourDefinition, from = 0): void {
-		if (!this.isBrowser || !tour.steps.length) return;
+		if (this.exam.examActive() || !this.isBrowser || !tour.steps.length) return;
 		this.halt();
 		this.tour.set(tour);
 		this.go(Math.min(Math.max(0, from), tour.steps.length - 1));

@@ -1,17 +1,23 @@
 import { Component, input } from '@angular/core';
 import { IdentityGateState } from '../../core/services/identity-gate.service';
 
-/** In-place status of the identity review inside the identity step (client and provider wizards). Owner-facing: never a field-match result. */
+/** In-place status of the identity review inside the identity step (client and provider wizards). Owner-facing: setup progression may open on a current full field match without granting KYC approval. */
 @Component({
 	selector: 'ws-identity-gate-status',
 	standalone: true,
 	template: `
 		@switch (state()?.status) {
 			@case ('UNDER_REVIEW') {
+				@if (state()?.automaticCheck === 'MATCHED' && state()?.canAdvance) {
+					<div role="status" data-testid="identity-gate-matched" class="ws-igs ws-igs--ok"><strong>تطابقت بيانات الهوية</strong><span>يمكنك إكمال الإعداد الآن دون انتظار الإدارة. مطابقة البيانات لا تغيّر حالة توثيق الحساب.</span></div>
+				} @else if (state()?.automaticCheck === 'CHECKING' || state()?.automaticCheck === 'NOT_CHECKED') {
+					<div role="status" data-testid="identity-gate-checking" class="ws-igs ws-igs--wait"><strong>جارٍ مطابقة بيانات الهوية</strong><span>نطابق الاسم الحقيقي ورقم الهوية وتاريخ الميلاد مع الوثيقة. يفتح زر التالي تلقائيًا عند اكتمال التطابق. تأكد من حفظ الاسم الحقيقي واستكمال بياناتك.</span></div>
+				} @else {
 				<div role="status" data-testid="identity-gate-under-review" class="ws-igs ws-igs--wait">
 					<strong>الوثيقة قيد المراجعة</strong>
 					<span>سيفتح الخطوة التالية بعد اعتماد الوثيقة والبيانات من الإدارة. ابقَ في هذه الصفحة، وتتحدّث الحالة تلقائيًا. إن غيّرت الصورة أو البيانات تبدأ المراجعة من جديد.</span>
 				</div>
+				}
 			}
 			@case ('REJECTED') {
 				<div role="alert" data-testid="identity-gate-rejected" class="ws-igs ws-igs--bad">

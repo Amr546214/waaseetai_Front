@@ -1,3 +1,4 @@
+import { AssistantExamState } from '../../core/store/assistant-exam-state.service';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -30,6 +31,23 @@ describe('TourLauncherComponent', () => {
 		expect(TestBed.inject(TourService).tour()?.id).toBe('page-about-v1');
 		f.detectChanges(); expect(chip(f)).toBeNull(); // hidden while a tour runs
 	});
+	it('exam mode hides the launcher and suggestion, blocks a queued click, and restores the offer after exit', () => {
+		url = '/provider-overview'; authed.set(true); role.set(UserRole.PROVIDER);
+		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
+		const entry = f.componentInstance.entry()!; expect(chip(f)).not.toBeNull();
+		const exam = TestBed.inject(AssistantExamState); exam.setExamActive(true); f.detectChanges();
+		expect(chip(f)).toBeNull(); expect(f.nativeElement.querySelector('[data-testid=tour-suggestion]')).toBeNull();
+		f.componentInstance.start(entry); expect(TestBed.inject(TourService).active()).toBe(false);
+		exam.setExamActive(false); f.detectChanges(); expect(chip(f)).not.toBeNull();
+		expect(f.nativeElement.querySelector('[data-testid=tour-suggestion]')).not.toBeNull();
+	});
+	it('restored exam state hides the launcher from its first render', () => {
+		url = '/provider-overview'; authed.set(true); role.set(UserRole.PROVIDER);
+		TestBed.inject(AssistantExamState).setExamActive(true);
+		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges(); expect(chip(f)).toBeNull();
+		TestBed.inject(AssistantExamState).setExamActive(false);
+	});
+
 	it('no chip on the home page, article pages or any dashboard; it follows navigation', () => {
 		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
 		for (const p of ['/', '/blog/an-article', '/client-overview', '/provider-overview/offers']) { go(f, p); expect(chip(f), p).toBeNull(); }

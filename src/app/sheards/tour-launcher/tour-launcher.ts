@@ -1,3 +1,4 @@
+import { AssistantExamState } from '../../core/store/assistant-exam-state.service';
 import { ChangeDetectionStrategy, Component, DestroyRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
@@ -55,6 +56,7 @@ const safeSet = (k: string, v: string) => { try { localStorage.setItem(k, v); } 
 export class TourLauncherComponent {
 	private readonly router = inject(Router);
 	private readonly tour = inject(TourService);
+	private readonly exam = inject(AssistantExamState);
 	private readonly doc = inject(DOCUMENT);
 	private readonly auth = inject(AuthStore);
 	private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -87,7 +89,7 @@ export class TourLauncherComponent {
 
 	readonly entry = computed<PageTourEntry | null>(() => {
 		this.tick();
-		if (this.tour.active()) return null;
+		if (this.exam.examActive() || this.tour.active()) return null;
 		return this.roleEntry() ?? pageTourFor(this.path(), selector => !!this.doc.querySelector(selector));
 	});
 	/** re-read when a tour starts / ends, so a finished tour flips the label */
@@ -100,5 +102,5 @@ export class TourLauncherComponent {
 		inject(DestroyRef).onDestroy(() => clearInterval(timer));
 	}
 
-	start(entry: PageTourEntry): void { this.markSuggested(entry); this.suggestionHandled.set(true); this.tour.start(entry.tour); }
+	start(entry: PageTourEntry): void { if (this.exam.examActive()) return; this.markSuggested(entry); this.suggestionHandled.set(true); this.tour.start(entry.tour); }
 }

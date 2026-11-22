@@ -1,3 +1,4 @@
+import { AssistantExamState } from '../store/assistant-exam-state.service';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { vi } from 'vitest';
@@ -33,6 +34,16 @@ describe('TourService', () => {
 		svc = TestBed.inject(TourService);
 	});
 	afterEach(() => { svc.close(); document.getElementById('tour-target')?.remove(); vi.useRealTimers(); vi.unstubAllGlobals(); });
+
+	it('starting an exam stops an open tour/audio and prevents new tours or chained follow-ups', () => {
+		svc.start(tour()); const audio = FakeAudio.instances.at(-1)!; audio.onplaying?.();
+		svc.onEnd = () => svc.start(tour({ id: 'follow-up' }));
+		const exam = TestBed.inject(AssistantExamState); exam.setExamActive(true); TestBed.tick();
+		expect(svc.active()).toBe(false); expect(svc.speaking()).toBe(false); expect(audio.paused).toBe(true);
+		svc.start(tour(), 2); expect(navigated).toEqual([]); expect(svc.active()).toBe(false);
+		vi.advanceTimersByTime(6000); expect(svc.active()).toBe(false);
+		svc.onEnd = null; exam.setExamActive(false); svc.start(tour()); expect(svc.active()).toBe(true);
+	});
 
 	it('start shows the first step; next / back move; the last next completes and marks the tour done', () => {
 		const ended: string[] = []; svc.onEnd = (_t, r) => ended.push(r);

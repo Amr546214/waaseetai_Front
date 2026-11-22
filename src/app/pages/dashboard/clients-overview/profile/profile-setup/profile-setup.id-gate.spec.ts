@@ -42,6 +42,19 @@ describe('client profile-setup: identity gate behaviour', () => {
 		expect(c.setupForm.get('details.idNumber').value).toBe('A1234567'); // nothing erased
 	});
 
+	it('the saved photo remains a preview but is not sent again when finishing matched setup or adding the back side', () => {
+		mount(); fillId(); c.setupForm.get('identity.frontId').setValue(PNG); c.sendIdentity();
+		c.setupForm.get('identity.backId').setValue(PNG + 'back'); c.sendIdentity();
+		expect(FakeIdentityGate.saved[1].frontId).toBeUndefined(); expect(FakeIdentityGate.saved[1].backId).toBe(PNG + 'back');
+		FakeIdentityGate.automaticCheck = 'MATCHED'; c.gate.load().subscribe();
+		c.setupForm.patchValue({ bank: { paypalPayoutEmail: 'a@b.co' }, agreements: { accurate: true, terms: true, privacy: true } });
+		const save = TestBed.inject(ProfileApiService).saveClientProfileSetup as ReturnType<typeof vi.fn>;
+		save.mockReturnValue(of()); // capture the payload without scheduling navigation in this component test
+		c.currentStep.set(5); c.submitForm();
+		expect(save).toHaveBeenCalledTimes(1); expect(save.mock.calls[0][0].identity.frontId).toBeUndefined(); expect(save.mock.calls[0][0].identity.backId).toBeUndefined();
+		expect(c.setupForm.get('identity.frontId').value).toBe(PNG);
+	});
+
 	it('choosing the photo file itself (onFileSelected) saves through the gate and starts the review', async () => {
 		mount(); fillId(); c.currentStep.set(2); fixture.detectChanges();
 		const input = document.createElement('input'); input.type = 'file';

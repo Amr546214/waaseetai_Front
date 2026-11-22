@@ -12,6 +12,7 @@ export interface IdentityGateState {
 	status: IdentityGateStatus;
 	rejectionReason: string | null;
 	canAdvance: boolean;
+	automaticCheck?: 'MATCHED' | 'CHECKING' | 'NEEDS_REVIEW' | 'NOT_CHECKED';
 	submittedAt: string | null;
 	missing: string[];
 	data: { idNumber?: string | null; idIssuingCountry?: string | null; idDocumentType?: string | null; dob?: string | null; hasFront: boolean; hasBack: boolean };
@@ -44,17 +45,17 @@ export function identityRefusalReason(err: any): string | null {
 /** The sentence shown on the identity step after the server refused a submission. */
 export function identityRefusalMessage(err: any): string {
 	if (identityRefusalReason(err) === 'EVIDENCE_CHANGED_IN_SUBMISSION')
-		return 'الصورة أو بيانات الهوية في هذا الإرسال تختلف عن الوثيقة المعتمدة، فلم يُحفظ شيء. أرسل أي تغيير من خطوة الهوية هذه وانتظر اعتماده الجديد قبل المتابعة.';
-	return err?.error?.message || 'وثيقة الهوية غير معتمدة بعد؛ لا يمكن المتابعة قبل اعتمادها.';
+		return 'الصورة أو بيانات الهوية في هذا الإرسال تختلف عن الوثيقة المعتمدة، فلم يُحفظ شيء. أرسل أي تغيير من خطوة الهوية هذه وانتظر اكتمال المطابقة أو المراجعة قبل المتابعة.';
+	return err?.error?.message || 'لم تكتمل مطابقة بيانات الهوية أو مراجعتها بعد؛ حاول مرة أخرى بعد اكتمال التحقق.';
 }
 
-const POLL_FIRST_MS = 15_000;
+const POLL_FIRST_MS = 3_000;
 const POLL_MAX_MS = 60_000;
 
 /**
  * One identity gate per wizard (component-provided, never shared between pages). The server is the only authority: the next step opens only
- * while `canAdvance()` is true, i.e. the CURRENT image + data are APPROVED. While under review the state is polled with a growing delay
- * (15s -> 60s), only when the tab is visible, and never in parallel with another request.
+ * while `canAdvance()` is true, the CURRENT image + data are manually approved or fully matched for setup progression. While under review the state is polled with a growing delay
+ * (3s -> 60s), only when the tab is visible, and never in parallel with another request.
  */
 @Injectable()
 export class IdentityGateService implements OnDestroy {
@@ -69,7 +70,7 @@ export class IdentityGateService implements OnDestroy {
 	/** a state read failed (network): the previous state stays, nothing opens. */
 	readonly loadFailed = signal(false);
 	readonly status = computed<IdentityGateStatus | null>(() => this.state()?.status ?? null);
-	readonly canAdvance = computed(() => this.state()?.canAdvance === true && this.state()?.status === 'APPROVED');
+	readonly canAdvance = computed(() => !this.saving() && !this.loadFailed() && this.state()?.canAdvance === true && (this.state()?.status === 'APPROVED' || (this.state()?.status === 'UNDER_REVIEW' && this.state()?.automaticCheck === 'MATCHED')));
 
 	use(party: IdentityGateParty) { this.party = party; return this; }
 
@@ -94,13 +95,15 @@ export class IdentityGateService implements OnDestroy {
 
 	/** Takes a state that came from another endpoint (e.g. the 409 body) into account. */
 	apply(s: IdentityGateState) {
+		this.loadFailed.set(false);
 		this.state.set(s);
-		if (s.status === 'UNDER_REVIEW') this.startPolling(); else this.stopPolling();
+		if (s.status === 'UNDER_REVIEW' && !this.canAdvance()) this.startPolling(); else this.stopPolling();
 	}
 
 	/** Forces the local state to «not approved» after the server refused a skipped step, then re-reads the real one. */
 	refusedByServer() {
 		this.stopPolling();
+		this.state.update(s => s ? { ...s, canAdvance: false } : s);
 		this.load().subscribe({ error: () => { /* the refusal message stays; nothing opens */ } });
 	}
 
