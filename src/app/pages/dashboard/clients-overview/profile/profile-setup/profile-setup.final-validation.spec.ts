@@ -92,15 +92,25 @@ describe('client setup: final submit and step completion agree', () => {
 		expect(c.missing().some(m => m.path === 'details.country')).toBe(true);
 	});
 
-	it('date of birth, city, occupation and address are OPTIONAL for a service seeker: the final submit goes through without them', () => {
+	it('date of birth is REQUIRED (the identity data is checked against it); city, occupation and address stay optional', () => {
 		mount({ ...FULL, dob: null, city: '', industry: '', address: '' });
+		agree();
+		c.currentStep.set(5); fixture.detectChanges();
+		expect(c.stepIsIncomplete(1)).toBe(true);
+		c.submitForm();
+		expect(saveFinal).not.toHaveBeenCalled();
+		expect(c.missing().some(m => m.path === 'details.dob')).toBe(true);
+	});
+
+	it('with the date of birth filled, city, occupation and address can stay empty', () => {
+		mount({ ...FULL, city: '', industry: '', address: '' });
 		agree();
 		c.currentStep.set(5); fixture.detectChanges();
 		expect(c.stepIsIncomplete(1)).toBe(false);
 		c.submitForm();
 		expect(saveFinal).toHaveBeenCalledTimes(1);
 		const d = saveFinal.mock.calls[0][0].details;
-		expect(d.dob).toBeNull(); expect(d.city).toBe(''); expect(d.occupation).toBe(''); expect(d.address).toBe('');
+		expect(d.dob).toBeTruthy(); expect(d.city).toBe(''); expect(d.occupation).toBe(''); expect(d.address).toBe('');
 	});
 
 	it('final submit succeeds when every required field is present', () => {

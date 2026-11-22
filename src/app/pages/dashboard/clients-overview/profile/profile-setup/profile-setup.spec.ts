@@ -50,9 +50,9 @@ describe('client profile-setup: shared validation', () => {
 		render();
 		expect(component.currentStep()).toBe(1);
 		// Updated (stale since PR #335): the document number / type message now sits UNDER the field (documentError), not in the summary list.
-		// the country is the only personal-detail field still required; date of birth, city, occupation and address are optional for a service seeker
-		expect(summary()).toContain('الدولة');
-		for (const label of ['تاريخ الميلاد', 'المهنة الحالية', 'العنوان التفصيلي']) expect(summary(), label).not.toContain(label);
+		// the country and the date of birth are required; city, occupation and address are optional for a service seeker
+		expect(summary()).toContain('الدولة'); expect(summary()).toContain('تاريخ الميلاد');
+		for (const label of ['المهنة الحالية', 'العنوان التفصيلي']) expect(summary(), label).not.toContain(label);
 		expect(el().querySelectorAll('[data-testid="field-error"]').length).toBeGreaterThanOrEqual(1); // the document-number message is shown by documentError() under its own field since PR #335
 		expect(document.activeElement?.getAttribute('formcontrolname')).toBe('idNumber');
 		el().remove();
@@ -75,10 +75,10 @@ describe('client profile-setup: shared validation', () => {
 		expect(component.documentError('idNumber')).toBeNull();
 	});
 
-	it('the address field is marked optional (no required marker), and so are date of birth, city and occupation; the country keeps its marker', () => {
+	it('the address, city and occupation are marked optional; the country AND the date of birth carry the required marker', () => {
 		const label = (text: string) => Array.from(el().querySelectorAll('label')).filter(l => l.textContent?.includes(text))[0];
-		for (const t of ['العنوان التفصيلي', 'تاريخ الميلاد', 'المدينة', 'المهنة الحالية']) { expect(label(t)?.querySelector('.ws-req'), t).toBeFalsy(); expect(label(t)?.querySelector('[data-testid=optional-tag]'), t).toBeTruthy(); }
-		expect(label('الدولة')?.querySelector('.ws-req')).toBeTruthy();
+		for (const t of ['العنوان التفصيلي', 'المدينة', 'المهنة الحالية']) { expect(label(t)?.querySelector('.ws-req'), t).toBeFalsy(); expect(label(t)?.querySelector('[data-testid=optional-tag]'), t).toBeTruthy(); }
+		for (const t of ['الدولة', 'تاريخ الميلاد']) { expect(label(t)?.querySelector('.ws-req'), t).toBeTruthy(); expect(label(t)?.querySelector('[data-testid=optional-tag]'), t).toBeFalsy(); }
 	});
 
 	it('a complete step 1 moves to step 2 and clears the summary; Back clears it too', () => {

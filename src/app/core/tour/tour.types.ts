@@ -9,6 +9,8 @@ export interface TourStep {
 	title: string;
 	/** what Bebo says (Modern Standard Arabic) */
 	text: string;
+	/** CSS selector of something to click BEFORE pointing at the target (e.g. the tab that holds the target): lets a tour walk through the tabs of one page */
+	click?: string;
 	/** how long to wait for the target to appear after navigating (default 4000 ms) */
 	waitMs?: number;
 }

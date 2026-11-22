@@ -20,8 +20,14 @@ import { cleanLegalName, legalNameProblem } from '../../core/validators/legal-na
 			}
 			@if (v.pendingRequest; as p) {
 				<p class="text-xs text-slate-300 mb-2" role="status" data-testid="legal-name-pending">طلب تعديل الاسم إلى «{{ p.requestedValue }}» قيد المراجعة. سيبقى الاسم الحالي حتى القرار، ثم تُعاد مطابقة الهوية.</p>
+				@if (!editing()) {
+				<div class="flex items-center gap-4 mb-2" data-testid="legal-name-pending-actions">
+					<button type="button" class="text-xs underline text-[#2BD4C7]" [disabled]="saving()" (click)="startEdit(v, p.requestedValue)" data-testid="legal-name-edit-request">تعديل الطلب</button>
+					<button type="button" class="text-xs underline text-slate-300" [disabled]="saving()" (click)="withdraw()" data-testid="legal-name-withdraw">سحب الطلب</button>
+				</div>
+				}
 			}
-			@if ((editing() && !v.pendingRequest) || v.status === 'MISSING') {
+			@if (editing() || v.status === 'MISSING') {
 				<input id="legal-name-field-input" type="text" maxlength="120" autocomplete="off" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600" placeholder="مثال: عمرو محمود" data-testid="legal-name-field-input" [value]="draft()" (input)="onInput($event)" (blur)="flush()" [attr.aria-invalid]="problem() ? 'true' : null" />
 				@if (problem(); as pr) { <div class="text-xs text-red-400 mt-1" role="alert" data-testid="legal-name-problem">{{ pr }}</div> }
 				@if (v.changeNeedsReview && v.status === 'PROVIDED') { <p class="text-xs text-slate-300 mt-1" data-testid="legal-name-review-note">اسمك مرتبط بهوية موثقة أو قيد المراجعة: التعديل يُرسل كطلب للمراجعة ثم تُعاد مطابقة الهوية.</p> }
@@ -62,7 +68,16 @@ export class LegalNameFieldComponent implements OnInit, OnDestroy {
 	ngOnInit() { this.load(); }
 	private load() { this.api.get().subscribe({ next: r => { if (r?.data) { this.view.set(r.data); this.openIfAlways(r.data); } }, error: () => undefined }); }
 	private openIfAlways(v: LegalNameView) { if (this.alwaysEdit() && v.status === 'PROVIDED' && !v.pendingRequest) this.startEdit(v); }
-	startEdit(v: LegalNameView) { this.draft.set(v.legalName ?? ''); this.problem.set(null); this.note.set(null); this.editing.set(true); }
+	/** withdraws the waiting request (a typo): the current name stays, and the box is free for a corrected request */
+	withdraw() {
+		if (this.saving()) return;
+		this.saving.set(true); this.note.set(null);
+		this.api.cancelRequest().subscribe({
+			next: r => { this.saving.set(false); this.view.set(r.data); this.editing.set(false); this.note.set('تم سحب الطلب. يمكنك إرسال تعديل جديد.'); this.saved.emit(); },
+			error: e => { this.saving.set(false); this.note.set(e?.error?.message ?? 'تعذر سحب الطلب. حاول مرة أخرى.'); }
+		});
+	}
+	startEdit(v: LegalNameView, prefill?: string | null) { this.draft.set(prefill ?? v.legalName ?? ''); this.problem.set(null); this.note.set(null); this.editing.set(true); }
 	cancel() { this.editing.set(false); this.problem.set(null); }
 	onInput(e: Event) {
 		const v = (e.target as HTMLInputElement).value; this.draft.set(v); this.problem.set(legalNameProblem(v));

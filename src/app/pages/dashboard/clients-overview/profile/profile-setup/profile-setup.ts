@@ -154,7 +154,7 @@ export class ProfileSetupDashboard implements OnInit {
 			idDocumentType: [''],
 			idNumber: ['', [Validators.required, Validators.pattern(DOCUMENT_NUMBER_PATTERN)]],
 			// optional for a service seeker: none of these is needed to continue (the country stays required: the identity document check uses it)
-			dob: ['', [birthDateValidator]],
+			dob: ['', [Validators.required, birthDateValidator]], // required: the identity data is checked against it (the step already treated a missing date as incomplete)
 			country: ['', Validators.required],
 			city: [''],
 			occupation: [''],

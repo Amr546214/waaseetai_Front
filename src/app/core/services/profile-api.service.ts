@@ -135,4 +135,13 @@ export class ProfileApiService {
       { context: new HttpContext().set(SKIP_LOADING, true) }
     );
   }
+
+  /** «ساعدني أكتب نبذة»: the AI drafts (or polishes) the client's bio from what is in the form; nothing is saved by this call. */
+  suggestClientBio(input: { bio?: string; occupation?: string; interests?: string[] }): Observable<{ success: boolean; data?: { suggestedBio: string } }> {
+    return this.http.post<{ success: boolean; data?: { suggestedBio: string } }>(
+      `${environment.url_api}/client/profile/suggest-bio`,
+      input,
+      { context: new HttpContext().set(SKIP_LOADING, true) }
+    );
+  }
 }

@@ -1,6 +1,6 @@
 import { DestroyRef as CatalogDestroyRef, inject as catalogInject } from '@angular/core';
 import { takeUntilDestroyed as catalogUntilDestroyed } from '@angular/core/rxjs-interop';
-import { afterNextRender, ChangeDetectorRef, Component, DestroyRef, ElementRef, Injector, inject, signal, computed } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, ElementRef, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -17,6 +17,9 @@ import type { CompletionMissingItem } from '../../../../../core/services/profile
 import type { ReviewEntry } from '../../../../../core/models/review-status.model';
 import { paypalEmailError, paypalEmailOptionalValidators } from '../../../../../core/validators/paypal-email.validator';
 import { AccountType, UserRole } from '../../../../../core/models/auth.model';
+import { TourService } from '../../../../../core/tour/tour.service';
+import { CLIENT_PROFILE_EDIT_TOUR } from '../../../../../core/tour/tours/client-profile-edit.tour';
+import { AiNoteComponent } from '../../../../../shared/ai/ai-note.component';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
 import { applyServerFieldErrors, attemptSubmit, InvalidField } from '../../../../../core/forms/form-helpers';
 import { mapHttpError } from '../../../../../core/forms/http-error';
@@ -45,7 +48,7 @@ type Tab = 'profile' | 'basics' | 'identity' | 'contact' | 'banking' | 'security
 @Component({
 	selector: 'app-profile-edit',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent, LegalNameFieldComponent, UsernameFieldComponent],
+	imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, PhoneInputComponent, AiNoteComponent, BioFieldDirective, FieldErrorComponent, FormSummaryComponent, SkillsPickerComponent, LegalNameFieldComponent, UsernameFieldComponent],
 	templateUrl: './profile-edit.html',
 	styleUrl: './profile-edit.css',
 })
@@ -68,51 +71,35 @@ export class ProfileEdit {
 	missing = signal<InvalidField[]>([]);
 
 	activeTab = signal<Tab>('profile');
-	readonly guideOpen = signal(false);
-	readonly guideIndex = signal(0);
-	readonly guideSteps: ReadonlyArray<{ tab: Tab; target: string; title: string; text: string }> = [
-		{ tab: 'profile', target: 'input[type="file"]', title: 'الصورة الشخصية', text: 'ارفع صورة بصيغة JPG أو PNG بحجم أقصى 5MB. يمكنك استبدالها أو حذفها من هنا.' },
-		{ tab: 'profile', target: 'textarea[formcontrolname="bio"]', title: 'نبذة عنك', text: 'اكتب نبذة لا تتجاوز 1000 حرف. تُحفظ ضمن بيانات ملفك ويمكنك تعديلها لاحقًا، ثم اضغط حفظ التحديثات.' },
-		{ tab: 'profile', target: 'input[placeholder="أضف اهتمام جديد"]', title: 'الاهتمامات والمهارات', text: 'اكتب اهتمامًا واضغط إضافة أو Enter. احذف أي عنصر من علامة الإزالة، ثم احفظ التغييرات لتُحفظ في ملفك.' },
-		{ tab: 'profile', target: 'input[formcontrolname="portfolioUrl"]', title: 'الروابط الشخصية', text: 'أضف روابط أعمالك وحساباتك المهنية. ابدأ الرابط بـ https:// أو http://، واترك الحقول الاختيارية فارغة إذا لم تحتجها.' },
-		{ tab: 'profile', target: 'select[formcontrolname="interfaceLanguage"]', title: 'تفضيلات العرض والإشعارات', text: 'اللغة والمنطقة الزمنية تفضيلات محفوظة في ملفك ولا تغيّر لغة الموقع. اختر البريد أو الإشعار اللحظي؛ تظل الإشعارات محفوظة في مركز الإشعارات. Telegram وWhatsApp غير مدعومين كقنوات إشعار.' },
-		{ tab: 'basics', target: 'input[formcontrolname="firstName"]', title: 'البيانات الأساسية', text: 'تغيير الاسم يُرسل للمراجعة ويُطبّق بعد الاعتماد. البريد الإلكتروني ورقم الجوال للقراءة فقط. تابع حالة الطلب من طلباتي السابقة.' },
-		{ tab: 'identity', target: '[data-testid="identity-form"]', title: 'الهوية والتوثيق', text: 'الدولة والمدينة تُحفظان مباشرة، ورقم الهوية يُرسل للمراجعة. الجنسية وتاريخ الانتهاء للقراءة فقط. لرفع مستندات الهوية افتح استكمال البيانات.' },
-		{ tab: 'contact', target: 'app-phone-input[formcontrolname="alternativePhone"]', title: 'بيانات التواصل', text: 'يُحفظ رقم WhatsApp ومدينة الإقامة فقط. اختيار الدولة يحدد قائمة المدن، ولا يغيّر دولة حسابك من هذا القسم. البريد والجوال للقراءة فقط.' },
-		{ tab: 'banking', target: '#cl-paypal', title: 'بريد PayPal', text: 'يُستخدم PayPal للمدفوعات والاسترداد. يُحفظ البريد مباشرة دون مراجعة، ويمكنك ترك الحقل فارغًا لإزالته.' },
-		{ tab: 'security', target: '[data-testid="security-unsupported"]', title: 'أمان الحساب', text: 'تغيير كلمة المرور يتطلب مراجعة؛ تبقى الحالية سارية حتى اعتماد الطلب. المصادقة الثنائية وإدارة الجلسات غير متاحتين هنا. يمكنك تسجيل الخروج من قائمة حسابك.' },
-	];
-	readonly guideStep = computed(() => this.guideSteps[this.guideIndex()]);
-	private readonly guideInjector = inject(Injector);
-	private guideHighlight?: HTMLElement;
+	private readonly tour = inject(TourService);
 
-	startProfileGuide(): void {
-		this.guideOpen.set(true);
-		this.showProfileGuideStep(0);
+	/** «ساعدني أكتب نبذة»: the AI drafts the bio from the form (or polishes the user's own text). The text only goes into the box: the user reviews it and saves it (or not). */
+	readonly bioAiBusy = signal(false);
+	readonly bioAiNote = signal('');
+	suggestBio(): void {
+		if (this.bioAiBusy()) return;
+		const bio = String(this.clientForm.get('bio')?.value ?? '').trim();
+		const occupation = String(this.clientForm.get('industry')?.value ?? '').trim();
+		this.bioAiBusy.set(true); this.bioAiNote.set('');
+		this.profileApi.suggestClientBio({ ...(bio ? { bio } : {}), ...(occupation ? { occupation } : {}), interests: this.interests() }).subscribe({
+			next: res => {
+				this.bioAiBusy.set(false);
+				const text = res?.data?.suggestedBio?.trim();
+				if (!text) { this.bioAiNote.set('تعذّر اقتراح نبذة الآن. حاول مرة أخرى.'); return; }
+				this.clientForm.patchValue({ bio: text.slice(0, 1000) }); this.clientForm.get('bio')?.markAsDirty();
+				this.bioAiNote.set('اقتراح من وسيط AI: راجعه وعدّل ما تشاء ثم اضغط حفظ التحديثات.');
+				this.cdr.markForCheck();
+			},
+			error: err => {
+				this.bioAiBusy.set(false);
+				this.bioAiNote.set(err?.status === 400 ? (err?.error?.message || 'أضف مهنتك أو اهتماماتك أو اكتب سطرًا مبدئيًا ثم أعد المحاولة.') : 'تعذّر اقتراح نبذة الآن. حاول لاحقًا.');
+				this.cdr.markForCheck();
+			},
+		});
 	}
 
-	showProfileGuideStep(index: number): void {
-		if (index < 0 || index >= this.guideSteps.length) return;
-		this.guideHighlight?.removeAttribute('data-guide-active');
-		this.guideIndex.set(index);
-		this.switchTab(this.guideSteps[index].tab);
-		afterNextRender(() => {
-			if (!this.guideOpen() || this.guideIndex() !== index) return;
-			const field = this.host.nativeElement.querySelector<HTMLElement>(this.guideStep().target);
-			this.guideHighlight = field?.closest<HTMLElement>('.rounded-3xl') ?? field ?? undefined;
-			this.guideHighlight?.setAttribute('data-guide-active', 'true');
-			this.guideHighlight?.scrollIntoView?.({ block: 'center' });
-			this.host.nativeElement.querySelector<HTMLElement>('#profile-guide-title')?.focus({ preventScroll: true });
-		}, { injector: this.guideInjector });
-	}
-
-	closeProfileGuide(): void {
-		if (!this.guideOpen()) return;
-		this.guideOpen.set(false);
-		this.guideHighlight?.removeAttribute('data-guide-active');
-		this.guideHighlight = undefined;
-		this.host.nativeElement.querySelector<HTMLButtonElement>('[data-testid="profile-guide-start"]')?.focus({ preventScroll: true });
-	}
+	/** «ابدأ جولة إرشادية»: the narrated guide of this page (shared tour engine, pre-rendered audio, purple with the AI mark) */
+	startProfileGuide(): void { this.tour.start(CLIENT_PROFILE_EDIT_TOUR); }
 	isChangingPassword = signal(false);
 
 	completionPercentage = signal<number>(0);
@@ -492,7 +479,6 @@ export class ProfileEdit {
 	}
 
 	switchTab(tab: Tab) {
-		if (this.guideOpen() && this.guideStep().tab !== tab) this.closeProfileGuide();
 		this.missing.set([]);
 		this.errorMsg.set('');
 		this.successMsg.set('');

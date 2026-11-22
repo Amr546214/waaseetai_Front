@@ -21,4 +21,8 @@ export class LegalNameService {
 			return this.http.put<{ success: boolean; message?: string; data: LegalNameSaveResult }>(`${environment.url_api}/legal-name`, { legalName }).pipe(finalize(() => this.saving$.next(false)));
 		});
 	}
+	/** The owner withdraws the name-change request that still waits for review (a typo): the current name stays and a new request can be sent. */
+	cancelRequest(): Observable<{ success: boolean; message?: string; data: LegalNameView }> {
+		return this.http.post<{ success: boolean; message?: string; data: LegalNameView }>(`${environment.url_api}/legal-name/request/cancel`, {});
+	}
 }
