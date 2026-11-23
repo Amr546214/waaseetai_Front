@@ -13,6 +13,7 @@ export interface IdentityGateState {
 	rejectionReason: string | null;
 	canAdvance: boolean;
 	automaticCheck?: 'MATCHED' | 'CHECKING' | 'NEEDS_REVIEW' | 'NOT_CHECKED';
+	automaticCheckMissing?: string[];
 	submittedAt: string | null;
 	missing: string[];
 	data: { idNumber?: string | null; idIssuingCountry?: string | null; idDocumentType?: string | null; dob?: string | null; hasFront: boolean; hasBack: boolean };

@@ -13,12 +13,13 @@ import { ExamEnvironment } from '../../core/services/exam-environment.service';
 			<p class="text-sm text-amber-300" role="alert" data-testid="exam-env-not-ready">وضع الاختبار المقيّد مطلوب لكنه غير مُهيّأ على الخادم بعد، فلا يمكن بدء الاختبار الآن. تواصل مع الدعم.</p>
 		} @else {
 			<ol class="list-decimal pr-5 space-y-2 text-sm leading-7">
+				<li>أكمل الهوية والملف واحفظ المستندات في المتصفح العادي أولًا. ستُسترجع البيانات المحفوظة بعد تسجيل الدخول بالحساب نفسه داخل البرنامج.</li>
 				<li>نزّل برنامج Safe Exam Browser المجاني من الموقع الرسمي: <a [href]="env().downloadUrl" target="_blank" rel="noopener noreferrer" class="underline text-[#2BD4C7]">safeexambrowser.org</a> وثبّته.</li>
 				<li>افتح ملف إعدادات الاختبار من هنا (سيفتح البرنامج تلقائيًا):
 					@if (env().configUrl; as u) { <a [href]="u" class="underline text-[#2BD4C7]" data-testid="exam-env-open">فتح الاختبار في Safe Exam Browser</a> }
 					@if (env().configDownloadUrl; as d) { <span class="text-slate-400"> — أو <a [href]="d" class="underline">نزّل الملف</a> وافتحه بالبرنامج.</span> }
 				</li>
-				<li>سجّل الدخول داخل البرنامج، ثم ابدأ الاختبار من صفحة التخصصات.</li>
+				<li>سجّل الدخول داخل البرنامج بالحساب نفسه؛ يفتح اختبار الإعداد إن كان متبقيًا، أو صفحة اختبارات التخصصات. لا ترفع المستندات المحفوظة مرة أخرى.</li>
 			</ol>
 			<ul class="text-sm text-slate-300 space-y-1" data-testid="exam-env-systems">
 				@for (sys of env().supportedSystems; track sys.system) {

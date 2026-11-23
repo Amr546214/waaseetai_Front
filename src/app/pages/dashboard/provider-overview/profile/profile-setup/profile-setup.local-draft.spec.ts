@@ -10,6 +10,7 @@ import { ProfileApiService } from '../../../../../core/services/profile-api.serv
 import { SpecialtyService } from '../../../../../core/services/specialty.service';
 import { SetupTestService } from '../../../../../core/services/setup-test.service';
 import { AuthStore } from '../../../../../core/store/auth.store';
+import { SebBrowserProofService } from '../../../../../core/services/seb-browser-proof.service';
 
 // Setup wizard: the photo is persisted (and never reported as there when the upload failed), skills come from the chosen field's catalog, the date of birth round-trips.
 const STORED = 'https://res.cloudinary.com/demo/image/upload/v1/waseetai/users/u1/avatar/me.jpg';
@@ -24,12 +25,13 @@ describe('provider setup wizard: local draft (refresh keeps the step and the ans
   let component: ProfileSetupDashboard;
   let http: HttpTestingController;
   let save: ReturnType<typeof vi.fn>;
-  const setup = async (stored: any) => {
+  const setup = async (stored: any, nativeSeb = false) => {
     save = vi.fn(() => of({ success: true }));
     await TestBed.configureTestingModule({
       imports: [ProfileSetupDashboard],
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
         { provide: AuthStore, useValue: { currentUser: () => ({ id: 'u1', accountType: 'PROVIDER_INDIVIDUAL' }), updateUser: () => {} } },
+        { provide: SebBrowserProofService, useValue: { isSebBrowser: () => nativeSeb } },
         { provide: ProfileApiService, useValue: { getProviderProfileSetup: () => of({ data: stored }), saveProviderProfileSetup: save } },
         { provide: SpecialtyService, useValue: { getCategories: () => of({ success: true, data: CATEGORIES }), getPublicSpecialties: () => of({ success: true, data: [] }) } },
         { provide: SetupTestService, useValue: { needsExamEnvironment: signal(false), warningMsg: signal(null), errorMsg: signal(null), bannedMsg: signal(null), result: signal(null), totalQuestions: signal(0), currentQuestion: signal(null), isGenerating: signal(false), statusMsg: signal(''), disconnect: vi.fn() } },
@@ -83,5 +85,69 @@ describe('provider setup wizard: local draft (refresh keeps the step and the ans
     expect(component.documentError('idNumber')).toBe('أدخل رقم الوثيقة');
     component.kycPending.set(true); fixture.detectChanges(); TestBed.flushEffects?.();
     expect(c.hasError('required')).toBe(false);
+  });
+
+  const submitted = { isProfileSetupComplete: true, setupTestStatus: 'PENDING', kycStatus: 'PENDING', skills: [], frontIdUrlAccess: { private: true }, idNumber: '29001011234567', idDocumentType: 'NATIONAL_ID', idIssuingCountry: 'EG', dob: '1990-01-01', country: 'مصر' };
+  const matched = { status: 'UNDER_REVIEW', canAdvance: true, automaticCheck: 'MATCHED', missing: [], data: { hasFront: true, hasBack: false } };
+  function identity(answer: any) { http.match(r => r.url.endsWith('/provider/profile/setup/identity')).forEach(r => r.flush({ data: answer })); fixture.detectChanges(); }
+
+  it('a submitted server profile wins over an old SEB draft; current match resumes the test with the saved private document', async () => {
+    localStorage.setItem('waseet.provider-setup-draft.v1.u1', JSON.stringify({ v: 1, at: 1, step: 4, form: { docs: { idNumber: '' } }, skills: [], specs: [], portfolio: {}, avatarUrl: '' }));
+    await setup(submitted, true); identity(matched);
+    expect(component.currentStep()).toBe(7);
+    expect(component.setupForm.get('docs.idNumber')?.value).toBe(submitted.idNumber);
+    expect(component.storedFrontAccess()?.private).toBe(true);
+    expect(component.needsBrowserPreparation()).toBe(false);
+    expect(localStorage.getItem('waseet.provider-setup-draft.v1.u1')).toBeNull();
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it('SEB with incomplete comparison shows the stored-document state and browser preparation, with no upload controls', async () => {
+    await setup({ ...submitted, dob: null }, true);
+    const missing = { ...matched, canAdvance: false, automaticCheck: 'NOT_CHECKED', automaticCheckMissing: ['legalName', 'dob'] };
+    identity(missing); identity(missing);
+    expect(component.currentStep()).toBe(4);
+    expect(fixture.nativeElement.querySelector('[data-testid=seb-browser-preparation]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid=seb-saved-identity]')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('الاسم الحقيقي، تاريخ الميلاد');
+    expect(fixture.nativeElement.querySelector('input[type=file]')).toBeNull();
+    expect(component.gate.canAdvance()).toBe(false); expect(save).not.toHaveBeenCalled();
+  });
+
+  it('ordinary browser keeps saved identity, exposes missing inputs and does not request a replacement upload', async () => {
+    await setup({ ...submitted, dob: null });
+    const missing = { ...matched, canAdvance: false, automaticCheck: 'NOT_CHECKED', automaticCheckMissing: ['legalName', 'dob'] };
+    identity(missing); identity(missing);
+    expect(fixture.nativeElement.querySelector('[data-testid=seb-browser-preparation]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#identity-birth-date')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('input[aria-label="رفع صورة الهوية، وجه"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid=saved-identity-kept]')).not.toBeNull();
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it('the ordinary browser start button shows the SEB handoff without starting a test or timer', async () => {
+    await setup(submitted); identity(matched);
+    const env = { mode: 'required' as const, restricted: true, ready: true, verified: false, supportedSystems: [], limits: '', downloadUrl: 'https://safeexambrowser.org', configUrl: 'sebs://dev.waseetai.com/api/exam-environment/seb-config' };
+    component.examEnv.env.set(env);
+    vi.spyOn(component.examEnv, 'load').mockImplementation(done => done?.(env));
+    component.startTest(); identity(matched);
+    expect(component.isTestStarted()).toBe(false);
+    expect(component.setupTestService.needsExamEnvironment()).toBe(true);
+    expect(fixture.nativeElement.querySelector('[data-testid=exam-env-open]')).not.toBeNull();
+  });
+
+  it('saving a missing birth date preserves the stored document and issuer without uploading a file', async () => {
+    await setup({ ...submitted, dob: null });
+    const missing = { ...matched, canAdvance: false, automaticCheck: 'NOT_CHECKED', automaticCheckMissing: ['dob'] };
+    identity(missing); identity(missing);
+    component.setupForm.get('profData.country')?.setValue('السعودية'); // residence is not document issuer
+    component.setupForm.get('profData.dob')?.setValue('1990-01-01');
+    component.sendIdentity();
+    const req = http.expectOne(r => r.method === 'PUT' && r.url.endsWith('/setup/identity'));
+    expect(req.request.body).toEqual({ idIssuingCountry: 'EG', idDocumentType: 'NATIONAL_ID', idNumber: submitted.idNumber, dob: '1990-01-01' });
+    req.flush({data:matched});
+    expect(component.storedFrontAccess()?.private).toBe(true);
+    expect(component.gate.canAdvance()).toBe(true);
+    http.expectNone(r=>r.url.includes('upload'));
   });
 });

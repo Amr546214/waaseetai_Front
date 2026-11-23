@@ -2,6 +2,7 @@ import { Routes } from "@angular/router";
 import { quizLockGuard } from "../../../core/guards/quiz-lock.guard";
 import { companyAccountGuard } from "../../../core/guards/company-account.guard";
 import { providerSetupGuard } from './profile/profile-setup/profile-setup.guard';
+import { sebEntryGuard } from '../../../core/guards/seb-entry.guard';
 
 /** Absolute redirect target that keeps the incoming query string (a deep link such as ?tab=… must survive the landing redirect). */
 const bareTo = (target: string) => ({ queryParams }: { queryParams: Record<string, string | string[]> }): string => {
@@ -210,6 +211,7 @@ export const PROVIDER_OVERVIEW_ROUTES: Routes = [
 	},
 	{
 		path: 'profile/specialties',
+		canActivate: [sebEntryGuard],
 		loadComponent: () => import('./profile/specialties/specialties').then(m => m.Specialties),
 		canDeactivate: [quizLockGuard],
 		data: { title: "إدارة التخصصات" }

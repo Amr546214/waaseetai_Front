@@ -48,6 +48,10 @@ export class SebBrowserProofService {
     const security = (this.doc.defaultView as SebWindow | null)?.SafeExamBrowser?.security;
     return !!security && (typeof security.updateKeys === 'function' || isHash(security.browserExamKey));
   }
+  /** UX only: never used as proof or to authorize an exam API. */
+  isSebBrowser(): boolean {
+    return this.hasNativeApi() || /SafeExamBrowser|\bSEB[\/\s]/i.test(this.doc.defaultView?.navigator.userAgent ?? '');
+  }
   takeInitialChallenge() {
     const initial = this.initial; this.initial = Promise.resolve(null); return initial;
   }
