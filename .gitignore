@@ -51,3 +51,6 @@ Thumbs.db
 .agents/
 UI_UX_AUDIT_FULL_REPORT.md
 UI_UX_VERIFICATION_REPORT.md
+
+*storybook.log
+storybook-static

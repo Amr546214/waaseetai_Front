@@ -10,7 +10,9 @@
 		"build": "ng build",
 		"watch": "ng build --watch --configuration development",
 		"test": "ng test",
-		"serve:ssr:frontend": "node dist/frontend/server/server.mjs"
+		"serve:ssr:frontend": "node dist/frontend/server/server.mjs",
+		"storybook": "ng run frontend:storybook",
+		"build-storybook": "ng run frontend:build-storybook"
 	},
 	"prettier": {
 		"printWidth": 100,
@@ -62,6 +64,22 @@
 		"postcss": "^8.5.3",
 		"tailwindcss": "^4.1.12",
 		"typescript": "~5.9.2",
-		"vitest": "^4.0.8"
+		"vitest": "^4.0.8",
+		"storybook": "^10.6.8",
+		"@storybook/angular-vite": "^10.6.8",
+		"@chromatic-com/storybook": "latest",
+		"@storybook/addon-vitest": "^10.6.8",
+		"@storybook/addon-a11y": "^10.6.8",
+		"@storybook/addon-docs": "^10.6.8",
+		"@storybook/addon-onboarding": "^10.6.8",
+		"@angular-devkit/build-angular": "^21.1.0",
+		"@angular-devkit/architect": "^0.2101.0",
+		"@angular-devkit/core": "^21.1.0",
+		"@angular/animations": "^21.1.0",
+		"@analogjs/vite-plugin-angular": "^2.7.3",
+		"vite": "latest",
+		"@vitest/browser-playwright": "4.1.9",
+		"@vitest/coverage-v8": "4.1.9",
+		"playwright": "latest"
 	}
 }
