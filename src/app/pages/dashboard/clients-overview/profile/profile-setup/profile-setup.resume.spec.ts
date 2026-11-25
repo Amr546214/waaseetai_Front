@@ -127,7 +127,7 @@ describe('client setup wizard component: resume from saved data', () => {
 	// at 100% the page asks the server whether the identity passed: passed -> edit page; not yet -> the wizard stays open on the identity step (no loop)
 	function answerGate(canAdvance: boolean) {
 		const http = TestBed.inject(HttpTestingController);
-		http.expectOne(x => x.url.endsWith('/client/profile/setup')).flush({ data: { ...FULL, completionPercentage: 100, kycStatus: 'PENDING' } });
+		http.expectOne(x => x.url.endsWith('/client/profile/setup')).flush({ data: { ...FULL, completionPercentage: 100, kycStatus: canAdvance ? 'VERIFIED' : 'PENDING' } });
 		http.expectOne(x => x.url.endsWith('/client/profile/setup/identity')).flush({ data: { canAdvance } });
 	}
 	it('100% and the identity passed: redirects to the edit page with a message, no wizard', () => {
