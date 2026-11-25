@@ -73,7 +73,7 @@ describe('client sidebar: onboarding lock and status badge', () => {
 		return { all };
 	}
 	it('unfinished: «استكمال البيانات» stays and the other pages are disabled', () => {
-		const { all } = gated(35, false, 'PENDING');
+		const { all } = gated(35, false, 'UNVERIFIED');
 		expect(all().map(i => i.route)).toContain(SETUP);
 		const other = all().find(i => i.route === '/client-overview/profile/edit');
 		expect(other?.disabled).toBe(true);
