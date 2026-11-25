@@ -45,34 +45,30 @@ describe('client profile-setup: persisted front document and current identity ma
 		vi.spyOn(c.gate, 'load').mockImplementation(() => { const g = {status: 'NOT_SUBMITTED', canAdvance: false, data: {hasFront:false, hasBack:false}}; c.gate.apply(g); return of(g); });
 		c.gate.load().subscribe();
 		c.setupForm.get('identity.frontId').setValue(PNG);
-		c.nextStep(); fixture.detectChanges();
 		expect(saveStep).not.toHaveBeenCalled();
 		expect(c.currentStep()).toBe(2);
 		expect(c.identityDocsProvided()).toBe(false); // a local preview is not persisted evidence
 	});
 
-	it('front only for a document the server approved (passport): the wizard moves on', () => {
+	it('front only for a document the server approved (passport): the send is open', () => {
 		c.setupForm.get('identity.frontId').setValue(PNG);
-		c.nextStep(); fixture.detectChanges();
-		expect(c.currentStep()).toBe(3);
+		expect(c.canSubmit()).toBe(true); expect(c.currentStep()).toBe(2);
 	});
 
-	it('both sides + APPROVED by the server: the generic step save sends nothing (the gate saved it) and the wizard moves on', () => {
+	it('both sides + APPROVED by the server: the generic step save sends nothing (the gate saved it) and the send is open', () => {
 		c.setupForm.get('identity.frontId').setValue(PNG);
 		c.setupForm.get('identity.backId').setValue(PNG);
 		expect(c.identityDocsProvided()).toBe(true);
-		c.nextStep();
 		expect(saveStep).not.toHaveBeenCalled();
-		expect(c.currentStep()).toBe(3);
+		expect(c.canSubmit()).toBe(true); expect(c.currentStep()).toBe(2);
 	});
 
 	it('a stored side counts as existing proof on edit: stored front + new back is a complete pair', () => {
 		c.storedDocs.set({ frontId: { url: null, access: { private: true, legacy: false } }, backId: null, supportingDocs: null });
 		c.setupForm.get('identity.backId').setValue(PNG);
 		expect(c.identityDocsProvided()).toBe(true);
-		c.nextStep();
 		expect(saveStep).not.toHaveBeenCalled();
-		expect(c.currentStep()).toBe(3);
+		expect(c.canSubmit()).toBe(true); expect(c.currentStep()).toBe(2);
 	});
 
 	it('a document the server refuses (identity used by another account): the picture is removed at once and the reason sits under the box, not in the top banner', () => {

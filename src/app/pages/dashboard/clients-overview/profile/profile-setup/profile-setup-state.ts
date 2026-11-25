@@ -39,15 +39,11 @@ export function resolveClientSetup(data: ClientSetupData | null | undefined): Cl
 	// a rejected review is work for the user even at 100%: open the documents step so the reason is seen and the files can be sent again
 	if (d.kycStatus === 'REJECTED') return { kind: 'step', step: 2 };
 	if (Number(d.completionPercentage) >= 100) return { kind: 'redirect', reason: 'complete' };
-	const detailsMissing = !(filled(d.idNumber) && filled(d.dob) && filled(d.country) && filled(d.city) && filled(d.industry) && filled(d.address));
+	// the details step asks only for what the form requires (document number, birth date, country): city, occupation and address are optional and completed later from the profile
+	const detailsMissing = !(filled(d.idNumber) && filled(d.dob) && filled(d.country));
 	if (detailsMissing) return { kind: 'step', step: 1 };
-	if (!filled(d.paypalPayoutEmail)) return { kind: 'step', step: 3 };
-	if (!(d.accurateAgreed && d.termsAgreed && d.privacyAgreed)) {
-		// details + PayPal are saved (each step is stored when the user moves on): the user is standing at the optional documents (4), or, when
-		// something was already saved there, at the final review (5). Step 2 (ID documents) is optional and never decides where to open.
-		const step4Saved = filled(d.supportingDocsUrl) || !!d.supportingDocsUrlAccess?.private || filled(d.notes);
-		return { kind: 'step', step: step4Saved ? 5 : 4 };
-	}
+	// payment methods and extra documents are no longer part of the path: what is left is the identity page with the review and the send
+	if (!(d.accurateAgreed && d.termsAgreed && d.privacyAgreed)) return { kind: 'step', step: 2 };
 	return { kind: 'redirect', reason: 'nothing-to-collect' };
 }
 

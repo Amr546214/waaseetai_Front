@@ -179,7 +179,7 @@
 							</svg>
 							<h3 class="text-base font-bold text-slate-900 dark:text-white">رفع وثائق الهوية</h3>
 						</div>
-						<ws-identity-gate-status [state]="gate.state()" />
+						<ws-identity-gate-status [last]="true" [state]="gate.state()" />
                         <button type="button" data-testid="save-identity" (click)="sendIdentity()" [disabled]="identityBusy()" class="mb-4 rounded-xl bg-cyan-600 px-4 py-2 font-bold text-white disabled:opacity-50">{{ identityBusy() ? 'جارٍ فحص الملف وحفظ الهوية...' : 'حفظ الهوية والتحقق من المطابقة' }}</button>
 						@if (gateProblem(); as gp) {
 						<div role="alert" data-testid="identity-gate-problem" class="mb-5 rounded-xl border border-red-300 bg-red-50 p-3 text-[length:var(--font-size-small)] font-bold leading-relaxed text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">{{ gp }}</div>
@@ -389,205 +389,15 @@
 					</div>
 					}
 
-					<!-- Step 3: Payout (PayPal is the only destination) -->
-					@if (currentStep() === 3) {
-					<div class="animation-fade-in" formGroupName="bank">
-						<div class="flex items-center gap-3 mb-5">
-							<svg data-ws-icon="pl-client-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-								class="w-5 h-5 text-cyan-500 dark:text-[#38BDF8]">
-								<rect x="2" y="5" width="20" height="14" rx="2" />
-								<line x1="2" y1="10" x2="22" y2="10" />
-							</svg>
-							<h3 class="text-base font-bold text-slate-900 dark:text-white">بريد PayPal</h3>
-						</div>
-
-						<div class="flex flex-col gap-2 max-w-xl">
-							<label class="text-xs font-bold text-slate-700 dark:text-slate-400" for="setup-paypal">بريد PayPal
-								<span class="ws-req" aria-hidden="true">*</span></label>
-							<input type="email" id="setup-paypal" formControlName="paypalPayoutEmail" aria-required="true" placeholder="name@example.com"
-								dir="ltr" inputmode="email" autocomplete="email" spellcheck="false"
-								class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:outline-none">
-							<ws-field-error [control]="setupForm.get('bank.paypalPayoutEmail')" label="بريد PayPal"
-								[messages]="{ required: 'بريد PayPal مطلوب', email: 'أدخل بريد PayPal صالحًا مثل name@example.com', pattern: 'أدخل بريد PayPal صالحًا مثل name@example.com' }" />
-							<span class="text-[length:var(--font-size-small)] text-slate-500 dark:text-slate-400">يُستخدم PayPal فقط للمدفوعات على المنصة.</span>
-						</div>
-					</div>
-					}
-
-					<!-- Step 4: Documents -->
-					@if (currentStep() === 4) {
-					<div class="animation-fade-in" formGroupName="documents">
-						<div class="flex items-center gap-3 mb-5">
-							<svg data-ws-icon="ws-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-								class="w-5 h-5 text-cyan-500 dark:text-[#38BDF8]">
-								<polyline points="16 16 12 12 8 16" />
-								<line x1="12" y1="12" x2="12" y2="21" />
-								<path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-							</svg>
-							<h3 class="text-base font-bold text-slate-900 dark:text-white">رفع مستندات داعمة</h3>
-						</div>
-
-						<div
-							class="flex items-center gap-3 p-3 mb-5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-amber-700 dark:text-amber-500/80 text-xs">
-							<svg data-ws-icon="ws-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
-								<circle cx="12" cy="12" r="10" />
-								<line x1="12" y1="16" x2="12" y2="12" />
-								<line x1="12" y1="8" x2="12.01" y2="8" />
-							</svg>
-							هذه المرحلة اختيارية في الغالب. ترفع المستندات فقط عند طلبها للتحقق أو لأغراض قانونية
-						</div>
-
-						<div class="flex flex-col gap-4">
-							<div class="flex flex-col gap-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">المستندات
-									الداعمة</label>
-								<span class="text-[length:var(--font-size-caption)] text-slate-500">JPG أو PNG أو WEBP أو PDF، حتى 3 ميغابايت</span>
-								@if (fileErrors()['supportingDocs']; as fe) { <span role="alert" class="field-error text-[length:var(--font-size-small)] font-bold ">{{ fe }}</span> }
-								@if (storedDocs().supportingDocs; as stored) {
-									@if (!setupForm.get('documents.supportingDocs')?.value?.startsWith('data:')) {
-										<div class="flex items-center gap-2 text-[length:var(--font-size-small)] text-slate-600"><span>يوجد مستند مرفوع سابقًا</span><app-kyc-document-link document="client_supporting_docs" [url]="stored.url" [access]="stored.access" /></div>
-									}
-								}
-								<div
-									class="border border-dashed border-slate-300 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-[#38BDF8] bg-slate-50 dark:bg-[#131C31]/50 rounded-2xl p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center">
-									<input type="file" class="hidden" id="supportDocFile"
-										(change)="onFileSelected($event, 'documents', 'supportingDocs')">
-									<label for="supportDocFile" class="cursor-pointer flex flex-col items-center">
-										@if (isUploading()['supportingDocs']) {
-										<div class="relative flex justify-center items-center w-12 h-12 mb-4">
-											<div
-												class="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700">
-											</div>
-											<div
-												class="absolute inset-0 rounded-full border-4 border-cyan-500 dark:border-[#38BDF8] border-t-transparent animate-spin">
-											</div>
-										</div>
-										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">جاري تحويل
-											ومعالجة الملف...</div>
-										} @else if
-										(setupForm.get('documents.supportingDocs')?.value?.startsWith('data:image/')) {
-										<div
-											class="w-16 h-16 rounded-xl overflow-hidden mb-3 border-2 border-emerald-500 shadow-md">
-											<img [src]="setupForm.get('documents.supportingDocs')?.value"
-												class="w-full h-full object-cover">
-										</div>
-										<div
-											class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-2">
-											<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-												class="w-4 h-4">
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
-											تم تجهيز الملف بنجاح
-										</div>
-										} @else if
-										(setupForm.get('documents.supportingDocs')?.value?.startsWith('data:application/pdf'))
-										{
-										<div
-											class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 mb-3 border-2 border-red-500 shadow-md">
-											<svg data-ws-icon="pl-client-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-												class="w-6 h-6">
-												<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
-												</path>
-												<polyline points="14 2 14 8 20 8"></polyline>
-												<line x1="16" y1="13" x2="8" y2="13"></line>
-												<line x1="16" y1="17" x2="8" y2="17"></line>
-												<polyline points="10 9 9 9 8 9"></polyline>
-											</svg>
-										</div>
-										<div
-											class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-2">
-											<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-												class="w-4 h-4">
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
-											تم تجهيز الملف بنجاح
-										</div>
-										} @else {
-										<div
-											class="px-3 py-1 bg-white dark:bg-white text-slate-900 dark:text-black text-xs font-bold rounded mb-4 shadow-sm inline-block border border-slate-200 dark:border-none">
-											Choose Files</div>
-										<span class="text-xs text-slate-500 mb-4 block">No file chosen</span>
-										<svg data-ws-icon="ws-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-											class="w-8 h-8 text-slate-400 dark:text-slate-500 mb-3">
-											<polyline points="16 16 12 12 8 16" />
-											<line x1="12" y1="12" x2="12" y2="21" />
-											<path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-										</svg>
-										<div class="text-sm font-bold text-slate-900 dark:text-white mb-1">اسحب الملفات
-											هنا أو اضغط للاختيار</div>
-										<div class="text-[length:var(--font-size-caption)] text-slate-500">شهادة بنك، ترخيص مهني، وثائق أخرى PDF
-											PNG JPG</div>
-										}
-									</label>
-								</div>
-							</div>
-
-							<div class="flex flex-col gap-2">
-								<label class="text-xs font-bold text-slate-700 dark:text-slate-400">ملاحظة حول
-									المستندات</label>
-								<textarea formControlName="notes" rows="3" placeholder="وصف مختصر للمستندات المرفقة"
-									class="px-4 py-2.5 bg-slate-50 dark:bg-[#131C31] border border-slate-200 dark:border-slate-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500 dark:focus:ring-[#38BDF8] focus:border-cyan-500 dark:focus:border-[#38BDF8] outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none"></textarea>
-							</div>
-						</div>
-
-						<!-- The step is optional: continue without uploading (just moves on; nothing is uploaded or saved) -->
-						<div class="mt-5 flex justify-center">
-							<button type="button" data-testid="skip-documents" (click)="skipDocuments()"
-								class="text-xs font-bold text-cyan-600 dark:text-[#38BDF8] underline underline-offset-4 hover:opacity-80 transition-opacity">المتابعة بدون مستندات</button>
-						</div>
-					</div>
-					}
-
-					<!-- Step 5: Review -->
-					@if (currentStep() === 5) {
-					<div class="animation-fade-in" formGroupName="agreements">
+					<!-- Review and send (on the identity page) -->
+					@if (currentStep() === 2) {
+					<div class="animation-fade-in mt-8" formGroupName="agreements">
 						<div class="flex items-center gap-3 mb-5">
 							<svg data-ws-icon="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 								class="w-5 h-5 text-cyan-500 dark:text-[#38BDF8]">
 								<polyline points="20 6 9 17 4 12" />
 							</svg>
-							<h3 class="text-base font-bold text-slate-900 dark:text-white">مراجعة بيانات الاستكمال</h3>
-						</div>
-
-						<!-- Summary Box -->
-						<div class="mb-5">
-							<h4 class="text-xs font-bold text-slate-700 dark:text-slate-400 mb-3">ملخص المراحل</h4>
-							<div
-								class="bg-slate-50 dark:bg-[#131C31]/50 border border-slate-200 dark:border-slate-700/80 rounded-xl p-3 flex flex-col gap-3">
-								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-3">@if (stepIsIncomplete(1)) {<span data-testid="summary-step-1-incomplete"
-											class="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 text-[length:var(--font-size-caption)] rounded-full font-bold">ناقص</span>} @else {<span data-testid="summary-step-1-done"
-											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[length:var(--font-size-caption)] rounded-full font-bold">مكتمل</span>}<span
-											class="text-sm text-slate-900 dark:text-white font-medium">بيانات طالب
-											الخدمة</span></div>
-									@if (stepIsIncomplete(1)) {<button type="button" data-testid="summary-fix-1" (click)="goToStep(1)" class="text-xs font-bold text-red-600 dark:text-red-300 underline underline-offset-4">أكمل المرحلة 1</button>} @else {<span class="text-xs text-slate-500">المرحلة 1</span>}
-								</div>
-								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
-								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-3">@if (identityDocsProvided()) {<span data-testid="summary-step-2-done"
-											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[length:var(--font-size-caption)] rounded-full font-bold">تم الإرسال</span>} @else {<span data-testid="summary-step-2-optional"
-											class="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[length:var(--font-size-caption)] rounded-full font-bold">اختياري</span>}<span
-											class="text-sm text-slate-900 dark:text-white font-medium">الهوية
-											والتوثيق</span></div>
-									<span class="text-xs text-slate-500">المرحلة 2</span>
-								</div>
-								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
-								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-3">@if (stepIsIncomplete(3)) {<span data-testid="summary-step-3-incomplete"
-											class="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 text-[length:var(--font-size-caption)] rounded-full font-bold">ناقص</span>} @else {<span data-testid="summary-step-3-done"
-											class="px-2 py-0.5 bg-emerald-100 dark:bg-[#10B981]/20 text-emerald-700 dark:text-[#10B981] text-[length:var(--font-size-caption)] rounded-full font-bold">مكتمل</span>}<span
-											class="text-sm text-slate-900 dark:text-white font-medium">بريد PayPal</span></div>
-									@if (stepIsIncomplete(3)) {<button type="button" data-testid="summary-fix-3" (click)="goToStep(3)" class="text-xs font-bold text-red-600 dark:text-red-300 underline underline-offset-4">أكمل المرحلة 3</button>} @else {<span class="text-xs text-slate-500">المرحلة 3</span>}
-								</div>
-								<div class="w-full h-px bg-slate-200 dark:bg-slate-700/50"></div>
-								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-3"><span
-											class="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[length:var(--font-size-caption)] rounded-full font-bold">اختياري</span><span
-											class="text-sm text-slate-900 dark:text-white font-medium">المستندات عند
-											الحاجة</span></div>
-									<span class="text-xs text-slate-500">المرحلة 4</span>
-								</div>
-							</div>
+							<h3 class="text-base font-bold text-slate-900 dark:text-white">المراجعة والإرسال</h3>
 						</div>
 
 						<!-- Agreements Box -->
@@ -650,7 +460,7 @@
 						السابق
 					</button>
 
-					@if (currentStep() < 5) { <button type="button" (click)="nextStep()" [disabled]="isSavingStep() || (currentStep() === 2 && !gate.canAdvance())" data-testid="setup-next"
+					@if (currentStep() < 2) { <button type="button" (click)="nextStep()" [disabled]="isSavingStep()" data-testid="setup-next"
 						class="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold shadow-lg shadow-cyan-500/30 transition-colors">
 						التالي
 						<svg data-ws-icon="ws-chevron-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
@@ -658,7 +468,7 @@
 						</svg>
 						</button>
 						} @else {
-						<button type="submit" [disabled]="isSubmitting()"
+						<button type="submit" [disabled]="isSubmitting() || !canSubmit()" data-testid="setup-submit"
 							class="flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold shadow-lg shadow-cyan-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
 							{{ isSubmitting() ? 'جاري الإرسال...' : 'إرسال للمراجعة' }}
 							<svg data-ws-icon="ws-check" *ngIf="!isSubmitting()" viewBox="0 0 24 24" fill="none" stroke="currentColor"
