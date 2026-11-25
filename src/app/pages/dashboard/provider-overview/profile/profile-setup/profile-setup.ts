@@ -26,6 +26,7 @@ import { SetupTestService, SETUP_TEST_QUESTION_COUNT, SETUP_TEST_TIME_LIMIT_MINU
 import { SPECIALTY_TEST_PASS_SCORE, SpecialtyTestComponent, type SpecialtyTestPhase, type SpecialtyTestQuestion, type SpecialtyTestResult } from '../../../../../shared/specialty-test/specialty-test.component';
 import { GeoSuggestionService } from '../../../../../shared/data/geo-suggestion';
 import { COUNTRY_NAMES, citiesOf, cityPlaceholder, normalizeCountry } from '../../../../../shared/data/countries-cities';
+import { timezoneForCountry, timezoneOptions } from '../../../../../shared/data/country-timezones';
 import { linkCountryCity } from '../../../../../shared/data/country-city-form';
 import { paypalEmailError, paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { BioFieldDirective } from '../../../../../shared/directives/bio-field.directive';
@@ -134,6 +135,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
 	readonly countryNames = COUNTRY_NAMES;
+	readonly timezoneOptions = timezoneOptions();
 	private readonly geo = inject(GeoSuggestionService);
 	/** the country/city were filled from an approximate network location (a hint the user can change); cleared as soon as the user edits either field */
 	readonly geoSuggested = signal(false);
@@ -358,6 +360,12 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		this.setupForm.valueChanges.pipe(debounceTime(400), takeUntilDestroyed(this.destroyRef)).subscribe(() => this.saveDraft());
 		effect(() => { this.currentStep(); this.skillsList(); this.selectedSpecs(); this.portfolioItems(); this.avatarUrl(); untracked(() => this.saveDraft()); });
 		linkCountryCity(this.setupForm.get('profData'), this.destroyRef);
+		// the time zone follows the country the person picks (a prefilled / stored country never overrides a saved zone)
+		const countryCtl = this.setupForm.get('profData.country');
+		countryCtl?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => {
+			const zone = timezoneForCountry(v); const tz = this.setupForm.get('profData.timezone');
+			if (countryCtl.dirty && zone && tz && tz.value !== zone) { tz.setValue(zone); this.savePreferences(); }
+		});
 		effect(() => { if (this.currentStep() === 4) untracked(() => this.gate.load().subscribe({ error: () => { /* unknown: nothing opens */ } })); });
 		effect(() => {
 			this.assistantStore.setExamActive(this.currentStep() === 7);

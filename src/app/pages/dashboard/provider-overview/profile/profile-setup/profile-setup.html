@@ -263,13 +263,8 @@
           <div class="pref-section" style="margin-bottom:0">
             <div class="pref-section-lbl"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-globe"></use></svg>المنطقة الزمنية</div>
             <div style="font-size:var(--font-size-small);opacity:.7;margin-bottom:8px" data-testid="pref-tz-hint">تُعرض بها التواريخ والأوقات في صفحات مقدم الخدمة</div>
-            <select class="tz-select" formControlName="timezone" (change)="savePreferences()">
-              <option value="Asia/Riyadh">توقيت المملكة العربية السعودية (UTC+3)</option>
-              <option value="Asia/Dubai">توقيت الإمارات (UTC+4)</option>
-              <option value="Asia/Kuwait">توقيت الكويت (UTC+3)</option>
-              <option value="Africa/Cairo">توقيت القاهرة (UTC+2)</option>
-              <option value="Asia/Amman">توقيت عمّان (UTC+3)</option>
-              <option value="GMT">توقيت غرينتش (UTC+0)</option>
+            <select class="tz-select" formControlName="timezone" (change)="savePreferences()" data-testid="pref-tz">
+              @for (tz of timezoneOptions; track tz.value) { <option [value]="tz.value">{{ tz.label }}</option> }
             </select>
           </div>
         </div>

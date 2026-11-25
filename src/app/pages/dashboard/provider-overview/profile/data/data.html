@@ -306,10 +306,8 @@
       </div>
       <div class="pref-item">
         <div class="pref-label">المنطقة الزمنية</div>
-        <select class="pref-val inp-field" formControlName="timezone" aria-label="المنطقة الزمنية">
-          <option value="Asia/Riyadh">توقيت الرياض (GMT+3)</option>
-          <option value="UTC">UTC</option>
-          <option value="GMT+1">GMT+1</option>
+        <select class="pref-val inp-field" formControlName="timezone" aria-label="المنطقة الزمنية" data-testid="pref-tz">
+          @for (tz of timezoneOptions; track tz.value) { <option [value]="tz.value">{{ tz.label }}</option> }
         </select>
       </div>
     </div>
