@@ -36,8 +36,8 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
   /** A specialty test is on: the layout shows the routed page alone (see assistant-exam-state). */
   readonly examMode = inject(AssistantExamState).examActive;
   private readonly onboarding = inject(ClientOnboardingStateService);
-  /** a test, or an individual client whose identity is under review: the routed page alone, no topbar / sidebar */
-  readonly focusMode = computed(() => this.examMode() || this.onboarding.reviewing());
+  /** an individual client whose identity review is pending: the dashboard pages are closed (no sidebar); the topbar and the site stay available */
+  readonly reviewMode = computed(() => this.onboarding.reviewing());
 
   // App Info
   currentYear = new Date().getFullYear();
