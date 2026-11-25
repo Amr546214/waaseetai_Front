@@ -52,3 +52,40 @@ describe('client sidebar: استكمال البيانات follows the completion
 		expect(setup('CLIENT_COMPANY', 100).routes()).toContain(SETUP);
 	});
 });
+
+// the sidebar follows the onboarding gate: locked items + the status badge in the place of «استكمال البيانات»
+import { ClientOnboardingStateService } from '../../../core/services/client-onboarding-state.service';
+describe('client sidebar: onboarding lock and status badge', () => {
+	afterEach(() => TestBed.resetTestingModule());
+	function gated(percent: number, canAdvance: boolean, kycStatus: string) {
+		const user = signal<any>({ accountType: 'CLIENT_INDIVIDUAL', profileCompletionPercent: percent });
+		TestBed.configureTestingModule({
+			imports: [Sidebar],
+			providers: [
+				provideRouter([]),
+				{ provide: HttpClient, useValue: { get: (u: string) => of({ success: true, data: u.endsWith('/identity') ? { canAdvance } : { completionPercentage: percent, kycStatus, summary: {} } }) } },
+				{ provide: AuthStore, useValue: { currentUser: user, token: signal('t') } },
+			],
+		});
+		const c = TestBed.createComponent(Sidebar).componentInstance;
+		TestBed.inject(ClientOnboardingStateService).load(true).subscribe();
+		const all = () => (c.navItems() as NavItem[]).flatMap(i => [i, ...(i.children ?? [])]);
+		return { all };
+	}
+	it('unfinished: «استكمال البيانات» stays and the other pages are disabled', () => {
+		const { all } = gated(35, false, 'PENDING');
+		expect(all().map(i => i.route)).toContain(SETUP);
+		const other = all().find(i => i.route === '/client-overview/profile/edit');
+		expect(other?.disabled).toBe(true);
+	});
+	it('finished, waiting for the administration: the badge replaces «استكمال البيانات»', () => {
+		const { all } = gated(100, true, 'PENDING');
+		expect(all().map(i => i.route)).not.toContain(SETUP);
+		expect(all().some(i => i.label === 'بانتظار اعتماد الإدارة')).toBe(true);
+		expect(all().find(i => i.route === '/client-overview/profile/edit')?.disabled).toBeFalsy();
+	});
+	it('approved: «الهوية معتمدة»', () => {
+		const { all } = gated(100, true, 'VERIFIED');
+		expect(all().some(i => i.label === 'الهوية معتمدة')).toBe(true);
+	});
+});

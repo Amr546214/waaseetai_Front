@@ -6,6 +6,7 @@ import { AUTH_ROUTES } from './pages/auth/auth.routes';
 import { authGuard, clientGuard, providerGuard, marketerGuard, superAdminGuard } from './core/guards/auth.guards';
 import { providerProfileCompleteGuard } from './core/guards/profile-complete.guard';
 import { clientIdentityRejectedGuard } from './core/guards/client-identity-rejected.guard';
+import { clientOnboardingGuard } from './core/guards/client-onboarding.guard';
 import { serverActiveRoleGuard } from './core/guards/server-active-role.guard';
 import { WEBSITE_ROUTES } from './pages/website/website.routes';
 import { CLIENT_OVERVIEW_ROUTES } from './pages/dashboard/clients-overview/client.routes';
@@ -33,7 +34,8 @@ export const routes: Routes = [
 		data: { beboToolbarInSidebar: true },
 		canActivate: [authGuard, clientGuard, serverActiveRoleGuard],
 		// a client whose identity was REJECTED stays on the identity step (reopening the site / a new login lands there too)
-		canActivateChild: [clientIdentityRejectedGuard],
+		// an individual client enters the dashboard only after the registration path is finished and the identity matched / was approved
+		canActivateChild: [clientIdentityRejectedGuard, clientOnboardingGuard],
 		// K-5: re-check the acting role on every in-app navigation under the area (a tab whose role changed must not keep opening this area's pages)
 		runGuardsAndResolvers: 'always',
 		loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayoutComponent),

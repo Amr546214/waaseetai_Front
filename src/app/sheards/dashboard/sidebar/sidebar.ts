@@ -1,8 +1,9 @@
 import { AdminSidebarCounts } from '../../../core/services/admin-sidebar-counts.service';
+import { ClientOnboardingStateService } from '../../../core/services/client-onboarding-state.service';
 import { OperationsPanelService } from '../../../core/services/operations-panel.service';
 import { roleHome } from '../../../core/routing/role-routes';
 import { BrandNamePipe } from '../../../shared/brand/brand-name.pipe';
-import { Component, Input, Output, EventEmitter, inject, signal, computed, ChangeDetectorRef, effect, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, signal, computed, ChangeDetectorRef, effect, OnInit, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthStore } from '../../../core/store/auth.store';
@@ -47,6 +48,7 @@ export interface NavItem {
 })
 export class Sidebar implements OnInit {
 	readonly adminCounts = inject(AdminSidebarCounts);
+	readonly clientOnboarding = inject(ClientOnboardingStateService);
 	private authStore = inject(AuthStore);
 	private ops = inject(OperationsPanelService);
 	private router = inject(Router);
@@ -75,6 +77,8 @@ export class Sidebar implements OnInit {
 	});
 
 	constructor() {
+		// the individual client's onboarding state (menu badge + lock) is read from the server once the account is known
+		effect(() => { if (this.clientOnboarding.applies()) untracked(() => this.clientOnboarding.load().subscribe()); });
 		effect(() => {
 			this.chatStateService.totalUnreadCount();
 			this.cdRef.markForCheck();
@@ -798,7 +802,13 @@ export class Sidebar implements OnInit {
 		const isCompanyClient = this.authStore.currentUser()?.accountType === AccountType.CLIENT_COMPANY;
 		// 100% = nothing left for the "استكمال البيانات" wizard: its link disappears (individual clients; companies are untouched).
 		const clientProfileComplete = !isCompanyClient && Number(this.authStore.currentUser()?.profileCompletionPercent) >= 100;
-				return [
+		// once the registration path is finished the link is not «استكمال البيانات» any more: it says where the identity stands (waiting for the administration / approved)
+		const onboardingBadge = isCompanyClient ? null : this.clientOnboarding.badge();
+		const wizardFinished = !isCompanyClient && this.clientOnboarding.wizardDone() === true;
+		const setupLink: NavItem[] = wizardFinished
+			? (onboardingBadge ? [{ type: 'link', label: onboardingBadge === 'APPROVED' ? 'الهوية معتمدة' : 'بانتظار اعتماد الإدارة', route: '/client-overview/profile', ws: 'pl-nav-client-profile-setup', icon: 'M5 13l4 4L19 7' } as NavItem] : [])
+			: (clientProfileComplete ? [] : [{ type: 'link', label: 'استكمال البيانات', route: '/client-overview/profile-setup', ws: 'pl-nav-client-profile-setup', icon: 'M5 13l4 4L19 7' } as NavItem]);
+		const items: NavItem[] = [
 			{ type: 'header', label: 'الرئيسية' },
 			{
 				type: 'link',
@@ -881,7 +891,7 @@ export class Sidebar implements OnInit {
 				children: [
 					{ type: 'link', label: 'بيانات الملف', route: '/client-overview/profile', ws: 'pl-nav-client-profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
 					{ type: 'link', label: 'تعديل الملف الشخصي', route: '/client-overview/profile/edit', ws: 'pl-nav-client-profile-edit', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
-					...(clientProfileComplete ? [] : [{ type: 'link', label: 'استكمال البيانات', route: '/client-overview/profile-setup', ws: 'pl-nav-client-profile-setup', icon: 'M5 13l4 4L19 7' } as NavItem]),
+					...setupLink,
 					{ type: 'link', label: 'طلبات تعديل الملف', route: '/client-overview/profile/requests', ws: 'pl-nav-client-profile-requests', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
 					{ type: 'link', label: 'سجل النشاط والأمان', route: '/client-overview/profile/logs', ws: 'pl-nav-client-profile-logs', icon: 'M4 6h16M4 10h16M4 14h16M4 18h16' },
 					{ type: 'link', label: 'إضافة حساب', route: '/client-overview/profile/add-account', ws: 'pl-nav-client-profile-add-account', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' },
@@ -923,6 +933,22 @@ export class Sidebar implements OnInit {
 				action: 'logout'
 			}
 		];
+		return this.clientOnboarding.applies() && this.clientOnboarding.closed() ? this.lockClientItemsUntilIdentityPasses(items) : items;
+	}
+
+	/** An individual client whose registration path / identity match is not finished yet: only the path itself and the help pages stay open (the route guard says the same). */
+	private lockClientItemsUntilIdentityPasses(items: NavItem[]): NavItem[] {
+		const reason = 'تفتح بعد اكتمال «استكمال البيانات» ومطابقة الهوية';
+		const open = (route?: string) => !!route && (route.startsWith('/client-overview/profile-setup') || route.startsWith('/client-overview/help') || route.startsWith('/client-overview/bebo'));
+		const off = (i: NavItem): NavItem => ({ ...i, disabled: true, disabledReason: reason });
+		return items.map(item => {
+			if (item.type === 'header' || item.type === 'button') return item;
+			if (item.children) {
+				const children = item.children.map(c => open(c.route) ? c : off(c));
+				return children.some(c => !c.disabled) ? { ...item, children } : { ...off(item), children };
+			}
+			return open(item.route) ? item : off(item);
+		});
 	}
 
 	toggleAccordion(id: string) {

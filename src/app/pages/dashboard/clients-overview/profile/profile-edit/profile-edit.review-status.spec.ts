@@ -44,27 +44,29 @@ describe('client profile-edit: review status', () => {
 		await mount({ basicInfo: NONE, identity: entry('PENDING_REVIEW', { category: 'CLIENT_IDENTITY' }), password: NONE, documents: NONE });
 		tab('identity');
 		expect(q('[data-testid=identity-pending]')!.textContent).toContain('طلب التعديل قيد المراجعة');
-		expect((q('[data-testid=identity-submit]') as HTMLButtonElement).disabled).toBe(true);
+		expect(q('[data-testid=identity-submit]')).toBeNull(); // the identity data is display only
 		expect(q('[data-testid=identity-rejected]')).toBeNull();
 	});
 
-	it('sending a new ID number creates the waiting state at once, and a second send makes no second request', async () => {
+	it('the identity tab is DISPLAY ONLY: values are shown, there is no input, no expiry-date field and no send button', async () => {
 		await mount({ basicInfo: NONE, identity: NONE, password: NONE, documents: NONE });
 		tab('identity');
-		c.identityForm.patchValue({ idNumber: '1987654321' });
-		c.saveTab('identity'); fixture.detectChanges();
-		expect(updateTab).toHaveBeenCalledTimes(1);
-		expect(q('[data-testid=identity-pending]')).toBeTruthy();
-		c.saveTab('identity');
-		expect(updateTab).toHaveBeenCalledTimes(1);
+		expect(q('[data-testid=identity-readonly]')).toBeTruthy();
+		expect(q('[data-testid=identity-ro-number]')!.textContent).toContain('1234567890');
+		expect(q('[data-testid=identity-submit]')).toBeNull();
+		expect(q('[data-testid=id-expiry]')).toBeNull();
+		expect(q('[data-testid=identity-form]')).toBeNull();
+		expect(el().querySelectorAll('[data-testid=identity-readonly] input, [data-testid=identity-readonly] select').length).toBe(0);
+		expect(q('[data-testid=legal-name-edit]')).toBeNull(); // the legal name is not editable from here either
+		expect(updateTab).not.toHaveBeenCalled();
 	});
 
-	it('REJECTED identity shows the admin reason and the form stays open for a new request', async () => {
+	it('REJECTED identity shows the admin reason (new documents are sent from the registration path, not from here)', async () => {
 		await mount({ basicInfo: NONE, identity: entry('REJECTED', { rejectionReason: 'الرقم غير مطابق للمستند' }), password: NONE, documents: NONE });
 		tab('identity');
 		expect(q('[data-testid=identity-rejected]')!.textContent).toContain('الرقم غير مطابق للمستند');
 		expect(q('[data-testid=identity-pending]')).toBeNull();
-		expect((q('[data-testid=identity-submit]') as HTMLButtonElement).disabled).toBe(false);
+		expect(q('[data-testid=identity-submit]')).toBeNull();
 	});
 
 	it('APPROVED identity shows no waiting state and no rejection', async () => {
@@ -72,7 +74,7 @@ describe('client profile-edit: review status', () => {
 		tab('identity');
 		expect(q('[data-testid=identity-pending]')).toBeNull();
 		expect(q('[data-testid=identity-rejected]')).toBeNull();
-		expect((q('[data-testid=identity-submit]') as HTMLButtonElement).disabled).toBe(false);
+		expect(q('[data-testid=identity-submit]')).toBeNull();
 	});
 
 	it('name: a waiting request from the profile read shows the banner and disables the button; a rejected one shows the reason', async () => {
