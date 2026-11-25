@@ -84,4 +84,23 @@ describe('provider setup wizard: local draft (refresh keeps the step and the ans
     component.kycPending.set(true); fixture.detectChanges(); TestBed.flushEffects?.();
     expect(c.hasError('required')).toBe(false);
   });
+
+  const submitted = { isProfileSetupComplete: true, setupTestStatus: 'PENDING', kycStatus: 'PENDING', skills: [], frontIdUrlAccess: { private: true }, idNumber: '29001011234567', idDocumentType: 'NATIONAL_ID', idIssuingCountry: 'EG', dob: '1990-01-01', country: 'مصر' };
+  const matched = { status: 'UNDER_REVIEW', canAdvance: true, automaticCheck: 'MATCHED', missing: [], data: { hasFront: true, hasBack: false } };
+  function identity(answer: any) { http.match(r => r.url.endsWith('/provider/profile/setup/identity')).forEach(r => r.flush({ data: answer })); fixture.detectChanges(); }
+
+  it('saving a missing birth date preserves the stored document and issuer without uploading a file', async () => {
+    await setup({ ...submitted, dob: null });
+    const missing = { ...matched, canAdvance: false, automaticCheck: 'NOT_CHECKED', automaticCheckMissing: ['dob'] };
+    identity(missing); identity(missing);
+    component.setupForm.get('profData.country')?.setValue('السعودية'); // residence is not document issuer
+    component.setupForm.get('profData.dob')?.setValue('1990-01-01');
+    component.sendIdentity();
+    const req = http.expectOne(r => r.method === 'PUT' && r.url.endsWith('/setup/identity'));
+    expect(req.request.body).toEqual({ idIssuingCountry: 'EG', idDocumentType: 'NATIONAL_ID', idNumber: submitted.idNumber, dob: '1990-01-01' });
+    req.flush({data:matched});
+    expect(component.storedFrontAccess()?.private).toBe(true);
+    expect(component.gate.canAdvance()).toBe(true);
+    http.expectNone(r=>r.url.includes('upload'));
+  });
 });

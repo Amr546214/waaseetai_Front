@@ -10,6 +10,8 @@ import { IdentityGateState } from '../../core/services/identity-gate.service';
 			@case ('UNDER_REVIEW') {
 				@if (state()?.automaticCheck === 'MATCHED' && state()?.canAdvance) {
 					<div role="status" data-testid="identity-gate-matched" class="ws-igs ws-igs--ok"><strong>تطابقت بيانات الهوية</strong><span>يمكنك إكمال الإعداد الآن دون انتظار الإدارة. مطابقة البيانات لا تغيّر حالة توثيق الحساب.</span></div>
+				} @else if (state()?.automaticCheckMissing?.length) {
+					<div role="status" data-testid="identity-gate-missing-inputs" class="ws-igs ws-igs--wait"><strong>أكمل بيانات المطابقة</strong><span>الناقص: {{ comparisonMissingLabels() }}.@if (state()?.data?.hasFront) { صورة الهوية محفوظة؛ لا تحتاج إلى رفعها مجددًا. } احفظ البيانات لبدء المطابقة.</span></div>
 				} @else if (state()?.automaticCheck === 'CHECKING' || state()?.automaticCheck === 'NOT_CHECKED') {
 					<div role="status" data-testid="identity-gate-checking" class="ws-igs ws-igs--wait"><strong>جارٍ مطابقة بيانات الهوية</strong><span>نطابق الاسم الحقيقي ورقم الهوية وتاريخ الميلاد مع الوثيقة. يفتح زر التالي تلقائيًا عند اكتمال التطابق. تأكد من حفظ الاسم الحقيقي واستكمال بياناتك.</span></div>
 				} @else {
@@ -55,7 +57,8 @@ import { IdentityGateState } from '../../core/services/identity-gate.service';
 export class IdentityGateStatusComponent {
 	readonly state = input<IdentityGateState | null>(null);
 
-	private static readonly LABELS: Record<string, string> = { idDocumentType: 'نوع الوثيقة', idIssuingCountry: 'دولة الإصدار', idNumber: 'رقم الوثيقة', frontId: 'الصورة الأمامية', backId: 'الصورة الخلفية' };
+	private static readonly LABELS: Record<string, string> = { legalName: 'الاسم الحقيقي', dob: 'تاريخ الميلاد', idDocumentType: 'نوع الوثيقة', idIssuingCountry: 'دولة الإصدار', idNumber: 'رقم الوثيقة', frontId: 'الصورة الأمامية', backId: 'الصورة الخلفية' };
+	comparisonMissingLabels(): string { return (this.state()?.automaticCheckMissing ?? []).map(k => IdentityGateStatusComponent.LABELS[k] ?? k).join('، '); }
 	missingLabels(): string {
 		return (this.state()?.missing ?? []).map(k => IdentityGateStatusComponent.LABELS[k] ?? k).join('، ');
 	}

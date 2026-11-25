@@ -122,6 +122,10 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private specialtyService = inject(SpecialtyService);
 	public setupTestService = inject(SetupTestService);
 	readonly examEnv = inject(ExamEnvironmentService);
+	readonly replacingFront = signal(false);
+	private serverSetupComplete = false;
+	private storedIdentityIssuer = '';
+	refreshIdentityState() { this.gate.load().subscribe({ error: () => this.gateProblem.set('تعذّر تحديث حالة المطابقة. حاول مرة أخرى.') }); }
 
 	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
 	readonly countryNames = COUNTRY_NAMES;
@@ -312,6 +316,9 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 	private restoreDraft() {
 		this.draftReady = true;
 		const id = this.draftUserId();
+		// A submitted form is durable across browsers. A stale local draft must not
+		// overwrite it or move a ready account back to uploads.
+		if (this.serverSetupComplete) { this.draftOn = false; if (id) clearDraft(id); return; }
 		const d = id ? readDraft(id) : null;
 		if (!d) return;
 		for (const [group, values] of Object.entries(d.form)) {
@@ -325,7 +332,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			this.currentStep.set(d.step);
 			if (d.step === 5) this.initPortfolioCards();
 			// a resumed wizard never stands past an identity that is not approved
-			if (d.step > 4) this.gate.load().subscribe({ next: g => { if (!(g.canAdvance || g.status === 'UNDER_REVIEW') && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
+			if (d.step > 4) this.checkResumedIdentity(d.step);
 		}
 	}
 
@@ -418,6 +425,8 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 			next: (res: any) => {
 				if (res && res.data) {
 					const d = res.data;
+					this.serverSetupComplete = d.isProfileSetupComplete === true;
+					this.storedIdentityIssuer = d.idIssuingCountry || '';
 					this.storedPaypalEmail = String(d.paypalPayoutEmail || '').trim();
 					this.storedSetupTestScore.set(typeof d.setupTestScore === 'number' ? d.setupTestScore : null);
 					this.storedSetupTestStatus.set(typeof d.setupTestStatus === 'string' ? d.setupTestStatus : null);
@@ -494,7 +503,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 					this.currentStep.set(start.step);
 					if (start.step === 5) this.initPortfolioCards();
 					// a resumed wizard never stands past an identity that is not approved (the server would refuse those steps anyway)
-					if (start.step > 4) this.gate.load().subscribe({ next: g => { if (!(g.canAdvance || g.status === 'UNDER_REVIEW') && this.currentStep() > 4) this.currentStep.set(4); }, error: () => this.currentStep.set(4) });
+					if (start.step > 4) this.checkResumedIdentity(start.step);
 				}
 				this.restoreDraft();
 			},
@@ -702,6 +711,13 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 		if (changed) this.portfolioItems.set(current);
 	}
 
+	private checkResumedIdentity(step: number) {
+		this.gate.load().subscribe({ next: g => {
+			const allowed = g.canAdvance || (step < 7 && g.status === 'UNDER_REVIEW');
+			if (!allowed && this.currentStep() > 4) this.currentStep.set(4);
+		}, error: () => { this.currentStep.set(4); this.gateProblem.set('تعذّر قراءة حالة الهوية المحفوظة. أعد المحاولة؛ لا ترفع صورة جديدة.'); } });
+	}
+
 	goToStep(step: number) {
 		if (step < 1 || step > 7) return;
 
@@ -754,7 +770,7 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	sendIdentity(done?: () => void) {
 		const d = this.setupForm.getRawValue();
-		const issuer = identityCountryCode(d.profData.country);
+		const issuer = this.storedIdentityIssuer || identityCountryCode(d.profData.country);
 		const problem = documentInputProblem(d.docs.idNumber, issuer, d.docs.idDocumentType || null);
 		this.setupForm.get('docs.idNumber')?.markAsTouched();
 		this.setupForm.get('docs.idDocumentType')?.markAsTouched();
@@ -1714,6 +1730,13 @@ export class ProfileSetupDashboard implements OnInit, OnDestroy {
 
 	startTest() {
 		if (this.pendingPaypalEmail()) return;
+		this.gate.load().subscribe({ next: g => {
+			if (!g.canAdvance) { this.currentStep.set(4); this.gateProblem.set('أكمل بيانات الهوية وانتظر المطابقة أو المراجعة قبل بدء الاختبار. المستند المحفوظ لا يحتاج إلى إعادة رفع.'); return; }
+			this.beginVerifiedTest();
+		}, error: () => this.gateProblem.set('تعذّر قراءة حالة الهوية. أعد المحاولة دون رفع مستند جديد.') });
+	}
+
+	private beginVerifiedTest() {
 		this.isTestStarted.set(true);
 		this.setupTestService.startTest();
 
