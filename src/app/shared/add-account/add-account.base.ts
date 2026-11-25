@@ -24,9 +24,9 @@ const FLOWS: Record<string, FlowStep[]> = {
     { id: 'panel-1', label: 'اختيار النوع' },
     { id: 'panel-review', label: 'إرسال' }
   ],
+  // the marketing channel, avatar and bio are collected by the marketer setup page itself (same as a registration)
   'affiliate': [
     { id: 'panel-1', label: 'اختيار النوع' },
-    { id: 'panel-channel', label: 'قناة التسويق' },
     { id: 'panel-review', label: 'إرسال' }
   ],
   'seeker-co': [
@@ -404,8 +404,8 @@ export abstract class AddAccountBase implements OnInit {
         }
         this.notify.success(`تم إضافة حساب ${this.getRoleLabel(targetRole)}. أكمل بياناتك لتفعيله.`, { title: 'تمت إضافة الحساب' });
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        // a provider or client account starts exactly like a new registration: straight into its own panel, which stays closed until the setup is finished and approved
-        if (targetRole === UserRole.PROVIDER || targetRole === UserRole.CLIENT) this.switchToRole(targetRole);
+        // every added account starts exactly like a new registration: straight into its own panel, which stays closed until the setup is finished and approved
+        this.switchToRole(targetRole);
       },
       error: (err) => {
         this.isSubmitting.set(false);
