@@ -1,3 +1,4 @@
+import { ClientOnboardingStateService } from '../../../../../core/services/client-onboarding-state.service';
 import { Component, ChangeDetectionStrategy, signal, computed, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +21,7 @@ import { handleClientError, reportClientProblems } from '../../client-form-repor
 })
 export class NewTicketComponent {
 	private router = inject(Router);
+	readonly onboarding = inject(ClientOnboardingStateService);
 	private authStore = inject(AuthStore);
 	private ticketApi = inject(TicketApiService);
 	private notify = inject(UiNotificationService);

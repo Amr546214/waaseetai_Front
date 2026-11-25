@@ -1,8 +1,15 @@
 <section class="nt-page" dir="rtl">
+	@if (onboarding.reviewing()) {
+	<a routerLink="/client-overview/review-wait" data-testid="back-to-review" class="bk-link">
+		<svg data-ws-icon="pl-client-arrow-left" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
+		العودة
+	</a>
+	} @else {
 	<a routerLink="/client-overview/help/tickets" class="bk-link">
 		<svg data-ws-icon="pl-client-arrow-left" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 5 12 12 19"/></svg>
 		العودة لتذاكر الدعم
 	</a>
+	}
 
 	<div class="nt-head">
 		<h1 class="nt-ttl">{{ isCompanyMode() ? 'فتح تذكرة دعم للشركة' : 'فتح تذكرة دعم' }}</h1>

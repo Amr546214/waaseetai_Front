@@ -136,11 +136,11 @@ describe('client setup wizard component: resume from saved data', () => {
 		expect(navigateByUrl).toHaveBeenCalledWith(CLIENT_EDIT_PAGE);
 		expect(TestBed.inject(UiNotificationService).toasts().some(t => t.message.includes('100%'))).toBe(true);
 	});
-	it('100% but the identity did not pass yet: the wizard stays on the identity step, no redirect', () => {
-		const { c, navigateByUrl } = mount({ ...FULL, completionPercentage: 100 });
+	it('100% but the identity did not pass yet: goes to the waiting page, not the edit page', () => {
+		const { navigateByUrl } = mount({ ...FULL, completionPercentage: 100 });
 		answerGate(false);
-		expect(navigateByUrl).not.toHaveBeenCalled();
-		expect(c.currentStep()).toBe(2);
+		expect(navigateByUrl).toHaveBeenCalledWith('/client-overview/review-wait');
+		expect(navigateByUrl).not.toHaveBeenCalledWith(CLIENT_EDIT_PAGE);
 	});
 
 	it('identity documents under review are shown as pending (not as an empty step) and are not re-required', () => {

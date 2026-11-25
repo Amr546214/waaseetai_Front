@@ -1,4 +1,5 @@
 import { PlatformBannerComponent } from '../../shared/platform-banner/platform-banner.component';
+import { ClientOnboardingStateService } from '../../core/services/client-onboarding-state.service';
 import { Component, computed, inject, signal, effect, AfterViewInit, OnInit, OnDestroy, PLATFORM_ID, Renderer2 } from '@angular/core';
 import { BrandNamePipe } from '../../shared/brand/brand-name.pipe';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
@@ -34,6 +35,9 @@ export class DashboardLayoutComponent implements AfterViewInit, OnInit, OnDestro
   private sub = new Subscription();
   /** A specialty test is on: the layout shows the routed page alone (see assistant-exam-state). */
   readonly examMode = inject(AssistantExamState).examActive;
+  private readonly onboarding = inject(ClientOnboardingStateService);
+  /** a test, or an individual client whose identity is under review: the routed page alone, no topbar / sidebar */
+  readonly focusMode = computed(() => this.examMode() || this.onboarding.reviewing());
 
   // App Info
   currentYear = new Date().getFullYear();
