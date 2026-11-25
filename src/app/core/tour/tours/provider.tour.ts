@@ -42,7 +42,7 @@ export const PROVIDER_TOUR: TourDefinition = {
 			text: 'الإعدادات. منها تضبط إعدادات حسابك.' },
 		{ id: 'provider-help', route: R, target: `#sidebar a[href="${R}/help"]`, title: 'مركز المساعدة',
 			text: 'مركز المساعدة. تجد فيه الإجابات عن أسئلتك.' },
-		{ id: 'provider-assistant', route: R, target: `#sidebar a[href="${R}/bebo"]`, title: 'وسيط AI',
+		{ id: 'provider-assistant', route: R, target: '#sidebar [data-testid="sidebar-assistant"]', title: 'وسيط AI',
 			text: 'وسيط AI. مساعدك الذكي داخل المنصة، اسأله عما تحتاجه.' },
 		{ id: 'provider-explore-page', route: `${R}/explore-requests`, target: '.ord-title', title: 'استكشاف الطلبات',
 			text: 'وهذه صفحة استكشاف الطلبات. تصفّح الطلبات المنشورة، وقدّم عرضك على ما يناسب تخصصك.' },

@@ -38,7 +38,7 @@ export const CLIENT_TOUR: TourDefinition = {
 			text: 'الإعدادات. منها تضبط إعدادات حسابك.' },
 		{ id: 'client-help', route: R, target: '#acc-help', title: 'المساعدة والدعم',
 			text: 'المساعدة والدعم. فيها مركز المساعدة، والمساعد الذكي، والدعم المباشر، وتذاكر الدعم.' },
-		{ id: 'client-assistant', route: R, target: `#sidebar a[href="${R}/bebo"]`, title: 'وسيط AI',
+		{ id: 'client-assistant', route: R, target: '#sidebar [data-testid="sidebar-assistant"]', title: 'وسيط AI',
 			text: 'وسيط AI. مساعدك الذكي داخل المنصة، اسأله عما تحتاجه.' },
 		{ id: 'client-create', route: `${R}/create-request`, target: 'main h1', title: 'إنشاء طلب جديد',
 			text: 'وهذه صفحة إنشاء طلب مشروع جديد. اكتب تفاصيل مشروعك بوضوح، ثم انشر الطلب لتصلك العروض.' },

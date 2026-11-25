@@ -36,7 +36,7 @@ export const MARKETER_TOUR: TourDefinition = {
 			text: 'الرسائل. هنا محادثاتك، ويظهر بجانبها عدد الرسائل غير المقروءة.' },
 		{ id: 'marketer-help', route: R, target: `#sidebar a[href="${R}/help"]`, title: 'المساعدة',
 			text: 'المساعدة. تجد فيها الإجابات عن أسئلتك.' },
-		{ id: 'marketer-assistant', route: R, target: `#sidebar a[href="${R}/bebo"]`, title: 'وسيط AI',
+		{ id: 'marketer-assistant', route: R, target: '#sidebar [data-testid="sidebar-assistant"]', title: 'وسيط AI',
 			text: 'وسيط AI. مساعدك الذكي داخل المنصة، اسأله عما تحتاجه.' },
 	],
 };

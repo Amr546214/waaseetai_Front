@@ -45,7 +45,7 @@ describe('sidebar for an ADMIN account (not a super admin)', () => {
 	});
 it('an account with NO permission only sees Bebo tools', () => {
     const { routes } = setup(ADMIN, []);
-    expect(routes()).toEqual(['/supper-admin-overview/notification-settings', '/supper-admin-overview/bebo']);
+    expect(routes()).toEqual(['/supper-admin-overview/notification-settings']);
 });
 	it('does not list the super-admin-only page', () => {
 		const r = setup(ADMIN).routes(); expect(r).not.toContain('/supper-admin-overview/super-admins'); expect(r).not.toContain('/supper-admin-overview/system-settings');
@@ -74,7 +74,7 @@ it('an account with NO permission only sees Bebo tools', () => {
 			const { items } = setup(ADMIN, [...perms], isSuper);
 			const list = items(); const logout = list.findIndex(i => i.type === 'button' && i.action === 'logout');
 			expect(logout).toBeGreaterThan(0);
-			expect(list[logout - 1]).toMatchObject({ type: 'link', label: 'وسيط AI', route: '/supper-admin-overview/bebo' });
+			expect(list[logout - 1]).toMatchObject({ type: 'button', label: 'وسيط AI', action: 'assistant' });
 		}
 	});
 });
@@ -92,7 +92,7 @@ describe('Bebo in non-admin dashboards', () => {
 		const list = setup({ accountType, activeRole, roles: [activeRole] }).items();
 		const logout = list.findIndex(i => i.type === 'button' && i.action === 'logout');
 		expect(logout).toBeGreaterThan(0);
-		expect(list[logout - 1]).toMatchObject({ type: 'link', label: 'وسيط AI', route: '/' + area + '/bebo' });
-		expect(list.filter(item => item.route === '/' + area + '/bebo')).toHaveLength(1);
+		expect(list[logout - 1]).toMatchObject({ type: 'button', label: 'وسيط AI', action: 'assistant' });
+		expect(list.filter(item => item.action === 'assistant')).toHaveLength(1); expect(list.some(item => item.route === '/' + area + '/bebo')).toBe(false);
 	});
 });
