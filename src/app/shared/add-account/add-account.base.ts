@@ -19,10 +19,9 @@ export interface FlowStep {
 }
 
 const FLOWS: Record<string, FlowStep[]> = {
+  // the specialties, skills and work models are collected by the provider setup wizard itself (same as a registration): no separate questions here
   'provider-ind': [
     { id: 'panel-1', label: 'اختيار النوع' },
-    { id: 'panel-spec', label: 'التخصصات' },
-    { id: 'panel-portfolio', label: 'نموذج الأعمال' },
     { id: 'panel-review', label: 'إرسال' }
   ],
   'affiliate': [
@@ -403,8 +402,10 @@ export abstract class AddAccountBase implements OnInit {
         if (!this.ownedRoles().includes(targetRole)) {
           this.ownedRoles.update(r => [...r, targetRole]);
         }
-        this.notify.success(`تم إضافة وتفعيل حساب ${this.getRoleLabel(targetRole)} لملفك الشخصي بنجاح.`, { title: 'تم تفعيل الحساب بنجاح' });
+        this.notify.success(`تم إضافة حساب ${this.getRoleLabel(targetRole)}. أكمل بياناتك لتفعيله.`, { title: 'تمت إضافة الحساب' });
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        // a provider account starts exactly like a new registration: straight into its own panel, which stays closed until the setup is finished and approved
+        if (targetRole === UserRole.PROVIDER) this.switchToRole(targetRole);
       },
       error: (err) => {
         this.isSubmitting.set(false);
