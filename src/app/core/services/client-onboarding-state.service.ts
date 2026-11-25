@@ -51,11 +51,12 @@ export class ClientOnboardingStateService {
 		if (!this.applies()) return true;
 		const s = this.snapshot();
 		if (!s || s.canAdvance === null) return null;
-		return this.wizardDone() === true && s.canAdvance === true;
+		// open = finished, the identity matched, and no administration review is still pending (PENDING = documents sent, not decided)
+		return this.wizardDone() === true && s.canAdvance === true && s.kycStatus !== 'PENDING';
 	});
 	readonly closed = computed(() => this.open() === false);
 	/** the path is finished but the identity has not passed yet: the dashboard is replaced by ONE «قيد المراجعة» page (+ the support contact page) */
-	readonly reviewing = computed(() => this.applies() && this.wizardDone() === true && this.snapshot()?.canAdvance === false);
+	readonly reviewing = computed(() => { const s = this.snapshot(); return this.applies() && !!s && this.wizardDone() === true && (s.canAdvance === false || s.kycStatus === 'PENDING'); });
 	/** what the menu shows in the place of «استكمال البيانات» once the registration path is finished */
 	readonly badge = computed<ClientIdentityBadge>(() => {
 		const s = this.snapshot();

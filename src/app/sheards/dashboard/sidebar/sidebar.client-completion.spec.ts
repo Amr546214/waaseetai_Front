@@ -82,7 +82,8 @@ describe('client sidebar: onboarding lock and status badge', () => {
 		const { all } = gated(100, true, 'PENDING');
 		expect(all().map(i => i.route)).not.toContain(SETUP);
 		expect(all().some(i => i.label === 'بانتظار اعتماد الإدارة')).toBe(true);
-		expect(all().find(i => i.route === '/client-overview/profile/edit')?.disabled).toBeFalsy();
+		// the layout hides the sidebar while the review is pending; if it were shown, the other pages stay disabled
+		expect(all().find(i => i.route === '/client-overview/profile/edit')?.disabled).toBe(true);
 	});
 	it('approved: «الهوية معتمدة»', () => {
 		const { all } = gated(100, true, 'VERIFIED');
