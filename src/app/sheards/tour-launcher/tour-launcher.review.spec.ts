@@ -22,8 +22,11 @@ describe('tour launcher + closed client dashboard', () => {
 		const el = await mount(true);
 		expect(el.querySelector('[data-testid="tour-launcher"]')).toBeNull(); expect(el.querySelector('[data-testid="tour-suggestion"]')).toBeNull();
 	});
-	it('open: the chip and the one-time suggestion show', async () => {
-		const el = await mount(false);
-		expect(el.querySelector('[data-testid="tour-launcher"]')).toBeTruthy(); expect(el.querySelector('[data-testid="tour-suggestion"]')).toBeTruthy();
+	it('open: no standing chip; the one-time box shows and closes by itself after 5 seconds', async () => {
+		vi.useFakeTimers();
+		try {
+			const el = await mount(false);
+			expect(el.querySelector('[data-testid="tour-launcher"]')).toBeNull(); expect(el.querySelector('[data-testid="tour-suggestion"]')).toBeTruthy();
+		} finally { vi.useRealTimers(); }
 	});
 });
