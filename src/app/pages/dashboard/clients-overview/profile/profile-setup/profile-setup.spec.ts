@@ -81,47 +81,39 @@ describe('client profile-setup: shared validation', () => {
 		for (const t of ['الدولة', 'تاريخ الميلاد']) { expect(label(t)?.querySelector('.ws-req'), t).toBeTruthy(); expect(label(t)?.querySelector('[data-testid=optional-tag]'), t).toBeFalsy(); }
 	});
 
-	it('a complete step 1 moves to step 2 and clears the summary; Back clears it too', () => {
+	it('a complete step 1 moves to step 2 (the identity page, which is also the last one) and clears the summary', () => {
 		fillStep1();
 		component.nextStep();
 		expect(component.currentStep()).toBe(2);
 		expect(component.missing()).toEqual([]);
-		component.nextStep(); // identity: uploads are optional
-		expect(component.currentStep()).toBe(3);
+		component.nextStep(); // step 2 is the last: there is no next
+		expect(component.currentStep()).toBe(2);
 	});
 
-	it('Next on step 3 (PayPal payout) names the missing email, rejects a malformed one and accepts a valid one', () => {
-		fillStep1(); component.nextStep(); component.nextStep();
-		expect(component.currentStep()).toBe(3);
-		component.nextStep();
-		render();
-		expect(component.currentStep()).toBe(3);
-		expect(summary()).toContain('بريد PayPal');
-		component.setupForm.get('bank.paypalPayoutEmail')!.setValue('not-an-email');
-		component.nextStep(); render();
-		expect(component.currentStep()).toBe(3);
-		expect(el().textContent).toContain('أدخل بريد PayPal صالحًا');
-		component.setupForm.get('bank.paypalPayoutEmail')!.setValue('pay@example.com');
-		component.nextStep();
-		expect(component.currentStep()).toBe(4);
+	it('the wizard has exactly two steps and no PayPal or documents step', () => {
+		expect(component.steps.map(s => s.id)).toEqual([1, 2]);
+		component.currentStep.set(2); render();
+		expect(el().textContent).not.toContain('بريد PayPal');
+		expect(el().querySelector('[data-testid="skip-documents"]')).toBeNull();
+		expect(el().textContent).toContain('الإقرارات والموافقات'); // the review sits on the identity page
 	});
 
-	it('the step bar cannot skip an incomplete step: it stops at the first incomplete one', () => {
-		component.setStep(5);
+	it('the step bar cannot skip an incomplete step: it stops at step 1 until the details are complete', () => {
+		component.setStep(2);
 		expect(component.currentStep()).toBe(1);
 		expect(component.missing().length).toBeGreaterThan(0);
 		fillStep1();
-		component.setStep(5);
-		expect(component.currentStep()).toBe(3); // step 3 (bank) is the next incomplete one
+		component.setStep(2);
+		expect(component.currentStep()).toBe(2);
 	});
 
-	it('submitting an incomplete form jumps to the first incomplete step with the full list; no request is sent', () => {
-		fillStep1(); fillBank();
-		component.currentStep.set(5);
+	it('submitting an incomplete form lists what is missing and sends no request; the agreements are on step 2, the details on step 1', () => {
+		fillStep1();
+		component.currentStep.set(2);
 		component.submitForm(); // agreements missing
 		render();
 		expect(save).not.toHaveBeenCalled();
-		expect(component.currentStep()).toBe(5);
+		expect(component.currentStep()).toBe(2);
 		expect(summary()).toContain('الموافقة على شروط الاستخدام');
 		const errors = Array.from(el().querySelectorAll('[data-testid="field-error"]')).map(e => e.textContent);
 		expect(errors.some(t => t?.includes('الإقرار بصحة البيانات'))).toBe(true);
@@ -133,18 +125,19 @@ describe('client profile-setup: shared validation', () => {
 		expect(component.currentStep()).toBe(1);
 	});
 
-	it('the final button is not disabled by validity (only while submitting)', () => {
-		component.currentStep.set(5); render();
+	it('the final send is not disabled by form validity (only by the document not being on file, or while submitting)', () => {
+		component.currentStep.set(2); render();
 		const btn = el().querySelector('button[type="submit"]') as HTMLButtonElement;
-		expect(btn.disabled).toBe(false);
+		expect(btn).not.toBeNull();
+		expect(btn.getAttribute('data-testid')).toBe('setup-submit');
 	});
 
-	it('a valid form sends the payout as PayPal (no bank / IBAN / wallet fields)', () => {
-		fillStep1(); fillBank(); fillAgreements();
+	it('a valid form is sent with the details and the agreements, and no payout / PayPal object', () => {
+		fillStep1(); fillAgreements();
 		component.submitForm();
 		expect(save).toHaveBeenCalledTimes(1);
 		const body = save.mock.calls[0][0];
-		expect(body.bank).toEqual({ paypalPayoutEmail: 'pay@example.com' });
+		expect(body.bank).toBeUndefined();
 		expect(body.details.idNumber).toBe('1234567890');
 		expect(body.agreements).toEqual({ accurate: true, terms: true, privacy: true });
 	});
@@ -206,15 +199,6 @@ describe('client profile-setup: shared validation', () => {
 			expect(component.setupForm.get('details.idNumber')!.errors?.['server']).toContain('راجع الرقم ونوع الوثيقة');
 			expect(summary()).toContain('رقم الهوية الوطنية');
 			expect(component.isSubmitting()).toBe(false);
-		});
-
-		it('a 400 about the PayPal email lands on the PayPal field on step 3', () => {
-			fillStep1(); fillBank(); fillAgreements();
-			failWith(400, { success: false, message: 'بريد PayPal غير صحيح' });
-			component.submitForm();
-			settle();
-			expect(component.currentStep()).toBe(3);
-			expect(component.setupForm.get('bank.paypalPayoutEmail')!.errors?.['server']).toContain('PayPal');
 		});
 
 		it('429 / 500 / network are shown in Arabic (never English), the form is kept', () => {

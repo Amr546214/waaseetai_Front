@@ -27,30 +27,22 @@ describe('client profile-setup: identity gate status in the identity step', () =
 		fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck(); fixture.detectChanges(); fixture.detectChanges();
 	};
 	const q = (id: string) => (fixture.nativeElement as HTMLElement).querySelector(`[data-testid="${id}"]`);
-	const next = () => (fixture.nativeElement as HTMLElement).querySelector('[data-testid="setup-next"]') as HTMLButtonElement;
+	const next = () => (fixture.nativeElement as HTMLElement).querySelector('[data-testid="setup-submit"]') as HTMLButtonElement; // the identity page is the last one: its button is the final send
 	afterEach(() => { fixture?.destroy(); TestBed.resetTestingModule(); });
 
-	it('UNDER_REVIEW: «الوثيقة قيد المراجعة» in place, the next button is closed, nothing about field matching', () => {
+	it('UNDER_REVIEW: «الوثيقة قيد المراجعة» in place, the document is on file so the send is open, nothing about field matching', () => {
 		setup('UNDER_REVIEW');
 		expect(q('identity-gate-under-review')?.textContent).toContain('الوثيقة قيد المراجعة');
 		expect(q('identity-gate-under-review')?.textContent).not.toMatch(/MATCH|مطابق/);
-		expect(next().disabled).toBe(true);
-		fixture.componentInstance.nextStep();
+		expect(next().disabled).toBe(false);
 		expect(fixture.componentInstance.currentStep()).toBe(2);
-		fixture.detectChanges();
-		expect(q('identity-gate-problem')?.textContent).toContain('قيد المراجعة');
 	});
-	it('full CURRENT field match opens Next while KYC stays under review; a later stale check closes it again', () => {
+	it('a full CURRENT field match shows the matched note while KYC stays under review', () => {
 		setup('UNDER_REVIEW'); FakeIdentityGate.automaticCheck = 'MATCHED';
 		fixture.componentInstance.gate.load().subscribe(); fixture.detectChanges();
-		expect(q('identity-gate-matched')?.textContent).toContain('دون انتظار الإدارة');
+		expect(q('identity-gate-matched')?.textContent).toContain('إرسال للمراجعة');
 		expect(fixture.componentInstance.gate.status()).toBe('UNDER_REVIEW');
 		expect(next().disabled).toBe(false);
-		fixture.componentInstance.nextStep(); fixture.detectChanges();
-		expect(fixture.componentInstance.currentStep()).toBe(3);
-		fixture.componentInstance.currentStep.set(2); FakeIdentityGate.automaticCheck = 'NOT_CHECKED';
-		fixture.componentInstance.gate.load().subscribe(); fixture.detectChanges();
-		expect(next().disabled).toBe(true); expect(q('identity-gate-checking')).not.toBeNull();
 	});
 
 	it('REJECTED: the reason shows beside the upload and the data is still in the form', () => {
@@ -61,7 +53,7 @@ describe('client profile-setup: identity gate status in the identity step', () =
 		expect(fixture.componentInstance.setupForm.get('details.idNumber')!.value).toBe('A123456');
 		expect(next().disabled).toBe(true);
 	});
-	it('NOT_SUBMITTED: asks for the document; APPROVED: opens the next step', () => {
+	it('NOT_SUBMITTED: asks for the document and the send stays closed; APPROVED: the send is open', () => {
 		setup('NOT_SUBMITTED');
 		expect(q('identity-gate-not-submitted')).not.toBeNull(); expect(next().disabled).toBe(true);
 		fixture.destroy(); TestBed.resetTestingModule();

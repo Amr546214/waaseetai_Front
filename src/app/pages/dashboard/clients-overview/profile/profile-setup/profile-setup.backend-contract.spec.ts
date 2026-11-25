@@ -35,16 +35,16 @@ describe('client profile-setup: backend contract (#17)', () => {
 	afterEach(() => { notify?.clearAll(); fixture?.destroy(); TestBed.resetTestingModule(); });
 	const httpErr = (status: number, error: any) => throwError(() => new HttpErrorResponse({ status, error }));
 
-	it('sends all objects (details, identity, bank, documents, agreements) and the three agreements as literal true', () => {
+	it('sends the objects (details, identity, documents, agreements; no bank) and the three agreements as literal true', () => {
 		setup(() => of({ success: true }));
 		component.submitForm();
 		expect(save).toHaveBeenCalledTimes(1);
 		const body = save.mock.calls[0][0];
-		for (const key of ['details', 'identity', 'bank', 'documents', 'agreements']) expect(body[key], key).toBeTruthy();
+		for (const key of ['details', 'identity', 'documents', 'agreements']) expect(body[key], key).toBeTruthy();
 		expect(body.agreements).toEqual({ accurate: true, terms: true, privacy: true });
 		expect(body.agreements.accurate).toBe(true);
 		expect(body.details.idNumber).toBe('1234567890');
-		expect(body.bank).toEqual({ paypalPayoutEmail: 'pay@example.com' });
+		expect(body.bank).toBeUndefined();
 	});
 
 	it('the three agreements cannot be left unchecked: submit is blocked client-side and nothing is sent', () => {
@@ -64,7 +64,7 @@ describe('client profile-setup: backend contract (#17)', () => {
 
 	it('a 400 about the id number puts the Arabic message on that field and returns to step 1', () => {
 		setup(() => httpErr(400, { success: false, message: 'بيانات غير صحيحة', errors: [{ path: 'details.idNumber', field: 'details.idNumber', message: 'رقم الهوية يجب أن يكون 10 أرقام ويبدأ بـ 1 أو 2' }] }));
-		component.currentStep.set(5);
+		component.currentStep.set(2);
 		component.submitForm();
 		return new Promise<void>(resolve => setTimeout(() => {
 			expect(component.currentStep()).toBe(1);

@@ -22,7 +22,6 @@ import { DOC_MIMES, MB, validateFile } from '../../../../../core/forms/file-vali
 import { UiNotificationService } from '../../../../../core/services/ui-notification.service';
 import { FieldErrorComponent } from '../../../../../shared/forms/field-error.component';
 import { BirthDateFieldComponent } from '../../../../../shared/forms/birth-date-field.component';
-import { paypalEmailValidators } from '../../../../../core/validators/paypal-email.validator';
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
@@ -46,7 +45,11 @@ const SETUP_LABELS: Record<string, string> = {
 };
 
 /** Form group per wizard step (steps 2 and 4 have only optional uploads). */
-const STEP_GROUPS: Record<number, string> = { 1: 'details', 2: 'identity', 3: 'bank', 4: 'documents', 5: 'agreements' };
+const STEP_GROUPS: Record<number, string> = { 1: 'details', 2: 'identity' };
+/** the wizard's last step: the review (agreements) and the send live on the identity page */
+const LAST_STEP = 2;
+/** which step a form group's errors belong to */
+const GROUP_STEP: Record<string, number> = { details: 1, identity: 2, agreements: 2 };
 
 /**
  * Upload limits. The three images travel as base64 inside ONE JSON body and the backend accepts at most 10 MB, so the
@@ -130,12 +133,10 @@ export class ProfileSetupDashboard implements OnInit {
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private readonly notify = inject(UiNotificationService);
 
+	/** two steps: the service seeker's data, then the identity + review and send in one page (payment methods and extra documents are added later from the profile) */
 	steps = [
 		{ id: 1, label: 'بيانات طالب الخدمة' },
-		{ id: 2, label: 'الهوية والتوثيق' },
-		{ id: 3, label: 'بريد PayPal' },
-		{ id: 4, label: 'المستندات عند الحاجة' },
-		{ id: 5, label: 'المراجعة والإرسال' }
+		{ id: 2, label: 'الهوية والتوثيق والإرسال' }
 	];
 
 	// Shared country -> cities data (src/app/shared/data); the city list always follows the chosen country.
@@ -166,9 +167,9 @@ export class ProfileSetupDashboard implements OnInit {
 			frontId: [''],
 			backId: ['']
 		}),
-		// PayPal is the only payout destination (saved to ClientProfile.paypalPayoutEmail, counts +20 in the completion).
+		// payment methods are added later from the finance tab; nothing here is required
 		bank: this.fb.group({
-			paypalPayoutEmail: ['', paypalEmailValidators]
+			paypalPayoutEmail: ['']
 		}),
 		documents: this.fb.group({
 			supportingDocs: [''],
@@ -296,23 +297,19 @@ export class ProfileSetupDashboard implements OnInit {
 	/** Moving to the next step stores the current one first (database, never the browser); a failed save keeps the user on the step with the error. */
 	nextStep() {
 		const step = this.currentStep();
-		if (step >= 5) return;
+		if (step >= LAST_STEP) return;
 		this.advanceTo(step + 1);
 	}
 
-	/** Step 4 (supporting documents) is optional: go straight to the review. No upload, no save, no validation of the step. */
-	skipDocuments() {
-		if (this.currentStep() !== 4) return;
-		this.missing.set([]);
-		this.currentStep.set(5);
-	}
-
-	/** Required steps (1 details, 3 PayPal) are "done" only while their fields are really valid; optional steps (2, 4) never count as incomplete. */
+	/** Step 1 (the details) is "done" only while its fields are really valid; the identity page is judged by the review and the send. */
 	stepIsIncomplete(step: number): boolean {
-		if (step !== 1 && step !== 3) return false;
+		if (step !== 1) return false;
 		const group = this.setupForm.get(STEP_GROUPS[step]);
 		return !!group && !group.valid;
 	}
+
+	/** The final send is open once the identity document is on file for review (or already approved); a rejected or missing document must be uploaded again first. */
+	canSubmit(): boolean { const s = this.gate.status(); return s === 'UNDER_REVIEW' || s === 'APPROVED'; }
 
 	/** Identity documents were sent (a file in the form, or already under review): the review shows "تم الإرسال" instead of "اختياري". */
 	identityDocsProvided(): boolean {
@@ -322,7 +319,7 @@ export class ProfileSetupDashboard implements OnInit {
 
 	/** Review shortcut to a step that is missing something: go there and show what is missing, right where the field is. */
 	goToStep(step: number) {
-		if (step < 1 || step > 5) return;
+		if (step < 1 || step > LAST_STEP) return;
 		this.currentStep.set(step);
 		const group = this.setupForm.get(STEP_GROUPS[step]);
 		if (group) {
@@ -341,7 +338,7 @@ export class ProfileSetupDashboard implements OnInit {
 
 	/** Step-bar click: backwards is free; going forward validates AND stores every step on the way and stops at the first one that fails. */
 	setStep(target: number) {
-		if (target < 1 || target > 5) return;
+		if (target < 1 || target > LAST_STEP) return;
 		if (target <= this.currentStep()) {
 			this.missing.set([]);
 			this.currentStep.set(target);
@@ -615,7 +612,7 @@ export class ProfileSetupDashboard implements OnInit {
 			this.setupForm.markAllAsTouched();
 			const all = collectInvalidFields(this.setupForm, SETUP_LABELS);
 			this.missing.set(all);
-			const firstStep = Number(Object.keys(STEP_GROUPS).find(k => all.some(i => i.path.startsWith(STEP_GROUPS[+k] + '.')))) || 1;
+			const firstStep = Math.min(...all.map(i => GROUP_STEP[i.path.split('.')[0]] ?? 1), LAST_STEP) || 1;
 			this.currentStep.set(firstStep);
 			this.focusSoon();
 			return;
@@ -639,9 +636,6 @@ export class ProfileSetupDashboard implements OnInit {
 			identity: {
 				frontId: this.newIdentityUpload('frontId', formVal.identity.frontId),
 				backId: this.newIdentityUpload('backId', formVal.identity.backId)
-			},
-			bank: {
-				paypalPayoutEmail: String(formVal.bank.paypalPayoutEmail || '').trim()
 			},
 			documents: {
 				supportingDocs: formVal.documents.supportingDocs,
@@ -687,7 +681,6 @@ export class ProfileSetupDashboard implements OnInit {
 		const raw: string = err?.error?.message || '';
 		const fieldFix: [RegExp, string, string, string][] = [
 			[/ID Number/i, 'details.idNumber', 'رقم الوثيقة غير مقبول؛ راجع الرقم ونوع الوثيقة', 'details'],
-			[/PayPal/i, 'bank.paypalPayoutEmail', 'بريد PayPal غير صحيح', 'bank'],
 		];
 		for (const [re, path, message, groupName] of fieldFix) {
 			if (re.test(raw)) {
@@ -715,7 +708,7 @@ export class ProfileSetupDashboard implements OnInit {
 	 * earlier).
 	 */
 	private showFieldErrors(items: { path: string; message: string }[], groupName: string) {
-		this.currentStep.set(Number(Object.keys(STEP_GROUPS).find(k => STEP_GROUPS[+k] === groupName)));
+		this.currentStep.set(GROUP_STEP[groupName] ?? 1);
 		setTimeout(() => {
 			for (const { path, message } of items) {
 				const c = this.setupForm.get(path);

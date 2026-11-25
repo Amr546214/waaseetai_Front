@@ -22,22 +22,19 @@ describe('client setup wizard: where it opens (resolveClientSetup)', () => {
 		expect(resolveClientSetup({ completionPercentage: 0 })).toEqual({ kind: 'step', step: 1 });
 		expect(resolveClientSetup(null)).toEqual({ kind: 'step', step: 1 });
 	});
-	it('details saved but PayPal missing -> step 3, NOT step 1', () => {
-		expect(resolveClientSetup({ ...FULL, paypalPayoutEmail: '', completionPercentage: 60 })).toEqual({ kind: 'step', step: 3 });
+	it('details saved, agreements missing -> step 2 (the identity page with the review and the send); PayPal and documents are not part of the path', () => {
+		expect(resolveClientSetup({ ...FULL, paypalPayoutEmail: '', accurateAgreed: false, completionPercentage: 60 })).toEqual({ kind: 'step', step: 2 });
+		expect(resolveClientSetup({ ...FULL, accurateAgreed: false, notes: 'ملاحظة', completionPercentage: 70 })).toEqual({ kind: 'step', step: 2 });
 	});
-	it('details + PayPal saved, nothing in the optional documents -> step 4; something saved there -> step 5', () => {
-		expect(resolveClientSetup({ ...FULL, accurateAgreed: false, completionPercentage: 70 })).toEqual({ kind: 'step', step: 4 });
-		expect(resolveClientSetup({ ...FULL, accurateAgreed: false, notes: 'ملاحظة', completionPercentage: 70 })).toEqual({ kind: 'step', step: 5 });
-		expect(resolveClientSetup({ ...FULL, accurateAgreed: false, supportingDocsUrl: 'https://x/y.pdf', completionPercentage: 70 })).toEqual({ kind: 'step', step: 5 });
-	});
-	it('a single missing detail (e.g. the address) sends back to step 1 only because it really is missing', () => {
-		expect(resolveClientSetup({ ...FULL, address: '  ', completionPercentage: 70 })).toEqual({ kind: 'step', step: 1 });
+	it('only the document number, birth date and country decide step 1: a missing city / occupation / address never sends the person back', () => {
+		expect(resolveClientSetup({ ...FULL, address: '  ', city: '', industry: '', completionPercentage: 70 })).toEqual({ kind: 'redirect', reason: 'nothing-to-collect' });
+		expect(resolveClientSetup({ ...FULL, country: '', completionPercentage: 70 })).toEqual({ kind: 'step', step: 1 });
 	});
 	it('everything the wizard collects is saved but the profile is < 100 (avatar / bio live elsewhere) -> redirect to the edit page', () => {
 		expect(resolveClientSetup({ ...FULL, completionPercentage: 70 })).toEqual({ kind: 'redirect', reason: 'nothing-to-collect' });
 	});
-	it('documents under review (kycStatus PENDING) are not an "empty step": they never move the start step', () => {
-		expect(resolveClientSetup({ ...FULL, paypalPayoutEmail: '', kycStatus: 'PENDING', completionPercentage: 60 })).toEqual({ kind: 'step', step: 3 });
+	it('documents under review (kycStatus PENDING) never move the start step', () => {
+		expect(resolveClientSetup({ ...FULL, accurateAgreed: false, kycStatus: 'PENDING', completionPercentage: 60 })).toEqual({ kind: 'step', step: 2 });
 		expect(resolveClientSetup({ ...FULL, kycStatus: 'PENDING', completionPercentage: 70 })).toEqual({ kind: 'redirect', reason: 'nothing-to-collect' });
 	});
 });
@@ -65,7 +62,7 @@ describe('client setup route guard', () => {
 		expect(notify.toasts().some(t => t.message.includes('100%'))).toBe(true);
 	});
 	it('an incomplete client may open the wizard', async () => {
-		const { result } = run({ res: of({ data: { ...FULL, paypalPayoutEmail: '', completionPercentage: 60 } }) });
+		const { result } = run({ res: of({ data: { ...FULL, accurateAgreed: false, completionPercentage: 60 } }) });
 		expect(await result).toBe(true);
 	});
 	it('companies are never touched (no request, wizard route unchanged)', async () => {
@@ -98,19 +95,19 @@ describe('client setup wizard component: resume from saved data', () => {
 	}
 	afterEach(() => { TestBed.inject(UiNotificationService).clearAll(); TestBed.resetTestingModule(); });
 
-	it('saved details but no PayPal: opens on step 3 with the saved details prefilled (not step 1)', () => {
-		const { c } = mount({ ...FULL, paypalPayoutEmail: null, completionPercentage: 60 });
-		expect(c.currentStep()).toBe(3);
+	it('saved details, agreements missing: opens on step 2 with the saved details prefilled (not step 1)', () => {
+		const { c } = mount({ ...FULL, accurateAgreed: false, completionPercentage: 60 });
+		expect(c.currentStep()).toBe(2);
 		expect(c.setupForm.get('details')!.value).toEqual(expect.objectContaining({ idNumber: '2000000001', country: 'السعودية', city: 'الرياض', occupation: 'مهندس', address: 'شارع 1' }));
 		expect(c.setupForm.get('details')!.value.dob).toBe('1990-01-01');
 	});
 
 	it('a fresh instance (refresh / back) opens at the same place with the same prefill', () => {
-		const data = { ...FULL, paypalPayoutEmail: null, completionPercentage: 60 };
-		const first = mount(data); expect(first.c.currentStep()).toBe(3);
+		const data = { ...FULL, accurateAgreed: false, completionPercentage: 60 };
+		const first = mount(data); expect(first.c.currentStep()).toBe(2);
 		TestBed.resetTestingModule();
 		const again = mount(data);
-		expect(again.c.currentStep()).toBe(3);
+		expect(again.c.currentStep()).toBe(2);
 		expect(again.c.setupForm.get('details.idNumber')!.value).toBe('2000000001');
 	});
 
@@ -118,9 +115,9 @@ describe('client setup wizard component: resume from saved data', () => {
 		expect(mount({ completionPercentage: 0 }).c.currentStep()).toBe(1);
 	});
 
-	it('already accepted agreements stay accepted; only the agreements missing -> step 4 (nothing saved in documents)', () => {
+	it('already accepted agreements stay accepted; only the agreements missing -> step 2', () => {
 		const { c } = mount({ ...FULL, accurateAgreed: false, termsAgreed: true, privacyAgreed: true, completionPercentage: 80 });
-		expect(c.currentStep()).toBe(4);
+		expect(c.currentStep()).toBe(2);
 		expect(c.setupForm.get('agreements')!.value).toEqual({ accurate: false, terms: true, privacy: true });
 	});
 

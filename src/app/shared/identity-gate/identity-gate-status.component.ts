@@ -9,7 +9,7 @@ import { IdentityGateState } from '../../core/services/identity-gate.service';
 		@switch (state()?.status) {
 			@case ('UNDER_REVIEW') {
 				@if (state()?.automaticCheck === 'MATCHED' && state()?.canAdvance) {
-					<div role="status" data-testid="identity-gate-matched" class="ws-igs ws-igs--ok"><strong>تطابقت بيانات الهوية</strong><span>يمكنك إكمال الإعداد الآن دون انتظار الإدارة. مطابقة البيانات لا تغيّر حالة توثيق الحساب.</span></div>
+					<div role="status" data-testid="identity-gate-matched" class="ws-igs ws-igs--ok"><strong>تطابقت بيانات الهوية</strong><span>@if (last()) { أكمل الإقرارات أدناه واضغط «إرسال للمراجعة». } @else { يمكنك إكمال الإعداد الآن دون انتظار الإدارة. } مطابقة البيانات لا تغيّر حالة توثيق الحساب.</span></div>
 				} @else if (state()?.automaticCheckMissing?.length) {
 					<div role="status" data-testid="identity-gate-missing-inputs" class="ws-igs ws-igs--wait"><strong>أكمل بيانات المطابقة</strong><span>الناقص: {{ comparisonMissingLabels() }}.@if (state()?.data?.hasFront) { صورة الهوية محفوظة؛ لا تحتاج إلى رفعها مجددًا. } احفظ البيانات لبدء المطابقة.</span></div>
 				} @else if (state()?.automaticCheck === 'CHECKING' || state()?.automaticCheck === 'NOT_CHECKED') {
@@ -17,7 +17,7 @@ import { IdentityGateState } from '../../core/services/identity-gate.service';
 				} @else {
 				<div role="status" data-testid="identity-gate-under-review" class="ws-igs ws-igs--wait">
 					<strong>الوثيقة قيد المراجعة</strong>
-					<span>سيفتح الخطوة التالية بعد اعتماد الوثيقة والبيانات من الإدارة. ابقَ في هذه الصفحة، وتتحدّث الحالة تلقائيًا. إن غيّرت الصورة أو البيانات تبدأ المراجعة من جديد.</span>
+					<span>@if (last()) { وصلت الوثيقة للمراجعة. أكمل الإقرارات أدناه واضغط «إرسال للمراجعة»، وستعتمدها الإدارة. } @else { سيفتح الخطوة التالية بعد اعتماد الوثيقة والبيانات من الإدارة. ابقَ في هذه الصفحة، وتتحدّث الحالة تلقائيًا. } إن غيّرت الصورة أو البيانات تبدأ المراجعة من جديد.</span>
 				</div>
 				}
 			}
@@ -31,7 +31,7 @@ import { IdentityGateState } from '../../core/services/identity-gate.service';
 			@case ('APPROVED') {
 				<div role="status" data-testid="identity-gate-approved" class="ws-igs ws-igs--ok">
 					<strong>تم اعتماد الوثيقة</strong>
-					<span>يمكنك المتابعة إلى الخطوة التالية. تغيير الصورة أو بيانات الهوية يلغي الاعتماد ويعيد المراجعة.</span>
+					<span>@if (last()) { أكمل الإقرارات أدناه واضغط «إرسال للمراجعة». } @else { يمكنك المتابعة إلى الخطوة التالية. } تغيير الصورة أو بيانات الهوية يلغي الاعتماد ويعيد المراجعة.</span>
 				</div>
 			}
 			@case ('NOT_SUBMITTED') {
@@ -56,6 +56,8 @@ import { IdentityGateState } from '../../core/services/identity-gate.service';
 })
 export class IdentityGateStatusComponent {
 	readonly state = input<IdentityGateState | null>(null);
+	/** the identity page is the LAST page of the wizard (the review and the send follow on the same page) */
+	readonly last = input(false);
 
 	private static readonly LABELS: Record<string, string> = { legalName: 'الاسم الحقيقي', dob: 'تاريخ الميلاد', idDocumentType: 'نوع الوثيقة', idIssuingCountry: 'دولة الإصدار', idNumber: 'رقم الوثيقة', frontId: 'الصورة الأمامية', backId: 'الصورة الخلفية' };
 	comparisonMissingLabels(): string { return (this.state()?.automaticCheckMissing ?? []).map(k => IdentityGateStatusComponent.LABELS[k] ?? k).join('، '); }

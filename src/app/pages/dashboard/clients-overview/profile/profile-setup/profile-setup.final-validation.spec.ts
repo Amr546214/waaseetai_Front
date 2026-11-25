@@ -38,36 +38,6 @@ describe('client setup: final submit and step completion agree', () => {
 	const agree = () => c.setupForm.get('agreements')!.patchValue({ accurate: true, terms: true, privacy: true });
 	afterEach(() => TestBed.resetTestingModule());
 
-	it('with every required field present the review shows steps 1 and 3 as "مكتمل" and no incomplete mark', () => {
-		const el = mount(FULL);
-		c.currentStep.set(5); fixture.detectChanges();
-		expect(c.stepIsIncomplete(1)).toBe(false);
-		expect(c.stepIsIncomplete(3)).toBe(false);
-		expect(el.querySelector('[data-testid=summary-step-1-done]')).toBeTruthy();
-		expect(el.querySelector('[data-testid=summary-step-3-done]')).toBeTruthy();
-		expect(el.querySelector('[data-testid=summary-step-1-incomplete]')).toBeNull();
-		expect(el.querySelector('[data-testid=step-incomplete-mark]')).toBeNull();
-	});
-
-	it('a missing country makes step 1 incomplete: the review says "ناقص" (never "مكتمل") and the stepper does not tick it', () => {
-		const el = mount(FULL);
-		c.setupForm.get('details.country')!.setValue('');
-		c.currentStep.set(5); fixture.detectChanges();
-		expect(c.stepIsIncomplete(1)).toBe(true);
-		expect(el.querySelector('[data-testid=summary-step-1-incomplete]')).toBeTruthy();
-		expect(el.querySelector('[data-testid=summary-step-1-done]')).toBeNull();
-		expect(el.querySelector('[data-testid=step-incomplete-mark]')).toBeTruthy();
-		expect(el.querySelectorAll('[data-testid=step-done-mark]').length).toBe(3); // steps 2-4 are passed and ticked; step 1 is not ticked
-	});
-
-	it('a missing PayPal email makes step 3 incomplete in the same way', () => {
-		const el = mount(FULL);
-		c.setupForm.get('bank.paypalPayoutEmail')!.setValue('');
-		c.currentStep.set(5); fixture.detectChanges();
-		expect(c.stepIsIncomplete(3)).toBe(true);
-		expect(el.querySelector('[data-testid=summary-step-3-incomplete]')).toBeTruthy();
-	});
-
 	it('final submit with the country missing sends nothing, goes back to step 1 and names the field (its own message, not only a toast)', () => {
 		const el = mount(FULL);
 		c.setupForm.get('details.country')!.setValue('');
@@ -81,15 +51,6 @@ describe('client setup: final submit and step completion agree', () => {
 		expect(summary?.textContent).toContain('الدولة');
 		expect(el.querySelector('[formcontrolname=country] ~ [data-testid=field-error], [data-testid=field-error]')?.textContent?.length).toBeGreaterThan(0);
 		expect(c.setupForm.get('details.country')!.touched).toBe(true);
-	});
-
-	it('the review shortcut "أكمل المرحلة 1" opens step 1 with the missing field marked', () => {
-		const el = mount(FULL);
-		c.setupForm.get('details.country')!.setValue('');
-		c.currentStep.set(5); fixture.detectChanges();
-		(el.querySelector('[data-testid=summary-fix-1]') as HTMLButtonElement).click(); fixture.detectChanges();
-		expect(c.currentStep()).toBe(1);
-		expect(c.missing().some(m => m.path === 'details.country')).toBe(true);
 	});
 
 	it('date of birth is REQUIRED (the identity data is checked against it); city, occupation and address stay optional', () => {
@@ -126,16 +87,6 @@ describe('client setup: final submit and step completion agree', () => {
 	it('after a refresh, an account whose country is missing opens on step 1, not on the review', () => {
 		mount({ ...FULL, country: '', completionPercentage: 50 });
 		expect(c.currentStep()).toBe(1);
-	});
-
-	it('the optional identity step reads "اختياري" when nothing was sent and "تم الإرسال" when documents were sent', () => {
-		let el = mount(FULL);
-		c.currentStep.set(5); fixture.detectChanges();
-		expect(el.querySelector('[data-testid=summary-step-2-optional]')).toBeTruthy();
-		TestBed.resetTestingModule();
-		el = mount({ ...FULL, kycStatus: 'PENDING', frontIdUrl: 'https://res.cloudinary.com/x/front.png' });
-		c.currentStep.set(5); fixture.detectChanges();
-		expect(el.querySelector('[data-testid=summary-step-2-done]')).toBeTruthy();
 	});
 
 	it('the old generic "الرجاء التأكد من تعبئة جميع الحقول المطلوبة" message is not in the wizard any more', async () => {
