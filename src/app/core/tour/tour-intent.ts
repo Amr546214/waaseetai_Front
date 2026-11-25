@@ -21,3 +21,7 @@ export function tourIntentFor(question: string, actingRole: UserRole | null): Us
 
 /** cheap text-only pre-check (no auth lookup): could this be an explain-the-dashboard request? */
 export const mayBeTourRequest = (question: string): boolean => { const q = question.trim(); return q.length > 0 && q.length <= 120 && ASK.test(q) && PANEL.test(q); };
+
+const THIS_PAGE = /(الصفحة|الصفحه|صفحة|صفحه|هنا|دي|دى|الحالية)/;
+/** «اشرحلي الصفحة دي» / «جولة في الصفحة»: a request for the tour of the page the person is on (and not of a dashboard) */
+export const isPageTourRequest = (question: string): boolean => { const q = question.trim(); return q.length > 0 && q.length <= 120 && ASK.test(q) && THIS_PAGE.test(q) && !PANEL.test(q); };

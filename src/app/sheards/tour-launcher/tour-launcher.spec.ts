@@ -24,86 +24,46 @@ describe('TourLauncherComponent', () => {
 	const go = (f: any, to: string) => { url = to; events.next(new NavigationEnd(1, to, to)); f.detectChanges(); };
 	const chip = (f: any) => f.nativeElement.querySelector('[data-testid=tour-launcher]') as HTMLButtonElement | null;
 
-	it('shows the chip only on a page that has a tour; clicking it starts THAT page\'s tour', () => {
+	const box = (f: any) => f.nativeElement.querySelector('[data-testid=tour-suggestion]') as HTMLElement | null;
+
+	it('there is no standing tour button anywhere, page tours included', () => {
 		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
-		expect(chip(f)).not.toBeNull();
-		chip(f)!.click();
-		expect(TestBed.inject(TourService).tour()?.id).toBe('page-about-v1');
-		f.detectChanges(); expect(chip(f)).toBeNull(); // hidden while a tour runs
+		for (const p of ['/about', '/contact', '/marketplace', '/', '/client-overview']) { go(f, p); expect(chip(f), p).toBeNull(); }
 	});
-	it('exam mode hides the launcher and suggestion, blocks a queued click, and restores the offer after exit', () => {
+	it('exam mode hides the first-time box and blocks a queued start', () => {
 		url = '/provider-overview'; authed.set(true); role.set(UserRole.PROVIDER);
 		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
-		const entry = f.componentInstance.entry()!; expect(chip(f)).not.toBeNull();
+		const entry = f.componentInstance.entry()!; expect(box(f)).not.toBeNull();
 		const exam = TestBed.inject(AssistantExamState); exam.setExamActive(true); f.detectChanges();
-		expect(chip(f)).toBeNull(); expect(f.nativeElement.querySelector('[data-testid=tour-suggestion]')).toBeNull();
+		expect(box(f)).toBeNull();
 		f.componentInstance.start(entry); expect(TestBed.inject(TourService).active()).toBe(false);
-		exam.setExamActive(false); f.detectChanges(); expect(chip(f)).not.toBeNull();
-		expect(f.nativeElement.querySelector('[data-testid=tour-suggestion]')).not.toBeNull();
-	});
-	it('restored exam state hides the launcher from its first render', () => {
-		url = '/provider-overview'; authed.set(true); role.set(UserRole.PROVIDER);
-		TestBed.inject(AssistantExamState).setExamActive(true);
-		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges(); expect(chip(f)).toBeNull();
-		TestBed.inject(AssistantExamState).setExamActive(false);
 	});
 
-	it('no chip on the home page, article pages or any dashboard; it follows navigation', () => {
-		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
-		for (const p of ['/', '/blog/an-article', '/client-overview', '/provider-overview/offers']) { go(f, p); expect(chip(f), p).toBeNull(); }
-		go(f, '/contact'); expect(chip(f)).not.toBeNull();
-	});
-	it('the registration form tour is offered only once the form fields are on screen', () => {
-		url = '/auth/register';
-		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
-		expect(chip(f)).toBeNull();
-		const roles = document.createElement('div'); roles.className = 'roles-grid'; document.body.appendChild(roles);
-		vi.advanceTimersByTime(800); f.detectChanges();
-		chip(f)!.click(); expect(TestBed.inject(TourService).tour()?.id).toBe('page-register-roles-v1'); TestBed.inject(TourService).close(); roles.remove();
-		const email = document.createElement('input'); email.id = 'email'; document.body.appendChild(email);
-		vi.advanceTimersByTime(800); f.detectChanges();
-		expect(chip(f)).not.toBeNull();
-		chip(f)!.click(); expect(TestBed.inject(TourService).tour()?.id).toBe('page-register-form-v1'); TestBed.inject(TourService).close();
-		email.remove(); vi.advanceTimersByTime(800); f.detectChanges();
-		expect(chip(f)).toBeNull();
-	});
-	it('after a page tour was completed the chip offers to repeat it', () => {
-		const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
-		const t = TestBed.inject(TourService);
-		vi.spyOn(t, 'isDone').mockReturnValue(true);
-		go(f, '/about');
-		expect(chip(f)!.textContent).toContain('إعادة');
-	});
-
-	describe('the signed-in user\'s dashboard tour', () => {
+	describe('the signed-in user\'s first-time dashboard box', () => {
 		beforeEach(() => { authed.set(true); role.set(UserRole.CLIENT); });
-		it('a client inside /client-overview is offered «جولة في لوحتك» (the role tour), not a page tour; outside the dashboard there is none', () => {
-			url = '/client-overview/my-requests';
-			const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
-			expect(chip(f)!.textContent).toContain('جولة في لوحتك');
-			chip(f)!.click(); expect(TestBed.inject(TourService).tour()?.id).toBe('client-v1');
-			TestBed.inject(TourService).close();
-			go(f, '/provider-overview'); expect(chip(f)).toBeNull(); // a client does not get the provider area's tour (there is none)
+		it('shows once on first entry in the middle of the screen and closes by itself after 5 seconds, for good', () => {
+			url = '/client-overview';
+			let f = TestBed.createComponent(TourLauncherComponent); f.detectChanges(); TestBed.flushEffects?.();
+			expect(box(f)).not.toBeNull(); expect(chip(f)).toBeNull();
+			vi.advanceTimersByTime(5100); f.detectChanges();
+			expect(box(f)).toBeNull();
+			f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
+			expect(box(f)).toBeNull();
 		});
-		it('the first visit shows a one-time «تحب جولة؟» card: «لاحقًا» hides it for good (per user); «ابدأ الجولة» starts the tour', () => {
+		it('«لاحقًا» hides it for good; «ابدأ الجولة» starts the client tour', () => {
 			url = '/client-overview';
 			let f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
-			expect(f.nativeElement.querySelector('[data-testid=tour-suggestion]')).not.toBeNull();
-			(f.nativeElement.querySelector('[data-testid=tour-suggestion-no]') as HTMLButtonElement).click(); f.detectChanges();
-			expect(f.nativeElement.querySelector('[data-testid=tour-suggestion]')).toBeNull(); expect(chip(f)).not.toBeNull();
-			f = TestBed.createComponent(TourLauncherComponent); f.detectChanges(); // a new page load: it does not come back
-			expect(f.nativeElement.querySelector('[data-testid=tour-suggestion]')).toBeNull();
-		});
-		it('accepting the suggestion starts the client tour and the card is not shown again', () => {
-			url = '/client-overview';
-			const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
-			(f.nativeElement.querySelector('[data-testid=tour-suggestion-yes]') as HTMLButtonElement).click();
+			(box(f)!.querySelector('[data-testid=tour-suggestion-no]') as HTMLButtonElement).click(); f.detectChanges();
+			expect(box(f)).toBeNull();
+			localStorage.removeItem('ws.tour.suggested.v1');
+			f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
+			(box(f)!.querySelector('[data-testid=tour-suggestion-yes]') as HTMLButtonElement).click();
 			expect(TestBed.inject(TourService).tour()?.id).toBe('client-v1');
 		});
-		it('a visitor never sees the suggestion', () => {
+		it('a visitor never sees the box', () => {
 			authed.set(false); role.set(null); url = '/client-overview';
 			const f = TestBed.createComponent(TourLauncherComponent); f.detectChanges();
-			expect(f.nativeElement.querySelector('[data-testid=tour-suggestion]')).toBeNull();
+			expect(box(f)).toBeNull();
 		});
 	});
 });
