@@ -26,6 +26,7 @@ import { paypalEmailValidators } from '../../../../../core/validators/paypal-ema
 import { FormSummaryComponent } from '../../../../../shared/forms/form-summary.component';
 import { KycDocumentLink } from '../../../../../sheards/kyc-document-link/kyc-document-link';
 import { KycAccess } from '../../../../../core/models/kyc-document.model';
+import { ClientOnboardingStateService } from '../../../../../core/services/client-onboarding-state.service';
 import { IdentityGateService, identityRefusalMessage, isIdentityNotApproved } from '../../../../../core/services/identity-gate.service';
 import { IdentityGateStatusComponent } from '../../../../../shared/identity-gate/identity-gate-status.component';
 import { CLIENT_EDIT_PAGE, SETUP_REDIRECT_MESSAGE, resolveClientSetup } from './profile-setup-state';
@@ -78,6 +79,7 @@ export class ProfileSetupDashboard implements OnInit {
 	private identityCheck = inject(IdentityCheckService);
 	/** The identity gate: the next step opens only while the backend says the CURRENT image + data are APPROVED. */
 	readonly gate = inject(IdentityGateService).use('CLIENT');
+	private readonly onboarding = inject(ClientOnboardingStateService);
 	/** Why the identity could not be sent from step 2 (data of step 1 incomplete / refused by the server). */
 	gateProblem = signal<string | null>(null);
 	/** Under review the submitted documents cannot be changed or removed: they are decided first; after a rejection the owner uploads again. */
@@ -228,8 +230,13 @@ export class ProfileSetupDashboard implements OnInit {
 					// Open where the work really is (first missing step from the saved data), not always on step 1; nothing left for the wizard = go to the edit page.
 					const start = resolveClientSetup(data);
 					if (start.kind === 'redirect') {
-						this.notify.info(SETUP_REDIRECT_MESSAGE[start.reason]);
-						this.router.navigateByUrl(CLIENT_EDIT_PAGE);
+						// every step is saved: the dashboard opens only once the identity also matched (or was approved). Until then the person stays on the identity step
+						// (sending them to the edit page would bounce them straight back here).
+						this.onboarding.load(true).subscribe(() => {
+							if (this.onboarding.closed()) { this.currentStep.set(2); this.gate.load().subscribe({ error: () => undefined }); return; }
+							this.notify.info(SETUP_REDIRECT_MESSAGE[start.reason]);
+							this.router.navigateByUrl(CLIENT_EDIT_PAGE);
+						});
 						return;
 					}
 					this.currentStep.set(start.step);
@@ -411,6 +418,7 @@ export class ProfileSetupDashboard implements OnInit {
 		this.profileApi.saveClientSetupStep(payload.step, payload.body).subscribe({
 			next: (res: any) => {
 				this.isSavingStep.set(false);
+				this.onboarding.load(true).subscribe();
 				// the details save re-evaluates the identity review on the server (a changed number/type/country cancels an old approval): re-read it
 				if (payload.step === 1) this.gate.load().subscribe({ error: () => { /* keeps the previous state */ } });
 				const pct = Number(res?.data?.completionPercentage);
@@ -648,6 +656,7 @@ export class ProfileSetupDashboard implements OnInit {
 		this.profileApi.saveClientProfileSetup(payload).subscribe({
 			next: () => {
 				this.isSubmitting.set(false);
+				this.onboarding.load(true).subscribe();
 				this.notify.success('تم حفظ البيانات بنجاح وإرسال المستندات للمراجعة');
 				this.refreshStoredCompletion();
 

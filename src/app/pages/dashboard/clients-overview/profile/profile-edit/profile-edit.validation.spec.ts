@@ -297,18 +297,16 @@ describe('client profile-edit: shared validation', () => {
     });
   });
 
-  describe('identity tab: country/city save at once, the national id is a reviewed request, the rest is read-only', () => {
+  describe('identity tab: display only (the data is entered and reviewed in the registration path)', () => {
     beforeEach(() => goTab('identity'));
 
-    it('the form is live (not inert), the button is enabled, the note explains what is reviewed and what is unavailable', () => {
-      expect(submitBtn().disabled).toBe(false);
-      expect(el().querySelector('form[inert]')).toBeNull();
-      expect(el().querySelector('[data-testid="identity-note"]')?.textContent).toContain('طلب تعديل');
-      expect(el().querySelector('[data-testid="identity-docs-pointer"]')?.textContent).toContain('استكمال البيانات');
-      // the fake upload zones (they only showed a file name and "تم الإرفاق بنجاح") are gone
+    it('the tab is display only: the note says so, the values are listed, there is no form, no send button, no expiry date and no upload zone', () => {
+      expect(el().querySelector('[data-testid="identity-note"]')?.textContent).toContain('للعرض فقط');
+      expect(el().querySelector('[data-testid="identity-readonly"]')).not.toBeNull();
+      expect(el().querySelector('[data-testid="identity-form"]')).toBeNull();
+      expect(el().querySelector('[data-testid="identity-submit"]')).toBeNull();
+      expect(el().querySelector('[data-testid="id-expiry"]')).toBeNull();
       expect(el().querySelector('input[type="file"]')).toBeNull();
-      expect(component.identityForm.get('nationality')!.disabled).toBe(true);
-      expect(component.identityForm.get('idExpiryDate')!.disabled).toBe(true);
     });
 
     it('saving sends idNumber / country / city only (never nationality or the expiry date) and shows the SERVER message', () => {

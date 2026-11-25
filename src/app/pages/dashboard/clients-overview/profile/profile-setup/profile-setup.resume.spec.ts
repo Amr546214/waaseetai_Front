@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree, provideRouter } from '@angular/router';
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { firstValueFrom, isObservable, of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { ProfileSetupDashboard } from './profile-setup';
@@ -124,10 +124,23 @@ describe('client setup wizard component: resume from saved data', () => {
 		expect(c.setupForm.get('agreements')!.value).toEqual({ accurate: false, terms: true, privacy: true });
 	});
 
-	it('100% (e.g. back/forward into the wizard): redirects to the edit page with a message, no wizard', () => {
+	// at 100% the page asks the server whether the identity passed: passed -> edit page; not yet -> the wizard stays open on the identity step (no loop)
+	function answerGate(canAdvance: boolean) {
+		const http = TestBed.inject(HttpTestingController);
+		http.expectOne(x => x.url.endsWith('/client/profile/setup')).flush({ data: { ...FULL, completionPercentage: 100, kycStatus: 'PENDING' } });
+		http.expectOne(x => x.url.endsWith('/client/profile/setup/identity')).flush({ data: { canAdvance } });
+	}
+	it('100% and the identity passed: redirects to the edit page with a message, no wizard', () => {
 		const { navigateByUrl } = mount({ ...FULL, completionPercentage: 100 });
+		answerGate(true);
 		expect(navigateByUrl).toHaveBeenCalledWith(CLIENT_EDIT_PAGE);
 		expect(TestBed.inject(UiNotificationService).toasts().some(t => t.message.includes('100%'))).toBe(true);
+	});
+	it('100% but the identity did not pass yet: the wizard stays on the identity step, no redirect', () => {
+		const { c, navigateByUrl } = mount({ ...FULL, completionPercentage: 100 });
+		answerGate(false);
+		expect(navigateByUrl).not.toHaveBeenCalled();
+		expect(c.currentStep()).toBe(2);
 	});
 
 	it('identity documents under review are shown as pending (not as an empty step) and are not re-required', () => {

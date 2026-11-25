@@ -1,14 +1,16 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-// The identity tab used to label one disabled ID-expiry field "تاريخ الانتهاء/الميلاد": two different dates under one label.
+// The identity tab is display only (owner decision 2026-11-25): no editable identity field, no expiry date, no send button.
 const html = readFileSync(join(__dirname, 'profile-edit.html'), 'utf8');
 
-describe('client profile edit: the identity date label names one date', () => {
-  it('the field is labelled "تاريخ انتهاء الهوية" and the mixed expiry/birth label is gone', () => {
-    expect(html).not.toContain('الانتهاء/الميلاد');
-    expect(html).toContain('تاريخ انتهاء الهوية');
-    expect(html).toMatch(/<label[^>]*for="ce-id-expiry"[^>]*>تاريخ انتهاء الهوية<\/label>/);
-    expect(html).toMatch(/id="ce-id-expiry"[^>]*formControlName="idExpiryDate"/);
+describe('client profile edit: the identity tab shows the data and edits nothing', () => {
+  it('has no expiry-date field and no editable identity controls, only the read-only list', () => {
+    expect(html).not.toContain('تاريخ انتهاء الهوية');
+    expect(html).not.toContain('ce-id-expiry');
+    expect(html).not.toContain('formControlName="idExpiryDate"');
+    expect(html).not.toContain('data-testid="identity-submit"');
+    expect(html).toContain('data-testid="identity-readonly"');
+    expect(html).toMatch(/<ws-legal-name-field[^>]*\[readOnly\]="true"/);
   });
 });
