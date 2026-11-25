@@ -200,9 +200,11 @@ describe('Register: e-mail-first, proof code step (no account until the code is 
 
 	it('the code step shows login / password-recovery links for whoever received no code', () => {
 		const { el } = run({});
-		const help = el.querySelector('[data-testid="code-step-help"]')!;
-		expect(help.querySelector('#code-step-login-link')!.getAttribute('href')).toContain('/auth/login');
-		expect(help.querySelector('#code-step-forgot-link')!.getAttribute('href')).toContain('/auth/forget-password');
+		// the help box keeps only the first sentence; the spam hint and the links sit under «تعديل البريد أو الجوال»
+		expect(el.querySelector('[data-testid="code-step-help"] #code-step-login-link')).toBeNull();
+		expect(el.querySelector('.code-step-more #code-step-login-link')!.getAttribute('href')).toContain('/auth/login');
+		expect(el.querySelector('.code-step-more #code-step-forgot-link')!.getAttribute('href')).toContain('/auth/forget-password');
+		expect(el.querySelector('.code-step-more [data-testid="code-step-spam-hint"]')).toBeTruthy();
 	});
 });
 

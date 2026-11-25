@@ -413,7 +413,7 @@
     <div class="banner-error" id="banner-rate-limit" role="alert" data-testid="rate-limit-msg"><span>{{ rateLimitText }}</span></div>
     }
 
-    @if (otpNotice && !errorMessage) {
+    @if (otpNotice && !errorMessage && !genericOtpNotice) {
     <div class="banner-info" id="otp-notice" role="status" data-testid="otp-notice">
       <span>{{ otpNotice }}</span>
     </div>
@@ -436,11 +436,6 @@
       } @else {
       <span>لم يصلك رمز؟ قد تكون بياناتك بحاجة إلى تعديل، أو يكون لديك حساب مفعّل بالفعل فلن يصلك رمز هنا.</span>
       }
-      <span data-testid="code-step-spam-hint">{{ deliveryHint }}</span>
-      <span style="display:flex;gap:16px;flex-wrap:wrap">
-        <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
-        <a routerLink="/auth/forget-password" class="banner-error-link" id="code-step-forgot-link">استعادة كلمة المرور</a>
-      </span>
     </div>
 
     @if (accountReadyMessage) {
@@ -482,6 +477,13 @@
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><use href="#ws-chevron-right"></use></svg>
           تعديل البريد أو الجوال
         </button>
+        <div class="code-step-more" style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:6px;font-size:var(--font-size-label);opacity:.8;text-align:center">
+          <span data-testid="code-step-spam-hint">{{ deliveryHint }}</span>
+          <span style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+            <a routerLink="/auth/login" class="banner-error-link" id="code-step-login-link">تسجيل الدخول</a>
+            <a routerLink="/auth/forget-password" class="banner-error-link" id="code-step-forgot-link">استعادة كلمة المرور</a>
+          </span>
+        </div>
       </div>
     </form>
     }
