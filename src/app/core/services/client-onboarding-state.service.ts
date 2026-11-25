@@ -51,7 +51,9 @@ export class ClientOnboardingStateService {
 		if (!this.applies()) return true;
 		const s = this.snapshot();
 		if (!s || s.canAdvance === null) return null;
-		// open = finished, the identity matched, and no administration review is still pending (PENDING = documents sent, not decided)
+		// an administrator-approved identity opens the dashboard even when the rest of «استكمال البيانات» is still to do (it is finished from inside)
+		if (s.kycStatus === 'VERIFIED') return true;
+		// otherwise open = finished, the identity matched, and no administration review is still pending (PENDING = documents sent, not decided)
 		return this.wizardDone() === true && s.canAdvance === true && s.kycStatus !== 'PENDING';
 	});
 	readonly closed = computed(() => this.open() === false);

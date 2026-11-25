@@ -80,4 +80,9 @@ describe('clientOnboardingGuard + ClientOnboardingStateService', () => {
 		http.expectOne(x => x.url.endsWith('/client/profile/setup/identity')).flush({ data: { canAdvance: false } });
 		expect(svc.badge()).toBeNull();
 	});
+	it('an approved identity opens the dashboard even while the rest of «استكمال البيانات» is unfinished', async () => {
+		setup(); await resolve('/client-overview/my-requests', { percent: 70, canAdvance: true, kyc: 'VERIFIED' });
+		const svc = TestBed.inject(ClientOnboardingStateService);
+		expect(svc.open()).toBe(true); expect(svc.closed()).toBe(false); expect(svc.reviewing()).toBe(false);
+	});
 });
