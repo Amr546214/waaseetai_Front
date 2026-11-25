@@ -60,7 +60,7 @@ import { AssistantReplyAudioComponent } from './assistant-reply-audio';
 							<div class="ac__message-actions"><button type="button" (click)="copy(m.text)">نسخ</button><button type="button" (click)="beginEdit($index, m.text)" [disabled]="store.busy()">تعديل</button></div>
 							@if (editingIndex === $index) { <div class="ac__edit"><textarea [(ngModel)]="editDraft" [maxlength]="maxLength" aria-label="تعديل رسالتك" rows="3"></textarea><button type="button" (click)="submitEdit()" [disabled]="!editDraft.trim() || store.busy()">حفظ وإعادة الإرسال</button><button type="button" (click)="editingIndex = -1">إلغاء</button></div> }
 						}
-					} @else {
+					} @else if (m.text.trim() || !store.busy()) {
 						<div class="ac__bubble ac__bubble--ai" dir="auto">
 							<div class="ac__formatted" [innerHTML]="formatAssistantText(m.text)"></div>
 							@if (m.streaming) {<span class="ac__cursor" aria-hidden="true"></span>}
