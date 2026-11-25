@@ -85,4 +85,10 @@ describe('clientOnboardingGuard + ClientOnboardingStateService', () => {
 		const svc = TestBed.inject(ClientOnboardingStateService);
 		expect(svc.open()).toBe(true); expect(svc.closed()).toBe(false); expect(svc.reviewing()).toBe(false);
 	});
+	it('the client ROLE is gated whatever the account started as: a provider or marketer account acting as a client is held like a new client; companies and other roles are not', async () => {
+		for (const [type, role, gated] of [['PROVIDER_INDIVIDUAL', 'CLIENT', true], ['MARKETING_BROKER', 'CLIENT', true], ['PROVIDER_INDIVIDUAL', 'PROVIDER', false], ['CLIENT_COMPANY', 'CLIENT', false], ['PROVIDER_COMPANY', 'CLIENT', false]] as const) {
+			TestBed.resetTestingModule(); setup(type, role);
+			expect(TestBed.inject(ClientOnboardingStateService).applies(), type + role).toBe(gated);
+		}
+	});
 });

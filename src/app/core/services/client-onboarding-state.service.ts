@@ -20,6 +20,8 @@ export interface ClientOnboardingSnapshot {
 export type ClientIdentityBadge = 'PENDING_ADMIN' | 'APPROVED' | null;
 
 const CACHE_MS = 15_000;
+/** the individual accounts that can act as a client (their own role, or one added later) */
+const INDIVIDUAL_ACCOUNT_TYPES: readonly AccountType[] = [AccountType.CLIENT_INDIVIDUAL, AccountType.PROVIDER_INDIVIDUAL, AccountType.MARKETING_BROKER];
 
 /**
  * Is the individual client allowed into the dashboard yet? Yes once the registration path («استكمال البيانات») is finished AND the identity passed the automatic
@@ -35,10 +37,10 @@ export class ClientOnboardingStateService {
 
 	readonly snapshot = signal<ClientOnboardingSnapshot | null>(null);
 
-	/** the gate exists only for an INDIVIDUAL client acting as a client */
+	/** the gate belongs to the CLIENT ROLE of an individual account: a provider or marketer who added a client account is held by it exactly like a new client (companies are not touched) */
 	readonly applies = computed(() => {
 		const u = this.auth.currentUser();
-		return !!u && u.accountType === AccountType.CLIENT_INDIVIDUAL && (u.activeRole ?? UserRole.CLIENT) === UserRole.CLIENT;
+		return !!u && INDIVIDUAL_ACCOUNT_TYPES.includes(u.accountType as AccountType) && (u.activeRole ?? UserRole.CLIENT) === UserRole.CLIENT;
 	});
 	/** the wizard has nothing left to collect (every step saved and agreed) */
 	readonly wizardDone = computed(() => {
